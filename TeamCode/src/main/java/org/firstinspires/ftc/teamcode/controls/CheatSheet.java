@@ -86,7 +86,7 @@ public final class CheatSheet {
     /** One drawing, controller in the middle and labels either side, in page pixels. */
     private static final double KEY_W = 760;
     private static final double KEY_H = 380;
-    private static final double SCALE = 1.0;
+    private static final double SCALE = 0.95;
     private static final double PAD_X = (KEY_W - PAD_W * SCALE) / 2;
     private static final double PAD_Y = 30;
     /** Space between two label lines, page pixels. */
@@ -95,42 +95,40 @@ public final class CheatSheet {
     private static final double GAP = 8;
     /** Characters in one label line before it wraps. */
     private static final int WRAP_AT = 18;
+    /** Room between the controller and its labels, page pixels: the lines bend in here. */
+    private static final double GUTTER = 36;
+    /** From a label's baseline up to the middle of its first line, page pixels. */
+    private static final double MID = 5.5;
 
-    /** Where each input sits on the drawing, in drawing units; a label's line ends here. */
-    private static double[] anchor(Input input) {
+    // Top to bottom, in the order their lines run: a button hidden from the side by its neighbour
+    // (the D-pad's right key, Square) is reached from above, so its label comes first.
+    private static final Input[] LEFT_SIDE = {Input.L2, Input.L1, Input.DPAD_RIGHT, Input.DPAD_UP,
+            Input.DPAD_LEFT, Input.DPAD_DOWN};
+    private static final Input[] RIGHT_SIDE = {Input.R2, Input.R1, Input.SQUARE, Input.TRIANGLE,
+            Input.CIRCLE, Input.CROSS};
+
+    /**
+     * How a label's line reaches {@code input}, drawing units: it runs level at {@code y} until
+     * {@code x}, then, for {@code fromAbove}, drops to the button's top at {@code edgeY}.
+     * Otherwise {@code x} is the button's outer edge and the line ends there.
+     */
+    private static double[] route(Input input) {
+        // {y, x, fromAbove (1/0), edgeY}
         switch (input) {
-            case L2: return new double[]{85, 10};
-            case L1: return new double[]{85, 34};
-            case R2: return new double[]{315, 10};
-            case R1: return new double[]{315, 34};
-            case DPAD_UP: return new double[]{78, 106};
-            case DPAD_LEFT: return new double[]{54, 130};
-            case DPAD_RIGHT: return new double[]{102, 130};
-            case DPAD_DOWN: return new double[]{78, 154};
-            case TRIANGLE: return new double[]{322, 107};
-            case SQUARE: return new double[]{299, 130};
-            case CIRCLE: return new double[]{345, 130};
-            case CROSS: return new double[]{322, 153};
-            case LEFT_STICK: return new double[]{140, 175};
-            default: return new double[]{260, 175}; // RIGHT_STICK_X
+            case L2: return new double[]{12, 58, 0, 0};
+            case L1: return new double[]{34, 44, 0, 0};
+            case DPAD_RIGHT: return new double[]{86, 96, 1, 122};
+            case DPAD_UP: return new double[]{112, 70, 0, 0};
+            case DPAD_LEFT: return new double[]{130, 48, 0, 0};
+            case DPAD_DOWN: return new double[]{152, 70, 0, 0};
+            case R2: return new double[]{12, 342, 0, 0};
+            case R1: return new double[]{34, 356, 0, 0};
+            case SQUARE: return new double[]{84, 299, 1, 119};
+            case TRIANGLE: return new double[]{107, 333, 0, 0};
+            case CIRCLE: return new double[]{130, 356, 0, 0};
+            default: return new double[]{153, 333, 0, 0}; // CROSS
         }
     }
-
-    /** How far from its anchor an input's edge is, drawing units: where a label's line stops. */
-    private static double radius(Input input) {
-        switch (input) {
-            case L2: case R2: return 12;
-            case L1: case R1: return 8;
-            case CROSS: case CIRCLE: case SQUARE: case TRIANGLE: return 11;
-            case LEFT_STICK: case RIGHT_STICK_X: return 16;
-            default: return 9; // a D-pad key
-        }
-    }
-
-    private static final Input[] LEFT_SIDE = {Input.L2, Input.L1, Input.DPAD_UP, Input.DPAD_LEFT,
-            Input.DPAD_RIGHT, Input.DPAD_DOWN, Input.LEFT_STICK};
-    private static final Input[] RIGHT_SIDE = {Input.R2, Input.R1, Input.TRIANGLE, Input.SQUARE,
-            Input.CIRCLE, Input.CROSS, Input.RIGHT_STICK_X};
 
     /**
      * {@code pad}'s controller: a PS5 controller seen from the front, its shoulders above, each
@@ -223,8 +221,11 @@ public final class CheatSheet {
     }
 
     /**
-     * The labels down one side, each as level with its input as the labels above it allow, with a
-     * line to the input; a long one wraps. Never overlapping, never off the bottom.
+     * The labels down one side, each as level with its button as the labels above it allow. A
+     * label's line bends at right angles: out from the label, a jog in the gutter beside the
+     * controller if the label had to move down, level across to the button, and for a button hidden
+     * by its neighbour a drop onto its top. The jogs step closer to the controller label by label,
+     * which is what keeps the lines from crossing.
      */
     private static void labels(StringBuilder svg, Map<Action, Input> layout, Action.Pad pad, Input[] inputs, boolean left) {
         int n = 0;
@@ -238,38 +239,35 @@ public final class CheatSheet {
         double next = 18;
         for (int i = 0; i < n; i++) {
             lines.add(wrap(actionFor(layout, pad, used[i]).description));
-            y[i] = Math.max(PAD_Y + anchor(used[i])[1] * SCALE + 6, next);
+            y[i] = Math.max(PAD_Y + route(used[i])[0] * SCALE + MID, next);
             next = y[i] + LINE * lines.get(i).size() + GAP;
         }
-        // Past the bottom: slide the stack back up, as far as the label above allows.
-        for (int i = n - 1; i >= 0; i--) {
-            double end = y[i] + LINE * (lines.get(i).size() - 1);
-            double limit = i == n - 1 ? KEY_H - 6 : y[i + 1] - GAP - LINE;
-            if (end > limit) y[i] -= end - limit;
-        }
-        double textX = left ? PAD_X - 16 : PAD_X + PAD_W * SCALE + 16;
+        double side = left ? -1 : 1;
+        double bodyEdge = left ? PAD_X : PAD_X + PAD_W * SCALE;
+        double textX = bodyEdge + side * GUTTER;
         for (int i = 0; i < n; i++) {
-            Action action = actionFor(layout, pad, used[i]);
-            double[] a = anchor(used[i]);
-            double cx = PAD_X + a[0] * SCALE;
-            double cy = PAD_Y + a[1] * SCALE;
-            double ly = y[i] - 5.5;
-            // The line stops at the button's edge, on the side it comes from.
-            double bendX = textX + (left ? 14 : -14);
-            double dx = bendX - cx;
-            double dy = ly - cy;
-            double len = Math.hypot(dx, dy);
-            double edge = radius(used[i]) * SCALE;
-            double ax = len > edge ? cx + dx / len * edge : cx;
-            double ay = len > edge ? cy + dy / len * edge : cy;
+            Input input = used[i];
+            double[] r = route(input);
+            double routeY = PAD_Y + r[0] * SCALE;
+            double toX = PAD_X + r[1] * SCALE;
+            double labelY = y[i] - MID;
+            double jogX = textX - side * (10 + i * 3.0);
+            StringBuilder points = new StringBuilder();
+            points.append(String.format(Locale.US, "%.1f,%.1f %.1f,%.1f %.1f,%.1f %.1f,%.1f",
+                    textX - side * 5, labelY, jogX, labelY, jogX, routeY, toX, routeY));
+            double endX = toX;
+            double endY = routeY;
+            if (r[2] > 0) {
+                endY = PAD_Y + r[3] * SCALE;
+                points.append(String.format(Locale.US, " %.1f,%.1f", toX, endY));
+            }
+            svg.append("<polyline points=\"").append(points)
+                    .append("\" fill=\"none\" stroke=\"#8a8a95\" stroke-width=\"1.2\" stroke-linejoin=\"round\"/>");
+            svg.append(String.format(Locale.US, "<circle cx=\"%.1f\" cy=\"%.1f\" r=\"2.2\" fill=\"#16161d\"/>", endX, endY));
             svg.append(String.format(Locale.US,
-                    "<polyline points=\"%.1f,%.1f %.1f,%.1f %.1f,%.1f\" fill=\"none\" stroke=\"#8a8a95\" stroke-width=\"1.2\"/>",
-                    textX + (left ? 5 : -5), ly, textX + (left ? 14 : -14), ly, ax, ay));
-            svg.append(String.format(Locale.US, "<circle cx=\"%.1f\" cy=\"%.1f\" r=\"2.2\" fill=\"#16161d\"/>", ax, ay));
-            svg.append(String.format(Locale.US,
-                    "<text x=\"%.1f\" y=\"%.1f\" text-anchor=\"%s\" font-size=\"16\" font-weight=\"700\" fill=\"#16161d\">",
+                    "<text x=\"%.1f\" y=\"%.1f\" text-anchor=\"%s\" font-size=\"15.5\" font-weight=\"700\" fill=\"#16161d\">",
                     textX, y[i], left ? "end" : "start"));
-            svg.append("<title>").append(escape(action.description)).append("</title>");
+            svg.append("<title>").append(escape(actionFor(layout, pad, input).description)).append("</title>");
             for (int l = 0; l < lines.get(i).size(); l++) {
                 svg.append(String.format(Locale.US, "<tspan x=\"%.1f\" dy=\"%.0f\">", textX, l == 0 ? 0 : LINE))
                         .append(escape(lines.get(i).get(l))).append("</tspan>");
@@ -288,17 +286,23 @@ public final class CheatSheet {
     }
 
     /**
-     * {@code text} in lines of at most {@link #WRAP_AT} characters, broken at spaces; a label too
-     * long for one line breaks before its bracket first, so "Gyro Reset" stays whole.
+     * {@code text} in lines of at most {@link #WRAP_AT} characters, broken at spaces. A slash stays
+     * with the word before it ("Spin Up /"), and a too-long label breaks before its bracket first,
+     * so "Gyro Reset" stays whole; the bracket shares the last line when it fits.
      */
     private static List<String> wrap(String text) {
-        int bracket = text.indexOf(" (");
-        if (text.length() > WRAP_AT && bracket > 0) {
-            List<String> lines = wrapWords(text.substring(0, bracket));
-            lines.addAll(wrapWords(text.substring(bracket + 1)));
-            return lines;
+        String glued = text.replace(" / ", "\u00a0/ ");
+        int bracket = glued.indexOf(" (");
+        if (glued.length() <= WRAP_AT || bracket < 0) return wrapWords(glued);
+        List<String> lines = wrapWords(glued.substring(0, bracket));
+        String tail = glued.substring(bracket + 1);
+        String last = lines.get(lines.size() - 1);
+        if (lines.size() > 1 && last.length() + 1 + tail.length() <= WRAP_AT) {
+            lines.set(lines.size() - 1, last + " " + tail);
+        } else {
+            lines.addAll(wrapWords(tail));
         }
-        return wrapWords(text);
+        return lines;
     }
 
     private static List<String> wrapWords(String text) {
