@@ -11,7 +11,8 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
  * a field heading.
  *
  * <p>A fixed spot, not "the nearest corner": choosing the nearest corner trusts the very pose that
- * is being reset.
+ * is being reset. The LOADING ZONE corner, not the GARDEN corner on the same wall: being near the
+ * LOADING ZONE is fine, and the GARDEN's POLLEN would be in the way (decided 29 Oct 2026).
  *
  * <p><b>Not measured yet: NaN until it is.</b> To measure: pick a spot on each alliance's side
  * with a wall to square against and a tile seam to line a wheel up with, place the robot there,
@@ -26,16 +27,18 @@ public final class ResetPositions {
 
     /**
      * Red: the corner on the red driver's left, against the red-side wall and the back wall (away
-     * from the audience), robot squared into both walls with the intake toward the blue side. Not
-     * measured: read x, y and heading off the Pose line with the robot placed there.
+     * from the audience), by red's LOADING ZONE; robot squared into both walls with the intake
+     * toward the blue side. Not measured: read x, y and heading off the Pose line with the robot
+     * placed there.
      */
     public static final Pose RED = new Pose(Double.NaN, Double.NaN, Double.NaN);
 
     /**
      * Blue: the corner on the blue driver's left, against the blue-side wall and the audience wall,
-     * robot squared into both walls with the intake toward the red side: red's spot turned half a
-     * turn about the field centre, as the whole field is (manual Figure 9-2). Not measured. Measure
-     * it on the field rather than derive it from red: placement is by hand.
+     * by blue's LOADING ZONE; robot squared into both walls with the intake toward the red side:
+     * red's spot turned half a turn about the field centre, as the whole field is (manual
+     * Figure 9-2). Not measured. Measure it on the field rather than derive it from red: placement
+     * is by hand.
      */
     public static final Pose BLUE = new Pose(Double.NaN, Double.NaN, Double.NaN);
 
