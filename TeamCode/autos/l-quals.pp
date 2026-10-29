@@ -752,7 +752,7 @@
       {
         "name": "Front frame",
         "length": 0.56,
-        "width": 15.4,
+        "width": 16,
         "forward": 8,
         "left": 0,
         "collides": true,
