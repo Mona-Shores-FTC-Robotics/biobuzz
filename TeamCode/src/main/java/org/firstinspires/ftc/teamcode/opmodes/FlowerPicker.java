@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.api.Paths;
+import com.pedropathing.config.Modifier;
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.CommandBuilder;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.interpolator.Interpolator;
@@ -9,18 +12,26 @@ import com.pedropathing.paths.interpolator.Interpolator;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints.Flower;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
- * Picks the nearest FLOWER while a button is held: line up square to it, lower the stick and run
- * the intake on the way in, drive in, dwell, back out, raise the stick. A test unit, so the pick
- * can be made faster with numbers rather than by feel: the same pick every time, each phase timed
- * and written to the match log.
+ * Picks the nearest FLOWER: line up square to it, lower the stick and run the intake on the way in,
+ * drive in, dwell, back out, raise the stick. The one pick routine: the driver's D-pad up runs it
+ * while held (BasicDriveTeleOp), and an Auto's {@code PickFlower} card runs it to the end
+ * ({@link #command}). The same pick every time, each phase timed and written to the match log, so
+ * it is made faster with numbers rather than by feel.
  *
- * <p>Hold to run. Letting go, or moving a drive stick, stops it where it is: the drive stops, the
+ * <p><b>Its contract: it ends where it starts.</b> Started at the approach pose ({@link
+ * #approachStandoffIn} back from the FLOWER, square to it), which is where an Auto's drive to a
+ * pick spot leaves the robot, it backs out to that same pose. So the step after a pick starts from
+ * the pick spot, and the Visualizer draws the pick as it is: in along the FLOWER's line to
+ * {@link #contactStandoffIn}, a dwell, and back out.
+ *
+ * <p>On the button: hold to run. Letting go, or moving a drive stick, stops it where it is: the drive stops, the
  * intake idles, the stick comes up, and the sticks have the robot again on the next loop. When it
  * finishes it stays finished until the button is let go and pressed again.
  *
@@ -29,31 +40,36 @@ import java.util.function.Consumer;
  * <ol>
  *   <li><b>Approach.</b> A Pedro path from wherever the robot is to {@link #approachStandoffIn} back
  *       from the nearest FLOWER within {@link #maxRangeIn}, square to its wall and facing it
- *       ({@link FlowerFieldPoints}). The stick goes down and the intake starts once the robot is
- *       within {@link #lowerWithinIn} of the contact point, so the stick's swing overlaps the drive.</li>
+ *       ({@link FlowerFieldPoints}). Skipped when the robot is already there (within
+ *       {@link #atApproachIn} and {@link #atApproachDeg}), as after an Auto's drive to a pick spot.
+ *       The stick goes down and the intake starts once the robot is within {@link #lowerWithinIn}
+ *       of the contact point, so the stick's swing overlaps the drive.</li>
  *   <li><b>Stick.</b> If the stick has not had {@link #stickDownMs} to swing down by the end of the
  *       approach, the robot holds the approach pose until it has. A long wait here says the stick
  *       should go down earlier.</li>
- *   <li><b>Push.</b> Robot-centric, at {@link #pushPower}, holding the line and the heading, until
- *       the tracked point reaches {@link #contactStandoffIn} from the FLOWER's centre, or stops
- *       making progress (it is against the FLOWER), or {@link #pushTimeoutMs}.</li>
+ *   <li><b>Push.</b> A Pedro path straight in along the FLOWER's line to {@link #contactStandoffIn}
+ *       from its centre, capped at {@link #pushSpeed} of the robot's top speed, heading held. It
+ *       ends when the path does, or when the robot stops making progress (it is against the
+ *       FLOWER), or at {@link #pushTimeoutMs}.</li>
  *   <li><b>Dwell.</b> {@link #dwellMs} with the intake running and a light push, a cap: nothing here
  *       can count pieces yet (#181).</li>
- *   <li><b>Back.</b> Robot-centric at {@link #backPower} for {@link #backOutIn}; the stick comes up
- *       once the robot has backed {@link #retractAfterBackIn}. Then the intake idles.</li>
+ *   <li><b>Back.</b> A Pedro path straight back out to the approach pose, capped at
+ *       {@link #backSpeed}; the stick comes up once the robot has backed {@link #retractAfterBackIn}.
+ *       Then the intake idles.</li>
  * </ol>
  *
  * <p>It refuses, and says why, without a Pinpoint, without a field-referenced pose
  * ({@code robot.drive.poseReferenced()}: an Auto's handoff or a camera seed or relocalize), with no
  * FLOWER in range, or on a robot whose path follower cannot be built (no Foresight block yet).
  *
- * <p>It drives the robot by calling {@code robot.drive} from the OpMode's loop, as the sticks do,
- * not as an Ivy command that requires the drive: that would interrupt the drive's own
- * {@code periodic()}. The OpMode must not also drive from the sticks while {@link #active()}.
+ * <p>It drives the robot by calling {@code robot.drive} each loop, as the sticks and the Auto's paths
+ * do; {@link #command} does not require the drive, which would interrupt the drive's own
+ * {@code periodic()}. Nothing else may drive while {@link #active()}.
  *
  * <p>Every number here is a starting point to tune in Panels, not a measurement. The two standoffs
  * come from the Autos' drawings (contact about 12 in from the centre, as R-Quals draws its FLOWER
- * points) and the powers from nothing at all.
+ * points) and the speeds from nothing at all. The Visualizer's picture of a pick
+ * ({@code lib/simple/flowers.ts}) uses the same standoffs: change one, change the other.
  */
 @Configurable
 public final class FlowerPicker {
@@ -70,8 +86,12 @@ public final class FlowerPicker {
     public static double stickDownMs = 700;
     /** The approach path gives up after this long, ms. */
     public static double approachTimeoutMs = 4000;
-    /** Forward power while pushing in. */
-    public static double pushPower = 0.35;
+    /** Already at the approach pose: this close to it, inches, skips the approach path. */
+    public static double atApproachIn = 1.5;
+    /** Already at the approach pose: this square to the FLOWER, degrees, skips the approach path. */
+    public static double atApproachDeg = 5.0;
+    /** The push path's speed cap, a fraction of the robot's top path speed (0 to 1]. */
+    public static double pushSpeed = 0.35;
     /** The push gives up after this long, ms. */
     public static double pushTimeoutMs = 2000;
     /** Less progress than this, inches, in {@link #stallMs} means the robot is against the FLOWER. */
@@ -82,17 +102,15 @@ public final class FlowerPicker {
     public static double dwellMs = 1500;
     /** Forward power during the dwell, to keep the stick seated. 0 for none. */
     public static double dwellPushPower = 0.1;
-    /** Reverse power while backing out (a positive number). */
-    public static double backPower = 0.5;
-    /** How far to back out, inches. */
-    public static double backOutIn = 12.0;
+    /** The back-out path's speed cap, a fraction of the robot's top path speed (0 to 1]. */
+    public static double backSpeed = 0.5;
     /** The stick comes up once the robot has backed out this far, inches. */
     public static double retractAfterBackIn = 6.0;
     /** The back-out gives up after this long, ms. */
     public static double backTimeoutMs = 2000;
-    /** Turn power per radian of heading error, while pushing and backing. */
+    /** Turn power per radian of heading error, while dwelling. */
     public static double headingKp = 1.0;
-    /** Strafe power per inch off the line into the FLOWER, while pushing and backing. */
+    /** Strafe power per inch off the line into the FLOWER, while dwelling. */
     public static double lateralKp = 0.05;
     /** The most turn or strafe power either correction may ask for. */
     public static double maxCorrection = 0.25;
@@ -106,6 +124,7 @@ public final class FlowerPicker {
     private Phase phase = Phase.IDLE;
     private Flower flower;
     private Pose contact;
+    private Pose approach;
     private boolean lowered;
     private long startNs;
     private long phaseStartNs;
@@ -124,6 +143,30 @@ public final class FlowerPicker {
     public FlowerPicker(Robot robot, Consumer<String> event) {
         this.robot = robot;
         this.event = event;
+    }
+
+    /**
+     * An Auto's {@code PickFlower} card: a whole pick, as if the button were held to the end. It ends
+     * when the pick does (done, stopped or refused, each in the match log); cut short by the card's
+     * timeout, it stops the pick where it is. It does not require the drive (see the class comment).
+     */
+    public static Command command(Robot robot, Consumer<String> event) {
+        final FlowerPicker[] picker = new FlowerPicker[1];
+        return new CommandBuilder()
+                .setStart(() -> {
+                    picker[0] = new FlowerPicker(robot, event);
+                    picker[0].update(true, false);
+                })
+                .setExecute(() -> picker[0].update(true, false))
+                .setDone(() -> picker[0].finished())
+                .setEnd(end -> {
+                    if (picker[0].active()) picker[0].update(false, false);
+                });
+    }
+
+    /** The pick has ended: done, stopped, or refused. */
+    public boolean finished() {
+        return phase == Phase.DONE || phase == Phase.ABORTED || phase == Phase.REFUSED;
     }
 
     /** Whether a pick is driving the robot, so the OpMode must leave the drive alone. */
@@ -176,6 +219,7 @@ public final class FlowerPicker {
                     progressNs = now;
                     progressAlongIn = along;
                     next(now, Phase.PUSH);
+                    straightTo(pose, contact, pushSpeed);
                 }
                 break;
             case PUSH:
@@ -183,8 +227,8 @@ public final class FlowerPicker {
                     progressAlongIn = along;
                     progressNs = now;
                 }
-                if (along >= 0.0) {
-                    pushEnd = "reached";
+                if (along >= 0.0 || robot.drive.pathDone()) {
+                    pushEnd = along >= 0.0 ? "reached" : String.format(Locale.US, "path done %.1f in short", -along);
                 } else if (ms(now, progressNs) > nn(stallMs)) {
                     pushEnd = String.format(Locale.US, "stalled %.1f in short", -along);
                 } else if (ms(now, phaseStartNs) > nn(pushTimeoutMs)) {
@@ -193,15 +237,13 @@ public final class FlowerPicker {
                 if (!pushEnd.isEmpty()) {
                     next(now, Phase.DWELL);
                     steer(pose, dwellPushPower);
-                } else {
-                    steer(pose, pushPower);
                 }
                 break;
             case DWELL:
                 if (ms(now, phaseStartNs) >= nn(dwellMs)) {
                     backFromAlongIn = along;
                     next(now, Phase.BACK);
-                    steer(pose, -backPower);
+                    straightTo(pose, approach, backSpeed);
                 } else {
                     steer(pose, dwellPushPower);
                 }
@@ -209,10 +251,8 @@ public final class FlowerPicker {
             case BACK:
                 double backed = backFromAlongIn - along;
                 if (backed >= nn(retractAfterBackIn)) robot.flowerStick.retract();
-                if (backed >= nn(backOutIn) || ms(now, phaseStartNs) > nn(backTimeoutMs)) {
+                if (robot.drive.pathDone() || ms(now, phaseStartNs) > nn(backTimeoutMs)) {
                     finish(now);
-                } else {
-                    steer(pose, -backPower);
                 }
                 break;
             default:
@@ -252,25 +292,26 @@ public final class FlowerPicker {
             return;
         }
         contact = FlowerFieldPoints.standoff(flower, nn(contactStandoffIn));
-        Pose approach = FlowerFieldPoints.standoff(flower, nn(approachStandoffIn));
-        Path path;
+        approach = FlowerFieldPoints.standoff(flower, nn(approachStandoffIn));
+        boolean there = atPose(pose, approach, nn(atApproachIn), nn(atApproachDeg));
         try {
             robot.drive.preparePathFollowing();
-            // The same call shape as the generated Autos' paths.
-            path = Paths.line(pose, approach).heading(
-                    Interpolator.piecewise().until(1, Interpolator.linear(pose, approach)));
+            if (!there) {
+                // The same call shape as the generated Autos' paths.
+                robot.drive.setAccelLimited(true);
+                robot.drive.follow(Paths.line(pose, approach).heading(
+                        Interpolator.piecewise().until(1, Interpolator.linear(pose, approach))));
+            }
         } catch (RuntimeException e) {
             refuse("no path following on this robot: " + e.getMessage());
             return;
         }
-        robot.drive.setAccelLimited(true);
-        robot.drive.follow(path);
-        phase = Phase.APPROACH;
+        phase = there ? Phase.STICK : Phase.APPROACH;
         event.accept(String.format(Locale.US,
-                "flower pick: start, %s, %.0f in away, from (%.1f, %.1f, %.0f°)",
+                "flower pick: start, %s, %.0f in away, from (%.1f, %.1f, %.0f°)%s",
                 flower, Math.hypot(flower.x - pose.x(), flower.y - pose.y()),
-                pose.x(), pose.y(), Math.toDegrees(pose.heading())));
-        lowerIfClose(now, -alongTrackIn(pose.x(), pose.y(), contact.x(), contact.y(), contact.heading()));
+                pose.x(), pose.y(), Math.toDegrees(pose.heading()), there ? ", already at the approach" : ""));
+        lowerIfClose(now, there ? 0.0 : -alongTrackIn(pose.x(), pose.y(), contact.x(), contact.y(), contact.heading()));
     }
 
     /** Down goes the stick, on goes the intake, once {@code toContactIn} is within reach. Once. */
@@ -327,6 +368,22 @@ public final class FlowerPicker {
         robot.flowerStick.retract();
     }
 
+    /**
+     * A Pedro path straight from {@code from} to {@code to}, holding the FLOWER's heading, capped at
+     * {@code speed} of the robot's top path speed: the push and the back-out, which the Visualizer
+     * draws as the same straight lines.
+     */
+    private void straightTo(Pose from, Pose to, double speed) {
+        Path path = Paths.line(from, to).constant(to.heading()).with(speedCap(speed));
+        robot.drive.setAccelLimited(true);
+        robot.drive.follow(path);
+    }
+
+    /** Pedro's per-path cap on speed, as a fraction of the active robot's top path speed. */
+    private static Modifier speedCap(double fraction) {
+        return Constants.forActiveRobot().foresightConfig.maxPathSpeed.at(unitFraction(fraction));
+    }
+
     /** Robot-centric drive at {@code forward}, steering back onto the line into the FLOWER and square to it. */
     private void steer(Pose pose, double forward) {
         double lateral = lateralIn(pose.x(), pose.y(), contact.x(), contact.y(), contact.heading());
@@ -365,6 +422,18 @@ public final class FlowerPicker {
     static double clamp(double value, double limit) {
         if (!(limit > 0.0) || Double.isNaN(value)) return 0.0;
         return Math.max(-limit, Math.min(limit, value));
+    }
+
+    /** Whether {@code pose} is within {@code inches} and {@code degrees} of {@code target}. */
+    static boolean atPose(Pose pose, Pose target, double inches, double degrees) {
+        return Math.hypot(pose.x() - target.x(), pose.y() - target.y()) <= inches
+                && Math.abs(Math.toDegrees(wrapRad(pose.heading() - target.heading()))) <= degrees;
+    }
+
+    /** A Panels-editable speed fraction in (0, 1]: a typo makes a slow drive, never a stopped or wild one. */
+    static double unitFraction(double fraction) {
+        if (!(fraction > 0.05)) return 0.05;
+        return Math.min(1.0, fraction);
     }
 
     /** A Panels-editable distance or time: negative and NaN read as 0, so a typo stops early, never runs away. */

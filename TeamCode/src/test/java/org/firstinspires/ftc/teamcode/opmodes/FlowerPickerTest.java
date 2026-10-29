@@ -56,4 +56,22 @@ public class FlowerPickerTest {
         assertEquals(0.0, FlowerPicker.nn(Double.NaN), EPS);
         assertEquals(12.0, FlowerPicker.nn(12.0), EPS);
     }
+
+    /** An Auto's drive leaves the robot at the pick spot: close enough skips the approach path. */
+    @Test
+    public void atPoseNeedsBothPlaceAndHeading() {
+        com.pedropathing.math.Pose spot = new com.pedropathing.math.Pose(26.71, 47.36, Math.PI);
+        assertEquals(true, FlowerPicker.atPose(new com.pedropathing.math.Pose(27.5, 47.0, Math.PI - 0.05), spot, 1.5, 5.0));
+        assertEquals("too far", false, FlowerPicker.atPose(new com.pedropathing.math.Pose(29.0, 47.36, Math.PI), spot, 1.5, 5.0));
+        assertEquals("turned", false, FlowerPicker.atPose(new com.pedropathing.math.Pose(26.71, 47.36, Math.PI - 0.2), spot, 1.5, 5.0));
+        assertEquals("the short way round", true, FlowerPicker.atPose(new com.pedropathing.math.Pose(26.71, 47.36, -Math.PI + 0.02), spot, 1.5, 5.0));
+    }
+
+    @Test
+    public void speedFractionsStayBetweenSlowAndFull() {
+        assertEquals(0.35, FlowerPicker.unitFraction(0.35), EPS);
+        assertEquals(1.0, FlowerPicker.unitFraction(3.0), EPS);
+        assertEquals("a typo drives slowly, it does not stop", 0.05, FlowerPicker.unitFraction(0.0), EPS);
+        assertEquals(0.05, FlowerPicker.unitFraction(Double.NaN), EPS);
+    }
 }

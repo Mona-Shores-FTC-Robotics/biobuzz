@@ -34,10 +34,10 @@ public class AutoRegistrationTest {
                 expected, actual);
     }
 
-    /** The CELL triggers are real now; the FLOWER picker and the intake's count (#181) are not. */
+    /** The CELL triggers and the FLOWER pick are real now; only the intake's count is still missing (#181). */
     @Test
-    public void thePickerAndTheIntakeCountAreStillPlaceholders() {
-        assertEquals(java.util.Arrays.asList("PickFlower", "IntakeFull"), AutoRegistration.PLACEHOLDERS);
+    public void onlyIntakeFullIsStillAPlaceholder() {
+        assertEquals(java.util.Collections.singletonList("IntakeFull"), AutoRegistration.PLACEHOLDERS);
     }
 
     /** No alliance chosen means no HIVE to ask: neither CELL is up. */
