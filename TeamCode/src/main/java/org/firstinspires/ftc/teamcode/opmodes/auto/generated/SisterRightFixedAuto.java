@@ -30,7 +30,7 @@ public final class SisterRightFixedAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(55, 9.7, 90);
+        return poses(rotated).of(55.17, 7.72, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -42,7 +42,7 @@ public final class SisterRightFixedAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(55, 9.7, 90);
+        Pose start = p.of(55.17, 7.72, 90);
         Pose sCatch = p.of(57.5, 21, 90);
         Pose gardenIn = p.of(9.5, 20.56, 270);
         Pose garden = p.of(9.5, 10.96, 270);
@@ -91,7 +91,7 @@ public final class SisterRightFixedAuto {
         Path rNToPark = Paths.line(rN, park).constant(park);
 
         return kit.sequence(
-                kit.guarded("Auto", rNToPark, 1.4,
+                kit.guarded("Auto", rNToPark, 1.3,
                         kit.command("SpinUp"),
                         kit.path("START to R_PRE", startToRPre),
                         kit.firstOf("Preloads at the right CELL (TIP 1)", kit.command("LaunchAll"),

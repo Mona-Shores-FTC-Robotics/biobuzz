@@ -7,8 +7,8 @@ import com.pedropathing.math.Pose;
 
 /**
  * The numbers localization runs on. <b>Starting values</b>: the filter's are DECODE's, which ran
- * Pedro's {@link FusionLocalizer} all last season; the fix model's are a first guess until the Vision
- * Noise Tuner measures them on this robot. Read when the OpMode initializes.
+ * Pedro's {@link FusionLocalizer} all last season; the fix model's are a first guess until the jitter
+ * line in Vision: HIVE &amp; Pose measures them on this robot. Read when the OpMode initializes.
  */
 @Configurable
 public final class LocalizationTuning {
@@ -24,10 +24,13 @@ public final class LocalizationTuning {
     public static double headingMeasurementVariance = 0.0248;
     public static int historySize = 100;
 
-    /** One-sigma error of a camera fix at close range, inches. Measure with Vision: Noise Tuner. */
+    /**
+     * One-sigma error of a camera fix at close range, inches: Vision: HIVE &amp; Pose's jitter line,
+     * close in.
+     */
     public static double fixSigmaIn = 1.5;
 
-    /** Extra fix sigma per inch of range. From the Noise Tuner at two or three distances. */
+    /** Extra fix sigma per inch of range. From that jitter line at two or three distances. */
     public static double fixSigmaPerInch = 0.02;
 
     /**
@@ -80,8 +83,54 @@ public final class LocalizationTuning {
     public static double stillTurnDegPerSec = 2.0;
     public static double stillForMs = 250;
 
-    /** Start check: a robot further than this from its declared start should be nudged, inches. */
-    public static double startMarginIn = 2.0;
+    // ---------------------------------------------------------------- TagGate
+    // Starting values, to be set from Vision: HIVE & Pose's per-tag residuals (README § "The camera
+    // fix: gates, averaging, and how to tune it"). Each rejected tag shows its reason there.
+
+    /** Fewer accepted tags than this and a frame gives no fix. Two: one tag cannot be cross-checked. */
+    public static int minFixTags = 2;
+
+    /**
+     * A tag whose measured height is further than this from its map height is dropped, inches. The
+     * camera put raised rows 0.4 in above the CAD (#156); a 1° pitch error at 60 in is about 1 in.
+     */
+    public static double maxTagHeightErrorIn = 3.0;
+
+    /** A tag further than this along the floor is dropped, inches: errors grow with range. */
+    public static double maxTagRangeIn = 96.0;
+
+    /** A tag whose position is further than this from the other tags' median is dropped, inches. */
+    public static double tagOutlierIn = 3.0;
+
+    // ------------------------------------------------------- stationary fixes
+
+    /**
+     * Whether averaged, gated fixes go into the filter while the robot holds still. <b>Off</b> until
+     * the per-tag residuals are under an inch at the measured spots and Vision: HIVE &amp; Pose shows
+     * the averaged camera position sitting steady. Independent of {@link #continuousFixes}.
+     */
+    public static boolean stillFixes = false;
+
+    /** Gated camera frames averaged, still, before one stationary fix. */
+    public static int stillFixFrames = 5;
+
+    /** Those frames must agree to within this (furthest from their mean), inches. */
+    public static double maxFixSpreadIn = 1.5;
+
+    /**
+     * A stationary fix further than this from the pose is not applied, inches. Larger errors are for
+     * the driver: relocalize ({@link #maxRelocalizeJumpIn}) or the reset spot.
+     */
+    public static double maxFixJumpIn = 6.0;
+
+    /**
+     * Start check: the camera putting the robot further than this from its declared start is a real
+     * mistake (wrong tile, wrong side, facing the wrong way) and the Driver Station says to check the
+     * marks, inches. Under it the camera's opinion is only recorded: the drive team places by the
+     * marks, and the camera's offsets are not trusted enough to nudge a robot by. Tighten once the
+     * logged starts show the camera agrees with the marks to under an inch.
+     */
+    public static double startMarginIn = 6.0;
 
     /** Pedro's filter over {@code odometry}, with the values above. */
     public static FusionLocalizer newFusionLocalizer(Localizer odometry) {

@@ -46,8 +46,12 @@ and run session 2's list instead: the log events below will not be there.
       it against a `.wpilog` and its `.pp`.
 - [ ] The two drawings open: `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=r-simple.pp`
       and `#gh=r-quals.pp`.
-- [ ] Batteries charged. Red start taped as in session 2 (back on the audience wall, left wheels
-      on the seam two tiles from the red-side wall: (55, 9.7, 90°)).
+- [ ] Batteries charged. Red start taped: back on the audience wall, the robot's **left side**
+      (its side plate, not the wheels) on the seam two tiles from the red-side wall:
+      (55.17, 7.72, 90°), from a 16 in wide robot.
+- [ ] Measure the robot's width across the outside of the side plates. If it isn't 16.0 in, the
+      start's x is 47.17 + half of it (`StartPositions.RED_AUDIENCE`, the three right-side `.pp`
+      files, re-exported).
 - [ ] **A HIVE on the field with its AprilTags**, red side, in the match-start position (RIGHT CELL
       up). Without one every `Tip`, `LeftCellUp` and `RightCellUp` wait runs to its limit and step
       5 answers nothing.

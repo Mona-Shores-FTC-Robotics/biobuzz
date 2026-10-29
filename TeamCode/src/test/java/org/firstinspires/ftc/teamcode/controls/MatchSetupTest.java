@@ -11,6 +11,7 @@ public class MatchSetupTest {
 
     private final MatchSetup setup = new MatchSetup();
 
+    /** An Auto never guesses. */
     @Test
     public void nothingChosenMeansUnknownNeverAGuess() {
         assertEquals(Alliance.UNKNOWN, setup.alliance());
@@ -18,6 +19,25 @@ public class MatchSetupTest {
 
         setup.lock();
         assertEquals(Alliance.UNKNOWN, setup.alliance());
+    }
+
+    /** A TeleOp with no Auto before it: red, and the source says so, so the screen shows it. */
+    @Test
+    public void aTeleOpDefaultsToRedAndSaysSo() {
+        setup.defaultTo(MatchSetup.DEFAULT_ALLIANCE);
+
+        assertEquals(Alliance.RED, setup.alliance());
+        assertEquals(MatchSetup.Source.DEFAULT, setup.source());
+        assertFalse(setup.hasDisagreement());
+    }
+
+    @Test
+    public void anyRealSourceBeatsTheDefault() {
+        setup.defaultTo(MatchSetup.DEFAULT_ALLIANCE);
+        setup.offerVision(Alliance.BLUE, "");
+
+        assertEquals(Alliance.BLUE, setup.alliance());
+        assertEquals(MatchSetup.Source.VISION, setup.source());
     }
 
     @Test

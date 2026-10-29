@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.localization.StartPosition;
+import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
@@ -44,7 +46,8 @@ import java.util.Locale;
  * <p>D-pad left, on either gamepad, relocalizes the pose from the camera, for after a restart or a
  * shove, or when a pose carried from the last run is a little off; the Match page says what it
  * did. It works in INIT too, so the pose can be put right before PLAY with one person and one
- * gamepad.
+ * gamepad. The operator's D-pad down sets the pose to our alliance's measured reset spot instead
+ * ({@link org.firstinspires.ftc.teamcode.localization.ResetPositions}), camera or not.
  *
  * <p>The driver's D-pad up, held, picks the nearest FLOWER ({@link FlowerPicker}): line up, stick
  * down and intake on during the approach, push in, dwell, back out, stick up, every phase timed in
@@ -167,6 +170,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         operator.when("D-pad left", "Pose: relocalize from the camera (hold still, 2+ tags in view)", () -> gamepad2.dpad_left)
                 .duringInit()
                 .onPress(this::relocalize);
+        operator.when("D-pad down", "Pose: reset to our marked spot (robot squared to its wall)", () -> gamepad2.dpad_down)
+                .onPress(this::resetToSpot);
         operator.when("D-pad up", "Turret: zero here, at its home mark (it zeroes itself at PLAY)", () -> gamepad2.dpad_up)
                 .duringInit()
                 .onPress(robot.turret::zeroHere);
@@ -175,6 +180,17 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
+    }
+
+    /**
+     * With no Auto before it (and no TeleOp just restarted), Basic Drive starts from the Autos'
+     * start, so the drive team lines up there for a test too: the pose is known, field-centric
+     * forward is the alliance's from PLAY, and the run is a calibration sample. After an Auto it
+     * keeps the Auto's pose. Red until an alliance is chosen, as the Autos are drawn.
+     */
+    @Override
+    protected StartPosition startPosition() {
+        return hasHandoffPose() ? null : StartPositions.forAlliance(setup.alliance());
     }
 
     /** PLAY: the turret has been zeroed by now (RobotOpMode does it); hold it straight ahead. */
@@ -188,6 +204,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** The camera sets the pose, if it can; the Match page and the match log say what happened. */
     private void relocalize() {
         relocalizeNote = robot.drive.relocalizeFromCamera();
+        log.event("pose: " + relocalizeNote);
+    }
+
+    /** The pose set to our alliance's measured reset spot, if it has been measured. */
+    private void resetToSpot() {
+        relocalizeNote = robot.drive.resetToSpot(setup.alliance());
         log.event("pose: " + relocalizeNote);
     }
 
@@ -207,7 +229,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     protected void onInitLoop() {
         display.status("Basic Drive", Display.Level.OK, "ready — Share (Back) shows the controls");
         if (relocalizeNote != null) {
-            display.line("Last relocalize: " + relocalizeNote);
+            display.line("Last pose button: " + relocalizeNote);
         }
         showPinpoint();
     }
@@ -266,7 +288,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.line(turretMode == TurretMode.AIM ? aimer.line()
                 : "Turret: LOCKED straight ahead (operator D-pad right to aim)");
         if (relocalizeNote != null) {
-            display.line("Last relocalize: " + relocalizeNote);
+            display.line("Last pose button: " + relocalizeNote);
         }
         recordShot();
         showAim();

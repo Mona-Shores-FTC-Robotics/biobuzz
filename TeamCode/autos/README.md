@@ -49,8 +49,8 @@ The file format, including the `auto` section, is described in the Visualizer's
   the Visualizer repo in this build. To check by hand, from a Visualizer checkout:
   `node scripts/export-auto.mjs <path>/TeamCode/autos/hive-rush.pp /tmp/out`, then compare with
   the committed class.
-- **`FieldFrameTest` skips `opmodes/auto/generated/`.** Generated Autos contain `mirrorX(70.75)`
-  and wall coordinates such as 141.5; they come from the Visualizer's own 141.5 in field, not
+- **`FieldFrameTest` skips `opmodes/auto/generated/`.** Generated Autos contain `mirrorAroundPoint(70.75, 70.75)`
+  (the half turn to the other alliance) and wall coordinates such as 141.5; they come from the Visualizer's own 141.5 in field, not
   from someone typing a field size.
 - **Short links need the repo public.** They read the file from GitHub without a login; if
   biobuzz is made private, they stop working for everyone.
