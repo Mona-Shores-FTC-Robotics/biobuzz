@@ -72,6 +72,8 @@ public class StartCheckTest {
         double c = org.firstinspires.ftc.teamcode.util.FieldFrame.FIELD_CENTRE_INCHES;
         StartPosition blue = new StartPosition("Blue", Alliance.BLUE, new Pose(2 * c - 55, 2 * c - 9.7, Math.toRadians(270)));
         assertEquals("Left wheels on D-E Seam", blue.placement());
+        assertEquals("Left wheels on D-E Seam", StartPositions.forAlliance(Alliance.BLUE).placement());
+        assertEquals(StartPositions.RED_AUDIENCE, StartPositions.forAlliance(Alliance.UNKNOWN));
         // Far from any seam on its left: no seam is claimed.
         StartPosition middle = new StartPosition("Mid", Alliance.RED, new Pose(35.4, 9.7, Math.toRadians(90)));
         assertEquals("tile B1, facing away from the audience", middle.placement());

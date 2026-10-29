@@ -181,6 +181,8 @@ public abstract class RobotOpMode extends OpMode {
     /** True when the drive pose was restored from Autonomous, so headings are field-absolute. */
     private Display.Level handoffLevel;
     private String handoffNote;
+    /** Whether the pose came from an Auto, or a TeleOp just restarted, rather than starting unknown. */
+    private boolean handoffPose;
 
     private StartPosition declaredStart;
 
@@ -208,6 +210,14 @@ public abstract class RobotOpMode extends OpMode {
      */
     protected StartPosition startPosition() {
         return null;
+    }
+
+    /**
+     * Whether the pose was handed over (an Auto just ran, or this TeleOp restarted), so a TeleOp
+     * keeps it instead of declaring a start. Known from {@code onInit} on.
+     */
+    protected final boolean hasHandoffPose() {
+        return handoffPose;
     }
 
     /** Called once, after the robot is built and initialized. Put your init telemetry here. */
@@ -324,7 +334,9 @@ public abstract class RobotOpMode extends OpMode {
                 robot.drive.meanFixX(), robot.drive.meanFixY());
         setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
         beginPage();
-        if (handoffNote != null) {
+        // With no handoff and a declared start, the start line says where the robot is; the
+        // "no handoff" note would only contradict it.
+        if (handoffNote != null && (handoffPose || declaredStart == null)) {
             display.status("Start", handoffLevel, handoffNote);
         }
         if (batteryNote != null) {
@@ -648,6 +660,7 @@ public abstract class RobotOpMode extends OpMode {
         String age = (handoff.ageMs(now) / 1000) + "s ago";
         if (handoff.pose != null && robot.drive.hasHeading()) {
             robot.drive.setPose(handoff.pose);
+            handoffPose = true;
             boolean forwardKnown = !Double.isNaN(FieldFrame.driverForwardHeading(handoff.alliance));
             handoffLevel = forwardKnown ? Display.Level.OK : Display.Level.WARN;
             handoffNote = String.format(java.util.Locale.US,

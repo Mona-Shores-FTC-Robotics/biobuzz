@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.localization;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.util.FieldFrame;
 
 /**
  * Every legal BIOBUZZ starting position, in one place, so each Autonomous names one rather than
@@ -32,6 +33,21 @@ public final class StartPositions {
      */
     public static final StartPosition RED_AUDIENCE =
             new StartPosition("Red audience", Alliance.RED, new Pose(55.0, 9.7, Math.toRadians(90)));
+
+    /**
+     * {@link #RED_AUDIENCE} turned half a turn about the field centre, the way the field is (manual
+     * Figure 9-2) and the way every Auto runs for blue: tile D6, back on the far wall, facing the
+     * audience. Not measured on its own; the Autos already start blue here.
+     */
+    public static final StartPosition BLUE_FROM_RED_AUDIENCE = new StartPosition("Blue far wall",
+            Alliance.BLUE, new Pose(2 * FieldFrame.FIELD_CENTRE_INCHES - RED_AUDIENCE.pose.x(),
+            2 * FieldFrame.FIELD_CENTRE_INCHES - RED_AUDIENCE.pose.y(),
+            RED_AUDIENCE.pose.heading() + Math.PI));
+
+    /** {@code alliance}'s start, the Autos' one: red audience, or its half turn for blue. Red while unknown. */
+    public static StartPosition forAlliance(Alliance alliance) {
+        return alliance == Alliance.BLUE ? BLUE_FROM_RED_AUDIENCE : RED_AUDIENCE;
+    }
 
     /** Every declared start, for finding one by its pose. */
     private static final StartPosition[] ALL = {RED_AUDIENCE};

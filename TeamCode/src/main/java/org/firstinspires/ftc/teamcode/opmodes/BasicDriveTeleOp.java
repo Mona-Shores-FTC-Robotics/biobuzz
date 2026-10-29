@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.localization.StartPosition;
+import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
@@ -169,6 +171,17 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
+    }
+
+    /**
+     * With no Auto before it (and no TeleOp just restarted), Basic Drive starts from the Autos'
+     * start, so the drive team lines up there for a test too: the pose is known, field-centric
+     * forward is the alliance's from PLAY, and the run is a calibration sample. After an Auto it
+     * keeps the Auto's pose. Red until an alliance is chosen, as the Autos are drawn.
+     */
+    @Override
+    protected StartPosition startPosition() {
+        return hasHandoffPose() ? null : StartPositions.forAlliance(setup.alliance());
     }
 
     /** PLAY: the turret has been zeroed by now (RobotOpMode does it); hold it straight ahead. */
