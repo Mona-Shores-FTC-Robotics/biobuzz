@@ -397,9 +397,18 @@
     "yVelocity": 65,
     "aVelocity": 3.141592653589793,
     "kFriction": 0.1,
-    "rWidth": 16.56,
+    "rWidth": 15.44,
     "rHeight": 16,
     "features": [
+      {
+        "name": "Front frame",
+        "length": 0.56,
+        "width": 15.4,
+        "forward": 8,
+        "left": 0,
+        "collides": true,
+        "color": "#2b2f36"
+      },
       {
         "name": "FLOWER poker",
         "length": 1.5,
