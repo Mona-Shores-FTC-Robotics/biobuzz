@@ -385,7 +385,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (headingReset.pending() || cameraReset.pending() || poseReset.pending() || turretZero.pending()) {
             display.line("Keep holding (1 s) to reset…");
         }
-        display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));
+        display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.waitingToClear() ? "out until clear of the FLOWER" : robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));
         String pick = picker.line();
         if (!pick.isEmpty()) display.line(pick);
         String gather = gatherer.line();

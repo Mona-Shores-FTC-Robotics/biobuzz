@@ -64,7 +64,7 @@ public final class StartCheck {
             if (map != null) {
                 for (String line : map) display.line(line);
             }
-            // "^ Start: Left side on B-C Seam", bold, the arrow in the colour of how it stands: the
+            // "^ Start: Left wheels on B-C Seam", bold, the arrow in the colour of how it stands: the
             // one line to read, under the map whose arrow it is.
             boolean warn = status == Status.OUT_OF_POSITION;
             display.line("<b><font color=\"" + (warn ? "#FFB300" : "#4CAF50") + "\">"

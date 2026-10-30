@@ -42,7 +42,7 @@ import java.util.function.Function;
  * camera can confirm the alliance without a button press. Until an alliance is known the declared
  * start is the drawing's own; once one is chosen that differs from {@code DRAWN_FOR}, the declared
  * start becomes the rotated one, and {@link RobotOpMode} moves the pose there. A robot placed on
- * the other alliance's tape therefore reads as out of position until Square (X) or Circle (B) says
+ * the other alliance's start therefore reads as out of position until Square (X) or Circle (B) says
  * which side it is on; the camera then confirms that placement too.
  *
  * <p>While mechanisms are still missing, the names {@link AutoRegistration#PLACEHOLDERS} lists are

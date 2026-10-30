@@ -46,12 +46,9 @@ and run session 2's list instead: the log events below will not be there.
       it against a `.wpilog` and its `.pp`.
 - [ ] The two drawings open: `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=r-simple.pp`
       and `#gh=r-quals.pp`.
-- [ ] Batteries charged. Red start taped: back on the audience wall, the robot's **left side**
-      (its side plate, not the wheels) on the seam two tiles from the red-side wall:
-      (55.17, 7.72, 90°), from a 16 in wide robot.
-- [ ] Measure the robot's width across the outside of the side plates. If it isn't 16.0 in, the
-      start's x is 47.17 + half of it (`StartPositions.RED_AUDIENCE`, the three right-side `.pp`
-      files, re-exported).
+- [ ] Batteries charged. Red start: back flat on the audience wall, the left wheels (their
+      outer face) on the seam two tiles from the red-side wall: (54.06, 7.72, 90°), from the
+      robot's CAD and checked by the camera on 30 Oct.
 - [ ] **A HIVE on the field with its AprilTags**, red side, in the match-start position (RIGHT CELL
       up). Without one every `Tip`, `LeftCellUp` and `RightCellUp` wait runs to its limit and step
       5 answers nothing.
@@ -66,7 +63,7 @@ and run session 2's list instead: the log events below will not be there.
        Limelight must all be present.
        *Stop line: nothing reported.*
 
-3. [ ] **Auto: L-Quals, INIT only**, then **Auto: R-Quals, INIT only**, each on the tape,
+3. [ ] **Auto: L-Quals, INIT only**, then **Auto: R-Quals, INIT only**, each placed at the red start,
        Circle (B), each stopped without PLAY. L-Quals' Placeholders line names **`IntakeFull`
        only** (L-Quals uses `LeftCellUp`, so it would be listed if #250 were missing). R-Quals'
        names `IntakeFull` only either way (since #257 it uses no CELL trigger), and its start check
@@ -74,7 +71,7 @@ and run session 2's list instead: the log events below will not be there.
        *Stop line: only `IntakeFull` listed, no FAULT. If L-Quals lists `LeftCellUp`, #250 is not
        in this install: reinstall from master.*
 
-4. [ ] **Auto: R-Simple, red, three times.** Preloads in, robot on the tape, INIT, Circle (B), PLAY.
+4. [ ] **Auto: R-Simple, red, three times.** Preloads in, robot at the red start, INIT, Circle (B), PLAY.
        It spins up, fires at the right CELL from START, then drives START → PARK (14, 95) and holds.
        Before each run, **note where the turret points**; after each, note whether it moved.
        In the log's `/Events`, each run should read:

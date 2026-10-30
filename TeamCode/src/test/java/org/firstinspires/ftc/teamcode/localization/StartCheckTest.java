@@ -66,13 +66,13 @@ public class StartCheckTest {
     }
 
     @Test
-    public void thePlacementIsJustTheSeamAtTheLeftSide() {
-        assertEquals("Left side on B-C Seam", StartPositions.RED_AUDIENCE.placement());
+    public void thePlacementIsJustTheSeamUnderTheLeftWheels() {
+        assertEquals("Left wheels on B-C Seam", StartPositions.RED_AUDIENCE.placement());
         // The same start turned half a turn for blue: facing the audience, its left is toward blue.
         double c = org.firstinspires.ftc.teamcode.util.FieldFrame.FIELD_CENTRE_INCHES;
-        StartPosition blue = new StartPosition("Blue", Alliance.BLUE, new Pose(2 * c - 55.17, 2 * c - 7.72, Math.toRadians(270)));
-        assertEquals("Left side on D-E Seam", blue.placement());
-        assertEquals("Left side on D-E Seam", StartPositions.forAlliance(Alliance.BLUE).placement());
+        StartPosition blue = new StartPosition("Blue", Alliance.BLUE, new Pose(2 * c - 54.06, 2 * c - 7.72, Math.toRadians(270)));
+        assertEquals("Left wheels on D-E Seam", blue.placement());
+        assertEquals("Left wheels on D-E Seam", StartPositions.forAlliance(Alliance.BLUE).placement());
         assertEquals(StartPositions.RED_AUDIENCE, StartPositions.forAlliance(Alliance.UNKNOWN));
         // Far from any seam on its left: no seam is claimed.
         StartPosition middle = new StartPosition("Mid", Alliance.RED, new Pose(35.4, 9.7, Math.toRadians(90)));
@@ -84,12 +84,12 @@ public class StartCheckTest {
         assertEquals("tile C1, facing away from the audience", StartPositions.RED_AUDIENCE.where());
     }
 
-    /** R-Quals, R-Simple and Sister-Right are drawn from (55.17, 7.72, 90°): they get its name and sentence. */
+    /** R-Quals, R-Simple and Sister-Right are drawn from (54.06, 7.72, 90°): they get its name and sentence. */
     @Test
     public void anAutoDrawnFromTheRedAudienceStartFindsIt() {
-        assertEquals(StartPositions.RED_AUDIENCE, StartPositions.at(new Pose(55.17, 7.72, Math.toRadians(90))));
+        assertEquals(StartPositions.RED_AUDIENCE, StartPositions.at(new Pose(54.06, 7.72, Math.toRadians(90))));
         assertEquals(null, StartPositions.at(new Pose(59.0, 133.69, Math.toRadians(270))));
-        assertEquals(null, StartPositions.at(new Pose(55.17, 7.72, Math.toRadians(270))));
+        assertEquals(null, StartPositions.at(new Pose(54.06, 7.72, Math.toRadians(270))));
     }
 
 }
