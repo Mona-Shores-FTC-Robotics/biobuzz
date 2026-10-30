@@ -49,17 +49,20 @@ public final class Robot20245 {
     });
 
     /**
-     * Pinpoint Tuner output, measured on 20245's chassis on 17 Oct 2026 and posted in #175, where
-     * the block matches this one. The warning line below was added when the block was pasted; it is
-     * not in the block posted in #175, and no Pedro, AutoTune or Panels library prints it. Whoever
-     * tuned it knows what it meant: confirm with them, and spin the robot in place to check.
+     * Pod type and directions from the Pinpoint Tuner on 17 Oct 2026 (#175). The offsets were
+     * re-measured by ruler on 30 Oct 2026, from the centre of rotation (the middle of the
+     * wheelbase): the forward pod (its wheel rolls front to back) 6.5 in right of centre, the strafe
+     * pod (its wheel rolls left to right) 1.0 in forward. The tuner's strafe offset, 3.22 in forward,
+     * was 2.2 in out, which swings the pose round a 2.2 in circle as the robot turns: about 4.4 in
+     * off after a half turn, likely the 3-5 in seen at line-ups while Panels drew the paths spot on.
+     * Each offset is measured across its pod's rolling direction: forward pod left (+) / right (-),
+     * strafe pod forward (+) / back (-).
      */
-    //WARNING: Offsets are NOT correct
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set("pinpoint");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        c.xPodOffset.set(-6.051974559393455);
-        c.yPodOffset.set(3.2221840685746805);
+        c.xPodOffset.set(-6.5);
+        c.yPodOffset.set(1.0);
         c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
