@@ -1,4 +1,6 @@
 {
+  "version": "2.0.0",
+  "timestamp": "2026-01-01T00:00:00.000Z",
   "startPoint": {
     "x": 54.06,
     "y": 7.72,
@@ -54,8 +56,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 9.5,
-        "y": 20.56
+        "x": 11.5,
+        "y": 22.1
       },
       "controlPoints": [],
       "heading": {
@@ -101,8 +103,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 9.5,
-        "y": 10.96
+        "x": 8.5,
+        "y": 9.5
       },
       "controlPoints": [],
       "heading": {
@@ -147,166 +149,6 @@
             },
             {
               "startProgress": 0.8,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-r-w-6",
-      "color": "#3cc8e4",
-      "name": "R_S to R_W",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 30,
-        "y": 40
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-r-n-7",
-      "color": "#3cc8e4",
-      "name": "R_W to R_N",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 30,
-        "y": 104
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-wall-flower-turn-8",
-      "color": "#3cc8e4",
-      "name": "R_S to WALL_FLOWER_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 23.16,
-        "y": 47.36
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.2,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.2,
-              "endProgress": 0.8,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 180
-              }
-            },
-            {
-              "startProgress": 0.8,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 180
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-wall-flower-9",
-      "color": "#3cc8e4",
-      "name": "WALL_FLOWER_TURN to WALL_FLOWER",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.86,
-        "y": 47.36
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 180
-      }
-    },
-    {
-      "id": "to-r-n-10",
-      "color": "#3cc8e4",
-      "name": "WALL_FLOWER to R_N",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 30,
-        "y": 104
-      },
-      "controlPoints": [
-        {
-          "x": 24.86,
-          "y": 47.36
-        },
-        {
-          "x": 30,
-          "y": 80
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.3,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 180
-              }
-            },
-            {
-              "startProgress": 0.3,
-              "endProgress": 0.9,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 180,
-                "endDeg": 90
-              }
-            },
-            {
-              "startProgress": 0.9,
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
@@ -437,6 +279,211 @@
             }
           ]
         }
+      }
+    },
+    {
+      "id": "link-1",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40,
+        "y": 22
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-r-w-6",
+      "color": "#3cc8e4",
+      "name": "R_S to R_W",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 30,
+        "y": 40
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-r-n-7",
+      "color": "#3cc8e4",
+      "name": "R_W to R_N",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 30,
+        "y": 104
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "link-2",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40,
+        "y": 22
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-wall-flower-turn-8",
+      "color": "#3cc8e4",
+      "name": "R_S to WALL_FLOWER_TURN",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 23.16,
+        "y": 47.36
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.2,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.2,
+              "endProgress": 0.8,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 180
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 180
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "to-wall-flower-9",
+      "color": "#3cc8e4",
+      "name": "WALL_FLOWER_TURN to WALL_FLOWER",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.86,
+        "y": 47.36
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 180
+      }
+    },
+    {
+      "id": "to-r-n-10",
+      "color": "#3cc8e4",
+      "name": "WALL_FLOWER to R_N",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 30,
+        "y": 104
+      },
+      "controlPoints": [
+        {
+          "x": 24.86,
+          "y": 47.36
+        },
+        {
+          "x": 30,
+          "y": 80
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.3,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 180
+              }
+            },
+            {
+              "startProgress": 0.3,
+              "endProgress": 0.9,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.9,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "link-3",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 21
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
       }
     },
     {
@@ -594,11 +641,31 @@
     },
     {
       "kind": "path",
+      "lineId": "to-wall-flower-turn-11"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-wall-flower-12"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-r-n-13"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-1"
+    },
+    {
+      "kind": "path",
       "lineId": "to-r-w-6"
     },
     {
       "kind": "path",
       "lineId": "to-r-n-7"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-2"
     },
     {
       "kind": "path",
@@ -614,15 +681,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-turn-11"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-wall-flower-12"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-r-n-13"
+      "lineId": "link-3"
     },
     {
       "kind": "path",
@@ -637,13 +696,18 @@
       "lineId": "to-park-16"
     }
   ],
-  "settings": {
-    "xVelocity": 75,
-    "yVelocity": 65,
+  "fieldPoints": [],
+  "robot": {
+    "forwardVelocity": 75,
+    "strafeVelocity": 65,
     "aVelocity": 3.141592653589793,
     "kFriction": 0.1,
-    "rWidth": 15.44,
-    "rHeight": 16,
+    "rLength": 15.44,
+    "rWidth": 16,
+    "safetyMargin": 1,
+    "maxVelocity": 50,
+    "maxAcceleration": 45,
+    "maxDeceleration": 45,
     "features": [
       {
         "name": "Front frame",
@@ -662,39 +726,12 @@
         "left": 0,
         "collides": true
       }
-    ],
-    "safetyMargin": 1,
-    "maxVelocity": 50,
-    "maxAcceleration": 45.0,
-    "maxDeceleration": 45.0,
-    "fieldMap": "biobuzz.webp",
-    "robotImage": "/robot.png",
-    "showGhostPaths": false,
-    "showOnionLayers": false,
-    "onionLayerSpacing": 3,
-    "onionColor": "#dc2626",
-    "onionNextPointOnly": false,
-    "showHeadingArrow": false,
-    "showCurrentTValue": false,
-    "leftPanelWidth": 262,
-    "rightPanelWidth": 714,
-    "headingArrowLength": 50,
-    "headingArrowColor": "#ffffff",
-    "headingArrowThickness": 2,
-    "pathOpacity": 1,
-    "leftPanelMinWidth": 0,
-    "rightPanelMinWidth": 0,
-    "penToolMaxPaths": 8,
-    "curveThroughMaxPoints": 4,
-    "experimentalFeatures": {
-      "optimize": false,
-      "curveThrough": false
-    }
+    ]
   },
+  "activePaths": [],
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "sister-right-fixed",
     "registry": {
       "actions": [
         "SpinUp",
@@ -707,13 +744,13 @@
         "LeftCellUp",
         "RightCellUp"
       ],
-      "typicalS": {
-        "SpinUp": 0.1,
-        "LaunchAll": 2.0
-      },
       "events": [
         "Tip"
-      ]
+      ],
+      "typicalS": {
+        "SpinUp": 0.1,
+        "LaunchAll": 2
+      }
     },
     "points": {
       "START": [
@@ -727,13 +764,13 @@
         90
       ],
       "GARDEN_IN": [
-        9.5,
-        20.56,
+        11.5,
+        22.1,
         270
       ],
       "GARDEN": [
+        8.5,
         9.5,
-        10.96,
         270
       ],
       "R_S": [
@@ -795,7 +832,6 @@
       "to-r-n-15": "R_N",
       "to-park-16": "PARK"
     },
-    "startAt": "START",
     "cards": [
       {
         "id": "a-1",
@@ -1042,6 +1078,7 @@
                             "when": [
                               "LeftCellUp"
                             ],
+                            "label": "Yes: the GARDEN's 4 to TIP 4",
                             "cards": [
                               {
                                 "id": "p-14",
@@ -1055,11 +1092,11 @@
                                 "lineId": "to-r-n-7",
                                 "park": false
                               }
-                            ],
-                            "label": "Yes: the GARDEN's 4 to TIP 4"
+                            ]
                           },
                           {
                             "afterMs": 50,
+                            "label": "No: the GARDEN's 4 to TIP 3",
                             "cards": [
                               {
                                 "id": "w-16",
@@ -1114,8 +1151,7 @@
                                 "lineId": "to-r-n-10",
                                 "park": false
                               }
-                            ],
-                            "label": "No: the GARDEN's 4 to TIP 3"
+                            ]
                           }
                         ]
                       }
@@ -1203,7 +1239,17 @@
         "lineId": "to-park-16",
         "park": true
       }
-    ]
-  },
-  "version": "1.5.0"
+    ],
+    "startAt": "START",
+    "linkPaths": [
+      "link-1",
+      "link-2",
+      "link-3"
+    ],
+    "teamSpots": [
+      "GARDEN",
+      "GARDEN_IN"
+    ],
+    "exportName": "sister-right-fixed"
+  }
 }
