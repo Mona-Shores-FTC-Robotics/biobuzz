@@ -91,8 +91,11 @@ logs were analysed afterwards. What that session established:
        turns it off) and note the value that works.
 
 7. [ ] **FLOWER dwell.** The dwell is 1.5 s, the longest phase of a pick, and the commonest abort
-       on 29 Oct was a stick moved during it. Try `dwellMs` 1000 and 800 in Panels → FlowerPicker;
-       note the shortest that still gets the pieces.
+       on 29 Oct was a stick moved during it, by drivers who saw all the pieces were in. Now
+       **letting go of Cross (or Triangle) during the dwell means done**: the robot backs out on its
+       own and the stick comes up once clear. Try it on three picks and a gather; a stick still
+       stops it. Then try `dwellMs` 1000 and 800 in Panels → FlowerPicker and note the shortest
+       that still gets the pieces when nobody lets go early.
 
 8. [ ] **If time is left: the path-following tuning.** The Foresight block was tuned on 17 Oct,
        before the mass was added and before the strafe pod's offset was fixed. Re-run the Foresight

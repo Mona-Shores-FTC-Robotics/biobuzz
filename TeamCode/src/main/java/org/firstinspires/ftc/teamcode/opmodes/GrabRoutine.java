@@ -43,8 +43,12 @@ import java.util.function.Consumer;
  * Auto drew, and the Visualizer ({@code lib/simple/flowers.ts}, {@code garden.ts}) draws each grab
  * as it is, from the same numbers.
  *
- * <p>On the button: hold to run. Letting go, or moving a drive stick, stops it where it is: the drive
- * stops, the mechanisms stop, and the sticks have the robot again on the next loop. It refuses, and
+ * <p>On the button: hold to run. Letting go before the dwell, or moving a drive stick at any time,
+ * stops it where it is: the drive stops, the mechanisms stop, and the sticks have the robot again on
+ * the next loop. <b>Letting go during the dwell or the back-out means done</b>
+ * ({@link #releaseFinishes}): the dwell ends there and the robot backs out on its own, putting the
+ * mechanisms away as usual, so a driver who sees the pieces are in need not hold on, nor wait out
+ * {@link #dwellMs}. A stick still stops it. It refuses, and
  * says why, without a Pinpoint, without a field-referenced pose, with no target in range, or on a
  * robot whose path follower cannot be built (no Foresight block yet).
  *
@@ -101,6 +105,8 @@ public abstract class GrabRoutine {
     private Pose inEnd;
     private String inEndWhy = "";
     private boolean unprepped;
+    /** Let go during the dwell or the back-out: the grab runs to its end without the button. */
+    private boolean finishing;
     private final double[] phaseMs = new double[Phase.values().length];
     private String result = "";
 
@@ -220,7 +226,20 @@ public abstract class GrabRoutine {
      */
     public void update(boolean held, boolean sticksMoved) {
         long now = System.nanoTime();
-        if (!held) {
+        if (!held && !(finishing && active())) {
+            if (active() && releaseFinishes(phase, lineUp)) {
+                finishing = true;
+                event.accept(String.format(Locale.US, "%s: let go in %s, %.2f s in: done, backing out",
+                        what(), phase, ms(now, phaseStartNs) / 1000.0));
+                if (phase == Phase.DWELL) {
+                    if (sticksMoved) {
+                        abort(now, "sticks moved");
+                    } else {
+                        startBack(now, robot.drive.pose());
+                    }
+                }
+                return;
+            }
             if (active()) abort(now, "released");
             phase = Phase.IDLE;
             return;
@@ -289,8 +308,7 @@ public abstract class GrabRoutine {
                 break;
             case DWELL:
                 if (ms(now, phaseStartNs) >= nn(dwellMs())) {
-                    next(now, Phase.BACK);
-                    drivePath(pose, home, backSpeed());
+                    startBack(now, pose);
                 } else {
                     steer(pose, dwellPushPower());
                 }
@@ -310,6 +328,15 @@ public abstract class GrabRoutine {
         }
     }
 
+    /**
+     * Whether letting go of the button in {@code phase} means done (back out on its own) rather than
+     * stop here: during the dwell and the back-out, on the button only. An Auto's card lets go only
+     * when it is cut short, which always stops the grab.
+     */
+    static boolean releaseFinishes(Phase phase, boolean button) {
+        return button && (phase == Phase.DWELL || phase == Phase.BACK);
+    }
+
     /** For the Match page: what a grab is doing, or how the last one went. Empty before the first. */
     public String line() {
         if (active()) {
@@ -327,6 +354,7 @@ public abstract class GrabRoutine {
         Arrays.fill(phaseMs, 0.0);
         prepped = false;
         unprepped = false;
+        finishing = false;
         inEndWhy = "";
         Pose pose = robot.drive.pose();
         if (pose == null) {
@@ -394,6 +422,12 @@ public abstract class GrabRoutine {
                 phase == Phase.IN ? " (" + inEndWhy + ")" : "", to));
         phase = to;
         phaseStartNs = now;
+    }
+
+    /** The dwell is over (its time, or the button let go): back out to where the In started. */
+    private void startBack(long now, Pose pose) {
+        next(now, Phase.BACK);
+        drivePath(pose, home, backSpeed());
     }
 
     private void finish(long now) {
