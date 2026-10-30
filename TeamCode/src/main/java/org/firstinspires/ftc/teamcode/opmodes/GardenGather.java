@@ -66,6 +66,13 @@ public final class GardenGather extends GrabRoutine {
      * safe; tune it in Panels until the gather reaches deep enough.
      */
     public static double extraDepthIn = 0.0;
+    /**
+     * How much closer to the alliance (side) wall than the gather pose the drive in aims, inches: the
+     * intake has to reach all the way into the corner to scoop the whole GARDEN (30 Oct 2026). More
+     * than the robot can go is meant: the wall stops it, the drive in ends when it stalls, and the
+     * dwell keeps steering it against the wall.
+     */
+    public static double towardWallIn = 2.0;
     /** Already lined up: this close to the line-up pose, inches, skips the line-up path. */
     public static double atLineUpIn = 1.5;
     /** Already lined up: this square, degrees, skips the line-up path. */
@@ -153,10 +160,14 @@ public final class GardenGather extends GrabRoutine {
 
     @Override
     protected InPlan inPose(Pose from, boolean linedUp) {
+        // Deeper is along the heading; toward the wall is the robot's right at the GARDEN heading,
+        // the side wall for both alliances (red faces 270°, right is -x; blue faces 90°, right is +x).
         Pose g = garden.gather;
+        double h = g.heading();
         double deeper = nn(extraDepthIn);
-        return InPlan.to(new Pose(g.x() + deeper * Math.cos(g.heading()), g.y() + deeper * Math.sin(g.heading()),
-                g.heading()));
+        double wall = nn(towardWallIn);
+        return InPlan.to(new Pose(g.x() + deeper * Math.cos(h) + wall * Math.sin(h),
+                g.y() + deeper * Math.sin(h) - wall * Math.cos(h), h));
     }
 
     @Override
