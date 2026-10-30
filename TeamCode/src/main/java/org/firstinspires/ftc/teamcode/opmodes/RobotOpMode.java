@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.controls.Bindings;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.Handoff;
+import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.logging.AdvantageScopeKeys;
@@ -183,6 +184,12 @@ public abstract class RobotOpMode extends OpMode {
     private String handoffNote;
     /** Whether the pose came from an Auto, or a TeleOp just restarted, rather than starting unknown. */
     private boolean handoffPose;
+    /** A handoff was taken at init, so "start fresh" has something to discard. */
+    private boolean handoffTaken;
+    /** The drive team chose "start fresh" in this INIT. */
+    private boolean startedFresh;
+    /** Triangle (Y) on either gamepad, held 1 s in INIT: discard the handoff and start fresh. */
+    private final LongPress startFresh = new LongPress(1000);
 
     private StartPosition declaredStart;
 
@@ -324,6 +331,9 @@ public abstract class RobotOpMode extends OpMode {
         clearBulkCache();
         if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
         if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
+        if (startFresh.update(gamepad1.y || gamepad2.y, System.nanoTime()) && handoffTaken) {
+            startFresh();
+        }
         // The declared start may follow the alliance (BuiltAuto: the drawing's start, or the
         // rotated one). When it changes, the pose moves there and the fix statistics restart.
         StartPosition wanted = startPosition();
@@ -340,7 +350,7 @@ public abstract class RobotOpMode extends OpMode {
         beginPage();
         // With no handoff and a declared start, the start line says where the robot is; the
         // "no handoff" note would only contradict it.
-        if (handoffNote != null && (handoffPose || declaredStart == null)) {
+        if (handoffNote != null && (handoffPose || declaredStart == null || startedFresh)) {
             display.status("Start", handoffLevel, handoffNote);
         }
         if (batteryNote != null) {
@@ -661,6 +671,7 @@ public abstract class RobotOpMode extends OpMode {
             return;
         }
         String from = handoff.fromAuto ? "Auto" : "the TeleOp that just stopped";
+        handoffTaken = true;
         setup.inheritFromAuto(handoff.alliance);
         if (TurretZeroPolicy.atInit(false, handoff.turretZeroCounts != null)
                 == TurretZeroPolicy.Action.RESTORE_FROM_AUTO) {
@@ -673,7 +684,7 @@ public abstract class RobotOpMode extends OpMode {
             boolean forwardKnown = !Double.isNaN(FieldFrame.driverForwardHeading(handoff.alliance));
             handoffLevel = forwardKnown ? Display.Level.OK : Display.Level.WARN;
             handoffNote = String.format(java.util.Locale.US,
-                    "pose from %s %s (%.0f, %.0f, %.0f°)%s", from, age,
+                    "pose from %s %s (%.0f, %.0f, %.0f°)%s · hold Triangle (Y) to start fresh", from, age,
                     handoff.pose.x(), handoff.pose.y(), Math.toDegrees(handoff.pose.heading()),
                     forwardKnown ? "" : "; forward = robot's facing at PLAY (not measured)");
         } else {
@@ -681,6 +692,27 @@ public abstract class RobotOpMode extends OpMode {
             handoffNote = "alliance from " + from + " " + age + ", but no field pose (no declared "
                     + "start, or no Pinpoint); forward = robot's facing at PLAY";
         }
+    }
+
+    /**
+     * Triangle (Y) held in INIT: the drive team says the last run's state is wrong for where the
+     * robot is now (someone moved it, or the last run was a test). The handoff's pose, alliance and
+     * turret zero are dropped, and this OpMode starts as if nothing ran before it: its declared
+     * start (a TeleOp's alliance start) on the next INIT loop, the default alliance unless X/B says
+     * otherwise, and the turret zeroed at PLAY. The log file it resumed carries on.
+     */
+    private void startFresh() {
+        handoffTaken = false;
+        startedFresh = true;
+        handoffPose = false;
+        setup.forgetAuto();
+        robot.turret.forgetCarriedZero();
+        declaredStart = null; // the next INIT loop declares the start afresh and moves the pose there
+        handoffLevel = Display.Level.OK;
+        handoffNote = "starting fresh: the last run's pose, alliance and turret zero are discarded";
+        log.event("INIT: start fresh, handoff discarded by the drive team");
+        gamepad1.rumble(200);
+        gamepad2.rumble(200);
     }
 
     private boolean isAutonomous() {
@@ -699,6 +731,7 @@ public abstract class RobotOpMode extends OpMode {
             display.section("BEFORE PLAY — either gamepad");
             display.line("Square (X) — Blue alliance");
             display.line("Circle (B) — Red alliance");
+            display.line("Triangle (Y), hold 1 s — start fresh (drop the last run's pose)");
             display.line("Share (Back) — next page (any time)");
             describeBindings(driver);
             describeBindings(operator);

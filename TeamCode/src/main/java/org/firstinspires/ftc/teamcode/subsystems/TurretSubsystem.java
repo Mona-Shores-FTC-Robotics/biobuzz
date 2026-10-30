@@ -178,6 +178,17 @@ public class TurretSubsystem implements Subsystem {
         return zeroCounts;
     }
 
+    /**
+     * The drive team discarded the handoff ("start fresh"): drop a zero carried from the last
+     * OpMode, so the turret zeroes at PLAY as on any fresh start. A zero set by hand stays.
+     */
+    public void forgetCarriedZero() {
+        if (zeroSource == ZeroSource.AUTO) {
+            zeroed = false;
+            zeroSource = ZeroSource.NONE;
+        }
+    }
+
     /** Where the current zero came from. */
     public ZeroSource zeroSource() {
         return zeroSource;
