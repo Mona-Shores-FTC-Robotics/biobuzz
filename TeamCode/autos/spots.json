@@ -2,7 +2,7 @@
   "about": "The team's spots, shared by every Auto (the Visualizer links them). x, y in inches, heading in degrees, Pedro field frame, drawn for RED. Change them in the Visualizer: saving re-exports every Auto that uses one.",
   "spots": {
     "START_LEFT": [59, 133.69, 270],
-    "START_RIGHT": [55.17, 7.72, 90],
+    "START_RIGHT": [54.06, 7.72, 90],
     "WALL_FLOWER": [23.1, 47.2, 180]
   }
 }
