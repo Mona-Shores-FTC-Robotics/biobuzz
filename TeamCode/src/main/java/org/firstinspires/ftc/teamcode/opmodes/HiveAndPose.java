@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
+import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.localization.TagGate;
@@ -170,7 +171,7 @@ public class HiveAndPose extends RobotOpMode {
         driver.when("Circle (B)", "Toggle field / robot-centric", () -> gamepad1.b)
                 .onPress(robot.drive::toggleFieldCentric);
         driver.when("D-pad left", "Pose: reset to our marked spot (squared to its wall)", () -> gamepad1.dpad_left)
-                .onPress(() -> relocalizeNote = robot.drive.resetToSpot(setup.alliance()));
+                .onPress(() -> relocalizeNote = robot.drive.resetToSpot(setup.alliance(), ResetPositions.Corner.LEFT));
         driver.when("D-pad right", "Stationary camera fixes on / off (this run only; starts off)", () -> gamepad1.dpad_right)
                 .onPress(() -> robot.drive.setStillFixes(!robot.drive.stillFixesOn()));
         driver.when("D-pad up", "Turret: zero here, at its home mark (it zeroes itself at PLAY)", () -> gamepad1.dpad_up)
@@ -210,7 +211,7 @@ public class HiveAndPose extends RobotOpMode {
                 deadband(gamepad1.right_stick_x) * TURN_SIGN * scale);
         if (aiming) aimer.update(setup.alliance(), aimSwitchBandIn);
         showEverything();
-        display.line("<small>Cross (A) relocalize · D-pad left reset spot · D-pad right fixes on/off · "
+        display.line("<small>Cross (A) relocalize · D-pad left reset to the left corner · D-pad right fixes on/off · "
                 + "Triangle (Y) reset forward · "
                 + "Circle (B) field/robot-centric · Square (X) aim · D-pad up zero turret · D-pad down turret home · "
                 + "Share (Back): controls, robot pages</small>");

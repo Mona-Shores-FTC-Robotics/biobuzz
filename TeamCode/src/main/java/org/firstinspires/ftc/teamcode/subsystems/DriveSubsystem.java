@@ -299,23 +299,24 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     }
 
     /**
-     * Puts the robot at {@code alliance}'s marked reset spot ({@link ResetPositions}), heading
-     * included: the drive team has squared it against the wall there. The driver's field-centric
+     * Puts the robot at {@code alliance}'s marked reset spot in {@code corner} ({@link ResetPositions}),
+     * heading included: the drive team has squared it into the corner there. The driver's field-centric
      * forward stays where it was. For a button, when the pose is lost.
      *
      * @return what happened, for the driver
      */
-    public String resetToSpot(Alliance alliance) {
+    public String resetToSpot(Alliance alliance, ResetPositions.Corner corner) {
         if (localizer == null) {
             return poseNote = "reset: no Pinpoint";
         }
-        Pose spot = ResetPositions.of(alliance);
+        String where = alliance + "'s " + corner.toString().toLowerCase(java.util.Locale.US) + " corner";
+        Pose spot = ResetPositions.of(alliance, corner);
         if (spot == null) {
             return poseNote = alliance == Alliance.UNKNOWN ? "reset: no alliance chosen"
-                    : "reset: " + alliance + "'s spot is not measured yet (ResetPositions)";
+                    : "reset: " + where + " is not measured yet (ResetPositions)";
         }
         setPoseKeepingDriverForward(spot);
-        return poseNote = "reset to " + alliance + "'s spot " + describePose(spot);
+        return poseNote = "reset to " + where + " " + describePose(spot);
     }
 
     private static String describe(TagGate.Verdict verdict) {

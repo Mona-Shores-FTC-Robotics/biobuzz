@@ -1233,11 +1233,12 @@ knows. This is a blend, not a snap, so the filter can still weigh a bad fix agai
 `stillFixes` is **off** until the session below shows it helps; the Robot page says how each batch
 went (`READY` means it would have applied).
 
-**The reset spot.** `ResetPositions` holds one measured pose per alliance: a spot where the robot
-squares against a wall, so heading is known too. The button sets the whole pose. That also gives a
-TeleOp started without an Auto handoff a field heading. A fixed spot, not "the nearest corner":
-picking the nearest corner trusts the pose that is being reset. It stays NaN (the button says so)
-until measured.
+**The reset spots.** `ResetPositions` holds two measured poses per alliance: the corners on its
+wall to the driver's left (D-pad left) and right (D-pad right), where the robot squares into both
+walls, so heading is known too. The button sets the whole pose. That also gives a TeleOp started
+without an Auto handoff a field heading. The driver picks the corner by the button, never "the
+nearest corner": picking the nearest corner trusts the pose that is being reset. Each stays NaN
+(its button says so) until measured.
 
 **A vision session** (robot, `Vision: HIVE & Pose`, a field with HIVEs). Nothing to set in Panels:
 the OpMode starts from a known pose, a button switches fixes, and the match log records every

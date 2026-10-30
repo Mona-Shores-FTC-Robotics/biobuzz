@@ -98,8 +98,9 @@ CELLs give the whole pose (each tag's field position is known, since a TIP turns
 own line), which seeds an unreferenced pose. Once the pose is referenced the camera gives position
 only, with the Pinpoint's heading: `relocalizeFromCamera()` moves x and y and keeps the heading.
 Stationary fixes (`stillFixes`) and continuous fixes (`continuousFixes`) into the filter are both
-off until a measurement shows they help. The reset spot (`ResetPositions`, NaN until measured) is a
-fixed, measured pose per alliance, never "the nearest corner". Relocalizing or resetting never moves
+off until a measurement shows they help. The reset spots (`ResetPositions`, NaN until measured) are
+fixed, measured poses, the left and right corners of each alliance's wall, chosen by the button the
+driver holds, never "the nearest corner". Relocalizing or resetting never moves
 the driver's field-centric forward. Read the pose from `robot.drive`, never from the
 Pinpoint or the Limelight directly. Anything that drives or aims from field coordinates checks
 `robot.drive.poseReferenced()` first and degrades without it; driving itself never needs it.
