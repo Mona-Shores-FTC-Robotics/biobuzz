@@ -893,8 +893,22 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     @Override
     public String health() {
-        return localizer != null ? "Pinpoint present; drive motors configured, presence unknown until they move"
+        return localizer != null ? "Pinpoint present (" + pinpointIdentity()
+                + "); drive motors configured, presence unknown until they move"
                 : "Pinpoint missing (" + localizerFault + "): driving robot-centric, no paths";
+    }
+
+    /**
+     * Which Pinpoint this is, as the board reports it: its device ID and firmware version, which
+     * tell a first Pinpoint from a V2 (whose IMU also measures tilt). Two register reads over I2C,
+     * so only at INIT, through {@link #health()}.
+     */
+    private String pinpointIdentity() {
+        try {
+            return "device ID " + pinpoint.getDeviceID() + ", version " + pinpoint.getDeviceVersion();
+        } catch (RuntimeException e) {
+            return "identity unread: " + e;
+        }
     }
 
     @Override
