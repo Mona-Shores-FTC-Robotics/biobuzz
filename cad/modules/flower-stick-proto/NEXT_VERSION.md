@@ -106,3 +106,9 @@ model's "deep" side, which is why the family goes down to 0.7 in. The offset is 
 
 The poke has to work for any entry across the opening. Result of `page/lat_grid.js`: width 1.5 in covers about 1.6 in off centre each
 way at the right reach; 0.75 in covers 0.8; wider than 1.5 gains nothing. The family is 36 mm wide for this reason.
+
+## Result (30 Oct 2026): 12 real
+
+The 1.7 in poker (19 mm wide, square sides, top bevel) picked perfectly whenever localization was good. It is locked. The pick
+needs the robot within about 0.8 in of the FLOWER's axis (the near pipes' 2.39 in gap less the 19 mm poke), so localization
+accuracy, not the poke, is now what limits the FLOWER pick.

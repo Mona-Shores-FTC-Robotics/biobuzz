@@ -25,6 +25,7 @@ COLS = {"variants": [[("poker_u_lite", "lite"), ("poker_u_clip", "clip")], [("po
         "all": [[("mountain_wide", "the wide mountain blade")], [("poker_u_classic", "classic"), ("poker_u_lite", "lite")], [("poker_u_clip", "clip"), ("poker_u_adj", "adj: the U with the mast")], [("poker_u_adj_poke", "adj: the poke block")]],
         "shims": [[("poker_u_adj_shim2", "2 mm shim"), ("poker_u_adj_shim2", "2 mm shim")], [("poker_u_adj_shim4", "4 mm shim"), ("poker_u_adj_shim4", "4 mm shim")]],
         "family": [[("poker_f17", "reach 1.7 in, 19 mm wide, square sides: the model's target (robot about 17.72 in long)"), ("poker_f185", "reach 1.85 in, 19 mm wide, square sides: the longest inside the 18 in box with 0.13 in to spare")]],
+        "locked17": [[("poker_f17", "the locked poker: reach 1.7 in, 19 mm wide, square sides (30 Oct 2026)")]],
         "u_only": [[("poker_u_hi", "the poker L with the lower nose: the one that worked on 26 Oct")]],
         "next2": [[("mountain_wide_2in", "the wide mountain blade with its tail cut to 2.0 in")], [("poker_u", "poker_u: for the channel top 5.6 in up")], [("poker_u_hi", "poker_u_hi: for the channel top 6.55 in up; the poke hangs")]],
         "both": [[("mountain_wide", "design 9: the full 3.0 in blade, the sled-tested one")], [("mountain_wide_2in", "design 10: the same blade, tail cut to 2.0 in")], [("poker_u", "poker_u: for the channel top 5.6 in up"), ("poker_u_hi", "poker_u_hi: for the channel top 6.55 in up; the poke hangs")]]}

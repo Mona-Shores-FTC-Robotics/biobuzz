@@ -1,3 +1,12 @@
+# LOCKED, 30 Oct 2026: the 1.7 in poker
+
+**Print backups from `stl/print_job_locked17.stl` (or `step/print_job_locked17.step`): one part, `poker_f17`.** Reach 1.7 in ahead
+of the intake face, 19 mm wide, square sides with 3 mm corner chamfers, the top edge beveled 8 mm, the bottom square, the
+counterbored M4 hole for the front socket-head screw, the pegs, relief, wall holes and the roof cut short. On 20245 it picked
+perfectly whenever localization held (Dustin, 30 Oct). The robot measures 17.741 in front to back with it (18 in box: 0.26 in
+spare). Fasten it with the front screw (2 mm longer than the one standing there) and one zip tie through the wall hole and out
+the roof hole on the other side. Everything below is the history of how it got here.
+
 # Print now: the poker L, final (for whoever prints)
 
 **Fitted on 20245, 28 Oct 2026: it seated flat on its pegs and came out perfectly centred (Dustin).** The tie went in through the wall at the top and out the roof hole, as drawn.
