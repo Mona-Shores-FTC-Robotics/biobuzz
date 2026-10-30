@@ -102,4 +102,15 @@ public class FlowerPickerTest {
         assertEquals(true, FlowerPicker.ownHalf(100.0, 138.79));
         assertEquals(false, FlowerPicker.ownHalf(100.0, 47.36));
     }
+
+    /** Letting go means done only once the pieces are being taken, and only on the button. */
+    @Test
+    public void lettingGoFinishesOnlyFromTheDwellOn() {
+        for (GrabRoutine.Phase phase : GrabRoutine.Phase.values()) {
+            boolean dwellOrBack = phase == GrabRoutine.Phase.DWELL || phase == GrabRoutine.Phase.BACK;
+            assertEquals(phase.toString(), dwellOrBack, GrabRoutine.releaseFinishes(phase, true));
+            assertEquals("an Auto's card cut short always stops: " + phase, false,
+                    GrabRoutine.releaseFinishes(phase, false));
+        }
+    }
 }

@@ -102,6 +102,10 @@ public interface Subsystem {
      *
      * <p>{@code requiring(this)} tells the scheduler this command owns this subsystem, so it will
      * never run two commands that both need it at the same time.
+     *
+     * <p>{@code RobotOpMode} schedules the same command with a timer around {@code update()}, so
+     * each subsystem's time lands in the match log ({@code /Loop/Subsystem/<Name>Ms}). Overriding
+     * this changes nothing there: put the work in {@link #update()}.
      */
     default Command periodic() {
         return Commands.infinite(this::update).requiring(this);

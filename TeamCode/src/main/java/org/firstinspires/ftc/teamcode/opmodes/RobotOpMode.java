@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.ivy.commands.Commands;
 import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -292,8 +294,10 @@ public abstract class RobotOpMode extends OpMode {
         // is called. Reset before scheduling, never after.
         Scheduler.reset();
         List<Subsystem> subsystems = robot.subsystems();
+        subsystemKeys = new String[subsystems.size()];
+        subsystemMs = new double[subsystems.size()];
         for (int i = 0; i < subsystems.size(); i++) {
-            Scheduler.schedule(subsystems.get(i).periodic());
+            Scheduler.schedule(timedPeriodic(subsystems.get(i), i));
         }
 
         // What each subsystem found, on the log's Metadata tab: the one place that says whether
@@ -462,6 +466,27 @@ public abstract class RobotOpMode extends OpMode {
         costs.record(t0, t1, t2, t3, t4);
     }
 
+    /** Per subsystem: its log key and its last update's time, ms. Built once in init. */
+    private String[] subsystemKeys = new String[0];
+    private double[] subsystemMs = new double[0];
+
+    /**
+     * A subsystem's {@code periodic()}, timed: its {@code update()} as a never-ending command that
+     * requires it, which is what {@link Subsystem#periodic()} is, with the time each update takes
+     * kept for the match log ({@code /Loop/Subsystem/<Name>Ms}). The first subsystem to read a hub
+     * after the loop clears the bulk cache pays for that hub's bulk read, so a large number on it
+     * may be the read rather than its own work; the list order is fixed, so that is the same
+     * subsystem every loop.
+     */
+    private Command timedPeriodic(final Subsystem subsystem, final int index) {
+        subsystemKeys[index] = "/Loop/Subsystem/" + subsystem.getClass().getSimpleName() + "Ms";
+        return Commands.infinite(() -> {
+            long start = System.nanoTime();
+            subsystem.update();
+            subsystemMs[index] = (System.nanoTime() - start) / 1e6;
+        }).requiring(subsystem);
+    }
+
     /**
      * Where a loop's time goes, so a slow loop can be blamed on the right thing: the OpMode's own
      * {@code onLoop()} (its drive request, Match page and Panels), the subsystems' updates through
@@ -493,6 +518,9 @@ public abstract class RobotOpMode extends OpMode {
             log.put("/Loop/SubsystemsMs", lastSubsystemsMs);
             log.put("/Loop/PageMs", lastPageMs);
             log.put("/Loop/LogMs", lastLogMs);
+            for (int i = 0; i < subsystemKeys.length; i++) {
+                log.put(subsystemKeys[i], subsystemMs[i]);
+            }
         }
 
         public double onLoopMs() { return onLoopMs.mean(); }

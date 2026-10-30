@@ -358,8 +358,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         double aimDeg = aimer.aimDeg();
         aimErrorDeg = Double.isNaN(aimDeg) ? Double.NaN : aimDeg - robot.turret.angleDegrees();
 
-        // A FLOWER pick or a GARDEN gather drives the robot while held, one at a time; letting go or
-        // a stick hands it back, this loop.
+        // A FLOWER pick or a GARDEN gather drives the robot while held, one at a time; a stick, or
+        // letting go before the dwell, hands it back this loop. Let go in the dwell, it backs out first.
         boolean sticksMoved = leftStick || rightStick;
         picker.update(controls.held(Action.FLOWER_PICK) && !gatherer.active(), sticksMoved);
         gatherer.update(controls.held(Action.GARDEN_GATHER) && !picker.active(), sticksMoved);
