@@ -108,13 +108,13 @@ logs were analysed afterwards. What that session established:
        from about 55 in away, and one from close to the line-up spot but turned 90°: the robot
        should turn before it pushes.
 
-   [ ] **FLOWER dwell.** The dwell is 1.5 s, the longest phase of a pick, and the commonest abort
-       on 29 Oct was a stick moved during it, by drivers who saw all the pieces were in. Now
-       **letting go of Cross (or Triangle) during the dwell means done**: the robot backs out on its
-       own and the stick comes up once clear. Try it on three picks and a gather; a stick still
-       stops it. The default dwell is now 1000 ms (23 of the 33 dwells drivers ended early were
-       over by 1.0 s). Try 800 in Panels → FlowerPicker and note the shortest that still gets the
-       pieces when nobody lets go early.
+   [ ] **FLOWER dwell.** The dwell now ends by itself from the intake current: 0.6 s after the
+       last piece's spike (`dwellQuietMs`), or at 1.3 s if no piece came (`dwellEmptyMs`), at most
+       2 s (`dwellMs`). The log says why each dwell ended ("pieces in", "nothing came", "dwellMs",
+       "let go"). **Letting go of Cross during the dwell** also means done: the robot backs out and
+       the stick comes up once clear; a stick still stops it. Do ten picks from loaded FLOWERs,
+       without letting go: note how many pieces each left behind. If pieces are left, raise
+       `dwellQuietMs` in Panels → FlowerPicker; if the robot waits on an emptied FLOWER, lower it.
 
 8. [ ] **If time is left: the path-following tuning.** The Foresight block was tuned on 17 Oct,
        before the mass was added and before the strafe pod's offset was fixed. Re-run the Foresight
@@ -139,7 +139,7 @@ logs were analysed afterwards. What that session established:
 | The slowest `/Loop/Subsystem/<Name>Ms` and its mean | |
 | Loop Time Baseline: hz / mean / max / odometry ms | |
 | `towardWallIn` that reaches the corner | |
-| Shortest `dwellMs` that still gets the pieces | |
+| `dwellQuietMs` / `dwellEmptyMs` that get the pieces without waiting | |
 | Battery at rest, start and end | |
 | Indicator light positions that needed changing | |
 
