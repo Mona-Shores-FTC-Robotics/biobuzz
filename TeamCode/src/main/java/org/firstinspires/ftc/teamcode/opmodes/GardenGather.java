@@ -42,8 +42,14 @@ public final class GardenGather extends GrabRoutine {
     public static double maxRangeIn = 160.0;
     /** The line-up path gives up after this long, ms. */
     public static double lineUpTimeoutMs = 4000;
-    /** The stick goes down and the intake starts once the robot is this close to the line-up, inches. */
-    public static double lowerWithinIn = 18.0;
+    /**
+     * The stick goes down and the intake starts once the robot is this close to the line-up,
+     * inches, and faces the GARDEN to within {@link #lowerWithinDeg}. The GARDEN is in a corner, so
+     * a stick swung down early, while the robot still turns, came down on the wall (30 Oct 2026).
+     */
+    public static double lowerWithinIn = 6.0;
+    /** See {@link #lowerWithinIn}, degrees. */
+    public static double lowerWithinDeg = 10.0;
     /** Time the stick is given to swing down before the drive in may start, ms. */
     public static double stickDownMs = 700;
     /**
@@ -165,6 +171,7 @@ public final class GardenGather extends GrabRoutine {
 
     @Override protected double prepMs() { return stickDownMs; }
     @Override protected double prepWithinIn() { return lowerWithinIn; }
+    @Override protected double prepWithinDeg() { return lowerWithinDeg; }
     @Override protected double atLineUpIn() { return atLineUpIn; }
     @Override protected double atLineUpDeg() { return atLineUpDeg; }
     @Override protected double lineUpTimeoutMs() { return lineUpTimeoutMs; }

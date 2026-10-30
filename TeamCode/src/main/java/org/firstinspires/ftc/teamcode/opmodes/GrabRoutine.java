@@ -154,6 +154,11 @@ public abstract class GrabRoutine {
 
     protected abstract double prepMs();
     protected abstract double prepWithinIn();
+    /**
+     * Prep during the line-up also waits until the robot faces the line-up's heading to within this
+     * many degrees: a mechanism swung out while the robot still turns can catch a wall.
+     */
+    protected abstract double prepWithinDeg();
     protected abstract double atLineUpIn();
     protected abstract double atLineUpDeg();
     protected abstract double lineUpTimeoutMs();
@@ -233,7 +238,9 @@ public abstract class GrabRoutine {
         double remaining = Math.hypot(in.x() - pose.x(), in.y() - pose.y());
         switch (phase) {
             case LINE_UP:
-                prepIfClose(now, remaining);
+                if (Math.abs(Math.toDegrees(wrapRad(in.heading() - pose.heading()))) <= nn(prepWithinDeg())) {
+                    prepIfClose(now, remaining); // in is the line-up pose until the line-up ends
+                }
                 if (robot.drive.pathDone()) {
                     pose = robot.drive.pose(); // where the line-up ended, not where this loop began
                     InPlan plan = inPose(pose, true);
