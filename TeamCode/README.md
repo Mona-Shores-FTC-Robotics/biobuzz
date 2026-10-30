@@ -604,8 +604,9 @@ to `IntakeSubsystem` is a task a beginner can take; writing an intake is not.
 > is always on. The reasoning below replaces the old advice; the rejected option is kept.
 
 `update()` is one step of the mechanism's work, called once per loop. `periodic()` wraps that same
-method as an Ivy `Command`, and `RobotOpMode` schedules every subsystem's `periodic()` and runs the
-`Scheduler` every loop, TeleOp and Autonomous alike. An OpMode never calls `update()`; it tells a
+method as an Ivy `Command`, and `RobotOpMode` schedules every subsystem's `periodic()` (the same
+command with a timer around `update()`, so each subsystem's time is in the match log as
+`/Loop/Subsystem/<Name>Ms`) and runs the `Scheduler` every loop, TeleOp and Autonomous alike. An OpMode never calls `update()`; it tells a
 subsystem what it wants (`robot.drive.drive(...)`) and the scheduler does the rest.
 
 `RobotOpMode.loop()` runs in a fixed order: clear the bulk cache, `onLoop()`, then
