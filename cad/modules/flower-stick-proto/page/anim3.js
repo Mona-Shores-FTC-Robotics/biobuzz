@@ -137,6 +137,7 @@
     cfg = { drive: push, mu: 0.4, stopErr, extraDepth: P.extraDepth || 0, onRobot: true, width: P.width || 5.4, shaftBack: P.shaftBack, gutter: P.lane === null ? null : LANE, offset: 0, yaw: 0, mouth: 7.5, muBall: 0.4 };
     Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger; cfg.mount = mount; if (P.pusher) cfg.pusher = Object.assign({}, POKERS[mount]); if (P.pokeReach) cfg.pusher.reach = P.pokeReach; if (P.lipFixed) cfg.faceBehindLip = P.lipFixed; if (P.lipInput) { cfg.faceBehindLip = measuredLip; if (P.pokeFromLip) cfg.pusher.reach = Math.max(1.0, Math.min(3.0, measuredLip - 2.5)); }
     const lipBox = $("lip-box"); if (lipBox) lipBox.style.display = P.lipInput ? "" : "none";
+    window.__FBL = cfg.faceBehindLip || null;   // the 3D view draws the robot this far behind the lip
     const t0 = performance.now(); result = S.run(profile, cfg); const ms = Math.round(performance.now() - t0);
     const r = result; let s;
     if (r.stalled) s = "Stalled at " + r.stalled[0].toFixed(2) + " s: a steady push cannot lift the ball on this face." + (preset === "blockA" ? " On October 15 two of these, pushed by hand with a wiggle, did empty a side-to-side stack; a steady push could not." : "");
@@ -161,7 +162,7 @@
   const polyDist = (A, B) => { let d = Infinity; for (let i = 0; i < A.length; i++) for (let j = 0; j < B.length; j++) { d = Math.min(d, segDist(A[i], B[j], B[(j + 1) % B.length]), segDist(B[j], A[i], A[(i + 1) % A.length])); } return d; };
   function stowReport() {
     // sweep the stick from deployed to stowed and find its closest approach to the poker, the intake's face and the camera (robot frame, x ahead of the face)
-    const P = PRESETS[preset], MT = mt(), fbl = S.shaftAhead(MT) + P.shaftBack, pv = MT.pivot, shx = S.shaftAhead(MT), phiMax = stowAngle(MT, shx - pv[0], 0.77 - pv[1]);
+    const P = PRESETS[preset], MT = mt(), fbl = cfg.faceBehindLip || S.shaftAhead(MT) + P.shaftBack, pv = MT.pivot, shx = S.shaftAhead(MT), phiMax = stowAngle(MT, shx - pv[0], 0.77 - pv[1]);
     const bladeR = profile.map(([x, z]) => [fbl - x, z]), ux = (shx - pv[0]) / MT.L, uz = (0.77 - pv[1]) / MT.L, nx = -uz * MT.w / 2, nz = ux * MT.w / 2;
     const armR = [[pv[0] - ux * MT.back + nx, pv[1] - uz * MT.back + nz], [pv[0] + ux * MT.fwd + nx, pv[1] + uz * MT.fwd + nz], [pv[0] + ux * MT.fwd - nx, pv[1] + uz * MT.fwd - nz], [pv[0] - ux * MT.back - nx, pv[1] - uz * MT.back - nz]];
     const web = cfg.pusher ? (cfg.pusher.web || cfg.pusher.z0 - 0.09) : 0;
@@ -197,7 +198,7 @@
     const shx = lip - P.shaftBack;
     shaft.setAttribute("cx", sx(shx)); shaft.setAttribute("cy", sy(0.77));
     if (true) {
-      const MT = mt(), face = lip - S.shaftAhead(MT) - P.shaftBack, ax = face - S.GECKO_R, az = S.GECKO_Z, pvx = face + MT.pivot[0], pvz = MT.pivot[1];
+      const MT = mt(), face = lip - (cfg.faceBehindLip || S.shaftAhead(MT) + P.shaftBack), ax = face - S.GECKO_R, az = S.GECKO_Z, pvx = face + MT.pivot[0], pvz = MT.pivot[1];
       robotG.setAttribute("transform", `translate(${(face * PX).toFixed(1)} 0)`);
       gecko.setAttribute("cx", sx(ax)); gecko.setAttribute("cy", sy(az)); gecko.setAttribute("r", S.GECKO_R * PX);
       const a = t * 40 / S.GECKO_R;
@@ -237,7 +238,7 @@
     } else planFace.style.display = planMouth.style.display = "none";
     let phi = 0;
     if (stowT > 0 || backT > 0) {                                        // the stick raised, or the robot backed off to look at it: arm, shaft and blade turned about the pivot together
-      const MT = mt(), face = lip - S.shaftAhead(MT) - P.shaftBack, pvx = face + MT.pivot[0], pvz = MT.pivot[1];
+      const MT = mt(), face = lip - (cfg.faceBehindLip || S.shaftAhead(MT) + P.shaftBack), pvx = face + MT.pivot[0], pvz = MT.pivot[1];
       phi = stowAngle(MT, shx - pvx, 0.77 - pvz) * u;
       const rot = ([x, z]) => { const dx = x - pvx, dz = z - pvz, c = Math.cos(phi), s_ = Math.sin(phi); return [pvx + dx * c - dz * s_, pvz + dx * s_ + dz * c]; };
       blade.setAttribute("points", profile.map(([x, z]) => rot([lip - x, z])).map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); toeEl.style.display = "none";

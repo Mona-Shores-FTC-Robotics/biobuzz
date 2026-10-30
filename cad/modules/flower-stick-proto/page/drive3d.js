@@ -213,7 +213,7 @@ window.Drive3D = (function () {
     if (onRobot) {
       robot.visible = true; sled.visible = false;
       const M = MOUNTS[mountNow], sa = M.pivot[0] + Math.sqrt(M.L * M.L - (M.pivot[1] - 0.77) ** 2);
-      const face = lip - shaftBack - sa, px = face + M.pivot[0], pz = M.pivot[1];
+      const face = lip - (window.__FBL || shaftBack + sa), px = face + M.pivot[0], pz = M.pivot[1];
       robot.position.x = face;
       const a = t * 40 / 0.94; for (const g of geckos) g.rotation.z = -a;
       if (phi) { const c = Math.cos(phi), s = Math.sin(phi); bladeG.position.set(px + (lip - px) * c - (0 - pz) * s, pz + (lip - px) * s + (0 - pz) * c, 0); bladeG.rotation.z = phi; }
