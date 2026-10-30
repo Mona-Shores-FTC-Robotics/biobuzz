@@ -48,7 +48,8 @@ public class ImpactWatchTest {
         assertEquals(Event.JOLT, w.update(20, 0.8, 30.0)); // 500 in/s²
         assertEquals(500, w.lastJoltInPerSec2(), 1e-6);
         assertEquals("held off", Event.NONE, w.update(40, 0.8, 20.0));
-        assertEquals(Event.JOLT, w.update(600, 0.8, 40.0));
+        assertEquals("steady again", Event.NONE, w.update(600, 0.8, 20.0));
+        assertEquals("after the hold-off", Event.JOLT, w.update(620, 0.8, 40.0)); // 1000 in/s²
     }
 
     @Test
