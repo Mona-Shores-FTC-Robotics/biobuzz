@@ -30,7 +30,7 @@ public final class SisterRightFixedAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(55.17, 7.72, 90);
+        return poses(rotated).of(54.06, 7.72, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -42,7 +42,7 @@ public final class SisterRightFixedAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(55.17, 7.72, 90);
+        Pose start = p.of(54.06, 7.72, 90);
         Pose sCatch = p.of(57.5, 21, 90);
         Pose gardenIn = p.of(9.5, 20.56, 270);
         Pose garden = p.of(9.5, 10.96, 270);

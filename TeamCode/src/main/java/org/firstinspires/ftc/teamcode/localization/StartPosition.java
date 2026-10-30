@@ -20,8 +20,8 @@ public final class StartPosition {
     public final Pose pose;
 
     /**
-     * How far the robot's left side may be from its centre for {@link #placement} to name the seam
-     * it is on, inches: about half the robot's width.
+     * How far the left wheels may be from the robot's centre for {@link #placement} to name the seam
+     * they are on, inches: about half the robot's track width.
      */
     static final double LEFT_WHEELS_FROM_CENTRE_MAX_IN = 10.0;
 
@@ -32,15 +32,15 @@ public final class StartPosition {
     }
 
     /**
-     * How to put the robot there, as short as it can be: "Left side on B-C Seam", the seam on
+     * How to put the robot there, as short as it can be: "Left wheels on B-C Seam", the seam on
      * the robot's left as it faces at the start (columns for a robot facing along the field, rows
      * for one facing across it). Worked out from the pose, so a start turned half a turn for the
      * other alliance gets its own seam. Falls back to {@link #where} when no seam is close enough
-     * to the robot's left to be where its side is.
+     * to the robot's left to be where its wheels are.
      */
     public String placement() {
         String seam = leftSeam();
-        return seam == null ? where() : "Left side on " + seam + " Seam";
+        return seam == null ? where() : "Left wheels on " + seam + " Seam";
     }
 
     /** The seam just to the robot's left, "B-C" or "2-3", or null if none is within reach. */
