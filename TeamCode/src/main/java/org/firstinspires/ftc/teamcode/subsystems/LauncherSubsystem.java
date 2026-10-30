@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
+import org.firstinspires.ftc.teamcode.util.Throttle;
 
 import java.util.Locale;
 
@@ -23,8 +24,10 @@ import java.util.Locale;
  * <h2>How the speed is held</h2>
  *
  * <p>The hub's own velocity loop: each motor runs in {@code RUN_USING_ENCODER} and is given a
- * target in encoder ticks per second with {@code setVelocity}. That is one write per wheel per
- * loop and no controller of ours to tune. If the hub's default loop turns out sluggish on the
+ * target in encoder ticks per second with {@code setVelocity}. That is one write per wheel when
+ * the target changes, and again every {@link #RESEND_MS} (each is a 2–3 ms round trip to the hub,
+ * and the SDK does not skip a repeated velocity; the resend recovers a motor a hub has zeroed), and
+ * no controller of ours to tune. If the hub's default loop turns out sluggish on the
  * bench, the knob is {@code setVelocityPIDFCoefficients}, not a controller here; the {@code
  * launcher2} rig has the hand-rolled alternative if it ever comes to that.
  *
@@ -150,6 +153,14 @@ public class LauncherSubsystem implements Subsystem {
     private final ShotDetector shots = new ShotDetector();
     private double lastLeftTarget = Double.NaN;
     private double lastRightTarget = Double.NaN;
+    /** The velocity last sent to each wheel; NaN when none is standing, so the next one goes. */
+    private double leftSent = Double.NaN;
+    private double rightSent = Double.NaN;
+    /** An unchanged velocity is sent again this often, ms. */
+    static final double RESEND_MS = 250;
+    private final Throttle resend = new Throttle(RESEND_MS, 0);
+    /** Current is not in the bulk read; ten reads a second, as {@code IntakeSubsystem}'s. */
+    private final Throttle currentRead = new Throttle(100, 66);
 
     /** The robot's launcher: looks both motors up once. A missing motor fails init with the SDK's own message. */
     public LauncherSubsystem(HardwareMap hardwareMap) {
@@ -335,8 +346,8 @@ public class LauncherSubsystem implements Subsystem {
     }
 
     /**
-     * One velocity write per wheel, then one read of each speed (from the bulk read) and, while
-     * spinning, one of each current. A wheel that has been commanded for {@link #encoderFaultAfterMs}
+     * A velocity write per wheel when its target changes (and every {@link #RESEND_MS}), one read
+     * of each speed (from the bulk read) and, while spinning, one of each current every 100 ms. A wheel that has been commanded for {@link #encoderFaultAfterMs}
      * and still reads nothing is cut until {@link #spinDown()}.
      */
     @Override
@@ -359,10 +370,16 @@ public class LauncherSubsystem implements Subsystem {
                     encoderFaultAfterMs, encoderSilentTicksPerSecond)) {
                 rightFault = true;
             }
-            command(left, leftFault ? 0.0 : commandFor(leftTarget, leftReversed));
-            if (right != null) command(right, rightFault ? 0.0 : commandFor(rightTarget, rightReversed));
-            leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
-            rightCurrentAmps = right == null ? Double.NaN : right.getCurrent(CurrentUnit.AMPS);
+            boolean force = resend.due(now);
+            leftSent = command(left, leftFault ? 0.0 : commandFor(leftTarget, leftReversed), leftSent, force);
+            if (right != null) {
+                rightSent = command(right, rightFault ? 0.0 : commandFor(rightTarget, rightReversed),
+                        rightSent, force);
+            }
+            if (currentRead.due(now)) {
+                leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
+                rightCurrentAmps = right == null ? Double.NaN : right.getCurrent(CurrentUnit.AMPS);
+            }
             boolean within = !leftFault && !rightFault && (leftTarget > 0.0 || rightTarget > 0.0)
                     && Math.abs(leftTicksPerSecond - leftTarget) <= toleranceTicksPerSecond
                     && Math.abs(rightTicksPerSecond - rightTarget) <= toleranceTicksPerSecond;
@@ -374,6 +391,10 @@ public class LauncherSubsystem implements Subsystem {
         } else {
             left.setPower(0.0);
             if (right != null) right.setPower(0.0);
+            leftSent = Double.NaN;
+            rightSent = Double.NaN;
+            resend.reset();
+            currentRead.reset();
             leftCurrentAmps = Double.NaN;
             rightCurrentAmps = Double.NaN;
             atSpeed = false;
@@ -444,12 +465,18 @@ public class LauncherSubsystem implements Subsystem {
         return Double.isNaN(l) || Double.isNaN(r) ? "" : String.format(Locale.US, " (%.0f / %.0f rpm)", l, r);
     }
 
-    private static void command(DcMotorEx motor, double ticksPerSecond) {
+    /**
+     * Sends {@code ticksPerSecond} unless it is what was last sent and {@code force} is false.
+     * Returns what now stands.
+     */
+    private static double command(DcMotorEx motor, double ticksPerSecond, double lastSent, boolean force) {
+        if (!force && ticksPerSecond == lastSent) return lastSent;
         if (ticksPerSecond == 0.0) {
             motor.setPower(0.0);
         } else {
             motor.setVelocity(ticksPerSecond);
         }
+        return ticksPerSecond;
     }
 
     /**

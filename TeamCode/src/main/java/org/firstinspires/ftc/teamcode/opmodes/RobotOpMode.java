@@ -202,6 +202,8 @@ public abstract class RobotOpMode extends OpMode {
     static final double LOW_BATTERY_VOLTS = 12.0;
     /** The INIT page's battery warning, null when the battery read fine or there is no sensor. */
     private String batteryNote;
+    /** The low-battery rumble has gone, once per INIT: 29 Oct's low runs all had the page warning. */
+    private boolean batteryRumbled;
 
     // A mechanism asked to move whose encoder never does: one event each, from the log alone.
     private final MotionWatch intakeWatch = new MotionWatch("intake");
@@ -358,8 +360,14 @@ public abstract class RobotOpMode extends OpMode {
             display.status("Start", handoffLevel, handoffNote);
         }
         if (batteryNote != null) {
-            display.status("Battery", Display.Level.WARN, batteryNote);
+            display.status("Battery", Display.Level.FAULT, batteryNote);
+            if (!batteryRumbled) {
+                batteryRumbled = true;
+                gamepad1.rumble(600);
+                gamepad2.rumble(600);
+            }
         }
+        describeCamera();
         startCheck.describe(display);
         driver.updateDuringInit();
         operator.updateDuringInit();
@@ -368,6 +376,21 @@ public abstract class RobotOpMode extends OpMode {
         finishPage();
         drawField(true);
         recordLoop(MatchLog.Mode.DISABLED, Double.NaN);
+    }
+
+    /**
+     * The camera's state before PLAY, when it is not yet fine. On 29 Oct PLAY was pressed five times
+     * before the Limelight's first frame, so the start check had nothing to go on, and for half an
+     * hour the Limelight did not answer at all without anyone seeing it.
+     */
+    private void describeCamera() {
+        if (!robot.vision.isAvailable()) {
+            display.status("Camera", Display.Level.FAULT, robot.vision.unavailableReason());
+        } else if (!robot.vision.isConnected()) {
+            display.status("Camera", Display.Level.FAULT, "the Limelight is not answering: check its power and Ethernet");
+        } else if (robot.vision.freshResultCount() == 0) {
+            display.status("Camera", Display.Level.WARN, "no frames yet: wait for it before PLAY");
+        }
     }
 
     @Override

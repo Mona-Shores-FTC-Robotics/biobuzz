@@ -87,6 +87,8 @@ public final class GardenGather extends GrabRoutine {
     public static double stallMs = 250;
     /** The dwell, ms, intake running. A cap until pieces can be counted (#181). */
     public static double dwellMs = 1500;
+    /** The drive in starts once the robot has slowed below this after the line-up, inches/s. */
+    public static double settledInPerSec = 2.0;
     /** Forward power during the dwell, to keep the stick seated. 0 for none. */
     public static double dwellPushPower = 0.1;
     /** The drive back's speed cap, a fraction of the robot's top path speed (0 to 1]. */
@@ -196,6 +198,7 @@ public final class GardenGather extends GrabRoutine {
     }
 
     @Override protected double prepMs() { return stickDownMs; }
+    @Override protected double settledInPerSec() { return settledInPerSec; }
     @Override protected double prepWithinIn() { return lowerWithinIn; }
     @Override protected double prepWithinDeg() { return lowerWithinDeg; }
     @Override protected double atLineUpIn() { return atLineUpIn; }

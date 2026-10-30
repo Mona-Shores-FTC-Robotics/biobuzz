@@ -83,19 +83,30 @@ logs were analysed afterwards. What that session established:
 
 5. [ ] **Loop time, named.** **Basic Drive**, two minutes of normal driving with the intake on for
        part of it and a couple of FLOWER picks. Pull the log; `/Loop/Subsystem/<Name>Ms` says which
-       update is expensive. Also run **Loop Time Baseline** once more for comparison.
+       update is expensive. Also run **Loop Time Baseline** once more for comparison. Since 29 Oct
+       the motor currents are read ten times a second instead of every loop, and the launcher's
+       and the turret's commands are sent only when they change (and every 250 ms). Expect
+       Basic Drive near 10–12 ms with the intake on, down from 16–18.5. Also check that the intake
+       still runs and stops normally, and that the Match page's intake current still updates.
 
 6. [ ] **GARDEN into the corner** (`towardWallIn`, 2 in, new since 29 Oct). Hold driver Triangle
        near the red GARDEN, three times. The robot should finish pressed into the audience wall and
        the red wall with the intake in the corner. Tune `towardWallIn` in Panels → GardenGather (0
        turns it off) and note the value that works.
 
-7. [ ] **FLOWER dwell.** The dwell is 1.5 s, the longest phase of a pick, and the commonest abort
+7. [ ] **FLOWER range and line-up.** The pick now reaches a FLOWER up to 60 in away (was 48, which
+       refused 5 picks by 2–5 in on 29 Oct). The line-up now waits for the robot to face the
+       FLOWER and to slow below 2 in/s before the push (half a second at most each). Try a pick
+       from about 55 in away, and one from close to the line-up spot but turned 90°: the robot
+       should turn before it pushes.
+
+   [ ] **FLOWER dwell.** The dwell is 1.5 s, the longest phase of a pick, and the commonest abort
        on 29 Oct was a stick moved during it, by drivers who saw all the pieces were in. Now
        **letting go of Cross (or Triangle) during the dwell means done**: the robot backs out on its
        own and the stick comes up once clear. Try it on three picks and a gather; a stick still
-       stops it. Then try `dwellMs` 1000 and 800 in Panels → FlowerPicker and note the shortest
-       that still gets the pieces when nobody lets go early.
+       stops it. The default dwell is now 1000 ms (23 of the 33 dwells drivers ended early were
+       over by 1.0 s). Try 800 in Panels → FlowerPicker and note the shortest that still gets the
+       pieces when nobody lets go early.
 
 8. [ ] **If time is left: the path-following tuning.** The Foresight block was tuned on 17 Oct,
        before the mass was added and before the strafe pod's offset was fixed. Re-run the Foresight

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
+import org.firstinspires.ftc.teamcode.util.Throttle;
 
 import java.util.Locale;
 
@@ -136,6 +137,13 @@ public class TurretSubsystem implements Subsystem {
     private double rateDps = Double.NaN;
     private double errorDeg = Double.NaN;
     private double powerSent;
+    /**
+     * What the servo was last told, to the PWM's own step; NaN before the first. A write is a 2–3 ms
+     * round trip to the Expansion Hub, so an unchanged one waits for {@link #resend}, which keeps
+     * the repeat that recovers a servo a hub has zeroed.
+     */
+    private double servoOut = Double.NaN;
+    private final Throttle resend = new Throttle(250, 0);
     private String runawayNote;
 
     /** Looks both devices up once. A missing one fails init with the SDK's own message. */
@@ -312,7 +320,19 @@ public class TurretSubsystem implements Subsystem {
                 break;
         }
         powerSent = requested * (servoDirection == -1 ? -1 : 1);
-        servo.setPower(clamp(powerSent + clamp(servoStopPower, 0.2), 1.0));
+        double out = pwmStep(clamp(powerSent + clamp(servoStopPower, 0.2), 1.0));
+        if (out != servoOut || resend.due(System.nanoTime())) {
+            servo.setPower(out);
+            servoOut = out;
+        }
+    }
+
+    /**
+     * A servo power to the PWM's own step: power ±1 spans 1000 µs of pulse either side of the
+     * centre, so 0.001 is one microsecond, the finest the hub sends. Finer changes only cost writes.
+     */
+    static double pwmStep(double power) {
+        return Math.round(power * 1000.0) / 1000.0;
     }
 
     /** Final teardown: power off. */

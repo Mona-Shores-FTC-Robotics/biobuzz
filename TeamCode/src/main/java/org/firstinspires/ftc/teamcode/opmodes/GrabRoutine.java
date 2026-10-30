@@ -25,9 +25,14 @@ import java.util.function.Consumer;
  *
  * <ol>
  *   <li><b>Line up</b> (the button only). A Pedro path from the robot's localized pose to the
- *       target's line-up pose ({@link #lineUpPose}). Skipped when already there.</li>
+ *       target's line-up pose ({@link #lineUpPose}). Skipped when already there. It ends once the
+ *       path is done <em>and</em> the robot faces the line-up's heading to {@link #atLineUpDeg}
+ *       (waiting at most {@link #SETTLE_MAX_MS} for that): Pedro calls a short path done before the
+ *       robot has turned.</li>
  *   <li><b>Prep.</b> The mechanisms get ready ({@link #prep}), and the robot waits {@link #prepMs}
- *       for them. Prep starts during the line-up once the robot is within {@link #prepWithinIn}.</li>
+ *       for them. Prep starts during the line-up once the robot is within {@link #prepWithinIn}.
+ *       The In also waits for the robot to slow below {@link #settledInPerSec} (at most
+ *       {@link #SETTLE_MAX_MS}), since Pedro ends a path still rolling.</li>
  *   <li><b>In.</b> A Pedro path to where the grab happens ({@link #inPose}), capped at
  *       {@link #inSpeed} of the robot's top speed. It ends when the path does, or when the robot
  *       stops getting closer (it is against something; not counted in the path's first moments,
@@ -105,6 +110,8 @@ public abstract class GrabRoutine {
     private Pose inEnd;
     private String inEndWhy = "";
     private boolean unprepped;
+    /** When the line-up's path was first done, or -1. */
+    private long lineUpDoneNs = -1;
     /** Let go during the dwell or the back-out: the grab runs to its end without the button. */
     private boolean finishing;
     private final double[] phaseMs = new double[Phase.values().length];
@@ -168,6 +175,8 @@ public abstract class GrabRoutine {
     protected abstract double atLineUpIn();
     protected abstract double atLineUpDeg();
     protected abstract double lineUpTimeoutMs();
+    /** The In starts once the robot is slower than this, inches/s (see {@link #SETTLE_MAX_MS}). */
+    protected abstract double settledInPerSec();
     protected abstract double inSpeed();
     protected abstract double inTimeoutMs();
     protected abstract double stallProgressIn();
@@ -260,7 +269,12 @@ public abstract class GrabRoutine {
                 if (Math.abs(Math.toDegrees(wrapRad(in.heading() - pose.heading()))) <= nn(prepWithinDeg())) {
                     prepIfClose(now, remaining); // in is the line-up pose until the line-up ends
                 }
-                if (robot.drive.pathDone()) {
+                boolean pathDone = robot.drive.pathDone();
+                if (pathDone && lineUpDoneNs < 0) lineUpDoneNs = now;
+                boolean facing = Math.abs(Math.toDegrees(wrapRad(in.heading() - pose.heading())))
+                        <= nn(atLineUpDeg());
+                // The follower holds, and turns, after the path; wait for it to face, but not long.
+                if (pathDone && (facing || ms(now, lineUpDoneNs) >= SETTLE_MAX_MS)) {
                     pose = robot.drive.pose(); // where the line-up ended, not where this loop began
                     InPlan plan = inPose(pose, true);
                     if (plan.in == null) {
@@ -277,7 +291,9 @@ public abstract class GrabRoutine {
                 break;
             case PREP:
                 // The follower holds where the line-up ended until the next drive command.
-                if (ms(now, preppedNs) >= nn(prepMs())) {
+                if (ms(now, preppedNs) >= nn(prepMs())
+                        && (settled(robot.drive.speedInPerSec(), settledInPerSec())
+                                || ms(now, phaseStartNs) >= SETTLE_MAX_MS)) {
                     progressNs = now;
                     bestRemainingIn = remaining;
                     next(now, Phase.IN);
@@ -355,6 +371,7 @@ public abstract class GrabRoutine {
         prepped = false;
         unprepped = false;
         finishing = false;
+        lineUpDoneNs = -1;
         inEndWhy = "";
         Pose pose = robot.drive.pose();
         if (pose == null) {
@@ -491,6 +508,17 @@ public abstract class GrabRoutine {
     }
 
     // ------------------------------------------------------------- pure math
+
+    /**
+     * The longest a grab waits, ms, for the robot to face the line-up's heading after its path, and
+     * again for it to slow before the In: a robot that never quite gets there still goes.
+     */
+    static final double SETTLE_MAX_MS = 500;
+
+    /** Slower than {@code limitInPerSec}; an unknown speed counts as settled. */
+    static boolean settled(double speedInPerSec, double limitInPerSec) {
+        return Double.isNaN(speedInPerSec) || speedInPerSec < nn(limitInPerSec);
+    }
 
     /**
      * How far (px, py) is past the point (cx, cy) along heading {@code h}, inches: negative before
