@@ -50,8 +50,11 @@ public final class FlowerPicker extends GrabRoutine {
     public static double atApproachDeg = 5.0;
     /** An Auto's pick refuses when the FLOWER is more than this far off the robot's line ahead, inches. */
     public static double aheadToleranceIn = 6.0;
-    /** The push path's speed cap, a fraction of the robot's top path speed (0 to 1]. */
-    public static double pushSpeed = 0.35;
+    /**
+     * The push path's speed cap, a fraction of the robot's top path speed (0 to 1]. 0.5 since
+     * 30 Oct 2026: at 0.35 the drive team found the approach too slow on 20245; 0.5 was best.
+     */
+    public static double pushSpeed = 0.5;
     /** The push gives up after this long, ms. */
     public static double pushTimeoutMs = 2000;
     /** Less progress than this, inches, in {@link #stallMs} means the robot is against the FLOWER. */
@@ -173,6 +176,7 @@ public final class FlowerPicker extends GrabRoutine {
 
     @Override protected double prepMs() { return stickDownMs; }
     @Override protected double prepWithinIn() { return lowerWithinIn; }
+    @Override protected double prepWithinDeg() { return 180.0; } // any heading: the FLOWER is in open field
     @Override protected double atLineUpIn() { return atApproachIn; }
     @Override protected double atLineUpDeg() { return atApproachDeg; }
     @Override protected double lineUpTimeoutMs() { return approachTimeoutMs; }
