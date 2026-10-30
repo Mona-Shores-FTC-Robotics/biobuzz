@@ -40,6 +40,14 @@ public final class GardenGather extends GrabRoutine {
      * an Auto the centre line is the limit that matters.
      */
     public static double maxRangeIn = 160.0;
+    /**
+     * The line-up spot, moved this much further from the side wall than the GARDEN's line-up pose
+     * ({@link GardenFieldPoints}), inches: room to turn in the corner (30 Oct 2026). The drive in
+     * then runs at a slant to the gather pose.
+     */
+    public static double lineUpOutIn = 3.0;
+    /** And this much further back from the GARDEN (away from the audience wall), inches. */
+    public static double lineUpBackIn = 3.0;
     /** The line-up path gives up after this long, ms. */
     public static double lineUpTimeoutMs = 4000;
     /**
@@ -133,7 +141,14 @@ public final class GardenGather extends GrabRoutine {
 
     @Override
     protected Pose lineUpPose() {
-        return garden.lineUp;
+        // Back is against the heading; out is the robot's left, which faces away from the side wall
+        // for both alliances (red faces 270°, left is +x; blue faces 90°, left is -x).
+        Pose p = garden.lineUp;
+        double h = p.heading();
+        double back = lineUpBackIn;
+        double out = lineUpOutIn;
+        return new Pose(p.x() - back * Math.cos(h) - out * Math.sin(h),
+                p.y() - back * Math.sin(h) + out * Math.cos(h), h);
     }
 
     @Override
