@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 public final class FlowerPicker extends GrabRoutine {
 
     /** Only a FLOWER whose centre is this close to the robot is picked, inches. */
-    public static double maxRangeIn = 48.0;
+    public static double maxRangeIn = 60.0;
     /** The button's line-up: this far back from the FLOWER's centre, inches. */
     public static double approachStandoffIn = 24.0;
     /** Where the push stops: this far back from the FLOWER's centre, inches. */
@@ -61,8 +61,13 @@ public final class FlowerPicker extends GrabRoutine {
     public static double stallProgressIn = 0.25;
     /** See {@link #stallProgressIn}, ms. */
     public static double stallMs = 250;
-    /** The dwell, ms. A cap until pieces can be counted (#181). */
-    public static double dwellMs = 1500;
+    /**
+     * The dwell, ms. A cap until pieces can be counted (#181); the driver ends it sooner by letting
+     * go. On 29 Oct drivers ended 23 of 33 early dwells by 1.0 s.
+     */
+    public static double dwellMs = 1000;
+    /** The push starts once the robot has slowed below this after the line-up, inches/s. */
+    public static double settledInPerSec = 2.0;
     /** Forward power during the dwell, to keep the stick seated. 0 for none. */
     public static double dwellPushPower = 0.1;
     /** The back-out path's speed cap, a fraction of the robot's top path speed (0 to 1]. */
@@ -185,6 +190,7 @@ public final class FlowerPicker extends GrabRoutine {
     @Override protected double stallProgressIn() { return stallProgressIn; }
     @Override protected double stallMs() { return stallMs; }
     @Override protected double dwellMs() { return dwellMs; }
+    @Override protected double settledInPerSec() { return settledInPerSec; }
     @Override protected double dwellPushPower() { return dwellPushPower; }
     @Override protected double backSpeed() { return backSpeed; }
     @Override protected double unprepAfterBackIn() { return retractAfterBackIn; }

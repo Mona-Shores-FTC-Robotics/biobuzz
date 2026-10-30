@@ -134,4 +134,13 @@ public class TurretServoControlTest {
         TurretServoControl c = new TurretServoControl();
         assertTrue(Math.abs(c.power(50.0, 0.0, g, 0)) <= 1.0);
     }
+
+    /** One microsecond of pulse is 0.001 of power: finer than that only costs a write. */
+    @Test
+    public void servoPowerGoesOutToThePwmStep() {
+        assertEquals(0.123, TurretSubsystem.pwmStep(0.12345), EPS);
+        assertEquals(-0.07, TurretSubsystem.pwmStep(-0.0703), EPS);
+        assertEquals(0.0, TurretSubsystem.pwmStep(0.0004), EPS);
+        assertEquals(1.0, TurretSubsystem.pwmStep(1.0), EPS);
+    }
 }

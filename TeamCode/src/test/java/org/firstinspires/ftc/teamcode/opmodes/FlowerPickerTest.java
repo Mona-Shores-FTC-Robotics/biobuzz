@@ -113,4 +113,14 @@ public class FlowerPickerTest {
                     GrabRoutine.releaseFinishes(phase, false));
         }
     }
+
+    /** The push waits for the robot to slow after the line-up; an unknown speed does not hold it. */
+    @Test
+    public void settledIsSlowerThanTheLimit() {
+        assertEquals(true, GrabRoutine.settled(1.5, 2.0));
+        assertEquals(false, GrabRoutine.settled(2.0, 2.0));
+        assertEquals(false, GrabRoutine.settled(11.5, 2.0));
+        assertEquals("no follower speed", true, GrabRoutine.settled(Double.NaN, 2.0));
+        assertEquals("a Panels typo never waits forever", false, GrabRoutine.settled(0.5, -1.0));
+    }
 }

@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 
 import java.util.Locale;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
+import org.firstinspires.ftc.teamcode.util.Throttle;
 
 /**
  * The intake roller: one motor, run in, run out, or idle. The first edition, enough to spin the
@@ -22,7 +23,8 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  *
  * <p>What this does not do yet: count pieces, stop at four, or feed the Auto's {@code IntakeFull}
  * trigger. That is #181, and it layers on top of this class. What it does do for #181 is read the
- * roller's speed and current once per loop ({@link #ticksPerSecond()}, {@link #currentAmps()}),
+ * roller's speed once per loop and its current ten times a second ({@link #ticksPerSecond()},
+ * {@link #currentAmps()}),
  * which {@code RobotOpMode} logs and the Match page shows: slipping is high speed at low current,
  * stalling is low speed at high current.
  *
@@ -80,6 +82,11 @@ public class IntakeSubsystem implements Subsystem {
     private State state = State.IDLE;
     private double ticksPerSecond = 0.0;
     private double currentAmps = Double.NaN;
+    /**
+     * Current is not in the bulk read: each read is its own round trip to the hub, 2–3 ms. It is
+     * only shown and logged, so ten a second will do; staggered against the feeder and launcher.
+     */
+    private final Throttle currentRead = new Throttle(100, 0);
 
     /** Looks the motor and the star-wheel servo up once. A missing device fails init with the SDK's own message. */
     public IntakeSubsystem(HardwareMap hardwareMap) {
@@ -138,14 +145,19 @@ public class IntakeSubsystem implements Subsystem {
     /**
      * One write per loop to the roller and one to the star wheels, the powers the request asks for,
      * clamped so Panels cannot overdrive them; then one read of speed (from the bulk read) and,
-     * while running, one of current.
+     * while running, one of current every 100 ms.
      */
     @Override
     public void update() {
         motor.setPower(powerFor(state, inPower, outPower, reversed));
         stars.setPower(starsPowerFor(state, starsPower, starsReversed));
         ticksPerSecond = motor.getVelocity();
-        currentAmps = state == State.IDLE ? Double.NaN : motor.getCurrent(CurrentUnit.AMPS);
+        if (state == State.IDLE) {
+            currentAmps = Double.NaN;
+            currentRead.reset();
+        } else if (currentRead.due(System.nanoTime())) {
+            currentAmps = motor.getCurrent(CurrentUnit.AMPS);
+        }
     }
 
     /** Cut power. Safe to call whether or not {@link #initialize()} ran. */

@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
+import org.firstinspires.ftc.teamcode.util.Throttle;
 
 import java.util.Locale;
 
@@ -57,6 +58,8 @@ public class FeederSubsystem implements Subsystem {
     private double power;
     private double ticksPerSecond;
     private double currentAmps = Double.NaN;
+    /** Ten reads a second, not one a loop: see {@code IntakeSubsystem}'s. */
+    private final Throttle currentRead = new Throttle(100, 33);
 
     /** Looks the motor up once. A missing motor fails init with the SDK's own message. */
     public FeederSubsystem(HardwareMap hardwareMap) {
@@ -118,14 +121,19 @@ public class FeederSubsystem implements Subsystem {
 
     /**
      * One write per loop, the power the request asks for, clamped so Panels cannot overdrive it;
-     * then one read of speed (from the bulk read) and, while running, one of current.
+     * then one read of speed (from the bulk read) and, while running, one of current every 100 ms.
      */
     @Override
     public void update() {
         power = powerFor(state, feedPower, reversePower, reversed);
         motor.setPower(power);
         ticksPerSecond = motor.getVelocity();
-        currentAmps = state == State.IDLE ? Double.NaN : motor.getCurrent(CurrentUnit.AMPS);
+        if (state == State.IDLE) {
+            currentAmps = Double.NaN;
+            currentRead.reset();
+        } else if (currentRead.due(System.nanoTime())) {
+            currentAmps = motor.getCurrent(CurrentUnit.AMPS);
+        }
     }
 
     /** Cut power. Safe to call whether or not {@link #initialize()} ran. */
