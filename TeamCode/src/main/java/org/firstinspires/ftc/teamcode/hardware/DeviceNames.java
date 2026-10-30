@@ -88,6 +88,12 @@ public final class DeviceNames {
     public static final String INTAKE_STARS = "intakeStars";
 
     /**
+     * The indicator light: a goBILDA RGB Indicator Light, a servo whose position is its colour
+     * ({@code subsystems/IndicatorSubsystem}). Control Hub servo port 0 on both robots.
+     */
+    public static final String INDICATOR = "indicator";
+
+    /**
      * The turret's drive: a goBILDA servo in continuous-rotation mode, so it occupies a servo port
      * and a {@code <ContinuousRotationServo>} element, not a motor port (all eight are taken).
      * Expansion Hub servo port; the port itself is in each robot's XML. Its angle comes from
@@ -179,6 +185,7 @@ public final class DeviceNames {
             new Device(FEEDER, Kind.MOTOR),
             new Device(FLOWER_STICK, Kind.SERVO),
             new Device(INTAKE_STARS, Kind.CR_SERVO),
+            new Device(INDICATOR, Kind.SERVO),
             new Device(TURRET, Kind.CR_SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));

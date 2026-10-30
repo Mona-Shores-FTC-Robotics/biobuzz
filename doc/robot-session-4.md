@@ -112,6 +112,13 @@ logs were analysed afterwards. What that session established:
        before the mass was added and before the strafe pod's offset was fixed. Re-run the Foresight
        Tuner on 20245 and paste its block into `pedro/robots/Robot20245.java`.
 
+9. [ ] **The indicator light** (once the build team has mounted a goBILDA RGB Indicator Light
+       on **Control Hub servo port 0**). Run **Validate Hardware**, then INIT **Basic Drive** and check
+       the colours: flashing red on a low battery, orange with the Limelight unplugged, flashing
+       yellow until the camera's first frame, yellow while the pose is not on the field, the
+       alliance's colour once all is well, violet during a pick. If a colour is off, set it in
+       Panels → IndicatorSubsystem and note the value.
+
 ## Record these, and where they go
 
 | Fact | Value |
@@ -126,6 +133,7 @@ logs were analysed afterwards. What that session established:
 | `towardWallIn` that reaches the corner | |
 | Shortest `dwellMs` that still gets the pieces | |
 | Battery at rest, start and end | |
+| Indicator light positions that needed changing | |
 
 Send the numbers and the match logs (pull them into the shared logs folder) to the session that
 changes the code. The camera and loop-time fixes come off the logs, not off notes.

@@ -59,6 +59,9 @@
                  code runs them while the intake pulls in, backwards while
                  it ejects, and stops them otherwise. Wired 24 Oct 2026. -->
             <ContinuousRotationServo name="intakeStars" port="5" />
+            <!-- The indicator light: a goBILDA RGB Indicator Light on servo
+                 port 0; its colour is the servo position. -->
+            <Servo name="indicator" port="0" />
 
         </LynxModule>
 

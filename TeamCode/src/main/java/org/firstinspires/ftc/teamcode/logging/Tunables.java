@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
@@ -40,6 +41,7 @@ public final class Tunables {
             DriveSubsystem.class,
             FeederSubsystem.class,
             FlowerStickSubsystem.class,
+            IndicatorSubsystem.class,
             IntakeSubsystem.class,
             LauncherSubsystem.class,
             TurretSubsystem.class,

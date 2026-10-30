@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
@@ -78,6 +79,9 @@ public class Robot {
     /** The turret: a continuous servo holding an angle read from its own encoder (#81, #169). */
     public final TurretSubsystem turret;
 
+    /** The indicator light: what the drive team most needs to know, in one colour. */
+    public final IndicatorSubsystem indicator;
+
     /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
@@ -98,9 +102,11 @@ public class Robot {
         feeder = new FeederSubsystem(hardwareMap);
         // After the drive and the hive: an aim this loop uses this loop's pose and HIVE state.
         turret = new TurretSubsystem(hardwareMap);
+        indicator = new IndicatorSubsystem(hardwareMap);
 
         subsystems = Collections.unmodifiableList(
-                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake, launcher, feeder, turret));
+                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake, launcher, feeder, turret,
+                        indicator));
     }
 
     /** Every subsystem, in the order they were built. */

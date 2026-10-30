@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.logging.MatchLogFiles;
 import org.firstinspires.ftc.teamcode.logging.BuildStamp;
 import org.firstinspires.ftc.teamcode.logging.MotionWatch;
 import org.firstinspires.ftc.teamcode.logging.Tunables;
+import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
@@ -372,6 +373,7 @@ public abstract class RobotOpMode extends OpMode {
         driver.updateDuringInit();
         operator.updateDuringInit();
         onInitLoop();
+        showIndicator(true);
         Scheduler.execute();
         finishPage();
         drawField(true);
@@ -391,6 +393,19 @@ public abstract class RobotOpMode extends OpMode {
         } else if (robot.vision.freshResultCount() == 0) {
             display.status("Camera", Display.Level.WARN, "no frames yet: wait for it before PLAY");
         }
+    }
+
+    /** What the indicator light shows this loop: see {@code IndicatorSubsystem}. */
+    private void showIndicator(boolean init) {
+        boolean cameraFault = !robot.vision.isAvailable() || !robot.vision.isConnected();
+        robot.indicator.show(IndicatorSubsystem.choose(init, batteryNote != null, cameraFault,
+                robot.vision.freshResultCount() == 0, indicatorBusy(), robot.drive.poseReferenced(),
+                setup.alliance()));
+    }
+
+    /** A routine is driving the robot (a FLOWER pick, a GARDEN gather): the light says so. */
+    protected boolean indicatorBusy() {
+        return false;
     }
 
     @Override
@@ -478,6 +493,7 @@ public abstract class RobotOpMode extends OpMode {
         operator.update();
         long t0 = System.nanoTime();
         onLoop();
+        showIndicator(false);
         long t1 = System.nanoTime();
         Scheduler.execute();
         long t2 = System.nanoTime();
