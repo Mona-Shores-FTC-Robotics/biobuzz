@@ -57,6 +57,20 @@ logs were analysed afterwards. What that session established:
 
        *Stop line: the tape and the camera agree within 1 in, or you have both numbers.*
 
+   [ ] **The red HIVE's rocker, with a tape.** The rocker model (`localization/HiveFieldPoints`,
+       from the field CAD) has never been taped: its one check, on 3 Oct, was itself a camera
+       reading. A HIVE placed or built 2–3 in off, or a raised CELL resting at a different angle,
+       makes the camera's ranges look long just as a tag-size error does. With the RIGHT CELL up
+       (match start), measure:
+       - the axle from the audience wall: the model says **70.75 in** (the field's centre line);
+       - the axle above the tiles: **43.95 in**;
+       - the centre of the raised tag row (between tags 35 and 36) above the tiles: **49.76 in**,
+         and from the audience wall along the floor: **57.65 in**;
+       - the raised CELL's angle from horizontal: **30°**.
+
+       *Stop line: every number within 0.5 in (1° for the angle), or the ones that are not are
+       written down.*
+
 3. [ ] **The camera's tilt.** Phone level on the Limelight's front face: 45° means the bracket is
        as drawn. Then on the tower the camera hangs from: plumb or not, and which way.
 
@@ -91,6 +105,7 @@ logs were analysed afterwards. What that session established:
 | Limelight pipeline tag size (mm) | |
 | Printed tag, black square edge to edge (in) | |
 | Lens to tag 35, tape (in) / camera's range (in) | |
+| Red HIVE: axle from the audience wall / axle height / raised row height / raised row from the wall (in); raised CELL angle (°) | |
 | Limelight face angle (°); tower plumb? | |
 | The slowest `/Loop/Subsystem/<Name>Ms` and its mean | |
 | Loop Time Baseline: hz / mean / max / odometry ms | |
