@@ -87,6 +87,13 @@ public final class GardenGather extends GrabRoutine {
     public static double stallMs = 250;
     /** The dwell, ms, intake running. A cap until pieces can be counted (#181). */
     public static double dwellMs = 1500;
+    /**
+     * Ending the dwell from the intake current, as the FLOWER pick does: off (0) until a GARDEN
+     * gather has data for it (1 of 17 dwells on 29 Oct had a spike).
+     */
+    public static double dwellQuietMs = 0;
+    public static double dwellEmptyMs = 0;
+    public static double spikeAboveAmps = 1.0;
     /** The drive in starts once the robot has slowed below this after the line-up, inches/s. */
     public static double settledInPerSec = 2.0;
     /** Forward power during the dwell, to keep the stick seated. 0 for none. */
@@ -199,6 +206,9 @@ public final class GardenGather extends GrabRoutine {
 
     @Override protected double prepMs() { return stickDownMs; }
     @Override protected double settledInPerSec() { return settledInPerSec; }
+    @Override protected double dwellQuietMs() { return dwellQuietMs; }
+    @Override protected double dwellEmptyMs() { return dwellEmptyMs; }
+    @Override protected double spikeAboveAmps() { return spikeAboveAmps; }
     @Override protected double prepWithinIn() { return lowerWithinIn; }
     @Override protected double prepWithinDeg() { return lowerWithinDeg; }
     @Override protected double atLineUpIn() { return atLineUpIn; }

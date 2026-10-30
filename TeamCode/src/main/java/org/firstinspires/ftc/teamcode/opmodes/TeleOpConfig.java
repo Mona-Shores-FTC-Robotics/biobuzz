@@ -27,14 +27,20 @@ public final class TeleOpConfig {
      */
     public static Input flowerPickButton = ControlScheme.DEFAULT_FLOWER_PICK;
 
-    /** Stick multiplier for everyday driving. 1.0 would be full power. */
-    public static double normalSpeed = 0.6;
+    /**
+     * Stick multiplier for everyday driving. 1.0 would be full power. 0.8 since 29 Oct, when at 0.6
+     * the driver held the stick at its rim more than half the time and almost never used turbo.
+     */
+    public static double normalSpeed = 0.8;
 
     /** Stick multiplier while turbo is held. */
     public static double turboSpeed = 1.0;
 
-    /** Stick multiplier while slow is held. Slow wins if both are held. */
-    public static double slowSpeed = 0.35;
+    /**
+     * Stick multiplier while slow is held. Slow wins if both are held. 0.45 since the everyday speed
+     * went to 0.8, keeping slow a little over half of it.
+     */
+    public static double slowSpeed = 0.45;
 
     /** Degrees one trim press moves the aim. Clamped to [0, 5]. */
     public static double trimStepDeg = 1.5;

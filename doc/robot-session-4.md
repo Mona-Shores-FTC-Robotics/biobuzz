@@ -31,7 +31,15 @@ logs were analysed afterwards. What that session established:
 
 ## Before leaving the laptop
 
-- [ ] Master pulled; **Sloth Load** on 20245 (no `.gradle` or `res/` change since 29 Oct).
+- [ ] **Mount the goBILDA RGB Indicator Light** on 20245 where the drive team can see it from the
+      field, and plug it into **Control Hub servo port 0** (the port `robot_20245.xml` names; 19429
+      uses the same port when it gets one).
+- [ ] **Plug in the intake motor's encoder cable** (the intake has never had one: every log reads
+      `/Intake/TicksPerSecond` 0 and warns "intake: encoder never moved"). No code change: the
+      roller's speed is already read every loop from the bulk read, at no loop-time cost, and a
+      piece loading the roller should show as a dip, alongside the current's spike.
+- [ ] Master pulled; a **full TeamCode install** on 20245, not a Sloth Load: the light added a
+      device to `res/xml/robot_20245.xml` since 29 Oct. Then **Validate Hardware**.
 - [ ] Charged batteries, more than one.
 - [ ] A tape measure, and a phone level app or angle gauge.
 - [ ] The HIVE on the field, red side, RIGHT CELL up (match start).
@@ -100,13 +108,13 @@ logs were analysed afterwards. What that session established:
        from about 55 in away, and one from close to the line-up spot but turned 90°: the robot
        should turn before it pushes.
 
-   [ ] **FLOWER dwell.** The dwell is 1.5 s, the longest phase of a pick, and the commonest abort
-       on 29 Oct was a stick moved during it, by drivers who saw all the pieces were in. Now
-       **letting go of Cross (or Triangle) during the dwell means done**: the robot backs out on its
-       own and the stick comes up once clear. Try it on three picks and a gather; a stick still
-       stops it. The default dwell is now 1000 ms (23 of the 33 dwells drivers ended early were
-       over by 1.0 s). Try 800 in Panels → FlowerPicker and note the shortest that still gets the
-       pieces when nobody lets go early.
+   [ ] **FLOWER dwell.** The dwell now ends by itself from the intake current: 0.6 s after the
+       last piece's spike (`dwellQuietMs`), or at 1.3 s if no piece came (`dwellEmptyMs`), at most
+       2 s (`dwellMs`). The log says why each dwell ended ("pieces in", "nothing came", "dwellMs",
+       "let go"). **Letting go of Cross during the dwell** also means done: the robot backs out and
+       the stick comes up once clear; a stick still stops it. Do ten picks from loaded FLOWERs,
+       without letting go: note how many pieces each left behind. If pieces are left, raise
+       `dwellQuietMs` in Panels → FlowerPicker; if the robot waits on an emptied FLOWER, lower it.
 
 8. [ ] **If time is left: the path-following tuning.** The Foresight block was tuned on 17 Oct,
        before the mass was added and before the strafe pod's offset was fixed. Re-run the Foresight
@@ -131,7 +139,7 @@ logs were analysed afterwards. What that session established:
 | The slowest `/Loop/Subsystem/<Name>Ms` and its mean | |
 | Loop Time Baseline: hz / mean / max / odometry ms | |
 | `towardWallIn` that reaches the corner | |
-| Shortest `dwellMs` that still gets the pieces | |
+| `dwellQuietMs` / `dwellEmptyMs` that get the pieces without waiting | |
 | Battery at rest, start and end | |
 | Indicator light positions that needed changing | |
 
