@@ -45,6 +45,8 @@
   placeCam("plan");
   const chanEl = el("rect", { fill: "var(--steel)", "fill-opacity": 0.5, stroke: "var(--fg)", "stroke-width": 0.8 }, robotG);   // the intake's front channel the poker sits on
   const pokerEl = el("rect", { fill: "#e0552b", stroke: "var(--fg)", "stroke-width": 1 }, robotG);
+  const faceLine = el("line", { stroke: "var(--fg)", "stroke-width": 1.2, "stroke-dasharray": "4 3" }, robotG);   // the intake's front face: what the poke's reach is measured from
+  const pokeLbl = el("text", { "font-size": 11, fill: "var(--fg)", "font-family": "var(--mono, monospace)" }, robotG);
   const saddleEl = el("polygon", { fill: "#e0552b", "fill-opacity": 0.8, stroke: "var(--fg)", "stroke-width": 0.8 }, robotG);   // the poker L over the intake's front channel: a wall down the lip, the roof flat on the web (relief holes over the screws), the buttress
   const gecko = el("circle", { fill: "var(--steel)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 1.2 });
   const spoke = el("line", { stroke: "var(--fg)", "stroke-width": 2 });
@@ -209,11 +211,13 @@
       if (P.stowed) { plateStow.setAttribute("points", P.stowed.map(([a, z]) => sx(face + a) + "," + sy(z)).join(" ")); plateStow.style.display = ""; } else plateStow.style.display = "none";
       robotG.style.display = gecko.style.display = spoke.style.display = ""; sledWheel.style.display = "none";
       if (cfg.pusher) {
+        faceLine.setAttribute("x1", sx(0)); faceLine.setAttribute("x2", sx(0)); faceLine.setAttribute("y1", sy(cfg.pusher.z1 + 0.7)); faceLine.setAttribute("y2", sy(0)); faceLine.style.display = "";
+        pokeLbl.setAttribute("x", sx(0) + 3); pokeLbl.setAttribute("y", sy(cfg.pusher.z1 + 0.25)); pokeLbl.textContent = "intake face | poke " + cfg.pusher.reach.toFixed(2) + " in"; pokeLbl.style.display = "";
         pokerEl.setAttribute("x", sx(0)); pokerEl.setAttribute("y", sy(cfg.pusher.z1)); pokerEl.setAttribute("width", cfg.pusher.reach * PX); pokerEl.setAttribute("height", (cfg.pusher.z1 - cfg.pusher.z0) * PX); pokerEl.style.display = "";
         const web = cfg.pusher.web || cfg.pusher.z0 - 0.09;
         chanEl.setAttribute("x", sx(-1.89)); chanEl.setAttribute("y", sy(web)); chanEl.setAttribute("width", 1.89 * PX); chanEl.setAttribute("height", 0.48 * PX); chanEl.style.display = "";                                  // the channel's web top; the plate's side profile: plate, lip, a boss
         saddleEl.setAttribute("points", [[-1.89, web], [-1.89, web + 0.16], [-1.42, web + 0.16], [0.17, cfg.pusher.z1], [0.17, web - 0.47], [0.01, web - 0.47], [0.01, web]].map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); saddleEl.style.display = "";
-      } else pokerEl.style.display = saddleEl.style.display = chanEl.style.display = "none";
+      } else pokerEl.style.display = saddleEl.style.display = chanEl.style.display = faceLine.style.display = pokeLbl.style.display = "none";
     } else {
       robotG.style.display = gecko.style.display = spoke.style.display = "none";
       arm.setAttribute("x1", sx(X0)); arm.setAttribute("y1", sy(0.77)); arm.setAttribute("x2", sx(shx)); arm.setAttribute("y2", sy(0.77));
