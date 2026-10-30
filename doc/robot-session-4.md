@@ -34,6 +34,10 @@ logs were analysed afterwards. What that session established:
 - [ ] **Mount the goBILDA RGB Indicator Light** on 20245 where the drive team can see it from the
       field, and plug it into **Control Hub servo port 0** (the port `robot_20245.xml` names; 19429
       uses the same port when it gets one).
+- [ ] **Plug in the intake motor's encoder cable** (the intake has never had one: every log reads
+      `/Intake/TicksPerSecond` 0 and warns "intake: encoder never moved"). No code change: the
+      roller's speed is already read every loop from the bulk read, at no loop-time cost, and a
+      piece loading the roller should show as a dip, alongside the current's spike.
 - [ ] Master pulled; a **full TeamCode install** on 20245, not a Sloth Load: the light added a
       device to `res/xml/robot_20245.xml` since 29 Oct. Then **Validate Hardware**.
 - [ ] Charged batteries, more than one.
