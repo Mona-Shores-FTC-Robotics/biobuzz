@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.IntakeArbiter;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
@@ -119,7 +120,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private final FireGates gates = new FireGates();
     private final LongPress headingReset = new LongPress(RESET_HOLD_MS);
     private final LongPress cameraReset = new LongPress(RESET_HOLD_MS);
-    private final LongPress poseReset = new LongPress(RESET_HOLD_MS);
+    private final LongPress leftCornerReset = new LongPress(RESET_HOLD_MS);
+    private final LongPress rightCornerReset = new LongPress(RESET_HOLD_MS);
     private final LongPress turretZero = new LongPress(RESET_HOLD_MS);
 
     private TurretMode turretMode = TurretMode.LOCKED;
@@ -170,8 +172,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.GARDEN_GATHER);
         controls.note(Action.CHASSIS_AIM);
         controls.note(Action.RESET_HEADING);
+        controls.note(Action.RESET_LEFT_CORNER);
+        controls.note(Action.RESET_RIGHT_CORNER);
         controls.note(Action.CAMERA_RELOCALIZE);
-        controls.note(Action.RESET_TO_SPOT);
         controls.on(Action.AUTO_PARK).onPress(() -> {
             autoParkNote = "Auto-park: not built yet (the loading zone is not measured)";
             log.event("auto-park pressed: not built yet");
@@ -214,9 +217,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         log.event("PLAY: " + (robotCentric() ? "robot-centric" : "field-centric"));
     }
 
-    /** The pose set to our alliance's measured reset spot, if it has been measured. */
-    private void resetToSpot() {
-        poseNote = robot.drive.resetToSpot(setup.alliance());
+    /** The pose set to our alliance's measured spot in {@code corner}, if it has been measured. */
+    private void resetToSpot(ResetPositions.Corner corner) {
+        poseNote = robot.drive.resetToSpot(setup.alliance(), corner);
         log.event("pose: " + poseNote);
     }
 
@@ -295,8 +298,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
             relocalize();
             gamepad1.rumble(200);
         }
-        if (!init && poseReset.update(controls.held(Action.RESET_TO_SPOT), now)) {
-            resetToSpot();
+        if (!init && leftCornerReset.update(controls.held(Action.RESET_LEFT_CORNER), now)) {
+            resetToSpot(ResetPositions.Corner.LEFT);
+            gamepad1.rumble(200);
+        }
+        if (!init && rightCornerReset.update(controls.held(Action.RESET_RIGHT_CORNER), now)) {
+            resetToSpot(ResetPositions.Corner.RIGHT);
             gamepad1.rumble(200);
         }
         if (turretZero.update(controls.held(Action.TURRET_ZERO), now)) {
@@ -382,7 +389,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 robotCentric() || !robot.drive.isFieldCentric() ? "robot-centric" : "field-centric");
         display.status("Speed", turbo ? Display.Level.WARN : Display.Level.OK,
                 slow ? "slow" : turbo ? "TURBO" : "normal");
-        if (headingReset.pending() || cameraReset.pending() || poseReset.pending() || turretZero.pending()) {
+        if (headingReset.pending() || cameraReset.pending() || leftCornerReset.pending() || rightCornerReset.pending() || turretZero.pending()) {
             display.line("Keep holding (1 s) to reset…");
         }
         display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.waitingToClear() ? "out until clear of the FLOWER" : robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));

@@ -45,7 +45,7 @@ import java.util.function.Consumer;
  * </ul>
  *
  * <p>{@code PickFlower} is {@link FlowerPicker}, the routine the driver's D-pad up runs, and
- * {@code GardenGather} is {@link GardenGather}, the driver's D-pad down. Give their cards a timeout
+ * {@code GardenGather} is {@link GardenGather}, the driver's GARDEN gather button. Give their cards a timeout
  * longer than the grab (the Visualizer's builder sets 8 s): a card's default 5 s can cut one short.
  * Both are registered as grabs ({@code AutoRegistry.grab}): they drive the robot off its spot and
  * back, so the endgame guard never cuts one and does not start one unless its typical time (the
@@ -104,7 +104,7 @@ public final class AutoRegistration {
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
                 // the pick spot an Auto drives to and ends back there (FlowerPicker's contract).
                 .grab("PickFlower", 4.0, () -> FlowerPicker.command(robot, note))
-                // ---- real: the GARDEN gather, the same routine as the driver's D-pad down. It drives in
+                // ---- real: the GARDEN gather, the same routine as the driver's GARDEN gather button. It drives in
                 // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract).
                 .grab("GardenGather", 6.0, () -> GardenGather.command(robot, note))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
