@@ -102,8 +102,10 @@ public final class AutoRegistration {
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
-                // the pick spot an Auto drives to and ends back there (FlowerPicker's contract).
-                .grab("PickFlower", 4.0, () -> FlowerPicker.command(robot, note))
+                // the pick spot an Auto drives to and ends back there (FlowerPicker's contract). Its
+                // typical time plans for the dwell's 2 s cap, not its usual 1.0-1.3 s, so the endgame
+                // guard keeps time for a slow pick.
+                .grab("PickFlower", 4.5, () -> FlowerPicker.command(robot, note))
                 // ---- real: the GARDEN gather, the same routine as the driver's GARDEN gather button. It drives in
                 // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract).
                 .grab("GardenGather", 6.0, () -> GardenGather.command(robot, note))
