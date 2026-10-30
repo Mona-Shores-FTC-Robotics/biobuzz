@@ -7,10 +7,13 @@ import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.revhub.drivetrains.Mecanum;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import com.pedropathing.localization.FusionLocalizer;
 
 import org.firstinspires.ftc.teamcode.localization.CellFix;
@@ -22,6 +25,7 @@ import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.AccelLimiter;
+import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
@@ -166,6 +170,21 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private Path followedPath;
     /** True while a path or hold, not the sticks, drives the robot. */
     private boolean pathControl;
+    /** The Pinpoint the localizer reads, for its status only; null without one. */
+    private final GoBildaPinpointDriver pinpoint;
+    /** What the wheels were last told by the sticks or a routine, after the ramp; NaN under a path. */
+    private double appliedForward = Double.NaN;
+    private double appliedStrafe = Double.NaN;
+    private double appliedTurn = Double.NaN;
+    /**
+     * The four drive wheels' encoder speeds, ticks/s, front left, front right, back left, back
+     * right, for the match log: wheels that turn while the pods say the robot is still are a slip
+     * or a pod off the floor. Read ten times a second, since the first read after the bulk-cache
+     * clear costs the Control Hub's bulk read (about 1 ms), which nothing else in the loop needs.
+     */
+    private final DcMotorEx[] wheels;
+    private final double[] wheelTicksPerSec = {Double.NaN, Double.NaN, Double.NaN, Double.NaN};
+    private final Throttle wheelRead = new Throttle(100, 50);
     private boolean fieldCentric;
     private double headingOffset;
     private long lastUpdateNs;
@@ -184,6 +203,14 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         localizer = found;
         localizerFault = fault;
         fieldCentric = found != null;
+        // The same motor objects Pedro's drivetrain drives; only their encoders are read here.
+        wheels = new DcMotorEx[] {
+                hardwareMap.get(DcMotorEx.class, DeviceNames.FRONT_LEFT),
+                hardwareMap.get(DcMotorEx.class, DeviceNames.FRONT_RIGHT),
+                hardwareMap.get(DcMotorEx.class, DeviceNames.BACK_LEFT),
+                hardwareMap.get(DcMotorEx.class, DeviceNames.BACK_RIGHT)};
+        // The same device the localizer reads; its status comes with the localizer's own read.
+        pinpoint = found != null ? hardwareMap.get(GoBildaPinpointDriver.class, DeviceNames.PINPOINT) : null;
     }
 
     // ------------------------------------------------------------- commands
@@ -517,6 +544,37 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         return follower == null ? Double.NaN : follower.velocity().linSpeed();
     }
 
+    // Read-only, for the match log's drift signals (RobotOpMode, localization/ImpactWatch).
+
+    /** The drive's last command after the ramp, before field-centric turns it; NaN under a path. */
+    public double appliedForward() { return appliedForward; }
+    public double appliedStrafe() { return appliedStrafe; }
+    public double appliedTurn() { return appliedTurn; }
+
+    /** Drive wheel {@code i}'s encoder speed, ticks/s (0 FL, 1 FR, 2 BL, 3 BR), as of the last read. */
+    public double wheelTicksPerSec(int i) { return wheelTicksPerSec[i]; }
+
+    /** Whether the sticks' command was field-centric (then {@link #appliedForward} is field "away"). */
+    public boolean commandFieldCentric() {
+        return fieldCentric && !robotCentricCommand;
+    }
+
+    /** Speed over the ground from the localizer, inches/s; NaN without one. Works without a Follower. */
+    public double odometrySpeedInPerSec() {
+        return localizer == null ? Double.NaN : localizer.velocity().linSpeed();
+    }
+
+    /** The Pinpoint's status as of the localizer's last read (READY when well), or null without one. */
+    public GoBildaPinpointDriver.DeviceStatus pinpointStatus() {
+        return pinpoint == null ? null : pinpoint.getDeviceStatus();
+    }
+
+    /** When the camera last gave a gated pose ({@link #cameraPose()}'s source), System.nanoTime; 0 never. */
+    public long cameraPoseNs() { return lastCameraPoseNs; }
+
+    /** The camera's last gated pose, however old; null before the first. See {@link #cameraPoseNs()}. */
+    public Pose lastCameraPose() { return lastCameraPose; }
+
     /** Turn rate, radians/s, either sign, from Pedro's Follower; NaN without one. */
     public double turnRadPerSec() {
         return follower == null ? Double.NaN : follower.velocity().omega;
@@ -549,10 +607,16 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         long now = System.nanoTime();
         double dt = Math.min((now - lastUpdateNs) / 1e9, MAX_LOOP_DT_SEC);
         lastUpdateNs = now;
+        if (wheelRead.due(now)) {
+            for (int i = 0; i < wheels.length; i++) wheelTicksPerSec[i] = wheels[i].getVelocity();
+        }
 
         if (pathControl && follower != null) {
             follower.update(dt); // updates the localizer too, so it is not updated twice
             offerSightings();
+            appliedForward = Double.NaN;
+            appliedStrafe = Double.NaN;
+            appliedTurn = Double.NaN;
             return;
         }
 
@@ -576,6 +640,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             turnLimiter.reset(t);
         }
 
+        appliedForward = f;
+        appliedStrafe = s;
+        appliedTurn = t;
         DrivePowers powers = fieldCentric && !robotCentricCommand
                 ? ManualDrive.fieldCentric(f, s, t, heading())
                 : new DrivePowers(f, s, t);

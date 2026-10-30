@@ -28,16 +28,20 @@ import org.firstinspires.ftc.teamcode.logging.MotionWatch;
 import org.firstinspires.ftc.teamcode.logging.Tunables;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
+import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
+import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
+import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 import org.firstinspires.ftc.teamcode.util.WelfordVariance;
 
 import java.io.File;
@@ -210,6 +214,19 @@ public abstract class RobotOpMode extends OpMode {
     private final MotionWatch intakeWatch = new MotionWatch("intake");
     private final MotionWatch feederWatch = new MotionWatch("feeder");
     private String loggedLauncherFault;
+    // Drift: pushes and jolts, the camera frame last logged, the Pinpoint's last status.
+    private final ImpactWatch impacts = new ImpactWatch();
+    private long loggedCameraNs;
+    private Object loggedPinpointStatus;
+    private static final String[] WHEEL_KEYS = {"/Drive/WheelTicksPerSec/FrontLeft",
+            "/Drive/WheelTicksPerSec/FrontRight", "/Drive/WheelTicksPerSec/BackLeft",
+            "/Drive/WheelTicksPerSec/BackRight"};
+    private final Throttle frameRate = new Throttle(1000, 0);
+    private long frameRateCount;
+    private long frameRateNs;
+    private boolean cameraWasConnected;
+    private boolean cameraStatusLogged;
+    private int loggedHiveState = -1;
 
     // ------------------------------------------------------------------ hooks
 
@@ -594,6 +611,12 @@ public abstract class RobotOpMode extends OpMode {
         // bad configuration — and an exception in stop() replaces the one that actually explains
         // what went wrong.
         if (robot != null) {
+            // The camera's temperature and load after the run: a dropout's likeliest causes.
+            try {
+                log.event("Limelight at end: " + robot.vision.statusLine());
+            } catch (RuntimeException e) {
+                log.event("Limelight at end: no status (" + e + ")");
+            }
             robot.stop();
         }
         Scheduler.reset();
@@ -870,6 +893,96 @@ public abstract class RobotOpMode extends OpMode {
     }
 
     /** This loop's state into the log, then hand it to the writer. Copies numbers only. */
+    /**
+     * What it takes to tell why the pose drifts: what the drive was told and what the odometry
+     * measured, the camera's gap to the odometry on each gated frame, the FLOWER stick, the HIVE,
+     * the Pinpoint's status, and an event for each push and jolt ({@link ImpactWatch}). All of it
+     * is already in memory: nothing here reads hardware.
+     */
+    private void recordDrift(MatchLog.Mode mode, Pose pose, boolean referenced) {
+        double forward = robot.drive.appliedForward();
+        double strafe = robot.drive.appliedStrafe();
+        double speed = robot.drive.odometrySpeedInPerSec();
+        log.put("/Drive/CommandForward", forward);
+        log.put("/Drive/CommandStrafe", strafe);
+        log.put("/Drive/CommandTurn", robot.drive.appliedTurn());
+        log.put("/Drive/CommandFieldCentric", robot.drive.commandFieldCentric() ? 1 : 0);
+        log.put("/Drive/OdometrySpeedInPerSec", speed);
+        for (int i = 0; i < WHEEL_KEYS.length; i++) log.put(WHEEL_KEYS[i], robot.drive.wheelTicksPerSec(i));
+        log.put("/FlowerStick/Out", robot.flowerStick.extended() ? 1 : 0);
+        log.put("/FlowerStick/Powered", robot.flowerStick.limp() ? 0 : 1);
+        HiveTracker hive = robot.hive.of(setup.alliance());
+        if (hive != null) {
+            int state = hive.state().ordinal();
+            log.put("/Hive/State", state);
+            if (state != loggedHiveState) {
+                log.event("HIVE (" + setup.alliance() + "): " + hive.state());
+                loggedHiveState = state;
+            }
+        }
+
+        // The camera's health: connected, frames a second, latency inside the camera.
+        boolean connected = robot.vision.isConnected();
+        log.put("/Vision/Connected", connected ? 1 : 0);
+        log.put("/Vision/LatencyMs", robot.vision.lastLatencyMs());
+        long nowNs = System.nanoTime();
+        if (frameRate.due(nowNs)) {
+            long frames = robot.vision.freshResultCount();
+            if (frameRateNs != 0) {
+                log.put("/Vision/FramesPerSec", (frames - frameRateCount) / ((nowNs - frameRateNs) / 1e9));
+            }
+            frameRateCount = frames;
+            frameRateNs = nowNs;
+        }
+        if (connected != cameraWasConnected) {
+            log.event(connected ? "Limelight: answering" : "Limelight: not answering");
+            cameraWasConnected = connected;
+        }
+        // Its own report once, in INIT (asking it waits on the network, so never in the match loop).
+        if (mode == MatchLog.Mode.DISABLED && connected && !cameraStatusLogged) {
+            log.event("Limelight at INIT: " + robot.vision.statusLine());
+            cameraStatusLogged = true;
+        }
+
+        Object status = robot.drive.pinpointStatus();
+        if (status != null && !status.equals(loggedPinpointStatus)) {
+            log.event("Pinpoint: " + status);
+            loggedPinpointStatus = status;
+        }
+
+        // The camera against the odometry, once per gated frame, in field inches.
+        long cameraNs = robot.drive.cameraPoseNs();
+        if (cameraNs != loggedCameraNs && referenced) {
+            Pose camera = robot.drive.lastCameraPose();
+            if (camera != null) {
+                log.put("/Drift/GapXIn", camera.x() - pose.x());
+                log.put("/Drift/GapYIn", camera.y() - pose.y());
+                log.put("/Drift/Still", robot.drive.isStill() ? 1 : 0);
+            }
+        }
+        loggedCameraNs = cameraNs;
+
+        if (mode == MatchLog.Mode.DISABLED || pose == null) return;
+        ImpactWatch.Event event = impacts.update(System.currentTimeMillis(),
+                Double.isNaN(forward) ? Double.NaN : Math.hypot(forward, strafe), speed);
+        if (event == ImpactWatch.Event.PUSH_ENDED) {
+            log.event(String.format(Locale.US, "push: %.2f s at command %.2f, at (%.1f, %.1f, %.0f°), %.1f in off a wall, stick %s",
+                    impacts.lastPushMs() / 1000.0, impacts.lastPushPeakCommand(), pose.x(), pose.y(),
+                    Math.toDegrees(pose.heading()), wallClearanceIn(pose), robot.flowerStick.extended() ? "down" : "up"));
+        } else if (event == ImpactWatch.Event.JOLT) {
+            log.event(String.format(Locale.US, "jolt: %.0f in/s² at (%.1f, %.1f, %.0f°), %.1f in off a wall, stick %s",
+                    impacts.lastJoltInPerSec2(), pose.x(), pose.y(), Math.toDegrees(pose.heading()),
+                    wallClearanceIn(pose), robot.flowerStick.extended() ? "down" : "up"));
+        }
+    }
+
+    /** How far the robot's square 16 in footprint is from the nearest wall, inches (about; any heading). */
+    private static double wallClearanceIn(Pose pose) {
+        double f = FieldFrame.FIELD_SIZE_INCHES;
+        double nearest = Math.min(Math.min(pose.x(), f - pose.x()), Math.min(pose.y(), f - pose.y()));
+        return nearest - ResetPositions.WALL_TO_CENTRE_IN;
+    }
+
     private void recordLoop(MatchLog.Mode mode, double loopMs) {
         Alliance alliance = setup.alliance();
         MatchSetup.Source source = setup.source();
@@ -894,6 +1007,7 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Vision/TagsRejected", robot.drive.lastFrame().count() - robot.drive.lastFrame().acceptedCount());
         log.put("/Vision/StillFix", robot.drive.stillFix().ordinal());
         log.put("/Vision/StillFixesApplied", robot.drive.stillFixesApplied());
+        recordDrift(mode, pose, referenced);
         if (mode != MatchLog.Mode.DISABLED) {
             // Where the robot is, every loop, so an OpMode that crashes still leaves it behind.
             Handoff.update(mode == MatchLog.Mode.AUTONOMOUS, alliance, referenced,
