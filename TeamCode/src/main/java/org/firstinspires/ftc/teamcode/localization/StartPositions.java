@@ -63,7 +63,23 @@ public final class StartPositions {
     }
 
     /** Every declared start, for finding one by its pose. */
-    private static final StartPosition[] ALL = {RED_AUDIENCE};
+    static final StartPosition[] ALL = {RED_AUDIENCE};
+
+    /**
+     * The team spot each start in {@link #ALL} is, in the same order: the Visualizer's start
+     * buttons are the team's {@code START_} spots ({@code TeamCode/autos/spots.json}), and
+     * {@code TeamSpotsTest} fails while one differs from the start measured here. Measure a start,
+     * then change both: this file, and the spot (in the Visualizer, Save team spots).
+     */
+    static final String[] TEAM_SPOTS = {"START_RIGHT"};
+
+    /** The measured start a team spot is, or null for a spot that is not a measured start. */
+    static StartPosition forTeamSpot(String name) {
+        for (int i = 0; i < ALL.length; i++) {
+            if (TEAM_SPOTS[i].equals(name)) return ALL[i];
+        }
+        return null;
+    }
 
     /**
      * The declared start at {@code pose} (within an inch and a degree), or null: lets an Auto drawn

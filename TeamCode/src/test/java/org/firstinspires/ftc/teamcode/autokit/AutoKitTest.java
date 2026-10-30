@@ -257,6 +257,120 @@ public class AutoKitTest {
         assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("parking now")));
     }
 
+    // ------------------------------------------------- park from the spot, grabs
+
+    /** A spot's own park path: the guard parks along it, and its shorter time lets the robot work longer. */
+    @Test
+    public void guardParksFromTheSpotTheRobotIsOn() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("LaunchAll", 10.0, () -> lasting("LaunchAll", 10.0)), () -> now).trace(trace::add);
+        Path toSpot = line(0, 10), spotPark = line(10, 12), park = line(10, 30);
+        now = 20.0;
+        run(kit.guarded("Auto", park, 4.0,
+                kit.path("to SPOT", toSpot, spotPark, 1.0),
+                kit.command("LaunchAll", 10.0),
+                kit.path("Park", park)), 15);
+        assertEquals("the spot's own park, not the guard's", java.util.Arrays.asList(toSpot, spotPark), drive.followed);
+        assertTrue(trace.toString(), trace.contains("parking from the spot the robot is on"));
+        double deadline = AutoKit.AUTO_LENGTH_S - (1.0 + AutoKit.GUARD_MARGIN_S); // 28 s, not 25
+        assertEquals("the launch runs until the spot's park needs the time", deadline, drive.followedAt.get(1), 0.03);
+    }
+
+    /** Somewhere no park was drawn from: the guard's own park path again. */
+    @Test
+    public void aDriveWithNoParkOfItsOwnGoesBackToTheGuardsPark() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("LaunchAll", 10.0, () -> lasting("LaunchAll", 10.0)), () -> now).trace(trace::add);
+        Path toSpot = line(0, 10), spotPark = line(10, 12), onward = line(10, 20), park = line(20, 30);
+        now = 20.0;
+        run(kit.guarded("Auto", park, 2.0,
+                kit.path("to SPOT", toSpot, spotPark, 1.0),
+                kit.path("onward", onward),
+                kit.command("LaunchAll", 10.0),
+                kit.path("Park", park)), 15);
+        assertEquals(java.util.Arrays.asList(toSpot, onward, park), drive.followed);
+    }
+
+    /**
+     * Before it sets off, a drive asks: can I get there and still park from there? 5 s left: the
+     * guard's own park (1 s + margin) fits, the drive (3 s) and the park from its spot (2 s) do
+     * not, so it does not start, and the guard parks at once rather than launch from here.
+     */
+    @Test
+    public void aDriveThatWouldNotLeaveTimeToParkFromWhereItGoesDoesNotStart() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("LaunchAll", 1.0, () -> lasting("LaunchAll", 1.0)), () -> now).trace(trace::add);
+        Path toSpot = line(0, 10), spotPark = line(10, 12), park = line(0, 30);
+        now = 25.0;
+        run(kit.guarded("Auto", park, 1.0,
+                kit.path("to SPOT", toSpot, 3.0, spotPark, 2.0),
+                kit.command("LaunchAll", 2.0),
+                kit.path("Park", park)), 10);
+        assertEquals(java.util.Collections.singletonList(park), drive.followed);
+        assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("not starting to SPOT")));
+        assertFalse("nothing runs after a refused drive: " + log, log.contains("LaunchAll start"));
+        assertEquals("parks at once", 25.0, drive.followedAt.get(0), 0.05);
+    }
+
+    /** The same question with the guard's own park: 5 s left, a 2 s drive and its 1 s park fit. */
+    @Test
+    public void aDriveThatFitsWithTheParkAfterItStarts() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry(), () -> now).trace(trace::add);
+        Path onward = line(0, 10), park = line(10, 30);
+        now = 25.0;
+        run(kit.guarded("Auto", park, 1.0,
+                kit.path("onward", onward, 2.0),
+                kit.path("Park", park)), 10);
+        assertEquals(java.util.Arrays.asList(onward, park), drive.followed);
+    }
+
+    /** A grab that does not fit parks at once too, rather than run the next card from here. */
+    @Test
+    public void aRefusedGrabParksAtOnce() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .grab("PickFlower", 4.0, () -> lasting("PickFlower", 4.0))
+                .command("LaunchAll", 1.0, () -> lasting("LaunchAll", 1.0)), () -> now).trace(trace::add);
+        Path park = line(0, 10);
+        now = 23.5;
+        run(kit.guarded("Auto", park, 2.0,
+                kit.command("PickFlower", 8.0),
+                kit.command("LaunchAll", 2.0),
+                kit.path("Park", park)), 10);
+        assertFalse("nothing runs after a refused grab: " + log, log.contains("LaunchAll start"));
+        assertEquals(java.util.Collections.singletonList(park), drive.followed);
+    }
+
+    /** A grab drives the robot off its spot and back: cutting one would strand the robot. */
+    @Test
+    public void guardNeverCutsAGrab() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .grab("PickFlower", 1.0, () -> lasting("PickFlower", 3.0)), () -> now).trace(trace::add);
+        Path park = line(0, 10);
+        double deadline = AutoKit.AUTO_LENGTH_S - (2.0 + AutoKit.GUARD_MARGIN_S); // 27.0 s
+        now = deadline - 1.5; // starts with its typical 1 s and the park in hand, runs 1.5 s past
+        run(kit.guarded("Auto", park, 2.0,
+                kit.command("PickFlower", 8.0),
+                kit.path("Park", park)), 10);
+        assertTrue("the grab ran to its end: " + log, log.contains("PickFlower NATURALLY"));
+        assertTrue(trace.toString(), trace.stream().noneMatch(t -> t.endsWith("cutting card short")));
+        assertEquals("the park starts when the grab ends", deadline + 1.5, drive.followedAt.get(0), 0.05);
+    }
+
+    /** Not started unless the grab's typical time and the park both fit. */
+    @Test
+    public void aGrabThatWouldNotLeaveTimeToParkDoesNotStart() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .grab("GardenGather", 4.0, () -> lasting("GardenGather", 4.0)), () -> now).trace(trace::add);
+        Path park = line(0, 10);
+        now = 23.5; // 6.5 s left: the park alone fits (3 s), the gather and the park (7 s) do not
+        run(kit.guarded("Auto", park, 2.0,
+                kit.command("GardenGather", 8.0),
+                kit.path("Park", park)), 10);
+        assertFalse("the gather must not start: " + log, log.contains("GardenGather start"));
+        assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("not starting GardenGather")));
+        assertEquals(java.util.Collections.singletonList(park), drive.followed);
+    }
+
     /**
      * #142, inside a block: L-Quals runs most of its Auto as the cards of one firstOf row. A path in
      * the row that is driving at the deadline runs to its end; the row's next path, which would
