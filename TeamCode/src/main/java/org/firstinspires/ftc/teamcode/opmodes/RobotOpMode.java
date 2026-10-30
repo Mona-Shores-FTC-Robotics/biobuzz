@@ -35,6 +35,7 @@ import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
+import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy;
@@ -217,6 +218,15 @@ public abstract class RobotOpMode extends OpMode {
     private final ImpactWatch impacts = new ImpactWatch();
     private long loggedCameraNs;
     private Object loggedPinpointStatus;
+    private static final String[] WHEEL_KEYS = {"/Drive/WheelTicksPerSec/FrontLeft",
+            "/Drive/WheelTicksPerSec/FrontRight", "/Drive/WheelTicksPerSec/BackLeft",
+            "/Drive/WheelTicksPerSec/BackRight"};
+    private final Throttle frameRate = new Throttle(1000, 0);
+    private long frameRateCount;
+    private long frameRateNs;
+    private boolean cameraWasConnected;
+    private boolean cameraStatusLogged;
+    private int loggedHiveState = -1;
 
     // ------------------------------------------------------------------ hooks
 
@@ -601,6 +611,12 @@ public abstract class RobotOpMode extends OpMode {
         // bad configuration — and an exception in stop() replaces the one that actually explains
         // what went wrong.
         if (robot != null) {
+            // The camera's temperature and load after the run: a dropout's likeliest causes.
+            try {
+                log.event("Limelight at end: " + robot.vision.statusLine());
+            } catch (RuntimeException e) {
+                log.event("Limelight at end: no status (" + e + ")");
+            }
             robot.stop();
         }
         Scheduler.reset();
@@ -892,9 +908,41 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Drive/CommandTurn", robot.drive.appliedTurn());
         log.put("/Drive/CommandFieldCentric", robot.drive.commandFieldCentric() ? 1 : 0);
         log.put("/Drive/OdometrySpeedInPerSec", speed);
+        for (int i = 0; i < WHEEL_KEYS.length; i++) log.put(WHEEL_KEYS[i], robot.drive.wheelTicksPerSec(i));
         log.put("/FlowerStick/Out", robot.flowerStick.extended() ? 1 : 0);
+        log.put("/FlowerStick/Powered", robot.flowerStick.limp() ? 0 : 1);
         HiveTracker hive = robot.hive.of(setup.alliance());
-        if (hive != null) log.put("/Hive/State", hive.state().ordinal());
+        if (hive != null) {
+            int state = hive.state().ordinal();
+            log.put("/Hive/State", state);
+            if (state != loggedHiveState) {
+                log.event("HIVE (" + setup.alliance() + "): " + hive.state());
+                loggedHiveState = state;
+            }
+        }
+
+        // The camera's health: connected, frames a second, latency inside the camera.
+        boolean connected = robot.vision.isConnected();
+        log.put("/Vision/Connected", connected ? 1 : 0);
+        log.put("/Vision/LatencyMs", robot.vision.lastLatencyMs());
+        long nowNs = System.nanoTime();
+        if (frameRate.due(nowNs)) {
+            long frames = robot.vision.freshResultCount();
+            if (frameRateNs != 0) {
+                log.put("/Vision/FramesPerSec", (frames - frameRateCount) / ((nowNs - frameRateNs) / 1e9));
+            }
+            frameRateCount = frames;
+            frameRateNs = nowNs;
+        }
+        if (connected != cameraWasConnected) {
+            log.event(connected ? "Limelight: answering" : "Limelight: not answering");
+            cameraWasConnected = connected;
+        }
+        // Its own report once, in INIT (asking it waits on the network, so never in the match loop).
+        if (mode == MatchLog.Mode.DISABLED && connected && !cameraStatusLogged) {
+            log.event("Limelight at INIT: " + robot.vision.statusLine());
+            cameraStatusLogged = true;
+        }
 
         Object status = robot.drive.pinpointStatus();
         if (status != null && !status.equals(loggedPinpointStatus)) {

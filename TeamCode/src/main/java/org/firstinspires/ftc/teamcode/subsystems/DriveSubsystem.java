@@ -8,6 +8,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
@@ -24,6 +25,7 @@ import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.AccelLimiter;
+import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
@@ -174,6 +176,15 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private double appliedForward = Double.NaN;
     private double appliedStrafe = Double.NaN;
     private double appliedTurn = Double.NaN;
+    /**
+     * The four drive wheels' encoder speeds, ticks/s, front left, front right, back left, back
+     * right, for the match log: wheels that turn while the pods say the robot is still are a slip
+     * or a pod off the floor. Read ten times a second, since the first read after the bulk-cache
+     * clear costs the Control Hub's bulk read (about 1 ms), which nothing else in the loop needs.
+     */
+    private final DcMotorEx[] wheels;
+    private final double[] wheelTicksPerSec = {Double.NaN, Double.NaN, Double.NaN, Double.NaN};
+    private final Throttle wheelRead = new Throttle(100, 50);
     private boolean fieldCentric;
     private double headingOffset;
     private long lastUpdateNs;
@@ -192,6 +203,12 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         localizer = found;
         localizerFault = fault;
         fieldCentric = found != null;
+        // The same motor objects Pedro's drivetrain drives; only their encoders are read here.
+        wheels = new DcMotorEx[] {
+                hardwareMap.get(DcMotorEx.class, DeviceNames.FRONT_LEFT),
+                hardwareMap.get(DcMotorEx.class, DeviceNames.FRONT_RIGHT),
+                hardwareMap.get(DcMotorEx.class, DeviceNames.BACK_LEFT),
+                hardwareMap.get(DcMotorEx.class, DeviceNames.BACK_RIGHT)};
         // The same device the localizer reads; its status comes with the localizer's own read.
         pinpoint = found != null ? hardwareMap.get(GoBildaPinpointDriver.class, DeviceNames.PINPOINT) : null;
     }
@@ -534,6 +551,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     public double appliedStrafe() { return appliedStrafe; }
     public double appliedTurn() { return appliedTurn; }
 
+    /** Drive wheel {@code i}'s encoder speed, ticks/s (0 FL, 1 FR, 2 BL, 3 BR), as of the last read. */
+    public double wheelTicksPerSec(int i) { return wheelTicksPerSec[i]; }
+
     /** Whether the sticks' command was field-centric (then {@link #appliedForward} is field "away"). */
     public boolean commandFieldCentric() {
         return fieldCentric && !robotCentricCommand;
@@ -587,6 +607,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         long now = System.nanoTime();
         double dt = Math.min((now - lastUpdateNs) / 1e9, MAX_LOOP_DT_SEC);
         lastUpdateNs = now;
+        if (wheelRead.due(now)) {
+            for (int i = 0; i < wheels.length; i++) wheelTicksPerSec[i] = wheels[i].getVelocity();
+        }
 
         if (pathControl && follower != null) {
             follower.update(dt); // updates the localizer too, so it is not updated twice
