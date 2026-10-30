@@ -44,12 +44,22 @@ public class ImpactWatchTest {
     @Test
     public void aSuddenStopIsOneJolt() {
         ImpactWatch w = new ImpactWatch();
-        w.update(0, 0.8, 40.0);
-        assertEquals(Event.JOLT, w.update(20, 0.8, 30.0)); // 500 in/s²
-        assertEquals(500, w.lastJoltInPerSec2(), 1e-6);
-        assertEquals("held off", Event.NONE, w.update(40, 0.8, 20.0));
-        assertEquals("steady again", Event.NONE, w.update(600, 0.8, 20.0));
-        assertEquals("after the hold-off", Event.JOLT, w.update(620, 0.8, 40.0)); // 1000 in/s²
+        for (long t = 0; t <= 100; t += 20) w.update(t, 0.8, 40.0);
+        // 40 -> 0 in/s in one loop: the 3-loop mean drops 13.3 in/s in 20 ms, 667 in/s².
+        assertEquals(Event.JOLT, w.update(120, 0.8, 0.0));
+        assertEquals(40.0 / 3 / 0.02, w.lastJoltInPerSec2(), 1e-6);
+        assertEquals("held off", Event.NONE, w.update(140, 0.8, 0.0));
+        for (long t = 160; t <= 700; t += 20) w.update(t, 0.8, 0.0);
+        assertEquals("after the hold-off", Event.JOLT, w.update(720, 0.8, 60.0)); // 1000 in/s²
+    }
+
+    @Test
+    public void oneNoisyLoopIsNoJolt() {
+        ImpactWatch w = new ImpactWatch();
+        for (long t = 0; t <= 100; t += 20) w.update(t, 0.8, 30.0);
+        // A single 6 in/s blip (300 in/s² raw) moves the mean by 2 in/s: 100 in/s².
+        assertEquals(Event.NONE, w.update(120, 0.8, 36.0));
+        assertEquals(Event.NONE, w.update(140, 0.8, 30.0));
     }
 
     @Test

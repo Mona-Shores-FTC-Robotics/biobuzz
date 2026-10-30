@@ -21,8 +21,13 @@ public final class ImpactWatch {
     static final double PUSH_SPEED_IN_PER_SEC = 3.0;
     /** A push is reported once it has lasted this long, ms. */
     static final double PUSH_MIN_MS = 300;
-    /** A speed change faster than this, inches/s², is a jolt. */
-    static final double JOLT_IN_PER_SEC2 = 250;
+    /**
+     * A change in the smoothed speed faster than this, inches/s², is a jolt. On the 29 Oct logs
+     * 250 on the raw speed fired one to three times a second in ordinary driving.
+     */
+    static final double JOLT_IN_PER_SEC2 = 500;
+    /** The speed is averaged over this many loops before it is differenced: one loop is noise. */
+    static final int SMOOTH_LOOPS = 3;
     /** After a jolt, the next is not reported for this long, ms: one knock, one event. */
     static final double JOLT_HOLDOFF_MS = 500;
 
@@ -34,6 +39,9 @@ public final class ImpactWatch {
     private double lastPushMs;
     private double lastPushPeakCommand;
     private double lastSpeed = Double.NaN;
+    private final double[] recent = new double[SMOOTH_LOOPS];
+    private int recentNext;
+    private int recentFilled;
     private long lastMs;
     private long lastJoltMs = Long.MIN_VALUE / 2;
     private double lastJoltInPerSec2;
@@ -46,15 +54,16 @@ public final class ImpactWatch {
      */
     public Event update(long nowMs, double command, double speedInPerSec) {
         Event event = Event.NONE;
-        if (!Double.isNaN(speedInPerSec) && !Double.isNaN(lastSpeed) && nowMs > lastMs) {
-            double accel = Math.abs(speedInPerSec - lastSpeed) / ((nowMs - lastMs) / 1000.0);
+        double smoothed = smooth(speedInPerSec);
+        if (!Double.isNaN(smoothed) && !Double.isNaN(lastSpeed) && nowMs > lastMs) {
+            double accel = Math.abs(smoothed - lastSpeed) / ((nowMs - lastMs) / 1000.0);
             if (accel > JOLT_IN_PER_SEC2 && nowMs - lastJoltMs >= JOLT_HOLDOFF_MS) {
                 lastJoltMs = nowMs;
                 lastJoltInPerSec2 = accel;
                 event = Event.JOLT;
             }
         }
-        lastSpeed = speedInPerSec;
+        lastSpeed = smoothed;
         lastMs = nowMs;
 
         boolean pushing = command >= PUSH_COMMAND && speedInPerSec < PUSH_SPEED_IN_PER_SEC;
@@ -74,6 +83,21 @@ public final class ImpactWatch {
             }
         }
         return event;
+    }
+
+    /** The mean of the last {@link #SMOOTH_LOOPS} speeds, NaN until there are that many; NaN resets it. */
+    private double smooth(double speed) {
+        if (Double.isNaN(speed)) {
+            recentFilled = 0;
+            return Double.NaN;
+        }
+        recent[recentNext] = speed;
+        recentNext = (recentNext + 1) % SMOOTH_LOOPS;
+        recentFilled = Math.min(recentFilled + 1, SMOOTH_LOOPS);
+        if (recentFilled < SMOOTH_LOOPS) return Double.NaN;
+        double sum = 0.0;
+        for (double v : recent) sum += v;
+        return sum / SMOOTH_LOOPS;
     }
 
     /** Whether a push is under way now (counted from its start, reported at its end). */
