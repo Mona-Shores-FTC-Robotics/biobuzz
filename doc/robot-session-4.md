@@ -31,7 +31,11 @@ logs were analysed afterwards. What that session established:
 
 ## Before leaving the laptop
 
-- [ ] Master pulled; **Sloth Load** on 20245 (no `.gradle` or `res/` change since 29 Oct).
+- [ ] **Mount the goBILDA RGB Indicator Light** on 20245 where the drive team can see it from the
+      field, and plug it into **Control Hub servo port 0** (the port `robot_20245.xml` names; 19429
+      uses the same port when it gets one).
+- [ ] Master pulled; a **full TeamCode install** on 20245, not a Sloth Load: the light added a
+      device to `res/xml/robot_20245.xml` since 29 Oct. Then **Validate Hardware**.
 - [ ] Charged batteries, more than one.
 - [ ] A tape measure, and a phone level app or angle gauge.
 - [ ] The HIVE on the field, red side, RIGHT CELL up (match start).
