@@ -37,7 +37,10 @@ import java.util.function.Consumer;
  *       {@link #inSpeed} of the robot's top speed. It ends when the path does, or when the robot
  *       stops getting closer (it is against something; not counted in the path's first moments,
  *       while it ramps up from rest), or at {@link #inTimeoutMs}.</li>
- *   <li><b>Dwell</b> for {@link #dwellMs}, pushing lightly ({@link #dwellPushPower}), steered.</li>
+ *   <li><b>Dwell</b>, pushing lightly ({@link #dwellPushPower}), steered, until the intake's current
+ *       says the pieces have stopped coming ({@link DwellWatch}: quiet for {@link #dwellQuietMs}
+ *       after the last spike, or no spike by {@link #dwellEmptyMs}), at most {@link #dwellMs}. The
+ *       current is read every loop while a grab runs.</li>
  *   <li><b>Back.</b> A Pedro path back to exactly where the In started, capped at
  *       {@link #backSpeed}. {@link #unprep} once the robot has backed {@link #unprepAfterBackIn}.</li>
  * </ol>
@@ -114,6 +117,8 @@ public abstract class GrabRoutine {
     private long lineUpDoneNs = -1;
     /** Let go during the dwell or the back-out: the grab runs to its end without the button. */
     private boolean finishing;
+    private final DwellWatch dwell = new DwellWatch();
+    private String dwellEndWhy = "";
     private final double[] phaseMs = new double[Phase.values().length];
     private String result = "";
 
@@ -182,6 +187,12 @@ public abstract class GrabRoutine {
     protected abstract double stallProgressIn();
     protected abstract double stallMs();
     protected abstract double dwellMs();
+    /** The dwell ends this long after the intake current's last spike, ms; 0 turns it off. */
+    protected abstract double dwellQuietMs();
+    /** The dwell ends if the current has had no spike this far into it, ms; 0 turns it off. */
+    protected abstract double dwellEmptyMs();
+    /** A current this many amps over the roller's free-running current is a piece. */
+    protected abstract double spikeAboveAmps();
     protected abstract double dwellPushPower();
     protected abstract double backSpeed();
     protected abstract double unprepAfterBackIn();
@@ -244,6 +255,7 @@ public abstract class GrabRoutine {
                     if (sticksMoved) {
                         abort(now, "sticks moved");
                     } else {
+                        dwellEndWhy = "let go";
                         startBack(now, robot.drive.pose());
                     }
                 }
@@ -264,6 +276,7 @@ public abstract class GrabRoutine {
         }
         Pose pose = robot.drive.pose();
         double remaining = Math.hypot(in.x() - pose.x(), in.y() - pose.y());
+        if (prepped) dwell.observe(ms(now, startNs), robot.intake.currentAmps(), nn(spikeAboveAmps()));
         switch (phase) {
             case LINE_UP:
                 if (Math.abs(Math.toDegrees(wrapRad(in.heading() - pose.heading()))) <= nn(prepWithinDeg())) {
@@ -323,7 +336,9 @@ public abstract class GrabRoutine {
                 }
                 break;
             case DWELL:
-                if (ms(now, phaseStartNs) >= nn(dwellMs())) {
+                boolean capped = ms(now, phaseStartNs) >= nn(dwellMs());
+                if (capped || dwell.done(ms(now, startNs), ms(phaseStartNs, startNs), dwellQuietMs(), dwellEmptyMs())) {
+                    dwellEndWhy = capped ? "dwellMs" : dwell.sawSpike() ? "pieces in" : "nothing came";
                     startBack(now, pose);
                 } else {
                     steer(pose, dwellPushPower());
@@ -372,6 +387,8 @@ public abstract class GrabRoutine {
         unprepped = false;
         finishing = false;
         lineUpDoneNs = -1;
+        dwell.reset();
+        dwellEndWhy = "";
         inEndWhy = "";
         Pose pose = robot.drive.pose();
         if (pose == null) {
@@ -428,6 +445,7 @@ public abstract class GrabRoutine {
         prepped = true;
         preppedNs = now;
         prep();
+        robot.intake.readCurrentEveryLoop(true);
         event.accept(String.format(Locale.US, "%s: prep, %.1f in to go, %.2f s in", what(),
                 Math.max(0.0, remainingIn), ms(now, startNs) / 1000.0));
     }
@@ -436,7 +454,8 @@ public abstract class GrabRoutine {
         phaseMs[phase.ordinal()] = ms(now, phaseStartNs);
         event.accept(String.format(Locale.US, "%s: %s %.2f s%s, then %s", what(), phase,
                 phaseMs[phase.ordinal()] / 1000.0,
-                phase == Phase.IN ? " (" + inEndWhy + ")" : "", to));
+                phase == Phase.IN ? " (" + inEndWhy + ")"
+                        : phase == Phase.DWELL && !dwellEndWhy.isEmpty() ? " (" + dwellEndWhy + ")" : "", to));
         phase = to;
         phaseStartNs = now;
     }
@@ -477,6 +496,7 @@ public abstract class GrabRoutine {
     /** Drive stops (the sticks take the next loop), and the mechanisms stop. */
     private void stopAll() {
         robot.drive.drive(0.0, 0.0, 0.0);
+        robot.intake.readCurrentEveryLoop(false);
         stopMechanisms();
     }
 

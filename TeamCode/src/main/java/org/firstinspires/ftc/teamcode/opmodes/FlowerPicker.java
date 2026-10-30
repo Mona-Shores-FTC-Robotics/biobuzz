@@ -62,10 +62,23 @@ public final class FlowerPicker extends GrabRoutine {
     /** See {@link #stallProgressIn}, ms. */
     public static double stallMs = 250;
     /**
-     * The dwell, ms. A cap until pieces can be counted (#181); the driver ends it sooner by letting
-     * go. On 29 Oct drivers ended 23 of 33 early dwells by 1.0 s.
+     * The dwell's cap, ms. It normally ends sooner, from the intake current ({@link #dwellQuietMs},
+     * {@link #dwellEmptyMs}), or when the driver lets go. On 29 Oct the last piece came as late
+     * as 1.55 s into a 1.5 s dwell, so the cap sits above that.
      */
-    public static double dwellMs = 1000;
+    public static double dwellMs = 2000;
+    /**
+     * The dwell ends this long after the intake current's last spike, ms (0: off). The longest
+     * gap between two pieces' spikes on 29 Oct was 0.55 s.
+     */
+    public static double dwellQuietMs = 600;
+    /**
+     * The dwell ends if no piece has spiked the current this far in, ms (0: off). The latest first
+     * piece on 29 Oct came 1.22 s in.
+     */
+    public static double dwellEmptyMs = 1300;
+    /** A current this many amps over the roller's free-running 0.35 A is a piece (they spike 5–6 A). */
+    public static double spikeAboveAmps = 1.0;
     /** The push starts once the robot has slowed below this after the line-up, inches/s. */
     public static double settledInPerSec = 2.0;
     /** Forward power during the dwell, to keep the stick seated. 0 for none. */
@@ -190,6 +203,9 @@ public final class FlowerPicker extends GrabRoutine {
     @Override protected double stallProgressIn() { return stallProgressIn; }
     @Override protected double stallMs() { return stallMs; }
     @Override protected double dwellMs() { return dwellMs; }
+    @Override protected double dwellQuietMs() { return dwellQuietMs; }
+    @Override protected double dwellEmptyMs() { return dwellEmptyMs; }
+    @Override protected double spikeAboveAmps() { return spikeAboveAmps; }
     @Override protected double settledInPerSec() { return settledInPerSec; }
     @Override protected double dwellPushPower() { return dwellPushPower; }
     @Override protected double backSpeed() { return backSpeed; }

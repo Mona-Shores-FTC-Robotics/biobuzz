@@ -87,6 +87,8 @@ public class IntakeSubsystem implements Subsystem {
      * only shown and logged, so ten a second will do; staggered against the feeder and launcher.
      */
     private final Throttle currentRead = new Throttle(100, 0);
+    /** A grab is timing its dwell from the current: read it every loop while it runs. */
+    private boolean currentEveryLoop;
 
     /** Looks the motor and the star-wheel servo up once. A missing device fails init with the SDK's own message. */
     public IntakeSubsystem(HardwareMap hardwareMap) {
@@ -155,9 +157,17 @@ public class IntakeSubsystem implements Subsystem {
         if (state == State.IDLE) {
             currentAmps = Double.NaN;
             currentRead.reset();
-        } else if (currentRead.due(System.nanoTime())) {
+        } else if (currentEveryLoop || currentRead.due(System.nanoTime())) {
             currentAmps = motor.getCurrent(CurrentUnit.AMPS);
         }
+    }
+
+    /**
+     * Read the current every loop rather than every 100 ms: a FLOWER pick ending its dwell from
+     * the current needs each piece's spike on time. A 2–3 ms read, for the seconds a grab runs.
+     */
+    public void readCurrentEveryLoop(boolean on) {
+        currentEveryLoop = on;
     }
 
     /** Cut power. Safe to call whether or not {@link #initialize()} ran. */
