@@ -1,4 +1,6 @@
 {
+  "version": "2.0.0",
+  "timestamp": "2026-01-01T00:00:00.000Z",
   "startPoint": {
     "x": 54.06,
     "y": 7.72,
@@ -41,15 +43,15 @@
       },
       "controlPoints": [
         {
-          "x": 57.5,
+          "x": 60.5,
+          "y": 40
+        },
+        {
+          "x": 60.5,
           "y": 100
         },
         {
-          "x": 57.5,
-          "y": 118
-        },
-        {
-          "x": 57.5,
+          "x": 60.5,
           "y": 118
         }
       ],
@@ -137,8 +139,12 @@
       },
       "controlPoints": [
         {
-          "x": 57.5,
+          "x": 60.5,
           "y": 100
+        },
+        {
+          "x": 60.5,
+          "y": 40
         }
       ],
       "heading": {
@@ -454,13 +460,17 @@
     }
   ],
   "fieldPoints": [],
-  "settings": {
-    "xVelocity": 75,
-    "yVelocity": 65,
+  "robot": {
+    "forwardVelocity": 75,
+    "strafeVelocity": 65,
     "aVelocity": 3.141592653589793,
     "kFriction": 0.1,
-    "rWidth": 15.44,
-    "rHeight": 16,
+    "rLength": 15.44,
+    "rWidth": 16,
+    "safetyMargin": 1,
+    "maxVelocity": 50,
+    "maxAcceleration": 45,
+    "maxDeceleration": 45,
     "features": [
       {
         "name": "Front frame",
@@ -479,35 +489,9 @@
         "left": 0,
         "collides": true
       }
-    ],
-    "safetyMargin": 1,
-    "maxVelocity": 50,
-    "maxAcceleration": 45,
-    "maxDeceleration": 45,
-    "fieldMap": "biobuzz.webp",
-    "robotImage": "/robot.png",
-    "showGhostPaths": false,
-    "showOnionLayers": false,
-    "onionLayerSpacing": 3,
-    "onionColor": "#dc2626",
-    "onionNextPointOnly": false,
-    "showHeadingArrow": false,
-    "showCurrentTValue": false,
-    "leftPanelWidth": 920,
-    "rightPanelWidth": 714,
-    "headingArrowLength": 50,
-    "headingArrowColor": "#ffffff",
-    "headingArrowThickness": 2,
-    "pathOpacity": 1,
-    "leftPanelMinWidth": 0,
-    "rightPanelMinWidth": 0,
-    "penToolMaxPaths": 8,
-    "curveThroughMaxPoints": 4,
-    "experimentalFeatures": {
-      "optimize": false,
-      "curveThrough": false
-    }
+    ]
   },
+  "activePaths": [],
   "auto": {
     "version": 1,
     "drawnFor": "RED",
@@ -889,7 +873,5 @@
     ],
     "startAt": "START",
     "exportName": "r-quals"
-  },
-  "version": "1.5.0",
-  "timestamp": "2026-10-27T22:01:49.758Z"
+  }
 }
