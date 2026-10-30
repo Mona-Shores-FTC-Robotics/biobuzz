@@ -36,8 +36,11 @@ public final class TeleOpConfig {
     /** Stick multiplier while turbo is held. */
     public static double turboSpeed = 1.0;
 
-    /** Stick multiplier while slow is held. Slow wins if both are held. */
-    public static double slowSpeed = 0.35;
+    /**
+     * Stick multiplier while slow is held. Slow wins if both are held. 0.45 since the everyday speed
+     * went to 0.8, keeping slow a little over half of it.
+     */
+    public static double slowSpeed = 0.45;
 
     /** Degrees one trim press moves the aim. Clamped to [0, 5]. */
     public static double trimStepDeg = 1.5;
