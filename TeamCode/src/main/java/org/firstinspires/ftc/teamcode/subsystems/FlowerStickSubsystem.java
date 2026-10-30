@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -58,21 +59,55 @@ public class FlowerStickSubsystem implements Subsystem {
     private boolean lastOut = false;
     private boolean limp = false;
     private long movedAtMs = 0;
+    private final DriveSubsystem drive;
+    // A pending retractWhenClear: the stick comes in once the robot is clearIn from (clearX, clearY).
+    private boolean waitingToClear = false;
+    private double clearX;
+    private double clearY;
+    private double clearIn;
 
-    /** Looks the servo up once. A missing servo fails init with the SDK's own message. */
-    public FlowerStickSubsystem(HardwareMap hardwareMap) {
+    /**
+     * Looks the servo up once. A missing servo fails init with the SDK's own message.
+     *
+     * @param drive read for the pose by {@link #retractWhenClear}; updated before this subsystem
+     */
+    public FlowerStickSubsystem(HardwareMap hardwareMap, DriveSubsystem drive) {
         servo = hardwareMap.get(Servo.class, DeviceNames.FLOWER_STICK);
         pwm = servo instanceof PwmControl ? (PwmControl) servo : null;
+        this.drive = drive;
     }
 
     /** Ask for the stick out. Takes effect in the next {@link #update()}. */
     public void extend() {
+        waitingToClear = false;
         out = true;
     }
 
     /** Ask for the stick in. Takes effect in the next {@link #update()}. */
     public void retract() {
+        waitingToClear = false;
         out = false;
+    }
+
+    /**
+     * Ask for the stick in, but only once the robot's centre is at least {@code inches} from the
+     * field point ({@code x}, {@code y}): a stick swung up while it is still in a FLOWER pulls on the
+     * FLOWER. The stick stays down until then, checked every {@link #update()}, whatever ended the
+     * grab and whoever drives the robot away. At once if the robot is already that far, if the stick
+     * is in, or if there is no pose to check. Any other request ({@link #extend}, {@link #retract},
+     * {@link #toggle}) replaces it, so the operator's button always wins.
+     */
+    public void retractWhenClear(double x, double y, double inches) {
+        if (!out) return;
+        waitingToClear = true;
+        clearX = x;
+        clearY = y;
+        clearIn = inches;
+    }
+
+    /** Whether the stick is out only until the robot is clear ({@link #retractWhenClear}). */
+    public boolean waitingToClear() {
+        return waitingToClear;
     }
 
     /**
@@ -80,6 +115,7 @@ public class FlowerStickSubsystem implements Subsystem {
      * both; a press mid-swing turns the stick round, which the servo handles as a new target.
      */
     public void toggle() {
+        waitingToClear = false;
         out = !out;
     }
 
@@ -96,6 +132,7 @@ public class FlowerStickSubsystem implements Subsystem {
     /** Start with the stick in and the servo holding it, so the robot fits its starting envelope. */
     @Override
     public void initialize() {
+        waitingToClear = false;
         out = false;
         lastOut = false;
         power(true);
@@ -111,6 +148,10 @@ public class FlowerStickSubsystem implements Subsystem {
     @Override
     public void update() {
         long now = System.currentTimeMillis();
+        if (waitingToClear && clearOf(drive.pose(), clearX, clearY, clearIn)) {
+            waitingToClear = false;
+            out = false;
+        }
         if (out != lastOut) {
             lastOut = out;
             movedAtMs = now;
@@ -158,6 +199,14 @@ public class FlowerStickSubsystem implements Subsystem {
      */
     static boolean shouldGoLimp(long sinceMoveMs, int settleMs, boolean limpWanted) {
         return limpWanted && sinceMoveMs >= settleMs;
+    }
+
+    /**
+     * Whether {@code pose} is at least {@code inches} from (x, y). No pose counts as clear: without
+     * one the stick could never come in. Pure, so the test can pin it down.
+     */
+    static boolean clearOf(Pose pose, double x, double y, double inches) {
+        return pose == null || Math.hypot(pose.x() - x, pose.y() - y) >= inches;
     }
 
     /**

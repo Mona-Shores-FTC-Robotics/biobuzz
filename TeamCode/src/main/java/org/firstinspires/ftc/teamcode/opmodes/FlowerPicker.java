@@ -64,7 +64,12 @@ public final class FlowerPicker extends GrabRoutine {
     public static double dwellPushPower = 0.1;
     /** The back-out path's speed cap, a fraction of the robot's top path speed (0 to 1]. */
     public static double backSpeed = 0.5;
-    /** The stick comes up once the robot has backed out this far, inches. */
+    /**
+     * The stick comes up once the robot has backed out this far, inches: on the back-out, and also
+     * whenever a pick ends early (button let go, sticks moved, a timeout, an Auto's card cut short).
+     * Either way it waits until the robot's centre is {@link #contactStandoffIn} plus this from the
+     * FLOWER's centre, so it never swings up while still in the FLOWER.
+     */
     public static double retractAfterBackIn = 6.0;
     /** The back-out gives up after this long, ms. */
     public static double backTimeoutMs = 2000;
@@ -149,13 +154,21 @@ public final class FlowerPicker extends GrabRoutine {
 
     @Override
     protected void unprep() {
-        robot.flowerStick.retract();
+        retractWhenClear();
     }
 
     @Override
     protected void stopMechanisms() {
         robot.intake.idle();
-        robot.flowerStick.retract();
+        retractWhenClear();
+    }
+
+    /**
+     * The stick comes in once the robot is clear of the FLOWER, however the pick ends: finished,
+     * let go, or cut short. The stick subsystem holds it down until then, after this pick is over.
+     */
+    private void retractWhenClear() {
+        robot.flowerStick.retractWhenClear(flower.x, flower.y, nn(contactStandoffIn) + nn(retractAfterBackIn));
     }
 
     @Override protected double prepMs() { return stickDownMs; }

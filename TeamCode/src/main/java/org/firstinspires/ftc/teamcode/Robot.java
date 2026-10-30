@@ -92,7 +92,7 @@ public class Robot {
         // After the drive, so it compares this loop's camera with this loop's pose.
         hive = new HiveSubsystem(vision, drive);
         pieces = new PieceVisionSubsystem(hardwareMap);
-        flowerStick = new FlowerStickSubsystem(hardwareMap);
+        flowerStick = new FlowerStickSubsystem(hardwareMap, drive);
         intake = new IntakeSubsystem(hardwareMap);
         launcher = new LauncherSubsystem(hardwareMap);
         feeder = new FeederSubsystem(hardwareMap);
