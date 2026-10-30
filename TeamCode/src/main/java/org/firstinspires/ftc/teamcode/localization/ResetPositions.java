@@ -35,7 +35,7 @@ public final class ResetPositions {
      * From each wall the robot is squared against to its centre, inches. Measured by tape on 20245,
      * 30 Oct 2026: about 8.1 to both walls, in both red corners.
      */
-    static final double WALL_TO_CENTRE_IN = 8.1;
+    public static final double WALL_TO_CENTRE_IN = 8.1;
 
     private static final double FAR = FieldFrame.FIELD_SIZE_INCHES - WALL_TO_CENTRE_IN;
 
