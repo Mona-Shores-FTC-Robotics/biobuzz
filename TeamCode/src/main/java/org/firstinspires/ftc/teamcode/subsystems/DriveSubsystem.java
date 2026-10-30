@@ -178,8 +178,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private double appliedTurn = Double.NaN;
     /**
      * The four drive wheels' encoder speeds, ticks/s, front left, front right, back left, back
-     * right, for the match log: wheels that turn while the pods say the robot is still are a slip
-     * or a pod off the floor. Read ten times a second, since the first read after the bulk-cache
+     * right, for the match log. Wheels turning while the dead-wheel pods read still is the pods
+     * doing their job (the robot pushing on something and not moving), not a fault: these mark
+     * when the robot was driven into something, which is when a pod could lift. A pod off the
+     * floor misses motion that did happen, so only an outside reference (the camera's gap,
+     * {@code /Drift/*}) shows it. Read ten times a second, since the first read after the bulk-cache
      * clear costs the Control Hub's bulk read (about 1 ms), which nothing else in the loop needs.
      */
     private final DcMotorEx[] wheels;
