@@ -24,8 +24,9 @@ simulated matches; this is the part that applies to a real log.
 The 2D field is AdvantageScope's own **2026-2027 Field**; it downloads it the first time a Field tab
 asks for it, so the first open needs internet. The 3D tabs use the simulator's **2026-2027 Field (HIVE
 sim)** and **BIOBUZZ HIVE**, which are cut from that field on each laptop (no FIRST CAD is committed):
-build them once with the simulator branch's `tools\advantagescope\watch-biobuzz.cmd` (`claude/simulator`),
-or install a viewer zip that carries them. The setup script says when they are missing.
+the setup script builds and installs them when they are missing (`HiveAssetsTest`, run with Android Studio's Java),
+and rebuilds them with `-Hive` after AdvantageScope updates its field. It needs AdvantageScope to have shown the
+2026-2027 field in a 3D tab once. A laptop without Android Studio installs them from a viewer zip instead.
 
 ## Sending logs to someone without the repo
 

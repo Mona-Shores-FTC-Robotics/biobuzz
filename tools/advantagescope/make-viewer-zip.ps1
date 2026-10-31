@@ -32,7 +32,7 @@ foreach ($name in @("Field3d_BIOBUZZHiveSim", "Robot_BIOBUZZHive")) {
         Copy-Item -Recurse $dir $stage
     } else {
         Write-Host "No $name in this laptop's AdvantageScope: the zip's 3D tabs will have no HIVE field."
-        Write-Host "Build it with the simulator branch's tools\advantagescope\watch-biobuzz.cmd, then make the zip again."
+        Write-Host "Build it with setup-advantagescope.cmd (beside this script), then make the zip again."
         $hiveNote = "no HIVE field (the laptop that made it had none)"
     }
 }
