@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.logging.AdvantageScopeKeys;
 import org.firstinspires.ftc.teamcode.logging.GamepadLog;
 import org.firstinspires.ftc.teamcode.logging.MatchLog;
+import org.firstinspires.ftc.teamcode.logging.RobotComponents;
 import org.firstinspires.ftc.teamcode.logging.MatchLogFiles;
 import org.firstinspires.ftc.teamcode.logging.BuildStamp;
 import org.firstinspires.ftc.teamcode.logging.MotionWatch;
@@ -1002,6 +1003,8 @@ public abstract class RobotOpMode extends OpMode {
             log.pose(pose.x(), pose.y(), pose.heading());
             log.put("/Odometry/Referenced", referenced ? 1 : 0);
         }
+        // The robot model's moving parts (AdvantageScope's 3D tabs): written only when one moves.
+        log.component(RobotComponents.TURRET, robot.turret.angleDegrees());
         // What the camera's gate made of the latest frame, and how the stationary fix stands.
         log.put("/Vision/TagsAccepted", robot.drive.lastFrame().acceptedCount());
         log.put("/Vision/TagsRejected", robot.drive.lastFrame().count() - robot.drive.lastFrame().acceptedCount());

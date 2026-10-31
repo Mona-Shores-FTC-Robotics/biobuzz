@@ -93,6 +93,13 @@
           "options": {
            "model": "BIOBUZZ Robot"
           }
+         },
+         {
+          "type": "component",
+          "logKey": "/Internals/Components",
+          "logType": "Pose3d[]",
+          "visible": true,
+          "options": {}
          }
         ],
         "game": "FTC:2026-2027 Field"
@@ -127,6 +134,13 @@
           "options": {
            "model": "BIOBUZZ Robot"
           }
+         },
+         {
+          "type": "component",
+          "logKey": "/Internals/Components",
+          "logType": "Pose3d[]",
+          "visible": true,
+          "options": {}
          }
         ],
         "game": "FTC:2026-2027 Field"
