@@ -293,7 +293,7 @@ public class AutoStudyTest {
         twinCatcher.intakeWidthIn = 24;
         m.put(twinCatcher.name, twinCatcher);
         RobotDesign twinFull = twin.copy("two spring hoods, full-width intake");
-        twinFull.intakeWidthIn = 18;
+        twinFull.intakeWidthIn = twinFull.frameWidthIn;
         m.put(twinFull.name, twinFull);
         RobotDesign dedicated = twinCatcher.copy("POLLEN + NECTAR launchers, 24 in catcher");
         dedicated.dedicatedLaunchers = true;
@@ -344,7 +344,7 @@ public class AutoStudyTest {
         // 24 in catcher for now; it hits the foot bar or reaches over the centre line in the tunnel).
         for (RobotDesign base : new RobotDesign[] {steepCat, triangle}) {
             RobotDesign f = base.copy(base.name.replace(", 24 in catcher", "") + ", full-width intake");
-            f.intakeWidthIn = 18;
+            f.intakeWidthIn = f.frameWidthIn;
             m.put(f.name, f);
         }
         // Mentor review: would a turret, an intake at the back, or no piece counter change the answer?

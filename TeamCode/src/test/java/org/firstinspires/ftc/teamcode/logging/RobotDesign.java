@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import org.firstinspires.ftc.teamcode.localization.ResetPositions;
+
 import java.util.Locale;
 
 /**
@@ -29,14 +31,23 @@ final class RobotDesign {
     /** A FLOWER's retrieval opening is 3.55 in tall (Competition Manual §9.7). */
     static final double FLOWER_OPENING_HEIGHT_IN = 3.55;
 
+    /**
+     * The real robot's frame, square: twice {@link ResetPositions#WALL_TO_CENTRE_IN}, measured by tape on
+     * 20245 on 30 Oct 2026 (about 16 in without the nose). The Autos are drawn for it (the Visualizer's
+     * robot is 16 x 16, and the measured start puts its back on the wall), so it is every design's frame
+     * unless the design says otherwise. Until 31 Oct 2026 it was the 18 in start cube, and the robot
+     * started 1.3 in into the wall on every Auto drawn from the measured start.
+     */
+    static final double REAL_FRAME_IN = 2 * ResetPositions.WALL_TO_CENTRE_IN;
+
     final String name;
     /** Frame length, front to back (R102: at most 18 in at the start). */
-    double frameIn = 18;
+    double frameIn = REAL_FRAME_IN;
     /**
      * Frame width, side to side (R102: at most 18 in). Only {@link FieldSim}'s collisions and
      * {@link #checked} use it; {@link AutoSim}'s outlines still draw a square {@link #frameIn}.
      */
-    double frameWidthIn = 18;
+    double frameWidthIn = REAL_FRAME_IN;
     /** How far the intake reaches past the frame once the match starts. */
     double intakeReachIn = 0;
     double intakeWidthIn = 14;

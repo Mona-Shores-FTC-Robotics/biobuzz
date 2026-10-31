@@ -829,7 +829,7 @@ public final class AutoSim {
         return result;
     }
 
-    /** Whether two robots' 18 in footprints overlap now. */
+    /** Whether two robots' footprints (each at most 18 in square) overlap now. */
     private static boolean overlap(Bot a, Bot b) {
         double[] pa = pedro(a.drive.pose), pb = pedro(b.drive.pose);
         if (Math.hypot(pa[0] - pb[0], pa[1] - pb[1]) > 2 * 0.7072 * 18 + 1) return false;
@@ -1112,11 +1112,11 @@ public final class AutoSim {
             AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add);
             try {
                 drive.pose = (Pose) startPose.invoke(null, rotated);
-                // An Auto drawn for an 18 in robot backed against the wall: a shorter chassis that should
-                // start against it too has its start pose set that much further back on the robot.
-                if (design.startBackedToWall && design.frameIn < 18) {
+                // An Auto drawn for the real robot (RobotDesign.REAL_FRAME_IN) backed against the wall: a shorter
+                // chassis that should start against it too has its start pose set that much further back on the robot.
+                if (design.startBackedToWall && design.frameIn < RobotDesign.REAL_FRAME_IN) {
                     Pose p = drive.pose;
-                    double back = (18 - design.frameIn) / 2;
+                    double back = (RobotDesign.REAL_FRAME_IN - design.frameIn) / 2;
                     drive.pose = new Pose(p.x() - back * Math.cos(p.heading()), p.y() - back * Math.sin(p.heading()), p.heading());
                 }
                 auto = (Command) build.invoke(null, kit, rotated);

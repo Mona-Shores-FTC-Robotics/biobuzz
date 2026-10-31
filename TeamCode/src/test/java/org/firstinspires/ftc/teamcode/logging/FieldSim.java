@@ -69,8 +69,8 @@ final class FieldSim {
     static final double FOOT_BAR_HALF_WIDTH_IN = 1.0;
     static final double FOOT_BAR_HEIGHT_IN = 2.2;
 
-    /** An FTC robot's starting-size limit; the simulated robot is that box. */
-    static final double ROBOT_SIZE_IN = 18.0;
+    /** The simulated robot's box: the real robot's frame ({@link RobotDesign#REAL_FRAME_IN}). */
+    static final double ROBOT_SIZE_IN = RobotDesign.REAL_FRAME_IN;
     /** The standard design's intake ({@link RobotDesign#intakeWidthIn}), for planners that aim at it. */
     static final double INTAKE_HALF_WIDTH_IN = 7.0;
     /** Competition Manual G407: a robot may not control more than 4 SCORING ELEMENTS. */
