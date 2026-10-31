@@ -23,6 +23,12 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  * limp and the stick rests on the tile by its own weight. Stowed, the servo keeps holding, because
  * the stowed hard stop may not exist yet; {@link #LIMP_STOWED} releases it there too once it does.
  *
+ * <p>Nothing is written before PLAY, so the stick does not move at INIT (G304.H, G403; see
+ * {@link Subsystem}). The drive team stows it by hand before the match; at PLAY the servo takes
+ * it and holds it in. If it ever has to be held in to fit the 18 in starting cube, that is a
+ * mechanical stop or latch (R103.A), not the servo at INIT: the TeleOp's INIT runs between AUTO and
+ * TELEOP too, where a stick swinging in after an Auto is a G403 foul.
+ *
  * <p>The two positions are {@code @Configurable}: drag them in Panels with the servo moving until
  * the stick sits on each stop, then write the numbers back here with a comment saying which servo
  * and stick they were measured on. Panels edits are lost on restart.
@@ -64,6 +70,7 @@ public class FlowerStickSubsystem implements Subsystem {
     private boolean out = false;
     private boolean lastOut = false;
     private boolean limp = false;
+    private boolean started;
     private long movedAtMs = 0;
     private final DriveSubsystem drive;
     // A pending retractWhenClear: the stick comes in once the robot is clearIn from (clearX, clearY).
@@ -149,24 +156,38 @@ public class FlowerStickSubsystem implements Subsystem {
         return out ? swingDegrees() : 0.0;
     }
 
-    /** Start with the stick in and the servo holding it, so the robot fits its starting envelope. */
+    /**
+     * Asked in, and nothing written: the servo stays limp until PLAY (the SDK cuts every servo's
+     * pulse when an OpMode ends, and a servo port sends none until it is written).
+     */
     @Override
     public void initialize() {
         waitingToClear = false;
         out = false;
         lastOut = false;
-        power(true);
-        servo.setPosition(unitRange(RETRACTED));
+        limp = pwm != null;
+        started = false;
+    }
+
+    /** PLAY: the servo takes the stick and holds it in, unless something already asked it out. */
+    @Override
+    public void start() {
+        started = true;
         movedAtMs = System.currentTimeMillis();
     }
 
     /**
-     * One write per loop while the servo is working: the position the request asks for, clamped so
-     * Panels cannot overdrive it. A change of request powers the servo and starts the swing; once
-     * the swing has had {@link #SETTLE_MS} the pulse is cut if that end asks for it.
+     * Nothing before PLAY. Then one write per loop while the servo is working: the position the
+     * request asks for, clamped so Panels cannot overdrive it. A change of request powers the servo
+     * and starts the swing; once the swing has had {@link #SETTLE_MS} the pulse is cut if that end
+     * asks for it. The position goes out before the pulse is switched back on, so a limp servo
+     * never wakes up driving to an old one.
      */
     @Override
     public void update() {
+        if (!started) {
+            return;
+        }
         long now = System.currentTimeMillis();
         if (waitingToClear && clearOf(drive.pose(), clearX, clearY, clearIn)) {
             waitingToClear = false;
@@ -175,14 +196,13 @@ public class FlowerStickSubsystem implements Subsystem {
         if (out != lastOut) {
             lastOut = out;
             movedAtMs = now;
-            power(true);
         }
         boolean wantLimp = shouldGoLimp(now - movedAtMs, SETTLE_MS, out ? LIMP_EXTENDED : LIMP_STOWED);
         if (wantLimp) {
             power(false);
         } else {
-            power(true);
             servo.setPosition(unitRange(out ? EXTENDED : RETRACTED));
+            power(true);
         }
     }
 

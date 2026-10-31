@@ -191,7 +191,7 @@ public class LauncherSubsystem implements Subsystem {
     /** Ask both wheels to hold {@link #targetTicksPerSecond}. Takes effect in the next {@link #update()}. */
     public void spinUp() {
         heldTicksPerSecond = Double.NaN;
-        start();
+        beginSpinning();
     }
 
     /**
@@ -202,10 +202,10 @@ public class LauncherSubsystem implements Subsystem {
      */
     public void spinUp(double ticksPerSecond) {
         heldTicksPerSecond = ticksPerSecond;
-        start();
+        beginSpinning();
     }
 
-    private void start() {
+    private void beginSpinning() {
         if (state != State.SPINNING) {
             spinUpStartedNs = System.nanoTime();
             readiness.reset();
@@ -343,6 +343,11 @@ public class LauncherSubsystem implements Subsystem {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             motor.setPower(0.0);
         }
+    }
+
+    /** Nothing to do: the flywheels stay at zero until asked to spin up, which needs PLAY. */
+    @Override
+    public void start() {
     }
 
     /**

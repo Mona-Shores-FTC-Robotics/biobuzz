@@ -116,6 +116,11 @@ public class IndicatorSubsystem implements Subsystem {
         written = Double.NaN;
     }
 
+    /** Nothing to do: the light moves nothing, so it lights during INIT too. */
+    @Override
+    public void start() {
+    }
+
     /** A write only when the colour changes, and once a second to be sure the light has it. */
     @Override
     public void update() {

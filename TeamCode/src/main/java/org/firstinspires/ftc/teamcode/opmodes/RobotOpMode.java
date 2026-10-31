@@ -92,12 +92,14 @@ import java.util.Map;
  * </ol>
  *
  * <p>{@code init_loop()} does the same with {@link #onInitLoop()}, except that bindings are not
- * polled: the robot may not move before PLAY. {@link #loopTimer} is lapped at the top of every
+ * polled: the robot may not move before PLAY. Every subsystem's {@code update()} runs, but none moves
+ * a mechanism until {@code robot.start()} at PLAY (see {@link Subsystem}, "Nothing moves before
+ * PLAY"). {@link #loopTimer} is lapped at the top of every
  * {@code loop()}.
  *
  * <p>Never set a bulk caching mode, clear the cache, or call {@code Scheduler.reset()} /
- * {@code execute()} / {@code robot.stop()} in a subclass. That is this class's job, and doing it
- * twice is how an OpMode ends up reading stale sensors or double-stepping a mechanism. {@code MANUAL}
+ * {@code execute()} / {@code robot.start()} / {@code robot.stop()} in a subclass. That is this
+ * class's job, and doing it twice is how an OpMode ends up reading stale sensors or double-stepping a mechanism. {@code MANUAL}
  * without a clear returns the same stale values forever and does not complain; having exactly one
  * place that does both is what makes that mistake impossible.
  *
@@ -442,6 +444,8 @@ public abstract class RobotOpMode extends OpMode {
 
     private void startBody() {
         loopTimer.reset();
+        // Before this, nothing moved (G304.H, G403); from here on the mechanisms may.
+        robot.start();
         logStartCheck();
         setup.lock();
         driver.prime();

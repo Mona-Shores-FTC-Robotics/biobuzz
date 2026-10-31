@@ -49,6 +49,11 @@ public final class HiveSubsystem implements Subsystem {
         blueSeenFrom = null;
     }
 
+    /** Reads the camera; nothing to move. */
+    @Override
+    public void start() {
+    }
+
     @Override
     public void update() {
         long nowMs = System.nanoTime() / 1_000_000L;

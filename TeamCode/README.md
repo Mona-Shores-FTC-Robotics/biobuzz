@@ -588,7 +588,7 @@ and reached from an OpMode that extends `RobotOpMode`. Four files carry the whol
 
 | File | What it is |
 |---|---|
-| `subsystems/Subsystem.java` | The contract: `initialize()`, `update()`, `stop()`, plus a `default periodic()` you get free |
+| `subsystems/Subsystem.java` | The contract: `initialize()`, `start()`, `update()`, `stop()`, plus a `default periodic()` you get free |
 | `subsystems/ExampleSubsystem.java` | An empty subsystem to copy. No hardware, on purpose |
 | `Robot.java` | The parts list — every subsystem, built once |
 | `opmodes/RobotOpMode.java` | The base OpMode. Owns the loop: bulk caching, loop timing, the scheduler, teardown |
@@ -636,13 +636,41 @@ while updating nothing. If `LoopTimer` ever shows the scheduler mattering, revis
 | Method | Called | Put here |
 |---|---|---|
 | constructor | once, when `Robot` is built | `hardwareMap` lookups, nothing else |
-| `initialize()` | once, in OpMode init, after every subsystem is built | starting state: motor modes, starting a camera |
-| `update()` | every loop | one step of the work |
+| `initialize()` | once, in OpMode init, after every subsystem is built | starting state: motor modes, starting a camera. Nothing that moves |
+| `start()` | once, at PLAY | remembering that the match has started: from here on the mechanism may move |
+| `update()` | every loop, INIT loops included | one step of the work; before `start()`, nothing that moves |
 | `stop()` | once, when the OpMode ends | teardown: cut power, stop devices, clear state |
 
-All three are abstract, so the compiler makes a beginner decide each one, even if the answer is an
-empty body. `Robot.initialize()` and `Robot.stop()` walk the `subsystems` list (stop in reverse), so
-the list is the single place a subsystem is registered.
+All four are abstract, so the compiler makes a beginner decide each one, even if the answer is an
+empty body. `Robot.initialize()`, `Robot.start()` and `Robot.stop()` walk the `subsystems` list (stop
+in reverse), so the list is the single place a subsystem is registered.
+
+### Nothing moves before PLAY
+
+`update()` runs in the INIT loops too, because the camera and the pose need them, but until `start()`
+it moves nothing: no servo is written at all, and no motor gets power but zero. Two rules in the
+2026–27 Competition Manual make this ours:
+
+- **G304.H.** A robot on the field must be *"fully motionless following completion of OpMode
+  initialization."* A servo still swinging, or a continuous servo creeping on a stop trim that is
+  not quite right, holds up the match or gets the robot DISABLED.
+- **G403.** *"Any powered movement of the ROBOT or any of its MECHANISMS is not allowed during the
+  transition period between AUTO and TELEOP."* The drive team INITs the TeleOp in that break, and
+  the rule's note is explicit: if INIT makes actuators *"move or twitch in any way"*, wait for TELEOP
+  before pressing INIT. A VERBAL WARNING, or a MAJOR FOUL and a YELLOW CARD if STRATEGIC.
+
+**R103.B** does let an OpMode pre-position and hold servos at INIT to keep the 18 in starting size.
+We don't use it, because the same TeleOp INIT runs during the Auto → TeleOp break, where any movement
+is a G403 foul. So a mechanism that doesn't stay inside the starting size unpowered gets a mechanical
+stop or latch (R103.A) instead. An unwritten servo is limp: a servo port sends no pulse until it is
+written, and the SDK cuts every pulse when an OpMode ends. So the FLOWER stick is stowed by hand
+before the match and taken by its servo at PLAY, and the turret and the intake's star wheels get
+their first write at PLAY. The indicator light is on a servo port but moves nothing, so it lights
+during INIT.
+
+`InitMovesNothingTest` runs each mechanism through `initialize()` and INIT loops on recording fakes,
+and fails on any servo write or any non-zero motor power; a subsystem that looks up hardware must be
+run there or say in the test why it cannot move before PLAY.
 
 **`stop()` means teardown and only teardown.** The disagreement that kept it off the interface was
 real: `Launcher2.stop()` cuts power and keeps the object live, where `LimelightVisionSubsystem.stop()`

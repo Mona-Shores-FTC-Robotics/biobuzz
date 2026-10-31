@@ -124,6 +124,16 @@ public class Robot {
     }
 
     /**
+     * The match has started: tell every subsystem, in the order they were built. Called once, at
+     * PLAY. Until then no mechanism moves (see {@link Subsystem}, "Nothing moves before PLAY").
+     */
+    public void start() {
+        for (Subsystem subsystem : subsystems) {
+            subsystem.start();
+        }
+    }
+
+    /**
      * Shut every subsystem down, in the reverse of the order they were built. Called once, when the
      * OpMode ends.
      *
