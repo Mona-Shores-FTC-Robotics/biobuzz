@@ -10,6 +10,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
+import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoTrace;
@@ -983,34 +984,22 @@ public final class AutoSim {
     static boolean cadModel(String design) {
         return design.startsWith(RobotDesign.REAL);
     }
-    /** The CAD model's extractor shaft (cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json): along +Y through here, m. */
-    static final double[] EXTRACTOR_PIVOT_M = {0.25298, 0, 0.1143};
-    static final double EXTRACTOR_STOWED_DEG = 146;
-
-    /** The CAD model's turret axis, +Z through here (m; the bearing's inner race); positive yaw turns left, 0 facing forward. */
-    static final double TURRET_AXIS_X_M = -0.051895;  // the launcher moved 0.8 in forward, 7 Oct 2026 (ac817a6)
-    static final double TURRET_AXIS_Y_M = 0.004;
-    /** How many components the CAD model has (cad/advantagescope/Robot_BIOBUZZ/config.json). */
-    static final int CAD_COMPONENTS = 8;
+    /**
+     * The CAD model's turret axis, +Z through here (m; RobotComponents, from cad/advantagescope/Robot_BIOBUZZ/components.json);
+     * positive yaw turns left, 0 facing forward. Also where the simulated launcher aims from.
+     */
+    static final double TURRET_AXIS_X_M = RobotComponents.AXIS_POINT_M[RobotComponents.TURRET][0];
+    static final double TURRET_AXIS_Y_M = RobotComponents.AXIS_POINT_M[RobotComponents.TURRET][1];
 
     /**
-     * The CAD model's component poses (translation m, quaternion w x y z; its extractor_poses.json): 0 the FLOWER
-     * extractor turned about its shaft by -angle about +Y (0 deg down as drawn, 146 stowed), for {@code down} from 0
-     * (stowed) to 1 (down); 1 the roller's carriage, down; 2 the turret turned {@code turretYawRad} about its axis;
-     * 3 to 7 (the feeders, the intake roller, the flywheels) at rest: the logs do not spin them yet.
+     * The CAD model's component poses, as the robot's match log writes them ({@link RobotComponents}, one pose per
+     * component, translation m then quaternion w x y z): the turret turned {@code turretYawRad}, and the FLOWER stick
+     * swung out {@code down} (0 stowed, 1 out: FlowerStickSubsystem#swingDegrees).
      */
     static double[] cadComponents(double down, double turretYawRad) {
-        double a = Math.toRadians(EXTRACTOR_STOWED_DEG * (1 - down));
-        double px = EXTRACTOR_PIVOT_M[0], pz = EXTRACTOR_PIVOT_M[2];
-        // R (about +Y by -a) applied to the pivot; translation = pivot - R pivot.
-        double rx = px * Math.cos(a) - pz * Math.sin(a), rz = px * Math.sin(a) + pz * Math.cos(a);
-        // The turret about +Z through (TURRET_AXIS_X_M, TURRET_AXIS_Y_M): translation = axis - R axis.
-        double tx = TURRET_AXIS_X_M, ty = TURRET_AXIS_Y_M, c = Math.cos(turretYawRad), s = Math.sin(turretYawRad);
-        double[] poses = new double[7 * CAD_COMPONENTS];
-        for (int i = 0; i < CAD_COMPONENTS; i++) poses[7 * i + 3] = 1;  // identity
-        System.arraycopy(new double[] {px - rx, 0, pz - rz, Math.cos(a / 2), 0, -Math.sin(a / 2), 0}, 0, poses, 0, 7);
-        System.arraycopy(new double[] {tx - (tx * c - ty * s), ty - (tx * s + ty * c), 0, Math.cos(turretYawRad / 2), 0, 0, Math.sin(turretYawRad / 2)},
-                0, poses, 14, 7);
+        double[] poses = new double[7 * RobotComponents.COUNT];
+        RobotComponents.pose(RobotComponents.TURRET, Math.toDegrees(turretYawRad), poses);
+        RobotComponents.pose(RobotComponents.FLOWER_STICK, down * FlowerStickSubsystem.swingDegrees(), poses);
         return poses;
     }
 
@@ -1692,17 +1681,15 @@ public final class AutoSim {
          */
         void putShape(WpiLog log, long us) throws IOException {
             if (cadModel(design.name)) {
-                // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ): the FLOWER extractor at
-                // its angle (146 deg stowed, 0 down), the roller, the turret turned to the CELL while the launcher is
-                // spinning (to the nearest degree, so a still robot writes nothing), the J arm.
+                // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ): the turret turned to the
+                // CELL while the launcher is spinning (to the nearest degree, so a still robot writes nothing), and the
+                // FLOWER stick swung out as far as the extractor is down.
                 double down = body == null ? 0 : body.extractorDown;
                 double yaw = Math.toRadians(Math.round(Math.toDegrees(AdvantageScopeFrame.wrap(turretYaw))));
                 double key = down + 1000 * yaw;
                 if (key == shapeLogged) return;
                 shapeLogged = key;
                 double[] components = cadComponents(down, yaw);
-                double[] reach = design.extractorLateralRange();  // an extractor off the centre line (a bar: its middle)
-                components[1] += (reach[0] + reach[1]) / 2 * AdvantageScopeFrame.METERS_PER_INCH;
                 log.putPose3dArray(keyPrefix + "/BodyShape/Components", components, us);
                 return;
             }
