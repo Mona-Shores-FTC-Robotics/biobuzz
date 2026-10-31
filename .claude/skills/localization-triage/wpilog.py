@@ -304,6 +304,19 @@ def cmd_triage(log, args):
     for tid, (pts, _) in per_tag.items():
         if len(pts) >= 5:
             rms[tid] = math.sqrt(mean([p[1] ** 2 + p[2] ** 2 for p in pts]))
+    # A mount error or a field-point error is inches. A residual this big means the pose itself
+    # was wrong: the declared start did not match where the robot sat (wrong side, wrong tile,
+    # facing the wrong way). Vision: HIVE & Pose always declares RED_AUDIENCE.
+    WRONG_START_IN = 8.0
+    typical = sorted(rms.values())[len(rms) // 2]
+    if typical > WRONG_START_IN:
+        print(f"Per-tag RMS residual: " + ", ".join(f"tag {t}: {v:.1f}" for t, v in sorted(rms.items())) + " in")
+        print(f"\n!! Typical residual {typical:.0f} in is far too big for a calibration error "
+              f"(the start check's limit is {6} in). The pose was wrong, almost certainly because the "
+              "robot was not on the declared start (Vision: HIVE & Pose declares the RED audience start). "
+              "Check the StartCheck line above. NOT a calibration log: do not change CameraMount or "
+              "HiveFieldPoints from it. Re-run from the red start.")
+        return
     BAD_IN = 1.0
     bad = [r for r in verdict_rows if rms[r[0]] >= BAD_IN]
     worst = max(rms.values())

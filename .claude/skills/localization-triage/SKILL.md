@@ -86,6 +86,12 @@ is the real test, so say so in the first report and sanity-check the table by ey
 - A residual steady in field axes on every tag, equal in direction, is more likely the start pose
   or odometry than the map.
 
+**Huge residuals (tens of inches) are the pose, not the camera.** `Vision: HIVE & Pose` always
+declares the RED audience start. A run begun anywhere else (the blue side, the wrong tile, facing
+the wrong way) puts every residual at the size of that mistake. `triage` stops and says so when the
+typical tag is over 8 in; the `StartCheck` metadata line says the same. Discard the log for
+calibration and ask for a re-run from the red start. The 8 in cut-off is a judgement, not a measured value.
+
 ## 2b. The Limelight pipeline (not in the log: ask for screenshots)
 
 Exposure, gain and the pipeline live on the camera, so a log cannot show them. When a user says
