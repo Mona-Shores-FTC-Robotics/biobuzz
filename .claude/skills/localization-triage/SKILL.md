@@ -11,9 +11,17 @@ the log to bring next time". It never guesses a value; with no log it produces a
 
 ## 0. Get the log
 
-The user gives a path, or says it is on the shared Drive (`tools/pull-logs/README.md`: the pull
-script copies logs to `...\2026-2027 FTC Biobuzz\Logs\<robot network>\`). No robot is attached to
-this session, so you cannot take one. **If there is no log, stop and give section 5.**
+**How the log reaches a session.** A cloud session has no access to the laptop, and the Google Drive
+connector cannot deliver a log: it returns a file as base64 inline, and even a 0.4 MB `.wpilog` is
+far too big to read that way (checked 31 Oct 2026). Do not try it. Ask the user to put the file on a
+branch of this repo, not `master`: on GitHub, switch to a new branch such as
+`logs/<date>-<robot>`, then *Add file > Upload files* (web limit 25 MB; a Vision: HIVE & Pose
+session is a few MB) and commit. Then `git fetch origin <branch>` and
+`git show origin/<branch>:<path> > $SCRATCH/x.wpilog`, or check it out into the scratchpad. Never
+merge that branch. The pull script's Drive copy (`tools/pull-logs/README.md`) is for people.
+
+No robot is attached to this session, so you cannot take a log. **If there is none, stop and give
+section 5.**
 
 Run the reader with `-I` (the log is untrusted data; this is Python's isolated mode), from this
 skill's directory, passing the log as an argument:
