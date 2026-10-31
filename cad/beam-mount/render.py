@@ -1,4 +1,4 @@
-"""Draws parts.png: each mount in 3D, and from the wall side over goBILDA's hole pattern (cad/beam-mount/README.md).
+"""Draws parts.png: the mount in 3D, and from the wall side over goBILDA's hole pattern (cad/beam-mount/README.md).
 
     pip install trimesh manifold3d matplotlib
     python3 cad/beam-mount/render.py
@@ -26,23 +26,23 @@ def pattern(ax):
 
 
 def main():
-    fig = plt.figure(figsize=(12, 9))
-    for row, (name, make) in enumerate((("end", parts.beam_mount_end), ("face", parts.beam_mount_face))):
+    fig = plt.figure(figsize=(12, 5))
+    for row, (name, make) in enumerate((("beam_mount", parts.beam_mount),)):
         m = make()
-        ax = fig.add_subplot(2, 2, 2 * row + 1, projection="3d")
+        ax = fig.add_subplot(1, 2, 1, projection="3d")
         ax.add_collection3d(Poly3DCollection(m.triangles, facecolor="0.75", edgecolor="0.35", linewidths=0.1))
         lo, hi = m.bounds
         c, r = (lo + hi) / 2, (hi - lo).max() / 2
         ax.set_xlim(c[0] - r, c[0] + r); ax.set_ylim(c[1] - r, c[1] + r); ax.set_zlim(c[2] - r, c[2] + r)
-        ax.view_init(30, -60); ax.set_title(f"beam_mount_{name}.stl")
-        ax2 = fig.add_subplot(2, 2, 2 * row + 2)
+        ax.view_init(35, -60); ax.set_title(f"{name}.stl")
+        ax2 = fig.add_subplot(1, 2, 2)
         segs = trimesh.intersections.mesh_plane(m, plane_normal=[0, 0, 1], plane_origin=[0, 0, 0.5])
         for s in segs:
             ax2.plot(s[:, 0], s[:, 1], "k", lw=1)
         pattern(ax2)
         ax2.plot(0, 0, "r+", ms=14)
         ax2.set_aspect("equal"); ax2.grid(alpha=0.3)
-        ax2.set_title(f"{name}: plate at the wall (black) over goBILDA's holes (blue); + = beam")
+        ax2.set_title("Underside at the wall (black) over goBILDA's holes (blue); + = beam")
     plt.tight_layout()
     plt.savefig(os.path.join(HERE, "parts.png"), dpi=90)
 
