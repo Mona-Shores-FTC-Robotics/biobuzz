@@ -24,8 +24,10 @@ import java.util.function.Consumer;
  * <h2>The sequence</h2>
  *
  * <ol>
- *   <li><b>Line up</b> (the button only). A Pedro path from the robot's localized pose to the
- *       target's line-up pose ({@link #lineUpPose}). Skipped when already there. It ends once the
+ *   <li><b>Line up.</b> A Pedro path from the robot's localized pose to the target's line-up pose:
+ *       {@link #lineUpPose} on the button; on an Auto's card, {@link #autoLineUp}, the square-up from
+ *       where the Auto's drive left the robot (none unless the subclass gives one). Skipped when
+ *       already there. It ends once the
  *       path is done <em>and</em> the robot faces the line-up's heading to {@link #atLineUpDeg}
  *       (waiting at most {@link #SETTLE_MAX_MS} for that): Pedro calls a short path done before the
  *       robot has turned.</li>
@@ -46,10 +48,10 @@ import java.util.function.Consumer;
  * </ol>
  *
  * <p><b>Its contract: it ends where its In started.</b> On the button that is the line-up pose. On an
- * Auto's card ({@link #command}) there is no line-up, the Auto's drive having put the robot where
- * it grabs from, so the card ends where it started: the Auto's next drive starts from the spot the
- * Auto drew, and the Visualizer ({@code lib/simple/flowers.ts}, {@code garden.ts}) draws each grab
- * as it is, from the same numbers.
+ * Auto's card ({@link #command}) it is the square-up pose when the subclass squares up
+ * ({@link #autoLineUp}: a FLOWER pick), else where the card started (a GARDEN gather): the Auto's
+ * next drive starts from there, and the Visualizer ({@code lib/simple/flowers.ts}, {@code garden.ts})
+ * draws each grab as it is, from the same numbers.
  *
  * <p>On the button: hold to run. Letting go before the dwell, or moving a drive stick at any time,
  * stops it where it is: the drive stops, the mechanisms stop, and the sticks have the robot again on
@@ -115,6 +117,8 @@ public abstract class GrabRoutine {
     private boolean unprepped;
     /** When the line-up's path was first done, or -1. */
     private long lineUpDoneNs = -1;
+    /** This grab's line-up gives up after this long: the button's, or an Auto's square-up's. */
+    private double lineUpLimitMs;
     /** Let go during the dwell or the back-out: the grab runs to its end without the button. */
     private boolean finishing;
     private final DwellWatch dwell = new DwellWatch();
@@ -161,6 +165,31 @@ public abstract class GrabRoutine {
      */
     protected abstract InPlan inPose(Pose from, boolean linedUp);
 
+    /**
+     * An Auto's card only: the pose to square up to before the In, from where the Auto's drive left
+     * the robot; null for none (the In starts from here); or why the robot refuses. Skipped, like the
+     * button's line-up, when already within {@link #atLineUpIn} and {@link #atLineUpDeg} of it and
+     * {@link #mayPrepAt} allows prep where the robot is; the In is then planned as after a line-up.
+     * None by default.
+     */
+    protected InPlan autoLineUp(Pose from) {
+        return null;
+    }
+
+    /** An Auto's square-up gives up after this long, ms. The button's line-up time by default. */
+    protected double autoLineUpTimeoutMs() {
+        return lineUpTimeoutMs();
+    }
+
+    /**
+     * Whether prep may start during the line-up with the robot at {@code pose}, as well as within
+     * {@link #prepWithinIn} and {@link #prepWithinDeg}; also whether a robot near its line-up pose
+     * counts as already there. Always, by default.
+     */
+    protected boolean mayPrepAt(Pose pose) {
+        return true;
+    }
+
     /** The mechanisms get ready (stick down, intake on). Called once. */
     protected abstract void prep();
 
@@ -204,8 +233,8 @@ public abstract class GrabRoutine {
     // --------------------------------------------------------------------------- the routine
 
     /**
-     * An Auto's card for a grab: the whole grab from where the robot is, with no line-up, as if the
-     * button were held to the end. It ends when the grab does (done, stopped or refused, each in the
+     * An Auto's card for a grab: the whole grab from where the robot is, as if the button were held
+     * to the end, with the subclass's square-up ({@link #autoLineUp}) in place of the button's line-up. It ends when the grab does (done, stopped or refused, each in the
      * match log); cut short by the card's timeout, it stops the grab where it is. It does not
      * require the drive (see the class comment).
      */
@@ -279,7 +308,8 @@ public abstract class GrabRoutine {
         if (prepped) dwell.observe(ms(now, startNs), robot.intake.currentAmps(), nn(spikeAboveAmps()));
         switch (phase) {
             case LINE_UP:
-                if (Math.abs(Math.toDegrees(wrapRad(in.heading() - pose.heading()))) <= nn(prepWithinDeg())) {
+                if (Math.abs(Math.toDegrees(wrapRad(in.heading() - pose.heading()))) <= nn(prepWithinDeg())
+                        && mayPrepAt(pose)) {
                     prepIfClose(now, remaining); // in is the line-up pose until the line-up ends
                 }
                 boolean pathDone = robot.drive.pathDone();
@@ -298,8 +328,8 @@ public abstract class GrabRoutine {
                     prepIfClose(now, 0.0); // prepped by now whatever prepWithinIn says
                     home = pose;
                     next(now, Phase.PREP);
-                } else if (ms(now, phaseStartNs) > nn(lineUpTimeoutMs())) {
-                    abort(now, "line-up timed out");
+                } else if (ms(now, phaseStartNs) > nn(lineUpLimitMs)) {
+                    abort(now, lineUp ? "line-up timed out" : "square-up timed out");
                 }
                 break;
             case PREP:
@@ -412,9 +442,22 @@ public abstract class GrabRoutine {
             return;
         }
         boolean there = true;
+        Pose lineUpPose = null;
         if (lineUp) {
-            Pose lineUpPose = lineUpPose();
-            there = atPose(pose, lineUpPose, nn(atLineUpIn()), nn(atLineUpDeg()));
+            lineUpPose = lineUpPose();
+        } else {
+            InPlan square = autoLineUp(pose);
+            if (square != null && square.in == null) {
+                refuse(square.refusal);
+                return;
+            }
+            if (square != null) lineUpPose = square.in;
+        }
+        boolean squares = lineUpPose != null;
+        lineUpLimitMs = lineUp ? lineUpTimeoutMs() : autoLineUpTimeoutMs();
+        if (squares) {
+            // Not "there" where prep may not start: the line-up moves the robot out first.
+            there = atPose(pose, lineUpPose, nn(atLineUpIn()), nn(atLineUpDeg())) && mayPrepAt(pose);
             if (!there) {
                 in = lineUpPose; // what "remaining" measures until the line-up is done
                 // The same call shape as the generated Autos' paths.
@@ -424,7 +467,7 @@ public abstract class GrabRoutine {
             }
         }
         if (there) {
-            InPlan plan = inPose(pose, lineUp);
+            InPlan plan = inPose(pose, squares);
             if (plan.in == null) {
                 refuse(plan.refusal);
                 return;
@@ -435,7 +478,9 @@ public abstract class GrabRoutine {
         phase = there ? Phase.PREP : Phase.LINE_UP;
         event.accept(String.format(Locale.US, "%s: start, %s, from (%.1f, %.1f, %.0f°)%s", what(), target,
                 pose.x(), pose.y(), Math.toDegrees(pose.heading()),
-                !lineUp ? ", from here (Auto)" : there ? ", already lined up" : ""));
+                !lineUp && !squares ? ", from here (Auto)"
+                        : !lineUp ? (there ? ", Auto, already square" : ", Auto, squaring up")
+                        : there ? ", already lined up" : ""));
         if (there) prepIfClose(now, 0.0);
     }
 
@@ -555,18 +600,6 @@ public abstract class GrabRoutine {
      */
     static double lateralIn(double px, double py, double cx, double cy, double h) {
         return -(px - cx) * Math.sin(h) + (py - cy) * Math.cos(h);
-    }
-
-    /**
-     * The point straight ahead of {@code pose}, along its heading, where the point (fx, fy) is
-     * {@code standoffIn} further on. Null when (fx, fy) is not that far ahead.
-     */
-    static Pose aheadTo(Pose pose, double fx, double fy, double standoffIn) {
-        double h = pose.heading();
-        double ahead = (fx - pose.x()) * Math.cos(h) + (fy - pose.y()) * Math.sin(h);
-        double drive = ahead - standoffIn;
-        if (!(drive > 0.5)) return null;
-        return new Pose(pose.x() + drive * Math.cos(h), pose.y() + drive * Math.sin(h), h);
     }
 
     /**

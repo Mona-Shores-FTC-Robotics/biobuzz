@@ -13,7 +13,10 @@ import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
+import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints;
+import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoTrace;
+import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.HiveState;
 
@@ -1487,8 +1490,6 @@ public final class AutoSim {
         int lastRaised;
         double raisedSince;
         static final double TIP_OVERDUE_S = 7.0;
-        /** PickFlower: FlowerPicker's maxRangeIn, aheadToleranceIn, contactStandoffIn and dwellMs. */
-        static final double PICK_RANGE_IN = 60.0, PICK_AHEAD_IN = 6.0, PICK_CONTACT_IN = 12.0, PICK_DWELL_S = 2.0;
         /** GardenGather: its typical seconds in AutoRegistration. */
         static final double GATHER_S = 6.0;
 
@@ -1905,61 +1906,84 @@ public final class AutoSim {
         }
 
         /**
-         * PickFlower, as the robot's {@code FlowerPicker.command} runs it from an Auto: no line-up, a push
-         * straight ahead from where the Auto's drive left the robot to {@link #PICK_CONTACT_IN} from the FLOWER's
-         * centre, the intake on, a dwell until full or {@link #PICK_DWELL_S}, and a drive back to where the push
-         * started. Like the robot it refuses, doing nothing, when no FLOWER within {@link #PICK_RANGE_IN} is within
-         * {@link #PICK_AHEAD_IN} of the line ahead. Whether pieces come out is the extractor's model
-         * ({@link #extractor}), as for a path an Auto draws to a FLOWER. The numbers are FlowerPicker's.
+         * PickFlower, as the robot's {@code FlowerPicker.command} runs it from an Auto: the nearest FLOWER on the
+         * robot's own half within {@code maxRangeIn}; a square-up onto that FLOWER's line, facing it, at the distance
+         * the Auto's drive stopped (held between {@code minAutoStartIn} and {@code approachStandoffIn}); a push in
+         * to {@code contactStandoffIn}, the intake on, a dwell until full or {@code dwellMs}, and a drive back to the
+         * squared-up spot. It refuses, doing nothing, where the robot does ({@code FlowerPicker.squareUpRefusal}).
+         * Rule and numbers are read from FlowerPicker, never copied. Whether pieces come out is the extractor's
+         * model ({@link #extractor}), as for a path an Auto draws to a FLOWER. A design with the intake at the back
+         * picks backwards: the rule runs on the intake's heading.
          */
         private Command pickFlower() {
-            final double[] origin = new double[3];
-            final int[] phase = new int[1];  // 0 refused, 1 push, 2 dwell, 3 back
+            final Pose[] square = new Pose[1];
+            final Pose[] contact = new Pose[1];
+            final int[] phase = new int[1];  // 0 refused, 4 square up, 1 push, 2 dwell, 3 back, 5 square-up timed out
             final double[] dwellFrom = new double[1];
+            final double[] squareFrom = new double[1];
             final boolean[] intakeBefore = new boolean[1];
+            final double flip = design.intakeAtBack ? Math.PI : 0.0;
             return new CommandBuilder()
                     .setStart(() -> {
                         double[] at = pedro(drive.pose);
-                        System.arraycopy(at, 0, origin, 0, 3);
-                        double ahead = design.intakeAtBack ? at[2] + Math.PI : at[2];
-                        double c = Math.cos(ahead), s = Math.sin(ahead);
-                        double[] flower = null;
-                        double best = Double.POSITIVE_INFINITY;
-                        for (double[] f : sim.flowers) {
-                            double lx = (f[0] - at[0]) * c + (f[1] - at[1]) * s;
-                            double ly = -(f[0] - at[0]) * s + (f[1] - at[1]) * c;
-                            double d = Math.hypot(lx, ly);
-                            if (lx > 0 && Math.abs(ly) <= PICK_AHEAD_IN && d <= PICK_RANGE_IN && d < best) {
+                        Pose here = new Pose(at[0], at[1], at[2] + flip); // the intake's heading
+                        FlowerFieldPoints.Flower flower = null;
+                        double best = FlowerPicker.maxRangeIn;
+                        double centre = FieldFrame.FIELD_CENTRE_INCHES;
+                        for (FlowerFieldPoints.Flower f : FlowerFieldPoints.ALL) {
+                            double d = Math.hypot(f.x - at[0], f.y - at[1]);
+                            if ((at[0] < centre) == (f.x < centre) && d <= best) {
                                 best = d;
                                 flower = f;
                             }
                         }
-                        if (flower == null) {
+                        String refusal = flower == null
+                                ? "no FLOWER on our side within " + (int) FlowerPicker.maxRangeIn + " in"
+                                : FlowerPicker.squareUpRefusal(flower, here, FlowerPicker.autoMaxOffIn, FlowerPicker.autoMaxOffDeg);
+                        if (refusal != null) {
                             phase[0] = 0;
-                            pending.add("PickFlower: no FLOWER ahead within " + (int) PICK_RANGE_IN + " in: refused");
+                            pending.add("PickFlower: " + refusal + ": refused");
                             return;
                         }
-                        double lx = (flower[0] - at[0]) * c + (flower[1] - at[1]) * s;
-                        double push = Math.max(0, lx - PICK_CONTACT_IN);
+                        Pose sq = FlowerPicker.squareUpPose(flower, here, FlowerPicker.minAutoStartIn, FlowerPicker.approachStandoffIn);
+                        Pose in = FlowerFieldPoints.standoff(flower, FlowerPicker.contactStandoffIn);
+                        square[0] = new Pose(sq.x(), sq.y(), sq.heading() - flip);
+                        contact[0] = new Pose(in.x(), in.y(), in.heading() - flip);
                         intakeBefore[0] = intakeEnabled;
                         intakeEnabled = true;
-                        phase[0] = 1;
                         Pose from = new Pose(at[0], at[1], at[2]);
-                        Pose to = new Pose(at[0] + push * c, at[1] + push * s, at[2]);
-                        drive.follow(Paths.line(from, to).constant(at[2]));
-                    })
-                    .setExecute(() -> {
-                        if (phase[0] == 1 && drive.pathDone()) {
-                            phase[0] = 2;
-                            dwellFrom[0] = now;
-                        } else if (phase[0] == 2 && (FieldSim.full(body) || now - dwellFrom[0] >= PICK_DWELL_S)) {
-                            phase[0] = 3;
-                            double[] at = pedro(drive.pose);
-                            drive.follow(Paths.line(new Pose(at[0], at[1], at[2]), new Pose(origin[0], origin[1], origin[2]))
-                                    .constant(origin[2]));
+                        double turn = Math.abs(Math.IEEEremainder(at[2] - square[0].heading(), 2 * Math.PI));
+                        if (Math.hypot(at[0] - square[0].x(), at[1] - square[0].y()) <= FlowerPicker.atApproachIn
+                                && Math.toDegrees(turn) <= FlowerPicker.atApproachDeg
+                                && Math.hypot(flower.x - at[0], flower.y - at[1]) >= FlowerPicker.minAutoStartIn - 0.5) {
+                            square[0] = from; // already square: the robot pushes from here and comes back here
+                            phase[0] = 1;
+                            drive.follow(Paths.line(from, contact[0]).linear(from, contact[0]));
+                        } else {
+                            phase[0] = 4;
+                            squareFrom[0] = now;
+                            drive.follow(Paths.line(from, square[0]).linear(from, square[0]));
                         }
                     })
-                    .setDone(() -> phase[0] == 0 || (phase[0] == 3 && drive.pathDone()))
+                    .setExecute(() -> {
+                        if (phase[0] == 4 && !drive.pathDone() && now - squareFrom[0] > FlowerPicker.autoSquareTimeoutMs / 1000.0) {
+                            phase[0] = 5; // the robot's "square-up timed out": no push, nothing picked
+                            intakeEnabled = intakeBefore[0];
+                            drive.hold(drive.pose);
+                            pending.add("PickFlower: square-up timed out");
+                        } else if (phase[0] == 4 && drive.pathDone()) {
+                            phase[0] = 1;
+                            drive.follow(Paths.line(square[0], contact[0]).constant(square[0].heading()));
+                        } else if (phase[0] == 1 && drive.pathDone()) {
+                            phase[0] = 2;
+                            dwellFrom[0] = now;
+                        } else if (phase[0] == 2 && (FieldSim.full(body) || now - dwellFrom[0] >= FlowerPicker.dwellMs / 1000.0)) {
+                            phase[0] = 3;
+                            double[] at = pedro(drive.pose);
+                            drive.follow(Paths.line(new Pose(at[0], at[1], at[2]), square[0]).constant(square[0].heading()));
+                        }
+                    })
+                    .setDone(() -> phase[0] == 0 || phase[0] == 5 || (phase[0] == 3 && drive.pathDone()))
                     .setEnd(end -> {
                         if (phase[0] == 0) return;
                         intakeEnabled = intakeBefore[0];
