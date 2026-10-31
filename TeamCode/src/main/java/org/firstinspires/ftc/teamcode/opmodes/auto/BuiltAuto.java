@@ -193,6 +193,11 @@ public abstract class BuiltAuto extends RobotOpMode {
             problem = "No alliance chosen before PLAY (Square (X) = blue, Circle (B) = red during INIT). Not moving.";
             return;
         }
+        // The CELLs start the match where the manual puts them (each alliance's LEFT DOWN, RIGHT
+        // UP): Tip, LeftCellUp and RightCellUp read from there until the camera sees the HIVE
+        // settle (AutoRegistration). Position fixes still use only what the camera settled.
+        robot.vision.seedMatchStart();
+        robot.hive.assumeMatchStart();
         boolean rotated = !alliance.name().equals(drawnFor);
         robot.drive.setPose(startPose.apply(rotated));
         startNs = System.nanoTime();

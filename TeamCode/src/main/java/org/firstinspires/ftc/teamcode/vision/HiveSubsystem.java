@@ -78,6 +78,15 @@ public final class HiveSubsystem implements Subsystem {
         return turned <= Math.toRadians(Tuning.lookToleranceDeg) && moved <= Tuning.lookToleranceIn;
     }
 
+    /**
+     * An Autonomous's PLAY: both HIVEs are assumed at the match-start position until the camera
+     * sees them settle ({@link HiveTracker#assumeMatchStart()}).
+     */
+    public void assumeMatchStart() {
+        red.assumeMatchStart();
+        blue.assumeMatchStart();
+    }
+
     /** {@code alliance}'s HIVE; null for UNKNOWN. */
     public HiveTracker of(Alliance alliance) {
         if (alliance == Alliance.RED) return red;
