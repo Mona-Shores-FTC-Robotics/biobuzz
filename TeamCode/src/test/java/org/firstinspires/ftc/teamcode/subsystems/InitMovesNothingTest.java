@@ -109,8 +109,10 @@ public class InitMovesNothingTest {
 
         prefeed.start();
         prefeed.update();
-        assertEquals("at PLAY the prefeed follows the intake",
-                Arrays.asList("setPower(" + PrefeedSubsystem.inPower + ")"),
+        double expected = PrefeedSubsystem.powerFor(PrefeedSubsystem.State.IN, PrefeedSubsystem.inPower,
+                PrefeedSubsystem.outPower, PrefeedSubsystem.reversed);
+        assertEquals("at PLAY the prefeed follows the intake, whichever way it is wired",
+                Arrays.asList("setPower(" + expected + ")"),
                 devices.calls(DeviceNames.PREFEED));
     }
 

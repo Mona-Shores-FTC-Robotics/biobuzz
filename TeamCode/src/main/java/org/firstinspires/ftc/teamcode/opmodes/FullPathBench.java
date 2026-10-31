@@ -57,7 +57,11 @@ public class FullPathBench extends RobotOpMode {
 
     @Override
     protected void onInit() {
-        panels = PanelsTelemetry.INSTANCE.getTelemetry();
+        try {
+            panels = PanelsTelemetry.INSTANCE.getTelemetry();
+        } catch (RuntimeException | LinkageError e) {
+            panels = null; // Panels is a window onto the robot, not part of it.
+        }
         driver.note("R2 (hold)", "Intake in (prefeed follows)");
         driver.note("L2 (hold)", "Unjam: intake out, feeder reverse, prefeed back (wins)");
         driver.note("R1 (hold)", "Feed: feeder runs, prefeed carries, gate opens. NO interlock");
