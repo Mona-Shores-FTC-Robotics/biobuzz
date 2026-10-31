@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class SimRunTest {
 
-    static final String DEFAULT_DESIGN = ReviewPackageTest.TWIN;
+    static final String DEFAULT_DESIGN = RobotDesign.REAL;
 
     @Test
     public void run() throws Exception {

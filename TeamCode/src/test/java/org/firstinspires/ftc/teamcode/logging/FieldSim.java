@@ -533,7 +533,10 @@ final class FieldSim {
         private boolean intaking;
         private double lastCaptureAt = Double.NEGATIVE_INFINITY;
         final List<Piece> stored = new ArrayList<>();
-        /** Its mechanisms; {@link RobotDesign#standard} unless the caller sets one. */
+        /**
+         * Its mechanisms; the plain {@link RobotDesign#standard} unless the caller sets one. AutoSim always sets
+         * one; only the logging desk-check match ({@link SimulatedMatch}) uses this.
+         */
         RobotDesign design = RobotDesign.standard();
         /**
          * How far out its side walls are ({@link RobotDesign#sideWallsSlideIn}), 0 (in) to 1 (out).

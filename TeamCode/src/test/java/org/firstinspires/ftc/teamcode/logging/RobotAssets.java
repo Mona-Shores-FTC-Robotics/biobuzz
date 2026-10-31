@@ -172,7 +172,7 @@ final class RobotAssets {
                     : name.equals("flat intake, rigid V")
                     ? model(AutoStudyTest.flatIntakeWith("flat intake, rigid V", 0), Look.FLAT_INTAKE, false)
                     : name.startsWith("flat intake, rigid V ")  // its width and angle variants, drawn in full too
-                    ? model(AutoStudyTest.designs().get(name), Look.FLAT_INTAKE, false)
+                    ? model(rigidVVariant(name), Look.FLAT_INTAKE, false)
                     : shapesRobot(BodyShape.MATCH[i]);
             Files.write(new File(dir, "model_" + i + ".glb").toPath(), part.write());
         }
@@ -180,6 +180,14 @@ final class RobotAssets {
                 CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
                 CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
         return dir;
+    }
+
+    /** The old "flat intake, rigid V <width> in, <angle> deg" design a component of the designs model draws. */
+    private static RobotDesign rigidVVariant(String name) {
+        for (double[] wa : AutoStudyTest.RIGID_V_VARIANTS) {
+            if (AutoStudyTest.rigidVName(wa[0], wa[1]).equals(name)) return AutoStudyTest.rigidV(wa[0], wa[1]);
+        }
+        throw new IllegalArgumentException("no rigid V variant named " + name);
     }
 
     /**

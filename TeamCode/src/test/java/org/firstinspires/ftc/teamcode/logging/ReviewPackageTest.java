@@ -53,10 +53,11 @@ public class ReviewPackageTest {
         }
     }
 
-    // An intake the frame's width (mentor decision, 1 Oct 2026): a 24 in catcher can't use the tunnel.
-    static final String TWIN = "two spring hoods, full-width intake";
+    // Every run is on the real robot since 31 Oct 2026, when the simulator dropped its 88 what-if designs
+    // (AutoStudyTest#designs). The descriptions' numbers are from those designs until the package is run again.
+    static final String TWIN = RobotDesign.REAL;
 
-    static final String TRIANGLE = "clump catapult 72 deg, triangle cup, full-width intake";
+    static final String TRIANGLE = RobotDesign.REAL;
 
 
     /**
@@ -81,14 +82,14 @@ public class ReviewPackageTest {
             // 1. The partner doesn't shoot: it stages its preloads for us and parks.
             new Run("1-partner-stages-preloads/staged-three-tip",
                     "The partner sets its 4 preloads in a row at its side and parks. We fire ours (TIP 1), go through the tunnel, pick up the row with the webcam, fire, the far FLOWER for TIP 2, the GARDEN for TIP 3, park. 71 points on average, 3 TIPs in 15 of 20 runs (3 of 20 on slow tiles).",
-                    "StagedThreeTipAuto,PartnerLeaveParkAuto@50", TWIN, "spring hood", 40, 3),
+                    "StagedThreeTipAuto,PartnerLeaveParkAuto@50", TWIN, RobotDesign.REAL, 40, 3),
             // 2. The partner fires one volley.
             new Run("2-partner-fires-preloads/partner-starts-left/three-tip-adaptive",
                     "three-tip-adaptive: fires all 4, both FLOWERs and the GARDEN with angled shots, parks. The most robust Auto: 75 points, 3 TIPs in 19 of 20 runs on normal and slow tiles alike.",
-                    "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 2),
+                    "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50", TWIN, RobotDesign.REAL, 40, 2),
             new Run("2-partner-fires-preloads/partner-starts-right/left-tunnel",
                     "The partner makes TIP 1 from the right start; we start left, add our preloads and the far FLOWER for TIP 2, tunnel right, the GARDEN for TIP 3, park. 73 points (76 on slow tiles), 3 TIPs in 18 of 20.",
-                    "LeftTunnelAuto,PartnerPreloadsRightAuto@50", TRIANGLE, "spring hood", 40, 1),
+                    "LeftTunnelAuto,PartnerPreloadsRightAuto@50", TRIANGLE, RobotDesign.REAL, 40, 1),
             // 3. Our two sister robots, each at its own end, recycling its CELL's spills (Family A).
             new Run("3-choreography/sisters/recycle3",
                     "recycle3: each robot catches its own CELL's spill and holds it for the CELL's next rise; the right uses the GARDEN, the left both FLOWERs. No park: a TIP (20) beats PARK (5). A typical run, 4 TIPs. 84 points on average (78 on slow tiles).",
@@ -201,8 +202,6 @@ public class ReviewPackageTest {
     }
 
     static final String LAYOUT = "sim-review/advantagescope-layout.json";
-    /** The same layout for a robot with side walls: its model, and the walls' slide as components. */
-    static final String WALLS_LAYOUT = "sim-review/advantagescope-layout-walls.json";
 
     static void checkLayout(File log, boolean twoRobots, String layout) throws IOException {
         Set<String> missing = new LinkedHashSet<>(layoutKeys(layout));
@@ -236,18 +235,7 @@ public class ReviewPackageTest {
     @Test
     public void layoutKeysAreInTwoRobotLogs() throws Exception {
         File log = new File(TeamCodeDir.simLogs(), "layout-check.wpilog");
-        // On "rigid V", the published logs' design: the layout's "Inside the robot" and "Internals" tabs (7 Oct 2026,
-        // issue #166) read /Internals/*, which only the CAD-model designs write.
-        AutoStudyTest.run("Recycle3RightAuto,Recycle3LeftAuto@50", AutoStudyTest.designs().get("rigid V"), null, Double.NaN, 1, log);
+        AutoStudyTest.run("Recycle3RightAuto,Recycle3LeftAuto@50", AutoStudyTest.designs().get(RobotDesign.REAL), null, Double.NaN, 1, log);
         checkLayout(log);
-    }
-
-    /** A side-walls Auto log has what the walls layout draws, the walls' slide included. */
-    @Test
-    public void wallsLayoutKeysAreInSideWallLogs() throws Exception {
-        File log = new File(TeamCodeDir.simLogs(), "layout-check-walls.wpilog");
-        AutoStudyTest.run("QualPartnerShootsLeftAuto,PartnerPreloadsLeftAuto@50",
-                AutoStudyTest.designs().get("spring hood, full-width intake, side walls"), null, Double.NaN, 1, log);
-        checkLayout(log, true, WALLS_LAYOUT);
     }
 }

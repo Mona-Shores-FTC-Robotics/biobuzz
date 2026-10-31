@@ -972,12 +972,11 @@ public final class AutoSim {
 
     /** One robot: its exported Auto, drivetrain, launcher and intake. */
     /**
-     * Designs drawn with the CAD's whole-robot model ({@code BIOBUZZ Robot}) rather than {@code BIOBUZZ Robot
-     * (designs)}: the baseline, "rigid V", its variants ("rigid V, transfer"), and the name it had while the
-     * body-designs branch drew it.
+     * Designs drawn with the CAD's whole-robot model ({@code BIOBUZZ Robot}, the team's robot) rather than
+     * {@code BIOBUZZ Robot (designs)}: the real robot and its variants ({@link RobotDesign#real}).
      */
     static boolean cadModel(String design) {
-        return design.equals("rigid V") || design.startsWith("rigid V, ") || design.startsWith("flat intake, rigid V as drawn");
+        return design.startsWith(RobotDesign.REAL);
     }
     /** The CAD model's extractor shaft (cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json): along +Y through here, m. */
     static final double[] EXTRACTOR_PIVOT_M = {0.25298, 0, 0.1143};
@@ -1014,7 +1013,7 @@ public final class AutoSim {
         final Class<?> autoClass;
         final int index;
         final SimDrive drive = new SimDrive();
-        RobotDesign design = RobotDesign.standard();
+        RobotDesign design = RobotDesign.real();
         /** The camera is down ({@link AutoSim#cameraDown}): the HIVE's state is invisible to this robot. */
         boolean cameraDown;
         /** CollectSeen's x range, drawn for RED; null for anywhere. */
@@ -2323,7 +2322,7 @@ public final class AutoSim {
         /** Braking, in/s²: the same as {@link #accel} unless {@link AutoSim#speed(double, double, double)} says otherwise. */
         double decel = ACCEL_IN_PER_S2;
         /** Turning is rate-limited too: a path ends when the robot is there and facing its way. */
-        double maxTurn = RobotDesign.standard().maxTurnRadPerS;
+        double maxTurn = RobotDesign.real().maxTurnRadPerS;
         private double startedAt = Double.NaN;
         private double length;
         /** A straight run from where the robot was to where the path starts, if it was elsewhere. */
