@@ -101,7 +101,7 @@ public final class DeviceNames {
 
     /**
      * The indicator light: a goBILDA RGB Indicator Light, a servo whose position is its colour
-     * ({@code subsystems/IndicatorSubsystem}). Expansion Hub servo port 0 on both robots.
+     * ({@code subsystems/IndicatorSubsystem}). Control Hub servo port 4 on both robots.
      */
     public static final String INDICATOR = "indicator";
 

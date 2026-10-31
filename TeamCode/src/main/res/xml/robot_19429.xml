@@ -83,6 +83,12 @@
             <ContinuousRotationServo name="prefeed" port="2" />
             <Servo name="feedGate" port="3" />
 
+            <!-- The indicator light: a goBILDA RGB Indicator Light on servo
+                 port 4; its colour is the servo position. Never mounted on a
+                 robot before, so it has no old port to keep. With the stars
+                 on 5 this fills all six servo ports. -->
+            <Servo name="indicator" port="4" />
+
         </LynxModule>
 
         <!-- Expansion Hub: the intake, then the launcher. -->
@@ -105,12 +111,6 @@
                  (DeviceNames.TURRET_ENCODER_HOST). Set the encoder's switch
                  to 3V3. Build team's choice, 24 Oct 2026. -->
 
-            <!-- The indicator light: a goBILDA RGB Indicator Light on this
-                 hub's servo port 0; its colour is the servo position. Not
-                 mission-critical, so it is the one servo on this hub. Never
-                 mounted on a robot before. PROPOSED PORT, 31 Oct 2026: not
-                 yet confirmed with the build team. -->
-            <Servo name="indicator" port="0" />
         </LynxModule>
     </LynxUsbDevice>
 
