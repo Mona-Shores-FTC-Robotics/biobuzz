@@ -49,7 +49,8 @@ import java.util.function.Function;
  * {@code GardenGather} is {@link GardenGather}, the driver's GARDEN gather button. Give their cards a timeout
  * longer than the grab (the Visualizer's builder sets 8 s): a card's default 5 s can cut one short.
  * Both are registered as grabs ({@code AutoRegistry.grab}): they drive the robot off its spot and
- * back, so the endgame guard never cuts one and does not start one unless its typical time (the
+ * back (a FLOWER pick squares up first, onto the FLOWER's line, and comes back to that squared-up
+ * spot, not the drawn one: {@link FlowerPicker}), so the endgame guard never cuts one and does not start one unless its typical time (the
  * gather's 6 s allows for a long drive in and back) and the park both fit.
  *
  * <p>{@code SpinUp}, {@code LaunchAll}, {@code LaunchOne} and {@code Empty} are real since the

@@ -19,10 +19,15 @@ import java.util.function.Consumer;
  *
  * <p>The one pick routine: the driver's FLOWER pick button runs it while held (BasicDriveTeleOp;
  * the button is in {@code controls/ControlScheme}), lining up first, square to the nearest FLOWER within {@link #maxRangeIn}, {@link #approachStandoffIn} back
- * ({@link FlowerFieldPoints}); an Auto's {@code PickFlower} card runs it to the end ({@link #command})
- * with no line-up, pushing straight ahead from where the Auto's drive left the robot, and refuses
- * when the FLOWER is more than {@link #aheadToleranceIn} off that line. Each phase is timed and
- * written to the match log, so the pick is made faster with numbers rather than by feel.
+ * ({@link FlowerFieldPoints}); an Auto's {@code PickFlower} card runs it to the end ({@link #command}),
+ * squaring up first ({@link #squareUp}): onto the FLOWER's line, facing it, at the distance the
+ * Auto's drive left the robot (held between {@link #minAutoStartIn} and {@link #approachStandoffIn}),
+ * so the push always goes in along the FLOWER's line however the Auto's drawing approached it. It
+ * refuses a spot more than {@link #autoMaxOffIn} off that line or {@link #autoMaxOffDeg} from facing
+ * the FLOWER: that is a drawing error, not something to drive round. The card ends at the squared-up
+ * spot. The square-up turns to the FLOWER's facing as odometry knows it, so a heading error in the
+ * pose is a crooked push. Each phase is timed and written to the match log, so the pick is made
+ * faster with numbers rather than by feel.
  *
  * <p>Every number here is a starting point to tune in Panels, not a measurement. The two standoffs
  * come from the Autos' drawings (contact about 12 in from the centre, as R-Quals draws its FLOWER
@@ -48,8 +53,18 @@ public final class FlowerPicker extends GrabRoutine {
     public static double atApproachIn = 1.5;
     /** Already lined up: this square to the FLOWER, degrees, skips the line-up path. */
     public static double atApproachDeg = 5.0;
-    /** An Auto's pick refuses when the FLOWER is more than this far off the robot's line ahead, inches. */
-    public static double aheadToleranceIn = 6.0;
+    /**
+     * An Auto's square-up never starts the push closer than this to the FLOWER's centre, inches, and
+     * the stick goes down only once the robot is this far out: the Autos draw their pick spots about
+     * 19.5 in out, where the stick has swung down clear.
+     */
+    public static double minAutoStartIn = 18.0;
+    /** An Auto's pick refuses a spot more than this far off the FLOWER's line, inches. */
+    public static double autoMaxOffIn = 12.0;
+    /** An Auto's pick refuses a spot facing more than this far from the FLOWER's facing, degrees. */
+    public static double autoMaxOffDeg = 30.0;
+    /** An Auto's square-up gives up after this long, ms: a short move, so a stuck one ends the card early. */
+    public static double autoSquareTimeoutMs = 1500;
     /**
      * The push path's speed cap, a fraction of the robot's top path speed (0 to 1]. 0.5 since
      * 30 Oct 2026: at 0.35 the drive team found the approach too slow on 20245; 0.5 was best.
@@ -112,7 +127,7 @@ public final class FlowerPicker extends GrabRoutine {
         super(robot, event, lineUp);
     }
 
-    /** An Auto's {@code PickFlower} card: a whole pick straight ahead from where the robot is. */
+    /** An Auto's {@code PickFlower} card: a whole pick, squared up from where the robot is. */
     public static Command command(Robot robot, Consumer<String> event) {
         return GrabRoutine.command(() -> new FlowerPicker(robot, event, false));
     }
@@ -152,19 +167,54 @@ public final class FlowerPicker extends GrabRoutine {
 
     @Override
     protected InPlan inPose(Pose from, boolean linedUp) {
-        if (linedUp) return InPlan.to(FlowerFieldPoints.standoff(flower, nn(contactStandoffIn)));
-        // An Auto's card: straight ahead from here, to the contact distance from the FLOWER.
-        double off = Math.abs(lateralIn(flower.x, flower.y, from.x(), from.y(), from.heading()));
-        if (off > nn(aheadToleranceIn)) {
-            return InPlan.refuse(String.format(Locale.US,
-                    "%s is %.1f in off the line ahead: the Auto's pick spot is not lined up", flower, off));
+        // Both the button and an Auto's card are square to the FLOWER by now: push in along its line.
+        return InPlan.to(FlowerFieldPoints.standoff(flower, nn(contactStandoffIn)));
+    }
+
+    @Override
+    protected InPlan autoLineUp(Pose from) {
+        String refusal = squareUpRefusal(flower, from, nn(autoMaxOffIn), nn(autoMaxOffDeg));
+        return refusal != null ? InPlan.refuse(refusal)
+                : InPlan.to(squareUpPose(flower, from, nn(minAutoStartIn), nn(approachStandoffIn)));
+    }
+
+    /**
+     * Why an Auto's pick refuses to square up to {@code f} from {@code from}, or null when it may:
+     * {@code from} is not in front of the FLOWER, is more than {@code maxOffIn} off its line, or faces
+     * more than {@code maxOffDeg} from its facing. Also the simulator's rule ({@code AutoSim}).
+     */
+    public static String squareUpRefusal(Flower f, Pose from, double maxOffIn, double maxOffDeg) {
+        double back = -alongTrackIn(from.x(), from.y(), f.x, f.y, f.facingRad);
+        double off = Math.abs(lateralIn(from.x(), from.y(), f.x, f.y, f.facingRad));
+        double turn = Math.abs(Math.toDegrees(wrapRad(from.heading() - f.facingRad)));
+        if (!(back > 0.0)) {
+            return String.format(Locale.US, "the Auto's pick spot is not in front of %s: nothing to push into", f);
         }
-        Pose contact = aheadTo(from, flower.x, flower.y, nn(contactStandoffIn));
-        if (contact == null) {
-            return InPlan.refuse(String.format(Locale.US, "%s is not far enough ahead to push to %.0f in from it",
-                    flower, contactStandoffIn));
+        if (!(off <= maxOffIn)) {
+            return String.format(Locale.US,
+                    "the Auto's pick spot is %.1f in off %s's line (at most %.0f): draw it closer", off, f, maxOffIn);
         }
-        return InPlan.to(contact);
+        if (!(turn <= maxOffDeg)) {
+            return String.format(Locale.US,
+                    "the Auto's pick spot faces %.0f° from %s (at most %.0f°): draw it facing the FLOWER", turn, f, maxOffDeg);
+        }
+        return null;
+    }
+
+    /**
+     * Where an Auto's pick squares up to: on {@code f}'s line, facing it, as far back from its centre
+     * as {@code from} is, held between {@code minIn} and {@code maxIn}. Also the simulator's rule.
+     */
+    public static Pose squareUpPose(Flower f, Pose from, double minIn, double maxIn) {
+        double back = -alongTrackIn(from.x(), from.y(), f.x, f.y, f.facingRad);
+        return FlowerFieldPoints.standoff(f, Math.max(minIn, Math.min(maxIn, back)));
+    }
+
+    @Override
+    protected boolean mayPrepAt(Pose pose) {
+        // The button's line-up is never closer than approachStandoffIn; an Auto's may start closer, and
+        // the stick swings down only once the robot is out where it swings clear (0.5 in for noise).
+        return !inAuto() || Math.hypot(flower.x - pose.x(), flower.y - pose.y()) >= nn(minAutoStartIn) - 0.5;
     }
 
     @Override
@@ -198,6 +248,7 @@ public final class FlowerPicker extends GrabRoutine {
     @Override protected double atLineUpIn() { return atApproachIn; }
     @Override protected double atLineUpDeg() { return atApproachDeg; }
     @Override protected double lineUpTimeoutMs() { return approachTimeoutMs; }
+    @Override protected double autoLineUpTimeoutMs() { return autoSquareTimeoutMs; }
     @Override protected double inSpeed() { return pushSpeed; }
     @Override protected double inTimeoutMs() { return pushTimeoutMs; }
     @Override protected double stallProgressIn() { return stallProgressIn; }
