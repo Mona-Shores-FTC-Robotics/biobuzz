@@ -56,6 +56,6 @@ public final class RSimpleAuto {
                         kit.firstOf("Fire the preloads at the right CELL (TIP 1)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(4000)),
-                        kit.path("START to PARK", startToPark)));
+                        kit.path("START to PARK", startToPark, 3.1)));
     }
 }
