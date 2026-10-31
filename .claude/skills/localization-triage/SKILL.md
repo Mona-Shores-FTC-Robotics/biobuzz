@@ -20,7 +20,9 @@ Google Drive connector can fetch them. Tested 31 Oct 2026 on a 68 KB log:
    harness **saves it to a file** and says where. Never read that file with `Read`; decode it:
    `python3 -I` with `base64.b64decode(json.load(open(path))["content"])`, write the bytes to the
    scratchpad (`logs/<title>`), and run `wpilog.py` on that. Larger files are bigger JSON; the
-   tested size is small, so say if one fails.
+   Size limit, seen 31 Oct 2026: a 4 MB log fetched fine, a **9.7 MB log crashed the connector**
+   ("message too large", server disconnected). Do not retry a big file; go to step 3. Check
+   `fileSize` from the search first and go straight to step 3 above about 6 MB.
 3. If the connector is unavailable, the fallback is a throwaway branch of this repo (not
    `master`, never merged) with the file uploaded on GitHub (*Add file > Upload files*, 25 MB).
 
