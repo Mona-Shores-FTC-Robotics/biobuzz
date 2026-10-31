@@ -339,8 +339,24 @@ def cmd_triage(log, args):
           f"{len(field_like)} steadier in field axes (map-like).")
     print(f"Between-tag disagreement in robot axes: {spread_between_tags:.2f} in.")
 
+    # The residual is measured against odometry, which started from the DECLARED start. A robot a
+    # inch off its marks puts that inch on every tag, steady in field axes, exactly like a field point.
+    sx = log.values("/StartCheck/CameraMinusStartXIn")
+    sy = log.values("/StartCheck/CameraMinusStartYIn")
+    if sx and sy:
+        ox, oy = sx[-1][1], sy[-1][1]
+        same = math.hypot(pooled_f[0] - ox, pooled_f[1] - oy) < 0.6
+        print(f"Start check said camera minus start = ({ox:+.2f},{oy:+.2f}) in; pooled field residual "
+              f"({pooled_f[0]:+.2f},{pooled_f[1]:+.2f}) "
+              + ("MATCHES it: the residual is the start offset (robot not exactly on its marks, or a camera "
+                 "bias at that one spot). One spot cannot tell which." if same else "does not match it."))
+
     if not bad:
         print(f"-> Every tag under {BAD_IN} in RMS (worst {worst:.2f}). Nothing to change.")
+    elif hr < 60:
+        print(f"-> CAN'T TELL YET. Headings span only {hr:.0f} deg, so mount and field point look the same. "
+              "Report the table and the height line below; ask for a log that turns 90 deg or more and "
+              "covers a second distance. Do not name a mount or field-point change from this.")
     elif len(mount_like) > len(field_like) and spread_between_tags < max(1.0, math.hypot(*pooled_r) / 2):
         fwd, left = pooled_r
         print("-> MOUNT. The same offset in robot axes on every tag, and it turns with the robot.")

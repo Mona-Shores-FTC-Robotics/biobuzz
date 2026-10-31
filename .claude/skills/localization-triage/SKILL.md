@@ -109,6 +109,15 @@ the wrong way) puts every residual at the size of that mistake. `triage` stops a
 typical tag is over 8 in; the `StartCheck` metadata line says the same. Discard the log for
 calibration and ask for a re-run from the red start. The 8 in cut-off is a judgement, not a measured value.
 
+**First real vision log (20245, 31 Oct 2026, `2ad67dd016`)** taught three things. (1) The robot moved
+3 in and turned 48 deg, so `triage` now says "CAN'T TELL YET" under 60 deg and names no mount or
+field-point change. (2) The pooled field residual (-1.22,-0.63) equalled the start check's camera
+minus start (-1.10,-0.54): a residual steady in field axes can simply be the robot sitting an inch
+off its marks, which no one log from one spot can separate from a camera bias. `triage` prints
+that match. (3) A height error the same on all seven tags (+1.7 to +2.4 in, spread 0.3) was the one
+firm finding: `CameraMount` was measured on 19429 (+0.4 in there), and this was 20245. Measure that
+robot's lens height and pitch with a tape and a level before changing a number.
+
 ## 2b. The Limelight pipeline (not in the log: ask for screenshots)
 
 Exposure, gain and the pipeline live on the camera, so a log cannot show them. When a user says
