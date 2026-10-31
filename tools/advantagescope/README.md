@@ -24,8 +24,9 @@ simulated matches; this is the part that applies to a real log.
 The 2D field is AdvantageScope's own **2026-2027 Field**; it downloads it the first time a Field tab
 asks for it, so the first open needs internet. The 3D tabs use the simulator's **2026-2027 Field (HIVE
 sim)** and **BIOBUZZ HIVE**, which are cut from that field on each laptop (no FIRST CAD is committed):
-build them once with the simulator branch's `tools\advantagescope\watch-biobuzz.cmd` (`claude/simulator`),
-or install a viewer zip that carries them. The setup script says when they are missing.
+the setup script builds and installs them when they are missing (`HiveAssetsTest`, run with Android Studio's Java),
+and rebuilds them with `-Hive` after AdvantageScope updates its field. It needs AdvantageScope to have shown the
+2026-2027 field in a 3D tab once. A laptop without Android Studio installs them from a viewer zip instead.
 
 ## Sending logs to someone without the repo
 
@@ -43,7 +44,7 @@ new zip and send it; older logs still play with it.
 | Tab | Shows |
 |---|---|
 | **Field** (2D) | `/Odometry/Robot`, the Auto's full path in grey (`/Path/Full`), the path being driven in yellow (`/Path/Active`) and its end as a ghost (`/Path/Target`). Turn on the trail in the tab's options to see where the robot went. |
-| **3D** | The same pose as **BIOBUZZ Robot** (the CAD) on the 3D field, `/Odometry/Robot3d`, with both HIVEs as the robot believed them (below). |
+| **3D** | The same pose as **BIOBUZZ Robot** (the CAD) on the 3D field, `/Odometry/Robot3d`, with both HIVEs as the robot believed them (below). A simulated log also draws the simulator's HIVE (`/Sim/Hive/*`), its POLLEN and NECTAR rolling (`/Sim/GamePieces/*`), and the partner and opponents as ghosts; each source draws only when its key is in the log, so one layout plays both kinds. |
 | **Limelight** | The 3D field seen from the Limelight's lens, as mounted on the model (right-click → Orbit Field to leave). |
 | **Loop** | `/Robot/LoopMs` and the `/Loop/*` split on the left, battery volts on the right, with the robot mode shaded. |
 | **Launcher** | Target, left and right flywheel speed and the feeder's on the left; their currents on the right. |

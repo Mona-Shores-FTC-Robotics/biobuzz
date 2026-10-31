@@ -109,10 +109,10 @@ public class RobotComponentsTest {
 
     @Test
     public void theFlowerStickSwungOutPutsItsTopShaftOnTheTile() {
-        // The 312 mm shaft across the arms' tops, as the CAD draws it (31 Oct 2026, swung 155.3 deg out): X 13.12 in,
-        // Z 0.98 in. Stowed it was at X 1.87 in, Z 15.77 in.
+        // The 312 mm shaft across the arms' tops, as the model draws it: stowed, X 1.87 in, Z 15.77 in. The model is
+        // always drawn stowed, whatever angle the CAD was left at, so every log made since keeps drawing right.
         double in = 0.0254;
-        double[] shaft = {13.12 * in, 0, 0.98 * in};
+        double[] shaft = {1.87 * in, 0, 15.77 * in};
         double[] out = new double[7 * RobotComponents.COUNT];
         RobotComponents.pose(RobotComponents.FLOWER_STICK, 162, out);
         double[] moved = apply(slice(out, RobotComponents.FLOWER_STICK), shaft);

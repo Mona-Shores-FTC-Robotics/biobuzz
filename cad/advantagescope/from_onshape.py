@@ -276,10 +276,17 @@ def main():
         if len(pts) != 1:
             sys.exit(f"component {c} ({comp['name']}): axis_part matches {len(pts)} of its parts, expected 1")
         point, direction = axis_of(pts[0], comp["axis"])
+        # The model file is always drawn at model_at_deg, whatever angle the CAD was left at (drawn_at_deg): a log
+        # stores poses relative to the model file, so a model drawn at another angle would show every older log's
+        # part turned by the difference.
+        model_at = comp.get("model_at_deg", comp["drawn_at_deg"])
+        turn = np.radians(model_at - comp["drawn_at_deg"])
+        if turn:
+            scenes[c + 1].apply_transform(trimesh.transformations.rotation_matrix(turn, direction, point))
         described.append({"index": c, "name": comp["name"], "angle": comp["angle"],
                           "axis_point_m": [round(float(x), 5) for x in point],
                           "axis_direction": [round(float(x), 5) for x in direction],
-                          "drawn_at_deg": comp["drawn_at_deg"]})
+                          "drawn_at_deg": model_at})
         print(f"  component {c} ({comp['name']}): {which.count(c)} parts, turns about "
               f"({', '.join(f'{x / IN:.2f}' for x in point)}) in along ({', '.join(f'{x:.3f}' for x in direction)})")
 
@@ -295,7 +302,7 @@ def main():
     with open(os.path.join(OUT, "components.json.tmp"), "w") as fh:
         json.dump({"about": "Robot_BIOBUZZ's components, in config.json's order. Frame: metres, +X forward, +Y left, "
                             "+Z up, origin on the floor under the middle of the drive axles. Component c is drawn in "
-                            "model_c.glb as the CAD has it, at drawn_at_deg. To show it at angle a (degrees, the "
+                            "model_c.glb at drawn_at_deg, a fixed angle (the CAD may be left at another; from_onshape.py turns it). To show it at angle a (degrees, the "
                             "'angle' named here), rotate it by t = a - drawn_at_deg about axis_direction through "
                             "axis_point_m: the AdvantageScope pose is translation p - R(t) p, rotation quaternion "
                             "(cos t/2, sin t/2 * axis_direction).",

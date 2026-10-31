@@ -56,13 +56,15 @@ that moves an axis, copy the new numbers into `RobotComponents`. The match log w
 and its channel point there, and the ball leaves on that open side, away from the tall wall). So at 0, home, the
 model turns it back 51.5° to face forward. If the CAD is ever redrawn facing forward, `drawn_at_deg` becomes 0.
 
-**The FLOWER stick is drawn 155.3° out** (31 Oct 2026): the CAD was left with the arms swung down, and the model turns
-it back to stowed at 0, where it leans up and back over the robot. Out, it has swung 162° forward and down, and its top
-shaft lies on the tile. Nothing measures the stick, so the log shows what it was commanded to do: it jumps out at the
-request, while the real stick takes about a second. **If someone moves the stick in the CAD, `drawn_at_deg` changes**:
-measure the arms' turn about the stick's axis against the last build (or drag it back to where it was) before
-committing a rebuild, or the logs draw it off by the difference. The Flower Ramp is rigid with the arms and shaft, so it
-swings with them.
+**The FLOWER stick is always drawn stowed in the model**, leaning up and back over the robot, whatever angle the CAD
+was left at. A log stores each part's pose relative to the model file, so a model drawn at another angle would show
+every older log's stick turned by the difference (31 Oct 2026: a rebuild with the CAD's stick left out drew every older
+log's stick out when it was in). So `onshape_model.json` keeps two angles per component: `drawn_at_deg`, where the CAD
+has it now, and `model_at_deg`, where the model file is drawn, fixed for good (0 for the stick, 51.5 for the turret).
+The script turns the part from one to the other. **If someone moves the stick in the CAD, update `drawn_at_deg`**:
+measure the arms' turn about the stick's axis against the last build before committing a rebuild. Out, the stick has
+swung 162° forward and down, and its top shaft lies on the tile; the Flower Ramp is rigid with the arms and shaft.
+Nothing measures the stick, so the log shows what it was commanded to do.
 
 ## What's not right yet
 

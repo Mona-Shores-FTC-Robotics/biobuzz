@@ -36,7 +36,7 @@ public final class RobotComponents {
      * The angle each component is drawn at in the CAD: the turret's hood faces 51.5 deg left of the
      * nose, and the stick is drawn stowed.
      */
-    static final double[] DRAWN_AT_DEG = {51.5, 155.3};
+    static final double[] DRAWN_AT_DEG = {51.5, 0.0};
 
     private RobotComponents() {}
 
