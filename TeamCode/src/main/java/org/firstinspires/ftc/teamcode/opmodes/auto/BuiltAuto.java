@@ -193,6 +193,9 @@ public abstract class BuiltAuto extends RobotOpMode {
             problem = "No alliance chosen before PLAY (Square (X) = blue, Circle (B) = red during INIT). Not moving.";
             return;
         }
+        // The CELLs start the match where the manual puts them (each alliance's LEFT DOWN, RIGHT
+        // UP), so a TIP counts even before the camera has settled a CELL (AutoRegistration's Tip).
+        robot.vision.seedMatchStart();
         boolean rotated = !alliance.name().equals(drawnFor);
         robot.drive.setPose(startPose.apply(rotated));
         startNs = System.nanoTime();

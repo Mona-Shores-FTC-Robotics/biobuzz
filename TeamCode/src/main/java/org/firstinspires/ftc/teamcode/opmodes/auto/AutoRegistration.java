@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * The commands and triggers this robot offers the Auto Builder: every name an Auto drawn in the
@@ -65,12 +66,26 @@ import java.util.function.Consumer;
  *   <li>No alliance chosen: false. {@link BuiltAuto} does not move without one, so this only
  *       matters to a caller outside it.</li>
  *   <li>{@link HiveState#UNSEEN} or {@link HiveState#TRANSITION}: false for both, so the wait runs
- *       to its limit or another row ends it. In particular the match-start position is not
- *       assumed: a HIVE the camera has not seen yet is not "RIGHT CELL up".</li>
+ *       to its limit or another row ends it. These two ask what the camera sees now, so they do not
+ *       use the match-start seed {@code Tip} does: seeded, every wait on {@code RightCellUp} would
+ *       end at PLAY with the camera never having looked. A HIVE the camera has not seen yet is not
+ *       "RIGHT CELL up".</li>
  *   <li>A position the tracker assumes after a TIP it saw start but not finish
  *       ({@link HiveTracker#assumed()}): taken as it stands. That TIP was seen, and the tracker
  *       holds the guess only until the camera next sees the HIVE.</li>
  * </ul>
+ *
+ * <h2>Tip</h2>
+ *
+ * <p>True once one of our CELLs settles, in the camera, opposite to where it was last known to rest
+ * when the wait began. "Last known" is the vision subsystem's {@code lastKnown}: the camera's last
+ * settled state, kept while it does not see the CELL. At an Autonomous's PLAY, with the alliance
+ * locked, {@link BuiltAuto} seeds all four CELLs to their match-start state (each alliance's LEFT
+ * DOWN, RIGHT UP: the manual fixes it), and the camera's settled sightings replace the seed. So a
+ * TIP counts even when the camera had not settled the CELL before PLAY (31 Oct 2026: L-Simple on
+ * blue read BLUE AUDIENCE as UNKNOWN at PLAY, and its first wait always ran to 7 s). A later wait
+ * starts from wherever the TIPs before it left the CELLs. TeleOp seeds nothing: there, a CELL the
+ * camera has never settled never says Tip.
  */
 public final class AutoRegistration {
 
@@ -115,11 +130,10 @@ public final class AutoRegistration {
                 // ---- real: the camera, through our HIVE's tracker. See the class comment.
                 .trigger("LeftCellUp", () -> cellUp(ourHive(robot, setup), true))
                 .trigger("RightCellUp", () -> cellUp(ourHive(robot, setup), false))
-                // Our HIVE has tipped since this wait began: one of our CELLs that was settled UP
-                // or DOWN when the wait started is now settled the other way. Settled state comes
-                // from the Limelight's CellStateTracker, which the vision subsystem keeps current.
-                // Mid-tip detection (tags vanishing while the robot holds still) is #173's.
-                // A camera that never saw the HIVE, or no alliance chosen, never says Tip.
+                // Our HIVE has tipped since this wait began: one of our CELLs is now settled opposite
+                // to where it was last known to rest (seeded at an Auto's PLAY). See the class
+                // comment. Mid-tip detection (tags vanishing while the robot holds still) is #173's.
+                // No alliance chosen never says Tip.
                 .triggerSince("Tip", () -> tipSince(robot, setup))
                 .trigger("CameraBlind", () -> cameraBlind(robot));
     }
@@ -138,19 +152,32 @@ public final class AutoRegistration {
         return robot == null || setup == null ? null : robot.hive.of(setup.alliance());
     }
 
-    /** The check for one wait: true once one of our CELLs has settled in the other state. */
+    /** The check for one wait, on the robot's camera: see {@link #tipSince(Alliance, Function, Function)}. */
     static BooleanSupplier tipSince(Robot robot, MatchSetup setup) {
         if (robot == null || setup == null) return () -> false;
-        final Alliance alliance = setup.alliance();
+        return tipSince(setup.alliance(), robot.vision::lastKnown, robot.vision::state);
+    }
+
+    /**
+     * The check for one wait: true once one of our CELLs settles opposite to where it was last
+     * known to rest when the wait began ({@code lastKnown}: the camera's last settled state, kept
+     * through the gaps when it does not see the CELL, or the match-start state an Autonomous seeds
+     * at PLAY). {@code now} is the camera's settled state this loop; UNKNOWN never fires. A CELL
+     * with no last known state when the wait begins is never counted. A later wait starts from
+     * wherever the TIPs before it left the CELLs. The other alliance's CELLs never count.
+     */
+    static BooleanSupplier tipSince(Alliance alliance,
+                                    Function<HiveCell, HiveCellState> lastKnown,
+                                    Function<HiveCell, HiveCellState> now) {
         final HiveCellState[] before = new HiveCellState[CELLS.length];
         for (int i = 0; i < CELLS.length; i++) {
-            before[i] = CELLS[i].belongsTo(alliance) ? robot.vision.state(CELLS[i]) : HiveCellState.UNKNOWN;
+            before[i] = CELLS[i].belongsTo(alliance) ? lastKnown.apply(CELLS[i]) : HiveCellState.UNKNOWN;
         }
         return () -> {
             for (int i = 0; i < CELLS.length; i++) {
                 if (before[i] == HiveCellState.UNKNOWN) continue;
-                HiveCellState now = robot.vision.state(CELLS[i]);
-                if (now != HiveCellState.UNKNOWN && now != before[i]) return true;
+                HiveCellState state = now.apply(CELLS[i]);
+                if (state != HiveCellState.UNKNOWN && state != before[i]) return true;
             }
             return false;
         };
