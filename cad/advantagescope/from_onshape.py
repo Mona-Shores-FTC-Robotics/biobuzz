@@ -261,9 +261,10 @@ def main():
               f"({', '.join(f'{x / IN:.2f}' for x in point)}) in along ({', '.join(f'{x:.3f}' for x in direction)})")
 
     os.makedirs(OUT, exist_ok=True)
-    scenes[0].export(os.path.join(OUT, "model.glb"))
+    # AdvantageScope's loader drops any mesh without normals, so without include_normals nothing draws.
+    scenes[0].export(os.path.join(OUT, "model.glb"), include_normals=True)
     for c in range(len(comps)):
-        scenes[c + 1].export(os.path.join(OUT, f"model_{c}.glb"))
+        scenes[c + 1].export(os.path.join(OUT, f"model_{c}.glb"), include_normals=True)
     for old_file in os.listdir(OUT):                                   # a component that went from the list
         m = re.fullmatch(r"model_(\d+)\.glb", old_file)
         if m and int(m.group(1)) >= len(comps):

@@ -2,11 +2,14 @@ package org.firstinspires.ftc.teamcode.logging;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -46,6 +49,28 @@ public class RobotComponentsTest {
             assertEquals(names.get(c) + "'s drawn angle" + hint, Double.parseDouble(drawn.get(c)), RobotComponents.DRAWN_AT_DEG[c], 1e-9);
         }
         assertEquals("TURRET is the turret", "turret", RobotComponents.NAMES[RobotComponents.TURRET]);
+    }
+
+    /**
+     * AdvantageScope's loader drops a mesh that has no normals, without a word: a model exported
+     * without them installs, is listed, and draws nothing (31 Oct 2026). So every mesh in every
+     * model file carries a NORMAL alongside its POSITION.
+     */
+    @Test
+    public void everyMeshHasNormalsOrAdvantageScopeDrawsNothing() {
+        List<String> files = new ArrayList<>();
+        files.add("model.glb");
+        for (int c = 0; c < RobotComponents.COUNT; c++) files.add("model_" + c + ".glb");
+        for (String name : files) {
+            byte[] glb = bytes(name);
+            // A .glb: a 12-byte header, then the JSON chunk's length (little-endian), its type, and the JSON.
+            int length = ByteBuffer.wrap(glb, 12, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+            String json = new String(glb, 20, length, StandardCharsets.UTF_8);
+            int meshes = all(Pattern.compile("\"POSITION\""), json, 0).size();
+            int normals = all(Pattern.compile("\"NORMAL\""), json, 0).size();
+            assertTrue(name + " has no meshes", meshes > 0);
+            assertEquals(name + ": meshes with normals (export with include_normals=True)", meshes, normals);
+        }
     }
 
     @Test
@@ -128,14 +153,19 @@ public class RobotComponentsTest {
         return out;
     }
 
-    /** A file in cad/advantagescope/Robot_BIOBUZZ, from the module dir under Gradle or the repo root in an IDE. */
+    /** A file in cad/advantagescope/Robot_BIOBUZZ, as text. */
     private static String read(String name) {
+        return new String(bytes(name), StandardCharsets.UTF_8);
+    }
+
+    /** A file in cad/advantagescope/Robot_BIOBUZZ, from the module dir under Gradle or the repo root in an IDE. */
+    private static byte[] bytes(String name) {
         File candidate = new File(System.getProperty("user.dir"));
         while (candidate != null) {
             File file = new File(candidate, "cad/advantagescope/Robot_BIOBUZZ/" + name);
             if (file.isFile()) {
                 try {
-                    return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+                    return Files.readAllBytes(file.toPath());
                 } catch (IOException e) {
                     throw new AssertionError(e);
                 }

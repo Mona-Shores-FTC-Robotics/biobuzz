@@ -22,7 +22,7 @@ The script only reads: nothing in the document changes. It takes the **Robot** a
   `onshape_source.json` together.
 
 Parts are cached in `~/.cache/biobuzz-onshape`, so a rebuild after a small change takes seconds. The model is thinned
-to about `triangle_budget` triangles (600,000, about 7 MB) so AdvantageScope stays quick on a laptop.
+to about `triangle_budget` triangles (600,000, about 9 MB with the normals AdvantageScope needs) so AdvantageScope stays quick on a laptop.
 
 ## The frame
 
