@@ -143,7 +143,9 @@ Then say a calibration answer needs a `Vision: HIVE & Pose` session, and give se
 
 Robot and field with HIVEs, `Vision: HIVE & Pose`, battery good:
 1. Place on the declared start (RED audience); check the start line agrees.
-2. Stand still facing a CELL for 5 s.
+2. Stand still facing a CELL for 5 s, on the marks. **Then drive straight off the wall 20-30 in and stop
+   before turning**: the start spot is against the wall and the robot cannot turn there. Odometry carries
+   the pose, and a wall bump or slip makes samples look like a camera fault, so note the time of any.
 3. Turn on the spot through at least two more headings (60 deg or more apart), 5 s each.
 4. Repeat from a second distance (near, then about 60 in).
 5. Hold still facing a HIVE for the jitter line.
