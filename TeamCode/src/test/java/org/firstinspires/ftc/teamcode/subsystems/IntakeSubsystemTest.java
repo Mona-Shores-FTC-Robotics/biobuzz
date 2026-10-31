@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem.State;
 import org.junit.Test;
@@ -62,5 +64,20 @@ public class IntakeSubsystemTest {
     public void nanStopsTheRoller() {
         assertEquals(0.0, IntakeSubsystem.powerFor(State.IN, Double.NaN, 0.6, false), EPS);
         assertEquals(0.0, IntakeSubsystem.powerFor(State.OUT, 1.0, Double.NaN, false), EPS);
+    }
+
+    @Test
+    public void aPassingPieceIsNotFullAHeldOneIs() {
+        assertFalse(IntakeSubsystem.isFull(false, 1000, 150));
+        assertFalse(IntakeSubsystem.isFull(true, 40, 150));
+        assertTrue(IntakeSubsystem.isFull(true, 150, 150));
+        assertTrue(IntakeSubsystem.isFull(true, 400, 150));
+    }
+
+    @Test
+    public void aBadHoldTimeMeansFullAsSoonAsTheBeamBreaks() {
+        assertTrue(IntakeSubsystem.isFull(true, 0, Double.NaN));
+        assertTrue(IntakeSubsystem.isFull(true, 0, -5));
+        assertFalse(IntakeSubsystem.isFull(false, 0, Double.NaN));
     }
 }
