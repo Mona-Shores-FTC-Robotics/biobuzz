@@ -50,8 +50,8 @@ public final class LQualsAuto {
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
         Pose wallFlower = p.of(14.86, 47.36, 180);
         Pose wallFlowerTurn = p.of(23.16, 47.36, 180);
-        Pose gardenIn = p.of(9.5, 20.56, 270);
-        Pose garden = p.of(9.5, 10.96, 270);
+        Pose gardenIn = p.of(11.5, 22.1, 270);
+        Pose garden = p.of(8.5, 9.5, 270);
         Pose fireG = p.of(45, 29, 90);
         Pose laneTop = p.of(57.5, 108, 90);
         Pose sCatch = p.of(57.5, 18, 90);
@@ -71,8 +71,8 @@ public final class LQualsAuto {
         Pose wallFlowerToFire3Control1 = p.of(24.86, 47.36, 0);
         Pose wallFlowerToFire3Segment1Heading = p.of(45, 26, 180);
         Pose wallFlowerToFire3Segment2Start = p.of(45, 26, 180);
-        Pose fire3ToGardenInSegment1Heading = p.of(9.5, 20.56, 90);
-        Pose fire3ToGardenInSegment2Start = p.of(9.5, 20.56, 90);
+        Pose fire3ToGardenInSegment1Heading = p.of(11.5, 22.1, 90);
+        Pose fire3ToGardenInSegment2Start = p.of(11.5, 22.1, 90);
         Pose gardenToFireGSegment1Heading = p.of(45, 29, 270);
         Pose gardenToFireGSegment2Start = p.of(45, 29, 270);
         Pose laneTopToSCatchControl1 = p.of(57.5, 40, 0);
@@ -107,63 +107,63 @@ public final class LQualsAuto {
         Path fireGToPark = Paths.curve(fireG, fireGToParkControl1, park).linear(fireG, park);
 
         return kit.sequence(
-                kit.guarded("Auto", fireGToPark, 2.7,
+                kit.guarded("Auto", fireGToPark, 2.6,
                         kit.command("SpinUp"),
-                        kit.path("START to FAR_FLOWER_TURN", startToFarFlowerTurn),
+                        kit.path("START to FAR_FLOWER_TURN", startToFarFlowerTurn, 1.9),
                         kit.firstOf("TIP 1 (the partner's preloads)",
                                 kit.when("LeftCellUp").then(
                                         kit.firstOf("Fire our preloads at the left CELL", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(3000)),
-                                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
+                                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower, 0.9),
                                         kit.firstOf("The far FLOWER's 4",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(3000)),
-                                        kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire),
+                                        kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire, 1.6),
                                         kit.firstOf("Fire the far FLOWER's 4 (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("N_FIRE to WALL_FLOWER_TURN", nFireToWallFlowerTurn),
-                                        kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower),
+                                        kit.path("N_FIRE to WALL_FLOWER_TURN", nFireToWallFlowerTurn, 2.8),
+                                        kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower, 0.9),
                                         kit.firstOf("The wall FLOWER's 4",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(3000)),
-                                        kit.path("WALL_FLOWER to FIRE3", wallFlowerToFire3),
+                                        kit.path("WALL_FLOWER to FIRE3", wallFlowerToFire3, 1.9),
                                         kit.firstOf("Fire the wall FLOWER's 4 at the right CELL", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("FIRE3 to GARDEN_IN", fire3ToGardenIn),
-                                        kit.path("GARDEN_IN to GARDEN", gardenInToGarden),
+                                        kit.path("FIRE3 to GARDEN_IN", fire3ToGardenIn, 2.1),
+                                        kit.path("GARDEN_IN to GARDEN", gardenInToGarden, 1.1),
                                         kit.firstOf("The GARDEN's 4",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1500)),
-                                        kit.path("GARDEN to FIRE_G", gardenToFireG),
+                                        kit.path("GARDEN to FIRE_G", gardenToFireG, 2.2),
                                         kit.firstOf("Fire the GARDEN's 4 (TIP 3)", kit.command("LaunchAll"),
                                                 kit.when("Tip"),
                                                 kit.afterMs(2500))),
                                 kit.afterMs(7000).then(
-                                        kit.path("FAR_FLOWER_TURN to LANE_TOP", farFlowerTurnToLaneTop),
-                                        kit.path("LANE_TOP to S_CATCH", laneTopToSCatch),
+                                        kit.path("FAR_FLOWER_TURN to LANE_TOP", farFlowerTurnToLaneTop, 1.2),
+                                        kit.path("LANE_TOP to S_CATCH", laneTopToSCatch, 3),
                                         kit.firstOf("No TIP 1: fire ours at the right CELL", kit.command("LaunchAll"),
                                                 kit.when("LeftCellUp"),
                                                 kit.afterMs(4000)),
                                         kit.firstOf("Catch TIP 1's spill",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1500)),
-                                        kit.path("S_CATCH to FAR_FLOWER_TURN", sCatchToFarFlowerTurn),
+                                        kit.path("S_CATCH to FAR_FLOWER_TURN", sCatchToFarFlowerTurn, 3.3),
                                         kit.firstOf("Fire the catch at the left CELL", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlowerPath),
+                                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlowerPath, 0.9),
                                         kit.firstOf("The far FLOWER's 4",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(3000)),
-                                        kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFirePath),
+                                        kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFirePath, 1.6),
                                         kit.firstOf("Fire the far FLOWER's 4 (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("N_FIRE to LANE_LOW", nFireToLaneLow),
-                                        kit.path("LANE_LOW to FIRE_G", laneLowToFireG))),
-                        kit.path("FIRE_G to PARK", fireGToPark)));
+                                        kit.path("N_FIRE to LANE_LOW", nFireToLaneLow, 2.8),
+                                        kit.path("LANE_LOW to FIRE_G", laneLowToFireG, 1.7))),
+                        kit.path("FIRE_G to PARK", fireGToPark, 2.6)));
     }
 }
