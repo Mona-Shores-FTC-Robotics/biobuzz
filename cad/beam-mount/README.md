@@ -9,7 +9,7 @@ and one for the receiver, facing each other across the lane.
 
 | File | What it is | Print |
 |---|---|---|
-| `beam_mount.stl` | 30 x 31 x 9 mm, flat on the bed, no supports | 2 per beam |
+| `beam_mount.stl` | 30 x 31 x 12 mm, flat on the bed, no supports | 2 per beam |
 | `beam_mount.step` | The same part as a solid: import this into Onshape, not the STL | |
 | `parts.py` | Makes both. Every size is a constant at the top | `pip install cadquery` |
 | `render.py` | Draws the picture above from the STL | `+ trimesh matplotlib` |
@@ -36,15 +36,16 @@ their design.
    in each of the two big hex pockets on top.
 4. Screw on with two **M4 x 8 button heads** from the lane side. That length suits a 2.5 mm goBILDA wall; for a
    thicker wall use (wall + 5.5 mm), rounded up. Only the two button heads end up in the lane.
-5. Lay the sensor between the side walls, **LED down over the 6 mm window** and wires out the far end. Fix it with an
-   **M3 x 14** through the body's hole into the trapped nut.
+5. Drop the sensor into the cradle, **LED down**, and push it against the end wall: that puts the LED over the 6 mm
+   window. The wires leave the open end. Fix it with an **M3 x 14** through the body's hole into the trapped nut.
 
 ## Why it's shaped like this
 
 - **The goBILDA pattern instead of a drawn wall.** The transfer's walls aren't in the CAD yet. On the robot CAD's 1107
   rails, a 14 mm hole sits right at the beam spot, with 4.5 mm holes at ±8 mm round it. That pattern is the same on
   every goBILDA face, so the mount doesn't need the wall's drawing, only one of its holes.
-- **The sensor's own screw holds it**, so the short side walls only square it up, and both ends stay open for the wires.
+- **The sensor's own screw holds it.** The cradle's walls stand 7 mm, most of the body, so a knock from a piece or a
+  robot lands on plastic. The end wall at the LED end puts the LED over the window without measuring.
 - **No locating boss.** The 10° beam doesn't need better than the screws' ±0.25 mm. A flat back prints without supports.
 - **The 6 mm window** fits a 5 mm LED's dome and shades the receiver a little from sunlight.
 - **Nuts in the print, screws from the lane side**: no nut sticks into the lane for a piece to catch on.

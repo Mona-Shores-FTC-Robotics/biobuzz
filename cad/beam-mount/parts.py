@@ -8,8 +8,8 @@ holes 16 mm apart beside it (the ring around the next 14 mm hole: every goBILDA 
 in from the lane side into nuts held in the print, so nothing but two button heads sits in the lane.
 
 The sensor lies flat on the plate, LED down through the window. Its own screw, through the hole in its body, holds it
-down into a nut in the plate's underside. Short walls along its sides square it up; both ends are open, so the wires
-leave whichever end they come out of.
+down into a nut in the plate's underside. Walls nearly its height cradle it on three sides: pushed against the end wall,
+its LED sits over the window. The wire end is open.
 
 Millimetres. Mount frame: origin on the beam axis at the face the print sits on (the wall's outer face), +Z away from
 the lane, +Y along the sensor from the LED toward its screw. Flat on the bed as it prints: plate down, no supports.
@@ -42,7 +42,8 @@ NUT_T = 3.4                  # pocket depth: a plain 3.2 mm M4 nut, flush or jus
 PLATE_T = 5.0                # with a 2.5 mm goBILDA wall, an M4 x 8 button head reaches through the nut
 APERTURE = 6.0               # the beam's window through the plate: a 5 mm LED dome fits, and it shades sunlight
 WALL = 2.0                   # side walls
-WALL_H = 4.0                 # ...this tall: they only square the body up, the screw holds it
+WALL_H = 7.0                 # ...this tall: most of the body (8-9 mm), so a knock lands on plastic, not the sensor
+END_STOP = True              # a wall across the LED end: push the body against it and the LED is over the window
 MARGIN = 2.0                 # plate beyond the body's ends and the nut pockets
 
 
@@ -66,7 +67,9 @@ def beam_mount():
                min(y0 - MARGIN, -SCREW_Y - NUT_AF / 2 - MARGIN), max(y1 + MARGIN, SCREW_Y + NUT_AF / 2 + MARGIN),
                0, PLATE_T)
     for x0, x1 in ((-sx - WALL, -sx), (sx, sx + WALL)):
-        part = part.union(box(x0, x1, y0, y1, PLATE_T, PLATE_T + WALL_H))
+        part = part.union(box(x0, x1, y0 - (WALL if END_STOP else 0), y1, PLATE_T, PLATE_T + WALL_H))
+    if END_STOP:
+        part = part.union(box(-sx - WALL, sx + WALL, y0 - WALL, y0, PLATE_T, PLATE_T + WALL_H))
     cuts = [z_hole(0, 0, -1, PLATE_T + 1, APERTURE),
             z_hole(0, LED_TO_SCREW, -1, PLATE_T + 1, S_CLEAR),
             hex_pocket(0, LED_TO_SCREW, -1, S_NUT_T, S_NUT_AF)]
