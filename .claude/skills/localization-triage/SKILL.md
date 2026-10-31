@@ -77,6 +77,31 @@ means the field point (or odometry).** That one test is the whole method.
 - A residual steady in field axes on every tag, equal in direction, is more likely the start pose
   or odometry than the map.
 
+## 2b. The Limelight pipeline (not in the log: ask for screenshots)
+
+Exposure, gain and the pipeline live on the camera, so a log cannot show them. When a user says
+"I changed the Limelight", ask for the Input, Configuration and Advanced tabs, and **record them
+next to the log filename**. Checked 31 Oct 2026 on pipeline 0 "DecodeApriltags" (19429's camera):
+
+| Setting | Must be | Seen | Why |
+|---|---|---|---|
+| Pipeline type / family | AprilTags, 36h11 | OK | |
+| Marker Size (mm) | **82.55** (3.25 in, `BiobuzzTags.TAG_SIZE_INCHES`) | OK | A wrong size scales every range; it looks exactly like a pitch error that grows with distance. Check this first |
+| Full 3D Targeting | **Yes** | OK | Without it no sighting can be built |
+| ID Filters | empty, or only BIOBUZZ tag ids | empty | |
+| Exposure / Gain | measured, then left alone | 1000 (10 ms) / 15, 640x480 @ 90 | Long exposure blurs tags while the robot moves; take readings only when still |
+| Quality Threshold | a noise knob | 2 | Lower accepts weaker detections, more tags and more error. Ask what it was before |
+| Detector Downscale | a range/speed knob | 2 | Higher is faster and sees less far away; lower is the reverse |
+
+**Ignore, on purpose:** the Advanced tab's "MegaTag Field-Space Localization Setup" (LL Pitch 45,
+field map file) and its red "AprilTag size mismatch: slider 82.55, map 165.1 mm". That is the
+Limelight's own MegaTag view, loaded with last season's DECODE field map (tags 20-24). Our code
+never uses MegaTag (CLAUDE.md), so the warning is cosmetic; do not "fix" it by changing the
+slider to 165.1, which would break every range. If someone wants it gone, load a BIOBUZZ field map
+or none, and leave the Marker Size alone.
+
+Change **one** camera setting between sessions, or the two logs cannot be compared.
+
 ## 3. What this skill does NOT decide
 
 - **Pinpoint offsets and encoder resolution** (`pedro/robots/Robot<team>.java`, `xPodOffset`
