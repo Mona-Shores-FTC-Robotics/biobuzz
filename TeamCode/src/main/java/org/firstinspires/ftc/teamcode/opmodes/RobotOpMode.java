@@ -232,6 +232,7 @@ public abstract class RobotOpMode extends OpMode {
     private static final String[] HIVE_STATE_KEYS = {"/Hive/Red/State", "/Hive/Blue/State"};
     private static final String[] HIVE_ASSUMED_KEYS = {"/Hive/Red/Assumed", "/Hive/Blue/Assumed"};
     private final int[] loggedHiveState = {-1, -1};
+    private boolean loggedIntakeFull;
 
     // ------------------------------------------------------------------ hooks
 
@@ -1035,6 +1036,14 @@ public abstract class RobotOpMode extends OpMode {
         double intakeAmps = robot.intake.currentAmps();
         if (!Double.isNaN(intakeAmps)) {
             log.put("/Intake/CurrentAmps", intakeAmps);
+        }
+        // The beam break, raw and as "full": how long a passing piece breaks it tunes fullAfterMs.
+        log.put("/Intake/BeamBroken", robot.intake.beamBroken() ? 1 : 0);
+        boolean intakeFull = robot.intake.isFull();
+        log.put("/Intake/Full", intakeFull ? 1 : 0);
+        if (intakeFull != loggedIntakeFull) {
+            log.event(intakeFull ? "intake: full" : "intake: room");
+            loggedIntakeFull = intakeFull;
         }
         // The launcher's speed loop and the feeder, so a log shows what the wheels did at each shot.
         log.put("/Launcher/TargetTicksPerSecond", robot.launcher.isSpinning() ? robot.launcher.target() : 0.0);

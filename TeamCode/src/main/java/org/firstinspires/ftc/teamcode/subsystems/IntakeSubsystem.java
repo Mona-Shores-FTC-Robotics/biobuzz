@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -21,8 +22,7 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * {@link #eject()}, {@link #idle()}), {@link #update()} does it, once per loop. Which button does
  * what belongs in the OpMode's bindings, not here.
  *
- * <p>What this does not do yet: count pieces, stop at four, or feed the Auto's {@code IntakeFull}
- * trigger. That is #181, and it layers on top of this class. What it does do for #181 is read the
+ * <p>What this does not do yet: count pieces or stop at four. What it does do for #181 is read the
  * roller's speed once per loop and its current ten times a second ({@link #ticksPerSecond()},
  * {@link #currentAmps()}),
  * which {@code RobotOpMode} logs and the Match page shows: slipping is high speed at low current,
@@ -40,6 +40,15 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * same power while it ejects (asked for on 26 Oct 2026, so the stars push a piece out with the
  * roller rather than sit in its way), and stop when the roller is idle. Their direction is
  * {@link #starsReversed}, unknown until a robot has shown it.
+ *
+ * <h2>The beam break</h2>
+ *
+ * <p>An IR break-beam on {@link DeviceNames#INTAKE_BEAM} crosses the place the fourth piece sits.
+ * A piece rolling past breaks it for a moment; a fourth piece held there breaks it for good. So
+ * the robot is full ({@link #isFull()}) once the beam has stayed broken for {@link #fullAfterMs},
+ * and stops being full the moment it clears. That is the Auto's {@code IntakeFull}. It is read
+ * once per loop from the bulk read. Which level means "broken" depends on the sensor's wiring:
+ * {@link #beamBrokenWhenLow}, unknown until a robot has shown it.
  */
 @Configurable
 public class IntakeSubsystem implements Subsystem {
@@ -77,8 +86,27 @@ public class IntakeSubsystem implements Subsystem {
      */
     public static boolean starsReversed = false;
 
+    /**
+     * How long the beam must stay broken before the robot counts as full, in ms, so a piece rolling
+     * past is not a full robot. <b>Not yet tuned:</b> a match log's {@code /Intake/BeamBroken}
+     * shows how long a passing piece breaks it.
+     */
+    public static double fullAfterMs = 150.0;
+
+    /**
+     * True when the beam break's input reads low while the beam is broken, as an open-collector IR
+     * receiver does. <b>Not yet checked on a robot:</b> block the beam by hand and watch the Robot
+     * page; flip this in Panels if it says the opposite, then write it back here with a note.
+     */
+    public static boolean beamBrokenWhenLow = true;
+
     private final DcMotorEx motor;
     private final CRServo stars;
+    private final DigitalChannel beam;
+    private boolean beamBroken;
+    /** When the beam last went from clear to broken, System.nanoTime(); meaningless while clear. */
+    private long brokenSinceNs;
+    private boolean full;
     private State state = State.IDLE;
     private double ticksPerSecond = 0.0;
     private double currentAmps = Double.NaN;
@@ -94,6 +122,7 @@ public class IntakeSubsystem implements Subsystem {
     public IntakeSubsystem(HardwareMap hardwareMap) {
         motor = hardwareMap.get(DcMotorEx.class, DeviceNames.INTAKE);
         stars = hardwareMap.get(CRServo.class, DeviceNames.INTAKE_STARS);
+        beam = hardwareMap.get(DigitalChannel.class, DeviceNames.INTAKE_BEAM);
     }
 
     /** Ask for pieces in. Takes effect in the next {@link #update()}. */
@@ -134,6 +163,19 @@ public class IntakeSubsystem implements Subsystem {
         return currentAmps;
     }
 
+    /** Whether the beam break was broken at the last {@link #update()}. */
+    public boolean beamBroken() {
+        return beamBroken;
+    }
+
+    /**
+     * Whether the robot is full: the beam has stayed broken for {@link #fullAfterMs}. The Auto's
+     * {@code IntakeFull}. Read-only, from the last {@link #update()}.
+     */
+    public boolean isFull() {
+        return full;
+    }
+
     /** Start idle, in plain power mode. */
     @Override
     public void initialize() {
@@ -142,6 +184,9 @@ public class IntakeSubsystem implements Subsystem {
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setPower(0.0);
         stars.setPower(0.0);
+        beam.setMode(DigitalChannel.Mode.INPUT);
+        beamBroken = false;
+        full = false;
     }
 
     /**
@@ -154,6 +199,11 @@ public class IntakeSubsystem implements Subsystem {
         motor.setPower(powerFor(state, inPower, outPower, reversed));
         stars.setPower(starsPowerFor(state, starsPower, starsReversed));
         ticksPerSecond = motor.getVelocity();
+        long now = System.nanoTime();
+        boolean broken = beam.getState() != beamBrokenWhenLow;
+        if (broken && !beamBroken) brokenSinceNs = now;
+        beamBroken = broken;
+        full = isFull(broken, (now - brokenSinceNs) / 1e6, fullAfterMs);
         if (state == State.IDLE) {
             currentAmps = Double.NaN;
             currentRead.reset();
@@ -180,7 +230,8 @@ public class IntakeSubsystem implements Subsystem {
 
     @Override
     public String health() {
-        return "roller motor and star servo configured; presence unknown until they move";
+        return "roller motor, star servo and beam break configured; presence unknown until they move"
+                + " or the beam is blocked";
     }
 
     @Override
@@ -193,6 +244,15 @@ public class IntakeSubsystem implements Subsystem {
                 Double.isNaN(rpm) ? "" : String.format(Locale.US, " (%.0f rpm)", rpm),
                 Double.isNaN(currentAmps) ? "current not read while idle"
                         : String.format(Locale.US, "%.2f A", currentAmps)));
+        display.line("Beam " + (beamBroken ? "broken" : "clear") + (full ? " · FULL" : ""));
+    }
+
+    /**
+     * Full when the beam is broken and has been for at least {@code afterMs} (NaN or negative
+     * counts as 0). Pure, so a test can check it.
+     */
+    static boolean isFull(boolean broken, double brokenForMs, double afterMs) {
+        return broken && brokenForMs >= (afterMs > 0.0 ? afterMs : 0.0);
     }
 
     /** Ticks per second to RPM, or NaN when ticks per revolution is unset (NaN or not positive). */

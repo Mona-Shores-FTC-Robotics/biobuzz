@@ -63,6 +63,12 @@
                  port 0; its colour is the servo position. -->
             <Servo name="indicator" port="0" />
 
+            <!-- Intake beam break: an IR break-beam across the fourth piece's
+                 place; its receiver on digital port 1 (the second channel of
+                 the 0-1 connector). The plan, 31 Oct 2026: plug it in here, or
+                 change this line to where it is plugged in. -->
+            <DigitalDevice name="intakeBeam" port="1" />
+
         </LynxModule>
 
         <!-- Expansion Hub: the intake, then the launcher. -->

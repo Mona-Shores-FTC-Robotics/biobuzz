@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import org.firstinspires.ftc.teamcode.opmodes.auto.BuiltAuto;
 import org.firstinspires.ftc.teamcode.vision.HiveState;
 
 import java.io.IOException;
@@ -28,6 +29,8 @@ final class FieldSimLog {
     /** Each HIVE's state as a {@code HiveState} ordinal, as the match log writes it. */
     private static final String[] KEY_HIVE_STATE = {"/Hive/Red/State", "/Hive/Blue/State"};
     static final String KEY_SHOT = "/Sim/Shot/Trajectory";
+    /** Full or not, as the match log writes it from the intake's beam break. */
+    static final String KEY_INTAKE_FULL = "/Intake/Full";
 
     private final double[][] pieces = new double[6][];
     private double[] components;
@@ -94,6 +97,9 @@ final class FieldSimLog {
         }
         if (sim.stored.size() != held) {
             log.put("/Sim/Robot/Held", (long) sim.stored.size(), us);
+            // The robot's beam break says only "full": the same key, so the two logs compare.
+            boolean full = sim.stored.size() >= BuiltAuto.MAX_HELD;
+            if (held < 0 || full != (held >= BuiltAuto.MAX_HELD)) log.put(KEY_INTAKE_FULL, full ? 1.0 : 0.0, us);
             held = sim.stored.size();
         }
     }
