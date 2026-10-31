@@ -138,6 +138,40 @@ def unwrap(rads):
     return out
 
 
+def make_still(log, max_speed, max_turn_deg):
+    """Returns still(t): True when the robot moved less than the limits over +/-0.15 s around t.
+
+    A camera frame is ~20 ms old when it is read, and the log compares it with odometry now.
+    At 60 in/s that is ~1.2 in; turning at 180 deg/s moves a tag 60 in away by ~4 in. So only
+    samples taken while still say anything about the mount or the map.
+    """
+    if max_speed is None:
+        return (lambda t: True), "no still filter (--all)"
+    hd = log.values(HEADING)
+    ht = [t for t, _ in hd]
+    hr = unwrap([math.radians(v) for _, v in hd])
+    px, py = log.values(POSE_X), log.values(POSE_Y)
+    have_xy = len(px) > 2 and len(py) > 2
+    if have_xy:
+        xt, xv = [t for t, _ in px], [v for _, v in px]
+        yt, yv = [t for t, _ in py], [v for _, v in py]
+    w = 0.15
+
+    def still(t):
+        turn = abs(interp(ht, hr, t + w) - interp(ht, hr, t - w)) / (2 * w)
+        if math.degrees(turn) > max_turn_deg:
+            return False
+        if have_xy:
+            dx = interp(xt, xv, t + w) - interp(xt, xv, t - w)
+            dy = interp(yt, yv, t + w) - interp(yt, yv, t - w)
+            if math.hypot(dx, dy) / (2 * w) > max_speed:
+                return False
+        return True
+    note = (f"still only: under {max_speed} in/s and {max_turn_deg} deg/s"
+            + ("" if have_xy else " (no X/Y channels: heading rate only)"))
+    return still, note
+
+
 def cmd_info(log, _args):
     print("== Metadata (Build, Hardware, Tunables, ...) ==")
     for k in sorted(log.metadata):
@@ -195,6 +229,9 @@ def cmd_triage(log, args):
                 print(f"{mk}: {mv}")
     print()
 
+    still, still_note = make_still(log, None if args.all else args.max_speed, args.max_turn)
+    print(f"Samples: {still_note}\n")
+    dropped_moving = 0
     # Per tag: field-axis and robot-axis residuals, accepted samples only.
     per_tag = {}
     all_robot = []  # (rx, ry) pooled
@@ -217,6 +254,9 @@ def cmd_triage(log, args):
             # skip a sample whose frame this tag was rejected in
             i = bisect.bisect_right(rtimes, t) - 1
             if i >= 0 and abs(rtimes[i] - t) < 0.05 and int(rvals[i]) != 0:
+                continue
+            if not still(t):
+                dropped_moving += 1
                 continue
             th = interp(htimes, hrad, t)
             c, s = math.cos(th), math.sin(th)
@@ -247,6 +287,7 @@ def cmd_triage(log, args):
         print("\nNot enough accepted samples to say anything. Need 5+ per tag; drive per the README's vision session.")
         return
 
+    print(f"\n({dropped_moving} samples dropped for motion)")
     print("\n== Reading ==")
     hr = max(r[6] for r in verdict_rows)
     if hr < 60:
@@ -257,23 +298,32 @@ def cmd_triage(log, args):
     print(f"Pooled across tags: field ({pooled_f[0]:+.2f},{pooled_f[1]:+.2f}) in, "
           f"robot ({pooled_r[0]:+.2f} fwd,{pooled_r[1]:+.2f} left) in.")
 
-    # Mount: the SAME robot-axis offset on every tag. Map: tags disagree with each other in field axes.
+    # Per-tag RMS residual is the same in either frame, so it says how far off a tag is without
+    # letting offsets in opposite directions average away.
+    rms = {}
+    for tid, (pts, _) in per_tag.items():
+        if len(pts) >= 5:
+            rms[tid] = math.sqrt(mean([p[1] ** 2 + p[2] ** 2 for p in pts]))
+    BAD_IN = 1.0
+    bad = [r for r in verdict_rows if rms[r[0]] >= BAD_IN]
+    worst = max(rms.values())
+    print("Per-tag RMS residual: " + ", ".join(f"tag {t}: {v:.2f}" for t, v in sorted(rms.items())) + " in")
+
     rob_means = [r[4] for r in verdict_rows]
     spread_between_tags = math.hypot(std([m[0] for m in rob_means]), std([m[1] for m in rob_means]))
-    pooled_mag = math.hypot(*pooled_r)
-    mount_like = [r for r in verdict_rows if r[5] < r[3] * 0.7]
-    field_like = [r for r in verdict_rows if r[3] < r[5] * 0.7]
-    print(f"{len(mount_like)} tags steadier in robot axes (mount-like), "
-          f"{len(field_like)} steadier in field axes (map-like), of {len(verdict_rows)}.")
+    mount_like = [r for r in bad if r[5] < r[3] * 0.7]
+    field_like = [r for r in bad if r[3] < r[5] * 0.7]
+    print(f"Of {len(bad)} tags at or over {BAD_IN} in: {len(mount_like)} steadier in robot axes (mount-like), "
+          f"{len(field_like)} steadier in field axes (map-like).")
     print(f"Between-tag disagreement in robot axes: {spread_between_tags:.2f} in.")
 
-    if pooled_mag < 1.0 and spread_between_tags < 1.0:
-        print("-> All residuals under about 1 in and the tags agree. Nothing to change.")
-    elif len(mount_like) > len(field_like) and spread_between_tags < max(1.0, pooled_mag / 2):
+    if not bad:
+        print(f"-> Every tag under {BAD_IN} in RMS (worst {worst:.2f}). Nothing to change.")
+    elif len(mount_like) > len(field_like) and spread_between_tags < max(1.0, math.hypot(*pooled_r) / 2):
         fwd, left = pooled_r
         print("-> MOUNT. The same offset in robot axes on every tag, and it turns with the robot.")
         print(f"   Residual is {fwd:+.2f} in forward, {left:+.2f} in left. See SKILL.md for which "
-              "CameraMount field it maps to (it depends on range: constant means an offset, growing with range means pitch or yaw).")
+              "CameraMount field it maps to (a constant offset is a translation; one that grows with range is pitch or yaw).")
     elif len(field_like) > len(mount_like):
         print("-> FIELD POINT or ODOMETRY. The residual stays put on the field as the robot turns.")
         print("   If every tag moves together over time: odometry (drift, Pinpoint offsets). "
@@ -311,6 +361,9 @@ def main():
         if name == "triage":
             p.add_argument("--start", type=float, default=None, help="seconds into the log")
             p.add_argument("--end", type=float, default=None)
+            p.add_argument("--max-speed", type=float, default=2.0, help="in/s; samples faster are dropped")
+            p.add_argument("--max-turn", type=float, default=5.0, help="deg/s; samples turning faster are dropped")
+            p.add_argument("--all", action="store_true", help="keep moving samples (camera latency will bias them)")
         if name == "dump":
             p.add_argument("keys", nargs="+")
     args = ap.parse_args()

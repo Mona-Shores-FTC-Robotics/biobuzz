@@ -42,6 +42,15 @@ tag's residual into robot axes using the logged heading, then compares how stead
 frame. **Steady in robot axes while the robot turns means the camera mount. Steady in field axes
 means the field point (or odometry).** That one test is the whole method.
 
+**`triage` keeps only samples where the robot is still** (under 2 in/s and 5 deg/s, from the
+logged pose; `--max-speed`, `--max-turn`, or `--all` to change). A camera frame is about 20 ms old
+when read and is compared with odometry *now*: 60 in/s alone is about 1.2 in, and turning at
+180 deg/s moves a tag 60 in away by about 4 in. Never read a residual off a moving sample, and
+never run `--all` for a verdict. The table is per tag, "bad" means 1 in RMS or more, and "nothing
+to change" requires every tag under 1 in (offsets in opposite directions must not average away).
+Tested only on synthetic logs with injected faults (mount, field point, none); the first real log
+is the real test, so say so in the first report and sanity-check the table by eye.
+
 | `triage` says | Meaning | Change |
 |---|---|---|
 | Residual under about 1 in on every tag, tags agree | Nothing wrong | Nothing. Say so plainly |
