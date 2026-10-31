@@ -27,7 +27,7 @@
       "axis_part": "^8x14x4mm Bearing <1>$",
       "axis": "thinnest",
       "angle": "FlowerStickSubsystem.commandedDegrees(): degrees swung out from stowed, 0 in, swingDegrees() (162) out; the commanded state, not a measured angle",
-      "drawn_at_deg": 0,
+      "drawn_at_deg": 155.3,
       "drawn_at_note": "Found 31 Oct 2026 from the mates: the two arms pivot on the SWYFT servo's hub and bearing <1>, drawn stowed, leaning up and back to the 312 mm shaft. Swung 162 deg forward about +Y, the shaft reaches the tile (Z 0.5 in), where the stick's wheels rest when out."
     }
   ]
