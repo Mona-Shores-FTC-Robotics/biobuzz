@@ -1,8 +1,8 @@
 {
   "pp": "TeamCode/autos/l-simple.pp",
   "spec": "LSimpleAuto,RSimpleAuto@50",
-  "design": "rigid V",
-  "partnerDesign": "rigid V",
+  "design": "real robot",
+  "partnerDesign": "real robot",
   "partnerSpeed": 50.0,
   "seeds": [
     1,
@@ -69,7 +69,7 @@
   "alliance": "RED",
   "metadata": {
     "AutoSource": "l-simple.pp",
-    "SavedBy": "README, the simple pair of the 15 Oct baseline"
+    "SavedBy": "The simple pair on the real robot design (31 Oct 2026: the simulator dropped its what-if designs)"
   },
   "title": "Simple-Pair",
   "usual": true,
