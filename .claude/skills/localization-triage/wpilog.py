@@ -59,6 +59,13 @@ class Log:
                 if v is not None:
                     self.series[name].append((ts / 1e6, v))
 
+        # This build writes its metadata (RobotConfig, Build, Hardware/*, Tunable/*, StartCheck) as
+        # string channels under /RealMetadata/; AdvantageScope shows them on the Metadata tab.
+        pre = "/RealMetadata/"
+        for name, s in self.series.items():
+            if name.startswith(pre) and s:
+                self.metadata[name[len(pre):]] = s[-1][1]
+
     def _control(self, pl):
         kind = pl[0]
         if kind == 0:
@@ -180,6 +187,8 @@ def cmd_info(log, _args):
             print(f"  {k}: {v}")
     print("\n== Channels ==")
     for name in sorted(log.series):
+        if name.startswith("/RealMetadata/"):
+            continue
         s = log.series[name]
         print(f"  {name}  n={len(s)}  t={s[0][0]:.1f}..{s[-1][0]:.1f}s")
 

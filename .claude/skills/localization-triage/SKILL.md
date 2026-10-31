@@ -11,14 +11,21 @@ the log to bring next time". It never guesses a value; with no log it produces a
 
 ## 0. Get the log
 
-**How the log reaches a session.** A cloud session has no access to the laptop, and the Google Drive
-connector cannot deliver a log: it returns a file as base64 inline, and even a 0.4 MB `.wpilog` is
-far too big to read that way (checked 31 Oct 2026). Do not try it. Ask the user to put the file on a
-branch of this repo, not `master`: on GitHub, switch to a new branch such as
-`logs/<date>-<robot>`, then *Add file > Upload files* (web limit 25 MB; a Vision: HIVE & Pose
-session is a few MB) and commit. Then `git fetch origin <branch>` and
-`git show origin/<branch>:<path> > $SCRATCH/x.wpilog`, or check it out into the scratchpad. Never
-merge that branch. The pull script's Drive copy (`tools/pull-logs/README.md`) is for people.
+**How the log reaches a session.** Logs sync to the team Drive (`tools/pull-logs/README.md`), and the
+Google Drive connector can fetch them. Tested 31 Oct 2026 on a 68 KB log:
+1. `search_files` with `title contains '2026-10-31' and title contains 'wpilog'` (names are
+   `<date>_<time>_<OpMode>.wpilog`; `excludeContentSnippets: true`). A pull the user just ran
+   appears once Drive for Desktop has synced, which can lag; search again before saying it is missing.
+2. `download_file_content` on the id. The result is base64 JSON far too big for context, so the
+   harness **saves it to a file** and says where. Never read that file with `Read`; decode it:
+   `python3 -I` with `base64.b64decode(json.load(open(path))["content"])`, write the bytes to the
+   scratchpad (`logs/<title>`), and run `wpilog.py` on that. Larger files are bigger JSON; the
+   tested size is small, so say if one fails.
+3. If the connector is unavailable, the fallback is a throwaway branch of this repo (not
+   `master`, never merged) with the file uploaded on GitHub (*Add file > Upload files*, 25 MB).
+
+The metadata (`RobotConfig`, `Build`, `Hardware/*`, `Tunable/*`, `StartCheck`) is stored as
+`/RealMetadata/<key>` string channels; `wpilog.py` reads them into `info`.
 
 No robot is attached to this session, so you cannot take a log. **If there is none, stop and give
 section 5.**
