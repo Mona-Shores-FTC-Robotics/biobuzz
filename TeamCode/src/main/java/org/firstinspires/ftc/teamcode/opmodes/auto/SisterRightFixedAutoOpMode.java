@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.SisterRightFixedAuto;
 
 /** Runs {@link SisterRightFixedAuto}; see its {@code SOURCE} for the drawing. */
-@Autonomous(name = "Auto: Sister right", group = "Auto")
+@Autonomous(name = "Sister right " + SisterRightFixedAuto.SAVED, group = "Auto")
 public class SisterRightFixedAutoOpMode extends BuiltAuto {
     public SisterRightFixedAutoOpMode() {
         super(SisterRightFixedAuto.SOURCE, SisterRightFixedAuto.COMMANDS, SisterRightFixedAuto.TRIGGERS,
