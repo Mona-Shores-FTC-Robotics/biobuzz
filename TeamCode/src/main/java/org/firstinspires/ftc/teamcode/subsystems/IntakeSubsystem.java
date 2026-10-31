@@ -88,10 +88,10 @@ public class IntakeSubsystem implements Subsystem {
 
     /**
      * How long the beam must stay broken before the robot counts as full, in ms, so a piece rolling
-     * past is not a full robot. <b>Not yet tuned:</b> a match log's {@code /Intake/BeamBroken}
-     * shows how long a passing piece breaks it.
+     * past is not a full robot: #213 estimates about 0.2 s for a piece to pass at lane speed. <b>Not
+     * yet tuned:</b> a match log's {@code /Intake/BeamBroken} shows how long a passing piece breaks it.
      */
-    public static double fullAfterMs = 150.0;
+    public static double fullAfterMs = 300.0;
 
     /**
      * True when the beam break's input reads low while the beam is broken, as an open-collector IR
