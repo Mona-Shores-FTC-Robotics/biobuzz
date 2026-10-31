@@ -168,8 +168,9 @@ public abstract class GrabRoutine {
     /**
      * An Auto's card only: the pose to square up to before the In, from where the Auto's drive left
      * the robot; null for none (the In starts from here); or why the robot refuses. Skipped, like the
-     * button's line-up, when already within {@link #atLineUpIn} and {@link #atLineUpDeg} of it; the In
-     * is then planned as after a line-up. None by default.
+     * button's line-up, when already within {@link #atLineUpIn} and {@link #atLineUpDeg} of it and
+     * {@link #mayPrepAt} allows prep where the robot is; the In is then planned as after a line-up.
+     * None by default.
      */
     protected InPlan autoLineUp(Pose from) {
         return null;
@@ -182,7 +183,8 @@ public abstract class GrabRoutine {
 
     /**
      * Whether prep may start during the line-up with the robot at {@code pose}, as well as within
-     * {@link #prepWithinIn} and {@link #prepWithinDeg}. Always, by default.
+     * {@link #prepWithinIn} and {@link #prepWithinDeg}; also whether a robot near its line-up pose
+     * counts as already there. Always, by default.
      */
     protected boolean mayPrepAt(Pose pose) {
         return true;
@@ -454,7 +456,8 @@ public abstract class GrabRoutine {
         boolean squares = lineUpPose != null;
         lineUpLimitMs = lineUp ? lineUpTimeoutMs() : autoLineUpTimeoutMs();
         if (squares) {
-            there = atPose(pose, lineUpPose, nn(atLineUpIn()), nn(atLineUpDeg()));
+            // Not "there" where prep may not start: the line-up moves the robot out first.
+            there = atPose(pose, lineUpPose, nn(atLineUpIn()), nn(atLineUpDeg())) && mayPrepAt(pose);
             if (!there) {
                 in = lineUpPose; // what "remaining" measures until the line-up is done
                 // The same call shape as the generated Autos' paths.

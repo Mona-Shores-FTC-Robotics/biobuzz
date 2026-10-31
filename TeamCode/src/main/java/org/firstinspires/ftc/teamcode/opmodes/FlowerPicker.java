@@ -55,8 +55,9 @@ public final class FlowerPicker extends GrabRoutine {
     public static double atApproachDeg = 5.0;
     /**
      * An Auto's square-up never starts the push closer than this to the FLOWER's centre, inches, and
-     * the stick goes down only once the robot is this far out: the Autos draw their pick spots about
-     * 19.5 in out, where the stick has swung down clear.
+     * the stick goes down only once the robot is this far out, less 0.5 in for pose noise (a robot
+     * closer than that is never "already square": it moves out first). The Autos draw their pick
+     * spots about 19.5 in out, where the stick has swung down clear.
      */
     public static double minAutoStartIn = 18.0;
     /** An Auto's pick refuses a spot more than this far off the FLOWER's line, inches. */

@@ -1918,8 +1918,9 @@ public final class AutoSim {
         private Command pickFlower() {
             final Pose[] square = new Pose[1];
             final Pose[] contact = new Pose[1];
-            final int[] phase = new int[1];  // 0 refused, 4 square up, 1 push, 2 dwell, 3 back
+            final int[] phase = new int[1];  // 0 refused, 4 square up, 1 push, 2 dwell, 3 back, 5 square-up timed out
             final double[] dwellFrom = new double[1];
+            final double[] squareFrom = new double[1];
             final boolean[] intakeBefore = new boolean[1];
             final double flip = design.intakeAtBack ? Math.PI : 0.0;
             return new CommandBuilder()
@@ -1953,17 +1954,24 @@ public final class AutoSim {
                         Pose from = new Pose(at[0], at[1], at[2]);
                         double turn = Math.abs(Math.IEEEremainder(at[2] - square[0].heading(), 2 * Math.PI));
                         if (Math.hypot(at[0] - square[0].x(), at[1] - square[0].y()) <= FlowerPicker.atApproachIn
-                                && Math.toDegrees(turn) <= FlowerPicker.atApproachDeg) {
+                                && Math.toDegrees(turn) <= FlowerPicker.atApproachDeg
+                                && Math.hypot(flower.x - at[0], flower.y - at[1]) >= FlowerPicker.minAutoStartIn - 0.5) {
                             square[0] = from; // already square: the robot pushes from here and comes back here
                             phase[0] = 1;
-                            drive.follow(Paths.line(from, contact[0]).constant(at[2]));
+                            drive.follow(Paths.line(from, contact[0]).linear(from, contact[0]));
                         } else {
                             phase[0] = 4;
+                            squareFrom[0] = now;
                             drive.follow(Paths.line(from, square[0]).linear(from, square[0]));
                         }
                     })
                     .setExecute(() -> {
-                        if (phase[0] == 4 && drive.pathDone()) {
+                        if (phase[0] == 4 && !drive.pathDone() && now - squareFrom[0] > FlowerPicker.autoSquareTimeoutMs / 1000.0) {
+                            phase[0] = 5; // the robot's "square-up timed out": no push, nothing picked
+                            intakeEnabled = intakeBefore[0];
+                            drive.hold(drive.pose);
+                            pending.add("PickFlower: square-up timed out");
+                        } else if (phase[0] == 4 && drive.pathDone()) {
                             phase[0] = 1;
                             drive.follow(Paths.line(square[0], contact[0]).constant(square[0].heading()));
                         } else if (phase[0] == 1 && drive.pathDone()) {
@@ -1975,7 +1983,7 @@ public final class AutoSim {
                             drive.follow(Paths.line(new Pose(at[0], at[1], at[2]), square[0]).constant(square[0].heading()));
                         }
                     })
-                    .setDone(() -> phase[0] == 0 || (phase[0] == 3 && drive.pathDone()))
+                    .setDone(() -> phase[0] == 0 || phase[0] == 5 || (phase[0] == 3 && drive.pathDone()))
                     .setEnd(end -> {
                         if (phase[0] == 0) return;
                         intakeEnabled = intakeBefore[0];
