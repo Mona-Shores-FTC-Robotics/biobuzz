@@ -61,18 +61,20 @@ import java.util.function.Function;
  * <p>True while our HIVE's {@link HiveTracker} says that CELL is up, LEFT and RIGHT as our drive
  * team sees them from our alliance area ({@link HiveState}). They are conditions, not events: the
  * Auto Builder lists only {@code Tip} as an event, so a wait on {@code RightCellUp} ends at once if
- * the RIGHT CELL is already up when it starts. Nothing is guessed:
+ * the RIGHT CELL is already up when it starts. In an Autonomous the HIVE starts where the manual
+ * puts it: at PLAY {@link BuiltAuto} has the tracker assume RIGHT_CELL_UP
+ * ({@link HiveTracker#assumeMatchStart()}), so {@code RightCellUp} is true from PLAY and
+ * {@code LeftCellUp} false, until the camera sees the HIVE settle (which replaces the assumption)
+ * or a TIP moves it. Otherwise:
  * <ul>
  *   <li>No alliance chosen: false. {@link BuiltAuto} does not move without one, so this only
  *       matters to a caller outside it.</li>
  *   <li>{@link HiveState#UNSEEN} or {@link HiveState#TRANSITION}: false for both, so the wait runs
- *       to its limit or another row ends it. These two ask what the camera sees now, so they do not
- *       use the match-start seed {@code Tip} does: seeded, every wait on {@code RightCellUp} would
- *       end at PLAY with the camera never having looked. A HIVE the camera has not seen yet is not
- *       "RIGHT CELL up".</li>
- *   <li>A position the tracker assumes after a TIP it saw start but not finish
- *       ({@link HiveTracker#assumed()}): taken as it stands. That TIP was seen, and the tracker
- *       holds the guess only until the camera next sees the HIVE.</li>
+ *       to its limit or another row ends it. Outside an Autonomous nothing is assumed: a HIVE the
+ *       camera has not seen is not "RIGHT CELL up".</li>
+ *   <li>A position the tracker assumes, at an Autonomous's PLAY or after a TIP it saw start but
+ *       not finish ({@link HiveTracker#assumed()}): taken as it stands, and held only until the
+ *       camera next sees the HIVE settle.</li>
  * </ul>
  *
  * <h2>Tip</h2>
@@ -86,6 +88,10 @@ import java.util.function.Function;
  * blue read BLUE AUDIENCE as UNKNOWN at PLAY, and its first wait always ran to 7 s). A later wait
  * starts from wherever the TIPs before it left the CELLs. TeleOp seeds nothing: there, a CELL the
  * camera has never settled never says Tip.
+ *
+ * <p>The assumption is for timing only. Position fixes ({@code TagGate}, {@code CellFix}) still use
+ * nothing but what the camera settled on, so a HIVE set up wrong costs a mistimed wait, never a
+ * wrong pose.
  */
 public final class AutoRegistration {
 

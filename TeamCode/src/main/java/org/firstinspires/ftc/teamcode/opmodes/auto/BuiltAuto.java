@@ -194,8 +194,10 @@ public abstract class BuiltAuto extends RobotOpMode {
             return;
         }
         // The CELLs start the match where the manual puts them (each alliance's LEFT DOWN, RIGHT
-        // UP), so a TIP counts even before the camera has settled a CELL (AutoRegistration's Tip).
+        // UP): Tip, LeftCellUp and RightCellUp read from there until the camera sees the HIVE
+        // settle (AutoRegistration). Position fixes still use only what the camera settled.
         robot.vision.seedMatchStart();
+        robot.hive.assumeMatchStart();
         boolean rotated = !alliance.name().equals(drawnFor);
         robot.drive.setPose(startPose.apply(rotated));
         startNs = System.nanoTime();
