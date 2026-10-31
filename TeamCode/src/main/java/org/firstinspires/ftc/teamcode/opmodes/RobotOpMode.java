@@ -377,7 +377,14 @@ public abstract class RobotOpMode extends OpMode {
         }
         StartCheck.Result startCheck = StartCheck.evaluate(declaredStart, robot.drive.fixCount(),
                 robot.drive.meanFixX(), robot.drive.meanFixY());
-        setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
+        // An Auto may know the alliance from which of its starts the camera puts the robot on;
+        // otherwise the start check can only confirm the start already declared.
+        Alliance byStart = allianceFromStarts();
+        if (byStart != Alliance.UNKNOWN) {
+            setup.offerVision(byStart, "the camera puts the robot on the " + byStart + " start");
+        } else {
+            setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
+        }
         beginPage();
         // With no handoff and a declared start, the start line says where the robot is; the
         // "no handoff" note would only contradict it.
@@ -425,6 +432,15 @@ public abstract class RobotOpMode extends OpMode {
         robot.indicator.show(IndicatorSubsystem.choose(init, batteryNote != null, cameraFault,
                 robot.vision.freshResultCount() == 0, indicatorBusy(), robot.drive.poseReferenced(),
                 setup.alliance()));
+    }
+
+    /**
+     * The alliance whose start the camera puts the robot on, for an OpMode with a start per
+     * alliance ({@code BuiltAuto}); {@code UNKNOWN} otherwise, and whenever it cannot tell. Read
+     * every INIT loop, before the start check's own confirmation. Manual X/B still wins.
+     */
+    protected Alliance allianceFromStarts() {
+        return Alliance.UNKNOWN;
     }
 
     /** A routine is driving the robot (a FLOWER pick, a GARDEN gather): the light says so. */

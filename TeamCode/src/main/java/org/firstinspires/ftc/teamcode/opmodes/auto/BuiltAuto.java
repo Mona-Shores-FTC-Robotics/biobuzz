@@ -7,6 +7,7 @@ import com.pedropathing.paths.Path;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.localization.StartMatch;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
@@ -45,9 +46,11 @@ import java.util.function.Function;
  * <p>It declares its start ({@link #startPosition()}) so the start check runs during INIT and the
  * camera can confirm the alliance without a button press. Until an alliance is known the declared
  * start is the drawing's own; once one is chosen that differs from {@code DRAWN_FOR}, the declared
- * start becomes the rotated one, and {@link RobotOpMode} moves the pose there. A robot placed on
- * the other alliance's start therefore reads as out of position until Square (X) or Circle (B) says
- * which side it is on; the camera then confirms that placement too.
+ * start becomes the rotated one, and {@link RobotOpMode} moves the pose there. The camera finds the
+ * alliance itself: during INIT it fits the robot's whole pose from the tags, heading included, and
+ * if that sits on one of the two starts for {@link StartMatch#FRAMES_TO_AGREE} frames, that start's
+ * alliance is proposed ({@link #allianceFromStarts}). Square (X) or Circle (B) still wins; with no
+ * match there is no alliance, and the Auto does not move.
  *
  * <p>While mechanisms are still missing, the names {@link AutoRegistration#PLACEHOLDERS} lists are
  * placeholders (a command that finishes at once, a trigger that never fires), and INIT says so on
@@ -101,6 +104,8 @@ public abstract class BuiltAuto extends RobotOpMode {
     private PathEndSettle settle;
     /** The start last written as the log's target, so INIT writes it only when it changes. */
     private StartPosition targetWritten;
+    private final StartMatch startMatch = new StartMatch();
+    private long startMatchNs;
 
     protected BuiltAuto(String source, String[] commands, String[] triggers, String drawnFor,
                         Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build) {
@@ -141,6 +146,7 @@ public abstract class BuiltAuto extends RobotOpMode {
             }
         }
         robot.drive.preparePathFollowing();
+        robot.drive.setWholePoseFits(true);
         pathLog = new AutoPathLog(log);
         // Which drawing this was, and which of its waits were running on placeholders.
         log.metadata("AutoSource", source);
@@ -163,8 +169,25 @@ public abstract class BuiltAuto extends RobotOpMode {
         }
     }
 
+    /** Which of the two starts the camera's whole-pose fits sit on; see the class comment. */
+    @Override
+    protected Alliance allianceFromStarts() {
+        long ns = robot.drive.wholeCameraPoseNs();
+        if (ns != startMatchNs && robot.drive.wholeCameraPose() != null) {
+            startMatchNs = ns;
+            Alliance before = startMatch.settled();
+            Alliance now = startMatch.update(robot.drive.wholeCameraPose(), drawnStart, rotatedStart);
+            if (now != before) {
+                log.event(now == Alliance.UNKNOWN ? "Start: the camera no longer puts the robot on either start"
+                        : "Start: the camera puts the robot on the " + now + " start");
+            }
+        }
+        return startMatch.settled();
+    }
+
     @Override
     protected void onStart() {
+        robot.drive.setWholePoseFits(false);
         Alliance alliance = setup.alliance();
         if (alliance == Alliance.UNKNOWN) {
             problem = "No alliance chosen before PLAY (Square (X) = blue, Circle (B) = red during INIT). Not moving.";
