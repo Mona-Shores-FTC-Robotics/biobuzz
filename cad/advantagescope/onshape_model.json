@@ -1,0 +1,10 @@
+{
+  "about": "What from_onshape.py builds: the mentor's Robot assembly as Onshape shows it, minus the paths that match 'drop' (regular expressions on 'Top <1> / Sub <1> / Part <1>'). Hidden and suppressed instances are already left out.",
+  "document": "6aee2084acf0d33d0b7e77d4",
+  "workspace": "777d098653c58b068826ce4f",
+  "element": "d984251a78d66e40e63ef1c8",
+  "triangle_budget": 600000,
+  "drop": [
+    "(?i)(^|/ )(blue |red )?(nectar|pollen|am-5851 pollen) <\\d+>$"
+  ]
+}

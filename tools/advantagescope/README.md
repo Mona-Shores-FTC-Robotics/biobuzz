@@ -38,9 +38,8 @@ Add a Table tab with `/Events` for the Auto's card-by-card lines, and the Joysti
 
 ## The model
 
-`cad/advantagescope/Robot_BIOBUZZ/` is the whole robot from the team's Onshape CAD, with eight
-articulated components (extractor, roller, turret, feeder, flywheels, pad). A match log moves
-none of them yet: it writes no `/Internals/Components`, so they draw at rest. Its origin is on
-the floor under the chassis frame's centre; if the robot sits off its logged pose by a fixed
-offset, that is the point to check against what Pedro tracks (`cad/advantagescope/README.md`,
-"Frame"). Rebuilding the model needs the CAD tooling that lives on the simulator branch.
+`cad/advantagescope/Robot_BIOBUZZ/` is the robot as the Onshape CAD shows it, built by
+`cad/advantagescope/from_onshape.py` straight from the mentor's Robot assembly. It has no moving
+components yet; the turret and the flower stick come next (`cad/advantagescope/README.md`). Its
+origin is on the floor under the middle of the four drive axles; if the robot sits off its logged
+pose by a fixed offset, that is the point to check against what Pedro tracks.
