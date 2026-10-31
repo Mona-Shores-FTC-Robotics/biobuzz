@@ -1,4 +1,6 @@
 {
+  "version": "2.0.0",
+  "timestamp": "2026-10-31T04:22:12.112Z",
   "startPoint": {
     "x": 54.06,
     "y": 7.72,
@@ -112,13 +114,18 @@
       "lineId": "to-park-1"
     }
   ],
-  "settings": {
-    "xVelocity": 75,
-    "yVelocity": 65,
+  "fieldPoints": [],
+  "robot": {
+    "forwardVelocity": 75,
+    "strafeVelocity": 65,
     "aVelocity": 3.141592653589793,
     "kFriction": 0.1,
-    "rWidth": 15.44,
-    "rHeight": 16,
+    "rLength": 15.44,
+    "rWidth": 16,
+    "safetyMargin": 1,
+    "maxVelocity": 50,
+    "maxAcceleration": 45,
+    "maxDeceleration": 45,
     "features": [
       {
         "name": "Front frame",
@@ -137,39 +144,12 @@
         "left": 0,
         "collides": true
       }
-    ],
-    "safetyMargin": 1,
-    "maxVelocity": 50,
-    "maxAcceleration": 45.0,
-    "maxDeceleration": 45.0,
-    "fieldMap": "biobuzz.webp",
-    "robotImage": "/robot.png",
-    "showGhostPaths": false,
-    "showOnionLayers": false,
-    "onionLayerSpacing": 3,
-    "onionColor": "#dc2626",
-    "onionNextPointOnly": false,
-    "showHeadingArrow": false,
-    "showCurrentTValue": false,
-    "leftPanelWidth": 262,
-    "rightPanelWidth": 714,
-    "headingArrowLength": 50,
-    "headingArrowColor": "#ffffff",
-    "headingArrowThickness": 2,
-    "pathOpacity": 1,
-    "leftPanelMinWidth": 0,
-    "rightPanelMinWidth": 0,
-    "penToolMaxPaths": 8,
-    "curveThroughMaxPoints": 4,
-    "experimentalFeatures": {
-      "optimize": false,
-      "curveThrough": false
-    }
+    ]
   },
+  "activePaths": [],
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "r-simple",
     "registry": {
       "actions": [
         "SpinUp",
@@ -180,9 +160,8 @@
       ],
       "typicalS": {
         "SpinUp": 0.1,
-        "LaunchAll": 2.0
-      },
-      "events": []
+        "LaunchAll": 2
+      }
     },
     "points": {
       "START": [
@@ -199,7 +178,6 @@
     "pathEnds": {
       "to-park-1": "PARK"
     },
-    "startAt": "START",
     "cards": [
       {
         "id": "a-1",
@@ -230,7 +208,8 @@
         "lineId": "to-park-1",
         "park": true
       }
-    ]
-  },
-  "version": "1.5.0"
+    ],
+    "startAt": "START",
+    "exportName": "r-simple"
+  }
 }
