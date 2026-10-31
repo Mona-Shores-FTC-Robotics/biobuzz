@@ -43,7 +43,7 @@ new zip and send it; older logs still play with it.
 | Tab | Shows |
 |---|---|
 | **Field** (2D) | `/Odometry/Robot`, the Auto's full path in grey (`/Path/Full`), the path being driven in yellow (`/Path/Active`) and its end as a ghost (`/Path/Target`). Turn on the trail in the tab's options to see where the robot went. |
-| **3D** | The same pose as **BIOBUZZ Robot** (the CAD) on the 3D field, `/Odometry/Robot3d`, with both HIVEs as the robot believed them (below). |
+| **3D** | The same pose as **BIOBUZZ Robot** (the CAD) on the 3D field, `/Odometry/Robot3d`, with both HIVEs as the robot believed them (below). A simulated log draws its own HIVEs under the same keys, and adds the game pieces (`/Sim/GamePieces/*`, those inside the robot under `Held/`), the partner in green and the opponents in blue. |
 | **Limelight** | The 3D field seen from the Limelight's lens, as mounted on the model (right-click → Orbit Field to leave). |
 | **Loop** | `/Robot/LoopMs` and the `/Loop/*` split on the left, battery volts on the right, with the robot mode shaded. |
 | **Launcher** | Target, left and right flywheel speed and the feeder's on the left; their currents on the right. |

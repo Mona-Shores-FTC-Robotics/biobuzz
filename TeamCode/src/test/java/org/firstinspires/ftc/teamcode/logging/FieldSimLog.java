@@ -22,13 +22,16 @@ final class FieldSimLog {
     static final String KEY_HELD_POLLEN = "/Sim/GamePieces/Held/Pollen";
     static final String KEY_HELD_RED_NECTAR = "/Sim/GamePieces/Held/RedNectar";
     static final String KEY_HELD_BLUE_NECTAR = "/Sim/GamePieces/Held/BlueNectar";
-    static final String KEY_HIVE = "/Sim/Hive/Structure";
-    static final String KEY_HIVE_COMPONENTS = "/Sim/Hive/Components";
+    /** The HIVE, under the match log's own keys, so the match layout draws a simulated log's HIVE too. */
+    static final String KEY_HIVE = HiveComponents.STRUCTURE_KEY;
+    static final String KEY_HIVE_COMPONENTS = HiveComponents.KEY;
+    /** Each HIVE's state as a {@code HiveState} ordinal, as the match log writes it. */
+    private static final String[] KEY_HIVE_STATE = {"/Hive/Red/State", "/Hive/Blue/State"};
     static final String KEY_SHOT = "/Sim/Shot/Trajectory";
 
     private final double[][] pieces = new double[6][];
     private double[] components;
-    private final String[] hiveState = new String[2];
+    private final int[] hiveState = {-1, -1};
     private final int[] tips = {-1, -1};
     private final int[] raisedCount = {-1, -1};
     private int held = -1;
@@ -70,9 +73,9 @@ final class FieldSimLog {
         for (int i = 0; i < 2; i++) {
             FieldSim.Rocker r = rockers[i];
             String prefix = "/Sim/Hive/" + names[i] + "/";
-            String state = r.state().name();
-            if (!state.equals(hiveState[i])) {
-                log.put(prefix + "State", state, us);
+            int state = r.state().ordinal();
+            if (state != hiveState[i]) {
+                log.put(KEY_HIVE_STATE[i], (double) state, us);
                 hiveState[i] = state;
             }
             if (r.tips != tips[i]) {

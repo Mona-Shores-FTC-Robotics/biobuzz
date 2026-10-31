@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
 import java.io.File;
+import java.nio.file.Files;
 
 /**
  * The simulator still runs master's Autos: one seed of R-Quals on the real robot, the way the
@@ -26,5 +28,11 @@ public class SimulatorSmokeTest {
         assertTrue(r.toString(), log.length() > 0);
         assertFalse(r.toString(), r.robots.isEmpty());
         assertTrue(r.toString(), r.robots.get(0).leave);
+
+        // The match layout's 3D tabs draw the HIVE from the match log's keys: the simulator writes the
+        // same ones, and R-Quals TIPs, so its rockers move.
+        WpiLogReader reader = new WpiLogReader(Files.readAllBytes(log.toPath()));
+        assertEquals(1, reader.entry(HiveComponents.STRUCTURE_KEY).records.size());
+        assertTrue("the HIVE never moved", reader.entry(HiveComponents.KEY).records.size() > 1);
     }
 }
