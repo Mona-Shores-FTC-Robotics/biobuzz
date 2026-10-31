@@ -39,6 +39,7 @@ new zip and send it; older logs still play with it.
 |---|---|
 | **Field** (2D) | `/Odometry/Robot`, the Auto's full path in grey (`/Path/Full`), the path being driven in yellow (`/Path/Active`) and its end as a ghost (`/Path/Target`). Turn on the trail in the tab's options to see where the robot went. |
 | **3D** | The same pose as **BIOBUZZ Robot** (the CAD) on the 3D field, `/Odometry/Robot3d`. |
+| **Simulation** | For a **simulated** log (Save & Simulate's Download WPILOG): the robot, the HIVE tipping (`/Sim/Hive/Structure` and `/Sim/Hive/Components` on **BIOBUZZ HIVE**), the POLLEN and NECTAR on the field and held (`/Sim/GamePieces/*`), and any partner or opponents as ghosts, on the field without its HIVE ("2026-2027 Field (HIVE sim)"). Empty for a real match log: the robot cannot see the pieces or log the HIVE's pose. Needs the two HIVE models in AdvantageScope's `userAssets` (`Field3d_BIOBUZZHiveSim`, `Robot_BIOBUZZHive`), which `setup-advantagescope.ps1` does not install yet: the simulator's older setup did. |
 | **Limelight** | The 3D field seen from the Limelight's lens, as mounted on the model (right-click → Orbit Field to leave). |
 | **Loop** | `/Robot/LoopMs` and the `/Loop/*` split on the left, battery volts on the right, with the robot mode shaded. |
 | **Launcher** | Target, left and right flywheel speed and the feeder's on the left; their currents on the right. |
