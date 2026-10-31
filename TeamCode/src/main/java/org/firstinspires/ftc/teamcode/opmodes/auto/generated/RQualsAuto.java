@@ -20,7 +20,7 @@ public final class RQualsAuto {
     public static final String SOURCE = "r-quals.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "10-31|2:09AM";
+    public static final String SAVED = "10-31|11:21AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
@@ -33,7 +33,7 @@ public final class RQualsAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(54.06, 7.72, 90);
+        return poses(rotated).of(55.6, 7.7, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -45,7 +45,7 @@ public final class RQualsAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(54.06, 7.72, 90);
+        Pose start = p.of(55.6, 7.7, 90);
         Pose sCatch = p.of(57.5, 18, 90);
         Pose sFire = p.of(55, 24, 270);
         Pose nFire = p.of(57.5, 119, 270);

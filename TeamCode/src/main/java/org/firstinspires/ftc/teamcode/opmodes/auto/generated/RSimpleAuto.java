@@ -19,7 +19,7 @@ public final class RSimpleAuto {
     public static final String SOURCE = "r-simple.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "10-31|12:22AM";
+    public static final String SAVED = "10-31|11:21AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
@@ -32,7 +32,7 @@ public final class RSimpleAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(54.06, 7.72, 90);
+        return poses(rotated).of(55.6, 7.7, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -44,7 +44,7 @@ public final class RSimpleAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(54.06, 7.72, 90);
+        Pose start = p.of(55.6, 7.7, 90);
         Pose park = p.of(14, 95, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).

@@ -45,9 +45,10 @@ use, so nobody types or places them again. They work like PathPlanner's linked w
 - **Starts are team spots named `START_…`.** The builder's start buttons are the team's
   `START_` spots (`START_RIGHT` → *Right start*); make one to add a start. A start measured on the
   field is also in `localization/StartPositions` (`TEAM_SPOTS` names its spot), and
-  `TeamSpotsTest` fails while the two differ: measure, then change both. `START_LEFT` is where the
-  left-side Autos were drawn to start, not measured yet, so the robot treats it as "start (as
-  drawn)".
+  `TeamSpotsTest` fails while the two differ: measure, then change both. Both `START_RIGHT` and
+  `START_LEFT` are measured (31 Oct 2026): back flat on the wall, the frame's left side on a seam's
+  teeth. To move a start, press *Unlock … start to move it* under the start buttons, then set it in
+  the START panel.
 - Poses are drawn for RED, in Pedro's frame (inches, degrees), like everything in an Auto; the
   robot turns them for BLUE.
 
