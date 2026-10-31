@@ -945,10 +945,11 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   `{"spec": "RQualsAuto", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}`; a
   partner runs beside it as `"RQualsAuto,LSimpleAuto@50"` (the number is its speed, in/s). The
   folder gets `result.json` and one `.wpilog` per seed.
-- **From the Visualizer**, Save & Simulate commits the `.pp`, its Java and
-  `TeamCode/sim-request.json`; the "Simulate Auto" workflow runs it (about 1.5 min) and publishes
-  the result and the best and typical logs to the `sim-results` branch, where the Visualizer
-  reads them back.
+- **From the Visualizer**, Save & Simulate to `master` commits the `.pp`, its Java and the Auto's
+  own `TeamCode/sim-requests/<name>.json` to an `auto/<name>` branch and opens a pull request that
+  merges itself once CI passes (the fast lane, `.github/CONTRIBUTING.md`). The "Simulate Auto"
+  workflow runs the request on that branch (about 1.5 min) and publishes the result and the best
+  and typical logs to the `sim-results` branch, where the Visualizer reads them back.
 - **Its points are shown, never enforced.** No test fails an Auto for scoring less: when time is
   short, a check like that could keep a needed fix off the robot (31 Oct 2026). Only
   `SimulatorSmokeTest` (one seed of R-Quals, about a second) runs with the unit tests; the other

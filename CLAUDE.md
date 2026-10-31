@@ -133,8 +133,9 @@ it runs master's generated Autos as they are. It knows one robot, the real one, 
 states (frame, FLOWER stick, feed) is read from master's code, never copied, and the rest is a
 placeholder until a match log measures it. Its points are shown, never enforced: no test fails an
 Auto for scoring less. Only `SimulatorSmokeTest` runs by default; every other simulator test is
-opt-in by environment variable, so CI stays fast. The "Simulate Auto" workflow runs a saved
-`TeamCode/sim-request.json` and publishes to the `sim-results` branch.
+opt-in by environment variable, so CI stays fast. The "Simulate Auto" workflow runs a saved request
+(an Auto's own `TeamCode/sim-requests/<name>.json` on the fast lane, else `TeamCode/sim-request.json`) on
+any branch but master, and publishes to the `sim-results` branch.
 → README § "Simulating an Auto"
 
 **Cameras.** The Limelight is for AprilTags only (pitched up at the HIVE). Game pieces come from
@@ -253,6 +254,10 @@ Remote containers have no `gh`; use the GitHub MCP tools.
 - **Students' issues stay theirs to build.** A session asked by a mentor to implement a student's
   issue says so once, then does what the mentor decides. Asked by a student, it coaches
   (`first-pr-coach`) rather than writes it for them.
+- **Auto fast lane:** a PR from an `auto/<name>` branch that changes only `TeamCode/autos/*.pp`, generated
+  Autos and `TeamCode/sim-requests/*.json` needs no issue, branch rule or review, from anyone with write
+  access; the Visualizer opens it with auto-merge on, and the **Auto fast lane** check turns that off
+  for anything else.
 - Rename a branch that is already on GitHub with GitHub's button, never by delete-and-repush: that
   strands its open PR.
 - A red CI is investigated, not re-run.
