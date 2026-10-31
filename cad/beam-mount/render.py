@@ -1,6 +1,6 @@
 """Draws parts.png: the mount alone, the mount with a sensor on a goBILDA wall, and its footprint on the hole pattern.
 
-    pip install cadquery trimesh matplotlib
+    pip install cadquery trimesh manifold3d matplotlib
     python3 cad/beam-mount/parts.py && python3 cad/beam-mount/render.py      # draws the STL parts.py wrote
 """
 import os

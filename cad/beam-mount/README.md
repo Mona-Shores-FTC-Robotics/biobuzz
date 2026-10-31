@@ -12,7 +12,7 @@ and one for the receiver, facing each other across the lane.
 | `beam_mount.stl` | 30 x 31 x 12 mm, flat on the bed, no supports | 2 per beam |
 | `beam_mount.step` | The same part as a solid: import this into Onshape, not the STL | |
 | `parts.py` | Makes both. Every size is a constant at the top | `pip install cadquery` |
-| `render.py` | Draws the picture above from the STL | `+ trimesh matplotlib` |
+| `render.py` | Draws the picture above from the STL | `+ trimesh manifold3d matplotlib` |
 
 ## The sensor (not yet measured with calipers)
 

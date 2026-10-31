@@ -47,6 +47,8 @@ def get(path):
                 time.sleep(2 ** attempt + 1)
                 continue
             raise
+        except (urllib.error.URLError, TimeoutError):   # a dropped connection or a timeout: try again
+            time.sleep(2 ** attempt + 1)
     raise RuntimeError(f"Onshape kept refusing {path}")
 
 
@@ -95,13 +97,16 @@ LINK_DOC = None             # the robot's document: library parts are read throu
 
 def tessellation(key):
     """The part's triangles (n, 3, 3) in its own frame (metres) and its colour, from the cache or the API.
-    A part the keys can't read comes back empty, with a warning, rather than stopping the build."""
+    A part the keys can't read comes back as None, so main() can stop before writing anything."""
     did, (t, v), eid, pid, cfg = key
     os.makedirs(CACHE, exist_ok=True)
     f = os.path.join(CACHE, hashlib.sha1(repr(key).encode()).hexdigest() + ".npz")
     if os.path.exists(f):
-        z = np.load(f)
-        return z["tris"], tuple(z["rgb"])
+        try:
+            z = np.load(f)
+            return z["tris"], tuple(z["rgb"])
+        except Exception:                        # a damaged cache entry: fetch the part again
+            os.remove(f)
     q = {"partId": pid, "outputFaceAppearances": "false", "outputVertexNormals": "false",
          "outputFacetNormals": "false", "chordTolerance": "0.001", "angleTolerance": "0.35"}
     if cfg:
@@ -111,8 +116,8 @@ def tessellation(key):
     try:
         d = get(f"/partstudios/d/{did}/{t}/{v}/e/{eid}/tessellatedfaces?" + urllib.parse.urlencode(q))
     except urllib.error.HTTPError as e:
-        print(f"  warning: part {pid} in document {did} not readable ({e.code}); left out", file=sys.stderr)
-        return np.zeros((0, 3, 3), np.float32), (0.7, 0.72, 0.76)
+        print(f"  part {pid} in document {did} not readable ({e.code})", file=sys.stderr)
+        return None, None
     tris, rgb = [], (0.7, 0.72, 0.76)
     for b in d.get("bodies") or []:
         c = (b.get("appearance") or {}).get("color")
@@ -122,7 +127,10 @@ def tessellation(key):
             for fc in face["facets"]:
                 tris.append([[p["x"], p["y"], p["z"]] for p in fc["vertices"]])
     tris = np.array(tris, np.float32).reshape(-1, 3, 3)
-    np.savez_compressed(f, tris=tris, rgb=np.array(rgb))
+    tmp = f + ".part"                            # written whole, then renamed: a cut-off write never looks cached
+    with open(tmp, "wb") as fh:
+        np.savez_compressed(fh, tris=tris, rgb=np.array(rgb))
+    os.replace(tmp, f)
     return tris, rgb
 
 
@@ -169,7 +177,7 @@ def main():
     LINK_DOC = D
     meta = get(f"/documents/{D}")
     mv = get(f"/documents/d/{D}/w/{W}/currentmicroversion")["microversion"]
-    asm = get(f"/assemblies/d/{D}/w/{W}/e/{E}?includeMateFeatures=false&includeNonSolids=false")
+    asm = get(f"/assemblies/d/{D}/m/{mv}/e/{E}?includeMateFeatures=false&includeNonSolids=false")   # the version recorded
     parts, dropped = visible_parts(asm, rules["drop"])
 
     # What changed in the CAD since the last build, by top-level instance
@@ -192,6 +200,9 @@ def main():
     keys = sorted({part_key(inst) for _, inst, _ in parts})
     with ThreadPoolExecutor(6) as ex:
         meshes = dict(zip(keys, ex.map(tessellation, keys)))
+    unreadable = sorted(p for p, inst, _ in parts if meshes[part_key(inst)][0] is None)
+    if unreadable:
+        sys.exit(f"{len(unreadable)} visible part(s) could not be read; nothing written:\n  " + "\n  ".join(unreadable))
     to_robot = robot_frame(parts, meshes)
 
     total = sum(len(meshes[part_key(i)][0]) for _, i, _ in parts)
@@ -216,7 +227,9 @@ def main():
     cfg = json.load(open(cfg_path)) if os.path.exists(cfg_path) else {}
     cfg.update({"name": "BIOBUZZ Robot", "isFTC": True, "disableSimplification": True, "rotations": [],
                 "position": [0, 0, 0], "components": []})
-    json.dump(cfg, open(cfg_path, "w"), indent=2)
+    with open(cfg_path + ".tmp", "w") as fh:
+        json.dump(cfg, fh, indent=2)
+    os.replace(cfg_path + ".tmp", cfg_path)
 
     faces = sum(len(g.faces) for g in scene.geometry.values())
     lo, hi = scene.bounds
