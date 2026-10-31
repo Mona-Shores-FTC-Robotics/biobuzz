@@ -63,6 +63,16 @@
                  port 0; its colour is the servo position. -->
             <Servo name="indicator" port="0" />
 
+            <!-- Transfer: the prefeed wheel (a goBILDA Torque servo in
+                 continuous mode) on servo port 1, and the feed gate (a
+                 goBILDA Speed servo, positional) on servo port 2. On this hub
+                 so that losing the Expansion Hub does not also take these
+                 servos. PROPOSED PORTS, 31 Oct 2026: not yet confirmed with
+                 the build team. Wire to these or edit these to match the
+                 robot. -->
+            <ContinuousRotationServo name="prefeed" port="1" />
+            <Servo name="feedGate" port="2" />
+
         </LynxModule>
 
         <!-- Expansion Hub: the intake, then the launcher. -->
@@ -94,15 +104,6 @@
                  extractor's first edition (#177). Plug it into this hub's
                  servo port 1. Build team's choice, 26 Oct 2026. -->
             <Servo name="flowerStick" port="1" />
-
-            <!-- Transfer: the prefeed wheel (a goBILDA Torque servo in
-                 continuous mode) on this hub's servo port 2, and the feed
-                 gate (a goBILDA Speed servo, positional) on servo port 3,
-                 beside the gate. PROPOSED PORTS, 31 Oct 2026: not yet
-                 confirmed with the build team. Wire to these or edit these to
-                 match the robot. -->
-            <ContinuousRotationServo name="prefeed" port="2" />
-            <Servo name="feedGate" port="3" />
         </LynxModule>
     </LynxUsbDevice>
 

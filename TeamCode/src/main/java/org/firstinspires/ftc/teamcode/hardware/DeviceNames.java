@@ -89,13 +89,13 @@ public final class DeviceNames {
 
     /**
      * The prefeed wheel: the big grey wheel at the start of the transfer, on a goBILDA Torque servo
-     * in continuous-rotation mode. It shares the servo ports; the port itself is in each robot's XML.
+     * in continuous-rotation mode. Control Hub servo port 1; the port itself is in each robot's XML.
      */
     public static final String PREFEED = "prefeed";
 
     /**
      * The feed gate: a goBILDA Speed servo (positional) turning a plate between BLOCKING and
-     * FEEDING. Shares the servo ports; the port itself is in each robot's XML.
+     * FEEDING. Control Hub servo port 2; the port itself is in each robot's XML.
      */
     public static final String FEED_GATE = "feedGate";
 
