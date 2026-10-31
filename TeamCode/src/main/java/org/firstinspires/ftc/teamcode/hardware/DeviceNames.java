@@ -95,7 +95,7 @@ public final class DeviceNames {
 
     /**
      * The feed gate: a goBILDA Speed servo (positional) turning a plate between BLOCKING and
-     * FEEDING. Expansion Hub servo port; the port itself is in each robot's XML.
+     * FEEDING. Shares the servo ports; the port itself is in each robot's XML.
      */
     public static final String FEED_GATE = "feedGate";
 
