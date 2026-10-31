@@ -59,18 +59,13 @@ public final class Robot19429 {
     });
 
     /**
-     * <b>TEMPORARY — BORROWED FROM 20245, NOT MEASURED ON 19429. DO NOT MERGE TO MASTER.</b>
-     *
-     * <p>A mentor asked for 20245's Foresight values on this robot so an Auto can be test-driven
-     * while 19429 is still being built. The two robots have the same hardware, but 19429's mass,
-     * wheels and battery are its own, so path following will be less accurate (overshoot, late
-     * braking). Test at low speed in a clear area.
-     *
-     * <p>To finish: run the Foresight Tuner on 19429 and paste its block over this whole field
-     * (replacing the line below), then remove 19429 from the borrowed note in
-     * {@code ConstantsTest.FORESIGHT_TUNED}.
+     * Foresight Tuner output. <b>Not tuned yet — intentionally empty.</b> Its twelve required
+     * values have no defaults and must not be guessed; {@code Constants.createAlgorithm()} refuses
+     * to build a Foresight until they are pasted in.
      */
-    public static ForesightConfig foresightConfig = Robot20245.foresightConfig;
+    public static ForesightConfig foresightConfig = new ForesightConfig(c -> {
+        // Paste the Foresight Tuner's output (run on 19429) over this whole field.
+    });
 
     /** Registered in {@code Constants.ROBOTS}. Nothing to change here when pasting. */
     public static RobotConstants constants() {
