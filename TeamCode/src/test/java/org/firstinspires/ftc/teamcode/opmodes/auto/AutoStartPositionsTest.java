@@ -7,6 +7,7 @@ import com.pedropathing.math.Pose;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RLaunchParkAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RQualsAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RQualsLockedAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RQualsPollenOnlyAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSimpleAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.SisterRightFixedAuto;
@@ -47,6 +48,11 @@ public class AutoStartPositionsTest {
     @Test
     public void rQualsPollenOnlyStartsAtTheRedAudienceStart() {
         assertStartsAt(StartPositions.RED_AUDIENCE.pose, RQualsPollenOnlyAuto.startPose(false));
+    }
+
+    @Test
+    public void rQualsLockedStartsAtTheRedAudienceStart() {
+        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RQualsLockedAuto.startPose(false));
     }
 
     private static void assertStartsAt(Pose measured, Pose drawn) {
