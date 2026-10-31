@@ -61,7 +61,8 @@ public final class HiveSubsystem implements Subsystem {
     private Pose step(HiveTracker hive, Alliance alliance, Pose seenFrom, Pose pose, long nowMs) {
         double lostForMs = vision.msSinceHiveSeen(alliance);
         if (lostForMs < HiveTracker.Tuning.lostAfterMs) seenFrom = pose;
-        hive.observe(vision.seenHive(alliance), lostForMs, stillLooking(seenFrom, pose), nowMs);
+        hive.observe(vision.seenHive(alliance), vision.hiveTagsInView(alliance), lostForMs,
+                stillLooking(seenFrom, pose), nowMs);
         return seenFrom;
     }
 

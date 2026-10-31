@@ -16,10 +16,11 @@ import org.firstinspires.ftc.teamcode.launcher2.config.Launcher2Config;
  * The two-wheel pinch launcher on the FTC-EoM3 bench rig, and the speed
  * control around it.
  *
- * <p>A standalone copy of the three-wheel rig's {@code FlywheelBank}, cut down
- * to one motor. It is a copy rather than a generalisation on purpose: the
- * three-wheel rig was tuned on the robot on 26 Sep 2026, and a spike should not
- * be able to break it. Control law unchanged:
+ * <p>A standalone copy of the DECODE robot's three-wheel flywheel rig, cut down
+ * to one motor. It was a copy rather than a generalisation on purpose: the
+ * three-wheel rig was tuned on that robot on 26 Sep 2026, and a spike should not
+ * have been able to break it. That robot and its rig are gone (Oct 2026); this
+ * is the only flywheel code left. Control law unchanged:
  *
  * <pre>power = (kS + kV * targetRpm) + kP * (targetRpm - measuredRpm)</pre>
  *

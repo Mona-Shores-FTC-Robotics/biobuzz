@@ -46,8 +46,8 @@ public final class CellSighting {
 
     private final HiveCell cell;
     private final List<Integer> tagIds;
+    private final List<Member> members;
     private final Vec3 rowCentreRobot;
-    private final Vec3 lateralAxisRobot;
     private final boolean lateralCorrectionApplied;
     private final double totalAreaPercent;
     private final long captureTimeNs;
@@ -55,15 +55,15 @@ public final class CellSighting {
     private CellSighting(
             HiveCell cell,
             List<Integer> tagIds,
+            List<Member> members,
             Vec3 rowCentreRobot,
-            Vec3 lateralAxisRobot,
             boolean lateralCorrectionApplied,
             double totalAreaPercent,
             long captureTimeNs) {
         this.cell = cell;
         this.tagIds = Collections.unmodifiableList(tagIds);
+        this.members = Collections.unmodifiableList(members);
         this.rowCentreRobot = rowCentreRobot;
-        this.lateralAxisRobot = lateralAxisRobot;
         this.lateralCorrectionApplied = lateralCorrectionApplied;
         this.totalAreaPercent = totalAreaPercent;
         this.captureTimeNs = captureTimeNs;
@@ -121,16 +121,16 @@ public final class CellSighting {
         // Use the widest-separated pair so the estimate is least sensitive to noise.
         Vec3 rowCentre = centroid;
         boolean corrected = false;
-        Vec3 lateralAxis = null;
         if (count >= 2) {
-            lateralAxis = lateralAxisRobot(members);
+            Vec3 lateralAxis = lateralAxisRobot(members);
             if (lateralAxis != null) {
                 rowCentre = centroid.minus(lateralAxis.times(meanClusterX));
                 corrected = true;
             }
         }
 
-        return new CellSighting(cell, ids, rowCentre, lateralAxis, corrected, areaSum, captureTimeNs);
+        return new CellSighting(cell, ids, new ArrayList<>(members), rowCentre, corrected, areaSum,
+                captureTimeNs);
     }
 
     /**
@@ -162,19 +162,17 @@ public final class CellSighting {
 
     public int tagCount() { return tagIds.size(); }
 
+    /**
+     * Each visible tag with where the robot sees it, in the order supplied. With the tags' field
+     * positions ({@code HiveFieldPoints.tagPosition}) this is what {@code CellFix.fit} localizes from.
+     */
+    public List<Member> members() { return members; }
+
     /** Centre of the four-tag row, robot frame, inches. See the class docs. */
     public Vec3 rowCentreRobot() { return rowCentreRobot; }
 
     /** False when only one tag was visible, so the row centre may be off along the row. */
     public boolean lateralCorrectionApplied() { return lateralCorrectionApplied; }
-
-    /**
-     * Robot-frame direction of the row's cluster +x axis (the four tags run along it, from tag 0
-     * to tag 3), one unit per inch of cluster x; null with fewer than two tags. The row lies along
-     * the HIVE's axle, which a TIP turns about, so its direction on the field never changes: it is
-     * how a sighting gives the robot's heading ({@code CellFix.pose}).
-     */
-    public Vec3 lateralAxisRobot() { return lateralAxisRobot; }
 
     /** Horizontal distance to the measured point, inches. */
     public double groundRangeIn() { return rowCentreRobot.normXY(); }

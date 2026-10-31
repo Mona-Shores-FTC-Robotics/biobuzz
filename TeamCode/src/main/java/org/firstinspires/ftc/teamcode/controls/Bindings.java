@@ -15,10 +15,9 @@ import java.util.function.BooleanSupplier;
  * driver.note("Left stick", "Drive");
  * driver.when("Y", "Reset heading", () -> gamepad1.y).onPress(robot.drive::resetHeading);
  * operator.when("A", "Fire (hold)", () -> gamepad2.a).whileHeld(robot.launcher.fire());
+ * driver.when("RT", "Intake (hold)", () -> gamepad1.right_trigger > 0.5)
+ *         .onPress(robot.intake::intake).onRelease(robot.intake::idle);
  * }</pre>
- *
- * <p>Start is reserved for pairing a gamepad on the Driver Station: a press made while it is held
- * fires nothing ({@link PairingGuard}), and Start itself is never bound.
  *
  * <p>Bind in {@code onInit()}. {@code RobotOpMode} polls every binding once per loop after PLAY —
  * never during INIT, when the robot is not allowed to move.
@@ -29,27 +28,16 @@ import java.util.function.BooleanSupplier;
 public final class Bindings {
 
     private final String title;
-    private final PairingGuard pairing;
     private final List<Trigger> triggers = new ArrayList<>();
     private final List<String> labels = new ArrayList<>();
 
-    /** Bindings with no pairing guard: for tests and rigs. */
     public Bindings(String title) {
-        this(title, () -> false);
-    }
-
-    /**
-     * {@code start}: whether this gamepad's Start is held. A press made while it is held, pairing
-     * the gamepad (Start + A, Start + B), fires nothing ({@link PairingGuard}). Never bind Start.
-     */
-    public Bindings(String title, BooleanSupplier start) {
         this.title = title;
-        this.pairing = new PairingGuard(start);
     }
 
     /** Bind {@code condition}, shown on the Controls page as "{@code input} — {@code action}". */
     public Trigger when(String input, String action, BooleanSupplier condition) {
-        Trigger trigger = new Trigger(pairing.guard(condition));
+        Trigger trigger = new Trigger(condition);
         triggers.add(trigger);
         labels.add(input + " — " + action);
         return trigger;
@@ -67,6 +55,18 @@ public final class Bindings {
     public void update() {
         for (int i = 0; i < triggers.size(); i++) {
             triggers.get(i).poll();
+        }
+    }
+
+    /**
+     * Polls only the triggers marked {@link Trigger#duringInit()}. Called every INIT loop by
+     * {@code RobotOpMode}, where everything else stays unarmed so a button held through PLAY is
+     * not a press and nothing drives before the match.
+     */
+    public void updateDuringInit() {
+        for (int i = 0; i < triggers.size(); i++) {
+            Trigger trigger = triggers.get(i);
+            if (trigger.duringInit) trigger.poll();
         }
     }
 
@@ -96,9 +96,20 @@ public final class Bindings {
         private final List<Runnable> onRise = new ArrayList<>();
         private final List<Runnable> onFall = new ArrayList<>();
         private final List<Command> held = new ArrayList<>();
+        private boolean duringInit;
 
         Trigger(BooleanSupplier condition) {
             this.condition = condition;
+        }
+
+        /**
+         * Also live during INIT, before PLAY. For setting state with nothing moving: zeroing the
+         * turret at its home mark, say. Never for anything that drives a mechanism. The Controls
+         * page labels it "(also in INIT)".
+         */
+        public Trigger duringInit() {
+            duringInit = true;
+            return this;
         }
 
         /**
@@ -108,6 +119,15 @@ public final class Bindings {
          */
         public Trigger onPress(Runnable action) {
             onRise.add(action);
+            return this;
+        }
+
+        /**
+         * Run {@code action} once when released. With {@link #onPress}, this is how a hold-to-run
+         * mechanism is bound without a command ({@code onPress(intake::intake).onRelease(intake::idle)}).
+         */
+        public Trigger onRelease(Runnable action) {
+            onFall.add(action);
             return this;
         }
 

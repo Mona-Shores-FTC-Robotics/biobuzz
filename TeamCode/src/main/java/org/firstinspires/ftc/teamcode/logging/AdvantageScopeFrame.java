@@ -33,8 +33,9 @@ import org.firstinspires.ftc.teamcode.util.FieldFrame;
  * describes this badly, but its arithmetic is correct.
  *
  * <p><b>Field centre: 70.75 in.</b> The current Visualizer (format 1.5.0) draws a 141.5 in field
- * ({@code FIELD_SIZE} in {@code src/config/defaults.ts}), and its Pedro 3 code export mirrors
- * alliances about {@code FIELD_SIZE / 2} ({@code PoseFactory.degrees().mirrorX(70.75)}). So 70.75 is
+ * ({@code FIELD_SIZE} in {@code src/config/defaults.ts}), and its Pedro 3 code export turns the
+ * other alliance's Auto half a turn about the point {@code (FIELD_SIZE / 2, FIELD_SIZE / 2)}
+ * ({@code PoseFactory.degrees().mirrorAroundPoint(70.75, 70.75)}). So 70.75 is
  * the centre Pedro 3 Autos are drawn around. AdvantageScope's BIOBUZZ asset is 143.182 in across;
  * the ~0.8 in difference in scale shows only at the walls and is below what the view resolves.
  *

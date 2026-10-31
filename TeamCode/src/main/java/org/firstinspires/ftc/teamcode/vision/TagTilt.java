@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.vision;
 
 /**
  * Which way a tag's face points, from the three angles the Limelight reports, for each way those
- * angles could be meant to combine. {@code Vision: Tag Tilt} shows all of them side by side so the
- * robot can tell us which one is real. Pure math.
+ * angles could be meant to combine. Which one the Limelight uses is not settled, and nothing
+ * depends on it: the CELL state comes from height. Vision: HIVE &amp; Pose uses
+ * {@link #rockerAngleFromHeightDeg} only. (The OpMode that compared the orders on the robot,
+ * {@code VisionTagTilt}, is in git history.) Pure math.
  *
  * <h2>What is known</h2>
  *

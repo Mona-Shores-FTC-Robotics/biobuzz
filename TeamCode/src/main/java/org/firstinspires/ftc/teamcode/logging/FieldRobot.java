@@ -28,7 +28,9 @@ import java.util.Locale;
  * writes these instructions into the log's Metadata tab.
  *
  * <p>Only simulations and offline tools log more than one robot. A robot logs itself, as
- * {@link #ROBOT}.
+ * {@link #ROBOT}: {@code RobotOpMode} writes its pose every loop, and a {@code BuiltAuto} writes
+ * its paths ({@code opmodes/auto/AutoPathLog}) when the Auto is built and as each path starts and
+ * ends.
  */
 public enum FieldRobot {
     /** Our robot. */
@@ -113,16 +115,10 @@ public enum FieldRobot {
             throw new IllegalArgumentException("pose array length must be a multiple of 3");
         }
         int count = pedroXyHeading.length / 3;
-        double[] flat = new double[3 * count];
+        double[] flat = toAdvantageScope(pedroXyHeading);
         double[] solid = new double[7 * count];
         for (int i = 0; i < count; i++) {
-            double xIn = pedroXyHeading[3 * i], yIn = pedroXyHeading[3 * i + 1];
-            double x = AdvantageScopeFrame.xMeters(xIn, yIn);
-            double y = AdvantageScopeFrame.yMeters(xIn, yIn);
-            double h = AdvantageScopeFrame.headingRad(pedroXyHeading[3 * i + 2]);
-            flat[3 * i] = x;
-            flat[3 * i + 1] = y;
-            flat[3 * i + 2] = h;
+            double x = flat[3 * i], y = flat[3 * i + 1], h = flat[3 * i + 2];
             // A turn about z only: the quaternion (cos h/2, 0, 0, sin h/2).
             solid[7 * i] = x;
             solid[7 * i + 1] = y;
@@ -134,6 +130,27 @@ public enum FieldRobot {
         }
         log.putPose2dArray(ALL_2D, flat, timestampUs);
         log.putPose3dArray(ALL_3D, solid, timestampUs);
+    }
+
+    /**
+     * Packed poses in Pedro's frame (inches, radians CCW) into the same packing in AdvantageScope's
+     * frame (meters, radians), the way {@link #putPose} converts one: what a {@code struct:Pose2d[]}
+     * value such as a path is written from.
+     *
+     * @param pedroXyHeading packed {@code x, y, heading} per pose
+     */
+    public static double[] toAdvantageScope(double[] pedroXyHeading) {
+        if (pedroXyHeading.length % 3 != 0) {
+            throw new IllegalArgumentException("pose array length must be a multiple of 3");
+        }
+        double[] out = new double[pedroXyHeading.length];
+        for (int i = 0; i < pedroXyHeading.length; i += 3) {
+            double xIn = pedroXyHeading[i], yIn = pedroXyHeading[i + 1];
+            out[i] = AdvantageScopeFrame.xMeters(xIn, yIn);
+            out[i + 1] = AdvantageScopeFrame.yMeters(xIn, yIn);
+            out[i + 2] = AdvantageScopeFrame.headingRad(pedroXyHeading[i + 2]);
+        }
+        return out;
     }
 
     /**

@@ -11,7 +11,9 @@ import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Pins how {@link Constants} picks a robot's Pedro values, and the untuned-Foresight guard.
@@ -144,9 +146,20 @@ public class ConstantsTest {
         }
     }
 
+    /**
+     * Robots whose Foresight Tuner block has been pasted in. A robot is added here in the PR that
+     * pastes its block, and from then on is held to {@link #createAlgorithmBuildsForEveryTunedRobot}
+     * instead of the guard test below.
+     */
+    private static final Set<RobotIdentity> FORESIGHT_TUNED = EnumSet.of(
+            RobotIdentity.TEAM_20245);  // 17 Oct 2026, issue #175
+
     @Test
     public void createAlgorithmRefusesToBuildAnUntunedForesight() {
         for (RobotIdentity identity : registeredRobots()) {
+            if (FORESIGHT_TUNED.contains(identity)) {
+                continue;
+            }
             RobotConstants robot = Constants.forRobot(identity);
             try {
                 Constants.createAlgorithm(identity);
@@ -176,6 +189,42 @@ public class ConstantsTest {
                     + "\n\nIf it has not, the guard in createAlgorithm() has stopped working and"
                     + " an untuned robot will now fail mid-path instead of at init.");
         }
+    }
+
+    /**
+     * A tuned robot builds its Foresight, and the tuner's measured speeds are physically possible.
+     * The bounds are loose on purpose: they catch a block pasted into the wrong field or with a
+     * lost sign, not a tuning that could be better.
+     */
+    @Test
+    public void createAlgorithmBuildsForEveryTunedRobot() {
+        for (RobotIdentity identity : FORESIGHT_TUNED) {
+            RobotConstants robot = Constants.forRobot(identity);
+            String where = identity + " (" + robot.fileName() + ")";
+            try {
+                Constants.createAlgorithm(identity);
+            } catch (IllegalStateException e) {
+                throw new AssertionError(where + " is listed as Foresight-tuned, but its"
+                        + " foresightConfig is not filled in: " + e.getMessage(), e);
+            }
+
+            double forward = robot.foresightConfig.maxAchievableForwardVelocity.get();
+            double strafe = robot.foresightConfig.maxAchievableStrafeVelocity.get();
+            assertInRange(where + " max forward velocity (in/s)", forward, 10, 150);
+            assertInRange(where + " max strafe velocity (in/s)", strafe, 10, 150);
+            assertTrue(where + ": a mecanum robot strafes slower than it drives, but strafe "
+                    + strafe + " >= forward " + forward + ". Were the two pasted swapped?",
+                    strafe < forward);
+            assertInRange(where + " natural forward deceleration (in/s²)",
+                    robot.foresightConfig.naturalForwardDeceleration.get(), 1, 500);
+            assertInRange(where + " natural strafe deceleration (in/s²)",
+                    robot.foresightConfig.naturalStrafeDeceleration.get(), 1, 500);
+        }
+    }
+
+    private static void assertInRange(String what, double value, double low, double high) {
+        assertTrue(what + " is " + value + ", outside " + low + " to " + high,
+                value >= low && value <= high);
     }
 
     private static List<RobotIdentity> registeredRobots() {

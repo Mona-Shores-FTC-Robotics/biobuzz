@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.vision;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -102,6 +103,8 @@ public class LimelightVisionSubsystem implements Subsystem {
     private long freshResultCount = 0L;
     private double lastPeriodicMs = 0.0;
     private LLResult lastResult;
+    /** The newest frame's capture plus targeting latency, ms; NaN before the first. */
+    private double lastLatencyMs = Double.NaN;
 
     public LimelightVisionSubsystem(HardwareMap hardwareMap) {
         this(hardwareMap, DeviceNames.LIMELIGHT);
@@ -219,6 +222,7 @@ public class LimelightVisionSubsystem implements Subsystem {
         if (resultTimestampNs == lastResultTimestampNs) return;
         lastResultTimestampNs = resultTimestampNs;
         freshResultCount++;
+        lastLatencyMs = result.getCaptureLatency() + result.getTargetingLatency();
 
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         if (fiducials == null || fiducials.isEmpty()) return;
@@ -323,6 +327,16 @@ public class LimelightVisionSubsystem implements Subsystem {
         if (Double.isNaN(CellStateTracker.Geometry.upRowHeightIn)
                 || Double.isNaN(CellStateTracker.Geometry.downRowHeightIn)) return false;
         return trackerFor(cell).candidateState() == HiveCellState.UNKNOWN;
+    }
+
+    /** How many of {@code alliance}'s HIVE tags are in the current (unexpired) sightings. */
+    public int hiveTagsInView(Alliance alliance) {
+        return tagsOf(HiveCell.leftCell(alliance)) + tagsOf(HiveCell.rightCell(alliance));
+    }
+
+    private int tagsOf(HiveCell cell) {
+        CellSighting sighting = cell == null ? null : sightings.get(cell);
+        return sighting == null ? 0 : sighting.tagCount();
     }
 
     /**
@@ -455,6 +469,35 @@ public class LimelightVisionSubsystem implements Subsystem {
 
     /** The last polled result. Diagnostics only — prefer the sighting accessors. */
     public LLResult lastResult() { return lastResult; }
+
+    /** The newest frame's latency inside the camera (capture plus targeting), ms; NaN before one. */
+    public double lastLatencyMs() { return lastLatencyMs; }
+
+    /**
+     * The Limelight's own report (temperature, CPU, frame rate) as one line, for the match log.
+     * It asks the camera over its network link and waits for the answer, so call it only outside
+     * the match loop: at INIT and at the end of a run.
+     */
+    public String statusLine() {
+        if (!available) return "unavailable: " + unavailableReason;
+        if (!limelight.isConnected()) return "not answering";
+        LLStatus status = limelight.getStatus();
+        if (status == null) return "no status";
+        return String.format(java.util.Locale.US, "%.0f °C, CPU %.0f %%, RAM %.0f %%, %.0f fps, pipeline %d",
+                status.getTemp(), status.getCpu(), status.getRam(), status.getFps(), status.getPipelineIndex());
+    }
+
+    /**
+     * For the match log at init. "Answering" is the SDK's 250 ms heartbeat, read right after
+     * {@link #initialize()}: a camera still booting can say no here and connect a moment later,
+     * so a "no" is a hint, and the Link line on the Driver Station is the live answer.
+     */
+    @Override
+    public String health() {
+        if (!available) return "Limelight not in the hardware map: " + unavailableReason;
+        return "Limelight configured (" + connectionInfo() + "); answering at init: "
+                + (isConnected() ? "yes" : "no");
+    }
 
     /** Stops streaming. Safe to call during OpMode teardown. */
     @Override

@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Pins the arithmetic {@code Vision: Tag Tilt} shows. It cannot say which {@link TagTilt.Order} the
+ * Pins {@link TagTilt}'s arithmetic. It cannot say which {@link TagTilt.Order} the
  * Limelight uses; only the robot can. It proves each candidate is computed as described.
  */
 public class TagTiltTest {

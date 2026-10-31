@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 
 import org.junit.Test;
 
@@ -21,7 +24,7 @@ public class AutoRegistrationTest {
 
     @Test
     public void theEditorsListMatchesWhatTheRobotRegisters() throws IOException {
-        String expected = AutoRegistration.forRobot(null, null).describe();
+        String expected = AutoRegistration.forRobot(null, null, null, null).describe();
         File file = new File(teamCode(), "auto-registry.json");
         if ("1".equals(System.getenv("UPDATE_AUTO_REGISTRY"))) {
             Files.write(file.toPath(), expected.getBytes(StandardCharsets.UTF_8));
@@ -29,6 +32,30 @@ public class AutoRegistrationTest {
         String actual = file.exists() ? new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8) : "(missing)";
         assertEquals("auto-registry.json is out of date: run this test with UPDATE_AUTO_REGISTRY=1 and commit it",
                 expected, actual);
+    }
+
+    /** The CELL triggers and the FLOWER pick are real now; only the intake's count is still missing (#181). */
+    @Test
+    public void onlyIntakeFullIsStillAPlaceholder() {
+        assertEquals(java.util.Collections.singletonList("IntakeFull"), AutoRegistration.PLACEHOLDERS);
+    }
+
+    /** No alliance chosen means no HIVE to ask: neither CELL is up. */
+    @Test
+    public void noHiveMeansNeitherCellIsUp() {
+        assertFalse(AutoRegistration.cellUp(null, true));
+        assertFalse(AutoRegistration.cellUp(null, false));
+    }
+
+    /**
+     * A HIVE the camera has not seen is UNSEEN, not the match-start RIGHT_CELL_UP: a wait on
+     * either trigger runs on rather than ending on a guess. (HiveTrackerTest covers each state.)
+     */
+    @Test
+    public void anUnseenHiveIsNeitherCellUp() {
+        HiveTracker unseen = new HiveTracker();
+        assertFalse(AutoRegistration.cellUp(unseen, true));
+        assertFalse(AutoRegistration.cellUp(unseen, false));
     }
 
     /** The TeamCode module: the working directory under Gradle, a child of it in an IDE. */

@@ -39,17 +39,10 @@ tools, which is why the read side of those is allow-listed above.
 | Hook | What it does |
 |---|---|
 | `session-start.sh` | Installs `gh` in remote containers, which ship without it. |
-| `name-branch-before-push.sh` | Blocks `git push` from a `claude/*` branch that isn't on GitHub yet, and tells the session to rename it `<prefix>/<issue>-<slug>` first. |
 
-Why the branch hook exists: sessions get `claude/<random-words>` branches before they have read the
-request, so the name can't describe the work, and renaming every PR by hand was a chore nobody
-remembered. Before the first push, renaming is free. After it, the branch may carry an open PR, so
-the hook steps aside and GitHub's rename button stays the way (see CONTRIBUTING.md).
-
-The hook runs before the whole Bash command, so `git branch -m … && git push` is still blocked;
-the rename has to be its own call. Pushes through the GitHub MCP tools (`push_files`,
-`create_branch`) are not checked. They take the branch name as an argument, so the name is
-chosen there.
+*History:* until 17 Oct 2026 a `name-branch-before-push.sh` hook blocked a session's first push of a
+`claude/*` branch until it renamed it `<prefix>/<issue>-<slug>`. It went with the issue-first rule for
+mentor work (CONTRIBUTING.md, "How we work"): a session's branch name no longer has to say anything.
 
 ## `skills/`
 

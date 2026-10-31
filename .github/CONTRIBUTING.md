@@ -97,15 +97,18 @@ and nine `area:` values were finer than the way the team actually splits up at a
 
 ## How we work
 
-- **An issue exists before a branch does.** Every PR says `Closes #N`.
-- Branch names: `feat/ fix/ tune/ chore/ docs/ spike/` + the issue number + a short description
-  (`feat/42-intake-subsystem`). A Claude session starts on a random `claude/*` branch and renames
-  it itself before its first push: a hook (`.claude/hooks/name-branch-before-push.sh`) blocks the
-  push until it does. Nobody renames anything by hand.
-  *History:* until 29 Sep 2026 `claude/*` branches were renamed by hand before the PR. That was
-  dropped because it was a manual step on every Claude PR. From 1 Oct 2026 the hook makes the
-  session do it, so branch lists say what each branch is again.
-- **Never commit directly to `master`.**
+- **Everything reaches `master` through a PR with CI green.** Never commit directly to `master`.
+- **Student work starts from an issue.** Claim it, branch as `feat/ fix/ tune/ chore/ docs/ spike/`
+  + the issue number + a short description (`feat/42-intake-subsystem`), and say `Closes #N` in the
+  PR. That keeps the board true and makes your work easy to find.
+- **Mentor work doesn't need the ceremony.** A mentor (or a Claude session a mentor started) can use
+  any branch name, including the session's own `claude/*` name, open an issue only when it helps,
+  and skip labels. The PR description says what changed and why; CI must be green.
+  *History:* until 17 Oct 2026 every branch needed an issue first and an `<prefix>/<issue>-<slug>`
+  name, and a hook blocked Claude sessions from pushing a `claude/*` branch until they renamed it.
+  That kept branch lists tidy but put an issue, a rename and label rules in front of every mentor
+  change, which cost more than it saved in the build season. The student rules stay because the
+  board and the issue are part of how students learn and claim work.
 - **Rename a branch with GitHub's button, never by deleting it and pushing a new one.** Repo →
   Branches → the pencil icon renames it and moves any open PR along with it. Deleting and re-pushing
   closes the PR instead, and that has already stranded finished work on this repo twice.

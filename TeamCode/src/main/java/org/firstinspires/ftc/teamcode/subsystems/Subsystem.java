@@ -49,7 +49,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
  * streaming at the end of a match are different things, and the first one needs its own name
  * ({@code idle()}, {@code coast()}, {@code spinDown()}).
  *
- * <p>That clash is real, not hypothetical: {@code FlywheelBank.stop()} in the shooter rig means
+ * <p>That clash is real, not hypothetical: {@code Launcher2.stop()} in the launcher rig means
  * "cut power and keep running". The rig is not a {@code Subsystem} and does not need to be, but if
  * it ever becomes one, that method gets renamed rather than this contract bent to fit it.
  *
@@ -102,6 +102,10 @@ public interface Subsystem {
      *
      * <p>{@code requiring(this)} tells the scheduler this command owns this subsystem, so it will
      * never run two commands that both need it at the same time.
+     *
+     * <p>{@code RobotOpMode} schedules the same command with a timer around {@code update()}, so
+     * each subsystem's time lands in the match log ({@code /Loop/Subsystem/<Name>Ms}). Overriding
+     * this changes nothing there: put the work in {@link #update()}.
      */
     default Command periodic() {
         return Commands.infinite(this::update).requiring(this);
@@ -124,5 +128,18 @@ public interface Subsystem {
      * <p>Optional — a subsystem that says nothing gets just its heading.
      */
     default void describe(Display display) {
+    }
+
+    /**
+     * One line on what this subsystem found when it was built and initialized, for the match
+     * log's Metadata tab: the device that answered, the fault a fallback is covering, or what
+     * cannot be known. The hub cannot tell an empty motor or servo port from a stalled mechanism,
+     * so a subsystem that is only motors says so ("configured; presence unknown until it moves")
+     * rather than claiming it is there. Read once by {@code RobotOpMode}, after init.
+     *
+     * <p>Optional — null says nothing.
+     */
+    default String health() {
+        return null;
     }
 }

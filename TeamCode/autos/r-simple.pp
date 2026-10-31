@@ -1,7 +1,7 @@
 {
   "startPoint": {
-    "x": 59,
-    "y": 8.06,
+    "x": 54.06,
+    "y": 7.72,
     "name": "START",
     "headingDeg": 90
   },
@@ -16,7 +16,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 10.5,
+        "x": 14,
         "y": 95
       },
       "controlPoints": [
@@ -117,8 +117,27 @@
     "yVelocity": 65,
     "aVelocity": 3.141592653589793,
     "kFriction": 0.1,
-    "rWidth": 18,
-    "rHeight": 18,
+    "rWidth": 15.44,
+    "rHeight": 16,
+    "features": [
+      {
+        "name": "Front frame",
+        "length": 0.56,
+        "width": 16,
+        "forward": 8,
+        "left": 0,
+        "collides": true,
+        "color": "#2b2f36"
+      },
+      {
+        "name": "FLOWER poker",
+        "length": 1.5,
+        "width": 1.5,
+        "forward": 9.03,
+        "left": 0,
+        "collides": true
+      }
+    ],
     "safetyMargin": 1,
     "maxVelocity": 50,
     "maxAcceleration": 45.0,
@@ -167,12 +186,12 @@
     },
     "points": {
       "START": [
-        59,
-        8.06,
+        54.06,
+        7.72,
         90
       ],
       "PARK": [
-        10.5,
+        14,
         95,
         90
       ]
@@ -199,7 +218,7 @@
             "cards": []
           },
           {
-            "afterMs": 3000,
+            "afterMs": 4000,
             "cards": []
           }
         ],

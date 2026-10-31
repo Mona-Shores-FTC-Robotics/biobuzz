@@ -1,4 +1,6 @@
 {
+  "version": "2.0.0",
+  "timestamp": "2026-01-01T00:00:00.000Z",
   "startPoint": {
     "x": 59,
     "y": 133.69,
@@ -110,7 +112,7 @@
             },
             {
               "startProgress": 0.3,
-              "endProgress": 1.0,
+              "endProgress": 1,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
@@ -258,8 +260,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 9.5,
-        "y": 20.56
+        "x": 11.5,
+        "y": 22.1
       },
       "controlPoints": [],
       "heading": {
@@ -305,8 +307,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 9.5,
-        "y": 10.96
+        "x": 8.5,
+        "y": 9.5
       },
       "controlPoints": [],
       "heading": {
@@ -362,28 +364,18 @@
       }
     },
     {
-      "id": "to-park-10",
-      "color": "#3cc8e4",
-      "name": "FIRE_G to PARK",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
+      "id": "link-1",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 10.5,
-        "y": 95
+        "x": 47.36,
+        "y": 118.34
       },
-      "controlPoints": [
-        {
-          "x": 30,
-          "y": 40
-        }
-      ],
+      "controlPoints": [],
       "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 90
+        "type": "constant",
+        "degrees": 90
       }
     },
     {
@@ -514,7 +506,7 @@
             },
             {
               "startProgress": 0.3,
-              "endProgress": 1.0,
+              "endProgress": 1,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
@@ -594,6 +586,31 @@
             }
           ]
         }
+      }
+    },
+    {
+      "id": "to-park-10",
+      "color": "#3cc8e4",
+      "name": "FIRE_G to PARK",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14,
+        "y": 95
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 40
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 90
       }
     }
   ],
@@ -710,7 +727,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-park-10"
+      "lineId": "link-1"
     },
     {
       "kind": "path",
@@ -739,47 +756,48 @@
     {
       "kind": "path",
       "lineId": "to-fire-g-17"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-10"
     }
   ],
-  "settings": {
-    "xVelocity": 75,
-    "yVelocity": 65,
+  "fieldPoints": [],
+  "robot": {
+    "forwardVelocity": 75,
+    "strafeVelocity": 65,
     "aVelocity": 3.141592653589793,
     "kFriction": 0.1,
-    "rWidth": 18,
-    "rHeight": 18,
+    "rLength": 15.44,
+    "rWidth": 16,
     "safetyMargin": 1,
     "maxVelocity": 50,
-    "maxAcceleration": 45.0,
-    "maxDeceleration": 45.0,
-    "fieldMap": "biobuzz.webp",
-    "robotImage": "/robot.png",
-    "showGhostPaths": false,
-    "showOnionLayers": false,
-    "onionLayerSpacing": 3,
-    "onionColor": "#dc2626",
-    "onionNextPointOnly": false,
-    "showHeadingArrow": false,
-    "showCurrentTValue": false,
-    "leftPanelWidth": 262,
-    "rightPanelWidth": 714,
-    "headingArrowLength": 50,
-    "headingArrowColor": "#ffffff",
-    "headingArrowThickness": 2,
-    "pathOpacity": 1,
-    "leftPanelMinWidth": 0,
-    "rightPanelMinWidth": 0,
-    "penToolMaxPaths": 8,
-    "curveThroughMaxPoints": 4,
-    "experimentalFeatures": {
-      "optimize": false,
-      "curveThrough": false
-    }
+    "maxAcceleration": 45,
+    "maxDeceleration": 45,
+    "features": [
+      {
+        "name": "Front frame",
+        "length": 0.56,
+        "width": 16,
+        "forward": 8,
+        "left": 0,
+        "collides": true,
+        "color": "#2b2f36"
+      },
+      {
+        "name": "FLOWER poker",
+        "length": 1.5,
+        "width": 1.5,
+        "forward": 9.03,
+        "left": 0,
+        "collides": true
+      }
+    ]
   },
+  "activePaths": [],
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "l-quals",
     "registry": {
       "actions": [
         "SpinUp",
@@ -791,13 +809,13 @@
         "Tip",
         "LeftCellUp"
       ],
-      "typicalS": {
-        "SpinUp": 0.1,
-        "LaunchAll": 2.0
-      },
       "events": [
         "Tip"
-      ]
+      ],
+      "typicalS": {
+        "SpinUp": 0.1,
+        "LaunchAll": 2
+      }
     },
     "points": {
       "START": [
@@ -816,7 +834,7 @@
         270
       ],
       "PARK": [
-        10.5,
+        14,
         95,
         90
       ],
@@ -856,13 +874,13 @@
         180
       ],
       "GARDEN_IN": [
-        9.5,
-        20.56,
+        11.5,
+        22.1,
         270
       ],
       "GARDEN": [
+        8.5,
         9.5,
-        10.96,
         270
       ],
       "FIRE_G": [
@@ -905,7 +923,6 @@
       "to-lane-low-16": "LANE_LOW",
       "to-fire-g-17": "FIRE_G"
     },
-    "startAt": "START",
     "cards": [
       {
         "id": "a-1",
@@ -927,6 +944,7 @@
             "when": [
               "LeftCellUp"
             ],
+            "label": "TIP 1: as planned",
             "cards": [
               {
                 "id": "w-3",
@@ -1099,11 +1117,11 @@
                 ],
                 "alongside": "LaunchAll"
               }
-            ],
-            "label": "TIP 1: as planned"
+            ]
           },
           {
             "afterMs": 7000,
+            "label": "No TIP 1: make it ourselves, TIP 2, PARK",
             "cards": [
               {
                 "id": "p-19",
@@ -1235,8 +1253,7 @@
                 "lineId": "to-fire-g-17",
                 "park": false
               }
-            ],
-            "label": "No TIP 1: make it ourselves, TIP 2, PARK"
+            ]
           }
         ]
       },
@@ -1246,7 +1263,15 @@
         "lineId": "to-park-10",
         "park": true
       }
-    ]
-  },
-  "version": "1.5.0"
+    ],
+    "startAt": "START",
+    "linkPaths": [
+      "link-1"
+    ],
+    "teamSpots": [
+      "GARDEN",
+      "GARDEN_IN"
+    ],
+    "exportName": "l-quals"
+  }
 }
