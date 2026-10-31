@@ -142,6 +142,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private boolean applyStillFixes = LocalizationTuning.stillFixes;
     private Pose lastCameraPose;
     private long lastCameraPoseNs;
+    /** An Auto in INIT wants the camera's whole pose, heading included, on every frame. */
+    private boolean wholePoseFits;
+    private Pose wholeCameraPose;
+    private long wholeCameraPoseNs;
 
     /** Would-relocalize: samples so far, the latest, and the worst. */
     private int wouldCount;
@@ -575,6 +579,21 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     /** When the camera last gave a gated pose ({@link #cameraPose()}'s source), System.nanoTime; 0 never. */
     public long cameraPoseNs() { return lastCameraPoseNs; }
 
+    /**
+     * Fit the camera's whole pose (two or more gated tags, no heading assumed) on every fresh frame,
+     * even with the pose referenced: an Auto in INIT, finding which of its starts the robot is on.
+     */
+    public void setWholePoseFits(boolean on) {
+        wholePoseFits = on;
+        if (!on) wholeCameraPose = null;
+    }
+
+    /** The last whole-pose fit, or null; see {@link #setWholePoseFits}. Paired with {@link #wholeCameraPoseNs}. */
+    public Pose wholeCameraPose() { return wholeCameraPose; }
+
+    /** When {@link #wholeCameraPose} was fitted, System.nanoTime; 0 never. */
+    public long wholeCameraPoseNs() { return wholeCameraPoseNs; }
+
     /** The camera's last gated pose, however old; null before the first. See {@link #cameraPoseNs()}. */
     public Pose lastCameraPose() { return lastCameraPose; }
 
@@ -680,9 +699,23 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             if (full != null) {
                 lastCameraPose = full;
                 lastCameraPoseNs = System.nanoTime();
+                if (wholePoseFits) {
+                    wholeCameraPose = full;
+                    wholeCameraPoseNs = lastCameraPoseNs;
+                }
                 if (LocalizationTuning.seedFromCamera) considerSeed(full);
             }
             return;
+        }
+        if (wholePoseFits) {
+            // Heading-free: the fit's own heading, not the one the declared start set. Before the
+            // heading-checked solve below, which then refills the gate's verdict.
+            gate.solve(Double.NaN);
+            Pose whole = fitAccepted();
+            if (whole != null) {
+                wholeCameraPose = whole;
+                wholeCameraPoseNs = System.nanoTime();
+            }
         }
         double heading = localizer.pose().heading();
         if (gate.solve(heading) != TagGate.Verdict.OK) {
