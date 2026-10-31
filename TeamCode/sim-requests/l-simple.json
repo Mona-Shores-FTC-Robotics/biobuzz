@@ -1,0 +1,25 @@
+{
+  "pp": "TeamCode/autos/l-simple.pp",
+  "spec": "LSimpleAuto@50",
+  "design": "real robot",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "alliance": "RED",
+  "metadata": {
+    "AutoSource": "l-simple.pp",
+    "SavedBy": "dustinhans",
+    "SavedAt": "2026-10-31T16:36:50.636Z"
+  }
+}
