@@ -23,6 +23,16 @@ simulated matches; this is the part that applies to a real log.
 The field is AdvantageScope's own **2026-2027 Field**; it downloads it the first time a Field tab
 asks for it, so the first open needs internet.
 
+## Sending logs to someone without the repo
+
+Double-click `make-viewer-zip.cmd`. It writes `Downloads\BIOBUZZ-AdvantageScope.zip`: the robot model as committed,
+the match layout, `install.cmd`, and a `README.txt` that says which commit and CAD build it holds. Send that zip once
+to anyone who should watch the logs. They unzip it, double-click `install.cmd` and import the layout, and from then on
+any `.wpilog` you send them plays as-is, robot and moving parts included.
+
+The model changes when the CAD does. After a rebuild (`cad/advantagescope/from_onshape.py`) or a layout change, make a
+new zip and send it; older logs still play with it.
+
 ## The layout
 
 | Tab | Shows |
@@ -39,7 +49,8 @@ Add a Table tab with `/Events` for the Auto's card-by-card lines, and the Joysti
 ## The model
 
 `cad/advantagescope/Robot_BIOBUZZ/` is the robot as the Onshape CAD shows it, built by
-`cad/advantagescope/from_onshape.py` straight from the mentor's Robot assembly. It has no moving
-components yet; the turret and the flower stick come next (`cad/advantagescope/README.md`). Its
+`cad/advantagescope/from_onshape.py` straight from the mentor's Robot assembly. The turret turns and
+the FLOWER stick swings: the match log writes both as `/Internals/Components`, and both 3D tabs show
+them (`cad/advantagescope/README.md`, "Moving parts"). Its
 origin is on the floor under the middle of the four drive axles; if the robot sits off its logged
 pose by a fixed offset, that is the point to check against what Pedro tracks.

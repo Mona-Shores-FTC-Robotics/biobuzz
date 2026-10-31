@@ -165,9 +165,31 @@ def simplify(tris, keep):
             import fast_simplification
             v, f = fast_simplification.simplify(v.astype(np.float32), f.astype(np.int32),
                                                 target_reduction=1 - keep / len(f))
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"  warning: simplification failed ({e!r}); keeping {len(f)} triangles", file=sys.stderr)
     return v, f
+
+
+def axis_of(points, kind):
+    """A part's axis: the line through its bounding box's centre along its thinnest direction (a bearing race, a
+    plate) or its longest (a shaft). Pointed up if it is near vertical, else along +x, +y, so that a positive angle
+    is counter-clockwise looking down the axis toward the origin, as TeamCode's angles are."""
+    centre = (points.min(0) + points.max(0)) / 2
+    _, vecs = np.linalg.eigh(np.cov((points - points.mean(0)).T))
+    d = vecs[:, 0] if kind == "thinnest" else vecs[:, 2]
+    if d[np.argmax(np.abs(d))] < 0:
+        d = -d
+    return centre, d / np.linalg.norm(d)
+
+
+def mesh_of(tris, rgb, T, keep, to_robot):
+    v, f = simplify(tris, keep)
+    v = to_robot(np.asarray(v) @ T[:3, :3].T + T[:3, 3])
+    mesh = trimesh.Trimesh(v, f, process=False)
+    mesh.visual = trimesh.visual.TextureVisuals(material=trimesh.visual.material.PBRMaterial(
+        baseColorFactor=[int(255 * x) for x in rgb] + [255], metallicFactor=0.2, roughnessFactor=0.6,
+        doubleSided=True))
+    return mesh
 
 
 def main():
@@ -205,38 +227,75 @@ def main():
         sys.exit(f"{len(unreadable)} visible part(s) could not be read; nothing written:\n  " + "\n  ".join(unreadable))
     to_robot = robot_frame(parts, meshes)
 
+    # The moving components: each part goes to the first component whose patterns match it, else the fixed model
+    comps = rules.get("components", [])
+    which = [next((c for c, comp in enumerate(comps) if any(re.search(r, path) for r in comp["parts"])), None)
+             for path, _, _ in parts]
+    for c, comp in enumerate(comps):
+        if c not in which:
+            sys.exit(f"component {c} ({comp['name']}) matches no visible part: check its patterns against the CAD")
+
     total = sum(len(meshes[part_key(i)][0]) for _, i, _ in parts)
     ratio = min(1.0, rules["triangle_budget"] / max(total, 1))
-    scene = trimesh.Scene()
-    for n, (path, inst, T) in enumerate(parts):
+    scenes = [trimesh.Scene() for _ in range(len(comps) + 1)]          # [fixed, component 0, component 1, ...]
+    for n, ((path, inst, T), c) in enumerate(zip(parts, which)):
         tris, rgb = meshes[part_key(inst)]
         if not len(tris):
             continue
         keep = max(min(len(tris), 300), int(len(tris) * ratio))
-        v, f = simplify(tris, keep)
-        v = to_robot(np.asarray(v) @ T[:3, :3].T + T[:3, 3])
-        mesh = trimesh.Trimesh(v, f, process=False)
-        mesh.visual = trimesh.visual.TextureVisuals(material=trimesh.visual.material.PBRMaterial(
-            baseColorFactor=[int(255 * x) for x in rgb] + [255], metallicFactor=0.2, roughnessFactor=0.6,
-            doubleSided=True))
-        scene.add_geometry(mesh, geom_name=f"p{n}", node_name=path[:120])
+        scenes[0 if c is None else c + 1].add_geometry(mesh_of(tris, rgb, T, keep, to_robot),
+                                                       geom_name=f"p{n}", node_name=path[:120])
+
+    described = []
+    for c, comp in enumerate(comps):
+        pts = [to_robot(meshes[part_key(inst)][0].reshape(-1, 3) @ T[:3, :3].T + T[:3, 3])
+               for (path, inst, T), w in zip(parts, which) if w == c and re.search(comp["axis_part"], path)]
+        if len(pts) != 1:
+            sys.exit(f"component {c} ({comp['name']}): axis_part matches {len(pts)} of its parts, expected 1")
+        point, direction = axis_of(pts[0], comp["axis"])
+        described.append({"index": c, "name": comp["name"], "angle": comp["angle"],
+                          "axis_point_m": [round(float(x), 5) for x in point],
+                          "axis_direction": [round(float(x), 5) for x in direction],
+                          "drawn_at_deg": comp["drawn_at_deg"]})
+        print(f"  component {c} ({comp['name']}): {which.count(c)} parts, turns about "
+              f"({', '.join(f'{x / IN:.2f}' for x in point)}) in along ({', '.join(f'{x:.3f}' for x in direction)})")
+
     os.makedirs(OUT, exist_ok=True)
-    scene.export(os.path.join(OUT, "model.glb"))
+    scenes[0].export(os.path.join(OUT, "model.glb"))
+    for c in range(len(comps)):
+        scenes[c + 1].export(os.path.join(OUT, f"model_{c}.glb"))
+    for old_file in os.listdir(OUT):                                   # a component that went from the list
+        m = re.fullmatch(r"model_(\d+)\.glb", old_file)
+        if m and int(m.group(1)) >= len(comps):
+            os.remove(os.path.join(OUT, old_file))
+    with open(os.path.join(OUT, "components.json.tmp"), "w") as fh:
+        json.dump({"about": "Robot_BIOBUZZ's components, in config.json's order. Frame: metres, +X forward, +Y left, "
+                            "+Z up, origin on the floor under the middle of the drive axles. Component c is drawn in "
+                            "model_c.glb as the CAD has it, at drawn_at_deg. To show it at angle a (degrees, the "
+                            "'angle' named here), rotate it by t = a - drawn_at_deg about axis_direction through "
+                            "axis_point_m: the AdvantageScope pose is translation p - R(t) p, rotation quaternion "
+                            "(cos t/2, sin t/2 * axis_direction).",
+                   "components": described}, fh, indent=1)
+    os.replace(os.path.join(OUT, "components.json.tmp"), os.path.join(OUT, "components.json"))
+    scene = scenes[0]
 
     cfg_path = os.path.join(OUT, "config.json")
     cfg = json.load(open(cfg_path)) if os.path.exists(cfg_path) else {}
     cfg.update({"name": "BIOBUZZ Robot", "isFTC": True, "disableSimplification": True, "rotations": [],
-                "position": [0, 0, 0], "components": []})
+                "position": [0, 0, 0],
+                "components": [{"zeroedRotations": [], "zeroedPosition": [0, 0, 0]} for _ in comps]})
     with open(cfg_path + ".tmp", "w") as fh:
         json.dump(cfg, fh, indent=2)
     os.replace(cfg_path + ".tmp", cfg_path)
 
-    faces = sum(len(g.faces) for g in scene.geometry.values())
-    lo, hi = scene.bounds
+    faces = sum(len(g.faces) for sc in scenes for g in sc.geometry.values())
+    lo = np.min([sc.bounds[0] for sc in scenes if sc.geometry], 0)
+    hi = np.max([sc.bounds[1] for sc in scenes if sc.geometry], 0)
     json.dump({"document": meta["name"], "microversion": mv, "built": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                "visible": dict(sorted(tops.items())), "dropped": sorted(dropped)}, open(STATE, "w"), indent=1)
-    print(f"model.glb: {len(parts)} parts, {faces} triangles (from {total}), "
-          f"{os.path.getsize(os.path.join(OUT, 'model.glb')) / 1e6:.1f} MB")
+    size = sum(os.path.getsize(os.path.join(OUT, f)) for f in os.listdir(OUT) if f.endswith(".glb"))
+    print(f"model.glb and {len(comps)} component(s): {len(parts)} parts, {faces} triangles (from {total}), "
+          f"{size / 1e6:.1f} MB")
     print(f"  extent in inches: X {lo[0] / IN:.2f}..{hi[0] / IN:.2f}  Y {lo[1] / IN:.2f}..{hi[1] / IN:.2f}  "
           f"Z {lo[2] / IN:.2f}..{hi[2] / IN:.2f}")
     if dropped:

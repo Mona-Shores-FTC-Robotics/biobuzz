@@ -31,10 +31,39 @@ middle of the four drive axles, which the script finds each run from the four Wh
 48 mm (a 96 mm mecanum's radius) below the axles, because the CAD has the wheels' hubs but not the wheels. If the
 assembly is ever turned so the axles no longer run along its x, the script stops and says so.
 
+## Moving parts
+
+Each entry in `onshape_model.json`'s `components` becomes `model_<index>.glb`, cut out of the same assembly:
+
+- **`parts`**: the paths that move with it. A component that matches nothing stops the build.
+- **`axis_part`** and **`axis`**: the one part it turns about, and that part's thinnest direction (a bearing race)
+  or longest (a shaft), through its centre.
+- **`angle`**: what the logged angle means. **`drawn_at_deg`**: that angle as the CAD draws it.
+
+The script writes the axes to `Robot_BIOBUZZ/components.json`. TeamCode's `logging/RobotComponents` holds the same
+numbers (the robot can't read this folder), and `RobotComponentsTest` fails while the two differ. So after a rebuild
+that moves an axis, copy the new numbers into `RobotComponents`. The match log writes the poses under
+`/Internals/Components`, the key the simulator writes too, and the layout's 3D tabs show them.
+
+| # | Component | Angle | Turns about |
+|---|---|---|---|
+| 0 | Turret: the 176T gear, the bearing's inner race and the hood on them | `TurretSubsystem.angleDegrees()`, counter-clockwise from home (the nose) | The turntable bearing's centre, vertical |
+| 1 | FLOWER stick: the two arms, the 312 mm shaft across their tops, `Part 4` and the bearings on them | `FlowerStickSubsystem.commandedDegrees()`: 0 in, 162 out | The SWYFT servo's hub and bearing <1>, left to right, 6.1 in ahead of the axles' middle, 7.3 in up |
+
+**The turret is drawn at 51.5°.** In the CAD the hood faces 51.5° left of the nose (the big flat faces of the hood
+and its channel point there, and the ball leaves on that open side, away from the tall wall). So at 0, home, the
+model turns it back 51.5° to face forward. If the CAD is ever redrawn facing forward, `drawn_at_deg` becomes 0.
+
+**The FLOWER stick is drawn stowed**, leaning up and back over the robot. Out, it has swung 162° forward and down, and
+its top shaft lies on the tile, where the stick's wheels rest. Nothing measures the stick, so the log shows what it
+was commanded to do: it jumps out at the request, while the real stick takes about a second.
+
 ## What's not right yet
 
-- **No moving parts.** The next stages are the turret turning and the flower stick moving, each as a component
-  (`model_0.glb` …) cut out of the same assembly by name, with the logs writing their poses.
+- **The intake's float doesn't move.** `Flower Poker Mid` is a permanent part of the intake: it rides up and down on
+  the Viper slides as pieces come in. Nothing on the robot measures that height, so the log can't show it and the
+  model draws it at its CAD height. In the CAD it has no mates yet; fastening it to the sliding carriage keeps the CAD
+  true, and the model is unchanged. A sensor on the slides would let it become a sliding component later.
 - **The drive wheels aren't drawn**: the CAD has their hubs and shafts only.
 - **The camera** in `config.json` is the old hand-measured one (5.58 in ahead, 14.25 in up, pitched 45°). The CAD's
   Limelight 3A sits about 2 in further back (X 2.7 to 4.4 in, Z 14.0 to 15.7 in). Reading its exact pose from the CAD
