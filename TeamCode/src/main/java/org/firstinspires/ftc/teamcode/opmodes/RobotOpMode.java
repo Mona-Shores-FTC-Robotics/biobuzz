@@ -29,6 +29,7 @@ import org.firstinspires.ftc.teamcode.logging.BuildStamp;
 import org.firstinspires.ftc.teamcode.logging.MotionWatch;
 import org.firstinspires.ftc.teamcode.logging.Tunables;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
@@ -1084,6 +1085,13 @@ public abstract class RobotOpMode extends OpMode {
         double feederAmps = robot.feeder.currentAmps();
         if (!Double.isNaN(feederAmps)) {
             log.put("/Feeder/CurrentAmps", feederAmps);
+        }
+        // The transfer: the prefeed's power, and whether the gate is asked open (with where it was last written).
+        log.put("/Prefeed/Power", robot.prefeed.power());
+        log.put("/FeedGate/Feeding", robot.feedGate.state() == FeedGateSubsystem.State.FEEDING ? 1 : 0);
+        double gatePosition = robot.feedGate.position();
+        if (!Double.isNaN(gatePosition)) {
+            log.put("/FeedGate/Position", gatePosition);
         }
         // The turret: where it points, where it was asked to, and whether anyone zeroed it.
         log.put("/Turret/AngleDeg", robot.turret.angleDegrees());

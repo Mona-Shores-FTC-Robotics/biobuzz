@@ -410,6 +410,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                     launcherTrimTps, launchSpeed()));
         }
         robot.feeder.describe(display);
+        robot.prefeed.describe(display);
+        robot.feedGate.describe(display);
         robot.turret.describe(display);
         if (turretMode == TurretMode.AIM) {
             display.line(aimer.line());

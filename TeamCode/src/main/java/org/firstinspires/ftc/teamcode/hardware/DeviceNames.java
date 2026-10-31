@@ -88,6 +88,18 @@ public final class DeviceNames {
     public static final String INTAKE_STARS = "intakeStars";
 
     /**
+     * The prefeed wheel: the big grey wheel at the start of the transfer, on a goBILDA Torque servo
+     * in continuous-rotation mode. It shares the servo ports; the port itself is in each robot's XML.
+     */
+    public static final String PREFEED = "prefeed";
+
+    /**
+     * The feed gate: a goBILDA Speed servo (positional) turning a plate between BLOCKING and
+     * FEEDING. Expansion Hub servo port; the port itself is in each robot's XML.
+     */
+    public static final String FEED_GATE = "feedGate";
+
+    /**
      * The indicator light: a goBILDA RGB Indicator Light, a servo whose position is its colour
      * ({@code subsystems/IndicatorSubsystem}). Control Hub servo port 0 on both robots.
      */
@@ -185,6 +197,8 @@ public final class DeviceNames {
             new Device(FEEDER, Kind.MOTOR),
             new Device(FLOWER_STICK, Kind.SERVO),
             new Device(INTAKE_STARS, Kind.CR_SERVO),
+            new Device(PREFEED, Kind.CR_SERVO),
+            new Device(FEED_GATE, Kind.SERVO),
             new Device(INDICATOR, Kind.SERVO),
             new Device(TURRET, Kind.CR_SERVO),
             new Device(PINPOINT, Kind.I2C),

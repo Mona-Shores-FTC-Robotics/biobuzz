@@ -95,6 +95,81 @@ public class InitMovesNothingTest {
     }
 
     @Test
+    public void prefeedWaitsForPlayEvenWhileTheIntakeIsAskingForIt() {
+        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
+                .motor(DeviceNames.FEEDER).crServo(DeviceNames.PREFEED);
+        IntakeSubsystem intake = new IntakeSubsystem(devices.map);
+        FeederSubsystem feeder = new FeederSubsystem(devices.map);
+        intake.initialize();
+        feeder.initialize();
+        devices.clear();
+        intake.intake();
+        PrefeedSubsystem prefeed = new PrefeedSubsystem(devices.map, intake, feeder);
+        runInit(prefeed, devices);
+
+        prefeed.start();
+        prefeed.update();
+        assertEquals("at PLAY the prefeed follows the intake",
+                Arrays.asList("setPower(" + PrefeedSubsystem.inPower + ")"),
+                devices.calls(DeviceNames.PREFEED));
+    }
+
+    @Test
+    public void feedGateWaitsForPlayEvenWhileTheFeederIsAskingForIt() {
+        double blocking = FeedGateSubsystem.blockingPosition;
+        double feeding = FeedGateSubsystem.feedingPosition;
+        FeedGateSubsystem.blockingPosition = 0.2;
+        FeedGateSubsystem.feedingPosition = 0.7;
+        try {
+            Devices devices = new Devices().motor(DeviceNames.FEEDER).servo(DeviceNames.FEED_GATE);
+            FeederSubsystem feeder = new FeederSubsystem(devices.map);
+            feeder.initialize();
+            devices.clear();
+            feeder.feed();
+            FeedGateSubsystem gate = new FeedGateSubsystem(devices.map, feeder);
+            runInit(gate, devices);
+
+            feeder.idle();
+            gate.start();
+            gate.update();
+            assertEquals("at PLAY the gate goes to BLOCKING",
+                    Arrays.asList("setPosition(0.2)"), devices.calls(DeviceNames.FEED_GATE));
+            gate.update();
+            assertEquals("a held gate is not rewritten every loop",
+                    1, devices.calls(DeviceNames.FEED_GATE).size());
+            feeder.feed();
+            gate.update();
+            assertEquals("a feed opens it",
+                    Arrays.asList("setPosition(0.2)", "setPosition(0.7)"), devices.calls(DeviceNames.FEED_GATE));
+        } finally {
+            FeedGateSubsystem.blockingPosition = blocking;
+            FeedGateSubsystem.feedingPosition = feeding;
+        }
+    }
+
+    @Test
+    public void feedGateWritesNothingWhileItsPositionsAreNaN() {
+        double blocking = FeedGateSubsystem.blockingPosition;
+        double feeding = FeedGateSubsystem.feedingPosition;
+        FeedGateSubsystem.blockingPosition = Double.NaN;
+        FeedGateSubsystem.feedingPosition = Double.NaN;
+        try {
+            Devices devices = new Devices().motor(DeviceNames.FEEDER).servo(DeviceNames.FEED_GATE);
+            FeedGateSubsystem gate = new FeedGateSubsystem(devices.map, new FeederSubsystem(devices.map));
+            runInit(gate, devices);
+            gate.start();
+            for (int i = 0; i < 10; i++) {
+                gate.update();
+            }
+            assertTrue("unmeasured positions are never written, even after PLAY",
+                    devices.calls(DeviceNames.FEED_GATE).isEmpty());
+        } finally {
+            FeedGateSubsystem.blockingPosition = blocking;
+            FeedGateSubsystem.feedingPosition = feeding;
+        }
+    }
+
+    @Test
     public void feederStaysAtZeroInInit() {
         Devices devices = new Devices().motor(DeviceNames.FEEDER);
         runInit(new FeederSubsystem(devices.map), devices);
@@ -144,7 +219,8 @@ public class InitMovesNothingTest {
     }
 
     private static final List<String> RUN_HERE = Arrays.asList(
-            "FlowerStickSubsystem", "TurretSubsystem", "IntakeSubsystem", "FeederSubsystem", "LauncherSubsystem");
+            "FlowerStickSubsystem", "TurretSubsystem", "IntakeSubsystem", "FeederSubsystem", "LauncherSubsystem",
+            "PrefeedSubsystem", "FeedGateSubsystem");
 
     private static final Pattern COMMENTS = Pattern.compile("/\\*.*?\\*/|//[^\\n]*", Pattern.DOTALL);
 

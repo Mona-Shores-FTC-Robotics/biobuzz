@@ -8,7 +8,9 @@ import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -41,6 +43,8 @@ public final class Tunables {
     public static final Class<?>[] CLASSES = {
             DriveSubsystem.class,
             FeederSubsystem.class,
+            FeedGateSubsystem.class,
+            PrefeedSubsystem.class,
             FlowerStickSubsystem.class,
             IndicatorSubsystem.class,
             IntakeSubsystem.class,
