@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
+import org.firstinspires.ftc.teamcode.util.FieldLayers;
 import org.firstinspires.ftc.teamcode.vision.CameraMount;
 import org.firstinspires.ftc.teamcode.vision.PieceVisionSubsystem;
 
@@ -51,6 +52,7 @@ public final class Tunables {
             CameraMount.class,
             PieceVisionSubsystem.class,
             TeleOpConfig.class,
+            FieldLayers.class,
             FlowerPicker.class,
             GardenGather.class,
             HiveAndPose.class,

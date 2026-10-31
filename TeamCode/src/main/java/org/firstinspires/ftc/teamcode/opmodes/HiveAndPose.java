@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.util.FieldLayers;
 import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.util.WelfordVariance;
 import org.firstinspires.ftc.teamcode.vision.BiobuzzTags;
@@ -497,7 +498,7 @@ public class HiveAndPose extends RobotOpMode {
     protected void drawOnField(FieldView field) {
         drawCells(field);
         Pose camera = robot.drive.cameraPose();
-        if (camera != null) field.drawRobot(camera.x(), camera.y(), camera.heading(), CAMERA_ROBOT);
+        if (camera != null && FieldLayers.camera) field.drawRobot(camera.x(), camera.y(), camera.heading(), CAMERA_ROBOT);
         Pose stillFix = robot.drive.stillFixPose();
         if (stillFix != null) field.drawMarker(stillFix.x(), stillFix.y(), 1.5, STILL_FIX);
         Pose pose = robot.drive.pose();

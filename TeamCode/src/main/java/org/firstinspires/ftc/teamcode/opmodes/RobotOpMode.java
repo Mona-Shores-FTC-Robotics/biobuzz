@@ -37,6 +37,7 @@ import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
+import org.firstinspires.ftc.teamcode.util.FieldLayers;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
@@ -733,15 +734,18 @@ public abstract class RobotOpMode extends OpMode {
         try {
             if (fieldView.shouldDraw()) {
                 Pose pose = robot.drive.pose();
-                if (pose != null) {
+                // Each layer can be switched off in Panels → FieldLayers.
+                if (pose != null && FieldLayers.odometry) {
                     fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
                 }
                 if (initializing && declaredStart != null) {
                     Pose start = declaredStart.pose;
-                    fieldView.drawRobot(start.x(), start.y(), start.heading(), START_COLOUR);
+                    if (FieldLayers.declaredStart) {
+                        fieldView.drawRobot(start.x(), start.y(), start.heading(), START_COLOUR);
+                    }
                     double cameraX = robot.drive.meanFixX();
                     double cameraY = robot.drive.meanFixY();
-                    if (!Double.isNaN(cameraX)) {
+                    if (!Double.isNaN(cameraX) && FieldLayers.camera) {
                         fieldView.drawRobot(cameraX, cameraY, start.heading(), CAMERA_COLOUR);
                     }
                 }

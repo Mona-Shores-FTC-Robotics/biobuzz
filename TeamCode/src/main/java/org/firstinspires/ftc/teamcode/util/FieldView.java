@@ -162,8 +162,10 @@ public final class FieldView {
         double s = Math.sin(heading);
         field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), outlineColour, 1.0);
         drawOutline(x, y, c, s, DRIVETRAIN);
-        field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), outlineColour, 0.5);
-        drawOutline(x, y, c, s, FRAME);
+        if (FieldLayers.frame) {
+            field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), outlineColour, 0.5);
+            drawOutline(x, y, c, s, FRAME);
+        }
 
         field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), PanelsField.INSTANCE.getWHITE(), 1.0);
         field.moveCursor(x, y);
