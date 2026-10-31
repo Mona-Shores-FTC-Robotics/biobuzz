@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
@@ -32,17 +31,20 @@ import java.util.Locale;
  * <p>Nothing moves before PLAY, as everywhere ({@code Subsystem}).
  */
 @Utility(name = "Full Path Bench", description = "Intake, prefeed, feed gate, feeder and launcher on one screen: directions and the gate's two positions")
-@Configurable
 public class FullPathBench extends RobotOpMode {
 
     /** How far a trigger must be pressed to count as held. */
     private static final double TRIGGER = 0.5;
 
-    /** Gate position change per D-pad up / down press, servo range 0 to 1. A speed servo covers 270°, so 0.02 is about 5°. */
-    public static double coarseStep = 0.02;
+    /**
+     * Gate position change per D-pad up / down press, servo range 0 to 1. A speed servo covers 270°, so
+     * 0.02 is about 5°. Constants, not Panels knobs: a bench's tunables are not a match's
+     * ({@code TunablesTest}).
+     */
+    private static final double COARSE_STEP = 0.02;
 
     /** Gate position change per D-pad right / left press. */
-    public static double fineStep = 0.005;
+    private static final double FINE_STEP = 0.005;
 
     /** Where the first D-pad press puts an unmeasured gate position: mid-range, so it can go either way. */
     private static final double START = 0.5;
@@ -65,14 +67,14 @@ public class FullPathBench extends RobotOpMode {
                 .onPress(this::cycleGate);
         driver.when("Triangle (Y)", "Prefeed: follow / hold IN / hold OUT / hold IDLE", () -> gamepad1.y)
                 .onPress(this::cyclePrefeed);
-        driver.when("D-pad up", "Gate: shown position +" + coarseStep + " (first press sets 0.50 and moves it)",
-                () -> gamepad1.dpad_up).onPress(() -> nudge(Math.abs(coarseStep)));
-        driver.when("D-pad down", "Gate: shown position -" + coarseStep, () -> gamepad1.dpad_down)
-                .onPress(() -> nudge(-Math.abs(coarseStep)));
-        driver.when("D-pad right", "Gate: shown position +" + fineStep, () -> gamepad1.dpad_right)
-                .onPress(() -> nudge(Math.abs(fineStep)));
-        driver.when("D-pad left", "Gate: shown position -" + fineStep, () -> gamepad1.dpad_left)
-                .onPress(() -> nudge(-Math.abs(fineStep)));
+        driver.when("D-pad up", "Gate: shown position +" + COARSE_STEP + " (first press sets 0.50 and moves it)",
+                () -> gamepad1.dpad_up).onPress(() -> nudge(COARSE_STEP));
+        driver.when("D-pad down", "Gate: shown position -" + COARSE_STEP, () -> gamepad1.dpad_down)
+                .onPress(() -> nudge(-COARSE_STEP));
+        driver.when("D-pad right", "Gate: shown position +" + FINE_STEP, () -> gamepad1.dpad_right)
+                .onPress(() -> nudge(FINE_STEP));
+        driver.when("D-pad left", "Gate: shown position -" + FINE_STEP, () -> gamepad1.dpad_left)
+                .onPress(() -> nudge(-FINE_STEP));
     }
 
     @Override
