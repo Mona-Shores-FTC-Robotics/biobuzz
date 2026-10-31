@@ -20,7 +20,7 @@ public final class RQualsAuto {
     public static final String SOURCE = "r-quals.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "";
+    public static final String SAVED = "10-31|2:09AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
@@ -58,14 +58,14 @@ public final class RQualsAuto {
         Pose laneFire = p.of(45, 26, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose sCatchToFarFlowerTurnControl1 = p.of(60.5, 40, 0);
-        Pose sCatchToFarFlowerTurnControl2 = p.of(60.5, 100, 0);
+        Pose sCatchToFarFlowerTurnControl1 = p.of(63.2255, 21.9813, 0);
+        Pose sCatchToFarFlowerTurnControl2 = p.of(60.6514, 94.8518, 0);
         Pose sCatchToFarFlowerTurnControl3 = p.of(60.5, 118, 0);
         Pose farFlowerToNFireControl1 = p.of(47.36, 116.64, 0);
         Pose farFlowerToNFireSegment1Heading = p.of(57.5, 119, 90);
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
-        Pose nFireToSFireControl1 = p.of(60.5, 100, 0);
-        Pose nFireToSFireControl2 = p.of(60.5, 40, 0);
+        Pose nFireToSFireControl1 = p.of(63.9826, 98.7887, 0);
+        Pose nFireToSFireControl2 = p.of(59.8943, 25.0096, 0);
         Pose sFireToLaneFireSegment1Heading = p.of(45, 26, 270);
         Pose sFireToLaneFireSegment2Start = p.of(45, 26, 270);
         Pose laneFireToWallFlowerTurnSegment1Heading = p.of(23.16, 47.36, 90);
