@@ -18,6 +18,9 @@ public final class RQualsPollenOnlyAuto {
     /** The .pp file this was generated from. */
     public static final String SOURCE = "r-quals-pollen-only.pp";
 
+    /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
+    public static final String SAVED = "";
+
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower"};
 

@@ -19,7 +19,9 @@ has its `.pp` file committed here, in the same PR as the Java generated from it.
   guard's seconds in the Java, so the same `.pp` exports the same Java on any laptop.
 - **Each Auto gets a five-line OpMode** in `opmodes/auto/`, `<Class>OpMode extends BuiltAuto`
   (see `BuiltAuto`'s javadoc), which is what the Driver Station lists. The generated class itself
-  is not an OpMode.
+  is not an OpMode. Its name ends with the time the `.pp` was saved, Michigan time
+  (`R-Simple 10-31|12:22AM`), from the generated class's `SAVED`: after a Sloth Load, the Driver
+  Station shows which save is on the robot.
 
 ## Team spots (`spots.json`)
 
