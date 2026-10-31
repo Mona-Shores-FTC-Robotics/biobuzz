@@ -22,7 +22,7 @@ import java.util.Map;
  *       Everything else, the game pieces and their staged copies included, is unchanged.</li>
  *   <li>{@value #ROBOT_FOLDER}: the frame as the base model, the red rocker as component 0
  *       and the blue rocker as component 1. Put it on the field at the origin and give it the
- *       {@code /Sim/Hive/Components} poses, and the rockers swing about their axle.</li>
+ *       {@link HiveComponents#KEY} poses, and the rockers swing about their axle.</li>
  * </ul>
  * Without component poses AdvantageScope draws the rockers as built, which is the match-start
  * position; so the HIVE looks right even in a log that only has the frame pose.
@@ -46,9 +46,9 @@ final class HiveAssets {
     static final String ROBOT_NAME = "BIOBUZZ HIVE";
     static final String STAGED_CSV = "biobuzz-staged-pieces.csv";
 
-    /** Component order in {@value #ROBOT_FOLDER} and in {@code /Sim/Hive/Components}. */
-    static final int RED_COMPONENT = 0;
-    static final int BLUE_COMPONENT = 1;
+    /** Component order in {@value #ROBOT_FOLDER}: {@link HiveComponents}'. */
+    static final int RED_COMPONENT = HiveComponents.RED;
+    static final int BLUE_COMPONENT = HiveComponents.BLUE;
 
     /** Model point {@code (x, y, z)} → Center/Rotated {@code (z, x, y)}, column-major. */
     static final double[] MODEL_TO_CENTER_ROTATED = {

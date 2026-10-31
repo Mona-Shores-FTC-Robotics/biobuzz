@@ -1977,22 +1977,9 @@ final class FieldSim {
      * is Center/Rotated's y axis, so that is a rotation about y through {@code (0, 0, pivot)}.
      */
     double[] hiveComponents() {
-        double[] out = new double[14];
-        Rocker[] order = new Rocker[2];
-        order[HiveAssets.RED_COMPONENT] = red;
-        order[HiveAssets.BLUE_COMPONENT] = blue;
-        double h = PIVOT_Z_IN * AdvantageScopeFrame.METERS_PER_INCH;
-        for (int i = 0; i < 2; i++) {
-            double d = order[i].angle - order[i].builtAngle();
-            int k = 7 * i;
-            out[k] = -h * Math.sin(d);
-            out[k + 1] = 0;
-            out[k + 2] = h * (1 - Math.cos(d));
-            out[k + 3] = Math.cos(d / 2);
-            out[k + 4] = 0;
-            out[k + 5] = Math.sin(d / 2);
-            out[k + 6] = 0;
-        }
+        double[] out = new double[7 * HiveComponents.COUNT];
+        HiveComponents.pose(HiveComponents.RED, red.angle - red.builtAngle(), out);
+        HiveComponents.pose(HiveComponents.BLUE, blue.angle - blue.builtAngle(), out);
         return out;
     }
 
