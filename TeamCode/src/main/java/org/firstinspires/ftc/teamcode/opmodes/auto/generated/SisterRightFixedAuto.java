@@ -44,8 +44,8 @@ public final class SisterRightFixedAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(54.06, 7.72, 90);
         Pose sCatch = p.of(57.5, 21, 90);
-        Pose gardenIn = p.of(9.5, 20.56, 270);
-        Pose garden = p.of(9.5, 10.96, 270);
+        Pose gardenIn = p.of(11.5, 22.1, 270);
+        Pose garden = p.of(8.5, 9.5, 270);
         Pose rS = p.of(40, 22, 90);
         Pose rN = p.of(30, 104, 90);
         Pose park = p.of(14, 95, 90);
@@ -55,8 +55,8 @@ public final class SisterRightFixedAuto {
         Pose rW = p.of(30, 40, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose sCatchToGardenInSegment1Heading = p.of(9.5, 20.56, 90);
-        Pose sCatchToGardenInSegment2Start = p.of(9.5, 20.56, 90);
+        Pose sCatchToGardenInSegment1Heading = p.of(11.5, 22.1, 90);
+        Pose sCatchToGardenInSegment2Start = p.of(11.5, 22.1, 90);
         Pose gardenToRSSegment1Heading = p.of(40, 22, 270);
         Pose gardenToRSSegment2Start = p.of(40, 22, 270);
         Pose rSToWallFlowerTurnSegment1Heading = p.of(23.16, 47.36, 90);
@@ -93,11 +93,11 @@ public final class SisterRightFixedAuto {
         return kit.sequence(
                 kit.guarded("Auto", rNToPark, 1.3,
                         kit.command("SpinUp"),
-                        kit.path("START to R_PRE", startToRPre),
+                        kit.path("START to R_PRE", startToRPre, 1.1),
                         kit.firstOf("Preloads at the right CELL (TIP 1)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(3000)),
-                        kit.path("R_PRE to S_CATCH", rPreToSCatch),
+                        kit.path("R_PRE to S_CATCH", rPreToSCatch, 0.4),
                         kit.firstOf("TIP 1",
                                 kit.when("Tip"),
                                 kit.afterMs(4000).then(
@@ -115,38 +115,38 @@ public final class SisterRightFixedAuto {
                                         kit.firstOf("TIP 1's catch at the right CELL", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("S_CATCH to GARDEN_IN", sCatchToGardenIn),
-                                        kit.path("GARDEN_IN to GARDEN", gardenInToGarden),
+                                        kit.path("S_CATCH to GARDEN_IN", sCatchToGardenIn, 2.3),
+                                        kit.path("GARDEN_IN to GARDEN", gardenInToGarden, 1.1),
                                         kit.firstOf("The GARDEN's 4",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1500)),
-                                        kit.path("GARDEN to R_S", gardenToRS),
+                                        kit.path("GARDEN to R_S", gardenToRS, 2.1),
                                         kit.firstOf("The right CELL up",
                                                 kit.when("RightCellUp").then(
                                                         kit.firstOf("The GARDEN's 4 (TIP 3)", kit.command("LaunchAll"),
                                                                 kit.when("Tip"),
                                                                 kit.afterMs(2500)),
-                                                        kit.path("R_S to WALL_FLOWER_TURN", rSToWallFlowerTurn),
-                                                        kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower),
+                                                        kit.path("R_S to WALL_FLOWER_TURN", rSToWallFlowerTurn, 1.7),
+                                                        kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower, 0.9),
                                                         kit.firstOf("The wall FLOWER's 4",
                                                                 kit.when("IntakeFull"),
                                                                 kit.afterMs(3000)),
-                                                        kit.path("WALL_FLOWER to R_N", wallFlowerToRN)),
+                                                        kit.path("WALL_FLOWER to R_N", wallFlowerToRN, 2.4)),
                                                 kit.afterMs(1500).then(
                                                         kit.firstOf("TIP 3 done?",
                                                                 kit.when("LeftCellUp").then(
-                                                                        kit.path("R_S to R_W", rSToRW),
-                                                                        kit.path("R_W to R_N", rWToRN)),
+                                                                        kit.path("R_S to R_W", rSToRW, 1.4),
+                                                                        kit.path("R_W to R_N", rWToRN, 2.4)),
                                                                 kit.afterMs(50).then(
                                                                         kit.firstOf("The GARDEN's 4 (TIP 3)", kit.command("LaunchAll"),
                                                                                 kit.when("Tip"),
                                                                                 kit.afterMs(2500)),
-                                                                        kit.path("R_S to WALL_FLOWER_TURN", rSToWallFlowerTurnPath),
-                                                                        kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlowerPath),
+                                                                        kit.path("R_S to WALL_FLOWER_TURN", rSToWallFlowerTurnPath, 1.7),
+                                                                        kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlowerPath, 0.9),
                                                                         kit.firstOf("The wall FLOWER's 4",
                                                                                 kit.when("IntakeFull"),
                                                                                 kit.afterMs(3000)),
-                                                                        kit.path("WALL_FLOWER to R_N", wallFlowerToRNPath))))),
+                                                                        kit.path("WALL_FLOWER to R_N", wallFlowerToRNPath, 2.4))))),
                                         kit.firstOf("The left CELL up",
                                                 kit.when("LeftCellUp"),
                                                 kit.afterMs(4000)),
@@ -154,11 +154,11 @@ public final class SisterRightFixedAuto {
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000))),
                                 kit.afterMs(9000).then(
-                                        kit.path("S_CATCH to R_W", sCatchToRW),
-                                        kit.path("R_W to R_N", rWToRNPath),
+                                        kit.path("S_CATCH to R_W", sCatchToRW, 1.8),
+                                        kit.path("R_W to R_N", rWToRNPath, 2.4),
                                         kit.firstOf("No TIP 2: TIP 1's catch at the left CELL (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(3000)))),
-                        kit.path("R_N to PARK", rNToPark)));
+                        kit.path("R_N to PARK", rNToPark, 1.3)));
     }
 }
