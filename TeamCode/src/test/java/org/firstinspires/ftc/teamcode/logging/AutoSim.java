@@ -829,7 +829,7 @@ public final class AutoSim {
         return result;
     }
 
-    /** Whether two robots' 18 in footprints overlap now. */
+    /** Whether two robots' footprints (each at most 18 in square) overlap now. */
     private static boolean overlap(Bot a, Bot b) {
         double[] pa = pedro(a.drive.pose), pb = pedro(b.drive.pose);
         if (Math.hypot(pa[0] - pb[0], pa[1] - pb[1]) > 2 * 0.7072 * 18 + 1) return false;
@@ -972,12 +972,11 @@ public final class AutoSim {
 
     /** One robot: its exported Auto, drivetrain, launcher and intake. */
     /**
-     * Designs drawn with the CAD's whole-robot model ({@code BIOBUZZ Robot}) rather than {@code BIOBUZZ Robot
-     * (designs)}: the baseline, "rigid V", its variants ("rigid V, transfer"), and the name it had while the
-     * body-designs branch drew it.
+     * Designs drawn with the CAD's whole-robot model ({@code BIOBUZZ Robot}, the team's robot) rather than
+     * {@code BIOBUZZ Robot (designs)}: the real robot and its variants ({@link RobotDesign#real}).
      */
     static boolean cadModel(String design) {
-        return design.equals("rigid V") || design.startsWith("rigid V, ") || design.startsWith("flat intake, rigid V as drawn");
+        return design.startsWith(RobotDesign.REAL);
     }
     /** The CAD model's extractor shaft (cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json): along +Y through here, m. */
     static final double[] EXTRACTOR_PIVOT_M = {0.25298, 0, 0.1143};
@@ -1014,7 +1013,7 @@ public final class AutoSim {
         final Class<?> autoClass;
         final int index;
         final SimDrive drive = new SimDrive();
-        RobotDesign design = RobotDesign.standard();
+        RobotDesign design = RobotDesign.real();
         /** The camera is down ({@link AutoSim#cameraDown}): the HIVE's state is invisible to this robot. */
         boolean cameraDown;
         /** CollectSeen's x range, drawn for RED; null for anywhere. */
@@ -1112,11 +1111,11 @@ public final class AutoSim {
             AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add);
             try {
                 drive.pose = (Pose) startPose.invoke(null, rotated);
-                // An Auto drawn for an 18 in robot backed against the wall: a shorter chassis that should
-                // start against it too has its start pose set that much further back on the robot.
-                if (design.startBackedToWall && design.frameIn < 18) {
+                // An Auto drawn for the real robot (RobotDesign.REAL_FRAME_IN) backed against the wall: a shorter
+                // chassis that should start against it too has its start pose set that much further back on the robot.
+                if (design.startBackedToWall && design.frameIn < RobotDesign.REAL_FRAME_IN) {
                     Pose p = drive.pose;
-                    double back = (18 - design.frameIn) / 2;
+                    double back = (RobotDesign.REAL_FRAME_IN - design.frameIn) / 2;
                     drive.pose = new Pose(p.x() - back * Math.cos(p.heading()), p.y() - back * Math.sin(p.heading()), p.heading());
                 }
                 auto = (Command) build.invoke(null, kit, rotated);
@@ -2323,7 +2322,7 @@ public final class AutoSim {
         /** Braking, in/s²: the same as {@link #accel} unless {@link AutoSim#speed(double, double, double)} says otherwise. */
         double decel = ACCEL_IN_PER_S2;
         /** Turning is rate-limited too: a path ends when the robot is there and facing its way. */
-        double maxTurn = RobotDesign.standard().maxTurnRadPerS;
+        double maxTurn = RobotDesign.real().maxTurnRadPerS;
         private double startedAt = Double.NaN;
         private double length;
         /** A straight run from where the robot was to where the path starts, if it was elsewhere. */

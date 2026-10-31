@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import org.firstinspires.ftc.teamcode.localization.ResetPositions;
+import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
+import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
+
 import java.util.Locale;
 
 /**
@@ -29,14 +33,23 @@ final class RobotDesign {
     /** A FLOWER's retrieval opening is 3.55 in tall (Competition Manual §9.7). */
     static final double FLOWER_OPENING_HEIGHT_IN = 3.55;
 
+    /**
+     * The real robot's frame, square: twice {@link ResetPositions#WALL_TO_CENTRE_IN}, measured by tape on
+     * 20245 on 30 Oct 2026 (about 16 in without the nose). The Autos are drawn for it (the Visualizer's
+     * robot is 16 x 16, and the measured start puts its back on the wall), so it is every design's frame
+     * unless the design says otherwise. Until 31 Oct 2026 it was the 18 in start cube, and the robot
+     * started 1.3 in into the wall on every Auto drawn from the measured start.
+     */
+    static final double REAL_FRAME_IN = 2 * ResetPositions.WALL_TO_CENTRE_IN;
+
     final String name;
     /** Frame length, front to back (R102: at most 18 in at the start). */
-    double frameIn = 18;
+    double frameIn = REAL_FRAME_IN;
     /**
      * Frame width, side to side (R102: at most 18 in). Only {@link FieldSim}'s collisions and
      * {@link #checked} use it; {@link AutoSim}'s outlines still draw a square {@link #frameIn}.
      */
-    double frameWidthIn = 18;
+    double frameWidthIn = REAL_FRAME_IN;
     /** How far the intake reaches past the frame once the match starts. */
     double intakeReachIn = 0;
     double intakeWidthIn = 14;
@@ -375,6 +388,46 @@ final class RobotDesign {
 
     RobotDesign(String name) {
         this.name = name;
+    }
+
+    /** The real robot (31 Oct 2026): the one design the simulator runs, in its four variants. */
+    static final String REAL = "real robot";
+    static final String REAL_LOCKED = "real robot, turret locked forward";
+    static final String REAL_POLLEN = "real robot, POLLEN only";
+    static final String REAL_LOCKED_POLLEN = "real robot, turret locked forward, POLLEN only";
+
+    /**
+     * The team's robot as master's code has it: a {@link #REAL_FRAME_IN} square chassis, a front intake, a turret
+     * launcher fed by the feeder, and the FLOWER stick, which {@code FlowerPicker} pushes to
+     * {@code contactStandoffIn} from a FLOWER's centre. What master states is taken from it, so a change there
+     * changes the simulation: the turret's offset (TurretSubsystem), the stick's contact standoff, and the feed
+     * (LaunchCards: LaunchAll feeds 4 in {@code launchAllFeedS}). Everything else is a placeholder still to be
+     * measured from the robot's match logs; the four variants are the choices the drive team makes, not guesses.
+     */
+    static RobotDesign real() {
+        RobotDesign d = new RobotDesign(REAL);
+        d.intakeWidthIn = 0.9 * d.frameWidthIn;
+        d.intakeOnContact = true;
+        d.extractorSeatIn = FlowerPicker.contactStandoffIn - d.frameIn / 2;
+        d.shotIntervalS = LaunchCards.launchAllFeedS / 4;
+        return d;
+    }
+
+    /** {@link #real()} with the turret locked straight ahead (R-Quals-Locked): the drivetrain aims. */
+    static RobotDesign realLocked() {
+        RobotDesign d = real().copy(REAL_LOCKED);
+        d.launcher = Launcher.FIXED;
+        return d;
+    }
+
+    /**
+     * {@code base} taking and launching POLLEN only (R-Quals-Pollen-Only): it never takes a NECTAR, so an Auto for
+     * it has no reason to wait for the first TIP's spill, which brings NECTAR.
+     */
+    static RobotDesign pollenOnly(RobotDesign base, String name) {
+        RobotDesign d = base.copy(name);
+        d.launchesNectar = false;
+        return d;
     }
 
     /** What the simulation has always assumed: front intake, a turret that aims itself. */
