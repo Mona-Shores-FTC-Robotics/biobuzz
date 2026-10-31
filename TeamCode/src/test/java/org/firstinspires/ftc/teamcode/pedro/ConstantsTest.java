@@ -152,7 +152,8 @@ public class ConstantsTest {
      * instead of the guard test below.
      */
     private static final Set<RobotIdentity> FORESIGHT_TUNED = EnumSet.of(
-            RobotIdentity.TEAM_20245);  // 17 Oct 2026, issue #175
+            RobotIdentity.TEAM_20245,  // 17 Oct 2026, issue #175
+            RobotIdentity.TEAM_19429); // TEMPORARY: borrows 20245's values for testing; remove once 19429 is tuned
 
     @Test
     public void createAlgorithmRefusesToBuildAnUntunedForesight() {
