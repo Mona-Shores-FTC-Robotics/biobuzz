@@ -23,7 +23,8 @@ if (-not (Test-Path (Join-Path $cad.FullName "model.glb"))) { throw "cad\advanta
 # 2. Replace every older BIOBUZZ asset in userAssets with this one.
 $user = Join-Path $scope "userAssets"
 New-Item -ItemType Directory -Force $user | Out-Null
-Get-ChildItem $user -Directory | Where-Object { $_.Name -like "*BIOBUZZ*" } | ForEach-Object {
+# Not the HIVE models the Simulation tab draws (Field3d_BIOBUZZHiveSim, Robot_BIOBUZZHive): this script does not install them.
+Get-ChildItem $user -Directory | Where-Object { $_.Name -like "*BIOBUZZ*" -and $_.Name -notlike "*BIOBUZZHive*" } | ForEach-Object {
     Remove-Item -Recurse -Force $_.FullName
     Write-Host "Removed old $($_.Name)"
 }
