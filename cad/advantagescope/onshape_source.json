@@ -1,7 +1,7 @@
 {
  "document": "Chassis concept 59 tooth belt",
- "microversion": "dc08c99a7932f288df885b2e",
- "built": "2026-10-31T03:21:44Z",
+ "microversion": "1caea4b2ff74904adfd1f2dd",
+ "built": "2026-10-31T03:51:03Z",
  "visible": {
   "11 Hole Lowside U-Channel (GB) <1>": 1,
   "11 Hole Lowside U-Channel (GB) <2>": 1,
@@ -43,16 +43,14 @@
   "Flower Poker Mid <1>": 1,
   "Hubs <1>": 7,
   "Mini Quad Block (GB)  <1>": 1,
-  "Mini Quad Block (GB)  <2>": 1,
   "Part 4 <1>": 1,
   "Servo - Speed (SWYFT) <1>": 1,
-  "Servo Block (GB) <1>": 1,
   "Servo Hub Shaft - 16mm (GB) <1>": 1,
   "Slotted Quad Block (GB)  <1>": 1,
   "Slotted Quad Block (GB)  <2>": 1,
   "Sonic Hub - 8mm  REX  (GB) <1>": 1,
-  "Transfer Turn V2 <1>": 1,
-  "fixed wheel launcher <1>": 177
+  "Transfer Turn V3 <1>": 1,
+  "fixed wheel launcher <1>": 179
  },
  "dropped": [
   "Blue Nectar <1>",

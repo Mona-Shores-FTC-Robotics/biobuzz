@@ -109,7 +109,9 @@ public class MatchLogTest {
         double[] expected = new double[7 * RobotComponents.COUNT];
         double[] angles = {0, 30, -45};
         for (int i = 0; i < angles.length; i++) {
-            RobotComponents.pose(RobotComponents.TURRET, angles[i], expected);
+            for (int c = 0; c < RobotComponents.COUNT; c++) {
+                RobotComponents.pose(c, c == RobotComponents.TURRET ? angles[i] : 0, expected);   // the rest at home
+            }
             assertArrayEquals("record " + i, expected, e.records.get(i).asDoubles(), 1e-12);
         }
     }

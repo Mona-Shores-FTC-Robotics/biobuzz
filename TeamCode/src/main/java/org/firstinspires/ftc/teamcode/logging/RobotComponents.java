@@ -23,15 +23,20 @@ public final class RobotComponents {
 
     /** The turret: {@code TurretSubsystem.angleDegrees()}, counter-clockwise from home (the nose). */
     public static final int TURRET = 0;
-    public static final int COUNT = 1;
+    /** The FLOWER stick: {@code FlowerStickSubsystem.commandedDegrees()}, swung out from stowed. */
+    public static final int FLOWER_STICK = 1;
+    public static final int COUNT = 2;
 
-    static final String[] NAMES = {"turret"};
+    static final String[] NAMES = {"turret", "flower stick"};
     /** A point on each component's axis: robot frame, metres. */
-    static final double[][] AXIS_POINT_M = {{-0.0844, -0.06791, 0.33035}};
+    static final double[][] AXIS_POINT_M = {{-0.0844, -0.06791, 0.33035}, {0.15449, 0.13883, 0.18462}};
     /** Each axis's direction, a unit vector; a positive angle turns counter-clockwise looking down it. */
-    static final double[][] AXIS_DIRECTION = {{-0.00107, 0.0, 1.0}};
-    /** The angle each component is drawn at in the CAD: the turret's hood faces 51.5 deg left of the nose. */
-    static final double[] DRAWN_AT_DEG = {51.5};
+    static final double[][] AXIS_DIRECTION = {{-0.00107, 0.0, 1.0}, {0.00107, 1.0, 0.0}};
+    /**
+     * The angle each component is drawn at in the CAD: the turret's hood faces 51.5 deg left of the
+     * nose, and the stick is drawn stowed.
+     */
+    static final double[] DRAWN_AT_DEG = {51.5, 0.0};
 
     private RobotComponents() {}
 

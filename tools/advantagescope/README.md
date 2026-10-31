@@ -39,8 +39,8 @@ Add a Table tab with `/Events` for the Auto's card-by-card lines, and the Joysti
 ## The model
 
 `cad/advantagescope/Robot_BIOBUZZ/` is the robot as the Onshape CAD shows it, built by
-`cad/advantagescope/from_onshape.py` straight from the mentor's Robot assembly. The turret turns: the
-match log writes its angle as `/Internals/Components`, and both 3D tabs show it. The flower stick comes
-next (`cad/advantagescope/README.md`, "Moving parts"). Its
+`cad/advantagescope/from_onshape.py` straight from the mentor's Robot assembly. The turret turns and
+the FLOWER stick swings: the match log writes both as `/Internals/Components`, and both 3D tabs show
+them (`cad/advantagescope/README.md`, "Moving parts"). Its
 origin is on the floor under the middle of the four drive axles; if the robot sits off its logged
 pose by a fixed offset, that is the point to check against what Pedro tracks.

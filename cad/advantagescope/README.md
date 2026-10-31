@@ -48,14 +48,20 @@ that moves an axis, copy the new numbers into `RobotComponents`. The match log w
 | # | Component | Angle | Turns about |
 |---|---|---|---|
 | 0 | Turret: the 176T gear, the bearing's inner race and the hood on them | `TurretSubsystem.angleDegrees()`, counter-clockwise from home (the nose) | The turntable bearing's centre, vertical |
+| 1 | FLOWER stick: the two arms, the 312 mm shaft across their tops, `Part 4` and the bearings on them | `FlowerStickSubsystem.commandedDegrees()`: 0 in, 162 out | The SWYFT servo's hub and bearing <1>, left to right, 6.1 in ahead of the axles' middle, 7.3 in up |
 
 **The turret is drawn at 51.5°.** In the CAD the hood faces 51.5° left of the nose (the big flat faces of the hood
 and its channel point there, and the ball leaves on that open side, away from the tall wall). So at 0, home, the
 model turns it back 51.5° to face forward. If the CAD is ever redrawn facing forward, `drawn_at_deg` becomes 0.
 
+**The FLOWER stick is drawn stowed**, leaning up and back over the robot. Out, it has swung 162° forward and down, and
+its top shaft lies on the tile, where the stick's wheels rest. Nothing measures the stick, so the log shows what it
+was commanded to do: it jumps out at the request, while the real stick takes about a second.
+
 ## What's not right yet
 
-- **The flower stick doesn't move yet.** It is the next component.
+- **`Flower Poker Mid`** has no mates in the CAD; it sits loose ahead of the stick's pivot, and the model draws it
+  there, fixed. Mate it in the CAD, or drop it in `onshape_model.json`, once someone knows what it is for.
 - **The drive wheels aren't drawn**: the CAD has their hubs and shafts only.
 - **The camera** in `config.json` is the old hand-measured one (5.58 in ahead, 14.25 in up, pitched 45°). The CAD's
   Limelight 3A sits about 2 in further back (X 2.7 to 4.4 in, Z 14.0 to 15.7 in). Reading its exact pose from the CAD

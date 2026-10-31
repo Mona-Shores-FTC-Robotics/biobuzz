@@ -47,6 +47,12 @@ public class FlowerStickSubsystem implements Subsystem {
      */
     public static int SETTLE_MS = 1500;
 
+    /**
+     * Degrees the servo turns over its whole 0 to 1 range: the goBILDA Torque servo's 270, which
+     * makes {@link #RETRACTED} to {@link #EXTENDED} the 162 degree swing ({@link #SETTLE_MS}).
+     */
+    public static final double SERVO_RANGE_DEG = 270.0;
+
     /** Cut the pulse once the stick is out and settled, so the stick rests on the tile. */
     public static boolean LIMP_EXTENDED = true;
 
@@ -127,6 +133,20 @@ public class FlowerStickSubsystem implements Subsystem {
     /** Whether the servo's pulse is off and the stick is resting on its own. */
     public boolean limp() {
         return limp;
+    }
+
+    /** The swing from in to out, degrees: the two positions' distance over the servo's range. */
+    public static double swingDegrees() {
+        return Math.abs(unitRange(RETRACTED) - unitRange(EXTENDED)) * SERVO_RANGE_DEG;
+    }
+
+    /**
+     * Degrees swung out from stowed as commanded: 0 in, {@link #swingDegrees()} out. What the
+     * servo was asked for, not a measurement (nothing measures the stick); it jumps at the request
+     * while the stick takes about a second to follow. For the robot model in the match log.
+     */
+    public double commandedDegrees() {
+        return out ? swingDegrees() : 0.0;
     }
 
     /** Start with the stick in and the servo holding it, so the robot fits its starting envelope. */

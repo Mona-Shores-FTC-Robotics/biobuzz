@@ -82,6 +82,18 @@ public class RobotComponentsTest {
         assertEquals(p[1] + 0.1, moved[1], 1e-3);
     }
 
+    @Test
+    public void theFlowerStickSwungOutPutsItsTopShaftOnTheTile() {
+        // The 312 mm shaft across the arms' tops, as the CAD draws it stowed (31 Oct 2026): X 1.87 in, Z 15.77 in.
+        double in = 0.0254;
+        double[] shaft = {1.87 * in, 0, 15.77 * in};
+        double[] out = new double[7 * RobotComponents.COUNT];
+        RobotComponents.pose(RobotComponents.FLOWER_STICK, 162, out);
+        double[] moved = apply(slice(out, RobotComponents.FLOWER_STICK), shaft);
+        assertEquals("out, it lies on the tile (the stick's wheels)", 0.5, moved[2] / in, 0.5);
+        assertEquals("ahead of the robot's front", 12.7, moved[0] / in, 0.5);
+    }
+
     /** The pose (translation t, quaternion q) applied to v: t + q v q*. */
     private static double[] apply(double[] pose, double[] v) {
         double w = pose[3], x = pose[4], y = pose[5], z = pose[6];

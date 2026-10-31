@@ -16,6 +16,22 @@
     1.0
    ],
    "drawn_at_deg": 51.5
+  },
+  {
+   "index": 1,
+   "name": "flower stick",
+   "angle": "FlowerStickSubsystem.commandedDegrees(): degrees swung out from stowed, 0 in, swingDegrees() (162) out; the commanded state, not a measured angle",
+   "axis_point_m": [
+    0.15449,
+    0.13883,
+    0.18462
+   ],
+   "axis_direction": [
+    0.00107,
+    1.0,
+    0.0
+   ],
+   "drawn_at_deg": 0
   }
  ]
 }
