@@ -70,7 +70,7 @@ public final class StartCheck {
             display.line("<b><font color=\"" + (warn ? "#FFB300" : "#4CAF50") + "\">"
                     + start.arrow() + "</font> Start: " + start.placement() + "</b>");
             if (status == Status.UNCONFIRMED) {
-                display.line("<small>camera: not seeing it yet</small>");
+                display.line("<small>camera: no fix matches this start yet</small>");
             } else if (warn) {
                 display.line(String.format(java.util.Locale.US,
                         "camera disagrees by %.0f in — CHECK THE MARKS", errorIn));
