@@ -19,6 +19,9 @@ public final class SisterLeftFixedAuto {
     /** The .pp file this was generated from. */
     public static final String SOURCE = "sister-left-fixed.pp";
 
+    /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
+    public static final String SAVED = "";
+
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "LaunchOne", "SpinUp"};
 
@@ -80,20 +83,20 @@ public final class SisterLeftFixedAuto {
         Path lNToParkL = Paths.curve(lN, lNToParkLControl1, lNToParkLControl2, parkL).constant(parkL);
 
         return kit.sequence(
-                kit.guarded("Auto", lNToParkL, 2.1,
+                kit.guarded("Auto", lNToParkL, 2,
                         kit.command("SpinUp"),
-                        kit.path("START to FAR_FLOWER_TURN", startToFarFlowerTurn),
+                        kit.path("START to FAR_FLOWER_TURN", startToFarFlowerTurn, 1.9),
                         kit.firstOf("TIP 1 (R): the left CELL up",
                                 kit.when("LeftCellUp"),
                                 kit.afterMs(15000)),
                         kit.firstOf("Preloads at the left CELL", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(3000)),
-                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
+                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower, 0.9),
                         kit.firstOf("The far FLOWER's 4",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(3000)),
-                        kit.path("FAR_FLOWER to L_N", farFlowerToLN),
+                        kit.path("FAR_FLOWER to L_N", farFlowerToLN, 1.6),
                         kit.firstOf("The far FLOWER's 4 (TIP 2)", kit.command("LaunchAll"),
                                 kit.when("Tip"),
                                 kit.afterMs(4000)),
@@ -102,8 +105,8 @@ public final class SisterLeftFixedAuto {
                                         kit.firstOf("TIP 2's spill lands",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(500)),
-                                        kit.path("L_N to L_TURN", lNToLTurn),
-                                        kit.path("L_TURN to L_S", lTurnToLS),
+                                        kit.path("L_N to L_TURN", lNToLTurn, 3.3),
+                                        kit.path("L_TURN to L_S", lTurnToLS, 1.3),
                                         kit.command("LaunchOne"),
                                         kit.command("LaunchOne"),
                                         kit.command("LaunchOne"),
@@ -113,15 +116,15 @@ public final class SisterLeftFixedAuto {
                                         kit.firstOf("TIP 3's spill lands",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(800)),
-                                        kit.path("L_S to L_C", lSToLC),
+                                        kit.path("L_S to L_C", lSToLC, 1.4),
                                         kit.firstOf("Catch TIP 3's spill",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(2000)),
-                                        kit.path("L_C to L_N", lCToLN),
+                                        kit.path("L_C to L_N", lCToLN, 3.2),
                                         kit.firstOf("TIP 3's catch at the left CELL (TIP 4, with R)", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000))),
                                 kit.afterMs(4500)),
-                        kit.path("L_N to PARK_L", lNToParkL)));
+                        kit.path("L_N to PARK_L", lNToParkL, 2)));
     }
 }

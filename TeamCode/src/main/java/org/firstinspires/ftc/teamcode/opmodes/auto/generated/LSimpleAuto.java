@@ -19,6 +19,9 @@ public final class LSimpleAuto {
     /** The .pp file this was generated from. */
     public static final String SOURCE = "l-simple.pp";
 
+    /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
+    public static final String SAVED = "";
+
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
 
@@ -67,21 +70,21 @@ public final class LSimpleAuto {
         return kit.sequence(
                 kit.guarded("Auto", nFireToParkL, 2.1,
                         kit.command("SpinUp"),
-                        kit.path("START to FAR_FLOWER_TURN", startToFarFlowerTurn),
+                        kit.path("START to FAR_FLOWER_TURN", startToFarFlowerTurn, 1.9),
                         kit.firstOf("TIP 1 (the partner's preloads)",
                                 kit.when("LeftCellUp"),
                                 kit.afterMs(7000)),
                         kit.firstOf("Fire our preloads at the left CELL", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(3000)),
-                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
+                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower, 0.9),
                         kit.firstOf("The far FLOWER's 4",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(3000)),
-                        kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire),
+                        kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire, 1.6),
                         kit.firstOf("Fire the far FLOWER's 4 (TIP 2)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(2000)),
-                        kit.path("N_FIRE to PARK_L", nFireToParkL)));
+                        kit.path("N_FIRE to PARK_L", nFireToParkL, 2.1)));
     }
 }
