@@ -1,7 +1,7 @@
 """Printable mount for the lane beam-break (issue #213): one Adafruit 2168 half on any goBILDA channel face or plate.
 
-    pip install trimesh manifold3d
-    python3 cad/beam-mount/parts.py         # writes beam_mount.stl next to this file
+    pip install cadquery
+    python3 cad/beam-mount/parts.py         # writes beam_mount.step and beam_mount.stl next to this file
 
 The beam looks through one of the face's 14 mm holes. The mount bolts on with two M4 screws through the 4.5 mm
 holes 16 mm apart beside it (the ring around the next 14 mm hole: every goBILDA channel and plate has them), screwed
@@ -16,8 +16,7 @@ the lane, +Y along the sensor from the LED toward its screw. Flat on the bed as 
 """
 import os
 
-import trimesh
-from trimesh.creation import box, cylinder
+import cadquery as cq
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -47,50 +46,46 @@ WALL_H = 4.0                 # ...this tall: they only square the body up, the s
 MARGIN = 2.0                 # plate beyond the body's ends and the nut pockets
 
 
-def slab(x0, x1, y0, y1, z0, z1):
-    b = box(extents=[x1 - x0, y1 - y0, z1 - z0])
-    b.apply_translation([(x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2])
-    return b
+def box(x0, x1, y0, y1, z0, z1):
+    return cq.Workplane("XY").box(x1 - x0, y1 - y0, z1 - z0, centered=False).translate((x0, y0, z0))
 
 
-def z_hole(x, y, z0, z1, d, sections=48):
-    c = cylinder(radius=d / 2, height=z1 - z0, sections=sections)
-    c.apply_translation([x, y, (z0 + z1) / 2])
-    return c
+def z_hole(x, y, z0, z1, d):
+    return cq.Workplane("XY").workplane(offset=z0).center(x, y).circle(d / 2).extrude(z1 - z0)
 
 
 def hex_pocket(x, y, z0, z1, af):
-    return z_hole(x, y, z0, z1, af / 0.866, sections=6)      # across corners
+    return cq.Workplane("XY").workplane(offset=z0).center(x, y).polygon(6, af / 0.866).extrude(z1 - z0)   # across corners
 
 
 def beam_mount():
     y0 = -LED_FROM_END - FIT                     # the body's ends
     y1 = LED_TO_SCREW + LED_FROM_END + FIT       # (LED and screw are each 5 mm from an end)
     sx = BODY_W / 2 + FIT                        # the side walls' inner faces
-    plate = slab(SCREW_X - NUT_AF / 2 - 3.0, sx + WALL,
-                 min(y0 - MARGIN, -SCREW_Y - NUT_AF / 2 - MARGIN), max(y1 + MARGIN, SCREW_Y + NUT_AF / 2 + MARGIN),
-                 0, PLATE_T)
-    walls = [slab(x0, x1, y0, y1, PLATE_T, PLATE_T + WALL_H) for x0, x1 in ((-sx - WALL, -sx), (sx, sx + WALL))]
-    holes = [z_hole(0, 0, -1, PLATE_T + 1, APERTURE),
-             z_hole(0, LED_TO_SCREW, -1, PLATE_T + 1, S_CLEAR),
-             hex_pocket(0, LED_TO_SCREW, -1, S_NUT_T, S_NUT_AF)]
+    part = box(SCREW_X - NUT_AF / 2 - 3.0, sx + WALL,
+               min(y0 - MARGIN, -SCREW_Y - NUT_AF / 2 - MARGIN), max(y1 + MARGIN, SCREW_Y + NUT_AF / 2 + MARGIN),
+               0, PLATE_T)
+    for x0, x1 in ((-sx - WALL, -sx), (sx, sx + WALL)):
+        part = part.union(box(x0, x1, y0, y1, PLATE_T, PLATE_T + WALL_H))
+    cuts = [z_hole(0, 0, -1, PLATE_T + 1, APERTURE),
+            z_hole(0, LED_TO_SCREW, -1, PLATE_T + 1, S_CLEAR),
+            hex_pocket(0, LED_TO_SCREW, -1, S_NUT_T, S_NUT_AF)]
     for y in (-SCREW_Y, SCREW_Y):
-        holes.append(z_hole(SCREW_X, y, -1, PLATE_T + 1, M4_CLEAR))
-        holes.append(hex_pocket(SCREW_X, y, PLATE_T - NUT_T, PLATE_T + 1, NUT_AF))
-    part = plate
-    for w in walls:
-        part = part.union(w)
-    for h in holes:                              # one at a time: concatenated cutters overlap, and that corrupts the cut
-        part = part.difference(h)
+        cuts.append(z_hole(SCREW_X, y, -1, PLATE_T + 1, M4_CLEAR))
+        cuts.append(hex_pocket(SCREW_X, y, PLATE_T - NUT_T, PLATE_T + 1, NUT_AF))
+    for c in cuts:
+        part = part.cut(c)
     return part
 
 
 def main():
-    m = beam_mount()
-    assert m.is_watertight
-    m.export(os.path.join(HERE, "beam_mount.stl"))
-    lo, hi = m.bounds
-    print(f"beam_mount.stl  {hi[0] - lo[0]:.1f} x {hi[1] - lo[1]:.1f} x {hi[2] - lo[2]:.1f} mm  {m.volume / 1000:.1f} cm3")
+    part = beam_mount()
+    solid = part.val()
+    assert solid.isValid()
+    cq.exporters.export(part, os.path.join(HERE, "beam_mount.step"))
+    cq.exporters.export(part, os.path.join(HERE, "beam_mount.stl"), tolerance=0.01, angularTolerance=0.1)
+    bb = solid.BoundingBox()
+    print(f"beam_mount.step/.stl  {bb.xlen:.1f} x {bb.ylen:.1f} x {bb.zlen:.1f} mm  {solid.Volume() / 1000:.1f} cm3")
 
 
 if __name__ == "__main__":

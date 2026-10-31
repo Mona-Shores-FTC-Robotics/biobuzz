@@ -1,7 +1,7 @@
 """Draws parts.png: the mount alone, the mount with a sensor on a goBILDA wall, and its footprint on the hole pattern.
 
-    pip install trimesh manifold3d matplotlib
-    python3 cad/beam-mount/render.py
+    pip install cadquery trimesh matplotlib
+    python3 cad/beam-mount/parts.py && python3 cad/beam-mount/render.py      # draws the STL parts.py wrote
 """
 import os
 
@@ -60,26 +60,39 @@ def show(ax, img, title):
     ax.imshow(img); ax.set_axis_off(); ax.set_title(title, fontsize=10)
 
 
+def slab(x0, x1, y0, y1, z0, z1):
+    b = trimesh.creation.box(extents=[x1 - x0, y1 - y0, z1 - z0])
+    b.apply_translation([(x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2])
+    return b
+
+
+def cyl(x, y, z0, z1, d):
+    c = trimesh.creation.cylinder(radius=d / 2, height=z1 - z0, sections=48)
+    c.apply_translation([x, y, (z0 + z1) / 2])
+    return c
+
+
 def wall():
     """A patch of goBILDA face, 2.5 mm thick, under the mount: 14 mm holes 24 mm apart, 4.5 mm holes at +-8 mm."""
-    w = parts.slab(-40, 14, -22, 26, -2.5, 0)
-    holes = []
+    w = slab(-40, 14, -22, 26, -2.5, 0)
     for cx in (0.0, -24.0):
-        holes.append(parts.z_hole(cx, 0, -4, 2, 14.0))
-        holes += [parts.z_hole(cx + dx, dy, -4, 2, 4.5) for dx in (-8, 8) for dy in (-8, 8)]
-    return w.difference(trimesh.util.concatenate(holes))
+        w = w.difference(cyl(cx, 0, -4, 2, 14.0))
+        for dx in (-8, 8):
+            for dy in (-8, 8):
+                w = w.difference(cyl(cx + dx, dy, -4, 2, 4.5))
+    return w
 
 
 def sensor():
     """The sensor as a plain block on the plate, LED end over the window, plus its LED dome and screw head."""
     y0 = -parts.LED_FROM_END
-    body = parts.slab(-parts.BODY_W / 2, parts.BODY_W / 2, y0, y0 + parts.BODY_L, parts.PLATE_T, parts.PLATE_T + 9)
-    head = parts.z_hole(0, parts.LED_TO_SCREW, parts.PLATE_T + 9, parts.PLATE_T + 11.5, 5.5)
+    body = slab(-parts.BODY_W / 2, parts.BODY_W / 2, y0, y0 + parts.BODY_L, parts.PLATE_T, parts.PLATE_T + 9)
+    head = cyl(0, parts.LED_TO_SCREW, parts.PLATE_T + 9, parts.PLATE_T + 11.5, 5.5)
     return body, head
 
 
 def main():
-    m = parts.beam_mount()
+    m = trimesh.load(os.path.join(HERE, "beam_mount.stl"))
     fig = plt.figure(figsize=(15, 5.5))
     yellow, grey = (0.95, 0.75, 0.2), (0.72, 0.74, 0.8)
     show(fig.add_subplot(1, 3, 1), raster([(m, yellow)], 40, -60), "beam_mount.stl, as it prints")
