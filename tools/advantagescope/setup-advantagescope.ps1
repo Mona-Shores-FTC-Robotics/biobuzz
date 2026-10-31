@@ -4,7 +4,7 @@
 #   powershell -ExecutionPolicy Bypass -File tools\advantagescope\setup-advantagescope.ps1 [-Open <file.wpilog>]
 #
 # Every run: installs the team's robot model (cad/advantagescope/Robot_BIOBUZZ, committed) into AdvantageScope's
-# userAssets, replacing any older BIOBUZZ asset there; copies the match layout (match-layout.json, beside this
+# userAssets, replacing its older copy and nothing else; copies the match layout (match-layout.json, beside this
 # script) to Downloads and says so when it changed (then File > Import Layout... once); and with -Open, starts
 # AdvantageScope on that log. Restart AdvantageScope after an asset change: it reads userAssets at start.
 #
@@ -20,12 +20,15 @@ $scope = Join-Path $env:APPDATA "AdvantageScope"
 $cad = Get-Item (Join-Path $repo "cad\advantagescope\Robot_BIOBUZZ")
 if (-not (Test-Path (Join-Path $cad.FullName "model.glb"))) { throw "cad\advantagescope\Robot_BIOBUZZ has no model.glb: is the checkout complete?" }
 
-# 2. Replace every older BIOBUZZ asset in userAssets with this one.
+# 2. Replace the older copy of this model, and only that: the simulator's assets (the HIVE field, the HIVE that tips,
+# the designs model) are BIOBUZZ folders too, built on this laptop from AdvantageScope's own field, and can't be put
+# back from here.
 $user = Join-Path $scope "userAssets"
 New-Item -ItemType Directory -Force $user | Out-Null
-Get-ChildItem $user -Directory | Where-Object { $_.Name -like "*BIOBUZZ*" } | ForEach-Object {
-    Remove-Item -Recurse -Force $_.FullName
-    Write-Host "Removed old $($_.Name)"
+$old = Join-Path $user $cad.Name
+if (Test-Path $old) {
+    Remove-Item -Recurse -Force $old
+    Write-Host "Removed old $($cad.Name)"
 }
 Copy-Item -Recurse -Force $cad.FullName $user
 Write-Host "Installed $($cad.Name) as 'BIOBUZZ Robot'"
