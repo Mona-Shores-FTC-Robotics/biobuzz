@@ -127,6 +127,16 @@ team spots*, which re-exports every Auto that uses a changed spot in the same co
 by hand.
 → `TeamCode/autos/README.md`
 
+**The simulator** is test code only (`src/test/.../logging/`: `AutoSim`, `FieldSim`, `SimRunTest`), and
+it runs master's generated Autos as they are. It knows one robot, the real one, in four variants
+(`RobotDesign.real`: turret or locked forward, POLLEN + NECTAR or POLLEN only); a number master
+states (frame, FLOWER stick, feed) is read from master's code, never copied, and the rest is a
+placeholder until a match log measures it. Its points are shown, never enforced: no test fails an
+Auto for scoring less. Only `SimulatorSmokeTest` runs by default; every other simulator test is
+opt-in by environment variable, so CI stays fast. The "Simulate Auto" workflow runs a saved
+`TeamCode/sim-request.json` and publishes to the `sim-results` branch.
+→ README § "Simulating an Auto"
+
 **Cameras.** The Limelight is for AprilTags only (pitched up at the HIVE). Game pieces come from
 the webcam (`vision/PieceVisionSubsystem`, the SDK's colour-blob processor), enabled only while
 intaking because it costs Control Hub CPU. Never switch the Limelight to a colour pipeline — it

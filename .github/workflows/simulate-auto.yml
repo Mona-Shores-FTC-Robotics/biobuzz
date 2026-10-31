@@ -1,0 +1,211 @@
+name: Simulate Auto
+
+# The Visualizer's "Save to GitHub" commits an Auto's .pp, its generated Java and
+# TeamCode/sim-request.json (what to simulate) together. This runs that request
+# through SimRunTest and publishes the result on the `sim-results` branch, where
+# the Visualizer reads it back:
+#
+#   <auto>/<commit>/result.json        every seed's points, TIPs, LEAVE/PARK, problems
+#   <auto>/<commit>/<auto>-<commit7>-seed-<n>.wpilog   the best and the median seed, for AdvantageScope
+#   <auto>/latest.json                 the newest result for that Auto, on its usual robot design
+#   <auto>/latest-best.wpilog, latest-typical.wpilog   its logs, at names that never change
+#   <auto>/designs/<design>/latest.json, latest-best.wpilog, latest-typical.wpilog
+#                                      the same, for each robot design it has been simulated with
+#   <auto>[/designs/<design>]/<title>_<YYYY-MM-DD>_best.wpilog (and _typical)   the same, named for the Auto (the request's
+#                                      "title") and the day it last changed; kept, for README links
+#
+# An Auto's usual design is the one its <auto>/latest.json already has (the first one it was
+# simulated with). A run on another design, side walls say, goes only to designs/<design>/, so
+# the README's best/typical links keep showing the usual robot and both stay downloadable.
+# A request with "usual": true makes its design the usual one from then on (after a design is renamed,
+# say "builders' option 3 (5 Oct CAD)" to "flat intake").
+#
+# `sim-results` is rewritten as a single commit each time and keeps the newest
+# KEEP_RUNS results, so logs never pile up in the repository's history.
+on:
+  push:
+    branches: ['**']
+    paths: ['TeamCode/sim-request.json']
+
+permissions:
+  contents: write
+
+# One at a time: each run rewrites sim-results from the one before.
+concurrency:
+  group: simulate-auto
+  cancel-in-progress: false
+
+env:
+  KEEP_RUNS: '40'
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Write the request
+        id: request
+        run: |
+          mkdir -p "$RUNNER_TEMP/sim"
+          python3 - <<'EOF'
+          import json, os
+          req = json.load(open("TeamCode/sim-request.json"))
+          meta = req.setdefault("metadata", {})
+          meta["SourceCommit"] = os.environ["GITHUB_SHA"]
+          meta["SourceBranch"] = os.environ["GITHUB_REF_NAME"]
+          meta["SourcePath"] = req.get("pp", "")
+          meta["SimRun"] = f'{os.environ["GITHUB_SERVER_URL"]}/{os.environ["GITHUB_REPOSITORY"]}/actions/runs/{os.environ["GITHUB_RUN_ID"]}'
+          json.dump(req, open(os.path.join(os.environ["RUNNER_TEMP"], "sim", "request.json"), "w"))
+          # The results folder: the request's "folder" when set (one route run with two partners publishes to two
+          # folders, 8 Oct 2026), else the Auto's file name.
+          auto = req.get("folder") or os.path.basename(req.get("pp", "unknown.pp"))[:-3]
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"auto={auto}\n")
+          EOF
+
+      - name: Simulate (SimRunTest)
+        id: sim
+        continue-on-error: true
+        run: |
+          chmod +x ./gradlew
+          BIOBUZZ_SIM_RUN="$RUNNER_TEMP/sim" ./gradlew :TeamCode:testDebugUnitTest \
+            --tests org.firstinspires.ftc.teamcode.logging.SimRunTest --rerun -i --stacktrace \
+            | grep -E "SIMRUN|FAILED|error:|BUILD|Exception" || true
+          test -f "$RUNNER_TEMP/sim/result.json" && ! grep -q '"error"' "$RUNNER_TEMP/sim/result.json"
+
+      - name: Publish to sim-results
+        env:
+          AUTO: ${{ steps.request.outputs.auto }}
+          SIM_OK: ${{ steps.sim.outcome }}
+        run: |
+          git fetch -q --depth=1 origin sim-results:refs/remotes/origin/sim-results || true
+          export SOURCE_DAY="$(git log -1 --format=%cs)"
+          python3 - <<'EOF'
+          import json, os, shutil, datetime
+          sim = os.path.join(os.environ["RUNNER_TEMP"], "sim")
+          sha, auto = os.environ["GITHUB_SHA"], os.environ["AUTO"]
+          run_url = f'{os.environ["GITHUB_SERVER_URL"]}/{os.environ["GITHUB_REPOSITORY"]}/actions/runs/{os.environ["GITHUB_RUN_ID"]}'
+          path = os.path.join(sim, "result.json")
+          result = json.load(open(path)) if os.path.exists(path) else {}
+          if os.environ["SIM_OK"] != "success" and not result.get("error"):
+              result["error"] = "The simulation did not finish: see the Action's log."
+          runs = result.get("runs") or []
+          # The median run by points, the earlier seed on a tie: the Visualizer's "typical" seed.
+          ordered = sorted(runs, key=lambda r: (r["points"], r["seed"]))
+          typical = ordered[(len(ordered) - 1) // 2] if ordered else None
+          # The best run: a clean one first (no G409 touch, no collision: the Q&A's Q17 makes a touch a foul every
+          # time, 14 Oct 2026), then most points, then the earliest last TIP, then the lower seed.
+          def last_tip(r):
+              counted = r["tipsAt"][: int(r["autoTips"])]
+              return counted[-1] if counted else float("inf")
+          def fouled(r):
+              return r.get("g409", 0) > 0 or r.get("robotsCollidedAt") is not None
+          best = min(runs, key=lambda r: (fouled(r), -r["points"], last_tip(r), r["seed"])) if runs else None
+          request = json.load(open(os.path.join(sim, "request.json")))
+          result.update({
+              "auto": auto, "commit": sha, "branch": os.environ["GITHUB_REF_NAME"], "pp": request.get("pp"),
+              "runUrl": run_url, "finishedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              "request": request, "typicalSeed": typical["seed"] if typical else None,
+              "bestSeed": best["seed"] if best else None, "logs": {},
+          })
+          out = os.path.join(os.environ["RUNNER_TEMP"], "publish", auto, sha)
+          os.makedirs(out, exist_ok=True)
+          # The logs to watch: the best run and the typical one (one file when they are the same seed).
+          for run in (best, typical):
+              if run and str(int(run["seed"])) not in result["logs"]:
+                  name = f"{auto}-{sha[:7]}-seed-{int(run['seed'])}.wpilog"
+                  shutil.copy(os.path.join(sim, run["log"]), os.path.join(out, name))
+                  result["logs"][str(int(run["seed"]))] = name
+          # Fixed names for the newest result, so a README can link a download that outlives the
+          # KEEP_RUNS cleanup (which removes only <auto>/<commit>/ folders): one set per robot design,
+          # and <auto>/latest* for the Auto's usual design (see the top of this file).
+          import re, subprocess
+          design = result.get("design") or request.get("design") or "default"
+          slug = re.sub(r"[^a-z0-9]+", "-", design.lower()).strip("-")
+          result["designFolder"] = f"designs/{slug}"
+          usual = None
+          shown = subprocess.run(["git", "show", f"origin/sim-results:{auto}/latest.json"], capture_output=True, text=True)
+          if shown.returncode == 0:
+              try:
+                  usual = json.loads(shown.stdout).get("design")
+              except ValueError:
+                  pass
+          targets = [os.path.join(os.path.dirname(out), "designs", slug)]
+          if usual is None or usual == design or request.get("usual") is True:
+              targets.append(os.path.dirname(out))
+          # And the same logs named for what they are and when: <title>_<Robot>_<date of the commit that changed
+          # the Auto>_<best|typical>, so a downloaded file says which Auto it is and how new (the request's "title",
+          # else the Auto's file name). One per Auto, design folder, day and label; kept, so a README's link stays good.
+          # With the robot design too (6 Oct 2026: every log is one robot): "flat intake, rigid V" -> FlatIntakeRigidV.
+          title = "".join(c if c.isalnum() or c in "-_." else "-" for c in (request.get("title") or auto))
+          robot = "".join(w[:1].upper() + w[1:] for w in re.split(r"[^A-Za-z0-9]+", design) if w and design != "default")
+          named = f"{title}_{robot}" if robot else title
+          day = os.environ["SOURCE_DAY"]
+          for label, run in (("best", best), ("typical", typical)):
+              if run:
+                  result.setdefault("namedLogs", {})[label] = f"{named}_{day}_{label}.wpilog"
+          text = json.dumps(result, indent=1)
+          open(os.path.join(out, "result.json"), "w").write(text)
+          for target in targets:
+              os.makedirs(target, exist_ok=True)
+              for label, run in (("best", best), ("typical", typical)):
+                  if run:
+                      shutil.copy(os.path.join(sim, run["log"]), os.path.join(target, f"latest-{label}.wpilog"))
+                      shutil.copy(os.path.join(sim, run["log"]), os.path.join(target, f"{named}_{day}_{label}.wpilog"))
+              open(os.path.join(target, "latest.json"), "w").write(text)
+
+          summary = [f"### {auto} at `{sha[:7]}`", ""]
+          if result.get("error"):
+              summary.append(f"**Error:** {result['error']}")
+          if runs:
+              summary += ["| Seed | Points | TIPs at (s) | LEAVE / PARK |", "|---|---|---|---|"]
+              for r in runs:
+                  lp = " · ".join(f'{"yes" if x["leave"] else "no"} / {"yes" if x["park"] else "no"}' for x in r["robots"])
+                  star = (" ▲ best" if best and r["seed"] == best["seed"] else "") + (" ★" if typical and r["seed"] == typical["seed"] else "")
+                  summary.append(f'| {int(r["seed"])}{star} | {int(r["points"])} | {", ".join(f"{t:.1f}" for t in r["tipsAt"]) or "none"} | {lp} |')
+          open(os.environ["GITHUB_STEP_SUMMARY"], "a").write("\n".join(summary) + "\n")
+          EOF
+
+          # Rebuild sim-results: what it had, plus this run, minus all but the newest KEEP_RUNS.
+          mkdir -p "$RUNNER_TEMP/results"
+          cd "$RUNNER_TEMP/results"
+          git init -q
+          git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+          if git fetch -q --depth=1 origin sim-results; then git checkout -q FETCH_HEAD -- . ; fi
+          cp -r "$RUNNER_TEMP/publish/." .
+          python3 - <<'EOF'
+          import glob, json, os, shutil
+          runs = []
+          for f in glob.glob("*/*/result.json"):
+              try:
+                  runs.append((json.load(open(f)).get("finishedAt", ""), os.path.dirname(f)))
+              except ValueError:
+                  runs.append(("", os.path.dirname(f)))
+          for _, d in sorted(runs, reverse=True)[int(os.environ["KEEP_RUNS"]):]:
+              shutil.rmtree(d)
+          EOF
+          printf '# Simulated Autos\n\nWritten by the "Simulate Auto" workflow; read by the Visualizer. Rewritten on every run.\n' > README.md
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "Simulated ${{ steps.request.outputs.auto }} at ${GITHUB_SHA::7}"
+          git push -q -f origin HEAD:refs/heads/sim-results
+
+      - name: Fail if the simulation failed
+        if: steps.sim.outcome != 'success'
+        run: |
+          echo "The simulation failed; its error is in sim-results and in the summary above."
+          exit 1
