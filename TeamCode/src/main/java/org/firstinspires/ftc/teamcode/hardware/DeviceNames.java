@@ -79,7 +79,7 @@ public final class DeviceNames {
 
     /**
      * The FLOWER extractor's first edition: one servo swinging a stick (#177).
-     * Shares the servo ports; the port itself is in each robot's XML.
+     * Expansion Hub servo port; the port itself is in each robot's XML.
      */
     public static final String FLOWER_STICK = "flowerStick";
     // The intake's star wheels (the intake-assist wheels: SWYFT wheels cut
@@ -101,14 +101,14 @@ public final class DeviceNames {
 
     /**
      * The indicator light: a goBILDA RGB Indicator Light, a servo whose position is its colour
-     * ({@code subsystems/IndicatorSubsystem}). The port itself is in each robot's XML.
+     * ({@code subsystems/IndicatorSubsystem}). Control Hub servo port 0 on both robots.
      */
     public static final String INDICATOR = "indicator";
 
     /**
      * The turret's drive: a goBILDA servo in continuous-rotation mode, so it occupies a servo port
      * and a {@code <ContinuousRotationServo>} element, not a motor port (all eight are taken).
-     * The port itself is in each robot's XML. Its angle comes from
+     * Expansion Hub servo port; the port itself is in each robot's XML. Its angle comes from
      * {@link #TURRET_ENCODER_HOST}.
      */
     public static final String TURRET = "turret";

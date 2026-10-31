@@ -32,7 +32,7 @@ logs were analysed afterwards. What that session established:
 ## Before leaving the laptop
 
 - [ ] **Mount the goBILDA RGB Indicator Light** on 20245 where the drive team can see it from the
-      field, and plug it into **Expansion Hub servo port 0** (the port `robot_20245.xml` names; 19429
+      field, and plug it into **Control Hub servo port 0** (the port `robot_20245.xml` names; 19429
       uses the same port when it gets one).
 - [ ] **Plug in the intake motor's encoder cable** (the intake has never had one: every log reads
       `/Intake/TicksPerSecond` 0 and warns "intake: encoder never moved"). No code change: the
@@ -121,7 +121,7 @@ logs were analysed afterwards. What that session established:
        Tuner on 20245 and paste its block into `pedro/robots/Robot20245.java`.
 
 9. [ ] **The indicator light** (once the build team has mounted a goBILDA RGB Indicator Light
-       on **Expansion Hub servo port 0**). Run **Validate Hardware**, then INIT **Basic Drive** and check
+       on **Control Hub servo port 0**). Run **Validate Hardware**, then INIT **Basic Drive** and check
        the colours: flashing red on a low battery, orange with the Limelight unplugged, flashing
        yellow until the camera's first frame, yellow while the pose is not on the field, the
        alliance's colour once all is well, violet during a pick. If a colour is off, set it in
