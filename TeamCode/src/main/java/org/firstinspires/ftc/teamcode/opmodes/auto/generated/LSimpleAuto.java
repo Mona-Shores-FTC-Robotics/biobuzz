@@ -20,7 +20,7 @@ public final class LSimpleAuto {
     public static final String SOURCE = "l-simple.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "";
+    public static final String SAVED = "10-31|11:21AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
@@ -33,7 +33,7 @@ public final class LSimpleAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(59, 133.69, 270);
+        return poses(rotated).of(62.3, 133.8, 270);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -45,7 +45,7 @@ public final class LSimpleAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(59, 133.69, 270);
+        Pose start = p.of(62.3, 133.8, 270);
         Pose nFire = p.of(57.5, 119, 270);
         Pose parkL = p.of(14, 120, 270);
         Pose farFlower = p.of(47.36, 126.64, 90);

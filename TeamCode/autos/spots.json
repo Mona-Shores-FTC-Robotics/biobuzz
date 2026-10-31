@@ -7,8 +7,8 @@
     "PARK_LEFT": [9.8, 117.4, 0],
     "PARK_RIGHT": [9.6, 95.7, 0],
     "SCORING_FLOWER": [47.2, 119.3, 90],
-    "START_LEFT": [59, 133.69, 270],
-    "START_RIGHT": [54.06, 7.72, 90],
+    "START_LEFT": [62.3, 133.8, 270],
+    "START_RIGHT": [55.6, 7.7, 90],
     "WALL_FLOWER": [23.1, 47.2, 180]
   }
 }
