@@ -67,10 +67,18 @@ public class StartMatchTest {
     }
 
     @Test
-    public void justOutsideTheMarginIsNoMatch() {
-        double margin = LocalizationTuning.startMarginIn;
-        assertEquals(true, StartMatch.matches(new Pose(82.5 + margin - 0.1, 7.81, Math.toRadians(90)), BLUE_ROTATED));
-        assertEquals(false, StartMatch.matches(new Pose(82.5 + margin + 0.1, 7.81, Math.toRadians(90)), BLUE_ROTATED));
-        assertEquals(false, StartMatch.matches(new Pose(82.5, 7.81, Math.toRadians(90 + 25)), BLUE_ROTATED));
+    public void aTwoTagFitSeveralInchesOffStillPicksTheStart() {
+        // Two close tags: heading a few degrees off, position several inches off. Still blue.
+        StartMatch m = new StartMatch();
+        assertEquals(Alliance.BLUE, feed(m, new Pose(89.0, 12.0, Math.toRadians(97)), StartMatch.FRAMES_TO_AGREE));
+    }
+
+    @Test
+    public void justOutsideTheRadiusOrTurnIsNoMatch() {
+        double r = StartMatch.MATCH_RADIUS_IN;
+        double h = StartMatch.HEADING_TOLERANCE_DEG;
+        assertEquals(true, StartMatch.matches(new Pose(82.5 + r - 0.1, 7.81, Math.toRadians(90)), BLUE_ROTATED));
+        assertEquals(false, StartMatch.matches(new Pose(82.5 + r + 0.1, 7.81, Math.toRadians(90)), BLUE_ROTATED));
+        assertEquals(false, StartMatch.matches(new Pose(82.5, 7.81, Math.toRadians(90 + h + 5)), BLUE_ROTATED));
     }
 }

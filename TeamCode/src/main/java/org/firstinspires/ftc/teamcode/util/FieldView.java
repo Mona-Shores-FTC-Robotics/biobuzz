@@ -77,15 +77,26 @@ import com.bylazar.field.PanelsField;
  */
 public final class FieldView {
 
+    // The robot is drawn as two outlines around its pose, which is the middle of the wheelbase
+    // (the point the pods are measured from, and the one a mecanum drivetrain turns about).
+    // Each is {back, front, right, left}: inches from that point. Panels' Rectangle cannot
+    // rotate, so each is four lines turned to the heading.
+
     /**
-     * Half the robot's footprint, in inches.
-     *
-     * <p>9 in is half of the 18 in starting-size limit, so the circle drawn is the largest the
-     * robot could legally be. It is a sighting aid, not a collision model — Panels'
-     * {@code Rectangle} has no rotation parameter, so an oriented chassis outline is not available
-     * and a circle plus a heading line is the honest thing to draw instead.
+     * The drivetrain, wheel to wheel (CAD, 29 Oct 2026): 15.43 in long, 13.79 in wide, centred on
+     * the pose. What lines up on a seam and touches a wall.
      */
-    public static final double ROBOT_RADIUS_INCHES = 9.0;
+    public static final double[] DRIVETRAIN = {7.715, 7.715, 6.894, 6.894};
+
+    /**
+     * The robot's 16 × 16 in frame (taped on 20245, 31 Oct 2026): its back flush with the rear
+     * wheels, so it reaches 8.28 in ahead of the pose; centred side to side. The 1.5 in at the
+     * front middle is left out.
+     */
+    public static final double[] FRAME = {7.72, 8.28, 8.0, 8.0};
+
+    private static final double[] CORNER_FORWARD_SIGN = {1, -1, -1, 1};
+    private static final double[] CORNER_LEFT_SIGN = {1, 1, -1, -1};
 
     /**
      * Pedro's frame as Panels needs it: shift the field centre to Panels' origin, rotate 90° and
@@ -105,22 +116,16 @@ public final class FieldView {
             false);
 
     private final FieldManager field;
-    private final double robotRadius;
 
-    private FieldView(FieldManager field, double robotRadius) {
+    private FieldView(FieldManager field) {
         this.field = field;
-        this.robotRadius = robotRadius;
     }
 
     /** A view on the shared Panels field, set to Pedro's coordinate frame. */
     public static FieldView pedroCoordinates() {
-        return pedroCoordinates(ROBOT_RADIUS_INCHES);
-    }
-
-    public static FieldView pedroCoordinates(double robotRadiusInches) {
         FieldManager field = PanelsField.INSTANCE.getField();
         field.setOffsets(PEDRO_FRAME);
-        return new FieldView(field, robotRadiusInches);
+        return new FieldView(field);
     }
 
     /**
@@ -134,7 +139,9 @@ public final class FieldView {
     }
 
     /**
-     * Draws the robot as a circle with a line from its centre out along its heading.
+     * Draws the robot: its drivetrain footprint and, around it, its frame ({@link #DRIVETRAIN},
+     * {@link #FRAME}), turned to its heading, with a line from its centre to the front of the
+     * drivetrain.
      *
      * @param x       field X in inches, Pedro's frame
      * @param y       field Y in inches, Pedro's frame
@@ -151,13 +158,45 @@ public final class FieldView {
      * @param outlineColour a CSS colour, e.g. {@code "#FFB300"}
      */
     public void drawRobot(double x, double y, double heading, String outlineColour) {
+        double c = Math.cos(heading);
+        double s = Math.sin(heading);
         field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), outlineColour, 1.0);
-        field.moveCursor(x, y);
-        field.circle(robotRadius);
+        drawOutline(x, y, c, s, DRIVETRAIN);
+        field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), outlineColour, 0.5);
+        drawOutline(x, y, c, s, FRAME);
 
         field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), PanelsField.INSTANCE.getWHITE(), 1.0);
         field.moveCursor(x, y);
-        field.line(x + robotRadius * Math.cos(heading), y + robotRadius * Math.sin(heading));
+        field.line(x + DRIVETRAIN[1] * c, y + DRIVETRAIN[1] * s);
+    }
+
+    /** One outline: front left, back left, back right, front right, each edge to the next. */
+    private void drawOutline(double x, double y, double c, double s, double[] box) {
+        for (int i = 0; i < 4; i++) {
+            int j = (i + 1) % 4;
+            field.moveCursor(cornerX(x, c, s, box, i), cornerY(y, c, s, box, i));
+            field.line(cornerX(x, c, s, box, j), cornerY(y, c, s, box, j));
+        }
+    }
+
+    /** How far ahead (+) or behind (-) of the pose corner {@code i} of {@code box} is. */
+    private static double forward(double[] box, int i) {
+        return CORNER_FORWARD_SIGN[i] > 0 ? box[1] : -box[0];
+    }
+
+    /** How far left (+) or right (-) of the pose corner {@code i} of {@code box} is. */
+    private static double left(double[] box, int i) {
+        return CORNER_LEFT_SIGN[i] > 0 ? box[3] : -box[2];
+    }
+
+    /** Corner {@code i} (front left, back left, back right, front right) of {@code box}, field x. */
+    static double cornerX(double x, double c, double s, double[] box, int i) {
+        return x + forward(box, i) * c - left(box, i) * s;
+    }
+
+    /** As {@link #cornerX}, field y. */
+    static double cornerY(double y, double c, double s, double[] box, int i) {
+        return y + forward(box, i) * s + left(box, i) * c;
     }
 
     /**
