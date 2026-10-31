@@ -194,6 +194,11 @@ public class PieceVisionSubsystem implements Subsystem {
         }
     }
 
+    /** A camera; nothing to move. */
+    @Override
+    public void start() {
+    }
+
     @Override
     public void update() {
         if (!enabled) {

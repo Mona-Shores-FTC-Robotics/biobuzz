@@ -160,6 +160,11 @@ public class LimelightVisionSubsystem implements Subsystem {
         state = State.STREAMING;
     }
 
+    /** A camera; nothing to move. */
+    @Override
+    public void start() {
+    }
+
     /**
      * One update step. Called every loop, either directly by a LinearOpMode or through
      * {@link Subsystem#periodic()} under the Ivy scheduler.

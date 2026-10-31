@@ -126,6 +126,7 @@ public class TurretSubsystem implements Subsystem {
     private String settingsProblem;
 
     private Mode mode = Mode.IDLE;
+    private boolean started;
     private double targetDeg;
     private double manualPower;
 
@@ -270,19 +271,30 @@ public class TurretSubsystem implements Subsystem {
 
     // ------------------------------------------------------------ lifecycle
 
-    /** Power off, angle relative to wherever it sits until {@link #zeroHere()}. */
+    /**
+     * Idle, angle relative to wherever it sits until {@link #zeroHere()}. The servo is not written
+     * until PLAY: unwritten it is limp, where "stop" on a trim not quite measured creeps, and
+     * nothing may move after INIT (G304.H, G403; see {@link Subsystem}). A limp turret also keeps
+     * still for the zero it takes at PLAY.
+     */
     @Override
     public void initialize() {
         mode = Mode.IDLE;
-        servo.setPower(0.0);
+        started = false;
         refreshSettings();
         counts = encoderHost.getCurrentPosition();
         zeroCounts = counts;
         zeroed = false;
         zeroSource = ZeroSource.NONE;
     }
+    /** PLAY: the servo may be written from now on. */
+    @Override
+    public void start() {
+        started = true;
+    }
 
-    /** One encoder read, one servo write. */
+
+    /** One encoder read, and from PLAY one servo write. */
     @Override
     public void update() {
         refreshSettings();
@@ -319,9 +331,9 @@ public class TurretSubsystem implements Subsystem {
                 requested = 0.0;
                 break;
         }
-        powerSent = requested * (servoDirection == -1 ? -1 : 1);
+        powerSent = started ? requested * (servoDirection == -1 ? -1 : 1) : 0.0;
         double out = pwmStep(clamp(powerSent + clamp(servoStopPower, 0.2), 1.0));
-        if (out != servoOut || resend.due(System.nanoTime())) {
+        if (started && (out != servoOut || resend.due(System.nanoTime()))) {
             servo.setPower(out);
             servoOut = out;
         }

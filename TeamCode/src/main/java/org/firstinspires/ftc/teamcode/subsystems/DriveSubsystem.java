@@ -605,6 +605,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         lastUpdateNs = System.nanoTime();
     }
 
+    /** Nothing to do: the wheels turn only when an OpMode asks, and it asks only after PLAY. */
+    @Override
+    public void start() {
+    }
+
     @Override
     public void update() {
         long now = System.nanoTime();

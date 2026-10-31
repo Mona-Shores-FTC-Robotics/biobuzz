@@ -40,6 +40,9 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * same power while it ejects (asked for on 26 Oct 2026, so the stars push a piece out with the
  * roller rather than sit in its way), and stop when the roller is idle. Their direction is
  * {@link #starsReversed}, unknown until a robot has shown it.
+ *
+ * <p>The star servo is not written before PLAY: a continuous servo told "stop" creeps if its stop
+ * is not quite centred, and nothing may move after INIT (G304.H, G403; see {@link Subsystem}).
  */
 @Configurable
 public class IntakeSubsystem implements Subsystem {
@@ -80,6 +83,7 @@ public class IntakeSubsystem implements Subsystem {
     private final DcMotorEx motor;
     private final CRServo stars;
     private State state = State.IDLE;
+    private boolean started;
     private double ticksPerSecond = 0.0;
     private double currentAmps = Double.NaN;
     /**
@@ -134,25 +138,33 @@ public class IntakeSubsystem implements Subsystem {
         return currentAmps;
     }
 
-    /** Start idle, in plain power mode. */
+    /** Start idle, in plain power mode, the roller at zero and the star servo unwritten until PLAY. */
     @Override
     public void initialize() {
         state = State.IDLE;
+        started = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setPower(0.0);
-        stars.setPower(0.0);
+    }
+    /** PLAY: the star servo may be written from now on. */
+    @Override
+    public void start() {
+        started = true;
     }
 
+
     /**
-     * One write per loop to the roller and one to the star wheels, the powers the request asks for,
-     * clamped so Panels cannot overdrive them; then one read of speed (from the bulk read) and,
+     * One write per loop to the roller and, from PLAY, one to the star wheels, the powers the request
+     * asks for, clamped so Panels cannot overdrive them; then one read of speed (from the bulk read) and,
      * while running, one of current every 100 ms.
      */
     @Override
     public void update() {
         motor.setPower(powerFor(state, inPower, outPower, reversed));
-        stars.setPower(starsPowerFor(state, starsPower, starsReversed));
+        if (started) {
+            stars.setPower(starsPowerFor(state, starsPower, starsReversed));
+        }
         ticksPerSecond = motor.getVelocity();
         if (state == State.IDLE) {
             currentAmps = Double.NaN;

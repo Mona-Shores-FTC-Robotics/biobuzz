@@ -104,6 +104,15 @@ public class LauncherBench extends OpMode {
     }
 
     @Override
+    public void start() {
+        // The subsystems' PLAY, as RobotOpMode gives it: nothing they run may move before this.
+        if (fault == null) {
+            launcher.start();
+            feeder.start();
+        }
+    }
+
+    @Override
     public void loop() {
         loopTimer.lap();
         if (fault == null) {

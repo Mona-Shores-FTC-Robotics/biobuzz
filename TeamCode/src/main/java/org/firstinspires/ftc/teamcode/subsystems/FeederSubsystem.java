@@ -119,6 +119,11 @@ public class FeederSubsystem implements Subsystem {
         motor.setPower(0.0);
     }
 
+    /** Nothing to do: the feeder stays at zero until asked, which needs PLAY. */
+    @Override
+    public void start() {
+    }
+
     /**
      * One write per loop, the power the request asks for, clamped so Panels cannot overdrive it;
      * then one read of speed (from the bulk read) and, while running, one of current every 100 ms.
