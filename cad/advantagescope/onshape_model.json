@@ -22,7 +22,7 @@
     {
       "name": "flower stick",
       "parts": [
-        "^(11 Hole Mini U-Channel \\(GB\\) <[12]>|312mm Steel Shaft - 8mm REX \\(GB\\) <1>|Part 4 <1>|8x14x4mm Bearing <[1-5]>|3400-0014-0032 <1>|Servo Hub Shaft - 16mm \\(GB\\) <1>)$"
+        "^(11 Hole Mini U-Channel \\(GB\\) <[12]>|312mm Steel Shaft - 8mm REX \\(GB\\) <1>|Flower Ramp <1>|8x14x4mm Bearing <[1-5]>|3400-0014-0032 <1>|Servo Hub Shaft - 16mm \\(GB\\) <1>)$"
       ],
       "axis_part": "^8x14x4mm Bearing <1>$",
       "axis": "thinnest",
