@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-10-31T15:16:38.100Z",
+  "timestamp": "2026-10-31T16:44:07.345Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -19,7 +19,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 9.8,
+        "x": 14.1,
         "y": 117.4
       },
       "controlPoints": [
@@ -265,7 +265,7 @@
         270
       ],
       "PARK_LEFT": [
-        9.8,
+        14.1,
         117.4,
         0
       ]

@@ -19,7 +19,7 @@ public final class LLaunchParkAuto {
     public static final String SOURCE = "l-launch-park.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "10-31|11:16AM";
+    public static final String SAVED = "10-31|12:44PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll"};
@@ -45,7 +45,7 @@ public final class LLaunchParkAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose startLeft = p.of(62.3, 133.8, 270);
-        Pose parkLeft = p.of(9.8, 117.4, 0);
+        Pose parkLeft = p.of(14.1, 117.4, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose toParkLeftControl1 = p.of(65.7573, 101.786, 0);
@@ -54,8 +54,8 @@ public final class LLaunchParkAuto {
         Path toParkLeft = Paths.curve(startLeft, toParkLeftControl1, parkLeft).linear(startLeft, parkLeft);
 
         return kit.sequence(
-                kit.guarded("Auto", toParkLeft, 3.1,
+                kit.guarded("Auto", toParkLeft, 3,
                         kit.command("LaunchAll"),
-                        kit.path("to PARK_LEFT", toParkLeft, 3.1)));
+                        kit.path("to PARK_LEFT", toParkLeft, 3)));
     }
 }

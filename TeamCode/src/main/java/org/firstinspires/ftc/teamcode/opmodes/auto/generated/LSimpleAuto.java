@@ -19,7 +19,7 @@ public final class LSimpleAuto {
     public static final String SOURCE = "l-simple.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "10-31|12:36PM";
+    public static final String SAVED = "10-31|12:44PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -47,7 +47,7 @@ public final class LSimpleAuto {
         Pose startLeft = p.of(62.3, 133.8, 270);
         Pose scoringFlower = p.of(47.2, 119.3, 90);
         Pose launchLeft = p.of(59.4, 129.5, 270);
-        Pose parkLeft = p.of(9.8, 117.4, 0);
+        Pose parkLeft = p.of(14.1, 117.4, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toLaunchLeft = Paths.line(startLeft, launchLeft).constant(launchLeft);
@@ -56,7 +56,7 @@ public final class LSimpleAuto {
         Path toParkLeft = Paths.line(launchLeft, parkLeft).linear(launchLeft, parkLeft);
 
         return kit.sequence(
-                kit.guarded("Auto", toParkLeft, 2.2,
+                kit.guarded("Auto", toParkLeft, 2.1,
                         kit.command("SpinUp"),
                         kit.path("to LAUNCH_LEFT", toLaunchLeft, 0.7),
                         kit.firstOf("Wait for TIP",
@@ -67,6 +67,6 @@ public final class LSimpleAuto {
                         kit.command("PickFlower", 8),
                         kit.path("to LAUNCH_LEFT", toLaunchLeftPath, 1.4),
                         kit.command("LaunchAll"),
-                        kit.path("to PARK_LEFT", toParkLeft, 2.2)));
+                        kit.path("to PARK_LEFT", toParkLeft, 2.1)));
     }
 }
