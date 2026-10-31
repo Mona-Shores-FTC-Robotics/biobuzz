@@ -22,10 +22,13 @@ name: Simulate Auto
 #
 # `sim-results` is rewritten as a single commit each time and keeps the newest
 # KEEP_RUNS results, so logs never pile up in the repository's history.
+# A request is TeamCode/sim-request.json, or on the fast lane (an auto/<name> branch, opened by the
+# Visualizer's Save & Simulate into master) the Auto's own TeamCode/sim-requests/<name>.json, so two
+# Autos in flight never conflict. Not on master itself: the save's own branch already ran it.
 on:
   push:
-    branches: ['**']
-    paths: ['TeamCode/sim-request.json']
+    branches-ignore: [master]
+    paths: ['TeamCode/sim-request.json', 'TeamCode/sim-requests/**']
 
 permissions:
   contents: write
@@ -44,6 +47,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 2  # the pushed commit and its parent: which request it changed
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -62,8 +67,14 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/sim"
           python3 - <<'EOF'
-          import json, os
-          req = json.load(open("TeamCode/sim-request.json"))
+          import json, os, subprocess
+          # The request this push's commit changed: an Auto's own file first, else the shared one.
+          changed = subprocess.run(["git", "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"],
+                                   capture_output=True, text=True).stdout.split()
+          own = sorted(f for f in changed if f.startswith("TeamCode/sim-requests/") and f.endswith(".json"))
+          path = own[0] if own else "TeamCode/sim-request.json"
+          print(f"Request: {path}")
+          req = json.load(open(path))
           meta = req.setdefault("metadata", {})
           meta["SourceCommit"] = os.environ["GITHUB_SHA"]
           meta["SourceBranch"] = os.environ["GITHUB_REF_NAME"]
