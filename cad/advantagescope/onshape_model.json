@@ -1,5 +1,5 @@
 {
-  "about": "What from_onshape.py builds: the mentor's Robot assembly as Onshape shows it, minus the paths that match 'drop' (regular expressions on 'Top <1> / Sub <1> / Part <1>'). Hidden and suppressed instances are already left out. Each of 'components' becomes model_<index>.glb, posed by the logs: 'parts' are the paths that move with it, 'axis_part' the one part (among them) whose 'axis' (thinnest or longest direction, through its centre) it turns about, 'angle' what the logged angle means, 'drawn_at_deg' that angle as the CAD draws it.",
+  "about": "What from_onshape.py builds: the mentor's Robot assembly as Onshape shows it, minus the paths that match 'drop' (regular expressions on 'Top <1> / Sub <1> / Part <1>'). Hidden and suppressed instances are already left out. Each of 'components' becomes model_<index>.glb, posed by the logs: 'parts' are the paths that move with it, 'axis_part' the one part (among them) whose 'axis' (thinnest or longest direction, through its centre) it turns about, 'angle' what the logged angle means, 'drawn_at_deg' that angle as the CAD draws it now, 'model_at_deg' the angle the model file is always drawn at (fixed: logs depend on it; the script turns the part from drawn_at_deg to it).",
   "document": "6aee2084acf0d33d0b7e77d4",
   "workspace": "777d098653c58b068826ce4f",
   "element": "d984251a78d66e40e63ef1c8",
@@ -17,6 +17,7 @@
       "axis": "thinnest",
       "angle": "TurretSubsystem.angleDegrees(): degrees counter-clockwise from home (pointing along the nose), seen from above",
       "drawn_at_deg": 51.5,
+      "model_at_deg": 51.5,
       "drawn_at_note": "Measured 31 Oct 2026: the hood's and its channel's big flat faces point 51.5 deg counter-clockwise from the nose, and the ball leaves on that open side, away from the tall wall (confirmed on the robot)."
     },
     {
@@ -27,7 +28,8 @@
       "axis_part": "^8x14x4mm Bearing <1>$",
       "axis": "thinnest",
       "angle": "FlowerStickSubsystem.commandedDegrees(): degrees swung out from stowed, 0 in, swingDegrees() (162) out; the commanded state, not a measured angle",
-      "drawn_at_deg": 155.3,
+      "drawn_at_deg": 158.1,
+      "model_at_deg": 0,
       "drawn_at_note": "Found 31 Oct 2026 from the mates: the two arms pivot on the SWYFT servo's hub and bearing <1>, drawn stowed, leaning up and back to the 312 mm shaft. Swung 162 deg forward about +Y, the shaft reaches the tile (Z 0.5 in), where the stick's wheels rest when out."
     }
   ]

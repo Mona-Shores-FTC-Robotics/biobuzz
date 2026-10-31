@@ -276,10 +276,17 @@ def main():
         if len(pts) != 1:
             sys.exit(f"component {c} ({comp['name']}): axis_part matches {len(pts)} of its parts, expected 1")
         point, direction = axis_of(pts[0], comp["axis"])
+        # The model file is always drawn at model_at_deg, whatever angle the CAD was left at (drawn_at_deg): a log
+        # stores poses relative to the model file, so a model drawn at another angle would show every older log's
+        # part turned by the difference.
+        model_at = comp.get("model_at_deg", comp["drawn_at_deg"])
+        turn = np.radians(model_at - comp["drawn_at_deg"])
+        if turn:
+            scenes[c + 1].apply_transform(trimesh.transformations.rotation_matrix(turn, direction, point))
         described.append({"index": c, "name": comp["name"], "angle": comp["angle"],
                           "axis_point_m": [round(float(x), 5) for x in point],
                           "axis_direction": [round(float(x), 5) for x in direction],
-                          "drawn_at_deg": comp["drawn_at_deg"]})
+                          "drawn_at_deg": model_at})
         print(f"  component {c} ({comp['name']}): {which.count(c)} parts, turns about "
               f"({', '.join(f'{x / IN:.2f}' for x in point)}) in along ({', '.join(f'{x:.3f}' for x in direction)})")
 
