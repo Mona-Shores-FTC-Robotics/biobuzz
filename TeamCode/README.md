@@ -16,12 +16,12 @@ and why — so the reasoning survives past whoever added it.
 | Library | Artifact | Purpose |
 |---|---|---|
 | Sloth | `dev.frozenmilk.sinister:Sloth:0.3.2` (+ `dev.frozenmilk:Load:0.3.2` Gradle plugin) | Hot code reload — pushes only TeamCode to the robot, turning a ~40s reinstall into under a second (see [Deploying to the robot](#deploying-to-the-robot)). Also gives fast dex scanning at OpMode discovery, roughly 50% faster init than the SDK's reflective scan, and is the discovery mechanism AutoTune is built on, so it is no longer optional. |
-| Pedro Pathing (core) | `com.pedropathing:core:3.0.1` | Pathing, geometry and math. Pure Java — no Android or FTC SDK types. |
-| Pedro Pathing (revhub) | `com.pedropathing:revhub:3.0.1` | The REV hardware layer: mecanum/swerve drivetrains, Pinpoint/OTOS/OctoQuad/dead-wheel localizers, hub IMU. Brings `core` transitively; `core` is still declared explicitly so its version is pinned in one place. |
-| Pedro AutoTune | `com.pedropathing:tuning:1.0.1` | Robot-hosted tuning webpage. Backs the procedures in `org.firstinspires.ftc.teamcode.pedro`. |
-| Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework — used in place of NextFTC. |
+| Pedro Pathing (core) | `com.pedropathing:core:3.0.2` | Pathing, geometry and math. Pure Java — no Android or FTC SDK types. |
+| Pedro Pathing (revhub) | `com.pedropathing:revhub:3.0.2` | The REV hardware layer: mecanum/swerve drivetrains, Pinpoint/OTOS/OctoQuad/dead-wheel localizers, hub IMU. Brings `core` transitively; `core` is still declared explicitly so its version is pinned in one place. |
+| Pedro AutoTune | `com.pedropathing:tuning:1.0.3-beta.1` | Robot-hosted tuning webpage. Backs the procedures in `org.firstinspires.ftc.teamcode.pedro`. |
+| Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework. NextFTC v2 is built on it too; we use it directly — see § "Deliberately excluded" for why. |
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
-| Panels | `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Sloth-compatible build variant of `com.bylazar:fullpanels`. |
+| Panels | `com.bylazar:fullpanels:1.0.19` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Upstream is Sloth-native from 1.0.16; the Dairy fork `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` we used until Oct 2026 is frozen at that version. |
 
 
 FTC Dashboard used to be the tenth row of that table. It is gone — not because it
@@ -40,17 +40,25 @@ gone from `TeamCode/build.gradle`; don't re-add it.
 
 ### Why the versions are locked together
 
-Three constraints pin this stack. Bump any one of them and you have to move the
+Four constraints pin this stack. Bump any one of them and you have to move the
 others in the same commit:
 
 1. **AutoTune requires Sloth `0.3.2`.** `com.pedropathing:tuning` discovers
    `@Tuner`-annotated fields via `TunerScanner`, which is a Sinister `Scanner`
    — i.e. AutoTune does not work without the Sloth runtime.
-2. **The Sloth-variant builds of Panels and FTC Dashboard are version-locked to
-   the Sloth runtime**, which is what the `0.3.2+…` prefix in their version
-   strings means. They must track the Sloth version, and `dev.frozenmilk:Load`
-   (the Gradle plugin) must match it too.
-3. **Panels `0.3.2+1.0.5` declares `androidx.appcompat:appcompat` as
+2. **Panels declares its own Sloth dependency.** Since FullPanels 1.0.16
+   (3 Oct 2026, when Oscar's Sloth support was merged upstream) the plain
+   `com.bylazar` artifacts depend on `dev.frozenmilk.sinister:Sloth` directly —
+   1.0.19 asks for `0.3.2` — and `configurables` / `opmodecontrol` are Sinister
+   `Scanner`s. So the Sloth version Panels wants, the one AutoTune wants and the
+   one we declare must agree, and `dev.frozenmilk:Load` (the Gradle plugin)
+   must match too. Before that, the same lock was expressed by the Dairy fork's
+   `0.3.2+…` version prefix (`com.bylazar.sloth:fullpanels:0.3.2+1.0.13`, the
+   last one published; the fork is frozen there and we moved off it in #220).
+   The Sloth build of FTC Dashboard (`com.acmerobotics.slothboard`) still uses
+   that prefix scheme.
+3. **Panels (`panels` 1.0.8, inside FullPanels 1.0.19; the same since
+   `0.3.2+1.0.5`) declares `androidx.appcompat:appcompat` as
    `{strictly 1.2.0}`.** That is why `build.dependencies.gradle` pins appcompat
    at `1.2.0` and not something newer. A Dependabot PR raising appcompat will
    fail to resolve — close it rather than trying to force the version, since
@@ -70,6 +78,11 @@ others in the same commit:
    because higher wins. Building `master` with appcompat forced to `1.2.0`
    succeeds. So there is no latent bug waiting to resurface: the downgrade
    restores the version two of our own dependencies were asking for.
+
+4. **`TeamCode/build.gradle` reaches into Load's `dexSloth` task and AGP's R
+   jar** to keep bundled configs alive across a Sloth Load. A Load or AGP bump
+   must re-check it — see
+   [Sloth Load and `R$xml`](#sloth-load-and-rxml-issue-71).
 
 One non-obvious consequence: `Load:0.3.2` pulls `com.android.tools.build:gradle`
 transitively, so the `buildscript` block in `TeamCode/build.gradle` needs
@@ -110,10 +123,33 @@ Sloth only reloads classes under `org.firstinspires.ftc.teamcode`. Use the full
 - any `.gradle` file
 - dependencies (added, removed, or version-bumped)
 - anything in `FtcRobotController/`
+- anything under `TeamCode/src/main/res/`: adding, removing or renaming a robot
+  config (see [What Sloth Load does to the robot configs](#what-sloth-load-does-to-the-robot-configs))
 
 Symptom of getting this wrong: the robot keeps running the *old* behaviour and
 nothing looks broken. If a change seems to have had no effect, do a full install
 before debugging anything else.
+
+### What Sloth Load does to the robot configs
+
+Nothing you should notice: after a Sloth Load the bundled configs stay in the
+Driver Station list, and the active one stays active. That holds only because
+`TeamCode/build.gradle` adds TeamCode's `R$xml` to the Sloth Load dex — Sloth
+alone leaves it out, and then every bundled config vanishes from the list after
+the first Sloth Load (issue #71; the mechanism is in
+[Risk: bundled configs depend on Sloth](#risk-bundled-configs-depend-on-sloth-not-just-the-sdk)).
+
+What a Sloth Load **cannot** do is change the configs themselves. The XML is a
+resource in the installed APK, and Sloth reloads classes, not resources. A new
+or edited `robot_<name>.xml` reaches the robot only through a full **TeamCode**
+install. A Sloth Load after you add or remove a config, without that install, is
+worse than nothing: its `R$xml` IDs come from the new build but point into the
+old APK's resources, so the list can show the wrong configs.
+
+If the configs are ever missing after a Sloth Load: do a full **TeamCode**
+install, then check the config is still active (**Configure Robot → select it →
+Activate**). **Restart Robot** alone does not help: Sloth reloads its saved dex
+at boot, and only a new APK makes it discard that dex.
 
 ### When a Wi-Fi deploy fails
 
@@ -411,6 +447,47 @@ devices. DECODE's two robots declared the Pinpoint as `port="1" bus="1"` and
 `port="0" bus="1"` and behaved identically, which is why — the `port` difference
 was cosmetic. These files keep the two equal so the file cannot be misread.
 
+### The turret: a servo on a servo port, an encoder on a motor's encoder socket
+
+The turret has no motor port: all eight are taken. It turns on a goBILDA servo
+in continuous-rotation mode, which the SDK builds as a `CRServo` from a
+`<ContinuousRotationServo>` element, a different class from the `Servo` a
+`<Servo>` element gives. So `DeviceNames.Kind` has `CR_SERVO` beside `SERVO`:
+`ValidateHardware` asks the hardware map for the right class, and
+`RobotConfigXmlTest` still treats the two as sharing the six servo ports.
+
+Its angle comes from a Studica Cypher Max encoder on the turret's drive gear.
+The encoder's quadrature output (2048 counts per encoder turn, both edges of
+both channels) plugs into the **encoder socket beside Expansion Hub motor port
+3**, the feeder's (the build team's choice: the drive motors' sockets hold their
+own encoders). The feeder runs without its encoder, so the socket is free, and
+the SDK reads whatever is in it as that motor's position, which means the
+feeder's velocity line on the Robot page shows the turret moving on a
+competition robot. `DeviceNames.TURRET_ENCODER_HOST` names which motor that
+is; turret code asks for that motor and reads only its encoder, and nothing
+but the turret code may reset its count. The count is relative: zero
+wherever the encoder sat at hub power-up, kept across OpModes while the hub
+stays on. Nobody has to remember to zero it: the match-start rule is that the
+turret sits at its home mark, so it zeroes where it stands at PLAY, and a TeleOp
+that follows an Autonomous (or a TeleOp restarted after a crash) takes the earlier zero instead, through `Handoff`
+(the count is still good, and the Auto may have turned the turret away from
+home; zeroing at PLAY there would call that spot home). A person pressing the
+zero button always wins, and the Robot page says which of the three set the
+zero (`TurretZeroPolicy`). The one case it gets wrong is someone re-homing the
+turret by hand between an Auto and the TeleOp without pressing the button.
+Considered and not done: zeroing only by button (a forgotten press is silent:
+nothing can tell the turret was not at home), and a check that the count is
+still where the Auto left it (it cannot tell a bump from a re-home). The
+encoder's absolute PWM output exists, and an OctoQuad could
+read it (the `OctoQuad Bench` and #169); the build team chose relative plus a
+home mark for the time it saves (Oct 2026). Set the encoder's voltage switch to
+3V3.
+
+`subsystems/TurretEncoder` is the pure math (counts to degrees, with the
+measured gear ratio and direction) and `Turret Bench` is the OpMode that
+measures them: encoder direction, gear ratio, servo direction, and a
+proportional hold to try a gain. Its javadoc is the checklist.
+
 ### The Limelight: an Ethernet device, not a hub device
 
 A Limelight 3A has no hub port. SDK 12 models it as an `<EthernetDevice>`
@@ -461,6 +538,49 @@ bump can break it with no compile error. **Symptom: the configs simply stop
 appearing in the Driver Station list.** If that happens after a dependency
 change, look here first, and add it to the version-lock constraints above.
 
+#### Sloth Load and `R$xml` (issue #71)
+
+`RobotConfigResScanner` keeps one list of config IDs per class loader. When a
+loader is scanned it clears that loader's list and refills it from every class
+whose name ends `R$xml`, keeping the IDs whose XML root is
+`<Robot type="FirstInspires-FTC">`. The Driver Station is offered the union.
+
+A Sloth Load replaces the TeamCode class loader with one over the uploaded dex,
+and unloads the old one, so after a Sloth Load the list holds exactly the
+`R$xml` that dex contains. Out of the box that is none: the Load plugin's
+`dexSloth` task packs `dexBuilderDebug`'s output with `exclude "*.jar"`, and AGP
+dexes the R classes into precisely those jars. Built and checked off the robot
+(Sloth 0.3.2, AGP 8.13.2): before the fix `to_load.jar` held no
+`org.firstinspires.ftc.teamcode.R*`, so every bundled config disappeared on
+every Sloth Load, on every robot, and stayed gone across a restart.
+
+The fix is in `TeamCode/build.gradle`: `extractSlothRClasses` copies TeamCode's
+`R.class` and `R$xml.class` out of AGP's `R.jar`, `dexSlothR` dexes them with
+D8 (the same D8 Sloth's `assembleSloth` uses), and `dexSloth` packs the result.
+Only those two classes, so the Sloth Load stays small. Their IDs are the
+installed APK's IDs as long as no resource was added or removed since the last
+full install — checked with `aapt2 dump resources` against the APK — and adding
+a config needs a full install anyway.
+
+**This depends on Sloth's and AGP's internals**, which is why it is part of the
+version lock: the `dexSloth` task name, its `Jar` type, and AGP's
+`intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar`.
+If a bump moves the R jar, `extractSlothRClasses` fails the build rather than
+shipping a Sloth Load with no configs. After any Sloth, Load or AGP bump, run
+`./gradlew :TeamCode:assembleSloth` and check that
+`TeamCode/build/libs/sloth_intermediate.jar` contains
+`org/firstinspires/ftc/teamcode/R.sloth.dex`.
+
+Options considered and rejected:
+
+| Option | Why not |
+|---|---|
+| A TeamCode class that references `R.xml`, so it gets packaged | Does nothing. Every R class is dexed into the excluded jars whatever references it, and `SlothClassLoader` will not fall back to the APK for a class under `org.firstinspires.ftc.teamcode` |
+| Register the IDs ourselves at startup with `RobotConfigFileManager.setXmlResourceIdSupplier` | Fights Sloth's `IdResFilter` for the same static hook, so it depends on initialisation order, and adds runtime substrate to maintain. The build fix leaves Sloth's own mechanism doing the work |
+| Go back to configs pushed to `/sdcard/FIRST/` | Reopens the drift path in [Why bundled](#why-bundled-and-not-decodes-adb-push) |
+| "Full install only" on robots with bundled configs | Gives up the under-a-second deploy that is the reason Sloth is here |
+| Wait for a Sloth release | Versions are locked to AutoTune, so a Sloth bump cannot be the fix on its own |
+
 ## The subsystem convention
 
 Every mechanism is a class in `subsystems/` implementing `Subsystem`, built in `Robot`,
@@ -484,8 +604,9 @@ to `IntakeSubsystem` is a task a beginner can take; writing an intake is not.
 > is always on. The reasoning below replaces the old advice; the rejected option is kept.
 
 `update()` is one step of the mechanism's work, called once per loop. `periodic()` wraps that same
-method as an Ivy `Command`, and `RobotOpMode` schedules every subsystem's `periodic()` and runs the
-`Scheduler` every loop, TeleOp and Autonomous alike. An OpMode never calls `update()`; it tells a
+method as an Ivy `Command`, and `RobotOpMode` schedules every subsystem's `periodic()` (the same
+command with a timer around `update()`, so each subsystem's time is in the match log as
+`/Loop/Subsystem/<Name>Ms`) and runs the `Scheduler` every loop, TeleOp and Autonomous alike. An OpMode never calls `update()`; it tells a
 subsystem what it wants (`robot.drive.drive(...)`) and the scheduler does the rest.
 
 `RobotOpMode.loop()` runs in a fixed order: clear the bulk cache, `onLoop()`, then
@@ -524,9 +645,9 @@ empty body. `Robot.initialize()` and `Robot.stop()` walk the `subsystems` list (
 the list is the single place a subsystem is registered.
 
 **`stop()` means teardown and only teardown.** The disagreement that kept it off the interface was
-real: `FlywheelBank.stop()` cuts power and keeps the object live, where `LimelightVisionSubsystem.stop()`
+real: `Launcher2.stop()` cuts power and keeps the object live, where `LimelightVisionSubsystem.stop()`
 ends it. The resolution is to name it, not paper over it — "stop the mechanism for a moment" gets its
-own name (`idle()`, `spinDown()`). `FlywheelBank` is not a `Subsystem` and the shooter rig stays
+own name (`idle()`, `spinDown()`). `Launcher2` is not a `Subsystem` and the launcher rig stays
 standalone, so nothing had to change; if it ever becomes one, its `stop()` gets renamed.
 
 **If the interface makes your subsystem awkward, change the interface — do not work around it.** It
@@ -534,10 +655,11 @@ was designed against one existing subsystem and will meet its second one soon.
 
 ### This does not supersede "No command framework"
 
-The [shooter rig](#no-command-framework) stays a plain `OpMode` with no scheduler. That section
-already anticipated this: *"when the real BIOBUZZ launcher lands and shots have to be sequenced
-against an intake, that is the point to introduce Ivy commands."* The launcher has not landed. A rig
-with one behaviour still has nothing for a scheduler to arbitrate.
+The `launcher2` rig stays a plain `OpMode` — no Ivy `Command`, no scheduler — as the DECODE flywheel
+rig it was copied from did. The reasoning has not changed: a rig with one behaviour has nothing for a
+scheduler to arbitrate. When the real BIOBUZZ launcher lands and shots have to be sequenced against
+an intake, that is the point to introduce Ivy commands, and it happens in a `Subsystem`, not in the
+rig.
 
 ### Why this shape, and what was rejected
 
@@ -574,7 +696,7 @@ Rejected along the way:
 ## The `pedro` package
 
 `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/` is copied verbatim
-from the official Pedro Pathing Quickstart at tag `v3.0.1`. It is upstream code,
+from the official Pedro Pathing Quickstart at tag `v3.0.2`. It is upstream code,
 not ours — when Pedro releases a new Quickstart, re-copy it rather than patching
 it in place.
 
@@ -610,7 +732,6 @@ the package is still untouched upstream code.
 the stubs are filled in — there is not a single `@TeleOp` or `@Autonomous`
 annotation in it. AutoTune creates its tuning OpModes at runtime from the
 registered procedures; they never exist as annotated classes here.
-The module's one annotated OpMode lives in `shooter/`, documented below.
 
 ### Our hardware, and what still needs measuring
 
@@ -745,8 +866,8 @@ left, robot-centric, with nothing correcting heading. So it shows the robot's ow
 strafe, and a robot that arcs there (a "rainbow") has a mechanical problem, not a
 tuning one. Two things hide it in everyday driving. Basic Drive runs at 60%, and
 it is **field-centric** by default, so the Pinpoint heading quietly steers out
-the drift. To see what the tuner sees, open Basic Drive, press **B** for
-robot-centric, hold the **right bumper** (turbo) and push straight left.
+the drift. To see what the tuner sees, open **Basic Drive (robot-centric)**,
+hold the **right bumper** (turbo) and push straight left.
 
 If it arcs there too, run **Drive Motor Check** (Diagnostics group, #121) with
 **the robot lifted**. It takes about 20 s:
@@ -777,181 +898,32 @@ arc, but at full power the robot covers several feet per step. Lifted, a draggin
 wheel still draws more current and a weak motor still runs slower, and that is
 what separates the causes.
 
-## The `shooter` package
+## The `autokit` package: running an Auto from the Auto Builder
 
-`TeamCode/src/main/java/org/firstinspires/ftc/teamcode/shooter/` is a flywheel
-speed test rig: spin the three launcher wheels up, read the RPM, and tune the
-gains. It registers one OpMode, **Flywheel Speed Test** (TeleOp, group
-`Shooter`).
+An Autonomous is drawn in the Visualizer fork (the Auto Builder), exported as a class in
+`opmodes/auto/generated/`, and run by `BuiltAuto` through `autokit`: the cards a generated Auto
+calls. There are three kinds of card and one branching block:
 
-It exists to characterize shooting speeds on **last season's DECODE robot**
-before BIOBUZZ hardware is ready, so it is deliberately standalone — no
-drivetrain, no pathing, no intake, no feeder, and no dependency on
-Pedro's tuned values. Point it at a robot with the three
-launcher motors in its config and it runs.
+- a **command**, by name, with a timeout (`DEFAULT_TIMEOUT_S` when the Auto sets none);
+- a **path**, a Pedro `Path` the drivetrain follows to its end;
+- **`firstOf`**: wait for a trigger, at most some time, optionally while a command runs, then run
+  the cards of whichever exit came first;
+- **`guarded`**: the endgame guard. It runs its cards in order and drives the park path instead as
+  soon as the time left no longer covers the park plus `GUARD_MARGIN_S`. It cuts a wait or a
+  command at that deadline, since the robot is standing on a drawn spot, and never cuts a path: a
+  path it has let start runs to its end and the robot parks from there. The same holds inside a
+  `firstOf` row's cards: a path there is never cut, and one that would start after the deadline
+  does not start (#142).
 
-### Zero recompiles
+Names come from `AutoRegistration`, the only list of commands and triggers an Auto may use;
+`requireAll` at INIT stops an Auto that uses an unregistered name. Names whose mechanism does not
+exist yet are registered as explicit placeholders (`PLACEHOLDERS`; a command that finishes at
+once, a trigger that never fires), shown on the Driver Station at INIT, so an Auto drawn for the
+finished robot runs on today's robot as a timed script. `auto-registry.json` is the same list for
+the editor; `AutoRegistrationTest` keeps the two in step.
 
-The whole point is that a student meeting never has to touch Android Studio.
-Everything numeric is a live Panels field under `FlywheelBank → config`:
-
-| Group | What's in it |
-|---|---|
-| `measurement` | `ticksPerRev`, `gearRatio` — how encoder ticks become RPM |
-| `target` | `targetRpm`, `maxRpm` ceiling, and the two gamepad nudge steps |
-| `readiness` | `rpmToleranceRpm` (to become READY), `dropOutToleranceRpm` (to stop being READY — wider, so jitter does not flicker the state), `atSpeedHoldMs` |
-| `voltageCompensation` | `enabled`, `nominalVoltage`, `minVoltage` |
-| `left` / `center` / `right` | `enabled`, `reversed`, `rpmTrim`, `kS`, `kV`, `kP` |
-
-The motor names are deliberately **not** in that tree. They live in
-`DeviceNames`, and `RobotConfigXmlTest` holds them to `robot_*.xml`, so a wrong
-name is a failed build rather than something to discover at a meeting. An
-earlier version of this rig carried an editable `motorName` ported forward from
-DECODE — the very pattern `DeviceNames` exists to end.
-
-On the gamepad: **A** spins up, **B** stops, **dpad up/down** moves the target
-by the fine step, **dpad left/right** by the coarse step. The Driver Station
-shows the same lane table as Panels, so the rig is still usable with no laptop
-connected.
-
-### What it publishes, and where
-
-> **History note.** This said *three* places, the third being an FTC Dashboard
-> packet stream keyed `shooter/<lane>/…` that desktop AdvantageScope read as a
-> browsable tree. Dashboard is no longer installed — see [Why FTC Dashboard is
-> not in the dependency set](#why-ftc-dashboard-is-not-in-the-dependency-set).
-> **No measurement was lost**: the four series only Dashboard carried are now
-> published to Panels alongside the rest. The keys are flat and prefixed
-> `left_` / `center_` / `right_` rather than slash-delimited, because Panels
-> does not render a tree.
-
-Two places at once, and you can use either alone:
-
-| Where | What you get |
-|---|---|
-| **Panels** | Every series below as a graphable trace, plus the lane table as text |
-| **Driver Station** | The lane table — works with no laptop at all |
-
-Per lane, prefixed `left_`, `center_`, `right_`:
-
-| Key | Why you care |
-|---|---|
-| `_rpm` / `_target` / `_error` | The basic picture. Plot measured against target. |
-| `_tps` | Raw ticks/sec, before the ticks-per-rev maths — check here first if RPM looks wrong by a constant factor |
-| `_power` | What actually reached the motor, after voltage compensation and clipping |
-| `_ff` / `_fb` | **The tuning signal.** See below. |
-| `_amps` / `_watts` | Load. A binding wheel or over-tight belt shows here long before it shows as a speed you can't hold. |
-| `_at_speed` / `_spin_up_ms` | Readiness, and time-to-first-in-tolerance |
-
-Plus `battery_volts`, `voltage_multiplier`, `loop_ms` and `spinning`.
-
-### Reading the feedforward / feedback split
-
-This is the part worth understanding, because it turns tuning from guesswork
-into reading a graph.
-
-The control law is `power = (kS + kV × target) + kP × error`. The rig publishes
-those two halves separately:
-
-- **`_ff` (feedforward) should be carrying nearly all the power** once the wheel
-  is at speed. That is the whole point of feedforward — it predicts the power
-  needed rather than reacting to being wrong.
-- **`_fb` (feedback) should settle near zero.** If it is doing real work at
-  steady state, **kV is wrong**, and kP is quietly papering over it. Fix kV
-  rather than raising kP.
-
-At steady state, kV ≈ `power_feedforward` ÷ `target_rpm` — both numbers are on
-the graph, so you can read the correct value off directly instead of bisecting.
-
-One trap: `shooter/voltage_multiplier` scales the applied power. Derive kV from
-`power_feedforward` (before compensation), not from `power_applied` (after), or
-your answer is off by exactly that factor.
-
-### First time on the robot
-
-**Nobody has run this on a robot yet.** Before you rely on it at a meeting, put
-the robot somewhere the flywheels can spin free and walk through this once:
-
-1. **Does the OpMode show up?** Look for **Flywheel Speed Test** in the TeleOp
-   list on the Driver Station. If it isn't there, do a full **TeamCode**
-   install rather than a Sloth Load.
-2. **Does Panels come up?** Open Panels and look for `FlywheelBank → config`.
-   Nobody has run Panels on the Sloth `0.3.2` stack yet, so this is the step
-   most likely to surprise you. If it doesn't appear, the Driver Station
-   readout still works and the gamepad still tunes the target speed.
-3. **Press A.** The target starts at 1500 RPM. All three lanes should climb and
-   land on `[READY]`.
-4. **Is any lane showing a negative RPM?** Look at the wheel before touching
-   anything. Two different faults read the same:
-   - **The wheel spins the wrong way** → tick `reversed`. That flips the
-     motor and its encoder together, so the RPM goes positive. (DECODE's
-     robot 20245 ran its right lane reversed; 19429 ran all three forward.)
-   - **The wheel spins the right way** → tick `encoderReversed`. The encoder
-     counts backwards relative to its own motor, so `reversed` cannot fix it:
-     the RPM stays negative whichever way that box is set. Seen on the right
-     lane, 26 Sep 2026, where it read about -4000.
-
-   Until the sign is right, the lane runs on feedforward only. Before that
-   guard existed, a negative reading made the feedback term demand ever more
-   power and the wheel ran away to full speed.
-   **If ticking it changes nothing,** check the lane's `dir` column (and the
-   `<lane>_reversed` graph key). That is the direction the running code
-   actually applied. If Panels says `reversed` is ticked but `dir` still says
-   `FWD`, the edit landed in a copy of the config that this OpMode does not
-   read. The suspected cause is Sloth Load: Panels can end up holding fields
-   from both the installed APK's classes and the hot-reloaded ones, and editing
-   the stale set. The cure is a full **TeamCode** install, a power-cycle, and a
-   reload of the Panels page. Seen 26 Sep 2026 on the right lane; the cause was
-   inferred from the Panels `configurables-0.3.2+1.0.5` bytecode (it keeps fields
-   per class loader and groups them by class name for the browser), not yet
-   confirmed on the robot.
-5. **Does the RPM look believable?** If it's off by a constant factor — double,
-   half, ten times — the encoder maths is wrong, not the motor. Fix
-   `measurement.ticksPerRev` first, then `gearRatio`.
-
-Once those five pass, the rig works. Press B to stop; the wheels coast down.
-
-### What was ported from DECODE, and what wasn't
-
-Ported forward from `subsystems/LauncherSubsystem.java` and
-`subsystems/launcher/config/LauncherFlywheelConfig.java`:
-
-- the control law, unchanged —
-  `power = (kS + kV * targetRpm) + kP * (targetRpm - measuredRpm)`, scaled by
-  battery voltage and clipped to `[0, 1]`;
-- the starting gains (kS `0.10`, kV `0.00017`, kP `0.001`), which were identical
-  across both DECODE robots, so they are a real starting point and not a guess;
-- voltage compensation, unchanged;
-- the "don't wrap flywheels in `CachingHardware`" rule, and DECODE's reason for
-  it: a wheel held at near-constant power gets every repeat `setPower` dropped by
-  the cache, so a hub that zeroes the motor behind the cache's back stays dead.
-
-Two things were deliberately **not** ported, both because a measurement rig has
-different duties than a match robot:
-
-- **`Math.abs()` on the measured velocity.** DECODE took the absolute value,
-  which makes a backwards-spinning wheel look perfectly healthy. Here RPM keeps
-  its sign, a backwards wheel never reaches speed, and the readout says which
-  lane to flip.
-- **`fallbackReadyMs`.** DECODE declared a lane ready on a timer when the encoder
-  looked dead — the right call when a match is running. On a rig whose whole job
-  is measurement, a lane that never reaches speed has to keep saying so.
-
-`RobotProfile`'s two-robot machinery did not come across either. DECODE needed
-`invalidate()` / `reloadProfileConfigs()` because its config defaults were
-resolved per robot from the WiFi SSID, which is not known when Panels' boot-time
-`@Configurable` scan runs. These defaults are plain constants, so none of that
-applies.
-
-### No command framework
-
-The rig is a plain `OpMode` — no Ivy `Command`, no scheduler. DECODE was already
-on Ivy (at `com.pedropathing:ivy:1.0.0`, the Pedro 2 coordinates; this repo has
-`com.pedropathing.ivy:pedro:1.1.1`), but its flywheel control lived in the
-subsystem, not in a command, so there was no command class to port in the first
-place. A rig with one behaviour has nothing for a scheduler to arbitrate. When
-the real BIOBUZZ launcher lands and shots have to be sequenced against an intake,
-that is the point to introduce Ivy commands.
+`autokit` depends only on Ivy and Pedro, so `AutoKitTest` runs every card through Ivy's real
+`Scheduler` against a fake drivetrain, on a laptop.
 
 ## The `vision` package
 
@@ -1008,8 +980,9 @@ and the field-pose layer should not either.
 A damped, pivoting, volunteer-assembled game element will not return to precisely the
 same pose on every tip. A hive-derived pose deserves considerably larger covariance
 than a wall tag would, should be gated against odometry, and should never hard-reset
-the pose estimate. The spread across many tips is worth measuring — point **Vision:
-Noise Tuner** at a cell and tip it by hand between samples.
+the pose estimate. The spread across many tips is worth measuring: in **Vision: HIVE &
+Pose**, hold still facing a cell, tip it by hand between readings, and watch the camera
+jitter line.
 
 ### What the SDK does publish, and how we use it
 
@@ -1046,9 +1019,11 @@ cannot be settled without hardware, and both are isolated to one place each:
 1. **The camera's axis convention.** Limelight documents `targetpose_cameraspace`
    as +X right, +Y down, +Z forward, but the FTC SDK wrapper passes the three
    numbers straight through from the camera's JSON without normalising them, so
-   nothing in the SDK proves it. Run **Vision: Raw Tag Dump** and check. If it is
-   different, fix `CameraMount.cameraAxesToRobotAxes` — one method, and
-   `CameraMountTest` covers the rest of the chain.
+   nothing in the SDK proves it. Checked on 19429 on 3 Oct 2026 (#156): range within
+   about an inch and row height within 0.2 in of a tape. If it is ever in doubt again,
+   fix `CameraMount.cameraAxesToRobotAxes` — one method, and `CameraMountTest` covers
+   the rest of the chain. (The raw per-tag check OpMode, `VisionTagDump`, is in git
+   history.)
 2. **The offset from the tag row out to the cell opening.** A fixed
    `(0, +7.187, -5.622)` inches in the cluster plane, but applying it needs the
    cluster's 3D orientation, which needs the Euler convention the Limelight reports
@@ -1065,20 +1040,19 @@ cannot be settled without hardware, and both are isolated to one place each:
 - An AprilTag pipeline with tag size set to **3.25"**. Get this wrong and every
   range is off by a constant factor, with nothing about the output looking broken.
 - That pipeline emitting **full 3D pose**. Without it no sighting can be built at
-  all; `LimelightVisionSubsystem.framesMissing3dPose()` counts the case and both
-  diagnostic OpModes display it, so the failure says what it is instead of just
-  reporting "no target".
+  all; `LimelightVisionSubsystem.framesMissing3dPose()` counts the case and **Vision:
+  HIVE & Pose** says so in its Tags section, so the failure says what it is instead of
+  just reporting "no target".
 
-### The OpModes, in the order to run them
+### The vision OpMode
 
-All three are under the **Vision** group and are enabled, not `@Disabled`.
-
-1. **Vision: Raw Tag Dump** — raw per-fiducial numbers before any of our maths.
-   Settles the axis convention above.
-2. **Vision: Sighting Diagnostics** — live range/bearing/elevation per cell, with
-   camera mounting live-tunable in Panels. The tape-measure check.
-3. **Vision: Noise Tuner** — running mean and standard deviation of a stationary
-   sighting. Re-measure at a few distances; AprilTag noise grows quickly with range.
+There is one: **Vision: HIVE & Pose** (Utility menu). It shows the HIVEs, every CELL in
+view (state, row height, range, bearing), odometry against the camera, each tag's gate
+verdict and residual, the stationary fix, and how much the camera jitters while still.
+It needs no setup: it starts from the red audience start, its buttons switch what it
+tests, and the match log keeps its numbers. Anything new to try with the camera goes
+into it, not into another OpMode. The four single-purpose vision OpModes it replaced
+(Raw Tag Dump, Sighting Diagnostics, Noise Tuner, Tag Tilt) are in git history.
 
 ### Published HIVE geometry
 
@@ -1141,9 +1115,8 @@ Two properties are deliberate and worth not "fixing":
 
 `CellStateTracker.Geometry` defaults both nominal heights to NaN, which makes every
 cell report UNKNOWN until someone measures them. That is intentional; an unmeasured
-field is not a reason to guess. **Vision: Sighting Diagnostics** prints the measured
-row height per cell, labelled, so settling a cell and reading it off is the whole
-procedure.
+field is not a reason to guess. **Vision: HIVE & Pose** prints the measured row height
+of each CELL in view, so settling a cell and reading it off is the whole procedure.
 
 ### Open work
 
@@ -1175,27 +1148,140 @@ Ordered roughly by what unblocks what.
    > is needed. Until item 2, the robot runs on the Pinpoint alone. The gate against
    > odometry described above was deliberately left to Pedro's filter: add one only if a
    > robot shows it is needed.
-4. **Measure tip-to-tip repeatability.** Point **Vision: Noise Tuner** at a cell and
-   tip it by hand between samples. The spread across tips — not the frame-to-frame
+4. **Measure tip-to-tip repeatability.** In **Vision: HIVE & Pose**, hold still facing a
+   cell and tip it by hand between readings of the jitter line. The spread across tips — not the frame-to-frame
    noise — is what sets the covariance a hive-derived pose deserves.
 5. **Add orientation as a confirming discriminator**, once the Limelight's Euler
    convention has been established on the robot.
 
 #### Settled: can the camera see the lowered cell's tags?
 
-Yes, most likely — so there is no shortcut here, and height classification is
-genuinely needed.
+**From the start positions, no — measured on 19429 (#156).** Facing the red HIVE from the
+red audience start, the UP CELL's four tags read cleanly; tipped DOWN, its tags face away and
+the CELL drops out of the sighting list. Mid-tip, one tag stayed in view while the row fell
+about 7 in (50 → 43 in) with the state reading UNKNOWN, then it was lost. So a TIP shows as
+"UNKNOWN, height falling" first and "tags gone" second; `HiveTracker` uses both. The DOWN
+height in `CellStateTracker.Geometry` is therefore a tape measurement, not a camera reading.
+Other viewpoints (far side, steep angles) are untested.
 
-The question was whether a lowered cell's tags rotate out of view, which would have
-meant "a visible tag implies UP" and deleted most of the work above. They do not.
-Figure 9-7 labels the cluster "**AprilTag Cluster under each CELL**" and shows both
-the raised and the lowered cell's clusters in the same side elevation. The geometry
-agrees: the rocker swings ±30°, so a cell bottom that faces straight down at rest
-stays within 30° of vertical in both positions rather than rotating away.
+### HIVE tracking and camera localization, end to end (#157)
 
-Read off a figure rather than measured, so confirm it on a real field — actual
-sightlines also depend on camera height and range. But plan for both cells being
-readable, which is the harder case and also the more useful one.
+The measured numbers, all from 19429 on 3 Oct 2026 (#156):
+
+| What | Value | Where it lives |
+|---|---|---|
+| Camera mount | fwd 4, left 0, up 14 in, pitch 45°, yaw 0 | `CameraMount` |
+| Tag row height | UP 50.2 in (camera), DOWN 35.0 in (tape) | `CellStateTracker.Geometry` |
+| Row swing | ~15 in, not the 9.4 in `HiveGeometry.STATE_HEIGHT_DELTA_IN` derives: the tags sit ~15 in from the pivot, not at the CELL centre | — |
+| CELL field points | All eight from the field CAD (axle on the centre line, row 14.25 in out and 1.52 in below it); the camera put the raised AUDIENCE rows within an inch of it | `HiveFieldPoints` |
+| TIP time | ~2.5 s, from one video; provisional | `HiveTracker.Tuning.tipSeconds` |
+
+**TIP tracking.** `CellStateTracker` says what each CELL is now (UP / DOWN / UNKNOWN, by
+height). `HiveSubsystem` (`robot.hive`) feeds one `HiveTracker` per HIVE: a CELL seen mid-tip,
+or a settled CELL lost while the robot holds still, starts a TIP; after `tipSeconds` the other
+CELL is assumed up until the camera says otherwise.
+
+**Localization, DECODE's shape without MegaTag.** Every tag on a settled CELL has a known field
+position (`HiveFieldPoints.tagPosition`): its row centre plus its own offset along the row, which a
+TIP leaves alone because the row runs along the axle. So **any two or more tags in view, on one
+CELL or several, give the robot's whole pose** by a least-squares fit (`CellFix.fit`), the way
+MegaTag1 did; **one tag plus the Pinpoint's heading gives the position exactly**. Tags on two
+CELLs give a better heading than four on one. `DriveSubsystem` uses it three ways, and the
+Pinpoint carries the pose in between:
+
+1. **Seed.** No declared start and no Auto handoff: the pose is set once three camera poses in a
+   row agree. The driver's field-centric forward does not move.
+2. **Relocalize** on demand (`relocalizeFromCamera()`): once the pose is referenced, x and y only,
+   heading kept, refused beyond 18 in.
+3. **Would-relocalize.** Whenever the robot is still and a settled CELL is in view, record how far
+   the camera says the pose is off, without acting. This is the measurement that decides whether
+   stationary relocalizing should ever act.
+
+Continuous camera fixes (`LocalizationTuning.continuousFixes`) are **off by default**: a tuned
+Pinpoint holds a match on its own, the tags sit on flexing polycarbonate, and a bad fix drags the
+pose somewhere false (Chief Delphi thread 524104, #3, #4, #15). #82 session 5 is where that gets
+measured.
+
+#### The camera fix: gates, averaging, and how to tune it
+
+**Why heading comes from the Pinpoint.** A CELL's four tags span 13 in. Solving the robot's
+heading from them (`CellFix.fit`) puts a degree or two of noise into the heading, and at 60 in
+each degree moves the position an inch. That is the 1–4 in jump seen with 3–4 tags in view. The
+Pinpoint's heading is far steadier, so once the pose is referenced each tag gives a position on its
+own: its field point minus where the robot sees it, rotated into the field by the Pinpoint heading
+(`CellFix.position`). `fit` is kept only to seed a pose that has no heading yet.
+
+**The gates** (`localization/TagGate`, one frame at a time). They are FRC 3572's (`Robot-2026`,
+`Vision.java`), adapted to moving tags and to a camera that reports no ambiguity:
+
+| Check | Drops | Tunable |
+|---|---|---|
+| Height | a tag whose measured height is off its map height (UP 49.8 / DOWN 35.5 in): pitch error, a flexing CELL, a misread state | `maxTagHeightErrorIn` |
+| Range | a tag too far away | `maxTagRangeIn` |
+| Outlier | a tag whose position is far from the other tags' median (stands in for Wavelength's ambiguity check) | `tagOutlierIn` |
+| Tag count | a frame with too few tags left: one tag cannot be cross-checked | `minFixTags` |
+| Field | a frame that puts the robot off the field | — |
+
+UP against DOWN is the tracker's job (`CellStateTracker`, by height), not the gate's: a tag's UP
+and DOWN positions are only 1.5 in apart along the floor, but 14 in apart in height.
+
+**Stationary fixes.** While the robot holds still (`stillSpeedInPerSec`, `stillTurnDegPerSec`,
+`stillForMs`), `stillFixFrames` gated frames are averaged (`FixAverager`). If they agree to within
+`maxFixSpreadIn` and sit within `maxFixJumpIn` of the pose, their mean goes into Pedro's filter
+through `addMeasurement`, heading NaN, with one frame's variance. Averaging removes jitter, not a
+mount or field-point error, so dividing the variance by the frame count would claim more than it
+knows. This is a blend, not a snap, so the filter can still weigh a bad fix against the Pinpoint.
+`stillFixes` is **off** until the session below shows it helps; the Robot page says how each batch
+went (`READY` means it would have applied).
+
+**The reset spots.** `ResetPositions` holds two measured poses per alliance: the corners on its
+wall to the driver's left (D-pad left) and right (D-pad right), where the robot squares into both
+walls, so heading is known too. The button sets the whole pose. That also gives a TeleOp started
+without an Auto handoff a field heading. The driver picks the corner by the button, never "the
+nearest corner": picking the nearest corner trusts the pose that is being reset. Each stays NaN
+(its button says so) until measured.
+
+**A vision session** (robot, `Vision: HIVE & Pose`, a field with HIVEs). Nothing to set in Panels:
+the OpMode starts from a known pose, a button switches fixes, and the match log records every
+tag's residual and the jitter. Afterwards, hand the session's match log to whoever changes the
+code (a Claude session can read it): the numbers come off the log, not off someone's notes.
+
+1. **Start known.** Place the robot on the red audience start, INIT `Vision: HIVE & Pose`, and
+   check the start line agrees.
+2. **Mount and field points.** Stand still facing a CELL, then turn on the spot through two more
+   headings, then drive to one or two other spots. The Tags section shows, per tag, the robot it
+   implies minus odometry, in field axes and in robot axes. A residual that **turns with the
+   robot** (steady in robot axes) is the camera mount (`CameraMount`): pitch if it grows with range,
+   yaw if it is sideways. One that **stays put on the field** (steady in field axes, at every
+   heading) is that tag's field point (`HiveFieldPoints`). A height error the same on every tag is
+   pitch or mount height. The goal is under 1 in; the fix goes into the code from the log.
+3. **Jitter.** Each time the robot holds still facing a HIVE, the jitter line gives the camera's
+   standard deviation at that range: `fixSigmaIn` and `fixSigmaPerInch` come from two or three of
+   those.
+4. **Fixes.** D-pad right turns stationary fixes on for that run. Push the robot a few inches by
+   hand, stop facing a HIVE, and watch the pose come back. Then the real test: Basic Drive on
+   #82 session 1's taped path, with `LocalizationTuning.stillFixes` set in code, against without.
+5. **Continuous fixes** are their own session, later (#82 session 5).
+
+Which way each row runs along the field (`HiveFieldPoints.clusterXAlongFieldX`) follows from the
+SDK's cluster layout: the opening sits at +y, -z of the row in cluster axes, the opening faces away
+from the axle and the tags face down, so x = y × z points along +x for an AUDIENCE CELL and -x for
+a SCORING one. That predicted RED_AUDIENCE, which was then measured. The other three are derived;
+facing each in Vision: HIVE & Pose confirms it (its Tags section lists the ids: highest id on the
+robot's right facing +y for AUDIENCE, left for SCORING).
+
+**Seeing it.** `Vision: HIVE & Pose` drives the robot and shows all of it: on the Driver Station
+the HIVEs, the CELLs in view, odometry against camera, and the would-relocalize gap; in Panels,
+graphs of each CELL's height and rocker angle (a TIP is a clean curve) and a field view with the
+odometry robot in blue, the camera's robot in amber, and the CELLs' tag rows as dots. A
+relocalizes, Y resets field-centric forward.
+
+**The SDK's orientation names are not Limelight's.** The SDK builds a tag's `Pose3D` as
+`new YawPitchRollAngles(DEGREES, rz, ry, rx)` (Hardware 12.0.0, `LLResult.createPose3DRobot`),
+so `getRoll()` is the turn about camera X, which Limelight's docs call "pitch". The tag tilt of
+a tipping CELL seen head-on is in `getRoll()`. Nothing depends on the rotation order (the
+tracker reads state from height); the OpMode that was built to settle it, `VisionTagTilt`, is in
+git history.
 
 ### What was dropped from the DECODE port, and why
 
@@ -1247,16 +1333,16 @@ kind of source it is:
    (the Control Hub) and the **live source** to **FTC Dashboard**.
 2. **File → Connect to Robot.**
 
-Once connected, anything published as a `TelemetryPacket` shows up — Pedro
-Pathing's output and the whole `shooter/` tree included.
+Once connected, anything published as a `TelemetryPacket` shows up, Pedro
+Pathing's output included.
 
 > Nobody on the team has run this end to end yet, so treat the menu names as
 > approximate. If your build words them differently, correct this list rather
 > than working around it.
 
-Keys are slash-delimited on purpose: AdvantageScope renders `shooter/left/…` as a
+Keys are slash-delimited on purpose: AdvantageScope renders `launcher/left/…` as a
 browsable tree. Publish flat keys and you get thirty loose series instead of one
-node per lane.
+node per mechanism.
 
 Field assets are a one-time download from Mechanical-Advantage's
 [AdvantageScopeAssets](https://github.com/Mechanical-Advantage/AdvantageScopeAssets/releases/tag/bundles-v1)
@@ -1269,6 +1355,42 @@ It also replays logs: **File → Open Logs** reads Road Runner and PsiKit logs,
 including ones recorded before you installed it. Worth knowing for
 characterization — nobody reads a spin-up curve well while three wheels are
 spinning next to them.
+
+### Why the on-robot build is not here: it takes port 8080
+
+`page.j5155.AdvantageScope:lite` serves its UI from **port 8080**, which is
+already FTC Dashboard's port. Both use NanoHTTPD, and the second one to start
+cannot bind:
+
+```
+FATAL EXCEPTION: Thread-13
+java.net.BindException: Address already in use
+    at fi.iki.elonen.NanoHTTPD$ServerRunnable.run(NanoHTTPD.java:1763)
+```
+
+That kills the thread, the app ANRs, and the Robot Controller never reaches
+ready. **What you see on the Driver Station is "no heartbeat" and an empty OpMode
+list** — both tabs, every OpMode, including ones that have nothing to do with
+AdvantageScope. Nothing points at a port conflict, and it compiles and installs
+perfectly.
+
+Worse, `http://192.168.43.1:8080/` still answers, because Dashboard won the race
+and is serving normally. So the robot looks half alive, which sends you looking
+at deploys and OpMode registration rather than at a bound socket.
+
+**If you try this again**, the two servers have to stop colliding first — drop
+FTC Dashboard, or move one of them to another port. Do not just re-add the
+dependency; it will take the robot down the same way, and the symptom will not
+tell you why.
+
+> **What this section does and does not establish.** The port-8080 collision is
+> real and is reason enough to keep the dependency out. What is *not* established
+> is that it caused the September 2026 outage: the same `BindException` loop
+> continued after the dependency was removed and the hub fully reinstalled. If
+> you are debugging a "no heartbeat" RC, this page tells you the shape of the
+> failure — one NanoHTTPD losing a socket race — not which library is losing it.
+> The stack trace is a bare thread entry point and names nobody, so identify the
+> loser from what initialises immediately before the crash.
 
 ### Game pieces and the HIVE in a simulated `.wpilog`
 
@@ -2386,41 +2508,40 @@ wheels) at 66.8 in/s; with 435 rpm motors that is about 93 in/s. Real robots rea
 that. So the 50–60 in/s used for the Autos above is realistic for a 312 rpm build; measure yours with
 the Foresight tuner (`pedro/Tuning`) and pass it to `AutoSim.speed`.
 
-### Why the on-robot build is not here: it takes port 8080
+## Match logs: getting one off the robot
 
-`page.j5155.AdvantageScope:lite` serves its UI from **port 8080**, which is
-already FTC Dashboard's port. Both use NanoHTTPD, and the second one to start
-cannot bind:
+Every run of a `RobotOpMode` writes a `.wpilog` to `/sdcard/FIRST/logs/` on the hub (one file per
+match: an Autonomous pauses it and the TeleOp that follows continues it; see
+`logging/MatchLog`). AdvantageScope on a laptop opens it. **Nobody types adb for this:**
+`tools/pull-logs/` has the one command that connects over Wi-Fi, copies what is new to the team's
+shared Google Drive (`Robotics Team 3572 - Wavelength\2026-2027 FTC Biobuzz\Logs\<robot network>\`,
+via Drive for Desktop; a laptop without it falls back to `%USERPROFILE%\biobuzz-logs`) and opens
+the newest, and a `-Watch` mode that does
+it by itself each time an OpMode stops. Its README says what to drag where in AdvantageScope and
+how it copes with the adb states described above. Decided in #214. `tools/advantagescope/` sets
+the laptop's AdvantageScope up once: the robot drawn from its CAD (`cad/advantagescope/`, from the
+simulator branch) and a match layout.
 
-```
-FATAL EXCEPTION: Thread-13
-java.net.BindException: Address already in use
-    at fi.iki.elonen.NanoHTTPD$ServerRunnable.run(NanoHTTPD.java:1763)
-```
+### What a log says about itself
 
-That kills the thread, the app ANRs, and the Robot Controller never reaches
-ready. **What you see on the Driver Station is "no heartbeat" and an empty OpMode
-list** — both tabs, every OpMode, including ones that have nothing to do with
-AdvantageScope. Nothing points at a port conflict, and it compiles and installs
-perfectly.
+The 25 Oct 2026 logs from 20245 had to be read three ways round: which code ran was worked out
+from where the robot parked (PARK had moved that afternoon), a launcher that "never reached speed"
+was a launcher that was not on the robot, and the last runs were on a battery nobody knew was
+flat. Each is now a line in the file, on AdvantageScope's Metadata tab or in `/Events`:
 
-Worse, `http://192.168.43.1:8080/` still answers, because Dashboard won the race
-and is serving normally. So the robot looks half alive, which sends you looking
-at deploys and OpMode registration rather than at a bound socket.
+| Line | What | Where it comes from |
+|---|---|---|
+| `Build`, `GitCommit`, `GitBranch` | the commit the APK was built from, `-dirty` if the tree had uncommitted edits, and its branch | `TeamCode/build.gradle` stamps them into `BuildConfig`; `logging/BuildStamp` reads them. A Sloth Load rebuilds `BuildConfig` with the rest, so the stamp follows what was loaded |
+| `Hardware/<Subsystem>` | what each subsystem found at init: Pinpoint present or its fault, the Limelight answering or not, the turret zeroed or not | each subsystem's `health()`. **The hub cannot tell an empty motor or servo port from a stalled mechanism**, so a motor-only subsystem says "presence unknown until it moves" and never "present" |
+| event `intake: commanded for 1.0 s, encoder never moved`, `launcher: …` | a mechanism asked to move whose encoder never did | `logging/MotionWatch` for the intake and feeder; the launcher's own `fault()` |
+| `BatteryAtInit`, event `battery low: …`, event `PLAY: battery …` | the battery at INIT (warned on the INIT page below 12.0 V, nearly empty at rest) and at PLAY | `RobotOpMode` |
+| `Tunable/<Class>.<field>` | every Panels knob's value at PLAY, so the run can be repeated | `logging/Tunables`, by reflection over its list; `TunablesTest` keeps the list equal to the `@Configurable` classes outside the benches |
+| `AutoSource`, `AutoDrawnFor`, `AutoPlaceholders` | which `.pp` drawing ran, for which alliance, and which of its waits were on placeholder triggers | `BuiltAuto` |
+| `/Turret/AngleDeg`, `TargetDeg`, `ErrorDeg`, `Zeroed`, `Holding` | the turret, every loop | `RobotOpMode`, beside the launcher's and feeder's keys |
 
-**If you try this again**, the two servers have to stop colliding first — drop
-FTC Dashboard, or move one of them to another port. Do not just re-add the
-dependency; it will take the robot down the same way, and the symptom will not
-tell you why.
-
-> **What this section does and does not establish.** The port-8080 collision is
-> real and is reason enough to keep the dependency out. What is *not* established
-> is that it caused the September 2026 outage: the same `BindException` loop
-> continued after the dependency was removed and the hub fully reinstalled. If
-> you are debugging a "no heartbeat" RC, this page tells you the shape of the
-> failure — one NanoHTTPD losing a socket race — not which library is losing it.
-> The stack trace is a bare thread entry point and names nobody, so identify the
-> loser from what initialises immediately before the crash.
+`MatchLog.metadata(key, value)` is how anything learned after the file opened gets on the Metadata
+tab; a key sent again shows its latest value. It is for facts, not series: anything that changes
+during a run is a channel or an event.
 
 ## The Panels stack: seeing data and changing values at a meeting
 
@@ -2446,13 +2567,13 @@ server, which is still there and still serves the RC's own pages.
 |---|---|---|
 | Numeric series, graphable | Telemetry + Graph View | `PanelsTelemetry.INSTANCE.getTelemetry()` → `addData(key, value)` |
 | Text lines | Telemetry | same manager → `debug(line)` |
-| Robot pose and paths | Field View | `util/FieldView.java` — `shouldDraw()` / `drawRobot(x, y, heading)` / `send()` |
+| Robot pose and paths | Field View | Drawn by `RobotOpMode` in every OpMode on it; for more, `util/FieldView.java` — `shouldDraw()` / `drawRobot(x, y, heading)` / `send()` |
 | Replay a run afterwards | Capture | browser-side, nothing to write |
 | Start/stop OpModes from the laptop | OpMode Control | browser-side |
 | Limelight pipeline tuning without a USB cable | Limelight proxy | browser-side |
 
 Call `update()` once per loop after the `addData`/`debug` calls, and wrap the whole block in a
-`try`/`catch` that swallows. `FlywheelSpeedTestOpMode.publishPanels()` is the reference
+`try`/`catch` that swallows. `Launcher2SpeedTestOpMode.publishPanels()` is the reference
 implementation: telemetry must never take a mechanism down mid-run.
 
 **`update(telemetry)` publishes to both.** `TelemetryManager` has a second overload that takes the
@@ -2462,7 +2583,7 @@ There is no reason to maintain two parallel sets of telemetry calls, and the old
 predate this being known.
 
 Keys are flat strings. Panels does not render a `a/b/c` key tree the way AdvantageScope did, so
-prefix instead — `left_rpm`, `center_rpm`, `right_rpm`.
+prefix instead — `left_rpm`, `right_rpm`.
 
 ### Changing values live
 
@@ -2470,29 +2591,29 @@ prefix instead — `left_rpm`, `center_rpm`, `right_rpm`.
 non-`final`**. Primitives, enums, strings, arrays, lists, maps and custom objects all work.
 
 The pattern this repo uses, and the one to copy, is a single static root holding plain nested
-objects — `FlywheelBank` declares:
+objects — `launcher2/Launcher2` declares:
 
 ```java
 @Configurable
-public class FlywheelBank {
-    public static FlywheelTuningConfig config = new FlywheelTuningConfig();
+public class Launcher2 {
+    public static Launcher2Config config = new Launcher2Config();
 ```
 
-and everything under `FlywheelTuningConfig` is ordinary instance fields. Panels reflects through
+and everything under `Launcher2Config` is ordinary instance fields. Panels reflects through
 the static root into the tree, so one annotation exposes the whole structure and the sub-configs
 stay readable as normal Java.
 
 Three things that will cost you a meeting if you forget them:
 
 - **A field with no annotation above it simply never appears.** No error, no warning — it is
-  just absent from the tree. `VisionSightingDiagnostics` carries a note about exactly this
-  happening once already.
+  just absent from the tree. `CameraMount`'s values once failed to appear this way, in
+  DECODE's diagnostic OpMode.
 - **It is one-way unless code asks otherwise.** Edits in Panels reach the robot immediately.
   Values changed *in code* reach the browser only when a tab connects, after a browser edit, or
   when the code calls `PanelsConfigurables.refreshClass(TheConfigurableClass.class)`. So any code
   that writes a configurable must call `refreshClass` right after, or the page shows a stale number
-  and an edit typed over it looks like it did nothing. `FlywheelSpeedTestOpMode.refreshPanelsConfig()`
-  is the example — its d-pad nudges write `targetRpm`.
+  and an edit typed over it looks like it did nothing. `Launcher2SpeedTestOpMode.nudgeTarget()`
+  is the example — its d-pad nudges write `targetRpm`, then call `refreshClass`.
   > **History note, 26 Sep 2026.** This bullet used to say only "refresh the browser". That was
   > the workaround, not the answer: `refreshClass` is Panels' own call for this (checked in
   > `configurables-0.3.2+1.0.5`, which sends values on connect, on a browser edit, and on
@@ -2513,7 +2634,7 @@ Three things that will cost you a meeting if you forget them:
 
 `Drawing` and `Follower.telemetryDebug()` live in **`com.pedropathing:telemetry`**, which is on the
 [deliberately excluded](#deliberately-excluded) list — still published at `1.0.0`, never updated for
-Pedro 3. Checked by listing every class in `core-3.0.1`, `revhub-3.0.1`, `tuning-1.0.1`,
+Pedro 3. Checked by listing every class in `core-3.0.2`, `revhub-3.0.2`, `tuning-1.0.1`,
 `ivy:core-1.1.1` and `ivy:pedro-1.1.1`: no `Drawing`, and no reference to Panels anywhere in the
 set. So the choice was re-adding an excluded, Pedro-2-era dependency, or drawing two shapes
 ourselves.
@@ -2536,11 +2657,13 @@ have. `util/FieldView.java` sets that preset and draws the robot; it is about fo
 >
 > The one-size rule is in CLAUDE.md, and `FieldFrameTest` enforces it.
 
-**The throttle is the part that will bite you.** `FieldManager.update()` sends only when
-`canvasUpdateInterval` has elapsed — 100 ms by default. When it is not time yet it returns having
-done *nothing*, and that includes not clearing the canvas, so shapes added since the last send stay
-in the list. A 200 Hz loop that draws unconditionally ships twenty overlapping robots in one
-canvas. Gate on `shouldDraw()`:
+**The throttle, and why every draw is gated on it.** `FieldManager.update()` sends only when
+`canvasUpdateInterval` has elapsed — 100 ms by default. Whether or not it sends, it then clears
+the canvas: `update()` is "send if it is time, then reset". So drawing every loop and calling
+`update()` every loop does not pile up robots; it shows one, from whichever loop the send landed
+on. What it wastes is the drawing. At 200 Hz, nineteen canvases in twenty are built, cleared and
+never seen, and the loop-time rule in CLAUDE.md is that nothing is done per loop that does not need
+doing. Gate on `shouldDraw()`:
 
 ```java
 if (fieldView.shouldDraw()) {
@@ -2549,9 +2672,35 @@ if (fieldView.shouldDraw()) {
 }
 ```
 
+On most loops that is one boolean read. The gate is also how two `FieldView`s share one canvas
+(see "Every `RobotOpMode` draws the robot", below): the first to pass it spends the throttle for
+that loop.
+
+> **History note, 25 Oct 2026.** This paragraph used to say that a skipped `update()` "returns
+> having done *nothing*, and that includes not clearing the canvas", so an ungated draw shipped
+> twenty overlapping robots in one canvas. The library does not do that. Checked by disassembling
+> `com.bylazar:field:1.0.10`, the module `fullpanels:1.0.19` pulls in (`javap -p -c
+> com/bylazar/field/FieldManager.class`): `update()` sends, stamps `lastUpdate` and copies the
+> canvas into `lastCanvas` only when `getShouldUpdateCanvas()` is true, then unconditionally calls
+> `canvas.reset()` and zeroes the cursor. The Sloth fork `0.3.2+1.0.7` the old text was written
+> against disassembles the same way. The gate and the three-line shape stay; the reason for them is
+> loop time, not a smear. The class Javadoc on `FieldView` was corrected in the same PR.
+
 Panels' `Rectangle` takes no rotation, so an oriented chassis outline is not available at all. A
 circle at the footprint radius plus a line along the heading is what `drawRobot` draws, and it is
 the honest shape rather than a compromise.
+
+**Every `RobotOpMode` draws the robot.** `RobotOpMode` creates one `FieldView` at init and, after
+the subsystems have updated each loop (INIT loops included), draws the pose from `robot.drive` with
+exactly the gated shape above, inside a `try`/`catch` that swallows. So the Field plugin shows the
+robot in Basic Drive and in every Auto with nothing written in the OpMode, and skips drawing when the
+drive has no heading (no Pinpoint). An OpMode that wants more on the field — `HiveAndPose` draws the
+camera's pose and the turret's ray — makes its own `FieldView` and draws in `onLoop()`: both are
+handles on the same Panels field, so its `send()` spends the throttle and the base class's draw that
+loop finds nothing to do. No robot is drawn twice.
+
+> **Before 25 Oct 2026** only `HiveAndPose` and `LoopTimeBaseline` drew anything, so the Field
+> plugin was blank during a match. Noticed running R-Simple on 20245.
 
 ### Bringing the field view up on a robot
 
@@ -2615,15 +2764,15 @@ Recorded here so it is a choice rather than a surprise:
 
 | Gap | Cost |
 |---|---|
-| Only `FlywheelSpeedTestOpMode` and `LoopTimeBaseline` publish to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
+| Only `Launcher2SpeedTestOpMode` and `LoopTimeBaseline` publish to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
 | Nothing draws game elements on the field — `FieldView.drawMarker` exists and has no callers. | Vision sightings are numbers in a list rather than dots where the robot thinks they are. |
 | No shared telemetry helper, so each OpMode still publishes in its own style. | Key names and update cadence will drift between OpModes. |
 
 ## Why FTC Dashboard is not in the dependency set
 
 > **History note.** Everything in this file that predates 24 Sep 2026 assumes FTC
-> Dashboard is installed: the `Included` table listed it, the `shooter` package
-> published to it, and the AdvantageScope section treated it as the data path.
+> Dashboard is installed: the `Included` table listed it, the DECODE flywheel rig
+> (since removed) published to it, and the AdvantageScope section treated it as the data path.
 > Those passages have been corrected in place where they were load-bearing, but
 > if you find one that still assumes it, this section is what supersedes it.
 
@@ -2665,7 +2814,9 @@ declares a dependency on the other; both pull
 `org.nanohttpd:nanohttpd-websocket:2.3.1` and both exclude the core `nanohttpd`,
 expecting the SDK's bundled `fi.iki.elonen` classes — which is the class in the
 crash stack. Beyond that it needs the maintainers, and it is worth reporting
-upstream to Dairy Foundation (who build both Sloth variants) and bylazar.
+upstream to Dairy Foundation (who build the Sloth Dashboard) and bylazar. The
+measurement was taken on the Dairy fork of Panels; upstream 1.0.19 pulls the
+same `nanohttpd-websocket` and binds the same port, so assume it still holds.
 
 **Why Dashboard rather than Panels was the one dropped:** seven files import
 `com.bylazar.*`; one imported `com.acmerobotics.*`. The cost was one OpMode's
@@ -2678,8 +2829,37 @@ no stream to read. That is a real loss and is not meant to be permanent — see
 
 ## Deliberately excluded
 
-- **NextFTC** — the previous command framework. Migrated off it onto Ivy;
-  reintroducing it would mean maintaining two overlapping command schedulers.
+- **NextFTC** — the previous command framework. Still excluded, but not for the reason this
+  bullet used to give.
+
+  **History note, 25 Oct 2026.** This bullet said *"reintroducing it would mean maintaining two
+  overlapping command schedulers."* That is no longer true. NextFTC v2 (`dev.nextftc.v2:robot`,
+  v0.3.0 tagged 17 Oct 2026) has no scheduler of its own: its `robot` module depends on
+  `com.pedropathing.ivy:core:1.1.1`, the same Ivy we use, and `Mechanism.instant`/`infinite` are
+  Ivy's `Commands.instant`/`infinite` plus `requiring(this)` — what our `Subsystem.periodic()`
+  already does. The scheduler argument is gone. What remains:
+
+  - *Hardware layer.* Its wrappers take device names as string literals in Java
+    (`new NextMotor("l")`) or a hub plus port number
+    (`new NextServo(RobotController.controlHub(), name, 0)`), and resolve lazily on first use.
+    That breaks § "Robot configuration" three ways: names live only in `DeviceNames`, Java never
+    knows a port, and a missing device fails in the constructor rather than mid-match.
+  - *Loop ownership.* `NextOpMode` owns the loop, bulk caching, scheduler and telemetry flush,
+    and registers OpModes by classpath scan. Adopting it replaces `RobotOpMode`,
+    `LoopContractTest`, `MatchSetup`, `Display` and `Handoff` rather than adding to them.
+  - *Telemetry.* Its backends are the Driver Station, FTC Dashboard and FateWeaver. There is no
+    Panels backend, so it is a second telemetry path, and it puts FTC Dashboard (below) back
+    within reach.
+  - *The locked set.* It pulls Kotlin stdlib 2.3.0 and `kotlin-reflect` transitively next to
+    Panels' own Kotlin, and nobody has shown SDK 12 + Sloth 0.3.2 + Panels + NextFTC v2 running
+    together: the published BIOBUZZ example
+    ([13201 Hazmat](https://github.com/13201Hazmat/BioBuzz-RI30h)) is SDK 11.2.1, Sloth 0.3.0,
+    Panels commented out. It is 0.x and changed weekly through October 2026.
+
+  Worth borrowing without the dependency: its trigger table (`debounce`, `toggleOnTrue`,
+  `and`/`or`, analog thresholds) as ideas for `controls/Bindings` when a driver asks for them,
+  and its standalone `control` module as a possible later spike if the launcher needs
+  feedforward velocity control that Pedro does not cover. The investigation is in issue #217.
 - **`com.pedropathing:telemetry`** — only existed as a crutch for one
   unmigrated file in the source project this was based on. Don't carry it
   forward; if a file needs it, port that file to the current telemetry API

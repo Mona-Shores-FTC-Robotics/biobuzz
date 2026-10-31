@@ -12,36 +12,36 @@ import java.util.Map;
 /**
  * A {@code .wpilog} reader for tests, written from the spec rather than from {@link WpiLogWriter},
  * so a misreading of the spec in the writer shows up as a disagreement here instead of being
- * repeated.
+ * repeated. Public so tests outside this package ({@code AutoPathLogTest}) read logs the same way.
  */
-final class WpiLogReader {
+public final class WpiLogReader {
 
-    static final class Record {
-        final long timestampUs;
-        final byte[] payload;
+    public static final class Record {
+        public final long timestampUs;
+        public final byte[] payload;
 
         Record(long timestampUs, byte[] payload) {
             this.timestampUs = timestampUs;
             this.payload = payload;
         }
 
-        double asDouble() {
+        public double asDouble() {
             return le().getDouble(0);
         }
 
-        long asInt64() {
+        public long asInt64() {
             return le().getLong(0);
         }
 
-        boolean asBoolean() {
+        public boolean asBoolean() {
             return payload[0] != 0;
         }
 
-        String asString() {
+        public String asString() {
             return new String(payload, StandardCharsets.UTF_8);
         }
 
-        double[] asDoubles() {
+        public double[] asDoubles() {
             double[] d = new double[payload.length / 8];
             ByteBuffer b = le();
             for (int i = 0; i < d.length; i++) d[i] = b.getDouble(8 * i);
@@ -53,12 +53,12 @@ final class WpiLogReader {
         }
     }
 
-    static final class Entry {
-        final String name;
-        final String type;
-        final String metadata;
-        final long startTimestampUs;
-        final List<Record> records = new ArrayList<>();
+    public static final class Entry {
+        public final String name;
+        public final String type;
+        public final String metadata;
+        public final long startTimestampUs;
+        public final List<Record> records = new ArrayList<>();
 
         Entry(String name, String type, String metadata, long startTimestampUs) {
             this.name = name;
@@ -68,12 +68,12 @@ final class WpiLogReader {
         }
     }
 
-    final int version;
-    final String extraHeader;
+    public final int version;
+    public final String extraHeader;
     /** By name, in the order entries were started. */
-    final Map<String, Entry> entries = new LinkedHashMap<>();
+    public final Map<String, Entry> entries = new LinkedHashMap<>();
 
-    WpiLogReader(byte[] file) {
+    public WpiLogReader(byte[] file) {
         ByteBuffer b = ByteBuffer.wrap(file).order(ByteOrder.LITTLE_ENDIAN);
         byte[] magic = new byte[6];
         b.get(magic);
@@ -116,7 +116,7 @@ final class WpiLogReader {
         }
     }
 
-    Entry entry(String name) {
+    public Entry entry(String name) {
         Entry e = entries.get(name);
         if (e == null) throw new AssertionError("no entry named " + name);
         return e;

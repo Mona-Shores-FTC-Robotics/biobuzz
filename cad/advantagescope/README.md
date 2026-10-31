@@ -1,5 +1,10 @@
 # The whole robot for AdvantageScope
 
+> On `master` this folder is the model and its description, for match logs
+> (`tools/advantagescope/`). The **Rebuild** inputs below (`cad/full-robot/`, `cad/intake-b/`,
+> `cad/transfer/`, `cad/robot-addons/`) live on the simulator branch, `claude/simulator`, with the
+> simulator that animates the components.
+
 `Robot_BIOBUZZ/` is the team's robot from its Onshape CAD, with the decided front (`cad/intake-b/`): the outer wheel
 plates, the odometry pods, the Rigid V plates, the transfer, and eight articulated components (0 to 7). Copy the
 folder into AdvantageScope's custom assets folder and pick "BIOBUZZ Robot".

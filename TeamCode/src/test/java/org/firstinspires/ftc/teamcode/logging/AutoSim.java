@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.logging;
 
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.CommandBuilder;
+import com.pedropathing.ivy.behaviors.EndCondition;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.api.Paths;
 import com.pedropathing.ivy.commands.Commands;
@@ -1493,6 +1494,10 @@ public final class AutoSim {
         int lastRaised;
         double raisedSince;
         static final double TIP_OVERDUE_S = 7.0;
+        /** PickFlower: FlowerPicker's maxRangeIn, aheadToleranceIn, contactStandoffIn and dwellMs. */
+        static final double PICK_RANGE_IN = 60.0, PICK_AHEAD_IN = 6.0, PICK_CONTACT_IN = 12.0, PICK_DWELL_S = 2.0;
+        /** GardenGather: its typical seconds in AutoRegistration. */
+        static final double GATHER_S = 6.0;
 
         /** Flaps fold for whatever they would reach this soon at the robot's speed and turn rate ... */
         static final double FLAP_LOOKAHEAD_S = 0.4;
@@ -1768,6 +1773,10 @@ public final class AutoSim {
                     // RobotDesign#catchScheduled: the flaps (and slide) out for a catch and back in.
                     .command("CatchOut", 1.0, () -> catchCard(true))
                     .command("CatchIn", 1.0, () -> catchCard(false))
+                    // The robot's grabs (master's AutoRegistration, typical times and all): the endgame guard never
+                    // cuts one, and does not start one unless it and the park fit.
+                    .grab("PickFlower", 4.5, this::pickFlower)
+                    .grab("GardenGather", 6.0, this::gardenGather)
                     .trigger("IntakeFull", this::fullSensed)
                     // What the robot holds is worth 4 POLLEN or more, a NECTAR counting its weight (mentor, 8 Oct 2026:
                     // "2 nectar 1 P ... would have been enough"). Needs a sensor that tells NECTAR from POLLEN.
@@ -1902,6 +1911,84 @@ public final class AutoSim {
                     })
                     // CatchOut starts the swing and goes on (a servo); CatchIn waits until they are in, so a turn can follow.
                     .setDone(() -> !design.catchScheduled || out || catchOut <= 0);
+        }
+
+        /**
+         * PickFlower, as the robot's {@code FlowerPicker.command} runs it from an Auto: no line-up, a push
+         * straight ahead from where the Auto's drive left the robot to {@link #PICK_CONTACT_IN} from the FLOWER's
+         * centre, the intake on, a dwell until full or {@link #PICK_DWELL_S}, and a drive back to where the push
+         * started. Like the robot it refuses, doing nothing, when no FLOWER within {@link #PICK_RANGE_IN} is within
+         * {@link #PICK_AHEAD_IN} of the line ahead. Whether pieces come out is the extractor's model
+         * ({@link #extractor}), as for a path an Auto draws to a FLOWER. The numbers are FlowerPicker's.
+         */
+        private Command pickFlower() {
+            final double[] origin = new double[3];
+            final int[] phase = new int[1];  // 0 refused, 1 push, 2 dwell, 3 back
+            final double[] dwellFrom = new double[1];
+            final boolean[] intakeBefore = new boolean[1];
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        double[] at = pedro(drive.pose);
+                        System.arraycopy(at, 0, origin, 0, 3);
+                        double ahead = design.intakeAtBack ? at[2] + Math.PI : at[2];
+                        double c = Math.cos(ahead), s = Math.sin(ahead);
+                        double[] flower = null;
+                        double best = Double.POSITIVE_INFINITY;
+                        for (double[] f : sim.flowers) {
+                            double lx = (f[0] - at[0]) * c + (f[1] - at[1]) * s;
+                            double ly = -(f[0] - at[0]) * s + (f[1] - at[1]) * c;
+                            double d = Math.hypot(lx, ly);
+                            if (lx > 0 && Math.abs(ly) <= PICK_AHEAD_IN && d <= PICK_RANGE_IN && d < best) {
+                                best = d;
+                                flower = f;
+                            }
+                        }
+                        if (flower == null) {
+                            phase[0] = 0;
+                            pending.add("PickFlower: no FLOWER ahead within " + (int) PICK_RANGE_IN + " in: refused");
+                            return;
+                        }
+                        double lx = (flower[0] - at[0]) * c + (flower[1] - at[1]) * s;
+                        double push = Math.max(0, lx - PICK_CONTACT_IN);
+                        intakeBefore[0] = intakeEnabled;
+                        intakeEnabled = true;
+                        phase[0] = 1;
+                        Pose from = new Pose(at[0], at[1], at[2]);
+                        Pose to = new Pose(at[0] + push * c, at[1] + push * s, at[2]);
+                        drive.follow(Paths.line(from, to).constant(at[2]));
+                    })
+                    .setExecute(() -> {
+                        if (phase[0] == 1 && drive.pathDone()) {
+                            phase[0] = 2;
+                            dwellFrom[0] = now;
+                        } else if (phase[0] == 2 && (FieldSim.full(body) || now - dwellFrom[0] >= PICK_DWELL_S)) {
+                            phase[0] = 3;
+                            double[] at = pedro(drive.pose);
+                            drive.follow(Paths.line(new Pose(at[0], at[1], at[2]), new Pose(origin[0], origin[1], origin[2]))
+                                    .constant(origin[2]));
+                        }
+                    })
+                    .setDone(() -> phase[0] == 0 || (phase[0] == 3 && drive.pathDone()))
+                    .setEnd(end -> {
+                        if (phase[0] == 0) return;
+                        intakeEnabled = intakeBefore[0];
+                        if (end != EndCondition.NATURALLY) drive.hold(drive.pose);
+                    });
+        }
+
+        /**
+         * GardenGather: the simulator has no GARDEN, so the robot stands where it is for the gather's typical time
+         * and takes nothing. The Auto's timing, and the endgame guard's view of it, are the robot's.
+         */
+        private Command gardenGather() {
+            final double[] startedAt = new double[1];
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        startedAt[0] = now;
+                        drive.hold(drive.pose);
+                        pending.add("GardenGather: no GARDEN in the simulator: standing " + GATHER_S + " s, taking nothing");
+                    })
+                    .setDone(() -> now - startedAt[0] >= GATHER_S);
         }
 
         /**

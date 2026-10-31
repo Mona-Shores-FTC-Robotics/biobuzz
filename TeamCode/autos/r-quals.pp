@@ -1,7 +1,9 @@
 {
+  "version": "2.0.0",
+  "timestamp": "2026-01-01T00:00:00.000Z",
   "startPoint": {
-    "x": 59,
-    "y": 8.06,
+    "x": 54.06,
+    "y": 7.72,
     "name": "START",
     "headingDeg": 90
   },
@@ -41,15 +43,15 @@
       },
       "controlPoints": [
         {
-          "x": 57.5,
+          "x": 60.5,
+          "y": 40
+        },
+        {
+          "x": 60.5,
           "y": 100
         },
         {
-          "x": 57.5,
-          "y": 118
-        },
-        {
-          "x": 57.5,
+          "x": 60.5,
           "y": 118
         }
       ],
@@ -111,7 +113,7 @@
             },
             {
               "startProgress": 0.3,
-              "endProgress": 1.0,
+              "endProgress": 1,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
@@ -137,8 +139,12 @@
       },
       "controlPoints": [
         {
-          "x": 57.5,
+          "x": 60.5,
           "y": 100
+        },
+        {
+          "x": 60.5,
+          "y": 40
         }
       ],
       "heading": {
@@ -321,7 +327,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 10.5,
+        "x": 14,
         "y": 95
       },
       "controlPoints": [
@@ -453,45 +459,42 @@
       "lineId": "to-park-10"
     }
   ],
-  "settings": {
-    "xVelocity": 75,
-    "yVelocity": 65,
+  "fieldPoints": [],
+  "robot": {
+    "forwardVelocity": 75,
+    "strafeVelocity": 65,
     "aVelocity": 3.141592653589793,
     "kFriction": 0.1,
-    "rWidth": 18,
-    "rHeight": 18,
+    "rLength": 15.44,
+    "rWidth": 16,
     "safetyMargin": 1,
     "maxVelocity": 50,
-    "maxAcceleration": 45.0,
-    "maxDeceleration": 45.0,
-    "fieldMap": "biobuzz.webp",
-    "robotImage": "/robot.png",
-    "showGhostPaths": false,
-    "showOnionLayers": false,
-    "onionLayerSpacing": 3,
-    "onionColor": "#dc2626",
-    "onionNextPointOnly": false,
-    "showHeadingArrow": false,
-    "showCurrentTValue": false,
-    "leftPanelWidth": 262,
-    "rightPanelWidth": 714,
-    "headingArrowLength": 50,
-    "headingArrowColor": "#ffffff",
-    "headingArrowThickness": 2,
-    "pathOpacity": 1,
-    "leftPanelMinWidth": 0,
-    "rightPanelMinWidth": 0,
-    "penToolMaxPaths": 8,
-    "curveThroughMaxPoints": 4,
-    "experimentalFeatures": {
-      "optimize": false,
-      "curveThrough": false
-    }
+    "maxAcceleration": 45,
+    "maxDeceleration": 45,
+    "features": [
+      {
+        "name": "Front frame",
+        "length": 0.56,
+        "width": 16,
+        "forward": 8,
+        "left": 0,
+        "collides": true,
+        "color": "#2b2f36"
+      },
+      {
+        "name": "FLOWER poker",
+        "length": 1.5,
+        "width": 1.5,
+        "forward": 9.03,
+        "left": 0,
+        "collides": true
+      }
+    ]
   },
+  "activePaths": [],
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "r-quals",
     "registry": {
       "actions": [
         "SpinUp",
@@ -503,18 +506,18 @@
         "Tip",
         "RightCellUp"
       ],
-      "typicalS": {
-        "SpinUp": 0.1,
-        "LaunchAll": 2.0
-      },
       "events": [
         "Tip"
-      ]
+      ],
+      "typicalS": {
+        "SpinUp": 0.1,
+        "LaunchAll": 2
+      }
     },
     "points": {
       "START": [
-        59,
-        8.06,
+        54.06,
+        7.72,
         90
       ],
       "S_CATCH": [
@@ -533,7 +536,7 @@
         270
       ],
       "PARK": [
-        10.5,
+        14,
         95,
         90
       ],
@@ -590,7 +593,6 @@
       "to-fire3-9": "FIRE3",
       "to-park-10": "PARK"
     },
-    "startAt": "START",
     "cards": [
       {
         "id": "a-1",
@@ -751,7 +753,7 @@
         "rows": [
           {
             "when": [
-              "RightCellUp"
+              "Tip"
             ],
             "cards": []
           },
@@ -868,7 +870,8 @@
         "lineId": "to-park-10",
         "park": true
       }
-    ]
-  },
-  "version": "1.5.0"
+    ],
+    "startAt": "START",
+    "exportName": "r-quals"
+  }
 }

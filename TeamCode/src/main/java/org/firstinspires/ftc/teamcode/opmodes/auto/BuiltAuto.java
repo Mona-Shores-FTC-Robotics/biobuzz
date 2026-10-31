@@ -2,13 +2,20 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.localization.StartPosition;
+import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -19,8 +26,8 @@ import java.util.function.Function;
  * &#64;Autonomous(name = "Auto: Hive Rush", group = "Auto")
  * public class HiveRushOpMode extends BuiltAuto {
  *     public HiveRushOpMode() {
- *         super(HiveRushAuto.COMMANDS, HiveRushAuto.TRIGGERS, HiveRushAuto.DRAWN_FOR,
- *                 HiveRushAuto::startPose, HiveRushAuto::build);
+ *         super(HiveRushAuto.SOURCE, HiveRushAuto.COMMANDS, HiveRushAuto.TRIGGERS,
+ *                 HiveRushAuto.DRAWN_FOR, HiveRushAuto::startPose, HiveRushAuto::build);
  *     }
  * }
  * </pre>
@@ -30,49 +37,133 @@ import java.util.function.Function;
  * PLAY it turns the Auto half a turn about the field centre if the alliance is not the one it was
  * drawn for (BIOBUZZ is rotationally symmetric, not mirrored), sets the start pose and
  * starts. It never guesses an alliance: with none chosen it does not move.
+ *
+ * <p>It declares its start ({@link #startPosition()}) so the start check runs during INIT and the
+ * camera can confirm the alliance without a button press. Until an alliance is known the declared
+ * start is the drawing's own; once one is chosen that differs from {@code DRAWN_FOR}, the declared
+ * start becomes the rotated one, and {@link RobotOpMode} moves the pose there. A robot placed on
+ * the other alliance's start therefore reads as out of position until Square (X) or Circle (B) says
+ * which side it is on; the camera then confirms that placement too.
+ *
+ * <p>While mechanisms are still missing, the names {@link AutoRegistration#PLACEHOLDERS} lists are
+ * placeholders (a command that finishes at once, a trigger that never fires), and INIT says so on
+ * the Driver Station: the Auto then runs as a timed script, every such wait running to its limit.
+ *
+ * <p><b>The intake runs for the whole Auto.</b> The Autos are drawn the way the simulator plays
+ * them: the roller is on whenever the robot has room for a piece, and a "catch" step is the robot
+ * standing in the right place with the roller turning until {@code IntakeFull} or the step's time
+ * limit. No card turns the intake on or off, so the drawing and the simulator need none. PLAY
+ * starts it ({@link #intakeRequest}); the OpMode's stop idles it. Until the intake counts what it
+ * holds (#181) "has room" is always true and the roller runs the full thirty seconds; once it
+ * counts, the same rule stops the roller at {@link #MAX_HELD} and {@code IntakeFull} ends the wait.
+ *
+ * <p>The trace (each card starting, each wait ending and why, the guard's decisions) goes to the
+ * match log as events and the last few lines to the Match page. The paths go to the match log too
+ * ({@link AutoPathLog}): the declared start as the target during INIT, the whole plan once the
+ * Auto is built, at PLAY, since which way round it is drawn depends on the alliance, and the path
+ * being driven, and its end, as each one starts and ends.
+ *
+ * <p><b>A fire waits for a settled robot.</b> The launch cards feed only once the robot is still
+ * and at the last path's end heading ({@link PathEndSettle}), not on Pedro's "done"; each path end
+ * and each settle goes to the match log as an event, with Pedro's own view of how the path ended.
  */
 public abstract class BuiltAuto extends RobotOpMode {
 
     /** How many of the Auto's latest trace lines the Match page shows. */
     private static final int TRACE_LINES = 4;
 
+    /** The most pieces a robot may hold (BIOBUZZ G407): the intake has room below this. */
+    public static final int MAX_HELD = 4;
+
+    /** The {@code .pp} file in {@code TeamCode/autos/} this Auto was exported from; in the log's metadata. */
+    private final String source;
     private final String[] commands;
     private final String[] triggers;
     private final String drawnFor;
     private final Function<Boolean, Pose> startPose;
     private final BiFunction<AutoKit, Boolean, Command> build;
+    /** The two places this Auto can start, built once so INIT never allocates. */
+    private final StartPosition drawnStart;
+    private final StartPosition rotatedStart;
 
     private AutoRegistry registry;
+    /** The placeholder names this Auto uses, for the INIT page. */
+    private final List<String> placeholders = new ArrayList<>();
     private long startNs;
     private String problem;
     private AutoTrace trace;
+    private AutoPathLog pathLog;
+    /** Whether the robot has settled after the last path; the launch cards wait for it. */
+    private PathEndSettle settle;
+    /** The start last written as the log's target, so INIT writes it only when it changes. */
+    private StartPosition targetWritten;
 
-    protected BuiltAuto(String[] commands, String[] triggers, String drawnFor,
+    protected BuiltAuto(String source, String[] commands, String[] triggers, String drawnFor,
                         Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build) {
+        this.source = source;
         this.commands = commands;
         this.triggers = triggers;
         this.drawnFor = drawnFor;
         this.startPose = startPose;
         this.build = build;
+        Alliance drawn = Alliance.valueOf(drawnFor);
+        Alliance other = drawn == Alliance.RED ? Alliance.BLUE : Alliance.RED;
+        // A drawing that starts on a declared start takes its name and placement sentence.
+        StartPosition known = StartPositions.at(startPose.apply(false));
+        this.drawnStart = known != null && known.alliance == drawn ? known
+                : new StartPosition(drawn + " start (as drawn)", drawn, startPose.apply(false));
+        this.rotatedStart = new StartPosition(other + " start (drawing rotated)", other, startPose.apply(true));
+    }
+
+    /**
+     * The drawing's start until an alliance is known; the rotated start once the chosen alliance
+     * is not the one the Auto was drawn for. Re-read every INIT loop by {@link RobotOpMode}.
+     */
+    @Override
+    protected StartPosition startPosition() {
+        Alliance alliance = setup.alliance();
+        boolean rotated = alliance != Alliance.UNKNOWN && !alliance.name().equals(drawnFor);
+        return rotated ? rotatedStart : drawnStart;
     }
 
     @Override
     protected void onInit() {
-        registry = AutoRegistration.forRobot(robot, setup);
+        settle = PathEndSettle.forRobot(robot, line -> log.event(line));
+        registry = AutoRegistration.forRobot(robot, setup, settle, line -> log.event(line));
         registry.requireAll(commands, triggers);
+        for (String name : AutoRegistration.PLACEHOLDERS) {
+            if (Arrays.asList(commands).contains(name) || Arrays.asList(triggers).contains(name)) {
+                placeholders.add(name);
+            }
+        }
         robot.drive.preparePathFollowing();
+        pathLog = new AutoPathLog(log);
+        // Which drawing this was, and which of its waits were running on placeholders.
+        log.metadata("AutoSource", source);
+        log.metadata("AutoDrawnFor", drawnFor);
+        log.metadata("AutoPlaceholders", placeholders.isEmpty() ? "none" : String.join(", ", placeholders));
     }
 
     @Override
     protected void onInitLoop() {
+        // The ghost sits on the robot until the first path moves it; see AutoPathLog.target.
+        StartPosition start = startPosition();
+        if (start != targetWritten) {
+            targetWritten = start;
+            pathLog.target(start.pose);
+        }
         display.line("Drawn for " + drawnFor + "; the other alliance runs it rotated.");
+        if (!placeholders.isEmpty()) {
+            display.status("Placeholders", Display.Level.WARN, String.join(", ", placeholders)
+                    + ": no mechanism yet, so these waits run to their limits");
+        }
     }
 
     @Override
     protected void onStart() {
         Alliance alliance = setup.alliance();
         if (alliance == Alliance.UNKNOWN) {
-            problem = "No alliance chosen before PLAY (X = blue, B = red during INIT). Not moving.";
+            problem = "No alliance chosen before PLAY (Square (X) = blue, Circle (B) = red during INIT). Not moving.";
             return;
         }
         boolean rotated = !alliance.name().equals(drawnFor);
@@ -81,8 +172,21 @@ public abstract class BuiltAuto extends RobotOpMode {
         // Every line to the match log, the last few to the Match page.
         trace = new AutoTrace(TRACE_LINES, line -> log.event(line));
         AutoKit kit = new AutoKit(robot.drive, registry, () -> (System.nanoTime() - startNs) / 1e9)
-                .trace(trace);
-        build.apply(kit, rotated).schedule();
+                .trace(trace)
+                .watchPaths(both(pathLog, settle));
+        Command auto = build.apply(kit, rotated);
+        pathLog.plan(kit.paths());
+        auto.schedule();
+        // The intake does not count pieces yet (#181), so it holds none as far as the code knows.
+        if (intakeRequest(0) == IntakeSubsystem.State.IN) robot.intake.intake();
+    }
+
+    /**
+     * What the Auto asks of the intake while it runs: in while the robot has room, idle once it
+     * holds {@link #MAX_HELD}. The one place the "intake on whenever there is room" rule is written.
+     */
+    static IntakeSubsystem.State intakeRequest(int held) {
+        return held < MAX_HELD ? IntakeSubsystem.State.IN : IntakeSubsystem.State.IDLE;
     }
 
     @Override
@@ -91,6 +195,22 @@ public abstract class BuiltAuto extends RobotOpMode {
             display.status("Auto", Display.Level.FAULT, problem);
             return;
         }
+        settle.update();
         if (trace != null) trace.forEachRecent(display::line);
+    }
+
+    /** AutoKit takes one path watcher; the log and the settle check both need every start and end. */
+    private static AutoKit.PathWatcher both(AutoKit.PathWatcher first, AutoKit.PathWatcher second) {
+        return new AutoKit.PathWatcher() {
+            @Override public void pathStarted(Path path) {
+                first.pathStarted(path);
+                second.pathStarted(path);
+            }
+
+            @Override public void pathEnded(Path path) {
+                first.pathEnded(path);
+                second.pathEnded(path);
+            }
+        };
     }
 }

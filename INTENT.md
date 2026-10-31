@@ -84,7 +84,7 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 - Mechanism subsystems (launcher, turret, intake) until their hardware is designed.
 - Autonomous routines and paths.
 - A shared telemetry helper beyond what `RobotOpMode` needs.
-- Test rigs (`shooter/`, `launcher2/`) — standalone by design.
+- Test rigs (`launcher2/`) — standalone by design.
 
 ## Done when
 
@@ -128,7 +128,7 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
     centre, and pitch/yaw; enter them. Check sightlines against the turret's full travel.
 11. **Field points from CAD**: the 8 row-centre points into `HiveFieldPoints`, with the CAD source.
     Then put the robot at a taped spot and compare the fused pose with the tape.
-12. **Tuning**: Vision: Noise Tuner at 2–3 ranges → `fixSigmaIn` / `fixSigmaPerInch`; drive a
+12. **Tuning**: Vision: HIVE & Pose's jitter line at 2–3 ranges → `fixSigmaIn` / `fixSigmaPerInch`; drive a
     taped 100 in several times → `driftVariancePerInch`.
 13. **Start positions**: declare each legal start in `StartPositions`; point Hold Still at one;
     INIT on the tile shows "in position", 3 in off shows "OFF BY", facing wrong shows "can't confirm".

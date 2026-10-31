@@ -45,17 +45,73 @@ public final class DeviceNames {
     public static final String BACK_LEFT = "backLeft";
     public static final String BACK_RIGHT = "backRight";
 
+
     // Odometry.
     public static final String PINPOINT = "pinpoint";
 
     // AprilTag camera: a Limelight 3A on the Control Hub's USB-Ethernet link.
     public static final String LIMELIGHT = "limelight";
 
-    // Launcher flywheels, left to right as seen from behind the robot. Carried
-    // over from the DECODE robots, which wired all three on the Expansion Hub.
+    // Launcher: two flywheels, left and right as seen from behind the robot,
+    // and the feeder that pushes a piece into them. Not built yet (Oct 2026);
+    // the names and the ports in the XML are the plan, Expansion Hub motor
+    // ports 1, 2 and 3 after the intake on 0, so the build team wires to them.
     public static final String LAUNCHER_LEFT = "launcher_left";
-    public static final String LAUNCHER_CENTER = "launcher_center";
     public static final String LAUNCHER_RIGHT = "launcher_right";
+    public static final String FEEDER = "feeder";
+
+    /**
+     * The turret's angle encoder is read through this motor's encoder socket, not a device of its
+     * own. A Studica Cypher Max rides the turret's drive gear; its quadrature (A/B/I) output plugs
+     * into the encoder socket beside Expansion Hub motor port 3, whose motor is {@link #FEEDER}
+     * (the build team's choice, 24 Oct 2026: the drive motors' sockets hold their own encoders).
+     * The SDK reads whatever is plugged into a socket as that motor's position, so the feeder's
+     * {@code getVelocity()} on a competition robot is the turret encoder moving, not the feeder;
+     * the feeder runs without its encoder and shows that number only on the Robot page. Code
+     * that wants the turret angle asks for this motor and reads only its encoder; nothing may set
+     * its power except the feeder code, and nothing may reset its count except the turret code.
+     * The socket is in each robot's XML.
+     */
+    public static final String TURRET_ENCODER_HOST = FEEDER;
+    // The launcher bench's Y-cabled flywheel pair: both motors on one port, so
+    // software sees one motor. Bench only; the robots have LAUNCHER_LEFT/RIGHT.
+    public static final String LAUNCHER = "launcher";
+
+    /**
+     * The FLOWER extractor's first edition: one servo swinging a stick (#177).
+     * Expansion Hub servo port; the port itself is in each robot's XML.
+     */
+    public static final String FLOWER_STICK = "flowerStick";
+    // The intake's star wheels (the intake-assist wheels: SWYFT wheels cut
+    // into stars on a continuous-rotation servo with one-way clutches, #160).
+    // Control Hub servo port 5 on both robots, wired 24 Oct 2026.
+    public static final String INTAKE_STARS = "intakeStars";
+
+    /**
+     * The indicator light: a goBILDA RGB Indicator Light, a servo whose position is its colour
+     * ({@code subsystems/IndicatorSubsystem}). Control Hub servo port 0 on both robots.
+     */
+    public static final String INDICATOR = "indicator";
+
+    /**
+     * The turret's drive: a goBILDA servo in continuous-rotation mode, so it occupies a servo port
+     * and a {@code <ContinuousRotationServo>} element, not a motor port (all eight are taken).
+     * Expansion Hub servo port; the port itself is in each robot's XML. Its angle comes from
+     * {@link #TURRET_ENCODER_HOST}.
+     */
+    public static final String TURRET = "turret";
+
+    // Turret angle sensing: a Digital Chicken Labs OctoQuad (FTC Edition) on
+    // I2C, reading two REV Thru-Bore absolute outputs on its pulse-width
+    // channels (#169). On the OctoQuad bench rig today; on the competition
+    // robots once a turret exists (#174 adds it to COMPETITION_ROBOT).
+    public static final String OCTOQUAD = "octoquad";
+
+    /**
+     * The intake roller: one goBILDA 5203 motor (#160's floating roller, #181 counts pieces from
+     * its current). Expansion Hub motor port 0; the port itself is in each robot's XML.
+     */
+    public static final String INTAKE = "intake";
 
     // Two-wheel pinch launcher test rig (hub FTC-EoM3). Both motors hang off
     // one Y-cable on a single port, with one encoder, so software sees one
@@ -69,7 +125,15 @@ public final class DeviceNames {
      */
     public enum Kind {
         MOTOR,
+        /** A positional servo: {@code <Servo>}, asked for as {@code Servo}. */
         SERVO,
+        /**
+         * A continuous-rotation servo: {@code <ContinuousRotationServo>}, asked for as
+         * {@code CRServo}. A different kind from {@link #SERVO} because the SDK builds a different
+         * class for it, so {@code ValidateHardware} has to ask for a different one; it shares the
+         * servo ports.
+         */
+        CR_SERVO,
         I2C,
 
         /**
@@ -115,9 +179,14 @@ public final class DeviceNames {
             new Device(FRONT_RIGHT, Kind.MOTOR),
             new Device(BACK_LEFT, Kind.MOTOR),
             new Device(BACK_RIGHT, Kind.MOTOR),
+            new Device(INTAKE, Kind.MOTOR),
             new Device(LAUNCHER_LEFT, Kind.MOTOR),
-            new Device(LAUNCHER_CENTER, Kind.MOTOR),
             new Device(LAUNCHER_RIGHT, Kind.MOTOR),
+            new Device(FEEDER, Kind.MOTOR),
+            new Device(FLOWER_STICK, Kind.SERVO),
+            new Device(INTAKE_STARS, Kind.CR_SERVO),
+            new Device(INDICATOR, Kind.SERVO),
+            new Device(TURRET, Kind.CR_SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
@@ -130,7 +199,20 @@ public final class DeviceNames {
      * per-robot lists above. Not a requirement on any one configuration; each
      * {@link RobotIdentity} carries its own list for that.
      */
-    public static final List<Device> ALL = union(COMPETITION_ROBOT, LAUNCHER_RIG);
+    /**
+     * The launcher bench (robot_launcher_bench.xml): a spare Control Hub with the two flywheel motors
+     * Y-cabled to one port (one motor to software, {@link #LAUNCHER}) and the two feeder motors
+     * Y-cabled to another ({@link #FEEDER}).
+     */
+    public static final List<Device> LAUNCHER_BENCH = Collections.unmodifiableList(Arrays.asList(
+            new Device(FEEDER, Kind.MOTOR),
+            new Device(LAUNCHER, Kind.MOTOR)));
+
+    /** The OctoQuad turret-encoder bench rig (robot_octoquad_rig.xml): a spare Control Hub and the OctoQuad. */
+    public static final List<Device> OCTOQUAD_RIG = Collections.unmodifiableList(Arrays.asList(
+            new Device(OCTOQUAD, Kind.I2C)));
+
+    public static final List<Device> ALL = union(COMPETITION_ROBOT, LAUNCHER_RIG, LAUNCHER_BENCH, OCTOQUAD_RIG);
 
     @SafeVarargs
     private static List<Device> union(List<Device>... lists) {

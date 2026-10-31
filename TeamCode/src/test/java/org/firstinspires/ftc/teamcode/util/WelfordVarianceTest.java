@@ -14,7 +14,7 @@ import org.junit.Test;
  * #holdsPrecisionWhereTheNaiveFormulaCollapses} checks it, by computing both and
  * showing the naive one is not merely less accurate but wrong.
  *
- * <p>{@code VisionNoiseTuner} is the consumer, and it reports these numbers as the
+ * <p>Vision: HIVE &amp; Pose's jitter line is the consumer, and it reports these numbers as the
  * measurement noise a downstream filter should trust a sighting with. A quietly
  * wrong standard deviation there does not look wrong — it looks like a confident
  * camera.
@@ -145,8 +145,8 @@ public class WelfordVarianceTest {
 
     /**
      * Negative and mixed-sign values are ordinary input — a bearing in degrees
-     * straddling zero is the obvious case, and {@code VisionNoiseTuner} feeds
-     * exactly that.
+     * straddling zero is the obvious case, and a field position near zero is
+     * another.
      */
     @Test
     public void handlesNegativeAndMixedSignValues() {

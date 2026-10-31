@@ -19,7 +19,11 @@ public enum HiveCell {
     BLUE_AUDIENCE("BLUE AUDIENCE", Alliance.BLUE, Side.AUDIENCE),
     BLUE_SCORING("BLUE SCORING", Alliance.BLUE, Side.SCORING);
 
-    /** Which end of the field a cell sits at. */
+    /**
+     * Which end of the field a cell sits at. AUDIENCE: the audience side. SCORING: the opposite side,
+     * where the scoring table is (the manual: "on the side of the FIELD opposite of the audience").
+     * The names are FIRST's, from the SDK's cluster names.
+     */
     public enum Side { SCORING, AUDIENCE }
 
     private final String clusterName;
@@ -59,6 +63,14 @@ public enum HiveCell {
     public static HiveCell rightCell(Alliance alliance) {
         if (alliance == Alliance.RED) return RED_AUDIENCE;
         if (alliance == Alliance.BLUE) return BLUE_SCORING;
+        return null;
+    }
+
+    /** The alliance's CELL at {@code side}; null for UNKNOWN. */
+    public static HiveCell cell(Alliance alliance, Side side) {
+        for (HiveCell cell : values()) {
+            if (cell.belongsTo(alliance) && cell.side == side) return cell;
+        }
         return null;
     }
 

@@ -70,33 +70,33 @@ public class BindingsTest {
     }
 
     @Test
-    public void aPressMadeWhilePairingFiresNothing() {
-        boolean[] start = {false};
-        Bindings guarded = new Bindings("OPERATOR", () -> start[0]);
-        int[] count = {0};
-        guarded.when("B", "Count", () -> pressed).onPress(() -> count[0]++);
-
-        start[0] = true;
-        for (boolean state : new boolean[] {false, true, true}) {
-            pressed = state;
-            guarded.update();
-        }
-        start[0] = false;
-        pressed = false;
-        guarded.update();
-        assertEquals(0, count[0]);
-
-        pressed = true;
-        guarded.update();
-        assertEquals(1, count[0]);
-    }
-
-    @Test
     public void nothingFiresWithoutAPoll() {
         int[] count = {0};
         bindings.when("Y", "Count", () -> true).onPress(() -> count[0]++);
 
         assertEquals(0, count[0]);
+    }
+
+    @Test
+    public void onlyBindingsMarkedDuringInitFireBeforePlay() {
+        int[] zeroed = {0};
+        int[] aimed = {0};
+        bindings.when("D-pad up", "Zero turret", () -> pressed).duringInit().onPress(() -> zeroed[0]++);
+        bindings.when("Square", "Aim", () -> pressed).onPress(() -> aimed[0]++);
+
+        // INIT: press and release twice.
+        for (boolean state : new boolean[] {false, true, false, true, false}) {
+            pressed = state;
+            bindings.updateDuringInit();
+        }
+        assertEquals(2, zeroed[0]);
+        assertEquals(0, aimed[0]);
+
+        // PLAY: both are live; the ordinary one sees its first press now.
+        bindings.prime();
+        poll(true);
+        assertEquals(3, zeroed[0]);
+        assertEquals(1, aimed[0]);
     }
 
     private void poll(boolean... states) {

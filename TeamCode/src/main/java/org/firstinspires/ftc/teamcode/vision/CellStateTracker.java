@@ -35,9 +35,8 @@ public class CellStateTracker {
      *
      * <p>Both heights default to NaN, which classifies everything as
      * {@link HiveCellState#UNKNOWN}. That is intentional — an unmeasured field is
-     * not a reason to guess. Read the real numbers off <b>Vision: Sighting
-     * Diagnostics</b>, which displays the measured row height for exactly this
-     * purpose.
+     * not a reason to guess. Read the real numbers off <b>Vision: HIVE &amp;
+     * Pose</b>, which displays each CELL's measured row height.
      *
      * <p>The absolute heights are not published. The Competition Manual gives the
      * pivot height, the tilt and the CELL spacing, but locates the AprilTag cluster
