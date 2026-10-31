@@ -1,16 +1,23 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-10-31T16:36:48.220Z",
+  "timestamp": "2026-10-31T16:44:32.124Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
-    "headingDeg": 270,
-    "locked": false
+    "locked": false,
+    "headingDeg": 270
   },
   "lines": [
     {
-      "kind": "atomic",
       "id": "line-mvwmh60z-albd6s",
+      "color": "#9c755f",
+      "name": "to LAUNCH_LEFT",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 59.4,
         "y": 129.5
@@ -19,77 +26,85 @@
       "heading": {
         "type": "constant",
         "degrees": 270
-      },
-      "color": "#9c755f",
+      }
+    },
+    {
+      "id": "line-mvwmgt7p-3vf6y5",
+      "color": "#f28e2b",
+      "name": "to SCORING_FLOWER",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "to LAUNCH_LEFT"
-    },
-    {
       "kind": "atomic",
-      "id": "line-mvwmgt7p-3vf6y5",
       "endPoint": {
         "x": 47.2,
         "y": 119.3
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 57.08454680534918,
+          "y": 121.5966298572376
+        }
+      ],
       "heading": {
         "type": "linear",
         "startDeg": 270,
         "endDeg": 90
-      },
-      "color": "#f28e2b",
+      }
+    },
+    {
+      "id": "line-mvwmh0b8-hjreg5",
+      "color": "#b07aa1",
+      "name": "to LAUNCH_LEFT",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "to SCORING_FLOWER"
-    },
-    {
       "kind": "atomic",
-      "id": "line-mvwmh0b8-hjreg5",
       "endPoint": {
         "x": 59.4,
         "y": 129.5
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 57.78538452873966,
+          "y": 117.95225572968663
+        }
+      ],
       "heading": {
         "type": "linear",
         "startDeg": 90,
         "endDeg": 270
-      },
-      "color": "#b07aa1",
+      }
+    },
+    {
+      "id": "line-mvwmhsd0-9jt1zg",
+      "color": "#59a14f",
+      "name": "to PARK_LEFT",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "to LAUNCH_LEFT"
-    },
-    {
       "kind": "atomic",
-      "id": "line-mvwmhsd0-9jt1zg",
       "endPoint": {
-        "x": 9.8,
+        "x": 14.1,
         "y": 117.4
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 60.11064455845735,
+          "y": 116.21124532849792
+        }
+      ],
       "heading": {
         "type": "linear",
         "startDeg": 270,
         "endDeg": 0
-      },
-      "color": "#59a14f",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "to PARK_LEFT"
+      }
     }
   ],
   "shapes": [
@@ -280,6 +295,7 @@
     "kFriction": 0.1,
     "rLength": 15.44,
     "rWidth": 16,
+    "rForward": 0,
     "safetyMargin": 1,
     "maxVelocity": 50,
     "maxAcceleration": 45,
@@ -293,8 +309,7 @@
         "left": 0,
         "collides": true
       }
-    ],
-    "rForward": 0
+    ]
   },
   "activePaths": [],
   "auto": {
@@ -344,7 +359,7 @@
         270
       ],
       "PARK_LEFT": [
-        9.8,
+        14.1,
         117.4,
         0
       ]

@@ -19,7 +19,7 @@ public final class LSimpleAuto {
     public static final String SOURCE = "l-simple.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "10-31|12:36PM";
+    public static final String SAVED = "10-31|12:44PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -47,13 +47,18 @@ public final class LSimpleAuto {
         Pose startLeft = p.of(62.3, 133.8, 270);
         Pose scoringFlower = p.of(47.2, 119.3, 90);
         Pose launchLeft = p.of(59.4, 129.5, 270);
-        Pose parkLeft = p.of(9.8, 117.4, 0);
+        Pose parkLeft = p.of(14.1, 117.4, 0);
+
+        // Other poses the paths need (control points, unnamed endpoints).
+        Pose toScoringFlowerControl1 = p.of(57.0845, 121.5966, 0);
+        Pose toLaunchLeft_2Control1 = p.of(57.7854, 117.9523, 0);
+        Pose toParkLeftControl1 = p.of(60.1106, 116.2112, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toLaunchLeft = Paths.line(startLeft, launchLeft).constant(launchLeft);
-        Path toScoringFlower = Paths.line(launchLeft, scoringFlower).linear(launchLeft, scoringFlower);
-        Path toLaunchLeftPath = Paths.line(scoringFlower, launchLeft).linear(scoringFlower, launchLeft);
-        Path toParkLeft = Paths.line(launchLeft, parkLeft).linear(launchLeft, parkLeft);
+        Path toScoringFlower = Paths.curve(launchLeft, toScoringFlowerControl1, scoringFlower).linear(launchLeft, scoringFlower);
+        Path toLaunchLeftPath = Paths.curve(scoringFlower, toLaunchLeft_2Control1, launchLeft).linear(scoringFlower, launchLeft);
+        Path toParkLeft = Paths.curve(launchLeft, toParkLeftControl1, parkLeft).linear(launchLeft, parkLeft);
 
         return kit.sequence(
                 kit.guarded("Auto", toParkLeft, 2.2,
@@ -65,7 +70,7 @@ public final class LSimpleAuto {
                         kit.command("LaunchAll"),
                         kit.path("to SCORING_FLOWER", toScoringFlower, 1.4),
                         kit.command("PickFlower", 8),
-                        kit.path("to LAUNCH_LEFT", toLaunchLeftPath, 1.4),
+                        kit.path("to LAUNCH_LEFT", toLaunchLeftPath, 1.5),
                         kit.command("LaunchAll"),
                         kit.path("to PARK_LEFT", toParkLeft, 2.2)));
     }
