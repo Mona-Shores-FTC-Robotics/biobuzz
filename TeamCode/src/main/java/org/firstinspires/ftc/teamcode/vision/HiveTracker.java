@@ -167,6 +167,26 @@ public final class HiveTracker {
     /** A TIP has started and not yet settled. */
     public boolean tipping() { return tipping; }
 
+    /**
+     * Where the HIVE last rested as far as the robot knows, seen or assumed: the match-start
+     * position until it knows better, and held while the HIVE is out of view or tipping. Never
+     * {@link HiveState#UNSEEN} or {@link HiveState#TRANSITION}. For drawing the robot's belief in
+     * the match log; deciding anything goes through {@link #state()}.
+     */
+    public HiveState position() { return settled; }
+
+    /**
+     * How far through the TIP in progress, 0 to 1, by {@link Tuning#tipSeconds}: 0 when not
+     * tipping, and 0.5 throughout when {@code tipSeconds} assumes nothing. {@code nowMs} is on the
+     * clock {@link #observe} is fed.
+     */
+    public double tipProgress(long nowMs) {
+        if (!tipping) return 0;
+        double ms = Tuning.tipSeconds * 1000.0;
+        if (!(ms > 0)) return 0.5;
+        return Math.max(0.0, Math.min(1.0, (nowMs - tipStartMs) / ms));
+    }
+
     public boolean rightCellUp() { return state == HiveState.RIGHT_CELL_UP; }
 
     public boolean leftCellUp() { return state == HiveState.LEFT_CELL_UP; }

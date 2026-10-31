@@ -2,11 +2,14 @@ package org.firstinspires.ftc.teamcode.logging;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -48,6 +51,28 @@ public class RobotComponentsTest {
         assertEquals("TURRET is the turret", "turret", RobotComponents.NAMES[RobotComponents.TURRET]);
     }
 
+    /**
+     * AdvantageScope's loader drops a mesh that has no normals, without a word: a model exported
+     * without them installs, is listed, and draws nothing (31 Oct 2026). So every mesh in every
+     * model file carries a NORMAL alongside its POSITION.
+     */
+    @Test
+    public void everyMeshHasNormalsOrAdvantageScopeDrawsNothing() {
+        List<String> files = new ArrayList<>();
+        files.add("model.glb");
+        for (int c = 0; c < RobotComponents.COUNT; c++) files.add("model_" + c + ".glb");
+        for (String name : files) {
+            byte[] glb = bytes(name);
+            // A .glb: a 12-byte header, then the JSON chunk's length (little-endian), its type, and the JSON.
+            int length = ByteBuffer.wrap(glb, 12, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+            String json = new String(glb, 20, length, StandardCharsets.UTF_8);
+            int meshes = all(Pattern.compile("\"POSITION\""), json, 0).size();
+            int normals = all(Pattern.compile("\"NORMAL\""), json, 0).size();
+            assertTrue(name + " has no meshes", meshes > 0);
+            assertEquals(name + ": meshes with normals (export with include_normals=True)", meshes, normals);
+        }
+    }
+
     @Test
     public void configJsonHasOneComponentEach() {
         Matcher m = Pattern.compile("\"zeroedRotations\"").matcher(read("config.json"));
@@ -84,14 +109,19 @@ public class RobotComponentsTest {
 
     @Test
     public void theFlowerStickSwungOutPutsItsTopShaftOnTheTile() {
-        // The 312 mm shaft across the arms' tops, as the CAD draws it stowed (31 Oct 2026): X 1.87 in, Z 15.77 in.
+        // The 312 mm shaft across the arms' tops, as the CAD draws it (31 Oct 2026, swung 155.3 deg out): X 13.12 in,
+        // Z 0.98 in. Stowed it was at X 1.87 in, Z 15.77 in.
         double in = 0.0254;
-        double[] shaft = {1.87 * in, 0, 15.77 * in};
+        double[] shaft = {13.12 * in, 0, 0.98 * in};
         double[] out = new double[7 * RobotComponents.COUNT];
         RobotComponents.pose(RobotComponents.FLOWER_STICK, 162, out);
         double[] moved = apply(slice(out, RobotComponents.FLOWER_STICK), shaft);
         assertEquals("out, it lies on the tile (the stick's wheels)", 0.5, moved[2] / in, 0.5);
         assertEquals("ahead of the robot's front", 12.7, moved[0] / in, 0.5);
+        RobotComponents.pose(RobotComponents.FLOWER_STICK, 0, out);
+        double[] stowed = apply(slice(out, RobotComponents.FLOWER_STICK), shaft);
+        assertEquals("in, it is up over the robot", 15.77, stowed[2] / in, 0.5);
+        assertEquals("in, it is back over the robot", 1.87, stowed[0] / in, 0.5);
     }
 
     /** The pose (translation t, quaternion q) applied to v: t + q v q*. */
@@ -128,14 +158,19 @@ public class RobotComponentsTest {
         return out;
     }
 
-    /** A file in cad/advantagescope/Robot_BIOBUZZ, from the module dir under Gradle or the repo root in an IDE. */
+    /** A file in cad/advantagescope/Robot_BIOBUZZ, as text. */
     private static String read(String name) {
+        return new String(bytes(name), StandardCharsets.UTF_8);
+    }
+
+    /** A file in cad/advantagescope/Robot_BIOBUZZ, from the module dir under Gradle or the repo root in an IDE. */
+    private static byte[] bytes(String name) {
         File candidate = new File(System.getProperty("user.dir"));
         while (candidate != null) {
             File file = new File(candidate, "cad/advantagescope/Robot_BIOBUZZ/" + name);
             if (file.isFile()) {
                 try {
-                    return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+                    return Files.readAllBytes(file.toPath());
                 } catch (IOException e) {
                     throw new AssertionError(e);
                 }

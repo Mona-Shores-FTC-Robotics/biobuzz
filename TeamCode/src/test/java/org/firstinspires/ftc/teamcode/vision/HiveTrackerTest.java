@@ -8,6 +8,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.firstinspires.ftc.teamcode.logging.HiveComponents;
+import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -250,5 +252,36 @@ public class HiveTrackerTest {
         assertEquals(0, hive.tipsStarted());
         seeTipping(10);
         assertTrue(hive.rightCellDown());
+    }
+    @Test
+    public void theBeliefIsHeldOutOfViewAndSwingsThroughATip() {
+        HiveTracker.Tuning.tipSeconds = 3.5;
+        Alliance red = Alliance.RED;
+        assertEquals("starts at the match-start position", RIGHT_CELL_UP, hive.position());
+        assertEquals(0.0, HiveComponents.believedRad(red, hive, 0), 1e-12);
+
+        see(LEFT_CELL_UP, 1000);
+        double left = HiveComponents.fromBuiltRad(red, LEFT_CELL_UP);
+        assertEquals(left, HiveComponents.believedRad(red, hive, 1000), 1e-12);
+        assertEquals(UNSEEN, lose(LEFT_CELL_UP, 300, false, 1300));
+        assertEquals("out of view: the last position is held", LEFT_CELL_UP, hive.position());
+        assertEquals(left, HiveComponents.believedRad(red, hive, 1300), 1e-12);
+
+        see(LEFT_CELL_UP, 2000);
+        seeTipping(3000);                                   // the TIP started at 3000
+        assertTrue(hive.tipping());
+        assertEquals(0.5, hive.tipProgress(3000 + 1750), 1e-9);
+        assertEquals("half way through tipSeconds, half way back", left / 2,
+                HiveComponents.believedRad(red, hive, 3000 + 1750), 1e-9);
+        assertEquals(1.0, hive.tipProgress(99_000), 1e-12);
+
+        HiveTracker.Tuning.tipSeconds = Double.NaN;        // nothing assumed: drawn mid-swing
+        assertEquals(0.5, hive.tipProgress(99_000), 1e-12);
+    }
+
+    @Test
+    public void notTippingHasNoProgress() {
+        HiveTracker.Tuning.tipSeconds = 3.5;
+        assertEquals(0.0, hive.tipProgress(5000), 0.0);
     }
 }
