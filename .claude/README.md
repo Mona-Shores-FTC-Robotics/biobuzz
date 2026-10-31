@@ -51,3 +51,4 @@ mentor work (CONTRIBUTING.md, "How we work"): a session's branch name no longer 
 | `season-standup` | Survey repo + issues + PRs, produce the meeting brief. The orchestrator's routine. |
 | `spike-to-issue` | Turn a proven mentor prototype into student-ready issues, keeping the knowledge and discarding the code. |
 | `first-pr-coach` | Walk a student from "never used git" to a green PR — **without writing the code for them**. |
+| `localization-triage` | Read a match or `Vision: HIVE & Pose` log and name the one number to change (camera mount, HIVE field point, odometry) or say none. Ships `wpilog.py`, a standard-library log reader. |
