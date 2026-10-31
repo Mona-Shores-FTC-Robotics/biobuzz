@@ -1,0 +1,47 @@
+# Handoff: 20245 camera calibration (31 Oct 2026)
+
+Disposable: delete this file when the work lands. Status belongs in an issue (CLAUDE.md); this is
+only so a new session can resume. Skill: `.claude/skills/localization-triage/` (read its SKILL.md first).
+
+## Decision made
+19429 is being rebuilt as an exact copy of 20245. Until 19429 is tested, **both robots share one
+set of `CameraMount` values**, taken from 20245. No per-robot code. No values pushed yet: nothing
+below has been tested on the robot.
+
+## What 20245 showed (robot_20245, master @ 2ad67dd016, Limelight pipeline 0 "DecodeApriltags")
+- Limelight pipeline is fine: marker size 82.55 mm (3.25 in), Full 3D yes, 36h11, 640x480@90.
+  Exposure 500 vs 1000 made no real difference (heights +1.9 vs +2.2). Gain 15. Do not go to 300.
+- **Height:** camera reads the raised tag row about +1.9..+2.0 in above the map (49.8) at
+  CameraMount 14.0 in / 45 deg, at every distance (49-59 in) and heading. Tape: row is 49.1-49.5.
+  Lens tape: 14 5/16 +/- 0.25. Phone on case: 45.0 deg. pitchDeg 42 fixed height but pushed the
+  tags 4 in too far; mountUpIn 12 fixed height with no horizontal change but is physically wrong, so
+  rejected. Cause unknown; it does NOT affect position. It cuts the height gate's margin to ~1.1 in
+  (maxTagHeightErrorIn 3.0). Leave it. Optional: ruler on the printed tag's black square (3.25 in?).
+- **Horizontal at the red start** (camera minus odometry, 4 placements): (-1.10,-0.54), (-1.2,-0.6),
+  (-0.9,-0.8), (-1.0,-0.5). Mean (-1.05,-0.6), repeatable +/-0.15: systematic, not placement.
+  Both HIVEs show x about -1.1, so not HIVE spacing. Camera jitter 0.01-0.06 in.
+- **Front-back:** wall to wheelbase centre = R 1.9 + W/2 (W 11.31) = 7.55 +/- 0.15. Declared start
+  y is 7.7: fine. Camera reads ~7.1, so the lens is ~3.55 in ahead of centre, not 4.0
+  (tape B 9.2-9.5 gives 3.5-3.85, consistent).
+- Robot centre = middle of the wheelbase (Robot20245.java comment; pods 6.5 in right, 1.0 in forward).
+
+## Tomorrow, in order (robot on the red start marks, Vision: HIVE & Pose, still, after PLAY)
+1. Check Panels CameraMount is back at 4 / 0 / 14 / 45 / 0 (it resets on restart) and the Limelight
+   exposure/gain are what you want (write them down).
+2. Panels: mountForwardIn = 3.55. Read "Where the robot is". Camera y should go from ~7.1 to ~7.5.
+   If it moves DOWN the sign is wrong: set 4.0 and tell the session.
+3. Sideways: hang a plumb line from the lens centre, mark the floor, measure floor distance from the
+   left wheel face and from the right wheel face to the mark. mountLeftIn = (right - left) / 2
+   (positive = lens left of centre). Test live: camera x should go from ~54.6 toward 55.6.
+4. Once both live tests move the camera toward odometry/truth, ask the session to make ONE edit to
+   the shared CameraMount defaults (update its "measured on 19429" comment), run the tests, and
+   open a PR if wanted. Do not touch mountUpIn or pitchDeg for the height.
+5. If the lens measures centred and mountLeftIn does not help: suspect the pod offsets
+   (xPodOffset -6.5, yPodOffset 1.0 in Robot20245.java); re-measure from the wheelbase centre.
+6. 19429 after its rebuild: copy 20245's Limelight pipeline (the download/upload arrows beside the
+   pipeline name in the Limelight UI), same exposure/gain, then the same 5-minute start check.
+
+## Where things are
+- Logs: Drive `...\Logs\20245-RC\`; 13:48 HiveAndPose is also on branch `logs/2026-10-31`
+  (throwaway, never merge). Two later HiveAndPose logs are still on the hub, unpulled.
+- Logs over ~6 MB crash the Drive connector; use a throwaway branch (SKILL.md section 0).
