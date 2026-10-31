@@ -94,6 +94,8 @@ public class MatchLogTest {
         loop(log);                                                // first frame: home
         log.component(RobotComponents.TURRET, Double.NaN);        // not zeroed yet: ignored
         loop(log);
+        log.component(RobotComponents.TURRET, Double.POSITIVE_INFINITY);   // a zero tunable upstream: ignored
+        loop(log);
         log.component(RobotComponents.TURRET, 30);
         loop(log);
         log.component(RobotComponents.TURRET, 30.05);             // under 0.1 deg: still
@@ -105,7 +107,7 @@ public class MatchLogTest {
 
         WpiLogReader.Entry e = new WpiLogReader(out.toByteArray()).entry(RobotComponents.KEY);
         assertEquals("struct:Pose3d[]", e.type);
-        assertEquals("home, 30 and -45: nothing for NaN or a 0.05 deg twitch", 3, e.records.size());
+        assertEquals("home, 30 and -45: nothing for NaN, infinity or a 0.05 deg twitch", 3, e.records.size());
         double[] expected = new double[7 * RobotComponents.COUNT];
         double[] angles = {0, 30, -45};
         for (int i = 0; i < angles.length; i++) {

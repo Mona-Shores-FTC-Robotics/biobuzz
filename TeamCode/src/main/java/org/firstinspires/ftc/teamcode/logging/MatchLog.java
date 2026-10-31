@@ -267,10 +267,11 @@ public final class MatchLog {
     /**
      * A moving part of the robot model at {@code angleDeg} ({@link RobotComponents}: which angle
      * each one means). Written only when a component has moved 0.1 deg or more, so a still turret
-     * writes nothing; NaN (not known yet) is ignored, and every component starts at 0, home.
+     * writes nothing; NaN (not known yet) and infinity (a zero tunable somewhere upstream) are
+     * ignored, and every component starts at 0, home.
      */
     public void component(int index, double angleDeg) {
-        if (Double.isNaN(angleDeg) || Math.abs(angleDeg - componentDeg[index]) < 0.1) return;
+        if (!Double.isFinite(angleDeg) || Math.abs(angleDeg - componentDeg[index]) < 0.1) return;
         componentDeg[index] = angleDeg;
         componentsDirty = true;
     }
