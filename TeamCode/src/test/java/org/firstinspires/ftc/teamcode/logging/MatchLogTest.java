@@ -119,6 +119,36 @@ public class MatchLogTest {
     }
 
     @Test
+    public void theHiveAppearsOnItsFirstBeliefAndIsWrittenOnlyWhenItMoves() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MatchLog log = MatchLog.toStream("test", out, "", null, clock);
+        loop(log);                                                 // nothing said yet: no HIVE
+        log.hive(HiveComponents.RED, 0);
+        log.hive(HiveComponents.BLUE, 0);
+        loop(log);                                                 // the match start
+        log.hive(HiveComponents.RED, 0);
+        log.hive(HiveComponents.BLUE, Math.toRadians(0.05));       // under 0.1 deg: still
+        loop(log);
+        log.hive(HiveComponents.RED, Double.NaN);                  // ignored
+        log.hive(-1, 1.0);                                         // UNKNOWN's: ignored
+        loop(log);
+        log.hive(HiveComponents.BLUE, Math.toRadians(-60));
+        loop(log);
+        log.close(null, 5000);
+        assertNull(log.failure());
+
+        WpiLogReader reader = new WpiLogReader(out.toByteArray());
+        assertEquals("the HIVE stands at the origin, once", 1, reader.entry(HiveComponents.STRUCTURE_KEY).records.size());
+        WpiLogReader.Entry e = reader.entry(HiveComponents.KEY);
+        assertEquals("struct:Pose3d[]", e.type);
+        assertEquals("the start and blue's TIP", 2, e.records.size());
+        double[] expected = new double[7 * HiveComponents.COUNT];
+        HiveComponents.pose(HiveComponents.RED, 0, expected);
+        HiveComponents.pose(HiveComponents.BLUE, Math.toRadians(-60), expected);
+        assertArrayEquals(expected, e.records.get(1).asDoubles(), 1e-12);
+    }
+
+    @Test
     public void poseSetsReadBackInAdvantageScopesFrameAndAnEmptyOneClears() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         MatchLog log = MatchLog.toStream("test", out, "", null, clock);

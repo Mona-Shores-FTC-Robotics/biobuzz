@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.logging.AdvantageScopeKeys;
 import org.firstinspires.ftc.teamcode.logging.GamepadLog;
 import org.firstinspires.ftc.teamcode.logging.MatchLog;
 import org.firstinspires.ftc.teamcode.logging.RobotComponents;
+import org.firstinspires.ftc.teamcode.logging.HiveComponents;
 import org.firstinspires.ftc.teamcode.logging.MatchLogFiles;
 import org.firstinspires.ftc.teamcode.logging.BuildStamp;
 import org.firstinspires.ftc.teamcode.logging.MotionWatch;
@@ -227,7 +228,10 @@ public abstract class RobotOpMode extends OpMode {
     private long frameRateNs;
     private boolean cameraWasConnected;
     private boolean cameraStatusLogged;
-    private int loggedHiveState = -1;
+    private static final Alliance[] HIVE_ALLIANCES = {Alliance.RED, Alliance.BLUE};
+    private static final String[] HIVE_STATE_KEYS = {"/Hive/Red/State", "/Hive/Blue/State"};
+    private static final String[] HIVE_ASSUMED_KEYS = {"/Hive/Red/Assumed", "/Hive/Blue/Assumed"};
+    private final int[] loggedHiveState = {-1, -1};
 
     // ------------------------------------------------------------------ hooks
 
@@ -913,12 +917,19 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/FlowerStick/Out", robot.flowerStick.extended() ? 1 : 0);
         log.put("/FlowerStick/Powered", robot.flowerStick.limp() ? 0 : 1);
         HiveTracker hive = robot.hive.of(setup.alliance());
-        if (hive != null) {
-            int state = hive.state().ordinal();
-            log.put("/Hive/State", state);
-            if (state != loggedHiveState) {
-                log.event("HIVE (" + setup.alliance() + "): " + hive.state());
-                loggedHiveState = state;
+        if (hive != null) log.put("/Hive/State", hive.state().ordinal());
+        // Both HIVEs as the robot believes them, drawn in the 3D view (HiveComponents).
+        long nowMs = System.nanoTime() / 1_000_000L;   // HiveSubsystem's clock
+        for (int i = 0; i < HIVE_ALLIANCES.length; i++) {
+            Alliance a = HIVE_ALLIANCES[i];
+            HiveTracker h = robot.hive.of(a);
+            int state = h.state().ordinal();
+            log.put(HIVE_STATE_KEYS[i], state);
+            log.put(HIVE_ASSUMED_KEYS[i], h.assumed() ? 1 : 0);
+            log.hive(HiveComponents.of(a), HiveComponents.believedRad(a, h, nowMs));
+            if (state != loggedHiveState[i]) {
+                log.event("HIVE (" + a + "): " + h.state() + (h.assumed() ? " (assumed)" : ""));
+                loggedHiveState[i] = state;
             }
         }
 

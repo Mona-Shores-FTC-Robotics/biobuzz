@@ -8,8 +8,9 @@
 # script) to Downloads and says so when it changed (then File > Import Layout... once); and with -Open, starts
 # AdvantageScope on that log. Restart AdvantageScope after an asset change: it reads userAssets at start.
 #
-# Nothing is built and nothing is downloaded. The field is AdvantageScope's own 2026-2027 FTC field, which it
-# fetches the first time a Field tab selects it.
+# Nothing is built and nothing is downloaded. The 3D tabs draw the HIVE as the robot believed it, on the simulator's
+# HIVE field ("2026-2027 Field (HIVE sim)", "BIOBUZZ HIVE"). Those are cut from AdvantageScope's own field on each
+# laptop, since no FIRST CAD is committed: this script says when they are missing and how to get them.
 param([string]$Open = "")
 
 $ErrorActionPreference = "Stop"
@@ -33,7 +34,16 @@ if (Test-Path $old) {
 Copy-Item -Recurse -Force $cad.FullName $user
 Write-Host "Installed $($cad.Name) as 'BIOBUZZ Robot'"
 
-# 3. The match layout, where AdvantageScope's Import Layout can find it; a word only when it changed.
+# 3. The HIVE field and the HIVE that tips: only checked, never built or removed here.
+$hive = @("Field3d_BIOBUZZHiveSim", "Robot_BIOBUZZHive") | Where-Object { -not (Test-Path (Join-Path $user "$_\config.json")) }
+if ($hive) {
+    Write-Host ""
+    Write-Host "Not installed: $($hive -join ', '). The 3D tabs draw the field and the HIVE from them."
+    Write-Host "Build them once with the simulator branch's tools\advantagescope\watch-biobuzz.cmd (claude/simulator),"
+    Write-Host "or run install.cmd from a viewer zip made on a laptop that has them."
+}
+
+# 4. The match layout, where AdvantageScope's Import Layout can find it; a word only when it changed.
 $layout = Join-Path $HOME "Downloads\biobuzz-match-layout.json"
 $source = Join-Path $PSScriptRoot "match-layout.json"
 $layoutChanged = -not (Test-Path $layout) -or ((Get-FileHash $layout).Hash -ne (Get-FileHash $source).Hash)
@@ -43,7 +53,7 @@ Write-Host ""
 if ($layoutChanged) { Write-Host "The layout is new or changed: in AdvantageScope do File > Import Layout... > $layout" }
 Write-Host "Restart AdvantageScope if it was open (it reads the assets at start)."
 
-# 4. -Open: start AdvantageScope on a log.
+# 5. -Open: start AdvantageScope on a log.
 if ($Open) {
     if (-not (Test-Path $Open)) { throw "No such log: $Open" }
     $exe = Join-Path $env:LOCALAPPDATA "Programs\advantagescope\AdvantageScope.exe"
