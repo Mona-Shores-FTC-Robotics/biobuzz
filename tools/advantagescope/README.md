@@ -23,6 +23,16 @@ simulated matches; this is the part that applies to a real log.
 The field is AdvantageScope's own **2026-2027 Field**; it downloads it the first time a Field tab
 asks for it, so the first open needs internet.
 
+## Sending logs to someone without the repo
+
+Double-click `make-viewer-zip.cmd`. It writes `Downloads\BIOBUZZ-AdvantageScope.zip`: the robot model as committed,
+the match layout, `install.cmd`, and a `README.txt` that says which commit and CAD build it holds. Send that zip once
+to anyone who should watch the logs. They unzip it, double-click `install.cmd` and import the layout, and from then on
+any `.wpilog` you send them plays as-is, robot and moving parts included.
+
+The model changes when the CAD does. After a rebuild (`cad/advantagescope/from_onshape.py`) or a layout change, make a
+new zip and send it; older logs still play with it.
+
 ## The layout
 
 | Tab | Shows |
