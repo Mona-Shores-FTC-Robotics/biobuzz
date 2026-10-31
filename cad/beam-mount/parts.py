@@ -77,7 +77,12 @@ def beam_mount():
     for y in (-SCREW_Y, SCREW_Y):
         holes.append(z_hole(SCREW_X, y, -1, PLATE_T + 1, M4_CLEAR))
         holes.append(hex_pocket(SCREW_X, y, PLATE_T - NUT_T, PLATE_T + 1, NUT_AF))
-    return plate.union(trimesh.util.concatenate(walls)).difference(trimesh.util.concatenate(holes))
+    part = plate
+    for w in walls:
+        part = part.union(w)
+    for h in holes:                              # one at a time: concatenated cutters overlap, and that corrupts the cut
+        part = part.difference(h)
+    return part
 
 
 def main():
