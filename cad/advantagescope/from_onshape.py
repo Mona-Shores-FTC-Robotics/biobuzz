@@ -167,7 +167,30 @@ def simplify(tris, keep):
                                                 target_reduction=1 - keep / len(f))
         except Exception as e:
             print(f"  warning: simplification failed ({e!r}); keeping {len(f)} triangles", file=sys.stderr)
+    if keep < len(f) / 1.5:
+        # Composite parts (goBILDA's mecanum wheels and motors: many small bodies) barely decimate, so fall back to
+        # clustering: snap vertices to a grid, coarser until the part fits, and drop the triangles that collapse.
+        v, f = cluster(np.asarray(m.vertices), np.asarray(m.faces), keep)
     return v, f
+
+
+def cluster(v, f, keep):
+    """Vertex clustering to about `keep` triangles: crude, but it reduces anything."""
+    h = np.linalg.norm(np.ptp(v, axis=0)) / 400
+    for _ in range(16):
+        cells, inv = np.unique(np.floor(v / h), axis=0, return_inverse=True)
+        inv = inv.reshape(-1)
+        nv = np.zeros((len(cells), 3))
+        np.add.at(nv, inv, v)
+        nv /= np.bincount(inv, minlength=len(cells))[:, None]
+        nf = inv[f]
+        nf = nf[(nf[:, 0] != nf[:, 1]) & (nf[:, 1] != nf[:, 2]) & (nf[:, 0] != nf[:, 2])]
+        _, first = np.unique(np.sort(nf, axis=1), axis=0, return_index=True)
+        nf = nf[np.sort(first)]
+        if len(nf) <= keep * 1.25:
+            break
+        h *= 1.4
+    return nv, nf
 
 
 def axis_of(points, kind):
@@ -199,7 +222,7 @@ def main():
     LINK_DOC = D
     meta = get(f"/documents/{D}")
     mv = get(f"/documents/d/{D}/w/{W}/currentmicroversion")["microversion"]
-    asm = get(f"/assemblies/d/{D}/m/{mv}/e/{E}?includeMateFeatures=false&includeNonSolids=false")   # the version recorded
+    asm = get(f"/assemblies/d/{D}/m/{mv}/e/{E}?includeMateFeatures=false&includeNonSolids=true")   # the version recorded; NonSolids brings composite parts (goBILDA wheels)
     parts, dropped = visible_parts(asm, rules["drop"])
 
     # What changed in the CAD since the last build, by top-level instance
