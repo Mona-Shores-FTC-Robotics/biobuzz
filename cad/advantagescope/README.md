@@ -60,8 +60,10 @@ was commanded to do: it jumps out at the request, while the real stick takes abo
 
 ## What's not right yet
 
-- **`Flower Poker Mid`** has no mates in the CAD; it sits loose ahead of the stick's pivot, and the model draws it
-  there, fixed. Mate it in the CAD, or drop it in `onshape_model.json`, once someone knows what it is for.
+- **The intake's float doesn't move.** `Flower Poker Mid` is a permanent part of the intake: it rides up and down on
+  the Viper slides as pieces come in. Nothing on the robot measures that height, so the log can't show it and the
+  model draws it at its CAD height. In the CAD it has no mates yet; fastening it to the sliding carriage keeps the CAD
+  true, and the model is unchanged. A sensor on the slides would let it become a sliding component later.
 - **The drive wheels aren't drawn**: the CAD has their hubs and shafts only.
 - **The camera** in `config.json` is the old hand-measured one (5.58 in ahead, 14.25 in up, pitched 45°). The CAD's
   Limelight 3A sits about 2 in further back (X 2.7 to 4.4 in, Z 14.0 to 15.7 in). Reading its exact pose from the CAD
