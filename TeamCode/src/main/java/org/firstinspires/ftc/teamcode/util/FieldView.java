@@ -78,14 +78,14 @@ import com.bylazar.field.PanelsField;
 public final class FieldView {
 
     /**
-     * Half the robot's footprint, in inches.
-     *
-     * <p>9 in is half of the 18 in starting-size limit, so the circle drawn is the largest the
-     * robot could legally be. It is a sighting aid, not a collision model — Panels'
-     * {@code Rectangle} has no rotation parameter, so an oriented chassis outline is not available
-     * and a circle plus a heading line is the honest thing to draw instead.
+     * Half the robot's square footprint, inches: the chassis is 16 × 16 in. The 1.5 in at the
+     * front middle is left out, so the square is the frame the robot turns inside. Panels'
+     * {@code Rectangle} cannot rotate, so the square is drawn as four lines turned to the heading.
      */
-    public static final double ROBOT_RADIUS_INCHES = 9.0;
+    public static final double ROBOT_HALF_SIZE_INCHES = 8.0;
+
+    private static final double[] CORNER_FORWARD = {1, -1, -1, 1};
+    private static final double[] CORNER_LEFT = {1, 1, -1, -1};
 
     /**
      * Pedro's frame as Panels needs it: shift the field centre to Panels' origin, rotate 90° and
@@ -105,22 +105,22 @@ public final class FieldView {
             false);
 
     private final FieldManager field;
-    private final double robotRadius;
+    private final double robotHalfSize;
 
-    private FieldView(FieldManager field, double robotRadius) {
+    private FieldView(FieldManager field, double robotHalfSize) {
         this.field = field;
-        this.robotRadius = robotRadius;
+        this.robotHalfSize = robotHalfSize;
     }
 
     /** A view on the shared Panels field, set to Pedro's coordinate frame. */
     public static FieldView pedroCoordinates() {
-        return pedroCoordinates(ROBOT_RADIUS_INCHES);
+        return pedroCoordinates(ROBOT_HALF_SIZE_INCHES);
     }
 
-    public static FieldView pedroCoordinates(double robotRadiusInches) {
+    public static FieldView pedroCoordinates(double robotHalfSizeInches) {
         FieldManager field = PanelsField.INSTANCE.getField();
         field.setOffsets(PEDRO_FRAME);
-        return new FieldView(field, robotRadiusInches);
+        return new FieldView(field, robotHalfSizeInches);
     }
 
     /**
@@ -134,7 +134,8 @@ public final class FieldView {
     }
 
     /**
-     * Draws the robot as a circle with a line from its centre out along its heading.
+     * Draws the robot as its square footprint, turned to its heading, with a line from its centre
+     * to the middle of its front edge.
      *
      * @param x       field X in inches, Pedro's frame
      * @param y       field Y in inches, Pedro's frame
@@ -151,13 +152,30 @@ public final class FieldView {
      * @param outlineColour a CSS colour, e.g. {@code "#FFB300"}
      */
     public void drawRobot(double x, double y, double heading, String outlineColour) {
+        double c = Math.cos(heading);
+        double s = Math.sin(heading);
+        double h = robotHalfSize;
         field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), outlineColour, 1.0);
-        field.moveCursor(x, y);
-        field.circle(robotRadius);
+        // Front left, back left, back right, front right: each edge from one corner to the next.
+        for (int i = 0; i < 4; i++) {
+            int j = (i + 1) % 4;
+            field.moveCursor(cornerX(x, c, s, h, i), cornerY(y, c, s, h, i));
+            field.line(cornerX(x, c, s, h, j), cornerY(y, c, s, h, j));
+        }
 
         field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), PanelsField.INSTANCE.getWHITE(), 1.0);
         field.moveCursor(x, y);
-        field.line(x + robotRadius * Math.cos(heading), y + robotRadius * Math.sin(heading));
+        field.line(x + h * c, y + h * s);
+    }
+
+    /** Corner {@code i} (front left, back left, back right, front right) of the square, field x. */
+    static double cornerX(double x, double c, double s, double h, int i) {
+        return x + CORNER_FORWARD[i] * h * c - CORNER_LEFT[i] * h * s;
+    }
+
+    /** As {@link #cornerX}, field y. */
+    static double cornerY(double y, double c, double s, double h, int i) {
+        return y + CORNER_FORWARD[i] * h * s + CORNER_LEFT[i] * h * c;
     }
 
     /**
