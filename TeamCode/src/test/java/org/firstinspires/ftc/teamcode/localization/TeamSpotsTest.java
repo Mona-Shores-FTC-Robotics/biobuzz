@@ -60,7 +60,8 @@ public class TeamSpotsTest {
     @Test
     public void aSpotThatIsNotAMeasuredStartIsNotOne() {
         assertNull(StartPositions.forTeamSpot("WALL_FLOWER"));
-        assertNull("START_LEFT is as drawn until it is measured", StartPositions.forTeamSpot("START_LEFT"));
+        assertEquals("START_LEFT is measured since 31 Oct", StartPositions.RED_FAR,
+                StartPositions.forTeamSpot("START_LEFT"));
     }
 
     private static Map<String, double[]> spots() {
