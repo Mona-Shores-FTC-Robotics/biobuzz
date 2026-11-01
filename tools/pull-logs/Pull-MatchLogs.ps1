@@ -13,7 +13,7 @@ logging/MatchLog). This script:
   3. copies every .wpilog this laptop does not have yet, or whose size changed, into
      <Dest>\<robot network>\,
   4. opens the newest new file in AdvantageScope,
-  5. sends recent logs to GitHub, one branch per day and robot (logs/<date>-<robot network>), so
+  5. sends today's logs to GitHub, one branch per day and robot (logs/<date>-<robot network>), so
      a Claude session can read them when asked to "pull logs". Only when GitHub answers: on the
      robot's Wi-Fi there is no internet, so they go up on the next run that has it (double-click
      again at home or school, robot or no robot). Your checkout is never touched: the branch is
@@ -56,8 +56,8 @@ not gone up yet and each pull stays small. The newest log is never deleted: it m
 being written.
 
 .PARAMETER PublishDays
-Logs from this many days back (by the date in the file name) are sent to GitHub. Default 3, so a
-first run does not upload a season of logs.
+Logs from this many days before today (by the date in the file name) are sent to GitHub too.
+Default 0: today's only. Older logs are already on Drive, and sending them costs minutes.
 
 .PARAMETER Adb
 The adb.exe to use. By default: the one behind an adb server that is already running (so a
@@ -83,7 +83,7 @@ param(
     [switch]$RemoveFromRobot,
     [switch]$NoPublish,
     [switch]$KeepOnRobot,
-    [int]$PublishDays = 3,
+    [int]$PublishDays = 0,
     [string]$Adb,
     [string]$AdvantageScope
 )

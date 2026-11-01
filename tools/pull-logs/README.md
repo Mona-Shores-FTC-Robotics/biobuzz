@@ -36,7 +36,7 @@ once TeleOp stops. Optional; the one-shot pull is the normal way.
 
 ## Sent to GitHub, so a Claude session can read them
 
-After pulling, the script sends the last three days' logs (by the date in the file name) to
+After pulling, the script sends today's logs (by the date in the file name) to
 GitHub, one branch per day and robot: `logs/<date>-<robot network>`, e.g.
 `logs/2026-11-01-20245-RC`. Then "pull logs" to a Claude session is enough: it fetches those
 branches and reads them with `read_logs.py` (below). Nothing to type.
@@ -58,7 +58,7 @@ branches and reads them with `read_logs.py` (below). Nothing to type.
   up and each pull copies just the new runs (a full hub took minutes to pull and slowed the robot's
   Wi-Fi on 1 Nov). Deleted only after the upload succeeded, at that file's exact size, and never
   the newest log, which may still be recording. `-KeepOnRobot` leaves everything on the hub.
-- `-NoPublish` skips the upload (and so deletes nothing); `-PublishDays 7` reaches further back.
+- `-NoPublish` skips the upload (and so deletes nothing); `-PublishDays 2` also sends the two days before today (older logs are on Drive already).
 
 `read_logs.py` reads a `.wpilog` with plain Python (standard library only): `summary` gives, per
 run, the build, battery, every launch knob at PLAY, the key events and every feed (gate open:
