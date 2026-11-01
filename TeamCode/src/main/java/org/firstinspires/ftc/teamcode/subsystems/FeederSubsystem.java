@@ -34,8 +34,12 @@ public class FeederSubsystem implements Subsystem {
     /** What the feeder is being asked to do. */
     public enum State { IDLE, FEED, REVERSE }
 
-    /** Motor power while feeding into the launcher, 0 to 1. <b>Not yet tuned.</b> */
-    public static double feedPower = 0.8;
+    /**
+     * Motor power while feeding into the launcher, 0 to 1. 1.0 since 1 Nov 2026, set by the mentor
+     * on robot 20245 from launch testing: at 0.5 the balls reached the launcher too slowly and hit
+     * the turret walls instead of being taken by the wheels. 19429 is not checked yet.
+     */
+    public static double feedPower = 1.0;
 
     /** Motor power while backing a piece out of the launcher, 0 to 1. <b>Not yet tuned.</b> */
     public static double reversePower = 0.5;
