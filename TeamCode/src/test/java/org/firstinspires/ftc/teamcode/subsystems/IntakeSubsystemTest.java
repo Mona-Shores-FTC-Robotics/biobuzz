@@ -65,6 +65,40 @@ public class IntakeSubsystemTest {
     }
 
     @Test
+    public void aFeedTurnsTheStarsAndByDefaultTheRoller() {
+        assertEquals(State.IN, IntakeSubsystem.rollerFor(State.IDLE, FeederSubsystem.State.FEED, true));
+        assertEquals(State.IN, IntakeSubsystem.starsFor(State.IDLE, FeederSubsystem.State.FEED));
+    }
+
+    @Test
+    public void theRollerCanSitOutAFeedButTheStarsCannot() {
+        assertEquals(State.IDLE, IntakeSubsystem.rollerFor(State.IDLE, FeederSubsystem.State.FEED, false));
+        assertEquals(State.IN, IntakeSubsystem.starsFor(State.IDLE, FeederSubsystem.State.FEED));
+    }
+
+    @Test
+    public void theOpModesRequestStillWins() {
+        // Intake held while firing: unchanged, whatever the switch says.
+        assertEquals(State.IN, IntakeSubsystem.rollerFor(State.IN, FeederSubsystem.State.FEED, false));
+        // Eject (unjam) backs everything out whatever the feeder does.
+        assertEquals(State.OUT, IntakeSubsystem.rollerFor(State.OUT, FeederSubsystem.State.FEED, true));
+        assertEquals(State.OUT, IntakeSubsystem.starsFor(State.OUT, FeederSubsystem.State.FEED));
+    }
+
+    @Test
+    public void aReversingFeederBacksTheIntakeOut() {
+        assertEquals(State.OUT, IntakeSubsystem.rollerFor(State.IDLE, FeederSubsystem.State.REVERSE, false));
+        assertEquals(State.OUT, IntakeSubsystem.rollerFor(State.IN, FeederSubsystem.State.REVERSE, true));
+        assertEquals(State.OUT, IntakeSubsystem.starsFor(State.IN, FeederSubsystem.State.REVERSE));
+    }
+
+    @Test
+    public void nothingAskedNothingMoves() {
+        assertEquals(State.IDLE, IntakeSubsystem.rollerFor(State.IDLE, FeederSubsystem.State.IDLE, true));
+        assertEquals(State.IDLE, IntakeSubsystem.starsFor(State.IDLE, FeederSubsystem.State.IDLE));
+    }
+
+    @Test
     public void nanStopsTheRoller() {
         assertEquals(0.0, IntakeSubsystem.powerFor(State.IN, Double.NaN, 0.6), EPS);
         assertEquals(0.0, IntakeSubsystem.powerFor(State.OUT, 1.0, Double.NaN), EPS);

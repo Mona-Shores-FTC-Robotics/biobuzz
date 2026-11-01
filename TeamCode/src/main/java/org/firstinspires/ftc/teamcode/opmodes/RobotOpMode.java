@@ -1061,6 +1061,8 @@ public abstract class RobotOpMode extends OpMode {
         if (!Double.isNaN(intakeAmps)) {
             log.put("/Intake/CurrentAmps", intakeAmps);
         }
+        // The intake running with nothing asking for it: it joined a feed (IntakeSubsystem.rollerFor).
+        log.put("/Intake/FeedAssist", robot.intake.feedAssist() ? 1 : 0);
         // The launcher's speed loop and the feeder, so a log shows what the wheels did at each shot.
         log.put("/Launcher/TargetTicksPerSecond", robot.launcher.isSpinning() ? robot.launcher.target() : 0.0);
         log.put("/Launcher/LeftTicksPerSecond", robot.launcher.leftTicksPerSecond());

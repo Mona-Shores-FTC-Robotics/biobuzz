@@ -69,7 +69,7 @@ public class Robot {
     /** The FLOWER stick: one servo on a stick, the extractor's first edition (#177). */
     public final FlowerStickSubsystem flowerStick;
 
-    /** The intake roller: one motor, in, out or idle (#160). Piece counting is #181. */
+    /** The intake roller and star wheels: in, out or idle (#160), and they join a feed. Piece counting is #181. */
     public final IntakeSubsystem intake;
 
     /** The launcher: two flywheels held at one speed (#80). Aiming is #81, the table is #80. */
@@ -105,10 +105,11 @@ public class Robot {
         hive = new HiveSubsystem(vision, drive);
         pieces = new PieceVisionSubsystem(hardwareMap);
         flowerStick = new FlowerStickSubsystem(hardwareMap, drive);
-        intake = new IntakeSubsystem(hardwareMap);
         launcher = new LauncherSubsystem(hardwareMap);
         feeder = new FeederSubsystem(hardwareMap);
-        // After the intake and the feeder: they follow this loop's requests, not last loop's.
+        // After the feeder, which they follow: the intake joins a feed, the prefeed and the gate
+        // carry it. List order is update order, so each sees this loop's requests, not last loop's.
+        intake = new IntakeSubsystem(hardwareMap, feeder);
         prefeed = new PrefeedSubsystem(hardwareMap, intake, feeder);
         feedGate = new FeedGateSubsystem(hardwareMap, feeder);
         // After the drive and the hive: an aim this loop uses this loop's pose and HIVE state.
@@ -116,7 +117,7 @@ public class Robot {
         indicator = new IndicatorSubsystem(hardwareMap);
 
         subsystems = Collections.unmodifiableList(
-                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake, launcher, feeder, prefeed,
+                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, launcher, feeder, intake, prefeed,
                         feedGate, turret, indicator));
     }
 

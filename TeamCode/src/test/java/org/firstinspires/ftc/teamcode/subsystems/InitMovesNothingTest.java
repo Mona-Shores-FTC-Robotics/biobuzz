@@ -84,8 +84,9 @@ public class InitMovesNothingTest {
 
     @Test
     public void intakeStarsWaitForPlay() {
-        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS);
-        IntakeSubsystem intake = new IntakeSubsystem(devices.map);
+        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
+                .motor(DeviceNames.FEEDER);
+        IntakeSubsystem intake = new IntakeSubsystem(devices.map, new FeederSubsystem(devices.map));
         runInit(intake, devices);
 
         intake.start();
@@ -95,18 +96,47 @@ public class InitMovesNothingTest {
     }
 
     @Test
+    public void intakeJoinsAFeedOnlyAfterPlay() {
+        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
+                .motor(DeviceNames.FEEDER);
+        FeederSubsystem feeder = new FeederSubsystem(devices.map);
+        feeder.initialize();
+        devices.clear();
+        feeder.feed();
+        IntakeSubsystem intake = new IntakeSubsystem(devices.map, feeder);
+        runInit(intake, devices);
+        assertFalse("before PLAY a feed is not an intake request", intake.feedAssist());
+
+        intake.start();
+        intake.update();
+        assertEquals("at PLAY the roller joins the feed", IntakeSubsystem.State.IN, intake.state());
+        assertEquals("the OpMode asked for nothing", IntakeSubsystem.State.IDLE, intake.requested());
+        assertTrue(intake.feedAssist());
+        assertEquals("setPower(" + IntakeSubsystem.powerFor(IntakeSubsystem.State.IN,
+                        IntakeSubsystem.inPower, IntakeSubsystem.outPower) + ")",
+                devices.calls(DeviceNames.INTAKE).get(0));
+        assertEquals("setPower(" + IntakeSubsystem.starsPowerFor(IntakeSubsystem.State.IN,
+                        IntakeSubsystem.starsPower, IntakeSubsystem.starsReversed) + ")",
+                devices.calls(DeviceNames.INTAKE_STARS).get(0));
+    }
+
+    @Test
     public void prefeedWaitsForPlayEvenWhileTheIntakeIsAskingForIt() {
         Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
                 .motor(DeviceNames.FEEDER).crServo(DeviceNames.PREFEED);
-        IntakeSubsystem intake = new IntakeSubsystem(devices.map);
         FeederSubsystem feeder = new FeederSubsystem(devices.map);
-        intake.initialize();
+        IntakeSubsystem intake = new IntakeSubsystem(devices.map, feeder);
         feeder.initialize();
+        intake.initialize();
         devices.clear();
         intake.intake();
         PrefeedSubsystem prefeed = new PrefeedSubsystem(devices.map, intake, feeder);
         runInit(prefeed, devices);
 
+        // PLAY as Robot does it: every subsystem started, then updated in list order, the intake
+        // before the prefeed, so the prefeed follows what the roller is doing this loop.
+        intake.start();
+        intake.update();
         prefeed.start();
         prefeed.update();
         double expected = PrefeedSubsystem.powerFor(PrefeedSubsystem.State.IN, PrefeedSubsystem.inPower,
