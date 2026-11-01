@@ -209,8 +209,38 @@ public class InitMovesNothingTest {
 
     @Test
     public void launcherStaysAtZeroInInit() {
-        Devices devices = new Devices().motor(DeviceNames.LAUNCHER_LEFT).motor(DeviceNames.LAUNCHER_RIGHT);
-        runInit(new LauncherSubsystem(devices.map), devices);
+        Devices devices = new Devices().motor(DeviceNames.LAUNCHER_LEFT).motor(DeviceNames.LAUNCHER_RIGHT)
+                .motor(DeviceNames.FEEDER);
+        runInit(new LauncherSubsystem(devices.map, new FeederSubsystem(devices.map)), devices);
+    }
+
+    @Test
+    public void launcherReversesForAnUnjamOnlyAfterPlay() {
+        Devices devices = new Devices().motor(DeviceNames.LAUNCHER_LEFT).motor(DeviceNames.LAUNCHER_RIGHT)
+                .motor(DeviceNames.FEEDER);
+        FeederSubsystem feeder = new FeederSubsystem(devices.map);
+        feeder.initialize();
+        devices.clear();
+        feeder.reverse();
+        LauncherSubsystem launcher = new LauncherSubsystem(devices.map, feeder);
+        runInit(launcher, devices);
+        assertFalse("before PLAY an unjam does not turn the wheels", launcher.reversing());
+
+        launcher.start();
+        launcher.update();
+        assertTrue("at PLAY the wheels back up with the feeder", launcher.reversing());
+        assertFalse(launcher.atSpeed());
+        assertEquals("setVelocity(" + LauncherSubsystem.reverseCommandFor(
+                        LauncherSubsystem.reverseTicksPerSecond, LauncherSubsystem.leftReversed) + ")",
+                devices.calls(DeviceNames.LAUNCHER_LEFT).get(0));
+        assertEquals("setVelocity(" + LauncherSubsystem.reverseCommandFor(
+                        LauncherSubsystem.reverseTicksPerSecond, LauncherSubsystem.rightReversed) + ")",
+                devices.calls(DeviceNames.LAUNCHER_RIGHT).get(0));
+
+        feeder.idle();
+        launcher.update();
+        assertFalse("on release an idle launcher goes back to idle", launcher.reversing());
+        assertFalse(launcher.isSpinning());
     }
 
     /** {@code initialize()} and the INIT loops, failing on any write that moves; then clears the record. */

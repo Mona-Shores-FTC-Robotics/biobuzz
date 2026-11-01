@@ -1093,6 +1093,7 @@ public abstract class RobotOpMode extends OpMode {
         if (!Double.isNaN(rightAmps)) {
             log.put("/Launcher/RightCurrentAmps", rightAmps);
         }
+        log.put("/Launcher/Reversing", robot.launcher.reversing() ? 1 : 0);
         log.put("/Feeder/Power", robot.feeder.power());
         log.put("/Feeder/TicksPerSecond", robot.feeder.ticksPerSecond());
         double feederAmps = robot.feeder.currentAmps();

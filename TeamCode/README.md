@@ -1485,6 +1485,7 @@ flat. Each is now a line in the file, on AdvantageScope's Metadata tab or in `/E
 | `/Turret/AngleDeg`, `TargetDeg`, `ErrorDeg`, `Zeroed`, `Holding` | the turret, every loop | `RobotOpMode`, beside the launcher's and feeder's keys |
 | `/Prefeed/Power`, `/FeedGate/Feeding`, `/FeedGate/Position` | the transfer: the prefeed's servo power, whether the gate is asked open, and the position last written (absent while the gate's positions are NaN) | `RobotOpMode`; `PrefeedSubsystem` and `FeedGateSubsystem` follow the intake's and the feeder's requests, so no OpMode sets them |
 | `/Intake/FeedAssist` | 1 while the roller or the stars run only because the feeder is feeding or reversing (`IntakeSubsystem.rollerFor`), 0 otherwise | `RobotOpMode` |
+| `/Launcher/Reversing` | 1 while the flywheels run backwards for an unjam, following the feeder's reverse (`LauncherSubsystem.reverseFor`); at-speed and the shot count sit it out | `RobotOpMode` |
 
 `MatchLog.metadata(key, value)` is how anything learned after the file opened gets on the Metadata
 tab; a key sent again shows its latest value. It is for facts, not series: anything that changes

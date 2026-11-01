@@ -80,8 +80,8 @@ public class LauncherBench extends OpMode {
         configWarning = checkActiveConfig();
         display = new Display(telemetry);
         try {
-            launcher = LauncherSubsystem.yCabled(hardwareMap);
             feeder = new FeederSubsystem(hardwareMap);
+            launcher = LauncherSubsystem.yCabled(hardwareMap, feeder);
             launcher.initialize();
             feeder.initialize();
         } catch (RuntimeException e) {
