@@ -105,10 +105,11 @@ public class Robot {
         hive = new HiveSubsystem(vision, drive);
         pieces = new PieceVisionSubsystem(hardwareMap);
         flowerStick = new FlowerStickSubsystem(hardwareMap, drive);
-        launcher = new LauncherSubsystem(hardwareMap);
         feeder = new FeederSubsystem(hardwareMap);
-        // After the feeder, which they follow: the intake joins a feed, the prefeed and the gate
-        // carry it. List order is update order, so each sees this loop's requests, not last loop's.
+        // After the feeder, which they follow: the launcher backs up for an unjam, the intake joins
+        // a feed, the prefeed and the gate carry it. List order is update order, so each sees this
+        // loop's requests, not last loop's.
+        launcher = new LauncherSubsystem(hardwareMap, feeder);
         intake = new IntakeSubsystem(hardwareMap, feeder);
         prefeed = new PrefeedSubsystem(hardwareMap, intake, feeder);
         feedGate = new FeedGateSubsystem(hardwareMap, feeder);
@@ -117,7 +118,7 @@ public class Robot {
         indicator = new IndicatorSubsystem(hardwareMap);
 
         subsystems = Collections.unmodifiableList(
-                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, launcher, feeder, intake, prefeed,
+                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, feeder, launcher, intake, prefeed,
                         feedGate, turret, indicator));
     }
 

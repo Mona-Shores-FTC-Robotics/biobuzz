@@ -18,6 +18,23 @@ public class LauncherSubsystemTest {
     private static final long MS = 1_000_000L;
 
     @Test
+    public void reverseOnlyWhileTheFeederReversesAndAfterPlay() {
+        assertTrue(LauncherSubsystem.reverseFor(FeederSubsystem.State.REVERSE, true));
+        assertFalse(LauncherSubsystem.reverseFor(FeederSubsystem.State.REVERSE, false));
+        assertFalse(LauncherSubsystem.reverseFor(FeederSubsystem.State.FEED, true));
+        assertFalse(LauncherSubsystem.reverseFor(FeederSubsystem.State.IDLE, true));
+    }
+
+    @Test
+    public void reverseCommandIsBackwardsInEachWheelsOwnSense() {
+        assertEquals(-300.0, LauncherSubsystem.reverseCommandFor(300.0, false), EPS);
+        assertEquals(300.0, LauncherSubsystem.reverseCommandFor(300.0, true), EPS);
+        assertEquals(0.0, LauncherSubsystem.reverseCommandFor(0.0, true), EPS);
+        assertEquals(0.0, LauncherSubsystem.reverseCommandFor(-50.0, false), EPS);
+        assertEquals(0.0, LauncherSubsystem.reverseCommandFor(Double.NaN, false), EPS);
+    }
+
+    @Test
     public void commandIsTheTargetNegatedForAReversedWheel() {
         assertEquals(1000.0, LauncherSubsystem.commandFor(1000.0, false), EPS);
         assertEquals(-1000.0, LauncherSubsystem.commandFor(1000.0, true), EPS);
