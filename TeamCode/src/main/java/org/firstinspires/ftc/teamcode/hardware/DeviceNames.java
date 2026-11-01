@@ -100,8 +100,9 @@ public final class DeviceNames {
     public static final String FEED_GATE = "feedGate";
 
     /**
-     * The indicator light: a goBILDA RGB Indicator Light, a servo whose position is its colour
-     * ({@code subsystems/IndicatorSubsystem}). Control Hub servo port 4 on both robots.
+     * The indicator lights: goBILDA RGB Indicator Lights, a servo whose position is its colour
+     * ({@code subsystems/IndicatorSubsystem}). More than one light, Y-cabled to one port, so they
+     * are one device here and all show the same colour. Control Hub servo port 4 on both robots.
      */
     public static final String INDICATOR = "indicator";
 

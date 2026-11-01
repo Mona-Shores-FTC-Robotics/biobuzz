@@ -83,10 +83,11 @@
             <ContinuousRotationServo name="prefeed" port="2" />
             <Servo name="feedGate" port="3" />
 
-            <!-- The indicator light: a goBILDA RGB Indicator Light on servo
-                 port 4; its colour is the servo position. Never mounted on a
-                 robot before, so it has no old port to keep. With the stars
-                 on 5 this fills all six servo ports. -->
+            <!-- The indicator lights: goBILDA RGB Indicator Lights, more than
+                 one, Y-cabled to this one servo port 4, so software sees one
+                 device and every light shows the same colour (the servo
+                 position). Never mounted on a robot before, so no old port to
+                 keep. With the stars on 5 this fills all six servo ports. -->
             <Servo name="indicator" port="4" />
 
         </LynxModule>
