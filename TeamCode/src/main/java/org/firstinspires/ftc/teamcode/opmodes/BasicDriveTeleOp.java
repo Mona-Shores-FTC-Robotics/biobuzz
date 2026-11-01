@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.controls.ControlScheme;
 import org.firstinspires.ftc.teamcode.controls.Controls;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.IntakeArbiter;
+import org.firstinspires.ftc.teamcode.controls.IntakeToggle;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
@@ -117,6 +118,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     private Controls controls;
     private final IntakeArbiter intakeArbiter = new IntakeArbiter();
+    private final IntakeToggle intakeToggle = new IntakeToggle();
     private final FireGates gates = new FireGates();
     private final LongPress headingReset = new LongPress(RESET_HOLD_MS);
     private final LongPress cameraReset = new LongPress(RESET_HOLD_MS);
@@ -372,8 +374,19 @@ public class BasicDriveTeleOp extends RobotOpMode {
             } else {
                 robot.drive.drive(forward, strafe, turnCommand);
             }
-            intakeArbiter.decide(controls.held(Action.INTAKE), controls.held(Action.DRIVER_UNJAM),
-                    controls.held(Action.UNJAM), controls.held(Action.OPERATOR_INTAKE));
+            boolean driverIn = controls.held(Action.INTAKE);
+            boolean operatorIn = controls.held(Action.OPERATOR_INTAKE);
+            // Solo testing (TeleOpConfig.intakeToggle): either intake button toggles the intake,
+            // which then runs as the operator's request, so a held unjam still wins.
+            if (intakeToggle.update(TeleOpConfig.intakeToggle, driverIn || operatorIn)) {
+                driverIn = false;
+                operatorIn = true;
+            } else if (TeleOpConfig.intakeToggle) {
+                driverIn = false;
+                operatorIn = false;
+            }
+            intakeArbiter.decide(driverIn, controls.held(Action.DRIVER_UNJAM),
+                    controls.held(Action.UNJAM), operatorIn);
             setIntake(intakeArbiter.state());
         }
         // The pick or the gather runs the intake itself while it is active.
@@ -404,6 +417,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         robot.intake.describe(display);
         display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
+        if (TeleOpConfig.intakeToggle) {
+            display.line("Intake toggle (testing): " + (intakeToggle.on() ? "ON, R2 again to stop" : "off, R2 to start"));
+        }
         robot.launcher.describe(display);
         if (launcherTrimTps != 0.0) {
             display.line(String.format(Locale.US, "Launcher trim %+.0f ticks/s: launch speed %.0f",

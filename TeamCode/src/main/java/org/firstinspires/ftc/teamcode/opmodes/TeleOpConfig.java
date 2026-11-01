@@ -57,6 +57,13 @@ public final class TeleOpConfig {
      */
     public static double launcherTrimStepTps = 25.0;
 
+    /**
+     * The intake buttons (R2 on either gamepad) toggle the intake on and off instead of running it
+     * only while held. For one person testing alone, so loading does not need a hand on R2. Off by
+     * default: in a match, letting go of R2 stops the intake. Unjam still wins while it is held.
+     */
+    public static boolean intakeToggle = false;
+
     /** Enforce the at-speed gate: a feed starts only once the launcher is at launch speed. */
     public static boolean enforceAtSpeedGate = false;
 
