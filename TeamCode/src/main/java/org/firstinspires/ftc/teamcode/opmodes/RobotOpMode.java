@@ -186,6 +186,8 @@ public abstract class RobotOpMode extends OpMode {
     private String matchId;
     private VoltageSensor battery;
     private long lastBatteryNs;
+    /** The battery's last reading, volts: at INIT and then once a second. NaN with no sensor. */
+    private double lastBatteryVolts = Double.NaN;
     private Alliance loggedAlliance;
     private MatchSetup.Source loggedSource;
 
@@ -256,6 +258,14 @@ public abstract class RobotOpMode extends OpMode {
      */
     protected final boolean hasHandoffPose() {
         return handoffPose;
+    }
+
+    /**
+     * The battery's last reading, volts: taken at INIT and then once a second for the match log, so
+     * reading it here costs no hub round trip. NaN when the configuration has no voltage sensor.
+     */
+    protected final double batteryVolts() {
+        return lastBatteryVolts;
     }
 
     /** Called once, after the robot is built and initialized. Put your init telemetry here. */
@@ -340,6 +350,7 @@ public abstract class RobotOpMode extends OpMode {
         }
         if (battery != null) {
             double volts = battery.getVoltage();
+            lastBatteryVolts = volts;
             log.metadata("BatteryAtInit", String.format(Locale.US, "%.2f V", volts));
             if (volts < LOW_BATTERY_VOLTS) {
                 batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, LOW_BATTERY_VOLTS);
@@ -1121,7 +1132,8 @@ public abstract class RobotOpMode extends OpMode {
             }
         }
         if (battery != null && now - lastBatteryNs >= BATTERY_EVERY_MS * 1_000_000L) {
-            log.put("/Robot/BatteryVolts", battery.getVoltage());
+            lastBatteryVolts = battery.getVoltage();
+            log.put("/Robot/BatteryVolts", lastBatteryVolts);
             lastBatteryNs = now;
         }
         log.commit();
