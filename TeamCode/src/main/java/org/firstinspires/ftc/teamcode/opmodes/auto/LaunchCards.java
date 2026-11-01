@@ -65,6 +65,8 @@ public final class LaunchCards {
     public interface Launcher {
         void spinUp();
         boolean atSpeed();
+        /** Shots the launcher's detector has counted, or -1 if it has none. Logged only, never acted on. */
+        default int shots() { return -1; }
     }
 
     /** What a launch card needs from the feeder. {@code FeederSubsystem} has both methods. */
@@ -79,6 +81,7 @@ public final class LaunchCards {
     private final Consumer<String> note;
     private final DoubleSupplier secondsNow;
     private int launchAllsCompleted;
+    private int feeding;
 
     /**
      * @param settled true once the robot is still and aimed ({@link PathEndSettle#settled})
@@ -101,6 +104,7 @@ public final class LaunchCards {
         Launcher launcher = new Launcher() {
             @Override public void spinUp() { robot.launcher.spinUp(); }
             @Override public boolean atSpeed() { return robot.launcher.atSpeed(); }
+            @Override public int shots() { return robot.launcher.shots(); }
         };
         Feeder feeder = new Feeder() {
             @Override public void feed() { robot.feeder.feed(); }
@@ -124,6 +128,15 @@ public final class LaunchCards {
         return launch("LaunchOne", () -> launchOneFeedS, false);
     }
 
+    /**
+     * Whether a launch card is feeding now: from the feed's start to the card's end. The Autos hold
+     * their steps' time limits while it is ({@code AutoRegistry.holdTimeLimitsWhile}), so a feed
+     * always runs its set time.
+     */
+    public boolean feeding() {
+        return feeding > 0;
+    }
+
     /** How many {@code LaunchAll} cards have run their whole feed since this object was made. */
     public int launchAllsCompleted() {
         return launchAllsCompleted;
@@ -141,6 +154,7 @@ public final class LaunchCards {
     private Command launch(String name, DoubleSupplier feedSeconds, boolean countsAsEmptying) {
         final double[] fedAt = {Double.NaN};
         final double[] startedAt = new double[1];
+        final int[] shotsAtFeed = new int[1];
         return new CommandBuilder()
                 .setStart(() -> {
                     fedAt[0] = Double.NaN;
@@ -151,10 +165,12 @@ public final class LaunchCards {
                     if (!Double.isNaN(fedAt[0]) || !launcher.atSpeed()) return;
                     double now = secondsNow.getAsDouble();
                     if (settled.getAsBoolean()) {
+                        shotsAtFeed[0] = launcher.shots();
                         feed(fedAt, now);
                     } else if (now - startedAt[0] >= PathEndSettle.maxWaitS()) {
                         note.accept(String.format(Locale.US, "%s fed before the robot settled: %.2f s since it started",
                                 name, now - startedAt[0]));
+                        shotsAtFeed[0] = launcher.shots();
                         feed(fedAt, now);
                     }
                 })
@@ -162,6 +178,16 @@ public final class LaunchCards {
                         && secondsNow.getAsDouble() - fedAt[0] >= nonNegative(feedSeconds.getAsDouble()))
                 .setEnd(end -> {
                     feeder.idle();
+                    if (!Double.isNaN(fedAt[0])) {
+                        feeding--;
+                        int shots = launcher.shots();
+                        // Logged to judge the shot detector against what was seen; never acted on
+                        // (mentor, 1 Nov 2026: a feed runs its set time until the detector is proven).
+                        if (shots >= 0) {
+                            note.accept(String.format(Locale.US, "%s fed %.2f s (%s): %d shots detected",
+                                    name, secondsNow.getAsDouble() - fedAt[0], end, shots - shotsAtFeed[0]));
+                        }
+                    }
                     if (countsAsEmptying && end == EndCondition.NATURALLY) {
                         launchAllsCompleted++;
                     }
@@ -171,6 +197,7 @@ public final class LaunchCards {
     private void feed(double[] fedAt, double now) {
         feeder.feed();
         fedAt[0] = now;
+        feeding++;
     }
 
     /** A Panels-editable time clamped to [0, ∞), NaN as 0: a typo makes a short feed, never a stuck card. */
