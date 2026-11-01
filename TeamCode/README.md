@@ -1331,7 +1331,10 @@ to the match log (`CameraCalibration` on the Metadata tab), where they are read 
 The maths is one line: a mount wrong by *d* puts every tag's robot at *−d*, so new = old + the
 residual in robot axes; `CameraCalibrationTest` closes that loop through `CameraMount` and
 `CellFix`. What one spot cannot do is tell a mount error from a HIVE point or a placement that is
-off on this field: repeat from a second heading and expect the same numbers before committing.
+off on this field, and turning on the spot is no use (the camera is pitched up at the HIVE). So
+R2 sets the pose to the next marked spot that faces a HIVE (red audience, red far wall, blue far
+wall; the first two see the red HIVE from opposite sides), the robot is placed on those marks,
+R1 twice again, and the Spots line says AGREE (the mount: commit) or DIFFER (not the mount).
 Height is shown and never applied (on 20245 the value that zeroed it, 12 in, contradicted a tape,
 14 in; cause unknown, position unaffected).
 

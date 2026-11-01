@@ -78,6 +78,12 @@ public class CameraCalibrationTest {
     }
 
     @Test
+    public void twoSpotsAgreeOnlyWhenTheyGiveTheSameMount() {
+        assertTrue(CameraCalibration.agree(3.40, 1.05, 3.55, 1.20));
+        assertFalse(CameraCalibration.agree(3.40, 1.05, 4.60, 1.05));
+    }
+
+    @Test
     public void aBigMeanIsNotAMountError() {
         CameraCalibration cal = new CameraCalibration();
         cal.add(4.0, 0.0, 0.0, Double.NaN);

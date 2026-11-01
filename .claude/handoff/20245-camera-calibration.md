@@ -29,15 +29,18 @@ below has been tested on the robot.
 LOCKED, so aim = robot heading + position; the heading check (square to a FLOWER, read Panels)
 matters more than the 1.2 in. Do the steps below only with idle robot time.
 
-## The R1 button (built 1 Nov on branch claude/funny-dirac-7k2k37, NOT yet compiled or run:
-no Android SDK in the session; CI must build it first)
+## The R1 button (built 1 Nov on branch claude/funny-dirac-7k2k37; CI green, not yet run on a robot:
+see the Manual fallback if it misbehaves)
+CI: first commit compiled, lint and tests green (run 2270). Not yet run on a robot.
 Vision: HIVE & Pose, robot on the red start marks, still, after PLAY: press R1, wait for READY
 (50 still frames), press R1 again. It writes CameraMount.mountForwardIn/mountLeftIn for that run
 and logs them (match-log Metadata "CameraCalibration"). Expected from today's numbers: fwd ~3.4,
 left ~+1.05. Then the "Camera ... in from odometry" line should drop from ~1.2 to under ~0.3.
-Then turn ~90 deg (off the wall), hold still, R1 twice again: if it suggests about the same change
-again (i.e. near zero now), it is the mount; commit. If it suggests something different, it was the
-map or the marks: do not commit, tell the session.
+Then drive to the RED FAR WALL marks (tile C6, back flat on the far wall, frame's left side on the
+C-D seam, facing the audience), press R2 until the screen says "pose set to Red far wall", robot
+still on the marks, R1 twice again. The "Spots:" line then says AGREE (commit the numbers) or
+DIFFER (a HIVE point or the marks, not the mount: do not commit, tell the session). Do not turn on
+the spot: the camera only sees tags facing a HIVE.
 `CameraCalibrationTest` closes the sign loop through CameraMount and CellFix (3 tests pass under javac).
 
 ## Manual fallback if the button is not on the robot

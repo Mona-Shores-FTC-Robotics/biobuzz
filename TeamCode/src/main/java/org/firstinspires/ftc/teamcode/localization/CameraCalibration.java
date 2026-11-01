@@ -19,9 +19,11 @@ import java.util.Locale;
  * {@code CellFix}.
  *
  * <p>What it cannot do: tell a mount offset from a HIVE field point that is off on this field, or
- * from a robot that is not on its marks. All three look the same from one spot at one heading. A
- * mount error gives the same robot-axis numbers from a second heading or a second spot; the others
- * do not. The caller says so on the screen.
+ * from a robot that is not on its marks. All three look the same from one spot. A mount error gives
+ * the same answer from a second marked spot that faces a HIVE the other way round (the red far wall
+ * against the red audience start); the others do not ({@link #agree}). Turning on the spot is no
+ * use: the camera is pitched up at the HIVE and sees nothing elsewhere. The caller says so on the
+ * screen.
  *
  * <p>Height is reported but never applied: a height error can also be the row, the CELL's flex or
  * the lens axis inside the housing, and on 20245 the number that zeroed it (12 in) contradicted a
@@ -34,6 +36,18 @@ public final class CameraCalibration {
 
     /** A mean this large is not a mount error: the robot is off its marks or the map is. */
     public static final double TOO_FAR_IN = 3.0;
+
+    /** Two spots' suggested mounts closer than this, inches, are the same answer: it is the mount. */
+    public static final double AGREE_IN = 0.5;
+
+    /**
+     * Whether two spots' suggested mounts (absolute forward/left, inches) agree to {@link #AGREE_IN}.
+     * A mount error gives the same answer from every spot; a HIVE point or a placement that is off
+     * gives a different one from a spot that faces the other way.
+     */
+    public static boolean agree(double fwd1, double left1, double fwd2, double left2) {
+        return Math.hypot(fwd1 - fwd2, left1 - left2) <= AGREE_IN;
+    }
 
     private final WelfordVariance forward = new WelfordVariance();
     private final WelfordVariance left = new WelfordVariance();

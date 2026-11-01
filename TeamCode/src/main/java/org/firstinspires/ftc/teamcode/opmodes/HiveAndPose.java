@@ -32,6 +32,7 @@ import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 import org.firstinspires.ftc.teamcode.vision.TagTilt;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -85,8 +86,10 @@ import java.util.Locale;
  *       frames and shows the {@code CameraMount} forward/left that would zero it; R1 again applies
  *       them for this run (Panels shows the new values; the residual should collapse) and puts them
  *       in the match log. Commit them to {@code CameraMount} from the log. Height is shown, never
- *       applied. One spot cannot tell a mount error from a map or placement error: repeat from a
- *       second heading and expect the same numbers.</li>
+ *       applied. One spot cannot tell a mount error from a map or placement error, and turning on
+ *       the spot loses the tags: drive to the next marked spot that faces a HIVE (R2 sets the pose
+ *       there: red audience, red far wall, blue far wall), R1 twice again, and the screen says
+ *       whether the two spots agree ({@link CameraCalibration#agree}).</li>
  * </ol>
  */
 @Utility(name = "Vision: HIVE & Pose", description = "HIVE state, Pinpoint vs camera pose, relocalize, turret aim; the camera test bed")
@@ -130,6 +133,18 @@ public class HiveAndPose extends RobotOpMode {
     private boolean calibrating;
     private int calibrationLastCount;
     private String calibrationNote = "off · R1 starts (robot on its marks, still)";
+
+    /**
+     * The marked spots a calibration can be done from, each facing a HIVE: R2 sets the pose to the
+     * next one, for a robot placed on its marks. Red audience and red far wall see the red HIVE
+     * from opposite sides, the pair that tells a mount error from a map or placement error.
+     */
+    private static final StartPosition[] SPOTS = {
+            StartPositions.RED_AUDIENCE, StartPositions.RED_FAR, StartPositions.BLUE_FROM_RED_AUDIENCE};
+    private int spot;
+    /** The mount each spot's calibration suggested (absolute forward/left), NaN until applied there. */
+    private final double[] spotFwd = new double[SPOTS.length];
+    private final double[] spotLeft = new double[SPOTS.length];
 
     /**
      * Half-width of the band about the HIVE's axle line inside which the aimed CELL does not
@@ -198,6 +213,11 @@ public class HiveAndPose extends RobotOpMode {
         driver.when("R1", "Calibrate camera mount here: start averaging; again to apply (this run)",
                         () -> gamepad1.right_bumper)
                 .onPress(this::calibratePressed);
+        driver.when("R2", "Pose: set to the next calibration spot (robot placed on its marks)",
+                        () -> gamepad1.right_trigger > 0.5)
+                .onPress(this::nextSpot);
+        Arrays.fill(spotFwd, Double.NaN);
+        Arrays.fill(spotLeft, Double.NaN);
         driver.when("D-pad down", "Turret: home (0°), aim off", () -> gamepad1.dpad_down)
                 .onPress(() -> {
                     aiming = false;
@@ -238,10 +258,41 @@ public class HiveAndPose extends RobotOpMode {
                 calibration.frames(), calibration.spreadIn(), calibration.heightErrorIn());
         CameraMount.mountForwardIn = fwd;
         CameraMount.mountLeftIn = left;
-        log.event("camera calibration applied: " + applied);
-        log.metadata("CameraCalibration", applied);
-        calibrationNote = String.format(Locale.US, "applied fwd %.2f, left %.2f (this run) · commit them to CameraMount", fwd, left);
+        spotFwd[spot] = fwd;
+        spotLeft[spot] = left;
+        String at = "at " + SPOTS[spot].name + ": " + applied;
+        log.event("camera calibration applied " + at);
+        log.metadata("CameraCalibration/" + SPOTS[spot].name.replace(' ', '_'), applied);
+        calibrationNote = String.format(Locale.US, "applied fwd %.2f, left %.2f at %s (this run)", fwd, left, SPOTS[spot].name);
         calibration.reset();
+    }
+
+    /** R2: the pose goes to the next marked spot, for a robot that has been placed on its marks. */
+    private void nextSpot() {
+        spot = (spot + 1) % SPOTS.length;
+        robot.drive.setPose(SPOTS[spot].pose);
+        calibration.reset();
+        calibrating = false;
+        calibrationNote = "pose set to " + SPOTS[spot].name + " · " + SPOTS[spot].placement() + " · R1 starts";
+        relocalizeNote = "pose set to " + SPOTS[spot].name + " (R2)";
+    }
+
+    /** What the spots calibrated so far say together: one line, or null before two have been done. */
+    private String compareSpots() {
+        int first = -1;
+        for (int i = 0; i < SPOTS.length; i++) {
+            if (Double.isNaN(spotFwd[i])) continue;
+            if (first < 0) {
+                first = i;
+                continue;
+            }
+            boolean same = CameraCalibration.agree(spotFwd[first], spotLeft[first], spotFwd[i], spotLeft[i]);
+            return String.format(Locale.US, "%s fwd %.2f, left %.2f · %s fwd %.2f, left %.2f · %s",
+                    SPOTS[first].name, spotFwd[first], spotLeft[first], SPOTS[i].name, spotFwd[i], spotLeft[i],
+                    same ? "AGREE: the mount — commit these to CameraMount"
+                            : "DIFFER: not the mount (a HIVE point or the marks) — do not commit");
+        }
+        return null;
     }
 
     /** One sample per new still camera frame, from the drive's would-relocalize record. */
@@ -290,7 +341,7 @@ public class HiveAndPose extends RobotOpMode {
         if (aiming) aimer.update(setup.alliance(), aimSwitchBandIn);
         showEverything();
         display.line("<small>Cross (A) relocalize · D-pad left reset to the left corner · D-pad right fixes on/off · "
-                + "R1 calibrate camera · Triangle (Y) reset forward · "
+                + "R1 calibrate camera · R2 next spot · Triangle (Y) reset forward · "
                 + "Circle (B) field/robot-centric · Square (X) aim · D-pad up zero turret · D-pad down turret home · "
                 + "Share (Back): controls, robot pages</small>");
     }
@@ -450,8 +501,10 @@ public class HiveAndPose extends RobotOpMode {
 
     /** The camera mount calibration (R1): what it has averaged and what it would set. */
     private void showCalibration() {
+        String spots = compareSpots();
+        if (spots != null) display.line("Spots: " + spots);
         if (!calibrating) {
-            display.line("Camera calibration: " + calibrationNote);
+            display.line("Camera calibration (at " + SPOTS[spot].name + "): " + calibrationNote);
             return;
         }
         Display.Level level = Display.Level.OK;
