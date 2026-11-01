@@ -13,7 +13,8 @@ anyone typing an adb command.
    AdvantageScope, and exits. Once at the end of the meeting gets everything; the logs wait on
    the hub until then.
 
-From a terminal it is:
+In a PowerShell window in this folder, type `.\pull-logs.cmd` (PowerShell does not run a file
+from the current folder without the `.\`). From anywhere in the repo it is:
 
 ```bash
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/pull-logs/Pull-MatchLogs.ps1
@@ -31,6 +32,32 @@ once TeleOp stops. Optional; the one-shot pull is the normal way.
 | `-RemoveFromRobot` | delete from the hub what has been copied (never the newest file) |
 | `-Robot 192.168.49.1` | a phone Robot Controller instead of a Control Hub |
 | `-Dest <folder>` | somewhere other than the Drive folder |
+
+## Sent to GitHub, so a Claude session can read them
+
+After pulling, the script sends the last three days' logs (by the date in the file name) to
+GitHub, one branch per day and robot: `logs/<date>-<robot network>`, e.g.
+`logs/2026-11-01-20245-RC`. Then "pull logs" to a Claude session is enough: it fetches those
+branches and reads them with `read_logs.py` (below). Nothing to type.
+
+- **No internet on the robot's Wi-Fi?** Nothing is lost. The logs wait in the Drive folder and go up
+  on the next run that has internet: double-click again at home or school, robot or no robot. A
+  laptop with a second Wi-Fi adapter on the internet sends them straight away, and the watcher sends
+  each log as it finishes.
+- **Your checkout is never touched.** The branch is written with git's plumbing (a private index,
+  `commit-tree`, `push <commit>:refs/heads/...`), not by switching branches, so whatever you have
+  checked out and half-edited stays exactly as it was.
+- A log that grows (an Auto, then its TeleOp) goes up again and replaces its earlier copy. What has
+  gone up is listed in `%LOCALAPPDATA%\biobuzz-logs-published.txt`; delete a line to send that
+  file again.
+- These branches are throwaway: never merged, never based on `master`. GitHub refuses a file over
+  100 MB, so a log over 95 MB is skipped with a message.
+- `-NoPublish` skips it; `-PublishDays 7` reaches further back.
+
+`read_logs.py` reads a `.wpilog` with plain Python (standard library only): `summary` gives, per
+run, the build, battery, every launch knob at PLAY, the key events and every feed (gate open:
+launcher speed at the open and its lowest, feeder speed, shots counted, battery low). It is for
+reading logs without AdvantageScope; nobody at the robot needs Python.
 
 ## Where logs go
 
