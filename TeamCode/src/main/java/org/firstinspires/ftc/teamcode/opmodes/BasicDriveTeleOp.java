@@ -651,9 +651,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("shots", robot.launcher.shots());
             panels.addData("last_shot_dip_tps", robot.launcher.lastShotDipTicksPerSecond());
             panels.addData("last_shot_range_in", lastShotRangeIn);
-            // The feeder's own speed is not published: on the competition robots its encoder socket
-            // carries the turret's encoder (DeviceNames.TURRET_ENCODER_HOST).
             panels.addData("feeder_power", robot.feeder.power());
+            // The feeder's own encoder: the turret is locked and has none (TurretSubsystem.lockedForward).
+            panels.addData("feeder_tps", robot.feeder.ticksPerSecond());
             panels.addData("feeder_amps", robot.feeder.currentAmps());
             panels.addData("turret_mode", turretMode == TurretMode.AIM ? 1 : 0);
             panels.addData("turret_angle_deg", robot.turret.angleDegrees());
