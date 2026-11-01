@@ -25,17 +25,31 @@ below has been tested on the robot.
   (tape B 9.2-9.5 gives 3.5-3.85, consistent).
 - Robot centre = middle of the wheelbase (Robot20245.java comment; pods 6.5 in right, 1.0 in forward).
 
-## Tomorrow, in order (robot on the red start marks, Vision: HIVE & Pose, still, after PLAY)
+## Priority (plan hub, 31 Oct evening): launcher first; 0 dedicated localization time. Turret is
+LOCKED, so aim = robot heading + position; the heading check (square to a FLOWER, read Panels)
+matters more than the 1.2 in. Do the steps below only with idle robot time.
+
+## The R1 button (built 1 Nov on branch claude/funny-dirac-7k2k37, NOT yet compiled or run:
+no Android SDK in the session; CI must build it first)
+Vision: HIVE & Pose, robot on the red start marks, still, after PLAY: press R1, wait for READY
+(50 still frames), press R1 again. It writes CameraMount.mountForwardIn/mountLeftIn for that run
+and logs them (match-log Metadata "CameraCalibration"). Expected from today's numbers: fwd ~3.4,
+left ~+1.05. Then the "Camera ... in from odometry" line should drop from ~1.2 to under ~0.3.
+Then turn ~90 deg (off the wall), hold still, R1 twice again: if it suggests about the same change
+again (i.e. near zero now), it is the mount; commit. If it suggests something different, it was the
+map or the marks: do not commit, tell the session.
+`CameraCalibrationTest` closes the sign loop through CameraMount and CellFix (3 tests pass under javac).
+
+## Manual fallback if the button is not on the robot
 1. Check Panels CameraMount is back at 4 / 0 / 14 / 45 / 0 (it resets on restart) and the Limelight
    exposure/gain are what you want (write them down).
 2. Panels: mountForwardIn = 3.55. Read "Where the robot is". Camera y should go from ~7.1 to ~7.5.
    If it moves DOWN the sign is wrong: set 4.0 and tell the session.
-3. Sideways: hang a plumb line from the lens centre, mark the floor, measure floor distance from the
-   left wheel face and from the right wheel face to the mark. mountLeftIn = (right - left) / 2
-   (positive = lens left of centre). Test live: camera x should go from ~54.6 toward 55.6.
-4. Once both live tests move the camera toward odometry/truth, ask the session to make ONE edit to
-   the shared CameraMount defaults (update its "measured on 19429" comment), run the tests, and
-   open a PR if wanted. Do not touch mountUpIn or pitchDeg for the height.
+3. Sideways: Panels mountLeftIn = +1.05; camera x should go from ~54.6 toward 55.6. (Or plumb line
+   from the lens centre: mountLeftIn = (right wheel face to mark - left wheel face to mark) / 2.)
+4. Once both move the camera toward odometry/truth, ask the session to make ONE edit to the shared
+   CameraMount defaults (update its "measured on 19429" comment), run the tests, and open a PR if
+   wanted. Do not touch mountUpIn or pitchDeg for the height.
 5. If the lens measures centred and mountLeftIn does not help: suspect the pod offsets
    (xPodOffset -6.5, yPodOffset 1.0 in Robot20245.java); re-measure from the wheelbase centre.
 6. 19429 after its rebuild: copy 20245's Limelight pipeline (the download/upload arrows beside the

@@ -1324,6 +1324,17 @@ code (a Claude session can read it): the numbers come off the log, not off someo
    #82 session 1's taped path, with `LocalizationTuning.stillFixes` set in code, against without.
 5. **Continuous fixes** are their own session, later (#82 session 5).
 
+**The short form: R1.** With the robot on its marks and still, R1 in Vision: HIVE & Pose averages
+the camera's error over 50 still frames (`localization/CameraCalibration`) and shows the
+`CameraMount` forward/left that would zero it; R1 again applies them for that run and writes them
+to the match log (`CameraCalibration` on the Metadata tab), where they are read from to commit.
+The maths is one line: a mount wrong by *d* puts every tag's robot at *−d*, so new = old + the
+residual in robot axes; `CameraCalibrationTest` closes that loop through `CameraMount` and
+`CellFix`. What one spot cannot do is tell a mount error from a HIVE point or a placement that is
+off on this field: repeat from a second heading and expect the same numbers before committing.
+Height is shown and never applied (on 20245 the value that zeroed it, 12 in, contradicted a tape,
+14 in; cause unknown, position unaffected).
+
 Which way each row runs along the field (`HiveFieldPoints.clusterXAlongFieldX`) follows from the
 SDK's cluster layout: the opening sits at +y, -z of the row in cluster axes, the opening faces away
 from the axle and the tags face down, so x = y × z points along +x for an AUDIENCE CELL and -x for

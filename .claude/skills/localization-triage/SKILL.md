@@ -80,6 +80,10 @@ is the real test, so say so in the first report and sanity-check the table by ey
 | MIXED | Not separable from this log | Report the table, ask for more data |
 
 ### Mount
+- **The robot can measure this itself:** Vision: HIVE & Pose's R1 (`localization/CameraCalibration`)
+  averages the residual on a known spot and applies/logs the `CameraMount` forward/left that zero
+  it (match-log metadata `CameraCalibration`). Prefer that number to a tape. It is still one spot:
+  ask for the same from a second heading before committing.
 - A **constant** offset (the same at near and far range) is a translation: `mountForwardIn` /
   `mountLeftIn`. By the transform in `CameraMount.toRobotFrame` and `CellFix.position`, the new
   value is the old value **plus** the robot-axis residual (forward residual to `mountForwardIn`,

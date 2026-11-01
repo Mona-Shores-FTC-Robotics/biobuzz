@@ -7,6 +7,7 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.localization.CameraCalibration;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.util.FieldLayers;
 import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.util.WelfordVariance;
 import org.firstinspires.ftc.teamcode.vision.BiobuzzTags;
+import org.firstinspires.ftc.teamcode.vision.CameraMount;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.CellStateTracker;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
@@ -78,6 +80,13 @@ import java.util.Locale;
  *   <li>Hold still and tip the HIVE by hand: TRANSITION, then the other CELL up.</li>
  *   <li>Drive, get shoved, stop facing the HIVE: the two robots on the field have drifted apart by
  *       the would-relocalize gap. A brings them back together.</li>
+ *   <li><b>Calibrate the camera mount</b> ({@link CameraCalibration}): robot on its marks, still,
+ *       press R1. It averages the camera's error over {@value CameraCalibration#FRAMES_WANTED} still
+ *       frames and shows the {@code CameraMount} forward/left that would zero it; R1 again applies
+ *       them for this run (Panels shows the new values; the residual should collapse) and puts them
+ *       in the match log. Commit them to {@code CameraMount} from the log. Height is shown, never
+ *       applied. One spot cannot tell a mount error from a map or placement error: repeat from a
+ *       second heading and expect the same numbers.</li>
  * </ol>
  */
 @Utility(name = "Vision: HIVE & Pose", description = "HIVE state, Pinpoint vs camera pose, relocalize, turret aim; the camera test bed")
@@ -115,6 +124,12 @@ public class HiveAndPose extends RobotOpMode {
 
     private TelemetryManager panels;
     private String relocalizeNote = "not pressed yet";
+
+    /** Camera mount calibration from a known spot (R1). Fed one sample per still camera frame. */
+    private final CameraCalibration calibration = new CameraCalibration();
+    private boolean calibrating;
+    private int calibrationLastCount;
+    private String calibrationNote = "off · R1 starts (robot on its marks, still)";
 
     /**
      * Half-width of the band about the HIVE's axle line inside which the aimed CELL does not
@@ -180,12 +195,74 @@ public class HiveAndPose extends RobotOpMode {
                 .onPress(robot.turret::zeroHere);
         driver.when("Square (X)", "Turret: aim at our raised CELL / off", () -> gamepad1.x)
                 .onPress(this::toggleAim);
+        driver.when("R1", "Calibrate camera mount here: start averaging; again to apply (this run)",
+                        () -> gamepad1.right_bumper)
+                .onPress(this::calibratePressed);
         driver.when("D-pad down", "Turret: home (0°), aim off", () -> gamepad1.dpad_down)
                 .onPress(() -> {
                     aiming = false;
                     aimer.off();
                     robot.turret.home();
                 });
+    }
+
+    /**
+     * R1: first press starts averaging; once {@link CameraCalibration#ready()}, the next press
+     * writes the suggested forward/left into {@code CameraMount} for this run and starts a fresh
+     * average, so the screen shows the residual collapse. Applied values go into the match log, which
+     * is where the number to commit is read from.
+     */
+    private void calibratePressed() {
+        if (!calibrating) {
+            calibration.reset();
+            calibrating = true;
+            calibrationLastCount = robot.drive.wouldRelocalizeCount();
+            calibrationNote = "collecting · hold still on the marks";
+            return;
+        }
+        if (!calibration.ready()) {
+            calibrationNote = "not yet: " + calibration.frames() + "/" + CameraCalibration.FRAMES_WANTED + " still frames";
+            return;
+        }
+        if (calibration.tooFar()) {
+            calibrationNote = String.format(Locale.US,
+                    "refused: mean %.1f in is not a mount error — check the marks", Math.hypot(
+                            calibration.forwardIn(), calibration.leftIn()));
+            return;
+        }
+        double fwd = calibration.suggestedForwardIn(CameraMount.mountForwardIn);
+        double left = calibration.suggestedLeftIn(CameraMount.mountLeftIn);
+        String applied = String.format(Locale.US,
+                "CameraMount.mountForwardIn %.2f -> %.2f, mountLeftIn %.2f -> %.2f (%d frames, spread %.2f, height %+.2f)",
+                CameraMount.mountForwardIn, fwd, CameraMount.mountLeftIn, left,
+                calibration.frames(), calibration.spreadIn(), calibration.heightErrorIn());
+        CameraMount.mountForwardIn = fwd;
+        CameraMount.mountLeftIn = left;
+        log.event("camera calibration applied: " + applied);
+        log.metadata("CameraCalibration", applied);
+        calibrationNote = String.format(Locale.US, "applied fwd %.2f, left %.2f (this run) · commit them to CameraMount", fwd, left);
+        calibration.reset();
+    }
+
+    /** One sample per new still camera frame, from the drive's would-relocalize record. */
+    private void trackCalibration() {
+        if (!calibrating) return;
+        int count = robot.drive.wouldRelocalizeCount();
+        if (count == calibrationLastCount) return;
+        calibrationLastCount = count;
+        Pose pose = robot.drive.pose();
+        if (pose == null || !robot.drive.poseReferenced()) return;
+        TagGate frame = robot.drive.lastFrame();
+        double heightSum = 0;
+        int heightN = 0;
+        for (int i = 0; i < frame.count(); i++) {
+            if (frame.reason(i) == TagGate.Reason.ACCEPTED) {
+                heightSum += frame.heightErrorIn(i);
+                heightN++;
+            }
+        }
+        calibration.add(robot.drive.wouldRelocalizeDx(), robot.drive.wouldRelocalizeDy(), pose.heading(),
+                heightN == 0 ? Double.NaN : heightSum / heightN);
     }
 
     private void toggleAim() {
@@ -213,7 +290,7 @@ public class HiveAndPose extends RobotOpMode {
         if (aiming) aimer.update(setup.alliance(), aimSwitchBandIn);
         showEverything();
         display.line("<small>Cross (A) relocalize · D-pad left reset to the left corner · D-pad right fixes on/off · "
-                + "Triangle (Y) reset forward · "
+                + "R1 calibrate camera · Triangle (Y) reset forward · "
                 + "Circle (B) field/robot-centric · Square (X) aim · D-pad up zero turret · D-pad down turret home · "
                 + "Share (Back): controls, robot pages</small>");
     }
@@ -222,6 +299,7 @@ public class HiveAndPose extends RobotOpMode {
     private void showEverything() {
         Pose camera = robot.drive.cameraPose();
         trackJitter(camera);
+        trackCalibration();
         showHives();
         showCells();
         showPose(camera);
@@ -367,6 +445,31 @@ public class HiveAndPose extends RobotOpMode {
                     robot.drive.wouldRelocalizeErrorIn(), robot.drive.wouldRelocalizeMaxErrorIn(),
                     robot.drive.wouldRelocalizeCount(), robot.drive.isStill() ? " · still now" : ""));
         }
+        showCalibration();
+    }
+
+    /** The camera mount calibration (R1): what it has averaged and what it would set. */
+    private void showCalibration() {
+        if (!calibrating) {
+            display.line("Camera calibration: " + calibrationNote);
+            return;
+        }
+        Display.Level level = Display.Level.OK;
+        String state;
+        if (calibration.frames() == 0) {
+            state = "waiting for a still frame";
+            level = Display.Level.WARN;
+        } else if (calibration.tooFar()) {
+            state = "mean over " + (int) CameraCalibration.TOO_FAR_IN + " in: not a mount error, check the marks";
+            level = Display.Level.WARN;
+        } else if (!calibration.ready()) {
+            state = "averaging " + calibration.frames() + "/" + CameraCalibration.FRAMES_WANTED;
+        } else {
+            state = "READY · R1 applies";
+        }
+        display.status("Camera calibration", level, state + " · " + calibration.describe(
+                CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn));
+        display.line("<small>Last: " + calibrationNote + "</small>");
     }
 
     /**
