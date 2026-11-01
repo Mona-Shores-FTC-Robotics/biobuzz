@@ -62,13 +62,13 @@ public class FeederSubsystemTest {
     }
 
     @Test
-    public void theWheelsRunWithTheIntakeOnlyAfterPlayAndWhenNothingElseIsAsked() {
-        assertEquals(true, FeederSubsystem.assistsIntake(State.IDLE, true, true, 1.0));
-        assertEquals("not before PLAY", false, FeederSubsystem.assistsIntake(State.IDLE, false, true, 1.0));
-        assertEquals("not without intaking", false, FeederSubsystem.assistsIntake(State.IDLE, true, false, 1.0));
-        assertEquals("0 turns it off", false, FeederSubsystem.assistsIntake(State.IDLE, true, true, 0.0));
-        assertEquals("NaN is off", false, FeederSubsystem.assistsIntake(State.IDLE, true, true, Double.NaN));
-        assertEquals("a feed is a feed", false, FeederSubsystem.assistsIntake(State.FEED, true, true, 1.0));
-        assertEquals("an unjam wins", false, FeederSubsystem.assistsIntake(State.REVERSE, true, true, 1.0));
+    public void theWheelsStandByOnlyAfterPlayAndWhenNothingElseIsAsked() {
+        assertEquals(true, FeederSubsystem.standsBy(State.IDLE, true, true, 1.0));
+        assertEquals("not before PLAY", false, FeederSubsystem.standsBy(State.IDLE, false, true, 1.0));
+        assertEquals("not when neither the launcher nor the intake asks", false, FeederSubsystem.standsBy(State.IDLE, true, false, 1.0));
+        assertEquals("0 turns it off", false, FeederSubsystem.standsBy(State.IDLE, true, true, 0.0));
+        assertEquals("NaN is off", false, FeederSubsystem.standsBy(State.IDLE, true, true, Double.NaN));
+        assertEquals("a feed is a feed", false, FeederSubsystem.standsBy(State.FEED, true, true, 1.0));
+        assertEquals("an unjam wins", false, FeederSubsystem.standsBy(State.REVERSE, true, true, 1.0));
     }
 }
