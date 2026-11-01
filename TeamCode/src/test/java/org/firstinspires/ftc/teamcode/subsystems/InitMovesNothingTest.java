@@ -133,6 +133,10 @@ public class InitMovesNothingTest {
         PrefeedSubsystem prefeed = new PrefeedSubsystem(devices.map, intake, feeder);
         runInit(prefeed, devices);
 
+        // PLAY as Robot does it: every subsystem started, then updated in list order, the intake
+        // before the prefeed, so the prefeed follows what the roller is doing this loop.
+        intake.start();
+        intake.update();
         prefeed.start();
         prefeed.update();
         double expected = PrefeedSubsystem.powerFor(PrefeedSubsystem.State.IN, PrefeedSubsystem.inPower,
