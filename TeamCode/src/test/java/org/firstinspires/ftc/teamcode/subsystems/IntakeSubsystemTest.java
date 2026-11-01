@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.junit.Assert.assertEquals;
 
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem.State;
 import org.junit.Test;
 
@@ -12,27 +14,31 @@ public class IntakeSubsystemTest {
 
     @Test
     public void idleIsZeroWhateverThePowers() {
-        assertEquals(0.0, IntakeSubsystem.powerFor(State.IDLE, 1.0, 0.6, false), EPS);
-        assertEquals(0.0, IntakeSubsystem.powerFor(State.IDLE, 1.0, 0.6, true), EPS);
+        assertEquals(0.0, IntakeSubsystem.powerFor(State.IDLE, 1.0, 0.6), EPS);
     }
 
     @Test
     public void inIsPositiveAndOutIsNegative() {
-        assertEquals(1.0, IntakeSubsystem.powerFor(State.IN, 1.0, 0.6, false), EPS);
-        assertEquals(-0.6, IntakeSubsystem.powerFor(State.OUT, 1.0, 0.6, false), EPS);
+        assertEquals(1.0, IntakeSubsystem.powerFor(State.IN, 1.0, 0.6), EPS);
+        assertEquals(-0.6, IntakeSubsystem.powerFor(State.OUT, 1.0, 0.6), EPS);
     }
 
+    /**
+     * Reversed flips the motor's direction, not the power, so the encoder flips with it: taking
+     * pieces in reads positive on either robot.
+     */
     @Test
-    public void reversedFlipsBothDirections() {
-        assertEquals(-1.0, IntakeSubsystem.powerFor(State.IN, 1.0, 0.6, true), EPS);
-        assertEquals(0.6, IntakeSubsystem.powerFor(State.OUT, 1.0, 0.6, true), EPS);
+    public void reversedSetsTheMotorDirectionNotThePower() {
+        assertEquals(DcMotorSimple.Direction.REVERSE, IntakeSubsystem.directionFor(true));
+        assertEquals(DcMotorSimple.Direction.FORWARD, IntakeSubsystem.directionFor(false));
+        assertEquals(1.0, IntakeSubsystem.powerFor(State.IN, 1.0, 0.6), EPS);
     }
 
     @Test
     public void powersPastFullAreClamped() {
-        assertEquals(1.0, IntakeSubsystem.powerFor(State.IN, 1.7, 0.6, false), EPS);
-        assertEquals(-1.0, IntakeSubsystem.powerFor(State.OUT, 1.0, 2.5, false), EPS);
-        assertEquals(0.0, IntakeSubsystem.powerFor(State.IN, -0.3, 0.6, false), EPS);
+        assertEquals(1.0, IntakeSubsystem.powerFor(State.IN, 1.7, 0.6), EPS);
+        assertEquals(-1.0, IntakeSubsystem.powerFor(State.OUT, 1.0, 2.5), EPS);
+        assertEquals(0.0, IntakeSubsystem.powerFor(State.IN, -0.3, 0.6), EPS);
     }
 
     @Test
@@ -60,7 +66,7 @@ public class IntakeSubsystemTest {
 
     @Test
     public void nanStopsTheRoller() {
-        assertEquals(0.0, IntakeSubsystem.powerFor(State.IN, Double.NaN, 0.6, false), EPS);
-        assertEquals(0.0, IntakeSubsystem.powerFor(State.OUT, 1.0, Double.NaN, false), EPS);
+        assertEquals(0.0, IntakeSubsystem.powerFor(State.IN, Double.NaN, 0.6), EPS);
+        assertEquals(0.0, IntakeSubsystem.powerFor(State.OUT, 1.0, Double.NaN), EPS);
     }
 }
