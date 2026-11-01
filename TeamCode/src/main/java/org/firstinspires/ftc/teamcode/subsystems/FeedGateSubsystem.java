@@ -32,6 +32,12 @@ import java.util.Locale;
  * {@link Subsystem}), and it goes to BLOCKING at PLAY. If the gate has to block before PLAY, to
  * keep pieces in at the start, that is a mechanical stop or latch (R103.A), not this servo: the
  * TeleOp's INIT runs between AUTO and TELEOP too, where a plate swinging in is a G403 foul.
+ *
+ * <p>The four pre-load POLLEN are placed behind the plate by hand during field setup (the mentor's
+ * decision, 1 Nov 2026: pre-loads are the field's and are handed over there), with the servo
+ * unwritten and the plate limp; nothing runs at INIT to take them in or to hold them. So the plate
+ * has to stay closed on its own with four balls resting against it until PLAY drives it. If it does
+ * not, that is a detent on the plate, never a write before PLAY.
  */
 @Configurable
 public class FeedGateSubsystem implements Subsystem {
