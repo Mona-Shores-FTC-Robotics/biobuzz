@@ -64,8 +64,13 @@ public final class TeleOpConfig {
      */
     public static boolean intakeToggle = false;
 
-    /** Enforce the at-speed gate: a feed starts only once the launcher is at launch speed. */
-    public static boolean enforceAtSpeedGate = false;
+    /**
+     * Enforce the at-speed gate: a feed starts only once the launcher is at launch speed (it never
+     * cuts a feed already running). On since 1 Nov 2026, the mentor's call from that day's match
+     * logs on 20245: in shadow mode, fire opened the gate with the launcher idle (eleven presses in
+     * one run) or still recovering from an unjam (820 of 1575 ticks/s), and those shots fell short.
+     */
+    public static boolean enforceAtSpeedGate = true;
 
     /** Enforce the aim gate: a feed starts only with the aim within {@link #aimToleranceDeg}. */
     public static boolean enforceAimGate = false;

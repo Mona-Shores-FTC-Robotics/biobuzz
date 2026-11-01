@@ -133,12 +133,14 @@ public class LauncherSubsystem implements Subsystem {
 
     /**
      * Speed both wheels run backwards while the feeder reverses (an unjam), ticks per second, to
-     * drive a ball sitting on top of the wheels back down onto the reversing feeder. 1500, about the
-     * launch speed: set by the mentor on robot 20245 from launch testing, 1 Nov 2026 (300 was the
-     * first guess). The hub's velocity loop holds it, so it is the same on a fresh or a tired
-     * battery. 0 turns the reverse off.
+     * drive a ball sitting on top of the wheels back down onto the reversing feeder. 300, about a
+     * fifth of the launch speed: the mentor's call on 1 Nov 2026 once the robot went POLLEN only.
+     * 1500 had been set that afternoon to clear NECTAR, but the match logs showed its cost: the
+     * wheels took about a second to swing from -1500 back to launch speed, and a fire straight
+     * after an unjam went out at 820 ticks/s. The hub's velocity loop holds it, so it is the same
+     * on a fresh or a tired battery. 0 turns the reverse off.
      */
-    public static double reverseTicksPerSecond = 1500.0;
+    public static double reverseTicksPerSecond = 300.0;
 
     /**
      * Encoder ticks per revolution of each flywheel <b>motor</b>, for the RPM display. 28: the
