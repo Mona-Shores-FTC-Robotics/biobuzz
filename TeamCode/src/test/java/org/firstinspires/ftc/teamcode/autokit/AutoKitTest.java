@@ -127,6 +127,37 @@ public class AutoKitTest {
         assertTrue(trace.toString(), trace.stream().anyMatch(line -> line.contains("HiveTipped after 1.0")));
     }
 
+    /** Mentor, 1 Nov 2026: a step's "at most" guards the wait for spin-up; it never cuts a feed. */
+    @Test
+    public void anAtMostRowWaitsWhileTimeLimitsAreHeld() {
+        // Feeding from the start until the 3 s launch ends.
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .holdTimeLimitsWhile(() -> now < 3.0)
+                .command("LaunchAll", 3.0, () -> lasting("LaunchAll", 3.0)), () -> now).trace(trace::add);
+        run(kit.firstOf("Fire", kit.command("LaunchAll"), kit.afterMs(1000)), 5);
+        assertTrue("the feed ran to its end: " + log, log.contains("LaunchAll NATURALLY"));
+        assertFalse(log.toString(), log.contains("LaunchAll INTERRUPTED"));
+        assertTrue(trace.toString(), trace.stream().anyMatch(line -> line.contains("1000 ms passed after 3.")));
+    }
+
+    @Test
+    public void aCommandTimeoutWaitsWhileTimeLimitsAreHeld() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .holdTimeLimitsWhile(() -> now < 3.0)
+                .command("LaunchAll", 3.0, () -> lasting("LaunchAll", 3.0)), () -> now).trace(trace::add);
+        run(kit.command("LaunchAll", 1.0), 5);
+        assertTrue("not cut at 1 s while feeding: " + log, log.contains("LaunchAll NATURALLY"));
+    }
+
+    @Test
+    public void withNothingHeldAnAtMostRowStillCutsTheCommand() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .holdTimeLimitsWhile(() -> false)
+                .command("LaunchAll", 3.0, () -> lasting("LaunchAll", 3.0)), () -> now).trace(trace::add);
+        run(kit.firstOf("Fire", kit.command("LaunchAll"), kit.afterMs(1000)), 5);
+        assertTrue("cut at the limit: " + log, log.contains("LaunchAll INTERRUPTED"));
+    }
+
     @Test
     public void aWaitGoesOnAfterItsCommandFinishes() {
         AutoKit kit = new AutoKit(drive, new AutoRegistry()

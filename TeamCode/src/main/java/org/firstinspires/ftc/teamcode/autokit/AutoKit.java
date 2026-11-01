@@ -145,7 +145,8 @@ public final class AutoKit {
 
     /**
      * The registered command {@code name}: runs until it finishes or {@code timeoutS} has passed,
-     * whichever is first, so a command that never finishes cannot stall the Auto. A timeout is
+     * whichever is first, so a command that never finishes cannot stall the Auto. The timeout waits
+     * while the registry holds time limits ({@link AutoRegistry#holdTimeLimitsWhile}). A timeout is
      * traced, since it usually means a mechanism did not do its job.
      */
     public Command command(String name, double timeoutS) {
@@ -174,6 +175,7 @@ public final class AutoKit {
                 })
                 .setDone(() -> {
                     if (refused[0] || inner.done()) return true;
+                    if (registry.timeLimitsHeld()) return false;
                     timedOut[0] = secondsSinceStart.getAsDouble() - startedAt[0] >= timeoutS;
                     return timedOut[0];
                 })
@@ -273,7 +275,9 @@ public final class AutoKit {
                     }
                 }
                 double waited = secondsSinceStart.getAsDouble() - startedAt[0];
+                boolean held = registry.timeLimitsHeld();
                 for (int i = 0; i < rows.length; i++) {
+                    if (rows[i].timeLimit && held) continue;
                     if (rows[i].test.passes(waited)) {
                         trace.accept(String.format(Locale.US, "%s: %s after %.2f s", label, rows[i].description, waited));
                         if (alongsideRunning[0]) {
@@ -472,9 +476,14 @@ public final class AutoKit {
         return row;
     }
 
-    /** True once {@code ms} have passed since the card started. */
+    /**
+     * True once {@code ms} have passed since the card started, and time limits are not held
+     * ({@link AutoRegistry#holdTimeLimitsWhile}): a launch that has started feeding finishes first.
+     */
     public Row afterMs(double ms) {
-        return new Row(String.format(Locale.US, "%.0f ms passed", ms), waited -> waited * 1000 >= ms);
+        Row row = new Row(String.format(Locale.US, "%.0f ms passed", ms), waited -> waited * 1000 >= ms);
+        row.timeLimit = true;
+        return row;
     }
 
     // ---------------------------------------------------------------- helpers
