@@ -13,7 +13,7 @@ logging/MatchLog). This script:
   3. copies every .wpilog this laptop does not have yet, or whose size changed, into
      <Dest>\<robot network>\,
   4. opens the newest new file in AdvantageScope,
-  5. sends recent logs to GitHub, one branch per day and robot (logs/<date>-<robot network>), so
+  5. sends today's logs to GitHub, one branch per day and robot (logs/<date>-<robot network>), so
      a Claude session can read them when asked to "pull logs". Only when GitHub answers: on the
      robot's Wi-Fi there is no internet, so they go up on the next run that has it (double-click
      again at home or school, robot or no robot). Your checkout is never touched: the branch is
@@ -47,11 +47,17 @@ After a file is pulled and its size matches, delete it from the hub. The newest 
 deleted (it may still be being written). Off by default: the hub has room for a season of logs.
 
 .PARAMETER NoPublish
-Do not send logs to GitHub.
+Do not send logs to GitHub (and so remove nothing from the robot).
+
+.PARAMETER KeepOnRobot
+Leave logs on the robot after they reach GitHub. By default a log is deleted from the hub once its
+upload to GitHub has succeeded (it is then on Drive and on GitHub), so the hub holds only what has
+not gone up yet and each pull stays small. The newest log is never deleted: it may still be
+being written.
 
 .PARAMETER PublishDays
-Logs from this many days back (by the date in the file name) are sent to GitHub. Default 3, so a
-first run does not upload a season of logs.
+Logs from this many days before today (by the date in the file name) are sent to GitHub too.
+Default 0: today's only. Older logs are already on Drive, and sending them costs minutes.
 
 .PARAMETER Adb
 The adb.exe to use. By default: the one behind an adb server that is already running (so a
@@ -76,7 +82,8 @@ param(
     [switch]$NoOpen,
     [switch]$RemoveFromRobot,
     [switch]$NoPublish,
-    [int]$PublishDays = 3,
+    [switch]$KeepOnRobot,
+    [int]$PublishDays = 0,
     [string]$Adb,
     [string]$AdvantageScope
 )
@@ -284,6 +291,23 @@ function Sync-Logs {
     return @($pulled)
 }
 
+# Deletes from the hub every file (but the newest) that is already on GitHub at this very size: in
+# the published list under this robot's folder. A log that failed to go up, or grew since, stays.
+function Remove-PublishedFromRobot {
+    param([object[]]$Remote, [string]$Label)
+    if ($NoPublish -or $KeepOnRobot -or $Remote.Count -lt 2) { return }
+    if (-not (Test-Path -LiteralPath $PublishedList)) { return }
+    $done = @{}
+    foreach ($line in (Get-Content -LiteralPath $PublishedList)) { $done[$line] = $true }
+    $removed = 0
+    foreach ($f in $Remote[0..($Remote.Count - 2)]) {
+        if (-not $done.ContainsKey("$Label/$($f.Name)/$($f.Size)")) { continue }
+        Invoke-Adb @('-s', $Target, 'shell', "rm '$RemoteFolder/$($f.Name)'") | Out-Null
+        $removed++
+    }
+    if ($removed -gt 0) { Say "removed $removed log(s) from the robot: they are on Drive and on GitHub." }
+}
+
 # Deletes from the hub every file (but the newest) whose local copy has the same size.
 function Remove-PulledFromRobot {
     param([object[]]$Remote, [string]$Folder)
@@ -318,8 +342,18 @@ function Open-Log {
 # Which logs have gone up already: "<robot folder>/<file name>/<size>", one per line. A log that
 # grew (an Auto, then its TeleOp) has a new size and goes up again, replacing the old copy.
 $PublishedList = Join-Path $env:LOCALAPPDATA 'biobuzz-logs-published.txt'
-# GitHub refuses a file over 100 MB.
+# GitHub refuses a file over 100 MB. Logs go up gzipped (about a third of the size), so this is
+# the compressed size; a whole afternoon's LaunchTest (over 95 MB raw on 1 Nov) fits.
 $MaxPublishBytes = 95MB
+
+# A gzip copy of $Source at $Target. .NET's own GZipStream: nothing to install.
+function New-GzipCopy {
+    param([string]$Source, [string]$Target)
+    $in = [System.IO.File]::OpenRead($Source)
+    $out = [System.IO.File]::Create($Target)
+    $gz = New-Object System.IO.Compression.GZipStream($out, [System.IO.Compression.CompressionLevel]::Optimal)
+    try { $in.CopyTo($gz) } finally { $gz.Dispose(); $out.Dispose(); $in.Dispose() }
+}
 
 # Runs git in the repo and returns its output lines; $LASTEXITCODE says how it went.
 function Invoke-Git {
@@ -350,7 +384,6 @@ function Publish-Logs {
             if ($f.Name.Length -lt 10 -or $f.Name.Substring(0, 10) -lt $since) { continue }
             $key = "$($dir.Name)/$($f.Name)/$($f.Length)"
             if ($done.ContainsKey($key)) { continue }
-            if ($f.Length -gt $MaxPublishBytes) { Say "$($f.Name) is over 95 MB, too big for GitHub: not sent."; continue }
             $todo += [pscustomobject]@{ Robot = $dir.Name; File = $f; Key = $key; Day = $f.Name.Substring(0, 10) }
         }
     }
@@ -376,12 +409,28 @@ function Publish-Logs {
             $env:GIT_INDEX_FILE = $index
             if ($parent) { Invoke-Git @('read-tree', $parent) | Out-Null } else { Invoke-Git @('read-tree', '--empty') | Out-Null }
             $ok = ($LASTEXITCODE -eq 0)
+            $sent = @()
             foreach ($item in $group.Group) {
                 if (-not $ok) { break }
-                $blob = ((Invoke-Git @('hash-object', '-w', '--', $item.File.FullName)) -join '').Trim()
-                if ($LASTEXITCODE -ne 0) { $ok = $false; break }
-                Invoke-Git @('update-index', '--add', '--cacheinfo', "100644,$blob,$($item.File.Name)") | Out-Null
-                if ($LASTEXITCODE -ne 0) { $ok = $false }
+                # Gzipped: a third of the size to push, and under GitHub's 100 MB for a long session.
+                $gzPath = Join-Path $env:TEMP ($item.File.Name + '.gz')
+                try { New-GzipCopy -Source $item.File.FullName -Target $gzPath } catch { Say "could not compress $($item.File.Name): $_"; continue }
+                if ((Get-Item -LiteralPath $gzPath).Length -gt $MaxPublishBytes) {
+                    Say "$($item.File.Name) is over 95 MB even compressed, too big for GitHub: not sent."
+                    Remove-Item -LiteralPath $gzPath -Force -ErrorAction SilentlyContinue
+                    continue
+                }
+                $blob = ((Invoke-Git @('hash-object', '-w', '--', $gzPath)) -join '').Trim()
+                $hashed = ($LASTEXITCODE -eq 0)
+                Remove-Item -LiteralPath $gzPath -Force -ErrorAction SilentlyContinue
+                if (-not $hashed) { $ok = $false; break }
+                Invoke-Git @('update-index', '--add', '--cacheinfo', "100644,$blob,$($item.File.Name).gz") | Out-Null
+                if ($LASTEXITCODE -ne 0) { $ok = $false } else { $sent += $item }
+            }
+            if ($ok -and $sent.Count -eq 0) {
+                Remove-Item Env:\GIT_INDEX_FILE -ErrorAction SilentlyContinue
+                Remove-Item -LiteralPath $index -Force -ErrorAction SilentlyContinue
+                continue
             }
             $tree = $null
             if ($ok) { $tree = ((Invoke-Git @('write-tree')) -join '').Trim(); $ok = ($LASTEXITCODE -eq 0) }
@@ -389,15 +438,15 @@ function Publish-Logs {
             Remove-Item -LiteralPath $index -Force -ErrorAction SilentlyContinue
             if (-not $ok) { Say "could not build $branch; the next run tries again."; continue }
 
-            $message = "Logs: $($group.Name) ($($group.Count) file(s), from tools/pull-logs; throwaway, never merge)"
+            $message = "Logs: $($group.Name) ($($sent.Count) file(s), gzipped, from tools/pull-logs; throwaway, never merge)"
             $commitArgs = @('commit-tree', $tree, '-m', $message)
             if ($parent) { $commitArgs += @('-p', $parent) }
             $commit = ((Invoke-Git $commitArgs) -join '').Trim()
             if ($LASTEXITCODE -ne 0) { Say "could not commit $branch (is git's user.name/user.email set?)."; continue }
             $reply = (Invoke-Git @('push', '--quiet', 'origin', "${commit}:refs/heads/${branch}")) -join ' '
             if ($LASTEXITCODE -ne 0) { Say "could not push ${branch}: $reply"; continue }
-            Add-Content -LiteralPath $PublishedList -Value @($group.Group | ForEach-Object { $_.Key })
-            Say "sent $($group.Count) log(s) to GitHub branch $branch"
+            Add-Content -LiteralPath $PublishedList -Value @($sent | ForEach-Object { $_.Key })
+            Say "sent $($sent.Count) log(s) to GitHub branch $branch"
         }
     } finally {
         Remove-Item Env:\GIT_INDEX_FILE -ErrorAction SilentlyContinue
@@ -439,6 +488,7 @@ if (-not $Watch) {
         Open-Log ($pulled | Sort-Object | Select-Object -Last 1)
     }
     Publish-Logs -Root $Dest
+    Remove-PublishedFromRobot -Remote $remote -Label (Split-Path -Leaf $Folder)
     exit 0
 }
 
@@ -478,7 +528,10 @@ while ($true) {
         }
         # A log just finished: up to GitHub with it, if this laptop has internet too (a second
         # Wi-Fi adapter); otherwise it waits for a later run.
-        if ($settled) { Publish-Logs -Root $Dest }
+        if ($settled) {
+            Publish-Logs -Root $Dest
+            Remove-PublishedFromRobot -Remote $remote -Label (Split-Path -Leaf $Folder)
+        }
         if ($first) { Say "$($remote.Count) logs on the robot; new ones open as they finish." }
         $first = $false
     } else {

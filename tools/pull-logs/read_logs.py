@@ -9,15 +9,17 @@ with Python. Standard library only.
 
 Logs reach GitHub on logs/<date>-<robot network> branches, sent by Pull-MatchLogs.ps1. A session
 fetches them with:  git fetch origin 'refs/heads/logs/*:refs/remotes/origin/logs/*'
-and reads one with:  git show origin/logs/<branch>:<file>.wpilog > /tmp/x.wpilog
+and reads one with:  git show origin/logs/<branch>:<file>.wpilog.gz > /tmp/x.wpilog.gz
+(the logs go up gzipped; this reads .wpilog and .wpilog.gz alike)
 """
+import gzip
 import struct
 import sys
 
 
 def read(path):
     """{key: [(seconds, value), ...]} for every entry in a .wpilog (format: WPILib DataLog v1.0)."""
-    b = open(path, 'rb').read()
+    b = (gzip.open if path.endswith('.gz') else open)(path, 'rb').read()
     if b[:6] != b'WPILOG':
         raise ValueError(path + ' is not a .wpilog')
     i = 12 + struct.unpack_from('<I', b, 8)[0]
