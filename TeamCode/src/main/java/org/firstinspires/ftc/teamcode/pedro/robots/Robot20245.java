@@ -50,19 +50,18 @@ public final class Robot20245 {
 
     /**
      * Pod type and directions from the Pinpoint Tuner on 17 Oct 2026 (#175). The offsets were
-     * re-measured by ruler on 30 Oct 2026, from the centre of rotation (the middle of the
-     * wheelbase): the forward pod (its wheel rolls front to back) 6.5 in right of centre, the strafe
-     * pod (its wheel rolls left to right) 1.0 in forward. The tuner's strafe offset, 3.22 in forward,
-     * was 2.2 in out, which swings the pose round a 2.2 in circle as the robot turns: about 4.4 in
-     * off after a half turn, likely the 3-5 in seen at line-ups while Panels drew the paths spot on.
-     * Each offset is measured across its pod's rolling direction: forward pod left (+) / right (-),
+     * measured on 1 Nov 2026, after the builder moved the pods, with the Pod Offset Check: the robot
+     * spins itself in place six half turns, alternating direction, so it pivots on the middle of the
+     * wheelbase. Three runs gave xPodOffset -6.59, -6.51, -6.44 and yPodOffset 1.68, 1.57, 1.63;
+     * these are the means. (The 30 Oct ruler measure, before the pods moved, was -6.5 and 1.0.) Each
+     * offset is measured across its pod's rolling direction: forward pod left (+) / right (-),
      * strafe pod forward (+) / back (-).
      */
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set("pinpoint");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        c.xPodOffset.set(-6.5);
-        c.yPodOffset.set(1.0);
+        c.xPodOffset.set(-6.51);
+        c.yPodOffset.set(1.63);
         c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
