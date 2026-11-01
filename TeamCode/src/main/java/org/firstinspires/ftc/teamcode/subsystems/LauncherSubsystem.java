@@ -132,13 +132,13 @@ public class LauncherSubsystem implements Subsystem {
     public static boolean rightReversed = false;
 
     /**
-     * Speed both wheels run backwards while the feeder reverses (an unjam), ticks per second. 300 is
-     * about 640 motor RPM, a fifth of the launch speed: enough to roll a ball sitting on top of the
-     * wheels back down onto the reversing feeder, not enough to fling it back down the lane. The
-     * hub's velocity loop holds it, so it is the same on a fresh or a tired battery. 0 turns the
-     * reverse off. <b>Not yet tuned:</b> set it in Panels at the lab and write it back here.
+     * Speed both wheels run backwards while the feeder reverses (an unjam), ticks per second, to
+     * drive a ball sitting on top of the wheels back down onto the reversing feeder. 1500, about the
+     * launch speed: set by the mentor on robot 20245 from launch testing, 1 Nov 2026 (300 was the
+     * first guess). The hub's velocity loop holds it, so it is the same on a fresh or a tired
+     * battery. 0 turns the reverse off.
      */
-    public static double reverseTicksPerSecond = 300.0;
+    public static double reverseTicksPerSecond = 1500.0;
 
     /**
      * Encoder ticks per revolution of each flywheel <b>motor</b>, for the RPM display. 28: the

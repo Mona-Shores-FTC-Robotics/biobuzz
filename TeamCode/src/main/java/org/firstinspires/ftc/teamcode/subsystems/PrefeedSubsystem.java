@@ -34,14 +34,15 @@ public class PrefeedSubsystem implements Subsystem {
     /** What the prefeed is doing. */
     public enum State { IDLE, IN, OUT }
 
-    /** Servo power carrying pieces toward the gate, 0 to 1. <b>Not yet tuned.</b> */
-    public static double inPower = 0.8;
+    /** Servo power carrying pieces toward the gate, 0 to 1. 1.0: set by the mentor on robot 20245 from launch testing, 1 Nov 2026. */
+    public static double inPower = 1.0;
 
     /**
      * Servo power carrying pieces back toward the intake, while ejecting or clearing a jam, 0 to 1.
-     * <b>Not yet tuned.</b> 0 leaves the prefeed still then.
+     * 0.8: set by the mentor on robot 20245 from launch testing, 1 Nov 2026. 0 leaves the prefeed
+     * still then.
      */
-    public static double outPower = 0.6;
+    public static double outPower = 0.8;
 
     /**
      * Flips the servo so that positive power carries pieces toward the gate. <b>Not yet checked on a
@@ -51,18 +52,19 @@ public class PrefeedSubsystem implements Subsystem {
 
     /**
      * At the start of each feed, how long the prefeed gives the feed gate to swing open before it
-     * pushes, in seconds. 0 turns this off: the prefeed pushes as soon as the feeder feeds. <b>Under
-     * test</b> on robot 20245 (1 Nov 2026): a NECTAR pressed against the closed gate by the prefeed
-     * jams the plate as it opens, so the idea is to take the pressure off first; 0.1 to 0.2 s to try.
+     * pushes, in seconds. 0 turns this off: the prefeed pushes as soon as the feeder feeds. A NECTAR
+     * pressed against the closed gate by the prefeed jammed the plate as it opened; 0.5 s, with
+     * {@link #gateClearPower} 1.0, was set by the mentor on robot 20245 from launch testing, 1 Nov 2026.
      */
-    public static double gateClearSeconds = 0.0;
+    public static double gateClearSeconds = 0.5;
 
     /**
      * Prefeed power during {@link #gateClearSeconds}, 0 to 1, away from the gate. 0 holds the prefeed
      * still (lets the gate open with the piece resting on it); more than 0 backs it off at that power
-     * (pulls the piece away so the gate has room). <b>Under test</b>, with {@link #gateClearSeconds}.
+     * (pulls the piece away so the gate has room). 1.0, with {@link #gateClearSeconds}: set on robot
+     * 20245 from launch testing, 1 Nov 2026.
      */
-    public static double gateClearPower = 0.0;
+    public static double gateClearPower = 1.0;
 
     private final CRServo servo;
     private final IntakeSubsystem intake;
