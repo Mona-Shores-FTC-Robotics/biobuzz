@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -60,6 +61,12 @@ public class IntakeSubsystem implements Subsystem {
      * Flips the motor so that positive power takes pieces in. {@code true} as checked on 20245 on
      * 26 Oct 2026: with the SDK's default direction R2 ran the roller backwards. 19429 is wired
      * the same way by intent and has not been checked yet.
+     *
+     * <p>It sets the motor's direction ({@link #directionFor}), which the SDK applies to the power
+     * and the encoder alike, so taking pieces in always reads as a positive speed in the log and in
+     * Panels, and pushing them out as a negative one. Since 1 Nov 2026: it used to negate the power
+     * only, so on 20245 a correct intake read about -2760 ticks/s. Read every loop, so a Panels
+     * edit applies at once.
      */
     public static boolean reversed = true;
 
@@ -85,6 +92,8 @@ public class IntakeSubsystem implements Subsystem {
     private State state = State.IDLE;
     private boolean started;
     private double ticksPerSecond = 0.0;
+    /** The direction last sent to the motor, so {@link #reversed} is written only when it changes. */
+    private DcMotorSimple.Direction appliedDirection;
     private double currentAmps = Double.NaN;
     /**
      * Current is not in the bulk read: each read is its own round trip to the hub, 2–3 ms. It is
@@ -145,7 +154,17 @@ public class IntakeSubsystem implements Subsystem {
         started = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        applyDirection();
         motor.setPower(0.0);
+    }
+
+    /** Sends {@link #reversed} to the motor when it differs from what the motor last got. */
+    private void applyDirection() {
+        DcMotorSimple.Direction wanted = directionFor(reversed);
+        if (wanted != appliedDirection) {
+            motor.setDirection(wanted);
+            appliedDirection = wanted;
+        }
     }
     /** PLAY: the star servo may be written from now on. */
     @Override
@@ -161,7 +180,8 @@ public class IntakeSubsystem implements Subsystem {
      */
     @Override
     public void update() {
-        motor.setPower(powerFor(state, inPower, outPower, reversed));
+        applyDirection();
+        motor.setPower(powerFor(state, inPower, outPower));
         if (started) {
             stars.setPower(starsPowerFor(state, starsPower, starsReversed));
         }
@@ -213,10 +233,19 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     /**
-     * The motor power for a request: {@code +in} for IN, {@code -out} for OUT, 0 when idle, each
-     * magnitude clamped to [0, 1] and negated when {@code reversed}. Pure, so a test can check it.
+     * The motor's direction for {@link #reversed}: the SDK flips the power and the encoder together,
+     * so a correct intake reads positive either way. Pure, so a test can check it.
      */
-    static double powerFor(State state, double in, double out, boolean reversed) {
+    static DcMotorSimple.Direction directionFor(boolean reversed) {
+        return reversed ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
+    }
+
+    /**
+     * The motor power for a request, in the intake's own sense (the motor's direction carries
+     * {@link #reversed}): {@code +in} for IN, {@code -out} for OUT, 0 when idle, each magnitude
+     * clamped to [0, 1]. Pure, so a test can check it.
+     */
+    static double powerFor(State state, double in, double out) {
         double power;
         switch (state) {
             case IN:
@@ -228,7 +257,7 @@ public class IntakeSubsystem implements Subsystem {
             default:
                 power = 0.0;
         }
-        return reversed ? -power : power;
+        return power;
     }
 
     /**
