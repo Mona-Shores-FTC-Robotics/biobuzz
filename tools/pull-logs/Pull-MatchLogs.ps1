@@ -47,7 +47,13 @@ After a file is pulled and its size matches, delete it from the hub. The newest 
 deleted (it may still be being written). Off by default: the hub has room for a season of logs.
 
 .PARAMETER NoPublish
-Do not send logs to GitHub.
+Do not send logs to GitHub (and so remove nothing from the robot).
+
+.PARAMETER KeepOnRobot
+Leave logs on the robot after they reach GitHub. By default a log is deleted from the hub once its
+upload to GitHub has succeeded (it is then on Drive and on GitHub), so the hub holds only what has
+not gone up yet and each pull stays small. The newest log is never deleted: it may still be
+being written.
 
 .PARAMETER PublishDays
 Logs from this many days back (by the date in the file name) are sent to GitHub. Default 3, so a
@@ -76,6 +82,7 @@ param(
     [switch]$NoOpen,
     [switch]$RemoveFromRobot,
     [switch]$NoPublish,
+    [switch]$KeepOnRobot,
     [int]$PublishDays = 3,
     [string]$Adb,
     [string]$AdvantageScope
@@ -284,6 +291,23 @@ function Sync-Logs {
     return @($pulled)
 }
 
+# Deletes from the hub every file (but the newest) that is already on GitHub at this very size: in
+# the published list under this robot's folder. A log that failed to go up, or grew since, stays.
+function Remove-PublishedFromRobot {
+    param([object[]]$Remote, [string]$Label)
+    if ($NoPublish -or $KeepOnRobot -or $Remote.Count -lt 2) { return }
+    if (-not (Test-Path -LiteralPath $PublishedList)) { return }
+    $done = @{}
+    foreach ($line in (Get-Content -LiteralPath $PublishedList)) { $done[$line] = $true }
+    $removed = 0
+    foreach ($f in $Remote[0..($Remote.Count - 2)]) {
+        if (-not $done.ContainsKey("$Label/$($f.Name)/$($f.Size)")) { continue }
+        Invoke-Adb @('-s', $Target, 'shell', "rm '$RemoteFolder/$($f.Name)'") | Out-Null
+        $removed++
+    }
+    if ($removed -gt 0) { Say "removed $removed log(s) from the robot: they are on Drive and on GitHub." }
+}
+
 # Deletes from the hub every file (but the newest) whose local copy has the same size.
 function Remove-PulledFromRobot {
     param([object[]]$Remote, [string]$Folder)
@@ -464,6 +488,7 @@ if (-not $Watch) {
         Open-Log ($pulled | Sort-Object | Select-Object -Last 1)
     }
     Publish-Logs -Root $Dest
+    Remove-PublishedFromRobot -Remote $remote -Label (Split-Path -Leaf $Folder)
     exit 0
 }
 
@@ -503,7 +528,10 @@ while ($true) {
         }
         # A log just finished: up to GitHub with it, if this laptop has internet too (a second
         # Wi-Fi adapter); otherwise it waits for a later run.
-        if ($settled) { Publish-Logs -Root $Dest }
+        if ($settled) {
+            Publish-Logs -Root $Dest
+            Remove-PublishedFromRobot -Remote $remote -Label (Split-Path -Leaf $Folder)
+        }
         if ($first) { Say "$($remote.Count) logs on the robot; new ones open as they finish." }
         $first = $false
     } else {

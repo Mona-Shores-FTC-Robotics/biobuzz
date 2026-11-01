@@ -29,7 +29,8 @@ once TeleOp stops. Optional; the one-shot pull is the normal way.
 |---|---|
 | `-Watch` | keep running; open each log as it finishes |
 | `-NoOpen` | copy only |
-| `-RemoveFromRobot` | delete from the hub what has been copied (never the newest file) |
+| `-RemoveFromRobot` | delete from the hub what has been copied to this laptop, before it is on GitHub (never the newest file) |
+| `-KeepOnRobot` | do not delete from the hub what has reached GitHub (deleting is the default) |
 | `-Robot 192.168.49.1` | a phone Robot Controller instead of a Control Hub |
 | `-Dest <folder>` | somewhere other than the Drive folder |
 
@@ -53,7 +54,11 @@ branches and reads them with `read_logs.py` (below). Nothing to type.
 - These branches are throwaway: never merged, never based on `master`. Each log goes up gzipped
   (`<name>.wpilog.gz`, about a third of the size), so a long session fits under GitHub's 100 MB per
   file; one over 95 MB even compressed is skipped with a message.
-- `-NoPublish` skips it; `-PublishDays 7` reaches further back.
+- **Once a log is on GitHub it is deleted from the robot**, so the hub only holds what has not gone
+  up and each pull copies just the new runs (a full hub took minutes to pull and slowed the robot's
+  Wi-Fi on 1 Nov). Deleted only after the upload succeeded, at that file's exact size, and never
+  the newest log, which may still be recording. `-KeepOnRobot` leaves everything on the hub.
+- `-NoPublish` skips the upload (and so deletes nothing); `-PublishDays 7` reaches further back.
 
 `read_logs.py` reads a `.wpilog` with plain Python (standard library only): `summary` gives, per
 run, the build, battery, every launch knob at PLAY, the key events and every feed (gate open:
