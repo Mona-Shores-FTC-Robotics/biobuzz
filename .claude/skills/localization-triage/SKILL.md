@@ -80,12 +80,14 @@ is the real test, so say so in the first report and sanity-check the table by ey
 | MIXED | Not separable from this log | Report the table, ask for more data |
 
 ### Mount
-- **The robot can measure this itself:** Vision: HIVE & Pose's R1 (`localization/CameraCalibration`)
-  averages the residual on a known spot and applies/logs the `CameraMount` forward/left that zero
-  it (match-log metadata `CameraCalibration/<spot>`). Prefer that number to a tape. It is still one
-  spot: R2 moves the pose to the next marked spot facing a HIVE (red far wall is the red audience's
-  opposite), and the Spots line says AGREE or DIFFER. Never ask for a turn on the spot: the camera
-  is pitched at the HIVE and sees no tags elsewhere.
+- **The robot can measure this itself:** Vision: HIVE & Pose's "Camera calibration" block
+  (`localization/CameraCalibration`, spots in `localization/CalibrationSpots`) averages the
+  residual by itself while the robot sits still on a marked spot; R1 applies and logs the
+  `CameraMount` forward/left that zero it (match-log metadata `CameraCalibration/<spot>`). Prefer
+  that number to a tape. It is still one spot: R2 moves the pose to the next marked spot facing a
+  HIVE (red far wall is the red audience's opposite), and the "Spots so far" line says AGREE or
+  DIFFER. Never ask for a turn on the spot: the camera is pitched at the HIVE and sees no tags
+  elsewhere.
 - A **constant** offset (the same at near and far range) is a translation: `mountForwardIn` /
   `mountLeftIn`. By the transform in `CameraMount.toRobotFrame` and `CellFix.position`, the new
   value is the old value **plus** the robot-axis residual (forward residual to `mountForwardIn`,

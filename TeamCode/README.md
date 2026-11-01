@@ -1324,17 +1324,20 @@ code (a Claude session can read it): the numbers come off the log, not off someo
    #82 session 1's taped path, with `LocalizationTuning.stillFixes` set in code, against without.
 5. **Continuous fixes** are their own session, later (#82 session 5).
 
-**The short form: R1.** With the robot on its marks and still, R1 in Vision: HIVE & Pose averages
-the camera's error over 50 still frames (`localization/CameraCalibration`) and shows the
-`CameraMount` forward/left that would zero it; R1 again applies them for that run and writes them
-to the match log (`CameraCalibration` on the Metadata tab), where they are read from to commit.
-The maths is one line: a mount wrong by *d* puts every tag's robot at *−d*, so new = old + the
-residual in robot axes; `CameraCalibrationTest` closes that loop through `CameraMount` and
-`CellFix`. What one spot cannot do is tell a mount error from a HIVE point or a placement that is
-off on this field, and turning on the spot is no use (the camera is pitched up at the HIVE). So
-R2 sets the pose to the next marked spot that faces a HIVE (red audience, red far wall, blue far
-wall; the first two see the red HIVE from opposite sides), the robot is placed on those marks,
-R1 twice again, and the Spots line says AGREE (the mount: commit) or DIFFER (not the mount).
+**The short form: a marked spot and R1.** Put the robot on a calibration spot's marks
+(`localization/CalibrationSpots`: red audience, red far wall, blue audience wall, blue far wall,
+each a wall plus a seam facing a HIVE) and hold still. Vision: HIVE & Pose's "Camera calibration"
+block averages the camera's error against that spot by itself over 50 still frames
+(`localization/CameraCalibration`), starting over if the robot moves, and shows the `CameraMount`
+forward/left that would zero it; R1 applies them for that run and writes them to the match log
+(`CameraCalibration/<spot>` on the Metadata tab), where they are read from to commit. The maths is
+one line: a mount wrong by *d* puts every tag's robot at *−d*, so new = old + the residual in robot
+axes; `CameraCalibrationTest` closes that loop through `CameraMount` and `CellFix`. One spot cannot
+tell a mount error from a HIVE point or a placement that is off on this field, and turning on the
+spot is no use (the camera is pitched up at the HIVE): R2 sets the pose to the next spot, the robot
+goes on those marks, R1 again, and the "Spots so far" line says AGREE (the mount: commit) or DIFFER
+(not the mount). Red audience and red far wall see the same HIVE from opposite sides, the pair that
+decides it.
 Height is shown and never applied (on 20245 the value that zeroed it, 12 in, contradicted a tape,
 14 in; cause unknown, position unaffected).
 

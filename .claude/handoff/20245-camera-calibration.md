@@ -29,19 +29,19 @@ below has been tested on the robot.
 LOCKED, so aim = robot heading + position; the heading check (square to a FLOWER, read Panels)
 matters more than the 1.2 in. Do the steps below only with idle robot time.
 
-## The R1 button (built 1 Nov on branch claude/funny-dirac-7k2k37; CI green, not yet run on a robot:
-see the Manual fallback if it misbehaves)
-CI: first commit compiled, lint and tests green (run 2270). Not yet run on a robot.
-Vision: HIVE & Pose, robot on the red start marks, still, after PLAY: press R1, wait for READY
-(50 still frames), press R1 again. It writes CameraMount.mountForwardIn/mountLeftIn for that run
-and logs them (match-log Metadata "CameraCalibration"). Expected from today's numbers: fwd ~3.4,
-left ~+1.05. Then the "Camera ... in from odometry" line should drop from ~1.2 to under ~0.3.
+## The calibration block (branch claude/funny-dirac-7k2k37; CI green on the first two commits,
+NOT yet run on a robot: the first use tests the button as much as the camera)
+Vision: HIVE & Pose, robot on the RED AUDIENCE marks, PLAY, hold still. The "Camera calibration"
+section averages by itself (50 still frames) and shows "Camera vs spot ... READY · R1 applies".
+Press R1 once: it writes CameraMount.mountForwardIn/mountLeftIn for that run and logs them
+(match-log Metadata "CameraCalibration/Red_audience"). Expected from 31 Oct: fwd ~3.4, left ~+1.05.
+The "Camera ... in from odometry" line should then drop from ~1.2 to under ~0.3.
 Then drive to the RED FAR WALL marks (tile C6, back flat on the far wall, frame's left side on the
-C-D seam, facing the audience), press R2 until the screen says "pose set to Red far wall", robot
-still on the marks, R1 twice again. The "Spots:" line then says AGREE (commit the numbers) or
-DIFFER (a HIVE point or the marks, not the mount: do not commit, tell the session). Do not turn on
-the spot: the camera only sees tags facing a HIVE.
-`CameraCalibrationTest` closes the sign loop through CameraMount and CellFix (3 tests pass under javac).
+C-D seam, facing the audience), press R2 until the Spot line says "Red far wall", place the robot on
+those marks, hold still, R1 once. "Spots so far" then says AGREE (commit the two numbers to
+CameraMount) or DIFFER (a HIVE point or the marks, not the mount: do not commit, tell the session).
+Never turn on the spot: the camera only sees tags facing a HIVE. R2 also offers the two blue spots.
+`CameraCalibrationTest` closes the sign loop through CameraMount and CellFix.
 
 ## Manual fallback if the button is not on the robot
 1. Check Panels CameraMount is back at 4 / 0 / 14 / 45 / 0 (it resets on restart) and the Limelight

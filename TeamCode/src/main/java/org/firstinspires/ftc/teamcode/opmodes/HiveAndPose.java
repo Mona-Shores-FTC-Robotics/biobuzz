@@ -7,6 +7,7 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.localization.CalibrationSpots;
 import org.firstinspires.ftc.teamcode.localization.CameraCalibration;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
@@ -81,15 +82,16 @@ import java.util.Locale;
  *   <li>Hold still and tip the HIVE by hand: TRANSITION, then the other CELL up.</li>
  *   <li>Drive, get shoved, stop facing the HIVE: the two robots on the field have drifted apart by
  *       the would-relocalize gap. A brings them back together.</li>
- *   <li><b>Calibrate the camera mount</b> ({@link CameraCalibration}): robot on its marks, still,
- *       press R1. It averages the camera's error over {@value CameraCalibration#FRAMES_WANTED} still
- *       frames and shows the {@code CameraMount} forward/left that would zero it; R1 again applies
- *       them for this run (Panels shows the new values; the residual should collapse) and puts them
- *       in the match log. Commit them to {@code CameraMount} from the log. Height is shown, never
- *       applied. One spot cannot tell a mount error from a map or placement error, and turning on
- *       the spot loses the tags: drive to the next marked spot that faces a HIVE (R2 sets the pose
- *       there: red audience, red far wall, blue far wall), R1 twice again, and the screen says
- *       whether the two spots agree ({@link CameraCalibration#agree}).</li>
+ *   <li><b>Calibrate the camera mount</b> ({@link CameraCalibration}, {@link CalibrationSpots}):
+ *       put the robot on a marked spot's marks and hold still. The "Camera calibration" block
+ *       averages the camera's error against that spot by itself (over
+ *       {@value CameraCalibration#FRAMES_WANTED} still frames, starting over if the robot moves) and
+ *       shows the {@code CameraMount} forward/left that would zero it; R1 applies them for this run
+ *       (the residual should collapse) and puts them in the match log, which is where the number to
+ *       commit is read from. Height is shown, never applied. One spot cannot tell a mount error from
+ *       a map or placement error, and turning on the spot loses the tags: drive to the next marked
+ *       spot (R2 sets the pose there), place the robot on its marks, R1 again, and the "Spots so far"
+ *       line says whether they agree ({@link CameraCalibration#agree}).</li>
  * </ol>
  */
 @Utility(name = "Vision: HIVE & Pose", description = "HIVE state, Pinpoint vs camera pose, relocalize, turret aim; the camera test bed")
@@ -128,19 +130,17 @@ public class HiveAndPose extends RobotOpMode {
     private TelemetryManager panels;
     private String relocalizeNote = "not pressed yet";
 
-    /** Camera mount calibration from a known spot (R1). Fed one sample per still camera frame. */
-    private final CameraCalibration calibration = new CameraCalibration();
-    private boolean calibrating;
-    private int calibrationLastCount;
-    private String calibrationNote = "off · R1 starts (robot on its marks, still)";
-
     /**
-     * The marked spots a calibration can be done from, each facing a HIVE: R2 sets the pose to the
-     * next one, for a robot placed on its marks. Red audience and red far wall see the red HIVE
-     * from opposite sides, the pair that tells a mount error from a map or placement error.
+     * Camera mount calibration from a marked spot. It averages by itself whenever the robot is
+     * still with the pose referenced (one sample per still camera frame), starts over when the robot
+     * moves or the spot changes; R1 applies, R2 moves the pose to the next spot.
      */
-    private static final StartPosition[] SPOTS = {
-            StartPositions.RED_AUDIENCE, StartPositions.RED_FAR, StartPositions.BLUE_FROM_RED_AUDIENCE};
+    private final CameraCalibration calibration = new CameraCalibration();
+    private int calibrationLastCount;
+    private String calibrationNote = "nothing applied yet";
+
+    /** {@link CalibrationSpots#ALL}, which R2 cycles; the pose starts at the first (the declared start). */
+    private static final StartPosition[] SPOTS = CalibrationSpots.ALL;
     private int spot;
     /** The mount each spot's calibration suggested (absolute forward/left), NaN until applied there. */
     private final double[] spotFwd = new double[SPOTS.length];
@@ -210,10 +210,10 @@ public class HiveAndPose extends RobotOpMode {
                 .onPress(robot.turret::zeroHere);
         driver.when("Square (X)", "Turret: aim at our raised CELL / off", () -> gamepad1.x)
                 .onPress(this::toggleAim);
-        driver.when("R1", "Calibrate camera mount here: start averaging; again to apply (this run)",
+        driver.when("R1", "Camera calibration: apply what the still average says (this run; it logs it)",
                         () -> gamepad1.right_bumper)
-                .onPress(this::calibratePressed);
-        driver.when("R2", "Pose: set to the next calibration spot (robot placed on its marks)",
+                .onPress(this::applyCalibration);
+        driver.when("R2", "Camera calibration: pose to the next marked spot (robot placed on its marks)",
                         () -> gamepad1.right_trigger > 0.5)
                 .onPress(this::nextSpot);
         Arrays.fill(spotFwd, Double.NaN);
@@ -227,19 +227,11 @@ public class HiveAndPose extends RobotOpMode {
     }
 
     /**
-     * R1: first press starts averaging; once {@link CameraCalibration#ready()}, the next press
-     * writes the suggested forward/left into {@code CameraMount} for this run and starts a fresh
-     * average, so the screen shows the residual collapse. Applied values go into the match log, which
-     * is where the number to commit is read from.
+     * R1: once {@link CameraCalibration#ready()}, writes the suggested forward/left into
+     * {@code CameraMount} for this run and starts a fresh average, so the screen shows the residual
+     * collapse. Applied values go into the match log, which is where the number to commit is read from.
      */
-    private void calibratePressed() {
-        if (!calibrating) {
-            calibration.reset();
-            calibrating = true;
-            calibrationLastCount = robot.drive.wouldRelocalizeCount();
-            calibrationNote = "collecting · hold still on the marks";
-            return;
-        }
+    private void applyCalibration() {
         if (!calibration.ready()) {
             calibrationNote = "not yet: " + calibration.frames() + "/" + CameraCalibration.FRAMES_WANTED + " still frames";
             return;
@@ -272,8 +264,6 @@ public class HiveAndPose extends RobotOpMode {
         spot = (spot + 1) % SPOTS.length;
         robot.drive.setPose(SPOTS[spot].pose);
         calibration.reset();
-        calibrating = false;
-        calibrationNote = "pose set to " + SPOTS[spot].name + " · " + SPOTS[spot].placement() + " · R1 starts";
         relocalizeNote = "pose set to " + SPOTS[spot].name + " (R2)";
     }
 
@@ -295,9 +285,16 @@ public class HiveAndPose extends RobotOpMode {
         return null;
     }
 
-    /** One sample per new still camera frame, from the drive's would-relocalize record. */
+    /**
+     * One sample per new still camera frame, from the drive's would-relocalize record; the average
+     * starts over whenever the robot moves, so what is on screen is always this placement's.
+     */
     private void trackCalibration() {
-        if (!calibrating) return;
+        if (!robot.drive.isStill()) {
+            calibration.reset();
+            calibrationLastCount = robot.drive.wouldRelocalizeCount();
+            return;
+        }
         int count = robot.drive.wouldRelocalizeCount();
         if (count == calibrationLastCount) return;
         calibrationLastCount = count;
@@ -499,30 +496,36 @@ public class HiveAndPose extends RobotOpMode {
         showCalibration();
     }
 
-    /** The camera mount calibration (R1): what it has averaged and what it would set. */
+    /**
+     * The camera mount calibration: which marked spot the pose is at and how to place the robot
+     * there, what the still average says the camera is off by against that spot, and what R1 would
+     * set. Does the robot match the field spot? This block is the answer.
+     */
     private void showCalibration() {
-        String spots = compareSpots();
-        if (spots != null) display.line("Spots: " + spots);
-        if (!calibrating) {
-            display.line("Camera calibration (at " + SPOTS[spot].name + "): " + calibrationNote);
-            return;
-        }
+        display.section("Camera calibration");
+        display.line("Spot: <b>" + SPOTS[spot].name + "</b> · " + SPOTS[spot].placement()
+                + " (" + SPOTS[spot].where() + ") · R2 next spot");
         Display.Level level = Display.Level.OK;
         String state;
-        if (calibration.frames() == 0) {
-            state = "waiting for a still frame";
+        if (!robot.drive.isStill()) {
+            state = "moving: hold still on the marks";
+            level = Display.Level.WARN;
+        } else if (calibration.frames() == 0) {
+            state = "still, waiting for a tag frame";
             level = Display.Level.WARN;
         } else if (calibration.tooFar()) {
-            state = "mean over " + (int) CameraCalibration.TOO_FAR_IN + " in: not a mount error, check the marks";
+            state = "off by over " + (int) CameraCalibration.TOO_FAR_IN + " in: not the camera, check the placement";
             level = Display.Level.WARN;
         } else if (!calibration.ready()) {
             state = "averaging " + calibration.frames() + "/" + CameraCalibration.FRAMES_WANTED;
         } else {
             state = "READY · R1 applies";
         }
-        display.status("Camera calibration", level, state + " · " + calibration.describe(
+        display.status("Camera vs spot", level, state + " · " + calibration.describe(
                 CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn));
-        display.line("<small>Last: " + calibrationNote + "</small>");
+        String spots = compareSpots();
+        if (spots != null) display.line("Spots so far: " + spots);
+        display.line("<small>Last applied: " + calibrationNote + "</small>");
     }
 
     /**
