@@ -341,6 +341,7 @@ public class LaunchTest extends RobotOpMode {
             panels.addData("at_speed", robot.launcher.atSpeed() ? 1.0 : 0.0);
             panels.addData("launcher_reversing", robot.launcher.reversing() ? 1.0 : 0.0);
             panels.addData("shots", robot.launcher.shots());
+            panels.addData("feeder_tps", robot.feeder.ticksPerSecond());
             panels.addData("intake_toggle", intakeToggle.on() ? 1.0 : 0.0);
             panels.addData("intake_tps", robot.intake.ticksPerSecond());
             panels.addData("intake_amps", robot.intake.currentAmps());
