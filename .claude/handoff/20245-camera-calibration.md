@@ -29,7 +29,7 @@ below has been tested on the robot.
 LOCKED, so aim = robot heading + position; the heading check (square to a FLOWER, read Panels)
 matters more than the 1.2 in. Do the steps below only with idle robot time.
 
-## The calibration block (branch claude/funny-dirac-7k2k37; CI green on the first two commits,
+## The calibration block (branch claude/funny-dirac-7k2k37 at 28db161; CI green: compile, lint, tests,
 NOT yet run on a robot: the first use tests the button as much as the camera)
 Vision: HIVE & Pose, robot on the RED AUDIENCE marks, PLAY, hold still. The "Camera calibration"
 section averages by itself (50 still frames) and shows "Camera vs spot ... READY · R1 applies".
