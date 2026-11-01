@@ -111,6 +111,9 @@ public class Robot {
         // loop's requests, not last loop's.
         launcher = new LauncherSubsystem(hardwareMap, feeder);
         intake = new IntakeSubsystem(hardwareMap, feeder);
+        // The feeder wheels run whenever the intake is asked to take pieces in (the request, set by
+        // the OpMode before any update, so no loop of lag and no order problem).
+        feeder.runWhileIntaking(() -> intake.requested() == IntakeSubsystem.State.IN);
         prefeed = new PrefeedSubsystem(hardwareMap, intake, feeder);
         feedGate = new FeedGateSubsystem(hardwareMap, feeder);
         // After the drive and the hive: an aim this loop uses this loop's pose and HIVE state.

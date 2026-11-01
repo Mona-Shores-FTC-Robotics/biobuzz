@@ -60,4 +60,15 @@ public class FeederSubsystemTest {
         assertEquals(0.0, FeederSubsystem.powerFor(State.FEED, -0.2, 0.5, false), EPS);
         assertEquals(0.0, FeederSubsystem.powerFor(State.REVERSE, 0.8, Double.NaN, false), EPS);
     }
+
+    @Test
+    public void theWheelsRunWithTheIntakeOnlyAfterPlayAndWhenNothingElseIsAsked() {
+        assertEquals(true, FeederSubsystem.assistsIntake(State.IDLE, true, true, 1.0));
+        assertEquals("not before PLAY", false, FeederSubsystem.assistsIntake(State.IDLE, false, true, 1.0));
+        assertEquals("not without intaking", false, FeederSubsystem.assistsIntake(State.IDLE, true, false, 1.0));
+        assertEquals("0 turns it off", false, FeederSubsystem.assistsIntake(State.IDLE, true, true, 0.0));
+        assertEquals("NaN is off", false, FeederSubsystem.assistsIntake(State.IDLE, true, true, Double.NaN));
+        assertEquals("a feed is a feed", false, FeederSubsystem.assistsIntake(State.FEED, true, true, 1.0));
+        assertEquals("an unjam wins", false, FeederSubsystem.assistsIntake(State.REVERSE, true, true, 1.0));
+    }
 }
