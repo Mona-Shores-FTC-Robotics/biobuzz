@@ -64,18 +64,21 @@
                  31 Oct 2026: not yet confirmed with the build team. Rewire to
                  match this file or edit this file to match the robot. -->
 
-            <!-- Turret drive: a goBILDA servo in continuous-rotation mode, on
-                 servo port 0 (moved from the Expansion Hub's port 0). Its
-                 angle is the Cypher Max on the Expansion Hub's motor port 3
-                 encoder socket, so the servo and its encoder are on different
-                 hubs. -->
-            <ContinuousRotationServo name="turret" port="0" />
-
             <!-- FLOWER stick: a goBILDA Torque servo swinging the stick, the
-                 extractor's first edition (#177). On servo port 1 (moved from
-                 the Expansion Hub's port 1); its measured positions are the
-                 servo's, so they carry over. -->
-            <Servo name="flowerStick" port="1" />
+                 extractor's first edition (#177). On servo port 0 since
+                 1 Nov 2026: this Control Hub's servo port 1 puts out no
+                 signal (a known-good servo did nothing there and moved on
+                 port 2). Its measured positions are the servo's, so they
+                 carry over. -->
+            <Servo name="flowerStick" port="0" />
+
+            <!-- Turret drive: a goBILDA servo in continuous-rotation mode,
+                 named on servo port 1, the dead port, since 1 Nov 2026. The
+                 turret has no encoder fitted yet (the Cypher Max on the
+                 Expansion Hub's motor port 3 encoder socket), so it is locked
+                 at home and its servo is unplugged. Give it a working port
+                 before it is plugged in again. -->
+            <ContinuousRotationServo name="turret" port="1" />
 
             <!-- Transfer: the prefeed wheel (a goBILDA Torque servo in
                  continuous mode) on servo port 2, and the feed gate (a goBILDA
