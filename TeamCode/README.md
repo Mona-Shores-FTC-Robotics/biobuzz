@@ -1483,6 +1483,7 @@ flat. Each is now a line in the file, on AdvantageScope's Metadata tab or in `/E
 | `Tunable/<Class>.<field>` | every Panels knob's value at PLAY, so the run can be repeated | `logging/Tunables`, by reflection over its list; `TunablesTest` keeps the list equal to the `@Configurable` classes outside the benches |
 | `AutoSource`, `AutoDrawnFor`, `AutoPlaceholders` | which `.pp` drawing ran, for which alliance, and which of its waits were on placeholder triggers | `BuiltAuto` |
 | `/Turret/AngleDeg`, `TargetDeg`, `ErrorDeg`, `Zeroed`, `Holding` | the turret, every loop | `RobotOpMode`, beside the launcher's and feeder's keys |
+| `/Prefeed/Power`, `/FeedGate/Feeding`, `/FeedGate/Position` | the transfer: the prefeed's servo power, whether the gate is asked open, and the position last written (absent while the gate's positions are NaN) | `RobotOpMode`; `PrefeedSubsystem` and `FeedGateSubsystem` follow the intake's and the feeder's requests, so no OpMode sets them |
 
 `MatchLog.metadata(key, value)` is how anything learned after the file opened gets on the Metadata
 tab; a key sent again shows its latest value. It is for facts, not series: anything that changes

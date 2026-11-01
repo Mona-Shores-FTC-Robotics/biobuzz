@@ -79,7 +79,7 @@ public final class DeviceNames {
 
     /**
      * The FLOWER extractor's first edition: one servo swinging a stick (#177).
-     * Expansion Hub servo port; the port itself is in each robot's XML.
+     * Control Hub servo port 1; the port itself is in each robot's XML.
      */
     public static final String FLOWER_STICK = "flowerStick";
     // The intake's star wheels (the intake-assist wheels: SWYFT wheels cut
@@ -88,15 +88,28 @@ public final class DeviceNames {
     public static final String INTAKE_STARS = "intakeStars";
 
     /**
-     * The indicator light: a goBILDA RGB Indicator Light, a servo whose position is its colour
-     * ({@code subsystems/IndicatorSubsystem}). Control Hub servo port 0 on both robots.
+     * The prefeed wheel: the big grey wheel at the start of the transfer, on a goBILDA Torque servo
+     * in continuous-rotation mode. Control Hub servo port 2; the port itself is in each robot's XML.
+     */
+    public static final String PREFEED = "prefeed";
+
+    /**
+     * The feed gate: a goBILDA Speed servo (positional) turning a plate between BLOCKING and
+     * FEEDING. Control Hub servo port 3; the port itself is in each robot's XML.
+     */
+    public static final String FEED_GATE = "feedGate";
+
+    /**
+     * The indicator lights: goBILDA RGB Indicator Lights, a servo whose position is its colour
+     * ({@code subsystems/IndicatorSubsystem}). More than one light, Y-cabled to one port, so they
+     * are one device here and all show the same colour. Control Hub servo port 4 on both robots.
      */
     public static final String INDICATOR = "indicator";
 
     /**
      * The turret's drive: a goBILDA servo in continuous-rotation mode, so it occupies a servo port
      * and a {@code <ContinuousRotationServo>} element, not a motor port (all eight are taken).
-     * Expansion Hub servo port; the port itself is in each robot's XML. Its angle comes from
+     * Control Hub servo port 0; the port itself is in each robot's XML. Its angle comes from
      * {@link #TURRET_ENCODER_HOST}.
      */
     public static final String TURRET = "turret";
@@ -185,6 +198,8 @@ public final class DeviceNames {
             new Device(FEEDER, Kind.MOTOR),
             new Device(FLOWER_STICK, Kind.SERVO),
             new Device(INTAKE_STARS, Kind.CR_SERVO),
+            new Device(PREFEED, Kind.CR_SERVO),
+            new Device(FEED_GATE, Kind.SERVO),
             new Device(INDICATOR, Kind.SERVO),
             new Device(TURRET, Kind.CR_SERVO),
             new Device(PINPOINT, Kind.I2C),

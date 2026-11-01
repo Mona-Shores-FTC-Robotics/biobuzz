@@ -59,9 +59,36 @@
                  code runs them while the intake pulls in, backwards while
                  it ejects, and stops them otherwise. Wired 24 Oct 2026. -->
             <ContinuousRotationServo name="intakeStars" port="5" />
-            <!-- The indicator light: a goBILDA RGB Indicator Light on servo
-                 port 0; its colour is the servo position. -->
-            <Servo name="indicator" port="0" />
+            <!-- Mission-critical servos live on this hub, so losing the
+                 Expansion Hub does not also take them. PROPOSED PORTS,
+                 31 Oct 2026: not yet confirmed with the build team. Rewire to
+                 match this file or edit this file to match the robot. -->
+
+            <!-- Turret drive: a goBILDA servo in continuous-rotation mode, on
+                 servo port 0 (moved from the Expansion Hub's port 0). Its
+                 angle is the Cypher Max on the Expansion Hub's motor port 3
+                 encoder socket, so the servo and its encoder are on different
+                 hubs. -->
+            <ContinuousRotationServo name="turret" port="0" />
+
+            <!-- FLOWER stick: a goBILDA Torque servo swinging the stick, the
+                 extractor's first edition (#177). On servo port 1 (moved from
+                 the Expansion Hub's port 1); its measured positions are the
+                 servo's, so they carry over. -->
+            <Servo name="flowerStick" port="1" />
+
+            <!-- Transfer: the prefeed wheel (a goBILDA Torque servo in
+                 continuous mode) on servo port 2, and the feed gate (a goBILDA
+                 Speed servo, positional) on servo port 3. -->
+            <ContinuousRotationServo name="prefeed" port="2" />
+            <Servo name="feedGate" port="3" />
+
+            <!-- The indicator lights: goBILDA RGB Indicator Lights, more than
+                 one, Y-cabled to this one servo port 4, so software sees one
+                 device and every light shows the same colour (the servo
+                 position). Never mounted on a robot before, so no old port to
+                 keep. With the stars on 5 this fills all six servo ports. -->
+            <Servo name="indicator" port="4" />
 
         </LynxModule>
 
@@ -85,15 +112,6 @@
                  (DeviceNames.TURRET_ENCODER_HOST). Set the encoder's switch
                  to 3V3. Build team's choice, 24 Oct 2026. -->
 
-            <!-- Turret drive: a goBILDA servo in continuous-rotation mode, on
-                 this hub's servo port 0. Its angle is the Cypher Max on motor
-                 port 3's encoder socket, above. -->
-            <ContinuousRotationServo name="turret" port="0" />
-
-            <!-- FLOWER stick: a goBILDA Torque servo swinging the stick, the
-                 extractor's first edition (#177). Plug it into this hub's
-                 servo port 1. Build team's choice, 26 Oct 2026. -->
-            <Servo name="flowerStick" port="1" />
         </LynxModule>
     </LynxUsbDevice>
 

@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.vision.HiveSubsystem;
@@ -76,6 +78,12 @@ public class Robot {
     /** The feeder: one motor that pushes a piece into the launcher. The transfer's first rung (#164). */
     public final FeederSubsystem feeder;
 
+    /** The prefeed wheel: a continuous servo that runs whenever the intake runs and whenever the robot is launching. */
+    public final PrefeedSubsystem prefeed;
+
+    /** The feed gate: a plate on a servo, BLOCKING (at most four pieces) or FEEDING (a piece goes to the feeder). */
+    public final FeedGateSubsystem feedGate;
+
     /** The turret: a continuous servo holding an angle read from its own encoder (#81, #169). */
     public final TurretSubsystem turret;
 
@@ -100,13 +108,16 @@ public class Robot {
         intake = new IntakeSubsystem(hardwareMap);
         launcher = new LauncherSubsystem(hardwareMap);
         feeder = new FeederSubsystem(hardwareMap);
+        // After the intake and the feeder: they follow this loop's requests, not last loop's.
+        prefeed = new PrefeedSubsystem(hardwareMap, intake, feeder);
+        feedGate = new FeedGateSubsystem(hardwareMap, feeder);
         // After the drive and the hive: an aim this loop uses this loop's pose and HIVE state.
         turret = new TurretSubsystem(hardwareMap);
         indicator = new IndicatorSubsystem(hardwareMap);
 
         subsystems = Collections.unmodifiableList(
-                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake, launcher, feeder, turret,
-                        indicator));
+                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake, launcher, feeder, prefeed,
+                        feedGate, turret, indicator));
     }
 
     /** Every subsystem, in the order they were built. */
