@@ -1,7 +1,7 @@
 {
-  "pp": "TeamCode/autos/r-quals-locked.pp",
-  "spec": "RQualsLockedAuto,LSimpleAuto@50",
-  "design": "real robot, turret locked forward",
+  "pp": "TeamCode/autos/l-simple.pp",
+  "spec": "LSimpleAuto,RQualsPollenOnlyAuto@50",
+  "design": "real robot, turret locked forward, POLLEN only",
   "partnerDesign": null,
   "partnerSpeed": null,
   "seeds": [
@@ -18,7 +18,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "r-quals-locked.pp",
+    "AutoSource": "l-simple.pp",
     "SavedBy": "sim matrix (Claude), partnered"
   }
 }
