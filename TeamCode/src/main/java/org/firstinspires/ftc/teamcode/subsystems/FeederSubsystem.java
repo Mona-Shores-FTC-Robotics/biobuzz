@@ -46,13 +46,15 @@ public class FeederSubsystem implements Subsystem {
     public static double reversePower = 0.5;
 
     /**
-     * Motor power, toward the launcher, while the intake takes pieces in and the feeder has not been
-     * asked for anything else, 0 to 1; 0 turns it off. The mentor's call on robot 20245, 1 Nov 2026:
-     * the feeder wheels run whenever the robot intakes. Only the wheels: the feeder's
-     * {@link #state()} stays IDLE, so the gate stays BLOCKING and nothing else treats it as a feed.
-     * 1.0, the same as {@link #feedPower}, until a test says otherwise.
+     * Motor power, toward the launcher, while the robot is ready to shoot or taking pieces in (the
+     * launcher spinning, or the intake taking in) and the feeder has not been asked for anything
+     * else, 0 to 1; 0 turns it off. Only the wheels: the feeder's {@link #state()} stays IDLE, so the
+     * gate stays BLOCKING and holds the pieces back, and nothing else treats it as a feed. A fire
+     * then only has to open the gate, with the wheels already at speed. The mentor's call on robot
+     * 20245, 1 Nov 2026: with the intake (#327), and with the launcher, SpinUp included. 1.0, the
+     * same as {@link #feedPower}, until a test says otherwise.
      */
-    public static double whileIntakingPower = 1.0;
+    public static double standbyPower = 1.0;
 
     /**
      * Flips the motor so that positive power feeds toward the launcher. {@code true}: on the
@@ -69,9 +71,9 @@ public class FeederSubsystem implements Subsystem {
 
     private final DcMotorEx motor;
     private State state = State.IDLE;
-    private BooleanSupplier intaking = () -> false;
+    private BooleanSupplier ready = () -> false;
     private boolean started;
-    private boolean intakeAssist;
+    private boolean standby;
     private double power;
     private double ticksPerSecond;
     private double currentAmps = Double.NaN;
@@ -84,17 +86,17 @@ public class FeederSubsystem implements Subsystem {
     }
 
     /**
-     * Run the wheels at {@link #whileIntakingPower} while {@code intaking} says the intake is taking
-     * pieces in (the OpMode's request, set before this updates). Wired once by {@code Robot}; a
-     * feeder built alone never does it.
+     * Run the wheels at {@link #standbyPower} while {@code ready} says so: the launcher spinning or
+     * the intake taking in (the OpMode's requests, set before this updates). Wired once by
+     * {@code Robot}; a feeder built alone never does it.
      */
-    public void runWhileIntaking(BooleanSupplier intaking) {
-        this.intaking = intaking;
+    public void runWhile(BooleanSupplier ready) {
+        this.ready = ready;
     }
 
-    /** Whether the last {@link #update()} ran the wheels only because the intake is taking pieces in. */
-    public boolean intakeAssist() {
-        return intakeAssist;
+    /** Whether the last {@link #update()} ran the wheels behind the shut gate (launcher spinning or intake taking in). */
+    public boolean standby() {
+        return standby;
     }
 
     /** Ask for pieces toward the launcher. Takes effect in the next {@link #update()}. */
@@ -146,7 +148,7 @@ public class FeederSubsystem implements Subsystem {
     public void initialize() {
         state = State.IDLE;
         started = false;
-        intakeAssist = false;
+        standby = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setPower(0.0);
@@ -164,13 +166,13 @@ public class FeederSubsystem implements Subsystem {
      */
     @Override
     public void update() {
-        intakeAssist = assistsIntake(state, started, intaking.getAsBoolean(), whileIntakingPower);
-        power = intakeAssist
-                ? powerFor(State.FEED, whileIntakingPower, 0.0, reversed)
+        standby = standsBy(state, started, ready.getAsBoolean(), standbyPower);
+        power = standby
+                ? powerFor(State.FEED, standbyPower, 0.0, reversed)
                 : powerFor(state, feedPower, reversePower, reversed);
         motor.setPower(power);
         ticksPerSecond = motor.getVelocity();
-        if (state == State.IDLE && !intakeAssist) {
+        if (state == State.IDLE && !standby) {
             currentAmps = Double.NaN;
             currentRead.reset();
         } else if (currentRead.due(System.nanoTime())) {
@@ -196,7 +198,7 @@ public class FeederSubsystem implements Subsystem {
         display.status("Feeder", state == State.IDLE ? Display.Level.OK : Display.Level.WARN,
                 state == State.FEED ? String.format(Locale.US, "FEEDING (%.2f)", power)
                         : state == State.REVERSE ? String.format(Locale.US, "REVERSE (%.2f)", power)
-                        : intakeAssist ? String.format(Locale.US, "with the intake (%.2f)", power)
+                        : standby ? String.format(Locale.US, "standing by, gate shut (%.2f)", power)
                         : "idle");
         double rpm = rpm();
         display.line(String.format(Locale.US, "Feeder %.0f ticks/s%s · %s", ticksPerSecond,
@@ -221,12 +223,12 @@ public class FeederSubsystem implements Subsystem {
     }
 
     /**
-     * Whether the wheels run with the intake: after PLAY, with nothing else asked of the feeder, the
-     * intake taking pieces in, and {@code whileIntakingPower} above 0 (NaN counts as off). Pure, so
-     * a test can check it.
+     * Whether the wheels stand by: after PLAY, with nothing else asked of the feeder, {@code ready}
+     * (the launcher spinning or the intake taking in), and {@code standbyPower} above 0 (NaN counts
+     * as off). Pure, so a test can check it.
      */
-    static boolean assistsIntake(State state, boolean started, boolean intaking, double whileIntakingPower) {
-        return started && state == State.IDLE && intaking && whileIntakingPower > 0.0;
+    static boolean standsBy(State state, boolean started, boolean ready, double standbyPower) {
+        return started && state == State.IDLE && ready && standbyPower > 0.0;
     }
 
     /**
