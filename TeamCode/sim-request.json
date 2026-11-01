@@ -1,7 +1,7 @@
 {
   "pp": "TeamCode/autos/l-quals.pp",
-  "spec": "LQualsAuto,RSimpleAuto@50",
-  "design": "real robot, turret locked forward",
+  "spec": "LQualsAuto,RQualsPollenOnlyAuto@50",
+  "design": "real robot, turret locked forward, POLLEN only",
   "partnerDesign": null,
   "partnerSpeed": null,
   "seeds": [
