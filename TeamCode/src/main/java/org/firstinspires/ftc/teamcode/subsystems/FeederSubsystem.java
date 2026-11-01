@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 
 import java.util.Locale;
+import java.util.function.BooleanSupplier;
 
 /**
  * The feeder: one motor that pushes a held piece into the launcher's wheels. The first rung,
@@ -45,6 +46,15 @@ public class FeederSubsystem implements Subsystem {
     public static double reversePower = 0.5;
 
     /**
+     * Motor power, toward the launcher, while the intake takes pieces in and the feeder has not been
+     * asked for anything else, 0 to 1; 0 turns it off. The mentor's call on robot 20245, 1 Nov 2026:
+     * the feeder wheels run whenever the robot intakes. Only the wheels: the feeder's
+     * {@link #state()} stays IDLE, so the gate stays BLOCKING and nothing else treats it as a feed.
+     * 1.0, the same as {@link #feedPower}, until a test says otherwise.
+     */
+    public static double whileIntakingPower = 1.0;
+
+    /**
      * Flips the motor so that positive power feeds toward the launcher. {@code true}: on the
      * launcher bench the default direction ran the feeder backwards (Square reversed, Triangle
      * fed). <b>Not yet checked on a robot:</b> if its feeder runs the wrong way, flip this in Panels.
@@ -59,6 +69,9 @@ public class FeederSubsystem implements Subsystem {
 
     private final DcMotorEx motor;
     private State state = State.IDLE;
+    private BooleanSupplier intaking = () -> false;
+    private boolean started;
+    private boolean intakeAssist;
     private double power;
     private double ticksPerSecond;
     private double currentAmps = Double.NaN;
@@ -68,6 +81,20 @@ public class FeederSubsystem implements Subsystem {
     /** Looks the motor up once. A missing motor fails init with the SDK's own message. */
     public FeederSubsystem(HardwareMap hardwareMap) {
         motor = hardwareMap.get(DcMotorEx.class, DeviceNames.FEEDER);
+    }
+
+    /**
+     * Run the wheels at {@link #whileIntakingPower} while {@code intaking} says the intake is taking
+     * pieces in (the OpMode's request, set before this updates). Wired once by {@code Robot}; a
+     * feeder built alone never does it.
+     */
+    public void runWhileIntaking(BooleanSupplier intaking) {
+        this.intaking = intaking;
+    }
+
+    /** Whether the last {@link #update()} ran the wheels only because the intake is taking pieces in. */
+    public boolean intakeAssist() {
+        return intakeAssist;
     }
 
     /** Ask for pieces toward the launcher. Takes effect in the next {@link #update()}. */
@@ -118,14 +145,17 @@ public class FeederSubsystem implements Subsystem {
     @Override
     public void initialize() {
         state = State.IDLE;
+        started = false;
+        intakeAssist = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setPower(0.0);
     }
 
-    /** Nothing to do: the feeder stays at zero until asked, which needs PLAY. */
+    /** PLAY: from now on the wheels may run with the intake. */
     @Override
     public void start() {
+        started = true;
     }
 
     /**
@@ -134,10 +164,13 @@ public class FeederSubsystem implements Subsystem {
      */
     @Override
     public void update() {
-        power = powerFor(state, feedPower, reversePower, reversed);
+        intakeAssist = assistsIntake(state, started, intaking.getAsBoolean(), whileIntakingPower);
+        power = intakeAssist
+                ? powerFor(State.FEED, whileIntakingPower, 0.0, reversed)
+                : powerFor(state, feedPower, reversePower, reversed);
         motor.setPower(power);
         ticksPerSecond = motor.getVelocity();
-        if (state == State.IDLE) {
+        if (state == State.IDLE && !intakeAssist) {
             currentAmps = Double.NaN;
             currentRead.reset();
         } else if (currentRead.due(System.nanoTime())) {
@@ -163,6 +196,7 @@ public class FeederSubsystem implements Subsystem {
         display.status("Feeder", state == State.IDLE ? Display.Level.OK : Display.Level.WARN,
                 state == State.FEED ? String.format(Locale.US, "FEEDING (%.2f)", power)
                         : state == State.REVERSE ? String.format(Locale.US, "REVERSE (%.2f)", power)
+                        : intakeAssist ? String.format(Locale.US, "with the intake (%.2f)", power)
                         : "idle");
         double rpm = rpm();
         display.line(String.format(Locale.US, "Feeder %.0f ticks/s%s · %s", ticksPerSecond,
@@ -184,6 +218,15 @@ public class FeederSubsystem implements Subsystem {
         if (reverseHeld) return State.REVERSE;
         if (feedHeld && (alreadyFeeding || launcherAtSpeed || !requireAtSpeed)) return State.FEED;
         return State.IDLE;
+    }
+
+    /**
+     * Whether the wheels run with the intake: after PLAY, with nothing else asked of the feeder, the
+     * intake taking pieces in, and {@code whileIntakingPower} above 0 (NaN counts as off). Pure, so
+     * a test can check it.
+     */
+    static boolean assistsIntake(State state, boolean started, boolean intaking, double whileIntakingPower) {
+        return started && state == State.IDLE && intaking && whileIntakingPower > 0.0;
     }
 
     /**
