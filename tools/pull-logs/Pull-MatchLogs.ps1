@@ -318,8 +318,18 @@ function Open-Log {
 # Which logs have gone up already: "<robot folder>/<file name>/<size>", one per line. A log that
 # grew (an Auto, then its TeleOp) has a new size and goes up again, replacing the old copy.
 $PublishedList = Join-Path $env:LOCALAPPDATA 'biobuzz-logs-published.txt'
-# GitHub refuses a file over 100 MB.
+# GitHub refuses a file over 100 MB. Logs go up gzipped (about a third of the size), so this is
+# the compressed size; a whole afternoon's LaunchTest (over 95 MB raw on 1 Nov) fits.
 $MaxPublishBytes = 95MB
+
+# A gzip copy of $Source at $Target. .NET's own GZipStream: nothing to install.
+function New-GzipCopy {
+    param([string]$Source, [string]$Target)
+    $in = [System.IO.File]::OpenRead($Source)
+    $out = [System.IO.File]::Create($Target)
+    $gz = New-Object System.IO.Compression.GZipStream($out, [System.IO.Compression.CompressionLevel]::Optimal)
+    try { $in.CopyTo($gz) } finally { $gz.Dispose(); $out.Dispose(); $in.Dispose() }
+}
 
 # Runs git in the repo and returns its output lines; $LASTEXITCODE says how it went.
 function Invoke-Git {
@@ -350,7 +360,6 @@ function Publish-Logs {
             if ($f.Name.Length -lt 10 -or $f.Name.Substring(0, 10) -lt $since) { continue }
             $key = "$($dir.Name)/$($f.Name)/$($f.Length)"
             if ($done.ContainsKey($key)) { continue }
-            if ($f.Length -gt $MaxPublishBytes) { Say "$($f.Name) is over 95 MB, too big for GitHub: not sent."; continue }
             $todo += [pscustomobject]@{ Robot = $dir.Name; File = $f; Key = $key; Day = $f.Name.Substring(0, 10) }
         }
     }
@@ -376,12 +385,28 @@ function Publish-Logs {
             $env:GIT_INDEX_FILE = $index
             if ($parent) { Invoke-Git @('read-tree', $parent) | Out-Null } else { Invoke-Git @('read-tree', '--empty') | Out-Null }
             $ok = ($LASTEXITCODE -eq 0)
+            $sent = @()
             foreach ($item in $group.Group) {
                 if (-not $ok) { break }
-                $blob = ((Invoke-Git @('hash-object', '-w', '--', $item.File.FullName)) -join '').Trim()
-                if ($LASTEXITCODE -ne 0) { $ok = $false; break }
-                Invoke-Git @('update-index', '--add', '--cacheinfo', "100644,$blob,$($item.File.Name)") | Out-Null
-                if ($LASTEXITCODE -ne 0) { $ok = $false }
+                # Gzipped: a third of the size to push, and under GitHub's 100 MB for a long session.
+                $gzPath = Join-Path $env:TEMP ($item.File.Name + '.gz')
+                try { New-GzipCopy -Source $item.File.FullName -Target $gzPath } catch { Say "could not compress $($item.File.Name): $_"; continue }
+                if ((Get-Item -LiteralPath $gzPath).Length -gt $MaxPublishBytes) {
+                    Say "$($item.File.Name) is over 95 MB even compressed, too big for GitHub: not sent."
+                    Remove-Item -LiteralPath $gzPath -Force -ErrorAction SilentlyContinue
+                    continue
+                }
+                $blob = ((Invoke-Git @('hash-object', '-w', '--', $gzPath)) -join '').Trim()
+                $hashed = ($LASTEXITCODE -eq 0)
+                Remove-Item -LiteralPath $gzPath -Force -ErrorAction SilentlyContinue
+                if (-not $hashed) { $ok = $false; break }
+                Invoke-Git @('update-index', '--add', '--cacheinfo', "100644,$blob,$($item.File.Name).gz") | Out-Null
+                if ($LASTEXITCODE -ne 0) { $ok = $false } else { $sent += $item }
+            }
+            if ($ok -and $sent.Count -eq 0) {
+                Remove-Item Env:\GIT_INDEX_FILE -ErrorAction SilentlyContinue
+                Remove-Item -LiteralPath $index -Force -ErrorAction SilentlyContinue
+                continue
             }
             $tree = $null
             if ($ok) { $tree = ((Invoke-Git @('write-tree')) -join '').Trim(); $ok = ($LASTEXITCODE -eq 0) }
@@ -389,15 +414,15 @@ function Publish-Logs {
             Remove-Item -LiteralPath $index -Force -ErrorAction SilentlyContinue
             if (-not $ok) { Say "could not build $branch; the next run tries again."; continue }
 
-            $message = "Logs: $($group.Name) ($($group.Count) file(s), from tools/pull-logs; throwaway, never merge)"
+            $message = "Logs: $($group.Name) ($($sent.Count) file(s), gzipped, from tools/pull-logs; throwaway, never merge)"
             $commitArgs = @('commit-tree', $tree, '-m', $message)
             if ($parent) { $commitArgs += @('-p', $parent) }
             $commit = ((Invoke-Git $commitArgs) -join '').Trim()
             if ($LASTEXITCODE -ne 0) { Say "could not commit $branch (is git's user.name/user.email set?)."; continue }
             $reply = (Invoke-Git @('push', '--quiet', 'origin', "${commit}:refs/heads/${branch}")) -join ' '
             if ($LASTEXITCODE -ne 0) { Say "could not push ${branch}: $reply"; continue }
-            Add-Content -LiteralPath $PublishedList -Value @($group.Group | ForEach-Object { $_.Key })
-            Say "sent $($group.Count) log(s) to GitHub branch $branch"
+            Add-Content -LiteralPath $PublishedList -Value @($sent | ForEach-Object { $_.Key })
+            Say "sent $($sent.Count) log(s) to GitHub branch $branch"
         }
     } finally {
         Remove-Item Env:\GIT_INDEX_FILE -ErrorAction SilentlyContinue

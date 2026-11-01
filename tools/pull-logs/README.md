@@ -50,8 +50,9 @@ branches and reads them with `read_logs.py` (below). Nothing to type.
 - A log that grows (an Auto, then its TeleOp) goes up again and replaces its earlier copy. What has
   gone up is listed in `%LOCALAPPDATA%\biobuzz-logs-published.txt`; delete a line to send that
   file again.
-- These branches are throwaway: never merged, never based on `master`. GitHub refuses a file over
-  100 MB, so a log over 95 MB is skipped with a message.
+- These branches are throwaway: never merged, never based on `master`. Each log goes up gzipped
+  (`<name>.wpilog.gz`, about a third of the size), so a long session fits under GitHub's 100 MB per
+  file; one over 95 MB even compressed is skipped with a message.
 - `-NoPublish` skips it; `-PublishDays 7` reaches further back.
 
 `read_logs.py` reads a `.wpilog` with plain Python (standard library only): `summary` gives, per
