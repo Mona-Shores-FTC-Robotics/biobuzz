@@ -16,7 +16,7 @@ import java.util.Locale;
  * positions, then to watch the whole path move a piece.
  *
  * <p>It runs the same {@code Robot} and the same subsystems as the match TeleOp, so what is tuned
- * here is what ships. The prefeed and the gate follow the intake and the feeder exactly as they do
+ * here is what ships. The intake, the prefeed and the gate follow the feeder exactly as they do
  * in a match; the bench only lets a person hold either one still ({@code PrefeedSubsystem.override},
  * {@code FeedGateSubsystem.hold}) to test it alone. <b>There is no interlock:</b> the feeder runs
  * whenever R1 is held, launcher at speed or not, and the gate follows it. Nothing drives.
@@ -64,7 +64,8 @@ public class FullPathBench extends RobotOpMode {
         }
         driver.note("R2 (hold)", "Intake in (prefeed follows)");
         driver.note("L2 (hold)", "Unjam: intake out, feeder reverse, prefeed back (wins)");
-        driver.note("R1 (hold)", "Feed: feeder runs, prefeed carries, gate opens. NO interlock");
+        driver.note("R1 (hold)", "Feed: feeder, prefeed, gate and stars run; the roller too unless "
+                + "rollerWhileFeeding is off (Panels). NO interlock");
         driver.when("Circle (B)", "Launcher: spin up / spin down", () -> gamepad1.b)
                 .onPress(this::toggleLauncher);
         driver.when("Square (X)", "Gate: follow feeder / hold BLOCKING / hold FEEDING", () -> gamepad1.x)

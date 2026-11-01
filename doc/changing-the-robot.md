@@ -12,6 +12,7 @@ Paths are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 |---|---|---|
 | Flip a motor that runs the wrong way | the `reversed` field at the top of that subsystem: `IntakeSubsystem.reversed`, `FeederSubsystem.reversed`, `PrefeedSubsystem.reversed`, `LauncherSubsystem.leftReversed` / `rightReversed` | Change it in Panels first to prove it, then write it into the file |
 | Change a power or a speed | `IntakeSubsystem.inPower` / `outPower`, `FeederSubsystem.feedPower` / `reversePower`, `PrefeedSubsystem.inPower` / `outPower`, `LauncherSubsystem.targetTicksPerSecond`, `TeleOpConfig.normalSpeed` / `turboSpeed` / `slowSpeed` | Same: Panels, then the file |
+| Stop the intake roller joining a feed (the star wheels still do) | `IntakeSubsystem.rollerWhileFeeding` | A Panels switch, on by default. Off if the roller pulls loose pieces in while firing |
 | Set the FLOWER stick's two positions | `FlowerStickSubsystem.RETRACTED` / `EXTENDED` | Servo positions, 0 to 1 |
 | Say how long the Auto feeds when it fires | `LaunchCards.launchAllFeedS` / `launchOneFeedS` | Seconds the feeder runs after the launcher is at speed |
 | Make fire wait for the launcher or the aim | `TeleOpConfig.enforceAtSpeedGate` / `enforceAimGate` (`aimToleranceDeg`) | Off: fire feeds at once and the match log says when a gate would have blocked. Turn one on only once the log shows it helps |
