@@ -53,18 +53,19 @@ public class PrefeedSubsystem implements Subsystem {
     /**
      * At the start of each feed, how long the prefeed gives the feed gate to swing open before it
      * pushes, in seconds. 0 turns this off: the prefeed pushes as soon as the feeder feeds. A NECTAR
-     * pressed against the closed gate by the prefeed jammed the plate as it opened; 0.5 s, with
-     * {@link #gateClearPower} 1.0, was set by the mentor on robot 20245 from launch testing, 1 Nov 2026.
+     * pressed against the closed gate by the prefeed jammed the plate as it opened; 0.5 s at full
+     * reverse was tried on 20245 on 1 Nov 2026. Off (0) since the robot went POLLEN only the same day:
+     * the mentor's call, so a feed starts pushing at once.
      */
-    public static double gateClearSeconds = 0.5;
+    public static double gateClearSeconds = 0.0;
 
     /**
      * Prefeed power during {@link #gateClearSeconds}, 0 to 1, away from the gate. 0 holds the prefeed
      * still (lets the gate open with the piece resting on it); more than 0 backs it off at that power
-     * (pulls the piece away so the gate has room). 1.0, with {@link #gateClearSeconds}: set on robot
-     * 20245 from launch testing, 1 Nov 2026.
+     * (pulls the piece away so the gate has room). 0 (off) with {@link #gateClearSeconds}, since 20245
+     * went POLLEN only on 1 Nov 2026.
      */
-    public static double gateClearPower = 1.0;
+    public static double gateClearPower = 0.0;
 
     private final CRServo servo;
     private final IntakeSubsystem intake;

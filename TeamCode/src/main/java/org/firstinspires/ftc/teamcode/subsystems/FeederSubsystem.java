@@ -42,8 +42,11 @@ public class FeederSubsystem implements Subsystem {
      */
     public static double feedPower = 1.0;
 
-    /** Motor power while backing a piece out of the launcher, 0 to 1. <b>Not yet tuned.</b> */
-    public static double reversePower = 0.5;
+    /**
+     * Motor power while backing a piece out of the launcher (unjam), 0 to 1. 1.0: set by the mentor
+     * on robot 20245 from launch testing, 1 Nov 2026.
+     */
+    public static double reversePower = 1.0;
 
     /**
      * Motor power, toward the launcher, while the robot is ready to shoot or taking pieces in (the

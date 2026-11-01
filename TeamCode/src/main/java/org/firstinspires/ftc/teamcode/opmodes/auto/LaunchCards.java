@@ -51,8 +51,12 @@ import java.util.function.DoubleSupplier;
 @Configurable
 public final class LaunchCards {
 
-    /** How long the feeder runs for {@code LaunchAll}, seconds. <b>Not measured.</b> */
-    public static double launchAllFeedS = 2.0;
+    /**
+     * How long the feeder runs for {@code LaunchAll}, seconds. 7.0: set by the mentor on robot 20245
+     * on 1 Nov 2026, after 2.0 cut the feed off with pieces still in. A firing step's "at most" in
+     * the Auto Builder has to leave room for spin-up plus this, or the step cuts the feed short.
+     */
+    public static double launchAllFeedS = 7.0;
 
     /** How long the feeder runs for {@code LaunchOne}, seconds. <b>Not measured.</b> */
     public static double launchOneFeedS = 0.5;
