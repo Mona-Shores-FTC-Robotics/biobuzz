@@ -84,4 +84,20 @@ public class PrefeedSubsystemTest {
     public void anOutPowerOfZeroLeavesItStillWhileBackingOut() {
         assertEquals(0.0, PrefeedSubsystem.powerFor(State.OUT, 0.8, 0.0, false), EPS);
     }
+
+    @Test
+    public void gateClearingIsOffAtZeroAndLastsItsTime() {
+        assertEquals(false, PrefeedSubsystem.clearingGate(0.0, 0.0));
+        assertEquals(false, PrefeedSubsystem.clearingGate(0.0, Double.NaN));
+        assertEquals(true, PrefeedSubsystem.clearingGate(0.0, 0.15));
+        assertEquals(true, PrefeedSubsystem.clearingGate(0.14, 0.15));
+        assertEquals(false, PrefeedSubsystem.clearingGate(0.15, 0.15));
+    }
+
+    @Test
+    public void gateClearingHoldsAtZeroPowerAndBacksOffAboveIt() {
+        assertEquals(0.0, PrefeedSubsystem.powerFor(State.OUT, 0.0, 0.0, false), EPS);
+        assertEquals(-0.4, PrefeedSubsystem.powerFor(State.OUT, 0.0, 0.4, false), EPS);
+        assertEquals(0.4, PrefeedSubsystem.powerFor(State.OUT, 0.0, 0.4, true), EPS);
+    }
 }
