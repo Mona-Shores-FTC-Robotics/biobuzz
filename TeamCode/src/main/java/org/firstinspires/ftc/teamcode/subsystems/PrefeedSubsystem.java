@@ -49,6 +49,21 @@ public class PrefeedSubsystem implements Subsystem {
      */
     public static boolean reversed = false;
 
+    /**
+     * At the start of each feed, how long the prefeed gives the feed gate to swing open before it
+     * pushes, in seconds. 0 turns this off: the prefeed pushes as soon as the feeder feeds. <b>Under
+     * test</b> on robot 20245 (1 Nov 2026): a NECTAR pressed against the closed gate by the prefeed
+     * jams the plate as it opens, so the idea is to take the pressure off first; 0.1 to 0.2 s to try.
+     */
+    public static double gateClearSeconds = 0.0;
+
+    /**
+     * Prefeed power during {@link #gateClearSeconds}, 0 to 1, away from the gate. 0 holds the prefeed
+     * still (lets the gate open with the piece resting on it); more than 0 backs it off at that power
+     * (pulls the piece away so the gate has room). <b>Under test</b>, with {@link #gateClearSeconds}.
+     */
+    public static double gateClearPower = 0.0;
+
     private final CRServo servo;
     private final IntakeSubsystem intake;
     private final FeederSubsystem feeder;
@@ -56,6 +71,9 @@ public class PrefeedSubsystem implements Subsystem {
     private State override;
     private double power;
     private boolean started;
+    private boolean wasFeeding;
+    private long feedStartNs;
+    private boolean clearingGate;
 
     /**
      * Looks the servo up once. A missing servo fails init with the SDK's own message.
@@ -94,6 +112,11 @@ public class PrefeedSubsystem implements Subsystem {
         return power;
     }
 
+    /** Whether the last {@link #update()} was holding back to let the gate open ({@link #gateClearSeconds}). */
+    public boolean clearingGate() {
+        return clearingGate;
+    }
+
     /** Start idle and unwritten: the servo is not touched until PLAY. */
     @Override
     public void initialize() {
@@ -101,6 +124,8 @@ public class PrefeedSubsystem implements Subsystem {
         override = null;
         power = 0.0;
         started = false;
+        wasFeeding = false;
+        clearingGate = false;
     }
 
     /** PLAY: the servo may be written from now on. */
@@ -111,12 +136,23 @@ public class PrefeedSubsystem implements Subsystem {
 
     /**
      * Decide the state from the intake and feeder (or the bench's override), then, from PLAY, one
-     * write to the servo, clamped so Panels cannot overdrive it. Nothing is written before PLAY.
+     * write to the servo, clamped so Panels cannot overdrive it. Nothing is written before PLAY. For
+     * the first {@link #gateClearSeconds} of each feed the prefeed holds or backs off instead of
+     * pushing, so the gate can open ({@link #clearingGate(double, double)}).
      */
     @Override
     public void update() {
         state = override != null ? override : requestFor(intake.state(), feeder.state());
-        power = powerFor(state, inPower, outPower, reversed);
+        boolean feeding = override == null && feeder.state() == FeederSubsystem.State.FEED;
+        if (feeding && !wasFeeding) {
+            feedStartNs = System.nanoTime();
+        }
+        wasFeeding = feeding;
+        clearingGate = feeding && state == State.IN
+                && clearingGate((System.nanoTime() - feedStartNs) / 1e9, gateClearSeconds);
+        power = clearingGate
+                ? powerFor(State.OUT, 0.0, gateClearPower, reversed)
+                : powerFor(state, inPower, outPower, reversed);
         if (started) {
             servo.setPower(power);
         }
@@ -140,7 +176,8 @@ public class PrefeedSubsystem implements Subsystem {
     @Override
     public void describe(Display display) {
         display.status("Prefeed", state == State.IDLE ? Display.Level.OK : Display.Level.WARN,
-                (state == State.IN ? String.format(Locale.US, "IN (%.2f)", power)
+                (clearingGate ? String.format(Locale.US, "clearing the gate (%.2f)", power)
+                        : state == State.IN ? String.format(Locale.US, "IN (%.2f)", power)
                         : state == State.OUT ? String.format(Locale.US, "OUT (%.2f)", power)
                         : "idle") + (override != null ? " · held by the bench" : ""));
     }
@@ -158,6 +195,14 @@ public class PrefeedSubsystem implements Subsystem {
             return State.IN;
         }
         return State.IDLE;
+    }
+
+    /**
+     * Whether a feed that started {@code secondsSinceFeed} ago is still in its gate-clearing time:
+     * {@code clearSeconds} more than 0 and not yet passed. NaN counts as off. Pure, so a test can check it.
+     */
+    static boolean clearingGate(double secondsSinceFeed, double clearSeconds) {
+        return clearSeconds > 0.0 && secondsSinceFeed < clearSeconds;
     }
 
     /**
