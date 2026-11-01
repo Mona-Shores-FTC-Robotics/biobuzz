@@ -107,13 +107,15 @@ public class LauncherSubsystem implements Subsystem {
     public static double shotDipTicksPerSecond = 150.0;
 
     /**
-     * Flips the left wheel so that a positive command throws a piece out. <b>Not yet checked on a
-     * robot:</b> {@code false} is the SDK's default direction, not a fact about the wiring. The two
-     * modules are mirror images, so expect exactly one of the pair to need flipping.
+     * Flips the left wheel so that a positive command throws a piece out. Checked on robot 20245 on
+     * 1 Nov 2026 with the Full Path Bench: the left wheel (the robot's left, seen from behind) needs
+     * flipping and the right does not, as expected for two mirror-image modules. The speed readout
+     * is an absolute value, so it cannot show a wheel spinning backwards: check by eye. 19429 is
+     * not checked yet.
      */
-    public static boolean leftReversed = false;
+    public static boolean leftReversed = true;
 
-    /** As {@link #leftReversed}, for the right wheel. */
+    /** As {@link #leftReversed}, for the right wheel: not flipped, checked on 20245 on 1 Nov 2026. */
     public static boolean rightReversed = false;
 
     /**
