@@ -12,7 +12,12 @@ logging/MatchLog). This script:
      describes (Sloth Load's own "adb disconnect" drops the connection after every deploy),
   3. copies every .wpilog this laptop does not have yet, or whose size changed, into
      <Dest>\<robot network>\,
-  4. opens the newest new file in AdvantageScope.
+  4. opens the newest new file in AdvantageScope,
+  5. sends recent logs to GitHub, one branch per day and robot (logs/<date>-<robot network>), so
+     a Claude session can read them when asked to "pull logs". Only when GitHub answers: on the
+     robot's Wi-Fi there is no internet, so they go up on the next run that has it (double-click
+     again at home or school, robot or no robot). Your checkout is never touched: the branch is
+     written with git's plumbing, not by switching branches.
 
 With -Watch it repeats every few seconds and opens a log each time it stops growing, which is
 when the OpMode stopped. The workflow at the robot is then: stop the OpMode, look at the laptop.
@@ -41,6 +46,13 @@ Pull only; never start AdvantageScope.
 After a file is pulled and its size matches, delete it from the hub. The newest file is never
 deleted (it may still be being written). Off by default: the hub has room for a season of logs.
 
+.PARAMETER NoPublish
+Do not send logs to GitHub.
+
+.PARAMETER PublishDays
+Logs from this many days back (by the date in the file name) are sent to GitHub. Default 3, so a
+first run does not upload a season of logs.
+
 .PARAMETER Adb
 The adb.exe to use. By default: the one behind an adb server that is already running (so a
 laptop that talks to the hub through REV Hardware Client keeps using that adb), else Android
@@ -63,6 +75,8 @@ param(
     [int]$EverySeconds = 5,
     [switch]$NoOpen,
     [switch]$RemoveFromRobot,
+    [switch]$NoPublish,
+    [int]$PublishDays = 3,
     [string]$Adb,
     [string]$AdvantageScope
 )
@@ -299,6 +313,98 @@ function Open-Log {
     }
 }
 
+# ------------------------------------------------------------------ send to GitHub
+
+# Which logs have gone up already: "<robot folder>/<file name>/<size>", one per line. A log that
+# grew (an Auto, then its TeleOp) has a new size and goes up again, replacing the old copy.
+$PublishedList = Join-Path $env:LOCALAPPDATA 'biobuzz-logs-published.txt'
+# GitHub refuses a file over 100 MB.
+$MaxPublishBytes = 95MB
+
+# Runs git in the repo and returns its output lines; $LASTEXITCODE says how it went.
+function Invoke-Git {
+    param([string[]]$Arguments)
+    $out = & git -C $script:Repo @Arguments 2>&1 | ForEach-Object { "$_" }
+    return @($out)
+}
+
+# Sends every recent log not sent yet to its day's branch, logs/<date>-<robot folder>, adding to
+# what the branch already holds. Each robot folder under $Dest is its own robot, whatever network
+# this laptop is on now. Never fails the pull: anything wrong is said and left for the next run.
+function Publish-Logs {
+    param([string]$Root)
+    if ($NoPublish) { return }
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) { Say 'git not found: logs not sent to GitHub.'; return }
+    $top = & git -C $PSScriptRoot rev-parse --show-toplevel 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not $top) { Say 'this script is not inside the biobuzz repo: logs not sent to GitHub.'; return }
+    $script:Repo = "$top".Trim()
+
+    $done = @{}
+    if (Test-Path -LiteralPath $PublishedList) {
+        foreach ($line in (Get-Content -LiteralPath $PublishedList)) { $done[$line] = $true }
+    }
+    $since = (Get-Date).Date.AddDays(-$PublishDays).ToString('yyyy-MM-dd')
+    $todo = @()
+    foreach ($dir in @(Get-ChildItem -LiteralPath $Root -Directory -ErrorAction SilentlyContinue)) {
+        foreach ($f in @(Get-ChildItem -LiteralPath $dir.FullName -Filter '*.wpilog' -File -ErrorAction SilentlyContinue)) {
+            if ($f.Name.Length -lt 10 -or $f.Name.Substring(0, 10) -lt $since) { continue }
+            $key = "$($dir.Name)/$($f.Name)/$($f.Length)"
+            if ($done.ContainsKey($key)) { continue }
+            if ($f.Length -gt $MaxPublishBytes) { Say "$($f.Name) is over 95 MB, too big for GitHub: not sent."; continue }
+            $todo += [pscustomobject]@{ Robot = $dir.Name; File = $f; Key = $key; Day = $f.Name.Substring(0, 10) }
+        }
+    }
+    if ($todo.Count -eq 0) { return }
+
+    # On the robot's Wi-Fi this fails fast: nothing is lost, the next run with internet sends them.
+    Invoke-Git @('ls-remote', '--exit-code', 'origin', 'HEAD') | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Say "$($todo.Count) log(s) not on GitHub yet (no internet now); the next run that has it sends them."
+        return
+    }
+
+    $index = Join-Path $env:TEMP ('biobuzz-logs-index-' + [guid]::NewGuid().ToString('N'))
+    try {
+        foreach ($group in ($todo | Group-Object { "$($_.Day)-$($_.Robot)" })) {
+            $branch = "logs/$($group.Name)"
+            # What the branch holds already, if it exists: the new logs are added beside it.
+            Invoke-Git @('fetch', '--quiet', 'origin', "+refs/heads/${branch}:refs/remotes/origin/${branch}") | Out-Null
+            $parent = $null
+            if ($LASTEXITCODE -eq 0) { $parent = ((Invoke-Git @('rev-parse', "refs/remotes/origin/${branch}")) -join '').Trim() }
+
+            # A private index, so the checkout's own index and files are never touched.
+            $env:GIT_INDEX_FILE = $index
+            if ($parent) { Invoke-Git @('read-tree', $parent) | Out-Null } else { Invoke-Git @('read-tree', '--empty') | Out-Null }
+            $ok = ($LASTEXITCODE -eq 0)
+            foreach ($item in $group.Group) {
+                if (-not $ok) { break }
+                $blob = ((Invoke-Git @('hash-object', '-w', '--', $item.File.FullName)) -join '').Trim()
+                if ($LASTEXITCODE -ne 0) { $ok = $false; break }
+                Invoke-Git @('update-index', '--add', '--cacheinfo', "100644,$blob,$($item.File.Name)") | Out-Null
+                if ($LASTEXITCODE -ne 0) { $ok = $false }
+            }
+            $tree = $null
+            if ($ok) { $tree = ((Invoke-Git @('write-tree')) -join '').Trim(); $ok = ($LASTEXITCODE -eq 0) }
+            Remove-Item Env:\GIT_INDEX_FILE -ErrorAction SilentlyContinue
+            Remove-Item -LiteralPath $index -Force -ErrorAction SilentlyContinue
+            if (-not $ok) { Say "could not build $branch; the next run tries again."; continue }
+
+            $message = "Logs: $($group.Name) ($($group.Count) file(s), from tools/pull-logs; throwaway, never merge)"
+            $commitArgs = @('commit-tree', $tree, '-m', $message)
+            if ($parent) { $commitArgs += @('-p', $parent) }
+            $commit = ((Invoke-Git $commitArgs) -join '').Trim()
+            if ($LASTEXITCODE -ne 0) { Say "could not commit $branch (is git's user.name/user.email set?)."; continue }
+            $reply = (Invoke-Git @('push', '--quiet', 'origin', "${commit}:refs/heads/${branch}")) -join ' '
+            if ($LASTEXITCODE -ne 0) { Say "could not push ${branch}: $reply"; continue }
+            Add-Content -LiteralPath $PublishedList -Value @($group.Group | ForEach-Object { $_.Key })
+            Say "sent $($group.Count) log(s) to GitHub branch $branch"
+        }
+    } finally {
+        Remove-Item Env:\GIT_INDEX_FILE -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $index -Force -ErrorAction SilentlyContinue
+    }
+}
+
 # ------------------------------------------------------------------ main
 
 $script:AdbExe = Find-Adb
@@ -314,21 +420,30 @@ if ($Dest -eq $LocalLogs) {
 }
 
 if (-not $Watch) {
-    if (-not (Connect-Robot)) { exit 1 }
+    # No robot is fine: this is also how logs pulled on the robot's Wi-Fi reach GitHub later.
+    if (-not (Connect-Robot)) {
+        Publish-Logs -Root $Dest
+        exit 0
+    }
     $remote = @(Get-RobotLogs)
     if ($remote.Count -eq 0) {
         Say "No .wpilog files in $RemoteFolder on the robot. Has a RobotOpMode run since the install?"
+        Publish-Logs -Root $Dest
         exit 0
     }
     $pulled = @(Sync-Logs -Remote $remote -Folder $Folder)
     if ($RemoveFromRobot) { Remove-PulledFromRobot -Remote $remote -Folder $Folder }
     if ($pulled.Count -eq 0) {
         Say "Nothing new: all $($remote.Count) logs are already here."
-        exit 0
+    } else {
+        Open-Log ($pulled | Sort-Object | Select-Object -Last 1)
     }
-    Open-Log ($pulled | Sort-Object | Select-Object -Last 1)
+    Publish-Logs -Root $Dest
     exit 0
 }
+
+# Whatever an earlier run pulled without internet goes up now, if this laptop has it.
+Publish-Logs -Root $Dest
 
 # Watch mode. A log is opened once it has settled: it was pulled, and its size on the hub has not
 # changed for a tick. That is the moment the OpMode stopped (or an Autonomous paused it for
@@ -346,6 +461,7 @@ while ($true) {
         $remote = @(Get-RobotLogs)
         $pulled = @(Sync-Logs -Remote $remote -Folder $Folder)
         if ($RemoveFromRobot) { Remove-PulledFromRobot -Remote $remote -Folder $Folder }
+        $settled = $false
         foreach ($f in $remote) {
             $prev = -1
             if ($lastSize.ContainsKey($f.Name)) { $prev = $lastSize[$f.Name] }
@@ -356,9 +472,13 @@ while ($true) {
             } elseif ($changed.ContainsKey($f.Name)) {
                 $changed.Remove($f.Name)
                 Open-Log (Join-Path $Folder $f.Name)
+                $settled = $true
             }
             $lastSize[$f.Name] = $f.Size
         }
+        # A log just finished: up to GitHub with it, if this laptop has internet too (a second
+        # Wi-Fi adapter); otherwise it waits for a later run.
+        if ($settled) { Publish-Logs -Root $Dest }
         if ($first) { Say "$($remote.Count) logs on the robot; new ones open as they finish." }
         $first = $false
     } else {

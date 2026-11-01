@@ -237,6 +237,10 @@ network; if the sandbox blocks it, say so.
 
 **No robot is attached to a Claude session.** Anything needing hardware — tuning values, motor
 directions, port checks — stops and produces a checklist for the next meeting instead of a guess.
+Match logs reach a session on GitHub: `tools/pull-logs` sends them to throwaway
+`logs/<date>-<robot network>` branches. "Pull logs" means fetch
+`'refs/heads/logs/*:refs/remotes/origin/logs/*'` and read them with
+`tools/pull-logs/read_logs.py`; never ask the mentor to move log files by hand.
 Remote containers have no `gh`; use the GitHub MCP tools.
 
 ## Process
