@@ -1,0 +1,469 @@
+{
+ "designs": [
+  "real robot",
+  "real robot, turret locked forward",
+  "real robot, POLLEN only",
+  "real robot, turret locked forward, POLLEN only"
+ ],
+ "spec": "LSimpleAuto@50",
+ "design": "real robot, turret locked forward",
+ "partnerDesign": null,
+ "alliance": "RED",
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-simple",
+     "launched": 0,
+     "finishedAt": 21.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LAUNCH_LEFT (holds 4)",
+      " 0.26 wait Wait for TIP (holds 4)",
+      " 7.26 Wait for TIP: 7000 ms passed after 7.00 s (holds 4)",
+      " 7.28 command LaunchAll (holds 4)",
+      "12.28 command LaunchAll timed out after 5.0 s (holds 4)",
+      "12.28 path to SCORING_FLOWER (holds 4)",
+      "13.38 command PickFlower (holds 4)",
+      "13.84 path to LAUNCH_LEFT (holds 4)",
+      "15.12 command LaunchAll (holds 4)",
+      "20.12 command LaunchAll timed out after 5.0 s (holds 4)",
+      "20.12 path to PARK_LEFT (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-simple RED: launched 0, scored 0, HIVE tipped at (never); finished at 21.9 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 2,
+   "log": "seed-2.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-simple",
+     "launched": 0,
+     "finishedAt": 21.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LAUNCH_LEFT (holds 4)",
+      " 0.26 wait Wait for TIP (holds 4)",
+      " 7.26 Wait for TIP: 7000 ms passed after 7.00 s (holds 4)",
+      " 7.28 command LaunchAll (holds 4)",
+      "12.28 command LaunchAll timed out after 5.0 s (holds 4)",
+      "12.28 path to SCORING_FLOWER (holds 4)",
+      "13.38 command PickFlower (holds 4)",
+      "13.84 path to LAUNCH_LEFT (holds 4)",
+      "15.12 command LaunchAll (holds 4)",
+      "20.12 command LaunchAll timed out after 5.0 s (holds 4)",
+      "20.12 path to PARK_LEFT (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-simple RED: launched 0, scored 0, HIVE tipped at (never); finished at 21.9 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 3,
+   "log": "seed-3.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-simple",
+     "launched": 0,
+     "finishedAt": 21.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LAUNCH_LEFT (holds 4)",
+      " 0.26 wait Wait for TIP (holds 4)",
+      " 7.26 Wait for TIP: 7000 ms passed after 7.00 s (holds 4)",
+      " 7.28 command LaunchAll (holds 4)",
+      "12.28 command LaunchAll timed out after 5.0 s (holds 4)",
+      "12.28 path to SCORING_FLOWER (holds 4)",
+      "13.38 command PickFlower (holds 4)",
+      "13.84 path to LAUNCH_LEFT (holds 4)",
+      "15.12 command LaunchAll (holds 4)",
+      "20.12 command LaunchAll timed out after 5.0 s (holds 4)",
+      "20.12 path to PARK_LEFT (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-simple RED: launched 0, scored 0, HIVE tipped at (never); finished at 21.9 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 4,
+   "log": "seed-4.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-simple",
+     "launched": 0,
+     "finishedAt": 21.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LAUNCH_LEFT (holds 4)",
+      " 0.26 wait Wait for TIP (holds 4)",
+      " 7.26 Wait for TIP: 7000 ms passed after 7.00 s (holds 4)",
+      " 7.28 command LaunchAll (holds 4)",
+      "12.28 command LaunchAll timed out after 5.0 s (holds 4)",
+      "12.28 path to SCORING_FLOWER (holds 4)",
+      "13.38 command PickFlower (holds 4)",
+      "13.84 path to LAUNCH_LEFT (holds 4)",
+      "15.12 command LaunchAll (holds 4)",
+      "20.12 command LaunchAll timed out after 5.0 s (holds 4)",
+      "20.12 path to PARK_LEFT (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-simple RED: launched 0, scored 0, HIVE tipped at (never); finished at 21.9 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 5,
+   "log": "seed-5.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-simple",
+     "launched": 0,
+     "finishedAt": 21.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LAUNCH_LEFT (holds 4)",
+      " 0.26 wait Wait for TIP (holds 4)",
+      " 7.26 Wait for TIP: 7000 ms passed after 7.00 s (holds 4)",
+      " 7.28 command LaunchAll (holds 4)",
+      "12.28 command LaunchAll timed out after 5.0 s (holds 4)",
+      "12.28 path to SCORING_FLOWER (holds 4)",
+      "13.38 command PickFlower (holds 4)",
+      "13.84 path to LAUNCH_LEFT (holds 4)",
+      "15.12 command LaunchAll (holds 4)",
+      "20.12 command LaunchAll timed out after 5.0 s (holds 4)",
+      "20.12 path to PARK_LEFT (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-simple RED: launched 0, scored 0, HIVE tipped at (never); finished at 21.9 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 6,
+   "log": "seed-6.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-simple",
+     "launched": 0,
+     "finishedAt": 21.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LAUNCH_LEFT (holds 4)",
+      " 0.26 wait Wait for TIP (holds 4)",
+      " 7.26 Wait for TIP: 7000 ms passed after 7.00 s (holds 4)",
+      " 7.28 command LaunchAll (holds 4)",
+      "12.28 command LaunchAll timed out after 5.0 s (holds 4)",
+      "12.28 path to SCORING_FLOWER (holds 4)",
+      "13.38 command PickFlower (holds 4)",
+      "13.84 path to LAUNCH_LEFT (holds 4)",
+      "15.12 command LaunchAll (holds 4)",
+      "20.12 command LaunchAll timed out after 5.0 s (holds 4)",
+      "20.12 path to PARK_LEFT (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-simple RED: launched 0, scored 0, HIVE tipped at (never); finished at 21.9 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 7,
+   "log": "seed-7.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-simple",
+     "launched": 0,
+     "finishedAt": 21.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LAUNCH_LEFT (holds 4)",
+      " 0.26 wait Wait for TIP (holds 4)",
+      " 7.26 Wait for TIP: 7000 ms passed after 7.00 s (holds 4)",
+      " 7.28 command LaunchAll (holds 4)",
+      "12.28 command LaunchAll timed out after 5.0 s (holds 4)",
+      "12.28 path to SCORING_FLOWER (holds 4)",
+      "13.38 command PickFlower (holds 4)",
+      "13.84 path to LAUNCH_LEFT (holds 4)",
+      "15.12 command LaunchAll (holds 4)",
+      "20.12 command LaunchAll timed out after 5.0 s (holds 4)",
+      "20.12 path to PARK_LEFT (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-simple RED: launched 0, scored 0, HIVE tipped at (never); finished at 21.9 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 8,
+   "log": "seed-8.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-simple",
+     "launched": 0,
+     "finishedAt": 21.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LAUNCH_LEFT (holds 4)",
+      " 0.26 wait Wait for TIP (holds 4)",
+      " 7.26 Wait for TIP: 7000 ms passed after 7.00 s (holds 4)",
+      " 7.28 command LaunchAll (holds 4)",
+      "12.28 command LaunchAll timed out after 5.0 s (holds 4)",
+      "12.28 path to SCORING_FLOWER (holds 4)",
+      "13.38 command PickFlower (holds 4)",
+      "13.84 path to LAUNCH_LEFT (holds 4)",
+      "15.12 command LaunchAll (holds 4)",
+      "20.12 command LaunchAll timed out after 5.0 s (holds 4)",
+      "20.12 path to PARK_LEFT (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-simple RED: launched 0, scored 0, HIVE tipped at (never); finished at 21.9 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 9,
+   "log": "seed-9.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-simple",
+     "launched": 0,
+     "finishedAt": 21.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LAUNCH_LEFT (holds 4)",
+      " 0.26 wait Wait for TIP (holds 4)",
+      " 7.26 Wait for TIP: 7000 ms passed after 7.00 s (holds 4)",
+      " 7.28 command LaunchAll (holds 4)",
+      "12.28 command LaunchAll timed out after 5.0 s (holds 4)",
+      "12.28 path to SCORING_FLOWER (holds 4)",
+      "13.38 command PickFlower (holds 4)",
+      "13.84 path to LAUNCH_LEFT (holds 4)",
+      "15.12 command LaunchAll (holds 4)",
+      "20.12 command LaunchAll timed out after 5.0 s (holds 4)",
+      "20.12 path to PARK_LEFT (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-simple RED: launched 0, scored 0, HIVE tipped at (never); finished at 21.9 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 10,
+   "log": "seed-10.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-simple",
+     "launched": 0,
+     "finishedAt": 21.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LAUNCH_LEFT (holds 4)",
+      " 0.26 wait Wait for TIP (holds 4)",
+      " 7.26 Wait for TIP: 7000 ms passed after 7.00 s (holds 4)",
+      " 7.28 command LaunchAll (holds 4)",
+      "12.28 command LaunchAll timed out after 5.0 s (holds 4)",
+      "12.28 path to SCORING_FLOWER (holds 4)",
+      "13.38 command PickFlower (holds 4)",
+      "13.84 path to LAUNCH_LEFT (holds 4)",
+      "15.12 command LaunchAll (holds 4)",
+      "20.12 command LaunchAll timed out after 5.0 s (holds 4)",
+      "20.12 path to PARK_LEFT (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-simple RED: launched 0, scored 0, HIVE tipped at (never); finished at 21.9 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  }
+ ],
+ "auto": "l-simple",
+ "commit": "6bf2c697587040610ce93d267af0a1fee8097853",
+ "branch": "claude/sim-matrix",
+ "pp": "TeamCode/autos/l-simple.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/41305217369",
+ "finishedAt": "2026-11-01T12:11:30.657000+00:00",
+ "request": {
+  "pp": "TeamCode/autos/l-simple.pp",
+  "spec": "LSimpleAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10
+  ],
+  "alliance": "RED",
+  "metadata": {
+   "AutoSource": "l-simple.pp",
+   "SavedBy": "sim matrix (Claude)",
+   "SourceCommit": "6bf2c697587040610ce93d267af0a1fee8097853",
+   "SourceBranch": "claude/sim-matrix",
+   "SourcePath": "TeamCode/autos/l-simple.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/41305217369"
+  }
+ },
+ "typicalSeed": 5,
+ "bestSeed": 1,
+ "logs": {
+  "1": "l-simple-6bf2c69-seed-1.wpilog",
+  "5": "l-simple-6bf2c69-seed-5.wpilog"
+ },
+ "designFolder": "designs/real-robot-turret-locked-forward",
+ "namedLogs": {
+  "best": "l-simple_RealRobotTurretLockedForward_2026-11-01_best.wpilog",
+  "typical": "l-simple_RealRobotTurretLockedForward_2026-11-01_typical.wpilog"
+ }
+}
