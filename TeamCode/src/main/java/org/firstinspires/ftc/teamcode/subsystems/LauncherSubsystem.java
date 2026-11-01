@@ -76,12 +76,14 @@ public class LauncherSubsystem implements Subsystem {
     public enum Layout { TWO_MOTORS, Y_CABLED }
 
     /**
-     * The speed both wheels are asked to hold while spinning, encoder ticks per second. <b>A
-     * starting point for the bench, not a measured value.</b> A goBILDA 5203 counts 28 ticks per
-     * motor revolution, so a 6000 RPM bare motor tops out near 2800; 1000 is a gentle first spin.
-     * The value a POLLEN and a NECTAR each leave cleanly at is the first row of #80's table.
+     * The speed both wheels are asked to hold while spinning, encoder ticks per second: the
+     * default for the TeleOp and the Launcher Bench, adjustable live in Panels (and by the bench's
+     * D-pad and the TeleOp's trim). <b>A starting point, not a measured value.</b> A goBILDA 5203
+     * counts 28 ticks per motor revolution, so a 6000 RPM bare motor tops out near 2800; 1525 is
+     * where POLLEN and NECTAR both shoot. The value each leaves cleanly at is the first row of
+     * #80's table.
      */
-    public static double targetTicksPerSecond = 1000.0;
+    public static double targetTicksPerSecond = 1525.0;
 
     /**
      * Added to {@link #targetTicksPerSecond} for the left wheel only, ticks per second. Zero means
