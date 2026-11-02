@@ -132,7 +132,8 @@ If the hub does wedge: close everything that talks adb, power-cycle the hub, the
 - **First, once per laptop:** `tools/advantagescope/` installs the team's robot model and a match
   layout with the Field, 3D, Limelight, Loop and Launcher tabs already set up. With it, the rest
   of this list is already on screen.
-- **Where the robot was**: drag `/Odometry/Robot` onto a 2D or 3D Field. Pick the 2026-27 FTC
+- **Where the robot was**: drag `/Odometry/Robot` onto a 2D or 3D Field. `/Shadow/Robot` beside it, as a
+  ghost, is where the robot would be with still camera fixes on (`localization/ShadowPose`). Pick the 2026-27 FTC
   field in the tab's settings, and `BIOBUZZ Robot` as the robot model.
   `/Odometry/PedroInches` is the same pose in Pedro's own numbers.
 - **What the Auto planned**: `/Path/Full` (every path of the Auto, grey in the layout) and

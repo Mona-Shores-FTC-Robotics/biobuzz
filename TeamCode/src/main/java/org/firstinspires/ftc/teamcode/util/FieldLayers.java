@@ -21,6 +21,8 @@ public final class FieldLayers {
     public static boolean odometry = true;
     public static boolean declaredStart = true;
     public static boolean camera = true;
+    /** The shadow pose (what still fixes would do), purple; drawn only once it differs from odometry. */
+    public static boolean shadow = true;
     public static boolean frame = true;
 
     private FieldLayers() {
