@@ -9,8 +9,8 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 
 /**
- * The indicator light: a goBILDA RGB Indicator Light on a servo port, whose colour is the servo
- * position. It says, from across the field, the one thing the drive team most needs to know now;
+ * The indicator lights: goBILDA RGB Indicator Lights on one servo port (more than one light on a
+ * Y cable, so one device, all the same colour), whose colour is the servo position. It says, from across the field, the one thing the drive team most needs to know now;
  * the Driver Station's page says the rest.
  *
  * <p>{@code RobotOpMode} decides what to show each loop ({@link #choose}) and hands it over with
@@ -116,6 +116,11 @@ public class IndicatorSubsystem implements Subsystem {
         written = Double.NaN;
     }
 
+    /** Nothing to do: the light moves nothing, so it lights during INIT too. */
+    @Override
+    public void start() {
+    }
+
     /** A write only when the colour changes, and once a second to be sure the light has it. */
     @Override
     public void update() {
@@ -135,6 +140,6 @@ public class IndicatorSubsystem implements Subsystem {
 
     @Override
     public String health() {
-        return "light configured; presence unknown (a servo port reports nothing back)";
+        return "lights configured (Y-cabled, one device); presence unknown (a servo port reports nothing back)";
     }
 }

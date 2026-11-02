@@ -29,6 +29,7 @@ import org.firstinspires.ftc.teamcode.logging.BuildStamp;
 import org.firstinspires.ftc.teamcode.logging.MotionWatch;
 import org.firstinspires.ftc.teamcode.logging.Tunables;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
@@ -37,6 +38,7 @@ import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
+import org.firstinspires.ftc.teamcode.util.FieldLayers;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
@@ -92,12 +94,14 @@ import java.util.Map;
  * </ol>
  *
  * <p>{@code init_loop()} does the same with {@link #onInitLoop()}, except that bindings are not
- * polled: the robot may not move before PLAY. {@link #loopTimer} is lapped at the top of every
+ * polled: the robot may not move before PLAY. Every subsystem's {@code update()} runs, but none moves
+ * a mechanism until {@code robot.start()} at PLAY (see {@link Subsystem}, "Nothing moves before
+ * PLAY"). {@link #loopTimer} is lapped at the top of every
  * {@code loop()}.
  *
  * <p>Never set a bulk caching mode, clear the cache, or call {@code Scheduler.reset()} /
- * {@code execute()} / {@code robot.stop()} in a subclass. That is this class's job, and doing it
- * twice is how an OpMode ends up reading stale sensors or double-stepping a mechanism. {@code MANUAL}
+ * {@code execute()} / {@code robot.start()} / {@code robot.stop()} in a subclass. That is this
+ * class's job, and doing it twice is how an OpMode ends up reading stale sensors or double-stepping a mechanism. {@code MANUAL}
  * without a clear returns the same stale values forever and does not complain; having exactly one
  * place that does both is what makes that mistake impossible.
  *
@@ -182,6 +186,8 @@ public abstract class RobotOpMode extends OpMode {
     private String matchId;
     private VoltageSensor battery;
     private long lastBatteryNs;
+    /** The battery's last reading, volts: at INIT and then once a second. NaN with no sensor. */
+    private double lastBatteryVolts = Double.NaN;
     private Alliance loggedAlliance;
     private MatchSetup.Source loggedSource;
 
@@ -253,6 +259,14 @@ public abstract class RobotOpMode extends OpMode {
      */
     protected final boolean hasHandoffPose() {
         return handoffPose;
+    }
+
+    /**
+     * The battery's last reading, volts: taken at INIT and then once a second for the match log, so
+     * reading it here costs no hub round trip. NaN when the configuration has no voltage sensor.
+     */
+    protected final double batteryVolts() {
+        return lastBatteryVolts;
     }
 
     /** Called once, after the robot is built and initialized. Put your init telemetry here. */
@@ -337,6 +351,7 @@ public abstract class RobotOpMode extends OpMode {
         }
         if (battery != null) {
             double volts = battery.getVoltage();
+            lastBatteryVolts = volts;
             log.metadata("BatteryAtInit", String.format(Locale.US, "%.2f V", volts));
             if (volts < LOW_BATTERY_VOLTS) {
                 batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, LOW_BATTERY_VOLTS);
@@ -376,7 +391,14 @@ public abstract class RobotOpMode extends OpMode {
         }
         StartCheck.Result startCheck = StartCheck.evaluate(declaredStart, robot.drive.fixCount(),
                 robot.drive.meanFixX(), robot.drive.meanFixY());
-        setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
+        // An Auto may know the alliance from which of its starts the camera puts the robot on;
+        // otherwise the start check can only confirm the start already declared.
+        Alliance byStart = allianceFromStarts();
+        if (byStart != Alliance.UNKNOWN) {
+            setup.offerVision(byStart, "the camera puts the robot on the " + byStart + " start");
+        } else {
+            setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
+        }
         beginPage();
         // With no handoff and a declared start, the start line says where the robot is; the
         // "no handoff" note would only contradict it.
@@ -426,6 +448,15 @@ public abstract class RobotOpMode extends OpMode {
                 setup.alliance()));
     }
 
+    /**
+     * The alliance whose start the camera puts the robot on, for an OpMode with a start per
+     * alliance ({@code BuiltAuto}); {@code UNKNOWN} otherwise, and whenever it cannot tell. Read
+     * every INIT loop, before the start check's own confirmation. Manual X/B still wins.
+     */
+    protected Alliance allianceFromStarts() {
+        return Alliance.UNKNOWN;
+    }
+
     /** A routine is driving the robot (a FLOWER pick, a GARDEN gather): the light says so. */
     protected boolean indicatorBusy() {
         return false;
@@ -443,6 +474,8 @@ public abstract class RobotOpMode extends OpMode {
 
     private void startBody() {
         loopTimer.reset();
+        // Before this, nothing moved (G304.H, G403); from here on the mechanisms may.
+        robot.start();
         logStartCheck();
         setup.lock();
         driver.prime();
@@ -714,15 +747,18 @@ public abstract class RobotOpMode extends OpMode {
         try {
             if (fieldView.shouldDraw()) {
                 Pose pose = robot.drive.pose();
-                if (pose != null) {
+                // Each layer can be switched off in Panels → FieldLayers.
+                if (pose != null && FieldLayers.odometry) {
                     fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
                 }
                 if (initializing && declaredStart != null) {
                     Pose start = declaredStart.pose;
-                    fieldView.drawRobot(start.x(), start.y(), start.heading(), START_COLOUR);
+                    if (FieldLayers.declaredStart) {
+                        fieldView.drawRobot(start.x(), start.y(), start.heading(), START_COLOUR);
+                    }
                     double cameraX = robot.drive.meanFixX();
                     double cameraY = robot.drive.meanFixY();
-                    if (!Double.isNaN(cameraX)) {
+                    if (!Double.isNaN(cameraX) && FieldLayers.camera) {
                         fieldView.drawRobot(cameraX, cameraY, start.heading(), CAMERA_COLOUR);
                     }
                 }
@@ -1037,6 +1073,8 @@ public abstract class RobotOpMode extends OpMode {
         if (!Double.isNaN(intakeAmps)) {
             log.put("/Intake/CurrentAmps", intakeAmps);
         }
+        // The intake running with nothing asking for it: it joined a feed (IntakeSubsystem.rollerFor).
+        log.put("/Intake/FeedAssist", robot.intake.feedAssist() ? 1 : 0);
         // The beam break, raw and as "full": how long a passing piece breaks it tunes fullAfterMs.
         log.put("/Intake/BeamBroken", robot.intake.beamBroken() ? 1 : 0);
         boolean intakeFull = robot.intake.isFull();
@@ -1064,11 +1102,19 @@ public abstract class RobotOpMode extends OpMode {
         if (!Double.isNaN(rightAmps)) {
             log.put("/Launcher/RightCurrentAmps", rightAmps);
         }
+        log.put("/Launcher/Reversing", robot.launcher.reversing() ? 1 : 0);
         log.put("/Feeder/Power", robot.feeder.power());
         log.put("/Feeder/TicksPerSecond", robot.feeder.ticksPerSecond());
         double feederAmps = robot.feeder.currentAmps();
         if (!Double.isNaN(feederAmps)) {
             log.put("/Feeder/CurrentAmps", feederAmps);
+        }
+        // The transfer: the prefeed's power, and whether the gate is asked open (with where it was last written).
+        log.put("/Prefeed/Power", robot.prefeed.power());
+        log.put("/FeedGate/Feeding", robot.feedGate.state() == FeedGateSubsystem.State.FEEDING ? 1 : 0);
+        double gatePosition = robot.feedGate.position();
+        if (!Double.isNaN(gatePosition)) {
+            log.put("/FeedGate/Position", gatePosition);
         }
         // The turret: where it points, where it was asked to, and whether anyone zeroed it.
         log.put("/Turret/AngleDeg", robot.turret.angleDegrees());
@@ -1096,7 +1142,8 @@ public abstract class RobotOpMode extends OpMode {
             }
         }
         if (battery != null && now - lastBatteryNs >= BATTERY_EVERY_MS * 1_000_000L) {
-            log.put("/Robot/BatteryVolts", battery.getVoltage());
+            lastBatteryVolts = battery.getVoltage();
+            log.put("/Robot/BatteryVolts", lastBatteryVolts);
             lastBatteryNs = now;
         }
         log.commit();

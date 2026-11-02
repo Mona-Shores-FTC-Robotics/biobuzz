@@ -19,7 +19,7 @@ public final class RQualsPollenOnlyAuto {
     public static final String SOURCE = "r-quals-pollen-only.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "";
+    public static final String SAVED = "10-31|11:16AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower"};
@@ -32,7 +32,7 @@ public final class RQualsPollenOnlyAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(54.06, 7.72, 90);
+        return poses(rotated).of(55.6, 7.7, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -44,7 +44,7 @@ public final class RQualsPollenOnlyAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose startRight = p.of(54.06, 7.72, 90);
+        Pose startRight = p.of(55.6, 7.7, 90);
         Pose wallFlower = p.of(23.1, 47.2, 180);
         Pose scoringFlower = p.of(47.2, 119.3, 90);
         Pose parkRight = p.of(9.6, 95.7, 0);
@@ -70,7 +70,7 @@ public final class RQualsPollenOnlyAuto {
         return kit.sequence(
                 kit.guarded("Auto", toParkRight, 3,
                         kit.command("LaunchAll"),
-                        kit.path("to WALL_FLOWER", toWallFlower, 2.6, wallFlowerParkPath, 2.6),
+                        kit.path("to WALL_FLOWER", toWallFlower, 2.7, wallFlowerParkPath, 2.6),
                         kit.command("PickFlower", 8),
                         kit.path("to LAUNCH_LEFT", toLaunchLeft, 3.7, launchLeftParkPath, 2.9),
                         kit.command("LaunchAll"),

@@ -67,12 +67,12 @@ public class StartCheckTest {
 
     @Test
     public void thePlacementIsJustTheSeamUnderTheLeftWheels() {
-        assertEquals("Left wheels on B-C Seam", StartPositions.RED_AUDIENCE.placement());
+        assertEquals("Left side on B-C Seam", StartPositions.RED_AUDIENCE.placement());
         // The same start turned half a turn for blue: facing the audience, its left is toward blue.
         double c = org.firstinspires.ftc.teamcode.util.FieldFrame.FIELD_CENTRE_INCHES;
-        StartPosition blue = new StartPosition("Blue", Alliance.BLUE, new Pose(2 * c - 54.06, 2 * c - 7.72, Math.toRadians(270)));
-        assertEquals("Left wheels on D-E Seam", blue.placement());
-        assertEquals("Left wheels on D-E Seam", StartPositions.forAlliance(Alliance.BLUE).placement());
+        StartPosition blue = new StartPosition("Blue", Alliance.BLUE, new Pose(2 * c - 55.6, 2 * c - 7.7, Math.toRadians(270)));
+        assertEquals("Left side on D-E Seam", blue.placement());
+        assertEquals("Left side on D-E Seam", StartPositions.forAlliance(Alliance.BLUE).placement());
         assertEquals(StartPositions.RED_AUDIENCE, StartPositions.forAlliance(Alliance.UNKNOWN));
         // Far from any seam on its left: no seam is claimed.
         StartPosition middle = new StartPosition("Mid", Alliance.RED, new Pose(35.4, 9.7, Math.toRadians(90)));
@@ -84,12 +84,14 @@ public class StartCheckTest {
         assertEquals("tile C1, facing away from the audience", StartPositions.RED_AUDIENCE.where());
     }
 
-    /** R-Quals, R-Simple and Sister-Right are drawn from (54.06, 7.72, 90°): they get its name and sentence. */
+    /** The right Autos start from (55.6, 7.7, 90°), the left ones from (62.3, 133.8, 270°): each finds its start. */
     @Test
-    public void anAutoDrawnFromTheRedAudienceStartFindsIt() {
-        assertEquals(StartPositions.RED_AUDIENCE, StartPositions.at(new Pose(54.06, 7.72, Math.toRadians(90))));
-        assertEquals(null, StartPositions.at(new Pose(59.0, 133.69, Math.toRadians(270))));
-        assertEquals(null, StartPositions.at(new Pose(54.06, 7.72, Math.toRadians(270))));
+    public void anAutoDrawnFromAMeasuredStartFindsIt() {
+        assertEquals(StartPositions.RED_AUDIENCE, StartPositions.at(new Pose(55.6, 7.7, Math.toRadians(90))));
+        assertEquals(StartPositions.RED_FAR, StartPositions.at(new Pose(62.3, 133.8, Math.toRadians(270))));
+        assertEquals("Left side on C-D Seam", StartPositions.RED_FAR.placement());
+        assertEquals("the old start, before 31 Oct", null, StartPositions.at(new Pose(54.06, 7.72, Math.toRadians(90))));
+        assertEquals(null, StartPositions.at(new Pose(55.6, 7.7, Math.toRadians(270))));
     }
 
 }

@@ -1,9 +1,9 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-01-01T00:00:00.000Z",
+  "timestamp": "2026-10-31T15:16:38.100Z",
   "startPoint": {
-    "x": 59,
-    "y": 133.69,
+    "x": 62.3,
+    "y": 133.8,
     "locked": false,
     "headingDeg": 270
   },
@@ -260,8 +260,8 @@
     },
     "points": {
       "START_LEFT": [
-        59,
-        133.69,
+        62.3,
+        133.8,
         270
       ],
       "PARK_LEFT": [

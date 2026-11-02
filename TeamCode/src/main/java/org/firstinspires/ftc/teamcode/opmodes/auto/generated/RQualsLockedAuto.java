@@ -20,7 +20,7 @@ public final class RQualsLockedAuto {
     public static final String SOURCE = "r-quals-locked.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "";
+    public static final String SAVED = "10-31|11:21AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
@@ -33,7 +33,7 @@ public final class RQualsLockedAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(54.06, 7.72, 90);
+        return poses(rotated).of(55.6, 7.7, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -45,7 +45,7 @@ public final class RQualsLockedAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(54.06, 7.72, 90);
+        Pose start = p.of(55.6, 7.7, 90);
         Pose sCatch = p.of(57.5, 18, 90);
         Pose sFire = p.of(55, 24, 88);
         Pose nFire = p.of(57.5, 119, 274);

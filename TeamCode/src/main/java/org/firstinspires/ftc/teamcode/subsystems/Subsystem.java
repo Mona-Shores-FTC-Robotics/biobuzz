@@ -9,9 +9,9 @@ import org.firstinspires.ftc.teamcode.controls.Display;
  * One mechanism on the robot: a motor, a set of motors, a camera, an arm.
  *
  * <p><b>If you are writing your first subsystem, copy {@link ExampleSubsystem} and rename it.</b>
- * This interface asks you for three methods — {@link #initialize()}, {@link #update()} and
- * {@link #stop()} — and the compiler will tell you if you forget one. Leaving a body empty is fine;
- * the point is that you had to decide it should be.
+ * This interface asks you for four methods — {@link #initialize()}, {@link #start()},
+ * {@link #update()} and {@link #stop()} — and the compiler will tell you if you forget one. Leaving
+ * a body empty is fine; the point is that you had to decide it should be.
  *
  * <h2>The lifecycle</h2>
  *
@@ -21,14 +21,39 @@ import org.firstinspires.ftc.teamcode.controls.Display;
  *   <tr><td>constructor</td><td>once, when {@code Robot} is built</td>
  *       <td>{@code hardwareMap} lookups. Nothing else.</td></tr>
  *   <tr><td>{@link #initialize()}</td><td>once, in OpMode init, after every subsystem is built</td>
- *       <td>Getting ready: motor modes, starting a camera, a servo's start position.</td></tr>
- *   <tr><td>{@link #update()}</td><td>every loop</td><td>One step of the work.</td></tr>
+ *       <td>Getting ready: motor modes, starting a camera. Nothing that moves.</td></tr>
+ *   <tr><td>{@link #start()}</td><td>once, at PLAY</td>
+ *       <td>Remembering that the match has started: from here on the mechanism may move.</td></tr>
+ *   <tr><td>{@link #update()}</td><td>every loop, INIT loops included</td>
+ *       <td>One step of the work. Before {@link #start()}, nothing that moves.</td></tr>
  *   <tr><td>{@link #stop()}</td><td>once, when the OpMode ends</td>
  *       <td>Teardown: cut power, stop devices, clear state.</td></tr>
  * </table>
  *
- * <p>{@code Robot} calls {@code initialize()} and {@code stop()} on every subsystem in its list, so
- * adding yours to the list is the whole of wiring it in.
+ * <p>{@code Robot} calls {@code initialize()}, {@code start()} and {@code stop()} on every subsystem in
+ * its list, so adding yours to the list is the whole of wiring it in.
+ *
+ * <h2>Nothing moves before PLAY</h2>
+ *
+ * <p>{@link #update()} runs during INIT too (the camera and the pose need it), but until
+ * {@link #start()} it moves nothing: no servo write at all, and no motor power but zero. A servo
+ * port sends no pulse until it is first written, so an unwritten servo is limp and cannot creep or
+ * twitch. Two Competition Manual rules make this ours:
+ *
+ * <ul>
+ *   <li><b>G304.H</b>: a robot on the field must be "fully motionless following completion of
+ *       OpMode initialization". A servo still swinging, or a continuous servo creeping on a trim
+ *       that is not quite its stop, delays the match or gets the robot DISABLED.</li>
+ *   <li><b>G403</b>: no powered movement of any mechanism between AUTO and TELEOP. Drive teams INIT
+ *       the TeleOp in that break; if its INIT makes anything "move or twitch in any way", that is a
+ *       foul, and the manual's fix is to wait for TELEOP before pressing INIT.</li>
+ * </ul>
+ *
+ * <p>R103 does allow an OpMode to hold the 18 in starting size with servos at INIT. We do not use it:
+ * the same INIT runs after an Auto, where it would be a G403 foul. A mechanism that leaves the
+ * starting size unpowered gets a mechanical stop or latch (R103.A) instead. The indicator light is
+ * on a servo port but moves nothing, so it lights during INIT. {@code InitMovesNothingTest}
+ * checks the mechanisms.
  *
  * <h2>How a subsystem runs</h2>
  *
@@ -78,6 +103,14 @@ public interface Subsystem {
      * its starting state. Empty is a fine answer.
      */
     void initialize();
+
+    /**
+     * The match has started: PLAY was pressed. Called once, before the first loop after PLAY.
+     *
+     * <p>Until this runs, {@link #update()} moves nothing (see "Nothing moves before PLAY" above).
+     * A subsystem with nothing to move leaves it empty.
+     */
+    void start();
 
     /**
      * One step of this mechanism's work. Called once per OpMode loop.

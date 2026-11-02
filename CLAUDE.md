@@ -18,15 +18,15 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 
 | Piece | Rule |
 |---|---|
-| `Robot` | Owns every subsystem, in one list. That list is the only registration: it is how a subsystem is initialized, updated and stopped. |
-| `subsystems/Subsystem` | `initialize()` / `update()` / `stop()`. `update()` is one non-blocking step; `stop()` is final teardown only — a mechanism that pauses needs its own name (`idle()`, `spinDown()`). `health()` is one line for the match log on what it found at init; a motor-only subsystem says "presence unknown", never "present". |
+| `Robot` | Owns every subsystem, in one list. That list is the only registration: it is how a subsystem is initialized, started, updated and stopped. |
+| `subsystems/Subsystem` | `initialize()` / `start()` / `update()` / `stop()`. **Nothing moves before PLAY** (G304.H, G403): until `start()`, `update()` writes no servo and no motor power but zero, and no mechanism is held at INIT by a servo — one that leaves the 18 in cube unpowered gets a mechanical stop. `InitMovesNothingTest` enforces it. `update()` is one non-blocking step; `stop()` is final teardown only — a mechanism that pauses needs its own name (`idle()`, `spinDown()`). `health()` is one line for the match log on what it found at init; a motor-only subsystem says "presence unknown", never "present". |
 | `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. Only match OpModes are `@TeleOp` / `@Autonomous`; every diagnostic, bench and tuner is `@Utility`, so the Driver Station's Utility menu holds them and the TeleOp list holds what a drive team runs. |
 | `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. Also the Auto Builder's `AutoDrive`: a path or hold hands the loop to Pedro's `Follower` until the next `drive(...)`. |
 | `controls/` | `ControlScheme` is the only place an input is chosen: one layout for both teams, mapping each `Action` to an `Input`. The TeleOp asks `controls.held(Action.FIRE)` / `controls.on(Action.X)`, never a raw button. `Input` cannot name Share, Options, the touchpad or PS. `Bindings` underneath labels every binding, and the DS Controls page and the printed cheat sheet (`CheatSheet`, written by `CheatSheetTest` to `TeamCode/build/cheat-sheets/`) are generated from the same layout, so never document controls anywhere else. `Display`: the DS pages; write the Match page in `onLoop()`, give a subsystem a Robot-page block by overriding `describe()`. |
 | `localization/` | CELL sighting → gated position fix (`TagGate`, `CellFix`), field points, start and reset positions, the start check. The filter is Pedro's. See "Localization" below. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
-| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
+| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. A step's own time limit (a command's timeout, a `firstOf`'s "at most") never cuts a feed once it has started: it guards the wait for spin-up, and the feed runs `LaunchCards`' set time, the one number for it. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
 | `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
 | `launcher2/` | **Test rig**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy its pattern into robot code. |
@@ -97,7 +97,9 @@ sets it and may correct it, only through `localization/`: every frame passes `Ta
 range, outlier, tag count, field bounds) before `CellFix` uses it. Two or more gated tags on settled
 CELLs give the whole pose (each tag's field position is known, since a TIP turns the row about its
 own line), which seeds an unreferenced pose. Once the pose is referenced the camera gives position
-only, with the Pinpoint's heading: `relocalizeFromCamera()` moves x and y and keeps the heading.
+only, with the Pinpoint's heading: `relocalizeFromCamera()` moves x and y and keeps the heading,
+up to `maxRelocalizeJumpIn`. A bigger correction means the pose is lost: with the robot still and
+two or more gated tags it resets the whole pose, heading too, as the seed does; otherwise it is refused.
 Stationary fixes (`stillFixes`) and continuous fixes (`continuousFixes`) into the filter are both
 off until a measurement shows they help. The reset spots (`ResetPositions`, NaN until measured) are
 fixed, measured poses, the left and right corners of each alliance's wall, chosen by the button the
@@ -237,6 +239,10 @@ network; if the sandbox blocks it, say so.
 
 **No robot is attached to a Claude session.** Anything needing hardware — tuning values, motor
 directions, port checks — stops and produces a checklist for the next meeting instead of a guess.
+Match logs reach a session on GitHub: `tools/pull-logs` sends them to throwaway
+`logs/<date>-<robot network>` branches. "Pull logs" means fetch
+`'refs/heads/logs/*:refs/remotes/origin/logs/*'` and read them with
+`tools/pull-logs/read_logs.py`; never ask the mentor to move log files by hand.
 Remote containers have no `gh`; use the GitHub MCP tools.
 
 ## Process

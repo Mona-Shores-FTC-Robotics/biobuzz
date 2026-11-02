@@ -20,7 +20,7 @@ public final class SisterRightFixedAuto {
     public static final String SOURCE = "sister-right-fixed.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "";
+    public static final String SAVED = "10-31|11:21AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
@@ -33,7 +33,7 @@ public final class SisterRightFixedAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(54.06, 7.72, 90);
+        return poses(rotated).of(55.6, 7.7, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -45,7 +45,7 @@ public final class SisterRightFixedAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(54.06, 7.72, 90);
+        Pose start = p.of(55.6, 7.7, 90);
         Pose sCatch = p.of(57.5, 21, 90);
         Pose gardenIn = p.of(11.5, 22.1, 270);
         Pose garden = p.of(8.5, 9.5, 270);

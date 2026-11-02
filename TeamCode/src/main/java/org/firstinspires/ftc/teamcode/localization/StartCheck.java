@@ -64,13 +64,13 @@ public final class StartCheck {
             if (map != null) {
                 for (String line : map) display.line(line);
             }
-            // "^ Start: Left wheels on B-C Seam", bold, the arrow in the colour of how it stands: the
+            // "^ Start: Left side on B-C Seam", bold, the arrow in the colour of how it stands: the
             // one line to read, under the map whose arrow it is.
             boolean warn = status == Status.OUT_OF_POSITION;
             display.line("<b><font color=\"" + (warn ? "#FFB300" : "#4CAF50") + "\">"
                     + start.arrow() + "</font> Start: " + start.placement() + "</b>");
             if (status == Status.UNCONFIRMED) {
-                display.line("<small>camera: not seeing it yet</small>");
+                display.line("<small>camera: no fix matches this start yet</small>");
             } else if (warn) {
                 display.line(String.format(java.util.Locale.US,
                         "camera disagrees by %.0f in — CHECK THE MARKS", errorIn));

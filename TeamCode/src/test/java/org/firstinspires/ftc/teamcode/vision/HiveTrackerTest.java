@@ -51,6 +51,32 @@ public class HiveTrackerTest {
         return hive.observe(lingering, 0, lostForMs, stillLooking, nowMs);
     }
 
+    /** An Autonomous's PLAY: the match-start position, assumed, held through the camera's gaps. */
+    @Test
+    public void theMatchStartIsAssumedUntilTheCameraSettlesIt() {
+        assertEquals(UNSEEN, hive.observe(UNSEEN, 0, NEVER, false, 0));
+        hive.assumeMatchStart();
+        assertEquals(RIGHT_CELL_UP, hive.state());
+        assertTrue(hive.rightCellUp());
+        assertTrue(hive.assumed());
+        assertEquals(RIGHT_CELL_UP, lose(UNSEEN, NEVER, false, 100));
+        assertEquals(RIGHT_CELL_UP, lose(UNSEEN, 1000, true, 200));
+        assertEquals(0, hive.tips());
+        // The camera sees the HIVE has TIPped: that replaces the assumption, and counts the TIP.
+        assertEquals(LEFT_CELL_UP, see(LEFT_CELL_UP, 300));
+        assertTrue(hive.leftCellUp());
+        assertFalse(hive.assumed());
+        assertEquals(1, hive.tips());
+    }
+
+    @Test
+    public void seeingTheMatchStartClearsTheAssumptionWithNoTip() {
+        hive.assumeMatchStart();
+        assertEquals(RIGHT_CELL_UP, see(RIGHT_CELL_UP, 0));
+        assertFalse(hive.assumed());
+        assertEquals(0, hive.tips());
+    }
+
     @Test
     public void startsUnseenAndTakesWhatItSees() {
         assertEquals(UNSEEN, hive.observe(UNSEEN, 0, NEVER, false, 0));

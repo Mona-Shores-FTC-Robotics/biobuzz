@@ -49,6 +49,11 @@ public final class HiveSubsystem implements Subsystem {
         blueSeenFrom = null;
     }
 
+    /** Reads the camera; nothing to move. */
+    @Override
+    public void start() {
+    }
+
     @Override
     public void update() {
         long nowMs = System.nanoTime() / 1_000_000L;
@@ -71,6 +76,15 @@ public final class HiveSubsystem implements Subsystem {
         double turned = Math.abs(Math.IEEEremainder(now.heading() - seenFrom.heading(), 2 * Math.PI));
         double moved = Math.hypot(now.x() - seenFrom.x(), now.y() - seenFrom.y());
         return turned <= Math.toRadians(Tuning.lookToleranceDeg) && moved <= Tuning.lookToleranceIn;
+    }
+
+    /**
+     * An Autonomous's PLAY: both HIVEs are assumed at the match-start position until the camera
+     * sees them settle ({@link HiveTracker#assumeMatchStart()}).
+     */
+    public void assumeMatchStart() {
+        red.assumeMatchStart();
+        blue.assumeMatchStart();
     }
 
     /** {@code alliance}'s HIVE; null for UNKNOWN. */
