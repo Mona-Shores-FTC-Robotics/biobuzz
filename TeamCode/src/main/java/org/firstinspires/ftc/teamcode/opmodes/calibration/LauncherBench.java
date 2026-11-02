@@ -5,6 +5,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
@@ -48,6 +49,7 @@ import java.util.Locale;
  *
  * <p>Standalone diagnostics, like {@code OctoQuadBench}: the exception CLAUDE.md allows for rigs.
  */
+@Disabled // The bench rig is being dismantled (mentor, 2 Nov 2026); Launch Test covers the robot. Delete with the Y_CABLED paths when it is gone.
 @Utility(name = "Launcher Bench", description = "The launcher and feeder on a bench hub: speeds, powers, directions, graphs")
 @Configurable
 public class LauncherBench extends OpMode {
