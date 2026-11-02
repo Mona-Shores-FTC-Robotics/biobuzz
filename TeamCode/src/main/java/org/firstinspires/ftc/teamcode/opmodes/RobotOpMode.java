@@ -450,8 +450,17 @@ public abstract class RobotOpMode extends OpMode {
     private void showIndicator(boolean init) {
         boolean cameraFault = !robot.vision.isAvailable() || !robot.vision.isConnected();
         robot.indicator.show(IndicatorSubsystem.choose(init, batteryNote != null, cameraFault,
-                robot.vision.freshResultCount() == 0, indicatorBusy(), robot.drive.poseReferenced(),
-                setup.alliance()));
+                robot.vision.freshResultCount() == 0, indicatorBusy(), robot.colorSensor.lane().count(),
+                IntakeSubsystem.stopRollerAtCount, robot.drive.poseReferenced(), setup.alliance()),
+                !init && indicatorLaunchReady());
+    }
+
+    /**
+     * The launcher is at launch speed, so the light flashes: the drive team can shoot. The
+     * launcher's own at-speed by default; an OpMode with an idle speed narrows it to launch speed.
+     */
+    protected boolean indicatorLaunchReady() {
+        return robot.launcher.atSpeed();
     }
 
     /**
