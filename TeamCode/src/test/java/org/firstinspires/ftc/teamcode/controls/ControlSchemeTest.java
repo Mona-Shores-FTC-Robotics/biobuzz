@@ -25,12 +25,24 @@ public class ControlSchemeTest {
     }
 
     @Test
-    public void everyActionIsBound() {
+    public void everyActionIsBoundButTheOnesLeftOut() {
         Map<Action, Input> layout = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK);
         for (Action action : Action.values()) {
-            assertTrue("missing " + action, layout.containsKey(action));
+            assertEquals(action.toString(), !ControlScheme.NOT_BOUND.contains(action), layout.containsKey(action));
         }
     }
+
+    @Test
+    public void aLockedTurretsControlsAreLeftOutAndAnUnlockedOnesKept() {
+        Map<Action, Input> locked = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true);
+        Map<Action, Input> unlocked = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, false);
+        for (Action action : ControlScheme.TURRET_ACTIONS) {
+            assertFalse(action + " offered on a locked turret", locked.containsKey(action));
+            assertTrue(action + " missing on an aiming turret", unlocked.containsKey(action));
+        }
+        assertEquals("nothing else changes", unlocked.size() - ControlScheme.TURRET_ACTIONS.size(), locked.size());
+    }
+
 
     @Test
     public void intakeAndUnjamAreTheSameInputOnBothPads() {

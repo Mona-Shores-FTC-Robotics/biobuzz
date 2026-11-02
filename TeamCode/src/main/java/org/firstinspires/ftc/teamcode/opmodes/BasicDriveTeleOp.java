@@ -163,7 +163,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         aimer = new TurretAimer(robot);
         picker = new FlowerPicker(robot, text -> log.event(text));
         gatherer = new GardenGather(robot, text -> log.event(text));
-        controls = new Controls(TeleOpConfig.flowerPickButton, gamepad1, gamepad2, driver, operator);
+        // A locked turret's controls are left out, so the pages show only buttons that work.
+        controls = new Controls(TeleOpConfig.flowerPickButton, TurretSubsystem.lockedForward,
+                gamepad1, gamepad2, driver, operator);
         log.metadata("Controls/Drive", robotCentric() ? "robot-centric" : "field-centric");
 
         // Bound in Action order, so the Controls page reads like the cheat sheet.
