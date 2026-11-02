@@ -38,6 +38,14 @@ public final class InitWarnings {
         COLOR_SENSOR
     }
 
+    /**
+     * The camera may see tags this long after INIT without one fix landing on the declared start
+     * before that is a warning: the robot is on another start, or the Auto picked is the other
+     * side's (an L Auto on the R mark, 2 Nov 2026, said nothing). A fix lands on the right start
+     * within a second when the robot is on it.
+     */
+    public static final long START_GRACE_MS = 10_000;
+
     /** The camera may take this long after INIT to send its first frame before that is a warning. */
     public static final long FIRST_FRAME_GRACE_MS = 15_000;
 
@@ -74,6 +82,19 @@ public final class InitWarnings {
                          StartCheck.Result start, String cameraProblem, long cameraFrames,
                          long msSinceInit, double batteryVolts, double lowBatteryVolts,
                          boolean colorSensorSilent) {
+        evaluate(pinpointProblem, alliance, cameraSees, start, cameraProblem, cameraFrames,
+                msSinceInit, batteryVolts, lowBatteryVolts, colorSensorSilent, false);
+    }
+
+    /**
+     * As above, and {@code tagsInView}: the camera sees enough tags for a fix now. With tags in
+     * view and still no fix on the declared start {@link #START_GRACE_MS} after INIT, the robot is
+     * not on that start.
+     */
+    public void evaluate(String pinpointProblem, Alliance alliance, Alliance cameraSees,
+                         StartCheck.Result start, String cameraProblem, long cameraFrames,
+                         long msSinceInit, double batteryVolts, double lowBatteryVolts,
+                         boolean colorSensorSilent, boolean tagsInView) {
         for (int i = 0; i < KINDS.length; i++) {
             what[i] = null;
             action[i] = null;
@@ -92,6 +113,10 @@ public final class InitWarnings {
         if (start != null && start.status == StartCheck.Status.OUT_OF_POSITION) {
             set(Kind.OFF_MARK, String.format(Locale.US, "%.0f in off the start mark", start.errorIn),
                     "move robot to start position");
+        } else if (start != null && start.status == StartCheck.Status.UNCONFIRMED && tagsInView
+                && cameraProblem == null && msSinceInit >= START_GRACE_MS) {
+            set(Kind.OFF_MARK, "Not on the " + start.start + " start",
+                    "check the Auto (L or R) and move the robot onto its mark");
         }
         if (cameraProblem != null) {
             set(Kind.CAMERA_NOT_ANSWERING, "Camera: " + cameraProblem, REPLUG);

@@ -518,7 +518,8 @@ public abstract class RobotOpMode extends OpMode {
                 : !robot.vision.isConnected() ? "not answering" : null;
         initWarnings.evaluate(pinpointProblem, setup.alliance(), setup.visionAlliance(), startCheck,
                 cameraProblem, robot.vision.freshResultCount(), (System.nanoTime() - initStartNs) / 1_000_000L,
-                batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent());
+                batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent(),
+                robot.drive.lastFrame().count() >= LocalizationTuning.minFixTags);
         String summary = initWarnings.summary();
         if (!summary.equals(loggedWarnings)) {
             log.event("INIT warnings: " + summary);
