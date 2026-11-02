@@ -17,7 +17,8 @@ import java.util.function.DoubleSupplier;
  * The launcher's cards for the Auto Builder: {@code SpinUp}, {@code LaunchAll}, {@code LaunchOne}
  * and the {@code Empty} trigger, built on {@code robot.launcher} and {@code robot.feeder}.
  *
- * <p>A launch card spins the launcher up, waits until it is at speed <em>and the robot has
+ * <p>A launch card spins the launcher up, waits until it is at speed (at most
+ * {@link #maxSpinUpWaitS}, then it feeds anyway and logs it) <em>and the robot has
  * settled</em> ({@link PathEndSettle}: still, and at the last path's end heading), runs the feeder
  * for a set time, then idles the feeder. A fire step after a path therefore waits for the robot,
  * not for Pedro's "done" (#193). If the robot has not settled within
@@ -58,6 +59,15 @@ public final class LaunchCards {
      * A step's time limit never cuts a feed that has started (AutoRegistry.holdTimeLimitsWhile).
      */
     public static double launchAllFeedS = 3.5;
+
+    /**
+     * The longest a launch card waits for the launcher to reach speed, seconds; after that it feeds
+     * at whatever speed the wheels have reached and says so in the match log. A slightly slow shot
+     * beats none: on 1 Nov 2026 (20245) R Quals' first LaunchAll never fed, its right wheel stuck at
+     * 1520 of 1625 on a sagging battery, until the step timed out and the robot drove off with all
+     * four balls. Spin-up takes about 1.2 s on a good battery. NaN or below 0 counts as 0.
+     */
+    public static double maxSpinUpWaitS = 2.5;
 
     /** How long the feeder runs for {@code LaunchOne}, seconds. <b>Not measured.</b> */
     public static double launchOneFeedS = 0.5;
@@ -163,8 +173,17 @@ public final class LaunchCards {
                     launcher.spinUp();
                 })
                 .setExecute(() -> {
-                    if (!Double.isNaN(fedAt[0]) || !launcher.atSpeed()) return;
+                    if (!Double.isNaN(fedAt[0])) return;
                     double now = secondsNow.getAsDouble();
+                    if (!launcher.atSpeed()) {
+                        if (now - startedAt[0] < nonNegative(maxSpinUpWaitS)) return;
+                        // Not at speed in time: a slightly slow shot beats driving off with every ball.
+                        note.accept(String.format(Locale.US, "%s fed below launch speed: not at speed %.2f s after it started",
+                                name, now - startedAt[0]));
+                        shotsAtFeed[0] = launcher.shots();
+                        feed(fedAt, now);
+                        return;
+                    }
                     if (settled.getAsBoolean()) {
                         shotsAtFeed[0] = launcher.shots();
                         feed(fedAt, now);
