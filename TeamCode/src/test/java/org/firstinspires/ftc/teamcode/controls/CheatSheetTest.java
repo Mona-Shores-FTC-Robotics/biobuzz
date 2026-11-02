@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.controls;
 
 import static org.junit.Assert.assertTrue;
 
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.junit.Test;
 
 import java.io.File;
@@ -29,7 +30,8 @@ public class CheatSheetTest {
         for (CheatSheet.Team team : CheatSheet.Team.values()) {
             String logo = logo(new File(teamCode, "cheat-sheets"), team.number);
             String html = CheatSheet.html(team, logo);
-            for (Map.Entry<Action, Input> entry : ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).entrySet()) {
+            for (Map.Entry<Action, Input> entry : ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK,
+                    TurretSubsystem.lockedForward).entrySet()) {
                 if (entry.getValue().isStick()) continue; // the sheet leaves the sticks off
                 assertTrue(team + " sheet is missing " + entry.getKey(),
                         html.contains(entry.getKey().description.replace("&", "&amp;")));

@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.controls;
 
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Which input runs which {@link Action}: the only place a button is chosen. One layout, shared by
@@ -10,6 +13,12 @@ import java.util.Map;
  *
  * <p>Both people can run the intake (R2) and unjam (L2), the same input on each pad. When both
  * press the intake at once, the driver wins ({@link IntakeArbiter}).
+ *
+ * <p>A layout leaves out what does nothing on this robot, so the Controls page and the cheat
+ * sheet show only buttons that work: {@link #NOT_BOUND} always, and {@link #TURRET_ACTIONS} while
+ * the turret is locked forward ({@link #layout(Input, boolean)}). Chosen from 93 minutes of Basic
+ * Drive on 20245 (1 to 2 Nov 2026): the turret controls never pressed on a locked turret,
+ * auto-park pressed five times with nothing built behind it.
  *
  * <p>{@code ControlSchemeTest} checks the layout: no input used twice on one gamepad, every
  * action the OpMode needs present.
@@ -23,10 +32,33 @@ public final class ControlScheme {
     public static final Input DEFAULT_FLOWER_PICK = Input.CROSS;
 
     /**
+     * Actions no layout binds: auto-park, which is not built. Its code stays, so binding it again
+     * is one line here once it does something.
+     */
+    public static final Set<Action> NOT_BOUND = Collections.unmodifiableSet(EnumSet.of(Action.AUTO_PARK));
+
+    /** The operator's turret controls: left out while the turret is locked forward. */
+    public static final Set<Action> TURRET_ACTIONS = Collections.unmodifiableSet(EnumSet.of(
+            Action.TURRET_LOCK, Action.TRIM_LEFT, Action.TRIM_RIGHT, Action.TRIM_RESET, Action.TURRET_ZERO));
+
+    /**
+     * {@link #layout(Input)} without the turret's controls when {@code turretLocked}: what the
+     * match TeleOp and the cheat sheet use, so a locked turret's buttons are not offered.
+     */
+    public static Map<Action, Input> layout(Input flowerPick, boolean turretLocked) {
+        Map<Action, Input> map = layout(flowerPick);
+        if (turretLocked) {
+            for (Action action : TURRET_ACTIONS) map.remove(action);
+        }
+        return map;
+    }
+
+    /**
      * The inputs, with the FLOWER pick on {@code flowerPick}. The pick may be any face button or
      * D-pad direction; whatever driver action had that input moves to the pick's default
      * ({@link #DEFAULT_FLOWER_PICK}), so the two swap and nothing is lost. Anything else (a stick,
-     * a trigger, null) leaves the pick on its default.
+     * a trigger, null) leaves the pick on its default. Every action but {@link #NOT_BOUND},
+     * turret controls included.
      */
     public static Map<Action, Input> layout(Input flowerPick) {
         EnumMap<Action, Input> map = new EnumMap<>(Action.class);
@@ -39,7 +71,6 @@ public final class ControlScheme {
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
         map.put(Action.GARDEN_GATHER, Input.TRIANGLE);
-        map.put(Action.AUTO_PARK, Input.SQUARE);
         // Pose and heading fixes are occasional, so they sit on the D-pad and leave the face
         // buttons for play.
         map.put(Action.RESET_HEADING, Input.DPAD_UP);
