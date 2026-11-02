@@ -57,13 +57,16 @@ public class ColorSensorSubsystem implements Subsystem {
     /**
      * POLLEN's hue range, degrees (min above max wraps through 0). Bench, 2 Nov 2026: 73° to 94° at
      * rest, saturation about 0.7 (it falls to 0.35 when pressed against the sensor; the hue holds).
-     * 37 to 117 keeps a wide gap to NECTAR.
+     * The low end sits midway to red NECTAR's highest reading.
      */
-    public static double pollenHueMin = 37;
-    public static double pollenHueMax = 117;
-    /** NECTAR's hue range, degrees. Bench, 2 Nov 2026: 212° to 232°, saturation 0.62 to 0.88. */
-    public static double nectarHueMin = 189;
-    public static double nectarHueMax = 269;
+    public static double pollenHueMin = 48;
+    public static double pollenHueMax = 130;
+    /** Red NECTAR's hue range, degrees; it wraps through 0. Bench, 2 Nov 2026: 9° to 22°, saturation 0.76. */
+    public static double redNectarHueMin = 330;
+    public static double redNectarHueMax = 47;
+    /** Blue NECTAR's hue range, degrees. Bench, 2 Nov 2026: 212° to 232°, saturation 0.62 to 0.88. */
+    public static double blueNectarHueMin = 180;
+    public static double blueNectarHueMax = 270;
 
     private final NormalizedColorSensor sensor;
     /** The same device, as its proximity side: the V3 is both. */
@@ -123,7 +126,8 @@ public class ColorSensorSubsystem implements Subsystem {
         boolean outward = intake.state() == IntakeSubsystem.State.OUT
                 || prefeed.state() == PrefeedSubsystem.State.OUT;
         lane.step(fresh, alpha,
-                LaneTracker.classify(hueDeg, pollenHueMin, pollenHueMax, nectarHueMin, nectarHueMax),
+                LaneTracker.classify(hueDeg, pollenHueMin, pollenHueMax,
+                        redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax),
                 outward, launcher.shotJustDetected(), presentAbove, leaveBelow);
     }
 

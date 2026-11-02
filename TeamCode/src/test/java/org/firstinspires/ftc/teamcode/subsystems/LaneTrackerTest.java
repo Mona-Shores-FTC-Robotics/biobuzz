@@ -41,12 +41,12 @@ public class LaneTrackerTest {
     public void piecesJoinTheBackAndShotsTakeTheFront() {
         read(FAR, Piece.UNKNOWN); // baseline: nothing there
         pass(Piece.POLLEN);
-        pass(Piece.NECTAR);
+        pass(Piece.BLUE_NECTAR);
         pass(Piece.POLLEN);
         assertEquals(3, lane.count());
-        assertEquals("PNP_", lane.lettersFrontToBack());
+        assertEquals("PBP_", lane.lettersFrontToBack());
         shot();
-        assertEquals("NP__", lane.lettersFrontToBack());
+        assertEquals("BP__", lane.lettersFrontToBack());
         assertEquals("lane: shot, 2 left", lane.event());
     }
 
@@ -56,10 +56,10 @@ public class LaneTrackerTest {
         pass(Piece.POLLEN);
         pass(Piece.POLLEN);
         pass(Piece.POLLEN);
-        read(NEAR, Piece.NECTAR);
-        read(NEAR, Piece.NECTAR);
+        read(NEAR, Piece.BLUE_NECTAR);
+        read(NEAR, Piece.BLUE_NECTAR);
         assertTrue(lane.full());
-        assertEquals("PPPN", lane.lettersFrontToBack());
+        assertEquals("PPPB", lane.lettersFrontToBack());
     }
 
     @Test
@@ -85,16 +85,16 @@ public class LaneTrackerTest {
     public void theBrightestReadingNamesThePiece() {
         read(FAR, Piece.UNKNOWN);
         read(0.2, Piece.UNKNOWN); // at the edge of the spot
-        read(0.9, Piece.NECTAR);  // right under it
+        read(0.9, Piece.BLUE_NECTAR);  // right under it
         read(0.5, Piece.POLLEN);  // dimmer again: ignored
-        assertEquals("N___", lane.lettersFrontToBack());
+        assertEquals("B___", lane.lettersFrontToBack());
     }
 
     @Test
     public void anEjectTakesTheBackPiece() {
         read(FAR, Piece.UNKNOWN);
         pass(Piece.POLLEN);
-        pass(Piece.NECTAR);
+        pass(Piece.BLUE_NECTAR);
         readOutward(NEAR); // the NECTAR comes back under the sensor: no change yet
         assertEquals(2, lane.count());
         readOutward(FAR);  // and out
@@ -108,7 +108,7 @@ public class LaneTrackerTest {
         assertEquals(0, lane.count());
         assertEquals(1, lane.underflows());
         lane.fill(Piece.POLLEN, 4);
-        pass(Piece.NECTAR);
+        pass(Piece.BLUE_NECTAR);
         assertEquals(4, lane.count());
         assertEquals(1, lane.overflows());
     }
@@ -132,12 +132,17 @@ public class LaneTrackerTest {
         assertFalse(lane.present());
     }
 
+    private static Piece shipped(double hue) {
+        return LaneTracker.classify(hue, ColorSensorSubsystem.pollenHueMin, ColorSensorSubsystem.pollenHueMax,
+                ColorSensorSubsystem.redNectarHueMin, ColorSensorSubsystem.redNectarHueMax,
+                ColorSensorSubsystem.blueNectarHueMin, ColorSensorSubsystem.blueNectarHueMax);
+    }
+
     @Test
     public void theBenchReadingsClassifyWithTheShippedRanges() {
-        assertEquals(Piece.POLLEN, LaneTracker.classify(77, ColorSensorSubsystem.pollenHueMin,
-                ColorSensorSubsystem.pollenHueMax, ColorSensorSubsystem.nectarHueMin, ColorSensorSubsystem.nectarHueMax));
-        assertEquals(Piece.NECTAR, LaneTracker.classify(229, ColorSensorSubsystem.pollenHueMin,
-                ColorSensorSubsystem.pollenHueMax, ColorSensorSubsystem.nectarHueMin, ColorSensorSubsystem.nectarHueMax));
+        for (double h : new double[] {73, 77, 94}) assertEquals("POLLEN at " + h, Piece.POLLEN, shipped(h));
+        for (double h : new double[] {9, 11, 22}) assertEquals("red NECTAR at " + h, Piece.RED_NECTAR, shipped(h));
+        for (double h : new double[] {212, 229, 232}) assertEquals("blue NECTAR at " + h, Piece.BLUE_NECTAR, shipped(h));
         assertTrue("an empty lane reads below presentAbove", 0.020 < ColorSensorSubsystem.presentAbove);
         assertTrue("the dimmest POLLEN at rest reads above it", 0.155 > ColorSensorSubsystem.presentAbove);
         assertTrue("leaveBelow sits under presentAbove", ColorSensorSubsystem.leaveBelow < ColorSensorSubsystem.presentAbove);
@@ -145,12 +150,12 @@ public class LaneTrackerTest {
 
     @Test
     public void classifyUsesRangesAndWrapsThroughZero() {
-        assertEquals(Piece.POLLEN, LaneTracker.classify(60, 40, 80, 250, 300));
-        assertEquals(Piece.NECTAR, LaneTracker.classify(270, 40, 80, 250, 300));
-        assertEquals(Piece.UNKNOWN, LaneTracker.classify(150, 40, 80, 250, 300));
-        assertEquals(Piece.NECTAR, LaneTracker.classify(5, 40, 80, 340, 20));
-        assertEquals(Piece.NECTAR, LaneTracker.classify(350, 40, 80, 340, 20));
-        assertEquals(Piece.UNKNOWN, LaneTracker.classify(60, Double.NaN, 80, 250, 300));
-        assertEquals(Piece.UNKNOWN, LaneTracker.classify(Double.NaN, 40, 80, 250, 300));
+        assertEquals(Piece.POLLEN, LaneTracker.classify(60, 40, 80, 340, 20, 250, 300));
+        assertEquals(Piece.BLUE_NECTAR, LaneTracker.classify(270, 40, 80, 340, 20, 250, 300));
+        assertEquals(Piece.RED_NECTAR, LaneTracker.classify(5, 40, 80, 340, 20, 250, 300));
+        assertEquals(Piece.RED_NECTAR, LaneTracker.classify(350, 40, 80, 340, 20, 250, 300));
+        assertEquals(Piece.UNKNOWN, LaneTracker.classify(150, 40, 80, 340, 20, 250, 300));
+        assertEquals(Piece.UNKNOWN, LaneTracker.classify(60, Double.NaN, 80, 340, 20, 250, 300));
+        assertEquals(Piece.UNKNOWN, LaneTracker.classify(Double.NaN, 40, 80, 340, 20, 250, 300));
     }
 }

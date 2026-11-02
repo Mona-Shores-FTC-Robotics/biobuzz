@@ -31,8 +31,8 @@ import java.util.Locale;
  */
 public final class LaneTracker {
 
-    /** What a slot holds. */
-    public enum Piece { POLLEN, NECTAR, UNKNOWN }
+    /** What a slot holds. NECTAR comes in each alliance's colour. */
+    public enum Piece { POLLEN, RED_NECTAR, BLUE_NECTAR, UNKNOWN }
 
     /** Pieces the lane holds behind the closed gate. */
     public static final int SLOTS = 4;
@@ -131,13 +131,14 @@ public final class LaneTracker {
     }
 
     /**
-     * Which piece a hue is: inside POLLEN's range, inside NECTAR's, or neither. A range whose min is
-     * above its max wraps through 0° (a red). NaN bounds or a NaN hue give UNKNOWN.
+     * Which piece a hue is: inside POLLEN's range, red NECTAR's, blue NECTAR's, or none. A range
+     * whose min is above its max wraps through 0° (red does). NaN bounds or a NaN hue give UNKNOWN.
      */
     public static Piece classify(double hueDeg, double pollenMin, double pollenMax,
-                                 double nectarMin, double nectarMax) {
+                                 double redMin, double redMax, double blueMin, double blueMax) {
         if (inRange(hueDeg, pollenMin, pollenMax)) return Piece.POLLEN;
-        if (inRange(hueDeg, nectarMin, nectarMax)) return Piece.NECTAR;
+        if (inRange(hueDeg, redMin, redMax)) return Piece.RED_NECTAR;
+        if (inRange(hueDeg, blueMin, blueMax)) return Piece.BLUE_NECTAR;
         return Piece.UNKNOWN;
     }
 
@@ -180,12 +181,13 @@ public final class LaneTracker {
         return event;
     }
 
-    /** Front to back, one letter a slot: P, N, ? and _ for empty. */
+    /** Front to back, one letter a slot: P POLLEN, R red NECTAR, B blue NECTAR, ? unknown, _ empty. */
     public String lettersFrontToBack() {
         StringBuilder b = new StringBuilder(SLOTS);
         for (int i = 0; i < SLOTS; i++) {
             Piece p = slot(i);
-            b.append(p == null ? '_' : p == Piece.POLLEN ? 'P' : p == Piece.NECTAR ? 'N' : '?');
+            b.append(p == null ? '_' : p == Piece.POLLEN ? 'P' : p == Piece.RED_NECTAR ? 'R'
+                    : p == Piece.BLUE_NECTAR ? 'B' : '?');
         }
         return b.toString();
     }

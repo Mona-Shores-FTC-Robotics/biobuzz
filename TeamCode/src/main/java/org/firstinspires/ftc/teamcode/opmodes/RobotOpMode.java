@@ -1126,7 +1126,7 @@ public abstract class RobotOpMode extends OpMode {
             log.put("/ColorSensor/Saturation", robot.colorSensor.saturation());
         }
         // The lane tracker's guess (LaneTracker), data only: count, each slot (0 empty, 1 POLLEN,
-        // 2 NECTAR, 3 unknown, front first), and its arrivals, shots and ejects as events.
+        // 2 red NECTAR, 3 blue NECTAR, 4 unknown, front first), and its arrivals, shots and ejects as events.
         LaneTracker lane = robot.colorSensor.lane();
         log.put("/Lane/Count", lane.count());
         log.put("/Lane/Present", lane.present() ? 1 : 0);
