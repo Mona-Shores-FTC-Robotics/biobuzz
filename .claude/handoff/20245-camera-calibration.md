@@ -25,6 +25,25 @@ below has been tested on the robot.
   (tape B 9.2-9.5 gives 3.5-3.85, consistent).
 - Robot centre = middle of the wheelbase (Robot20245.java comment; pods 6.5 in right, 1.0 in forward).
 
+## 2 Nov: the two-lane plan (branch claude/funny-dirac-7k2k37 = master + this work)
+Safe lane, for a PR to master once robot-tested:
+- Camera reset (D-pad down, held) now checks heading: if the camera's whole-pose heading disagrees
+  with the Pinpoint by > LocalizationTuning.headingFixDeg (4) over headingFixFrames (5) still
+  frames, the reset takes the camera's heading too and re-solves x, y. Match page shows
+  "Heading: camera vs odometry +N°" while still; log channel /Drift/CameraHeadingDiffDeg.
+- TeleOp with no handoff: in INIT, if steady camera fits put the robot off the declared start
+  (> startMarginIn or > headingFixDeg), the pose moves to the camera's; the Start line says so;
+  Triangle (Y) start fresh re-arms it. Autos and Vision: HIVE & Pose are excluded.
+Experimental lane, branch exp/auto-heading-fixes (same code, autoHeadingFixes = true): the heading
+correction applies by itself whenever the robot is still; every one is a log event
+"pose: automatic heading corrected ...". stillFixes stays a Panels toggle: try it only AFTER the R1
+mount calibration, on the taped path, with and without.
+Test plan on the robot: (1) Basic Drive from the start mark, drive, bump a wall, stop facing a HIVE:
+the Heading line should read within 2°. (2) Pick the robot up, turn it ~15°, put it down off the
+mark, hold still, hold D-pad down: expect "heading corrected +15°", then field-centric drives right.
+(3) Start Basic Drive with the robot 2 ft from the mark: the Start line should say "pose from the
+camera". (4) Same on the exp branch without pressing anything.
+
 ## Priority (plan hub, 31 Oct evening): launcher first; 0 dedicated localization time. Turret is
 LOCKED, so aim = robot heading + position; the heading check (square to a FLOWER, read Panels)
 matters more than the 1.2 in. Do the steps below only with idle robot time.
