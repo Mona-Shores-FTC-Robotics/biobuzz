@@ -136,6 +136,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private double launcherTrimTps;
     private boolean chassisAimCancelled;
     private boolean lastFire;
+    /** This fire press spun the launcher up from idle, so it feeds only once at launch speed. */
+    private boolean spunUpByFire;
     private Bar bar = Bar.NONE;
     private String poseNote;
     private String autoParkNote;
@@ -504,15 +506,24 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /**
      * The feeder, decided every loop: unjam wins (clearing a jam is always allowed), then fire.
-     * Fire feeds at once unless an enforced gate is closed, and an enforced gate only holds back
-     * the start of a feed, never cuts one ({@code FeederSubsystem.requestFor}). Every press is one
-     * log line with what a gate would have said.
+     * Pressed with the launcher idle, fire spins it up first and feeds once it reaches launch
+     * speed, whatever the gates are set to: 17 presses on 1 Nov 2026 fired an idle launcher and did
+     * nothing. Otherwise it feeds at once unless an enforced gate is closed, and an enforced gate
+     * only holds back the start of a feed, never cuts one ({@code FeederSubsystem.requestFor}).
+     * Every press is one log line with what a gate would have said.
      */
     private void fire() {
-        gates.evaluate(launchMode, robot.launcher.atSpeed(), aimErrorDeg, TeleOpConfig.aimToleranceDeg);
         boolean fireHeld = controls.held(Action.FIRE);
-        boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, TeleOpConfig.enforceAimGate);
-        if (fireHeld && !lastFire) {
+        boolean pressed = fireHeld && !lastFire;
+        if (pressed && !launchMode && !unjamHeld()) {
+            toggleLauncher();
+            spunUpByFire = true;
+        }
+        if (!fireHeld) spunUpByFire = false;
+        gates.evaluate(launchMode, robot.launcher.atSpeed(), aimErrorDeg, TeleOpConfig.aimToleranceDeg);
+        boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, TeleOpConfig.enforceAimGate)
+                && (!spunUpByFire || robot.launcher.atSpeed());
+        if (pressed) {
             log.event(fireLine(open));
         }
         lastFire = fireHeld;
@@ -544,6 +555,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 : String.format(Locale.US, "pose (%.1f, %.1f, %.0f°)%s", pose.x(), pose.y(),
                 Math.toDegrees(pose.heading()), robot.drive.poseReferenced() ? "" : " not on the field");
         String outcome = unjamHeld() ? "not fed: unjam is held"
+                : !open && spunUpByFire ? "SPINNING UP: feeds at launch speed"
                 : !open ? "WAITING: an enforced gate is closed"
                 : gates.anyWouldBlock() ? "fired; a gate would have blocked it (shadow)" : "fired; gates clear";
         return String.format(Locale.US, "fire: launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
