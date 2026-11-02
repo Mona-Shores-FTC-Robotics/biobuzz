@@ -24,7 +24,7 @@ public class IndicatorSubsystemTest {
 
     @Test
     public void warningsShowOnlyBeforePlay() {
-        assertEquals(Signal.ALLIANCE_RED, IndicatorSubsystem.choose(false, true, false, Alliance.RED));
+        assertEquals(Signal.OFF, IndicatorSubsystem.choose(false, true, false, Alliance.RED));
     }
 
     @Test
@@ -42,17 +42,23 @@ public class IndicatorSubsystemTest {
     }
 
     @Test
-    public void otherwiseTheAllianceSteady() {
+    public void inInitOtherwiseTheAllianceSteady() {
         assertEquals(Signal.ALLIANCE_RED, IndicatorSubsystem.choose(true, false, false, Alliance.RED));
-        assertEquals(Signal.ALLIANCE_BLUE, IndicatorSubsystem.choose(false, false, false, Alliance.BLUE));
+        assertEquals(Signal.ALLIANCE_BLUE, IndicatorSubsystem.choose(true, false, false, Alliance.BLUE));
         long half = (long) IndicatorSubsystem.FLASH_MS;
         assertEquals(IndicatorSubsystem.RED, IndicatorSubsystem.position(Signal.ALLIANCE_RED, half), EPS);
         assertEquals(IndicatorSubsystem.BLUE, IndicatorSubsystem.position(Signal.ALLIANCE_BLUE, half), EPS);
     }
 
     @Test
+    public void afterPlayOnlyFullShows() {
+        assertEquals(Signal.OFF, IndicatorSubsystem.choose(false, false, false, Alliance.RED));
+        assertEquals(Signal.OFF, IndicatorSubsystem.choose(false, false, false, Alliance.BLUE));
+    }
+
+    @Test
     public void noAllianceIsOff() {
-        assertEquals(Signal.OFF, IndicatorSubsystem.choose(false, false, false, Alliance.UNKNOWN));
+        assertEquals(Signal.OFF, IndicatorSubsystem.choose(true, false, false, Alliance.UNKNOWN));
         assertEquals(IndicatorSubsystem.OFF, IndicatorSubsystem.position(Signal.OFF, 0), EPS);
     }
 }

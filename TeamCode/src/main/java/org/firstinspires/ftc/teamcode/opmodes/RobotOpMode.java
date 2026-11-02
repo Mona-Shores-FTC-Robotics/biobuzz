@@ -492,7 +492,7 @@ public abstract class RobotOpMode extends OpMode {
 
     /**
      * What the indicator light shows this loop: see {@code IndicatorSubsystem}. Only what the drive
-     * team acts on: an Auto's INIT warnings, a full lane, otherwise the alliance.
+     * team acts on: in INIT an Auto's warnings, else the alliance; after PLAY green when full, else off.
      */
     private void showIndicator(boolean init) {
         robot.indicator.show(IndicatorSubsystem.choose(init, init && isAutonomous() && initWarnings.any(),

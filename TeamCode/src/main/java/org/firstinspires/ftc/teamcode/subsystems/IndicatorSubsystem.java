@@ -21,10 +21,11 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  *   <tr><th>When</th><th>Light</th><th>The drive team</th></tr>
  *   <tr><td>An Autonomous's INIT, with any warning ({@code InitWarnings})</td><td>white, flashing</td>
  *       <td>reads the Driver Station, which says what is wrong and what to do</td></tr>
+ *   <tr><td>INIT otherwise</td><td>the alliance's colour, steady; off with none</td>
+ *       <td>checks it against the field</td></tr>
  *   <tr><td>After PLAY, the lane is full (the colour sensor's {@code LaneFull})</td><td>green</td>
  *       <td>stops intaking</td></tr>
- *   <tr><td>Otherwise</td><td>the alliance's colour, steady; off with none</td>
- *       <td>checks it against the field</td></tr>
+ *   <tr><td>After PLAY otherwise</td><td>off</td><td>nothing, until the team decides otherwise</td></tr>
  * </table>
  *
  * <p>{@code RobotOpMode} decides what to show each loop ({@link #choose}) and hands it over with
@@ -68,10 +69,11 @@ public class IndicatorSubsystem implements Subsystem {
      * @param warnings an Autonomous's INIT has something for the drive team to fix; {@code RobotOpMode}
      *                 passes false in any other OpMode
      * @param full     the lane is full
+     * @param alliance shown in INIT only
      */
     public static Signal choose(boolean init, boolean warnings, boolean full, Alliance alliance) {
         if (init && warnings) return Signal.CHECK_DRIVER_STATION;
-        if (!init && full) return Signal.FULL;
+        if (!init) return full ? Signal.FULL : Signal.OFF;
         if (alliance == Alliance.RED) return Signal.ALLIANCE_RED;
         if (alliance == Alliance.BLUE) return Signal.ALLIANCE_BLUE;
         return Signal.OFF;

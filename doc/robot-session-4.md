@@ -125,7 +125,8 @@ logs were analysed afterwards. What that session established:
        rule since 2 Nov: the light shows only what the drive team acts on): INIT **Basic Drive**,
        steady red, X for steady blue; INIT an Auto with the Limelight unplugged, flashing white, and
        the Match page lists "Camera: not answering" at the top with what to do; in TeleOp, intake
-       until a piece sits under the colour sensor, green after about half a second
+       the light is off after PLAY; intake until a piece sits under the colour sensor, green after
+       about half a second
        (`ColorSensorSubsystem.fullAfterMs`, not measured yet). If a colour is off, set it in
        Panels → IndicatorSubsystem and note the value.
 
