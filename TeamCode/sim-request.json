@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/r-quals.pp",
-  "spec": "RQualsAuto,LQualsAuto@50",
+  "pp": "TeamCode/autos/r-brady.pp",
+  "spec": "RBradyAuto,LParkAuto@50",
   "design": "real robot, turret locked forward, POLLEN only",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -18,7 +18,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "r-quals.pp",
+    "AutoSource": "r-brady.pp",
     "SavedBy": "Saturday drafts (Claude)"
   }
 }
