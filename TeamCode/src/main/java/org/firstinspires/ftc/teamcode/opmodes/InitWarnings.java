@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
+import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 import java.util.Locale;
@@ -26,6 +27,8 @@ public final class InitWarnings {
         PINPOINT,
         /** The whole Auto runs turned about, or (none) does not move. */
         ALLIANCE,
+        /** The robot is on a known start that is not this Auto's: the wrong Auto, or the wrong spot. */
+        WRONG_START,
         OFF_MARK,
         CAMERA_NOT_ANSWERING,
         CAMERA_NO_FRAMES,
@@ -74,6 +77,19 @@ public final class InitWarnings {
                          StartCheck.Result start, String cameraProblem, long cameraFrames,
                          long msSinceInit, double batteryVolts, double lowBatteryVolts,
                          boolean colorSensorSilent) {
+        evaluate(pinpointProblem, alliance, cameraSees, start, cameraProblem, cameraFrames,
+                msSinceInit, batteryVolts, lowBatteryVolts, colorSensorSilent, null, null);
+    }
+
+    /**
+     * As above, and the start the camera puts the robot on when it is a known start that is not
+     * this Auto's ({@code onOtherStart}, else null), with this Auto's start for that alliance
+     * ({@code thisAutosStart}), so the warning says where to move or which Auto to pick.
+     */
+    public void evaluate(String pinpointProblem, Alliance alliance, Alliance cameraSees,
+                         StartCheck.Result start, String cameraProblem, long cameraFrames,
+                         long msSinceInit, double batteryVolts, double lowBatteryVolts,
+                         boolean colorSensorSilent, StartPosition onOtherStart, StartPosition thisAutosStart) {
         for (int i = 0; i < KINDS.length; i++) {
             what[i] = null;
             action[i] = null;
@@ -88,6 +104,11 @@ public final class InitWarnings {
             set(Kind.ALLIANCE, alliance + ", but camera sees " + cameraSees + " start",
                     "press " + (cameraSees == Alliance.BLUE ? "X for blue" : "B for red")
                             + ", or move to the " + alliance + " start");
+        }
+        if (onOtherStart != null) {
+            set(Kind.WRONG_START, "On " + onOtherStart.name + ", not this Auto's start",
+                    "pick the Auto that starts there, or move to "
+                            + (thisAutosStart != null ? thisAutosStart.name : "this Auto's start"));
         }
         if (start != null && start.status == StartCheck.Status.OUT_OF_POSITION) {
             set(Kind.OFF_MARK, String.format(Locale.US, "%.0f in off the start mark", start.errorIn),

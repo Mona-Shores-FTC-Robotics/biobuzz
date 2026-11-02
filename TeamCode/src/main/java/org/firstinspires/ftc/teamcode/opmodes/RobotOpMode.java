@@ -41,6 +41,7 @@ import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
+import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.FieldLayers;
@@ -521,9 +522,11 @@ public abstract class RobotOpMode extends OpMode {
         // Short, for one line: the reason in full is in the log's hardware metadata.
         String cameraProblem = !robot.vision.isAvailable() ? "not found"
                 : !robot.vision.isConnected() ? "not answering" : null;
+        StartPosition otherStart = cameraOnOtherStart();
         initWarnings.evaluate(pinpointProblem, setup.alliance(), setup.visionAlliance(), startCheck,
                 cameraProblem, robot.vision.freshResultCount(), (System.nanoTime() - initStartNs) / 1_000_000L,
-                batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent());
+                batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent(),
+                otherStart, otherStart == null ? null : startFor(otherStart.alliance));
         String summary = initWarnings.summary();
         if (!summary.equals(loggedWarnings)) {
             log.event("INIT warnings: " + summary);
@@ -547,6 +550,19 @@ public abstract class RobotOpMode extends OpMode {
      */
     protected Alliance allianceFromStarts() {
         return Alliance.UNKNOWN;
+    }
+
+    /**
+     * The known start the camera puts the robot on when it is not one of this OpMode's own
+     * ({@code BuiltAuto}: the wrong Auto, or the wrong spot), for the INIT warnings; null otherwise.
+     */
+    protected StartPosition cameraOnOtherStart() {
+        return null;
+    }
+
+    /** This OpMode's start for {@code alliance}, named in that warning. */
+    protected StartPosition startFor(Alliance alliance) {
+        return StartPositions.forAlliance(alliance);
     }
 
     @Override

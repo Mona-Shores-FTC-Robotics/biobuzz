@@ -66,9 +66,30 @@ public final class StartPositions {
             2 * FieldFrame.FIELD_CENTRE_INCHES - RED_AUDIENCE.pose.y(),
             RED_AUDIENCE.pose.heading() + Math.PI));
 
+    /**
+     * {@link #RED_FAR} turned half a turn about the field centre: tile D1, back on the audience
+     * wall, facing the HIVEs, the left-side Autos' blue start. 23.6 in along the wall from
+     * {@link #RED_AUDIENCE}, facing the same way: the two starts a camera could confuse.
+     */
+    public static final StartPosition BLUE_FROM_RED_FAR = new StartPosition("Blue audience wall",
+            Alliance.BLUE, new Pose(2 * FieldFrame.FIELD_CENTRE_INCHES - RED_FAR.pose.x(),
+            2 * FieldFrame.FIELD_CENTRE_INCHES - RED_FAR.pose.y(),
+            RED_FAR.pose.heading() - Math.PI));
+
     /** {@code alliance}'s start, the Autos' one: red audience, or its half turn for blue. Red while unknown. */
     public static StartPosition forAlliance(Alliance alliance) {
         return alliance == Alliance.BLUE ? BLUE_FROM_RED_AUDIENCE : RED_AUDIENCE;
+    }
+
+    private static final StartPosition[] KNOWN = {RED_AUDIENCE, RED_FAR, BLUE_FROM_RED_AUDIENCE, BLUE_FROM_RED_FAR};
+
+    /**
+     * Every start a robot might be placed on, both alliances: the measured red ones and their half
+     * turns. An Auto in INIT tries them all, so a robot on a start that is not the Auto's own is
+     * named ("on Red audience, not this Auto's start") instead of left as "no alliance".
+     */
+    public static StartPosition[] known() {
+        return KNOWN.clone();
     }
 
     /** Every declared start, for finding one by its pose. */
