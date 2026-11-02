@@ -10,43 +10,38 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
  *
  * <p>{@link StartCheck} cannot tell: it compares the camera with the one start declared, using the
  * Pinpoint heading that start set, so a robot on the other alliance's start reads only as out of
- * position. This takes the camera's whole pose instead, fitted from two or more tags with no
- * heading assumed ({@code DriveSubsystem.wholeCameraPose}), and compares it with both starts:
- * position within {@link #MATCH_RADIUS_IN}, heading within {@link #HEADING_TOLERANCE_DEG}.
+ * position. This tries both: each frame is solved position-only with each start's own heading
+ * ({@code DriveSubsystem.setStartCandidates}, {@code TagGate.solve}), and a start matches when its
+ * solve lands within {@link #MATCH_RADIUS_IN} of it. The wrong start's heading is half a turn out,
+ * which puts the robot about two camera ranges away, so one HIVE's tags are enough and the two
+ * cannot both match. Until 2 Nov 2026 this used the camera's whole-pose fit instead, which needs
+ * tags on both HIVEs ({@link LocalizationTuning#minFitLeverIn}) and no start sees both.
  *
- * <p>Those are loose on purpose. The two starts are about 127 in apart, so telling them apart needs
- * no precision, and a fit from only two neighbouring tags (3.75 in apart, about 57 in away; all a
- * robot on blue's left start sees on 31 Oct) has a heading good to a few degrees, which moves its
- * position by several inches. Whether the robot sits on its start to the inch is the start check's
- * job, which follows with the Pinpoint's heading and {@link LocalizationTuning#startMarginIn}. {@link #FRAMES_TO_AGREE} frames in a row on one start settle it;
- * as many in a row on neither clear it. It never guesses: no match, no alliance.
+ * <p>The radius is loose on purpose: the two starts are about 127 in apart, and whether the robot
+ * sits on its start to the inch is the start check's job, which follows with
+ * {@link LocalizationTuning#startMarginIn}. {@link #FRAMES_TO_AGREE} frames in a row on one start
+ * settle it; as many in a row on neither clear it. It never guesses: no match, no alliance.
  *
  * <p>Plain Java on Pedro's {@link Pose}, so it is unit tested.
  */
 public final class StartMatch {
 
-    /** Frames in a row that must agree before a start is believed, or disbelieved. */
+    /** Camera frames in a row that must agree before the alliance changes. */
     public static final int FRAMES_TO_AGREE = 5;
-    /** A whole-pose fit's position must be this close to a start, inches. */
+    /** How far from a start the robot may be solved and still count as on it, inches. */
     public static final double MATCH_RADIUS_IN = 18.0;
-    /** A whole-pose fit's heading must be this close to the start's, degrees. */
-    public static final double HEADING_TOLERANCE_DEG = 30.0;
 
     private Alliance candidate = Alliance.UNKNOWN;
     private int agreeing;
     private Alliance settled = Alliance.UNKNOWN;
 
     /**
-     * One new camera fit. Returns the settled alliance: the one whose start the camera has agreed
-     * with for {@link #FRAMES_TO_AGREE} frames in a row, else {@code UNKNOWN}.
-     *
-     * @param fit     the camera's whole pose for one frame (field inches, radians)
-     * @param drawn   the Auto's start as drawn
-     * @param rotated the same start for the other alliance
+     * One camera frame: where it puts the robot with each start's heading (null when that solve
+     * failed), against the starts. Returns the settled alliance, {@code UNKNOWN} until one is.
      */
-    public Alliance update(Pose fit, StartPosition drawn, StartPosition rotated) {
-        Alliance which = matches(fit, drawn) ? drawn.alliance
-                : matches(fit, rotated) ? rotated.alliance : Alliance.UNKNOWN;
+    public Alliance update(Pose fixAtDrawn, Pose fixAtRotated, StartPosition drawn, StartPosition rotated) {
+        Alliance which = matches(fixAtDrawn, drawn) ? drawn.alliance
+                : matches(fixAtRotated, rotated) ? rotated.alliance : Alliance.UNKNOWN;
         if (which == candidate) {
             agreeing++;
         } else {
@@ -57,16 +52,14 @@ public final class StartMatch {
         return settled;
     }
 
-    /** The settled alliance, as {@link #update} last returned it. */
+    /** The alliance the frames so far have settled on, {@code UNKNOWN} until they do. */
     public Alliance settled() {
         return settled;
     }
 
-    static boolean matches(Pose fit, StartPosition start) {
-        if (fit == null || start == null) return false;
-        double off = Math.hypot(fit.x() - start.pose.x(), fit.y() - start.pose.y());
-        double turned = Math.toDegrees(Math.abs(
-                Math.IEEEremainder(fit.heading() - start.pose.heading(), 2 * Math.PI)));
-        return off <= MATCH_RADIUS_IN && turned <= HEADING_TOLERANCE_DEG;
+    /** Whether {@code fix}, solved with {@code start}'s heading, lies within the radius of it. */
+    static boolean matches(Pose fix, StartPosition start) {
+        if (fix == null || start == null) return false;
+        return Math.hypot(fix.x() - start.pose.x(), fix.y() - start.pose.y()) <= MATCH_RADIUS_IN;
     }
 }
