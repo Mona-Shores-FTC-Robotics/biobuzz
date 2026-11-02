@@ -1351,8 +1351,8 @@ robot's right facing +y for AUDIENCE, left for SCORING).
 **Seeing it.** `Vision: HIVE & Pose` drives the robot and shows all of it: on the Driver Station
 the HIVEs, the CELLs in view, odometry against camera, and the would-relocalize gap; in Panels,
 graphs of each CELL's height and rocker angle (a TIP is a clean curve) and a field view with the
-odometry robot in blue, the camera's robot in amber, and the CELLs' tag rows as dots. A
-relocalizes, Y resets field-centric forward.
+odometry robot in the alliance's colour (red, blue, white with none), the camera's robot in amber,
+and the CELLs' tag rows as dots. A relocalizes, Y resets field-centric forward.
 
 **The SDK's orientation names are not Limelight's.** The SDK builds a tag's `Pose3D` as
 `new YawPitchRollAngles(DEGREES, rz, ry, rx)` (Hardware 12.0.0, `LLResult.createPose3DRobot`),

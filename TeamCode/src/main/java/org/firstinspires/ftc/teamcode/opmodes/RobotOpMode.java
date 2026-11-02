@@ -822,12 +822,13 @@ public abstract class RobotOpMode extends OpMode {
 
     /**
      * The robot on the Panels Field view, after the subsystems have updated so it is this loop's
-     * pose. During INIT, an OpMode with a declared start also gets that start (green) and where the
-     * camera's latest fixes put the robot (amber): the gap between them is the start check's
-     * error, and the way to move the robot. Then {@link #drawOnField} adds the OpMode's own.
-     * Gated on the throttle, so on most loops this is one boolean read; skipped when the drive has
-     * no heading (no Pinpoint), since then there is no pose to draw. The publish is caught and
-     * swallowed: telemetry never takes a mechanism down.
+     * pose, in the alliance's colour (white with none). During INIT, an OpMode with a declared
+     * start also gets that start (green) and where the camera's latest fixes put the robot
+     * (amber): the gap between them is the start check's error, and the way to move the robot.
+     * Then {@link #drawOnField} adds the OpMode's own. Gated on the throttle, so on most loops
+     * this is one boolean read; skipped when the drive has no heading (no Pinpoint), since then
+     * there is no pose to draw. The publish is caught and swallowed: telemetry never takes a
+     * mechanism down.
      */
     private void drawField(boolean initializing) {
         if (fieldView == null || !robot.drive.hasHeading()) {
@@ -838,7 +839,8 @@ public abstract class RobotOpMode extends OpMode {
                 Pose pose = robot.drive.pose();
                 // Each layer can be switched off in Panels → FieldLayers.
                 if (pose != null && FieldLayers.odometry) {
-                    fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
+                    fieldView.drawRobot(pose.x(), pose.y(), pose.heading(),
+                            FieldView.allianceColour(setup.alliance()));
                 }
                 Pose shadowPose = robot.drive.shadowPose();
                 if (shadowPose != null && FieldLayers.shadow && robot.drive.shadow().offsetIn() > 0.05) {
