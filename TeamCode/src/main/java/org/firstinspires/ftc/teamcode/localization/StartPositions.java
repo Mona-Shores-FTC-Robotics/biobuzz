@@ -33,7 +33,7 @@ public final class StartPositions {
      * the wheelbase, the point the Pinpoint's pod offsets are measured from: 7.7 in from the back
      * (the rear wheels are flush with the back; 15.43 in over the wheels, CAD 29 Oct 2026).
      * Set on 31 Oct 2026 with the robot on the field and in the Visualizer (the team spots
-     * {@code START_RIGHT} and {@code START_LEFT}, rounded to 0.1 in): x is the seam (B-C 47.17,
+     * {@code RIGHT_START} and {@code LEFT_START}, rounded to 0.1 in): x is the seam (B-C 47.17,
      * C-D 70.75) plus or minus about 0.4 in of tooth and 8 in of half frame.
      */
 
@@ -76,11 +76,12 @@ public final class StartPositions {
 
     /**
      * The team spot each start in {@link #ALL} is, in the same order: the Visualizer's start
-     * buttons are the team's {@code START_} spots ({@code TeamCode/autos/spots.json}), and
+     * buttons are the team's {@code _START} spots ({@code TeamCode/autos/spots.json}; the team
+     * names its spots side first: RIGHT_START, RIGHT_PARK, RIGHT_LAUNCH_CATCH), and
      * {@code TeamSpotsTest} fails while one differs from the start measured here. Measure a start,
      * then change both: this file, and the spot (in the Visualizer, Save team spots).
      */
-    static final String[] TEAM_SPOTS = {"START_RIGHT", "START_LEFT"};
+    static final String[] TEAM_SPOTS = {"RIGHT_START", "LEFT_START"};
 
     /** The measured start a team spot is, or null for a spot that is not a measured start. */
     static StartPosition forTeamSpot(String name) {
