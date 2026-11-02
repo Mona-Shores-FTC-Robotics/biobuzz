@@ -35,6 +35,7 @@ import org.firstinspires.ftc.teamcode.subsystems.LaneFull;
 import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
+import org.firstinspires.ftc.teamcode.localization.CalibrationSpots;
 import org.firstinspires.ftc.teamcode.localization.CameraStart;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
@@ -822,6 +823,26 @@ public abstract class RobotOpMode extends OpMode {
     /** A shadow fix that moved it less than this, inches, is not an event; the channels have it. */
     private static final double SHADOW_EVENT_MOVE_IN = 0.25;
 
+    /** The measured spots on the field view: grey, under the robots. */
+    private static final String MARK_COLOUR = "#9E9E9E";
+
+    /**
+     * Every measured spot a robot can be parked on to judge the pose: the calibration spots (which
+     * include the measured starts) and the four reset corners. A spot still NaN is skipped.
+     */
+    private static final Pose[] MARKS = measuredMarks();
+
+    private static Pose[] measuredMarks() {
+        Pose[] corners = {ResetPositions.RED_LEFT, ResetPositions.RED_RIGHT,
+                ResetPositions.BLUE_LEFT, ResetPositions.BLUE_RIGHT};
+        Pose[] marks = new Pose[CalibrationSpots.ALL.length + corners.length];
+        for (int i = 0; i < CalibrationSpots.ALL.length; i++) {
+            marks[i] = CalibrationSpots.ALL[i].pose;
+        }
+        System.arraycopy(corners, 0, marks, CalibrationSpots.ALL.length, corners.length);
+        return marks;
+    }
+
     /**
      * The robot on the Panels Field view, after the subsystems have updated so it is this loop's
      * pose, in the alliance's colour (white with none). During INIT, an OpMode with a declared
@@ -839,7 +860,15 @@ public abstract class RobotOpMode extends OpMode {
         try {
             if (fieldView.shouldDraw()) {
                 Pose pose = robot.drive.pose();
-                // Each layer can be switched off in Panels → FieldLayers.
+                // Each layer can be switched off in Panels → FieldLayers. Marks first, so the
+                // robots are drawn over them.
+                if (FieldLayers.marks) {
+                    for (Pose mark : MARKS) {
+                        if (!Double.isNaN(mark.x()) && !Double.isNaN(mark.y())) {
+                            fieldView.drawMark(mark.x(), mark.y(), mark.heading(), MARK_COLOUR);
+                        }
+                    }
+                }
                 if (pose != null && FieldLayers.odometry) {
                     fieldView.drawRobot(pose.x(), pose.y(), pose.heading(),
                             FieldView.allianceColour(setup.alliance()));

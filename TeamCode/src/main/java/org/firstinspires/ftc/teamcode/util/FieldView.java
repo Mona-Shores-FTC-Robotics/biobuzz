@@ -252,6 +252,23 @@ public final class FieldView {
         field.circle(radius);
     }
 
+    /** Half the width of a mark's cross, inches; its heading tick is twice this. */
+    private static final double MARK_ARM_IN = 2.5;
+
+    /**
+     * A measured mark: a cross on the robot's centre there, with a tick the way it faces. Park on
+     * the mark, and the robot outline whose centre sits on the cross has the right pose.
+     */
+    public void drawMark(double x, double y, double heading, String colour) {
+        field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), colour, 0.5);
+        field.moveCursor(x - MARK_ARM_IN, y);
+        field.line(x + MARK_ARM_IN, y);
+        field.moveCursor(x, y - MARK_ARM_IN);
+        field.line(x, y + MARK_ARM_IN);
+        field.moveCursor(x, y);
+        field.line(x + 2 * MARK_ARM_IN * Math.cos(heading), y + 2 * MARK_ARM_IN * Math.sin(heading));
+    }
+
     /** Sends the canvas if the throttle allows, then clears it either way. */
     public void send() {
         field.update();
