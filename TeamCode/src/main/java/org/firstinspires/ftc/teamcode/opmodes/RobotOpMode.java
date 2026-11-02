@@ -1222,6 +1222,7 @@ public abstract class RobotOpMode extends OpMode {
         // button's are logged by the OpMode that owns the button.
         Pose shadowPose = robot.drive.shadowPose();
         if (shadowPose != null && referenced) {
+            log.put("/Shadow/Fixes", robot.drive.shadow().fixesApplied());
             log.put("/Shadow/X", shadowPose.x());
             log.put("/Shadow/Y", shadowPose.y());
             log.put("/Shadow/OffsetIn", robot.drive.shadow().offsetIn());

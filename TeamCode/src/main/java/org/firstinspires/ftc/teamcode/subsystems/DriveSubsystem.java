@@ -452,10 +452,13 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         }
     }
 
-    /** {@link CellFix#fit} over the tags the gate accepted; null with too few. */
+    /**
+     * {@link CellFix#fit} over the tags the gate accepted; null with too few, or with too short a
+     * lever for a heading ({@link LocalizationTuning#minFitLeverIn}: tags on one CELL never have one).
+     */
     private Pose fitAccepted() {
         return CellFix.fit(gate.acceptedFieldX(), gate.acceptedFieldY(), gate.acceptedRobotX(),
-                gate.acceptedRobotY(), gate.acceptedCount(), LocalizationTuning.minTagSpreadIn);
+                gate.acceptedRobotY(), gate.acceptedCount(), LocalizationTuning.minFitLeverIn);
     }
 
     /**

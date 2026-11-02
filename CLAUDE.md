@@ -94,12 +94,13 @@ and zeroes at PLAY; the zero button on a gamepad always wins (`TurretZeroPolicy`
 
 **Localization.** The Pinpoint carries the pose, through Pedro's `FusionLocalizer`. The camera
 sets it and may correct it, only through `localization/`: every frame passes `TagGate` (height,
-range, outlier, tag count, field bounds) before `CellFix` uses it. Two or more gated tags on settled
-CELLs give the whole pose (each tag's field position is known, since a TIP turns the row about its
-own line), which seeds an unreferenced pose. Once the pose is referenced the camera gives position
+range, outlier, tag count, field bounds) before `CellFix` uses it. Gated tags on both HIVEs give
+the whole pose (each tag's field position is known, since a TIP turns the row about its own line),
+which seeds an unreferenced pose; the fit has no heading under `minFitLeverIn`, so tags on one CELL
+never give one (measured: ±12° from two tags). Once the pose is referenced the camera gives position
 only, with the Pinpoint's heading: `relocalizeFromCamera()` moves x and y and keeps the heading,
 up to `maxRelocalizeJumpIn`. A bigger correction means the pose is lost: with the robot still and
-two or more gated tags it resets the whole pose, heading too, as the seed does; otherwise it is refused.
+a fit from both HIVEs it resets the whole pose, heading too, as the seed does; otherwise it is refused.
 Stationary fixes (`stillFixes`) and continuous fixes (`continuousFixes`) into the filter are both
 off until a measurement shows they help. The reset spots (`ResetPositions`, NaN until measured) are
 fixed, measured poses, the left and right corners of each alliance's wall, chosen by the button the

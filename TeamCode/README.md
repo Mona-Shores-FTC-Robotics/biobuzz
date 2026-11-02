@@ -1244,11 +1244,12 @@ CELL is assumed up until the camera says otherwise.
 
 **Localization, DECODE's shape without MegaTag.** Every tag on a settled CELL has a known field
 position (`HiveFieldPoints.tagPosition`): its row centre plus its own offset along the row, which a
-TIP leaves alone because the row runs along the axle. So **any two or more tags in view, on one
-CELL or several, give the robot's whole pose** by a least-squares fit (`CellFix.fit`), the way
-MegaTag1 did; **one tag plus the Pinpoint's heading gives the position exactly**. Tags on two
-CELLs give a better heading than four on one. `DriveSubsystem` uses it three ways, and the
-Pinpoint carries the pose in between:
+TIP leaves alone because the row runs along the axle. So **tags in view on both HIVEs give the
+robot's whole pose** by a least-squares fit (`CellFix.fit`), the way MegaTag1 did; **one tag plus
+the Pinpoint's heading gives the position exactly**. The fit has a heading only when its tags'
+lever (root-sum-square distance from their middle) reaches `minFitLeverIn`, 30 in, which tags on
+one CELL (lever 10 at most) never do: see "Why heading comes from the Pinpoint" below for the
+measurement. `DriveSubsystem` uses it three ways, and the Pinpoint carries the pose in between:
 
 1. **Seed.** No declared start and no Auto handoff: the pose is set once three camera poses in a
    row agree. The driver's field-centric forward does not move.
@@ -1266,11 +1267,16 @@ measured.
 #### The camera fix: gates, averaging, and how to tune it
 
 **Why heading comes from the Pinpoint.** A CELL's four tags span 13 in. Solving the robot's
-heading from them (`CellFix.fit`) puts a degree or two of noise into the heading, and at 60 in
-each degree moves the position an inch. That is the 1–4 in jump seen with 3–4 tags in view. The
-Pinpoint's heading is far steadier, so once the pose is referenced each tag gives a position on its
-own: its field point minus where the robot sees it, rotated into the field by the Pinpoint heading
-(`CellFix.position`). `fit` is kept only to seed a pose that has no heading yet.
+heading from them (`CellFix.fit`) divides each tag's position noise, about 0.5 in at 55–60 in, by
+the tags' lever (root-sum-square distance from their middle), and at 60 in each degree of heading
+moves the position an inch. Measured on 20245, 2 Nov 2026, robot still, camera heading minus the
+Pinpoint's: two tags on one CELL (lever 3–7 in) wandered ±12° and sat 22° out for a whole run; a
+CELL's four (lever 10) sat 3° out; seven or eight tags on both HIVEs (lever 35–39) agreed within
+1°. So the fit returns no heading under `minFitLeverIn` (30 in: both HIVEs, seen well), and
+everything that takes a camera heading (the seed, the start override, the heading-checked reset,
+the "Heading" line) goes quiet rather than wrong without one. The Pinpoint's heading is far
+steadier, so once the pose is referenced each tag gives a position on its own: its field point
+minus where the robot sees it, rotated into the field by the Pinpoint heading (`CellFix.position`).
 
 **The gates** (`localization/TagGate`, one frame at a time). They are FRC 3572's (`Robot-2026`,
 `Vision.java`), adapted to moving tags and to a camera that reports no ambiguity:
@@ -1500,7 +1506,7 @@ flat. Each is now a line in the file, on AdvantageScope's Metadata tab or in `/E
 | `Tunable/<Class>.<field>` | every Panels knob's value at PLAY, so the run can be repeated | `logging/Tunables`, by reflection over its list; `TunablesTest` keeps the list equal to the `@Configurable` classes outside the benches |
 | `AutoSource`, `AutoDrawnFor`, `AutoPlaceholders` | which `.pp` drawing ran, for which alliance, and which of its waits were on placeholder triggers | `BuiltAuto` |
 | `/Turret/AngleDeg`, `TargetDeg`, `ErrorDeg`, `Zeroed`, `Holding` | the turret, every loop | `RobotOpMode`, beside the launcher's and feeder's keys |
-| `/Shadow/Robot` (Pose2d), `/Shadow/X`, `/Shadow/Y`, `/Shadow/OffsetIn`, event `shadow: still fix N moved it …` | what the pose would be with still fixes on (`localization/ShadowPose`), beside the real one; in AdvantageScope drag `/Shadow/Robot` onto the Field as a ghost, in Panels it is the purple robot (`FieldLayers.shadow`) | `RobotOpMode` |
+| `/Shadow/Robot` (Pose2d), `/Shadow/X`, `/Shadow/Y`, `/Shadow/OffsetIn`, `/Shadow/Fixes` (count, every loop), event `shadow: still fix N moved it …` (only moves over 0.25 in) | what the pose would be with still fixes on (`localization/ShadowPose`), beside the real one; in AdvantageScope drag `/Shadow/Robot` onto the Field as a ghost, in Panels it is the purple robot (`FieldLayers.shadow`) | `RobotOpMode` |
 | `/Prefeed/Power`, `/FeedGate/Feeding`, `/FeedGate/Position` | the transfer: the prefeed's servo power, whether the gate is asked open, and the position last written (absent while the gate's positions are NaN) | `RobotOpMode`; `PrefeedSubsystem` and `FeedGateSubsystem` follow the intake's and the feeder's requests, so no OpMode sets them |
 | `/Intake/FeedAssist` | 1 while the roller or the stars run only because the feeder is feeding or reversing (`IntakeSubsystem.rollerFor`), 0 otherwise | `RobotOpMode` |
 | `/Launcher/Reversing` | 1 while the flywheels run backwards for an unjam, following the feeder's reverse (`LauncherSubsystem.reverseFor`); at-speed and the shot count sit it out | `RobotOpMode` |

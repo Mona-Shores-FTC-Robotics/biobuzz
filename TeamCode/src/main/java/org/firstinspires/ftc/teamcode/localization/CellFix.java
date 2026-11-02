@@ -34,19 +34,22 @@ public final class CellFix {
      * The robot's whole pose from two or more tags, on one CELL or several: each tag's field position
      * ({@link HiveFieldPoints#tagPosition}) against where the robot sees it, fitted by least squares
      * (the 2D rigid fit: the turn that best lines up the two sets, then the shift). Only x and y of
-     * each are used. Null with fewer than two tags or tags too close together to give a heading
-     * (spread under {@code minSpreadIn}, RMS distance from their middle).
+     * each are used. Null with fewer than two tags, or with too short a lever for a heading: the
+     * root-sum-square of the tags' distances from their middle, under {@code minLeverIn}.
      *
-     * <p>More tags and wider spread give a better answer; tags on two CELLs, even one each, are
-     * better than four on one.
+     * <p>The heading's error is about the per-tag position noise divided by that lever, so the lever
+     * is what decides whether the heading means anything: a CELL's four tags span 13 in (lever 10),
+     * tags on both HIVEs span 25.5 in more (lever 26-39). The measured numbers are on
+     * {@link LocalizationTuning#minFitLeverIn}.
      *
      * @param fieldX field x of each tag, inches; {@code fieldY} likewise
      * @param robotX where the robot sees each tag, robot frame x (forward), inches; {@code robotY}
      *               likewise (left)
      * @param count  how many of the arrays' entries to use
+     * @param minLeverIn the shortest lever that gives a heading, inches
      */
     public static Pose fit(double[] fieldX, double[] fieldY, double[] robotX, double[] robotY,
-                           int count, double minSpreadIn) {
+                           int count, double minLeverIn) {
         if (count < 2) return null;
         double fx = 0, fy = 0, rx = 0, ry = 0;
         for (int i = 0; i < count; i++) {
@@ -59,15 +62,15 @@ public final class CellFix {
         fy /= count;
         rx /= count;
         ry /= count;
-        double dot = 0, cross = 0, spread = 0;
+        double dot = 0, cross = 0, leverSq = 0;
         for (int i = 0; i < count; i++) {
             double ax = robotX[i] - rx, ay = robotY[i] - ry;
             double bx = fieldX[i] - fx, by = fieldY[i] - fy;
             dot += ax * bx + ay * by;
             cross += ax * by - ay * bx;
-            spread += ax * ax + ay * ay;
+            leverSq += ax * ax + ay * ay;
         }
-        if (Math.sqrt(spread / count) < minSpreadIn) return null;
+        if (Math.sqrt(leverSq) < minLeverIn) return null;
         double heading = Math.atan2(cross, dot);
         double c = Math.cos(heading), s = Math.sin(heading);
         return new Pose(fx - (c * rx - s * ry), fy - (s * rx + c * ry), heading);

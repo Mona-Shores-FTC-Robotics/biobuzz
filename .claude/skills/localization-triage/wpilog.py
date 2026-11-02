@@ -6,6 +6,7 @@
     python3 -I wpilog.py dump   LOG KEY [KEY...]    # time series, CSV on stdout
     python3 -I wpilog.py survey DIR [--pattern '2026-11-01_*.wpilog']   # a lab day, one line per log
     python3 -I wpilog.py shadow DIR                    # shadow pose vs real at every still stop, scored at known spots
+    python3 -I wpilog.py heading DIR                   # camera heading minus Pinpoint, by tags in the fit, still frames
 
 Written from the wpilog spec (https://github.com/wpilibsuite/allwpilib/blob/main/wpiutil/doc/datalog.adoc),
 not from our writer, like the test reader in src/test/.../logging/WpiLogReader.java.
@@ -468,7 +469,8 @@ def cmd_shadow(_log, args):
     for p in sorted(glob.glob(os.path.join(args.dir, args.pattern))):
         try:
             l = Log(p)
-        except Exception:
+        except (Exception, SystemExit) as e:
+            print(f"-- {os.path.basename(p)}: unreadable, skipped ({e})")
             continue
         sx = l.series.get("/Shadow/X", []); sy = dict(l.series.get("/Shadow/Y", []))
         X = l.series.get("/Odometry/PedroInches/X", []); Y = dict(l.series.get("/Odometry/PedroInches/Y", []))
@@ -479,17 +481,23 @@ def cmd_shadow(_log, args):
         sgx = dict(l.series.get("/Shadow/GapXIn", [])); sgy = dict(l.series.get("/Shadow/GapYIn", []))
         off = l.series.get("/Shadow/OffsetIn", [])
         fixes = [v for _, v in l.series.get("/Events", []) if v.startswith("shadow:")]
+        # /Shadow/Fixes (every loop, from 2 Nov 2026 evening) counts every fix; the events only those
+        # that moved the shadow over 0.25 in.
+        counted = l.series.get("/Shadow/Fixes", [])
+        n_fixes = int(counted[-1][1]) if counted else len(fixes)
         xt = [t for t, _ in X]; xv = [v for _, v in X]
-        # still stops from the drift channel (one sample per camera frame while still)
-        stops = []; cur = []
+        # Still stops from the drift channel (one sample per camera frame while still): a new stop
+        # after any logged motion, or after a gap over 1 s with no frame at all.
+        stops = []; cur = []; moved = False
         for t in sorted(gx):
             if still.get(t, 0) < 0.5:
+                moved = True
                 continue
-            if cur and t - cur[-1] > 1.0:
+            if cur and (moved or t - cur[-1] > 1.0):
                 stops.append(cur); cur = []
-            cur.append(t)
+            cur.append(t); moved = False
         if cur: stops.append(cur)
-        print(f"-- {os.path.basename(p)[11:48]}  shadow fixes {len(fixes)}, offset at end {off[-1][1] if off else float('nan'):.1f} in, max {max((v for _, v in off), default=float('nan')):.1f} in")
+        print(f"-- {os.path.basename(p)[11:48]}  shadow fixes {n_fixes}{'' if counted else ' (events over 0.25 in only)'}, offset at end {off[-1][1] if off else float('nan'):.1f} in, max {max((v for _, v in off), default=float('nan')):.1f} in")
         for st in stops:
             if len(st) < 5: continue
             t = st[len(st) // 2]
@@ -511,6 +519,42 @@ def cmd_shadow(_log, args):
 
 
 
+def cmd_heading(_log, args):
+    """Camera heading minus the Pinpoint's (/Drift/CameraHeadingDiffDeg, still frames), by how many tags
+    the fit had (/Vision/TagsAccepted). The spread by tag count is the fit's heading noise, and it is
+    what LocalizationTuning.minFitLeverIn is set from: 2 Nov 2026 gave sd 12 deg from 2 tags on one
+    CELL, 3 deg from 4, under 1 deg from 7-8 on both HIVEs. A median far from 0 with 7-8 tags is a real
+    heading disagreement (the walls, or the camera yaw); with fewer it is the fit."""
+    for p in sorted(glob.glob(os.path.join(args.dir, args.pattern))):
+        try:
+            l = Log(p)
+        except (Exception, SystemExit) as e:
+            print(f"-- {os.path.basename(p)}: unreadable, skipped ({e})")
+            continue
+        hd = l.series.get("/Drift/CameraHeadingDiffDeg", [])
+        if not hd:
+            print(f"-- {os.path.basename(p)[11:48]}: no /Drift/CameraHeadingDiffDeg (built before 2 Nov 2026, or never still with a fit)")
+            continue
+        tags = l.series.get("/Vision/TagsAccepted", [])
+        still = dict(l.series.get("/Drift/Still", []))
+        ti = 0; by = {}
+        for t, v in hd:
+            if still.get(t, 0) < 0.5:
+                continue
+            while ti + 1 < len(tags) and tags[ti + 1][0] <= t:
+                ti += 1
+            n = int(tags[ti][1]) if tags else -1
+            by.setdefault(n, []).append(v)
+        print(f"-- {os.path.basename(p)[11:48]}")
+        for n in sorted(by):
+            v = sorted(by[n])
+            if len(v) < 5:
+                continue
+            m = v[len(v) // 2]
+            sd = math.sqrt(sum((a - sum(v) / len(v)) ** 2 for a in v) / len(v))
+            print(f"   tags {n}: frames {len(v):5d}  median {m:+6.1f}  p10 {v[len(v) // 10]:+6.1f}  p90 {v[9 * len(v) // 10]:+6.1f}  sd {sd:5.1f} deg")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -520,6 +564,9 @@ def main():
     sh = sub.add_parser("shadow", help="shadow pose vs real, per still stop, scored at known spots")
     sh.add_argument("dir")
     sh.add_argument("--pattern", default="*.wpilog*")
+    hd = sub.add_parser("heading", help="camera heading minus Pinpoint by tags in the fit, still frames")
+    hd.add_argument("dir")
+    hd.add_argument("--pattern", default="*.wpilog*")
     for name in ("info", "triage", "dump"):
         p = sub.add_parser(name)
         p.add_argument("log")
@@ -537,6 +584,9 @@ def main():
         return
     if args.cmd == "shadow":
         cmd_shadow(None, args)
+        return
+    if args.cmd == "heading":
+        cmd_heading(None, args)
         return
     log = Log(args.log)
     {"info": cmd_info, "triage": cmd_triage, "dump": cmd_dump}[args.cmd](log, args)

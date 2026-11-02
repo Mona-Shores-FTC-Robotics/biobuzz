@@ -64,10 +64,28 @@ gap grew about 1 in the day the transfer and turret went on.
 From 2 Nov 2026 every run logs a shadow pose (`localization/ShadowPose`): the real pose plus every
 still-fix batch that passed, which the real pose only applies with `stillFixes` on. `wpilog.py shadow DIR`
 prints, per run, each still stop with the real and shadow poses and each one's camera gap, and when
-either is within 10 in of a known spot (starts, corners), which is closer to it. **Only the spot rows
-judge anything**: the shadow is fed the camera, so its camera gap is small by construction. SHADOW
-winning at the marks across a session is the evidence for turning `stillFixes` on; REAL winning, or a
-shadow offset that grows between stops, is the evidence against. Report the counts, not a feeling.
+either is within 10 in of a known spot (starts, corners), which is closer to it. The rows do not say
+whether the robot was on a mark, so count only the stops the drive team placed on one (ask, or match the
+times to what they said they did). **Only those rows judge anything**: the shadow is fed the camera, so
+its camera gap is small by construction. SHADOW winning at the marks across a session is the reason to
+run the with/without comparison of section 3 before `stillFixes` goes on; REAL winning, or a shadow
+offset that grows between stops, is the evidence against. Report the counts, not a feeling. 2 Nov 2026,
+first evening: at the marks REAL 3, SHADOW 1, same 2, with the real pose 0.3-0.9 in off after a corner
+reset; the camera's position from two tags sat about 1 in to field +x of the marks. Not a case yet.
+
+## 0d. A camera heading is only as good as its lever: `heading`
+
+`wpilog.py heading DIR` tabulates camera heading minus Pinpoint (`/Drift/CameraHeadingDiffDeg`, still
+frames) by how many tags the fit had. 2 Nov 2026 (20245, 55-60 in from the HIVEs): **2 tags on one CELL:
+sd 12°, one run sat at +22° for 100 frames; 4 tags on one CELL: median +3°, sd 3°; 7-8 tags on both
+HIVEs: within 1°.** The fit's heading error is the per-tag position noise (about 0.5 in) over the tags'
+lever (root-sum-square distance from their middle: one CELL at most 10 in, both HIVEs 26-39 in). Since
+that night `CellFix.fit` returns no heading under `LocalizationTuning.minFitLeverIn` (30 in), so a run
+built after it has heading-diff samples only from both-HIVE fits, and `tags 2`/`tags 4` rows mean a build
+from before. A median off 0 with 7-8 tags is a real disagreement (camera yaw, or the walls); with fewer
+tags it is the fit, and the robot's heading was fine. **The INIT override that moved a pose 23 in and 24°
+that night was a 2-tag fit**: the position-only gap at the same moment was 0.7 in, which is the mark
+confirming itself (a heading wrong by 24° would have put that gap near 20 in).
 
 ## 1. Which kind of log is it?
 
@@ -195,6 +213,12 @@ Read `/Vision/TagsAccepted` and `/Vision/TagsRejected`, `/Vision/StillFix`, `/Vi
 - `Connected` false or frames near zero: Limelight link, not calibration.
 - Start check warned: compare the declared start with the camera's gap in the event; the marks win.
 - Relocalize "refused": it moves more than 18 in or 20 deg. That is the safeguard working.
+- `Start: pose from the camera (...)` in a TeleOp: the camera overrode the declared start in INIT. Check
+  the `/Drift/Gap*` right before it: a position-only gap under `startMarginIn` with the pose on the
+  declared start means the robot *was* on its mark and the override was wrong (section 0d; fixed by the
+  lever gate on the fit, builds after 2 Nov 2026 evening).
+- `heading corrected ±N°` on a reset: with a both-HIVE fit (7-8 tags) that is the Pinpoint being put
+  right; look for a prior override or a pick-up for where the N° came from.
 Then say a calibration answer needs a `Vision: HIVE & Pose` session, and give section 5.
 
 ## 5. The log to bring next time (the checklist)

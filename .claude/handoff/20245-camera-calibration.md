@@ -44,6 +44,23 @@ mark, hold still, hold D-pad down: expect "heading corrected +15°", then field-
 (3) Start Basic Drive with the robot 2 ft from the mark: the Start line should say "pose from the
 camera". (4) Same on the exp branch without pressing anything.
 
+## 2 Nov evening: what the lab logs said (logs/2026-11-02-20245-RC, five logs)
+- Camera mount after the R1 calibration at the far wall: fwd 3.12-3.13, left 0.89-0.95 (run-scoped, set
+  in Panels; the code still says 3.55 / 0.95). Marks after a corner reset read 0.3-0.9 in: good enough,
+  commit 3.13 / 0.89 once a second night agrees.
+- **The camera's whole-pose heading is noise unless both HIVEs are in the fit** (SKILL.md 0d): 2 tags
+  sd 12 deg, 4 tags +3 deg, 7-8 tags within 1 deg. The "+3.4 deg wall bias" was this, not the walls.
+  The TeleOp INIT override fired on a 2-tag fit and moved the pose 23 in / 24 deg off a mark the
+  position-only gap had just confirmed to 0.7 in; the driver drove 40 s with field-centric 24 deg off,
+  the button's heading check (also a 2-tag fit, right by luck) undid it. Fix: `minFitLeverIn` 30 in
+  gates every camera heading (PR from this branch, 2 Nov night). Until it is deployed: hold Triangle
+  only when the robot really is on its mark, and if the Start line says "pose from the camera" with the
+  robot on the mark, restart the OpMode.
+- Still fixes (shadow): REAL 3, SHADOW 1, same 2 at the marks; not a case for turning them on.
+- Loop time 41 ms mean, 61 p90 (Basic Drive): colour sensor 5.5, drive 9.6, feeder 4.6, onLoop 12 ms.
+  Not localization's; reported to the plan hub.
+- Height error +1.5 in on the blue audience tags too: same as red, still unexplained, still harmless.
+
 ## Priority (plan hub, 31 Oct evening): launcher first; 0 dedicated localization time. Turret is
 LOCKED, so aim = robot heading + position; the heading check (square to a FLOWER, read Panels)
 matters more than the 1.2 in. Do the steps below only with idle robot time.
