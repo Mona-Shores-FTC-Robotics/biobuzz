@@ -159,8 +159,18 @@ public final class Display {
      * alliance), then the one thing to do about it. See {@code InitWarnings}.
      */
     public void alert(String what, String action) {
-        add("<big><b><font color=\"" + Level.WARN.color + "\">" + what + "</font></b></big>");
-        add("<b>→ " + action + "</b>");
+        add(alertWhat(what));
+        add(alertAction(action));
+    }
+
+    /** {@link #alert}'s first line, so a caller can measure it ({@link #rows}) before writing. */
+    public static String alertWhat(String what) {
+        return "<big><b><font color=\"" + Level.WARN.color + "\">" + what + "</font></b></big>";
+    }
+
+    /** {@link #alert}'s second line. */
+    public static String alertAction(String action) {
+        return "<b>→ " + action + "</b>";
     }
 
     /** A plain line. */

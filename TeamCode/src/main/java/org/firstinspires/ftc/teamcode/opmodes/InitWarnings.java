@@ -143,10 +143,21 @@ public final class InitWarnings {
      * with none: the top line already says READY.
      */
     public void describe(Display display) {
+        // The page is one screen (Display): each warning goes in whole while it fits with the
+        // start's two lines still below it, then just its "what" line, most serious first.
         for (int i = 0; i < KINDS.length; i++) {
-            if (what[i] != null) display.alert(what[i], action[i]);
+            if (what[i] == null) continue;
+            double whole = Display.rows(Display.alertWhat(what[i])) + Display.rows(Display.alertAction(action[i]));
+            if (display.room(whole + START_ROWS)) {
+                display.alert(what[i], action[i]);
+            } else {
+                display.line(Display.alertWhat(what[i]));
+            }
         }
     }
+
+    /** Rows the start sentence and its camera note take under the warnings. */
+    static final double START_ROWS = 2;
 
     /** One line for the match log: every warning, most serious first; "none" with none. */
     public String summary() {

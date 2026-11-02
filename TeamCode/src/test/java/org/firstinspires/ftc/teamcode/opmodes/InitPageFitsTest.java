@@ -72,6 +72,23 @@ public class InitPageFitsTest {
         assertFits();
     }
 
+    /**
+     * Five at once: the camera stops answering after its fixes put the robot off the mark (the
+     * fixes outlive the camera), with a stale alliance disagreement too (review on #353).
+     */
+    @Test
+    public void fiveWarningsFitWithTheStartStillShowing() {
+        setup.offerVision(Alliance.RED, "the camera puts the robot on the RED start");
+        setup.chooseManually(Alliance.BLUE);
+        warnings.evaluate("y pod not detected", setup.alliance(), setup.visionAlliance(), OFF_MARK,
+                "not answering", 0, 20_000, 11.8, 12.0);
+        assertEquals(5, warnings.count());
+        writePage(OFF_MARK);
+        assertFits();
+        assertTrue("every warning named", String.join("\n", lines).contains("Battery 11.8 V"));
+        assertTrue("the start line still shows", String.join("\n", lines).contains("Start: "));
+    }
+
     @Test
     public void readyAndUnconfirmedShowsTheMap() {
         setup.offerVision(Alliance.RED, "the camera puts the robot on the RED start");
