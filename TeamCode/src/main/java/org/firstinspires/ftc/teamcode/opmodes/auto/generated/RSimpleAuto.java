@@ -18,18 +18,21 @@ public final class RSimpleAuto {
     /** The .pp file this was generated from. */
     public static final String SOURCE = "r-simple.pp";
 
+    /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
+    public static final String SAVED = "";
+
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Empty"};
+    public static final String[] TRIGGERS = {};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(54.06, 7.72, 90);
+        return poses(rotated).of(55.6, 7.7, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -41,21 +44,19 @@ public final class RSimpleAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(54.06, 7.72, 90);
-        Pose park = p.of(14, 95, 90);
+        Pose rightStart = p.of(55.6, 7.7, 90);
+        Pose rightPark = p.of(9.6, 95.7, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToParkControl1 = p.of(30, 40, 0);
+        Pose toRightParkControl1 = p.of(25, 40, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToPark = Paths.curve(start, startToParkControl1, park).linear(start, park);
+        Path toRightPark = Paths.curve(rightStart, toRightParkControl1, rightPark).linear(rightStart, rightPark);
 
         return kit.sequence(
-                kit.guarded("Auto", startToPark, 3.1,
+                kit.guarded("Auto", toRightPark, 2.9,
                         kit.command("SpinUp"),
-                        kit.firstOf("Fire the preloads at the right CELL (TIP 1)", kit.command("LaunchAll"),
-                                kit.when("Empty"),
-                                kit.afterMs(4000)),
-                        kit.path("START to PARK", startToPark)));
+                        kit.command("LaunchAll"),
+                        kit.path("to RIGHT_PARK", toRightPark, 2.9)));
     }
 }

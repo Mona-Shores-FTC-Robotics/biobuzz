@@ -80,8 +80,8 @@ public class LauncherBench extends OpMode {
         configWarning = checkActiveConfig();
         display = new Display(telemetry);
         try {
-            launcher = LauncherSubsystem.yCabled(hardwareMap);
             feeder = new FeederSubsystem(hardwareMap);
+            launcher = LauncherSubsystem.yCabled(hardwareMap, feeder);
             launcher.initialize();
             feeder.initialize();
         } catch (RuntimeException e) {
@@ -101,6 +101,15 @@ public class LauncherBench extends OpMode {
     public void init_loop() {
         // Read-only before PLAY: the wheels stay still, the screen shows the config and the numbers.
         show();
+    }
+
+    @Override
+    public void start() {
+        // The subsystems' PLAY, as RobotOpMode gives it: nothing they run may move before this.
+        if (fault == null) {
+            launcher.start();
+            feeder.start();
+        }
     }
 
     @Override

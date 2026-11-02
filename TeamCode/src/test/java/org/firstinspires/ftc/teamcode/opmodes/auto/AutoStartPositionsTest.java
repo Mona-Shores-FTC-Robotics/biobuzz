@@ -5,12 +5,10 @@ import static org.junit.Assert.assertEquals;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RLaunchParkAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LQualsAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LSimpleAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RQualsAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RQualsLockedAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RQualsPollenOnlyAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSimpleAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.SisterRightFixedAuto;
 import org.junit.Test;
 
 /**
@@ -36,23 +34,9 @@ public class AutoStartPositionsTest {
     }
 
     @Test
-    public void sisterRightFixedStartsAtTheRedAudienceStart() {
-        assertStartsAt(StartPositions.RED_AUDIENCE.pose, SisterRightFixedAuto.startPose(false));
-    }
-
-    @Test
-    public void rLaunchParkStartsAtTheRedAudienceStart() {
-        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RLaunchParkAuto.startPose(false));
-    }
-
-    @Test
-    public void rQualsPollenOnlyStartsAtTheRedAudienceStart() {
-        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RQualsPollenOnlyAuto.startPose(false));
-    }
-
-    @Test
-    public void rQualsLockedStartsAtTheRedAudienceStart() {
-        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RQualsLockedAuto.startPose(false));
+    public void theLeftAutosStartAtTheRedFarStart() {
+        assertStartsAt(StartPositions.RED_FAR.pose, LSimpleAuto.startPose(false));
+        assertStartsAt(StartPositions.RED_FAR.pose, LQualsAuto.startPose(false));
     }
 
     private static void assertStartsAt(Pose measured, Pose drawn) {

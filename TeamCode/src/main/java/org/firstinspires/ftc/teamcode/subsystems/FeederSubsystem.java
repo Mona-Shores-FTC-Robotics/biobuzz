@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 
 import java.util.Locale;
+import java.util.function.BooleanSupplier;
 
 /**
  * The feeder: one motor that pushes a held piece into the launcher's wheels. The first rung,
@@ -27,18 +28,36 @@ import java.util.Locale;
  */
 @Configurable
 public class FeederSubsystem implements Subsystem {
-    // On the competition robots this motor's encoder socket carries the turret's encoder
-    // (DeviceNames.TURRET_ENCODER_HOST), so ticksPerSecond() and rpm() there are the turret
-    // moving, not the feeder. They read the feeder itself only on the launcher bench rig.
+    // This motor's encoder socket is DeviceNames.TURRET_ENCODER_HOST. With the turret locked
+    // (TurretSubsystem.lockedForward) the feeder's own encoder is in it, so ticksPerSecond() and
+    // rpm() are the feeder; a robot with a turret encoder fitted would read the turret here.
 
     /** What the feeder is being asked to do. */
     public enum State { IDLE, FEED, REVERSE }
 
-    /** Motor power while feeding into the launcher, 0 to 1. <b>Not yet tuned.</b> */
-    public static double feedPower = 0.8;
+    /**
+     * Motor power while feeding into the launcher, 0 to 1. 1.0 since 1 Nov 2026, set by the mentor
+     * on robot 20245 from launch testing: at 0.5 the balls reached the launcher too slowly and hit
+     * the turret walls instead of being taken by the wheels. 19429 is not checked yet.
+     */
+    public static double feedPower = 1.0;
 
-    /** Motor power while backing a piece out of the launcher, 0 to 1. <b>Not yet tuned.</b> */
-    public static double reversePower = 0.5;
+    /**
+     * Motor power while backing a piece out of the launcher (unjam), 0 to 1. 1.0: set by the mentor
+     * on robot 20245 from launch testing, 1 Nov 2026.
+     */
+    public static double reversePower = 1.0;
+
+    /**
+     * Motor power, toward the launcher, while the robot is ready to shoot or taking pieces in (the
+     * launcher spinning, or the intake taking in) and the feeder has not been asked for anything
+     * else, 0 to 1; 0 turns it off. Only the wheels: the feeder's {@link #state()} stays IDLE, so the
+     * gate stays BLOCKING and holds the pieces back, and nothing else treats it as a feed. A fire
+     * then only has to open the gate, with the wheels already at speed. The mentor's call on robot
+     * 20245, 1 Nov 2026: with the intake (#327), and with the launcher, SpinUp included. 1.0, the
+     * same as {@link #feedPower}, until a test says otherwise.
+     */
+    public static double standbyPower = 1.0;
 
     /**
      * Flips the motor so that positive power feeds toward the launcher. {@code true}: on the
@@ -55,6 +74,9 @@ public class FeederSubsystem implements Subsystem {
 
     private final DcMotorEx motor;
     private State state = State.IDLE;
+    private BooleanSupplier ready = () -> false;
+    private boolean started;
+    private boolean standby;
     private double power;
     private double ticksPerSecond;
     private double currentAmps = Double.NaN;
@@ -64,6 +86,20 @@ public class FeederSubsystem implements Subsystem {
     /** Looks the motor up once. A missing motor fails init with the SDK's own message. */
     public FeederSubsystem(HardwareMap hardwareMap) {
         motor = hardwareMap.get(DcMotorEx.class, DeviceNames.FEEDER);
+    }
+
+    /**
+     * Run the wheels at {@link #standbyPower} while {@code ready} says so: the launcher spinning or
+     * the intake taking in (the OpMode's requests, set before this updates). Wired once by
+     * {@code Robot}; a feeder built alone never does it.
+     */
+    public void runWhile(BooleanSupplier ready) {
+        this.ready = ready;
+    }
+
+    /** Whether the last {@link #update()} ran the wheels behind the shut gate (launcher spinning or intake taking in). */
+    public boolean standby() {
+        return standby;
     }
 
     /** Ask for pieces toward the launcher. Takes effect in the next {@link #update()}. */
@@ -114,9 +150,17 @@ public class FeederSubsystem implements Subsystem {
     @Override
     public void initialize() {
         state = State.IDLE;
+        started = false;
+        standby = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setPower(0.0);
+    }
+
+    /** PLAY: from now on the wheels may run with the intake. */
+    @Override
+    public void start() {
+        started = true;
     }
 
     /**
@@ -125,10 +169,13 @@ public class FeederSubsystem implements Subsystem {
      */
     @Override
     public void update() {
-        power = powerFor(state, feedPower, reversePower, reversed);
+        standby = standsBy(state, started, ready.getAsBoolean(), standbyPower);
+        power = standby
+                ? powerFor(State.FEED, standbyPower, 0.0, reversed)
+                : powerFor(state, feedPower, reversePower, reversed);
         motor.setPower(power);
         ticksPerSecond = motor.getVelocity();
-        if (state == State.IDLE) {
+        if (state == State.IDLE && !standby) {
             currentAmps = Double.NaN;
             currentRead.reset();
         } else if (currentRead.due(System.nanoTime())) {
@@ -154,6 +201,7 @@ public class FeederSubsystem implements Subsystem {
         display.status("Feeder", state == State.IDLE ? Display.Level.OK : Display.Level.WARN,
                 state == State.FEED ? String.format(Locale.US, "FEEDING (%.2f)", power)
                         : state == State.REVERSE ? String.format(Locale.US, "REVERSE (%.2f)", power)
+                        : standby ? String.format(Locale.US, "standing by, gate shut (%.2f)", power)
                         : "idle");
         double rpm = rpm();
         display.line(String.format(Locale.US, "Feeder %.0f ticks/s%s · %s", ticksPerSecond,
@@ -175,6 +223,15 @@ public class FeederSubsystem implements Subsystem {
         if (reverseHeld) return State.REVERSE;
         if (feedHeld && (alreadyFeeding || launcherAtSpeed || !requireAtSpeed)) return State.FEED;
         return State.IDLE;
+    }
+
+    /**
+     * Whether the wheels stand by: after PLAY, with nothing else asked of the feeder, {@code ready}
+     * (the launcher spinning or the intake taking in), and {@code standbyPower} above 0 (NaN counts
+     * as off). Pure, so a test can check it.
+     */
+    static boolean standsBy(State state, boolean started, boolean ready, double standbyPower) {
+        return started && state == State.IDLE && ready && standbyPower > 0.0;
     }
 
     /**

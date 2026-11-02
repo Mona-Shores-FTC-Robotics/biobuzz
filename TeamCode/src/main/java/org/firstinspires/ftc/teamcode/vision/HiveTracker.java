@@ -7,7 +7,11 @@ import com.bylazar.configurables.annotations.Configurable;
  * it has TIPped.
  *
  * <p>It starts from the match-start position, {@link HiveState#RIGHT_CELL_UP}, so it is right for
- * an Autonomous run from the start of the match. {@link HiveSubsystem} feeds it every loop:
+ * an Autonomous run from the start of the match. Until something is seen its {@link #state()} is
+ * {@link HiveState#UNSEEN}, except in an Autonomous: there, at PLAY with the alliance locked, the
+ * match-start position is assumed ({@link #assumeMatchStart()}; the manual fixes it), so the HIVE
+ * reads RIGHT_CELL_UP, {@link #assumed()}, through the camera's gaps until the camera sees it settle
+ * or a TIP moves it. {@link HiveSubsystem} feeds it every loop:
  * <ul>
  *   <li>A settled state the camera sees on {@link Tuning#minTags} or more tags is taken as it is.
  *       A single tag flickers in and out at range, and a state built on one would vanish and
@@ -32,8 +36,9 @@ import com.bylazar.configurables.annotations.Configurable;
  *       remembered once the robot looks away, because anyone can TIP the HIVE meanwhile.</li>
  * </ul>
  *
- * <p>Only {@link HiveSubsystem} feeds it; everyone else reads it. An assumed position is never used
- * for a position fix: {@code CellFix} reads only what the camera settled on.
+ * <p>Only {@link HiveSubsystem} feeds it; everyone else reads it. An assumed position, the
+ * match-start one included, is never used for a position fix: {@code CellFix} reads only what the
+ * camera settled on.
  */
 public final class HiveTracker {
 
@@ -160,12 +165,32 @@ public final class HiveTracker {
     /**
      * TIPs <em>started</em> since the match started: counts up the moment a TIP begins, where
      * {@link #tips()} waits for it to finish. A TIP that settles back where it started still
-     * counted here. The {@code Tip} trigger watches this.
+     * counted here.
      */
     public int tipsStarted() { return tipsStarted; }
 
     /** A TIP has started and not yet settled. */
     public boolean tipping() { return tipping; }
+
+    /**
+     * Where the HIVE last rested as far as the robot knows, seen or assumed: the match-start
+     * position until it knows better, and held while the HIVE is out of view or tipping. Never
+     * {@link HiveState#UNSEEN} or {@link HiveState#TRANSITION}. For drawing the robot's belief in
+     * the match log; deciding anything goes through {@link #state()}.
+     */
+    public HiveState position() { return settled; }
+
+    /**
+     * How far through the TIP in progress, 0 to 1, by {@link Tuning#tipSeconds}: 0 when not
+     * tipping, and 0.5 throughout when {@code tipSeconds} assumes nothing. {@code nowMs} is on the
+     * clock {@link #observe} is fed.
+     */
+    public double tipProgress(long nowMs) {
+        if (!tipping) return 0;
+        double ms = Tuning.tipSeconds * 1000.0;
+        if (!(ms > 0)) return 0.5;
+        return Math.max(0.0, Math.min(1.0, (nowMs - tipStartMs) / ms));
+    }
 
     public boolean rightCellUp() { return state == HiveState.RIGHT_CELL_UP; }
 
@@ -181,6 +206,19 @@ public final class HiveTracker {
     public boolean leftCellDown() {
         return state == HiveState.RIGHT_CELL_UP
                 || (state == HiveState.TRANSITION && settled == HiveState.LEFT_CELL_UP);
+    }
+
+    /**
+     * An Autonomous's PLAY: the HIVE is where the manual starts it, {@link HiveState#RIGHT_CELL_UP},
+     * held as {@link #assumed()} until the camera next sees it settle (which replaces it) or a TIP
+     * moves it. Counts no TIP.
+     */
+    public void assumeMatchStart() {
+        settled = HiveState.RIGHT_CELL_UP;
+        state = HiveState.RIGHT_CELL_UP;
+        assumed = true;
+        tipping = false;
+        midTipSinceMs = Double.NaN;
     }
 
     /** Back to the match-start position, nothing seen, no TIPs. */

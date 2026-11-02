@@ -7,13 +7,17 @@ import org.firstinspires.ftc.teamcode.opmodes.HiveAndPose;
 import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
+import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
+import org.firstinspires.ftc.teamcode.util.FieldLayers;
 import org.firstinspires.ftc.teamcode.vision.CameraMount;
 import org.firstinspires.ftc.teamcode.vision.PieceVisionSubsystem;
 
@@ -39,7 +43,10 @@ public final class Tunables {
 
     public static final Class<?>[] CLASSES = {
             DriveSubsystem.class,
+            ColorSensorSubsystem.class,
             FeederSubsystem.class,
+            FeedGateSubsystem.class,
+            PrefeedSubsystem.class,
             FlowerStickSubsystem.class,
             IndicatorSubsystem.class,
             IntakeSubsystem.class,
@@ -51,6 +58,7 @@ public final class Tunables {
             CameraMount.class,
             PieceVisionSubsystem.class,
             TeleOpConfig.class,
+            FieldLayers.class,
             FlowerPicker.class,
             GardenGather.class,
             HiveAndPose.class,

@@ -19,10 +19,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  *       {@link org.firstinspires.ftc.teamcode.hardware.DeviceNames} and nowhere else — never type a
  *       device name as a string here, because a name written twice is a name that can disagree with
  *       itself, and a unit test enforces that rule.</li>
- *   <li><b>Fill in {@link #initialize()}, {@link #update()} and {@link #stop()}</b> — the three
- *       methods {@link Subsystem} requires. Its javadoc has a table of what goes in each. An empty
- *       body is a fine answer for {@code initialize()}; it is rarely the right one for
- *       {@code stop()} if you have a motor.</li>
+ *   <li><b>Fill in {@link #initialize()}, {@link #start()}, {@link #update()} and {@link #stop()}</b>
+ *       — the four methods {@link Subsystem} requires. Its javadoc has a table of what goes in each.
+ *       An empty body is a fine answer for {@code initialize()}; it is rarely the right one for
+ *       {@code stop()} if you have a motor. <b>Nothing may move before PLAY</b> (G304.H and G403;
+ *       {@link Subsystem} explains): a servo is not written and a motor gets no power but zero
+ *       until {@link #start()}. Add yours to {@code InitMovesNothingTest}.</li>
  *   <li><b>Wire it into {@link org.firstinspires.ftc.teamcode.Robot}</b>: add a field, build it in
  *       that constructor, and add it to the {@code subsystems} list. The list is what gets it
  *       initialized, stepped and stopped.</li>
@@ -60,13 +62,24 @@ public class ExampleSubsystem implements Subsystem {
     }
 
     /**
-     * Get ready to run: motor modes, a servo's start position, starting a sensor. Called once, in
-     * OpMode init. Hardware lookups do not go here — they are already done, in the constructor.
+     * Get ready to run: motor modes, starting a sensor. Called once, in OpMode init. Nothing that
+     * moves: no servo position here, it waits for PLAY. Hardware lookups do not go here — they are
+     * already done, in the constructor.
      */
     @Override
     public void initialize() {
         // TODO: put the mechanism in its starting state. For example:
         //   motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    /**
+     * PLAY was pressed: from here on {@link #update()} may move the mechanism. Before it, update()
+     * moves nothing (see {@link Subsystem}, "Nothing moves before PLAY"). If yours moves, keep a
+     * {@code started} flag here and skip every write in update() until it is set, as
+     * {@link IntakeSubsystem} does for its star wheels.
+     */
+    @Override
+    public void start() {
     }
 
     /**

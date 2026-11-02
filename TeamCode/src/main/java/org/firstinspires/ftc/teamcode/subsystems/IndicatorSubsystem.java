@@ -9,24 +9,28 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 
 /**
- * The indicator light: a goBILDA RGB Indicator Light on a servo port, whose colour is the servo
- * position. It says, from across the field, the one thing the drive team most needs to know now;
- * the Driver Station's page says the rest.
+ * The indicator lights: goBILDA RGB Indicator Lights on one servo port (more than one light on a
+ * Y cable, so one device, all the same colour), whose colour is the servo position.
+ *
+ * <p><b>The rule</b> (mentor, 2 Nov 2026): the light shows only what the drive team acts on. Anything
+ * else (a routine driving, the launcher at speed, a piece or two in the lane) goes to the match log,
+ * not the light.
+ *
+ * <table>
+ *   <caption>What it shows, the first that holds</caption>
+ *   <tr><th>When</th><th>Light</th><th>The drive team</th></tr>
+ *   <tr><td>An Autonomous's INIT, with any warning ({@code InitWarnings})</td><td>white, flashing</td>
+ *       <td>reads the Driver Station, which says what is wrong and what to do</td></tr>
+ *   <tr><td>INIT otherwise</td><td>the alliance's colour, steady; off with none</td>
+ *       <td>checks it against the field</td></tr>
+ *   <tr><td>After PLAY, the lane is full (the colour sensor's {@code LaneFull})</td><td>green</td>
+ *       <td>stops intaking</td></tr>
+ *   <tr><td>After PLAY otherwise</td><td>off</td><td>nothing, until the team decides otherwise</td></tr>
+ * </table>
  *
  * <p>{@code RobotOpMode} decides what to show each loop ({@link #choose}) and hands it over with
  * {@link #show}; {@link #update()} writes the light only when its colour changes (and once a
  * second), so it costs no hub round trip in a steady loop.
- *
- * <table>
- *   <caption>What it shows, the first that holds</caption>
- *   <tr><th>When</th><th>Light</th></tr>
- *   <tr><td>INIT, battery below {@code RobotOpMode.LOW_BATTERY_VOLTS}</td><td>red, flashing</td></tr>
- *   <tr><td>The camera is missing or not answering</td><td>orange</td></tr>
- *   <tr><td>INIT, the camera has sent no frame yet: wait before PLAY</td><td>yellow, flashing</td></tr>
- *   <tr><td>A FLOWER pick or GARDEN gather is driving</td><td>violet</td></tr>
- *   <tr><td>The pose is not on the field (no handoff, no camera fix)</td><td>yellow</td></tr>
- *   <tr><td>All good</td><td>the alliance's colour; white with none</td></tr>
- * </table>
  */
 @Configurable
 public class IndicatorSubsystem implements Subsystem {
@@ -35,18 +39,16 @@ public class IndicatorSubsystem implements Subsystem {
     // checked against the light itself at the next session (doc/robot-session-4.md).
     public static double OFF = 0.0;
     public static double RED = 0.279;
-    public static double ORANGE = 0.333;
-    public static double YELLOW = 0.388;
+    /** From the same goBILDA chart as the rest; not yet checked against the light. */
+    public static double GREEN = 0.5;
     public static double BLUE = 0.611;
-    public static double VIOLET = 0.722;
     public static double WHITE = 1.0;
-    /** A flashing signal is on this long, then off as long, ms. */
+    /** A flashing signal is on this long, then off as long, ms. 250 is 2 Hz, well under the 5 Hz the manual frowns on. */
     public static double FLASH_MS = 250;
 
     /** What the light says. */
     public enum Signal {
-        OFF, BATTERY_LOW, CAMERA_FAULT, CAMERA_NO_FRAMES, BUSY, POSE_UNREFERENCED,
-        ALLIANCE_RED, ALLIANCE_BLUE, NO_ALLIANCE
+        OFF, CHECK_DRIVER_STATION, FULL, ALLIANCE_RED, ALLIANCE_BLUE
     }
 
     private final Servo light;
@@ -60,25 +62,21 @@ public class IndicatorSubsystem implements Subsystem {
     }
 
     /**
-     * The signal for the robot's state, the first that holds (see the class comment).
+     * The signal for the robot's state, the first that holds (see the class comment). Pure, so a
+     * test can check it.
      *
-     * @param init           before PLAY
-     * @param batteryLow     the battery read low at INIT
-     * @param cameraFault    the camera is missing or not answering
-     * @param cameraNoFrames the camera answers but has sent no frame yet
-     * @param busy           a pick or a gather is driving the robot
-     * @param poseOnField    the pose is referenced to the field
+     * @param init     before PLAY
+     * @param warnings an Autonomous's INIT has something for the drive team to fix; {@code RobotOpMode}
+     *                 passes false in any other OpMode
+     * @param full     the lane is full
+     * @param alliance shown in INIT only
      */
-    public static Signal choose(boolean init, boolean batteryLow, boolean cameraFault, boolean cameraNoFrames,
-                                boolean busy, boolean poseOnField, Alliance alliance) {
-        if (init && batteryLow) return Signal.BATTERY_LOW;
-        if (cameraFault) return Signal.CAMERA_FAULT;
-        if (init && cameraNoFrames) return Signal.CAMERA_NO_FRAMES;
-        if (busy) return Signal.BUSY;
-        if (!poseOnField) return Signal.POSE_UNREFERENCED;
+    public static Signal choose(boolean init, boolean warnings, boolean full, Alliance alliance) {
+        if (init && warnings) return Signal.CHECK_DRIVER_STATION;
+        if (!init) return full ? Signal.FULL : Signal.OFF;
         if (alliance == Alliance.RED) return Signal.ALLIANCE_RED;
         if (alliance == Alliance.BLUE) return Signal.ALLIANCE_BLUE;
-        return Signal.NO_ALLIANCE;
+        return Signal.OFF;
     }
 
     /** What the light shows from the next {@link #update()}. */
@@ -90,17 +88,13 @@ public class IndicatorSubsystem implements Subsystem {
         return signal;
     }
 
-    /** The servo position for {@code signal} at {@code nowMs}: flashing ones are off half the time. */
+    /** The servo position for {@code signal} at {@code nowMs}: a flashing one is off half the time. */
     static double position(Signal signal, long nowMs) {
         switch (signal) {
-            case BATTERY_LOW: return flashOn(nowMs) ? RED : OFF;
-            case CAMERA_FAULT: return ORANGE;
-            case CAMERA_NO_FRAMES: return flashOn(nowMs) ? YELLOW : OFF;
-            case BUSY: return VIOLET;
-            case POSE_UNREFERENCED: return YELLOW;
+            case CHECK_DRIVER_STATION: return flashOn(nowMs) ? WHITE : OFF;
+            case FULL: return GREEN;
             case ALLIANCE_RED: return RED;
             case ALLIANCE_BLUE: return BLUE;
-            case NO_ALLIANCE: return WHITE;
             default: return OFF;
         }
     }
@@ -114,6 +108,11 @@ public class IndicatorSubsystem implements Subsystem {
     public void initialize() {
         signal = Signal.OFF;
         written = Double.NaN;
+    }
+
+    /** Nothing to do: the light moves nothing, so it lights during INIT too. */
+    @Override
+    public void start() {
     }
 
     /** A write only when the colour changes, and once a second to be sure the light has it. */
@@ -135,6 +134,6 @@ public class IndicatorSubsystem implements Subsystem {
 
     @Override
     public String health() {
-        return "light configured; presence unknown (a servo port reports nothing back)";
+        return "lights configured (Y-cabled, one device); presence unknown (a servo port reports nothing back)";
     }
 }

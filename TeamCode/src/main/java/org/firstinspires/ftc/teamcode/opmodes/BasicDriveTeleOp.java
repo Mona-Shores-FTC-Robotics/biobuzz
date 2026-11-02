@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.controls.ControlScheme;
 import org.firstinspires.ftc.teamcode.controls.Controls;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.IntakeArbiter;
+import org.firstinspires.ftc.teamcode.controls.IntakeToggle;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
@@ -108,7 +109,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private static final long RESET_HOLD_MS = 1000;
 
     /** The launcher trim step can never be more than this, ticks per second, whatever Panels says. */
-    private static final double MAX_LAUNCHER_TRIM_STEP_TPS = 200.0;
+    /** Package-private: the Launch Test caps the same Panels step the same way. */
+    static final double MAX_LAUNCHER_TRIM_STEP_TPS = 200.0;
 
     /** The trim step can never be more than this, degrees, whatever Panels says. */
     private static final double MAX_TRIM_STEP_DEG = 5.0;
@@ -118,6 +120,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     private Controls controls;
     private final IntakeArbiter intakeArbiter = new IntakeArbiter();
+    private final IntakeToggle intakeToggle = new IntakeToggle();
     private final FireGates gates = new FireGates();
     private final LongPress headingReset = new LongPress(RESET_HOLD_MS);
     private final LongPress cameraReset = new LongPress(RESET_HOLD_MS);
@@ -134,6 +137,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private double launcherTrimTps;
     private boolean chassisAimCancelled;
     private boolean lastFire;
+    /** This fire press spun the launcher up from idle, so it feeds only once at launch speed. */
+    private boolean spunUpByFire;
     private Bar bar = Bar.NONE;
     private String poseNote;
     private String autoParkNote;
@@ -159,7 +164,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         aimer = new TurretAimer(robot);
         picker = new FlowerPicker(robot, text -> log.event(text));
         gatherer = new GardenGather(robot, text -> log.event(text));
-        controls = new Controls(TeleOpConfig.flowerPickButton, gamepad1, gamepad2, driver, operator);
+        // A locked turret's controls are left out, so the pages show only buttons that work.
+        controls = new Controls(TeleOpConfig.flowerPickButton, TurretSubsystem.lockedForward,
+                gamepad1, gamepad2, driver, operator);
         log.metadata("Controls/Drive", robotCentric() ? "robot-centric" : "field-centric");
 
         // Bound in Action order, so the Controls page reads like the cheat sheet.
@@ -373,8 +380,19 @@ public class BasicDriveTeleOp extends RobotOpMode {
             } else {
                 robot.drive.drive(forward, strafe, turnCommand);
             }
-            intakeArbiter.decide(controls.held(Action.INTAKE), controls.held(Action.DRIVER_UNJAM),
-                    controls.held(Action.UNJAM), controls.held(Action.OPERATOR_INTAKE));
+            boolean driverIn = controls.held(Action.INTAKE);
+            boolean operatorIn = controls.held(Action.OPERATOR_INTAKE);
+            // Solo testing (TeleOpConfig.intakeToggle): either intake button toggles the intake,
+            // which then runs as the operator's request, so a held unjam still wins.
+            if (intakeToggle.update(TeleOpConfig.intakeToggle, driverIn || operatorIn)) {
+                driverIn = false;
+                operatorIn = true;
+            } else if (TeleOpConfig.intakeToggle) {
+                driverIn = false;
+                operatorIn = false;
+            }
+            intakeArbiter.decide(driverIn, controls.held(Action.DRIVER_UNJAM),
+                    controls.held(Action.UNJAM), operatorIn);
             setIntake(intakeArbiter.state());
         }
         // The pick or the gather runs the intake itself while it is active.
@@ -404,13 +422,20 @@ public class BasicDriveTeleOp extends RobotOpMode {
                     : "Chassis aim: " + aimer.source());
         }
         robot.intake.describe(display);
+        // The same signal as the green light and the roller stop (LaneFull), for whoever is testing.
+        display.status("Lane", Display.Level.OK, robot.colorSensor.full() ? "full" : "room");
         display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
+        if (TeleOpConfig.intakeToggle) {
+            display.line("Intake toggle (testing): " + (intakeToggle.on() ? "ON, R2 again to stop" : "off, R2 to start"));
+        }
         robot.launcher.describe(display);
         if (launcherTrimTps != 0.0) {
             display.line(String.format(Locale.US, "Launcher trim %+.0f ticks/s: launch speed %.0f",
                     launcherTrimTps, launchSpeed()));
         }
         robot.feeder.describe(display);
+        robot.prefeed.describe(display);
+        robot.feedGate.describe(display);
         robot.turret.describe(display);
         if (turretMode == TurretMode.AIM) {
             display.line(aimer.line());
@@ -461,11 +486,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
         return Math.max(-max, Math.min(max, turn));
     }
 
-    @Override
-    protected boolean indicatorBusy() {
-        return routineActive();
-    }
-
     /** A FLOWER pick or a GARDEN gather is driving the robot and running the intake. */
     private boolean routineActive() {
         return picker.active() || gatherer.active();
@@ -486,15 +506,24 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /**
      * The feeder, decided every loop: unjam wins (clearing a jam is always allowed), then fire.
-     * Fire feeds at once unless an enforced gate is closed, and an enforced gate only holds back
-     * the start of a feed, never cuts one ({@code FeederSubsystem.requestFor}). Every press is one
-     * log line with what a gate would have said.
+     * Pressed with the launcher idle, fire spins it up first and feeds once it reaches launch
+     * speed, whatever the gates are set to: 17 presses on 1 Nov 2026 fired an idle launcher and did
+     * nothing. Otherwise it feeds at once unless an enforced gate is closed, and an enforced gate
+     * only holds back the start of a feed, never cuts one ({@code FeederSubsystem.requestFor}).
+     * Every press is one log line with what a gate would have said.
      */
     private void fire() {
-        gates.evaluate(launchMode, robot.launcher.atSpeed(), aimErrorDeg, TeleOpConfig.aimToleranceDeg);
         boolean fireHeld = controls.held(Action.FIRE);
-        boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, TeleOpConfig.enforceAimGate);
-        if (fireHeld && !lastFire) {
+        boolean pressed = fireHeld && !lastFire;
+        if (pressed && !launchMode && !unjamHeld()) {
+            toggleLauncher();
+            spunUpByFire = true;
+        }
+        if (!fireHeld) spunUpByFire = false;
+        gates.evaluate(launchMode, robot.launcher.atSpeed(), aimErrorDeg, TeleOpConfig.aimToleranceDeg);
+        boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, TeleOpConfig.enforceAimGate)
+                && (!spunUpByFire || robot.launcher.atSpeed());
+        if (pressed) {
             log.event(fireLine(open));
         }
         lastFire = fireHeld;
@@ -526,6 +555,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 : String.format(Locale.US, "pose (%.1f, %.1f, %.0f°)%s", pose.x(), pose.y(),
                 Math.toDegrees(pose.heading()), robot.drive.poseReferenced() ? "" : " not on the field");
         String outcome = unjamHeld() ? "not fed: unjam is held"
+                : !open && spunUpByFire ? "SPINNING UP: feeds at launch speed"
                 : !open ? "WAITING: an enforced gate is closed"
                 : gates.anyWouldBlock() ? "fired; a gate would have blocked it (shadow)" : "fired; gates clear";
         return String.format(Locale.US, "fire: launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
@@ -633,10 +663,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("shots", robot.launcher.shots());
             panels.addData("last_shot_dip_tps", robot.launcher.lastShotDipTicksPerSecond());
             panels.addData("last_shot_range_in", lastShotRangeIn);
-            // The feeder's own speed is not published: on the competition robots its encoder socket
-            // carries the turret's encoder (DeviceNames.TURRET_ENCODER_HOST).
             panels.addData("feeder_power", robot.feeder.power());
+            // The feeder's own encoder: the turret is locked and has none (TurretSubsystem.lockedForward).
+            panels.addData("feeder_tps", robot.feeder.ticksPerSecond());
             panels.addData("feeder_amps", robot.feeder.currentAmps());
+            LanePanels.publish(panels, robot.colorSensor.lane());
             panels.addData("turret_mode", turretMode == TurretMode.AIM ? 1 : 0);
             panels.addData("turret_angle_deg", robot.turret.angleDegrees());
             panels.addData("turret_target_deg", robot.turret.targetDegrees());

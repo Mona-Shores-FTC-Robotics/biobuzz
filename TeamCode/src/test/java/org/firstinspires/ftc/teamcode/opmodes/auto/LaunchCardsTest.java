@@ -40,6 +40,7 @@ public class LaunchCardsTest {
         atSpeed = false;
         settled = true;
         PathEndSettle.maxSettleWaitS = 1.0;
+        LaunchCards.maxSpinUpWaitS = 2.5;
         LaunchCards.launchAllFeedS = 2.0;
         LaunchCards.launchOneFeedS = 0.5;
         cards = new LaunchCards(
@@ -118,6 +119,16 @@ public class LaunchCardsTest {
     }
 
     /** #193: a fire after a path waits for the robot to be still and aimed, not for Pedro's done. */
+    /** 1 Nov 2026: a wheel that never reaches speed must not keep every ball in the robot. */
+    @Test
+    public void aLauncherThatNeverReachesSpeedFeedsAnywayAtTheMaxWaitAndTheLogSaysSo() {
+        atSpeed = false;
+        run(cards.launchAll(), 6.0);
+        assertEquals("fed at maxSpinUpWaitS", 2.5, timeOf(first("feed")), LOOP_S + EPS);
+        assertTrue("the log says why: " + notes, notes.stream().anyMatch(n -> n.contains("below launch speed")));
+        assertEquals("it still counts as emptying", 1, cards.launchAllsCompleted());
+    }
+
     @Test
     public void aLaunchAtSpeedWaitsForTheRobotToSettle() {
         atSpeed = true;

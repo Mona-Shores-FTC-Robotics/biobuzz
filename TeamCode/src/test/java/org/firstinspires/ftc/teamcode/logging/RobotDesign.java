@@ -1,0 +1,651 @@
+package org.firstinspires.ftc.teamcode.logging;
+
+import org.firstinspires.ftc.teamcode.localization.ResetPositions;
+import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
+import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
+
+import java.util.Locale;
+
+/**
+ * The robot the simulation pretends to be: where the intake is, what kind of launcher, how fast
+ * each mechanism works. It is how a design question ("turret or fixed launcher?", "do we need to
+ * launch NECTAR?") becomes something {@link AutoSim} can run, so ideas can be compared before
+ * anything is built.
+ *
+ * <p>The sizes come from the Competition Manual: an 18 in cube at the start (R102) and an 18 × 24 in
+ * footprint fully expanded (R105), so an intake can reach at most 6 in past an 18 in frame. Every
+ * time is a placeholder until a mechanism exists to time; change one, run the comparison again,
+ * and see whether the answer changes.
+ */
+final class RobotDesign {
+
+    enum Launcher {
+        /** Aims on its own: launches from any heading, no turning first. */
+        TURRET,
+        /** Fixed to the frame: the drivetrain turns the robot to face the CELL, then it launches. */
+        FIXED,
+        /** Fixed to the frame, and throws everything it holds at once, with more spread. */
+        CATAPULT
+    }
+
+    /** R105: the fully expanded footprint is 18 × 24 in, so an 18 in frame can reach 6 in further. */
+    static final double MAX_REACH_IN = 6.0;
+    /** A FLOWER's retrieval opening is 3.55 in tall (Competition Manual §9.7). */
+    static final double FLOWER_OPENING_HEIGHT_IN = 3.55;
+
+    /**
+     * The real robot's frame, square: twice {@link ResetPositions#WALL_TO_CENTRE_IN}, measured by tape on
+     * 20245 on 30 Oct 2026 (about 16 in without the nose). The Autos are drawn for it (the Visualizer's
+     * robot is 16 x 16, and the measured start puts its back on the wall), so it is every design's frame
+     * unless the design says otherwise. Until 31 Oct 2026 it was the 18 in start cube, and the robot
+     * started 1.3 in into the wall on every Auto drawn from the measured start.
+     */
+    static final double REAL_FRAME_IN = 2 * ResetPositions.WALL_TO_CENTRE_IN;
+
+    final String name;
+    /** Frame length, front to back (R102: at most 18 in at the start). */
+    double frameIn = REAL_FRAME_IN;
+    /**
+     * Frame width, side to side (R102: at most 18 in). Only {@link FieldSim}'s collisions and
+     * {@link #checked} use it; {@link AutoSim}'s outlines still draw a square {@link #frameIn}.
+     */
+    double frameWidthIn = REAL_FRAME_IN;
+    /** How far the intake reaches past the frame once the match starts. */
+    double intakeReachIn = 0;
+    double intakeWidthIn = 14;
+    /**
+     * How tall the intake's opening is: a loose piece is taken only below this (its centre, or with
+     * {@link #intakeOnContact} the whole piece). POLLEN is 2.8 in across, NECTAR 3.6 in.
+     */
+    double intakeHeightIn = 6;
+    /**
+     * Whether the intake takes a loose piece only once it touches the intake's face (a roller inside
+     * the frame): its centre no further out than its radius plus {@link FieldSim#INTAKE_CONTACT_SLACK_IN}.
+     * Otherwise a piece is taken with its centre up to 3 in out, before it touches. FLOWER pickups keep
+     * the 3 in either way (the robot stops just short of the FLOWER's tube).
+     */
+    boolean intakeOnContact = false;
+    /**
+     * Where a launched piece leaves the robot: this far forward of the robot's centre (negative:
+     * behind it) and this high. A piece doesn't collide with the robot that launched it until it
+     * has left that robot's outline, so the exit may be inside the body.
+     */
+    double exitForwardIn = FieldSim.PLACEHOLDER_EXIT_FORWARD_IN;
+    double exitHeightIn = FieldSim.PLACEHOLDER_EXIT_HEIGHT_IN;
+    /** How tall the robot's body is: pieces above it pass over, pieces below bounce off. */
+    double bodyHeightIn = FieldSim.PLACEHOLDER_ROBOT_HEIGHT_IN;
+    boolean intakeAtBack = false;
+    /**
+     * Time between two pieces through the intake, picking up off the tiles: 4 take about 1 s
+     * (mentor review: 0.15 s refilled a robot standing still unrealistically fast). A placeholder
+     * until an intake is timed.
+     */
+    double intakeIntervalS = 0.35;
+    /** Time to drag one POLLEN out of a FLOWER's retrieval opening (only the bottom one fits). */
+    double flowerPullS = 0.5;
+    /**
+     * A FLOWER extractor (the CAD's, doc/robot-cad.md "Seated on a FLOWER"): how far ahead of the front face a
+     * FLOWER's centre is when the deployed extractor is seated on it. NaN: no extractor, and a FLOWER's bottom
+     * POLLEN comes out through the intake mouth instead. The robot deploys it on the approach to a FLOWER and
+     * stows it when it leaves ({@link AutoSim}); a FLOWER gives up pieces only while it is down and seated.
+     */
+    double extractorSeatIn = Double.NaN;
+    /**
+     * How far the extractor reaches to the robot's left of its centre line (negative: right): the FLOWER's centre sits
+     * this far aside when seated. 0, the CAD's extractor, on the centre line. 7.3: one that takes a FLOWER at the left
+     * front corner (routes chat, 8 Oct 2026), so the body seats beside the FLOWER instead of in front of it.
+     */
+    double extractorLateralIn = 0;
+    /**
+     * A wide extractor (body-designs chat, 8 Oct 2026: a T-shaped bar out past the V's tips): the FLOWER's centre may sit
+     * anywhere from extractorLateralIn to this far left of the centre line (NaN: one point, extractorLateralIn). Down,
+     * the bar is a solid strip across the seat line that pieces bounce off ({@link #extractorBarHeightIn}).
+     */
+    double extractorLateralMaxIn = Double.NaN;
+    /** The bar's top off the tiles while down; a placeholder until CAD draws it. */
+    double extractorBarHeightIn = 1.5;
+    /** The bar's underside off the tiles while down (pieces lower than it pass under). */
+    double extractorBarBottomIn = 0;
+    /** The bar's half-span across the robot; NaN: the lateral range plus the seat tolerance. */
+    double extractorBarHalfSpanIn = Double.NaN;
+    /** The bar's middle, ahead of the front face; NaN: at the seat (extractorSeatIn). */
+    double extractorBarAheadIn = Double.NaN;
+    /** The bar's depth, front to back; NaN: a thin plate. */
+    double extractorBarDepthIn = Double.NaN;
+    /**
+     * A seat-position error (body-designs chat): each time the extractor comes down, the robot's real seat is off its
+     * drawn one by a lateral error drawn evenly from -this to +this (in), so the FLOWER sits that much aside.
+     */
+    double seatErrorIn = 0;
+
+    /** The lateral range, {least, most} to the robot's left, the FLOWER's centre may sit in when seated. */
+    double[] extractorLateralRange() {
+        return new double[] {extractorLateralIn, Double.isNaN(extractorLateralMaxIn) ? extractorLateralIn : extractorLateralMaxIn};
+    }
+    /** How far the seat may be off, along and across, for the extractor to still take the stack. */
+    static final double EXTRACTOR_SEAT_TOLERANCE_IN = 1.5;
+    /** Time for the extractor to swing its 150 deg; a placeholder until the servo is driven. */
+    double extractorDeployS = PLACEHOLDER_EXTRACTOR_DEPLOY_S;
+    static final double PLACEHOLDER_EXTRACTOR_DEPLOY_S = 0.5;
+    /**
+     * The transfer: how long a piece takes from the intake to the launcher (roller, lane, J-wheel, turret:
+     * doc/unified-design.md "Transfer"). The launcher fires only pieces that have arrived, so a robot that fires
+     * while it is still taking pieces (seated on a FLOWER with the extractor) waits this long for each one. 0:
+     * no transfer modelled, pieces are launchable at once. A placeholder until the transfer runs.
+     */
+    double transferFeedS = 0;
+    /** The transfer's design figure for intake to ready (doc/transfer.md, spike/164-transfer); 0.5 was the first guess. */
+    static final double TRANSFER_FEED_DESIGN_S = 0.35;
+    /**
+     * Catching (mentor review: it was perfect). A loose piece that reaches the intake is kept with
+     * this chance, and not at all if it is moving faster than intakeMaxSpeedInPerS relative to the
+     * robot. Placeholders until an intake is tested: toss pieces in at a few speeds and count.
+     */
+    double intakeGrabChance = 0.85;
+    double intakeMaxSpeedInPerS = 60;
+    Launcher launcher = Launcher.TURRET;
+    /** Launchers side by side: each shot interval fires this many. */
+    int launchers = 1;
+    /**
+     * Seconds between shots in a volley: 0.2, from the event's best robot (Infinity Tech at Saline, 0.14–0.25 s
+     * apart in two volleys, doc/saline-piece-physics.md, issue #168). 0.45 until 7 Oct 2026, a guess; the
+     * "slow feed" study design keeps it.
+     */
+    double shotIntervalS = 0.2;
+    double spinUpS = 1.0;
+    /**
+     * How fast the turret turns, rad/s ({@link Launcher#TURRET} only). The 8 Oct 2026 design meeting put the turret
+     * on a continuous servo (goBILDA Speed, doc/motors-and-servos.md): about 240 deg/s at the turret, 90 deg in
+     * about 0.4 s; the 312 rpm motor it replaced did about 680. The simulation aimed at once until 9 Oct 2026. The
+     * turret tracks the raised CELL whenever the flywheels spin, so it is pre-aimed by the time a launch is asked for,
+     * and a launch waits until it is within {@code AutoSim.AIM_TOLERANCE_RAD}. {@code Double.POSITIVE_INFINITY}: at once.
+     */
+    double turretSlewRadPerS = Math.toRadians(TURRET_SERVO_DEG_PER_S);
+    static final double TURRET_SERVO_DEG_PER_S = 240, TURRET_MOTOR_DEG_PER_S = 680;
+    /**
+     * How far the turret may turn in all, degrees, centred on straight ahead; NaN: without limit (a slip ring, issues
+     * #169/#170). The two-encoder turret the students drew knows its angle only inside one 393 deg window
+     * (doc/motors-and-servos.md), and about 720 if gears for it are found (the internals chat, 9 Oct 2026): inside a
+     * window the turret sometimes has to unwind the long way round, up to a turn, instead of following the target
+     * through +-180. The published routes wind the turret up to three turns one way (the internals chat's count),
+     * so a limit costs them time. 720 (mentor, 9 Oct 2026, through the internals chat): the CAD's encoder B is a
+     * 36T now (4f53e4f), absolute over 1178 deg, and 720 leaves about 229 deg each side for overshoot, backlash,
+     * the decode's 4 deg tolerance and a turret nudged while the robot is off. The 60-seed studies cost nothing
+     * even at 393. BIOBUZZ_AUTO_TURRET_TRAVEL_DEG tries another window; 0 is without limit.
+     */
+    double turretTravelDeg = TURRET_TRAVEL_DEG;
+    static final double TURRET_TRAVEL_DEG = 720, TURRET_ENCODER_WINDOW_DEG = 1178, TURRET_TWO_ENCODER_WINDOW_DEG = 393;
+    /** Whether it can take in and launch NECTAR (3.6 in) as well as POLLEN (2.8 in). */
+    boolean launchesNectar = true;
+    /**
+     * Whether the robot knows how many pieces it holds (a beam break or distance sensor per slot).
+     * Without one, an Auto can't tell full or empty: IntakeFull and Empty never fire, so every wait
+     * on them runs to its time limit.
+     */
+    boolean countsPieces = true;
+    /**
+     * A weaker full sensor (mentor, 15 Oct 2026: the intake can't be tracked robustly, but "full" can probably be
+     * sensed, e.g. from the intake motor's stall current, issue #181): IntakeFull fires this long after the 4th piece is
+     * in, and each time the robot fills, with this chance it isn't noticed at all (the wait then runs to its limit).
+     * 0 and 0: the exact sensor the studies assume. Empty is not affected.
+     */
+    double fullSenseDelayS = 0;
+    double fullSenseMissChance = 0;
+    /**
+     * NECTAR's launch speed as a fraction of what was aimed for: 1 for a launcher that knows which
+     * piece it holds and compensates; below 1 for one tuned for POLLEN that throws the heavier
+     * NECTAR short.
+     */
+    double nectarSpeedFactor = 1.0;
+    /**
+     * POLLEN's launch speed as a fraction of what was aimed for. With {@link #nectarSpeedFactor} it
+     * describes one launcher at one setting for both pieces: set between the two, each piece
+     * misses its ideal speed by half the difference.
+     */
+    double pollenSpeedFactor = 1.0;
+    /** How much steeper than the flattest arc into the opening the launcher shoots, degrees. */
+    double arcExtraPitchDeg = 6;
+    /**
+     * A launcher whose angle is built in (a fixed hood) shoots at this pitch, degrees, and sets only
+     * its speed for the distance. NaN: the angle follows {@link #arcExtraPitchDeg}.
+     */
+    double fixedPitchDeg = Double.NaN;
+    /** How fast the drivetrain turns, rad/s, when a path or an aim asks it to. */
+    double maxTurnRadPerS = Math.toRadians(300);
+    /**
+     * Two launchers, one set up for POLLEN and one for NECTAR: each interval fires at most one of
+     * each kind, each at its own ideal speed (no shared setting).
+     */
+    boolean dedicatedLaunchers = false;
+    /** A catapult volley's extra spread, and how far apart its pieces sit across the arm, in. */
+    double catapultSpread = 2.0;
+    double catapultSideIn = 2.5;
+    /**
+     * A catapult that throws its pieces as one clump: packed 2 by 2 (none overlapping), all with the
+     * arm's one error for the throw, plus {@link #catapultResidual} of a flywheel's scatter each.
+     */
+    boolean catapultClump = false;
+    /** How the clump sits in the cup: 2 by 2, or a triangle of 3 with 1 on top. */
+    enum Cup { SQUARE, TRIANGLE }
+    Cup catapultCup = Cup.SQUARE;
+    double catapultResidual = 0.3;
+    /**
+     * Whether the shooter software allows for the robot's own motion when it fires on the move
+     * (aiming off by the robot's velocity). Without it a piece fired while driving carries the
+     * robot's velocity.
+     */
+    boolean compensatesMotion = false;
+    /**
+     * Whether it fires while still driving (a what-if for the CAD chat, 9 Oct 2026): the launcher is not held until
+     * the robot has nearly stopped at a firing spot, and the shot allows for the robot's motion
+     * ({@link #compensatesMotion}). The real robot fires once nearly still.
+     */
+    boolean firesOnTheMove = false;
+    /** How far it can launch, in: {@code AutoSim.MAX_SHOT_RANGE_IN} (60, a placeholder) unless a what-if says more. */
+    double launchRangeIn = 60;
+    /**
+     * A flow-through intake (the body-designs chat's brief, doc/five-tip-flow-through.md; a what-if for the CAD
+     * chat's redesign, 9 Oct 2026): pieces travel through the robot and, while its gate is open ({@code GateOpen}),
+     * out of the back onto the tiles behind it whenever a 5th arrives, so it never CONTROLS more than 4 (G407) however
+     * fast a spill comes; with the gate closed ({@code GateClose}) it fills to 4 like any robot. Firing as it collects
+     * is {@code StreamOn}, which every design has.
+     */
+    boolean flowThrough = false;
+    /**
+     * A frame-fixed launcher whose slats flip to throw straight back as well as forward (mentor,
+     * 3 Oct 2026, instead of a turret): the robot turns whichever end is nearer to facing the CELL.
+     */
+    boolean launchesBothWays = false;
+    /** Time for the slats to flip between forward and back (a guess until one is built). */
+    double flipS = 0.3;
+    /**
+     * Side walls (mentor, 5 Oct 2026; {@code RobotAssets}' side-wall sketch): a wall down each side,
+     * flush with the frame, that slides this far forward when out, so it stops a spill scattering
+     * from beside the robot. Each has a one-way flap at the bottom: POLLEN rolls in under it and
+     * cannot roll back out, and the opening is too low for NECTAR. 0: none. With the frame it makes
+     * the footprint 18 × (18 + slide), so R105 allows at most 6 in.
+     */
+    double sideWallsSlideIn = 0;
+    /**
+     * The other shape that fits R105's 18 × 24 in: the walls swing this far out sideways instead of
+     * forward (a "wide U", 24 in across at most, so its arms cannot also reach forward). 0: the
+     * long U, walls sliding forward by sideWallsSlideIn.
+     */
+    double sideWallsOutIn = 0;
+    /** How long each wall is, front to back, ending at the frame's front (plus any forward slide). */
+    double sideWallsLengthIn = 18;
+    /**
+     * Which side has a wall: 0 both, +1 the left only, −1 the right only (facing forward). A single
+     * wall is a shield with no flap: solid down to {@link RobotAssets#DOOR_BOTTOM_IN}.
+     */
+    int sideWallsOnly = 0;
+    /** Seconds the walls take to slide all the way out or in. A guess until they are built. */
+    double sideWallsTravelS = 0.3;
+    /**
+     * When the walls start out, in seconds after our CELL starts to TIP. The spill lands 1.13 to 1.43 s
+     * after (SpillLandingTest, from the 3 Oct films), so from 1.5 s they never meet a piece still in
+     * the air: walls opening as pieces fall would look like G409's example B, "a MECHANISM ... that
+     * opens wide to accept SCORING ELEMENTS".
+     */
+    double sideWallsDeployS = 1.5;
+
+    /**
+     * Passive flaps (mentor, 5 Oct 2026): a thin plate hinged at each front corner of the frame,
+     * folded against the side at the start (inside R102's 18 in) and flipped out once the match
+     * starts, its free end this far out sideways and forward of the hinge: a funnel in front of the
+     * intake. 0 and 0: none. Out the whole match; nothing drives them.
+     */
+    double flapOutIn = 0;
+    double flapForwardIn = 0;
+    /** How tall a flap is; a placeholder until one is drawn (it must stop a rolling 2.8 in POLLEN). */
+    double flapHeightIn = 4;
+    static final double FLAP_THICKNESS_IN = 0.25;
+    /** How bouncy the flaps are (FieldSim's restitution), when not the robot's own (NaN). */
+    double flapRestitution = Double.NaN;
+    /** Which front corners have a flap (mentor, 5 Oct 2026: a "right hook" has only the right one). */
+    boolean flapLeft = true, flapRight = true;
+    /**
+     * Capacity set by a single-file floor lane (the transfer, doc/transfer.md on spike/164-transfer): pieces queue
+     * nose to tail from the turret axis forward, and the intake refuses one whose centre would land ahead of the
+     * roller's axle. 4 POLLEN, 3 NECTAR, 3-4 mixed. False: any 4 ({@link FieldSim#ROBOT_CAPACITY}).
+     */
+    boolean laneCapacity = false;
+    /**
+     * A beam joining the flaps' free ends across the robot's whole width (a "C" in front of the robot,
+     * its front face the fourth side), as tall as the flaps. With one flap it hangs off that one.
+     */
+    boolean flapCrossbeam = false;
+    /**
+     * Whether the flaps (and crossbeam) fold up while driving and pivot down like the side walls do
+     * in a match ({@link AutoSim}: out {@link #sideWallsDeployS} after our CELL starts to TIP, taking
+     * {@link #sideWallsTravelS}); false: out the whole match, as a rigid guide is.
+     */
+    boolean flapsDeploy = false;
+    /**
+     * A one-armed design's arm goes on whichever side faces the centre line when it comes down (a
+     * "right hook" facing our wall, a left one facing the far wall), so it keeps the spill on our half.
+     */
+    boolean flapTowardCentre = false;
+    /**
+     * A dual hook (mentor, 6 Oct 2026): two one-armed hooks, mirrored, each on its own hinge, so whichever end of the
+     * field the spill is at, the one whose arm faces the centre line comes down; with {@link #flapTowardCentre}.
+     * False: one hook, its arm on one side for the whole match.
+     */
+    boolean flapEitherSide = false;
+    /**
+     * Runs Autos drawn for an 18 in robot backed against the wall, so {@link AutoSim} backs this shorter
+     * chassis against the wall too (the spill shapes on qual-right-v3); false: the start pose as drawn.
+     */
+    boolean startBackedToWall = false;
+    /**
+     * Rigid guides (a rigid V, mentor, 5 Oct 2026): a fixed plate from each front corner, its free end this far
+     * out sideways and forward, {@link #flapHeightIn} tall, out the whole match and inside R102's 18 in from the
+     * start. Separate from the flaps so a robot can have both a V and a hook.
+     */
+    double guideOutIn = 0, guideForwardIn = 0;
+    /**
+     * Flaps folded inside the frame at START (R102) and out {@link AutoSim#CATCHER_DEPLOY_S} after it, for the rest of
+     * the match (R105 instead of R102: frame plus flaps within 18 x 24 in). False: as {@link #flapsDeploy} says.
+     */
+    boolean flapsAfterStart = false;
+    /**
+     * With {@link #flapsAfterStart}: whether the robot folds the flaps itself near walls, the HIVE frame and the centre line
+     * (a robot that knows its pose and folds in 0.3 s); false: out from 1 s after START for the whole match, unless
+     * {@link #catchScheduled}.
+     */
+    boolean flapsAutoFold = true;
+    /**
+     * The flaps and the slide (RobotDesign#slideMaxIn) out only between the Auto's CatchOut and CatchIn cards: a servo,
+     * no pose logic, taking {@link #catchActuateS} to swing (or slide) either way. The route keeps them clear.
+     */
+    boolean catchScheduled = false;
+    double catchActuateS = 0.5;
+    /**
+     * A slide intake: the intake's head runs forward on a slide, up to this far past {@link #intakeReachIn}, while the
+     * robot intakes and is nearly still ({@link AutoSim}), and back while it drives. 0: no slide. A captured piece rides
+     * back to the lane at {@link #slideSpeedInPerS} before it can feed. Placeholders: nothing like it is drawn.
+     */
+    double slideMaxIn = 0;
+    double slideSpeedInPerS = 30;
+    /**
+     * The piece camera CollectSeen chases with (the webcam, PieceVisionSubsystem): half its field of view, its range, how
+     * far from where the chase started it may go, and how far it turns to look with nothing in view. Placeholders.
+     */
+    double cameraHalfFovDeg = 35, cameraRangeIn = 60, collectRadiusIn = 36, lookAroundDeg = 90;
+
+    boolean hasGuides() {
+        return guideOutIn > 0 || guideForwardIn > 0;
+    }
+
+    boolean hasFlaps() {
+        return flapOutIn > 0 || flapForwardIn > 0;
+    }
+
+    /** Length of each flap, hinge to free end. */
+    double flapLengthIn() {
+        return Math.hypot(flapOutIn, flapForwardIn);
+    }
+
+    RobotDesign(String name) {
+        this.name = name;
+    }
+
+    /** The real robot (31 Oct 2026): the one design the simulator runs, in its four variants. */
+    static final String REAL = "real robot";
+    static final String REAL_LOCKED = "real robot, turret locked forward";
+    static final String REAL_POLLEN = "real robot, POLLEN only";
+    static final String REAL_LOCKED_POLLEN = "real robot, turret locked forward, POLLEN only";
+
+    /**
+     * The team's robot as master's code has it: a {@link #REAL_FRAME_IN} square chassis, a front intake, a turret
+     * launcher fed by the feeder, and the FLOWER stick, which {@code FlowerPicker} pushes to
+     * {@code contactStandoffIn} from a FLOWER's centre. What master states is taken from it, so a change there
+     * changes the simulation: the turret's offset (TurretSubsystem), the stick's contact standoff, and the feed
+     * (LaunchCards: LaunchAll feeds 4 in {@code launchAllFeedS}). Everything else is a placeholder still to be
+     * measured from the robot's match logs; the four variants are the choices the drive team makes, not guesses.
+     */
+    static RobotDesign real() {
+        RobotDesign d = new RobotDesign(REAL);
+        d.intakeWidthIn = 0.9 * d.frameWidthIn;
+        d.intakeOnContact = true;
+        d.extractorSeatIn = FlowerPicker.contactStandoffIn - d.frameIn / 2;
+        d.shotIntervalS = LaunchCards.launchAllFeedS / 4;
+        return d;
+    }
+
+    /** {@link #real()} with the turret locked straight ahead (R-Quals-Locked): the drivetrain aims. */
+    static RobotDesign realLocked() {
+        RobotDesign d = real().copy(REAL_LOCKED);
+        d.launcher = Launcher.FIXED;
+        return d;
+    }
+
+    /**
+     * {@code base} taking and launching POLLEN only (R-Quals-Pollen-Only): it never takes a NECTAR, so an Auto for
+     * it has no reason to wait for the first TIP's spill, which brings NECTAR.
+     */
+    static RobotDesign pollenOnly(RobotDesign base, String name) {
+        RobotDesign d = base.copy(name);
+        d.launchesNectar = false;
+        return d;
+    }
+
+    /** What the simulation has always assumed: front intake, a turret that aims itself. */
+    static RobotDesign standard() {
+        return new RobotDesign("turret");
+    }
+
+    static RobotDesign fixedLauncher() {
+        RobotDesign d = new RobotDesign("fixed launcher");
+        d.launcher = Launcher.FIXED;
+        return d;
+    }
+
+    /**
+     * The spring-hood launcher in {@code cad/spring-hood-launcher}: fixed to the frame, a 75° hood,
+     * NECTAR at 99% of POLLEN's speed with the setting tuned between them. Four 82 mm steel flywheels
+     * on one 6000 rpm motor take about 1.9 s to reach 2700 rpm from rest (J ≈ 7.3e-4 kg·m², stall
+     * torque 0.144 N·m: t = J·ω_free/T_stall · ln(1/(1 − 2700/6000))), so 2 s.
+     */
+    static RobotDesign springHood() {
+        RobotDesign d = new RobotDesign("spring hood");
+        d.launcher = Launcher.FIXED;
+        d.fixedPitchDeg = 75;
+        d.spinUpS = 2.0;
+        d.pollenSpeedFactor = 1.005;
+        d.nectarSpeedFactor = 0.995;
+        return d;
+    }
+
+    /**
+     * The robot the build team is building (4 Oct 2026): the spring hood with an intake across the
+     * front (the name is from when it took a piece anywhere across the 18 in front).
+     */
+    static RobotDesign springHoodFullWidth() {
+        RobotDesign d = springHood().copy("spring hood, full-width intake");
+        // Mentor, 5 Oct 2026, conservative until the intake is built: the intake is the frame's front
+        // edge, 90% of its width, centred, a 5 in tall opening, and takes a piece only when it touches.
+        d.intakeWidthIn = 0.9 * d.frameIn;
+        d.intakeHeightIn = 5;
+        d.intakeOnContact = true;
+        // The launcher as the build team's prototypes have it (5 Oct 2026): flywheels near the back that
+        // throw a piece up into a deflector, which sends it off forward at the hood's angle from its lip.
+        d.exitForwardIn = -4;
+        d.exitHeightIn = 12;
+        return d;
+    }
+
+    /**
+     * The build team's prototype, read off their CAD (front, side and top views, 5 Oct 2026) using
+     * the pieces in it as a scale (POLLEN 2.8 in, NECTAR 3.6 in), so each number is +-15% and will
+     * move as they build. It tells the story of what changes from {@link #springHoodFullWidth}:
+     * a smaller robot, a narrower intake, and the launcher at the back (still firing forward, over
+     * the robot). Not modelled yet: the pinwheel at its right-front corner that takes POLLEN out of a
+     * FLOWER (the robot still takes them with its intake, as the other designs do).
+     */
+    static RobotDesign buildersPrototype() {
+        RobotDesign d = springHoodFullWidth().copy("builders' prototype (5 Oct CAD)");
+        d.frameIn = 15; // about 15 x 15 in including the wheels (frame rails about 11 in apart)
+        d.frameWidthIn = 15;
+        d.intakeWidthIn = 8; // a front roller between the front wheels, about 2 NECTAR wide
+        d.exitForwardIn = -3; // two flywheels about 3 in behind the centre ...
+        d.exitHeightIn = 8; // ... about 8 in up; the angle stays the spring hood's 75 deg (unmeasured)
+        d.bodyHeightIn = 9; // frame and flywheel housings; the camera masts are thin and not modelled
+        return d;
+    }
+
+    /**
+     * The Flat Intake, the baseline robot (named 6 Oct 2026; was "builders' option 3 (5 Oct CAD)"): the
+     * build team's third option, read off their 5 Oct CAD with the pieces as a scale (+-15%), a low chassis
+     * about 14.5 in square with a 14 in intake straight across a flat front and no spill guide. (The CAD's
+     * funnel wheels at the front corners are not simulated.) Its launcher isn't drawn yet: it has
+     * {@link #springHoodFullWidth}'s, near the back. The guides on it: AutoStudyTest#flatIntakeWith.
+     */
+    static RobotDesign flatIntake() {
+        RobotDesign d = springHoodFullWidth().copy("flat intake");
+        d.frameIn = 14.5;
+        d.frameWidthIn = 14.5;
+        d.intakeWidthIn = 14;
+        d.bodyHeightIn = 6;
+        return d;
+    }
+
+    static RobotDesign catapult() {
+        RobotDesign d = new RobotDesign("catapult");
+        d.launcher = Launcher.CATAPULT;
+        d.spinUpS = 0.6; // re-cocking, not spinning up
+        return d;
+    }
+
+    RobotDesign copy(String newName) {
+        RobotDesign d = new RobotDesign(newName);
+        d.frameIn = frameIn;
+        d.frameWidthIn = frameWidthIn;
+        d.intakeReachIn = intakeReachIn;
+        d.intakeWidthIn = intakeWidthIn;
+        d.intakeHeightIn = intakeHeightIn;
+        d.intakeOnContact = intakeOnContact;
+        d.exitForwardIn = exitForwardIn;
+        d.exitHeightIn = exitHeightIn;
+        d.bodyHeightIn = bodyHeightIn;
+        d.intakeAtBack = intakeAtBack;
+        d.intakeIntervalS = intakeIntervalS;
+        d.intakeGrabChance = intakeGrabChance;
+        d.intakeMaxSpeedInPerS = intakeMaxSpeedInPerS;
+        d.flowerPullS = flowerPullS;
+        d.extractorSeatIn = extractorSeatIn;
+        d.extractorLateralIn = extractorLateralIn;
+        d.extractorLateralMaxIn = extractorLateralMaxIn;
+        d.extractorBarHeightIn = extractorBarHeightIn;
+        d.extractorBarBottomIn = extractorBarBottomIn;
+        d.extractorBarHalfSpanIn = extractorBarHalfSpanIn;
+        d.extractorBarAheadIn = extractorBarAheadIn;
+        d.extractorBarDepthIn = extractorBarDepthIn;
+        d.seatErrorIn = seatErrorIn;
+        d.extractorDeployS = extractorDeployS;
+        d.transferFeedS = transferFeedS;
+        d.launcher = launcher;
+        d.launchers = launchers;
+        d.shotIntervalS = shotIntervalS;
+        d.laneCapacity = laneCapacity;
+        d.spinUpS = spinUpS;
+        d.turretSlewRadPerS = turretSlewRadPerS;
+        d.turretTravelDeg = turretTravelDeg;
+        d.launchesNectar = launchesNectar;
+        d.countsPieces = countsPieces;
+        d.fullSenseDelayS = fullSenseDelayS;
+        d.fullSenseMissChance = fullSenseMissChance;
+        d.nectarSpeedFactor = nectarSpeedFactor;
+        d.pollenSpeedFactor = pollenSpeedFactor;
+        d.arcExtraPitchDeg = arcExtraPitchDeg;
+        d.fixedPitchDeg = fixedPitchDeg;
+        d.maxTurnRadPerS = maxTurnRadPerS;
+        d.dedicatedLaunchers = dedicatedLaunchers;
+        d.catapultSpread = catapultSpread;
+        d.catapultSideIn = catapultSideIn;
+        d.catapultClump = catapultClump;
+        d.catapultCup = catapultCup;
+        d.catapultResidual = catapultResidual;
+        d.compensatesMotion = compensatesMotion;
+        d.firesOnTheMove = firesOnTheMove;
+        d.launchRangeIn = launchRangeIn;
+        d.flowThrough = flowThrough;
+        d.launchesBothWays = launchesBothWays;
+        d.flipS = flipS;
+        d.sideWallsSlideIn = sideWallsSlideIn;
+        d.sideWallsOutIn = sideWallsOutIn;
+        d.sideWallsLengthIn = sideWallsLengthIn;
+        d.sideWallsOnly = sideWallsOnly;
+        d.sideWallsTravelS = sideWallsTravelS;
+        d.sideWallsDeployS = sideWallsDeployS;
+        d.flapOutIn = flapOutIn;
+        d.flapForwardIn = flapForwardIn;
+        d.flapHeightIn = flapHeightIn;
+        d.flapRestitution = flapRestitution;
+        d.flapLeft = flapLeft;
+        d.flapRight = flapRight;
+        d.flapCrossbeam = flapCrossbeam;
+        d.flapsDeploy = flapsDeploy;
+        d.flapTowardCentre = flapTowardCentre;
+        d.flapEitherSide = flapEitherSide;
+        d.startBackedToWall = startBackedToWall;
+        d.guideOutIn = guideOutIn;
+        d.guideForwardIn = guideForwardIn;
+        d.flapsAfterStart = flapsAfterStart;
+        d.flapsAutoFold = flapsAutoFold;
+        d.catchScheduled = catchScheduled;
+        d.catchActuateS = catchActuateS;
+        d.slideMaxIn = slideMaxIn;
+        d.slideSpeedInPerS = slideSpeedInPerS;
+        d.cameraHalfFovDeg = cameraHalfFovDeg;
+        d.cameraRangeIn = cameraRangeIn;
+        d.collectRadiusIn = collectRadiusIn;
+        d.lookAroundDeg = lookAroundDeg;
+        return d;
+    }
+
+    /** Throws if the design breaks a construction rule the manual states. */
+    RobotDesign checked() {
+        if (frameIn > 18 || frameWidthIn > 18) {
+            throw new IllegalArgumentException(name + ": frame over the 18 in start cube (R102)");
+        }
+        if (sideWallsSlideIn > 0 && sideWallsOutIn > 0) {
+            throw new IllegalArgumentException(name + ": side walls both forward and out don't fit 18 x 24 in (R105)");
+        }
+        // A flap folds back against the side to start inside the 18 in cube.
+        if (hasFlaps() && flapLengthIn() > frameIn) {
+            throw new IllegalArgumentException(name + ": flaps longer than the frame can't fold inside 18 in (R102)");
+        }
+        // An intake can be wider than the frame only by folding out sideways, which uses R105's
+        // 24 in across instead of reaching forward.
+        if (intakeWidthIn > (intakeReachIn == 0 ? 24 : frameWidthIn)) {
+            throw new IllegalArgumentException(name + ": intake wider than R105 allows");
+        }
+        if (frameIn + guideForwardIn > 18 || frameWidthIn + 2 * guideOutIn > 18) {
+            throw new IllegalArgumentException(name + ": rigid guides outside the 18 in start cube (R102)");
+        }
+        // R105: everything out, the robot fits an 18 x 24 in box, either way round.
+        double[] f = footprintIn();
+        if (!(f[0] <= 24 && f[1] <= 18) && !(f[0] <= 18 && f[1] <= 24)) {
+            throw new IllegalArgumentException(String.format(Locale.ROOT,
+                    "%s: %.1f in long x %.1f in across doesn't fit 18 x 24 in (R105)", name, f[0], f[1]));
+        }
+        return this;
+    }
+
+    /** {front to back, side to side} with everything out: what R105 limits. */
+    double[] footprintIn() {
+        double ahead = Math.max(Math.max(intakeReachIn + slideMaxIn, sideWallsSlideIn), Math.max(flapForwardIn, guideForwardIn));
+        double across = frameWidthIn + 2 * Math.max(Math.max(sideWallsOutIn, flapOutIn), guideOutIn);
+        if (intakeReachIn == 0) across = Math.max(across, intakeWidthIn);
+        return new double[] {frameIn + ahead, across};
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.ROOT, "%s (%s x%d, %.2f s/shot, intake %s %.0f in wide +%.0f in, %s)",
+                name, launcher.name().toLowerCase(Locale.ROOT), launchers, shotIntervalS,
+                intakeAtBack ? "back" : "front", intakeWidthIn, intakeReachIn,
+                launchesNectar ? "POLLEN+NECTAR" : "POLLEN only");
+    }
+}

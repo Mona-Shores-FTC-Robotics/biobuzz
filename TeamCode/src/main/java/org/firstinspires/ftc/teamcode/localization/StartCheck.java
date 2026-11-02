@@ -58,19 +58,18 @@ public final class StartCheck {
             return status == Status.IN_POSITION ? start.alliance : Alliance.UNKNOWN;
         }
 
+        /**
+         * The start, as the drive team places it: "Start: Left side on B-C Seam", bold, then what
+         * the camera makes of it, small. The map is separate ({@link #describeMap}), so a page
+         * short of room can leave it out.
+         */
         public void describe(Display display) {
             if (status == Status.NOT_DECLARED) return;
-            String[] map = start.map();
-            if (map != null) {
-                for (String line : map) display.line(line);
-            }
-            // "^ Start: Left wheels on B-C Seam", bold, the arrow in the colour of how it stands: the
-            // one line to read, under the map whose arrow it is.
             boolean warn = status == Status.OUT_OF_POSITION;
-            display.line("<b><font color=\"" + (warn ? "#FFB300" : "#4CAF50") + "\">"
-                    + start.arrow() + "</font> Start: " + start.placement() + "</b>");
+            display.line("<b><font color=\"" + (warn ? "#FFB300" : "#4CAF50") + "\">●</font> Start: "
+                    + start.placement() + "</b>");
             if (status == Status.UNCONFIRMED) {
-                display.line("<small>camera: not seeing it yet</small>");
+                display.line("<small>camera: no fix matches this start yet</small>");
             } else if (warn) {
                 display.line(String.format(java.util.Locale.US,
                         "camera disagrees by %.0f in — CHECK THE MARKS", errorIn));
@@ -79,6 +78,25 @@ public final class StartCheck {
                         "<small>camera disagrees by %.1f in (don't adjust)</small>", errorIn));
             }
         }
+
+        /**
+         * Whether the map helps: an alliance is known (so it is drawn from that drive team's side,
+         * never red's by default) and the start is not yet confirmed, or is off. Once the camera
+         * confirms it, the sentence is enough.
+         */
+        public boolean mapHelps(Alliance alliance) {
+            return (alliance == Alliance.RED || alliance == Alliance.BLUE)
+                    && (status == Status.UNCONFIRMED || status == Status.OUT_OF_POSITION);
+        }
+
+        /** The map with the start on it, as {@code viewer}'s drive team sees the field ({@link FieldMap}). */
+        public void describeMap(Display display, Alliance viewer) {
+            if (status == Status.NOT_DECLARED) return;
+            for (String line : FieldMap.lines(start, viewer)) display.line(line);
+        }
+
+        /** Screen rows {@link #describeMap} takes: eight monospace lines. */
+        public static final double MAP_LINES = 8;
     }
 
     /**

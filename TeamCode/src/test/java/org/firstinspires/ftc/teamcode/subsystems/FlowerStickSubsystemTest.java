@@ -53,4 +53,9 @@ public class FlowerStickSubsystemTest {
     public void noPoseCountsAsClearSoTheStickCanComeIn() {
         assertTrue(FlowerStickSubsystem.clearOf(null, 30, 40, 18));
     }
+
+    @Test
+    public void theTunedPositionsMakeTheMeasured162DegreeSwing() {
+        assertEquals(162.0, FlowerStickSubsystem.swingDegrees(), 1e-9);
+    }
 }
