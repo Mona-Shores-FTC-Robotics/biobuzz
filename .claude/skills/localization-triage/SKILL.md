@@ -59,6 +59,16 @@ with the camera "answering" but 0% fixes from the start spot had something in fr
 at the HIVE, not a camera fault. **Recalibrate the mount after any mechanical work**: the forward
 gap grew about 1 in the day the transfer and turret went on.
 
+## 0c. Judging still fixes: `shadow`
+
+From 2 Nov 2026 every run logs a shadow pose (`localization/ShadowPose`): the real pose plus every
+still-fix batch that passed, which the real pose only applies with `stillFixes` on. `wpilog.py shadow DIR`
+prints, per run, each still stop with the real and shadow poses and each one's camera gap, and when
+either is within 10 in of a known spot (starts, corners), which is closer to it. **Only the spot rows
+judge anything**: the shadow is fed the camera, so its camera gap is small by construction. SHADOW
+winning at the marks across a session is the evidence for turning `stillFixes` on; REAL winning, or a
+shadow offset that grows between stops, is the evidence against. Report the counts, not a feeling.
+
 ## 1. Which kind of log is it?
 
 | Log has | Means | Use |

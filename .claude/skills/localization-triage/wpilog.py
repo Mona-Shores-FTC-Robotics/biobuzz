@@ -5,6 +5,7 @@
     python3 -I wpilog.py triage LOG [--start S --end S]   # mount vs field point vs odometry
     python3 -I wpilog.py dump   LOG KEY [KEY...]    # time series, CSV on stdout
     python3 -I wpilog.py survey DIR [--pattern '2026-11-01_*.wpilog']   # a lab day, one line per log
+    python3 -I wpilog.py shadow DIR                    # shadow pose vs real at every still stop, scored at known spots
 
 Written from the wpilog spec (https://github.com/wpilibsuite/allwpilib/blob/main/wpiutil/doc/datalog.adoc),
 not from our writer, like the test reader in src/test/.../logging/WpiLogReader.java.
@@ -448,12 +449,77 @@ def cmd_survey(_log, args):
         print(f"  {r['name'][:30]:30} {sorted(r['stillfix'])} applied={r['applied']}")
 
 
+# The marked spots a drive team can put the robot on (localization/CalibrationSpots, ResetPositions),
+# Pedro inches. Kept here as numbers so the report needs no robot code; update with those files.
+KNOWN_SPOTS = {
+    "Red audience": (55.6, 7.7), "Red far wall": (62.3, 133.8),
+    "Blue audience wall": (79.2, 7.7), "Blue far wall": (85.9, 133.8),
+    "Red right corner": (8.1, 8.1), "Red left corner": (8.1, 133.4),
+    "Blue right corner": (133.4, 133.4), "Blue left corner": (133.4, 8.1),
+}
+NEAR_SPOT_IN = 10.0
+
+
+def cmd_shadow(_log, args):
+    """Shadow pose against the real one, per run: every still stop, with both poses, each one's camera
+    gap, and when either is within NEAR_SPOT_IN of a known spot, which is closer to the spot. Then the
+    fixes the shadow took and where it ended. Nothing here is the camera judging itself: the spot
+    rows are the ones that count."""
+    for p in sorted(glob.glob(os.path.join(args.dir, args.pattern))):
+        try:
+            l = Log(p)
+        except Exception:
+            continue
+        sx = l.series.get("/Shadow/X", []); sy = dict(l.series.get("/Shadow/Y", []))
+        X = l.series.get("/Odometry/PedroInches/X", []); Y = dict(l.series.get("/Odometry/PedroInches/Y", []))
+        if not sx or not X:
+            print(f"-- {os.path.basename(p)[11:48]}: no /Shadow channels (built before 2 Nov 2026?)")
+            continue
+        still = dict(l.series.get("/Drift/Still", [])); gx = dict(l.series.get("/Drift/GapXIn", [])); gy = dict(l.series.get("/Drift/GapYIn", []))
+        sgx = dict(l.series.get("/Shadow/GapXIn", [])); sgy = dict(l.series.get("/Shadow/GapYIn", []))
+        off = l.series.get("/Shadow/OffsetIn", [])
+        fixes = [v for _, v in l.series.get("/Events", []) if v.startswith("shadow:")]
+        xt = [t for t, _ in X]; xv = [v for _, v in X]
+        # still stops from the drift channel (one sample per camera frame while still)
+        stops = []; cur = []
+        for t in sorted(gx):
+            if still.get(t, 0) < 0.5:
+                continue
+            if cur and t - cur[-1] > 1.0:
+                stops.append(cur); cur = []
+            cur.append(t)
+        if cur: stops.append(cur)
+        print(f"-- {os.path.basename(p)[11:48]}  shadow fixes {len(fixes)}, offset at end {off[-1][1] if off else float('nan'):.1f} in, max {max((v for _, v in off), default=float('nan')):.1f} in")
+        for st in stops:
+            if len(st) < 5: continue
+            t = st[len(st) // 2]
+            i = min(bisect.bisect_left(xt, t), len(xt) - 1)
+            rx, ry = xv[i], Y.get(xt[i], float("nan"))
+            j = min(bisect.bisect_left([a for a, _ in sx], t), len(sx) - 1)
+            shx, shy = sx[j][1], sy.get(sx[j][0], float("nan"))
+            rg = mean([math.hypot(gx[a], gy.get(a, 0)) for a in st if a in gy])
+            sg = mean([math.hypot(sgx[a], sgy.get(a, 0)) for a in st if a in sgx and a in sgy]) if sgx else float("nan")
+            spot = ""
+            for name, (px, py) in KNOWN_SPOTS.items():
+                dr = math.hypot(rx - px, ry - py); ds = math.hypot(shx - px, shy - py)
+                if min(dr, ds) <= NEAR_SPOT_IN:
+                    spot = f"  near {name}: real {dr:.1f} in off, shadow {ds:.1f} in off -> {'SHADOW' if ds < dr - 0.3 else 'REAL' if dr < ds - 0.3 else 'same'}"
+                    break
+            print(f"   {st[0]:6.0f}-{st[-1]:5.0f}s real ({rx:5.1f},{ry:5.1f}) shadow ({shx:5.1f},{shy:5.1f}) | camera gap real {rg:4.1f} shadow {sg:4.1f}{spot}")
+        for f in fixes[:12]: print("     " + f)
+        if len(fixes) > 12: print(f"     ... {len(fixes) - 12} more")
+
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     sv = sub.add_parser("survey", help="one line per log in a directory")
     sv.add_argument("dir")
     sv.add_argument("--pattern", default="*.wpilog*")
+    sh = sub.add_parser("shadow", help="shadow pose vs real, per still stop, scored at known spots")
+    sh.add_argument("dir")
+    sh.add_argument("--pattern", default="*.wpilog*")
     for name in ("info", "triage", "dump"):
         p = sub.add_parser(name)
         p.add_argument("log")
@@ -468,6 +534,9 @@ def main():
     args = ap.parse_args()
     if args.cmd == "survey":
         cmd_survey(None, args)
+        return
+    if args.cmd == "shadow":
+        cmd_shadow(None, args)
         return
     log = Log(args.log)
     {"info": cmd_info, "triage": cmd_triage, "dump": cmd_dump}[args.cmd](log, args)
