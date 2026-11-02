@@ -24,9 +24,16 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  *   <tr><td>The camera is missing or not answering</td><td>orange</td></tr>
  *   <tr><td>INIT, the camera has sent no frame yet: wait before PLAY</td><td>yellow, flashing</td></tr>
  *   <tr><td>A FLOWER pick or GARDEN gather is driving</td><td>violet</td></tr>
+ *   <tr><td>After PLAY, the lane tracker counts the lane full ({@code IntakeSubsystem.stopRollerAtCount}
+ *       or more): stop intaking, go and shoot</td><td>green</td></tr>
+ *   <tr><td>After PLAY, one piece or more in the lane</td><td>azure</td></tr>
  *   <tr><td>The pose is not on the field (no handoff, no camera fix)</td><td>yellow</td></tr>
  *   <tr><td>All good</td><td>the alliance's colour; white with none</td></tr>
  * </table>
+ *
+ * <p>After PLAY, while the launcher is at launch speed, the lane and alliance colours flash: the
+ * drive team can shoot. Faults and a pick or gather never flash. The lane colours were asked for
+ * on 2 Nov 2026 so the drive team need not read the Driver Station mid-match.
  */
 @Configurable
 public class IndicatorSubsystem implements Subsystem {
@@ -37,6 +44,10 @@ public class IndicatorSubsystem implements Subsystem {
     public static double RED = 0.279;
     public static double ORANGE = 0.333;
     public static double YELLOW = 0.388;
+    /** From the same goBILDA chart as the rest; not yet checked against the light. */
+    public static double GREEN = 0.5;
+    /** From the same goBILDA chart as the rest; not yet checked against the light. */
+    public static double AZURE = 0.555;
     public static double BLUE = 0.611;
     public static double VIOLET = 0.722;
     public static double WHITE = 1.0;
@@ -45,12 +56,13 @@ public class IndicatorSubsystem implements Subsystem {
 
     /** What the light says. */
     public enum Signal {
-        OFF, BATTERY_LOW, CAMERA_FAULT, CAMERA_NO_FRAMES, BUSY, POSE_UNREFERENCED,
+        OFF, BATTERY_LOW, CAMERA_FAULT, CAMERA_NO_FRAMES, BUSY, LANE_FULL, LANE_SOME, POSE_UNREFERENCED,
         ALLIANCE_RED, ALLIANCE_BLUE, NO_ALLIANCE
     }
 
     private final Servo light;
     private Signal signal = Signal.OFF;
+    private boolean flashing;
     private double written = Double.NaN;
     private final Throttle resend = new Throttle(1000, 0);
 
@@ -71,10 +83,21 @@ public class IndicatorSubsystem implements Subsystem {
      */
     public static Signal choose(boolean init, boolean batteryLow, boolean cameraFault, boolean cameraNoFrames,
                                 boolean busy, boolean poseOnField, Alliance alliance) {
+        return choose(init, batteryLow, cameraFault, cameraNoFrames, busy, 0, 0, poseOnField, alliance);
+    }
+
+    /**
+     * As above, with the lane: after PLAY, {@code laneCount} at or past {@code fullAt} (0 or less:
+     * never full) shows {@link Signal#LANE_FULL}, any piece {@link Signal#LANE_SOME}.
+     */
+    public static Signal choose(boolean init, boolean batteryLow, boolean cameraFault, boolean cameraNoFrames,
+                                boolean busy, int laneCount, int fullAt, boolean poseOnField, Alliance alliance) {
         if (init && batteryLow) return Signal.BATTERY_LOW;
         if (cameraFault) return Signal.CAMERA_FAULT;
         if (init && cameraNoFrames) return Signal.CAMERA_NO_FRAMES;
         if (busy) return Signal.BUSY;
+        if (!init && fullAt > 0 && laneCount >= fullAt) return Signal.LANE_FULL;
+        if (!init && laneCount > 0) return Signal.LANE_SOME;
         if (!poseOnField) return Signal.POSE_UNREFERENCED;
         if (alliance == Alliance.RED) return Signal.ALLIANCE_RED;
         if (alliance == Alliance.BLUE) return Signal.ALLIANCE_BLUE;
@@ -83,7 +106,26 @@ public class IndicatorSubsystem implements Subsystem {
 
     /** What the light shows from the next {@link #update()}. */
     public void show(Signal signal) {
+        show(signal, false);
+    }
+
+    /**
+     * As {@link #show(Signal)}, flashing when {@code launchReady} and the signal is one that may
+     * ({@link #flashesWhenReady}): the launcher is at launch speed.
+     */
+    public void show(Signal signal, boolean launchReady) {
         this.signal = signal == null ? Signal.OFF : signal;
+        this.flashing = launchReady && flashesWhenReady(this.signal);
+    }
+
+    /** The lane and alliance colours flash at launch speed; faults, a pick and the pose warning do not. */
+    static boolean flashesWhenReady(Signal signal) {
+        switch (signal) {
+            case LANE_FULL: case LANE_SOME: case ALLIANCE_RED: case ALLIANCE_BLUE: case NO_ALLIANCE:
+                return true;
+            default:
+                return false;
+        }
     }
 
     public Signal signal() {
@@ -92,11 +134,19 @@ public class IndicatorSubsystem implements Subsystem {
 
     /** The servo position for {@code signal} at {@code nowMs}: flashing ones are off half the time. */
     static double position(Signal signal, long nowMs) {
+        return position(signal, nowMs, false);
+    }
+
+    /** As above, and off half the time too when {@code flashing}. */
+    static double position(Signal signal, long nowMs, boolean flashing) {
+        if (flashing && !flashOn(nowMs)) return OFF;
         switch (signal) {
             case BATTERY_LOW: return flashOn(nowMs) ? RED : OFF;
             case CAMERA_FAULT: return ORANGE;
             case CAMERA_NO_FRAMES: return flashOn(nowMs) ? YELLOW : OFF;
             case BUSY: return VIOLET;
+            case LANE_FULL: return GREEN;
+            case LANE_SOME: return AZURE;
             case POSE_UNREFERENCED: return YELLOW;
             case ALLIANCE_RED: return RED;
             case ALLIANCE_BLUE: return BLUE;
@@ -113,6 +163,7 @@ public class IndicatorSubsystem implements Subsystem {
     @Override
     public void initialize() {
         signal = Signal.OFF;
+        flashing = false;
         written = Double.NaN;
     }
 
@@ -125,7 +176,7 @@ public class IndicatorSubsystem implements Subsystem {
     @Override
     public void update() {
         long nowNs = System.nanoTime();
-        double position = Math.max(0.0, Math.min(1.0, position(signal, nowNs / 1_000_000L)));
+        double position = Math.max(0.0, Math.min(1.0, position(signal, nowNs / 1_000_000L, flashing)));
         if (position != written || resend.due(nowNs)) {
             light.setPosition(position);
             written = position;
