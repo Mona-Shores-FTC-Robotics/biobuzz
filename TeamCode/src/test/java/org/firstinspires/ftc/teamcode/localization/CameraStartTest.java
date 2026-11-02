@@ -38,12 +38,17 @@ public class CameraStartTest {
     }
 
     @Test
-    public void aWrongHeadingAloneIsEnough() {
+    public void aWrongHeadingAloneIsEnoughButAWallsFewDegreesAreNot() {
         CameraStart cs = new CameraStart();
         Pose taken = null;
-        for (int i = 0; i < LocalizationTuning.seedFrames; i++) taken = cs.update(off(0.5, 0.2, 12.0), START);
+        for (int i = 0; i < LocalizationTuning.seedFrames; i++) taken = cs.update(off(0.5, 0.2, 15.0), START);
         assertNotNull(taken);
-        assertEquals(12.0, cs.offDeg(), 1e-9);
+        assertEquals(15.0, cs.offDeg(), 1e-9);
+        // 2 Nov 2026: the fit sat 3-4 deg from the wall-set heading with the robot on its mark.
+        CameraStart onMark = new CameraStart();
+        for (int i = 0; i < LocalizationTuning.seedFrames + 2; i++) {
+            assertNull(onMark.update(off(0.5, 0.2, 4.0), START));
+        }
     }
 
     @Test

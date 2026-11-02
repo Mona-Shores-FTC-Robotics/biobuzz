@@ -995,7 +995,8 @@ public abstract class RobotOpMode extends OpMode {
     /**
      * A TeleOp with no handoff assumes its declared start, wherever the robot is. Each INIT loop the
      * camera's whole-pose fit is offered to {@link CameraStart}; once steady fits put the robot off the
-     * mark, the pose moves to the camera's and the Start line says so. An Autonomous never does this
+     * mark (past {@code startMarginIn} or {@code startOverrideDeg}), the pose moves to the camera's and
+     * the Start line says so. An Autonomous never does this
      * (its drive team places by the marks), nor an OpMode that says {@link #cameraMayOverrideStart}
      * false, such as the camera calibration, whose residual is measured against the declared start.
      */

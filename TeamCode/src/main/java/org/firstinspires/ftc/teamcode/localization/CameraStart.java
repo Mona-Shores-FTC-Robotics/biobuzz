@@ -8,7 +8,7 @@ import com.pedropathing.math.Pose;
  * heading assumed) and, once {@link LocalizationTuning#seedFrames} in a row agree
  * ({@link LocalizationTuning#seedAgreementIn}, {@link LocalizationTuning#seedAgreementDeg}) and sit
  * further from the start than {@link LocalizationTuning#startMarginIn} or
- * {@link LocalizationTuning#headingFixDeg}, says to take the camera's pose instead. On the mark, or
+ * {@link LocalizationTuning#startOverrideDeg}, says to take the camera's pose instead. On the mark, or
  * with no steady fit, it says nothing and the declared start stands: the marks win when the robot is
  * on them.
  *
@@ -40,7 +40,7 @@ public final class CameraStart {
         offIn = Math.hypot(fit.x() - start.pose.x(), fit.y() - start.pose.y());
         offDeg = Math.toDegrees(Math.IEEEremainder(fit.heading() - start.pose.heading(), 2 * Math.PI));
         boolean onTheMark = offIn <= LocalizationTuning.startMarginIn
-                && Math.abs(offDeg) <= LocalizationTuning.headingFixDeg;
+                && Math.abs(offDeg) <= LocalizationTuning.startOverrideDeg;
         return onTheMark ? null : fit;
     }
 
