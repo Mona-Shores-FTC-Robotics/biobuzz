@@ -1,24 +1,24 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 
 import java.util.Locale;
 
 /**
- * The REV Color Sensor V3 in the transfer: what colour is in front of it, and how close. Its
+ * The REV Color Sensor V3 in the transfer: what colour is in front of it, and how bright. Its
  * numbers go to the match log ({@code /ColorSensor/*}) and the Robot page. One thing is decided from
  * it: whether the lane is full (below); its colours are data only.
  *
  * <p>It is an I2C device, so every read is a round trip to the hub that the bulk cache does not
- * cover (the colour block, then the proximity). It reads every {@link #readEveryMs}, not every loop,
+ * cover: the colour block only. Its proximity side (IR distance) is never read: "full" goes by
+ * brightness, and a second transaction per read cost about as much again (2 Nov 2026, p50 5.2 ms of
+ * every loop with both). It reads every {@link #readEveryMs}, not every loop,
  * the way {@code RobotOpMode} reads the battery; {@code /Loop/Subsystem/ColorSensorSubsystemMs}
  * shows what a read costs. It moves nothing, so it reads in INIT too: the preloads are in front of
  * it before PLAY.
@@ -98,8 +98,6 @@ public class ColorSensorSubsystem implements Subsystem {
     public static double blueNectarHueMax = 270;
 
     private final NormalizedColorSensor sensor;
-    /** The same device, as its proximity side: the V3 is both. */
-    private final DistanceSensor proximity;
     private final LauncherSubsystem launcher;
     private final IntakeSubsystem intake;
     private final PrefeedSubsystem prefeed;
@@ -113,7 +111,6 @@ public class ColorSensorSubsystem implements Subsystem {
     private float green;
     private float blue;
     private float alpha;
-    private double distanceMm = Double.NaN;
     private double hueDeg = Double.NaN;
     private double saturation = Double.NaN;
     private String atInit;
@@ -130,7 +127,6 @@ public class ColorSensorSubsystem implements Subsystem {
         this.intake = intake;
         this.prefeed = prefeed;
         sensor = hardwareMap.get(NormalizedColorSensor.class, DeviceNames.COLOR_SENSOR);
-        proximity = hardwareMap.get(DistanceSensor.class, DeviceNames.COLOR_SENSOR);
     }
 
     /** One read, so {@link #health()} can say what the sensor answered. Not in the loop. */
@@ -190,7 +186,6 @@ public class ColorSensorSubsystem implements Subsystem {
         green = c.green;
         blue = c.blue;
         alpha = c.alpha;
-        distanceMm = proximity.getDistance(DistanceUnit.MM);
         hueDeg = hueDegrees(red, green, blue);
         saturation = saturation(red, green, blue);
         lastReadNs = now;
@@ -221,11 +216,6 @@ public class ColorSensorSubsystem implements Subsystem {
     /** The clear channel: total light, colour or not. */
     public float alpha() {
         return alpha;
-    }
-
-    /** Distance to what is in front of it, mm, from the proximity sensor. Only meaningful within a few cm. */
-    public double distanceMm() {
-        return distanceMm;
     }
 
     /** Hue, 0 to 360°: 0 red, 120 green, 240 blue. NaN for no colour at all (grey or dark). */
@@ -270,8 +260,8 @@ public class ColorSensorSubsystem implements Subsystem {
     }
 
     private String summary() {
-        return String.format(Locale.US, "R %.3f G %.3f B %.3f A %.3f, hue %.0f°, sat %.2f, %.0f mm",
-                red, green, blue, alpha, hueDeg, saturation, distanceMm);
+        return String.format(Locale.US, "R %.3f G %.3f B %.3f A %.3f, hue %.0f°, sat %.2f",
+                red, green, blue, alpha, hueDeg, saturation);
     }
 
     /**
