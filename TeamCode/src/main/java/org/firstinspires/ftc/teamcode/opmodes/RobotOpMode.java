@@ -229,6 +229,7 @@ public abstract class RobotOpMode extends OpMode {
     /** What went wrong with the Pinpoint this INIT, kept once seen (it dropped out on and off on 1 Nov). */
     private String pinpointProblem;
     private String loggedWarnings;
+    private boolean loggedLaneFull;
 
     // A mechanism asked to move whose encoder never does: one event each, from the log alone.
     private final MotionWatch intakeWatch = new MotionWatch("intake");
@@ -1187,6 +1188,15 @@ public abstract class RobotOpMode extends OpMode {
         LaneFull full = robot.colorSensor.laneFull();
         log.put("/Lane/Full", full.full() ? 1 : 0);
         log.put("/Lane/HeldWhileIntakingMs", full.heldWhileIntakingMs());
+        // Full on and off as events, with the tracker's count: full then three or four shots means it was.
+        if (full.full() != loggedLaneFull) {
+            loggedLaneFull = full.full();
+            log.event(loggedLaneFull
+                    ? String.format(Locale.US, "Lane: FULL, piece under the sensor %.1f s (%.1f s intaking), tracker counts %d",
+                            full.presentForMs() / 1000, full.heldWhileIntakingMs() / 1000, lane.count())
+                    : String.format(Locale.US, "Lane: full cleared after %.1f s under the sensor, tracker counts %d",
+                            full.endedDwellMs() / 1000, lane.count()));
+        }
         if (!Double.isNaN(full.endedDwellMs())) {
             log.put("/Lane/DwellMs", full.endedDwellMs());
             log.event(String.format(Locale.US, "Lane: piece under the sensor %.0f ms%s",

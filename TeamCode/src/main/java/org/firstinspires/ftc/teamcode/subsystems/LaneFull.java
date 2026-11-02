@@ -71,7 +71,7 @@ public final class LaneFull {
         }
         if (!present) {
             full = false;
-        } else if (!full && fullAfterMs >= 0 && heldWhileIntakingMs > fullAfterMs) {
+        } else if (!full && fullAfterMs >= 0 && heldWhileIntakingMs >= fullAfterMs) {
             full = true;
         }
     }
@@ -84,6 +84,11 @@ public final class LaneFull {
     /** A piece is under the sensor, as of the last reading. */
     public boolean present() {
         return present;
+    }
+
+    /** How long the piece under the sensor has been there, intake or not, ms; 0 with none. */
+    public double presentForMs() {
+        return present ? lastMs - presentSinceMs : 0;
     }
 
     /** How long the piece under the sensor has been there while taking in, ms; 0 with none. */

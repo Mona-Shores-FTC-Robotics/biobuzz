@@ -42,7 +42,7 @@ public class LaneFullTest {
     @Test
     public void aPieceHeldWhileTakingInIsFull() {
         hold(BALL, true, 500);
-        assertFalse("not yet: more than fullAfterMs", lane.full());
+        assertFalse("not yet: 450 ms of intaking", lane.full());
         hold(BALL, true, 100);
         assertTrue(lane.full());
     }
