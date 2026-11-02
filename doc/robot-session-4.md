@@ -126,8 +126,8 @@ logs were analysed afterwards. What that session established:
        steady red, X for steady blue; INIT an Auto with the Limelight unplugged, flashing white, and
        the Match page lists "Camera: not answering" at the top with what to do; in TeleOp, intake
        the light is off after PLAY; intake until a piece sits under the colour sensor, green after
-       about 2 s
-       (`ColorSensorSubsystem.fullAfterMs`, from the 1 Nov logs). If a colour is off, set it in
+       about 1 s
+       (`ColorSensorSubsystem.fullHoldS`; 0.3 s when the lane tracker already counts it full). If a colour is off, set it in
        Panels → IndicatorSubsystem and note the value.
 
 ## Record these, and where they go

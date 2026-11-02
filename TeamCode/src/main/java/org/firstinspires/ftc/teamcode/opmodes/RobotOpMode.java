@@ -491,16 +491,18 @@ public abstract class RobotOpMode extends OpMode {
      */
     private void updateInitWarnings(StartCheck.Result startCheck) {
         if (!robot.drive.hasHeading()) {
-            pinpointProblem = "not found (" + robot.drive.localizerFault() + ")";
+            pinpointProblem = "not found";
         } else {
             Object status = robot.drive.pinpointStatus();
-            // The first fault is kept: the text stays put, so the log gets one event, not one a second.
+            // The first fault is kept, in words short enough for one line ("y pod not detected");
+            // the log has every status change with its time.
             if (pinpointProblem == null && status != null && status.toString().startsWith("FAULT")) {
-                pinpointProblem = status + String.format(Locale.US, " at %.0f s",
-                        (System.nanoTime() - initStartNs) / 1e9);
+                pinpointProblem = status.toString().substring("FAULT_".length())
+                        .replace('_', ' ').toLowerCase(Locale.US);
             }
         }
-        String cameraProblem = !robot.vision.isAvailable() ? robot.vision.unavailableReason()
+        // Short, for one line: the reason in full is in the log's hardware metadata.
+        String cameraProblem = !robot.vision.isAvailable() ? "not found"
                 : !robot.vision.isConnected() ? "not answering" : null;
         initWarnings.evaluate(pinpointProblem, setup.alliance(), setup.visionAlliance(), startCheck,
                 cameraProblem, robot.vision.freshResultCount(), (System.nanoTime() - initStartNs) / 1_000_000L,
@@ -868,7 +870,10 @@ public abstract class RobotOpMode extends OpMode {
         if (initializing && display.page() == Display.Page.MATCH) {
             initWarnings.describeTop(display, setup.alliance(), isAutonomous());
         }
-        setup.describe(display);
+        // An Auto's alliance warning already says it all, with its button: one screen (Display).
+        if (!(initializing && isAutonomous() && initWarnings.has(InitWarnings.Kind.ALLIANCE))) {
+            setup.describe(display);
+        }
     }
 
     /** TeleOp side of the handoff: restore Auto's pose and alliance, and say which happened. */
@@ -1214,7 +1219,7 @@ public abstract class RobotOpMode extends OpMode {
         }
         if (lane.event() != null) log.event(lane.event());
         // Full (LaneFull): the signal the light, the roller stop and IntakeFull use. Every piece's
-        // dwell under the sensor, so the reliability test can set ColorSensorSubsystem.fullAfterMs.
+        // dwell under the sensor, so normal-play logs can tighten ColorSensorSubsystem.fullHoldS.
         LaneFull full = robot.colorSensor.laneFull();
         log.put("/Lane/Full", full.full() ? 1 : 0);
         log.put("/Lane/HeldWhileIntakingMs", full.heldWhileIntakingMs());

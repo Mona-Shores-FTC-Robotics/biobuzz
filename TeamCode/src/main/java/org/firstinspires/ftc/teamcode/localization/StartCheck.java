@@ -95,8 +95,8 @@ public final class StartCheck {
             for (String line : FieldMap.lines(start, viewer)) display.line(line);
         }
 
-        /** Screen rows {@link #describeMap} takes. */
-        public static final int MAP_LINES = 8;
+        /** Screen rows {@link #describeMap} takes: eight monospace lines. */
+        public static final double MAP_LINES = 8;
     }
 
     /**

@@ -19,7 +19,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
  * <p>Presence has the same hysteresis as {@link LaneTracker}: it starts above {@code presentAbove}
  * and ends below {@code leaveBelow}. Each presence's whole dwell is reported when it ends
  * ({@link #endedDwellMs()}), so a match log shows passing pieces and parked ones side by side and
- * the reliability test can set {@code fullAfterMs} from them.
+ * normal-play logs can tighten the hold time from them.
  *
  * <p>Pure: no SDK, no allocation, so a test can drive it.
  */

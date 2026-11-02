@@ -65,14 +65,14 @@ public final class InitWarnings {
         }
         count = 0;
         if (pinpointProblem != null) {
-            set(Kind.PINPOINT, "Pinpoint: " + pinpointProblem, "reseat the Pinpoint cables, restart the robot");
+            set(Kind.PINPOINT, "Pinpoint: " + pinpointProblem, "reseat the Pinpoint cables, restart");
         }
         if (!known(alliance)) {
             set(Kind.ALLIANCE, "No alliance", "press X for blue, B for red");
         } else if (known(cameraSees) && cameraSees != alliance) {
-            set(Kind.ALLIANCE, alliance + " chosen, but the camera sees the " + cameraSees + " start",
+            set(Kind.ALLIANCE, alliance + ", but camera sees " + cameraSees + " start",
                     "press " + (cameraSees == Alliance.BLUE ? "X for blue" : "B for red")
-                            + " (or move the robot to the " + alliance + " start)");
+                            + ", or move to the " + alliance + " start");
         }
         if (start != null && start.status == StartCheck.Status.OUT_OF_POSITION) {
             set(Kind.OFF_MARK, String.format(Locale.US, "%.0f in off the start mark", start.errorIn),

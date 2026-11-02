@@ -57,21 +57,28 @@ public final class Display {
     private static final Page[] PAGES = Page.values();
 
     /**
-     * Rows of telemetry one screen shows without scrolling. <b>Provisional</b> until the Driver
-     * Hub's own number replaces it.
+     * Rows of ordinary telemetry the REV Driver Hub shows without scrolling: 16. Worked out on
+     * 2 Nov 2026 from the v12.0 Driver Station app's layouts and FIRST's Driver Hub screenshot (no
+     * source states it): the hub runs the landscape layout by default, telemetry has the right half
+     * of its 800 x 480 screen, 14 sp text, about 23 px a row, and starts about 103 px down. A phone
+     * in portrait shows far fewer; we use Driver Hubs.
      */
-    public static final int SCREEN_LINES = 14;
-    /** Characters of ordinary telemetry text in one row. <b>Provisional</b>, as above. */
-    public static final double CHARS_PER_LINE = 48;
-    /** How much wider {@code <big>} text is than ordinary text. */
+    public static final double SCREEN_LINES = 16;
+    /** Characters of ordinary text in one row before it wraps: about 50 measured; 44 to be safe. */
+    public static final double CHARS_PER_LINE = 44;
+    /** Bold text is wider: this many times as many characters wrap it. */
+    public static final double BOLD_SCALE = 0.9;
+    /** Characters of monospace ({@code <tt>}) text in one row: about 34. */
+    public static final double TT_CHARS_PER_LINE = 34;
+    /** {@code <big>} text is 1.25 times ordinary (Android's RelativeSizeSpan): wider and taller. */
     public static final double BIG_SCALE = 1.25;
-    /** How much narrower {@code <small>} text is than ordinary text. */
+    /** {@code <small>} text is 0.8 times ordinary. */
     public static final double SMALL_SCALE = 0.8;
 
     private final Consumer<String> sink;
     private Page page = Page.MATCH;
-    /** Screen rows written since the last {@link #header()}, wrapping included. */
-    private int used;
+    /** Screen height written since the last {@link #header()}, in ordinary rows, wrapping included. */
+    private double used;
 
     public Display(Telemetry telemetry) {
         telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML);
@@ -88,29 +95,38 @@ public final class Display {
         used += rows(html);
     }
 
-    /** Screen rows written since the page's {@link #header()}, wrapping included. */
-    public int linesUsed() {
+    /** Screen height written since the page's {@link #header()}, in ordinary rows, wrapping included. */
+    public double linesUsed() {
         return used;
     }
 
-    /** Whether {@code rows} more fit on one screen. */
-    public boolean room(int rows) {
+    /** Whether {@code rows} more ordinary rows fit on one screen. */
+    public boolean room(double rows) {
         return used + rows <= SCREEN_LINES;
     }
 
     /**
-     * The screen rows {@code html} takes: its visible text over the width of one row, at least one,
-     * {@code <big>} text wider, one more for each {@code <br>}. An estimate from the text's length,
-     * on the safe side.
+     * The screen height {@code html} takes, in ordinary rows: its visible text over the width of one
+     * row (at least one row), each row as tall as its largest text ({@code <big>} 1.25, all
+     * {@code <small>} 0.8, {@code <tt>} narrower), plus one for each {@code <br>}. An estimate from
+     * the text's length, on the safe side.
      */
-    public static int rows(String html) {
+    public static double rows(String html) {
         int breaks = 0;
         for (int i = html.indexOf("<br>"); i >= 0; i = html.indexOf("<br>", i + 4)) breaks++;
         String text = html.replaceAll("<[^>]+>", "").replaceAll("&[a-zA-Z#0-9]+;", "x");
-        double perRow = CHARS_PER_LINE;
-        if (html.contains("<big>")) perRow /= BIG_SCALE;
-        else if (html.startsWith("<small>")) perRow /= SMALL_SCALE;
-        return breaks + Math.max(1, (int) Math.ceil(text.length() / perRow));
+        double perRow = html.contains("<tt>") ? TT_CHARS_PER_LINE : CHARS_PER_LINE;
+        boolean bold = (html.startsWith("<b>") && html.endsWith("</b>")) || html.startsWith("<big><b>");
+        if (bold) perRow *= BOLD_SCALE;
+        double height = 1.0;
+        if (html.contains("<big>")) {
+            perRow /= BIG_SCALE;
+            height = BIG_SCALE;
+        } else if (html.startsWith("<small>") && html.endsWith("</small>")) {
+            perRow /= SMALL_SCALE;
+            height = SMALL_SCALE;
+        }
+        return breaks + height * Math.max(1, Math.ceil(text.length() / perRow));
     }
 
     public Page page() {

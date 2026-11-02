@@ -52,7 +52,7 @@ public class InitWarningsTest {
     @Test
     public void anAllianceTheCameraDisagreesWithSaysWhichWay() {
         evaluate(null, Alliance.BLUE, Alliance.RED, null, null, 40, 20_000, 13.1);
-        assertEquals("BLUE chosen, but the camera sees the RED start", w.what(Kind.ALLIANCE));
+        assertEquals("BLUE, but camera sees RED start", w.what(Kind.ALLIANCE));
         assertTrue(w.action(Kind.ALLIANCE).startsWith("press B for red"));
     }
 

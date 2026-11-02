@@ -24,7 +24,8 @@ import java.util.Locale;
  * it before PLAY.
  *
  * <p>It says whether the lane is <b>full</b> ({@link #full()}, {@link LaneFull}): a piece held under
- * it for {@link #fullAfterMs} while the intake takes in. The indicator's green, the intake's roller
+ * it for {@link #fullHoldS} while the intake takes in (sooner, {@link #fullHoldWhenCountedS},
+ * when the lane tracker already counts the lane full). The indicator's green, the intake's roller
  * stop and the Autos' {@code IntakeFull} all read that one signal.
  *
  * <p>It also keeps {@link LaneTracker}: what it thinks is in the lane, slot by slot, from pieces
@@ -67,19 +68,27 @@ public class ColorSensorSubsystem implements Subsystem {
     public static double pollenHueMin = 48;
     public static double pollenHueMax = 130;
     /**
-     * A piece held under the sensor this long while the intake takes in means the lane is full, ms
-     * ({@link LaneFull}). Negative or NaN: never full.
+     * A piece held under the sensor this long while the intake takes in means the lane is full,
+     * seconds ({@link LaneFull}). Negative or NaN: never full. Full is there to say "you're full,
+     * go" quickly while the robot intakes facing away from the drivers (mentor, 2 Nov 2026).
      *
-     * <p>From 20245's TeleOp logs of 1 Nov 2026 (sensor at slot 3, before the dead-zone fix, at
-     * {@link #presentAbove} 0.10 / {@link #leaveBelow} 0.05): a piece passing with the intake
-     * running was under the sensor for 0.3 to 1.0 s; a parked one stayed 11 s to over three minutes;
-     * 1.2 to 4.6 s happened only with the intake not running (feeds, unjams), which does not count
-     * toward full. 2.0 s is twice the slowest passing piece (mentor's chat, 2 Nov 2026). No
-     * dedicated test is planned: the match log's events when full turns on and off, with the
-     * dwell and the lane tracker's count, are checked during normal play (full followed by three or
-     * four shots means it was full). Look again once the sensor moves to slot 4.
+     * <p>From 20245's experimental logs of 1 Nov 2026 (sensor at slot 3, before the dead-zone fix,
+     * at {@link #presentAbove} 0.10 / {@link #leaveBelow} 0.05): a piece passing with the intake
+     * running was under the sensor for 0.3 to 1.0 s; a parked one for 11 s or more. Normal-play
+     * logs will tighten it (likely 0.6 to 0.8 s): every full on and off is a match-log event with
+     * the dwell and the lane tracker's count.
+     *
+     * <p>A false full mends itself: the roller stops, the stars keep pulling the piece through, the
+     * sensor clears, full clears and the roller runs again. So an aggressive value is safe.
      */
-    public static double fullAfterMs = 2000;
+    public static double fullHoldS = 1.0;
+
+    /**
+     * As {@link #fullHoldS}, when the lane tracker already counts the lane full ({@link
+     * LaneTracker#full()}): its count is a hint, so green comes almost at once when it is right, and
+     * when it is wrong a passing piece costs the self-mending stop above. Seconds.
+     */
+    public static double fullHoldWhenCountedS = 0.3;
 
     /** Red NECTAR's hue range, degrees; it wraps through 0. Bench, 2 Nov 2026: 9° to 22°, saturation 0.76. */
     public static double redNectarHueMin = 330;
@@ -143,8 +152,6 @@ public class ColorSensorSubsystem implements Subsystem {
         fresh = !everRead || now - lastReadNs >= Math.max(0, readEveryMs) * 1_000_000L;
         if (fresh) {
             read(now);
-            laneFull.step(now / 1_000_000L, alpha, intake.requested() == IntakeSubsystem.State.IN,
-                    presentAbove, leaveBelow, fullAfterMs);
         }
         // The lane runs outward when the stars do, whatever the roller does.
         boolean outward = intake.starsState() == IntakeSubsystem.State.OUT
@@ -153,6 +160,12 @@ public class ColorSensorSubsystem implements Subsystem {
                 LaneTracker.classify(hueDeg, pollenHueMin, pollenHueMax,
                         redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax),
                 outward, launcher.shotJustDetected(), presentAbove, leaveBelow);
+        if (fresh) {
+            // After the tracker, so its count of this same reading is the hint.
+            double holdS = lane.full() ? fullHoldWhenCountedS : fullHoldS;
+            laneFull.step(now / 1_000_000L, alpha, intake.requested() == IntakeSubsystem.State.IN,
+                    presentAbove, leaveBelow, holdS * 1000.0);
+        }
     }
 
     /** The lane is full: a piece held under the sensor ({@link LaneFull}). As of the last reading. */
