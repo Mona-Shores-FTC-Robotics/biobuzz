@@ -116,10 +116,14 @@ public class LauncherSubsystem implements Subsystem {
 
     /**
      * How far below its target a wheel must fall, from at speed, for the dip to count as a shot,
-     * ticks per second. <b>A starting point, not measured:</b> read the real dip off the Panels
-     * graph on the first shots and set this to about half of it.
+     * ticks per second. Measured on 20245, 1 to 2 Nov 2026, target 1595: every POLLEN shot dipped
+     * the slower wheel 95 (nine shots over three runs; one 135), and the wheels hover within about
+     * 25 at speed. 70 sits between the two. It was 150, a starting guess, and counted no shot at
+     * all, which left the lane tracker's count stuck after firing. Below
+     * {@link #toleranceTicksPerSecond} (60) it would make no difference: a dip only starts once a
+     * wheel leaves the at-speed band.
      */
-    public static double shotDipTicksPerSecond = 150.0;
+    public static double shotDipTicksPerSecond = 70.0;
 
     /**
      * Flips the left wheel so that a positive command throws a piece out. Checked on robot 20245 on
