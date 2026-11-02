@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.vision.HiveCellState;
 import org.firstinspires.ftc.teamcode.vision.HiveState;
 import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BooleanSupplier;
@@ -39,11 +38,9 @@ import java.util.function.Function;
  * they run on the robot today as timed scripts: a placeholder command finishes at once, and a
  * placeholder trigger never fires, so a wait on it runs to its time limit. {@link #PLACEHOLDERS}
  * lists them, {@link BuiltAuto} shows the list on the Driver Station at INIT, and each one goes
- * when its mechanism lands:
- * <ul>
- *   <li>{@code IntakeFull}: the intake, counting pieces (#181). The roller itself already runs
- *       for the whole Auto ({@link BuiltAuto}); only the count is missing.</li>
- * </ul>
+ * when its mechanism lands. None is left: {@code IntakeFull} is the colour sensor's full
+ * ({@code ColorSensorSubsystem.full()}, a piece held under it), the same signal that stops the
+ * roller and turns the light green.
  *
  * <p>{@code PickFlower} is {@link FlowerPicker}, the routine the driver's D-pad up runs, and
  * {@code GardenGather} is {@link GardenGather}, the driver's GARDEN gather button. Give their cards a timeout
@@ -100,8 +97,7 @@ public final class AutoRegistration {
     public static final double BLIND_AFTER_MS = 500;
 
     /** The names registered as placeholders, in registration order. Shown at INIT. */
-    public static final List<String> PLACEHOLDERS = Collections.unmodifiableList(Arrays.asList(
-            "IntakeFull"));
+    public static final List<String> PLACEHOLDERS = Collections.emptyList();
 
     private static final HiveCell[] CELLS = HiveCell.values();
 
@@ -135,8 +131,8 @@ public final class AutoRegistration {
                 // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract).
                 .grab("GardenGather", 6.0, () -> GardenGather.command(robot, note))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
-                // ---- placeholder: the intake does not count pieces yet (#181).
-                .trigger("IntakeFull", () -> false)
+                // ---- real: a piece held under the colour sensor (LaneFull), as the roller stop and the light.
+                .trigger("IntakeFull", robot == null ? () -> false : robot.colorSensor::full)
                 // ---- real: the camera, through our HIVE's tracker. See the class comment.
                 .trigger("LeftCellUp", () -> cellUp(ourHive(robot, setup), true))
                 .trigger("RightCellUp", () -> cellUp(ourHive(robot, setup), false))

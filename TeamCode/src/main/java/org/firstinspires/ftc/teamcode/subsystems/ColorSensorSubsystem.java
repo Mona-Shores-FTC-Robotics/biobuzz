@@ -13,10 +13,9 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import java.util.Locale;
 
 /**
- * The REV Color Sensor V3 in the transfer: what colour is in front of it, and how close. Data only,
- * for now. Nothing reads it to decide anything; its numbers go to the match log
- * ({@code /ColorSensor/*}) and the Robot page, so a few runs can show whether it tells POLLEN from
- * NECTAR, and a ball from no ball, before any code relies on it.
+ * The REV Color Sensor V3 in the transfer: what colour is in front of it, and how close. Its
+ * numbers go to the match log ({@code /ColorSensor/*}) and the Robot page. One thing is decided from
+ * it: whether the lane is full (below); its colours are data only.
  *
  * <p>It is an I2C device, so every read is a round trip to the hub that the bulk cache does not
  * cover (the colour block, then the proximity). It reads every {@link #readEveryMs}, not every loop,
@@ -24,10 +23,17 @@ import java.util.Locale;
  * shows what a read costs. It moves nothing, so it reads in INIT too: the preloads are in front of
  * it before PLAY.
  *
+ * <p>It says whether the lane is <b>full</b> ({@link #full()}, {@link LaneFull}): a piece held under
+ * it for {@link #fullHoldS} while the intake takes in (sooner, {@link #fullHoldWhenCountedS},
+ * when the lane tracker already counts the lane full). The indicator's green, the intake's roller
+ * stop and the Autos' {@code IntakeFull} all read that one signal.
+ *
  * <p>It also keeps {@link LaneTracker}: what it thinks is in the lane, slot by slot, from pieces
- * arriving under it, shots, and ejects. Also data only, logged as {@code /Lane/*}. Its thresholds
+ * arriving under it, shots, and ejects. Data only, logged as {@code /Lane/*}: a count drifts on any
+ * missed event, so nothing decides anything from it (mentor, 2 Nov 2026). Its thresholds
  * ({@link #presentAbove}, {@link #leaveBelow}, the hue ranges) come from one bench reading of each
- * piece on robot 20245, 2 Nov 2026; logs will refine them.
+ * piece on robot 20245, 2 Nov 2026, with the sensor at slot 3; logs will refine them, and moving the
+ * sensor (to slot 4, the entrance) means measuring them again.
  *
  * <p>The colour is the SDK's normalised reading at the sensor's default gain, unchanged, plus its
  * hue and saturation. Hue and saturation do not depend on the gain or on how far the ball is; the
@@ -61,6 +67,29 @@ public class ColorSensorSubsystem implements Subsystem {
      */
     public static double pollenHueMin = 48;
     public static double pollenHueMax = 130;
+    /**
+     * A piece held under the sensor this long while the intake takes in means the lane is full,
+     * seconds ({@link LaneFull}). Negative or NaN: never full. Full is there to say "you're full,
+     * go" quickly while the robot intakes facing away from the drivers (mentor, 2 Nov 2026).
+     *
+     * <p>From 20245's experimental logs of 1 Nov 2026 (sensor at slot 3, before the dead-zone fix,
+     * at {@link #presentAbove} 0.10 / {@link #leaveBelow} 0.05): a piece passing with the intake
+     * running was under the sensor for 0.3 to 1.0 s; a parked one for 11 s or more. Normal-play
+     * logs will tighten it (likely 0.6 to 0.8 s): every full on and off is a match-log event with
+     * the dwell and the lane tracker's count.
+     *
+     * <p>A false full mends itself: the roller stops, the stars keep pulling the piece through, the
+     * sensor clears, full clears and the roller runs again. So an aggressive value is safe.
+     */
+    public static double fullHoldS = 1.0;
+
+    /**
+     * As {@link #fullHoldS}, when the lane tracker already counts the lane full ({@link
+     * LaneTracker#full()}): its count is a hint, so green comes almost at once when it is right, and
+     * when it is wrong a passing piece costs the self-mending stop above. Seconds.
+     */
+    public static double fullHoldWhenCountedS = 0.3;
+
     /** Red NECTAR's hue range, degrees; it wraps through 0. Bench, 2 Nov 2026: 9° to 22°, saturation 0.76. */
     public static double redNectarHueMin = 330;
     public static double redNectarHueMax = 47;
@@ -75,6 +104,7 @@ public class ColorSensorSubsystem implements Subsystem {
     private final IntakeSubsystem intake;
     private final PrefeedSubsystem prefeed;
     private final LaneTracker lane = new LaneTracker();
+    private final LaneFull laneFull = new LaneFull();
 
     private long lastReadNs;
     private boolean everRead;
@@ -130,9 +160,26 @@ public class ColorSensorSubsystem implements Subsystem {
                 LaneTracker.classify(hueDeg, pollenHueMin, pollenHueMax,
                         redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax),
                 outward, launcher.shotJustDetected(), presentAbove, leaveBelow);
+        if (fresh) {
+            // After the tracker, so its count of this same reading is the hint.
+            // Never sooner than fullHoldS allows: with it off (NaN or negative), full is off.
+            double holdS = lane.full() && fullHoldS >= 0 ? fullHoldWhenCountedS : fullHoldS;
+            laneFull.step(now / 1_000_000L, alpha, intake.requested() == IntakeSubsystem.State.IN,
+                    presentAbove, leaveBelow, holdS * 1000.0);
+        }
     }
 
-    /** What it thinks is in the lane. Data only. */
+    /** The lane is full: a piece held under the sensor ({@link LaneFull}). As of the last reading. */
+    public boolean full() {
+        return laneFull.full();
+    }
+
+    /** The full detector itself, for the match log's dwell of each piece. */
+    public LaneFull laneFull() {
+        return laneFull;
+    }
+
+    /** What it thinks is in the lane. Data only: never decide anything from it. */
     public LaneTracker lane() {
         return lane;
     }
@@ -200,7 +247,12 @@ public class ColorSensorSubsystem implements Subsystem {
     public void describe(Display display) {
         display.status("Color sensor", allZero() ? Display.Level.WARN : Display.Level.OK,
                 allZero() ? "reads all zero: unplugged?" : summary());
-        display.status("Lane (guess)", Double.isNaN(presentAbove) ? Display.Level.WARN : Display.Level.OK,
+        display.status("Lane", Display.Level.OK,
+                laneFull.full() ? "FULL (a piece held under the sensor)"
+                        : laneFull.present() ? String.format(Locale.US, "piece under the sensor, %.0f ms",
+                                laneFull.heldWhileIntakingMs())
+                        : "room");
+        display.status("Lane (count, log only)", Double.isNaN(presentAbove) ? Display.Level.WARN : Display.Level.OK,
                 lane.lettersFrontToBack() + " front to back, " + lane.count() + " in"
                         + (Double.isNaN(presentAbove) ? "; presentAbove not set: counts shots only" : ""));
     }
