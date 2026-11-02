@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -84,7 +85,7 @@ public class InitMovesNothingTest {
 
     @Test
     public void intakeStarsWaitForPlay() {
-        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
+        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS).digital(DeviceNames.INTAKE_BEAM)
                 .motor(DeviceNames.FEEDER);
         IntakeSubsystem intake = new IntakeSubsystem(devices.map, new FeederSubsystem(devices.map));
         runInit(intake, devices);
@@ -97,7 +98,7 @@ public class InitMovesNothingTest {
 
     @Test
     public void intakeJoinsAFeedOnlyAfterPlay() {
-        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
+        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS).digital(DeviceNames.INTAKE_BEAM)
                 .motor(DeviceNames.FEEDER);
         FeederSubsystem feeder = new FeederSubsystem(devices.map);
         feeder.initialize();
@@ -122,7 +123,7 @@ public class InitMovesNothingTest {
 
     @Test
     public void prefeedWaitsForPlayEvenWhileTheIntakeIsAskingForIt() {
-        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
+        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS).digital(DeviceNames.INTAKE_BEAM)
                 .motor(DeviceNames.FEEDER).crServo(DeviceNames.PREFEED);
         FeederSubsystem feeder = new FeederSubsystem(devices.map);
         IntakeSubsystem intake = new IntakeSubsystem(devices.map, feeder);
@@ -331,6 +332,11 @@ public class InitMovesNothingTest {
 
         Devices motor(String name) {
             return add(name, false, DcMotorEx.class);
+        }
+
+        /** A digital input: it moves nothing, so none of its writes count as a move. */
+        Devices digital(String name) {
+            return add(name, false, DigitalChannel.class);
         }
 
         private Devices add(String name, boolean servo, Class<?>... types) {

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.logging;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 
 import java.util.Locale;
 
@@ -410,6 +411,8 @@ final class RobotDesign {
         d.intakeOnContact = true;
         d.extractorSeatIn = FlowerPicker.contactStandoffIn - d.frameIn / 2;
         d.shotIntervalS = LaunchCards.launchAllFeedS / 4;
+        // Full is the intake's beam break, held broken this long by the fourth piece.
+        d.fullSenseDelayS = IntakeSubsystem.fullAfterMs / 1000;
         return d;
     }
 

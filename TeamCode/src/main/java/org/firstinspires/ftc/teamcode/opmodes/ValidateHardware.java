@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -222,6 +223,8 @@ public class ValidateHardware extends LinearOpMode {
                 return Servo.class;
             case CR_SERVO:
                 return CRServo.class;
+            case DIGITAL:
+                return DigitalChannel.class;
             case ETHERNET:
                 // The only Ethernet device SDK 12 builds (HardwareFactory.mapEthernetOverUsb).
                 return Limelight3A.class;

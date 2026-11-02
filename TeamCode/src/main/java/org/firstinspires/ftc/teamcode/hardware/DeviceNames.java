@@ -125,6 +125,12 @@ public final class DeviceNames {
      * its current). Expansion Hub motor port 0; the port itself is in each robot's XML.
      */
     public static final String INTAKE = "intake";
+    /**
+     * The intake's beam break: an IR break-beam across the place the fourth piece sits, so a held
+     * beam means the robot is full ({@code IntakeSubsystem#isFull}). A digital input; the port
+     * itself is in each robot's XML.
+     */
+    public static final String INTAKE_BEAM = "intakeBeam";
 
     // Two-wheel pinch launcher test rig (hub FTC-EoM3). Both motors hang off
     // one Y-cable on a single port, with one encoder, so software sees one
@@ -147,6 +153,8 @@ public final class DeviceNames {
          * servo ports.
          */
         CR_SERVO,
+        /** A digital input: {@code <DigitalDevice>}, asked for as {@code DigitalChannel}. Ports 0-7. */
+        DIGITAL,
         I2C,
 
         /**
@@ -198,6 +206,7 @@ public final class DeviceNames {
             new Device(FEEDER, Kind.MOTOR),
             new Device(FLOWER_STICK, Kind.SERVO),
             new Device(INTAKE_STARS, Kind.CR_SERVO),
+            new Device(INTAKE_BEAM, Kind.DIGITAL),
             new Device(PREFEED, Kind.CR_SERVO),
             new Device(FEED_GATE, Kind.SERVO),
             new Device(INDICATOR, Kind.SERVO),

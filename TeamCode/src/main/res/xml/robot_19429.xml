@@ -90,6 +90,14 @@
                  keep. With the stars on 5 this fills all six servo ports. -->
             <Servo name="indicator" port="4" />
 
+            <!-- Intake beam break: an Adafruit IR break-beam across the fourth
+                 piece's place. The receiver's signal is digital channel 2 (the
+                 2-3 connector); the emitter only takes power, from the 0-1
+                 connector, so channels 0, 1 and 3 stay free. As wired and read
+                 with Beam Break Bench on the test bench, 2 Nov 2026: wire the
+                 robot the same way, or change this line. -->
+            <DigitalDevice name="intakeBeam" port="2" />
+
         </LynxModule>
 
         <!-- Expansion Hub: the intake, then the launcher. -->
