@@ -92,11 +92,11 @@ public class LauncherSubsystem implements Subsystem {
      * D-pad and the TeleOp's trim). <b>A starting point, not a measured value.</b> A goBILDA 5203
      * counts 28 ticks per motor revolution, so a 6000 RPM bare motor tops out near 2800; 1525 is
      * where POLLEN and NECTAR both shoot. The value each leaves cleanly at is the first row of
-     * #80's table. 1625 since 1 Nov 2026: R Simple's shots from the red right start landed a little
-     * short at 1575 (3 and 2 of 4) while the logs showed every ball leaving at the full target, so
-     * the target itself was low; the mentor's pick on 20245, locked turret, POLLEN only.
+     * #80's table. 1595 since 1 Nov 2026, the mentor's pick on 20245 (locked turret, POLLEN only),
+     * from R Simple at the red right start: 1575 landed a little short (3 and 2 of 4), 1625 was
+     * too much (1 of 4); the logs showed every ball leaving at the full target either way.
      */
-    public static double targetTicksPerSecond = 1625.0;
+    public static double targetTicksPerSecond = 1595.0;
 
     /**
      * Added to {@link #targetTicksPerSecond} for the left wheel only, ticks per second. Zero means
