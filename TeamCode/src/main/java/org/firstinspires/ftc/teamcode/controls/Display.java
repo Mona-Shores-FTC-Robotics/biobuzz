@@ -79,6 +79,20 @@ public final class Display {
         telemetry.addLine("<font color=\"" + level.color + "\">●</font> " + label + ": " + detail);
     }
 
+    /**
+     * A warning at the top of the Match page: what is wrong, big and red, then the one thing to do
+     * about it. See {@code InitWarnings}.
+     */
+    public void alert(String what, String action) {
+        telemetry.addLine("<big><b><font color=\"" + Level.FAULT.color + "\">" + what + "</font></b></big>");
+        telemetry.addLine("<b>→ " + action + "</b>");
+    }
+
+    /** A big headline in a status colour: "No warnings". */
+    public void headline(Level level, String text) {
+        telemetry.addLine("<big><b><font color=\"" + level.color + "\">" + text + "</font></b></big>");
+    }
+
     /** A plain line. */
     public void line(String text) {
         telemetry.addLine(text);

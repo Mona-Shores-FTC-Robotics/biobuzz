@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
 
 import java.util.Locale;
-import java.util.function.IntSupplier;
+import java.util.function.BooleanSupplier;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 
@@ -23,8 +23,7 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * {@link #eject()}, {@link #idle()}), {@link #update()} does it, once per loop. Which button does
  * what belongs in the OpMode's bindings, not here.
  *
- * <p>What this does not do yet: count pieces, stop at four, or feed the Auto's {@code IntakeFull}
- * trigger. That is #181, and it layers on top of this class. What it does do for #181 is read the
+ * <p>It reads the
  * roller's speed once per loop and its current ten times a second ({@link #ticksPerSecond()},
  * {@link #currentAmps()}),
  * which {@code RobotOpMode} logs and the Match page shows: slipping is high speed at low current,
@@ -56,14 +55,15 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * while firing is unchanged. {@link #feedAssist()} says when the intake runs only because of a
  * feed, for the match log.
  *
- * <h2>Stopping the roller when the lane is nearly full</h2>
+ * <h2>Stopping the roller when the lane is full</h2>
  *
- * <p>When the lane tracker ({@link LaneTracker}, fed to this class by {@link #laneCount}) counts
- * {@link #stopRollerAtCount} pieces and the OpMode asks to take in, the stars keep turning inward
- * but the roller stops, so no more pieces are pulled off the floor (asked for on 2 Nov 2026; it
- * first ran the roller outward). Only a plain intake request does this: a feed, an eject and the
- * feeder reversing are unchanged. {@link #rollerStopped()} says when it is happening. It acts on
- * the tracker's count, so a miscount stops the roller early or late; the match log shows both.
+ * <p>When the lane is full (the colour sensor's {@link LaneFull}, fed to this class by
+ * {@link #laneFull}: a piece held under the sensor) and the OpMode asks to take in, the stars keep
+ * turning inward but the roller stops, so no more pieces are pulled off the floor (asked for on
+ * 2 Nov 2026). Only a plain intake request does this: a feed, an eject and the feeder reversing are
+ * unchanged. {@link #rollerStopped()} says when it is happening. The same signal turns the
+ * indicator green and ends an Auto's {@code IntakeFull} wait; a count of pieces is never used,
+ * since it drifts on any missed event (mentor, 2 Nov 2026).
  *
  * <p>The star servo is not written before PLAY: a continuous servo told "stop" creeps if its stop
  * is not quite centred, and nothing may move after INIT (G304.H, G403; see {@link Subsystem}).
@@ -118,10 +118,10 @@ public class IntakeSubsystem implements Subsystem {
     public static boolean rollerWhileFeeding = true;
 
     /**
-     * Lane count at which a request to take in stops the roller while the stars keep turning inward
-     * (class comment). 0 turns it off. 3, the mentor's choice, 2 Nov 2026.
+     * Whether a request to take in stops the roller, the stars still turning inward, once the lane
+     * is full (class comment). Read every loop, so a Panels edit applies at once.
      */
-    public static int stopRollerAtCount = 3;
+    public static boolean stopRollerWhenFull = true;
 
     private final DcMotorEx motor;
     private final CRServo stars;
@@ -133,8 +133,8 @@ public class IntakeSubsystem implements Subsystem {
     private State starsState = State.IDLE;
     private boolean feedAssist;
     private boolean rollerStopped;
-    /** The lane tracker's count; none until {@link #laneCount} is called, so the roller never stops for it. */
-    private IntSupplier laneCount = () -> 0;
+    /** Whether the lane is full; never until {@link #laneFull} is called, so the roller never stops for it. */
+    private BooleanSupplier laneFull = () -> false;
     private boolean started;
     private double ticksPerSecond = 0.0;
     /** The direction last sent to the motor, so {@link #reversed} is written only when it changes. */
@@ -160,11 +160,11 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     /**
-     * Where to read how many pieces the lane holds, for {@link #stopRollerAtCount}. Wired once by
+     * Where to read whether the lane is full, for {@link #stopRollerWhenFull}. Wired once by
      * {@code Robot}, which builds the colour sensor after this subsystem.
      */
-    public void laneCount(IntSupplier count) {
-        laneCount = count;
+    public void laneFull(BooleanSupplier full) {
+        laneFull = full;
     }
 
     /** Ask for pieces in. Takes effect in the next {@link #update()}. */
@@ -201,7 +201,7 @@ public class IntakeSubsystem implements Subsystem {
         return starsState;
     }
 
-    /** Whether the roller is stopped because the lane is nearly full ({@link #stopRollerAtCount}). */
+    /** Whether the roller is stopped because the lane is full ({@link #stopRollerWhenFull}). */
     public boolean rollerStopped() {
         return rollerStopped;
     }
@@ -272,7 +272,7 @@ public class IntakeSubsystem implements Subsystem {
         FeederSubsystem.State feed = feeder.state();
         roller = started ? rollerFor(request, feed, rollerWhileFeeding) : State.IDLE;
         starsState = started ? starsFor(request, feed) : State.IDLE;
-        rollerStopped = started && stopsRoller(request, feed, laneCount.getAsInt(), stopRollerAtCount);
+        rollerStopped = started && stopsRoller(request, feed, laneFull.getAsBoolean(), stopRollerWhenFull);
         if (rollerStopped) roller = State.IDLE;
         feedAssist = request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
         motor.setPower(powerFor(roller, inPower, outPower));
@@ -356,12 +356,11 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     /**
-     * Whether the roller stops for a nearly full lane: the OpMode asked to take in, the feeder is neither
-     * feeding nor reversing, and the lane holds at least {@code atCount} (0 or less: never). Pure,
-     * so a test can check it.
+     * Whether the roller stops for a full lane: {@code enabled}, the lane full, the OpMode asked to
+     * take in, and the feeder neither feeding nor reversing. Pure, so a test can check it.
      */
-    static boolean stopsRoller(State request, FeederSubsystem.State feeder, int laneCount, int atCount) {
-        return atCount > 0 && laneCount >= atCount && request == State.IN
+    static boolean stopsRoller(State request, FeederSubsystem.State feeder, boolean laneFull, boolean enabled) {
+        return enabled && laneFull && request == State.IN
                 && feeder != FeederSubsystem.State.FEED && feeder != FeederSubsystem.State.REVERSE;
     }
 

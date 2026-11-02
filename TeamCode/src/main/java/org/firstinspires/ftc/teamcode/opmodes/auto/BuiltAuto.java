@@ -64,9 +64,10 @@ import java.util.function.Function;
  * them: the roller is on whenever the robot has room for a piece, and a "catch" step is the robot
  * standing in the right place with the roller turning until {@code IntakeFull} or the step's time
  * limit. No card turns the intake on or off, so the drawing and the simulator need none. PLAY
- * starts it ({@link #intakeRequest}); the OpMode's stop idles it. Until the intake counts what it
- * holds (#181) "has room" is always true and the roller runs the full thirty seconds; once it
- * counts, the same rule stops the roller at {@link #MAX_HELD} and {@code IntakeFull} ends the wait.
+ * starts it ({@link #intakeRequest}); the OpMode's stop idles it. The Auto asks for the intake the
+ * whole time; once the lane is full (a piece held under the colour sensor, {@code LaneFull}) the
+ * intake stops its own roller ({@code IntakeSubsystem.stopRollerWhenFull}) and {@code IntakeFull}
+ * ends the wait, from that one signal. No count of pieces is kept for it.
  *
  * <p>The trace (each card starting, each wait ending and why, the guard's decisions) goes to the
  * match log as events and the last few lines to the Match page. The paths go to the match log too
@@ -220,7 +221,7 @@ public abstract class BuiltAuto extends RobotOpMode {
         Command auto = build.apply(kit, rotated);
         pathLog.plan(kit.paths());
         auto.schedule();
-        // The intake does not count pieces yet (#181), so it holds none as far as the code knows.
+        // Asked for the whole Auto: the intake stops its roller itself when the lane is full.
         if (intakeRequest(0) == IntakeSubsystem.State.IN) robot.intake.intake();
     }
 

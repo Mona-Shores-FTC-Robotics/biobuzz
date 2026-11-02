@@ -483,17 +483,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
         return Math.max(-max, Math.min(max, turn));
     }
 
-    @Override
-    protected boolean indicatorBusy() {
-        return routineActive();
-    }
-
-    /** At launch speed, not at an idle speed that happens to be steady. */
-    @Override
-    protected boolean indicatorLaunchReady() {
-        return launchMode && robot.launcher.atSpeed();
-    }
-
     /** A FLOWER pick or a GARDEN gather is driving the robot and running the intake. */
     private boolean routineActive() {
         return picker.active() || gatherer.active();

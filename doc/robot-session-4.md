@@ -121,10 +121,12 @@ logs were analysed afterwards. What that session established:
        Tuner on 20245 and paste its block into `pedro/robots/Robot20245.java`.
 
 9. [ ] **The indicator light** (once the build team has mounted a goBILDA RGB Indicator Light
-       on **Control Hub servo port 4**). Run **Validate Hardware**, then INIT **Basic Drive** and check
-       the colours: flashing red on a low battery, orange with the Limelight unplugged, flashing
-       yellow until the camera's first frame, yellow while the pose is not on the field, the
-       alliance's colour once all is well, violet during a pick. If a colour is off, set it in
+       on **Control Hub servo port 4**). Run **Validate Hardware**, then check its three looks (the
+       rule since 2 Nov: the light shows only what the drive team acts on): INIT **Basic Drive**,
+       steady red, X for steady blue; INIT an Auto with the Limelight unplugged, flashing white, and
+       the Match page lists "Camera: not answering" at the top with what to do; in TeleOp, intake
+       until a piece sits under the colour sensor, green after about half a second
+       (`ColorSensorSubsystem.fullAfterMs`, not measured yet). If a colour is off, set it in
        Panels → IndicatorSubsystem and note the value.
 
 ## Record these, and where they go

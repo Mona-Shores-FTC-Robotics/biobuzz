@@ -109,6 +109,11 @@ public final class MatchSetup {
         return Source.NONE;
     }
 
+    /** What the camera proposes now ({@link #offerVision}), {@code UNKNOWN} when it says nothing. */
+    public Alliance visionAlliance() {
+        return fromVision;
+    }
+
     /** A weaker source names a different alliance from the one in use. */
     public boolean hasDisagreement() {
         Alliance chosen = alliance();

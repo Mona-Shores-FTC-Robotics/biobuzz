@@ -10,30 +10,26 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
 
 /**
  * The indicator lights: goBILDA RGB Indicator Lights on one servo port (more than one light on a
- * Y cable, so one device, all the same colour), whose colour is the servo position. It says, from across the field, the one thing the drive team most needs to know now;
- * the Driver Station's page says the rest.
+ * Y cable, so one device, all the same colour), whose colour is the servo position.
+ *
+ * <p><b>The rule</b> (mentor, 2 Nov 2026): the light shows only what the drive team acts on. Anything
+ * else (a routine driving, the launcher at speed, a piece or two in the lane) goes to the match log,
+ * not the light.
+ *
+ * <table>
+ *   <caption>What it shows, the first that holds</caption>
+ *   <tr><th>When</th><th>Light</th><th>The drive team</th></tr>
+ *   <tr><td>An Autonomous's INIT, with any warning ({@code InitWarnings})</td><td>white, flashing</td>
+ *       <td>reads the Driver Station, which says what is wrong and what to do</td></tr>
+ *   <tr><td>After PLAY, the lane is full (the colour sensor's {@code LaneFull})</td><td>green</td>
+ *       <td>stops intaking</td></tr>
+ *   <tr><td>Otherwise</td><td>the alliance's colour, steady; off with none</td>
+ *       <td>checks it against the field</td></tr>
+ * </table>
  *
  * <p>{@code RobotOpMode} decides what to show each loop ({@link #choose}) and hands it over with
  * {@link #show}; {@link #update()} writes the light only when its colour changes (and once a
  * second), so it costs no hub round trip in a steady loop.
- *
- * <table>
- *   <caption>What it shows, the first that holds</caption>
- *   <tr><th>When</th><th>Light</th></tr>
- *   <tr><td>INIT, battery below {@code RobotOpMode.LOW_BATTERY_VOLTS}</td><td>red, flashing</td></tr>
- *   <tr><td>The camera is missing or not answering</td><td>orange</td></tr>
- *   <tr><td>INIT, the camera has sent no frame yet: wait before PLAY</td><td>yellow, flashing</td></tr>
- *   <tr><td>A FLOWER pick or GARDEN gather is driving</td><td>violet</td></tr>
- *   <tr><td>After PLAY, the lane tracker counts the lane full ({@code IntakeSubsystem.stopRollerAtCount}
- *       or more): stop intaking, go and shoot</td><td>green</td></tr>
- *   <tr><td>After PLAY, one piece or more in the lane</td><td>azure</td></tr>
- *   <tr><td>The pose is not on the field (no handoff, no camera fix)</td><td>yellow</td></tr>
- *   <tr><td>All good</td><td>the alliance's colour; white with none</td></tr>
- * </table>
- *
- * <p>After PLAY, while the launcher is at launch speed, the lane and alliance colours flash: the
- * drive team can shoot. Faults and a pick or gather never flash. The lane colours were asked for
- * on 2 Nov 2026 so the drive team need not read the Driver Station mid-match.
  */
 @Configurable
 public class IndicatorSubsystem implements Subsystem {
@@ -42,27 +38,20 @@ public class IndicatorSubsystem implements Subsystem {
     // checked against the light itself at the next session (doc/robot-session-4.md).
     public static double OFF = 0.0;
     public static double RED = 0.279;
-    public static double ORANGE = 0.333;
-    public static double YELLOW = 0.388;
     /** From the same goBILDA chart as the rest; not yet checked against the light. */
     public static double GREEN = 0.5;
-    /** From the same goBILDA chart as the rest; not yet checked against the light. */
-    public static double AZURE = 0.555;
     public static double BLUE = 0.611;
-    public static double VIOLET = 0.722;
     public static double WHITE = 1.0;
-    /** A flashing signal is on this long, then off as long, ms. */
+    /** A flashing signal is on this long, then off as long, ms. 250 is 2 Hz, well under the 5 Hz the manual frowns on. */
     public static double FLASH_MS = 250;
 
     /** What the light says. */
     public enum Signal {
-        OFF, BATTERY_LOW, CAMERA_FAULT, CAMERA_NO_FRAMES, BUSY, LANE_FULL, LANE_SOME, POSE_UNREFERENCED,
-        ALLIANCE_RED, ALLIANCE_BLUE, NO_ALLIANCE
+        OFF, CHECK_DRIVER_STATION, FULL, ALLIANCE_RED, ALLIANCE_BLUE
     }
 
     private final Servo light;
     private Signal signal = Signal.OFF;
-    private boolean flashing;
     private double written = Double.NaN;
     private final Throttle resend = new Throttle(1000, 0);
 
@@ -72,85 +61,38 @@ public class IndicatorSubsystem implements Subsystem {
     }
 
     /**
-     * The signal for the robot's state, the first that holds (see the class comment).
+     * The signal for the robot's state, the first that holds (see the class comment). Pure, so a
+     * test can check it.
      *
-     * @param init           before PLAY
-     * @param batteryLow     the battery read low at INIT
-     * @param cameraFault    the camera is missing or not answering
-     * @param cameraNoFrames the camera answers but has sent no frame yet
-     * @param busy           a pick or a gather is driving the robot
-     * @param poseOnField    the pose is referenced to the field
+     * @param init     before PLAY
+     * @param warnings an Autonomous's INIT has something for the drive team to fix; {@code RobotOpMode}
+     *                 passes false in any other OpMode
+     * @param full     the lane is full
      */
-    public static Signal choose(boolean init, boolean batteryLow, boolean cameraFault, boolean cameraNoFrames,
-                                boolean busy, boolean poseOnField, Alliance alliance) {
-        return choose(init, batteryLow, cameraFault, cameraNoFrames, busy, 0, 0, poseOnField, alliance);
-    }
-
-    /**
-     * As above, with the lane: after PLAY, {@code laneCount} at or past {@code fullAt} (0 or less:
-     * never full) shows {@link Signal#LANE_FULL}, any piece {@link Signal#LANE_SOME}.
-     */
-    public static Signal choose(boolean init, boolean batteryLow, boolean cameraFault, boolean cameraNoFrames,
-                                boolean busy, int laneCount, int fullAt, boolean poseOnField, Alliance alliance) {
-        if (init && batteryLow) return Signal.BATTERY_LOW;
-        if (cameraFault) return Signal.CAMERA_FAULT;
-        if (init && cameraNoFrames) return Signal.CAMERA_NO_FRAMES;
-        if (busy) return Signal.BUSY;
-        if (!init && fullAt > 0 && laneCount >= fullAt) return Signal.LANE_FULL;
-        if (!init && laneCount > 0) return Signal.LANE_SOME;
-        if (!poseOnField) return Signal.POSE_UNREFERENCED;
+    public static Signal choose(boolean init, boolean warnings, boolean full, Alliance alliance) {
+        if (init && warnings) return Signal.CHECK_DRIVER_STATION;
+        if (!init && full) return Signal.FULL;
         if (alliance == Alliance.RED) return Signal.ALLIANCE_RED;
         if (alliance == Alliance.BLUE) return Signal.ALLIANCE_BLUE;
-        return Signal.NO_ALLIANCE;
+        return Signal.OFF;
     }
 
     /** What the light shows from the next {@link #update()}. */
     public void show(Signal signal) {
-        show(signal, false);
-    }
-
-    /**
-     * As {@link #show(Signal)}, flashing when {@code launchReady} and the signal is one that may
-     * ({@link #flashesWhenReady}): the launcher is at launch speed.
-     */
-    public void show(Signal signal, boolean launchReady) {
         this.signal = signal == null ? Signal.OFF : signal;
-        this.flashing = launchReady && flashesWhenReady(this.signal);
-    }
-
-    /** The lane and alliance colours flash at launch speed; faults, a pick and the pose warning do not. */
-    static boolean flashesWhenReady(Signal signal) {
-        switch (signal) {
-            case LANE_FULL: case LANE_SOME: case ALLIANCE_RED: case ALLIANCE_BLUE: case NO_ALLIANCE:
-                return true;
-            default:
-                return false;
-        }
     }
 
     public Signal signal() {
         return signal;
     }
 
-    /** The servo position for {@code signal} at {@code nowMs}: flashing ones are off half the time. */
+    /** The servo position for {@code signal} at {@code nowMs}: a flashing one is off half the time. */
     static double position(Signal signal, long nowMs) {
-        return position(signal, nowMs, false);
-    }
-
-    /** As above, and off half the time too when {@code flashing}. */
-    static double position(Signal signal, long nowMs, boolean flashing) {
-        if (flashing && !flashOn(nowMs)) return OFF;
         switch (signal) {
-            case BATTERY_LOW: return flashOn(nowMs) ? RED : OFF;
-            case CAMERA_FAULT: return ORANGE;
-            case CAMERA_NO_FRAMES: return flashOn(nowMs) ? YELLOW : OFF;
-            case BUSY: return VIOLET;
-            case LANE_FULL: return GREEN;
-            case LANE_SOME: return AZURE;
-            case POSE_UNREFERENCED: return YELLOW;
+            case CHECK_DRIVER_STATION: return flashOn(nowMs) ? WHITE : OFF;
+            case FULL: return GREEN;
             case ALLIANCE_RED: return RED;
             case ALLIANCE_BLUE: return BLUE;
-            case NO_ALLIANCE: return WHITE;
             default: return OFF;
         }
     }
@@ -163,7 +105,6 @@ public class IndicatorSubsystem implements Subsystem {
     @Override
     public void initialize() {
         signal = Signal.OFF;
-        flashing = false;
         written = Double.NaN;
     }
 
@@ -176,7 +117,7 @@ public class IndicatorSubsystem implements Subsystem {
     @Override
     public void update() {
         long nowNs = System.nanoTime();
-        double position = Math.max(0.0, Math.min(1.0, position(signal, nowNs / 1_000_000L, flashing)));
+        double position = Math.max(0.0, Math.min(1.0, position(signal, nowNs / 1_000_000L)));
         if (position != written || resend.due(nowNs)) {
             light.setPosition(position);
             written = position;
