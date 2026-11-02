@@ -57,10 +57,17 @@ public final class LocalizationTuning {
     public static boolean seedFromCamera = true;
 
     /**
-     * Tags closer together than this (RMS distance from their middle, inches) give no heading:
-     * two neighbouring tags 3.75 in apart are 1.9 in from their middle and pass; one tag cannot.
+     * The whole-pose fit ({@code CellFix.fit}) gives a heading only when its tags' lever reaches this,
+     * inches: the root-sum-square of the tags' distances from their middle. The fit's heading error is
+     * about the per-tag position noise divided by the lever, and 2 Nov 2026's logs (20245, 55-60 in
+     * from the HIVEs, robot still) measured that noise at about 0.5 in: two tags on one CELL (lever
+     * 3-7) wandered 12 deg either way and sat 22 deg out for a whole run; a CELL's four tags (lever 10)
+     * sat 3 deg out; seven or eight tags on both HIVEs (lever 35-39) agreed with the Pinpoint within
+     * 1 deg. The two HIVEs are 25.5 in apart, so one tag on each is 18, two on each 26-29, four and
+     * two 31. At 30 a heading comes only from both HIVEs seen well, which is the only fit that has
+     * earned it: that night a 2-tag fit moved an INIT pose 23 in and 24 deg off its mark.
      */
-    public static double minTagSpreadIn = 1.5;
+    public static double minFitLeverIn = 30.0;
 
     /** Camera poses in a row that must agree before seeding, so one bad frame cannot. */
     public static int seedFrames = 3;
@@ -83,8 +90,9 @@ public final class LocalizationTuning {
      * The DECODE cross-check, in our code ({@code HeadingFix}): while the robot is still, the camera's
      * own heading (the heading-free whole-pose fit, averaged over the settled frames) is compared with
      * the Pinpoint's. Past this many degrees the Pinpoint's heading is wrong, so x and y solved with
-     * it are wrong too, and a camera reset takes the camera's heading as well. The fit's noise is a
-     * degree or two; 1 Nov 2026's start checks put the two within 2 deg when the robot was placed right.
+     * it are wrong too, and a camera reset takes the camera's heading as well. Only a fit with the lever
+     * {@link #minFitLeverIn} has a heading at all; such fits agreed with a wall-set Pinpoint heading
+     * within 1 deg on 2 Nov 2026, so 4 deg is a real disagreement.
      */
     public static double headingFixDeg = 4.0;
 

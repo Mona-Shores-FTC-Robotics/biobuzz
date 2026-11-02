@@ -6,7 +6,9 @@ package org.firstinspires.ftc.teamcode.localization;
  * the MegaTag1 of this code); the position fix uses the Pinpoint's heading ({@code CellFix.position},
  * the MegaTag2). When the two headings disagree by more than the fit's noise, the Pinpoint is the one
  * that is wrong, exactly the DECODE-season check, rebuilt on {@code HiveFieldPoints} because MegaTag
- * cannot know a tipped CELL.
+ * cannot know a tipped CELL. The fit has a heading only with tags on both HIVEs
+ * ({@link LocalizationTuning#minFitLeverIn}); a one-CELL fit's heading is noise of 3-12 deg, and
+ * is never compared.
  */
 public final class HeadingFix {
 
