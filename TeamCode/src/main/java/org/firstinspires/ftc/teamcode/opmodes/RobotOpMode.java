@@ -819,6 +819,8 @@ public abstract class RobotOpMode extends OpMode {
     private static final String CAMERA_COLOUR = "#FFB300";
     /** The shadow pose on the field view ({@code ShadowPose}): purple. */
     private static final String SHADOW_COLOUR = "#AB47BC";
+    /** A shadow fix that moved it less than this, inches, is not an event; the channels have it. */
+    private static final double SHADOW_EVENT_MOVE_IN = 0.25;
 
     /**
      * The robot on the Panels Field view, after the subsystems have updated so it is this loop's
@@ -1196,9 +1198,11 @@ public abstract class RobotOpMode extends OpMode {
             // As a Pose2d too, so AdvantageScope draws it on the field beside /Odometry/Robot (one
             // three-double array per loop: MatchLog keeps the reference until its writer has it).
             log.pose("/Shadow/Robot", shadowPose.x(), shadowPose.y(), shadowPose.heading());
+            // One event per fix flooded the log (2 Nov: 2949 in 15 min, one every five frames while
+            // still); the channels carry the rest. An event only when the shadow actually moved.
             if (robot.drive.shadow().fixesApplied() != loggedShadowFixes) {
                 loggedShadowFixes = robot.drive.shadow().fixesApplied();
-                log.event(String.format(java.util.Locale.US,
+                if (robot.drive.shadow().lastFixMoveIn() >= SHADOW_EVENT_MOVE_IN) log.event(String.format(java.util.Locale.US,
                         "shadow: still fix %d moved it %.1f in; now %.1f in from the real pose (%+.1f, %+.1f)",
                         loggedShadowFixes, robot.drive.shadow().lastFixMoveIn(), robot.drive.shadow().offsetIn(),
                         robot.drive.shadow().offsetX(), robot.drive.shadow().offsetY()));
