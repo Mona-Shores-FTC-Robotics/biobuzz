@@ -758,6 +758,8 @@ public abstract class RobotOpMode extends OpMode {
     /** Where the robot should start (during INIT), and where the camera says it is, on the field. */
     private static final String START_COLOUR = "#00E676";
     private static final String CAMERA_COLOUR = "#FFB300";
+    /** The shadow pose on the field view ({@code ShadowPose}): purple. */
+    private static final String SHADOW_COLOUR = "#AB47BC";
 
     /**
      * The robot on the Panels Field view, after the subsystems have updated so it is this loop's
@@ -778,6 +780,10 @@ public abstract class RobotOpMode extends OpMode {
                 // Each layer can be switched off in Panels → FieldLayers.
                 if (pose != null && FieldLayers.odometry) {
                     fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
+                }
+                Pose shadowPose = robot.drive.shadowPose();
+                if (shadowPose != null && FieldLayers.shadow && robot.drive.shadow().offsetIn() > 0.05) {
+                    fieldView.drawRobot(shadowPose.x(), shadowPose.y(), shadowPose.heading(), SHADOW_COLOUR);
                 }
                 if (initializing && declaredStart != null) {
                     Pose start = declaredStart.pose;
@@ -1103,6 +1109,9 @@ public abstract class RobotOpMode extends OpMode {
             log.put("/Shadow/X", shadowPose.x());
             log.put("/Shadow/Y", shadowPose.y());
             log.put("/Shadow/OffsetIn", robot.drive.shadow().offsetIn());
+            // As a Pose2d too, so AdvantageScope draws it on the field beside /Odometry/Robot (one
+            // three-double array per loop: MatchLog keeps the reference until its writer has it).
+            log.pose("/Shadow/Robot", shadowPose.x(), shadowPose.y(), shadowPose.heading());
             if (robot.drive.shadow().fixesApplied() != loggedShadowFixes) {
                 loggedShadowFixes = robot.drive.shadow().fixesApplied();
                 log.event(String.format(java.util.Locale.US,
