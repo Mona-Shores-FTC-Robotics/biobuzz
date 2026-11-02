@@ -10,6 +10,9 @@ Written from the wpilog spec (https://github.com/wpilibsuite/allwpilib/blob/main
 not from our writer, like the test reader in src/test/.../logging/WpiLogReader.java.
 """
 import argparse
+import glob
+import os
+import re
 import bisect
 import math
 import struct
