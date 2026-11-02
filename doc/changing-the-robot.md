@@ -40,9 +40,9 @@ So a subsystem has two halves: the methods the OpMode calls to *ask* for somethi
 
 ## Where the OpModes are
 
-- **TeleOp list:** Basic Drive, and Basic Drive (robot-centric) for a match where the Pinpoint has failed. Only what a drive team runs at a competition.
+- **TeleOp list:** Basic Drive. Only what a drive team runs at a competition.
 - **Autonomous list:** the six Autos and Hold Still.
-- **Utility menu** (Driver Station 11.2 or later): everything else. Validate Hardware, Drive Motor Check, Loop Time Baseline, Launcher Bench, Turret Bench, and the Vision tools. Pedro's tuners are in the TeleOp list because they are Pedro's code, and their screens say A, B, X, Y: Cross, Circle, Square, Triangle.
+- **Utility menu** (Driver Station 11.2 or later): everything else. Basic Drive (robot-centric) for a match where the Pinpoint's heading cannot be trusted (kept out of the TeleOp list so nobody picks it by mistake), Validate Hardware, Drive Motor Check, Loop Time Baseline, Launcher Bench, Turret Bench, and the Vision tools. Pedro's tuners are in the TeleOp list because they are Pedro's code, and their screens say A, B, X, Y: Cross, Circle, Square, Triangle.
 
 ## Deploying
 

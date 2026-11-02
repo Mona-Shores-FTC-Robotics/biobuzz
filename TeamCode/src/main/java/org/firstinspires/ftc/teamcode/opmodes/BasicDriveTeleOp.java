@@ -32,7 +32,8 @@ import java.util.Locale;
 /**
  * The match TeleOp: read the gamepads by {@link Action}, tell the subsystems what you want,
  * report. {@link RobotCentricTeleOp} is the same OpMode driving robot-centric, for a match where
- * the Pinpoint has failed; there is no field / robot-centric button.
+ * the Pinpoint's heading cannot be trusted; it is in the Utility menu so nobody picks it by
+ * mistake. There is no field / robot-centric button.
  *
  * <h2>Controls</h2>
  *
