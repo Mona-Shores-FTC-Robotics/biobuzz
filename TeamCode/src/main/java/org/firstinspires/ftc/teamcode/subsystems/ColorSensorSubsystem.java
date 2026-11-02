@@ -123,7 +123,8 @@ public class ColorSensorSubsystem implements Subsystem {
         if (fresh) {
             read(now);
         }
-        boolean outward = intake.state() == IntakeSubsystem.State.OUT
+        // The lane runs outward when the stars do: not while the roller only turns pieces away.
+        boolean outward = intake.starsState() == IntakeSubsystem.State.OUT
                 || prefeed.state() == PrefeedSubsystem.State.OUT;
         lane.step(fresh, alpha,
                 LaneTracker.classify(hueDeg, pollenHueMin, pollenHueMax,
