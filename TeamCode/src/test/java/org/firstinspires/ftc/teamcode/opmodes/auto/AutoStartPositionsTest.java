@@ -33,10 +33,6 @@ public class AutoStartPositionsTest {
         assertStartsAt(StartPositions.RED_AUDIENCE.pose, RQualsAuto.startPose(false));
     }
 
-
-
-
-
     @Test
     public void theLeftAutosStartAtTheRedFarStart() {
         assertStartsAt(StartPositions.RED_FAR.pose, LSimpleAuto.startPose(false));
