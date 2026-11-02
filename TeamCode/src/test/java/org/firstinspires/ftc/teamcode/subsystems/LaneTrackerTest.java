@@ -139,7 +139,7 @@ public class LaneTrackerTest {
         assertEquals(Piece.NECTAR, LaneTracker.classify(229, ColorSensorSubsystem.pollenHueMin,
                 ColorSensorSubsystem.pollenHueMax, ColorSensorSubsystem.nectarHueMin, ColorSensorSubsystem.nectarHueMax));
         assertTrue("an empty lane reads below presentAbove", 0.020 < ColorSensorSubsystem.presentAbove);
-        assertTrue("a POLLEN reads above it", 0.376 > ColorSensorSubsystem.presentAbove);
+        assertTrue("the dimmest POLLEN at rest reads above it", 0.155 > ColorSensorSubsystem.presentAbove);
         assertTrue("leaveBelow sits under presentAbove", ColorSensorSubsystem.leaveBelow < ColorSensorSubsystem.presentAbove);
     }
 

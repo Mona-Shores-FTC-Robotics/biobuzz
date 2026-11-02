@@ -47,19 +47,21 @@ public class ColorSensorSubsystem implements Subsystem {
      * A piece is under the sensor above this brightness (the clear channel, {@link #alpha()}). NaN
      * turns arrivals off. Brightness, not distance: the proximity reading is IR reflectance, and a
      * POLLEN reflects so little that it read 44 mm against an empty lane's 54 (NECTAR 18). Measured
-     * on 20245, 2 Nov 2026, as mounted at the entrance: empty 0.020, POLLEN 0.376, NECTAR 0.903.
-     * 0.15 sits well clear of both sides.
+     * on 20245, 2 Nov 2026, as mounted at the entrance: empty 0.014 to 0.020 (steady), POLLEN at
+     * rest 0.155 to 0.45, NECTAR 0.29 to 0.97; a piece pushed right up to it reads up to 0.99. 0.10
+     * keeps clear of the dimmest POLLEN; replaying that session, 0.15 split one hold into two.
      */
-    public static double presentAbove = 0.15;
+    public static double presentAbove = 0.10;
     /** And has gone below this brightness (hysteresis). NaN: the same as {@link #presentAbove}. */
-    public static double leaveBelow = 0.08;
+    public static double leaveBelow = 0.05;
     /**
-     * POLLEN's hue range, degrees (min above max wraps through 0). One reading, 2 Nov 2026: 77°
-     * (saturation 0.69). ±40° around it, which keeps a wide gap to NECTAR.
+     * POLLEN's hue range, degrees (min above max wraps through 0). Bench, 2 Nov 2026: 73° to 94° at
+     * rest, saturation about 0.7 (it falls to 0.35 when pressed against the sensor; the hue holds).
+     * 37 to 117 keeps a wide gap to NECTAR.
      */
     public static double pollenHueMin = 37;
     public static double pollenHueMax = 117;
-    /** NECTAR's hue range, degrees. One reading, 2 Nov 2026: 229° (saturation 0.78). ±40° around it. */
+    /** NECTAR's hue range, degrees. Bench, 2 Nov 2026: 212° to 232°, saturation 0.62 to 0.88. */
     public static double nectarHueMin = 189;
     public static double nectarHueMax = 269;
 
