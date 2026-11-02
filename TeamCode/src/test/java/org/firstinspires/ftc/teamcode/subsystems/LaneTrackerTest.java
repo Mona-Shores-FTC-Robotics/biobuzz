@@ -11,10 +11,11 @@ import org.junit.Test;
 /** The lane queue from one entrance sensor: arrivals, shots, ejects, and the counting limits. */
 public class LaneTrackerTest {
 
-    private static final double IN = 20;      // presentBelowMm
-    private static final double OUT = 30;     // leaveAboveMm
-    private static final double NEAR = 10;
-    private static final double FAR = 80;
+    // Brightness: higher means a piece is there. The bench readings of 2 Nov 2026 as the fixtures.
+    private static final double IN = 0.15;    // presentAbove
+    private static final double OUT = 0.08;   // leaveBelow
+    private static final double NEAR = 0.903; // NECTAR under the sensor
+    private static final double FAR = 0.020;  // empty lane
 
     private final LaneTracker lane = new LaneTracker();
 
@@ -74,18 +75,18 @@ public class LaneTrackerTest {
     public void hysteresisCountsAWobbleOnce() {
         read(FAR, Piece.UNKNOWN);
         read(NEAR, Piece.POLLEN);
-        read(25, Piece.POLLEN); // between the thresholds: still there
+        read(0.10, Piece.POLLEN); // between the thresholds: still there
         read(NEAR, Piece.POLLEN);
         read(FAR, Piece.UNKNOWN);
         assertEquals(1, lane.count());
     }
 
     @Test
-    public void theClosestReadingNamesThePiece() {
+    public void theBrightestReadingNamesThePiece() {
         read(FAR, Piece.UNKNOWN);
-        read(18, Piece.UNKNOWN); // at the edge of the spot
-        read(8, Piece.NECTAR);   // right under it
-        read(15, Piece.POLLEN);  // farther again: ignored
+        read(0.2, Piece.UNKNOWN); // at the edge of the spot
+        read(0.9, Piece.NECTAR);  // right under it
+        read(0.5, Piece.POLLEN);  // dimmer again: ignored
         assertEquals("N___", lane.lettersFrontToBack());
     }
 
@@ -113,7 +114,7 @@ public class LaneTrackerTest {
     }
 
     @Test
-    public void uncalibratedPresenceCountsNothingButShots() {
+    public void unsetPresenceCountsNothingButShots() {
         lane.fill(Piece.POLLEN, 2);
         lane.step(true, NEAR, Piece.POLLEN, false, false, Double.NaN, Double.NaN);
         lane.step(true, FAR, Piece.UNKNOWN, false, false, Double.NaN, Double.NaN);
@@ -129,6 +130,17 @@ public class LaneTrackerTest {
         read(FAR, Piece.UNKNOWN);
         assertNull(lane.event());
         assertFalse(lane.present());
+    }
+
+    @Test
+    public void theBenchReadingsClassifyWithTheShippedRanges() {
+        assertEquals(Piece.POLLEN, LaneTracker.classify(77, ColorSensorSubsystem.pollenHueMin,
+                ColorSensorSubsystem.pollenHueMax, ColorSensorSubsystem.nectarHueMin, ColorSensorSubsystem.nectarHueMax));
+        assertEquals(Piece.NECTAR, LaneTracker.classify(229, ColorSensorSubsystem.pollenHueMin,
+                ColorSensorSubsystem.pollenHueMax, ColorSensorSubsystem.nectarHueMin, ColorSensorSubsystem.nectarHueMax));
+        assertTrue("an empty lane reads below presentAbove", 0.020 < ColorSensorSubsystem.presentAbove);
+        assertTrue("a POLLEN reads above it", 0.376 > ColorSensorSubsystem.presentAbove);
+        assertTrue("leaveBelow sits under presentAbove", ColorSensorSubsystem.leaveBelow < ColorSensorSubsystem.presentAbove);
     }
 
     @Test

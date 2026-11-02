@@ -26,8 +26,8 @@ import java.util.Locale;
  *
  * <p>It also keeps {@link LaneTracker}: what it thinks is in the lane, slot by slot, from pieces
  * arriving under it, shots, and ejects. Also data only, logged as {@code /Lane/*}. Its thresholds
- * ({@link #presentBelowMm}, {@link #leaveAboveMm}, the hue ranges) are NaN until a bench session
- * measures them; until then it counts only the declared preloads and the shots.
+ * ({@link #presentAbove}, {@link #leaveBelow}, the hue ranges) come from one bench reading of each
+ * piece on robot 20245, 2 Nov 2026; logs will refine them.
  *
  * <p>The colour is the SDK's normalised reading at the sensor's default gain, unchanged, plus its
  * hue and saturation. Hue and saturation do not depend on the gain or on how far the ball is; the
@@ -43,16 +43,25 @@ public class ColorSensorSubsystem implements Subsystem {
      */
     public static int readEveryMs = 50;
 
-    /** A piece is under the sensor below this distance, mm. NaN until measured: no arrivals counted. */
-    public static double presentBelowMm = Double.NaN;
-    /** And has gone above this, mm (hysteresis). NaN: the same as {@link #presentBelowMm}. */
-    public static double leaveAboveMm = Double.NaN;
-    /** POLLEN's hue range, degrees (min above max wraps through 0). NaN until measured. */
-    public static double pollenHueMin = Double.NaN;
-    public static double pollenHueMax = Double.NaN;
-    /** NECTAR's hue range, degrees. NaN until measured. */
-    public static double nectarHueMin = Double.NaN;
-    public static double nectarHueMax = Double.NaN;
+    /**
+     * A piece is under the sensor above this brightness (the clear channel, {@link #alpha()}). NaN
+     * turns arrivals off. Brightness, not distance: the proximity reading is IR reflectance, and a
+     * POLLEN reflects so little that it read 44 mm against an empty lane's 54 (NECTAR 18). Measured
+     * on 20245, 2 Nov 2026, as mounted at the entrance: empty 0.020, POLLEN 0.376, NECTAR 0.903.
+     * 0.15 sits well clear of both sides.
+     */
+    public static double presentAbove = 0.15;
+    /** And has gone below this brightness (hysteresis). NaN: the same as {@link #presentAbove}. */
+    public static double leaveBelow = 0.08;
+    /**
+     * POLLEN's hue range, degrees (min above max wraps through 0). One reading, 2 Nov 2026: 77°
+     * (saturation 0.69). ±40° around it, which keeps a wide gap to NECTAR.
+     */
+    public static double pollenHueMin = 37;
+    public static double pollenHueMax = 117;
+    /** NECTAR's hue range, degrees. One reading, 2 Nov 2026: 229° (saturation 0.78). ±40° around it. */
+    public static double nectarHueMin = 189;
+    public static double nectarHueMax = 269;
 
     private final NormalizedColorSensor sensor;
     /** The same device, as its proximity side: the V3 is both. */
@@ -111,9 +120,9 @@ public class ColorSensorSubsystem implements Subsystem {
         }
         boolean outward = intake.state() == IntakeSubsystem.State.OUT
                 || prefeed.state() == PrefeedSubsystem.State.OUT;
-        lane.step(fresh, distanceMm,
+        lane.step(fresh, alpha,
                 LaneTracker.classify(hueDeg, pollenHueMin, pollenHueMax, nectarHueMin, nectarHueMax),
-                outward, launcher.shotJustDetected(), presentBelowMm, leaveAboveMm);
+                outward, launcher.shotJustDetected(), presentAbove, leaveBelow);
     }
 
     /** What it thinks is in the lane. Data only. */
@@ -184,9 +193,9 @@ public class ColorSensorSubsystem implements Subsystem {
     public void describe(Display display) {
         display.status("Color sensor", allZero() ? Display.Level.WARN : Display.Level.OK,
                 allZero() ? "reads all zero: unplugged?" : summary());
-        display.status("Lane (guess)", Double.isNaN(presentBelowMm) ? Display.Level.WARN : Display.Level.OK,
+        display.status("Lane (guess)", Double.isNaN(presentAbove) ? Display.Level.WARN : Display.Level.OK,
                 lane.lettersFrontToBack() + " front to back, " + lane.count() + " in"
-                        + (Double.isNaN(presentBelowMm) ? "; presentBelowMm not measured: counts shots only" : ""));
+                        + (Double.isNaN(presentAbove) ? "; presentAbove not set: counts shots only" : ""));
     }
 
     private boolean allZero() {

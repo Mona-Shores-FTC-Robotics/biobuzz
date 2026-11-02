@@ -12,17 +12,17 @@ import java.util.Locale;
  * slot; it keeps a queue:
  *
  * <ul>
- *   <li>a piece <b>arriving</b> under the sensor (distance falls below {@code presentBelowMm})
+ *   <li>a piece <b>arriving</b> under the sensor (brightness rises above {@code presentAbove})
  *       while the lane runs inward joins the back, as the colour it shows;</li>
- *   <li>while it stays there, the closest reading names its colour (a piece seen at the edge of
- *       the spot reads paler than one under it);</li>
+ *   <li>while it stays there, the brightest reading names its colour (a piece at the edge of the
+ *       spot reads dimmer than one under it);</li>
  *   <li>a <b>shot</b> takes the front piece;</li>
  *   <li>a piece <b>leaving</b> under the sensor while the lane runs outward (eject, unjam) takes
  *       the back piece.</li>
  * </ul>
  *
- * <p>Presence has hysteresis: it starts below {@code presentBelowMm} and ends above
- * {@code leaveAboveMm}, so a piece wobbling at the threshold counts once. The first reading only
+ * <p>Presence has hysteresis: it starts above {@code presentAbove} and ends below
+ * {@code leaveBelow}, so a piece wobbling at the threshold counts once. The first reading only
  * sets whether something is already there, so a preload sitting under the sensor at INIT is not
  * counted again. A count that goes past full or below empty is a counting error; it is kept at the
  * limit and counted ({@link #overflows()}, {@link #underflows()}) so a log shows how often.
@@ -47,7 +47,7 @@ public final class LaneTracker {
     private boolean present;
     /** The back slot is the piece under the sensor now, so its colour may still improve. */
     private boolean namingBack;
-    private double closestMm = Double.POSITIVE_INFINITY;
+    private double brightest = Double.NEGATIVE_INFINITY;
     private int overflows;
     private int underflows;
     private String event;
@@ -62,16 +62,16 @@ public final class LaneTracker {
     /**
      * One loop.
      *
-     * @param fresh        whether the sensor was read this loop; distance and piece are ignored if not
-     * @param distanceMm   the reading's distance
+     * @param fresh        whether the sensor was read this loop; brightness and piece are ignored if not
+     * @param brightness   the reading's brightness (the clear channel)
      * @param piece        the reading's colour, from {@link #classify}
      * @param outward      the lane runs toward the intake this loop (eject, unjam)
      * @param shot         the launcher counted a shot this loop
-     * @param presentBelowMm a piece is there below this; NaN turns arrival and leaving off
-     * @param leaveAboveMm and gone above this; NaN means the same as {@code presentBelowMm}
+     * @param presentAbove a piece is there above this brightness; NaN turns arrival and leaving off
+     * @param leaveBelow   and gone below this; NaN means the same as {@code presentAbove}
      */
-    public void step(boolean fresh, double distanceMm, Piece piece, boolean outward, boolean shot,
-                     double presentBelowMm, double leaveAboveMm) {
+    public void step(boolean fresh, double brightness, Piece piece, boolean outward, boolean shot,
+                     double presentAbove, double leaveBelow) {
         event = null;
         if (shot) {
             if (count > 0) {
@@ -82,9 +82,9 @@ public final class LaneTracker {
                 event = "lane: shot with the lane counted empty (a count was missed)";
             }
         }
-        if (!fresh || Double.isNaN(presentBelowMm) || Double.isNaN(distanceMm)) return;
-        double leave = Double.isNaN(leaveAboveMm) ? presentBelowMm : Math.max(leaveAboveMm, presentBelowMm);
-        boolean now = present ? distanceMm < leave : distanceMm < presentBelowMm;
+        if (!fresh || Double.isNaN(presentAbove) || Double.isNaN(brightness)) return;
+        double leave = Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove);
+        boolean now = present ? brightness > leave : brightness > presentAbove;
         if (!baselineSet) {
             baselineSet = true;
             present = now;
@@ -95,7 +95,7 @@ public final class LaneTracker {
                 if (count < SLOTS) {
                     slots[count++] = piece;
                     namingBack = true;
-                    closestMm = distanceMm;
+                    brightest = brightness;
                     event = String.format(Locale.US, "lane: %s in, %d in the lane", piece, count);
                 } else {
                     overflows++;
@@ -104,13 +104,13 @@ public final class LaneTracker {
                 }
             }
         } else if (now) {
-            if (namingBack && count > 0 && distanceMm < closestMm) {
+            if (namingBack && count > 0 && brightness > brightest) {
                 slots[count - 1] = piece;
-                closestMm = distanceMm;
+                brightest = brightness;
             }
         } else if (present) {
             namingBack = false;
-            closestMm = Double.POSITIVE_INFINITY;
+            brightest = Double.NEGATIVE_INFINITY;
             if (outward) {
                 if (count > 0) {
                     slots[--count] = null;
