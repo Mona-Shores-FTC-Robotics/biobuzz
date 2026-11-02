@@ -315,7 +315,7 @@ public class IntakeSubsystem implements Subsystem {
     @Override
     public void describe(Display display) {
         boolean moving = roller != State.IDLE || starsState != State.IDLE;
-        String what = rollerStopped ? "IN · stars turning, roller stopped (lane " + laneCount.getAsInt() + ")"
+        String what = rollerStopped ? "IN · stars turning, roller stopped (lane full)"
                 : roller == State.IN ? "IN · stars turning"
                 : roller == State.OUT ? "OUT · stars backing"
                 : starsState == State.IN ? "roller idle · stars turning"
