@@ -655,6 +655,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             // The feeder's own encoder: the turret is locked and has none (TurretSubsystem.lockedForward).
             panels.addData("feeder_tps", robot.feeder.ticksPerSecond());
             panels.addData("feeder_amps", robot.feeder.currentAmps());
+            LanePanels.publish(panels, robot.colorSensor.lane());
             panels.addData("turret_mode", turretMode == TurretMode.AIM ? 1 : 0);
             panels.addData("turret_angle_deg", robot.turret.angleDegrees());
             panels.addData("turret_target_deg", robot.turret.targetDegrees());
