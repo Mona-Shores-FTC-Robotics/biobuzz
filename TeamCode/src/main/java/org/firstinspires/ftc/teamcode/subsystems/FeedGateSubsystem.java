@@ -46,18 +46,20 @@ public class FeedGateSubsystem implements Subsystem {
     public enum State { BLOCKING, FEEDING }
 
     /**
-     * Servo position with the plate blocking, 0 to 1. Measured on robot 20245 on 1 Nov 2026 with the
-     * Full Path Bench: the plate sits closed on its stop at 1.0, the servo's end of range. 19429's
-     * gate has not been measured; it uses these until it is. The gate is not written while this
-     * or {@link #feedingPosition} is NaN.
+     * Servo position with the plate blocking, 0 to 1. Measured on robot 20245 on 1 Nov 2026 in Launch
+     * Test's setup layer, after the builders flipped the gate servo: the plate sits closed on its stop
+     * at 0.82. (Before the flip it was 1.0 blocking, 0.775 feeding.) 19429's gate has not been
+     * measured; it uses these until it is. The gate is not written while this or
+     * {@link #feedingPosition} is NaN.
      */
-    public static double blockingPosition = 1.0;
+    public static double blockingPosition = 0.82;
 
     /**
      * Servo position with the plate open to the feeder, 0 to 1. Measured on robot 20245 on 1 Nov 2026,
-     * with {@link #blockingPosition}: fully open at 0.775, about 61° from blocking on a 270° speed servo.
+     * with {@link #blockingPosition}, after the gate servo was flipped: fully open at 1.0, the servo's
+     * end of range.
      */
-    public static double feedingPosition = 0.775;
+    public static double feedingPosition = 1.0;
 
     private final Servo servo;
     private final FeederSubsystem feeder;
