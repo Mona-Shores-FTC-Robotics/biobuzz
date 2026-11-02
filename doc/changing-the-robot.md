@@ -24,7 +24,7 @@ Paths are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | Add a mechanism | copy `subsystems/ExampleSubsystem`, add a `public final` field in `Robot`, build it in the constructor, add it to the list | The list is the only registration |
 | Move a wire to another port | that robot's `TeamCode/src/main/res/xml/robot_<team>.xml` | Java never knows a port; two robots wired differently differ only in their XML |
 | Add a device | `hardware/DeviceNames` (the name), the `COMPETITION_ROBOT` list there, and both robots' XML | The build fails if the XML and the list disagree, which is the point |
-| Check what is plugged in | **Validate Hardware**, in the Driver Station's **Utility** menu | Lists every device the active config expects and whether it answered |
+| Check what is plugged in | **Check: Hardware**, in the Driver Station's **Utility** menu | Lists every device the active config expects and whether it answered |
 | Change an Auto's path | its `.pp` in `TeamCode/autos/`, in the Visualizer, then export | Never edit the generated Java in `opmodes/auto/generated/` |
 | Make an Auto card do something new | `opmodes/auto/AutoRegistration` (which names exist) and `opmodes/auto/LaunchCards` (what the launcher ones do) | A card the Auto uses but the robot has not registered stops the Auto at INIT and says so |
 
@@ -43,7 +43,14 @@ So a subsystem has two halves: the methods the OpMode calls to *ask* for somethi
 
 - **TeleOp list:** Basic Drive. Only what a drive team runs at a competition.
 - **Autonomous list:** the six Autos and Hold Still.
-- **Utility menu** (Driver Station 11.2 or later): everything else. Basic Drive (robot-centric) for a match where the Pinpoint's heading cannot be trusted (kept out of the TeleOp list so nobody picks it by mistake), Validate Hardware, Drive Motor Check, Loop Time Baseline, Launcher Bench, Turret Bench, and the Vision tools. Pedro's tuners are in the TeleOp list because they are Pedro's code, and their screens say A, B, X, Y: Cross, Circle, Square, Triangle.
+- **Utility menu** (Driver Station 11.2 or later): everything else. Each name starts with its group, so the menu sorts into groups:
+  - **Bench:** one mechanism at a time. Launch Test (one person shooting, plus the gate and prefeed setup tools), Launcher (on a bench hub), Turret.
+  - **Check:** is the robot OK? Hardware (run it first), Drive Motors, Loop Time.
+  - **Drive:** driving that is not the match TeleOp. Robot-centric, for a match where the Pinpoint's heading cannot be trusted; kept out of the TeleOp list so nobody picks it by mistake.
+  - **Measure:** produces a number to paste into code. Pod Offsets.
+  - **Vision:** HIVE & Pose, the camera test bed.
+
+  Pedro's tuners are in the TeleOp list because they are Pedro's code, and their screens say A, B, X, Y: Cross, Circle, Square, Triangle. A new diagnostic, bench or tuner is `@Utility` with a name that starts with one of these groups.
 
 ## Deploying
 
@@ -67,7 +74,7 @@ A number nobody has measured is `NaN`, or is marked "not measured" in its commen
 |---|---|
 | A wheel or roller runs the wrong way | its `reversed` field, in Panels |
 | A launcher wheel reads 0 speed and the Match page shows a red Launcher line | the encoder cable; the code has already cut that wheel. Spin down (operator B) and up again after fixing it |
-| Validate Hardware lists a device as missing | it is unplugged, on the wrong port, or the active config is not this robot's |
+| Check: Hardware lists a device as missing | it is unplugged, on the wrong port, or the active config is not this robot's |
 | An Auto does not move at PLAY | no alliance chosen (X or B at INIT), or the Match page says what it is waiting for |
 | Everything is slow | the loop time on the Match page; something is blocking in a subsystem's `update()` |
 | Configs vanished from the Driver Station list | a Sloth Load after an XML change; do a full install |

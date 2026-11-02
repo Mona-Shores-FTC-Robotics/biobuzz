@@ -41,7 +41,7 @@ import java.util.Locale;
  * <p>X re-runs the setup after a cable change. Panels gets every reading under flat keys.
  */
 @Disabled
-@Utility(name = "OctoQuad Bench", description = "Two Thru-Bores through an OctoQuad; disabled since the turret chose the Cypher Max (#169)")
+@Utility(name = "Bench: OctoQuad", description = "Two Thru-Bores through an OctoQuad; disabled since the turret chose the Cypher Max (#169)")
 @Configurable
 public class OctoQuadBench extends OpMode {
 
@@ -92,7 +92,7 @@ public class OctoQuadBench extends OpMode {
             panels = null;
             panelsProblem = "not available at init: " + e;
         }
-        telemetry.addLine("OctoQuad Bench. INIT shows the readings; PLAY is the same. Square (X) re-runs setup.");
+        telemetry.addLine("Bench: OctoQuad. INIT shows the readings; PLAY is the same. Square (X) re-runs setup.");
         report();
     }
 

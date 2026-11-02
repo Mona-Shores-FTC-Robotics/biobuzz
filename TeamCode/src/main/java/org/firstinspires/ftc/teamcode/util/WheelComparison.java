@@ -9,7 +9,7 @@ import java.util.Locale;
 /**
  * Compares drive wheels measured under the same command and says which one is off, and why.
  *
- * <p>The judgement half of the {@code Drive Motor Check} OpMode, kept free of SDK types so the
+ * <p>The judgement half of the {@code DriveMotorCheck} OpMode, kept free of SDK types so the
  * thresholds can be unit tested. The OpMode measures; this decides.
  *
  * <h2>What each finding means</h2>

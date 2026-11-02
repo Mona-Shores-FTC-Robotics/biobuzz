@@ -303,7 +303,7 @@ and nothing is pushed over adb.
 | The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot — plus `robot_launcher_rig.xml` for the two-wheel launcher bench rig (hub FTC-EoM3) |
 | The names in Java | `hardware/DeviceNames.java` — the only place a device name may be written |
 | The build-time check | `RobotConfigXmlTest` — fails CI if the XML and `DeviceNames` disagree |
-| The run-time check | the **Validate Hardware** OpMode (Diagnostics group) |
+| The run-time check | the **Check: Hardware** OpMode (Utility menu) |
 
 ### How it reaches the robot
 
@@ -349,7 +349,7 @@ file.
 > `robot_*.xml` so the tests skip it (smallest change, but then a typo in its
 > motor name is found at a meeting, which is the thing this whole section
 > exists to prevent); and adding `launcher2` to both competition robots' XML
-> (would declare a device neither robot has). `Validate Hardware` likewise now
+> (would declare a device neither robot has). `Check: Hardware` likewise now
 > checks the live hardware against the active robot's list.
 
 ### Device names are never string literals
@@ -410,7 +410,7 @@ copy-pasting a third 58-line script.
 The one that matters most: a config in `/sdcard/FIRST/` **is editable in the DS
 editor**, and an edit there silently diverges from the repo copy until someone
 re-runs the script and clobbers it. A bundled config is read-only, so that drift
-path is closed rather than discouraged. Run **Validate Hardware** to find out
+path is closed rather than discouraged. Run **Check: Hardware** to find out
 whether the active config is bundled (`RESOURCE`) or somebody's hand-made one
 (`LOCAL_STORAGE`).
 
@@ -479,12 +479,12 @@ Considered and not done: zeroing only by button (a forgotten press is silent:
 nothing can tell the turret was not at home), and a check that the count is
 still where the Auto left it (it cannot tell a bump from a re-home). The
 encoder's absolute PWM output exists, and an OctoQuad could
-read it (the `OctoQuad Bench` and #169); the build team chose relative plus a
+read it (the `Bench: OctoQuad` and #169); the build team chose relative plus a
 home mark for the time it saves (Oct 2026). Set the encoder's voltage switch to
 3V3.
 
 `subsystems/TurretEncoder` is the pure math (counts to degrees, with the
-measured gear ratio and direction) and `Turret Bench` is the OpMode that
+measured gear ratio and direction) and `Bench: Turret` is the OpMode that
 measures them: encoder direction, gear ratio, servo direction, and a
 proportional hold to try a gain. Its javadoc is the checklist.
 
@@ -887,17 +887,17 @@ Foresight tuners all run today, as do the Tests procedure's localization,
 odometry, pose and driving tests. Only its hold, line and curve tests need a
 tuned Foresight, since only those build a `Follower`.
 
-### When the robot strafes in an arc: Drive Motor Check
+### When the robot strafes in an arc: Check: Drive Motors
 
 The Foresight Tuner's **Max Strafe Velocity** step sends full power straight
 left, robot-centric, with nothing correcting heading. So it shows the robot's own
 strafe, and a robot that arcs there (a "rainbow") has a mechanical problem, not a
 tuning one. Two things hide it in everyday driving. Basic Drive runs at 60%, and
 it is **field-centric** by default, so the Pinpoint heading quietly steers out
-the drift. To see what the tuner sees, open **Basic Drive (robot-centric)** (Utility menu),
+the drift. To see what the tuner sees, open **Drive: Robot-centric** (Utility menu),
 hold the **right bumper** (turbo) and push straight left.
 
-If it arcs there too, run **Drive Motor Check** (Diagnostics group, #121) with
+If it arcs there too, run **Check: Drive Motors** (Utility menu, #121) with
 **the robot lifted**. It takes about 20 s:
 
 | Step | What it shows |
@@ -1660,9 +1660,9 @@ In order. Most of a lost morning is steps 1 and 2.
 | 2 | If the upload hangs or is refused, run **Remove Sloth Remote**, then deploy again | A stale payload in `/storage/emulated/0/FIRST/dairy/sloth` can make upload impossible. Sloth's own README calls this common this season |
 | 3 | Power-cycle. Wait for the RC to reach `Robot Status: running` and the DS to show a heartbeat | No heartbeat and empty OpMode lists means the `BindException` crash loop is back — check that nothing re-added FTC Dashboard, and that step 1 was a full install |
 | 4 | Laptop onto the robot's Wi-Fi → `http://192.168.43.1:8001` → Field plugin | Port **8001**, not 8080. 8080 is the SDK's own web server and will happily serve you an unrelated page |
-| 5 | Run **Loop Time Baseline**. Watch `field_frames_sent` | Climbing means the drawing path works. Stuck at 0 means it does not, and nothing further down is worth debugging |
+| 5 | Run **Check: Loop Time**. Watch `field_frames_sent` | Climbing means the drawing path works. Stuck at 0 means it does not, and nothing further down is worth debugging |
 | 6 | Look for the white cross at field centre | Visible means canvas, background and coordinate frame are all fine. Absent with frames climbing means the browser, not the robot |
-| 7 | Push the robot by hand. The blue circle should move | Does not move, cross is visible, telemetry says `pose: NO LOCALIZER` → the Pinpoint is not in the active config. Run `Validate Hardware` |
+| 7 | Push the robot by hand. The blue circle should move | Does not move, cross is visible, telemetry says `pose: NO LOCALIZER` → the Pinpoint is not in the active config. Run `Check: Hardware` |
 
 **Expect the pose to be wrong, and do not treat that as a broken field view.** The Pinpoint pod
 offsets and directions in each robot's `localizerConfig` (`pedro/robots/`) are still zeros and placeholders. A dot that

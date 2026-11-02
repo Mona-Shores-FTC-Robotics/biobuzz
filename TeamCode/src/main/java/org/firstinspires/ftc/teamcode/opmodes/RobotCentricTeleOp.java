@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Utility;
  * not need it, since {@code DriveSubsystem} already drives robot-centric without one; it is for a
  * Pinpoint that is there but whose heading is wrong.
  */
-@Utility(name = "Basic Drive (robot-centric)",
+@Utility(name = "Drive: Robot-centric",
         description = "Basic Drive, robot-centric: for a match where the Pinpoint's heading cannot be trusted")
 public class RobotCentricTeleOp extends BasicDriveTeleOp {
 

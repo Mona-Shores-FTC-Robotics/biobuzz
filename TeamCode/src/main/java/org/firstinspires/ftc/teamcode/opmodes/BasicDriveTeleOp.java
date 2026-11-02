@@ -109,7 +109,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private static final long RESET_HOLD_MS = 1000;
 
     /** The launcher trim step can never be more than this, ticks per second, whatever Panels says. */
-    /** Package-private: the Launch Test caps the same Panels step the same way. */
+    /** Package-private: {@link LaunchTest} caps the same Panels step the same way. */
     static final double MAX_LAUNCHER_TRIM_STEP_TPS = 200.0;
 
     /** The trim step can never be more than this, degrees, whatever Panels says. */

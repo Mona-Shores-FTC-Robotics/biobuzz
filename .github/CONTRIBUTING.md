@@ -14,7 +14,7 @@ Each rung has a visible artifact, so you can see your own progress.
 | Rung | What you do | You're done when |
 |---|---|---|
 | **0 — Exists** | GitHub account, added as a collaborator, repo cloned, Android Studio syncs. Do the once-per-laptop setup in `TeamCode/README.md` — the **Module** field defaults to `<no module>` and deploys fail confusingly if you skip it. | You've commented on the Meeting Log saying "cloned, synced" |
-| **1 — Runs** | Run the **Validate Hardware** OpMode on a robot and report what it printed. No git, no editing. | An issue is closed with the output pasted in |
+| **1 — Runs** | Run the **Check: Hardware** OpMode on a robot and report what it printed. No git, no editing. | An issue is closed with the output pasted in |
 | **2 — Changes something and sees it** | Edit one telemetry string, hit **Sloth Load**, and watch your own words appear on the Driver Station in under a second. Then `git checkout -- .` | A mentor watched it happen. Nothing is committed |
 | **3 — First PR** | Take a `good-first-task`. It needs no robot, so you can do this at home at 9pm. Branch → edit → commit → push → PR → watch three checks go green → get a review → merge. | A merged PR with your name on it |
 | **4 — First code PR** | Something in Java, where CI genuinely catches mistakes. | A merged PR touching a `.java` file — **with at least one requested change**, because taking a review is part of the rung |

@@ -67,7 +67,7 @@ public final class ActiveConfig {
                             + "one of this project's robots (" + knownConfigNames() + "). Either "
                             + "activate one of those on the Driver Station, or add a "
                             + "res/xml/<name>.xml and a matching RobotIdentity constant. "
-                            + "Run the \"Validate Hardware\" OpMode for details.");
+                            + "Run the \"Check: Hardware\" OpMode for details.");
         }
         return identity;
     }

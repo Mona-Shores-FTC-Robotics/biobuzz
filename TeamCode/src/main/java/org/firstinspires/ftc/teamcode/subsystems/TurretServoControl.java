@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 /**
  * The control law that holds a continuous servo on an angle, as tuned on the bench (24 Oct 2026,
- * {@code Turret Bench}). Pure: given the error and the clock, the power. Unit tested.
+ * {@code TurretBench}). Pure: given the error and the clock, the power. Unit tested.
  *
  * <p>A continuous servo is not proportional: below some power it does not move at all, above it
  * it moves fast, and at "zero" it may still creep. So:
