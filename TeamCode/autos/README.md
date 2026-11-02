@@ -23,6 +23,19 @@ has its `.pp` file committed here, in the same PR as the Java generated from it.
   (`R-Simple 10-31|12:22AM`), from the generated class's `SAVED`: after a Sloth Load, the Driver
   Station shows which save is on the robot.
 
+## Partner stand-ins (`partner-*.pp`)
+
+What a teammate might do, drawn as Autos so the simulator can run ours beside them and the
+Visualizer can draw the pair: `partner-r-still` and `partner-l-still` (sits on the start),
+`partner-park-1` and `-2` (starts by the loading zone, waits, parks: two of them, where partners
+were seen to start and park), `partner-r-launch-park` and `partner-l-launch-park` (preloads, then
+park: the common partner, and the one that tips the HIVE for us). They have generated classes but
+no OpMode, so they never show on the Driver Station, and their starts and parks are their own
+(`PARTNER_START`, `PARTNER_PARK`), not team spots. To model a teammate, open one, drag its start
+and park to where that team starts and parks, set the wait to when they park, and save. A
+stand-in's wait is on `CameraBlind`, which never fires in the simulator, so its time limit is the
+whole story.
+
 ## Team spots (`spots.json`)
 
 `spots.json` here is the team's list of named spots: poses every Auto can use, so nobody types or
@@ -40,7 +53,7 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 
 Names are side (or thing) first, then role, then variant, so a side's spots sort together. An Auto
 that needs a spot not in this list is drawn on the `autos-experiment` branch until the spot earns
-its place here.
+its place here. The partner stand-ins above are exempt: their spots are a teammate's, not ours.
 
 - **Using one.** In the Visualizer, pick it from a step's spot dropdown (under "Team spots"), or
   select a path and press 🔗 on its end in the Path panel, then pick the spot: the end jumps to it
