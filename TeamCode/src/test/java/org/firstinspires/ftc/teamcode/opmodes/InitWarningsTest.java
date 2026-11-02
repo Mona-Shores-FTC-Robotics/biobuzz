@@ -46,14 +46,14 @@ public class InitWarningsTest {
     public void noAllianceSaysPressXOrB() {
         evaluate(null, Alliance.UNKNOWN, Alliance.UNKNOWN, null, null, 40, 20_000, 13.1);
         assertTrue(w.has(Kind.ALLIANCE));
-        assertEquals("press X for blue, B for red", w.action(Kind.ALLIANCE));
+        assertEquals("press Square for blue, Circle for red", w.action(Kind.ALLIANCE));
     }
 
     @Test
     public void anAllianceTheCameraDisagreesWithSaysWhichWay() {
         evaluate(null, Alliance.BLUE, Alliance.RED, null, null, 40, 20_000, 13.1);
         assertEquals("BLUE, but camera sees RED start", w.what(Kind.ALLIANCE));
-        assertTrue(w.action(Kind.ALLIANCE).startsWith("press B for red"));
+        assertTrue(w.action(Kind.ALLIANCE).startsWith("press Circle for red"));
     }
 
     @Test

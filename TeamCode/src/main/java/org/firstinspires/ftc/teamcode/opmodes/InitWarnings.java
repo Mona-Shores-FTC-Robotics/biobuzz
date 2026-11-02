@@ -83,10 +83,10 @@ public final class InitWarnings {
             set(Kind.PINPOINT, "Pinpoint: " + pinpointProblem, "reseat the Pinpoint cables, restart");
         }
         if (!known(alliance)) {
-            set(Kind.ALLIANCE, "No alliance", "press X for blue, B for red");
+            set(Kind.ALLIANCE, "No alliance", "press Square for blue, Circle for red");
         } else if (known(cameraSees) && cameraSees != alliance) {
             set(Kind.ALLIANCE, alliance + ", but camera sees " + cameraSees + " start",
-                    "press " + (cameraSees == Alliance.BLUE ? "X for blue" : "B for red")
+                    "press " + (cameraSees == Alliance.BLUE ? "Square for blue" : "Circle for red")
                             + ", or move to the " + alliance + " start");
         }
         if (start != null && start.status == StartCheck.Status.OUT_OF_POSITION) {
