@@ -1,10 +1,11 @@
 name: Auto fast lane
 
 # The fast lane: a pull request from an auto/<name> branch (the Visualizer's Save & Simulate opens one
-# into master, with auto-merge on) changes an Auto and nothing else, so it needs no issue or review and
-# GitHub merges it once CI passes. This checks that it really is Auto-only: the .pp under TeamCode/autos/,
-# its generated Java, and its simulation request. Anything else, and it turns auto-merge off and fails,
-# so a person looks at it first. Simulated points are shown on the save, never checked here.
+# into master) changes an Auto and nothing else, so it needs no issue or review: it is a draft, tried on
+# the robot and merged by a mentor if it is better. This checks that it really is Auto-only: the .pp under
+# TeamCode/autos/, its generated Java, and its simulation request. Anything else, and it turns auto-merge
+# off (should anyone have enabled it) and fails, so a person looks at it first. Simulated points are shown
+# on the save, never checked here.
 on:
   pull_request:
     branches: [master]
