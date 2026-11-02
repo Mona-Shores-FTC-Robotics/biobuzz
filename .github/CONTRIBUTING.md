@@ -111,11 +111,12 @@ and nine `area:` values were finer than the way the team actually splits up at a
   board and the issue are part of how students learn and claim work.
 - **Auto changes take the fast lane.** Anyone with write access saves an Auto from the Visualizer
   (Save & Simulate, branch `master`): it commits the `.pp`, its generated Java and its simulation
-  request to an `auto/<name>` branch and opens a PR that GitHub merges by itself once CI passes,
-  about 1.5 minutes. No issue, no branch-name rule, no review. The **Auto fast lane** check turns
-  auto-merge off if the PR touches anything else. The simulated log is there to look at; its
+  request to an `auto/<name>` branch and opens a PR. That PR is a draft of the Auto: Sloth Load its
+  branch, try it on the robot, and if it is better than master's a mentor merges it on GitHub; if
+  not, close it. No issue, no branch-name rule, no review, and never auto-merge. The **Auto fast
+  lane** check fails the PR if it touches anything else. The simulated log is there to look at; its
   points never block a merge, because when time is short that could keep a needed fix off the
-  robot. Pull master on the driver laptop and Sloth Load.
+  robot. Master is always the Auto the drive team runs.
 - **Rename a branch with GitHub's button, never by deleting it and pushing a new one.** Repo →
   Branches → the pencil icon renames it and moves any open PR along with it. Deleting and re-pushing
   closes the PR instead, and that has already stranded finished work on this repo twice.

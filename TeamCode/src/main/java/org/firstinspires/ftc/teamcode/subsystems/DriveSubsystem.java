@@ -17,11 +17,13 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import com.pedropathing.localization.FusionLocalizer;
 
 import org.firstinspires.ftc.teamcode.localization.CellFix;
+import org.firstinspires.ftc.teamcode.localization.HeadingFix;
 import org.firstinspires.ftc.teamcode.localization.FixAverager;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
+import org.firstinspires.ftc.teamcode.localization.ShadowPose;
 import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.AccelLimiter;
@@ -146,6 +148,14 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private boolean wholePoseFits;
     private Pose wholeCameraPose;
     private long wholeCameraPoseNs;
+
+    /** What the pose would be with still fixes on ({@link ShadowPose}): logged, never driven on. */
+    private final ShadowPose shadow = new ShadowPose();
+
+    /** Heading corrections taken from the camera ({@link #relocalizeHeading}): by the button, and by themselves. */
+    private int headingFixesApplied;
+    private int autoHeadingFixesApplied;
+    private String lastHeadingFix;
 
     /** Would-relocalize: samples so far, the latest, and the worst. */
     private int wouldCount;
@@ -273,6 +283,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     public void setPose(Pose pose) {
         if (localizer != null && pose != null) {
             localizer.setPose(pose);
+            shadow.follow();
             poseReferenced = true;
             fixCount = 0;
             recentFixNext = 0;
@@ -312,6 +323,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             return poseNote = "relocalized " + describePose(best) + " from " + gate.acceptedCount() + " tags";
         }
         Pose now = localizer.pose();
+        // A wrong Pinpoint heading makes every x, y solved with it wrong too: check the heading first.
+        String headingFix = relocalizeHeading(now, "button");
+        if (headingFix != null) return poseNote = headingFix;
         TagGate.Verdict verdict = gate.solve(now.heading());
         double x;
         double y;
@@ -348,6 +362,55 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      * settled CELLs (heading-free, as when seeding), however far it is from {@code now}. Null when
      * moving or with too few tags, so the caller refuses.
      */
+    /**
+     * The DECODE cross-check, in our code: while the robot is still, {@link SettledStats} averages the
+     * camera's own heading (the whole-pose fit) against the Pinpoint's. A disagreement past
+     * {@link LocalizationTuning#headingFixDeg} over {@link LocalizationTuning#headingFixFrames} frames
+     * ({@link HeadingFix#due}) means the Pinpoint's heading is wrong, and so is any x, y solved with it:
+     * the tags are re-solved with the corrected heading and the pose is set, heading included. Null when
+     * the headings agree, the robot is moving, or the tags will not solve. The driver's field-centric
+     * forward stays where it was; because the heading moved under it, the robot now drives the way the
+     * driver meant. Setting the pose restarts the settled statistics, so the next check needs fresh frames.
+     *
+     * <p>Why not the x, y path alone: 1 Nov 2026, 20245, a TeleOp started with the robot off its mark drove
+     * "funny" after every camera reset, since the reset kept the wrong heading and solved a wrong position
+     * from it (about 13 in per 15 deg at 50 in), under the refusal limit.
+     */
+    private String relocalizeHeading(Pose now, String how) {
+        double diffDeg = settled.headingDiffDeg();
+        int frames = settled.headingFrames();
+        if (!still || !HeadingFix.due(diffDeg, frames)) return null;
+        double corrected = HeadingFix.corrected(now.heading(), diffDeg);
+        if (gate.solve(corrected) != TagGate.Verdict.OK) return null;
+        Pose fixed = new Pose(gate.x(), gate.y(), corrected);
+        double jumpIn = Math.hypot(fixed.x() - now.x(), fixed.y() - now.y());
+        setPoseKeepingDriverForward(fixed);
+        headingFixesApplied++;
+        if (!"button".equals(how)) autoHeadingFixesApplied++;
+        lastHeadingFix = String.format(java.util.Locale.US,
+                "heading corrected %+.1f° over %d still frames (%s), moved %.1f in", diffDeg, frames, how, jumpIn);
+        return "relocalized " + describePose(fixed) + ", " + lastHeadingFix;
+    }
+
+    /** The pose with still fixes on, as the shadow has it ({@link ShadowPose}); null without a Pinpoint. */
+    public Pose shadowPose() { return shadow.of(pose()); }
+
+    /** The shadow's bookkeeping, for the log. */
+    public ShadowPose shadow() { return shadow; }
+
+    /** Camera heading minus the Pinpoint's, degrees, averaged while still; NaN without one. See {@link HeadingFix}. */
+    public double cameraHeadingDiffDeg() { return settled.headingDiffDeg(); }
+
+    /** Settled frames behind {@link #cameraHeadingDiffDeg()}. */
+    public int cameraHeadingFrames() { return settled.headingFrames(); }
+
+    /** Heading corrections applied since init, by the button or by themselves; and the automatic ones alone. */
+    public int headingFixesApplied() { return headingFixesApplied; }
+    public int autoHeadingFixesApplied() { return autoHeadingFixesApplied; }
+
+    /** The last heading correction, one line; null before the first. */
+    public String lastHeadingFix() { return lastHeadingFix; }
+
     private String relocalizeLostPose(Pose now) {
         if (!still) return null;
         gate.solve(Double.NaN);
@@ -759,6 +822,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             settled.add(gate, now.x(), now.y(), heading, full == null ? Double.NaN : full.heading(),
                     lastCameraPoseNs);
             offerStillFix(heading);
+            if (LocalizationTuning.autoHeadingFixes) {
+                String fixed = relocalizeHeading(now, "automatic");
+                if (fixed != null) poseNote = fixed;
+            }
         }
         if (LocalizationTuning.continuousFixes) {
             localizer.addMeasurement(fix, newestCaptureNs,
@@ -801,8 +868,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
                     CellFix.variance(averager.nearestRangeIn(), averager.minTags()));
             stillFixesApplied++;
             stillFix = StillFix.APPLIED;
+            shadow.applyFix(x, y, now);
         } else {
             stillFix = StillFix.READY;
+            shadow.applyFix(x, y, now); // the shadow takes the batch the real pose was only shown
         }
         averager.reset();
     }

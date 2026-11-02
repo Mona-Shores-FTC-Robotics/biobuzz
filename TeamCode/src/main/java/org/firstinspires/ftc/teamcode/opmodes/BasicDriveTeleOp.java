@@ -337,6 +337,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         holdResets(System.nanoTime(), true);
         display.status("Basic Drive", Display.Level.OK, "ready — Share (Back) shows the controls");
         showControlsNotes();
+        showHeadingCheck();
         if (poseNote != null) display.line("Last pose fix: " + poseNote);
         showPinpoint();
     }
@@ -445,6 +446,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         display.line("Gates (shadow" + (TeleOpConfig.enforceAtSpeedGate || TeleOpConfig.enforceAimGate ? ", some enforced" : "")
                 + "): " + gates.summary());
+        showHeadingCheck();
         if (poseNote != null) display.line("Last pose fix: " + poseNote);
         if (autoParkNote != null) display.line(autoParkNote);
         recordShot();
@@ -677,6 +679,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("gate_speed", gates.verdict(FireGates.Gate.LAUNCHER_AT_SPEED).ordinal());
             panels.addData("gate_aim", gates.verdict(FireGates.Gate.AIM_ON_TARGET).ordinal());
             panels.addData("intake_owner", routineActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
+            // How far the shadow pose (what still fixes would do) sits from the real one; graph it.
+            panels.addData("shadow_offset_in", robot.drive.shadow().offsetIn());
             panels.addData("loop_ms", loopTimer.lastMs());
             panels.update();
         } catch (RuntimeException ignored) {

@@ -80,6 +80,26 @@ public final class LocalizationTuning {
     public static double maxRelocalizeJumpDeg = 20.0;
 
     /**
+     * The DECODE cross-check, in our code ({@code HeadingFix}): while the robot is still, the camera's
+     * own heading (the heading-free whole-pose fit, averaged over the settled frames) is compared with
+     * the Pinpoint's. Past this many degrees the Pinpoint's heading is wrong, so x and y solved with
+     * it are wrong too, and a camera reset takes the camera's heading as well. The fit's noise is a
+     * degree or two; 1 Nov 2026's start checks put the two within 2 deg when the robot was placed right.
+     */
+    public static double headingFixDeg = 4.0;
+
+    /** Settled frames with a camera heading before that comparison counts. */
+    public static int headingFixFrames = 5;
+
+    /**
+     * <b>Experimental, off:</b> apply that heading correction by itself whenever the robot is still,
+     * not only on the camera-reset button. Every application is a match-log event, so a run says how
+     * often it fired and by how much. Turn on in Panels for a test; commit true only after a taped-path
+     * comparison shows it helps.
+     */
+    public static boolean autoHeadingFixes = false;
+
+    /**
      * "Still" for the stationary relocalize check: slower than this, inches per second, and turning
      * slower than {@link #stillTurnDegPerSec}, for at least {@link #stillForMs}.
      */

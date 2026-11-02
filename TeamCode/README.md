@@ -1324,6 +1324,23 @@ code (a Claude session can read it): the numbers come off the log, not off someo
    #82 session 1's taped path, with `LocalizationTuning.stillFixes` set in code, against without.
 5. **Continuous fixes** are their own session, later (#82 session 5).
 
+**The short form: a marked spot and R1.** Put the robot on a calibration spot's marks
+(`localization/CalibrationSpots`: red audience, red far wall, blue audience wall, blue far wall,
+each a wall plus a seam facing a HIVE) and hold still. Vision: HIVE & Pose's "Camera calibration"
+block averages the camera's error against that spot by itself over 50 still frames
+(`localization/CameraCalibration`), starting over if the robot moves, and shows the `CameraMount`
+forward/left that would zero it; R1 applies them for that run and writes them to the match log
+(`CameraCalibration/<spot>` on the Metadata tab), where they are read from to commit. The maths is
+one line: a mount wrong by *d* puts every tag's robot at *−d*, so new = old + the residual in robot
+axes; `CameraCalibrationTest` closes that loop through `CameraMount` and `CellFix`. One spot cannot
+tell a mount error from a HIVE point or a placement that is off on this field, and turning on the
+spot is no use (the camera is pitched up at the HIVE): R2 sets the pose to the next spot, the robot
+goes on those marks, R1 again, and the "Spots so far" line says AGREE (the mount: commit) or DIFFER
+(not the mount). Red audience and red far wall see the same HIVE from opposite sides, the pair that
+decides it.
+Height is shown and never applied (on 20245 the value that zeroed it, 12 in, contradicted a tape,
+14 in; cause unknown, position unaffected).
+
 Which way each row runs along the field (`HiveFieldPoints.clusterXAlongFieldX`) follows from the
 SDK's cluster layout: the opening sits at +y, -z of the row in cluster axes, the opening faces away
 from the axle and the tags face down, so x = y × z points along +x for an AUDIENCE CELL and -x for
@@ -1334,8 +1351,8 @@ robot's right facing +y for AUDIENCE, left for SCORING).
 **Seeing it.** `Vision: HIVE & Pose` drives the robot and shows all of it: on the Driver Station
 the HIVEs, the CELLs in view, odometry against camera, and the would-relocalize gap; in Panels,
 graphs of each CELL's height and rocker angle (a TIP is a clean curve) and a field view with the
-odometry robot in blue, the camera's robot in amber, and the CELLs' tag rows as dots. A
-relocalizes, Y resets field-centric forward.
+odometry robot in the alliance's colour (red, blue, white with none), the camera's robot in amber,
+and the CELLs' tag rows as dots. A relocalizes, Y resets field-centric forward.
 
 **The SDK's orientation names are not Limelight's.** The SDK builds a tag's `Pose3D` as
 `new YawPitchRollAngles(DEGREES, rz, ry, rx)` (Hardware 12.0.0, `LLResult.createPose3DRobot`),
@@ -1483,6 +1500,7 @@ flat. Each is now a line in the file, on AdvantageScope's Metadata tab or in `/E
 | `Tunable/<Class>.<field>` | every Panels knob's value at PLAY, so the run can be repeated | `logging/Tunables`, by reflection over its list; `TunablesTest` keeps the list equal to the `@Configurable` classes outside the benches |
 | `AutoSource`, `AutoDrawnFor`, `AutoPlaceholders` | which `.pp` drawing ran, for which alliance, and which of its waits were on placeholder triggers | `BuiltAuto` |
 | `/Turret/AngleDeg`, `TargetDeg`, `ErrorDeg`, `Zeroed`, `Holding` | the turret, every loop | `RobotOpMode`, beside the launcher's and feeder's keys |
+| `/Shadow/Robot` (Pose2d), `/Shadow/X`, `/Shadow/Y`, `/Shadow/OffsetIn`, event `shadow: still fix N moved it …` | what the pose would be with still fixes on (`localization/ShadowPose`), beside the real one; in AdvantageScope drag `/Shadow/Robot` onto the Field as a ghost, in Panels it is the purple robot (`FieldLayers.shadow`) | `RobotOpMode` |
 | `/Prefeed/Power`, `/FeedGate/Feeding`, `/FeedGate/Position` | the transfer: the prefeed's servo power, whether the gate is asked open, and the position last written (absent while the gate's positions are NaN) | `RobotOpMode`; `PrefeedSubsystem` and `FeedGateSubsystem` follow the intake's and the feeder's requests, so no OpMode sets them |
 | `/Intake/FeedAssist` | 1 while the roller or the stars run only because the feeder is feeding or reversing (`IntakeSubsystem.rollerFor`), 0 otherwise | `RobotOpMode` |
 | `/Launcher/Reversing` | 1 while the flywheels run backwards for an unjam, following the feeder's reverse (`LauncherSubsystem.reverseFor`); at-speed and the shot count sit it out | `RobotOpMode` |

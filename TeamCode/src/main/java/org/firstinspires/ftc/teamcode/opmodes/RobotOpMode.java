@@ -35,6 +35,9 @@ import org.firstinspires.ftc.teamcode.subsystems.LaneFull;
 import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
+import org.firstinspires.ftc.teamcode.localization.CalibrationSpots;
+import org.firstinspires.ftc.teamcode.localization.CameraStart;
+import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
@@ -240,6 +243,12 @@ public abstract class RobotOpMode extends OpMode {
     private String loggedLauncherFault;
     // Drift: pushes and jolts, the camera frame last logged, the Pinpoint's last status.
     private final ImpactWatch impacts = new ImpactWatch();
+    /** TeleOp with no handoff: the camera against the declared start in INIT ({@link CameraStart}). */
+    private final CameraStart cameraStart = new CameraStart();
+    private long cameraStartNs;
+    private String cameraStartNote;
+    private int loggedAutoHeadingFixes;
+    private int loggedShadowFixes;
     private long loggedCameraNs;
     private Object loggedPinpointStatus;
     /** The lane tracker's slots, front first, built once. */
@@ -412,6 +421,7 @@ public abstract class RobotOpMode extends OpMode {
                 log.event("Start: now declaring " + wanted);
             }
         }
+        considerCameraStart();
         StartCheck.Result startCheck = StartCheck.evaluate(declaredStart, robot.drive.fixCount(),
                 robot.drive.meanFixX(), robot.drive.meanFixY());
         // An Auto may know the alliance from which of its starts the camera puts the robot on;
@@ -445,7 +455,11 @@ public abstract class RobotOpMode extends OpMode {
         } else {
             describeCamera();
         }
-        startCheck.describe(display);
+        if (cameraStartNote != null) {
+            display.status("Start", Display.Level.WARN, cameraStartNote);
+        } else {
+            startCheck.describe(display);
+        }
         driver.updateDuringInit();
         operator.updateDuringInit();
         onInitLoop();
@@ -804,15 +818,37 @@ public abstract class RobotOpMode extends OpMode {
     /** Where the robot should start (during INIT), and where the camera says it is, on the field. */
     private static final String START_COLOUR = "#00E676";
     private static final String CAMERA_COLOUR = "#FFB300";
+    /** The shadow pose on the field view ({@code ShadowPose}): purple. */
+    private static final String SHADOW_COLOUR = "#AB47BC";
+    /** The measured spots on the field view: grey, under the robots. */
+    private static final String MARK_COLOUR = "#9E9E9E";
+
+    /**
+     * Every measured spot a robot can be parked on to judge the pose: the calibration spots (which
+     * include the measured starts) and the four reset corners. A spot still NaN is skipped.
+     */
+    private static final Pose[] MARKS = measuredMarks();
+
+    private static Pose[] measuredMarks() {
+        Pose[] corners = {ResetPositions.RED_LEFT, ResetPositions.RED_RIGHT,
+                ResetPositions.BLUE_LEFT, ResetPositions.BLUE_RIGHT};
+        Pose[] marks = new Pose[CalibrationSpots.ALL.length + corners.length];
+        for (int i = 0; i < CalibrationSpots.ALL.length; i++) {
+            marks[i] = CalibrationSpots.ALL[i].pose;
+        }
+        System.arraycopy(corners, 0, marks, CalibrationSpots.ALL.length, corners.length);
+        return marks;
+    }
 
     /**
      * The robot on the Panels Field view, after the subsystems have updated so it is this loop's
-     * pose. During INIT, an OpMode with a declared start also gets that start (green) and where the
-     * camera's latest fixes put the robot (amber): the gap between them is the start check's
-     * error, and the way to move the robot. Then {@link #drawOnField} adds the OpMode's own.
-     * Gated on the throttle, so on most loops this is one boolean read; skipped when the drive has
-     * no heading (no Pinpoint), since then there is no pose to draw. The publish is caught and
-     * swallowed: telemetry never takes a mechanism down.
+     * pose, in the alliance's colour (white with none). During INIT, an OpMode with a declared
+     * start also gets that start (green) and where the camera's latest fixes put the robot
+     * (amber): the gap between them is the start check's error, and the way to move the robot.
+     * Then {@link #drawOnField} adds the OpMode's own. Gated on the throttle, so on most loops
+     * this is one boolean read; skipped when the drive has no heading (no Pinpoint), since then
+     * there is no pose to draw. The publish is caught and swallowed: telemetry never takes a
+     * mechanism down.
      */
     private void drawField(boolean initializing) {
         if (fieldView == null || !robot.drive.hasHeading()) {
@@ -821,9 +857,22 @@ public abstract class RobotOpMode extends OpMode {
         try {
             if (fieldView.shouldDraw()) {
                 Pose pose = robot.drive.pose();
-                // Each layer can be switched off in Panels → FieldLayers.
+                // Each layer can be switched off in Panels → FieldLayers. Marks first, so the
+                // robots are drawn over them.
+                if (FieldLayers.marks) {
+                    for (Pose mark : MARKS) {
+                        if (!Double.isNaN(mark.x()) && !Double.isNaN(mark.y())) {
+                            fieldView.drawMark(mark.x(), mark.y(), mark.heading(), MARK_COLOUR);
+                        }
+                    }
+                }
                 if (pose != null && FieldLayers.odometry) {
-                    fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
+                    fieldView.drawRobot(pose.x(), pose.y(), pose.heading(),
+                            FieldView.allianceColour(setup.alliance()));
+                }
+                Pose shadowPose = robot.drive.shadowPose();
+                if (shadowPose != null && FieldLayers.shadow && robot.drive.shadow().offsetIn() > 0.05) {
+                    fieldView.drawRobot(shadowPose.x(), shadowPose.y(), shadowPose.heading(), SHADOW_COLOUR);
                 }
                 if (initializing && declaredStart != null) {
                     Pose start = declaredStart.pose;
@@ -931,11 +980,60 @@ public abstract class RobotOpMode extends OpMode {
         setup.forgetAuto();
         robot.turret.forgetCarriedZero();
         declaredStart = null; // the next INIT loop declares the start afresh and moves the pose there
+        cameraStart.reset();
+        cameraStartNote = null;
         handoffLevel = Display.Level.OK;
         handoffNote = "starting fresh: the last run's pose, alliance and turret zero are discarded";
         log.event("INIT: start fresh, handoff discarded by the drive team");
         gamepad1.rumble(200);
         gamepad2.rumble(200);
+    }
+
+    /**
+     * A TeleOp with no handoff assumes its declared start, wherever the robot is. Each INIT loop the
+     * camera's whole-pose fit is offered to {@link CameraStart}; once steady fits put the robot off the
+     * mark, the pose moves to the camera's and the Start line says so. An Autonomous never does this
+     * (its drive team places by the marks), nor an OpMode that says {@link #cameraMayOverrideStart}
+     * false, such as the camera calibration, whose residual is measured against the declared start.
+     */
+    private void considerCameraStart() {
+        if (cameraStartNote != null || declaredStart == null || handoffPose || isAutonomous()
+                || !cameraMayOverrideStart()) {
+            return;
+        }
+        robot.drive.setWholePoseFits(true);
+        long ns = robot.drive.wholeCameraPoseNs();
+        if (ns == 0 || ns == cameraStartNs) return;
+        cameraStartNs = ns;
+        Pose taken = cameraStart.update(robot.drive.wholeCameraPose(), declaredStart);
+        if (taken == null) return;
+        robot.drive.setPose(taken);
+        robot.drive.setWholePoseFits(false);
+        cameraStartNote = String.format(java.util.Locale.US,
+                "pose from the camera (%.0f, %.0f, %.0f°): the %s mark is %.0f in, %.0f° away, so the robot is not on it"
+                        + " · hold Triangle (Y) to start fresh", taken.x(), taken.y(), Math.toDegrees(taken.heading()),
+                declaredStart, cameraStart.offIn(), cameraStart.offDeg());
+        log.event("Start: " + cameraStartNote);
+    }
+
+    /** Whether a TeleOp's declared start may give way to the camera in INIT ({@link #considerCameraStart}). */
+    protected boolean cameraMayOverrideStart() {
+        return true;
+    }
+
+    /**
+     * One Match-page line while the robot is still with tags in view: the camera's heading against the
+     * Pinpoint's. Past {@link LocalizationTuning#headingFixDeg} it warns and says what to press, so a
+     * robot that "drives funny" is explained before the sticks find out. Nothing while moving.
+     */
+    protected void showHeadingCheck() {
+        double diff = robot.drive.cameraHeadingDiffDeg();
+        int frames = robot.drive.cameraHeadingFrames();
+        if (Double.isNaN(diff) || frames < LocalizationTuning.headingFixFrames || !robot.drive.isStill()) return;
+        boolean off = Math.abs(diff) > LocalizationTuning.headingFixDeg;
+        display.status("Heading", off ? Display.Level.WARN : Display.Level.OK, String.format(java.util.Locale.US,
+                "camera vs odometry %+.1f° over %d frames%s", diff, frames,
+                off ? " — the Pinpoint heading is off: hold still and hold the camera reset" : ""));
     }
 
     private boolean isAutonomous() {
@@ -1104,9 +1202,40 @@ public abstract class RobotOpMode extends OpMode {
                 log.put("/Drift/GapXIn", camera.x() - pose.x());
                 log.put("/Drift/GapYIn", camera.y() - pose.y());
                 log.put("/Drift/Still", robot.drive.isStill() ? 1 : 0);
+                // The shadow's own gap to the same camera frame: circular as a judge (it was fed the
+                // camera), but the trend across HIVEs and after marks is readable.
+                Pose shadowNow = robot.drive.shadowPose();
+                if (shadowNow != null) {
+                    log.put("/Shadow/GapXIn", camera.x() - shadowNow.x());
+                    log.put("/Shadow/GapYIn", camera.y() - shadowNow.y());
+                }
             }
+            double headingDiff = robot.drive.cameraHeadingDiffDeg();
+            if (!Double.isNaN(headingDiff)) log.put("/Drift/CameraHeadingDiffDeg", headingDiff);
         }
         loggedCameraNs = cameraNs;
+        // A heading correction the drive applied by itself (LocalizationTuning.autoHeadingFixes); the
+        // button's are logged by the OpMode that owns the button.
+        Pose shadowPose = robot.drive.shadowPose();
+        if (shadowPose != null && referenced) {
+            log.put("/Shadow/X", shadowPose.x());
+            log.put("/Shadow/Y", shadowPose.y());
+            log.put("/Shadow/OffsetIn", robot.drive.shadow().offsetIn());
+            // As a Pose2d too, so AdvantageScope draws it on the field beside /Odometry/Robot (one
+            // three-double array per loop: MatchLog keeps the reference until its writer has it).
+            log.pose("/Shadow/Robot", shadowPose.x(), shadowPose.y(), shadowPose.heading());
+            if (robot.drive.shadow().fixesApplied() != loggedShadowFixes) {
+                loggedShadowFixes = robot.drive.shadow().fixesApplied();
+                log.event(String.format(java.util.Locale.US,
+                        "shadow: still fix %d moved it %.1f in; now %.1f in from the real pose (%+.1f, %+.1f)",
+                        loggedShadowFixes, robot.drive.shadow().lastFixMoveIn(), robot.drive.shadow().offsetIn(),
+                        robot.drive.shadow().offsetX(), robot.drive.shadow().offsetY()));
+            }
+        }
+        if (robot.drive.autoHeadingFixesApplied() != loggedAutoHeadingFixes) {
+            loggedAutoHeadingFixes = robot.drive.autoHeadingFixesApplied();
+            log.event("pose: automatic " + robot.drive.lastHeadingFix());
+        }
 
         if (mode == MatchLog.Mode.DISABLED || pose == null) return;
         ImpactWatch.Event event = impacts.update(System.currentTimeMillis(),
