@@ -69,7 +69,11 @@ public final class LocalizationTuning {
     public static double seedAgreementIn = 2.0;
     public static double seedAgreementDeg = 3.0;
 
-    /** A relocalize further than this from the current pose is refused, inches (DECODE's 18). */
+    /**
+     * A relocalize further than this from the current pose is refused, inches (DECODE's 18), unless
+     * the robot is still and two or more gated tags give the whole pose: then the pose is taken as
+     * lost and reset (DriveSubsystem.relocalizeFromCamera).
+     */
     public static double maxRelocalizeJumpIn = 18.0;
 
     /** And further than this in heading, degrees (DECODE's 20). */
