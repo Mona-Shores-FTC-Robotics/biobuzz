@@ -14,7 +14,7 @@ import java.util.Locale;
 /**
  * The turret: a continuous servo ({@link DeviceNames#TURRET}) turning it, and a Studica Cypher Max
  * encoder on its drive, read as a relative quadrature count through the encoder socket of
- * {@link DeviceNames#TURRET_ENCODER_HOST}. Built from the {@code Turret Bench} session of 24 Oct
+ * {@link DeviceNames#TURRET_ENCODER_HOST}. Built from the {@code TurretBench} session of 24 Oct
  * 2026 on 20245; every number below was measured there.
  *
  * <h2>What the OpMode asks for</h2>
@@ -56,7 +56,7 @@ public class TurretSubsystem implements Subsystem {
     /** +1 if positive servo power turns the turret counter-clockwise. -1 on 20245 (robot, 24 Oct 2026). */
     public static int servoDirection = -1;
 
-    /** The power at which the servo stands still, [-0.2, 0.2]; see {@code Turret Bench}. 0 until measured. */
+    /** The power at which the servo stands still, [-0.2, 0.2]; see {@code TurretBench}. 0 until measured. */
     public static double servoStopPower = 0.0;
 
     // The hold, as it held on the bench.

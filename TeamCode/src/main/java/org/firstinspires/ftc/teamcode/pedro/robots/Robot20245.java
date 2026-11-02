@@ -50,7 +50,7 @@ public final class Robot20245 {
 
     /**
      * Pod type and directions from the Pinpoint Tuner on 17 Oct 2026 (#175). The offsets were
-     * measured on 1 Nov 2026, after the builder moved the pods, with the Pod Offset Check: the robot
+     * measured on 1 Nov 2026, after the builder moved the pods, with Measure: Pod Offsets: the robot
      * spins itself in place six half turns, alternating direction, so it pivots on the middle of the
      * wheelbase. Three runs gave xPodOffset -6.59, -6.51, -6.44 and yPodOffset 1.68, 1.57, 1.63;
      * these are the means. (The 30 Oct ruler measure, before the pods moved, was -6.5 and 1.0.) Each

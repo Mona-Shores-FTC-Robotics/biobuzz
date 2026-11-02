@@ -45,7 +45,7 @@ import java.util.Locale;
  * {@link Launcher2}.
  */
 @Disabled
-@Utility(name = "Launcher2 Speed Test", description = "The old two-wheel pinch rig; disabled, superseded by Launcher Bench")
+@Utility(name = "Bench: Launcher2 Speed Test", description = "The old two-wheel pinch rig; disabled, superseded by Bench: Launcher")
 public class Launcher2SpeedTestOpMode extends OpMode {
 
     /** Bump when behaviour changes; if the rig shows an older one, redeploy. */
@@ -155,7 +155,7 @@ public class Launcher2SpeedTestOpMode extends OpMode {
     }
 
     private void showInitScreen() {
-        telemetry.addLine("Launcher2 Speed Test ready.  Build: " + BUILD);
+        telemetry.addLine("Bench: Launcher2 Speed Test ready.  Build: " + BUILD);
         telemetry.addLine("Cross (A) = spin up, Circle (B) = stop, D-pad = target RPM.");
         telemetry.addLine("Watch the wheels on the first spin: the RPM cannot show direction.");
         reportProblems();
