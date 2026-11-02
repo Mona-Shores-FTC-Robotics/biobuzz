@@ -136,6 +136,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private double launcherTrimTps;
     private boolean chassisAimCancelled;
     private boolean lastFire;
+    /** This fire press spun the launcher up from idle, so it feeds only once at launch speed. */
+    private boolean spunUpByFire;
     private Bar bar = Bar.NONE;
     private String poseNote;
     private String autoParkNote;
@@ -161,7 +163,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         aimer = new TurretAimer(robot);
         picker = new FlowerPicker(robot, text -> log.event(text));
         gatherer = new GardenGather(robot, text -> log.event(text));
-        controls = new Controls(TeleOpConfig.flowerPickButton, gamepad1, gamepad2, driver, operator);
+        // A locked turret's controls are left out, so the pages show only buttons that work.
+        controls = new Controls(TeleOpConfig.flowerPickButton, TurretSubsystem.lockedForward,
+                gamepad1, gamepad2, driver, operator);
         log.metadata("Controls/Drive", robotCentric() ? "robot-centric" : "field-centric");
 
         // Bound in Action order, so the Controls page reads like the cheat sheet.
@@ -171,6 +175,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.DRIVER_UNJAM);
         controls.note(Action.SLOW);
         controls.note(Action.TURBO);
+        controls.note(Action.DRIVER_FIRE);
+        controls.on(Action.DRIVER_LAUNCHER_TOGGLE).onPress(this::toggleLauncher);
         controls.note(Action.FLOWER_PICK);
         controls.note(Action.GARDEN_GATHER);
         controls.note(Action.CHASSIS_AIM);
@@ -484,6 +490,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
         return routineActive();
     }
 
+    /** At launch speed, not at an idle speed that happens to be steady. */
+    @Override
+    protected boolean indicatorLaunchReady() {
+        return launchMode && robot.launcher.atSpeed();
+    }
+
     /** A FLOWER pick or a GARDEN gather is driving the robot and running the intake. */
     private boolean routineActive() {
         return picker.active() || gatherer.active();
@@ -504,15 +516,25 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /**
      * The feeder, decided every loop: unjam wins (clearing a jam is always allowed), then fire.
-     * Fire feeds at once unless an enforced gate is closed, and an enforced gate only holds back
-     * the start of a feed, never cuts one ({@code FeederSubsystem.requestFor}). Every press is one
-     * log line with what a gate would have said.
+     * Fire is either pad's (the driver's R1, the operator's Circle). Pressed with the launcher
+     * idle, it spins it up first and feeds once it reaches launch speed, whatever the gates are set
+     * to: 17 presses on 1 Nov 2026 fired an idle launcher and did nothing. Otherwise it feeds at
+     * once unless an enforced gate is closed, and an enforced gate only holds back the start of a
+     * feed, never cuts one ({@code FeederSubsystem.requestFor}). Every press is one log line with
+     * what a gate would have said.
      */
     private void fire() {
+        boolean fireHeld = controls.held(Action.FIRE) || controls.held(Action.DRIVER_FIRE);
+        boolean pressed = fireHeld && !lastFire;
+        if (pressed && !launchMode && !unjamHeld()) {
+            toggleLauncher();
+            spunUpByFire = true;
+        }
+        if (!fireHeld) spunUpByFire = false;
         gates.evaluate(launchMode, robot.launcher.atSpeed(), aimErrorDeg, TeleOpConfig.aimToleranceDeg);
-        boolean fireHeld = controls.held(Action.FIRE);
-        boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, TeleOpConfig.enforceAimGate);
-        if (fireHeld && !lastFire) {
+        boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, TeleOpConfig.enforceAimGate)
+                && (!spunUpByFire || robot.launcher.atSpeed());
+        if (pressed) {
             log.event(fireLine(open));
         }
         lastFire = fireHeld;
@@ -544,6 +566,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 : String.format(Locale.US, "pose (%.1f, %.1f, %.0f°)%s", pose.x(), pose.y(),
                 Math.toDegrees(pose.heading()), robot.drive.poseReferenced() ? "" : " not on the field");
         String outcome = unjamHeld() ? "not fed: unjam is held"
+                : !open && spunUpByFire ? "SPINNING UP: feeds at launch speed"
                 : !open ? "WAITING: an enforced gate is closed"
                 : gates.anyWouldBlock() ? "fired; a gate would have blocked it (shadow)" : "fired; gates clear";
         return String.format(Locale.US, "fire: launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
