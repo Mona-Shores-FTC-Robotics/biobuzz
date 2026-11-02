@@ -4,6 +4,7 @@
     python3 -I wpilog.py info   LOG                 # metadata, events, channels
     python3 -I wpilog.py triage LOG [--start S --end S]   # mount vs field point vs odometry
     python3 -I wpilog.py dump   LOG KEY [KEY...]    # time series, CSV on stdout
+    python3 -I wpilog.py survey DIR [--pattern '2026-11-01_*.wpilog']   # a lab day, one line per log
 
 Written from the wpilog spec (https://github.com/wpilibsuite/allwpilib/blob/main/wpiutil/doc/datalog.adoc),
 not from our writer, like the test reader in src/test/.../logging/WpiLogReader.java.
@@ -390,9 +391,62 @@ def cmd_triage(log, args):
               "(compare LocalizationTuning.fixSigmaIn; this is noise, not bias)")
 
 
+
+def cmd_survey(_log, args):
+    """Every log in a directory, one line each: build, camera, start check, still camera-vs-odometry
+    gap, distance driven, path-end error; then height/range, notable events, still-fix states."""
+    import glob
+    rows=[]
+    for p in sorted(glob.glob(os.path.join(args.dir, args.pattern))):
+        l=Log(p); m=l.metadata; name=os.path.basename(p)[11:]
+        ev=[(t,v) for t,v in l.series.get("/Events",[])]
+        sc=m.get("StartCheck","")
+        g=re.search(r"camera minus start x ([-\d.]+), y ([-\d.]+) in.*?heading ([-\d.]+) deg \((\d+) frames\)",sc)
+        scx,scy,sch,scn=(float(g[1]),float(g[2]),float(g[3]),int(g[4])) if g else (float('nan'),)*3+(0,)
+        hgt=re.findall(r"height ([-+\d.]+), range (\d+)",sc)
+        src=[v for _,v in ev if v.startswith("Alliance ")]
+        conn=[v for _,v in l.series.get("/Vision/Connected",[])]
+        acc=[v for _,v in l.series.get("/Vision/TagsAccepted",[])]
+        fps=[v for _,v in l.series.get("/Vision/FramesPerSec",[]) if v>0]
+        still=dict(l.series.get("/Drift/Still",[]))
+        gx=l.series.get("/Drift/GapXIn",[]); gy=dict(l.series.get("/Drift/GapYIn",[]))
+        gaps=[(t,x,gy.get(t)) for t,x in gx if gy.get(t) is not None and still.get(t,0)>0.5]
+        gmag=[math.hypot(x,y) for _,x,y in gaps]
+        X=l.series.get("/Odometry/PedroInches/X",[]); Y=l.series.get("/Odometry/PedroInches/Y",[])
+        dist=0.0
+        for i in range(1,len(X)): dist+=math.hypot(X[i][1]-X[i-1][1],Y[i][1]-Y[i-1][1])
+        ends=[v for _,v in ev if v.startswith("path end")]
+        offend=[float(x) for x in re.findall(r"off end ([\d.]+) in"," ".join(ends))]
+        settled=[float(x) for x in re.findall(r"settled .*?off end ([\d.]+) in"," ".join(v for _,v in ev))]
+        interesting=[f"{t:.0f}s {v}" for t,v in ev if re.search(r"relocal|reset to|seed|refused|jolt|camera puts|not on|check the marks|Pinpoint:(?! READY)|Limelight:(?! answering)|discard|start fresh|handoff",v)]
+        rows.append(dict(name=name,op=m.get("OpMode","?"),build=m.get("GitCommit","?")[:7],ll=("yes" in m.get("Hardware/LimelightVisionSubsystem","")),
+            src=src[-1] if src else "?",scx=scx,scy=scy,sch=sch,scn=scn,hgt=hgt,conn=mean(conn),acc2=mean([1 if a>=2 else 0 for a in acc]),fps=mean(fps),
+            gapn=len(gaps),gapmean=mean(gmag),gapmax=max(gmag) if gmag else float('nan'),gxm=mean([x for _,x,_ in gaps]),gym=mean([y for _,_,y in gaps]),
+            dist=dist,dur=(X[-1][0]-X[0][0]) if X else 0,offend=offend,settled=settled,ev=interesting,
+            stillfix={int(v) for _,v in l.series.get("/Vision/StillFix",[])},applied=max([v for _,v in l.series.get("/Vision/StillFixesApplied",[])] or [0])))
+    print(f"{'log':34} {'build':7} {'LL':3} {'alliance':16} {'start dx,dy,dh (n)':24} {'conn':5} {'fix%':5} {'fps':4} {'still gaps n/mean/max (x,y)':30} {'dist':6} {'path off-end':14}")
+    for r in rows:
+        sc=f"{r['scx']:+.1f},{r['scy']:+.1f},{r['sch']:+.1f} ({r['scn']})" if r['scn'] else "-"
+        gap=f"{r['gapn']}/{r['gapmean']:.1f}/{r['gapmax']:.1f} ({r['gxm']:+.1f},{r['gym']:+.1f})" if r['gapn'] else "-"
+        oe=",".join(f"{x:.1f}" for x in r['offend']) or "-"
+        print(f"{r['name'][:34]:34} {r['build']:7} {'yes' if r['ll'] else 'NO':3} {r['src'][:16]:16} {sc:24} {r['conn']:5.2f} {r['acc2']:5.2f} {r['fps']:4.0f} {gap:30} {r['dist']:6.0f} {oe:14}")
+    print("\n== height/range per start check (height = camera minus map, in):")
+    for r in rows:
+        if r['hgt']: print(f"  {r['name'][:30]:30} {r['hgt']}")
+    print("\n== notable events:")
+    for r in rows:
+        for e in r['ev']: print(f"  {r['name'][:30]:30} {e}")
+    print("\n== still-fix states seen (0 WAITING 1 AVERAGING 2 TOO_SPREAD 3 TOO_FAR 4 READY 5 APPLIED) / applied:")
+    for r in rows:
+        print(f"  {r['name'][:30]:30} {sorted(r['stillfix'])} applied={r['applied']}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
+    sv = sub.add_parser("survey", help="one line per log in a directory")
+    sv.add_argument("dir")
+    sv.add_argument("--pattern", default="*.wpilog")
     for name in ("info", "triage", "dump"):
         p = sub.add_parser(name)
         p.add_argument("log")
@@ -405,6 +459,9 @@ def main():
         if name == "dump":
             p.add_argument("keys", nargs="+")
     args = ap.parse_args()
+    if args.cmd == "survey":
+        cmd_survey(None, args)
+        return
     log = Log(args.log)
     {"info": cmd_info, "triage": cmd_triage, "dump": cmd_dump}[args.cmd](log, args)
 

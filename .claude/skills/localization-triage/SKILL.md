@@ -45,6 +45,21 @@ Always run `info` first. Report: **which robot** (the `RobotConfig` metadata lin
 build** (`Build`, `GitCommit`, `-dirty` means the code on the robot was not committed), and the
 `Tunable/...` values the run used. A diagnosis for the wrong robot or a dirty build is worthless.
 
+## 0b. A whole lab day: `survey`
+
+`python3 -I .claude/skills/localization-triage/wpilog.py survey DIR --pattern '2026-11-01_*.wpilog'`
+prints one line per log: build, Limelight at init, alliance source, the start check's camera-minus-start
+(x, y, heading, frames), camera connected fraction, the fraction of loops with a 2-tag fix, fps,
+the still camera-vs-odometry gap (`/Drift/Gap*` while `/Drift/Still`: count, mean, max, mean x,y),
+distance driven, and each Auto path's off-end error; then height/range per start check, notable
+events (relocalize, reset, seed, jolt, Pinpoint faults, "start fresh") and the still-fix states.
+Read it before any single log: it shows which runs are worth opening. What 1 Nov 2026 taught:
+a gap that is the same sign and size in every run is the camera bias plus placement, not drift;
+a gap of 15-40 in is a TeleOp started on the declared start with the robot somewhere else; a run
+with the camera "answering" but 0% fixes from the start spot had something in front of the lens or
+at the HIVE, not a camera fault. **Recalibrate the mount after any mechanical work**: the forward
+gap grew about 1 in the day the transfer and turret went on.
+
 ## 1. Which kind of log is it?
 
 | Log has | Means | Use |
