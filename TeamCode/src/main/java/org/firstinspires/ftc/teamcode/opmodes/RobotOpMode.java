@@ -34,6 +34,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
+import org.firstinspires.ftc.teamcode.localization.CameraStart;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
@@ -226,6 +227,10 @@ public abstract class RobotOpMode extends OpMode {
     private String loggedLauncherFault;
     // Drift: pushes and jolts, the camera frame last logged, the Pinpoint's last status.
     private final ImpactWatch impacts = new ImpactWatch();
+    /** TeleOp with no handoff: the camera against the declared start in INIT ({@link CameraStart}). */
+    private final CameraStart cameraStart = new CameraStart();
+    private long cameraStartNs;
+    private String cameraStartNote;
     private int loggedAutoHeadingFixes;
     private long loggedCameraNs;
     private Object loggedPinpointStatus;
@@ -397,6 +402,7 @@ public abstract class RobotOpMode extends OpMode {
                 log.event("Start: now declaring " + wanted);
             }
         }
+        considerCameraStart();
         StartCheck.Result startCheck = StartCheck.evaluate(declaredStart, robot.drive.fixCount(),
                 robot.drive.meanFixX(), robot.drive.meanFixY());
         // An Auto may know the alliance from which of its starts the camera puts the robot on;
@@ -422,7 +428,11 @@ public abstract class RobotOpMode extends OpMode {
             }
         }
         describeCamera();
-        startCheck.describe(display);
+        if (cameraStartNote != null) {
+            display.status("Start", Display.Level.WARN, cameraStartNote);
+        } else {
+            startCheck.describe(display);
+        }
         driver.updateDuringInit();
         operator.updateDuringInit();
         onInitLoop();
@@ -857,11 +867,45 @@ public abstract class RobotOpMode extends OpMode {
         setup.forgetAuto();
         robot.turret.forgetCarriedZero();
         declaredStart = null; // the next INIT loop declares the start afresh and moves the pose there
+        cameraStart.reset();
+        cameraStartNote = null;
         handoffLevel = Display.Level.OK;
         handoffNote = "starting fresh: the last run's pose, alliance and turret zero are discarded";
         log.event("INIT: start fresh, handoff discarded by the drive team");
         gamepad1.rumble(200);
         gamepad2.rumble(200);
+    }
+
+    /**
+     * A TeleOp with no handoff assumes its declared start, wherever the robot is. Each INIT loop the
+     * camera's whole-pose fit is offered to {@link CameraStart}; once steady fits put the robot off the
+     * mark, the pose moves to the camera's and the Start line says so. An Autonomous never does this
+     * (its drive team places by the marks), nor an OpMode that says {@link #cameraMayOverrideStart}
+     * false, such as the camera calibration, whose residual is measured against the declared start.
+     */
+    private void considerCameraStart() {
+        if (cameraStartNote != null || declaredStart == null || handoffPose || isAutonomous()
+                || !cameraMayOverrideStart()) {
+            return;
+        }
+        robot.drive.setWholePoseFits(true);
+        long ns = robot.drive.wholeCameraPoseNs();
+        if (ns == 0 || ns == cameraStartNs) return;
+        cameraStartNs = ns;
+        Pose taken = cameraStart.update(robot.drive.wholeCameraPose(), declaredStart);
+        if (taken == null) return;
+        robot.drive.setPose(taken);
+        robot.drive.setWholePoseFits(false);
+        cameraStartNote = String.format(java.util.Locale.US,
+                "pose from the camera (%.0f, %.0f, %.0f°): the %s mark is %.0f in, %.0f° away, so the robot is not on it"
+                        + " · hold Triangle (Y) to start fresh", taken.x(), taken.y(), Math.toDegrees(taken.heading()),
+                declaredStart, cameraStart.offIn(), cameraStart.offDeg());
+        log.event("Start: " + cameraStartNote);
+    }
+
+    /** Whether a TeleOp's declared start may give way to the camera in INIT ({@link #considerCameraStart}). */
+    protected boolean cameraMayOverrideStart() {
+        return true;
     }
 
     /**

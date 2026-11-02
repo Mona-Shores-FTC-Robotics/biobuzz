@@ -174,6 +174,12 @@ public class HiveAndPose extends RobotOpMode {
         return StartPositions.RED_AUDIENCE;
     }
 
+    /** The calibration measures the camera against the declared start, so the start must stand. */
+    @Override
+    protected boolean cameraMayOverrideStart() {
+        return false;
+    }
+
     @Override
     protected void onInit() {
         panels = PanelsTelemetry.INSTANCE.getTelemetry();
