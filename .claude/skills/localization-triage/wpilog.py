@@ -11,6 +11,7 @@ not from our writer, like the test reader in src/test/.../logging/WpiLogReader.j
 """
 import argparse
 import glob
+import gzip
 import os
 import re
 import bisect
@@ -29,8 +30,11 @@ REASONS = {0: "ACCEPTED", 1: "HEIGHT", 2: "RANGE", 3: "OUTLIER"}
 
 class Log:
     def __init__(self, path):
+        # The pull script pushes logs gzipped (tools/pull-logs); both forms read the same, by content.
         with open(path, "rb") as f:
             data = f.read()
+        if data[:2] == b"\x1f\x8b":
+            data = gzip.decompress(data)
         if data[:6] != b"WPILOG":
             raise SystemExit(f"{path}: not a wpilog file")
         extra = struct.unpack_from("<I", data, 8)[0]
@@ -449,7 +453,7 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     sv = sub.add_parser("survey", help="one line per log in a directory")
     sv.add_argument("dir")
-    sv.add_argument("--pattern", default="*.wpilog")
+    sv.add_argument("--pattern", default="*.wpilog*")
     for name in ("info", "triage", "dump"):
         p = sub.add_parser(name)
         p.add_argument("log")

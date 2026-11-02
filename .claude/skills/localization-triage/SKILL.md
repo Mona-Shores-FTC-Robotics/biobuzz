@@ -11,23 +11,22 @@ the log to bring next time". It never guesses a value; with no log it produces a
 
 ## 0. Get the log
 
-**How the log reaches a session.** Logs sync to the team Drive (`tools/pull-logs/README.md`), and the
-Google Drive connector can fetch them. Tested 31 Oct 2026 on a 68 KB log:
-1. `search_files` with `title contains '2026-10-31' and title contains 'wpilog'` (names are
-   `<date>_<time>_<OpMode>.wpilog`; `excludeContentSnippets: true`). A pull the user just ran
-   appears once Drive for Desktop has synced, which can lag; search again before saying it is missing.
-2. `download_file_content` on the id. The result is base64 JSON far too big for context, so the
-   harness **saves it to a file** and says where. Never read that file with `Read`; decode it:
-   `python3 -I` with `base64.b64decode(json.load(open(path))["content"])`, write the bytes to the
-   scratchpad (`logs/<title>`), and run `wpilog.py` on that. Larger files are bigger JSON; the
-   Size limit, seen 31 Oct 2026: a 4 MB log fetched fine, a **9.7 MB log crashed the connector**
-   ("message too large", server disconnected). Do not retry a big file; go to step 3. Check
-   `fileSize` from the search first and go straight to step 3 above about 6 MB.
-3. If the connector is unavailable, the fallback is a throwaway branch of this repo (not
-   `master`, never merged) with the file uploaded on GitHub (*Add file > Upload files*, 25 MB).
+**How the log reaches a session: GitHub, not Drive.** `tools/pull-logs` pushes every log, gzipped,
+to a throwaway branch per day and robot, `logs/<date>-<robot network>` (e.g.
+`logs/2026-11-01-20245-RC`). Never ask the mentor to move a file by hand. From a session:
 
-The metadata (`RobotConfig`, `Build`, `Hardware/*`, `Tunable/*`, `StartCheck`) is stored as
-`/RealMetadata/<key>` string channels; `wpilog.py` reads them into `info`.
+```
+git fetch origin 'refs/heads/logs/*:refs/remotes/origin/logs/*'
+git ls-tree --name-only -r origin/logs/2026-11-01-20245-RC          # what is there
+mkdir -p $SCRATCH/logs && for f in $(git ls-tree --name-only -r origin/logs/<branch>); do
+  git show origin/logs/<branch>:$f > $SCRATCH/logs/$(basename $f); done
+python3 -I .claude/skills/localization-triage/wpilog.py survey $SCRATCH/logs
+```
+
+`wpilog.py` reads `.wpilog` and `.wpilog.gz` alike; so does the repo's own
+`tools/pull-logs/read_logs.py` (`summary`, `keys`, `series`: the general reader; this skill's is the
+localization one). Never merge a `logs/*` branch. The Drive connector also holds the files but
+cannot carry one over about 6 MB; use it only when the branch is missing.
 
 No robot is attached to this session, so you cannot take a log. **If there is none, stop and give
 section 5.**
