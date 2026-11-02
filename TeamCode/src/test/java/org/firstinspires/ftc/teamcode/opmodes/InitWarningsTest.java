@@ -66,7 +66,7 @@ public class InitWarningsTest {
     public void offTheMarkSaysHowFarAndWhere() {
         evaluate(null, Alliance.RED, Alliance.RED, OFF_MARK, null, 40, 20_000, 13.1);
         assertEquals("12 in off the start mark", w.what(Kind.OFF_MARK));
-        assertTrue(w.action(Kind.OFF_MARK).startsWith("move it onto the mark"));
+        assertEquals("move robot to start position", w.action(Kind.OFF_MARK));
     }
 
     @Test
@@ -109,6 +109,15 @@ public class InitWarningsTest {
         assertTrue(summary.indexOf("Pinpoint") < summary.indexOf("No alliance"));
         assertTrue(summary.indexOf("No alliance") < summary.indexOf("Camera"));
         assertTrue(summary.indexOf("Camera") < summary.indexOf("Battery"));
+    }
+
+    @Test
+    public void aSilentColorSensorSaysWhatChangesForTheDriveTeam() {
+        w.evaluate(null, Alliance.RED, Alliance.RED, ON_MARK, null, 40, 20_000, 13.1, 12.0, true);
+        assertTrue(w.has(Kind.COLOR_SENSOR));
+        assertEquals("no full light or roller stop: watch the intake", w.action(Kind.COLOR_SENSOR));
+        w.evaluate(null, Alliance.RED, Alliance.RED, ON_MARK, null, 40, 20_000, 13.1, 12.0, false);
+        assertFalse(w.any());
     }
 
     @Test

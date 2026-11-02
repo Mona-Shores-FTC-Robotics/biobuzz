@@ -100,6 +100,11 @@ public final class Display {
         return used;
     }
 
+    /** Ordinary rows left on one screen. */
+    public double left() {
+        return SCREEN_LINES - used;
+    }
+
     /** Whether {@code rows} more ordinary rows fit on one screen. */
     public boolean room(double rows) {
         return used + rows <= SCREEN_LINES;

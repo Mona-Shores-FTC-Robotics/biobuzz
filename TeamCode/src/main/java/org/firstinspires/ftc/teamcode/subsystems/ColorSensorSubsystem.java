@@ -257,6 +257,14 @@ public class ColorSensorSubsystem implements Subsystem {
                         + (Double.isNaN(presentAbove) ? "; presentAbove not set: counts shots only" : ""));
     }
 
+    /**
+     * Whether the sensor reads all zero: unplugged, or not on the bus its XML gives it. Then the
+     * lane is never full, so an Auto's INIT warns ({@code InitWarnings}).
+     */
+    public boolean silent() {
+        return allZero();
+    }
+
     private boolean allZero() {
         return red == 0f && green == 0f && blue == 0f && alpha == 0f;
     }

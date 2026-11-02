@@ -89,6 +89,20 @@ public class InitPageFitsTest {
         assertTrue("the start line still shows", String.join("\n", lines).contains("Start: "));
     }
 
+    /** Six, with the colour sensor silent too: still one screen, the start still showing. */
+    @Test
+    public void sixWarningsFitWithTheStartStillShowing() {
+        setup.offerVision(Alliance.RED, "the camera puts the robot on the RED start");
+        setup.chooseManually(Alliance.BLUE);
+        warnings.evaluate("y pod not detected", setup.alliance(), setup.visionAlliance(), OFF_MARK,
+                "not answering", 0, 20_000, 11.8, 12.0, true);
+        assertEquals(6, warnings.count());
+        writePage(OFF_MARK);
+        assertFits();
+        assertTrue("the count says six", String.join("\n", lines).contains("6 TO FIX"));
+        assertTrue("the start line still shows", String.join("\n", lines).contains("Start: "));
+    }
+
     @Test
     public void readyAndUnconfirmedShowsTheMap() {
         setup.offerVision(Alliance.RED, "the camera puts the robot on the RED start");

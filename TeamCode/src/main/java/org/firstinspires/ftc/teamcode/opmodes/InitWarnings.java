@@ -29,7 +29,13 @@ public final class InitWarnings {
         OFF_MARK,
         CAMERA_NOT_ANSWERING,
         CAMERA_NO_FRAMES,
-        BATTERY_LOW
+        BATTERY_LOW,
+        /**
+         * The colour sensor reads nothing: no "full", so no green light, no roller stop and no
+         * {@code IntakeFull} (an Auto's waits on it run to their limits). Rarely fixable at the
+         * field, but the drive team plays differently knowing it (mentor, 2 Nov 2026).
+         */
+        COLOR_SENSOR
     }
 
     /** The camera may take this long after INIT to send its first frame before that is a warning. */
@@ -59,6 +65,15 @@ public final class InitWarnings {
     public void evaluate(String pinpointProblem, Alliance alliance, Alliance cameraSees,
                          StartCheck.Result start, String cameraProblem, long cameraFrames,
                          long msSinceInit, double batteryVolts, double lowBatteryVolts) {
+        evaluate(pinpointProblem, alliance, cameraSees, start, cameraProblem, cameraFrames,
+                msSinceInit, batteryVolts, lowBatteryVolts, false);
+    }
+
+    /** As above, and {@code colorSensorSilent}: the colour sensor reads all zero (unplugged). */
+    public void evaluate(String pinpointProblem, Alliance alliance, Alliance cameraSees,
+                         StartCheck.Result start, String cameraProblem, long cameraFrames,
+                         long msSinceInit, double batteryVolts, double lowBatteryVolts,
+                         boolean colorSensorSilent) {
         for (int i = 0; i < KINDS.length; i++) {
             what[i] = null;
             action[i] = null;
@@ -76,7 +91,7 @@ public final class InitWarnings {
         }
         if (start != null && start.status == StartCheck.Status.OUT_OF_POSITION) {
             set(Kind.OFF_MARK, String.format(Locale.US, "%.0f in off the start mark", start.errorIn),
-                    "move it onto the mark: " + start.start.placement());
+                    "move robot to start position");
         }
         if (cameraProblem != null) {
             set(Kind.CAMERA_NOT_ANSWERING, "Camera: " + cameraProblem, REPLUG);
@@ -86,6 +101,10 @@ public final class InitWarnings {
         if (batteryVolts < lowBatteryVolts) {
             set(Kind.BATTERY_LOW, String.format(Locale.US, "Battery %.1f V", batteryVolts),
                     "swap to a charged battery");
+        }
+        if (colorSensorSilent) {
+            set(Kind.COLOR_SENSOR, "Color sensor: no reading",
+                    "no full light or roller stop: watch the intake");
         }
     }
 
@@ -143,13 +162,22 @@ public final class InitWarnings {
      * with none: the top line already says READY.
      */
     public void describe(Display display) {
-        // The page is one screen (Display): each warning goes in whole while it fits with the
-        // start's two lines still below it, then just its "what" line, most serious first.
+        // The page is one screen (Display), with the start's two lines still below the warnings.
+        // Every warning is named; actions go with them, most serious first, while they fit.
+        double spare = display.left() - START_ROWS;
+        for (int i = 0; i < KINDS.length; i++) {
+            if (what[i] != null) spare -= Display.rows(Display.alertWhat(what[i]));
+        }
+        boolean actions = true;
         for (int i = 0; i < KINDS.length; i++) {
             if (what[i] == null) continue;
-            double whole = Display.rows(Display.alertWhat(what[i])) + Display.rows(Display.alertAction(action[i]));
-            if (display.room(whole + START_ROWS)) {
+            double actionRows = Display.rows(Display.alertAction(action[i]));
+            // The first action that does not fit ends them all: a less serious warning never keeps
+            // its action when a more serious one lost it.
+            actions = actions && actionRows <= spare;
+            if (actions) {
                 display.alert(what[i], action[i]);
+                spare -= actionRows;
             } else {
                 display.line(Display.alertWhat(what[i]));
             }
