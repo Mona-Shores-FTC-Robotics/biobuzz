@@ -141,7 +141,8 @@ public final class FieldView {
     /**
      * Draws the robot: its drivetrain footprint and, around it, its frame ({@link #DRIVETRAIN},
      * {@link #FRAME}), turned to its heading, with a line from its centre to the front of the
-     * drivetrain.
+     * drivetrain. In Panels' blue, for a view with no alliance (a diagnostic); one with an
+     * alliance draws in {@link #allianceColour}.
      *
      * @param x       field X in inches, Pedro's frame
      * @param y       field Y in inches, Pedro's frame
@@ -170,6 +171,26 @@ public final class FieldView {
         field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), PanelsField.INSTANCE.getWHITE(), 1.0);
         field.moveCursor(x, y);
         field.line(x + DRIVETRAIN[1] * c, y + DRIVETRAIN[1] * s);
+    }
+
+    /**
+     * The red robot's outline: a pure red, well clear of the camera robot's amber ({@code #FFB300})
+     * so the two cannot be confused when they overlap.
+     */
+    public static final String RED_ALLIANCE = "#FF1744";
+
+    /**
+     * The colour to draw our robot in for {@code alliance}: red, Panels' blue, or white with no
+     * alliance ({@code UNKNOWN}). Returns a constant, nothing allocated.
+     */
+    public static String allianceColour(Alliance alliance) {
+        if (alliance == Alliance.RED) {
+            return RED_ALLIANCE;
+        }
+        if (alliance == Alliance.BLUE) {
+            return PanelsField.INSTANCE.getBLUE();
+        }
+        return PanelsField.INSTANCE.getWHITE();
     }
 
     /** One outline: front left, back left, back right, front right, each edge to the next. */
