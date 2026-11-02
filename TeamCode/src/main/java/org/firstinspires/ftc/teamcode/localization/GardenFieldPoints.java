@@ -16,9 +16,9 @@ import java.util.Locale;
  * <p><b>Red's gather pose is from 20245's size (30 Oct 2026):</b> facing the audience wall, the
  * robot's centre is 8 in behind its front and the nose 1.5 in beyond that, so y 9.5 puts the nose
  * at the wall; x 8.5 leaves the side 0.4 in off the red-side wall (8.1 in from centre to side). The
- * line-up stays 9.6 in behind the gather pose. L-Quals and Sister-Right draw the GARDEN with the
- * team spots ({@code TeamCode/autos/spots.json}) GARDEN, this gather pose, and GARDEN_IN at
- * (11.5, 22.1), their own way in, not this line-up. Blue's is red's turned half a turn about the field centre, as the field is (manual
+ * line-up stays 9.6 in behind the gather pose. An Auto drives to the team spot
+ * ({@code TeamCode/autos/spots.json}) GARDEN_STAGING, (11.5, 22.1), and its Garden gather card
+ * drives in from there; the gather pose is this class's, not a spot. Blue's is red's turned half a turn about the field centre, as the field is (manual
  * Figure 9-2).
  */
 public final class GardenFieldPoints {

@@ -77,8 +77,8 @@ Use **↑ ↓** to reorder a card, **Duplicate** to copy it, **✕ Delete** to r
 HIVE tipped since the wait began), `Empty` (the launcher has fired everything), `CameraBlind` (no
 HIVE tag seen for half a second), `LeftCellUp` and `RightCellUp` (the camera sees that CELL of our
 HIVE up right now: not while the HIVE is out of view or mid-TIP, and true at once if it is already
-up when the wait starts), and `IntakeFull` (holding 4 pieces). `IntakeFull` is a placeholder until
-the intake counts pieces, and the Driver Station lists it at INIT. The full list is `AutoRegistration` in the code, and the
+up when the wait starts), and `IntakeFull` (the lane is full: a piece held under the colour sensor while the
+intake runs, the same signal that stops the roller and turns the robot's light green). The full list is `AutoRegistration` in the code, and the
 editor loads the same list. There's no "intake on" command, because the robot collects on its own
 whenever it isn't full or launching. Need something else? Add it in **Setup**, and tell a mentor,
 since that's a request for new robot code.

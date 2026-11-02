@@ -34,10 +34,10 @@ public class AutoRegistrationTest {
                 expected, actual);
     }
 
-    /** The CELL triggers and the FLOWER pick are real now; only the intake's count is still missing (#181). */
+    /** IntakeFull is the colour sensor's full now (LaneFull): nothing is a placeholder. */
     @Test
-    public void onlyIntakeFullIsStillAPlaceholder() {
-        assertEquals(java.util.Collections.singletonList("IntakeFull"), AutoRegistration.PLACEHOLDERS);
+    public void nothingIsStillAPlaceholder() {
+        assertEquals(java.util.Collections.emptyList(), AutoRegistration.PLACEHOLDERS);
     }
 
     /** No alliance chosen means no HIVE to ask: neither CELL is up. */

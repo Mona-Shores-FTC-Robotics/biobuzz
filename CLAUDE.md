@@ -111,8 +111,10 @@ Pinpoint or the Limelight directly. Anything that drives or aims from field coor
 checked against the field once; `FlowerFieldPoints` is the official field model's four FLOWER
 centres; `StartPositions`, `FieldFrame` and `LocalizationTuning` hold
 measured field facts — NaN or empty until measured, never guessed. Each measured start is also a
-`START_` team spot in `TeamCode/autos/spots.json` (the Visualizer's start buttons), named in
-`StartPositions.TEAM_SPOTS`; `TeamSpotsTest` fails while the two differ. An Autonomous declares its start by
+`…_START` team spot in `TeamCode/autos/spots.json` (the Visualizer's start buttons), named in
+`StartPositions.TEAM_SPOTS`; `TeamSpotsTest` fails while the two differ. Every Auto on master uses
+only the team's spots (`TeamCode/autos/README.md` lists them, side first: `RIGHT_START`,
+`RIGHT_PARK`); one that needs another spot lives on the `autos-experiment` branch. An Autonomous declares its start by
 overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check. A TeleOp with
 no handoff declares its alliance's start too (`StartPositions.forAlliance`), so a test drive starts
 from a known pose with the right field-centric forward; after an Auto it keeps the Auto's pose. The drive team
