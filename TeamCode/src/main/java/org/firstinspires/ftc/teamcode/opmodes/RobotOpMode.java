@@ -522,11 +522,15 @@ public abstract class RobotOpMode extends OpMode {
         // Short, for one line: the reason in full is in the log's hardware metadata.
         String cameraProblem = !robot.vision.isAvailable() ? "not found"
                 : !robot.vision.isConnected() ? "not answering" : null;
+        // "Move to" names this OpMode's start for the alliance PLAY will use: the one chosen, or,
+        // with none chosen yet, the one whose start the robot is on.
         StartPosition otherStart = cameraOnOtherStart();
-        initWarnings.evaluate(pinpointProblem, setup.alliance(), setup.visionAlliance(), startCheck,
+        Alliance chosen = setup.alliance();
+        StartPosition moveTo = otherStart == null ? null
+                : startFor(chosen == Alliance.UNKNOWN ? otherStart.alliance : chosen);
+        initWarnings.evaluate(pinpointProblem, chosen, setup.visionAlliance(), startCheck,
                 cameraProblem, robot.vision.freshResultCount(), (System.nanoTime() - initStartNs) / 1_000_000L,
-                batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent(),
-                otherStart, otherStart == null ? null : startFor(otherStart.alliance));
+                batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent(), otherStart, moveTo);
         String summary = initWarnings.summary();
         if (!summary.equals(loggedWarnings)) {
             log.event("INIT warnings: " + summary);
