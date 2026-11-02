@@ -26,7 +26,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `localization/` | CELL sighting → gated position fix (`TagGate`, `CellFix`), field points, start and reset positions, the start check. The filter is Pedro's. See "Localization" below. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
-| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
+| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. A step's own time limit (a command's timeout, a `firstOf`'s "at most") never cuts a feed once it has started: it guards the wait for spin-up, and the feed runs `LaunchCards`' set time, the one number for it. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
 | `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
 | `launcher2/` | **Test rig**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy its pattern into robot code. |
@@ -97,7 +97,9 @@ sets it and may correct it, only through `localization/`: every frame passes `Ta
 range, outlier, tag count, field bounds) before `CellFix` uses it. Two or more gated tags on settled
 CELLs give the whole pose (each tag's field position is known, since a TIP turns the row about its
 own line), which seeds an unreferenced pose. Once the pose is referenced the camera gives position
-only, with the Pinpoint's heading: `relocalizeFromCamera()` moves x and y and keeps the heading.
+only, with the Pinpoint's heading: `relocalizeFromCamera()` moves x and y and keeps the heading,
+up to `maxRelocalizeJumpIn`. A bigger correction means the pose is lost: with the robot still and
+two or more gated tags it resets the whole pose, heading too, as the seed does; otherwise it is refused.
 Stationary fixes (`stillFixes`) and continuous fixes (`continuousFixes`) into the filter are both
 off until a measurement shows they help. The reset spots (`ResetPositions`, NaN until measured) are
 fixed, measured poses, the left and right corners of each alliance's wall, chosen by the button the
@@ -237,6 +239,10 @@ network; if the sandbox blocks it, say so.
 
 **No robot is attached to a Claude session.** Anything needing hardware — tuning values, motor
 directions, port checks — stops and produces a checklist for the next meeting instead of a guess.
+Match logs reach a session on GitHub: `tools/pull-logs` sends them to throwaway
+`logs/<date>-<robot network>` branches. "Pull logs" means fetch
+`'refs/heads/logs/*:refs/remotes/origin/logs/*'` and read them with
+`tools/pull-logs/read_logs.py`; never ask the mentor to move log files by hand.
 Remote containers have no `gh`; use the GitHub MCP tools.
 
 ## Process

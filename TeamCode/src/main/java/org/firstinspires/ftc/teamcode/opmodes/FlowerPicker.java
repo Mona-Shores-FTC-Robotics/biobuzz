@@ -84,10 +84,13 @@ public final class FlowerPicker extends GrabRoutine {
      */
     public static double dwellMs = 2000;
     /**
-     * The dwell ends this long after the intake current's last spike, ms (0: off). The longest
-     * gap between two pieces' spikes on 29 Oct was 0.55 s.
+     * The dwell ends this long after the intake current's last spike, ms (0: off). <b>Off</b> since
+     * 1 Nov 2026, the mentor's call: on 20245 the pick barely dwelt at all. A spike during the push
+     * counts too, so a push that ran longer than this after loading the roller ended the dwell the
+     * moment it began. Off, every pick dwells the full {@link #dwellMs}. (The longest gap between
+     * two pieces' spikes on 29 Oct was 0.55 s, the 600 it was.)
      */
-    public static double dwellQuietMs = 600;
+    public static double dwellQuietMs = 0;
     /**
      * The dwell ends if no piece has spiked the current this far in, ms (0: off). The latest first
      * piece on 29 Oct came 1.22 s in.

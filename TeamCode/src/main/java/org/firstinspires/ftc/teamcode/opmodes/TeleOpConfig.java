@@ -57,8 +57,20 @@ public final class TeleOpConfig {
      */
     public static double launcherTrimStepTps = 25.0;
 
-    /** Enforce the at-speed gate: a feed starts only once the launcher is at launch speed. */
-    public static boolean enforceAtSpeedGate = false;
+    /**
+     * The intake buttons (R2 on either gamepad) toggle the intake on and off instead of running it
+     * only while held. For one person testing alone, so loading does not need a hand on R2. Off by
+     * default: in a match, letting go of R2 stops the intake. Unjam still wins while it is held.
+     */
+    public static boolean intakeToggle = false;
+
+    /**
+     * Enforce the at-speed gate: a feed starts only once the launcher is at launch speed (it never
+     * cuts a feed already running). On since 1 Nov 2026, the mentor's call from that day's match
+     * logs on 20245: in shadow mode, fire opened the gate with the launcher idle (eleven presses in
+     * one run) or still recovering from an unjam (820 of 1575 ticks/s), and those shots fell short.
+     */
+    public static boolean enforceAtSpeedGate = true;
 
     /** Enforce the aim gate: a feed starts only with the aim within {@link #aimToleranceDeg}. */
     public static boolean enforceAimGate = false;

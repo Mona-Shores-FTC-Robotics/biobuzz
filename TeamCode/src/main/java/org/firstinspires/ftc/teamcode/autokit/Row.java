@@ -16,6 +16,8 @@ public final class Row {
 
     final String description;
     final Test test;
+    /** A plain time limit ({@link AutoKit#afterMs}): it waits while the registry holds time limits. */
+    boolean timeLimit;
     /** Run when the card starts waiting, before the first test. */
     Runnable start = () -> { };
     Command[] cards = new Command[0];

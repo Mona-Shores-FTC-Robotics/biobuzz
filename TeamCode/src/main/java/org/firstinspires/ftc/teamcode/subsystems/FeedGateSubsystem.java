@@ -19,8 +19,8 @@ import java.util.Locale;
  * Reversing opens it too, so a jam can clear backward. {@link #hold} replaces that for a bench;
  * {@link #follow} gives it back.
  *
- * <p><b>The two positions are NaN until measured on a robot</b> ({@link #blockingPosition},
- * {@link #feedingPosition}), never guessed: a wrong guess drives the plate into something. While
+ * <p><b>The two positions are measured on a robot, never guessed</b> ({@link #blockingPosition},
+ * {@link #feedingPosition}): a wrong guess drives the plate into something. While
  * either is NaN the gate is not written at all and the Robot page says so. Set them in Panels with
  * the servo moving, until the plate sits on each stop, then write the numbers back here with a
  * comment saying which servo and robot they were measured on. Panels edits are lost on restart.
@@ -46,13 +46,20 @@ public class FeedGateSubsystem implements Subsystem {
     public enum State { BLOCKING, FEEDING }
 
     /**
-     * Servo position with the plate blocking, 0 to 1. <b>NaN until measured:</b> the gate is not
-     * written while this or {@link #feedingPosition} is NaN.
+     * Servo position with the plate blocking, 0 to 1. Measured on robot 20245 on 1 Nov 2026 in Launch
+     * Test's setup layer, after the builders flipped the gate servo: the plate sits closed on its stop
+     * at 0.82. (Before the flip it was 1.0 blocking, 0.775 feeding.) 19429's gate has not been
+     * measured; it uses these until it is. The gate is not written while this or
+     * {@link #feedingPosition} is NaN.
      */
-    public static double blockingPosition = Double.NaN;
+    public static double blockingPosition = 0.82;
 
-    /** Servo position with the plate open to the feeder, 0 to 1. <b>NaN until measured</b>, with {@link #blockingPosition}. */
-    public static double feedingPosition = Double.NaN;
+    /**
+     * Servo position with the plate open to the feeder, 0 to 1. Measured on robot 20245 on 1 Nov 2026,
+     * with {@link #blockingPosition}, after the gate servo was flipped: fully open at 1.0, the servo's
+     * end of range.
+     */
+    public static double feedingPosition = 1.0;
 
     private final Servo servo;
     private final FeederSubsystem feeder;

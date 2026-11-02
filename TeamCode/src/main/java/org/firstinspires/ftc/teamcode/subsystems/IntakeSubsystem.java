@@ -4,12 +4,14 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
 
 import java.util.Locale;
+import java.util.function.IntSupplier;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 
@@ -41,6 +43,28 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * roller rather than sit in its way), and stop when the roller is idle. Their direction is
  * {@link #starsReversed}, unknown until a robot has shown it.
  *
+ * <h2>Running for a feed</h2>
+ *
+ * <p>With four pieces loaded the last one sits at the roller and the stars, so a feed that moved
+ * only the feeder, the prefeed and the gate left it behind (20245, 1 Nov 2026). So the intake
+ * follows the feeder's request every {@link #update()}, as {@code PrefeedSubsystem} does: while
+ * the feeder feeds, the stars turn inward, and so does the roller unless
+ * {@link #rollerWhileFeeding} is off; while it reverses, both back out. {@link #rollerFor} and
+ * {@link #starsFor} are the whole policy, pure, so a test can check them, and the TeleOp, the bench
+ * and every Auto get it with no OpMode change. The OpMode's own request still wins where it says
+ * more: eject (unjam) backs everything out whatever the feeder does, and a driver holding intake
+ * while firing is unchanged. {@link #feedAssist()} says when the intake runs only because of a
+ * feed, for the match log.
+ *
+ * <h2>Stopping the roller when the lane is nearly full</h2>
+ *
+ * <p>When the lane tracker ({@link LaneTracker}, fed to this class by {@link #laneCount}) counts
+ * {@link #stopRollerAtCount} pieces and the OpMode asks to take in, the stars keep turning inward
+ * but the roller stops, so no more pieces are pulled off the floor (asked for on 2 Nov 2026; it
+ * first ran the roller outward). Only a plain intake request does this: a feed, an eject and the
+ * feeder reversing are unchanged. {@link #rollerStopped()} says when it is happening. It acts on
+ * the tracker's count, so a miscount stops the roller early or late; the match log shows both.
+ *
  * <p>The star servo is not written before PLAY: a continuous servo told "stop" creeps if its stop
  * is not quite centred, and nothing may move after INIT (G304.H, G403; see {@link Subsystem}).
  */
@@ -60,6 +84,12 @@ public class IntakeSubsystem implements Subsystem {
      * Flips the motor so that positive power takes pieces in. {@code true} as checked on 20245 on
      * 26 Oct 2026: with the SDK's default direction R2 ran the roller backwards. 19429 is wired
      * the same way by intent and has not been checked yet.
+     *
+     * <p>It sets the motor's direction ({@link #directionFor}), which the SDK applies to the power
+     * and the encoder alike, so taking pieces in always reads as a positive speed in the log and in
+     * Panels, and pushing them out as a negative one. Since 1 Nov 2026: it used to negate the power
+     * only, so on 20245 a correct intake read about -2760 ticks/s. Read every loop, so a Panels
+     * edit applies at once.
      */
     public static boolean reversed = true;
 
@@ -80,11 +110,35 @@ public class IntakeSubsystem implements Subsystem {
      */
     public static boolean starsReversed = false;
 
+    /**
+     * Whether the roller runs inward while the feeder feeds, to push the last piece up from the
+     * intake. The stars always do. Off if the roller pulls loose pieces in while firing; the
+     * mentor's switch for the lab, read every loop so a Panels edit applies at once.
+     */
+    public static boolean rollerWhileFeeding = true;
+
+    /**
+     * Lane count at which a request to take in stops the roller while the stars keep turning inward
+     * (class comment). 0 turns it off. 3, the mentor's choice, 2 Nov 2026.
+     */
+    public static int stopRollerAtCount = 3;
+
     private final DcMotorEx motor;
     private final CRServo stars;
-    private State state = State.IDLE;
+    private final FeederSubsystem feeder;
+    /** What the OpMode asked for. */
+    private State request = State.IDLE;
+    /** What the roller and the stars are doing as of the last update: the request, or the feeder's. */
+    private State roller = State.IDLE;
+    private State starsState = State.IDLE;
+    private boolean feedAssist;
+    private boolean rollerStopped;
+    /** The lane tracker's count; none until {@link #laneCount} is called, so the roller never stops for it. */
+    private IntSupplier laneCount = () -> 0;
     private boolean started;
     private double ticksPerSecond = 0.0;
+    /** The direction last sent to the motor, so {@link #reversed} is written only when it changes. */
+    private DcMotorSimple.Direction appliedDirection;
     private double currentAmps = Double.NaN;
     /**
      * Current is not in the bulk read: each read is its own round trip to the hub, 2–3 ms. It is
@@ -94,30 +148,67 @@ public class IntakeSubsystem implements Subsystem {
     /** A grab is timing its dwell from the current: read it every loop while it runs. */
     private boolean currentEveryLoop;
 
-    /** Looks the motor and the star-wheel servo up once. A missing device fails init with the SDK's own message. */
-    public IntakeSubsystem(HardwareMap hardwareMap) {
+    /**
+     * Looks the motor and the star-wheel servo up once. A missing device fails init with the SDK's own message.
+     *
+     * @param feeder read for its request, which the intake joins; updated before this subsystem
+     */
+    public IntakeSubsystem(HardwareMap hardwareMap, FeederSubsystem feeder) {
         motor = hardwareMap.get(DcMotorEx.class, DeviceNames.INTAKE);
         stars = hardwareMap.get(CRServo.class, DeviceNames.INTAKE_STARS);
+        this.feeder = feeder;
+    }
+
+    /**
+     * Where to read how many pieces the lane holds, for {@link #stopRollerAtCount}. Wired once by
+     * {@code Robot}, which builds the colour sensor after this subsystem.
+     */
+    public void laneCount(IntSupplier count) {
+        laneCount = count;
     }
 
     /** Ask for pieces in. Takes effect in the next {@link #update()}. */
     public void intake() {
-        state = State.IN;
+        request = State.IN;
     }
 
     /** Ask for pieces out. Takes effect in the next {@link #update()}. */
     public void eject() {
-        state = State.OUT;
+        request = State.OUT;
     }
 
     /** Ask for the roller to stop. Not {@link #stop()}: the subsystem keeps running. */
     public void idle() {
-        state = State.IDLE;
+        request = State.IDLE;
     }
 
-    /** What the roller has been asked to do. The request, not a measurement. */
+    /**
+     * What the roller is doing as of the last {@link #update()}: the OpMode's request, or the
+     * feeder's where the request said nothing ({@link #rollerFor}). What was commanded, not a
+     * measurement.
+     */
     public State state() {
-        return state;
+        return roller;
+    }
+
+    /** What the OpMode asked for, before the feeder had its say. */
+    public State requested() {
+        return request;
+    }
+
+    /** What the star wheels are doing as of the last {@link #update()}; inward while {@link #rollerStopped()}. */
+    public State starsState() {
+        return starsState;
+    }
+
+    /** Whether the roller is stopped because the lane is nearly full ({@link #stopRollerAtCount}). */
+    public boolean rollerStopped() {
+        return rollerStopped;
+    }
+
+    /** Whether the roller or the stars run only because the feeder is feeding or reversing. */
+    public boolean feedAssist() {
+        return feedAssist;
     }
 
     /** Roller motor speed from the last {@link #update()}, encoder ticks per second. 0 without an encoder. */
@@ -141,11 +232,25 @@ public class IntakeSubsystem implements Subsystem {
     /** Start idle, in plain power mode, the roller at zero and the star servo unwritten until PLAY. */
     @Override
     public void initialize() {
-        state = State.IDLE;
+        request = State.IDLE;
+        roller = State.IDLE;
+        starsState = State.IDLE;
+        feedAssist = false;
+        rollerStopped = false;
         started = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        applyDirection();
         motor.setPower(0.0);
+    }
+
+    /** Sends {@link #reversed} to the motor when it differs from what the motor last got. */
+    private void applyDirection() {
+        DcMotorSimple.Direction wanted = directionFor(reversed);
+        if (wanted != appliedDirection) {
+            motor.setDirection(wanted);
+            appliedDirection = wanted;
+        }
     }
     /** PLAY: the star servo may be written from now on. */
     @Override
@@ -155,18 +260,27 @@ public class IntakeSubsystem implements Subsystem {
 
 
     /**
-     * One write per loop to the roller and, from PLAY, one to the star wheels, the powers the request
-     * asks for, clamped so Panels cannot overdrive them; then one read of speed (from the bulk read) and,
-     * while running, one of current every 100 ms.
+     * Decide what the roller and the stars do from the request and the feeder's ({@link #rollerFor},
+     * {@link #starsFor}); then one write per loop to the roller and, from PLAY, one to the star
+     * wheels, clamped so Panels cannot overdrive them; then one read of speed (from the bulk read)
+     * and, while running, one of current every 100 ms. Before PLAY the roller gets zero and the
+     * stars nothing, whatever is asked (see {@link Subsystem}).
      */
     @Override
     public void update() {
-        motor.setPower(powerFor(state, inPower, outPower, reversed));
+        applyDirection();
+        FeederSubsystem.State feed = feeder.state();
+        roller = started ? rollerFor(request, feed, rollerWhileFeeding) : State.IDLE;
+        starsState = started ? starsFor(request, feed) : State.IDLE;
+        rollerStopped = started && stopsRoller(request, feed, laneCount.getAsInt(), stopRollerAtCount);
+        if (rollerStopped) roller = State.IDLE;
+        feedAssist = request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
+        motor.setPower(powerFor(roller, inPower, outPower));
         if (started) {
-            stars.setPower(starsPowerFor(state, starsPower, starsReversed));
+            stars.setPower(starsPowerFor(starsState, starsPower, starsReversed));
         }
         ticksPerSecond = motor.getVelocity();
-        if (state == State.IDLE) {
+        if (roller == State.IDLE) {
             currentAmps = Double.NaN;
             currentRead.reset();
         } else if (currentEveryLoop || currentRead.due(System.nanoTime())) {
@@ -185,7 +299,10 @@ public class IntakeSubsystem implements Subsystem {
     /** Cut power. Safe to call whether or not {@link #initialize()} ran. */
     @Override
     public void stop() {
-        state = State.IDLE;
+        request = State.IDLE;
+        roller = State.IDLE;
+        starsState = State.IDLE;
+        feedAssist = false;
         motor.setPower(0.0);
         stars.setPower(0.0);
     }
@@ -197,8 +314,15 @@ public class IntakeSubsystem implements Subsystem {
 
     @Override
     public void describe(Display display) {
-        display.status("Intake", state == State.IDLE ? Display.Level.OK : Display.Level.WARN,
-                state == State.IN ? "IN · stars turning" : state == State.OUT ? "OUT · stars backing" : "idle");
+        boolean moving = roller != State.IDLE || starsState != State.IDLE;
+        String what = rollerStopped ? "IN · stars turning, roller stopped (lane " + laneCount.getAsInt() + ")"
+                : roller == State.IN ? "IN · stars turning"
+                : roller == State.OUT ? "OUT · stars backing"
+                : starsState == State.IN ? "roller idle · stars turning"
+                : starsState == State.OUT ? "roller idle · stars backing"
+                : "idle";
+        display.status("Intake", moving ? Display.Level.WARN : Display.Level.OK,
+                what + (feedAssist ? " (for the feed)" : ""));
         double rpm = rpm();
         display.line(String.format(Locale.US, "Roller %.0f ticks/s%s · %s",
                 ticksPerSecond,
@@ -213,10 +337,45 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     /**
-     * The motor power for a request: {@code +in} for IN, {@code -out} for OUT, 0 when idle, each
-     * magnitude clamped to [0, 1] and negated when {@code reversed}. Pure, so a test can check it.
+     * The motor's direction for {@link #reversed}: the SDK flips the power and the encoder together,
+     * so a correct intake reads positive either way. Pure, so a test can check it.
      */
-    static double powerFor(State state, double in, double out, boolean reversed) {
+    static DcMotorSimple.Direction directionFor(boolean reversed) {
+        return reversed ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
+    }
+
+    /**
+     * The roller's state: the OpMode's request, or the feeder's where the request says nothing.
+     * Backing out wins (eject, or the feeder reversing to clear a jam); then in, if asked or if the
+     * feeder is feeding and {@code rollerWhileFeeding}; else idle. Pure, so a test can check it.
+     */
+    static State rollerFor(State request, FeederSubsystem.State feeder, boolean rollerWhileFeeding) {
+        if (request == State.OUT || feeder == FeederSubsystem.State.REVERSE) return State.OUT;
+        if (request == State.IN || (feeder == FeederSubsystem.State.FEED && rollerWhileFeeding)) return State.IN;
+        return State.IDLE;
+    }
+
+    /**
+     * Whether the roller stops for a nearly full lane: the OpMode asked to take in, the feeder is neither
+     * feeding nor reversing, and the lane holds at least {@code atCount} (0 or less: never). Pure,
+     * so a test can check it.
+     */
+    static boolean stopsRoller(State request, FeederSubsystem.State feeder, int laneCount, int atCount) {
+        return atCount > 0 && laneCount >= atCount && request == State.IN
+                && feeder != FeederSubsystem.State.FEED && feeder != FeederSubsystem.State.REVERSE;
+    }
+
+    /** The star wheels' state: as {@link #rollerFor}, but a feed always turns them. */
+    static State starsFor(State request, FeederSubsystem.State feeder) {
+        return rollerFor(request, feeder, true);
+    }
+
+    /**
+     * The motor power for a request, in the intake's own sense (the motor's direction carries
+     * {@link #reversed}): {@code +in} for IN, {@code -out} for OUT, 0 when idle, each magnitude
+     * clamped to [0, 1]. Pure, so a test can check it.
+     */
+    static double powerFor(State state, double in, double out) {
         double power;
         switch (state) {
             case IN:
@@ -228,7 +387,7 @@ public class IntakeSubsystem implements Subsystem {
             default:
                 power = 0.0;
         }
-        return reversed ? -power : power;
+        return power;
     }
 
     /**

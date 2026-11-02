@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
@@ -69,7 +70,7 @@ public class Robot {
     /** The FLOWER stick: one servo on a stick, the extractor's first edition (#177). */
     public final FlowerStickSubsystem flowerStick;
 
-    /** The intake roller: one motor, in, out or idle (#160). Piece counting is #181. */
+    /** The intake roller and star wheels: in, out or idle (#160), and they join a feed. Piece counting is #181. */
     public final IntakeSubsystem intake;
 
     /** The launcher: two flywheels held at one speed (#80). Aiming is #81, the table is #80. */
@@ -90,6 +91,9 @@ public class Robot {
     /** The indicator light: what the drive team most needs to know, in one colour. */
     public final IndicatorSubsystem indicator;
 
+    /** The REV Color Sensor V3 in the transfer: colour and distance, logged only, for now. */
+    public final ColorSensorSubsystem colorSensor;
+
     /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
@@ -105,19 +109,29 @@ public class Robot {
         hive = new HiveSubsystem(vision, drive);
         pieces = new PieceVisionSubsystem(hardwareMap);
         flowerStick = new FlowerStickSubsystem(hardwareMap, drive);
-        intake = new IntakeSubsystem(hardwareMap);
-        launcher = new LauncherSubsystem(hardwareMap);
         feeder = new FeederSubsystem(hardwareMap);
-        // After the intake and the feeder: they follow this loop's requests, not last loop's.
+        // After the feeder, which they follow: the launcher backs up for an unjam, the intake joins
+        // a feed, the prefeed and the gate carry it. List order is update order, so each sees this
+        // loop's requests, not last loop's.
+        launcher = new LauncherSubsystem(hardwareMap, feeder);
+        intake = new IntakeSubsystem(hardwareMap, feeder);
+        // The feeder wheels run whenever the launcher spins or the intake is asked to take pieces in,
+        // behind the shut gate (the requests, set by the OpMode or an Auto card before any update, so
+        // no loop of lag and no order problem).
+        feeder.runWhile(() -> launcher.state() == LauncherSubsystem.State.SPINNING
+                || intake.requested() == IntakeSubsystem.State.IN);
         prefeed = new PrefeedSubsystem(hardwareMap, intake, feeder);
         feedGate = new FeedGateSubsystem(hardwareMap, feeder);
         // After the drive and the hive: an aim this loop uses this loop's pose and HIVE state.
         turret = new TurretSubsystem(hardwareMap);
         indicator = new IndicatorSubsystem(hardwareMap);
+        colorSensor = new ColorSensorSubsystem(hardwareMap, launcher, intake, prefeed);
+        // The intake stops its roller once the lane is nearly full (IntakeSubsystem.stopRollerAtCount).
+        intake.laneCount(() -> colorSensor.lane().count());
 
         subsystems = Collections.unmodifiableList(
-                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake, launcher, feeder, prefeed,
-                        feedGate, turret, indicator));
+                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, feeder, launcher, intake, prefeed,
+                        feedGate, turret, indicator, colorSensor));
     }
 
     /** Every subsystem, in the order they were built. */

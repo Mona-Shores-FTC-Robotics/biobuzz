@@ -31,6 +31,7 @@ import org.firstinspires.ftc.teamcode.logging.Tunables;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
@@ -186,6 +187,8 @@ public abstract class RobotOpMode extends OpMode {
     private String matchId;
     private VoltageSensor battery;
     private long lastBatteryNs;
+    /** The battery's last reading, volts: at INIT and then once a second. NaN with no sensor. */
+    private double lastBatteryVolts = Double.NaN;
     private Alliance loggedAlliance;
     private MatchSetup.Source loggedSource;
 
@@ -224,6 +227,8 @@ public abstract class RobotOpMode extends OpMode {
     private final ImpactWatch impacts = new ImpactWatch();
     private long loggedCameraNs;
     private Object loggedPinpointStatus;
+    /** The lane tracker's slots, front first, built once. */
+    private static final String[] LANE_SLOT_KEYS = {"/Lane/Slot1", "/Lane/Slot2", "/Lane/Slot3", "/Lane/Slot4"};
     private static final String[] WHEEL_KEYS = {"/Drive/WheelTicksPerSec/FrontLeft",
             "/Drive/WheelTicksPerSec/FrontRight", "/Drive/WheelTicksPerSec/BackLeft",
             "/Drive/WheelTicksPerSec/BackRight"};
@@ -256,6 +261,14 @@ public abstract class RobotOpMode extends OpMode {
      */
     protected final boolean hasHandoffPose() {
         return handoffPose;
+    }
+
+    /**
+     * The battery's last reading, volts: taken at INIT and then once a second for the match log, so
+     * reading it here costs no hub round trip. NaN when the configuration has no voltage sensor.
+     */
+    protected final double batteryVolts() {
+        return lastBatteryVolts;
     }
 
     /** Called once, after the robot is built and initialized. Put your init telemetry here. */
@@ -318,6 +331,10 @@ public abstract class RobotOpMode extends OpMode {
         if (declaredStart != null) {
             robot.drive.setPose(declaredStart.pose);
         }
+        // An Auto always starts with the lane full of POLLEN; anything else starts it empty.
+        if (isAutonomous()) {
+            robot.colorSensor.lane().fill(LaneTracker.Piece.POLLEN, LaneTracker.AUTO_PRELOAD);
+        }
 
         // The scheduler is static, so commands survive from one OpMode to the next unless this
         // is called. Reset before scheduling, never after.
@@ -340,6 +357,7 @@ public abstract class RobotOpMode extends OpMode {
         }
         if (battery != null) {
             double volts = battery.getVoltage();
+            lastBatteryVolts = volts;
             log.metadata("BatteryAtInit", String.format(Locale.US, "%.2f V", volts));
             if (volts < LOW_BATTERY_VOLTS) {
                 batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, LOW_BATTERY_VOLTS);
@@ -432,8 +450,17 @@ public abstract class RobotOpMode extends OpMode {
     private void showIndicator(boolean init) {
         boolean cameraFault = !robot.vision.isAvailable() || !robot.vision.isConnected();
         robot.indicator.show(IndicatorSubsystem.choose(init, batteryNote != null, cameraFault,
-                robot.vision.freshResultCount() == 0, indicatorBusy(), robot.drive.poseReferenced(),
-                setup.alliance()));
+                robot.vision.freshResultCount() == 0, indicatorBusy(), robot.colorSensor.lane().count(),
+                IntakeSubsystem.stopRollerAtCount, robot.drive.poseReferenced(), setup.alliance()),
+                !init && indicatorLaunchReady());
+    }
+
+    /**
+     * The launcher is at launch speed, so the light flashes: the drive team can shoot. The
+     * launcher's own at-speed by default; an OpMode with an idle speed narrows it to launch speed.
+     */
+    protected boolean indicatorLaunchReady() {
+        return robot.launcher.atSpeed();
     }
 
     /**
@@ -1061,6 +1088,9 @@ public abstract class RobotOpMode extends OpMode {
         if (!Double.isNaN(intakeAmps)) {
             log.put("/Intake/CurrentAmps", intakeAmps);
         }
+        // The intake running with nothing asking for it: it joined a feed (IntakeSubsystem.rollerFor).
+        log.put("/Intake/FeedAssist", robot.intake.feedAssist() ? 1 : 0);
+        log.put("/Intake/RollerStopped", robot.intake.rollerStopped() ? 1 : 0);
         // The launcher's speed loop and the feeder, so a log shows what the wheels did at each shot.
         log.put("/Launcher/TargetTicksPerSecond", robot.launcher.isSpinning() ? robot.launcher.target() : 0.0);
         log.put("/Launcher/LeftTicksPerSecond", robot.launcher.leftTicksPerSecond());
@@ -1080,6 +1110,7 @@ public abstract class RobotOpMode extends OpMode {
         if (!Double.isNaN(rightAmps)) {
             log.put("/Launcher/RightCurrentAmps", rightAmps);
         }
+        log.put("/Launcher/Reversing", robot.launcher.reversing() ? 1 : 0);
         log.put("/Feeder/Power", robot.feeder.power());
         log.put("/Feeder/TicksPerSecond", robot.feeder.ticksPerSecond());
         double feederAmps = robot.feeder.currentAmps();
@@ -1093,6 +1124,27 @@ public abstract class RobotOpMode extends OpMode {
         if (!Double.isNaN(gatePosition)) {
             log.put("/FeedGate/Position", gatePosition);
         }
+        // The colour sensor, data only: written when it read, so the log shows its real rate.
+        if (robot.colorSensor.fresh()) {
+            log.put("/ColorSensor/Red", robot.colorSensor.red());
+            log.put("/ColorSensor/Green", robot.colorSensor.green());
+            log.put("/ColorSensor/Blue", robot.colorSensor.blue());
+            log.put("/ColorSensor/Alpha", robot.colorSensor.alpha());
+            log.put("/ColorSensor/DistanceMm", robot.colorSensor.distanceMm());
+            double hue = robot.colorSensor.hueDegrees();
+            if (!Double.isNaN(hue)) log.put("/ColorSensor/HueDeg", hue);
+            log.put("/ColorSensor/Saturation", robot.colorSensor.saturation());
+        }
+        // The lane tracker's guess (LaneTracker), data only: count, each slot (0 empty, 1 POLLEN,
+        // 2 red NECTAR, 3 blue NECTAR, 4 unknown, front first), and its arrivals, shots and ejects as events.
+        LaneTracker lane = robot.colorSensor.lane();
+        log.put("/Lane/Count", lane.count());
+        log.put("/Lane/Present", lane.present() ? 1 : 0);
+        for (int i = 0; i < LaneTracker.SLOTS; i++) {
+            LaneTracker.Piece piece = lane.slot(i);
+            log.put(LANE_SLOT_KEYS[i], piece == null ? 0 : piece.ordinal() + 1);
+        }
+        if (lane.event() != null) log.event(lane.event());
         // The turret: where it points, where it was asked to, and whether anyone zeroed it.
         log.put("/Turret/AngleDeg", robot.turret.angleDegrees());
         log.put("/Turret/TargetDeg", robot.turret.targetDegrees());
@@ -1119,7 +1171,8 @@ public abstract class RobotOpMode extends OpMode {
             }
         }
         if (battery != null && now - lastBatteryNs >= BATTERY_EVERY_MS * 1_000_000L) {
-            log.put("/Robot/BatteryVolts", battery.getVoltage());
+            lastBatteryVolts = battery.getVoltage();
+            log.put("/Robot/BatteryVolts", lastBatteryVolts);
             lastBatteryNs = now;
         }
         log.commit();

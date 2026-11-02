@@ -118,6 +118,9 @@ public final class AutoRegistration {
         // null robot only describes the list; its factories are never called.
         final LaunchCards launch = robot == null ? null : LaunchCards.forRobot(robot, settle, note);
         return new AutoRegistry()
+                // A step's time limit never cuts a feed: it guards the wait for spin-up only, and the
+                // feed runs LaunchCards' set time (one number to tune, not one per step).
+                .holdTimeLimitsWhile(() -> launch != null && launch.feeding())
                 // ---- real: the launcher and the feeder. Typical seconds are what the editor's
                 // preview shows; the feed times themselves are LaunchCards' Panels numbers.
                 .command("LaunchAll", 2.0, () -> launch.launchAll())

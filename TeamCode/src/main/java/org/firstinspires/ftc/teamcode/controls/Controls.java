@@ -29,7 +29,21 @@ public final class Controls {
 
     public Controls(Input flowerPick, Gamepad driverPad, Gamepad operatorPad,
                     Bindings driver, Bindings operator) {
-        this.layout = ControlScheme.layout(flowerPick);
+        this(ControlScheme.layout(flowerPick), driverPad, operatorPad, driver, operator);
+    }
+
+    /**
+     * As above, leaving the turret's controls out when {@code turretLocked}
+     * ({@link ControlScheme#layout(Input, boolean)}): the match TeleOp's layout.
+     */
+    public Controls(Input flowerPick, boolean turretLocked, Gamepad driverPad, Gamepad operatorPad,
+                    Bindings driver, Bindings operator) {
+        this(ControlScheme.layout(flowerPick, turretLocked), driverPad, operatorPad, driver, operator);
+    }
+
+    private Controls(Map<Action, Input> layout, Gamepad driverPad, Gamepad operatorPad,
+                     Bindings driver, Bindings operator) {
+        this.layout = layout;
         this.driverPad = driverPad;
         this.operatorPad = operatorPad;
         this.driver = driver;
