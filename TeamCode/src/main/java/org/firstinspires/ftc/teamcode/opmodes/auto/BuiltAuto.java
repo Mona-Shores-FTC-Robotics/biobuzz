@@ -51,9 +51,10 @@ import java.util.function.Function;
  * camera can confirm the alliance without a button press. Until an alliance is known the declared
  * start is the drawing's own; once one is chosen that differs from {@code DRAWN_FOR}, the declared
  * start becomes the rotated one, and {@link RobotOpMode} moves the pose there. The camera finds the
- * alliance itself: during INIT it fits the robot's whole pose from the tags, heading included, and
- * if that sits on one of the two starts for {@link StartMatch#FRAMES_TO_AGREE} frames, that start's
- * alliance is proposed ({@link #allianceFromStarts}). Square (X) or Circle (B) still wins; with no
+ * alliance itself: during INIT every camera frame is solved position-only with each start's own
+ * heading ({@code DriveSubsystem.setStartCandidates}), and if one start's solve sits on it for
+ * {@link StartMatch#FRAMES_TO_AGREE} frames, that start's alliance is proposed
+ * ({@link #allianceFromStarts}). One HIVE in view is enough, which is all a start sees. Square (X) or Circle (B) still wins; with no
  * match there is no alliance, and the Auto does not move.
  *
  * <p>While mechanisms are still missing, the names {@link AutoRegistration#PLACEHOLDERS} lists are
@@ -158,7 +159,7 @@ public abstract class BuiltAuto extends RobotOpMode {
             }
         }
         robot.drive.preparePathFollowing();
-        robot.drive.setWholePoseFits(true);
+        robot.drive.setStartCandidates(drawnStart.pose, rotatedStart.pose);
         pathLog = new AutoPathLog(log);
         // Which drawing this was, and which of its waits were running on placeholders.
         log.metadata("AutoSource", source);
@@ -187,14 +188,15 @@ public abstract class BuiltAuto extends RobotOpMode {
         display.line(source + ": drawn for " + drawnFor + "; the other alliance runs it rotated.");
     }
 
-    /** Which of the two starts the camera's whole-pose fits sit on; see the class comment. */
+    /** Which of the two starts the camera puts the robot on, each tried with its own heading; see the class comment. */
     @Override
     protected Alliance allianceFromStarts() {
-        long ns = robot.drive.wholeCameraPoseNs();
-        if (ns != startMatchNs && robot.drive.wholeCameraPose() != null) {
+        long ns = robot.drive.candidateFixNs();
+        if (ns != 0 && ns != startMatchNs) {
             startMatchNs = ns;
             Alliance before = startMatch.settled();
-            Alliance now = startMatch.update(robot.drive.wholeCameraPose(), drawnStart, rotatedStart);
+            Alliance now = startMatch.update(robot.drive.candidateFix(0), robot.drive.candidateFix(1),
+                    drawnStart, rotatedStart);
             if (now != before) {
                 log.event(now == Alliance.UNKNOWN ? "Start: the camera no longer puts the robot on either start"
                         : "Start: the camera puts the robot on the " + now + " start");
@@ -205,7 +207,7 @@ public abstract class BuiltAuto extends RobotOpMode {
 
     @Override
     protected void onStart() {
-        robot.drive.setWholePoseFits(false);
+        robot.drive.setStartCandidates();
         Alliance alliance = setup.alliance();
         if (alliance == Alliance.UNKNOWN) {
             problem = "No alliance chosen before PLAY (Square (X) = blue, Circle (B) = red during INIT). Not moving.";

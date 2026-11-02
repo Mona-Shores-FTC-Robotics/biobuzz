@@ -148,6 +148,14 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private boolean wholePoseFits;
     private Pose wholeCameraPose;
     private long wholeCameraPoseNs;
+    /**
+     * The starts an INIT may be on ({@link #setStartCandidates}): each frame is solved position-only
+     * with each candidate's own heading, which needs one HIVE, not two, and puts a robot on the other
+     * start about two ranges away.
+     */
+    private Pose[] startCandidates = new Pose[0];
+    private Pose[] candidateFixes = new Pose[0];
+    private long candidateFixNs;
 
     /** What the pose would be with still fixes on ({@link ShadowPose}): logged, never driven on. */
     private final ShadowPose shadow = new ShadowPose();
@@ -681,6 +689,27 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         if (!on) wholeCameraPose = null;
     }
 
+    /**
+     * The starts the robot may be on in INIT (an Auto's drawn and rotated starts). On every fresh
+     * camera frame each is tried as the heading for a position-only solve ({@code TagGate.solve}),
+     * read back by {@link #candidateFix}. One HIVE's tags are enough: with the wrong start's heading
+     * the tags put the robot about two ranges away, with the right one within inches, so this is a
+     * stronger test than the whole-pose fit's heading ever was. None clears them.
+     */
+    public void setStartCandidates(Pose... candidates) {
+        startCandidates = candidates == null ? new Pose[0] : candidates;
+        candidateFixes = new Pose[startCandidates.length];
+        candidateFixNs = 0;
+    }
+
+    /** Where the latest frame puts the robot with candidate {@code i}'s heading, or null. See {@link #candidateFixNs}. */
+    public Pose candidateFix(int i) {
+        return i < candidateFixes.length ? candidateFixes[i] : null;
+    }
+
+    /** When the candidates were last solved, System.nanoTime; 0 never. */
+    public long candidateFixNs() { return candidateFixNs; }
+
     /** The last whole-pose fit, or null; see {@link #setWholePoseFits}. Paired with {@link #wholeCameraPoseNs}. */
     public Pose wholeCameraPose() { return wholeCameraPose; }
 
@@ -786,6 +815,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         if (!gatherTags(true) || gate.count() == 0) {
             return;
         }
+        solveStartCandidates();
         if (!poseReferenced) {
             gate.solve(Double.NaN);
             Pose full = fitAccepted();
@@ -839,6 +869,17 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         recentFixY[recentFixNext] = fix.y();
         recentFixNext = (recentFixNext + 1) % RECENT_FIXES;
         recentFixFilled = Math.min(recentFixFilled + 1, RECENT_FIXES);
+    }
+
+    /** {@link #setStartCandidates}: the gate solved once per candidate, before the solves the frame is used for. */
+    private void solveStartCandidates() {
+        if (startCandidates.length == 0) return;
+        for (int i = 0; i < startCandidates.length; i++) {
+            Pose c = startCandidates[i];
+            candidateFixes[i] = c != null && gate.solve(c.heading()) == TagGate.Verdict.OK
+                    ? new Pose(gate.x(), gate.y(), c.heading()) : null;
+        }
+        candidateFixNs = System.nanoTime();
     }
 
     /**
