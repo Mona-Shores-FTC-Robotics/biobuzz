@@ -47,8 +47,11 @@ public final class RSimpleAuto {
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose rightPark = p.of(9.6, 95.7, 0);
 
+        // Other poses the paths need (control points, unnamed endpoints).
+        Pose toRightParkControl1 = p.of(25, 40, 0);
+
         // Paths, written as the stock Visualizer export writes them.
-        Path toRightPark = Paths.line(rightStart, rightPark).linear(rightStart, rightPark);
+        Path toRightPark = Paths.curve(rightStart, toRightParkControl1, rightPark).linear(rightStart, rightPark);
 
         return kit.sequence(
                 kit.guarded("Auto", toRightPark, 2.9,
