@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-brady.pp",
-  "spec": "RBradyAuto,LParkAuto@50",
+  "spec": "RBradyAuto,LSimpleAuto@50",
   "design": "real robot, turret locked forward, POLLEN only",
   "partnerDesign": null,
   "partnerSpeed": null,
