@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/r-quals.pp",
-  "spec": "RQualsAuto,LSimpleAuto@50",
+  "pp": "TeamCode/autos/l-simple.pp",
+  "spec": "LSimpleAuto,RParkAuto@50",
   "design": "real robot, turret locked forward, POLLEN only",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -18,7 +18,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "r-quals.pp",
+    "AutoSource": "l-simple.pp",
     "SavedBy": "team spots v2 (Claude), partnered"
   }
 }
