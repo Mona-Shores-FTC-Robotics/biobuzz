@@ -469,6 +469,7 @@ public class HiveAndPose extends RobotOpMode {
             display.status("Camera", gap <= 3 ? Display.Level.OK : Display.Level.WARN,
                     describe(camera) + String.format(Locale.US, " · %.1f in from odometry", gap));
         }
+        showHeadingCheck();
         display.line("Pose set by: " + robot.drive.poseNote());
         display.line("Last A / D-pad left: " + relocalizeNote);
         DriveSubsystem.StillFix stillFix = robot.drive.stillFix();

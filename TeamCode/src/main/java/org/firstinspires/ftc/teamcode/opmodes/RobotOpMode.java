@@ -34,6 +34,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
+import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
@@ -225,6 +226,7 @@ public abstract class RobotOpMode extends OpMode {
     private String loggedLauncherFault;
     // Drift: pushes and jolts, the camera frame last logged, the Pinpoint's last status.
     private final ImpactWatch impacts = new ImpactWatch();
+    private int loggedAutoHeadingFixes;
     private long loggedCameraNs;
     private Object loggedPinpointStatus;
     /** The lane tracker's slots, front first, built once. */
@@ -862,6 +864,21 @@ public abstract class RobotOpMode extends OpMode {
         gamepad2.rumble(200);
     }
 
+    /**
+     * One Match-page line while the robot is still with tags in view: the camera's heading against the
+     * Pinpoint's. Past {@link LocalizationTuning#headingFixDeg} it warns and says what to press, so a
+     * robot that "drives funny" is explained before the sticks find out. Nothing while moving.
+     */
+    protected void showHeadingCheck() {
+        double diff = robot.drive.cameraHeadingDiffDeg();
+        int frames = robot.drive.cameraHeadingFrames();
+        if (Double.isNaN(diff) || frames < LocalizationTuning.headingFixFrames || !robot.drive.isStill()) return;
+        boolean off = Math.abs(diff) > LocalizationTuning.headingFixDeg;
+        display.status("Heading", off ? Display.Level.WARN : Display.Level.OK, String.format(java.util.Locale.US,
+                "camera vs odometry %+.1f° over %d frames%s", diff, frames,
+                off ? " — the Pinpoint heading is off: hold still and hold the camera reset" : ""));
+    }
+
     private boolean isAutonomous() {
         return getClass().isAnnotationPresent(Autonomous.class);
     }
@@ -1023,8 +1040,16 @@ public abstract class RobotOpMode extends OpMode {
                 log.put("/Drift/GapYIn", camera.y() - pose.y());
                 log.put("/Drift/Still", robot.drive.isStill() ? 1 : 0);
             }
+            double headingDiff = robot.drive.cameraHeadingDiffDeg();
+            if (!Double.isNaN(headingDiff)) log.put("/Drift/CameraHeadingDiffDeg", headingDiff);
         }
         loggedCameraNs = cameraNs;
+        // A heading correction the drive applied by itself (LocalizationTuning.autoHeadingFixes); the
+        // button's are logged by the OpMode that owns the button.
+        if (robot.drive.autoHeadingFixesApplied() != loggedAutoHeadingFixes) {
+            loggedAutoHeadingFixes = robot.drive.autoHeadingFixesApplied();
+            log.event("pose: automatic " + robot.drive.lastHeadingFix());
+        }
 
         if (mode == MatchLog.Mode.DISABLED || pose == null) return;
         ImpactWatch.Event event = impacts.update(System.currentTimeMillis(),

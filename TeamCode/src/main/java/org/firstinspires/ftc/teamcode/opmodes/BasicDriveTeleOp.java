@@ -336,6 +336,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         holdResets(System.nanoTime(), true);
         display.status("Basic Drive", Display.Level.OK, "ready — Share (Back) shows the controls");
         showControlsNotes();
+        showHeadingCheck();
         if (poseNote != null) display.line("Last pose fix: " + poseNote);
         showPinpoint();
     }
@@ -442,6 +443,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         display.line("Gates (shadow" + (TeleOpConfig.enforceAtSpeedGate || TeleOpConfig.enforceAimGate ? ", some enforced" : "")
                 + "): " + gates.summary());
+        showHeadingCheck();
         if (poseNote != null) display.line("Last pose fix: " + poseNote);
         if (autoParkNote != null) display.line(autoParkNote);
         recordShot();
