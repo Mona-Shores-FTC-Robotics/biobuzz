@@ -87,4 +87,47 @@ public class LaneFullTest {
         assertFalse(lane.present());
         assertFalse(lane.full());
     }
+
+    @Test
+    public void aZeroHoldNeedsSomeTimeTakingIn() {
+        for (int i = 0; i < 5; i++, now += 50) lane.step(now, BALL, false, PRESENT, LEAVE, 0);
+        assertFalse("an idle intake is never full", lane.full());
+        lane.step(now, BALL, true, PRESENT, LEAVE, 0);
+        now += 50;
+        lane.step(now, BALL, true, PRESENT, LEAVE, 0);
+        assertTrue(lane.full());
+    }
+
+    @Test
+    public void turningTheHoldOffClearsALatchedFull() {
+        hold(BALL, true, 700);
+        assertTrue(lane.full());
+        lane.step(now, BALL, true, PRESENT, LEAVE, Double.NaN);
+        assertFalse(lane.full());
+    }
+
+    @Test
+    public void aLeaveThresholdAbovePresentIsClampedSoNothingFlickers() {
+        // leaveBelow 0.5 above presentAbove 0.10: a piece reading 0.3 stays present, as in LaneTracker.
+        for (int i = 0; i < 14; i++, now += 50) lane.step(now, BALL, true, PRESENT, 0.5, FULL_AFTER);
+        assertTrue(lane.full());
+    }
+
+    @Test
+    public void aNanReadingEndsThePieceSoTheRollerIsNeverHeldByIt() {
+        hold(BALL, true, 700);
+        assertTrue(lane.full());
+        lane.step(now, Double.NaN, true, PRESENT, LEAVE, FULL_AFTER);
+        assertFalse(lane.present());
+        assertFalse(lane.full());
+    }
+
+    @Test
+    public void eachDepartureCountsOnce() {
+        hold(BALL, true, 200);
+        hold(EMPTY, true, 200);
+        hold(BALL, true, 200);
+        hold(EMPTY, true, 200);
+        assertEquals(2, lane.departures());
+    }
 }

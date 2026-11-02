@@ -230,6 +230,9 @@ public abstract class RobotOpMode extends OpMode {
     private String pinpointProblem;
     private String loggedWarnings;
     private boolean loggedLaneFull;
+    private long loggedDepartures;
+    /** Between INIT and PLAY. */
+    private boolean initializing = true;
 
     // A mechanism asked to move whose encoder never does: one event each, from the log alone.
     private final MotionWatch intakeWatch = new MotionWatch("intake");
@@ -546,6 +549,7 @@ public abstract class RobotOpMode extends OpMode {
         loopTimer.reset();
         // Before this, nothing moved (G304.H, G403); from here on the mechanisms may.
         robot.start();
+        initializing = false;
         logStartCheck();
         setup.lock();
         driver.prime();
@@ -946,6 +950,11 @@ public abstract class RobotOpMode extends OpMode {
         }
         telemetry.clear();
         display.header();
+        // The light flashes white on every page, so every page says why, in one line.
+        if (initializing && isAutonomous() && initWarnings.any()) {
+            display.line("<b><font color=\"#FFB300\">" + initWarnings.count()
+                    + " TO FIX: see the Match page (Share)</font></b>");
+        }
         if (page == Display.Page.CONTROLS) {
             display.section("BEFORE PLAY — either gamepad");
             display.line("Square (X) — Blue alliance");
@@ -1229,10 +1238,14 @@ public abstract class RobotOpMode extends OpMode {
             log.event(loggedLaneFull
                     ? String.format(Locale.US, "Lane: FULL, piece under the sensor %.1f s (%.1f s intaking), tracker counts %d",
                             full.presentForMs() / 1000, full.heldWhileIntakingMs() / 1000, lane.count())
-                    : String.format(Locale.US, "Lane: full cleared after %.1f s under the sensor, tracker counts %d",
-                            full.endedDwellMs() / 1000, lane.count()));
+                    : Double.isNaN(full.endedDwellMs())
+                            ? "Lane: full cleared (fullHoldS turned off), tracker counts " + lane.count()
+                            : String.format(Locale.US, "Lane: full cleared after %.1f s under the sensor, tracker counts %d",
+                                    full.endedDwellMs() / 1000, lane.count()));
         }
-        if (!Double.isNaN(full.endedDwellMs())) {
+        // Once per departure: the sensor reads every 50 ms, the loop more often.
+        if (full.departures() != loggedDepartures) {
+            loggedDepartures = full.departures();
             log.put("/Lane/DwellMs", full.endedDwellMs());
             log.event(String.format(Locale.US, "Lane: piece under the sensor %.0f ms%s",
                     full.endedDwellMs(), full.endedFull() ? " (was full)" : ""));

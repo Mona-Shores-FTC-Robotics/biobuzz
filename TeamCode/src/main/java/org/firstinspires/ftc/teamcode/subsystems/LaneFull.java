@@ -34,16 +34,20 @@ public final class LaneFull {
     private boolean full;
     private double endedDwellMs = Double.NaN;
     private boolean endedFull;
+    private long departures;
 
     /**
      * One fresh sensor reading.
      *
      * @param nowMs        a monotonic clock, ms
-     * @param brightness   the sensor's clear channel
+     * @param brightness   the sensor's clear channel; NaN reads as no piece, so the roller is
+     *                     never held stopped by a bad reading
      * @param intaking     the intake is taking in
      * @param presentAbove a piece is there above this brightness; NaN: never (full is off)
-     * @param leaveBelow   and gone below this; NaN: the same as {@code presentAbove}
-     * @param fullAfterMs  held this long while taking in is full; NaN or negative: never
+     * @param leaveBelow   and gone below this; NaN, or above {@code presentAbove}: the same as
+     *                     {@code presentAbove}, as {@code LaneTracker} does
+     * @param fullAfterMs  held this long while taking in is full; NaN or negative: never, and a
+     *                     full already latched clears at once
      */
     public void step(long nowMs, double brightness, boolean intaking,
                      double presentAbove, double leaveBelow, double fullAfterMs) {
@@ -51,9 +55,9 @@ public final class LaneFull {
         double elapsed = hasLast ? Math.max(0, nowMs - lastMs) : 0;
         lastMs = nowMs;
         hasLast = true;
-        double leave = Double.isNaN(leaveBelow) ? presentAbove : leaveBelow;
+        double leave = Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove);
         boolean wasPresent = present;
-        if (Double.isNaN(presentAbove)) {
+        if (Double.isNaN(presentAbove) || Double.isNaN(brightness)) {
             present = false;
         } else if (present) {
             present = !(brightness < leave);
@@ -68,10 +72,13 @@ public final class LaneFull {
         } else if (!present && wasPresent) {
             endedDwellMs = nowMs - presentSinceMs;
             endedFull = full;
+            departures++;
         }
-        if (!present) {
+        boolean enabled = fullAfterMs >= 0;
+        if (!present || !enabled) {
             full = false;
-        } else if (!full && fullAfterMs >= 0 && heldWhileIntakingMs >= fullAfterMs) {
+        } else if (!full && heldWhileIntakingMs > 0 && heldWhileIntakingMs >= fullAfterMs) {
+            // Some time taking in is always needed: a zero hold never makes an idle intake full.
             full = true;
         }
     }
@@ -102,6 +109,15 @@ public final class LaneFull {
      */
     public double endedDwellMs() {
         return endedDwellMs;
+    }
+
+    /**
+     * Pieces that have left the sensor so far, one count each: a caller that logs each departure
+     * once compares this with the count it last logged, since the sensor reads less often than
+     * the loop runs.
+     */
+    public long departures() {
+        return departures;
     }
 
     /** Whether the piece that just left ({@link #endedDwellMs()}) had made the lane full. */

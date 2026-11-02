@@ -162,7 +162,8 @@ public class ColorSensorSubsystem implements Subsystem {
                 outward, launcher.shotJustDetected(), presentAbove, leaveBelow);
         if (fresh) {
             // After the tracker, so its count of this same reading is the hint.
-            double holdS = lane.full() ? fullHoldWhenCountedS : fullHoldS;
+            // Never sooner than fullHoldS allows: with it off (NaN or negative), full is off.
+            double holdS = lane.full() && fullHoldS >= 0 ? fullHoldWhenCountedS : fullHoldS;
             laneFull.step(now / 1_000_000L, alpha, intake.requested() == IntakeSubsystem.State.IN,
                     presentAbove, leaveBelow, holdS * 1000.0);
         }
