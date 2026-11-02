@@ -42,4 +42,17 @@ public class ColorSensorSubsystemTest {
         assertEquals(0.5, ColorSensorSubsystem.saturation(0.4, 0.2, 0.3), 1e-9);
         assertEquals(0.0, ColorSensorSubsystem.saturation(0, 0, 0), 1e-9);
     }
+
+    @Test
+    public void readsFastOnlyWhileAPieceCanMove() {
+        assertEquals(50, ColorSensorSubsystem.readIntervalMs(true, 50, 250));
+        assertEquals(250, ColorSensorSubsystem.readIntervalMs(false, 50, 250));
+    }
+
+    @Test
+    public void idleIsNeverFasterThanMoving() {
+        assertEquals(100, ColorSensorSubsystem.readIntervalMs(false, 100, 20));
+        assertEquals(0, ColorSensorSubsystem.readIntervalMs(true, -5, 250));
+        assertEquals(250, ColorSensorSubsystem.readIntervalMs(false, -5, 250));
+    }
 }

@@ -28,6 +28,7 @@ import org.firstinspires.ftc.teamcode.logging.MatchLogFiles;
 import org.firstinspires.ftc.teamcode.logging.BuildStamp;
 import org.firstinspires.ftc.teamcode.logging.MotionWatch;
 import org.firstinspires.ftc.teamcode.logging.Tunables;
+import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -1347,7 +1348,9 @@ public abstract class RobotOpMode extends OpMode {
             log.put("/ColorSensor/Green", robot.colorSensor.green());
             log.put("/ColorSensor/Blue", robot.colorSensor.blue());
             log.put("/ColorSensor/Alpha", robot.colorSensor.alpha());
-            log.put("/ColorSensor/DistanceMm", robot.colorSensor.distanceMm());
+            if (ColorSensorSubsystem.readDistance) {
+                log.put("/ColorSensor/DistanceMm", robot.colorSensor.distanceMm());
+            }
             double hue = robot.colorSensor.hueDegrees();
             if (!Double.isNaN(hue)) log.put("/ColorSensor/HueDeg", hue);
             log.put("/ColorSensor/Saturation", robot.colorSensor.saturation());

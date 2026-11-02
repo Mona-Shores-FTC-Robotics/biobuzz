@@ -18,10 +18,14 @@ import java.util.Locale;
  * it: whether the lane is full (below); its colours are data only.
  *
  * <p>It is an I2C device, so every read is a round trip to the hub that the bulk cache does not
- * cover (the colour block, then the proximity). It reads every {@link #readEveryMs}, not every loop,
- * the way {@code RobotOpMode} reads the battery; {@code /Loop/Subsystem/ColorSensorSubsystemMs}
- * shows what a read costs. It moves nothing, so it reads in INIT too: the preloads are in front of
- * it before PLAY.
+ * cover, about 2.5 ms each on the Control Hub ({@code /Loop/Subsystem/ColorSensorSubsystemMs}, 2 Nov
+ * 2026: colour plus proximity cost 5.3 ms a loop and doubled Basic Drive's loop with the rest). So
+ * the loop reads the colour block only: nothing is decided from the proximity, which reads
+ * POLLEN as barely nearer than an empty lane, and it is read at init for the health line, and in
+ * the loop only with {@link #readDistance}. It reads every {@link #readEveryMs} while the intake,
+ * its stars or the prefeed runs, the only times a piece can move under it, and every
+ * {@link #readIdleEveryMs} otherwise. It moves nothing, so it reads in INIT too: the preloads are
+ * in front of it before PLAY.
  *
  * <p>It says whether the lane is <b>full</b> ({@link #full()}, {@link LaneFull}): a piece held under
  * it for {@link #fullHoldS} while the intake takes in (sooner, {@link #fullHoldWhenCountedS},
@@ -48,6 +52,20 @@ public class ColorSensorSubsystem implements Subsystem {
      * second at least once and costs a fraction of reading every loop. 0 reads every loop.
      */
     public static int readEveryMs = 50;
+
+    /**
+     * How often to read while the intake, its stars and the prefeed are all stopped, ms: then no
+     * piece moves under the sensor, so the reading only refreshes the screens and a piece placed
+     * by hand (preloads in INIT). 250 sees a placed piece within a quarter second. Never faster
+     * than {@link #readEveryMs}.
+     */
+    public static int readIdleEveryMs = 250;
+
+    /**
+     * Also read the proximity in the loop: a second I2C round trip, about 2.5 ms, for a number
+     * nothing decides from. For the bench (Launch Test's {@code color_distance_mm}); off in a match.
+     */
+    public static boolean readDistance = false;
 
     /**
      * A piece is under the sensor above this brightness (the clear channel, {@link #alpha()}). NaN
@@ -136,7 +154,7 @@ public class ColorSensorSubsystem implements Subsystem {
     /** One read, so {@link #health()} can say what the sensor answered. Not in the loop. */
     @Override
     public void initialize() {
-        read(System.nanoTime());
+        read(System.nanoTime(), true);
         atInit = allZero()
                 ? "reads all zero: unplugged, or not on the bus robot_<name>.xml gives it"
                 : String.format(Locale.US, "answering: %s, gain %.1f", summary(), sensor.getGain());
@@ -149,9 +167,13 @@ public class ColorSensorSubsystem implements Subsystem {
     @Override
     public void update() {
         long now = System.nanoTime();
-        fresh = !everRead || now - lastReadNs >= Math.max(0, readEveryMs) * 1_000_000L;
+        boolean laneMoving = intake.state() != IntakeSubsystem.State.IDLE
+                || intake.starsState() != IntakeSubsystem.State.IDLE
+                || prefeed.state() != PrefeedSubsystem.State.IDLE;
+        long intervalNs = readIntervalMs(laneMoving, readEveryMs, readIdleEveryMs) * 1_000_000L;
+        fresh = !everRead || now - lastReadNs >= intervalNs;
         if (fresh) {
-            read(now);
+            read(now, readDistance);
         }
         // The lane runs outward when the stars do, whatever the roller does.
         boolean outward = intake.starsState() == IntakeSubsystem.State.OUT
@@ -184,13 +206,26 @@ public class ColorSensorSubsystem implements Subsystem {
         return lane;
     }
 
-    private void read(long now) {
+    /**
+     * How long between reads, ms: {@code readEveryMs} while a piece can move under the sensor,
+     * else {@code readIdleEveryMs}, never faster than the first. Negatives read as 0 (every loop).
+     * Pure, so a test can check it.
+     */
+    static long readIntervalMs(boolean laneMoving, int readEveryMs, int readIdleEveryMs) {
+        long moving = Math.max(0, readEveryMs);
+        return laneMoving ? moving : Math.max(moving, readIdleEveryMs);
+    }
+
+    /** One read of the colour block, and of the proximity too when {@code withDistance}. */
+    private void read(long now, boolean withDistance) {
         NormalizedRGBA c = sensor.getNormalizedColors();
         red = c.red;
         green = c.green;
         blue = c.blue;
         alpha = c.alpha;
-        distanceMm = proximity.getDistance(DistanceUnit.MM);
+        if (withDistance) {
+            distanceMm = proximity.getDistance(DistanceUnit.MM);
+        }
         hueDeg = hueDegrees(red, green, blue);
         saturation = saturation(red, green, blue);
         lastReadNs = now;
@@ -223,7 +258,10 @@ public class ColorSensorSubsystem implements Subsystem {
         return alpha;
     }
 
-    /** Distance to what is in front of it, mm, from the proximity sensor. Only meaningful within a few cm. */
+    /**
+     * Distance to what is in front of it, mm, from the proximity sensor. Only meaningful within a
+     * few cm. Read at init, then in the loop only with {@link #readDistance}: otherwise it is init's.
+     */
     public double distanceMm() {
         return distanceMm;
     }
