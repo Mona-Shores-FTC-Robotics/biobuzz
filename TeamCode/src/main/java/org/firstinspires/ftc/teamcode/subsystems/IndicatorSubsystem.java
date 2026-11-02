@@ -26,7 +26,8 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  *   <tr><td>A FLOWER pick or GARDEN gather is driving</td><td>violet</td></tr>
  *   <tr><td>After PLAY, the lane tracker counts the lane full ({@code IntakeSubsystem.stopRollerAtCount}
  *       or more): stop intaking, go and shoot</td><td>green</td></tr>
- *   <tr><td>After PLAY, one piece or more in the lane</td><td>azure</td></tr>
+ *   <tr><td>After PLAY, one piece or more in the lane</td><td>white (free after PLAY: an alliance
+ *       is always set by then; azure was too close to blue)</td></tr>
  *   <tr><td>The pose is not on the field (no handoff, no camera fix)</td><td>yellow</td></tr>
  *   <tr><td>All good</td><td>the alliance's colour; white with none</td></tr>
  * </table>
@@ -46,8 +47,6 @@ public class IndicatorSubsystem implements Subsystem {
     public static double YELLOW = 0.388;
     /** From the same goBILDA chart as the rest; not yet checked against the light. */
     public static double GREEN = 0.5;
-    /** From the same goBILDA chart as the rest; not yet checked against the light. */
-    public static double AZURE = 0.555;
     public static double BLUE = 0.611;
     public static double VIOLET = 0.722;
     public static double WHITE = 1.0;
@@ -146,7 +145,7 @@ public class IndicatorSubsystem implements Subsystem {
             case CAMERA_NO_FRAMES: return flashOn(nowMs) ? YELLOW : OFF;
             case BUSY: return VIOLET;
             case LANE_FULL: return GREEN;
-            case LANE_SOME: return AZURE;
+            case LANE_SOME: return WHITE;
             case POSE_UNREFERENCED: return YELLOW;
             case ALLIANCE_RED: return RED;
             case ALLIANCE_BLUE: return BLUE;

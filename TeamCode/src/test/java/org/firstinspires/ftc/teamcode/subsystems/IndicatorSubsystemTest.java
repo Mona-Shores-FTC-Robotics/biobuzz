@@ -68,7 +68,7 @@ public class IndicatorSubsystemTest {
         assertEquals(Signal.LANE_SOME, play(1, false, false));
         assertEquals(Signal.ALLIANCE_RED, play(0, false, false));
         assertEquals(IndicatorSubsystem.GREEN, IndicatorSubsystem.position(Signal.LANE_FULL, 0), EPS);
-        assertEquals(IndicatorSubsystem.AZURE, IndicatorSubsystem.position(Signal.LANE_SOME, 0), EPS);
+        assertEquals(IndicatorSubsystem.WHITE, IndicatorSubsystem.position(Signal.LANE_SOME, 0), EPS);
     }
 
     @Test
