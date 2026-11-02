@@ -106,29 +106,29 @@ public class IntakeSubsystemTest {
         assertEquals(0.0, IntakeSubsystem.powerFor(State.OUT, 1.0, Double.NaN), EPS);
     }
 
-    // ---------------------------------------------------------------- turning pieces away at 3
+    // ---------------------------------------------------------------- stopping the roller at 3
 
     @Test
-    public void intakingWithThreeInTheLaneTurnsPiecesAway() {
-        assertTrue(IntakeSubsystem.rejects(State.IN, FeederSubsystem.State.IDLE, 3, 3));
-        assertTrue("four is past three", IntakeSubsystem.rejects(State.IN, FeederSubsystem.State.IDLE, 4, 3));
+    public void intakingWithThreeInTheLaneStopsTheRoller() {
+        assertTrue(IntakeSubsystem.stopsRoller(State.IN, FeederSubsystem.State.IDLE, 3, 3));
+        assertTrue("four is past three", IntakeSubsystem.stopsRoller(State.IN, FeederSubsystem.State.IDLE, 4, 3));
     }
 
     @Test
     public void belowTheCountTheRollerTakesIn() {
-        assertFalse(IntakeSubsystem.rejects(State.IN, FeederSubsystem.State.IDLE, 2, 3));
+        assertFalse(IntakeSubsystem.stopsRoller(State.IN, FeederSubsystem.State.IDLE, 2, 3));
     }
 
     @Test
-    public void onlyAPlainIntakeRequestRejects() {
-        assertFalse("not asked to take in", IntakeSubsystem.rejects(State.IDLE, FeederSubsystem.State.IDLE, 3, 3));
-        assertFalse("ejecting", IntakeSubsystem.rejects(State.OUT, FeederSubsystem.State.IDLE, 3, 3));
-        assertFalse("a feed pushes the last piece up", IntakeSubsystem.rejects(State.IN, FeederSubsystem.State.FEED, 3, 3));
-        assertFalse("the feeder clearing a jam", IntakeSubsystem.rejects(State.IN, FeederSubsystem.State.REVERSE, 3, 3));
+    public void onlyAPlainIntakeRequestStopsIt() {
+        assertFalse("not asked to take in", IntakeSubsystem.stopsRoller(State.IDLE, FeederSubsystem.State.IDLE, 3, 3));
+        assertFalse("ejecting", IntakeSubsystem.stopsRoller(State.OUT, FeederSubsystem.State.IDLE, 3, 3));
+        assertFalse("a feed pushes the last piece up", IntakeSubsystem.stopsRoller(State.IN, FeederSubsystem.State.FEED, 3, 3));
+        assertFalse("the feeder clearing a jam", IntakeSubsystem.stopsRoller(State.IN, FeederSubsystem.State.REVERSE, 3, 3));
     }
 
     @Test
     public void zeroTurnsItOff() {
-        assertFalse(IntakeSubsystem.rejects(State.IN, FeederSubsystem.State.IDLE, 4, 0));
+        assertFalse(IntakeSubsystem.stopsRoller(State.IN, FeederSubsystem.State.IDLE, 4, 0));
     }
 }

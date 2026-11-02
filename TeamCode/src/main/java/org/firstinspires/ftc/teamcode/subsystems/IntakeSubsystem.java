@@ -56,14 +56,14 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * while firing is unchanged. {@link #feedAssist()} says when the intake runs only because of a
  * feed, for the match log.
  *
- * <h2>Turning pieces away when the lane is nearly full</h2>
+ * <h2>Stopping the roller when the lane is nearly full</h2>
  *
  * <p>When the lane tracker ({@link LaneTracker}, fed to this class by {@link #laneCount}) counts
- * {@link #rejectAtCount} pieces and the OpMode asks to take in, the stars keep turning inward but
- * the roller runs outward, so the next piece on the floor is pushed away instead of crowding the
- * entrance (asked for on 2 Nov 2026). Only a plain intake request does this: a feed, an eject and
- * the feeder reversing are unchanged. {@link #rejecting()} says when it is happening. It acts on the
- * tracker's count, so a miscount turns pieces away early or late; the match log shows both.
+ * {@link #stopRollerAtCount} pieces and the OpMode asks to take in, the stars keep turning inward
+ * but the roller stops, so no more pieces are pulled off the floor (asked for on 2 Nov 2026; it
+ * first ran the roller outward). Only a plain intake request does this: a feed, an eject and the
+ * feeder reversing are unchanged. {@link #rollerStopped()} says when it is happening. It acts on
+ * the tracker's count, so a miscount stops the roller early or late; the match log shows both.
  *
  * <p>The star servo is not written before PLAY: a continuous servo told "stop" creeps if its stop
  * is not quite centred, and nothing may move after INIT (G304.H, G403; see {@link Subsystem}).
@@ -118,10 +118,10 @@ public class IntakeSubsystem implements Subsystem {
     public static boolean rollerWhileFeeding = true;
 
     /**
-     * Lane count at which a request to take in runs the roller outward while the stars keep turning
-     * inward (class comment). 0 turns it off. 3, the mentor's choice, 2 Nov 2026.
+     * Lane count at which a request to take in stops the roller while the stars keep turning inward
+     * (class comment). 0 turns it off. 3, the mentor's choice, 2 Nov 2026.
      */
-    public static int rejectAtCount = 3;
+    public static int stopRollerAtCount = 3;
 
     private final DcMotorEx motor;
     private final CRServo stars;
@@ -132,8 +132,8 @@ public class IntakeSubsystem implements Subsystem {
     private State roller = State.IDLE;
     private State starsState = State.IDLE;
     private boolean feedAssist;
-    private boolean rejecting;
-    /** The lane tracker's count; none until {@link #laneCount} is called, so nothing is rejected. */
+    private boolean rollerStopped;
+    /** The lane tracker's count; none until {@link #laneCount} is called, so the roller never stops for it. */
     private IntSupplier laneCount = () -> 0;
     private boolean started;
     private double ticksPerSecond = 0.0;
@@ -160,7 +160,7 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     /**
-     * Where to read how many pieces the lane holds, for {@link #rejectAtCount}. Wired once by
+     * Where to read how many pieces the lane holds, for {@link #stopRollerAtCount}. Wired once by
      * {@code Robot}, which builds the colour sensor after this subsystem.
      */
     public void laneCount(IntSupplier count) {
@@ -196,14 +196,14 @@ public class IntakeSubsystem implements Subsystem {
         return request;
     }
 
-    /** What the star wheels are doing as of the last {@link #update()}; inward while {@link #rejecting()}. */
+    /** What the star wheels are doing as of the last {@link #update()}; inward while {@link #rollerStopped()}. */
     public State starsState() {
         return starsState;
     }
 
-    /** Whether the roller is turning pieces away because the lane is nearly full ({@link #rejectAtCount}). */
-    public boolean rejecting() {
-        return rejecting;
+    /** Whether the roller is stopped because the lane is nearly full ({@link #stopRollerAtCount}). */
+    public boolean rollerStopped() {
+        return rollerStopped;
     }
 
     /** Whether the roller or the stars run only because the feeder is feeding or reversing. */
@@ -236,7 +236,7 @@ public class IntakeSubsystem implements Subsystem {
         roller = State.IDLE;
         starsState = State.IDLE;
         feedAssist = false;
-        rejecting = false;
+        rollerStopped = false;
         started = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -272,8 +272,8 @@ public class IntakeSubsystem implements Subsystem {
         FeederSubsystem.State feed = feeder.state();
         roller = started ? rollerFor(request, feed, rollerWhileFeeding) : State.IDLE;
         starsState = started ? starsFor(request, feed) : State.IDLE;
-        rejecting = started && rejects(request, feed, laneCount.getAsInt(), rejectAtCount);
-        if (rejecting) roller = State.OUT;
+        rollerStopped = started && stopsRoller(request, feed, laneCount.getAsInt(), stopRollerAtCount);
+        if (rollerStopped) roller = State.IDLE;
         feedAssist = request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
         motor.setPower(powerFor(roller, inPower, outPower));
         if (started) {
@@ -315,7 +315,7 @@ public class IntakeSubsystem implements Subsystem {
     @Override
     public void describe(Display display) {
         boolean moving = roller != State.IDLE || starsState != State.IDLE;
-        String what = rejecting ? "IN · stars turning, roller turning pieces away (lane " + laneCount.getAsInt() + ")"
+        String what = rollerStopped ? "IN · stars turning, roller stopped (lane " + laneCount.getAsInt() + ")"
                 : roller == State.IN ? "IN · stars turning"
                 : roller == State.OUT ? "OUT · stars backing"
                 : starsState == State.IN ? "roller idle · stars turning"
@@ -356,11 +356,11 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     /**
-     * Whether the roller turns pieces away: the OpMode asked to take in, the feeder is neither
+     * Whether the roller stops for a nearly full lane: the OpMode asked to take in, the feeder is neither
      * feeding nor reversing, and the lane holds at least {@code atCount} (0 or less: never). Pure,
      * so a test can check it.
      */
-    static boolean rejects(State request, FeederSubsystem.State feeder, int laneCount, int atCount) {
+    static boolean stopsRoller(State request, FeederSubsystem.State feeder, int laneCount, int atCount) {
         return atCount > 0 && laneCount >= atCount && request == State.IN
                 && feeder != FeederSubsystem.State.FEED && feeder != FeederSubsystem.State.REVERSE;
     }
