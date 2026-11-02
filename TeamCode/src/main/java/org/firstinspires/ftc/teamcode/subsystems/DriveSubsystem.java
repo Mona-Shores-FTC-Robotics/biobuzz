@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
+import org.firstinspires.ftc.teamcode.localization.ShadowPose;
 import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.AccelLimiter;
@@ -147,6 +148,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private boolean wholePoseFits;
     private Pose wholeCameraPose;
     private long wholeCameraPoseNs;
+
+    /** What the pose would be with still fixes on ({@link ShadowPose}): logged, never driven on. */
+    private final ShadowPose shadow = new ShadowPose();
 
     /** Heading corrections taken from the camera ({@link #relocalizeHeading}): by the button, and by themselves. */
     private int headingFixesApplied;
@@ -279,6 +283,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     public void setPose(Pose pose) {
         if (localizer != null && pose != null) {
             localizer.setPose(pose);
+            shadow.follow();
             poseReferenced = true;
             fixCount = 0;
             recentFixNext = 0;
@@ -386,6 +391,12 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
                 "heading corrected %+.1f° over %d still frames (%s), moved %.1f in", diffDeg, frames, how, jumpIn);
         return "relocalized " + describePose(fixed) + ", " + lastHeadingFix;
     }
+
+    /** The pose with still fixes on, as the shadow has it ({@link ShadowPose}); null without a Pinpoint. */
+    public Pose shadowPose() { return shadow.of(pose()); }
+
+    /** The shadow's bookkeeping, for the log. */
+    public ShadowPose shadow() { return shadow; }
 
     /** Camera heading minus the Pinpoint's, degrees, averaged while still; NaN without one. See {@link HeadingFix}. */
     public double cameraHeadingDiffDeg() { return settled.headingDiffDeg(); }
@@ -857,8 +868,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
                     CellFix.variance(averager.nearestRangeIn(), averager.minTags()));
             stillFixesApplied++;
             stillFix = StillFix.APPLIED;
+            shadow.applyFix(x, y, now);
         } else {
             stillFix = StillFix.READY;
+            shadow.applyFix(x, y, now); // the shadow takes the batch the real pose was only shown
         }
         averager.reset();
     }

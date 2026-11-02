@@ -232,6 +232,7 @@ public abstract class RobotOpMode extends OpMode {
     private long cameraStartNs;
     private String cameraStartNote;
     private int loggedAutoHeadingFixes;
+    private int loggedShadowFixes;
     private long loggedCameraNs;
     private Object loggedPinpointStatus;
     /** The lane tracker's slots, front first, built once. */
@@ -1083,6 +1084,13 @@ public abstract class RobotOpMode extends OpMode {
                 log.put("/Drift/GapXIn", camera.x() - pose.x());
                 log.put("/Drift/GapYIn", camera.y() - pose.y());
                 log.put("/Drift/Still", robot.drive.isStill() ? 1 : 0);
+                // The shadow's own gap to the same camera frame: circular as a judge (it was fed the
+                // camera), but the trend across HIVEs and after marks is readable.
+                Pose shadowNow = robot.drive.shadowPose();
+                if (shadowNow != null) {
+                    log.put("/Shadow/GapXIn", camera.x() - shadowNow.x());
+                    log.put("/Shadow/GapYIn", camera.y() - shadowNow.y());
+                }
             }
             double headingDiff = robot.drive.cameraHeadingDiffDeg();
             if (!Double.isNaN(headingDiff)) log.put("/Drift/CameraHeadingDiffDeg", headingDiff);
@@ -1090,6 +1098,19 @@ public abstract class RobotOpMode extends OpMode {
         loggedCameraNs = cameraNs;
         // A heading correction the drive applied by itself (LocalizationTuning.autoHeadingFixes); the
         // button's are logged by the OpMode that owns the button.
+        Pose shadowPose = robot.drive.shadowPose();
+        if (shadowPose != null && referenced) {
+            log.put("/Shadow/X", shadowPose.x());
+            log.put("/Shadow/Y", shadowPose.y());
+            log.put("/Shadow/OffsetIn", robot.drive.shadow().offsetIn());
+            if (robot.drive.shadow().fixesApplied() != loggedShadowFixes) {
+                loggedShadowFixes = robot.drive.shadow().fixesApplied();
+                log.event(String.format(java.util.Locale.US,
+                        "shadow: still fix %d moved it %.1f in; now %.1f in from the real pose (%+.1f, %+.1f)",
+                        loggedShadowFixes, robot.drive.shadow().lastFixMoveIn(), robot.drive.shadow().offsetIn(),
+                        robot.drive.shadow().offsetX(), robot.drive.shadow().offsetY()));
+            }
+        }
         if (robot.drive.autoHeadingFixesApplied() != loggedAutoHeadingFixes) {
             loggedAutoHeadingFixes = robot.drive.autoHeadingFixesApplied();
             log.event("pose: automatic " + robot.drive.lastHeadingFix());
