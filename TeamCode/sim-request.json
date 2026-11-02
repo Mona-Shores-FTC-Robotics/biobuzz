@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/r-quals.pp",
-  "spec": "RQualsAuto,PartnerPark1Auto@50",
+  "pp": "TeamCode/autos/r-simple.pp",
+  "spec": "RSimpleAuto,PartnerPark1Auto@50",
   "design": "real robot, turret locked forward, POLLEN only",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -18,7 +18,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "r-quals.pp",
+    "AutoSource": "r-simple.pp",
     "SavedBy": "master after #358/#359 (Claude), partnered"
   }
 }
