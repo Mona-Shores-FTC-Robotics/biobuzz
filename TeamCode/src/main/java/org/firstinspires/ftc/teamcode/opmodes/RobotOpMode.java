@@ -1347,7 +1347,6 @@ public abstract class RobotOpMode extends OpMode {
             log.put("/ColorSensor/Green", robot.colorSensor.green());
             log.put("/ColorSensor/Blue", robot.colorSensor.blue());
             log.put("/ColorSensor/Alpha", robot.colorSensor.alpha());
-            log.put("/ColorSensor/DistanceMm", robot.colorSensor.distanceMm());
             double hue = robot.colorSensor.hueDegrees();
             if (!Double.isNaN(hue)) log.put("/ColorSensor/HueDeg", hue);
             log.put("/ColorSensor/Saturation", robot.colorSensor.saturation());

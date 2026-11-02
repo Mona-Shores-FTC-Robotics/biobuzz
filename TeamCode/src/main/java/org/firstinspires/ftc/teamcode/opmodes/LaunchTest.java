@@ -355,7 +355,6 @@ public class LaunchTest extends RobotOpMode {
             panels.addData("color_hue_deg", robot.colorSensor.hueDegrees());
             panels.addData("color_saturation", robot.colorSensor.saturation());
             panels.addData("color_alpha", robot.colorSensor.alpha());
-            panels.addData("color_distance_mm", robot.colorSensor.distanceMm());
             LanePanels.publish(panels, robot.colorSensor.lane());
             panels.addData("flower_stick_out", robot.flowerStick.extended() ? 1.0 : 0.0);
             panels.addData("battery_volts", batteryVolts());
