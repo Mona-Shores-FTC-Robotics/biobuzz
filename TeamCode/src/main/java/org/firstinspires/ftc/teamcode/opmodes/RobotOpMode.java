@@ -31,6 +31,7 @@ import org.firstinspires.ftc.teamcode.logging.Tunables;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LaneFull;
 import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
@@ -218,6 +219,20 @@ public abstract class RobotOpMode extends OpMode {
     private String batteryNote;
     /** The low-battery rumble has gone, once per INIT: 29 Oct's low runs all had the page warning. */
     private boolean batteryRumbled;
+    /** The battery at INIT, volts; NaN with no sensor. */
+    private double batteryAtInitVolts = Double.NaN;
+
+    /** An Autonomous's INIT: what the drive team must fix before PLAY. The light flashes white while there is any. */
+    private final InitWarnings initWarnings = new InitWarnings();
+    /** When INIT was pressed, System.nanoTime: the camera's first frame has a grace period from it. */
+    private long initStartNs;
+    /** What went wrong with the Pinpoint this INIT, kept once seen (it dropped out on and off on 1 Nov). */
+    private String pinpointProblem;
+    private String loggedWarnings;
+    private boolean loggedLaneFull;
+    private long loggedDepartures;
+    /** Between INIT and PLAY. */
+    private boolean initializing = true;
 
     // A mechanism asked to move whose encoder never does: one event each, from the log alone.
     private final MotionWatch intakeWatch = new MotionWatch("intake");
@@ -294,6 +309,7 @@ public abstract class RobotOpMode extends OpMode {
 
     @Override
     public final void init() {
+        initStartNs = System.nanoTime();
         display = new Display(telemetry);
         openLog();
         // Once, here: the view is a handle on Panels' shared field, not something to look up per
@@ -358,6 +374,7 @@ public abstract class RobotOpMode extends OpMode {
         if (battery != null) {
             double volts = battery.getVoltage();
             lastBatteryVolts = volts;
+            batteryAtInitVolts = volts;
             log.metadata("BatteryAtInit", String.format(Locale.US, "%.2f V", volts));
             if (volts < LOW_BATTERY_VOLTS) {
                 batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, LOW_BATTERY_VOLTS);
@@ -405,25 +422,38 @@ public abstract class RobotOpMode extends OpMode {
         } else {
             setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
         }
-        beginPage();
+        if (isAutonomous()) {
+            updateInitWarnings(startCheck);
+        }
+        beginPage(true);
         // With no handoff and a declared start, the start line says where the robot is; the
         // "no handoff" note would only contradict it.
         if (handoffNote != null && (handoffPose || declaredStart == null || startedFresh)) {
             display.status("Start", handoffLevel, handoffNote);
         }
         if (batteryNote != null) {
-            display.status("Battery", Display.Level.FAULT, batteryNote);
+            // An Auto lists it with the warnings at the top instead.
+            if (!isAutonomous()) display.status("Battery", Display.Level.FAULT, batteryNote);
             if (!batteryRumbled) {
                 batteryRumbled = true;
                 gamepad1.rumble(600);
                 gamepad2.rumble(600);
             }
         }
-        describeCamera();
+        if (isAutonomous()) {
+            describeCameraStarting();
+        } else {
+            describeCamera();
+        }
         startCheck.describe(display);
         driver.updateDuringInit();
         operator.updateDuringInit();
         onInitLoop();
+        // The map last, and only while it helps and fits: the page is one screen (Display).
+        if (display.page() == Display.Page.MATCH && startCheck.mapHelps(setup.alliance())
+                && display.room(StartCheck.Result.MAP_LINES)) {
+            startCheck.describeMap(display, setup.alliance());
+        }
         showIndicator(true);
         Scheduler.execute();
         finishPage();
@@ -446,21 +476,54 @@ public abstract class RobotOpMode extends OpMode {
         }
     }
 
-    /** What the indicator light shows this loop: see {@code IndicatorSubsystem}. */
-    private void showIndicator(boolean init) {
-        boolean cameraFault = !robot.vision.isAvailable() || !robot.vision.isConnected();
-        robot.indicator.show(IndicatorSubsystem.choose(init, batteryNote != null, cameraFault,
-                robot.vision.freshResultCount() == 0, indicatorBusy(), robot.colorSensor.lane().count(),
-                IntakeSubsystem.stopRollerAtCount, robot.drive.poseReferenced(), setup.alliance()),
-                !init && indicatorLaunchReady());
+    /**
+     * An Auto's camera in its first seconds, before "no picture" is a warning
+     * ({@link InitWarnings#FIRST_FRAME_GRACE_MS}): a quiet line, so nobody presses PLAY before the
+     * first frame (29 Oct) and nobody is told to replug a camera that is still starting.
+     */
+    private void describeCameraStarting() {
+        if (robot.vision.isAvailable() && robot.vision.isConnected() && robot.vision.freshResultCount() == 0
+                && !initWarnings.has(InitWarnings.Kind.CAMERA_NO_FRAMES)) {
+            display.line("<small>camera starting: no picture yet, wait for it before PLAY</small>");
+        }
     }
 
     /**
-     * The launcher is at launch speed, so the light flashes: the drive team can shoot. The
-     * launcher's own at-speed by default; an OpMode with an idle speed narrows it to launch speed.
+     * The warnings for this INIT loop ({@link InitWarnings}), and an event in the match log each
+     * time the list changes. Autonomous only.
      */
-    protected boolean indicatorLaunchReady() {
-        return robot.launcher.atSpeed();
+    private void updateInitWarnings(StartCheck.Result startCheck) {
+        if (!robot.drive.hasHeading()) {
+            pinpointProblem = "not found";
+        } else {
+            Object status = robot.drive.pinpointStatus();
+            // The first fault is kept, in words short enough for one line ("y pod not detected");
+            // the log has every status change with its time.
+            if (pinpointProblem == null && status != null && status.toString().startsWith("FAULT")) {
+                pinpointProblem = status.toString().substring("FAULT_".length())
+                        .replace('_', ' ').toLowerCase(Locale.US);
+            }
+        }
+        // Short, for one line: the reason in full is in the log's hardware metadata.
+        String cameraProblem = !robot.vision.isAvailable() ? "not found"
+                : !robot.vision.isConnected() ? "not answering" : null;
+        initWarnings.evaluate(pinpointProblem, setup.alliance(), setup.visionAlliance(), startCheck,
+                cameraProblem, robot.vision.freshResultCount(), (System.nanoTime() - initStartNs) / 1_000_000L,
+                batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent());
+        String summary = initWarnings.summary();
+        if (!summary.equals(loggedWarnings)) {
+            log.event("INIT warnings: " + summary);
+            loggedWarnings = summary;
+        }
+    }
+
+    /**
+     * What the indicator light shows this loop: see {@code IndicatorSubsystem}. Only what the drive
+     * team acts on: in INIT an Auto's warnings, else the alliance; after PLAY green when full, else off.
+     */
+    private void showIndicator(boolean init) {
+        robot.indicator.show(IndicatorSubsystem.choose(init, init && isAutonomous() && initWarnings.any(),
+                robot.colorSensor.full(), setup.alliance()));
     }
 
     /**
@@ -470,11 +533,6 @@ public abstract class RobotOpMode extends OpMode {
      */
     protected Alliance allianceFromStarts() {
         return Alliance.UNKNOWN;
-    }
-
-    /** A routine is driving the robot (a FLOWER pick, a GARDEN gather): the light says so. */
-    protected boolean indicatorBusy() {
-        return false;
     }
 
     @Override
@@ -491,6 +549,7 @@ public abstract class RobotOpMode extends OpMode {
         loopTimer.reset();
         // Before this, nothing moved (G304.H, G403); from here on the mechanisms may.
         robot.start();
+        initializing = false;
         logStartCheck();
         setup.lock();
         driver.prime();
@@ -559,7 +618,7 @@ public abstract class RobotOpMode extends OpMode {
     private void loopBody() {
         loopTimer.lap();
         clearBulkCache();
-        beginPage();
+        beginPage(false);
         driver.update();
         operator.update();
         long t0 = System.nanoTime();
@@ -786,6 +845,13 @@ public abstract class RobotOpMode extends OpMode {
     }
 
     /**
+     * An OpMode's own lines at the top of the Robot page: what the person testing wants and the drive
+     * team does not, kept off the one-screen INIT page.
+     */
+    protected void describeRobotPage(Display display) {
+    }
+
+    /**
      * An OpMode's own marks on the Panels Field view, drawn over the robot each time the view is
      * sent. Override instead of making a second {@code FieldView}: two views sending in turn make
      * the field flicker between them.
@@ -793,15 +859,25 @@ public abstract class RobotOpMode extends OpMode {
     protected void drawOnField(FieldView field) {
     }
 
-    /** Page button edge, then the header — so the OpMode's Match lines land under it. */
-    private void beginPage() {
+    /**
+     * Page button edge, then the header — so the OpMode's Match lines land under it. In INIT the
+     * Match page starts with the alliance, big, and in an Auto the verdict and the warnings, each
+     * with what to do.
+     */
+    private void beginPage(boolean initializing) {
         boolean pressed = gamepad1.back;
         if (pressed && !prevPageButton) {
             display.nextPage();
         }
         prevPageButton = pressed;
         display.header();
-        setup.describe(display);
+        if (initializing && display.page() == Display.Page.MATCH) {
+            initWarnings.describeTop(display, setup.alliance(), isAutonomous());
+        }
+        // An Auto's alliance warning already says it all, with its button: one screen (Display).
+        if (!(initializing && isAutonomous() && initWarnings.has(InitWarnings.Kind.ALLIANCE))) {
+            setup.describe(display);
+        }
     }
 
     /** TeleOp side of the handoff: restore Auto's pose and alliance, and say which happened. */
@@ -874,6 +950,11 @@ public abstract class RobotOpMode extends OpMode {
         }
         telemetry.clear();
         display.header();
+        // The light flashes white on every page, so every page says why, in one line.
+        if (initializing && isAutonomous() && initWarnings.any()) {
+            display.line("<b><font color=\"#FFB300\">" + initWarnings.count()
+                    + " TO FIX: see the Match page (Share)</font></b>");
+        }
         if (page == Display.Page.CONTROLS) {
             display.section("BEFORE PLAY — either gamepad");
             display.line("Square (X) — Blue alliance");
@@ -883,6 +964,7 @@ public abstract class RobotOpMode extends OpMode {
             describeBindings(driver);
             describeBindings(operator);
         } else {
+            describeRobotPage(display);
             display.section("Loop");
             display.line(loopTimer.summary());
             display.line(costs.summary());
@@ -1145,6 +1227,29 @@ public abstract class RobotOpMode extends OpMode {
             log.put(LANE_SLOT_KEYS[i], piece == null ? 0 : piece.ordinal() + 1);
         }
         if (lane.event() != null) log.event(lane.event());
+        // Full (LaneFull): the signal the light, the roller stop and IntakeFull use. Every piece's
+        // dwell under the sensor, so normal-play logs can tighten ColorSensorSubsystem.fullHoldS.
+        LaneFull full = robot.colorSensor.laneFull();
+        log.put("/Lane/Full", full.full() ? 1 : 0);
+        log.put("/Lane/HeldWhileIntakingMs", full.heldWhileIntakingMs());
+        // Full on and off as events, with the tracker's count: full then three or four shots means it was.
+        if (full.full() != loggedLaneFull) {
+            loggedLaneFull = full.full();
+            log.event(loggedLaneFull
+                    ? String.format(Locale.US, "Lane: FULL, piece under the sensor %.1f s (%.1f s intaking), tracker counts %d",
+                            full.presentForMs() / 1000, full.heldWhileIntakingMs() / 1000, lane.count())
+                    : Double.isNaN(full.endedDwellMs())
+                            ? "Lane: full cleared (fullHoldS turned off), tracker counts " + lane.count()
+                            : String.format(Locale.US, "Lane: full cleared after %.1f s under the sensor, tracker counts %d",
+                                    full.endedDwellMs() / 1000, lane.count()));
+        }
+        // Once per departure: the sensor reads every 50 ms, the loop more often.
+        if (full.departures() != loggedDepartures) {
+            loggedDepartures = full.departures();
+            log.put("/Lane/DwellMs", full.endedDwellMs());
+            log.event(String.format(Locale.US, "Lane: piece under the sensor %.0f ms%s",
+                    full.endedDwellMs(), full.endedFull() ? " (was full)" : ""));
+        }
         // The turret: where it points, where it was asked to, and whether anyone zeroed it.
         log.put("/Turret/AngleDeg", robot.turret.angleDegrees());
         log.put("/Turret/TargetDeg", robot.turret.targetDegrees());

@@ -25,8 +25,22 @@ has its `.pp` file committed here, in the same PR as the Java generated from it.
 
 ## Team spots (`spots.json`)
 
-`spots.json` here is the team's list of named spots (PARK, LAUNCH_LEFT…): poses every Auto can
-use, so nobody types or places them again. They work like PathPlanner's linked waypoints.
+`spots.json` here is the team's list of named spots: poses every Auto can use, so nobody types or
+places them again. They work like PathPlanner's linked waypoints. **Every Auto on master uses only
+these spots**, so a reviewer reads steps and triggers, never coordinates:
+
+| Spot | What it is |
+|---|---|
+| `RIGHT_START`, `LEFT_START` | The measured starts (`localization/StartPositions`). |
+| `RIGHT_LAUNCH_CATCH`, `LEFT_LAUNCH_CATCH` | In front of that CELL, just outside where its spill lands, clear of a partner on the start. |
+| `RIGHT_LAUNCH_OFFSET`, `LEFT_LAUNCH_OFFSET` | Off to the side of that CELL and angled at it, so a partner in front of the CELL is not disturbed. |
+| `WALL_FLOWER_STAGING`, `SCORING_FLOWER_STAGING` | Where a Pick flower step starts (on the FLOWER's line, 18–24 in out). |
+| `GARDEN_STAGING` | Where a Garden gather step starts; the gather pose itself is the robot code's (`GardenFieldPoints`). |
+| `RIGHT_PARK`, `LEFT_PARK` | x and y only: a park is reached at whatever heading the robot arrives with. |
+
+Names are side (or thing) first, then role, then variant, so a side's spots sort together. An Auto
+that needs a spot not in this list is drawn on the `autos-experiment` branch until the spot earns
+its place here.
 
 - **Using one.** In the Visualizer, pick it from a step's spot dropdown (under "Team spots"), or
   select a path and press 🔗 on its end in the Path panel, then pick the spot: the end jumps to it
@@ -42,11 +56,11 @@ use, so nobody types or places them again. They work like PathPlanner's linked w
 - **Never edit `spots.json` by hand.** Change spots in the Visualizer, so the Autos that use them
   are re-exported in the same commit. A hand edit changes no Auto until each is opened and
   exported again.
-- **Starts are team spots named `START_…`.** The builder's start buttons are the team's
-  `START_` spots (`START_RIGHT` → *Right start*); make one to add a start. A start measured on the
+- **Starts are team spots named `…_START`.** The builder's start buttons are the team's
+  `_START` spots (`RIGHT_START` → *Right start*); make one to add a start. A start measured on the
   field is also in `localization/StartPositions` (`TEAM_SPOTS` names its spot), and
-  `TeamSpotsTest` fails while the two differ: measure, then change both. Both `START_RIGHT` and
-  `START_LEFT` are measured (31 Oct 2026): back flat on the wall, the frame's left side on a seam's
+  `TeamSpotsTest` fails while the two differ: measure, then change both. Both `RIGHT_START` and
+  `LEFT_START` are measured (31 Oct 2026): back flat on the wall, the frame's left side on a seam's
   teeth. To move a start, press *Unlock … start to move it* under the start buttons, then set it in
   the START panel.
 - Poses are drawn for RED, in Pedro's frame (inches, degrees), like everything in an Auto; the
