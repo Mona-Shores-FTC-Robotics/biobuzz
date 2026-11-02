@@ -97,7 +97,7 @@ public final class LocalizationTuning {
      * often it fired and by how much. Turn on in Panels for a test; commit true only after a taped-path
      * comparison shows it helps.
      */
-    public static boolean autoHeadingFixes = false;
+    public static boolean autoHeadingFixes = true;
 
     /**
      * "Still" for the stationary relocalize check: slower than this, inches per second, and turning
