@@ -126,6 +126,8 @@ public class Robot {
         turret = new TurretSubsystem(hardwareMap);
         indicator = new IndicatorSubsystem(hardwareMap);
         colorSensor = new ColorSensorSubsystem(hardwareMap, launcher, intake, prefeed);
+        // The intake turns pieces away once the lane is nearly full (IntakeSubsystem.rejectAtCount).
+        intake.laneCount(() -> colorSensor.lane().count());
 
         subsystems = Collections.unmodifiableList(
                 Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, feeder, launcher, intake, prefeed,

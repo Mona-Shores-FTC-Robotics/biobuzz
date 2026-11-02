@@ -145,7 +145,7 @@ public class PrefeedSubsystem implements Subsystem {
      */
     @Override
     public void update() {
-        state = override != null ? override : requestFor(intake.state(), feeder.state());
+        state = override != null ? override : requestFor(intake.starsState(), feeder.state());
         boolean feeding = override == null && feeder.state() == FeederSubsystem.State.FEED;
         if (feeding && !wasFeeding) {
             feedStartNs = System.nanoTime();
