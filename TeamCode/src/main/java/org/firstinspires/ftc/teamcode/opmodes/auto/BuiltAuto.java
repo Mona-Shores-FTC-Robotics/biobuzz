@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.StartMatch;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
+import org.firstinspires.ftc.teamcode.opmodes.LanePanels;
 import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -258,6 +259,7 @@ public abstract class BuiltAuto extends RobotOpMode {
             panels.addData("feeder_power", robot.feeder.power());
             panels.addData("feeder_tps", robot.feeder.ticksPerSecond());
             panels.addData("gate_feeding", robot.feedGate.state() == FeedGateSubsystem.State.FEEDING ? 1.0 : 0.0);
+            LanePanels.publish(panels, robot.colorSensor.lane());
             panels.addData("battery_volts", batteryVolts());
             panels.addData("loop_ms", loopTimer.lastMs());
             panels.update();
