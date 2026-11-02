@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.localization;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -26,12 +27,12 @@ import java.util.regex.Pattern;
  * allowed.
  *
  * <p>A textual scan of the file, like {@code AutoSourcesTest}: one spot per line, as the
- * Visualizer writes it ({@code "NAME": [x, y, heading]}).
+ * Visualizer writes it ({@code "NAME": [x, y, heading]}, or {@code [x, y]} for a park).
  */
 public class TeamSpotsTest {
 
     private static final Pattern SPOT =
-            Pattern.compile("\"([A-Z][A-Z0-9_]*)\"\\s*:\\s*\\[\\s*([-0-9.eE]+)\\s*,\\s*([-0-9.eE]+)\\s*,\\s*([-0-9.eE]+)\\s*]");
+            Pattern.compile("\"([A-Z][A-Z0-9_]*)\"\\s*:\\s*\\[\\s*([-0-9.eE]+)\\s*,\\s*([-0-9.eE]+)\\s*(?:,\\s*([-0-9.eE]+))?\\s*]");
 
     @Test
     public void everyMeasuredStartIsItsTeamSpot() {
@@ -39,7 +40,7 @@ public class TeamSpotsTest {
         assertEquals("StartPositions.TEAM_SPOTS names each start in ALL, in order",
                 StartPositions.ALL.length, StartPositions.TEAM_SPOTS.length);
         for (String name : StartPositions.TEAM_SPOTS) {
-            assertTrue(name + " is a team spot name, START_…", name.startsWith("START_"));
+            assertTrue(name + " is a team spot name, …_START", name.endsWith("_START"));
             StartPosition start = StartPositions.forTeamSpot(name);
             assertNotNull(start);
             double[] spot = spots.get(name);
@@ -47,6 +48,7 @@ public class TeamSpotsTest {
                 fail(start.name + " is measured but spots.json has no " + name
                         + ": add it in the Visualizer (a team spot named " + name + ") and Save team spots");
             }
+            assertFalse(name + " in spots.json has no heading; a start needs one", Double.isNaN(spot[2]));
             String where = name + " in spots.json is (" + spot[0] + ", " + spot[1] + ", " + spot[2]
                     + " deg) but " + start.name + " was measured at (" + start.pose.x() + ", "
                     + start.pose.y() + ", " + Math.toDegrees(start.pose.heading()) + " deg): change the one that is wrong";
@@ -59,9 +61,9 @@ public class TeamSpotsTest {
 
     @Test
     public void aSpotThatIsNotAMeasuredStartIsNotOne() {
-        assertNull(StartPositions.forTeamSpot("WALL_FLOWER"));
-        assertEquals("START_LEFT is measured since 31 Oct", StartPositions.RED_FAR,
-                StartPositions.forTeamSpot("START_LEFT"));
+        assertNull(StartPositions.forTeamSpot("WALL_FLOWER_STAGING"));
+        assertEquals("LEFT_START is measured since 31 Oct", StartPositions.RED_FAR,
+                StartPositions.forTeamSpot("LEFT_START"));
     }
 
     private static Map<String, double[]> spots() {
@@ -75,8 +77,10 @@ public class TeamSpotsTest {
         Map<String, double[]> spots = new LinkedHashMap<>();
         Matcher m = SPOT.matcher(text);
         while (m.find()) {
+            // A spot with no heading (a park) is reached at whatever heading the robot arrives with.
             spots.put(m.group(1), new double[]{
-                    Double.parseDouble(m.group(2)), Double.parseDouble(m.group(3)), Double.parseDouble(m.group(4))});
+                    Double.parseDouble(m.group(2)), Double.parseDouble(m.group(3)),
+                    m.group(4) == null ? Double.NaN : Double.parseDouble(m.group(4))});
         }
         return spots;
     }

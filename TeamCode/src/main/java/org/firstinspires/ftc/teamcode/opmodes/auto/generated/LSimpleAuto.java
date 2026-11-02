@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
@@ -19,13 +20,13 @@ public final class LSimpleAuto {
     public static final String SOURCE = "l-simple.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "10-31|12:44PM";
+    public static final String SAVED = "";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Tip"};
+    public static final String[] TRIGGERS = {"Empty", "Tip"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -44,34 +45,54 @@ public final class LSimpleAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose startLeft = p.of(62.3, 133.8, 270);
-        Pose scoringFlower = p.of(47.2, 119.3, 90);
-        Pose launchLeft = p.of(59.4, 129.5, 270);
-        Pose parkLeft = p.of(14.1, 117.4, 0);
+        Pose leftStart = p.of(62.3, 133.8, 270);
+        Pose leftLaunchCatch = p.of(57.5, 123.5, 273.4);
+        Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
+        Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
+        Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
+        Pose leftPark = p.of(9.8, 117.4, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toScoringFlowerControl1 = p.of(57.0845, 121.5966, 0);
-        Pose toLaunchLeft_2Control1 = p.of(57.7854, 117.9523, 0);
-        Pose toParkLeftControl1 = p.of(60.1106, 116.2112, 0);
+        Pose toRightLaunchCatchControl1 = p.of(60, 70, 0);
+        Pose toRightLaunchCatchSegment1Heading = p.of(57.5, 18, 270);
+        Pose toRightLaunchCatchSegment2Start = p.of(57.5, 18, 270);
+        Pose toLeftLaunchCatch_3Control1 = p.of(21.3, 94.4, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path toLaunchLeft = Paths.line(startLeft, launchLeft).constant(launchLeft);
-        Path toScoringFlower = Paths.curve(launchLeft, toScoringFlowerControl1, scoringFlower).linear(launchLeft, scoringFlower);
-        Path toLaunchLeftPath = Paths.curve(scoringFlower, toLaunchLeft_2Control1, launchLeft).linear(scoringFlower, launchLeft);
-        Path toParkLeft = Paths.curve(launchLeft, toParkLeftControl1, parkLeft).linear(launchLeft, parkLeft);
+        Path toLeftLaunchCatch = Paths.line(leftStart, leftLaunchCatch).linear(leftStart, leftLaunchCatch);
+        Path toScoringFlowerStaging = Paths.line(leftLaunchCatch, scoringFlowerStaging).linear(leftLaunchCatch, scoringFlowerStaging);
+        Path toLeftLaunchCatchPath = Paths.line(scoringFlowerStaging, leftLaunchCatch).linear(scoringFlowerStaging, leftLaunchCatch);
+        Path toRightLaunchCatch = Paths.curve(leftLaunchCatch, toRightLaunchCatchControl1, rightLaunchCatch).heading(Interpolator.piecewise().until(0.85, Interpolator.constant(toRightLaunchCatchSegment1Heading)).until(1, Interpolator.linear(toRightLaunchCatchSegment2Start, rightLaunchCatch)));
+        Path toWallFlowerStaging = Paths.line(rightLaunchCatch, wallFlowerStaging).linear(rightLaunchCatch, wallFlowerStaging);
+        Path toLeftLaunchCatchPath2 = Paths.curve(wallFlowerStaging, toLeftLaunchCatch_3Control1, leftLaunchCatch).linear(wallFlowerStaging, leftLaunchCatch);
+        Path toLeftPark = Paths.line(leftLaunchCatch, leftPark).linear(leftLaunchCatch, leftPark);
 
         return kit.sequence(
-                kit.guarded("Auto", toParkLeft, 2.2,
+                kit.guarded("Auto", toLeftPark, 2,
                         kit.command("SpinUp"),
-                        kit.path("to LAUNCH_LEFT", toLaunchLeft, 0.7),
-                        kit.firstOf("Wait for TIP",
-                                kit.when("Tip"),
-                                kit.afterMs(7000)),
-                        kit.command("LaunchAll"),
-                        kit.path("to SCORING_FLOWER", toScoringFlower, 1.4),
-                        kit.command("PickFlower", 8),
-                        kit.path("to LAUNCH_LEFT", toLaunchLeftPath, 1.5),
-                        kit.command("LaunchAll"),
-                        kit.path("to PARK_LEFT", toParkLeft, 2.2)));
+                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 1),
+                        kit.firstOf("TIP 1 (the partner's preloads)",
+                                kit.when("Tip").then(
+                                        kit.firstOf("Fire the preloads at the left CELL", kit.command("LaunchAll"),
+                                                kit.when("Empty"),
+                                                kit.afterMs(3000)),
+                                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3),
+                                        kit.command("PickFlower", 8),
+                                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath, 1.3),
+                                        kit.firstOf("Fire the far FLOWER's 4 at the left CELL", kit.command("LaunchAll"),
+                                                kit.when("Empty"),
+                                                kit.afterMs(3000))),
+                                kit.afterMs(7000).then(
+                                        kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 3.3),
+                                        kit.firstOf("No TIP: fire the preloads at the right CELL (TIP 1)", kit.command("LaunchAll"),
+                                                kit.when("Empty"),
+                                                kit.afterMs(3000)),
+                                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9),
+                                        kit.command("PickFlower", 8),
+                                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath2, 2.7),
+                                        kit.firstOf("Fire the wall FLOWER's 4 at the left CELL", kit.command("LaunchAll"),
+                                                kit.when("Empty"),
+                                                kit.afterMs(3000)))),
+                        kit.path("to LEFT_PARK", toLeftPark, 2)));
     }
 }
