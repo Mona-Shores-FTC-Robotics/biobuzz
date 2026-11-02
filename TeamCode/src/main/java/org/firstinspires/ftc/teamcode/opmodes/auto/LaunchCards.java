@@ -52,11 +52,12 @@ import java.util.function.DoubleSupplier;
 public final class LaunchCards {
 
     /**
-     * How long the feeder runs for {@code LaunchAll}, seconds. 7.0: set by the mentor on robot 20245
-     * on 1 Nov 2026, after 2.0 cut the feed off with pieces still in. A firing step's "at most" in
-     * the Auto Builder has to leave room for spin-up plus this, or the step cuts the feed short.
+     * How long the feeder runs for {@code LaunchAll}, seconds. 3.5: in six R Simple runs on 20245
+     * (1 Nov 2026) the last ball left 2.4 to 3.0 s after the gate opened, read from the launcher's
+     * dip per ball in the match logs; 3.5 keeps a margin and saves 3.5 s over the 7.0 tried first.
+     * A step's time limit never cuts a feed that has started (AutoRegistry.holdTimeLimitsWhile).
      */
-    public static double launchAllFeedS = 7.0;
+    public static double launchAllFeedS = 3.5;
 
     /** How long the feeder runs for {@code LaunchOne}, seconds. <b>Not measured.</b> */
     public static double launchOneFeedS = 0.5;
