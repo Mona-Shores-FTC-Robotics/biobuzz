@@ -78,4 +78,6 @@ lint/intermediates/
 lint/generated/
 lint/outputs/
 lint/tmp/
-# lint/reports/__pycache__/
+# lint/reports/
+__pycache__/
+
