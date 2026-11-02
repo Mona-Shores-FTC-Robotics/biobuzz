@@ -24,6 +24,11 @@ import java.util.Locale;
  * shows what a read costs. It moves nothing, so it reads in INIT too: the preloads are in front of
  * it before PLAY.
  *
+ * <p>It also keeps {@link LaneTracker}: what it thinks is in the lane, slot by slot, from pieces
+ * arriving under it, shots, and ejects. Also data only, logged as {@code /Lane/*}. Its thresholds
+ * ({@link #presentBelowMm}, {@link #leaveAboveMm}, the hue ranges) are NaN until a bench session
+ * measures them; until then it counts only the declared preloads and the shots.
+ *
  * <p>The colour is the SDK's normalised reading at the sensor's default gain, unchanged, plus its
  * hue and saturation. Hue and saturation do not depend on the gain or on how far the ball is; the
  * raw numbers and the distance do. No threshold or classification here until a log says where one
@@ -38,9 +43,24 @@ public class ColorSensorSubsystem implements Subsystem {
      */
     public static int readEveryMs = 50;
 
+    /** A piece is under the sensor below this distance, mm. NaN until measured: no arrivals counted. */
+    public static double presentBelowMm = Double.NaN;
+    /** And has gone above this, mm (hysteresis). NaN: the same as {@link #presentBelowMm}. */
+    public static double leaveAboveMm = Double.NaN;
+    /** POLLEN's hue range, degrees (min above max wraps through 0). NaN until measured. */
+    public static double pollenHueMin = Double.NaN;
+    public static double pollenHueMax = Double.NaN;
+    /** NECTAR's hue range, degrees. NaN until measured. */
+    public static double nectarHueMin = Double.NaN;
+    public static double nectarHueMax = Double.NaN;
+
     private final NormalizedColorSensor sensor;
     /** The same device, as its proximity side: the V3 is both. */
     private final DistanceSensor proximity;
+    private final LauncherSubsystem launcher;
+    private final IntakeSubsystem intake;
+    private final PrefeedSubsystem prefeed;
+    private final LaneTracker lane = new LaneTracker();
 
     private long lastReadNs;
     private boolean everRead;
@@ -54,8 +74,17 @@ public class ColorSensorSubsystem implements Subsystem {
     private double saturation = Double.NaN;
     private String atInit;
 
-    /** @param hardwareMap the sensor is {@link DeviceNames#COLOR_SENSOR} */
-    public ColorSensorSubsystem(HardwareMap hardwareMap) {
+    /**
+     * @param hardwareMap the sensor is {@link DeviceNames#COLOR_SENSOR}
+     * @param launcher    read for its shots; updated before this subsystem
+     * @param intake      read for running outward; updated before this subsystem
+     * @param prefeed     read for running outward; updated before this subsystem
+     */
+    public ColorSensorSubsystem(HardwareMap hardwareMap, LauncherSubsystem launcher,
+                                IntakeSubsystem intake, PrefeedSubsystem prefeed) {
+        this.launcher = launcher;
+        this.intake = intake;
+        this.prefeed = prefeed;
         sensor = hardwareMap.get(NormalizedColorSensor.class, DeviceNames.COLOR_SENSOR);
         proximity = hardwareMap.get(DistanceSensor.class, DeviceNames.COLOR_SENSOR);
     }
@@ -80,6 +109,16 @@ public class ColorSensorSubsystem implements Subsystem {
         if (fresh) {
             read(now);
         }
+        boolean outward = intake.state() == IntakeSubsystem.State.OUT
+                || prefeed.state() == PrefeedSubsystem.State.OUT;
+        lane.step(fresh, distanceMm,
+                LaneTracker.classify(hueDeg, pollenHueMin, pollenHueMax, nectarHueMin, nectarHueMax),
+                outward, launcher.shotJustDetected(), presentBelowMm, leaveAboveMm);
+    }
+
+    /** What it thinks is in the lane. Data only. */
+    public LaneTracker lane() {
+        return lane;
     }
 
     private void read(long now) {
@@ -145,6 +184,9 @@ public class ColorSensorSubsystem implements Subsystem {
     public void describe(Display display) {
         display.status("Color sensor", allZero() ? Display.Level.WARN : Display.Level.OK,
                 allZero() ? "reads all zero: unplugged?" : summary());
+        display.status("Lane (guess)", Double.isNaN(presentBelowMm) ? Display.Level.WARN : Display.Level.OK,
+                lane.lettersFrontToBack() + " front to back, " + lane.count() + " in"
+                        + (Double.isNaN(presentBelowMm) ? "; presentBelowMm not measured: counts shots only" : ""));
     }
 
     private boolean allZero() {

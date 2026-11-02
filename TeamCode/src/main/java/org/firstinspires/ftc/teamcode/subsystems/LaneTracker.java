@@ -1,0 +1,192 @@
+package org.firstinspires.ftc.teamcode.subsystems;
+
+import java.util.Locale;
+
+/**
+ * What is in the transfer lane, slot by slot, from one colour sensor at its entrance. Data only:
+ * nothing decides anything from it yet. Its guess goes to the match log next to the raw readings,
+ * so a session with known loads shows whether it can be trusted.
+ *
+ * <p>The lane holds {@link #SLOTS} pieces behind the closed gate. The sensor looks down at the
+ * entrance, just past the star wheels, which is also the fourth slot. So the tracker never sees a
+ * slot; it keeps a queue:
+ *
+ * <ul>
+ *   <li>a piece <b>arriving</b> under the sensor (distance falls below {@code presentBelowMm})
+ *       while the lane runs inward joins the back, as the colour it shows;</li>
+ *   <li>while it stays there, the closest reading names its colour (a piece seen at the edge of
+ *       the spot reads paler than one under it);</li>
+ *   <li>a <b>shot</b> takes the front piece;</li>
+ *   <li>a piece <b>leaving</b> under the sensor while the lane runs outward (eject, unjam) takes
+ *       the back piece.</li>
+ * </ul>
+ *
+ * <p>Presence has hysteresis: it starts below {@code presentBelowMm} and ends above
+ * {@code leaveAboveMm}, so a piece wobbling at the threshold counts once. The first reading only
+ * sets whether something is already there, so a preload sitting under the sensor at INIT is not
+ * counted again. A count that goes past full or below empty is a counting error; it is kept at the
+ * limit and counted ({@link #overflows()}, {@link #underflows()}) so a log shows how often.
+ *
+ * <p>Pure: no SDK, no allocation per loop, so a test can drive it.
+ */
+public final class LaneTracker {
+
+    /** What a slot holds. */
+    public enum Piece { POLLEN, NECTAR, UNKNOWN }
+
+    /** Pieces the lane holds behind the closed gate. */
+    public static final int SLOTS = 4;
+
+    /** An Autonomous starts with this many POLLEN loaded (the drive team always loads four). */
+    public static final int AUTO_PRELOAD = 4;
+
+    /** slots[0] is the front, the next piece to fire. */
+    private final Piece[] slots = new Piece[SLOTS];
+    private int count;
+    private boolean baselineSet;
+    private boolean present;
+    /** The back slot is the piece under the sensor now, so its colour may still improve. */
+    private boolean namingBack;
+    private double closestMm = Double.POSITIVE_INFINITY;
+    private int overflows;
+    private int underflows;
+    private String event;
+
+    /** Declare what is loaded, front to back all {@code piece}, before the first reading. */
+    public void fill(Piece piece, int n) {
+        count = Math.max(0, Math.min(SLOTS, n));
+        for (int i = 0; i < SLOTS; i++) slots[i] = i < count ? piece : null;
+        namingBack = false;
+    }
+
+    /**
+     * One loop.
+     *
+     * @param fresh        whether the sensor was read this loop; distance and piece are ignored if not
+     * @param distanceMm   the reading's distance
+     * @param piece        the reading's colour, from {@link #classify}
+     * @param outward      the lane runs toward the intake this loop (eject, unjam)
+     * @param shot         the launcher counted a shot this loop
+     * @param presentBelowMm a piece is there below this; NaN turns arrival and leaving off
+     * @param leaveAboveMm and gone above this; NaN means the same as {@code presentBelowMm}
+     */
+    public void step(boolean fresh, double distanceMm, Piece piece, boolean outward, boolean shot,
+                     double presentBelowMm, double leaveAboveMm) {
+        event = null;
+        if (shot) {
+            if (count > 0) {
+                removeFront();
+                event = String.format(Locale.US, "lane: shot, %d left", count);
+            } else {
+                underflows++;
+                event = "lane: shot with the lane counted empty (a count was missed)";
+            }
+        }
+        if (!fresh || Double.isNaN(presentBelowMm) || Double.isNaN(distanceMm)) return;
+        double leave = Double.isNaN(leaveAboveMm) ? presentBelowMm : Math.max(leaveAboveMm, presentBelowMm);
+        boolean now = present ? distanceMm < leave : distanceMm < presentBelowMm;
+        if (!baselineSet) {
+            baselineSet = true;
+            present = now;
+            return;
+        }
+        if (now && !present) {
+            if (!outward) {
+                if (count < SLOTS) {
+                    slots[count++] = piece;
+                    namingBack = true;
+                    closestMm = distanceMm;
+                    event = String.format(Locale.US, "lane: %s in, %d in the lane", piece, count);
+                } else {
+                    overflows++;
+                    namingBack = false;
+                    event = "lane: a piece arrived with the lane counted full (a count was wrong)";
+                }
+            }
+        } else if (now) {
+            if (namingBack && count > 0 && distanceMm < closestMm) {
+                slots[count - 1] = piece;
+                closestMm = distanceMm;
+            }
+        } else if (present) {
+            namingBack = false;
+            closestMm = Double.POSITIVE_INFINITY;
+            if (outward) {
+                if (count > 0) {
+                    slots[--count] = null;
+                    event = String.format(Locale.US, "lane: a piece out past the sensor, %d left", count);
+                } else {
+                    underflows++;
+                    event = "lane: a piece out past the sensor with the lane counted empty";
+                }
+            }
+        }
+        present = now;
+    }
+
+    private void removeFront() {
+        for (int i = 1; i < count; i++) slots[i - 1] = slots[i];
+        slots[--count] = null;
+        if (count == 0) namingBack = false;
+    }
+
+    /**
+     * Which piece a hue is: inside POLLEN's range, inside NECTAR's, or neither. A range whose min is
+     * above its max wraps through 0° (a red). NaN bounds or a NaN hue give UNKNOWN.
+     */
+    public static Piece classify(double hueDeg, double pollenMin, double pollenMax,
+                                 double nectarMin, double nectarMax) {
+        if (inRange(hueDeg, pollenMin, pollenMax)) return Piece.POLLEN;
+        if (inRange(hueDeg, nectarMin, nectarMax)) return Piece.NECTAR;
+        return Piece.UNKNOWN;
+    }
+
+    static boolean inRange(double h, double min, double max) {
+        if (Double.isNaN(h) || Double.isNaN(min) || Double.isNaN(max)) return false;
+        return min <= max ? h >= min && h <= max : h >= min || h <= max;
+    }
+
+    /** Pieces counted in the lane. */
+    public int count() {
+        return count;
+    }
+
+    public boolean full() {
+        return count >= SLOTS;
+    }
+
+    /** Slot {@code i}, 0 the front; null when empty. */
+    public Piece slot(int i) {
+        return i >= 0 && i < count ? slots[i] : null;
+    }
+
+    /** Whether a piece is under the sensor, as of the last fresh reading. */
+    public boolean present() {
+        return present;
+    }
+
+    /** Pieces that arrived with the lane already counted full. */
+    public int overflows() {
+        return overflows;
+    }
+
+    /** Shots or outward pieces with the lane already counted empty. */
+    public int underflows() {
+        return underflows;
+    }
+
+    /** This loop's change, for the match log's events; null when nothing changed. */
+    public String event() {
+        return event;
+    }
+
+    /** Front to back, one letter a slot: P, N, ? and _ for empty. */
+    public String lettersFrontToBack() {
+        StringBuilder b = new StringBuilder(SLOTS);
+        for (int i = 0; i < SLOTS; i++) {
+            Piece p = slot(i);
+            b.append(p == null ? '_' : p == Piece.POLLEN ? 'P' : p == Piece.NECTAR ? 'N' : '?');
+        }
+        return b.toString();
+    }
+}

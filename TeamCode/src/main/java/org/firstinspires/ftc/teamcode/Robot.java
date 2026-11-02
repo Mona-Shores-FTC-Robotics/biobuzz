@@ -125,7 +125,7 @@ public class Robot {
         // After the drive and the hive: an aim this loop uses this loop's pose and HIVE state.
         turret = new TurretSubsystem(hardwareMap);
         indicator = new IndicatorSubsystem(hardwareMap);
-        colorSensor = new ColorSensorSubsystem(hardwareMap);
+        colorSensor = new ColorSensorSubsystem(hardwareMap, launcher, intake, prefeed);
 
         subsystems = Collections.unmodifiableList(
                 Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, feeder, launcher, intake, prefeed,
