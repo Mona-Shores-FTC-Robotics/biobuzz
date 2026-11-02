@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-quals.pp",
-  "spec": "RQualsAuto,LQualsAuto@50",
+  "spec": "RQualsAuto,PartnerPark1Auto@50",
   "design": "real robot, turret locked forward, POLLEN only",
   "partnerDesign": null,
   "partnerSpeed": null,
