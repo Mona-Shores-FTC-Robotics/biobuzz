@@ -678,6 +678,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("gate_speed", gates.verdict(FireGates.Gate.LAUNCHER_AT_SPEED).ordinal());
             panels.addData("gate_aim", gates.verdict(FireGates.Gate.AIM_ON_TARGET).ordinal());
             panels.addData("intake_owner", routineActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
+            // How far the shadow pose (what still fixes would do) sits from the real one; graph it.
+            panels.addData("shadow_offset_in", robot.drive.shadow().offsetIn());
             panels.addData("loop_ms", loopTimer.lastMs());
             panels.update();
         } catch (RuntimeException ignored) {

@@ -619,6 +619,11 @@ public class HiveAndPose extends RobotOpMode {
             panels.addData("pose_x_in", pose.x());
             panels.addData("pose_y_in", pose.y());
             panels.addData("pose_heading_deg", Math.toDegrees(pose.heading()));
+            // The shadow pose (what still fixes would do) as an offset from the real one: flat
+            // after a fix means it corrected a one-off error; a steady climb means drift it follows.
+            panels.addData("shadow_offset_in", robot.drive.shadow().offsetIn());
+            panels.addData("shadow_dx_in", robot.drive.shadow().offsetX());
+            panels.addData("shadow_dy_in", robot.drive.shadow().offsetY());
         }
         if (camera != null) {
             panels.addData("camera_x_in", camera.x());
