@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
@@ -10,7 +12,9 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.StartMatch;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
+import org.firstinspires.ftc.teamcode.opmodes.LanePanels;
 import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
+import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
@@ -97,6 +101,8 @@ public abstract class BuiltAuto extends RobotOpMode {
     /** The placeholder names this Auto uses, for the INIT page. */
     private final List<String> placeholders = new ArrayList<>();
     private long startNs;
+    /** Panels' telemetry, or null when Panels could not provide it at init. */
+    private TelemetryManager panels;
     private String problem;
     private AutoTrace trace;
     private AutoPathLog pathLog;
@@ -137,6 +143,11 @@ public abstract class BuiltAuto extends RobotOpMode {
 
     @Override
     protected void onInit() {
+        try {
+            panels = PanelsTelemetry.INSTANCE.getTelemetry();
+        } catch (RuntimeException | LinkageError e) {
+            panels = null; // Panels is a window onto the robot, not part of it.
+        }
         settle = PathEndSettle.forRobot(robot, line -> log.event(line));
         registry = AutoRegistration.forRobot(robot, setup, settle, line -> log.event(line));
         registry.requireAll(commands, triggers);
@@ -193,6 +204,11 @@ public abstract class BuiltAuto extends RobotOpMode {
             problem = "No alliance chosen before PLAY (Square (X) = blue, Circle (B) = red during INIT). Not moving.";
             return;
         }
+        // The CELLs start the match where the manual puts them (each alliance's LEFT DOWN, RIGHT
+        // UP): Tip, LeftCellUp and RightCellUp read from there until the camera sees the HIVE
+        // settle (AutoRegistration). Position fixes still use only what the camera settled.
+        robot.vision.seedMatchStart();
+        robot.hive.assumeMatchStart();
         boolean rotated = !alliance.name().equals(drawnFor);
         robot.drive.setPose(startPose.apply(rotated));
         startNs = System.nanoTime();
@@ -224,6 +240,32 @@ public abstract class BuiltAuto extends RobotOpMode {
         }
         settle.update();
         if (trace != null) trace.forEachRecent(display::line);
+        publish();
+    }
+
+    /**
+     * The launch path's numbers to Panels, under the same keys as Basic Drive and Launch Test, so the
+     * same graphs work in an Auto. Flat keys, one update per loop; never takes the robot down.
+     */
+    private void publish() {
+        if (panels == null) return;
+        try {
+            panels.addData("left_target_tps", robot.launcher.isSpinning() ? robot.launcher.leftTarget() : 0.0);
+            panels.addData("right_target_tps", robot.launcher.isSpinning() ? robot.launcher.rightTarget() : 0.0);
+            panels.addData("left_tps", robot.launcher.leftTicksPerSecond());
+            panels.addData("right_tps", robot.launcher.rightTicksPerSecond());
+            panels.addData("at_speed", robot.launcher.atSpeed() ? 1.0 : 0.0);
+            panels.addData("shots", robot.launcher.shots());
+            panels.addData("feeder_power", robot.feeder.power());
+            panels.addData("feeder_tps", robot.feeder.ticksPerSecond());
+            panels.addData("gate_feeding", robot.feedGate.state() == FeedGateSubsystem.State.FEEDING ? 1.0 : 0.0);
+            LanePanels.publish(panels, robot.colorSensor.lane());
+            panels.addData("battery_volts", batteryVolts());
+            panels.addData("loop_ms", loopTimer.lastMs());
+            panels.update();
+        } catch (RuntimeException ignored) {
+            // Telemetry never takes a mechanism down.
+        }
     }
 
     /** AutoKit takes one path watcher; the log and the settle check both need every start and end. */

@@ -1,6 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import com.pedropathing.math.Pose;
+
+import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints;
 
 import org.junit.Test;
 
@@ -75,23 +81,34 @@ public class FlowerPickerTest {
         assertEquals(0.05, FlowerPicker.unitFraction(Double.NaN), EPS);
     }
 
-    /** An Auto's pick pushes straight ahead from its spot to 12 in from the FLOWER's centre. */
+    /** An Auto's pick squares up on the FLOWER's line at the distance its drive stopped, held to 18–24 in. */
     @Test
-    public void aheadToStopsShortOfTheFlowerAlongTheHeading() {
-        // The R-Quals wall pick spot: 24 in out from the WALL FLOWER (2.71, 47.36), facing it.
-        com.pedropathing.math.Pose spot = new com.pedropathing.math.Pose(26.71, 47.36, Math.PI);
-        com.pedropathing.math.Pose contact = FlowerPicker.aheadTo(spot, 2.71, 47.36, 12.0);
-        assertEquals(14.71, contact.x(), 1e-9);
-        assertEquals(47.36, contact.y(), 1e-9);
-        assertEquals(Math.PI, contact.heading(), 1e-12);
-        // A spot 3 in to one side still pushes straight ahead: along its own heading.
-        com.pedropathing.math.Pose beside = FlowerPicker.aheadTo(
-                new com.pedropathing.math.Pose(26.71, 50.36, Math.PI), 2.71, 47.36, 12.0);
-        assertEquals(50.36, beside.y(), 1e-9);
-        assertEquals("already closer than the contact", null,
-                FlowerPicker.aheadTo(new com.pedropathing.math.Pose(10.0, 47.36, Math.PI), 2.71, 47.36, 12.0));
-        assertEquals("facing away", null,
-                FlowerPicker.aheadTo(new com.pedropathing.math.Pose(26.71, 47.36, 0.0), 2.71, 47.36, 12.0));
+    public void squareUpLandsOnTheFlowersLineAtTheSameDistance() {
+        FlowerFieldPoints.Flower wall = FlowerFieldPoints.RED_WALL; // (2.71, 47.36), facing -x
+        // 19.5 in out, 4 in to one side and 10° turned: squares to 19.5 in out, on the line, facing it.
+        Pose spot = new Pose(22.21, 51.36, Math.PI - Math.toRadians(10));
+        assertNull(FlowerPicker.squareUpRefusal(wall, spot, 12, 30));
+        Pose square = FlowerPicker.squareUpPose(wall, spot, 18, 24);
+        assertEquals(22.21, square.x(), EPS);
+        assertEquals(47.36, square.y(), EPS);
+        assertEquals(Math.PI, square.heading(), EPS);
+        // Too close is pulled back to 18 (the stick swings down clear there); too far comes in to 24.
+        assertEquals(20.71, FlowerPicker.squareUpPose(wall, new Pose(14.71, 47.36, Math.PI), 18, 24).x(), EPS);
+        assertEquals(26.71, FlowerPicker.squareUpPose(wall, new Pose(40.0, 47.36, Math.PI), 18, 24).x(), EPS);
+    }
+
+    /** A spot far off the line, turned away, or past the FLOWER is a drawing error: the card refuses. */
+    @Test
+    public void squareUpRefusesASpotThatIsNotRoughlyLinedUp() {
+        FlowerFieldPoints.Flower wall = FlowerFieldPoints.RED_WALL;
+        assertNotNull("13 in off the line", FlowerPicker.squareUpRefusal(wall, new Pose(22.21, 60.36, Math.PI), 12, 30));
+        assertNotNull("35° turned", FlowerPicker.squareUpRefusal(wall,
+                new Pose(22.21, 47.36, Math.PI - Math.toRadians(35)), 12, 30));
+        assertNull("29° the short way round", FlowerPicker.squareUpRefusal(wall,
+                new Pose(22.21, 47.36, -Math.PI + Math.toRadians(29)), 12, 30));
+        assertNotNull("behind the FLOWER", FlowerPicker.squareUpRefusal(wall, new Pose(1.0, 47.36, Math.PI), 12, 30));
+        // The far FLOWER faces +y: its line runs along x = 47.36.
+        assertNull(FlowerPicker.squareUpRefusal(FlowerFieldPoints.RED_FAR, new Pose(47.36, 119.0, Math.PI / 2), 12, 30));
     }
 
     /** An Auto may not cross the centre line (x = 70.75), so it only grabs on its own half. */

@@ -87,6 +87,10 @@ public class LimelightVisionSubsystem implements Subsystem {
     private State state = State.OFF;
 
     private final Map<HiveCell, CellSighting> sightings = new EnumMap<>(HiveCell.class);
+    /** Every CELL, once: {@code values()} allocates a new array per call. */
+    private static final HiveCell[] CELLS = HiveCell.values();
+    /** Where each CELL last rested, through the camera's gaps; see {@link #lastKnown}. */
+    private final CellBaseline baseline = new CellBaseline();
     private final Map<HiveCell, CellStateTracker> stateTrackers = new EnumMap<>(HiveCell.class);
 
     private long lastPollMs = 0L;
@@ -194,6 +198,7 @@ public class LimelightVisionSubsystem implements Subsystem {
             // stall, a GC pause), which is exactly when it must not happen.
             expireStaleSightings();
             poll();
+            for (HiveCell cell : CELLS) baseline.observe(cell, state(cell));
         } finally {
             lastPeriodicMs = (System.nanoTime() - startNs) / 1_000_000.0;
         }
@@ -384,6 +389,24 @@ public class LimelightVisionSubsystem implements Subsystem {
         return tracker == null ? HiveCellState.UNKNOWN : tracker.settledState();
     }
 
+    /**
+     * Where {@code cell} was last known to rest: the camera's last settled UP or DOWN, kept while
+     * it does not see the CELL, or the match-start state {@link #seedMatchStart()} gave it. UNKNOWN
+     * until one of those. {@link #state} is what the camera says now.
+     */
+    public HiveCellState lastKnown(HiveCell cell) {
+        return baseline.known(cell);
+    }
+
+    /**
+     * Sets every CELL's {@link #lastKnown} to its match-start state (each alliance's LEFT DOWN,
+     * RIGHT UP). An Autonomous calls it at PLAY; the camera's next settled sighting of a CELL
+     * replaces it.
+     */
+    public void seedMatchStart() {
+        baseline.seedMatchStart();
+    }
+
     /** The state tracker for {@code cell}, for diagnostics. Never null. */
     public CellStateTracker stateTracker(HiveCell cell) {
         return trackerFor(cell);
@@ -516,5 +539,6 @@ public class LimelightVisionSubsystem implements Subsystem {
         state = available ? State.OFF : State.UNAVAILABLE;
         sightings.clear();
         for (CellStateTracker tracker : stateTrackers.values()) tracker.reset();
+        baseline.clear();
     }
 }

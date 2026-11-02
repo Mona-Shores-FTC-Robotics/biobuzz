@@ -286,8 +286,13 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      * Sets the pose from the camera now. Once the pose is field-referenced, only x and y move: the
      * gated tags ({@link TagGate}) give the position with the Pinpoint's heading, which is kept;
      * averaged over the frames since the robot stopped, if it is still. Before that, two or more
-     * gated tags give the whole pose ({@link CellFix#fit}). Refused if referenced and this would move
-     * the robot more than {@link LocalizationTuning#maxRelocalizeJumpIn}. The driver's field-centric
+     * gated tags give the whole pose ({@link CellFix#fit}). A correction bigger than
+     * {@link LocalizationTuning#maxRelocalizeJumpIn}, or one the current heading cannot solve, is what
+     * a lost pose looks like (a TeleOp that assumed the start mark with the robot elsewhere, a robot
+     * carried after an Auto): with the robot still and two or more gated tags on settled CELLs, the
+     * camera's whole pose is taken, heading too, exactly as when the pose is first seeded. Moving, or
+     * with fewer tags, it is refused, so one bad frame cannot throw the robot across the field
+     * (1 Nov 2026, 20245: "refused: 94.5 in" left the driver no way back). The driver's field-centric
      * forward stays where it was. For a button; best done holding still.
      *
      * @return what happened, for the driver
@@ -320,16 +325,38 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             y = gate.y();
             from = gate.acceptedCount() + " tags";
         } else {
-            return poseNote = "relocalize refused: " + describe(verdict);
+            // With a wrong heading the tags may not solve at all: try the heading-free whole pose.
+            String lost = relocalizeLostPose(now);
+            return poseNote = lost != null ? lost : "relocalize refused: " + describe(verdict)
+                    + (still ? "" : " (hold still to reset a lost pose)");
         }
         double jumpIn = Math.hypot(x - now.x(), y - now.y());
         if (jumpIn > LocalizationTuning.maxRelocalizeJumpIn) {
+            String lost = relocalizeLostPose(now);
+            if (lost != null) return poseNote = lost;
             return poseNote = String.format(java.util.Locale.US,
-                    "relocalize refused: %.1f in from the current pose", jumpIn);
+                    "relocalize refused: %.1f in from the current pose%s", jumpIn,
+                    still ? "; needs 2+ tags on settled CELLs to reset it" : "; hold still to reset it");
         }
         Pose moved = new Pose(x, y, now.heading());
         setPoseKeepingDriverForward(moved);
         return poseNote = "relocalized " + describePose(moved) + " from " + from + ", heading kept";
+    }
+
+    /**
+     * The lost-pose reset: with the robot still, the whole pose from two or more gated tags on
+     * settled CELLs (heading-free, as when seeding), however far it is from {@code now}. Null when
+     * moving or with too few tags, so the caller refuses.
+     */
+    private String relocalizeLostPose(Pose now) {
+        if (!still) return null;
+        gate.solve(Double.NaN);
+        Pose whole = fitAccepted();
+        if (whole == null) return null;
+        double jumpIn = Math.hypot(whole.x() - now.x(), whole.y() - now.y());
+        setPoseKeepingDriverForward(whole);
+        return String.format(java.util.Locale.US, "relocalized %s from %d tags, whole pose (lost: %.0f in off)",
+                describePose(whole), gate.acceptedCount(), jumpIn);
     }
 
     /**

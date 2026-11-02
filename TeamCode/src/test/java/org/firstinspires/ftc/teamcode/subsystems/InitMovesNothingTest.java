@@ -49,6 +49,7 @@ public class InitMovesNothingTest {
     static {
         NOT_RUN_HERE.put("IndicatorSubsystem", "a light on a servo port: it moves nothing, so it lights during INIT");
         NOT_RUN_HERE.put("LimelightVisionSubsystem", "a camera");
+        NOT_RUN_HERE.put("ColorSensorSubsystem", "a sensor: it reads and moves nothing");
         NOT_RUN_HERE.put("PieceVisionSubsystem", "a camera");
         NOT_RUN_HERE.put("DriveSubsystem", "needs the Pinpoint and Pedro to build; its wheels turn only on drive(), "
                 + "follow() or hold(), which an OpMode calls only after PLAY (bindings and commands start at PLAY)");
@@ -84,14 +85,121 @@ public class InitMovesNothingTest {
 
     @Test
     public void intakeStarsWaitForPlay() {
-        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS);
-        IntakeSubsystem intake = new IntakeSubsystem(devices.map);
+        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
+                .motor(DeviceNames.FEEDER);
+        IntakeSubsystem intake = new IntakeSubsystem(devices.map, new FeederSubsystem(devices.map));
         runInit(intake, devices);
 
         intake.start();
         intake.update();
         assertEquals("at PLAY the star wheels are written, still stopped",
                 "setPower(0.0)", devices.calls(DeviceNames.INTAKE_STARS).get(0));
+    }
+
+    @Test
+    public void intakeJoinsAFeedOnlyAfterPlay() {
+        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
+                .motor(DeviceNames.FEEDER);
+        FeederSubsystem feeder = new FeederSubsystem(devices.map);
+        feeder.initialize();
+        devices.clear();
+        feeder.feed();
+        IntakeSubsystem intake = new IntakeSubsystem(devices.map, feeder);
+        runInit(intake, devices);
+        assertFalse("before PLAY a feed is not an intake request", intake.feedAssist());
+
+        intake.start();
+        intake.update();
+        assertEquals("at PLAY the roller joins the feed", IntakeSubsystem.State.IN, intake.state());
+        assertEquals("the OpMode asked for nothing", IntakeSubsystem.State.IDLE, intake.requested());
+        assertTrue(intake.feedAssist());
+        assertEquals("setPower(" + IntakeSubsystem.powerFor(IntakeSubsystem.State.IN,
+                        IntakeSubsystem.inPower, IntakeSubsystem.outPower) + ")",
+                devices.calls(DeviceNames.INTAKE).get(0));
+        assertEquals("setPower(" + IntakeSubsystem.starsPowerFor(IntakeSubsystem.State.IN,
+                        IntakeSubsystem.starsPower, IntakeSubsystem.starsReversed) + ")",
+                devices.calls(DeviceNames.INTAKE_STARS).get(0));
+    }
+
+    @Test
+    public void prefeedWaitsForPlayEvenWhileTheIntakeIsAskingForIt() {
+        Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
+                .motor(DeviceNames.FEEDER).crServo(DeviceNames.PREFEED);
+        FeederSubsystem feeder = new FeederSubsystem(devices.map);
+        IntakeSubsystem intake = new IntakeSubsystem(devices.map, feeder);
+        feeder.initialize();
+        intake.initialize();
+        devices.clear();
+        intake.intake();
+        PrefeedSubsystem prefeed = new PrefeedSubsystem(devices.map, intake, feeder);
+        runInit(prefeed, devices);
+
+        // PLAY as Robot does it: every subsystem started, then updated in list order, the intake
+        // before the prefeed, so the prefeed follows what the roller is doing this loop.
+        intake.start();
+        intake.update();
+        prefeed.start();
+        prefeed.update();
+        double expected = PrefeedSubsystem.powerFor(PrefeedSubsystem.State.IN, PrefeedSubsystem.inPower,
+                PrefeedSubsystem.outPower, PrefeedSubsystem.reversed);
+        assertEquals("at PLAY the prefeed follows the intake, whichever way it is wired",
+                Arrays.asList("setPower(" + expected + ")"),
+                devices.calls(DeviceNames.PREFEED));
+    }
+
+    @Test
+    public void feedGateWaitsForPlayEvenWhileTheFeederIsAskingForIt() {
+        double blocking = FeedGateSubsystem.blockingPosition;
+        double feeding = FeedGateSubsystem.feedingPosition;
+        FeedGateSubsystem.blockingPosition = 0.2;
+        FeedGateSubsystem.feedingPosition = 0.7;
+        try {
+            Devices devices = new Devices().motor(DeviceNames.FEEDER).servo(DeviceNames.FEED_GATE);
+            FeederSubsystem feeder = new FeederSubsystem(devices.map);
+            feeder.initialize();
+            devices.clear();
+            feeder.feed();
+            FeedGateSubsystem gate = new FeedGateSubsystem(devices.map, feeder);
+            runInit(gate, devices);
+
+            feeder.idle();
+            gate.start();
+            gate.update();
+            assertEquals("at PLAY the gate goes to BLOCKING",
+                    Arrays.asList("setPosition(0.2)"), devices.calls(DeviceNames.FEED_GATE));
+            gate.update();
+            assertEquals("a held gate is not rewritten every loop",
+                    1, devices.calls(DeviceNames.FEED_GATE).size());
+            feeder.feed();
+            gate.update();
+            assertEquals("a feed opens it",
+                    Arrays.asList("setPosition(0.2)", "setPosition(0.7)"), devices.calls(DeviceNames.FEED_GATE));
+        } finally {
+            FeedGateSubsystem.blockingPosition = blocking;
+            FeedGateSubsystem.feedingPosition = feeding;
+        }
+    }
+
+    @Test
+    public void feedGateWritesNothingWhileItsPositionsAreNaN() {
+        double blocking = FeedGateSubsystem.blockingPosition;
+        double feeding = FeedGateSubsystem.feedingPosition;
+        FeedGateSubsystem.blockingPosition = Double.NaN;
+        FeedGateSubsystem.feedingPosition = Double.NaN;
+        try {
+            Devices devices = new Devices().motor(DeviceNames.FEEDER).servo(DeviceNames.FEED_GATE);
+            FeedGateSubsystem gate = new FeedGateSubsystem(devices.map, new FeederSubsystem(devices.map));
+            runInit(gate, devices);
+            gate.start();
+            for (int i = 0; i < 10; i++) {
+                gate.update();
+            }
+            assertTrue("unmeasured positions are never written, even after PLAY",
+                    devices.calls(DeviceNames.FEED_GATE).isEmpty());
+        } finally {
+            FeedGateSubsystem.blockingPosition = blocking;
+            FeedGateSubsystem.feedingPosition = feeding;
+        }
     }
 
     @Test
@@ -102,8 +210,38 @@ public class InitMovesNothingTest {
 
     @Test
     public void launcherStaysAtZeroInInit() {
-        Devices devices = new Devices().motor(DeviceNames.LAUNCHER_LEFT).motor(DeviceNames.LAUNCHER_RIGHT);
-        runInit(new LauncherSubsystem(devices.map), devices);
+        Devices devices = new Devices().motor(DeviceNames.LAUNCHER_LEFT).motor(DeviceNames.LAUNCHER_RIGHT)
+                .motor(DeviceNames.FEEDER);
+        runInit(new LauncherSubsystem(devices.map, new FeederSubsystem(devices.map)), devices);
+    }
+
+    @Test
+    public void launcherReversesForAnUnjamOnlyAfterPlay() {
+        Devices devices = new Devices().motor(DeviceNames.LAUNCHER_LEFT).motor(DeviceNames.LAUNCHER_RIGHT)
+                .motor(DeviceNames.FEEDER);
+        FeederSubsystem feeder = new FeederSubsystem(devices.map);
+        feeder.initialize();
+        devices.clear();
+        feeder.reverse();
+        LauncherSubsystem launcher = new LauncherSubsystem(devices.map, feeder);
+        runInit(launcher, devices);
+        assertFalse("before PLAY an unjam does not turn the wheels", launcher.reversing());
+
+        launcher.start();
+        launcher.update();
+        assertTrue("at PLAY the wheels back up with the feeder", launcher.reversing());
+        assertFalse(launcher.atSpeed());
+        assertEquals("setVelocity(" + LauncherSubsystem.reverseCommandFor(
+                        LauncherSubsystem.reverseTicksPerSecond, LauncherSubsystem.leftReversed) + ")",
+                devices.calls(DeviceNames.LAUNCHER_LEFT).get(0));
+        assertEquals("setVelocity(" + LauncherSubsystem.reverseCommandFor(
+                        LauncherSubsystem.reverseTicksPerSecond, LauncherSubsystem.rightReversed) + ")",
+                devices.calls(DeviceNames.LAUNCHER_RIGHT).get(0));
+
+        feeder.idle();
+        launcher.update();
+        assertFalse("on release an idle launcher goes back to idle", launcher.reversing());
+        assertFalse(launcher.isSpinning());
     }
 
     /** {@code initialize()} and the INIT loops, failing on any write that moves; then clears the record. */
@@ -144,7 +282,8 @@ public class InitMovesNothingTest {
     }
 
     private static final List<String> RUN_HERE = Arrays.asList(
-            "FlowerStickSubsystem", "TurretSubsystem", "IntakeSubsystem", "FeederSubsystem", "LauncherSubsystem");
+            "FlowerStickSubsystem", "TurretSubsystem", "IntakeSubsystem", "FeederSubsystem", "LauncherSubsystem",
+            "PrefeedSubsystem", "FeedGateSubsystem");
 
     private static final Pattern COMMENTS = Pattern.compile("/\\*.*?\\*/|//[^\\n]*", Pattern.DOTALL);
 

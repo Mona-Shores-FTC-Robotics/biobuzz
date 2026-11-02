@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.controls;
 
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -42,7 +44,9 @@ public final class CheatSheet {
 
     /** {@code team}'s sheet, as a standalone HTML page. {@code logoDataUri} may be null. */
     public static String html(Team team, String logoDataUri) {
-        Map<Action, Input> layout = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK);
+        // The layout the match TeleOp runs: no turret controls while the turret is locked.
+        Map<Action, Input> layout = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK,
+                TurretSubsystem.lockedForward);
         StringBuilder out = new StringBuilder();
         out.append("<!doctype html>\n<html><head><meta charset=\"utf-8\"><title>")
                 .append(team.number).append(' ').append(team.name).append(" controls</title>\n<style>\n")
