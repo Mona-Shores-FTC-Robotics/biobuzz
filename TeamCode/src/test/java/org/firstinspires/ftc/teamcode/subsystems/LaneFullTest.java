@@ -130,4 +130,13 @@ public class LaneFullTest {
         hold(EMPTY, true, 200);
         assertEquals(2, lane.departures());
     }
+
+    @Test
+    public void aSlowIdleGapDoesNotCountTowardFull() {
+        // Present while idle, read every 250 ms; then the intake starts: the first step's gap is
+        // mostly idle time and adds at most MAX_STEP_MS.
+        for (int i = 0; i < 4; i++, now += 250) lane.step(now, BALL, false, PRESENT, LEAVE, FULL_AFTER);
+        lane.step(now, BALL, true, PRESENT, LEAVE, FULL_AFTER);
+        assertEquals(LaneFull.MAX_STEP_MS, lane.heldWhileIntakingMs(), 1e-9);
+    }
 }

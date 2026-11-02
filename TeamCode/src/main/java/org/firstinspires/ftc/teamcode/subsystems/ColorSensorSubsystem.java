@@ -18,7 +18,9 @@ import java.util.Locale;
  * <p>It is an I2C device, so every read is a round trip to the hub that the bulk cache does not
  * cover: the colour block only. Its proximity side (IR distance) is never read: "full" goes by
  * brightness, and a second transaction per read cost about as much again (2 Nov 2026, p50 5.2 ms of
- * every loop with both). It reads every {@link #readEveryMs}, not every loop,
+ * every loop with both). It reads every {@link #readEveryMs} while the intake, its stars or the
+ * prefeed runs, the only times a piece can move under it, and every {@link #readIdleEveryMs}
+ * otherwise; never every loop,
  * the way {@code RobotOpMode} reads the battery; {@code /Loop/Subsystem/ColorSensorSubsystemMs}
  * shows what a read costs. It moves nothing, so it reads in INIT too: the preloads are in front of
  * it before PLAY.
@@ -48,6 +50,14 @@ public class ColorSensorSubsystem implements Subsystem {
      * second at least once and costs a fraction of reading every loop. 0 reads every loop.
      */
     public static int readEveryMs = 50;
+
+    /**
+     * How often to read while the intake, its stars and the prefeed are all stopped, ms: then no
+     * piece moves under the sensor, so a reading only refreshes the screens and catches a piece
+     * placed by hand (the preloads in INIT). 250 sees one within a quarter second. Never faster
+     * than {@link #readEveryMs}. (From the closed #366, 2 Nov 2026.)
+     */
+    public static int readIdleEveryMs = 250;
 
     /**
      * A piece is under the sensor above this brightness (the clear channel, {@link #alpha()}). NaN
@@ -145,7 +155,11 @@ public class ColorSensorSubsystem implements Subsystem {
     @Override
     public void update() {
         long now = System.nanoTime();
-        fresh = !everRead || now - lastReadNs >= Math.max(0, readEveryMs) * 1_000_000L;
+        boolean laneMoving = intake.state() != IntakeSubsystem.State.IDLE
+                || intake.starsState() != IntakeSubsystem.State.IDLE
+                || prefeed.state() != PrefeedSubsystem.State.IDLE;
+        long intervalNs = readIntervalMs(laneMoving, readEveryMs, readIdleEveryMs) * 1_000_000L;
+        fresh = !everRead || now - lastReadNs >= intervalNs;
         if (fresh) {
             read(now);
         }
@@ -178,6 +192,16 @@ public class ColorSensorSubsystem implements Subsystem {
     /** What it thinks is in the lane. Data only: never decide anything from it. */
     public LaneTracker lane() {
         return lane;
+    }
+
+    /**
+     * How long between reads, ms: {@code readEveryMs} while a piece can move under the sensor,
+     * else {@code readIdleEveryMs}, never faster than the first. Negatives read as 0 (every loop).
+     * Pure, so a test can check it.
+     */
+    static long readIntervalMs(boolean laneMoving, int readEveryMs, int readIdleEveryMs) {
+        long moving = Math.max(0, readEveryMs);
+        return laneMoving ? moving : Math.max(moving, readIdleEveryMs);
     }
 
     private void read(long now) {
