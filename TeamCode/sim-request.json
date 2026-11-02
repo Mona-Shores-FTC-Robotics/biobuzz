@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/l-simple.pp",
-  "spec": "LSimpleAuto,RParkAuto@50",
+  "spec": "LSimpleAuto,RSimpleAuto@50",
   "design": "real robot, turret locked forward, POLLEN only",
   "partnerDesign": null,
   "partnerSpeed": null,
