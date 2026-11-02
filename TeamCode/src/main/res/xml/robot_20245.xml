@@ -54,6 +54,11 @@
             <!-- Odometry: goBILDA Pinpoint on I2C bus 1. -->
             <goBILDAPinpoint name="pinpoint" port="1" bus="1" />
 
+            <!-- Transfer colour sensor: a REV Color Sensor V3 on I2C bus 2
+                 (bus 0 is the hub's own IMU, 1 the Pinpoint). Data only for now
+                 (ColorSensorSubsystem). Added 2 Nov 2026. -->
+            <RevColorSensorV3 name="colorSensor" port="2" bus="2" />
+
             <!-- Intake star wheels: a continuous-rotation servo on servo port 5.
                  One-way clutches let a ball overrun the stars inward; the
                  code runs them while the intake pulls in, backwards while

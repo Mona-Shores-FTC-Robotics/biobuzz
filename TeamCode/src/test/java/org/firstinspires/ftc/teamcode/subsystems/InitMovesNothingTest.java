@@ -49,6 +49,7 @@ public class InitMovesNothingTest {
     static {
         NOT_RUN_HERE.put("IndicatorSubsystem", "a light on a servo port: it moves nothing, so it lights during INIT");
         NOT_RUN_HERE.put("LimelightVisionSubsystem", "a camera");
+        NOT_RUN_HERE.put("ColorSensorSubsystem", "a sensor: it reads and moves nothing");
         NOT_RUN_HERE.put("PieceVisionSubsystem", "a camera");
         NOT_RUN_HERE.put("DriveSubsystem", "needs the Pinpoint and Pedro to build; its wheels turn only on drive(), "
                 + "follow() or hold(), which an OpMode calls only after PLAY (bindings and commands start at PLAY)");

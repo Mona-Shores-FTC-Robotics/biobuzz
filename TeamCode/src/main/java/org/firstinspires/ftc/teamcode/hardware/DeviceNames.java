@@ -126,6 +126,13 @@ public final class DeviceNames {
      */
     public static final String INTAKE = "intake";
 
+    /**
+     * A REV Color Sensor V3 in the transfer, on I2C: what colour is in front of it and how close
+     * ({@code subsystems/ColorSensorSubsystem}). Data only for now. Control Hub I2C bus 2; the bus
+     * itself is in each robot's XML.
+     */
+    public static final String COLOR_SENSOR = "colorSensor";
+
     // Two-wheel pinch launcher test rig (hub FTC-EoM3). Both motors hang off
     // one Y-cable on a single port, with one encoder, so software sees one
     // motor. See robot_launcher_rig.xml.
@@ -203,6 +210,7 @@ public final class DeviceNames {
             new Device(INDICATOR, Kind.SERVO),
             new Device(TURRET, Kind.CR_SERVO),
             new Device(PINPOINT, Kind.I2C),
+            new Device(COLOR_SENSOR, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
     /** The two-wheel launcher bench rig: one Y-cabled motor pair, nothing else. */

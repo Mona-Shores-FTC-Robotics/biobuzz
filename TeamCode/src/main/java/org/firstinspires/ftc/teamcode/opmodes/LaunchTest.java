@@ -352,6 +352,10 @@ public class LaunchTest extends RobotOpMode {
             panels.addData("gate_feeding_position", FeedGateSubsystem.feedingPosition);
             panels.addData("feeder_power", robot.feeder.power());
             panels.addData("feeder_amps", robot.feeder.currentAmps());
+            panels.addData("color_hue_deg", robot.colorSensor.hueDegrees());
+            panels.addData("color_saturation", robot.colorSensor.saturation());
+            panels.addData("color_alpha", robot.colorSensor.alpha());
+            panels.addData("color_distance_mm", robot.colorSensor.distanceMm());
             panels.addData("flower_stick_out", robot.flowerStick.extended() ? 1.0 : 0.0);
             panels.addData("battery_volts", batteryVolts());
             panels.addData("setup_layer", setupLayer ? 1.0 : 0.0);

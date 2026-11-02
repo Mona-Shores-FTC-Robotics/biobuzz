@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
@@ -90,6 +91,9 @@ public class Robot {
     /** The indicator light: what the drive team most needs to know, in one colour. */
     public final IndicatorSubsystem indicator;
 
+    /** The REV Color Sensor V3 in the transfer: colour and distance, logged only, for now. */
+    public final ColorSensorSubsystem colorSensor;
+
     /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
@@ -121,10 +125,11 @@ public class Robot {
         // After the drive and the hive: an aim this loop uses this loop's pose and HIVE state.
         turret = new TurretSubsystem(hardwareMap);
         indicator = new IndicatorSubsystem(hardwareMap);
+        colorSensor = new ColorSensorSubsystem(hardwareMap);
 
         subsystems = Collections.unmodifiableList(
                 Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, feeder, launcher, intake, prefeed,
-                        feedGate, turret, indicator));
+                        feedGate, turret, indicator, colorSensor));
     }
 
     /** Every subsystem, in the order they were built. */

@@ -1107,6 +1107,17 @@ public abstract class RobotOpMode extends OpMode {
         if (!Double.isNaN(gatePosition)) {
             log.put("/FeedGate/Position", gatePosition);
         }
+        // The colour sensor, data only: written when it read, so the log shows its real rate.
+        if (robot.colorSensor.fresh()) {
+            log.put("/ColorSensor/Red", robot.colorSensor.red());
+            log.put("/ColorSensor/Green", robot.colorSensor.green());
+            log.put("/ColorSensor/Blue", robot.colorSensor.blue());
+            log.put("/ColorSensor/Alpha", robot.colorSensor.alpha());
+            log.put("/ColorSensor/DistanceMm", robot.colorSensor.distanceMm());
+            double hue = robot.colorSensor.hueDegrees();
+            if (!Double.isNaN(hue)) log.put("/ColorSensor/HueDeg", hue);
+            log.put("/ColorSensor/Saturation", robot.colorSensor.saturation());
+        }
         // The turret: where it points, where it was asked to, and whether anyone zeroed it.
         log.put("/Turret/AngleDeg", robot.turret.angleDegrees());
         log.put("/Turret/TargetDeg", robot.turret.targetDegrees());
