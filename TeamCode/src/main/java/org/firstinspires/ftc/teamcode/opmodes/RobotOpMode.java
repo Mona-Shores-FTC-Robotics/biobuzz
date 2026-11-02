@@ -437,11 +437,20 @@ public abstract class RobotOpMode extends OpMode {
                 gamepad2.rumble(600);
             }
         }
-        if (!isAutonomous()) describeCamera();
+        if (isAutonomous()) {
+            describeCameraStarting();
+        } else {
+            describeCamera();
+        }
         startCheck.describe(display);
         driver.updateDuringInit();
         operator.updateDuringInit();
         onInitLoop();
+        // The map last, and only while it helps and fits: the page is one screen (Display).
+        if (display.page() == Display.Page.MATCH && startCheck.mapHelps(setup.alliance())
+                && display.room(StartCheck.Result.MAP_LINES)) {
+            startCheck.describeMap(display, setup.alliance());
+        }
         showIndicator(true);
         Scheduler.execute();
         finishPage();
@@ -461,6 +470,18 @@ public abstract class RobotOpMode extends OpMode {
             display.status("Camera", Display.Level.FAULT, "the Limelight is not answering: check its power and Ethernet");
         } else if (robot.vision.freshResultCount() == 0) {
             display.status("Camera", Display.Level.WARN, "no frames yet: wait for it before PLAY");
+        }
+    }
+
+    /**
+     * An Auto's camera in its first seconds, before "no picture" is a warning
+     * ({@link InitWarnings#FIRST_FRAME_GRACE_MS}): a quiet line, so nobody presses PLAY before the
+     * first frame (29 Oct) and nobody is told to replug a camera that is still starting.
+     */
+    private void describeCameraStarting() {
+        if (robot.vision.isAvailable() && robot.vision.isConnected() && robot.vision.freshResultCount() == 0
+                && !initWarnings.has(InitWarnings.Kind.CAMERA_NO_FRAMES)) {
+            display.line("<small>camera starting: no picture yet, wait for it before PLAY</small>");
         }
     }
 
@@ -818,6 +839,13 @@ public abstract class RobotOpMode extends OpMode {
     }
 
     /**
+     * An OpMode's own lines at the top of the Robot page: what the person testing wants and the drive
+     * team does not, kept off the one-screen INIT page.
+     */
+    protected void describeRobotPage(Display display) {
+    }
+
+    /**
      * An OpMode's own marks on the Panels Field view, drawn over the robot each time the view is
      * sent. Override instead of making a second {@code FieldView}: two views sending in turn make
      * the field flicker between them.
@@ -826,8 +854,9 @@ public abstract class RobotOpMode extends OpMode {
     }
 
     /**
-     * Page button edge, then the header — so the OpMode's Match lines land under it. In an Auto's
-     * INIT the warnings come first on the Match page, big, each with what to do.
+     * Page button edge, then the header — so the OpMode's Match lines land under it. In INIT the
+     * Match page starts with the alliance, big, and in an Auto the verdict and the warnings, each
+     * with what to do.
      */
     private void beginPage(boolean initializing) {
         boolean pressed = gamepad1.back;
@@ -836,8 +865,8 @@ public abstract class RobotOpMode extends OpMode {
         }
         prevPageButton = pressed;
         display.header();
-        if (initializing && isAutonomous() && display.page() == Display.Page.MATCH) {
-            initWarnings.describe(display);
+        if (initializing && display.page() == Display.Page.MATCH) {
+            initWarnings.describeTop(display, setup.alliance(), isAutonomous());
         }
         setup.describe(display);
     }
@@ -921,6 +950,7 @@ public abstract class RobotOpMode extends OpMode {
             describeBindings(driver);
             describeBindings(operator);
         } else {
+            describeRobotPage(display);
             display.section("Loop");
             display.line(loopTimer.summary());
             display.line(costs.summary());

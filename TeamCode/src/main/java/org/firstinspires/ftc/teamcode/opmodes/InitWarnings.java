@@ -119,12 +119,30 @@ public final class InitWarnings {
         return action[kind.ordinal()];
     }
 
-    /** The top of the Match page: every warning with its action, most serious first, or none. */
-    public void describe(Display display) {
-        if (count == 0) {
-            display.headline(Display.Level.OK, "No warnings");
+    /**
+     * The first line of the INIT page, big: the alliance in its colour, and in an Auto the verdict,
+     * READY or how many things to fix, with the warnings under it ({@link #describe}). A TeleOp's
+     * INIT has no warnings (mentor, 2 Nov 2026): the alliance only.
+     */
+    public void describeTop(Display display, Alliance alliance, boolean autonomous) {
+        String who = alliance == Alliance.RED ? "<font color=\"#E53935\">RED ALLIANCE</font>"
+                : alliance == Alliance.BLUE ? "<font color=\"#1E88E5\">BLUE ALLIANCE</font>" : "NO ALLIANCE";
+        if (!autonomous) {
+            display.line("<big><b>" + who + "</b></big>");
             return;
         }
+        String verdict = count > 0
+                ? "<font color=\"#FFB300\">" + count + " TO FIX</font>"
+                : "<font color=\"#4CAF50\">READY</font>";
+        display.line("<big><b>" + who + " · " + verdict + "</b></big>");
+        describe(display);
+    }
+
+    /**
+     * Under the INIT page's top line: every warning with its action, most serious first. Nothing
+     * with none: the top line already says READY.
+     */
+    public void describe(Display display) {
         for (int i = 0; i < KINDS.length; i++) {
             if (what[i] != null) display.alert(what[i], action[i]);
         }

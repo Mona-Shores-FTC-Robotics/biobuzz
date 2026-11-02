@@ -174,11 +174,17 @@ public abstract class BuiltAuto extends RobotOpMode {
             targetWritten = start;
             pathLog.target(start.pose);
         }
-        display.line("Drawn for " + drawnFor + "; the other alliance runs it rotated.");
         if (!placeholders.isEmpty()) {
             display.status("Placeholders", Display.Level.WARN, String.join(", ", placeholders)
                     + ": no mechanism yet, so these waits run to their limits");
         }
+    }
+
+    /** For whoever wrote the Auto, not the drive team: off the one-screen INIT page. */
+    @Override
+    protected void describeRobotPage(Display display) {
+        display.section("Auto");
+        display.line(source + ": drawn for " + drawnFor + "; the other alliance runs it rotated.");
     }
 
     /** Which of the two starts the camera's whole-pose fits sit on; see the class comment. */
