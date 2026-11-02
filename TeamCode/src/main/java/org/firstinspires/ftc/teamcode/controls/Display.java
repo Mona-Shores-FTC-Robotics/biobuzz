@@ -56,6 +56,18 @@ public final class Display {
 
     private static final Page[] PAGES = Page.values();
 
+    /**
+     * Rows of telemetry one screen shows without scrolling. <b>Provisional</b> until the Driver
+     * Hub's own number replaces it.
+     */
+    public static final int SCREEN_LINES = 14;
+    /** Characters of ordinary telemetry text in one row. <b>Provisional</b>, as above. */
+    public static final double CHARS_PER_LINE = 48;
+    /** How much wider {@code <big>} text is than ordinary text. */
+    public static final double BIG_SCALE = 1.25;
+    /** How much narrower {@code <small>} text is than ordinary text. */
+    public static final double SMALL_SCALE = 0.8;
+
     private final Consumer<String> sink;
     private Page page = Page.MATCH;
     /** Screen rows written since the last {@link #header()}, wrapping included. */
