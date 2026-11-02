@@ -49,18 +49,18 @@ public final class LQualsAuto {
         Pose scoringFlower = p.of(47.2, 119.3, 90);
         Pose wallFlower = p.of(23.1, 47.2, 180);
         Pose parkLeft = p.of(9.8, 117.4, 0);
-        Pose lLaneS = p.of(60.5, 36, 270);
-        Pose lSouthFire = p.of(58, 20, 93);
+        Pose laneEnd = p.of(60.5, 36, 270);
+        Pose launchRight = p.of(58, 20, 93);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose toLaunchLeftControl1 = p.of(21.3, 94.4, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path toLLaneS = Paths.line(startLeft, lLaneS).constant(lLaneS);
-        Path lLaneSPark = Paths.line(lLaneS, parkLeft).linear(lLaneS, parkLeft);
-        Path toLSouthFire = Paths.line(lLaneS, lSouthFire).linear(lLaneS, lSouthFire);
-        Path lSouthFirePark = Paths.line(lSouthFire, parkLeft).linear(lSouthFire, parkLeft);
-        Path toWallFlower = Paths.line(lSouthFire, wallFlower).linear(lSouthFire, wallFlower);
+        Path toLaneEnd = Paths.line(startLeft, laneEnd).constant(laneEnd);
+        Path laneEndPark = Paths.line(laneEnd, parkLeft).linear(laneEnd, parkLeft);
+        Path toLaunchRight = Paths.line(laneEnd, launchRight).linear(laneEnd, launchRight);
+        Path launchRightPark = Paths.line(launchRight, parkLeft).linear(launchRight, parkLeft);
+        Path toWallFlower = Paths.line(launchRight, wallFlower).linear(launchRight, wallFlower);
         Path wallFlowerPark = Paths.line(wallFlower, parkLeft).linear(wallFlower, parkLeft);
         Path toLaunchLeft = Paths.curve(wallFlower, toLaunchLeftControl1, launchLeft).linear(wallFlower, launchLeft);
         Path launchLeftPark = Paths.line(launchLeft, parkLeft).linear(launchLeft, parkLeft);
@@ -72,8 +72,8 @@ public final class LQualsAuto {
         return kit.sequence(
                 kit.guarded("Auto", toParkLeft, 2.1,
                         kit.command("SpinUp"),
-                        kit.path("to L_LANE_S", toLLaneS, 2.8, lLaneSPark, 2.8),
-                        kit.path("to L_SOUTH_FIRE", toLSouthFire, 1.4, lSouthFirePark, 3),
+                        kit.path("to LANE_END", toLaneEnd, 2.8, laneEndPark, 2.8),
+                        kit.path("to LAUNCH_RIGHT", toLaunchRight, 1.4, launchRightPark, 3),
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER", toWallFlower, 1.9, wallFlowerPark, 2.4),
                         kit.command("PickFlower", 8),

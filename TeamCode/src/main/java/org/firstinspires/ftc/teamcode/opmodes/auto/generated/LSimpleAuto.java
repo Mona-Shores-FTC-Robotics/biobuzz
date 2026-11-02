@@ -49,8 +49,8 @@ public final class LSimpleAuto {
         Pose scoringFlower = p.of(47.2, 119.3, 90);
         Pose wallFlower = p.of(23.1, 47.2, 180);
         Pose parkLeft = p.of(9.8, 117.4, 0);
-        Pose lLaneS = p.of(60.5, 36, 270);
-        Pose lSouthFire = p.of(58, 20, 93);
+        Pose laneEnd = p.of(60.5, 36, 270);
+        Pose launchRight = p.of(58, 20, 93);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose toLaunchLeft_3Control1 = p.of(21.3, 94.4, 0);
@@ -59,9 +59,9 @@ public final class LSimpleAuto {
         Path toLaunchLeft = Paths.line(startLeft, launchLeft).constant(launchLeft);
         Path toScoringFlower = Paths.line(launchLeft, scoringFlower).linear(launchLeft, scoringFlower);
         Path toLaunchLeftPath = Paths.line(scoringFlower, launchLeft).linear(scoringFlower, launchLeft);
-        Path toLLaneS = Paths.line(launchLeft, lLaneS).constant(lLaneS);
-        Path toLSouthFire = Paths.line(lLaneS, lSouthFire).linear(lLaneS, lSouthFire);
-        Path toWallFlower = Paths.line(lSouthFire, wallFlower).linear(lSouthFire, wallFlower);
+        Path toLaneEnd = Paths.line(launchLeft, laneEnd).constant(laneEnd);
+        Path toLaunchRight = Paths.line(laneEnd, launchRight).linear(laneEnd, launchRight);
+        Path toWallFlower = Paths.line(launchRight, wallFlower).linear(launchRight, wallFlower);
         Path toLaunchLeftPath2 = Paths.curve(wallFlower, toLaunchLeft_3Control1, launchLeft).linear(wallFlower, launchLeft);
         Path toParkLeft = Paths.line(launchLeft, parkLeft).linear(launchLeft, parkLeft);
 
@@ -81,8 +81,8 @@ public final class LSimpleAuto {
                                                 kit.when("Empty"),
                                                 kit.afterMs(3000))),
                                 kit.afterMs(7000).then(
-                                        kit.path("to L_LANE_S", toLLaneS, 2.8),
-                                        kit.path("to L_SOUTH_FIRE", toLSouthFire, 1.4),
+                                        kit.path("to LANE_END", toLaneEnd, 2.8),
+                                        kit.path("to LAUNCH_RIGHT", toLaunchRight, 1.4),
                                         kit.firstOf("No TIP: fire the preloads at the right CELL (TIP 1)", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(3000)),
