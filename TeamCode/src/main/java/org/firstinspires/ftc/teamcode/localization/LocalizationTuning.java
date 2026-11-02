@@ -92,6 +92,16 @@ public final class LocalizationTuning {
     public static int headingFixFrames = 5;
 
     /**
+     * A TeleOp with no handoff takes the camera's pose over its declared start when the camera's
+     * whole-pose fit sits this far in heading from the start, degrees (or past
+     * {@link #startMarginIn} in position; {@code CameraStart}). Wider than {@link #headingFixDeg}:
+     * on 2 Nov 2026 the fit sat a steady 3-4 deg from a Pinpoint heading set by a wall, and a 4 deg
+     * bar made the override fire on a robot that was on its mark. A robot facing the wrong way is
+     * 90 or 180 deg out; the wall's few degrees are the heading reset's job after PLAY.
+     */
+    public static double startOverrideDeg = 10.0;
+
+    /**
      * <b>Experimental, off:</b> apply that heading correction by itself whenever the robot is still,
      * not only on the camera-reset button. Every application is a match-log event, so a run says how
      * often it fired and by how much. Turn on in Panels for a test; commit true only after a taped-path

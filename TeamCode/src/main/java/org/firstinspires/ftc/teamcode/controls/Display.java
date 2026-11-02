@@ -119,7 +119,7 @@ public final class Display {
     public static double rows(String html) {
         int breaks = 0;
         for (int i = html.indexOf("<br>"); i >= 0; i = html.indexOf("<br>", i + 4)) breaks++;
-        String text = html.replaceAll("<[^>]+>", "").replaceAll("&[a-zA-Z#0-9]+;", "x");
+        int text = visibleLength(html);
         double perRow = html.contains("<tt>") ? TT_CHARS_PER_LINE : CHARS_PER_LINE;
         boolean bold = (html.startsWith("<b>") && html.endsWith("</b>")) || html.startsWith("<big><b>");
         if (bold) perRow *= BOLD_SCALE;
@@ -131,7 +131,41 @@ public final class Display {
             perRow /= SMALL_SCALE;
             height = SMALL_SCALE;
         }
-        return breaks + height * Math.max(1, Math.ceil(text.length() / perRow));
+        return breaks + height * Math.max(1, Math.ceil(text / perRow));
+    }
+
+    /**
+     * Characters of {@code html} the screen shows: tags ({@code <...>}) count nothing, an entity
+     * ({@code &amp;}, {@code &#176;}) counts one, everything else one each. One pass, no regex:
+     * {@link #rows} runs on every line of every loop, and the two {@code String.replaceAll} calls it
+     * used recompiled their patterns each time (2 Nov 2026: 14 ms a loop on Vision: HIVE &amp; Pose's
+     * forty lines).
+     */
+    static int visibleLength(String html) {
+        int n = 0;
+        int len = html.length();
+        int i = 0;
+        while (i < len) {
+            char c = html.charAt(i);
+            if (c == '<') {
+                int end = html.indexOf('>', i + 1);
+                if (end > i + 1) {
+                    i = end + 1;
+                    continue;
+                }
+            } else if (c == '&') {
+                int j = i + 1;
+                while (j < len && (Character.isLetterOrDigit(html.charAt(j)) || html.charAt(j) == '#')) j++;
+                if (j > i + 1 && j < len && html.charAt(j) == ';') {
+                    n++;
+                    i = j + 1;
+                    continue;
+                }
+            }
+            n++;
+            i++;
+        }
+        return n;
     }
 
     public Page page() {

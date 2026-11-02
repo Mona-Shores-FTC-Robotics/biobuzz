@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 public final class MatchLog {
 
     /** Distinct keys {@link #put} accepts; later keys are ignored, with one event saying so. */
-    public static final int MAX_CHANNELS = 128;
+    public static final int MAX_CHANNELS = 192;
     /** Events one loop can carry; more are counted as dropped. */
     public static final int MAX_EVENTS_PER_LOOP = 8;
     /** Pose sets ({@link #poses}, {@link #pose(String, double, double, double)}) one loop can carry. */
