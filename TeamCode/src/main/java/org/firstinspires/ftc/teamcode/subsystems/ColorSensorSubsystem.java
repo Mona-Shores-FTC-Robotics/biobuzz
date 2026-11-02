@@ -68,12 +68,17 @@ public class ColorSensorSubsystem implements Subsystem {
     public static double pollenHueMax = 130;
     /**
      * A piece held under the sensor this long while the intake takes in means the lane is full, ms
-     * ({@link LaneFull}). <b>Not measured: a placeholder.</b> A passing piece is under it for about
-     * 100 to 200 ms (bench, 2 Nov 2026). The reliability test (about ten fills from the floor and a
-     * few partial loads) sets it from the dwell the match log records for every piece
-     * ({@code /Lane/DwellMs}). Negative or NaN: never full.
+     * ({@link LaneFull}). Negative or NaN: never full.
+     *
+     * <p>From 20245's ten TeleOp logs of 1 Nov 2026 (sensor at slot 3, before the dead-zone fix),
+     * replaying the brightness against the roller's speed: a piece passing with the roller running
+     * was under the sensor for 0.30 to 0.98 s of intaking (12 pieces), not the bench's 0.1 to
+     * 0.2 s; a piece that parked with the roller running passed 1.5 s of intaking 1.5 to 1.6 s
+     * after it arrived (6 of 6). 1500 leaves half again the slowest passing piece and calls full
+     * about 1.5 s after the lane fills. Measure it again once the sensor moves to slot 4 and the dead
+     * zone is fixed: the match log has every piece's dwell ({@code /Lane/DwellMs}).
      */
-    public static double fullAfterMs = 500;
+    public static double fullAfterMs = 1500;
 
     /** Red NECTAR's hue range, degrees; it wraps through 0. Bench, 2 Nov 2026: 9° to 22°, saturation 0.76. */
     public static double redNectarHueMin = 330;

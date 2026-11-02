@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.subsystems;
 /**
  * Whether the lane is full, read from the colour sensor as a state, not a count: a piece held
  * under the sensor for more than {@code fullAfterMs} while the intake is taking in means the lane
- * behind it is packed and nothing more can come in. A piece passing through is under it for only a
- * tenth or two of a second (bench, 2 Nov 2026); one that stops there has nowhere to go.
+ * behind it is packed and nothing more can come in. A piece passing through was under it for at
+ * most about a second in the 1 Nov logs; one that stops there has nowhere to go.
  *
  * <p>The mentor's rule (2 Nov 2026): the indicator's green, the roller stop and the Autos'
  * {@code IntakeFull} all read this one signal. {@link LaneTracker} counts arrivals and shots, which
