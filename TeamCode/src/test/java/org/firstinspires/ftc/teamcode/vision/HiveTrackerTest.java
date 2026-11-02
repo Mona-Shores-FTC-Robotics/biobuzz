@@ -8,6 +8,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.firstinspires.ftc.teamcode.logging.HiveComponents;
+import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +49,32 @@ public class HiveTrackerTest {
     /** A loop with no tag for {@code lostForMs}. The camera's settled state lingers, as it does. */
     private HiveState lose(HiveState lingering, double lostForMs, boolean stillLooking, long nowMs) {
         return hive.observe(lingering, 0, lostForMs, stillLooking, nowMs);
+    }
+
+    /** An Autonomous's PLAY: the match-start position, assumed, held through the camera's gaps. */
+    @Test
+    public void theMatchStartIsAssumedUntilTheCameraSettlesIt() {
+        assertEquals(UNSEEN, hive.observe(UNSEEN, 0, NEVER, false, 0));
+        hive.assumeMatchStart();
+        assertEquals(RIGHT_CELL_UP, hive.state());
+        assertTrue(hive.rightCellUp());
+        assertTrue(hive.assumed());
+        assertEquals(RIGHT_CELL_UP, lose(UNSEEN, NEVER, false, 100));
+        assertEquals(RIGHT_CELL_UP, lose(UNSEEN, 1000, true, 200));
+        assertEquals(0, hive.tips());
+        // The camera sees the HIVE has TIPped: that replaces the assumption, and counts the TIP.
+        assertEquals(LEFT_CELL_UP, see(LEFT_CELL_UP, 300));
+        assertTrue(hive.leftCellUp());
+        assertFalse(hive.assumed());
+        assertEquals(1, hive.tips());
+    }
+
+    @Test
+    public void seeingTheMatchStartClearsTheAssumptionWithNoTip() {
+        hive.assumeMatchStart();
+        assertEquals(RIGHT_CELL_UP, see(RIGHT_CELL_UP, 0));
+        assertFalse(hive.assumed());
+        assertEquals(0, hive.tips());
     }
 
     @Test
@@ -250,5 +278,36 @@ public class HiveTrackerTest {
         assertEquals(0, hive.tipsStarted());
         seeTipping(10);
         assertTrue(hive.rightCellDown());
+    }
+    @Test
+    public void theBeliefIsHeldOutOfViewAndSwingsThroughATip() {
+        HiveTracker.Tuning.tipSeconds = 3.5;
+        Alliance red = Alliance.RED;
+        assertEquals("starts at the match-start position", RIGHT_CELL_UP, hive.position());
+        assertEquals(0.0, HiveComponents.believedRad(red, hive, 0), 1e-12);
+
+        see(LEFT_CELL_UP, 1000);
+        double left = HiveComponents.fromBuiltRad(red, LEFT_CELL_UP);
+        assertEquals(left, HiveComponents.believedRad(red, hive, 1000), 1e-12);
+        assertEquals(UNSEEN, lose(LEFT_CELL_UP, 300, false, 1300));
+        assertEquals("out of view: the last position is held", LEFT_CELL_UP, hive.position());
+        assertEquals(left, HiveComponents.believedRad(red, hive, 1300), 1e-12);
+
+        see(LEFT_CELL_UP, 2000);
+        seeTipping(3000);                                   // the TIP started at 3000
+        assertTrue(hive.tipping());
+        assertEquals(0.5, hive.tipProgress(3000 + 1750), 1e-9);
+        assertEquals("half way through tipSeconds, half way back", left / 2,
+                HiveComponents.believedRad(red, hive, 3000 + 1750), 1e-9);
+        assertEquals(1.0, hive.tipProgress(99_000), 1e-12);
+
+        HiveTracker.Tuning.tipSeconds = Double.NaN;        // nothing assumed: drawn mid-swing
+        assertEquals(0.5, hive.tipProgress(99_000), 1e-12);
+    }
+
+    @Test
+    public void notTippingHasNoProgress() {
+        HiveTracker.Tuning.tipSeconds = 3.5;
+        assertEquals(0.0, hive.tipProgress(5000), 0.0);
     }
 }

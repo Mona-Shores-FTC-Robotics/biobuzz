@@ -1,50 +1,83 @@
-# The whole robot for AdvantageScope
+# The robot for AdvantageScope
 
-> On `master` this folder is the model and its description, for match logs
-> (`tools/advantagescope/`). The **Rebuild** inputs below (`cad/full-robot/`, `cad/intake-b/`,
-> `cad/transfer/`, `cad/robot-addons/`) live on the simulator branch, `claude/simulator`, with the
-> simulator that animates the components.
+`Robot_BIOBUZZ/` is the robot drawn from the team's Onshape CAD, for match logs and the simulator's logs in
+AdvantageScope (`tools/advantagescope/` installs it). Pick "BIOBUZZ Robot" in a 3D tab.
 
-`Robot_BIOBUZZ/` is the team's robot from its Onshape CAD, with the decided front (`cad/intake-b/`): the outer wheel
-plates, the odometry pods, the Rigid V plates, the transfer, and eight articulated components (0 to 7). Copy the
-folder into AdvantageScope's custom assets folder and pick "BIOBUZZ Robot".
+## Building it from Onshape
 
-| File | What |
-|---|---|
-| `model.glb` | The robot and everything fixed: goBILDA's odometry pods and Limelight's own 3A (with `VENDOR_PKL`), the camera on its goBILDA mount (from `VENDOR_PKL`; without its mount meshes, a stand-in: a beam between the front towers' tops and a 45° wedge), and the transfer (`cad/transfer/`) at rest, with the launcher's changes (the moved 6000 RPM flywheel motors, the turret's motor and belt). The feeder's yoke and the gate servo are here, swung in: the yoke's swing isn't animated. Left out: the old intake roller and motor (the new ones replace them) and the NECTARs staged in the CAD (the simulator draws the pieces the robot holds) |
-| `model_0.glb` | Component 0, the FLOWER extractor, drawn deployed |
-| `model_1.glb` | Component 1, the roller's motor, carriage and float plates (not the roller), drawn down |
-| `model_2.glb` | Component 2, what turns on the turret: the goBILDA bearing's inner race and its 176T gear (the hood joins it later), facing forward. It turns about +Z through the inner race's centre, (−0.05189, 0.00400) m (with the launcher 0.8 in forward). The designer's launcher under it is fixed: it shoots up into the hood |
-| `model_3.glb` | Component 3, the transfer's feeder: two 72 mm goBILDA Gecko wheels, their shaft and 24T pulley, along X on the left under the flywheels (Y 2.87 in, z 3.30 in, swung in). It only spins about its axle (it is belted to the left flywheel, so it spins whenever the flywheels do); `extractor_poses.json` gives the axis and which way feeds |
-| `model_4.glb` | Component 4, the intake roller: its shaft, wheels and pulleys. It spins about its axle (+Y through X 8.62 in, z 3.4 in at rest) and floats with component 1 |
-| `model_5.glb`, `model_6.glb` | Components 5 and 6, the launcher's left (+Y) and right (−Y) flywheel axles, each two 96 mm Gecko wheels with their shaft, hub and 41T pulley. The left one's shaft is the transfer's longer one, with its spacers and the 16T that drives the feeder. Axles along X at Y +3.643 / −3.328 in, z 6.646 in |
-| `model_7.glb` | Component 7, the transfer's sprung pad opposite the feeder: plate and foam, hinged along X at its foot (Y −1.90 in, z 1.62 in). It swings out about 29° for a NECTAR |
-| `config.json` | FTC robot, no rotations, eight components, and the Limelight as a camera: lens on the centreline 5.58 in ahead of the origin and 14.25 in up (where the goBILDA mount puts it, from `real_parts.limelight_lens_in()`), pitched 45° up (`[y: −45, z: 0]`), Limelight 3A, 640 × 480, 54.5° |
-| `extractor_poses.json` | The poses and axes of every component: the extractor's pose deployed and stowed, and each other component's axis and travel |
+```bash
+pip install numpy trimesh fast_simplification
+ONSHAPE_ACCESS_KEY=... ONSHAPE_SECRET_KEY=... python3 cad/advantagescope/from_onshape.py
+```
 
-**Frame:** +X forward, +Y left, +Z up, metres, origin on the floor under the chassis frame's centre (7.56 in behind the
-front face). That's the point the simulator's `RobotAssets` assumes Pedro tracks; if Pedro's pose is elsewhere,
-change `CENTRE_BACK_IN` in `build_model.py` and rebuild.
+The keys are an Onshape API key pair (Onshape → My account → Developer → API keys) that can read the robot document.
+The script only reads: nothing in the document changes. It takes the **Robot** assembly as Onshape shows it:
 
-**The extractor's pose:** it turns about its own shaft, an axis along +Y through (0.2530, 0, 0.1143) m (2.4 in ahead
-of the face, 4.5 in up). Front up is a rotation about +Y by −angle: 0° deployed, 146° stowed. For an angle θ the component pose is that rotation about the
-pivot, i.e. translation = pivot − R·pivot. `extractor_poses.json` has both ends.
+- **Composite parts are included** (goBILDA's mecanum wheels and motors are composite parts; the assembly API leaves
+  them out unless asked). They barely decimate, so the script thins them by vertex clustering instead.
+- **Hidden or suppressed instances are left out**, the way the mentor sees them. Old launchers he has hidden stay out.
+- **`onshape_model.json`'s `drop` list leaves out anything else**, matched by path (`Chassis <1> / Intake <1> / …`).
+  Game pieces staged in the CAD are dropped there. Leaving a stray part out of the model is one line in this list;
+  the CAD stays as it is.
+- **Each run says what changed in the CAD since the last build** (`onshape_source.json`): new, removed, hidden or
+  shown top-level instances. Look at what it lists, then add to `drop` or keep it, and commit the model, the list and
+  `onshape_source.json` together.
 
-**The roller's pose:** a translation of (0, 0, rise), with rise from 0 (down, as drawn) to 0.033 m (1.3 in). It lifts
-when a NECTAR passes under it.
+Parts are cached in `~/.cache/biobuzz-onshape`, so a rebuild after a small change takes seconds. The model is thinned
+to about `triangle_budget` triangles (600,000, about 9 MB with the normals AdvantageScope needs) so AdvantageScope stays quick on a laptop.
 
-The rear FLOWER scorer is dropped (FLOWER scorer chat, 6 Oct 2026).
+## The frame
 
-**Rebuild:** `VENDOR_PKL=vendor_mesh.pkl python3 cad/advantagescope/build_model.py keep.pkl front_mesh.pkl [addons_mesh.pkl [transfer_mesh.pkl]]`. One source per argument:
-- `keep.pkl`: `python3 cad/full-robot/build.py --mesh Robot.step keep.pkl` (the mentor's CAD lined up and edited as
-  the full-robot STEP has it);
-- `front_mesh.pkl`: `cad/intake-b/build.py` with `MESH_OUT` set;
-- `addons_mesh.pkl` (the real odometry pods, without `VENDOR_PKL`): `cad/robot-addons/build.py` with `POD_DIR` and
-  `MESH_OUT`;
-- `transfer_mesh.pkl`: `cad/transfer/build.py` with `MESH_OUT` set;
-- `VENDOR_PKL`: `python3 cad/full-robot/real_parts.py <example chassis STEP> <LIMELIGHT3ACAD_STEP.stp> vendor_mesh.pkl
-  [VENDOR_DIR]` (with `VENDOR_DIR` it adds the camera's goBILDA mount).
+AdvantageScope's, as TeamCode's logs use it: metres, +X forward, +Y left, +Z up. The origin is on the floor under the
+middle of the four drive axles, which the script finds each run from the four Wheel Assembly shafts. The floor is
+48 mm (a 96 mm mecanum's radius) below the axles; the wheels' bottoms land on it. If the
+assembly is ever turned so the axles no longer run along its x, the script stops and says so.
 
-**The same robot as a STEP:** `cad/full-robot/` builds one STEP of the whole robot as drawn, in this model's frame
-(millimetres). It is too big for git; the team's Drive holds it as two zipped files in `biobuzz/`:
-`BIOBUZZ-1-mentor-robot.step` and `BIOBUZZ-2-our-parts.step` (`cad/full-robot/ONSHAPE.md`).
+## Moving parts
+
+Each entry in `onshape_model.json`'s `components` becomes `model_<index>.glb`, cut out of the same assembly:
+
+- **`parts`**: the paths that move with it. A component that matches nothing stops the build.
+- **`axis_part`** and **`axis`**: the one part it turns about, and that part's thinnest direction (a bearing race)
+  or longest (a shaft), through its centre.
+- **`angle`**: what the logged angle means. **`drawn_at_deg`**: that angle as the CAD draws it.
+
+The script writes the axes to `Robot_BIOBUZZ/components.json`. TeamCode's `logging/RobotComponents` holds the same
+numbers (the robot can't read this folder), and `RobotComponentsTest` fails while the two differ. So after a rebuild
+that moves an axis, copy the new numbers into `RobotComponents`. The match log writes the poses under
+`/Internals/Components`, the key the simulator writes too, and the layout's 3D tabs show them.
+
+| # | Component | Angle | Turns about |
+|---|---|---|---|
+| 0 | Turret: the 176T gear, the bearing's inner race and the hood on them | `TurretSubsystem.angleDegrees()`, counter-clockwise from home (the nose) | The turntable bearing's centre, vertical |
+| 1 | FLOWER stick: the two arms, the 312 mm shaft across their tops, `Part 4` and the bearings on them | `FlowerStickSubsystem.commandedDegrees()`: 0 in, 162 out | The SWYFT servo's hub and bearing <1>, left to right, 6.1 in ahead of the axles' middle, 7.3 in up |
+
+**The turret is drawn at 51.5°.** In the CAD the hood faces 51.5° left of the nose (the big flat faces of the hood
+and its channel point there, and the ball leaves on that open side, away from the tall wall). So at 0, home, the
+model turns it back 51.5° to face forward. If the CAD is ever redrawn facing forward, `drawn_at_deg` becomes 0.
+
+**The FLOWER stick is always drawn stowed in the model**, leaning up and back over the robot, whatever angle the CAD
+was left at. A log stores each part's pose relative to the model file, so a model drawn at another angle would show
+every older log's stick turned by the difference (31 Oct 2026: a rebuild with the CAD's stick left out drew every older
+log's stick out when it was in). So `onshape_model.json` keeps two angles per component: `drawn_at_deg`, where the CAD
+has it now, and `model_at_deg`, where the model file is drawn, fixed for good (0 for the stick, 51.5 for the turret).
+The script turns the part from one to the other. **If someone moves the stick in the CAD, update `drawn_at_deg`**:
+measure the arms' turn about the stick's axis against the last build before committing a rebuild. Out, the stick has
+swung 162° forward and down, and its top shaft lies on the tile; the Flower Ramp is rigid with the arms and shaft.
+Nothing measures the stick, so the log shows what it was commanded to do.
+
+## What's not right yet
+
+- **The intake's float doesn't move.** `Flower Poker Mid` is a permanent part of the intake: it rides up and down on
+  the Viper slides as pieces come in. Nothing on the robot measures that height, so the log can't show it and the
+  model draws it at its CAD height. In the CAD it has no mates yet; fastening it to the sliding carriage keeps the CAD
+  true, and the model is unchanged. A sensor on the slides would let it become a sliding component later.
+- **The camera** in `config.json` is the old hand-measured one (5.58 in ahead, 14.25 in up, pitched 45°). The CAD's
+  Limelight 3A sits about 2 in further back (X 2.7 to 4.4 in, Z 14.0 to 15.7 in). Reading its exact pose from the CAD
+  is a small next step.
+
+## The old model
+
+`build_model.py` built the previous model from a hand-exported STEP of the mentor's CAD plus the team's own drawings
+of the floating-roller intake and the transfer, with eight components. It needs the CAD tooling on the simulator
+branch (`claude/simulator`) and is kept for that branch.

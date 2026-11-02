@@ -43,8 +43,9 @@ public final class ControlScheme {
         // Pose and heading fixes are occasional, so they sit on the D-pad and leave the face
         // buttons for play.
         map.put(Action.RESET_HEADING, Input.DPAD_UP);
-        map.put(Action.CAMERA_RELOCALIZE, Input.DPAD_LEFT);
-        map.put(Action.RESET_TO_SPOT, Input.DPAD_DOWN);
+        map.put(Action.RESET_LEFT_CORNER, Input.DPAD_LEFT);
+        map.put(Action.RESET_RIGHT_CORNER, Input.DPAD_RIGHT);
+        map.put(Action.CAMERA_RELOCALIZE, Input.DPAD_DOWN);
 
         map.put(Action.OPERATOR_INTAKE, Input.R2);
         map.put(Action.UNJAM, Input.L2);

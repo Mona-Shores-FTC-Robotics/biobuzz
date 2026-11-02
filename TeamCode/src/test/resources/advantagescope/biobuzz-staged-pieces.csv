@@ -1,0 +1,59 @@
+# Where BIOBUZZ game pieces start, from AdvantageScope's 2026-2027 field model.
+# Pedro inches (piece centre). Regenerate with HiveAssetsTest; do not edit by hand.
+kind,holder,x,y,z
+Pollen,flower,138.79,94.14,7.18
+Pollen,flower,47.36,138.79,10.07
+Pollen,outside,143.80,24.74,0.82
+Pollen,outside,143.80,33.14,0.82
+Blue Nectar,cell,88.14,80.26,49.94
+Blue Nectar,outside,144.33,70.75,1.34
+Pollen,floor,134.24,140.02,1.40
+Red Nectar,outside,-2.83,67.13,1.34
+Pollen,floor,4.37,1.48,1.40
+Red Nectar,outside,-5.96,72.56,1.34
+Pollen,flower,138.79,94.14,1.40
+Blue Nectar,outside,144.33,67.13,1.34
+Pollen,outside,143.80,44.34,0.82
+Pollen,outside,143.80,30.34,0.82
+Red Nectar,cell,49.76,61.24,49.94
+Blue Nectar,outside,144.33,74.37,1.34
+Pollen,flower,94.14,2.71,1.40
+Pollen,outside,143.80,38.74,0.82
+Pollen,outside,143.80,35.94,0.82
+Pollen,outside,-2.30,108.36,0.82
+Pollen,flower,2.71,47.36,4.29
+Pollen,floor,140.02,140.02,1.40
+Red Nectar,outside,-2.83,74.37,1.34
+Pollen,flower,138.79,94.14,10.07
+Pollen,flower,2.71,47.36,7.18
+Pollen,outside,-2.30,105.56,0.82
+Pollen,flower,47.36,138.79,7.18
+Pollen,outside,-2.30,99.96,0.82
+Pollen,flower,94.14,2.71,7.18
+Pollen,flower,47.36,138.79,1.40
+Pollen,floor,137.13,140.02,1.40
+Red Nectar,outside,-5.96,68.94,1.34
+Pollen,outside,-2.30,111.16,0.82
+Pollen,floor,7.26,1.48,1.40
+Red Nectar,cell,53.38,61.24,49.94
+Pollen,flower,47.36,138.79,4.29
+Blue Nectar,outside,147.46,72.56,1.34
+Pollen,floor,131.35,140.02,1.40
+Blue Nectar,cell,91.76,80.26,49.94
+Pollen,outside,-2.30,102.76,0.82
+Pollen,flower,2.71,47.36,10.07
+Pollen,outside,-2.30,116.76,0.82
+Pollen,flower,138.79,94.14,4.29
+Pollen,flower,2.71,47.36,1.40
+Pollen,flower,94.14,2.71,4.29
+Blue Nectar,cell,84.52,80.26,49.94
+Pollen,flower,94.14,2.71,10.07
+Pollen,outside,143.80,27.54,0.82
+Pollen,floor,1.48,1.48,1.40
+Pollen,floor,10.15,1.48,1.40
+Red Nectar,outside,-2.83,70.75,1.34
+Red Nectar,cell,57.00,61.24,49.94
+Pollen,outside,-2.30,113.96,0.82
+Blue Nectar,outside,147.46,68.94,1.34
+Pollen,outside,143.80,41.54,0.82
+Pollen,outside,-2.30,97.16,0.82

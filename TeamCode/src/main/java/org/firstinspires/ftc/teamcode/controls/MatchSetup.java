@@ -57,6 +57,13 @@ public final class MatchSetup {
         }
     }
 
+    /** The drive team discarded the handoff ("start fresh"): forget the Auto's alliance. Ignored once locked. */
+    public void forgetAuto() {
+        if (!locked) {
+            fromAuto = Alliance.UNKNOWN;
+        }
+    }
+
     /** Vision's current proposal, with what it saw. Called every INIT loop; ignored once locked. */
     public void offerVision(Alliance alliance, String evidence) {
         if (!locked) {

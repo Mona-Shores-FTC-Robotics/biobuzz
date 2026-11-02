@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,6 +22,12 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  * So after the swing the pulse is switched off ({@link PwmControl#setPwmDisable()}): the servo goes
  * limp and the stick rests on the tile by its own weight. Stowed, the servo keeps holding, because
  * the stowed hard stop may not exist yet; {@link #LIMP_STOWED} releases it there too once it does.
+ *
+ * <p>Nothing is written before PLAY, so the stick does not move at INIT (G304.H, G403; see
+ * {@link Subsystem}). The drive team stows it by hand before the match; at PLAY the servo takes
+ * it and holds it in. If it ever has to be held in to fit the 18 in starting cube, that is a
+ * mechanical stop or latch (R103.A), not the servo at INIT: the TeleOp's INIT runs between AUTO and
+ * TELEOP too, where a stick swinging in after an Auto is a G403 foul.
  *
  * <p>The two positions are {@code @Configurable}: drag them in Panels with the servo moving until
  * the stick sits on each stop, then write the numbers back here with a comment saying which servo
@@ -46,6 +53,12 @@ public class FlowerStickSubsystem implements Subsystem {
      */
     public static int SETTLE_MS = 1500;
 
+    /**
+     * Degrees the servo turns over its whole 0 to 1 range: the goBILDA Torque servo's 270, which
+     * makes {@link #RETRACTED} to {@link #EXTENDED} the 162 degree swing ({@link #SETTLE_MS}).
+     */
+    public static final double SERVO_RANGE_DEG = 270.0;
+
     /** Cut the pulse once the stick is out and settled, so the stick rests on the tile. */
     public static boolean LIMP_EXTENDED = true;
 
@@ -57,22 +70,57 @@ public class FlowerStickSubsystem implements Subsystem {
     private boolean out = false;
     private boolean lastOut = false;
     private boolean limp = false;
+    private boolean started;
     private long movedAtMs = 0;
+    private final DriveSubsystem drive;
+    // A pending retractWhenClear: the stick comes in once the robot is clearIn from (clearX, clearY).
+    private boolean waitingToClear = false;
+    private double clearX;
+    private double clearY;
+    private double clearIn;
 
-    /** Looks the servo up once. A missing servo fails init with the SDK's own message. */
-    public FlowerStickSubsystem(HardwareMap hardwareMap) {
+    /**
+     * Looks the servo up once. A missing servo fails init with the SDK's own message.
+     *
+     * @param drive read for the pose by {@link #retractWhenClear}; updated before this subsystem
+     */
+    public FlowerStickSubsystem(HardwareMap hardwareMap, DriveSubsystem drive) {
         servo = hardwareMap.get(Servo.class, DeviceNames.FLOWER_STICK);
         pwm = servo instanceof PwmControl ? (PwmControl) servo : null;
+        this.drive = drive;
     }
 
     /** Ask for the stick out. Takes effect in the next {@link #update()}. */
     public void extend() {
+        waitingToClear = false;
         out = true;
     }
 
     /** Ask for the stick in. Takes effect in the next {@link #update()}. */
     public void retract() {
+        waitingToClear = false;
         out = false;
+    }
+
+    /**
+     * Ask for the stick in, but only once the robot's centre is at least {@code inches} from the
+     * field point ({@code x}, {@code y}): a stick swung up while it is still in a FLOWER pulls on the
+     * FLOWER. The stick stays down until then, checked every {@link #update()}, whatever ended the
+     * grab and whoever drives the robot away. At once if the robot is already that far, if the stick
+     * is in, or if there is no pose to check. Any other request ({@link #extend}, {@link #retract},
+     * {@link #toggle}) replaces it, so the operator's button always wins.
+     */
+    public void retractWhenClear(double x, double y, double inches) {
+        if (!out) return;
+        waitingToClear = true;
+        clearX = x;
+        clearY = y;
+        clearIn = inches;
+    }
+
+    /** Whether the stick is out only until the robot is clear ({@link #retractWhenClear}). */
+    public boolean waitingToClear() {
+        return waitingToClear;
     }
 
     /**
@@ -80,6 +128,7 @@ public class FlowerStickSubsystem implements Subsystem {
      * both; a press mid-swing turns the stick round, which the servo handles as a new target.
      */
     public void toggle() {
+        waitingToClear = false;
         out = !out;
     }
 
@@ -93,35 +142,67 @@ public class FlowerStickSubsystem implements Subsystem {
         return limp;
     }
 
-    /** Start with the stick in and the servo holding it, so the robot fits its starting envelope. */
+    /** The swing from in to out, degrees: the two positions' distance over the servo's range. */
+    public static double swingDegrees() {
+        return Math.abs(unitRange(RETRACTED) - unitRange(EXTENDED)) * SERVO_RANGE_DEG;
+    }
+
+    /**
+     * Degrees swung out from stowed as commanded: 0 in, {@link #swingDegrees()} out. What the
+     * servo was asked for, not a measurement (nothing measures the stick); it jumps at the request
+     * while the stick takes about a second to follow. For the robot model in the match log.
+     */
+    public double commandedDegrees() {
+        return out ? swingDegrees() : 0.0;
+    }
+
+    /**
+     * Asked in, and nothing written: the servo stays limp until PLAY (the SDK cuts every servo's
+     * pulse when an OpMode ends, and a servo port sends none until it is written).
+     */
     @Override
     public void initialize() {
+        waitingToClear = false;
         out = false;
         lastOut = false;
-        power(true);
-        servo.setPosition(unitRange(RETRACTED));
+        limp = pwm != null;
+        started = false;
+    }
+
+    /** PLAY: the servo takes the stick and holds it in, unless something already asked it out. */
+    @Override
+    public void start() {
+        started = true;
         movedAtMs = System.currentTimeMillis();
     }
 
     /**
-     * One write per loop while the servo is working: the position the request asks for, clamped so
-     * Panels cannot overdrive it. A change of request powers the servo and starts the swing; once
-     * the swing has had {@link #SETTLE_MS} the pulse is cut if that end asks for it.
+     * Nothing before PLAY. Then one write per loop while the servo is working: the position the
+     * request asks for, clamped so Panels cannot overdrive it. A change of request powers the servo
+     * and starts the swing; once the swing has had {@link #SETTLE_MS} the pulse is cut if that end
+     * asks for it. The position goes out before the pulse is switched back on, so a limp servo
+     * never wakes up driving to an old one.
      */
     @Override
     public void update() {
+        if (!started) {
+            return;
+        }
         long now = System.currentTimeMillis();
+        if (waitingToClear && clearOf(drive.pose(), clearX, clearY, clearIn)) {
+            waitingToClear = false;
+            out = false;
+        }
         if (out != lastOut) {
             lastOut = out;
             movedAtMs = now;
-            power(true);
         }
         boolean wantLimp = shouldGoLimp(now - movedAtMs, SETTLE_MS, out ? LIMP_EXTENDED : LIMP_STOWED);
         if (wantLimp) {
             power(false);
         } else {
-            power(true);
             servo.setPosition(unitRange(out ? EXTENDED : RETRACTED));
+            power(true);
         }
     }
 
@@ -158,6 +239,14 @@ public class FlowerStickSubsystem implements Subsystem {
      */
     static boolean shouldGoLimp(long sinceMoveMs, int settleMs, boolean limpWanted) {
         return limpWanted && sinceMoveMs >= settleMs;
+    }
+
+    /**
+     * Whether {@code pose} is at least {@code inches} from (x, y). No pose counts as clear: without
+     * one the stick could never come in. Pure, so the test can pin it down.
+     */
+    static boolean clearOf(Pose pose, double x, double y, double inches) {
+        return pose == null || Math.hypot(pose.x() - x, pose.y() - y) >= inches;
     }
 
     /**

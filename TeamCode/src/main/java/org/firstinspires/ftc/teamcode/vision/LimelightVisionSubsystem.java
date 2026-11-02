@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.vision;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -86,6 +87,10 @@ public class LimelightVisionSubsystem implements Subsystem {
     private State state = State.OFF;
 
     private final Map<HiveCell, CellSighting> sightings = new EnumMap<>(HiveCell.class);
+    /** Every CELL, once: {@code values()} allocates a new array per call. */
+    private static final HiveCell[] CELLS = HiveCell.values();
+    /** Where each CELL last rested, through the camera's gaps; see {@link #lastKnown}. */
+    private final CellBaseline baseline = new CellBaseline();
     private final Map<HiveCell, CellStateTracker> stateTrackers = new EnumMap<>(HiveCell.class);
 
     private long lastPollMs = 0L;
@@ -102,6 +107,8 @@ public class LimelightVisionSubsystem implements Subsystem {
     private long freshResultCount = 0L;
     private double lastPeriodicMs = 0.0;
     private LLResult lastResult;
+    /** The newest frame's capture plus targeting latency, ms; NaN before the first. */
+    private double lastLatencyMs = Double.NaN;
 
     public LimelightVisionSubsystem(HardwareMap hardwareMap) {
         this(hardwareMap, DeviceNames.LIMELIGHT);
@@ -157,6 +164,11 @@ public class LimelightVisionSubsystem implements Subsystem {
         state = State.STREAMING;
     }
 
+    /** A camera; nothing to move. */
+    @Override
+    public void start() {
+    }
+
     /**
      * One update step. Called every loop, either directly by a LinearOpMode or through
      * {@link Subsystem#periodic()} under the Ivy scheduler.
@@ -186,6 +198,7 @@ public class LimelightVisionSubsystem implements Subsystem {
             // stall, a GC pause), which is exactly when it must not happen.
             expireStaleSightings();
             poll();
+            for (HiveCell cell : CELLS) baseline.observe(cell, state(cell));
         } finally {
             lastPeriodicMs = (System.nanoTime() - startNs) / 1_000_000.0;
         }
@@ -219,6 +232,7 @@ public class LimelightVisionSubsystem implements Subsystem {
         if (resultTimestampNs == lastResultTimestampNs) return;
         lastResultTimestampNs = resultTimestampNs;
         freshResultCount++;
+        lastLatencyMs = result.getCaptureLatency() + result.getTargetingLatency();
 
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         if (fiducials == null || fiducials.isEmpty()) return;
@@ -375,6 +389,24 @@ public class LimelightVisionSubsystem implements Subsystem {
         return tracker == null ? HiveCellState.UNKNOWN : tracker.settledState();
     }
 
+    /**
+     * Where {@code cell} was last known to rest: the camera's last settled UP or DOWN, kept while
+     * it does not see the CELL, or the match-start state {@link #seedMatchStart()} gave it. UNKNOWN
+     * until one of those. {@link #state} is what the camera says now.
+     */
+    public HiveCellState lastKnown(HiveCell cell) {
+        return baseline.known(cell);
+    }
+
+    /**
+     * Sets every CELL's {@link #lastKnown} to its match-start state (each alliance's LEFT DOWN,
+     * RIGHT UP). An Autonomous calls it at PLAY; the camera's next settled sighting of a CELL
+     * replaces it.
+     */
+    public void seedMatchStart() {
+        baseline.seedMatchStart();
+    }
+
     /** The state tracker for {@code cell}, for diagnostics. Never null. */
     public CellStateTracker stateTracker(HiveCell cell) {
         return trackerFor(cell);
@@ -466,6 +498,23 @@ public class LimelightVisionSubsystem implements Subsystem {
     /** The last polled result. Diagnostics only — prefer the sighting accessors. */
     public LLResult lastResult() { return lastResult; }
 
+    /** The newest frame's latency inside the camera (capture plus targeting), ms; NaN before one. */
+    public double lastLatencyMs() { return lastLatencyMs; }
+
+    /**
+     * The Limelight's own report (temperature, CPU, frame rate) as one line, for the match log.
+     * It asks the camera over its network link and waits for the answer, so call it only outside
+     * the match loop: at INIT and at the end of a run.
+     */
+    public String statusLine() {
+        if (!available) return "unavailable: " + unavailableReason;
+        if (!limelight.isConnected()) return "not answering";
+        LLStatus status = limelight.getStatus();
+        if (status == null) return "no status";
+        return String.format(java.util.Locale.US, "%.0f °C, CPU %.0f %%, RAM %.0f %%, %.0f fps, pipeline %d",
+                status.getTemp(), status.getCpu(), status.getRam(), status.getFps(), status.getPipelineIndex());
+    }
+
     /**
      * For the match log at init. "Answering" is the SDK's 250 ms heartbeat, read right after
      * {@link #initialize()}: a camera still booting can say no here and connect a moment later,
@@ -490,5 +539,6 @@ public class LimelightVisionSubsystem implements Subsystem {
         state = available ? State.OFF : State.UNAVAILABLE;
         sightings.clear();
         for (CellStateTracker tracker : stateTrackers.values()) tracker.reset();
+        baseline.clear();
     }
 }

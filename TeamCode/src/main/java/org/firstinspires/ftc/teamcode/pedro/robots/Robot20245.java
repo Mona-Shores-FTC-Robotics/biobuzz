@@ -49,17 +49,19 @@ public final class Robot20245 {
     });
 
     /**
-     * Pinpoint Tuner output, measured on 20245's chassis on 17 Oct 2026 and posted in #175, where
-     * the block matches this one. The warning line below was added when the block was pasted; it is
-     * not in the block posted in #175, and no Pedro, AutoTune or Panels library prints it. Whoever
-     * tuned it knows what it meant: confirm with them, and spin the robot in place to check.
+     * Pod type and directions from the Pinpoint Tuner on 17 Oct 2026 (#175). The offsets were
+     * measured on 1 Nov 2026, after the builder moved the pods, with the Pod Offset Check: the robot
+     * spins itself in place six half turns, alternating direction, so it pivots on the middle of the
+     * wheelbase. Three runs gave xPodOffset -6.59, -6.51, -6.44 and yPodOffset 1.68, 1.57, 1.63;
+     * these are the means. (The 30 Oct ruler measure, before the pods moved, was -6.5 and 1.0.) Each
+     * offset is measured across its pod's rolling direction: forward pod left (+) / right (-),
+     * strafe pod forward (+) / back (-).
      */
-    //WARNING: Offsets are NOT correct
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set("pinpoint");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        c.xPodOffset.set(-6.051974559393455);
-        c.yPodOffset.set(3.2221840685746805);
+        c.xPodOffset.set(-6.51);
+        c.yPodOffset.set(1.63);
         c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
@@ -67,34 +69,35 @@ public final class Robot20245 {
     });
 
     /**
-     * Foresight Tuner output, measured on 20245 on 17 Oct 2026 (before the turret and launcher
-     * were mounted; re-run the tuner once the robot's mass settles). Its twelve required values
-     * have no defaults and must not be guessed; {@code Constants.createAlgorithm()} refuses to
-     * build a Foresight until a tuner's block is pasted here.
+     * Foresight Tuner output, measured on 20245 on 1 Nov 2026 with the turret and launcher mounted,
+     * after the pod offsets were re-measured the same day (12.4 V battery). Replaces the 17 Oct run,
+     * made before the robot's mass settled. Its twelve required values have no defaults and must not
+     * be guessed; {@code Constants.createAlgorithm()} refuses to build a Foresight until a tuner's
+     * block is pasted here.
      */
     public static ForesightConfig foresightConfig = new ForesightConfig(
             c -> {
-                Controller primaryTranslationalForward = Controller.proportional(0.2606582765728706);
-                Controller secondaryTranslationalForward = Controller.proportional(0.09630626827625094);
-                Controller primaryTranslationalLateral = Controller.proportional(0.43701809598485064);
-                Controller secondaryTranslationalLateral = Controller.proportional(0.16146650912781296);
+                Controller primaryTranslationalForward = Controller.proportional(0.3711725482151876);
+                Controller secondaryTranslationalForward = Controller.proportional(0.1371383386523627);
+                Controller primaryTranslationalLateral = Controller.proportional(0.8797062454962113);
+                Controller secondaryTranslationalLateral = Controller.proportional(0.32502795152705083);
 
                 c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));
                 c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));
 
-                c.coast.set(Controller.proportionalFeedforward(0.013094480171022358));
-                c.brake.set(Controller.proportionalFeedforward(0.011130308145369004));
+                c.coast.set(Controller.proportionalFeedforward(0.01436619092980278));
+                c.brake.set(Controller.proportionalFeedforward(0.012211262290332363));
 
-                c.headingFeedback.set(Controller.proportional(3.5260038257983317));
-                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.03710800717181879, 0.012276513664978382));
+                c.headingFeedback.set(Controller.proportional(6.81102561066061));
+                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.0486307653912525, 0.006041486212840524));
 
-                c.linearBrakeCoefficients.set(Matrix.diag(0.028397645082802254, 0.05464755023071258));
-                c.quadraticBrakeCoefficients.set(Matrix.diag(0.002939691354279288, 0.0021088917095499903));
+                c.linearBrakeCoefficients.set(Matrix.diag(0.09314850563668818, 0.044191651326303094));
+                c.quadraticBrakeCoefficients.set(Matrix.diag(0.0014603186766220487, 0.002220542921721947));
 
-                c.maxAchievableForwardVelocity.set(76.99298921198282);
-                c.maxAchievableStrafeVelocity.set(43.29306375924765);
-                c.naturalForwardDeceleration.set(39.794350624517094);
-                c.naturalStrafeDeceleration.set(54.40283120163522);
+                c.maxAchievableForwardVelocity.set(71.12855272032681);
+                c.maxAchievableStrafeVelocity.set(53.31840381477558);
+                c.naturalForwardDeceleration.set(32.234283803366466);
+                c.naturalStrafeDeceleration.set(82.41560270612311);
             }
     );
 

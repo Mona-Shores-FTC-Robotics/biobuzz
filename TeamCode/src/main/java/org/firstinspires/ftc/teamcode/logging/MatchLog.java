@@ -101,6 +101,12 @@ public final class MatchLog {
         final String[] metadataKeys = new String[MAX_METADATA_PER_LOOP];
         final String[] metadataValues = new String[MAX_METADATA_PER_LOOP];
         int metadataCount;
+        /** The components' angles ({@link RobotComponents}), when one moved since the last frame written. */
+        final double[] componentDeg = new double[RobotComponents.COUNT];
+        boolean componentsChanged;
+        /** The HIVE rockers' angles ({@link HiveComponents}), when one moved since the last frame written. */
+        final double[] hiveRad = new double[HiveComponents.COUNT];
+        boolean hiveChanged;
         /** True for the last frame: the writer closes the file after it. */
         boolean last;
 
@@ -120,6 +126,8 @@ public final class MatchLog {
                 metadataValues[i] = null;
             }
             metadataCount = 0;
+            componentsChanged = false;
+            hiveChanged = false;
         }
     }
 
@@ -133,6 +141,12 @@ public final class MatchLog {
     // goes through pause() and resume(), whose lock makes these visible to the new thread.
     private Frame frame;
     private final Map<String, Integer> channelIndex = new HashMap<>();
+    private final double[] componentDeg = new double[RobotComponents.COUNT];
+    private boolean componentsDirty = true;   // the first frame written shows them at home
+    private final double[] hiveRad = new double[HiveComponents.COUNT];
+    private boolean hiveDirty;                 // nothing until an OpMode says what it believes
+    private boolean hiveSeen;                  // the first call writes, so the HIVE appears at once
+    private static final double HIVE_STEP_RAD = Math.toRadians(0.1);
     private boolean channelsFullReported;
     private int droppedLoops;
     private int droppedEvents;
@@ -259,6 +273,31 @@ public final class MatchLog {
     }
 
     /**
+     * A moving part of the robot model at {@code angleDeg} ({@link RobotComponents}: which angle
+     * each one means). Written only when a component has moved 0.1 deg or more, so a still turret
+     * writes nothing; NaN (not known yet) and infinity (a zero tunable somewhere upstream) are
+     * ignored, and every component starts at 0, home.
+     */
+    public void component(int index, double angleDeg) {
+        if (!Double.isFinite(angleDeg) || Math.abs(angleDeg - componentDeg[index]) < 0.1) return;
+        componentDeg[index] = angleDeg;
+        componentsDirty = true;
+    }
+
+    /**
+     * One HIVE rocker turned {@code fromBuiltRad} from as built ({@link HiveComponents}). Written
+     * only when a rocker has moved 0.1 deg or more, so a settled HIVE writes nothing; non-finite
+     * angles are ignored. A log that never calls this draws no HIVE pose at all.
+     */
+    public void hive(int index, double fromBuiltRad) {
+        if (index < 0 || index >= HiveComponents.COUNT || !Double.isFinite(fromBuiltRad)) return;
+        if (hiveSeen && Math.abs(fromBuiltRad - hiveRad[index]) < HIVE_STEP_RAD) return;
+        hiveRad[index] = fromBuiltRad;
+        hiveDirty = true;
+        hiveSeen = true;
+    }
+
+    /**
      * A number this loop, under a slash key ({@code "/Shooter/LeftRPM"}). The key costs a map lookup
      * per call and an allocation only the first time it is seen.
      */
@@ -358,6 +397,16 @@ public final class MatchLog {
             return;
         }
         frame.timestampUs = clock.nowUs();
+        if (componentsDirty) {
+            System.arraycopy(componentDeg, 0, frame.componentDeg, 0, RobotComponents.COUNT);
+            frame.componentsChanged = true;
+            componentsDirty = false;
+        }
+        if (hiveDirty) {
+            System.arraycopy(hiveRad, 0, frame.hiveRad, 0, HiveComponents.COUNT);
+            frame.hiveChanged = true;
+            hiveDirty = false;
+        }
         carryOver(frame, next);
         full.offer(frame);
         frame = next;
@@ -445,6 +494,9 @@ public final class MatchLog {
         private final GamepadLog.State lastGamepad1 = new GamepadLog.State();
         private final GamepadLog.State lastGamepad2 = new GamepadLog.State();
         private boolean gamepadsWritten;
+        private final double[] componentPoses = new double[7 * RobotComponents.COUNT];
+        private final double[] hivePoses = new double[7 * HiveComponents.COUNT];
+        private boolean hiveStructureWritten;
         private Mode lastMode;
         private long lastAllianceStation = -1;
         private long lastFlushNs = System.nanoTime();
@@ -554,6 +606,22 @@ public final class MatchLog {
                             AdvantageScopeFrame.yMeters(pedro[0], pedro[1]),
                             AdvantageScopeFrame.headingRad(pedro[2]), us);
                 }
+            }
+            if (f.componentsChanged) {
+                for (int c = 0; c < RobotComponents.COUNT; c++) {
+                    RobotComponents.pose(c, f.componentDeg[c], componentPoses);
+                }
+                log.putPose3dArray(RobotComponents.KEY, componentPoses, us);
+            }
+            if (f.hiveChanged) {
+                if (!hiveStructureWritten) {
+                    log.putPose3dFlat(HiveComponents.STRUCTURE_KEY, 0, 0, 0, 0, us);
+                    hiveStructureWritten = true;
+                }
+                for (int c = 0; c < HiveComponents.COUNT; c++) {
+                    HiveComponents.pose(c, f.hiveRad[c], hivePoses);
+                }
+                log.putPose3dArray(HiveComponents.KEY, hivePoses, us);
             }
             for (int i = 0; i < f.eventCount; i++) {
                 // putEvent moves a second event in the same microsecond 1 µs on, so none is lost.

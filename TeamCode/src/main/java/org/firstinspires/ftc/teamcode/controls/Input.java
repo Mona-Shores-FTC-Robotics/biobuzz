@@ -29,8 +29,11 @@ public enum Input {
     DPAD_LEFT("D-pad left", g -> g.dpad_left),
     DPAD_RIGHT("D-pad right", g -> g.dpad_right);
 
-    /** A trigger pulled past this counts as pressed. Well clear of a resting trigger's drift. */
-    public static final double TRIGGER_PRESSED = 0.5;
+    /**
+     * A trigger pulled past this counts as pressed. Still clear of a resting trigger's drift; 0.3
+     * since 29 Oct, when 20 light pulls peaked between 0.15 and 0.5 and never counted.
+     */
+    public static final double TRIGGER_PRESSED = 0.3;
 
     public final String label;
     private final Predicate<Gamepad> reader;

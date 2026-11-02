@@ -1,0 +1,38 @@
+name: Auto fast lane
+
+# The fast lane: a pull request from an auto/<name> branch (the Visualizer's Save & Simulate opens one
+# into master, with auto-merge on) changes an Auto and nothing else, so it needs no issue or review and
+# GitHub merges it once CI passes. This checks that it really is Auto-only: the .pp under TeamCode/autos/,
+# its generated Java, and its simulation request. Anything else, and it turns auto-merge off and fails,
+# so a person looks at it first. Simulated points are shown on the save, never checked here.
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  auto-only:
+    if: startsWith(github.head_ref, 'auto/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only Auto files?
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          PR_ID: ${{ github.event.pull_request.node_id }}
+          REPO: ${{ github.repository }}
+        run: |
+          files=$(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[].filename')
+          echo "$files"
+          bad=$(echo "$files" | grep -vE '^TeamCode/autos/[^/]+\.pp$|^TeamCode/src/(main|test)/java/org/firstinspires/ftc/teamcode/opmodes/auto/generated/[^/]+\.java$|^TeamCode/sim-requests/[^/]+\.json$' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::Not an Auto-only change, so not the fast lane. Merge it by hand after a look. Files outside it:"
+            echo "$bad"
+            gh api graphql -f query='mutation($id: ID!) { disablePullRequestAutoMerge(input: {pullRequestId: $id}) { clientMutationId } }' -f id="$PR_ID" || true
+            exit 1
+          fi
+          echo "Auto-only: GitHub merges it once CI passes."

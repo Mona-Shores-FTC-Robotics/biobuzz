@@ -12,12 +12,15 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
- * Gathers from the nearest GARDEN: the intake on, a drive in to the GARDEN's gather pose, a dwell,
- * and a drive back to where the drive in started. No stick. The sequence is {@link GrabRoutine}'s,
- * shared with the FLOWER pick; this class says where a GARDEN is and that only the intake runs.
+ * Gathers from the nearest GARDEN the way the FLOWER pick works: the FLOWER stick down and the
+ * intake on, a drive in to the GARDEN's gather pose (plus {@link #extraDepthIn}), a dwell, and a
+ * drive back to where the drive in started, the stick coming up once the robot has backed
+ * {@link #retractAfterBackIn} out. The sequence is {@link GrabRoutine}'s, shared with the FLOWER
+ * pick; this class says where a GARDEN is and what the mechanisms do.
  *
- * <p>For now it is the plainest gather there is, a drive in and back out. A sweep, coming in at an
- * angle, or a helper mechanism is a change here, and every Auto that gathers gets it.
+ * <p>The stick went in on 30 Oct 2026: a drive in with the intake alone did not reach deep enough
+ * into the GARDEN. A sweep, coming in at an angle, or another helper is a change here, and every
+ * Auto that gathers gets it.
  *
  * <p>The driver's GARDEN gather button runs it while held (BasicDriveTeleOp; the button is in
  * {@code controls/ControlScheme}), lining up first at the GARDEN's line-up pose
@@ -37,8 +40,39 @@ public final class GardenGather extends GrabRoutine {
      * an Auto the centre line is the limit that matters.
      */
     public static double maxRangeIn = 160.0;
+    /**
+     * The line-up spot, moved this much further from the side wall than the GARDEN's line-up pose
+     * ({@link GardenFieldPoints}), inches: room to turn in the corner (30 Oct 2026). The drive in
+     * then runs at a slant to the gather pose.
+     */
+    public static double lineUpOutIn = 3.0;
+    /** And this much further back from the GARDEN (away from the audience wall), inches. */
+    public static double lineUpBackIn = 3.0;
     /** The line-up path gives up after this long, ms. */
     public static double lineUpTimeoutMs = 4000;
+    /**
+     * The stick goes down and the intake starts once the robot is this close to the line-up,
+     * inches, and faces the GARDEN to within {@link #lowerWithinDeg}. The GARDEN is in a corner, so
+     * a stick swung down early, while the robot still turns, came down on the wall (30 Oct 2026).
+     */
+    public static double lowerWithinIn = 6.0;
+    /** See {@link #lowerWithinIn}, degrees. */
+    public static double lowerWithinDeg = 10.0;
+    /** Time the stick is given to swing down before the drive in may start, ms. */
+    public static double stickDownMs = 700;
+    /**
+     * How much further than the GARDEN's gather pose the drive in aims, inches, along the robot's
+     * heading. A drive in that hits the wall first just stops there (it stalls), so too much is
+     * safe; tune it in Panels until the gather reaches deep enough.
+     */
+    public static double extraDepthIn = 0.0;
+    /**
+     * How much closer to the alliance (side) wall than the gather pose the drive in aims, inches: the
+     * intake has to reach all the way into the corner to scoop the whole GARDEN (30 Oct 2026). More
+     * than the robot can go is meant: the wall stops it, the drive in ends when it stalls, and the
+     * dwell keeps steering it against the wall.
+     */
+    public static double towardWallIn = 2.0;
     /** Already lined up: this close to the line-up pose, inches, skips the line-up path. */
     public static double atLineUpIn = 1.5;
     /** Already lined up: this square, degrees, skips the line-up path. */
@@ -53,10 +87,21 @@ public final class GardenGather extends GrabRoutine {
     public static double stallMs = 250;
     /** The dwell, ms, intake running. A cap until pieces can be counted (#181). */
     public static double dwellMs = 1500;
-    /** Forward power during the dwell. 0 for none. */
-    public static double dwellPushPower = 0.0;
+    /**
+     * Ending the dwell from the intake current, as the FLOWER pick does: off (0) until a GARDEN
+     * gather has data for it (1 of 17 dwells on 29 Oct had a spike).
+     */
+    public static double dwellQuietMs = 0;
+    public static double dwellEmptyMs = 0;
+    public static double spikeAboveAmps = 1.0;
+    /** The drive in starts once the robot has slowed below this after the line-up, inches/s. */
+    public static double settledInPerSec = 2.0;
+    /** Forward power during the dwell, to keep the stick seated. 0 for none. */
+    public static double dwellPushPower = 0.1;
     /** The drive back's speed cap, a fraction of the robot's top path speed (0 to 1]. */
     public static double backSpeed = 0.6;
+    /** The stick comes up once the robot has backed out this far from the drive in's end, inches. */
+    public static double retractAfterBackIn = 6.0;
     /** The drive back gives up after this long, ms. */
     public static double backTimeoutMs = 4000;
     /** Turn power per radian of heading error, while dwelling. */
@@ -112,31 +157,60 @@ public final class GardenGather extends GrabRoutine {
 
     @Override
     protected Pose lineUpPose() {
-        return garden.lineUp;
+        // Back is against the heading; out is the robot's left, which faces away from the side wall
+        // for both alliances (red faces 270°, left is +x; blue faces 90°, left is -x).
+        Pose p = garden.lineUp;
+        double h = p.heading();
+        double back = lineUpBackIn;
+        double out = lineUpOutIn;
+        return new Pose(p.x() - back * Math.cos(h) - out * Math.sin(h),
+                p.y() - back * Math.sin(h) + out * Math.cos(h), h);
     }
 
     @Override
     protected InPlan inPose(Pose from, boolean linedUp) {
-        return InPlan.to(garden.gather);
+        // Deeper is along the heading; toward the wall is the robot's right at the GARDEN heading,
+        // the side wall for both alliances (red faces 270°, right is -x; blue faces 90°, right is +x).
+        Pose g = garden.gather;
+        double h = g.heading();
+        double deeper = nn(extraDepthIn);
+        double wall = nn(towardWallIn);
+        return InPlan.to(new Pose(g.x() + deeper * Math.cos(h) + wall * Math.sin(h),
+                g.y() + deeper * Math.sin(h) - wall * Math.cos(h), h));
     }
 
     @Override
     protected void prep() {
+        robot.flowerStick.extend();
         robot.intake.intake();
     }
 
     @Override
     protected void unprep() {
-        // Nothing to put away: the intake idles when the gather ends.
+        retractWhenClear();
     }
 
     @Override
     protected void stopMechanisms() {
         robot.intake.idle();
+        retractWhenClear();
     }
 
-    @Override protected double prepMs() { return 0.0; }
-    @Override protected double prepWithinIn() { return Double.POSITIVE_INFINITY; }
+    /**
+     * The stick comes in once the robot is {@link #retractAfterBackIn} from the gather pose, however
+     * the gather ends, as the FLOWER pick does it (the stick subsystem holds it down until then).
+     */
+    private void retractWhenClear() {
+        robot.flowerStick.retractWhenClear(garden.gather.x(), garden.gather.y(), nn(retractAfterBackIn));
+    }
+
+    @Override protected double prepMs() { return stickDownMs; }
+    @Override protected double settledInPerSec() { return settledInPerSec; }
+    @Override protected double dwellQuietMs() { return dwellQuietMs; }
+    @Override protected double dwellEmptyMs() { return dwellEmptyMs; }
+    @Override protected double spikeAboveAmps() { return spikeAboveAmps; }
+    @Override protected double prepWithinIn() { return lowerWithinIn; }
+    @Override protected double prepWithinDeg() { return lowerWithinDeg; }
     @Override protected double atLineUpIn() { return atLineUpIn; }
     @Override protected double atLineUpDeg() { return atLineUpDeg; }
     @Override protected double lineUpTimeoutMs() { return lineUpTimeoutMs; }
@@ -147,7 +221,7 @@ public final class GardenGather extends GrabRoutine {
     @Override protected double dwellMs() { return dwellMs; }
     @Override protected double dwellPushPower() { return dwellPushPower; }
     @Override protected double backSpeed() { return backSpeed; }
-    @Override protected double unprepAfterBackIn() { return 0.0; }
+    @Override protected double unprepAfterBackIn() { return retractAfterBackIn; }
     @Override protected double backTimeoutMs() { return backTimeoutMs; }
     @Override protected double headingKp() { return headingKp; }
     @Override protected double lateralKp() { return lateralKp; }

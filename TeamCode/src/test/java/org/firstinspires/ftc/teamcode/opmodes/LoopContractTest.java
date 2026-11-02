@@ -34,6 +34,7 @@ public class LoopContractTest {
             "Scheduler.reset",
             "robot.stop(",
             "robot.initialize(",
+            "robot.start(",
     };
 
     private static final Pattern EXTENDS_ROBOT_OPMODE = Pattern.compile("extends\\s+RobotOpMode\\b");

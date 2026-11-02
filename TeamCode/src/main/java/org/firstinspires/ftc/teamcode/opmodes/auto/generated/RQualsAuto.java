@@ -19,6 +19,9 @@ public final class RQualsAuto {
     /** The .pp file this was generated from. */
     public static final String SOURCE = "r-quals.pp";
 
+    /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
+    public static final String SAVED = "10-31|11:21AM";
+
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
 
@@ -30,7 +33,7 @@ public final class RQualsAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(55.17, 7.72, 90);
+        return poses(rotated).of(55.6, 7.7, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -42,7 +45,7 @@ public final class RQualsAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(55.17, 7.72, 90);
+        Pose start = p.of(55.6, 7.7, 90);
         Pose sCatch = p.of(57.5, 18, 90);
         Pose sFire = p.of(55, 24, 270);
         Pose nFire = p.of(57.5, 119, 270);
@@ -55,13 +58,14 @@ public final class RQualsAuto {
         Pose laneFire = p.of(45, 26, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose sCatchToFarFlowerTurnControl1 = p.of(57.5, 100, 0);
-        Pose sCatchToFarFlowerTurnControl2 = p.of(57.5, 118, 0);
-        Pose sCatchToFarFlowerTurnControl3 = p.of(57.5, 118, 0);
+        Pose sCatchToFarFlowerTurnControl1 = p.of(63.2255, 21.9813, 0);
+        Pose sCatchToFarFlowerTurnControl2 = p.of(60.6514, 94.8518, 0);
+        Pose sCatchToFarFlowerTurnControl3 = p.of(60.5, 118, 0);
         Pose farFlowerToNFireControl1 = p.of(47.36, 116.64, 0);
         Pose farFlowerToNFireSegment1Heading = p.of(57.5, 119, 90);
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
-        Pose nFireToSFireControl1 = p.of(57.5, 100, 0);
+        Pose nFireToSFireControl1 = p.of(63.9826, 98.7887, 0);
+        Pose nFireToSFireControl2 = p.of(59.8943, 25.0096, 0);
         Pose sFireToLaneFireSegment1Heading = p.of(45, 26, 270);
         Pose sFireToLaneFireSegment2Start = p.of(45, 26, 270);
         Pose laneFireToWallFlowerTurnSegment1Heading = p.of(23.16, 47.36, 90);
@@ -76,7 +80,7 @@ public final class RQualsAuto {
         Path sCatchToFarFlowerTurn = Paths.curve(sCatch, sCatchToFarFlowerTurnControl1, sCatchToFarFlowerTurnControl2, sCatchToFarFlowerTurnControl3, farFlowerTurn).linear(sCatch, farFlowerTurn);
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
         Path farFlowerToNFire = Paths.curve(farFlower, farFlowerToNFireControl1, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
-        Path nFireToSFire = Paths.curve(nFire, nFireToSFireControl1, sFire).constant(sFire);
+        Path nFireToSFire = Paths.curve(nFire, nFireToSFireControl1, nFireToSFireControl2, sFire).constant(sFire);
         Path sFireToLaneFire = Paths.line(sFire, fire3).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(sFireToLaneFireSegment1Heading)).until(0.8, Interpolator.linear(sFireToLaneFireSegment2Start, fire3)).until(1, Interpolator.constant(fire3)));
         Path laneFireToWallFlowerTurn = Paths.line(fire3, wallFlowerTurn).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(laneFireToWallFlowerTurnSegment1Heading)).until(0.8, Interpolator.linear(laneFireToWallFlowerTurnSegment2Start, wallFlowerTurn)).until(1, Interpolator.constant(wallFlowerTurn)));
         Path wallFlowerTurnToWallFlower = Paths.line(wallFlowerTurn, wallFlower).constant(wallFlower);
@@ -89,7 +93,7 @@ public final class RQualsAuto {
                         kit.firstOf("Fire the preloads (TIP 1)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(3000)),
-                        kit.path("START to S_CATCH", startToSCatch),
+                        kit.path("START to S_CATCH", startToSCatch, 1),
                         kit.firstOf("TIP 1",
                                 kit.when("Tip"),
                                 kit.afterMs(4000).then(
@@ -102,35 +106,35 @@ public final class RQualsAuto {
                         kit.firstOf("Catch TIP 1's spill",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(1500)),
-                        kit.path("S_CATCH to FAR_FLOWER_TURN", sCatchToFarFlowerTurn),
+                        kit.path("S_CATCH to FAR_FLOWER_TURN", sCatchToFarFlowerTurn, 3.3),
                         kit.firstOf("Fire the catch at the left CELL", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(2000)),
-                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
+                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower, 0.9),
                         kit.firstOf("The far FLOWER's 4",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(3000)),
-                        kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire),
+                        kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire, 1.6),
                         kit.firstOf("Fire the far FLOWER's 4 (TIP 2)", kit.command("LaunchAll"),
                                 kit.when("Tip"),
                                 kit.afterMs(4000)),
                         kit.firstOf("TIP 2's spill lands",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(500)),
-                        kit.path("N_FIRE to S_FIRE", nFireToSFire),
-                        kit.path("S_FIRE to LANE_FIRE", sFireToLaneFire),
+                        kit.path("N_FIRE to S_FIRE", nFireToSFire, 3.1),
+                        kit.path("S_FIRE to LANE_FIRE", sFireToLaneFire, 1.6),
                         kit.firstOf("Fire TIP 2's catch at the right CELL", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(2000)),
-                        kit.path("LANE_FIRE to WALL_FLOWER_TURN", laneFireToWallFlowerTurn),
-                        kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower),
+                        kit.path("LANE_FIRE to WALL_FLOWER_TURN", laneFireToWallFlowerTurn, 1.7),
+                        kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower, 0.9),
                         kit.firstOf("The wall FLOWER's 4",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(3000)),
-                        kit.path("WALL_FLOWER to FIRE3", wallFlowerToFire3),
+                        kit.path("WALL_FLOWER to FIRE3", wallFlowerToFire3, 1.9),
                         kit.firstOf("Fire the wall FLOWER's 4 (TIP 3)", kit.command("LaunchAll"),
                                 kit.when("Tip"),
                                 kit.afterMs(2500)),
-                        kit.path("FIRE3 to PARK", fire3ToPark)));
+                        kit.path("FIRE3 to PARK", fire3ToPark, 2.7)));
     }
 }

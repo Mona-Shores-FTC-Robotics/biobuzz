@@ -3,10 +3,12 @@ package org.firstinspires.ftc.teamcode.autokit;
 import com.pedropathing.ivy.Command;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -33,6 +35,8 @@ public final class AutoRegistry {
     private final Map<String, Supplier<Command>> commands = new LinkedHashMap<>();
     private final Map<String, Double> typicalSeconds = new LinkedHashMap<>();
     private final Map<String, Supplier<BooleanSupplier>> triggers = new LinkedHashMap<>();
+    private final Set<String> grabs = new HashSet<>();
+    private BooleanSupplier holdTimeLimits = () -> false;
 
     /**
      * Registers a command.
@@ -47,6 +51,49 @@ public final class AutoRegistry {
         }
         typicalSeconds.put(name, typicalS);
         return this;
+    }
+
+    /**
+     * Registers a grab: a command that drives the robot away from where it is and back there (a
+     * FLOWER pick, a GARDEN gather). The endgame guard treats it as it treats a path: it never cuts
+     * one short, which would leave the robot somewhere nobody drew a path from, and it does not
+     * start one unless {@code typicalS} and the park both still fit.
+     */
+    public AutoRegistry grab(String name, double typicalS, Supplier<Command> factory) {
+        command(name, typicalS, factory);
+        grabs.add(name);
+        return this;
+    }
+
+    /** Whether {@code name} was registered with {@link #grab}. */
+    /**
+     * While {@code hold} is true, no time limit ends a step: neither a command's timeout nor a
+     * "first of" card's "at most" row. The robot's launch cards hold it while the feeder is feeding,
+     * so a step's limit only guards the wait for spin-up, and the feed always runs its own set time
+     * (mentor, 1 Nov 2026: one number for the feed, not one per step). A trigger row still fires, and
+     * the endgame guard still parks.
+     */
+    public AutoRegistry holdTimeLimitsWhile(BooleanSupplier hold) {
+        this.holdTimeLimits = hold == null ? () -> false : hold;
+        return this;
+    }
+
+    /** Whether time limits are held now ({@link #holdTimeLimitsWhile}). */
+    public boolean timeLimitsHeld() {
+        return holdTimeLimits.getAsBoolean();
+    }
+
+    public boolean isGrab(String name) {
+        return grabs.contains(name);
+    }
+
+    /** The command's typical seconds; throws, naming what is registered, if it is unknown. */
+    public double typicalSeconds(String name) {
+        Double seconds = typicalSeconds.get(name);
+        if (seconds == null) {
+            throw new IllegalArgumentException("No command named " + name + ". Registered: " + commands.keySet());
+        }
+        return seconds;
     }
 
     /** Registers a trigger that is true while {@code check} is. */

@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
+import org.firstinspires.ftc.teamcode.util.Throttle;
 
 import java.util.Locale;
 
@@ -23,8 +24,10 @@ import java.util.Locale;
  * <h2>How the speed is held</h2>
  *
  * <p>The hub's own velocity loop: each motor runs in {@code RUN_USING_ENCODER} and is given a
- * target in encoder ticks per second with {@code setVelocity}. That is one write per wheel per
- * loop and no controller of ours to tune. If the hub's default loop turns out sluggish on the
+ * target in encoder ticks per second with {@code setVelocity}. That is one write per wheel when
+ * the target changes, and again every {@link #RESEND_MS} (each is a 2–3 ms round trip to the hub,
+ * and the SDK does not skip a repeated velocity; the resend recovers a motor a hub has zeroed), and
+ * no controller of ours to tune. If the hub's default loop turns out sluggish on the
  * bench, the knob is {@code setVelocityPIDFCoefficients}, not a controller here; the {@code
  * launcher2} rig has the hand-rolled alternative if it ever comes to that.
  *
@@ -56,6 +59,17 @@ import java.util.Locale;
  * <p>Nothing here is measured yet. The directions, the starting setpoint and the tolerance are
  * {@code @Configurable} so the bench sets them in Panels; the values that work get written back
  * here with the robot they were checked on.
+ *
+ * <h2>Backing up for an unjam</h2>
+ *
+ * <p>Two balls can meet at the wheels and sit on top of them (20245, 1 Nov 2026); the only way out
+ * was to turn the launcher off so they dropped, then reverse the feeder. So while the feeder
+ * reverses, the wheels run backwards at {@link #reverseTicksPerSecond}, gently, and push the balls
+ * back down onto the reversing feeder. The launcher follows the feeder's request every
+ * {@link #update()}, as the intake and the prefeed do ({@link #reverseFor}): an explicit state,
+ * not a negative target, which {@link #commandFor} still refuses. What the OpMode asked for is
+ * untouched, so on release a spinning launcher spins back up to its launch speed and an idle one
+ * stays idle; at-speed and the shot detector sit out the reverse. Only after PLAY.
  */
 @Configurable
 public class LauncherSubsystem implements Subsystem {
@@ -73,12 +87,16 @@ public class LauncherSubsystem implements Subsystem {
     public enum Layout { TWO_MOTORS, Y_CABLED }
 
     /**
-     * The speed both wheels are asked to hold while spinning, encoder ticks per second. <b>A
-     * starting point for the bench, not a measured value.</b> A goBILDA 5203 counts 28 ticks per
-     * motor revolution, so a 6000 RPM bare motor tops out near 2800; 1000 is a gentle first spin.
-     * The value a POLLEN and a NECTAR each leave cleanly at is the first row of #80's table.
+     * The speed both wheels are asked to hold while spinning, encoder ticks per second: the
+     * default for the TeleOp and the Launcher Bench, adjustable live in Panels (and by the bench's
+     * D-pad and the TeleOp's trim). <b>A starting point, not a measured value.</b> A goBILDA 5203
+     * counts 28 ticks per motor revolution, so a 6000 RPM bare motor tops out near 2800; 1525 is
+     * where POLLEN and NECTAR both shoot. The value each leaves cleanly at is the first row of
+     * #80's table. 1595 since 1 Nov 2026, the mentor's pick on 20245 (locked turret, POLLEN only),
+     * from R Simple at the red right start: 1575 landed a little short (3 and 2 of 4), 1625 was
+     * too much (1 of 4); the logs showed every ball leaving at the full target either way.
      */
-    public static double targetTicksPerSecond = 1000.0;
+    public static double targetTicksPerSecond = 1595.0;
 
     /**
      * Added to {@link #targetTicksPerSecond} for the left wheel only, ticks per second. Zero means
@@ -104,14 +122,27 @@ public class LauncherSubsystem implements Subsystem {
     public static double shotDipTicksPerSecond = 150.0;
 
     /**
-     * Flips the left wheel so that a positive command throws a piece out. <b>Not yet checked on a
-     * robot:</b> {@code false} is the SDK's default direction, not a fact about the wiring. The two
-     * modules are mirror images, so expect exactly one of the pair to need flipping.
+     * Flips the left wheel so that a positive command throws a piece out. Checked on robot 20245 on
+     * 1 Nov 2026 with the Full Path Bench: the left wheel (the robot's left, seen from behind) needs
+     * flipping and the right does not, as expected for two mirror-image modules. The speed readout
+     * is an absolute value, so it cannot show a wheel spinning backwards: check by eye. 19429 is
+     * not checked yet.
      */
-    public static boolean leftReversed = false;
+    public static boolean leftReversed = true;
 
-    /** As {@link #leftReversed}, for the right wheel. */
+    /** As {@link #leftReversed}, for the right wheel: not flipped, checked on 20245 on 1 Nov 2026. */
     public static boolean rightReversed = false;
+
+    /**
+     * Speed both wheels run backwards while the feeder reverses (an unjam), ticks per second, to
+     * drive a ball sitting on top of the wheels back down onto the reversing feeder. 300, about a
+     * fifth of the launch speed: the mentor's call on 1 Nov 2026 once the robot went POLLEN only.
+     * 1500 had been set that afternoon to clear NECTAR, but the match logs showed its cost: the
+     * wheels took about a second to swing from -1500 back to launch speed, and a fire straight
+     * after an unjam went out at 820 ticks/s. The hub's velocity loop holds it, so it is the same
+     * on a fresh or a tired battery. 0 turns the reverse off.
+     */
+    public static double reverseTicksPerSecond = 300.0;
 
     /**
      * Encoder ticks per revolution of each flywheel <b>motor</b>, for the RPM display. 28: the
@@ -136,6 +167,11 @@ public class LauncherSubsystem implements Subsystem {
     private final DcMotorEx right;
 
     private State state = State.IDLE;
+    private final FeederSubsystem feeder;
+    /** PLAY has happened: the wheels may run backwards for an unjam. */
+    private boolean started;
+    /** The wheels are running backwards for an unjam, as of the last update. */
+    private boolean reversing;
     /** A speed this OpMode asked for with {@link #spinUp(double)}, ticks per second; NaN for {@link #targetTicksPerSecond}. */
     private double heldTicksPerSecond = Double.NaN;
     private double leftTicksPerSecond;
@@ -150,26 +186,40 @@ public class LauncherSubsystem implements Subsystem {
     private final ShotDetector shots = new ShotDetector();
     private double lastLeftTarget = Double.NaN;
     private double lastRightTarget = Double.NaN;
+    /** The velocity last sent to each wheel; NaN when none is standing, so the next one goes. */
+    private double leftSent = Double.NaN;
+    private double rightSent = Double.NaN;
+    /** An unchanged velocity is sent again this often, ms. */
+    static final double RESEND_MS = 250;
+    private final Throttle resend = new Throttle(RESEND_MS, 0);
+    /** Current is not in the bulk read; ten reads a second, as {@code IntakeSubsystem}'s. */
+    private final Throttle currentRead = new Throttle(100, 66);
 
-    /** The robot's launcher: looks both motors up once. A missing motor fails init with the SDK's own message. */
-    public LauncherSubsystem(HardwareMap hardwareMap) {
+    /**
+     * The robot's launcher: looks both motors up once. A missing motor fails init with the SDK's own message.
+     *
+     * @param feeder read for its request: the wheels back up while it reverses
+     */
+    public LauncherSubsystem(HardwareMap hardwareMap, FeederSubsystem feeder) {
         layout = Layout.TWO_MOTORS;
         left = hardwareMap.get(DcMotorEx.class, DeviceNames.LAUNCHER_LEFT);
         right = hardwareMap.get(DcMotorEx.class, DeviceNames.LAUNCHER_RIGHT);
+        this.feeder = feeder;
     }
 
-    private LauncherSubsystem(DcMotorEx pair) {
+    private LauncherSubsystem(DcMotorEx pair, FeederSubsystem feeder) {
         layout = Layout.Y_CABLED;
         left = pair;
         right = null;
+        this.feeder = feeder;
     }
 
     /**
      * The bench rig's launcher: both motors on one port through a Y cable, one device named
      * {@link DeviceNames#LAUNCHER}. An explicit decision, not a missing device being tolerated.
      */
-    public static LauncherSubsystem yCabled(HardwareMap hardwareMap) {
-        return new LauncherSubsystem(hardwareMap.get(DcMotorEx.class, DeviceNames.LAUNCHER));
+    public static LauncherSubsystem yCabled(HardwareMap hardwareMap, FeederSubsystem feeder) {
+        return new LauncherSubsystem(hardwareMap.get(DcMotorEx.class, DeviceNames.LAUNCHER), feeder);
     }
 
     /** How the motors are wired; see {@link Layout}. */
@@ -180,7 +230,7 @@ public class LauncherSubsystem implements Subsystem {
     /** Ask both wheels to hold {@link #targetTicksPerSecond}. Takes effect in the next {@link #update()}. */
     public void spinUp() {
         heldTicksPerSecond = Double.NaN;
-        start();
+        beginSpinning();
     }
 
     /**
@@ -191,10 +241,10 @@ public class LauncherSubsystem implements Subsystem {
      */
     public void spinUp(double ticksPerSecond) {
         heldTicksPerSecond = ticksPerSecond;
-        start();
+        beginSpinning();
     }
 
-    private void start() {
+    private void beginSpinning() {
         if (state != State.SPINNING) {
             spinUpStartedNs = System.nanoTime();
             readiness.reset();
@@ -222,6 +272,11 @@ public class LauncherSubsystem implements Subsystem {
     /** True while spinning has been asked for, whether or not the wheels are there yet. */
     public boolean isSpinning() {
         return state == State.SPINNING;
+    }
+
+    /** True while the wheels run backwards for an unjam (the feeder is reversing). For the match log. */
+    public boolean reversing() {
+        return reversing;
     }
 
     /**
@@ -326,6 +381,8 @@ public class LauncherSubsystem implements Subsystem {
     @Override
     public void initialize() {
         spinDown();
+        started = false;
+        reversing = false;
         for (DcMotorEx motor : new DcMotorEx[] {left, right}) {
             if (motor == null) continue;
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -335,9 +392,20 @@ public class LauncherSubsystem implements Subsystem {
     }
 
     /**
-     * One velocity write per wheel, then one read of each speed (from the bulk read) and, while
-     * spinning, one of each current. A wheel that has been commanded for {@link #encoderFaultAfterMs}
-     * and still reads nothing is cut until {@link #spinDown()}.
+     * PLAY: from now on an unjam may run the wheels backwards. Spinning up already needed PLAY,
+     * since only an OpMode's loop asks for it.
+     */
+    @Override
+    public void start() {
+        started = true;
+    }
+
+    /**
+     * While the feeder reverses, both wheels run backwards at {@link #reverseTicksPerSecond}
+     * ({@link #reverseFor}) and nothing else is judged. Otherwise a velocity write per wheel when
+     * its target changes (and every {@link #RESEND_MS}), one read of each speed (from the bulk read)
+     * and, while running, one of each current every 100 ms. A wheel that has been commanded for
+     * {@link #encoderFaultAfterMs} and still reads nothing is cut until {@link #spinDown()}.
      */
     @Override
     public void update() {
@@ -349,7 +417,30 @@ public class LauncherSubsystem implements Subsystem {
         leftTicksPerSecond = Math.abs(left.getVelocity());
         rightTicksPerSecond = right == null ? leftTicksPerSecond : Math.abs(right.getVelocity());
 
-        if (state == State.SPINNING) {
+        boolean reverse = reverseFor(feeder.state(), started);
+        if (reverse != reversing) {
+            // Into or out of the unjam: neither counts as a shot, and at-speed starts over. Out of
+            // it while spinning, the spin-up starts over too, so the wheels passing through zero on
+            // their way back up are not taken for a silent encoder.
+            reversing = reverse;
+            readiness.reset();
+            shots.reset();
+            atSpeed = false;
+            if (!reverse && state == State.SPINNING) spinUpStartedNs = now;
+        }
+        if (reverse) {
+            boolean force = resend.due(now);
+            leftSent = command(left, leftFault ? 0.0 : reverseCommandFor(reverseTicksPerSecond, leftReversed),
+                    leftSent, force);
+            if (right != null) {
+                rightSent = command(right, rightFault ? 0.0 : reverseCommandFor(reverseTicksPerSecond, rightReversed),
+                        rightSent, force);
+            }
+            if (currentRead.due(now)) {
+                leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
+                rightCurrentAmps = right == null ? Double.NaN : right.getCurrent(CurrentUnit.AMPS);
+            }
+        } else if (state == State.SPINNING) {
             double elapsedMs = (now - spinUpStartedNs) / 1e6;
             if (!leftFault && encoderSilent(leftTarget, leftTicksPerSecond, elapsedMs,
                     encoderFaultAfterMs, encoderSilentTicksPerSecond)) {
@@ -359,10 +450,16 @@ public class LauncherSubsystem implements Subsystem {
                     encoderFaultAfterMs, encoderSilentTicksPerSecond)) {
                 rightFault = true;
             }
-            command(left, leftFault ? 0.0 : commandFor(leftTarget, leftReversed));
-            if (right != null) command(right, rightFault ? 0.0 : commandFor(rightTarget, rightReversed));
-            leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
-            rightCurrentAmps = right == null ? Double.NaN : right.getCurrent(CurrentUnit.AMPS);
+            boolean force = resend.due(now);
+            leftSent = command(left, leftFault ? 0.0 : commandFor(leftTarget, leftReversed), leftSent, force);
+            if (right != null) {
+                rightSent = command(right, rightFault ? 0.0 : commandFor(rightTarget, rightReversed),
+                        rightSent, force);
+            }
+            if (currentRead.due(now)) {
+                leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
+                rightCurrentAmps = right == null ? Double.NaN : right.getCurrent(CurrentUnit.AMPS);
+            }
             boolean within = !leftFault && !rightFault && (leftTarget > 0.0 || rightTarget > 0.0)
                     && Math.abs(leftTicksPerSecond - leftTarget) <= toleranceTicksPerSecond
                     && Math.abs(rightTicksPerSecond - rightTarget) <= toleranceTicksPerSecond;
@@ -374,6 +471,10 @@ public class LauncherSubsystem implements Subsystem {
         } else {
             left.setPower(0.0);
             if (right != null) right.setPower(0.0);
+            leftSent = Double.NaN;
+            rightSent = Double.NaN;
+            resend.reset();
+            currentRead.reset();
             leftCurrentAmps = Double.NaN;
             rightCurrentAmps = Double.NaN;
             atSpeed = false;
@@ -402,6 +503,10 @@ public class LauncherSubsystem implements Subsystem {
         String fault = fault();
         if (fault != null) {
             display.status("Launcher", Display.Level.FAULT, fault);
+        } else if (reversing) {
+            display.status("Launcher", Display.Level.WARN, String.format(Locale.US,
+                    "REVERSING for the unjam at %.0f ticks/s · back to %s on release",
+                    nonNegative(reverseTicksPerSecond), state == State.SPINNING ? "launch speed" : "idle"));
         } else if (state == State.IDLE) {
             display.status("Launcher", Display.Level.OK, "idle");
         } else {
@@ -444,12 +549,18 @@ public class LauncherSubsystem implements Subsystem {
         return Double.isNaN(l) || Double.isNaN(r) ? "" : String.format(Locale.US, " (%.0f / %.0f rpm)", l, r);
     }
 
-    private static void command(DcMotorEx motor, double ticksPerSecond) {
+    /**
+     * Sends {@code ticksPerSecond} unless it is what was last sent and {@code force} is false.
+     * Returns what now stands.
+     */
+    private static double command(DcMotorEx motor, double ticksPerSecond, double lastSent, boolean force) {
+        if (!force && ticksPerSecond == lastSent) return lastSent;
         if (ticksPerSecond == 0.0) {
             motor.setPower(0.0);
         } else {
             motor.setVelocity(ticksPerSecond);
         }
+        return ticksPerSecond;
     }
 
     /**
@@ -459,6 +570,21 @@ public class LauncherSubsystem implements Subsystem {
     static double commandFor(double target, boolean reversed) {
         double t = nonNegative(target);
         return reversed ? -t : t;
+    }
+
+    /** Whether the wheels run backwards: the feeder is reversing (an unjam) and PLAY has happened. Pure. */
+    static boolean reverseFor(FeederSubsystem.State feeder, boolean started) {
+        return started && feeder == FeederSubsystem.State.REVERSE;
+    }
+
+    /**
+     * The velocity command for one wheel while reversing: {@code speed} backwards in that wheel's
+     * own sense ({@link #commandFor} negated, so the wiring flip still applies). A zero, negative
+     * or NaN speed commands nothing. Pure, so a test can check it.
+     */
+    static double reverseCommandFor(double speed, boolean reversed) {
+        double forward = commandFor(speed, reversed);
+        return forward == 0.0 ? 0.0 : -forward;
     }
 
     /**

@@ -5,7 +5,6 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
-import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
@@ -19,18 +18,21 @@ public final class LSimpleAuto {
     /** The .pp file this was generated from. */
     public static final String SOURCE = "l-simple.pp";
 
+    /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
+    public static final String SAVED = "10-31|12:44PM";
+
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
+    public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp"};
+    public static final String[] TRIGGERS = {"Tip"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(59, 133.69, 270);
+        return poses(rotated).of(62.3, 133.8, 270);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -42,46 +44,34 @@ public final class LSimpleAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(59, 133.69, 270);
-        Pose nFire = p.of(57.5, 119, 270);
-        Pose parkL = p.of(14, 120, 270);
-        Pose farFlower = p.of(47.36, 126.64, 90);
-        Pose farFlowerTurn = p.of(47.36, 118.34, 90);
+        Pose startLeft = p.of(62.3, 133.8, 270);
+        Pose scoringFlower = p.of(47.2, 119.3, 90);
+        Pose launchLeft = p.of(59.4, 129.5, 270);
+        Pose parkLeft = p.of(14.1, 117.4, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToFarFlowerTurnControl1 = p.of(59, 118.34, 0);
-        Pose startToFarFlowerTurnSegment1Heading = p.of(47.36, 118.34, 270);
-        Pose startToFarFlowerTurnSegment2Start = p.of(47.36, 118.34, 270);
-        Pose farFlowerToNFireControl1 = p.of(47.36, 116.64, 0);
-        Pose farFlowerToNFireSegment1Heading = p.of(57.5, 119, 90);
-        Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
-        Pose nFireToParkLControl1 = p.of(44, 127, 0);
-        Pose nFireToParkLControl2 = p.of(24, 127, 0);
+        Pose toScoringFlowerControl1 = p.of(57.0845, 121.5966, 0);
+        Pose toLaunchLeft_2Control1 = p.of(57.7854, 117.9523, 0);
+        Pose toParkLeftControl1 = p.of(60.1106, 116.2112, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToFarFlowerTurn = Paths.curve(start, startToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(startToFarFlowerTurnSegment1Heading)).until(0.9, Interpolator.linear(startToFarFlowerTurnSegment2Start, farFlowerTurn)).until(1, Interpolator.constant(farFlowerTurn)));
-        Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
-        Path farFlowerToNFire = Paths.curve(farFlower, farFlowerToNFireControl1, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
-        Path nFireToParkL = Paths.curve(nFire, nFireToParkLControl1, nFireToParkLControl2, parkL).constant(parkL);
+        Path toLaunchLeft = Paths.line(startLeft, launchLeft).constant(launchLeft);
+        Path toScoringFlower = Paths.curve(launchLeft, toScoringFlowerControl1, scoringFlower).linear(launchLeft, scoringFlower);
+        Path toLaunchLeftPath = Paths.curve(scoringFlower, toLaunchLeft_2Control1, launchLeft).linear(scoringFlower, launchLeft);
+        Path toParkLeft = Paths.curve(launchLeft, toParkLeftControl1, parkLeft).linear(launchLeft, parkLeft);
 
         return kit.sequence(
-                kit.guarded("Auto", nFireToParkL, 2.1,
+                kit.guarded("Auto", toParkLeft, 2.2,
                         kit.command("SpinUp"),
-                        kit.path("START to FAR_FLOWER_TURN", startToFarFlowerTurn),
-                        kit.firstOf("TIP 1 (the partner's preloads)",
-                                kit.when("LeftCellUp"),
+                        kit.path("to LAUNCH_LEFT", toLaunchLeft, 0.7),
+                        kit.firstOf("Wait for TIP",
+                                kit.when("Tip"),
                                 kit.afterMs(7000)),
-                        kit.firstOf("Fire our preloads at the left CELL", kit.command("LaunchAll"),
-                                kit.when("Empty"),
-                                kit.afterMs(3000)),
-                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
-                        kit.firstOf("The far FLOWER's 4",
-                                kit.when("IntakeFull"),
-                                kit.afterMs(3000)),
-                        kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire),
-                        kit.firstOf("Fire the far FLOWER's 4 (TIP 2)", kit.command("LaunchAll"),
-                                kit.when("Empty"),
-                                kit.afterMs(2000)),
-                        kit.path("N_FIRE to PARK_L", nFireToParkL)));
+                        kit.command("LaunchAll"),
+                        kit.path("to SCORING_FLOWER", toScoringFlower, 1.4),
+                        kit.command("PickFlower", 8),
+                        kit.path("to LAUNCH_LEFT", toLaunchLeftPath, 1.5),
+                        kit.command("LaunchAll"),
+                        kit.path("to PARK_LEFT", toParkLeft, 2.2)));
     }
 }

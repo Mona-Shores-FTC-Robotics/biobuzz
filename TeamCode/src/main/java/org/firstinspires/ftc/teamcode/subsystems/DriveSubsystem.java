@@ -7,10 +7,13 @@ import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.revhub.drivetrains.Mecanum;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import com.pedropathing.localization.FusionLocalizer;
 
 import org.firstinspires.ftc.teamcode.localization.CellFix;
@@ -22,6 +25,7 @@ import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.AccelLimiter;
+import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
@@ -138,6 +142,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private boolean applyStillFixes = LocalizationTuning.stillFixes;
     private Pose lastCameraPose;
     private long lastCameraPoseNs;
+    /** An Auto in INIT wants the camera's whole pose, heading included, on every frame. */
+    private boolean wholePoseFits;
+    private Pose wholeCameraPose;
+    private long wholeCameraPoseNs;
 
     /** Would-relocalize: samples so far, the latest, and the worst. */
     private int wouldCount;
@@ -166,6 +174,24 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private Path followedPath;
     /** True while a path or hold, not the sticks, drives the robot. */
     private boolean pathControl;
+    /** The Pinpoint the localizer reads, for its status only; null without one. */
+    private final GoBildaPinpointDriver pinpoint;
+    /** What the wheels were last told by the sticks or a routine, after the ramp; NaN under a path. */
+    private double appliedForward = Double.NaN;
+    private double appliedStrafe = Double.NaN;
+    private double appliedTurn = Double.NaN;
+    /**
+     * The four drive wheels' encoder speeds, ticks/s, front left, front right, back left, back
+     * right, for the match log. Wheels turning while the dead-wheel pods read still is the pods
+     * doing their job (the robot pushing on something and not moving), not a fault: these mark
+     * when the robot was driven into something, which is when a pod could lift. A pod off the
+     * floor misses motion that did happen, so only an outside reference (the camera's gap,
+     * {@code /Drift/*}) shows it. Read ten times a second, since the first read after the bulk-cache
+     * clear costs the Control Hub's bulk read (about 1 ms), which nothing else in the loop needs.
+     */
+    private final DcMotorEx[] wheels;
+    private final double[] wheelTicksPerSec = {Double.NaN, Double.NaN, Double.NaN, Double.NaN};
+    private final Throttle wheelRead = new Throttle(100, 50);
     private boolean fieldCentric;
     private double headingOffset;
     private long lastUpdateNs;
@@ -184,6 +210,14 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         localizer = found;
         localizerFault = fault;
         fieldCentric = found != null;
+        // The same motor objects Pedro's drivetrain drives; only their encoders are read here.
+        wheels = new DcMotorEx[] {
+                hardwareMap.get(DcMotorEx.class, DeviceNames.FRONT_LEFT),
+                hardwareMap.get(DcMotorEx.class, DeviceNames.FRONT_RIGHT),
+                hardwareMap.get(DcMotorEx.class, DeviceNames.BACK_LEFT),
+                hardwareMap.get(DcMotorEx.class, DeviceNames.BACK_RIGHT)};
+        // The same device the localizer reads; its status comes with the localizer's own read.
+        pinpoint = found != null ? hardwareMap.get(GoBildaPinpointDriver.class, DeviceNames.PINPOINT) : null;
     }
 
     // ------------------------------------------------------------- commands
@@ -252,8 +286,13 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      * Sets the pose from the camera now. Once the pose is field-referenced, only x and y move: the
      * gated tags ({@link TagGate}) give the position with the Pinpoint's heading, which is kept;
      * averaged over the frames since the robot stopped, if it is still. Before that, two or more
-     * gated tags give the whole pose ({@link CellFix#fit}). Refused if referenced and this would move
-     * the robot more than {@link LocalizationTuning#maxRelocalizeJumpIn}. The driver's field-centric
+     * gated tags give the whole pose ({@link CellFix#fit}). A correction bigger than
+     * {@link LocalizationTuning#maxRelocalizeJumpIn}, or one the current heading cannot solve, is what
+     * a lost pose looks like (a TeleOp that assumed the start mark with the robot elsewhere, a robot
+     * carried after an Auto): with the robot still and two or more gated tags on settled CELLs, the
+     * camera's whole pose is taken, heading too, exactly as when the pose is first seeded. Moving, or
+     * with fewer tags, it is refused, so one bad frame cannot throw the robot across the field
+     * (1 Nov 2026, 20245: "refused: 94.5 in" left the driver no way back). The driver's field-centric
      * forward stays where it was. For a button; best done holding still.
      *
      * @return what happened, for the driver
@@ -286,12 +325,18 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             y = gate.y();
             from = gate.acceptedCount() + " tags";
         } else {
-            return poseNote = "relocalize refused: " + describe(verdict);
+            // With a wrong heading the tags may not solve at all: try the heading-free whole pose.
+            String lost = relocalizeLostPose(now);
+            return poseNote = lost != null ? lost : "relocalize refused: " + describe(verdict)
+                    + (still ? "" : " (hold still to reset a lost pose)");
         }
         double jumpIn = Math.hypot(x - now.x(), y - now.y());
         if (jumpIn > LocalizationTuning.maxRelocalizeJumpIn) {
+            String lost = relocalizeLostPose(now);
+            if (lost != null) return poseNote = lost;
             return poseNote = String.format(java.util.Locale.US,
-                    "relocalize refused: %.1f in from the current pose", jumpIn);
+                    "relocalize refused: %.1f in from the current pose%s", jumpIn,
+                    still ? "; needs 2+ tags on settled CELLs to reset it" : "; hold still to reset it");
         }
         Pose moved = new Pose(x, y, now.heading());
         setPoseKeepingDriverForward(moved);
@@ -299,23 +344,40 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     }
 
     /**
-     * Puts the robot at {@code alliance}'s marked reset spot ({@link ResetPositions}), heading
-     * included: the drive team has squared it against the wall there. The driver's field-centric
+     * The lost-pose reset: with the robot still, the whole pose from two or more gated tags on
+     * settled CELLs (heading-free, as when seeding), however far it is from {@code now}. Null when
+     * moving or with too few tags, so the caller refuses.
+     */
+    private String relocalizeLostPose(Pose now) {
+        if (!still) return null;
+        gate.solve(Double.NaN);
+        Pose whole = fitAccepted();
+        if (whole == null) return null;
+        double jumpIn = Math.hypot(whole.x() - now.x(), whole.y() - now.y());
+        setPoseKeepingDriverForward(whole);
+        return String.format(java.util.Locale.US, "relocalized %s from %d tags, whole pose (lost: %.0f in off)",
+                describePose(whole), gate.acceptedCount(), jumpIn);
+    }
+
+    /**
+     * Puts the robot at {@code alliance}'s marked reset spot in {@code corner} ({@link ResetPositions}),
+     * heading included: the drive team has squared it into the corner there. The driver's field-centric
      * forward stays where it was. For a button, when the pose is lost.
      *
      * @return what happened, for the driver
      */
-    public String resetToSpot(Alliance alliance) {
+    public String resetToSpot(Alliance alliance, ResetPositions.Corner corner) {
         if (localizer == null) {
             return poseNote = "reset: no Pinpoint";
         }
-        Pose spot = ResetPositions.of(alliance);
+        String where = alliance + "'s " + corner.toString().toLowerCase(java.util.Locale.US) + " corner";
+        Pose spot = ResetPositions.of(alliance, corner);
         if (spot == null) {
             return poseNote = alliance == Alliance.UNKNOWN ? "reset: no alliance chosen"
-                    : "reset: " + alliance + "'s spot is not measured yet (ResetPositions)";
+                    : "reset: " + where + " is not measured yet (ResetPositions)";
         }
         setPoseKeepingDriverForward(spot);
-        return poseNote = "reset to " + alliance + "'s spot " + describePose(spot);
+        return poseNote = "reset to " + where + " " + describePose(spot);
     }
 
     private static String describe(TagGate.Verdict verdict) {
@@ -516,6 +578,52 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         return follower == null ? Double.NaN : follower.velocity().linSpeed();
     }
 
+    // Read-only, for the match log's drift signals (RobotOpMode, localization/ImpactWatch).
+
+    /** The drive's last command after the ramp, before field-centric turns it; NaN under a path. */
+    public double appliedForward() { return appliedForward; }
+    public double appliedStrafe() { return appliedStrafe; }
+    public double appliedTurn() { return appliedTurn; }
+
+    /** Drive wheel {@code i}'s encoder speed, ticks/s (0 FL, 1 FR, 2 BL, 3 BR), as of the last read. */
+    public double wheelTicksPerSec(int i) { return wheelTicksPerSec[i]; }
+
+    /** Whether the sticks' command was field-centric (then {@link #appliedForward} is field "away"). */
+    public boolean commandFieldCentric() {
+        return fieldCentric && !robotCentricCommand;
+    }
+
+    /** Speed over the ground from the localizer, inches/s; NaN without one. Works without a Follower. */
+    public double odometrySpeedInPerSec() {
+        return localizer == null ? Double.NaN : localizer.velocity().linSpeed();
+    }
+
+    /** The Pinpoint's status as of the localizer's last read (READY when well), or null without one. */
+    public GoBildaPinpointDriver.DeviceStatus pinpointStatus() {
+        return pinpoint == null ? null : pinpoint.getDeviceStatus();
+    }
+
+    /** When the camera last gave a gated pose ({@link #cameraPose()}'s source), System.nanoTime; 0 never. */
+    public long cameraPoseNs() { return lastCameraPoseNs; }
+
+    /**
+     * Fit the camera's whole pose (two or more gated tags, no heading assumed) on every fresh frame,
+     * even with the pose referenced: an Auto in INIT, finding which of its starts the robot is on.
+     */
+    public void setWholePoseFits(boolean on) {
+        wholePoseFits = on;
+        if (!on) wholeCameraPose = null;
+    }
+
+    /** The last whole-pose fit, or null; see {@link #setWholePoseFits}. Paired with {@link #wholeCameraPoseNs}. */
+    public Pose wholeCameraPose() { return wholeCameraPose; }
+
+    /** When {@link #wholeCameraPose} was fitted, System.nanoTime; 0 never. */
+    public long wholeCameraPoseNs() { return wholeCameraPoseNs; }
+
+    /** The camera's last gated pose, however old; null before the first. See {@link #cameraPoseNs()}. */
+    public Pose lastCameraPose() { return lastCameraPose; }
+
     /** Turn rate, radians/s, either sign, from Pedro's Follower; NaN without one. */
     public double turnRadPerSec() {
         return follower == null ? Double.NaN : follower.velocity().omega;
@@ -543,15 +651,26 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         lastUpdateNs = System.nanoTime();
     }
 
+    /** Nothing to do: the wheels turn only when an OpMode asks, and it asks only after PLAY. */
+    @Override
+    public void start() {
+    }
+
     @Override
     public void update() {
         long now = System.nanoTime();
         double dt = Math.min((now - lastUpdateNs) / 1e9, MAX_LOOP_DT_SEC);
         lastUpdateNs = now;
+        if (wheelRead.due(now)) {
+            for (int i = 0; i < wheels.length; i++) wheelTicksPerSec[i] = wheels[i].getVelocity();
+        }
 
         if (pathControl && follower != null) {
             follower.update(dt); // updates the localizer too, so it is not updated twice
             offerSightings();
+            appliedForward = Double.NaN;
+            appliedStrafe = Double.NaN;
+            appliedTurn = Double.NaN;
             return;
         }
 
@@ -575,6 +694,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             turnLimiter.reset(t);
         }
 
+        appliedForward = f;
+        appliedStrafe = s;
+        appliedTurn = t;
         DrivePowers powers = fieldCentric && !robotCentricCommand
                 ? ManualDrive.fieldCentric(f, s, t, heading())
                 : new DrivePowers(f, s, t);
@@ -604,9 +726,23 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             if (full != null) {
                 lastCameraPose = full;
                 lastCameraPoseNs = System.nanoTime();
+                if (wholePoseFits) {
+                    wholeCameraPose = full;
+                    wholeCameraPoseNs = lastCameraPoseNs;
+                }
                 if (LocalizationTuning.seedFromCamera) considerSeed(full);
             }
             return;
+        }
+        if (wholePoseFits) {
+            // Heading-free: the fit's own heading, not the one the declared start set. Before the
+            // heading-checked solve below, which then refills the gate's verdict.
+            gate.solve(Double.NaN);
+            Pose whole = fitAccepted();
+            if (whole != null) {
+                wholeCameraPose = whole;
+                wholeCameraPoseNs = System.nanoTime();
+            }
         }
         double heading = localizer.pose().heading();
         if (gate.solve(heading) != TagGate.Verdict.OK) {
@@ -822,8 +958,22 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     @Override
     public String health() {
-        return localizer != null ? "Pinpoint present; drive motors configured, presence unknown until they move"
+        return localizer != null ? "Pinpoint present (" + pinpointIdentity()
+                + "); drive motors configured, presence unknown until they move"
                 : "Pinpoint missing (" + localizerFault + "): driving robot-centric, no paths";
+    }
+
+    /**
+     * Which Pinpoint this is, as the board reports it: its device ID and firmware version, which
+     * tell a first Pinpoint from a V2 (whose IMU also measures tilt). Two register reads over I2C,
+     * so only at INIT, through {@link #health()}.
+     */
+    private String pinpointIdentity() {
+        try {
+            return "device ID " + pinpoint.getDeviceID() + ", version " + pinpoint.getDeviceVersion();
+        } catch (RuntimeException e) {
+            return "identity unread: " + e;
+        }
     }
 
     @Override

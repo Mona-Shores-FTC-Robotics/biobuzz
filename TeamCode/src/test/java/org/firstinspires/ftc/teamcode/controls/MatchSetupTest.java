@@ -67,6 +67,16 @@ public class MatchSetupTest {
     }
 
     @Test
+    public void startingFreshForgetsTheAutosAlliance() {
+        setup.defaultTo(Alliance.RED);
+        setup.inheritFromAuto(Alliance.BLUE);
+        setup.forgetAuto();
+
+        assertEquals(Alliance.RED, setup.alliance());
+        assertEquals(MatchSetup.Source.DEFAULT, setup.source());
+    }
+
+    @Test
     public void aManualChoiceBeatsEverythingAndSticks() {
         setup.inheritFromAuto(Alliance.RED);
         setup.chooseManually(Alliance.BLUE);

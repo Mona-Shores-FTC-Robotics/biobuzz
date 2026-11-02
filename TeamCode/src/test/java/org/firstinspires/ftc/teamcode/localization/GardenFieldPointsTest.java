@@ -10,21 +10,22 @@ public class GardenFieldPointsTest {
 
     private static final double EPS = 1e-9;
 
-    /** Red's GARDEN is where L-Quals and Sister-Right drive it: GARDEN_IN to GARDEN, facing the audience. */
+    /** Red's GARDEN: nose at the audience wall, side just off the red wall, lined up 9.6 in back. */
     @Test
-    public void redIsWhereTheAutosGather() {
-        assertEquals(9.5, GardenFieldPoints.RED.gather.x(), EPS);
-        assertEquals(10.96, GardenFieldPoints.RED.gather.y(), EPS);
-        assertEquals(20.56, GardenFieldPoints.RED.lineUp.y(), EPS);
+    public void redGathersWithTheNoseAtTheAudienceWall() {
+        assertEquals(8.5, GardenFieldPoints.RED.gather.x(), EPS);
+        assertEquals(9.5, GardenFieldPoints.RED.gather.y(), EPS);
+        assertEquals(8.5, GardenFieldPoints.RED.lineUp.x(), EPS);
+        assertEquals(19.1, GardenFieldPoints.RED.lineUp.y(), EPS);
         assertEquals(Math.toRadians(270), GardenFieldPoints.RED.gather.heading(), EPS);
     }
 
     /** The field is turned, not mirrored: blue's GARDEN is red's half a turn about the centre. */
     @Test
     public void blueIsRedTurnedHalfATurn() {
-        assertEquals(141.5 - 9.5, GardenFieldPoints.BLUE.gather.x(), EPS);
-        assertEquals(141.5 - 10.96, GardenFieldPoints.BLUE.gather.y(), EPS);
-        assertEquals(141.5 - 20.56, GardenFieldPoints.BLUE.lineUp.y(), EPS);
+        assertEquals(141.5 - 8.5, GardenFieldPoints.BLUE.gather.x(), EPS);
+        assertEquals(141.5 - 9.5, GardenFieldPoints.BLUE.gather.y(), EPS);
+        assertEquals(141.5 - 19.1, GardenFieldPoints.BLUE.lineUp.y(), EPS);
         assertEquals(Math.cos(Math.toRadians(90)), Math.cos(GardenFieldPoints.BLUE.gather.heading()), EPS);
         assertEquals(Math.sin(Math.toRadians(90)), Math.sin(GardenFieldPoints.BLUE.gather.heading()), EPS);
     }
