@@ -49,7 +49,8 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 | `RIGHT_LAUNCH_OFFSET`, `LEFT_LAUNCH_OFFSET` | Off to the side of that CELL and angled at it, so a partner in front of the CELL is not disturbed. |
 | `WALL_FLOWER_STAGING`, `SCORING_FLOWER_STAGING` | Where a Pick flower step starts (on the FLOWER's line, 18–24 in out). |
 | `GARDEN_STAGING` | Where a Garden gather step starts; the gather pose itself is the robot code's (`GardenFieldPoints`). |
-| `RIGHT_PARK`, `LEFT_PARK` | x and y only: a park is reached at whatever heading the robot arrives with. |
+| `RIGHT_PARK`, `LEFT_PARK` | 14.5 in off the alliance wall, facing 0 (the intake toward the field), in the LOADING ZONE. |
+| `PARTNER_STAGED_POLLEN` | Where a partner on `LEFT_START` sets its four preloads down for us: a drawing until a partner says where they stage. |
 
 Names are side (or thing) first, then role, then variant, so a side's spots sort together. An Auto
 that needs a spot not in this list is drawn on the `autos-experiment` branch until the spot earns
