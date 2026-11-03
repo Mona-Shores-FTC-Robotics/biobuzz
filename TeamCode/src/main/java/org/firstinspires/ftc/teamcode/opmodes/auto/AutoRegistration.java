@@ -123,20 +123,19 @@ public final class AutoRegistration {
     public static final double LAUNCH_ALL_TYPICAL_S = 4.0;
 
     /**
-     * {@code PickFlower}'s typical seconds, as an Auto runs it since 3 Nov 2026: the stick lowered on
-     * the drive in (its approach) and the dwell ending on the full sensor
-     * ({@code FlowerPicker.dwellEndsOnFull}). Made from the twelve Auto picks in the 31 Oct to 2 Nov
-     * 2026 logs on 20245, each with its stick wait (0.70 to 0.73 s then) replaced by the 0.07 to
-     * 0.19 s the hand-over takes now, and its dwell by the time to full: square-up 0 (11 of 12;
-     * 0.62 s when it squares), push 0.57 s (0.47 to 0.88), dwell to full about 1.1 s (estimate, below),
-     * back-out 0.53 s (0.47 to 0.68). That is 2.2 to 3.2 s, 2.5 on the full robot (1 and 2 Nov).
-     * The dwell to full is the one estimate: in 33 picks that took pieces the last piece's current
-     * spike came a median 0.64 s into the dwell (latest 1.35 s), and on the one pick that filled the
-     * lane full latched 0.44 s after its last spike. A FLOWER that does not fill the lane dwells the
-     * whole {@code FlowerPicker.dwellMs} (2 s) and the pick takes about 4.4 s: the guard's
-     * {@code AutoKit.GUARD_MARGIN_S} covers 1 s of that. Re-measure from the next Auto picks' logs.
+     * {@code PickFlower}'s typical seconds, planned for a slow pick so the endgame guard keeps time
+     * for one (mentor, 3 Nov 2026): one that squares up and dwells the whole
+     * {@code FlowerPicker.dwellMs} (2 s) because the FLOWER does not fill the lane. From the twelve
+     * Auto picks in the 31 Oct to 2 Nov 2026 logs on 20245, the slowest of each part: square-up
+     * 0.62 s, hand-over 0.19 s (the stick is lowered on the drive in now, so the 0.70 to 0.73 s
+     * stick wait those picks had is gone), push 0.88 s, dwell 2.0 s, back-out 0.68 s: 4.4 s.
+     * A pick whose dwell ends on full ({@code FlowerPicker.dwellEndsOnFull}) takes about 2.5 s
+     * (2.2 to 3.2): square-up 0 (11 of 12), push 0.57 s, dwell to full about 1.1 s (the last
+     * piece's current spike a median 0.64 s into the dwell in 33 picks, and full 0.44 s after it
+     * on the one pick that filled the lane), back-out 0.53 s. Re-measure from the next Auto picks'
+     * logs.
      */
-    public static final double PICK_FLOWER_TYPICAL_S = 2.5;
+    public static final double PICK_FLOWER_TYPICAL_S = 4.4;
 
     /**
      * {@code GardenGather}'s typical seconds: a drive in, a dwell and a drive back from wherever the
