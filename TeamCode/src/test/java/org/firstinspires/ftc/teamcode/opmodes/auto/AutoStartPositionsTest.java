@@ -5,10 +5,11 @@ import static org.junit.Assert.assertEquals;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LQualsAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LSimpleAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RQualsAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSimpleAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LPartnerAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RPartnerPreloadAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RPartnerTipAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloStagingAuto;
 import org.junit.Test;
 
 /**
@@ -24,19 +25,16 @@ public class AutoStartPositionsTest {
     private static final double TOLERANCE_RAD = Math.toRadians(0.1);
 
     @Test
-    public void rSimpleStartsAtTheRedAudienceStart() {
-        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RSimpleAuto.startPose(false));
+    public void theRightAutosStartAtTheRedAudienceStart() {
+        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RSoloAuto.startPose(false));
+        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RPartnerTipAuto.startPose(false));
+        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RPartnerPreloadAuto.startPose(false));
+        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RSoloStagingAuto.startPose(false));
     }
 
     @Test
-    public void rQualsStartsAtTheRedAudienceStart() {
-        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RQualsAuto.startPose(false));
-    }
-
-    @Test
-    public void theLeftAutosStartAtTheRedFarStart() {
-        assertStartsAt(StartPositions.RED_FAR.pose, LSimpleAuto.startPose(false));
-        assertStartsAt(StartPositions.RED_FAR.pose, LQualsAuto.startPose(false));
+    public void theLeftAutoStartsAtTheRedFarStart() {
+        assertStartsAt(StartPositions.RED_FAR.pose, LPartnerAuto.startPose(false));
     }
 
     private static void assertStartsAt(Pose measured, Pose drawn) {

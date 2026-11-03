@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/l-simple.pp",
-  "spec": "LSimpleAuto@50",
+  "pp": "TeamCode/autos/r-partner-tip.pp",
+  "spec": "RPartnerTipAuto",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -18,8 +18,8 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "l-simple.pp",
-    "SavedBy": "dustinhans",
-    "SavedAt": "2026-11-02T15:07:02.677Z"
+    "AutoSource": "r-partner-tip.pp",
+    "SavedBy": "whiteboard drafts (Claude)",
+    "SavedAt": "2026-11-03T03:12:15+00:00"
   }
 }

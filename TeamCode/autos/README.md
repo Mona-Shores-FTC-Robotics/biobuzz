@@ -6,6 +6,27 @@ has its `.pp` file committed here, in the same PR as the Java generated from it.
 
 **New to the Visualizer?** Start with [How to plan an Auto](how-to-plan-an-auto.md).
 
+## Open the Autos on master
+
+One link each, always the latest on `master` (the Visualizer reads the file from GitHub):
+
+| Auto | Open it |
+|---|---|
+| L-Partner | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/l-partner.pp> |
+| R-Solo | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo.pp> |
+| R-Partner-Tip | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-partner-tip.pp> |
+| R-Partner-Preload | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-partner-preload.pp> |
+| R-Solo-Staging | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo-staging.pp> |
+
+Inside the Visualizer, the same list is **View → Team Autos: the latest from biobuzz, together…**
+(pick a branch, tick up to four Autos, Reload latest). A pull request's draft opens with its branch
+in the link: `#team=auto/r-solo/r-solo.pp`.
+
+**The polish loop.** Open the Auto from master, change it, **Save to GitHub and simulate…** under
+the same name: that makes or updates its `auto/<name>` branch and pull request, the simulator runs
+on it, and a mentor merges it once the robot has driven it. A change to a spot is **Save team
+spots…** instead: its own pull request, and every Auto that uses the spot is re-exported in it.
+
 - **The `.pp` is the source; the Java is generated.** Change an Auto by opening its `.pp` in the
   Visualizer, editing it, and exporting again (Export → Export Auto (Java)). Never edit the
   generated Java by hand: the next export overwrites it.
@@ -23,18 +44,13 @@ has its `.pp` file committed here, in the same PR as the Java generated from it.
   (`R-Simple 10-31|12:22AM`), from the generated class's `SAVED`: after a Sloth Load, the Driver
   Station shows which save is on the robot.
 
-## Partner stand-ins (`partner-*.pp`)
+## The bench
 
-What a teammate might do, drawn as Autos so the simulator can run ours beside them and the
-Visualizer can draw the pair: `partner-r-still` and `partner-l-still` (sits on the start),
-`partner-park-1` and `-2` (starts by the loading zone, waits, parks: two of them, where partners
-were seen to start and park), `partner-r-launch-park` and `partner-l-launch-park` (preloads, then
-park: the common partner, and the one that tips the HIVE for us). They have generated classes but
-no OpMode, so they never show on the Driver Station, and their starts and parks are their own
-(`PARTNER_START`, `PARTNER_PARK`), not team spots. To model a teammate, open one, drag its start
-and park to where that team starts and parks, set the wait to when they park, and save. A
-stand-in's wait is on `CameraBlind`, which never fires in the simulator, so its time limit is the
-whole story.
+Everything that is not one of the Autos we run lives on the `autos-experiment` branch (its
+`BENCH.md` says what is there): the Autos from before, the partner stand-ins for simulating a
+teammate beside one of ours, and earlier experiments. So the Team Autos list on `master` is exactly
+the Driver Station's list. To work on a benched Auto, open it from that branch; to bring one back,
+say so and it comes over on an `auto/<name>` branch.
 
 ## Team spots (`spots.json`)
 
@@ -49,11 +65,12 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 | `RIGHT_LAUNCH_OFFSET`, `LEFT_LAUNCH_OFFSET` | Off to the side of that CELL and angled at it, so a partner in front of the CELL is not disturbed. |
 | `WALL_FLOWER_STAGING`, `SCORING_FLOWER_STAGING` | Where a Pick flower step starts (on the FLOWER's line, 18–24 in out). |
 | `GARDEN_STAGING` | Where a Garden gather step starts; the gather pose itself is the robot code's (`GardenFieldPoints`). |
-| `RIGHT_PARK`, `LEFT_PARK` | x and y only: a park is reached at whatever heading the robot arrives with. |
+| `RIGHT_PARK`, `LEFT_PARK` | 14.5 in off the alliance wall, facing 0 (the intake toward the field), in the LOADING ZONE. |
+| `PARTNER_STAGED_POLLEN` | Where a partner on `LEFT_START` sets its four preloads down for us: a drawing until a partner says where they stage. |
 
 Names are side (or thing) first, then role, then variant, so a side's spots sort together. An Auto
 that needs a spot not in this list is drawn on the `autos-experiment` branch until the spot earns
-its place here. The partner stand-ins above are exempt: their spots are a teammate's, not ours.
+its place here.
 
 - **Using one.** In the Visualizer, pick it from a step's spot dropdown (under "Team spots"), or
   select a path and press 🔗 on its end in the Path panel, then pick the spot: the end jumps to it

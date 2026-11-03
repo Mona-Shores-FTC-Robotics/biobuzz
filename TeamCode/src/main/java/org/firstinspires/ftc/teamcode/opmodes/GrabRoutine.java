@@ -216,6 +216,18 @@ public abstract class GrabRoutine {
     /** Everything stops: the end of a grab, finished or not. The drive is stopped by the caller. */
     protected abstract void stopMechanisms();
 
+    /**
+     * The nearest the robot's centre has been to the field point ({@code x}, {@code y}) on this
+     * grab's In, inches: where the In ended, or where the robot is now if the grab is being cut
+     * short during the In. {@code neverIn} before the In starts. For a subclass's rule about when a
+     * mechanism may come back in: a mechanism that went into something is clear of it some distance
+     * out from where it went in, wherever the In was aimed.
+     */
+    protected double closestOnInIn(double x, double y, double neverIn) {
+        Pose at = inEnd != null ? inEnd : phase == Phase.IN ? robot.drive.pose() : null;
+        return at == null ? neverIn : Math.hypot(at.x() - x, at.y() - y);
+    }
+
     protected abstract double prepMs();
     protected abstract double prepWithinIn();
     /**
@@ -439,6 +451,7 @@ public abstract class GrabRoutine {
         lineUpDoneNs = -1;
         dwell.reset();
         dwellEndWhy = "";
+        inEnd = null;
         inEndWhy = "";
         Pose pose = robot.drive.pose();
         if (pose == null) {

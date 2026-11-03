@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RQualsAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloAuto;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ import java.io.File;
 import java.nio.file.Files;
 
 /**
- * The simulator still runs master's Autos: one seed of R-Quals on the real robot, the way the
+ * The simulator still runs master's Autos: one seed of R-Solo on the real robot, the way the
  * Visualizer's Save & Simulate runs a saved Auto ({@link SimRunTest}). It checks that the run starts,
  * finishes and moves the robot, not how well the Auto scores: points are for the simulated log to
  * show, never to fail a merge (mentor decision, 31 Oct 2026). The simulator's other tests are opt-in,
@@ -21,16 +21,16 @@ import java.nio.file.Files;
 public class SimulatorSmokeTest {
 
     @Test
-    public void rQualsRunsOnTheRealRobot() throws Exception {
-        File log = new File(TeamCodeDir.simLogs(), "smoke-r-quals.wpilog");
-        AutoSim.Result r = new AutoSim(RQualsAuto.class, Alliance.RED, 1)
+    public void rSoloRunsOnTheRealRobot() throws Exception {
+        File log = new File(TeamCodeDir.simLogs(), "smoke-r-solo.wpilog");
+        AutoSim.Result r = new AutoSim(RSoloAuto.class, Alliance.RED, 1)
                 .design(AutoStudyTest.designs().get(RobotDesign.REAL)).write(log);
         assertTrue(r.toString(), log.length() > 0);
         assertFalse(r.toString(), r.robots.isEmpty());
         assertTrue(r.toString(), r.robots.get(0).leave);
 
         // The match layout's 3D tabs draw the HIVE from the match log's keys: the simulator writes the
-        // same ones, and R-Quals TIPs, so its rockers move.
+        // same ones, and R-Solo TIPs, so its rockers move.
         WpiLogReader reader = new WpiLogReader(Files.readAllBytes(log.toPath()));
         assertEquals(1, reader.entry(HiveComponents.STRUCTURE_KEY).records.size());
         assertTrue("the HIVE never moved", reader.entry(HiveComponents.KEY).records.size() > 1);

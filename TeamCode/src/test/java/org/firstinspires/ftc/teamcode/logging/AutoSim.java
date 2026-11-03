@@ -1786,6 +1786,10 @@ public final class AutoSim {
                     // long as it lasts, so a long wait can be split into short ones.
                     .trigger("LeftCellUp", () -> !cameraDown && sim.rocker(alliance).state() == HiveState.LEFT_CELL_UP)
                     .trigger("RightCellUp", () -> !cameraDown && sim.rocker(alliance).state() == HiveState.RIGHT_CELL_UP)
+                    // The CELL this robot is aimed at is up (master's CellUp, the Simple builder's "Wait for TIP"):
+                    // our CELL at the robot's end of the field, true for as long as it is up.
+                    .trigger("CellUp", () -> !cameraDown && sim.rocker(alliance).state()
+                            == (aimedLeft(alliance, pedro(drive.pose)[1]) ? HiveState.LEFT_CELL_UP : HiveState.RIGHT_CELL_UP))
                     // A CELL up this long has not filled on its own (TIP 2 comes 3.6-5.8 s after TIP 1, 60 runs; one short,
                     // 14 s or more): the robot times it from the HIVE camera's state.
                     .trigger("TipOverdue", () -> !cameraDown && sim.rocker(alliance).raisedEnd() != 0 && now - raisedSince >= TIP_OVERDUE_S)
@@ -2509,6 +2513,12 @@ public final class AutoSim {
         out[1] = FieldSim.FIELD_SIZE_IN - p[1];
         if (p.length > 2) out[2] = AdvantageScopeFrame.wrap(p[2] + Math.PI);
         return out;
+    }
+
+    /** As AutoRegistration.aimedLeft: red's left CELL is at the scoring end, blue's at the audience end. */
+    static boolean aimedLeft(Alliance alliance, double y) {
+        boolean scoringEnd = y >= FieldSim.CENTRE_IN;
+        return alliance == Alliance.BLUE ? !scoringEnd : scoringEnd;
     }
 
     private static double[] pedro(Pose p) {
