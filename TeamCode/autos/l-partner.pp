@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-03T08:19:13.366Z",
+  "timestamp": "2026-11-03T08:54:05.425Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -541,6 +541,11 @@
         41,
         121.5,
         296.4
+      ],
+      "RIGHT_PARK": [
+        14.5,
+        95.7,
+        0
       ]
     },
     "pathEnds": {
@@ -578,7 +583,9 @@
             "cards": []
           },
           {
-            "afterMs": 7000,
+            "afterMs": 8000,
+            "matchClock": true,
+            "adjustable": true,
             "cards": [
               {
                 "id": "c-mw0eq8bt-2vuzy",
@@ -664,8 +671,12 @@
       "LEFT_PARK",
       "LEFT_START",
       "RIGHT_LAUNCH_CATCH",
+      "RIGHT_PARK",
       "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"
+    ],
+    "parkChoices": [
+      "RIGHT_PARK"
     ],
     "exportName": "L-Partner"
   }

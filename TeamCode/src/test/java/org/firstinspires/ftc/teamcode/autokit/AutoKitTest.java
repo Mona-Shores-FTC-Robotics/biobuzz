@@ -212,6 +212,53 @@ public class AutoKitTest {
         assertTrue(now >= 1.5 && now < 1.6);
     }
 
+    /** "Give up at 8.5 s": however late the wait starts, it ends at that time on the match clock. */
+    @Test
+    public void aMatchClockLimitEndsAtThatTimeWhenTheWaitStarted() {
+        now = 6.0;
+        run(kit.firstOf("Wait for TIP", kit.when("HiveTipped"),
+                kit.atMatchSeconds(8.5).then(kit.command("SpinUp"))), 5);
+        assertEquals("[SpinUp]", log.toString());
+        assertTrue("ended at " + now, now >= 8.5 && now < 8.6);
+        assertTrue(trace.toString(), trace.stream().anyMatch(line -> line.startsWith("Wait for TIP: 8.5 s on the match clock after 2.5")));
+    }
+
+    /** Arriving after the limit: the wait ends at once, and the time row's cards run. */
+    @Test
+    public void aMatchClockLimitAlreadyPastEndsTheWaitAtOnce() {
+        now = 9.0;
+        run(kit.firstOf("Wait for TIP", kit.when("HiveTipped"),
+                kit.atMatchSeconds(8.5).then(kit.command("SpinUp"))), 1);
+        assertEquals("[SpinUp]", log.toString());
+        assertTrue(now < 9.1);
+    }
+
+    @Test
+    public void theTriggerStillEndsAMatchClockWaitEarly() {
+        tipped = true;
+        run(kit.firstOf("Wait for TIP", kit.when("HiveTipped").then(kit.command("ShootAll")),
+                kit.atMatchSeconds(20)), 1);
+        assertEquals("[ShootAll]", log.toString());
+    }
+
+    @Test
+    public void withNoPicksEveryOptionIsAsDrawn() {
+        assertEquals("LEFT", kit.pick(AutoOption.PARK, "LEFT", "RIGHT"));
+        assertEquals(8.5, kit.seconds("Wait for TIP", 8.5), 1e-9);
+    }
+
+    @Test
+    public void picksChooseTheValueAndTheTime() {
+        kit.picks(new AutoKit.Picks() {
+            @Override public int choice(String option) { return option.equals(AutoOption.PARK) ? 1 : -1; }
+            @Override public double seconds(String option) { return option.equals("Wait for TIP") ? 11 : Double.NaN; }
+        });
+        assertEquals("RIGHT", kit.pick(AutoOption.PARK, "LEFT", "RIGHT"));
+        assertEquals("unknown options stay as drawn", "A", kit.pick("Other", "A", "B"));
+        assertEquals(11, kit.seconds("Wait for TIP", 8.5), 1e-9);
+        assertEquals(3, kit.seconds("Other", 3), 1e-9);
+    }
+
     @Test
     public void earlierRowWinsWhenTwoAreTrueInTheSameLoop() {
         tipped = true;
