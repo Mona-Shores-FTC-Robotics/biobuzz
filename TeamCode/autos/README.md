@@ -100,8 +100,8 @@ they said" is not modelled (mentor, 3 Nov 2026). The curation, the mentor's to c
 | Auto | Alone | On time | Missing | Dead |
 |---|---|---|---|---|
 | L-Partner | yes | `partner-r-launch-park`, last shot at 2, 5, 8 and 12 s: our partner wait runs to 6, 9, 12 and 16 s | the same, said 8 s | `partner-r-broken-down`, said 8 s: we wait to 12 s, then take the Otherwise branch |
-| R-Partner-Preload | yes | `partner-l-launch-park`, last shot at 6 and 10 s | the same, said 6 s | `partner-l-broken-down` |
-| R-Partner-Tip | yes | `partner-l-tip-park` at 50 in/s | the same | `partner-l-broken-down` |
+| R-Partner-Preload | yes | `partner-l-launch-park`, last shot at 6 and 10 s; `partner-l-still` (out of the way) | the same, said 6 s | `partner-l-broken-down` |
+| R-Partner-Tip | yes | `partner-l-tip-park` at 50 in/s; `partner-l-still` (out of the way) | the same | `partner-l-broken-down` |
 | R-Solo | yes | `partner-park-1` (no launches), `partner-l-still` (out of the way) | | `partner-l-broken-down` |
 | R-Solo-Staging | yes | `partner-l-stage-park` (see the note below) | | |
 
