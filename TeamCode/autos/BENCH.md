@@ -14,3 +14,16 @@ against the current robot code.
 
 An Auto here may use spots that are not the team's (`spots.json`); one promoted to master uses
 only the team's.
+
+## What is on the bench (3 Nov 2026)
+
+Master holds only the five Autos the students planned for Belding: L-Partner, R-Solo,
+R-Partner-Tip, R-Partner-Preload, R-Solo-Staging. Everything else lives here:
+
+- **The four from before:** `r-simple`, `r-quals`, `l-simple`, `l-quals`, as last run on master.
+- **The partner stand-ins:** `partner-r-still`, `partner-l-still`, `partner-park-1`, `partner-park-2`,
+  `partner-r-launch-park`, `partner-l-launch-park`, for simulating a teammate beside one of ours.
+  No OpModes; their spots are a teammate's, not the team's.
+- **Earlier experiments:** `r-brady`, `r-quals-locked`, `r-quals-pollen-only`, `r-launch-park`,
+  `l-launch-park`, `sister-left-fixed`, `sister-right-fixed`.
+
