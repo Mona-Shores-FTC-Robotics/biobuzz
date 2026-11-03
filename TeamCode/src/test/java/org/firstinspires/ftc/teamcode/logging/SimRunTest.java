@@ -28,8 +28,10 @@ import java.util.regex.Pattern;
  * {"spec": "RSoloAuto@50", "design": "real robot", "seeds": [1, 2, …, 10], "alliance": "RED",
  *  "partnerSeeds": [1, 2, 3, 4, 5],
  *  "partners": [
- *    {"partner": "PartnerLStillAuto"},
- *    {"name": "fires at 5 s", "partner": "PartnerLLaunchParkAuto",
+ *    {"name": "last shot at 8 s", "partner": "PartnerRLaunchParkAuto", "lastShotS": 8},
+ *    {"name": "misses, said 8 s", "partner": "PartnerRLaunchParkAuto", "lastShotS": 8, "fails": "misses"},
+ *    {"name": "dead on its start, said 8 s", "partner": "PartnerRStillAuto", "lastShotS": 8},
+ *    {"name": "a study", "partner": "PartnerLLaunchParkAuto",
  *     "timing": {"startDelayS": 1.5, "speed": 40, "launchS": 0.8, "pickS": 4}}
  *  ],
  *  "metadata": {"SourceCommit": "…"}}
@@ -37,15 +39,22 @@ import java.util.regex.Pattern;
  * Only {@code spec} is required: our Auto and its drive profile ({@code @50}: top speed in in/s; see
  * {@link AutoStudyTest#profile}). Each {@code partners} entry is one more run of the whole seed list with that
  * stand-in (a generated class in {@code opmodes/auto/generated}, its {@code .pp} in {@code TeamCode/autos/partners/})
- * beside us, timed by its {@code timing} ({@link AutoStudyTest.PartnerTiming}: a start delay, a drive speed, seconds
- * per launch volley, seconds at a FLOWER; each optional). An entry may name its own {@code seeds}; otherwise it runs
+ * beside us. The simulator acts as our driver: {@code lastShotS} is the partner's answer to "when does your last
+ * preload leave?", which times the stand-in's launch and sets our Auto's partner wait as the driver would in INIT
+ * ({@link AutoStudyTest.PartnerTiming#derive}). A partner fails in one of two ways, and nothing in between:
+ * {@code "fails": "misses"} (every shot wide, no TIP; it carries on and parks) or dead on its start (a still
+ * stand-in, {@code PartnerRStillAuto} or {@code PartnerLStillAuto}, with {@code lastShotS} still setting our wait).
+ * {@code timing} is the raw override for studies ({@link AutoStudyTest.PartnerTiming}: a start delay, a drive
+ * speed, seconds per launch volley, seconds at a FLOWER; each optional, and each wins over what {@code lastShotS}
+ * derives). An entry may name its own {@code seeds}; otherwise it runs
  * the request's {@code partnerSeeds}, else its {@code seeds}. {@code design} is our robot; an entry's {@code design}
  * is the partner's (ours by default). The older {@code spec} with a comma ({@code "Ours,PartnerAuto@50"}) and
  * {@code partnerDesign}/{@code partnerSpeed} still run as before, as the first entry.
  *
  * <p>{@code result.json} is the first entry's result as it always was ({@code runs}, one per seed), plus
- * {@code entries}: one row per run of every entry ({@link #row}: points, our launches, the TIPs and when, how our
- * first wait ended and when, the first robot collision, whether we parked), with each partner entry's folder.
+ * {@code entries}: one row per run of every entry ({@link #row}: points, our launches, the TIPs and when, the
+ * partner's last shot and our first CellUp, how our first wait ended and when, the first robot collision, whether
+ * we parked), with each partner entry's folder.
  * Each partner entry's full result and logs are in that folder, {@code <partner .pp name>/<timing name>/}
  * ({@code partner-l-launch-park/fires-at-5-s/result.json}). The {@code metadata} entries go on every log's
  * Metadata tab, with the run's spec, designs, partner, timing and seed.
@@ -147,7 +156,7 @@ public class SimRunTest {
                 throw new IllegalArgumentException("no partner stand-in named \"" + cls + "\" in opmodes/auto/generated", x);
             }
             Map<String, Object> timingJson = e.get("timing") instanceof Map ? (Map<String, Object>) e.get("timing") : null;
-            AutoStudyTest.PartnerTiming timing = AutoStudyTest.PartnerTiming.of(timingJson);
+            AutoStudyTest.PartnerTiming timing = AutoStudyTest.PartnerTiming.of(timingJson, e);
             String name = e.get("name") instanceof String && !((String) e.get("name")).isEmpty() ? (String) e.get("name") : timing.slug();
             String designName = e.get("design") instanceof String ? (String) e.get("design") : partnerName;
             List<Object> own = e.get("seeds") instanceof List ? (List<Object>) e.get("seeds") : partnerSeeds;
@@ -235,6 +244,14 @@ public class SimRunTest {
                 }
                 done = true;
             } finally {
+                // Our partner wait, only for an Auto that has one: the last shot sets nothing on any other.
+                boolean hasWait = false;
+                for (Object row : rows) hasWait |= Boolean.TRUE.equals(((Map<?, ?>) row).get("hasPartnerWait"));
+                if (!hasWait) summary.put("partnerWaitUntilS", null);
+                if (entry.timing != null) {
+                    summary.put("partnerDelayS", time(entry.timing.derivedStartDelayS));
+                    summary.put("partnerLaunchS", time(entry.timing.derivedLaunchS));
+                }
                 summary.put("runs", (double) runs.size());
                 summary.put("meanPoints", runs.isEmpty() ? null : points / runs.size());
                 if (!done) {
@@ -256,6 +273,10 @@ public class SimRunTest {
         m.put("partnerSource", entry.partner == null ? null : entry.folder.substring(0, entry.folder.indexOf('/')) + ".pp");
         m.put("timing", entry.timingJson);
         m.put("timingSlug", entry.timing == null ? null : entry.timing.slug());
+        boolean said = entry.timing != null && !Double.isNaN(entry.timing.lastShotS);
+        m.put("lastShotS", said ? entry.timing.lastShotS : null);
+        m.put("partnerWaitUntilS", said ? org.firstinspires.ftc.teamcode.opmodes.auto.AutoRegistration.partnerWaitUntilS(entry.timing.lastShotS) : null);
+        m.put("fails", entry.timing == null ? null : entry.timing.fails);
         return m;
     }
 
@@ -272,9 +293,10 @@ public class SimRunTest {
     }
 
     /**
-     * One line of the results table for a run: AUTO points, our launches (and the partner's), the TIPs and when, how
-     * our Auto's first wait ended ({@link #waits}), the first robot collision and when, and whether we (and the
-     * partner) parked.
+     * One line of the results table for a run: AUTO points, our launches (and the partner's, and how many of either
+     * went at a down CELL), the TIPs and when, when the partner's last shot left and when our CellUp first fired (the
+     * lag between them, seed by seed), how our Auto's first wait ended ({@link #waits}), the first robot collision and
+     * when, and whether we (and the partner) parked.
      */
     static Map<String, Object> row(AutoSim.Result r, long seed, String log) {
         Map<String, Object> m = new LinkedHashMap<>();
@@ -286,12 +308,17 @@ public class SimRunTest {
         m.put("points", (double) r.autoPoints());
         m.put("launched", (double) ours.launched);
         m.put("partnerLaunched", partner == null ? null : (double) partner.launched);
+        m.put("launchedAtDownCell", (double) ours.launchedAtDownCell);
+        m.put("partnerLaunchedAtDownCell", partner == null ? null : (double) partner.launchedAtDownCell);
+        m.put("partnerLastShotAt", partner == null ? null : time(partner.lastShotAt));
         List<Object> tips = new ArrayList<>();
         for (double t : r.tipsAt) tips.add(t);
         m.put("tipsAt", tips);
         m.put("autoTips", (double) r.autoTips());
         List<Object> waits = waits(ours.timeline);
         m.put("wait", waits.isEmpty() ? null : waits.get(0));
+        m.put("firstCellUpAt", firstCellUp(waits));
+        m.put("hasPartnerWait", ours.hasPartnerWait);
         m.put("waits", waits);
         m.put("robotsCollidedAt", time(r.robotsCollidedAt));
         m.put("parked", ours.park);
@@ -304,7 +331,17 @@ public class SimRunTest {
 
     private static final Pattern WAIT_STARTS = Pattern.compile("^\\s*(\\d+\\.\\d+) wait (.+?)(?: \\(holds \\d+\\))?$");
     private static final Pattern WAIT_ENDS = Pattern.compile("^\\s*(\\d+\\.\\d+) (.+?): (.+?) after (\\d+\\.\\d+) s(?: \\(holds \\d+\\))?$");
-    private static final Pattern TIME_ROW = Pattern.compile("^\\d+ ms passed$");
+    private static final Pattern TIME_ROW = Pattern.compile("^\\d+ ms passed$|^\\d+\\.\\d s on the match clock$");
+
+    /** When our first wait ended on CellUp (AutoKit's trace: the row "CellUp"), AUTO seconds; null if none did. */
+    static Object firstCellUp(List<Object> waits) {
+        for (Object o : waits) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> w = (Map<String, Object>) o;
+            if ("CellUp".equals(w.get("outcome"))) return w.get("at");
+        }
+        return null;
+    }
 
     /**
      * Every "Wait for …" card a robot ran, from its timeline (AutoKit's trace: {@code wait <label>}, then
@@ -335,7 +372,9 @@ public class SimRunTest {
                 Map<String, Object> w = open.get(i);
                 if (!w.get("label").equals(end.group(2))) continue;
                 boolean timedOut = TIME_ROW.matcher(end.group(3)).matches();
-                w.put("outcome", timedOut ? "timed out" : end.group(3));
+                // A match-clock limit (AutoKit.atMatchSeconds), the partner wait the driver sets in INIT.
+                boolean partnerWait = end.group(3).endsWith(" on the match clock");
+                w.put("outcome", partnerWait ? end.group(3) : timedOut ? "timed out" : end.group(3));
                 w.put("fired", !timedOut);
                 w.put("after", Double.parseDouble(end.group(4)));
                 w.put("at", Double.parseDouble(end.group(1)));

@@ -181,12 +181,26 @@ public class AutoStudyTest {
     }
 
     /**
-     * How a partner stand-in is timed in a run: the simulate request's {@code "timing"} ({@code {"startDelayS": 3,
-     * "speed": 40, "launchS": 3.5, "pickS": 4}}). Each knob is optional; one left out leaves the robot as ours is
+     * How a partner stand-in is timed in a run. Usually one number, the partner's answer to "when does your last
+     * preload leave?" ({@code "lastShotS": 8} on the request's entry), from which {@link #derive} works out the
+     * stand-in's start delay and volley interval so its last preload leaves at that second, and our Auto's partner
+     * wait is set as the driver would set it ({@code AutoRegistration.partnerWaitUntilS}). {@code "fails": "misses"}
+     * sends every shot wide ({@link AutoSim#misses}). The raw knobs, the request's {@code "timing"}
+     * ({@code {"startDelayS": 3, "speed": 40, "launchS": 3.5, "pickS": 4}}), are an override for studies: each
+     * one given wins over what {@code lastShotS} derives. Each is optional; one left out leaves the robot as ours is
      * (the drive profile of the spec, the design's feed and the robot's FlowerPicker dwell).
      * See {@link AutoSim#startDelay}, {@link AutoSim#speed}, {@link AutoSim#launchSeconds}, {@link AutoSim#pickSeconds}.
      */
     static final class PartnerTiming {
+        /** The partner's last shot as their team said it, seconds after PLAY; NaN: not given. */
+        double lastShotS = Double.NaN;
+        /** The partner fails: "misses" (every shot wide), or null (it works). A dead partner is a still stand-in. */
+        String fails;
+        /** What {@link #derive} worked out from {@link #lastShotS}: the start delay and seconds per volley; NaN: none. */
+        double derivedStartDelayS = Double.NaN;
+        double derivedLaunchS = Double.NaN;
+        /** Whether the knob was given in {@code "timing"}, so it wins over the derivation. */
+        private boolean startDelayGiven;
         /** Seconds after PLAY before the partner's first card; 0 starts with the match. */
         double startDelayS = 0;
         /** Its drive profile, as a spec writes it after {@code @} ("40", "77/65/55"); null for the spec's. */
@@ -197,9 +211,33 @@ public class AutoStudyTest {
         double pickS = Double.NaN;
 
         static PartnerTiming of(java.util.Map<String, Object> json) {
+            return of(json, null);
+        }
+
+        /**
+         * The timing of one request entry: {@code entry}'s {@code lastShotS} and {@code fails} (either may be absent),
+         * and its {@code timing} knobs.
+         */
+        static PartnerTiming of(java.util.Map<String, Object> json, java.util.Map<String, Object> entry) {
             PartnerTiming t = new PartnerTiming();
+            if (entry != null) {
+                Object last = entry.get("lastShotS"), fails = entry.get("fails");
+                if (last != null) {
+                    if (!(last instanceof Number)) throw new IllegalArgumentException("lastShotS must be a number of seconds: " + last);
+                    t.lastShotS = nonNegative("lastShotS", ((Number) last).doubleValue());
+                    if (t.lastShotS > org.firstinspires.ftc.teamcode.autokit.AutoKit.AUTO_LENGTH_S) throw new IllegalArgumentException("lastShotS is past the end of AUTO: " + last);
+                }
+                if (fails != null) {
+                    if (!"misses".equals(fails)) {
+                        throw new IllegalArgumentException("\"fails\" is \"misses\" or absent (a dead partner is a still stand-in,"
+                                + " partner-r-still or partner-l-still): " + fails);
+                    }
+                    t.fails = "misses";
+                }
+            }
             if (json == null) return t;
             Object d = json.get("startDelayS"), v = json.get("speed"), l = json.get("launchS"), k = json.get("pickS");
+            t.startDelayGiven = d instanceof Number;
             if (d instanceof Number) t.startDelayS = nonNegative("startDelayS", ((Number) d).doubleValue());
             if (v instanceof Number) t.speed = checkedSpeed(Double.toString(((Number) v).doubleValue()));
             else if (v instanceof String && !((String) v).isEmpty()) t.speed = checkedSpeed((String) v);
@@ -222,21 +260,69 @@ public class AutoStudyTest {
         }
 
         boolean isDefault() {
-            return startDelayS <= 0 && speed == null && Double.isNaN(launchS) && Double.isNaN(pickS);
+            return startDelayS <= 0 && speed == null && Double.isNaN(launchS) && Double.isNaN(pickS)
+                    && Double.isNaN(lastShotS) && fails == null;
         }
 
-        /** Sets the knobs on the robot {@code sim} is configuring (the partner just added). */
+        /**
+         * Seconds per volley that {@link #derive} goes no faster than: the feeder cannot push four pieces through
+         * in much less (a whole LaunchAll feed is {@code LaunchCards.launchAllFeedS}).
+         */
+        static final double FASTEST_VOLLEY_S = 0.2;
+
+        /**
+         * Works out, from {@link #lastShotS}, the start delay and seconds per volley that make a stand-in that
+         * launches its preloads at once from PLAY ({@code partner-r-launch-park}: its CELL is up at the start) send
+         * its last one at that second: the spin-up ({@link RobotDesign#spinUpS}), then a volley every interval. At
+         * the design's own interval if that is soon enough, starting late by the difference; else faster, from
+         * PLAY. A stand-in that waits for its CELL first ({@code partner-l-…}: its CELL rises with our TIP) fires
+         * no sooner than that, so its last shot can come later than asked: the results table shows when it did.
+         * Does nothing for a stand-in with no LaunchAll, or with {@code lastShotS} absent.
+         */
+        void derive(Class<?> partner, RobotDesign design) {
+            derivedStartDelayS = Double.NaN;
+            derivedLaunchS = Double.NaN;
+            if (Double.isNaN(lastShotS) || !launches(partner)) return;
+            int volleys = (FieldSim.PRELOAD_POLLEN + design.launchers - 1) / design.launchers;
+            int gaps = Math.max(0, volleys - 1);
+            double interval = Double.isNaN(launchS) ? design.shotIntervalS : launchS;
+            double natural = design.spinUpS + gaps * interval;
+            if (lastShotS >= natural || gaps == 0) {
+                derivedStartDelayS = Math.max(0, lastShotS - natural);
+                derivedLaunchS = interval;
+            } else {
+                derivedStartDelayS = 0;
+                derivedLaunchS = Math.max(FASTEST_VOLLEY_S, (lastShotS - design.spinUpS) / gaps);
+            }
+        }
+
+        /** Whether the stand-in's Auto uses LaunchAll. */
+        static boolean launches(Class<?> partner) {
+            try {
+                return java.util.Arrays.asList((String[]) partner.getField("COMMANDS").get(null)).contains("LaunchAll");
+            } catch (ReflectiveOperationException e) {
+                return false;
+            }
+        }
+
+        /** Sets the knobs on the robot {@code sim} is configuring (the partner just added); a given knob wins over a derived one. */
         void apply(AutoSim sim, double[] fallbackProfile) {
             double[] pr = speed == null ? fallbackProfile : profile(speed);
             sim.speed(pr[0], pr[1], pr[2]);
-            if (startDelayS > 0) sim.startDelay(startDelayS);
-            if (!Double.isNaN(launchS)) sim.launchSeconds(launchS);
+            double delay = startDelayGiven || Double.isNaN(derivedStartDelayS) ? startDelayS : derivedStartDelayS;
+            double launch = !Double.isNaN(launchS) || Double.isNaN(derivedLaunchS) ? launchS : derivedLaunchS;
+            if (delay > 0) sim.startDelay(delay);
+            if (!Double.isNaN(launch)) sim.launchSeconds(launch);
             if (!Double.isNaN(pickS)) sim.pickSeconds(pickS);
+            if ("misses".equals(fails)) sim.misses();
         }
 
         /** The knobs in words, for a folder name or a table: {@code start3s-speed40-launch3.5s}; "default" with none. */
         String slug() {
             StringBuilder b = new StringBuilder();
+            if (!Double.isNaN(lastShotS)) b.append("last").append(num(lastShotS)).append("s");
+            if (fails != null) b.append(b.length() > 0 ? "-" : "").append(fails);
+            if (startDelayS > 0) b.append(b.length() > 0 ? "-" : "");
             if (startDelayS > 0) b.append("start").append(num(startDelayS)).append("s");
             if (speed != null) b.append(b.length() > 0 ? "-" : "").append("speed").append(speed.replace('/', '_'));
             if (!Double.isNaN(launchS)) b.append(b.length() > 0 ? "-" : "").append("launch").append(num(launchS)).append("s");
@@ -360,6 +446,11 @@ public class AutoStudyTest {
         String[] autos = sides[0].split(",");
         Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, profile[1], profile[2]).design(design);
+        // The partner's last shot as their team said it: our driver enters it in INIT, and our partner wait ends that
+        // plus the TIP lag later (master's AutoRegistration; BuiltAuto).
+        if (timing != null && !Double.isNaN(timing.lastShotS)) {
+            sim.partnerWaitUntil(org.firstinspires.ftc.teamcode.opmodes.auto.AutoRegistration.partnerWaitUntilS(timing.lastShotS));
+        }
         // The drive team's NECTAR into the LOADING ZONE after each TIP (G426) is on by default, for both alliances
         // (team decision, 10 Oct 2026). BIOBUZZ_AUTO_HUMAN_NECTAR=0 turns it off for a comparison.
         if ("0".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_NECTAR"))) sim.humanNectar(false);
@@ -378,7 +469,10 @@ public class AutoStudyTest {
             double[] pProfile = Double.isNaN(partnerSpeed) ? profile : profile(Double.toString(partnerSpeed));
             Class<?> second = Class.forName(PKG + autoName(autos[1]));
             sim.alsoRun(second).speed(pProfile[0], pProfile[1], pProfile[2]).design(partnerDesign == null ? design : partnerDesign);
-            if (timing != null) timing.apply(sim, pProfile);
+            if (timing != null) {
+                timing.derive(second, partnerDesign == null ? design : partnerDesign);
+                timing.apply(sim, pProfile);
+            }
             if (cameraDown(autos[1])) sim.cameraDown();
             // The reference partner that only leaves and parks sets its preloads out for us (mentor review).
             double[][] staged = stagedFor(second);

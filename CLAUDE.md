@@ -27,7 +27,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
 | `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time or until a time on the match clock, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. A step's own time limit (a command's timeout, a `firstOf`'s "at most") never cuts a feed once it has started: it guards the wait for spin-up, and the feed runs `LaunchCards`' set time, the one number for it. A path card ends at Pedro's path end with the robot still rolling, and the kit never adds a settle: a launch waits for `PathEndSettle`, a grab for its own lighter hand-over speed (`GrabRoutine`). A path card right before a grab card runs the grab's `AutoRegistry.Approach` while it drives (the FLOWER pick's lowers the stick over the last 18 in), so never add a stick card to an Auto or a settle to the kit. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
-| `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`, which passes the generated `OPTIONS`: what the drive team may change in INIT on gamepad 1's D-pad (`InitOptions`: the PARK spot, the partner's TIP time), drawn in the Visualizer, never a hand-written flag. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
+| `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`, which passes the generated `OPTIONS`: what the drive team may change in INIT on gamepad 1's D-pad (`InitOptions`: the PARK spot, and the partner's last shot, the one number we ask a partner; the Auto's partner wait ends `AutoRegistration.PARTNER_TIP_LAG_S` after it and the DS shows both numbers, never only the sum), drawn in the Visualizer, never a hand-written flag. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
 | `launcher2/` | **Test rig**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy its pattern into robot code. |
 
@@ -136,7 +136,10 @@ by hand.
 it runs master's generated Autos as they are. It knows one robot, the real one, in four variants
 (`RobotDesign.real`: turret or locked forward, POLLEN + NECTAR or POLLEN only); a number master
 states (frame, FLOWER stick, feed) is read from master's code, never copied, and the rest is a
-placeholder until a match log measures it. Its points are shown, never enforced: no test fails an
+placeholder until a match log measures it. It acts as the driver: a partner entry gives
+`lastShotS`, which times the stand-in and sets our partner wait, and a partner fails only by
+`"fails": "misses"` or by being dead on its start (a still stand-in). Its LaunchAll fires as the
+robot's does, at our CELL at its end whether up or not. Its points are shown, never enforced: no test fails an
 Auto for scoring less. Only `SimulatorSmokeTest` runs by default; every other simulator test is
 opt-in by environment variable, so CI stays fast. The "Simulate Auto" workflow runs a saved request
 (an Auto's own `TeamCode/sim-requests/<name>.json` on the fast lane, else `TeamCode/sim-request.json`) on

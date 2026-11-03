@@ -53,8 +53,11 @@ Partners are then simulated in exactly three states, nothing in between:
 happen, and planning for it would hide the margin we chose to make visible. The simulator keeps
 the TIP lag's spread, which is physics, not the partner's honesty.
 
-Until this is built (the follow-up to PR #385), the request's `timing` knobs set the stand-in by
-hand and our wait is whatever the Auto says; read those results with that in mind.
+Built in the follow-up to PR #385: a request's partner entry gives `lastShotS`, and
+`"fails": "misses"` or a still stand-in for the two failures (`TeamCode/autos/README.md` has the
+curation, `SimRunTest` the format). The raw `timing` knobs stay as an override for studies. On the
+robot the number goes in on gamepad 1's D-pad in INIT (`InitOptions`), and the TIP lag is
+`AutoRegistration.PARTNER_TIP_LAG_S` (4 s), also `partnerTipLagS` in `TeamCode/autos/timing.json`.
 
 ## LaunchAll does what it is told
 
@@ -66,8 +69,9 @@ wait for something the Auto never asked about, and the preview could no longer s
 The wait card is the decision; the launch card launches.
 
 The simulator used to differ here (its `LaunchAll` held fire until a CELL was up and in range, so
-a late partner's TIP let it score where the robot would have wasted four). Making the simulated
-card fire like the robot's is part of the follow-up.
+a late partner's TIP let it score where the robot would have wasted four). Since the follow-up it
+fires like the robot's, at our CELL at the robot's end, up or not, and the results table counts
+the pieces fired at a down CELL.
 
 ## One Otherwise per Auto, spent wisely
 

@@ -24,35 +24,35 @@
   "alliance": "RED",
   "partners": [
     {
-      "name": "lands at 2 s",
+      "name": "last shot at 2 s",
       "partner": "PartnerRLaunchParkAuto",
-      "timing": {
-        "launchS": 0.3
-      }
+      "lastShotS": 2
     },
     {
-      "name": "lands at 5 s",
+      "name": "last shot at 5 s",
       "partner": "PartnerRLaunchParkAuto",
-      "timing": {
-        "startDelayS": 1.5,
-        "launchS": 0.8
-      }
+      "lastShotS": 5
     },
     {
-      "name": "lands at 8 s",
+      "name": "last shot at 8 s",
       "partner": "PartnerRLaunchParkAuto",
-      "timing": {
-        "startDelayS": 4,
-        "launchS": 1.0
-      }
+      "lastShotS": 8
     },
     {
-      "name": "lands at 12 s",
+      "name": "last shot at 12 s",
       "partner": "PartnerRLaunchParkAuto",
-      "timing": {
-        "startDelayS": 8,
-        "launchS": 1.0
-      }
+      "lastShotS": 12
+    },
+    {
+      "name": "misses, said 8 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 8,
+      "fails": "misses"
+    },
+    {
+      "name": "dead on its start, said 8 s",
+      "partner": "PartnerRStillAuto",
+      "lastShotS": 8
     }
   ],
   "metadata": {

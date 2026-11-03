@@ -26,34 +26,28 @@
   "alliance": "RED",
   "partners": [
     {
-      "name": "slow 35",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 35,
-        "launchS": 1.2,
-        "pickS": 4
-      }
-    },
-    {
-      "name": "typical 50",
+      "name": "on time, typical 50 in/s",
       "partner": "PartnerLTipParkAuto",
       "timing": {
         "speed": 50
       }
     },
     {
-      "name": "fast 65",
+      "name": "misses",
       "partner": "PartnerLTipParkAuto",
+      "fails": "misses",
       "timing": {
-        "speed": 65,
-        "launchS": 0.6,
-        "pickS": 2
+        "speed": 50
       }
+    },
+    {
+      "name": "dead on its start",
+      "partner": "PartnerLStillAuto"
     }
   ],
   "metadata": {
     "AutoSource": "r-partner-tip.pp",
-    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor)",
+    "SavedBy": "partner curation (Claude, 3 Nov 2026: on time, missing, dead; to be corrected by the mentor)",
     "SavedAt": "2026-11-03T20:00:00+00:00"
   }
 }

@@ -45,6 +45,11 @@
       "value": 4,
       "source": "estimate",
       "note": "4 POLLEN if every shot lands; lower it for misses."
+    },
+    "partnerTipLagS": {
+      "value": 4.0,
+      "source": "estimate",
+      "note": "Partner's last shot to our CELL seen up: flight, dwell, swing, camera; 1.5-5 s in the simulator."
     }
   }
 }

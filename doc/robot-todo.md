@@ -75,8 +75,9 @@ gap with `tools/pull-logs/read_logs.py`; don't widen past 11.8 in (half of 23.6)
 Result, with the gap on each own-start run, → [PR #372].
 
 - [ ] **INIT options, L-Partner on Red far wall:** gamepad 1 D-pad right, then up three times.
-      **Good:** one line `Park ◀▶: RIGHT_PARK · partner TIP ▲▼ 10 s, wait to 11 s`, amber; left and
-      down three times turn it back green, as drawn (LEFT_PARK, TIP 7 s, wait to 8 s); nothing else on
+      **Good:** one line `Park ◀▶: RIGHT_PARK · partner's last shot ▲▼ 7 s, waiting until 11 s`,
+      amber; left and down three times turn it back green, as drawn (LEFT_PARK, last shot 4 s,
+      waiting until 8 s); nothing else on
       the robot reacts to gamepad 1's D-pad in INIT. **Stop:** the line does not change, or something
       else moves → save the match log. [PR #391]
 - [ ] **No Pinpoint warning** at a normal Auto INIT. **Good:** none listed. [PR #369]
@@ -136,25 +137,24 @@ These gate Belding. Run each from its start, alliance from §2.
       aims at from its end of the field (`AutoRegistration.aimedLeft`). [PR #377]
 - [ ] **TIP lag, from the same runs' logs:** seconds from the partner's (or R-Partner-Tip's own)
       last preload leaving the launcher (the feed's end) to the CellUp trigger. **Good:** 1.5–5 s,
-      the simulator's range; write the number into `doc/partner-timing.md` as the margin the driver's
-      partner wait adds. **Stop:** more than 5 s → the HIVE dwell is longer than filmed; record the
-      load in the CELL. [PR #387]
+      the simulator's range (it read 0.7–1.2 s with four preloads on the starting NECTAR); a few runs
+      agree → that number replaces the 4 s estimate in `AutoRegistration.PARTNER_TIP_LAG_S` and
+      `partnerTipLagS` in `TeamCode/autos/timing.json`, together. **Stop:** more than 5 s → the HIVE
+      dwell is longer than filmed; record the load in the CELL. [PR #387], [branch claude/funny-goldberg-w0lyw7]
 - [ ] **The other park:** L-Partner with RIGHT_PARK picked in INIT, then R-Solo with LEFT_PARK.
       **Good:** it parks on the picked spot, inside the LOADING ZONE, touching nothing on the way.
       **Stop:** it touches the HIVE → note where (log pose); that park comes out of the Auto's INIT
       choices until its path is bent in the Visualizer. [PR #391]
-- [ ] **L-Partner's TIP wait on the match clock:** partner TIP set to 10 s in INIT, nobody tips.
+- [ ] **L-Partner's TIP wait on the match clock:** partner's last shot set to 7 s in INIT (waiting
+      until 11 s), nobody tips.
       **Good:** the trace shows `Wait for TIP or CELL up: 11.0 s on the match clock` about 11 s into
       the match, then the no-TIP route. **Stop:** it ends at 8 s or counts from its arrival → save
       the log. [PR #391]
-- [ ] **Early park from L-Partner's no-TIP route:** nobody tips, partner TIP set late (15 s or more)
+- [ ] **Early park from L-Partner's no-TIP route:** nobody tips, partner's last shot set late (11 s or more)
       so time runs short at RIGHT_LAUNCH_CATCH or WALL_FLOWER_STAGING; once with each park.
       **Good:** "parking from the spot the robot is on", the park from RIGHT_LAUNCH_CATCH bending west
       of the Red HIVE, parked by 30 s. **Stop:** it touches the HIVE → note the pose; bend that park
       (P on the step) in the Visualizer. [PR #391]
-- [ ] **The TIP margin, from the logs:** on a run with a real tip, the time from the CELL's swing
-      starting (the `HIVE (…): TRANSITION` event) to the wait ending on `CellUp`. **Good:** a few
-      runs agree → it replaces the 1 s placeholder `InitOptions.TIP_SEEN_MARGIN_S`. [PR #391]
 - [ ] **PickFlower squares up** from a crooked arrival. **Good:** it turns square before it pushes.
       [PR #313]
 - [ ] **A launch's time limit never cuts a feed;** the Auto graphs the launcher in Panels. **Good:**

@@ -973,6 +973,17 @@ once, a trigger that never fires), shown on the Driver Station at INIT, so an Au
 finished robot runs on today's robot as a timed script. `auto-registry.json` is the same list for
 the editor; `AutoRegistrationTest` keeps the two in step.
 
+**The partner wait.** Teams are asked one number: "when does your last preload leave?". The driver
+enters it during an Autonomous's INIT with gamepad 1's D-pad up/down (`InitOptions`, 1 s a press;
+left/right picks the park). The Auto's one wait drawn "until the match clock reads …" and offered
+in INIT (`AutoOption.matchSeconds`, exported as `kit.atMatchSeconds(kit.seconds(...))`) then ends
+at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 4 s for the shot's flight, the dwell
+before the rocker moves, the swing and the camera settling (1.5 to 5 s in the simulator's model).
+`partnerTipLagS` in `TeamCode/autos/timing.json` is the same number, and `PartnerWaitTest` keeps the
+two equal. The Match page shows both numbers, never only the sum: "partner's last shot ▲▼ 8 s,
+waiting until 12 s". Nothing entered, the wait runs as drawn. It is still a time limit: a feed that
+has started finishes first. L-Partner's "Wait for TIP or CELL up" is the one partner wait on master.
+
 `autokit` depends only on Ivy and Pedro, so `AutoKitTest` runs every card through Ivy's real
 `Scheduler` against a fake drivetrain, on a laptop.
 
@@ -995,15 +1006,35 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
 
   `{"spec": "RSoloAuto@50", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}` (the
   number after `@` is our speed, in/s). The folder gets `result.json` and one `.wpilog` per seed.
-- **Partners.** The request's `"partners"` list runs the Auto again beside each stand-in from
-  `TeamCode/autos/partners/` at a timing: `{"name": "fires in 5 s", "partner":
-  "PartnerLLaunchParkAuto", "timing": {"startDelayS": 3, "speed": 40, "launchS": 1.6, "pickS": 4}}`
-  (each knob optional: seconds before its first card, its drive profile, seconds per launch
-  volley, seconds at a FLOWER; `AutoSim.startDelay`, `speed`, `launchSeconds`, `pickSeconds`).
-  Each partner run gets its own folder, `<partner .pp name>/<timing name>/`, with its
+- **Partners: the simulator acts as the driver.** The request's `"partners"` list runs the Auto
+  again beside each stand-in from `TeamCode/autos/partners/`, told the one number a team gives:
+  `{"name": "last shot at 8 s", "partner": "PartnerRLaunchParkAuto", "lastShotS": 8}`. From it
+  `AutoStudyTest.PartnerTiming.derive` works out the stand-in's start delay and seconds per volley
+  so its last preload leaves at that second (the spin-up, then a volley every interval: at the
+  robot's own interval starting late, or faster from PLAY), and our Auto's partner wait is set as
+  the driver would set it: the simulator hands the generated Auto the same INIT pick
+  (`AutoKit.Picks`) that `InitOptions` does on the robot. A left stand-in fires only once its CELL is up, so its last shot can
+  come later than asked; the table shows when it did.
+- **A partner fails in two ways, nothing in between.** `"fails": "misses"`: every shot goes
+  `AutoSim.MISS_WIDE_IN` to the side of the CELL, so it causes no TIP, and it carries on with its
+  Auto and parks on schedule. Dead on its start: a still stand-in (`PartnerRStillAuto`,
+  `PartnerLStillAuto`), with `lastShotS` still setting our wait, as their team would have said it.
+  "Later than they said" is not modelled (mentor, 3 Nov 2026).
+- **The raw knobs stay, for studies:** `"timing": {"startDelayS": 3, "speed": 40, "launchS": 1.6,
+  "pickS": 4}` (each optional: seconds before its first card, its drive profile, seconds per
+  launch volley, seconds at a FLOWER; `AutoSim.startDelay`, `speed`, `launchSeconds`,
+  `pickSeconds`); one given wins over what `lastShotS` derives.
+- **A LaunchAll fires as the robot's does.** `LaunchCards.launchAll` feeds for `launchAllFeedS`
+  once spun up and settled, whatever the CELL and the range, and the turret aims at our CELL at
+  the robot's end of the field (`TurretAimer`). So the simulated LaunchAll fires there, up or not,
+  from any range: a shot at a down CELL is a wasted preload, counted in the results, where it
+  used to hold fire and time out holding 4. StreamOn, which master's Autos do not use, still holds
+  fire for a raised CELL in range.
+- **Results.** Each partner run gets its own folder, `<partner .pp name>/<timing name>/`, with its
   `result.json` and logs, and the top `result.json` carries `entries`: one row per run with the
-  points, our launches, the TIPs and when, how our first wait ended and when, the first robot
-  collision and whether we parked. Which partners each Auto runs with is in
+  points, our launches (and how many went at a down CELL), the TIPs and when, the partner's last
+  shot and our first CellUp (the TIP lag, seed by seed), how our first wait ended and when, the
+  first robot collision and whether we parked. Which partners each Auto runs with is in
   `TeamCode/autos/README.md`.
 - **From the Visualizer**, Save & Simulate to `master` commits the `.pp`, its Java and the Auto's
   own `TeamCode/sim-requests/<name>.json` to an `auto/<name>` branch and opens a pull request that
