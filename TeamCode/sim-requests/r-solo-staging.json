@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-solo-staging.pp",
-  "spec": "RSoloStagingAuto,PartnerLStillAuto@50",
+  "spec": "RSoloStagingAuto",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,

@@ -970,9 +970,11 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   BIOBUZZ_SIM_RUN=/path/to/folder ./gradlew :TeamCode:testDebugUnitTest --tests '*SimRunTest*' --rerun
   ```
 
-  `{"spec": "RQualsAuto", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}`; a
-  partner runs beside it as `"RQualsAuto,LSimpleAuto@50"` (the number is its speed, in/s). The
-  folder gets `result.json` and one `.wpilog` per seed.
+  `{"spec": "RSoloAuto", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}`; a
+  partner runs beside it as `"RSoloAuto,PartnerLStillAuto@50"` (the number is its speed, in/s),
+  where the partner is any generated class on the checkout: the stand-ins live on the
+  `autos-experiment` branch (`TeamCode/autos/BENCH.md`). The folder gets `result.json` and one
+  `.wpilog` per seed.
 - **From the Visualizer**, Save & Simulate to `master` commits the `.pp`, its Java and the Auto's
   own `TeamCode/sim-requests/<name>.json` to an `auto/<name>` branch and opens a pull request that
   merges itself once CI passes (the fast lane, `.github/CONTRIBUTING.md`). The "Simulate Auto"
@@ -980,7 +982,7 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   and typical logs to the `sim-results` branch, where the Visualizer reads them back.
 - **Its points are shown, never enforced.** No test fails an Auto for scoring less: when time is
   short, a check like that could keep a needed fix off the robot (31 Oct 2026). Only
-  `SimulatorSmokeTest` (one seed of R-Quals, about a second) runs with the unit tests; the other
+  `SimulatorSmokeTest` (one seed of R-Solo, about a second) runs with the unit tests; the other
   simulator tests are opt-in by environment variable, so CI stays fast.
 
 The simulator grew on the `claude/simulator` branch, with 88 what-if robot designs; it came to
