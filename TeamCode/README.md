@@ -980,7 +980,7 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   and typical logs to the `sim-results` branch, where the Visualizer reads them back.
 - **Its points are shown, never enforced.** No test fails an Auto for scoring less: when time is
   short, a check like that could keep a needed fix off the robot (31 Oct 2026). Only
-  `SimulatorSmokeTest` (one seed of R-Quals, about a second) runs with the unit tests; the other
+  `SimulatorSmokeTest` (one seed of R-Solo, about a second) runs with the unit tests; the other
   simulator tests are opt-in by environment variable, so CI stays fast.
 
 The simulator grew on the `claude/simulator` branch, with 88 what-if robot designs; it came to
