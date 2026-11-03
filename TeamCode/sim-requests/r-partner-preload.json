@@ -47,7 +47,7 @@
     },
     {
       "name": "stays out of the way",
-      "partner": "PartnerLStillAuto"
+      "partner": "PartnerStillAuto"
     }
   ],
   "metadata": {

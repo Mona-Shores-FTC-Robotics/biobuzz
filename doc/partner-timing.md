@@ -49,6 +49,9 @@ Partners are then simulated in exactly three states, nothing in between:
    and parks on schedule. This is the case that moves through the field while we are deciding.
 3. **Dead on its start.** It never moves (`partner-r-broken-down`, `partner-l-broken-down`, on the start it was meant to leave).
 
+A partner that breaks down partway through its route is not modelled either (mentor, 3 Nov 2026):
+when a teammate's robot goes wrong it usually does not move at all, which is case 3.
+
 "Later than they said" is deliberately not modelled: we can never make that collision not
 happen, and planning for it would hide the margin we chose to make visible. The simulator keeps
 the TIP lag's spread, which is physics, not the partner's honesty.

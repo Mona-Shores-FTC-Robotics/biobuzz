@@ -46,12 +46,12 @@
     },
     {
       "name": "stays out of the way",
-      "partner": "PartnerLStillAuto"
+      "partner": "PartnerStillAuto"
     }
   ],
   "metadata": {
     "AutoSource": "r-partner-tip.pp",
-    "SavedBy": "partner curation (Claude, 3 Nov 2026: on time, missing, dead; to be corrected by the mentor)",
-    "SavedAt": "2026-11-03T20:00:00+00:00"
+    "SavedBy": "partner curation (Claude, 3 Nov 2026: on time, missing, dead; to be corrected by the mentor; re-simulated with the out-of-the-way still and broken-down partners, #396)",
+    "SavedAt": "2026-11-03T21:40:00+00:00"
   }
 }
