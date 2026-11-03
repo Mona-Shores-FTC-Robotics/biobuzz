@@ -62,7 +62,7 @@ import org.firstinspires.ftc.teamcode.util.WelfordVariance;
  *   <li><b>Back</b> — reset the loop statistics.
  * </ul>
  */
-@Utility(name = "Loop Time Baseline", description = "How long a loop takes with everything running; measure before and after a change")
+@Utility(name = "Check: Loop Time", description = "How long a loop takes with everything running; measure before and after a change")
 public class LoopTimeBaseline extends LinearOpMode {
 
     /**
@@ -97,13 +97,13 @@ public class LoopTimeBaseline extends LinearOpMode {
         Mecanum drivetrain = tryCreateDrivetrain();
         Localizer localizer = tryCreateLocalizer();
 
-        telemetry.addLine("Loop Time Baseline");
+        telemetry.addLine("Check: Loop Time");
         telemetry.addData("Drivetrain", drivetrain == null ? "UNAVAILABLE" : "ready");
         telemetry.addData("Localizer", localizer == null ? "UNAVAILABLE" : "ready");
         if (drivetrain == null || localizer == null) {
             telemetry.addLine();
             telemetry.addLine("Missing hardware is not fatal here - the loop is still measurable.");
-            telemetry.addLine("Run Validate Hardware to find out what is not configured.");
+            telemetry.addLine("Run Check: Hardware to find out what is not configured.");
         }
         telemetry.update();
 

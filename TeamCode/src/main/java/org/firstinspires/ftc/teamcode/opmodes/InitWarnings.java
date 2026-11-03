@@ -41,6 +41,14 @@ public final class InitWarnings {
         COLOR_SENSOR
     }
 
+    /**
+     * The camera may see tags this long after INIT without one fix landing on the declared start
+     * before that is a warning: the robot is on another start, or the Auto picked is the other
+     * side's (an L Auto on the R mark, 2 Nov 2026, said nothing). A fix lands on the right start
+     * within a second when the robot is on it.
+     */
+    public static final long START_GRACE_MS = 10_000;
+
     /** The camera may take this long after INIT to send its first frame before that is a warning. */
     public static final long FIRST_FRAME_GRACE_MS = 15_000;
 
@@ -78,18 +86,33 @@ public final class InitWarnings {
                          long msSinceInit, double batteryVolts, double lowBatteryVolts,
                          boolean colorSensorSilent) {
         evaluate(pinpointProblem, alliance, cameraSees, start, cameraProblem, cameraFrames,
-                msSinceInit, batteryVolts, lowBatteryVolts, colorSensorSilent, null, null);
+                msSinceInit, batteryVolts, lowBatteryVolts, colorSensorSilent, false);
     }
 
     /**
-     * As above, and the start the camera puts the robot on when it is a known start that is not
-     * this Auto's ({@code onOtherStart}, else null), with this Auto's start for that alliance
-     * ({@code thisAutosStart}), so the warning says where to move or which Auto to pick.
+     * As above, and {@code tagsInView}: the camera sees enough tags for a fix now. With tags in
+     * view and still no fix on the declared start {@link #START_GRACE_MS} after INIT, the robot is
+     * not on that start.
      */
     public void evaluate(String pinpointProblem, Alliance alliance, Alliance cameraSees,
                          StartCheck.Result start, String cameraProblem, long cameraFrames,
                          long msSinceInit, double batteryVolts, double lowBatteryVolts,
-                         boolean colorSensorSilent, StartPosition onOtherStart, StartPosition thisAutosStart) {
+                         boolean colorSensorSilent, boolean tagsInView) {
+        evaluate(pinpointProblem, alliance, cameraSees, start, cameraProblem, cameraFrames,
+                msSinceInit, batteryVolts, lowBatteryVolts, colorSensorSilent, tagsInView, null, null);
+    }
+
+    /**
+     * As above, and the start the camera puts the robot on when it is a known start that is not
+     * this Auto's ({@code onOtherStart}, else null), with this Auto's start for the alliance PLAY
+     * will use ({@code thisAutosStart}), so the warning says which Auto to pick or where to move.
+     * Naming the start replaces the plain "Not on the start": one warning for one mistake.
+     */
+    public void evaluate(String pinpointProblem, Alliance alliance, Alliance cameraSees,
+                         StartCheck.Result start, String cameraProblem, long cameraFrames,
+                         long msSinceInit, double batteryVolts, double lowBatteryVolts,
+                         boolean colorSensorSilent, boolean tagsInView,
+                         StartPosition onOtherStart, StartPosition thisAutosStart) {
         for (int i = 0; i < KINDS.length; i++) {
             what[i] = null;
             action[i] = null;
@@ -99,10 +122,10 @@ public final class InitWarnings {
             set(Kind.PINPOINT, "Pinpoint: " + pinpointProblem, "reseat the Pinpoint cables, restart");
         }
         if (!known(alliance)) {
-            set(Kind.ALLIANCE, "No alliance", "press X for blue, B for red");
+            set(Kind.ALLIANCE, "No alliance", "press Square for blue, Circle for red");
         } else if (known(cameraSees) && cameraSees != alliance) {
             set(Kind.ALLIANCE, alliance + ", but camera sees " + cameraSees + " start",
-                    "press " + (cameraSees == Alliance.BLUE ? "X for blue" : "B for red")
+                    "press " + (cameraSees == Alliance.BLUE ? "Square for blue" : "Circle for red")
                             + ", or move to the " + alliance + " start");
         }
         if (onOtherStart != null) {
@@ -113,6 +136,10 @@ public final class InitWarnings {
         if (start != null && start.status == StartCheck.Status.OUT_OF_POSITION) {
             set(Kind.OFF_MARK, String.format(Locale.US, "%.0f in off the start mark", start.errorIn),
                     "move robot to start position");
+        } else if (onOtherStart == null && start != null && start.status == StartCheck.Status.UNCONFIRMED && tagsInView
+                && cameraProblem == null && msSinceInit >= START_GRACE_MS) {
+            set(Kind.OFF_MARK, "Not on the " + start.start + " start",
+                    "check the Auto (L or R) and move the robot onto its mark");
         }
         if (cameraProblem != null) {
             set(Kind.CAMERA_NOT_ANSWERING, "Camera: " + cameraProblem, REPLUG);

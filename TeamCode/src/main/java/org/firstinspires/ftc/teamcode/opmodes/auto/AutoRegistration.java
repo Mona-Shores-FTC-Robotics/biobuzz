@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.controls.MatchSetup;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
 import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
@@ -48,7 +49,11 @@ import java.util.function.Function;
  * Both are registered as grabs ({@code AutoRegistry.grab}): they drive the robot off its spot and
  * back (a FLOWER pick squares up first, onto the FLOWER's line, and comes back to that squared-up
  * spot, not the drawn one: {@link FlowerPicker}), so the endgame guard never cuts one and does not start one unless its typical time (the
- * gather's 6 s allows for a long drive in and back) and the park both fit.
+ * gather's 6 s allows for a long drive in and back) and the park both fit. {@code PickFlower} also
+ * has an approach ({@code AutoRegistry.Approach}, {@link FlowerPicker#approach}): the path card
+ * right before it lowers the stick over its last 18 in, so the pick's stick wait is over when the
+ * card starts. {@code GardenGather} has none yet: its stick came down on the wall when swung early
+ * in the corner (30 Oct 2026), so it still lowers it from its own card.
  *
  * <p>{@code SpinUp}, {@code LaunchAll}, {@code LaunchOne} and {@code Empty} are real since the
  * launcher and feeder landed (#194): see {@link LaunchCards}, including what {@code Empty} means
@@ -74,6 +79,18 @@ import java.util.function.Function;
  *       not finish ({@link HiveTracker#assumed()}): taken as it stands, and held only until the
  *       camera next sees the HIVE settle.</li>
  * </ul>
+ *
+ * <h2>CellUp</h2>
+ *
+ * <p>The one wait the Simple builder offers, as "Wait for TIP" (mentor, 3 Nov 2026): the CELL this
+ * robot is aimed at is up. True at once if it already is, so an Auto that arrives at a launch spot
+ * with its CELL up fires without waiting; otherwise the wait holds until the camera sees that CELL
+ * settle up, or the step's time limit passes. Which CELL is a pose question: with the turret at
+ * home the robot fires straight ahead, so it is our HIVE's CELL at the robot's end of the field
+ * ({@link #aimedLeft}). What "up" means is {@code LeftCellUp}/{@code RightCellUp} below, from the
+ * tracker, which the camera updates whenever it sees the HIVE settle; at a launch spot it is
+ * looking at it. {@code Tip}, {@code LeftCellUp} and {@code RightCellUp} stay registered for the
+ * benched Autos that use them.
  *
  * <h2>Tip</h2>
  *
@@ -125,8 +142,10 @@ public final class AutoRegistration {
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
                 // the pick spot an Auto drives to and ends back there (FlowerPicker's contract). Its
                 // typical time plans for the dwell's 2 s cap, not its usual 1.0-1.3 s, so the endgame
-                // guard keeps time for a slow pick.
-                .grab("PickFlower", 4.5, () -> FlowerPicker.command(robot, note))
+                // guard keeps time for a slow pick. The drive before it lowers the stick on the way
+                // in (its approach), so the pick's stick wait is over when the card starts.
+                .grab("PickFlower", 4.5, () -> FlowerPicker.command(robot, note),
+                        robot == null ? null : FlowerPicker.approach(robot, note))
                 // ---- real: the GARDEN gather, the same routine as the driver's GARDEN gather button. It drives in
                 // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract).
                 .grab("GardenGather", 6.0, () -> GardenGather.command(robot, note))
@@ -136,6 +155,10 @@ public final class AutoRegistration {
                 // ---- real: the camera, through our HIVE's tracker. See the class comment.
                 .trigger("LeftCellUp", () -> cellUp(ourHive(robot, setup), true))
                 .trigger("RightCellUp", () -> cellUp(ourHive(robot, setup), false))
+                // ---- real: the CELL this robot is aimed at is up, the Simple builder's "Wait for TIP":
+                // true at once if it already is, else when the camera sees it settle up. See the class
+                // comment.
+                .trigger("CellUp", () -> aimedCellUp(robot, setup))
                 // Our HIVE has tipped since this wait began: one of our CELLs is now settled opposite
                 // to where it was last known to rest (seeded at an Auto's PLAY). See the class
                 // comment. Mid-tip detection (tags vanishing while the robot holds still) is #173's.
@@ -151,6 +174,27 @@ public final class AutoRegistration {
     static boolean cellUp(HiveTracker hive, boolean left) {
         if (hive == null) return false;
         return left ? hive.leftCellUp() : hive.rightCellUp();
+    }
+
+    /**
+     * {@code CellUp}: the CELL this robot is aimed at is up. With the turret at home the robot fires
+     * straight ahead, so from its end of the field it can only be aimed at our HIVE's CELL at that
+     * end: {@link #aimedLeft}. False with no robot, no alliance, or a CELL the tracker has not
+     * settled.
+     */
+    static boolean aimedCellUp(Robot robot, MatchSetup setup) {
+        if (robot == null || setup == null || setup.alliance() == null) return false;
+        return cellUp(ourHive(robot, setup), aimedLeft(setup.alliance(), robot.drive.pose().y()));
+    }
+
+    /**
+     * Whether the CELL at the robot's end of the field ({@code y}, Pedro frame) is our LEFT one as the
+     * drive team sees it: red's left is the scoring end (past the field's centre), blue's left is
+     * the audience end, since blue's side is red's turned half a turn.
+     */
+    static boolean aimedLeft(Alliance alliance, double y) {
+        boolean scoringEnd = y >= FieldFrame.FIELD_CENTRE_INCHES;
+        return alliance == Alliance.BLUE ? !scoringEnd : scoringEnd;
     }
 
     /** Our alliance's HIVE; null with no robot, no setup or no alliance chosen. */

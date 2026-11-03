@@ -5,6 +5,7 @@ import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints.Flower;
 
@@ -29,6 +30,14 @@ import java.util.function.Consumer;
  * pose is a crooked push. Each phase is timed and written to the match log, so the pick is made
  * faster with numbers rather than by feel.
  *
+ * <p><b>In an Auto the stick comes down on the drive in.</b> The path card before a {@code PickFlower}
+ * card runs this pick's {@link #approach} ({@code AutoKit}, {@code AutoRegistry.Approach}): over the
+ * last {@link #lowerWithinIn} of that drive the stick goes down and the intake starts, as they would
+ * at the pick's own line-up, so when the card starts the {@link #stickDownMs} wait has usually run
+ * out already ({@link #readySinceNs}). Measured 29 Oct to 2 Nov 2026: the push started 0.70 to
+ * 0.73 s after the drive ended, all of it the stick wait. The pick itself is unchanged: square up,
+ * push to contact, dwell, back out (mentor, 3 Nov 2026: the two stay separate cards).
+ *
  * <p>Every number here is a starting point to tune in Panels, not a measurement. The two standoffs
  * come from the Autos' drawings (contact about 12 in from the centre, as R-Quals draws its FLOWER
  * points) and the speeds from nothing at all. The Visualizer's picture of a pick
@@ -41,9 +50,21 @@ public final class FlowerPicker extends GrabRoutine {
     public static double maxRangeIn = 60.0;
     /** The button's line-up: this far back from the FLOWER's centre, inches. */
     public static double approachStandoffIn = 24.0;
-    /** Where the push stops: this far back from the FLOWER's centre, inches. */
+    /**
+     * Where the push aims: this far back from the FLOWER's centre, inches. The push also ends when the
+     * robot stalls against the FLOWER, and the 29 Oct 2026 logs on 20245 put that stall at 12.2 to
+     * 12.5 in (as odometry had it), so 12.0 is the touch point itself: a pose a fraction of an inch
+     * long ends the push "reached" with the stick short of the FLOWER. A target 2 to 3 in less would
+     * make a correct pose end by stall and leave that much grace for a long one; the push is still
+     * well inside {@link #pushTimeoutMs} (a 12 in push takes 0.75 to 1.2 s). To be measured, three
+     * picks at each value, before the default changes (doc/robot-session-5.md). The Visualizer's
+     * {@code CONTACT_STANDOFF_IN} changes with it.
+     */
     public static double contactStandoffIn = 12.0;
-    /** The stick goes down and the intake starts once the robot is this close to the line-up, inches. */
+    /**
+     * The stick goes down and the intake starts once the robot is this close to the line-up, inches:
+     * the button's line-up, or, in an Auto, the end of the drive before the pick ({@link #approach}).
+     */
     public static double lowerWithinIn = 18.0;
     /** Time the stick is given to swing down before the push may start, ms. */
     public static double stickDownMs = 700;
@@ -98,8 +119,15 @@ public final class FlowerPicker extends GrabRoutine {
     public static double dwellEmptyMs = 1300;
     /** A current this many amps over the roller's free-running 0.35 A is a piece (they spike 5–6 A). */
     public static double spikeAboveAmps = 1.0;
-    /** The push starts once the robot has slowed below this after the line-up, inches/s. */
-    public static double settledInPerSec = 2.0;
+    /**
+     * The push starts once the robot has slowed below this after the drive before it, inches/s: the
+     * pick's hand-over speed. Pedro calls a path done at its parametric end and brakes in HOLD, with
+     * the robot still rolling: 10 to 24 in/s in the 29 Oct to 2 Nov 2026 match logs, under 8 in/s
+     * 0.07 to 0.19 s later, under 2 in/s 0.13 to 0.51 s later. A pick need not be still, it squares
+     * up on its own and the push ends on contact, so 8 since 3 Nov 2026 (mentor), from the 2 a launch
+     * waits for ({@code PathEndSettle}). Capped by {@code GrabRoutine.SETTLE_MAX_MS} either way.
+     */
+    public static double settledInPerSec = 8.0;
     /** Forward power during the dwell, to keep the stick seated. 0 for none. */
     public static double dwellPushPower = 0.1;
     /** The back-out path's speed cap, a fraction of the robot's top path speed (0 to 1]. */
@@ -107,8 +135,9 @@ public final class FlowerPicker extends GrabRoutine {
     /**
      * The stick comes up once the robot has backed out this far, inches: on the back-out, and also
      * whenever a pick ends early (button let go, sticks moved, a timeout, an Auto's card cut short).
-     * Either way it waits until the robot's centre is {@link #contactStandoffIn} plus this from the
-     * FLOWER's centre, so it never swings up while still in the FLOWER.
+     * Either way it waits until the robot's centre is this much further from the FLOWER's centre
+     * than the nearest the push got (never nearer than {@link #contactStandoffIn}), so it never
+     * swings up while still in the FLOWER, however deep the push aimed or how short it stopped.
      */
     public static double retractAfterBackIn = 6.0;
     /** The back-out gives up after this long, ms. */
@@ -136,6 +165,82 @@ public final class FlowerPicker extends GrabRoutine {
         return GrabRoutine.command(() -> new FlowerPicker(robot, event, false));
     }
 
+    /**
+     * What the drive before an Auto's {@code PickFlower} card does for it: the stick down and the
+     * intake on over the last {@link #lowerWithinIn} of the drive, for the FLOWER the pick will go
+     * for from the drive's end ({@link #lowerOnApproach}). Registered with the grab
+     * ({@code AutoRegistration}); {@code AutoKit} runs it while that path card drives. Cancelled, the
+     * stick comes back up.
+     */
+    public static AutoRegistry.Approach approach(Robot robot, Consumer<String> event) {
+        return new Approach(robot, event);
+    }
+
+    private static final class Approach implements AutoRegistry.Approach {
+        private final Robot robot;
+        private final Consumer<String> event;
+        /** The FLOWER the pick after this drive will go for, from where the drive ends; null for none. */
+        private Flower flower;
+        private boolean lowered;
+
+        Approach(Robot robot, Consumer<String> event) {
+            this.robot = robot;
+            this.event = event;
+        }
+
+        @Override
+        public void started(Pose end) {
+            flower = nearest(end.x(), end.y(), true);
+            lowered = false;
+        }
+
+        @Override
+        public void approaching(Pose pose, double remainingIn) {
+            if (lowered || flower == null || !lowerOnApproach(flower, pose, remainingIn)) return;
+            lowered = true;
+            robot.flowerStick.extend();
+            robot.intake.intake();
+            event.accept(String.format(Locale.US, "FLOWER pick: stick down on the drive in, %.1f in to go", remainingIn));
+        }
+
+        @Override
+        public void cancel() {
+            if (!lowered) return;
+            lowered = false;
+            robot.flowerStick.retract();
+            event.accept("FLOWER pick: not running after this drive, stick up");
+        }
+    }
+
+    /**
+     * Whether the drive in to a pick of {@code f} may lower the stick with the robot at {@code pose},
+     * {@code remainingIn} from the drive's end: within {@link #lowerWithinIn} of it, and no closer to
+     * the FLOWER than the stick swings down clear ({@link #mayPrepAt}'s rule). Any heading: a FLOWER
+     * is in open field.
+     */
+    static boolean lowerOnApproach(Flower f, Pose pose, double remainingIn) {
+        return remainingIn <= nn(lowerWithinIn)
+                && Math.hypot(f.x - pose.x(), f.y - pose.y()) >= nn(minAutoStartIn) - 0.5;
+    }
+
+    /**
+     * The FLOWER nearest ({@code x}, {@code y}) within {@link #maxRangeIn}, or null; with
+     * {@code ownHalfOnly}, only one on the same side of the centre line (an Auto's rule).
+     */
+    static Flower nearest(double x, double y, boolean ownHalfOnly) {
+        Flower nearest = null;
+        double best = nn(maxRangeIn);
+        for (Flower f : FlowerFieldPoints.ALL) {
+            if (ownHalfOnly && !ownHalf(x, f.x)) continue;
+            double range = Math.hypot(f.x - x, f.y - y);
+            if (range <= best) {
+                nearest = f;
+                best = range;
+            }
+        }
+        return nearest;
+    }
+
     @Override
     protected String what() {
         return "FLOWER pick";
@@ -144,16 +249,7 @@ public final class FlowerPicker extends GrabRoutine {
     @Override
     protected String findTarget(Pose pose) {
         // The nearest in range; in an Auto, only one on the robot's own half (GrabRoutine).
-        flower = null;
-        double best = nn(maxRangeIn);
-        for (Flower f : FlowerFieldPoints.ALL) {
-            if (inAuto() && !ownHalf(pose.x(), f.x)) continue;
-            double range = Math.hypot(f.x - pose.x(), f.y - pose.y());
-            if (range <= best) {
-                flower = f;
-                best = range;
-            }
-        }
+        flower = nearest(pose.x(), pose.y(), inAuto());
         return flower == null ? null : flower.toString();
     }
 
@@ -227,6 +323,12 @@ public final class FlowerPicker extends GrabRoutine {
         robot.intake.intake();
     }
 
+    /** A stick already down (lowered on the drive in, or by the driver) has had its time since it was asked out. */
+    @Override
+    protected long readySinceNs() {
+        return robot.flowerStick.extended() ? robot.flowerStick.extendedSinceNs() : 0;
+    }
+
     @Override
     protected void unprep() {
         retractWhenClear();
@@ -240,10 +342,16 @@ public final class FlowerPicker extends GrabRoutine {
 
     /**
      * The stick comes in once the robot is clear of the FLOWER, however the pick ends: finished,
-     * let go, or cut short. The stick subsystem holds it down until then, after this pick is over.
+     * let go, or cut short. Clear is {@link #retractAfterBackIn} out from the nearest the push got
+     * to the FLOWER (where it stalled, or where the robot is if cut during the push), and never
+     * nearer than {@link #contactStandoffIn} plus that: a push aimed deeper than the FLOWER lets the
+     * robot in, and a pose that stops it short does not bring the lift-off point in with it. The
+     * stick subsystem holds it down until then, after this pick is over.
      */
     private void retractWhenClear() {
-        robot.flowerStick.retractWhenClear(flower.x, flower.y, nn(contactStandoffIn) + nn(retractAfterBackIn));
+        double contact = nn(contactStandoffIn);
+        double nearest = Math.max(contact, closestOnInIn(flower.x, flower.y, contact));
+        robot.flowerStick.retractWhenClear(flower.x, flower.y, nearest + nn(retractAfterBackIn));
     }
 
     @Override protected double prepMs() { return stickDownMs; }

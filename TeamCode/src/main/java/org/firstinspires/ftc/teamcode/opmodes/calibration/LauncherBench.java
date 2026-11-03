@@ -50,7 +50,7 @@ import java.util.Locale;
  * <p>Standalone diagnostics, like {@code OctoQuadBench}: the exception CLAUDE.md allows for rigs.
  */
 @Disabled // The bench rig is being dismantled (mentor, 2 Nov 2026); Launch Test covers the robot. Delete with the Y_CABLED paths when it is gone.
-@Utility(name = "Launcher Bench", description = "The launcher and feeder on a bench hub: speeds, powers, directions, graphs")
+@Utility(name = "Bench: Launcher", description = "The launcher and feeder on a bench hub: speeds, powers, directions, graphs")
 @Configurable
 public class LauncherBench extends OpMode {
 
@@ -199,7 +199,7 @@ public class LauncherBench extends OpMode {
 
     private void show() {
         boolean yCabled = launcher != null && launcher.layout() == LauncherSubsystem.Layout.Y_CABLED;
-        telemetry.addLine("<b>Launcher Bench</b>  <small>Cross spin up · Circle spin down · D-pad up/down launcher speed · "
+        telemetry.addLine("<b>Bench: Launcher</b>  <small>Cross spin up · Circle spin down · D-pad up/down launcher speed · "
                 + "D-pad right/left feeder power · "
                 + (yCabled ? "Y-cabled: trims unused" : "L1/L2 left trim · R1/R2 right trim · Share zero trims")
                 + " · Square feeder on/off" + (feedOnlyAtSpeed ? " (starts once at speed)" : "")

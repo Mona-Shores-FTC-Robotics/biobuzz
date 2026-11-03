@@ -50,7 +50,7 @@ import java.util.Locale;
  * <p>Nothing moves before PLAY, as everywhere ({@code Subsystem}): the bindings are polled only
  * after PLAY and the sticks are read only in {@link #onLoop()}.
  */
-@Utility(name = "Launch Test", description = "One person, one controller, the operator's buttons: drive, intake on/off, fire, launch speed; setup tools behind the turret button")
+@Utility(name = "Bench: Launch Test", description = "Practice shooting alone: the operator's buttons on one controller; gate and prefeed setup behind Triangle")
 public class LaunchTest extends RobotOpMode {
 
     /** Stick signs as Basic Drive has them: push away is forward, Pedro's +strafe is left, +turn is CCW. */
@@ -286,7 +286,7 @@ public class LaunchTest extends RobotOpMode {
 
     /** The one page: launcher, intake, transfer, FLOWER stick, battery, and the setup layer's state. */
     private void show(boolean setupLayer) {
-        display.section("Launch Test");
+        display.section("Bench: Launch Test");
         boolean spinning = robot.launcher.isSpinning();
         display.status("Launch speed", spinning && !robot.launcher.atSpeed() ? Display.Level.WARN : Display.Level.OK,
                 String.format(Locale.US, "%.0f ticks/s (%.0f %+.0f) · %s / %s ±%.0f · %s",
@@ -355,7 +355,6 @@ public class LaunchTest extends RobotOpMode {
             panels.addData("color_hue_deg", robot.colorSensor.hueDegrees());
             panels.addData("color_saturation", robot.colorSensor.saturation());
             panels.addData("color_alpha", robot.colorSensor.alpha());
-            panels.addData("color_distance_mm", robot.colorSensor.distanceMm());
             LanePanels.publish(panels, robot.colorSensor.lane());
             panels.addData("flower_stick_out", robot.flowerStick.extended() ? 1.0 : 0.0);
             panels.addData("battery_volts", batteryVolts());

@@ -46,14 +46,14 @@ public class InitWarningsTest {
     public void noAllianceSaysPressXOrB() {
         evaluate(null, Alliance.UNKNOWN, Alliance.UNKNOWN, null, null, 40, 20_000, 13.1);
         assertTrue(w.has(Kind.ALLIANCE));
-        assertEquals("press X for blue, B for red", w.action(Kind.ALLIANCE));
+        assertEquals("press Square for blue, Circle for red", w.action(Kind.ALLIANCE));
     }
 
     @Test
     public void anAllianceTheCameraDisagreesWithSaysWhichWay() {
         evaluate(null, Alliance.BLUE, Alliance.RED, null, null, 40, 20_000, 13.1);
         assertEquals("BLUE, but camera sees RED start", w.what(Kind.ALLIANCE));
-        assertTrue(w.action(Kind.ALLIANCE).startsWith("press B for red"));
+        assertTrue(w.action(Kind.ALLIANCE).startsWith("press Circle for red"));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class InitWarningsTest {
         // L-Simple picked, robot on the red audience start: no alliance, and the reason.
         StartPosition redAudience = new StartPosition("Red audience", Alliance.RED, new Pose(55.6, 7.7, Math.toRadians(90)));
         StartPosition redFar = new StartPosition("Red far wall", Alliance.RED, new Pose(62.3, 133.8, Math.toRadians(270)));
-        w.evaluate(null, Alliance.UNKNOWN, Alliance.UNKNOWN, null, null, 40, 20_000, 13.1, 12.0, false,
+        w.evaluate(null, Alliance.UNKNOWN, Alliance.UNKNOWN, null, null, 40, 20_000, 13.1, 12.0, false, true,
                 redAudience, redFar);
         assertTrue(w.has(Kind.WRONG_START));
         assertEquals("On Red audience, not this Auto's start", w.what(Kind.WRONG_START));
@@ -84,10 +84,39 @@ public class InitWarningsTest {
     }
 
     @Test
-    public void anUnconfirmedStartIsNoWarning() {
+    public void anUnconfirmedStartWithNoTagsInViewIsNoWarning() {
         evaluate(null, Alliance.RED, Alliance.RED, StartCheck.evaluate(RED, 0, Double.NaN, Double.NaN),
                 null, 40, 20_000, 13.1);
         assertFalse(w.any());
+    }
+
+    @Test
+    public void tagsInViewButNoFixOnTheStartMeansTheWrongStart() {
+        StartCheck.Result unconfirmed = StartCheck.evaluate(RED, 0, Double.NaN, Double.NaN);
+        w.evaluate(null, Alliance.RED, Alliance.RED, unconfirmed, null, 40,
+                InitWarnings.START_GRACE_MS - 1, 13.1, 12.0, false, true);
+        assertFalse("a moment to confirm first", w.any());
+        w.evaluate(null, Alliance.RED, Alliance.RED, unconfirmed, null, 40,
+                InitWarnings.START_GRACE_MS, 13.1, 12.0, false, true);
+        assertEquals("Not on the Red test start", w.what(Kind.OFF_MARK));
+        assertEquals("check the Auto (L or R) and move the robot onto its mark", w.action(Kind.OFF_MARK));
+        w.evaluate(null, Alliance.RED, Alliance.RED, unconfirmed, "not answering", 0,
+                30_000, 13.1, 12.0, false, true);
+        assertFalse("a dead camera is its own warning", w.has(Kind.OFF_MARK));
+    }
+
+    @Test
+    public void aNamedOtherStartReplacesThePlainNotOnTheStart() {
+        // Tags in view, no fix on this Auto's start, and the robot matched another known start:
+        // one warning that names it, not two for the same mistake.
+        StartCheck.Result unconfirmed = StartCheck.evaluate(RED, 0, Double.NaN, Double.NaN);
+        StartPosition redAudience = new StartPosition("Red audience", Alliance.RED, new Pose(55.6, 7.7, Math.toRadians(90)));
+        StartPosition redFar = new StartPosition("Red far wall", Alliance.RED, new Pose(62.3, 133.8, Math.toRadians(270)));
+        w.evaluate(null, Alliance.RED, Alliance.RED, unconfirmed, null, 40,
+                InitWarnings.START_GRACE_MS, 13.1, 12.0, false, true, redAudience, redFar);
+        assertTrue(w.has(Kind.WRONG_START));
+        assertFalse(w.has(Kind.OFF_MARK));
+        assertEquals(1, w.count());
     }
 
     @Test

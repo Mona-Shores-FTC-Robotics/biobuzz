@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/l-simple.pp",
-  "spec": "LSimpleAuto@50",
+  "pp": "TeamCode/autos/r-solo-staging.pp",
+  "spec": "RSoloStagingAuto",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -18,8 +18,8 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "l-simple.pp",
-    "SavedBy": "dustinhans",
-    "SavedAt": "2026-10-31T16:44:34.404Z"
+    "AutoSource": "r-solo-staging.pp",
+    "SavedBy": "whiteboard drafts (Claude)",
+    "SavedAt": "2026-11-03T03:07:54+00:00"
   }
 }

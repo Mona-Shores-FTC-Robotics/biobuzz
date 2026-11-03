@@ -289,7 +289,7 @@ public abstract class BuiltAuto extends RobotOpMode {
     }
 
     /**
-     * The launch path's numbers to Panels, under the same keys as Basic Drive and Launch Test, so the
+     * The launch path's numbers to Panels, under the same keys as Basic Drive and Bench: Launch Test, so the
      * same graphs work in an Auto. Flat keys, one update per loop; never takes the robot down.
      */
     private void publish() {

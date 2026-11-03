@@ -36,7 +36,7 @@ import java.util.Locale;
  * Nothing moves before PLAY. A standalone diagnostic, like {@code DriveMotorCheck}: it owns its
  * own loop and may wait.
  */
-@Utility(name = "Pod Offset Check", description = "Spins in place on the floor and measures the Pinpoint pod offsets; no ruler")
+@Utility(name = "Measure: Pod Offsets", description = "Spins in place on the floor (give it room) and measures the Pinpoint pod offsets; no ruler")
 public class PodOffsetCheck extends LinearOpMode {
 
     /** Turn power for the spins. Slow enough not to slip, fast enough to finish. */

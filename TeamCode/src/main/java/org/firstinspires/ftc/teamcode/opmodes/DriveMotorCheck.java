@@ -56,7 +56,7 @@ import java.util.Locale;
  * one it cannot see: roller orientation, weight balance, or the floor.
  */
 @Configurable
-@Utility(name = "Drive Motor Check", description = "Each drive wheel's RPM and current, lifted; find a weak or miswired motor")
+@Utility(name = "Check: Drive Motors", description = "Each drive wheel's RPM and current, lifted; find a weak or miswired motor")
 public class DriveMotorCheck extends LinearOpMode {
 
     /** Power for every step. Full power is where the arc showed up. */

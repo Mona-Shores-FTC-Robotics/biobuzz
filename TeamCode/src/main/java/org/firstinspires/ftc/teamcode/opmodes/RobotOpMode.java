@@ -230,8 +230,8 @@ public abstract class RobotOpMode extends OpMode {
     private final InitWarnings initWarnings = new InitWarnings();
     /** When INIT was pressed, System.nanoTime: the camera's first frame has a grace period from it. */
     private long initStartNs;
-    /** What went wrong with the Pinpoint this INIT, kept once seen (it dropped out on and off on 1 Nov). */
-    private String pinpointProblem;
+    /** What went wrong with the Pinpoint this INIT: a hard fault is kept once seen, a bad read only while it holds. */
+    private final PinpointInitFault pinpointFault = new PinpointInitFault();
     private String loggedWarnings;
     private boolean loggedLaneFull;
     private long loggedDepartures;
@@ -508,17 +508,12 @@ public abstract class RobotOpMode extends OpMode {
      * time the list changes. Autonomous only.
      */
     private void updateInitWarnings(StartCheck.Result startCheck) {
-        if (!robot.drive.hasHeading()) {
-            pinpointProblem = "not found";
-        } else {
-            Object status = robot.drive.pinpointStatus();
-            // The first fault is kept, in words short enough for one line ("y pod not detected");
-            // the log has every status change with its time.
-            if (pinpointProblem == null && status != null && status.toString().startsWith("FAULT")) {
-                pinpointProblem = status.toString().substring("FAULT_".length())
-                        .replace('_', ' ').toLowerCase(Locale.US);
-            }
-        }
+        // A hard fault is kept once seen, in words short enough for one line ("y pod not detected");
+        // a bad read only while it holds. The log has every status change with its time.
+        Object status = robot.drive.pinpointStatus();
+        pinpointFault.observe(robot.drive.hasHeading(), status == null ? null : status.toString(),
+                System.nanoTime() / 1_000_000L);
+        String pinpointProblem = pinpointFault.problem();
         // Short, for one line: the reason in full is in the log's hardware metadata.
         String cameraProblem = !robot.vision.isAvailable() ? "not found"
                 : !robot.vision.isConnected() ? "not answering" : null;
@@ -530,7 +525,8 @@ public abstract class RobotOpMode extends OpMode {
                 : startFor(chosen == Alliance.UNKNOWN ? otherStart.alliance : chosen);
         initWarnings.evaluate(pinpointProblem, chosen, setup.visionAlliance(), startCheck,
                 cameraProblem, robot.vision.freshResultCount(), (System.nanoTime() - initStartNs) / 1_000_000L,
-                batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent(), otherStart, moveTo);
+                batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent(),
+                robot.drive.lastFrame().count() >= LocalizationTuning.minFixTags, otherStart, moveTo);
         String summary = initWarnings.summary();
         if (!summary.equals(loggedWarnings)) {
             log.event("INIT warnings: " + summary);
@@ -1368,7 +1364,6 @@ public abstract class RobotOpMode extends OpMode {
             log.put("/ColorSensor/Green", robot.colorSensor.green());
             log.put("/ColorSensor/Blue", robot.colorSensor.blue());
             log.put("/ColorSensor/Alpha", robot.colorSensor.alpha());
-            log.put("/ColorSensor/DistanceMm", robot.colorSensor.distanceMm());
             double hue = robot.colorSensor.hueDegrees();
             if (!Double.isNaN(hue)) log.put("/ColorSensor/HueDeg", hue);
             log.put("/ColorSensor/Saturation", robot.colorSensor.saturation());

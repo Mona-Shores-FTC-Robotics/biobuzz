@@ -25,6 +25,9 @@ package org.firstinspires.ftc.teamcode.subsystems;
  */
 public final class LaneFull {
 
+    /** The most time one reading adds while taking in, ms: twice the 50 ms read interval. */
+    static final double MAX_STEP_MS = 100;
+
     private boolean present;
     private long presentSinceMs;
     private long lastMs;
@@ -52,7 +55,9 @@ public final class LaneFull {
     public void step(long nowMs, double brightness, boolean intaking,
                      double presentAbove, double leaveBelow, double fullAfterMs) {
         endedDwellMs = Double.NaN;
-        double elapsed = hasLast ? Math.max(0, nowMs - lastMs) : 0;
+        // At most MAX_STEP_MS a reading: after a slow idle read (ColorSensorSubsystem.readIdleEveryMs)
+        // the gap is mostly time the intake was not running, which must not count toward full.
+        double elapsed = hasLast ? Math.min(MAX_STEP_MS, Math.max(0, nowMs - lastMs)) : 0;
         lastMs = nowMs;
         hasLast = true;
         double leave = Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove);

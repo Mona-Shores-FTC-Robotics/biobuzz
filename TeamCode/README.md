@@ -303,7 +303,7 @@ and nothing is pushed over adb.
 | The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot — plus `robot_launcher_rig.xml` for the two-wheel launcher bench rig (hub FTC-EoM3) |
 | The names in Java | `hardware/DeviceNames.java` — the only place a device name may be written |
 | The build-time check | `RobotConfigXmlTest` — fails CI if the XML and `DeviceNames` disagree |
-| The run-time check | the **Validate Hardware** OpMode (Diagnostics group) |
+| The run-time check | the **Check: Hardware** OpMode (Utility menu) |
 
 ### How it reaches the robot
 
@@ -349,7 +349,7 @@ file.
 > `robot_*.xml` so the tests skip it (smallest change, but then a typo in its
 > motor name is found at a meeting, which is the thing this whole section
 > exists to prevent); and adding `launcher2` to both competition robots' XML
-> (would declare a device neither robot has). `Validate Hardware` likewise now
+> (would declare a device neither robot has). `Check: Hardware` likewise now
 > checks the live hardware against the active robot's list.
 
 ### Device names are never string literals
@@ -410,7 +410,7 @@ copy-pasting a third 58-line script.
 The one that matters most: a config in `/sdcard/FIRST/` **is editable in the DS
 editor**, and an edit there silently diverges from the repo copy until someone
 re-runs the script and clobbers it. A bundled config is read-only, so that drift
-path is closed rather than discouraged. Run **Validate Hardware** to find out
+path is closed rather than discouraged. Run **Check: Hardware** to find out
 whether the active config is bundled (`RESOURCE`) or somebody's hand-made one
 (`LOCAL_STORAGE`).
 
@@ -479,12 +479,12 @@ Considered and not done: zeroing only by button (a forgotten press is silent:
 nothing can tell the turret was not at home), and a check that the count is
 still where the Auto left it (it cannot tell a bump from a re-home). The
 encoder's absolute PWM output exists, and an OctoQuad could
-read it (the `OctoQuad Bench` and #169); the build team chose relative plus a
+read it (the `Bench: OctoQuad` and #169); the build team chose relative plus a
 home mark for the time it saves (Oct 2026). Set the encoder's voltage switch to
 3V3.
 
 `subsystems/TurretEncoder` is the pure math (counts to degrees, with the
-measured gear ratio and direction) and `Turret Bench` is the OpMode that
+measured gear ratio and direction) and `Bench: Turret` is the OpMode that
 measures them: encoder direction, gear ratio, servo direction, and a
 proportional hold to try a gain. Its javadoc is the checklist.
 
@@ -887,17 +887,17 @@ Foresight tuners all run today, as do the Tests procedure's localization,
 odometry, pose and driving tests. Only its hold, line and curve tests need a
 tuned Foresight, since only those build a `Follower`.
 
-### When the robot strafes in an arc: Drive Motor Check
+### When the robot strafes in an arc: Check: Drive Motors
 
 The Foresight Tuner's **Max Strafe Velocity** step sends full power straight
 left, robot-centric, with nothing correcting heading. So it shows the robot's own
 strafe, and a robot that arcs there (a "rainbow") has a mechanical problem, not a
 tuning one. Two things hide it in everyday driving. Basic Drive runs at 60%, and
 it is **field-centric** by default, so the Pinpoint heading quietly steers out
-the drift. To see what the tuner sees, open **Basic Drive (robot-centric)**,
+the drift. To see what the tuner sees, open **Drive: Robot-centric** (Utility menu),
 hold the **right bumper** (turbo) and push straight left.
 
-If it arcs there too, run **Drive Motor Check** (Diagnostics group, #121) with
+If it arcs there too, run **Check: Drive Motors** (Utility menu, #121) with
 **the robot lifted**. It takes about 20 s:
 
 | Step | What it shows |
@@ -943,6 +943,29 @@ calls. There are three kinds of card and one branching block:
   `firstOf` row's cards: a path there is never cut, and one that would start after the deadline
   does not start (#142).
 
+**Where a path ends, and what settles after it.** A path card is done when `AutoDrive.pathDone()`
+says so, which on the robot is Pedro's parametric end: the Follower switches to holding the end pose
+and brakes, and the robot is still rolling (10 to 24 in/s at the hand-over in the 29 Oct to 2 Nov
+2026 logs, under 8 in/s 0.1 to 0.2 s later, under 2 in/s 0.1 to 0.5 s later). The kit adds no
+settle of its own. A launch card waits for `PathEndSettle` (still, and aimed). A grab waits for its
+own hand-over speed, `settledInPerSec` in `FlowerPicker` and `GardenGather` (8 in/s since 3 Nov 2026,
+from 2): a pick squares up on its own and ends on contact, a gather ends on the wall, so neither
+needs the robot still (mentor, 3 Nov 2026). Before that, the whole 0.7 s between a drive's end and
+the push was the stick's `stickDownMs`, since the stick went down only when the pick card started.
+
+**A path card before a grab runs the grab's approach.** `AutoRegistry.Approach` is what a grab does
+on the drive in to it. `sequence`, `guarded` and a `firstOf` row's cards pair each path card with the
+grab card right after it; while the path drives, the kit tells the approach where the robot is and
+how far it has to go, and cancels it if the guard refuses the grab. `FlowerPicker.approach` lowers
+the stick and starts the intake over the last `lowerWithinIn` (18 in) of the drive, for the FLOWER
+the pick will go for from the drive's end; the pick then counts its stick time from when the stick
+was asked out (`FlowerStickSubsystem.extendedSinceNs`, `GrabRoutine.readySinceNs`), so the wait is
+usually over. The cards stay what they are: the drive ends where it was drawn and the pick is still
+the whole pick, which works on its own from the button. Merging the drive into the push (ending the
+drive at the contact standoff) was considered and rejected: the pick would no longer be a unit that
+works in isolation. `GardenGather` has no approach yet: its stick came down on the wall when swung
+early in the corner (30 Oct 2026).
+
 Names come from `AutoRegistration`, the only list of commands and triggers an Auto may use;
 `requireAll` at INIT stops an Auto that uses an unregistered name. Names whose mechanism does not
 exist yet are registered as explicit placeholders (`PLACEHOLDERS`; a command that finishes at
@@ -970,9 +993,11 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   BIOBUZZ_SIM_RUN=/path/to/folder ./gradlew :TeamCode:testDebugUnitTest --tests '*SimRunTest*' --rerun
   ```
 
-  `{"spec": "RQualsAuto", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}`; a
-  partner runs beside it as `"RQualsAuto,LSimpleAuto@50"` (the number is its speed, in/s). The
-  folder gets `result.json` and one `.wpilog` per seed.
+  `{"spec": "RSoloAuto", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}`; a
+  partner runs beside it as `"RSoloAuto,PartnerLStillAuto@50"` (the number is its speed, in/s),
+  where the partner is any generated class on the checkout: the stand-ins live on the
+  `autos-experiment` branch (`TeamCode/autos/BENCH.md`). The folder gets `result.json` and one
+  `.wpilog` per seed.
 - **From the Visualizer**, Save & Simulate to `master` commits the `.pp`, its Java and the Auto's
   own `TeamCode/sim-requests/<name>.json` to an `auto/<name>` branch and opens a pull request that
   merges itself once CI passes (the fast lane, `.github/CONTRIBUTING.md`). The "Simulate Auto"
@@ -980,7 +1005,7 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   and typical logs to the `sim-results` branch, where the Visualizer reads them back.
 - **Its points are shown, never enforced.** No test fails an Auto for scoring less: when time is
   short, a check like that could keep a needed fix off the robot (31 Oct 2026). Only
-  `SimulatorSmokeTest` (one seed of R-Quals, about a second) runs with the unit tests; the other
+  `SimulatorSmokeTest` (one seed of R-Solo, about a second) runs with the unit tests; the other
   simulator tests are opt-in by environment variable, so CI stays fast.
 
 The simulator grew on the `claude/simulator` branch, with 88 what-if robot designs; it came to
@@ -1684,9 +1709,9 @@ In order. Most of a lost morning is steps 1 and 2.
 | 2 | If the upload hangs or is refused, run **Remove Sloth Remote**, then deploy again | A stale payload in `/storage/emulated/0/FIRST/dairy/sloth` can make upload impossible. Sloth's own README calls this common this season |
 | 3 | Power-cycle. Wait for the RC to reach `Robot Status: running` and the DS to show a heartbeat | No heartbeat and empty OpMode lists means the `BindException` crash loop is back — check that nothing re-added FTC Dashboard, and that step 1 was a full install |
 | 4 | Laptop onto the robot's Wi-Fi → `http://192.168.43.1:8001` → Field plugin | Port **8001**, not 8080. 8080 is the SDK's own web server and will happily serve you an unrelated page |
-| 5 | Run **Loop Time Baseline**. Watch `field_frames_sent` | Climbing means the drawing path works. Stuck at 0 means it does not, and nothing further down is worth debugging |
+| 5 | Run **Check: Loop Time**. Watch `field_frames_sent` | Climbing means the drawing path works. Stuck at 0 means it does not, and nothing further down is worth debugging |
 | 6 | Look for the white cross at field centre | Visible means canvas, background and coordinate frame are all fine. Absent with frames climbing means the browser, not the robot |
-| 7 | Push the robot by hand. The blue circle should move | Does not move, cross is visible, telemetry says `pose: NO LOCALIZER` → the Pinpoint is not in the active config. Run `Validate Hardware` |
+| 7 | Push the robot by hand. The blue circle should move | Does not move, cross is visible, telemetry says `pose: NO LOCALIZER` → the Pinpoint is not in the active config. Run `Check: Hardware` |
 
 **Expect the pose to be wrong, and do not treat that as a broken field view.** The Pinpoint pod
 offsets and directions in each robot's `localizerConfig` (`pedro/robots/`) are still zeros and placeholders. A dot that

@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 
+import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
 import java.io.File;
@@ -38,6 +40,16 @@ public class AutoRegistrationTest {
     @Test
     public void nothingIsStillAPlaceholder() {
         assertEquals(java.util.Collections.emptyList(), AutoRegistration.PLACEHOLDERS);
+    }
+
+    /** The CELL a robot is aimed at: at the audience end, red's RIGHT one and blue's LEFT one. */
+    @Test
+    public void theAimedCellIsOurCellAtTheRobotsEndOfTheField() {
+        assertFalse(AutoRegistration.aimedLeft(Alliance.RED, 18));
+        assertTrue(AutoRegistration.aimedLeft(Alliance.RED, 123.5));
+        assertTrue(AutoRegistration.aimedLeft(Alliance.BLUE, 18));
+        assertFalse(AutoRegistration.aimedLeft(Alliance.BLUE, 123.5));
+        assertFalse("no robot, no CELL", AutoRegistration.aimedCellUp(null, null));
     }
 
     /** No alliance chosen means no HIVE to ask: neither CELL is up. */

@@ -33,7 +33,8 @@ import java.util.Locale;
 /**
  * The match TeleOp: read the gamepads by {@link Action}, tell the subsystems what you want,
  * report. {@link RobotCentricTeleOp} is the same OpMode driving robot-centric, for a match where
- * the Pinpoint has failed; there is no field / robot-centric button.
+ * the Pinpoint's heading cannot be trusted; it is in the Utility menu so nobody picks it by
+ * mistake. There is no field / robot-centric button.
  *
  * <h2>Controls</h2>
  *
@@ -108,7 +109,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private static final long RESET_HOLD_MS = 1000;
 
     /** The launcher trim step can never be more than this, ticks per second, whatever Panels says. */
-    /** Package-private: the Launch Test caps the same Panels step the same way. */
+    /** Package-private: {@link LaunchTest} caps the same Panels step the same way. */
     static final double MAX_LAUNCHER_TRIM_STEP_TPS = 200.0;
 
     /** The trim step can never be more than this, degrees, whatever Panels says. */

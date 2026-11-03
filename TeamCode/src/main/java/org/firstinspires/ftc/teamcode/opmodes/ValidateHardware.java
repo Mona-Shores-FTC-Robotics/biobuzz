@@ -37,7 +37,7 @@ import java.util.TreeSet;
  * <p>Reports during init, so you do not have to press play. The report goes
  * to Panels ({@code http://192.168.43.1:8001}) and the Driver Station together.
  */
-@Utility(name = "Validate Hardware", description = "Every device the active config expects, and whether it answered")
+@Utility(name = "Check: Hardware", description = "Every device the active config expects, and whether it answered")
 public class ValidateHardware extends LinearOpMode {
 
     /**
