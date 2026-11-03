@@ -196,3 +196,38 @@ each; Sloth Load is enough.
 
 → The numbers and any changed knob go to PR #378. The GARDEN gather has no approach yet (its stick
 hit the corner wall when swung early, 30 Oct); say whether the corner allows one.
+
+## Also, with any Auto: INIT names the start the robot is on (PR #372)
+
+PR #372 has an Auto's INIT match the camera against all four known starts: its own two (red and blue)
+and the other side's two. On its own start it proposes the alliance as before. On the other side's
+start the INIT page shows **"On <start>, not this Auto's start · pick the Auto that starts there, or
+move to <start>"**. To tell the two same-facing audience-wall starts apart (23.6 in apart), the match
+radius went from 18 to 10 in, so the risk is the robot's **own** start no longer matching: "No
+alliance", and the Auto does not move at PLAY. Never tried on a robot. About 10 minutes; a Sloth Load
+is enough. Any time the camera answers: Limelight connected, HIVE upright. 5 frames in a row settle
+a match, about a second.
+
+`RIGHT_START` is **Red audience** (C1, R-Solo and the R-Partner Autos); `LEFT_START` is **Red far
+wall** (C6, L-Partner). Blue's are the same turned half a turn: Blue far wall and Blue audience wall.
+Place by the marks (back flat on the wall, frame's left side on the seam), never by the camera.
+
+1. [ ] **R-Solo on Red audience.** INIT, no alliance pressed. Good: red is proposed within a few
+       seconds, no `WRONG_START` line, start check confirms.
+2. [ ] **L-Partner on Red far wall.** The same. Good: red proposed, no `WRONG_START`.
+3. [ ] **R-Solo on Red far wall** (the 2 Nov mistake, other way round). Good: "On Red far wall, not
+       this Auto's start · … or move to Red audience", and "No alliance" above it. Then press Circle
+       (red): the "move to" still says Red audience.
+4. [ ] **L-Partner on Red audience.** Good: "On Red audience, not this Auto's start · … or move to Red
+       far wall". The plain "Not on the … start" line must **not** also be there, even after 10 s.
+5. [ ] **One blue start** if the field allows: R-Solo on Blue far wall. Good: blue proposed. (Blue
+       audience wall is computed, not measured: if it matches the wrong start, say so.)
+6. [ ] **Off every start**: R-Solo one tile out from Red audience, facing the same way. Good: no
+       `WRONG_START`, and after 10 s the plain "Not on the Red audience start" line.
+
+*Stop line:* step 1 or 2 shows "No alliance" for more than 5 s with tags in view. 10 in is then too
+tight for placement plus the camera's error. Read the match log's start-check gap and the start match
+events (`python3 tools/pull-logs/read_logs.py` on that run), and put the gap in the issue. Don't
+widen the radius past 11.8 in (half of 23.6) without the logs.
+
+→ Write the result on PR #372 (merged) or a new issue: which steps passed, and the gap on each own-start run.
