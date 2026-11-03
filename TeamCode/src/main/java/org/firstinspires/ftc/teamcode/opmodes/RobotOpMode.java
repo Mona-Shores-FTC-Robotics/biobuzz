@@ -116,11 +116,11 @@ import java.util.Map;
  * <p>{@link #setup} settles the alliance during INIT — vision proposes, X/B on either gamepad
  * overrides — and locks it at PLAY; see {@link MatchSetup}. When an {@code @Autonomous} OpMode
  * stops, this records the alliance, the robot's final pose and the turret's zero in {@link Handoff}.
- * When any other OpMode initializes within {@link Handoff#MAX_AGE_MS} of that, it restores the pose
- * and the turret's zero and inherits the alliance, and the Match page says so — or says there was
- * no handoff. With no Auto before it, the turret is assumed at home and zeroes where it stands at
- * PLAY ({@link TurretZeroPolicy}); a person's zero button always wins. Subclasses never touch
- * either.
+ * When any other OpMode initializes after that, however long after, it restores the pose
+ * and the turret's zero and inherits the alliance, and the Match page says so and how old it is — or
+ * says there was no handoff (nothing has run since the app started). Triangle (Y) in INIT discards
+ * it. With no Auto before it, the turret is assumed at home and zeroes where it stands at PLAY
+ * ({@link TurretZeroPolicy}); a person's zero button always wins. Subclasses never touch either.
  *
  * <p>An Autonomous overrides {@link #startPosition()}. The pose starts there, and during INIT the
  * camera checks the placement ({@link StartCheck}): a confirmed placement is also what confirms the
@@ -765,7 +765,7 @@ public abstract class RobotOpMode extends OpMode {
         Scheduler.reset();
         if (handedOff) {
             // The file stays open for the TeleOp that follows; unclaimed, it closes by itself.
-            log.pause("OpMode stopped: " + opModeName(), Handoff.MAX_AGE_MS);
+            log.pause("OpMode stopped: " + opModeName(), Handoff.LOG_MAX_AGE_MS);
         } else {
             log.close("OpMode stopped: " + opModeName(), LOG_CLOSE_WAIT_MS);
         }
@@ -954,10 +954,10 @@ public abstract class RobotOpMode extends OpMode {
             return;
         }
         long now = System.currentTimeMillis();
-        Handoff.Snapshot handoff = Handoff.fresh(now);
+        Handoff.Snapshot handoff = Handoff.last();
         if (handoff == null) {
             handoffLevel = Display.Level.WARN;
-            handoffNote = "no handoff (no Auto in the last 3 minutes, no TeleOp in the last 30 seconds) — "
+            handoffNote = "no handoff (no OpMode has run since the app started) — "
                     + "pose starts at 0,0; forward = robot's facing at PLAY";
             return;
         }
@@ -968,7 +968,7 @@ public abstract class RobotOpMode extends OpMode {
                 == TurretZeroPolicy.Action.RESTORE_FROM_AUTO) {
             robot.turret.restoreZero(handoff.turretZeroCounts);
         }
-        String age = (handoff.ageMs(now) / 1000) + "s ago";
+        String age = handoff.ageText(now);
         if (handoff.pose != null && robot.drive.hasHeading()) {
             robot.drive.setPose(handoff.pose);
             handoffPose = true;
@@ -1119,8 +1119,13 @@ public abstract class RobotOpMode extends OpMode {
         long nowMs = System.currentTimeMillis();
 
         // One file per match: a TeleOp that follows an Autonomous carries on writing the file
-        // that Autonomous paused (the same handoff receiveHandoff() reads later).
-        Handoff.Snapshot handoff = isAutonomous() ? null : Handoff.fresh(nowMs);
+        // that Autonomous paused (the same handoff receiveHandoff() reads later). Only within the
+        // log's own window: a pose handoff has no expiry, but a match id from an hour ago would put
+        // today's drive into last hour's file name.
+        Handoff.Snapshot handoff = isAutonomous() ? null : Handoff.last();
+        if (handoff != null && handoff.ageMs(nowMs) > Handoff.LOG_MAX_AGE_MS) {
+            handoff = null;
+        }
         if (handoff != null && handoff.log != null && handoff.log.resume()) {
             log = handoff.log;
             matchId = handoff.matchId;

@@ -31,7 +31,7 @@ sitting — and **always fallback-able**: the robot inits and drives no matter w
 | `controls/Bindings` | One gamepad's bindings, each with a label: `driver.when("Y", "Reset heading", () -> gamepad1.y).onPress(...)`. Polled after PLAY only. |
 | `controls/Display` | The Driver Station: Match (the OpMode's lines), Controls (generated from the labels), Robot (each subsystem's `describe()`). Back/Share on gamepad 1 cycles them. |
 | `controls/MatchSetup` | The alliance, settled in INIT from sensors first: manual X/B beats Auto's handoff beats vision; disagreement shown amber; UNKNOWN shown red, never guessed. Locked at PLAY. |
-| `controls/Handoff` | Auto → TeleOp: alliance + final pose, recorded when an `@Autonomous` OpMode stops, restored when TeleOp inits within 3 minutes. The one static in the codebase. |
+| `controls/Handoff` | Auto → TeleOp: alliance + final pose, recorded when an `@Autonomous` OpMode stops, restored whenever TeleOp inits next, however long after. The one static in the codebase. |
 | `util/FieldFrame` | Pedro field frame everywhere (inches, radians; degrees on screens only) and the field facts that depend on it. |
 | `localization/` | Pedro's `FusionLocalizer` does the fusion. Ours: `CellFix` (a settled CELL sighting → robot position), `HiveFieldPoints` (8 points, NaN until CAD), `StartPositions` + `StartCheck`, `LocalizationTuning` (DECODE's filter values). `robot.drive.poseReferenced()` gates pose-dependent features. |
 | `vision/PieceVisionSubsystem` | Webcam colour blobs for POLLEN / NECTAR, enabled only while intaking; colours unmeasured → camera never opened. |
@@ -70,7 +70,7 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 | Never default an alliance | A wrong colour silently mirrors everything | DECODE's silent BLUE fallback |
 | X = Blue, B = Red, INIT only, either gamepad | Xbox button colours match; free after PLAY | D-pad |
 | Handoff carries a pose only if Auto's pose was field-referenced | An Auto with no declared start knows its pose relative to init only; handing that on would make TeleOp trust it and feed fixes from a meaningless heading (found by CodeRabbit on #91) | Always hand on the pose |
-| Handoff is the only static; stale after 3 min; not cleared on read | Survives a TeleOp re-init in the pits; a practice Auto cannot leak into a later TeleOp | Clear-on-read (loses it on re-init); no expiry |
+| Handoff is the only static; never expires; not cleared on read | Survives a TeleOp re-init in the pits, and a break of any length between Auto and TeleOp (a 3-minute expiry dropped the pose after a 6-minute reset on 2026-11-03); Triangle (Y) in INIT discards it and the Match page shows its age | Clear-on-read (loses it on re-init); an expiry timer (the robot starts somewhere it is not) |
 | Bindings primed at PLAY | B held from choosing Red must not toggle drive mode on the first loop | Fire on any press edge |
 | Pedro's `FusionLocalizer`, nothing around it | It ships in core 3.0.1, is Follower-native, keeps the Pinpoint's integration (correction transform) and compensates latency; thin beats clever — assume it works until it doesn't | Our own offset filter with outlier/turn gates and a trust number (built, then removed the same day); DECODE's pre-library copy |
 | Fixes from row-centre position + Pinpoint heading | No tag-orientation convention (still unverified), no MegaTag; the rocker hypothesis is the existing height classifier | MegaTag with a map per alliance swapped by hand (Chief Delphi); continuous hive-angle solve (noisy) |
