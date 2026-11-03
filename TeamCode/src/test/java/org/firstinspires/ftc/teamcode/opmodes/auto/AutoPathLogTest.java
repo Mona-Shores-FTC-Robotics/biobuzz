@@ -133,11 +133,13 @@ public class AutoPathLogTest {
         WpiLogReader.Entry target = r.entry(FieldRobot.ROBOT.target);
         assertEquals("struct:Pose2d", target.type);
         assertEquals(1, target.records.size());
-        // RIGHT_PARK in r-simple.pp (the team spot, TeamCode/autos/spots.json): (9.6, 95.7) facing 0°,
-        // in the frame /Odometry/Robot uses.
+        // RIGHT_PARK, the team spot R-Simple's one path ends on (TeamCode/autos/spots.json), in the
+        // frame /Odometry/Robot uses. Read from the path, not written here: the spot moves through
+        // the Visualizer's Save team spots, and this test is about the log, not the spot.
+        Pose park = kit.paths().get(0).endPose();
         double[] expected = {
-                AdvantageScopeFrame.xMeters(9.6, 95.7), AdvantageScopeFrame.yMeters(9.6, 95.7),
-                AdvantageScopeFrame.headingRad(Math.toRadians(0))};
+                AdvantageScopeFrame.xMeters(park.x(), park.y()), AdvantageScopeFrame.yMeters(park.x(), park.y()),
+                AdvantageScopeFrame.headingRad(park.heading())};
         assertArrayEquals(expected, target.records.get(0).asDoubles(), EPS);
         WpiLogReader.Entry active = r.entry(FieldRobot.ROBOT.activePath);
         assertEquals("stamped with the loop the path started in",
