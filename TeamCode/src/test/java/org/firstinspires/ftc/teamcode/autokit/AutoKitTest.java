@@ -426,8 +426,8 @@ public class AutoKitTest {
 
     /**
      * The path card right before a grab card runs the grab's approach while it drives: told where the
-     * path ends as it starts, then where the robot is every loop, down to the end. A path with no grab
-     * after it runs none, and the grab itself starts the loop after the path ends, as before.
+     * path ends as it starts, then where the robot is every loop it drives. A path with no grab after
+     * it runs none, and the grab itself starts the loop after the path ends, as before.
      */
     @Test
     public void aPathCardBeforeAGrabRunsTheGrabsApproachWhileItDrives() {
@@ -442,7 +442,9 @@ public class AutoKitTest {
                 kit.path("onward", onward),
                 kit.command("LaunchAll")), 10);
         assertEquals(java.util.Arrays.asList("started at (20, 0)", "approaching"), approach.seen);
-        assertEquals("fed to the end of the path", 0.0, approach.lowestRemaining, 1e-9);
+        // Ivy asks done() before execute(), so the last call is the loop before the path ends: one
+        // fake step (a fifth of the 20 in) short; one 20 ms loop on the robot.
+        assertEquals("fed every loop until the path ends", 4.0, approach.lowestRemaining, 1e-9);
         assertEquals("the pick starts when the path ends, as before", 1.0, drive.progressWhen.get("PickFlower start"), 1e-9);
     }
 
