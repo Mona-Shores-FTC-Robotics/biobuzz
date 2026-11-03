@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-03T08:54:05.425Z",
+  "timestamp": "2026-11-03T21:11:00.365Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -602,7 +602,8 @@
         "LeftCellUp",
         "RightCellUp",
         "Tip",
-        "CameraBlind"
+        "CameraBlind",
+        "CellUp"
       ],
       "events": [
         "Tip"
@@ -655,11 +656,6 @@
         41,
         20,
         68.7
-      ],
-      "LEFT_PARK": [
-        14.5,
-        117.4,
-        0
       ]
     },
     "pathEnds": {
@@ -780,15 +776,11 @@
       "GARDEN_STAGING",
       "LEFT_LAUNCH_CATCH",
       "LEFT_LAUNCH_OFFSET",
-      "LEFT_PARK",
       "RIGHT_LAUNCH_OFFSET",
       "RIGHT_PARK",
       "RIGHT_START",
       "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"
-    ],
-    "parkChoices": [
-      "LEFT_PARK"
     ],
     "exportName": "R-Solo"
   }

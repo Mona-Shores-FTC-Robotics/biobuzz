@@ -211,31 +211,34 @@ need a bend: L-Partner's park from `RIGHT_LAUNCH_CATCH` bends west of the Red HI
 
 ## Changing an Auto at the field (INIT options)
 
-A partner tells us in the queue where they park, or when they tip. The drive team changes it in
-INIT with **gamepad 1's D-pad**, no new export needed (`opmodes/auto/InitOptions`):
+A partner tells us in the queue when they shoot. The drive team enters it in INIT with
+**gamepad 1's D-pad**, no new export needed (`opmodes/auto/InitOptions`):
 
 | D-pad | Changes | Offered by |
 |---|---|---|
-| Left / Right | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked |
+| Left / Right | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
 | Up / Down | the partner's last shot (their answer to "when does your last preload leave?"), 1 s a press; our partner wait gives up the TIP lag after it, on the match clock | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
 
 - **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
   as drawn and amber once changed; PLAY locks them, and the match log records them
   (`AutoOptions`).
-- **The park.** Every park path (the Park step's and each spot's, P) is driven to the picked
-  park: the same path with its end moved. The builder checks those against the field too, so a
-  path that clips the HIVE on the way to the other park shows on its step; bend it until both
-  are clear. The endgame guard reserves the picked park's time.
+- **The park: agree it in the queue, don't switch it.** Each Auto parks on its own side's spot
+  (R- Autos `RIGHT_PARK`, L-Partner `LEFT_PARK`); if a partner's Auto parks there, ask them to
+  take the other. The INIT park choice exists but no Auto offers it (mentor, 3 Nov 2026): the two
+  spots are 21.7 in apart on one wall, two parked robots have about 3.7 in between them, and a
+  route to the other spot passes the partner sitting on ours (R-Solo's went within 3 to 8 in of
+  `RIGHT_PARK`). The builder's collision check knows the field, not a partner. Offering it again
+  needs each park path its own bend to the other spot, and that check. With a choice offered,
+  every park path (the Park step's and each spot's, P) is driven to the picked park, the same path
+  with its end moved, and the endgame guard reserves that park's time.
 - **The partner wait on the match clock.** "Until 8 s" ends at 8 s into the match however late
   the robot got there, unlike "at most 7 s", which starts counting when the wait begins. The
   driver enters the partner's last shot and the wait ends `AutoRegistration.PARTNER_TIP_LAG_S`
   (4 s, `partnerTipLagS` below) after it: the shot's flight, the dwell, the swing and the camera
   settling, 1.5 to 5 s in the simulator's model. The page shows both numbers, never only the sum:
   "partner's last shot ▲▼ 8 s, waiting until 12 s" (mentor, 3 Nov 2026).
-- Today: L-Partner offers `RIGHT_PARK` and the partner's last shot (drawn: wait until 8 s, which
-  reads as a last shot at 4 s); R-Solo offers `LEFT_PARK`. R-Partner-Tip, R-Partner-Preload and R-Solo-Staging offer no
-  other park yet: their park paths are bent toward `RIGHT_PARK`, and the same paths to
-  `LEFT_PARK` would clip the Red HIVE.
+- Today: L-Partner offers the partner's last shot (drawn: wait until 8 s, which reads as a last
+  shot at 4 s). No Auto offers another park.
 
 ## Timing: two sets of numbers
 
