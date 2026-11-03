@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/l-partner.pp",
-  "spec": "LPartnerAuto",
+  "spec": "LPartnerAuto@50",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -16,9 +16,50 @@
     9,
     10
   ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
   "alliance": "RED",
+  "partners": [
+    {
+      "name": "lands at 2 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "launchS": 0.3
+      }
+    },
+    {
+      "name": "lands at 5 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "startDelayS": 1.5,
+        "launchS": 0.8
+      }
+    },
+    {
+      "name": "lands at 8 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "startDelayS": 4,
+        "launchS": 1.0
+      }
+    },
+    {
+      "name": "lands at 12 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "startDelayS": 8,
+        "launchS": 1.0
+      }
+    }
+  ],
   "metadata": {
     "AutoSource": "l-partner.pp",
-    "SavedBy": "whiteboard drafts (Claude)"
+    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor)",
+    "SavedAt": "2026-11-03T20:00:00+00:00"
   }
 }

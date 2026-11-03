@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-solo-staging.pp",
-  "spec": "RSoloStagingAuto",
+  "spec": "RSoloStagingAuto@50",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -16,10 +16,23 @@
     9,
     10
   ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
   "alliance": "RED",
+  "partners": [
+    {
+      "name": "leaves its POLLEN, parks",
+      "partner": "PartnerLStageParkAuto"
+    }
+  ],
   "metadata": {
     "AutoSource": "r-solo-staging.pp",
-    "SavedBy": "whiteboard drafts (Claude)",
-    "SavedAt": "2026-11-03T03:07:54+00:00"
+    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor)",
+    "SavedAt": "2026-11-03T20:00:00+00:00"
   }
 }

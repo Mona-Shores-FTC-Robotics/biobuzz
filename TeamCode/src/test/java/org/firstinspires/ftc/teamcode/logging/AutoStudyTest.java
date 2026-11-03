@@ -147,6 +147,7 @@ public class AutoStudyTest {
     static double[][] stagedFor(String partnerClass) {
         if (partnerClass.equals("PartnerLeaveParkAuto")) return LEAVE_PARTNER_STAGED;
         if (partnerClass.equals("PartnerAngledParkAuto")) return alongLeftSide(ANGLED_PARTNER);
+        if (partnerClass.contains("Stage")) return null;  // placed from its own start: stagedFor(Class)
         java.util.regex.Matcher m = java.util.regex.Pattern.compile("PartnerStage(\\d+)(Side|Front)").matcher(partnerClass);
         if (!m.lookingAt()) return null;
         double x = Double.parseDouble(m.group(1)), y = 132.25, gap = 9 + FieldSim.POLLEN_RADIUS_IN + 0.2;
@@ -166,9 +167,88 @@ public class AutoStudyTest {
      */
     static final double[] ANGLED_PARTNER = {32.0, 128.53, 227.3};
 
+    /**
+     * As {@link #stagedFor(String)}, and a staging stand-in ({@code partner-l-stage-park}, any {@code Partner…Stage…}
+     * class) sets its 4 POLLEN along its left side at its own start pose ({@link #alongLeftSide}), so moving its
+     * start in the Visualizer moves the row with it.
+     */
+    static double[][] stagedFor(Class<?> partner) throws ReflectiveOperationException {
+        double[][] byName = stagedFor(partner.getSimpleName());
+        if (byName != null || !partner.getSimpleName().contains("Stage")) return byName;
+        com.pedropathing.math.Pose start = (com.pedropathing.math.Pose) partner.getMethod("startPose", boolean.class).invoke(null, false);
+        // The stand-ins are the real robot's size (RobotDesign.real): the row touches that frame.
+        return alongLeftSide(new double[] {start.x(), start.y(), Math.toDegrees(start.heading())}, RobotDesign.REAL_FRAME_IN / 2);
+    }
+
+    /**
+     * How a partner stand-in is timed in a run: the simulate request's {@code "timing"} ({@code {"startDelayS": 3,
+     * "speed": 40, "launchS": 3.5, "pickS": 4}}). Each knob is optional; one left out leaves the robot as ours is
+     * (the drive profile of the spec, the design's feed and the robot's FlowerPicker dwell).
+     * See {@link AutoSim#startDelay}, {@link AutoSim#speed}, {@link AutoSim#launchSeconds}, {@link AutoSim#pickSeconds}.
+     */
+    static final class PartnerTiming {
+        /** Seconds after PLAY before the partner's first card; 0 starts with the match. */
+        double startDelayS = 0;
+        /** Its drive profile, as a spec writes it after {@code @} ("40", "77/65/55"); null for the spec's. */
+        String speed;
+        /** Seconds per launch volley; NaN for the design's. A 4-piece launch is the spin-up plus three of these. */
+        double launchS = Double.NaN;
+        /** Seconds it stands at a FLOWER in PickFlower; NaN for the robot's dwell. */
+        double pickS = Double.NaN;
+
+        static PartnerTiming of(java.util.Map<String, Object> json) {
+            PartnerTiming t = new PartnerTiming();
+            if (json == null) return t;
+            Object d = json.get("startDelayS"), v = json.get("speed"), l = json.get("launchS"), k = json.get("pickS");
+            if (d instanceof Number) t.startDelayS = ((Number) d).doubleValue();
+            if (v instanceof Number) t.speed = Double.toString(((Number) v).doubleValue());
+            else if (v instanceof String && !((String) v).isEmpty()) t.speed = (String) v;
+            if (l instanceof Number) t.launchS = ((Number) l).doubleValue();
+            if (k instanceof Number) t.pickS = ((Number) k).doubleValue();
+            return t;
+        }
+
+        boolean isDefault() {
+            return startDelayS <= 0 && speed == null && Double.isNaN(launchS) && Double.isNaN(pickS);
+        }
+
+        /** Sets the knobs on the robot {@code sim} is configuring (the partner just added). */
+        void apply(AutoSim sim, double[] fallbackProfile) {
+            double[] pr = speed == null ? fallbackProfile : profile(speed);
+            sim.speed(pr[0], pr[1], pr[2]);
+            if (startDelayS > 0) sim.startDelay(startDelayS);
+            if (!Double.isNaN(launchS)) sim.launchSeconds(launchS);
+            if (!Double.isNaN(pickS)) sim.pickSeconds(pickS);
+        }
+
+        /** The knobs in words, for a folder name or a table: {@code start3s-speed40-launch3.5s}; "default" with none. */
+        String slug() {
+            StringBuilder b = new StringBuilder();
+            if (startDelayS > 0) b.append("start").append(num(startDelayS)).append("s");
+            if (speed != null) b.append(b.length() > 0 ? "-" : "").append("speed").append(speed.replace('/', '_'));
+            if (!Double.isNaN(launchS)) b.append(b.length() > 0 ? "-" : "").append("launch").append(num(launchS)).append("s");
+            if (!Double.isNaN(pickS)) b.append(b.length() > 0 ? "-" : "").append("pick").append(num(pickS)).append("s");
+            return b.length() == 0 ? "default" : b.toString();
+        }
+
+        private static String num(double v) {
+            return v == Math.rint(v) ? Long.toString((long) v) : Double.toString(v);
+        }
+
+        @Override
+        public String toString() {
+            return slug();
+        }
+    }
+
     /** 4 POLLEN in a row along the left side of an 18 in robot at {x, y, heading}, each touching it. */
     static double[][] alongLeftSide(double[] pose) {
-        double h = Math.toRadians(pose[2]), gap = 9 + FieldSim.POLLEN_RADIUS_IN + 0.2;
+        return alongLeftSide(pose, 9);
+    }
+
+    /** As {@link #alongLeftSide(double[])} for a robot {@code halfFrameIn} from its centre to its side. */
+    static double[][] alongLeftSide(double[] pose, double halfFrameIn) {
+        double h = Math.toRadians(pose[2]), gap = halfFrameIn + FieldSim.POLLEN_RADIUS_IN + 0.2;
         double[] f = {Math.cos(h), Math.sin(h)}, l = {-Math.sin(h), Math.cos(h)};
         double[][] spots = new double[4][];
         for (int i = 0; i < 4; i++) {
@@ -245,6 +325,15 @@ public class AutoStudyTest {
 
     static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed,
                               Alliance alliance, Map<String, String> metadata, File file) throws Exception {
+        return run(spec, design, partnerDesign, partnerSpeed, null, seed, alliance, metadata, file);
+    }
+
+    /**
+     * As above, with the partner's {@code timing} (null: as ours, apart from {@code partnerSpeed}). The timing's own
+     * speed, when it has one, wins over {@code partnerSpeed}.
+     */
+    static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, PartnerTiming timing,
+                              long seed, Alliance alliance, Map<String, String> metadata, File file) throws Exception {
         design = withSet(design);
         partnerDesign = withSet(partnerDesign);
         String[] at = spec.split("@");
@@ -276,9 +365,10 @@ public class AutoStudyTest {
             double[] pProfile = Double.isNaN(partnerSpeed) ? profile : profile(Double.toString(partnerSpeed));
             Class<?> second = Class.forName(PKG + autoName(autos[1]));
             sim.alsoRun(second).speed(pProfile[0], pProfile[1], pProfile[2]).design(partnerDesign == null ? design : partnerDesign);
+            if (timing != null) timing.apply(sim, pProfile);
             if (cameraDown(autos[1])) sim.cameraDown();
             // The reference partner that only leaves and parks sets its preloads out for us (mentor review).
-            double[][] staged = stagedFor(second.getSimpleName());
+            double[][] staged = stagedFor(second);
             if (staged != null) sim.stagesPreloads(staged);
         }
         if (sides.length > 1) {
@@ -289,7 +379,7 @@ public class AutoStudyTest {
                 double[] s = i == 0 || Double.isNaN(partnerSpeed) ? profile : profile(Double.toString(partnerSpeed));
                 sim.alsoRunOpponent(opponent).speed(s[0], s[1], s[2]).design(i == 0 || partnerDesign == null ? design : partnerDesign);
                 if (cameraDown(theirs[i])) sim.cameraDown();
-                double[][] staged = stagedFor(opponent.getSimpleName());
+                double[][] staged = stagedFor(opponent);
                 if (staged != null) sim.stagesPreloads(staged);
             }
         }

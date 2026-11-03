@@ -993,16 +993,27 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   BIOBUZZ_SIM_RUN=/path/to/folder ./gradlew :TeamCode:testDebugUnitTest --tests '*SimRunTest*' --rerun
   ```
 
-  `{"spec": "RSoloAuto", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}`; a
-  partner runs beside it as `"RSoloAuto,PartnerLStillAuto@50"` (the number is its speed, in/s),
-  where the partner is any generated class on the checkout: the stand-ins live on the
-  `autos-experiment` branch (`TeamCode/autos/BENCH.md`). The folder gets `result.json` and one
-  `.wpilog` per seed.
+  `{"spec": "RSoloAuto@50", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}` (the
+  number after `@` is our speed, in/s). The folder gets `result.json` and one `.wpilog` per seed.
+- **Partners.** The request's `"partners"` list runs the Auto again beside each stand-in from
+  `TeamCode/autos/partners/` at a timing: `{"name": "fires in 5 s", "partner":
+  "PartnerLLaunchParkAuto", "timing": {"startDelayS": 3, "speed": 40, "launchS": 1.6, "pickS": 4}}`
+  (each knob optional: seconds before its first card, its drive profile, seconds per launch
+  volley, seconds at a FLOWER; `AutoSim.startDelay`, `speed`, `launchSeconds`, `pickSeconds`).
+  Each partner run gets its own folder, `<partner .pp name>/<timing name>/`, with its
+  `result.json` and logs, and the top `result.json` carries `entries`: one row per run with the
+  points, our launches, the TIPs and when, how our first wait ended and when, the first robot
+  collision and whether we parked. Which partners each Auto runs with is in
+  `TeamCode/autos/README.md`.
 - **From the Visualizer**, Save & Simulate to `master` commits the `.pp`, its Java and the Auto's
   own `TeamCode/sim-requests/<name>.json` to an `auto/<name>` branch and opens a pull request that
   merges itself once CI passes (the fast lane, `.github/CONTRIBUTING.md`). The "Simulate Auto"
-  workflow runs the request on that branch (about 1.5 min) and publishes the result and the best
-  and typical logs to the `sim-results` branch, where the Visualizer reads them back.
+  workflow runs the request on that branch, the Auto alone and then each partner run, and
+  publishes the result and the best and typical logs to the `sim-results` branch, where the
+  Visualizer reads them back: the Auto alone at `<auto>/latest.json` as before, each partner run at
+  `<auto>/<commit>/<partner>/<timing>/` and `<auto>/with/<partner>/<timing>/latest.json`, and the
+  job summary shows the results table. Partner runs take fewer seeds so the job stays under about
+  five minutes.
 - **Its points are shown, never enforced.** No test fails an Auto for scoring less: when time is
   short, a check like that could keep a needed fix off the robot (31 Oct 2026). Only
   `SimulatorSmokeTest` (one seed of R-Solo, about a second) runs with the unit tests; the other
