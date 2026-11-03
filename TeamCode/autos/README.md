@@ -26,6 +26,17 @@ in the link: `#team=auto/r-solo/r-solo.pp`.
 the same name: that makes or updates its `auto/<name>` branch and pull request, the simulator runs
 on it, and a mentor merges it once the robot has driven it. A change to a spot is **Save team
 spots…** instead: its own pull request, and every Auto that uses the spot is re-exported in it.
+Offline, **Save to repo folder…** writes the same two files (the `.pp` here and its Java in
+`generated/`) straight into this checkout on the laptop; commit them on an `auto/<name>` branch
+afterwards (or do Save to GitHub once online), so master has the Auto the robot ran.
+
+**The competition loop.** The night before, with Wi-Fi: open the Visualizer once (it keeps an
+offline copy of itself), open the Autos, and pick this checkout once in **File → Save to repo
+folder…** (Chrome or Edge; the folder that holds `TeamCode`). At the event, no internet needed:
+change the Auto, **Save to repo folder** (the browser asks once to allow the folder), then Sloth
+Load from Android Studio over USB. The Files panel opens the checkout's Autos from the laptop, and
+the team spots come from its `spots.json` while GitHub is out of reach. Commit the changed `.pp`
+and Java on an `auto/<name>` branch when back online.
 
 - **The `.pp` is the source; the Java is generated.** Change an Auto by opening its `.pp` in the
   Visualizer, editing it, and exporting again (Export → Export Auto (Java)). Never edit the
