@@ -1017,8 +1017,8 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   come later than asked; the table shows when it did.
 - **A partner fails in two ways, nothing in between.** `"fails": "misses"`: every shot goes
   `AutoSim.MISS_WIDE_IN` to the side of the CELL, so it causes no TIP, and it carries on with its
-  Auto and parks on schedule. Dead on its start: a still stand-in (`PartnerRStillAuto`,
-  `PartnerLStillAuto`), with `lastShotS` still setting our wait, as their team would have said it.
+  Auto and parks on schedule. Dead on its start: a broken-down stand-in (`PartnerRBrokenDownAuto`,
+  `PartnerLBrokenDownAuto`), with `lastShotS` still setting our wait, as their team would have said it.
   "Later than they said" is not modelled (mentor, 3 Nov 2026).
 - **The raw knobs stay, for studies:** `"timing": {"startDelayS": 3, "speed": 40, "launchS": 1.6,
   "pickS": 4}` (each optional: seconds before its first card, its drive profile, seconds per

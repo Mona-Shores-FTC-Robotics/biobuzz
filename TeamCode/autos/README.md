@@ -75,7 +75,8 @@ accepts a `SOURCE` here as it does in the folder itself.
 
 | Stand-in | What it does |
 |---|---|
-| `partner-r-still`, `partner-l-still` | Sits on the right or left start for the whole of AUTO. |
+| `partner-r-still`, `partner-l-still` | A partner that plans not to move: starts out of the way, back on the side wall in the corner by our alliance wall (x 15), and sits there for the whole of AUTO. |
+| `partner-r-broken-down`, `partner-l-broken-down` | A partner that meant to run an Auto and broke down: sits on the right or left start for the whole of AUTO. The "dead" runs use it. |
 | `partner-park-1`, `partner-park-2` | Sits on the left start until 15 s, then parks (two different starts and park spots). |
 | `partner-r-launch-park`, `partner-l-launch-park` | Spins up, waits for its own CELL to be up (at most 12 s), fires all four preloads at it, parks. The right CELL is up at the start, so the right one fires at once; the left one fires once our first TIP raises the left CELL. |
 | `partner-l-tip-park` | The left launch-park, then the scoring FLOWER, four more at the left CELL (eight pieces: a TIP), then parks. |
@@ -93,15 +94,15 @@ driver:** an entry gives the one number we ask a partner, `"lastShotS"` ("when d
 preload leave?"). That times the stand-in's launch, and sets our partner wait as the driver would
 in INIT: the last shot plus the TIP lag (`partnerTipLagS` in `timing.json`, 4 s). Each Auto with a
 partner runs it **on time**, **missing** (`"fails": "misses"`: every shot wide, no TIP, it still
-parks on schedule) and **dead** (a still stand-in on its start). Nothing in between: "later than
+parks on schedule) and **dead** (a broken-down stand-in on its start). Nothing in between: "later than
 they said" is not modelled (mentor, 3 Nov 2026). The curation, the mentor's to correct:
 
 | Auto | Alone | On time | Missing | Dead |
 |---|---|---|---|---|
-| L-Partner | yes | `partner-r-launch-park`, last shot at 2, 5, 8 and 12 s: our partner wait runs to 6, 9, 12 and 16 s | the same, said 8 s | `partner-r-still`, said 8 s: we wait to 12 s, then take the Otherwise branch |
-| R-Partner-Preload | yes | `partner-l-launch-park`, last shot at 6 and 10 s | the same, said 6 s | `partner-l-still` |
-| R-Partner-Tip | yes | `partner-l-tip-park` at 50 in/s | the same | `partner-l-still` |
-| R-Solo | yes | `partner-park-1` (no launches) | | `partner-l-still` |
+| L-Partner | yes | `partner-r-launch-park`, last shot at 2, 5, 8 and 12 s: our partner wait runs to 6, 9, 12 and 16 s | the same, said 8 s | `partner-r-broken-down`, said 8 s: we wait to 12 s, then take the Otherwise branch |
+| R-Partner-Preload | yes | `partner-l-launch-park`, last shot at 6 and 10 s; `partner-l-still` (out of the way) | the same, said 6 s | `partner-l-broken-down` |
+| R-Partner-Tip | yes | `partner-l-tip-park` at 50 in/s; `partner-l-still` (out of the way) | the same | `partner-l-broken-down` |
+| R-Solo | yes | `partner-park-1` (no launches), `partner-l-still` (out of the way) | | `partner-l-broken-down` |
 | R-Solo-Staging | yes | `partner-l-stage-park` (see the note below) | | |
 
 **The results table** in the workflow's job summary has a row per seed of each run: points, our

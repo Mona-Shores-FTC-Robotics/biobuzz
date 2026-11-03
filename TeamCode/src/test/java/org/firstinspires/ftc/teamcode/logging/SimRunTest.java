@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  *  "partners": [
  *    {"name": "last shot at 8 s", "partner": "PartnerRLaunchParkAuto", "lastShotS": 8},
  *    {"name": "misses, said 8 s", "partner": "PartnerRLaunchParkAuto", "lastShotS": 8, "fails": "misses"},
- *    {"name": "dead on its start, said 8 s", "partner": "PartnerRStillAuto", "lastShotS": 8},
+ *    {"name": "dead on its start, said 8 s", "partner": "PartnerRBrokenDownAuto", "lastShotS": 8},
  *    {"name": "a study", "partner": "PartnerLLaunchParkAuto",
  *     "timing": {"startDelayS": 1.5, "speed": 40, "launchS": 0.8, "pickS": 4}}
  *  ],
@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
  * preload leave?", which times the stand-in's launch and sets our Auto's partner wait as the driver would in INIT
  * ({@link AutoStudyTest.PartnerTiming#derive}). A partner fails in one of two ways, and nothing in between:
  * {@code "fails": "misses"} (every shot wide, no TIP; it carries on and parks) or dead on its start (a still
- * stand-in, {@code PartnerRStillAuto} or {@code PartnerLStillAuto}, with {@code lastShotS} still setting our wait).
+ * stand-in, {@code PartnerRBrokenDownAuto} or {@code PartnerLBrokenDownAuto}, with {@code lastShotS} still setting our wait).
  * {@code timing} is the raw override for studies ({@link AutoStudyTest.PartnerTiming}: a start delay, a drive
  * speed, seconds per launch volley, seconds at a FLOWER; each optional, and each wins over what {@code lastShotS}
  * derives). An entry may name its own {@code seeds}; otherwise it runs
