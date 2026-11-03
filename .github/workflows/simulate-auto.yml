@@ -25,6 +25,10 @@ name: Simulate Auto
 # A request is TeamCode/sim-request.json, or on the fast lane (an auto/<name> branch, opened by the
 # Visualizer's Save & Simulate into master) the Auto's own TeamCode/sim-requests/<name>.json, so two
 # Autos in flight never conflict. Not on master itself: the save's own branch already ran it.
+#
+# The request is a file the pushed commit itself changed (against its first parent) and that still
+# exists. A merge commit (merging master into a branch, say) changes none: the request files it brings
+# in changed on another branch, which already simulated them, so it skips and the check passes.
 on:
   push:
     branches-ignore: [master]
@@ -48,31 +52,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 2  # the pushed commit and its parent: which request it changed
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v4
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
+          fetch-depth: 2  # the pushed commit and its parent(s): which request it changed
 
       - name: Write the request
         id: request
         run: |
           mkdir -p "$RUNNER_TEMP/sim"
           python3 - <<'EOF'
-          import json, os, subprocess
-          # The request this push's commit changed: an Auto's own file first, else the shared one.
-          changed = subprocess.run(["git", "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"],
-                                   capture_output=True, text=True).stdout.split()
-          own = sorted(f for f in changed if f.startswith("TeamCode/sim-requests/") and f.endswith(".json"))
-          path = own[0] if own else "TeamCode/sim-request.json"
+          import json, os, subprocess, sys
+          def git(*args):
+              return subprocess.run(["git", *args], capture_output=True, text=True, check=True).stdout.split()
+          def skip(why):
+              print(f"Nothing to simulate: {why}")
+              with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+                  out.write("skip=true\n")
+              sys.exit(0)
+          # The files the pushed commit changed, against its first parent (a merge commit's own diff-tree
+          # is empty, which once sent this to a shared file master does not have). A root commit has no parent.
+          has_parent = subprocess.run(["git", "rev-parse", "-q", "--verify", "HEAD^1"], capture_output=True).returncode == 0
+          changed = git("diff", "--name-only", "HEAD^1", "HEAD") if has_parent else git("diff-tree", "--root", "--no-commit-id", "--name-only", "-r", "HEAD")
+          requests = sorted(f for f in changed if os.path.isfile(f) and f.endswith(".json")
+                            and (f.startswith("TeamCode/sim-requests/") or f == "TeamCode/sim-request.json"))
+          if subprocess.run(["git", "rev-parse", "-q", "--verify", "HEAD^2"], capture_output=True).returncode == 0:
+              # A merge commit: whatever request files it brings in changed on another branch, and nothing
+              # about those Autos changed here.
+              skip("a merge commit; the request files it carries (" + (", ".join(requests) or "none") + ") were simulated on their own branch")
+          if not requests:
+              skip("this commit changed no request file that still exists (looked for TeamCode/sim-requests/*.json, then TeamCode/sim-request.json)")
+          # An Auto's own file first, else the shared one.
+          own = [f for f in requests if f.startswith("TeamCode/sim-requests/")]
+          path = own[0] if own else requests[0]
           print(f"Request: {path}")
           req = json.load(open(path))
           meta = req.setdefault("metadata", {})
@@ -88,7 +97,23 @@ jobs:
               out.write(f"auto={auto}\n")
           EOF
 
+      - name: Set up JDK 17
+        if: steps.request.outputs.skip != 'true'
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        if: steps.request.outputs.skip != 'true'
+        uses: android-actions/setup-android@v4
+
+      - name: Set up Gradle
+        if: steps.request.outputs.skip != 'true'
+        uses: gradle/actions/setup-gradle@v5
+
       - name: Simulate (SimRunTest)
+        if: steps.request.outputs.skip != 'true'
         id: sim
         continue-on-error: true
         run: |
@@ -99,6 +124,7 @@ jobs:
           test -f "$RUNNER_TEMP/sim/result.json" && ! grep -q '"error"' "$RUNNER_TEMP/sim/result.json"
 
       - name: Publish to sim-results
+        if: steps.request.outputs.skip != 'true'
         env:
           AUTO: ${{ steps.request.outputs.auto }}
           SIM_OK: ${{ steps.sim.outcome }}
@@ -216,7 +242,7 @@ jobs:
           git push -q -f origin HEAD:refs/heads/sim-results
 
       - name: Fail if the simulation failed
-        if: steps.sim.outcome != 'success'
+        if: steps.request.outputs.skip != 'true' && steps.sim.outcome != 'success'
         run: |
           echo "The simulation failed; its error is in sim-results and in the summary above."
           exit 1
