@@ -187,7 +187,24 @@ they came from.
 | How the robot and the HIVE behave: drive speed, spin-up, a volley, time to full, a TIP's start and swing, the CELL loads | `timing.json` here (`version`, then each fact's `value`, `source` and `note`) | The Visualizer's Typical preview and its **Timing facts** dialog, which reads this file from the branch Team Autos last listed. It never changes the robot or the export |
 
 - **A fact's `source` says how sure it is**: `measured, <robot>, <dates>`, or `estimate`. The
-  `note` says from which logs, and the dialog shows it next to the value.
+  `note` is one line, shown under the fact in the dialog; the longer story goes below.
+- **Where the measured facts came from** (20245, the 29 Oct to 2 Nov 2026 logs on the `logs/*`
+  branches; each note in the file is the one-line version):
+  - `driveSpeed` 1.0: logged drive time against the export's `kit.path` seconds. 2 Nov R-Quals
+    (12.76 V) ran its three drives at 0.98, 1.05 and 1.25, and R-Simple's park at 0.83. 1 Nov
+    R-Simple, 19 runs of one 3.1 s path: 0.88 to 1.11, median 1.0. The 1.5 of 25 Oct was the light
+    chassis.
+  - `spinUpS` 1.1: 83 spin-ups from rest to launch speed (1500 to 1625 ticks/s), median 1.1 s,
+    middle half 1.0 to 1.3, all 0.9 to 2.1 (slowest on a sagging battery). The first LaunchAll at
+    PLAY waited 0.94 to 1.36 s for it.
+  - `volleyS` 4.0: LaunchAll after a drive with the launcher at speed, the settle (0.17 to 0.66 s)
+    and `LaunchCards`' set 3.5 s feed; 4.17 s in 2 Nov R-Quals. The last of four balls left 2.3 to
+    2.6 s after the gate opened (median 2.4; ten 1 Nov feeds, read from the wheels' dip per ball).
+  - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
+    started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
+    lane latched full 0.44 s after its last spike, 1.43 s in.
+  - `tipSwingS` 0.7 (estimate): the camera saw two swings, both tipped by hand (1 Nov 23:16, 2 Nov
+    16:51), 0.57 and 0.43 s from TRANSITION to settled. It sees a swing late.
 - **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop
   until it is copied in. Unknown facts are dropped when it loads.
 - **After changing a typical time in `AutoRegistration`**, update `auto-registry.json` (the test
