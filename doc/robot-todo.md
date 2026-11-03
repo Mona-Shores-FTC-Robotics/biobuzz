@@ -28,6 +28,11 @@ tile C6) for L-Partner. Place by the marks, never by the camera.
 - [ ] Panels open (`192.168.43.1:8001`); robot Wi-Fi + REV Hardware Client so `pull-logs.cmd`
       works. Pull logs after each group: every check below ends in a match log. [S2 §1]
 - [ ] A taped spot about 3 ft out from the red WALL FLOWER, square to the wall. [S5 Before]
+- [ ] **Dry-run the competition loop once:** in Chrome, Visualizer → File → Save to repo folder…,
+      pick this checkout, save R-Solo under its own name, Sloth Load. **Good:** the Driver Station's
+      R-Solo name ends with that save's time; a fresh Chrome window later only asks to allow the
+      folder, not to pick it. **Stop:** Chrome refuses or forgets the folder → note the Chrome
+      version and do Save to GitHub instead. → [Visualizer PR #44]. [autos README](../TeamCode/autos/README.md#open-the-autos-on-master)
 - [ ] **Event-loop dry run, laptop Wi-Fi off:** open the Visualizer once with Wi-Fi on the night before,
       then offline change one step in one of the five Autos, **Export → Export Auto (Java)** and
       **File → Save to computer**, drop both into the checkout (`generated/` and `TeamCode/autos/`),
@@ -125,10 +130,15 @@ These gate Belding. Run each from its start, alliance from §2.
       [PR #377]
 - [ ] **CellUp with the CELL already up:** L-Partner at `LEFT_LAUNCH_CATCH` with the left CELL
       tipped up by hand first (or a partner's tip over before the wait starts). **Good:** the wait ends
-      at once and the Auto fires, not at its limit (8 s on the match clock since #391). Then with the CELL **down** and nobody tipping:
-      it waits out its limit and fires anyway (the Auto's own choice for now). **Stop:** it waits with
+      at once and the Auto fires, not at its limit (8 s on the match clock since #391). Then with the
+      CELL **down** and nobody tipping: it waits out its limit and fires anyway (the Auto's own choice for now). **Stop:** it waits with
       the CELL up, or fires at once with it down → save the match log; check which CELL the robot
       aims at from its end of the field (`AutoRegistration.aimedLeft`). [PR #377]
+- [ ] **TIP lag, from the same runs' logs:** seconds from the partner's (or R-Partner-Tip's own)
+      last preload leaving the launcher (the feed's end) to the CellUp trigger. **Good:** 1.5–5 s,
+      the simulator's range; write the number into `doc/partner-timing.md` as the margin the driver's
+      partner wait adds. **Stop:** more than 5 s → the HIVE dwell is longer than filmed; record the
+      load in the CELL. [PR #387]
 - [ ] **The other park:** L-Partner with RIGHT_PARK picked in INIT, then R-Solo with LEFT_PARK.
       **Good:** it parks on the picked spot, inside the LOADING ZONE, touching nothing on the way.
       **Stop:** it touches the HIVE → note where (log pose); that park comes out of the Auto's INIT
@@ -143,8 +153,8 @@ These gate Belding. Run each from its start, alliance from §2.
       of the Red HIVE, parked by 30 s. **Stop:** it touches the HIVE → note the pose; bend that park
       (P on the step) in the Visualizer. [PR #391]
 - [ ] **The TIP margin, from the logs:** on a run with a real tip, the time from the CELL's swing
-      starting (the `HIVE (…): TRANSITION` event) to the wait ending on `CellUp`. **Good:** a few runs agree → it
-      replaces the 1 s placeholder `InitOptions.TIP_SEEN_MARGIN_S`. [PR #391]
+      starting (the `HIVE (…): TRANSITION` event) to the wait ending on `CellUp`. **Good:** a few
+      runs agree → it replaces the 1 s placeholder `InitOptions.TIP_SEEN_MARGIN_S`. [PR #391]
 - [ ] **PickFlower squares up** from a crooked arrival. **Good:** it turns square before it pushes.
       [PR #313]
 - [ ] **A launch's time limit never cuts a feed;** the Auto graphs the launcher in Panels. **Good:**
@@ -308,6 +318,7 @@ one test at one meeting.
 [S5 seam §4]: robot-session-5.md#also-with-an-auto-on-the-field-the-drive-to-pick-seam-pr-378
 [S5 seam §5]: robot-session-5.md#also-with-an-auto-on-the-field-the-drive-to-pick-seam-pr-378
 [handoff]: ../.claude/handoff/20245-camera-calibration.md
+[Visualizer PR #44]: https://github.com/Mona-Shores-FTC-Robotics/Visualizer/pull/44
 [PR #262]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/262
 [PR #266]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/266
 [PR #267]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/267
@@ -350,6 +361,7 @@ one test at one meeting.
 [PR #377]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/377
 [PR #378]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/378
 [PR #384]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/384
+[PR #387]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/387
 [PR #391]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/391
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
