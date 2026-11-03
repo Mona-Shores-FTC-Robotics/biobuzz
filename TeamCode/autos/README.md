@@ -6,6 +6,27 @@ has its `.pp` file committed here, in the same PR as the Java generated from it.
 
 **New to the Visualizer?** Start with [How to plan an Auto](how-to-plan-an-auto.md).
 
+## Open the Autos on master
+
+One link each, always the latest on `master` (the Visualizer reads the file from GitHub):
+
+| Auto | Open it |
+|---|---|
+| L-Partner | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/l-partner.pp> |
+| R-Solo | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo.pp> |
+| R-Partner-Tip | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-partner-tip.pp> |
+| R-Partner-Preload | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-partner-preload.pp> |
+| R-Solo-Staging | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo-staging.pp> |
+
+Inside the Visualizer, the same list is **View → Team Autos: the latest from biobuzz, together…**
+(pick a branch, tick up to four Autos, Reload latest). A pull request's draft opens with its branch
+in the link: `#team=auto/r-solo/r-solo.pp`.
+
+**The polish loop.** Open the Auto from master, change it, **Save to GitHub and simulate…** under
+the same name: that makes or updates its `auto/<name>` branch and pull request, the simulator runs
+on it, and a mentor merges it once the robot has driven it. A change to a spot is **Save team
+spots…** instead: its own pull request, and every Auto that uses the spot is re-exported in it.
+
 - **The `.pp` is the source; the Java is generated.** Change an Auto by opening its `.pp` in the
   Visualizer, editing it, and exporting again (Export → Export Auto (Java)). Never edit the
   generated Java by hand: the next export overwrites it.
