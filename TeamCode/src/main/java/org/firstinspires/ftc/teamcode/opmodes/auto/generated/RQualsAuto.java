@@ -19,7 +19,7 @@ public final class RQualsAuto {
     public static final String SOURCE = "r-quals.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "";
+    public static final String SAVED = "11-03|1:34AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -50,7 +50,7 @@ public final class RQualsAuto {
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose gardenStaging = p.of(11.5, 22.1, 270);
         Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
-        Pose rightPark = p.of(9.6, 95.7, 0);
+        Pose rightPark = p.of(14.5, 95.7, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose wallFlowerStagingParkControl1 = p.of(26, 75, 0);
@@ -75,21 +75,21 @@ public final class RQualsAuto {
         Path toRightPark = Paths.curve(rightLaunchCatch, toRightParkControl1, rightPark).linear(rightLaunchCatch, rightPark);
 
         return kit.sequence(
-                kit.guarded("Auto", toRightPark, 2.8,
+                kit.guarded("Auto", toRightPark, 2.7,
                         kit.command("SpinUp"),
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
                         kit.command("PickFlower", 8),
-                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 2.5, leftLaunchOffsetPark, 1.9),
+                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 2.5, leftLaunchOffsetPark, 1.8),
                         kit.command("LaunchAll"),
                         kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1, scoringFlowerStagingPark, 1.9),
                         kit.command("PickFlower", 8),
-                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffsetPath, 1.1, leftLaunchOffsetPark, 1.9),
+                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffsetPath, 1.1, leftLaunchOffsetPark, 1.8),
                         kit.command("LaunchAll"),
                         kit.path("to GARDEN_STAGING", toGardenStaging, 2.9, gardenStagingPark, 2.5),
                         kit.command("GardenGather", 8),
                         kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 2),
                         kit.command("LaunchAll"),
-                        kit.path("to RIGHT_PARK", toRightPark, 2.8)));
+                        kit.path("to RIGHT_PARK", toRightPark, 2.7)));
     }
 }
