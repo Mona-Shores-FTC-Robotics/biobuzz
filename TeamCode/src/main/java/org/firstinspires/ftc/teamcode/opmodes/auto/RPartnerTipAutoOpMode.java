@@ -9,6 +9,6 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RPartnerTipAuto;
 public class RPartnerTipAutoOpMode extends BuiltAuto {
     public RPartnerTipAutoOpMode() {
         super(RPartnerTipAuto.SOURCE, RPartnerTipAuto.COMMANDS, RPartnerTipAuto.TRIGGERS, RPartnerTipAuto.DRAWN_FOR,
-                RPartnerTipAuto::startPose, RPartnerTipAuto::build);
+                RPartnerTipAuto::startPose, RPartnerTipAuto::build, RPartnerTipAuto.OPTIONS);
     }
 }

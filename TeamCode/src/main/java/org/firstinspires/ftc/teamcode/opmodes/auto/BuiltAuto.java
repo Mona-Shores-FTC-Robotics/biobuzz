@@ -7,6 +7,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
+import org.firstinspires.ftc.teamcode.autokit.AutoOption;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.StartMatch;
@@ -32,7 +33,8 @@ import java.util.function.Function;
  * public class HiveRushOpMode extends BuiltAuto {
  *     public HiveRushOpMode() {
  *         super(HiveRushAuto.SOURCE, HiveRushAuto.COMMANDS, HiveRushAuto.TRIGGERS,
- *                 HiveRushAuto.DRAWN_FOR, HiveRushAuto::startPose, HiveRushAuto::build);
+ *                 HiveRushAuto.DRAWN_FOR, HiveRushAuto::startPose, HiveRushAuto::build,
+ *                 HiveRushAuto.OPTIONS);
  *     }
  * }
  * </pre>
@@ -59,6 +61,11 @@ import java.util.function.Function;
  * Auto was picked, or the robot is on the wrong spot; {@link #cameraOnOtherStart}). One HIVE in
  * view is enough, which is all a start sees. Square (X) or Circle (B) still wins; with no match
  * there is no alliance, and the Auto does not move.
+ *
+ * <p><b>The drive team may change a few things in INIT</b> ({@link InitOptions}): the PARK spot
+ * (D-pad left / right) and, for an Auto drawn with one, when its TIP wait gives up (D-pad up /
+ * down, as the partner's TIP time). The generated {@code OPTIONS} says which; the Auto is built at
+ * PLAY with the picks, and they go to the match log.
  *
  * <p>While mechanisms are still missing, the names {@link AutoRegistration#PLACEHOLDERS} lists are
  * placeholders (a command that finishes at once, a trigger that never fires), and INIT says so on
@@ -98,6 +105,8 @@ public abstract class BuiltAuto extends RobotOpMode {
     private final String drawnFor;
     private final Function<Boolean, Pose> startPose;
     private final BiFunction<AutoKit, Boolean, Command> build;
+    /** What the drive team may change in INIT, and their picks. */
+    private final InitOptions options;
     /** The two places this Auto can start, built once so INIT never allocates. */
     private final StartPosition drawnStart;
     private final StartPosition rotatedStart;
@@ -123,13 +132,15 @@ public abstract class BuiltAuto extends RobotOpMode {
     private final Pose[] candidateFixes;
 
     protected BuiltAuto(String source, String[] commands, String[] triggers, String drawnFor,
-                        Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build) {
+                        Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build,
+                        AutoOption[] options) {
         this.source = source;
         this.commands = commands;
         this.triggers = triggers;
         this.drawnFor = drawnFor;
         this.startPose = startPose;
         this.build = build;
+        this.options = new InitOptions(options);
         Alliance drawn = Alliance.valueOf(drawnFor);
         Alliance other = drawn == Alliance.RED ? Alliance.BLUE : Alliance.RED;
         // A drawing that starts on a declared start takes its name and placement sentence.
@@ -196,6 +207,8 @@ public abstract class BuiltAuto extends RobotOpMode {
             targetWritten = start;
             pathLog.target(start.pose);
         }
+        options.update(gamepad1.dpad_left, gamepad1.dpad_right, gamepad1.dpad_up, gamepad1.dpad_down);
+        options.describe(display);
         if (!placeholders.isEmpty()) {
             display.status("Placeholders", Display.Level.WARN, String.join(", ", placeholders)
                     + ": no mechanism yet, so these waits run to their limits");
@@ -244,6 +257,8 @@ public abstract class BuiltAuto extends RobotOpMode {
     @Override
     protected void onStart() {
         robot.drive.setStartCandidates();
+        options.lock();
+        if (!options.isEmpty()) log.metadata("AutoOptions", options.summary());
         Alliance alliance = setup.alliance();
         if (alliance == Alliance.UNKNOWN) {
             problem = "No alliance chosen before PLAY (Square (X) = blue, Circle (B) = red during INIT). Not moving.";
@@ -261,7 +276,8 @@ public abstract class BuiltAuto extends RobotOpMode {
         trace = new AutoTrace(TRACE_LINES, line -> log.event(line));
         AutoKit kit = new AutoKit(robot.drive, registry, () -> (System.nanoTime() - startNs) / 1e9)
                 .trace(trace)
-                .watchPaths(both(pathLog, settle));
+                .watchPaths(both(pathLog, settle))
+                .picks(options);
         Command auto = build.apply(kit, rotated);
         pathLog.plan(kit.paths());
         auto.schedule();

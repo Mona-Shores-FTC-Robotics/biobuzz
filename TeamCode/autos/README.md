@@ -176,6 +176,47 @@ The endgame guard (`autokit/AutoKit.guarded`) gets the robot to PARK by 30 s:
   PARK spot, shared by every drive to that spot. Press **P** on a drive step to see it (everything
   else dims) and bend it with a control point. The drive just before Park needs none.
 
+## When the TIP does not come (a Wait's Otherwise)
+
+A Wait step's **Otherwise** steps run only if the wait times out. Its **then** picks what comes
+after them:
+
+- **go on with the steps below**: the robot carries on with the steps under the wait, as if the
+  TIP had come (L-Partner: back to `LEFT_LAUNCH_CATCH`, then the rest of the plan).
+- **park**: the Otherwise ends with its own Park step, and the steps under the wait run only when
+  the TIP comes. In the `.pp` and the Java the wait is then the Auto's last step, each of its two
+  outcomes holding the rest of its own route.
+
+Either way, every drive in an Otherwise has a park path from its spot (P on the step), as the
+main list's drives do, so a guard that parks early parks from where the robot is. A long one may
+need a bend: L-Partner's park from `RIGHT_LAUNCH_CATCH` bends west of the Red HIVE.
+
+## Changing an Auto at the field (INIT options)
+
+A partner tells us in the queue where they park, or when they tip. The drive team changes it in
+INIT with **gamepad 1's D-pad**, no new export needed (`opmodes/auto/InitOptions`):
+
+| D-pad | Changes | Offered by |
+|---|---|---|
+| Left / Right | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked |
+| Up / Down | the partner's TIP time, 1 s a press; our TIP wait gives up 1 s after it, on the match clock | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
+
+- **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
+  as drawn and amber once changed; PLAY locks them, and the match log records them
+  (`AutoOptions`).
+- **The park.** Every park path (the Park step's and each spot's, P) is driven to the picked
+  park: the same path with its end moved. The builder checks those against the field too, so a
+  path that clips the HIVE on the way to the other park shows on its step; bend it until both
+  are clear. The endgame guard reserves the picked park's time.
+- **The TIP wait on the match clock.** "Until 8 s" ends at 8 s into the match however late the
+  robot got there, unlike "at most 7 s", which starts counting when the wait begins. The 1 s
+  margin (`InitOptions.TIP_SEEN_MARGIN_S`) is a placeholder until match logs measure the time
+  from a TIP to our camera seeing the CELL settle UP.
+- Today: L-Partner offers `RIGHT_PARK` and the partner's TIP time (drawn: TIP at 7 s, give up at
+  8 s); R-Solo offers `LEFT_PARK`. R-Partner-Tip, R-Partner-Preload and R-Solo-Staging offer no
+  other park yet: their park paths are bent toward `RIGHT_PARK`, and the same paths to
+  `LEFT_PARK` would clip the Red HIVE.
+
 ## Timing: two sets of numbers
 
 The preview and the robot time an Auto from two places. Measured values go in both, with where
