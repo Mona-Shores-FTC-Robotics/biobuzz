@@ -32,9 +32,14 @@ import java.util.function.Consumer;
  *       (waiting at most {@link #SETTLE_MAX_MS} for that): Pedro calls a short path done before the
  *       robot has turned.</li>
  *   <li><b>Prep.</b> The mechanisms get ready ({@link #prep}), and the robot waits {@link #prepMs}
- *       for them. Prep starts during the line-up once the robot is within {@link #prepWithinIn}.
- *       The In also waits for the robot to slow below {@link #settledInPerSec} (at most
- *       {@link #SETTLE_MAX_MS}), since Pedro ends a path still rolling.</li>
+ *       for them. Prep starts during the line-up once the robot is within {@link #prepWithinIn};
+ *       on an Auto's card the drive before it may have done it already on its way in
+ *       ({@link #readySinceNs}: a FLOWER pick's stick, lowered over the last stretch of the drive),
+ *       and then the wait counts from then and is usually over. The In also waits for the robot to
+ *       slow below {@link #settledInPerSec} (at most {@link #SETTLE_MAX_MS}): Pedro calls a path done
+ *       at its end with the robot still rolling, and a grab need not be still, only slow (its
+ *       hand-over speed, lighter than a launch's), since it squares up on its own and ends on
+ *       contact.</li>
  *   <li><b>In.</b> A Pedro path to where the grab happens ({@link #inPose}), capped at
  *       {@link #inSpeed} of the robot's top speed. It ends when the path does, or when the robot
  *       stops getting closer (it is against something; not counted in the path's first moments,
@@ -71,8 +76,9 @@ import java.util.function.Consumer;
  * considers every one, since in TeleOp they are all ours to use. The robot is always on its own half
  * in an Auto, so this needs no alliance.
  *
- * <p>The robot comes to rest at the start and the end of each grab. A grab that keeps moving into
- * the next drive is a later change, here, for every grab at once.
+ * <p>A grab starts from a robot still slowing (the drive before it hands over at Pedro's path end)
+ * and comes to rest at its end. A grab that keeps moving into the next drive is a later change,
+ * here, for every grab at once.
  */
 public abstract class GrabRoutine {
 
@@ -193,6 +199,17 @@ public abstract class GrabRoutine {
     /** The mechanisms get ready (stick down, intake on). Called once. */
     protected abstract void prep();
 
+    /**
+     * When the mechanisms were already made ready before this grab started, System.nanoTime, or 0
+     * when they were not: an Auto's drive lowers a FLOWER pick's stick on its way in
+     * ({@code FlowerPicker}'s approach, run by {@code AutoKit}), and the driver may have it down
+     * already. The prep wait ({@link #prepMs}) then counts from that moment, so a stick that has been
+     * down long enough costs the push nothing. Never, by default.
+     */
+    protected long readySinceNs() {
+        return 0;
+    }
+
     /** The mechanisms put away during the back-out (stick up). Called once, if prepped. */
     protected abstract void unprep();
 
@@ -209,7 +226,10 @@ public abstract class GrabRoutine {
     protected abstract double atLineUpIn();
     protected abstract double atLineUpDeg();
     protected abstract double lineUpTimeoutMs();
-    /** The In starts once the robot is slower than this, inches/s (see {@link #SETTLE_MAX_MS}). */
+    /**
+     * The In starts once the robot is slower than this, inches/s (see {@link #SETTLE_MAX_MS}): the
+     * grab's hand-over speed, from the drive before it. Slow, not still: a launch waits for still.
+     */
     protected abstract double settledInPerSec();
     protected abstract double inSpeed();
     protected abstract double inTimeoutMs();
@@ -441,6 +461,16 @@ public abstract class GrabRoutine {
             refuse("no path following on this robot: " + e.getMessage());
             return;
         }
+        long ready = readySinceNs();
+        if (ready != 0) {
+            // Made ready on the way here: the prep wait counts from then, and is usually over.
+            prepped = true;
+            preppedNs = ready;
+            prep();
+            robot.intake.readCurrentEveryLoop(true);
+            event.accept(String.format(Locale.US, "%s: prep done on the way in, %.2f s ago", what(),
+                    ms(now, ready) / 1000.0));
+        }
         boolean there = true;
         Pose lineUpPose = null;
         if (lineUp) {
@@ -576,7 +606,8 @@ public abstract class GrabRoutine {
 
     /**
      * The longest a grab waits, ms, for the robot to face the line-up's heading after its path, and
-     * again for it to slow before the In: a robot that never quite gets there still goes.
+     * again for it to slow below {@link #settledInPerSec} before the In: a robot that never quite
+     * gets there still goes.
      */
     static final double SETTLE_MAX_MS = 500;
 

@@ -48,7 +48,11 @@ import java.util.function.Function;
  * Both are registered as grabs ({@code AutoRegistry.grab}): they drive the robot off its spot and
  * back (a FLOWER pick squares up first, onto the FLOWER's line, and comes back to that squared-up
  * spot, not the drawn one: {@link FlowerPicker}), so the endgame guard never cuts one and does not start one unless its typical time (the
- * gather's 6 s allows for a long drive in and back) and the park both fit.
+ * gather's 6 s allows for a long drive in and back) and the park both fit. {@code PickFlower} also
+ * has an approach ({@code AutoRegistry.Approach}, {@link FlowerPicker#approach}): the path card
+ * right before it lowers the stick over its last 18 in, so the pick's stick wait is over when the
+ * card starts. {@code GardenGather} has none yet: its stick came down on the wall when swung early
+ * in the corner (30 Oct 2026), so it still lowers it from its own card.
  *
  * <p>{@code SpinUp}, {@code LaunchAll}, {@code LaunchOne} and {@code Empty} are real since the
  * launcher and feeder landed (#194): see {@link LaunchCards}, including what {@code Empty} means
@@ -125,8 +129,10 @@ public final class AutoRegistration {
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
                 // the pick spot an Auto drives to and ends back there (FlowerPicker's contract). Its
                 // typical time plans for the dwell's 2 s cap, not its usual 1.0-1.3 s, so the endgame
-                // guard keeps time for a slow pick.
-                .grab("PickFlower", 4.5, () -> FlowerPicker.command(robot, note))
+                // guard keeps time for a slow pick. The drive before it lowers the stick on the way
+                // in (its approach), so the pick's stick wait is over when the card starts.
+                .grab("PickFlower", 4.5, () -> FlowerPicker.command(robot, note),
+                        robot == null ? null : FlowerPicker.approach(robot, note))
                 // ---- real: the GARDEN gather, the same routine as the driver's GARDEN gather button. It drives in
                 // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract).
                 .grab("GardenGather", 6.0, () -> GardenGather.command(robot, note))

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autokit;
 
 import com.pedropathing.ivy.Command;
+import com.pedropathing.math.Pose;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,7 +37,33 @@ public final class AutoRegistry {
     private final Map<String, Double> typicalSeconds = new LinkedHashMap<>();
     private final Map<String, Supplier<BooleanSupplier>> triggers = new LinkedHashMap<>();
     private final Set<String> grabs = new HashSet<>();
+    private final Map<String, Approach> approaches = new LinkedHashMap<>();
     private BooleanSupplier holdTimeLimits = () -> false;
+
+    /**
+     * What a grab does on the drive in to it: while the path card right before the grab's card
+     * drives, {@link AutoKit} feeds the grab's approach the robot's progress, so the grab can get
+     * its mechanisms ready on the way (a FLOWER pick lowers its stick over the last stretch) and
+     * need not wait for them once it starts. The two stay separate cards: the drive ends where it
+     * was drawn, and the grab is still the whole grab. One object per registered grab, reused by
+     * every pair in the Auto. Called from the kit's loop: nothing here may block or allocate.
+     */
+    public interface Approach {
+        /** The path card before this grab has started driving a path that ends at {@code end}. */
+        void started(Pose end);
+
+        /**
+         * Once per loop while that path drives: where the robot is and how far, in a straight
+         * line, it still has to go to the path's end.
+         */
+        void approaching(Pose pose, double remainingIn);
+
+        /**
+         * The grab this prepared for is not going to run now: the guard refused it, or the path
+         * before it was cut short. Put away what {@link #approaching} got ready, if anything.
+         */
+        void cancel();
+    }
 
     /**
      * Registers a command.
@@ -65,7 +92,21 @@ public final class AutoRegistry {
         return this;
     }
 
-    /** Whether {@code name} was registered with {@link #grab}. */
+    /**
+     * {@link #grab(String, double, Supplier)}, with what the grab does on the drive in to it
+     * ({@link Approach}): the kit runs it while the path card right before this grab's card drives.
+     */
+    public AutoRegistry grab(String name, double typicalS, Supplier<Command> factory, Approach approach) {
+        grab(name, typicalS, factory);
+        if (approach != null) approaches.put(name, approach);
+        return this;
+    }
+
+    /** The grab's {@link Approach}, or null when it has none or {@code name} is not a grab. */
+    public Approach approach(String name) {
+        return approaches.get(name);
+    }
+
     /**
      * While {@code hold} is true, no time limit ends a step: neither a command's timeout nor a
      * "first of" card's "at most" row. The robot's launch cards hold it while the feeder is feeding,
@@ -83,6 +124,7 @@ public final class AutoRegistry {
         return holdTimeLimits.getAsBoolean();
     }
 
+    /** Whether {@code name} was registered with {@link #grab}. */
     public boolean isGrab(String name) {
         return grabs.contains(name);
     }
