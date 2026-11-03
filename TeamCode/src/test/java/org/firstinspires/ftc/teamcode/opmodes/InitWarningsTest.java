@@ -57,6 +57,20 @@ public class InitWarningsTest {
     }
 
     @Test
+    public void aRobotOnAnotherAutosStartNamesItAndWhereToGo() {
+        // L-Simple picked, robot on the red audience start: no alliance, and the reason.
+        StartPosition redAudience = new StartPosition("Red audience", Alliance.RED, new Pose(55.6, 7.7, Math.toRadians(90)));
+        StartPosition redFar = new StartPosition("Red far wall", Alliance.RED, new Pose(62.3, 133.8, Math.toRadians(270)));
+        w.evaluate(null, Alliance.UNKNOWN, Alliance.UNKNOWN, null, null, 40, 20_000, 13.1, 12.0, false, true,
+                redAudience, redFar);
+        assertTrue(w.has(Kind.WRONG_START));
+        assertEquals("On Red audience, not this Auto's start", w.what(Kind.WRONG_START));
+        assertEquals("pick the Auto that starts there, or move to Red far wall", w.action(Kind.WRONG_START));
+        assertTrue("still no alliance", w.has(Kind.ALLIANCE));
+        assertTrue(w.summary().startsWith("No alliance; On Red audience"));
+    }
+
+    @Test
     public void aCameraThatSeesNoStartIsNoDisagreement() {
         evaluate(null, Alliance.BLUE, Alliance.UNKNOWN, null, null, 40, 20_000, 13.1);
         assertFalse(w.any());
@@ -89,6 +103,20 @@ public class InitWarningsTest {
         w.evaluate(null, Alliance.RED, Alliance.RED, unconfirmed, "not answering", 0,
                 30_000, 13.1, 12.0, false, true);
         assertFalse("a dead camera is its own warning", w.has(Kind.OFF_MARK));
+    }
+
+    @Test
+    public void aNamedOtherStartReplacesThePlainNotOnTheStart() {
+        // Tags in view, no fix on this Auto's start, and the robot matched another known start:
+        // one warning that names it, not two for the same mistake.
+        StartCheck.Result unconfirmed = StartCheck.evaluate(RED, 0, Double.NaN, Double.NaN);
+        StartPosition redAudience = new StartPosition("Red audience", Alliance.RED, new Pose(55.6, 7.7, Math.toRadians(90)));
+        StartPosition redFar = new StartPosition("Red far wall", Alliance.RED, new Pose(62.3, 133.8, Math.toRadians(270)));
+        w.evaluate(null, Alliance.RED, Alliance.RED, unconfirmed, null, 40,
+                InitWarnings.START_GRACE_MS, 13.1, 12.0, false, true, redAudience, redFar);
+        assertTrue(w.has(Kind.WRONG_START));
+        assertFalse(w.has(Kind.OFF_MARK));
+        assertEquals(1, w.count());
     }
 
     @Test
