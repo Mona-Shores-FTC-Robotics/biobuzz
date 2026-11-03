@@ -118,6 +118,21 @@ The endgame guard (`autokit/AutoKit.guarded`) gets the robot to PARK by 30 s:
   PARK spot, shared by every drive to that spot. Press **P** on a drive step to see it (everything
   else dims) and bend it with a control point. The drive just before Park needs none.
 
+## When the TIP does not come (a Wait's Otherwise)
+
+A Wait step's **Otherwise** steps run only if the wait times out. Its **then** picks what comes
+after them:
+
+- **go on with the steps below**: the robot carries on with the steps under the wait, as if the
+  TIP had come (L-Partner: back to `LEFT_LAUNCH_CATCH`, then the rest of the plan).
+- **park**: the Otherwise ends with its own Park step, and the steps under the wait run only when
+  the TIP comes. In the `.pp` and the Java the wait is then the Auto's last step, each of its two
+  outcomes holding the rest of its own route.
+
+Either way, every drive in an Otherwise has a park path from its spot (P on the step), as the
+main list's drives do, so a guard that parks early parks from where the robot is. A long one may
+need a bend: L-Partner's park from `RIGHT_LAUNCH_CATCH` bends west of the Red HIVE.
+
 ## Changing an Auto at the field (INIT options)
 
 A partner tells us in the queue where they park, or when they tip. The drive team changes it in

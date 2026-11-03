@@ -20,7 +20,7 @@ public final class LPartnerAuto {
     public static final String SOURCE = "l-partner.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-03|3:54AM";
+    public static final String SAVED = "11-03|9:09AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -62,13 +62,16 @@ public final class LPartnerAuto {
         // Other poses the paths need (control points, unnamed endpoints).
         Pose toRightLaunchCatchControl1 = p.of(64.1624, 98.6609, 0);
         Pose toRightLaunchCatchControl2 = p.of(64.4652, 42.583, 0);
+        Pose rightLaunchCatchParkControl1 = p.of(28, 25, 0);
         Pose toLeftLaunchCatch_2Control1 = p.of(29.5493, 123.7087, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toLeftLaunchCatch = Paths.line(leftStart, leftLaunchCatch).linear(leftStart, leftLaunchCatch);
         Path leftLaunchCatchPark = Paths.line(leftLaunchCatch, park).linear(leftLaunchCatch, park);
         Path toRightLaunchCatch = Paths.curve(leftLaunchCatch, toRightLaunchCatchControl1, toRightLaunchCatchControl2, rightLaunchCatch).linear(leftLaunchCatch, rightLaunchCatch);
+        Path rightLaunchCatchPark = Paths.curve(rightLaunchCatch, rightLaunchCatchParkControl1, park).linear(rightLaunchCatch, park);
         Path toWallFlowerStaging = Paths.line(rightLaunchCatch, wallFlowerStaging).linear(rightLaunchCatch, wallFlowerStaging);
+        Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, park).linear(wallFlowerStaging, park);
         Path toLeftLaunchCatchPath = Paths.curve(wallFlowerStaging, toLeftLaunchCatch_2Control1, leftLaunchCatch).linear(wallFlowerStaging, leftLaunchCatch);
         Path toScoringFlowerStaging = Paths.line(leftLaunchCatch, scoringFlowerStaging).linear(leftLaunchCatch, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, park).linear(scoringFlowerStaging, park);
@@ -82,11 +85,11 @@ public final class LPartnerAuto {
                         kit.firstOf("Wait for TIP or CELL up", kit.command("SpinUp"),
                                 kit.when("CellUp"),
                                 kit.atMatchSeconds(kit.seconds("Wait for TIP or CELL up", 8)).then(
-                                        kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 3.2),
+                                        kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 3.2, rightLaunchCatchPark, kit.pick(AutoOption.PARK, 3.3, 2.9)),
                                         kit.command("LaunchAll"),
-                                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9),
+                                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9, wallFlowerStagingPark, kit.pick(AutoOption.PARK, 2.5, 2.0)),
                                         kit.command("PickFlower", 8),
-                                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath, 2.9))),
+                                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath, 2.9, leftLaunchCatchPark, kit.pick(AutoOption.PARK, 1.9, 2.1)))),
                         kit.command("LaunchAll"),
                         kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, kit.pick(AutoOption.PARK, 1.7, 1.8)),
                         kit.command("PickFlower", 8),
