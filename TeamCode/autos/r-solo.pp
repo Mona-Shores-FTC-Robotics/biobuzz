@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-03T07:22:37.514Z",
+  "timestamp": "2026-11-03T07:32:12.341Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -30,8 +30,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mw0cnl7i-qkksz9",
+      "color": "#f28e2b",
+      "name": "WALL_FLOWER_STAGING park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -41,14 +48,7 @@
         "type": "linear",
         "startDeg": 180,
         "endDeg": 0
-      },
-      "color": "#f28e2b",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "WALL_FLOWER_STAGING park"
+      }
     },
     {
       "id": "link-1",
@@ -66,8 +66,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mw0clsus-mahasn",
+      "color": "#4e79a7",
+      "name": "to LEFT_LAUNCH_OFFSET",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 41,
         "y": 121.5
@@ -82,18 +89,18 @@
         "type": "linear",
         "startDeg": 180,
         "endDeg": 296.4
-      },
-      "color": "#4e79a7",
+      }
+    },
+    {
+      "id": "line-mw0cnl7i-4q4t8s",
+      "color": "#59a14f",
+      "name": "LEFT_LAUNCH_OFFSET park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "to LEFT_LAUNCH_OFFSET"
-    },
-    {
       "kind": "atomic",
-      "id": "line-mw0cnl7i-4q4t8s",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -103,39 +110,12 @@
         "type": "linear",
         "startDeg": 296.4,
         "endDeg": 0
-      },
-      "color": "#59a14f",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "LEFT_LAUNCH_OFFSET park"
+      }
     },
     {
       "id": "link-2",
       "name": "Link (never driven)",
       "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 41,
-        "y": 121.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 296.4
-      }
-    },
-    {
-      "id": "line-mw0be8id-akjmbs",
-      "color": "#e15759",
-      "name": "to LEFT_LAUNCH_OFFSET",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
         "x": 41,
@@ -169,8 +149,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mw0cnl7i-who3ju",
+      "color": "#f28e2b",
+      "name": "SCORING_FLOWER_STAGING park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -180,14 +167,7 @@
         "type": "linear",
         "startDeg": 90,
         "endDeg": 0
-      },
-      "color": "#f28e2b",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "SCORING_FLOWER_STAGING park"
+      }
     },
     {
       "id": "link-3",
@@ -205,8 +185,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mw0cmikm-aok025",
+      "color": "#9c755f",
+      "name": "to GARDEN_STAGING",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 11.5,
         "y": 22.1
@@ -222,48 +209,21 @@
         }
       ],
       "heading": {
-        "type": "piecewise",
+        "type": "linear",
         "startDeg": 90,
-        "endDeg": 270,
-        "degrees": 0,
-        "reverse": false,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.4,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 270
-              }
-            },
-            {
-              "startProgress": 0.4,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "degrees": 270
-              }
-            }
-          ]
-        }
-      },
-      "color": "#9c755f",
+        "endDeg": 270
+      }
+    },
+    {
+      "id": "line-mw0cnl7i-5r5t7y",
+      "color": "#76b7b2",
+      "name": "GARDEN_STAGING park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "to GARDEN_STAGING"
-    },
-    {
       "kind": "atomic",
-      "id": "line-mw0cnl7i-5r5t7y",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -295,14 +255,7 @@
             }
           ]
         }
-      },
-      "color": "#76b7b2",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "GARDEN_STAGING park"
+      }
     },
     {
       "id": "link-4",
@@ -316,12 +269,19 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -90
+        "degrees": 270
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mw0cnil6-q92ax2",
+      "color": "#b07aa1",
+      "name": "to RIGHT_LAUNCH_OFFSET",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 41,
         "y": 20
@@ -331,18 +291,18 @@
         "type": "linear",
         "startDeg": 270,
         "endDeg": 68.7
-      },
-      "color": "#b07aa1",
+      }
+    },
+    {
+      "id": "line-mw0cnl7h-qvb0l4",
+      "color": "#9c755f",
+      "name": "to RIGHT_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "to RIGHT_LAUNCH_OFFSET"
-    },
-    {
       "kind": "atomic",
-      "id": "line-mw0cnl7h-qvb0l4",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -352,14 +312,7 @@
         "type": "linear",
         "startDeg": 68.7,
         "endDeg": 0
-      },
-      "color": "#9c755f",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "to RIGHT_PARK"
+      }
     }
   ],
   "shapes": [
@@ -551,10 +504,6 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mw0be8id-akjmbs"
-    },
-    {
-      "kind": "path",
       "lineId": "line-mw0be8id-t1anb5"
     },
     {
@@ -685,7 +634,6 @@
     },
     "pathEnds": {
       "line-mw0be8id-zhk73u": "WALL_FLOWER_STAGING",
-      "line-mw0be8id-akjmbs": "LEFT_LAUNCH_OFFSET",
       "line-mw0be8id-t1anb5": "SCORING_FLOWER_STAGING",
       "line-mw0clsus-mahasn": "LEFT_LAUNCH_OFFSET",
       "line-mw0cmikm-aok025": "GARDEN_STAGING",
@@ -727,17 +675,6 @@
       },
       {
         "id": "c-mw0clve0-14dti",
-        "kind": "action",
-        "name": "LaunchAll"
-      },
-      {
-        "id": "c-mw0be8id-pnyel",
-        "kind": "path",
-        "lineId": "line-mw0be8id-akjmbs",
-        "park": false
-      },
-      {
-        "id": "c-mw0be8id-mym5h",
         "kind": "action",
         "name": "LaunchAll"
       },
@@ -793,7 +730,6 @@
     "parkFrom": {
       "c-mw0be8id-e596r": "line-mw0cnl7i-qkksz9",
       "c-mw0clsus-jph23": "line-mw0cnl7i-4q4t8s",
-      "c-mw0be8id-pnyel": "line-mw0cnl7i-4q4t8s",
       "c-mw0be8id-xc2bb": "line-mw0cnl7i-who3ju",
       "c-mw0cmikm-ae1ci": "line-mw0cnl7i-5r5t7y"
     },
