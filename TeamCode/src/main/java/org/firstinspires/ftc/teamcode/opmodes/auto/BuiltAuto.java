@@ -53,11 +53,14 @@ import java.util.function.Function;
  * camera can confirm the alliance without a button press. Until an alliance is known the declared
  * start is the drawing's own; once one is chosen that differs from {@code DRAWN_FOR}, the declared
  * start becomes the rotated one, and {@link RobotOpMode} moves the pose there. The camera finds the
- * alliance itself: during INIT every camera frame is solved position-only with each start's own
- * heading ({@code DriveSubsystem.setStartCandidates}), and if one start's solve sits on it for
- * {@link StartMatch#FRAMES_TO_AGREE} frames, that start's alliance is proposed
- * ({@link #allianceFromStarts}). One HIVE in view is enough, which is all a start sees. Square (X) or Circle (B) still wins; with no
- * match there is no alliance, and the Auto does not move.
+ * alliance itself: during INIT every camera frame is solved position-only with each known start's
+ * own heading ({@code DriveSubsystem.setStartCandidates}, {@link StartPositions#known}), and if
+ * one start's solve sits on it for {@link StartMatch#FRAMES_TO_AGREE} frames, the robot is there.
+ * One of this Auto's two starts proposes its alliance ({@link #allianceFromStarts}); any other
+ * known start is an INIT warning naming it ("On Red audience, not this Auto's start": the wrong
+ * Auto was picked, or the robot is on the wrong spot; {@link #cameraOnOtherStart}). One HIVE in
+ * view is enough, which is all a start sees. Square (X) or Circle (B) still wins; with no match
+ * there is no alliance, and the Auto does not move.
  *
  * <p><b>The drive team may change a few things in INIT</b> ({@link InitOptions}): the PARK spot
  * (D-pad left / right) and, for an Auto drawn with one, when its TIP wait gives up (D-pad up /
@@ -123,6 +126,10 @@ public abstract class BuiltAuto extends RobotOpMode {
     private StartPosition targetWritten;
     private final StartMatch startMatch = new StartMatch();
     private long startMatchNs;
+    /** This Auto's two starts first (drawn, rotated), then every other known start; see the class comment. */
+    private final StartPosition[] startCandidates;
+    private final Pose[] candidatePoses;
+    private final Pose[] candidateFixes;
 
     protected BuiltAuto(String source, String[] commands, String[] triggers, String drawnFor,
                         Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build,
@@ -141,6 +148,20 @@ public abstract class BuiltAuto extends RobotOpMode {
         this.drawnStart = known != null && known.alliance == drawn ? known
                 : new StartPosition(drawn + " start (as drawn)", drawn, startPose.apply(false));
         this.rotatedStart = new StartPosition(other + " start (drawing rotated)", other, startPose.apply(true));
+        List<StartPosition> candidates = new ArrayList<>();
+        candidates.add(drawnStart);
+        candidates.add(rotatedStart);
+        for (StartPosition start : StartPositions.known()) {
+            if (!near(start.pose, drawnStart.pose) && !near(start.pose, rotatedStart.pose)) candidates.add(start);
+        }
+        startCandidates = candidates.toArray(new StartPosition[0]);
+        candidatePoses = new Pose[startCandidates.length];
+        for (int i = 0; i < startCandidates.length; i++) candidatePoses[i] = startCandidates[i].pose;
+        candidateFixes = new Pose[startCandidates.length];
+    }
+
+    private static boolean near(Pose a, Pose b) {
+        return Math.hypot(a.x() - b.x(), a.y() - b.y()) <= 1.0;
     }
 
     /**
@@ -170,7 +191,7 @@ public abstract class BuiltAuto extends RobotOpMode {
             }
         }
         robot.drive.preparePathFollowing();
-        robot.drive.setStartCandidates(drawnStart.pose, rotatedStart.pose);
+        robot.drive.setStartCandidates(candidatePoses);
         pathLog = new AutoPathLog(log);
         // Which drawing this was, and which of its waits were running on placeholders.
         log.metadata("AutoSource", source);
@@ -201,21 +222,36 @@ public abstract class BuiltAuto extends RobotOpMode {
         display.line(source + ": drawn for " + drawnFor + "; the other alliance runs it rotated.");
     }
 
-    /** Which of the two starts the camera puts the robot on, each tried with its own heading; see the class comment. */
+    /** Which known start the camera puts the robot on, each tried with its own heading; see the class comment. */
     @Override
     protected Alliance allianceFromStarts() {
         long ns = robot.drive.candidateFixNs();
         if (ns != 0 && ns != startMatchNs) {
             startMatchNs = ns;
-            Alliance before = startMatch.settled();
-            Alliance now = startMatch.update(robot.drive.candidateFix(0), robot.drive.candidateFix(1),
-                    drawnStart, rotatedStart);
+            for (int i = 0; i < candidateFixes.length; i++) candidateFixes[i] = robot.drive.candidateFix(i);
+            int before = startMatch.settled();
+            int now = startMatch.update(candidateFixes, startCandidates);
             if (now != before) {
-                log.event(now == Alliance.UNKNOWN ? "Start: the camera no longer puts the robot on either start"
-                        : "Start: the camera puts the robot on the " + now + " start");
+                log.event(now == StartMatch.NONE ? "Start: the camera no longer puts the robot on a known start"
+                        : now < 2 ? "Start: the camera puts the robot on the " + startCandidates[now].alliance + " start"
+                        : "Start: the camera puts the robot on " + startCandidates[now].name + ", not this Auto's start");
             }
         }
-        return startMatch.settled();
+        int on = startMatch.settled();
+        return on == 0 || on == 1 ? startCandidates[on].alliance : Alliance.UNKNOWN;
+    }
+
+    /** The known start the camera puts the robot on when it is not one of this Auto's, else null. */
+    @Override
+    protected StartPosition cameraOnOtherStart() {
+        int on = startMatch.settled();
+        return on >= 2 ? startCandidates[on] : null;
+    }
+
+    /** This Auto's start for {@code alliance}: as drawn, or rotated. */
+    @Override
+    protected StartPosition startFor(Alliance alliance) {
+        return alliance == drawnStart.alliance ? drawnStart : rotatedStart;
     }
 
     @Override

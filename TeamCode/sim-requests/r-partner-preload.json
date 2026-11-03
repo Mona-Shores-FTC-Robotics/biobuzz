@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-partner-preload.pp",
-  "spec": "RPartnerPreloadAuto",
+  "spec": "RPartnerPreloadAuto@50",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -16,10 +16,40 @@
     9,
     10
   ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
   "alliance": "RED",
+  "partners": [
+    {
+      "name": "fires in 2 s",
+      "partner": "PartnerLLaunchParkAuto",
+      "timing": {
+        "launchS": 0.6
+      }
+    },
+    {
+      "name": "fires in 5 s",
+      "partner": "PartnerLLaunchParkAuto",
+      "timing": {
+        "launchS": 1.6
+      }
+    },
+    {
+      "name": "fires in 9 s",
+      "partner": "PartnerLLaunchParkAuto",
+      "timing": {
+        "launchS": 3.0
+      }
+    }
+  ],
   "metadata": {
     "AutoSource": "r-partner-preload.pp",
-    "SavedBy": "whiteboard drafts (Claude)",
-    "SavedAt": "2026-11-03T03:03:26+00:00"
+    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor)",
+    "SavedAt": "2026-11-03T20:00:00+00:00"
   }
 }

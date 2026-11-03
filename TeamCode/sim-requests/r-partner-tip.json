@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-partner-tip.pp",
-  "spec": "RPartnerTipAuto",
+  "spec": "RPartnerTipAuto@50",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -16,10 +16,44 @@
     9,
     10
   ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
   "alliance": "RED",
+  "partners": [
+    {
+      "name": "slow 35",
+      "partner": "PartnerLTipParkAuto",
+      "timing": {
+        "speed": 35,
+        "launchS": 1.2,
+        "pickS": 4
+      }
+    },
+    {
+      "name": "typical 50",
+      "partner": "PartnerLTipParkAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "fast 65",
+      "partner": "PartnerLTipParkAuto",
+      "timing": {
+        "speed": 65,
+        "launchS": 0.6,
+        "pickS": 2
+      }
+    }
+  ],
   "metadata": {
     "AutoSource": "r-partner-tip.pp",
-    "SavedBy": "whiteboard drafts (Claude)",
-    "SavedAt": "2026-11-03T03:12:15+00:00"
+    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor)",
+    "SavedAt": "2026-11-03T20:00:00+00:00"
   }
 }
