@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
@@ -19,10 +20,10 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-03|1:36AM";
+    public static final String SAVED = "11-03|2:22AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
+    public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
     public static final String[] TRIGGERS = {};
@@ -48,36 +49,46 @@ public final class RSoloAuto {
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose leftLaunchOffset = p.of(41, 121.5, 296.4);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
-        Pose leftLaunchCatch = p.of(57.5, 123.5, 273.4);
         Pose rightPark = p.of(14.5, 95.7, 0);
+        Pose gardenStaging = p.of(11.5, 22.1, 270);
+        Pose rightLaunchOffset = p.of(41, 20, 68.7);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose wallFlowerStagingParkControl1 = p.of(26, 75, 0);
-        Pose leftLaunchOffsetParkControl1 = p.of(26, 112, 0);
-        Pose scoringFlowerStagingParkControl1 = p.of(28, 110, 0);
+        Pose toLeftLaunchOffsetControl1 = p.of(33.0085, 119.9832, 0);
+        Pose toGardenStagingControl1 = p.of(30.1571, 122.6363, 0);
+        Pose toGardenStagingControl2 = p.of(28.8454, 44.4877, 0);
+        Pose toGardenStagingSegment1Start = p.of(11.5, 22.1, 90);
+        Pose gardenStagingParkControl1 = p.of(37.0754, 73.2847, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
-        Path wallFlowerStagingPark = Paths.curve(wallFlowerStaging, wallFlowerStagingParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
-        Path toLeftLaunchOffset = Paths.line(wallFlowerStaging, leftLaunchOffset).linear(wallFlowerStaging, leftLaunchOffset);
-        Path leftLaunchOffsetPark = Paths.curve(leftLaunchOffset, leftLaunchOffsetParkControl1, rightPark).linear(leftLaunchOffset, rightPark);
+        Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
+        Path toLeftLaunchOffset = Paths.curve(wallFlowerStaging, toLeftLaunchOffsetControl1, leftLaunchOffset).linear(wallFlowerStaging, leftLaunchOffset);
+        Path leftLaunchOffsetPark = Paths.line(leftLaunchOffset, rightPark).linear(leftLaunchOffset, rightPark);
+        Path toLeftLaunchOffsetPath = Paths.line(leftLaunchOffset, leftLaunchOffset).constant(leftLaunchOffset);
         Path toScoringFlowerStaging = Paths.line(leftLaunchOffset, scoringFlowerStaging).linear(leftLaunchOffset, scoringFlowerStaging);
-        Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
-        Path toLeftLaunchCatch = Paths.line(scoringFlowerStaging, leftLaunchCatch).linear(scoringFlowerStaging, leftLaunchCatch);
-        Path toRightPark = Paths.line(leftLaunchCatch, rightPark).linear(leftLaunchCatch, rightPark);
+        Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, rightPark).linear(scoringFlowerStaging, rightPark);
+        Path toGardenStaging = Paths.curve(scoringFlowerStaging, toGardenStagingControl1, toGardenStagingControl2, gardenStaging).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(toGardenStagingSegment1Start, gardenStaging)).until(1, Interpolator.constant(gardenStaging)));
+        Path gardenStagingPark = Paths.curve(gardenStaging, gardenStagingParkControl1, rightPark).heading(Interpolator.piecewise().until(1, Interpolator.linear(rightPark, rightPark)));
+        Path toRightLaunchOffset = Paths.line(gardenStaging, rightLaunchOffset).linear(gardenStaging, rightLaunchOffset);
+        Path toRightPark = Paths.line(rightLaunchOffset, rightPark).linear(rightLaunchOffset, rightPark);
 
         return kit.sequence(
-                kit.guarded("Auto", toRightPark, 2.1,
+                kit.guarded("Auto", toRightPark, 2.7,
                         kit.command("SpinUp"),
                         kit.command("LaunchAll"),
-                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
+                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2),
                         kit.command("PickFlower", 8),
-                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 2.5, leftLaunchOffsetPark, 1.8),
+                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 2.6, leftLaunchOffsetPark, 1.8),
                         kit.command("LaunchAll"),
-                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1, scoringFlowerStagingPark, 1.9),
+                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffsetPath, 0, leftLaunchOffsetPark, 1.8),
+                        kit.command("LaunchAll"),
+                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1, scoringFlowerStagingPark, 1.8),
                         kit.command("PickFlower", 8),
-                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 1.3),
+                        kit.path("to GARDEN_STAGING", toGardenStaging, 3.3, gardenStagingPark, 2.6),
+                        kit.command("GardenGather", 8),
+                        kit.path("to RIGHT_LAUNCH_OFFSET", toRightLaunchOffset, 1.6),
                         kit.command("LaunchAll"),
-                        kit.path("to RIGHT_PARK", toRightPark, 2.1)));
+                        kit.path("to RIGHT_PARK", toRightPark, 2.7)));
     }
 }
