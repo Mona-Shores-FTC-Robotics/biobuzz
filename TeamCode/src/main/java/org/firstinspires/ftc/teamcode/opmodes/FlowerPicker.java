@@ -41,7 +41,16 @@ public final class FlowerPicker extends GrabRoutine {
     public static double maxRangeIn = 60.0;
     /** The button's line-up: this far back from the FLOWER's centre, inches. */
     public static double approachStandoffIn = 24.0;
-    /** Where the push stops: this far back from the FLOWER's centre, inches. */
+    /**
+     * Where the push aims: this far back from the FLOWER's centre, inches. The push also ends when the
+     * robot stalls against the FLOWER, and the 29 Oct 2026 logs on 20245 put that stall at 12.2 to
+     * 12.5 in (as odometry had it), so 12.0 is the touch point itself: a pose a fraction of an inch
+     * long ends the push "reached" with the stick short of the FLOWER. A target 2 to 3 in less would
+     * make a correct pose end by stall and leave that much grace for a long one; the push is still
+     * well inside {@link #pushTimeoutMs} (a 12 in push takes 0.75 to 1.2 s). To be measured, three
+     * picks at each value, before the default changes (doc/robot-session-5.md). The Visualizer's
+     * {@code CONTACT_STANDOFF_IN} changes with it.
+     */
     public static double contactStandoffIn = 12.0;
     /** The stick goes down and the intake starts once the robot is this close to the line-up, inches. */
     public static double lowerWithinIn = 18.0;
@@ -107,8 +116,9 @@ public final class FlowerPicker extends GrabRoutine {
     /**
      * The stick comes up once the robot has backed out this far, inches: on the back-out, and also
      * whenever a pick ends early (button let go, sticks moved, a timeout, an Auto's card cut short).
-     * Either way it waits until the robot's centre is {@link #contactStandoffIn} plus this from the
-     * FLOWER's centre, so it never swings up while still in the FLOWER.
+     * Either way it waits until the robot's centre is this much further from the FLOWER's centre
+     * than the nearest the push got (never nearer than {@link #contactStandoffIn}), so it never
+     * swings up while still in the FLOWER, however deep the push aimed or how short it stopped.
      */
     public static double retractAfterBackIn = 6.0;
     /** The back-out gives up after this long, ms. */
@@ -240,10 +250,16 @@ public final class FlowerPicker extends GrabRoutine {
 
     /**
      * The stick comes in once the robot is clear of the FLOWER, however the pick ends: finished,
-     * let go, or cut short. The stick subsystem holds it down until then, after this pick is over.
+     * let go, or cut short. Clear is {@link #retractAfterBackIn} out from the nearest the push got
+     * to the FLOWER (where it stalled, or where the robot is if cut during the push), and never
+     * nearer than {@link #contactStandoffIn} plus that: a push aimed deeper than the FLOWER lets the
+     * robot in, and a pose that stops it short does not bring the lift-off point in with it. The
+     * stick subsystem holds it down until then, after this pick is over.
      */
     private void retractWhenClear() {
-        robot.flowerStick.retractWhenClear(flower.x, flower.y, nn(contactStandoffIn) + nn(retractAfterBackIn));
+        double contact = nn(contactStandoffIn);
+        double nearest = Math.max(contact, closestOnInIn(flower.x, flower.y, contact));
+        robot.flowerStick.retractWhenClear(flower.x, flower.y, nearest + nn(retractAfterBackIn));
     }
 
     @Override protected double prepMs() { return stickDownMs; }

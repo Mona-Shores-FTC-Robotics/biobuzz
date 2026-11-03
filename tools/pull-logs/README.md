@@ -62,8 +62,11 @@ branches and reads them with `read_logs.py` (below). Nothing to type.
 
 `read_logs.py` reads a `.wpilog` with plain Python (standard library only): `summary` gives, per
 run, the build, battery, every launch knob at PLAY, the key events and every feed (gate open:
-launcher speed at the open and its lowest, feeder speed, shots counted, battery low). It is for
-reading logs without AdvantageScope; nobody at the robot needs Python.
+launcher speed at the open and its lowest, feeder speed, shots counted, battery low). `picks`
+gives one line per FLOWER pick: how the push ended (reached, stalled, path done or timed out, and
+how far short), the depth, the intake-current spikes (about one per piece), the lane count and the
+camera's last gap to odometry along and across the push. It is for reading logs without
+AdvantageScope; nobody at the robot needs Python.
 
 ## Where logs go
 
