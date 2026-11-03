@@ -20,7 +20,7 @@ public final class LQualsAuto {
     public static final String SOURCE = "l-quals.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "";
+    public static final String SAVED = "11-03|1:34AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -50,7 +50,7 @@ public final class LQualsAuto {
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
-        Pose leftPark = p.of(9.8, 117.4, 0);
+        Pose leftPark = p.of(14.5, 117.4, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose toWallFlowerStagingControl1 = p.of(22, 112, 0);
@@ -74,7 +74,7 @@ public final class LQualsAuto {
         Path toLeftPark = Paths.line(leftLaunchCatch, leftPark).linear(leftLaunchCatch, leftPark);
 
         return kit.sequence(
-                kit.guarded("Auto", toLeftPark, 2,
+                kit.guarded("Auto", toLeftPark, 1.9,
                         kit.command("SpinUp"),
                         kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 1),
                         kit.firstOf("TIP 1 (the partner's preloads)",
@@ -111,6 +111,6 @@ public final class LQualsAuto {
                                         kit.firstOf("Fire the far FLOWER's 4 at the left CELL", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(3000)))),
-                        kit.path("to LEFT_PARK", toLeftPark, 2)));
+                        kit.path("to LEFT_PARK", toLeftPark, 1.9)));
     }
 }
