@@ -92,6 +92,9 @@ The editor can't check these, so you have to:
 - **Never drive through a wall or a HIVE frame leg.** Under the HIVE there's about 1.6 in to spare.
 - **Don't touch the HIVE.** Only POLLEN we launch may move it.
 - **Park at least partly in our LOADING ZONE** at the end (5 points), off the wall.
+- **At most one Decision per Auto** (one wait with an Otherwise), spent on the moment the partner
+  can change what we should do next: the first wait for L-Partner, the launch after the partner's
+  volley for the R Autos. Why, and what the wait number means, is in `doc/partner-timing.md`.
 
 Draw for **RED**. The robot turns your Auto half a turn about the field centre for BLUE on its own
 (BIOBUZZ is rotationally symmetric, not a mirror).

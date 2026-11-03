@@ -99,6 +99,9 @@ and the mentor's to correct:
 | L-Partner | yes | `partner-r-launch-park` with its last preload away at about 2, 5, 8 and 12 s (`startDelayS` 0 / 1.5 / 4 / 8 with `launchS` 0.3 / 0.8 / 1.0 / 1.0): our 7 s CellUp wait fires for the first two and times out for the last two |
 | R-Solo-Staging | yes | `partner-l-stage-park` (see the note below) |
 
+The thinking behind the curation, what a wait is really waiting for, the one number to ask a
+partner for, and which partner states get simulated, is in `doc/partner-timing.md`.
+
 A partner entry's **timing** is four knobs, each optional: `startDelayS` (seconds after PLAY
 before its first card), `speed` (its drive profile, as a spec writes it after `@`), `launchS`
 (seconds per launch volley: a four-piece launch is the 1 s spin-up and then three of these) and
