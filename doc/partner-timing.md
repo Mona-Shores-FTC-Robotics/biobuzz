@@ -47,7 +47,7 @@ Partners are then simulated in exactly three states, nothing in between:
 1. **On time.** Its last preload leaves when it said.
 2. **Missed everything.** Its shots go wide, no TIP comes, and it carries on with its own Auto
    and parks on schedule. This is the case that moves through the field while we are deciding.
-3. **Dead on its start.** It never moves (`partner-r-still`, `partner-l-still`).
+3. **Dead on its start.** It never moves (`partner-r-broken-down`, `partner-l-broken-down`, on the start it was meant to leave).
 
 "Later than they said" is deliberately not modelled: we can never make that collision not
 happen, and planning for it would hide the margin we chose to make visible. The simulator keeps

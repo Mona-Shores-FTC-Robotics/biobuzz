@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.PartnerRLaunchParkAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.PartnerRStillAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.PartnerRBrokenDownAuto;
 import org.junit.Test;
 
 import java.io.File;
@@ -183,7 +183,7 @@ public class SimRequestsTest {
         t.derive(PartnerRLaunchParkAuto.class, RobotDesign.real());
         assertEquals(1.5, t.derivedLaunchS, 1e-9);
         AutoStudyTest.PartnerTiming still = AutoStudyTest.PartnerTiming.of(null, entry("lastShotS", 8.0));
-        still.derive(PartnerRStillAuto.class, RobotDesign.real());
+        still.derive(PartnerRBrokenDownAuto.class, RobotDesign.real());
         assertTrue(Double.isNaN(still.derivedStartDelayS));
     }
 

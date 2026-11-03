@@ -27,6 +27,10 @@
   "partners": [
     {
       "name": "dead on its start",
+      "partner": "PartnerLBrokenDownAuto"
+    },
+    {
+      "name": "stays out of the way",
       "partner": "PartnerLStillAuto"
     },
     {

@@ -230,7 +230,7 @@ public class AutoStudyTest {
                 if (fails != null) {
                     if (!"misses".equals(fails)) {
                         throw new IllegalArgumentException("\"fails\" is \"misses\" or absent (a dead partner is a still stand-in,"
-                                + " partner-r-still or partner-l-still): " + fails);
+                                + " partner-r-broken-down or partner-l-broken-down): " + fails);
                     }
                     t.fails = "misses";
                 }

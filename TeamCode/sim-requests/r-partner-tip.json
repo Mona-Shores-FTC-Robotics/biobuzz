@@ -42,7 +42,7 @@
     },
     {
       "name": "dead on its start",
-      "partner": "PartnerLStillAuto"
+      "partner": "PartnerLBrokenDownAuto"
     }
   ],
   "metadata": {
