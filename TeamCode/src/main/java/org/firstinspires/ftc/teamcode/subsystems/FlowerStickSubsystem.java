@@ -68,6 +68,8 @@ public class FlowerStickSubsystem implements Subsystem {
     private final Servo servo;
     private final PwmControl pwm;   // null if this servo cannot switch its pulse off
     private boolean out = false;
+    /** When {@link #out} last went true, System.nanoTime; how long the stick has had to swing down. */
+    private long outSinceNs = 0;
     private boolean lastOut = false;
     private boolean limp = false;
     private boolean started;
@@ -93,13 +95,18 @@ public class FlowerStickSubsystem implements Subsystem {
     /** Ask for the stick out. Takes effect in the next {@link #update()}. */
     public void extend() {
         waitingToClear = false;
-        out = true;
+        askOut(true);
+    }
+
+    private void askOut(boolean wantOut) {
+        if (wantOut && !out) outSinceNs = System.nanoTime();
+        out = wantOut;
     }
 
     /** Ask for the stick in. Takes effect in the next {@link #update()}. */
     public void retract() {
         waitingToClear = false;
-        out = false;
+        askOut(false);
     }
 
     /**
@@ -129,12 +136,22 @@ public class FlowerStickSubsystem implements Subsystem {
      */
     public void toggle() {
         waitingToClear = false;
-        out = !out;
+        askOut(!out);
     }
 
     /** Whether the stick has been asked out. The servo has no sensor, so this is the request. */
     public boolean extended() {
         return out;
+    }
+
+    /**
+     * When the stick was asked out, System.nanoTime, or 0 while it is asked in: how long it has had
+     * to swing down. A grab whose stick was lowered on the drive in to it ({@code FlowerPicker}'s
+     * approach) counts its stick time from here rather than from its own start. The request, not
+     * the swing: the servo reports nothing back.
+     */
+    public long extendedSinceNs() {
+        return out ? outSinceNs : 0;
     }
 
     /** Whether the servo's pulse is off and the stick is resting on its own. */
@@ -164,6 +181,7 @@ public class FlowerStickSubsystem implements Subsystem {
     public void initialize() {
         waitingToClear = false;
         out = false;
+        outSinceNs = 0;
         lastOut = false;
         limp = pwm != null;
         started = false;
@@ -191,7 +209,7 @@ public class FlowerStickSubsystem implements Subsystem {
         long now = System.currentTimeMillis();
         if (waitingToClear && clearOf(drive.pose(), clearX, clearY, clearIn)) {
             waitingToClear = false;
-            out = false;
+            askOut(false);
         }
         if (out != lastOut) {
             lastOut = out;

@@ -97,6 +97,34 @@ public class FlowerPickerTest {
         assertEquals(26.71, FlowerPicker.squareUpPose(wall, new Pose(40.0, 47.36, Math.PI), 18, 24).x(), EPS);
     }
 
+    /**
+     * The drive in to a pick lowers the stick over its last lowerWithinIn (18 in), but never with the
+     * robot closer to the FLOWER than the stick swings down clear (minAutoStartIn less 0.5 in).
+     */
+    @Test
+    public void theDriveInLowersTheStickOverItsLastStretchWhereTheStickSwingsClear() {
+        FlowerFieldPoints.Flower wall = FlowerFieldPoints.RED_WALL; // (2.71, 47.36), facing -x
+        Pose farOut = new Pose(60.0, 47.36, Math.PI);   // 57 in from the FLOWER
+        Pose nearSpot = new Pose(22.21, 47.36, Math.PI); // 19.5 in out, where the Autos draw their pick spots
+        assertEquals("still 30 in from the drive's end: not yet", false, FlowerPicker.lowerOnApproach(wall, farOut, 30.0));
+        assertEquals("18 in from the end, well out: now", true, FlowerPicker.lowerOnApproach(wall, farOut, 18.0));
+        assertEquals("at the spot itself, 19.5 in out: yes", true, FlowerPicker.lowerOnApproach(wall, nearSpot, 0.0));
+        assertEquals("17 in from the FLOWER: too close for the swing", false,
+                FlowerPicker.lowerOnApproach(wall, new Pose(19.71, 47.36, Math.PI), 2.0));
+        assertEquals("17.6 in: within the 0.5 in of slack", true,
+                FlowerPicker.lowerOnApproach(wall, new Pose(20.31, 47.36, Math.PI), 2.0));
+    }
+
+    /** The approach picks the FLOWER the pick will: the nearest in range, on the robot's half in an Auto. */
+    @Test
+    public void nearestFlowerFollowsThePicksOwnRule() {
+        assertEquals(FlowerFieldPoints.RED_WALL, FlowerPicker.nearest(26.7, 47.4, true));
+        assertEquals("out of range", null, FlowerPicker.nearest(70.0, 20.0, true));
+        // From (60, 20) the blue FAR FLOWER is 38 in away, across the centre line.
+        assertEquals("an Auto never crosses the centre line", null, FlowerPicker.nearest(60.0, 20.0, true));
+        assertEquals("the button may", FlowerFieldPoints.BLUE_FAR, FlowerPicker.nearest(60.0, 20.0, false));
+    }
+
     /** A spot far off the line, turned away, or past the FLOWER is a drawing error: the card refuses. */
     @Test
     public void squareUpRefusesASpotThatIsNotRoughlyLinedUp() {

@@ -943,6 +943,29 @@ calls. There are three kinds of card and one branching block:
   `firstOf` row's cards: a path there is never cut, and one that would start after the deadline
   does not start (#142).
 
+**Where a path ends, and what settles after it.** A path card is done when `AutoDrive.pathDone()`
+says so, which on the robot is Pedro's parametric end: the Follower switches to holding the end pose
+and brakes, and the robot is still rolling (10 to 24 in/s at the hand-over in the 29 Oct to 2 Nov
+2026 logs, under 8 in/s 0.1 to 0.2 s later, under 2 in/s 0.1 to 0.5 s later). The kit adds no
+settle of its own. A launch card waits for `PathEndSettle` (still, and aimed). A grab waits for its
+own hand-over speed, `settledInPerSec` in `FlowerPicker` and `GardenGather` (8 in/s since 3 Nov 2026,
+from 2): a pick squares up on its own and ends on contact, a gather ends on the wall, so neither
+needs the robot still (mentor, 3 Nov 2026). Before that, the whole 0.7 s between a drive's end and
+the push was the stick's `stickDownMs`, since the stick went down only when the pick card started.
+
+**A path card before a grab runs the grab's approach.** `AutoRegistry.Approach` is what a grab does
+on the drive in to it. `sequence`, `guarded` and a `firstOf` row's cards pair each path card with the
+grab card right after it; while the path drives, the kit tells the approach where the robot is and
+how far it has to go, and cancels it if the guard refuses the grab. `FlowerPicker.approach` lowers
+the stick and starts the intake over the last `lowerWithinIn` (18 in) of the drive, for the FLOWER
+the pick will go for from the drive's end; the pick then counts its stick time from when the stick
+was asked out (`FlowerStickSubsystem.extendedSinceNs`, `GrabRoutine.readySinceNs`), so the wait is
+usually over. The cards stay what they are: the drive ends where it was drawn and the pick is still
+the whole pick, which works on its own from the button. Merging the drive into the push (ending the
+drive at the contact standoff) was considered and rejected: the pick would no longer be a unit that
+works in isolation. `GardenGather` has no approach yet: its stick came down on the wall when swung
+early in the corner (30 Oct 2026).
+
 Names come from `AutoRegistration`, the only list of commands and triggers an Auto may use;
 `requireAll` at INIT stops an Auto that uses an unregistered name. Names whose mechanism does not
 exist yet are registered as explicit placeholders (`PLACEHOLDERS`; a command that finishes at

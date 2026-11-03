@@ -167,3 +167,32 @@ end `stalled`, none `timed out`, four pieces each, and a pose 2 in long changes 
   `CONTACT_STANDOFF_IN` in `src/lib/simple/flowers.ts`, same day. Then `SimulatorSmokeTest` on the PR.
 - If the number is right but an Auto's pick still misses, read `side` in the picks table before
   touching depth again: the 31 Oct Autos missed by 6 to 10 in sideways.
+
+## Also, with an Auto on the field: the drive-to-pick seam (PR #378)
+
+A separate change, measured separately, same robot. On master before PR #378 every Auto pick's push
+started **0.70 to 0.73 s after the drive ended** (0.96 s with a square-up), all of it the stick's
+700 ms: the stick went down only when the pick card started, and the robot was already under 2 in/s
+0.13 to 0.51 s after the path end. With the PR the stick comes down over the last 18 in of the drive
+before a `PickFlower` card, and a grab waits only for 8 in/s (`settledInPerSec`), not 2. Expected:
+0.1 to 0.2 s from path end to push when the drive ends square. R-Solo or R-Partner-Preload, two picks
+each; Sloth Load is enough.
+
+1. [ ] **Loop time first.** **Measure: Loop Time Baseline** before and after the Load, then one Auto
+       run; `/Robot/LoopMs` median and p95 go in the PR (2 Nov R-Quals: 26.7 / 47.7 ms).
+2. [ ] **Watch the stick on the drive in**, a spotter at WALL_FLOWER_STAGING and at
+       SCORING_FLOWER_STAGING: it should swing down about 18 in before the robot stops, and touch
+       nothing before the push. *Stop line: it touches anything → `FlowerPicker.lowerWithinIn` 12 in
+       Panels (about 0.3 s less hidden), write the number back.* The Visualizer branch
+       `claude/pick-stick-on-drive-in` shows the same moment as a "Stick down on the drive in" line.
+3. [ ] **Watch the push start** while the robot is still slowing (up to 8 in/s). The push should still
+       end `reached` or `stalled`, never `timed out`, and the pick should not start squaring up where
+       2 Nov's did not. *Stop line: a rough push → `settledInPerSec` 5, one change at a time.*
+4. [ ] **Read the gap** from the logs: per pick, the `path end` event to `PREP … then IN`, and the new
+       lines `stick down on the drive in, X in to go` and `prep done on the way in, X s ago`. X under
+       0.7 s on most picks means the last 18 in were quicker than the stick: `lowerWithinIn` 24.
+5. [ ] **TeleOp check:** stick already down (toggle), press pick: no 0.7 s pause before the push. Stick
+       up: as before.
+
+→ The numbers and any changed knob go to PR #378. The GARDEN gather has no approach yet (its stick
+hit the corner wall when swung early, 30 Oct); say whether the corner allows one.
