@@ -33,7 +33,8 @@ import java.util.Locale;
 /**
  * The match TeleOp: read the gamepads by {@link Action}, tell the subsystems what you want,
  * report. {@link RobotCentricTeleOp} is the same OpMode driving robot-centric, for a match where
- * the Pinpoint has failed; there is no field / robot-centric button.
+ * the Pinpoint's heading cannot be trusted; it is in the Utility menu so nobody picks it by
+ * mistake. There is no field / robot-centric button.
  *
  * <h2>Controls</h2>
  *
@@ -108,7 +109,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private static final long RESET_HOLD_MS = 1000;
 
     /** The launcher trim step can never be more than this, ticks per second, whatever Panels says. */
-    /** Package-private: the Launch Test caps the same Panels step the same way. */
+    /** Package-private: {@link LaunchTest} caps the same Panels step the same way. */
     static final double MAX_LAUNCHER_TRIM_STEP_TPS = 200.0;
 
     /** The trim step can never be more than this, degrees, whatever Panels says. */
@@ -336,6 +337,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         holdResets(System.nanoTime(), true);
         display.status("Basic Drive", Display.Level.OK, "ready — Share (Back) shows the controls");
         showControlsNotes();
+        showHeadingCheck();
         if (poseNote != null) display.line("Last pose fix: " + poseNote);
         showPinpoint();
     }
@@ -444,6 +446,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         display.line("Gates (shadow" + (TeleOpConfig.enforceAtSpeedGate || TeleOpConfig.enforceAimGate ? ", some enforced" : "")
                 + "): " + gates.summary());
+        showHeadingCheck();
         if (poseNote != null) display.line("Last pose fix: " + poseNote);
         if (autoParkNote != null) display.line(autoParkNote);
         recordShot();
@@ -676,6 +679,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("gate_speed", gates.verdict(FireGates.Gate.LAUNCHER_AT_SPEED).ordinal());
             panels.addData("gate_aim", gates.verdict(FireGates.Gate.AIM_ON_TARGET).ordinal());
             panels.addData("intake_owner", routineActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
+            // How far the shadow pose (what still fixes would do) sits from the real one; graph it.
+            panels.addData("shadow_offset_in", robot.drive.shadow().offsetIn());
             panels.addData("loop_ms", loopTimer.lastMs());
             panels.update();
         } catch (RuntimeException ignored) {

@@ -20,7 +20,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 |---|---|
 | `Robot` | Owns every subsystem, in one list. That list is the only registration: it is how a subsystem is initialized, started, updated and stopped. |
 | `subsystems/Subsystem` | `initialize()` / `start()` / `update()` / `stop()`. **Nothing moves before PLAY** (G304.H, G403): until `start()`, `update()` writes no servo and no motor power but zero, and no mechanism is held at INIT by a servo — one that leaves the 18 in cube unpowered gets a mechanical stop. `InitMovesNothingTest` enforces it. `update()` is one non-blocking step; `stop()` is final teardown only — a mechanism that pauses needs its own name (`idle()`, `spinDown()`). `health()` is one line for the match log on what it found at init; a motor-only subsystem says "presence unknown", never "present". |
-| `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. Only match OpModes are `@TeleOp` / `@Autonomous`; every diagnostic, bench and tuner is `@Utility`, so the Driver Station's Utility menu holds them and the TeleOp list holds what a drive team runs. |
+| `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. Only match OpModes are `@TeleOp` / `@Autonomous`; every diagnostic, bench and tuner is `@Utility`, so the Driver Station's Utility menu holds them and the TeleOp list holds what a drive team runs. A `@Utility` name starts with its group (`Bench:`, `Check:`, `Drive:`, `Measure:`, `Vision:`), so the menu sorts into groups. |
 | `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. Also the Auto Builder's `AutoDrive`: a path or hold hands the loop to Pedro's `Follower` until the next `drive(...)`. |
 | `controls/` | `ControlScheme` is the only place an input is chosen: one layout for both teams, mapping each `Action` to an `Input`. The TeleOp asks `controls.held(Action.FIRE)` / `controls.on(Action.X)`, never a raw button. `Input` cannot name Share, Options, the touchpad or PS. `Bindings` underneath labels every binding, and the DS Controls page and the printed cheat sheet (`CheatSheet`, written by `CheatSheetTest` to `TeamCode/build/cheat-sheets/`) are generated from the same layout, so never document controls anywhere else. `Display`: the DS pages; write the Match page in `onLoop()`, give a subsystem a Robot-page block by overriding `describe()`. |
 | `localization/` | CELL sighting → gated position fix (`TagGate`, `CellFix`), field points, start and reset positions, the start check. The filter is Pedro's. See "Localization" below. |
@@ -67,7 +67,7 @@ Three layers, each written in exactly one place:
   `ipAddress`, no port). The SDK builds it from the XML whether or not a camera is plugged in, so
   "in the hardware map" never means "connected": check `robot.vision.isConnected()`.
 - `RobotConfigXmlTest` enforces all of this in CI. On a robot: Activate the config once per hub,
-  then run **Validate Hardware**.
+  then run **Check: Hardware**.
   → README § "Robot configuration"
 
 ## The libraries
@@ -94,12 +94,13 @@ and zeroes at PLAY; the zero button on a gamepad always wins (`TurretZeroPolicy`
 
 **Localization.** The Pinpoint carries the pose, through Pedro's `FusionLocalizer`. The camera
 sets it and may correct it, only through `localization/`: every frame passes `TagGate` (height,
-range, outlier, tag count, field bounds) before `CellFix` uses it. Two or more gated tags on settled
-CELLs give the whole pose (each tag's field position is known, since a TIP turns the row about its
-own line), which seeds an unreferenced pose. Once the pose is referenced the camera gives position
+range, outlier, tag count, field bounds) before `CellFix` uses it. Gated tags on both HIVEs give
+the whole pose (each tag's field position is known, since a TIP turns the row about its own line),
+which seeds an unreferenced pose; the fit has no heading under `minFitLeverIn`, so tags on one CELL
+never give one (measured: ±12° from two tags). Once the pose is referenced the camera gives position
 only, with the Pinpoint's heading: `relocalizeFromCamera()` moves x and y and keeps the heading,
 up to `maxRelocalizeJumpIn`. A bigger correction means the pose is lost: with the robot still and
-two or more gated tags it resets the whole pose, heading too, as the seed does; otherwise it is refused.
+a fit from both HIVEs it resets the whole pose, heading too, as the seed does; otherwise it is refused.
 Stationary fixes (`stillFixes`) and continuous fixes (`continuousFixes`) into the filter are both
 off until a measurement shows they help. The reset spots (`ResetPositions`, NaN until measured) are
 fixed, measured poses, the left and right corners of each alliance's wall, chosen by the button the
@@ -264,8 +265,8 @@ Remote containers have no `gh`; use the GitHub MCP tools.
   (`first-pr-coach`) rather than writes it for them.
 - **Auto fast lane:** a PR from an `auto/<name>` branch that changes only `TeamCode/autos/*.pp`, generated
   Autos and `TeamCode/sim-requests/*.json` needs no issue, branch rule or review, from anyone with write
-  access; the Visualizer opens it with auto-merge on, and the **Auto fast lane** check turns that off
-  for anything else.
+  access. It is a draft: tried on the robot first, merged by a mentor if it is better than master's,
+  never auto-merged. The **Auto fast lane** check fails a PR on such a branch that touches anything else.
 - Rename a branch that is already on GitHub with GitHub's button, never by delete-and-repush: that
   strands its open PR.
 - A red CI is investigated, not re-run.

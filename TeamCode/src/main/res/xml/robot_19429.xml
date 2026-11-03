@@ -106,7 +106,7 @@
 
             <!-- Launcher: two flywheels and a feeder, the plan agreed with the
                  build team (23 Oct 2026). Not built yet, so nothing is plugged
-                 into these; Validate Hardware lists them as missing until it is. -->
+                 into these; Check: Hardware lists them as missing until it is. -->
             <goBILDA5202SeriesMotor name="launcher_left"  port="1" />
             <goBILDA5202SeriesMotor name="launcher_right" port="2" />
             <goBILDA5202SeriesMotor name="feeder"         port="3" />

@@ -46,14 +46,14 @@ public class InitWarningsTest {
     public void noAllianceSaysPressXOrB() {
         evaluate(null, Alliance.UNKNOWN, Alliance.UNKNOWN, null, null, 40, 20_000, 13.1);
         assertTrue(w.has(Kind.ALLIANCE));
-        assertEquals("press X for blue, B for red", w.action(Kind.ALLIANCE));
+        assertEquals("press Square for blue, Circle for red", w.action(Kind.ALLIANCE));
     }
 
     @Test
     public void anAllianceTheCameraDisagreesWithSaysWhichWay() {
         evaluate(null, Alliance.BLUE, Alliance.RED, null, null, 40, 20_000, 13.1);
         assertEquals("BLUE, but camera sees RED start", w.what(Kind.ALLIANCE));
-        assertTrue(w.action(Kind.ALLIANCE).startsWith("press B for red"));
+        assertTrue(w.action(Kind.ALLIANCE).startsWith("press Circle for red"));
     }
 
     @Test
@@ -70,10 +70,25 @@ public class InitWarningsTest {
     }
 
     @Test
-    public void anUnconfirmedStartIsNoWarning() {
+    public void anUnconfirmedStartWithNoTagsInViewIsNoWarning() {
         evaluate(null, Alliance.RED, Alliance.RED, StartCheck.evaluate(RED, 0, Double.NaN, Double.NaN),
                 null, 40, 20_000, 13.1);
         assertFalse(w.any());
+    }
+
+    @Test
+    public void tagsInViewButNoFixOnTheStartMeansTheWrongStart() {
+        StartCheck.Result unconfirmed = StartCheck.evaluate(RED, 0, Double.NaN, Double.NaN);
+        w.evaluate(null, Alliance.RED, Alliance.RED, unconfirmed, null, 40,
+                InitWarnings.START_GRACE_MS - 1, 13.1, 12.0, false, true);
+        assertFalse("a moment to confirm first", w.any());
+        w.evaluate(null, Alliance.RED, Alliance.RED, unconfirmed, null, 40,
+                InitWarnings.START_GRACE_MS, 13.1, 12.0, false, true);
+        assertEquals("Not on the Red test start", w.what(Kind.OFF_MARK));
+        assertEquals("check the Auto (L or R) and move the robot onto its mark", w.action(Kind.OFF_MARK));
+        w.evaluate(null, Alliance.RED, Alliance.RED, unconfirmed, "not answering", 0,
+                30_000, 13.1, 12.0, false, true);
+        assertFalse("a dead camera is its own warning", w.has(Kind.OFF_MARK));
     }
 
     @Test

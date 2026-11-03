@@ -1,0 +1,100 @@
+# Handoff: 20245 camera calibration (31 Oct 2026)
+
+Disposable: delete this file when the work lands. Status belongs in an issue (CLAUDE.md); this is
+only so a new session can resume. Skill: `.claude/skills/localization-triage/` (read its SKILL.md first).
+
+## Decision made
+19429 is being rebuilt as an exact copy of 20245. Until 19429 is tested, **both robots share one
+set of `CameraMount` values**, taken from 20245. No per-robot code. No values pushed yet: nothing
+below has been tested on the robot.
+
+## What 20245 showed (robot_20245, master @ 2ad67dd016, Limelight pipeline 0 "DecodeApriltags")
+- Limelight pipeline is fine: marker size 82.55 mm (3.25 in), Full 3D yes, 36h11, 640x480@90.
+  Exposure 500 vs 1000 made no real difference (heights +1.9 vs +2.2). Gain 15. Do not go to 300.
+- **Height:** camera reads the raised tag row about +1.9..+2.0 in above the map (49.8) at
+  CameraMount 14.0 in / 45 deg, at every distance (49-59 in) and heading. Tape: row is 49.1-49.5.
+  Lens tape: 14 5/16 +/- 0.25. Phone on case: 45.0 deg. pitchDeg 42 fixed height but pushed the
+  tags 4 in too far; mountUpIn 12 fixed height with no horizontal change but is physically wrong, so
+  rejected. Cause unknown; it does NOT affect position. It cuts the height gate's margin to ~1.1 in
+  (maxTagHeightErrorIn 3.0). Leave it. Optional: ruler on the printed tag's black square (3.25 in?).
+- **Horizontal at the red start** (camera minus odometry, 4 placements): (-1.10,-0.54), (-1.2,-0.6),
+  (-0.9,-0.8), (-1.0,-0.5). Mean (-1.05,-0.6), repeatable +/-0.15: systematic, not placement.
+  Both HIVEs show x about -1.1, so not HIVE spacing. Camera jitter 0.01-0.06 in.
+- **Front-back:** wall to wheelbase centre = R 1.9 + W/2 (W 11.31) = 7.55 +/- 0.15. Declared start
+  y is 7.7: fine. Camera reads ~7.1, so the lens is ~3.55 in ahead of centre, not 4.0
+  (tape B 9.2-9.5 gives 3.5-3.85, consistent).
+- Robot centre = middle of the wheelbase (Robot20245.java comment; pods 6.5 in right, 1.0 in forward).
+
+## 2 Nov: the two-lane plan (branch claude/funny-dirac-7k2k37 = master + this work)
+Safe lane, for a PR to master once robot-tested:
+- Camera reset (D-pad down, held) now checks heading: if the camera's whole-pose heading disagrees
+  with the Pinpoint by > LocalizationTuning.headingFixDeg (4) over headingFixFrames (5) still
+  frames, the reset takes the camera's heading too and re-solves x, y. Match page shows
+  "Heading: camera vs odometry +N°" while still; log channel /Drift/CameraHeadingDiffDeg.
+- TeleOp with no handoff: in INIT, if steady camera fits put the robot off the declared start
+  (> startMarginIn or > headingFixDeg), the pose moves to the camera's; the Start line says so;
+  Triangle (Y) start fresh re-arms it. Autos and Vision: HIVE & Pose are excluded.
+Experimental lane, branch exp/auto-heading-fixes (same code, autoHeadingFixes = true): the heading
+correction applies by itself whenever the robot is still; every one is a log event
+"pose: automatic heading corrected ...". stillFixes stays a Panels toggle: try it only AFTER the R1
+mount calibration, on the taped path, with and without.
+Test plan on the robot: (1) Basic Drive from the start mark, drive, bump a wall, stop facing a HIVE:
+the Heading line should read within 2°. (2) Pick the robot up, turn it ~15°, put it down off the
+mark, hold still, hold D-pad down: expect "heading corrected +15°", then field-centric drives right.
+(3) Start Basic Drive with the robot 2 ft from the mark: the Start line should say "pose from the
+camera". (4) Same on the exp branch without pressing anything.
+
+## 2 Nov evening: what the lab logs said (logs/2026-11-02-20245-RC, five logs)
+- Camera mount after the R1 calibration at the far wall: fwd 3.12-3.13, left 0.89-0.95 (run-scoped, set
+  in Panels; the code still says 3.55 / 0.95). Marks after a corner reset read 0.3-0.9 in: good enough,
+  commit 3.13 / 0.89 once a second night agrees.
+- **The camera's whole-pose heading is noise unless both HIVEs are in the fit** (SKILL.md 0d): 2 tags
+  sd 12 deg, 4 tags +3 deg, 7-8 tags within 1 deg. The "+3.4 deg wall bias" was this, not the walls.
+  The TeleOp INIT override fired on a 2-tag fit and moved the pose 23 in / 24 deg off a mark the
+  position-only gap had just confirmed to 0.7 in; the driver drove 40 s with field-centric 24 deg off,
+  the button's heading check (also a 2-tag fit, right by luck) undid it. Fix: `minFitLeverIn` 30 in
+  gates every camera heading (PR from this branch, 2 Nov night). Until it is deployed: hold Triangle
+  only when the robot really is on its mark, and if the Start line says "pose from the camera" with the
+  robot on the mark, restart the OpMode.
+- Still fixes (shadow): REAL 3, SHADOW 1, same 2 at the marks; not a case for turning them on.
+- Loop time 41 ms mean, 61 p90 (Basic Drive): colour sensor 5.5, drive 9.6, feeder 4.6, onLoop 12 ms.
+  Not localization's; reported to the plan hub.
+- Height error +1.5 in on the blue audience tags too: same as red, still unexplained, still harmless.
+
+## Priority (plan hub, 31 Oct evening): launcher first; 0 dedicated localization time. Turret is
+LOCKED, so aim = robot heading + position; the heading check (square to a FLOWER, read Panels)
+matters more than the 1.2 in. Do the steps below only with idle robot time.
+
+## The calibration block (branch claude/funny-dirac-7k2k37 at 28db161; CI green: compile, lint, tests,
+NOT yet run on a robot: the first use tests the button as much as the camera)
+Vision: HIVE & Pose, robot on the RED AUDIENCE marks, PLAY, hold still. The "Camera calibration"
+section averages by itself (50 still frames) and shows "Camera vs spot ... READY · R1 applies".
+Press R1 once: it writes CameraMount.mountForwardIn/mountLeftIn for that run and logs them
+(match-log Metadata "CameraCalibration/Red_audience"). Expected from 31 Oct: fwd ~3.4, left ~+1.05.
+The "Camera ... in from odometry" line should then drop from ~1.2 to under ~0.3.
+Then drive to the RED FAR WALL marks (tile C6, back flat on the far wall, frame's left side on the
+C-D seam, facing the audience), press R2 until the Spot line says "Red far wall", place the robot on
+those marks, hold still, R1 once. "Spots so far" then says AGREE (commit the two numbers to
+CameraMount) or DIFFER (a HIVE point or the marks, not the mount: do not commit, tell the session).
+Never turn on the spot: the camera only sees tags facing a HIVE. R2 also offers the two blue spots.
+`CameraCalibrationTest` closes the sign loop through CameraMount and CellFix.
+
+## Manual fallback if the button is not on the robot
+1. Check Panels CameraMount is back at 4 / 0 / 14 / 45 / 0 (it resets on restart) and the Limelight
+   exposure/gain are what you want (write them down).
+2. Panels: mountForwardIn = 3.55. Read "Where the robot is". Camera y should go from ~7.1 to ~7.5.
+   If it moves DOWN the sign is wrong: set 4.0 and tell the session.
+3. Sideways: Panels mountLeftIn = +1.05; camera x should go from ~54.6 toward 55.6. (Or plumb line
+   from the lens centre: mountLeftIn = (right wheel face to mark - left wheel face to mark) / 2.)
+4. Once both move the camera toward odometry/truth, ask the session to make ONE edit to the shared
+   CameraMount defaults (update its "measured on 19429" comment), run the tests, and open a PR if
+   wanted. Do not touch mountUpIn or pitchDeg for the height.
+5. If the lens measures centred and mountLeftIn does not help: suspect the pod offsets
+   (xPodOffset -6.5, yPodOffset 1.0 in Robot20245.java); re-measure from the wheelbase centre.
+6. 19429 after its rebuild: copy 20245's Limelight pipeline (the download/upload arrows beside the
+   pipeline name in the Limelight UI), same exposure/gain, then the same 5-minute start check.
+
+## Where things are
+- Logs: Drive `...\Logs\20245-RC\`; 13:48 HiveAndPose is also on branch `logs/2026-10-31`
+  (throwaway, never merge). Two later HiveAndPose logs are still on the hub, unpulled.
+- Logs over ~6 MB crash the Drive connector; use a throwaway branch (SKILL.md section 0).

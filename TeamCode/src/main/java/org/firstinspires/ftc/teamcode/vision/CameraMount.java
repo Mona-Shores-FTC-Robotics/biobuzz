@@ -29,7 +29,16 @@ import com.bylazar.configurables.annotations.Configurable;
  * a tape. If it is ever in doubt, fix it in {@link #cameraAxesToRobotAxes} — one place, and the
  * unit tests will tell you whether the rest of the chain still holds.
  *
- * <p>The mounting numbers below were measured on 19429 on 3 Oct 2026 (#156): tape
+ * <p><b>Forward and left are calibrated from match logs, 2 Nov 2026 (20245).</b> Three routes
+ * agree: stop pairs in the 1 Nov logs where the robot faced the red HIVE then the blue one within
+ * a minute (the field offset cancels, the mount error solves: fwd -0.1 to -0.5, left +0.6 to +1.0);
+ * the 31 Oct wall test (wheelbase centre 7.55 in from the wall, camera read 7.1: fwd -0.45); and four
+ * placements on the red start (left +1.05). So the lens sits 0.45 in further back and 0.95 in further
+ * left than the 3 Oct tape, each about +/-0.25. 19429 is being rebuilt as 20245's copy and shares
+ * these until its own R1 calibration says otherwise. Vision: HIVE &amp; Pose's R1 block measures
+ * this on the robot; commit what it logs.
+ *
+ * <p>The height and pitch below were measured on 19429 on 3 Oct 2026 (#156): tape
  * and level, then checked against a tape at the RED start position (range within
  * about an inch, row height within 0.2 in). They are live-tunable in Panels.
  */
@@ -37,10 +46,10 @@ import com.bylazar.configurables.annotations.Configurable;
 public class CameraMount {
 
     /** Forward (+toward the front) from the robot origin to the lens, inches. */
-    public static double mountForwardIn = 4.0;
+    public static double mountForwardIn = 3.55;
 
     /** Left (+toward the robot's left) from the robot origin to the lens, inches. */
-    public static double mountLeftIn = 0.0;
+    public static double mountLeftIn = 0.95;
 
     /** Height of the lens above the floor, inches. */
     public static double mountUpIn = 14.0;

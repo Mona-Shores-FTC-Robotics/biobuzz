@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.pedropathing.math.Pose;
 
+import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.CameraMount;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
@@ -80,8 +81,12 @@ public class CellFixTest {
 
     private static final double[] MEMBER_X = {-6.5, -2.75, 2.75, 6.5};
 
-    /** Tags at {@code field} as a robot at (x, y, h) sees them, fitted back. */
+    /** Tags at {@code field} as a robot at (x, y, h) sees them, fitted back, any lever accepted. */
     private static Pose fitFrom(Vec3[] field, double x, double y, double h) {
+        return fitFrom(field, x, y, h, 1.5);
+    }
+
+    private static Pose fitFrom(Vec3[] field, double x, double y, double h, double minLeverIn) {
         int n = field.length;
         double[] fx = new double[n], fy = new double[n], rx = new double[n], ry = new double[n];
         for (int i = 0; i < n; i++) {
@@ -91,7 +96,7 @@ public class CellFixTest {
             rx[i] = seen.x();
             ry[i] = seen.y();
         }
-        return CellFix.fit(fx, fy, rx, ry, n, 1.5);
+        return CellFix.fit(fx, fy, rx, ry, n, minLeverIn);
     }
 
     @Test
@@ -110,6 +115,41 @@ public class CellFixTest {
                 assertEquals(what, 0, Math.IEEEremainder(pose.heading() - h, 2 * Math.PI), 1e-9);
             }
         }
+    }
+
+    /**
+     * The lever that earns a heading (LocalizationTuning.minFitLeverIn): the root-sum-square of the
+     * tags' distances from their middle. 2 Nov 2026: a 2-tag one-CELL fit moved an INIT pose 24 deg.
+     */
+    @Test
+    public void onlyTagsOnBothHivesHaveTheLeverForAHeading() {
+        double lever = LocalizationTuning.minFitLeverIn;
+        assertEquals(30.0, lever, 1e-9);
+        double redX = HiveFieldPoints.hiveX(Alliance.RED);
+        double blueX = HiveFieldPoints.hiveX(Alliance.BLUE);
+        Vec3[] redRow = row(redX, 57.65, MEMBER_X);
+        Vec3[] blueRow = row(blueX, 57.65, MEMBER_X);
+        // One CELL, however many of its tags: lever at most 10 in.
+        assertNull("two neighbours", fitFrom(new Vec3[]{redRow[1], redRow[2]}, 30, 45, 0.3, lever));
+        assertNull("the outer two", fitFrom(new Vec3[]{redRow[0], redRow[3]}, 30, 45, 0.3, lever));
+        assertNull("a whole row", fitFrom(redRow, 30, 45, 0.3, lever));
+        // One tag on each HIVE: 18 in. Two on each: 26-29. Four and two: 31. Both rows: 39.
+        assertNull("one on each", fitFrom(new Vec3[]{redRow[1], blueRow[2]}, 30, 45, 0.3, lever));
+        assertNull("two on each", fitFrom(new Vec3[]{redRow[0], redRow[3], blueRow[0], blueRow[3]}, 30, 45, 0.3, lever));
+        Vec3[] fourAndTwo = {redRow[0], redRow[1], redRow[2], redRow[3], blueRow[1], blueRow[2]};
+        Vec3[] both = {redRow[0], redRow[1], redRow[2], redRow[3], blueRow[0], blueRow[1], blueRow[2], blueRow[3]};
+        for (Vec3[] tags : new Vec3[][]{fourAndTwo, both}) {
+            Pose pose = fitFrom(tags, 30, 45, 0.3, lever);
+            assertEquals(tags.length + " tags", 30, pose.x(), 1e-9);
+            assertEquals(tags.length + " tags", 45, pose.y(), 1e-9);
+            assertEquals(tags.length + " tags", 0.3, pose.heading(), 1e-9);
+        }
+    }
+
+    private static Vec3[] row(double centreX, double y, double[] along) {
+        Vec3[] tags = new Vec3[along.length];
+        for (int i = 0; i < along.length; i++) tags[i] = new Vec3(centreX + along[i], y, 49.76);
+        return tags;
     }
 
     @Test

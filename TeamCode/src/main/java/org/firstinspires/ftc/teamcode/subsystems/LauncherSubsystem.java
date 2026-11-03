@@ -88,7 +88,7 @@ public class LauncherSubsystem implements Subsystem {
 
     /**
      * The speed both wheels are asked to hold while spinning, encoder ticks per second: the
-     * default for the TeleOp and the Launcher Bench, adjustable live in Panels (and by the bench's
+     * default for the TeleOp and the Bench: Launcher, adjustable live in Panels (and by the bench's
      * D-pad and the TeleOp's trim). <b>A starting point, not a measured value.</b> A goBILDA 5203
      * counts 28 ticks per motor revolution, so a 6000 RPM bare motor tops out near 2800; 1525 is
      * where POLLEN and NECTAR both shoot. The value each leaves cleanly at is the first row of

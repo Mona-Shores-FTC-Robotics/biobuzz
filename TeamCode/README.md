@@ -303,7 +303,7 @@ and nothing is pushed over adb.
 | The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot — plus `robot_launcher_rig.xml` for the two-wheel launcher bench rig (hub FTC-EoM3) |
 | The names in Java | `hardware/DeviceNames.java` — the only place a device name may be written |
 | The build-time check | `RobotConfigXmlTest` — fails CI if the XML and `DeviceNames` disagree |
-| The run-time check | the **Validate Hardware** OpMode (Diagnostics group) |
+| The run-time check | the **Check: Hardware** OpMode (Utility menu) |
 
 ### How it reaches the robot
 
@@ -349,7 +349,7 @@ file.
 > `robot_*.xml` so the tests skip it (smallest change, but then a typo in its
 > motor name is found at a meeting, which is the thing this whole section
 > exists to prevent); and adding `launcher2` to both competition robots' XML
-> (would declare a device neither robot has). `Validate Hardware` likewise now
+> (would declare a device neither robot has). `Check: Hardware` likewise now
 > checks the live hardware against the active robot's list.
 
 ### Device names are never string literals
@@ -410,7 +410,7 @@ copy-pasting a third 58-line script.
 The one that matters most: a config in `/sdcard/FIRST/` **is editable in the DS
 editor**, and an edit there silently diverges from the repo copy until someone
 re-runs the script and clobbers it. A bundled config is read-only, so that drift
-path is closed rather than discouraged. Run **Validate Hardware** to find out
+path is closed rather than discouraged. Run **Check: Hardware** to find out
 whether the active config is bundled (`RESOURCE`) or somebody's hand-made one
 (`LOCAL_STORAGE`).
 
@@ -479,12 +479,12 @@ Considered and not done: zeroing only by button (a forgotten press is silent:
 nothing can tell the turret was not at home), and a check that the count is
 still where the Auto left it (it cannot tell a bump from a re-home). The
 encoder's absolute PWM output exists, and an OctoQuad could
-read it (the `OctoQuad Bench` and #169); the build team chose relative plus a
+read it (the `Bench: OctoQuad` and #169); the build team chose relative plus a
 home mark for the time it saves (Oct 2026). Set the encoder's voltage switch to
 3V3.
 
 `subsystems/TurretEncoder` is the pure math (counts to degrees, with the
-measured gear ratio and direction) and `Turret Bench` is the OpMode that
+measured gear ratio and direction) and `Bench: Turret` is the OpMode that
 measures them: encoder direction, gear ratio, servo direction, and a
 proportional hold to try a gain. Its javadoc is the checklist.
 
@@ -887,17 +887,17 @@ Foresight tuners all run today, as do the Tests procedure's localization,
 odometry, pose and driving tests. Only its hold, line and curve tests need a
 tuned Foresight, since only those build a `Follower`.
 
-### When the robot strafes in an arc: Drive Motor Check
+### When the robot strafes in an arc: Check: Drive Motors
 
 The Foresight Tuner's **Max Strafe Velocity** step sends full power straight
 left, robot-centric, with nothing correcting heading. So it shows the robot's own
 strafe, and a robot that arcs there (a "rainbow") has a mechanical problem, not a
 tuning one. Two things hide it in everyday driving. Basic Drive runs at 60%, and
 it is **field-centric** by default, so the Pinpoint heading quietly steers out
-the drift. To see what the tuner sees, open **Basic Drive (robot-centric)**,
+the drift. To see what the tuner sees, open **Drive: Robot-centric** (Utility menu),
 hold the **right bumper** (turbo) and push straight left.
 
-If it arcs there too, run **Drive Motor Check** (Diagnostics group, #121) with
+If it arcs there too, run **Check: Drive Motors** (Utility menu, #121) with
 **the robot lifted**. It takes about 20 s:
 
 | Step | What it shows |
@@ -1244,11 +1244,12 @@ CELL is assumed up until the camera says otherwise.
 
 **Localization, DECODE's shape without MegaTag.** Every tag on a settled CELL has a known field
 position (`HiveFieldPoints.tagPosition`): its row centre plus its own offset along the row, which a
-TIP leaves alone because the row runs along the axle. So **any two or more tags in view, on one
-CELL or several, give the robot's whole pose** by a least-squares fit (`CellFix.fit`), the way
-MegaTag1 did; **one tag plus the Pinpoint's heading gives the position exactly**. Tags on two
-CELLs give a better heading than four on one. `DriveSubsystem` uses it three ways, and the
-Pinpoint carries the pose in between:
+TIP leaves alone because the row runs along the axle. So **tags in view on both HIVEs give the
+robot's whole pose** by a least-squares fit (`CellFix.fit`), the way MegaTag1 did; **one tag plus
+the Pinpoint's heading gives the position exactly**. The fit has a heading only when its tags'
+lever (root-sum-square distance from their middle) reaches `minFitLeverIn`, 30 in, which tags on
+one CELL (lever 10 at most) never do: see "Why heading comes from the Pinpoint" below for the
+measurement. `DriveSubsystem` uses it three ways, and the Pinpoint carries the pose in between:
 
 1. **Seed.** No declared start and no Auto handoff: the pose is set once three camera poses in a
    row agree. The driver's field-centric forward does not move.
@@ -1266,11 +1267,16 @@ measured.
 #### The camera fix: gates, averaging, and how to tune it
 
 **Why heading comes from the Pinpoint.** A CELL's four tags span 13 in. Solving the robot's
-heading from them (`CellFix.fit`) puts a degree or two of noise into the heading, and at 60 in
-each degree moves the position an inch. That is the 1–4 in jump seen with 3–4 tags in view. The
-Pinpoint's heading is far steadier, so once the pose is referenced each tag gives a position on its
-own: its field point minus where the robot sees it, rotated into the field by the Pinpoint heading
-(`CellFix.position`). `fit` is kept only to seed a pose that has no heading yet.
+heading from them (`CellFix.fit`) divides each tag's position noise, about 0.5 in at 55–60 in, by
+the tags' lever (root-sum-square distance from their middle), and at 60 in each degree of heading
+moves the position an inch. Measured on 20245, 2 Nov 2026, robot still, camera heading minus the
+Pinpoint's: two tags on one CELL (lever 3–7 in) wandered ±12° and sat 22° out for a whole run; a
+CELL's four (lever 10) sat 3° out; seven or eight tags on both HIVEs (lever 35–39) agreed within
+1°. So the fit returns no heading under `minFitLeverIn` (30 in: both HIVEs, seen well), and
+everything that takes a camera heading (the seed, the start override, the heading-checked reset,
+the "Heading" line) goes quiet rather than wrong without one. The Pinpoint's heading is far
+steadier, so once the pose is referenced each tag gives a position on its own: its field point
+minus where the robot sees it, rotated into the field by the Pinpoint heading (`CellFix.position`).
 
 **The gates** (`localization/TagGate`, one frame at a time). They are FRC 3572's (`Robot-2026`,
 `Vision.java`), adapted to moving tags and to a camera that reports no ambiguity:
@@ -1324,6 +1330,23 @@ code (a Claude session can read it): the numbers come off the log, not off someo
    #82 session 1's taped path, with `LocalizationTuning.stillFixes` set in code, against without.
 5. **Continuous fixes** are their own session, later (#82 session 5).
 
+**The short form: a marked spot and R1.** Put the robot on a calibration spot's marks
+(`localization/CalibrationSpots`: red audience, red far wall, blue audience wall, blue far wall,
+each a wall plus a seam facing a HIVE) and hold still. Vision: HIVE & Pose's "Camera calibration"
+block averages the camera's error against that spot by itself over 50 still frames
+(`localization/CameraCalibration`), starting over if the robot moves, and shows the `CameraMount`
+forward/left that would zero it; R1 applies them for that run and writes them to the match log
+(`CameraCalibration/<spot>` on the Metadata tab), where they are read from to commit. The maths is
+one line: a mount wrong by *d* puts every tag's robot at *−d*, so new = old + the residual in robot
+axes; `CameraCalibrationTest` closes that loop through `CameraMount` and `CellFix`. One spot cannot
+tell a mount error from a HIVE point or a placement that is off on this field, and turning on the
+spot is no use (the camera is pitched up at the HIVE): R2 sets the pose to the next spot, the robot
+goes on those marks, R1 again, and the "Spots so far" line says AGREE (the mount: commit) or DIFFER
+(not the mount). Red audience and red far wall see the same HIVE from opposite sides, the pair that
+decides it.
+Height is shown and never applied (on 20245 the value that zeroed it, 12 in, contradicted a tape,
+14 in; cause unknown, position unaffected).
+
 Which way each row runs along the field (`HiveFieldPoints.clusterXAlongFieldX`) follows from the
 SDK's cluster layout: the opening sits at +y, -z of the row in cluster axes, the opening faces away
 from the axle and the tags face down, so x = y × z points along +x for an AUDIENCE CELL and -x for
@@ -1334,8 +1357,8 @@ robot's right facing +y for AUDIENCE, left for SCORING).
 **Seeing it.** `Vision: HIVE & Pose` drives the robot and shows all of it: on the Driver Station
 the HIVEs, the CELLs in view, odometry against camera, and the would-relocalize gap; in Panels,
 graphs of each CELL's height and rocker angle (a TIP is a clean curve) and a field view with the
-odometry robot in blue, the camera's robot in amber, and the CELLs' tag rows as dots. A
-relocalizes, Y resets field-centric forward.
+odometry robot in the alliance's colour (red, blue, white with none), the camera's robot in amber,
+and the CELLs' tag rows as dots. A relocalizes, Y resets field-centric forward.
 
 **The SDK's orientation names are not Limelight's.** The SDK builds a tag's `Pose3D` as
 `new YawPitchRollAngles(DEGREES, rz, ry, rx)` (Hardware 12.0.0, `LLResult.createPose3DRobot`),
@@ -1483,6 +1506,7 @@ flat. Each is now a line in the file, on AdvantageScope's Metadata tab or in `/E
 | `Tunable/<Class>.<field>` | every Panels knob's value at PLAY, so the run can be repeated | `logging/Tunables`, by reflection over its list; `TunablesTest` keeps the list equal to the `@Configurable` classes outside the benches |
 | `AutoSource`, `AutoDrawnFor`, `AutoPlaceholders` | which `.pp` drawing ran, for which alliance, and which of its waits were on placeholder triggers | `BuiltAuto` |
 | `/Turret/AngleDeg`, `TargetDeg`, `ErrorDeg`, `Zeroed`, `Holding` | the turret, every loop | `RobotOpMode`, beside the launcher's and feeder's keys |
+| `/Shadow/Robot` (Pose2d), `/Shadow/X`, `/Shadow/Y`, `/Shadow/OffsetIn`, `/Shadow/Fixes` (count, every loop), event `shadow: still fix N moved it …` (only moves over 0.25 in) | what the pose would be with still fixes on (`localization/ShadowPose`), beside the real one; in AdvantageScope drag `/Shadow/Robot` onto the Field as a ghost, in Panels it is the purple robot (`FieldLayers.shadow`) | `RobotOpMode` |
 | `/Prefeed/Power`, `/FeedGate/Feeding`, `/FeedGate/Position` | the transfer: the prefeed's servo power, whether the gate is asked open, and the position last written (absent while the gate's positions are NaN) | `RobotOpMode`; `PrefeedSubsystem` and `FeedGateSubsystem` follow the intake's and the feeder's requests, so no OpMode sets them |
 | `/Intake/FeedAssist` | 1 while the roller or the stars run only because the feeder is feeding or reversing (`IntakeSubsystem.rollerFor`), 0 otherwise | `RobotOpMode` |
 | `/Launcher/Reversing` | 1 while the flywheels run backwards for an unjam, following the feeder's reverse (`LauncherSubsystem.reverseFor`); at-speed and the shot count sit it out | `RobotOpMode` |
@@ -1660,9 +1684,9 @@ In order. Most of a lost morning is steps 1 and 2.
 | 2 | If the upload hangs or is refused, run **Remove Sloth Remote**, then deploy again | A stale payload in `/storage/emulated/0/FIRST/dairy/sloth` can make upload impossible. Sloth's own README calls this common this season |
 | 3 | Power-cycle. Wait for the RC to reach `Robot Status: running` and the DS to show a heartbeat | No heartbeat and empty OpMode lists means the `BindException` crash loop is back — check that nothing re-added FTC Dashboard, and that step 1 was a full install |
 | 4 | Laptop onto the robot's Wi-Fi → `http://192.168.43.1:8001` → Field plugin | Port **8001**, not 8080. 8080 is the SDK's own web server and will happily serve you an unrelated page |
-| 5 | Run **Loop Time Baseline**. Watch `field_frames_sent` | Climbing means the drawing path works. Stuck at 0 means it does not, and nothing further down is worth debugging |
+| 5 | Run **Check: Loop Time**. Watch `field_frames_sent` | Climbing means the drawing path works. Stuck at 0 means it does not, and nothing further down is worth debugging |
 | 6 | Look for the white cross at field centre | Visible means canvas, background and coordinate frame are all fine. Absent with frames climbing means the browser, not the robot |
-| 7 | Push the robot by hand. The blue circle should move | Does not move, cross is visible, telemetry says `pose: NO LOCALIZER` → the Pinpoint is not in the active config. Run `Validate Hardware` |
+| 7 | Push the robot by hand. The blue circle should move | Does not move, cross is visible, telemetry says `pose: NO LOCALIZER` → the Pinpoint is not in the active config. Run `Check: Hardware` |
 
 **Expect the pose to be wrong, and do not treat that as a broken field view.** The Pinpoint pod
 offsets and directions in each robot's `localizerConfig` (`pedro/robots/`) are still zeros and placeholders. A dot that

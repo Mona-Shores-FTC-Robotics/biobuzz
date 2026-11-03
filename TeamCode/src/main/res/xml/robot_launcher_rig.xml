@@ -9,7 +9,7 @@
   Like the robot configs, it ships inside the APK and appears in the Driver
   Station list as "robot_launcher_rig" as soon as the app is installed. The one
   manual step, once per hub: on the rig's Driver Station,
-  Configure Robot -> robot_launcher_rig -> Activate. The Launcher2 Speed Test
+  Configure Robot -> robot_launcher_rig -> Activate. The Bench: Launcher2 Speed Test
   OpMode warns if some other configuration is active.
 
   WIRING - read before changing anything here:

@@ -11,7 +11,7 @@
   Like the robot configs, it ships inside the APK and appears in the Driver
   Station list as "robot_launcher_bench" as soon as the app is installed. The
   one manual step, once per hub: on the bench's Driver Station,
-  Configure Robot -> robot_launcher_bench -> Activate. The Launcher Bench
+  Configure Robot -> robot_launcher_bench -> Activate. The Bench: Launcher
   OpMode warns if some other configuration is active.
 
   WIRING, as the bench was built on 24 Oct 2026 - read before changing:

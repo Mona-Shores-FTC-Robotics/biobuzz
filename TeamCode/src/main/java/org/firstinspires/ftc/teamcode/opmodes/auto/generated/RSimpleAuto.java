@@ -19,7 +19,7 @@ public final class RSimpleAuto {
     public static final String SOURCE = "r-simple.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "";
+    public static final String SAVED = "11-03|1:34AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
@@ -45,10 +45,13 @@ public final class RSimpleAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose rightStart = p.of(55.6, 7.7, 90);
-        Pose rightPark = p.of(9.6, 95.7, 0);
+        Pose rightPark = p.of(14.5, 95.7, 0);
+
+        // Other poses the paths need (control points, unnamed endpoints).
+        Pose toRightParkControl1 = p.of(25, 40, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path toRightPark = Paths.line(rightStart, rightPark).linear(rightStart, rightPark);
+        Path toRightPark = Paths.curve(rightStart, toRightParkControl1, rightPark).linear(rightStart, rightPark);
 
         return kit.sequence(
                 kit.guarded("Auto", toRightPark, 2.9,

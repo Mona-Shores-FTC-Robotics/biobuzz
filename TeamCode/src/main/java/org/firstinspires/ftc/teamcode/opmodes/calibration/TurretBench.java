@@ -47,7 +47,7 @@ import java.util.Locale;
  * <p>Nothing moves in INIT: the servo gets power only after PLAY. Zeroing with Cross works in INIT, so
  * the turret can be put at home and zeroed before anything can turn it.
  */
-@Utility(name = "Turret Bench", description = "The turret's servo and encoder: direction, ratio, and the hold law's numbers")
+@Utility(name = "Bench: Turret", description = "The turret's servo and encoder: direction, ratio, and the hold law's numbers")
 @Configurable
 public class TurretBench extends OpMode {
 
@@ -207,7 +207,7 @@ public class TurretBench extends OpMode {
             // Until A is pressed, angles are relative to wherever the turret sat at INIT.
             zeroCounts = encoderHost.getCurrentPosition();
         }
-        telemetry.addLine("Turret Bench. Put the turret at home and press Cross. Nothing moves until PLAY.");
+        telemetry.addLine("Bench: Turret. Put the turret at home and press Cross. Nothing moves until PLAY.");
         report();
     }
 
