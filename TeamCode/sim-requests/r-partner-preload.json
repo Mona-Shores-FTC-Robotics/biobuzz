@@ -26,30 +26,29 @@
   "alliance": "RED",
   "partners": [
     {
-      "name": "fires in 2 s",
+      "name": "last shot at 6 s",
       "partner": "PartnerLLaunchParkAuto",
-      "timing": {
-        "launchS": 0.6
-      }
+      "lastShotS": 6
     },
     {
-      "name": "fires in 5 s",
+      "name": "last shot at 10 s",
       "partner": "PartnerLLaunchParkAuto",
-      "timing": {
-        "launchS": 1.6
-      }
+      "lastShotS": 10
     },
     {
-      "name": "fires in 9 s",
+      "name": "misses, said 6 s",
       "partner": "PartnerLLaunchParkAuto",
-      "timing": {
-        "launchS": 3.0
-      }
+      "lastShotS": 6,
+      "fails": "misses"
+    },
+    {
+      "name": "dead on its start",
+      "partner": "PartnerLStillAuto"
     }
   ],
   "metadata": {
     "AutoSource": "r-partner-preload.pp",
-    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor)",
+    "SavedBy": "partner curation (Claude, 3 Nov 2026: on time, missing, dead; to be corrected by the mentor)",
     "SavedAt": "2026-11-03T20:00:00+00:00"
   }
 }
