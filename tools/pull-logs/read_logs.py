@@ -137,7 +137,8 @@ def picks(paths):
 
       push end   reached | path done N in short | stalled N in short | timed out N in short
       depth      robot centre to the FLOWER's centre when the push ended, inches, as odometry had it
-                 (contactStandoffIn plus what the push end line says is short)
+                 (the pick's own contact value, from its start line, plus what the push end line says
+                 is short; older logs: the start-of-run contactStandoffIn)
       spikes     intake-current spikes during the push and dwell: about one per piece
       lane       /Lane/Count at the push's start -> half a second after the pick (newer logs only)
       along      camera minus odometry at the pick, along the push, inches: negative means the robot
@@ -165,7 +166,12 @@ def picks(paths):
             if not m:
                 i += 1
                 continue
-            flower, how = m.group(1), m.group(4).strip(', ') or '-'
+            flower, how = m.group(1), m.group(4)
+            # Newer logs end the start line with ", contact 7.0 in": the push depth as it was set then,
+            # which Panels may have changed since INIT. Older logs fall back to the start-of-run value.
+            cm = re.search(r', contact ([\d.]+) in', how)
+            pick_contact = float(cm.group(1)) if cm else contact
+            how = re.sub(r', contact [\d.]+ in', '', how).strip(', ') or '-'
             t_in = t_dwell = t_back = t_end = None
             push_end, outcome = '-', '?'
             j = i + 1
@@ -189,7 +195,7 @@ def picks(paths):
                 continue
             a, b = t_in, t_back or t_end or t_in + 4
             mm = re.search(r'([\d.]+) in short', push_end)
-            depth = contact + (float(mm.group(1)) if mm else 0.0) if push_end != '-' else float('nan')
+            depth = pick_contact + (float(mm.group(1)) if mm else 0.0) if push_end != '-' else float('nan')
             l0, l1 = at(lane, t_in), at(lane, (t_end or b) + 0.5)
             lane_s = '-' if l0 is None else '%d->%d' % (l0, l1 if l1 is not None else l0)
             x, y, f = at(gx, t_in), at(gy, t_in), FLOWER_FACING.get(flower)
