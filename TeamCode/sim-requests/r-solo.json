@@ -16,10 +16,27 @@
     9,
     10
   ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
   "alliance": "RED",
+  "partners": [
+    {
+      "name": "stays on its start",
+      "partner": "PartnerLStillAuto"
+    },
+    {
+      "name": "parks at 15 s",
+      "partner": "PartnerPark1Auto"
+    }
+  ],
   "metadata": {
     "AutoSource": "r-solo.pp",
-    "SavedBy": "dustinhans",
-    "SavedAt": "2026-11-03T07:41:25.146Z"
+    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor)",
+    "SavedAt": "2026-11-03T20:00:00+00:00"
   }
 }

@@ -58,10 +58,65 @@ and Java on an `auto/<name>` branch when back online.
 ## The bench
 
 Everything that is not one of the Autos we run lives on the `autos-experiment` branch (its
-`BENCH.md` says what is there): the Autos from before, the partner stand-ins for simulating a
-teammate beside one of ours, and earlier experiments. So the Team Autos list on `master` is exactly
-the Driver Station's list. To work on a benched Auto, open it from that branch; to bring one back,
-say so and it comes over on an `auto/<name>` branch.
+`BENCH.md` says what is there): the Autos from before and earlier experiments. So the Team Autos
+list on `master` is exactly the Driver Station's list. To work on a benched Auto, open it from that
+branch; to bring one back, say so and it comes over on an `auto/<name>` branch.
+
+## Partner stand-ins (`partners/`)
+
+`partners/` holds the Autos a teammate might run beside one of ours, for the simulator only: a
+`.pp` each, its generated class in `opmodes/auto/generated/`, and no OpMode, so the Driver Station
+never lists one. The Visualizer's Team Autos list reads the folder's own files and skips
+subfolders, so none of these shows up as an Auto of ours. To open one, give the link the whole
+path: `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=TeamCode/autos/partners/partner-l-launch-park.pp`
+(a branch goes in front: `#gh=master/TeamCode/autos/partners/…`). Their spots are a teammate's
+(`PARTNER_START`, `PARTNER_PARK`), not the team's. `AutoSourcesTest`
+accepts a `SOURCE` here as it does in the folder itself.
+
+| Stand-in | What it does |
+|---|---|
+| `partner-r-still`, `partner-l-still` | Sits on the right or left start for the whole of AUTO. |
+| `partner-park-1`, `partner-park-2` | Sits on the left start until 15 s, then parks (two different starts and park spots). |
+| `partner-r-launch-park`, `partner-l-launch-park` | Spins up, waits for its own CELL to be up (at most 12 s), fires all four preloads at it, parks. The right CELL is up at the start, so the right one fires at once; the left one fires once our first TIP raises the left CELL. |
+| `partner-l-tip-park` | The left launch-park, then the scoring FLOWER, four more at the left CELL (eight pieces: a TIP), then parks. |
+| `partner-l-stage-park` | Starts against the wall facing the HIVE with its four POLLEN on the tiles along its left side (the simulator places them, `AutoStudyTest.alongLeftSide`, touching the frame as G304 asks), waits 2 s, drives off along the wall and parks, leaving them. |
+
+A stand-in is drawn and exported like any Auto (Visualizer, or `node scripts/export-auto.mjs`
+from a Visualizer checkout); a new one goes here with its class, and into the curation below.
+
+### Which partners an Auto is simulated with
+
+Each Auto's `TeamCode/sim-requests/<name>.json` lists its runs: the Auto alone, then each
+stand-in at each timing (`"partners"`; the request format is in `SimRunTest`'s javadoc). The
+"Simulate Auto" workflow runs every entry and publishes each one. The curation, seeded 3 Nov 2026
+and the mentor's to correct:
+
+| Auto | Alone | Beside |
+|---|---|---|
+| R-Solo | yes | `partner-l-still`; `partner-park-1` |
+| R-Partner-Preload | yes | `partner-l-launch-park`, its four preloads away about 2, 5 and 9 s after its CELL rises (`launchS` 0.6, 1.6, 3.0) |
+| R-Partner-Tip | yes | `partner-l-tip-park` at 35, 50 and 65 in/s (slow with a 4 s pick, fast with a 2 s one) |
+| L-Partner | yes | `partner-r-launch-park` with its last preload away at about 2, 5, 8 and 12 s (`startDelayS` 0 / 1.5 / 4 / 8 with `launchS` 0.3 / 0.8 / 1.0 / 1.0): our 7 s CellUp wait fires for the first two and times out for the last two |
+| R-Solo-Staging | yes | `partner-l-stage-park` (see the note below) |
+
+A partner entry's **timing** is four knobs, each optional: `startDelayS` (seconds after PLAY
+before its first card), `speed` (its drive profile, as a spec writes it after `@`), `launchS`
+(seconds per launch volley: a four-piece launch is the 1 s spin-up and then three of these) and
+`pickS` (seconds it stands at a FLOWER with its intake on). A left partner fires only once its CELL
+is up, so for R-Partner-Preload the timings count from our first TIP, not from PLAY. Partner runs
+use `partnerSeeds` (five) so the whole job stays under about five minutes; the Auto alone keeps its
+ten.
+
+**The Visualizer's Save & Simulate must keep `partners` and `partnerSeeds`** when it rewrites the
+request (it writes the rest from its dialog): the curation lives in the request, nowhere else.
+
+**R-Solo-Staging needs a Visualizer pass.** A wall-touching left partner's row of POLLEN lies at
+y 129 to 138 (16.2 in frame, 1.4 in POLLEN), and `partner-l-stage-park` leaves it at x 44.5 for
+the intake of a robot at `PARTNER_STAGED_POLLEN` (36, 124, facing 0) to reach. The simulator keeps
+the row where the partner left it until our own robot arrives at `LEFT_LAUNCH_OFFSET` (41, 121.5),
+whose footprint covers the whole intake zone of `PARTNER_STAGED_POLLEN` and sweeps the row away
+before we come for it. Either spot has to move (toward y 133 for the collect, or the launch away
+from the row) before this run means anything; the result shows the sweep (3 Nov 2026).
 
 ## Team spots (`spots.json`)
 
@@ -77,7 +132,7 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 | `WALL_FLOWER_STAGING`, `SCORING_FLOWER_STAGING` | Where a Pick flower step starts (on the FLOWER's line, 18–24 in out). |
 | `GARDEN_STAGING` | Where a Garden gather step starts; the gather pose itself is the robot code's (`GardenFieldPoints`). |
 | `RIGHT_PARK`, `LEFT_PARK` | 14.5 in off the alliance wall, facing 0 (the intake toward the field), in the LOADING ZONE. |
-| `PARTNER_STAGED_POLLEN` | Where a partner on `LEFT_START` sets its four preloads down for us: a drawing until a partner says where they stage. |
+| `PARTNER_STAGED_POLLEN` | Where a partner on `LEFT_START` sets its four preloads down for us: a drawing until a partner says where they stage (`partners/partner-l-stage-park` is the simulator's guess; see "Partner stand-ins"). |
 
 Names are side (or thing) first, then role, then variant, so a side's spots sort together. An Auto
 that needs a spot not in this list is drawn on the `autos-experiment` branch until the spot earns
