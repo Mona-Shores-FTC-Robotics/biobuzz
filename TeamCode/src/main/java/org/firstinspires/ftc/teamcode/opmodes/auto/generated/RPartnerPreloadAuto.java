@@ -19,13 +19,13 @@ public final class RPartnerPreloadAuto {
     public static final String SOURCE = "r-partner-preload.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-02|8:55PM";
+    public static final String SAVED = "11-03|1:36AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"IntakeFull"};
+    public static final String[] TRIGGERS = {};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -49,42 +49,38 @@ public final class RPartnerPreloadAuto {
         Pose leftLaunchOffset = p.of(41, 121.5, 296.4);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
-        Pose nectarCatch = p.of(10, 96, 90);
-        Pose rightLaunchOffset = p.of(41, 20, 68.7);
-        Pose rightPark = p.of(9.6, 95.7, 0);
+        Pose rightPark = p.of(14.5, 95.7, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toRightLaunchCatchControl1 = p.of(70, 106, 0);
-        Pose toRightLaunchCatchControl2 = p.of(58, 45, 0);
-        Pose toNectarCatchControl1 = p.of(25, 45, 0);
+        Pose wallFlowerStagingParkControl1 = p.of(26, 75, 0);
+        Pose leftLaunchOffsetParkControl1 = p.of(26, 112, 0);
+        Pose scoringFlowerStagingParkControl1 = p.of(28, 110, 0);
+        Pose toRightLaunchCatchControl1 = p.of(71, 106, 0);
+        Pose toRightLaunchCatchControl2 = p.of(60, 45, 0);
+        Pose toRightParkControl1 = p.of(25, 45, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
+        Path wallFlowerStagingPark = Paths.curve(wallFlowerStaging, wallFlowerStagingParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
         Path toLeftLaunchOffset = Paths.line(wallFlowerStaging, leftLaunchOffset).linear(wallFlowerStaging, leftLaunchOffset);
+        Path leftLaunchOffsetPark = Paths.curve(leftLaunchOffset, leftLaunchOffsetParkControl1, rightPark).linear(leftLaunchOffset, rightPark);
         Path toScoringFlowerStaging = Paths.line(leftLaunchOffset, scoringFlowerStaging).linear(leftLaunchOffset, scoringFlowerStaging);
+        Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
         Path toRightLaunchCatch = Paths.curve(scoringFlowerStaging, toRightLaunchCatchControl1, toRightLaunchCatchControl2, rightLaunchCatch).linear(scoringFlowerStaging, rightLaunchCatch);
-        Path toNectarCatch = Paths.curve(rightLaunchCatch, toNectarCatchControl1, nectarCatch).linear(rightLaunchCatch, nectarCatch);
-        Path toRightLaunchOffset = Paths.line(nectarCatch, rightLaunchOffset).linear(nectarCatch, rightLaunchOffset);
-        Path toRightPark = Paths.line(rightLaunchOffset, rightPark).linear(rightLaunchOffset, rightPark);
+        Path toRightPark = Paths.curve(rightLaunchCatch, toRightParkControl1, rightPark).linear(rightLaunchCatch, rightPark);
 
         return kit.sequence(
-                kit.guarded("Auto", toRightPark, 2.6,
+                kit.guarded("Auto", toRightPark, 2.7,
                         kit.command("SpinUp"),
                         kit.command("LaunchAll"),
-                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1),
+                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
                         kit.command("PickFlower", 8),
-                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 2.5),
+                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 2.5, leftLaunchOffsetPark, 1.8),
                         kit.command("LaunchAll"),
-                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1),
+                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1, scoringFlowerStagingPark, 1.9),
                         kit.command("PickFlower", 8),
                         kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 3),
                         kit.command("LaunchAll"),
-                        kit.path("to NECTAR_CATCH", toNectarCatch, 2.8),
-                        kit.firstOf("Wait for IntakeFull",
-                                kit.when("IntakeFull"),
-                                kit.afterMs(3000)),
-                        kit.path("to RIGHT_LAUNCH_OFFSET", toRightLaunchOffset, 2.6),
-                        kit.command("LaunchAll"),
-                        kit.path("to RIGHT_PARK", toRightPark, 2.6)));
+                        kit.path("to RIGHT_PARK", toRightPark, 2.7)));
     }
 }

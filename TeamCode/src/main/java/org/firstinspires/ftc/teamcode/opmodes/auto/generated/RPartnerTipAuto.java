@@ -19,7 +19,7 @@ public final class RPartnerTipAuto {
     public static final String SOURCE = "r-partner-tip.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-02|10:12PM";
+    public static final String SAVED = "11-03|1:36AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -49,7 +49,7 @@ public final class RPartnerTipAuto {
         Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
         Pose gardenStaging = p.of(11.5, 22.1, 270);
         Pose rightLaunchOffset = p.of(41, 20, 68.7);
-        Pose rightPark = p.of(9.6, 95.7, 0);
+        Pose rightPark = p.of(14.5, 95.7, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose wallFlowerStagingParkControl1 = p.of(26, 75, 0);
@@ -72,7 +72,7 @@ public final class RPartnerTipAuto {
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
                         kit.command("PickFlower", 8),
-                        kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 1.9, rightLaunchCatchPark, 2.8),
+                        kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 1.9, rightLaunchCatchPark, 2.7),
                         kit.firstOf("Wait for Right CELL up",
                                 kit.when("RightCellUp"),
                                 kit.afterMs(5000)),

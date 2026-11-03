@@ -19,7 +19,7 @@ public final class LPartnerAuto {
     public static final String SOURCE = "l-partner.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-02|8:55PM";
+    public static final String SAVED = "11-03|1:36AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -47,7 +47,7 @@ public final class LPartnerAuto {
         Pose leftStart = p.of(62.3, 133.8, 270);
         Pose leftLaunchCatch = p.of(57.5, 123.5, 273.4);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
-        Pose leftPark = p.of(9.8, 117.4, 0);
+        Pose leftPark = p.of(14.5, 117.4, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toLeftLaunchCatch = Paths.line(leftStart, leftLaunchCatch).linear(leftStart, leftLaunchCatch);
@@ -58,17 +58,17 @@ public final class LPartnerAuto {
         Path toLeftPark = Paths.line(leftLaunchCatch, leftPark).linear(leftLaunchCatch, leftPark);
 
         return kit.sequence(
-                kit.guarded("Auto", toLeftPark, 2,
+                kit.guarded("Auto", toLeftPark, 1.9,
                         kit.command("SpinUp"),
-                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 1, leftLaunchCatchPark, 2),
+                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 1, leftLaunchCatchPark, 1.9),
                         kit.firstOf("Wait for TIP",
                                 kit.when("Tip"),
                                 kit.afterMs(7000)),
                         kit.command("LaunchAll"),
-                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.8),
+                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
                         kit.command("PickFlower", 8),
                         kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath, 1.3),
                         kit.command("LaunchAll"),
-                        kit.path("to LEFT_PARK", toLeftPark, 2)));
+                        kit.path("to LEFT_PARK", toLeftPark, 1.9)));
     }
 }

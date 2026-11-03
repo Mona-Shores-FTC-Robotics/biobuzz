@@ -19,7 +19,7 @@ public final class RSoloStagingAuto {
     public static final String SOURCE = "r-solo-staging.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-02|8:55PM";
+    public static final String SAVED = "11-03|1:36AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -47,35 +47,35 @@ public final class RSoloStagingAuto {
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose leftLaunchOffset = p.of(41, 121.5, 296.4);
-        Pose partnerPile = p.of(36, 124, 0);
+        Pose partnerStagedPollen = p.of(36, 124, 0);
         Pose leftLaunchCatch = p.of(57.5, 123.5, 273.4);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
-        Pose rightPark = p.of(9.6, 95.7, 0);
+        Pose rightPark = p.of(14.5, 95.7, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toRightLaunchCatchControl1 = p.of(70, 106, 0);
-        Pose toRightLaunchCatchControl2 = p.of(58, 45, 0);
+        Pose toRightLaunchCatchControl1 = p.of(71, 106, 0);
+        Pose toRightLaunchCatchControl2 = p.of(60, 45, 0);
         Pose toRightParkControl1 = p.of(25, 45, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
         Path toLeftLaunchOffset = Paths.line(wallFlowerStaging, leftLaunchOffset).linear(wallFlowerStaging, leftLaunchOffset);
-        Path toPartnerPile = Paths.line(leftLaunchOffset, partnerPile).linear(leftLaunchOffset, partnerPile);
-        Path toLeftLaunchCatch = Paths.line(partnerPile, leftLaunchCatch).linear(partnerPile, leftLaunchCatch);
+        Path toPartnerStagedPollen = Paths.line(leftLaunchOffset, partnerStagedPollen).linear(leftLaunchOffset, partnerStagedPollen);
+        Path toLeftLaunchCatch = Paths.line(partnerStagedPollen, leftLaunchCatch).linear(partnerStagedPollen, leftLaunchCatch);
         Path toScoringFlowerStaging = Paths.line(leftLaunchCatch, scoringFlowerStaging).linear(leftLaunchCatch, scoringFlowerStaging);
         Path toRightLaunchCatch = Paths.curve(scoringFlowerStaging, toRightLaunchCatchControl1, toRightLaunchCatchControl2, rightLaunchCatch).linear(scoringFlowerStaging, rightLaunchCatch);
         Path toRightPark = Paths.curve(rightLaunchCatch, toRightParkControl1, rightPark).linear(rightLaunchCatch, rightPark);
 
         return kit.sequence(
-                kit.guarded("Auto", toRightPark, 2.8,
+                kit.guarded("Auto", toRightPark, 2.7,
                         kit.command("SpinUp"),
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1),
                         kit.command("PickFlower", 8),
                         kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 2.5),
                         kit.command("LaunchAll"),
-                        kit.path("to PARTNER_PILE", toPartnerPile, 0.7),
+                        kit.path("to PARTNER_STAGED_POLLEN", toPartnerStagedPollen, 0.7),
                         kit.firstOf("Wait for IntakeFull",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(3000)),
@@ -85,6 +85,6 @@ public final class RSoloStagingAuto {
                         kit.command("PickFlower", 8),
                         kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 3),
                         kit.command("LaunchAll"),
-                        kit.path("to RIGHT_PARK", toRightPark, 2.8)));
+                        kit.path("to RIGHT_PARK", toRightPark, 2.7)));
     }
 }
