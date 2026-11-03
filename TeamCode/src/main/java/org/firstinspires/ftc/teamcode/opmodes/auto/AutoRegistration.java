@@ -48,8 +48,8 @@ import java.util.function.Function;
  * longer than the grab (the Visualizer's builder sets 8 s): a card's default 5 s can cut one short.
  * Both are registered as grabs ({@code AutoRegistry.grab}): they drive the robot off its spot and
  * back (a FLOWER pick squares up first, onto the FLOWER's line, and comes back to that squared-up
- * spot, not the drawn one: {@link FlowerPicker}), so the endgame guard never cuts one and does not start one unless its typical time (the
- * gather's 6 s allows for a long drive in and back) and the park both fit. {@code PickFlower} also
+ * spot, not the drawn one: {@link FlowerPicker}), so the endgame guard never cuts one and does not start one unless its typical time
+ * ({@link #PICK_FLOWER_TYPICAL_S}, {@link #GARDEN_GATHER_TYPICAL_S}) and the park both fit. {@code PickFlower} also
  * has an approach ({@code AutoRegistry.Approach}, {@link FlowerPicker#approach}): the path card
  * right before it lowers the stick over its last 18 in, so the pick's stick wait is over when the
  * card starts. {@code GardenGather} has none yet: its stick came down on the wall when swung early
@@ -110,6 +110,40 @@ import java.util.function.Function;
  */
 public final class AutoRegistration {
 
+    /**
+     * {@code LaunchAll}'s typical seconds, after a drive with the launcher already at speed: the
+     * settle ({@code PathEndSettle}) and {@code LaunchCards.launchAllFeedS}' set 3.5 s feed. Measured
+     * on 20245, 1 and 2 Nov 2026 match logs: 3.7 to 4.2 s after a drive (R-Quals 2 Nov: 4.17 s,
+     * 0.66 s before the gate opened); 4.4 to 6.0 s, median 4.6, for the first one at PLAY, which
+     * waits for the spin-up from rest (median 1.1 s, 0.9 to 2.1). The last of four balls left
+     * 2.3 to 2.6 s after the gate opened (median 2.4), so the feed has 1 s in hand. The Visualizer's
+     * Typical preview times it from {@code TeamCode/autos/timing.json} instead ({@code spinUpS},
+     * {@code volleyS}); this is what its Instant preview shows.
+     */
+    public static final double LAUNCH_ALL_TYPICAL_S = 4.0;
+
+    /**
+     * {@code PickFlower}'s typical seconds, planned for a slow pick so the endgame guard keeps time
+     * for one (mentor, 3 Nov 2026): one that squares up and dwells the whole
+     * {@code FlowerPicker.dwellMs} (2 s) because the FLOWER does not fill the lane. From the twelve
+     * Auto picks in the 31 Oct to 2 Nov 2026 logs on 20245, the slowest of each part: square-up
+     * 0.62 s, hand-over 0.19 s (the stick is lowered on the drive in now, so the 0.70 to 0.73 s
+     * stick wait those picks had is gone), push 0.88 s, dwell 2.0 s, back-out 0.68 s: 4.4 s.
+     * A pick whose dwell ends on full ({@code FlowerPicker.dwellEndsOnFull}) takes about 2.5 s
+     * (2.2 to 3.2): square-up 0 (11 of 12), push 0.57 s, dwell to full about 1.1 s (the last
+     * piece's current spike a median 0.64 s into the dwell in 33 picks, and full 0.44 s after it
+     * on the one pick that filled the lane), back-out 0.53 s. Re-measure from the next Auto picks'
+     * logs.
+     */
+    public static final double PICK_FLOWER_TYPICAL_S = 4.4;
+
+    /**
+     * {@code GardenGather}'s typical seconds: a drive in, a dwell and a drive back from wherever the
+     * card is called. Not measured from an Auto yet (five button gathers on 29 Oct and 1 Nov 2026
+     * took 3.0 to 5.0 s from beside the GARDEN); 6.0 allows for the drive in and back.
+     */
+    public static final double GARDEN_GATHER_TYPICAL_S = 6.0;
+
     /** How long without a HIVE tag before the camera counts as blind. */
     public static final double BLIND_AFTER_MS = 500;
 
@@ -136,19 +170,18 @@ public final class AutoRegistration {
                 .holdTimeLimitsWhile(() -> launch != null && launch.feeding())
                 // ---- real: the launcher and the feeder. Typical seconds are what the editor's
                 // preview shows; the feed times themselves are LaunchCards' Panels numbers.
-                .command("LaunchAll", 2.0, () -> launch.launchAll())
+                .command("LaunchAll", LAUNCH_ALL_TYPICAL_S, () -> launch.launchAll())
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
-                // the pick spot an Auto drives to and ends back there (FlowerPicker's contract). Its
-                // typical time plans for the dwell's 2 s cap, not its usual 1.0-1.3 s, so the endgame
-                // guard keeps time for a slow pick. The drive before it lowers the stick on the way
-                // in (its approach), so the pick's stick wait is over when the card starts.
-                .grab("PickFlower", 4.5, () -> FlowerPicker.command(robot, note),
+                // the pick spot an Auto drives to and ends back there (FlowerPicker's contract). The
+                // drive before it lowers the stick on the way in (its approach), so the pick's stick
+                // wait is over when the card starts, and its dwell ends when the lane is full.
+                .grab("PickFlower", PICK_FLOWER_TYPICAL_S, () -> FlowerPicker.command(robot, note),
                         robot == null ? null : FlowerPicker.approach(robot, note))
                 // ---- real: the GARDEN gather, the same routine as the driver's GARDEN gather button. It drives in
                 // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract).
-                .grab("GardenGather", 6.0, () -> GardenGather.command(robot, note))
+                .grab("GardenGather", GARDEN_GATHER_TYPICAL_S, () -> GardenGather.command(robot, note))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
                 // ---- real: a piece held under the colour sensor (LaneFull), as the roller stop and the light.
                 .trigger("IntakeFull", robot == null ? () -> false : robot.colorSensor::full)

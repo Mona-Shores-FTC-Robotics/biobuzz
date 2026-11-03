@@ -118,6 +118,24 @@ The endgame guard (`autokit/AutoKit.guarded`) gets the robot to PARK by 30 s:
   PARK spot, shared by every drive to that spot. Press **P** on a drive step to see it (everything
   else dims) and bend it with a control point. The drive just before Park needs none.
 
+## Timing: two sets of numbers
+
+The preview and the robot time an Auto from two places. Measured values go in both, with where
+they came from.
+
+| Numbers | Live in | Used by |
+|---|---|---|
+| Each command's typical seconds (`LaunchAll`, `PickFlower`, `GardenGather`…) | `AutoRegistration` in the robot code, copied to `TeamCode/auto-registry.json` by `AutoRegistrationTest` (`UPDATE_AUTO_REGISTRY=1`), and into each `.pp`'s `registry.typicalS` when the Visualizer loads the robot's commands | The endgame guard on the robot (a grab starts only if its typical time and the park fit), and the Visualizer's Instant preview |
+| How the robot and the HIVE behave: drive speed, spin-up, a volley, time to full, a TIP's start and swing, the CELL loads | `timing.json` here (`version`, then each fact's `value`, `source` and `note`) | The Visualizer's Typical preview and its **Timing facts** dialog, which reads this file from the branch Team Autos last listed. It never changes the robot or the export |
+
+- **A fact's `source` says how sure it is**: `measured, <robot>, <dates>`, or `estimate`. The
+  `note` says from which logs, and the dialog shows it next to the value.
+- **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop
+  until it is copied in. Unknown facts are dropped when it loads.
+- **After changing a typical time in `AutoRegistration`**, update `auto-registry.json` (the test
+  above) and load the robot's commands into every `.pp` here, then export again: the Java does not
+  change, the `.pp`'s copy does.
+
 ## Opening a committed Auto from a link
 
 Once a `.pp` is pushed, anyone with a laptop and a browser can open it, no login needed:
