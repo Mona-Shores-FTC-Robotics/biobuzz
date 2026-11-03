@@ -970,9 +970,11 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   BIOBUZZ_SIM_RUN=/path/to/folder ./gradlew :TeamCode:testDebugUnitTest --tests '*SimRunTest*' --rerun
   ```
 
-  `{"spec": "RQualsAuto", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}`; a
-  partner runs beside it as `"RQualsAuto,LSimpleAuto@50"` (the number is its speed, in/s). The
-  folder gets `result.json` and one `.wpilog` per seed.
+  `{"spec": "RSoloAuto", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}`; a
+  partner runs beside it as `"RSoloAuto,PartnerLStillAuto@50"` (the number is its speed, in/s),
+  where the partner is any generated class on the checkout: the stand-ins live on the
+  `autos-experiment` branch (`TeamCode/autos/BENCH.md`). The folder gets `result.json` and one
+  `.wpilog` per seed.
 - **From the Visualizer**, Save & Simulate to `master` commits the `.pp`, its Java and the Auto's
   own `TeamCode/sim-requests/<name>.json` to an `auto/<name>` branch and opens a pull request that
   merges itself once CI passes (the fast lane, `.github/CONTRIBUTING.md`). The "Simulate Auto"
