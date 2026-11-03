@@ -19,13 +19,13 @@ public final class RPartnerTipAuto {
     public static final String SOURCE = "r-partner-tip.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-03|1:36AM";
+    public static final String SAVED = "11-03|1:57AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"RightCellUp"};
+    public static final String[] TRIGGERS = {"CellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -73,8 +73,8 @@ public final class RPartnerTipAuto {
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
                         kit.command("PickFlower", 8),
                         kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 1.9, rightLaunchCatchPark, 2.7),
-                        kit.firstOf("Wait for Right CELL up",
-                                kit.when("RightCellUp"),
+                        kit.firstOf("Wait for TIP or CELL up",
+                                kit.when("CellUp"),
                                 kit.afterMs(5000)),
                         kit.command("LaunchAll"),
                         kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenStagingPark, 2.5),
