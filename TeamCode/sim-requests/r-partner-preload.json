@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-partner-preload.pp",
-  "spec": "RPartnerPreloadAuto,PartnerLLaunchParkAuto@50",
+  "spec": "RPartnerPreloadAuto",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,

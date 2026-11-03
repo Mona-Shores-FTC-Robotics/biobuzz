@@ -44,18 +44,13 @@ spots…** instead: its own pull request, and every Auto that uses the spot is r
   (`R-Simple 10-31|12:22AM`), from the generated class's `SAVED`: after a Sloth Load, the Driver
   Station shows which save is on the robot.
 
-## Partner stand-ins (`partner-*.pp`)
+## The bench
 
-What a teammate might do, drawn as Autos so the simulator can run ours beside them and the
-Visualizer can draw the pair: `partner-r-still` and `partner-l-still` (sits on the start),
-`partner-park-1` and `-2` (starts by the loading zone, waits, parks: two of them, where partners
-were seen to start and park), `partner-r-launch-park` and `partner-l-launch-park` (preloads, then
-park: the common partner, and the one that tips the HIVE for us). They have generated classes but
-no OpMode, so they never show on the Driver Station, and their starts and parks are their own
-(`PARTNER_START`, `PARTNER_PARK`), not team spots. To model a teammate, open one, drag its start
-and park to where that team starts and parks, set the wait to when they park, and save. A
-stand-in's wait is on `CameraBlind`, which never fires in the simulator, so its time limit is the
-whole story.
+Everything that is not one of the Autos we run lives on the `autos-experiment` branch (its
+`BENCH.md` says what is there): the Autos from before, the partner stand-ins for simulating a
+teammate beside one of ours, and earlier experiments. So the Team Autos list on `master` is exactly
+the Driver Station's list. To work on a benched Auto, open it from that branch; to bring one back,
+say so and it comes over on an `auto/<name>` branch.
 
 ## Team spots (`spots.json`)
 
@@ -75,7 +70,7 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 
 Names are side (or thing) first, then role, then variant, so a side's spots sort together. An Auto
 that needs a spot not in this list is drawn on the `autos-experiment` branch until the spot earns
-its place here. The partner stand-ins above are exempt: their spots are a teammate's, not ours.
+its place here.
 
 - **Using one.** In the Visualizer, pick it from a step's spot dropdown (under "Team spots"), or
   select a path and press 🔗 on its end in the Path panel, then pick the spot: the end jumps to it

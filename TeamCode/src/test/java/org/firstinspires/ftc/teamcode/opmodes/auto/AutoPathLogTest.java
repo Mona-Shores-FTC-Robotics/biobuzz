@@ -20,7 +20,6 @@ import org.firstinspires.ftc.teamcode.logging.AdvantageScopeFrame;
 import org.firstinspires.ftc.teamcode.logging.FieldRobot;
 import org.firstinspires.ftc.teamcode.logging.MatchLog;
 import org.firstinspires.ftc.teamcode.logging.WpiLogReader;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSimpleAuto;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,12 +54,29 @@ public class AutoPathLogTest {
         out = new ByteArrayOutputStream();
         log = MatchLog.toStream("test", out, "", null, () -> nowUs);
         pathLog = new AutoPathLog(log);
-        // Every name R-Simple uses, as instant fakes: the paths are what this test is about.
+        // Every name the one-path Auto uses, as instant fakes: the paths are what this test is about.
         AutoRegistry registry = new AutoRegistry()
                 .command("LaunchAll", 0.1, () -> Commands.instant(() -> { }))
                 .command("SpinUp", 0.1, () -> Commands.instant(() -> { }))
                 .trigger("Empty", () -> true);
         kit = new AutoKit(drive, registry, () -> now).watchPaths(pathLog);
+    }
+
+    /**
+     * A BuiltAuto with one path, the shape R-Simple had (spin up, launch the preloads, park along one
+     * path the endgame guard shares), built here as the Visualizer exported it so the test does not
+     * depend on which Autos are on master.
+     */
+    private static final Pose START = new Pose(55.6, 7.7, Math.toRadians(90));
+    private static final Pose PARK = new Pose(14.5, 95.7, 0);
+
+    private Command onePathAuto() {
+        Path toPark = Paths.curve(START, new Pose(25, 40, 0), PARK).linear(START, PARK);
+        return kit.sequence(
+                kit.guarded("Auto", toPark, 2.9,
+                        kit.command("SpinUp"),
+                        kit.command("LaunchAll"),
+                        kit.path("to PARK", toPark, 2.9)));
     }
 
     /** One loop as {@code RobotOpMode} runs it: the scheduler, the drivetrain, then the log's frame. */
@@ -91,12 +107,12 @@ public class AutoPathLogTest {
 
     // ------------------------------------------------------------------ tests
 
-    /** R-Simple is a BuiltAuto with one path: the park, which the endgame guard shares. */
+    /** A BuiltAuto with one path: the park, which the endgame guard shares. */
     @Test
     public void aBuiltAutoWithOnePathWritesThatPathAsTheFullPlan() {
-        Command auto = RSimpleAuto.build(kit, false);
+        Command auto = onePathAuto();
         List<Path> paths = kit.paths();
-        assertEquals("R-Simple drives one path", 1, paths.size());
+        assertEquals("the Auto drives one path", 1, paths.size());
         runAuto(auto);
 
         WpiLogReader r = readBack();
@@ -110,7 +126,7 @@ public class AutoPathLogTest {
 
     @Test
     public void theActivePathIsWrittenWhenItStartsAndClearedWhenItEnds() {
-        Command auto = RSimpleAuto.build(kit, false);
+        Command auto = onePathAuto();
         runAuto(auto);
 
         WpiLogReader r = readBack();
@@ -126,16 +142,14 @@ public class AutoPathLogTest {
 
     @Test
     public void theTargetIsWhereThePathEnds() {
-        Command auto = RSimpleAuto.build(kit, false);
+        Command auto = onePathAuto();
         runAuto(auto);
 
         WpiLogReader r = readBack();
         WpiLogReader.Entry target = r.entry(FieldRobot.ROBOT.target);
         assertEquals("struct:Pose2d", target.type);
         assertEquals(1, target.records.size());
-        // RIGHT_PARK, the team spot R-Simple's one path ends on (TeamCode/autos/spots.json), in the
-        // frame /Odometry/Robot uses. Read from the path, not written here: the spot moves through
-        // the Visualizer's Save team spots, and this test is about the log, not the spot.
+        // The park the one path ends on, in the frame /Odometry/Robot uses, read from the path.
         Pose park = kit.paths().get(0).endPose();
         double[] expected = {
                 AdvantageScopeFrame.xMeters(park.x(), park.y()), AdvantageScopeFrame.yMeters(park.x(), park.y()),
@@ -149,10 +163,10 @@ public class AutoPathLogTest {
     /** Before any path, the ghost sits where the robot starts, not at AdvantageScope's origin. */
     @Test
     public void theTargetDuringInitIsTheDeclaredStart() {
-        Pose start = RSimpleAuto.startPose(false);
+        Pose start = START;
         pathLog.target(start);
         loop();
-        runAuto(RSimpleAuto.build(kit, false));
+        runAuto(onePathAuto());
 
         WpiLogReader r = readBack();
         WpiLogReader.Entry target = r.entry(FieldRobot.ROBOT.target);
