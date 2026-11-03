@@ -32,7 +32,7 @@
   ],
   "metadata": {
     "AutoSource": "r-solo-staging.pp",
-    "SavedBy": "partner curation (Claude, 3 Nov 2026: reviewed with on time, missing, dead; a staging partner has no launch to time; to be corrected by the mentor)",
-    "SavedAt": "2026-11-03T20:00:00+00:00"
+    "SavedBy": "partner curation (Claude, 3 Nov 2026: reviewed with on time, missing, dead; a staging partner has no launch to time; to be corrected by the mentor; re-simulated to test that the workflow runs every changed request)",
+    "SavedAt": "2026-11-03T23:45:00+00:00"
   }
 }
