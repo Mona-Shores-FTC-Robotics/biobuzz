@@ -24,8 +24,13 @@ import java.util.function.DoubleSupplier;
  * the same order as the card list in the editor, and gets back one Ivy {@link Command}.
  *
  * <p>There are three kinds of card: a command, a path, and the one branching block,
- * {@link #firstOf}: wait for a trigger, at most some time, then run the cards of whichever came
- * first. A plain "Wait for" is a {@code firstOf} whose rows have no cards.
+ * {@link #firstOf}: wait for a trigger, at most some time (or until a time on the match clock),
+ * then run the cards of whichever came first. A plain "Wait for" is a {@code firstOf} whose rows
+ * have no cards.
+ *
+ * <p><b>The drive team may change a few things in INIT</b> ({@link AutoOption}): the PARK spot and
+ * a wait's match-clock limit. The generated code reads them while it builds, through
+ * {@link #pick} and {@link #seconds}; with no picks ({@link #picks}) the Auto is as drawn.
  *
  * <p>Nothing here reads hardware or blocks. Triggers are read once per loop, only while a card
  * that uses them waits; paths are built at init. The endgame guard ({@link #guarded}) parks when
@@ -63,6 +68,23 @@ public final class AutoKit {
         void pathEnded(Path path);
     }
 
+    /**
+     * The drive team's INIT picks ({@link AutoOption}): which choice of each option, and the time
+     * of each match-clock option. Set with {@link #picks}; with none, every option is as drawn.
+     */
+    public interface Picks {
+        /** The index into the option's choices, or -1 for the drawing's. */
+        int choice(String option);
+
+        /** The option's time in seconds on the match clock, or NaN for the drawing's. */
+        double seconds(String option);
+    }
+
+    private static final Picks AS_DRAWN = new Picks() {
+        @Override public int choice(String option) { return -1; }
+        @Override public double seconds(String option) { return Double.NaN; }
+    };
+
     private static final PathWatcher NO_WATCHER = new PathWatcher() {
         @Override public void pathStarted(Path path) { }
         @Override public void pathEnded(Path path) { }
@@ -84,10 +106,7 @@ public final class AutoKit {
     private final DoubleSupplier secondsSinceStart;
     private Consumer<String> trace = line -> { };
     private PathWatcher watcher = NO_WATCHER;
-    /** The match second a {@link #partnerWait} row ends at; NaN: the row keeps its drawn time limit. */
-    private double partnerWaitUntilS = Double.NaN;
-    /** Whether a {@link #partnerWait} row has been built: the Auto has a partner wait. */
-    private boolean hasPartnerWait;
+    private Picks picks = AS_DRAWN;
     /** True while a path card, at any depth, is driving its path: the guard never cuts then. */
     private boolean drivingPath;
     /** True while a grab ({@link AutoRegistry#grab}) runs: the guard never cuts one either. */
@@ -152,20 +171,28 @@ public final class AutoKit {
         return this;
     }
 
-    /**
-     * The match second (seconds since PLAY) every {@link #partnerWait} row ends at: the partner's
-     * last shot as their team said it, plus the TIP lag, worked out before PLAY. NaN, the default,
-     * leaves each such row its drawn time limit. Set it before the Auto is built: a row reads it
-     * when it is made.
-     */
-    public AutoKit partnerWaitUntil(double matchSeconds) {
-        this.partnerWaitUntilS = matchSeconds;
+    /** The drive team's INIT picks, read while the Auto is built. Null runs everything as drawn. */
+    public AutoKit picks(Picks picks) {
+        this.picks = picks == null ? AS_DRAWN : picks;
         return this;
     }
 
-    /** Whether the Auto built so far has a partner wait ({@link #partnerWait}): complete once it is built. */
-    public boolean hasPartnerWait() {
-        return hasPartnerWait;
+    /**
+     * The value for the drive team's pick of {@code option}: {@code byChoice} lists one value per
+     * choice, in the option's order, the drawing's first. With no pick, or one past the end, the
+     * drawing's. {@code Pose park = kit.pick("Park", leftPark, rightPark)}.
+     */
+    @SafeVarargs
+    public final <T> T pick(String option, T... byChoice) {
+        if (byChoice.length == 0) throw new IllegalArgumentException(option + " has no values");
+        int index = picks.choice(option);
+        return index >= 0 && index < byChoice.length ? byChoice[index] : byChoice[0];
+    }
+
+    /** The drive team's time for the match-clock option {@code option}, else {@code drawn}. */
+    public double seconds(String option, double drawn) {
+        double picked = picks.seconds(option);
+        return Double.isNaN(picked) ? drawn : picked;
     }
 
     /**
@@ -577,19 +604,13 @@ public final class AutoKit {
     }
 
     /**
-     * The partner wait: the time row of the one wait the Auto Builder marks as waiting on our
-     * partner's TIP. With {@link #partnerWaitUntil} set it ends at that match second (at once if
-     * the wait starts later), whatever {@code ms} says; with none set it is {@link #afterMs}
-     * ({@code ms}), as drawn. Either way it is a time limit: it waits while a feed runs.
+     * True once the match clock reaches {@code seconds} (at once if it already has), and time
+     * limits are not held, like {@link #afterMs}. A time limit that does not depend on when the
+     * robot got there: "give up on the TIP at 11 s", whenever the drive before the wait ended.
      */
-    public Row partnerWait(double ms) {
-        hasPartnerWait = true;
-        if (Double.isNaN(partnerWaitUntilS)) return afterMs(ms);
-        final double until = partnerWaitUntilS;
-        final double[] startedAt = new double[1];
-        Row row = new Row(String.format(Locale.US, "partner wait until %.1f s", until),
-                waited -> startedAt[0] + waited >= until - 1e-9);
-        row.start = () -> startedAt[0] = secondsSinceStart.getAsDouble();
+    public Row atMatchSeconds(double seconds) {
+        Row row = new Row(String.format(Locale.US, "%.1f s on the match clock", seconds),
+                waited -> secondsSinceStart.getAsDouble() >= seconds);
         row.timeLimit = true;
         return row;
     }

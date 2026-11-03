@@ -157,9 +157,10 @@ public final class AutoRegistration {
     public static final double PARTNER_TIP_LAG_S = 4.0;
 
     /**
-     * The match second the Auto's partner wait ends at, for the partner's last shot as their team
-     * said it: that plus {@link #PARTNER_TIP_LAG_S}. NaN (none entered) gives NaN: the wait keeps
-     * its drawn limit. The simulator sets its partner wait from this too, as the driver would.
+     * The match second the Auto's partner wait (its one match-clock {@code AutoOption}, set on the
+     * D-pad in INIT: {@link InitOptions}) ends at, for the partner's last shot as their team said
+     * it: that plus {@link #PARTNER_TIP_LAG_S}. NaN gives NaN. The simulator sets its partner wait
+     * from this too, as the driver would.
      */
     public static double partnerWaitUntilS(double partnerLastShotS) {
         return Double.isNaN(partnerLastShotS) ? Double.NaN : partnerLastShotS + PARTNER_TIP_LAG_S;

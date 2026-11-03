@@ -4,11 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.firstinspires.ftc.teamcode.autokit.AutoOption;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.opmodes.InitWarnings.Kind;
+import org.firstinspires.ftc.teamcode.opmodes.auto.InitOptions;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
@@ -19,7 +21,8 @@ import java.util.List;
  * An Auto's INIT page fits one Driver Hub screen ({@link Display#SCREEN_LINES}) in its worst
  * cases: nobody at the field scrolls (mentor, 2 Nov 2026). The page is written in the order
  * {@code RobotOpMode} writes it: header, top line and warnings, the alliance line unless a warning
- * covers it, the start, and the map only if it helps and fits.
+ * covers it, the start, the Auto's INIT options ({@code BuiltAuto}: L-Partner's two, the most any
+ * Auto has), and the map only if it helps and fits.
  */
 public class InitPageFitsTest {
 
@@ -27,6 +30,9 @@ public class InitPageFitsTest {
     private final Display display = new Display(lines::add);
     private final InitWarnings warnings = new InitWarnings();
     private final MatchSetup setup = new MatchSetup();
+    private final InitOptions options = new InitOptions(
+            AutoOption.park("LEFT_PARK", "RIGHT_PARK"),
+            AutoOption.matchSeconds("Wait for TIP or CELL up", 8));
 
     private static final StartCheck.Result ON_MARK =
             StartCheck.evaluate(StartPositions.RED_AUDIENCE, StartCheck.FIXES_TO_CONFIRM, 55.9, 7.7);
@@ -41,6 +47,7 @@ public class InitPageFitsTest {
         warnings.describeTop(display, setup.alliance(), true);
         if (!warnings.has(Kind.ALLIANCE)) setup.describe(display);
         start.describe(display);
+        options.describe(display);
         if (start.mapHelps(setup.alliance()) && display.room(StartCheck.Result.MAP_LINES)) {
             start.describeMap(display, setup.alliance());
         }

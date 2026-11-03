@@ -331,7 +331,7 @@ public class SimRunTest {
 
     private static final Pattern WAIT_STARTS = Pattern.compile("^\\s*(\\d+\\.\\d+) wait (.+?)(?: \\(holds \\d+\\))?$");
     private static final Pattern WAIT_ENDS = Pattern.compile("^\\s*(\\d+\\.\\d+) (.+?): (.+?) after (\\d+\\.\\d+) s(?: \\(holds \\d+\\))?$");
-    private static final Pattern TIME_ROW = Pattern.compile("^\\d+ ms passed$|^partner wait until \\d+\\.\\d s$");
+    private static final Pattern TIME_ROW = Pattern.compile("^\\d+ ms passed$|^\\d+\\.\\d s on the match clock$");
 
     /** When our first wait ended on CellUp (AutoKit's trace: the row "CellUp"), AUTO seconds; null if none did. */
     static Object firstCellUp(List<Object> waits) {
@@ -372,7 +372,8 @@ public class SimRunTest {
                 Map<String, Object> w = open.get(i);
                 if (!w.get("label").equals(end.group(2))) continue;
                 boolean timedOut = TIME_ROW.matcher(end.group(3)).matches();
-                boolean partnerWait = end.group(3).startsWith("partner wait");
+                // A match-clock limit (AutoKit.atMatchSeconds), the partner wait the driver sets in INIT.
+                boolean partnerWait = end.group(3).endsWith(" on the match clock");
                 w.put("outcome", partnerWait ? end.group(3) : timedOut ? "timed out" : end.group(3));
                 w.put("fired", !timedOut);
                 w.put("after", Double.parseDouble(end.group(4)));

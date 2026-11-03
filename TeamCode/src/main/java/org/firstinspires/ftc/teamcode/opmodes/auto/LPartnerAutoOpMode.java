@@ -9,6 +9,6 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LPartnerAuto;
 public class LPartnerAutoOpMode extends BuiltAuto {
     public LPartnerAutoOpMode() {
         super(LPartnerAuto.SOURCE, LPartnerAuto.COMMANDS, LPartnerAuto.TRIGGERS, LPartnerAuto.DRAWN_FOR,
-                LPartnerAuto::startPose, LPartnerAuto::build);
+                LPartnerAuto::startPose, LPartnerAuto::build, LPartnerAuto.OPTIONS);
     }
 }

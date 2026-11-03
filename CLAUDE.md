@@ -26,8 +26,8 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `localization/` | CELL sighting → gated position fix (`TagGate`, `CellFix`), field points, start and reset positions, the start check. The filter is Pedro's. See "Localization" below. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
-| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. A step's own time limit (a command's timeout, a `firstOf`'s "at most") never cuts a feed once it has started: it guards the wait for spin-up, and the feed runs `LaunchCards`' set time, the one number for it. A path card ends at Pedro's path end with the robot still rolling, and the kit never adds a settle: a launch waits for `PathEndSettle`, a grab for its own lighter hand-over speed (`GrabRoutine`). A path card right before a grab card runs the grab's `AutoRegistry.Approach` while it drives (the FLOWER pick's lowers the stick over the last 18 in), so never add a stick card to an Auto or a settle to the kit. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
-| `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
+| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time or until a time on the match clock, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. A step's own time limit (a command's timeout, a `firstOf`'s "at most") never cuts a feed once it has started: it guards the wait for spin-up, and the feed runs `LaunchCards`' set time, the one number for it. A path card ends at Pedro's path end with the robot still rolling, and the kit never adds a settle: a launch waits for `PathEndSettle`, a grab for its own lighter hand-over speed (`GrabRoutine`). A path card right before a grab card runs the grab's `AutoRegistry.Approach` while it drives (the FLOWER pick's lowers the stick over the last 18 in), so never add a stick card to an Auto or a settle to the kit. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
+| `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`, which passes the generated `OPTIONS`: what the drive team may change in INIT on gamepad 1's D-pad (`InitOptions`: the PARK spot, and the partner's last shot, the one number we ask a partner; the Auto's partner wait ends `AutoRegistration.PARTNER_TIP_LAG_S` after it and the DS shows both numbers, never only the sum), drawn in the Visualizer, never a hand-written flag. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
 | `launcher2/` | **Test rig**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy its pattern into robot code. |
 
@@ -169,10 +169,7 @@ that depend on the frame live in `util/FieldFrame`.
 Back/Share (see `controls/Display`). Before PLAY, `RobotOpMode.setup` settles the alliance — vision
 proposes, X/B on either gamepad overrides, Auto's handoff is inherited. An Autonomous never guesses
 one (with none it does not move); any other OpMode defaults to red, shown as "RED (default)".
-Read it as `setup.alliance()`; never add another way to choose it. An Autonomous also takes the
-partner's last shot, the one number we ask a partner, on the D-pad in INIT (`setup.partnerLastShotS()`);
-the Auto's one wait marked as the partner wait (`kit.partnerWait`) ends that plus
-`AutoRegistration.PARTNER_TIP_LAG_S` later, and the DS shows both numbers, never only the sum. One-shot buttons use `onPress(robot.x::method)`, not a command
+Read it as `setup.alliance()`; never add another way to choose it. One-shot buttons use `onPress(robot.x::method)`, not a command
 that requires the subsystem — that would interrupt its `periodic()`.
 
 **Panels** — the only dashboard, `http://192.168.43.1:8001`. Numbers and graphs.
@@ -247,7 +244,9 @@ means `local.properties` lacks `sdk.dir` — an environment problem, not a broke
 network; if the sandbox blocks it, say so.
 
 **No robot is attached to a Claude session.** Anything needing hardware — tuning values, motor
-directions, port checks — stops and produces a checklist for the next meeting instead of a guess.
+directions, port checks — stops and adds its checks to `doc/robot-todo.md` (the one list of what
+waits on the robot, in the group with the same setup, linking its PR or issue) instead of a guess,
+never a new session doc.
 Match logs reach a session on GitHub: `tools/pull-logs` sends them to throwaway
 `logs/<date>-<robot network>` branches. "Pull logs" means fetch
 `'refs/heads/logs/*:refs/remotes/origin/logs/*'` and read them with

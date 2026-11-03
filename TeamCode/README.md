@@ -974,16 +974,15 @@ finished robot runs on today's robot as a timed script. `auto-registry.json` is 
 the editor; `AutoRegistrationTest` keeps the two in step.
 
 **The partner wait.** Teams are asked one number: "when does your last preload leave?". The driver
-enters it during an Autonomous's INIT with the D-pad (up adds a second, the first press enters 5;
-down from 0 clears it), `MatchSetup` holds it, and the Match page shows it with the second the wait
-ends, never only the sum: "Partner: last shot 8 s, waiting until 12 s". The one wait the Auto
-Builder marks as the partner wait (a time row ticked "Partner wait", exported as
-`kit.partnerWait(ms)`) ends at that match second: the last shot plus
-`AutoRegistration.PARTNER_TIP_LAG_S` (4 s: the shot's flight, the dwell before the rocker moves, the
-swing and the camera settling, 1.5 to 5 s in the simulator's model; also `partnerTipLagS` in
-`TeamCode/autos/timing.json`, which `PartnerWaitTest` keeps equal). None entered leaves the wait as
-drawn. It is still a time limit: a feed that has started finishes first. L-Partner's "Wait for TIP
-or CELL up" is the one partner wait on master.
+enters it during an Autonomous's INIT with gamepad 1's D-pad up/down (`InitOptions`, 1 s a press;
+left/right picks the park). The Auto's one wait drawn "until the match clock reads …" and offered
+in INIT (`AutoOption.matchSeconds`, exported as `kit.atMatchSeconds(kit.seconds(...))`) then ends
+at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 4 s for the shot's flight, the dwell
+before the rocker moves, the swing and the camera settling (1.5 to 5 s in the simulator's model).
+`partnerTipLagS` in `TeamCode/autos/timing.json` is the same number, and `PartnerWaitTest` keeps the
+two equal. The Match page shows both numbers, never only the sum: "partner's last shot ▲▼ 8 s,
+waiting until 12 s". Nothing entered, the wait runs as drawn. It is still a time limit: a feed that
+has started finishes first. L-Partner's "Wait for TIP or CELL up" is the one partner wait on master.
 
 `autokit` depends only on Ivy and Pedro, so `AutoKitTest` runs every card through Ivy's real
 `Scheduler` against a fake drivetrain, on a laptop.
@@ -1013,7 +1012,8 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   `AutoStudyTest.PartnerTiming.derive` works out the stand-in's start delay and seconds per volley
   so its last preload leaves at that second (the spin-up, then a volley every interval: at the
   robot's own interval starting late, or faster from PLAY), and our Auto's partner wait is set as
-  the driver would set it. A left stand-in fires only once its CELL is up, so its last shot can
+  the driver would set it: the simulator hands the generated Auto the same INIT pick
+  (`AutoKit.Picks`) that `InitOptions` does on the robot. A left stand-in fires only once its CELL is up, so its last shot can
   come later than asked; the table shows when it did.
 - **A partner fails in two ways, nothing in between.** `"fails": "misses"`: every shot goes
   `AutoSim.MISS_WIDE_IN` to the side of the CELL, so it causes no TIP, and it carries on with its

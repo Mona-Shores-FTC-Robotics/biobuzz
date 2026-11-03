@@ -4,8 +4,8 @@ import com.pedropathing.ivy.Command;
 
 /**
  * One row of a "first of" card: a true/false test, a description for the log, and the cards to run
- * if it is the first to come true. Built with {@link AutoKit#when}, {@link AutoKit#afterMs} and the
- * other row methods, then {@link #then}.
+ * if it is the first to come true. Built with {@link AutoKit#when}, {@link AutoKit#afterMs},
+ * {@link AutoKit#atMatchSeconds} and the other row methods, then {@link #then}.
  */
 public final class Row {
 
@@ -16,7 +16,7 @@ public final class Row {
 
     final String description;
     final Test test;
-    /** A plain time limit ({@link AutoKit#afterMs}): it waits while the registry holds time limits. */
+    /** A time limit ({@link AutoKit#afterMs}, {@link AutoKit#atMatchSeconds}): it waits while the registry holds time limits. */
     boolean timeLimit;
     /** Run when the card starts waiting, before the first test. */
     Runnable start = () -> { };

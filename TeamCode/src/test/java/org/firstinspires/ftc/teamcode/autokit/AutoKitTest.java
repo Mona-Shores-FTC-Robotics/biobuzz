@@ -202,54 +202,6 @@ public class AutoKitTest {
         assertTrue(trace.toString(), trace.contains("Did the HIVE tip?: HiveTipped after 0.00 s"));
     }
 
-    /** With no partner's last shot entered, the partner wait is its drawn time limit. */
-    @Test
-    public void aPartnerWaitWithNothingEnteredIsItsDrawnLimit() {
-        now = 2.0;
-        assertFalse(kit.hasPartnerWait());
-        Command auto = kit.firstOf("Wait for TIP",
-                kit.when("HiveTipped"),
-                kit.partnerWait(1500).then(kit.command("SpinUp")));
-        assertTrue(kit.hasPartnerWait());
-        run(auto, 5);
-        assertEquals("[SpinUp]", log.toString());
-        assertTrue(String.valueOf(now), now >= 3.5 && now < 3.6);
-        assertTrue(trace.toString(), trace.contains("Wait for TIP: 1500 ms passed after 1.50 s"));
-    }
-
-    /** Mentor, 3 Nov 2026: the partner wait ends at a match second, the partner's last shot plus the TIP lag. */
-    @Test
-    public void aPartnerWaitEndsAtTheMatchSecondItWasGiven() {
-        now = 2.0;
-        kit.partnerWaitUntil(12.0);
-        Command auto = kit.firstOf("Wait for TIP",
-                kit.when("HiveTipped"),
-                kit.partnerWait(1500).then(kit.command("SpinUp")));
-        run(auto, 15);
-        assertEquals("[SpinUp]", log.toString());
-        assertTrue(String.valueOf(now), now >= 12.0 && now < 12.1);
-        assertTrue(trace.toString(), trace.contains("Wait for TIP: partner wait until 12.0 s after 10.00 s"));
-    }
-
-    @Test
-    public void aPartnerWaitThatStartsLateEndsAtOnce() {
-        now = 13.0;
-        kit.partnerWaitUntil(12.0);
-        run(kit.firstOf("Wait for TIP", kit.when("HiveTipped"), kit.partnerWait(1500)), 1);
-        assertTrue(String.valueOf(now), now < 13.05);
-    }
-
-    @Test
-    public void aTriggerStillEndsAPartnerWaitFirst() {
-        kit.partnerWaitUntil(12.0);
-        tipped = true;
-        Command auto = kit.firstOf("Wait for TIP",
-                kit.when("HiveTipped").then(kit.command("ShootAll")),
-                kit.partnerWait(1500).then(kit.command("SpinUp")));
-        run(auto, 1);
-        assertEquals("[ShootAll]", log.toString());
-    }
-
     @Test
     public void decisionTakesTheTimeRowWhenNothingHappens() {
         Command auto = kit.firstOf("Did the HIVE tip?",
@@ -258,6 +210,53 @@ public class AutoKitTest {
         run(auto, 5);
         assertEquals("[SpinUp]", log.toString());
         assertTrue(now >= 1.5 && now < 1.6);
+    }
+
+    /** "Give up at 8.5 s": however late the wait starts, it ends at that time on the match clock. */
+    @Test
+    public void aMatchClockLimitEndsAtThatTimeWhenTheWaitStarted() {
+        now = 6.0;
+        run(kit.firstOf("Wait for TIP", kit.when("HiveTipped"),
+                kit.atMatchSeconds(8.5).then(kit.command("SpinUp"))), 5);
+        assertEquals("[SpinUp]", log.toString());
+        assertTrue("ended at " + now, now >= 8.5 && now < 8.6);
+        assertTrue(trace.toString(), trace.stream().anyMatch(line -> line.startsWith("Wait for TIP: 8.5 s on the match clock after 2.5")));
+    }
+
+    /** Arriving after the limit: the wait ends at once, and the time row's cards run. */
+    @Test
+    public void aMatchClockLimitAlreadyPastEndsTheWaitAtOnce() {
+        now = 9.0;
+        run(kit.firstOf("Wait for TIP", kit.when("HiveTipped"),
+                kit.atMatchSeconds(8.5).then(kit.command("SpinUp"))), 1);
+        assertEquals("[SpinUp]", log.toString());
+        assertTrue(now < 9.1);
+    }
+
+    @Test
+    public void theTriggerStillEndsAMatchClockWaitEarly() {
+        tipped = true;
+        run(kit.firstOf("Wait for TIP", kit.when("HiveTipped").then(kit.command("ShootAll")),
+                kit.atMatchSeconds(20)), 1);
+        assertEquals("[ShootAll]", log.toString());
+    }
+
+    @Test
+    public void withNoPicksEveryOptionIsAsDrawn() {
+        assertEquals("LEFT", kit.pick(AutoOption.PARK, "LEFT", "RIGHT"));
+        assertEquals(8.5, kit.seconds("Wait for TIP", 8.5), 1e-9);
+    }
+
+    @Test
+    public void picksChooseTheValueAndTheTime() {
+        kit.picks(new AutoKit.Picks() {
+            @Override public int choice(String option) { return option.equals(AutoOption.PARK) ? 1 : -1; }
+            @Override public double seconds(String option) { return option.equals("Wait for TIP") ? 11 : Double.NaN; }
+        });
+        assertEquals("RIGHT", kit.pick(AutoOption.PARK, "LEFT", "RIGHT"));
+        assertEquals("unknown options stay as drawn", "A", kit.pick("Other", "A", "B"));
+        assertEquals(11, kit.seconds("Wait for TIP", 8.5), 1e-9);
+        assertEquals(3, kit.seconds("Other", 3), 1e-9);
     }
 
     @Test

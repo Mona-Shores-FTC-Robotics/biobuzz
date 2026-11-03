@@ -174,7 +174,7 @@ public final class AutoSim {
         double lastShotAt = Double.NaN;
         /** Pieces it launched at a CELL that was not up as they left: preloads wasted on a down CELL. */
         int launchedAtDownCell;
-        /** Its Auto has a partner wait ({@code AutoKit.partnerWait}), which the partner's last shot sets. */
+        /** Its Auto has a partner wait (a match-clock {@code AutoOption}), which the partner's last shot sets. */
         boolean hasPartnerWait;
         boolean finished;
         double finishedAt = Double.NaN;
@@ -505,9 +505,9 @@ public final class AutoSim {
     }
 
     /**
-     * The match second this robot's partner wait ({@code AutoKit.partnerWait}) ends at, as the driver
-     * sets it in INIT: {@code AutoRegistration.partnerWaitUntilS} of the partner's last shot. NaN, the
-     * default, leaves the wait as drawn.
+     * The match second this robot's partner wait (its Auto's one match-clock {@code AutoOption}) ends at, as
+     * the driver sets it on the D-pad in INIT ({@code InitOptions}): {@code AutoRegistration.partnerWaitUntilS}
+     * of the partner's last shot. NaN, the default, leaves the wait as drawn.
      */
     AutoSim partnerWaitUntil(double matchSeconds) {
         configuring.partnerWaitUntilS = matchSeconds;
@@ -1180,7 +1180,17 @@ public final class AutoSim {
             log.putMetadata("RobotDesign" + (index == 0 ? "" : String.valueOf(index + 1)), design.toString());
             AutoRegistry registry = registry();
             registry.requireAll(commands, triggers);
-            AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add).partnerWaitUntil(partnerWaitUntilS);
+            // The drive team's INIT picks, as the robot's InitOptions hands them over: the partner wait, if set.
+            final String waitOption = matchSecondsOption(autoClass);
+            final double waitUntil = partnerWaitUntilS;
+            AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add).picks(new AutoKit.Picks() {
+                @Override public int choice(String option) { return -1; }
+                @Override public double seconds(String option) { return option.equals(waitOption) ? waitUntil : Double.NaN; }
+            });
+            result.hasPartnerWait = waitOption != null;
+            if (waitOption != null && !Double.isNaN(waitUntil)) {
+                pending.add(String.format(Locale.ROOT, "partner wait \"%s\" set in INIT to %.1f s on the match clock", waitOption, waitUntil));
+            }
             try {
                 drive.pose = (Pose) startPose.invoke(null, rotated);
                 // An Auto drawn for the real robot (RobotDesign.REAL_FRAME_IN) backed against the wall: a shorter
@@ -1191,7 +1201,6 @@ public final class AutoSim {
                     drive.pose = new Pose(p.x() - back * Math.cos(p.heading()), p.y() - back * Math.sin(p.heading()), p.heading());
                 }
                 auto = (Command) build.invoke(null, kit, rotated);
-                result.hasPartnerWait = kit.hasPartnerWait();
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("could not build " + result.auto, e);
             }
@@ -2440,6 +2449,21 @@ public final class AutoSim {
                     sim.rocker(alliance).raisedEnd() > 0 ? "high-end" : "low-end");
             pending.add((waited <= 0.011 ? "turret: on target when the fire step began"
                     : String.format(Locale.ROOT, "turret: the fire step waited %.2f s for the turret", waited)) + where);
+        }
+
+        /** The name of the Auto's match-clock option (its partner wait), or null if it has none. */
+        private String matchSecondsOption(Class<?> auto) {
+            try {
+                for (org.firstinspires.ftc.teamcode.autokit.AutoOption o
+                        : (org.firstinspires.ftc.teamcode.autokit.AutoOption[]) auto.getField("OPTIONS").get(null)) {
+                    if (o.kind == org.firstinspires.ftc.teamcode.autokit.AutoOption.Kind.MATCH_SECONDS) return o.name;
+                }
+            } catch (NoSuchFieldException e) {
+                return null;  // exported before INIT options: nothing to set
+            } catch (ReflectiveOperationException e) {
+                throw new IllegalArgumentException(auto.getName() + ".OPTIONS is unreadable", e);
+            }
+            return null;
         }
 
         /**

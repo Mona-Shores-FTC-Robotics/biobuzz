@@ -125,6 +125,9 @@ and who parked. For an Auto with a partner wait, a run's name ends with the seco
 Partner runs use `partnerSeeds` (five) so each job stays under about five minutes; the Auto alone
 keeps its ten.
 
+The thinking behind the curation, what a wait is really waiting for, the one number to ask a
+partner for, and which partner states get simulated, is in `doc/partner-timing.md`.
+
 **The Visualizer's Save & Simulate must keep `partners` and `partnerSeeds`** when it rewrites the
 request (it writes the rest from its dialog): the curation lives in the request, nowhere else.
 
@@ -191,6 +194,49 @@ The endgame guard (`autokit/AutoKit.guarded`) gets the robot to PARK by 30 s:
   PARK spot, shared by every drive to that spot. Press **P** on a drive step to see it (everything
   else dims) and bend it with a control point. The drive just before Park needs none.
 
+## When the TIP does not come (a Wait's Otherwise)
+
+A Wait step's **Otherwise** steps run only if the wait times out. Its **then** picks what comes
+after them:
+
+- **go on with the steps below**: the robot carries on with the steps under the wait, as if the
+  TIP had come (L-Partner: back to `LEFT_LAUNCH_CATCH`, then the rest of the plan).
+- **park**: the Otherwise ends with its own Park step, and the steps under the wait run only when
+  the TIP comes. In the `.pp` and the Java the wait is then the Auto's last step, each of its two
+  outcomes holding the rest of its own route.
+
+Either way, every drive in an Otherwise has a park path from its spot (P on the step), as the
+main list's drives do, so a guard that parks early parks from where the robot is. A long one may
+need a bend: L-Partner's park from `RIGHT_LAUNCH_CATCH` bends west of the Red HIVE.
+
+## Changing an Auto at the field (INIT options)
+
+A partner tells us in the queue where they park, or when they tip. The drive team changes it in
+INIT with **gamepad 1's D-pad**, no new export needed (`opmodes/auto/InitOptions`):
+
+| D-pad | Changes | Offered by |
+|---|---|---|
+| Left / Right | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked |
+| Up / Down | the partner's last shot (their answer to "when does your last preload leave?"), 1 s a press; our partner wait gives up the TIP lag after it, on the match clock | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
+
+- **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
+  as drawn and amber once changed; PLAY locks them, and the match log records them
+  (`AutoOptions`).
+- **The park.** Every park path (the Park step's and each spot's, P) is driven to the picked
+  park: the same path with its end moved. The builder checks those against the field too, so a
+  path that clips the HIVE on the way to the other park shows on its step; bend it until both
+  are clear. The endgame guard reserves the picked park's time.
+- **The partner wait on the match clock.** "Until 8 s" ends at 8 s into the match however late
+  the robot got there, unlike "at most 7 s", which starts counting when the wait begins. The
+  driver enters the partner's last shot and the wait ends `AutoRegistration.PARTNER_TIP_LAG_S`
+  (4 s, `partnerTipLagS` below) after it: the shot's flight, the dwell, the swing and the camera
+  settling, 1.5 to 5 s in the simulator's model. The page shows both numbers, never only the sum:
+  "partner's last shot ▲▼ 8 s, waiting until 12 s" (mentor, 3 Nov 2026).
+- Today: L-Partner offers `RIGHT_PARK` and the partner's last shot (drawn: wait until 8 s, which
+  reads as a last shot at 4 s); R-Solo offers `LEFT_PARK`. R-Partner-Tip, R-Partner-Preload and R-Solo-Staging offer no
+  other park yet: their park paths are bent toward `RIGHT_PARK`, and the same paths to
+  `LEFT_PARK` would clip the Red HIVE.
+
 ## Timing: two sets of numbers
 
 The preview and the robot time an Auto from two places. Measured values go in both, with where
@@ -202,7 +248,30 @@ they came from.
 | How the robot and the HIVE behave: drive speed, spin-up, a volley, time to full, a TIP's start and swing, the CELL loads | `timing.json` here (`version`, then each fact's `value`, `source` and `note`) | The Visualizer's Typical preview and its **Timing facts** dialog, which reads this file from the branch Team Autos last listed. It never changes the robot or the export |
 
 - **A fact's `source` says how sure it is**: `measured, <robot>, <dates>`, or `estimate`. The
-  `note` says from which logs, and the dialog shows it next to the value.
+  `note` is one line, shown under the fact in the dialog; the longer story goes below.
+- **Where the measured facts came from** (20245, the 29 Oct to 2 Nov 2026 logs on the `logs/*`
+  branches; each note in the file is the one-line version):
+  - `driveSpeed` 1.0: logged drive time against the export's `kit.path` seconds. 2 Nov R-Quals
+    (12.76 V) ran its three drives at 0.98, 1.05 and 1.25, and R-Simple's park at 0.83. 1 Nov
+    R-Simple, 19 runs of one 3.1 s path: 0.88 to 1.11, median 1.0. The 1.5 of 25 Oct was the light
+    chassis.
+  - `spinUpS` 1.1: 83 spin-ups from rest to launch speed (1500 to 1625 ticks/s), median 1.1 s,
+    middle half 1.0 to 1.3, all 0.9 to 2.1 (slowest on a sagging battery). The first LaunchAll at
+    PLAY waited 0.94 to 1.36 s for it.
+  - `volleyS` 4.0: LaunchAll after a drive with the launcher at speed, the settle (0.17 to 0.66 s)
+    and `LaunchCards`' set 3.5 s feed; 4.17 s in 2 Nov R-Quals. The last of four balls left 2.3 to
+    2.6 s after the gate opened (median 2.4; ten 1 Nov feeds, read from the wheels' dip per ball).
+  - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
+    started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
+    lane latched full 0.44 s after its last spike, 1.43 s in.
+  - `tipSwingS` 0.7 (estimate): the camera saw two swings, both tipped by hand (1 Nov 23:16, 2 Nov
+    16:51), 0.57 and 0.43 s from TRANSITION to settled. It sees a swing late.
+  - `partnerTipLagS` 4.0 (estimate): from the partner's last shot leaving to our `CellUp`: the flight
+    (about 0.6 s), the dwell before the rocker moves (0.25 to 3.4 s, `FieldSim.FILMED_TIP_DWELL_SECONDS`),
+    the swing (0.58 to 1.12 s, `FILMED_TIP_SECONDS`) and the camera settling; 1.5 to 5 s in all, and 4
+    covers all but the longest dwells. The partner wait ends this long after the last shot the driver
+    enters. In the 3 Nov 2026 simulations of L-Partner with four preloads on top of the starting
+    NECTAR it came out 0.7 to 1.2 s (a heavy load dwells little). A match log replaces it.
 - **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop
   until it is copied in. Unknown facts are dropped when it loads.
 - **`partnerTipLagS` is also the robot's** (`AutoRegistration.PARTNER_TIP_LAG_S`: the partner wait

@@ -266,7 +266,7 @@ jobs:
                   return "no wait"
               if w.get("at") is None:
                   return f"{w['label']}: still waiting at 30 s"
-              if str(w.get("outcome") or "").startswith("partner wait"):
+              if str(w.get("outcome") or "").endswith(" on the match clock"):
                   return f"partner wait ran out at {w['at']:.1f} s, after {w['after']:.1f} s"
               how = "fired" if w.get("fired") else "timed out"
               what = "" if how == "timed out" else f" ({w['outcome']})"
