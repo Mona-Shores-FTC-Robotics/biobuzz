@@ -19,13 +19,13 @@ public final class LPartnerAuto {
     public static final String SOURCE = "l-partner.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-03|1:36AM";
+    public static final String SAVED = "11-03|1:57AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Tip"};
+    public static final String[] TRIGGERS = {"CellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -61,8 +61,8 @@ public final class LPartnerAuto {
                 kit.guarded("Auto", toLeftPark, 1.9,
                         kit.command("SpinUp"),
                         kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 1, leftLaunchCatchPark, 1.9),
-                        kit.firstOf("Wait for TIP",
-                                kit.when("Tip"),
+                        kit.firstOf("Wait for TIP or CELL up",
+                                kit.when("CellUp"),
                                 kit.afterMs(7000)),
                         kit.command("LaunchAll"),
                         kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
