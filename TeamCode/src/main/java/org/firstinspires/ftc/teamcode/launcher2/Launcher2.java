@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.launcher2;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -46,10 +45,12 @@ import org.firstinspires.ftc.teamcode.launcher2.config.Launcher2Config;
  * reading made kP ask for ever more power. An absolute reading rises with
  * power whichever way the wheel turns, so the loop cannot run away.
  */
-@Configurable
 public class Launcher2 {
 
-    /** The live tuning tree Panels edits. Static because Panels' scan needs it. */
+    /**
+     * The tuning tree. The rig is decommissioned, so the class is no longer {@code @Configurable}
+     * and does not appear in Panels; put the annotation back if the rig is revived.
+     */
     public static Launcher2Config config = new Launcher2Config();
 
     private final HardwareMap hardwareMap;

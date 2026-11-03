@@ -1630,7 +1630,8 @@ prefix instead — `left_rpm`, `right_rpm`.
 non-`final`**. Primitives, enums, strings, arrays, lists, maps and custom objects all work.
 
 The pattern this repo uses, and the one to copy, is a single static root holding plain nested
-objects — `launcher2/Launcher2` declares:
+objects — `launcher2/Launcher2` declared (before the rig was decommissioned and the annotation
+removed, so it no longer shows in Panels):
 
 ```java
 @Configurable
