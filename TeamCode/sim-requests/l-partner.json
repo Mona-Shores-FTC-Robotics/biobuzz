@@ -1,9 +1,7 @@
 {
   "pp": "TeamCode/autos/l-partner.pp",
   "spec": "LPartnerAuto",
-  "design": "real robot",
-  "partnerDesign": null,
-  "partnerSpeed": null,
+  "design": "real robot, turret locked forward, POLLEN only",
   "seeds": [
     1,
     2,
@@ -19,6 +17,7 @@
   "alliance": "RED",
   "metadata": {
     "AutoSource": "l-partner.pp",
-    "SavedBy": "whiteboard drafts (Claude)"
+    "SavedBy": "dustinhans",
+    "SavedAt": "2026-11-03T08:19:15.770Z"
   }
 }
