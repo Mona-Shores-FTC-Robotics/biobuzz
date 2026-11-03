@@ -211,6 +211,9 @@ public abstract class RobotOpMode extends OpMode {
     private boolean startedFresh;
     /** Triangle (Y) on either gamepad, held 1 s in INIT: discard the handoff and start fresh. */
     private final LongPress startFresh = new LongPress(1000);
+    /** D-pad up/down on either gamepad last INIT loop, for the partner's last shot's press edges. */
+    private boolean prevPartnerUp;
+    private boolean prevPartnerDown;
 
     private StartPosition declaredStart;
 
@@ -411,6 +414,15 @@ public abstract class RobotOpMode extends OpMode {
         if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
         if (startFresh.update(gamepad1.y || gamepad2.y, System.nanoTime()) && handoffTaken) {
             startFresh();
+        }
+        if (isAutonomous()) {
+            // The partner's last shot, as their team said it: one second a press (MatchSetup).
+            boolean up = gamepad1.dpad_up || gamepad2.dpad_up;
+            boolean down = gamepad1.dpad_down || gamepad2.dpad_down;
+            if (up && !prevPartnerUp) changePartnerLastShot(1);
+            if (down && !prevPartnerDown) changePartnerLastShot(-1);
+            prevPartnerUp = up;
+            prevPartnerDown = down;
         }
         // The declared start may follow the alliance (BuiltAuto: the drawing's start, or the
         // rotated one). When it changes, the pose moves there and the fix statistics restart.
@@ -1060,6 +1072,16 @@ public abstract class RobotOpMode extends OpMode {
         return getClass().isAnnotationPresent(Autonomous.class);
     }
 
+    private void changePartnerLastShot(int seconds) {
+        double before = setup.partnerLastShotS();
+        setup.stepPartnerLastShot(seconds);
+        double now = setup.partnerLastShotS();
+        if (Double.compare(before, now) != 0) {
+            log.event(Double.isNaN(now) ? "INIT: partner's last shot cleared"
+                    : String.format(Locale.US, "INIT: partner's last shot %.0f s", now));
+        }
+    }
+
     /** Controls and Robot pages replace whatever the OpMode wrote this loop. */
     private void finishPage() {
         Display.Page page = display.page();
@@ -1078,6 +1100,7 @@ public abstract class RobotOpMode extends OpMode {
             display.line("Square (X) — Blue alliance");
             display.line("Circle (B) — Red alliance");
             display.line("Triangle (Y), hold 1 s — start fresh (drop the last run's pose)");
+            if (isAutonomous()) display.line("D-pad up / down — partner's last shot, ±1 s");
             display.line("Share (Back) — next page (any time)");
             describeBindings(driver);
             describeBindings(operator);

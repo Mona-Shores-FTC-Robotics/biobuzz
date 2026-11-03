@@ -202,6 +202,54 @@ public class AutoKitTest {
         assertTrue(trace.toString(), trace.contains("Did the HIVE tip?: HiveTipped after 0.00 s"));
     }
 
+    /** With no partner's last shot entered, the partner wait is its drawn time limit. */
+    @Test
+    public void aPartnerWaitWithNothingEnteredIsItsDrawnLimit() {
+        now = 2.0;
+        assertFalse(kit.hasPartnerWait());
+        Command auto = kit.firstOf("Wait for TIP",
+                kit.when("HiveTipped"),
+                kit.partnerWait(1500).then(kit.command("SpinUp")));
+        assertTrue(kit.hasPartnerWait());
+        run(auto, 5);
+        assertEquals("[SpinUp]", log.toString());
+        assertTrue(String.valueOf(now), now >= 3.5 && now < 3.6);
+        assertTrue(trace.toString(), trace.contains("Wait for TIP: 1500 ms passed after 1.50 s"));
+    }
+
+    /** Mentor, 3 Nov 2026: the partner wait ends at a match second, the partner's last shot plus the TIP lag. */
+    @Test
+    public void aPartnerWaitEndsAtTheMatchSecondItWasGiven() {
+        now = 2.0;
+        kit.partnerWaitUntil(12.0);
+        Command auto = kit.firstOf("Wait for TIP",
+                kit.when("HiveTipped"),
+                kit.partnerWait(1500).then(kit.command("SpinUp")));
+        run(auto, 15);
+        assertEquals("[SpinUp]", log.toString());
+        assertTrue(String.valueOf(now), now >= 12.0 && now < 12.1);
+        assertTrue(trace.toString(), trace.contains("Wait for TIP: partner wait until 12.0 s after 10.00 s"));
+    }
+
+    @Test
+    public void aPartnerWaitThatStartsLateEndsAtOnce() {
+        now = 13.0;
+        kit.partnerWaitUntil(12.0);
+        run(kit.firstOf("Wait for TIP", kit.when("HiveTipped"), kit.partnerWait(1500)), 1);
+        assertTrue(String.valueOf(now), now < 13.05);
+    }
+
+    @Test
+    public void aTriggerStillEndsAPartnerWaitFirst() {
+        kit.partnerWaitUntil(12.0);
+        tipped = true;
+        Command auto = kit.firstOf("Wait for TIP",
+                kit.when("HiveTipped").then(kit.command("ShootAll")),
+                kit.partnerWait(1500).then(kit.command("SpinUp")));
+        run(auto, 1);
+        assertEquals("[ShootAll]", log.toString());
+    }
+
     @Test
     public void decisionTakesTheTimeRowWhenNothingHappens() {
         Command auto = kit.firstOf("Did the HIVE tip?",

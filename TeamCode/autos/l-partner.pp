@@ -579,6 +579,7 @@
           },
           {
             "afterMs": 7000,
+            "partnerWait": true,
             "cards": [
               {
                 "id": "c-mw0eq8bt-2vuzy",

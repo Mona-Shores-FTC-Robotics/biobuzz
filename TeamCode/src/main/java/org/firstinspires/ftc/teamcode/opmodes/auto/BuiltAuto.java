@@ -9,6 +9,7 @@ import com.pedropathing.paths.Path;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.controls.MatchSetup;
 import org.firstinspires.ftc.teamcode.localization.StartMatch;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -78,6 +80,12 @@ import java.util.function.Function;
  * ({@link AutoPathLog}): the declared start as the target during INIT, the whole plan once the
  * Auto is built, at PLAY, since which way round it is drawn depends on the alliance, and the path
  * being driven, and its end, as each one starts and ends.
+ *
+ * <p><b>The partner wait.</b> The one wait the Auto Builder marks as waiting on our partner's TIP
+ * ({@code AutoKit.partnerWait}) ends at a match second the drive team sets in INIT: the partner's
+ * last shot, as their team said it (D-pad up/down; {@link MatchSetup}), plus
+ * {@link AutoRegistration#PARTNER_TIP_LAG_S}. The Match page shows both numbers, never only the
+ * sum: "Partner's last shot 8 s, waiting until 12 s". None entered leaves the wait as drawn.
  *
  * <p><b>A fire waits for a settled robot.</b> The launch cards feed only once the robot is still
  * and at the last path's end heading ({@link PathEndSettle}), not on Pedro's "done"; each path end
@@ -196,10 +204,21 @@ public abstract class BuiltAuto extends RobotOpMode {
             targetWritten = start;
             pathLog.target(start.pose);
         }
+        display.status("Partner", Display.Level.OK, partnerLine(setup.partnerLastShotS()));
         if (!placeholders.isEmpty()) {
             display.status("Placeholders", Display.Level.WARN, String.join(", ", placeholders)
                     + ": no mechanism yet, so these waits run to their limits");
         }
+    }
+
+    /**
+     * The partner's last shot and the second the partner wait ends, both shown so the margin is
+     * never hidden: "last shot 8 s, waiting until 12 s".
+     */
+    static String partnerLine(double lastShotS) {
+        if (Double.isNaN(lastShotS)) return "last shot not entered (D-pad up/down): the partner wait runs as drawn";
+        return String.format(Locale.US, "last shot %.0f s, waiting until %.0f s", lastShotS,
+                AutoRegistration.partnerWaitUntilS(lastShotS));
     }
 
     /** For whoever wrote the Auto, not the drive team: off the one-screen INIT page. */
@@ -259,9 +278,13 @@ public abstract class BuiltAuto extends RobotOpMode {
         startNs = System.nanoTime();
         // Every line to the match log, the last few to the Match page.
         trace = new AutoTrace(TRACE_LINES, line -> log.event(line));
+        double partnerShot = setup.partnerLastShotS();
+        log.metadata("AutoPartnerLastShotS", Double.isNaN(partnerShot) ? "none" : String.format(Locale.US, "%.0f", partnerShot));
+        log.event("PLAY: partner " + partnerLine(partnerShot));
         AutoKit kit = new AutoKit(robot.drive, registry, () -> (System.nanoTime() - startNs) / 1e9)
                 .trace(trace)
-                .watchPaths(both(pathLog, settle));
+                .watchPaths(both(pathLog, settle))
+                .partnerWaitUntil(AutoRegistration.partnerWaitUntilS(partnerShot));
         Command auto = build.apply(kit, rotated);
         pathLog.plan(kit.paths());
         auto.schedule();

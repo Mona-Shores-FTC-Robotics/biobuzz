@@ -144,6 +144,27 @@ public final class AutoRegistration {
      */
     public static final double GARDEN_GATHER_TYPICAL_S = 6.0;
 
+    /**
+     * Seconds from the partner's last shot to our CELL seen up, added to the last shot their team
+     * gives us to make the partner wait ({@link #partnerWaitUntilS}): the shot's flight, the dwell
+     * before the rocker moves, the swing, and the camera settling on the raised CELL. The
+     * simulator's model of each gives 1.5 to 5 s ({@code FieldSim.FILMED_TIP_SECONDS} 0.58 to 1.12 s,
+     * {@code FILMED_TIP_DWELL_SECONDS} 0.25 to 3.4 s, a flight of about 0.6 s, the tracker's settle);
+     * 4 s covers all but the longest dwells. An estimate until a match log times one. Written in
+     * {@code TeamCode/autos/timing.json} too ({@code partnerTipLagS}), which
+     * {@code PartnerWaitTest} keeps equal to this.
+     */
+    public static final double PARTNER_TIP_LAG_S = 4.0;
+
+    /**
+     * The match second the Auto's partner wait ends at, for the partner's last shot as their team
+     * said it: that plus {@link #PARTNER_TIP_LAG_S}. NaN (none entered) gives NaN: the wait keeps
+     * its drawn limit. The simulator sets its partner wait from this too, as the driver would.
+     */
+    public static double partnerWaitUntilS(double partnerLastShotS) {
+        return Double.isNaN(partnerLastShotS) ? Double.NaN : partnerLastShotS + PARTNER_TIP_LAG_S;
+    }
+
     /** How long without a HIVE tag before the camera counts as blind. */
     public static final double BLIND_AFTER_MS = 500;
 

@@ -266,26 +266,35 @@ jobs:
                   return "no wait"
               if w.get("at") is None:
                   return f"{w['label']}: still waiting at 30 s"
+              if str(w.get("outcome") or "").startswith("partner wait"):
+                  return f"partner wait ran out at {w['at']:.1f} s, after {w['after']:.1f} s"
               how = "fired" if w.get("fired") else "timed out"
               what = "" if how == "timed out" else f" ({w['outcome']})"
               return f"{how}{what} at {w['at']:.1f} s, after {w['after']:.1f} s"
           entries = result.get("entries") or []
           if entries:
-              summary += ["| Run | Seed | Points | Our launches | TIPs at | Our wait | Robots collide | Parked |",
-                          "|---|---|---|---|---|---|---|---|"]
+              # Partner's last shot and our first CellUp side by side: the TIP lag, seed by seed (SimRunTest.row).
+              summary += ["| Run | Seed | Points | Our launches | TIPs at | Partner's last shot | Our first CellUp | Our wait | Robots collide | Parked |",
+                          "|---|---|---|---|---|---|---|---|---|---|"]
+              def launched(n, down):
+                  return f"{int(n)}" + (f", {int(down)} at a down CELL" if down else "")
               for entry in entries:
                   label = entry["name"] if not entry.get("partner") else f"{entry.get('partnerSource') or entry['partner']} · {entry['name']}"
+                  if entry.get("partnerWaitUntilS") is not None:
+                      label += f" (our wait until {entry['partnerWaitUntilS']:.0f} s)"
                   label = label.replace("|", "\\|").replace("\n", " ")
                   if entry.get("error"):
-                      summary.append(f"| {label} | | | | | | | {entry['error']} |")
+                      summary.append(f"| {label} | | | | | | | | | {entry['error']} |")
                   for r in entry.get("rows") or []:
                       star = (" ▲" if entry.get("bestSeed") == r["seed"] else "") + (" ★" if entry.get("typicalSeed") == r["seed"] else "")
-                      launches = f"{int(r['launched'])}" + ("" if r.get("partnerLaunched") is None else f" (partner {int(r['partnerLaunched'])})")
+                      launches = launched(r["launched"], r.get("launchedAtDownCell")) + ("" if r.get("partnerLaunched") is None
+                          else f" (partner {launched(r['partnerLaunched'], r.get('partnerLaunchedAtDownCell'))})")
                       parked = ("yes" if r["parked"] else "no") + ("" if r.get("partnerParked") is None else f" (partner {'yes' if r['partnerParked'] else 'no'})")
                       tips = ", ".join(f"{t:.1f}" for t in r["tipsAt"]) or "none"
-                      summary.append(f"| {label} | {int(r['seed'])}{star} | {int(r['points'])} | {launches} | {tips} | {wait_words(r.get('wait'))} | {sec(r.get('robotsCollidedAt'))} | {parked} |")
+                      last = "" if r.get("partnerLaunched") is None else sec(r.get("partnerLastShotAt"))
+                      summary.append(f"| {label} | {int(r['seed'])}{star} | {int(r['points'])} | {launches} | {tips} | {last} | {sec(r.get('firstCellUpAt'))} | {wait_words(r.get('wait'))} | {sec(r.get('robotsCollidedAt'))} | {parked} |")
                   if entry.get("meanPoints") is not None:
-                      summary.append(f"| **{label}: mean** | | **{entry['meanPoints']:.0f}** | | | | | |")
+                      summary.append(f"| **{label}: mean** | | **{entry['meanPoints']:.0f}** | | | | | | | |")
               summary.append("")
               summary.append("▲ the best seed, ★ the typical (median) seed of each run. Alone is published as before; each partner run "
                              "under `<auto>/<commit>/<partner>/<timing>/` and `<auto>/with/<partner>/<timing>/latest.json`.")

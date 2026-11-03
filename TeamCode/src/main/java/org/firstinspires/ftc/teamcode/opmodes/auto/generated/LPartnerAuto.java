@@ -73,7 +73,7 @@ public final class LPartnerAuto {
                         kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 1, leftLaunchCatchPark, 1.9),
                         kit.firstOf("Wait for TIP or CELL up", kit.command("SpinUp"),
                                 kit.when("CellUp"),
-                                kit.afterMs(7000).then(
+                                kit.partnerWait(7000).then(
                                         kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 3.2),
                                         kit.command("LaunchAll"),
                                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9),

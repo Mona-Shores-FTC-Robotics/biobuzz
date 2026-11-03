@@ -136,7 +136,10 @@ by hand.
 it runs master's generated Autos as they are. It knows one robot, the real one, in four variants
 (`RobotDesign.real`: turret or locked forward, POLLEN + NECTAR or POLLEN only); a number master
 states (frame, FLOWER stick, feed) is read from master's code, never copied, and the rest is a
-placeholder until a match log measures it. Its points are shown, never enforced: no test fails an
+placeholder until a match log measures it. It acts as the driver: a partner entry gives
+`lastShotS`, which times the stand-in and sets our partner wait, and a partner fails only by
+`"fails": "misses"` or by being dead on its start (a still stand-in). Its LaunchAll fires as the
+robot's does, at our CELL at its end whether up or not. Its points are shown, never enforced: no test fails an
 Auto for scoring less. Only `SimulatorSmokeTest` runs by default; every other simulator test is
 opt-in by environment variable, so CI stays fast. The "Simulate Auto" workflow runs a saved request
 (an Auto's own `TeamCode/sim-requests/<name>.json` on the fast lane, else `TeamCode/sim-request.json`) on
@@ -166,7 +169,10 @@ that depend on the frame live in `util/FieldFrame`.
 Back/Share (see `controls/Display`). Before PLAY, `RobotOpMode.setup` settles the alliance — vision
 proposes, X/B on either gamepad overrides, Auto's handoff is inherited. An Autonomous never guesses
 one (with none it does not move); any other OpMode defaults to red, shown as "RED (default)".
-Read it as `setup.alliance()`; never add another way to choose it. One-shot buttons use `onPress(robot.x::method)`, not a command
+Read it as `setup.alliance()`; never add another way to choose it. An Autonomous also takes the
+partner's last shot, the one number we ask a partner, on the D-pad in INIT (`setup.partnerLastShotS()`);
+the Auto's one wait marked as the partner wait (`kit.partnerWait`) ends that plus
+`AutoRegistration.PARTNER_TIP_LAG_S` later, and the DS shows both numbers, never only the sum. One-shot buttons use `onPress(robot.x::method)`, not a command
 that requires the subsystem — that would interrupt its `periodic()`.
 
 **Panels** — the only dashboard, `http://192.168.43.1:8001`. Numbers and graphs.

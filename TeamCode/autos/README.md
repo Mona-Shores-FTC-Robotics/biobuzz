@@ -87,25 +87,43 @@ from a Visualizer checkout); a new one goes here with its class, and into the cu
 ### Which partners an Auto is simulated with
 
 Each Auto's `TeamCode/sim-requests/<name>.json` lists its runs: the Auto alone, then each
-stand-in at each timing (`"partners"`; the request format is in `SimRunTest`'s javadoc). The
-"Simulate Auto" workflow runs every entry and publishes each one. The curation, seeded 3 Nov 2026
-and the mentor's to correct:
+stand-in as a partner (`"partners"`; the request format is in `SimRunTest`'s javadoc). The
+"Simulate Auto" workflow runs every entry and publishes each one. **The simulator acts as our
+driver:** an entry gives the one number we ask a partner, `"lastShotS"` ("when does your last
+preload leave?"). That times the stand-in's launch, and sets our partner wait as the driver would
+in INIT: the last shot plus the TIP lag (`partnerTipLagS` in `timing.json`, 4 s). Each Auto with a
+partner runs it **on time**, **missing** (`"fails": "misses"`: every shot wide, no TIP, it still
+parks on schedule) and **dead** (a still stand-in on its start). Nothing in between: "later than
+they said" is not modelled (mentor, 3 Nov 2026). The curation, the mentor's to correct:
 
-| Auto | Alone | Beside |
-|---|---|---|
-| R-Solo | yes | `partner-l-still`; `partner-park-1` |
-| R-Partner-Preload | yes | `partner-l-launch-park`, its four preloads away about 2, 5 and 9 s after its CELL rises (`launchS` 0.6, 1.6, 3.0) |
-| R-Partner-Tip | yes | `partner-l-tip-park` at 35, 50 and 65 in/s (slow with a 4 s pick, fast with a 2 s one) |
-| L-Partner | yes | `partner-r-launch-park` with its last preload away at about 2, 5, 8 and 12 s (`startDelayS` 0 / 1.5 / 4 / 8 with `launchS` 0.3 / 0.8 / 1.0 / 1.0): our 7 s CellUp wait fires for the first two and times out for the last two |
-| R-Solo-Staging | yes | `partner-l-stage-park` (see the note below) |
+| Auto | Alone | On time | Missing | Dead |
+|---|---|---|---|---|
+| L-Partner | yes | `partner-r-launch-park`, last shot at 2, 5, 8 and 12 s: our partner wait runs to 6, 9, 12 and 16 s | the same, said 8 s | `partner-r-still`, said 8 s: we wait to 12 s, then take the Otherwise branch |
+| R-Partner-Preload | yes | `partner-l-launch-park`, last shot at 6 and 10 s | the same, said 6 s | `partner-l-still` |
+| R-Partner-Tip | yes | `partner-l-tip-park` at 50 in/s | the same | `partner-l-still` |
+| R-Solo | yes | `partner-park-1` (no launches) | | `partner-l-still` |
+| R-Solo-Staging | yes | `partner-l-stage-park` (see the note below) | | |
 
-A partner entry's **timing** is four knobs, each optional: `startDelayS` (seconds after PLAY
-before its first card), `speed` (its drive profile, as a spec writes it after `@`), `launchS`
-(seconds per launch volley: a four-piece launch is the 1 s spin-up and then three of these) and
-`pickS` (seconds it stands at a FLOWER with its intake on). A left partner fires only once its CELL
-is up, so for R-Partner-Preload the timings count from our first TIP, not from PLAY. Partner runs
-use `partnerSeeds` (five) so the whole job stays under about five minutes; the Auto alone keeps its
-ten.
+**The results table** in the workflow's job summary has a row per seed of each run: points, our
+launches and the partner's (and how many went at a down CELL), the TIPs, **the partner's last shot
+and our first CellUp** (the TIP lag, seed by seed), how our first wait ended, the first collision,
+and who parked. For an Auto with a partner wait, a run's name ends with the second that wait runs to.
+
+- **The two launch-park stand-ins fire from PLAY only on the right.** The right CELL is up at the
+  start, so `partner-r-launch-park`'s last shot lands where `lastShotS` says. The left one waits
+  for its CELL (our TIP raises it), so its last shot comes no sooner than that: the "Partner's
+  last shot" column says when it did.
+- **L-Partner's dead-partner run collides.** Its Otherwise branch drives to `RIGHT_LAUNCH_CATCH`,
+  10 in in front of `RIGHT_START`, where a dead partner sits; the mentor kept that spot for now
+  (3 Nov 2026), and a "Right CELL up?" check before that launch is shelved until the basics work.
+- **The raw knobs are an override for studies.** An entry's `"timing"` is four knobs, each
+  optional: `startDelayS` (seconds after PLAY before its first card), `speed` (its drive profile,
+  as a spec writes it after `@`), `launchS` (seconds per launch volley: a four-piece launch is the
+  1 s spin-up and then three of these) and `pickS` (seconds it stands at a FLOWER with its intake
+  on). One given wins over what `lastShotS` derives.
+
+Partner runs use `partnerSeeds` (five) so each job stays under about five minutes; the Auto alone
+keeps its ten.
 
 **The Visualizer's Save & Simulate must keep `partners` and `partnerSeeds`** when it rewrites the
 request (it writes the rest from its dialog): the curation lives in the request, nowhere else.
@@ -187,6 +205,9 @@ they came from.
   `note` says from which logs, and the dialog shows it next to the value.
 - **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop
   until it is copied in. Unknown facts are dropped when it loads.
+- **`partnerTipLagS` is also the robot's** (`AutoRegistration.PARTNER_TIP_LAG_S`: the partner wait
+  ends at the partner's last shot plus it). Change both in one PR; `PartnerWaitTest` fails while
+  they differ, and catches a copy from the dialog that dropped it.
 - **After changing a typical time in `AutoRegistration`**, update `auto-registry.json` (the test
   above) and load the robot's commands into every `.pp` here, then export again: the Java does not
   change, the `.pp`'s copy does.

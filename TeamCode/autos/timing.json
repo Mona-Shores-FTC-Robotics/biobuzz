@@ -45,6 +45,11 @@
       "value": 4,
       "source": "estimate",
       "note": "4 POLLEN if every shot lands; lower it for misses."
+    },
+    "partnerTipLagS": {
+      "value": 4.0,
+      "source": "estimate",
+      "note": "From the partner's last shot to our CELL seen up: flight about 0.6 s, the dwell 0.25-3.4 s and the swing 0.58-1.12 s (the simulator's FieldSim.FILMED_TIP_DWELL_SECONDS and FILMED_TIP_SECONDS), and the camera settling; 1.5-5 s in all. The Auto's partner wait ends at the partner's last shot plus this. AutoRegistration.PARTNER_TIP_LAG_S is the robot's copy; PartnerWaitTest keeps the two equal."
     }
   }
 }

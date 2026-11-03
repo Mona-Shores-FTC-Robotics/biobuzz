@@ -84,6 +84,10 @@ public final class AutoKit {
     private final DoubleSupplier secondsSinceStart;
     private Consumer<String> trace = line -> { };
     private PathWatcher watcher = NO_WATCHER;
+    /** The match second a {@link #partnerWait} row ends at; NaN: the row keeps its drawn time limit. */
+    private double partnerWaitUntilS = Double.NaN;
+    /** Whether a {@link #partnerWait} row has been built: the Auto has a partner wait. */
+    private boolean hasPartnerWait;
     /** True while a path card, at any depth, is driving its path: the guard never cuts then. */
     private boolean drivingPath;
     /** True while a grab ({@link AutoRegistry#grab}) runs: the guard never cuts one either. */
@@ -146,6 +150,22 @@ public final class AutoKit {
     public AutoKit watchPaths(PathWatcher watcher) {
         this.watcher = watcher == null ? NO_WATCHER : watcher;
         return this;
+    }
+
+    /**
+     * The match second (seconds since PLAY) every {@link #partnerWait} row ends at: the partner's
+     * last shot as their team said it, plus the TIP lag, worked out before PLAY. NaN, the default,
+     * leaves each such row its drawn time limit. Set it before the Auto is built: a row reads it
+     * when it is made.
+     */
+    public AutoKit partnerWaitUntil(double matchSeconds) {
+        this.partnerWaitUntilS = matchSeconds;
+        return this;
+    }
+
+    /** Whether the Auto built so far has a partner wait ({@link #partnerWait}): complete once it is built. */
+    public boolean hasPartnerWait() {
+        return hasPartnerWait;
     }
 
     /**
@@ -552,6 +572,24 @@ public final class AutoKit {
      */
     public Row afterMs(double ms) {
         Row row = new Row(String.format(Locale.US, "%.0f ms passed", ms), waited -> waited * 1000 >= ms);
+        row.timeLimit = true;
+        return row;
+    }
+
+    /**
+     * The partner wait: the time row of the one wait the Auto Builder marks as waiting on our
+     * partner's TIP. With {@link #partnerWaitUntil} set it ends at that match second (at once if
+     * the wait starts later), whatever {@code ms} says; with none set it is {@link #afterMs}
+     * ({@code ms}), as drawn. Either way it is a time limit: it waits while a feed runs.
+     */
+    public Row partnerWait(double ms) {
+        hasPartnerWait = true;
+        if (Double.isNaN(partnerWaitUntilS)) return afterMs(ms);
+        final double until = partnerWaitUntilS;
+        final double[] startedAt = new double[1];
+        Row row = new Row(String.format(Locale.US, "partner wait until %.1f s", until),
+                waited -> startedAt[0] + waited >= until - 1e-9);
+        row.start = () -> startedAt[0] = secondsSinceStart.getAsDouble();
         row.timeLimit = true;
         return row;
     }

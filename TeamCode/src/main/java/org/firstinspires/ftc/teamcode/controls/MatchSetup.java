@@ -26,7 +26,11 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
  * wants and our practice field is laid out for red; the default is shown in amber, "RED (default)",
  * until a button or the camera says.
  *
- * <p>{@link #lock()} at PLAY freezes the choice for the match.
+ * <p>The other decision is the partner's last shot, for an Autonomous: their team's answer to
+ * "when does your last preload leave?", in whole seconds after PLAY, entered with the D-pad during
+ * INIT ({@link #stepPartnerLastShot}). None entered leaves the Auto's partner wait as drawn.
+ *
+ * <p>{@link #lock()} at PLAY freezes both for the match.
  */
 public final class MatchSetup {
 
@@ -42,6 +46,13 @@ public final class MatchSetup {
     private Alliance fallback = Alliance.UNKNOWN;
     private String visionEvidence = "";
     private boolean locked;
+    /** The partner's last shot, seconds after PLAY; NaN: none entered. */
+    private double partnerLastShotS = Double.NaN;
+
+    /** The first value a D-pad press enters: a typical answer, so few presses reach any other. */
+    public static final double PARTNER_FIRST_ENTRY_S = 5;
+    /** The latest last shot that can be entered: AUTO is 30 s and a partner has to park. */
+    public static final double PARTNER_LAST_SHOT_MAX_S = 25;
 
     /** A person chose. Ignored once locked, and for {@code UNKNOWN}. */
     public void chooseManually(Alliance alliance) {
@@ -80,6 +91,26 @@ public final class MatchSetup {
         if (!locked) {
             fallback = alliance == null ? Alliance.UNKNOWN : alliance;
         }
+    }
+
+    /**
+     * One D-pad press on the partner's last shot: up adds a second, down takes one off. The first
+     * press up enters {@link #PARTNER_FIRST_ENTRY_S}; down from 0 clears it to none. Ignored once
+     * locked.
+     */
+    public void stepPartnerLastShot(int seconds) {
+        if (locked || seconds == 0) return;
+        if (Double.isNaN(partnerLastShotS)) {
+            if (seconds > 0) partnerLastShotS = PARTNER_FIRST_ENTRY_S;
+            return;
+        }
+        double next = partnerLastShotS + seconds;
+        partnerLastShotS = next < 0 ? Double.NaN : Math.min(PARTNER_LAST_SHOT_MAX_S, next);
+    }
+
+    /** The partner's last shot, seconds after PLAY, as entered; NaN when none was. */
+    public double partnerLastShotS() {
+        return partnerLastShotS;
     }
 
     /** Freeze the choice. Called at PLAY. */
