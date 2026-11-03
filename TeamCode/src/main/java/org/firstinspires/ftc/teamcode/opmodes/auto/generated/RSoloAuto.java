@@ -5,7 +5,6 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
-import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
@@ -20,7 +19,7 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-03|2:32AM";
+    public static final String SAVED = "11-03|2:41AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -66,8 +65,9 @@ public final class RSoloAuto {
         Path leftLaunchOffsetPark = Paths.line(leftLaunchOffset, rightPark).linear(leftLaunchOffset, rightPark);
         Path toScoringFlowerStaging = Paths.line(leftLaunchOffset, scoringFlowerStaging).linear(leftLaunchOffset, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, rightPark).linear(scoringFlowerStaging, rightPark);
-        Path toGardenStaging = Paths.curve(scoringFlowerStaging, toGardenStagingControl1, toGardenStagingControl2, gardenStaging).linear(scoringFlowerStaging, gardenStaging);
-        Path gardenStagingPark = Paths.curve(gardenStaging, gardenStagingParkControl1, rightPark).heading(Interpolator.piecewise().until(1, Interpolator.linear(rightPark, rightPark)));
+        Path toLeftLaunchOffsetPath = Paths.line(scoringFlowerStaging, leftLaunchOffset).linear(scoringFlowerStaging, leftLaunchOffset);
+        Path toGardenStaging = Paths.curve(leftLaunchOffset, toGardenStagingControl1, toGardenStagingControl2, gardenStaging).linear(leftLaunchOffset, gardenStaging);
+        Path gardenStagingPark = Paths.curve(gardenStaging, gardenStagingParkControl1, rightPark).linear(gardenStaging, rightPark);
         Path toRightLaunchOffset = Paths.line(gardenStaging, rightLaunchOffset).linear(gardenStaging, rightLaunchOffset);
         Path toRightPark = Paths.line(rightLaunchOffset, rightPark).linear(rightLaunchOffset, rightPark);
 
@@ -81,6 +81,8 @@ public final class RSoloAuto {
                         kit.command("LaunchAll"),
                         kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1, scoringFlowerStagingPark, 1.8),
                         kit.command("PickFlower", 8),
+                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffsetPath, 1.1, leftLaunchOffsetPark, 1.8),
+                        kit.command("LaunchAll"),
                         kit.path("to GARDEN_STAGING", toGardenStaging, 3.2, gardenStagingPark, 2.6),
                         kit.command("GardenGather", 8),
                         kit.path("to RIGHT_LAUNCH_OFFSET", toRightLaunchOffset, 1.6),
