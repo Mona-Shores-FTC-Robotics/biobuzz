@@ -61,7 +61,8 @@ public class HandoffTest {
         assertEquals(Alliance.RED, snapshot.alliance);
         assertEquals(Long.valueOf(5), snapshot.turretZeroCounts);
         assertEquals("6 min 25 s ago", snapshot.ageText(T0 + (6 * 60 + 25) * 1000L));
-        assertEquals("1 h 0 min ago", snapshot.ageText(T0 + 3_600_000L));
+        assertEquals("60 min 0 s ago", snapshot.ageText(T0 + 3_600_000L));
+        assertEquals("2 h 5 min ago", snapshot.ageText(T0 + (2 * 60 + 5) * 60_000L));
     }
 
     @Test
