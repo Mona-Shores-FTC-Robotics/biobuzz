@@ -1,7 +1,7 @@
 {
   "pp": "TeamCode/autos/r-solo.pp",
   "spec": "RSoloAuto@50",
-  "design": "real robot, turret locked forward, POLLEN only",
+  "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
   "seeds": [
@@ -20,6 +20,6 @@
   "metadata": {
     "AutoSource": "r-solo.pp",
     "SavedBy": "dustinhans",
-    "SavedAt": "2026-11-03T07:32:13.835Z"
+    "SavedAt": "2026-11-03T07:41:25.146Z"
   }
 }

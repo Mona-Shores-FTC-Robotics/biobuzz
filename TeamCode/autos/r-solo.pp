@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-03T07:32:12.341Z",
+  "timestamp": "2026-11-03T07:41:20.718Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -185,6 +185,27 @@
       }
     },
     {
+      "id": "line-mw0be8id-akjmbs",
+      "color": "#e15759",
+      "name": "to LEFT_LAUNCH_OFFSET",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 41,
+        "y": 121.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 296.4
+      }
+    },
+    {
       "id": "line-mw0cmikm-aok025",
       "color": "#9c755f",
       "name": "to GARDEN_STAGING",
@@ -210,7 +231,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
+        "startDeg": 296.4,
         "endDeg": 270
       }
     },
@@ -235,7 +256,7 @@
         }
       ],
       "heading": {
-        "type": "piecewise",
+        "type": "linear",
         "startDeg": 270,
         "endDeg": 0,
         "degrees": 0,
@@ -516,6 +537,10 @@
     },
     {
       "kind": "path",
+      "lineId": "line-mw0be8id-akjmbs"
+    },
+    {
+      "kind": "path",
       "lineId": "line-mw0cmikm-aok025"
     },
     {
@@ -634,6 +659,7 @@
     },
     "pathEnds": {
       "line-mw0be8id-zhk73u": "WALL_FLOWER_STAGING",
+      "line-mw0be8id-akjmbs": "LEFT_LAUNCH_OFFSET",
       "line-mw0be8id-t1anb5": "SCORING_FLOWER_STAGING",
       "line-mw0clsus-mahasn": "LEFT_LAUNCH_OFFSET",
       "line-mw0cmikm-aok025": "GARDEN_STAGING",
@@ -691,6 +717,17 @@
         "timeoutS": 8
       },
       {
+        "id": "c-mw0be8id-pnyel",
+        "kind": "path",
+        "lineId": "line-mw0be8id-akjmbs",
+        "park": false
+      },
+      {
+        "id": "c-mw0be8id-mym5h",
+        "kind": "action",
+        "name": "LaunchAll"
+      },
+      {
         "id": "c-mw0cmikm-ae1ci",
         "kind": "path",
         "lineId": "line-mw0cmikm-aok025",
@@ -730,6 +767,7 @@
     "parkFrom": {
       "c-mw0be8id-e596r": "line-mw0cnl7i-qkksz9",
       "c-mw0clsus-jph23": "line-mw0cnl7i-4q4t8s",
+      "c-mw0be8id-pnyel": "line-mw0cnl7i-4q4t8s",
       "c-mw0be8id-xc2bb": "line-mw0cnl7i-who3ju",
       "c-mw0cmikm-ae1ci": "line-mw0cnl7i-5r5t7y"
     },
