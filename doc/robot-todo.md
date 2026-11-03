@@ -33,6 +33,12 @@ tile C6) for L-Partner. Place by the marks, never by the camera.
       R-Solo name ends with that save's time; a fresh Chrome window later only asks to allow the
       folder, not to pick it. **Stop:** Chrome refuses or forgets the folder → note the Chrome
       version and do Save to GitHub instead. → [Visualizer PR #44]. [autos README](../TeamCode/autos/README.md#open-the-autos-on-master)
+- [ ] **Event-loop dry run, laptop Wi-Fi off:** open the Visualizer once with Wi-Fi on the night before,
+      then offline change one step in one of the five Autos, **Export → Export Auto (Java)** and
+      **File → Save to computer**, drop both into the checkout (`generated/` and `TeamCode/autos/`),
+      Sloth Load over USB. **Good:** the Visualizer opens and exports offline, the robot runs the
+      change. **Stop:** the offline copy does not open → open it online once more and re-check; note
+      what failed. Commit the two files on an `auto/<name>` branch afterwards. [PR #374]
 
 ## 1. Hardware is all there (5 min)
 
@@ -85,10 +91,19 @@ These gate Belding. Run each from its start, alliance from §2.
 
 - [ ] **Loop Time Baseline, then one Auto run.** `/Robot/LoopMs` median and p95 (2 Nov R-Quals:
       26.7 / 47.7 ms). → [PR #378]. [S5 seam §1]
+- [ ] **The Autonomous list on the Driver Station shows exactly the five** and nothing named
+      R-Simple, R-Quals, L-Simple or L-Quals. **Good:** five entries, the names above. **Stop:** an old
+      name is listed → a full TeamCode install, then look again. [PR #375]
 - [ ] **Each Auto once:** R-Solo, R-Solo-Staging, R-Partner-Preload, R-Partner-Tip, L-Partner.
       **Good:** runs to its park without a FAULT; on the lane under the HIVE (x 59–62) the robot
       clears the brace that R-Quals hit at x 57.5 on 29 Oct. **Stop:** it touches the HIVE leg or
       brace → stop running that Auto, note where (log pose); it is a Visualizer fix. [PR #374]
+- [ ] **R-Solo-Staging's pile:** four POLLEN on the floor at `PARTNER_STAGED_POLLEN` (36, 124), the
+      robot on Red audience as for any R- Auto, run it.
+      **Good:** the robot drives to the pile, the intake takes four, "Wait for IntakeFull" ends on the
+      sensor, not its 3 s limit. **Stop:** it misses or pushes them → measure where a real partner
+      stages, then move the spot with Save team spots (it re-exports the Autos). The pile's place is a
+      guess until a partner says. [PR #373], [PR #374]
 - [ ] **One park** (parks moved 4.7–4.9 in, now 14.5 in off the wall). **Good:** part of the robot
       inside the LOADING ZONE. [PR #373]
 - [ ] **Stick down on the drive in:** spotters at WALL_FLOWER_STAGING and SCORING_FLOWER_STAGING,
@@ -108,6 +123,12 @@ These gate Belding. Run each from its start, alliance from §2.
 - [ ] **The CellUp wait with a real tip:** L-Partner with a partner (or a hand) tipping, and
       R-Partner-Tip. **Good:** "Wait for TIP or CELL up" ends on the trigger, not its time limit.
       [PR #377]
+- [ ] **CellUp with the CELL already up:** L-Partner at `LEFT_LAUNCH_CATCH` with the left CELL
+      tipped up by hand first (or a partner's tip over before the wait starts). **Good:** the wait ends
+      at once and the Auto fires, not after its 7 s. Then with the CELL **down** and nobody tipping:
+      it waits out its limit and fires anyway (the Auto's own choice for now). **Stop:** it waits with
+      the CELL up, or fires at once with it down → save the match log; check which CELL the robot
+      aims at from its end of the field (`AutoRegistration.aimedLeft`). [PR #377]
 - [ ] **PickFlower squares up** from a crooked arrival. **Good:** it turns square before it pushes.
       [PR #313]
 - [ ] **A launch's time limit never cuts a feed;** the Auto graphs the launcher in Panels. **Good:**
