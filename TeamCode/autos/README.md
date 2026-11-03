@@ -26,6 +26,17 @@ in the link: `#team=auto/r-solo/r-solo.pp`.
 the same name: that makes or updates its `auto/<name>` branch and pull request, the simulator runs
 on it, and a mentor merges it once the robot has driven it. A change to a spot is **Save team
 spots…** instead: its own pull request, and every Auto that uses the spot is re-exported in it.
+Offline, **Save to repo folder…** writes the same two files (the `.pp` here and its Java in
+`generated/`) straight into this checkout on the laptop; commit them on an `auto/<name>` branch
+afterwards (or do Save to GitHub once online), so master has the Auto the robot ran.
+
+**The competition loop.** The night before, with Wi-Fi: open the Visualizer once (it keeps an
+offline copy of itself), open the Autos, and pick this checkout once in **File → Save to repo
+folder…** (Chrome or Edge; the folder that holds `TeamCode`). At the event, no internet needed:
+change the Auto, **Save to repo folder** (the browser asks once to allow the folder), then Sloth
+Load from Android Studio over USB. The Files panel opens the checkout's Autos from the laptop, and
+the team spots come from its `spots.json` while GitHub is out of reach. Commit the changed `.pp`
+and Java on an `auto/<name>` branch when back online.
 
 - **The `.pp` is the source; the Java is generated.** Change an Auto by opening its `.pp` in the
   Visualizer, editing it, and exporting again (Export → Export Auto (Java)). Never edit the
@@ -161,6 +172,24 @@ The endgame guard (`autokit/AutoKit.guarded`) gets the robot to PARK by 30 s:
 - **Each spot has its own park path,** made by the Visualizer's builder: a straight line to the
   PARK spot, shared by every drive to that spot. Press **P** on a drive step to see it (everything
   else dims) and bend it with a control point. The drive just before Park needs none.
+
+## Timing: two sets of numbers
+
+The preview and the robot time an Auto from two places. Measured values go in both, with where
+they came from.
+
+| Numbers | Live in | Used by |
+|---|---|---|
+| Each command's typical seconds (`LaunchAll`, `PickFlower`, `GardenGather`…) | `AutoRegistration` in the robot code, copied to `TeamCode/auto-registry.json` by `AutoRegistrationTest` (`UPDATE_AUTO_REGISTRY=1`), and into each `.pp`'s `registry.typicalS` when the Visualizer loads the robot's commands | The endgame guard on the robot (a grab starts only if its typical time and the park fit), and the Visualizer's Instant preview |
+| How the robot and the HIVE behave: drive speed, spin-up, a volley, time to full, a TIP's start and swing, the CELL loads | `timing.json` here (`version`, then each fact's `value`, `source` and `note`) | The Visualizer's Typical preview and its **Timing facts** dialog, which reads this file from the branch Team Autos last listed. It never changes the robot or the export |
+
+- **A fact's `source` says how sure it is**: `measured, <robot>, <dates>`, or `estimate`. The
+  `note` says from which logs, and the dialog shows it next to the value.
+- **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop
+  until it is copied in. Unknown facts are dropped when it loads.
+- **After changing a typical time in `AutoRegistration`**, update `auto-registry.json` (the test
+  above) and load the robot's commands into every `.pp` here, then export again: the Java does not
+  change, the `.pp`'s copy does.
 
 ## Opening a committed Auto from a link
 
