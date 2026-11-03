@@ -200,12 +200,25 @@ public class AutoStudyTest {
             PartnerTiming t = new PartnerTiming();
             if (json == null) return t;
             Object d = json.get("startDelayS"), v = json.get("speed"), l = json.get("launchS"), k = json.get("pickS");
-            if (d instanceof Number) t.startDelayS = ((Number) d).doubleValue();
-            if (v instanceof Number) t.speed = Double.toString(((Number) v).doubleValue());
-            else if (v instanceof String && !((String) v).isEmpty()) t.speed = (String) v;
-            if (l instanceof Number) t.launchS = ((Number) l).doubleValue();
-            if (k instanceof Number) t.pickS = ((Number) k).doubleValue();
+            if (d instanceof Number) t.startDelayS = nonNegative("startDelayS", ((Number) d).doubleValue());
+            if (v instanceof Number) t.speed = checkedSpeed(Double.toString(((Number) v).doubleValue()));
+            else if (v instanceof String && !((String) v).isEmpty()) t.speed = checkedSpeed((String) v);
+            if (l instanceof Number) t.launchS = nonNegative("launchS", ((Number) l).doubleValue());
+            if (k instanceof Number) t.pickS = nonNegative("pickS", ((Number) k).doubleValue());
             return t;
+        }
+
+        /** A drive profile every part of which is positive and finite (a zero speed divides by zero in SimDrive). */
+        private static String checkedSpeed(String spec) {
+            for (double part : profile(spec)) {
+                if (!(part > 0) || Double.isInfinite(part)) throw new IllegalArgumentException("timing speed must be positive and finite: " + spec);
+            }
+            return spec;
+        }
+
+        private static double nonNegative(String key, double v) {
+            if (!(v >= 0) || Double.isInfinite(v)) throw new IllegalArgumentException("timing " + key + " must be zero or more: " + v);
+            return v;
         }
 
         boolean isDefault() {

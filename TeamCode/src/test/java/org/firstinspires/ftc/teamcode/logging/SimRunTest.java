@@ -131,11 +131,12 @@ public class SimRunTest {
         out.add(new Entry(alone ? "alone" : ours.substring(ours.indexOf(',') + 1), spec, null, partner, partnerName, partnerSpeed,
                 null, null, seeds, ""));
         Object list = request.get("partners");
-        if (!(list instanceof List)) return out;
+        if (list == null) return out;
+        if (!(list instanceof List)) throw new IllegalArgumentException("\"partners\" must be a list of entries");
         String profile = at.length > 1 ? "@" + at[1] : "";
         String base = ours.split(",")[0];
         for (Object o : (List<Object>) list) {
-            if (!(o instanceof Map)) continue;
+            if (!(o instanceof Map)) throw new IllegalArgumentException("a partners entry is not an object: " + o);
             Map<String, Object> e = (Map<String, Object>) o;
             String cls = (String) e.get("partner");
             if (cls == null || cls.isEmpty()) throw new IllegalArgumentException("a partners entry has no \"partner\" class");
@@ -150,8 +151,14 @@ public class SimRunTest {
             String name = e.get("name") instanceof String && !((String) e.get("name")).isEmpty() ? (String) e.get("name") : timing.slug();
             String designName = e.get("design") instanceof String ? (String) e.get("design") : partnerName;
             List<Object> own = e.get("seeds") instanceof List ? (List<Object>) e.get("seeds") : partnerSeeds;
+            String folder = source(type) + "/" + slug(name);
+            for (Entry seen : out) {
+                if (seen.folder.equals(folder)) {
+                    throw new IllegalArgumentException("two partners entries share the folder \"" + folder + "\": give one a different name");
+                }
+            }
             out.add(new Entry(name, base + "," + cls + profile, cls, designName == null ? null : design(designName), designName,
-                    partnerSpeed, timing, timingJson, own, source(type) + "/" + slug(name)));
+                    partnerSpeed, timing, timingJson, own, folder));
         }
         return out;
     }
@@ -166,9 +173,9 @@ public class SimRunTest {
         }
     }
 
-    /** A folder name from a timing's name: lower case, runs of anything else as one dash. */
+    /** A folder name from a timing's name: lower case letters and digits, runs of anything else as one dash. */
     static String slug(String name) {
-        String s = name.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9.]+", "-").replaceAll("^-+|-+$", "");
+        String s = name.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "-").replaceAll("^-+|-+$", "");
         return s.isEmpty() ? "default" : s;
     }
 
@@ -211,9 +218,12 @@ public class SimRunTest {
             metadata.put("SimPartner", entry.partner == null ? "none" : entry.partner);
             metadata.put("SimPartnerTiming", entry.timing == null ? "none" : entry.name + " (" + entry.timing.slug() + ")");
             double points = 0;
+            boolean done = false;
             try {
                 for (Object s : entry.seeds) {
-                    long seed = ((Number) s).longValue();
+                    double value = ((Number) s).doubleValue();
+                    if (value != Math.rint(value)) throw new IllegalArgumentException("seed " + value + " is not a whole number");
+                    long seed = (long) value;
                     String log = "seed-" + seed + ".wpilog";
                     metadata.put("SimSeed", String.valueOf(seed));
                     AutoSim.Result r = AutoStudyTest.run(entry.spec, design, entry.partnerDesign, entry.partnerSpeed, entry.timing,
@@ -223,9 +233,15 @@ public class SimRunTest {
                     rows.add(row(r, seed, log));
                     points += r.autoPoints();
                 }
+                done = true;
             } finally {
                 summary.put("runs", (double) runs.size());
                 summary.put("meanPoints", runs.isEmpty() ? null : points / runs.size());
+                if (!done) {
+                    // The run stopped early: the publish step must not take what is there for a finished run.
+                    summary.put("error", "stopped after " + runs.size() + " of " + entry.seeds.size() + " seeds");
+                    result.put("error", summary.get("error"));
+                }
                 if (!first) write(folder, result);
             }
         }
@@ -263,7 +279,8 @@ public class SimRunTest {
     static Map<String, Object> row(AutoSim.Result r, long seed, String log) {
         Map<String, Object> m = new LinkedHashMap<>();
         AutoSim.RobotResult ours = r.robots.get(0);
-        AutoSim.RobotResult partner = r.robots.size() > 1 ? r.robots.get(1) : null;
+        // The partner is our alliance's other robot; with "Ours|Opponent" robot 2 is an opponent, not a partner.
+        AutoSim.RobotResult partner = r.robots.size() > 1 && r.robots.get(1).alliance == ours.alliance ? r.robots.get(1) : null;
         m.put("seed", (double) seed);
         m.put("log", log);
         m.put("points", (double) r.autoPoints());

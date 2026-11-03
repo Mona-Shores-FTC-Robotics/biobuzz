@@ -275,6 +275,7 @@ jobs:
                           "|---|---|---|---|---|---|---|---|"]
               for entry in entries:
                   label = entry["name"] if not entry.get("partner") else f"{entry.get('partnerSource') or entry['partner']} · {entry['name']}"
+                  label = label.replace("|", "\\|").replace("\n", " ")
                   if entry.get("error"):
                       summary.append(f"| {label} | | | | | | | {entry['error']} |")
                   for r in entry.get("rows") or []:
