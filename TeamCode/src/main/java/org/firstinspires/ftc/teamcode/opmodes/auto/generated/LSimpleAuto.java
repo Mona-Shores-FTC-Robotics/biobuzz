@@ -19,7 +19,7 @@ public final class LSimpleAuto {
     public static final String SOURCE = "l-simple.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-02|10:07AM";
+    public static final String SAVED = "11-03|1:34AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -46,7 +46,7 @@ public final class LSimpleAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose leftStart = p.of(62.3, 133.8, 270);
         Pose leftLaunchCatch = p.of(57.5, 123.5, 273.4);
-        Pose scoringFlowerStaging = p.of(46.7, 119.3, 90);
+        Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
         Pose leftPark = p.of(14.5, 117.4, 0);
@@ -66,7 +66,7 @@ public final class LSimpleAuto {
                         kit.command("LaunchAll"),
                         kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.5, scoringFlowerStagingPark, 1.7),
                         kit.command("PickFlower", 8),
-                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 1),
+                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 1.1),
                         kit.command("LaunchAll"),
                         kit.path("to LEFT_PARK", toLeftPark, 1.5)));
     }

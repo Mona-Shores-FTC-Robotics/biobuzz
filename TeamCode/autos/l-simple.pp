@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-02T15:07:00.288Z",
+  "timestamp": "2026-11-03T06:34:18.949Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -19,7 +19,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 46.7,
+        "x": 47.2,
         "y": 119.3
       },
       "controlPoints": [],
@@ -56,7 +56,7 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 46.7,
+        "x": 47.2,
         "y": 119.3
       },
       "controlPoints": [],
@@ -133,7 +133,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 46.7,
+        "x": 47.2,
         "y": 119.3
       },
       "controlPoints": [],
@@ -599,7 +599,7 @@
         273.4
       ],
       "SCORING_FLOWER_STAGING": [
-        46.7,
+        47.2,
         119.3,
         90
       ],
