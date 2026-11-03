@@ -124,6 +124,11 @@ These gate Belding. Run each from its start, alliance from §2.
       it waits out its limit and fires anyway (the Auto's own choice for now). **Stop:** it waits with
       the CELL up, or fires at once with it down → save the match log; check which CELL the robot
       aims at from its end of the field (`AutoRegistration.aimedLeft`). [PR #377]
+- [ ] **TIP lag, from the same runs' logs:** seconds from the partner's (or R-Partner-Tip's own)
+      last preload leaving the launcher (the feed's end) to the CellUp trigger. **Good:** 1.5–5 s,
+      the simulator's range; write the number into `doc/partner-timing.md` as the margin the driver's
+      partner wait adds. **Stop:** more than 5 s → the HIVE dwell is longer than filmed; record the
+      load in the CELL. [PR #387]
 - [ ] **PickFlower squares up** from a crooked arrival. **Good:** it turns square before it pushes.
       [PR #313]
 - [ ] **A launch's time limit never cuts a feed;** the Auto graphs the launcher in Panels. **Good:**
@@ -329,6 +334,7 @@ one test at one meeting.
 [PR #377]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/377
 [PR #378]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/378
 [PR #384]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/384
+[PR #387]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/387
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#78]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/78
