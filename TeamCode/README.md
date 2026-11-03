@@ -300,7 +300,7 @@ and nothing is pushed over adb.
 
 | | |
 |---|---|
-| The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot — plus `robot_launcher_rig.xml` for the two-wheel launcher bench rig (hub FTC-EoM3) |
+| The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot — plus `robot_launcher_bench.xml` and `robot_octoquad_rig.xml` for the bench rigs |
 | The names in Java | `hardware/DeviceNames.java` — the only place a device name may be written |
 | The build-time check | `RobotConfigXmlTest` — fails CI if the XML and `DeviceNames` disagree |
 | The run-time check | the **Check: Hardware** OpMode (Utility menu) |
@@ -343,12 +343,12 @@ file.
 
 > **History note (26 Sep 2026).** This paragraph used to say "the test requires
 > every robot to declare every device", and called that a known limit that
-> "hasn't bitten yet". It bit with the first bench rig: the two-wheel pinch
-> launcher on its own Control Hub (FTC-EoM3), which has one motor and nothing
+> "hasn't bitten yet". It bit with the first bench rig: a two-wheel pinch
+> launcher on its own Control Hub (since retired), which had one motor and nothing
 > else. Rejected alternatives: naming the rig's file something other than
 > `robot_*.xml` so the tests skip it (smallest change, but then a typo in its
 > motor name is found at a meeting, which is the thing this whole section
-> exists to prevent); and adding `launcher2` to both competition robots' XML
+> exists to prevent); and adding the rig's motor to both competition robots' XML
 > (would declare a device neither robot has). `Check: Hardware` likewise now
 > checks the live hardware against the active robot's list.
 
@@ -673,21 +673,19 @@ and fails on any servo write or any non-zero motor power; a subsystem that looks
 run there or say in the test why it cannot move before PLAY.
 
 **`stop()` means teardown and only teardown.** The disagreement that kept it off the interface was
-real: `Launcher2.stop()` cuts power and keeps the object live, where `LimelightVisionSubsystem.stop()`
-ends it. The resolution is to name it, not paper over it — "stop the mechanism for a moment" gets its
-own name (`idle()`, `spinDown()`). `Launcher2` is not a `Subsystem` and the launcher rig stays
-standalone, so nothing had to change; if it ever becomes one, its `stop()` gets renamed.
+real: the old standalone launcher rig's `stop()` cut power and kept the object live, where
+`LimelightVisionSubsystem.stop()` ends it. The resolution is to name it, not paper over it — "stop
+the mechanism for a moment" gets its own name (`idle()`, `spinDown()`).
 
 **If the interface makes your subsystem awkward, change the interface — do not work around it.** It
 was designed against one existing subsystem and will meet its second one soon.
 
 ### This does not supersede "No command framework"
 
-The `launcher2` rig stays a plain `OpMode` — no Ivy `Command`, no scheduler — as the DECODE flywheel
-rig it was copied from did. The reasoning has not changed: a rig with one behaviour has nothing for a
-scheduler to arbitrate. When the real BIOBUZZ launcher lands and shots have to be sequenced against
-an intake, that is the point to introduce Ivy commands, and it happens in a `Subsystem`, not in the
-rig.
+The bench OpModes stay plain OpModes — no Ivy `Command`, no scheduler — as the old standalone
+flywheel rig did. The reasoning has not changed: a rig with one behaviour has nothing for a scheduler
+to arbitrate. Sequencing shots against an intake is what the commands are for, and it happens in a
+`Subsystem`, not in a rig.
 
 ### Why this shape, and what was rejected
 
@@ -794,7 +792,7 @@ and pod offsets and every Foresight value are measurements of one physical robot
 |---|---|
 | `pedro/robots/Robot19429.java`, `Robot20245.java` | That robot's three blocks, in exactly the shape the tuners emit. **The only place tuned numbers go.** |
 | `Constants.ROBOTS` | One line per robot: `RobotIdentity` → its file |
-| `Constants.forRobot(identity)` | Pure lookup, unit tested. Throws, naming the identity, for a robot with no drivetrain (`LAUNCHER_RIG`) or with no file |
+| `Constants.forRobot(identity)` | Pure lookup, unit tested. Throws, naming the identity, for a robot with no drivetrain (`LAUNCHER_BENCH`) or with no file |
 | `createDrivetrain` / `createLocalizer` / `createAlgorithm` / `create` | Unchanged signatures; call `forRobot(ActiveConfig.requireIdentity())` |
 | `RobotConstants` | Wraps one robot's three blocks, and sets the **device names** on them from `DeviceNames` |
 
@@ -827,7 +825,7 @@ a robot file no entry points at.
 
 **What the tests pin.** Both competition robots resolve to their own file and to
 *different* config objects (a copied file still pointing at the other robot's
-fields passes everything else); `LAUNCHER_RIG` is refused by name; every
+fields passes everything else); `LAUNCHER_BENCH` is refused by name; every
 drivetrain robot has values; every robot carries the shared device names; and
 each untuned robot's `createAlgorithm` still fails with the robot and file in
 its message.
@@ -1612,7 +1610,7 @@ server, which is still there and still serves the RC's own pages.
 | Limelight pipeline tuning without a USB cable | Limelight proxy | browser-side |
 
 Call `update()` once per loop after the `addData`/`debug` calls, and wrap the whole block in a
-`try`/`catch` that swallows. `Launcher2SpeedTestOpMode.publishPanels()` is the reference
+`try`/`catch` that swallows. `LauncherBench.publish()` is the reference
 implementation: telemetry must never take a mechanism down mid-run.
 
 **`update(telemetry)` publishes to both.** `TelemetryManager` has a second overload that takes the
@@ -1629,19 +1627,10 @@ prefix instead — `left_rpm`, `right_rpm`.
 `@Configurable` on the class, and the fields it exposes must be **`public`, `static`, and
 non-`final`**. Primitives, enums, strings, arrays, lists, maps and custom objects all work.
 
-The pattern this repo uses, and the one to copy, is a single static root holding plain nested
-objects — `launcher2/Launcher2` declared (before the rig was decommissioned and the annotation
-removed, so it no longer shows in Panels):
-
-```java
-@Configurable
-public class Launcher2 {
-    public static Launcher2Config config = new Launcher2Config();
-```
-
-and everything under `Launcher2Config` is ordinary instance fields. Panels reflects through
-the static root into the tree, so one annotation exposes the whole structure and the sub-configs
-stay readable as normal Java.
+The pattern this repo uses, and the one to copy, is `LauncherSubsystem`: the annotation on the
+class and its tunables as `public static` fields on it. Panels reflects through those fields, so one
+annotation exposes the whole class. A tree of nested config objects also works — hang them off a
+single static root and Panels walks into them — but nothing here needs that today.
 
 Three things that will cost you a meeting if you forget them:
 
@@ -1652,8 +1641,8 @@ Three things that will cost you a meeting if you forget them:
   Values changed *in code* reach the browser only when a tab connects, after a browser edit, or
   when the code calls `PanelsConfigurables.refreshClass(TheConfigurableClass.class)`. So any code
   that writes a configurable must call `refreshClass` right after, or the page shows a stale number
-  and an edit typed over it looks like it did nothing. `Launcher2SpeedTestOpMode.nudgeTarget()`
-  is the example — its d-pad nudges write `targetRpm`, then call `refreshClass`.
+  and an edit typed over it looks like it did nothing. `LauncherBench.nudgeFeed()`
+  is the example — its d-pad nudges write `FeederSubsystem.feedPower`, then call `refreshClass`.
   > **History note, 26 Sep 2026.** This bullet used to say only "refresh the browser". That was
   > the workaround, not the answer: `refreshClass` is Panels' own call for this (checked in
   > `configurables-0.3.2+1.0.5`, which sends values on connect, on a browser edit, and on
@@ -1804,7 +1793,7 @@ Recorded here so it is a choice rather than a surprise:
 
 | Gap | Cost |
 |---|---|
-| Only `Launcher2SpeedTestOpMode` and `LoopTimeBaseline` publish to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
+| Only `LauncherBench` and `LoopTimeBaseline` publish to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
 | Nothing draws game elements on the field — `FieldView.drawMarker` exists and has no callers. | Vision sightings are numbers in a list rather than dots where the robot thinks they are. |
 | No shared telemetry helper, so each OpMode still publishes in its own style. | Key names and update cadence will drift between OpModes. |
 

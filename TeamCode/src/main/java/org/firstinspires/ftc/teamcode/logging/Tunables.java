@@ -33,7 +33,7 @@ import java.lang.reflect.Modifier;
  * <p>{@link #CLASSES} is the list, kept in step with the {@code @Configurable} annotations by
  * {@code TunablesTest}: a class annotated in {@code subsystems}, {@code localization},
  * {@code vision}, {@code opmodes} or {@code opmodes/auto} must be here, and nothing else may be.
- * The benches in {@code opmodes/calibration}, the {@code launcher2} rig and the
+ * The benches in {@code opmodes/calibration} and the
  * {@code DriveMotorCheck} diagnostic are not here: a bench's knobs are not a match's.
  *
  * <p>Reflection, once per run, at PLAY: a few dozen fields, well under a millisecond, on the loop

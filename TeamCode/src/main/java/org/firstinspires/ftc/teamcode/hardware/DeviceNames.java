@@ -30,8 +30,8 @@ import java.util.Map;
  * <p><b>History:</b> until 26 Sep 2026 there was one list, {@link #ALL}, and
  * every {@code robot_*.xml} had to declare every device in it. That was fine
  * while every configuration was a whole competition robot. It stopped being
- * fine with the first bench rig — the two-wheel launcher on hub FTC-EoM3,
- * which has one motor and nothing else — so each {@link RobotIdentity} now
+ * fine with the first bench rig — a two-wheel launcher on its own hub (since
+ * retired), which had one motor and nothing else — so each {@link RobotIdentity} now
  * names its own list. {@code ALL} survives as the union, meaning "every name
  * the code knows about", which is what the literal scan needs.
  */
@@ -133,11 +133,6 @@ public final class DeviceNames {
      */
     public static final String COLOR_SENSOR = "colorSensor";
 
-    // Two-wheel pinch launcher test rig (hub FTC-EoM3). Both motors hang off
-    // one Y-cable on a single port, with one encoder, so software sees one
-    // motor. See robot_launcher_rig.xml.
-    public static final String LAUNCHER2 = "launcher2";
-
     /**
      * What kind of port a device occupies. Determines which XML element tags
      * are legal for it, and which Java class {@code ValidateHardware} asks the
@@ -213,10 +208,6 @@ public final class DeviceNames {
             new Device(COLOR_SENSOR, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
-    /** The two-wheel launcher bench rig: one Y-cabled motor pair, nothing else. */
-    public static final List<Device> LAUNCHER_RIG = Collections.unmodifiableList(Arrays.asList(
-            new Device(LAUNCHER2, Kind.MOTOR)));
-
     /**
      * Every device name the code knows about, on any robot — the union of the
      * per-robot lists above. Not a requirement on any one configuration; each
@@ -235,7 +226,7 @@ public final class DeviceNames {
     public static final List<Device> OCTOQUAD_RIG = Collections.unmodifiableList(Arrays.asList(
             new Device(OCTOQUAD, Kind.I2C)));
 
-    public static final List<Device> ALL = union(COMPETITION_ROBOT, LAUNCHER_RIG, LAUNCHER_BENCH, OCTOQUAD_RIG);
+    public static final List<Device> ALL = union(COMPETITION_ROBOT, LAUNCHER_BENCH, OCTOQUAD_RIG);
 
     @SafeVarargs
     private static List<Device> union(List<Device>... lists) {
