@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
+import org.firstinspires.ftc.teamcode.opmodes.auto.AutoRegistration;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoTrace;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -1767,8 +1768,8 @@ public final class AutoSim {
                     .command("CatchIn", 1.0, () -> catchCard(false))
                     // The robot's grabs (master's AutoRegistration, typical times and all): the endgame guard never
                     // cuts one, and does not start one unless it and the park fit.
-                    .grab("PickFlower", 4.5, this::pickFlower)
-                    .grab("GardenGather", 6.0, this::gardenGather)
+                    .grab("PickFlower", AutoRegistration.PICK_FLOWER_TYPICAL_S, this::pickFlower)
+                    .grab("GardenGather", AutoRegistration.GARDEN_GATHER_TYPICAL_S, this::gardenGather)
                     .trigger("IntakeFull", this::fullSensed)
                     // What the robot holds is worth 4 POLLEN or more, a NECTAR counting its weight (mentor, 8 Oct 2026:
                     // "2 nectar 1 P ... would have been enough"). Needs a sensor that tells NECTAR from POLLEN.

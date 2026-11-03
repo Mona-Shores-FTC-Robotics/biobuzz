@@ -99,17 +99,30 @@ public final class FlowerPicker extends GrabRoutine {
     /** See {@link #stallProgressIn}, ms. */
     public static double stallMs = 250;
     /**
-     * The dwell's cap, ms. It normally ends sooner, from the intake current ({@link #dwellQuietMs},
-     * {@link #dwellEmptyMs}), or when the driver lets go. On 29 Oct the last piece came as late
-     * as 1.55 s into a 1.5 s dwell, so the cap sits above that.
+     * The dwell's cap, ms. It normally ends sooner: when the lane is full ({@link #dwellEndsOnFull}),
+     * or when the driver lets go. On 29 Oct the last piece came as late as 1.55 s into a 1.5 s
+     * dwell, so the cap sits above that; a FLOWER that does not fill the lane (empty, or the robot
+     * already held some) dwells the whole cap.
      */
     public static double dwellMs = 2000;
+    /**
+     * The dwell ends the moment the lane is full ({@code ColorSensorSubsystem.full()}, the colour
+     * sensor's full: the signal the roller stop, the light and an Auto's {@code IntakeFull} use), since
+     * 3 Nov 2026 (mentor: "we have an intake full sensor now"). A full lane takes nothing more, so
+     * dwelling on is time lost. In the 29 Oct to 2 Nov 2026 logs on 20245 the last piece's current
+     * spike came a median 1.5 s after the push started (0.64 s into the dwell, latest 1.35 s; 33
+     * picks that took pieces), and full latches 0.3 to 1.0 s after a piece stops under the sensor
+     * ({@code ColorSensorSubsystem.fullHoldS}); the one pick that filled the lane (2 Nov) was full
+     * 1.43 s after its push started, 0.44 s into the dwell. False: the dwell runs to {@link #dwellMs}
+     * as before.
+     */
+    public static boolean dwellEndsOnFull = true;
     /**
      * The dwell ends this long after the intake current's last spike, ms (0: off). <b>Off</b> since
      * 1 Nov 2026, the mentor's call: on 20245 the pick barely dwelt at all. A spike during the push
      * counts too, so a push that ran longer than this after loading the roller ended the dwell the
-     * moment it began. Off, every pick dwells the full {@link #dwellMs}. (The longest gap between
-     * two pieces' spikes on 29 Oct was 0.55 s, the 600 it was.)
+     * moment it began. The full sensor ({@link #dwellEndsOnFull}) is the end now. (The longest gap
+     * between two pieces' spikes on 29 Oct was 0.55 s, the 600 it was.)
      */
     public static double dwellQuietMs = 0;
     /**
@@ -367,6 +380,7 @@ public final class FlowerPicker extends GrabRoutine {
     @Override protected double stallMs() { return stallMs; }
     @Override protected double dwellMs() { return dwellMs; }
     @Override protected double dwellQuietMs() { return dwellQuietMs; }
+    @Override protected boolean dwellFull() { return dwellEndsOnFull && robot.colorSensor.full(); }
     @Override protected double dwellEmptyMs() { return dwellEmptyMs; }
     @Override protected double spikeAboveAmps() { return spikeAboveAmps; }
     @Override protected double settledInPerSec() { return settledInPerSec; }

@@ -98,7 +98,7 @@ What matters for the question:
   `contactStandoffIn` + `retractAfterBackIn` from the centre, which a deeper target would have pulled
   2.5 in closer to the FLOWER whenever a pick ended early; it is now anchored to where the push
   actually ended (this PR), so the stick lifts 6 in out from the stall point however deep the target.
-  The Auto's `PickFlower` card gains about 0.25 s per pick (the stall window) on its 4.5 s typical.
+  The Auto's `PickFlower` card gains about 0.25 s per pick (the stall window) on its 2.5 s typical.
 
 **The default stays 12.0 until the robot says otherwise.** Below is how it says it.
 
@@ -193,6 +193,11 @@ each; Sloth Load is enough.
        0.7 s on most picks means the last 18 in were quicker than the stick: `lowerWithinIn` 24.
 5. [ ] **TeleOp check:** stick already down (toggle), press pick: no 0.7 s pause before the push. Stick
        up: as before.
+
+- [ ] **Time one GARDEN gather from an Auto** with the log running (R-Solo or R-Partner-Tip): the
+      `GARDEN gather: done … Last GARDEN gather: N s` line replaces `GardenGather`'s 6.0 s guess in
+      `AutoRegistration.GARDEN_GATHER_TYPICAL_S`. The same runs' `FLOWER pick: done` lines check
+      `PickFlower`'s 2.5 s, now that the dwell ends on `full`.
 
 → The numbers and any changed knob go to PR #378. The GARDEN gather has no approach yet (its stick
 hit the corner wall when swung early, 30 Oct); say whether the corner allows one.

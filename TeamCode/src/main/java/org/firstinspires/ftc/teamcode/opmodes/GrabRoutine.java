@@ -44,10 +44,11 @@ import java.util.function.Consumer;
  *       {@link #inSpeed} of the robot's top speed. It ends when the path does, or when the robot
  *       stops getting closer (it is against something; not counted in the path's first moments,
  *       while it ramps up from rest), or at {@link #inTimeoutMs}.</li>
- *   <li><b>Dwell</b>, pushing lightly ({@link #dwellPushPower}), steered, until the intake's current
- *       says the pieces have stopped coming ({@link DwellWatch}: quiet for {@link #dwellQuietMs}
- *       after the last spike, or no spike by {@link #dwellEmptyMs}), at most {@link #dwellMs}. The
- *       current is read every loop while a grab runs.</li>
+ *   <li><b>Dwell</b>, pushing lightly ({@link #dwellPushPower}), steered, until the lane is full
+ *       ({@link #dwellFull}: the colour sensor's full, for a grab that opts in), or the intake's
+ *       current says the pieces have stopped coming ({@link DwellWatch}: quiet for
+ *       {@link #dwellQuietMs} after the last spike, or no spike by {@link #dwellEmptyMs}), at most
+ *       {@link #dwellMs}. The current is read every loop while a grab runs.</li>
  *   <li><b>Back.</b> A Pedro path back to exactly where the In started, capped at
  *       {@link #backSpeed}. {@link #unprep} once the robot has backed {@link #unprepAfterBackIn}.</li>
  * </ol>
@@ -252,6 +253,14 @@ public abstract class GrabRoutine {
     protected abstract double dwellQuietMs();
     /** The dwell ends if the current has had no spike this far into it, ms; 0 turns it off. */
     protected abstract double dwellEmptyMs();
+    /**
+     * Whether the dwell may end now because the lane is full: a state the colour sensor already
+     * keeps current ({@code ColorSensorSubsystem.full()}), read here once a loop, never hardware.
+     * Never, by default.
+     */
+    protected boolean dwellFull() {
+        return false;
+    }
     /** A current this many amps over the roller's free-running current is a piece. */
     protected abstract double spikeAboveAmps();
     protected abstract double dwellPushPower();
@@ -398,9 +407,11 @@ public abstract class GrabRoutine {
                 }
                 break;
             case DWELL:
-                boolean capped = ms(now, phaseStartNs) >= nn(dwellMs());
-                if (capped || dwell.done(ms(now, startNs), ms(phaseStartNs, startNs), dwellQuietMs(), dwellEmptyMs())) {
-                    dwellEndWhy = capped ? "dwellMs" : dwell.sawSpike() ? "pieces in" : "nothing came";
+                String why = dwellEnd(ms(now, phaseStartNs) >= nn(dwellMs()), dwellFull(),
+                        dwell.done(ms(now, startNs), ms(phaseStartNs, startNs), dwellQuietMs(), dwellEmptyMs()),
+                        dwell.sawSpike());
+                if (why != null) {
+                    dwellEndWhy = why;
                     startBack(now, pose);
                 } else {
                     steer(pose, dwellPushPower());
@@ -419,6 +430,18 @@ public abstract class GrabRoutine {
             default:
                 break;
         }
+    }
+
+    /**
+     * Why the dwell ends this loop, for the log, or null while it goes on: the lane is full
+     * ({@code full}), then the cap ({@code capped}), then the intake current's answer
+     * ({@code currentDone}: "pieces in" after a spike, else "nothing came").
+     */
+    static String dwellEnd(boolean capped, boolean full, boolean currentDone, boolean sawSpike) {
+        if (full) return "full";
+        if (capped) return "dwellMs";
+        if (currentDone) return sawSpike ? "pieces in" : "nothing came";
+        return null;
     }
 
     /**

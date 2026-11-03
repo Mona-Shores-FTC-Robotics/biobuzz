@@ -608,8 +608,8 @@
         "Tip"
       ],
       "typicalS": {
-        "LaunchAll": 2,
-        "PickFlower": 4.5,
+        "LaunchAll": 4,
+        "PickFlower": 2.5,
         "GardenGather": 6,
         "LaunchOne": 0.5,
         "SpinUp": 0.1

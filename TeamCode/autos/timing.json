@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "facts": {
+    "driveSpeed": {
+      "value": 1.0,
+      "source": "measured, 20245 full robot, 1-2 Nov 2026",
+      "note": "Logged drive time against the drawing's planned time (the export's kit.path seconds). 2 Nov R-Quals (12.76 V): 0.98, 1.05 and 1.25x on its three drives; R-Simple's park 0.83x. 1 Nov R-Simple, 19 runs of one 3.1 s path: 0.88 to 1.11x, median 1.0. The 1.5 of 25 Oct was the light chassis."
+    },
+    "spinUpS": {
+      "value": 1.1,
+      "source": "measured, 20245, 1-2 Nov 2026",
+      "note": "Launcher from rest to at speed (1500-1625 ticks/s), 83 spin-ups: median 1.1 s, middle half 1.0-1.3, 0.9 to 2.1 (slowest on a sagging battery). The first LaunchAll at PLAY waited 0.94-1.36 s for it."
+    },
+    "volleyS": {
+      "value": 4.0,
+      "source": "measured, 20245, 1-2 Nov 2026",
+      "note": "LaunchAll after a drive, launcher at speed: the settle (0.17-0.66 s) and LaunchCards' set 3.5 s feed; 4.17 s in 2 Nov R-Quals. The last of four balls leaves 2.3-2.6 s after the gate opens (median 2.4, ten 1 Nov feeds read from the wheels' dip per ball)."
+    },
+    "intakeFullS": {
+      "value": 1.9,
+      "source": "estimate from 20245 logs, 29 Oct-2 Nov 2026",
+      "note": "Push start to full in a FLOWER pick. Last piece's current spike a median 1.5 s after the push started (1.2-1.9 middle half, 33 picks that took pieces); the one pick that filled the lane latched full 0.44 s after its last spike (1.43 s in). Time one full pick."
+    },
+    "tipStartS": {
+      "value": 0.6,
+      "source": "estimate",
+      "note": "No TIP after one of our volleys was seen by the camera in the 29 Oct-2 Nov logs. Flight about 0.5-0.7 s at 31-44 in, then the rocker moves."
+    },
+    "tipSwingS": {
+      "value": 0.7,
+      "source": "estimate",
+      "note": "Two camera-seen swings, both tipped by hand (1 Nov 23:16, 2 Nov 16:51 on 20245): 0.57 and 0.43 s from TRANSITION to settled. The camera sees a swing late, and a TIP on 8 POLLEN is not yet logged."
+    },
+    "tipLoad": {
+      "value": 8,
+      "source": "measured",
+      "note": "FIRST Event Field Setup Guide 12.3: an empty raised CELL tips on 8 POLLEN."
+    },
+    "startLoad": {
+      "value": 5,
+      "source": "measured",
+      "note": "Game manual: 3 NECTAR in the CELL raised at the start, so the 3rd POLLEN tips it."
+    },
+    "volleyLoad": {
+      "value": 4,
+      "source": "estimate",
+      "note": "4 POLLEN if every shot lands; lower it for misses."
+    }
+  }
+}
