@@ -204,6 +204,11 @@ robot to PARK by 30 s (mentor, 4 Nov 2026, quals and playoffs alike):
   last ball be out by 30 s, and nothing here plans on a TIP that finishes after 30 s. The robot then ends AUTO at the launch spot, off the walls,
   so LEAVE is kept. A step it cannot time (a block whose rows run their own steps, a wait with a
   command alongside) ends the look-ahead with no.
+- **No switch for a partner with no Auto.** If the partner does not move in AUTO, our AUTO PARK is
+  what makes SWARM (our LEAVE 3 + AUTO PARK 5 + both end-of-match parks 10 = 18; 13 without it).
+  When SWARM matters in that match, the drive team runs a short Auto that leaves and parks (a
+  nudge) instead of a scoring one; when it does not, the TIP-first guard as above. There is no INIT
+  option to make the guard protect the park (mentor, 4 Nov 2026).
 - **If not: can I do this, then still park from where it leaves me?** If not, the robot parks now,
   from the spot it is on. A wait or a launch that has not started feeding is cut when the park needs
   the time; a drive, a pick, a gather or a feed under way never is.
