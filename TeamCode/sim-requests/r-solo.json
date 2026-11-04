@@ -36,11 +36,27 @@
     {
       "name": "parks at 15 s",
       "partner": "PartnerPark1Auto"
+    },
+    {
+      "name": "last shot at 6 s",
+      "partner": "PartnerLLaunchParkAuto",
+      "lastShotS": 6
+    },
+    {
+      "name": "last shot at 10 s",
+      "partner": "PartnerLLaunchParkAuto",
+      "lastShotS": 10
+    },
+    {
+      "name": "misses, said 6 s",
+      "partner": "PartnerLLaunchParkAuto",
+      "lastShotS": 6,
+      "fails": "misses"
     }
   ],
   "metadata": {
     "AutoSource": "r-solo.pp",
-    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor; re-simulated with the out-of-the-way still and broken-down partners, #396; re-simulated to test that the workflow runs every changed request)",
-    "SavedAt": "2026-11-03T23:45:00+00:00"
+    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor; re-simulated with the out-of-the-way still and broken-down partners, #396; re-simulated to test that the workflow runs every changed request); partner-l-launch-park rows (on time 6 s and 10 s, misses said 6 s) for the LEFT-or-RIGHT decision before the 3rd launch (Claude, 4 Nov 2026)",
+    "SavedAt": "2026-11-04T11:31:00+00:00"
   }
 }
