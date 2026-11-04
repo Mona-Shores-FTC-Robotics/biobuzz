@@ -128,4 +128,34 @@ public class LauncherSetpointTest {
             }
         }
     }
+
+    /**
+     * {@code BIOBUZZ_SIM_SPOTS=1}: the share of shots that score at master's setpoint from each team spot an Auto
+     * launches from ({@code TeamCode/autos/spots.json}), at the CELL at its end of the field, with each one's range,
+     * the turret locked, beside what the ideal speed scores.
+     */
+    @Test
+    public void fromEachTeamSpot() {
+        if (System.getenv("BIOBUZZ_SIM_SPOTS") == null) return;
+        for (String name : new String[] {"RIGHT_START", "RIGHT_LAUNCH_OFFSET", "RIGHT_LAUNCH_CATCH", "LEFT_START",
+                "LEFT_LAUNCH_OFFSET", "LEFT_LAUNCH_CATCH"}) {
+            double[] spot = AutoSim.aimSpot(name);
+            HiveState state = spot[1] < FieldSim.CENTRE_IN ? HiveState.RIGHT_CELL_UP : HiveState.LEFT_CELL_UP;
+            FieldSim.Rocker r = new FieldSim.Rocker(org.firstinspires.ftc.teamcode.util.Alliance.RED, FieldSim.RED_HIVE_X_IN);
+            r.angle = r.angleFor(state);
+            double[] aim = r.aimPointFor(r.raisedEnd());
+            double range = Math.hypot(aim[0] - spot[0], aim[1] - spot[1]);
+            double at = scored(spot[0], spot[1], state, LauncherSubsystem.targetTicksPerSecond, RobotDesign.realLocked());
+            boolean before = FieldSim.idealSpeed;
+            FieldSim.idealSpeed = true;
+            double ideal;
+            try {
+                ideal = scored(spot[0], spot[1], state, LauncherSubsystem.targetTicksPerSecond, RobotDesign.realLocked());
+            } finally {
+                FieldSim.idealSpeed = before;
+            }
+            System.out.println(String.format(Locale.ROOT, "SPOT %s (%.1f, %.1f): %.0f in to the CELL, setpoint %.0f%%, ideal %.0f%%",
+                    name, spot[0], spot[1], range, 100 * at, 100 * ideal));
+        }
+    }
 }
