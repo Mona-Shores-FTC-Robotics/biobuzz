@@ -90,8 +90,11 @@ public class FeederSubsystem implements Subsystem {
     /**
      * Feeder wheel diameter, inches, for the surface speed. 71 mm, given by the mentor on 4 Nov 2026
      * (both robots' feeders are the same build); it replaced a 48 mm placeholder from
-     * {@code doc/transfer.md}'s design. The wheel is taken to be on the motor's output shaft
-     * (ratio 1): not checked yet.
+     * {@code doc/transfer.md}'s design. It matches the CAD of the wheel believed fitted, the
+     * "72/48 mm Gecko Wheel – Gripforce" (with or without hub): its fin tips reach 72 mm and most of
+     * its tread sits at 71 mm, 24 mm wide. A gecko presses in under load, so the speed it gives a
+     * ball is a little under this. The wheel is taken to be on the motor's output shaft (ratio 1):
+     * not checked yet.
      */
     public static double wheelDiameterInches = 71.0 / 25.4;
 
