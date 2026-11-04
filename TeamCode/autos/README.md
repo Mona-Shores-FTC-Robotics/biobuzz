@@ -22,6 +22,13 @@ Inside the Visualizer, the same list is **View → Team Autos: the latest from b
 (pick a branch, tick up to four Autos, Reload latest). A pull request's draft opens with its branch
 in the link: `#team=auto/r-solo/r-solo.pp`.
 
+**Drafts** (`drafts/`, Autos with no OpMode yet) are listed in Team Autos under their own heading, and
+open beside a partner stand-in the same way: R-Solo-Push with its pushed partner is
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-push.pp,partners/partner-push-start.pp>.
+Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `drafts/`, and the fast
+lane takes a `.pp` in `drafts/` or `partners/` (Visualizer
+[#67](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/pull/67) lists the drafts).
+
 **The polish loop.** Open the Auto from master, change it, **Save to GitHub and simulate…** under
 the same name: that makes or updates its `auto/<name>` branch and pull request, the simulator runs
 on it, and a mentor merges it once the robot has driven it. A change to a spot is **Save team
