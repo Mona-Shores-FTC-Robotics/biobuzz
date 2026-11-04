@@ -37,8 +37,7 @@ here waits until after the event.
    Autos (§7d "Then switch it on"), and RIGHT_START still scoring at its row. **Stop:** no speed
    scores → record the best and its hits; the fallback is moving the left launch spot to about
    50 in from the LEFT CELL (near (40, 130.5)), a team-spot change in the Visualizer.
-4. R-Solo five times or more, the rebuilt one (branch `claude/bold-ptolemy-aabda1` until it
-   merges): TIP 1 from the start, the wall FLOWER, then a CellUp check at LEFT_LAUNCH_OFFSET (at
+4. R-Solo five times or more, the rebuilt one (#439, on master): TIP 1 from the start, the wall FLOWER, then a CellUp check at LEFT_LAUNCH_OFFSET (at
    most 0.75 s). Up: LEFT volley, scoring FLOWER, LEFT volley (TIP 2), park RIGHT_PARK. Down:
    RIGHT_LAUNCH_OFFSET, fire, park. Count TIP 1, TIP 2 and the park on each run, and note when
    TIP 2's last ball leaves: the preview says about 27 s, and the check adds 0.6–1 s it does not
@@ -50,13 +49,13 @@ here waits until after the event.
 
 **Night 2: the partner Autos, 19429 as the partner if it is at the lab.**
 
-5. R-Partner-Preload, the rebuilt one: TIP 1, the wall FLOWER, wait there until 12 s on the match
+5. R-Partner-Preload, the rebuilt one (#439, #441): TIP 1, the wall FLOWER, wait there until 12 s on the match
    clock, then the same LEFT check. Up: LEFT volley (TIP 2 with the partner's 4), scoring FLOWER,
    park holding 4. Down: RIGHT, fire, park. Out of the partner's way about 24.5 s. 19429 as the
    partner, twice: parked by about 13 s, then waiting on its start until 26 s and parking (the
    match sheet's wording). **Good:** no contact, watched hardest near LEFT_LAUNCH_OFFSET and the
    scoring FLOWER. **Stop:** contact → note the match time and both poses; it is a Visualizer fix.
-   The 12 s wait shows as an advanced card in the Visualizer (its trigger, Empty, never fires there).
+   The 12 s wait is a plain "Wait until 12 s" step in the Visualizer (#441).
 6. R-Partner-Tip only if 19429 can do the whole left TIP; otherwise skip it.
 7. The push for R-Solo-Nudge, 15 min (§3 "push a powered-off robot"). Works → Nudge is in; not →
    the match sheet's row A stays R-Solo.
