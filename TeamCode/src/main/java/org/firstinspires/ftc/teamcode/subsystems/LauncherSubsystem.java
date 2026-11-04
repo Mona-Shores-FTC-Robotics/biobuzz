@@ -202,11 +202,22 @@ public class LauncherSubsystem implements Subsystem {
      * Flywheel revolutions per motor revolution (the module's belt), for the surface speed. NaN
      * until measured (count teeth, or mark the wheel and turn the motor by hand): the surface speed
      * shows as unknown rather than a guess.
+     *
+     * <p>The team's Onshape CAD does not give it (read 4 Nov 2026, document "Chassis concept 59
+     * tooth belt", assembly "Robot"). Its flywheel modules are "Assembly 3" (in "fixed wheel
+     * launcher") and "Launcher subassembly" (in both "Launcher Concept"s): a 16T HTD5 pulley on a
+     * 312 rpm motor (mate "Cylindrical 1") belted to a 42T or 41T on the wheel shaft, with the
+     * motor modelled as 312 rpm, not the 6000 rpm on the robot. Assembly 3's 22T HTD5 pulley has no
+     * mates, and no 18T is in the CAD, so the robot's 18T/22T stage is not modelled.
      */
     public static double beltRatio = Double.NaN;
 
-    /** Flywheel diameter, inches, for the surface speed. NaN until measured with calipers on the robot. */
-    public static double wheelDiameterInches = Double.NaN;
+    /**
+     * Flywheel diameter, inches, for the surface speed. 95 mm, given by the mentor on 4 Nov 2026
+     * (both robots' launchers are the same build). The surface speed stays unknown until
+     * {@link #beltRatio} is measured too.
+     */
+    public static double wheelDiameterInches = 95.0 / 25.4;
 
     /**
      * A wheel commanded for this long that still reads below {@link #encoderSilentTicksPerSecond}

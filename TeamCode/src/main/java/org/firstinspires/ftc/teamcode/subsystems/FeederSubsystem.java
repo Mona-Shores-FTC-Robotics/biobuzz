@@ -88,12 +88,27 @@ public class FeederSubsystem implements Subsystem {
     public static double ticksPerRev = 384.5;
 
     /**
-     * Feeder wheel diameter, inches, for the surface speed. <b>A placeholder from the design, not
-     * measured:</b> {@code doc/transfer.md} gives 48 mm gecko wheels. Measure with calipers on the
-     * robot and write it here with the robot and date. The wheel is taken to be on the motor's
-     * output shaft (ratio 1); check that too.
+     * Feeder wheel diameter, inches, for the surface speed. 71 mm, given by the mentor on 4 Nov 2026
+     * (both robots' feeders are the same build); it replaced a 48 mm placeholder from
+     * {@code doc/transfer.md}'s design. It matches the CAD of the wheel believed fitted, the
+     * "72/48 mm Gecko Wheel – Gripforce" (with or without hub): its fin tips reach 72 mm and most of
+     * its tread sits at 71 mm, 24 mm wide. A gecko presses in under load, so the speed it gives a
+     * ball is a little under this. The surface speed stays unknown until {@link #beltRatio} is
+     * measured too.
      */
-    public static double wheelDiameterInches = 48.0 / 25.4;
+    public static double wheelDiameterInches = 71.0 / 25.4;
+
+    /**
+     * Feeder wheel revolutions per motor revolution (its belt), for the surface speed. NaN until
+     * measured (count teeth, or mark the wheel and turn the motor by hand): the surface speed shows
+     * as unknown rather than a guess.
+     *
+     * <p>The team's Onshape CAD does not give it (read 4 Nov 2026, document "Chassis concept 59
+     * tooth belt", "Assembly 5" in "fixed wheel launcher"): it shows two 24T MOD 1 gears (1:1) and
+     * no pulley, while the mentor reports new pulleys on the robot's feeder, so the robot differs
+     * from the CAD here.
+     */
+    public static double beltRatio = Double.NaN;
 
     /**
      * Scale the power by {@link #nominalVolts} / battery (class comment, "The battery"), capped at
@@ -190,10 +205,10 @@ public class FeederSubsystem implements Subsystem {
     /**
      * The feeder wheel's surface speed, inches per second: comparable with the flywheels'
      * ({@code LauncherSubsystem.surfaceInchesPerSecond()}), as ticks per second are not. From
-     * {@link #wheelDiameterInches}, a placeholder until measured; NaN if that is unset.
+     * {@link #wheelDiameterInches} and {@link #beltRatio}; NaN until both are set.
      */
     public double surfaceInchesPerSecond() {
-        return WheelSpeed.surfaceInchesPerSecond(ticksPerSecond, ticksPerRev, 1.0, wheelDiameterInches);
+        return WheelSpeed.surfaceInchesPerSecond(ticksPerSecond, ticksPerRev, beltRatio, wheelDiameterInches);
     }
 
     /** {@link #ticksPerSecond()} in output-shaft RPM, or NaN until {@link #ticksPerRev} is set. */

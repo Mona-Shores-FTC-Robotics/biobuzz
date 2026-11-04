@@ -338,15 +338,20 @@ the same as `launcher_*` (graph `left_tps`, `right_tps`, `launch_target_tps`); t
 each spin-up and dip as an event, with the battery. Panels edits are lost on restart: write each
 number down as it is found. [branch claude/launcher-tuning]
 
-- [ ] **Measure the wheels**, for the surface speeds (in/s, the one unit that compares the feeder
-      with the flywheels; ticks/s do not). Calipers on the flywheel: `LauncherSubsystem.wheelDiameterInches`.
-      The flywheel module's belt (count teeth, or mark the wheel and turn the motor once by hand):
-      `LauncherSubsystem.beltRatio`, wheel revolutions per motor revolution. Calipers on the feeder
-      wheel: `FeederSubsystem.wheelDiameterInches` (a placeholder now, 48 mm from `doc/transfer.md`),
-      and check the feeder wheel is on the motor shaft (ratio 1). Read both motor labels: flywheels
-      believed goBILDA 5203 6000 rpm (28 ticks/rev), feeder 5203 435 rpm (384.5). **Good:** the
-      Launch Test page shows both surface speeds instead of "unknown". **Stop:** write the numbers
-      back with the robot and date.
+- [ ] **Measure the belt and check the motors**, for the surface speeds (in/s, the one unit that
+      compares the feeder with the flywheels; ticks/s do not). The wheel diameters are in (flywheels
+      95 mm, feeder 71 mm, from the mentor 4 Nov). The Onshape CAD was read for the ratios on 4 Nov
+      and does not give them: its flywheel modules are 16T→41/42T on a 312 rpm motor, the robot's
+      18T and 22T pulleys are not mated (22T) or not in it (18T), and its feeder is two 24T gears
+      with no pulley. So the robot measures them: for each of the flywheel module and the feeder,
+      which pulley is on the motor shaft, which on the wheel axle, and any second stage (count
+      teeth, or mark the wheel and turn the motor once by hand). Then `LauncherSubsystem.beltRatio`,
+      wheel revolutions per motor revolution (18T motor→22T wheel is 0.818, 22T→18T is 1.222); and
+      `FeederSubsystem.beltRatio` the same way (both NaN until measured, so both surface speeds show
+      "unknown"); and both motor labels (flywheels believed goBILDA 5203 6000 rpm, 28 ticks/rev;
+      feeder 5203 435 rpm, 384.5). **Good:** the Launch Test page shows the flywheels' and the
+      feeder's surface speeds instead of "unknown". **Stop:** write both ratios back with the robot
+      and date.
 - [ ] **Read the defaults.** Power-cycle the robot, start Bench: Launch Test with all four gains
       NaN. The page's "Velocity PIDF … at init P _ I _ D _ F _" line (and the log's Metadata,
       `Hardware/LauncherSubsystem`) is the hub's own. Write it down. Then stop, start the OpMode
