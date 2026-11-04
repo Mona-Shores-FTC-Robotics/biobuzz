@@ -347,10 +347,11 @@ number down as it is found. [branch claude/launcher-tuning]
       which pulley is on the motor shaft, which on the wheel axle, and any second stage (count
       teeth, or mark the wheel and turn the motor once by hand). Then `LauncherSubsystem.beltRatio`,
       wheel revolutions per motor revolution (18T motor→22T wheel is 0.818, 22T→18T is 1.222); and
-      for the feeder, ratio 1 in `FeederSubsystem.surfaceInchesPerSecond()` until shown otherwise; and
-      both motor labels (flywheels believed goBILDA 5203 6000 rpm, 28 ticks/rev; feeder 5203 435 rpm,
-      384.5). **Good:** the Launch Test page shows the flywheels' surface speed instead of "unknown".
-      **Stop:** write the ratio back with the robot and date.
+      `FeederSubsystem.beltRatio` the same way (both NaN until measured, so both surface speeds show
+      "unknown"); and both motor labels (flywheels believed goBILDA 5203 6000 rpm, 28 ticks/rev;
+      feeder 5203 435 rpm, 384.5). **Good:** the Launch Test page shows the flywheels' and the
+      feeder's surface speeds instead of "unknown". **Stop:** write both ratios back with the robot
+      and date.
 - [ ] **Read the defaults.** Power-cycle the robot, start Bench: Launch Test with all four gains
       NaN. The page's "Velocity PIDF … at init P _ I _ D _ F _" line (and the log's Metadata,
       `Hardware/LauncherSubsystem`) is the hub's own. Write it down. Then stop, start the OpMode
