@@ -20,7 +20,7 @@ public final class RSoloStagingAuto {
     public static final String SOURCE = "r-solo-staging.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-04|12:08AM";
+    public static final String SAVED = "11-04|12:25AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -61,12 +61,12 @@ public final class RSoloStagingAuto {
         Pose toPartnerStagedPollenControl1 = p.of(6.0953, 28.9943, 0);
         Pose toPartnerStagedPollenControl2 = p.of(55.5042, 127.4082, 0);
         Pose toPartnerStagedPollenControl3 = p.of(23.5976, 90.3959, 0);
-        Pose partnerStagedPollenParkStart = p.of(22.6, 131, 90);
+        Pose partnerStagedPollenParkControl1 = p.of(37.0026, 93.9973, 0);
         Pose gardenStagingParkControl1 = p.of(40.0038, 59.3001, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toPartnerStagedPollen = Paths.curve(rightStart, toPartnerStagedPollenControl1, toPartnerStagedPollenControl2, toPartnerStagedPollenControl3, partnerStagedPollen).linear(rightStart, partnerStagedPollen);
-        Path partnerStagedPollenPark = Paths.line(partnerStagedPollenParkStart, rightPark).linear(partnerStagedPollenParkStart, rightPark);
+        Path partnerStagedPollenPark = Paths.curve(partnerStagedPollen, partnerStagedPollenParkControl1, rightPark).linear(partnerStagedPollen, rightPark);
         Path toLeftLaunchOffset = Paths.line(partnerStagedPollen, leftLaunchOffset).linear(partnerStagedPollen, leftLaunchOffset);
         Path leftLaunchOffsetPark = Paths.line(leftLaunchOffset, rightPark).linear(leftLaunchOffset, rightPark);
         Path toScoringFlowerStaging = Paths.line(leftLaunchOffset, scoringFlowerStaging).linear(leftLaunchOffset, scoringFlowerStaging);
@@ -85,7 +85,7 @@ public final class RSoloStagingAuto {
                 kit.guarded("Auto", toRightPark, 2.7,
                         kit.command("SpinUp"),
                         kit.command("LaunchAll"),
-                        kit.path("to PARTNER_STAGED_POLLEN", toPartnerStagedPollen, 3.7, partnerStagedPollenPark, 1.8),
+                        kit.path("to PARTNER_STAGED_POLLEN", toPartnerStagedPollen, 3.7, partnerStagedPollenPark, 2),
                         kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 1.4, leftLaunchOffsetPark, 1.8),
                         kit.command("LaunchAll"),
                         kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1, scoringFlowerStagingPark, 1.8),
