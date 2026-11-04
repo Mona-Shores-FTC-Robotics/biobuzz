@@ -196,6 +196,8 @@ public class AutoStudyTest {
         double lastShotS = Double.NaN;
         /** The partner fails: "misses" (every shot wide), or null (it works). A dead partner is a still stand-in. */
         String fails;
+        /** The partner can be pushed ({@code "pushable": true}, {@link AutoSim#pushable}): a robot with no Auto we move. */
+        boolean pushable;
         /** What {@link #derive} worked out from {@link #lastShotS}: the start delay and seconds per volley; NaN: none. */
         double derivedStartDelayS = Double.NaN;
         double derivedLaunchS = Double.NaN;
@@ -221,7 +223,11 @@ public class AutoStudyTest {
         static PartnerTiming of(java.util.Map<String, Object> json, java.util.Map<String, Object> entry) {
             PartnerTiming t = new PartnerTiming();
             if (entry != null) {
-                Object last = entry.get("lastShotS"), fails = entry.get("fails");
+                Object last = entry.get("lastShotS"), fails = entry.get("fails"), pushable = entry.get("pushable");
+                if (pushable != null) {
+                    if (!(pushable instanceof Boolean)) throw new IllegalArgumentException("pushable is true or false: " + pushable);
+                    t.pushable = (Boolean) pushable;
+                }
                 if (last != null) {
                     if (!(last instanceof Number)) throw new IllegalArgumentException("lastShotS must be a number of seconds: " + last);
                     t.lastShotS = nonNegative("lastShotS", ((Number) last).doubleValue());
@@ -261,7 +267,7 @@ public class AutoStudyTest {
 
         boolean isDefault() {
             return startDelayS <= 0 && speed == null && Double.isNaN(launchS) && Double.isNaN(pickS)
-                    && Double.isNaN(lastShotS) && fails == null;
+                    && Double.isNaN(lastShotS) && fails == null && !pushable;
         }
 
         /**
@@ -315,6 +321,7 @@ public class AutoStudyTest {
             if (!Double.isNaN(launch)) sim.launchSeconds(launch);
             if (!Double.isNaN(pickS)) sim.pickSeconds(pickS);
             if ("misses".equals(fails)) sim.misses();
+            if (pushable) sim.pushable();
         }
 
         /** The knobs in words, for a folder name or a table: {@code start3s-speed40-launch3.5s}; "default" with none. */
@@ -322,6 +329,7 @@ public class AutoStudyTest {
             StringBuilder b = new StringBuilder();
             if (!Double.isNaN(lastShotS)) b.append("last").append(num(lastShotS)).append("s");
             if (fails != null) b.append(b.length() > 0 ? "-" : "").append(fails);
+            if (pushable) b.append(b.length() > 0 ? "-" : "").append("pushable");
             if (startDelayS > 0) b.append(b.length() > 0 ? "-" : "");
             if (startDelayS > 0) b.append("start").append(num(startDelayS)).append("s");
             if (speed != null) b.append(b.length() > 0 ? "-" : "").append("speed").append(speed.replace('/', '_'));

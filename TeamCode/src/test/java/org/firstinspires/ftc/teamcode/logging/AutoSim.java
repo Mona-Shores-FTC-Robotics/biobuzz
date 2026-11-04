@@ -167,6 +167,13 @@ public final class AutoSim {
     static final double CAMERA_RANGE_IN = 60;
     /** A start pose's frame corner this near the perimeter counts as touching the wall. */
     static final double START_WALL_IN = 1.0;
+    /**
+     * How fast a robot pushes a {@link #pushable} one, as a share of the speed its path asks for: the extra load of a
+     * powered-off robot on the tiles. A placeholder (4 Nov 2026) until the robot check in doc/robot-todo.md times a push.
+     */
+    static final double PUSH_SPEED_FRACTION = 0.5;
+    /** Each step of {@link Bot#shove}: how far the pushed robot is moved at a time until the two no longer overlap. */
+    static final double PUSH_STEP_IN = 0.05;
 
     /** CollectSeen stays off the walls this long before AUTO ends, so it never costs LEAVE. */
     static final double WALL_CLEAR_S = 1.5;
@@ -228,6 +235,12 @@ public final class AutoSim {
         double hitFlowerAt = Double.NaN;
         /** When the robot's outline first reached through a field wall by more than {@link #WALL_SLACK_IN}; NaN if never. */
         double hitWallAt = Double.NaN;
+        /** A {@link #pushable} robot: how far it was pushed in all, in, and when the push started and last moved it; NaN if never. */
+        double pushedIn;
+        double pushStartedAt = Double.NaN;
+        double pushEndedAt = Double.NaN;
+        /** A robot that pushed one: the seconds it spent pushing, slowed to {@link #PUSH_SPEED_FRACTION}. */
+        double pushingS;
 
         /** The alliance this robot played for: ours, or the opponents' ({@link #alsoRunOpponent}). */
         Alliance alliance;
@@ -248,7 +261,10 @@ public final class AutoSim {
                             + (Double.isNaN(hitFlowerAt) ? ""
                             : String.format(Locale.ROOT, ", DRIVES INTO A FLOWER at %.1f s", hitFlowerAt))
                             + (Double.isNaN(hitWallAt) ? ""
-                            : String.format(Locale.ROOT, ", DRIVES INTO A WALL at %.1f s", hitWallAt)));
+                            : String.format(Locale.ROOT, ", DRIVES INTO A WALL at %.1f s", hitWallAt))
+                            + (Double.isNaN(pushStartedAt) ? ""
+                            : String.format(Locale.ROOT, ", pushed %.1f in from %.1f to %.1f s", pushedIn, pushStartedAt, pushEndedAt))
+                            + (pushingS <= 0 ? "" : String.format(Locale.ROOT, ", pushing for %.1f s", pushingS)));
         }
     }
 
@@ -533,6 +549,22 @@ public final class AutoSim {
      */
     AutoSim partnerWaitUntil(double matchSeconds) {
         configuring.partnerWaitUntilS = matchSeconds;
+        return this;
+    }
+
+    /**
+     * This robot can be pushed (a partner with no Auto, or one that cannot move; {@code "pushable": true} in a simulate
+     * request's partner entry). While it is not driving a path, a robot of its alliance that drives into it moves it
+     * along with itself instead of overlapping it, and is slowed to {@link #PUSH_SPEED_FRACTION} of its path's speed
+     * while they touch. Only translation: the pushed robot keeps its heading (a real one turns when pushed off centre),
+     * it slides with no friction of its own beyond that slowdown, and a wall stops it (pinned there, the two overlap
+     * and the run reports a collision). Off by default: an overlap is a collision, as it always was. Since it is judged
+     * for LEAVE and AUTO PARK where it ends up, a push off the wall and into the LOADING ZONE scores both. LEAVE is
+     * ruled: Q&A Q28 (19 Oct 2026), "regardless of how it gets there (so long as no rules are violated)". PARK for a
+     * pushed robot is not asked yet; the same reasoning reads the same way.
+     */
+    AutoSim pushable() {
+        configuring.pushable = true;
         return this;
     }
 
@@ -1166,6 +1198,13 @@ public final class AutoSim {
         double partnerWaitUntilS = Double.NaN;
         /** This fire step has said it fires at a down CELL. */
         boolean downCellReported;
+        /** It can be pushed ({@link AutoSim#pushable}); whether a robot moved it last step. */
+        boolean pushable;
+        boolean pushedLastStep;
+        /** Where it was before this step's drive (x, y, heading): how far a pushing robot moved; null before the first. */
+        double[] before;
+        /** Its own account in the result, set at {@link #start}. */
+        RobotResult own;
         /** Whether the Auto has been scheduled: at PLAY, or {@link #startDelayS} after it. */
         boolean started;
         /** CollectSeen's x range, drawn for RED; null for anywhere. */
@@ -1225,6 +1264,7 @@ public final class AutoSim {
         }
 
         void start(WpiLog log, RobotResult result) throws IOException {
+            own = result;
             body = index == 0 ? sim.main : sim.addBot();
             body.design = design;
             if (stagedPreloads == null) {
@@ -1473,6 +1513,8 @@ public final class AutoSim {
         }
 
         void move(WpiLog log, RobotResult result, boolean running, long step, long us) throws IOException {
+            before = pedro(drive.pose);
+            if (pushable) shove(log, running, us);
             drive.tick(now);
             double[] pose = pedro(drive.pose);
             double vx = (pose[0] - prev[0]) / LOOP_S, vy = (pose[1] - prev[1]) / LOOP_S;
@@ -1923,6 +1965,68 @@ public final class AutoSim {
             log.put(keyPrefix + "/Launcher/Spinning", false, us);
             log.put(keyPrefix + "/Intake/On", false, us);
             log.putPose3dArray(keyPrefix + "/Intake/Zone", new double[0], us);
+        }
+
+        /**
+         * A {@link #pushable} robot that is not driving, overlapped by a robot of its alliance that has already moved this
+         * step: moved along that robot's step (or away from its centre, if it only turned) until they no longer overlap,
+         * kept inside the field, and the pusher slowed for its next step ({@link AutoSim#PUSH_SPEED_FRACTION}).
+         */
+        private void shove(WpiLog log, boolean running, long us) throws IOException {
+            boolean pushedNow = false;
+            if (running && drive.current == null) {
+                for (Bot o : bots) {
+                    if (o == this || o.alliance != alliance || o.pushable || o.before == null || o.index > index) continue;
+                    if (!overlap(o, this)) continue;
+                    double[] at = pedro(o.drive.pose), me = pedro(drive.pose);
+                    double dx = at[0] - o.before[0], dy = at[1] - o.before[1], step = Math.hypot(dx, dy);
+                    if (step < 1e-6) {
+                        dx = me[0] - at[0];
+                        dy = me[1] - at[1];
+                        step = Math.hypot(dx, dy);
+                        if (step < 1e-6) continue;
+                    }
+                    double ux = dx / step, uy = dy / step, limit = Math.max(step, 0.5) + 1;
+                    Pose from = drive.pose;
+                    for (double moved = 0; moved < limit && overlap(o, this); moved += PUSH_STEP_IN) {
+                        Pose p = drive.pose;
+                        drive.pose = new Pose(p.x() + ux * PUSH_STEP_IN, p.y() + uy * PUSH_STEP_IN, p.heading());
+                    }
+                    // A wall stops it: whatever reaches past one comes back, and a pinned robot stays overlapped.
+                    double[] q = pedro(drive.pose);
+                    double minX = Double.MAX_VALUE, maxX = -Double.MAX_VALUE, minY = Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
+                    for (double[] c : corners(q, design)) {
+                        minX = Math.min(minX, c[0]);
+                        maxX = Math.max(maxX, c[0]);
+                        minY = Math.min(minY, c[1]);
+                        maxY = Math.max(maxY, c[1]);
+                    }
+                    double backX = minX < 0 ? -minX : maxX > FieldSim.FIELD_SIZE_IN ? FieldSim.FIELD_SIZE_IN - maxX : 0;
+                    double backY = minY < 0 ? -minY : maxY > FieldSim.FIELD_SIZE_IN ? FieldSim.FIELD_SIZE_IN - maxY : 0;
+                    drive.pose = new Pose(q[0] + backX, q[1] + backY, q[2]);
+                    double moved = Math.hypot(drive.pose.x() - from.x(), drive.pose.y() - from.y());
+                    if (moved <= 0) continue;
+                    pushedNow = true;
+                    own.pushedIn += moved;
+                    own.pushEndedAt = now;
+                    o.own.pushingS += LOOP_S;
+                    o.drive.slow(LOOP_S * (1 - PUSH_SPEED_FRACTION));
+                    if (!pushedLastStep) {
+                        if (Double.isNaN(own.pushStartedAt)) own.pushStartedAt = now;
+                        String line = String.format(Locale.ROOT, "%5.2f pushed by robot %d (%s), from (%.1f, %.1f)",
+                                now, o.index + 1, o.alliance, from.x(), from.y());
+                        own.timeline.add(line);
+                        o.own.timeline.add(String.format(Locale.ROOT, "%5.2f pushes robot %d (%s) at (%.1f, %.1f)",
+                                now, index + 1, alliance, from.x(), from.y()));
+                        log.putEvent(tag() + "pushed by robot " + (o.index + 1), us);
+                    }
+                }
+            }
+            if (pushedLastStep && !pushedNow) {
+                own.timeline.add(String.format(Locale.ROOT, "%5.2f the push ends at (%.1f, %.1f): moved %.1f in since %.2f s",
+                        now, drive.pose.x(), drive.pose.y(), own.pushedIn, own.pushStartedAt));
+            }
+            pushedLastStep = pushedNow;
         }
 
         /** LEAVE and AUTO PARK, from where the robot is as AUTO ends. */
@@ -2686,6 +2790,13 @@ public final class AutoSim {
         static final double FIRE_SPEED_IN_PER_S = 6.0;
         private double entrySpeed;
         private double speedNow;
+        /** Seconds of the current path's profile lost to pushing a robot ({@link #slow}): the profile runs that much behind. */
+        private double lostS;
+
+        /** Holds the profile back by {@code seconds}: a robot pushing another moves slower than its path asks. */
+        void slow(double seconds) {
+            if (current != null) lostS += seconds;
+        }
         private double dirX, dirY;
 
         @Override
@@ -2697,6 +2808,7 @@ public final class AutoSim {
             entrySpeed = Math.max(0, speedNow * along);
             current = path;
             startedAt = Double.NaN; // starts on the next tick
+            lostS = 0;
             length = path.curve.length();
             // A path that starts away from the robot (the endgame guard's park, cut in early): the
             // follower drives to it first, rather than jumping.
@@ -2746,7 +2858,7 @@ public final class AutoSim {
             }
             if (Double.isNaN(startedAt)) startedAt = now;
             double total = leadIn + length;
-            double s = distanceAt(now - startedAt, total, maxSpeed, accel, decel, entrySpeed);
+            double s = distanceAt(now - startedAt - lostS, total, maxSpeed, accel, decel, entrySpeed);
             double px = pose.x(), py = pose.y();
             // The profile's last step lands on the length only to rounding: finish within a micro-inch.
             boolean arrived = s >= total - 1e-6;

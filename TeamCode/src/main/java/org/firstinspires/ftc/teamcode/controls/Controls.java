@@ -33,12 +33,13 @@ public final class Controls {
     }
 
     /**
-     * As above, leaving the turret's controls out when {@code turretLocked}
-     * ({@link ControlScheme#layout(Input, boolean)}): the match TeleOp's layout.
+     * As above, leaving the turret's controls out when {@code turretLocked} and the go-to-launch-spot
+     * button out unless {@code launchSpot} ({@link ControlScheme#layout(Input, boolean, boolean)}):
+     * the match TeleOp's layout.
      */
-    public Controls(Input flowerPick, boolean turretLocked, Gamepad driverPad, Gamepad operatorPad,
-                    Bindings driver, Bindings operator) {
-        this(ControlScheme.layout(flowerPick, turretLocked), driverPad, operatorPad, driver, operator);
+    public Controls(Input flowerPick, boolean turretLocked, boolean launchSpot, Gamepad driverPad,
+                    Gamepad operatorPad, Bindings driver, Bindings operator) {
+        this(ControlScheme.layout(flowerPick, turretLocked, launchSpot), driverPad, operatorPad, driver, operator);
     }
 
     private Controls(Map<Action, Input> layout, Gamepad driverPad, Gamepad operatorPad,

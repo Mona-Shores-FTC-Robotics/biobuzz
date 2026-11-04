@@ -155,6 +155,20 @@ These gate Belding. Run each from its start, alliance from §2.
       [PR #313]
 - [ ] **A launch's time limit never cuts a feed;** the Auto graphs the launcher in Panels. **Good:**
       every launch feeds its full `LaunchCards` time; launcher graph live. [PR #333], [PR #334]
+- [ ] **Push a powered-off robot (draft R-Solo-Push), first by hand.** A second robot (19429, or any
+      chassis about a robot's weight), powered off, back on the red alliance wall centred on tile A4,
+      facing the field (`PARTNER_PUSH_START`, 8.1, 82.5). 20245 in Basic Drive holding 4 POLLEN, its
+      **back** against the partner's south side, its left edge about 2.4 in off the wall: push about
+      10 in north, drifting a few inches away from the wall (the draft goes 12 in north, 3.5 in out).
+      **Good:** the partner ends off the wall (a sheet of paper slides behind it) and over the LOADING
+      ZONE tape, our 4 pieces stay where they were (no jam, none pushed out), the push holds a steady
+      speed. **Record:** the push's speed against an unloaded drive (the simulator assumes half,
+      `AutoSim.PUSH_SPEED_FRACTION`), whether the partner turns, how far it slid out. **Stop:** it
+      stays on the wall → more drift (`PARTNER_PUSH_END` further out), or ask the partner to start
+      with its side on the wall facing the zone so its wheels roll forward; our pieces move → try a
+      side face and note which. Then, if it worked, the draft at speed with a temporary OpMode on a
+      scratch branch: TIP 2 before 30 s, the partner LEAVE and PARK by eye, our robot clear of the
+      partner and the HIVE leg on the way north. [PR #427]
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
@@ -186,6 +200,14 @@ measurement is [#255].
 - [ ] **GARDEN into the corner,** driver Triangle near the red GARDEN, three times. **Good:** pressed
       into both walls, intake in the corner; note the `towardWallIn` that works (0 = off).
       [S4 §6], [PR #279]
+- [ ] **Drive speeds, the drivers' call:** Basic Drive, a few minutes each driver: normal, then
+      hold L1 (slow) to line up on a FLOWER, then R1 (turbo) across the field, diagonals included.
+      New defaults normal 0.7 / slow 0.25 / turbo 1.0, and each mode now caps the wheels, so it is
+      that fraction of turbo in every direction (before, 0.8 on a diagonal was already full power).
+      Change them live in Panels → TeleOpConfig if they ask. **Good:** each mode feels different and
+      the drivers name the values they keep; write those in `TeleOpConfig`, pull the log. **Stop:**
+      normal too slow for everyday driving → raise it in steps of 0.05, checking turbo still feels
+      clearly faster after each; with the cap, normal is now exactly its share of turbo. [PR #425]
 
 ## 5. Pose and camera (Basic Drive / Vision: HIVE & Pose)
 
@@ -204,6 +226,35 @@ measurement is [#255].
       match-length drive and note `shadow_offset_in`. [PR #361]
 - [ ] **Panels drawing:** X then B in INIT turns the outline blue → red; each FieldLayers switch
       shows and hides its robot. [PR #356], [PR #307]
+- [ ] **Go to launch spot (driver Square, hold) vs chassis aim (Circle):** pose set (corner or
+      camera reset), the drivers try both from around the field over a practice, firing from where
+      each leaves them. It goes to the nearest of six spots (the two starts and the four
+      CATCH/OFFSET spots); press it once near each start: it stops `LaunchSpotDrive.startOffWallIn`
+      (3) off the wall, aimed at the CELL. From beside the HIVE, watch the straight path's clearance
+      from the frame (let go if it heads for a leg). **Good:** arrives aimed (`launch spot: arrived
+      … in N s, X in and Y° off`), shots land, never touches the wall; the drivers say which they
+      prefer. Compare the match log's `launch spot:` events with its `chassis aim:` ones.
+      **Stop:** it refuses with the pose set, or clips the HIVE or the wall →
+      `TeleOpConfig.launchSpot` off and note where. [PR #423]
+- [ ] **Square also fires (`TeleOpConfig.goToSpotAlsoFires`, on):** loaded, hold Square from
+      15–30 in off a spot; then press operator FIRE during a press; then let go mid-feed; then
+      operator launcher toggle to idle mid-press. **Good:** launcher spins up as it drives, one
+      volley once there (`launch spot: gate open … at speed, settled`), all four leave; the end line
+      says `fired by button`, shots counted ≈ 4; FIRE takes the shot (`fired by … operator`); let go
+      stops the feeder at once; an idled launcher stays idle. **Stop:** it feeds before it is
+      aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+- [ ] **Every press is a drift sample:** across a practice, pull the logs and read each press's
+      `launch spot: drift at …` line (camera − odometry at a known spot, settled, never applied) and
+      its `CELL N in` range beside the shots it fired. **Good:** gaps stay under
+      `TeleOpConfig.spotDriftWarnIn` (3, not measured) through a 2-minute TeleOp, and the range/shot
+      pairs add to #80's speed-vs-distance table beside §7c's bench rows. **Stop:** gaps grow
+      over the match → the evidence for TeleOp relocalization; set `spotDriftWarnIn` from what the
+      drivers can act on. [PR #423]
+- [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
+      view now and then; read `/Drift/GapXIn` and `/Drift/GapYIn` (camera minus odometry) over the
+      run. **Good:** the gap stays within a few inches, so a launch spot driven late in the match is
+      where it was early. **Stop:** it grows steadily → the launch-spot button needs a camera reset
+      first; note the rate. [PR #423]
 
 ## 6. Tape measure and level (camera geometry)
 
@@ -229,6 +280,39 @@ measurement is [#255].
 - [ ] **Its log lands in its own folder** after a pull (`biobuzz-logs\<19429's network>`). [S2 §8]
 - [ ] **Copy 20245's Limelight pipeline** and run the 5-minute start check. [handoff] step 6
 - [ ] **Drive check table** (10 steps), on both robots. [#62]
+
+## 7b. Bench: Wall Eject (any field wall, 4 POLLEN, phone filming from above)
+
+Can an L robot set its preloads down against a wall, to collect later? Film every trial; the log
+has each trial's settings and measured back-up.
+
+- [ ] **Run Bench: Wall Eject** (Utility menu): intake against the wall, Cross runs one trial
+      (backs off 1.5 in, ejects at roller 0.3 / stars 0.3 for 2.5 s, feeder backing out too). Try
+      roller 0.2–0.5 (D-pad ▲▼), back-up 1–2 in (◀▶), feeder off (Square). **Good:** all four
+      rest at the wall within one robot width, none rolled more than a few inches. **Stop:** after
+      about 10 trials; note the best settings and whether they sat four wide or in a line.
+      [this branch, claude/quirky-allen-etn5xp]
+- [ ] **Then drive through them** with the intake on (Basic Drive) from the side and head-on.
+      **Good:** 4 of 4 collected in one pass. **Stop:** record how many of 4, over 5 tries.
+
+## 7c. Launcher distances (Bench: Launch Test, HIVE upright, phone filming the HIVE)
+
+One `LauncherSubsystem.targetTicksPerSecond` (1595) serves every distance today; on 4 Nov it went
+4/4 from 50 in (RIGHT_START) and long at 41 in on the third volley (LEFT_LAUNCH_OFFSET). These rows
+start #80's speed-vs-distance table. Count hits out of 12 on video at each speed.
+
+- [ ] **41 in, LEFT_LAUNCH_OFFSET** at the raised LEFT CELL: 1450, 1500, 1550, 1595 ticks/s.
+      **Good:** a speed that drops balls mid-CELL, 11/12 or better. **Stop:** record hits per speed.
+      [4 Nov log review, this branch]
+- [ ] **50 in, RIGHT_START** at the RIGHT CELL: 1550–1650. **Good:** 1595 confirmed centred, or the
+      speed that is. **Stop:** as above.
+- [ ] **Long corner shot near the GARDEN** (about (15, 15), ~60 in to the RIGHT CELL, facing ~45°):
+      an option when the CELL's front is crowded. Try 1650–1800. **Good:** 9/12 or better, then it
+      becomes a team spot and one `LaunchSpots.Spot` constant, so the launch-spot button can go
+      there [PR #423]. **Stop:** record hits per speed, or "out of range". [mentor, 4 Nov]
+- [ ] **Launcher overshoot after a dip**: wheels reached ~1680 against 1595 (±60) on 4 Nov, holding
+      "at speed" false ~0.7 s before each later volley. **Good:** back within tolerance in under
+      0.3 s after a dip (Bench: Launcher graphs). [4 Nov log review]
 
 ## 8. If time: anyone, no driving
 
@@ -397,6 +481,9 @@ one test at one meeting.
 [PR #384]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/384
 [PR #387]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/387
 [PR #391]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/391
+[PR #423]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/423
+[PR #425]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/425
+[PR #427]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/427
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#429]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/429
