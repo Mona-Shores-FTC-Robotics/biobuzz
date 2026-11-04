@@ -57,7 +57,9 @@ import java.util.function.Function;
  *
  * <p>{@code SpinUp}, {@code LaunchAll}, {@code LaunchOne} and {@code Empty} are real since the
  * launcher and feeder landed (#194): see {@link LaunchCards}, including what {@code Empty} means
- * without a piece sensor.
+ * without a piece sensor. {@code LaunchAll} has an approach too ({@link LaunchCards#approach()}): the
+ * path card right before it opens the gate in the last few inches once the robot is aimed and the
+ * launcher at speed, so the card only finishes the feed.
  *
  * <h2>LeftCellUp and RightCellUp</h2>
  *
@@ -192,7 +194,8 @@ public final class AutoRegistration {
                 .holdTimeLimitsWhile(() -> launch != null && launch.feeding())
                 // ---- real: the launcher and the feeder. Typical seconds are what the editor's
                 // preview shows; the feed times themselves are LaunchCards' Panels numbers.
-                .command("LaunchAll", LAUNCH_ALL_TYPICAL_S, () -> launch.launchAll())
+                .command("LaunchAll", LAUNCH_ALL_TYPICAL_S, () -> launch.launchAll(),
+                        launch == null ? null : launch.approach())
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at

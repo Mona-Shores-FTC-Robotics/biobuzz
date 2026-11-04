@@ -34,9 +34,11 @@ public class PathEndSettleTest {
     @After
     public void defaults() {
         PathEndSettle.aimToleranceDeg = 3.0;
-        PathEndSettle.stillSpeedInPerSec = 2.0;
+        PathEndSettle.slowSpeedInPerSec = 6.0;
         PathEndSettle.stillTurnDegPerSec = 5.0;
         PathEndSettle.maxSettleWaitS = 1.0;
+        PathEndSettle.launchWithinIn = 6.0;
+        PathEndSettle.launchTurnDegPerSec = 30.0;
     }
 
     @Before
@@ -61,7 +63,7 @@ public class PathEndSettleTest {
     }
 
     @Test
-    public void beforeAnyPathOnlyStillnessCounts() {
+    public void beforeAnyPathOnlySlowingCounts() {
         pose = new Pose(0, 0, Math.toRadians(45));
         assertTrue(settle.settled());
         speed = 10;
@@ -90,13 +92,20 @@ public class PathEndSettleTest {
         assertTrue(settle.settled());
     }
 
+    /**
+     * Aimed and slowing, not still (mentor, 4 Nov 2026): braking into the end at a few in/s is
+     * settled; still rolling at the hand-over's 10 in/s or more is not, nor is turning.
+     */
     @Test
-    public void movingOrTurningIsNotSettled() {
+    public void aimedAndSlowingIsSettledButRollingOrTurningIsNot() {
         Path path = pathEndingAt(0);
         settle.pathStarted(path);
         pose = new Pose(100, 0, 0);
-        speed = 3;
-        assertFalse("overshooting, 5 in past the point on 25 Oct", settle.settled());
+        settle.pathEnded(path);
+        speed = 10;
+        assertFalse("still rolling at Pedro's path end", settle.settled());
+        speed = 4;
+        assertTrue("braking into the end, aimed: was not settled under the old 2 in/s", settle.settled());
         speed = 0;
         turn = Math.toRadians(10);
         assertFalse(settle.settled());
@@ -111,7 +120,7 @@ public class PathEndSettleTest {
         pose = new Pose(100, 0, 0);
         speed = 50;
         PathEndSettle.aimToleranceDeg = Double.NaN;
-        PathEndSettle.stillSpeedInPerSec = 0;
+        PathEndSettle.slowSpeedInPerSec = 0;
         assertTrue(settle.settled());
     }
 
@@ -139,6 +148,41 @@ public class PathEndSettleTest {
         assertTrue(events.get(1), events.get(1).startsWith("settled 0.60 s after path end (100.0, 0.0, 180°)"));
         settle.update();
         assertEquals("one settle event per path end", 2, events.size());
+    }
+
+    // --------------------------------------------------------- on the approach
+
+    /** 4 Nov 2026: within 1.2° and 0.35 in at the path end, at about 10 in/s: ready on the approach. */
+    @Test
+    public void readyOnTheApproachWhenCloseAndAimedWhateverTheSpeed() {
+        Pose end = new Pose(100, 0, Math.toRadians(90));
+        speed = 10;
+        assertTrue(settle.readyOnApproach(end, new Pose(96, 0, Math.toRadians(91.2)), 4.0));
+        assertFalse("too far out", settle.readyOnApproach(end, new Pose(90, 0, Math.toRadians(90)), 10.0));
+        assertFalse("not aimed", settle.readyOnApproach(end, new Pose(96, 0, Math.toRadians(80)), 4.0));
+    }
+
+    /** The late turn from SCORING_FLOWER_STAGING swung through the end heading at about 200°/s. */
+    @Test
+    public void aLateTurnSwingingThroughTheEndHeadingIsNotReady() {
+        Pose end = new Pose(100, 0, Math.toRadians(296));
+        turn = Math.toRadians(200);
+        assertFalse(settle.readyOnApproach(end, new Pose(99, 0, Math.toRadians(295)), 1.0));
+        turn = Math.toRadians(10);
+        assertTrue(settle.readyOnApproach(end, new Pose(99, 0, Math.toRadians(295)), 1.0));
+    }
+
+    /** A bad distance turns launching on the approach off, never on everywhere. */
+    @Test
+    public void aBadDistanceNeverLaunchesOnTheApproach() {
+        Pose end = new Pose(100, 0, 0);
+        for (double bad : new double[] {0, -1, Double.NaN}) {
+            PathEndSettle.launchWithinIn = bad;
+            assertFalse("launchWithinIn " + bad, settle.readyOnApproach(end, new Pose(100, 0, 0), 0.0));
+        }
+        PathEndSettle.launchWithinIn = 6.0;
+        assertFalse("no end", settle.readyOnApproach(null, new Pose(100, 0, 0), 0.0));
+        assertFalse("NaN distance", settle.readyOnApproach(end, new Pose(100, 0, 0), Double.NaN));
     }
 
     @Test

@@ -973,16 +973,21 @@ calls. There are three kinds of card and one branching block:
 says so, which on the robot is Pedro's parametric end: the Follower switches to holding the end pose
 and brakes, and the robot is still rolling (10 to 24 in/s at the hand-over in the 29 Oct to 2 Nov
 2026 logs, under 8 in/s 0.1 to 0.2 s later, under 2 in/s 0.1 to 0.5 s later). The kit adds no
-settle of its own. A launch card waits for `PathEndSettle` (still, and aimed). A grab waits for its
+settle of its own. A `LaunchAll` right after a path opens the gate on the approach (below); failing
+that, a launch card waits for `PathEndSettle`: aimed at the end heading and slowing under
+`slowSpeedInPerSec` (6 in/s), not still (under 2 in/s until 4 Nov 2026). A grab waits for its
 own hand-over speed, `settledInPerSec` in `FlowerPicker` and `GardenGather` (8 in/s since 3 Nov 2026,
 from 2): a pick squares up on its own and ends on contact, a gather ends on the wall, so neither
 needs the robot still (mentor, 3 Nov 2026). Before that, the whole 0.7 s between a drive's end and
 the push was the stick's `stickDownMs`, since the stick went down only when the pick card started.
 
-**A path card before a grab runs the grab's approach.** `AutoRegistry.Approach` is what a grab does
-on the drive in to it. `sequence`, `guarded` and a `firstOf` row's cards pair each path card with the
-grab card right after it; while the path drives, the kit tells the approach where the robot is and
-how far it has to go, and cancels it if the guard refuses the grab. `FlowerPicker.approach` lowers
+**A path card before a command runs the command's approach.** `AutoRegistry.Approach` is what a
+command does on the drive in to it (a grab or a plain command; registered with
+`AutoRegistry.grab(..., approach)` or `command(..., approach)`). `sequence`, `guarded` and a
+`firstOf` row's cards pair each path card with the command card right after it; while the path
+drives, the kit tells the approach where the robot is and how far it has to go. It cancels the
+approach if the path is cut short, if the guard refuses the command or parks instead of starting
+it, or if another path starts first. `FlowerPicker.approach` lowers
 the stick and starts the intake over the last `lowerWithinIn` (18 in) of the drive, for the FLOWER
 the pick will go for from the drive's end; the pick then counts its stick time from when the stick
 was asked out (`FlowerStickSubsystem.extendedSinceNs`, `GrabRoutine.readySinceNs`), so the wait is
@@ -991,6 +996,19 @@ the whole pick, which works on its own from the button. Merging the drive into t
 drive at the contact standoff) was considered and rejected: the pick would no longer be a unit that
 works in isolation. `GardenGather` has no approach yet: its stick came down on the wall when swung
 early in the corner (30 Oct 2026).
+
+**A `LaunchAll` after a path launches on the approach**, as a good TeleOp driver does (mentor,
+4 Nov 2026). `LaunchCards.approach()` opens the gate once three things hold: the robot is within
+`PathEndSettle.launchWithinIn` (6 in) of the path's end, within `aimToleranceDeg` (3°) of the end
+heading and turning slower than `launchTurnDegPerSec` (30°/s) (`PathEndSettle.readyOnApproach`),
+and the launcher is at speed. The `LaunchAll` card then waits for nothing and ends
+`launchAllFeedS` after that gate opened. An approach that turns late, swinging onto the HIVE only
+at the stop, never meets the condition, and the card waits for the settle as before.
+`LaunchCards.launchOnApproach` switches it off. Why: in the 3 and 4 Nov R-Solo logs, arriving at
+LEFT_LAUNCH_OFFSET to the first ball took 1.9 to 2.0 s. Path end to gate open was 0.98 to 1.12 s
+of that (a 0.38 to 0.57 s settle, then a launcher overshoot), although the robot was already within
+1.2° and 0.35 in of its end pose at about 10 in/s. The knobs are not measured. The hit rate firing
+on the approach against firing still is a robot check in `doc/robot-todo.md`.
 
 Names come from `AutoRegistration`, the only list of commands and triggers an Auto may use;
 `requireAll` at INIT stops an Auto that uses an unregistered name. Names whose mechanism does not
@@ -1056,6 +1074,13 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   from any range: a shot at a down CELL is a wasted preload, counted in the results, where it
   used to hold fire and time out holding 4. StreamOn, which master's Autos do not use, still holds
   fire for a raised CELL in range.
+  Its timing is not the robot's. The simulator fires once the path is done and the robot is
+  under `SimDrive.FIRE_SPEED_IN_PER_S` (6 in/s), with no settle wait, no gate-to-first-ball delay
+  and no gate opened on the approach (`LaunchCards.approach()`, 4 Nov 2026). So it cannot show
+  what launching on the approach saves. That would need three things: `LaunchAll` registered with
+  an approach that starts the volley under `PathEndSettle.readyOnApproach`'s rule; the measured
+  0.8 to 0.9 s from gate open to first ball; and a hit model for a ball fired while the robot
+  still rolls.
 - **Results.** Each partner run gets its own folder, `<partner .pp name>/<timing name>/`, with its
   `result.json` and logs, and the top `result.json` carries `entries`: one row per run with the
   points, our launches (and how many went at a down CELL), the TIPs and when, the partner's last

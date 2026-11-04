@@ -184,6 +184,15 @@ its place here.
 - Poses are drawn for RED, in Pedro's frame (inches, degrees), like everything in an Auto; the
   robot turns them for BLUE.
 
+## A drive straight into a launch or a pick
+
+Put `LaunchAll` or `PickFlower` directly after the drive to its spot, with no step between. The
+robot then gets ready on the way in: it lowers the FLOWER stick over the last 18 in, and opens the
+launch gate in the last few inches once it faces the HIVE and the launcher is at speed. So never
+draw a separate stick step or an early fire step. A drive that turns onto the HIVE only at the stop
+fires once the robot is aimed and slowing, as it did before (`LaunchCards`, `PathEndSettle`;
+mentor, 4 Nov 2026). If the guard parks instead of launching, the gate closes again.
+
 ## Parking when time runs short
 
 The endgame guard (`autokit/AutoKit.guarded`) gets the robot to PARK by 30 s:
@@ -263,7 +272,10 @@ they came from.
     middle half 1.0 to 1.3, all 0.9 to 2.1 (slowest on a sagging battery). The first LaunchAll at
     PLAY waited 0.94 to 1.36 s for it.
   - `volleyS` 4.0: LaunchAll after a drive with the launcher at speed, the settle (0.17 to 0.66 s)
-    and `LaunchCards`' set 3.5 s feed; 4.17 s in 2 Nov R-Quals. The last of four balls left 2.3 to
+    and `LaunchCards`' set 3.5 s feed; 4.17 s in 2 Nov R-Quals. Measured before a LaunchAll right
+    after a path opened its gate on the approach and the settle became "aimed and slowing" (4 Nov
+    2026). That should take most of the settle off. Re-measure from the next match logs before
+    lowering it. The last of four balls left 2.3 to
     2.6 s after the gate opened (median 2.4; ten 1 Nov feeds, read from the wheels' dip per ball).
   - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the

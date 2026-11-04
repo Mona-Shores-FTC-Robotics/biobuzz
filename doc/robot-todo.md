@@ -155,6 +155,24 @@ These gate Belding. Run each from its start, alliance from §2.
       [PR #313]
 - [ ] **A launch's time limit never cuts a feed;** the Auto graphs the launcher in Panels. **Good:**
       every launch feeds its full `LaunchCards` time; launcher graph live. [PR #333], [PR #334]
+- [ ] **Launch on the approach: fix the launcher overshoot first.** It is a separate issue. After a
+      dip the wheels overshot to about 1680 tps and kept AtSpeed false for about 0.7 s (3 and 4 Nov
+      R-Solo logs), and the approach's gate waits for AtSpeed too. **Good:** `at_speed` in Panels
+      stays 1 through the drive into LEFT_LAUNCH_OFFSET. **Stop:** still overshooting → judge the
+      next two lines only on runs where the trace shows `LaunchAll opened the gate on the approach`.
+      [PR #LAUNCH_ON_APPROACH]
+- [ ] **Launch on the approach: hit rate against firing still.** R-Solo, three runs with
+      `LaunchCards.launchOnApproach` on (the default) and three with it off. Count the balls that
+      score from each LaunchAll after a drive. From the logs, time each arrival → first ball (was
+      1.9–2.0 s at LEFT_LAUNCH_OFFSET). **Good:** the same hit rate, with about 0.5 s or more saved
+      per LaunchAll after a drive. The late-turning drive from SCORING_FLOWER_STAGING shows no
+      `opened the gate on the approach` line. **Stop:** more misses on → `PathEndSettle.launchWithinIn`
+      3, again; still worse → `launchOnApproach` false. Write back the one that held.
+      [PR #LAUNCH_ON_APPROACH]
+- [ ] **The looser settle (aimed and slowing, under 6 in/s):** read the `settled X s after path end`
+      lines from the same runs with `launchOnApproach` off. **Good:** X under 0.3 s (was 0.38–0.57),
+      and hits as good as before. **Stop:** misses → `PathEndSettle.slowSpeedInPerSec` 3.
+      [PR #LAUNCH_ON_APPROACH]
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
