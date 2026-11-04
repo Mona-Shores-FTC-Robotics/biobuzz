@@ -183,8 +183,12 @@ public class LauncherSubsystem implements Subsystem {
      */
     public static double beltRatio = Double.NaN;
 
-    /** Flywheel diameter, inches, for the surface speed. NaN until measured with calipers on the robot. */
-    public static double wheelDiameterInches = Double.NaN;
+    /**
+     * Flywheel diameter, inches, for the surface speed. 95 mm, given by the mentor on 4 Nov 2026
+     * (both robots' launchers are the same build). The surface speed stays unknown until
+     * {@link #beltRatio} is measured too.
+     */
+    public static double wheelDiameterInches = 95.0 / 25.4;
 
     /**
      * A wheel commanded for this long that still reads below {@link #encoderSilentTicksPerSecond}

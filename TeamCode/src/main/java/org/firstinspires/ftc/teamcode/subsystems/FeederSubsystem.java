@@ -88,12 +88,12 @@ public class FeederSubsystem implements Subsystem {
     public static double ticksPerRev = 384.5;
 
     /**
-     * Feeder wheel diameter, inches, for the surface speed. <b>A placeholder from the design, not
-     * measured:</b> {@code doc/transfer.md} gives 48 mm gecko wheels. Measure with calipers on the
-     * robot and write it here with the robot and date. The wheel is taken to be on the motor's
-     * output shaft (ratio 1); check that too.
+     * Feeder wheel diameter, inches, for the surface speed. 71 mm, given by the mentor on 4 Nov 2026
+     * (both robots' feeders are the same build); it replaced a 48 mm placeholder from
+     * {@code doc/transfer.md}'s design. The wheel is taken to be on the motor's output shaft
+     * (ratio 1): not checked yet.
      */
-    public static double wheelDiameterInches = 48.0 / 25.4;
+    public static double wheelDiameterInches = 71.0 / 25.4;
 
     /**
      * Scale the power by {@link #nominalVolts} / battery (class comment, "The battery"), capped at
@@ -190,7 +190,7 @@ public class FeederSubsystem implements Subsystem {
     /**
      * The feeder wheel's surface speed, inches per second: comparable with the flywheels'
      * ({@code LauncherSubsystem.surfaceInchesPerSecond()}), as ticks per second are not. From
-     * {@link #wheelDiameterInches}, a placeholder until measured; NaN if that is unset.
+     * {@link #wheelDiameterInches}; NaN if that is unset.
      */
     public double surfaceInchesPerSecond() {
         return WheelSpeed.surfaceInchesPerSecond(ticksPerSecond, ticksPerRev, 1.0, wheelDiameterInches);
