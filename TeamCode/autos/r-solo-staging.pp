@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-04T05:33:30.323Z",
+  "timestamp": "2026-11-04T05:47:22.809Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -19,8 +19,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 25,
-        "y": 131
+        "x": 25.6,
+        "y": 130.8
       },
       "controlPoints": [
         {
@@ -69,8 +69,8 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 25,
-        "y": 131
+        "x": 25.6,
+        "y": 130.8
       },
       "controlPoints": [],
       "heading": {
@@ -753,8 +753,8 @@
         296.4
       ],
       "PARTNER_STAGED_POLLEN": [
-        25,
-        131,
+        25.6,
+        130.8,
         95
       ],
       "LEFT_LAUNCH_CATCH": [
