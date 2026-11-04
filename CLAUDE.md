@@ -141,9 +141,9 @@ placeholder until a match log measures it. It acts as the driver: a partner entr
 `"fails": "misses"` or by being dead on its start (a still stand-in). Its LaunchAll fires as the
 robot's does, at our CELL at its end whether up or not. Its points are shown, never enforced: no test fails an
 Auto for scoring less. Only `SimulatorSmokeTest` runs by default; every other simulator test is
-opt-in by environment variable, so CI stays fast. The "Simulate Auto" workflow runs a saved request
-(an Auto's own `TeamCode/sim-requests/<name>.json` on the fast lane, else `TeamCode/sim-request.json`) on
-any branch but master, and publishes to the `sim-results` branch.
+opt-in by environment variable, so CI stays fast. The "Simulate Auto" workflow runs every saved request a push
+changes (each Auto's own `TeamCode/sim-requests/<name>.json`, else `TeamCode/sim-request.json`), one job
+each, on any branch but master, and publishes to the `sim-results` branch.
 → README § "Simulating an Auto"
 
 **Cameras.** The Limelight is for AprilTags only (pitched up at the HIVE). Game pieces come from

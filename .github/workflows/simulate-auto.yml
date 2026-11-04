@@ -35,9 +35,12 @@ name: Simulate Auto
 # at a timing; TeamCode/autos/README.md). SimRunTest runs the Auto alone, then each of those; the whole job
 # should stay under about five minutes, so a request gives its partner runs fewer seeds ("partnerSeeds").
 #
-# The request is a file the pushed commit itself changed (against its first parent) and that still
-# exists. A merge commit (merging master into a branch, say) changes none: the request files it brings
-# in changed on another branch, which already simulated them, so it skips and the check passes.
+# The requests are the files the pushed commit itself changed (against its first parent) and that still
+# exist, and every one of them runs: the plan job lists them, and the simulate job runs once per request,
+# one at a time (a stand-in renamed in three requests simulates all three). Each Auto's own request when
+# the commit changed any, else the shared one. A merge commit (merging master into a branch, say) changes
+# none: the request files it brings in changed on another branch, which already simulated them, so it
+# skips and the check passes.
 on:
   push:
     branches-ignore: [master]
@@ -55,27 +58,31 @@ env:
   KEEP_RUNS: '40'
 
 jobs:
-  simulate:
+  # Which requests this push changed: every one of them is simulated, each in its own simulate job below.
+  plan:
     runs-on: ubuntu-latest
+    outputs:
+      requests: ${{ steps.plan.outputs.requests }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 2  # the pushed commit and its parent(s): which request it changed
+          fetch-depth: 2  # the pushed commit and its parent(s): which requests it changed
 
-      - name: Write the request
-        id: request
+      - name: List the requests
+        id: plan
         run: |
-          mkdir -p "$RUNNER_TEMP/sim"
           python3 - <<'EOF'
-          import json, os, subprocess, sys
+          import json, os, subprocess
           def git(*args):
               return subprocess.run(["git", *args], capture_output=True, text=True, check=True).stdout.split()
-          def skip(why):
-              print(f"Nothing to simulate: {why}")
+          def plan(requests, why=None):
+              if why:
+                  print(f"Nothing to simulate: {why}")
+              else:
+                  print("Requests: " + ", ".join(requests))
               with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-                  out.write("skip=true\n")
-              sys.exit(0)
+                  out.write("requests=" + json.dumps(requests) + "\n")
           # The files the pushed commit changed, against its first parent (a merge commit's own diff-tree
           # is empty, which once sent this to a shared file master does not have). A root commit has no parent.
           has_parent = subprocess.run(["git", "rev-parse", "-q", "--verify", "HEAD^1"], capture_output=True).returncode == 0
@@ -85,12 +92,39 @@ jobs:
           if subprocess.run(["git", "rev-parse", "-q", "--verify", "HEAD^2"], capture_output=True).returncode == 0:
               # A merge commit: whatever request files it brings in changed on another branch, and nothing
               # about those Autos changed here.
-              skip("a merge commit; the request files it carries (" + (", ".join(requests) or "none") + ") were simulated on their own branch")
-          if not requests:
-              skip("this commit changed no request file that still exists (looked for TeamCode/sim-requests/*.json, then TeamCode/sim-request.json)")
-          # An Auto's own file first, else the shared one.
-          own = [f for f in requests if f.startswith("TeamCode/sim-requests/")]
-          path = own[0] if own else requests[0]
+              plan([], "a merge commit; the request files it carries (" + (", ".join(requests) or "none") + ") were simulated on their own branch")
+          elif not requests:
+              plan([], "this commit changed no request file that still exists (looked for TeamCode/sim-requests/*.json, then TeamCode/sim-request.json)")
+          else:
+              # Every Auto's own file the commit changed (one commit can change several: a partner stand-in
+              # renamed in every request that uses it), else the shared one.
+              own = [f for f in requests if f.startswith("TeamCode/sim-requests/")]
+              plan(own or requests)
+          EOF
+
+  # One job per request, one at a time: each publish rewrites sim-results from the one before.
+  simulate:
+    needs: plan
+    if: needs.plan.outputs.requests != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        request: ${{ fromJSON(needs.plan.outputs.requests) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Write the request
+        id: request
+        env:
+          REQUEST: ${{ matrix.request }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/sim"
+          python3 - <<'EOF'
+          import json, os
+          path = os.environ["REQUEST"]
           print(f"Request: {path}")
           req = json.load(open(path))
           meta = req.setdefault("metadata", {})
@@ -107,22 +141,18 @@ jobs:
           EOF
 
       - name: Set up JDK 17
-        if: steps.request.outputs.skip != 'true'
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Android SDK
-        if: steps.request.outputs.skip != 'true'
         uses: android-actions/setup-android@v4
 
       - name: Set up Gradle
-        if: steps.request.outputs.skip != 'true'
         uses: gradle/actions/setup-gradle@v5
 
       - name: Simulate (SimRunTest)
-        if: steps.request.outputs.skip != 'true'
         id: sim
         continue-on-error: true
         run: |
@@ -133,7 +163,6 @@ jobs:
           test -f "$RUNNER_TEMP/sim/result.json" && ! grep -q '"error"' "$RUNNER_TEMP/sim/result.json"
 
       - name: Publish to sim-results
-        if: steps.request.outputs.skip != 'true'
         env:
           AUTO: ${{ steps.request.outputs.auto }}
           SIM_OK: ${{ steps.sim.outcome }}
@@ -332,7 +361,7 @@ jobs:
           git push -q -f origin HEAD:refs/heads/sim-results
 
       - name: Fail if the simulation failed
-        if: steps.request.outputs.skip != 'true' && steps.sim.outcome != 'success'
+        if: steps.sim.outcome != 'success'
         run: |
           echo "The simulation failed; its error is in sim-results and in the summary above."
           exit 1
