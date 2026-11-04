@@ -127,7 +127,7 @@ public class LauncherSubsystemTest {
     private static boolean at(ShotDetector d, double measured) {
         double deficit = LauncherSubsystem.deficit(TARGET, measured, TARGET, measured);
         boolean within = Math.abs(measured - TARGET) <= 60.0;
-        return d.update(deficit, within, TARGET, DIP);
+        return d.update(deficit, within, true, TARGET, DIP);
     }
 
     @Test
@@ -172,8 +172,8 @@ public class LauncherSubsystemTest {
         at(d, 1500);
         at(d, 1200); assertTrue(at(d, 1500));
         // Right wheel alone drops: still a dip.
-        assertFalse(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1250), false, TARGET, DIP));
-        assertTrue(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1480), true, TARGET, DIP));
+        assertFalse(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1250), false, true, TARGET, DIP));
+        assertTrue(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1480), true, true, TARGET, DIP));
         assertEquals(2, d.shots());
         assertEquals(250.0, d.lastDipTicksPerSecond(), EPS);
     }
@@ -191,6 +191,79 @@ public class LauncherSubsystemTest {
         assertFalse(at(d, 1500));
         at(d, 1200); assertTrue(at(d, 1500));
         assertEquals(1, d.shots());
+    }
+
+    // The dip shapes of the match log of 4 Nov 2026 (20245, 00:02 Basic Drive), target 1595,
+    // threshold 70 and tolerance 60 as on the robot, one sample per ~40 ms loop as logged.
+    private static final double LOG_TARGET = 1595.0;
+    private static final double LOG_DIP = 70.0;
+
+    /** One loop at the log's settings: the two wheels' speeds and whether the gate is open. */
+    private static boolean logged(ShotDetector d, double left, double right, boolean gateOpen) {
+        double deficit = LauncherSubsystem.deficit(LOG_TARGET, left, LOG_TARGET, right);
+        boolean within = Math.abs(left - LOG_TARGET) <= 60.0 && Math.abs(right - LOG_TARGET) <= 60.0;
+        return d.update(deficit, within, gateOpen, LOG_TARGET, LOG_DIP);
+    }
+
+    /** Drives a shape through the detector, both wheels the same speed; returns the shots counted. */
+    private static int sameOnBoth(ShotDetector d, boolean gateOpen, double... speeds) {
+        int before = d.shots();
+        for (double v : speeds) logged(d, v, v, gateOpen);
+        return d.shots() - before;
+    }
+
+    @Test
+    public void theIntakesSlowSagWithTheGateShutIsNotAShot() {
+        // 62.95 s, 1660.15 s, 1695.55 s: a NECTAR stalls the intake, gate shut, feeder unloaded, and
+        // both wheels sag 80–100 together over about 0.3 s and come back.
+        ShotDetector d = new ShotDetector();
+        assertEquals(0, sameOnBoth(d, false, 1600, 1595, 1580, 1560, 1540, 1520, 1500, 1495, 1510, 1540, 1570, 1590));
+        assertFalse(d.inDip());
+        // The 1509 s shape: the gate shut 0.2 s before, the same slow sag.
+        assertEquals(0, sameOnBoth(d, false, 1600, 1580, 1560, 1540, 1520, 1540, 1560, 1580, 1600));
+        assertEquals(0, d.shots());
+    }
+
+    @Test
+    public void oneWheelDippingWithTheGateShutIsNotAShot() {
+        // 207.38 s and 207.91 s: the left wheel alone fell about 200, the right unchanged, gate shut.
+        ShotDetector d = new ShotDetector();
+        logged(d, 1595, 1595, false);
+        for (double left : new double[] {1520, 1430, 1395, 1440, 1520, 1570, 1600}) logged(d, left, 1595, false);
+        logged(d, 1595, 1595, false);
+        for (double left : new double[] {1500, 1375, 1420, 1500, 1580}) logged(d, left, 1595, false);
+        assertEquals(0, d.shots());
+        assertFalse(d.inDip());
+    }
+
+    @Test
+    public void aFedShotsSharpDipIsStillOneShot() {
+        // A real shot: gate open, both wheels fall 150–200 within a loop or two and recover.
+        ShotDetector d = new ShotDetector();
+        assertEquals(1, sameOnBoth(d, true, 1600, 1595, 1440, 1400, 1470, 1530, 1580, 1600));
+        assertEquals(195.0, d.lastDipTicksPerSecond(), EPS);
+        // A fed shot that pulls mostly one wheel (134.95 s: left 35, right 115) counts too.
+        logged(d, 1560, 1480, true);
+        logged(d, 1590, 1600, true);
+        assertEquals(2, d.shots());
+    }
+
+    @Test
+    public void aDipThatStartsWithTheGateOpenCountsEvenIfItShutsBeforeRecovery() {
+        ShotDetector d = new ShotDetector();
+        logged(d, 1595, 1595, true);
+        logged(d, 1420, 1410, true);              // the piece hits with the gate open
+        logged(d, 1450, 1450, false);             // the driver lets go: the gate shuts mid-dip
+        assertTrue(logged(d, 1580, 1590, false)); // recovered: still the fed piece's shot
+        assertEquals(1, d.shots());
+    }
+
+    @Test
+    public void aGateShutDipDoesNotSpoilTheNextFedShot() {
+        ShotDetector d = new ShotDetector();
+        logged(d, 1595, 1595, false);
+        sameOnBoth(d, false, 1540, 1500, 1510, 1590);   // the intake's sag: ignored
+        assertEquals(1, sameOnBoth(d, true, 1600, 1420, 1470, 1590));
     }
 
     @Test
