@@ -340,9 +340,14 @@ number down as it is found. [branch claude/launcher-tuning]
 
 - [ ] **Measure the belt and check the motors**, for the surface speeds (in/s, the one unit that
       compares the feeder with the flywheels; ticks/s do not). The wheel diameters are in (flywheels
-      95 mm, feeder 71 mm, from the mentor 4 Nov). Still needed: the flywheel module's belt (count
-      teeth, or mark the wheel and turn the motor once by hand): `LauncherSubsystem.beltRatio`, wheel
-      revolutions per motor revolution; that the feeder wheel is on the motor shaft (ratio 1); and
+      95 mm, feeder 71 mm, from the mentor 4 Nov). The Onshape CAD was read for the ratios on 4 Nov
+      and does not give them: its flywheel modules are 16T→41/42T on a 312 rpm motor, the robot's
+      18T and 22T pulleys are not mated (22T) or not in it (18T), and its feeder is two 24T gears
+      with no pulley. So the robot measures them: for each of the flywheel module and the feeder,
+      which pulley is on the motor shaft, which on the wheel axle, and any second stage (count
+      teeth, or mark the wheel and turn the motor once by hand). Then `LauncherSubsystem.beltRatio`,
+      wheel revolutions per motor revolution (18T motor→22T wheel is 0.818, 22T→18T is 1.222); and
+      for the feeder, ratio 1 in `FeederSubsystem.surfaceInchesPerSecond()` until shown otherwise; and
       both motor labels (flywheels believed goBILDA 5203 6000 rpm, 28 ticks/rev; feeder 5203 435 rpm,
       384.5). **Good:** the Launch Test page shows the flywheels' surface speed instead of "unknown".
       **Stop:** write the ratio back with the robot and date.

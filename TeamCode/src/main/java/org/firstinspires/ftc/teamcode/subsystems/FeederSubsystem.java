@@ -94,7 +94,9 @@ public class FeederSubsystem implements Subsystem {
      * "72/48 mm Gecko Wheel – Gripforce" (with or without hub): its fin tips reach 72 mm and most of
      * its tread sits at 71 mm, 24 mm wide. A gecko presses in under load, so the speed it gives a
      * ball is a little under this. The wheel is taken to be on the motor's output shaft (ratio 1):
-     * not checked yet.
+     * not checked yet. The team's Onshape CAD does not settle it (read 4 Nov 2026, "Assembly 5" in
+     * "fixed wheel launcher"): it shows two 24T MOD 1 gears (1:1) and no pulley, while the mentor
+     * reports new pulleys on the robot's feeder, so the robot differs from the CAD here.
      */
     public static double wheelDiameterInches = 71.0 / 25.4;
 
