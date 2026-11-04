@@ -258,6 +258,38 @@ measurement is [#255].
 - [ ] **Copy 20245's Limelight pipeline** and run the 5-minute start check. [handoff] step 6
 - [ ] **Drive check table** (10 steps), on both robots. [#62]
 
+## 7b. Bench: Wall Eject (any field wall, 4 POLLEN, phone filming from above)
+
+Can an L robot set its preloads down against a wall, to collect later? Film every trial; the log
+has each trial's settings and measured back-up.
+
+- [ ] **Run Bench: Wall Eject** (Utility menu): intake against the wall, Cross runs one trial
+      (backs off 1.5 in, ejects at roller 0.3 / stars 0.3 for 2.5 s, feeder backing out too). Try
+      roller 0.2–0.5 (D-pad ▲▼), back-up 1–2 in (◀▶), feeder off (Square). **Good:** all four
+      rest at the wall within one robot width, none rolled more than a few inches. **Stop:** after
+      about 10 trials; note the best settings and whether they sat four wide or in a line.
+      [this branch, claude/quirky-allen-etn5xp]
+- [ ] **Then drive through them** with the intake on (Basic Drive) from the side and head-on.
+      **Good:** 4 of 4 collected in one pass. **Stop:** record how many of 4, over 5 tries.
+
+## 7c. Launcher distances (Bench: Launch Test, HIVE upright, phone filming the HIVE)
+
+One `LauncherSubsystem.targetTicksPerSecond` (1595) serves every distance today; on 4 Nov it went
+4/4 from 50 in (RIGHT_START) and long at 41 in on the third volley (LEFT_LAUNCH_OFFSET). These rows
+start #80's speed-vs-distance table. Count hits out of 12 on video at each speed.
+
+- [ ] **41 in, LEFT_LAUNCH_OFFSET** at the raised LEFT CELL: 1450, 1500, 1550, 1595 ticks/s.
+      **Good:** a speed that drops balls mid-CELL, 11/12 or better. **Stop:** record hits per speed.
+      [4 Nov log review, this branch]
+- [ ] **50 in, RIGHT_START** at the RIGHT CELL: 1550–1650. **Good:** 1595 confirmed centred, or the
+      speed that is. **Stop:** as above.
+- [ ] **Long corner shot near the GARDEN** (about (15, 15), ~60 in to the RIGHT CELL, facing ~45°):
+      an option when the CELL's front is crowded. Try 1650–1800. **Good:** 9/12 or better, then it
+      becomes a team spot. **Stop:** record hits per speed, or "out of range". [mentor, 4 Nov]
+- [ ] **Launcher overshoot after a dip**: wheels reached ~1680 against 1595 (±60) on 4 Nov, holding
+      "at speed" false ~0.7 s before each later volley. **Good:** back within tolerance in under
+      0.3 s after a dip (Bench: Launcher graphs). [4 Nov log review]
+
 ## 8. If time: anyone, no driving
 
 - [ ] **Photograph both robots' hubs** for `doc/wiring/`, ports against the XML. [#33]

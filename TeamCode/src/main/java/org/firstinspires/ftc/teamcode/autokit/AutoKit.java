@@ -153,6 +153,11 @@ public final class AutoKit {
         }
     }
 
+    /** {@link #guard}: false only for a practice run that times the whole plan. */
+    private boolean guardOn = true;
+    /** With the guard off, whether the one "would have parked" line has been traced. */
+    private boolean guardWouldHaveActed;
+
     public AutoKit(AutoDrive drive, AutoRegistry registry, DoubleSupplier secondsSinceStart) {
         this.drive = drive;
         this.registry = registry;
@@ -168,6 +173,16 @@ public final class AutoKit {
     /** Where each path start and end goes (the match log). Null watches nothing. */
     public AutoKit watchPaths(PathWatcher watcher) {
         this.watcher = watcher == null ? NO_WATCHER : watcher;
+        return this;
+    }
+
+    /**
+     * False runs every card whatever the clock says (practice only): the guard refuses and cuts
+     * nothing, so the robot drives the whole plan and the log shows how long it really takes. It
+     * still traces, once, the first moment it would have parked. On by default.
+     */
+    public AutoKit guard(boolean on) {
+        this.guardOn = on;
         return this;
     }
 
@@ -577,6 +592,14 @@ public final class AutoKit {
         double left = timeLeft();
         double needed = parkSeconds + GUARD_MARGIN_S;
         if (left >= needed) return false;
+        if (!guardOn) {
+            if (!guardWouldHaveActed) {
+                guardWouldHaveActed = true;
+                trace.accept(String.format(Locale.US, "%s: guard OFF: %.1f s left, park needs %.1f s: would have been %s",
+                        label, left, needed, action));
+            }
+            return false;
+        }
         trace.accept(String.format(Locale.US, "%s: %.1f s left, park needs %.1f s: %s", label, left, needed, action));
         return true;
     }
