@@ -64,6 +64,9 @@ public class IntakeSubsystemTest {
         assertEquals(1.0, IntakeSubsystem.starsPowerFor(State.IN, 3.0, false), EPS);
         assertEquals(0.0, IntakeSubsystem.starsPowerFor(State.IN, Double.NaN, false), EPS);
         assertEquals(1.0, IntakeSubsystem.starsPowerFor(State.OUT, 1.0, true), EPS);
+        // Stopped is a plain 0 even reversed: Double.equals tells -0.0 from 0.0, as the servo's log does.
+        assertEquals(Double.valueOf(0.0), Double.valueOf(IntakeSubsystem.starsPowerFor(State.IDLE, 1.0, true)));
+        assertEquals(Double.valueOf(0.0), Double.valueOf(IntakeSubsystem.starsPowerFor(State.IN, Double.NaN, true)));
     }
 
     @Test

@@ -411,10 +411,12 @@ public class IntakeSubsystem implements Subsystem {
 
     /**
      * The star-wheel servo's power for a request: {@code +power} while taking in, {@code -power}
-     * while ejecting, 0 when idle. Negated when {@code starsReversed}. Pure, so a test can check it.
+     * while ejecting, 0 when idle. Negated when {@code starsReversed}, except that stopped is always
+     * a plain 0, never -0. Pure, so a test can check it.
      */
     static double starsPowerFor(State state, double power, boolean reversed) {
         double p = state == State.IN ? unitRange(power) : state == State.OUT ? -unitRange(power) : 0.0;
+        if (p == 0.0) return 0.0;
         return reversed ? -p : p;
     }
 
