@@ -369,6 +369,13 @@ number down as it is found. [branch claude/launcher-tuning]
       events: **Good:** back in tolerance within ~0.3 s of a dip, overshoot after it under 60,
       at speed again well under the 0.7 s of 4 Nov, and the shot count right. **Stop:** if overshoot
       after a dip is still past 60, lower P (or I) before anything else.
+- [ ] **Shot count only with the gate open and both wheels down.** A dip now counts only if it
+      starts while the gate is open and both wheels are 70 under target (4 Nov log: the intake's
+      NECTAR stalls, and the wheels wobbling while a ball pressed on them, counted as shots). Fire 3 volleys of 4, letting go
+      of FIRE the moment the last ball passes the plate, then intake 4 NECTAR with the launcher
+      spinning. **Good:** 12 shots counted for 12 fired, none while intaking. **Stop:** if a last
+      ball goes uncounted, the gate shut before it reached the wheels: note how long after letting
+      go its dip came (log), for a grace after the gate shuts.
 - [ ] **Feed pace**, once the PIDF is set: the aim is each ball arriving after the wheels have
       recovered from the one before. Bench: Launch Test, `FeederSubsystem.feedPower` 0.6, then 0.8,
       then 1.0, 12 balls each (three volleys of 4), fresh battery, from one launch spot. Each dip's
