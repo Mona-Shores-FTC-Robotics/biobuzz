@@ -41,13 +41,6 @@ public enum RobotIdentity {
     TEAM_19429("robot_19429", DeviceNames.COMPETITION_ROBOT),
     TEAM_20245("robot_20245", DeviceNames.COMPETITION_ROBOT),
 
-    /**
-     * Not a robot: the two-wheel pinch launcher bench rig, on its own Control
-     * Hub, FTC-EoM3. It has an identity so its configuration gets the same
-     * build-time checks as the robots' do.
-     */
-    LAUNCHER_RIG("robot_launcher_rig", DeviceNames.LAUNCHER_RIG),
-
     /** The BIOBUZZ launcher on a spare Control Hub: two flywheels and the feeder, the robots' motor numbers (#80). */
     LAUNCHER_BENCH("robot_launcher_bench", DeviceNames.LAUNCHER_BENCH),
 

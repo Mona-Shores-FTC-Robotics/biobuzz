@@ -84,7 +84,6 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 - Mechanism subsystems (launcher, turret, intake) until their hardware is designed.
 - Autonomous routines and paths.
 - A shared telemetry helper beyond what `RobotOpMode` needs.
-- Test rigs (`launcher2/`) — standalone by design.
 
 ## Done when
 

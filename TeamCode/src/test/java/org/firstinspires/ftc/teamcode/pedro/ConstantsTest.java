@@ -89,19 +89,19 @@ public class ConstantsTest {
 
     @Test
     public void aRobotWithNoDrivetrainIsRefusedByName() {
-        assertFalse("LAUNCHER_RIG has no drivetrain; if that changed, pick another identity for"
-                + " this test", Constants.hasDrivetrain(RobotIdentity.LAUNCHER_RIG));
+        assertFalse("LAUNCHER_BENCH has no drivetrain; if that changed, pick another identity for"
+                + " this test", Constants.hasDrivetrain(RobotIdentity.LAUNCHER_BENCH));
 
         try {
-            RobotConstants values = Constants.forRobot(RobotIdentity.LAUNCHER_RIG);
-            fail("LAUNCHER_RIG has no drivetrain, yet forRobot returned " + values.file
+            RobotConstants values = Constants.forRobot(RobotIdentity.LAUNCHER_BENCH);
+            fail("LAUNCHER_BENCH has no drivetrain, yet forRobot returned " + values.file
                     + ". Falling back to another robot's values is last season's bug.");
         } catch (IllegalStateException expected) {
             String message = String.valueOf(expected.getMessage());
             assertTrue("The message must name the identity, but was: " + message,
-                    message.contains("LAUNCHER_RIG"));
+                    message.contains("LAUNCHER_BENCH"));
             assertTrue("The message must name the config to check, but was: " + message,
-                    message.contains(RobotIdentity.LAUNCHER_RIG.configName));
+                    message.contains(RobotIdentity.LAUNCHER_BENCH.configName));
         }
     }
 
