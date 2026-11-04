@@ -168,7 +168,7 @@ These gate Belding. Run each from its start, alliance from §2.
       with its side on the wall facing the zone so its wheels roll forward; our pieces move → try a
       side face and note which. Then, if it worked, the draft at speed with a temporary OpMode on a
       scratch branch: TIP 2 before 30 s, the partner LEAVE and PARK by eye, our robot clear of the
-      partner and the HIVE leg on the way north. [branch claude/push-partner-auto]
+      partner and the HIVE leg on the way north. [PR #427]
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
@@ -399,6 +399,7 @@ one test at one meeting.
 [PR #384]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/384
 [PR #387]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/387
 [PR #391]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/391
+[PR #427]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/427
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#78]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/78
