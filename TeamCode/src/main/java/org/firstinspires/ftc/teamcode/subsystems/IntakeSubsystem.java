@@ -146,6 +146,12 @@ public class IntakeSubsystem implements Subsystem {
     /** What the roller and the stars are doing as of the last update: the request, or the feeder's. */
     private State roller = State.IDLE;
     private State starsState = State.IDLE;
+    /**
+     * Roller and star powers for the OpMode's current eject only ({@link #eject(double, double)});
+     * NaN uses {@link #outPower} and {@link #starsPower}. Any other request clears them.
+     */
+    private double ejectRollerPower = Double.NaN;
+    private double ejectStarsPower = Double.NaN;
     private boolean feedAssist;
     private boolean holdingForFull;
     /** Whether the lane is full; never until {@link #laneFull} is called, so the roller never stops for it. */
@@ -185,16 +191,36 @@ public class IntakeSubsystem implements Subsystem {
     /** Ask for pieces in. Takes effect in the next {@link #update()}. */
     public void intake() {
         request = State.IN;
+        clearEjectPowers();
     }
 
     /** Ask for pieces out. Takes effect in the next {@link #update()}. */
     public void eject() {
         request = State.OUT;
+        clearEjectPowers();
+    }
+
+    /**
+     * Ask for pieces out at these powers (0 to 1) instead of {@link #outPower} and
+     * {@link #starsPower}, for this request only: a gentle eject that sets pieces down rather than
+     * throwing them ({@code Bench: Wall Eject}). The feeder reversing still backs out at the
+     * configured powers when the OpMode asks for nothing.
+     */
+    public void eject(double rollerPower, double starsPower) {
+        request = State.OUT;
+        ejectRollerPower = rollerPower;
+        ejectStarsPower = starsPower;
     }
 
     /** Ask for the roller to stop. Not {@link #stop()}: the subsystem keeps running. */
     public void idle() {
         request = State.IDLE;
+        clearEjectPowers();
+    }
+
+    private void clearEjectPowers() {
+        ejectRollerPower = Double.NaN;
+        ejectStarsPower = Double.NaN;
     }
 
     /**
@@ -251,6 +277,7 @@ public class IntakeSubsystem implements Subsystem {
         roller = State.IDLE;
         starsState = State.IDLE;
         feedAssist = false;
+        clearEjectPowers();
         holdingForFull = false;
         started = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -293,9 +320,13 @@ public class IntakeSubsystem implements Subsystem {
             starsState = State.IN;
         }
         feedAssist = !holdingForFull && request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
-        motor.setPower(powerFor(roller, holdingForFull ? holdPowerWhenFull : inPower, outPower));
+        boolean ownEject = request == State.OUT;
+        motor.setPower(powerFor(roller, holdingForFull ? holdPowerWhenFull : inPower,
+                ownEject ? orConfigured(ejectRollerPower, outPower) : outPower));
         if (started) {
-            stars.setPower(starsPowerFor(starsState, starsPower, starsReversed));
+            stars.setPower(starsPowerFor(starsState,
+                    ownEject && starsState == State.OUT ? orConfigured(ejectStarsPower, starsPower) : starsPower,
+                    starsReversed));
         }
         ticksPerSecond = motor.getVelocity();
         if (roller == State.IDLE) {
@@ -318,6 +349,7 @@ public class IntakeSubsystem implements Subsystem {
     @Override
     public void stop() {
         request = State.IDLE;
+        clearEjectPowers();
         roller = State.IDLE;
         starsState = State.IDLE;
         feedAssist = false;
@@ -348,6 +380,11 @@ public class IntakeSubsystem implements Subsystem {
                 Double.isNaN(rpm) ? "" : String.format(Locale.US, " (%.0f rpm)", rpm),
                 Double.isNaN(currentAmps) ? "current not read while idle"
                         : String.format(Locale.US, "%.2f A", currentAmps)));
+    }
+
+    /** {@code override} unless it is NaN, then {@code configured}. Pure, so a test can check it. */
+    static double orConfigured(double override, double configured) {
+        return Double.isNaN(override) ? configured : override;
     }
 
     /** Ticks per second to RPM, or NaN when ticks per revolution is unset (NaN or not positive). */

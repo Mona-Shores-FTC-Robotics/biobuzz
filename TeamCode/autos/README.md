@@ -195,6 +195,11 @@ The endgame guard (`autokit/AutoKit.guarded`) gets the robot to PARK by 30 s:
   PARK spot, shared by every drive to that spot. Press **P** on a drive step to see it (everything
   else dims) and bend it with a control point. The drive just before Park needs none.
 
+- **Practice: time the whole plan.** Panels → `BuiltAuto.endgameGuard` off (and the Driver Station's
+  30 s timer off) runs every card whatever the clock says, so the match log shows how long the whole
+  Auto really takes, and says once where the guard would have parked. The Driver Station shows it in
+  red while it is off; it is back on after a restart. Never in a match.
+
 ## When the TIP does not come (a Wait's Otherwise)
 
 A Wait step's **Otherwise** steps run only if the wait times out. Its **then** picks what comes
