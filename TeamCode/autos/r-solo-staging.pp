@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-04T05:08:16.930Z",
+  "timestamp": "2026-11-04T05:25:09.826Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -56,10 +56,15 @@
         "x": 14.5,
         "y": 95.7
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 37.00260229523249,
+          "y": 93.99725878378212
+        }
+      ],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
+        "startDeg": 95,
         "endDeg": 0
       }
     },
