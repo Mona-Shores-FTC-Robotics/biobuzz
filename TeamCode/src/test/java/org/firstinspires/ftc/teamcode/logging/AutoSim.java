@@ -2049,7 +2049,10 @@ public final class AutoSim {
         /** Every command and trigger name the Auto Builder's Autos use, backed by the simulation. */
         private AutoRegistry registry() {
             return new AutoRegistry()
-                    .command("LaunchAll", 3.0, () -> launch(Integer.MAX_VALUE))
+                    // A volley, with master's typical and last-piece times: the endgame guard goes for
+                    // the next one when its last piece can be out before AUTO ends (AutoKit.guarded).
+                    .volley("LaunchAll", AutoRegistration.LAUNCH_ALL_TYPICAL_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S,
+                            () -> launch(Integer.MAX_VALUE))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
                     .command("CollectSeen", 2.0, this::collectSeen)

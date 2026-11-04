@@ -37,6 +37,7 @@ public final class AutoRegistry {
     private final Map<String, Double> typicalSeconds = new LinkedHashMap<>();
     private final Map<String, Supplier<BooleanSupplier>> triggers = new LinkedHashMap<>();
     private final Set<String> grabs = new HashSet<>();
+    private final Map<String, Double> lastPieceSeconds = new LinkedHashMap<>();
     private final Map<String, Approach> approaches = new LinkedHashMap<>();
     private BooleanSupplier holdTimeLimits = () -> false;
 
@@ -122,6 +123,33 @@ public final class AutoRegistry {
     /** Whether time limits are held now ({@link #holdTimeLimitsWhile}). */
     public boolean timeLimitsHeld() {
         return holdTimeLimits.getAsBoolean();
+    }
+
+    /**
+     * Registers a volley: a command that launches what the robot holds (LaunchAll). The endgame
+     * guard aims at the next one: before a card starts, if every card from it to the next volley,
+     * at their typical times, and then that volley's last piece ({@code lastPieceS} after the volley
+     * starts) are done before AUTO ends, the robot goes for the volley and does not park until it
+     * has fired, since a TIP is worth more than the park ({@link AutoKit#guarded}).
+     *
+     * @param lastPieceS seconds from the volley's start to its last piece leaving the robot
+     */
+    public AutoRegistry volley(String name, double typicalS, double lastPieceS, Supplier<Command> factory) {
+        if (!(lastPieceS >= 0)) throw new IllegalArgumentException("Volley " + name + " needs a last-piece time >= 0");
+        command(name, typicalS, factory);
+        lastPieceSeconds.put(name, lastPieceS);
+        return this;
+    }
+
+    /** Whether {@code name} was registered with {@link #volley}. */
+    public boolean isVolley(String name) {
+        return lastPieceSeconds.containsKey(name);
+    }
+
+    /** Seconds from the volley's start to its last piece out; NaN if {@code name} is not a volley. */
+    public double lastPieceSeconds(String name) {
+        Double seconds = lastPieceSeconds.get(name);
+        return seconds == null ? Double.NaN : seconds;
     }
 
     /** Whether {@code name} was registered with {@link #grab}. */

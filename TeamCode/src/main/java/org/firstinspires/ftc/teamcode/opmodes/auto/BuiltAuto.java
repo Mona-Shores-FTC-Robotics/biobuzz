@@ -95,8 +95,9 @@ import java.util.function.Function;
 public abstract class BuiltAuto extends RobotOpMode {
 
     /**
-     * The endgame guard (AutoKit.guarded): on, the robot parks when the next drive or grab would
-     * not leave time to. <b>Off is for practice only</b>: every card runs, so the match log shows
+     * The endgame guard (AutoKit.guarded): on, the robot goes for the next volley when its last
+     * piece can be out by 30 s, and otherwise parks when the next drive or grab would not leave
+     * time to. <b>Off is for practice only</b>: every card runs, so the match log shows
      * how long the whole plan really takes (run it with the Driver Station's 30 s timer off). The
      * Driver Station says so in red while it is off, and the match log records it.
      */
