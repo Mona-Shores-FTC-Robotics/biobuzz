@@ -165,9 +165,12 @@ measurement is [#255].
 - [ ] **Touch point and stick reach, by tape.** **Good:** touch point within 1 in of 12.4 in; stick
       reach ahead of the face written down (must be < `retractAfterBackIn` 6). **Stop:** off by more
       → measure the FLOWER's position first. [S5 §2]
-- [ ] **`contactStandoffIn` 12.0, 10.0, 9.0: three picks each,** reloading between. **Good:** at 10
-      and 9 every push ends `stalled ~2.4 / ~3.4 in short`, 1.0–1.3 s, four pieces, robot square.
-      [S5 §3–5]
+- [ ] **`contactStandoffIn` 7.0 (the default since 4 Nov), then 8.0 and 9.0: three picks each,**
+      reloading between, in the R-Solo Auto where the start pose is known. The red WALL FLOWER
+      stalled at 10.0 to 10.4 in at both 5.0 and 7.0 (3 Nov), so expect the same stall at 8.0, and at
+      9.0 a pose 1 in short may end `reached` again. **Good:** every push ends `stalled`, 1.0-1.3 s,
+      the lane reads FULL within about 1.2 s, robot square. Read the value from each pick's start
+      line (`read_logs.py picks`). [S5 §3-5]
 - [ ] **Pose 2 in long, then 4 in long,** at the best value; then **9.5, three picks** if time.
       **Good:** 2 in long changes nothing. [S5 §6–7]
       **Stop (whole block):** `timed out`; skew > a few degrees (try `pushSpeed` 0.4); the stick
