@@ -1,14 +1,42 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem.State;
+import org.firstinspires.ftc.teamcode.util.VoltageCompensation;
 import org.junit.Test;
 
 /** The pure part of {@link FeederSubsystem}: the TeleOp gate and what each request does to the motor. */
 public class FeederSubsystemTest {
 
     private static final double EPS = 1e-9;
+
+    /** The power the feeder writes with {@code compensateVoltage} on, as update() computes it. */
+    private static double compensated(double power, double battery) {
+        return VoltageCompensation.power(power, VoltageCompensation.scale(true, 12.0, battery));
+    }
+
+    @Test
+    public void compensationHoldsTheFeedFromAFreshToATiredBattery() {
+        // 0.88 at 12.0 nominal: the same drive (power x battery) at 12.5 V and at 10.6 V.
+        assertEquals(0.88 * 12.0, compensated(0.88, 12.5) * 12.5, 1e-6);
+        assertEquals(0.88 * 12.0, compensated(0.88, 10.6) * 10.6, 0.02);
+        assertTrue(compensated(0.88, 10.6) <= 1.0);
+    }
+
+    @Test
+    public void atFullPowerCompensationHasNoHeadroom() {
+        assertEquals("a tired battery gets nothing more", 1.0, compensated(1.0, 10.6), EPS);
+        assertEquals("a fresh one is only slowed", 0.96, compensated(1.0, 12.5), EPS);
+        assertEquals("off: unchanged", 1.0,
+                VoltageCompensation.power(1.0, VoltageCompensation.scale(false, 12.0, 10.6)), EPS);
+    }
+
+    @Test
+    public void aReverseIsScaledWithItsSign() {
+        assertEquals(-0.8 * 12.0 / 11.0, compensated(-0.8, 11.0), EPS);
+    }
 
     @Test
     public void nothingHeldIsIdle() {

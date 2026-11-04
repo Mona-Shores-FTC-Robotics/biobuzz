@@ -1399,6 +1399,8 @@ public abstract class RobotOpMode extends OpMode {
                     robot.launcher.fScale(), lastBatteryVolts));
         }
         log.put("/Feeder/Power", robot.feeder.power());
+        // The battery's scale on that power (FeederSubsystem.compensateVoltage); 1 when off.
+        log.put("/Feeder/VoltageScale", robot.feeder.voltageScale());
         log.put("/Feeder/TicksPerSecond", robot.feeder.ticksPerSecond());
         double feederAmps = robot.feeder.currentAmps();
         if (!Double.isNaN(feederAmps)) {
@@ -1485,7 +1487,7 @@ public abstract class RobotOpMode extends OpMode {
             lastBatteryVolts = battery.getVoltage();
             log.put("/Robot/BatteryVolts", lastBatteryVolts);
             lastBatteryNs = now;
-            // For the launcher's F when it compensates: this read, no other.
+            // For the launcher's F and the feeder's power when they compensate: this read, no other.
             robot.batteryVolts(lastBatteryVolts);
         }
         log.commit();

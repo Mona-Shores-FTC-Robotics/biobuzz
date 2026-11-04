@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
+import org.firstinspires.ftc.teamcode.util.VoltageCompensation;
 
 import java.util.Locale;
 import java.util.function.BooleanSupplier;
@@ -25,6 +26,19 @@ import java.util.function.BooleanSupplier;
  * <p>Whether the feeder may run while the launcher is still spinning up is a TeleOp policy, not a
  * fact about this motor, so it lives in the OpMode; {@link #requestFor} is the pure form of that
  * policy so a test can check it without a gamepad.
+ *
+ * <h2>The battery</h2>
+ *
+ * <p>The feeder runs on open-loop power, so its speed follows the battery: on 4 Nov 2026 (20245,
+ * 00:48) it fell 2260 → 2120 → 2060 ticks/s across three volleys as the battery's low fell
+ * 10.83 → 10.74 → 10.61 V, and the third volley's shots were unevenly spaced and went long.
+ * {@link #compensateVoltage} scales the power by {@link #nominalVolts} / battery
+ * ({@link VoltageCompensation}), from the reading {@code RobotOpMode} takes once a second, so the
+ * feed rate stays the same from a fresh battery to a tired one. It cannot push past full power:
+ * at {@code feedPower} 1.0 it only ever slows a fresh battery down, and gives a tired one nothing.
+ * To hold the rate down to a battery of V volts, {@code feedPower} must be at most V / nominal:
+ * 0.88 for 10.6 V at 12.0 nominal (0.85 at 12.5). Off until a robot run shows it helps
+ * ({@code doc/robot-todo.md}, "Launcher tuning").
  */
 @Configurable
 public class FeederSubsystem implements Subsystem {
@@ -72,12 +86,25 @@ public class FeederSubsystem implements Subsystem {
      */
     public static double ticksPerRev = 384.5;
 
+    /**
+     * Scale the power by {@link #nominalVolts} / battery (class comment, "The battery"), capped at
+     * full power. Off: no robot run has shown it helps yet. Turn it on with {@link #feedPower} below
+     * full (0.88 at 12.0 nominal), or it has no headroom on a tired battery.
+     */
+    public static boolean compensateVoltage = false;
+
+    /** The battery voltage the feeder's powers are meant at, for {@link #compensateVoltage}. NaN, zero or negative: no compensation. */
+    public static double nominalVolts = 12.0;
+
     private final DcMotorEx motor;
     private State state = State.IDLE;
     private BooleanSupplier ready = () -> false;
     private boolean started;
     private boolean standby;
     private double power;
+    /** The battery, volts, as {@code RobotOpMode} last passed it in; NaN until then. */
+    private double batteryVolts = Double.NaN;
+    private double voltageScale = 1.0;
     private double ticksPerSecond;
     private double currentAmps = Double.NaN;
     /** Ten reads a second, not one a loop: see {@code IntakeSubsystem}'s. */
@@ -122,7 +149,17 @@ public class FeederSubsystem implements Subsystem {
         return state;
     }
 
-    /** The motor power written in the last {@link #update()}, signed, for the match log. */
+    /** The battery's latest reading, volts, from {@code RobotOpMode}'s once-a-second read; for {@link #compensateVoltage}. */
+    public void batteryVolts(double volts) {
+        batteryVolts = volts;
+    }
+
+    /** The battery's scale on the power in the last {@link #update()}: 1 unless compensating with a reading. */
+    public double voltageScale() {
+        return voltageScale;
+    }
+
+    /** The motor power written in the last {@link #update()}, signed, battery scale included, for the match log. */
     public double power() {
         return power;
     }
@@ -170,9 +207,10 @@ public class FeederSubsystem implements Subsystem {
     @Override
     public void update() {
         standby = standsBy(state, started, ready.getAsBoolean(), standbyPower);
-        power = standby
+        voltageScale = VoltageCompensation.scale(compensateVoltage, nominalVolts, batteryVolts);
+        power = VoltageCompensation.power(standby
                 ? powerFor(State.FEED, standbyPower, 0.0, reversed)
-                : powerFor(state, feedPower, reversePower, reversed);
+                : powerFor(state, feedPower, reversePower, reversed), voltageScale);
         motor.setPower(power);
         ticksPerSecond = motor.getVelocity();
         if (state == State.IDLE && !standby) {
