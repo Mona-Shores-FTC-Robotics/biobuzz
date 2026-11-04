@@ -1329,7 +1329,7 @@ public abstract class RobotOpMode extends OpMode {
         }
         // The intake running with nothing asking for it: it joined a feed (IntakeSubsystem.rollerFor).
         log.put("/Intake/FeedAssist", robot.intake.feedAssist() ? 1 : 0);
-        log.put("/Intake/RollerStopped", robot.intake.rollerStopped() ? 1 : 0);
+        log.put("/Intake/HoldingForFull", robot.intake.holdingForFull() ? 1 : 0);
         // The launcher's speed loop and the feeder, so a log shows what the wheels did at each shot.
         log.put("/Launcher/TargetTicksPerSecond", robot.launcher.isSpinning() ? robot.launcher.target() : 0.0);
         log.put("/Launcher/LeftTicksPerSecond", robot.launcher.leftTicksPerSecond());
@@ -1383,7 +1383,7 @@ public abstract class RobotOpMode extends OpMode {
             log.put(LANE_SLOT_KEYS[i], piece == null ? 0 : piece.ordinal() + 1);
         }
         if (lane.event() != null) log.event(lane.event());
-        // Full (LaneFull): the signal the light, the roller stop and IntakeFull use. Every piece's
+        // Full (LaneFull): the signal the light, the full hold and IntakeFull use. Every piece's
         // dwell under the sensor, so normal-play logs can tighten ColorSensorSubsystem.fullHoldS.
         LaneFull full = robot.colorSensor.laneFull();
         log.put("/Lane/Full", full.full() ? 1 : 0);
@@ -1420,7 +1420,9 @@ public abstract class RobotOpMode extends OpMode {
             log.event("launcher: " + launcherFault);
         }
         loggedLauncherFault = launcherFault;
-        String stalled = intakeWatch.check(robot.intake.state() != IntakeSubsystem.State.IDLE,
+        // Not while holding a full lane: the slow roller pressing on the last piece may barely turn.
+        String stalled = intakeWatch.check(robot.intake.state() != IntakeSubsystem.State.IDLE
+                        && !robot.intake.holdingForFull(),
                 robot.intake.ticksPerSecond(), now);
         if (stalled != null) log.event(stalled);
         stalled = feederWatch.check(robot.feeder.power() != 0.0, robot.feeder.ticksPerSecond(), now);

@@ -6,14 +6,14 @@ package org.firstinspires.ftc.teamcode.subsystems;
  * behind it is packed and nothing more can come in. A piece passing through was under it for at
  * most about a second in the 1 Nov logs; one that stops there has nowhere to go.
  *
- * <p>The mentor's rule (2 Nov 2026): the indicator's green, the roller stop and the Autos'
+ * <p>The mentor's rule (2 Nov 2026): the indicator's green, the intake's full hold and the Autos'
  * {@code IntakeFull} all read this one signal. {@link LaneTracker} counts arrivals and shots, which
  * drifts on any missed event, so it stays in the log only.
  *
  * <p>A held piece is full wherever the sensor is mounted (slot 4, the entrance, since early Nov
  * 2026; slot 3 before). Only time spent while taking in counts toward {@code fullAfterMs}: a piece parked under the
  * sensor while the intake is idle says nothing about whether the lane would take another. Once full,
- * it stays full while the piece is there, intake or not (the roller stopping for it does not undo
+ * it stays full while the piece is there, intake or not (the intake holding for it does not undo
  * it), and clears the moment the piece leaves.
  *
  * <p>Presence has the same hysteresis as {@link LaneTracker}: it starts above {@code presentAbove}

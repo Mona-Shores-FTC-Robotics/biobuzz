@@ -427,7 +427,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                     : "Chassis aim: " + aimer.source());
         }
         robot.intake.describe(display);
-        // The same signal as the green light and the roller stop (LaneFull), for whoever is testing.
+        // The same signal as the green light and the full hold (LaneFull), for whoever is testing.
         display.status("Lane", Display.Level.OK, robot.colorSensor.full() ? "full" : "room");
         display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
         if (TeleOpConfig.intakeToggle) {

@@ -252,6 +252,10 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       Sensor at slot 4: confirm `presentAbove`/`leaveBelow`/`fullHoldS` there, and that no piece
       merely pausing leaves it stuck "full" (if one does, `PrefeedSubsystem.stopWhenFull` off).
       (intake toggle + prefeed stop)
+- [ ] Tune `IntakeSubsystem.holdPowerWhenFull` (0.2 is a guess) with 4 loaded: back away fast and
+      turn, the 4th stays in; drive over a 5th, it is not pulled in; toggle off and drive, the 4th
+      stays in; an Auto that idles after `IntakeFull`, the 4th stays in on the drive away. Note the
+      roller's current while holding (`/Intake/HoldingForFull`, roller amps) so a stalled motor shows.
 - [ ] Unjam with a ball on the launcher wheels: rolls back, launcher returns to speed. [PR #323]
 - [ ] Launch Test on gamepad 1, operator layout. [PR #324]
 - [ ] Turret locked: hold Circle after intaking, the chassis settles on the CELL. [PR #329]

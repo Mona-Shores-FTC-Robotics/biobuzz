@@ -34,7 +34,7 @@ public final class InitWarnings {
         CAMERA_NO_FRAMES,
         BATTERY_LOW,
         /**
-         * The colour sensor reads nothing: no "full", so no green light, no roller stop and no
+         * The colour sensor reads nothing: no "full", so no green light, no full hold and no
          * {@code IntakeFull} (an Auto's waits on it run to their limits). Rarely fixable at the
          * field, but the drive team plays differently knowing it (mentor, 2 Nov 2026).
          */
@@ -152,7 +152,7 @@ public final class InitWarnings {
         }
         if (colorSensorSilent) {
             set(Kind.COLOR_SENSOR, "Color sensor: no reading",
-                    "no full light or roller stop: watch the intake");
+                    "no full light or full hold: watch the intake");
         }
     }
 

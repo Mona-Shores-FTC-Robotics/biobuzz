@@ -24,7 +24,7 @@ import java.util.function.BooleanSupplier;
  * gives it back.
  *
  * <p>Once the lane is full ({@link #stopWhenFull}) taking in stops running it, as the intake's
- * roller stops, so nothing more is pushed up the lane while the star wheels hold the last piece; a
+ * roller drops to its hold power, so nothing more is pushed up the lane while the stars hold the last piece; a
  * feed still runs it, and the moment a shot moves the piece off the sensor, taking in runs it again.
  *
  * <p><b>Not yet checked on a robot:</b> the powers, the direction ({@link #reversed}), and whether
@@ -74,7 +74,7 @@ public class PrefeedSubsystem implements Subsystem {
 
     /**
      * Whether the prefeed stops when the lane is full and only the intake was asking for it, the
-     * star wheels still turning to hold the last piece in (the mentor's call, 4 Nov 2026). A feed
+     * stars and a slow roller holding the last piece in ({@code IntakeSubsystem.holdWhenFull}; the mentor's call, 4 Nov 2026). A feed
      * still runs it and an unjam still backs it out. Off if a false full sticks: with the prefeed
      * stopped, a piece that only paused under the sensor stays there until a shot or an unjam
      * moves it ({@code ColorSensorSubsystem.fullHoldS}). Read every loop, so a Panels edit applies at once.
@@ -109,7 +109,7 @@ public class PrefeedSubsystem implements Subsystem {
 
     /**
      * Where to read whether the lane is full, for {@link #stopWhenFull}. Wired once by
-     * {@code Robot} to the colour sensor, as the intake's roller stop is.
+     * {@code Robot} to the colour sensor, as the intake's full hold is.
      */
     public void laneFull(BooleanSupplier full) {
         laneFull = full;

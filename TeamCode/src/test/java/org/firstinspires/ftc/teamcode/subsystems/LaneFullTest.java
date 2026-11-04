@@ -59,7 +59,7 @@ public class LaneFullTest {
         hold(BALL, true, 700);
         assertTrue(lane.full());
         hold(BALL, false, 1000);
-        assertTrue("the roller stopping for it does not undo it", lane.full());
+        assertTrue("the intake holding for it does not undo it", lane.full());
         hold(0.07, false, 100);
         assertTrue("hysteresis: still above leaveBelow", lane.full());
         lane.step(now, EMPTY, false, PRESENT, LEAVE, FULL_AFTER);

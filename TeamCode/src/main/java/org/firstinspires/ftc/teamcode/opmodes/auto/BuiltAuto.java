@@ -77,7 +77,7 @@ import java.util.function.Function;
  * limit. No card turns the intake on or off, so the drawing and the simulator need none. PLAY
  * starts it ({@link #intakeRequest}); the OpMode's stop idles it. The Auto asks for the intake the
  * whole time; once the lane is full (a piece held under the colour sensor, {@code LaneFull}) the
- * intake stops its own roller ({@code IntakeSubsystem.stopRollerWhenFull}) and {@code IntakeFull}
+ * intake holds the last piece in itself ({@code IntakeSubsystem.holdWhenFull}) and {@code IntakeFull}
  * ends the wait, from that one signal. No count of pieces is kept for it.
  *
  * <p>The trace (each card starting, each wait ending and why, the guard's decisions) goes to the

@@ -107,7 +107,7 @@ public final class FlowerPicker extends GrabRoutine {
     public static double dwellMs = 2000;
     /**
      * The dwell ends the moment the lane is full ({@code ColorSensorSubsystem.full()}, the colour
-     * sensor's full: the signal the roller stop, the light and an Auto's {@code IntakeFull} use), since
+     * sensor's full: the signal the full hold, the light and an Auto's {@code IntakeFull} use), since
      * 3 Nov 2026 (mentor: "we have an intake full sensor now"). A full lane takes nothing more, so
      * dwelling on is time lost. In the 29 Oct to 2 Nov 2026 logs on 20245 the last piece's current
      * spike came a median 1.5 s after the push started (0.64 s into the dwell, latest 1.35 s; 33
