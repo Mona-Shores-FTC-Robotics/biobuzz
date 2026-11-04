@@ -1,0 +1,53 @@
+{
+  "pp": "TeamCode/autos/drafts/r-3tip-a.pp",
+  "spec": "R3TipAAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "alliance": "RED",
+  "partners": [
+    {
+      "name": "our L-3Tip-A, on time",
+      "partner": "L3TipAAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "our L-3Tip-A, misses",
+      "partner": "L3TipAAuto",
+      "fails": "misses",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "dead on its start",
+      "partner": "PartnerLBrokenDownAuto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/r-3tip-a.pp",
+    "SavedBy": "3-TIP swap draft, pair A (Claude, 4 Nov 2026): R beside its complementary L, then alone (the first run), missing and dead",
+    "SavedAt": "2026-11-04T12:00:00+00:00"
+  }
+}
