@@ -212,12 +212,12 @@ measurement is [#255].
       which they prefer. Compare the match log's `launch spot:` events with its `chassis aim:`
       ones.
       **Stop:** it refuses with the pose set, or clips the HIVE → `TeleOpConfig.launchSpot` off and
-      note where. [PR #LAUNCHSPOT]
+      note where. [PR #423]
 - [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
       view now and then; read `/Drift/GapXIn` and `/Drift/GapYIn` (camera minus odometry) over the
       run. **Good:** the gap stays within a few inches, so a launch spot driven late in the match is
       where it was early. **Stop:** it grows steadily → the launch-spot button needs a camera reset
-      first; note the rate. [PR #LAUNCHSPOT]
+      first; note the rate. [PR #423]
 
 ## 6. Tape measure and level (camera geometry)
 
@@ -399,6 +399,7 @@ one test at one meeting.
 [PR #384]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/384
 [PR #387]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/387
 [PR #391]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/391
+[PR #423]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/423
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#78]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/78
