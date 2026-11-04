@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.controls.MatchSetup;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
 import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
@@ -47,8 +48,12 @@ import java.util.function.Function;
  * longer than the grab (the Visualizer's builder sets 8 s): a card's default 5 s can cut one short.
  * Both are registered as grabs ({@code AutoRegistry.grab}): they drive the robot off its spot and
  * back (a FLOWER pick squares up first, onto the FLOWER's line, and comes back to that squared-up
- * spot, not the drawn one: {@link FlowerPicker}), so the endgame guard never cuts one and does not start one unless its typical time (the
- * gather's 6 s allows for a long drive in and back) and the park both fit.
+ * spot, not the drawn one: {@link FlowerPicker}), so the endgame guard never cuts one and does not start one unless its typical time
+ * ({@link #PICK_FLOWER_TYPICAL_S}, {@link #GARDEN_GATHER_TYPICAL_S}) and the park both fit. {@code PickFlower} also
+ * has an approach ({@code AutoRegistry.Approach}, {@link FlowerPicker#approach}): the path card
+ * right before it lowers the stick over its last 18 in, so the pick's stick wait is over when the
+ * card starts. {@code GardenGather} has none yet: its stick came down on the wall when swung early
+ * in the corner (30 Oct 2026), so it still lowers it from its own card.
  *
  * <p>{@code SpinUp}, {@code LaunchAll}, {@code LaunchOne} and {@code Empty} are real since the
  * launcher and feeder landed (#194): see {@link LaunchCards}, including what {@code Empty} means
@@ -75,6 +80,18 @@ import java.util.function.Function;
  *       camera next sees the HIVE settle.</li>
  * </ul>
  *
+ * <h2>CellUp</h2>
+ *
+ * <p>The one wait the Simple builder offers, as "Wait for TIP" (mentor, 3 Nov 2026): the CELL this
+ * robot is aimed at is up. True at once if it already is, so an Auto that arrives at a launch spot
+ * with its CELL up fires without waiting; otherwise the wait holds until the camera sees that CELL
+ * settle up, or the step's time limit passes. Which CELL is a pose question: with the turret at
+ * home the robot fires straight ahead, so it is our HIVE's CELL at the robot's end of the field
+ * ({@link #aimedLeft}). What "up" means is {@code LeftCellUp}/{@code RightCellUp} below, from the
+ * tracker, which the camera updates whenever it sees the HIVE settle; at a launch spot it is
+ * looking at it. {@code Tip}, {@code LeftCellUp} and {@code RightCellUp} stay registered for the
+ * benched Autos that use them.
+ *
  * <h2>Tip</h2>
  *
  * <p>True once one of our CELLs settles, in the camera, opposite to where it was last known to rest
@@ -92,6 +109,62 @@ import java.util.function.Function;
  * wrong pose.
  */
 public final class AutoRegistration {
+
+    /**
+     * {@code LaunchAll}'s typical seconds, after a drive with the launcher already at speed: the
+     * settle ({@code PathEndSettle}) and {@code LaunchCards.launchAllFeedS}' set 3.5 s feed. Measured
+     * on 20245, 1 and 2 Nov 2026 match logs: 3.7 to 4.2 s after a drive (R-Quals 2 Nov: 4.17 s,
+     * 0.66 s before the gate opened); 4.4 to 6.0 s, median 4.6, for the first one at PLAY, which
+     * waits for the spin-up from rest (median 1.1 s, 0.9 to 2.1). The last of four balls left
+     * 2.3 to 2.6 s after the gate opened (median 2.4), so the feed has 1 s in hand. The Visualizer's
+     * Typical preview times it from {@code TeamCode/autos/timing.json} instead ({@code spinUpS},
+     * {@code volleyS}); this is what its Instant preview shows.
+     */
+    public static final double LAUNCH_ALL_TYPICAL_S = 4.0;
+
+    /**
+     * {@code PickFlower}'s typical seconds, planned for a slow pick so the endgame guard keeps time
+     * for one (mentor, 3 Nov 2026): one that squares up and dwells the whole
+     * {@code FlowerPicker.dwellMs} (2 s) because the FLOWER does not fill the lane. From the twelve
+     * Auto picks in the 31 Oct to 2 Nov 2026 logs on 20245, the slowest of each part: square-up
+     * 0.62 s, hand-over 0.19 s (the stick is lowered on the drive in now, so the 0.70 to 0.73 s
+     * stick wait those picks had is gone), push 0.88 s, dwell 2.0 s, back-out 0.68 s: 4.4 s.
+     * A pick whose dwell ends on full ({@code FlowerPicker.dwellEndsOnFull}) takes about 2.5 s
+     * (2.2 to 3.2): square-up 0 (11 of 12), push 0.57 s, dwell to full about 1.1 s (the last
+     * piece's current spike a median 0.64 s into the dwell in 33 picks, and full 0.44 s after it
+     * on the one pick that filled the lane), back-out 0.53 s. Re-measure from the next Auto picks'
+     * logs.
+     */
+    public static final double PICK_FLOWER_TYPICAL_S = 4.4;
+
+    /**
+     * {@code GardenGather}'s typical seconds: a drive in, a dwell and a drive back from wherever the
+     * card is called. Not measured from an Auto yet (five button gathers on 29 Oct and 1 Nov 2026
+     * took 3.0 to 5.0 s from beside the GARDEN); 6.0 allows for the drive in and back.
+     */
+    public static final double GARDEN_GATHER_TYPICAL_S = 6.0;
+
+    /**
+     * Seconds from the partner's last shot to our CELL seen up, added to the last shot their team
+     * gives us to make the partner wait ({@link #partnerWaitUntilS}): the shot's flight, the dwell
+     * before the rocker moves, the swing, and the camera settling on the raised CELL. The
+     * simulator's model of each gives 1.5 to 5 s ({@code FieldSim.FILMED_TIP_SECONDS} 0.58 to 1.12 s,
+     * {@code FILMED_TIP_DWELL_SECONDS} 0.25 to 3.4 s, a flight of about 0.6 s, the tracker's settle);
+     * 4 s covers all but the longest dwells. An estimate until a match log times one. Written in
+     * {@code TeamCode/autos/timing.json} too ({@code partnerTipLagS}), which
+     * {@code PartnerWaitTest} keeps equal to this.
+     */
+    public static final double PARTNER_TIP_LAG_S = 4.0;
+
+    /**
+     * The match second the Auto's partner wait (its one match-clock {@code AutoOption}, set on the
+     * D-pad in INIT: {@link InitOptions}) ends at, for the partner's last shot as their team said
+     * it: that plus {@link #PARTNER_TIP_LAG_S}. NaN gives NaN. The simulator sets its partner wait
+     * from this too, as the driver would.
+     */
+    public static double partnerWaitUntilS(double partnerLastShotS) {
+        return Double.isNaN(partnerLastShotS) ? Double.NaN : partnerLastShotS + PARTNER_TIP_LAG_S;
+    }
 
     /** How long without a HIVE tag before the camera counts as blind. */
     public static final double BLIND_AFTER_MS = 500;
@@ -119,23 +192,28 @@ public final class AutoRegistration {
                 .holdTimeLimitsWhile(() -> launch != null && launch.feeding())
                 // ---- real: the launcher and the feeder. Typical seconds are what the editor's
                 // preview shows; the feed times themselves are LaunchCards' Panels numbers.
-                .command("LaunchAll", 2.0, () -> launch.launchAll())
+                .command("LaunchAll", LAUNCH_ALL_TYPICAL_S, () -> launch.launchAll())
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
-                // the pick spot an Auto drives to and ends back there (FlowerPicker's contract). Its
-                // typical time plans for the dwell's 2 s cap, not its usual 1.0-1.3 s, so the endgame
-                // guard keeps time for a slow pick.
-                .grab("PickFlower", 4.5, () -> FlowerPicker.command(robot, note))
+                // the pick spot an Auto drives to and ends back there (FlowerPicker's contract). The
+                // drive before it lowers the stick on the way in (its approach), so the pick's stick
+                // wait is over when the card starts, and its dwell ends when the lane is full.
+                .grab("PickFlower", PICK_FLOWER_TYPICAL_S, () -> FlowerPicker.command(robot, note),
+                        robot == null ? null : FlowerPicker.approach(robot, note))
                 // ---- real: the GARDEN gather, the same routine as the driver's GARDEN gather button. It drives in
                 // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract).
-                .grab("GardenGather", 6.0, () -> GardenGather.command(robot, note))
+                .grab("GardenGather", GARDEN_GATHER_TYPICAL_S, () -> GardenGather.command(robot, note))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
-                // ---- real: a piece held under the colour sensor (LaneFull), as the roller stop and the light.
+                // ---- real: a piece held under the colour sensor (LaneFull), as the full hold and the light.
                 .trigger("IntakeFull", robot == null ? () -> false : robot.colorSensor::full)
                 // ---- real: the camera, through our HIVE's tracker. See the class comment.
                 .trigger("LeftCellUp", () -> cellUp(ourHive(robot, setup), true))
                 .trigger("RightCellUp", () -> cellUp(ourHive(robot, setup), false))
+                // ---- real: the CELL this robot is aimed at is up, the Simple builder's "Wait for TIP":
+                // true at once if it already is, else when the camera sees it settle up. See the class
+                // comment.
+                .trigger("CellUp", () -> aimedCellUp(robot, setup))
                 // Our HIVE has tipped since this wait began: one of our CELLs is now settled opposite
                 // to where it was last known to rest (seeded at an Auto's PLAY). See the class
                 // comment. Mid-tip detection (tags vanishing while the robot holds still) is #173's.
@@ -151,6 +229,27 @@ public final class AutoRegistration {
     static boolean cellUp(HiveTracker hive, boolean left) {
         if (hive == null) return false;
         return left ? hive.leftCellUp() : hive.rightCellUp();
+    }
+
+    /**
+     * {@code CellUp}: the CELL this robot is aimed at is up. With the turret at home the robot fires
+     * straight ahead, so from its end of the field it can only be aimed at our HIVE's CELL at that
+     * end: {@link #aimedLeft}. False with no robot, no alliance, or a CELL the tracker has not
+     * settled.
+     */
+    static boolean aimedCellUp(Robot robot, MatchSetup setup) {
+        if (robot == null || setup == null || setup.alliance() == null) return false;
+        return cellUp(ourHive(robot, setup), aimedLeft(setup.alliance(), robot.drive.pose().y()));
+    }
+
+    /**
+     * Whether the CELL at the robot's end of the field ({@code y}, Pedro frame) is our LEFT one as the
+     * drive team sees it: red's left is the scoring end (past the field's centre), blue's left is
+     * the audience end, since blue's side is red's turned half a turn.
+     */
+    static boolean aimedLeft(Alliance alliance, double y) {
+        boolean scoringEnd = y >= FieldFrame.FIELD_CENTRE_INCHES;
+        return alliance == Alliance.BLUE ? !scoringEnd : scoringEnd;
     }
 
     /** Our alliance's HIVE; null with no robot, no setup or no alliance chosen. */

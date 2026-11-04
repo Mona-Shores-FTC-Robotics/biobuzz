@@ -300,7 +300,7 @@ and nothing is pushed over adb.
 
 | | |
 |---|---|
-| The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot — plus `robot_launcher_rig.xml` for the two-wheel launcher bench rig (hub FTC-EoM3) |
+| The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot — plus `robot_launcher_bench.xml` and `robot_octoquad_rig.xml` for the bench rigs |
 | The names in Java | `hardware/DeviceNames.java` — the only place a device name may be written |
 | The build-time check | `RobotConfigXmlTest` — fails CI if the XML and `DeviceNames` disagree |
 | The run-time check | the **Check: Hardware** OpMode (Utility menu) |
@@ -343,12 +343,12 @@ file.
 
 > **History note (26 Sep 2026).** This paragraph used to say "the test requires
 > every robot to declare every device", and called that a known limit that
-> "hasn't bitten yet". It bit with the first bench rig: the two-wheel pinch
-> launcher on its own Control Hub (FTC-EoM3), which has one motor and nothing
+> "hasn't bitten yet". It bit with the first bench rig: a two-wheel pinch
+> launcher on its own Control Hub (since retired), which had one motor and nothing
 > else. Rejected alternatives: naming the rig's file something other than
 > `robot_*.xml` so the tests skip it (smallest change, but then a typo in its
 > motor name is found at a meeting, which is the thing this whole section
-> exists to prevent); and adding `launcher2` to both competition robots' XML
+> exists to prevent); and adding the rig's motor to both competition robots' XML
 > (would declare a device neither robot has). `Check: Hardware` likewise now
 > checks the live hardware against the active robot's list.
 
@@ -397,6 +397,34 @@ Rejected:
   list when you add a subsystem and you silently get stale values.
 - **Hub serial number** — stable but opaque; a hub swap becomes a hex-string
   hunt.
+
+### When one robot has to be different: `RobotDifferences`
+
+The robots are meant to be identical, so every mechanism value is one
+`@Configurable` field in its subsystem, shared by both. When one robot turns out
+different (a swapped motor that turns the other way, a servo re-splined to a new
+position, a mechanism that is not fitted yet), that is one line in
+`RobotDifferences.java`, under that robot:
+
+```java
+differs(RobotIdentity.TEAM_19429, "Intake motor swapped, turns the other way (5 Nov 2026)",
+        () -> IntakeSubsystem.reversed = false);
+```
+
+Then Sloth Load. `RobotOpMode` applies the active robot's lines before the robot
+is built, and the match log's Metadata tab lists them, so a log always says which
+robot ran with which differences. Pedro's values are not here (they are
+`pedro/robots/`), nor are ports (the robot's XML).
+
+Each robot's lines are applied once per app run, so a Panels edit made later
+sticks across OpModes, as it does today. If the active config changes to another
+robot after a robot with lines ran, the next OpMode refuses to start until the
+Robot Controller app is restarted: running one robot with the other's values is
+last season's bug.
+
+Rejected: a field per robot in each subsystem (`reversed19429`), which doubles
+every number whether it differs or not; and `if (robot == 19429)` in subsystem
+code, which scatters the differences where nobody can list them.
 
 ### Why bundled, and not DECODE's `adb push`
 
@@ -673,21 +701,19 @@ and fails on any servo write or any non-zero motor power; a subsystem that looks
 run there or say in the test why it cannot move before PLAY.
 
 **`stop()` means teardown and only teardown.** The disagreement that kept it off the interface was
-real: `Launcher2.stop()` cuts power and keeps the object live, where `LimelightVisionSubsystem.stop()`
-ends it. The resolution is to name it, not paper over it — "stop the mechanism for a moment" gets its
-own name (`idle()`, `spinDown()`). `Launcher2` is not a `Subsystem` and the launcher rig stays
-standalone, so nothing had to change; if it ever becomes one, its `stop()` gets renamed.
+real: the old standalone launcher rig's `stop()` cut power and kept the object live, where
+`LimelightVisionSubsystem.stop()` ends it. The resolution is to name it, not paper over it — "stop
+the mechanism for a moment" gets its own name (`idle()`, `spinDown()`).
 
 **If the interface makes your subsystem awkward, change the interface — do not work around it.** It
 was designed against one existing subsystem and will meet its second one soon.
 
 ### This does not supersede "No command framework"
 
-The `launcher2` rig stays a plain `OpMode` — no Ivy `Command`, no scheduler — as the DECODE flywheel
-rig it was copied from did. The reasoning has not changed: a rig with one behaviour has nothing for a
-scheduler to arbitrate. When the real BIOBUZZ launcher lands and shots have to be sequenced against
-an intake, that is the point to introduce Ivy commands, and it happens in a `Subsystem`, not in the
-rig.
+The bench OpModes stay plain OpModes — no Ivy `Command`, no scheduler — as the old standalone
+flywheel rig did. The reasoning has not changed: a rig with one behaviour has nothing for a scheduler
+to arbitrate. Sequencing shots against an intake is what the commands are for, and it happens in a
+`Subsystem`, not in a rig.
 
 ### Why this shape, and what was rejected
 
@@ -794,7 +820,7 @@ and pod offsets and every Foresight value are measurements of one physical robot
 |---|---|
 | `pedro/robots/Robot19429.java`, `Robot20245.java` | That robot's three blocks, in exactly the shape the tuners emit. **The only place tuned numbers go.** |
 | `Constants.ROBOTS` | One line per robot: `RobotIdentity` → its file |
-| `Constants.forRobot(identity)` | Pure lookup, unit tested. Throws, naming the identity, for a robot with no drivetrain (`LAUNCHER_RIG`) or with no file |
+| `Constants.forRobot(identity)` | Pure lookup, unit tested. Throws, naming the identity, for a robot with no drivetrain (`LAUNCHER_BENCH`) or with no file |
 | `createDrivetrain` / `createLocalizer` / `createAlgorithm` / `create` | Unchanged signatures; call `forRobot(ActiveConfig.requireIdentity())` |
 | `RobotConstants` | Wraps one robot's three blocks, and sets the **device names** on them from `DeviceNames` |
 
@@ -827,7 +853,7 @@ a robot file no entry points at.
 
 **What the tests pin.** Both competition robots resolve to their own file and to
 *different* config objects (a copied file still pointing at the other robot's
-fields passes everything else); `LAUNCHER_RIG` is refused by name; every
+fields passes everything else); `LAUNCHER_BENCH` is refused by name; every
 drivetrain robot has values; every robot carries the shared device names; and
 each untuned robot's `createAlgorithm` still fails with the robot and file in
 its message.
@@ -892,7 +918,7 @@ tuned Foresight, since only those build a `Follower`.
 The Foresight Tuner's **Max Strafe Velocity** step sends full power straight
 left, robot-centric, with nothing correcting heading. So it shows the robot's own
 strafe, and a robot that arcs there (a "rainbow") has a mechanical problem, not a
-tuning one. Two things hide it in everyday driving. Basic Drive runs at 60%, and
+tuning one. Two things hide it in everyday driving. Basic Drive runs at 70%, and
 it is **field-centric** by default, so the Pinpoint heading quietly steers out
 the drift. To see what the tuner sees, open **Drive: Robot-centric** (Utility menu),
 hold the **right bumper** (turbo) and push straight left.
@@ -943,12 +969,46 @@ calls. There are three kinds of card and one branching block:
   `firstOf` row's cards: a path there is never cut, and one that would start after the deadline
   does not start (#142).
 
+**Where a path ends, and what settles after it.** A path card is done when `AutoDrive.pathDone()`
+says so, which on the robot is Pedro's parametric end: the Follower switches to holding the end pose
+and brakes, and the robot is still rolling (10 to 24 in/s at the hand-over in the 29 Oct to 2 Nov
+2026 logs, under 8 in/s 0.1 to 0.2 s later, under 2 in/s 0.1 to 0.5 s later). The kit adds no
+settle of its own. A launch card waits for `PathEndSettle` (still, and aimed). A grab waits for its
+own hand-over speed, `settledInPerSec` in `FlowerPicker` and `GardenGather` (8 in/s since 3 Nov 2026,
+from 2): a pick squares up on its own and ends on contact, a gather ends on the wall, so neither
+needs the robot still (mentor, 3 Nov 2026). Before that, the whole 0.7 s between a drive's end and
+the push was the stick's `stickDownMs`, since the stick went down only when the pick card started.
+
+**A path card before a grab runs the grab's approach.** `AutoRegistry.Approach` is what a grab does
+on the drive in to it. `sequence`, `guarded` and a `firstOf` row's cards pair each path card with the
+grab card right after it; while the path drives, the kit tells the approach where the robot is and
+how far it has to go, and cancels it if the guard refuses the grab. `FlowerPicker.approach` lowers
+the stick and starts the intake over the last `lowerWithinIn` (18 in) of the drive, for the FLOWER
+the pick will go for from the drive's end; the pick then counts its stick time from when the stick
+was asked out (`FlowerStickSubsystem.extendedSinceNs`, `GrabRoutine.readySinceNs`), so the wait is
+usually over. The cards stay what they are: the drive ends where it was drawn and the pick is still
+the whole pick, which works on its own from the button. Merging the drive into the push (ending the
+drive at the contact standoff) was considered and rejected: the pick would no longer be a unit that
+works in isolation. `GardenGather` has no approach yet: its stick came down on the wall when swung
+early in the corner (30 Oct 2026).
+
 Names come from `AutoRegistration`, the only list of commands and triggers an Auto may use;
 `requireAll` at INIT stops an Auto that uses an unregistered name. Names whose mechanism does not
 exist yet are registered as explicit placeholders (`PLACEHOLDERS`; a command that finishes at
 once, a trigger that never fires), shown on the Driver Station at INIT, so an Auto drawn for the
 finished robot runs on today's robot as a timed script. `auto-registry.json` is the same list for
 the editor; `AutoRegistrationTest` keeps the two in step.
+
+**The partner wait.** Teams are asked one number: "when does your last preload leave?". The driver
+enters it during an Autonomous's INIT with gamepad 1's D-pad up/down (`InitOptions`, 1 s a press;
+left/right picks the park). The Auto's one wait drawn "until the match clock reads …" and offered
+in INIT (`AutoOption.matchSeconds`, exported as `kit.atMatchSeconds(kit.seconds(...))`) then ends
+at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 4 s for the shot's flight, the dwell
+before the rocker moves, the swing and the camera settling (1.5 to 5 s in the simulator's model).
+`partnerTipLagS` in `TeamCode/autos/timing.json` is the same number, and `PartnerWaitTest` keeps the
+two equal. The Match page shows both numbers, never only the sum: "partner's last shot ▲▼ 8 s,
+waiting until 12 s". Nothing entered, the wait runs as drawn. It is still a time limit: a feed that
+has started finishes first. L-Partner's "Wait for TIP or CELL up" is the one partner wait on master.
 
 `autokit` depends only on Ivy and Pedro, so `AutoKitTest` runs every card through Ivy's real
 `Scheduler` against a fake drivetrain, on a laptop.
@@ -970,17 +1030,50 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   BIOBUZZ_SIM_RUN=/path/to/folder ./gradlew :TeamCode:testDebugUnitTest --tests '*SimRunTest*' --rerun
   ```
 
-  `{"spec": "RQualsAuto", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}`; a
-  partner runs beside it as `"RQualsAuto,LSimpleAuto@50"` (the number is its speed, in/s). The
-  folder gets `result.json` and one `.wpilog` per seed.
+  `{"spec": "RSoloAuto@50", "design": "real robot", "seeds": [1, 2, 3], "alliance": "RED"}` (the
+  number after `@` is our speed, in/s). The folder gets `result.json` and one `.wpilog` per seed.
+- **Partners: the simulator acts as the driver.** The request's `"partners"` list runs the Auto
+  again beside each stand-in from `TeamCode/autos/partners/`, told the one number a team gives:
+  `{"name": "last shot at 8 s", "partner": "PartnerRLaunchParkAuto", "lastShotS": 8}`. From it
+  `AutoStudyTest.PartnerTiming.derive` works out the stand-in's start delay and seconds per volley
+  so its last preload leaves at that second (the spin-up, then a volley every interval: at the
+  robot's own interval starting late, or faster from PLAY), and our Auto's partner wait is set as
+  the driver would set it: the simulator hands the generated Auto the same INIT pick
+  (`AutoKit.Picks`) that `InitOptions` does on the robot. A left stand-in fires only once its CELL is up, so its last shot can
+  come later than asked; the table shows when it did.
+- **A partner fails in two ways, nothing in between.** `"fails": "misses"`: every shot goes
+  `AutoSim.MISS_WIDE_IN` to the side of the CELL, so it causes no TIP, and it carries on with its
+  Auto and parks on schedule. Dead on its start: a broken-down stand-in (`PartnerRBrokenDownAuto`,
+  `PartnerLBrokenDownAuto`), with `lastShotS` still setting our wait, as their team would have said it.
+  "Later than they said" is not modelled (mentor, 3 Nov 2026).
+- **The raw knobs stay, for studies:** `"timing": {"startDelayS": 3, "speed": 40, "launchS": 1.6,
+  "pickS": 4}` (each optional: seconds before its first card, its drive profile, seconds per
+  launch volley, seconds at a FLOWER; `AutoSim.startDelay`, `speed`, `launchSeconds`,
+  `pickSeconds`); one given wins over what `lastShotS` derives.
+- **A LaunchAll fires as the robot's does.** `LaunchCards.launchAll` feeds for `launchAllFeedS`
+  once spun up and settled, whatever the CELL and the range, and the turret aims at our CELL at
+  the robot's end of the field (`TurretAimer`). So the simulated LaunchAll fires there, up or not,
+  from any range: a shot at a down CELL is a wasted preload, counted in the results, where it
+  used to hold fire and time out holding 4. StreamOn, which master's Autos do not use, still holds
+  fire for a raised CELL in range.
+- **Results.** Each partner run gets its own folder, `<partner .pp name>/<timing name>/`, with its
+  `result.json` and logs, and the top `result.json` carries `entries`: one row per run with the
+  points, our launches (and how many went at a down CELL), the TIPs and when, the partner's last
+  shot and our first CellUp (the TIP lag, seed by seed), how our first wait ended and when, the
+  first robot collision and whether we parked. Which partners each Auto runs with is in
+  `TeamCode/autos/README.md`.
 - **From the Visualizer**, Save & Simulate to `master` commits the `.pp`, its Java and the Auto's
   own `TeamCode/sim-requests/<name>.json` to an `auto/<name>` branch and opens a pull request that
   merges itself once CI passes (the fast lane, `.github/CONTRIBUTING.md`). The "Simulate Auto"
-  workflow runs the request on that branch (about 1.5 min) and publishes the result and the best
-  and typical logs to the `sim-results` branch, where the Visualizer reads them back.
+  workflow runs the request on that branch, the Auto alone and then each partner run, and
+  publishes the result and the best and typical logs to the `sim-results` branch, where the
+  Visualizer reads them back: the Auto alone at `<auto>/latest.json` as before, each partner run at
+  `<auto>/<commit>/<partner>/<timing>/` and `<auto>/with/<partner>/<timing>/latest.json`, and the
+  job summary shows the results table. Partner runs take fewer seeds so the job stays under about
+  five minutes.
 - **Its points are shown, never enforced.** No test fails an Auto for scoring less: when time is
   short, a check like that could keep a needed fix off the robot (31 Oct 2026). Only
-  `SimulatorSmokeTest` (one seed of R-Quals, about a second) runs with the unit tests; the other
+  `SimulatorSmokeTest` (one seed of R-Solo, about a second) runs with the unit tests; the other
   simulator tests are opt-in by environment variable, so CI stays fast.
 
 The simulator grew on the `claude/simulator` branch, with 88 what-if robot designs; it came to
@@ -1303,8 +1396,11 @@ went (`READY` means it would have applied).
 
 **The reset spots.** `ResetPositions` holds two measured poses per alliance: the corners on its
 wall to the driver's left (D-pad left) and right (D-pad right), where the robot squares into both
-walls, so heading is known too. The button sets the whole pose. That also gives a TeleOp started
-without an Auto handoff a field heading. The driver picks the corner by the button, never "the
+walls, so heading is known too. The button sets the whole pose, and is the gyro reset as well:
+field-centric forward becomes the alliance's driver forward, as at PLAY, since a robot squared into
+the corner faces that way. Drivers lose forward and the pose together, and were holding the corner
+and then D-pad up (4 Nov 2026); D-pad up alone still squares forward to the robot's facing anywhere.
+That also gives a TeleOp started without an Auto handoff a field heading. The driver picks the corner by the button, never "the
 nearest corner": picking the nearest corner trusts the pose that is being reset. Each stays NaN
 (its button says so) until measured.
 
@@ -1545,7 +1641,7 @@ server, which is still there and still serves the RC's own pages.
 | Limelight pipeline tuning without a USB cable | Limelight proxy | browser-side |
 
 Call `update()` once per loop after the `addData`/`debug` calls, and wrap the whole block in a
-`try`/`catch` that swallows. `Launcher2SpeedTestOpMode.publishPanels()` is the reference
+`try`/`catch` that swallows. `LauncherBench.publish()` is the reference
 implementation: telemetry must never take a mechanism down mid-run.
 
 **`update(telemetry)` publishes to both.** `TelemetryManager` has a second overload that takes the
@@ -1562,18 +1658,10 @@ prefix instead — `left_rpm`, `right_rpm`.
 `@Configurable` on the class, and the fields it exposes must be **`public`, `static`, and
 non-`final`**. Primitives, enums, strings, arrays, lists, maps and custom objects all work.
 
-The pattern this repo uses, and the one to copy, is a single static root holding plain nested
-objects — `launcher2/Launcher2` declares:
-
-```java
-@Configurable
-public class Launcher2 {
-    public static Launcher2Config config = new Launcher2Config();
-```
-
-and everything under `Launcher2Config` is ordinary instance fields. Panels reflects through
-the static root into the tree, so one annotation exposes the whole structure and the sub-configs
-stay readable as normal Java.
+The pattern this repo uses, and the one to copy, is `LauncherSubsystem`: the annotation on the
+class and its tunables as `public static` fields on it. Panels reflects through those fields, so one
+annotation exposes the whole class. A tree of nested config objects also works — hang them off a
+single static root and Panels walks into them — but nothing here needs that today.
 
 Three things that will cost you a meeting if you forget them:
 
@@ -1584,8 +1672,8 @@ Three things that will cost you a meeting if you forget them:
   Values changed *in code* reach the browser only when a tab connects, after a browser edit, or
   when the code calls `PanelsConfigurables.refreshClass(TheConfigurableClass.class)`. So any code
   that writes a configurable must call `refreshClass` right after, or the page shows a stale number
-  and an edit typed over it looks like it did nothing. `Launcher2SpeedTestOpMode.nudgeTarget()`
-  is the example — its d-pad nudges write `targetRpm`, then call `refreshClass`.
+  and an edit typed over it looks like it did nothing. `LauncherBench.nudgeFeed()`
+  is the example — its d-pad nudges write `FeederSubsystem.feedPower`, then call `refreshClass`.
   > **History note, 26 Sep 2026.** This bullet used to say only "refresh the browser". That was
   > the workaround, not the answer: `refreshClass` is Panels' own call for this (checked in
   > `configurables-0.3.2+1.0.5`, which sends values on connect, on a browser edit, and on
@@ -1736,7 +1824,7 @@ Recorded here so it is a choice rather than a surprise:
 
 | Gap | Cost |
 |---|---|
-| Only `Launcher2SpeedTestOpMode` and `LoopTimeBaseline` publish to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
+| Only `LauncherBench` and `LoopTimeBaseline` publish to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
 | Nothing draws game elements on the field — `FieldView.drawMarker` exists and has no callers. | Vision sightings are numbers in a list rather than dots where the robot thinks they are. |
 | No shared telemetry helper, so each OpMode still publishes in its own style. | Key names and update cadence will drift between OpModes. |
 

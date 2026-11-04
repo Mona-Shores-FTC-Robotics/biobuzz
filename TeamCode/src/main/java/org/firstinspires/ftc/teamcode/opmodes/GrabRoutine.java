@@ -32,17 +32,23 @@ import java.util.function.Consumer;
  *       (waiting at most {@link #SETTLE_MAX_MS} for that): Pedro calls a short path done before the
  *       robot has turned.</li>
  *   <li><b>Prep.</b> The mechanisms get ready ({@link #prep}), and the robot waits {@link #prepMs}
- *       for them. Prep starts during the line-up once the robot is within {@link #prepWithinIn}.
- *       The In also waits for the robot to slow below {@link #settledInPerSec} (at most
- *       {@link #SETTLE_MAX_MS}), since Pedro ends a path still rolling.</li>
+ *       for them. Prep starts during the line-up once the robot is within {@link #prepWithinIn};
+ *       on an Auto's card the drive before it may have done it already on its way in
+ *       ({@link #readySinceNs}: a FLOWER pick's stick, lowered over the last stretch of the drive),
+ *       and then the wait counts from then and is usually over. The In also waits for the robot to
+ *       slow below {@link #settledInPerSec} (at most {@link #SETTLE_MAX_MS}): Pedro calls a path done
+ *       at its end with the robot still rolling, and a grab need not be still, only slow (its
+ *       hand-over speed, lighter than a launch's), since it squares up on its own and ends on
+ *       contact.</li>
  *   <li><b>In.</b> A Pedro path to where the grab happens ({@link #inPose}), capped at
  *       {@link #inSpeed} of the robot's top speed. It ends when the path does, or when the robot
  *       stops getting closer (it is against something; not counted in the path's first moments,
  *       while it ramps up from rest), or at {@link #inTimeoutMs}.</li>
- *   <li><b>Dwell</b>, pushing lightly ({@link #dwellPushPower}), steered, until the intake's current
- *       says the pieces have stopped coming ({@link DwellWatch}: quiet for {@link #dwellQuietMs}
- *       after the last spike, or no spike by {@link #dwellEmptyMs}), at most {@link #dwellMs}. The
- *       current is read every loop while a grab runs.</li>
+ *   <li><b>Dwell</b>, pushing lightly ({@link #dwellPushPower}), steered, until the lane is full
+ *       ({@link #dwellFull}: the colour sensor's full, for a grab that opts in), or the intake's
+ *       current says the pieces have stopped coming ({@link DwellWatch}: quiet for
+ *       {@link #dwellQuietMs} after the last spike, or no spike by {@link #dwellEmptyMs}), at most
+ *       {@link #dwellMs}. The current is read every loop while a grab runs.</li>
  *   <li><b>Back.</b> A Pedro path back to exactly where the In started, capped at
  *       {@link #backSpeed}. {@link #unprep} once the robot has backed {@link #unprepAfterBackIn}.</li>
  * </ol>
@@ -71,8 +77,9 @@ import java.util.function.Consumer;
  * considers every one, since in TeleOp they are all ours to use. The robot is always on its own half
  * in an Auto, so this needs no alliance.
  *
- * <p>The robot comes to rest at the start and the end of each grab. A grab that keeps moving into
- * the next drive is a later change, here, for every grab at once.
+ * <p>A grab starts from a robot still slowing (the drive before it hands over at Pedro's path end)
+ * and comes to rest at its end. A grab that keeps moving into the next drive is a later change,
+ * here, for every grab at once.
  */
 public abstract class GrabRoutine {
 
@@ -148,6 +155,14 @@ public abstract class GrabRoutine {
     protected abstract String what();
 
     /**
+     * Appended to the start line in the match log: a value a person may have changed in Panels since
+     * INIT, which the log's start-of-run metadata cannot show. Empty, or ", name value" with its comma.
+     */
+    protected String startNote() {
+        return "";
+    }
+
+    /**
      * The target nearest the robot, by name, or null with {@link #noTargetWhy} when none is in range.
      * Called once, at the start; the subclass keeps what it found for the methods below.
      */
@@ -193,11 +208,34 @@ public abstract class GrabRoutine {
     /** The mechanisms get ready (stick down, intake on). Called once. */
     protected abstract void prep();
 
+    /**
+     * When the mechanisms were already made ready before this grab started, System.nanoTime, or 0
+     * when they were not: an Auto's drive lowers a FLOWER pick's stick on its way in
+     * ({@code FlowerPicker}'s approach, run by {@code AutoKit}), and the driver may have it down
+     * already. The prep wait ({@link #prepMs}) then counts from that moment, so a stick that has been
+     * down long enough costs the push nothing. Never, by default.
+     */
+    protected long readySinceNs() {
+        return 0;
+    }
+
     /** The mechanisms put away during the back-out (stick up). Called once, if prepped. */
     protected abstract void unprep();
 
     /** Everything stops: the end of a grab, finished or not. The drive is stopped by the caller. */
     protected abstract void stopMechanisms();
+
+    /**
+     * The nearest the robot's centre has been to the field point ({@code x}, {@code y}) on this
+     * grab's In, inches: where the In ended, or where the robot is now if the grab is being cut
+     * short during the In. {@code neverIn} before the In starts. For a subclass's rule about when a
+     * mechanism may come back in: a mechanism that went into something is clear of it some distance
+     * out from where it went in, wherever the In was aimed.
+     */
+    protected double closestOnInIn(double x, double y, double neverIn) {
+        Pose at = inEnd != null ? inEnd : phase == Phase.IN ? robot.drive.pose() : null;
+        return at == null ? neverIn : Math.hypot(at.x() - x, at.y() - y);
+    }
 
     protected abstract double prepMs();
     protected abstract double prepWithinIn();
@@ -209,7 +247,10 @@ public abstract class GrabRoutine {
     protected abstract double atLineUpIn();
     protected abstract double atLineUpDeg();
     protected abstract double lineUpTimeoutMs();
-    /** The In starts once the robot is slower than this, inches/s (see {@link #SETTLE_MAX_MS}). */
+    /**
+     * The In starts once the robot is slower than this, inches/s (see {@link #SETTLE_MAX_MS}): the
+     * grab's hand-over speed, from the drive before it. Slow, not still: a launch waits for still.
+     */
     protected abstract double settledInPerSec();
     protected abstract double inSpeed();
     protected abstract double inTimeoutMs();
@@ -220,6 +261,14 @@ public abstract class GrabRoutine {
     protected abstract double dwellQuietMs();
     /** The dwell ends if the current has had no spike this far into it, ms; 0 turns it off. */
     protected abstract double dwellEmptyMs();
+    /**
+     * Whether the dwell may end now because the lane is full: a state the colour sensor already
+     * keeps current ({@code ColorSensorSubsystem.full()}), read here once a loop, never hardware.
+     * Never, by default.
+     */
+    protected boolean dwellFull() {
+        return false;
+    }
     /** A current this many amps over the roller's free-running current is a piece. */
     protected abstract double spikeAboveAmps();
     protected abstract double dwellPushPower();
@@ -366,9 +415,11 @@ public abstract class GrabRoutine {
                 }
                 break;
             case DWELL:
-                boolean capped = ms(now, phaseStartNs) >= nn(dwellMs());
-                if (capped || dwell.done(ms(now, startNs), ms(phaseStartNs, startNs), dwellQuietMs(), dwellEmptyMs())) {
-                    dwellEndWhy = capped ? "dwellMs" : dwell.sawSpike() ? "pieces in" : "nothing came";
+                String why = dwellEnd(ms(now, phaseStartNs) >= nn(dwellMs()), dwellFull(),
+                        dwell.done(ms(now, startNs), ms(phaseStartNs, startNs), dwellQuietMs(), dwellEmptyMs()),
+                        dwell.sawSpike());
+                if (why != null) {
+                    dwellEndWhy = why;
                     startBack(now, pose);
                 } else {
                     steer(pose, dwellPushPower());
@@ -387,6 +438,18 @@ public abstract class GrabRoutine {
             default:
                 break;
         }
+    }
+
+    /**
+     * Why the dwell ends this loop, for the log, or null while it goes on: the lane is full
+     * ({@code full}), then the cap ({@code capped}), then the intake current's answer
+     * ({@code currentDone}: "pieces in" after a spike, else "nothing came").
+     */
+    static String dwellEnd(boolean capped, boolean full, boolean currentDone, boolean sawSpike) {
+        if (full) return "full";
+        if (capped) return "dwellMs";
+        if (currentDone) return sawSpike ? "pieces in" : "nothing came";
+        return null;
     }
 
     /**
@@ -419,6 +482,7 @@ public abstract class GrabRoutine {
         lineUpDoneNs = -1;
         dwell.reset();
         dwellEndWhy = "";
+        inEnd = null;
         inEndWhy = "";
         Pose pose = robot.drive.pose();
         if (pose == null) {
@@ -440,6 +504,16 @@ public abstract class GrabRoutine {
         } catch (RuntimeException e) {
             refuse("no path following on this robot: " + e.getMessage());
             return;
+        }
+        long ready = readySinceNs();
+        if (ready != 0) {
+            // Made ready on the way here: the prep wait counts from then, and is usually over.
+            prepped = true;
+            preppedNs = ready;
+            prep();
+            robot.intake.readCurrentEveryLoop(true);
+            event.accept(String.format(Locale.US, "%s: prep done on the way in, %.2f s ago", what(),
+                    ms(now, ready) / 1000.0));
         }
         boolean there = true;
         Pose lineUpPose = null;
@@ -476,11 +550,12 @@ public abstract class GrabRoutine {
             home = pose;
         }
         phase = there ? Phase.PREP : Phase.LINE_UP;
-        event.accept(String.format(Locale.US, "%s: start, %s, from (%.1f, %.1f, %.0f°)%s", what(), target,
+        event.accept(String.format(Locale.US, "%s: start, %s, from (%.1f, %.1f, %.0f°)%s%s", what(), target,
                 pose.x(), pose.y(), Math.toDegrees(pose.heading()),
                 !lineUp && !squares ? ", from here (Auto)"
                         : !lineUp ? (there ? ", Auto, already square" : ", Auto, squaring up")
-                        : there ? ", already lined up" : ""));
+                        : there ? ", already lined up" : "",
+                startNote()));
         if (there) prepIfClose(now, 0.0);
     }
 
@@ -576,7 +651,8 @@ public abstract class GrabRoutine {
 
     /**
      * The longest a grab waits, ms, for the robot to face the line-up's heading after its path, and
-     * again for it to slow before the In: a robot that never quite gets there still goes.
+     * again for it to slow below {@link #settledInPerSec} before the In: a robot that never quite
+     * gets there still goes.
      */
     static final double SETTLE_MAX_MS = 500;
 

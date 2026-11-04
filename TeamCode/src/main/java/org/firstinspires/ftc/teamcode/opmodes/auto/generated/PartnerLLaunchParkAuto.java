@@ -25,7 +25,7 @@ public final class PartnerLLaunchParkAuto {
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {};
+    public static final String[] TRIGGERS = {"CellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -47,13 +47,19 @@ public final class PartnerLLaunchParkAuto {
         Pose partnerStart = p.of(62.3, 133.8, 270);
         Pose partnerPark = p.of(9.8, 117.4, 0);
 
+        // Other poses the paths need (control points, unnamed endpoints).
+        Pose toPartnerParkControl1 = p.of(56, 118, 0);
+
         // Paths, written as the stock Visualizer export writes them.
-        Path toPartnerPark = Paths.line(partnerStart, partnerPark).linear(partnerStart, partnerPark);
+        Path toPartnerPark = Paths.curve(partnerStart, toPartnerParkControl1, partnerPark).linear(partnerStart, partnerPark);
 
         return kit.sequence(
-                kit.guarded("Auto", toPartnerPark, 2.1,
+                kit.guarded("Auto", toPartnerPark, 2.2,
                         kit.command("SpinUp"),
-                        kit.command("LaunchAll"),
-                        kit.path("to PARTNER_PARK", toPartnerPark, 2.1)));
+                        kit.firstOf("Wait for its CELL up",
+                                kit.when("CellUp"),
+                                kit.afterMs(12000)),
+                        kit.command("LaunchAll", 15),
+                        kit.path("to PARTNER_PARK", toPartnerPark, 2.2)));
     }
 }

@@ -26,6 +26,17 @@ in the link: `#team=auto/r-solo/r-solo.pp`.
 the same name: that makes or updates its `auto/<name>` branch and pull request, the simulator runs
 on it, and a mentor merges it once the robot has driven it. A change to a spot is **Save team
 spots…** instead: its own pull request, and every Auto that uses the spot is re-exported in it.
+Offline, **Save to repo folder…** writes the same two files (the `.pp` here and its Java in
+`generated/`) straight into this checkout on the laptop; commit them on an `auto/<name>` branch
+afterwards (or do Save to GitHub once online), so master has the Auto the robot ran.
+
+**The competition loop.** The night before, with Wi-Fi: open the Visualizer once (it keeps an
+offline copy of itself), open the Autos, and pick this checkout once in **File → Save to repo
+folder…** (Chrome or Edge; the folder that holds `TeamCode`). At the event, no internet needed:
+change the Auto, **Save to repo folder** (the browser asks once to allow the folder), then Sloth
+Load from Android Studio over USB. The Files panel opens the checkout's Autos from the laptop, and
+the team spots come from its `spots.json` while GitHub is out of reach. Commit the changed `.pp`
+and Java on an `auto/<name>` branch when back online.
 
 - **The `.pp` is the source; the Java is generated.** Change an Auto by opening its `.pp` in the
   Visualizer, editing it, and exporting again (Export → Export Auto (Java)). Never edit the
@@ -44,18 +55,90 @@ spots…** instead: its own pull request, and every Auto that uses the spot is r
   (`R-Simple 10-31|12:22AM`), from the generated class's `SAVED`: after a Sloth Load, the Driver
   Station shows which save is on the robot.
 
-## Partner stand-ins (`partner-*.pp`)
+## The bench
 
-What a teammate might do, drawn as Autos so the simulator can run ours beside them and the
-Visualizer can draw the pair: `partner-r-still` and `partner-l-still` (sits on the start),
-`partner-park-1` and `-2` (starts by the loading zone, waits, parks: two of them, where partners
-were seen to start and park), `partner-r-launch-park` and `partner-l-launch-park` (preloads, then
-park: the common partner, and the one that tips the HIVE for us). They have generated classes but
-no OpMode, so they never show on the Driver Station, and their starts and parks are their own
-(`PARTNER_START`, `PARTNER_PARK`), not team spots. To model a teammate, open one, drag its start
-and park to where that team starts and parks, set the wait to when they park, and save. A
-stand-in's wait is on `CameraBlind`, which never fires in the simulator, so its time limit is the
-whole story.
+Everything that is not one of the Autos we run lives on the `autos-experiment` branch (its
+`BENCH.md` says what is there): the Autos from before and earlier experiments. So the Team Autos
+list on `master` is exactly the Driver Station's list. To work on a benched Auto, open it from that
+branch; to bring one back, say so and it comes over on an `auto/<name>` branch.
+
+## Partner stand-ins (`partners/`)
+
+`partners/` holds the Autos a teammate might run beside one of ours, for the simulator only: a
+`.pp` each, its generated class in `opmodes/auto/generated/`, and no OpMode, so the Driver Station
+never lists one. The Visualizer's Team Autos list reads the folder's own files and skips
+subfolders, so none of these shows up as an Auto of ours. To open one, give the link the whole
+path: `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=TeamCode/autos/partners/partner-l-launch-park.pp`
+(a branch goes in front: `#gh=master/TeamCode/autos/partners/…`). Their spots are a teammate's
+(`PARTNER_START`, `PARTNER_PARK`), not the team's. `AutoSourcesTest`
+accepts a `SOURCE` here as it does in the folder itself.
+
+| Stand-in | What it does |
+|---|---|
+| `partner-still` | A partner that is not going to move: it starts where we ask it to, out of the way, back on the side wall in the corner by our alliance wall at (15, 133.8), and sits there for the whole of AUTO. One spot, ours to pick, so there is no right-side twin (mentor, 3 Nov 2026). |
+| `partner-r-broken-down`, `partner-l-broken-down` | A partner that meant to run an Auto and broke down: sits on the right or left start for the whole of AUTO. The "dead" runs use it. |
+| `partner-park-1`, `partner-park-2` | Sits on the left start until 15 s, then parks (two different starts and park spots). |
+| `partner-r-launch-park`, `partner-l-launch-park` | Spins up, waits for its own CELL to be up (at most 12 s), fires all four preloads at it, parks. The right CELL is up at the start, so the right one fires at once; the left one fires once our first TIP raises the left CELL. |
+| `partner-l-tip-park` | The left launch-park, then the scoring FLOWER, four more at the left CELL (eight pieces: a TIP), then parks. |
+| `partner-l-stage-park` | Starts against the wall facing the HIVE with its four POLLEN on the tiles along its left side (the simulator places them, `AutoStudyTest.alongLeftSide`, touching the frame as G304 asks), waits 2 s, drives off along the wall and parks, leaving them. |
+
+A stand-in is drawn and exported like any Auto (Visualizer, or `node scripts/export-auto.mjs`
+from a Visualizer checkout); a new one goes here with its class, and into the curation below.
+
+### Which partners an Auto is simulated with
+
+Each Auto's `TeamCode/sim-requests/<name>.json` lists its runs: the Auto alone, then each
+stand-in as a partner (`"partners"`; the request format is in `SimRunTest`'s javadoc). The
+"Simulate Auto" workflow runs every entry and publishes each one. **The simulator acts as our
+driver:** an entry gives the one number we ask a partner, `"lastShotS"` ("when does your last
+preload leave?"). That times the stand-in's launch, and sets our partner wait as the driver would
+in INIT: the last shot plus the TIP lag (`partnerTipLagS` in `timing.json`, 4 s). Each Auto with a
+partner runs it **on time**, **missing** (`"fails": "misses"`: every shot wide, no TIP, it still
+parks on schedule) and **dead** (a broken-down stand-in on its start). Nothing in between: "later than
+they said" and "breaks down partway" are not modelled (mentor, 3 Nov 2026). The curation, the mentor's to correct:
+
+| Auto | Alone | On time | Missing | Dead |
+|---|---|---|---|---|
+| L-Partner | yes | `partner-r-launch-park`, last shot at 2, 5, 8 and 12 s: our partner wait runs to 6, 9, 12 and 16 s | the same, said 8 s | `partner-r-broken-down`, said 8 s: we wait to 12 s, then take the Otherwise branch |
+| R-Partner-Preload | yes | `partner-l-launch-park`, last shot at 6 and 10 s; `partner-still` (out of the way) | the same, said 6 s | `partner-l-broken-down` |
+| R-Partner-Tip | yes | `partner-l-tip-park` at 50 in/s; `partner-still` (out of the way) | the same | `partner-l-broken-down` |
+| R-Solo | yes | `partner-park-1` (no launches), `partner-still` (out of the way) | | `partner-l-broken-down` |
+| R-Solo-Staging | yes | `partner-l-stage-park` (see the note below) | | |
+
+**The results table** in the workflow's job summary has a row per seed of each run: points, our
+launches and the partner's (and how many went at a down CELL), the TIPs, **the partner's last shot
+and our first CellUp** (the TIP lag, seed by seed), how our first wait ended, the first collision,
+and who parked. For an Auto with a partner wait, a run's name ends with the second that wait runs to.
+
+- **The two launch-park stand-ins fire from PLAY only on the right.** The right CELL is up at the
+  start, so `partner-r-launch-park`'s last shot lands where `lastShotS` says. The left one waits
+  for its CELL (our TIP raises it), so its last shot comes no sooner than that: the "Partner's
+  last shot" column says when it did.
+- **L-Partner's dead-partner run collides.** Its Otherwise branch drives to `RIGHT_LAUNCH_CATCH`,
+  10 in in front of `RIGHT_START`, where a dead partner sits; the mentor kept that spot for now
+  (3 Nov 2026), and a "Right CELL up?" check before that launch is shelved until the basics work.
+- **The raw knobs are an override for studies.** An entry's `"timing"` is four knobs, each
+  optional: `startDelayS` (seconds after PLAY before its first card), `speed` (its drive profile,
+  as a spec writes it after `@`), `launchS` (seconds per launch volley: a four-piece launch is the
+  1 s spin-up and then three of these) and `pickS` (seconds it stands at a FLOWER with its intake
+  on). One given wins over what `lastShotS` derives.
+
+Partner runs use `partnerSeeds` (five) so each job stays under about five minutes; the Auto alone
+keeps its ten.
+
+The thinking behind the curation, what a wait is really waiting for, the one number to ask a
+partner for, and which partner states get simulated, is in `doc/partner-timing.md`.
+
+**The Visualizer's Save & Simulate must keep `partners` and `partnerSeeds`** when it rewrites the
+request (it writes the rest from its dialog): the curation lives in the request, nowhere else.
+
+**R-Solo-Staging needs a Visualizer pass.** A wall-touching left partner's row of POLLEN lies at
+y 129 to 138 (16.2 in frame, 1.4 in POLLEN), and `partner-l-stage-park` leaves it at x 44.5 for
+the intake of a robot at `PARTNER_STAGED_POLLEN` (36, 124, facing 0) to reach. The simulator keeps
+the row where the partner left it until our own robot arrives at `LEFT_LAUNCH_OFFSET` (41, 121.5),
+whose footprint covers the whole intake zone of `PARTNER_STAGED_POLLEN` and sweeps the row away
+before we come for it. Either spot has to move (toward y 133 for the collect, or the launch away
+from the row) before this run means anything; the result shows the sweep (3 Nov 2026).
 
 ## Team spots (`spots.json`)
 
@@ -71,11 +154,11 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 | `WALL_FLOWER_STAGING`, `SCORING_FLOWER_STAGING` | Where a Pick flower step starts (on the FLOWER's line, 18–24 in out). |
 | `GARDEN_STAGING` | Where a Garden gather step starts; the gather pose itself is the robot code's (`GardenFieldPoints`). |
 | `RIGHT_PARK`, `LEFT_PARK` | 14.5 in off the alliance wall, facing 0 (the intake toward the field), in the LOADING ZONE. |
-| `PARTNER_STAGED_POLLEN` | Where a partner on `LEFT_START` sets its four preloads down for us: a drawing until a partner says where they stage. |
+| `PARTNER_STAGED_POLLEN` | Where a partner on `LEFT_START` sets its four preloads down for us: a drawing until a partner says where they stage (`partners/partner-l-stage-park` is the simulator's guess; see "Partner stand-ins"). |
 
 Names are side (or thing) first, then role, then variant, so a side's spots sort together. An Auto
 that needs a spot not in this list is drawn on the `autos-experiment` branch until the spot earns
-its place here. The partner stand-ins above are exempt: their spots are a teammate's, not ours.
+its place here.
 
 - **Using one.** In the Visualizer, pick it from a step's spot dropdown (under "Team spots"), or
   select a path and press 🔗 on its end in the Path panel, then pick the spot: the end jumps to it
@@ -111,6 +194,106 @@ The endgame guard (`autokit/AutoKit.guarded`) gets the robot to PARK by 30 s:
 - **Each spot has its own park path,** made by the Visualizer's builder: a straight line to the
   PARK spot, shared by every drive to that spot. Press **P** on a drive step to see it (everything
   else dims) and bend it with a control point. The drive just before Park needs none.
+
+- **Practice: time the whole plan.** Panels → `BuiltAuto.endgameGuard` off (and the Driver Station's
+  30 s timer off) runs every card whatever the clock says, so the match log shows how long the whole
+  Auto really takes, and says once where the guard would have parked. The Driver Station shows it in
+  red while it is off; it is back on after a restart. Never in a match.
+
+## When the TIP does not come (a Wait's Otherwise)
+
+A Wait step's **Otherwise** steps run only if the wait times out. Its **then** picks what comes
+after them:
+
+- **go on with the steps below**: the robot carries on with the steps under the wait, as if the
+  TIP had come (L-Partner: back to `LEFT_LAUNCH_CATCH`, then the rest of the plan).
+- **park**: the Otherwise ends with its own Park step, and the steps under the wait run only when
+  the TIP comes. In the `.pp` and the Java the wait is then the Auto's last step, each of its two
+  outcomes holding the rest of its own route.
+
+Either way, every drive in an Otherwise has a park path from its spot (P on the step), as the
+main list's drives do, so a guard that parks early parks from where the robot is. A long one may
+need a bend: L-Partner's park from `RIGHT_LAUNCH_CATCH` bends west of the Red HIVE.
+
+## Changing an Auto at the field (INIT options)
+
+A partner tells us in the queue when they shoot. The drive team enters it in INIT with
+**gamepad 1's D-pad**, no new export needed (`opmodes/auto/InitOptions`):
+
+| D-pad | Changes | Offered by |
+|---|---|---|
+| Left / Right | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
+| Up / Down | the partner's last shot (their answer to "when does your last preload leave?"), 1 s a press; our partner wait gives up the TIP lag after it, on the match clock | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
+
+- **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
+  as drawn and amber once changed; PLAY locks them, and the match log records them
+  (`AutoOptions`).
+- **The park: agree it in the queue, don't switch it.** Each Auto parks on its own side's spot
+  (R- Autos `RIGHT_PARK`, L-Partner `LEFT_PARK`); if a partner's Auto parks there, ask them to
+  take the other. The INIT park choice exists but no Auto offers it (mentor, 3 Nov 2026): the two
+  spots are 21.7 in apart on one wall, two parked robots have about 3.7 in between them, and a
+  route to the other spot passes the partner sitting on ours (R-Solo's went within 3 to 8 in of
+  `RIGHT_PARK`). The builder's collision check knows the field, not a partner. Offering it again
+  needs each park path its own bend to the other spot, and that check. With a choice offered,
+  every park path (the Park step's and each spot's, P) is driven to the picked park, the same path
+  with its end moved, and the endgame guard reserves that park's time.
+- **The partner wait on the match clock.** "Until 8 s" ends at 8 s into the match however late
+  the robot got there, unlike "at most 7 s", which starts counting when the wait begins. The
+  driver enters the partner's last shot and the wait ends `AutoRegistration.PARTNER_TIP_LAG_S`
+  (4 s, `partnerTipLagS` below) after it: the shot's flight, the dwell, the swing and the camera
+  settling, 1.5 to 5 s in the simulator's model. The page shows both numbers, never only the sum:
+  "partner's last shot ▲▼ 8 s, waiting until 12 s" (mentor, 3 Nov 2026).
+- Today: L-Partner offers the partner's last shot (drawn: wait until 8 s, which reads as a last
+  shot at 4 s). No Auto offers another park.
+
+## Timing: two sets of numbers
+
+The preview and the robot time an Auto from two places. Measured values go in both, with where
+they came from.
+
+| Numbers | Live in | Used by |
+|---|---|---|
+| Each command's typical seconds (`LaunchAll`, `PickFlower`, `GardenGather`…) | `AutoRegistration` in the robot code, copied to `TeamCode/auto-registry.json` by `AutoRegistrationTest` (`UPDATE_AUTO_REGISTRY=1`), and into each `.pp`'s `registry.typicalS` when the Visualizer loads the robot's commands | The endgame guard on the robot (a grab starts only if its typical time and the park fit), and the Visualizer's Instant preview |
+| How the robot and the HIVE behave: drive speed, spin-up, a volley, time to full, a TIP's start and swing, the CELL loads | `timing.json` here (`version`, then each fact's `value`, `source` and `note`) | The Visualizer's Typical preview and its **Timing facts** dialog, which reads this file from the branch Team Autos last listed. It never changes the robot or the export |
+
+- **A fact's `source` says how sure it is**: `measured, <robot>, <dates>`, or `estimate`. The
+  `note` is one line, shown under the fact in the dialog; the longer story goes below.
+- **Where the measured facts came from** (20245, the 29 Oct to 3 Nov 2026 logs on the `logs/*`
+  branches; each note in the file is the one-line version):
+  - `driveSpeed` 1.0: logged drive time against the export's `kit.path` seconds. 2 Nov R-Quals
+    (12.76 V) ran its three drives at 0.98, 1.05 and 1.25, and R-Simple's park at 0.83. 1 Nov
+    R-Simple, 19 runs of one 3.1 s path: 0.88 to 1.11, median 1.0. The 1.5 of 25 Oct was the light
+    chassis.
+  - `spinUpS` 1.1: 83 spin-ups from rest to launch speed (1500 to 1625 ticks/s), median 1.1 s,
+    middle half 1.0 to 1.3, all 0.9 to 2.1 (slowest on a sagging battery). The first LaunchAll at
+    PLAY waited 0.94 to 1.36 s for it.
+  - `volleyS` 4.0: LaunchAll after a drive with the launcher at speed, the settle (0.17 to 0.66 s)
+    and `LaunchCards`' set 3.5 s feed; 4.17 s in 2 Nov R-Quals. The last of four balls left 2.3 to
+    2.6 s after the gate opened (median 2.4; ten 1 Nov feeds, read from the wheels' dip per ball).
+  - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
+    started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
+    lane latched full 0.44 s after its last spike, 1.43 s in.
+  - `tipStartS` 1.0: the two TIPs our own preload volleys made on 3 Nov 2026 (R-Solo 17:59,
+    R-Partner-Tip 18:06; 3 NECTAR plus four POLLEN, as `startLoad` and `tipLoad` say). The camera
+    first read TRANSITION 0.91 and 1.08 s after the LaunchAll ended (its gate closed), which was
+    1.9 to 2.8 s after the last ball left. The camera sees a swing late, so this errs late. The
+    17:59 TIP was confirmed: the camera saw the left CELL up at `LEFT_LAUNCH_OFFSET`.
+  - `tipSwingS` 0.7 (estimate): the camera saw two swings, both tipped by hand (1 Nov 23:16, 2 Nov
+    16:51), 0.57 and 0.43 s from TRANSITION to settled. It sees a swing late.
+  - `partnerTipLagS` 4.0 (estimate): from the partner's last shot leaving to our `CellUp`: the flight
+    (about 0.6 s), the dwell before the rocker moves (0.25 to 3.4 s, `FieldSim.FILMED_TIP_DWELL_SECONDS`),
+    the swing (0.58 to 1.12 s, `FILMED_TIP_SECONDS`) and the camera settling; 1.5 to 5 s in all, and 4
+    covers all but the longest dwells. The partner wait ends this long after the last shot the driver
+    enters. In the 3 Nov 2026 simulations of L-Partner with four preloads on top of the starting
+    NECTAR it came out 0.7 to 1.2 s (a heavy load dwells little). A match log replaces it.
+- **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop
+  until it is copied in. Unknown facts are dropped when it loads.
+- **`partnerTipLagS` is also the robot's** (`AutoRegistration.PARTNER_TIP_LAG_S`: the partner wait
+  ends at the partner's last shot plus it). Change both in one PR; `PartnerWaitTest` fails while
+  they differ, and catches a copy from the dialog that dropped it.
+- **After changing a typical time in `AutoRegistration`**, update `auto-registry.json` (the test
+  above) and load the robot's commands into every `.pp` here, then export again: the Java does not
+  change, the `.pp`'s copy does.
 
 ## Opening a committed Auto from a link
 

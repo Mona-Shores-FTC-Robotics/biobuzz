@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
+import org.firstinspires.ftc.teamcode.opmodes.auto.AutoRegistration;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoTrace;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -131,6 +132,12 @@ public final class AutoSim {
     // The webcam CollectSeen drives by (the robot's PieceVisionSubsystem): it looks the way the
     // intake faces and sees loose pieces on the tiles. Placeholders, like the rest of the robot.
     static final double CAMERA_HALF_FOV_RAD = Math.toRadians(35);
+    /**
+     * How far to the side of the CELL a missing partner aims ({@link #misses}): wide of the CELL's
+     * opening and of the HIVE frame from any spot a stand-in fires from.
+     */
+    static final double MISS_WIDE_IN = 30;
+
     /** Beyond this from the raised CELL the launcher holds fire: past ~56 in nothing scores (ShotMapTest). */
     static final double MAX_SHOT_RANGE_IN = 60;
     /** How far a corner may reach past a wall's face before it counts as driving into the wall. */
@@ -163,6 +170,12 @@ public final class AutoSim {
     static final class RobotResult {
         final String auto;
         int launched;
+        /** When this robot's last piece left its launcher, AUTO seconds; NaN if it launched none. */
+        double lastShotAt = Double.NaN;
+        /** Pieces it launched at a CELL that was not up as they left: preloads wasted on a down CELL. */
+        int launchedAtDownCell;
+        /** Its Auto has a partner wait (a match-clock {@code AutoOption}), which the partner's last shot sets. */
+        boolean hasPartnerWait;
         boolean finished;
         double finishedAt = Double.NaN;
         final List<String> decisions = new ArrayList<>();
@@ -452,6 +465,55 @@ public final class AutoSim {
         return this;
     }
 
+    /**
+     * This robot's Auto starts {@code seconds} after PLAY (a partner that waits on its start, or whose driver
+     * presses PLAY late); 0, the default, starts it with the match. The endgame guard still counts from PLAY.
+     */
+    AutoSim startDelay(double seconds) {
+        configuring.startDelayS = Math.max(0, seconds);
+        return this;
+    }
+
+    /**
+     * Seconds between this robot's launch volleys, instead of its design's {@link RobotDesign#shotIntervalS}
+     * (a partner that fires slower or faster than we do); NaN for the design's. A 4-piece preload launch takes
+     * the spin-up ({@link RobotDesign#spinUpS}) and then three of these.
+     */
+    AutoSim launchSeconds(double perVolleyS) {
+        configuring.launchS = perVolleyS;
+        return this;
+    }
+
+    /**
+     * Seconds this robot stands at a FLOWER with its intake on in PickFlower, full or not, instead of the
+     * robot's {@code FlowerPicker.dwellMs} (which ends early once it is full); NaN for the robot's. Its drives
+     * to and from the FLOWER are at its {@link #speed}.
+     */
+    AutoSim pickSeconds(double atFlowerS) {
+        configuring.pickS = atFlowerS;
+        return this;
+    }
+
+    /**
+     * Every launch of this robot goes wide ({@code "fails": "misses"} in a simulate request): it aims
+     * {@link #MISS_WIDE_IN} to the side of the CELL, so nothing it fires lands in one and it causes no
+     * TIP, and it otherwise runs its Auto as before, parking on schedule.
+     */
+    AutoSim misses() {
+        configuring.missesWide = true;
+        return this;
+    }
+
+    /**
+     * The match second this robot's partner wait (its Auto's one match-clock {@code AutoOption}) ends at, as
+     * the driver sets it on the D-pad in INIT ({@code InitOptions}): {@code AutoRegistration.partnerWaitUntilS}
+     * of the partner's last shot. NaN, the default, leaves the wait as drawn.
+     */
+    AutoSim partnerWaitUntil(double matchSeconds) {
+        configuring.partnerWaitUntilS = matchSeconds;
+        return this;
+    }
+
     /** Simulates this robot instead of {@link RobotDesign#standard}. */
     AutoSim design(RobotDesign robot) {
         configuring.design = robot.checked();
@@ -691,6 +753,7 @@ public final class AutoSim {
             }
             boolean running = now < AutoKit.AUTO_LENGTH_S;
             if (running) {
+                for (Bot b : bots) b.startIfDue(log, us);
                 boolean any = false;
                 for (Bot b : bots) any |= b.auto.isScheduled();
                 if (any) Scheduler.execute();
@@ -1013,6 +1076,18 @@ public final class AutoSim {
         RobotDesign design = RobotDesign.real();
         /** The camera is down ({@link AutoSim#cameraDown}): the HIVE's state is invisible to this robot. */
         boolean cameraDown;
+        /** Partner timing ({@link AutoSim#startDelay}, {@link AutoSim#launchSeconds}, {@link AutoSim#pickSeconds}). */
+        double startDelayS;
+        double launchS = Double.NaN;
+        double pickS = Double.NaN;
+        /** Every launch goes wide ({@link AutoSim#misses}). */
+        boolean missesWide;
+        /** The partner wait's match second ({@link AutoSim#partnerWaitUntil}); NaN: as drawn. */
+        double partnerWaitUntilS = Double.NaN;
+        /** This fire step has said it fires at a down CELL. */
+        boolean downCellReported;
+        /** Whether the Auto has been scheduled: at PLAY, or {@link #startDelayS} after it. */
+        boolean started;
         /** CollectSeen's x range, drawn for RED; null for anywhere. */
         double[] zone;
         /** Where this robot sets its preloads on the tiles, drawn for RED; null to carry them. */
@@ -1105,7 +1180,17 @@ public final class AutoSim {
             log.putMetadata("RobotDesign" + (index == 0 ? "" : String.valueOf(index + 1)), design.toString());
             AutoRegistry registry = registry();
             registry.requireAll(commands, triggers);
-            AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add);
+            // The drive team's INIT picks, as the robot's InitOptions hands them over: the partner wait, if set.
+            final String waitOption = matchSecondsOption(autoClass);
+            final double waitUntil = partnerWaitUntilS;
+            AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add).picks(new AutoKit.Picks() {
+                @Override public int choice(String option) { return -1; }
+                @Override public double seconds(String option) { return option.equals(waitOption) ? waitUntil : Double.NaN; }
+            });
+            result.hasPartnerWait = waitOption != null;
+            if (waitOption != null && !Double.isNaN(waitUntil)) {
+                pending.add(String.format(Locale.ROOT, "partner wait \"%s\" set in INIT to %.1f s on the match clock", waitOption, waitUntil));
+            }
             try {
                 drive.pose = (Pose) startPose.invoke(null, rotated);
                 // An Auto drawn for the real robot (RobotDesign.REAL_FRAME_IN) backed against the wall: a shorter
@@ -1132,8 +1217,27 @@ public final class AutoSim {
             }
             result.cameraDown = cameraDown;
             log.putEvent("Auto: " + result.auto + robot + " for " + alliance + (rotated ? " (rotated)" : "")
-                    + (cameraDown ? ", camera down" : ""), index);
+                    + (cameraDown ? ", camera down" : "")
+                    + (startDelayS > 0 ? String.format(Locale.ROOT, ", starts %.1f s after PLAY", startDelayS) : ""), index);
+            if (startDelayS <= 0) {
+                auto.schedule();
+                started = true;
+            } else {
+                pending.add(String.format(Locale.ROOT, "waits %.1f s after PLAY before its first card (partner timing)", startDelayS));
+            }
+        }
+
+        /** Schedules the Auto once its {@link #startDelayS} has passed. */
+        void startIfDue(WpiLog log, long us) throws IOException {
+            if (started || now + 1e-9 < startDelayS) return;
+            started = true;
             auto.schedule();
+            log.putEvent(String.format(Locale.ROOT, "%sstarts at %.2f s", tag(), now), us);
+        }
+
+        /** Seconds between launch volleys: the partner timing's, else the design's. */
+        double shotIntervalS() {
+            return Double.isNaN(launchS) ? design.shotIntervalS : launchS;
         }
 
         /** Which side of a robot at {@code x} facing {@code heading} faces the centre line: +1 its left, -1 its right. */
@@ -1147,7 +1251,7 @@ public final class AutoSim {
         }
 
         void afterScheduler(WpiLog log, RobotResult result, boolean running, long us) throws IOException {
-            if (running && !auto.isScheduled() && !result.finished) {
+            if (running && started && !auto.isScheduled() && !result.finished) {
                 result.finished = true;
                 result.finishedAt = now;
                 log.putEvent(String.format(Locale.ROOT, "%sfinished at %.2f s", tag(), now), us);
@@ -1173,7 +1277,14 @@ public final class AutoSim {
         void launcher(WpiLog log, Result result, long us) throws IOException {
             trackTurret();
             if (!(firing || streaming) || !launcherReady() || body.stored.isEmpty()) return;
-            double[] aim = sim.rocker(alliance).aimPoint();
+            // LaunchAll and LaunchOne fire as the robot's LaunchCards do: at our CELL at the robot's end of the
+            // field (TurretAim.nearEndCell, TurretAimer), up or not, and from any range, once spun up and still;
+            // a shot at a down CELL is a wasted preload, there for the results to show. StreamOn, which master's
+            // Autos do not use, keeps firing only at the raised CELL.
+            FieldSim.Rocker hive = sim.rocker(alliance);
+            int aimedEnd = firing ? aimedEnd() : hive.raisedEnd();
+            double[] aim = aimedEnd == 0 ? null : hive.aimPointFor(aimedEnd);
+            boolean cellDown = hive.raisedEnd() != aimedEnd;
             double yawError = 0;
             if (aim != null && design.launcher == RobotDesign.Launcher.TURRET) {
                 // The turret is still swinging to the CELL (RobotDesign#turretSlewRadPerS): fire once it is there.
@@ -1203,10 +1314,11 @@ public final class AutoSim {
             }
             if (aim == null || Math.abs(yawError) >= AIM_TOLERANCE_RAD || now < nextShotAt) return;
             if (fireOnlyWhenStill && (body.speed() > 1 || body.spin() > Math.toRadians(2))) return;
-            // Out of range: no shot (mentor review: a robot whose own CELL never rose lobbed its
-            // pieces at the far CELL from home). The real LaunchAll needs the same check.
+            // Out of range: StreamOn holds fire (mentor review: a robot whose own CELL never rose lobbed its pieces at
+            // the far CELL from home). LaunchAll does not: the robot's LaunchCards feeds whatever the range, and it
+            // aims at the CELL at its own end now, never the far one.
             double[] here = pedro(drive.pose);
-            if (Math.hypot(aim[0] - here[0], aim[1] - here[1]) > design.launchRangeIn) return;
+            if (!firing && Math.hypot(aim[0] - here[0], aim[1] - here[1]) > design.launchRangeIn) return;
             // Paths finish while the robot is still braking into their end (SimDrive.JOIN_IN): it fires
             // once nearly stopped, unless it is streaming on purpose.
             if (!streaming && !design.firesOnTheMove && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
@@ -1248,9 +1360,26 @@ public final class AutoSim {
                     }
                 }
                 double[] from = body.exitPoint(side);
-                double[] v = sim.launch(body, aim, yawError, side, clump ? 1.0 : catapult ? design.catapultSpread : 1.0);
+                double shotYaw = yawError;
+                if (missesWide) {
+                    // A missing partner: its shot leaves MISS_WIDE_IN to the side of the CELL at that range.
+                    double range = Math.max(1, Math.hypot(aim[0] - from[0], aim[1] - from[1]));
+                    shotYaw += Math.atan2(MISS_WIDE_IN, range);
+                }
+                double[] v = sim.launch(body, aim, shotYaw, side, clump ? 1.0 : catapult ? design.catapultSpread : 1.0);
                 if (v == null) break;
-                result.robots.get(index).launched++;
+                RobotResult rr = result.robots.get(index);
+                rr.launched++;
+                rr.lastShotAt = now;
+                if (cellDown) {
+                    rr.launchedAtDownCell++;
+                    if (!downCellReported) {
+                        downCellReported = true;
+                        pending.add(String.format(Locale.ROOT, "LaunchAll fires at the %s CELL, which is not up: those pieces are wasted",
+                                aimedEnd > 0 ? "high-end" : "low-end"));
+                    }
+                }
+                if (missesWide && shotsFired == 0) pending.add("misses: every shot goes wide (partner timing)");
                 shotsFired++;
                 lastArc = FieldSim.arc(from, v, aim[2] - 4, 30);
                 log.putEvent((index == 0 ? "" : "robot " + (index + 1) + " ") + "launcher: shot "
@@ -1260,7 +1389,7 @@ public final class AutoSim {
             sim.volleyNoise = null;
             sim.volleyUpIn = 0;
             if (lastArc != null) log.putPose3dArray(FieldSimLog.KEY_SHOT, FieldSim.trajectory(lastArc), us);
-            nextShotAt = now + (catapult ? design.spinUpS : design.shotIntervalS);
+            nextShotAt = now + (catapult ? design.spinUpS : shotIntervalS());
         }
 
         void move(WpiLog log, RobotResult result, boolean running, long step, long us) throws IOException {
@@ -1767,8 +1896,8 @@ public final class AutoSim {
                     .command("CatchIn", 1.0, () -> catchCard(false))
                     // The robot's grabs (master's AutoRegistration, typical times and all): the endgame guard never
                     // cuts one, and does not start one unless it and the park fit.
-                    .grab("PickFlower", 4.5, this::pickFlower)
-                    .grab("GardenGather", 6.0, this::gardenGather)
+                    .grab("PickFlower", AutoRegistration.PICK_FLOWER_TYPICAL_S, this::pickFlower)
+                    .grab("GardenGather", AutoRegistration.GARDEN_GATHER_TYPICAL_S, this::gardenGather)
                     .trigger("IntakeFull", this::fullSensed)
                     // What the robot holds is worth 4 POLLEN or more, a NECTAR counting its weight (mentor, 8 Oct 2026:
                     // "2 nectar 1 P ... would have been enough"). Needs a sensor that tells NECTAR from POLLEN.
@@ -1786,6 +1915,10 @@ public final class AutoSim {
                     // long as it lasts, so a long wait can be split into short ones.
                     .trigger("LeftCellUp", () -> !cameraDown && sim.rocker(alliance).state() == HiveState.LEFT_CELL_UP)
                     .trigger("RightCellUp", () -> !cameraDown && sim.rocker(alliance).state() == HiveState.RIGHT_CELL_UP)
+                    // The CELL this robot is aimed at is up (master's CellUp, the Simple builder's "Wait for TIP"):
+                    // our CELL at the robot's end of the field, true for as long as it is up.
+                    .trigger("CellUp", () -> !cameraDown && sim.rocker(alliance).state()
+                            == (aimedLeft(alliance, pedro(drive.pose)[1]) ? HiveState.LEFT_CELL_UP : HiveState.RIGHT_CELL_UP))
                     // A CELL up this long has not filled on its own (TIP 2 comes 3.6-5.8 s after TIP 1, 60 runs; one short,
                     // 14 s or more): the robot times it from the HIVE camera's state.
                     .trigger("TipOverdue", () -> !cameraDown && sim.rocker(alliance).raisedEnd() != 0 && now - raisedSince >= TIP_OVERDUE_S)
@@ -1800,6 +1933,7 @@ public final class AutoSim {
         /** A fire step begins (LaunchAll, StreamOn): what the turret report measures from. */
         private void fireStepBegins() {
             fireStepStart = now;
+            downCellReported = false;
             fireStepReported = false;
             farCellReported = false;
             if (!Double.isNaN(crossedAt)) {
@@ -1977,7 +2111,9 @@ public final class AutoSim {
                         } else if (phase[0] == 1 && drive.pathDone()) {
                             phase[0] = 2;
                             dwellFrom[0] = now;
-                        } else if (phase[0] == 2 && (FieldSim.full(body) || now - dwellFrom[0] >= FlowerPicker.dwellMs / 1000.0)) {
+                        } else if (phase[0] == 2 && (Double.isNaN(pickS)
+                                ? FieldSim.full(body) || now - dwellFrom[0] >= FlowerPicker.dwellMs / 1000.0
+                                : now - dwellFrom[0] >= pickS)) {
                             phase[0] = 3;
                             double[] at = pedro(drive.pose);
                             drive.follow(Paths.line(new Pose(at[0], at[1], at[2]), square[0]).constant(square[0].heading()));
@@ -2237,14 +2373,14 @@ public final class AutoSim {
             double[] aim = null;
             if (spinning) {
                 double[] raised = hive.aimPoint();
-                boolean launching = firing || streaming;
-                if (launching && raised != null) {
-                    aim = raised;  // a launch goes at the raised CELL wherever it is
+                if (streaming && raised != null) {
+                    aim = raised;  // StreamOn goes at the raised CELL wherever it is
                     if (hive.raisedEnd() != turretCell && !farCellReported) {
                         farCellReported = true;
                         pending.add(String.format(Locale.ROOT, "turret: fires at the far CELL (the robot is at the %s end, y %.1f)", turretCell > 0 ? "high" : "low", y));
                     }
                 } else {
+                    // Pre-aimed, and a LaunchAll: our CELL at the robot's end, up or not (TurretAimer).
                     aim = hive.aimPointFor(turretCell);
                 }
             }
@@ -2313,6 +2449,31 @@ public final class AutoSim {
                     sim.rocker(alliance).raisedEnd() > 0 ? "high-end" : "low-end");
             pending.add((waited <= 0.011 ? "turret: on target when the fire step began"
                     : String.format(Locale.ROOT, "turret: the fire step waited %.2f s for the turret", waited)) + where);
+        }
+
+        /** The name of the Auto's match-clock option (its partner wait), or null if it has none. */
+        private String matchSecondsOption(Class<?> auto) {
+            try {
+                for (org.firstinspires.ftc.teamcode.autokit.AutoOption o
+                        : (org.firstinspires.ftc.teamcode.autokit.AutoOption[]) auto.getField("OPTIONS").get(null)) {
+                    if (o.kind == org.firstinspires.ftc.teamcode.autokit.AutoOption.Kind.MATCH_SECONDS) return o.name;
+                }
+            } catch (NoSuchFieldException e) {
+                return null;  // exported before INIT options: nothing to set
+            } catch (ReflectiveOperationException e) {
+                throw new IllegalArgumentException(auto.getName() + ".OPTIONS is unreadable", e);
+            }
+            return null;
+        }
+
+        /**
+         * The CELL a LaunchAll fires at, +1 the high-y end, -1 the low-y end: our CELL at the robot's end of the
+         * field, as the robot's TurretAimer picks it (with the turret's hysteresis), or, for a launcher fixed
+         * to the frame, the end the robot is in (AutoRegistration.aimedLeft).
+         */
+        private int aimedEnd() {
+            if (design.launcher == RobotDesign.Launcher.TURRET && turretCell != 0) return turretCell;
+            return pedro(drive.pose)[1] >= FieldSim.CENTRE_IN ? 1 : -1;
         }
 
         private void spinUp() {
@@ -2509,6 +2670,12 @@ public final class AutoSim {
         out[1] = FieldSim.FIELD_SIZE_IN - p[1];
         if (p.length > 2) out[2] = AdvantageScopeFrame.wrap(p[2] + Math.PI);
         return out;
+    }
+
+    /** As AutoRegistration.aimedLeft: red's left CELL is at the scoring end, blue's at the audience end. */
+    static boolean aimedLeft(Alliance alliance, double y) {
+        boolean scoringEnd = y >= FieldSim.CENTRE_IN;
+        return alliance == Alliance.BLUE ? !scoringEnd : scoringEnd;
     }
 
     private static double[] pedro(Pose p) {

@@ -1,13 +1,63 @@
 {
   "pp": "TeamCode/autos/l-partner.pp",
-  "spec": "LPartnerAuto,PartnerRLaunchParkAuto@50",
-  "design": "real robot",
-  "partnerDesign": null,
-  "partnerSpeed": null,
-  "seeds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  "spec": "LPartnerAuto",
+  "design": "real robot, turret locked forward, POLLEN only",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
   "alliance": "RED",
+  "partners": [
+    {
+      "name": "last shot at 2 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 2
+    },
+    {
+      "name": "last shot at 5 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 5
+    },
+    {
+      "name": "last shot at 8 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 8
+    },
+    {
+      "name": "last shot at 12 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 12
+    },
+    {
+      "name": "misses, said 8 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 8,
+      "fails": "misses"
+    },
+    {
+      "name": "dead on its start, said 8 s",
+      "partner": "PartnerRBrokenDownAuto",
+      "lastShotS": 8
+    }
+  ],
   "metadata": {
     "AutoSource": "l-partner.pp",
-    "SavedBy": "whiteboard drafts (Claude)"
+    "SavedBy": "dustinhans",
+    "SavedAt": "2026-11-03T08:19:15.770Z"
   }
 }

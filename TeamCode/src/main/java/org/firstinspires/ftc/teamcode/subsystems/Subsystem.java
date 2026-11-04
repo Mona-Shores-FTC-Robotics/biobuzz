@@ -74,9 +74,9 @@ import org.firstinspires.ftc.teamcode.controls.Display;
  * streaming at the end of a match are different things, and the first one needs its own name
  * ({@code idle()}, {@code coast()}, {@code spinDown()}).
  *
- * <p>That clash is real, not hypothetical: {@code Launcher2.stop()} in the launcher rig means
- * "cut power and keep running". The rig is not a {@code Subsystem} and does not need to be, but if
- * it ever becomes one, that method gets renamed rather than this contract bent to fit it.
+ * <p>That clash is real, not hypothetical: the old standalone launcher rig had a {@code stop()}
+ * that meant "cut power and keep running". Anything like it gets a name of its own rather than this
+ * contract bent to fit it.
  *
  * <p><b>History:</b> the first version of this interface asked for {@code update()} alone and left
  * {@code initialize()}/{@code stop()} to {@code Robot}, which named each subsystem by hand. Review

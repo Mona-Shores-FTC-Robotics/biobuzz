@@ -94,8 +94,15 @@ public final class GardenGather extends GrabRoutine {
     public static double dwellQuietMs = 0;
     public static double dwellEmptyMs = 0;
     public static double spikeAboveAmps = 1.0;
-    /** The drive in starts once the robot has slowed below this after the line-up, inches/s. */
-    public static double settledInPerSec = 2.0;
+    /**
+     * The drive in starts once the robot has slowed below this after the drive before it, inches/s:
+     * the gather's hand-over speed. Pedro calls a path done at its parametric end with the robot
+     * still rolling (10 to 24 in/s in the 29 Oct to 2 Nov 2026 match logs; under 8 in/s 0.07 to
+     * 0.19 s later, under 2 in/s 0.13 to 0.51 s later). The gather drives itself in from the staging
+     * spot and ends on the wall, so it need not be still first: 8 since 3 Nov 2026 (mentor), the same
+     * as the FLOWER pick's, from the 2 a launch waits for ({@code PathEndSettle}).
+     */
+    public static double settledInPerSec = 8.0;
     /** Forward power during the dwell, to keep the stick seated. 0 for none. */
     public static double dwellPushPower = 0.1;
     /** The drive back's speed cap, a fraction of the robot's top path speed (0 to 1]. */

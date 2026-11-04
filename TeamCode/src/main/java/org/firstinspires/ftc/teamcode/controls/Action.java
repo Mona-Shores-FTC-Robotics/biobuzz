@@ -11,21 +11,22 @@ public enum Action {
     // Driver
     DRIVE(Pad.DRIVER, "Drive"),
     TURN(Pad.DRIVER, "Turn"),
-    INTAKE(Pad.DRIVER, "Intake (hold)"),
+    INTAKE(Pad.DRIVER, "Intake (hold, over the toggle)"),
     DRIVER_UNJAM(Pad.DRIVER, "Unjam (hold)"),
     SLOW(Pad.DRIVER, "Slow (hold)"),
     TURBO(Pad.DRIVER, "Turbo (hold)"),
     FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold)"),
     GARDEN_GATHER(Pad.DRIVER, "*Gather GARDEN (hold)"),
     CHASSIS_AIM(Pad.DRIVER, "Aim Chassis (hold)"),
-    RESET_HEADING(Pad.DRIVER, "Gyro Reset (hold 1\u00a0s)"),
-    RESET_LEFT_CORNER(Pad.DRIVER, "Left Corner Reset (hold 1\u00a0s; intake toward opponents)"),
-    RESET_RIGHT_CORNER(Pad.DRIVER, "Right Corner Reset (hold 1\u00a0s; intake toward opponents)"),
-    CAMERA_RELOCALIZE(Pad.DRIVER, "Camera Reset (hold 1\u00a0s, robot still)"),
+    LAUNCH_SPOT(Pad.DRIVER, "*Go to Launch Spot (hold)"),
+    RESET_HEADING(Pad.DRIVER, "Gyro Reset (hold 0.5\u00a0s)"),
+    RESET_LEFT_CORNER(Pad.DRIVER, "Left Corner + Gyro Reset (hold 0.5\u00a0s; intake toward opponents)"),
+    RESET_RIGHT_CORNER(Pad.DRIVER, "Right Corner + Gyro Reset (hold 0.5\u00a0s; intake toward opponents)"),
+    CAMERA_RELOCALIZE(Pad.DRIVER, "Camera Reset (hold 0.5\u00a0s, robot still)"),
     AUTO_PARK(Pad.DRIVER, "*Auto-Park (hold)"),
 
     // Operator
-    OPERATOR_INTAKE(Pad.OPERATOR, "Intake (hold)"),
+    OPERATOR_INTAKE(Pad.OPERATOR, "Intake On / Off (Toggle)"),
     UNJAM(Pad.OPERATOR, "Unjam (hold)"),
     LAUNCHER_TOGGLE(Pad.OPERATOR, "Launcher Spin Up / Idle (Toggle)"),
     LAUNCHER_TRIM_DOWN(Pad.OPERATOR, "Launcher Trim Down"),
@@ -36,7 +37,7 @@ public enum Action {
     TRIM_LEFT(Pad.OPERATOR, "Trim aim left"),
     TRIM_RIGHT(Pad.OPERATOR, "Trim aim right"),
     TRIM_RESET(Pad.OPERATOR, "Trim reset"),
-    TURRET_ZERO(Pad.OPERATOR, "Zero Turret (hold 1\u00a0s)");
+    TURRET_ZERO(Pad.OPERATOR, "Zero Turret (hold 0.5\u00a0s)");
 
     /** Which person, and so which gamepad. */
     public enum Pad { DRIVER, OPERATOR }

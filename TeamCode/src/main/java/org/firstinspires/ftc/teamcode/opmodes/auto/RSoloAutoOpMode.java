@@ -9,6 +9,6 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloAuto;
 public class RSoloAutoOpMode extends BuiltAuto {
     public RSoloAutoOpMode() {
         super(RSoloAuto.SOURCE, RSoloAuto.COMMANDS, RSoloAuto.TRIGGERS, RSoloAuto.DRAWN_FOR,
-                RSoloAuto::startPose, RSoloAuto::build);
+                RSoloAuto::startPose, RSoloAuto::build, RSoloAuto.OPTIONS);
     }
 }

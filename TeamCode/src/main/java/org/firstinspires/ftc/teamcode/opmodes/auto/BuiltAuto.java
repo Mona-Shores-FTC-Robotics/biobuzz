@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.ivy.Command;
@@ -7,6 +8,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
+import org.firstinspires.ftc.teamcode.autokit.AutoOption;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.StartMatch;
@@ -32,7 +34,8 @@ import java.util.function.Function;
  * public class HiveRushOpMode extends BuiltAuto {
  *     public HiveRushOpMode() {
  *         super(HiveRushAuto.SOURCE, HiveRushAuto.COMMANDS, HiveRushAuto.TRIGGERS,
- *                 HiveRushAuto.DRAWN_FOR, HiveRushAuto::startPose, HiveRushAuto::build);
+ *                 HiveRushAuto.DRAWN_FOR, HiveRushAuto::startPose, HiveRushAuto::build,
+ *                 HiveRushAuto.OPTIONS);
  *     }
  * }
  * </pre>
@@ -51,11 +54,19 @@ import java.util.function.Function;
  * camera can confirm the alliance without a button press. Until an alliance is known the declared
  * start is the drawing's own; once one is chosen that differs from {@code DRAWN_FOR}, the declared
  * start becomes the rotated one, and {@link RobotOpMode} moves the pose there. The camera finds the
- * alliance itself: during INIT every camera frame is solved position-only with each start's own
- * heading ({@code DriveSubsystem.setStartCandidates}), and if one start's solve sits on it for
- * {@link StartMatch#FRAMES_TO_AGREE} frames, that start's alliance is proposed
- * ({@link #allianceFromStarts}). One HIVE in view is enough, which is all a start sees. Square (X) or Circle (B) still wins; with no
- * match there is no alliance, and the Auto does not move.
+ * alliance itself: during INIT every camera frame is solved position-only with each known start's
+ * own heading ({@code DriveSubsystem.setStartCandidates}, {@link StartPositions#known}), and if
+ * one start's solve sits on it for {@link StartMatch#FRAMES_TO_AGREE} frames, the robot is there.
+ * One of this Auto's two starts proposes its alliance ({@link #allianceFromStarts}); any other
+ * known start is an INIT warning naming it ("On Red audience, not this Auto's start": the wrong
+ * Auto was picked, or the robot is on the wrong spot; {@link #cameraOnOtherStart}). One HIVE in
+ * view is enough, which is all a start sees. Square (X) or Circle (B) still wins; with no match
+ * there is no alliance, and the Auto does not move.
+ *
+ * <p><b>The drive team may change a few things in INIT</b> ({@link InitOptions}): the PARK spot
+ * (D-pad left / right) and, for an Auto drawn with one, when its TIP wait gives up (D-pad up /
+ * down, as the partner's TIP time). The generated {@code OPTIONS} says which; the Auto is built at
+ * PLAY with the picks, and they go to the match log.
  *
  * <p>While mechanisms are still missing, the names {@link AutoRegistration#PLACEHOLDERS} lists are
  * placeholders (a command that finishes at once, a trigger that never fires), and INIT says so on
@@ -67,7 +78,7 @@ import java.util.function.Function;
  * limit. No card turns the intake on or off, so the drawing and the simulator need none. PLAY
  * starts it ({@link #intakeRequest}); the OpMode's stop idles it. The Auto asks for the intake the
  * whole time; once the lane is full (a piece held under the colour sensor, {@code LaneFull}) the
- * intake stops its own roller ({@code IntakeSubsystem.stopRollerWhenFull}) and {@code IntakeFull}
+ * intake holds the last piece in itself ({@code IntakeSubsystem.holdWhenFull}) and {@code IntakeFull}
  * ends the wait, from that one signal. No count of pieces is kept for it.
  *
  * <p>The trace (each card starting, each wait ending and why, the guard's decisions) goes to the
@@ -80,7 +91,17 @@ import java.util.function.Function;
  * and at the last path's end heading ({@link PathEndSettle}), not on Pedro's "done"; each path end
  * and each settle goes to the match log as an event, with Pedro's own view of how the path ended.
  */
+@Configurable
 public abstract class BuiltAuto extends RobotOpMode {
+
+    /**
+     * The endgame guard (AutoKit.guarded): on, the robot parks when the next drive or grab would
+     * not leave time to. <b>Off is for practice only</b>: every card runs, so the match log shows
+     * how long the whole plan really takes (run it with the Driver Station's 30 s timer off). The
+     * Driver Station says so in red while it is off, and the match log records it.
+     */
+    public static boolean endgameGuard = true;
+
 
     /** How many of the Auto's latest trace lines the Match page shows. */
     private static final int TRACE_LINES = 4;
@@ -95,6 +116,8 @@ public abstract class BuiltAuto extends RobotOpMode {
     private final String drawnFor;
     private final Function<Boolean, Pose> startPose;
     private final BiFunction<AutoKit, Boolean, Command> build;
+    /** What the drive team may change in INIT, and their picks. */
+    private final InitOptions options;
     /** The two places this Auto can start, built once so INIT never allocates. */
     private final StartPosition drawnStart;
     private final StartPosition rotatedStart;
@@ -114,15 +137,21 @@ public abstract class BuiltAuto extends RobotOpMode {
     private StartPosition targetWritten;
     private final StartMatch startMatch = new StartMatch();
     private long startMatchNs;
+    /** This Auto's two starts first (drawn, rotated), then every other known start; see the class comment. */
+    private final StartPosition[] startCandidates;
+    private final Pose[] candidatePoses;
+    private final Pose[] candidateFixes;
 
     protected BuiltAuto(String source, String[] commands, String[] triggers, String drawnFor,
-                        Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build) {
+                        Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build,
+                        AutoOption[] options) {
         this.source = source;
         this.commands = commands;
         this.triggers = triggers;
         this.drawnFor = drawnFor;
         this.startPose = startPose;
         this.build = build;
+        this.options = new InitOptions(options);
         Alliance drawn = Alliance.valueOf(drawnFor);
         Alliance other = drawn == Alliance.RED ? Alliance.BLUE : Alliance.RED;
         // A drawing that starts on a declared start takes its name and placement sentence.
@@ -130,6 +159,20 @@ public abstract class BuiltAuto extends RobotOpMode {
         this.drawnStart = known != null && known.alliance == drawn ? known
                 : new StartPosition(drawn + " start (as drawn)", drawn, startPose.apply(false));
         this.rotatedStart = new StartPosition(other + " start (drawing rotated)", other, startPose.apply(true));
+        List<StartPosition> candidates = new ArrayList<>();
+        candidates.add(drawnStart);
+        candidates.add(rotatedStart);
+        for (StartPosition start : StartPositions.known()) {
+            if (!near(start.pose, drawnStart.pose) && !near(start.pose, rotatedStart.pose)) candidates.add(start);
+        }
+        startCandidates = candidates.toArray(new StartPosition[0]);
+        candidatePoses = new Pose[startCandidates.length];
+        for (int i = 0; i < startCandidates.length; i++) candidatePoses[i] = startCandidates[i].pose;
+        candidateFixes = new Pose[startCandidates.length];
+    }
+
+    private static boolean near(Pose a, Pose b) {
+        return Math.hypot(a.x() - b.x(), a.y() - b.y()) <= 1.0;
     }
 
     /**
@@ -159,7 +202,7 @@ public abstract class BuiltAuto extends RobotOpMode {
             }
         }
         robot.drive.preparePathFollowing();
-        robot.drive.setStartCandidates(drawnStart.pose, rotatedStart.pose);
+        robot.drive.setStartCandidates(candidatePoses);
         pathLog = new AutoPathLog(log);
         // Which drawing this was, and which of its waits were running on placeholders.
         log.metadata("AutoSource", source);
@@ -175,6 +218,12 @@ public abstract class BuiltAuto extends RobotOpMode {
             targetWritten = start;
             pathLog.target(start.pose);
         }
+        options.update(gamepad1.dpad_left, gamepad1.dpad_right, gamepad1.dpad_up, gamepad1.dpad_down);
+        options.describe(display);
+        if (!endgameGuard) {
+            display.status("Endgame guard OFF", Display.Level.FAULT,
+                    "practice only: no park for time. Panels → BuiltAuto.endgameGuard to turn it back on");
+        }
         if (!placeholders.isEmpty()) {
             display.status("Placeholders", Display.Level.WARN, String.join(", ", placeholders)
                     + ": no mechanism yet, so these waits run to their limits");
@@ -188,26 +237,43 @@ public abstract class BuiltAuto extends RobotOpMode {
         display.line(source + ": drawn for " + drawnFor + "; the other alliance runs it rotated.");
     }
 
-    /** Which of the two starts the camera puts the robot on, each tried with its own heading; see the class comment. */
+    /** Which known start the camera puts the robot on, each tried with its own heading; see the class comment. */
     @Override
     protected Alliance allianceFromStarts() {
         long ns = robot.drive.candidateFixNs();
         if (ns != 0 && ns != startMatchNs) {
             startMatchNs = ns;
-            Alliance before = startMatch.settled();
-            Alliance now = startMatch.update(robot.drive.candidateFix(0), robot.drive.candidateFix(1),
-                    drawnStart, rotatedStart);
+            for (int i = 0; i < candidateFixes.length; i++) candidateFixes[i] = robot.drive.candidateFix(i);
+            int before = startMatch.settled();
+            int now = startMatch.update(candidateFixes, startCandidates);
             if (now != before) {
-                log.event(now == Alliance.UNKNOWN ? "Start: the camera no longer puts the robot on either start"
-                        : "Start: the camera puts the robot on the " + now + " start");
+                log.event(now == StartMatch.NONE ? "Start: the camera no longer puts the robot on a known start"
+                        : now < 2 ? "Start: the camera puts the robot on the " + startCandidates[now].alliance + " start"
+                        : "Start: the camera puts the robot on " + startCandidates[now].name + ", not this Auto's start");
             }
         }
-        return startMatch.settled();
+        int on = startMatch.settled();
+        return on == 0 || on == 1 ? startCandidates[on].alliance : Alliance.UNKNOWN;
+    }
+
+    /** The known start the camera puts the robot on when it is not one of this Auto's, else null. */
+    @Override
+    protected StartPosition cameraOnOtherStart() {
+        int on = startMatch.settled();
+        return on >= 2 ? startCandidates[on] : null;
+    }
+
+    /** This Auto's start for {@code alliance}: as drawn, or rotated. */
+    @Override
+    protected StartPosition startFor(Alliance alliance) {
+        return alliance == drawnStart.alliance ? drawnStart : rotatedStart;
     }
 
     @Override
     protected void onStart() {
         robot.drive.setStartCandidates();
+        options.lock();
+        if (!options.isEmpty()) log.metadata("AutoOptions", options.summary());
         Alliance alliance = setup.alliance();
         if (alliance == Alliance.UNKNOWN) {
             problem = "No alliance chosen before PLAY (Square (X) = blue, Circle (B) = red during INIT). Not moving.";
@@ -225,7 +291,10 @@ public abstract class BuiltAuto extends RobotOpMode {
         trace = new AutoTrace(TRACE_LINES, line -> log.event(line));
         AutoKit kit = new AutoKit(robot.drive, registry, () -> (System.nanoTime() - startNs) / 1e9)
                 .trace(trace)
-                .watchPaths(both(pathLog, settle));
+                .watchPaths(both(pathLog, settle))
+                .picks(options)
+                .guard(endgameGuard);
+        if (!endgameGuard) log.event("Endgame guard OFF (practice): every card runs, no park for time");
         Command auto = build.apply(kit, rotated);
         pathLog.plan(kit.paths());
         auto.schedule();
@@ -248,6 +317,10 @@ public abstract class BuiltAuto extends RobotOpMode {
             return;
         }
         settle.update();
+        if (!endgameGuard) {
+            display.status("Endgame guard OFF", Display.Level.FAULT,
+                    "practice only: no park for time. Panels → BuiltAuto.endgameGuard to turn it back on");
+        }
         if (trace != null) trace.forEachRecent(display::line);
         publish();
     }

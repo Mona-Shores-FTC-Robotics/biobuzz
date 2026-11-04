@@ -6,6 +6,8 @@ with Python. Standard library only.
                                                                    events, every feed (gate open)
   python3 tools/pull-logs/read_logs.py keys LOG.wpilog            every key and its sample count
   python3 tools/pull-logs/read_logs.py series LOG.wpilog KEY [...] a key's samples, time in s
+  python3 tools/pull-logs/read_logs.py picks LOG.wpilog [...]     every FLOWER pick: how the push
+                                                                   ended, how deep, pieces, pose gap
 
 Logs reach GitHub on logs/<date>-<robot network> branches, sent by Pull-MatchLogs.ps1. A session
 fetches them with:  git fetch origin 'refs/heads/logs/*:refs/remotes/origin/logs/*'
@@ -13,6 +15,8 @@ and reads one with:  git show origin/logs/<branch>:<file>.wpilog.gz > /tmp/x.wpi
 (the logs go up gzipped; this reads .wpilog and .wpilog.gz alike)
 """
 import gzip
+import math
+import re
 import struct
 import sys
 
@@ -109,6 +113,102 @@ def summary(path):
                  (at(S, b) or 0) - (at(S, a) or 0), low(V, a, b)))
 
 
+FLOWER_FACING = {'red WALL': math.pi, 'red FAR': math.pi / 2, 'blue WALL': 0.0, 'blue FAR': -math.pi / 2}
+
+
+def spikes(amps, a, b, above=1.35, gap_s=0.08):
+    """Rising edges of the intake current over `above` A between a and b: about one per piece."""
+    n, last, high = 0, -9.0, False
+    for t, x in amps:
+        if t < a or t > b:
+            continue
+        if x > above and not high:
+            if t - last > gap_s:
+                n += 1
+            high, last = True, t
+        elif x <= above:
+            high = False
+    return n
+
+
+def picks(paths):
+    """One row per FLOWER pick, from the pick's own event lines (opmodes/GrabRoutine), the intake
+    current, the lane count and the camera's last gap to odometry:
+
+      push end   reached | path done N in short | stalled N in short | timed out N in short
+      depth      robot centre to the FLOWER's centre when the push ended, inches, as odometry had it
+                 (the pick's own contact value, from its start line, plus what the push end line says
+                 is short; older logs: the start-of-run contactStandoffIn)
+      spikes     intake-current spikes during the push and dwell: about one per piece
+      lane       /Lane/Count at the push's start -> half a second after the pick (newer logs only)
+      along      camera minus odometry at the pick, along the push, inches: negative means the robot
+                 was really further from the FLOWER than odometry said, so "reached" stopped short
+      side       the same gap across the push (positive: the robot's left)
+
+    The gap is the camera's last fix, wherever the robot was then, and the camera itself reads
+    about 3.5 % long (doc/robot-session-4.md), so it is a hint about the sign and size of a pose
+    error, not a measurement of it.
+    """
+    print('%-19s %7s %-10s %-22s %-24s %5s %3s %-6s %6s %6s  %s' % (
+        'log', 't', 'flower', 'how', 'push end', 'depth', 'spk', 'lane', 'along', 'side', 'outcome'))
+    for path in paths:
+        d = read(path)
+        ev = [(t, str(e)) for t, e in d.get('/Events', []) if 'FLOWER pick' in str(e) or 'flower pick' in str(e)]
+        if not ev:
+            continue
+        amps, lane = d.get('/Intake/CurrentAmps', []), d.get('/Lane/Count', [])
+        gx, gy = d.get('/Drift/GapXIn', []), d.get('/Drift/GapYIn', [])
+        contact = float((d.get('/RealMetadata/Tunable/FlowerPicker.contactStandoffIn') or [(0, 12.0)])[0][1])
+        i = 0
+        while i < len(ev):
+            t, e = ev[i]
+            m = re.search(r'start, (.*?) FLOWER \(([\d.]+), ([\d.]+)\), from \(.*?\)(.*)', e)
+            if not m:
+                i += 1
+                continue
+            flower, how = m.group(1), m.group(4)
+            # Newer logs end the start line with ", contact 7.0 in": the push depth as it was set then,
+            # which Panels may have changed since INIT. Older logs fall back to the start-of-run value.
+            cm = re.search(r', contact ([\d.]+) in', how)
+            pick_contact = float(cm.group(1)) if cm else contact
+            how = re.sub(r', contact [\d.]+ in', '', how).strip(', ') or '-'
+            t_in = t_dwell = t_back = t_end = None
+            push_end, outcome = '-', '?'
+            j = i + 1
+            while j < len(ev) and 'start,' not in ev[j][1] and 'refused' not in ev[j][1]:
+                tj, ej = ev[j]
+                if 'then IN' in ej:
+                    t_in = tj
+                mm = re.search(r'IN [\d.]+ s \((.*?)\), then DWELL', ej)
+                if mm:
+                    push_end, t_dwell = mm.group(1), tj
+                if re.search(r'DWELL [\d.]+ s.*, then BACK', ej):
+                    t_back = tj
+                if 'done,' in ej:
+                    outcome, t_end = 'done', tj
+                mm = re.search(r'stopped in (\w+) after [\d.]+ s \((.*?)\)', ej)
+                if mm:
+                    outcome, t_end = 'stopped in %s (%s)' % (mm.group(1), mm.group(2)), tj
+                j += 1
+            i = j
+            if t_in is None:
+                continue
+            a, b = t_in, t_back or t_end or t_in + 4
+            mm = re.search(r'([\d.]+) in short', push_end)
+            depth = pick_contact + (float(mm.group(1)) if mm else 0.0) if push_end != '-' else float('nan')
+            l0, l1 = at(lane, t_in), at(lane, (t_end or b) + 0.5)
+            lane_s = '-' if l0 is None else '%d->%d' % (l0, l1 if l1 is not None else l0)
+            x, y, f = at(gx, t_in), at(gy, t_in), FLOWER_FACING.get(flower)
+            if x is None or f is None:
+                along_s = side_s = '-'
+            else:
+                along_s = '%+6.1f' % (x * math.cos(f) + y * math.sin(f))
+                side_s = '%+6.1f' % (-x * math.sin(f) + y * math.cos(f))
+            print('%-19s %7.1f %-10s %-22s %-24s %5.1f %3d %-6s %6s %6s  %s' % (
+                path.split('/')[-1][:19], t, flower, how[:22], push_end, depth, spikes(amps, a, b),
+                lane_s, along_s, side_s, outcome))
+
+
 def main(argv):
     if len(argv) < 3:
         print(__doc__)
@@ -120,6 +220,8 @@ def main(argv):
     elif cmd == 'keys':
         for k, v in sorted(read(path).items()):
             print('%6d  %s' % (len(v), k))
+    elif cmd == 'picks':
+        picks(argv[2:])
     elif cmd == 'series':
         d = read(path)
         for k in argv[3:]:

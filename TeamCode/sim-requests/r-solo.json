@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-solo.pp",
-  "spec": "RSoloAuto,PartnerLStillAuto@50",
+  "spec": "RSoloAuto@50",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -16,10 +16,31 @@
     9,
     10
   ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
   "alliance": "RED",
+  "partners": [
+    {
+      "name": "dead on its start",
+      "partner": "PartnerLBrokenDownAuto"
+    },
+    {
+      "name": "stays out of the way",
+      "partner": "PartnerStillAuto"
+    },
+    {
+      "name": "parks at 15 s",
+      "partner": "PartnerPark1Auto"
+    }
+  ],
   "metadata": {
     "AutoSource": "r-solo.pp",
-    "SavedBy": "whiteboard drafts (Claude)",
-    "SavedAt": "2026-11-03T03:05:35+00:00"
+    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor; re-simulated with the out-of-the-way still and broken-down partners, #396; re-simulated to test that the workflow runs every changed request)",
+    "SavedAt": "2026-11-03T23:45:00+00:00"
   }
 }

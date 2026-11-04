@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.logging;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
+import org.firstinspires.ftc.teamcode.opmodes.LaunchSpotDrive;
 import org.firstinspires.ftc.teamcode.opmodes.HiveAndPose;
 import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
+import org.firstinspires.ftc.teamcode.opmodes.auto.BuiltAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
@@ -33,7 +35,7 @@ import java.lang.reflect.Modifier;
  * <p>{@link #CLASSES} is the list, kept in step with the {@code @Configurable} annotations by
  * {@code TunablesTest}: a class annotated in {@code subsystems}, {@code localization},
  * {@code vision}, {@code opmodes} or {@code opmodes/auto} must be here, and nothing else may be.
- * The benches in {@code opmodes/calibration}, the {@code launcher2} rig and the
+ * The benches in {@code opmodes/calibration} and the
  * {@code DriveMotorCheck} diagnostic are not here: a bench's knobs are not a match's.
  *
  * <p>Reflection, once per run, at PLAY: a few dozen fields, well under a millisecond, on the loop
@@ -54,6 +56,7 @@ public final class Tunables {
             TurretSubsystem.class,
             LaunchCards.class,
             PathEndSettle.class,
+            BuiltAuto.class,
             LocalizationTuning.class,
             CameraMount.class,
             PieceVisionSubsystem.class,
@@ -61,6 +64,7 @@ public final class Tunables {
             FieldLayers.class,
             FlowerPicker.class,
             GardenGather.class,
+            LaunchSpotDrive.class,
             HiveAndPose.class,
     };
 

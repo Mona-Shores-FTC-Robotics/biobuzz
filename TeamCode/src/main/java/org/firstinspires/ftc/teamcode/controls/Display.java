@@ -190,7 +190,12 @@ public final class Display {
 
     /** A coloured dot, a label and a detail: "● Pinpoint present". */
     public void status(String label, Level level, String detail) {
-        add("<font color=\"" + level.color + "\">●</font> " + label + ": " + detail);
+        add(statusLine(level, label + ": " + detail));
+    }
+
+    /** {@link #status}'s line, so a caller can measure it ({@link #rows}) before writing. */
+    public static String statusLine(Level level, String text) {
+        return "<font color=\"" + level.color + "\">●</font> " + text;
     }
 
     /**

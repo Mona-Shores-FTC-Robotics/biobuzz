@@ -34,15 +34,16 @@ next thing on the list for whichever OpMode crashed.** Nothing here needs a lapt
 ## TeleOp crashed, say 20 seconds in
 
 1. Take the photo. Then, **if the rules let you restart** (ask), choose Basic Drive, INIT, PLAY.
-2. A restart inside **30 seconds** resumes where the robot was: the Match page says
+2. A restart resumes where the robot was, however long after: the Match page says
    **"pose from the TeleOp that just stopped Ns ago"**. The alliance, the pose and the turret's zero
-   all come back. The log starts a new file for the same match.
-3. After 30 seconds it no longer trusts the last pose, because someone may have moved the robot. The
-   page says **"no handoff"**. Face the robot away from the driver, hold **driver D-pad up**
+   all come back. The log joins the same match if it is within 3 minutes, otherwise it starts a new one.
+3. The handoff never expires, so if someone moved the robot since, **hold Triangle (Y) for a second
+   in INIT** to start fresh. Then face the robot away from the driver, hold **driver D-pad up**
    for a second to reset forward, and hold **driver D-pad down** for a second with two tags in view to fix the pose
    (or square into a corner on your alliance's wall, intake toward the other alliance, and hold
    **driver D-pad left** for the left corner or **D-pad right** for the right one, for a second).
-4. The alliance is not remembered after 30 seconds either: press X (blue) or B (red) in INIT.
+   The page says **"no handoff"** only when nothing has run since the Robot Controller app started.
+4. After starting fresh the alliance is not remembered: press X (blue) or B (red) in INIT.
 
 ## Things nobody has checked on a robot yet
 

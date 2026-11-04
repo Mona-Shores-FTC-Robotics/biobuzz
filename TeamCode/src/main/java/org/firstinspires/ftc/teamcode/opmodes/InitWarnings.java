@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
+import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 import java.util.Locale;
@@ -26,12 +27,14 @@ public final class InitWarnings {
         PINPOINT,
         /** The whole Auto runs turned about, or (none) does not move. */
         ALLIANCE,
+        /** The robot is on a known start that is not this Auto's: the wrong Auto, or the wrong spot. */
+        WRONG_START,
         OFF_MARK,
         CAMERA_NOT_ANSWERING,
         CAMERA_NO_FRAMES,
         BATTERY_LOW,
         /**
-         * The colour sensor reads nothing: no "full", so no green light, no roller stop and no
+         * The colour sensor reads nothing: no "full", so no green light, no full hold and no
          * {@code IntakeFull} (an Auto's waits on it run to their limits). Rarely fixable at the
          * field, but the drive team plays differently knowing it (mentor, 2 Nov 2026).
          */
@@ -95,6 +98,21 @@ public final class InitWarnings {
                          StartCheck.Result start, String cameraProblem, long cameraFrames,
                          long msSinceInit, double batteryVolts, double lowBatteryVolts,
                          boolean colorSensorSilent, boolean tagsInView) {
+        evaluate(pinpointProblem, alliance, cameraSees, start, cameraProblem, cameraFrames,
+                msSinceInit, batteryVolts, lowBatteryVolts, colorSensorSilent, tagsInView, null, null);
+    }
+
+    /**
+     * As above, and the start the camera puts the robot on when it is a known start that is not
+     * this Auto's ({@code onOtherStart}, else null), with this Auto's start for the alliance PLAY
+     * will use ({@code thisAutosStart}), so the warning says which Auto to pick or where to move.
+     * Naming the start replaces the plain "Not on the start": one warning for one mistake.
+     */
+    public void evaluate(String pinpointProblem, Alliance alliance, Alliance cameraSees,
+                         StartCheck.Result start, String cameraProblem, long cameraFrames,
+                         long msSinceInit, double batteryVolts, double lowBatteryVolts,
+                         boolean colorSensorSilent, boolean tagsInView,
+                         StartPosition onOtherStart, StartPosition thisAutosStart) {
         for (int i = 0; i < KINDS.length; i++) {
             what[i] = null;
             action[i] = null;
@@ -110,10 +128,15 @@ public final class InitWarnings {
                     "press " + (cameraSees == Alliance.BLUE ? "Square for blue" : "Circle for red")
                             + ", or move to the " + alliance + " start");
         }
+        if (onOtherStart != null) {
+            set(Kind.WRONG_START, "On " + onOtherStart.name + ", not this Auto's start",
+                    "pick the Auto that starts there, or move to "
+                            + (thisAutosStart != null ? thisAutosStart.name : "this Auto's start"));
+        }
         if (start != null && start.status == StartCheck.Status.OUT_OF_POSITION) {
             set(Kind.OFF_MARK, String.format(Locale.US, "%.0f in off the start mark", start.errorIn),
                     "move robot to start position");
-        } else if (start != null && start.status == StartCheck.Status.UNCONFIRMED && tagsInView
+        } else if (onOtherStart == null && start != null && start.status == StartCheck.Status.UNCONFIRMED && tagsInView
                 && cameraProblem == null && msSinceInit >= START_GRACE_MS) {
             set(Kind.OFF_MARK, "Not on the " + start.start + " start",
                     "check the Auto (L or R) and move the robot onto its mark");
@@ -129,7 +152,7 @@ public final class InitWarnings {
         }
         if (colorSensorSilent) {
             set(Kind.COLOR_SENSOR, "Color sensor: no reading",
-                    "no full light or roller stop: watch the intake");
+                    "no full light or full hold: watch the intake");
         }
     }
 

@@ -25,27 +25,31 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
  * seconds in or a TeleOp restarted 20 seconds in, picks up where the robot is rather than where
  * the last Auto ended.
  *
- * <p>Whichever of the two was written last wins, because it describes the robot more recently; a
- * newer loop state that has gone stale means no handoff, never the older Auto's.
+ * <p>Whichever of the two was written last wins, because it describes the robot more recently.
  *
- * <h2>Staleness</h2>
+ * <h2>No expiry</h2>
  *
- * <p>State from an Autonomous is good for {@link #MAX_AGE_MS}: in a match TeleOp initializes
- * seconds after Autonomous ends; a practice Auto from an hour ago must not put a stale pose into
- * this TeleOp. State from a TeleOp is good for only {@link #RESTART_MAX_AGE_MS}: long enough to
- * look at an error and start it again, short enough that the pose from the last practice run is not
- * put on a robot someone has since picked up and moved. A handoff is not cleared when read, so
- * re-initializing in the pits still gets it. Restarting the Robot Controller app, or a Sloth hot
- * reload of this class, clears it; the Driver Station then says there was no handoff, rather than
- * anything guessing.
+ * <p>A handoff does not go stale. The break between an Auto and the TeleOp that follows it is not
+ * always seconds (a robot reset on the field, a queue, a practice block), and a timer that quietly
+ * dropped the pose, the alliance and the turret's zero made the TeleOp start somewhere the robot
+ * is not. The record is good until something replaces it: the next OpMode's loops, the drive
+ * team's Triangle (Y) held in INIT ("start fresh"), a restart of the Robot Controller app, or a
+ * Sloth hot reload of this class; the Driver Station then says there was no handoff, rather than
+ * anything guessing. It is not cleared when read, so re-initializing in the pits still gets it.
+ * The Driver Station shows how old it is, so a pose from last hour is visible as such.
+ *
+ * <p>Only the match log keeps a clock ({@link #LOG_MAX_AGE_MS}): a paused log closes by itself if
+ * nobody picks it up, and an OpMode joins the earlier OpMode's match (its file, its match id) only
+ * within that time. The pose does not depend on it.
  */
 public final class Handoff {
 
-    /** Three minutes: generous for a delayed transition, far short of the next practice run. */
-    public static final long MAX_AGE_MS = 3 * 60 * 1000L;
-
-    /** Thirty seconds: time to read an error and start TeleOp again, not time to move the robot. */
-    public static final long RESTART_MAX_AGE_MS = 30 * 1000L;
+    /**
+     * Three minutes: how long an Auto's paused match log waits for the TeleOp, and how long after
+     * the last OpMode a new one still joins its match. Only the log and the match id use it; the
+     * handoff itself has no expiry.
+     */
+    public static final long LOG_MAX_AGE_MS = 3 * 60 * 1000L;
 
     /** An immutable record of one Autonomous ending. */
     public static final class Snapshot {
@@ -77,8 +81,22 @@ public final class Handoff {
             this.recordedAtMs = recordedAtMs;
         }
 
+        /** How long ago this was recorded; never negative, even if the clock was set back. */
         public long ageMs(long nowMs) {
-            return nowMs - recordedAtMs;
+            return Math.max(0L, nowMs - recordedAtMs);
+        }
+
+        /** For the Driver Station: "45s ago", "6 min 25 s ago", "2 h 5 min ago". */
+        public String ageText(long nowMs) {
+            long s = ageMs(nowMs) / 1000;
+            if (s < 120) {
+                return s + "s ago";
+            }
+            long m = s / 60;
+            if (m < 120) {
+                return m + " min " + (s % 60) + " s ago";
+            }
+            return (m / 60) + " h " + (m % 60) + " min ago";
         }
     }
 
@@ -134,19 +152,14 @@ public final class Handoff {
     }
 
     /**
-     * What the OpMode that just ended left, or null if there is nothing or it is stale. The more
-     * recent of the Auto's final record and the latest loop state; see the class comment.
+     * What the OpMode that just ended left, or null if nothing has run since the app started (or
+     * since a Sloth reload). The more recent of the Auto's final record and the latest loop state;
+     * see the class comment. It never expires.
      */
-    public static Snapshot fresh(long nowMs) {
+    public static Snapshot last() {
         Snapshot recorded = latest;
         if (liveValid && (recorded == null || liveAtMs > recorded.recordedAtMs)) {
-            // The loop state is the newer one, so it decides; the Auto's older record does not
-            // stand in for it once it has gone stale.
-            long age = nowMs - liveAtMs;
-            long max = liveFromAuto ? MAX_AGE_MS : RESTART_MAX_AGE_MS;
-            if (age < 0 || age > max) {
-                return null;
-            }
+            // The loop state is the newer one, so it decides.
             // The Auto's paused log goes along only if it is this match's; an older match's is not ours.
             MatchLog log = recorded != null && recorded.matchId != null
                     && recorded.matchId.equals(liveMatchId) ? recorded.log : null;
@@ -154,11 +167,7 @@ public final class Handoff {
                     liveMatchId, log, liveHasTurretZero ? Long.valueOf(liveTurretZero) : null,
                     liveFromAuto, liveAtMs);
         }
-        if (recorded == null) {
-            return null;
-        }
-        long age = recorded.ageMs(nowMs);
-        return age >= 0 && age <= MAX_AGE_MS ? recorded : null;
+        return recorded;
     }
 
     /** For tests. */

@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.RobotDifferences;
 import org.firstinspires.ftc.teamcode.controls.Bindings;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.Handoff;
@@ -41,6 +42,7 @@ import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
+import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.FieldLayers;
@@ -115,11 +117,11 @@ import java.util.Map;
  * <p>{@link #setup} settles the alliance during INIT — vision proposes, X/B on either gamepad
  * overrides — and locks it at PLAY; see {@link MatchSetup}. When an {@code @Autonomous} OpMode
  * stops, this records the alliance, the robot's final pose and the turret's zero in {@link Handoff}.
- * When any other OpMode initializes within {@link Handoff#MAX_AGE_MS} of that, it restores the pose
- * and the turret's zero and inherits the alliance, and the Match page says so — or says there was
- * no handoff. With no Auto before it, the turret is assumed at home and zeroes where it stands at
- * PLAY ({@link TurretZeroPolicy}); a person's zero button always wins. Subclasses never touch
- * either.
+ * When any other OpMode initializes after that, however long after, it restores the pose
+ * and the turret's zero and inherits the alliance, and the Match page says so and how old it is — or
+ * says there was no handoff (nothing has run since the app started). Triangle (Y) in INIT discards
+ * it. With no Auto before it, the turret is assumed at home and zeroes where it stands at PLAY
+ * ({@link TurretZeroPolicy}); a person's zero button always wins. Subclasses never touch either.
  *
  * <p>An Autonomous overrides {@link #startPosition()}. The pose starts there, and during INIT the
  * camera checks the placement ({@link StartCheck}): a confirmed placement is also what confirms the
@@ -337,6 +339,10 @@ public abstract class RobotOpMode extends OpMode {
         }
 
         try {
+            // Before the robot is built, so every constructor reads this robot's values.
+            List<String> differences = RobotDifferences.applyForActiveRobot();
+            log.metadata("RobotDifferences", differences.isEmpty()
+                    ? "none: the shared values" : String.join(" | ", differences));
             robot = new Robot(hardwareMap);
             robot.initialize();
         } catch (RuntimeException e) {
@@ -516,10 +522,16 @@ public abstract class RobotOpMode extends OpMode {
         // Short, for one line: the reason in full is in the log's hardware metadata.
         String cameraProblem = !robot.vision.isAvailable() ? "not found"
                 : !robot.vision.isConnected() ? "not answering" : null;
-        initWarnings.evaluate(pinpointProblem, setup.alliance(), setup.visionAlliance(), startCheck,
+        // "Move to" names this OpMode's start for the alliance PLAY will use: the one chosen, or,
+        // with none chosen yet, the one whose start the robot is on.
+        StartPosition otherStart = cameraOnOtherStart();
+        Alliance chosen = setup.alliance();
+        StartPosition moveTo = otherStart == null ? null
+                : startFor(chosen == Alliance.UNKNOWN ? otherStart.alliance : chosen);
+        initWarnings.evaluate(pinpointProblem, chosen, setup.visionAlliance(), startCheck,
                 cameraProblem, robot.vision.freshResultCount(), (System.nanoTime() - initStartNs) / 1_000_000L,
                 batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent(),
-                robot.drive.lastFrame().count() >= LocalizationTuning.minFixTags);
+                robot.drive.lastFrame().count() >= LocalizationTuning.minFixTags, otherStart, moveTo);
         String summary = initWarnings.summary();
         if (!summary.equals(loggedWarnings)) {
             log.event("INIT warnings: " + summary);
@@ -543,6 +555,19 @@ public abstract class RobotOpMode extends OpMode {
      */
     protected Alliance allianceFromStarts() {
         return Alliance.UNKNOWN;
+    }
+
+    /**
+     * The known start the camera puts the robot on when it is not one of this OpMode's own
+     * ({@code BuiltAuto}: the wrong Auto, or the wrong spot), for the INIT warnings; null otherwise.
+     */
+    protected StartPosition cameraOnOtherStart() {
+        return null;
+    }
+
+    /** This OpMode's start for {@code alliance}, named in that warning. */
+    protected StartPosition startFor(Alliance alliance) {
+        return StartPositions.forAlliance(alliance);
     }
 
     @Override
@@ -745,7 +770,7 @@ public abstract class RobotOpMode extends OpMode {
         Scheduler.reset();
         if (handedOff) {
             // The file stays open for the TeleOp that follows; unclaimed, it closes by itself.
-            log.pause("OpMode stopped: " + opModeName(), Handoff.MAX_AGE_MS);
+            log.pause("OpMode stopped: " + opModeName(), Handoff.LOG_MAX_AGE_MS);
         } else {
             log.close("OpMode stopped: " + opModeName(), LOG_CLOSE_WAIT_MS);
         }
@@ -934,10 +959,10 @@ public abstract class RobotOpMode extends OpMode {
             return;
         }
         long now = System.currentTimeMillis();
-        Handoff.Snapshot handoff = Handoff.fresh(now);
+        Handoff.Snapshot handoff = Handoff.last();
         if (handoff == null) {
             handoffLevel = Display.Level.WARN;
-            handoffNote = "no handoff (no Auto in the last 3 minutes, no TeleOp in the last 30 seconds) — "
+            handoffNote = "no handoff (no OpMode has run since the app started) — "
                     + "pose starts at 0,0; forward = robot's facing at PLAY";
             return;
         }
@@ -948,7 +973,7 @@ public abstract class RobotOpMode extends OpMode {
                 == TurretZeroPolicy.Action.RESTORE_FROM_AUTO) {
             robot.turret.restoreZero(handoff.turretZeroCounts);
         }
-        String age = (handoff.ageMs(now) / 1000) + "s ago";
+        String age = handoff.ageText(now);
         if (handoff.pose != null && robot.drive.hasHeading()) {
             robot.drive.setPose(handoff.pose);
             handoffPose = true;
@@ -1099,8 +1124,13 @@ public abstract class RobotOpMode extends OpMode {
         long nowMs = System.currentTimeMillis();
 
         // One file per match: a TeleOp that follows an Autonomous carries on writing the file
-        // that Autonomous paused (the same handoff receiveHandoff() reads later).
-        Handoff.Snapshot handoff = isAutonomous() ? null : Handoff.fresh(nowMs);
+        // that Autonomous paused (the same handoff receiveHandoff() reads later). Only within the
+        // log's own window: a pose handoff has no expiry, but a match id from an hour ago would put
+        // today's drive into last hour's file name.
+        Handoff.Snapshot handoff = isAutonomous() ? null : Handoff.last();
+        if (handoff != null && handoff.ageMs(nowMs) > Handoff.LOG_MAX_AGE_MS) {
+            handoff = null;
+        }
         if (handoff != null && handoff.log != null && handoff.log.resume()) {
             log = handoff.log;
             matchId = handoff.matchId;
@@ -1304,7 +1334,7 @@ public abstract class RobotOpMode extends OpMode {
         }
         // The intake running with nothing asking for it: it joined a feed (IntakeSubsystem.rollerFor).
         log.put("/Intake/FeedAssist", robot.intake.feedAssist() ? 1 : 0);
-        log.put("/Intake/RollerStopped", robot.intake.rollerStopped() ? 1 : 0);
+        log.put("/Intake/HoldingForFull", robot.intake.holdingForFull() ? 1 : 0);
         // The launcher's speed loop and the feeder, so a log shows what the wheels did at each shot.
         log.put("/Launcher/TargetTicksPerSecond", robot.launcher.isSpinning() ? robot.launcher.target() : 0.0);
         log.put("/Launcher/LeftTicksPerSecond", robot.launcher.leftTicksPerSecond());
@@ -1358,7 +1388,7 @@ public abstract class RobotOpMode extends OpMode {
             log.put(LANE_SLOT_KEYS[i], piece == null ? 0 : piece.ordinal() + 1);
         }
         if (lane.event() != null) log.event(lane.event());
-        // Full (LaneFull): the signal the light, the roller stop and IntakeFull use. Every piece's
+        // Full (LaneFull): the signal the light, the full hold and IntakeFull use. Every piece's
         // dwell under the sensor, so normal-play logs can tighten ColorSensorSubsystem.fullHoldS.
         LaneFull full = robot.colorSensor.laneFull();
         log.put("/Lane/Full", full.full() ? 1 : 0);
@@ -1395,7 +1425,9 @@ public abstract class RobotOpMode extends OpMode {
             log.event("launcher: " + launcherFault);
         }
         loggedLauncherFault = launcherFault;
-        String stalled = intakeWatch.check(robot.intake.state() != IntakeSubsystem.State.IDLE,
+        // Not while holding a full lane: the slow roller pressing on the last piece may barely turn.
+        String stalled = intakeWatch.check(robot.intake.state() != IntakeSubsystem.State.IDLE
+                        && !robot.intake.holdingForFull(),
                 robot.intake.ticksPerSecond(), now);
         if (stalled != null) log.event(stalled);
         stalled = feederWatch.check(robot.feeder.power() != 0.0, robot.feeder.ticksPerSecond(), now);

@@ -126,8 +126,10 @@ public class Robot {
         turret = new TurretSubsystem(hardwareMap);
         indicator = new IndicatorSubsystem(hardwareMap);
         colorSensor = new ColorSensorSubsystem(hardwareMap, launcher, intake, prefeed);
-        // The intake stops its roller once the lane is full (IntakeSubsystem.stopRollerWhenFull).
+        // The intake holds the last piece in once the lane is full (IntakeSubsystem.holdWhenFull).
         intake.laneFull(colorSensor::full);
+        // And the prefeed stops, the stars and a slow roller holding the last piece (PrefeedSubsystem.stopWhenFull).
+        prefeed.laneFull(colorSensor::full);
 
         subsystems = Collections.unmodifiableList(
                 Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, feeder, launcher, intake, prefeed,

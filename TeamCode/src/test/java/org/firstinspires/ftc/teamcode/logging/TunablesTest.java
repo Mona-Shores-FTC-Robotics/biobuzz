@@ -25,7 +25,7 @@ public class TunablesTest {
     private static final Pattern CONFIGURABLE = Pattern.compile("(?m)^@Configurable\\b");
 
     /** Benches, rigs and diagnostics: their tunables are not a match's. */
-    private static final String[] NOT_A_MATCH = {"opmodes/calibration/", "launcher2/", "opmodes/DriveMotorCheck.java"};
+    private static final String[] NOT_A_MATCH = {"opmodes/calibration/", "opmodes/DriveMotorCheck.java"};
 
     @Test
     public void everyMatchConfigurableClassIsListedAndNoBenchIs() throws IOException {

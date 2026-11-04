@@ -36,6 +36,14 @@ public class IntakeSubsystemTest {
         assertEquals(1.0, IntakeSubsystem.powerFor(State.IN, 1.0, 0.6), EPS);
     }
 
+    /** A gentle eject's own power wins; NaN (no override, every other request) is the configured one. */
+    @Test
+    public void ejectOverrideFallsBackToTheConfiguredPower() {
+        assertEquals(0.25, IntakeSubsystem.orConfigured(0.25, 0.6), EPS);
+        assertEquals(0.6, IntakeSubsystem.orConfigured(Double.NaN, 0.6), EPS);
+        assertEquals(-0.25, IntakeSubsystem.powerFor(State.OUT, 1.0, IntakeSubsystem.orConfigured(0.25, 0.6)), EPS);
+    }
+
     @Test
     public void powersPastFullAreClamped() {
         assertEquals(1.0, IntakeSubsystem.powerFor(State.IN, 1.7, 0.6), EPS);
@@ -64,6 +72,9 @@ public class IntakeSubsystemTest {
         assertEquals(1.0, IntakeSubsystem.starsPowerFor(State.IN, 3.0, false), EPS);
         assertEquals(0.0, IntakeSubsystem.starsPowerFor(State.IN, Double.NaN, false), EPS);
         assertEquals(1.0, IntakeSubsystem.starsPowerFor(State.OUT, 1.0, true), EPS);
+        // Stopped is a plain 0 even reversed: Double.equals tells -0.0 from 0.0, as the servo's log does.
+        assertEquals(Double.valueOf(0.0), Double.valueOf(IntakeSubsystem.starsPowerFor(State.IDLE, 1.0, true)));
+        assertEquals(Double.valueOf(0.0), Double.valueOf(IntakeSubsystem.starsPowerFor(State.IN, Double.NaN, true)));
     }
 
     @Test
@@ -106,28 +117,43 @@ public class IntakeSubsystemTest {
         assertEquals(0.0, IntakeSubsystem.powerFor(State.OUT, 1.0, Double.NaN), EPS);
     }
 
-    // ---------------------------------------------------------------- stopping the roller when full
+    // ---------------------------------------------------------------- holding the last piece when full
 
     @Test
-    public void intakingWithTheLaneFullStopsTheRoller() {
-        assertTrue(IntakeSubsystem.stopsRoller(State.IN, FeederSubsystem.State.IDLE, true, true));
+    public void intakingWithTheLaneFullHolds() {
+        assertTrue(IntakeSubsystem.holdsForFull(State.IN, FeederSubsystem.State.IDLE, true, true));
     }
 
     @Test
-    public void withRoomTheRollerTakesIn() {
-        assertFalse(IntakeSubsystem.stopsRoller(State.IN, FeederSubsystem.State.IDLE, false, true));
+    public void idleWithTheLaneFullStillHolds() {
+        // The operator's toggle off, or an Auto idling after IntakeFull: the 4th must not roll out.
+        assertTrue(IntakeSubsystem.holdsForFull(State.IDLE, FeederSubsystem.State.IDLE, true, true));
     }
 
     @Test
-    public void onlyAPlainIntakeRequestStopsIt() {
-        assertFalse("not asked to take in", IntakeSubsystem.stopsRoller(State.IDLE, FeederSubsystem.State.IDLE, true, true));
-        assertFalse("ejecting", IntakeSubsystem.stopsRoller(State.OUT, FeederSubsystem.State.IDLE, true, true));
-        assertFalse("a feed pushes the last piece up", IntakeSubsystem.stopsRoller(State.IN, FeederSubsystem.State.FEED, true, true));
-        assertFalse("the feeder clearing a jam", IntakeSubsystem.stopsRoller(State.IN, FeederSubsystem.State.REVERSE, true, true));
+    public void withRoomNothingHolds() {
+        assertFalse(IntakeSubsystem.holdsForFull(State.IN, FeederSubsystem.State.IDLE, false, true));
+        assertFalse(IntakeSubsystem.holdsForFull(State.IDLE, FeederSubsystem.State.IDLE, false, true));
+    }
+
+    @Test
+    public void ejectFeedAndReverseGetPastFull() {
+        assertFalse("ejecting", IntakeSubsystem.holdsForFull(State.OUT, FeederSubsystem.State.IDLE, true, true));
+        assertFalse("a feed pushes the last piece up", IntakeSubsystem.holdsForFull(State.IN, FeederSubsystem.State.FEED, true, true));
+        assertFalse("a feed while idle", IntakeSubsystem.holdsForFull(State.IDLE, FeederSubsystem.State.FEED, true, true));
+        assertFalse("the feeder clearing a jam", IntakeSubsystem.holdsForFull(State.IN, FeederSubsystem.State.REVERSE, true, true));
     }
 
     @Test
     public void theSwitchTurnsItOff() {
-        assertFalse(IntakeSubsystem.stopsRoller(State.IN, FeederSubsystem.State.IDLE, true, false));
+        assertFalse(IntakeSubsystem.holdsForFull(State.IN, FeederSubsystem.State.IDLE, true, false));
+        assertFalse(IntakeSubsystem.holdsForFull(State.IDLE, FeederSubsystem.State.IDLE, true, false));
+    }
+
+    @Test
+    public void theHoldPowerIsClamped() {
+        assertEquals(0.2, IntakeSubsystem.powerFor(State.IN, 0.2, 0.6), EPS);
+        assertEquals(1.0, IntakeSubsystem.powerFor(State.IN, 3.0, 0.6), EPS);
+        assertEquals(0.0, IntakeSubsystem.powerFor(State.IN, Double.NaN, 0.6), EPS);
     }
 }

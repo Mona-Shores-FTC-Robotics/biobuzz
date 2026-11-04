@@ -11,8 +11,9 @@ import java.util.Set;
  * both teams; the drive team changes it here, and the Driver Station's Controls page and the
  * printed cheat sheet follow.
  *
- * <p>Both people can run the intake (R2) and unjam (L2), the same input on each pad. When both
- * press the intake at once, the driver wins ({@link IntakeArbiter}).
+ * <p>Both people can run the intake (R2) and unjam (L2), the same input on each pad. The operator's
+ * R2 toggles the intake; the driver's R2 and either L2 are holds over that toggle, and the driver
+ * wins when both press at once ({@link IntakeArbiter}).
  *
  * <p>A layout leaves out what does nothing on this robot, so the Controls page and the cheat
  * sheet show only buttons that work: {@link #NOT_BOUND} always, and {@link #TURRET_ACTIONS} while
@@ -46,10 +47,20 @@ public final class ControlScheme {
      * match TeleOp and the cheat sheet use, so a locked turret's buttons are not offered.
      */
     public static Map<Action, Input> layout(Input flowerPick, boolean turretLocked) {
+        return layout(flowerPick, turretLocked, true);
+    }
+
+    /**
+     * As {@link #layout(Input, boolean)}, also leaving out the go-to-launch-spot button unless
+     * {@code launchSpot} ({@code TeleOpConfig.launchSpot}, on while the drivers try it): the
+     * match TeleOp's layout.
+     */
+    public static Map<Action, Input> layout(Input flowerPick, boolean turretLocked, boolean launchSpot) {
         Map<Action, Input> map = layout(flowerPick);
         if (turretLocked) {
             for (Action action : TURRET_ACTIONS) map.remove(action);
         }
+        if (!launchSpot) map.remove(Action.LAUNCH_SPOT);
         return map;
     }
 
@@ -71,6 +82,8 @@ public final class ControlScheme {
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
         map.put(Action.GARDEN_GATHER, Input.TRIANGLE);
+        // Experimental, to try against chassis aim (Circle); TeleOpConfig.launchSpot unbinds it.
+        map.put(Action.LAUNCH_SPOT, Input.SQUARE);
         // Pose and heading fixes are occasional, so they sit on the D-pad and leave the face
         // buttons for play.
         map.put(Action.RESET_HEADING, Input.DPAD_UP);

@@ -25,7 +25,7 @@ public final class PartnerRLaunchParkAuto {
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {};
+    public static final String[] TRIGGERS = {"CellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -53,7 +53,10 @@ public final class PartnerRLaunchParkAuto {
         return kit.sequence(
                 kit.guarded("Auto", toPartnerPark, 2.9,
                         kit.command("SpinUp"),
-                        kit.command("LaunchAll"),
+                        kit.firstOf("Wait for its CELL up",
+                                kit.when("CellUp"),
+                                kit.afterMs(12000)),
+                        kit.command("LaunchAll", 15),
                         kit.path("to PARTNER_PARK", toPartnerPark, 2.9)));
     }
 }

@@ -28,8 +28,7 @@ import java.util.Locale;
  * the target changes, and again every {@link #RESEND_MS} (each is a 2–3 ms round trip to the hub,
  * and the SDK does not skip a repeated velocity; the resend recovers a motor a hub has zeroed), and
  * no controller of ours to tune. If the hub's default loop turns out sluggish on the
- * bench, the knob is {@code setVelocityPIDFCoefficients}, not a controller here; the {@code
- * launcher2} rig has the hand-rolled alternative if it ever comes to that.
+ * bench, the knob is {@code setVelocityPIDFCoefficients}, not a controller here.
  *
  * <p>The setpoint is in ticks per second, not RPM, because ticks per second is what the hardware
  * measures and commands. RPM is shown as well once {@link #ticksPerRev} is read off the motor

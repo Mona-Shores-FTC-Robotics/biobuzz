@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-partner-tip.pp",
-  "spec": "RPartnerTipAuto,PartnerLLaunchParkAuto@50",
+  "spec": "RPartnerTipAuto@50",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -16,10 +16,42 @@
     9,
     10
   ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
   "alliance": "RED",
+  "partners": [
+    {
+      "name": "on time, typical 50 in/s",
+      "partner": "PartnerLTipParkAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "misses",
+      "partner": "PartnerLTipParkAuto",
+      "fails": "misses",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "dead on its start",
+      "partner": "PartnerLBrokenDownAuto"
+    },
+    {
+      "name": "stays out of the way",
+      "partner": "PartnerStillAuto"
+    }
+  ],
   "metadata": {
     "AutoSource": "r-partner-tip.pp",
-    "SavedBy": "whiteboard drafts (Claude)",
-    "SavedAt": "2026-11-03T03:12:15+00:00"
+    "SavedBy": "partner curation (Claude, 3 Nov 2026: on time, missing, dead; to be corrected by the mentor; re-simulated with the out-of-the-way still and broken-down partners, #396)",
+    "SavedAt": "2026-11-03T21:40:00+00:00"
   }
 }

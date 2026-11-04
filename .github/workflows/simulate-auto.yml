@@ -5,10 +5,16 @@ name: Simulate Auto
 # through SimRunTest and publishes the result on the `sim-results` branch, where
 # the Visualizer reads it back:
 #
-#   <auto>/<commit>/result.json        every seed's points, TIPs, LEAVE/PARK, problems
+#   <auto>/<commit>/result.json        the Auto alone: every seed's points, TIPs, LEAVE/PARK, problems; and
+#                                      "entries", the results table of every run (alone, and each partner at each timing)
 #   <auto>/<commit>/<auto>-<commit7>-seed-<n>.wpilog   the best and the median seed, for AdvantageScope
+#   <auto>/<commit>/<partner>/<timing>/result.json, <auto>-<commit7>-<partner>-<timing>-seed-<n>.wpilog
+#                                      the same for each partner run the request lists (TeamCode/autos/partners/, the
+#                                      partner's .pp name and the timing's name: partner-l-launch-park/fires-at-5-s)
 #   <auto>/latest.json                 the newest result for that Auto, on its usual robot design
 #   <auto>/latest-best.wpilog, latest-typical.wpilog   its logs, at names that never change
+#   <auto>/with/<partner>/<timing>/latest.json, latest-best.wpilog, latest-typical.wpilog
+#                                      the newest result of that partner run
 #   <auto>/designs/<design>/latest.json, latest-best.wpilog, latest-typical.wpilog
 #                                      the same, for each robot design it has been simulated with
 #   <auto>[/designs/<design>]/<title>_<YYYY-MM-DD>_best.wpilog (and _typical)   the same, named for the Auto (the request's
@@ -25,6 +31,16 @@ name: Simulate Auto
 # A request is TeamCode/sim-request.json, or on the fast lane (an auto/<name> branch, opened by the
 # Visualizer's Save & Simulate into master) the Auto's own TeamCode/sim-requests/<name>.json, so two
 # Autos in flight never conflict. Not on master itself: the save's own branch already ran it.
+# The request lists the Auto's curated partner runs ("partners": each a stand-in from TeamCode/autos/partners/
+# at a timing; TeamCode/autos/README.md). SimRunTest runs the Auto alone, then each of those; the whole job
+# should stay under about five minutes, so a request gives its partner runs fewer seeds ("partnerSeeds").
+#
+# The requests are the files the pushed commit itself changed (against its first parent) and that still
+# exist, and every one of them runs: the plan job lists them, and the simulate job runs once per request,
+# one at a time (a stand-in renamed in three requests simulates all three). Each Auto's own request when
+# the commit changed any, else the shared one. A merge commit (merging master into a branch, say) changes
+# none: the request files it brings in changed on another branch, which already simulated them, so it
+# skips and the check passes.
 on:
   push:
     branches-ignore: [master]
@@ -42,37 +58,73 @@ env:
   KEEP_RUNS: '40'
 
 jobs:
-  simulate:
+  # Which requests this push changed: every one of them is simulated, each in its own simulate job below.
+  plan:
     runs-on: ubuntu-latest
+    outputs:
+      requests: ${{ steps.plan.outputs.requests }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 2  # the pushed commit and its parent: which request it changed
+          fetch-depth: 2  # the pushed commit and its parent(s): which requests it changed
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '17'
+      - name: List the requests
+        id: plan
+        run: |
+          python3 - <<'EOF'
+          import json, os, subprocess
+          def git(*args):
+              return subprocess.run(["git", *args], capture_output=True, text=True, check=True).stdout.split()
+          def plan(requests, why=None):
+              if why:
+                  print(f"Nothing to simulate: {why}")
+              else:
+                  print("Requests: " + ", ".join(requests))
+              with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+                  out.write("requests=" + json.dumps(requests) + "\n")
+          # The files the pushed commit changed, against its first parent (a merge commit's own diff-tree
+          # is empty, which once sent this to a shared file master does not have). A root commit has no parent.
+          has_parent = subprocess.run(["git", "rev-parse", "-q", "--verify", "HEAD^1"], capture_output=True).returncode == 0
+          changed = git("diff", "--name-only", "HEAD^1", "HEAD") if has_parent else git("diff-tree", "--root", "--no-commit-id", "--name-only", "-r", "HEAD")
+          requests = sorted(f for f in changed if os.path.isfile(f) and f.endswith(".json")
+                            and (f.startswith("TeamCode/sim-requests/") or f == "TeamCode/sim-request.json"))
+          if subprocess.run(["git", "rev-parse", "-q", "--verify", "HEAD^2"], capture_output=True).returncode == 0:
+              # A merge commit: whatever request files it brings in changed on another branch, and nothing
+              # about those Autos changed here.
+              plan([], "a merge commit; the request files it carries (" + (", ".join(requests) or "none") + ") were simulated on their own branch")
+          elif not requests:
+              plan([], "this commit changed no request file that still exists (looked for TeamCode/sim-requests/*.json, then TeamCode/sim-request.json)")
+          else:
+              # Every Auto's own file the commit changed (one commit can change several: a partner stand-in
+              # renamed in every request that uses it), else the shared one.
+              own = [f for f in requests if f.startswith("TeamCode/sim-requests/")]
+              plan(own or requests)
+          EOF
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v4
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
+  # One job per request, one at a time: each publish rewrites sim-results from the one before.
+  simulate:
+    needs: plan
+    if: needs.plan.outputs.requests != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        request: ${{ fromJSON(needs.plan.outputs.requests) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
 
       - name: Write the request
         id: request
+        env:
+          REQUEST: ${{ matrix.request }}
         run: |
           mkdir -p "$RUNNER_TEMP/sim"
           python3 - <<'EOF'
-          import json, os, subprocess
-          # The request this push's commit changed: an Auto's own file first, else the shared one.
-          changed = subprocess.run(["git", "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"],
-                                   capture_output=True, text=True).stdout.split()
-          own = sorted(f for f in changed if f.startswith("TeamCode/sim-requests/") and f.endswith(".json"))
-          path = own[0] if own else "TeamCode/sim-request.json"
+          import json, os
+          path = os.environ["REQUEST"]
           print(f"Request: {path}")
           req = json.load(open(path))
           meta = req.setdefault("metadata", {})
@@ -87,6 +139,18 @@ jobs:
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"auto={auto}\n")
           EOF
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Simulate (SimRunTest)
         id: sim
@@ -116,8 +180,9 @@ jobs:
               result["error"] = "The simulation did not finish: see the Action's log."
           runs = result.get("runs") or []
           # The median run by points, the earlier seed on a tie: the Visualizer's "typical" seed.
-          ordered = sorted(runs, key=lambda r: (r["points"], r["seed"]))
-          typical = ordered[(len(ordered) - 1) // 2] if ordered else None
+          def typical_of(runs):
+              ordered = sorted(runs, key=lambda r: (r["points"], r["seed"]))
+              return ordered[(len(ordered) - 1) // 2] if ordered else None
           # The best run: a clean one first (no G409 touch, no collision: the Q&A's Q17 makes a touch a foul every
           # time, 14 Oct 2026), then most points, then the earliest last TIP, then the lower seed.
           def last_tip(r):
@@ -125,7 +190,9 @@ jobs:
               return counted[-1] if counted else float("inf")
           def fouled(r):
               return r.get("g409", 0) > 0 or r.get("robotsCollidedAt") is not None
-          best = min(runs, key=lambda r: (fouled(r), -r["points"], last_tip(r), r["seed"])) if runs else None
+          def best_of(runs):
+              return min(runs, key=lambda r: (fouled(r), -r["points"], last_tip(r), r["seed"])) if runs else None
+          typical, best = typical_of(runs), best_of(runs)
           request = json.load(open(os.path.join(sim, "request.json")))
           result.update({
               "auto": auto, "commit": sha, "branch": os.environ["GITHUB_REF_NAME"], "pp": request.get("pp"),
@@ -169,6 +236,44 @@ jobs:
           for label, run in (("best", best), ("typical", typical)):
               if run:
                   result.setdefault("namedLogs", {})[label] = f"{named}_{day}_{label}.wpilog"
+          # Each partner run the request listed (SimRunTest's "entries"; the first is the Auto alone, published
+          # above): its own result.json and watched logs under <auto>/<commit>/<partner>/<timing>/, and the newest
+          # at <auto>/with/<partner>/<timing>/ (3 Nov 2026: a curated set of partner stand-ins, each at a spread of
+          # timings, so we see when we would crash with them and how our waits' time limits hold up).
+          for entry in result.get("entries") or []:
+              folder = entry.get("folder") or ""
+              if not folder:
+                  continue
+              path = os.path.join(sim, folder, "result.json")
+              if not os.path.exists(path):
+                  entry["error"] = "this run did not finish: see the Action's log"
+                  continue
+              sub = json.load(open(path))
+              sub_runs = sub.get("runs") or []
+              sub_typical, sub_best = typical_of(sub_runs), best_of(sub_runs)
+              sub.update({
+                  "auto": auto, "commit": sha, "branch": os.environ["GITHUB_REF_NAME"], "pp": request.get("pp"),
+                  "runUrl": run_url, "finishedAt": result["finishedAt"], "request": request,
+                  "typicalSeed": sub_typical["seed"] if sub_typical else None,
+                  "bestSeed": sub_best["seed"] if sub_best else None, "logs": {}, "folder": folder,
+              })
+              sub_out = os.path.join(out, folder)
+              os.makedirs(sub_out, exist_ok=True)
+              tag = folder.replace("/", "-")
+              for run in (sub_best, sub_typical):
+                  if run and str(int(run["seed"])) not in sub["logs"]:
+                      name = f"{auto}-{sha[:7]}-{tag}-seed-{int(run['seed'])}.wpilog"
+                      shutil.copy(os.path.join(sim, folder, run["log"]), os.path.join(sub_out, name))
+                      sub["logs"][str(int(run["seed"]))] = name
+              entry.update({"typicalSeed": sub["typicalSeed"], "bestSeed": sub["bestSeed"], "logs": sub["logs"]})
+              text = json.dumps(sub, indent=1)
+              open(os.path.join(sub_out, "result.json"), "w").write(text)
+              latest = os.path.join(os.path.dirname(out), "with", folder)
+              os.makedirs(latest, exist_ok=True)
+              for label, run in (("best", sub_best), ("typical", sub_typical)):
+                  if run:
+                      shutil.copy(os.path.join(sim, folder, run["log"]), os.path.join(latest, f"latest-{label}.wpilog"))
+              open(os.path.join(latest, "latest.json"), "w").write(text)
           text = json.dumps(result, indent=1)
           open(os.path.join(out, "result.json"), "w").write(text)
           for target in targets:
@@ -182,7 +287,47 @@ jobs:
           summary = [f"### {auto} at `{sha[:7]}`", ""]
           if result.get("error"):
               summary.append(f"**Error:** {result['error']}")
-          if runs:
+          # The results table: one row per run, the Auto alone and then each partner at each timing (SimRunTest.row).
+          def sec(t):
+              return "never" if t is None else f"{t:.1f} s"
+          def wait_words(w):
+              if not w:
+                  return "no wait"
+              if w.get("at") is None:
+                  return f"{w['label']}: still waiting at 30 s"
+              if str(w.get("outcome") or "").endswith(" on the match clock"):
+                  return f"partner wait ran out at {w['at']:.1f} s, after {w['after']:.1f} s"
+              how = "fired" if w.get("fired") else "timed out"
+              what = "" if how == "timed out" else f" ({w['outcome']})"
+              return f"{how}{what} at {w['at']:.1f} s, after {w['after']:.1f} s"
+          entries = result.get("entries") or []
+          if entries:
+              # Partner's last shot and our first CellUp side by side: the TIP lag, seed by seed (SimRunTest.row).
+              summary += ["| Run | Seed | Points | Our launches | TIPs at | Partner's last shot | Our first CellUp | Our wait | Robots collide | Parked |",
+                          "|---|---|---|---|---|---|---|---|---|---|"]
+              def launched(n, down):
+                  return f"{int(n)}" + (f", {int(down)} at a down CELL" if down else "")
+              for entry in entries:
+                  label = entry["name"] if not entry.get("partner") else f"{entry.get('partnerSource') or entry['partner']} · {entry['name']}"
+                  if entry.get("partnerWaitUntilS") is not None:
+                      label += f" (our wait until {entry['partnerWaitUntilS']:.0f} s)"
+                  label = label.replace("|", "\\|").replace("\n", " ")
+                  if entry.get("error"):
+                      summary.append(f"| {label} | | | | | | | | | {entry['error']} |")
+                  for r in entry.get("rows") or []:
+                      star = (" ▲" if entry.get("bestSeed") == r["seed"] else "") + (" ★" if entry.get("typicalSeed") == r["seed"] else "")
+                      launches = launched(r["launched"], r.get("launchedAtDownCell")) + ("" if r.get("partnerLaunched") is None
+                          else f" (partner {launched(r['partnerLaunched'], r.get('partnerLaunchedAtDownCell'))})")
+                      parked = ("yes" if r["parked"] else "no") + ("" if r.get("partnerParked") is None else f" (partner {'yes' if r['partnerParked'] else 'no'})")
+                      tips = ", ".join(f"{t:.1f}" for t in r["tipsAt"]) or "none"
+                      last = "" if r.get("partnerLaunched") is None else sec(r.get("partnerLastShotAt"))
+                      summary.append(f"| {label} | {int(r['seed'])}{star} | {int(r['points'])} | {launches} | {tips} | {last} | {sec(r.get('firstCellUpAt'))} | {wait_words(r.get('wait'))} | {sec(r.get('robotsCollidedAt'))} | {parked} |")
+                  if entry.get("meanPoints") is not None:
+                      summary.append(f"| **{label}: mean** | | **{entry['meanPoints']:.0f}** | | | | | | | |")
+              summary.append("")
+              summary.append("▲ the best seed, ★ the typical (median) seed of each run. Alone is published as before; each partner run "
+                             "under `<auto>/<commit>/<partner>/<timing>/` and `<auto>/with/<partner>/<timing>/latest.json`.")
+          elif runs:
               summary += ["| Seed | Points | TIPs at (s) | LEAVE / PARK |", "|---|---|---|---|"]
               for r in runs:
                   lp = " · ".join(f'{"yes" if x["leave"] else "no"} / {"yes" if x["park"] else "no"}' for x in r["robots"])

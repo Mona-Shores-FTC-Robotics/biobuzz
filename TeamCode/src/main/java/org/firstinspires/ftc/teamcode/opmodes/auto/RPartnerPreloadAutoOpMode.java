@@ -9,6 +9,6 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RPartnerPreloadAuto
 public class RPartnerPreloadAutoOpMode extends BuiltAuto {
     public RPartnerPreloadAutoOpMode() {
         super(RPartnerPreloadAuto.SOURCE, RPartnerPreloadAuto.COMMANDS, RPartnerPreloadAuto.TRIGGERS,
-                RPartnerPreloadAuto.DRAWN_FOR, RPartnerPreloadAuto::startPose, RPartnerPreloadAuto::build);
+                RPartnerPreloadAuto.DRAWN_FOR, RPartnerPreloadAuto::startPose, RPartnerPreloadAuto::build, RPartnerPreloadAuto.OPTIONS);
     }
 }

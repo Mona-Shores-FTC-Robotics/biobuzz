@@ -212,6 +212,53 @@ public class AutoKitTest {
         assertTrue(now >= 1.5 && now < 1.6);
     }
 
+    /** "Give up at 8.5 s": however late the wait starts, it ends at that time on the match clock. */
+    @Test
+    public void aMatchClockLimitEndsAtThatTimeWhenTheWaitStarted() {
+        now = 6.0;
+        run(kit.firstOf("Wait for TIP", kit.when("HiveTipped"),
+                kit.atMatchSeconds(8.5).then(kit.command("SpinUp"))), 5);
+        assertEquals("[SpinUp]", log.toString());
+        assertTrue("ended at " + now, now >= 8.5 && now < 8.6);
+        assertTrue(trace.toString(), trace.stream().anyMatch(line -> line.startsWith("Wait for TIP: 8.5 s on the match clock after 2.5")));
+    }
+
+    /** Arriving after the limit: the wait ends at once, and the time row's cards run. */
+    @Test
+    public void aMatchClockLimitAlreadyPastEndsTheWaitAtOnce() {
+        now = 9.0;
+        run(kit.firstOf("Wait for TIP", kit.when("HiveTipped"),
+                kit.atMatchSeconds(8.5).then(kit.command("SpinUp"))), 1);
+        assertEquals("[SpinUp]", log.toString());
+        assertTrue(now < 9.1);
+    }
+
+    @Test
+    public void theTriggerStillEndsAMatchClockWaitEarly() {
+        tipped = true;
+        run(kit.firstOf("Wait for TIP", kit.when("HiveTipped").then(kit.command("ShootAll")),
+                kit.atMatchSeconds(20)), 1);
+        assertEquals("[ShootAll]", log.toString());
+    }
+
+    @Test
+    public void withNoPicksEveryOptionIsAsDrawn() {
+        assertEquals("LEFT", kit.pick(AutoOption.PARK, "LEFT", "RIGHT"));
+        assertEquals(8.5, kit.seconds("Wait for TIP", 8.5), 1e-9);
+    }
+
+    @Test
+    public void picksChooseTheValueAndTheTime() {
+        kit.picks(new AutoKit.Picks() {
+            @Override public int choice(String option) { return option.equals(AutoOption.PARK) ? 1 : -1; }
+            @Override public double seconds(String option) { return option.equals("Wait for TIP") ? 11 : Double.NaN; }
+        });
+        assertEquals("RIGHT", kit.pick(AutoOption.PARK, "LEFT", "RIGHT"));
+        assertEquals("unknown options stay as drawn", "A", kit.pick("Other", "A", "B"));
+        assertEquals(11, kit.seconds("Wait for TIP", 8.5), 1e-9);
+        assertEquals(3, kit.seconds("Other", 3), 1e-9);
+    }
+
     @Test
     public void earlierRowWinsWhenTwoAreTrueInTheSameLoop() {
         tipped = true;
@@ -245,6 +292,20 @@ public class AutoKitTest {
         assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith(needs)));
         assertFalse("ShootAll must be skipped", log.contains("ShootAll"));
         assertEquals(java.util.Collections.singletonList(park), drive.followed);
+    }
+
+    /** Practice runs (BuiltAuto.endgameGuard off): every card runs, and the trace says once where it would have parked. */
+    @Test
+    public void guardOffRunsEveryCardAndTracesWhereItWouldHaveParked() {
+        Path park = line(0, 10);
+        Path drawnPark = line(0, 20);
+        now = 27.6; // 2.4 s left; the guard on would park at once
+        run(kit.guard(false).guarded("If tipped", park, 2.0,
+                kit.command("ShootAll"),
+                kit.path("Park", drawnPark)), 5);
+        assertTrue("ShootAll must run: " + log, log.contains("ShootAll"));
+        assertEquals(java.util.Collections.singletonList(drawnPark), drive.followed);
+        assertEquals(trace.toString(), 1, trace.stream().filter(t -> t.contains("guard OFF")).count());
     }
 
     @Test
@@ -400,6 +461,102 @@ public class AutoKitTest {
         assertFalse("the gather must not start: " + log, log.contains("GardenGather start"));
         assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("not starting GardenGather")));
         assertEquals(java.util.Collections.singletonList(park), drive.followed);
+    }
+
+    // ------------------------------------------------------------ approaches
+
+    /** A grab's approach that records what the kit tells it. */
+    private static final class RecordingApproach implements AutoRegistry.Approach {
+        final List<String> seen = new ArrayList<>();
+        double lowestRemaining = Double.NaN;
+
+        @Override public void started(Pose end) {
+            seen.add(String.format(java.util.Locale.US, "started at (%.0f, %.0f)", end.x(), end.y()));
+            lowestRemaining = Double.NaN;
+        }
+
+        @Override public void approaching(Pose pose, double remainingIn) {
+            if (Double.isNaN(lowestRemaining) || remainingIn < lowestRemaining) lowestRemaining = remainingIn;
+            if (seen.size() == 1) seen.add("approaching");
+        }
+
+        @Override public void cancel() {
+            seen.add("cancelled");
+        }
+    }
+
+    /**
+     * The path card right before a grab card runs the grab's approach while it drives: told where the
+     * path ends as it starts, then where the robot is every loop it drives. A path with no grab after
+     * it runs none, and the grab itself starts the loop after the path ends, as before.
+     */
+    @Test
+    public void aPathCardBeforeAGrabRunsTheGrabsApproachWhileItDrives() {
+        RecordingApproach approach = new RecordingApproach();
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .grab("PickFlower", 1.0, () -> lasting("PickFlower", 0.5), approach)
+                .command("LaunchAll", 1.0, () -> lasting("LaunchAll", 0.5)), () -> now).trace(trace::add);
+        Path toSpot = line(0, 20), onward = line(20, 40);
+        run(kit.sequence(
+                kit.path("to SPOT", toSpot),
+                kit.command("PickFlower", 8.0),
+                kit.path("onward", onward),
+                kit.command("LaunchAll")), 10);
+        assertEquals(java.util.Arrays.asList("started at (20, 0)", "approaching"), approach.seen);
+        // Ivy asks done() before execute(), so the last call is the loop before the path ends: one
+        // fake step (a fifth of the 20 in) short; one 20 ms loop on the robot.
+        assertEquals("fed every loop until the path ends", 4.0, approach.lowestRemaining, 1e-9);
+        assertEquals("the pick starts when the path ends, as before", 1.0, drive.progressWhen.get("PickFlower start"), 1e-9);
+    }
+
+    /** A pair inside a firstOf row pairs too: the rows' cards are a card list like any other. */
+    @Test
+    public void aPathCardBeforeAGrabInsideARowRunsTheApproach() {
+        RecordingApproach approach = new RecordingApproach();
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .grab("PickFlower", 1.0, () -> lasting("PickFlower", 0.5), approach)
+                .trigger("HiveTipped", () -> true), () -> now).trace(trace::add);
+        run(kit.firstOf("Tipped?", kit.when("HiveTipped").then(
+                kit.path("to SPOT", line(0, 20)),
+                kit.command("PickFlower", 8.0))), 10);
+        assertEquals(java.util.Arrays.asList("started at (20, 0)", "approaching"), approach.seen);
+    }
+
+    /** Only a grab right after a path gets an approach; a command between them, or no approach registered, means none. */
+    @Test
+    public void onlyAGrabRightAfterAPathGetsItsApproachRun() {
+        RecordingApproach approach = new RecordingApproach();
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .grab("PickFlower", 1.0, () -> lasting("PickFlower", 0.5), approach)
+                .grab("GardenGather", 1.0, () -> lasting("GardenGather", 0.5))
+                .command("SpinUp", 0.1, () -> record("SpinUp")), () -> now).trace(trace::add);
+        run(kit.sequence(
+                kit.path("to SPOT", line(0, 20)),
+                kit.command("SpinUp"),
+                kit.command("PickFlower", 8.0),
+                kit.path("to GARDEN", line(20, 40)),
+                kit.command("GardenGather", 8.0)), 10);
+        assertTrue("nothing told the approach: " + approach.seen, approach.seen.isEmpty());
+    }
+
+    /**
+     * The guard refuses the grab after the drive (it and the park no longer fit): the stick the
+     * drive lowered must come back up, so the approach is cancelled, and the guard parks.
+     */
+    @Test
+    public void aRefusedGrabCancelsTheApproachTheDriveRan() {
+        RecordingApproach approach = new RecordingApproach();
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .grab("PickFlower", 4.0, () -> lasting("PickFlower", 4.0), approach), () -> now).trace(trace::add);
+        Path toSpot = line(0, 10), park = line(10, 20);
+        now = 23.5; // 6.5 s left: the 1 s drive and its park fit; the 4 s grab and the park (6 s + margin) do not
+        run(kit.guarded("Auto", park, 2.0,
+                kit.path("to SPOT", toSpot, 1.0),
+                kit.command("PickFlower", 8.0),
+                kit.path("Park", park)), 10);
+        assertEquals(java.util.Arrays.asList("started at (10, 0)", "approaching", "cancelled"), approach.seen);
+        assertFalse("the grab did not start: " + log, log.contains("PickFlower start"));
+        assertEquals(java.util.Arrays.asList(toSpot, park), drive.followed);
     }
 
     /**

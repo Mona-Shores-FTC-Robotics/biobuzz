@@ -26,10 +26,9 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `localization/` | CELL sighting → gated position fix (`TagGate`, `CellFix`), field points, start and reset positions, the start check. The filter is Pedro's. See "Localization" below. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
-| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. A step's own time limit (a command's timeout, a `firstOf`'s "at most") never cuts a feed once it has started: it guards the wait for spin-up, and the feed runs `LaunchCards`' set time, the one number for it. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
-| `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
+| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time or until a time on the match clock, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. A step's own time limit (a command's timeout, a `firstOf`'s "at most") never cuts a feed once it has started: it guards the wait for spin-up, and the feed runs `LaunchCards`' set time, the one number for it. A path card ends at Pedro's path end with the robot still rolling, and the kit never adds a settle: a launch waits for `PathEndSettle`, a grab for its own lighter hand-over speed (`GrabRoutine`). A path card right before a grab card runs the grab's `AutoRegistry.Approach` while it drives (the FLOWER pick's lowers the stick over the last 18 in), so never add a stick card to an Auto or a settle to the kit. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
+| `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`, which passes the generated `OPTIONS`: what the drive team may change in INIT on gamepad 1's D-pad (`InitOptions`: the PARK spot, and the partner's last shot, the one number we ask a partner; the Auto's partner wait ends `AutoRegistration.PARTNER_TIP_LAG_S` after it and the DS shows both numbers, never only the sum), drawn in the Visualizer, never a hand-written flag. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
-| `launcher2/` | **Test rig**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy its pattern into robot code. |
 
 **Adding a mechanism:** copy `subsystems/ExampleSubsystem`, add a `public final` field on `Robot`,
 build it in the constructor, add it to the list. If `Subsystem` doesn't fit your mechanism, change
@@ -51,9 +50,13 @@ Three layers, each written in exactly one place:
 - **Adding a device:** the `DeviceNames` constant, the device list of every robot that has it
   (`COMPETITION_ROBOT` covers both), and the element in each of those robots' XML — same PR.
 - **Adding a robot or rig:** a `robot_<name>.xml` plus a `RobotIdentity` line. A rig with
-  different hardware also gets its own device list (`LAUNCHER_RIG` is the example).
+  different hardware also gets its own device list (`LAUNCHER_BENCH` is the example).
 - **Per-robot numbers key off `ActiveConfig.requireIdentity()`** — never the Wi-Fi name, hub
-  serial, or a fallback default. An unknown config fails loudly.
+  serial, or a fallback default. An unknown config fails loudly. Pedro's values are
+  `pedro/robots/Robot<team>.java`; every other value is the subsystem's one `@Configurable` field,
+  shared by both robots, and a robot that was seen to differ gets one line in `RobotDifferences`
+  (the reason, the date, the assignment), never a second field or an `if` on the robot. A
+  difference in behaviour is a `public static boolean` switch on the subsystem, flipped there.
 - **Look up hardware in the subsystem constructor, and never swallow a missing device.** No
   catch-and-return-null helpers. An optional device is an explicit, named decision.
 - A continuous-rotation servo is `Kind.CR_SERVO` and `<ContinuousRotationServo>`, asked for as
@@ -104,8 +107,9 @@ a fit from both HIVEs it resets the whole pose, heading too, as the seed does; o
 Stationary fixes (`stillFixes`) and continuous fixes (`continuousFixes`) into the filter are both
 off until a measurement shows they help. The reset spots (`ResetPositions`, NaN until measured) are
 fixed, measured poses, the left and right corners of each alliance's wall, chosen by the button the
-driver holds, never "the nearest corner". Relocalizing or resetting never moves
-the driver's field-centric forward. Read the pose from `robot.drive`, never from the
+driver holds, never "the nearest corner". Relocalizing never moves the driver's field-centric
+forward; a corner reset is the gyro reset too, setting it to the alliance's driver forward as PLAY
+does (D-pad up still sets it to the robot's facing, anywhere). Read the pose from `robot.drive`, never from the
 Pinpoint or the Limelight directly. Anything that drives or aims from field coordinates checks
 `robot.drive.poseReferenced()` first and degrades without it; driving itself never needs it.
 `HiveFieldPoints` is the field CAD's rocker model (axle on the centre line, one row radius),
@@ -136,11 +140,14 @@ by hand.
 it runs master's generated Autos as they are. It knows one robot, the real one, in four variants
 (`RobotDesign.real`: turret or locked forward, POLLEN + NECTAR or POLLEN only); a number master
 states (frame, FLOWER stick, feed) is read from master's code, never copied, and the rest is a
-placeholder until a match log measures it. Its points are shown, never enforced: no test fails an
+placeholder until a match log measures it. It acts as the driver: a partner entry gives
+`lastShotS`, which times the stand-in and sets our partner wait, and a partner fails only by
+`"fails": "misses"` or by being dead on its start (a still stand-in). Its LaunchAll fires as the
+robot's does, at our CELL at its end whether up or not. Its points are shown, never enforced: no test fails an
 Auto for scoring less. Only `SimulatorSmokeTest` runs by default; every other simulator test is
-opt-in by environment variable, so CI stays fast. The "Simulate Auto" workflow runs a saved request
-(an Auto's own `TeamCode/sim-requests/<name>.json` on the fast lane, else `TeamCode/sim-request.json`) on
-any branch but master, and publishes to the `sim-results` branch.
+opt-in by environment variable, so CI stays fast. The "Simulate Auto" workflow runs every saved request a push
+changes (each Auto's own `TeamCode/sim-requests/<name>.json`, else `TeamCode/sim-request.json`), one job
+each, on any branch but master, and publishes to the `sim-results` branch.
 → README § "Simulating an Auto"
 
 **Cameras.** The Limelight is for AprilTags only (pitched up at the HIVE). Game pieces come from
@@ -241,7 +248,9 @@ means `local.properties` lacks `sdk.dir` — an environment problem, not a broke
 network; if the sandbox blocks it, say so.
 
 **No robot is attached to a Claude session.** Anything needing hardware — tuning values, motor
-directions, port checks — stops and produces a checklist for the next meeting instead of a guess.
+directions, port checks — stops and adds its checks to `doc/robot-todo.md` (the one list of what
+waits on the robot, in the group with the same setup, linking its PR or issue) instead of a guess,
+never a new session doc.
 Match logs reach a session on GitHub: `tools/pull-logs` sends them to throwaway
 `logs/<date>-<robot network>` branches. "Pull logs" means fetch
 `'refs/heads/logs/*:refs/remotes/origin/logs/*'` and read them with
