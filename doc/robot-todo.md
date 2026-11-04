@@ -192,8 +192,8 @@ measurement is [#255].
       that fraction of turbo in every direction (before, 0.8 on a diagonal was already full power).
       Change them live in Panels → TeleOpConfig if they ask. **Good:** each mode feels different and
       the drivers name the values they keep; write those in `TeleOpConfig`, pull the log. **Stop:**
-      normal too slow for everyday driving → try 0.75 first, not higher (above about 0.8 the wheels
-      stop gaining speed, so turbo would feel the same again). [PR #425]
+      normal too slow for everyday driving → raise it in steps of 0.05, checking turbo still feels
+      clearly faster after each; with the cap, normal is now exactly its share of turbo. [PR #425]
 
 ## 5. Pose and camera (Basic Drive / Vision: HIVE & Pose)
 

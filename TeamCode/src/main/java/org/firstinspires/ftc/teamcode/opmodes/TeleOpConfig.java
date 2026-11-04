@@ -33,27 +33,25 @@ public final class TeleOpConfig {
      * 1.0 would be full power. Clamped to [0, 1], NaN stops.
      *
      * <p>0.7 since 4 Nov 2026, from the 2 and 3 Nov Basic Drive logs on 20245, when L1 and R1 did
-     * not feel like they changed much. Two reasons, both in the logs (steady segments, the command
-     * held over 0.5 s):
-     * <ul>
-     *   <li>Before the wheel cap, 0.8 with the stick at its rim was normalized to full power about
-     *       half the time (a diagonal to the robot or a turn), 0.94 of full power on average, so turbo
-     *       gave 6% more power: wheels 1660 against 1740 ticks/s, 36 against 39 in/s.</li>
-     *   <li>The wheels stop gaining speed near the top: about 2000 ticks/s per unit of power up to
-     *       0.8 (1040 at 0.5, 1600 at 0.8), then only about 1700 at full. A normal speed above about
-     *       0.8 is turbo with the acceleration limit on.</li>
-     * </ul>
-     * At 0.7 the wheels should run about 1400 ticks/s against turbo's 1700 to 1800, so turbo is
-     * about a quarter faster and the difference is in top speed, not only in getting there. History:
-     * 0.6 until 29 Oct (the driver held the stick at its rim more than half the time and almost
-     * never used turbo), then 0.8, which with the saturation was nearly turbo. Drivers judge the new
-     * value in Basic Drive ({@code doc/robot-todo.md}).
+     * not feel like they changed much. Before the wheel cap, 0.8 with the stick at its rim was
+     * normalized to full power about half the time (a diagonal to the robot or a turn), 0.94 of full
+     * power on average, so turbo gave 6% more power: wheels 1660 against 1740 ticks/s, 36 against
+     * 39 in/s (steady segments, the command held over 0.5 s). Now each mode is its share of turbo.
+     *
+     * <p>Turbo has plenty above that: TeleOp holds were too short to reach top speed, and the same
+     * robot under a full-power Auto path ran its wheels at 1800 to 2360 ticks/s and 64 in/s
+     * (R-Solo-Staging, 4 Nov); the Foresight Tuner measured 71 in/s forward. Below that the wheels
+     * run about 2000 ticks/s per unit of power (1040 at 0.5, 1600 at 0.8), so 0.7 is about
+     * 1400 ticks/s and turbo has room for half as much again, given the distance to get there.
+     * History: 0.6 until 29 Oct (the driver held the stick at its rim more than half the time and
+     * almost never used turbo), then 0.8, which with the saturation was nearly turbo. Drivers judge
+     * the new value in Basic Drive ({@code doc/robot-todo.md}).
      */
     public static double normalSpeed = 0.7;
 
     /**
      * Stick multiplier and wheel cap while turbo is held, with the acceleration limit off. Full
-     * power: the motors give no more. Clamped to [0, 1].
+     * power. Clamped to [0, 1].
      */
     public static double turboSpeed = 1.0;
 
