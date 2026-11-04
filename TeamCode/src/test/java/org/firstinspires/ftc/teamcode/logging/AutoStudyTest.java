@@ -465,6 +465,20 @@ public class AutoStudyTest {
         // BIOBUZZ_AUTO_HUMAN_ENTRY=roll / BIOBUZZ_AUTO_HUMAN_BANK=N / BIOBUZZ_AUTO_HUMAN_CUE=1: how it goes in (see
         // AutoSim). Read here, not in the study loop, so a direct run() gets them too (the body-designs chat, 9 Oct).
         AutoSim.humanRolls = "roll".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_ENTRY"));
+        // BIOBUZZ_AUTO_HUMAN_ENTRY=aim: the long roll at a robot on a spot (AutoSim.humanAims; PR #424), and its knobs.
+        AutoSim.humanAims = "aim".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_ENTRY"));
+        if (AutoSim.humanAims) {
+            String spot = System.getenv("BIOBUZZ_AUTO_HUMAN_AIM_SPOT"), from = System.getenv("BIOBUZZ_AUTO_HUMAN_AIM_FROM");
+            String aimSpeed = System.getenv("BIOBUZZ_AUTO_HUMAN_AIM_SPEED"), aimSpread = System.getenv("BIOBUZZ_AUTO_HUMAN_AIM_SPREAD_DEG");
+            String aimAt = System.getenv("BIOBUZZ_AUTO_HUMAN_AIM_AT_S");
+            if (spot != null) AutoSim.humanAimSpot = spot;
+            if (from != null) {
+                AutoSim.humanAimFrom = new double[] {Double.parseDouble(from.split(",")[0].trim()), Double.parseDouble(from.split(",")[1].trim())};
+            }
+            if (aimSpeed != null) AutoSim.humanAimSpeedInPerS = Double.parseDouble(aimSpeed);
+            if (aimSpread != null) AutoSim.humanAimSpreadDeg = Double.parseDouble(aimSpread);
+            if (aimAt != null) AutoSim.humanAimReleaseAtS = Double.parseDouble(aimAt);
+        }
         String bank = System.getenv("BIOBUZZ_AUTO_HUMAN_BANK");
         AutoSim.humanBank = bank == null ? 0 : Integer.parseInt(bank);
         AutoSim.humanCue = "1".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_CUE"));

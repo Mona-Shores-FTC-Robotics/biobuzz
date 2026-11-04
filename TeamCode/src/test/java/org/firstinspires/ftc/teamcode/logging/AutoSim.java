@@ -14,7 +14,9 @@ import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints;
+import org.firstinspires.ftc.teamcode.localization.GardenFieldPoints;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
+import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoRegistration;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoTrace;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
@@ -116,6 +118,26 @@ public final class AutoSim {
     static final double HUMAN_ROLL_SPEED_IN_PER_S = 12.0;
     static final double HUMAN_ROLL_MISS_CHANCE = 0.05;
     static final double HUMAN_ROLL_GAP_S = 0.6;
+    /**
+     * The aimed roll (BIOBUZZ_AUTO_HUMAN_ENTRY=aim; PR #424, 4 Nov 2026): a long roll from the LOADING ZONE to a robot
+     * waiting at a team spot with its intake toward the zone, the swap pairs' RIGHT launch spots (78 to 105 in). Released
+     * on the tile at {@link #humanAimFrom} (red; blue the half turn) once the owed NECTAR is due and no robot is within
+     * {@link #HUMAN_AIM_CLEAR_IN} of the release, or no sooner than {@link #humanAimReleaseAtS} on the match clock if
+     * set (the human times the release off the robot's drive, not its stop), aimed at the intake mouth of a robot on
+     * {@link #humanAimSpot} ({@link RobotDesign#frameIn} / 2 ahead of the spot along its heading), at
+     * {@link #humanAimSpeedInPerS}. Every number is a placeholder until the long-roll drill measures it (PR #424's
+     * doc: the first five rolls decide whether the idea lives); the spread is the drill's target, ±2° (1 sigma).
+     * BIOBUZZ_AUTO_HUMAN_AIM_SPOT (a spots.json name, or "x,y,heading°"), _AIM_FROM ("x,y"), _AIM_SPEED (in/s),
+     * _AIM_SPREAD_DEG and _AIM_AT_S set them; BIOBUZZ_AUTO_HUMAN_BANK=N banks them as for the wall roll.
+     */
+    static boolean humanAims = false;
+    static String humanAimSpot = "RIGHT_LAUNCH_OFFSET";
+    static double[] humanAimFrom = {5.5, 95};
+    static double humanAimSpeedInPerS = 21;
+    static double humanAimSpeedSpreadInPerS = 2;
+    static double humanAimSpreadDeg = 2;
+    static double humanAimReleaseAtS = Double.NaN;
+    static final double HUMAN_AIM_CLEAR_IN = 12;
     /** A frame-fixed launcher launches once the robot faces the CELL this closely. */
     static double AIM_TOLERANCE_RAD = Math.toRadians(2);
     /** Fire only once the robot is still (under 1 in/s and 2 deg/s): "known positions, no disruption" (mentor, 6 Oct 2026). */
@@ -579,6 +601,10 @@ public final class AutoSim {
     private void humanEntries(Alliance a, List<Double> due, int side, Result result) {
         if (due.isEmpty() || now < due.get(0)) return;
         if (humanBank > 1 && !bankEntered[side] && due.size() < humanBank) return;  // the human waits for the bank
+        if (humanAims) {
+            aimedEntry(a, due, side, result);
+            return;
+        }
         if (!humanRolls) {
             due.remove(0);
             sim.enterNectar(a);
@@ -599,6 +625,60 @@ public final class AutoSim {
         }
         // The next of a bank follows after a gap.
         if (!due.isEmpty()) due.set(0, Math.max(due.get(0), now + HUMAN_ROLL_GAP_S));
+    }
+
+    /** {@link #humanAims}: one owed NECTAR rolled from the zone at the intake of a robot on {@link #humanAimSpot}. */
+    private void aimedEntry(Alliance a, List<Double> due, int side, Result result) {
+        if (!Double.isNaN(humanAimReleaseAtS) && now < humanAimReleaseAtS) return;
+        double[] from = forAlliance(humanAimFrom, a == Alliance.RED);
+        for (Bot b : bots) {
+            double[] pose = pedro(b.drive.pose);
+            if (Math.hypot(pose[0] - from[0], pose[1] - from[1]) < HUMAN_AIM_CLEAR_IN) return;  // the human waits
+        }
+        double[] spot = forAlliance(aimSpot(humanAimSpot), a == Alliance.RED);
+        double reach = RobotDesign.REAL_FRAME_IN / 2;
+        for (Bot b : bots) {
+            if (b.alliance == a) {
+                reach = b.design.frameIn / 2;
+                break;
+            }
+        }
+        double tx = spot[0] + (Double.isNaN(spot[2]) ? 0 : reach * Math.cos(spot[2]));
+        double ty = spot[1] + (Double.isNaN(spot[2]) ? 0 : reach * Math.sin(spot[2]));
+        double off = Math.toRadians(humanAimSpreadDeg) * sim.random.nextGaussian();
+        double heading = Math.atan2(ty - from[1], tx - from[0]) + off;
+        double speed = Math.max(6, humanAimSpeedInPerS + humanAimSpeedSpreadInPerS * sim.random.nextGaussian());
+        due.remove(0);
+        bankEntered[side] = true;
+        if (sim.enterNectarAimed(a, from, heading, speed)) {
+            String text = String.format(Locale.ROOT, "human: NECTAR rolled from (%.1f, %.1f) at %.0f in/s toward %s's intake"
+                            + " (%.0f in), %.1f deg off", from[0], from[1], speed, humanAimSpot,
+                    Math.hypot(tx - from[0], ty - from[1]), Math.toDegrees(off));
+            for (Bot b : bots) if (b.alliance == a) result.robots.get(b.index).timeline.add(String.format(Locale.ROOT, "%5.2f %s", now, text));
+        }
+        if (!due.isEmpty()) due.set(0, Math.max(due.get(0), now + HUMAN_ROLL_GAP_S));
+    }
+
+    /** A team spot from TeamCode/autos/spots.json by name, or "x,y[,heading deg]": {x, y, heading rad or NaN}, red. */
+    static double[] aimSpot(String spot) {
+        String[] parts = spot.split(",");
+        if (parts.length >= 2) {
+            return new double[] {Double.parseDouble(parts[0].trim()), Double.parseDouble(parts[1].trim()),
+                    parts.length > 2 ? Math.toRadians(Double.parseDouble(parts[2].trim())) : Double.NaN};
+        }
+        try {
+            File file = new File(TeamCodeDir.get(), "autos/spots.json");
+            @SuppressWarnings("unchecked")
+            java.util.Map<String, Object> json = (java.util.Map<String, Object>) MiniJson.parse(
+                    new String(java.nio.file.Files.readAllBytes(file.toPath()), java.nio.charset.StandardCharsets.UTF_8));
+            @SuppressWarnings("unchecked")
+            List<Object> xyh = (List<Object>) ((java.util.Map<String, Object>) json.get("spots")).get(spot);
+            if (xyh == null) throw new IllegalArgumentException("no team spot " + spot + " in " + file);
+            return new double[] {((Number) xyh.get(0)).doubleValue(), ((Number) xyh.get(1)).doubleValue(),
+                    xyh.size() > 2 ? Math.toRadians(((Number) xyh.get(2)).doubleValue()) : Double.NaN};
+        } catch (IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
     }
 
     /** One of the alliance's robots at the catch spot and nearly still (under 2 in/s). */
@@ -887,14 +967,14 @@ public final class AutoSim {
             if (ours.tips > tipsSeen) {
                 tipsSeen = ours.tips;
                 result.tipsAt.add(now);
-                if (humanNectar) nectarDueAt.add(now + (humanRolls ? HUMAN_ROLL_DELAY_S : HUMAN_DELAY_S));
+                if (humanNectar) nectarDueAt.add(now + (humanRolls || humanAims ? HUMAN_ROLL_DELAY_S : HUMAN_DELAY_S));
             }
             humanEntries(alliance, nectarDueAt, 0, result);
             if (result.opponents) {
                 FieldSim.Rocker theirs = sim.rocker(opponent(alliance));
                 if (theirs.tips > result.theirTipsAt.size()) {
                     result.theirTipsAt.add(now);
-                    if (humanNectar) theirNectarDueAt.add(now + (humanRolls ? HUMAN_ROLL_DELAY_S : HUMAN_DELAY_S));
+                    if (humanNectar) theirNectarDueAt.add(now + (humanRolls || humanAims ? HUMAN_ROLL_DELAY_S : HUMAN_DELAY_S));
                 }
                 humanEntries(opponent(alliance), theirNectarDueAt, 1, result);
             }
@@ -1661,8 +1741,6 @@ public final class AutoSim {
         int lastRaised;
         double raisedSince;
         static final double TIP_OVERDUE_S = 7.0;
-        /** GardenGather: its typical seconds in AutoRegistration. */
-        static final double GATHER_S = 6.0;
 
         /** Flaps fold for whatever they would reach this soon at the robot's speed and turn rate ... */
         static final double FLAP_LOOKAHEAD_S = 0.4;
@@ -2232,18 +2310,108 @@ public final class AutoSim {
         }
 
         /**
-         * GardenGather: the simulator has no GARDEN, so the robot stands where it is for the gather's typical time
-         * and takes nothing. The Auto's timing, and the endgame guard's view of it, are the robot's.
+         * GardenGather, as master's {@code GardenGather.command} runs it from an Auto (no line-up): the nearest GARDEN on
+         * the robot's own half within {@code maxRangeIn}; the intake on; a drive in, at {@code inSpeed} of the top
+         * speed, to the GARDEN's gather pose ({@link GardenFieldPoints}) moved {@code extraDepthIn} deeper and
+         * {@code towardWallIn} toward the side wall, which the walls stop (the simulator does not, so the drive in
+         * ends where the frame touches them, as the robot's ends on its stall); a dwell of {@code dwellMs}; and a
+         * drive back, at {@code backSpeed}, to where the card started. Every number is read from GardenGather, never
+         * copied. What it takes is what the intake touches: the GARDEN's 4 POLLEN start in a line against the
+         * audience wall from the side wall ({@link FieldSim#GARDEN_LENGTH_IN}, the field model's staged pieces).
+         *
+         * <p>The FLOWER stick goes down on the robot's gather; the simulator does not model the stick in the GARDEN,
+         * only the intake. The gather takes no less than {@link AutoRegistration#GARDEN_GATHER_TYPICAL_S}: the
+         * routine's own phases are unmeasured from an Auto, the simulated drive is quicker than the robot's, and 6 s is
+         * what an Auto is planned with. Placeholder until an Auto's match log times a gather.
          */
         private Command gardenGather() {
             final double[] startedAt = new double[1];
+            final double[] phaseFrom = new double[1];
+            final int[] phase = new int[1];  // 0 refused, 1 drive in, 2 dwell, 3 back, 4 standing out the typical time
+            final Pose[] back = new Pose[1];
+            final boolean[] intakeBefore = new boolean[1];
+            final double[] speedBefore = new double[1];
+            final int[] heldBefore = new int[1];
             return new CommandBuilder()
                     .setStart(() -> {
                         startedAt[0] = now;
-                        drive.hold(drive.pose);
-                        pending.add("GardenGather: no GARDEN in the simulator: standing " + GATHER_S + " s, taking nothing");
+                        double[] at = pedro(drive.pose);
+                        GardenFieldPoints.Garden garden = null;
+                        double best = GardenGather.maxRangeIn;
+                        double centre = FieldFrame.FIELD_CENTRE_INCHES;
+                        for (GardenFieldPoints.Garden g : GardenFieldPoints.ALL) {
+                            double d = Math.hypot(g.gather.x() - at[0], g.gather.y() - at[1]);
+                            if ((at[0] < centre) == (g.gather.x() < centre) && d <= best) {
+                                best = d;
+                                garden = g;
+                            }
+                        }
+                        intakeBefore[0] = intakeEnabled;
+                        speedBefore[0] = drive.maxSpeed;
+                        heldBefore[0] = body.stored.size();
+                        if (garden == null) {
+                            phase[0] = 0;
+                            drive.hold(drive.pose);
+                            pending.add("GardenGather: no GARDEN on our side within " + (int) GardenGather.maxRangeIn + " in: refused");
+                            return;
+                        }
+                        Pose in = gardenInPose(garden);
+                        back[0] = new Pose(at[0], at[1], at[2]);
+                        intakeEnabled = true;
+                        drive.maxSpeed = speedBefore[0] * GardenGather.inSpeed;
+                        phase[0] = 1;
+                        phaseFrom[0] = now;
+                        drive.follow(Paths.line(back[0], in).linear(back[0], in));
                     })
-                    .setDone(() -> now - startedAt[0] >= GATHER_S);
+                    .setExecute(() -> {
+                        if (phase[0] == 1 && (drive.pathDone() || now - phaseFrom[0] >= GardenGather.inTimeoutMs / 1000.0)) {
+                            phase[0] = 2;
+                            phaseFrom[0] = now;
+                        } else if (phase[0] == 2 && (FieldSim.full(body) || now - phaseFrom[0] >= GardenGather.dwellMs / 1000.0)) {
+                            phase[0] = 3;
+                            phaseFrom[0] = now;
+                            drive.maxSpeed = speedBefore[0] * GardenGather.backSpeed;
+                            double[] at = pedro(drive.pose);
+                            Pose from = new Pose(at[0], at[1], at[2]);
+                            drive.follow(Paths.line(from, back[0]).linear(from, back[0]));
+                        } else if (phase[0] == 3 && (drive.pathDone() || now - phaseFrom[0] >= GardenGather.backTimeoutMs / 1000.0)) {
+                            phase[0] = 4;
+                            drive.hold(drive.pose);
+                            intakeEnabled = intakeBefore[0];
+                            drive.maxSpeed = speedBefore[0];
+                            int left = 0;
+                            for (FieldSim.Piece q : sim.pieces) {
+                                if (q.where == FieldSim.Where.FIELD && FieldSim.garden(q.x, q.y) != null) left++;
+                            }
+                            pending.add(String.format(Locale.ROOT, "GardenGather: took %d in %.1f s (routine), holds %d; %d left in the GARDENs",
+                                    body.stored.size() - heldBefore[0], now - startedAt[0], body.stored.size(), left));
+                        }
+                    })
+                    .setDone(() -> phase[0] == 0 || (phase[0] == 4 && now - startedAt[0] >= AutoRegistration.GARDEN_GATHER_TYPICAL_S))
+                    .setEnd(end -> {
+                        intakeEnabled = intakeBefore[0];
+                        drive.maxSpeed = speedBefore[0];
+                        if (end != EndCondition.NATURALLY) drive.hold(drive.pose);
+                    });
+        }
+
+        /**
+         * Where master's gather drives in to ({@code GardenGather.inPose}): the gather pose, {@code extraDepthIn} along
+         * its heading and {@code towardWallIn} to its right (the side wall), stopped where the frame meets the walls.
+         */
+        private Pose gardenInPose(GardenFieldPoints.Garden garden) {
+            Pose g = garden.gather;
+            double h = g.heading();
+            double deeper = GardenGather.extraDepthIn, wall = GardenGather.towardWallIn;
+            double x = g.x() + deeper * Math.cos(h) + wall * Math.sin(h);
+            double y = g.y() + deeper * Math.sin(h) - wall * Math.cos(h);
+            // The frame square to the walls in the corner: its half-width off the side wall, the gather pose's own
+            // depth off the audience (or back) wall, where GardenFieldPoints puts the nose on it.
+            double half = design.frameWidthIn / 2, size = FieldSim.FIELD_SIZE_IN;
+            boolean red = g.x() < FieldFrame.FIELD_CENTRE_INCHES;
+            x = red ? Math.max(x, half) : Math.min(x, size - half);
+            y = red ? Math.max(y, g.y()) : Math.min(y, g.y());
+            return new Pose(x, y, h);
         }
 
         /**

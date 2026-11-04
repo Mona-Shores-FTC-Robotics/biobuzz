@@ -317,6 +317,18 @@ start #80's speed-vs-distance table. Count hits out of 12 on video at each speed
 ## 8. If time: anyone, no driving
 
 - [ ] **Photograph both robots' hubs** for `doc/wiring/`, ports against the XML. [#33]
+- [ ] **Launcher: the exit angle and the exit height**, robot off: a protractor on the launch path
+      where the ball leaves the wheels, and a tape from the floor. **Good:** both written in the PR
+      that replaces the simulator's placeholders (`FieldSim.SETPOINT_PITCH_DEG` 75°, exit height
+      17 in). **Stop:** if the angle changes with the wheel speed (a flexible hood), say so instead.
+      [#429]
+- [ ] **HIVE: count the pieces in the CELL at each TIP** (no robot: our practice videos and online
+      match videos). For each TIP: the POLLEN and NECTAR in the CELL just before it moved, whether it
+      tipped on a landing piece (and how many landed in the last second), or on a piece placed or
+      rolling in. **Good:** 20 TIPs or more, each with its count. **Stop:** a CELL that tips on fewer
+      than 7 POLLEN weights (NECTAR is 1.65) from hits is the number the simulator's hit strength
+      (`FieldSim.PLACEHOLDER_IMPULSE_SCALE`, a placeholder) is refitted to; record each count in the
+      PR. [#429]
 
 ## 9. From PRs merged 29 Oct–1 Nov, not in any session doc
 
@@ -474,6 +486,7 @@ one test at one meeting.
 [PR #427]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/427
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
+[#429]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/429
 [#78]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/78
 [#126]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/126
 [#127]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/127
