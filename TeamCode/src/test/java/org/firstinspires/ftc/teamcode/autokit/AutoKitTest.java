@@ -751,6 +751,44 @@ public class AutoKitTest {
     }
 
     /**
+     * Not only grabs: a plain command with an approach (LaunchAll's opens the gate on the way in,
+     * mentor 4 Nov 2026) gets it run by the path card before it, and the command starts the loop
+     * after the path ends, as before. Its approach is not cancelled when the command takes over.
+     */
+    @Test
+    public void aPathCardBeforeAnyCommandWithAnApproachRunsIt() {
+        RecordingApproach approach = new RecordingApproach();
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("LaunchAll", 1.0, () -> lasting("LaunchAll", 0.5), approach), () -> now).trace(trace::add);
+        run(kit.sequence(
+                kit.path("to LAUNCH", line(0, 20)),
+                kit.command("LaunchAll")), 10);
+        assertEquals(java.util.Arrays.asList("started at (20, 0)", "approaching"), approach.seen);
+        assertEquals("the launch starts when the path ends", 1.0, drive.progressWhen.get("LaunchAll start"), 1e-9);
+    }
+
+    /**
+     * The guard parks after the drive instead of starting the command it got ready for: a gate the
+     * approach opened must close, so the approach is cancelled. Before 4 Nov 2026 only a refused grab
+     * cancelled; a stick lowered for a pick the guard skipped stayed down.
+     */
+    @Test
+    public void theGuardParkingBeforeTheCommandCancelsItsApproach() {
+        RecordingApproach approach = new RecordingApproach();
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("LaunchAll", 1.0, () -> lasting("LaunchAll", 0.5), approach), () -> now).trace(trace::add);
+        Path toSpot = line(0, 10), park = line(10, 20);
+        now = 26.99; // the drive and the 2 s park fit as it starts; once it ends, the park no longer does
+        run(kit.guarded("Auto", park, 2.0,
+                kit.path("to LAUNCH", toSpot, 0.0),
+                kit.command("LaunchAll"),
+                kit.path("Park", park)), 10);
+        assertEquals(java.util.Arrays.asList("started at (10, 0)", "approaching", "cancelled"), approach.seen);
+        assertFalse("the launch did not start: " + log, log.contains("LaunchAll start"));
+        assertEquals(java.util.Arrays.asList(toSpot, park), drive.followed);
+    }
+
+    /**
      * #142, inside a block: L-Quals runs most of its Auto as the cards of one firstOf row. A path in
      * the row that is driving at the deadline runs to its end; the row's next path, which would
      * start after the deadline, does not start; the guard parks from where the first one ended.

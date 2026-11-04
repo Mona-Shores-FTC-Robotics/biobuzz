@@ -12,9 +12,13 @@ import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 /**
- * Whether the robot has settled after the last path: still, and turned to within
- * {@link #aimToleranceDeg} of that path's end heading. {@link LaunchCards} feeds only once it has,
- * so a fire step after a path waits for the robot rather than for Pedro's "done".
+ * Whether the robot has settled after the last path: turned to within {@link #aimToleranceDeg} of
+ * that path's end heading, hardly turning, and slowing below {@link #slowSpeedInPerSec}. Aimed and
+ * slowing, not still: after Pedro's path end the Follower is braking into the end pose, and a
+ * robot that is aimed and nearly there fires as well as one that has stopped. {@link LaunchCards}
+ * feeds only once it has, unless the gate already opened on the approach
+ * ({@link #readyOnApproach}), so this is the backstop: a fire step after a path waits for the robot
+ * rather than for Pedro's "done".
  *
  * <h2>Why</h2>
  *
@@ -22,6 +26,10 @@ import java.util.function.DoubleSupplier;
  * {@code claude/simulator}): Pedro reported a long path done 5 to 6 in past its point, and a path
  * ending in a 180° turn done with the heading still 15 to 20° short. Both settled during the next
  * wait. A shot fired on Pedro's done would leave aimed that far off (#193, 26 Oct).
+ *
+ * <p>Until 4 Nov 2026 it waited for "still" (under 2 in/s): in the 3 and 4 Nov R-Solo logs that
+ * cost 0.38 to 0.57 s after a path end where the robot was already within 1.2° and 0.35 in of its
+ * end pose (mentor, 4 Nov 2026: aimed and slowing is enough).
  *
  * <h2>What it logs</h2>
  *
@@ -43,11 +51,32 @@ public final class PathEndSettle implements AutoKit.PathWatcher {
      */
     public static double aimToleranceDeg = 3.0;
 
-    /** Slower than this, inches/s, counts as still. A starting point, <b>not measured</b>. */
-    public static double stillSpeedInPerSec = 2.0;
+    /**
+     * Slower than this, inches/s, after a path end counts as slowing enough to fire. A starting
+     * point, <b>not measured</b>: the 29 Oct to 2 Nov 2026 logs had the robot under 8 in/s 0.1 to
+     * 0.2 s after Pedro's path end, under 2 in/s (the old "still") 0.1 to 0.5 s after.
+     */
+    public static double slowSpeedInPerSec = 6.0;
 
-    /** Turning slower than this, degrees/s, counts as still. A starting point, <b>not measured</b>. */
+    /** Turning slower than this, degrees/s, counts as no longer turning. A starting point, <b>not measured</b>. */
     public static double stillTurnDegPerSec = 5.0;
+
+    /**
+     * A {@code LaunchAll} right after a path opens the gate on the approach once the robot is within
+     * this of the path's end, inches, straight line ({@link #readyOnApproach}). A starting point,
+     * <b>not measured</b>: about 0.5 s out at the 10 to 12 in/s the robot carried near the end on
+     * 3 and 4 Nov 2026, roughly the 0.8 to 0.9 s from gate open to first ball, so the first ball
+     * leaves about as the robot stops. Zero, negative or NaN never opens it on the approach.
+     */
+    public static double launchWithinIn = 6.0;
+
+    /**
+     * Turning faster than this, degrees/s, on the approach keeps the gate shut even inside
+     * {@link #aimToleranceDeg}: a late turn swinging through the end heading is not aimed. A starting
+     * point, <b>not measured</b> (the late turn from SCORING_FLOWER_STAGING, 4 Nov 2026, swung about
+     * 200°/s to the stop). NaN, zero or negative turns this check off.
+     */
+    public static double launchTurnDegPerSec = 30.0;
 
     /**
      * The most a launch card waits for the robot to settle, seconds, before it fires anyway (and the
@@ -138,15 +167,31 @@ public final class PathEndSettle implements AutoKit.PathWatcher {
     }
 
     /**
-     * Still, and aimed at the last path's end heading. Before the first path only "still" counts.
-     * A tolerance that is NaN, zero or negative turns that check off: a typo in Panels gives the
-     * old behaviour, never a launch card that cannot fire.
+     * Aimed at the last path's end heading, hardly turning, and slowing below
+     * {@link #slowSpeedInPerSec}. Before the first path only the speed and turn count. A tolerance
+     * that is NaN, zero or negative turns that check off: a typo in Panels fires sooner, never a
+     * launch card that cannot fire.
      */
     public boolean settled() {
-        boolean still = within(motion.speedInPerSec(), stillSpeedInPerSec)
+        boolean slowing = within(motion.speedInPerSec(), slowSpeedInPerSec)
                 && within(Math.toDegrees(Math.abs(motion.turnRadPerSec())), stillTurnDegPerSec);
-        if (!still) return false;
+        if (!slowing) return false;
         return end == null || within(Math.abs(headingErrorDeg(motion.pose())), aimToleranceDeg);
+    }
+
+    /**
+     * Whether a {@code LaunchAll} may open the gate now, on the approach to a path ending at
+     * {@code pathEnd}, with the robot at {@code pose} and {@code remainingIn} from the end: within
+     * {@link #launchWithinIn}, within {@link #aimToleranceDeg} of the end heading, and turning slower
+     * than {@link #launchTurnDegPerSec}. {@link LaunchCards} also needs the launcher at speed. No
+     * allocation: called every loop of the drive.
+     */
+    public boolean readyOnApproach(Pose pathEnd, Pose pose, double remainingIn) {
+        if (pathEnd == null || pose == null) return false;
+        if (!(launchWithinIn > 0) || !(remainingIn <= launchWithinIn)) return false;
+        double error = Math.toDegrees(Math.IEEEremainder(pose.heading() - pathEnd.heading(), 2 * Math.PI));
+        return within(Math.abs(error), aimToleranceDeg)
+                && within(Math.toDegrees(Math.abs(motion.turnRadPerSec())), launchTurnDegPerSec);
     }
 
     /** The most to wait for {@link #settled}, seconds; NaN or negative as 0, so a typo never stalls. */

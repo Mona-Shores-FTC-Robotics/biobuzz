@@ -194,6 +194,15 @@ its place here.
 - Poses are drawn for RED, in Pedro's frame (inches, degrees), like everything in an Auto; the
   robot turns them for BLUE.
 
+## A drive straight into a launch or a pick
+
+Put `LaunchAll` or `PickFlower` directly after the drive to its spot, with no step between. The
+robot then gets ready on the way in: it lowers the FLOWER stick over the last 18 in, and opens the
+launch gate in the last few inches once it faces the HIVE and the launcher is at speed. So never
+draw a separate stick step or an early fire step. A drive that turns onto the HIVE only at the stop
+fires once the robot is aimed and slowing, as it did before (`LaunchCards`, `PathEndSettle`;
+mentor, 4 Nov 2026). If the guard parks instead of launching, the gate closes again.
+
 ## Parking when time runs short
 
 The endgame guard (`autokit/AutoKit.guarded`) puts a TIP before the park, and otherwise gets the
@@ -310,7 +319,10 @@ they came from.
     ball left 1.7 to 2.9 s after the gate opened (the launcher's shot count; 2.2 to 2.85 s on 4 Nov
     00:48). The robot's own numbers are `AutoRegistration.LAUNCH_ALL_TYPICAL_S` (4.5, which covers
     all but those two and the first volley at PLAY, 4.45 to 4.83 s) and `LAUNCH_ALL_LAST_PIECE_S`
-    (4.0 from the card's start to the last ball: 2.1 to 3.97 s after a drive).
+    (4.0 from the card's start to the last ball: 2.1 to 3.97 s after a drive). All measured before a LaunchAll right
+    after a path opened its gate on the approach and the settle became "aimed and slowing" (4 Nov
+    2026), which should take most of the settle off: re-measure from the next match logs before
+    lowering them.
   - `cellCheckS` 0.75: the limit for a "Wait for TIP or CELL up" that only checks, on arrival at a
     launch spot, that the CELL is up. At `LEFT_LAUNCH_OFFSET` the camera saw the CELL up 0.33 and
     0.44 s after the drive ended when the approach had turned the camera away (from

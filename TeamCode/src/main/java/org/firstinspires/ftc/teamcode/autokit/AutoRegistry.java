@@ -42,15 +42,17 @@ public final class AutoRegistry {
     private BooleanSupplier holdTimeLimits = () -> false;
 
     /**
-     * What a grab does on the drive in to it: while the path card right before the grab's card
-     * drives, {@link AutoKit} feeds the grab's approach the robot's progress, so the grab can get
-     * its mechanisms ready on the way (a FLOWER pick lowers its stick over the last stretch) and
-     * need not wait for them once it starts. The two stay separate cards: the drive ends where it
-     * was drawn, and the grab is still the whole grab. One object per registered grab, reused by
-     * every pair in the Auto. Called from the kit's loop: nothing here may block or allocate.
+     * What a command does on the drive in to it: while the path card right before the command's
+     * card drives, {@link AutoKit} feeds the command's approach the robot's progress, so the command
+     * can get ready on the way and need not wait once it starts. A FLOWER pick lowers its stick over
+     * the last stretch; a {@code LaunchAll} opens the gate in the last few inches once aimed and at
+     * speed, and its card then only finishes the feed. The two stay separate cards: the drive ends
+     * where it was drawn, and the command is still the whole command. One object per registered
+     * command, reused by every pair in the Auto. Called from the kit's loop: nothing here may block
+     * or allocate.
      */
     public interface Approach {
-        /** The path card before this grab has started driving a path that ends at {@code end}. */
+        /** The path card before this command has started driving a path that ends at {@code end}. */
         void started(Pose end);
 
         /**
@@ -60,8 +62,9 @@ public final class AutoRegistry {
         void approaching(Pose pose, double remainingIn);
 
         /**
-         * The grab this prepared for is not going to run now: the guard refused it, or the path
-         * before it was cut short. Put away what {@link #approaching} got ready, if anything.
+         * The command this prepared for is not going to run now: the guard refused it or parked
+         * instead, the path before it was cut short, or another path started first. Put away what
+         * {@link #approaching} got ready, if anything.
          */
         void cancel();
     }
@@ -94,6 +97,16 @@ public final class AutoRegistry {
     }
 
     /**
+     * {@link #command(String, double, Supplier)}, with what the command does on the drive in to it
+     * ({@link Approach}): the kit runs it while the path card right before this command's card drives.
+     */
+    public AutoRegistry command(String name, double typicalS, Supplier<Command> factory, Approach approach) {
+        command(name, typicalS, factory);
+        if (approach != null) approaches.put(name, approach);
+        return this;
+    }
+
+    /**
      * {@link #grab(String, double, Supplier)}, with what the grab does on the drive in to it
      * ({@link Approach}): the kit runs it while the path card right before this grab's card drives.
      */
@@ -103,7 +116,7 @@ public final class AutoRegistry {
         return this;
     }
 
-    /** The grab's {@link Approach}, or null when it has none or {@code name} is not a grab. */
+    /** The command's {@link Approach}, or null when it has none or {@code name} is not registered. */
     public Approach approach(String name) {
         return approaches.get(name);
     }
@@ -138,6 +151,17 @@ public final class AutoRegistry {
         if (!(lastPieceS >= 0)) throw new IllegalArgumentException("Volley " + name + " needs a last-piece time >= 0");
         command(name, typicalS, factory);
         lastPieceSeconds.put(name, lastPieceS);
+        return this;
+    }
+
+    /**
+     * {@link #volley(String, double, double, Supplier)}, with what the volley does on the drive in to it
+     * ({@link Approach}): LaunchAll opens the gate near the path's end once aimed and at speed.
+     */
+    public AutoRegistry volley(String name, double typicalS, double lastPieceS, Supplier<Command> factory,
+                               Approach approach) {
+        volley(name, typicalS, lastPieceS, factory);
+        if (approach != null) approaches.put(name, approach);
         return this;
     }
 
