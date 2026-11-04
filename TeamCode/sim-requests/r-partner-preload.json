@@ -52,7 +52,7 @@
   ],
   "metadata": {
     "AutoSource": "r-partner-preload.pp",
-    "SavedBy": "Claude, 4 Nov 2026 (mentor work): waits at the wall FLOWER until 12 s, checks LEFT, then LEFT volley, scoring FLOWER and park (or RIGHT if LEFT is down); turret locked forward, as the robot runs every Auto",
-    "SavedAt": "2026-11-04T22:00:00+00:00"
+    "SavedBy": "Claude, 4 Nov 2026 (mentor work): the 12 s wait at the wall FLOWER is now the builder's \"nothing, just the time\" Wait step (was an Empty-trigger advanced card); same Auto on the robot",
+    "SavedAt": "2026-11-04T21:45:00+00:00"
   }
 }

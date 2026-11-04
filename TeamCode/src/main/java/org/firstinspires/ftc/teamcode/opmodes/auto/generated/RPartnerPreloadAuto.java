@@ -20,13 +20,13 @@ public final class RPartnerPreloadAuto {
     public static final String SOURCE = "r-partner-preload.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-04|1:51PM";
+    public static final String SAVED = "11-04|4:39PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"CellUp", "Empty"};
+    public static final String[] TRIGGERS = {"CellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -77,8 +77,7 @@ public final class RPartnerPreloadAuto {
                 kit.command("LaunchAll"),
                 kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
                 kit.command("PickFlower", 4.5),
-                kit.firstOf("Wait until 12 s (partner parks)",
-                        kit.when("Empty"),
+                kit.firstOf("Wait until 12 s",
                         kit.atMatchSeconds(12)),
                 kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 2.5, leftLaunchOffsetPark, 1.9),
                 kit.firstOf("Wait for TIP or CELL up",
