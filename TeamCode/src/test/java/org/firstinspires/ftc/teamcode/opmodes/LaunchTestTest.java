@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -40,6 +41,24 @@ public class LaunchTestTest {
         assertNotEquals(gate, prefeed);
         assertNotEquals(gate, layout.get(LaunchTest.SETUP_MODIFIER));
         assertNotEquals(prefeed, layout.get(LaunchTest.SETUP_MODIFIER));
+    }
+
+    @Test
+    public void theStepTestHasItsOwnSetupButton() {
+        Map<Action, Input> layout = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK);
+        Input stepTest = layout.get(LaunchTest.STEP_TEST_BUTTON);
+        assertTrue(stepTest.isFaceOrDpad());
+        assertNotEquals(stepTest, layout.get(LaunchTest.SETUP_MODIFIER));
+        assertNotEquals(stepTest, layout.get(LaunchTest.GATE_HOLD_BUTTON));
+        assertNotEquals(stepTest, layout.get(LaunchTest.PREFEED_HOLD_BUTTON));
+    }
+
+    @Test
+    public void theStepTestWaitsForBothWheelsStill() {
+        assertTrue(LaunchTest.still(0.0, 19.0, 20.0));
+        assertTrue(LaunchTest.still(-5.0, 5.0, 20.0));
+        assertFalse(LaunchTest.still(0.0, 20.0, 20.0));
+        assertFalse(LaunchTest.still(300.0, 0.0, 20.0));
     }
 
     @Test

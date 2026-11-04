@@ -278,7 +278,7 @@ measurement is [#255].
       `launch spot: drift at …` line (camera − odometry at a known spot, settled, never applied) and
       its `CELL N in` range beside the shots it fired. **Good:** gaps stay under
       `TeleOpConfig.spotDriftWarnIn` (3, not measured) through a 2-minute TeleOp, and the range/shot
-      pairs add to #80's speed-vs-distance table beside §7c's bench rows. **Stop:** gaps grow
+      pairs add to #80's speed-vs-distance table beside §7d's bench rows. **Stop:** gaps grow
       over the match → the evidence for TeleOp relocalization; set `spotDriftWarnIn` from what the
       drivers can act on. [PR #423]
 - [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
@@ -326,7 +326,77 @@ has each trial's settings and measured back-up.
 - [ ] **Then drive through them** with the intake on (Basic Drive) from the side and head-on.
       **Good:** 4 of 4 collected in one pass. **Stop:** record how many of 4, over 5 tries.
 
-## 7c. Launcher distances (Bench: Launch Test, HIVE upright, phone filming the HIVE)
+## 7c. Launcher tuning (Bench: Launch Test, Panels open)
+
+Before §7d: the distance rows are only worth having once the wheels hold their speed. The match logs
+of 3 and 4 Nov (20245) showed the hub's default velocity loop, untuned: after each ball's dip the
+wheels overshot to ~1680 of 1595 (±60) and "at speed" stayed false ~0.7 s; a spin-up from rest took
+0.9–2.1 s, slowest on a tired battery. The knobs are `LauncherSubsystem.velocityP/I/D/F` (NaN = the
+hub's own), `compensateF` and `nominalVolts`; `FeederSubsystem.compensateVoltage` and `nominalVolts`.
+The Launch Test page shows the gains, every spin-up's and dip's timing and the step test; Panels has
+the same as `launcher_*` (graph `left_tps`, `right_tps`, `launch_target_tps`); the match log has
+each spin-up and dip as an event, with the battery. Panels edits are lost on restart: write each
+number down as it is found. [branch claude/launcher-tuning]
+
+- [ ] **Measure the wheels**, for the surface speeds (in/s, the one unit that compares the feeder
+      with the flywheels; ticks/s do not). Calipers on the flywheel: `LauncherSubsystem.wheelDiameterInches`.
+      The flywheel module's belt (count teeth, or mark the wheel and turn the motor once by hand):
+      `LauncherSubsystem.beltRatio`, wheel revolutions per motor revolution. Calipers on the feeder
+      wheel: `FeederSubsystem.wheelDiameterInches` (a placeholder now, 48 mm from `doc/transfer.md`),
+      and check the feeder wheel is on the motor shaft (ratio 1). Read both motor labels: flywheels
+      believed goBILDA 5203 6000 rpm (28 ticks/rev), feeder 5203 435 rpm (384.5). **Good:** the
+      Launch Test page shows both surface speeds instead of "unknown". **Stop:** write the numbers
+      back with the robot and date.
+- [ ] **Read the defaults.** Power-cycle the robot, start Bench: Launch Test with all four gains
+      NaN. The page's "Velocity PIDF … at init P _ I _ D _ F _" line (and the log's Metadata,
+      `Hardware/LauncherSubsystem`) is the hub's own. Write it down. Then stop, start the OpMode
+      again, still all NaN: **Good:** the same four numbers. **Stop:** if it shows different ones, the
+      hub keeps gains across OpModes; note it, and power-cycle before trusting "at init" again.
+- [ ] **Baseline.** PLAY, Triangle + Circle (setup layer + fire) five times: the step test spins
+      down, waits until still, spins up and times it. **Stop:** record the mean of 5 (in tolerance,
+      overshoot, at speed) and the battery, before changing anything.
+- [ ] **F first.** Set `velocityP` 0, `velocityI` 0, `velocityD` 0, and `velocityF` to
+      32767 ÷ (the speed one wheel reaches at full power, ticks/s; about 2600–2800 for a 6000 rpm
+      5203, so start near 12). Spin up and watch `left_tps`/`right_tps`: raise F until both sit just
+      under 1595, then nudge it to 1595. **Good:** the wheels hold 1595 ±30 with no P at all, at a
+      battery near 12 V. **Stop:** record F and the battery.
+- [ ] **Then P** for rise and overshoot: from about 5, step it up with the step test after each change
+      (mean of 5). **Good:** at speed ≤ 1.0 s from rest, overshoot under the tolerance (60). Too much P
+      shows as overshoot or a wobble at speed. **Stop:** record P and the mean of 5.
+- [ ] **I small, if at all**: only if the wheels sit steadily off 1595 with F and P set; 0.1–0.5,
+      never enough to bring back the overshoot. D stays 0 unless a wobble needs it.
+- [ ] **Real shots.** Fire volleys of 4 (the trim left at 0). The page's dip line and the log's dip
+      events: **Good:** back in tolerance within ~0.3 s of a dip, overshoot after it under 60,
+      at speed again well under the 0.7 s of 4 Nov, and the shot count right. **Stop:** if overshoot
+      after a dip is still past 60, lower P (or I) before anything else.
+- [ ] **Feed pace**, once the PIDF is set: the aim is each ball arriving after the wheels have
+      recovered from the one before. Bench: Launch Test, `FeederSubsystem.feedPower` 0.6, then 0.8,
+      then 1.0, 12 balls each (three volleys of 4), fresh battery, from one launch spot. Each dip's
+      log event and `/Launcher/ShotGapMs` beside `/Launcher/RecoverMs` give the gap between
+      consecutive shots and the recovery after each (Panels: `launcher_shot_gap_ms`,
+      `launcher_recover_ms`). **Good:** the power at which every gap is longer than the recovery
+      before it, with the best hits per 12 (count on video). Too slow: balls hit the turret walls
+      (0.5 on 1 Nov). **Stop:** per power, record hits / 12, mean gap, mean recover and the battery;
+      write the winner into `feedPower` with the robot and date.
+- [ ] **On a tired battery** (≤ 11.5 V resting): run the step test 5 times with `compensateF` off,
+      then 5 with it on (`nominalVolts` = the battery F was tuned at, rounded). **Good:** with it on,
+      the mean matches the fresh-battery one within ~0.1 s. **Stop:** record both means and the
+      battery; leave it off if it does not help.
+- [ ] **Write it back**: the four gains (and `compensateF`/`nominalVolts` if they helped) into
+      `LauncherSubsystem`, each with the robot and the date, as the other launcher fields are. Check
+      19429 the same way; if its numbers differ, the difference is one line in `RobotDifferences`
+      (the reason, the date, the assignment), never a second field.
+- [ ] **Feeder compensation**, from match logs, not by eye. Pull the logs of a fresh-battery run
+      (≥ 12.5 V) and a tired one (≤ 11 V), three volleys each, `FeederSubsystem.compensateVoltage`
+      off: per volley, the feeder's ticks/s (`/Feeder/TicksPerSecond`) and the shot spacing (time
+      between `/Launcher/Shots` steps). Then the same with it on and `feedPower` 0.88 (`nominalVolts`
+      12.0: 1.0 leaves it no headroom on a tired battery; 0.88 holds down to 10.6 V). **Good:** with
+      it on, the feeder's speed and the shot spacing at the tired battery match the fresh one within
+      ~5%, and shots still leave cleanly (0.5 was too slow on 1 Nov: balls hit the turret walls).
+      **Stop:** record both runs' numbers; write `compensateVoltage` and `feedPower` back only if
+      it helped. [4 Nov 00:48 log: 2260 → 2060 ticks/s as the battery fell 10.83 → 10.61 V]
+
+## 7d. Launcher distances (Bench: Launch Test, HIVE upright, phone filming the HIVE)
 
 One `LauncherSubsystem.targetTicksPerSecond` (1595) serves every distance today; on 4 Nov it went
 4/4 from 50 in (RIGHT_START) and long at 41 in on the third volley (LEFT_LAUNCH_OFFSET). These rows
@@ -341,9 +411,6 @@ start #80's speed-vs-distance table. Count hits out of 12 on video at each speed
       an option when the CELL's front is crowded. Try 1650–1800. **Good:** 9/12 or better, then it
       becomes a team spot and one `LaunchSpots.Spot` constant, so the launch-spot button can go
       there [PR #423]. **Stop:** record hits per speed, or "out of range". [mentor, 4 Nov]
-- [ ] **Launcher overshoot after a dip**: wheels reached ~1680 against 1595 (±60) on 4 Nov, holding
-      "at speed" false ~0.7 s before each later volley. **Good:** back within tolerance in under
-      0.3 s after a dip (Bench: Launcher graphs). [4 Nov log review]
 
 ## 8. If time: anyone, no driving
 

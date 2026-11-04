@@ -27,6 +27,11 @@ import java.util.function.BooleanSupplier;
  * roller drops to its hold power, so nothing more is pushed up the lane while the stars hold the last piece; a
  * feed still runs it, and the moment a shot moves the piece off the sensor, taking in runs it again.
  *
+ * <p>No battery compensation, unlike the feeder ({@code FeederSubsystem.compensateVoltage}): a
+ * continuous servo runs from the hub's regulated servo supply, not the battery, so its speed does not
+ * sag with it. If a log ever shows the prefeed slowing as the battery falls, that supply is browning
+ * out, which compensation could not fix anyway.
+ *
  * <p><b>Not yet checked on a robot:</b> the powers, the direction ({@link #reversed}), and whether
  * the prefeed should back out with the intake at all ({@link #outPower}, 0 turns that off).
  *
