@@ -1,7 +1,7 @@
 {
   "pp": "TeamCode/autos/r-solo.pp",
   "spec": "RSoloAuto@50",
-  "design": "real robot",
+  "design": "real robot, turret locked forward",
   "partnerDesign": null,
   "partnerSpeed": null,
   "seeds": [
@@ -56,7 +56,7 @@
   ],
   "metadata": {
     "AutoSource": "r-solo.pp",
-    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor; re-simulated with the out-of-the-way still and broken-down partners, #396; re-simulated to test that the workflow runs every changed request); partner-l-launch-park rows (on time 6 s and 10 s, misses said 6 s) for the LEFT-or-RIGHT decision before the 3rd launch (Claude, 4 Nov 2026)",
-    "SavedAt": "2026-11-04T11:31:00+00:00"
+    "SavedBy": "partner curation (Claude, 3 Nov 2026; to be corrected by the mentor; re-simulated with the out-of-the-way still and broken-down partners, #396; re-simulated to test that the workflow runs every changed request); partner-l-launch-park rows (on time 6 s and 10 s, misses said 6 s) for the LEFT-or-RIGHT decision before the 3rd launch (Claude, 4 Nov 2026); design set to the turret locked forward, as the robot runs every Auto (turret held at home in the match logs; mentor ruled the turret out for now)",
+    "SavedAt": "2026-11-04T12:00:00+00:00"
   }
 }
