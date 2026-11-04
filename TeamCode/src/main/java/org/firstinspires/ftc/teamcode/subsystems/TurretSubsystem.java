@@ -38,9 +38,8 @@ import java.util.Locale;
  * <b>never</b> sets its power or mode, and never resets its count: zero is a software offset, so
  * the feeder (today's host) is untouched.
  *
- * <p>Anything unmeasured on a given robot is a Panels tunable here rather than a per-robot
- * constant, because only 20245 has been on the bench. Once 19429 is measured, the two robots'
- * values move to a per-robot table keyed by {@code ActiveConfig.requireIdentity()}.
+ * <p>The values below are both robots', measured on 20245. One that 19429 measures differently is
+ * a line in {@link org.firstinspires.ftc.teamcode.RobotDifferences}, not a second field here.
  */
 @Configurable
 public class TurretSubsystem implements Subsystem {

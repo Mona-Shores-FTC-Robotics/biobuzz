@@ -52,7 +52,11 @@ Three layers, each written in exactly one place:
 - **Adding a robot or rig:** a `robot_<name>.xml` plus a `RobotIdentity` line. A rig with
   different hardware also gets its own device list (`LAUNCHER_BENCH` is the example).
 - **Per-robot numbers key off `ActiveConfig.requireIdentity()`** — never the Wi-Fi name, hub
-  serial, or a fallback default. An unknown config fails loudly.
+  serial, or a fallback default. An unknown config fails loudly. Pedro's values are
+  `pedro/robots/Robot<team>.java`; every other value is the subsystem's one `@Configurable` field,
+  shared by both robots, and a robot that was seen to differ gets one line in `RobotDifferences`
+  (the reason, the date, the assignment), never a second field or an `if` on the robot. A
+  difference in behaviour is a `public static boolean` switch on the subsystem, flipped there.
 - **Look up hardware in the subsystem constructor, and never swallow a missing device.** No
   catch-and-return-null helpers. An optional device is an explicit, named decision.
 - A continuous-rotation servo is `Kind.CR_SERVO` and `<ContinuousRotationServo>`, asked for as

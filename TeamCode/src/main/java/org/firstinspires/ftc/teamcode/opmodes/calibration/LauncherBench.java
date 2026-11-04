@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
+import org.firstinspires.ftc.teamcode.RobotDifferences;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
@@ -82,6 +83,8 @@ public class LauncherBench extends OpMode {
         configWarning = checkActiveConfig();
         display = new Display(telemetry);
         try {
+            // This robot's values, as RobotOpMode applies them, before the subsystems read them.
+            RobotDifferences.applyForActiveRobot();
             feeder = new FeederSubsystem(hardwareMap);
             launcher = LauncherSubsystem.yCabled(hardwareMap, feeder);
             launcher.initialize();
