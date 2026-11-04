@@ -116,8 +116,15 @@ public class FeederSubsystem implements Subsystem {
     private double voltageScale = 1.0;
     private double ticksPerSecond;
     private double currentAmps = Double.NaN;
-    /** Ten reads a second, not one a loop: see {@code IntakeSubsystem}'s. */
-    private final Throttle currentRead = new Throttle(100, 33);
+    /** Four reads a second, not one a loop: see {@code IntakeSubsystem}'s {@link IntakeSubsystem#CURRENT_READ_MS}. */
+    private final Throttle currentRead = new Throttle(IntakeSubsystem.CURRENT_READ_MS, 125);
+
+    /**
+     * The battery scale is changed only when it moves by more than this fraction (1%, about 0.1 V),
+     * as the launcher's F is ({@code LauncherSubsystem.F_COMPENSATION_STEP}): the power, and so the
+     * hub write, then stays put through a battery's tenth-of-a-volt noise.
+     */
+    static final double SCALE_STEP = 0.01;
 
     /** Looks the motor up once. A missing motor fails init with the SDK's own message. */
     public FeederSubsystem(HardwareMap hardwareMap) {
@@ -179,8 +186,8 @@ public class FeederSubsystem implements Subsystem {
     }
 
     /**
-     * Feeder motor current from the last {@link #update()}, amps; NaN while idle. Read only while
-     * running, since current is a separate hub transaction. A rising current with a falling speed is
+     * Feeder motor current as of its last read, amps; NaN while idle. Read only while running, and
+     * four times a second, since current is a separate hub transaction. A rising current with a falling speed is
      * a piece jamming.
      */
     public double currentAmps() {
@@ -220,12 +227,23 @@ public class FeederSubsystem implements Subsystem {
 
     /**
      * One write per loop, the power the request asks for, clamped so Panels cannot overdrive it;
-     * then one read of speed (from the bulk read) and, while running, one of current every 100 ms.
+     * then one read of speed (from the bulk read) and, while running, one of current every
+     * {@link IntakeSubsystem#CURRENT_READ_MS}.
+     *
+     * <p>The write every loop is not a hub round trip every loop: the SDK sends a motor power only
+     * when it differs from the one it last sent, and forgets that when a hub resets, so an unchanged
+     * power costs nothing and a hub that zeroed the motor is sent it again (20245's logs, 1–4 Nov
+     * 2026: the launcher's idle {@code setPower(0)} every loop costs 0.1 ms). So this keeps no cache
+     * of its own, which could go stale (CLAUDE.md, "Loop time"); it keeps the power from changing
+     * instead ({@link #SCALE_STEP}). This subsystem's {@code /Loop/Subsystem/FeederSubsystemMs} is
+     * mostly the Expansion Hub's bulk read, about 3.6 ms, paid by whichever subsystem reads that hub
+     * first in a loop, which is this one.
      */
     @Override
     public void update() {
         standby = standsBy(state, started, ready.getAsBoolean(), standbyPower);
-        voltageScale = VoltageCompensation.scale(compensateVoltage, nominalVolts, batteryVolts);
+        voltageScale = steppedScale(voltageScale,
+                VoltageCompensation.scale(compensateVoltage, nominalVolts, batteryVolts), SCALE_STEP);
         power = VoltageCompensation.power(standby
                 ? powerFor(State.FEED, standbyPower, 0.0, reversed)
                 : powerFor(state, feedPower, reversePower, reversed), voltageScale);
@@ -265,6 +283,16 @@ public class FeederSubsystem implements Subsystem {
                 LauncherSubsystem.surfaceText(surfaceInchesPerSecond()),
                 Double.isNaN(currentAmps) ? "current not read while idle"
                         : String.format(Locale.US, "%.2f A", currentAmps)));
+    }
+
+    /**
+     * The battery scale to apply: {@code next} when it differs from {@code applied} by more than
+     * {@code step} as a fraction ({@link VoltageCompensation#worthApplying}), or when compensation
+     * was switched off ({@code next} exactly 1); otherwise {@code applied}, so the power does not
+     * wander with battery noise. Pure, so a test can check it.
+     */
+    static double steppedScale(double applied, double next, double step) {
+        return VoltageCompensation.worthApplying(applied, next, step) ? next : applied;
     }
 
     /**

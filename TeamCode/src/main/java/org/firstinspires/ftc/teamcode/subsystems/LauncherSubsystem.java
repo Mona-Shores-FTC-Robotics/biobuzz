@@ -290,8 +290,13 @@ public class LauncherSubsystem implements Subsystem {
     /** An unchanged velocity is sent again this often, ms. */
     static final double RESEND_MS = 250;
     private final Throttle resend = new Throttle(RESEND_MS, 0);
-    /** Current is not in the bulk read; ten reads a second, as {@code IntakeSubsystem}'s. */
-    private final Throttle currentRead = new Throttle(100, 66);
+    /**
+     * Current is not in the bulk read: each wheel's is read every
+     * {@link IntakeSubsystem#CURRENT_READ_MS}, at its own offset, so the two reads (2–4 ms each)
+     * never land in the same loop.
+     */
+    private final Throttle leftCurrentRead = new Throttle(IntakeSubsystem.CURRENT_READ_MS, 62);
+    private final Throttle rightCurrentRead = new Throttle(IntakeSubsystem.CURRENT_READ_MS, 187);
 
     /** Each wheel's velocity PIDF as read at init; null when the hub did not answer with one. */
     private PIDFCoefficients leftDefaults;
@@ -511,7 +516,7 @@ public class LauncherSubsystem implements Subsystem {
         return IntakeSubsystem.rpm(rightTicksPerSecond, ticksPerRev);
     }
 
-    /** Left motor current from the last {@link #update()}, amps; NaN while idle (read only while spinning). */
+    /** Left motor current as of its last read (four a second), amps; NaN while idle (read only while spinning). */
     public double leftCurrentAmps() {
         return leftCurrentAmps;
     }
@@ -607,7 +612,7 @@ public class LauncherSubsystem implements Subsystem {
      * While the feeder reverses, both wheels run backwards at {@link #reverseTicksPerSecond}
      * ({@link #reverseFor}) and nothing else is judged. Otherwise a velocity write per wheel when
      * its target changes (and every {@link #RESEND_MS}), one read of each speed (from the bulk read)
-     * and, while running, one of each current every 100 ms. A wheel that has been commanded for
+     * and, while running, one of each current every {@link IntakeSubsystem#CURRENT_READ_MS}. A wheel that has been commanded for
      * {@link #encoderFaultAfterMs} and still reads nothing is cut until {@link #spinDown()}.
      */
     @Override
@@ -645,10 +650,7 @@ public class LauncherSubsystem implements Subsystem {
                 rightSent = command(right, rightFault ? 0.0 : reverseCommandFor(reverseTicksPerSecond, rightReversed),
                         rightSent, force);
             }
-            if (currentRead.due(now)) {
-                leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
-                rightCurrentAmps = right == null ? Double.NaN : right.getCurrent(CurrentUnit.AMPS);
-            }
+            readCurrents(now);
         } else if (state == State.SPINNING) {
             double elapsedMs = (now - spinUpStartedNs) / 1e6;
             if (!leftFault && encoderSilent(leftTarget, leftTicksPerSecond, elapsedMs,
@@ -665,10 +667,7 @@ public class LauncherSubsystem implements Subsystem {
                 rightSent = command(right, rightFault ? 0.0 : commandFor(rightTarget, rightReversed),
                         rightSent, force);
             }
-            if (currentRead.due(now)) {
-                leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
-                rightCurrentAmps = right == null ? Double.NaN : right.getCurrent(CurrentUnit.AMPS);
-            }
+            readCurrents(now);
             boolean within = !leftFault && !rightFault && (leftTarget > 0.0 || rightTarget > 0.0)
                     && Math.abs(leftTicksPerSecond - leftTarget) <= toleranceTicksPerSecond
                     && Math.abs(rightTicksPerSecond - rightTarget) <= toleranceTicksPerSecond;
@@ -696,13 +695,26 @@ public class LauncherSubsystem implements Subsystem {
             leftSent = Double.NaN;
             rightSent = Double.NaN;
             resend.reset();
-            currentRead.reset();
+            leftCurrentRead.reset();
+            rightCurrentRead.reset();
             leftCurrentAmps = Double.NaN;
             rightCurrentAmps = Double.NaN;
             atSpeed = false;
         }
         lastLeftTarget = leftTarget;
         lastRightTarget = rightTarget;
+    }
+
+    /** Each wheel's current when its own throttle is due; a Y-cabled right wheel has none. */
+    private void readCurrents(long now) {
+        if (leftCurrentRead.due(now)) {
+            leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
+        }
+        if (right == null) {
+            rightCurrentAmps = Double.NaN;
+        } else if (rightCurrentRead.due(now)) {
+            rightCurrentAmps = right.getCurrent(CurrentUnit.AMPS);
+        }
     }
 
     /**
