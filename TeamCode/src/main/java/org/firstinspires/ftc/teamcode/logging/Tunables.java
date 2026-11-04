@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.FieldLayers;
@@ -53,6 +54,7 @@ public final class Tunables {
             IndicatorSubsystem.class,
             IntakeSubsystem.class,
             LauncherSubsystem.class,
+            LaunchSpeedTable.class,
             TurretSubsystem.class,
             LaunchCards.class,
             PathEndSettle.class,
