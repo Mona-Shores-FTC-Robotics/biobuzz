@@ -108,7 +108,10 @@ public class SimRequestsTest {
                 }
                 // A partner is a stand-in from TeamCode/autos/partners/, never one of the Autos we run.
                 String source = (String) Class.forName(AutoStudyTest.PKG + partnerClass).getField("SOURCE").get(null);
-                if (!new File(partners, source).isFile() && !(draft && new File(drafts, source).isFile())) {
+                // On autos-experiment, two bench Autos may simulate side by side (the 3-TIP swap pairs:
+                // r-3tip-a with l-3tip-a): a partner may then be another Auto beside ours in TeamCode/autos/.
+                boolean benchPair = !source.equals(name + ".pp") && new File(autos, source).isFile();
+                if (!new File(partners, source).isFile() && !(draft && new File(drafts, source).isFile()) && !benchPair) {
                     problems.add(file.getName() + ": partner " + partnerClass + " comes from " + source
                             + ", which is not in TeamCode/autos/partners/ (a partner is a stand-in, not an Auto we run)");
                 }

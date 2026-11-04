@@ -27,3 +27,12 @@ R-Partner-Tip, R-Partner-Preload, R-Solo-Staging. Everything else lives here:
 - **Earlier experiments:** `r-brady`, `r-quals-locked`, `r-quals-pollen-only`, `r-launch-park`,
   `l-launch-park`, `sister-left-fixed`, `sister-right-fixed`.
 
+## The 3-TIP swap drafts (4 Nov 2026)
+
+`r-3tip-a`, `l-3tip-a`, `r-3tip-b`, `l-3tip-b`: our R and our L for a 3-TIP alliance, with the
+lanes swapped between pair A and pair B. Timelines, simulation results and open questions are in
+[3tip-drafts.md](3tip-drafts.md). Their generated classes have no OpMode yet, so the Driver Station
+does not list them; give one an OpMode (`*OpMode extends BuiltAuto`) to run it on the robot.
+`sim-requests/r-3tip-a.json` and `r-3tip-b.json` simulate each R beside its L (on time and missing),
+a dead partner and alone, on every push to this branch.
+

@@ -28,10 +28,10 @@ so each robot crosses once, and the two pairs differ only in **who takes which l
 
 Links (this branch):
 
-- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/quirky-allen-etn5xp/TeamCode/autos/drafts/r-3tip-a.pp>
-- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/quirky-allen-etn5xp/TeamCode/autos/drafts/l-3tip-a.pp>
-- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/quirky-allen-etn5xp/TeamCode/autos/drafts/r-3tip-b.pp>
-- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/quirky-allen-etn5xp/TeamCode/autos/drafts/l-3tip-b.pp>
+- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=autos-experiment/r-3tip-a.pp>
+- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=autos-experiment/l-3tip-a.pp>
+- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=autos-experiment/r-3tip-b.pp>
+- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=autos-experiment/l-3tip-b.pp>
 
 ## Timelines
 
