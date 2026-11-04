@@ -10,7 +10,10 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.localization.LaunchSpots;
 import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.vision.Vec3;
 
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -37,8 +40,16 @@ import java.util.function.Consumer;
  * waits and feed time). Letting go stops the drive and the feed at once. The operator's FIRE wins.
  *
  * <p>Every press is match-log lines, for comparing practice logs with chassis-aim use: the start
- * (start pose, chosen spot, its distance), the arrival, the gate opening, and the end (time to
- * arrive, or let go early and how far short; who fired; shots counted).
+ * (start pose, chosen spot, its distance, and the spot's range to its CELL, so presses are also
+ * launcher speed-vs-distance data), the arrival, the gate opening, and the end (time to arrive, or
+ * let go early and how far short; who fired; shots counted).
+ *
+ * <p>Each arrival is also a drift sample at a known spot: once settled there, facing the HIVE, the
+ * first fresh camera position is compared with the odometry's, the same gap the match log keeps
+ * as {@code /Drift/GapXIn}, {@code /Drift/GapYIn}, and logged. It is never applied (still and
+ * continuous fixes stay off until measured); past {@code TeleOpConfig.spotDriftWarnIn} the Match
+ * page suggests a corner reset. The presses build the evidence for whether TeleOp needs to
+ * relocalize.
  */
 @Configurable
 public final class LaunchSpotDrive {
@@ -73,6 +84,10 @@ public final class LaunchSpotDrive {
     private boolean feedLogged;
     private boolean operatorFired;
     private int shotsAtStart;
+    private Alliance alliance;
+    /** This press's drift sample: camera minus odometry at the spot, inches; NaN until taken. */
+    private double driftGapIn = Double.NaN;
+    private String driftNote = "";
 
     public LaunchSpotDrive(Robot robot, Consumer<String> event) {
         this.robot = robot;
@@ -130,14 +145,15 @@ public final class LaunchSpotDrive {
                 phase = Phase.HOLDING;
                 arriveS = s(now);
                 settle.pathEnded(path);
-                event.accept(String.format(Locale.US, "launch spot: arrived at %s in %.2f s, %s",
-                        choice.spot, arriveS, offBy()));
+                event.accept(String.format(Locale.US, "launch spot: arrived at %s in %.2f s, %s, CELL %s",
+                        choice.spot, arriveS, offBy(), cellRange(robot.drive.pose())));
             } else if (!(s(now) * 1000.0 <= timeoutMs)) { // NaN or negative: give up at once
                 end(now, "timed out");
                 return;
             }
         }
         settle.update();
+        if (phase == Phase.HOLDING && Double.isNaN(driftGapIn) && settle.settled()) sampleDrift();
         if (operatorFiring) operatorFired = true;
         if (!fires) return;
         feed = volley.update(s(now), phase == Phase.HOLDING, robot.launcher.atSpeed(), settle.settled(), operatorFiring);
@@ -157,9 +173,9 @@ public final class LaunchSpotDrive {
                         choice.spot, remainingIn(), s(now));
             case HOLDING:
                 return String.format(Locale.US, "Launch spot: AT %s, holding (arrived in %.1f s)%s · let go to drive",
-                        choice.spot, arriveS, volleyNote());
+                        choice.spot, arriveS, volleyNote()) + driftNote;
             default:
-                return result;
+                return result.isEmpty() ? "" : result + driftNote;
         }
     }
 
@@ -181,6 +197,9 @@ public final class LaunchSpotDrive {
         feedLogged = false;
         operatorFired = false;
         fires = false;
+        driftGapIn = Double.NaN;
+        driftNote = "";
+        this.alliance = alliance;
         Pose pose = robot.drive.pose();
         choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, startOffWallIn);
         if (choice.refused()) {
@@ -209,8 +228,8 @@ public final class LaunchSpotDrive {
         fires = TeleOpConfig.goToSpotAlsoFires;
         if (fires) volley.start();
         shotsAtStart = robot.launcher.shots();
-        event.accept(String.format(Locale.US, "launch spot: start %s → %s %s, %s%s",
-                where(pose), choice.spot, where(to), choice, fires ? ", fires on arrival" : ""));
+        event.accept(String.format(Locale.US, "launch spot: start %s → %s %s, %s, CELL %s from the spot%s",
+                where(pose), choice.spot, where(to), choice, cellRange(to), fires ? ", fires on arrival" : ""));
     }
 
     /** Hands the sticks back this loop and logs how the press ended. */
@@ -230,12 +249,44 @@ public final class LaunchSpotDrive {
         String gate = !volley.fired() ? "gate never opened by the button"
                 : String.format(Locale.US, "gate open at %.2f s for %.2f s%s", volley.feedStartS(),
                         volley.feedEndS() - volley.feedStartS(), feeding ? " (cut by the end of the press)" : "");
-        line += String.format(Locale.US, "; fired by %s, %s, %d shots counted, lane %d (tracker)",
+        line += String.format(Locale.US, "; fired by %s, %s, %d shots counted, lane %d (tracker); drift %s",
                 firedBy, fires ? gate : "button does not fire", robot.launcher.shots() - shotsAtStart,
-                robot.colorSensor.lane().count());
+                robot.colorSensor.lane().count(), early ? "not sampled (never arrived)"
+                        : Double.isNaN(driftGapIn) ? "not sampled (no settled camera frame)"
+                        : String.format(Locale.US, "%.1f in", driftGapIn));
         event.accept("launch spot: " + line);
         result = "Last launch spot: " + line;
         phase = Phase.ENDED;
+    }
+
+    /**
+     * The drift sample, once per press: settled at the spot, the first fresh camera position against
+     * the odometry's. Logged and shown only, never applied.
+     */
+    private void sampleDrift() {
+        Pose camera = robot.drive.cameraPose();
+        Pose pose = robot.drive.pose();
+        if (camera == null || pose == null) return; // wait for a frame while held
+        double dx = camera.x() - pose.x();
+        double dy = camera.y() - pose.y();
+        driftGapIn = Math.hypot(dx, dy);
+        boolean warns = LaunchSpots.driftWarns(driftGapIn, TeleOpConfig.spotDriftWarnIn);
+        event.accept(String.format(Locale.US,
+                "launch spot: drift at %s, camera - odometry (%+.1f, %+.1f) = %.1f in, odometry %s (shadow only, not applied)%s",
+                choice.spot, dx, dy, driftGapIn, where(pose), warns ? ": corner reset suggested" : ""));
+        driftNote = warns ? String.format(Locale.US,
+                " · POSE %.1f in off the camera here: corner reset suggested", driftGapIn) : "";
+    }
+
+    /**
+     * The horizontal range from the turret at {@code at} to the raised row of the spot's CELL, as
+     * the TeleOp's shot lines measure it (TurretAim, turret offsets), "48 in"; "unknown" without one.
+     */
+    private String cellRange(Pose at) {
+        Vec3 row = choice.spot.cellRow(alliance);
+        if (at == null || row == null) return "range unknown";
+        return String.format(Locale.US, "%.0f in", TurretAim.rangeFromFieldIn(at.x(), at.y(), at.heading(),
+                TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y()));
     }
 
     private double remainingIn() {

@@ -97,6 +97,15 @@ public final class TeleOpConfig {
      */
     public static boolean goToSpotAlsoFires = true;
 
+    /**
+     * At a launch spot, settled and facing the HIVE, a camera-vs-odometry gap past this many inches
+     * puts "corner reset suggested" on the Match page ({@link LaunchSpotDrive}). The gap is only
+     * logged and shown, never applied: still and continuous fixes stay off until measured. 3 in is
+     * a starting point, <b>not measured</b>; the presses' drift lines are the measurement. 0 or NaN
+     * never warns.
+     */
+    public static double spotDriftWarnIn = 3.0;
+
     /** Chassis aim: turn power per radian of heading error. A starting point, not a measurement. */
     public static double chassisAimKp = 1.0;
 

@@ -111,6 +111,33 @@ public class LaunchSpotsTest {
     }
 
     @Test
+    public void eachSpotServesItsOwnHalfsCell() {
+        for (Alliance alliance : new Alliance[]{Alliance.RED, Alliance.BLUE}) {
+            for (Spot spot : Spot.values()) {
+                HiveCell cell = spot.left ? HiveCell.leftCell(alliance) : HiveCell.rightCell(alliance);
+                Vec3 row = spot.cellRow(alliance);
+                Vec3 expected = HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+                assertEquals(expected.x(), row.x(), EPS);
+                assertEquals(expected.y(), row.y(), EPS);
+                // The CELL is on the spot's side of the axle line.
+                Pose t = spot.target(alliance, OFF_WALL);
+                assertEquals(spot + " " + alliance, t.y() > HiveFieldPoints.AXLE_Y_IN, row.y() > HiveFieldPoints.AXLE_Y_IN);
+            }
+        }
+        assertNull(Spot.RIGHT_START.cellRow(Alliance.UNKNOWN));
+    }
+
+    @Test
+    public void driftWarnsOnlyPastAPositiveThreshold() {
+        assertFalse(LaunchSpots.driftWarns(2.9, 3.0));
+        assertFalse(LaunchSpots.driftWarns(3.0, 3.0));
+        assertTrue(LaunchSpots.driftWarns(3.1, 3.0));
+        assertFalse("no camera frame never warns", LaunchSpots.driftWarns(Double.NaN, 3.0));
+        assertFalse("a NaN threshold never warns", LaunchSpots.driftWarns(50, Double.NaN));
+        assertFalse("0 turns it off", LaunchSpots.driftWarns(50, 0));
+    }
+
+    @Test
     public void anUnreferencedPoseIsRefusedAndNothingIsChosen() {
         Choice c = LaunchSpots.choose(new Pose(40, 30, 0), false, Alliance.RED, OFF_WALL);
         assertTrue(c.refused());

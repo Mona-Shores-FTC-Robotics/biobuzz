@@ -221,6 +221,12 @@ measurement is [#255].
       says `fired by button`, shots counted ≈ 4; FIRE takes the shot (`fired by … operator`); let go
       stops the feeder at once; an idled launcher stays idle. **Stop:** it feeds before it is
       aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+- [ ] **Every press is a drift sample:** across a practice, pull the logs and read each press's
+      `launch spot: drift at …` line (camera − odometry at a known spot, settled, never applied) and
+      its `CELL N in` range beside the shots it fired. **Good:** gaps stay under
+      `TeleOpConfig.spotDriftWarnIn` (3, not measured) through a 2-minute TeleOp, and the range/shot
+      pairs fill issue #80's speed-vs-distance table. **Stop:** gaps grow over the match → the evidence for TeleOp
+      relocalization; set `spotDriftWarnIn` from what the drivers can act on. [PR #423]
 - [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
       view now and then; read `/Drift/GapXIn` and `/Drift/GapYIn` (camera minus odometry) over the
       run. **Good:** the gap stays within a few inches, so a launch spot driven late in the match is

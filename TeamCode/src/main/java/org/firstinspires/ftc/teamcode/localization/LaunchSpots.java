@@ -41,7 +41,16 @@ public final class LaunchSpots {
     private LaunchSpots() {
     }
 
-    /** A spot, drawn for red. */
+    /**
+     * A spot, drawn for red.
+     *
+     * <p><b>Adding one</b> is one constant here, once it is a team spot in {@code spots.json} (made
+     * in the Visualizer): its x, y and launch heading as drawn, and {@code TeamSpotsTest} checks it
+     * against the file. Its half, so its CELL, follows from its y, and {@link #choose} takes it
+     * whenever it is the nearest. The next is meant to be a far spot, the long corner shot near
+     * the GARDEN (about (15, 15), facing about 45° toward the RIGHT CELL, about 60 in), added only
+     * once a launcher-distance test on the robot shows it hits.
+     */
     public enum Spot {
         RIGHT_START(StartPositions.RED_AUDIENCE),
         RIGHT_LAUNCH_CATCH(57.5, 18, 91.9),
@@ -89,6 +98,21 @@ public final class LaunchSpots {
             }
             return alliance == Alliance.BLUE ? turned(p) : p;
         }
+
+        /** The raised row of the CELL this spot serves, for {@code alliance}; null with no alliance. */
+        public Vec3 cellRow(Alliance alliance) {
+            HiveCell cell = left ? HiveCell.leftCell(alliance) : HiveCell.rightCell(alliance);
+            return cell == null ? null : HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+        }
+    }
+
+    /**
+     * Whether a camera-vs-odometry gap at a spot is big enough to suggest a corner reset:
+     * {@code gapIn} past {@code thresholdIn}. A threshold that is NaN, zero or negative never warns;
+     * a NaN gap (no camera frame) never warns.
+     */
+    public static boolean driftWarns(double gapIn, double thresholdIn) {
+        return thresholdIn > 0.0 && gapIn > thresholdIn;
     }
 
     /** What {@link #choose} decided: a spot, or a refusal (then {@link #spot} is null). */
