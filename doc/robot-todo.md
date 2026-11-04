@@ -245,6 +245,8 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
 - [ ] AdvantageScope 3D: the stick swings, the rocker tips the right way; `make-viewer-zip.cmd` and
       `install.cmd` on Windows. [PR #294], [PR #299]
 - [ ] Intake sign: R2 about +2760 ticks/s, L2 about −1640. [PR #318]
+- [ ] Intake motor turned round on both robots (4 Nov 2026), `IntakeSubsystem.reversed` now false:
+      after a Sloth Load, R2 takes pieces in on 19429 and 20245 and the roller reads positive ticks/s.
 - [ ] Load 4, launcher at speed, hold FIRE: all 4 leave. [PR #320]
 - [ ] R2 toggles the intake with its Panels switch on; feeder runs whenever intaking. [PR #321],
       [PR #327]

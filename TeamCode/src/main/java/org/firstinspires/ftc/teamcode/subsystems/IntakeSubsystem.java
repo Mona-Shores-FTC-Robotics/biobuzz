@@ -85,9 +85,10 @@ public class IntakeSubsystem implements Subsystem {
     public static double outPower = 0.6;
 
     /**
-     * Flips the motor so that positive power takes pieces in. {@code true} as checked on 20245 on
-     * 26 Oct 2026: with the SDK's default direction R2 ran the roller backwards. 19429 is wired
-     * the same way by intent and has not been checked yet.
+     * Flips the motor so that positive power takes pieces in. {@code false} since 4 Nov 2026: the
+     * builders turned the roller motor round on both robots, so the SDK's default direction now
+     * takes pieces in. Before that it was {@code true} (checked on 20245, 26 Oct 2026, when the
+     * default ran the roller backwards).
      *
      * <p>It sets the motor's direction ({@link #directionFor}), which the SDK applies to the power
      * and the encoder alike, so taking pieces in always reads as a positive speed in the log and in
@@ -95,7 +96,7 @@ public class IntakeSubsystem implements Subsystem {
      * only, so on 20245 a correct intake read about -2760 ticks/s. Read every loop, so a Panels
      * edit applies at once.
      */
-    public static boolean reversed = true;
+    public static boolean reversed = false;
 
     /**
      * Encoder ticks per revolution of the roller motor's output shaft, for {@link #rpm()}. <b>NaN
