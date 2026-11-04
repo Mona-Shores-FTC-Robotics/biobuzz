@@ -122,10 +122,23 @@ These gate Belding. Run each from its start, alliance from §2.
 - [ ] **The gap, from the logs:** per pick, `path end` → `PREP … then IN`. **Good:** 0.1–0.2 s when
       square (was 0.70–0.73); `prep done on the way in, X s ago` with X ≥ 0.7 on most picks.
       **Stop:** X < 0.7 → `lowerWithinIn` 24. [S5 seam §4], [PR #378]
-- [ ] **Time one GARDEN gather** (R-Solo or R-Partner-Tip): the `Last GARDEN gather: N s` line
-      replaces the 6.0 s guess in `AutoRegistration.GARDEN_GATHER_TYPICAL_S`; the same runs' `FLOWER
-      pick: done` lines say how often a pick ends on `full`. Say whether the corner allows a stick
-      approach for the gather. [S5], [PR #384], [PR #378]
+- [ ] **Time more GARDEN gathers** (R-Solo or R-Partner-Tip): one Auto gather is logged (3 Nov
+      18:06, 4.21 s), so `AutoRegistration.GARDEN_GATHER_TYPICAL_S` is 5.0 now; a few more
+      `Last GARDEN gather: N s` lines confirm or replace it. The same runs' `FLOWER pick: done` lines
+      say how often a pick ends on `full`. Say whether the corner allows a stick approach for the
+      gather. [S5], [PR #384], [PR #378], [PR HONEST]
+- [ ] **A volley before the park,** from any Auto run whose trace shows `going for it, not
+      parking` (pull its log). **Good:** that volley's last ball left before 30 s on the match clock
+      (the launcher's shot count), and the robot ended AUTO at the launch spot, touching no wall
+      (LEAVE). **Stop:** the last ball left after 30 s → note the volley's path end → gate open → last
+      ball times: `AutoRegistration.LAUNCH_ALL_LAST_PIECE_S` (4.0) is short. [PR HONEST]
+- [ ] **Launcher overshoot after a drive:** 4 Nov 00:48 the launcher ran to about 1680 ticks/s of
+      1595 ±60 after each drive to `LEFT_LAUNCH_OFFSET`, and `AtSpeed` stayed false about 0.7 s, so
+      the gate opened 0.98–1.12 s after arrival where the settle alone took 0.38–0.57 s. Graph
+      `/Launcher/LeftTicksPerSecond`, `RightTicksPerSecond` and `AtSpeed` in Panels over an R-Solo-Staging
+      run. **Good:** at speed by the time the robot settles. **Stop:** it overshoots again → it is
+      the launcher's speed loop (a tuning issue for its own PR), and each volley costs ~0.5 s until
+      then. [PR HONEST]
 - [ ] **The CellUp wait with a real tip:** L-Partner with a partner (or a hand) tipping, and
       R-Partner-Tip. **Good:** "Wait for TIP or CELL up" ends on the trigger, not its time limit.
       [PR #377]

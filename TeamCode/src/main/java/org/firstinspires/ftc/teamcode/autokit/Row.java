@@ -18,6 +18,11 @@ public final class Row {
     final Test test;
     /** A time limit ({@link AutoKit#afterMs}, {@link AutoKit#atMatchSeconds}): it waits while the registry holds time limits. */
     boolean timeLimit;
+    /**
+     * For a time limit: the longest the wait can last if it starts at {@code startsAt} on the match
+     * clock, so the endgame guard can plan past it ({@link AutoKit#guarded}). Unused otherwise.
+     */
+    java.util.function.DoubleUnaryOperator longestFrom = startsAt -> Double.NaN;
     /** Run when the card starts waiting, before the first test. */
     Runnable start = () -> { };
     Command[] cards = new Command[0];

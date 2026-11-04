@@ -1619,8 +1619,8 @@ public final class AutoSim {
         int lastRaised;
         double raisedSince;
         static final double TIP_OVERDUE_S = 7.0;
-        /** GardenGather: its typical seconds in AutoRegistration. */
-        static final double GATHER_S = 6.0;
+        /** GardenGather: its typical seconds in AutoRegistration, read from there. */
+        static final double GATHER_S = AutoRegistration.GARDEN_GATHER_TYPICAL_S;
 
         /** Flaps fold for whatever they would reach this soon at the robot's speed and turn rate ... */
         static final double FLAP_LOOKAHEAD_S = 0.4;
@@ -1867,7 +1867,10 @@ public final class AutoSim {
         /** Every command and trigger name the Auto Builder's Autos use, backed by the simulation. */
         private AutoRegistry registry() {
             return new AutoRegistry()
-                    .command("LaunchAll", 3.0, () -> launch(Integer.MAX_VALUE))
+                    // A volley, with master's typical and last-piece times: the endgame guard goes for
+                    // the next one when its last piece can be out before AUTO ends (AutoKit.guarded).
+                    .volley("LaunchAll", AutoRegistration.LAUNCH_ALL_TYPICAL_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S,
+                            () -> launch(Integer.MAX_VALUE))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
                     .command("CollectSeen", 2.0, this::collectSeen)
