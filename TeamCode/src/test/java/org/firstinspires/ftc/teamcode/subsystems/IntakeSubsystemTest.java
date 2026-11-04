@@ -36,6 +36,14 @@ public class IntakeSubsystemTest {
         assertEquals(1.0, IntakeSubsystem.powerFor(State.IN, 1.0, 0.6), EPS);
     }
 
+    /** A gentle eject's own power wins; NaN (no override, every other request) is the configured one. */
+    @Test
+    public void ejectOverrideFallsBackToTheConfiguredPower() {
+        assertEquals(0.25, IntakeSubsystem.orConfigured(0.25, 0.6), EPS);
+        assertEquals(0.6, IntakeSubsystem.orConfigured(Double.NaN, 0.6), EPS);
+        assertEquals(-0.25, IntakeSubsystem.powerFor(State.OUT, 1.0, IntakeSubsystem.orConfigured(0.25, 0.6)), EPS);
+    }
+
     @Test
     public void powersPastFullAreClamped() {
         assertEquals(1.0, IntakeSubsystem.powerFor(State.IN, 1.7, 0.6), EPS);
