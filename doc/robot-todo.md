@@ -301,6 +301,15 @@ One `LauncherSubsystem.targetTicksPerSecond` (1595) serves every distance today;
 4/4 from 50 in (RIGHT_START) and long at 41 in on the third volley (LEFT_LAUNCH_OFFSET). These rows
 start #80's speed-vs-distance table. Count hits out of 12 on video at each speed.
 
+Afterwards: pull the logs and run `tools/pull-logs/read_logs.py launcher` on them. It lists every
+counted shot by its nearest team launch spot and target speed, with a blank hits column to fill
+in from the video. At each spot, the row is the middle of the speeds that went 11/12 or better.
+Type each (spot range, speed) pair into a row of `LaunchSpeedTable` (Panels, then the file). The
+TeleOp then follows the table, and the launch-spot button spins up for its spot's range. The
+range for a spot is the `CELL NN in from the spot` on the button's start line. The camera read
+52–53 in at RIGHT_START on 4 Nov, against the 50 in written here, so take the logged number.
+[PR for the speed table, `claude/stoic-mendel-xzdx22`]
+
 - [ ] **41 in, LEFT_LAUNCH_OFFSET** at the raised LEFT CELL: 1450, 1500, 1550, 1595 ticks/s.
       **Good:** a speed that drops balls mid-CELL, 11/12 or better. **Stop:** record hits per speed.
       [4 Nov log review, this branch]

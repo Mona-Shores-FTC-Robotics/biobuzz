@@ -88,6 +88,8 @@ public final class LaunchSpotDrive {
     /** This press's drift sample: camera minus odometry at the spot, inches; NaN until taken. */
     private double driftGapIn = Double.NaN;
     private String driftNote = "";
+    /** This press's spot's range to its CELL, inches ({@link #spotRangeIn()}); NaN until a press starts. */
+    private double spotRangeIn = Double.NaN;
 
     public LaunchSpotDrive(Robot robot, Consumer<String> event) {
         this.robot = robot;
@@ -199,6 +201,7 @@ public final class LaunchSpotDrive {
         fires = false;
         driftGapIn = Double.NaN;
         driftNote = "";
+        spotRangeIn = Double.NaN;
         this.alliance = alliance;
         Pose pose = robot.drive.pose();
         choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, startOffWallIn);
@@ -228,6 +231,7 @@ public final class LaunchSpotDrive {
         fires = TeleOpConfig.goToSpotAlsoFires;
         if (fires) volley.start();
         shotsAtStart = robot.launcher.shots();
+        spotRangeIn = rangeIn(to);
         event.accept(String.format(Locale.US, "launch spot: start %s → %s %s, %s, CELL %s from the spot%s",
                 where(pose), choice.spot, where(to), choice, cellRange(to), fires ? ", fires on arrival" : ""));
     }
@@ -283,10 +287,25 @@ public final class LaunchSpotDrive {
      * the TeleOp's shot lines measure it (TurretAim, turret offsets), "48 in"; "unknown" without one.
      */
     private String cellRange(Pose at) {
+        double range = rangeIn(at);
+        return Double.isNaN(range) ? "range unknown" : String.format(Locale.US, "%.0f in", range);
+    }
+
+    /** {@link #cellRange} as a number, inches; NaN without a pose or a field point. */
+    private double rangeIn(Pose at) {
         Vec3 row = choice.spot.cellRow(alliance);
-        if (at == null || row == null) return "range unknown";
-        return String.format(Locale.US, "%.0f in", TurretAim.rangeFromFieldIn(at.x(), at.y(), at.heading(),
-                TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y()));
+        if (at == null || row == null) return Double.NaN;
+        return TurretAim.rangeFromFieldIn(at.x(), at.y(), at.heading(),
+                TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y());
+    }
+
+    /**
+     * While a press is driving or holding: the range from the spot it is going to, to that spot's
+     * CELL, inches, so the launcher can spin up for where it will fire from rather than where it
+     * is. NaN otherwise, or without a field point.
+     */
+    public double spotRangeIn() {
+        return active() ? spotRangeIn : Double.NaN;
     }
 
     private double remainingIn() {

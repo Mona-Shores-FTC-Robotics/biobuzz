@@ -95,6 +95,27 @@ public class LaunchSpeedTableTest {
         assertEquals(1500, LaunchSpeedTable.ticksPerSecondFor(50), EPS);
     }
 
+    @Test
+    public void aSmallChangeHoldsTheSpeedInForceABigOneMovesIt() {
+        assertEquals(1500, LaunchSpeedTable.held(1500, 1520, 30), EPS);
+        assertEquals(1500, LaunchSpeedTable.held(1500, 1470, 30), EPS);
+        assertEquals(1540, LaunchSpeedTable.held(1500, 1540, 30), EPS);
+        assertEquals(1460, LaunchSpeedTable.held(1500, 1460, 30), EPS);
+    }
+
+    @Test
+    public void noAnswerKeepsTheSpeedInForceAndTheFirstAnswerIsTaken() {
+        assertEquals(1500, LaunchSpeedTable.held(1500, NaN, 30), EPS);
+        assertTrue(Double.isNaN(LaunchSpeedTable.held(NaN, NaN, 30)));
+        assertEquals(1520, LaunchSpeedTable.held(NaN, 1520, 30), EPS);
+    }
+
+    @Test
+    public void aBadBandIsNoBand() {
+        assertEquals(1501, LaunchSpeedTable.held(1500, 1501, NaN), EPS);
+        assertEquals(1501, LaunchSpeedTable.held(1500, 1501, -10), EPS);
+    }
+
     /** The configured rows, saved and cleared before each test and put back after, whatever they are. */
     private final java.util.Map<java.lang.reflect.Field, Double> saved = new java.util.HashMap<>();
 

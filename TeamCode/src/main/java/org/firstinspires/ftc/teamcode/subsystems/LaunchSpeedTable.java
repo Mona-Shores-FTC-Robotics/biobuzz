@@ -131,6 +131,21 @@ public final class LaunchSpeedTable {
         return speeds[below] + f * (speeds[above] - speeds[below]);
     }
 
+    /**
+     * The speed to keep commanding, ticks per second, given the one in force and the table's latest
+     * answer: the answer once it differs by more than {@code bandTps}, else the speed in force. A
+     * new target re-arms the launcher's at-speed timer and shot detector, so a range that wobbles
+     * by an inch must not move it every loop. A NaN answer (no range this loop) keeps the speed in
+     * force; with none in force, the answer is taken as it is. A NaN or negative band is no band.
+     * Pure, so a test can drive it.
+     */
+    public static double held(double inForce, double answer, double bandTps) {
+        if (Double.isNaN(answer)) return inForce;
+        if (Double.isNaN(inForce)) return answer;
+        double band = bandTps > 0.0 ? bandTps : 0.0;
+        return Math.abs(answer - inForce) > band ? answer : inForce;
+    }
+
     /** A row counts with a finite range of zero or more and a finite speed above zero. */
     static boolean usable(double rangeIn, double ticksPerSecond) {
         return rangeIn >= 0.0 && !Double.isInfinite(rangeIn)
