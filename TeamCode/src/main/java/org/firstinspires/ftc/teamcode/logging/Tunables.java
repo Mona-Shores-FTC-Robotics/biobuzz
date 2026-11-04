@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
 import org.firstinspires.ftc.teamcode.opmodes.HiveAndPose;
 import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
+import org.firstinspires.ftc.teamcode.opmodes.auto.BuiltAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
@@ -54,6 +55,7 @@ public final class Tunables {
             TurretSubsystem.class,
             LaunchCards.class,
             PathEndSettle.class,
+            BuiltAuto.class,
             LocalizationTuning.class,
             CameraMount.class,
             PieceVisionSubsystem.class,

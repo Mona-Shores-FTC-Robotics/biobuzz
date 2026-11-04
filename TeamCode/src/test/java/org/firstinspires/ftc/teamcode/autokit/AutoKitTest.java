@@ -294,6 +294,20 @@ public class AutoKitTest {
         assertEquals(java.util.Collections.singletonList(park), drive.followed);
     }
 
+    /** Practice runs (BuiltAuto.endgameGuard off): every card runs, and the trace says once where it would have parked. */
+    @Test
+    public void guardOffRunsEveryCardAndTracesWhereItWouldHaveParked() {
+        Path park = line(0, 10);
+        Path drawnPark = line(0, 20);
+        now = 27.6; // 2.4 s left; the guard on would park at once
+        run(kit.guard(false).guarded("If tipped", park, 2.0,
+                kit.command("ShootAll"),
+                kit.path("Park", drawnPark)), 5);
+        assertTrue("ShootAll must run: " + log, log.contains("ShootAll"));
+        assertEquals(java.util.Collections.singletonList(drawnPark), drive.followed);
+        assertEquals(trace.toString(), 1, trace.stream().filter(t -> t.contains("guard OFF")).count());
+    }
+
     @Test
     public void guardCutsARunningCardShortAtTheDeadlineAndParks() {
         AutoKit kit = new AutoKit(drive, new AutoRegistry()
