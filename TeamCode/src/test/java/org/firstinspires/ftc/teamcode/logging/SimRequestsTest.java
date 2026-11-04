@@ -151,6 +151,21 @@ public class SimRequestsTest {
         }
     }
 
+    /** "pushable": true lets our robot push the stand-in (AutoSim.pushable); anything but a boolean is refused. */
+    @Test
+    public void pushableIsReadAndChecked() throws Exception {
+        AutoStudyTest.PartnerTiming t = entries(entry("partner", "PartnerPushStartAuto", "pushable", true)).get(1).timing;
+        assertTrue(t.pushable);
+        assertEquals("pushable", t.slug());
+        assertTrue(!entries(entry("partner", "PartnerPushStartAuto")).get(1).timing.pushable);
+        try {
+            entries(entry("partner", "PartnerPushStartAuto", "pushable", "yes"));
+            fail("\"yes\" is not a boolean");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage(), expected.getMessage().contains("pushable"));
+        }
+    }
+
     @Test
     public void aLastShotPastAutoIsRefused() throws Exception {
         try {

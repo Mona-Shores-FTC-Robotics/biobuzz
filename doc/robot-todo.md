@@ -155,6 +155,20 @@ These gate Belding. Run each from its start, alliance from §2.
       [PR #313]
 - [ ] **A launch's time limit never cuts a feed;** the Auto graphs the launcher in Panels. **Good:**
       every launch feeds its full `LaunchCards` time; launcher graph live. [PR #333], [PR #334]
+- [ ] **Push a powered-off robot (draft R-Solo-Push), first by hand.** A second robot (19429, or any
+      chassis about a robot's weight), powered off, back on the red alliance wall centred on tile A4,
+      facing the field (`PARTNER_PUSH_START`, 8.1, 82.5). 20245 in Basic Drive holding 4 POLLEN, its
+      **back** against the partner's south side, its left edge about 2.4 in off the wall: push about
+      10 in north, drifting a few inches away from the wall (the draft goes 12 in north, 3.5 in out).
+      **Good:** the partner ends off the wall (a sheet of paper slides behind it) and over the LOADING
+      ZONE tape, our 4 pieces stay where they were (no jam, none pushed out), the push holds a steady
+      speed. **Record:** the push's speed against an unloaded drive (the simulator assumes half,
+      `AutoSim.PUSH_SPEED_FRACTION`), whether the partner turns, how far it slid out. **Stop:** it
+      stays on the wall → more drift (`PARTNER_PUSH_END` further out), or ask the partner to start
+      with its side on the wall facing the zone so its wheels roll forward; our pieces move → try a
+      side face and note which. Then, if it worked, the draft at speed with a temporary OpMode on a
+      scratch branch: TIP 2 before 30 s, the partner LEAVE and PARK by eye, our robot clear of the
+      partner and the HIVE leg on the way north. [PR #427]
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
@@ -457,6 +471,7 @@ one test at one meeting.
 [PR #391]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/391
 [PR #423]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/423
 [PR #425]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/425
+[PR #427]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/427
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#78]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/78

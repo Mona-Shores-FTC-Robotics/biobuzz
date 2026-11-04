@@ -44,6 +44,8 @@ import java.util.regex.Pattern;
  * ({@link AutoStudyTest.PartnerTiming#derive}). A partner fails in one of two ways, and nothing in between:
  * {@code "fails": "misses"} (every shot wide, no TIP; it carries on and parks) or dead on its start (a still
  * stand-in, {@code PartnerRBrokenDownAuto} or {@code PartnerLBrokenDownAuto}, with {@code lastShotS} still setting our wait).
+ * {@code "pushable": true} lets our robot push a partner that is not driving ({@link AutoSim#pushable}: a partner with no
+ * Auto that we move off the wall and into the LOADING ZONE); without it, touching one is a collision.
  * {@code timing} is the raw override for studies ({@link AutoStudyTest.PartnerTiming}: a start delay, a drive
  * speed, seconds per launch volley, seconds at a FLOWER; each optional, and each wins over what {@code lastShotS}
  * derives). An entry may name its own {@code seeds}; otherwise it runs
@@ -277,6 +279,7 @@ public class SimRunTest {
         m.put("lastShotS", said ? entry.timing.lastShotS : null);
         m.put("partnerWaitUntilS", said ? org.firstinspires.ftc.teamcode.opmodes.auto.AutoRegistration.partnerWaitUntilS(entry.timing.lastShotS) : null);
         m.put("fails", entry.timing == null ? null : entry.timing.fails);
+        m.put("pushable", entry.timing != null && entry.timing.pushable);
         return m;
     }
 
@@ -323,6 +326,10 @@ public class SimRunTest {
         m.put("robotsCollidedAt", time(r.robotsCollidedAt));
         m.put("parked", ours.park);
         m.put("partnerParked", partner == null ? null : partner.park);
+        m.put("partnerLeave", partner == null ? null : partner.leave);
+        // A pushable partner ("pushable": true): how far we moved it, and the seconds we spent pushing.
+        m.put("partnerPushedIn", partner == null || Double.isNaN(partner.pushStartedAt) ? null : partner.pushedIn);
+        m.put("pushingS", ours.pushingS > 0 ? ours.pushingS : null);
         m.put("finishedAt", ours.finished ? ours.finishedAt : null);
         m.put("partnerFinishedAt", partner == null || !partner.finished ? null : partner.finishedAt);
         m.put("g409", (double) r.g409);
@@ -412,6 +419,10 @@ public class SimRunTest {
             m.put("crossedAt", time(robot.crossedAt));
             m.put("hitHiveAt", time(robot.hitHiveAt));
             m.put("hitFlowerAt", time(robot.hitFlowerAt));
+            m.put("pushedIn", Double.isNaN(robot.pushStartedAt) ? null : robot.pushedIn);
+            m.put("pushStartedAt", time(robot.pushStartedAt));
+            m.put("pushEndedAt", time(robot.pushEndedAt));
+            m.put("pushingS", robot.pushingS > 0 ? robot.pushingS : null);
             m.put("waits", waits(robot.timeline));
             m.put("timeline", new ArrayList<Object>(robot.timeline));
             robots.add(m);
