@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import org.firstinspires.ftc.teamcode.localization.StartPositions;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveGeometry;
@@ -414,6 +416,13 @@ final class FieldSim {
          */
         int tipsStarted;
         private boolean startCounted;
+        /** TIPs a hit started with the load under the holding torque ({@link FieldSim#kick}): the hits made them. */
+        int knockedTips;
+        private boolean knockedUnder;
+        /** Off its stop because of hits (not its load): further hits still count until it is back on a stop. */
+        private boolean knockedOff;
+        /** The biggest single step a hit has given it, radians. */
+        double kickedRad;
 
         Rocker(Alliance alliance, double centreX) {
             this.alliance = alliance;
@@ -923,6 +932,24 @@ final class FieldSim {
     }
 
     /**
+     * A GARDEN (manual TU03 §9, Figure 9-2): about 23 in by 2 in, inside the tape's outside edge, along the audience
+     * wall from the red-side wall for red, and blue's turned half a turn about the centre (the back wall from the
+     * blue-side wall). Its 4 POLLEN start in a line in it from that corner (§10.2.A, "contacting the audience or rear
+     * perimeter wall"), which the field model's staged pieces put at y 1.48, x 1.48 to 10.15. GARDEN points count only
+     * at the end of TELEOP (§10.2.E), so in AUTO the GARDEN is where pieces are, not a score.
+     */
+    static final double GARDEN_LENGTH_IN = 23.0;
+    static final double GARDEN_DEPTH_IN = 2.0;
+
+    /** Whether (x, y) is in a GARDEN, and whose: RED, BLUE or null. */
+    static Alliance garden(double x, double y) {
+        if (x >= 0 && x <= GARDEN_LENGTH_IN && y >= 0 && y <= GARDEN_DEPTH_IN) return Alliance.RED;
+        double fx = FIELD_SIZE_IN - x, fy = FIELD_SIZE_IN - y;
+        if (fx >= 0 && fx <= GARDEN_LENGTH_IN && fy >= 0 && fy <= GARDEN_DEPTH_IN) return Alliance.BLUE;
+        return null;
+    }
+
+    /**
      * Whether a robot footprint point at {@code (x, y)} is in the HIVE frame's feet: the bars along
      * its two sides, the only part a robot under 25.5 in tall cannot drive through.
      */
@@ -998,6 +1025,34 @@ final class FieldSim {
         return false;
     }
 
+    /**
+     * The same NECTAR rolled across the field instead, aimed at a robot (PR #424's long roll to RIGHT_LAUNCH_OFFSET or
+     * RIGHT_LAUNCH_CATCH, 78 to 105 in): released on the tile at {@code from} (inside the LOADING ZONE, G427: its first
+     * touch is the zone's tile) rolling along {@code headingRad} at {@code speedInPerS}. It slows by NECTAR's rolling
+     * resistance and meets whatever is on its line. Returns false once all 5 are in.
+     */
+    boolean enterNectarAimed(Alliance alliance, double[] from, double headingRad, double speedInPerS) {
+        Kind kind = alliance == Alliance.BLUE ? Kind.BLUE_NECTAR : Kind.RED_NECTAR;
+        for (Piece p : pieces) {
+            if (p.where != Where.OUTSIDE || p.kind != kind) continue;
+            p.where = Where.FIELD;
+            p.x = from[0];
+            p.y = from[1];
+            p.z = NECTAR_RADIUS_IN + 0.05;
+            p.vx = speedInPerS * Math.cos(headingRad);
+            p.vy = speedInPerS * Math.sin(headingRad);
+            p.vz = 0;
+            // Rolling, not sliding: spin to match.
+            p.wx = -p.vy / NECTAR_RADIUS_IN;
+            p.wy = p.vx / NECTAR_RADIUS_IN;
+            p.wz = 0;
+            events.add(String.format(Locale.ROOT, "human: %s rolled from (%.1f, %.1f) at %.0f in/s, heading %.1f deg",
+                    name(kind), p.x, p.y, speedInPerS, Math.toDegrees(headingRad)));
+            return true;
+        }
+        return false;
+    }
+
     /** Messages since the last call: shots scored, tips, spills. */
     List<String> drainEvents() {
         List<String> out = new ArrayList<>(events);
@@ -1025,6 +1080,10 @@ final class FieldSim {
      * the flattest one that comes down into the opening.
      */
     double[] launchVelocity(double[] from, double[] target, double extraPitchDeg) {
+        return launchVelocityStatic(from, target, extraPitchDeg);
+    }
+
+    static double[] launchVelocityStatic(double[] from, double[] target, double extraPitchDeg) {
         double dx = target[0] - from[0], dy = target[1] - from[1];
         double d = Math.hypot(dx, dy), dz = target[2] - from[2];
         if (d < 1e-6) return null;
@@ -1039,6 +1098,10 @@ final class FieldSim {
 
     /** The ballistic launch at a pitch fixed by the launcher, or null if that arc cannot reach. */
     double[] launchVelocityAtPitch(double[] from, double[] target, double pitch) {
+        return launchVelocityAtPitchStatic(from, target, pitch);
+    }
+
+    static double[] launchVelocityAtPitchStatic(double[] from, double[] target, double pitch) {
         double dx = target[0] - from[0], dy = target[1] - from[1];
         double d = Math.hypot(dx, dy), dz = target[2] - from[2];
         if (d < 1e-6) return null;
@@ -1046,6 +1109,117 @@ final class FieldSim {
         if (denominator <= 0) return null;
         double speed = Math.sqrt(GRAVITY_IN_PER_S2 * d * d / denominator);
         return new double[] {speed * Math.cos(pitch) * dx / d, speed * Math.cos(pitch) * dy / d, speed * Math.sin(pitch)};
+    }
+
+    // ---- The robot's one launcher setpoint ----------------------------------------------------
+
+    /**
+     * Where master's setpoint was tuned (1 Nov 2026, {@code LauncherSubsystem.targetTicksPerSecond}): from RIGHT_START
+     * (the red audience start) at the red RIGHT CELL, raised as a match starts. 1575 landed a little short there (3 and
+     * 2 of 4), 1625 long (1 of 4), 1595 went 4 of 4 on 4 Nov.
+     */
+    static final double[] SETPOINT_TUNED_FROM = {StartPositions.RED_AUDIENCE.pose.x(), StartPositions.RED_AUDIENCE.pose.y()};
+    /** {@link RobotDesign#setpointPitchDeg}'s placeholder. */
+    static final double SETPOINT_PITCH_DEG = 75;
+    /**
+     * Shot-to-shot spread at the setpoint, speed as a fraction and angle in radians (1 sigma). <b>Placeholders</b>, the
+     * same as the ideal-speed launcher's ({@link #PLACEHOLDER_SPEED_SPREAD}, {@link #PLACEHOLDER_ANGLE_SPREAD_RAD}),
+     * kept apart so a match log's landing spots (or a bench's, at one distance) can replace them. They cannot make the
+     * simulated CELL as strict as the robot's: from RIGHT_START it takes about 1500 to 1650 ticks/s (±5%), where the
+     * robot's 1 Nov tuning had 1575 short (3 and 2 of 4) and 1625 long (1 of 4), about ±1.5%. Pieces that hit a real
+     * CELL's back or lip too fast bounce out; the simulated CELL keeps most of them.
+     */
+    static final double SETPOINT_SPEED_SPREAD = PLACEHOLDER_SPEED_SPREAD;
+    static final double SETPOINT_ANGLE_SPREAD_RAD = PLACEHOLDER_ANGLE_SPREAD_RAD;
+    /** {@code BIOBUZZ_SIM_IDEAL_SPEED=1}: every design fires at the speed its distance needs, as before 4 Nov 2026. */
+    static boolean idealSpeed = "1".equals(System.getenv("BIOBUZZ_SIM_IDEAL_SPEED"));
+    /** The setpoint the simulation fires at, ticks/s: master's, unless a test sets it. */
+    static double setpointTicksPerSecond = Double.NaN;
+
+    static double setpointTicks() {
+        return Double.isNaN(setpointTicksPerSecond) ? LauncherSubsystem.targetTicksPerSecond : setpointTicksPerSecond;
+    }
+
+    /**
+     * The launch at the robot's one setpoint: aimed straight at {@code target} across the field, at
+     * {@link #setpointTuning}'s pitch and exit speed, the speed scaled by the setpoint against master's. So the
+     * wheel-speed-to-exit-speed conversion is fitted at one distance (RIGHT_START, where 1595 was tuned), and a
+     * different setpoint scales it. Null if the target is where the robot is.
+     */
+    double[] setpointLaunch(RobotDesign design, double[] from, double[] target) {
+        double[] tuned = setpointTuning(design);
+        double dx = target[0] - from[0], dy = target[1] - from[1], d = Math.hypot(dx, dy);
+        if (d < 1e-6 || tuned == null) return null;
+        double speed = tuned[0] * setpointTicks() / LauncherSubsystem.targetTicksPerSecond, pitch = tuned[1];
+        return new double[] {speed * Math.cos(pitch) * dx / d, speed * Math.cos(pitch) * dy / d, speed * Math.sin(pitch)};
+    }
+
+    private static final java.util.Map<String, double[]> SETPOINT_TUNINGS = new java.util.HashMap<>();
+
+    /**
+     * {exit speed in/s, pitch rad} for this design's launcher at master's setpoint. The pitch is the design's
+     * {@link RobotDesign#setpointPitchDeg} (else its {@link RobotDesign#fixedPitchDeg}, else the arc
+     * {@link #launchVelocity(double[], double[], double)} picks from {@link #SETPOINT_TUNED_FROM} onto the red RIGHT
+     * CELL's aim point); the speed is the middle of the window of
+     * speeds that put a piece in that CELL from there, as 1595 is the middle of the robot's (1575 landed short, 1625
+     * long). Worked out once per launcher geometry, with noiseless shots on an empty field.
+     */
+    static double[] setpointTuning(RobotDesign design) {
+        String key = design.exitForwardIn + "/" + design.exitHeightIn + "/" + design.arcExtraPitchDeg + "/" + design.fixedPitchDeg
+                + "/" + design.setpointPitchDeg;
+        synchronized (SETPOINT_TUNINGS) {
+            double[] tuned = SETPOINT_TUNINGS.get(key);
+            if (tuned == null && !SETPOINT_TUNINGS.containsKey(key)) {
+                tuned = tuneSetpoint(design);
+                SETPOINT_TUNINGS.put(key, tuned);
+            }
+            return tuned;
+        }
+    }
+
+    private static double[] tuneSetpoint(RobotDesign design) {
+        Rocker r = new Rocker(Alliance.RED, RED_HIVE_X_IN);
+        double[] aim = r.aimPointFor(r.raisedEnd());
+        double x = SETPOINT_TUNED_FROM[0], y = SETPOINT_TUNED_FROM[1];
+        double h = Math.atan2(aim[1] - y, aim[0] - x);
+        double[] from = {x + design.exitForwardIn * Math.cos(h), y + design.exitForwardIn * Math.sin(h), design.exitHeightIn};
+        double pitchDeg = !Double.isNaN(design.setpointPitchDeg) ? design.setpointPitchDeg : design.fixedPitchDeg;
+        double[] v = Double.isNaN(pitchDeg)
+                ? launchVelocityStatic(from, aim, design.arcExtraPitchDeg)
+                : launchVelocityAtPitchStatic(from, aim, Math.toRadians(pitchDeg));
+        if (v == null) return null;
+        double horizontal = Math.hypot(v[0], v[1]);
+        double speed = Math.sqrt(horizontal * horizontal + v[2] * v[2]), pitch = Math.atan2(v[2], horizontal);
+        double lo = Double.NaN, hi = Double.NaN;
+        for (double f = 0.80; f <= 1.20 + 1e-9; f += 0.0025) {
+            if (entersRightCell(from, h, pitch, speed * f)) {
+                if (Double.isNaN(lo)) lo = f;
+                hi = f;
+            }
+        }
+        if (Double.isNaN(lo)) return new double[] {speed, pitch};
+        return new double[] {speed * (lo + hi) / 2, pitch};
+    }
+
+    /** A shot counts as in once it is still in the CELL this many 20 ms steps after leaving: 2 s. */
+    static final int SHOT_SETTLE_STEPS = 100;
+
+    /** Whether a noiseless POLLEN launched at {@code speed} and {@code pitch} along {@code heading} lands in the red RIGHT CELL. */
+    private static boolean entersRightCell(double[] from, double heading, double pitch, double speed) {
+        FieldSim sim = new FieldSim(new ArrayList<>(), 1, HiveCalibration.current().fit());
+        sim.red.locked = true;
+        Piece p = new Piece(Kind.POLLEN, Where.FIELD, from[0], from[1], from[2]);
+        p.vx = speed * Math.cos(pitch) * Math.cos(heading);
+        p.vy = speed * Math.cos(pitch) * Math.sin(heading);
+        p.vz = speed * Math.sin(pitch);
+        p.wx = LAUNCH_BACKSPIN_RAD_PER_S * Math.sin(heading);
+        p.wy = -LAUNCH_BACKSPIN_RAD_PER_S * Math.cos(heading);
+        sim.pieces.add(p);
+        for (int k = 0; k < SHOT_SETTLE_STEPS; k++) {
+            sim.step(0.02);
+            if (p.z < p.kind.radius + 0.5 && p.cell == null && k > 5) return false;  // on the tiles
+        }
+        return p.cell != null;
     }
 
     /** Where a launched piece leaves the robot. */
@@ -1082,21 +1256,25 @@ final class FieldSim {
         if (stored.isEmpty()) return null;
         double[] from = bot.exitPoint(sideIn);
         from[2] += volleyUpIn;
-        double[] v = Double.isNaN(bot.design.fixedPitchDeg)
+        boolean setpoint = bot.design.fixedSetpoint && !idealSpeed;
+        double[] v = setpoint ? setpointLaunch(bot.design, from, target)
+                : Double.isNaN(bot.design.fixedPitchDeg)
                 ? launchVelocity(from, target, bot.design.arcExtraPitchDeg)
                 : launchVelocityAtPitch(from, target, Math.toRadians(bot.design.fixedPitchDeg));
         if (v == null) return null;
         double spread = spreadScale * spreadScaleShot;
-        double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spread * noise(0);
+        double speedSpread = setpoint ? bot.design.setpointSpeedSpread : PLACEHOLDER_SPEED_SPREAD;
+        double angleSpread = setpoint ? bot.design.setpointAngleSpreadRad : PLACEHOLDER_ANGLE_SPREAD_RAD;
+        double speed = 1 + speedSpread * spread * noise(0);
         if (!bot.design.dedicatedLaunchers) {
             speed *= stored.get(0).kind == Kind.POLLEN ? bot.design.pollenSpeedFactor : bot.design.nectarSpeedFactor;
         }
-        double yaw = yawErrorRad + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * noise(1);
+        double yaw = yawErrorRad + angleSpread * spread * noise(1);
         double c = Math.cos(yaw), s = Math.sin(yaw);
         double carried = bot.design.compensatesMotion ? 0 : 1;
         double vx = (v[0] * c - v[1] * s) * speed + carried * bot.vx;
         double vy = (v[0] * s + v[1] * c) * speed + carried * bot.vy;
-        double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * noise(2));
+        double vz = v[2] * speed * (1 + angleSpread * spread * noise(2));
         Piece p = stored.remove(0);
         p.where = Where.FIELD;
         p.x = from[0];
@@ -1296,15 +1474,81 @@ final class FieldSim {
         }
         if (!wasSettled && settledNow) {
             r.rate = 0;
+            boolean knocked = r.knockedUnder;
+            r.knockedUnder = false;
+            r.knockedOff = false;
             r.dwellFrom = Double.NaN;
             // A rocker that lifts off its stop and settles back (a piece rolling to the back of the
             // CELL) has not tipped.
             if (Math.signum(r.angle) != Math.signum(r.tipFrom)) {
                 r.tips++;
                 r.lastTipSeconds = time - r.leftStopAt;
-                events.add(r.alliance + " HIVE tipped: " + r.state() + " (" + r.cell(r.raisedEnd()).clusterName() + " up)");
+                if (knocked) r.knockedTips++;
+                events.add(r.alliance + " HIVE tipped: " + r.state() + " (" + r.cell(r.raisedEnd()).clusterName() + " up)"
+                        + (knocked ? "; knocked over by the hits, its load under the tipping weight" : ""));
             }
         }
+    }
+
+    // ---- The hits: a piece striking a CELL pushes the rocker -------------------------------------
+
+    /**
+     * How hard a piece striking a CELL pushes the rocker, against a rocker that took the whole of the angular
+     * momentum the hit took from the piece (1). <b>A placeholder</b>, not a measurement: the mentor sees in practice
+     * and online videos (4 Nov 2026) that launched pieces sometimes TIP a CELL holding 7 POLLEN or 4 POLLEN + 2 NECTAR
+     * (about 7.3 POLLEN weights), under the 7.3 to 8 the Field Setup Guide's placed cases allow. It is set so that a
+     * fast 4-ball volley onto about 7 weights tips sometimes and one onto 6.5 or less never does
+     * ({@code HiveImpulseTest}), and the Guide's gentle tosses (§12.3) still hold on the 2nd and 7th POLLEN. Replace
+     * it from video counts: the pieces in the CELL at each TIP, against the static threshold ({@code doc/robot-todo.md},
+     * "HIVE: count the pieces in the CELL at each TIP"). 0 turns the hits off. 1 until the launcher fired at its one
+     * setpoint (4 Nov 2026); its steeper arc lands harder, so 0.6 gives the same picture.
+     */
+    static final double PLACEHOLDER_IMPULSE_SCALE = 0.6;
+    static double impulseScale = PLACEHOLDER_IMPULSE_SCALE;
+    /**
+     * Only a piece arriving at least this fast, in/s, counts as a hit: a launched or tossed piece. Slower contacts are
+     * a piece settling, rolling, or chattering against a plate, or being carried by the swinging rocker, and the
+     * simulation's push-out would otherwise turn them into a stream of small kicks that walk the rocker off its stop.
+     */
+    static final double HIT_MIN_IN_PER_S = 30;
+
+    /**
+     * A piece bouncing off one of {@code r}'s CELL plates, its velocity changed by {@code dvy}, {@code dvz}: the rocker
+     * takes the angular momentum about the axle the piece lost (mass × the velocity change × its lever arm, in
+     * POLLEN-weight inches² per second), times {@link #impulseScale}. The rocker is the damped one of
+     * {@link #stepRocker}: it turns at a speed proportional to the torque on it (the whole holding torque:
+     * {@link Physics#swingRadPerS}), so a hit moves it by a step, impulse over damping, and does not set it spinning.
+     * Off its stop the holding torque falls with the angle, so a load just under the tipping weight that the hits
+     * knock far enough goes on over; a lighter one falls back to its stop, slowly near it
+     * ({@link #PLACEHOLDER_DAMPER_FACTOR}), so the hits of a fast volley add up. What counts is the hit's normal
+     * part: a piece coming down steeply on a raised CELL's floor, far out from the axle, pushes the CELL down, toward
+     * a TIP; a level one sliding to the back skin pushes it up a little. A piece resting or rolling on a plate gives
+     * nothing here ({@link #IMPACT_MIN_IN_PER_S}): its weight is the static torque already.
+     */
+    private void kick(Rocker r, Piece p, double dvy, double dvz) {
+        if (r.locked || !(impulseScale > 0)) return;
+        // Past level the rocker is tipping anyway; the pieces it carries are not hits.
+        boolean pastLevel = Math.abs(Math.abs(r.angle) - TILT_RAD) >= 1e-12 && Math.signum(r.angle) != Math.signum(r.tipFrom);
+        if (pastLevel || r.state() == HiveState.TRANSITION && !r.knockedOff) return;
+        double dy = p.y - CENTRE_IN, dz = p.z - PIVOT_Z_IN;
+        double momentum = -weight(p.kind) * (dy * dvz - dz * dvy);
+        double step = impulseScale * momentum / GRAVITY_IN_PER_S2 * physics.swingRadPerS * swingScale / physics.holdTorque;
+        double before = r.angle;
+        double after = Math.max(-TILT_RAD, Math.min(TILT_RAD, before + step));
+        if (after == before) return;
+        boolean wasSettled = Math.abs(Math.abs(before) - TILT_RAD) < 1e-12;
+        r.angle = after;
+        r.knockedOff = true;
+        if (wasSettled && Math.abs(Math.abs(after) - TILT_RAD) >= 1e-12) {
+            // Knocked off its stop: the swing starts here, as stepRocker would start it.
+            r.tipFrom = before;
+            r.leftStopAt = time;
+            r.startCounted = false;
+            r.dwellFrom = Double.NaN;
+            r.swingFactor = tipSwingFactor();
+            r.knockedUnder = tippingTorque(r) < physics.holdTorque - 1e-9;
+        }
+        r.kickedRad = Math.max(r.kickedRad, Math.abs(after - before));
     }
 
     /**
@@ -1394,6 +1638,7 @@ final class FieldSim {
             return false;
         }
         boolean hit = false;
+        double vy0 = p.vy, vz0 = p.vz;
         for (int end = -1; end <= 1; end += 2) {
             double vNear = end * CELL_BACK_IN, vFar = end * CELL_OPENING_IN;
             double vLo = Math.min(vNear, vFar), vHi = Math.max(vNear, vFar);
@@ -1406,6 +1651,7 @@ final class FieldSim {
             // back: v fixed
             hit |= plate(p, r, 1, vNear, 0, -CELL_HALF_WIDTH_IN, CELL_HALF_WIDTH_IN, 2, CELL_FLOOR_IN, CELL_ROOF_IN);
         }
+        if (hit && Math.sqrt(p.vx * p.vx + vy0 * vy0 + vz0 * vz0) >= HIT_MIN_IN_PER_S) kick(r, p, p.vy - vy0, p.vz - vz0);
         return hit;
     }
 

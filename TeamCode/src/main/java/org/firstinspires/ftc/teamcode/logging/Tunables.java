@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.logging;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
+import org.firstinspires.ftc.teamcode.opmodes.LaunchSpotDrive;
 import org.firstinspires.ftc.teamcode.opmodes.HiveAndPose;
 import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
 import org.firstinspires.ftc.teamcode.opmodes.auto.BuiltAuto;
@@ -63,6 +64,7 @@ public final class Tunables {
             FieldLayers.class,
             FlowerPicker.class,
             GardenGather.class,
+            LaunchSpotDrive.class,
             HiveAndPose.class,
     };
 

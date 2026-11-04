@@ -319,6 +319,8 @@ jobs:
                       launches = launched(r["launched"], r.get("launchedAtDownCell")) + ("" if r.get("partnerLaunched") is None
                           else f" (partner {launched(r['partnerLaunched'], r.get('partnerLaunchedAtDownCell'))})")
                       parked = ("yes" if r["parked"] else "no") + ("" if r.get("partnerParked") is None else f" (partner {'yes' if r['partnerParked'] else 'no'})")
+                      if r.get("partnerPushedIn") is not None:  # a pushable partner we moved: its LEAVE, and the push
+                          parked += f", partner LEAVE {'yes' if r.get('partnerLeave') else 'no'}, pushed {r['partnerPushedIn']:.1f} in in {r.get('pushingS') or 0:.1f} s"
                       tips = ", ".join(f"{t:.1f}" for t in r["tipsAt"]) or "none"
                       last = "" if r.get("partnerLaunched") is None else sec(r.get("partnerLastShotAt"))
                       summary.append(f"| {label} | {int(r['seed'])}{star} | {int(r['points'])} | {launches} | {tips} | {last} | {sec(r.get('firstCellUpAt'))} | {wait_words(r.get('wait'))} | {sec(r.get('robotsCollidedAt'))} | {parked} |")
