@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.autokit.AutoOption;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RBradyAuto;
 
 /** Runs {@link RBradyAuto}; see its {@code SOURCE} for the drawing. */
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RBradyAuto;
 public class RBradyAutoOpMode extends BuiltAuto {
     public RBradyAutoOpMode() {
         super(RBradyAuto.SOURCE, RBradyAuto.COMMANDS, RBradyAuto.TRIGGERS, RBradyAuto.DRAWN_FOR,
-                RBradyAuto::startPose, RBradyAuto::build);
+                RBradyAuto::startPose, RBradyAuto::build,
+                new AutoOption[0]);  // exported before INIT options existed
     }
 }

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.autokit.AutoOption;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RLaunchParkAuto;
 
 /** Runs {@link RLaunchParkAuto}; see its {@code SOURCE} for the drawing. */
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RLaunchParkAuto;
 public class RLaunchParkAutoOpMode extends BuiltAuto {
     public RLaunchParkAutoOpMode() {
         super(RLaunchParkAuto.SOURCE, RLaunchParkAuto.COMMANDS, RLaunchParkAuto.TRIGGERS, RLaunchParkAuto.DRAWN_FOR,
-                RLaunchParkAuto::startPose, RLaunchParkAuto::build);
+                RLaunchParkAuto::startPose, RLaunchParkAuto::build,
+                new AutoOption[0]);  // exported before INIT options existed
     }
 }

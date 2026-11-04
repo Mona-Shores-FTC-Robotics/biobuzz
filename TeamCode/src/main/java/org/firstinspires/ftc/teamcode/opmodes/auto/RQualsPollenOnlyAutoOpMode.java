@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.autokit.AutoOption;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RQualsPollenOnlyAuto;
 
 /** Runs {@link RQualsPollenOnlyAuto}; see its {@code SOURCE} for the drawing. */
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RQualsPollenOnlyAut
 public class RQualsPollenOnlyAutoOpMode extends BuiltAuto {
     public RQualsPollenOnlyAutoOpMode() {
         super(RQualsPollenOnlyAuto.SOURCE, RQualsPollenOnlyAuto.COMMANDS, RQualsPollenOnlyAuto.TRIGGERS, RQualsPollenOnlyAuto.DRAWN_FOR,
-                RQualsPollenOnlyAuto::startPose, RQualsPollenOnlyAuto::build);
+                RQualsPollenOnlyAuto::startPose, RQualsPollenOnlyAuto::build,
+                new AutoOption[0]);  // exported before INIT options existed
     }
 }

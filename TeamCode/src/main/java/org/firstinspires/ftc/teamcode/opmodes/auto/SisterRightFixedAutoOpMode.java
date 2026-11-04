@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.autokit.AutoOption;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.SisterRightFixedAuto;
 
 /** Runs {@link SisterRightFixedAuto}; see its {@code SOURCE} for the drawing. */
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.SisterRightFixedAut
 public class SisterRightFixedAutoOpMode extends BuiltAuto {
     public SisterRightFixedAutoOpMode() {
         super(SisterRightFixedAuto.SOURCE, SisterRightFixedAuto.COMMANDS, SisterRightFixedAuto.TRIGGERS,
-                SisterRightFixedAuto.DRAWN_FOR, SisterRightFixedAuto::startPose, SisterRightFixedAuto::build);
+                SisterRightFixedAuto.DRAWN_FOR, SisterRightFixedAuto::startPose, SisterRightFixedAuto::build,
+                new AutoOption[0]);  // exported before INIT options existed
     }
 }
