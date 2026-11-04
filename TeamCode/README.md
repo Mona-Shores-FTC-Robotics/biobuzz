@@ -398,6 +398,34 @@ Rejected:
 - **Hub serial number** — stable but opaque; a hub swap becomes a hex-string
   hunt.
 
+### When one robot has to be different: `RobotDifferences`
+
+The robots are meant to be identical, so every mechanism value is one
+`@Configurable` field in its subsystem, shared by both. When one robot turns out
+different (a swapped motor that turns the other way, a servo re-splined to a new
+position, a mechanism that is not fitted yet), that is one line in
+`RobotDifferences.java`, under that robot:
+
+```java
+differs(RobotIdentity.TEAM_19429, "Intake motor swapped, turns the other way (5 Nov 2026)",
+        () -> IntakeSubsystem.reversed = false);
+```
+
+Then Sloth Load. `RobotOpMode` applies the active robot's lines before the robot
+is built, and the match log's Metadata tab lists them, so a log always says which
+robot ran with which differences. Pedro's values are not here (they are
+`pedro/robots/`), nor are ports (the robot's XML).
+
+Each robot's lines are applied once per app run, so a Panels edit made later
+sticks across OpModes, as it does today. If the active config changes to another
+robot after a robot with lines ran, the next OpMode refuses to start until the
+Robot Controller app is restarted: running one robot with the other's values is
+last season's bug.
+
+Rejected: a field per robot in each subsystem (`reversed19429`), which doubles
+every number whether it differs or not; and `if (robot == 19429)` in subsystem
+code, which scatters the differences where nobody can list them.
+
 ### Why bundled, and not DECODE's `adb push`
 
 Last season shipped `deploy_config19429.bat` / `deploy_config20245.bat`, which

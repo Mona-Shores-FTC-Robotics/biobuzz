@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.RobotDifferences;
 import org.firstinspires.ftc.teamcode.controls.Bindings;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.Handoff;
@@ -338,6 +339,10 @@ public abstract class RobotOpMode extends OpMode {
         }
 
         try {
+            // Before the robot is built, so every constructor reads this robot's values.
+            List<String> differences = RobotDifferences.applyForActiveRobot();
+            log.metadata("RobotDifferences", differences.isEmpty()
+                    ? "none: the shared values" : String.join(" | ", differences));
             robot = new Robot(hardwareMap);
             robot.initialize();
         } catch (RuntimeException e) {

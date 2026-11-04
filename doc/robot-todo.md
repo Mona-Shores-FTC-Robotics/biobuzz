@@ -223,6 +223,9 @@ measurement is [#255].
 - [ ] **Bring-up, in #175's order:** Check: Hardware, Drive Motor Check (lifted), Mecanum, Pinpoint
       and Foresight tuners pasted into `Robot19429.java`, Tests procedure, Loop Time Baseline.
       **Good:** path Autos no longer stop at INIT on Foresight. [#175], [S2 §8]
+- [ ] **Anything 19429 does differently** from 20245 (a motor turning the other way, a servo
+      position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
+      was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.
 - [ ] **Its log lands in its own folder** after a pull (`biobuzz-logs\<19429's network>`). [S2 §8]
 - [ ] **Copy 20245's Limelight pipeline** and run the 5-minute start check. [handoff] step 6
 - [ ] **Drive check table** (10 steps), on both robots. [#62]
