@@ -55,12 +55,13 @@ public final class FlowerPicker extends GrabRoutine {
      * robot stalls against the FLOWER. The 29 Oct 2026 logs on 20245 put that first touch at 12.2 to
      * 12.5 in (as odometry had it), so a target of 12.0 ends "reached" with the stick short of the
      * FLOWER whenever the pose is a fraction of an inch long, and on 3 Nov an Auto's FAR pick did
-     * exactly that (camera 1.8 in further out than odometry, intake current flat, nothing taken). With
-     * 5.0 the next Auto's pick took pieces but the intake then stalled for the rest of that run (cause
-     * not proven). 7.0 is the mentor's start (3 Nov 2026): a right pose stalls about 5 in short of the
-     * target, and a pose up to that much long still touches. At the target the face is about 1.6 in from
-     * the wall (7.0 less the frame's 8.1 half, plus the FLOWER's 2.71 off the wall), so a pose more
-     * than that short drives the face into the wall. Three picks per value is the check
+     * exactly that (camera 1.8 in further out than odometry, intake current flat, nothing taken). Pushes
+     * aimed at 5.0 and at 7.0 on the red WALL FLOWER both stalled at 10.0 to 10.4 in from the centre
+     * (3 Nov), so any target under about 9 ends the same way, by stall, and 7.0 leaves about 3 in of grace
+     * for a long pose. At the target the face is about 1.6 in from the wall (7.0 less the frame's 8.1
+     * half, plus the FLOWER's 2.71 off the wall), so a pose more than that short drives the face into
+     * the wall (by odometry, 5 to 6 did on blue). The intake roller stalls (0 ticks/s at 8 to 10 A, 1 to 4 s) in
+     * launch feeds at any value, so it is not this number's doing. Three picks per value is the check
      * (doc/robot-todo.md); the pick's start line in the match log says the value in use. The
      * Visualizer's {@code CONTACT_STANDOFF_IN} changes with it.
      */
