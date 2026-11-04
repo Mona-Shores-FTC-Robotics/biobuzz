@@ -259,6 +259,12 @@ public final class FlowerPicker extends GrabRoutine {
         return "FLOWER pick";
     }
 
+    /** How deep this push aims, as it is now: Panels can change it after the log's metadata is written. */
+    @Override
+    protected String startNote() {
+        return String.format(Locale.US, ", contact %.1f in", nn(contactStandoffIn));
+    }
+
     @Override
     protected String findTarget(Pose pose) {
         // The nearest in range; in an Auto, only one on the robot's own half (GrabRoutine).

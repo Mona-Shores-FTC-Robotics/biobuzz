@@ -155,6 +155,14 @@ public abstract class GrabRoutine {
     protected abstract String what();
 
     /**
+     * Appended to the start line in the match log: a value a person may have changed in Panels since
+     * INIT, which the log's start-of-run metadata cannot show. Empty, or ", name value" with its comma.
+     */
+    protected String startNote() {
+        return "";
+    }
+
+    /**
      * The target nearest the robot, by name, or null with {@link #noTargetWhy} when none is in range.
      * Called once, at the start; the subclass keeps what it found for the methods below.
      */
@@ -542,11 +550,12 @@ public abstract class GrabRoutine {
             home = pose;
         }
         phase = there ? Phase.PREP : Phase.LINE_UP;
-        event.accept(String.format(Locale.US, "%s: start, %s, from (%.1f, %.1f, %.0f°)%s", what(), target,
+        event.accept(String.format(Locale.US, "%s: start, %s, from (%.1f, %.1f, %.0f°)%s%s", what(), target,
                 pose.x(), pose.y(), Math.toDegrees(pose.heading()),
                 !lineUp && !squares ? ", from here (Auto)"
                         : !lineUp ? (there ? ", Auto, already square" : ", Auto, squaring up")
-                        : there ? ", already lined up" : ""));
+                        : there ? ", already lined up" : "",
+                startNote()));
         if (there) prepIfClose(now, 0.0);
     }
 
