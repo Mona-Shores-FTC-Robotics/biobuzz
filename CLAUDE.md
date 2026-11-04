@@ -275,7 +275,8 @@ Remote containers have no `gh`; use the GitHub MCP tools.
 - **Students' issues stay theirs to build.** A session asked by a mentor to implement a student's
   issue says so once, then does what the mentor decides. Asked by a student, it coaches
   (`first-pr-coach`) rather than writes it for them.
-- **Auto fast lane:** a PR from an `auto/<name>` branch that changes only `TeamCode/autos/*.pp`, generated
+- **Auto fast lane:** a PR from an `auto/<name>` branch that changes only `TeamCode/autos/*.pp` (or one in its
+  `drafts/` or `partners/`), generated
   Autos and `TeamCode/sim-requests/*.json` needs no issue, branch rule or review, from anyone with write
   access. It is a draft: tried on the robot first, merged by a mentor if it is better than master's,
   never auto-merged. The **Auto fast lane** check fails a PR on such a branch that touches anything else.
