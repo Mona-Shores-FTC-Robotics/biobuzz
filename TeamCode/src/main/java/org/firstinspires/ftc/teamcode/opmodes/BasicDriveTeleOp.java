@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
+import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 
 import java.util.Locale;
@@ -650,7 +651,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /**
      * The horizontal range to the CELL a shot was aimed at, inches: the camera's ground range to
      * the nearest fresh CELL of our alliance (any CELL if the alliance is not chosen yet), else the
-     * pose's range from the turret axis to the near-end CELL's raised row, else NaN. Sets
+     * pose's range from the turret axis to the raised row of the CELL our HIVE says is UP (only an
+     * UP CELL scores; the near-end CELL while the HIVE is tipping or unseen), else NaN. Sets
      * {@link #lastShotRangeSource} to say which.
      */
     private double shotRangeIn() {
@@ -672,12 +674,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
             return Double.NaN;
         }
         nearEndCell = TurretAim.nearEndCell(alliance, pose.y(), nearEndCell, HiveFieldPoints.AXLE_Y_IN, AIM_SWITCH_BAND_IN);
-        Vec3 row = nearEndCell == null ? null : HiveFieldPoints.rowCentre(nearEndCell, HiveCellState.UP);
+        // Only an UP CELL scores: take the one the HIVE says is up, the near-end one only while unknown.
+        HiveTracker hive = robot.hive.of(alliance);
+        HiveCell up = TurretAim.upCellOr(alliance, hive == null ? null : hive.state(), null);
+        HiveCell target = up != null ? up : nearEndCell;
+        Vec3 row = target == null ? null : HiveFieldPoints.rowCentre(target, HiveCellState.UP);
         if (row == null) {
             lastShotRangeSource = "";
             return Double.NaN;
         }
-        lastShotRangeSource = "odometry, " + nearEndCell;
+        lastShotRangeSource = "odometry, " + target + (up == null ? " (HIVE unknown: near end)" : "");
         return TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(),
                 TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y());
     }

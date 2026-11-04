@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
+import org.firstinspires.ftc.teamcode.vision.HiveState;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 
 /**
@@ -73,6 +74,24 @@ public final class TurretAim {
         if (robotY > axleY + band) return scoring;
         if (previous == audience || previous == scoring) return previous;
         return robotY < axleY ? audience : scoring;
+    }
+
+    /**
+     * Our CELL that is UP by the HIVE's state, else {@code fallback}: the right CELL for
+     * {@link HiveState#RIGHT_CELL_UP}, the left for {@link HiveState#LEFT_CELL_UP}, and
+     * {@code fallback} (the near-end CELL) while the HIVE is tipping or unseen. Only an UP CELL
+     * scores, so a range from odometry is taken to this one: the near-end CELL by itself is the
+     * DOWN one half the time. An assumed state counts (after a TIP the camera did not see finish,
+     * or at an Autonomous's start): it is still a better guess than which end the robot is at.
+     *
+     * @param alliance ours; UNKNOWN gives {@code fallback}
+     * @param state    our HIVE's {@code HiveTracker.state()}; null gives {@code fallback}
+     */
+    public static HiveCell upCellOr(Alliance alliance, HiveState state, HiveCell fallback) {
+        HiveCell up = null;
+        if (state == HiveState.RIGHT_CELL_UP) up = HiveCell.rightCell(alliance);
+        if (state == HiveState.LEFT_CELL_UP) up = HiveCell.leftCell(alliance);
+        return up != null ? up : fallback;
     }
 
     /** Horizontal distance from the turret's axis to a field point, inches, for a launcher's speed table. */
