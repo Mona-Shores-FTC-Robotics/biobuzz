@@ -29,6 +29,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.AccelLimiter;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
@@ -66,7 +67,8 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
  *   <li><b>Relocalize.</b> {@link #relocalizeFromCamera()} on demand: x and y only, heading kept,
  *       refused beyond {@link LocalizationTuning#maxRelocalizeJumpIn}.</li>
  *   <li><b>Reset spot.</b> {@link #resetToSpot} puts the robot at its alliance's measured spot,
- *       heading included, for when the pose is lost too far for the camera.</li>
+ *       heading included, for when the pose is lost too far for the camera. It also sets the
+ *       driver's field-centric forward to the alliance's, as PLAY does: the corner is the gyro reset.</li>
  *   <li><b>Stationary fixes.</b> While still, {@link LocalizationTuning#stillFixFrames} gated frames
  *       are averaged; if they agree and sit near the pose, the mean goes into the filter with
  *       {@link LocalizationTuning#stillFixes} on ({@link StillFix} says how the last batch went).</li>
@@ -432,8 +434,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /**
      * Puts the robot at {@code alliance}'s marked reset spot in {@code corner} ({@link ResetPositions}),
-     * heading included: the drive team has squared it into the corner there. The driver's field-centric
-     * forward stays where it was. For a button, when the pose is lost.
+     * heading included: the drive team has squared it into the corner there. It is the gyro reset too:
+     * field-centric forward becomes the alliance's driver forward ({@link FieldFrame#driverForwardHeading}),
+     * as at PLAY, which is the way a robot squared into the corner faces. Drivers lose forward and the pose
+     * together, and held the corner and D-pad up one after the other (mentor, 4 Nov 2026). For a button,
+     * when the pose is lost.
      *
      * @return what happened, for the driver
      */
@@ -448,7 +453,12 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
                     : "reset: " + where + " is not measured yet (ResetPositions)";
         }
         setPoseKeepingDriverForward(spot);
-        return poseNote = "reset to " + where + " " + describePose(spot);
+        double forward = FieldFrame.driverForwardHeading(alliance);
+        if (Double.isNaN(forward)) {
+            return poseNote = "reset to " + where + " " + describePose(spot) + ", forward kept";
+        }
+        setFieldForward(forward);
+        return poseNote = "reset to " + where + " " + describePose(spot) + ", forward reset";
     }
 
     private static String describe(TagGate.Verdict verdict) {

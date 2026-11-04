@@ -1368,8 +1368,11 @@ went (`READY` means it would have applied).
 
 **The reset spots.** `ResetPositions` holds two measured poses per alliance: the corners on its
 wall to the driver's left (D-pad left) and right (D-pad right), where the robot squares into both
-walls, so heading is known too. The button sets the whole pose. That also gives a TeleOp started
-without an Auto handoff a field heading. The driver picks the corner by the button, never "the
+walls, so heading is known too. The button sets the whole pose, and is the gyro reset as well:
+field-centric forward becomes the alliance's driver forward, as at PLAY, since a robot squared into
+the corner faces that way. Drivers lose forward and the pose together, and were holding the corner
+and then D-pad up (4 Nov 2026); D-pad up alone still squares forward to the robot's facing anywhere.
+That also gives a TeleOp started without an Auto handoff a field heading. The driver picks the corner by the button, never "the
 nearest corner": picking the nearest corner trusts the pose that is being reset. Each stays NaN
 (its button says so) until measured.
 

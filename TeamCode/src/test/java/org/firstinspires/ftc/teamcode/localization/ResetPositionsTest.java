@@ -55,4 +55,20 @@ public class ResetPositionsTest {
                     Math.IEEEremainder(blue.heading() - red.heading() - Math.PI, 2 * Math.PI), 1e-9);
         }
     }
+
+    /**
+     * Each spot faces its alliance's driver forward, which the corner reset makes field-centric forward
+     * (the gyro reset): a spot that faced another way would swing the driver's forward.
+     */
+    @Test
+    public void eachSpotFacesItsAlliancesDriverForward() {
+        for (Alliance alliance : new Alliance[]{Alliance.RED, Alliance.BLUE}) {
+            for (ResetPositions.Corner corner : ResetPositions.Corner.values()) {
+                Pose spot = ResetPositions.of(alliance, corner);
+                if (spot == null) continue;
+                assertEquals(alliance + " " + corner, 0.0, Math.IEEEremainder(
+                        spot.heading() - FieldFrame.driverForwardHeading(alliance), 2 * Math.PI), 1e-9);
+            }
+        }
+    }
 }

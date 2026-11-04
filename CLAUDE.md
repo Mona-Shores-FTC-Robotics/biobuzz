@@ -103,8 +103,9 @@ a fit from both HIVEs it resets the whole pose, heading too, as the seed does; o
 Stationary fixes (`stillFixes`) and continuous fixes (`continuousFixes`) into the filter are both
 off until a measurement shows they help. The reset spots (`ResetPositions`, NaN until measured) are
 fixed, measured poses, the left and right corners of each alliance's wall, chosen by the button the
-driver holds, never "the nearest corner". Relocalizing or resetting never moves
-the driver's field-centric forward. Read the pose from `robot.drive`, never from the
+driver holds, never "the nearest corner". Relocalizing never moves the driver's field-centric
+forward; a corner reset is the gyro reset too, setting it to the alliance's driver forward as PLAY
+does (D-pad up still sets it to the robot's facing, anywhere). Read the pose from `robot.drive`, never from the
 Pinpoint or the Limelight directly. Anything that drives or aims from field coordinates checks
 `robot.drive.poseReferenced()` first and degrades without it; driving itself never needs it.
 `HiveFieldPoints` is the field CAD's rocker model (axle on the centre line, one row radius),
