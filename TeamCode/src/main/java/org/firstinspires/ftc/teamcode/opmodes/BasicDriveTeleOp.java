@@ -109,8 +109,21 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** A drive stick past this cancels a routine that is driving the robot. */
     private static final double CANCEL_STICK = 0.2;
 
-    /** How long a reset (gyro, camera, pose, turret zero) must be held. A tap does nothing. */
-    private static final long RESET_HOLD_MS = 1000;
+    /**
+     * How long a reset (gyro, camera, pose, turret zero) must be held. A tap does nothing. 0.5 s since
+     * 4 Nov 2026: 1 s felt long to the drivers.
+     */
+    private static final long RESET_HOLD_MS = 500;
+
+    /** The hint while a reset is held, built once. */
+    private static final String KEEP_HOLDING = String.format(Locale.US,
+            "Keep holding (%.1f s) to reset…", RESET_HOLD_MS / 1000.0);
+
+    /**
+     * The buzz when a reset fires: both motors (some pads answer only one), long enough to feel
+     * while driving.
+     */
+    private static final int RESET_RUMBLE_MS = 300;
 
     /** The launcher trim step can never be more than this, ticks per second, whatever Panels says. */
     /** Package-private: {@link LaunchTest} caps the same Panels step the same way. */
@@ -172,6 +185,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls = new Controls(TeleOpConfig.flowerPickButton, TurretSubsystem.lockedForward,
                 gamepad1, gamepad2, driver, operator);
         log.metadata("Controls/Drive", robotCentric() ? "robot-centric" : "field-centric");
+        // Which controller each pad is, as the SDK sees it at INIT: a pad that cannot rumble says so.
+        log.metadata("Controls/Gamepad1", String.valueOf(gamepad1.type));
+        log.metadata("Controls/Gamepad2", String.valueOf(gamepad2.type));
 
         // Bound in Action order, so the Controls page reads like the cheat sheet.
         controls.note(Action.DRIVE);
@@ -296,38 +312,48 @@ public class BasicDriveTeleOp extends RobotOpMode {
     }
 
     /**
-     * The resets, each a 1 s hold so a brushed button does nothing, each with a short rumble on the
-     * pad that held it. In INIT only the ones that move nothing: the camera reset and the turret
+     * The resets, each a {@link #RESET_HOLD_MS} hold so a brushed button does nothing, each with a
+     * short rumble on the pad that held it ({@link #buzz}, which logs it). In INIT only the ones that move nothing: the camera reset and the turret
      * zero.
      */
     private void holdResets(long now, boolean init) {
         if (!init && headingReset.update(controls.held(Action.RESET_HEADING), now)) {
             robot.drive.resetHeading();
-            gamepad1.rumble(200);
             log.event("gyro reset: field-centric forward = the robot's facing");
+            buzz(gamepad1, "gamepad1", "gyro reset");
         }
         if (cameraReset.update(controls.held(Action.CAMERA_RELOCALIZE), now)) {
             relocalize();
-            gamepad1.rumble(200);
+            buzz(gamepad1, "gamepad1", "camera reset");
         }
         if (!init && leftCornerReset.update(controls.held(Action.RESET_LEFT_CORNER), now)) {
             resetToSpot(ResetPositions.Corner.LEFT);
-            gamepad1.rumble(200);
+            buzz(gamepad1, "gamepad1", "left corner reset");
         }
         if (!init && rightCornerReset.update(controls.held(Action.RESET_RIGHT_CORNER), now)) {
             resetToSpot(ResetPositions.Corner.RIGHT);
-            gamepad1.rumble(200);
+            buzz(gamepad1, "gamepad1", "right corner reset");
         }
         if (turretZero.update(controls.held(Action.TURRET_ZERO), now)) {
             robot.turret.zeroHere();
-            gamepad2.rumble(200);
             log.event("turret zeroed here by the operator");
+            buzz(gamepad2, "gamepad2", "turret zero");
         }
     }
 
     /**
-     * The camera sets the pose, if it can; the Match page and the match log say what happened. A 1 s
-     * hold, live in INIT, so one person with one gamepad can put a pose carried from the last run
+     * A reset's rumble, and a {@code rumble:} line in the match log with the pad's type, so a buzz
+     * nobody felt (4 Nov 2026, corner and gyro resets) shows whether the code sent it or the pad
+     * cannot rumble (a Logitech F310 has no motors).
+     */
+    private void buzz(Gamepad pad, String name, String why) {
+        pad.rumble(1.0, 1.0, RESET_RUMBLE_MS);
+        log.event("rumble: " + why + " on " + name + " (" + pad.type + ")");
+    }
+
+    /**
+     * The camera sets the pose, if it can; the Match page and the match log say what happened. A
+     * {@link #RESET_HOLD_MS} hold, live in INIT, so one person with one gamepad can put a pose carried from the last run
      * right before PLAY.
      */
     private void relocalize() {
@@ -414,7 +440,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.status("Speed", turbo ? Display.Level.WARN : Display.Level.OK,
                 slow ? "slow" : turbo ? "TURBO" : "normal");
         if (headingReset.pending() || cameraReset.pending() || leftCornerReset.pending() || rightCornerReset.pending() || turretZero.pending()) {
-            display.line("Keep holding (1 s) to reset…");
+            display.line(KEEP_HOLDING);
         }
         display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.waitingToClear() ? "out until clear of the FLOWER" : robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));
         String pick = picker.line();
