@@ -1070,11 +1070,23 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   about the axle the hit took from it (`FieldSim.kick`): the rocker is damped, so a hit moves it a step,
   and a load just under the tipping weight knocked far enough goes on over. Only pieces arriving at 30 in/s
   or more count, so settling pieces do not walk the rocker. Its strength,
-  `FieldSim.PLACEHOLDER_IMPULSE_SCALE` (1: the whole of the hit's angular momentum), is a placeholder set to
-  the mentor's videos (4 Nov 2026): a 4-ball volley onto 4 POLLEN + 2 NECTAR (7.3 weights) tips 15 runs in 20,
-  onto 7 POLLEN none, onto 6.65 weights or less never. `HiveImpulseTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
+  `FieldSim.PLACEHOLDER_IMPULSE_SCALE` (0.6 of the hit's angular momentum), is a placeholder set to the
+  mentor's videos (4 Nov 2026): the real robot's 4-ball volley from RIGHT_START onto 4 POLLEN + 2 NECTAR (7.3
+  weights) tips 13 runs in 20, onto 7 POLLEN 1, onto 6.3 weights or less never. `HiveImpulseTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
   and the Guide's six §12.3 rows; `BIOBUZZ_SIM_SWEEP=0.5,1,2` prints every case at each strength, for
   refitting it to the video counts in `doc/robot-todo.md`.
+- **The launcher fires at the robot's one setpoint.** The real robot's designs fire every shot at master's
+  `LauncherSubsystem.targetTicksPerSecond` (`RobotDesign.fixedSetpoint`), at one pitch, whatever the distance,
+  so a shot from nearer or further than RIGHT_START goes long or short. **Measured:** the setpoint, and that it
+  is the middle of the window at RIGHT_START (1 Nov: 1575 short, 1625 long; 4 Nov: 4 of 4), which fixes the
+  ticks-to-exit-speed conversion: the simulator finds the speeds that score from RIGHT_START and puts 1595 in
+  their middle. **Placeholders:** the pitch, 75° (`setpointPitchDeg`; no hood angle is in master's code), fitted
+  to the 4 Nov video's volley from LEFT_LAUNCH_OFFSET (41 in) going long (the simulator scores about 1 in 8
+  there; it scored all of them at the ideal speed); the shot-to-shot spread (`setpointSpeedSpread`,
+  `setpointAngleSpreadRad`, the old 1.5% and 0.8°). The simulated CELL is more forgiving than the field's:
+  from RIGHT_START it keeps pieces from about 1500 to 1650 ticks/s where the robot's tuning shows about ±1.5%
+  (a real CELL spits a piece that hits its back or lip too fast). `LauncherSetpointTest`
+  (`BIOBUZZ_SIM_CHECKS=1`) checks both spots; `BIOBUZZ_SIM_IDEAL_SPEED=1` puts back the speed per distance.
 - **Results.** Each partner run gets its own folder, `<partner .pp name>/<timing name>/`, with its
   `result.json` and logs, and the top `result.json` carries `entries`: one row per run with the
   points, our launches (and how many went at a down CELL), the TIPs and when, the partner's last

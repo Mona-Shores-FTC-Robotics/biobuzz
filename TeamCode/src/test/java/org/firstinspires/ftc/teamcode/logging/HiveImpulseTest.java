@@ -177,8 +177,9 @@ public class HiveImpulseTest {
 
     /**
      * For re-fitting {@link FieldSim#PLACEHOLDER_IMPULSE_SCALE} once video counts exist: {@code BIOBUZZ_SIM_SWEEP=0.5,1,2}
-     * prints every case's tip rate at each strength. 4 Nov 2026, 20 seeds: at 0.5, 7.3 weights tipped 1 of 20 and
-     * nothing under; at 1, 7.3 tipped 15, 7.0 none; at 2, 7.3 tipped 20 and 7.0 7, 6.65 none; at 4, 6.3 tipped 6.
+     * prints every case's tip rate at each strength. 4 Nov 2026, 20 seeds, the launcher at its setpoint: at 0.5, 7.3
+     * weights tipped 6 of 20, 7.0 and 6.65 1 each; at 0.6, 7.3 tipped 13; at 0.8, 20; 6.3 and 6.0 never. (At the
+     * ideal speed per shot, a flatter arc: at 1, 7.3 tipped 15, 7.0 none; at 2, 20 and 7; at 4, 6.3 tipped 6.)
      */
     @Test
     public void sweep() {

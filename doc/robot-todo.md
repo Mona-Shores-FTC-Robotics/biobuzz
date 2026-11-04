@@ -233,6 +233,11 @@ measurement is [#255].
 ## 8. If time: anyone, no driving
 
 - [ ] **Photograph both robots' hubs** for `doc/wiring/`, ports against the XML. [#33]
+- [ ] **Launcher: the exit angle and the exit height**, robot off: a protractor on the launch path
+      where the ball leaves the wheels, and a tape from the floor. **Good:** both written in the PR
+      that replaces the simulator's placeholders (`FieldSim.SETPOINT_PITCH_DEG` 75°, exit height
+      17 in). **Stop:** if the angle changes with the wheel speed (a flexible hood), say so instead.
+      [sim-realism PR]
 - [ ] **HIVE: count the pieces in the CELL at each TIP** (no robot: our practice videos and online
       match videos). For each TIP: the POLLEN and NECTAR in the CELL just before it moved, whether it
       tipped on a landing piece (and how many landed in the last second), or on a piece placed or
