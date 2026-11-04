@@ -27,7 +27,17 @@ here waits until after the event.
 2. Launcher PIDF (§7c): baseline, F, P, then real shots; 1–1.5 h. Every shot in every OpMode
    depends on it. Film the real-shot volleys and write down count against video: that is §7c's
    shot-count check, done in the same volleys. Change no code from it before the event.
-3. R-Solo five times or more, the rebuilt one (branch `claude/bold-ptolemy-aabda1` until it
+3. The LEFT launch spot's speed, right after the PIDF (same setup, §7d style). TIP 2 in every R
+   Auto but R-Partner-Tip is fired from LEFT_LAUNCH_OFFSET (41 in from the LEFT CELL), and at the
+   one setpoint, 1595, it goes long: the mentor's 4 Nov video, and since #429 the simulator too
+   (run 41891398950 on `claude/bold-ptolemy-aabda1`: R-Solo got TIP 2 in 1 of 10 runs, 6–10 of 12
+   shots in; R-Partner-Preload 2 of 5). From LEFT_LAUNCH_OFFSET facing the LEFT CELL, volleys of 4
+   at 1595, then 1550, 1525, 1500; count hits per volley on video. **Good:** a speed that scores 3
+   or 4 of 4 repeatably → that range and speed as a `LaunchSpeedTable` row, the table on for the
+   Autos (§7d "Then switch it on"), and RIGHT_START still scoring at its row. **Stop:** no speed
+   scores → record the best and its hits; the fallback is moving the left launch spot to about
+   50 in from the LEFT CELL (near (40, 130.5)), a team-spot change in the Visualizer.
+4. R-Solo five times or more, the rebuilt one (branch `claude/bold-ptolemy-aabda1` until it
    merges): TIP 1 from the start, the wall FLOWER, then a CellUp check at LEFT_LAUNCH_OFFSET (at
    most 0.75 s). Up: LEFT volley, scoring FLOWER, LEFT volley (TIP 2), park RIGHT_PARK. Down:
    RIGHT_LAUNCH_OFFSET, fire, park. Count TIP 1, TIP 2 and the park on each run, and note when
@@ -40,21 +50,22 @@ here waits until after the event.
 
 **Night 2: the partner Autos, 19429 as the partner if it is at the lab.**
 
-4. R-Partner-Preload, the rebuilt one: TIP 1, the wall FLOWER, wait there until 12 s on the match
+5. R-Partner-Preload, the rebuilt one: TIP 1, the wall FLOWER, wait there until 12 s on the match
    clock, then the same LEFT check. Up: LEFT volley (TIP 2 with the partner's 4), scoring FLOWER,
    park holding 4. Down: RIGHT, fire, park. Out of the partner's way about 24.5 s. 19429 as the
    partner, twice: parked by about 13 s, then waiting on its start until 26 s and parking (the
    match sheet's wording). **Good:** no contact, watched hardest near LEFT_LAUNCH_OFFSET and the
    scoring FLOWER. **Stop:** contact → note the match time and both poses; it is a Visualizer fix.
    The 12 s wait shows as an advanced card in the Visualizer (its trigger, Empty, never fires there).
-5. R-Partner-Tip only if 19429 can do the whole left TIP; otherwise skip it.
-6. The push for R-Solo-Nudge, 15 min (§3 "push a powered-off robot"). Works → Nudge is in; not →
+6. R-Partner-Tip only if 19429 can do the whole left TIP; otherwise skip it.
+7. The push for R-Solo-Nudge, 15 min (§3 "push a powered-off robot"). Works → Nudge is in; not →
    the match sheet's row A stays R-Solo.
-7. In the drivers' practice that night: drive speeds (#425) and Square to the launch spot (#423)
+8. In the drivers' practice that night: drive speeds (#425) and Square to the launch spot (#423)
    (§4, §5). Square not tried → `TeleOpConfig.launchSpot` off.
 
-**Not before the event:** ending the feed at the 4th shot (waits on the count), R-Solo-Staging,
-L-Partner, the launcher distances (§7d), a third TIP, the pick-depth session (§4), the tape
+**Not before the event:** ending the feed at the 4th shot (waits on the count), moving
+SCORING_FLOWER_STAGING 1–2 in west (it clips a partner dead on LEFT_START by about an inch), R-Solo-Staging,
+L-Partner, the other launcher distances (§7d), a third TIP, the pick-depth session (§4), the tape
 measure (§6; the start check reads 0.1–1 in at Red audience on nearly every INIT), 19429's
 bring-up beyond what night 2 needs (§7), Wall Eject (§7b), and the look-only lines of §8–9.
 
