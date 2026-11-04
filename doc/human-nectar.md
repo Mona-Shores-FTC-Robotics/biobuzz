@@ -15,6 +15,9 @@ on a field yet: the numbers to aim for are targets for practice, not measurement
 - **A throw or roll in a useful direction is allowed** (Q7), on three conditions: it is released before it touches
   the tile, it touches the LOADING ZONE's tile before leaving the zone, and it doesn't end up scoring in a HIVE or
   FLOWER by itself.
+- **A NECTAR that leaves the field comes back without a new TIP** (Q36, 4 Nov 2026), as long as the count on the
+  field still fits G426. The referees track how many must be held out; keep the rest in the ALLIANCE AREA in plain
+  view.
 
 - One NECTAR per TIP of our HIVE (G426.A). It does not have to go in the instant the TIP happens (G426 note).
 - By hand, no tool, by our own drive team member (G427 A, B).

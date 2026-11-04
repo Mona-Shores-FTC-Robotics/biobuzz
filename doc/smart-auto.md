@@ -71,6 +71,12 @@ In BACKUP the partner changes nothing: Backup-L or Backup-R counts only on TIPs 
 that waits at the standard left start is the case `doc/r-quals-partner-timing.md` covers. A partner-specific Auto (one
 built for a scouted team) is a new entry in the list.
 
+**Open: a No-show partner** (rules, 4 Nov 2026; `doc/game/qa-review.md` section 4.5). When a partner doesn't show
+up, its 4 POLLEN are placed in our LOADING ZONE against the perimeter wall (G304, restated in Team Update 07). That
+is 4 pieces where we park, which the two partner choices don't use. A third choice, No-show, with its own colour,
+needs a route that collects them and one simulator run of it. SWARM can't be reached with one robot (LEAVE + PARK +
+PARK is 13), so the route plays for TIPs.
+
 ## The checks (INIT, nothing moves)
 
 The rules allow INIT to hold motors and servos still (R103.B), and the robot must be motionless once INIT is done

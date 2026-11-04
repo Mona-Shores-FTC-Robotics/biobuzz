@@ -771,8 +771,8 @@ leave the robot (set down or launched) are no longer CONTROLled, but herding a p
 ## Rules every chat keeps
 
 - **The official Q&A outranks our reading of the manual.** `doc/game/qa-review.md` holds every answer and what it
-  changed (14 Oct 2026); `python3 tools/game-qa/qa.py` prints the board today. Three rulings every chat works
-  under since then:
+  changed (14 Oct 2026, updated 4 Nov 2026); `python3 tools/game-qa/qa.py` prints the board today. The rulings
+  every chat works under:
   - **A G409 touch is a violation, every time** (Q17), and a routine one is STRATEGIC (Q23): a YELLOW CARD, and
     a second card in the phase is a RED CARD (the match lost). It carries no points; G407 is the one with the
     20-point MAJOR FOUL. A touched run is a problem
@@ -782,6 +782,13 @@ leave the robot (set down or launched) are no longer CONTROLled, but herding a p
     most 4 aboard, and a back exit is out.
   - **Human NECTAR in AUTO is allowed** (Q11), one per TIP, released in the air so its first touch is the LOADING
     ZONE's tile (Q6, Q7); a roll in a useful direction is fine, pushing a piece on the tile is not.
+  - **A piece under or stuck in the intake counts toward the 4** (Q34), and the Q&A won't rule on our V (Q29, Q34).
+    Once 4 are aboard, anything against the roller, under the floating roller or stuck in the V counts, so the
+    robot backs off or lets it roll free.
+  - **Waiting beside a spill with the intake on is legal** (Q35) as long as nothing touches the robot before the
+    tiles. The wall-side catch spot stands.
+  - **In AUTO, touching a piece or a robot on the opponent's side is a 20-point MAJOR FOUL even by accident**
+    (G402, Team Update 06). Spill pieces past the centre line are theirs.
 - **The Pedro field frame, in inches.** It is the only frame (CLAUDE.md).
 - **Numbers come from the simulator at 60 runs on the three qualifier Autos**, each part on a route drawn for it,
   or from a cardboard or field test. Never from a guess.

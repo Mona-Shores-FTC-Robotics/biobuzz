@@ -180,8 +180,9 @@ and pen questions below decide whether 5 TIPs work. The filmed spill test tells 
 > elements had already touched the tiles?
 
 The second half of the draft (a fifth element inside the frame for about 0.2 s during pass-through) was answered
-before we asked: Q23 (11 Oct 2026) says a routine momentary fifth is a STRATEGIC G407 violation. Q29 (pending)
-asks about lifting intakes and active expulsion; read it before submitting the paragraph above.
+before we asked: Q23 (11 Oct 2026) says a routine momentary fifth is a STRATEGIC G407 violation. **Don't submit
+the first half either** (4 Nov 2026): the Q&A doesn't review designs (Q29, Q34), and Q34 says pieces stuck under an
+intake are CONTROLLED. `doc/game/qa-review.md` section 4.2 takes the strict reading instead.
 
 ## Asks
 

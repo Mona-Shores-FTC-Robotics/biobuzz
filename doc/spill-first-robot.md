@@ -138,9 +138,10 @@ qualification baselines (L-/R-Quals use the V to take FLOWERs and catch) and Tel
 
 ## Three steps that decide it, all before CAD changes
 
-1. **Ask the official Q&A** the G407 pocket question (`doc/five-tip-flow-through.md`). A "no" ends the idea:
-   flow-through is already out (Q23, no momentary fifth). Q29 (pending) is the nearest question on the board;
-   read its answer first.
+1. ~~Ask the official Q&A the G407 pocket question.~~ It won't be ruled on: the Q&A doesn't review designs (Q29,
+   Q34, answered by 4 Nov 2026), and Q34 says pieces stuck under an intake are CONTROLLED. Take the strict reading
+   (`doc/game/qa-review.md` section 4.2): a pocket that holds pieces against the roller while 4 are aboard is a
+   G407 violation. Flow-through is already out (Q23, no momentary fifth).
 2. **At the next meeting, add a mock-up to the filmed spill test** (`doc/spill-test.md`): plywood or cardboard, 18 in
    wide and 18 in deep: an 18 in face with 6 in walls forward, foam on the inside faces. Stand it at the catch spot
    (x 49-67 in Pedro; face 31 in and wall tips 37 in from the end wall), not moving. For each TIP, count pieces resting inside the pocket 3 s after the TIP, pieces touching it before
