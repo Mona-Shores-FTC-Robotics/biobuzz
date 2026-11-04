@@ -1065,6 +1065,16 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
   whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (6 s, not yet timed from an
   Auto); the FLOWER stick, which goes down on the robot's gather, is not modelled in the GARDEN.
+- **Hits on the HIVE.** The rocker's static balance is fitted to the Field Setup Guide's placed cases
+  (`HiveCalibration`). On top of it, a launched piece striking a CELL hands the rocker the angular momentum
+  about the axle the hit took from it (`FieldSim.kick`): the rocker is damped, so a hit moves it a step,
+  and a load just under the tipping weight knocked far enough goes on over. Only pieces arriving at 30 in/s
+  or more count, so settling pieces do not walk the rocker. Its strength,
+  `FieldSim.PLACEHOLDER_IMPULSE_SCALE` (1: the whole of the hit's angular momentum), is a placeholder set to
+  the mentor's videos (4 Nov 2026): a 4-ball volley onto 4 POLLEN + 2 NECTAR (7.3 weights) tips 15 runs in 20,
+  onto 7 POLLEN none, onto 6.65 weights or less never. `HiveImpulseTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
+  and the Guide's six §12.3 rows; `BIOBUZZ_SIM_SWEEP=0.5,1,2` prints every case at each strength, for
+  refitting it to the video counts in `doc/robot-todo.md`.
 - **Results.** Each partner run gets its own folder, `<partner .pp name>/<timing name>/`, with its
   `result.json` and logs, and the top `result.json` carries `entries`: one row per run with the
   points, our launches (and how many went at a down CELL), the TIPs and when, the partner's last

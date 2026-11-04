@@ -414,6 +414,13 @@ final class FieldSim {
          */
         int tipsStarted;
         private boolean startCounted;
+        /** TIPs a hit started with the load under the holding torque ({@link FieldSim#kick}): the hits made them. */
+        int knockedTips;
+        private boolean knockedUnder;
+        /** Off its stop because of hits (not its load): further hits still count until it is back on a stop. */
+        private boolean knockedOff;
+        /** The biggest single step a hit has given it, radians. */
+        double kickedRad;
 
         Rocker(Alliance alliance, double centreX) {
             this.alliance = alliance;
@@ -1314,15 +1321,80 @@ final class FieldSim {
         }
         if (!wasSettled && settledNow) {
             r.rate = 0;
+            boolean knocked = r.knockedUnder;
+            r.knockedUnder = false;
+            r.knockedOff = false;
             r.dwellFrom = Double.NaN;
             // A rocker that lifts off its stop and settles back (a piece rolling to the back of the
             // CELL) has not tipped.
             if (Math.signum(r.angle) != Math.signum(r.tipFrom)) {
                 r.tips++;
                 r.lastTipSeconds = time - r.leftStopAt;
-                events.add(r.alliance + " HIVE tipped: " + r.state() + " (" + r.cell(r.raisedEnd()).clusterName() + " up)");
+                if (knocked) r.knockedTips++;
+                events.add(r.alliance + " HIVE tipped: " + r.state() + " (" + r.cell(r.raisedEnd()).clusterName() + " up)"
+                        + (knocked ? "; knocked over by the hits, its load under the tipping weight" : ""));
             }
         }
+    }
+
+    // ---- The hits: a piece striking a CELL pushes the rocker -------------------------------------
+
+    /**
+     * How hard a piece striking a CELL pushes the rocker, against a rocker that took the whole of the angular
+     * momentum the hit took from the piece (1). <b>A placeholder</b>, not a measurement: the mentor sees in practice
+     * and online videos (4 Nov 2026) that launched pieces sometimes TIP a CELL holding 7 POLLEN or 4 POLLEN + 2 NECTAR
+     * (about 7.3 POLLEN weights), under the 7.3 to 8 the Field Setup Guide's placed cases allow. It is set so that a
+     * fast 4-ball volley onto about 7 weights tips sometimes and one onto 6.5 or less never does
+     * ({@code HiveImpulseTest}), and the Guide's gentle tosses (§12.3) still hold on the 2nd and 7th POLLEN. Replace
+     * it from video counts: the pieces in the CELL at each TIP, against the static threshold ({@code doc/robot-todo.md},
+     * "HIVE: count the pieces in the CELL at each TIP"). 0 turns the hits off.
+     */
+    static final double PLACEHOLDER_IMPULSE_SCALE = 1.0;
+    static double impulseScale = PLACEHOLDER_IMPULSE_SCALE;
+    /**
+     * Only a piece arriving at least this fast, in/s, counts as a hit: a launched or tossed piece. Slower contacts are
+     * a piece settling, rolling, or chattering against a plate, or being carried by the swinging rocker, and the
+     * simulation's push-out would otherwise turn them into a stream of small kicks that walk the rocker off its stop.
+     */
+    static final double HIT_MIN_IN_PER_S = 30;
+
+    /**
+     * A piece bouncing off one of {@code r}'s CELL plates, its velocity changed by {@code dvy}, {@code dvz}: the rocker
+     * takes the angular momentum about the axle the piece lost (mass × the velocity change × its lever arm, in
+     * POLLEN-weight inches² per second), times {@link #impulseScale}. The rocker is the damped one of
+     * {@link #stepRocker}: it turns at a speed proportional to the torque on it (the whole holding torque:
+     * {@link Physics#swingRadPerS}), so a hit moves it by a step, impulse over damping, and does not set it spinning.
+     * Off its stop the holding torque falls with the angle, so a load just under the tipping weight that the hits
+     * knock far enough goes on over; a lighter one falls back to its stop, slowly near it
+     * ({@link #PLACEHOLDER_DAMPER_FACTOR}), so the hits of a fast volley add up. What counts is the hit's normal
+     * part: a piece coming down steeply on a raised CELL's floor, far out from the axle, pushes the CELL down, toward
+     * a TIP; a level one sliding to the back skin pushes it up a little. A piece resting or rolling on a plate gives
+     * nothing here ({@link #IMPACT_MIN_IN_PER_S}): its weight is the static torque already.
+     */
+    private void kick(Rocker r, Piece p, double dvy, double dvz) {
+        if (r.locked || !(impulseScale > 0)) return;
+        // Past level the rocker is tipping anyway; the pieces it carries are not hits.
+        boolean pastLevel = Math.abs(Math.abs(r.angle) - TILT_RAD) >= 1e-12 && Math.signum(r.angle) != Math.signum(r.tipFrom);
+        if (pastLevel || r.state() == HiveState.TRANSITION && !r.knockedOff) return;
+        double dy = p.y - CENTRE_IN, dz = p.z - PIVOT_Z_IN;
+        double momentum = -weight(p.kind) * (dy * dvz - dz * dvy);
+        double step = impulseScale * momentum / GRAVITY_IN_PER_S2 * physics.swingRadPerS * swingScale / physics.holdTorque;
+        double before = r.angle;
+        double after = Math.max(-TILT_RAD, Math.min(TILT_RAD, before + step));
+        if (after == before) return;
+        boolean wasSettled = Math.abs(Math.abs(before) - TILT_RAD) < 1e-12;
+        r.angle = after;
+        r.knockedOff = true;
+        if (wasSettled && Math.abs(Math.abs(after) - TILT_RAD) >= 1e-12) {
+            // Knocked off its stop: the swing starts here, as stepRocker would start it.
+            r.tipFrom = before;
+            r.leftStopAt = time;
+            r.startCounted = false;
+            r.dwellFrom = Double.NaN;
+            r.swingFactor = tipSwingFactor();
+            r.knockedUnder = tippingTorque(r) < physics.holdTorque - 1e-9;
+        }
+        r.kickedRad = Math.max(r.kickedRad, Math.abs(after - before));
     }
 
     /**
@@ -1412,6 +1484,7 @@ final class FieldSim {
             return false;
         }
         boolean hit = false;
+        double vy0 = p.vy, vz0 = p.vz;
         for (int end = -1; end <= 1; end += 2) {
             double vNear = end * CELL_BACK_IN, vFar = end * CELL_OPENING_IN;
             double vLo = Math.min(vNear, vFar), vHi = Math.max(vNear, vFar);
@@ -1424,6 +1497,7 @@ final class FieldSim {
             // back: v fixed
             hit |= plate(p, r, 1, vNear, 0, -CELL_HALF_WIDTH_IN, CELL_HALF_WIDTH_IN, 2, CELL_FLOOR_IN, CELL_ROOF_IN);
         }
+        if (hit && Math.sqrt(p.vx * p.vx + vy0 * vy0 + vz0 * vz0) >= HIT_MIN_IN_PER_S) kick(r, p, p.vy - vy0, p.vz - vz0);
         return hit;
     }
 
