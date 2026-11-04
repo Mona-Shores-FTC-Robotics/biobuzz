@@ -7,8 +7,8 @@ import org.firstinspires.ftc.teamcode.controls.Input;
 
 /**
  * The TeleOp's driver-facing knobs, in one Panels class: the FLOWER pick button, speeds, aim trim,
- * the fire gates and chassis aim. A mechanism's own constants (powers, launcher speed, the FLOWER
- * pick's distances) stay on the class that owns the mechanism.
+ * the fire gates, chassis aim and the launch-spot button. A mechanism's own constants (powers,
+ * launcher speed, the FLOWER pick's distances) stay on the class that owns the mechanism.
  *
  * <p>Edit in Panels while someone drives, then write the values the drivers like back here:
  * Panels edits are lost on restart. Every value is guarded where it is read, so a typo gives a
@@ -80,6 +80,31 @@ public final class TeleOpConfig {
 
     /** How far off our CELL a shot may be aimed and still pass the aim gate, degrees. */
     public static double aimToleranceDeg = 3.0;
+
+    /**
+     * The driver's go-to-launch-spot button ({@link LaunchSpotDrive}, held): on while the drivers
+     * try it against chassis aim; off leaves it out of the layout, the Controls page and the
+     * button's reading. Read at INIT.
+     */
+    public static boolean launchSpot = true;
+
+    /**
+     * The go-to-launch-spot button also launches: the launcher spins up as the drive starts, and
+     * once the robot is at the spot, aimed and settled, one volley feeds as the operator's FIRE
+     * would ({@link SpotVolley}). On for testing in Basic Drive (mentor, 4 Nov 2026): a testing
+     * choice the team may turn off to give the shot back to the operator. The operator's FIRE and
+     * launcher toggle keep working either way and win. Read at each press.
+     */
+    public static boolean goToSpotAlsoFires = true;
+
+    /**
+     * At a launch spot, settled and facing the HIVE, a camera-vs-odometry gap past this many inches
+     * puts "corner reset suggested" on the Match page ({@link LaunchSpotDrive}). The gap is only
+     * logged and shown, never applied: still and continuous fixes stay off until measured. 3 in is
+     * a starting point, <b>not measured</b>; the presses' drift lines are the measurement. 0 or NaN
+     * never warns.
+     */
+    public static double spotDriftWarnIn = 3.0;
 
     /** Chassis aim: turn power per radian of heading error. A starting point, not a measurement. */
     public static double chassisAimKp = 1.0;

@@ -53,14 +53,18 @@ import java.util.Locale;
  *
  * <p>Moving a drive stick cancels the driver's automatic routines: the FLOWER pick
  * ({@link FlowerPicker}, which stows the stick and idles the intake as it stops) and the GARDEN
- * gather ({@link GardenGather}) on either stick, one of them at a time, and the chassis aim on the
- * right stick, since the left stick keeps driving under it.
+ * gather ({@link GardenGather}) and the drive to a launch spot ({@link LaunchSpotDrive}) on either
+ * stick, one of them at a time, and the chassis aim on the right stick, since the left stick keeps
+ * driving under it.
  *
  * <h2>Aiming</h2>
  *
  * <p>The turret starts every OpMode LOCKED straight ahead; the operator's lock button switches it
  * to AIM at our CELL ({@link TurretAimer}: left half of the field, left CELL; right half, right
- * CELL). While LOCKED, the driver's chassis aim turns the whole robot onto the same CELL. The
+ * CELL). While LOCKED, the driver's chassis aim turns the whole robot onto the same CELL; or,
+ * experimentally, the driver's launch-spot button drives it to the nearest launch spot and
+ * arrives aimed at that half's CELL ({@link LaunchSpotDrive}), and with
+ * {@code TeleOpConfig.goToSpotAlsoFires} spins up and fires one volley there. The
  * operator's trim nudges either one and stays until reset. It zeroes itself, assuming it starts a
  * match at its home mark, or taking the Auto's zero when an Auto just ran
  * ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy}); the zero button always
@@ -149,13 +153,23 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private TurretAimer aimer;
     private FlowerPicker picker;
     private GardenGather gatherer;
+    private LaunchSpotDrive launchSpot;
     private boolean launchMode;
     /** The operator's trim on the launch speed, ticks per second; lasts the OpMode. */
     private double launcherTrimTps;
     private boolean chassisAimCancelled;
+    /** When the chassis aim button went down, ns; 0 while it is up. For its log line. */
+    private long chassisAimSinceNs;
     private boolean lastFire;
     /** This fire press spun the launcher up from idle, so it feeds only once at launch speed. */
     private boolean spunUpByFire;
+    /**
+     * The launch-spot button spun the launcher up from idle: it idles it again when the press ends,
+     * unless the operator took the launcher (their toggle or FIRE) in the meantime.
+     */
+    private boolean spunUpBySpot;
+    /** The current launch-spot press has had its spin-up decided. */
+    private boolean spotPressSeen;
     private Bar bar = Bar.NONE;
     private String poseNote;
     private String autoParkNote;
@@ -181,9 +195,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
         aimer = new TurretAimer(robot);
         picker = new FlowerPicker(robot, text -> log.event(text));
         gatherer = new GardenGather(robot, text -> log.event(text));
+        launchSpot = new LaunchSpotDrive(robot, text -> log.event(text));
         // A locked turret's controls are left out, so the pages show only buttons that work.
         controls = new Controls(TeleOpConfig.flowerPickButton, TurretSubsystem.lockedForward,
-                gamepad1, gamepad2, driver, operator);
+                TeleOpConfig.launchSpot, gamepad1, gamepad2, driver, operator);
+        log.metadata("Controls/LaunchSpot", TeleOpConfig.launchSpot ? "bound" : "off");
         log.metadata("Controls/Drive", robotCentric() ? "robot-centric" : "field-centric");
         // Which controller each pad is, as the SDK sees it at INIT: a pad that cannot rumble says so.
         log.metadata("Controls/Gamepad1", String.valueOf(gamepad1.type));
@@ -199,6 +215,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.FLOWER_PICK);
         controls.note(Action.GARDEN_GATHER);
         controls.note(Action.CHASSIS_AIM);
+        controls.note(Action.LAUNCH_SPOT);
         controls.note(Action.RESET_HEADING);
         controls.note(Action.RESET_LEFT_CORNER);
         controls.note(Action.RESET_RIGHT_CORNER);
@@ -210,7 +227,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         controls.note(Action.OPERATOR_INTAKE);
         controls.note(Action.UNJAM);
-        controls.on(Action.LAUNCHER_TOGGLE).onPress(this::toggleLauncher);
+        controls.on(Action.LAUNCHER_TOGGLE).onPress(() -> {
+            spunUpBySpot = false; // the operator has the launcher now
+            toggleLauncher();
+        });
         controls.on(Action.LAUNCHER_TRIM_DOWN).onPress(() -> trimLauncher(-1));
         controls.on(Action.LAUNCHER_TRIM_UP).onPress(() -> trimLauncher(+1));
         controls.note(Action.FIRE);
@@ -397,11 +417,15 @@ public class BasicDriveTeleOp extends RobotOpMode {
         double aimDeg = aimer.aimDeg();
         aimErrorDeg = Double.isNaN(aimDeg) ? Double.NaN : aimDeg - robot.turret.angleDegrees();
 
-        // A FLOWER pick or a GARDEN gather drives the robot while held, one at a time; a stick, or
-        // letting go before the dwell, hands it back this loop. Let go in the dwell, it backs out first.
+        // A FLOWER pick, a GARDEN gather or the drive to a launch spot drives the robot while held,
+        // one at a time; a stick, or letting go (for a grab, before the dwell), hands it back this
+        // loop. Let go in a grab's dwell, it backs out first.
         boolean sticksMoved = leftStick || rightStick;
-        picker.update(controls.held(Action.FLOWER_PICK) && !gatherer.active(), sticksMoved);
-        gatherer.update(controls.held(Action.GARDEN_GATHER) && !picker.active(), sticksMoved);
+        picker.update(controls.held(Action.FLOWER_PICK) && !gatherer.active() && !launchSpot.active(), sticksMoved);
+        gatherer.update(controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active(), sticksMoved);
+        launchSpot.update(controls.held(Action.LAUNCH_SPOT) && !grabActive(), setup.alliance(), sticksMoved,
+                controls.held(Action.FIRE));
+        spotLauncher();
         boolean chassisAim = chassisAim(rightStick);
         if (!routineActive()) {
             double turnCommand = chassisAim ? chassisAimTurn() : turn;
@@ -411,6 +435,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
             } else {
                 robot.drive.drive(forward, strafe, turnCommand);
             }
+        }
+        // The pick and the gather run the intake themselves; the drive to a launch spot leaves it
+        // to the people.
+        if (!grabActive()) {
             boolean driverIn = controls.held(Action.INTAKE);
             boolean operatorIn = controls.held(Action.OPERATOR_INTAKE);
             // TeleOpConfig.intakeToggle (on by default): the operator's R2 toggles the intake, which
@@ -427,7 +455,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             setIntake(intakeArbiter.state());
         }
         // The pick or the gather runs the intake itself while it is active.
-        log.put("/Controls/IntakeOwner", routineActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
+        log.put("/Controls/IntakeOwner", grabActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
         log.put("/Controls/TrimDeg", aimer.trimDeg());
         log.put("/Controls/LauncherTrimTps", launcherTrimTps);
         log.put("/Controls/AimErrorDeg", aimErrorDeg);
@@ -447,6 +475,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (!pick.isEmpty()) display.line(pick);
         String gather = gatherer.line();
         if (!gather.isEmpty()) display.line(gather);
+        String spot = launchSpot.line();
+        if (!spot.isEmpty()) display.line(spot);
         if (controls.held(Action.CHASSIS_AIM)) {
             display.line(chassisAimCancelled ? "Chassis aim: cancelled by the right stick (let go to re-arm)"
                     : turretMode == TurretMode.AIM ? "Chassis aim: off while the turret aims (lock it first)"
@@ -496,8 +526,22 @@ public class BasicDriveTeleOp extends RobotOpMode {
      */
     private boolean chassisAim(boolean rightStick) {
         if (!controls.held(Action.CHASSIS_AIM)) {
+            if (chassisAimSinceNs != 0) {
+                // One line per press, to compare with the launch-spot button's (LaunchSpotDrive).
+                log.event(String.format(Locale.US, "chassis aim: let go after %.2f s, aim %s, %s",
+                        (System.nanoTime() - chassisAimSinceNs) / 1e9,
+                        Double.isNaN(aimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f° off", aimErrorDeg),
+                        chassisAimCancelled ? "cancelled by the right stick" : "not cancelled"));
+                chassisAimSinceNs = 0;
+            }
             chassisAimCancelled = false;
             return false;
+        }
+        if (chassisAimSinceNs == 0) {
+            chassisAimSinceNs = System.nanoTime();
+            Pose pose = robot.drive.pose();
+            log.event("chassis aim: pressed at " + (pose == null ? "no pose" : String.format(Locale.US,
+                    "(%.1f, %.1f, %.0f°)", pose.x(), pose.y(), Math.toDegrees(pose.heading()))));
         }
         if (turretMode != TurretMode.LOCKED || chassisAimCancelled || routineActive()) return false;
         if (rightStick) {
@@ -521,9 +565,37 @@ public class BasicDriveTeleOp extends RobotOpMode {
         return Math.max(-max, Math.min(max, turn));
     }
 
+    /**
+     * The launch-spot button's launcher (TeleOpConfig.goToSpotAlsoFires): spun up to the operator's
+     * launch speed and trim as the press starts, the same toggle the operator's button uses, and
+     * idled again when the press ends if the button was what spun it up.
+     */
+    private void spotLauncher() {
+        boolean wants = launchSpot.wantsLauncher();
+        if (wants && !spotPressSeen) {
+            // Once per press, so an operator who idles the launcher mid-press is not overruled.
+            spotPressSeen = true;
+            if (!launchMode) {
+                toggleLauncher();
+                spunUpBySpot = true;
+            }
+        } else if (!wants) {
+            spotPressSeen = false;
+            if (spunUpBySpot) {
+                spunUpBySpot = false;
+                if (launchMode) toggleLauncher();
+            }
+        }
+    }
+
     /** A FLOWER pick or a GARDEN gather is driving the robot and running the intake. */
-    private boolean routineActive() {
+    private boolean grabActive() {
         return picker.active() || gatherer.active();
+    }
+
+    /** A grab or the drive to a launch spot is driving the robot: the sticks wait. */
+    private boolean routineActive() {
+        return grabActive() || launchSpot.active();
     }
 
     private void setIntake(IntakeSubsystem.State state) {
@@ -550,6 +622,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private void fire() {
         boolean fireHeld = controls.held(Action.FIRE);
         boolean pressed = fireHeld && !lastFire;
+        if (pressed) spunUpBySpot = false; // the operator's shot: the launcher stays theirs
         if (pressed && !launchMode && !unjamHeld()) {
             toggleLauncher();
             spunUpByFire = true;
@@ -563,9 +636,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         lastFire = fireHeld;
         // requestFor's "at speed" is the enforced gates' verdict here, and it is always required:
-        // with nothing enforced the gates are always open.
-        FeederSubsystem.State feed = FeederSubsystem.requestFor(fireHeld, unjamHeld(),
-                open, true, robot.feeder.state() == FeederSubsystem.State.FEED);
+        // with nothing enforced the gates are always open. The launch-spot button's volley feeds
+        // through the same request: it has already waited for speed and settle as an Auto's
+        // LaunchAll does (SpotVolley), and the operator's FIRE, which it yields to, comes first.
+        boolean spotFeed = !fireHeld && launchSpot.feedRequested();
+        FeederSubsystem.State feed = FeederSubsystem.requestFor(fireHeld || spotFeed, unjamHeld(),
+                fireHeld ? open : spotFeed, true, robot.feeder.state() == FeederSubsystem.State.FEED);
         switch (feed) {
             case FEED:
                 robot.feeder.feed();
@@ -711,7 +787,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("trim_deg", aimer.trimDeg());
             panels.addData("gate_speed", gates.verdict(FireGates.Gate.LAUNCHER_AT_SPEED).ordinal());
             panels.addData("gate_aim", gates.verdict(FireGates.Gate.AIM_ON_TARGET).ordinal());
-            panels.addData("intake_owner", routineActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
+            panels.addData("intake_owner", grabActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
             // How far the shadow pose (what still fixes would do) sits from the real one; graph it.
             panels.addData("shadow_offset_in", robot.drive.shadow().offsetIn());
             panels.addData("loop_ms", loopTimer.lastMs());
