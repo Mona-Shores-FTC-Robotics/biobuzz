@@ -1056,6 +1056,15 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   from any range: a shot at a down CELL is a wasted preload, counted in the results, where it
   used to hold fire and time out holding 4. StreamOn, which master's Autos do not use, still holds
   fire for a raised CELL in range.
+- **The GARDEN.** Each alliance's GARDEN is in the simulator as the manual has it (TU03 §9: about 23 in by 2
+  in, along the audience wall from the red-side wall for red, blue's turned half a turn), with its 4 POLLEN in
+  a line from that corner, where the field model stages them. A `GardenGather` card runs master's
+  `GardenGather` routine from where it is called, with GardenGather's own numbers: intake on, a drive in at
+  `inSpeed` to `GardenFieldPoints`' gather pose (plus `extraDepthIn`, `towardWallIn`; the walls stop the
+  frame), a `dwellMs` dwell, and a drive back at `backSpeed`. It takes what the intake touches. **Measured:**
+  the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
+  whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (6 s, not yet timed from an
+  Auto); the FLOWER stick, which goes down on the robot's gather, is not modelled in the GARDEN.
 - **Results.** Each partner run gets its own folder, `<partner .pp name>/<timing name>/`, with its
   `result.json` and logs, and the top `result.json` carries `entries`: one row per run with the
   points, our launches (and how many went at a down CELL), the TIPs and when, the partner's last

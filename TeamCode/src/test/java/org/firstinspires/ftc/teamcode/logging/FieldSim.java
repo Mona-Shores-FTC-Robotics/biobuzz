@@ -923,6 +923,24 @@ final class FieldSim {
     }
 
     /**
+     * A GARDEN (manual TU03 §9, Figure 9-2): about 23 in by 2 in, inside the tape's outside edge, along the audience
+     * wall from the red-side wall for red, and blue's turned half a turn about the centre (the back wall from the
+     * blue-side wall). Its 4 POLLEN start in a line in it from that corner (§10.2.A, "contacting the audience or rear
+     * perimeter wall"), which the field model's staged pieces put at y 1.48, x 1.48 to 10.15. GARDEN points count only
+     * at the end of TELEOP (§10.2.E), so in AUTO the GARDEN is where pieces are, not a score.
+     */
+    static final double GARDEN_LENGTH_IN = 23.0;
+    static final double GARDEN_DEPTH_IN = 2.0;
+
+    /** Whether (x, y) is in a GARDEN, and whose: RED, BLUE or null. */
+    static Alliance garden(double x, double y) {
+        if (x >= 0 && x <= GARDEN_LENGTH_IN && y >= 0 && y <= GARDEN_DEPTH_IN) return Alliance.RED;
+        double fx = FIELD_SIZE_IN - x, fy = FIELD_SIZE_IN - y;
+        if (fx >= 0 && fx <= GARDEN_LENGTH_IN && fy >= 0 && fy <= GARDEN_DEPTH_IN) return Alliance.BLUE;
+        return null;
+    }
+
+    /**
      * Whether a robot footprint point at {@code (x, y)} is in the HIVE frame's feet: the bars along
      * its two sides, the only part a robot under 25.5 in tall cannot drive through.
      */
