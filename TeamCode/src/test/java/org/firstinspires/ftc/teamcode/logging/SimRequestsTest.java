@@ -37,6 +37,9 @@ public class SimRequestsTest {
         File teamCode = TeamCodeDir.get();
         File autos = new File(teamCode, "autos");
         File partners = new File(autos, "partners");
+        // Drafts (TeamCode/autos/drafts/, the 3-TIP pairs): a draft's request names its .pp there, and its partner
+        // may be the other draft of its pair, so the pair simulates together before either is an Auto we run.
+        File drafts = new File(autos, "drafts");
         File[] files = new File(teamCode, "sim-requests").listFiles((d, n) -> n.endsWith(".json"));
         assertTrue("TeamCode/sim-requests/ is missing or empty", files != null && files.length > 0);
 
@@ -51,11 +54,13 @@ public class SimRequestsTest {
                 problems.add(file.getName() + ": not JSON (" + e.getMessage() + ")");
                 continue;
             }
-            // The request is the Auto's own: its .pp beside it in TeamCode/autos/, under the same name.
-            if (!("TeamCode/autos/" + name + ".pp").equals(request.get("pp"))) {
-                problems.add(file.getName() + ": pp should be TeamCode/autos/" + name + ".pp, not " + request.get("pp"));
+            // The request is the Auto's own: its .pp beside it in TeamCode/autos/ (or drafts/), under the same name.
+            boolean draft = new File(drafts, name + ".pp").isFile();
+            String folder = draft ? "TeamCode/autos/drafts/" : "TeamCode/autos/";
+            if (!(folder + name + ".pp").equals(request.get("pp"))) {
+                problems.add(file.getName() + ": pp should be " + folder + name + ".pp, not " + request.get("pp"));
             }
-            if (!new File(autos, name + ".pp").isFile()) {
+            if (!draft && !new File(autos, name + ".pp").isFile()) {
                 problems.add(file.getName() + ": there is no TeamCode/autos/" + name + ".pp; a request belongs to an Auto we run");
             }
             String spec = (String) request.get("spec");
@@ -103,7 +108,7 @@ public class SimRequestsTest {
                 }
                 // A partner is a stand-in from TeamCode/autos/partners/, never one of the Autos we run.
                 String source = (String) Class.forName(AutoStudyTest.PKG + partnerClass).getField("SOURCE").get(null);
-                if (!new File(partners, source).isFile()) {
+                if (!new File(partners, source).isFile() && !(draft && new File(drafts, source).isFile())) {
                     problems.add(file.getName() + ": partner " + partnerClass + " comes from " + source
                             + ", which is not in TeamCode/autos/partners/ (a partner is a stand-in, not an Auto we run)");
                 }
