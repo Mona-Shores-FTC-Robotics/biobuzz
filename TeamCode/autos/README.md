@@ -253,7 +253,7 @@ they came from.
 
 - **A fact's `source` says how sure it is**: `measured, <robot>, <dates>`, or `estimate`. The
   `note` is one line, shown under the fact in the dialog; the longer story goes below.
-- **Where the measured facts came from** (20245, the 29 Oct to 2 Nov 2026 logs on the `logs/*`
+- **Where the measured facts came from** (20245, the 29 Oct to 3 Nov 2026 logs on the `logs/*`
   branches; each note in the file is the one-line version):
   - `driveSpeed` 1.0: logged drive time against the export's `kit.path` seconds. 2 Nov R-Quals
     (12.76 V) ran its three drives at 0.98, 1.05 and 1.25, and R-Simple's park at 0.83. 1 Nov
@@ -268,6 +268,11 @@ they came from.
   - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
     lane latched full 0.44 s after its last spike, 1.43 s in.
+  - `tipStartS` 1.0: the two TIPs our own preload volleys made on 3 Nov 2026 (R-Solo 17:59,
+    R-Partner-Tip 18:06; 3 NECTAR plus four POLLEN, as `startLoad` and `tipLoad` say). The camera
+    first read TRANSITION 0.91 and 1.08 s after the LaunchAll ended (its gate closed), which was
+    1.9 to 2.8 s after the last ball left. The camera sees a swing late, so this errs late. The
+    17:59 TIP was confirmed: the camera saw the left CELL up at `LEFT_LAUNCH_OFFSET`.
   - `tipSwingS` 0.7 (estimate): the camera saw two swings, both tipped by hand (1 Nov 23:16, 2 Nov
     16:51), 0.57 and 0.43 s from TRANSITION to settled. It sees a swing late.
   - `partnerTipLagS` 4.0 (estimate): from the partner's last shot leaving to our `CellUp`: the flight
