@@ -62,8 +62,8 @@ import java.util.Locale;
  * <p>The turret starts every OpMode LOCKED straight ahead; the operator's lock button switches it
  * to AIM at our CELL ({@link TurretAimer}: left half of the field, left CELL; right half, right
  * CELL). While LOCKED, the driver's chassis aim turns the whole robot onto the same CELL; or,
- * experimentally, the driver's launch-spot button drives it to the nearest launch spot on the
- * half whose CELL is up and arrives aimed ({@link LaunchSpotDrive}). The
+ * experimentally, the driver's launch-spot button drives it to the nearest launch spot and
+ * arrives aimed at that half's CELL ({@link LaunchSpotDrive}). The
  * operator's trim nudges either one and stays until reset. It zeroes itself, assuming it starts a
  * match at its home mark, or taking the Auto's zero when an Auto just ran
  * ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy}); the zero button always

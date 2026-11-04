@@ -206,13 +206,14 @@ measurement is [#255].
       shows and hides its robot. [PR #356], [PR #307]
 - [ ] **Go to launch spot (driver Square, hold) vs chassis aim (Circle):** pose set (corner or
       camera reset), the drivers try both from around the field over a practice, firing from where
-      each leaves them; then from one half to the other with the other CELL up, watching the
-      straight path's clearance from the HIVE frame (let go if it heads for a leg). **Good:**
-      arrives aimed (`launch spot: arrived … in N s, X in and Y° off`), shots land; the drivers say
-      which they prefer. Compare the match log's `launch spot:` events with its `chassis aim:`
-      ones.
-      **Stop:** it refuses with the pose set, or clips the HIVE → `TeleOpConfig.launchSpot` off and
-      note where. [PR #423]
+      each leaves them. It goes to the nearest of six spots (the two starts and the four
+      CATCH/OFFSET spots); press it once near each start: it stops `LaunchSpotDrive.startOffWallIn`
+      (3) off the wall, aimed at the CELL. From beside the HIVE, watch the straight path's clearance
+      from the frame (let go if it heads for a leg). **Good:** arrives aimed (`launch spot: arrived
+      … in N s, X in and Y° off`), shots land, never touches the wall; the drivers say which they
+      prefer. Compare the match log's `launch spot:` events with its `chassis aim:` ones.
+      **Stop:** it refuses with the pose set, or clips the HIVE or the wall →
+      `TeleOpConfig.launchSpot` off and note where. [PR #423]
 - [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
       view now and then; read `/Drift/GapXIn` and `/Drift/GapYIn` (camera minus odometry) over the
       run. **Good:** the gap stays within a few inches, so a launch spot driven late in the match is

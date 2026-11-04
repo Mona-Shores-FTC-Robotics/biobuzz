@@ -4,145 +4,153 @@ import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
-import org.firstinspires.ftc.teamcode.vision.HiveState;
+import org.firstinspires.ftc.teamcode.vision.HiveCell;
+import org.firstinspires.ftc.teamcode.vision.HiveCellState;
+import org.firstinspires.ftc.teamcode.vision.Vec3;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
- * The four launch spots the Autos fire from, for the TeleOp's "go to launch spot" button, and which
- * one to go to ({@link #choose}).
+ * The six spots the TeleOp's "go to launch spot" button may drive to, and which one
+ * ({@link #choose}): always the one nearest the robot when the button is pressed. Never one chosen
+ * from what the camera believes about the HIVE: the field gets crowded, and the driver stays near
+ * where they are (mentor, 4 Nov 2026).
  *
- * <p>Each is a team spot ({@code TeamCode/autos/spots.json}, drawn for red in the Visualizer), with
- * the heading the Autos launch at: one CATCH in front of each of our CELLs, just outside where its
- * spill lands, and one OFFSET off to the side and angled at it ({@code TeamCode/autos/README.md}).
- * RIGHT_ and LEFT_ are the CELL each serves, as our drive team sees it, so after the half turn for
- * blue a RIGHT_ spot still serves blue's RIGHT CELL. There is no generated robot-side copy of the
- * spots, so the numbers are here, and {@code TeamSpotsTest} fails while one differs from its spot:
- * move a spot in the Visualizer (Save team spots), then here.
+ * <p>Each is a team spot ({@code TeamCode/autos/spots.json}, drawn for red), turned half a turn
+ * about the field centre for blue:
+ * <ul>
+ *   <li>The two starts, {@code RIGHT_START} and {@code LEFT_START}, which are also our preload
+ *       launch spots: read from {@link StartPositions}, where they are measured. A start is on the
+ *       wall, back against it, so the button stops {@code offWallIn} out from it along the start's
+ *       facing, and turns to face the raised row of that half's CELL ({@link HiveFieldPoints}).</li>
+ *   <li>The four launch spots the Autos fire from, a CATCH in front of each of our CELLs and an
+ *       OFFSET off to its side ({@code TeamCode/autos/README.md}), at the heading the Autos launch
+ *       at. No generated robot-side copy of these exists, so their numbers are here, and
+ *       {@code TeamSpotsTest} fails while one differs from its team spot: move a spot in the
+ *       Visualizer (Save team spots), then here.</li>
+ * </ul>
+ *
+ * <p>Each CELL is scored only from its own half, and every spot is on its CELL's half: RIGHT_ spots
+ * are below the axle line for red (our RIGHT CELL), LEFT_ above, so after the half turn a RIGHT_
+ * spot still serves blue's RIGHT CELL.
  */
 public final class LaunchSpots {
 
     private LaunchSpots() {
     }
 
-    /** A launch spot, drawn for red: x, y inches, heading degrees, Pedro field frame. */
+    /** A spot, drawn for red. */
     public enum Spot {
-        RIGHT_LAUNCH_CATCH(false, 57.5, 18, 91.9),
-        RIGHT_LAUNCH_OFFSET(false, 41, 20, 68.7),
-        LEFT_LAUNCH_CATCH(true, 57.5, 123.5, 273.4),
-        LEFT_LAUNCH_OFFSET(true, 41, 121.5, 296.4);
+        RIGHT_START(StartPositions.RED_AUDIENCE),
+        RIGHT_LAUNCH_CATCH(57.5, 18, 91.9),
+        RIGHT_LAUNCH_OFFSET(41, 20, 68.7),
+        LEFT_START(StartPositions.RED_FAR),
+        LEFT_LAUNCH_CATCH(57.5, 123.5, 273.4),
+        LEFT_LAUNCH_OFFSET(41, 121.5, 296.4);
 
-        /** Serves our LEFT CELL (else the RIGHT one). */
-        public final boolean left;
-        /** As drawn, for red. */
+        /** As drawn, for red: the team spot itself (for a start, on the wall). */
         public final Pose red;
+        /** A start on the wall: driven to {@code offWallIn} out from it, aimed at the CELL. */
+        public final boolean onWall;
+        /** Serves our LEFT CELL (else the RIGHT one): which half of the axle line it is on. */
+        public final boolean left;
 
-        Spot(boolean left, double x, double y, double headingDeg) {
-            this.left = left;
-            this.red = new Pose(x, y, Math.toRadians(headingDeg));
+        Spot(double x, double y, double headingDeg) {
+            this(new Pose(x, y, Math.toRadians(headingDeg)), false);
         }
 
-        /** Where this spot is for {@code alliance}: as drawn for red, turned half a turn about the centre for blue. */
-        public Pose pose(Alliance alliance) {
-            if (alliance != Alliance.BLUE) return red;
-            double c = FieldFrame.FIELD_CENTRE_INCHES;
-            return new Pose(2 * c - red.x(), 2 * c - red.y(), red.heading() + Math.PI);
+        Spot(StartPosition start) {
+            this(start.pose, true);
         }
-    }
 
-    /** Why a spot was chosen. */
-    public enum Why {
-        /** Our HIVE's tracker says that half's CELL is up. */
-        CELL_UP("CELL up"),
-        /** The tracker does not know (UNSEEN, or mid-TIP): the half the robot is on. */
-        NEAREST("CELL unknown, nearer half");
+        Spot(Pose red, boolean onWall) {
+            this.red = red;
+            this.onWall = onWall;
+            this.left = leftHalf(Alliance.RED, red.y());
+        }
 
-        public final String text;
-
-        Why(String text) {
-            this.text = text;
+        /**
+         * Where the button drives for {@code alliance}: the spot, or for a start {@code offWallIn}
+         * out from it facing the raised row of its half's CELL; worked out for red and turned half a
+         * turn about the field centre for blue. A NaN or negative {@code offWallIn} is 0.
+         */
+        public Pose target(Alliance alliance, double offWallIn) {
+            Pose p = red;
+            if (onWall) {
+                double out = offWallIn > 0.0 ? offWallIn : 0.0;
+                double x = red.x() + out * Math.cos(red.heading());
+                double y = red.y() + out * Math.sin(red.heading());
+                HiveCell cell = left ? HiveCell.leftCell(Alliance.RED) : HiveCell.rightCell(Alliance.RED);
+                Vec3 row = HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+                double heading = row == null ? red.heading() : Math.atan2(row.y() - y, row.x() - x);
+                p = new Pose(x, y, heading);
+            }
+            return alliance == Alliance.BLUE ? turned(p) : p;
         }
     }
 
     /** What {@link #choose} decided: a spot, or a refusal (then {@link #spot} is null). */
     public static final class Choice {
         public final Spot spot;
-        /** The spot for our alliance; null with a refusal. */
+        /** Where the drive goes, for our alliance; null with a refusal. */
         public final Pose target;
-        public final Why why;
-        /** The HIVE state the choice was made from. */
-        public final HiveState hive;
+        /** From the robot to {@link #target}, inches; NaN with a refusal. */
+        public final double distanceIn;
         /** Why nothing is driven, for the Driver Station and the log; null when a spot was chosen. */
         public final String refusal;
 
-        private Choice(Spot spot, Pose target, Why why, HiveState hive, String refusal) {
+        private Choice(Spot spot, Pose target, double distanceIn, String refusal) {
             this.spot = spot;
             this.target = target;
-            this.why = why;
-            this.hive = hive;
+            this.distanceIn = distanceIn;
             this.refusal = refusal;
         }
 
-        static Choice refuse(String why, HiveState hive) {
-            return new Choice(null, null, null, hive, why);
+        static Choice refuse(String why) {
+            return new Choice(null, null, Double.NaN, why);
         }
 
         public boolean refused() {
             return refusal != null;
         }
 
-        /** "RIGHT_LAUNCH_CATCH (CELL up, RIGHT_CELL_UP)", or the refusal. */
+        /** "RIGHT_LAUNCH_CATCH (nearest, 23 in)", or the refusal. */
         @Override
         public String toString() {
             return refused() ? "refused: " + refusal
-                    : String.format(Locale.US, "%s (%s, %s)", spot, why.text, hive);
+                    : String.format(Locale.US, "%s (nearest, %.0f in)", spot, distanceIn);
         }
     }
 
     /**
-     * Which launch spot to drive to, and why; a pure function of what the robot knows.
-     *
-     * <ul>
-     *   <li>Refused without a pose, with a pose that is not referenced (field coordinates would mean
-     *       nothing), with no alliance, or with the robot on or past the centre line: never drive
-     *       across it. Both ends of a straight drive on our side of the line are on our side, so
-     *       the drive stays there.</li>
-     *   <li>The half: the one whose CELL of our HIVE is up ({@code hive}, our HIVE's tracker: each
-     *       CELL can only be scored from its own half); if the tracker does not say, the half the
-     *       robot is on, by the HIVE's axle line ({@link HiveFieldPoints#AXLE_Y_IN}).</li>
-     *   <li>On that half, the nearer of its CATCH and its OFFSET.</li>
-     * </ul>
+     * Which spot to drive to; a pure function of what the robot knows. Refused without a pose, with
+     * a pose that is not referenced (field coordinates would mean nothing), with no alliance, or with
+     * the robot on or past the centre line: never drive across it. Every spot is on our side, and a
+     * straight drive between two points on our side stays there. Otherwise the spot whose
+     * {@link Spot#target} is nearest the robot.
      */
-    public static Choice choose(Pose pose, boolean referenced, Alliance alliance, HiveState hive) {
-        if (pose == null) return Choice.refuse("no pose (no Pinpoint)", hive);
-        if (!referenced) {
-            return Choice.refuse("pose not on the field yet (corner reset or camera reset first)", hive);
-        }
-        if (alliance != Alliance.RED && alliance != Alliance.BLUE) return Choice.refuse("no alliance", hive);
+    public static Choice choose(Pose pose, boolean referenced, Alliance alliance, double offWallIn) {
+        if (pose == null) return Choice.refuse("no pose (no Pinpoint)");
+        if (!referenced) return Choice.refuse("pose not on the field yet (corner reset or camera reset first)");
+        if (alliance != Alliance.RED && alliance != Alliance.BLUE) return Choice.refuse("no alliance");
         if (!onOurSide(alliance, pose.x())) {
-            return Choice.refuse("robot on the other alliance's side of the centre line", hive);
-        }
-        boolean left;
-        Why why;
-        if (hive == HiveState.LEFT_CELL_UP || hive == HiveState.RIGHT_CELL_UP) {
-            left = hive == HiveState.LEFT_CELL_UP;
-            why = Why.CELL_UP;
-        } else {
-            left = leftHalf(alliance, pose.y());
-            why = Why.NEAREST;
+            return Choice.refuse("robot on the other alliance's side of the centre line");
         }
         Spot best = null;
+        Pose bestTarget = null;
         double bestIn = Double.POSITIVE_INFINITY;
         for (Spot spot : Spot.values()) {
-            if (spot.left != left) continue;
-            Pose p = spot.pose(alliance);
-            double d = Math.hypot(p.x() - pose.x(), p.y() - pose.y());
+            Pose t = spot.target(alliance, offWallIn);
+            double d = Math.hypot(t.x() - pose.x(), t.y() - pose.y());
             if (d < bestIn) {
                 best = spot;
+                bestTarget = t;
                 bestIn = d;
             }
         }
-        return new Choice(best, best.pose(alliance), why, hive, null);
+        return new Choice(best, bestTarget, bestIn, null);
     }
 
     /** The robot's centre is strictly on {@code alliance}'s side of the centre line (red: low x). */
@@ -159,11 +167,18 @@ public final class LaunchSpots {
         return alliance == Alliance.BLUE ? !scoringEnd : scoringEnd;
     }
 
-    /** The team spot names, for {@code TeamSpotsTest}. */
-    static String[] teamSpots() {
-        Spot[] spots = Spot.values();
-        String[] names = new String[spots.length];
-        for (int i = 0; i < spots.length; i++) names[i] = spots[i].name();
-        return names;
+    /** {@code p} turned half a turn about the field centre: red's pose to blue's. */
+    static Pose turned(Pose p) {
+        double c = FieldFrame.FIELD_CENTRE_INCHES;
+        return new Pose(2 * c - p.x(), 2 * c - p.y(), p.heading() + Math.PI);
+    }
+
+    /** The spots whose numbers are written here (not read from a start), for {@code TeamSpotsTest}. */
+    static Spot[] writtenHere() {
+        List<Spot> spots = new ArrayList<>();
+        for (Spot spot : Spot.values()) {
+            if (!spot.onWall) spots.add(spot);
+        }
+        return spots.toArray(new Spot[0]);
     }
 }
