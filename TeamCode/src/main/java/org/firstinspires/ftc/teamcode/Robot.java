@@ -122,6 +122,10 @@ public class Robot {
                 || intake.requested() == IntakeSubsystem.State.IN);
         prefeed = new PrefeedSubsystem(hardwareMap, intake, feeder);
         feedGate = new FeedGateSubsystem(hardwareMap, feeder);
+        // A dip is a shot only with the gate open. The gate updates after the launcher, so this is
+        // last loop's gate: one loop late at either edge, against about 0.7 s from the gate
+        // opening to a piece reaching the wheels (log of 4 Nov 2026).
+        launcher.countShotsWhile(() -> feedGate.state() == FeedGateSubsystem.State.FEEDING);
         // After the drive and the hive: an aim this loop uses this loop's pose and HIVE state.
         turret = new TurretSubsystem(hardwareMap);
         indicator = new IndicatorSubsystem(hardwareMap);

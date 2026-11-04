@@ -127,7 +127,7 @@ public class LauncherSubsystemTest {
     private static boolean at(ShotDetector d, double measured) {
         double deficit = LauncherSubsystem.deficit(TARGET, measured, TARGET, measured);
         boolean within = Math.abs(measured - TARGET) <= 60.0;
-        return d.update(deficit, within, TARGET, DIP);
+        return d.update(deficit, deficit, within, true, TARGET, DIP);
     }
 
     @Test
@@ -167,13 +167,22 @@ public class LauncherSubsystemTest {
     }
 
     @Test
-    public void twoDipsAreTwoShotsAndOnlyTheSlowerWheelNeedsToDip() {
+    public void twoDipsAreTwoShotsAndBothWheelsMustDip() {
         ShotDetector d = new ShotDetector();
         at(d, 1500);
         at(d, 1200); assertTrue(at(d, 1500));
-        // Right wheel alone drops: still a dip.
-        assertFalse(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1250), false, TARGET, DIP));
-        assertTrue(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1480), true, TARGET, DIP));
+        // Right wheel alone drops: not a dip.
+        assertFalse(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1250),
+                LauncherSubsystem.bothDeficit(TARGET, 1500, TARGET, 1250), false, true, TARGET, DIP));
+        assertFalse(d.inDip());
+        assertFalse(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1480),
+                LauncherSubsystem.bothDeficit(TARGET, 1500, TARGET, 1480), true, true, TARGET, DIP));
+        assertEquals(1, d.shots());
+        // Both past the threshold, unevenly: a dip, recorded at the slower wheel's depth.
+        assertFalse(d.update(LauncherSubsystem.deficit(TARGET, 1300, TARGET, 1250),
+                LauncherSubsystem.bothDeficit(TARGET, 1300, TARGET, 1250), false, true, TARGET, DIP));
+        assertTrue(d.update(LauncherSubsystem.deficit(TARGET, 1480, TARGET, 1490),
+                LauncherSubsystem.bothDeficit(TARGET, 1480, TARGET, 1490), true, true, TARGET, DIP));
         assertEquals(2, d.shots());
         assertEquals(250.0, d.lastDipTicksPerSecond(), EPS);
     }
@@ -191,6 +200,115 @@ public class LauncherSubsystemTest {
         assertFalse(at(d, 1500));
         at(d, 1200); assertTrue(at(d, 1500));
         assertEquals(1, d.shots());
+    }
+
+    // The dip shapes of the match log of 4 Nov 2026 (20245, 00:02 Basic Drive), target 1595,
+    // threshold 70 and tolerance 60 as on the robot, one sample per ~40 ms loop as logged.
+    private static final double LOG_TARGET = 1595.0;
+    private static final double LOG_DIP = 70.0;
+
+    /** One loop at the log's settings: the two wheels' speeds and whether the gate is open. */
+    private static boolean logged(ShotDetector d, double left, double right, boolean gateOpen) {
+        double deficit = LauncherSubsystem.deficit(LOG_TARGET, left, LOG_TARGET, right);
+        double both = LauncherSubsystem.bothDeficit(LOG_TARGET, left, LOG_TARGET, right);
+        boolean within = Math.abs(left - LOG_TARGET) <= 60.0 && Math.abs(right - LOG_TARGET) <= 60.0;
+        return d.update(deficit, both, within, gateOpen, LOG_TARGET, LOG_DIP);
+    }
+
+    /** Drives a shape through the detector, both wheels the same speed; returns the shots counted. */
+    private static int sameOnBoth(ShotDetector d, boolean gateOpen, double... speeds) {
+        int before = d.shots();
+        for (double v : speeds) logged(d, v, v, gateOpen);
+        return d.shots() - before;
+    }
+
+    @Test
+    public void theIntakesSlowSagWithTheGateShutIsNotAShot() {
+        // 62.95 s, 1660.15 s, 1695.55 s: a NECTAR stalls the intake, gate shut, feeder unloaded, and
+        // both wheels sag 80–100 together over about 0.3 s and come back.
+        ShotDetector d = new ShotDetector();
+        assertEquals(0, sameOnBoth(d, false, 1600, 1595, 1580, 1560, 1540, 1520, 1500, 1495, 1510, 1540, 1570, 1590));
+        assertFalse(d.inDip());
+        // The 1509 s shape: the gate shut 0.2 s before, the same slow sag.
+        assertEquals(0, sameOnBoth(d, false, 1600, 1580, 1560, 1540, 1520, 1540, 1560, 1580, 1600));
+        assertEquals(0, d.shots());
+    }
+
+    @Test
+    public void oneWheelDippingWithTheGateShutIsNotAShot() {
+        // 207.38 s and 207.91 s: the left wheel alone fell about 200, the right unchanged, gate shut.
+        ShotDetector d = new ShotDetector();
+        logged(d, 1595, 1595, false);
+        for (double left : new double[] {1520, 1430, 1395, 1440, 1520, 1570, 1600}) logged(d, left, 1595, false);
+        logged(d, 1595, 1595, false);
+        for (double left : new double[] {1500, 1375, 1420, 1500, 1580}) logged(d, left, 1595, false);
+        assertEquals(0, d.shots());
+        assertFalse(d.inDip());
+    }
+
+    @Test
+    public void aFedShotsSharpDipIsStillOneShot() {
+        // A real shot: gate open, both wheels fall 150–200 within a loop or two and recover.
+        ShotDetector d = new ShotDetector();
+        assertEquals(1, sameOnBoth(d, true, 1600, 1595, 1440, 1400, 1470, 1530, 1580, 1600));
+        assertEquals(195.0, d.lastDipTicksPerSecond(), EPS);
+        // The most uneven real shot in the log (1677.13 s): left 160, right 240 down. Still one.
+        logged(d, 1435, 1355, true);
+        logged(d, 1500, 1460, true);
+        logged(d, 1590, 1600, true);
+        assertEquals(2, d.shots());
+        assertEquals(240.0, d.lastDipTicksPerSecond(), EPS);
+    }
+
+    /** Drives (left, right) pairs through the detector with the gate open; returns the shots counted. */
+    private static int fed(ShotDetector d, double... leftRight) {
+        int before = d.shots();
+        for (int i = 0; i < leftRight.length; i += 2) logged(d, leftRight[i], leftRight[i + 1], true);
+        return d.shots() - before;
+    }
+
+    @Test
+    public void theWheelsWobblingWhileABallPressesOnThemIsNotAShot() {
+        // 134.31–135.48 s, gate open, feeder current climbing 2.3 → 6.7 A: the left sags while the
+        // right holds, then the right while the left holds. Three shots were counted here.
+        ShotDetector d = new ShotDetector();
+        assertEquals(0, fed(d, 1620, 1580, 1600, 1600, 1580, 1620, 1560, 1620,
+                1520, 1620, 1540, 1620, 1540, 1600, 1560, 1600,
+                1580, 1560, 1600, 1540, 1600, 1520, 1600, 1540,
+                1580, 1500, 1580, 1480, 1560, 1500, 1560, 1520, 1560, 1540,
+                1600, 1560, 1620, 1600, 1620, 1620, 1580, 1640, 1600, 1660, 1580, 1640));
+        assertFalse(d.inDip());
+        // 135.52 s: the ball is taken, both wheels 280 down at once. One shot.
+        assertEquals(1, fed(d, 1320, 1400, 1300, 1320, 1380, 1360, 1460, 1420, 1540, 1480, 1620, 1560));
+        assertEquals(295.0, d.lastDipTicksPerSecond(), EPS);
+    }
+
+    @Test
+    public void theShallowSagBeforeAFedShotIsNotAShot() {
+        // 1701.15 s and 1701.22 s (target 1620 there; here 25 lower): feeder loaded at 6 A, the wheels
+        // hover 60 and 80 under target and two shots were counted. Then the real one at 1701.64 s.
+        ShotDetector d = new ShotDetector();
+        assertEquals(0, fed(d, 1575, 1555, 1555, 1555, 1535, 1515, 1555, 1535,
+                1555, 1535, 1555, 1515, 1575, 1535, 1595, 1575, 1595, 1595));
+        assertEquals(1, fed(d, 1555, 1555, 1395, 1395, 1435, 1415, 1475, 1475, 1515, 1495, 1575, 1555));
+    }
+
+    @Test
+    public void aDipThatStartsWithTheGateOpenCountsEvenIfItShutsBeforeRecovery() {
+        ShotDetector d = new ShotDetector();
+        logged(d, 1595, 1595, true);
+        logged(d, 1420, 1410, true);              // the piece hits with the gate open
+        logged(d, 1450, 1450, false);             // the driver lets go: the gate shuts mid-dip
+        assertTrue(logged(d, 1580, 1590, false)); // recovered: still the fed piece's shot
+        assertEquals(1, d.shots());
+    }
+
+    @Test
+    public void aGateShutDipDoesNotSpoilTheNextFedShot() {
+        ShotDetector d = new ShotDetector();
+        logged(d, 1595, 1595, false);
+        sameOnBoth(d, false, 1540, 1500, 1510, 1590);   // the intake's sag: ignored
+        assertEquals(1, sameOnBoth(d, true, 1600, 1420, 1470, 1590));
     }
 
     @Test

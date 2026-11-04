@@ -10,6 +10,54 @@ Built 3 Nov 2026 for the mentor's lab visit, from `doc/robot-session-1.md` to `-
 was ever ticked**, so nothing here is assumed done. Where the repo has evidence that an item already
 ran, the line says *likely done* and why: strike it if so.
 
+Trimmed 4 Nov against every 20245 match log from 29 Oct to 4 Nov 00:48: the lines the logs confirm
+are gone, and the PR that removed them lists each one with its log evidence. That last log ran the
+build of PR #417, so **nothing merged after it (#422 onward) has run on a robot yet**.
+
+## Two robot nights before driver practice: only these
+
+Two lab nights are left, then driver practice, then the event. The plan, agreed with the Auto
+strategy session on 4 Nov: make the volleys reliable, run the competition Autos until they are
+boring, and freeze the code after night 2 (only numbers change after that). Everything not listed
+here waits until after the event.
+
+**Night 1: the launcher, then R-Solo.**
+
+1. Full TeamCode install, then Check: Hardware and the Pinpoint cable (§0, §1).
+2. Launcher PIDF (§7c): baseline, F, P, then real shots; 1–1.5 h. Every shot in every OpMode
+   depends on it. Film the real-shot volleys and write down count against video: that is §7c's
+   shot-count check, done in the same volleys. Change no code from it before the event.
+3. R-Solo five times or more, the rebuilt one (branch `claude/bold-ptolemy-aabda1` until it
+   merges): TIP 1 from the start, the wall FLOWER, then a CellUp check at LEFT_LAUNCH_OFFSET (at
+   most 0.75 s). Up: LEFT volley, scoring FLOWER, LEFT volley (TIP 2), park RIGHT_PARK. Down:
+   RIGHT_LAUNCH_OFFSET, fire, park. Count TIP 1, TIP 2 and the park on each run, and note when
+   TIP 2's last ball leaves: the preview says about 27 s, and the check adds 0.6–1 s it does not
+   show, so the park may be skipped for TIP 2. Run half with `LaunchCards.launchOnApproach` on and
+   half off, and judge it only on the volley after the scoring FLOWER: the checked volley stops and
+   settles either way. Not clearly as good on → set it false for the event. Same runs:
+   `FlowerPicker.lowerWithinIn` 24 (§3's WALL FLOWER stick line, a number, not code). Every pick card
+   is now limited to 4.5 s (was 8; logged picks took 1.8–3.7 s): note any pick that hits the limit.
+
+**Night 2: the partner Autos, 19429 as the partner if it is at the lab.**
+
+4. R-Partner-Preload, the rebuilt one: TIP 1, the wall FLOWER, wait there until 12 s on the match
+   clock, then the same LEFT check. Up: LEFT volley (TIP 2 with the partner's 4), scoring FLOWER,
+   park holding 4. Down: RIGHT, fire, park. Out of the partner's way about 24.5 s. 19429 as the
+   partner, twice: parked by about 13 s, then waiting on its start until 26 s and parking (the
+   match sheet's wording). **Good:** no contact, watched hardest near LEFT_LAUNCH_OFFSET and the
+   scoring FLOWER. **Stop:** contact → note the match time and both poses; it is a Visualizer fix.
+   The 12 s wait shows as an advanced card in the Visualizer (its trigger, Empty, never fires there).
+5. R-Partner-Tip only if 19429 can do the whole left TIP; otherwise skip it.
+6. The push for R-Solo-Nudge, 15 min (§3 "push a powered-off robot"). Works → Nudge is in; not →
+   the match sheet's row A stays R-Solo.
+7. In the drivers' practice that night: drive speeds (#425) and Square to the launch spot (#423)
+   (§4, §5). Square not tried → `TeleOpConfig.launchSpot` off.
+
+**Not before the event:** ending the feed at the 4th shot (waits on the count), R-Solo-Staging,
+L-Partner, the launcher distances (§7d), a third TIP, the pick-depth session (§4), the tape
+measure (§6; the start check reads 0.1–1 in at Red audience on nearly every INIT), 19429's
+bring-up beyond what night 2 needs (§7), Wall Eject (§7b), and the look-only lines of §8–9.
+
 Each line: what to do · **Good:** what passing looks like · **Stop:** when to stop and what to
 record · source. `S4 §2` means `doc/robot-session-4.md`, "At the robot", step 2.
 
@@ -44,9 +92,9 @@ tile C6) for L-Partner. Place by the marks, never by the camera.
 
 - [ ] **Activate `robot_20245`, run Check: Hardware.** **Good:** nothing reported. **Stop:**
       anything reported; fix it before the rest. [S3 §2], [S4 Before]
-- [ ] **Indicator light** on Control Hub servo port 4 and **intake encoder cable** plugged in.
-      **Good:** Check: Hardware sees `indicator`; the log's `/Intake/TicksPerSecond` is not 0 and
-      there is no "intake: encoder never moved". [S4 Before]
+- [ ] **Pinpoint `FAULT_BAD_READ`:** logged 14 times in the 3–4 Nov TeleOps (none in an Auto).
+      Reseat the Pinpoint's I2C cable and check its strain relief. **Good:** a 5-minute Basic Drive
+      with none. **Stop:** still there → swap the cable, note it on the hub photo (§8).
 
 ## 2. Any Auto, INIT only, no PLAY (about 20 min; camera connected, HIVE upright)
 
@@ -55,9 +103,6 @@ the Auto, place the robot on the marks, INIT, press **no** alliance button. 5 fr
 about a second. Written out on branch `claude/eager-pasteur-f4trol` (`doc/robot-session-5.md`, last
 section, not on master); this is that section.
 
-- [ ] **R-Solo on Red audience.** **Good:** the Alliance line turns green `RED (vision)` within a
-      few seconds, no "On …, not this Auto's start" line, start check confirms. **Fail:** it stays
-      `NONE — press Square…`.
 - [ ] **L-Partner on Red far wall.** Same pass and fail.
 - [ ] **R-Solo on Red far wall.** **Good:** "On Red far wall, not this Auto's start · … or move to
       Red audience", "No alliance" above it. Press Circle (red): "move to" still says Red audience.
@@ -80,8 +125,8 @@ Result, with the gap on each own-start run, → [PR #372].
       nothing (no Auto offers another park); nothing else on the robot reacts to gamepad 1's D-pad
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
       [PR #391]
-- [ ] **No Pinpoint warning** at a normal Auto INIT. **Good:** none listed. [PR #369]
-- [ ] **INIT with the Limelight unplugged** (and a low battery if one is handy). **Good:** light
+- [ ] **INIT with the Limelight unplugged** (the warning line itself was logged 4 Nov 00:43; what is
+      left is what the drive team sees). **Good:** light
       flashes white, "Camera: not answering" at the top of the Match page with what to do, the page
       fits without scrolling; right after a restart, "no frames yet" until the first frame.
       [PR #353], [PR #281], [S4 §9]
@@ -95,8 +140,6 @@ Result, with the gap on each own-start run, → [PR #372].
 
 These gate Belding. Run each from its start, alliance from §2.
 
-- [ ] **Loop Time Baseline, then one Auto run.** `/Robot/LoopMs` median and p95 (2 Nov R-Quals:
-      26.7 / 47.7 ms). → [PR #378]. [S5 seam §1]
 - [ ] **Loop-time cuts, before and after:** Loop Time Baseline and one R-Solo-Staging run on master,
       then the same on branch `claude/adoring-dirac-3ag180`, then 2 min of Basic Drive on it (intake
       to full, drive, fire four). Compare with `tools/pull-logs/read_logs.py series`:
@@ -117,7 +160,8 @@ These gate Belding. Run each from its start, alliance from §2.
 - [ ] **The Autonomous list on the Driver Station shows exactly the five** and nothing named
       R-Simple, R-Quals, L-Simple or L-Quals. **Good:** five entries, the names above. **Stop:** an old
       name is listed → a full TeamCode install, then look again. [PR #375]
-- [ ] **Each Auto once:** R-Solo, R-Solo-Staging, R-Partner-Preload, R-Partner-Tip, L-Partner.
+- [ ] **Each Auto once:** R-Partner-Preload, L-Partner and R-Solo-Staging (R-Solo twice and
+      R-Partner-Tip ran to their parks on 3 Nov without a FAULT).
       **Good:** runs to its park without a FAULT; on the lane under the HIVE (x 59–62) the robot
       clears the brace that R-Quals hit at x 57.5 on 29 Oct. **Stop:** it touches the HIVE leg or
       brace → stop running that Auto, note where (log pose); it is a Visualizer fix. [PR #374]
@@ -133,12 +177,11 @@ These gate Belding. Run each from its start, alliance from §2.
       R-Solo or R-Partner-Preload, two picks each. **Good:** the stick swings down about 18 in before
       the robot stops and touches nothing before the push. **Stop:** it touches → Panels
       `FlowerPicker.lowerWithinIn` 12, write it back. [S5 seam §2], [PR #378]
-- [ ] **Push starts while still slowing (≤ 8 in/s).** **Good:** push ends `reached` or `stalled`,
-      never `timed out`; no more square-ups than 2 Nov. **Stop:** rough push → `settledInPerSec` 5,
-      one change at a time. [S5 seam §3], [PR #378]
-- [ ] **The gap, from the logs:** per pick, `path end` → `PREP … then IN`. **Good:** 0.1–0.2 s when
-      square (was 0.70–0.73); `prep done on the way in, X s ago` with X ≥ 0.7 on most picks.
-      **Stop:** X < 0.7 → `lowerWithinIn` 24. [S5 seam §4], [PR #378]
+- [ ] **The stick lowers earlier at the WALL FLOWER:** the 3–4 Nov Auto picks read `prep done on
+      the way in` 0.52–0.55 s at the WALL FLOWER (FAR FLOWER 0.80–0.84), under the 0.7 s this check
+      wanted, so its Stop applies: Panels `FlowerPicker.lowerWithinIn` 24, then the stick line above.
+      **Good:** X ≥ 0.7 at both FLOWERs and the stick still touches nothing. Write 24 back if so.
+      [S5 seam §4], [PR #378]
 - [ ] **Time more GARDEN gathers** (R-Solo or R-Partner-Tip): one Auto gather is logged (3 Nov
       18:06, 4.21 s), so `AutoRegistration.GARDEN_GATHER_TYPICAL_S` is 5.0 now; a few more
       `Last GARDEN gather: N s` lines confirm or replace it. The same runs' `FLOWER pick: done` lines
@@ -156,8 +199,8 @@ These gate Belding. Run each from its start, alliance from §2.
       run. **Good:** at speed by the time the robot settles. **Stop:** it overshoots again → it is
       the launcher's speed loop (a tuning issue for its own PR), and each volley costs ~0.5 s until
       then. [PR #422]
-- [ ] **The CellUp wait with a real tip:** L-Partner with a partner (or a hand) tipping, and
-      R-Partner-Tip. **Good:** "Wait for TIP or CELL up" ends on the trigger, not its time limit.
+- [ ] **The CellUp wait with a real tip:** L-Partner with a partner (or a hand) tipping
+      (R-Partner-Tip's ended on the trigger after 3.1 s on 3 Nov). **Good:** "Wait for TIP or CELL up" ends on the trigger, not its time limit.
       [PR #377]
 - [ ] **CellUp with the CELL already up:** L-Partner at `LEFT_LAUNCH_CATCH` with the left CELL
       tipped up by hand first (or a partner's tip over before the wait starts). **Good:** the wait ends
@@ -181,8 +224,6 @@ These gate Belding. Run each from its start, alliance from §2.
       **Good:** "parking from the spot the robot is on", the park from RIGHT_LAUNCH_CATCH bending west
       of the Red HIVE, parked by 30 s. **Stop:** it touches the HIVE → note the pose; bend that park
       (P on the step) in the Visualizer. [PR #391]
-- [ ] **PickFlower squares up** from a crooked arrival. **Good:** it turns square before it pushes.
-      [PR #313]
 - [ ] **A launch's time limit never cuts a feed;** the Auto graphs the launcher in Panels. **Good:**
       every launch feeds its full `LaunchCards` time; launcher graph live. [PR #333], [PR #334]
 - [ ] **Launch on the approach: fix the launcher overshoot first.** It is a separate issue. After a
@@ -197,7 +238,9 @@ These gate Belding. Run each from its start, alliance from §2.
       1.9–2.0 s at LEFT_LAUNCH_OFFSET). **Good:** the same hit rate, with about 0.5 s or more saved
       per LaunchAll after a drive. The late-turning drive from SCORING_FLOWER_STAGING shows no
       `opened the gate on the approach` line. **Stop:** more misses on → `PathEndSettle.launchWithinIn`
-      3, again; still worse → `launchOnApproach` false. Write back the one that held.
+      3, again; still worse → `launchOnApproach` false. Write back the one that held. If it stays
+      on, the measured LaunchAll time goes into `volleyS` in `TeamCode/autos/timing.json` and the
+      Visualizer's LaunchAll time: both still plan the 4 s measured before #430.
       [PR #430]
 - [ ] **The looser settle (aimed and slowing, under 6 in/s):** read the `settled X s after path end`
       lines from the same runs with `launchOnApproach` off. **Good:** X under 0.3 s (was 0.38–0.57),
@@ -259,17 +302,12 @@ measurement is [#255].
 
 ## 5. Pose and camera (Basic Drive / Vision: HIVE & Pose)
 
-- [ ] **Loop time, named:** Basic Drive 2 min, intake on part of it, a couple of picks; then Loop
-      Time Baseline. **Good:** `/Loop/Subsystem/<Name>Ms` names the slow update (2 Nov: 41 ms mean;
-      colour sensor 5.5, drive 9.6, feeder 4.6). → the PR or issue for loop time. [S4 §5], [PR #365]
 - [ ] **Camera calibration, R1 at two spots** (Vision: HIVE & Pose, Red audience then Red far wall).
       **Good:** "Spots so far: AGREE" → commit the two numbers to `CameraMount` (code 3.55 / 0.95; 2 Nov
       read 3.13 / 0.89). **Stop:** DIFFER → a HIVE point or the marks, don't commit.
       [handoff](../.claude/handoff/20245-camera-calibration.md), [PR #360]
 - [ ] **Heading-aware camera reset:** lift the robot, turn ~15°, set it down off the mark, still,
       hold D-pad down. **Good:** heading corrected, field-centric drives right again. [handoff], [PR #360]
-- [ ] **Lost-pose reset:** away from the start, still, both HIVEs in view, hold D-pad down 0.5 s.
-      **Good:** "relocalized (…) whole pose (lost: X in off)". [PR #339]
 - [ ] **Marks in Panels:** grey crosses on the starts and reset corners; park on 3–4 marks over a
       match-length drive and note `shadow_offset_in`. [PR #361]
 - [ ] **Panels drawing:** X then B in INIT turns the outline blue → red; each FieldLayers switch
@@ -295,7 +333,7 @@ measurement is [#255].
       `launch spot: drift at …` line (camera − odometry at a known spot, settled, never applied) and
       its `CELL N in` range beside the shots it fired. **Good:** gaps stay under
       `TeleOpConfig.spotDriftWarnIn` (3, not measured) through a 2-minute TeleOp, and the range/shot
-      pairs add to #80's speed-vs-distance table beside §7d's bench rows. **Stop:** gaps grow
+      pairs add to #80's speed-vs-distance table beside §7d's rows. **Stop:** gaps grow
       over the match → the evidence for TeleOp relocalization; set `spotDriftWarnIn` from what the
       drivers can act on. [PR #423]
 - [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
@@ -386,6 +424,13 @@ number down as it is found. [branch claude/launcher-tuning]
       events: **Good:** back in tolerance within ~0.3 s of a dip, overshoot after it under 60,
       at speed again well under the 0.7 s of 4 Nov, and the shot count right. **Stop:** if overshoot
       after a dip is still past 60, lower P (or I) before anything else.
+- [ ] **Shot count only with the gate open and both wheels down.** A dip now counts only if it
+      starts while the gate is open and both wheels are 70 under target (4 Nov log: the intake's
+      NECTAR stalls, and the wheels wobbling while a ball pressed on them, counted as shots). Fire 3 volleys of 4, letting go
+      of FIRE the moment the last ball passes the plate, then intake 4 NECTAR with the launcher
+      spinning. **Good:** 12 shots counted for 12 fired, none while intaking. **Stop:** if a last
+      ball goes uncounted, the gate shut before it reached the wheels: note how long after letting
+      go its dip came (log), for a grace after the gate shuts.
 - [ ] **Feed pace**, once the PIDF is set: the aim is each ball arriving after the wheels have
       recovered from the one before. Bench: Launch Test, `FeederSubsystem.feedPower` 0.6, then 0.8,
       then 1.0, 12 balls each (three volleys of 4), fresh battery, from one launch spot. Each dip's
@@ -413,21 +458,37 @@ number down as it is found. [branch claude/launcher-tuning]
       **Stop:** record both runs' numbers; write `compensateVoltage` and `feedPower` back only if
       it helped. [4 Nov 00:48 log: 2260 → 2060 ticks/s as the battery fell 10.83 → 10.61 V]
 
-## 7d. Launcher distances (Bench: Launch Test, HIVE upright, phone filming the HIVE)
+## 7d. Launcher distances (Basic Drive, speed table OFF, HIVE upright, phone filming the HIVE)
 
-One `LauncherSubsystem.targetTicksPerSecond` (1595) serves every distance today; on 4 Nov it went
-4/4 from 50 in (RIGHT_START) and long at 41 in on the third volley (LEFT_LAUNCH_OFFSET). These rows
-start #80's speed-vs-distance table. Count hits out of 12 on video at each speed.
+After §7c: the rows are only worth having once the wheels hold their speed. One
+`LauncherSubsystem.targetTicksPerSecond` (1595) serves every distance today. On 4 Nov it went
+4/4 from RIGHT_START and long from LEFT_LAUNCH_OFFSET on the third volley. Four rows fill
+`LaunchSpeedTable` (#80). Measure them on the right side; the left spots are the same distances on
+the other side of the field.
 
-- [ ] **41 in, LEFT_LAUNCH_OFFSET** at the raised LEFT CELL: 1450, 1500, 1550, 1595 ticks/s.
-      **Good:** a speed that drops balls mid-CELL, 11/12 or better. **Stop:** record hits per speed.
-      [4 Nov log review, this branch]
-- [ ] **50 in, RIGHT_START** at the RIGHT CELL: 1550–1650. **Good:** 1595 confirmed centred, or the
-      speed that is. **Stop:** as above.
-- [ ] **Long corner shot near the GARDEN** (about (15, 15), ~60 in to the RIGHT CELL, facing ~45°):
-      an option when the CELL's front is crowded. Try 1650–1800. **Good:** 9/12 or better, then it
-      becomes a team spot and one `LaunchSpots.Spot` constant, so the launch-spot button can go
-      there [PR #423]. **Stop:** record hits per speed, or "out of range". [mentor, 4 Nov]
+**The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Match page says
+"Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires one volley.
+On a miss, the operator trims the speed up or down, then Square again, until it scores. The Match
+page's "Last launch spot" line shows the spot's CELL range and the launch speed: write both down.
+Take the middle of the speeds that score 4/4, not the first one that does. The trim carries from
+press to press.
+
+- [ ] **RIGHT_LAUNCH_CATCH** (model: 43 in). **Good:** a range and a speed that scores 4/4.
+- [ ] **RIGHT_LAUNCH_OFFSET** (model: 45 in). **Good:** as above.
+- [ ] **RIGHT_START** (model: 50 in; the camera read 52–53 in on 4 Nov, so take what the page
+      shows). **Good:** as above, or 1595 confirmed.
+- [ ] **Corner shot near the GARDEN** (about (15, 15), facing about 45° toward the RIGHT CELL, model
+      about 64 in): not a team spot, so drive there by hand and fire with FIRE. The Match page's
+      "Last shot" line gives the range and speed. Try 1650–1800. **Good:** 9/12 or better, then it
+      becomes a team spot (Visualizer, *Save team spots*) and one `LaunchSpots.Spot` constant, so
+      Square can go there [PR #423]. **Stop:** "out of range" at any speed. [mentor, 4 Nov]
+- [ ] **Then switch it on:** type the four (range, speed) pairs into `LaunchSpeedTable`'s rows in
+      Panels and turn `enabled` on. The TeleOp and the Autos then use it. **Good:** Square from each
+      spot still scores, a FIRE from between two spots scores as well as its neighbours, and an Auto
+      run scores as it did. Write the rows and `enabled = true` into `LaunchSpeedTable.java` in a PR.
+      **Stop:** if anything got worse, turn `enabled` off: that is today's behaviour exactly.
+      `tools/pull-logs/read_logs.py launcher` lists every logged shot by spot and speed for a check
+      afterwards. [PR for the speed table, `claude/stoic-mendel-xzdx22`]
 
 ## 8. If time: anyone, no driving
 
@@ -449,26 +510,17 @@ start #80's speed-vs-distance table. Count hits out of 12 on video at each speed
 
 Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov sessions: strike what did.
 
+- [ ] **Auto: Hold Still**, red, through PLAY: no FAULT (1 Nov it was INIT only). [S1]
 - [ ] Turn exactly 180° in place at the red start: pose moves < 0.5 in. [PR #275] (*#330 re-measured
       the pods on 1 Nov after they moved: likely done*)
-- [ ] Corner resets: D-pad left/right in a red corner reads ~(8.1, 133.4) / (8.1, 8.1); Triangle held
-      1 s in INIT starts fresh. [PR #274], [PR #277] (*likely done: S4's intro says both work*)
-- [ ] Corner reset is the gyro reset too: hold D-pad up with the robot turned about 45° (forward now
-      wrong), then hold D-pad left squared in the red left corner. **Good:** the Match page says
-      `forward reset`, and stick-up drives away from the red drivers without touching D-pad up.
 - [ ] Reset holds are 0.5 s and buzz gamepad 1 (turret zero: gamepad 2). If a reset gives no buzz,
       the match log's `rumble:` line says the code sent it, and `Controls/Gamepad1` in Metadata
       names the pad type: swap in another controller (or charge this one) before changing code.
-- [ ] Log contents: `/Drive/*`, `/Drift/*`, `/Vision/*` keys, a `push:` event at a wall, `jolt:` only
-      at real knocks, Pinpoint ID in Metadata, a dwell reason on each pick. [PR #283], [PR #284],
-      [PR #285], [PR #286]
 - [ ] AdvantageScope 3D: the stick swings, the rocker tips the right way; `make-viewer-zip.cmd` and
       `install.cmd` on Windows. [PR #294], [PR #299]
-- [ ] Intake sign: R2 about +2760 ticks/s, L2 about −1640. [PR #318]
 - [ ] Star-wheel servo turned round on both robots (4 Nov 2026), `IntakeSubsystem.starsReversed` now
-      true (`reversed` stays true): after a Sloth Load, R2 takes pieces in on 19429 and 20245, the
-      roller reads positive ticks/s and the stars turn inward; L2 backs both out.
-- [ ] Load 4, launcher at speed, hold FIRE: all 4 leave. [PR #320]
+      true (`reversed` stays true): on 20245 the roller reads positive (4 Nov logs); left: the stars
+      turn inward on 20245, and the same on 19429; L2 backs both out.
 - [ ] R2 toggles the intake with its Panels switch on; feeder runs whenever intaking. [PR #321],
       [PR #327]
 - [ ] Operator R2 toggles the intake (no Panels switch); driver R2 held runs it with the toggle
@@ -487,25 +539,7 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
 - [ ] Turret locked: hold Circle after intaking, the chassis settles on the CELL. [PR #329]
 - [ ] Controls page and printed sheet match what the robot does ("checklist coming separately").
       [PR #270]
-- [ ] Pick routine, first-edition checks: "already lined up" when started lined up; an Auto pick
-      logs "straight ahead (Auto)". GARDEN: measure red's gather and line-up poses for
-      `GardenFieldPoints`. [PR #266], [PR #267]
-
-## 10. Carried from sessions 1–3
-
-Written for Autos #375 removed. Each line says what replaces it; strike what already ran.
-
-- [ ] S1 §1–3: Check: Hardware, Pedro Tests procedure (hold/line/curve), Basic Drive directions →
-      §1 and #62. [S1]
-- [ ] S1 §4: **Auto: Hold Still**, red: no FAULT. Still on master. [S1]
-- [ ] S1 §5–6, S2 §5–6, S3 §4–5: R-Simple / L-Simple / R-Quals runs, R-Simple TIP 1 in 3 of 3 with the
-      speed and feed on #80, R-Quals' branch lines → now §3's five Autos; the turret question is
-      answered (locked, #329). [S1], [S2], [S3]
-- [ ] S1 §7, S2 §7, S3 §6: Loop Time Baseline → §3 and §5. [S1], [S2], [S3]
-- [ ] S1 §8, S2 §1, §3, S3 §1, §7: pull a log without adb, see the lap in AdvantageScope, run
-      `review.py` → *likely done: logs reach GitHub by `tools/pull-logs` since #335*. [S2], [S3]
-- [ ] S3 §3: INIT-only placeholder lines → the five Autos' INIT, §2. [S3]
-- [ ] S4 §8: re-run the Foresight Tuner on 20245 → *likely done: #331 pasted a re-tune on 1 Nov*. [S4]
+- [ ] GARDEN: measure red's gather and line-up poses for `GardenFieldPoints`. [PR #267]
 
 ## On the board, not for this visit
 
@@ -522,10 +556,8 @@ one test at one meeting.
 - Workstream: [#78] Pedro tuning.
 
 [S1]: robot-session-1.md#at-the-robot-in-order
-[S2]: robot-session-2.md#at-the-robot-in-order
 [S2 §1]: robot-session-2.md#at-the-robot-in-order
 [S2 §8]: robot-session-2.md#at-the-robot-in-order
-[S3]: robot-session-3.md#at-the-robot-in-order
 [S3 Before]: robot-session-3.md#before-leaving-the-laptop
 [S3 §2]: robot-session-3.md#at-the-robot-in-order
 [S4]: robot-session-4.md#at-the-robot-in-order
@@ -534,45 +566,32 @@ one test at one meeting.
 [S4 §2]: robot-session-4.md#at-the-robot-in-order
 [S4 §3]: robot-session-4.md#at-the-robot-in-order
 [S4 §4]: robot-session-4.md#at-the-robot-in-order
-[S4 §5]: robot-session-4.md#at-the-robot-in-order
 [S4 §6]: robot-session-4.md#at-the-robot-in-order
 [S4 §7]: robot-session-4.md#at-the-robot-in-order
 [S4 §9]: robot-session-4.md#at-the-robot-in-order
 [S5]: robot-session-5.md
 [S5 Before]: robot-session-5.md#before-leaving-the-laptop
 [S5 At the robot]: robot-session-5.md#at-the-robot-in-order
+[S5 §3-5]: robot-session-5.md#at-the-robot-in-order
 [S5 §1]: robot-session-5.md#at-the-robot-in-order
 [S5 §2]: robot-session-5.md#at-the-robot-in-order
-[S5 §3–5]: robot-session-5.md#at-the-robot-in-order
 [S5 §6–7]: robot-session-5.md#at-the-robot-in-order
-[S5 seam §1]: robot-session-5.md#also-with-an-auto-on-the-field-the-drive-to-pick-seam-pr-378
 [S5 seam §2]: robot-session-5.md#also-with-an-auto-on-the-field-the-drive-to-pick-seam-pr-378
-[S5 seam §3]: robot-session-5.md#also-with-an-auto-on-the-field-the-drive-to-pick-seam-pr-378
 [S5 seam §4]: robot-session-5.md#also-with-an-auto-on-the-field-the-drive-to-pick-seam-pr-378
 [S5 seam §5]: robot-session-5.md#also-with-an-auto-on-the-field-the-drive-to-pick-seam-pr-378
 [handoff]: ../.claude/handoff/20245-camera-calibration.md
 [Visualizer PR #44]: https://github.com/Mona-Shores-FTC-Robotics/Visualizer/pull/44
 [PR #262]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/262
-[PR #266]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/266
 [PR #267]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/267
 [PR #270]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/270
 [PR #273]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/273
-[PR #274]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/274
 [PR #275]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/275
-[PR #277]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/277
 [PR #279]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/279
 [PR #280]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/280
 [PR #281]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/281
-[PR #283]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/283
-[PR #284]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/284
-[PR #285]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/285
-[PR #286]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/286
 [PR #294]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/294
 [PR #299]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/299
 [PR #307]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/307
-[PR #313]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/313
-[PR #318]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/318
-[PR #320]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/320
 [PR #321]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/321
 [PR #323]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/323
 [PR #324]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/324
@@ -580,17 +599,15 @@ one test at one meeting.
 [PR #329]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/329
 [PR #333]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/333
 [PR #334]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/334
-[PR #339]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/339
 [PR #353]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/353
 [PR #354]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/354
 [PR #356]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/356
 [PR #360]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/360
 [PR #361]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/361
-[PR #365]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/365
-[PR #369]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/369
 [PR #372]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/372
 [PR #373]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/373
 [PR #374]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/374
+[PR #375]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/375
 [PR #377]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/377
 [PR #378]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/378
 [PR #384]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/384

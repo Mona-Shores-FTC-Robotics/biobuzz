@@ -8,6 +8,9 @@ with Python. Standard library only.
   python3 tools/pull-logs/read_logs.py series LOG.wpilog KEY [...] a key's samples, time in s
   python3 tools/pull-logs/read_logs.py picks LOG.wpilog [...]     every FLOWER pick: how the push
                                                                    ended, how deep, pieces, pose gap
+  python3 tools/pull-logs/read_logs.py launcher LOG.wpilog [...]  every counted shot: speed, pose, nearest
+                                                                   team spot, range; then shots per spot
+                                                                   and speed, for the speed table (#80)
 
 Logs reach GitHub on logs/<date>-<robot network> branches, sent by Pull-MatchLogs.ps1. A session
 fetches them with:  git fetch origin 'refs/heads/logs/*:refs/remotes/origin/logs/*'
@@ -209,6 +212,91 @@ def picks(paths):
                 lane_s, along_s, side_s, outcome))
 
 
+FIELD_SIZE_IN = 141.5  # FieldFrame.FIELD_SIZE_INCHES: blue's spots are red's turned half a turn about the centre
+SPOT_NEAR_IN = 8.0     # a shot this close to a team spot counts as taken from it
+SPOTS_JSON = __import__('os').path.join(__import__('os').path.dirname(__file__), '..', '..', 'TeamCode', 'autos', 'spots.json')
+
+
+def team_spots():
+    """[(name, x, y)] for every team spot we launch from (a START or a LAUNCH spot) in
+    TeamCode/autos/spots.json, red as drawn plus blue turned. Other spots are left out: a "shot"
+    counted at a FLOWER or a staging spot is a dip with no launch behind it."""
+    import json
+    spots = json.load(open(SPOTS_JSON))['spots']
+    out = []
+    for name, xyh in sorted(spots.items()):
+        if 'START' not in name and 'LAUNCH' not in name:
+            continue
+        x, y = xyh[0], xyh[1]
+        out.append(('RED ' + name, x, y))
+        out.append(('BLUE ' + name, FIELD_SIZE_IN - x, FIELD_SIZE_IN - y))
+    return out
+
+
+SHOT_RE = re.compile(r'shot \d+: target (\d+) ticks/s, dip (\d+), range (?:(\d+) in \(([^)]*)\)|unknown)')
+SPOT_START_RE = re.compile(r'launch spot: start .*? → (\S+) .*CELL (\d+) in from the spot')
+SPOT_END_RE = re.compile(r'launch spot: .*(?: early after | after arriving at |refused)')
+
+
+def launcher(paths):
+    """One row per counted shot (/Launcher/Shots going up), from any OpMode: the target speed in
+    force, the pose, the nearest team spot (within SPOT_NEAR_IN, red or blue), and the range the
+    TeleOp's shot line or the launch-spot press gave, if either logged one. Then the shots grouped
+    by spot and speed, with an empty hits column for the video count: doc/robot-todo.md's
+    "Launcher distances" rows, ready for LaunchSpeedTable (a row is the middle of the speeds that
+    went 11/12 or better at a spot, at that spot's range)."""
+    spots = team_spots()
+    groups = {}
+    print('%-34s %8s  %-28s %6s  %-26s %s' % ('log', 't s', 'pose (x, y, heading)', 'target', 'nearest spot', 'range'))
+    for path in paths:
+        d = read(path)
+        shots = d.get('/Launcher/Shots', [])
+        target = d.get('/Launcher/TargetTicksPerSecond', [])
+        xs, ys, hs = (d.get('/Odometry/PedroInches/' + k, []) for k in ('X', 'Y', 'HeadingDeg'))
+        events = d.get('/Events', [])
+        name = path.split('/')[-1][:34]
+        last = None
+        for t, n in shots:
+            if last is not None and n > last:
+                x, y, h = at(xs, t), at(ys, t), at(hs, t)
+                tps = at(target, t)
+                spot, off = '', float('nan')
+                if x is not None and y is not None:
+                    best = min(spots, key=lambda s: math.hypot(s[1] - x, s[2] - y))
+                    off = math.hypot(best[1] - x, best[2] - y)
+                    spot = best[0] if off <= SPOT_NEAR_IN else ''
+                # The TeleOp's shot line just after the count, else the press in progress.
+                rng = ''
+                press = None
+                for te, v in events:
+                    v = str(v)
+                    if te > t + 0.2:
+                        break
+                    m = SPOT_START_RE.search(v)
+                    if m:
+                        press = '%s in (launch spot %s)' % (m.group(2), m.group(1))
+                    elif SPOT_END_RE.search(v):
+                        press = None
+                    m = SHOT_RE.search(v)
+                    if m and te >= t - 0.2 and m.group(3):
+                        rng = '%s in (%s)' % (m.group(3), m.group(4))
+                rng = rng or press or ''
+                where = '' if x is None else '(%.1f, %.1f, %.0f°)' % (x, y, h if h is not None else float('nan'))
+                print('%-34s %8.2f  %-28s %6s  %-26s %s' % (name, t, where,
+                      '?' if tps is None else '%.0f' % tps,
+                      (spot + ' (%.1f off)' % off) if spot else 'none within %.0f in' % SPOT_NEAR_IN, rng))
+                key = (spot or '(no spot)', '?' if tps is None else '%.0f' % tps)
+                g = groups.setdefault(key, [0, set()])
+                g[0] += 1
+                if rng:
+                    g[1].add(rng.split(' in')[0])
+            last = n
+    print()
+    print('%-30s %7s %6s  %-10s %s' % ('spot', 'target', 'shots', 'range in', 'hits (from video)'))
+    for (spot, tps), (count, ranges) in sorted(groups.items()):
+        print('%-30s %7s %6d  %-10s %s' % (spot, tps, count, '/'.join(sorted(ranges)) or '?', '___ of %d' % count))
+
+
 def main(argv):
     if len(argv) < 3:
         print(__doc__)
@@ -222,6 +310,8 @@ def main(argv):
             print('%6d  %s' % (len(v), k))
     elif cmd == 'picks':
         picks(argv[2:])
+    elif cmd == 'launcher':
+        launcher(argv[2:])
     elif cmd == 'series':
         d = read(path)
         for k in argv[3:]:

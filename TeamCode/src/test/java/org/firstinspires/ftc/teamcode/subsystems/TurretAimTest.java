@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNull;
 
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
+import org.firstinspires.ftc.teamcode.vision.HiveState;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 import org.junit.Test;
 
@@ -95,5 +96,24 @@ public class TurretAimTest {
     public void noAllianceOrNoPoseGivesNoCell() {
         assertNull(TurretAim.nearEndCell(Alliance.UNKNOWN, 10, null, AXLE, BAND));
         assertNull(TurretAim.nearEndCell(Alliance.RED, Double.NaN, HiveCell.RED_AUDIENCE, AXLE, BAND));
+    }
+
+    @Test
+    public void theRangeGoesToTheCellTheHiveSaysIsUp() {
+        HiveCell nearEnd = HiveCell.RED_SCORING;
+        assertEquals(HiveCell.RED_AUDIENCE, TurretAim.upCellOr(Alliance.RED, HiveState.RIGHT_CELL_UP, nearEnd));
+        assertEquals(HiveCell.RED_SCORING, TurretAim.upCellOr(Alliance.RED, HiveState.LEFT_CELL_UP, HiveCell.RED_AUDIENCE));
+        assertEquals(HiveCell.BLUE_SCORING, TurretAim.upCellOr(Alliance.BLUE, HiveState.RIGHT_CELL_UP, null));
+        assertEquals(HiveCell.BLUE_AUDIENCE, TurretAim.upCellOr(Alliance.BLUE, HiveState.LEFT_CELL_UP, null));
+    }
+
+    @Test
+    public void tippingUnseenOrNoAllianceKeepsTheNearEndCell() {
+        HiveCell nearEnd = HiveCell.RED_SCORING;
+        assertEquals(nearEnd, TurretAim.upCellOr(Alliance.RED, HiveState.TRANSITION, nearEnd));
+        assertEquals(nearEnd, TurretAim.upCellOr(Alliance.RED, HiveState.UNSEEN, nearEnd));
+        assertEquals(nearEnd, TurretAim.upCellOr(Alliance.RED, null, nearEnd));
+        assertEquals(nearEnd, TurretAim.upCellOr(Alliance.UNKNOWN, HiveState.RIGHT_CELL_UP, nearEnd));
+        assertNull(TurretAim.upCellOr(Alliance.RED, HiveState.UNSEEN, null));
     }
 }

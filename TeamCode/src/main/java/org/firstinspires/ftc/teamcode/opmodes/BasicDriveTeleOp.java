@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
@@ -25,6 +26,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
+import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 
 import java.util.Locale;
@@ -179,6 +181,19 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private double lastShotRangeIn = Double.NaN;
     private String lastShotRangeSource = "";
 
+    /** Where {@link #shotRangeIn()} took its last range from. */
+    private enum RangeFrom { NONE, CAMERA, ODOMETRY }
+
+    private RangeFrom rangeFrom = RangeFrom.NONE;
+    /** With {@link RangeFrom#ODOMETRY}: the CELL measured to, and whether it was the near-end guess. */
+    private HiveCell rangeCell;
+    private boolean rangeNearEnd;
+    /** The launch speed {@code LaunchSpeedTable} gave, before trim, ticks/s; NaN: the configured speed. */
+    private double tableTps = Double.NaN;
+    /** The range {@link #tableTps} was read at, inches, and whether it was a launch-spot press's spot. */
+    private double tableRangeIn = Double.NaN;
+    private boolean tableFromSpot;
+
     /** True for {@link RobotCentricTeleOp}: every drive request is robot-centric. */
     protected boolean robotCentric() {
         return false;
@@ -297,9 +312,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
         log.event(String.format(Locale.US, "launcher: idle (%.0f ticks/s)", Math.max(0.0, idle)));
     }
 
-    /** The launch speed: the configured one plus the operator's trim, never below zero. */
+    /**
+     * The launch speed: the speed table's for the range ({@link #updateTableSpeed()}), else the
+     * configured one, plus the operator's trim, never below zero.
+     */
     private double launchSpeed() {
-        return Math.max(0.0, LauncherSubsystem.targetTicksPerSecond + launcherTrimTps);
+        double base = Double.isNaN(tableTps) ? LauncherSubsystem.targetTicksPerSecond : tableTps;
+        return Math.max(0.0, base + launcherTrimTps);
     }
 
     /**
@@ -420,6 +439,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         gatherer.update(controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active(), sticksMoved);
         launchSpot.update(controls.held(Action.LAUNCH_SPOT) && !grabActive(), setup.alliance(), sticksMoved,
                 controls.held(Action.FIRE));
+        updateTableSpeed();
         spotLauncher();
         boolean chassisAim = chassisAim(rightStick);
         if (!routineActive()) {
@@ -457,6 +477,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         log.put("/Controls/IntakeOwner", grabActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
         log.put("/Controls/TrimDeg", aimer.trimDeg());
         log.put("/Controls/LauncherTrimTps", launcherTrimTps);
+        log.put("/Controls/TableTicksPerSecond", tableTps);
         log.put("/Controls/AimErrorDeg", aimErrorDeg);
 
         fire();
@@ -492,6 +513,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
                             : "ON, operator R2 to stop");
         }
         robot.launcher.describe(display);
+        if (!LaunchSpeedTable.enabled) {
+            display.line(String.format(Locale.US, "Speed table: OFF, launch speed %.0f + trim",
+                    LauncherSubsystem.targetTicksPerSecond));
+        } else if (!Double.isNaN(tableTps)) {
+            display.line(String.format(Locale.US, "Speed table: ON, %.0f ticks/s at %.0f in (%s)", tableTps,
+                    tableRangeIn, tableFromSpot ? "launch spot" : "range"));
+        } else {
+            display.line(LaunchSpeedTable.usableRows() > 0 ? "Speed table: ON, no range yet: configured speed"
+                    : "Speed table: ON but no rows: configured speed");
+        }
         if (launcherTrimTps != 0.0) {
             display.line(String.format(Locale.US, "Launcher trim %+.0f ticks/s: launch speed %.0f",
                     launcherTrimTps, launchSpeed()));
@@ -711,6 +742,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private void recordShot() {
         if (robot.launcher.shotJustDetected()) {
             lastShotRangeIn = shotRangeIn();
+            lastShotRangeSource = rangeSource();
             log.event(String.format(Locale.US, "shot %d: target %.0f ticks/s, dip %.0f, range %s",
                     robot.launcher.shots(), robot.launcher.lastShotTargetTicksPerSecond(),
                     robot.launcher.lastShotDipTicksPerSecond(),
@@ -718,14 +750,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
                             : String.format(Locale.US, "%.0f in (%s)", lastShotRangeIn, lastShotRangeSource)));
         }
         if (!Double.isNaN(lastShotRangeIn)) {
-            display.line(String.format(Locale.US, "Last shot: %.0f in (%s)", lastShotRangeIn, lastShotRangeSource));
+            display.line(String.format(Locale.US, "Last shot: %.0f in (%s) at %.0f ticks/s", lastShotRangeIn,
+                    lastShotRangeSource, robot.launcher.lastShotTargetTicksPerSecond()));
         }
     }
 
     /**
      * The horizontal range to the CELL a shot was aimed at, inches: the camera's ground range to
      * the nearest fresh CELL of our alliance (any CELL if the alliance is not chosen yet), else the
-     * pose's range from the turret axis to the near-end CELL's raised row, else NaN. Sets
+     * pose's range from the turret axis to the raised row of the CELL our HIVE says is UP (only an
+     * UP CELL scores; the near-end CELL while the HIVE is tipping or unseen), else NaN. Sets
      * {@link #lastShotRangeSource} to say which.
      */
     private double shotRangeIn() {
@@ -738,23 +772,72 @@ public class BasicDriveTeleOp extends RobotOpMode {
             if (Double.isNaN(best) || range < best) best = range;
         }
         if (!Double.isNaN(best)) {
-            lastShotRangeSource = "camera";
+            rangeFrom = RangeFrom.CAMERA;
             return best;
         }
+        rangeFrom = RangeFrom.NONE;
         Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
-        if (pose == null || alliance == Alliance.UNKNOWN) {
-            lastShotRangeSource = "";
-            return Double.NaN;
-        }
+        if (pose == null || alliance == Alliance.UNKNOWN) return Double.NaN;
         nearEndCell = TurretAim.nearEndCell(alliance, pose.y(), nearEndCell, HiveFieldPoints.AXLE_Y_IN, AIM_SWITCH_BAND_IN);
-        Vec3 row = nearEndCell == null ? null : HiveFieldPoints.rowCentre(nearEndCell, HiveCellState.UP);
-        if (row == null) {
-            lastShotRangeSource = "";
-            return Double.NaN;
-        }
-        lastShotRangeSource = "odometry, " + nearEndCell;
+        // Only an UP CELL scores: take the one the HIVE says is up, the near-end one only while unknown.
+        HiveTracker hive = robot.hive.of(alliance);
+        HiveCell up = TurretAim.upCellOr(alliance, hive == null ? null : hive.state(), null);
+        HiveCell target = up != null ? up : nearEndCell;
+        Vec3 row = target == null ? null : HiveFieldPoints.rowCentre(target, HiveCellState.UP);
+        if (row == null) return Double.NaN;
+        rangeFrom = RangeFrom.ODOMETRY;
+        rangeCell = target;
+        rangeNearEnd = up == null;
         return TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(),
                 TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y());
+    }
+
+    /** Where {@link #shotRangeIn()}'s last answer came from, for a log line: "" when it had none. */
+    private String rangeSource() {
+        switch (rangeFrom) {
+            case CAMERA:
+                return "camera";
+            case ODOMETRY:
+                return "odometry, " + rangeCell + (rangeNearEnd ? " (HIVE unknown: near end)" : "");
+            default:
+                return "";
+        }
+    }
+
+    /**
+     * The launch speed from {@code LaunchSpeedTable}, once per loop, before the launch-spot press
+     * and the operator's buttons spin anything up. The range is the launch-spot press's spot while
+     * one is driving or holding (so the wheels are at the spot's speed on arrival), else
+     * {@link #shotRangeIn()}. Held within half the launcher's tolerance
+     * ({@link LaunchSpeedTable#held}) and never changed while the feeder feeds, so a range that
+     * wobbles never re-arms at-speed or the shot detector mid-volley. With the table switched off
+     * ({@link LaunchSpeedTable#enabled}) or no usable row, the configured speed stands, exactly as
+     * before the table.
+     */
+    private void updateTableSpeed() {
+        if (robot.feeder.state() == FeederSubsystem.State.FEED) return;
+        double next;
+        double range = Double.NaN;
+        boolean fromSpot = false;
+        if (!LaunchSpeedTable.enabled || LaunchSpeedTable.usableRows() == 0) {
+            next = Double.NaN;
+        } else {
+            double spotRange = launchSpot.spotRangeIn();
+            fromSpot = !Double.isNaN(spotRange);
+            range = fromSpot ? spotRange : shotRangeIn();
+            next = LaunchSpeedTable.held(tableTps, LaunchSpeedTable.ticksPerSecondFor(range),
+                    LauncherSubsystem.toleranceTicksPerSecond / 2.0);
+        }
+        if (Double.compare(next, tableTps) == 0) return;
+        tableTps = next;
+        tableRangeIn = range;
+        tableFromSpot = fromSpot;
+        if (launchMode) robot.launcher.spinUp(launchSpeed());
+        log.event(Double.isNaN(next)
+                ? String.format(Locale.US, "launcher: speed table %s, configured speed %.0f ticks/s",
+                        LaunchSpeedTable.enabled ? "has no rows" : "off", launchSpeed())
+                : String.format(Locale.US, "launcher: speed table %.0f ticks/s at %.0f in (%s), launch speed %.0f",
+                        next, range, fromSpot ? "launch spot" : rangeSource(), launchSpeed()));
     }
 
     /** The launcher, feeder, aim and controls to Panels, flat keys, one update per loop. Never takes the robot down. */
@@ -770,6 +853,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("at_speed", robot.launcher.atSpeed() ? 1.0 : 0.0);
             panels.addData("launch_mode", launchMode ? 1.0 : 0.0);
             panels.addData("launcher_trim_tps", launcherTrimTps);
+            panels.addData("table_tps", tableTps);
             panels.addData("shots", robot.launcher.shots());
             panels.addData("last_shot_dip_tps", robot.launcher.lastShotDipTicksPerSecond());
             panels.addData("last_shot_range_in", lastShotRangeIn);
