@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.ivy.Command;
@@ -90,7 +91,17 @@ import java.util.function.Function;
  * and at the last path's end heading ({@link PathEndSettle}), not on Pedro's "done"; each path end
  * and each settle goes to the match log as an event, with Pedro's own view of how the path ended.
  */
+@Configurable
 public abstract class BuiltAuto extends RobotOpMode {
+
+    /**
+     * The endgame guard (AutoKit.guarded): on, the robot parks when the next drive or grab would
+     * not leave time to. <b>Off is for practice only</b>: every card runs, so the match log shows
+     * how long the whole plan really takes (run it with the Driver Station's 30 s timer off). The
+     * Driver Station says so in red while it is off, and the match log records it.
+     */
+    public static boolean endgameGuard = true;
+
 
     /** How many of the Auto's latest trace lines the Match page shows. */
     private static final int TRACE_LINES = 4;
@@ -209,6 +220,10 @@ public abstract class BuiltAuto extends RobotOpMode {
         }
         options.update(gamepad1.dpad_left, gamepad1.dpad_right, gamepad1.dpad_up, gamepad1.dpad_down);
         options.describe(display);
+        if (!endgameGuard) {
+            display.status("Endgame guard OFF", Display.Level.FAULT,
+                    "practice only: no park for time. Panels → BuiltAuto.endgameGuard to turn it back on");
+        }
         if (!placeholders.isEmpty()) {
             display.status("Placeholders", Display.Level.WARN, String.join(", ", placeholders)
                     + ": no mechanism yet, so these waits run to their limits");
@@ -277,7 +292,9 @@ public abstract class BuiltAuto extends RobotOpMode {
         AutoKit kit = new AutoKit(robot.drive, registry, () -> (System.nanoTime() - startNs) / 1e9)
                 .trace(trace)
                 .watchPaths(both(pathLog, settle))
-                .picks(options);
+                .picks(options)
+                .guard(endgameGuard);
+        if (!endgameGuard) log.event("Endgame guard OFF (practice): every card runs, no park for time");
         Command auto = build.apply(kit, rotated);
         pathLog.plan(kit.paths());
         auto.schedule();
@@ -300,6 +317,10 @@ public abstract class BuiltAuto extends RobotOpMode {
             return;
         }
         settle.update();
+        if (!endgameGuard) {
+            display.status("Endgame guard OFF", Display.Level.FAULT,
+                    "practice only: no park for time. Panels → BuiltAuto.endgameGuard to turn it back on");
+        }
         if (trace != null) trace.forEachRecent(display::line);
         publish();
     }

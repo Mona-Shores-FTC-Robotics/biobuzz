@@ -18,6 +18,7 @@ public enum Action {
     FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold)"),
     GARDEN_GATHER(Pad.DRIVER, "*Gather GARDEN (hold)"),
     CHASSIS_AIM(Pad.DRIVER, "Aim Chassis (hold)"),
+    LAUNCH_SPOT(Pad.DRIVER, "*Go to Launch Spot (hold)"),
     RESET_HEADING(Pad.DRIVER, "Gyro Reset (hold 0.5\u00a0s)"),
     RESET_LEFT_CORNER(Pad.DRIVER, "Left Corner + Gyro Reset (hold 0.5\u00a0s; intake toward opponents)"),
     RESET_RIGHT_CORNER(Pad.DRIVER, "Right Corner + Gyro Reset (hold 0.5\u00a0s; intake toward opponents)"),
