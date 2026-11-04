@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.VoltageCompensation;
+import org.firstinspires.ftc.teamcode.util.WheelSpeed;
 
 import java.util.Locale;
 
@@ -174,6 +175,16 @@ public class LauncherSubsystem implements Subsystem {
      * times the module's belt ratio, which is a CAD number not written here yet.
      */
     public static double ticksPerRev = 28.0;
+
+    /**
+     * Flywheel revolutions per motor revolution (the module's belt), for the surface speed. NaN
+     * until measured (count teeth, or mark the wheel and turn the motor by hand): the surface speed
+     * shows as unknown rather than a guess.
+     */
+    public static double beltRatio = Double.NaN;
+
+    /** Flywheel diameter, inches, for the surface speed. NaN until measured with calipers on the robot. */
+    public static double wheelDiameterInches = Double.NaN;
 
     /**
      * A wheel commanded for this long that still reads below {@link #encoderSilentTicksPerSecond}
@@ -444,6 +455,16 @@ public class LauncherSubsystem implements Subsystem {
     /** {@link #leftTicksPerSecond()} in output-shaft RPM, or NaN until {@link #ticksPerRev} is set. */
     public double leftRpm() {
         return IntakeSubsystem.rpm(leftTicksPerSecond, ticksPerRev);
+    }
+
+    /**
+     * The flywheels' surface speed, inches per second, the mean of both wheels: comparable with the
+     * feeder's ({@code FeederSubsystem.surfaceInchesPerSecond()}), as ticks per second are not. NaN
+     * until {@link #beltRatio} and {@link #wheelDiameterInches} are measured.
+     */
+    public double surfaceInchesPerSecond() {
+        return WheelSpeed.surfaceInchesPerSecond((leftTicksPerSecond + rightTicksPerSecond) / 2.0,
+                ticksPerRev, beltRatio, wheelDiameterInches);
     }
 
     /** {@link #rightTicksPerSecond()} in output-shaft RPM, or NaN until {@link #ticksPerRev} is set. */
@@ -797,8 +818,8 @@ public class LauncherSubsystem implements Subsystem {
             display.line(pidfLine());
             return;
         }
-        display.line(String.format(Locale.US, "Wheels L %.0f / R %.0f ticks/s%s · %s",
-                leftTicksPerSecond, rightTicksPerSecond, rpmSuffix(),
+        display.line(String.format(Locale.US, "Wheels L %.0f / R %.0f ticks/s%s · surface %s · %s",
+                leftTicksPerSecond, rightTicksPerSecond, rpmSuffix(), surfaceText(surfaceInchesPerSecond()),
                 Double.isNaN(leftCurrentAmps) ? "current not read while idle"
                         : String.format(Locale.US, "L %.1f / R %.1f A", leftCurrentAmps, rightCurrentAmps)));
         display.line(shotsLine());
@@ -821,11 +842,19 @@ public class LauncherSubsystem implements Subsystem {
                 : String.format(Locale.US, "spin-up rise %.0f ms, over %.0f, at speed %.0f ms",
                         response.riseMs(), response.spinOvershootTps(), response.settleMs());
         String dip = response.dips() == 0 ? "no dip timed yet"
-                : String.format(Locale.US, "dip %.0f, back %.0f ms, over %.0f, at speed %s",
+                : String.format(Locale.US, "dip %.0f, back %.0f ms, over %.0f, at speed %s, gap %s",
                         response.dipDepthTps(), response.recoverMs(), response.dipOvershootTps(),
                         Double.isNaN(response.resettleMs()) ? "never"
-                                : String.format(Locale.US, "%.0f ms", response.resettleMs()));
+                                : String.format(Locale.US, "%.0f ms", response.resettleMs()),
+                        Double.isNaN(response.shotGapMs()) ? "first"
+                                : String.format(Locale.US, "%.0f ms", response.shotGapMs()));
         return spin + " · " + dip;
+    }
+
+    /** A surface speed for a page: "123 in/s", or "unknown (not measured)" while it is NaN. */
+    public static String surfaceText(double inchesPerSecond) {
+        return Double.isNaN(inchesPerSecond) ? "unknown (not measured)"
+                : String.format(Locale.US, "%.0f in/s", inchesPerSecond);
     }
 
     private String rpmSuffix() {

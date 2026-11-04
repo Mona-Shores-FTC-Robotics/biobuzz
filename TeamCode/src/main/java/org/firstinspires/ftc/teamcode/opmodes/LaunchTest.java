@@ -473,6 +473,7 @@ public class LaunchTest extends RobotOpMode {
             panels.addData("launcher_recover_ms", response.recoverMs());
             panels.addData("launcher_dip_overshoot_tps", response.dipOvershootTps());
             panels.addData("launcher_resettle_ms", response.resettleMs());
+            panels.addData("launcher_shot_gap_ms", response.shotGapMs());
             panels.addData("launcher_p_applied", robot.launcher.appliedP());
             panels.addData("launcher_i_applied", robot.launcher.appliedI());
             panels.addData("launcher_d_applied", robot.launcher.appliedD());
@@ -483,6 +484,9 @@ public class LaunchTest extends RobotOpMode {
             panels.addData("launcher_step_overshoot_mean_tps", stepOvershoot.mean());
             panels.addData("launcher_step_settle_mean_ms", stepSettle.mean());
             panels.addData("feeder_tps", robot.feeder.ticksPerSecond());
+            // Surface speeds, the comparable unit (NaN until the wheels are measured).
+            panels.addData("feeder_surface_ips", robot.feeder.surfaceInchesPerSecond());
+            panels.addData("launcher_surface_ips", robot.launcher.surfaceInchesPerSecond());
             panels.addData("intake_toggle", intakeToggle.on() ? 1.0 : 0.0);
             panels.addData("intake_tps", robot.intake.ticksPerSecond());
             panels.addData("intake_amps", robot.intake.currentAmps());

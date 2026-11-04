@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.VoltageCompensation;
+import org.firstinspires.ftc.teamcode.util.WheelSpeed;
 
 import java.util.Locale;
 import java.util.function.BooleanSupplier;
@@ -85,6 +86,14 @@ public class FeederSubsystem implements Subsystem {
      * the feeder motors are goBILDA 5203 435 RPM, read off the label at the bench on 24 Oct 2026.
      */
     public static double ticksPerRev = 384.5;
+
+    /**
+     * Feeder wheel diameter, inches, for the surface speed. <b>A placeholder from the design, not
+     * measured:</b> {@code doc/transfer.md} gives 48 mm gecko wheels. Measure with calipers on the
+     * robot and write it here with the robot and date. The wheel is taken to be on the motor's
+     * output shaft (ratio 1); check that too.
+     */
+    public static double wheelDiameterInches = 48.0 / 25.4;
 
     /**
      * Scale the power by {@link #nominalVolts} / battery (class comment, "The battery"), capped at
@@ -178,6 +187,15 @@ public class FeederSubsystem implements Subsystem {
         return currentAmps;
     }
 
+    /**
+     * The feeder wheel's surface speed, inches per second: comparable with the flywheels'
+     * ({@code LauncherSubsystem.surfaceInchesPerSecond()}), as ticks per second are not. From
+     * {@link #wheelDiameterInches}, a placeholder until measured; NaN if that is unset.
+     */
+    public double surfaceInchesPerSecond() {
+        return WheelSpeed.surfaceInchesPerSecond(ticksPerSecond, ticksPerRev, 1.0, wheelDiameterInches);
+    }
+
     /** {@link #ticksPerSecond()} in output-shaft RPM, or NaN until {@link #ticksPerRev} is set. */
     public double rpm() {
         return IntakeSubsystem.rpm(ticksPerSecond, ticksPerRev);
@@ -242,8 +260,9 @@ public class FeederSubsystem implements Subsystem {
                         : standby ? String.format(Locale.US, "standing by, gate shut (%.2f)", power)
                         : "idle");
         double rpm = rpm();
-        display.line(String.format(Locale.US, "Feeder %.0f ticks/s%s · %s", ticksPerSecond,
+        display.line(String.format(Locale.US, "Feeder %.0f ticks/s%s · surface %s · %s", ticksPerSecond,
                 Double.isNaN(rpm) ? "" : String.format(Locale.US, " (%.0f rpm)", rpm),
+                LauncherSubsystem.surfaceText(surfaceInchesPerSecond()),
                 Double.isNaN(currentAmps) ? "current not read while idle"
                         : String.format(Locale.US, "%.2f A", currentAmps)));
     }

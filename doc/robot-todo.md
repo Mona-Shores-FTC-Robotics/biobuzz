@@ -338,6 +338,15 @@ the same as `launcher_*` (graph `left_tps`, `right_tps`, `launch_target_tps`); t
 each spin-up and dip as an event, with the battery. Panels edits are lost on restart: write each
 number down as it is found. [branch claude/launcher-tuning]
 
+- [ ] **Measure the wheels**, for the surface speeds (in/s, the one unit that compares the feeder
+      with the flywheels; ticks/s do not). Calipers on the flywheel: `LauncherSubsystem.wheelDiameterInches`.
+      The flywheel module's belt (count teeth, or mark the wheel and turn the motor once by hand):
+      `LauncherSubsystem.beltRatio`, wheel revolutions per motor revolution. Calipers on the feeder
+      wheel: `FeederSubsystem.wheelDiameterInches` (a placeholder now, 48 mm from `doc/transfer.md`),
+      and check the feeder wheel is on the motor shaft (ratio 1). Read both motor labels: flywheels
+      believed goBILDA 5203 6000 rpm (28 ticks/rev), feeder 5203 435 rpm (384.5). **Good:** the
+      Launch Test page shows both surface speeds instead of "unknown". **Stop:** write the numbers
+      back with the robot and date.
 - [ ] **Read the defaults.** Power-cycle the robot, start Bench: Launch Test with all four gains
       NaN. The page's "Velocity PIDF … at init P _ I _ D _ F _" line (and the log's Metadata,
       `Hardware/LauncherSubsystem`) is the hub's own. Write it down. Then stop, start the OpMode
@@ -360,6 +369,15 @@ number down as it is found. [branch claude/launcher-tuning]
       events: **Good:** back in tolerance within ~0.3 s of a dip, overshoot after it under 60,
       at speed again well under the 0.7 s of 4 Nov, and the shot count right. **Stop:** if overshoot
       after a dip is still past 60, lower P (or I) before anything else.
+- [ ] **Feed pace**, once the PIDF is set: the aim is each ball arriving after the wheels have
+      recovered from the one before. Bench: Launch Test, `FeederSubsystem.feedPower` 0.6, then 0.8,
+      then 1.0, 12 balls each (three volleys of 4), fresh battery, from one launch spot. Each dip's
+      log event and `/Launcher/ShotGapMs` beside `/Launcher/RecoverMs` give the gap between
+      consecutive shots and the recovery after each (Panels: `launcher_shot_gap_ms`,
+      `launcher_recover_ms`). **Good:** the power at which every gap is longer than the recovery
+      before it, with the best hits per 12 (count on video). Too slow: balls hit the turret walls
+      (0.5 on 1 Nov). **Stop:** per power, record hits / 12, mean gap, mean recover and the battery;
+      write the winner into `feedPower` with the robot and date.
 - [ ] **On a tired battery** (≤ 11.5 V resting): run the step test 5 times with `compensateF` off,
       then 5 with it on (`nominalVolts` = the battery F was tuned at, rounded). **Good:** with it on,
       the mean matches the fresh-battery one within ~0.1 s. **Stop:** record both means and the

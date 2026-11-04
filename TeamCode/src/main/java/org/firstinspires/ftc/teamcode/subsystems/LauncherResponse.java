@@ -15,6 +15,10 @@ package org.firstinspires.ftc.teamcode.subsystems;
  *       into tolerance; <i>overshoot</i>, the most either wheel went over its target after that,
  *       until at speed; <i>resettle</i>, back to at speed. Overshoot past the tolerance after a dip
  *       is what held at-speed false for about 0.7 s on 3 and 4 Nov 2026.</li>
+ *   <li><b>The gap between shots</b> in a volley: from the previous shot back in tolerance to this
+ *       one, both counted the same way, so it compares directly with <i>recover</i>. A feed paced
+ *       right has each gap longer than the recovery: each ball meets wheels that are back at
+ *       speed. The first shot after a spin-up or a cancel has no gap (NaN).</li>
  * </ul>
  *
  * <p>A result is kept only when it completes; one in progress is dropped by {@link #cancel()} (a
@@ -38,6 +42,9 @@ public final class LauncherResponse {
     private double dipPeakAfter;
     private double dipRecoverMs;
     private double dipDepth;
+    private double dipGapMs;
+    /** When the previous shot was counted in this volley, nanoTime; -1 for none. */
+    private long lastShotNs = -1;
 
     private boolean wasWithin;
     private long leftBandNs = -1;
@@ -54,6 +61,7 @@ public final class LauncherResponse {
     private double lastRecoverMs = Double.NaN;
     private double lastDipOvershoot = Double.NaN;
     private double lastResettleMs = Double.NaN;
+    private double lastShotGapMs = Double.NaN;
 
     /**
      * A spin-up starts now: from rest, to a new target, or out of an unjam. {@code fromTps} is the
@@ -66,6 +74,7 @@ public final class LauncherResponse {
         riseMs = Double.NaN;
         this.fromTps = fromTps;
         dipPhase = 0;
+        lastShotNs = -1;
         wasWithin = false;
         leftBandNs = -1;
         wasInDip = false;
@@ -79,6 +88,7 @@ public final class LauncherResponse {
         wasWithin = false;
         leftBandNs = -1;
         wasInDip = false;
+        lastShotNs = -1;
     }
 
     /**
@@ -122,6 +132,8 @@ public final class LauncherResponse {
                 dipRecoverMs = ms(nowNs - dipStartNs);
                 this.dipDepth = dipDepth;
                 dipPeakAfter = excess;
+                dipGapMs = lastShotNs >= 0 ? ms(nowNs - lastShotNs) : Double.NaN;
+                lastShotNs = nowNs;
             } else if (!inDip) {
                 dipPhase = 0; // the detector dropped it: not a shot
             }
@@ -141,6 +153,7 @@ public final class LauncherResponse {
         lastRecoverMs = dipRecoverMs;
         lastDipOvershoot = Math.max(0.0, dipPeakAfter);
         lastResettleMs = resettleMs;
+        lastShotGapMs = dipGapMs;
         dipPhase = 0;
     }
 
@@ -201,6 +214,14 @@ public final class LauncherResponse {
     /** The last dip's overshoot over target after recovering, ticks per second (0 when none). */
     public double dipOvershootTps() {
         return lastDipOvershoot;
+    }
+
+    /**
+     * The last dip's gap from the shot before it in the same volley, ms (each counted when back in
+     * tolerance); NaN for a volley's first shot.
+     */
+    public double shotGapMs() {
+        return lastShotGapMs;
     }
 
     /** The last dip's resettle: leaving tolerance to at speed again, ms; NaN when it never settled. */

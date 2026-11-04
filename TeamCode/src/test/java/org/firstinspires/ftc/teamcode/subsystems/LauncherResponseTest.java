@@ -136,6 +136,31 @@ public class LauncherResponseTest {
         assertTrue(Double.isNaN(r.resettleMs()));
     }
 
+    /** One shot: out of the band at {@code ms}, back (counted) {@code recover} later, at speed 300 after that. */
+    private void shot(long ms, long recover) {
+        loop(ms, -80, false, true, false, Double.NaN);
+        loop(ms + recover, 0, false, false, true, 90.0);
+        loop(ms + recover + 300, 0, true);
+    }
+
+    @Test
+    public void theGapBetweenShotsIsTimedInAVolleyAndNotAcrossOne() {
+        spinUp();
+        loop(1000, 0, true);
+        shot(1010, 200);
+        assertTrue("a volley's first shot has no gap", Double.isNaN(r.shotGapMs()));
+        shot(1910, 200);
+        assertEquals(900.0, r.shotGapMs(), EPS);
+        shot(2410, 250);
+        assertEquals(550.0, r.shotGapMs(), EPS);
+        assertEquals(250.0, r.recoverMs(), EPS);
+        r.cancel();
+        spinUp();
+        loop(1000, 0, true);
+        shot(1010, 200);
+        assertTrue("a spin-down ends the volley", Double.isNaN(r.shotGapMs()));
+    }
+
     @Test
     public void excessIsTheFasterWheelsMirrorOfTheDeficit() {
         assertEquals(85.0, LauncherSubsystem.excess(1595, 1680, 1595, 1650), EPS);

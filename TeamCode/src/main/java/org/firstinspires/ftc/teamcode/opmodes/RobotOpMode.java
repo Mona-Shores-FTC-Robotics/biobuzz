@@ -1379,11 +1379,14 @@ public abstract class RobotOpMode extends OpMode {
             log.put("/Launcher/RecoverMs", response.recoverMs());
             log.put("/Launcher/DipOvershootTicksPerSecond", response.dipOvershootTps());
             if (!Double.isNaN(response.resettleMs())) log.put("/Launcher/ResettleMs", response.resettleMs());
+            // The gap from the shot before, beside the recovery: a feed paced right has gap > recover.
+            if (!Double.isNaN(response.shotGapMs())) log.put("/Launcher/ShotGapMs", response.shotGapMs());
             log.event(String.format(Locale.US,
-                    "launcher: dip %.0f ticks/s, back in tolerance %.0f ms, overshoot %.0f, at speed %s (battery %.2f V)",
+                    "launcher: dip %.0f ticks/s, back in tolerance %.0f ms, overshoot %.0f, at speed %s, gap from last shot %s (feeder %.2f, battery %.2f V)",
                     response.dipDepthTps(), response.recoverMs(), response.dipOvershootTps(),
                     Double.isNaN(response.resettleMs()) ? "not again" : String.format(Locale.US, "%.0f ms", response.resettleMs()),
-                    lastBatteryVolts));
+                    Double.isNaN(response.shotGapMs()) ? "none (first)" : String.format(Locale.US, "%.0f ms", response.shotGapMs()),
+                    robot.feeder.power(), lastBatteryVolts));
         }
         // The hub velocity loop's gains as written (nothing until Panels sets one), and each write as an event.
         if (robot.launcher.pidfWrites() != loggedPidfWrites) {
@@ -1402,6 +1405,11 @@ public abstract class RobotOpMode extends OpMode {
         // The battery's scale on that power (FeederSubsystem.compensateVoltage); 1 when off.
         log.put("/Feeder/VoltageScale", robot.feeder.voltageScale());
         log.put("/Feeder/TicksPerSecond", robot.feeder.ticksPerSecond());
+        // Surface speeds, comparable across the two (ticks per second are not); NaN until measured, so skipped.
+        double feederIps = robot.feeder.surfaceInchesPerSecond();
+        if (!Double.isNaN(feederIps)) log.put("/Feeder/SurfaceInchesPerSecond", feederIps);
+        double launcherIps = robot.launcher.surfaceInchesPerSecond();
+        if (!Double.isNaN(launcherIps)) log.put("/Launcher/SurfaceInchesPerSecond", launcherIps);
         double feederAmps = robot.feeder.currentAmps();
         if (!Double.isNaN(feederAmps)) {
             log.put("/Feeder/CurrentAmps", feederAmps);
