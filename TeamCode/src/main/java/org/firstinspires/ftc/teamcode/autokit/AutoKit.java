@@ -561,7 +561,10 @@ public final class AutoKit {
      *
      * <p><b>It parks from the spot the robot is on.</b> A path card that carries a park
      * ({@link #path(String, Path, double, Path, double)}) makes that park the guard's from when it
-     * arrives, with that park's own time, until a path card without one arrives somewhere else.
+     * arrives, with that park's own time, until a path card without one arrives somewhere else. That
+     * holds across a guard's start: a guard entered on such a spot (each outcome of a Wait in the
+     * Visualizer's "then: park" form is its own guard) parks from it, not along its own park, until
+     * the robot drives away (4 Nov 2026: R-Solo's TIP check cut a volley 0.9 s early before).
      * Since drives and grabs are never cut, the robot is on that spot whenever the guard parks, so
      * it drives a park drawn from where it is.
      *
@@ -588,8 +591,9 @@ public final class AutoKit {
             index[0] = 0;
             current[0] = null;
             parking[0] = null;
-            spotPark = null;
-            spotParkSeconds = Double.NaN;
+            // spotPark is kept: it is the park from the spot the robot last arrived at, whether or
+            // not a guard was watching then. A block entered on that spot (a Wait's outcome in the
+            // "then: park" form, each its own guard) parks from it until the robot drives away.
             parkWanted = false;
             watchFromHere(label, parkSeconds);
             advance(label, parkSeconds, cards, index, current, park, parking);
@@ -631,7 +635,7 @@ public final class AutoKit {
 
     private void watchFromHere(String label, double parkSeconds) {
         guardLabel = label;
-        guardParkSeconds = parkSeconds;
+        guardParkSeconds = spotPark != null ? spotParkSeconds : parkSeconds;
         ownParkSeconds = parkSeconds;
     }
 

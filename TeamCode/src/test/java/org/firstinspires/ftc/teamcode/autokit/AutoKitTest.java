@@ -368,6 +368,32 @@ public class AutoKitTest {
         assertEquals("the launch runs until the spot's park needs the time", deadline, drive.followedAt.get(1), 0.03);
     }
 
+    /**
+     * The Visualizer's "then: park" Wait: each outcome is its own guard, entered on the spot the
+     * drive before the wait arrived at. That spot's park (1 s) must survive entering the block, so
+     * the launch runs until it needs the time (28 s), not the block's own 4 s park (25 s).
+     */
+    @Test
+    public void aGuardEnteredOnASpotParksFromThatSpot() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("LaunchAll", 10.0, () -> lasting("LaunchAll", 10.0))
+                .trigger("CellUp", () -> true), () -> now).trace(trace::add);
+        Path toSpot = line(0, 10), spotPark = line(10, 12), park = line(10, 30);
+        now = 20.0;
+        run(kit.sequence(
+                kit.path("to SPOT", toSpot, 1.0, spotPark, 1.0),
+                kit.firstOf("Wait for TIP or CELL up",
+                        kit.when("CellUp").then(
+                                kit.guarded("If CellUp", park, 4.0,
+                                        kit.command("LaunchAll", 10.0),
+                                        kit.path("Park", park))),
+                        kit.afterMs(750))), 15);
+        assertEquals("the spot's own park, not the block's", java.util.Arrays.asList(toSpot, spotPark), drive.followed);
+        assertTrue(trace.toString(), trace.contains("parking from the spot the robot is on"));
+        double deadline = AutoKit.AUTO_LENGTH_S - (1.0 + AutoKit.GUARD_MARGIN_S); // 28 s, not 25
+        assertEquals("the launch runs until the spot's park needs the time", deadline, drive.followedAt.get(1), 0.03);
+    }
+
     /** Somewhere no park was drawn from: the guard's own park path again. */
     @Test
     public void aDriveWithNoParkOfItsOwnGoesBackToTheGuardsPark() {
