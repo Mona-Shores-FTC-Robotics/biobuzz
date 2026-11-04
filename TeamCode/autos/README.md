@@ -128,8 +128,9 @@ and who parked. For an Auto with a partner wait, a run's name ends with the seco
 **A partner we push** (`"pushable": true` on an entry): while the stand-in is not driving, our robot moves it
 along with itself on contact instead of overlapping it, at `AutoSim.PUSH_SPEED_FRACTION` (half, a placeholder)
 of its path's speed. Translation only: it keeps its heading, and a wall stops it. It is judged for LEAVE and
-AUTO PARK where it ends, so a push off the wall into the LOADING ZONE scores both, which is the team's reading
-of §10.5.4, still to be confirmed on the official Q&A. The results table adds the partner's LEAVE, how far it
+AUTO PARK where it ends, so a push off the wall into the LOADING ZONE scores both. LEAVE is ruled (Q&A Q28, 19 Oct
+2026: "regardless of how it gets there (so long as no rules are violated), the state will be awarded"); PARK for
+a pushed robot is not asked yet, and reads the same way. The results table adds the partner's LEAVE, how far it
 went and how long we pushed.
 
 Partner runs use `partnerSeeds` (five) so each job stays under about five minutes; the Auto alone

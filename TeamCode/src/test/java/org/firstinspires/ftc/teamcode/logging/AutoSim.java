@@ -537,8 +537,9 @@ public final class AutoSim {
      * while they touch. Only translation: the pushed robot keeps its heading (a real one turns when pushed off centre),
      * it slides with no friction of its own beyond that slowdown, and a wall stops it (pinned there, the two overlap
      * and the run reports a collision). Off by default: an overlap is a collision, as it always was. Since it is judged
-     * for LEAVE and AUTO PARK where it ends up, a push off the wall and into the LOADING ZONE scores both (pending the
-     * official Q&A: doc/game/qa-review.md on claude/simulator, item 28).
+     * for LEAVE and AUTO PARK where it ends up, a push off the wall and into the LOADING ZONE scores both. LEAVE is
+     * ruled: Q&A Q28 (19 Oct 2026), "regardless of how it gets there (so long as no rules are violated)". PARK for a
+     * pushed robot is not asked yet; the same reasoning reads the same way.
      */
     AutoSim pushable() {
         configuring.pushable = true;
