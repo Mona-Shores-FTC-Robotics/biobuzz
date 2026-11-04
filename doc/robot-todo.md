@@ -198,7 +198,7 @@ measurement is [#255].
       [handoff](../.claude/handoff/20245-camera-calibration.md), [PR #360]
 - [ ] **Heading-aware camera reset:** lift the robot, turn ~15°, set it down off the mark, still,
       hold D-pad down. **Good:** heading corrected, field-centric drives right again. [handoff], [PR #360]
-- [ ] **Lost-pose reset:** away from the start, still, both HIVEs in view, hold D-pad down 1 s.
+- [ ] **Lost-pose reset:** away from the start, still, both HIVEs in view, hold D-pad down 0.5 s.
       **Good:** "relocalized (…) whole pose (lost: X in off)". [PR #339]
 - [ ] **Marks in Panels:** grey crosses on the starts and reset corners; park on 3–4 marks over a
       match-length drive and note `shadow_offset_in`. [PR #361]
@@ -245,6 +245,9 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
 - [ ] Corner reset is the gyro reset too: hold D-pad up with the robot turned about 45° (forward now
       wrong), then hold D-pad left squared in the red left corner. **Good:** the Match page says
       `forward reset`, and stick-up drives away from the red drivers without touching D-pad up.
+- [ ] Reset holds are 0.5 s and buzz gamepad 1 (turret zero: gamepad 2). If a reset gives no buzz,
+      the match log's `rumble:` line says the code sent it, and `Controls/Gamepad1` in Metadata
+      names the pad type: swap in another controller (or charge this one) before changing code.
 - [ ] Log contents: `/Drive/*`, `/Drift/*`, `/Vision/*` keys, a `push:` event at a wall, `jolt:` only
       at real knocks, Pinpoint ID in Metadata, a dwell reason on each pick. [PR #283], [PR #284],
       [PR #285], [PR #286]
@@ -264,10 +267,10 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       Sensor at slot 4: confirm `presentAbove`/`leaveBelow`/`fullHoldS` there, and that no piece
       merely pausing leaves it stuck "full" (if one does, `PrefeedSubsystem.stopWhenFull` off).
       (intake toggle + prefeed stop)
-- [ ] Tune `IntakeSubsystem.holdPowerWhenFull` (0.2 is a guess) with 4 loaded: back away fast and
-      turn, the 4th stays in; drive over a 5th, it is not pulled in; toggle off and drive, the 4th
-      stays in; an Auto that idles after `IntakeFull`, the 4th stays in on the drive away. Note the
-      roller's current while holding (`/Intake/HoldingForFull`, roller amps) so a stalled motor shows.
+- [ ] `IntakeSubsystem.holdPowerWhenFull` is 0 (roller off when full, stars still turning; the drive
+      team's choice after trying 0.2). With 4 loaded: back away fast and turn, toggle off and drive,
+      and an Auto that idles after `IntakeFull`: the 4th stays in each time. If it rolls out, raise it
+      in Panels (0.2 was tried) and check a 5th is not pulled in.
 - [ ] Unjam with a ball on the launcher wheels: rolls back, launcher returns to speed. [PR #323]
 - [ ] Launch Test on gamepad 1, operator layout. [PR #324]
 - [ ] Turret locked: hold Circle after intaking, the chassis settles on the CELL. [PR #329]
