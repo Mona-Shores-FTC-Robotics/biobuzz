@@ -132,11 +132,11 @@ public class IntakeSubsystem implements Subsystem {
 
     /**
      * Roller power inward while holding a full lane, 0 to 1. Low enough not to pull a 5th piece in,
-     * high enough that the 4th stays in while the robot backs away. <b>Not measured:</b> 0.2 is a
-     * starting point (4 Nov 2026), to tune on the robot ({@code doc/robot-todo.md}). 0 stops the
-     * roller while full, the stars still turning.
+     * high enough that the 4th stays in while the robot backs away. 0 stops the roller while full,
+     * the stars still turning: the drive team's choice on 4 Nov 2026, after trying 0.2. Raise it
+     * in Panels if the 4th rolls out when the robot backs away ({@code doc/robot-todo.md}).
      */
-    public static double holdPowerWhenFull = 0.2;
+    public static double holdPowerWhenFull = 0.0;
 
     private final DcMotorEx motor;
     private final CRServo stars;
