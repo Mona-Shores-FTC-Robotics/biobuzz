@@ -27,11 +27,15 @@ import com.bylazar.configurables.annotations.Configurable;
  *
  * <h2>Filling it in</h2>
  *
- * <p>At each of about five ranges, the shot log line ({@code shot N: target …, range … in}) gives
- * the range; step the speed with the TeleOp's launcher trim, four balls a step, and write hit or
- * miss next to each line. The row is the middle of the speeds that went four for four, so a tired
- * battery or a worn wheel has room either way. Space the ranges closer near the HIVE, where the
- * speed changes fastest with range. Both robots share the table (identical hardware); one seen to
+ * <p>With {@link #enabled} off, in Basic Drive: Square drives to the nearest launch spot and fires;
+ * the operator trims the speed up or down and Square fires again, until it scores. The Match page's
+ * "Last launch spot" line then shows the spot's range and the speed to write down. One row per
+ * spot, measured on the right side; the left spots are the same distances on the other side:
+ * LAUNCH_CATCH about 43 in, LAUNCH_OFFSET about 45 in, START about 50 in, and the corner shot near
+ * the GARDEN about 64 in (driven to by hand and fired with FIRE until it is a team spot; its range
+ * is on the "Last shot" line). Take the middle of the speeds that score, so a tired battery or a
+ * worn wheel has room either way, and the range the robot showed rather than these model numbers.
+ * Then switch {@link #enabled} on. Both robots share the table (identical hardware); one seen to
  * differ gets a line in {@code RobotDifferences}, never a second table.
  */
 @Configurable
@@ -39,6 +43,16 @@ public final class LaunchSpeedTable {
 
     private LaunchSpeedTable() {
     }
+
+    /**
+     * The one switch. Off (the default): every launch, TeleOp and Auto, uses
+     * {@link LauncherSubsystem#targetTicksPerSecond} plus any trim, exactly as before the table, and
+     * the rows are ignored; that is also how the rows are measured (Square, trim until it scores,
+     * write the speed down). On: every launch uses the table for its range, falling back to the
+     * configured speed only where the table has no answer. Flip it in Panels to try the table and
+     * back if it makes things worse; write it here once the rows are trusted.
+     */
+    public static boolean enabled = false;
 
     /** Row 1: horizontal range from the turret axis to the UP CELL's raised row, inches. NaN: no row. */
     public static double row1RangeIn = Double.NaN;
@@ -76,6 +90,17 @@ public final class LaunchSpeedTable {
     public static double ticksPerSecondFor(double rangeIn) {
         loadRows();
         return interpolate(RANGES, SPEEDS, rangeIn);
+    }
+
+    /**
+     * The speed a launch from {@code rangeIn} uses, ticks per second: the table's when
+     * {@link #enabled} and it has an answer, else {@code configured} (the caller passes
+     * {@link LauncherSubsystem#targetTicksPerSecond}). Trim is the caller's, added on top.
+     */
+    public static double launchSpeed(double rangeIn, double configured) {
+        if (!enabled) return configured;
+        double tps = ticksPerSecondFor(rangeIn);
+        return Double.isNaN(tps) ? configured : tps;
     }
 
     /** How many configured rows count (class comment), for the Robot page and the match log. */

@@ -185,7 +185,8 @@ public final class AutoRegistration {
     public static AutoRegistry forRobot(Robot robot, MatchSetup setup, PathEndSettle settle, Consumer<String> note) {
         // The launcher's cards share one object, so Empty can see which LaunchAll has finished. A
         // null robot only describes the list; its factories are never called.
-        final LaunchCards launch = robot == null ? null : LaunchCards.forRobot(robot, settle, note);
+        final LaunchCards launch = robot == null ? null
+                : LaunchCards.forRobot(robot, settle, note, setup == null ? null : setup::alliance);
         return new AutoRegistry()
                 // A step's time limit never cuts a feed: it guards the wait for spin-up only, and the
                 // feed runs LaunchCards' set time (one number to tune, not one per step).

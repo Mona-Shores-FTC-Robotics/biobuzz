@@ -253,6 +253,10 @@ public final class LaunchSpotDrive {
         String gate = !volley.fired() ? "gate never opened by the button"
                 : String.format(Locale.US, "gate open at %.2f s for %.2f s%s", volley.feedStartS(),
                         volley.feedEndS() - volley.feedStartS(), feeding ? " (cut by the end of the press)" : "");
+        // The spot's range and the speed in force (trim included): the speed-table row this press
+        // measures, read off the Match page after each volley (LaunchSpeedTable, "Filling it in").
+        line += String.format(Locale.US, "; CELL %s, launch %.0f ticks/s", cellRange(choice.target),
+                robot.launcher.target());
         line += String.format(Locale.US, "; fired by %s, %s, %d shots counted, lane %d (tracker); drift %s",
                 firedBy, fires ? gate : "button does not fire", robot.launcher.shots() - shotsAtStart,
                 robot.colorSensor.lane().count(), early ? "not sampled (never arrived)"

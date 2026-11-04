@@ -6,12 +6,24 @@ import com.pedropathing.ivy.CommandBuilder;
 import com.pedropathing.ivy.behaviors.EndCondition;
 import com.pedropathing.ivy.commands.Commands;
 
+import com.pedropathing.math.Pose;
+
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
+import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.vision.HiveCell;
+import org.firstinspires.ftc.teamcode.vision.HiveCellState;
+import org.firstinspires.ftc.teamcode.vision.Vec3;
 
 import java.util.Locale;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 /**
  * The launcher's cards for the Auto Builder: {@code SpinUp}, {@code LaunchAll}, {@code LaunchOne}
@@ -110,10 +122,32 @@ public final class LaunchCards {
         this.secondsNow = secondsNow;
     }
 
-    /** The cards for a real robot, on the system clock, gated on {@code settle}. */
-    public static LaunchCards forRobot(Robot robot, PathEndSettle settle, Consumer<String> note) {
+    /**
+     * The cards for a real robot, on the system clock, gated on {@code settle}. With
+     * {@link LaunchSpeedTable#enabled} on, each spin-up (the {@code SpinUp} card, and every
+     * {@code LaunchAll} and {@code LaunchOne} at its launch pose) asks for the table's speed for the
+     * range from where the robot is to its half's CELL ({@link #rangeToHalfCellIn}), and logs it; the
+     * wheels settle on it while the card waits for at-speed and the settle. Off, or with no range,
+     * it is the configured speed, as before.
+     *
+     * @param alliance ours, read at each spin-up; null or UNKNOWN gives the configured speed
+     */
+    public static LaunchCards forRobot(Robot robot, PathEndSettle settle, Consumer<String> note,
+                                       Supplier<Alliance> alliance) {
+        Consumer<String> log = note == null ? line -> { } : note;
         Launcher launcher = new Launcher() {
-            @Override public void spinUp() { robot.launcher.spinUp(); }
+            @Override public void spinUp() {
+                if (!LaunchSpeedTable.enabled) {
+                    robot.launcher.spinUp();
+                    return;
+                }
+                double range = rangeToHalfCellIn(robot, alliance == null ? null : alliance.get());
+                double tps = LaunchSpeedTable.launchSpeed(range, LauncherSubsystem.targetTicksPerSecond);
+                robot.launcher.spinUp(tps);
+                log.accept(Double.isNaN(range)
+                        ? String.format(Locale.US, "launcher: speed table on, no range: configured %.0f ticks/s", tps)
+                        : String.format(Locale.US, "launcher: speed table %.0f ticks/s at %.0f in", tps, range));
+            }
             @Override public boolean atSpeed() { return robot.launcher.atSpeed(); }
             @Override public int shots() { return robot.launcher.shots(); }
         };
@@ -122,6 +156,23 @@ public final class LaunchCards {
             @Override public void idle() { robot.feeder.idle(); }
         };
         return new LaunchCards(launcher, feeder, settle::settled, note, () -> System.nanoTime() / 1e9);
+    }
+
+    /**
+     * The horizontal range from the turret at the robot's pose to the raised row of our CELL on the
+     * robot's half of the field, inches: the CELL an Auto fires at, as the launch spots choose it
+     * ({@code LaunchSpots}: each CELL is scored from its own half). NaN without a referenced pose,
+     * an alliance or a field point.
+     */
+    static double rangeToHalfCellIn(Robot robot, Alliance alliance) {
+        if (alliance == null || alliance == Alliance.UNKNOWN || !robot.drive.poseReferenced()) return Double.NaN;
+        Pose pose = robot.drive.pose();
+        if (pose == null) return Double.NaN;
+        HiveCell cell = TurretAim.nearEndCell(alliance, pose.y(), null, HiveFieldPoints.AXLE_Y_IN, 0.0);
+        Vec3 row = cell == null ? null : HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+        if (row == null) return Double.NaN;
+        return TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(),
+                TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y());
     }
 
     /** {@code SpinUp}: ask the launcher for speed and finish at once. The wheels come up while the robot drives. */

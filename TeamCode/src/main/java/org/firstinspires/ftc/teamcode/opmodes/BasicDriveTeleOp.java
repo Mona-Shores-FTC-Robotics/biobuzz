@@ -518,11 +518,15 @@ public class BasicDriveTeleOp extends RobotOpMode {
                             : "ON, operator R2 to stop");
         }
         robot.launcher.describe(display);
-        if (!Double.isNaN(tableTps)) {
-            display.line(String.format(Locale.US, "Speed table: %.0f ticks/s at %.0f in (%s)", tableTps,
+        if (!LaunchSpeedTable.enabled) {
+            display.line(String.format(Locale.US, "Speed table: OFF, launch speed %.0f + trim",
+                    LauncherSubsystem.targetTicksPerSecond));
+        } else if (!Double.isNaN(tableTps)) {
+            display.line(String.format(Locale.US, "Speed table: ON, %.0f ticks/s at %.0f in (%s)", tableTps,
                     tableRangeIn, tableFromSpot ? "launch spot" : "range"));
-        } else if (LaunchSpeedTable.usableRows() > 0) {
-            display.line("Speed table: no range yet, configured speed");
+        } else {
+            display.line(LaunchSpeedTable.usableRows() > 0 ? "Speed table: ON, no range yet: configured speed"
+                    : "Speed table: ON but no rows: configured speed");
         }
         if (launcherTrimTps != 0.0) {
             display.line(String.format(Locale.US, "Launcher trim %+.0f ticks/s: launch speed %.0f",
@@ -751,7 +755,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                             : String.format(Locale.US, "%.0f in (%s)", lastShotRangeIn, lastShotRangeSource)));
         }
         if (!Double.isNaN(lastShotRangeIn)) {
-            display.line(String.format(Locale.US, "Last shot: %.0f in (%s)", lastShotRangeIn, lastShotRangeSource));
+            display.line(String.format(Locale.US, "Last shot: %.0f in (%s) at %.0f ticks/s", lastShotRangeIn,
+                    lastShotRangeSource, robot.launcher.lastShotTargetTicksPerSecond()));
         }
     }
 
@@ -810,15 +815,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * one is driving or holding (so the wheels are at the spot's speed on arrival), else
      * {@link #shotRangeIn()}. Held within half the launcher's tolerance
      * ({@link LaunchSpeedTable#held}) and never changed while the feeder feeds, so a range that
-     * wobbles never re-arms at-speed or the shot detector mid-volley. With no usable row the
-     * configured speed stands, exactly as before the table.
+     * wobbles never re-arms at-speed or the shot detector mid-volley. With the table switched off
+     * ({@link LaunchSpeedTable#enabled}) or no usable row, the configured speed stands, exactly as
+     * before the table.
      */
     private void updateTableSpeed() {
         if (robot.feeder.state() == FeederSubsystem.State.FEED) return;
         double next;
         double range = Double.NaN;
         boolean fromSpot = false;
-        if (LaunchSpeedTable.usableRows() == 0) {
+        if (!LaunchSpeedTable.enabled || LaunchSpeedTable.usableRows() == 0) {
             next = Double.NaN;
         } else {
             double spotRange = launchSpot.spotRangeIn();
@@ -833,7 +839,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         tableFromSpot = fromSpot;
         if (launchMode) robot.launcher.spinUp(launchSpeed());
         log.event(Double.isNaN(next)
-                ? String.format(Locale.US, "launcher: speed table has no rows, configured speed %.0f ticks/s", launchSpeed())
+                ? String.format(Locale.US, "launcher: speed table %s, configured speed %.0f ticks/s",
+                        LaunchSpeedTable.enabled ? "has no rows" : "off", launchSpeed())
                 : String.format(Locale.US, "launcher: speed table %.0f ticks/s at %.0f in (%s), launch speed %.0f",
                         next, range, fromSpot ? "launch spot" : rangeSource(), launchSpeed()));
     }

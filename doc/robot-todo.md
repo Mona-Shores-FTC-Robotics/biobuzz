@@ -295,30 +295,36 @@ has each trial's settings and measured back-up.
 - [ ] **Then drive through them** with the intake on (Basic Drive) from the side and head-on.
       **Good:** 4 of 4 collected in one pass. **Stop:** record how many of 4, over 5 tries.
 
-## 7c. Launcher distances (Bench: Launch Test, HIVE upright, phone filming the HIVE)
+## 7c. Launcher distances (Basic Drive, speed table OFF, HIVE upright, phone filming the HIVE)
 
-One `LauncherSubsystem.targetTicksPerSecond` (1595) serves every distance today; on 4 Nov it went
-4/4 from 50 in (RIGHT_START) and long at 41 in on the third volley (LEFT_LAUNCH_OFFSET). These rows
-start #80's speed-vs-distance table. Count hits out of 12 on video at each speed.
+One `LauncherSubsystem.targetTicksPerSecond` (1595) serves every distance today. On 4 Nov it went
+4/4 from RIGHT_START and long from LEFT_LAUNCH_OFFSET on the third volley. Four rows fill
+`LaunchSpeedTable` (#80). Measure them on the right side; the left spots are the same distances on
+the other side of the field.
 
-Afterwards: pull the logs and run `tools/pull-logs/read_logs.py launcher` on them. It lists every
-counted shot by its nearest team launch spot and target speed, with a blank hits column to fill
-in from the video. At each spot, the row is the middle of the speeds that went 11/12 or better.
-Type each (spot range, speed) pair into a row of `LaunchSpeedTable` (Panels, then the file). The
-TeleOp then follows the table, and the launch-spot button spins up for its spot's range. The
-range for a spot is the `CELL NN in from the spot` on the button's start line. The camera read
-52–53 in at RIGHT_START on 4 Nov, against the 50 in written here, so take the logged number.
-[PR for the speed table, `claude/stoic-mendel-xzdx22`]
+**The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Match page says
+"Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires one volley.
+On a miss, the operator trims the speed up or down, then Square again, until it scores. The Match
+page's "Last launch spot" line shows the spot's CELL range and the launch speed: write both down.
+Take the middle of the speeds that score 4/4, not the first one that does. The trim carries from
+press to press.
 
-- [ ] **41 in, LEFT_LAUNCH_OFFSET** at the raised LEFT CELL: 1450, 1500, 1550, 1595 ticks/s.
-      **Good:** a speed that drops balls mid-CELL, 11/12 or better. **Stop:** record hits per speed.
-      [4 Nov log review, this branch]
-- [ ] **50 in, RIGHT_START** at the RIGHT CELL: 1550–1650. **Good:** 1595 confirmed centred, or the
-      speed that is. **Stop:** as above.
-- [ ] **Long corner shot near the GARDEN** (about (15, 15), ~60 in to the RIGHT CELL, facing ~45°):
-      an option when the CELL's front is crowded. Try 1650–1800. **Good:** 9/12 or better, then it
-      becomes a team spot and one `LaunchSpots.Spot` constant, so the launch-spot button can go
-      there [PR #423]. **Stop:** record hits per speed, or "out of range". [mentor, 4 Nov]
+- [ ] **RIGHT_LAUNCH_CATCH** (model: 43 in). **Good:** a range and a speed that scores 4/4.
+- [ ] **RIGHT_LAUNCH_OFFSET** (model: 45 in). **Good:** as above.
+- [ ] **RIGHT_START** (model: 50 in; the camera read 52–53 in on 4 Nov, so take what the page
+      shows). **Good:** as above, or 1595 confirmed.
+- [ ] **Corner shot near the GARDEN** (about (15, 15), facing about 45° toward the RIGHT CELL, model
+      about 64 in): not a team spot, so drive there by hand and fire with FIRE. The Match page's
+      "Last shot" line gives the range and speed. Try 1650–1800. **Good:** 9/12 or better, then it
+      becomes a team spot (Visualizer, *Save team spots*) and one `LaunchSpots.Spot` constant, so
+      Square can go there [PR #423]. **Stop:** "out of range" at any speed. [mentor, 4 Nov]
+- [ ] **Then switch it on:** type the four (range, speed) pairs into `LaunchSpeedTable`'s rows in
+      Panels and turn `enabled` on. The TeleOp and the Autos then use it. **Good:** Square from each
+      spot still scores, a FIRE from between two spots scores as well as its neighbours, and an Auto
+      run scores as it did. Write the rows and `enabled = true` into `LaunchSpeedTable.java` in a PR.
+      **Stop:** if anything got worse, turn `enabled` off: that is today's behaviour exactly.
+      `tools/pull-logs/read_logs.py launcher` lists every logged shot by spot and speed for a check
+      afterwards. [PR for the speed table, `claude/stoic-mendel-xzdx22`]
 - [ ] **Launcher overshoot after a dip**: wheels reached ~1680 against 1595 (±60) on 4 Nov, holding
       "at speed" false ~0.7 s before each later volley. **Good:** back within tolerance in under
       0.3 s after a dip (Bench: Launcher graphs). [4 Nov log review]

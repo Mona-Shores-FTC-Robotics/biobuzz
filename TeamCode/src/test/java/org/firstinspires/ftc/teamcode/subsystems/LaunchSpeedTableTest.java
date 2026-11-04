@@ -116,11 +116,34 @@ public class LaunchSpeedTableTest {
         assertEquals(1501, LaunchSpeedTable.held(1500, 1501, -10), EPS);
     }
 
+    @Test
+    public void offIsTheConfiguredSpeedWhateverTheRows() {
+        LaunchSpeedTable.enabled = false;
+        LaunchSpeedTable.row1RangeIn = 40;
+        LaunchSpeedTable.row1TicksPerSecond = 1400;
+        assertEquals(1595, LaunchSpeedTable.launchSpeed(40, 1595), EPS);
+    }
+
+    @Test
+    public void onUsesTheTableAndFallsBackWhereItHasNoAnswer() {
+        LaunchSpeedTable.enabled = true;
+        assertEquals(1595, LaunchSpeedTable.launchSpeed(40, 1595), EPS);
+        LaunchSpeedTable.row1RangeIn = 40;
+        LaunchSpeedTable.row1TicksPerSecond = 1400;
+        LaunchSpeedTable.row2RangeIn = 60;
+        LaunchSpeedTable.row2TicksPerSecond = 1600;
+        assertEquals(1500, LaunchSpeedTable.launchSpeed(50, 1595), EPS);
+        assertEquals(1595, LaunchSpeedTable.launchSpeed(Double.NaN, 1595), EPS);
+    }
+
     /** The configured rows, saved and cleared before each test and put back after, whatever they are. */
     private final java.util.Map<java.lang.reflect.Field, Double> saved = new java.util.HashMap<>();
+    private boolean enabledBefore;
 
     @Before
     public void clearRows() throws Exception {
+        enabledBefore = LaunchSpeedTable.enabled;
+        LaunchSpeedTable.enabled = false;
         for (java.lang.reflect.Field f : LaunchSpeedTable.class.getFields()) {
             if (f.getType() != double.class) continue;
             saved.put(f, f.getDouble(null));
@@ -130,6 +153,7 @@ public class LaunchSpeedTableTest {
 
     @After
     public void restoreRows() throws Exception {
+        LaunchSpeedTable.enabled = enabledBefore;
         for (java.util.Map.Entry<java.lang.reflect.Field, Double> e : saved.entrySet()) {
             e.getKey().setDouble(null, e.getValue());
         }
