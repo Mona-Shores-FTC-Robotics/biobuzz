@@ -27,6 +27,7 @@ import org.firstinspires.ftc.teamcode.localization.ShadowPose;
 import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.AccelLimiter;
+import org.firstinspires.ftc.teamcode.util.WheelPowerCap;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
@@ -186,6 +187,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private double turn;
     /** This command is in the robot's own frame, whatever {@link #fieldCentric} says. */
     private boolean robotCentricCommand;
+    /** No wheel gets more than this ({@link WheelPowerCap}); 1 unless a speed mode asked for less. */
+    private double maxWheelPower = 1.0;
     private boolean accelLimited = true;
 
     /** Built by {@link #preparePathFollowing()}; null until then. */
@@ -244,14 +247,28 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /**
      * What to do this loop, in Pedro's robot frame: +forward, +strafe is left, +turn is
-     * counter-clockwise, each in [-1, 1]. Holds until the next call.
+     * counter-clockwise, each in [-1, 1]. Holds until the next call. Full power available: a
+     * command whose wheels would pass 1 is scaled down together, as Pedro does.
      */
     public void drive(double forward, double strafe, double turn) {
+        drive(forward, strafe, turn, 1.0);
+    }
+
+    /**
+     * As {@link #drive(double, double, double)}, with no wheel given more than
+     * {@code maxWheelPower} (clamped to [0, 1], NaN stops): a command that would pass it is scaled
+     * down together, after the field-centric turn, so the robot goes the way it was told. This is a
+     * TeleOp speed mode: pass the sticks already times the mode's scale, and the scale here, and the
+     * mode is that fraction of full power in every direction and while turning, not only straight
+     * along a robot axis ({@link WheelPowerCap} has the reason and the measurement).
+     */
+    public void drive(double forward, double strafe, double turn, double maxWheelPower) {
         pathControl = false;
         robotCentricCommand = false;
         this.forward = forward;
         this.strafe = strafe;
         this.turn = turn;
+        this.maxWheelPower = maxWheelPower;
     }
 
     /**
@@ -260,7 +277,12 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      * faces, such as a FLOWER. The next {@link #drive} call goes back to the driver's mode.
      */
     public void driveRobotCentric(double forward, double strafe, double turn) {
-        drive(forward, strafe, turn);
+        driveRobotCentric(forward, strafe, turn, 1.0);
+    }
+
+    /** {@link #driveRobotCentric(double, double, double)} with a wheel cap, as {@link #drive(double, double, double, double)}. */
+    public void driveRobotCentric(double forward, double strafe, double turn, double maxWheelPower) {
+        drive(forward, strafe, turn, maxWheelPower);
         robotCentricCommand = true;
     }
 
@@ -805,6 +827,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         DrivePowers powers = fieldCentric && !robotCentricCommand
                 ? ManualDrive.fieldCentric(f, s, t, heading())
                 : new DrivePowers(f, s, t);
+        // After the field-centric turn, since which wheels saturate depends on the robot's heading.
+        double k = WheelPowerCap.factor(powers.forward(), powers.strafe(), powers.turn(), maxWheelPower);
+        if (k != 1.0) {
+            powers = new DrivePowers(k * powers.forward(), k * powers.strafe(), k * powers.turn());
+        }
 
         // manual = true selects BRAKE over FLOAT when the command is zero, if the drivetrain
         // config asks for it: under a driver, the robot stops where it is put.

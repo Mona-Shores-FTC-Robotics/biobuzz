@@ -210,6 +210,26 @@ final class RobotDesign {
      * its speed for the distance. NaN: the angle follows {@link #arcExtraPitchDeg}.
      */
     double fixedPitchDeg = Double.NaN;
+    /**
+     * The launcher fires every shot at one wheel speed, the robot's: master's
+     * {@code LauncherSubsystem.targetTicksPerSecond}, read at each shot ({@link FieldSim#setpointLaunch}), at one
+     * pitch, whatever the distance. The real robot does (1595 since 1 Nov 2026, tuned at RIGHT_START), so a shot
+     * from nearer or further than that goes long or short, as its 4 Nov third volley from 41 in went long. False:
+     * the speed the distance needs, as every what-if design had it.
+     */
+    boolean fixedSetpoint = false;
+    /**
+     * The launcher's pitch at the setpoint, degrees. <b>A placeholder</b>: master's code states no hood angle. 75 is
+     * fitted to the 4 Nov 2026 video, where the setpoint scored 4 of 4 from RIGHT_START (50 in) and its volley from
+     * LEFT_LAUNCH_OFFSET (41 in) went long and mostly missed: at 75 the simulator scores about 1 in 8 from there, at
+     * 72 two in three, at 78 none ({@code LauncherSetpointTest}, {@code BIOBUZZ_SIM_PITCHES}). NaN: the arc
+     * {@link #arcExtraPitchDeg} picks at RIGHT_START (67).
+     */
+    double setpointPitchDeg = FieldSim.SETPOINT_PITCH_DEG;
+    /** Shot-to-shot speed spread at the setpoint, a fraction (1 sigma): {@link FieldSim#SETPOINT_SPEED_SPREAD}. */
+    double setpointSpeedSpread = FieldSim.SETPOINT_SPEED_SPREAD;
+    /** Shot-to-shot aim and pitch spread at the setpoint, radians (1 sigma): {@link FieldSim#SETPOINT_ANGLE_SPREAD_RAD}. */
+    double setpointAngleSpreadRad = FieldSim.SETPOINT_ANGLE_SPREAD_RAD;
     /** How fast the drivetrain turns, rad/s, when a path or an aim asks it to. */
     double maxTurnRadPerS = Math.toRadians(300);
     /**
@@ -401,7 +421,8 @@ final class RobotDesign {
      * launcher fed by the feeder, and the FLOWER stick, which {@code FlowerPicker} pushes to
      * {@code contactStandoffIn} from a FLOWER's centre. What master states is taken from it, so a change there
      * changes the simulation: the turret's offset (TurretSubsystem), the stick's contact standoff, and the feed
-     * (LaunchCards: LaunchAll feeds 4 in {@code launchAllFeedS}). Everything else is a placeholder still to be
+     * (LaunchCards: LaunchAll feeds 4 in {@code launchAllFeedS}), and the launcher's one wheel speed
+     * (LauncherSubsystem: {@link #fixedSetpoint}). Everything else is a placeholder still to be
      * measured from the robot's match logs; the four variants are the choices the drive team makes, not guesses.
      */
     static RobotDesign real() {
@@ -410,6 +431,7 @@ final class RobotDesign {
         d.intakeOnContact = true;
         d.extractorSeatIn = FlowerPicker.contactStandoffIn - d.frameIn / 2;
         d.shotIntervalS = LaunchCards.launchAllFeedS / 4;
+        d.fixedSetpoint = true;
         return d;
     }
 
@@ -559,6 +581,10 @@ final class RobotDesign {
         d.pollenSpeedFactor = pollenSpeedFactor;
         d.arcExtraPitchDeg = arcExtraPitchDeg;
         d.fixedPitchDeg = fixedPitchDeg;
+        d.fixedSetpoint = fixedSetpoint;
+        d.setpointPitchDeg = setpointPitchDeg;
+        d.setpointSpeedSpread = setpointSpeedSpread;
+        d.setpointAngleSpreadRad = setpointAngleSpreadRad;
         d.maxTurnRadPerS = maxTurnRadPerS;
         d.dedicatedLaunchers = dedicatedLaunchers;
         d.catapultSpread = catapultSpread;

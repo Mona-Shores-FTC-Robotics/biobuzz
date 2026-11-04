@@ -49,7 +49,9 @@ import java.util.function.Function;
  * Both are registered as grabs ({@code AutoRegistry.grab}): they drive the robot off its spot and
  * back (a FLOWER pick squares up first, onto the FLOWER's line, and comes back to that squared-up
  * spot, not the drawn one: {@link FlowerPicker}), so the endgame guard never cuts one and does not start one unless its typical time
- * ({@link #PICK_FLOWER_TYPICAL_S}, {@link #GARDEN_GATHER_TYPICAL_S}) and the park both fit. {@code PickFlower} also
+ * ({@link #PICK_FLOWER_TYPICAL_S}, {@link #GARDEN_GATHER_TYPICAL_S}) and the park both fit, or it,
+ * the cards after it and the next {@code LaunchAll}'s last piece ({@link #LAUNCH_ALL_LAST_PIECE_S})
+ * all fit before AUTO ends. {@code PickFlower} also
  * has an approach ({@code AutoRegistry.Approach}, {@link FlowerPicker#approach}): the path card
  * right before it lowers the stick over its last 18 in, so the pick's stick wait is over when the
  * card starts. {@code GardenGather} has none yet: its stick came down on the wall when swung early
@@ -113,38 +115,56 @@ import java.util.function.Function;
 public final class AutoRegistration {
 
     /**
-     * {@code LaunchAll}'s typical seconds, after a drive with the launcher already at speed: the
-     * settle ({@code PathEndSettle}) and {@code LaunchCards.launchAllFeedS}' set 3.5 s feed. Measured
-     * on 20245, 1 and 2 Nov 2026 match logs: 3.7 to 4.2 s after a drive (R-Quals 2 Nov: 4.17 s,
-     * 0.66 s before the gate opened); 4.4 to 6.0 s, median 4.6, for the first one at PLAY, which
-     * waits for the spin-up from rest (median 1.1 s, 0.9 to 2.1). The last of four balls left
-     * 2.3 to 2.6 s after the gate opened (median 2.4), so the feed has 1 s in hand. The Visualizer's
-     * Typical preview times it from {@code TeamCode/autos/timing.json} instead ({@code spinUpS},
-     * {@code volleyS}); this is what its Instant preview shows.
+     * {@code LaunchAll}'s typical seconds, from the card's start to its end: the settle
+     * ({@code PathEndSettle}), the wait for launch speed, and {@code LaunchCards.launchAllFeedS}'
+     * set 3.5 s feed. Measured on 20245 from every LaunchAll with the 3.5 s feed in the 2 to 4 Nov
+     * 2026 match logs (read_logs, all {@code logs/*} branches): after a drive, 3.60 to 4.64 s, median
+     * 4.04 (8; the slowest, 4.45 and 4.64 s, on 4 Nov 00:48, where the launcher overshot to about
+     * 1680 ticks/s of 1595 &plusmn;60 after the drive and was not at speed for about 0.7 s); the first
+     * at PLAY, which waits for the spin-up from rest, 4.45 to 4.83 s, median 4.50 (7). 4.5 covers
+     * all but the two slowest after a drive and half of those at PLAY. What the guard needs to know
+     * about a volley's pieces is {@link #LAUNCH_ALL_LAST_PIECE_S}; this is for the drive after it.
+     * The Visualizer's Typical preview times a LaunchAll from {@code TeamCode/autos/timing.json}
+     * instead ({@code spinUpS}, {@code volleyS}); this is what its Instant preview shows.
      */
-    public static final double LAUNCH_ALL_TYPICAL_S = 4.0;
+    public static final double LAUNCH_ALL_TYPICAL_S = 4.5;
 
     /**
-     * {@code PickFlower}'s typical seconds, planned for a slow pick so the endgame guard keeps time
-     * for one (mentor, 3 Nov 2026): one that squares up and dwells the whole
-     * {@code FlowerPicker.dwellMs} (2 s) because the FLOWER does not fill the lane. From the twelve
-     * Auto picks in the 31 Oct to 2 Nov 2026 logs on 20245, the slowest of each part: square-up
-     * 0.62 s, hand-over 0.19 s (the stick is lowered on the drive in now, so the 0.70 to 0.73 s
-     * stick wait those picks had is gone), push 0.88 s, dwell 2.0 s, back-out 0.68 s: 4.4 s.
-     * A pick whose dwell ends on full ({@code FlowerPicker.dwellEndsOnFull}) takes about 2.5 s
-     * (2.2 to 3.2): square-up 0 (11 of 12), push 0.57 s, dwell to full about 1.1 s (the last
-     * piece's current spike a median 0.64 s into the dwell in 33 picks, and full 0.44 s after it
-     * on the one pick that filled the lane), back-out 0.53 s. Re-measure from the next Auto picks'
-     * logs.
+     * Seconds from a {@code LaunchAll} card's start to its last piece leaving the robot: what the
+     * endgame guard counts when it asks whether a volley can be fired before AUTO ends
+     * ({@code AutoRegistry.volley}, {@code AutoKit.guarded}). The gate opened 0.05 to 1.12 s after
+     * the card started following a drive (0.98 to 1.12 s on 4 Nov 00:48: the settle 0.38 to 0.57 s,
+     * then the launcher's overshoot) and 0.96 to 1.33 s at PLAY; the last piece left 1.7 to 2.9 s
+     * after the gate opened (the launcher's shot count, 3 and 4 Nov 2026: 2.2 to 2.85 s on 4 Nov
+     * 00:48). Card start to last piece after a drive: 2.1, 2.75, 3.31 and 3.97 s; at PLAY 3.16 to
+     * 3.39 s, and 4.82 s once (3 Nov 18:06, the gate 1.33 s in, the fourth piece 3.49 s after it).
+     * 4.0 covers every volley after a drive but one doubtful 4.2 s (2 Nov R-Quals: a single shot
+     * counted, 3.09 s into the feed). The feed itself runs 3.5 s whatever: this is when the pieces
+     * are out, not when the card ends. Re-measure from the next Auto logs.
      */
-    public static final double PICK_FLOWER_TYPICAL_S = 4.4;
+    public static final double LAUNCH_ALL_LAST_PIECE_S = 4.0;
+
+    /**
+     * {@code PickFlower}'s typical seconds, from the card's start to its end. Measured on 20245
+     * from the six Auto picks since the drive in lowers the stick ({@code FlowerPicker.approach},
+     * 3 and 4 Nov 2026): 1.82 to 3.65 s, median 3.0 (the pick's own line: line-up 0 to 0.61 s,
+     * hand-over 0.02 to 0.19, push 0.67 to 1.10, dwell 0.06 to 2.01, back-out 0.58 to 0.71). 3.7
+     * covers the slowest, 3.65 s (3 Nov 17:30, a 0.31 s line-up and the whole 2 s dwell, the lane
+     * never full); 4 Nov 00:48's took 3.41 s (line-up 0.61, dwell 1.02). Not seen yet, but possible:
+     * the longest line-up and the whole dwell together, about 4.1 s. The picks logged before the
+     * approach (29 Oct to 2 Nov) took 2.1 to 4.3 s, up to 0.7 s of each the stick wait gone now.
+     * Was 4.4, planned for that slow pick (mentor, 3 Nov 2026). Re-measure from the next Auto picks.
+     */
+    public static final double PICK_FLOWER_TYPICAL_S = 3.7;
 
     /**
      * {@code GardenGather}'s typical seconds: a drive in, a dwell and a drive back from wherever the
-     * card is called. Not measured from an Auto yet (five button gathers on 29 Oct and 1 Nov 2026
-     * took 3.0 to 5.0 s from beside the GARDEN); 6.0 allows for the drive in and back.
+     * card is called. One Auto gather so far, from {@code GARDEN_STAGING}: 4.21 s (3 Nov 2026 18:06,
+     * R-Partner-Tip: prep 0.74, in 1.17, dwell 1.51, back 0.77); five button gathers on 29 Oct and
+     * 1 Nov took 3.0 to 5.0 s from beside the GARDEN. 5.0 covers both; was 6.0 before an Auto
+     * gather was logged.
      */
-    public static final double GARDEN_GATHER_TYPICAL_S = 6.0;
+    public static final double GARDEN_GATHER_TYPICAL_S = 5.0;
 
     /**
      * Seconds from the partner's last shot to our CELL seen up, added to the last shot their team
@@ -194,7 +214,10 @@ public final class AutoRegistration {
                 .holdTimeLimitsWhile(() -> launch != null && launch.feeding())
                 // ---- real: the launcher and the feeder. Typical seconds are what the editor's
                 // preview shows; the feed times themselves are LaunchCards' Panels numbers.
-                .command("LaunchAll", LAUNCH_ALL_TYPICAL_S, () -> launch.launchAll(),
+                // A volley: the endgame guard goes for the next one when its last piece can be out
+                // before AUTO ends, rather than park (AutoKit.guarded). Its approach opens the gate
+                // on the drive in, once aimed and at speed (LaunchCards.approach).
+                .volley("LaunchAll", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S, () -> launch.launchAll(),
                         launch == null ? null : launch.approach())
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 .command("SpinUp", 0.1, () -> launch.spinUp())

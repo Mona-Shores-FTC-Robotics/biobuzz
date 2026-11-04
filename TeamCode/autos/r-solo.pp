@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-03T21:11:00.365Z",
+  "timestamp": "2026-11-04T11:31:33.255Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -334,6 +334,150 @@
         "startDeg": 68.7,
         "endDeg": 0
       }
+    },
+    {
+      "id": "link-5",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 41,
+        "y": 121.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": -63.60000000000002
+      }
+    },
+    {
+      "kind": "atomic",
+      "id": "line-mw21dmzz-w4lzak",
+      "endPoint": {
+        "x": 41,
+        "y": 20
+      },
+      "controlPoints": [
+        {
+          "x": 28,
+          "y": 112
+        },
+        {
+          "x": 28,
+          "y": 36
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 296.4,
+        "endDeg": 68.7
+      },
+      "color": "#e15759",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "name": "to RIGHT_LAUNCH_OFFSET"
+    },
+    {
+      "kind": "atomic",
+      "id": "line-mw21dn0k-slngbp",
+      "endPoint": {
+        "x": 14.5,
+        "y": 95.7
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 68.7,
+        "endDeg": 0
+      },
+      "color": "#edc948",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "name": "RIGHT_LAUNCH_OFFSET park"
+    },
+    {
+      "id": "link-6",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 41,
+        "y": 20
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 428.7
+      }
+    },
+    {
+      "kind": "atomic",
+      "id": "line-mw21dn0c-jloj6e",
+      "endPoint": {
+        "x": 11.5,
+        "y": 22.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 68.7,
+        "endDeg": 270
+      },
+      "color": "#76b7b2",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "name": "to GARDEN_STAGING"
+    },
+    {
+      "kind": "atomic",
+      "id": "line-mw21dn0u-c2xhld",
+      "endPoint": {
+        "x": 41,
+        "y": 20
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 68.7
+      },
+      "color": "#4e79a7",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "name": "to RIGHT_LAUNCH_OFFSET"
+    },
+    {
+      "kind": "atomic",
+      "id": "line-mw21dmzt-fdtyvs",
+      "endPoint": {
+        "x": 14.5,
+        "y": 95.7
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 68.7,
+        "endDeg": 0
+      },
+      "color": "#4e79a7",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "name": "to RIGHT_PARK"
     }
   ],
   "shapes": [
@@ -558,6 +702,34 @@
     {
       "kind": "path",
       "lineId": "line-mw0cnl7h-qvb0l4"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-5"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw21dmzz-w4lzak"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw21dn0k-slngbp"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-6"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw21dn0c-jloj6e"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw21dn0u-c2xhld"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw21dmzt-fdtyvs"
     }
   ],
   "fieldPoints": [],
@@ -609,9 +781,9 @@
         "Tip"
       ],
       "typicalS": {
-        "LaunchAll": 4,
-        "PickFlower": 4.4,
-        "GardenGather": 6,
+        "LaunchAll": 4.5,
+        "PickFlower": 3.7,
+        "GardenGather": 5,
         "LaunchOne": 0.5,
         "SpinUp": 0.1
       }
@@ -669,7 +841,12 @@
       "line-mw0cnl7i-qkksz9": "RIGHT_PARK",
       "line-mw0cnl7i-4q4t8s": "RIGHT_PARK",
       "line-mw0cnl7i-who3ju": "RIGHT_PARK",
-      "line-mw0cnl7i-5r5t7y": "RIGHT_PARK"
+      "line-mw0cnl7i-5r5t7y": "RIGHT_PARK",
+      "line-mw21dmzt-fdtyvs": "RIGHT_PARK",
+      "line-mw21dmzz-w4lzak": "RIGHT_LAUNCH_OFFSET",
+      "line-mw21dn0c-jloj6e": "GARDEN_STAGING",
+      "line-mw21dn0k-slngbp": "RIGHT_PARK",
+      "line-mw21dn0u-c2xhld": "RIGHT_LAUNCH_OFFSET"
     },
     "cards": [
       {
@@ -724,38 +901,97 @@
         "park": false
       },
       {
-        "id": "c-mw0be8id-mym5h",
-        "kind": "action",
-        "name": "LaunchAll"
-      },
-      {
-        "id": "c-mw0cmikm-ae1ci",
-        "kind": "path",
-        "lineId": "line-mw0cmikm-aok025",
-        "park": false
-      },
-      {
-        "id": "c-mw0cnb99-7hxw0",
-        "kind": "action",
-        "name": "GardenGather",
-        "timeoutS": 8
-      },
-      {
-        "id": "c-mw0cnil6-fop0x",
-        "kind": "path",
-        "lineId": "line-mw0cnil6-q92ax2",
-        "park": false
-      },
-      {
-        "id": "c-mw0cnjjk-o62oj",
-        "kind": "action",
-        "name": "LaunchAll"
-      },
-      {
-        "id": "c-mw0cnl7h-c9m1d",
-        "kind": "path",
-        "lineId": "line-mw0cnl7h-qvb0l4",
-        "park": true
+        "id": "c-mw21dmzf-gsbn5",
+        "kind": "firstOf",
+        "label": "Wait for TIP or CELL up",
+        "rows": [
+          {
+            "when": [
+              "CellUp"
+            ],
+            "cards": [
+              {
+                "id": "c-mw0be8id-mym5h",
+                "kind": "action",
+                "name": "LaunchAll"
+              },
+              {
+                "id": "c-mw0cmikm-ae1ci",
+                "kind": "path",
+                "lineId": "line-mw0cmikm-aok025",
+                "park": false
+              },
+              {
+                "id": "c-mw0cnb99-7hxw0",
+                "kind": "action",
+                "name": "GardenGather",
+                "timeoutS": 8
+              },
+              {
+                "id": "c-mw0cnil6-fop0x",
+                "kind": "path",
+                "lineId": "line-mw0cnil6-q92ax2",
+                "park": false
+              },
+              {
+                "id": "c-mw0cnjjk-o62oj",
+                "kind": "action",
+                "name": "LaunchAll"
+              },
+              {
+                "id": "c-mw0cnl7h-c9m1d",
+                "kind": "path",
+                "lineId": "line-mw0cnl7h-qvb0l4",
+                "park": true
+              }
+            ]
+          },
+          {
+            "afterMs": 750,
+            "cards": [
+              {
+                "id": "c-mw21dmzz-8al2v",
+                "kind": "path",
+                "lineId": "line-mw21dmzz-w4lzak",
+                "park": false
+              },
+              {
+                "id": "c-mw21dn06-vl99s",
+                "kind": "action",
+                "name": "LaunchAll"
+              },
+              {
+                "id": "c-mw21dn0c-2k9hv",
+                "kind": "path",
+                "lineId": "line-mw21dn0c-jloj6e",
+                "park": false
+              },
+              {
+                "id": "c-mw21dn0p-4bvyz",
+                "kind": "action",
+                "name": "GardenGather",
+                "timeoutS": 8
+              },
+              {
+                "id": "c-mw21dn0u-hxhac",
+                "kind": "path",
+                "lineId": "line-mw21dn0u-c2xhld",
+                "park": false
+              },
+              {
+                "id": "c-mw21dn1a-2fg1w",
+                "kind": "action",
+                "name": "LaunchAll"
+              },
+              {
+                "id": "c-mw21dmzt-u928r",
+                "kind": "path",
+                "lineId": "line-mw21dmzt-fdtyvs",
+                "park": true
+              }
+            ]
+          }
+        ]
       }
     ],
     "startAt": "RIGHT_START",
@@ -763,14 +999,18 @@
       "link-1",
       "link-2",
       "link-3",
-      "link-4"
+      "link-4",
+      "link-5",
+      "link-6"
     ],
     "parkFrom": {
       "c-mw0be8id-e596r": "line-mw0cnl7i-qkksz9",
       "c-mw0clsus-jph23": "line-mw0cnl7i-4q4t8s",
       "c-mw0be8id-pnyel": "line-mw0cnl7i-4q4t8s",
       "c-mw0be8id-xc2bb": "line-mw0cnl7i-who3ju",
-      "c-mw0cmikm-ae1ci": "line-mw0cnl7i-5r5t7y"
+      "c-mw0cmikm-ae1ci": "line-mw0cnl7i-5r5t7y",
+      "c-mw21dmzz-8al2v": "line-mw21dn0k-slngbp",
+      "c-mw21dn0c-2k9hv": "line-mw0cnl7i-5r5t7y"
     },
     "teamSpots": [
       "GARDEN_STAGING",

@@ -294,6 +294,20 @@ public class AutoKitTest {
         assertEquals(java.util.Collections.singletonList(park), drive.followed);
     }
 
+    /** Practice runs (BuiltAuto.endgameGuard off): every card runs, and the trace says once where it would have parked. */
+    @Test
+    public void guardOffRunsEveryCardAndTracesWhereItWouldHaveParked() {
+        Path park = line(0, 10);
+        Path drawnPark = line(0, 20);
+        now = 27.6; // 2.4 s left; the guard on would park at once
+        run(kit.guard(false).guarded("If tipped", park, 2.0,
+                kit.command("ShootAll"),
+                kit.path("Park", drawnPark)), 5);
+        assertTrue("ShootAll must run: " + log, log.contains("ShootAll"));
+        assertEquals(java.util.Collections.singletonList(drawnPark), drive.followed);
+        assertEquals(trace.toString(), 1, trace.stream().filter(t -> t.contains("guard OFF")).count());
+    }
+
     @Test
     public void guardCutsARunningCardShortAtTheDeadlineAndParks() {
         AutoKit kit = new AutoKit(drive, new AutoRegistry()
@@ -349,6 +363,32 @@ public class AutoKitTest {
                 kit.command("LaunchAll", 10.0),
                 kit.path("Park", park)), 15);
         assertEquals("the spot's own park, not the guard's", java.util.Arrays.asList(toSpot, spotPark), drive.followed);
+        assertTrue(trace.toString(), trace.contains("parking from the spot the robot is on"));
+        double deadline = AutoKit.AUTO_LENGTH_S - (1.0 + AutoKit.GUARD_MARGIN_S); // 28 s, not 25
+        assertEquals("the launch runs until the spot's park needs the time", deadline, drive.followedAt.get(1), 0.03);
+    }
+
+    /**
+     * The Visualizer's "then: park" Wait: each outcome is its own guard, entered on the spot the
+     * drive before the wait arrived at. That spot's park (1 s) must survive entering the block, so
+     * the launch runs until it needs the time (28 s), not the block's own 4 s park (25 s).
+     */
+    @Test
+    public void aGuardEnteredOnASpotParksFromThatSpot() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("LaunchAll", 10.0, () -> lasting("LaunchAll", 10.0))
+                .trigger("CellUp", () -> true), () -> now).trace(trace::add);
+        Path toSpot = line(0, 10), spotPark = line(10, 12), park = line(10, 30);
+        now = 20.0;
+        run(kit.sequence(
+                kit.path("to SPOT", toSpot, 1.0, spotPark, 1.0),
+                kit.firstOf("Wait for TIP or CELL up",
+                        kit.when("CellUp").then(
+                                kit.guarded("If CellUp", park, 4.0,
+                                        kit.command("LaunchAll", 10.0),
+                                        kit.path("Park", park))),
+                        kit.afterMs(750))), 15);
+        assertEquals("the spot's own park, not the block's", java.util.Arrays.asList(toSpot, spotPark), drive.followed);
         assertTrue(trace.toString(), trace.contains("parking from the spot the robot is on"));
         double deadline = AutoKit.AUTO_LENGTH_S - (1.0 + AutoKit.GUARD_MARGIN_S); // 28 s, not 25
         assertEquals("the launch runs until the spot's park needs the time", deadline, drive.followedAt.get(1), 0.03);
@@ -447,6 +487,171 @@ public class AutoKitTest {
         assertFalse("the gather must not start: " + log, log.contains("GardenGather start"));
         assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("not starting GardenGather")));
         assertEquals(java.util.Collections.singletonList(park), drive.followed);
+    }
+
+    // ------------------------------------------- a volley before the park (4 Nov 2026)
+
+    /** A kit whose LaunchAll is a volley: 4.5 s long, its last piece out 4.0 s in. */
+    private AutoKit volleyKit(AutoRegistry registry) {
+        return new AutoKit(drive, registry
+                .volley("LaunchAll", 4.5, 4.0, () -> lasting("LaunchAll", 4.5)), () -> now).trace(trace::add);
+    }
+
+    private boolean traced(String ending) {
+        return trace.stream().anyMatch(t -> t.endsWith(ending));
+    }
+
+    /**
+     * 5 s left: the drive (1 s) and the park from its spot (3.5 s + margin) do not fit, so the old
+     * rule would park at once; the drive and the volley's last piece (4 s) do. A TIP is worth more
+     * than the park: it goes, fires the whole volley, and no park cuts it.
+     */
+    @Test
+    public void aDriveGoesForTheVolleyWhenItsLastPieceIsOutBeforeTheEnd() {
+        AutoKit kit = volleyKit(new AutoRegistry());
+        Path toSpot = line(0, 10), spotPark = line(10, 12), park = line(10, 30);
+        now = 25.0;
+        run(kit.guarded("Auto", park, 1.0,
+                kit.path("to SPOT", toSpot, 1.0, spotPark, 3.5),
+                kit.command("LaunchAll"),
+                kit.path("Park", park)), 10);
+        assertTrue(trace.toString(), traced("going for it, not parking"));
+        assertFalse(trace.toString(), traced("not starting to SPOT"));
+        assertTrue("the whole volley: " + log, log.contains("LaunchAll NATURALLY"));
+        assertTrue(trace.toString(), trace.stream().noneMatch(t -> t.endsWith("cutting card short")));
+        assertEquals("the drive, then the last card", java.util.Arrays.asList(toSpot, park), drive.followed);
+    }
+
+    /** 4.5 s left: the drive and the last piece (5 s) do not fit either, so it parks as before. */
+    @Test
+    public void aDriveWhoseVolleyWouldBeLateParksAsBefore() {
+        AutoKit kit = volleyKit(new AutoRegistry());
+        Path toSpot = line(0, 10), spotPark = line(10, 12), park = line(0, 30);
+        now = 25.5;
+        run(kit.guarded("Auto", park, 1.0,
+                kit.path("to SPOT", toSpot, 1.0, spotPark, 3.5),
+                kit.command("LaunchAll"),
+                kit.path("Park", park)), 10);
+        assertTrue(trace.toString(), traced("not starting to SPOT"));
+        assertFalse(trace.toString(), traced("going for it, not parking"));
+        assertFalse(log.toString(), log.contains("LaunchAll start"));
+        assertEquals(java.util.Collections.singletonList(park), drive.followed);
+    }
+
+    /** A volley that has started with its last piece in time is not cut for the park. */
+    @Test
+    public void aVolleyWhoseLastPieceFitsIsNotCutForThePark() {
+        AutoKit kit = volleyKit(new AutoRegistry());
+        Path park = line(0, 10);
+        now = 25.5; // last piece out at 29.5; the park (2 s + margin) would cut it at 27.0
+        run(kit.guarded("Auto", park, 2.0,
+                kit.command("LaunchAll"),
+                kit.path("Park", park)), 10);
+        assertTrue("the whole volley: " + log, log.contains("LaunchAll NATURALLY"));
+        assertTrue(trace.toString(), traced("going for it, not parking"));
+        assertEquals("the park is the last card, after the volley", 30.0, drive.followedAt.get(0), 0.05);
+    }
+
+    /** One whose last piece would be out after 30 s is cut for the park, as before. */
+    @Test
+    public void aVolleyWhoseLastPieceIsTooLateIsCutForThePark() {
+        AutoKit kit = volleyKit(new AutoRegistry());
+        Path park = line(0, 10);
+        now = 26.5; // last piece out at 30.5
+        run(kit.guarded("Auto", park, 2.0,
+                kit.command("LaunchAll"),
+                kit.path("Park", park)), 10);
+        assertTrue(log.toString(), log.contains("LaunchAll INTERRUPTED"));
+        assertTrue(trace.toString(), traced("cutting card short"));
+        assertEquals("the park starts at the deadline", 27.0, drive.followedAt.get(0), 0.03);
+    }
+
+    /** A launch that is feeding (time limits held) is never cut, volley or not: its pieces are on their way. */
+    @Test
+    public void aFeedingLaunchIsNeverCut() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .holdTimeLimitsWhile(() -> now >= 26.5 - 1e-9)
+                .command("LaunchAll", 3.0, () -> lasting("LaunchAll", 3.0)), () -> now).trace(trace::add);
+        Path park = line(0, 10);
+        now = 26.0; // feeding from 26.5; the park's deadline is 27.0
+        run(kit.guarded("Auto", park, 2.0,
+                kit.command("LaunchAll"),
+                kit.path("Park", park)), 10);
+        assertTrue("the feed ran to its end: " + log, log.contains("LaunchAll NATURALLY"));
+        assertTrue(trace.toString(), trace.stream().noneMatch(t -> t.endsWith("cutting card short")));
+        assertEquals("parks when the launch ends", 29.0, drive.followedAt.get(0), 0.05);
+    }
+
+    /**
+     * The look-ahead adds every card up to the volley: a grab (3 s typical), a drive (1 s) and a
+     * wait's time limit (1 s), then the last piece (4 s): 9 s. With 9 s left it goes, though the
+     * grab and the guard's 5.5 s park (+ margin) would not fit.
+     */
+    @Test
+    public void theLookAheadAddsEveryCardUpToTheVolley() {
+        AutoKit kit = volleyKit(new AutoRegistry()
+                .grab("PickFlower", 3.0, () -> lasting("PickFlower", 1.0))
+                .trigger("CellUp", () -> false));
+        Path toSpot = line(0, 10), park = line(10, 30);
+        now = 21.0;
+        run(kit.guarded("Auto", park, 5.5,
+                kit.command("PickFlower", 8.0),
+                kit.path("to SPOT", toSpot, 1.0),
+                kit.firstOf("Wait for TIP or CELL up", kit.when("CellUp"), kit.afterMs(1000)),
+                kit.command("LaunchAll"),
+                kit.path("Park", park)), 15);
+        assertTrue(log.toString(), log.contains("PickFlower NATURALLY"));
+        assertTrue(log.toString(), log.contains("LaunchAll NATURALLY"));
+        assertFalse(trace.toString(), traced("not starting PickFlower"));
+        assertEquals(java.util.Arrays.asList(toSpot, park), drive.followed);
+    }
+
+    /** The same cards with 8.9 s left: 9 s does not fit, and the grab and park do not either: it parks. */
+    @Test
+    public void theLookAheadRefusesWhenTheSumIsJustOver() {
+        AutoKit kit = volleyKit(new AutoRegistry()
+                .grab("PickFlower", 3.0, () -> lasting("PickFlower", 1.0))
+                .trigger("CellUp", () -> false));
+        Path toSpot = line(0, 10), park = line(10, 30);
+        now = 21.1;
+        run(kit.guarded("Auto", park, 5.5,
+                kit.command("PickFlower", 8.0),
+                kit.path("to SPOT", toSpot, 1.0),
+                kit.firstOf("Wait for TIP or CELL up", kit.when("CellUp"), kit.afterMs(1000)),
+                kit.command("LaunchAll"),
+                kit.path("Park", park)), 15);
+        assertTrue(trace.toString(), traced("not starting PickFlower"));
+        assertFalse(log.toString(), log.contains("PickFlower start"));
+        assertEquals(java.util.Collections.singletonList(park), drive.followed);
+    }
+
+    /** A card the guard cannot time (a drive with no time given) ends the look-ahead: the park rule decides. */
+    @Test
+    public void aCardWithNoTimeEndsTheLookAhead() {
+        AutoKit kit = volleyKit(new AutoRegistry());
+        Path toSpot = line(0, 10), park = line(0, 30);
+        now = 25.5; // 4.5 s left: the volley alone fits, the guard's 4 s park (+ margin) does not
+        run(kit.guarded("Auto", park, 4.0,
+                kit.path("to SPOT", toSpot),
+                kit.command("LaunchAll"),
+                kit.path("Park", park)), 10);
+        assertFalse(trace.toString(), traced("going for it, not parking"));
+        assertEquals(java.util.Collections.singletonList(park), drive.followed);
+    }
+
+    /** Practice runs (guard off) still run every card, and say once where the guard would have parked. */
+    @Test
+    public void guardOffStillRunsEveryCard() {
+        AutoKit kit = volleyKit(new AutoRegistry()).guard(false);
+        Path toSpot = line(0, 10), spotPark = line(10, 12), park = line(10, 30);
+        now = 25.5;
+        run(kit.guarded("Auto", park, 1.0,
+                kit.path("to SPOT", toSpot, 1.0, spotPark, 3.5),
+                kit.command("LaunchAll"),
+                kit.path("Park", park)), 10);
+        assertTrue(log.toString(), log.contains("LaunchAll NATURALLY"));
+        assertEquals(java.util.Arrays.asList(toSpot, park), drive.followed);
+        assertEquals(trace.toString(), 1, trace.stream().filter(t -> t.contains("guard OFF")).count());
     }
 
     // ------------------------------------------------------------ approaches

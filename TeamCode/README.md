@@ -918,7 +918,7 @@ tuned Foresight, since only those build a `Follower`.
 The Foresight Tuner's **Max Strafe Velocity** step sends full power straight
 left, robot-centric, with nothing correcting heading. So it shows the robot's own
 strafe, and a robot that arcs there (a "rainbow") has a mechanical problem, not a
-tuning one. Two things hide it in everyday driving. Basic Drive runs at 60%, and
+tuning one. Two things hide it in everyday driving. Basic Drive runs at 70%, and
 it is **field-centric** by default, so the Pinpoint heading quietly steers out
 the drift. To see what the tuner sees, open **Drive: Robot-centric** (Utility menu),
 hold the **right bumper** (turbo) and push straight left.
@@ -967,7 +967,12 @@ calls. There are three kinds of card and one branching block:
   command at that deadline, since the robot is standing on a drawn spot, and never cuts a path: a
   path it has let start runs to its end and the robot parks from there. The same holds inside a
   `firstOf` row's cards: a path there is never cut, and one that would start after the deadline
-  does not start (#142).
+  does not start (#142). Before that, it goes for the next volley (`AutoRegistry.volley`: LaunchAll)
+  when a card, the cards after it up to that volley and the volley's last piece all fit before 30 s,
+  and then neither parks nor cuts until the next card: an AUTO TIP is worth 20 points toward the
+  POLLINATOR RPs, the AUTO PARK 5, and both robots' LEAVE and end-of-match PARK already make the
+  SWARM RP's 16 (mentor, 4 Nov 2026). A launch that is feeding is never
+  cut. → `TeamCode/autos/README.md` § "Parking when time runs short"
 
 **Where a path ends, and what settles after it.** A path card is done when `AutoDrive.pathDone()`
 says so, which on the robot is Pedro's parametric end: the Follower switches to holding the end pose
@@ -1081,6 +1086,44 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   an approach that starts the volley under `PathEndSettle.readyOnApproach`'s rule; the measured
   0.8 to 0.9 s from gate open to first ball; and a hit model for a ball fired while the robot
   still rolls.
+- **The GARDEN.** Each alliance's GARDEN is in the simulator as the manual has it (TU03 §9: about 23 in by 2
+  in, along the audience wall from the red-side wall for red, blue's turned half a turn), with its 4 POLLEN in
+  a line from that corner, where the field model stages them. A `GardenGather` card runs master's
+  `GardenGather` routine from where it is called, with GardenGather's own numbers: intake on, a drive in at
+  `inSpeed` to `GardenFieldPoints`' gather pose (plus `extraDepthIn`, `towardWallIn`; the walls stop the
+  frame), a `dwellMs` dwell, and a drive back at `backSpeed`. It takes what the intake touches. **Measured:**
+  the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
+  whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (6 s, not yet timed from an
+  Auto); the FLOWER stick, which goes down on the robot's gather, is not modelled in the GARDEN.
+- **Hits on the HIVE.** The rocker's static balance is fitted to the Field Setup Guide's placed cases
+  (`HiveCalibration`). On top of it, a launched piece striking a CELL hands the rocker the angular momentum
+  about the axle the hit took from it (`FieldSim.kick`): the rocker is damped, so a hit moves it a step,
+  and a load just under the tipping weight knocked far enough goes on over. Only pieces arriving at 30 in/s
+  or more count, so settling pieces do not walk the rocker. Its strength,
+  `FieldSim.PLACEHOLDER_IMPULSE_SCALE` (0.6 of the hit's angular momentum), is a placeholder set to the
+  mentor's videos (4 Nov 2026): the real robot's 4-ball volley from RIGHT_START onto 4 POLLEN + 2 NECTAR (7.3
+  weights) tips 13 runs in 20, onto 7 POLLEN 1, onto 6.3 weights or less never. `HiveImpulseTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
+  and the Guide's six §12.3 rows; `BIOBUZZ_SIM_SWEEP=0.5,1,2` prints every case at each strength, for
+  refitting it to the video counts in `doc/robot-todo.md`.
+- **The launcher fires at the robot's one setpoint.** The real robot's designs fire every shot at master's
+  `LauncherSubsystem.targetTicksPerSecond` (`RobotDesign.fixedSetpoint`), at one pitch, whatever the distance,
+  so a shot from nearer or further than RIGHT_START goes long or short. **Measured:** the setpoint, and that it
+  is the middle of the window at RIGHT_START (1 Nov: 1575 short, 1625 long; 4 Nov: 4 of 4), which fixes the
+  ticks-to-exit-speed conversion: the simulator finds the speeds that score from RIGHT_START and puts 1595 in
+  their middle. **Placeholders:** the pitch, 75° (`setpointPitchDeg`; no hood angle is in master's code), fitted
+  to the 4 Nov video's volley from LEFT_LAUNCH_OFFSET (41 in) going long (the simulator scores about 1 in 8
+  there; it scored all of them at the ideal speed); the shot-to-shot spread (`setpointSpeedSpread`,
+  `setpointAngleSpreadRad`, the old 1.5% and 0.8°). The simulated CELL is more forgiving than the field's:
+  from RIGHT_START it keeps pieces from about 1500 to 1650 ticks/s where the robot's tuning shows about ±1.5%
+  (a real CELL spits a piece that hits its back or lip too fast). `LauncherSetpointTest`
+  (`BIOBUZZ_SIM_CHECKS=1`) checks both spots; `BIOBUZZ_SIM_IDEAL_SPEED=1` puts back the speed per distance.
+- **The human's long roll** (`BIOBUZZ_AUTO_HUMAN_ENTRY=aim`, for PR #424's study): each owed NECTAR is rolled
+  from the LOADING ZONE (released on the tile at `AutoSim.humanAimFrom`, (5.5, 95) for red) at the intake mouth
+  of a robot on a team spot (`BIOBUZZ_AUTO_HUMAN_AIM_SPOT`, a `spots.json` name or `x,y,heading`;
+  RIGHT_LAUNCH_OFFSET by default), at 21 ± 2 in/s (`_AIM_SPEED`) with a 2° aim spread (`_AIM_SPREAD_DEG`), once
+  no robot is within 12 in of the release and not before `_AIM_AT_S` on the match clock if set;
+  `BIOBUZZ_AUTO_HUMAN_BANK=N` banks them. Every number is a placeholder until the long-roll drill measures it.
+  Off by default; `HumanRollTest` (`BIOBUZZ_SIM_CHECKS=1`) checks a dead-on roll reaches the spot's robot.
 - **Results.** Each partner run gets its own folder, `<partner .pp name>/<timing name>/`, with its
   `result.json` and logs, and the top `result.json` carries `entries`: one row per run with the
   points, our launches (and how many went at a down CELL), the TIPs and when, the partner's last
