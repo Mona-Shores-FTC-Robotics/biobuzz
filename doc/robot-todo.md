@@ -160,7 +160,7 @@ These gate Belding. Run each from its start, alliance from §2.
       R-Solo logs), and the approach's gate waits for AtSpeed too. **Good:** `at_speed` in Panels
       stays 1 through the drive into LEFT_LAUNCH_OFFSET. **Stop:** still overshooting → judge the
       next two lines only on runs where the trace shows `LaunchAll opened the gate on the approach`.
-      [PR #LAUNCH_ON_APPROACH]
+      [PR #430]
 - [ ] **Launch on the approach: hit rate against firing still.** R-Solo, three runs with
       `LaunchCards.launchOnApproach` on (the default) and three with it off. Count the balls that
       score from each LaunchAll after a drive. From the logs, time each arrival → first ball (was
@@ -168,11 +168,11 @@ These gate Belding. Run each from its start, alliance from §2.
       per LaunchAll after a drive. The late-turning drive from SCORING_FLOWER_STAGING shows no
       `opened the gate on the approach` line. **Stop:** more misses on → `PathEndSettle.launchWithinIn`
       3, again; still worse → `launchOnApproach` false. Write back the one that held.
-      [PR #LAUNCH_ON_APPROACH]
+      [PR #430]
 - [ ] **The looser settle (aimed and slowing, under 6 in/s):** read the `settled X s after path end`
       lines from the same runs with `launchOnApproach` off. **Good:** X under 0.3 s (was 0.38–0.57),
       and hits as good as before. **Stop:** misses → `PathEndSettle.slowSpeedInPerSec` 3.
-      [PR #LAUNCH_ON_APPROACH]
+      [PR #430]
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
@@ -403,6 +403,7 @@ one test at one meeting.
 [PR #384]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/384
 [PR #387]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/387
 [PR #391]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/391
+[PR #430]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/430
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#78]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/78
