@@ -406,10 +406,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (!routineActive()) {
             double turnCommand = chassisAim ? chassisAimTurn() : turn;
             robot.drive.setAccelLimited(!turbo);
+            // The scale is also the wheel cap, so a mode is that fraction of turbo in every
+            // direction: without it, a diagonal or a turn at normal saturated to full power and
+            // turbo felt the same (TeleOpConfig.normalSpeed). The cap holds the chassis aim's turn
+            // too: slow turns slowly whoever asks.
             if (robotCentric()) {
-                robot.drive.driveRobotCentric(forward, strafe, turnCommand);
+                robot.drive.driveRobotCentric(forward, strafe, turnCommand, scale);
             } else {
-                robot.drive.drive(forward, strafe, turnCommand);
+                robot.drive.drive(forward, strafe, turnCommand, scale);
             }
             boolean driverIn = controls.held(Action.INTAKE);
             boolean operatorIn = controls.held(Action.OPERATOR_INTAKE);

@@ -28,19 +28,46 @@ public final class TeleOpConfig {
     public static Input flowerPickButton = ControlScheme.DEFAULT_FLOWER_PICK;
 
     /**
-     * Stick multiplier for everyday driving. 1.0 would be full power. 0.8 since 29 Oct, when at 0.6
-     * the driver held the stick at its rim more than half the time and almost never used turbo.
+     * Everyday driving: the sticks are multiplied by this, and no wheel gets more than this
+     * ({@code WheelPowerCap}), so it is this fraction of turbo in every direction and while turning.
+     * 1.0 would be full power. Clamped to [0, 1], NaN stops.
+     *
+     * <p>0.7 since 4 Nov 2026, from the 2 and 3 Nov Basic Drive logs on 20245, when L1 and R1 did
+     * not feel like they changed much. Two reasons, both in the logs (steady segments, the command
+     * held over 0.5 s):
+     * <ul>
+     *   <li>Before the wheel cap, 0.8 with the stick at its rim was normalized to full power about
+     *       half the time (a diagonal to the robot or a turn), 0.94 of full power on average, so turbo
+     *       gave 6% more power: wheels 1660 against 1740 ticks/s, 36 against 39 in/s.</li>
+     *   <li>The wheels stop gaining speed near the top: about 2000 ticks/s per unit of power up to
+     *       0.8 (1040 at 0.5, 1600 at 0.8), then only about 1700 at full. A normal speed above about
+     *       0.8 is turbo with the acceleration limit on.</li>
+     * </ul>
+     * At 0.7 the wheels should run about 1400 ticks/s against turbo's 1700 to 1800, so turbo is
+     * about a quarter faster and the difference is in top speed, not only in getting there. History:
+     * 0.6 until 29 Oct (the driver held the stick at its rim more than half the time and almost
+     * never used turbo), then 0.8, which with the saturation was nearly turbo. Drivers judge the new
+     * value in Basic Drive ({@code doc/robot-todo.md}).
      */
-    public static double normalSpeed = 0.8;
+    public static double normalSpeed = 0.7;
 
-    /** Stick multiplier while turbo is held. */
+    /**
+     * Stick multiplier and wheel cap while turbo is held, with the acceleration limit off. Full
+     * power: the motors give no more. Clamped to [0, 1].
+     */
     public static double turboSpeed = 1.0;
 
     /**
-     * Stick multiplier while slow is held. Slow wins if both are held. 0.45 since the everyday speed
-     * went to 0.8, keeping slow a little over half of it.
+     * Stick multiplier and wheel cap while slow is held, for lining up. Slow wins if both are held.
+     * Clamped to [0, 1].
+     *
+     * <p>0.25 since 4 Nov 2026, about a third of {@link #normalSpeed}. At 0.45 it was 57% of normal
+     * at the wheels (940 against 1660 ticks/s) and 75% of its speed over the floor (27 against
+     * 36 in/s, in the 2 and 3 Nov logs), too close to normal to feel like a precision mode. At 0.25
+     * the wheels should run about 500 ticks/s, roughly 15 in/s. The cap holds the chassis aim's turn
+     * to it too.
      */
-    public static double slowSpeed = 0.45;
+    public static double slowSpeed = 0.25;
 
     /** Degrees one trim press moves the aim. Clamped to [0, 5]. */
     public static double trimStepDeg = 1.5;

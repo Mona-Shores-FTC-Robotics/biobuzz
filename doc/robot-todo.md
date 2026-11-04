@@ -186,6 +186,14 @@ measurement is [#255].
 - [ ] **GARDEN into the corner,** driver Triangle near the red GARDEN, three times. **Good:** pressed
       into both walls, intake in the corner; note the `towardWallIn` that works (0 = off).
       [S4 §6], [PR #279]
+- [ ] **Drive speeds, the drivers' call:** Basic Drive, a few minutes each driver: normal, then
+      hold L1 (slow) to line up on a FLOWER, then R1 (turbo) across the field, diagonals included.
+      New defaults normal 0.7 / slow 0.25 / turbo 1.0, and each mode now caps the wheels, so it is
+      that fraction of turbo in every direction (before, 0.8 on a diagonal was already full power).
+      Change them live in Panels → TeleOpConfig if they ask. **Good:** each mode feels different and
+      the drivers name the values they keep; write those in `TeleOpConfig`, pull the log. **Stop:**
+      normal too slow for everyday driving → try 0.75 first, not higher (above about 0.8 the wheels
+      stop gaining speed, so turbo would feel the same again). [PR #TBD]
 
 ## 5. Pose and camera (Basic Drive / Vision: HIVE & Pose)
 
