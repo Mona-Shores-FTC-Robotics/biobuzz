@@ -80,6 +80,7 @@ accepts a `SOURCE` here as it does in the folder itself.
 | `partner-park-1`, `partner-park-2` | Sits on the left start until 15 s, then parks (two different starts and park spots). |
 | `partner-r-launch-park`, `partner-l-launch-park` | Spins up, waits for its own CELL to be up (at most 12 s), fires all four preloads at it, parks. The right CELL is up at the start, so the right one fires at once; the left one fires once our first TIP raises the left CELL. |
 | `partner-l-tip-park` | The left launch-park, then the scoring FLOWER, four more at the left CELL (eight pieces: a TIP), then parks. |
+| `partner-push-start` | A partner with no Auto that we push: back on our alliance wall, centred on tile A4 just south of the LOADING ZONE, facing the field (`PARTNER_PUSH_START`, 8.1, 82.5, a spot of its own until it earns a team spot), and never moves. Its runs set `"pushable": true`, so our robot moves it instead of colliding (`AutoSim.pushable`). Used by the draft `drafts/r-solo-push` (4 Nov 2026). |
 | `partner-l-stage-park` | Starts against the wall facing the HIVE with its four POLLEN on the tiles along its left side (the simulator places them, `AutoStudyTest.alongLeftSide`, touching the frame as G304 asks), waits 2 s, drives off along the wall and parks, leaving them. |
 
 A stand-in is drawn and exported like any Auto (Visualizer, or `node scripts/export-auto.mjs`
@@ -104,6 +105,7 @@ they said" and "breaks down partway" are not modelled (mentor, 3 Nov 2026). The 
 | R-Partner-Tip | yes | `partner-l-tip-park` at 50 in/s; `partner-still` (out of the way) | the same | `partner-l-broken-down` |
 | R-Solo | yes | `partner-park-1` (no launches), `partner-still` (out of the way) | | `partner-l-broken-down` |
 | R-Solo-Staging | yes | `partner-l-stage-park` (see the note below) | | |
+| R-Solo-Push (draft, `drafts/`) | yes | `partner-push-start`, pushable: pushed off the wall into the LOADING ZONE | | |
 
 **The results table** in the workflow's job summary has a row per seed of each run: points, our
 launches and the partner's (and how many went at a down CELL), the TIPs, **the partner's last shot
@@ -122,6 +124,13 @@ and who parked. For an Auto with a partner wait, a run's name ends with the seco
   as a spec writes it after `@`), `launchS` (seconds per launch volley: a four-piece launch is the
   1 s spin-up and then three of these) and `pickS` (seconds it stands at a FLOWER with its intake
   on). One given wins over what `lastShotS` derives.
+
+**A partner we push** (`"pushable": true` on an entry): while the stand-in is not driving, our robot moves it
+along with itself on contact instead of overlapping it, at `AutoSim.PUSH_SPEED_FRACTION` (half, a placeholder)
+of its path's speed. Translation only: it keeps its heading, and a wall stops it. It is judged for LEAVE and
+AUTO PARK where it ends, so a push off the wall into the LOADING ZONE scores both, which is the team's reading
+of §10.5.4, still to be confirmed on the official Q&A. The results table adds the partner's LEAVE, how far it
+went and how long we pushed.
 
 Partner runs use `partnerSeeds` (five) so each job stays under about five minutes; the Auto alone
 keeps its ten.

@@ -142,7 +142,9 @@ it runs master's generated Autos as they are. It knows one robot, the real one, 
 states (frame, FLOWER stick, feed) is read from master's code, never copied, and the rest is a
 placeholder until a match log measures it. It acts as the driver: a partner entry gives
 `lastShotS`, which times the stand-in and sets our partner wait, and a partner fails only by
-`"fails": "misses"` or by being dead on its start (a still stand-in). Its LaunchAll fires as the
+`"fails": "misses"` or by being dead on its start (a still stand-in). Touching a partner is a collision,
+unless its entry says `"pushable": true`: then our robot pushes it while it is not driving, and it is
+judged for LEAVE and PARK where it ends. Its LaunchAll fires as the
 robot's does, at our CELL at its end whether up or not. Its points are shown, never enforced: no test fails an
 Auto for scoring less. Only `SimulatorSmokeTest` runs by default; every other simulator test is
 opt-in by environment variable, so CI stays fast. The "Simulate Auto" workflow runs every saved request a push
