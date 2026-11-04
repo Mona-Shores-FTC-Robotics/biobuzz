@@ -11,7 +11,7 @@ public enum Action {
     // Driver
     DRIVE(Pad.DRIVER, "Drive"),
     TURN(Pad.DRIVER, "Turn"),
-    INTAKE(Pad.DRIVER, "Intake On / Off (Toggle)"),
+    INTAKE(Pad.DRIVER, "Intake (hold, over the toggle)"),
     DRIVER_UNJAM(Pad.DRIVER, "Unjam (hold)"),
     SLOW(Pad.DRIVER, "Slow (hold)"),
     TURBO(Pad.DRIVER, "Turbo (hold)"),

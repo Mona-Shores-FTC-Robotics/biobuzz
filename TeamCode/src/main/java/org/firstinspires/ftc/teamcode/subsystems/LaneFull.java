@@ -10,8 +10,8 @@ package org.firstinspires.ftc.teamcode.subsystems;
  * {@code IntakeFull} all read this one signal. {@link LaneTracker} counts arrivals and shots, which
  * drifts on any missed event, so it stays in the log only.
  *
- * <p>A held piece is full wherever the sensor is mounted (slot 3 today, slot 4 once the builders move
- * it). Only time spent while taking in counts toward {@code fullAfterMs}: a piece parked under the
+ * <p>A held piece is full wherever the sensor is mounted (slot 4, the entrance, since early Nov
+ * 2026; slot 3 before). Only time spent while taking in counts toward {@code fullAfterMs}: a piece parked under the
  * sensor while the intake is idle says nothing about whether the lane would take another. Once full,
  * it stays full while the piece is there, intake or not (the roller stopping for it does not undo
  * it), and clears the moment the piece leaves.

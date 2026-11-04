@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.controls;
 
 /**
- * The TeleOp's intake buttons as a toggle instead of a hold ({@code TeleOpConfig.intakeToggle},
- * on by default): a press of either intake button turns the intake on, the next press turns it off,
- * one latch for both pads. Left on, the intake stops its roller and the prefeed by itself when the
+ * The operator's intake button as a toggle instead of a hold ({@code TeleOpConfig.intakeToggle},
+ * on by default): a press turns the intake on, the next press turns it off. The driver's intake
+ * and either unjam are holds that win over it while held ({@code IntakeArbiter}). Left on, the intake stops its roller and the prefeed by itself when the
  * lane is full and starts them again when a shot makes room.
  *
  * <p>Pure and allocation-free, called once a loop: it sees the buttons as held or not and works out
