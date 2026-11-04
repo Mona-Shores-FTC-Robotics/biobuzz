@@ -204,6 +204,20 @@ measurement is [#255].
       match-length drive and note `shadow_offset_in`. [PR #361]
 - [ ] **Panels drawing:** X then B in INIT turns the outline blue → red; each FieldLayers switch
       shows and hides its robot. [PR #356], [PR #307]
+- [ ] **Go to launch spot (driver Square, hold) vs chassis aim (Circle):** pose set (corner or
+      camera reset), the drivers try both from around the field over a practice, firing from where
+      each leaves them; then from one half to the other with the other CELL up, watching the
+      straight path's clearance from the HIVE frame (let go if it heads for a leg). **Good:**
+      arrives aimed (`launch spot: arrived … in N s, X in and Y° off`), shots land; the drivers say
+      which they prefer. Compare the match log's `launch spot:` events with its `chassis aim:`
+      ones.
+      **Stop:** it refuses with the pose set, or clips the HIVE → `TeleOpConfig.launchSpot` off and
+      note where. [PR #LAUNCHSPOT]
+- [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
+      view now and then; read `/Drift/GapXIn` and `/Drift/GapYIn` (camera minus odometry) over the
+      run. **Good:** the gap stays within a few inches, so a launch spot driven late in the match is
+      where it was early. **Stop:** it grows steadily → the launch-spot button needs a camera reset
+      first; note the rate. [PR #LAUNCHSPOT]
 
 ## 6. Tape measure and level (camera geometry)
 

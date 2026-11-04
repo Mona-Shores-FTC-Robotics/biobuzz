@@ -7,8 +7,8 @@ import org.firstinspires.ftc.teamcode.controls.Input;
 
 /**
  * The TeleOp's driver-facing knobs, in one Panels class: the FLOWER pick button, speeds, aim trim,
- * the fire gates and chassis aim. A mechanism's own constants (powers, launcher speed, the FLOWER
- * pick's distances) stay on the class that owns the mechanism.
+ * the fire gates, chassis aim and the launch-spot button. A mechanism's own constants (powers,
+ * launcher speed, the FLOWER pick's distances) stay on the class that owns the mechanism.
  *
  * <p>Edit in Panels while someone drives, then write the values the drivers like back here:
  * Panels edits are lost on restart. Every value is guarded where it is read, so a typo gives a
@@ -80,6 +80,13 @@ public final class TeleOpConfig {
 
     /** How far off our CELL a shot may be aimed and still pass the aim gate, degrees. */
     public static double aimToleranceDeg = 3.0;
+
+    /**
+     * The driver's go-to-launch-spot button ({@link LaunchSpotDrive}, held): on while the drivers
+     * try it against chassis aim; off leaves it out of the layout, the Controls page and the
+     * button's reading. Read at INIT.
+     */
+    public static boolean launchSpot = true;
 
     /** Chassis aim: turn power per radian of heading error. A starting point, not a measurement. */
     public static double chassisAimKp = 1.0;

@@ -1,0 +1,183 @@
+package org.firstinspires.ftc.teamcode.opmodes;
+
+import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.api.Paths;
+import com.pedropathing.math.Pose;
+import com.pedropathing.paths.interpolator.Interpolator;
+
+import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.localization.LaunchSpots;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.vision.HiveState;
+import org.firstinspires.ftc.teamcode.vision.HiveTracker;
+
+import java.util.Locale;
+import java.util.function.Consumer;
+
+/**
+ * The driver's "go to launch spot" button, held: Pedro drives from the robot's pose to a launch
+ * spot ({@link LaunchSpots#choose}: the half whose CELL is up, else the nearer half; the nearer of
+ * its CATCH and OFFSET) and arrives at the spot's heading, aimed at the CELL as the Autos launch
+ * from it. Letting go, or moving a drive stick, gives the sticks back that same loop, as the FLOWER
+ * pick does. At the spot the Follower holds it until the button is let go.
+ *
+ * <p>Experimental, to try against chassis aim (Circle): it drives only with a referenced pose
+ * ({@code robot.drive.poseReferenced()}) and refuses otherwise, with a Driver Station line and a log
+ * event. The drive is one straight Pedro path, as the FLOWER pick's line-up is; it does not steer
+ * round the HIVE's frame, so a drive from one half to the other is watched on the robot first
+ * ({@code doc/robot-todo.md}).
+ *
+ * <p>Every press is two match-log lines, for comparing practice logs with chassis-aim use: the start
+ * (start pose, chosen spot, why) and the end (time to arrive, or let go early, and how far short).
+ */
+@Configurable
+public final class LaunchSpotDrive {
+
+    /** The drive's speed cap, a fraction of the robot's top path speed (0 to 1]. A starting point. */
+    public static double speed = 0.8;
+    /** The drive gives up after this long, ms, and hands the sticks back. NaN or negative gives up at once. */
+    public static double timeoutMs = 6000;
+
+    private enum Phase { IDLE, DRIVING, HOLDING, REFUSED, ENDED }
+
+    private final Robot robot;
+    private final Consumer<String> event;
+
+    private Phase phase = Phase.IDLE;
+    private LaunchSpots.Choice choice;
+    private long startNs;
+    private double arriveS = Double.NaN;
+    private String result = "";
+
+    public LaunchSpotDrive(Robot robot, Consumer<String> event) {
+        this.robot = robot;
+        this.event = event;
+    }
+
+    /** Pedro is driving or holding the robot: nothing else may drive it. */
+    public boolean active() {
+        return phase == Phase.DRIVING || phase == Phase.HOLDING;
+    }
+
+    /**
+     * One step, every loop.
+     *
+     * @param held        the button is held
+     * @param alliance    ours ({@code setup.alliance()})
+     * @param sticksMoved a drive stick is off centre: the driver wants the robot back
+     */
+    public void update(boolean held, Alliance alliance, boolean sticksMoved) {
+        long now = System.nanoTime();
+        if (!held) {
+            if (active()) end(now, "let go");
+            phase = Phase.IDLE;
+            return;
+        }
+        if (phase == Phase.IDLE) {
+            start(now, alliance);
+            return;
+        }
+        if (!active()) return; // REFUSED or ENDED: wait for the button to be let go
+        if (sticksMoved) {
+            end(now, "sticks moved");
+            return;
+        }
+        if (!robot.drive.poseReferenced()) {
+            end(now, "pose lost");
+            return;
+        }
+        if (phase == Phase.DRIVING) {
+            if (robot.drive.pathDone()) {
+                // Pedro's parametric end: the Follower now holds the spot until the button is let go.
+                phase = Phase.HOLDING;
+                arriveS = s(now);
+                event.accept(String.format(Locale.US, "launch spot: arrived at %s in %.2f s, %s",
+                        choice.spot, arriveS, offBy()));
+            } else if (!(s(now) * 1000.0 <= timeoutMs)) { // NaN or negative: give up at once
+                end(now, "timed out");
+            }
+        }
+    }
+
+    /** The Match page's line: what it is doing, or how the last press ended; empty before the first. */
+    public String line() {
+        long now = System.nanoTime();
+        switch (phase) {
+            case DRIVING:
+                return String.format(Locale.US, "Launch spot: driving to %s (%s), %.0f in to go · %.1f s",
+                        choice.spot, choice.why.text, remainingIn(), s(now));
+            case HOLDING:
+                return String.format(Locale.US, "Launch spot: AT %s, holding (arrived in %.1f s) · let go to drive",
+                        choice.spot, arriveS);
+            default:
+                return result;
+        }
+    }
+
+    private void start(long now, Alliance alliance) {
+        startNs = now;
+        arriveS = Double.NaN;
+        Pose pose = robot.drive.pose();
+        HiveTracker hive = robot.hive.of(alliance);
+        HiveState state = hive == null ? HiveState.UNSEEN : hive.state();
+        choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, state);
+        if (choice.refused()) {
+            phase = Phase.REFUSED;
+            result = "Launch spot REFUSED: " + choice.refusal;
+            event.accept("launch spot: refused, " + choice.refusal + ", from " + where(pose));
+            return;
+        }
+        try {
+            robot.drive.preparePathFollowing();
+        } catch (RuntimeException e) {
+            phase = Phase.REFUSED;
+            result = "Launch spot REFUSED: no path following on this robot";
+            event.accept("launch spot: refused, no path following on this robot: " + e.getMessage());
+            return;
+        }
+        Pose to = choice.target;
+        robot.drive.setAccelLimited(true);
+        // The same call shape as the FLOWER pick's line-up and the generated Autos' paths.
+        robot.drive.follow(Paths.line(pose, to)
+                .heading(Interpolator.piecewise().until(1, Interpolator.linear(pose, to)))
+                .with(Constants.forActiveRobot().foresightConfig.maxPathSpeed.at(GrabRoutine.unitFraction(speed))));
+        phase = Phase.DRIVING;
+        event.accept(String.format(Locale.US, "launch spot: start %s → %s %s, %s, %.0f in",
+                where(pose), choice.spot, where(to), choice, Math.hypot(to.x() - pose.x(), to.y() - pose.y())));
+    }
+
+    /** Hands the sticks back this loop and logs how the press ended. */
+    private void end(long now, String why) {
+        robot.drive.drive(0.0, 0.0, 0.0);
+        boolean early = phase == Phase.DRIVING;
+        String line = early
+                ? String.format(Locale.US, "%s early after %.2f s, %.0f in short of %s", why, s(now), remainingIn(), choice.spot)
+                : String.format(Locale.US, "%s after arriving at %s in %.2f s (held %.2f s)", why, choice.spot, arriveS, s(now) - arriveS);
+        event.accept("launch spot: " + line);
+        result = "Last launch spot: " + line;
+        phase = Phase.ENDED;
+    }
+
+    private double remainingIn() {
+        Pose pose = robot.drive.pose();
+        return pose == null ? Double.NaN : Math.hypot(choice.target.x() - pose.x(), choice.target.y() - pose.y());
+    }
+
+    /** At arrival: how far from the spot and its heading. */
+    private String offBy() {
+        Pose pose = robot.drive.pose();
+        if (pose == null) return "no pose";
+        double headingDeg = Math.toDegrees(Math.IEEEremainder(choice.target.heading() - pose.heading(), 2 * Math.PI));
+        return String.format(Locale.US, "%.1f in and %+.0f° off, %s", remainingIn(), headingDeg, where(pose));
+    }
+
+    private double s(long now) {
+        return (now - startNs) / 1e9;
+    }
+
+    private static String where(Pose pose) {
+        return pose == null ? "no pose" : String.format(Locale.US, "(%.1f, %.1f, %.0f°)",
+                pose.x(), pose.y(), Math.toDegrees(pose.heading()));
+    }
+}
