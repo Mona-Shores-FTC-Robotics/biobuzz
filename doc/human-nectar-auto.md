@@ -148,7 +148,7 @@ release point, a target, a speed and an aim spread. The hack above is about 25 l
 be made a proper option (say `BIOBUZZ_AUTO_HUMAN_ENTRY=aim`) if the mentor wants it. The bigger gap: **the simulator
 has no GARDEN** (`GardenGather: no GARDEN in the simulator: standing 6.0 s, taking nothing`). Both swap-pair L drafts
 load TIP 3 from it, so TIP 3 cannot be scored in the simulator, with or without NECTAR. In the baseline swap-pair runs
-(`R3TipA/B` with `L3TipA/B`, 20 seeds), L arrives at the RIGHT spot empty, and TIP 3 never happens.
+(`R3TipA/B` with `L3TipA/B`, 20 seeds; the drafts now live on the `autos-experiment` branch), L arrives at the RIGHT spot empty, and TIP 3 never happens.
 
 **Obstacles on the roll line** (zone → RIGHT_LAUNCH_OFFSET runs through the wall lane, x 5–44, y 27–95):
 - **The WALL FLOWER** (2.7, 47.4) is 26–37 in off the line: it is clear.
