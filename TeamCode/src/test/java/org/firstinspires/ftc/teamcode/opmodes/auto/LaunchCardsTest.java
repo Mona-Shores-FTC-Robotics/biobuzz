@@ -7,6 +7,9 @@ import static org.junit.Assert.fail;
 
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.math.Pose;
+
+import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +32,8 @@ public class LaunchCardsTest {
     private boolean spinning;
     private boolean atSpeed;
     private boolean settled;
+    /** What the approach check ({@code PathEndSettle.readyOnApproach}) says. */
+    private boolean readyOnApproach;
     private final List<String> notes = new ArrayList<>();
     private LaunchCards cards;
 
@@ -39,6 +44,8 @@ public class LaunchCardsTest {
         spinning = false;
         atSpeed = false;
         settled = true;
+        readyOnApproach = false;
+        LaunchCards.launchOnApproach = true;
         PathEndSettle.maxSettleWaitS = 1.0;
         LaunchCards.maxSpinUpWaitS = 2.5;
         LaunchCards.launchAllFeedS = 2.0;
@@ -53,6 +60,7 @@ public class LaunchCardsTest {
                     @Override public void idle() { log.add(String.format(java.util.Locale.US, "idle@%.2f", now)); }
                 },
                 () -> settled,
+                (end, pose, remainingIn) -> readyOnApproach,
                 notes::add,
                 () -> now);
     }
@@ -208,6 +216,100 @@ public class LaunchCardsTest {
         LaunchCards.launchAllFeedS = -3.0;
         run(cards.launchAll(), 1.0);
         assertEquals(2, cards.launchAllsCompleted());
+    }
+
+    // --------------------------------------------------------- on the approach
+
+    private static final Pose END = new Pose(100, 0, 0);
+
+    /** The drive before a LaunchAll: {@code loops} loops of the approach, closing in from 12 in. */
+    private void approach(AutoRegistry.Approach approach, int loops) {
+        approach.started(END);
+        for (int i = 0; i < loops; i++) {
+            double remaining = Math.max(0, 12 - i);
+            approach.approaching(new Pose(100 - remaining, 0, 0), remaining);
+            now += LOOP_S;
+        }
+    }
+
+    /**
+     * Mentor, 4 Nov 2026: the gate opens on the approach once aimed and at speed, and the LaunchAll
+     * after it waits for nothing, not even a robot that has not settled: it ends launchAllFeedS
+     * after the gate opened.
+     */
+    @Test
+    public void aGateOpenedOnTheApproachIsFinishedByTheLaunchAllAfterIt() {
+        atSpeed = true;
+        readyOnApproach = true;
+        settled = false;
+        approach(cards.approach(), 15);
+        assertEquals("opened at the first ready loop: " + log, 0.0, timeOf(first("feed")), EPS);
+        assertTrue("time limits are held from the gate opening", cards.feeding());
+        assertTrue(notes.toString(), notes.get(0).startsWith("LaunchAll opened the gate on the approach"));
+
+        run(cards.launchAll(), 5.0);
+        assertEquals("one feed, the approach's: " + log, 1, log.stream().filter(e -> e.startsWith("feed")).count());
+        assertEquals("ends launchAllFeedS after the gate opened", 2.0, timeOf(first("idle")), LOOP_S + EPS);
+        assertFalse(cards.feeding());
+        assertEquals(1, cards.launchAllsCompleted());
+        assertFalse("fed on the approach, not 'before the robot settled': " + notes,
+                notes.stream().anyMatch(n -> n.contains("before the robot settled")));
+    }
+
+    /** The gate waits for the launcher: below speed on the approach, the card feeds as it always has. */
+    @Test
+    public void theApproachNeverOpensTheGateBelowSpeed() {
+        atSpeed = false;
+        readyOnApproach = true;
+        approach(cards.approach(), 15);
+        assertEquals(null, first("feed"));
+        assertFalse(cards.feeding());
+    }
+
+    /**
+     * A late turn is never aimed on the approach, so nothing opens there and the LaunchAll behaves as
+     * before: it waits for the settle.
+     */
+    @Test
+    public void anApproachThatIsNeverReadyLeavesTheLaunchAllAsBefore() {
+        atSpeed = true;
+        readyOnApproach = false;
+        approach(cards.approach(), 15);
+        assertEquals(null, first("feed"));
+        double cardStart = now;
+        settled = false;
+        Command launch = cards.launchAll();
+        launch.schedule();
+        step(0.3);
+        assertEquals("waits for the settle: " + log, null, first("feed"));
+        settled = true;
+        finish(launch, 5.0);
+        assertEquals(cardStart + 0.3, timeOf(first("feed")), LOOP_S + EPS);
+    }
+
+    /** The guard parks, or the path is cut, before the LaunchAll starts: the gate closes. */
+    @Test
+    public void aCancelledApproachClosesTheGate() {
+        atSpeed = true;
+        readyOnApproach = true;
+        approach(cards.approach(), 5);
+        assertTrue(cards.feeding());
+        cards.approach().cancel();
+        assertTrue("gate closed: " + log, first("idle") != null);
+        assertFalse(cards.feeding());
+        // The next LaunchAll starts from scratch: it waits for the settle and feeds its own feed.
+        settled = true;
+        run(cards.launchAll(), 5.0);
+        assertEquals(2, log.stream().filter(e -> e.startsWith("feed")).count());
+    }
+
+    @Test
+    public void theSwitchTurnsLaunchingOnTheApproachOff() {
+        atSpeed = true;
+        readyOnApproach = true;
+        LaunchCards.launchOnApproach = false;
+        approach(cards.approach(), 15);
+        assertEquals(null, first("feed"));
     }
 
     @Test

@@ -87,16 +87,19 @@ import java.util.function.Function;
  * Auto is built, at PLAY, since which way round it is drawn depends on the alliance, and the path
  * being driven, and its end, as each one starts and ends.
  *
- * <p><b>A fire waits for a settled robot.</b> The launch cards feed only once the robot is still
- * and at the last path's end heading ({@link PathEndSettle}), not on Pedro's "done"; each path end
- * and each settle goes to the match log as an event, with Pedro's own view of how the path ended.
+ * <p><b>A fire waits for an aimed robot.</b> A {@code LaunchAll} right after a path opens the gate
+ * on the approach once the robot is aimed and nearly there ({@link LaunchCards#approach()}); failing
+ * that, the launch cards feed once the robot is at the last path's end heading and slowing
+ * ({@link PathEndSettle}), never on Pedro's "done" alone. Each path end and each settle goes to the
+ * match log as an event, with Pedro's own view of how the path ended.
  */
 @Configurable
 public abstract class BuiltAuto extends RobotOpMode {
 
     /**
-     * The endgame guard (AutoKit.guarded): on, the robot parks when the next drive or grab would
-     * not leave time to. <b>Off is for practice only</b>: every card runs, so the match log shows
+     * The endgame guard (AutoKit.guarded): on, the robot goes for the next volley when its last
+     * piece can be out by 30 s, and otherwise parks when the next drive or grab would not leave
+     * time to. <b>Off is for practice only</b>: every card runs, so the match log shows
      * how long the whole plan really takes (run it with the Driver Station's 30 s timer off). The
      * Driver Station says so in red while it is off, and the match log records it.
      */

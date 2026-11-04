@@ -194,13 +194,43 @@ its place here.
 - Poses are drawn for RED, in Pedro's frame (inches, degrees), like everything in an Auto; the
   robot turns them for BLUE.
 
+## A drive straight into a launch or a pick
+
+Put `LaunchAll` or `PickFlower` directly after the drive to its spot, with no step between. The
+robot then gets ready on the way in: it lowers the FLOWER stick over the last 18 in, and opens the
+launch gate in the last few inches once it faces the HIVE and the launcher is at speed. So never
+draw a separate stick step or an early fire step. A drive that turns onto the HIVE only at the stop
+fires once the robot is aimed and slowing, as it did before (`LaunchCards`, `PathEndSettle`;
+mentor, 4 Nov 2026). If the guard parks instead of launching, the gate closes again.
+
 ## Parking when time runs short
 
-The endgame guard (`autokit/AutoKit.guarded`) gets the robot to PARK by 30 s:
+The endgame guard (`autokit/AutoKit.guarded`) puts a TIP before the park, and otherwise gets the
+robot to PARK by 30 s (mentor, 4 Nov 2026, quals and playoffs alike):
 
-- **Before each drive or grab it asks: can I do this, then still park from where it leaves me?**
-  If not, the robot parks now, from the spot it is on. A wait or a launch already running is cut
-  when the park needs the time; a drive, a pick or a gather never is.
+- **First, before each step it asks: can this, and every step up to the next Launch all, be done
+  with that volley's last ball out before 30 s?** It adds the steps' times (a drive's drawn time, a
+  pick's or gather's typical time, a wait's "at most") and then `AutoRegistration.LAUNCH_ALL_LAST_PIECE_S`
+  (4.0 s from the Launch all's start to its last ball). If yes, the robot goes, and nothing parks or
+  cuts it until that volley has fired. Why: an AUTO TIP is 20 points and counts toward the
+  POLLINATOR RPs; AUTO PARK is 5. AUTO PARK does count toward the SWARM RP (both robots' LEAVE +
+  PARK points, AUTO and end of match, 16 or more of 26: manual TU03 Tables 10-2 and 10-3), but
+  both robots leaving and both parking at the end already make 16, so our AUTO PARK decides SWARM
+  only when the partner misses its LEAVE or its end-of-match park; with a dead partner SWARM is out
+  of reach either way. A TIP complete before TELEOP starts is assessed as AUTO (§10.5 B), but
+  §10.5 also says achievements scored in the AUTO-to-TELEOP transition "may be subject to
+  penalties": an open question, not in `doc/game/qa-review.md`. So the guard asks only that the
+  last ball be out by 30 s, and nothing here plans on a TIP that finishes after 30 s. The robot then ends AUTO at the launch spot, off the walls,
+  so LEAVE is kept. A step it cannot time (a block whose rows run their own steps, a wait with a
+  command alongside) ends the look-ahead with no.
+- **No switch for a partner with no Auto.** If the partner does not move in AUTO, our AUTO PARK is
+  what makes SWARM (our LEAVE 3 + AUTO PARK 5 + both end-of-match parks 10 = 18; 13 without it).
+  When SWARM matters in that match, the drive team runs a short Auto that leaves and parks (a
+  nudge) instead of a scoring one; when it does not, the TIP-first guard as above. There is no INIT
+  option to make the guard protect the park (mentor, 4 Nov 2026).
+- **If not: can I do this, then still park from where it leaves me?** If not, the robot parks now,
+  from the spot it is on. A wait or a launch that has not started feeding is cut when the park needs
+  the time; a drive, a pick, a gather or a feed under way never is.
 - **Each spot has its own park path,** made by the Visualizer's builder: a straight line to the
   PARK spot, shared by every drive to that spot. Press **P** on a drive step to see it (everything
   else dims) and bend it with a control point. The drive just before Park needs none.
@@ -209,6 +239,9 @@ The endgame guard (`autokit/AutoKit.guarded`) gets the robot to PARK by 30 s:
   30 s timer off) runs every card whatever the clock says, so the match log shows how long the whole
   Auto really takes, and says once where the guard would have parked. The Driver Station shows it in
   red while it is off; it is back on after a restart. Never in a match.
+- **What the log says.** `going for it, not parking` is the guard choosing a volley over the park
+  (once per volley, at the first moment the park alone would have stopped it); `not starting …`,
+  `parking now` and `cutting card short` are the park rule, as before.
 
 ## When the TIP does not come (a Wait's Otherwise)
 
@@ -263,7 +296,7 @@ they came from.
 
 | Numbers | Live in | Used by |
 |---|---|---|
-| Each command's typical seconds (`LaunchAll`, `PickFlower`, `GardenGather`…) | `AutoRegistration` in the robot code, copied to `TeamCode/auto-registry.json` by `AutoRegistrationTest` (`UPDATE_AUTO_REGISTRY=1`), and into each `.pp`'s `registry.typicalS` when the Visualizer loads the robot's commands | The endgame guard on the robot (a grab starts only if its typical time and the park fit), and the Visualizer's Instant preview |
+| Each command's typical seconds (`LaunchAll`, `PickFlower`, `GardenGather`…), and `LaunchAll`'s seconds to its last ball (`LAUNCH_ALL_LAST_PIECE_S`, the robot's only) | `AutoRegistration` in the robot code, copied to `TeamCode/auto-registry.json` by `AutoRegistrationTest` (`UPDATE_AUTO_REGISTRY=1`), and into each `.pp`'s `registry.typicalS` when the Visualizer loads the robot's commands | The endgame guard on the robot (a step goes if it and the steps up to the next volley's last ball fit; else a grab starts only if its typical time and the park fit), the simulator (which reads them from `AutoRegistration`), and the Visualizer's Instant preview |
 | How the robot and the HIVE behave: drive speed, spin-up, a volley, time to full, a TIP's start and swing, the CELL loads | `timing.json` here (`version`, then each fact's `value`, `source` and `note`) | The Visualizer's Typical preview and its **Timing facts** dialog, which reads this file from the branch Team Autos last listed. It never changes the robot or the export |
 
 - **A fact's `source` says how sure it is**: `measured, <robot>, <dates>`, or `estimate`. The
@@ -277,9 +310,27 @@ they came from.
   - `spinUpS` 1.1: 83 spin-ups from rest to launch speed (1500 to 1625 ticks/s), median 1.1 s,
     middle half 1.0 to 1.3, all 0.9 to 2.1 (slowest on a sagging battery). The first LaunchAll at
     PLAY waited 0.94 to 1.36 s for it.
-  - `volleyS` 4.0: LaunchAll after a drive with the launcher at speed, the settle (0.17 to 0.66 s)
-    and `LaunchCards`' set 3.5 s feed; 4.17 s in 2 Nov R-Quals. The last of four balls left 2.3 to
-    2.6 s after the gate opened (median 2.4; ten 1 Nov feeds, read from the wheels' dip per ball).
+  - `volleyS` 4.0: LaunchAll after a drive with the launcher at speed, the settle, the wait for
+    speed and `LaunchCards`' set 3.5 s feed. Every LaunchAll with the 3.5 s feed after a drive in the
+    2 to 4 Nov logs (8: R-Quals 2 Nov, R-Solo 3 Nov 17:30 and 17:59, R-Solo-Staging 4 Nov 00:48):
+    3.60 to 4.64 s, median 4.04. The slowest two (4.45, 4.64 s) were 4 Nov 00:48, where the gate
+    opened 0.98 to 1.12 s after the drive: the settle took 0.38 to 0.57 s, and the launcher
+    overshot to about 1680 ticks/s (target 1595 ±60) and was not at speed for about 0.7 s. The last
+    ball left 1.7 to 2.9 s after the gate opened (the launcher's shot count; 2.2 to 2.85 s on 4 Nov
+    00:48). The robot's own numbers are `AutoRegistration.LAUNCH_ALL_TYPICAL_S` (4.5, which covers
+    all but those two and the first volley at PLAY, 4.45 to 4.83 s) and `LAUNCH_ALL_LAST_PIECE_S`
+    (4.0 from the card's start to the last ball: 2.1 to 3.97 s after a drive). All measured before a LaunchAll right
+    after a path opened its gate on the approach and the settle became "aimed and slowing" (4 Nov
+    2026), which should take most of the settle off: re-measure from the next match logs before
+    lowering them.
+  - `cellCheckS` 0.75: the limit for a "Wait for TIP or CELL up" that only checks, on arrival at a
+    launch spot, that the CELL is up. At `LEFT_LAUNCH_OFFSET` the camera saw the CELL up 0.33 and
+    0.44 s after the drive ended when the approach had turned the camera away (from
+    `SCORING_FLOWER_STAGING`, turning about 200°/s to the end: 3 Nov 17:59, 4 Nov 00:48), and 0.22 s
+    when the approach already faced the HIVE. 0.75 covers those with room for a slower settle. The
+    Visualizer does not know this fact yet (it drops unknown facts when it loads this file); it is
+    here for the Visualizer's next change to the builder's wait. A wait for a partner's TIP is not a
+    check, and keeps its own limit.
   - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
     lane latched full 0.44 s after its last spike, 1.43 s in.

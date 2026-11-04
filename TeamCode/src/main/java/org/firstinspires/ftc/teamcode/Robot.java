@@ -136,6 +136,16 @@ public class Robot {
                         feedGate, turret, indicator, colorSensor));
     }
 
+    /**
+     * The battery's latest reading, volts, for the mechanisms that scale an open-loop number by it
+     * (the launcher's feedforward, the feeder's power). {@code RobotOpMode} passes in the reading
+     * it already takes once a second, so no subsystem reads the hub for it. NaN: no reading.
+     */
+    public void batteryVolts(double volts) {
+        launcher.batteryVolts(volts);
+        feeder.batteryVolts(volts);
+    }
+
     /** Every subsystem, in the order they were built. */
     public List<Subsystem> subsystems() {
         return subsystems;

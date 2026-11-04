@@ -5,10 +5,10 @@ import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.CommandBuilder;
 import com.pedropathing.ivy.behaviors.EndCondition;
 import com.pedropathing.ivy.commands.Commands;
-
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
@@ -31,13 +31,32 @@ import java.util.function.Supplier;
  *
  * <p>A launch card spins the launcher up, waits until it is at speed (at most
  * {@link #maxSpinUpWaitS}, then it feeds anyway and logs it) <em>and the robot has
- * settled</em> ({@link PathEndSettle}: still, and at the last path's end heading), runs the feeder
- * for a set time, then idles the feeder. A fire step after a path therefore waits for the robot,
- * not for Pedro's "done" (#193). If the robot has not settled within
+ * settled</em> ({@link PathEndSettle}: aimed at the last path's end heading, and slowing), runs the
+ * feeder for a set time, then idles the feeder. A fire step after a path therefore waits for the
+ * robot, not for Pedro's "done" (#193). If the robot has not settled within
  * {@link PathEndSettle#maxSettleWaitS} of the card starting, it feeds anyway and says so in the
  * match log, so a robot that never quite settles still fires. The launcher is left spinning: the Autos call {@code SpinUp} once
  * and fire several times, and spinning down between shots would cost a spin-up each time. The
  * OpMode's stop cuts the wheels at the end.
+ *
+ * <h2>Launching on the approach</h2>
+ *
+ * <p>A good TeleOp driver opens the gate before the robot has stopped at a launch spot. So does a
+ * {@code LaunchAll} right after a path card: its {@link #approach()} runs while that path drives
+ * ({@link AutoRegistry.Approach}), and opens the gate once the robot is within
+ * {@link PathEndSettle#launchWithinIn} of the path's end, within {@link PathEndSettle#aimToleranceDeg}
+ * of its end heading, turning slower than {@link PathEndSettle#launchTurnDegPerSec}, and the launcher
+ * is at speed ({@link PathEndSettle#readyOnApproach}). The card then only finishes the feed: it ends
+ * {@link #launchAllFeedS} after the gate opened, on the approach. An approach that never meets the
+ * condition (one that turns late, onto the HIVE only at the last instant) opens nothing, and the
+ * card waits for the settle as before. {@link #launchOnApproach} turns it off.
+ *
+ * <p>Why (match logs 3 and 4 Nov 2026, R-Solo and R-Solo-Staging on 20245): from arriving at
+ * LEFT_LAUNCH_OFFSET to the first ball took 1.9 to 2.0 s, of which path end to gate open was 0.98 to
+ * 1.12 s (the settle waited 0.38 to 0.57 s for under 2 in/s; a launcher overshoot after a dip kept it
+ * off speed about 0.7 s more). At the path end the robot was already within about 1.2° and 0.35 in
+ * of its end pose, moving about 10 in/s. The distance and turn knobs are <b>not measured</b>: the
+ * hit rate firing on the approach against firing still is a robot check ({@code doc/robot-todo.md}).
  *
  * <h2>What "Empty" means today</h2>
  *
@@ -84,9 +103,22 @@ public final class LaunchCards {
     /** How long the feeder runs for {@code LaunchOne}, seconds. <b>Not measured.</b> */
     public static double launchOneFeedS = 0.5;
 
+    /**
+     * Whether a {@code LaunchAll} right after a path opens the gate on the approach (see the class
+     * comment) rather than only once the robot has settled. On until a robot check shows the hit
+     * rate on the approach is worse than firing still; the condition's knobs are
+     * {@link PathEndSettle}'s and <b>not measured</b>.
+     */
+    public static boolean launchOnApproach = true;
+
     /** What a launch card needs from the launcher. {@code LauncherSubsystem} has both methods. */
     public interface Launcher {
         void spinUp();
+        /**
+         * The path a {@code LaunchAll} approach runs for ends at {@code launchPose}: spin up for a
+         * launch from there. Nothing by default; the robot's launcher uses it for the speed table.
+         */
+        default void spinUpFor(Pose launchPose) { }
         boolean atSpeed();
         /** Shots the launcher's detector has counted, or -1 if it has none. Logged only, never acted on. */
         default int shots() { return -1; }
@@ -98,37 +130,87 @@ public final class LaunchCards {
         void idle();
     }
 
+    /** Whether the robot may open the gate on the approach to a path's end: {@link PathEndSettle#readyOnApproach}. */
+    public interface ApproachCheck {
+        boolean ready(Pose end, Pose pose, double remainingIn);
+    }
+
+    private static final ApproachCheck NEVER_ON_APPROACH = (end, pose, remainingIn) -> false;
+
     private final Launcher launcher;
     private final Feeder feeder;
     private final BooleanSupplier settled;
     private final Consumer<String> note;
     private final DoubleSupplier secondsNow;
+    private final ApproachCheck onApproach;
     private int launchAllsCompleted;
     private int feeding;
+    /** Where the path a {@code LaunchAll} approach is running for ends; null outside one. */
+    private Pose approachEnd;
+    /** When the approach opened the gate, seconds; NaN until it has, and once a card takes it over. */
+    private double approachFedAt = Double.NaN;
+    private int approachShots;
+    private final AutoRegistry.Approach launchAllApproach = new AutoRegistry.Approach() {
+        @Override public void started(Pose end) {
+            approachEnd = end;
+            launcher.spinUpFor(end);
+        }
 
-    /**
-     * @param settled true once the robot is still and aimed ({@link PathEndSettle#settled})
-     * @param note    where "fed before the robot settled" goes (the match log)
-     */
+        @Override public void approaching(Pose pose, double remainingIn) {
+            if (!launchOnApproach || approachEnd == null || !Double.isNaN(approachFedAt)) return;
+            if (!launcher.atSpeed() || !onApproach.ready(approachEnd, pose, remainingIn)) return;
+            approachShots = launcher.shots();
+            approachFedAt = secondsNow.getAsDouble();
+            feeder.feed();
+            feeding++;
+            note.accept(String.format(Locale.US, "LaunchAll opened the gate on the approach, %.1f in from the path end",
+                    remainingIn));
+        }
+
+        @Override public void cancel() {
+            approachEnd = null;
+            if (Double.isNaN(approachFedAt)) return;
+            approachFedAt = Double.NaN;
+            feeder.idle();
+            feeding--;
+            note.accept("LaunchAll did not follow its approach: gate closed");
+        }
+    };
+
+    /** {@link #LaunchCards(Launcher, Feeder, BooleanSupplier, ApproachCheck, Consumer, DoubleSupplier)} that never launches on the approach. */
     public LaunchCards(Launcher launcher, Feeder feeder, BooleanSupplier settled, Consumer<String> note,
                        DoubleSupplier secondsNow) {
-        if (launcher == null || feeder == null || settled == null || secondsNow == null) {
+        this(launcher, feeder, settled, NEVER_ON_APPROACH, note, secondsNow);
+    }
+
+    /**
+     * @param settled    true once the robot is aimed and slowing ({@link PathEndSettle#settled})
+     * @param onApproach whether the gate may open on the approach ({@link PathEndSettle#readyOnApproach})
+     * @param note       where "fed before the robot settled" goes (the match log)
+     */
+    public LaunchCards(Launcher launcher, Feeder feeder, BooleanSupplier settled, ApproachCheck onApproach,
+                       Consumer<String> note, DoubleSupplier secondsNow) {
+        if (launcher == null || feeder == null || settled == null || onApproach == null || secondsNow == null) {
             throw new IllegalArgumentException("LaunchCards needs a launcher, a feeder, a settle check and a clock");
         }
         this.launcher = launcher;
         this.feeder = feeder;
         this.settled = settled;
+        this.onApproach = onApproach;
         this.note = note == null ? line -> { } : note;
         this.secondsNow = secondsNow;
     }
 
     /**
      * The cards for a real robot, on the system clock, gated on {@code settle}. With
-     * {@link LaunchSpeedTable#enabled} on, each spin-up (the {@code SpinUp} card, and every
-     * {@code LaunchAll} and {@code LaunchOne} at its launch pose) asks for the table's speed for the
-     * range from where the robot is to its half's CELL ({@link #rangeToHalfCellIn}), and logs it; the
-     * wheels settle on it while the card waits for at-speed and the settle. Off, or with no range,
-     * it is the configured speed, as before.
+     * {@link LaunchSpeedTable#enabled} on, each spin-up asks for the table's speed for the range to
+     * the CELL on the launch pose's half ({@link #rangeToHalfCellIn}), and logs it: a
+     * {@code LaunchAll}'s approach spins up for its path's end as the path starts, so the wheels are
+     * there on arrival; the {@code SpinUp} card and a card's own spin-up use where the robot is.
+     * Held within half the launcher's tolerance ({@link LaunchSpeedTable#held}), so the card's
+     * spin-up at the path end, an inch from the approach's pose, never moves the target mid-feed
+     * (a new target re-arms at-speed and the shot detector). Off, or with no range, it is the
+     * configured speed, exactly as before the table.
      *
      * @param alliance ours, read at each spin-up; null or UNKNOWN gives the configured speed
      */
@@ -136,17 +218,32 @@ public final class LaunchCards {
                                        Supplier<Alliance> alliance) {
         Consumer<String> log = note == null ? line -> { } : note;
         Launcher launcher = new Launcher() {
+            /** The table speed last asked for, ticks/s; NaN before the first. */
+            private double heldTps = Double.NaN;
+
             @Override public void spinUp() {
                 if (!LaunchSpeedTable.enabled) {
                     robot.launcher.spinUp();
                     return;
                 }
-                double range = rangeToHalfCellIn(robot, alliance == null ? null : alliance.get());
-                double tps = LaunchSpeedTable.launchSpeed(range, LauncherSubsystem.targetTicksPerSecond);
+                spinUpAt(robot.drive.poseReferenced() ? robot.drive.pose() : null, "here");
+            }
+
+            @Override public void spinUpFor(Pose launchPose) {
+                if (LaunchSpeedTable.enabled) spinUpAt(launchPose, "at the path end");
+            }
+
+            private void spinUpAt(Pose at, String where) {
+                double range = rangeToHalfCellIn(at, alliance == null ? null : alliance.get());
+                double answer = LaunchSpeedTable.launchSpeed(range, LauncherSubsystem.targetTicksPerSecond);
+                double tps = LaunchSpeedTable.held(heldTps, answer, LauncherSubsystem.toleranceTicksPerSecond / 2.0);
+                boolean changed = Double.compare(tps, heldTps) != 0;
+                heldTps = tps;
                 robot.launcher.spinUp(tps);
+                if (!changed) return;
                 log.accept(Double.isNaN(range)
                         ? String.format(Locale.US, "launcher: speed table on, no range: configured %.0f ticks/s", tps)
-                        : String.format(Locale.US, "launcher: speed table %.0f ticks/s at %.0f in", tps, range));
+                        : String.format(Locale.US, "launcher: speed table %.0f ticks/s for %.0f in (%s)", tps, range, where));
             }
             @Override public boolean atSpeed() { return robot.launcher.atSpeed(); }
             @Override public int shots() { return robot.launcher.shots(); }
@@ -155,19 +252,18 @@ public final class LaunchCards {
             @Override public void feed() { robot.feeder.feed(); }
             @Override public void idle() { robot.feeder.idle(); }
         };
-        return new LaunchCards(launcher, feeder, settle::settled, note, () -> System.nanoTime() / 1e9);
+        return new LaunchCards(launcher, feeder, settle::settled, settle::readyOnApproach, note,
+                () -> System.nanoTime() / 1e9);
     }
 
     /**
-     * The horizontal range from the turret at the robot's pose to the raised row of our CELL on the
-     * robot's half of the field, inches: the CELL an Auto fires at, as the launch spots choose it
-     * ({@code LaunchSpots}: each CELL is scored from its own half). NaN without a referenced pose,
-     * an alliance or a field point.
+     * The horizontal range from the turret at {@code pose} to the raised row of our CELL on that
+     * pose's half of the field, inches: the CELL an Auto fires at, as the launch spots choose it
+     * ({@code LaunchSpots}: each CELL is scored from its own half). NaN without a pose, an alliance
+     * or a field point.
      */
-    static double rangeToHalfCellIn(Robot robot, Alliance alliance) {
-        if (alliance == null || alliance == Alliance.UNKNOWN || !robot.drive.poseReferenced()) return Double.NaN;
-        Pose pose = robot.drive.pose();
-        if (pose == null) return Double.NaN;
+    static double rangeToHalfCellIn(Pose pose, Alliance alliance) {
+        if (pose == null || alliance == null || alliance == Alliance.UNKNOWN) return Double.NaN;
         HiveCell cell = TurretAim.nearEndCell(alliance, pose.y(), null, HiveFieldPoints.AXLE_Y_IN, 0.0);
         Vec3 row = cell == null ? null : HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
         if (row == null) return Double.NaN;
@@ -180,9 +276,23 @@ public final class LaunchCards {
         return Commands.instant(launcher::spinUp);
     }
 
-    /** {@code LaunchAll}: spin up, wait for speed and a settled robot, feed for {@link #launchAllFeedS}, idle the feeder. */
+    /**
+     * {@code LaunchAll}: spin up, wait for speed and a settled robot, feed for {@link #launchAllFeedS},
+     * idle the feeder. If its {@link #approach()} opened the gate on the drive in, it waits for
+     * nothing and ends {@link #launchAllFeedS} after the gate opened.
+     */
     public Command launchAll() {
         return launch("LaunchAll", () -> launchAllFeedS, true);
+    }
+
+    /**
+     * {@code LaunchAll}'s approach, registered with it ({@code AutoRegistry.command(..., approach)}):
+     * the path card right before a {@code LaunchAll} card runs it, and it opens the gate once
+     * {@link PathEndSettle#readyOnApproach} and the launcher agree (see the class comment). One
+     * object, shared by every {@code LaunchAll} card of these cards.
+     */
+    public AutoRegistry.Approach approach() {
+        return launchAllApproach;
     }
 
     /** {@code LaunchOne}: as {@link #launchAll()} with {@link #launchOneFeedS}; does not count toward Empty. */
@@ -222,6 +332,13 @@ public final class LaunchCards {
                     fedAt[0] = Double.NaN;
                     startedAt[0] = secondsNow.getAsDouble();
                     launcher.spinUp();
+                    // The drive in already opened the gate: this card only finishes that feed.
+                    if (countsAsEmptying && !Double.isNaN(approachFedAt)) {
+                        fedAt[0] = approachFedAt;
+                        shotsAtFeed[0] = approachShots;
+                        approachFedAt = Double.NaN;
+                    }
+                    approachEnd = null;
                 })
                 .setExecute(() -> {
                     if (!Double.isNaN(fedAt[0])) return;
