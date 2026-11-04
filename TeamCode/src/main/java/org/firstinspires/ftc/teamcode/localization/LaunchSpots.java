@@ -49,7 +49,7 @@ public final class LaunchSpots {
      * against the file. Its half, so its CELL, follows from its y, and {@link #choose} takes it
      * whenever it is the nearest. The next is meant to be a far spot, the long corner shot near
      * the GARDEN (about (15, 15), facing about 45° toward the RIGHT CELL, about 60 in), added only
-     * once a launcher-distance test on the robot shows it hits.
+     * once {@code doc/robot-todo.md}'s "Launcher distances" group shows it hits (9/12 or better).
      */
     public enum Spot {
         RIGHT_START(StartPositions.RED_AUDIENCE),

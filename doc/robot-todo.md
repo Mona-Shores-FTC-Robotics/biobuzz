@@ -225,8 +225,9 @@ measurement is [#255].
       `launch spot: drift at …` line (camera − odometry at a known spot, settled, never applied) and
       its `CELL N in` range beside the shots it fired. **Good:** gaps stay under
       `TeleOpConfig.spotDriftWarnIn` (3, not measured) through a 2-minute TeleOp, and the range/shot
-      pairs fill issue #80's speed-vs-distance table. **Stop:** gaps grow over the match → the evidence for TeleOp
-      relocalization; set `spotDriftWarnIn` from what the drivers can act on. [PR #423]
+      pairs add to #80's speed-vs-distance table beside §7c's bench rows. **Stop:** gaps grow
+      over the match → the evidence for TeleOp relocalization; set `spotDriftWarnIn` from what the
+      drivers can act on. [PR #423]
 - [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
       view now and then; read `/Drift/GapXIn` and `/Drift/GapYIn` (camera minus odometry) over the
       run. **Good:** the gap stays within a few inches, so a launch spot driven late in the match is
@@ -285,7 +286,8 @@ start #80's speed-vs-distance table. Count hits out of 12 on video at each speed
       speed that is. **Stop:** as above.
 - [ ] **Long corner shot near the GARDEN** (about (15, 15), ~60 in to the RIGHT CELL, facing ~45°):
       an option when the CELL's front is crowded. Try 1650–1800. **Good:** 9/12 or better, then it
-      becomes a team spot. **Stop:** record hits per speed, or "out of range". [mentor, 4 Nov]
+      becomes a team spot and one `LaunchSpots.Spot` constant, so the launch-spot button can go
+      there [PR #423]. **Stop:** record hits per speed, or "out of range". [mentor, 4 Nov]
 - [ ] **Launcher overshoot after a dip**: wheels reached ~1680 against 1595 (±60) on 4 Nov, holding
       "at speed" false ~0.7 s before each later volley. **Good:** back within tolerance in under
       0.3 s after a dip (Bench: Launcher graphs). [4 Nov log review]
