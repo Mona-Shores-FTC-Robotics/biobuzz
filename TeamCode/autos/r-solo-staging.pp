@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-04T03:57:58.186Z",
+  "timestamp": "2026-11-04T04:44:59.401Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -12,26 +12,43 @@
       "kind": "atomic",
       "id": "line-mw1kq24q-6xs44o",
       "endPoint": {
-        "x": 25.8,
-        "y": 131.2
+        "x": 22.4,
+        "y": 131
       },
       "controlPoints": [
         {
-          "x": 8.196183206106882,
-          "y": 34.886962387822656
+          "x": 6.095304315387441,
+          "y": 28.99428650368262
         },
         {
-          "x": 53.10374804004155,
-          "y": 139.00739428299377
+          "x": 55.50418677876014,
+          "y": 127.40819476566848
         },
         {
-          "x": 22.69912110928057,
-          "y": 91.59573206622483
+          "x": 23.597571002678716,
+          "y": 90.39589712322518
         }
       ],
       "heading": {
-        "type": "constant",
-        "degrees": 90
+        "type": "linear",
+        "degrees": 90,
+        "startDeg": 90,
+        "endDeg": 100,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "parameters": {
+                "startDeg": 0,
+                "endDeg": 0
+              }
+            }
+          ]
+        }
       },
       "color": "#e15759",
       "locked": false,
@@ -68,13 +85,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 25.8,
-        "y": 131.2
+        "x": 22.4,
+        "y": 131
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 90
+        "degrees": 100
       }
     },
     {
@@ -752,8 +769,8 @@
         296.4
       ],
       "PARTNER_STAGED_POLLEN": [
-        25.8,
-        131.2,
+        22.4,
+        131,
         90
       ],
       "LEFT_LAUNCH_CATCH": [
