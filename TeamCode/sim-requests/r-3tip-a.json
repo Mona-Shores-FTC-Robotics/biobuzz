@@ -1,7 +1,7 @@
 {
   "pp": "TeamCode/autos/drafts/r-3tip-a.pp",
   "spec": "R3TipAAuto@50",
-  "design": "real robot",
+  "design": "real robot, turret locked forward",
   "partnerDesign": null,
   "partnerSpeed": null,
   "seeds": [
