@@ -67,8 +67,8 @@ import java.util.function.BooleanSupplier;
  *
  * <p>A piece meeting the wheels pulls their speed down and the loop pulls it back. That dip is the
  * one thing the launcher can see of a shot without a sensor, so {@link ShotDetector} counts one
- * shot per dip: the wheels were at speed, fell at least {@link #shotDipTicksPerSecond} below target
- * while the feed gate was open, and came back within tolerance. Spin-up is not a dip (the wheels were
+ * shot per dip: the wheels were at speed, both fell at least {@link #shotDipTicksPerSecond} below
+ * target while the feed gate was open, and came back within tolerance. Spin-up is not a dip (the wheels were
  * never at speed), a wobble inside the threshold is not a dip, and a target change re-arms the
  * detector so a Panels nudge is not a shot.
  *
@@ -78,9 +78,19 @@ import java.util.function.BooleanSupplier;
  * the intake took in a NECTAR and its speed collapsed from about 2600 to under 600 ticks/s. Both
  * wheels sagged 80–100 ticks/s over about 0.3 s, a load on the robot (most likely the battery under
  * the intake's stall), not a piece; at 207.38 s and 207.91 s the left wheel alone dipped. Only the start is judged: a dip that
- * began with the gate open and recovers after it shuts still counts. Both wheels need not dip: fed
- * shots in the same log often pulled one wheel well past the threshold and the other hardly at all.
- * The gate is the one {@link #countShotsWhile} names (the robot's {@code FeedGateSubsystem}), or, for
+ * began with the gate open and recovers after it shuts still counts.
+ *
+ * <p>Both wheels must dip, because a piece taken by the wheels pulls both down together: in the same
+ * log, 31 of the 34 shots deeper than 120 dipped the two wheels within 40 of each other, bottoming
+ * in the same sample, and the most uneven still took both past 140. One wheel dipping alone is the
+ * wheels wobbling, each on its own hub velocity loop, while the feeder presses a ball against them
+ * before they take it (feeder current climbing to 6 A and more): at 134.46 s the left fell to 1520
+ * with the right at 1620, then at 134.81–134.98 s the right fell to 1480 with the left at 1580, and
+ * each counted as a shot before the real one at 135.52 s, both wheels 280 down. Requiring both
+ * wheels drops 25 such gate-open dips in that log and keeps every shot deeper than 120. The
+ * recorded depth is still the slower wheel's ({@link #deficit}).
+ *
+ * <p>The gate is the one {@link #countShotsWhile} names (the robot's {@code FeedGateSubsystem}), or, for
  * a launcher built without one, the feeder feeding. The count and the last dip's depth go to the Robot page, Panels and the match log; a
  * student writes hit or miss next to each row afterwards. That is how #80's speed-vs-distance
  * table gets its rows. It is a measurement, never a gate: nothing here waits for it.
@@ -147,13 +157,13 @@ public class LauncherSubsystem implements Subsystem {
     public static double atSpeedHoldMs = 150.0;
 
     /**
-     * How far below its target a wheel must fall, from at speed, for the dip to count as a shot,
-     * ticks per second. Measured on 20245, 1 to 2 Nov 2026, target 1595: every POLLEN shot dipped
+     * How far below its target each wheel must fall, from at speed, for the dip to count as a shot,
+     * ticks per second (both wheels: class comment). Measured on 20245, 1 to 2 Nov 2026, target 1595: every POLLEN shot dipped
      * the slower wheel 95 (nine shots over three runs; one 135), and the wheels hover within about
      * 25 at speed. 70 sits between the two. It was 150, a starting guess, and counted no shot at
      * all, which left the lane tracker's count stuck after firing. Below
-     * {@link #toleranceTicksPerSecond} (60) it would make no difference: a dip only starts once a
-     * wheel leaves the at-speed band.
+     * {@link #toleranceTicksPerSecond} (60) it would make no difference: a dip only starts once both
+     * wheels leave the at-speed band.
      */
     public static double shotDipTicksPerSecond = 70.0;
 
@@ -667,7 +677,7 @@ public class LauncherSubsystem implements Subsystem {
             boolean newTarget = leftTarget != lastLeftTarget || rightTarget != lastRightTarget;
             if (newTarget) shots.reset();
             shots.update(deficit(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond),
-                    within, gateOpen.getAsBoolean(), target(), shotDipTicksPerSecond);
+                    bothDeficit(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond), within, gateOpen.getAsBoolean(), target(), shotDipTicksPerSecond);
             // A step starts here: from idle, out of an unjam, or to a new target.
             if (!measuring || newTarget) {
                 response.command(now, Math.min(leftTicksPerSecond, rightTicksPerSecond));
@@ -958,6 +968,14 @@ public class LauncherSubsystem implements Subsystem {
     }
 
     /**
+     * How far below target both wheels are, ticks per second: the smaller of the two shortfalls, so
+     * it passes a threshold only when both wheels do (a shot's dip: class comment). Pure.
+     */
+    static double bothDeficit(double leftTarget, double leftMeasured, double rightTarget, double rightMeasured) {
+        return Math.min(leftTarget - leftMeasured, rightTarget - rightMeasured);
+    }
+
+    /**
      * How far over its target the faster wheel is, ticks per second: the larger of the two wheels'
      * excesses, negative when both are under. The mirror of {@link #deficit}. Pure.
      */
@@ -972,8 +990,8 @@ public class LauncherSubsystem implements Subsystem {
 
     /**
      * Counts shots from speed dips (class comment): armed once the wheels are within tolerance,
-     * a dip starts when the deficit reaches the threshold with the feed gate open, and the shot is counted when the wheels
-     * are back within tolerance, with the deepest point of the dip. A dip that never recovers (a
+     * a dip starts when both wheels' shortfalls reach the threshold with the feed gate open, and the
+     * shot is counted when the wheels are back within tolerance, with the deepest point of the dip. A dip that never recovers (a
      * jam, or a spin-down) is never counted. Pure, so a test can drive it with made-up readings.
      */
     static final class ShotDetector {
@@ -987,12 +1005,14 @@ public class LauncherSubsystem implements Subsystem {
         private boolean justCounted;
 
         /**
-         * Feed this loop's reading. {@code deficit} is how far below target the slower wheel is,
-         * {@code within} whether both wheels are inside the at-speed tolerance, {@code gateOpen}
+         * Feed this loop's reading. {@code deficit} is how far below target the slower wheel is (the
+         * depth recorded), {@code bothDeficit} how far below target both wheels are (a dip starts only
+         * once it reaches the threshold), {@code within} whether both wheels are inside the at-speed tolerance, {@code gateOpen}
          * whether a piece can reach the wheels (a dip only starts while it is), {@code target} the
          * common target in force. Returns true in the loop a shot is counted.
          */
-        boolean update(double deficit, boolean within, boolean gateOpen, double target, double dipThreshold) {
+        boolean update(double deficit, double bothDeficit, boolean within, boolean gateOpen, double target,
+                       double dipThreshold) {
             justCounted = false;
             if (within) {
                 if (inDip) {
@@ -1007,7 +1027,7 @@ public class LauncherSubsystem implements Subsystem {
             }
             if (inDip) {
                 if (deficit > deepest) deepest = deficit;
-            } else if (armed && gateOpen && deficit >= dipThreshold) {
+            } else if (armed && gateOpen && bothDeficit >= dipThreshold) {
                 inDip = true;
                 deepest = deficit;
                 dipTarget = target;

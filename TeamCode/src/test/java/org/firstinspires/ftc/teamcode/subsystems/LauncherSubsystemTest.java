@@ -127,7 +127,7 @@ public class LauncherSubsystemTest {
     private static boolean at(ShotDetector d, double measured) {
         double deficit = LauncherSubsystem.deficit(TARGET, measured, TARGET, measured);
         boolean within = Math.abs(measured - TARGET) <= 60.0;
-        return d.update(deficit, within, true, TARGET, DIP);
+        return d.update(deficit, deficit, within, true, TARGET, DIP);
     }
 
     @Test
@@ -167,13 +167,22 @@ public class LauncherSubsystemTest {
     }
 
     @Test
-    public void twoDipsAreTwoShotsAndOnlyTheSlowerWheelNeedsToDip() {
+    public void twoDipsAreTwoShotsAndBothWheelsMustDip() {
         ShotDetector d = new ShotDetector();
         at(d, 1500);
         at(d, 1200); assertTrue(at(d, 1500));
-        // Right wheel alone drops: still a dip.
-        assertFalse(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1250), false, true, TARGET, DIP));
-        assertTrue(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1480), true, true, TARGET, DIP));
+        // Right wheel alone drops: not a dip.
+        assertFalse(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1250),
+                LauncherSubsystem.bothDeficit(TARGET, 1500, TARGET, 1250), false, true, TARGET, DIP));
+        assertFalse(d.inDip());
+        assertFalse(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1480),
+                LauncherSubsystem.bothDeficit(TARGET, 1500, TARGET, 1480), true, true, TARGET, DIP));
+        assertEquals(1, d.shots());
+        // Both past the threshold, unevenly: a dip, recorded at the slower wheel's depth.
+        assertFalse(d.update(LauncherSubsystem.deficit(TARGET, 1300, TARGET, 1250),
+                LauncherSubsystem.bothDeficit(TARGET, 1300, TARGET, 1250), false, true, TARGET, DIP));
+        assertTrue(d.update(LauncherSubsystem.deficit(TARGET, 1480, TARGET, 1490),
+                LauncherSubsystem.bothDeficit(TARGET, 1480, TARGET, 1490), true, true, TARGET, DIP));
         assertEquals(2, d.shots());
         assertEquals(250.0, d.lastDipTicksPerSecond(), EPS);
     }
@@ -201,8 +210,9 @@ public class LauncherSubsystemTest {
     /** One loop at the log's settings: the two wheels' speeds and whether the gate is open. */
     private static boolean logged(ShotDetector d, double left, double right, boolean gateOpen) {
         double deficit = LauncherSubsystem.deficit(LOG_TARGET, left, LOG_TARGET, right);
+        double both = LauncherSubsystem.bothDeficit(LOG_TARGET, left, LOG_TARGET, right);
         boolean within = Math.abs(left - LOG_TARGET) <= 60.0 && Math.abs(right - LOG_TARGET) <= 60.0;
-        return d.update(deficit, within, gateOpen, LOG_TARGET, LOG_DIP);
+        return d.update(deficit, both, within, gateOpen, LOG_TARGET, LOG_DIP);
     }
 
     /** Drives a shape through the detector, both wheels the same speed; returns the shots counted. */
@@ -242,10 +252,45 @@ public class LauncherSubsystemTest {
         ShotDetector d = new ShotDetector();
         assertEquals(1, sameOnBoth(d, true, 1600, 1595, 1440, 1400, 1470, 1530, 1580, 1600));
         assertEquals(195.0, d.lastDipTicksPerSecond(), EPS);
-        // A fed shot that pulls mostly one wheel (134.95 s: left 35, right 115) counts too.
-        logged(d, 1560, 1480, true);
+        // The most uneven real shot in the log (1677.13 s): left 160, right 240 down. Still one.
+        logged(d, 1435, 1355, true);
+        logged(d, 1500, 1460, true);
         logged(d, 1590, 1600, true);
         assertEquals(2, d.shots());
+        assertEquals(240.0, d.lastDipTicksPerSecond(), EPS);
+    }
+
+    /** Drives (left, right) pairs through the detector with the gate open; returns the shots counted. */
+    private static int fed(ShotDetector d, double... leftRight) {
+        int before = d.shots();
+        for (int i = 0; i < leftRight.length; i += 2) logged(d, leftRight[i], leftRight[i + 1], true);
+        return d.shots() - before;
+    }
+
+    @Test
+    public void theWheelsWobblingWhileABallPressesOnThemIsNotAShot() {
+        // 134.31–135.48 s, gate open, feeder current climbing 2.3 → 6.7 A: the left sags while the
+        // right holds, then the right while the left holds. Three shots were counted here.
+        ShotDetector d = new ShotDetector();
+        assertEquals(0, fed(d, 1620, 1580, 1600, 1600, 1580, 1620, 1560, 1620,
+                1520, 1620, 1540, 1620, 1540, 1600, 1560, 1600,
+                1580, 1560, 1600, 1540, 1600, 1520, 1600, 1540,
+                1580, 1500, 1580, 1480, 1560, 1500, 1560, 1520, 1560, 1540,
+                1600, 1560, 1620, 1600, 1620, 1620, 1580, 1640, 1600, 1660, 1580, 1640));
+        assertFalse(d.inDip());
+        // 135.52 s: the ball is taken, both wheels 280 down at once. One shot.
+        assertEquals(1, fed(d, 1320, 1400, 1300, 1320, 1380, 1360, 1460, 1420, 1540, 1480, 1620, 1560));
+        assertEquals(295.0, d.lastDipTicksPerSecond(), EPS);
+    }
+
+    @Test
+    public void theShallowSagBeforeAFedShotIsNotAShot() {
+        // 1701.15 s and 1701.22 s (target 1620 there; here 25 lower): feeder loaded at 6 A, the wheels
+        // hover 60 and 80 under target and two shots were counted. Then the real one at 1701.64 s.
+        ShotDetector d = new ShotDetector();
+        assertEquals(0, fed(d, 1575, 1555, 1555, 1555, 1535, 1515, 1555, 1535,
+                1555, 1535, 1555, 1515, 1575, 1535, 1595, 1575, 1595, 1595));
+        assertEquals(1, fed(d, 1555, 1555, 1395, 1395, 1435, 1415, 1475, 1475, 1515, 1495, 1575, 1555));
     }
 
     @Test
