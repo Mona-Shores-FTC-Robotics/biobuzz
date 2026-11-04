@@ -1,14 +1,42 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem.State;
+import org.firstinspires.ftc.teamcode.util.VoltageCompensation;
 import org.junit.Test;
 
 /** The pure part of {@link FeederSubsystem}: the TeleOp gate and what each request does to the motor. */
 public class FeederSubsystemTest {
 
     private static final double EPS = 1e-9;
+
+    /** The power the feeder writes with {@code compensateVoltage} on, as update() computes it. */
+    private static double compensated(double power, double battery) {
+        return VoltageCompensation.power(power, VoltageCompensation.scale(true, 12.0, battery));
+    }
+
+    @Test
+    public void compensationHoldsTheFeedFromAFreshToATiredBattery() {
+        // 0.88 at 12.0 nominal: the same drive (power x battery) at 12.5 V and at 10.6 V.
+        assertEquals(0.88 * 12.0, compensated(0.88, 12.5) * 12.5, 1e-6);
+        assertEquals(0.88 * 12.0, compensated(0.88, 10.6) * 10.6, 0.02);
+        assertTrue(compensated(0.88, 10.6) <= 1.0);
+    }
+
+    @Test
+    public void atFullPowerCompensationHasNoHeadroom() {
+        assertEquals("a tired battery gets nothing more", 1.0, compensated(1.0, 10.6), EPS);
+        assertEquals("a fresh one is only slowed", 0.96, compensated(1.0, 12.5), EPS);
+        assertEquals("off: unchanged", 1.0,
+                VoltageCompensation.power(1.0, VoltageCompensation.scale(false, 12.0, 10.6)), EPS);
+    }
+
+    @Test
+    public void aReverseIsScaledWithItsSign() {
+        assertEquals(-0.8 * 12.0 / 11.0, compensated(-0.8, 11.0), EPS);
+    }
 
     @Test
     public void nothingHeldIsIdle() {
@@ -70,5 +98,22 @@ public class FeederSubsystemTest {
         assertEquals("NaN is off", false, FeederSubsystem.standsBy(State.IDLE, true, true, Double.NaN));
         assertEquals("a feed is a feed", false, FeederSubsystem.standsBy(State.FEED, true, true, 1.0));
         assertEquals("an unjam wins", false, FeederSubsystem.standsBy(State.REVERSE, true, true, 1.0));
+    }
+
+    @Test
+    public void batteryNoiseDoesNotMoveTheScale() {
+        // 12.0 nominal: 11.00 V then 11.05 V is a 0.45% move, under the 1% step, so the power stays put.
+        double applied = FeederSubsystem.steppedScale(1.0, 12.0 / 11.0, FeederSubsystem.SCALE_STEP);
+        assertEquals(12.0 / 11.0, applied, EPS);
+        assertEquals("a tenth of a volt of noise keeps the scale", applied,
+                FeederSubsystem.steppedScale(applied, 12.0 / 11.05, FeederSubsystem.SCALE_STEP), EPS);
+        assertEquals("a real sag moves it", 12.0 / 10.8,
+                FeederSubsystem.steppedScale(applied, 12.0 / 10.8, FeederSubsystem.SCALE_STEP), EPS);
+    }
+
+    @Test
+    public void switchingCompensationOffAppliesAtOnce() {
+        assertEquals(1.0, FeederSubsystem.steppedScale(1.005, 1.0, FeederSubsystem.SCALE_STEP), EPS);
+        assertEquals("off stays off", 1.0, FeederSubsystem.steppedScale(1.0, 1.0, FeederSubsystem.SCALE_STEP), EPS);
     }
 }

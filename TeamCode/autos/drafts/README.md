@@ -1,4 +1,10 @@
-# Drafts: the 3-TIP swap pairs (4 Nov 2026)
+# Drafts
+
+Simulator-only Autos on master: a `.pp` here, its generated class (no OpMode, so the Driver Station
+never lists it) and its request in `TeamCode/sim-requests/`. The Visualizer's Team Autos lists them
+under "Drafts", and Save to GitHub saves back here.
+
+## The 3-TIP swap pairs (4 Nov 2026)
 
 Starting points for the mentor to refine in the Visualizer, not Autos we run: no OpMode, so the
 Driver Station never lists them, and the Visualizer's Team Autos list (top-level files only) does
@@ -28,19 +34,19 @@ so each robot crosses once, and the two pairs differ only in **who takes which l
 
 Links (this branch):
 
-- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=autos-experiment/r-3tip-a.pp>
-- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=autos-experiment/l-3tip-a.pp>
-- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=autos-experiment/r-3tip-b.pp>
-- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=autos-experiment/l-3tip-b.pp>
+- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=TeamCode/autos/drafts/r-3tip-a.pp>
+- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=TeamCode/autos/drafts/l-3tip-a.pp>
+- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=TeamCode/autos/drafts/r-3tip-b.pp>
+- <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=TeamCode/autos/drafts/l-3tip-b.pp>
 
-## Timelines
+### Timelines
 
 From the drawn drive times and the typical times in `TeamCode/auto-registry.json` (LaunchAll 4.0 s,
 PickFlower 4.4, GardenGather 6.0), with the last ball leaving about 1.1 s before a LaunchAll ends
 and a TIP's swing starting about 1 s after it (`timing.json`). **Real 4 Nov launches took 4.5 s and
 a FLOWER pick 3.4 s**: each volley is about 0.5 s later than this, each pick 1 s sooner.
 
-### Pair A: R in the centre, L by the wall
+#### Pair A: R in the centre, L by the wall
 
 | Time (s) | R (`r-3tip-a`) | L (`l-3tip-a`) | HIVE |
 |---|---|---|---|
@@ -60,7 +66,7 @@ last ball ≈30.4 at typical times (≈29.4 at real pick times). TIP 2 on our ow
 L's fallback (no LEFT up by 10 s on the match clock, adjustable in INIT: R did not make TIP 1):
 wall lane to RIGHT_LAUNCH_OFFSET, preloads → RIGHT (TIP 1 itself), park.
 
-### Pair B: R by the wall, L in the centre
+#### Pair B: R by the wall, L in the centre
 
 | Time (s) | R (`r-3tip-b`) | L (`l-3tip-b`) | HIVE |
 |---|---|---|---|
@@ -77,7 +83,7 @@ wall lane to RIGHT_LAUNCH_OFFSET, preloads → RIGHT (TIP 1 itself), park.
 R's fallback: the SCORING FLOWER and back into LEFT, last ball ≈29.2. L's fallback: centre lane to
 RIGHT_LAUNCH_CATCH, preloads → RIGHT, park.
 
-## What did not fit, and the open questions
+### What did not fit, and the open questions
 
 1. **Both R drafts end on a launch, not a park** (a TIP is 20 points and a ranking-point step; the
    park is 5 and neither). Their last ball leaves at 28–30 s at typical times, **later than 30 s at
@@ -101,8 +107,26 @@ RIGHT_LAUNCH_CATCH, preloads → RIGHT, park.
    no park of its own (`parkFrom`), so a guard that parks early drives the route's park path from
    wherever the robot is: draw them (P in the Visualizer) before relying on it.
 
-## Simulation
+### Simulation
 
 `TeamCode/sim-requests/r-3tip-a.json` and `r-3tip-b.json` run each R alone (the floor), beside its
 L on time, beside its L missing every shot, and beside a dead partner on LEFT_START. A draft's
 request may name its .pp here and its partner may be the other draft (`SimRequestsTest`).
+
+## R-Solo-Push, for a partner with no Auto (4 Nov 2026)
+
+`r-solo-push.pp`: R-Solo's 2-TIP plan with a push. The partner, powered off or with no Auto, starts
+with its back on our alliance wall centred on tile A4 (`PARTNER_PUSH_START`, 8.1, 82.5, facing the
+field), just south of the LOADING ZONE. After the WALL FLOWER pick, our robot backs into its south
+side and pushes it 10 in north and 3 in off the wall, partly into the zone, then slides off east and
+goes north between the partner and the HIVE leg to LEFT_LAUNCH_OFFSET. The pushed partner earns
+LEAVE (Q&A Q28) and AUTO PARK (the same reasoning, not yet asked), so SWARM no longer needs our own
+AUTO PARK. It ends with a plain drive to LEFT_PARK after the last launch: no park step, so the
+endgame guard never parks early through the partner.
+
+Simulated with `partners/partner-push-start` and `"pushable": true` (`sim-requests/r-solo-push.json`):
+2 TIPs (TIP 2 at 25–27.5 s), partner LEAVE and PARK in every seed; the push costs 2.4 s at our
+second launch against R-Solo (1.7 s route, 0.7 s pushing at a placeholder half speed). PR #427 has
+the details; the robot check is in `doc/robot-todo.md` §3.
+
+Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=TeamCode/autos/drafts/r-solo-push.pp>

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
@@ -10,8 +9,10 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.Input;
 import org.firstinspires.ftc.teamcode.controls.IntakeToggle;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherResponse;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
+import org.firstinspires.ftc.teamcode.util.RecentMean;
 
 import java.util.Locale;
 
@@ -31,9 +32,9 @@ import java.util.Locale;
  * <p><b>The setup layer</b> (gate and prefeed holds, gate nudges) sits behind a held modifier: the
  * operator's turret-autoaim button ({@link #SETUP_MODIFIER}, Triangle in the default layout), free
  * here because the turret is unplugged. While it is held, the FLOWER stick's button cycles the gate
- * hold, the launcher button cycles the prefeed hold, and the D-pad nudges the gate's two positions;
- * those two face buttons do nothing else while the modifier is down, so the setup tools cannot be
- * bumped in normal testing. A hold stays until it is cycled back to follow, and the page says so in
+ * hold, the launcher button cycles the prefeed hold, the fire button starts a spin-up step test, and
+ * the D-pad nudges the gate's two positions; those three face buttons do nothing else while the
+ * modifier is down (fire does not feed), so the setup tools cannot be bumped in normal testing. A hold stays until it is cycled back to follow, and the page says so in
  * red while one is on. The D-pad does nothing without the modifier.
  *
  * <p><b>There is no interlock:</b> fire runs the feeder whether or not the launcher is at speed.
@@ -46,6 +47,15 @@ import java.util.Locale;
  * gate there, so be ready for that. Then hold the gate at either end and nudge that end until the
  * plate sits on its stop. Write the two numbers into {@code FeedGateSubsystem} with a comment saying
  * which robot. Panels edits are lost on restart.
+ *
+ * <p><b>The step test</b> (modifier + fire), for tuning the launcher's velocity PIDF in Panels
+ * ({@code LauncherSubsystem.velocityP} and the rest; procedure in {@code doc/robot-todo.md}): the
+ * launcher spins down, waits until both wheels have read under {@link #STILL_TPS} for
+ * {@link #STILL_HOLD_MS}, spins up to the launch speed and records the spin-up's rise, overshoot and
+ * time to at speed ({@code LauncherResponse}) with the battery. The page shows the last result and
+ * the mean of the last {@link #STEP_RESULTS}; the match log has each one. The same button again,
+ * the launcher button or an unjam cancels it. Do not fire during it. After it the launcher is left
+ * spinning, ready for real shots, whose dips the page also times.
  *
  * <p>Nothing moves before PLAY, as everywhere ({@code Subsystem}): the bindings are polled only
  * after PLAY and the sticks are read only in {@link #onLoop()}.
@@ -68,6 +78,17 @@ public class LaunchTest extends RobotOpMode {
     static final Action GATE_HOLD_BUTTON = Action.FLOWER_STICK;
     /** With the modifier held, this action's button cycles the prefeed hold instead of its own job. */
     static final Action PREFEED_HOLD_BUTTON = Action.LAUNCHER_TOGGLE;
+    /** With the modifier held, this action's button starts (or cancels) the spin-up step test instead of firing. */
+    static final Action STEP_TEST_BUTTON = Action.FIRE;
+
+    /** Below this, ticks per second, a wheel counts as still for the step test: the encoder check's floor. */
+    static final double STILL_TPS = 20.0;
+    /** Both wheels still for this long, ms, before the step test spins up: a coasting wheel can read 0 for a loop. */
+    static final double STILL_HOLD_MS = 500.0;
+    /** A step test whose spin-up has not reached at speed after this long, ms, is recorded as a failure. */
+    static final double STEP_GIVE_UP_MS = 5000.0;
+    /** How many step tests the running means are over. */
+    static final int STEP_RESULTS = 5;
     /** The operator actions the normal layer uses, all on gamepad 1 here. */
     static final Action[] NORMAL_LAYER = {
             Action.LAUNCHER_TOGGLE, Action.FIRE, Action.LAUNCHER_TRIM_DOWN, Action.LAUNCHER_TRIM_UP,
@@ -96,17 +117,28 @@ public class LaunchTest extends RobotOpMode {
     private int gateHold;
     /** Modifier + launcher button: 0 follows the intake and feeder, then holds IN, OUT, IDLE. */
     private int prefeedHold;
+    /** The step test: what it waits for now. */
+    enum Step { OFF, SPINNING_DOWN, SPINNING_UP }
+
+    private Step step = Step.OFF;
+    /** When both wheels first read still in this spin-down, System.nanoTime; -1 while not. */
+    private long stillSinceNs = -1;
+    /** When this step's current phase began, System.nanoTime. */
+    private long stepPhaseNs;
+    /** The launcher's completed spin-ups when the step test spun up: one more is its result. */
+    private int spinUpsBefore;
+    private int stepTests;
+    private String lastStep = "none yet";
+    private final RecentMean stepRise = new RecentMean(STEP_RESULTS);
+    private final RecentMean stepOvershoot = new RecentMean(STEP_RESULTS);
+    private final RecentMean stepSettle = new RecentMean(STEP_RESULTS);
     /** The page's one-line legend and the setup line, built once from the layout. */
     private String legend;
     private String setupLine;
 
     @Override
     protected void onInit() {
-        try {
-            panels = PanelsTelemetry.INSTANCE.getTelemetry();
-        } catch (RuntimeException | LinkageError e) {
-            panels = null; // Panels is a window onto the robot, not part of it.
-        }
+        panels = panelsTelemetry();
         // Gamepad 1 is both pads, and everything lists on the one Controls page.
         controls = new Controls(TeleOpConfig.flowerPickButton, gamepad1, gamepad1, driver, driver);
         modifier = controls.input(SETUP_MODIFIER);
@@ -125,6 +157,8 @@ public class LaunchTest extends RobotOpMode {
                 .onPress(this::cycleGate);
         onSetup(controls.input(PREFEED_HOLD_BUTTON), "Prefeed: follow / hold IN / hold OUT / hold IDLE")
                 .onPress(this::cyclePrefeed);
+        onSetup(controls.input(STEP_TEST_BUTTON), "Launcher step test: spin down, wait until still, spin up, time it (again cancels)")
+                .onPress(this::stepTest);
         onSetup(Input.DPAD_UP, "Gate: shown position +" + COARSE_STEP + " (first press on an unmeasured end sets 0.50 and moves it)")
                 .onPress(() -> nudge(COARSE_STEP));
         onSetup(Input.DPAD_DOWN, "Gate: shown position -" + COARSE_STEP).onPress(() -> nudge(-COARSE_STEP));
@@ -137,8 +171,8 @@ public class LaunchTest extends RobotOpMode {
                 label(Action.LAUNCHER_TOGGLE), label(Action.FIRE), label(Action.LAUNCHER_TRIM_DOWN),
                 label(Action.LAUNCHER_TRIM_UP), label(Action.OPERATOR_INTAKE), label(Action.UNJAM),
                 label(Action.FLOWER_STICK), modifier.label);
-        setupLine = String.format(Locale.US, "%s gate hold · %s prefeed hold · D-pad nudges the gate end shown",
-                label(GATE_HOLD_BUTTON), label(PREFEED_HOLD_BUTTON));
+        setupLine = String.format(Locale.US, "%s gate hold · %s prefeed hold · %s launcher step test · D-pad nudges the gate end shown",
+                label(GATE_HOLD_BUTTON), label(PREFEED_HOLD_BUTTON), label(STEP_TEST_BUTTON));
     }
 
     /** An operator action's button from the layout, on gamepad 1, doing its own job only while the modifier is up. */
@@ -169,7 +203,10 @@ public class LaunchTest extends RobotOpMode {
                 deadband(gamepad1.left_stick_x) * STRAFE_SIGN * DRIVE_SPEED,
                 deadband(gamepad1.right_stick_x) * TURN_SIGN * DRIVE_SPEED);
         boolean unjam = controls.held(Action.UNJAM);
-        boolean fire = controls.held(Action.FIRE);
+        // With the modifier down the fire button is the step test's, so it does not feed.
+        boolean fire = controls.held(Action.FIRE) && !modifier.read(gamepad1);
+        if (unjam && step != Step.OFF) cancelStep("unjam");
+        advanceStep();
         // A tap toggles; the toggle is always enabled here (it is the point of a solo test).
         boolean intakeOn = intakeToggle.update(true, controls.held(Action.OPERATOR_INTAKE));
         // The subsystems update after this: the launcher, intake, prefeed and gate read these requests this loop.
@@ -186,6 +223,7 @@ public class LaunchTest extends RobotOpMode {
     // ------------------------------------------------------------ launcher
 
     private void toggleLauncher() {
+        if (step != Step.OFF) cancelStep("launcher button");
         if (robot.launcher.isSpinning()) {
             robot.launcher.spinDown();
             log.event("launcher: off");
@@ -228,6 +266,80 @@ public class LaunchTest extends RobotOpMode {
     static double launchSpeedFor(double base, double trim) {
         double b = base > 0.0 ? base : 0.0;
         return Math.max(0.0, b + trim);
+    }
+
+    // ------------------------------------------------------------ step test
+
+    /** Modifier + fire: start a step test, or cancel the one running. */
+    private void stepTest() {
+        if (step != Step.OFF) {
+            cancelStep("button");
+            return;
+        }
+        robot.launcher.spinDown();
+        step = Step.SPINNING_DOWN;
+        stillSinceNs = -1;
+        stepPhaseNs = System.nanoTime();
+        log.event("step test: spinning down");
+    }
+
+    private void cancelStep(String why) {
+        step = Step.OFF;
+        log.event("step test: cancelled (" + why + ")");
+    }
+
+    /** One step of the step test, never blocking: wait for still, spin up, wait for the result. */
+    private void advanceStep() {
+        long now = System.nanoTime();
+        if (step == Step.SPINNING_DOWN) {
+            if (!still(robot.launcher.leftTicksPerSecond(), robot.launcher.rightTicksPerSecond(), STILL_TPS)) {
+                stillSinceNs = -1;
+            } else if (stillSinceNs < 0) {
+                stillSinceNs = now;
+            } else if ((now - stillSinceNs) / 1e6 >= STILL_HOLD_MS) {
+                spinUpsBefore = robot.launcher.response().spinUps();
+                robot.launcher.spinUp(launchSpeed());
+                step = Step.SPINNING_UP;
+                stepPhaseNs = now;
+            }
+        } else if (step == Step.SPINNING_UP) {
+            LauncherResponse response = robot.launcher.response();
+            if (response.spinUps() > spinUpsBefore) {
+                stepTests++;
+                stepRise.add(response.riseMs());
+                stepOvershoot.add(response.spinOvershootTps());
+                stepSettle.add(response.settleMs());
+                lastStep = String.format(Locale.US, "#%d to %.0f: in tolerance %.0f ms, overshoot %.0f, at speed %.0f ms, battery %.2f V",
+                        stepTests, robot.launcher.target(), response.riseMs(), response.spinOvershootTps(),
+                        response.settleMs(), batteryVolts());
+                log.event("step test " + lastStep);
+                step = Step.OFF;
+            } else if ((now - stepPhaseNs) / 1e6 >= STEP_GIVE_UP_MS) {
+                stepTests++;
+                lastStep = String.format(Locale.US, "#%d to %.0f: NOT at speed after %.0f s, battery %.2f V",
+                        stepTests, robot.launcher.target(), STEP_GIVE_UP_MS / 1000, batteryVolts());
+                log.event("step test " + lastStep);
+                step = Step.OFF;
+            }
+        }
+    }
+
+    /** Both wheels under {@code floor}, ticks per second: the step test may spin up. Pure. */
+    static boolean still(double left, double right, double floor) {
+        return Math.abs(left) < floor && Math.abs(right) < floor;
+    }
+
+    private String stepState() {
+        double s = (System.nanoTime() - stepPhaseNs) / 1e9;
+        switch (step) {
+            case SPINNING_DOWN:
+                return String.format(Locale.US, "spinning down %.1f s, wheels %.0f / %.0f (waits for under %.0f)",
+                        s, robot.launcher.leftTicksPerSecond(), robot.launcher.rightTicksPerSecond(), STILL_TPS);
+            case SPINNING_UP:
+                return String.format(Locale.US, "spinning up %.1f s", s);
+            default:
+                return "off · " + modifier.label + " + " + label(STEP_TEST_BUTTON) + " to run";
+        }
     }
 
     // ------------------------------------------------------------ setup layer
@@ -317,6 +429,12 @@ public class LaunchTest extends RobotOpMode {
         }
         display.line(String.format(Locale.US, "Gate positions: blocking %s · feeding %s",
                 position(FeedGateSubsystem.blockingPosition), position(FeedGateSubsystem.feedingPosition)));
+        display.status("Step test", step == Step.OFF ? Display.Level.OK : Display.Level.WARN, stepState());
+        display.line("Last step: " + lastStep);
+        if (stepRise.count() > 0) {
+            display.line(String.format(Locale.US, "Mean of last %d: in tolerance %.0f ms, overshoot %.0f, at speed %.0f ms",
+                    stepRise.count(), stepRise.mean(), stepOvershoot.mean(), stepSettle.mean()));
+        }
         display.status("Interlock", Display.Level.WARN, "none: fire runs whether or not the launcher is at speed");
         display.line(legend);
         publish(setupLayer);
@@ -341,7 +459,29 @@ public class LaunchTest extends RobotOpMode {
             panels.addData("at_speed", robot.launcher.atSpeed() ? 1.0 : 0.0);
             panels.addData("launcher_reversing", robot.launcher.reversing() ? 1.0 : 0.0);
             panels.addData("shots", robot.launcher.shots());
+            // Tuning the velocity PIDF: the last spin-up's and dip's timings, and the gains as written.
+            LauncherResponse response = robot.launcher.response();
+            panels.addData("launcher_rise_ms", response.riseMs());
+            panels.addData("launcher_overshoot_tps", response.spinOvershootTps());
+            panels.addData("launcher_settle_ms", response.settleMs());
+            panels.addData("launcher_dip_tps", response.dipDepthTps());
+            panels.addData("launcher_recover_ms", response.recoverMs());
+            panels.addData("launcher_dip_overshoot_tps", response.dipOvershootTps());
+            panels.addData("launcher_resettle_ms", response.resettleMs());
+            panels.addData("launcher_shot_gap_ms", response.shotGapMs());
+            panels.addData("launcher_p_applied", robot.launcher.appliedP());
+            panels.addData("launcher_i_applied", robot.launcher.appliedI());
+            panels.addData("launcher_d_applied", robot.launcher.appliedD());
+            panels.addData("launcher_f_applied", robot.launcher.appliedF());
+            panels.addData("launcher_f_scale", robot.launcher.fScale());
+            panels.addData("launcher_step_running", step == Step.OFF ? 0.0 : 1.0);
+            panels.addData("launcher_step_rise_mean_ms", stepRise.mean());
+            panels.addData("launcher_step_overshoot_mean_tps", stepOvershoot.mean());
+            panels.addData("launcher_step_settle_mean_ms", stepSettle.mean());
             panels.addData("feeder_tps", robot.feeder.ticksPerSecond());
+            // Surface speeds, the comparable unit (NaN until the wheels are measured).
+            panels.addData("feeder_surface_ips", robot.feeder.surfaceInchesPerSecond());
+            panels.addData("launcher_surface_ips", robot.launcher.surfaceInchesPerSecond());
             panels.addData("intake_toggle", intakeToggle.on() ? 1.0 : 0.0);
             panels.addData("intake_tps", robot.intake.ticksPerSecond());
             panels.addData("intake_amps", robot.intake.currentAmps());

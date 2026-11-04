@@ -967,22 +967,32 @@ calls. There are three kinds of card and one branching block:
   command at that deadline, since the robot is standing on a drawn spot, and never cuts a path: a
   path it has let start runs to its end and the robot parks from there. The same holds inside a
   `firstOf` row's cards: a path there is never cut, and one that would start after the deadline
-  does not start (#142).
+  does not start (#142). Before that, it goes for the next volley (`AutoRegistry.volley`: LaunchAll)
+  when a card, the cards after it up to that volley and the volley's last piece all fit before 30 s,
+  and then neither parks nor cuts until the next card: an AUTO TIP is worth 20 points toward the
+  POLLINATOR RPs, the AUTO PARK 5, and both robots' LEAVE and end-of-match PARK already make the
+  SWARM RP's 16 (mentor, 4 Nov 2026). A launch that is feeding is never
+  cut. → `TeamCode/autos/README.md` § "Parking when time runs short"
 
 **Where a path ends, and what settles after it.** A path card is done when `AutoDrive.pathDone()`
 says so, which on the robot is Pedro's parametric end: the Follower switches to holding the end pose
 and brakes, and the robot is still rolling (10 to 24 in/s at the hand-over in the 29 Oct to 2 Nov
 2026 logs, under 8 in/s 0.1 to 0.2 s later, under 2 in/s 0.1 to 0.5 s later). The kit adds no
-settle of its own. A launch card waits for `PathEndSettle` (still, and aimed). A grab waits for its
+settle of its own. A `LaunchAll` right after a path opens the gate on the approach (below); failing
+that, a launch card waits for `PathEndSettle`: aimed at the end heading and slowing under
+`slowSpeedInPerSec` (6 in/s), not still (under 2 in/s until 4 Nov 2026). A grab waits for its
 own hand-over speed, `settledInPerSec` in `FlowerPicker` and `GardenGather` (8 in/s since 3 Nov 2026,
 from 2): a pick squares up on its own and ends on contact, a gather ends on the wall, so neither
 needs the robot still (mentor, 3 Nov 2026). Before that, the whole 0.7 s between a drive's end and
 the push was the stick's `stickDownMs`, since the stick went down only when the pick card started.
 
-**A path card before a grab runs the grab's approach.** `AutoRegistry.Approach` is what a grab does
-on the drive in to it. `sequence`, `guarded` and a `firstOf` row's cards pair each path card with the
-grab card right after it; while the path drives, the kit tells the approach where the robot is and
-how far it has to go, and cancels it if the guard refuses the grab. `FlowerPicker.approach` lowers
+**A path card before a command runs the command's approach.** `AutoRegistry.Approach` is what a
+command does on the drive in to it (a grab or a plain command; registered with
+`AutoRegistry.grab(..., approach)` or `command(..., approach)`). `sequence`, `guarded` and a
+`firstOf` row's cards pair each path card with the command card right after it; while the path
+drives, the kit tells the approach where the robot is and how far it has to go. It cancels the
+approach if the path is cut short, if the guard refuses the command or parks instead of starting
+it, or if another path starts first. `FlowerPicker.approach` lowers
 the stick and starts the intake over the last `lowerWithinIn` (18 in) of the drive, for the FLOWER
 the pick will go for from the drive's end; the pick then counts its stick time from when the stick
 was asked out (`FlowerStickSubsystem.extendedSinceNs`, `GrabRoutine.readySinceNs`), so the wait is
@@ -991,6 +1001,19 @@ the whole pick, which works on its own from the button. Merging the drive into t
 drive at the contact standoff) was considered and rejected: the pick would no longer be a unit that
 works in isolation. `GardenGather` has no approach yet: its stick came down on the wall when swung
 early in the corner (30 Oct 2026).
+
+**A `LaunchAll` after a path launches on the approach**, as a good TeleOp driver does (mentor,
+4 Nov 2026). `LaunchCards.approach()` opens the gate once three things hold: the robot is within
+`PathEndSettle.launchWithinIn` (6 in) of the path's end, within `aimToleranceDeg` (3°) of the end
+heading and turning slower than `launchTurnDegPerSec` (30°/s) (`PathEndSettle.readyOnApproach`),
+and the launcher is at speed. The `LaunchAll` card then waits for nothing and ends
+`launchAllFeedS` after that gate opened. An approach that turns late, swinging onto the HIVE only
+at the stop, never meets the condition, and the card waits for the settle as before.
+`LaunchCards.launchOnApproach` switches it off. Why: in the 3 and 4 Nov R-Solo logs, arriving at
+LEFT_LAUNCH_OFFSET to the first ball took 1.9 to 2.0 s. Path end to gate open was 0.98 to 1.12 s
+of that (a 0.38 to 0.57 s settle, then a launcher overshoot), although the robot was already within
+1.2° and 0.35 in of its end pose at about 10 in/s. The knobs are not measured. The hit rate firing
+on the approach against firing still is a robot check in `doc/robot-todo.md`.
 
 Names come from `AutoRegistration`, the only list of commands and triggers an Auto may use;
 `requireAll` at INIT stops an Auto that uses an unregistered name. Names whose mechanism does not
@@ -1056,6 +1079,51 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   from any range: a shot at a down CELL is a wasted preload, counted in the results, where it
   used to hold fire and time out holding 4. StreamOn, which master's Autos do not use, still holds
   fire for a raised CELL in range.
+  Its timing is not the robot's. The simulator fires once the path is done and the robot is
+  under `SimDrive.FIRE_SPEED_IN_PER_S` (6 in/s), with no settle wait, no gate-to-first-ball delay
+  and no gate opened on the approach (`LaunchCards.approach()`, 4 Nov 2026). So it cannot show
+  what launching on the approach saves. That would need three things: `LaunchAll` registered with
+  an approach that starts the volley under `PathEndSettle.readyOnApproach`'s rule; the measured
+  0.8 to 0.9 s from gate open to first ball; and a hit model for a ball fired while the robot
+  still rolls.
+- **The GARDEN.** Each alliance's GARDEN is in the simulator as the manual has it (TU03 §9: about 23 in by 2
+  in, along the audience wall from the red-side wall for red, blue's turned half a turn), with its 4 POLLEN in
+  a line from that corner, where the field model stages them. A `GardenGather` card runs master's
+  `GardenGather` routine from where it is called, with GardenGather's own numbers: intake on, a drive in at
+  `inSpeed` to `GardenFieldPoints`' gather pose (plus `extraDepthIn`, `towardWallIn`; the walls stop the
+  frame), a `dwellMs` dwell, and a drive back at `backSpeed`. It takes what the intake touches. **Measured:**
+  the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
+  whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (6 s, not yet timed from an
+  Auto); the FLOWER stick, which goes down on the robot's gather, is not modelled in the GARDEN.
+- **Hits on the HIVE.** The rocker's static balance is fitted to the Field Setup Guide's placed cases
+  (`HiveCalibration`). On top of it, a launched piece striking a CELL hands the rocker the angular momentum
+  about the axle the hit took from it (`FieldSim.kick`): the rocker is damped, so a hit moves it a step,
+  and a load just under the tipping weight knocked far enough goes on over. Only pieces arriving at 30 in/s
+  or more count, so settling pieces do not walk the rocker. Its strength,
+  `FieldSim.PLACEHOLDER_IMPULSE_SCALE` (0.6 of the hit's angular momentum), is a placeholder set to the
+  mentor's videos (4 Nov 2026): the real robot's 4-ball volley from RIGHT_START onto 4 POLLEN + 2 NECTAR (7.3
+  weights) tips 13 runs in 20, onto 7 POLLEN 1, onto 6.3 weights or less never. `HiveImpulseTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
+  and the Guide's six §12.3 rows; `BIOBUZZ_SIM_SWEEP=0.5,1,2` prints every case at each strength, for
+  refitting it to the video counts in `doc/robot-todo.md`.
+- **The launcher fires at the robot's one setpoint.** The real robot's designs fire every shot at master's
+  `LauncherSubsystem.targetTicksPerSecond` (`RobotDesign.fixedSetpoint`), at one pitch, whatever the distance,
+  so a shot from nearer or further than RIGHT_START goes long or short. **Measured:** the setpoint, and that it
+  is the middle of the window at RIGHT_START (1 Nov: 1575 short, 1625 long; 4 Nov: 4 of 4), which fixes the
+  ticks-to-exit-speed conversion: the simulator finds the speeds that score from RIGHT_START and puts 1595 in
+  their middle. **Placeholders:** the pitch, 75° (`setpointPitchDeg`; no hood angle is in master's code), fitted
+  to the 4 Nov video's volley from LEFT_LAUNCH_OFFSET (41 in) going long (the simulator scores about 1 in 8
+  there; it scored all of them at the ideal speed); the shot-to-shot spread (`setpointSpeedSpread`,
+  `setpointAngleSpreadRad`, the old 1.5% and 0.8°). The simulated CELL is more forgiving than the field's:
+  from RIGHT_START it keeps pieces from about 1500 to 1650 ticks/s where the robot's tuning shows about ±1.5%
+  (a real CELL spits a piece that hits its back or lip too fast). `LauncherSetpointTest`
+  (`BIOBUZZ_SIM_CHECKS=1`) checks both spots; `BIOBUZZ_SIM_IDEAL_SPEED=1` puts back the speed per distance.
+- **The human's long roll** (`BIOBUZZ_AUTO_HUMAN_ENTRY=aim`, for PR #424's study): each owed NECTAR is rolled
+  from the LOADING ZONE (released on the tile at `AutoSim.humanAimFrom`, (5.5, 95) for red) at the intake mouth
+  of a robot on a team spot (`BIOBUZZ_AUTO_HUMAN_AIM_SPOT`, a `spots.json` name or `x,y,heading`;
+  RIGHT_LAUNCH_OFFSET by default), at 21 ± 2 in/s (`_AIM_SPEED`) with a 2° aim spread (`_AIM_SPREAD_DEG`), once
+  no robot is within 12 in of the release and not before `_AIM_AT_S` on the match clock if set;
+  `BIOBUZZ_AUTO_HUMAN_BANK=N` banks them. Every number is a placeholder until the long-roll drill measures it.
+  Off by default; `HumanRollTest` (`BIOBUZZ_SIM_CHECKS=1`) checks a dead-on roll reaches the spot's robot.
 - **Results.** Each partner run gets its own folder, `<partner .pp name>/<timing name>/`, with its
   `result.json` and logs, and the top `result.json` carries `entries`: one row per run with the
   points, our launches (and how many went at a down CELL), the TIPs and when, the partner's last
@@ -1735,6 +1803,17 @@ if (fieldView.shouldDraw()) {
 On most loops that is one boolean read. The gate is also how two `FieldView`s share one canvas
 (see "Every `RobotOpMode` draws the robot", below): the first to pass it spends the throttle for
 that loop.
+
+`shouldDraw()` also waits `FieldLayers.drawEveryMs` (250 ms, a Panels knob) between sends, on top
+of Panels' 100 ms: a send costs the loop 7–8 ms (Panels builds and serialises the canvas on the
+loop thread; 20245's logs, 3–4 Nov 2026), and at 10 Hz it was the p95 of `/Loop/PageMs`.
+
+Disabling Panels does not remove that cost by itself: its disable OpMode stops the servers, but a
+send still serialises the canvas and builds a log line before it finds no client (read from
+`com.bylazar:panels:1.0.8`'s `Plugin.send`). So `RobotOpMode` reads the setting once at INIT
+(`util/PanelsSwitch`); with Panels off it builds no `FieldView` and `panelsTelemetry()` returns
+null, and the loop pays nothing for Panels. At an event Panels is off, so that is the match
+configuration. The match log is separate and records the same pose either way.
 
 > **History note, 25 Oct 2026.** This paragraph used to say that a skipped `update()` "returns
 > having done *nothing*, and that includes not clearing the canvas", so an ungated draw shipped

@@ -9,6 +9,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
+import org.firstinspires.ftc.teamcode.util.VoltageCompensation;
+import org.firstinspires.ftc.teamcode.util.WheelSpeed;
 
 import java.util.Locale;
 import java.util.function.BooleanSupplier;
@@ -25,6 +27,19 @@ import java.util.function.BooleanSupplier;
  * <p>Whether the feeder may run while the launcher is still spinning up is a TeleOp policy, not a
  * fact about this motor, so it lives in the OpMode; {@link #requestFor} is the pure form of that
  * policy so a test can check it without a gamepad.
+ *
+ * <h2>The battery</h2>
+ *
+ * <p>The feeder runs on open-loop power, so its speed follows the battery: on 4 Nov 2026 (20245,
+ * 00:48) it fell 2260 → 2120 → 2060 ticks/s across three volleys as the battery's low fell
+ * 10.83 → 10.74 → 10.61 V, and the third volley's shots were unevenly spaced and went long.
+ * {@link #compensateVoltage} scales the power by {@link #nominalVolts} / battery
+ * ({@link VoltageCompensation}), from the reading {@code RobotOpMode} takes once a second, so the
+ * feed rate stays the same from a fresh battery to a tired one. It cannot push past full power:
+ * at {@code feedPower} 1.0 it only ever slows a fresh battery down, and gives a tired one nothing.
+ * To hold the rate down to a battery of V volts, {@code feedPower} must be at most V / nominal:
+ * 0.88 for 10.6 V at 12.0 nominal (0.85 at 12.5). Off until a robot run shows it helps
+ * ({@code doc/robot-todo.md}, "Launcher tuning").
  */
 @Configurable
 public class FeederSubsystem implements Subsystem {
@@ -72,16 +87,44 @@ public class FeederSubsystem implements Subsystem {
      */
     public static double ticksPerRev = 384.5;
 
+    /**
+     * Feeder wheel diameter, inches, for the surface speed. <b>A placeholder from the design, not
+     * measured:</b> {@code doc/transfer.md} gives 48 mm gecko wheels. Measure with calipers on the
+     * robot and write it here with the robot and date. The wheel is taken to be on the motor's
+     * output shaft (ratio 1); check that too.
+     */
+    public static double wheelDiameterInches = 48.0 / 25.4;
+
+    /**
+     * Scale the power by {@link #nominalVolts} / battery (class comment, "The battery"), capped at
+     * full power. Off: no robot run has shown it helps yet. Turn it on with {@link #feedPower} below
+     * full (0.88 at 12.0 nominal), or it has no headroom on a tired battery.
+     */
+    public static boolean compensateVoltage = false;
+
+    /** The battery voltage the feeder's powers are meant at, for {@link #compensateVoltage}. NaN, zero or negative: no compensation. */
+    public static double nominalVolts = 12.0;
+
     private final DcMotorEx motor;
     private State state = State.IDLE;
     private BooleanSupplier ready = () -> false;
     private boolean started;
     private boolean standby;
     private double power;
+    /** The battery, volts, as {@code RobotOpMode} last passed it in; NaN until then. */
+    private double batteryVolts = Double.NaN;
+    private double voltageScale = 1.0;
     private double ticksPerSecond;
     private double currentAmps = Double.NaN;
-    /** Ten reads a second, not one a loop: see {@code IntakeSubsystem}'s. */
-    private final Throttle currentRead = new Throttle(100, 33);
+    /** Four reads a second, not one a loop: see {@code IntakeSubsystem}'s {@link IntakeSubsystem#CURRENT_READ_MS}. */
+    private final Throttle currentRead = new Throttle(IntakeSubsystem.CURRENT_READ_MS, 125);
+
+    /**
+     * The battery scale is changed only when it moves by more than this fraction (1%, about 0.1 V),
+     * as the launcher's F is ({@code LauncherSubsystem.F_COMPENSATION_STEP}): the power, and so the
+     * hub write, then stays put through a battery's tenth-of-a-volt noise.
+     */
+    static final double SCALE_STEP = 0.01;
 
     /** Looks the motor up once. A missing motor fails init with the SDK's own message. */
     public FeederSubsystem(HardwareMap hardwareMap) {
@@ -122,7 +165,17 @@ public class FeederSubsystem implements Subsystem {
         return state;
     }
 
-    /** The motor power written in the last {@link #update()}, signed, for the match log. */
+    /** The battery's latest reading, volts, from {@code RobotOpMode}'s once-a-second read; for {@link #compensateVoltage}. */
+    public void batteryVolts(double volts) {
+        batteryVolts = volts;
+    }
+
+    /** The battery's scale on the power in the last {@link #update()}: 1 unless compensating with a reading. */
+    public double voltageScale() {
+        return voltageScale;
+    }
+
+    /** The motor power written in the last {@link #update()}, signed, battery scale included, for the match log. */
     public double power() {
         return power;
     }
@@ -133,12 +186,21 @@ public class FeederSubsystem implements Subsystem {
     }
 
     /**
-     * Feeder motor current from the last {@link #update()}, amps; NaN while idle. Read only while
-     * running, since current is a separate hub transaction. A rising current with a falling speed is
+     * Feeder motor current as of its last read, amps; NaN while idle. Read only while running, and
+     * four times a second, since current is a separate hub transaction. A rising current with a falling speed is
      * a piece jamming.
      */
     public double currentAmps() {
         return currentAmps;
+    }
+
+    /**
+     * The feeder wheel's surface speed, inches per second: comparable with the flywheels'
+     * ({@code LauncherSubsystem.surfaceInchesPerSecond()}), as ticks per second are not. From
+     * {@link #wheelDiameterInches}, a placeholder until measured; NaN if that is unset.
+     */
+    public double surfaceInchesPerSecond() {
+        return WheelSpeed.surfaceInchesPerSecond(ticksPerSecond, ticksPerRev, 1.0, wheelDiameterInches);
     }
 
     /** {@link #ticksPerSecond()} in output-shaft RPM, or NaN until {@link #ticksPerRev} is set. */
@@ -165,14 +227,26 @@ public class FeederSubsystem implements Subsystem {
 
     /**
      * One write per loop, the power the request asks for, clamped so Panels cannot overdrive it;
-     * then one read of speed (from the bulk read) and, while running, one of current every 100 ms.
+     * then one read of speed (from the bulk read) and, while running, one of current every
+     * {@link IntakeSubsystem#CURRENT_READ_MS}.
+     *
+     * <p>The write every loop is not a hub round trip every loop: the SDK sends a motor power only
+     * when it differs from the one it last sent, and forgets that when a hub resets, so an unchanged
+     * power costs nothing and a hub that zeroed the motor is sent it again (20245's logs, 1–4 Nov
+     * 2026: the launcher's idle {@code setPower(0)} every loop costs 0.1 ms). So this keeps no cache
+     * of its own, which could go stale (CLAUDE.md, "Loop time"); it keeps the power from changing
+     * instead ({@link #SCALE_STEP}). This subsystem's {@code /Loop/Subsystem/FeederSubsystemMs} is
+     * mostly the Expansion Hub's bulk read, about 3.6 ms, paid by whichever subsystem reads that hub
+     * first in a loop, which is this one.
      */
     @Override
     public void update() {
         standby = standsBy(state, started, ready.getAsBoolean(), standbyPower);
-        power = standby
+        voltageScale = steppedScale(voltageScale,
+                VoltageCompensation.scale(compensateVoltage, nominalVolts, batteryVolts), SCALE_STEP);
+        power = VoltageCompensation.power(standby
                 ? powerFor(State.FEED, standbyPower, 0.0, reversed)
-                : powerFor(state, feedPower, reversePower, reversed);
+                : powerFor(state, feedPower, reversePower, reversed), voltageScale);
         motor.setPower(power);
         ticksPerSecond = motor.getVelocity();
         if (state == State.IDLE && !standby) {
@@ -204,10 +278,21 @@ public class FeederSubsystem implements Subsystem {
                         : standby ? String.format(Locale.US, "standing by, gate shut (%.2f)", power)
                         : "idle");
         double rpm = rpm();
-        display.line(String.format(Locale.US, "Feeder %.0f ticks/s%s · %s", ticksPerSecond,
+        display.line(String.format(Locale.US, "Feeder %.0f ticks/s%s · surface %s · %s", ticksPerSecond,
                 Double.isNaN(rpm) ? "" : String.format(Locale.US, " (%.0f rpm)", rpm),
+                LauncherSubsystem.surfaceText(surfaceInchesPerSecond()),
                 Double.isNaN(currentAmps) ? "current not read while idle"
                         : String.format(Locale.US, "%.2f A", currentAmps)));
+    }
+
+    /**
+     * The battery scale to apply: {@code next} when it differs from {@code applied} by more than
+     * {@code step} as a fraction ({@link VoltageCompensation#worthApplying}), or when compensation
+     * was switched off ({@code next} exactly 1); otherwise {@code applied}, so the power does not
+     * wander with battery noise. Pure, so a test can check it.
+     */
+    static double steppedScale(double applied, double next, double step) {
+        return VoltageCompensation.worthApplying(applied, next, step) ? next : applied;
     }
 
     /**

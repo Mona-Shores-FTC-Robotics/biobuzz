@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * what belongs in the OpMode's bindings, not here.
  *
  * <p>It reads the
- * roller's speed once per loop and its current ten times a second ({@link #ticksPerSecond()},
+ * roller's speed once per loop and its current four times a second ({@link #ticksPerSecond()},
  * {@link #currentAmps()}),
  * which {@code RobotOpMode} logs and the Match page shows: slipping is high speed at low current,
  * stalling is low speed at high current.
@@ -162,10 +162,19 @@ public class IntakeSubsystem implements Subsystem {
     private DcMotorSimple.Direction appliedDirection;
     private double currentAmps = Double.NaN;
     /**
-     * Current is not in the bulk read: each read is its own round trip to the hub, 2–3 ms. It is
-     * only shown and logged, so ten a second will do; staggered against the feeder and launcher.
+     * How often a motor current that is only shown and logged is read, ms: the intake's, the
+     * feeder's and each launcher wheel's. Current is not in the bulk read: each read is its own
+     * round trip to the Expansion Hub, 2–4 ms in 20245's logs. At 100 ms, four of them (the intake,
+     * the feeder, two wheels) were about 120 ms of every second with everything running, some 3 ms
+     * a loop; at 250 ms it is a third of that, and four samples a second still show a jam or a
+     * stall, which last far longer. Each reader has its own offset in the period, so no two land in
+     * the same loop. A decision taken from current reads it every loop instead
+     * ({@link #readCurrentEveryLoop}).
      */
-    private final Throttle currentRead = new Throttle(100, 0);
+    static final double CURRENT_READ_MS = 250;
+
+    /** Staggered against the feeder's and the launcher wheels' ({@link #CURRENT_READ_MS}). */
+    private final Throttle currentRead = new Throttle(CURRENT_READ_MS, 0);
     /** A grab is timing its dwell from the current: read it every loop while it runs. */
     private boolean currentEveryLoop;
 
@@ -305,7 +314,7 @@ public class IntakeSubsystem implements Subsystem {
      * Decide what the roller and the stars do from the request and the feeder's ({@link #rollerFor},
      * {@link #starsFor}); then one write per loop to the roller and, from PLAY, one to the star
      * wheels, clamped so Panels cannot overdrive them; then one read of speed (from the bulk read)
-     * and, while running, one of current every 100 ms. Before PLAY the roller gets zero and the
+     * and, while running, one of current every {@link #CURRENT_READ_MS}. Before PLAY the roller gets zero and the
      * stars nothing, whatever is asked (see {@link Subsystem}).
      */
     @Override
@@ -338,7 +347,7 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     /**
-     * Read the current every loop rather than every 100 ms: a FLOWER pick ending its dwell from
+     * Read the current every loop rather than every {@link #CURRENT_READ_MS}: a FLOWER pick ending its dwell from
      * the current needs each piece's spike on time. A 2–3 ms read, for the seconds a grab runs.
      */
     public void readCurrentEveryLoop(boolean on) {

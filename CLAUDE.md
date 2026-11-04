@@ -26,7 +26,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `localization/` | CELL sighting → gated position fix (`TagGate`, `CellFix`), field points, start and reset positions, the start check. The filter is Pedro's. See "Localization" below. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
-| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time or until a time on the match clock, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. A step's own time limit (a command's timeout, a `firstOf`'s "at most") never cuts a feed once it has started: it guards the wait for spin-up, and the feed runs `LaunchCards`' set time, the one number for it. A path card ends at Pedro's path end with the robot still rolling, and the kit never adds a settle: a launch waits for `PathEndSettle`, a grab for its own lighter hand-over speed (`GrabRoutine`). A path card right before a grab card runs the grab's `AutoRegistry.Approach` while it drives (the FLOWER pick's lowers the stick over the last 18 in), so never add a stick card to an Auto or a settle to the kit. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
+| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time or until a time on the match clock, optionally while a command runs) and the endgame guard. Before each card the guard asks whether it and every card up to the next volley (`AutoRegistry.volley`: LaunchAll), at their planned times, finish with that volley's last piece out by 30 s (`AutoRegistration.LAUNCH_ALL_LAST_PIECE_S`); if so the robot goes and nothing parks or cuts it, since an AUTO TIP (20 pts, toward the POLLINATOR RPs) beats AUTO PARK (5 pts; it counts toward SWARM, but both robots' LEAVE and end-of-match PARK already make its 16), and the robot ends AUTO at a launch spot, off the walls (LEAVE). Nothing plans on a TIP that completes after 30 s: §10.5 B counts it as AUTO, but transition scoring "may be subject to penalties", an open question. Otherwise it parks when time runs short, cutting a wait or a command, never a path, a grab or a feeding launch. A step's own time limit (a command's timeout, a `firstOf`'s "at most") never cuts a feed once it has started: it guards the wait for spin-up, and the feed runs `LaunchCards`' set time, the one number for it. A path card ends at Pedro's path end with the robot still rolling, and the kit never adds a settle. A path card right before a command card runs that command's `AutoRegistry.Approach` while it drives: the FLOWER pick's lowers the stick over the last 18 in, and `LaunchAll`'s opens the gate near the end once aimed and at speed, so the card only finishes the feed. An approach whose command then does not run is cancelled. Without an early gate, a launch waits for `PathEndSettle` (aimed and slowing, not still), and a grab waits for its own lighter hand-over speed (`GrabRoutine`). So never add a stick card or an early-fire card to an Auto, or a settle to the kit. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
 | `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`, which passes the generated `OPTIONS`: what the drive team may change in INIT on gamepad 1's D-pad (`InitOptions`: the PARK spot, and the partner's last shot, the one number we ask a partner; the Auto's partner wait ends `AutoRegistration.PARTNER_TIP_LAG_S` after it and the DS shows both numbers, never only the sum), drawn in the Visualizer, never a hand-written flag. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
 
@@ -139,10 +139,12 @@ by hand.
 **The simulator** is test code only (`src/test/.../logging/`: `AutoSim`, `FieldSim`, `SimRunTest`), and
 it runs master's generated Autos as they are. It knows one robot, the real one, in four variants
 (`RobotDesign.real`: turret or locked forward, POLLEN + NECTAR or POLLEN only); a number master
-states (frame, FLOWER stick, feed) is read from master's code, never copied, and the rest is a
+states (frame, FLOWER stick, feed, launcher setpoint, GARDEN gather) is read from master's code, never copied, and the rest is a
 placeholder until a match log measures it. It acts as the driver: a partner entry gives
 `lastShotS`, which times the stand-in and sets our partner wait, and a partner fails only by
-`"fails": "misses"` or by being dead on its start (a still stand-in). Its LaunchAll fires as the
+`"fails": "misses"` or by being dead on its start (a still stand-in). Touching a partner is a collision,
+unless its entry says `"pushable": true`: then our robot pushes it while it is not driving, and it is
+judged for LEAVE and PARK where it ends. Its LaunchAll fires as the
 robot's does, at our CELL at its end whether up or not. Its points are shown, never enforced: no test fails an
 Auto for scoring less. Only `SimulatorSmokeTest` runs by default; every other simulator test is
 opt-in by environment variable, so CI stays fast. The "Simulate Auto" workflow runs every saved request a push
@@ -177,7 +179,8 @@ Read it as `setup.alliance()`; never add another way to choose it. One-shot butt
 that requires the subsystem — that would interrupt its `periodic()`.
 
 **Panels** — the only dashboard, `http://192.168.43.1:8001`. Numbers and graphs.
-- Telemetry: `PanelsTelemetry.INSTANCE.getTelemetry()`, `addData` per key, then **one** update
+- Telemetry: `PanelsTelemetry.INSTANCE.getTelemetry()` (on `RobotOpMode`, `panelsTelemetry()`,
+  null when Panels is switched off, and then nothing is published), `addData` per key, then **one** update
   per loop. A standalone OpMode uses `update(telemetry)`, which mirrors to the Driver Station; one
   on `RobotOpMode` writes the Driver Station through `Display` and calls `update()` with no
   argument, so Panels' lines do not land on the Match page.
@@ -272,7 +275,8 @@ Remote containers have no `gh`; use the GitHub MCP tools.
 - **Students' issues stay theirs to build.** A session asked by a mentor to implement a student's
   issue says so once, then does what the mentor decides. Asked by a student, it coaches
   (`first-pr-coach`) rather than writes it for them.
-- **Auto fast lane:** a PR from an `auto/<name>` branch that changes only `TeamCode/autos/*.pp`, generated
+- **Auto fast lane:** a PR from an `auto/<name>` branch that changes only `TeamCode/autos/*.pp` (or one in its
+  `drafts/` or `partners/`), generated
   Autos and `TeamCode/sim-requests/*.json` needs no issue, branch rule or review, from anyone with write
   access. It is a draft: tried on the robot first, merged by a mentor if it is better than master's,
   never auto-merged. The **Auto fast lane** check fails a PR on such a branch that touches anything else.

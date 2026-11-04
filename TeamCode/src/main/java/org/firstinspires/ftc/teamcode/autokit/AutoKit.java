@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * The cards an Auto built in the Auto Builder is made of. A generated Auto class calls these, in
@@ -33,22 +34,27 @@ import java.util.function.DoubleSupplier;
  * {@link #pick} and {@link #seconds}; with no picks ({@link #picks}) the Auto is as drawn.
  *
  * <p>Nothing here reads hardware or blocks. Triggers are read once per loop, only while a card
- * that uses them waits; paths are built at init. The endgame guard ({@link #guarded}) parks when
- * time runs short, cutting a wait or a command but never a path.
+ * that uses them waits; paths are built at init. The endgame guard ({@link #guarded}) goes for the
+ * next volley when its last piece can be out before AUTO ends, and otherwise parks when time runs
+ * short, cutting a wait or a command but never a path, a grab or a feeding launch.
  *
  * <p><b>A path card hands over at Pedro's path end, with the robot still rolling.</b> A path card
  * is done when {@link AutoDrive#pathDone} says so: on the robot, Pedro's parametric end, where the
  * Follower switches to holding the end pose and brakes (measured 29 Oct to 2 Nov 2026: 10 to 24 in/s
  * at the hand-over). The kit adds no settling of its own. A card that needs the robot still waits
- * itself: a launch waits for {@code PathEndSettle}, a grab for its own hand-over speed
- * ({@code GrabRoutine}), which is lighter, since a pick squares up on its own and ends on contact.
+ * itself: a launch for {@code PathEndSettle} (aimed and slowing), unless it already opened the
+ * gate on the way in; a grab for its own hand-over speed ({@code GrabRoutine}), since a pick squares
+ * up on its own and ends on contact.
  *
- * <p><b>A path card right before a grab card lets the grab get ready on the way in</b>
+ * <p><b>A path card right before a command card lets the command get ready on the way in</b>
  * ({@link AutoRegistry.Approach}): {@link #sequence}, {@link #guarded} and a {@link Row}'s cards
- * pair each path card with the grab card that follows it, and the path card feeds the grab's
- * approach every loop while it drives, so a FLOWER pick's stick is down before the drive ends and
- * the push need not wait for it. The cards stay what they are: the drive ends where it was drawn,
- * and the pick is still the whole pick (mentor, 3 Nov 2026).
+ * pair each path card with the command card that follows it, when that command has an approach, and
+ * the path card feeds it every loop while it drives. A FLOWER pick's stick is down before the drive
+ * ends, so the push need not wait for it (mentor, 3 Nov 2026); a {@code LaunchAll} opens the gate in
+ * the last few inches once aimed and at speed, as a good TeleOp driver does, so its card only
+ * finishes the feed (mentor, 4 Nov 2026). The cards stay what they are: the drive ends where it was
+ * drawn, and the command is still the whole command. An approach whose command does not then run
+ * (the guard refuses it or parks first, the path is cut short, another path starts) is cancelled.
  *
  * <p>Depends only on Ivy and Pedro — not on {@code Robot} or the FTC SDK — so it can move to its own
  * library later, and so the tests run on a laptop. What the robot logs about an Auto's paths comes
@@ -135,23 +141,65 @@ public final class AutoKit {
     private final Set<Path> knownPaths = Collections.newSetFromMap(new IdentityHashMap<>());
     /** Each path card built by {@link #path}, by the command handed out, for {@link #pairApproaches}. */
     private final Map<Command, PathCard> pathCards = new IdentityHashMap<>();
-    /** Each grab card built by {@link #command}, by the command handed out, for {@link #pairApproaches}. */
-    private final Map<Command, GrabCard> grabCards = new IdentityHashMap<>();
+    /**
+     * Each command card built by {@link #command} whose command has an approach, by the command
+     * handed out, for {@link #pairApproaches}.
+     */
+    private final Map<Command, CommandCard> commandCards = new IdentityHashMap<>();
+    /**
+     * The approach a path card ran to its end, waiting for its command card to start; null when
+     * none waits. Cancelled if the guard parks, or another path starts, before that card does.
+     */
+    private AutoRegistry.Approach armed;
 
-    /** What a path card knows beyond its path: the approach of the grab card after it, if any. */
+    /** What a path card knows beyond its path: the approach of the command card after it, if any. */
     private static final class PathCard {
         AutoRegistry.Approach approach;
     }
 
-    /** What a grab card knows beyond its command: the approach a path card before it is running. */
-    private static final class GrabCard {
-        final String name;
+    /** What a command card knows beyond its command: the approach a path card before it is running. */
+    private static final class CommandCard {
         AutoRegistry.Approach before;
+    }
 
-        GrabCard(String name) {
-            this.name = name;
+    /**
+     * What the guard can know ahead of each card it may look past ({@link #guarded}): how long it
+     * takes, from the match second it starts at, and for a volley the seconds to its last piece.
+     * A card with no plan here (a block, a drive with no time) ends the look-ahead.
+     */
+    private static final class Plan {
+        final DoubleUnaryOperator secondsFrom;
+        final double lastPieceS;
+
+        private Plan(DoubleUnaryOperator secondsFrom, double lastPieceS) {
+            this.secondsFrom = secondsFrom;
+            this.lastPieceS = lastPieceS;
+        }
+
+        static Plan lasting(double seconds) {
+            return new Plan(startsAt -> seconds, Double.NaN);
+        }
+
+        static Plan volley(double seconds, double lastPieceS) {
+            return new Plan(startsAt -> seconds, lastPieceS);
+        }
+
+        boolean isVolley() {
+            return !Double.isNaN(lastPieceS);
         }
     }
+
+    private final Map<Command, Plan> plans = new IdentityHashMap<>();
+    /**
+     * The running guard's card, and every card after it up to the next volley, fit with that
+     * volley's last piece out before AUTO ends: no park, and no cut, until the next card starts.
+     */
+    private boolean goingForVolley;
+    /** When the volley the guard is going for has its last piece out, on the match clock. */
+    private double volleyLastPieceAt = Double.NaN;
+    /** The volley card the guard is going for, and whether "going for it" has been traced for it. */
+    private Command volleyTarget;
+    private boolean goingForVolleyTraced;
 
     /** {@link #guard}: false only for a practice run that times the whole plan. */
     private boolean guardOn = true;
@@ -226,29 +274,33 @@ public final class AutoKit {
 
     // ------------------------------------------------------------------ cards
 
-    /** Runs {@code cards} one after another. A path card right before a grab card runs the grab's approach. */
+    /** Runs {@code cards} one after another. A path card right before a command card runs the command's approach. */
     public Command sequence(Command... cards) {
         pairApproaches(cards);
         return cards.length == 0 ? nothing() : Groups.sequential(cards);
     }
 
     /**
-     * Pairs each path card in {@code cards} with the grab card right after it, when that grab has an
-     * {@link AutoRegistry.Approach}: the path card runs the approach while it drives, and the grab
-     * card cancels it if the guard refuses the grab. Only cards this kit built pair; anything else in
-     * the list is left alone. Called for every card list a block runs, so a pair inside a
-     * {@link #firstOf} row pairs too.
+     * Pairs each path card in {@code cards} with the command card right after it, when that command
+     * has an {@link AutoRegistry.Approach}: the path card runs the approach while it drives, and the
+     * command card takes over what it got ready, or cancels it if the guard refuses the command. Only
+     * cards this kit built pair; anything else in the list is left alone. Called for every card list
+     * a block runs, so a pair inside a {@link #firstOf} row pairs too.
      */
     private void pairApproaches(Command[] cards) {
         for (int i = 0; i + 1 < cards.length; i++) {
             PathCard path = pathCards.get(cards[i]);
-            GrabCard grab = grabCards.get(cards[i + 1]);
-            if (path == null || grab == null) continue;
-            AutoRegistry.Approach approach = registry.approach(grab.name);
-            if (approach == null) continue;
-            path.approach = approach;
-            grab.before = approach;
+            CommandCard command = commandCards.get(cards[i + 1]);
+            if (path == null || command == null) continue;
+            path.approach = command.before;
         }
+    }
+
+    /** The armed approach will not be taken over by its command: put away what it got ready. */
+    private void cancelArmed() {
+        AutoRegistry.Approach approach = armed;
+        armed = null;
+        if (approach != null) approach.cancel();
     }
 
     /** How long a command step may run when the Auto sets no timeout. */
@@ -269,7 +321,9 @@ public final class AutoKit {
         final Command inner = registry.command(name);
         final boolean grab = registry.isGrab(name);
         final double grabSeconds = grab ? registry.typicalSeconds(name) : 0.0;
-        final GrabCard card = grab ? new GrabCard(name) : null;
+        final AutoRegistry.Approach approach = registry.approach(name);
+        final CommandCard card = approach == null ? null : new CommandCard();
+        if (card != null) card.before = approach;
         final double[] startedAt = new double[1];
         final boolean[] timedOut = new boolean[1];
         final boolean[] refused = new boolean[1];
@@ -284,8 +338,12 @@ public final class AutoKit {
                             && tooLateToContinue(guardLabel, grabSeconds + guardParkSeconds, "not starting " + name);
                     if (refused[0]) parkWanted = true;
                     // The drive before it may have got the grab's mechanisms ready: put them away.
-                    if (refused[0] && card != null && card.before != null) card.before.cancel();
-                    if (refused[0]) return;
+                    if (refused[0]) {
+                        if (card != null && armed == card.before) cancelArmed();
+                        return;
+                    }
+                    // Starting: what the drive before it got ready is this command's to finish.
+                    if (card != null && armed == card.before) armed = null;
                     grabbing = grab;
                     inner.start();
                 })
@@ -308,7 +366,10 @@ public final class AutoKit {
                         inner.end(end);
                     }
                 });
-        if (card != null) grabCards.put(command, card);
+        if (card != null) commandCards.put(command, card);
+        plans.put(command, registry.isVolley(name)
+                ? Plan.volley(registry.typicalSeconds(name), registry.lastPieceSeconds(name))
+                : Plan.lasting(registry.typicalSeconds(name)));
         return command;
     }
 
@@ -329,8 +390,8 @@ public final class AutoKit {
      */
     public Command path(String label, Path path, double driveSeconds) {
         PathCard card = new PathCard();
-        return pathCard(card, traced("path " + label,
-                follow(label, path, true, () -> driveSeconds + ownParkSeconds, this::leftSpot, card)));
+        return planned(Plan.lasting(driveSeconds), pathCard(card, traced("path " + label,
+                follow(label, path, true, () -> driveSeconds + ownParkSeconds, this::leftSpot, card))));
     }
 
     /**
@@ -342,7 +403,8 @@ public final class AutoKit {
      * such spot when the guard parks.
      */
     public Command path(String label, Path path, double driveSeconds, Path parkPath, double parkSeconds) {
-        return spotPath(label, path, () -> driveSeconds + parkSeconds, parkPath, parkSeconds);
+        return planned(Plan.lasting(driveSeconds),
+                spotPath(label, path, () -> driveSeconds + parkSeconds, parkPath, parkSeconds));
     }
 
     /** {@link #path(String, Path, double, Path, double)} with no drive time: checked as {@link #path(String, Path)}. */
@@ -358,6 +420,12 @@ public final class AutoKit {
             spotParkSeconds = parkSeconds;
             if (!Double.isNaN(guardParkSeconds)) guardParkSeconds = parkSeconds;
         }, card)));
+    }
+
+    /** Remembers what the guard can know ahead of {@code command}: see {@link Plan}. */
+    private Command planned(Plan plan, Command command) {
+        plans.put(command, plan);
+        return command;
     }
 
     /** Remembers {@code command} as the path card {@code card}, for {@link #pairApproaches}. */
@@ -432,7 +500,27 @@ public final class AutoKit {
             }
             if (chosen[0] != null) chosen[0].end(end);
         });
-        return card;
+        Plan plan = waitPlan(alongside, rows);
+        return plan == null ? card : planned(plan, card);
+    }
+
+    /**
+     * A plain wait's plan: the earliest of its time limits. Null (no plan) for a wait with no time
+     * limit, with cards in a row or with a command alongside: what it takes is not known ahead.
+     */
+    private static Plan waitPlan(Command alongside, Row[] rows) {
+        if (alongside != null) return null;
+        boolean limited = false;
+        for (Row row : rows) {
+            if (row.cards.length > 0) return null;
+            limited |= row.timeLimit;
+        }
+        if (!limited) return null;
+        return new Plan(startsAt -> {
+            double longest = Double.POSITIVE_INFINITY;
+            for (Row row : rows) if (row.timeLimit) longest = Math.min(longest, row.longestFrom.applyAsDouble(startsAt));
+            return longest;
+        }, Double.NaN);
     }
 
     /**
@@ -448,7 +536,26 @@ public final class AutoKit {
      * simulator had already cut a tunnel run between the HIVE's feet). The check before each card
      * starts still keeps a path from starting once the park no longer fits.
      *
-     * <p><b>Each drive and grab asks before it starts: can I do this, and then still park from
+     * <p><b>First, each card asks: can this, and every card up to the next volley, finish with
+     * that volley's last piece out before AUTO ends?</b> A volley ({@link AutoRegistry#volley}: a
+     * LaunchAll) is what TIPs the HIVE, and an AUTO TIP is worth 20 points and counts toward the
+     * POLLINATOR RPs, the AUTO PARK 5 points. AUTO PARK counts toward the SWARM RP (both robots'
+     * LEAVE and PARK points, AUTO and end of match, 16 of 26: manual TU03 Tables 10-2, 10-3), but
+     * both robots' LEAVE and end-of-match PARK already make 16, so ours decides SWARM only when the
+     * partner misses one of those. A TIP complete before TELEOP starts is assessed as AUTO
+     * (§10.5 B); the same section says achievements scored during the AUTO-to-TELEOP transition
+     * "may be subject to penalties", an open question, so the guard asks only that the volley's
+     * last piece be out by 30 s and plans nothing that happens after (mentor, 4 Nov 2026, quals
+     * and playoffs alike). The look-ahead sums each card's plan from where it
+     * starts: an exported drive's time, a command's or grab's typical time, a plain wait's earliest
+     * time limit, then the volley's last-piece time; a card it cannot time (a block, a drive with no
+     * time, a wait with a command alongside or no limit) ends it with no. If yes, that card goes and
+     * nothing parks or cuts it, whatever the park needs. It asks again at the next card, so a chain
+     * that ran long falls back to the park rule below. The robot ends AUTO wherever the volley left
+     * it, a launch spot off the walls, so LEAVE is kept: the grabs the chain runs end, at their
+     * typical times, before the volley's last piece does.
+     *
+     * <p><b>Otherwise each drive and grab asks before it starts: can I do this, and then still park from
      * where it leaves me?</b> An exported drive knows its time ({@link #path(String, Path, double)})
      * and the park from the spot it goes to, so it does not set off unless both fit; a grab adds
      * its typical time to the park from here. One that does not fit does not start, and the guard
@@ -465,9 +572,16 @@ public final class AutoKit {
      * <p><b>Grabs are treated as paths.</b> A grab ({@link AutoRegistry#grab}: a FLOWER pick, a
      * GARDEN gather) drives the robot off its spot and back, so the guard never cuts one either.
      *
+     * <p><b>A launch that is feeding is never cut</b> (the registry holds time limits while it
+     * feeds: {@link AutoRegistry#holdTimeLimitsWhile}): its pieces are already on their way. The
+     * guard parks once it ends.
+     *
      * <p><b>It parks from the spot the robot is on.</b> A path card that carries a park
      * ({@link #path(String, Path, double, Path, double)}) makes that park the guard's from when it
-     * arrives, with that park's own time, until a path card without one arrives somewhere else.
+     * arrives, with that park's own time, until a path card without one arrives somewhere else. That
+     * holds across a guard's start: a guard entered on such a spot (each outcome of a Wait in the
+     * Visualizer's "then: park" form is its own guard) parks from it, not along its own park, until
+     * the robot drives away (4 Nov 2026: R-Solo's TIP check cut a volley 0.9 s early before).
      * Since drives and grabs are never cut, the robot is on that spot whenever the guard parks, so
      * it drives a park drawn from where it is.
      *
@@ -478,7 +592,10 @@ public final class AutoKit {
      * fit, and the robot lost AUTO PARK; so the guard began to cut the running card, whatever it
      * was. Since 18 Oct it cuts waits and commands, never paths. Since 27 Oct that holds inside a
      * block too (#142): before, the guard knew only its own top-level path cards, so it cut a block
-     * mid-drive and let a block's next path start after the deadline.
+     * mid-drive and let a block's next path start after the deadline. Since 4 Nov 2026 a volley that
+     * fits comes before the park, and a feeding launch is never cut: before, the guard cut a launch
+     * as soon as the park needed the time, and a drive refused to set off for a volley that would
+     * have finished in time, to keep a 5-point park.
      */
     public Command guarded(String label, Path parkPath, double parkSeconds, Command... cards) {
         final Command park = traced("path " + label + " park", follow(label + " park", parkPath, false, null, null, null));
@@ -491,8 +608,9 @@ public final class AutoKit {
             index[0] = 0;
             current[0] = null;
             parking[0] = null;
-            spotPark = null;
-            spotParkSeconds = Double.NaN;
+            // spotPark is kept: it is the park from the spot the robot last arrived at, whether or
+            // not a guard was watching then. A block entered on that spot (a Wait's outcome in the
+            // "then: park" form, each its own guard) parks from it until the robot drives away.
             parkWanted = false;
             watchFromHere(label, parkSeconds);
             advance(label, parkSeconds, cards, index, current, park, parking);
@@ -512,7 +630,9 @@ public final class AutoKit {
             }
             boolean last = index[0] == cards.length - 1;
             // drivingPath, not "is this card a path": a block's row may be driving one of its own.
-            boolean cuttable = current[0] != parking[0] && !last && !drivingPath && !grabbing;
+            // A launch that is feeding (time limits held) is never cut: its pieces are on their way.
+            boolean cuttable = current[0] != parking[0] && !last && !drivingPath && !grabbing
+                    && !registry.timeLimitsHeld();
             // A drive or grab inside a block that refused: the block's next cards would run from
             // the wrong spot, so the block ends here and the guard parks.
             if (cuttable && (parkWanted || tooLateToContinue(label, parkSecondsNow(parkSeconds), "cutting card short"))) {
@@ -532,7 +652,7 @@ public final class AutoKit {
 
     private void watchFromHere(String label, double parkSeconds) {
         guardLabel = label;
-        guardParkSeconds = parkSeconds;
+        guardParkSeconds = spotPark != null ? spotParkSeconds : parkSeconds;
         ownParkSeconds = parkSeconds;
     }
 
@@ -546,10 +666,41 @@ public final class AutoKit {
     /** From the park, or the last card, on, nothing is the guard's to refuse. */
     private void stopWatching() {
         guardParkSeconds = Double.NaN;
+        goingForVolley = false;
+    }
+
+    /**
+     * Before {@code cards[from]} starts: whether it and every card after it up to the next volley,
+     * at their planned times, then that volley's last piece, are done before AUTO ends. The last
+     * card is the park and is never looked at; a card with no {@link Plan} ends the look-ahead with
+     * no. Sets {@link #goingForVolley} until the next card starts.
+     */
+    private void goForVolleyIfItFits(Command[] cards, int from) {
+        Command target = null;
+        goingForVolley = false;
+        double at = secondsSinceStart.getAsDouble();
+        for (int i = from; i < cards.length - 1; i++) {
+            Plan plan = plans.get(cards[i]);
+            if (plan == null) break;
+            if (plan.isVolley()) {
+                volleyLastPieceAt = at + plan.lastPieceS;
+                goingForVolley = volleyLastPieceAt <= AUTO_LENGTH_S;
+                if (goingForVolley) target = cards[i];
+                break;
+            }
+            double seconds = plan.secondsFrom.applyAsDouble(at);
+            if (!(seconds >= 0) || Double.isInfinite(seconds)) break;
+            at += seconds;
+        }
+        // Traced once per volley gone for, however many cards lead up to it.
+        if (target != volleyTarget) goingForVolleyTraced = false;
+        volleyTarget = target;
     }
 
     private void startPark(Command park, Command[] current, Command[] parking) {
         stopWatching();
+        // The card the last drive got ready for is not going to run (a gate opened on the way in).
+        cancelArmed();
         parkWanted = false;
         if (park == spotPark) trace.accept("parking from the spot the robot is on");
         current[0] = park;
@@ -578,6 +729,7 @@ public final class AutoKit {
             startPark(parkNow(park), current, parking);
             return;
         }
+        goForVolleyIfItFits(cards, index[0]);
         if (!last && tooLateToContinue(label, parkSecondsNow(parkSeconds), "parking now")) {
             startPark(parkNow(park), current, parking);
             return;
@@ -587,11 +739,24 @@ public final class AutoKit {
         current[0].start();
     }
 
-    /** True, and traced, when the time left no longer covers the park plus {@link #GUARD_MARGIN_S}. */
+    /**
+     * True, and traced, when the time left no longer covers the park plus {@link #GUARD_MARGIN_S},
+     * unless the guard is going for the next volley ({@link #goingForVolley}): then false, and
+     * traced once, since that volley's last piece is out before AUTO ends.
+     */
     private boolean tooLateToContinue(String label, double parkSeconds, String action) {
         double left = timeLeft();
         double needed = parkSeconds + GUARD_MARGIN_S;
         if (left >= needed) return false;
+        if (goingForVolley) {
+            if (!goingForVolleyTraced) {
+                goingForVolleyTraced = true;
+                trace.accept(String.format(Locale.US,
+                        "%s: %.1f s left, park needs %.1f s, but the next volley's last piece is out at %.1f s: going for it, not parking",
+                        label, left, needed, volleyLastPieceAt));
+            }
+            return false;
+        }
         if (!guardOn) {
             if (!guardWouldHaveActed) {
                 guardWouldHaveActed = true;
@@ -623,6 +788,7 @@ public final class AutoKit {
     public Row afterMs(double ms) {
         Row row = new Row(String.format(Locale.US, "%.0f ms passed", ms), waited -> waited * 1000 >= ms);
         row.timeLimit = true;
+        row.longestFrom = startsAt -> Math.max(0.0, ms / 1000.0);
         return row;
     }
 
@@ -635,6 +801,7 @@ public final class AutoKit {
         Row row = new Row(String.format(Locale.US, "%.1f s on the match clock", seconds),
                 waited -> secondsSinceStart.getAsDouble() >= seconds);
         row.timeLimit = true;
+        row.longestFrom = startsAt -> Math.max(0.0, seconds - startsAt);
         return row;
     }
 
@@ -655,10 +822,11 @@ public final class AutoKit {
      * finishes at once, untouched, and the guard parks on its next check. That is how a path inside
      * a block's row is kept from starting late, where the guard itself sees only the block.
      *
-     * <p>With a {@code card} that {@link #pairApproaches} gave an approach, the grab card after this
-     * one gets ready on the way: told where the path ends as it starts, then every loop where the
-     * robot is and how far it has to go (one square root, no allocation); cancelled if the path is
-     * cut short. A park path has no card: nothing follows a park.
+     * <p>With a {@code card} that {@link #pairApproaches} gave an approach, the command card after
+     * this one gets ready on the way: told where the path ends as it starts, then every loop where
+     * the robot is and how far it has to go (one square root, no allocation); cancelled if the path
+     * is cut short, and armed for the command card if it ends ({@link #armed}). A park path has no
+     * card: nothing follows a park.
      */
     private Command follow(String label, Path path, boolean guardable, DoubleSupplier needed, Runnable onArrived,
                            PathCard card) {
@@ -671,6 +839,8 @@ public final class AutoKit {
                             && tooLateToContinue(guardLabel, needed.getAsDouble(), "not starting " + label);
                     if (refused[0]) parkWanted = true;
                     if (refused[0]) return;
+                    // An approach from an earlier drive whose command never started: not this one's.
+                    cancelArmed();
                     drive.follow(path);
                     drivingPath = true;
                     watcher.pathStarted(path);
@@ -687,7 +857,10 @@ public final class AutoKit {
                     if (refused[0]) return;
                     drivingPath = false;
                     watcher.pathEnded(path);
-                    if (card != null && card.approach != null && end != EndCondition.NATURALLY) card.approach.cancel();
+                    if (card != null && card.approach != null) {
+                        if (end == EndCondition.NATURALLY) armed = card.approach;
+                        else card.approach.cancel();
+                    }
                     if (onArrived != null && end == EndCondition.NATURALLY) onArrived.run();
                 });
     }

@@ -36,7 +36,9 @@ import com.bylazar.field.PanelsField;
  * <h2>The throttle, and why every draw is gated on it</h2>
  *
  * <p>{@code FieldManager.update()} only sends when at least {@code canvasUpdateInterval}
- * milliseconds have passed — 100 ms by default, so 10 Hz. Whether or not it sends, it then clears
+ * milliseconds have passed — 100 ms by default, so 10 Hz. On top of that {@link #shouldDraw()}
+ * waits {@link FieldLayers#drawEveryMs} (250 ms) between this view's sends, since a send costs the
+ * loop 7–8 ms. Whether or not it sends, it then clears
  * the canvas: {@code update()} is "send if it is time, then reset". So a loop that draws every
  * time and calls {@code update()} every time still shows one robot, the one from whichever loop
  * the send landed on. What it wastes is the drawing: at 200 Hz, nineteen canvases in twenty are
@@ -56,8 +58,8 @@ import com.bylazar.field.PanelsField;
  * }
  * }</pre>
  *
- * <p>Drawing is skipped entirely on most loops, which is why field view costs almost nothing in
- * {@code LoopTimeBaseline}'s numbers — the expensive loop is one in twenty.
+ * <p>Drawing is skipped entirely on most loops, so the field view costs little on average; the loop
+ * that sends pays the 7–8 ms, which is why {@link FieldLayers#drawEveryMs} keeps those loops few.
  *
  * <p><b>History note, 25 Oct 2026.</b> This section used to say that a skipped {@code update()}
  * "does nothing at all, and that includes not clearing the canvas", so an ungated draw piled
@@ -116,6 +118,13 @@ public final class FieldView {
             false);
 
     private final FieldManager field;
+    /**
+     * When a view last sent a canvas, {@code System.nanoTime()}; meaningless until
+     * {@link #sentOnce}. Static because the Panels field is one ({@code PanelsField.INSTANCE}):
+     * every view draws on the same canvas, so they share one {@link FieldLayers#drawEveryMs}.
+     */
+    private static long lastSentNs;
+    private static boolean sentOnce;
 
     private FieldView(FieldManager field) {
         this.field = field;
@@ -129,13 +138,25 @@ public final class FieldView {
     }
 
     /**
-     * Whether the next {@link #send()} would actually transmit.
+     * Whether to draw this loop: the next {@link #send()} would transmit, and
+     * {@link FieldLayers#drawEveryMs} has passed since this view last sent.
      *
      * <p>Gate all drawing on this, so the loops that will not transmit do no drawing work. See the
      * class comment.
      */
     public boolean shouldDraw() {
-        return field.getShouldUpdateCanvas();
+        return field.getShouldUpdateCanvas()
+                && due(sentOnce, (System.nanoTime() - lastSentNs) / 1e6, FieldLayers.drawEveryMs);
+    }
+
+    /**
+     * Whether a view that last sent {@code sinceLastSendMs} ago may send again under
+     * {@code everyMs}: always the first time, and always when {@code everyMs} is not a real number
+     * of milliseconds (then Panels' own interval is the only gate). Pure, so a test can check it.
+     */
+    static boolean due(boolean sentBefore, double sinceLastSendMs, double everyMs) {
+        if (!sentBefore || !(everyMs > 0) || Double.isInfinite(everyMs)) return true;
+        return sinceLastSendMs >= everyMs;
     }
 
     /**
@@ -271,7 +292,12 @@ public final class FieldView {
 
     /** Sends the canvas if the throttle allows, then clears it either way. */
     public void send() {
+        boolean sends = field.getShouldUpdateCanvas();
         field.update();
+        if (sends) {
+            lastSentNs = System.nanoTime();
+            sentOnce = true;
+        }
     }
 
     /**

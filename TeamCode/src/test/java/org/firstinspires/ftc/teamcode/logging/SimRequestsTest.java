@@ -108,10 +108,7 @@ public class SimRequestsTest {
                 }
                 // A partner is a stand-in from TeamCode/autos/partners/, never one of the Autos we run.
                 String source = (String) Class.forName(AutoStudyTest.PKG + partnerClass).getField("SOURCE").get(null);
-                // On autos-experiment, two bench Autos may simulate side by side (the 3-TIP swap pairs:
-                // r-3tip-a with l-3tip-a): a partner may then be another Auto beside ours in TeamCode/autos/.
-                boolean benchPair = !source.equals(name + ".pp") && new File(autos, source).isFile();
-                if (!new File(partners, source).isFile() && !(draft && new File(drafts, source).isFile()) && !benchPair) {
+                if (!new File(partners, source).isFile() && !(draft && new File(drafts, source).isFile())) {
                     problems.add(file.getName() + ": partner " + partnerClass + " comes from " + source
                             + ", which is not in TeamCode/autos/partners/ (a partner is a stand-in, not an Auto we run)");
                 }
@@ -151,6 +148,21 @@ public class SimRequestsTest {
             fail("\"late\" is not a failure the simulator models");
         } catch (IllegalArgumentException expected) {
             assertTrue(expected.getMessage(), expected.getMessage().contains("still stand-in"));
+        }
+    }
+
+    /** "pushable": true lets our robot push the stand-in (AutoSim.pushable); anything but a boolean is refused. */
+    @Test
+    public void pushableIsReadAndChecked() throws Exception {
+        AutoStudyTest.PartnerTiming t = entries(entry("partner", "PartnerPushStartAuto", "pushable", true)).get(1).timing;
+        assertTrue(t.pushable);
+        assertEquals("pushable", t.slug());
+        assertTrue(!entries(entry("partner", "PartnerPushStartAuto")).get(1).timing.pushable);
+        try {
+            entries(entry("partner", "PartnerPushStartAuto", "pushable", "yes"));
+            fail("\"yes\" is not a boolean");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage(), expected.getMessage().contains("pushable"));
         }
     }
 

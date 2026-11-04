@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Commands;
@@ -34,6 +36,8 @@ import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaneFull;
 import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherResponse;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.CalibrationSpots;
@@ -48,6 +52,7 @@ import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.FieldLayers;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.FieldView;
+import org.firstinspires.ftc.teamcode.util.PanelsSwitch;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
@@ -172,6 +177,13 @@ public abstract class RobotOpMode extends OpMode {
      */
     private FieldView fieldView;
 
+    /**
+     * Whether Panels is switched on ({@link PanelsSwitch}), read once at INIT. Off, there is no
+     * field view and {@link #panelsTelemetry()} is null, so the loop pays nothing for a dashboard
+     * nobody can open.
+     */
+    private boolean panelsEnabled = true;
+
     /** The alliance, settled during INIT and locked at PLAY. Read {@code setup.alliance()}. */
     protected final MatchSetup setup = new MatchSetup();
 
@@ -243,6 +255,9 @@ public abstract class RobotOpMode extends OpMode {
     private final MotionWatch intakeWatch = new MotionWatch("intake");
     private final MotionWatch feederWatch = new MotionWatch("feeder");
     private String loggedLauncherFault;
+    private int loggedPidfWrites;
+    private int loggedSpinUps;
+    private int loggedDips;
     // Drift: pushes and jolts, the camera frame last logged, the Pinpoint's last status.
     private final ImpactWatch impacts = new ImpactWatch();
     /** TeleOp with no handoff: the camera against the declared start in INIT ({@link CameraStart}). */
@@ -298,6 +313,20 @@ public abstract class RobotOpMode extends OpMode {
     }
 
     /** Called once, after the robot is built and initialized. Put your init telemetry here. */
+    /**
+     * Panels telemetry for this OpMode, or null when Panels is switched off or cannot provide it.
+     * Call once in {@link #onInit()} and skip publishing on null: when Panels is off, an update
+     * would still serialise every key for no one (see {@link PanelsSwitch}).
+     */
+    protected final TelemetryManager panelsTelemetry() {
+        if (!panelsEnabled) return null;
+        try {
+            return PanelsTelemetry.INSTANCE.getTelemetry();
+        } catch (RuntimeException | LinkageError e) {
+            return null; // Panels is a window onto the robot, not part of it.
+        }
+    }
+
     protected void onInit() {
     }
 
@@ -325,11 +354,17 @@ public abstract class RobotOpMode extends OpMode {
         openLog();
         // Once, here: the view is a handle on Panels' shared field, not something to look up per
         // loop. A dashboard failure is not a robot failure, so it is allowed to be absent.
-        try {
-            fieldView = FieldView.pedroCoordinates();
-        } catch (RuntimeException e) {
+        panelsEnabled = PanelsSwitch.enabled();
+        if (!panelsEnabled) {
             fieldView = null;
-            log.event("field view unavailable: " + e);
+            log.event("Panels disabled: no field view and no Panels telemetry this run");
+        } else {
+            try {
+                fieldView = FieldView.pedroCoordinates();
+            } catch (RuntimeException e) {
+                fieldView = null;
+                log.event("field view unavailable: " + e);
+            }
         }
 
         // Before the robot is built, so no read anywhere — constructors included — bypasses it.
@@ -390,6 +425,7 @@ public abstract class RobotOpMode extends OpMode {
             double volts = battery.getVoltage();
             lastBatteryVolts = volts;
             batteryAtInitVolts = volts;
+            robot.batteryVolts(volts);
             log.metadata("BatteryAtInit", String.format(Locale.US, "%.2f V", volts));
             if (volts < LOW_BATTERY_VOLTS) {
                 batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, LOW_BATTERY_VOLTS);
@@ -1355,8 +1391,55 @@ public abstract class RobotOpMode extends OpMode {
             log.put("/Launcher/RightCurrentAmps", rightAmps);
         }
         log.put("/Launcher/Reversing", robot.launcher.reversing() ? 1 : 0);
+        // Each spin-up's and each shot dip's timing (LauncherResponse), with the battery, once each.
+        LauncherResponse response = robot.launcher.response();
+        if (response.spinUps() != loggedSpinUps) {
+            loggedSpinUps = response.spinUps();
+            log.put("/Launcher/RiseMs", response.riseMs());
+            log.put("/Launcher/SpinOvershootTicksPerSecond", response.spinOvershootTps());
+            log.put("/Launcher/SettleMs", response.settleMs());
+            log.event(String.format(Locale.US,
+                    "launcher: spin-up from %.0f to %.0f ticks/s: in tolerance %.0f ms, overshoot %.0f, at speed %.0f ms (battery %.2f V)",
+                    response.spinFromTps(), robot.launcher.target(), response.riseMs(), response.spinOvershootTps(),
+                    response.settleMs(), lastBatteryVolts));
+        }
+        if (response.dips() != loggedDips) {
+            loggedDips = response.dips();
+            log.put("/Launcher/DipDepthTicksPerSecond", response.dipDepthTps());
+            log.put("/Launcher/RecoverMs", response.recoverMs());
+            log.put("/Launcher/DipOvershootTicksPerSecond", response.dipOvershootTps());
+            if (!Double.isNaN(response.resettleMs())) log.put("/Launcher/ResettleMs", response.resettleMs());
+            // The gap from the shot before, beside the recovery: a feed paced right has gap > recover.
+            if (!Double.isNaN(response.shotGapMs())) log.put("/Launcher/ShotGapMs", response.shotGapMs());
+            log.event(String.format(Locale.US,
+                    "launcher: dip %.0f ticks/s, back in tolerance %.0f ms, overshoot %.0f, at speed %s, gap from last shot %s (feeder %.2f, battery %.2f V)",
+                    response.dipDepthTps(), response.recoverMs(), response.dipOvershootTps(),
+                    Double.isNaN(response.resettleMs()) ? "not again" : String.format(Locale.US, "%.0f ms", response.resettleMs()),
+                    Double.isNaN(response.shotGapMs()) ? "none (first)" : String.format(Locale.US, "%.0f ms", response.shotGapMs()),
+                    robot.feeder.power(), lastBatteryVolts));
+        }
+        // The hub velocity loop's gains as written (nothing until Panels sets one), and each write as an event.
+        if (robot.launcher.pidfWrites() != loggedPidfWrites) {
+            loggedPidfWrites = robot.launcher.pidfWrites();
+            log.put("/Launcher/VelocityP", robot.launcher.appliedP());
+            log.put("/Launcher/VelocityI", robot.launcher.appliedI());
+            log.put("/Launcher/VelocityD", robot.launcher.appliedD());
+            log.put("/Launcher/VelocityF", robot.launcher.appliedF());
+            log.put("/Launcher/FScale", robot.launcher.fScale());
+            log.event(String.format(Locale.US, "launcher: velocity PIDF %s (F scale %.3f, battery %.2f V)",
+                    LauncherSubsystem.gainsText(robot.launcher.appliedP(), robot.launcher.appliedI(),
+                            robot.launcher.appliedD(), robot.launcher.appliedF()),
+                    robot.launcher.fScale(), lastBatteryVolts));
+        }
         log.put("/Feeder/Power", robot.feeder.power());
+        // The battery's scale on that power (FeederSubsystem.compensateVoltage); 1 when off.
+        log.put("/Feeder/VoltageScale", robot.feeder.voltageScale());
         log.put("/Feeder/TicksPerSecond", robot.feeder.ticksPerSecond());
+        // Surface speeds, comparable across the two (ticks per second are not); NaN until measured, so skipped.
+        double feederIps = robot.feeder.surfaceInchesPerSecond();
+        if (!Double.isNaN(feederIps)) log.put("/Feeder/SurfaceInchesPerSecond", feederIps);
+        double launcherIps = robot.launcher.surfaceInchesPerSecond();
+        if (!Double.isNaN(launcherIps)) log.put("/Launcher/SurfaceInchesPerSecond", launcherIps);
         double feederAmps = robot.feeder.currentAmps();
         if (!Double.isNaN(feederAmps)) {
             log.put("/Feeder/CurrentAmps", feederAmps);
@@ -1378,6 +1461,9 @@ public abstract class RobotOpMode extends OpMode {
             if (!Double.isNaN(hue)) log.put("/ColorSensor/HueDeg", hue);
             log.put("/ColorSensor/Saturation", robot.colorSensor.saturation());
         }
+        // Which read rate ran (1 fast: a piece can move; 0 slow), so a full held between slow reads
+        // shows as one in the log (ColorSensorSubsystem, "When it reads").
+        log.put("/ColorSensor/Watching", robot.colorSensor.watching() ? 1 : 0);
         // The lane tracker's guess (LaneTracker), data only: count, each slot (0 empty, 1 POLLEN,
         // 2 red NECTAR, 3 blue NECTAR, 4 unknown, front first), and its arrivals, shots and ejects as events.
         LaneTracker lane = robot.colorSensor.lane();
@@ -1442,6 +1528,8 @@ public abstract class RobotOpMode extends OpMode {
             lastBatteryVolts = battery.getVoltage();
             log.put("/Robot/BatteryVolts", lastBatteryVolts);
             lastBatteryNs = now;
+            // For the launcher's F and the feeder's power when they compensate: this read, no other.
+            robot.batteryVolts(lastBatteryVolts);
         }
         log.commit();
     }

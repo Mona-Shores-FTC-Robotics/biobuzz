@@ -4,13 +4,17 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
+import org.firstinspires.ftc.teamcode.util.VoltageCompensation;
+import org.firstinspires.ftc.teamcode.util.WheelSpeed;
 
 import java.util.Locale;
+import java.util.function.BooleanSupplier;
 
 /**
  * The launcher: two flywheels, left and right, held at one commanded speed. The first edition,
@@ -27,8 +31,23 @@ import java.util.Locale;
  * target in encoder ticks per second with {@code setVelocity}. That is one write per wheel when
  * the target changes, and again every {@link #RESEND_MS} (each is a 2–3 ms round trip to the hub,
  * and the SDK does not skip a repeated velocity; the resend recovers a motor a hub has zeroed), and
- * no controller of ours to tune. If the hub's default loop turns out sluggish on the
- * bench, the knob is {@code setVelocityPIDFCoefficients}, not a controller here.
+ * no controller of ours to run.
+ *
+ * <h2>Tuning the hub's loop</h2>
+ *
+ * <p>The hub's velocity loop has four gains, P, I, D and F, set with
+ * {@code setVelocityPIDFCoefficients}. Match logs of 3 and 4 Nov 2026 (20245) showed what its
+ * defaults do with no tuned feedforward: after each ball's dip the wheels overshot to about 1680
+ * of 1595 and at-speed stayed false for about 0.7 s, and a spin-up from rest took 0.9 to 2.1 s,
+ * slowest on a sagging battery. So the four gains are Panels knobs here ({@link #velocityP},
+ * {@link #velocityI}, {@link #velocityD}, {@link #velocityF}): NaN, the default, leaves that gain
+ * at what the hub had when this OpMode's {@link #initialize()} read it ({@link #hubDefaults()},
+ * shown on the Robot page and in the match log's Metadata), so nothing changes until someone sets
+ * one. The gains go to the hub only when one changes, never every loop: each write is a hub round
+ * trip per wheel. Optionally F follows the battery ({@link #compensateF}): F × {@link #nominalVolts}
+ * / battery, from the reading {@code RobotOpMode} already takes once a second
+ * ({@link #batteryVolts(double)}), written again only when it moves by more than
+ * {@link #F_COMPENSATION_STEP}. The procedure is in {@code doc/robot-todo.md}, "Launcher tuning".
  *
  * <p>The setpoint is in ticks per second, not RPM, because ticks per second is what the hardware
  * measures and commands. RPM is shown as well once {@link #ticksPerRev} is read off the motor
@@ -48,12 +67,36 @@ import java.util.Locale;
  *
  * <p>A piece meeting the wheels pulls their speed down and the loop pulls it back. That dip is the
  * one thing the launcher can see of a shot without a sensor, so {@link ShotDetector} counts one
- * shot per dip: the wheels were at speed, fell at least {@link #shotDipTicksPerSecond} below target,
- * and came back within tolerance. Spin-up is not a dip (the wheels were never at speed), a wobble
- * inside the threshold is not a dip, and a target change re-arms the detector so a Panels nudge is
- * not a shot. The count and the last dip's depth go to the Robot page, Panels and the match log; a
+ * shot per dip: the wheels were at speed, both fell at least {@link #shotDipTicksPerSecond} below
+ * target while the feed gate was open, and came back within tolerance. Spin-up is not a dip (the wheels were
+ * never at speed), a wobble inside the threshold is not a dip, and a target change re-arms the
+ * detector so a Panels nudge is not a shot.
+ *
+ * <p>A dip that starts with the gate shut is not a shot: no piece can reach the wheels. The match
+ * log of 4 Nov 2026 (20245, 00:02 Basic Drive) is why: 17 of 88 counted shots started with the gate
+ * shut and the feeder unloaded (about 1.6 A against 6 A and more for a fed shot), most of them while
+ * the intake took in a NECTAR and its speed collapsed from about 2600 to under 600 ticks/s. Both
+ * wheels sagged 80–100 ticks/s over about 0.3 s, a load on the robot (most likely the battery under
+ * the intake's stall), not a piece; at 207.38 s and 207.91 s the left wheel alone dipped. Only the start is judged: a dip that
+ * began with the gate open and recovers after it shuts still counts.
+ *
+ * <p>Both wheels must dip, because a piece taken by the wheels pulls both down together: in the same
+ * log, 31 of the 34 shots deeper than 120 dipped the two wheels within 40 of each other, bottoming
+ * in the same sample, and the most uneven still took both past 140. One wheel dipping alone is the
+ * wheels wobbling, each on its own hub velocity loop, while the feeder presses a ball against them
+ * before they take it (feeder current climbing to 6 A and more): at 134.46 s the left fell to 1520
+ * with the right at 1620, then at 134.81–134.98 s the right fell to 1480 with the left at 1580, and
+ * each counted as a shot before the real one at 135.52 s, both wheels 280 down. Requiring both
+ * wheels drops 25 such gate-open dips in that log and keeps every shot deeper than 120. The
+ * recorded depth is still the slower wheel's ({@link #deficit}).
+ *
+ * <p>The gate is the one {@link #countShotsWhile} names (the robot's {@code FeedGateSubsystem}), or, for
+ * a launcher built without one, the feeder feeding. The count and the last dip's depth go to the Robot page, Panels and the match log; a
  * student writes hit or miss next to each row afterwards. That is how #80's speed-vs-distance
  * table gets its rows. It is a measurement, never a gate: nothing here waits for it.
+ *
+ * <p>Each spin-up and each shot's dip is also timed ({@link LauncherResponse}: rise, overshoot,
+ * settle; dip depth, recovery, overshoot after it), for tuning the velocity PIDF from numbers.
  *
  * <p>Nothing here is measured yet. The directions, the starting setpoint and the tolerance are
  * {@code @Configurable} so the bench sets them in Panels; the values that work get written back
@@ -114,13 +157,13 @@ public class LauncherSubsystem implements Subsystem {
     public static double atSpeedHoldMs = 150.0;
 
     /**
-     * How far below its target a wheel must fall, from at speed, for the dip to count as a shot,
-     * ticks per second. Measured on 20245, 1 to 2 Nov 2026, target 1595: every POLLEN shot dipped
+     * How far below its target each wheel must fall, from at speed, for the dip to count as a shot,
+     * ticks per second (both wheels: class comment). Measured on 20245, 1 to 2 Nov 2026, target 1595: every POLLEN shot dipped
      * the slower wheel 95 (nine shots over three runs; one 135), and the wheels hover within about
      * 25 at speed. 70 sits between the two. It was 150, a starting guess, and counted no shot at
      * all, which left the lane tracker's count stuck after firing. Below
-     * {@link #toleranceTicksPerSecond} (60) it would make no difference: a dip only starts once a
-     * wheel leaves the at-speed band.
+     * {@link #toleranceTicksPerSecond} (60) it would make no difference: a dip only starts once both
+     * wheels leave the at-speed band.
      */
     public static double shotDipTicksPerSecond = 70.0;
 
@@ -156,6 +199,16 @@ public class LauncherSubsystem implements Subsystem {
     public static double ticksPerRev = 28.0;
 
     /**
+     * Flywheel revolutions per motor revolution (the module's belt), for the surface speed. NaN
+     * until measured (count teeth, or mark the wheel and turn the motor by hand): the surface speed
+     * shows as unknown rather than a guess.
+     */
+    public static double beltRatio = Double.NaN;
+
+    /** Flywheel diameter, inches, for the surface speed. NaN until measured with calipers on the robot. */
+    public static double wheelDiameterInches = Double.NaN;
+
+    /**
      * A wheel commanded for this long that still reads below {@link #encoderSilentTicksPerSecond}
      * is treated as having no encoder and is cut. Long enough for a real spin-up to show movement.
      */
@@ -163,6 +216,43 @@ public class LauncherSubsystem implements Subsystem {
 
     /** Below this measured speed, a commanded wheel is "not moving" for the encoder check. */
     public static double encoderSilentTicksPerSecond = 20.0;
+
+    /**
+     * The hub velocity loop's proportional gain for both wheels. NaN (the default): the hub's own,
+     * as read at init ({@link #hubDefaults()}). Not measured yet: see "Tuning the hub's loop" in
+     * the class comment. A negative, infinite or absurd value (above {@link #MAX_GAIN}) counts as
+     * NaN, so a Panels typo leaves the hub's gain in place.
+     */
+    public static double velocityP = Double.NaN;
+
+    /** As {@link #velocityP}, the integral gain. Keep it small: it is what winds up into overshoot. */
+    public static double velocityI = Double.NaN;
+
+    /** As {@link #velocityP}, the derivative gain. Usually 0 for a flywheel. */
+    public static double velocityD = Double.NaN;
+
+    /**
+     * As {@link #velocityP}, the feedforward gain: the hub's power per tick per second of target,
+     * scaled so that 32767 is full power. A first guess is 32767 / (the speed one wheel reaches at
+     * full power, ticks per second), at {@link #nominalVolts}.
+     */
+    public static double velocityF = Double.NaN;
+
+    /**
+     * Scale F by the battery: F × {@link #nominalVolts} / battery, so the feedforward pushes as hard
+     * on a tired battery as on the one it was tuned on. Off until a robot run shows it helps.
+     * Applies to F as it stands, set here or the hub's own.
+     */
+    public static boolean compensateF = false;
+
+    /** The battery voltage F is tuned at, volts, for {@link #compensateF}. NaN, zero or negative: no compensation. */
+    public static double nominalVolts = 12.0;
+
+    /** Above this a gain from Panels is treated as a typo and the hub's own is kept. */
+    static final double MAX_GAIN = 1000.0;
+
+    /** A compensated F is written again only when its scale moves by more than this fraction (1%, about 0.1 V). */
+    static final double F_COMPENSATION_STEP = 0.01;
 
     private final Layout layout;
     private final DcMotorEx left;
@@ -187,6 +277,11 @@ public class LauncherSubsystem implements Subsystem {
     private final AtSpeedTimer readiness = new AtSpeedTimer();
     private boolean atSpeed;
     private final ShotDetector shots = new ShotDetector();
+    /** Whether the feed gate is open, so a dip may be a shot ({@link #countShotsWhile}). */
+    private BooleanSupplier gateOpen;
+    private final LauncherResponse response = new LauncherResponse();
+    /** The last update ran the SPINNING branch (not idle, not reversing): a new one starts a spin-up measurement. */
+    private boolean measuring;
     private double lastLeftTarget = Double.NaN;
     private double lastRightTarget = Double.NaN;
     /** The velocity last sent to each wheel; NaN when none is standing, so the next one goes. */
@@ -195,8 +290,36 @@ public class LauncherSubsystem implements Subsystem {
     /** An unchanged velocity is sent again this often, ms. */
     static final double RESEND_MS = 250;
     private final Throttle resend = new Throttle(RESEND_MS, 0);
-    /** Current is not in the bulk read; ten reads a second, as {@code IntakeSubsystem}'s. */
-    private final Throttle currentRead = new Throttle(100, 66);
+    /**
+     * Current is not in the bulk read: each wheel's is read every
+     * {@link IntakeSubsystem#CURRENT_READ_MS}, at its own offset, so the two reads (2–4 ms each)
+     * never land in the same loop.
+     */
+    private final Throttle leftCurrentRead = new Throttle(IntakeSubsystem.CURRENT_READ_MS, 62);
+    private final Throttle rightCurrentRead = new Throttle(IntakeSubsystem.CURRENT_READ_MS, 187);
+
+    /** Each wheel's velocity PIDF as read at init; null when the hub did not answer with one. */
+    private PIDFCoefficients leftDefaults;
+    private PIDFCoefficients rightDefaults;
+    /** The Panels gains and switch last acted on, so a write happens only when one changes. NaN-aware. */
+    private double seenP = Double.NaN;
+    private double seenI = Double.NaN;
+    private double seenD = Double.NaN;
+    private double seenF = Double.NaN;
+    private boolean seenCompensate;
+    private double seenNominal = Double.NaN;
+    /** The battery, volts, as {@code RobotOpMode} last passed it in; NaN until then. */
+    private double batteryVolts = Double.NaN;
+    /** The scale on F in force (1 when not compensating). */
+    private double fScale = 1.0;
+    /** The battery's scale on F is looked at once a second at most. */
+    private final Throttle fScaleCheck = new Throttle(1000, 0);
+    /** The left wheel's gains as last written (the right's differ only if its defaults do); NaN before the first write. */
+    private double appliedP = Double.NaN;
+    private double appliedI = Double.NaN;
+    private double appliedD = Double.NaN;
+    private double appliedF = Double.NaN;
+    private int pidfWrites;
 
     /**
      * The robot's launcher: looks both motors up once. A missing motor fails init with the SDK's own message.
@@ -208,6 +331,7 @@ public class LauncherSubsystem implements Subsystem {
         left = hardwareMap.get(DcMotorEx.class, DeviceNames.LAUNCHER_LEFT);
         right = hardwareMap.get(DcMotorEx.class, DeviceNames.LAUNCHER_RIGHT);
         this.feeder = feeder;
+        gateOpen = this::feederFeeding;
     }
 
     private LauncherSubsystem(DcMotorEx pair, FeederSubsystem feeder) {
@@ -215,6 +339,20 @@ public class LauncherSubsystem implements Subsystem {
         left = pair;
         right = null;
         this.feeder = feeder;
+        gateOpen = this::feederFeeding;
+    }
+
+    private boolean feederFeeding() {
+        return feeder.state() == FeederSubsystem.State.FEED;
+    }
+
+    /**
+     * Count a speed dip as a shot only if it starts while {@code gateOpen} says the feed gate is open
+     * (class comment). Wired once by {@code Robot} to its feed gate, so a bench holding the gate open
+     * counts too; until then, and on a launcher built without a gate, it is the feeder feeding.
+     */
+    public void countShotsWhile(BooleanSupplier gateOpen) {
+        this.gateOpen = gateOpen;
     }
 
     /**
@@ -265,6 +403,8 @@ public class LauncherSubsystem implements Subsystem {
         readiness.reset();
         shots.reset();
         atSpeed = false;
+        response.cancel();
+        measuring = false;
     }
 
     /** What the launcher has been asked to do. The request, not a measurement. */
@@ -308,6 +448,11 @@ public class LauncherSubsystem implements Subsystem {
     /** The common target in force on the last counted shot, ticks per second; NaN before the first. */
     public double lastShotTargetTicksPerSecond() {
         return shots.lastTargetTicksPerSecond();
+    }
+
+    /** Spin-up and dip timings (class comment), for tuning the velocity PIDF. */
+    public LauncherResponse response() {
+        return response;
     }
 
     /** True while the wheels are down in a dip that has not yet recovered: a piece in the wheels, or a jam. */
@@ -356,12 +501,22 @@ public class LauncherSubsystem implements Subsystem {
         return IntakeSubsystem.rpm(leftTicksPerSecond, ticksPerRev);
     }
 
+    /**
+     * The flywheels' surface speed, inches per second, the mean of both wheels: comparable with the
+     * feeder's ({@code FeederSubsystem.surfaceInchesPerSecond()}), as ticks per second are not. NaN
+     * until {@link #beltRatio} and {@link #wheelDiameterInches} are measured.
+     */
+    public double surfaceInchesPerSecond() {
+        return WheelSpeed.surfaceInchesPerSecond((leftTicksPerSecond + rightTicksPerSecond) / 2.0,
+                ticksPerRev, beltRatio, wheelDiameterInches);
+    }
+
     /** {@link #rightTicksPerSecond()} in output-shaft RPM, or NaN until {@link #ticksPerRev} is set. */
     public double rightRpm() {
         return IntakeSubsystem.rpm(rightTicksPerSecond, ticksPerRev);
     }
 
-    /** Left motor current from the last {@link #update()}, amps; NaN while idle (read only while spinning). */
+    /** Left motor current as of its last read (four a second), amps; NaN while idle (read only while spinning). */
     public double leftCurrentAmps() {
         return leftCurrentAmps;
     }
@@ -369,6 +524,47 @@ public class LauncherSubsystem implements Subsystem {
     /** Right motor current from the last {@link #update()}, amps; NaN while idle. */
     public double rightCurrentAmps() {
         return rightCurrentAmps;
+    }
+
+    /**
+     * The battery's latest reading, volts, from {@code RobotOpMode}'s once-a-second read (no hub
+     * read here). Used only for {@link #compensateF}; NaN means no compensation.
+     */
+    public void batteryVolts(double volts) {
+        batteryVolts = volts;
+    }
+
+    /** The left wheel's velocity PIDF as read at init, or null when the hub gave none. */
+    public PIDFCoefficients hubDefaults() {
+        return leftDefaults;
+    }
+
+    /** The P written to the hub last, or NaN while the hub's own gains stand untouched. Likewise I, D and F below. */
+    public double appliedP() {
+        return appliedP;
+    }
+
+    public double appliedI() {
+        return appliedI;
+    }
+
+    public double appliedD() {
+        return appliedD;
+    }
+
+    /** The F written last, battery scale included. */
+    public double appliedF() {
+        return appliedF;
+    }
+
+    /** The scale on F in force: 1 unless {@link #compensateF} is on and a battery reading came in. */
+    public double fScale() {
+        return fScale;
+    }
+
+    /** How many times the gains were written to the hub this OpMode, so the log can mark each write. */
+    public int pidfWrites() {
+        return pidfWrites;
     }
 
     /** A one-line description of what is wrong, or null when nothing is. */
@@ -392,6 +588,15 @@ public class LauncherSubsystem implements Subsystem {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             motor.setPower(0.0);
         }
+        // What the hub has now, so NaN can mean "these" and the tuner starts from known numbers.
+        leftDefaults = left.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDefaults = right == null ? null : right.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        seenP = seenI = seenD = seenF = seenNominal = Double.NaN;
+        seenCompensate = false;
+        fScale = 1.0;
+        fScaleCheck.reset();
+        appliedP = appliedI = appliedD = appliedF = Double.NaN;
+        pidfWrites = 0;
     }
 
     /**
@@ -407,12 +612,13 @@ public class LauncherSubsystem implements Subsystem {
      * While the feeder reverses, both wheels run backwards at {@link #reverseTicksPerSecond}
      * ({@link #reverseFor}) and nothing else is judged. Otherwise a velocity write per wheel when
      * its target changes (and every {@link #RESEND_MS}), one read of each speed (from the bulk read)
-     * and, while running, one of each current every 100 ms. A wheel that has been commanded for
+     * and, while running, one of each current every {@link IntakeSubsystem#CURRENT_READ_MS}. A wheel that has been commanded for
      * {@link #encoderFaultAfterMs} and still reads nothing is cut until {@link #spinDown()}.
      */
     @Override
     public void update() {
         long now = System.nanoTime();
+        applyGains(now);
         double leftTarget = leftTarget();
         double rightTarget = rightTarget();
 
@@ -431,6 +637,11 @@ public class LauncherSubsystem implements Subsystem {
             atSpeed = false;
             if (!reverse && state == State.SPINNING) spinUpStartedNs = now;
         }
+        if (measuring && (reverse || state != State.SPINNING)) {
+            // Not spinning toward a target any more: a timing in progress means nothing.
+            response.cancel();
+            measuring = false;
+        }
         if (reverse) {
             boolean force = resend.due(now);
             leftSent = command(left, leftFault ? 0.0 : reverseCommandFor(reverseTicksPerSecond, leftReversed),
@@ -439,10 +650,7 @@ public class LauncherSubsystem implements Subsystem {
                 rightSent = command(right, rightFault ? 0.0 : reverseCommandFor(reverseTicksPerSecond, rightReversed),
                         rightSent, force);
             }
-            if (currentRead.due(now)) {
-                leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
-                rightCurrentAmps = right == null ? Double.NaN : right.getCurrent(CurrentUnit.AMPS);
-            }
+            readCurrents(now);
         } else if (state == State.SPINNING) {
             double elapsedMs = (now - spinUpStartedNs) / 1e6;
             if (!leftFault && encoderSilent(leftTarget, leftTicksPerSecond, elapsedMs,
@@ -459,31 +667,126 @@ public class LauncherSubsystem implements Subsystem {
                 rightSent = command(right, rightFault ? 0.0 : commandFor(rightTarget, rightReversed),
                         rightSent, force);
             }
-            if (currentRead.due(now)) {
-                leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
-                rightCurrentAmps = right == null ? Double.NaN : right.getCurrent(CurrentUnit.AMPS);
-            }
+            readCurrents(now);
             boolean within = !leftFault && !rightFault && (leftTarget > 0.0 || rightTarget > 0.0)
                     && Math.abs(leftTicksPerSecond - leftTarget) <= toleranceTicksPerSecond
                     && Math.abs(rightTicksPerSecond - rightTarget) <= toleranceTicksPerSecond;
             atSpeed = readiness.update(within, now, atSpeedHoldMs);
             // A target change (Panels nudge, a table lookup) re-arms the detector: not a shot.
-            if (leftTarget != lastLeftTarget || rightTarget != lastRightTarget) shots.reset();
+            boolean newTarget = leftTarget != lastLeftTarget || rightTarget != lastRightTarget;
+            if (newTarget) shots.reset();
             shots.update(deficit(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond),
-                    within, target(), shotDipTicksPerSecond);
+                    bothDeficit(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond), within, gateOpen.getAsBoolean(), target(), shotDipTicksPerSecond);
+            // A step starts here: from idle, out of an unjam, or to a new target.
+            if (!measuring || newTarget) {
+                response.command(now, Math.min(leftTicksPerSecond, rightTicksPerSecond));
+                measuring = true;
+            }
+            if (leftFault || rightFault) {
+                response.cancel();
+            } else {
+                response.update(now, within, atSpeed,
+                        excess(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond),
+                        shots.inDip(), shots.justCounted(), shots.lastDipTicksPerSecond());
+            }
         } else {
             left.setPower(0.0);
             if (right != null) right.setPower(0.0);
             leftSent = Double.NaN;
             rightSent = Double.NaN;
             resend.reset();
-            currentRead.reset();
+            leftCurrentRead.reset();
+            rightCurrentRead.reset();
             leftCurrentAmps = Double.NaN;
             rightCurrentAmps = Double.NaN;
             atSpeed = false;
         }
         lastLeftTarget = leftTarget;
         lastRightTarget = rightTarget;
+    }
+
+    /** Each wheel's current when its own throttle is due; a Y-cabled right wheel has none. */
+    private void readCurrents(long now) {
+        if (leftCurrentRead.due(now)) {
+            leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
+        }
+        if (right == null) {
+            rightCurrentAmps = Double.NaN;
+        } else if (rightCurrentRead.due(now)) {
+            rightCurrentAmps = right.getCurrent(CurrentUnit.AMPS);
+        }
+    }
+
+    /**
+     * Writes the velocity PIDF when a Panels gain or the switch changed, or the battery's scale on
+     * F moved by more than {@link #F_COMPENSATION_STEP} (looked at once a second). Nothing is
+     * written while every gain is NaN, F is unscaled and nothing was written before: the hub's own
+     * gains stand. A gain set back to NaN writes what was read at init. Gains are not motion, so
+     * this runs from INIT on.
+     */
+    private void applyGains(long now) {
+        boolean changed = !same(velocityP, seenP) || !same(velocityI, seenI) || !same(velocityD, seenD)
+                || !same(velocityF, seenF) || compensateF != seenCompensate || !same(nominalVolts, seenNominal);
+        if (changed) {
+            seenP = velocityP;
+            seenI = velocityI;
+            seenD = velocityD;
+            seenF = velocityF;
+            seenCompensate = compensateF;
+            seenNominal = nominalVolts;
+        }
+        double scale = VoltageCompensation.scale(compensateF, nominalVolts, batteryVolts);
+        if (scale != fScale && (changed
+                || (VoltageCompensation.worthApplying(fScale, scale, F_COMPENSATION_STEP) && fScaleCheck.due(now)))) {
+            fScale = scale;
+            changed = true;
+        }
+        if (!changed) return;
+        boolean nothingSet = !validGain(velocityP) && !validGain(velocityI) && !validGain(velocityD)
+                && !validGain(velocityF) && fScale == 1.0;
+        if (nothingSet && Double.isNaN(appliedP)) return;
+        if (writeGains(left, leftDefaults, true) && right != null) {
+            writeGains(right, rightDefaults, false);
+        }
+    }
+
+    /**
+     * One wheel's gains: each Panels gain or, where it is unset, that wheel's own read at init; F
+     * times the battery scale. Not written when any gain is still unknown (the hub gave no
+     * defaults and Panels has not set it). Returns whether it wrote.
+     */
+    private boolean writeGains(DcMotorEx motor, PIDFCoefficients defaults, boolean record) {
+        double p = gain(velocityP, defaults == null ? Double.NaN : defaults.p);
+        double i = gain(velocityI, defaults == null ? Double.NaN : defaults.i);
+        double d = gain(velocityD, defaults == null ? Double.NaN : defaults.d);
+        double f = gain(velocityF, defaults == null ? Double.NaN : defaults.f) * fScale;
+        if (Double.isNaN(p) || Double.isNaN(i) || Double.isNaN(d) || Double.isNaN(f)) return false;
+        motor.setVelocityPIDFCoefficients(p, i, d, f);
+        if (record) {
+            appliedP = p;
+            appliedI = i;
+            appliedD = d;
+            appliedF = f;
+            pidfWrites++;
+        }
+        return true;
+    }
+
+    /**
+     * A gain to write: the Panels value when it is a real one (finite, 0 to {@link #MAX_GAIN}),
+     * otherwise {@code hubDefault}. So NaN, a negative or an absurd typo keeps the hub's gain. Pure.
+     */
+    static double gain(double configured, double hubDefault) {
+        return validGain(configured) ? configured : hubDefault;
+    }
+
+    private static boolean validGain(double value) {
+        return value >= 0.0 && value <= MAX_GAIN;
+    }
+
+    /** Equal, counting NaN equal to NaN: a Panels field left at NaN is not a change. */
+    private static boolean same(double a, double b) {
+        return Double.compare(a, b) == 0;
     }
 
     /** Cut power. Safe to call whether or not {@link #initialize()} ran. */
@@ -498,7 +801,41 @@ public class LauncherSubsystem implements Subsystem {
     public String health() {
         String fault = fault();
         return "motors configured (" + layout + "); presence unknown until they spin"
+                + "; hub velocity PIDF at init " + pidfText(leftDefaults)
+                + (right != null && !samePidf(leftDefaults, rightDefaults) ? " (right " + pidfText(rightDefaults) + ")" : "")
                 + (fault != null ? "; " + fault : "");
+    }
+
+    /** The velocity PIDF line for the Robot page and the bench: what the hub had, what is written, the battery's scale. */
+    public String pidfLine() {
+        String applied = Double.isNaN(appliedP) ? "hub's own (nothing set in Panels)"
+                : gainsText(appliedP, appliedI, appliedD, appliedF);
+        String comp = !compensateF ? ""
+                : Double.isNaN(batteryVolts) ? " · F compensation on, no battery reading"
+                : String.format(Locale.US, " · F × %.3f at %.2f V", fScale, batteryVolts);
+        return "Velocity PIDF " + applied + " · at init " + pidfText(leftDefaults) + comp;
+    }
+
+    private static String pidfText(PIDFCoefficients c) {
+        return c == null ? "unread" : gainsText(c.p, c.i, c.d, c.f);
+    }
+
+    /** Four gains as "P 10 I 3 D 0 F 13.5": four significant figures, no trailing zeros. */
+    public static String gainsText(double p, double i, double d, double f) {
+        return "P " + gainText(p) + " I " + gainText(i) + " D " + gainText(d) + " F " + gainText(f);
+    }
+
+    static String gainText(double value) {
+        if (Double.isNaN(value)) return "NaN";
+        String text = String.format(Locale.US, "%.4g", value);
+        if (text.contains("e") || !text.contains(".")) return text;
+        text = text.replaceAll("0+$", "");
+        return text.endsWith(".") ? text.substring(0, text.length() - 1) : text;
+    }
+
+    private static boolean samePidf(PIDFCoefficients a, PIDFCoefficients b) {
+        if (a == null || b == null) return a == b;
+        return a.p == b.p && a.i == b.i && a.d == b.d && a.f == b.f;
     }
 
     @Override
@@ -528,13 +865,17 @@ public class LauncherSubsystem implements Subsystem {
                     Double.isNaN(leftCurrentAmps) ? "current not read while idle"
                             : String.format(Locale.US, "%.1f A (both motors)", leftCurrentAmps)));
             display.line(shotsLine());
+            display.line(responseLine());
+            display.line(pidfLine());
             return;
         }
-        display.line(String.format(Locale.US, "Wheels L %.0f / R %.0f ticks/s%s · %s",
-                leftTicksPerSecond, rightTicksPerSecond, rpmSuffix(),
+        display.line(String.format(Locale.US, "Wheels L %.0f / R %.0f ticks/s%s · surface %s · %s",
+                leftTicksPerSecond, rightTicksPerSecond, rpmSuffix(), surfaceText(surfaceInchesPerSecond()),
                 Double.isNaN(leftCurrentAmps) ? "current not read while idle"
                         : String.format(Locale.US, "L %.1f / R %.1f A", leftCurrentAmps, rightCurrentAmps)));
         display.line(shotsLine());
+        display.line(responseLine());
+        display.line(pidfLine());
     }
 
     /** The shot count and the last dip, for the Robot page and the bench. */
@@ -544,6 +885,27 @@ public class LauncherSubsystem implements Subsystem {
                 : String.format(Locale.US, "last dip %.0f ticks/s below a %.0f target",
                         shots.lastDipTicksPerSecond(), shots.lastTargetTicksPerSecond());
         return String.format(Locale.US, "Shots %d · %s%s", n, last, shots.inDip() ? " · IN A DIP" : "");
+    }
+
+    /** The last spin-up's and the last dip's timings (LauncherResponse), for the Robot page and the bench. */
+    public String responseLine() {
+        String spin = response.spinUps() == 0 ? "no spin-up timed yet"
+                : String.format(Locale.US, "spin-up rise %.0f ms, over %.0f, at speed %.0f ms",
+                        response.riseMs(), response.spinOvershootTps(), response.settleMs());
+        String dip = response.dips() == 0 ? "no dip timed yet"
+                : String.format(Locale.US, "dip %.0f, back %.0f ms, over %.0f, at speed %s, gap %s",
+                        response.dipDepthTps(), response.recoverMs(), response.dipOvershootTps(),
+                        Double.isNaN(response.resettleMs()) ? "never"
+                                : String.format(Locale.US, "%.0f ms", response.resettleMs()),
+                        Double.isNaN(response.shotGapMs()) ? "first"
+                                : String.format(Locale.US, "%.0f ms", response.shotGapMs()));
+        return spin + " · " + dip;
+    }
+
+    /** A surface speed for a page: "123 in/s", or "unknown (not measured)" while it is NaN. */
+    public static String surfaceText(double inchesPerSecond) {
+        return Double.isNaN(inchesPerSecond) ? "unknown (not measured)"
+                : String.format(Locale.US, "%.0f in/s", inchesPerSecond);
     }
 
     private String rpmSuffix() {
@@ -617,6 +979,22 @@ public class LauncherSubsystem implements Subsystem {
         return Math.max(leftTarget - leftMeasured, rightTarget - rightMeasured);
     }
 
+    /**
+     * How far below target both wheels are, ticks per second: the smaller of the two shortfalls, so
+     * it passes a threshold only when both wheels do (a shot's dip: class comment). Pure.
+     */
+    static double bothDeficit(double leftTarget, double leftMeasured, double rightTarget, double rightMeasured) {
+        return Math.min(leftTarget - leftMeasured, rightTarget - rightMeasured);
+    }
+
+    /**
+     * How far over its target the faster wheel is, ticks per second: the larger of the two wheels'
+     * excesses, negative when both are under. The mirror of {@link #deficit}. Pure.
+     */
+    static double excess(double leftTarget, double leftMeasured, double rightTarget, double rightMeasured) {
+        return Math.max(leftMeasured - leftTarget, rightMeasured - rightTarget);
+    }
+
     /** Clamps a Panels-editable speed to [0, ∞) and treats NaN as 0: a typo spins down, never backwards. */
     static double nonNegative(double value) {
         return value > 0.0 ? value : 0.0;
@@ -624,8 +1002,8 @@ public class LauncherSubsystem implements Subsystem {
 
     /**
      * Counts shots from speed dips (class comment): armed once the wheels are within tolerance,
-     * a dip starts when the deficit reaches the threshold, and the shot is counted when the wheels
-     * are back within tolerance, with the deepest point of the dip. A dip that never recovers (a
+     * a dip starts when both wheels' shortfalls reach the threshold with the feed gate open, and the
+     * shot is counted when the wheels are back within tolerance, with the deepest point of the dip. A dip that never recovers (a
      * jam, or a spin-down) is never counted. Pure, so a test can drive it with made-up readings.
      */
     static final class ShotDetector {
@@ -639,11 +1017,14 @@ public class LauncherSubsystem implements Subsystem {
         private boolean justCounted;
 
         /**
-         * Feed this loop's reading. {@code deficit} is how far below target the slower wheel is,
-         * {@code within} whether both wheels are inside the at-speed tolerance, {@code target} the
+         * Feed this loop's reading. {@code deficit} is how far below target the slower wheel is (the
+         * depth recorded), {@code bothDeficit} how far below target both wheels are (a dip starts only
+         * once it reaches the threshold), {@code within} whether both wheels are inside the at-speed tolerance, {@code gateOpen}
+         * whether a piece can reach the wheels (a dip only starts while it is), {@code target} the
          * common target in force. Returns true in the loop a shot is counted.
          */
-        boolean update(double deficit, boolean within, double target, double dipThreshold) {
+        boolean update(double deficit, double bothDeficit, boolean within, boolean gateOpen, double target,
+                       double dipThreshold) {
             justCounted = false;
             if (within) {
                 if (inDip) {
@@ -658,7 +1039,7 @@ public class LauncherSubsystem implements Subsystem {
             }
             if (inDip) {
                 if (deficit > deepest) deepest = deficit;
-            } else if (armed && deficit >= dipThreshold) {
+            } else if (armed && gateOpen && bothDeficit >= dipThreshold) {
                 inDip = true;
                 deepest = deficit;
                 dipTarget = target;
