@@ -186,6 +186,14 @@ measurement is [#255].
 - [ ] **GARDEN into the corner,** driver Triangle near the red GARDEN, three times. **Good:** pressed
       into both walls, intake in the corner; note the `towardWallIn` that works (0 = off).
       [S4 §6], [PR #279]
+- [ ] **Drive speeds, the drivers' call:** Basic Drive, a few minutes each driver: normal, then
+      hold L1 (slow) to line up on a FLOWER, then R1 (turbo) across the field, diagonals included.
+      New defaults normal 0.7 / slow 0.25 / turbo 1.0, and each mode now caps the wheels, so it is
+      that fraction of turbo in every direction (before, 0.8 on a diagonal was already full power).
+      Change them live in Panels → TeleOpConfig if they ask. **Good:** each mode feels different and
+      the drivers name the values they keep; write those in `TeleOpConfig`, pull the log. **Stop:**
+      normal too slow for everyday driving → raise it in steps of 0.05, checking turbo still feels
+      clearly faster after each; with the cap, normal is now exactly its share of turbo. [PR #425]
 
 ## 5. Pose and camera (Basic Drive / Vision: HIVE & Pose)
 
@@ -448,6 +456,7 @@ one test at one meeting.
 [PR #387]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/387
 [PR #391]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/391
 [PR #423]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/423
+[PR #425]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/425
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#78]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/78
