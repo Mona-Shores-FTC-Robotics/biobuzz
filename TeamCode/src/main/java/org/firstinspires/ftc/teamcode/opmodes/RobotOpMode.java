@@ -1431,6 +1431,9 @@ public abstract class RobotOpMode extends OpMode {
             if (!Double.isNaN(hue)) log.put("/ColorSensor/HueDeg", hue);
             log.put("/ColorSensor/Saturation", robot.colorSensor.saturation());
         }
+        // Which read rate ran (1 fast: a piece can move; 0 slow), so a full held between slow reads
+        // shows as one in the log (ColorSensorSubsystem, "When it reads").
+        log.put("/ColorSensor/Watching", robot.colorSensor.watching() ? 1 : 0);
         // The lane tracker's guess (LaneTracker), data only: count, each slot (0 empty, 1 POLLEN,
         // 2 red NECTAR, 3 blue NECTAR, 4 unknown, front first), and its arrivals, shots and ejects as events.
         LaneTracker lane = robot.colorSensor.lane();

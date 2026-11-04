@@ -1804,6 +1804,10 @@ On most loops that is one boolean read. The gate is also how two `FieldView`s sh
 (see "Every `RobotOpMode` draws the robot", below): the first to pass it spends the throttle for
 that loop.
 
+`shouldDraw()` also waits `FieldLayers.drawEveryMs` (250 ms, a Panels knob) between sends, on top
+of Panels' 100 ms: a send costs the loop 7–8 ms (Panels builds and serialises the canvas on the
+loop thread; 20245's logs, 3–4 Nov 2026), and at 10 Hz it was the p95 of `/Loop/PageMs`.
+
 > **History note, 25 Oct 2026.** This paragraph used to say that a skipped `update()` "returns
 > having done *nothing*, and that includes not clearing the canvas", so an ungated draw shipped
 > twenty overlapping robots in one canvas. The library does not do that. Checked by disassembling

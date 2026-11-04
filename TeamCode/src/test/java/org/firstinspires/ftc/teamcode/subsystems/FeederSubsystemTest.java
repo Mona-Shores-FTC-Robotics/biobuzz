@@ -99,4 +99,21 @@ public class FeederSubsystemTest {
         assertEquals("a feed is a feed", false, FeederSubsystem.standsBy(State.FEED, true, true, 1.0));
         assertEquals("an unjam wins", false, FeederSubsystem.standsBy(State.REVERSE, true, true, 1.0));
     }
+
+    @Test
+    public void batteryNoiseDoesNotMoveTheScale() {
+        // 12.0 nominal: 11.00 V then 11.05 V is a 0.45% move, under the 1% step, so the power stays put.
+        double applied = FeederSubsystem.steppedScale(1.0, 12.0 / 11.0, FeederSubsystem.SCALE_STEP);
+        assertEquals(12.0 / 11.0, applied, EPS);
+        assertEquals("a tenth of a volt of noise keeps the scale", applied,
+                FeederSubsystem.steppedScale(applied, 12.0 / 11.05, FeederSubsystem.SCALE_STEP), EPS);
+        assertEquals("a real sag moves it", 12.0 / 10.8,
+                FeederSubsystem.steppedScale(applied, 12.0 / 10.8, FeederSubsystem.SCALE_STEP), EPS);
+    }
+
+    @Test
+    public void switchingCompensationOffAppliesAtOnce() {
+        assertEquals(1.0, FeederSubsystem.steppedScale(1.005, 1.0, FeederSubsystem.SCALE_STEP), EPS);
+        assertEquals("off stays off", 1.0, FeederSubsystem.steppedScale(1.0, 1.0, FeederSubsystem.SCALE_STEP), EPS);
+    }
 }

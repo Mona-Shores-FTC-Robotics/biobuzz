@@ -125,7 +125,7 @@ public class Robot {
         // After the drive and the hive: an aim this loop uses this loop's pose and HIVE state.
         turret = new TurretSubsystem(hardwareMap);
         indicator = new IndicatorSubsystem(hardwareMap);
-        colorSensor = new ColorSensorSubsystem(hardwareMap, launcher, intake, prefeed);
+        colorSensor = new ColorSensorSubsystem(hardwareMap, launcher, intake, prefeed, feeder);
         // The intake holds the last piece in once the lane is full (IntakeSubsystem.holdWhenFull).
         intake.laneFull(colorSensor::full);
         // And the prefeed stops, the stars and a slow roller holding the last piece (PrefeedSubsystem.stopWhenFull).

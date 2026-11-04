@@ -97,6 +97,18 @@ These gate Belding. Run each from its start, alliance from §2.
 
 - [ ] **Loop Time Baseline, then one Auto run.** `/Robot/LoopMs` median and p95 (2 Nov R-Quals:
       26.7 / 47.7 ms). → [PR #378]. [S5 seam §1]
+- [ ] **Loop-time cuts, before and after:** Loop Time Baseline and one R-Solo-Staging run on master,
+      then the same on branch `claude/adoring-dirac-3ag180`, then 2 min of Basic Drive on it (intake
+      to full, drive, fire four). Compare with `tools/pull-logs/read_logs.py series`:
+      `/Robot/LoopMs` (median, p95), `/Loop/PageMs` (p95), `/Loop/Subsystem/ColorSensorSubsystemMs`,
+      `FeederSubsystemMs`, `LauncherSubsystemMs`, `IntakeSubsystemMs` (means). **Good:** PageMs p95
+      well under 8 ms; Launcher, Intake and Feeder means each lower by about the current reads they
+      dropped (Feeder stays near 3.6 ms: that is the Expansion Hub's bulk read, not the feeder);
+      ColorSensor lower while `/Intake/HoldingForFull` is 1 (`/ColorSensor/Watching` 0 there). The
+      lane still goes full (indicator green, "Wait for IntakeFull" ends on the sensor), full clears
+      in the first loop of a feed, and every volley still feeds all four. **Stop:** full late or
+      stuck → `ColorSensorSubsystem.readIdleEveryMs` 50 in Panels (reads as before) and note the
+      log; Panels field too jumpy → `FieldLayers.drawEveryMs` 100.
 - [ ] **The Autonomous list on the Driver Station shows exactly the five** and nothing named
       R-Simple, R-Quals, L-Simple or L-Quals. **Good:** five entries, the names above. **Stop:** an old
       name is listed → a full TeamCode install, then look again. [PR #375]
