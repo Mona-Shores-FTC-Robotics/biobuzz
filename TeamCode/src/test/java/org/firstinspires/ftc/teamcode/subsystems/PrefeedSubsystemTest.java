@@ -55,6 +55,32 @@ public class PrefeedSubsystemTest {
     }
 
     @Test
+    public void aFullLaneStopsTakingIn() {
+        assertEquals(State.IDLE, PrefeedSubsystem.requestFor(IntakeSubsystem.State.IN, FeederSubsystem.State.IDLE, true));
+        assertEquals(State.IN, PrefeedSubsystem.requestFor(IntakeSubsystem.State.IN, FeederSubsystem.State.IDLE, false));
+    }
+
+    @Test
+    public void aFullLaneStillFeedsAndBacksOut() {
+        assertEquals("a shot still pushes", State.IN,
+                PrefeedSubsystem.requestFor(IntakeSubsystem.State.IN, FeederSubsystem.State.FEED, true));
+        assertEquals(State.IN, PrefeedSubsystem.requestFor(IntakeSubsystem.State.IDLE, FeederSubsystem.State.FEED, true));
+        assertEquals("unjam still backs out", State.OUT,
+                PrefeedSubsystem.requestFor(IntakeSubsystem.State.IN, FeederSubsystem.State.REVERSE, true));
+        assertEquals(State.OUT, PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, true));
+    }
+
+    @Test
+    public void notFullIsTheTwoArgumentPolicy() {
+        for (IntakeSubsystem.State intake : INTAKE) {
+            for (FeederSubsystem.State feeder : FEEDER) {
+                assertEquals(intake + "/" + feeder, PrefeedSubsystem.requestFor(intake, feeder),
+                        PrefeedSubsystem.requestFor(intake, feeder, false));
+            }
+        }
+    }
+
+    @Test
     public void idleIsZeroWhateverThePowers() {
         assertEquals(0.0, PrefeedSubsystem.powerFor(State.IDLE, 0.8, 0.6, false), EPS);
         assertEquals(0.0, PrefeedSubsystem.powerFor(State.IDLE, 0.8, 0.6, true), EPS);

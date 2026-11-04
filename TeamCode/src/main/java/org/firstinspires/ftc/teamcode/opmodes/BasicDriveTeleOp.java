@@ -40,7 +40,9 @@ import java.util.Locale;
  *
  * <p>Which input does what is {@link ControlScheme}, one layout for both teams. Both people run
  * the intake (R2) and unjam (L2), the driver winning when both press ({@link IntakeArbiter}); unjam
- * on either pad also reverses the feeder. The Driver Station's Controls page (Share) and the
+ * on either pad also reverses the feeder. R2 toggles the intake on and off ({@link IntakeToggle},
+ * {@code TeleOpConfig.intakeToggle}); left on, it stops taking in while the lane is full and starts
+ * again when a shot makes room. The Driver Station's Controls page (Share) and the
  * printed cheat sheet are both generated from the layout. Nothing here names a button.
  *
  * <p>Buttons do what is asked at once. Fire feeds the moment it is held: the checks a shot could
@@ -383,7 +385,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             }
             boolean driverIn = controls.held(Action.INTAKE);
             boolean operatorIn = controls.held(Action.OPERATOR_INTAKE);
-            // Solo testing (TeleOpConfig.intakeToggle): either intake button toggles the intake,
+            // TeleOpConfig.intakeToggle (on by default): either intake button toggles the intake,
             // which then runs as the operator's request, so a held unjam still wins.
             if (intakeToggle.update(TeleOpConfig.intakeToggle, driverIn || operatorIn)) {
                 driverIn = false;
@@ -427,7 +429,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.status("Lane", Display.Level.OK, robot.colorSensor.full() ? "full" : "room");
         display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
         if (TeleOpConfig.intakeToggle) {
-            display.line("Intake toggle (testing): " + (intakeToggle.on() ? "ON, R2 again to stop" : "off, R2 to start"));
+            display.status("R2 intake", intakeToggle.on() ? Display.Level.WARN : Display.Level.OK,
+                    !intakeToggle.on() ? "off, R2 to start"
+                            : robot.colorSensor.full() ? "ON, holding (lane full), R2 to stop"
+                            : "ON, R2 to stop");
         }
         robot.launcher.describe(display);
         if (launcherTrimTps != 0.0) {

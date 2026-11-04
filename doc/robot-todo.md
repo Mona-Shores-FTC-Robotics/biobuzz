@@ -245,6 +245,10 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
 - [ ] Load 4, launcher at speed, hold FIRE: all 4 leave. [PR #320]
 - [ ] R2 toggles the intake with its Panels switch on; feeder runs whenever intaking. [PR #321],
       [PR #327]
+- [ ] R2 toggles the intake by default (no Panels switch). Toggled on, load 4: at full the roller
+      and the prefeed stop, the stars keep the 4th in, the Match page says "holding (lane full)"; one
+      shot and both start again. A piece that only pauses under the slot-3 sensor must not leave it
+      stuck "full" (if it does, `PrefeedSubsystem.stopWhenFull` off). (intake toggle + prefeed stop)
 - [ ] Unjam with a ball on the launcher wheels: rolls back, launcher returns to speed. [PR #323]
 - [ ] Launch Test on gamepad 1, operator layout. [PR #324]
 - [ ] Turret locked: hold Circle after intaking, the chassis settles on the CELL. [PR #329]

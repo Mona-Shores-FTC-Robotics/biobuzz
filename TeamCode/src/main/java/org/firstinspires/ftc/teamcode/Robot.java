@@ -128,6 +128,8 @@ public class Robot {
         colorSensor = new ColorSensorSubsystem(hardwareMap, launcher, intake, prefeed);
         // The intake stops its roller once the lane is full (IntakeSubsystem.stopRollerWhenFull).
         intake.laneFull(colorSensor::full);
+        // And the prefeed with it, the stars still holding the last piece (PrefeedSubsystem.stopWhenFull).
+        prefeed.laneFull(colorSensor::full);
 
         subsystems = Collections.unmodifiableList(
                 Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, feeder, launcher, intake, prefeed,

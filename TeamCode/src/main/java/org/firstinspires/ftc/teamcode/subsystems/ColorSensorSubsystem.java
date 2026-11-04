@@ -88,8 +88,11 @@ public class ColorSensorSubsystem implements Subsystem {
      * logs will tighten it (likely 0.6 to 0.8 s): every full on and off is a match-log event with
      * the dwell and the lane tracker's count.
      *
-     * <p>A false full mends itself: the roller stops, the stars keep pulling the piece through, the
-     * sensor clears, full clears and the roller runs again. So an aggressive value is safe.
+     * <p>A false full does not always mend itself: the roller and the prefeed stop
+     * ({@code PrefeedSubsystem.stopWhenFull}), and a piece that only paused under the sensor stays
+     * there until a shot or an unjam moves it. So tighten this only from logs; if false fulls stick
+     * at an event, turn {@code stopWhenFull} off first (the stars and the prefeed then carry a paused
+     * piece through again, as before 4 Nov 2026).
      */
     public static double fullHoldS = 1.0;
 

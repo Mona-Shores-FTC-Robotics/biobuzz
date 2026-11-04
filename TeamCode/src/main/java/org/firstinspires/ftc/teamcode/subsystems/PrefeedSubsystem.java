@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 
 import java.util.Locale;
+import java.util.function.BooleanSupplier;
 
 /**
  * The prefeed wheel: the big grey wheel at the start of the transfer, on a goBILDA Torque servo in
@@ -21,6 +22,10 @@ import java.util.Locale;
  * pure function a test can check. It is updated after the intake and the feeder, so it follows this
  * loop's request, not last loop's. {@link #override} replaces that for a bench; {@link #follow}
  * gives it back.
+ *
+ * <p>Once the lane is full ({@link #stopWhenFull}) taking in stops running it, as the intake's
+ * roller stops, so nothing more is pushed up the lane while the star wheels hold the last piece; a
+ * feed still runs it, and the moment a shot moves the piece off the sensor, taking in runs it again.
  *
  * <p><b>Not yet checked on a robot:</b> the powers, the direction ({@link #reversed}), and whether
  * the prefeed should back out with the intake at all ({@link #outPower}, 0 turns that off).
@@ -67,6 +72,15 @@ public class PrefeedSubsystem implements Subsystem {
      */
     public static double gateClearPower = 0.0;
 
+    /**
+     * Whether the prefeed stops when the lane is full and only the intake was asking for it, the
+     * star wheels still turning to hold the last piece in (the mentor's call, 4 Nov 2026). A feed
+     * still runs it and an unjam still backs it out. Off if a false full sticks: with the prefeed
+     * stopped, a piece that only paused under the sensor stays there until a shot or an unjam
+     * moves it ({@code ColorSensorSubsystem.fullHoldS}). Read every loop, so a Panels edit applies at once.
+     */
+    public static boolean stopWhenFull = true;
+
     private final CRServo servo;
     private final IntakeSubsystem intake;
     private final FeederSubsystem feeder;
@@ -77,6 +91,9 @@ public class PrefeedSubsystem implements Subsystem {
     private boolean wasFeeding;
     private long feedStartNs;
     private boolean clearingGate;
+    private boolean stoppedForFull;
+    /** Whether the lane is full; never until {@link #laneFull} is called. */
+    private BooleanSupplier laneFull = () -> false;
 
     /**
      * Looks the servo up once. A missing servo fails init with the SDK's own message.
@@ -88,6 +105,14 @@ public class PrefeedSubsystem implements Subsystem {
         servo = hardwareMap.get(CRServo.class, DeviceNames.PREFEED);
         this.intake = intake;
         this.feeder = feeder;
+    }
+
+    /**
+     * Where to read whether the lane is full, for {@link #stopWhenFull}. Wired once by
+     * {@code Robot} to the colour sensor, as the intake's roller stop is.
+     */
+    public void laneFull(BooleanSupplier full) {
+        laneFull = full;
     }
 
     /** Hold the prefeed in {@code state} whatever the intake and feeder ask, for a bench. */
@@ -120,6 +145,11 @@ public class PrefeedSubsystem implements Subsystem {
         return clearingGate;
     }
 
+    /** Whether the last {@link #update()} stopped the prefeed because the lane is full ({@link #stopWhenFull}). */
+    public boolean stoppedForFull() {
+        return stoppedForFull;
+    }
+
     /** Start idle and unwritten: the servo is not touched until PLAY. */
     @Override
     public void initialize() {
@@ -129,6 +159,7 @@ public class PrefeedSubsystem implements Subsystem {
         started = false;
         wasFeeding = false;
         clearingGate = false;
+        stoppedForFull = false;
     }
 
     /** PLAY: the servo may be written from now on. */
@@ -145,7 +176,14 @@ public class PrefeedSubsystem implements Subsystem {
      */
     @Override
     public void update() {
-        state = override != null ? override : requestFor(intake.starsState(), feeder.state());
+        if (override != null) {
+            state = override;
+            stoppedForFull = false;
+        } else {
+            boolean full = stopWhenFull && laneFull.getAsBoolean();
+            state = requestFor(intake.starsState(), feeder.state(), full);
+            stoppedForFull = full && requestFor(intake.starsState(), feeder.state()) != state;
+        }
         boolean feeding = override == null && feeder.state() == FeederSubsystem.State.FEED;
         if (feeding && !wasFeeding) {
             feedStartNs = System.nanoTime();
@@ -182,6 +220,7 @@ public class PrefeedSubsystem implements Subsystem {
                 (clearingGate ? String.format(Locale.US, "clearing the gate (%.2f)", power)
                         : state == State.IN ? String.format(Locale.US, "IN (%.2f)", power)
                         : state == State.OUT ? String.format(Locale.US, "OUT (%.2f)", power)
+                        : stoppedForFull ? "idle (lane full)"
                         : "idle") + (override != null ? " · held by the bench" : ""));
     }
 
@@ -191,10 +230,22 @@ public class PrefeedSubsystem implements Subsystem {
      * Backing out wins, because clearing a jam is always allowed.
      */
     public static State requestFor(IntakeSubsystem.State intake, FeederSubsystem.State feeder) {
+        return requestFor(intake, feeder, false);
+    }
+
+    /**
+     * As {@link #requestFor(IntakeSubsystem.State, FeederSubsystem.State)}, and with {@code stopForFull}
+     * (the lane is full and {@link #stopWhenFull} is on) taking in no longer runs the prefeed: only a
+     * feed carries pieces toward the gate then. Backing out still wins, and a feed still pushes.
+     */
+    public static State requestFor(IntakeSubsystem.State intake, FeederSubsystem.State feeder, boolean stopForFull) {
         if (intake == IntakeSubsystem.State.OUT || feeder == FeederSubsystem.State.REVERSE) {
             return State.OUT;
         }
-        if (intake == IntakeSubsystem.State.IN || feeder == FeederSubsystem.State.FEED) {
+        if (feeder == FeederSubsystem.State.FEED) {
+            return State.IN;
+        }
+        if (intake == IntakeSubsystem.State.IN && !stopForFull) {
             return State.IN;
         }
         return State.IDLE;
