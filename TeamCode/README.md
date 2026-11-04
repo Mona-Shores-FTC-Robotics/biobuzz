@@ -1087,6 +1087,13 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   from RIGHT_START it keeps pieces from about 1500 to 1650 ticks/s where the robot's tuning shows about ±1.5%
   (a real CELL spits a piece that hits its back or lip too fast). `LauncherSetpointTest`
   (`BIOBUZZ_SIM_CHECKS=1`) checks both spots; `BIOBUZZ_SIM_IDEAL_SPEED=1` puts back the speed per distance.
+- **The human's long roll** (`BIOBUZZ_AUTO_HUMAN_ENTRY=aim`, for PR #424's study): each owed NECTAR is rolled
+  from the LOADING ZONE (released on the tile at `AutoSim.humanAimFrom`, (5.5, 95) for red) at the intake mouth
+  of a robot on a team spot (`BIOBUZZ_AUTO_HUMAN_AIM_SPOT`, a `spots.json` name or `x,y,heading`;
+  RIGHT_LAUNCH_OFFSET by default), at 21 ± 2 in/s (`_AIM_SPEED`) with a 2° aim spread (`_AIM_SPREAD_DEG`), once
+  no robot is within 12 in of the release and not before `_AIM_AT_S` on the match clock if set;
+  `BIOBUZZ_AUTO_HUMAN_BANK=N` banks them. Every number is a placeholder until the long-roll drill measures it.
+  Off by default; `HumanRollTest` (`BIOBUZZ_SIM_CHECKS=1`) checks a dead-on roll reaches the spot's robot.
 - **Results.** Each partner run gets its own folder, `<partner .pp name>/<timing name>/`, with its
   `result.json` and logs, and the top `result.json` carries `entries`: one row per run with the
   points, our launches (and how many went at a down CELL), the TIPs and when, the partner's last

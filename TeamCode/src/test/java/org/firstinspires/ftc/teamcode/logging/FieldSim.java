@@ -1025,6 +1025,34 @@ final class FieldSim {
         return false;
     }
 
+    /**
+     * The same NECTAR rolled across the field instead, aimed at a robot (PR #424's long roll to RIGHT_LAUNCH_OFFSET or
+     * RIGHT_LAUNCH_CATCH, 78 to 105 in): released on the tile at {@code from} (inside the LOADING ZONE, G427: its first
+     * touch is the zone's tile) rolling along {@code headingRad} at {@code speedInPerS}. It slows by NECTAR's rolling
+     * resistance and meets whatever is on its line. Returns false once all 5 are in.
+     */
+    boolean enterNectarAimed(Alliance alliance, double[] from, double headingRad, double speedInPerS) {
+        Kind kind = alliance == Alliance.BLUE ? Kind.BLUE_NECTAR : Kind.RED_NECTAR;
+        for (Piece p : pieces) {
+            if (p.where != Where.OUTSIDE || p.kind != kind) continue;
+            p.where = Where.FIELD;
+            p.x = from[0];
+            p.y = from[1];
+            p.z = NECTAR_RADIUS_IN + 0.05;
+            p.vx = speedInPerS * Math.cos(headingRad);
+            p.vy = speedInPerS * Math.sin(headingRad);
+            p.vz = 0;
+            // Rolling, not sliding: spin to match.
+            p.wx = -p.vy / NECTAR_RADIUS_IN;
+            p.wy = p.vx / NECTAR_RADIUS_IN;
+            p.wz = 0;
+            events.add(String.format(Locale.ROOT, "human: %s rolled from (%.1f, %.1f) at %.0f in/s, heading %.1f deg",
+                    name(kind), p.x, p.y, speedInPerS, Math.toDegrees(headingRad)));
+            return true;
+        }
+        return false;
+    }
+
     /** Messages since the last call: shots scored, tips, spills. */
     List<String> drainEvents() {
         List<String> out = new ArrayList<>(events);
