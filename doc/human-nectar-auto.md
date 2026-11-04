@@ -8,10 +8,11 @@ direction (Q7), they never touch it again, and they never signal the robot.
 
 ## The answer
 
-- **NECTAR #2 has no use in AUTO.** It comes after TIP 2, which falls at 16–28 s in every run below, and no third
-  TIP fits after that. The human should **keep #2 for TELEOP**: a NECTAR does not have to go in the moment it is
-  earned (G426 note). It also should not go in while our robots park in the zone (LEFT_PARK and RIGHT_PARK are both
-  in it, and G427.C applies).
+- **For R-Solo and L-Partner, NECTAR #2 has no use in AUTO.** It comes after TIP 2 (16–28 s) and they have no
+  third TIP, so the human **keeps #2 for TELEOP** (a NECTAR need not go in when it is earned, G426 note). It also
+  should not go in while our robots park in the zone (LEFT_PARK, RIGHT_PARK; G427.C). **The 3-TIP swap pairs are
+  the exception**: there both NECTARs can be banked and rolled to a RIGHT launch spot for TIP 3 (see
+  "Receiving at a RIGHT launch spot" below, the mentor's correction).
 - **NECTAR #1 earns no extra points of its own.** The robot holds 4 pieces, so a NECTAR takes a POLLEN's place in
   the TIP-2 volley. What it adds is weight: 1N+7P is 8.65 POLLEN-weights where 8P is 8.0. That gives a one-POLLEN
   miss margin only if the TIP point lies between 7.3 and 7.65, and the Field Setup Guide cases only bound it between
@@ -22,7 +23,11 @@ direction (Q7), they never touch it again, and they never signal the robot.
   **Measure our AUTO shot percentage from the match logs first.** That one number makes the decision.
 - **If we pursue it:** start with **R-Solo** (it does not depend on a partner's timing), then L-Partner when the
   partner's last shot is 8 s or earlier. Use a drive-in grab of a NECTAR dropped in the middle of the zone, taken
-  after the first LEFT volley. Do not use a waiting catch, and do not stay at a launch spot. The details are below.
+  after the first LEFT volley. Do not use a waiting catch, and do not stay at the LEFT launch spot.
+- **Receiving at a RIGHT launch spot** (the mentor's correction) is the bigger prize: 2 banked NECTARs, 3.3
+  POLLEN-weights, put into the RIGHT CELL with no travel, which is TIP 3's margin in the swap pairs. It rests on two
+  things nobody has measured yet: an 80–105 in roll that arrives within ±2–4° during a volley, and the swap pairs'
+  GARDEN load (the simulator has no GARDEN). **Do the roll drill and the intake bench test first.**
 
 ## Where #1 can be taken (R-Solo, and L-Partner)
 
@@ -98,6 +103,92 @@ It is geometrically possible, but it costs more than driving over to grab it.
 - Only a rear intake or a turret would let the robot wait at the spot without turning, and the mentor has decided
   against a turret.
 
+## Receiving at a RIGHT launch spot (the mentor's correction, 4 Nov)
+
+Without a turret the intake faces the launch direction. At the RIGHT spots the robot faces up-field toward the
+LOADING ZONE, so a roll can reach the intake while the robot shoots. The intake already runs inward during every feed
+(`IntakeSubsystem`, "Running for a feed": the stars, and the roller unless `rollerWhileFeeding` is off), so a NECTAR
+that arrives during the volley is pulled in and fired with no turn and no travel.
+
+**Geometry** (release inside the zone at x 5.5, robot frame 8.1 in from centre to intake mouth, mouth taken as 12 in
+wide):
+
+| Spot | Release y 95 | Release y 117 | Aim tolerance |
+|---|---|---|---|
+| RIGHT_LAUNCH_OFFSET (41, 20, 68.7°) | 78 in, 51° off the intake axis | 97 in, 45° off | ±3.5–4.5° |
+| RIGHT_LAUNCH_CATCH (57.5, 18, 91.9°) | 86 in, 35° off | 105 in, 28° off | ±3.3–4.0° |
+
+Release from the zone's **near end (y ≈ 95)**: it is the shortest roll, and the aim is the least critical there.
+
+**Roll speed.** At the simulator's NECTAR rolling resistance (1.5 in/s², from match video), 80–100 in needs about
+17–20 in/s at release to arrive at 6–10 in/s, and takes **6–8 s**. In the simulator, 19–25 in/s rolls arrived in
+4–6 s. The one filmed entry (Saline P3) went 17–20 in/s and stopped after 11 in. If that is the tiles' real rolling
+resistance, a roll this long cannot be done at all. **The drill's first measurement decides whether the idea lives.**
+A volley lasts about 4 s and the roll 4–8 s, so the human releases **before the robot arrives**, timed off the
+robot's drive, not off its stop. That is still legal: the NECTAR's first touch is the zone tile, no robot is in the
+zone, and nobody signals the robot.
+
+**Simulator check (local hack, not committed).** I added an aimed roll from (5.5, 95) to the intake mouth of a robot
+waiting at RIGHT_LAUNCH_OFFSET with its intake on, 20 seeds per cell, subtracting the 0.70 NECTAR a run that the
+robot picks up from the TIP-1 spill:
+
+| Aim spread (1σ) | 18 in/s | 21 in/s | 25 in/s |
+|---|---|---|---|
+| 0° | 65 % | 80 % | 75 % |
+| 2° | 50 % | 65 % | 75 % |
+| 4° | 30 % | 35 % | 45 % |
+
+So ±2° is the target for the human, and ±4° loses about half the rolls. The robot here was waiting, not firing. The
+simulator's intake takes pieces whenever it is not full, so these numbers stand in for feed assist and say nothing
+about how the real roller handles a ball 30–50° off its axis. That is the bench test below.
+
+**What the simulator cannot express today:** its rolled entry (`BIOBUZZ_AUTO_HUMAN_ENTRY=roll`) rolls only along the
+wall, and its cue (`BIOBUZZ_AUTO_HUMAN_CUE=1`) waits for a robot at one fixed spot (10, 96). An aimed roll needs a
+release point, a target, a speed and an aim spread. The hack above is about 25 lines in `FieldSim`/`AutoSim` and can
+be made a proper option (say `BIOBUZZ_AUTO_HUMAN_ENTRY=aim`) if the mentor wants it. The bigger gap: **the simulator
+has no GARDEN** (`GardenGather: no GARDEN in the simulator: standing 6.0 s, taking nothing`). Both swap-pair L drafts
+load TIP 3 from it, so TIP 3 cannot be scored in the simulator, with or without NECTAR. In the baseline swap-pair runs
+(`R3TipA/B` with `L3TipA/B`, 20 seeds), L arrives at the RIGHT spot empty, and TIP 3 never happens.
+
+**Obstacles on the roll line** (zone → RIGHT_LAUNCH_OFFSET runs through the wall lane, x 5–44, y 27–95):
+- **The WALL FLOWER** (2.7, 47.4) is 26–37 in off the line: it is clear.
+- **The TIP-1 spill** lands around the RIGHT spots, and in the simulator the RIGHT CELL's starting NECTAR ends up
+  there too: the waiting robot picked up 0.7 NECTAR a run from it. Loose POLLEN at the end of the line can deflect
+  the roll or be taken first.
+- **Our own robots, which is the real problem.** In Pair A, L drives the wall lane to RIGHT_LAUNCH_OFFSET at
+  19.1–20.7 s, just when the rolls must be released. In Pair B, R crosses back south through the wall lane at
+  23.7–26.8 s, across the line during L's RIGHT volley (21.7–25.7 s). Rolls go only when the lane is clear, so
+  Pair B needs R to wait, or to cross in the centre lane.
+- **The GARDEN**, near GARDEN_STAGING (11.5, 22), sits by the wall, short of the line's end.
+
+**Payoff.** RIGHT needs more than 7.3 POLLEN-weights for TIP 3 (8.0 tips, 7.3 does not).
+- **Pair B** (L 4 from the GARDEN, R 4 from the SCORING FLOWER): 8 becomes **11.3**, a margin of three POLLEN. Or L's
+  4 + 2N = 7.3, and R's *first* ball makes 8.3: TIP 3 comes about 3 s sooner (R's last ball ≈ 29.7 s → about 27 s),
+  which is the swap pairs' known timing problem.
+- **Pair A**: R's spill catch gave 1–3 in the simulator, so 4 + 3 = 7 fails, and **+2N = 10.3 tips**.
+- **R-Solo's RIGHT route**: 4P + 2N = 7.3, still one short. The guard skips that volley anyway (24.2 s), so it is no
+  use to R-Solo.
+- **G407**: a NECTAR arriving while the robot still holds 4 would make 5. It must arrive after the first ball has
+  left, or the lane-full hold must refuse it. Check this in the bench test.
+
+**Bench test: the intake taking a ball off axis.** On the bench robot, launcher off, feed running as in a volley:
+1. Roll a NECTAR from a ramp into the intake at 6 and 12 in/s (the speeds at the end of a long roll), at 0°, 25°,
+   35° and 45° off the intake axis, and at the mouth's centre and ±4 in. Do 10 of each, first with feed assist
+   alone, then with the roller on.
+2. Count taken / bounced off / deflected past, and time from contact to held.
+3. Repeat with 4 held and with 3 held, to see what the lane-full hold does (G407).
+4. Pass: 9 in 10 taken out to 35° at the mouth's centre. Otherwise find the angle where it starts to fail; it decides
+   between RIGHT_LAUNCH_CATCH (28–35°) and RIGHT_LAUNCH_OFFSET (45–51°).
+
+**Human drill: the long roll.** Tape a 12 in gate on the floor 85 in from a release mark (the real spot's distance),
+on foam tiles with seams like the field's.
+1. Release in the air, low, at about 20 in/s toward the gate. Do 20 a person.
+2. Record for each: whether it reaches the gate, how far off its centre, its time to the gate (from video), and its
+   speed there. The **first five rolls answer the go/no-go**: if it stops short at any sane speed, stop here.
+3. Targets: 17 of 20 through the gate (±2°), arriving in 4–6 s, the two banked rolls 0.6–1 s apart.
+4. Then on the field with a robot running the swap-pair L's RIGHT volley: release on the robot's drive into the spot
+   (a fixed point on its path, chosen from the drill's roll time), and count NECTARs fired.
+
 ## Recommendation
 
 1. **Now:** the human player keeps NECTAR #2 for TELEOP, and enters #1 in AUTO only once an Auto takes it. A NECTAR
@@ -109,7 +200,11 @@ It is geometrically possible, but it costs more than driving over to grab it.
    FLOWER. Re-run the spread-2 study with it. L-Partner gains as much (7/20 → 12/20 at spread 2) but comes second:
    with a partner whose last shot is at 12 s, its TIP 2 moves to 29.1 s. Skip the grab there, for example with an
    INIT option keyed to the partner's last shot.
-4. **Drop the waiting catch and the stay-at-spot roll.** Both cost twice as much time as the drive-in grab.
+4. **Drop the waiting catch and the LEFT stay-at-spot roll.** Both cost twice as much time as the drive-in grab.
+5. **The RIGHT reception for the swap pairs, in parallel:** the long-roll drill's first five rolls (go/no-go), then the
+   intake bench test. If both pass, give the simulator a GARDEN and an aimed-roll entry, and score TIP 3 with and
+   without the two NECTARs. Plan the pairs so that no robot uses the wall lane while the rolls are out (Pair B's R
+   crossing back).
 
 ## Practice drill for the human player (the drop the drive-in grab wants)
 
