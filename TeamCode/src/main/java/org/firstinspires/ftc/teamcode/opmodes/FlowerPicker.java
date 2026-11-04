@@ -52,15 +52,19 @@ public final class FlowerPicker extends GrabRoutine {
     public static double approachStandoffIn = 24.0;
     /**
      * Where the push aims: this far back from the FLOWER's centre, inches. The push also ends when the
-     * robot stalls against the FLOWER, and the 29 Oct 2026 logs on 20245 put that stall at 12.2 to
-     * 12.5 in (as odometry had it), so 12.0 is the touch point itself: a pose a fraction of an inch
-     * long ends the push "reached" with the stick short of the FLOWER. A target 2 to 3 in less would
-     * make a correct pose end by stall and leave that much grace for a long one; the push is still
-     * well inside {@link #pushTimeoutMs} (a 12 in push takes 0.75 to 1.2 s). To be measured, three
-     * picks at each value, before the default changes (doc/robot-session-5.md). The Visualizer's
-     * {@code CONTACT_STANDOFF_IN} changes with it.
+     * robot stalls against the FLOWER. The 29 Oct 2026 logs on 20245 put that first touch at 12.2 to
+     * 12.5 in (as odometry had it), so a target of 12.0 ends "reached" with the stick short of the
+     * FLOWER whenever the pose is a fraction of an inch long, and on 3 Nov an Auto's FAR pick did
+     * exactly that (camera 1.8 in further out than odometry, intake current flat, nothing taken). With
+     * 5.0 the next Auto's pick took pieces but the intake then stalled for the rest of that run (cause
+     * not proven). 7.0 is the mentor's start (3 Nov 2026): a right pose stalls about 5 in short of the
+     * target, and a pose up to that much long still touches. At the target the face is about 1.6 in from
+     * the wall (7.0 less the frame's 8.1 half, plus the FLOWER's 2.71 off the wall), so a pose more
+     * than that short drives the face into the wall. Three picks per value is the check
+     * (doc/robot-todo.md); the pick's start line in the match log says the value in use. The
+     * Visualizer's {@code CONTACT_STANDOFF_IN} changes with it.
      */
-    public static double contactStandoffIn = 12.0;
+    public static double contactStandoffIn = 7.0;
     /**
      * The stick goes down and the intake starts once the robot is this close to the line-up, inches:
      * the button's line-up, or, in an Auto, the end of the drive before the pick ({@link #approach}).
