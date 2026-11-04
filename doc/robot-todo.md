@@ -230,6 +230,20 @@ measurement is [#255].
 - [ ] **Copy 20245's Limelight pipeline** and run the 5-minute start check. [handoff] step 6
 - [ ] **Drive check table** (10 steps), on both robots. [#62]
 
+## 7b. Bench: Wall Eject (any field wall, 4 POLLEN, phone filming from above)
+
+Can an L robot set its preloads down against a wall, to collect later? Film every trial; the log
+has each trial's settings and measured back-up.
+
+- [ ] **Run Bench: Wall Eject** (Utility menu): intake against the wall, Cross runs one trial
+      (backs off 1.5 in, ejects at roller 0.3 / stars 0.3 for 2.5 s, feeder backing out too). Try
+      roller 0.2–0.5 (D-pad ▲▼), back-up 1–2 in (◀▶), feeder off (Square). **Good:** all four
+      rest at the wall within one robot width, none rolled more than a few inches. **Stop:** after
+      about 10 trials; note the best settings and whether they sat four wide or in a line.
+      [this branch, claude/quirky-allen-etn5xp]
+- [ ] **Then drive through them** with the intake on (Basic Drive) from the side and head-on.
+      **Good:** 4 of 4 collected in one pass. **Stop:** record how many of 4, over 5 tries.
+
 ## 8. If time: anyone, no driving
 
 - [ ] **Photograph both robots' hubs** for `doc/wiring/`, ports against the XML. [#33]
