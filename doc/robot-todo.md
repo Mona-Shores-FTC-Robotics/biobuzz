@@ -376,6 +376,18 @@ number down as it is found. [branch claude/launcher-tuning]
       spinning. **Good:** 12 shots counted for 12 fired, none while intaking. **Stop:** if a last
       ball goes uncounted, the gate shut before it reached the wheels: note how long after letting
       go its dip came (log), for a grace after the gate shuts.
+- [ ] **Is the shot count good enough to end a feed?** After the PIDF and feed pace above, fire 10
+      volleys of 4 the way an Auto does (`LaunchAll`, its whole 3.5 s feed), with a phone filming
+      the launcher. Per volley, write down the count (Launch Test page, or `/Launcher/Shots` in the
+      log) and the balls that left (video). The two mistakes cost different things: a count too low
+      only keeps the fixed feed, a count too high would end a feed with a ball still in the robot.
+      **Good:** no volley counted more than left, and at least 8 of 10 counted exactly 4. Then
+      `LaunchAll` can end its feed at the 4th counted shot, with the 3.5 s feed kept as the backstop:
+      0.5–1.5 s back per volley (the last ball leaves 1.7–3.0 s after the gate opens). **Stop:** any
+      over-count: note the volley's time and leave the feed fixed; a piece sensor (#164, #181) is
+      the other way to know the robot is empty. Read off the same 10 volleys how long the gate's
+      opening took to the first dip: a long one means the first ball is not waiting at the wheels.
+      [#433; mentor, 4 Nov 2026]
 - [ ] **Feed pace**, once the PIDF is set: the aim is each ball arriving after the wheels have
       recovered from the one before. Bench: Launch Test, `FeederSubsystem.feedPower` 0.6, then 0.8,
       then 1.0, 12 balls each (three volleys of 4), fresh battery, from one launch spot. Each dip's
