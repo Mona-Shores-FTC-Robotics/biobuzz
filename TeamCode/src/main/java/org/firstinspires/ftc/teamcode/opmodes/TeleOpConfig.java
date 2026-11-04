@@ -88,6 +88,15 @@ public final class TeleOpConfig {
      */
     public static boolean launchSpot = true;
 
+    /**
+     * The go-to-launch-spot button also launches: the launcher spins up as the drive starts, and
+     * once the robot is at the spot, aimed and settled, one volley feeds as the operator's FIRE
+     * would ({@link SpotVolley}). On for testing in Basic Drive (mentor, 4 Nov 2026): a testing
+     * choice the team may turn off to give the shot back to the operator. The operator's FIRE and
+     * launcher toggle keep working either way and win. Read at each press.
+     */
+    public static boolean goToSpotAlsoFires = true;
+
     /** Chassis aim: turn power per radian of heading error. A starting point, not a measurement. */
     public static double chassisAimKp = 1.0;
 

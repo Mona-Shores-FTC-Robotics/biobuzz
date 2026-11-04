@@ -3,10 +3,12 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.api.Paths;
 import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
 import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.localization.LaunchSpots;
+import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
@@ -28,8 +30,15 @@ import java.util.function.Consumer;
  * round the HIVE's frame, so a drive from beside the HIVE is watched on the robot first
  * ({@code doc/robot-todo.md}).
  *
- * <p>Every press is two match-log lines, for comparing practice logs with chassis-aim use: the start
- * (start pose, chosen spot, its distance) and the end (time to arrive, or let go early, and how far short).
+ * <p>With {@code TeleOpConfig.goToSpotAlsoFires} (on while testing), the press also launches: the
+ * launcher spins up as the drive starts (the OpMode does it, at the operator's launch speed and trim),
+ * and once the robot is at the spot, aimed and settled, one volley feeds through the same feeder,
+ * gate and prefeed path as the operator's FIRE ({@link SpotVolley}: the Autos' {@code LaunchAll}
+ * waits and feed time). Letting go stops the drive and the feed at once. The operator's FIRE wins.
+ *
+ * <p>Every press is match-log lines, for comparing practice logs with chassis-aim use: the start
+ * (start pose, chosen spot, its distance), the arrival, the gate opening, and the end (time to
+ * arrive, or let go early and how far short; who fired; shots counted).
  */
 @Configurable
 public final class LaunchSpotDrive {
@@ -48,16 +57,37 @@ public final class LaunchSpotDrive {
 
     private final Robot robot;
     private final Consumer<String> event;
+    /** The Autos' settle check (still, at the path's end heading), fed this drive's path. */
+    private final PathEndSettle settle;
+    private final SpotVolley volley = new SpotVolley();
 
     private Phase phase = Phase.IDLE;
     private LaunchSpots.Choice choice;
     private long startNs;
     private double arriveS = Double.NaN;
     private String result = "";
+    private Path path;
+    /** This press also fires ({@code TeleOpConfig.goToSpotAlsoFires}, read at the press). */
+    private boolean fires;
+    private boolean feed;
+    private boolean feedLogged;
+    private boolean operatorFired;
+    private int shotsAtStart;
 
     public LaunchSpotDrive(Robot robot, Consumer<String> event) {
         this.robot = robot;
         this.event = event;
+        this.settle = PathEndSettle.forRobot(robot, event);
+    }
+
+    /** The press asks the launcher to spin: driving or holding with {@code goToSpotAlsoFires}. */
+    public boolean wantsLauncher() {
+        return active() && fires;
+    }
+
+    /** The button's volley asks the feeder to feed this loop (the OpMode's fire decides with it). */
+    public boolean feedRequested() {
+        return feed;
     }
 
     /** Pedro is driving or holding the robot: nothing else may drive it. */
@@ -71,9 +101,11 @@ public final class LaunchSpotDrive {
      * @param held        the button is held
      * @param alliance    ours ({@code setup.alliance()})
      * @param sticksMoved a drive stick is off centre: the driver wants the robot back
+     * @param operatorFiring the operator's FIRE is held: it wins over the button's volley
      */
-    public void update(boolean held, Alliance alliance, boolean sticksMoved) {
+    public void update(boolean held, Alliance alliance, boolean sticksMoved, boolean operatorFiring) {
         long now = System.nanoTime();
+        feed = false;
         if (!held) {
             if (active()) end(now, "let go");
             phase = Phase.IDLE;
@@ -97,11 +129,22 @@ public final class LaunchSpotDrive {
                 // Pedro's parametric end: the Follower now holds the spot until the button is let go.
                 phase = Phase.HOLDING;
                 arriveS = s(now);
+                settle.pathEnded(path);
                 event.accept(String.format(Locale.US, "launch spot: arrived at %s in %.2f s, %s",
                         choice.spot, arriveS, offBy()));
             } else if (!(s(now) * 1000.0 <= timeoutMs)) { // NaN or negative: give up at once
                 end(now, "timed out");
+                return;
             }
+        }
+        settle.update();
+        if (operatorFiring) operatorFired = true;
+        if (!fires) return;
+        feed = volley.update(s(now), phase == Phase.HOLDING, robot.launcher.atSpeed(), settle.settled(), operatorFiring);
+        if (volley.fired() && !feedLogged) {
+            feedLogged = true;
+            event.accept(String.format(Locale.US, "launch spot: gate open %.2f s after the press (%.2f s after arriving), %s",
+                    volley.feedStartS(), volley.feedStartS() - arriveS, volley.why()));
         }
     }
 
@@ -113,16 +156,31 @@ public final class LaunchSpotDrive {
                 return String.format(Locale.US, "Launch spot: driving to %s, %.0f in to go · %.1f s",
                         choice.spot, remainingIn(), s(now));
             case HOLDING:
-                return String.format(Locale.US, "Launch spot: AT %s, holding (arrived in %.1f s) · let go to drive",
-                        choice.spot, arriveS);
+                return String.format(Locale.US, "Launch spot: AT %s, holding (arrived in %.1f s)%s · let go to drive",
+                        choice.spot, arriveS, volleyNote());
             default:
                 return result;
+        }
+    }
+
+    /** On the Match page while holding: what the button's volley is doing. */
+    private String volleyNote() {
+        if (!fires) return "";
+        switch (volley.phase()) {
+            case WAITING: return " · volley: waiting for speed and settle";
+            case FEEDING: return " · volley: FEEDING";
+            case DONE: return " · volley: fed";
+            case YIELDED: return " · volley: the operator's";
+            default: return "";
         }
     }
 
     private void start(long now, Alliance alliance) {
         startNs = now;
         arriveS = Double.NaN;
+        feedLogged = false;
+        operatorFired = false;
+        fires = false;
         Pose pose = robot.drive.pose();
         choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, startOffWallIn);
         if (choice.refused()) {
@@ -142,21 +200,39 @@ public final class LaunchSpotDrive {
         Pose to = choice.target;
         robot.drive.setAccelLimited(true);
         // The same call shape as the FLOWER pick's line-up and the generated Autos' paths.
-        robot.drive.follow(Paths.line(pose, to)
+        path = Paths.line(pose, to)
                 .heading(Interpolator.piecewise().until(1, Interpolator.linear(pose, to)))
-                .with(Constants.forActiveRobot().foresightConfig.maxPathSpeed.at(GrabRoutine.unitFraction(speed))));
+                .with(Constants.forActiveRobot().foresightConfig.maxPathSpeed.at(GrabRoutine.unitFraction(speed)));
+        robot.drive.follow(path);
+        settle.pathStarted(path);
         phase = Phase.DRIVING;
-        event.accept(String.format(Locale.US, "launch spot: start %s → %s %s, %s",
-                where(pose), choice.spot, where(to), choice));
+        fires = TeleOpConfig.goToSpotAlsoFires;
+        if (fires) volley.start();
+        shotsAtStart = robot.launcher.shots();
+        event.accept(String.format(Locale.US, "launch spot: start %s → %s %s, %s%s",
+                where(pose), choice.spot, where(to), choice, fires ? ", fires on arrival" : ""));
     }
 
     /** Hands the sticks back this loop and logs how the press ended. */
     private void end(long now, String why) {
         robot.drive.drive(0.0, 0.0, 0.0);
+        feed = false;
+        boolean feeding = volley.phase() == SpotVolley.Phase.FEEDING;
+        volley.stop(s(now));
         boolean early = phase == Phase.DRIVING;
         String line = early
                 ? String.format(Locale.US, "%s early after %.2f s, %.0f in short of %s", why, s(now), remainingIn(), choice.spot)
                 : String.format(Locale.US, "%s after arriving at %s in %.2f s (held %.2f s)", why, choice.spot, arriveS, s(now) - arriveS);
+        // Who fired, the gate's open time, and the launcher's counted shots this press. The lane's
+        // count is the tracker's guess, data only (it decides nothing).
+        String firedBy = volley.fired() && operatorFired ? "button, then the operator"
+                : volley.fired() ? "button" : operatorFired ? "operator" : "nobody";
+        String gate = !volley.fired() ? "gate never opened by the button"
+                : String.format(Locale.US, "gate open at %.2f s for %.2f s%s", volley.feedStartS(),
+                        volley.feedEndS() - volley.feedStartS(), feeding ? " (cut by the end of the press)" : "");
+        line += String.format(Locale.US, "; fired by %s, %s, %d shots counted, lane %d (tracker)",
+                firedBy, fires ? gate : "button does not fire", robot.launcher.shots() - shotsAtStart,
+                robot.colorSensor.lane().count());
         event.accept("launch spot: " + line);
         result = "Last launch spot: " + line;
         phase = Phase.ENDED;

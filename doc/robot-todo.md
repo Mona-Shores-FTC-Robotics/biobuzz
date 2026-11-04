@@ -214,6 +214,13 @@ measurement is [#255].
       prefer. Compare the match log's `launch spot:` events with its `chassis aim:` ones.
       **Stop:** it refuses with the pose set, or clips the HIVE or the wall →
       `TeleOpConfig.launchSpot` off and note where. [PR #423]
+- [ ] **Square also fires (`TeleOpConfig.goToSpotAlsoFires`, on):** loaded, hold Square from
+      15–30 in off a spot; then press operator FIRE during a press; then let go mid-feed; then
+      operator launcher toggle to idle mid-press. **Good:** launcher spins up as it drives, one
+      volley once there (`launch spot: gate open … at speed, settled`), all four leave; the end line
+      says `fired by button`, shots counted ≈ 4; FIRE takes the shot (`fired by … operator`); let go
+      stops the feeder at once; an idled launcher stays idle. **Stop:** it feeds before it is
+      aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
 - [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
       view now and then; read `/Drift/GapXIn` and `/Drift/GapYIn` (camera minus odometry) over the
       run. **Good:** the gap stays within a few inches, so a launch spot driven late in the match is
