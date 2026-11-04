@@ -109,6 +109,11 @@ These gate Belding. Run each from its start, alliance from §2.
       in the first loop of a feed, and every volley still feeds all four. **Stop:** full late or
       stuck → `ColorSensorSubsystem.readIdleEveryMs` 50 in Panels (reads as before) and note the
       log; Panels field too jumpy → `FieldLayers.drawEveryMs` 100.
+- [ ] **Panels disabled costs the loop nothing:** on the branch, run the Panels disable OpMode, then
+      Basic Drive 1 min. The match log has the event "Panels disabled: no field view and no Panels
+      telemetry this run", and `/Loop/PageMs` p95 is near the Match page's ~0.1 ms (no 7–8 ms field
+      sends). Re-enable Panels and confirm the field and graphs come back. **Stop:** the event is
+      missing with Panels off → `PanelsSwitch` cannot read the setting; note it in the PR.
 - [ ] **The Autonomous list on the Driver Station shows exactly the five** and nothing named
       R-Simple, R-Quals, L-Simple or L-Quals. **Good:** five entries, the names above. **Stop:** an old
       name is listed → a full TeamCode install, then look again. [PR #375]

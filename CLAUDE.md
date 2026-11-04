@@ -179,7 +179,8 @@ Read it as `setup.alliance()`; never add another way to choose it. One-shot butt
 that requires the subsystem — that would interrupt its `periodic()`.
 
 **Panels** — the only dashboard, `http://192.168.43.1:8001`. Numbers and graphs.
-- Telemetry: `PanelsTelemetry.INSTANCE.getTelemetry()`, `addData` per key, then **one** update
+- Telemetry: `PanelsTelemetry.INSTANCE.getTelemetry()` (on `RobotOpMode`, `panelsTelemetry()`,
+  null when Panels is switched off, and then nothing is published), `addData` per key, then **one** update
   per loop. A standalone OpMode uses `update(telemetry)`, which mirrors to the Driver Station; one
   on `RobotOpMode` writes the Driver Station through `Display` and calls `update()` with no
   argument, so Panels' lines do not land on the Match page.

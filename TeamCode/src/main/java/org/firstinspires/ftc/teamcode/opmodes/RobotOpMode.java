@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.commands.Commands;
@@ -50,6 +52,7 @@ import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.FieldLayers;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.FieldView;
+import org.firstinspires.ftc.teamcode.util.PanelsSwitch;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
@@ -173,6 +176,13 @@ public abstract class RobotOpMode extends OpMode {
      * nothing is drawn and the robot runs on regardless.
      */
     private FieldView fieldView;
+
+    /**
+     * Whether Panels is switched on ({@link PanelsSwitch}), read once at INIT. Off, there is no
+     * field view and {@link #panelsTelemetry()} is null, so the loop pays nothing for a dashboard
+     * nobody can open.
+     */
+    private boolean panelsEnabled = true;
 
     /** The alliance, settled during INIT and locked at PLAY. Read {@code setup.alliance()}. */
     protected final MatchSetup setup = new MatchSetup();
@@ -303,6 +313,20 @@ public abstract class RobotOpMode extends OpMode {
     }
 
     /** Called once, after the robot is built and initialized. Put your init telemetry here. */
+    /**
+     * Panels telemetry for this OpMode, or null when Panels is switched off or cannot provide it.
+     * Call once in {@link #onInit()} and skip publishing on null: when Panels is off, an update
+     * would still serialise every key for no one (see {@link PanelsSwitch}).
+     */
+    protected final TelemetryManager panelsTelemetry() {
+        if (!panelsEnabled) return null;
+        try {
+            return PanelsTelemetry.INSTANCE.getTelemetry();
+        } catch (RuntimeException | LinkageError e) {
+            return null; // Panels is a window onto the robot, not part of it.
+        }
+    }
+
     protected void onInit() {
     }
 
@@ -330,11 +354,17 @@ public abstract class RobotOpMode extends OpMode {
         openLog();
         // Once, here: the view is a handle on Panels' shared field, not something to look up per
         // loop. A dashboard failure is not a robot failure, so it is allowed to be absent.
-        try {
-            fieldView = FieldView.pedroCoordinates();
-        } catch (RuntimeException e) {
+        panelsEnabled = PanelsSwitch.enabled();
+        if (!panelsEnabled) {
             fieldView = null;
-            log.event("field view unavailable: " + e);
+            log.event("Panels disabled: no field view and no Panels telemetry this run");
+        } else {
+            try {
+                fieldView = FieldView.pedroCoordinates();
+            } catch (RuntimeException e) {
+                fieldView = null;
+                log.event("field view unavailable: " + e);
+            }
         }
 
         // Before the robot is built, so no read anywhere — constructors included — bypasses it.

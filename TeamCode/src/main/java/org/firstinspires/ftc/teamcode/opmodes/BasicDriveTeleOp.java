@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -187,11 +186,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     @Override
     protected void onInit() {
-        try {
-            panels = PanelsTelemetry.INSTANCE.getTelemetry();
-        } catch (RuntimeException | LinkageError e) {
-            panels = null; // Panels is a window onto the robot, not part of it.
-        }
+        panels = panelsTelemetry();
         aimer = new TurretAimer(robot);
         picker = new FlowerPicker(robot, text -> log.event(text));
         gatherer = new GardenGather(robot, text -> log.event(text));

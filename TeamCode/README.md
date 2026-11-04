@@ -1808,6 +1808,13 @@ that loop.
 of Panels' 100 ms: a send costs the loop 7–8 ms (Panels builds and serialises the canvas on the
 loop thread; 20245's logs, 3–4 Nov 2026), and at 10 Hz it was the p95 of `/Loop/PageMs`.
 
+Disabling Panels does not remove that cost by itself: its disable OpMode stops the servers, but a
+send still serialises the canvas and builds a log line before it finds no client (read from
+`com.bylazar:panels:1.0.8`'s `Plugin.send`). So `RobotOpMode` reads the setting once at INIT
+(`util/PanelsSwitch`); with Panels off it builds no `FieldView` and `panelsTelemetry()` returns
+null, and the loop pays nothing for Panels. At an event Panels is off, so that is the match
+configuration. The match log is separate and records the same pose either way.
+
 > **History note, 25 Oct 2026.** This paragraph used to say that a skipped `update()` "returns
 > having done *nothing*, and that includes not clearing the canvas", so an ungated draw shipped
 > twenty overlapping robots in one canvas. The library does not do that. Checked by disassembling
