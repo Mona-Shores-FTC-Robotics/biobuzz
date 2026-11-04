@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
@@ -139,11 +138,7 @@ public class LaunchTest extends RobotOpMode {
 
     @Override
     protected void onInit() {
-        try {
-            panels = PanelsTelemetry.INSTANCE.getTelemetry();
-        } catch (RuntimeException | LinkageError e) {
-            panels = null; // Panels is a window onto the robot, not part of it.
-        }
+        panels = panelsTelemetry();
         // Gamepad 1 is both pads, and everything lists on the one Controls page.
         controls = new Controls(TeleOpConfig.flowerPickButton, gamepad1, gamepad1, driver, driver);
         modifier = controls.input(SETUP_MODIFIER);

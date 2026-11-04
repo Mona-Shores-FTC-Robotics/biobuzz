@@ -48,4 +48,23 @@ public class FieldViewTest {
         assertEquals(16.0, front, EPS);
         assertEquals(16.0, side, EPS);
     }
+
+    @Test
+    public void theFirstSendIsAlwaysDue() {
+        assertEquals(true, FieldView.due(false, 0, 250));
+    }
+
+    @Test
+    public void sendsWaitTheirInterval() {
+        assertEquals(false, FieldView.due(true, 249, 250));
+        assertEquals(true, FieldView.due(true, 250, 250));
+    }
+
+    @Test
+    public void aBadIntervalLeavesPanelsRate() {
+        assertEquals(true, FieldView.due(true, 1, Double.NaN));
+        assertEquals(true, FieldView.due(true, 1, 0));
+        assertEquals(true, FieldView.due(true, 1, -5));
+        assertEquals(true, FieldView.due(true, 1, Double.POSITIVE_INFINITY));
+    }
 }

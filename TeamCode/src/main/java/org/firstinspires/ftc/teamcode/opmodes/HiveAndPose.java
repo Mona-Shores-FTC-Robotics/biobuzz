@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
@@ -182,7 +181,7 @@ public class HiveAndPose extends RobotOpMode {
 
     @Override
     protected void onInit() {
-        panels = PanelsTelemetry.INSTANCE.getTelemetry();
+        panels = panelsTelemetry();
         aimer = new TurretAimer(robot);
         for (int i = 0; i < CELLS.length; i++) {
             String name = CELLS[i].name().toLowerCase(Locale.US);
@@ -601,6 +600,7 @@ public class HiveAndPose extends RobotOpMode {
     // ---------------------------------------------------------------- Panels
 
     private void publish(Pose camera) {
+        if (panels == null) return;
         for (int i = 0; i < CELLS.length; i++) {
             CellSighting sighting = robot.vision.sighting(CELLS[i]);
             if (sighting == null) continue;

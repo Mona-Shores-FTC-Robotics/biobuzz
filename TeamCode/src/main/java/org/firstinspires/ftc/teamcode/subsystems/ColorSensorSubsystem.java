@@ -18,12 +18,28 @@ import java.util.Locale;
  * <p>It is an I2C device, so every read is a round trip to the hub that the bulk cache does not
  * cover: the colour block only. Its proximity side (IR distance) is never read: "full" goes by
  * brightness, and a second transaction per read cost about as much again (2 Nov 2026, p50 5.2 ms of
- * every loop with both). It reads every {@link #readEveryMs} while the intake, its stars or the
- * prefeed runs, the only times a piece can move under it, and every {@link #readIdleEveryMs}
- * otherwise; never every loop,
- * the way {@code RobotOpMode} reads the battery; {@code /Loop/Subsystem/ColorSensorSubsystemMs}
- * shows what a read costs. It moves nothing, so it reads in INIT too: the preloads are in front of
- * it before PLAY.
+ * every loop with both). A read of the colour block alone is 3 to 9 ms (20245's logs, 3–4 Nov
+ * 2026), so it is never read every loop; {@code /Loop/Subsystem/ColorSensorSubsystemMs} shows what
+ * a read costs. It moves nothing, so it reads in INIT too: the preloads are in front of it before
+ * PLAY.
+ *
+ * <h2>When it reads</h2>
+ *
+ * <p>Every {@link #readEveryMs} while something can move a piece under it ({@link #pieceCanMove}):
+ * the roller or the stars taking in or backing out, the prefeed running, the feeder feeding or
+ * reversing, or a shot just counted. Every {@link #readIdleEveryMs} otherwise, which includes the
+ * intake <b>holding a full lane</b> ({@code IntakeSubsystem.holdingForFull()}: the stars and a slow
+ * roller press on a lane with no room, so the piece under the sensor stays). The robot spends a
+ * large part of TeleOp full and driving to a launch spot (up to half of some 3 Nov sessions), and
+ * reads there decided nothing. The slow read still catches a piece that rolls back out while
+ * holding, within {@link #readIdleEveryMs}. The moment something can move a piece again (a feed, a
+ * shot, an eject, the intake taking in) it reads in that same loop rather than waiting out the
+ * slow interval, so "full" clears as soon as the piece has gone.
+ *
+ * <p>Between reads every answer here ({@link #full()}, the lane, the colours) is as of the last
+ * reading, never a guess, and says so: {@link #readAgeMs()} is how old it is, and
+ * {@link #watching()} says which rate is running (the Robot page shows both, the match log
+ * {@code /ColorSensor/Watching}).
  *
  * <p>It says whether the lane is <b>full</b> ({@link #full()}, {@link LaneFull}): a piece held under
  * it for {@link #fullHoldS} while the intake takes in (sooner, {@link #fullHoldWhenCountedS},
@@ -53,10 +69,11 @@ public class ColorSensorSubsystem implements Subsystem {
     public static int readEveryMs = 50;
 
     /**
-     * How often to read while the intake, its stars and the prefeed are all stopped, ms: then no
-     * piece moves under the sensor, so a reading only refreshes the screens and catches a piece
-     * placed by hand (the preloads in INIT). 250 sees one within a quarter second. Never faster
-     * than {@link #readEveryMs}. (From the closed #366, 2 Nov 2026.)
+     * How often to read while nothing can move a piece under the sensor ({@link #pieceCanMove}):
+     * everything stopped, or the intake only holding a full lane. Then a reading refreshes the
+     * screens and catches a piece placed by hand (the preloads in INIT) or one rolling back out of
+     * a full lane. 250 sees one within a quarter second. Never faster than {@link #readEveryMs}.
+     * (From the closed #366, 2 Nov 2026.)
      */
     public static int readIdleEveryMs = 250;
 
@@ -115,12 +132,16 @@ public class ColorSensorSubsystem implements Subsystem {
     private final LauncherSubsystem launcher;
     private final IntakeSubsystem intake;
     private final PrefeedSubsystem prefeed;
+    private final FeederSubsystem feeder;
     private final LaneTracker lane = new LaneTracker();
     private final LaneFull laneFull = new LaneFull();
 
     private long lastReadNs;
+    private long lastUpdateNs;
     private boolean everRead;
     private boolean fresh;
+    /** Whether the last {@link #update()} found that a piece could move under the sensor. */
+    private boolean watching;
     private float red;
     private float green;
     private float blue;
@@ -134,12 +155,14 @@ public class ColorSensorSubsystem implements Subsystem {
      * @param launcher    read for its shots; updated before this subsystem
      * @param intake      read for running outward; updated before this subsystem
      * @param prefeed     read for running outward; updated before this subsystem
+     * @param feeder      read for feeding or reversing, when pieces move; updated before this subsystem
      */
     public ColorSensorSubsystem(HardwareMap hardwareMap, LauncherSubsystem launcher,
-                                IntakeSubsystem intake, PrefeedSubsystem prefeed) {
+                                IntakeSubsystem intake, PrefeedSubsystem prefeed, FeederSubsystem feeder) {
         this.launcher = launcher;
         this.intake = intake;
         this.prefeed = prefeed;
+        this.feeder = feeder;
         sensor = hardwareMap.get(NormalizedColorSensor.class, DeviceNames.COLOR_SENSOR);
     }
 
@@ -147,6 +170,8 @@ public class ColorSensorSubsystem implements Subsystem {
     @Override
     public void initialize() {
         read(System.nanoTime());
+        lastUpdateNs = lastReadNs;
+        watching = false;
         atInit = allZero()
                 ? "reads all zero: unplugged, or not on the bus robot_<name>.xml gives it"
                 : String.format(Locale.US, "answering: %s, gain %.1f", summary(), sensor.getGain());
@@ -159,11 +184,13 @@ public class ColorSensorSubsystem implements Subsystem {
     @Override
     public void update() {
         long now = System.nanoTime();
-        boolean laneMoving = intake.state() != IntakeSubsystem.State.IDLE
-                || intake.starsState() != IntakeSubsystem.State.IDLE
-                || prefeed.state() != PrefeedSubsystem.State.IDLE;
-        long intervalNs = readIntervalMs(laneMoving, readEveryMs, readIdleEveryMs) * 1_000_000L;
-        fresh = !everRead || now - lastReadNs >= intervalNs;
+        lastUpdateNs = now;
+        boolean shot = launcher.shotJustDetected();
+        boolean canMove = pieceCanMove(intake.state(), intake.starsState(), intake.holdingForFull(),
+                prefeed.state(), feeder.state(), shot);
+        fresh = readDue(everRead, (now - lastReadNs) / 1_000_000L, canMove, watching,
+                readEveryMs, readIdleEveryMs);
+        watching = canMove;
         if (fresh) {
             read(now);
         }
@@ -173,7 +200,7 @@ public class ColorSensorSubsystem implements Subsystem {
         lane.step(fresh, alpha,
                 LaneTracker.classify(hueDeg, pollenHueMin, pollenHueMax,
                         redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax),
-                outward, launcher.shotJustDetected(), presentAbove, leaveBelow);
+                outward, shot, presentAbove, leaveBelow);
         if (fresh) {
             // After the tracker, so its count of this same reading is the hint.
             // Never sooner than fullHoldS allows: with it off (NaN or negative), full is off.
@@ -196,6 +223,36 @@ public class ColorSensorSubsystem implements Subsystem {
     /** What it thinks is in the lane. Data only: never decide anything from it. */
     public LaneTracker lane() {
         return lane;
+    }
+
+    /**
+     * Whether a piece can move under the sensor this loop, so it is read every {@link #readEveryMs}
+     * (class comment, "When it reads"): a shot just counted, the feeder feeding or reversing (the
+     * gate open, or the lane backing out), the prefeed running, or the roller or the stars turning,
+     * unless all they do is hold a full lane ({@code holdingForFull}: pressed on a lane with no
+     * room, the piece under the sensor stays). The feeder's standby (its wheels turning behind the
+     * shut gate) is not a feed: its state stays IDLE. Pure, so a test can check it.
+     */
+    static boolean pieceCanMove(IntakeSubsystem.State roller, IntakeSubsystem.State stars, boolean holdingForFull,
+                                PrefeedSubsystem.State prefeed, FeederSubsystem.State feeder,
+                                boolean shotJustDetected) {
+        if (shotJustDetected) return true;
+        if (feeder != FeederSubsystem.State.IDLE) return true;
+        if (prefeed != PrefeedSubsystem.State.IDLE) return true;
+        if (holdingForFull) return false;
+        return roller != IntakeSubsystem.State.IDLE || stars != IntakeSubsystem.State.IDLE;
+    }
+
+    /**
+     * Whether to read this loop: the first time; at once when a piece can move and could not last
+     * loop (a feed, a shot, an eject or the intake starting), so nothing waits out the slow
+     * interval; otherwise once {@link #readIntervalMs} has passed since the last read. Pure.
+     */
+    static boolean readDue(boolean everRead, long sinceLastReadMs, boolean canMove, boolean couldMoveLastLoop,
+                           int readEveryMs, int readIdleEveryMs) {
+        if (!everRead) return true;
+        if (canMove && !couldMoveLastLoop) return true;
+        return sinceLastReadMs >= readIntervalMs(canMove, readEveryMs, readIdleEveryMs);
     }
 
     /**
@@ -227,6 +284,20 @@ public class ColorSensorSubsystem implements Subsystem {
     /** Whether the latest {@link #update()} read the sensor; the log writes only fresh readings. */
     public boolean fresh() {
         return fresh;
+    }
+
+    /**
+     * Whether the latest {@link #update()} read at the fast rate, {@link #readEveryMs}, because a
+     * piece could move under the sensor ({@link #pieceCanMove}); false while it reads every
+     * {@link #readIdleEveryMs}, when every answer here may be up to that old.
+     */
+    public boolean watching() {
+        return watching;
+    }
+
+    /** How old the reading behind every answer here is, ms, as of the latest {@link #update()}; NaN before the first. */
+    public double readAgeMs() {
+        return everRead ? (lastUpdateNs - lastReadNs) / 1e6 : Double.NaN;
     }
 
     public float red() {
@@ -266,10 +337,13 @@ public class ColorSensorSubsystem implements Subsystem {
         display.status("Color sensor", allZero() ? Display.Level.WARN : Display.Level.OK,
                 allZero() ? "reads all zero: unplugged?" : summary());
         display.status("Lane", Display.Level.OK,
-                laneFull.full() ? "FULL (a piece held under the sensor)"
+                (laneFull.full() ? "FULL (a piece held under the sensor)"
                         : laneFull.present() ? String.format(Locale.US, "piece under the sensor, %.0f ms",
                                 laneFull.heldWhileIntakingMs())
-                        : "room");
+                        : "room")
+                        + String.format(Locale.US, " · read %.0f ms ago, every %d ms (%s)", readAgeMs(),
+                        watching ? readEveryMs : readIdleEveryMs,
+                        watching ? "a piece can move" : "nothing moving"));
         display.status("Lane (count, log only)", Double.isNaN(presentAbove) ? Display.Level.WARN : Display.Level.OK,
                 lane.lettersFrontToBack() + " front to back, " + lane.count() + " in"
                         + (Double.isNaN(presentAbove) ? "; presentAbove not set: counts shots only" : ""));

@@ -33,6 +33,15 @@ public final class FieldLayers {
     public static boolean marks = true;
     public static boolean frame = true;
 
+    /**
+     * Draw and send the Field view at most this often, ms. Each send is about 7–8 ms of the loop
+     * (20245's logs, 3–4 Nov 2026: Panels builds and serialises the canvas on the loop thread), and
+     * Panels on its own sends every 100 ms, so it was the p95 of {@code /Loop/PageMs}. 250, four
+     * a second, still shows the robot moving to someone watching; raise it in Panels for a
+     * smoother view on the bench. NaN, zero, negative or less than Panels' own 100: Panels' rate.
+     */
+    public static double drawEveryMs = 250;
+
     private FieldLayers() {
     }
 }
