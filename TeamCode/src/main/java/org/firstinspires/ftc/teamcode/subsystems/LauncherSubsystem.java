@@ -4,11 +4,13 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
+import org.firstinspires.ftc.teamcode.util.VoltageCompensation;
 
 import java.util.Locale;
 
@@ -27,8 +29,23 @@ import java.util.Locale;
  * target in encoder ticks per second with {@code setVelocity}. That is one write per wheel when
  * the target changes, and again every {@link #RESEND_MS} (each is a 2–3 ms round trip to the hub,
  * and the SDK does not skip a repeated velocity; the resend recovers a motor a hub has zeroed), and
- * no controller of ours to tune. If the hub's default loop turns out sluggish on the
- * bench, the knob is {@code setVelocityPIDFCoefficients}, not a controller here.
+ * no controller of ours to run.
+ *
+ * <h2>Tuning the hub's loop</h2>
+ *
+ * <p>The hub's velocity loop has four gains, P, I, D and F, set with
+ * {@code setVelocityPIDFCoefficients}. Match logs of 3 and 4 Nov 2026 (20245) showed what its
+ * defaults do with no tuned feedforward: after each ball's dip the wheels overshot to about 1680
+ * of 1595 and at-speed stayed false for about 0.7 s, and a spin-up from rest took 0.9 to 2.1 s,
+ * slowest on a sagging battery. So the four gains are Panels knobs here ({@link #velocityP},
+ * {@link #velocityI}, {@link #velocityD}, {@link #velocityF}): NaN, the default, leaves that gain
+ * at what the hub had when this OpMode's {@link #initialize()} read it ({@link #hubDefaults()},
+ * shown on the Robot page and in the match log's Metadata), so nothing changes until someone sets
+ * one. The gains go to the hub only when one changes, never every loop: each write is a hub round
+ * trip per wheel. Optionally F follows the battery ({@link #compensateF}): F × {@link #nominalVolts}
+ * / battery, from the reading {@code RobotOpMode} already takes once a second
+ * ({@link #batteryVolts(double)}), written again only when it moves by more than
+ * {@link #F_COMPENSATION_STEP}. The procedure is in {@code doc/robot-todo.md}, "Launcher tuning".
  *
  * <p>The setpoint is in ticks per second, not RPM, because ticks per second is what the hardware
  * measures and commands. RPM is shown as well once {@link #ticksPerRev} is read off the motor
@@ -164,6 +181,43 @@ public class LauncherSubsystem implements Subsystem {
     /** Below this measured speed, a commanded wheel is "not moving" for the encoder check. */
     public static double encoderSilentTicksPerSecond = 20.0;
 
+    /**
+     * The hub velocity loop's proportional gain for both wheels. NaN (the default): the hub's own,
+     * as read at init ({@link #hubDefaults()}). Not measured yet: see "Tuning the hub's loop" in
+     * the class comment. A negative, infinite or absurd value (above {@link #MAX_GAIN}) counts as
+     * NaN, so a Panels typo leaves the hub's gain in place.
+     */
+    public static double velocityP = Double.NaN;
+
+    /** As {@link #velocityP}, the integral gain. Keep it small: it is what winds up into overshoot. */
+    public static double velocityI = Double.NaN;
+
+    /** As {@link #velocityP}, the derivative gain. Usually 0 for a flywheel. */
+    public static double velocityD = Double.NaN;
+
+    /**
+     * As {@link #velocityP}, the feedforward gain: the hub's power per tick per second of target,
+     * scaled so that 32767 is full power. A first guess is 32767 / (the speed one wheel reaches at
+     * full power, ticks per second), at {@link #nominalVolts}.
+     */
+    public static double velocityF = Double.NaN;
+
+    /**
+     * Scale F by the battery: F × {@link #nominalVolts} / battery, so the feedforward pushes as hard
+     * on a tired battery as on the one it was tuned on. Off until a robot run shows it helps.
+     * Applies to F as it stands, set here or the hub's own.
+     */
+    public static boolean compensateF = false;
+
+    /** The battery voltage F is tuned at, volts, for {@link #compensateF}. NaN, zero or negative: no compensation. */
+    public static double nominalVolts = 12.0;
+
+    /** Above this a gain from Panels is treated as a typo and the hub's own is kept. */
+    static final double MAX_GAIN = 1000.0;
+
+    /** A compensated F is written again only when its scale moves by more than this fraction (1%, about 0.1 V). */
+    static final double F_COMPENSATION_STEP = 0.01;
+
     private final Layout layout;
     private final DcMotorEx left;
     /** The right wheel's motor, or null when {@link Layout#Y_CABLED}: the left motor object drives both. */
@@ -197,6 +251,29 @@ public class LauncherSubsystem implements Subsystem {
     private final Throttle resend = new Throttle(RESEND_MS, 0);
     /** Current is not in the bulk read; ten reads a second, as {@code IntakeSubsystem}'s. */
     private final Throttle currentRead = new Throttle(100, 66);
+
+    /** Each wheel's velocity PIDF as read at init; null when the hub did not answer with one. */
+    private PIDFCoefficients leftDefaults;
+    private PIDFCoefficients rightDefaults;
+    /** The Panels gains and switch last acted on, so a write happens only when one changes. NaN-aware. */
+    private double seenP = Double.NaN;
+    private double seenI = Double.NaN;
+    private double seenD = Double.NaN;
+    private double seenF = Double.NaN;
+    private boolean seenCompensate;
+    private double seenNominal = Double.NaN;
+    /** The battery, volts, as {@code RobotOpMode} last passed it in; NaN until then. */
+    private double batteryVolts = Double.NaN;
+    /** The scale on F in force (1 when not compensating). */
+    private double fScale = 1.0;
+    /** The battery's scale on F is looked at once a second at most. */
+    private final Throttle fScaleCheck = new Throttle(1000, 0);
+    /** The left wheel's gains as last written (the right's differ only if its defaults do); NaN before the first write. */
+    private double appliedP = Double.NaN;
+    private double appliedI = Double.NaN;
+    private double appliedD = Double.NaN;
+    private double appliedF = Double.NaN;
+    private int pidfWrites;
 
     /**
      * The robot's launcher: looks both motors up once. A missing motor fails init with the SDK's own message.
@@ -371,6 +448,47 @@ public class LauncherSubsystem implements Subsystem {
         return rightCurrentAmps;
     }
 
+    /**
+     * The battery's latest reading, volts, from {@code RobotOpMode}'s once-a-second read (no hub
+     * read here). Used only for {@link #compensateF}; NaN means no compensation.
+     */
+    public void batteryVolts(double volts) {
+        batteryVolts = volts;
+    }
+
+    /** The left wheel's velocity PIDF as read at init, or null when the hub gave none. */
+    public PIDFCoefficients hubDefaults() {
+        return leftDefaults;
+    }
+
+    /** The P written to the hub last, or NaN while the hub's own gains stand untouched. Likewise I, D and F below. */
+    public double appliedP() {
+        return appliedP;
+    }
+
+    public double appliedI() {
+        return appliedI;
+    }
+
+    public double appliedD() {
+        return appliedD;
+    }
+
+    /** The F written last, battery scale included. */
+    public double appliedF() {
+        return appliedF;
+    }
+
+    /** The scale on F in force: 1 unless {@link #compensateF} is on and a battery reading came in. */
+    public double fScale() {
+        return fScale;
+    }
+
+    /** How many times the gains were written to the hub this OpMode, so the log can mark each write. */
+    public int pidfWrites() {
+        return pidfWrites;
+    }
+
     /** A one-line description of what is wrong, or null when nothing is. */
     public String fault() {
         if (layout == Layout.Y_CABLED && leftFault) return "launcher reads no speed while commanded: encoder cable?";
@@ -392,6 +510,15 @@ public class LauncherSubsystem implements Subsystem {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             motor.setPower(0.0);
         }
+        // What the hub has now, so NaN can mean "these" and the tuner starts from known numbers.
+        leftDefaults = left.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDefaults = right == null ? null : right.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        seenP = seenI = seenD = seenF = seenNominal = Double.NaN;
+        seenCompensate = false;
+        fScale = 1.0;
+        fScaleCheck.reset();
+        appliedP = appliedI = appliedD = appliedF = Double.NaN;
+        pidfWrites = 0;
     }
 
     /**
@@ -413,6 +540,7 @@ public class LauncherSubsystem implements Subsystem {
     @Override
     public void update() {
         long now = System.nanoTime();
+        applyGains(now);
         double leftTarget = leftTarget();
         double rightTarget = rightTarget();
 
@@ -486,6 +614,78 @@ public class LauncherSubsystem implements Subsystem {
         lastRightTarget = rightTarget;
     }
 
+    /**
+     * Writes the velocity PIDF when a Panels gain or the switch changed, or the battery's scale on
+     * F moved by more than {@link #F_COMPENSATION_STEP} (looked at once a second). Nothing is
+     * written while every gain is NaN, F is unscaled and nothing was written before: the hub's own
+     * gains stand. A gain set back to NaN writes what was read at init. Gains are not motion, so
+     * this runs from INIT on.
+     */
+    private void applyGains(long now) {
+        boolean changed = !same(velocityP, seenP) || !same(velocityI, seenI) || !same(velocityD, seenD)
+                || !same(velocityF, seenF) || compensateF != seenCompensate || !same(nominalVolts, seenNominal);
+        if (changed) {
+            seenP = velocityP;
+            seenI = velocityI;
+            seenD = velocityD;
+            seenF = velocityF;
+            seenCompensate = compensateF;
+            seenNominal = nominalVolts;
+        }
+        double scale = VoltageCompensation.scale(compensateF, nominalVolts, batteryVolts);
+        if (scale != fScale && (changed
+                || (VoltageCompensation.worthApplying(fScale, scale, F_COMPENSATION_STEP) && fScaleCheck.due(now)))) {
+            fScale = scale;
+            changed = true;
+        }
+        if (!changed) return;
+        boolean nothingSet = !validGain(velocityP) && !validGain(velocityI) && !validGain(velocityD)
+                && !validGain(velocityF) && fScale == 1.0;
+        if (nothingSet && Double.isNaN(appliedP)) return;
+        if (writeGains(left, leftDefaults, true) && right != null) {
+            writeGains(right, rightDefaults, false);
+        }
+    }
+
+    /**
+     * One wheel's gains: each Panels gain or, where it is unset, that wheel's own read at init; F
+     * times the battery scale. Not written when any gain is still unknown (the hub gave no
+     * defaults and Panels has not set it). Returns whether it wrote.
+     */
+    private boolean writeGains(DcMotorEx motor, PIDFCoefficients defaults, boolean record) {
+        double p = gain(velocityP, defaults == null ? Double.NaN : defaults.p);
+        double i = gain(velocityI, defaults == null ? Double.NaN : defaults.i);
+        double d = gain(velocityD, defaults == null ? Double.NaN : defaults.d);
+        double f = gain(velocityF, defaults == null ? Double.NaN : defaults.f) * fScale;
+        if (Double.isNaN(p) || Double.isNaN(i) || Double.isNaN(d) || Double.isNaN(f)) return false;
+        motor.setVelocityPIDFCoefficients(p, i, d, f);
+        if (record) {
+            appliedP = p;
+            appliedI = i;
+            appliedD = d;
+            appliedF = f;
+            pidfWrites++;
+        }
+        return true;
+    }
+
+    /**
+     * A gain to write: the Panels value when it is a real one (finite, 0 to {@link #MAX_GAIN}),
+     * otherwise {@code hubDefault}. So NaN, a negative or an absurd typo keeps the hub's gain. Pure.
+     */
+    static double gain(double configured, double hubDefault) {
+        return validGain(configured) ? configured : hubDefault;
+    }
+
+    private static boolean validGain(double value) {
+        return value >= 0.0 && value <= MAX_GAIN;
+    }
+
+    /** Equal, counting NaN equal to NaN: a Panels field left at NaN is not a change. */
+    private static boolean same(double a, double b) {
+        return Double.compare(a, b) == 0;
+    }
+
     /** Cut power. Safe to call whether or not {@link #initialize()} ran. */
     @Override
     public void stop() {
@@ -498,7 +698,41 @@ public class LauncherSubsystem implements Subsystem {
     public String health() {
         String fault = fault();
         return "motors configured (" + layout + "); presence unknown until they spin"
+                + "; hub velocity PIDF at init " + pidfText(leftDefaults)
+                + (right != null && !samePidf(leftDefaults, rightDefaults) ? " (right " + pidfText(rightDefaults) + ")" : "")
                 + (fault != null ? "; " + fault : "");
+    }
+
+    /** The velocity PIDF line for the Robot page and the bench: what the hub had, what is written, the battery's scale. */
+    public String pidfLine() {
+        String applied = Double.isNaN(appliedP) ? "hub's own (nothing set in Panels)"
+                : gainsText(appliedP, appliedI, appliedD, appliedF);
+        String comp = !compensateF ? ""
+                : Double.isNaN(batteryVolts) ? " · F compensation on, no battery reading"
+                : String.format(Locale.US, " · F × %.3f at %.2f V", fScale, batteryVolts);
+        return "Velocity PIDF " + applied + " · at init " + pidfText(leftDefaults) + comp;
+    }
+
+    private static String pidfText(PIDFCoefficients c) {
+        return c == null ? "unread" : gainsText(c.p, c.i, c.d, c.f);
+    }
+
+    /** Four gains as "P 10 I 3 D 0 F 13.5": four significant figures, no trailing zeros. */
+    public static String gainsText(double p, double i, double d, double f) {
+        return "P " + gainText(p) + " I " + gainText(i) + " D " + gainText(d) + " F " + gainText(f);
+    }
+
+    static String gainText(double value) {
+        if (Double.isNaN(value)) return "NaN";
+        String text = String.format(Locale.US, "%.4g", value);
+        if (text.contains("e") || !text.contains(".")) return text;
+        text = text.replaceAll("0+$", "");
+        return text.endsWith(".") ? text.substring(0, text.length() - 1) : text;
+    }
+
+    private static boolean samePidf(PIDFCoefficients a, PIDFCoefficients b) {
+        if (a == null || b == null) return a == b;
+        return a.p == b.p && a.i == b.i && a.d == b.d && a.f == b.f;
     }
 
     @Override
@@ -528,6 +762,7 @@ public class LauncherSubsystem implements Subsystem {
                     Double.isNaN(leftCurrentAmps) ? "current not read while idle"
                             : String.format(Locale.US, "%.1f A (both motors)", leftCurrentAmps)));
             display.line(shotsLine());
+                display.line(pidfLine());
             return;
         }
         display.line(String.format(Locale.US, "Wheels L %.0f / R %.0f ticks/s%s · %s",
@@ -535,6 +770,7 @@ public class LauncherSubsystem implements Subsystem {
                 Double.isNaN(leftCurrentAmps) ? "current not read while idle"
                         : String.format(Locale.US, "L %.1f / R %.1f A", leftCurrentAmps, rightCurrentAmps)));
         display.line(shotsLine());
+        display.line(pidfLine());
     }
 
     /** The shot count and the last dip, for the Robot page and the bench. */

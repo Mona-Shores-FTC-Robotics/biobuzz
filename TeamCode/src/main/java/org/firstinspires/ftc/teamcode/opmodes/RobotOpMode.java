@@ -34,6 +34,7 @@ import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaneFull;
 import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.CalibrationSpots;
@@ -243,6 +244,7 @@ public abstract class RobotOpMode extends OpMode {
     private final MotionWatch intakeWatch = new MotionWatch("intake");
     private final MotionWatch feederWatch = new MotionWatch("feeder");
     private String loggedLauncherFault;
+    private int loggedPidfWrites;
     // Drift: pushes and jolts, the camera frame last logged, the Pinpoint's last status.
     private final ImpactWatch impacts = new ImpactWatch();
     /** TeleOp with no handoff: the camera against the declared start in INIT ({@link CameraStart}). */
@@ -390,6 +392,7 @@ public abstract class RobotOpMode extends OpMode {
             double volts = battery.getVoltage();
             lastBatteryVolts = volts;
             batteryAtInitVolts = volts;
+            robot.batteryVolts(volts);
             log.metadata("BatteryAtInit", String.format(Locale.US, "%.2f V", volts));
             if (volts < LOW_BATTERY_VOLTS) {
                 batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, LOW_BATTERY_VOLTS);
@@ -1355,6 +1358,19 @@ public abstract class RobotOpMode extends OpMode {
             log.put("/Launcher/RightCurrentAmps", rightAmps);
         }
         log.put("/Launcher/Reversing", robot.launcher.reversing() ? 1 : 0);
+        // The hub velocity loop's gains as written (nothing until Panels sets one), and each write as an event.
+        if (robot.launcher.pidfWrites() != loggedPidfWrites) {
+            loggedPidfWrites = robot.launcher.pidfWrites();
+            log.put("/Launcher/VelocityP", robot.launcher.appliedP());
+            log.put("/Launcher/VelocityI", robot.launcher.appliedI());
+            log.put("/Launcher/VelocityD", robot.launcher.appliedD());
+            log.put("/Launcher/VelocityF", robot.launcher.appliedF());
+            log.put("/Launcher/FScale", robot.launcher.fScale());
+            log.event(String.format(Locale.US, "launcher: velocity PIDF %s (F scale %.3f, battery %.2f V)",
+                    LauncherSubsystem.gainsText(robot.launcher.appliedP(), robot.launcher.appliedI(),
+                            robot.launcher.appliedD(), robot.launcher.appliedF()),
+                    robot.launcher.fScale(), lastBatteryVolts));
+        }
         log.put("/Feeder/Power", robot.feeder.power());
         log.put("/Feeder/TicksPerSecond", robot.feeder.ticksPerSecond());
         double feederAmps = robot.feeder.currentAmps();
@@ -1442,6 +1458,8 @@ public abstract class RobotOpMode extends OpMode {
             lastBatteryVolts = battery.getVoltage();
             log.put("/Robot/BatteryVolts", lastBatteryVolts);
             lastBatteryNs = now;
+            // For the launcher's F when it compensates: this read, no other.
+            robot.batteryVolts(lastBatteryVolts);
         }
         log.commit();
     }
