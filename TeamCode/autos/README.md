@@ -194,9 +194,14 @@ robot to PARK by 30 s (mentor, 4 Nov 2026, quals and playoffs alike):
   pick's or gather's typical time, a wait's "at most") and then `AutoRegistration.LAUNCH_ALL_LAST_PIECE_S`
   (4.0 s from the Launch all's start to its last ball). If yes, the robot goes, and nothing parks or
   cuts it until that volley has fired. Why: an AUTO TIP is 20 points and counts toward the
-  POLLINATOR RP; AUTO PARK is 5 and no RP (SWARM is reachable from LEAVE and the end-of-match
-  park). A TIP that finishes in the 8 s after AUTO still counts for AUTO (manual §10.5), so only
-  the last ball has to be out by 30 s. The robot then ends AUTO at the launch spot, off the walls,
+  POLLINATOR RPs; AUTO PARK is 5. AUTO PARK does count toward the SWARM RP (both robots' LEAVE +
+  PARK points, AUTO and end of match, 16 or more of 26: manual TU03 Tables 10-2 and 10-3), but
+  both robots leaving and both parking at the end already make 16, so our AUTO PARK decides SWARM
+  only when the partner misses its LEAVE or its end-of-match park; with a dead partner SWARM is out
+  of reach either way. A TIP complete before TELEOP starts is assessed as AUTO (§10.5 B), but
+  §10.5 also says achievements scored in the AUTO-to-TELEOP transition "may be subject to
+  penalties": an open question, not in `doc/game/qa-review.md`. So the guard asks only that the
+  last ball be out by 30 s, and nothing here plans on a TIP that finishes after 30 s. The robot then ends AUTO at the launch spot, off the walls,
   so LEAVE is kept. A step it cannot time (a block whose rows run their own steps, a wait with a
   command alongside) ends the look-ahead with no.
 - **If not: can I do this, then still park from where it leaves me?** If not, the robot parks now,

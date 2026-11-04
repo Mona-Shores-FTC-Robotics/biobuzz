@@ -522,10 +522,14 @@ public final class AutoKit {
      * <p><b>First, each card asks: can this, and every card up to the next volley, finish with
      * that volley's last piece out before AUTO ends?</b> A volley ({@link AutoRegistry#volley}: a
      * LaunchAll) is what TIPs the HIVE, and an AUTO TIP is worth 20 points and counts toward the
-     * POLLINATOR RP, the AUTO PARK 5 points and no RP (SWARM is reachable from LEAVE and the
-     * end-of-match park); a TIP that finishes in the few seconds after AUTO still counts as AUTO
-     * (Competition Manual §10.5), so the volley only needs its last piece out by 30 s (mentor,
-     * 4 Nov 2026, quals and playoffs alike). The look-ahead sums each card's plan from where it
+     * POLLINATOR RPs, the AUTO PARK 5 points. AUTO PARK counts toward the SWARM RP (both robots'
+     * LEAVE and PARK points, AUTO and end of match, 16 of 26: manual TU03 Tables 10-2, 10-3), but
+     * both robots' LEAVE and end-of-match PARK already make 16, so ours decides SWARM only when the
+     * partner misses one of those. A TIP complete before TELEOP starts is assessed as AUTO
+     * (§10.5 B); the same section says achievements scored during the AUTO-to-TELEOP transition
+     * "may be subject to penalties", an open question, so the guard asks only that the volley's
+     * last piece be out by 30 s and plans nothing that happens after (mentor, 4 Nov 2026, quals
+     * and playoffs alike). The look-ahead sums each card's plan from where it
      * starts: an exported drive's time, a command's or grab's typical time, a plain wait's earliest
      * time limit, then the volley's last-piece time; a card it cannot time (a block, a drive with no
      * time, a wait with a command alongside or no limit) ends it with no. If yes, that card goes and

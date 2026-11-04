@@ -969,8 +969,9 @@ calls. There are three kinds of card and one branching block:
   `firstOf` row's cards: a path there is never cut, and one that would start after the deadline
   does not start (#142). Before that, it goes for the next volley (`AutoRegistry.volley`: LaunchAll)
   when a card, the cards after it up to that volley and the volley's last piece all fit before 30 s,
-  and then neither parks nor cuts until the next card: an AUTO TIP is worth 20 points and a
-  POLLINATOR RP, the AUTO PARK 5 and none (mentor, 4 Nov 2026). A launch that is feeding is never
+  and then neither parks nor cuts until the next card: an AUTO TIP is worth 20 points toward the
+  POLLINATOR RPs, the AUTO PARK 5, and both robots' LEAVE and end-of-match PARK already make the
+  SWARM RP's 16 (mentor, 4 Nov 2026). A launch that is feeding is never
   cut. → `TeamCode/autos/README.md` § "Parking when time runs short"
 
 **Where a path ends, and what settles after it.** A path card is done when `AutoDrive.pathDone()`
