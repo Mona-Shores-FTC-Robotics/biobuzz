@@ -58,11 +58,14 @@ public final class TeleOpConfig {
     public static double launcherTrimStepTps = 25.0;
 
     /**
-     * The intake buttons (R2 on either gamepad) toggle the intake on and off instead of running it
-     * only while held. For one person testing alone, so loading does not need a hand on R2. Off by
-     * default: in a match, letting go of R2 stops the intake. Unjam still wins while it is held.
+     * The operator's R2 toggles the intake on and off instead of running it only while held. On by
+     * default since 4 Nov 2026 (the drive team's call): the roller slows to hold the last piece and
+     * the prefeed stops by themselves when the lane is full, and both start again when a shot makes
+     * room, so the intake can be left on. The driver's R2 runs it while held and either L2 reverses it while held, over the
+     * toggle; letting go returns to it. Firing does not turn it off. Off: hold-to-run on both pads,
+     * where letting go of R2 stops the intake.
      */
-    public static boolean intakeToggle = false;
+    public static boolean intakeToggle = true;
 
     /**
      * Enforce the at-speed gate: a feed starts only once the launcher is at launch speed (it never

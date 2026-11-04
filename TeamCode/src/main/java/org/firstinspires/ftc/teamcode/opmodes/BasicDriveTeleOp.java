@@ -40,7 +40,11 @@ import java.util.Locale;
  *
  * <p>Which input does what is {@link ControlScheme}, one layout for both teams. Both people run
  * the intake (R2) and unjam (L2), the driver winning when both press ({@link IntakeArbiter}); unjam
- * on either pad also reverses the feeder. The Driver Station's Controls page (Share) and the
+ * on either pad also reverses the feeder. The operator's R2 toggles the intake on and off
+ * ({@link IntakeToggle}, {@code TeleOpConfig.intakeToggle}); the driver's R2 runs it while held and
+ * either L2 reverses it while held, each over the toggle, and letting go returns to the toggle. Left
+ * on, it stops taking in while the lane is full and starts again when a shot makes room; the
+ * driver's hold does not get past full, only unjam does. The Driver Station's Controls page (Share) and the
  * printed cheat sheet are both generated from the layout. Nothing here names a button.
  *
  * <p>Buttons do what is asked at once. Fire feeds the moment it is held: the checks a shot could
@@ -383,14 +387,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
             }
             boolean driverIn = controls.held(Action.INTAKE);
             boolean operatorIn = controls.held(Action.OPERATOR_INTAKE);
-            // Solo testing (TeleOpConfig.intakeToggle): either intake button toggles the intake,
-            // which then runs as the operator's request, so a held unjam still wins.
-            if (intakeToggle.update(TeleOpConfig.intakeToggle, driverIn || operatorIn)) {
-                driverIn = false;
-                operatorIn = true;
-            } else if (TeleOpConfig.intakeToggle) {
-                driverIn = false;
-                operatorIn = false;
+            // TeleOpConfig.intakeToggle (on by default): the operator's R2 toggles the intake, which
+            // then runs as the operator's request. The driver's R2 stays hold-to-run and wins while
+            // held (IntakeArbiter), as does either unjam; letting go returns to the toggle. A full
+            // lane stops the roller and the prefeed whoever asks: only unjam and a feed get past it.
+            if (TeleOpConfig.intakeToggle) {
+                operatorIn = intakeToggle.update(true, operatorIn);
+            } else {
+                intakeToggle.update(false, false);
             }
             intakeArbiter.decide(driverIn, controls.held(Action.DRIVER_UNJAM),
                     controls.held(Action.UNJAM), operatorIn);
@@ -423,11 +427,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
                     : "Chassis aim: " + aimer.source());
         }
         robot.intake.describe(display);
-        // The same signal as the green light and the roller stop (LaneFull), for whoever is testing.
+        // The same signal as the green light and the full hold (LaneFull), for whoever is testing.
         display.status("Lane", Display.Level.OK, robot.colorSensor.full() ? "full" : "room");
         display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
         if (TeleOpConfig.intakeToggle) {
-            display.line("Intake toggle (testing): " + (intakeToggle.on() ? "ON, R2 again to stop" : "off, R2 to start"));
+            display.status("R2 intake", intakeToggle.on() ? Display.Level.WARN : Display.Level.OK,
+                    !intakeToggle.on() ? "off, operator R2 to start"
+                            : robot.colorSensor.full() ? "ON, holding (lane full), operator R2 to stop"
+                            : "ON, operator R2 to stop");
         }
         robot.launcher.describe(display);
         if (launcherTrimTps != 0.0) {

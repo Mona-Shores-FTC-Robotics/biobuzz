@@ -205,7 +205,7 @@ public final class AutoRegistration {
                 // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract).
                 .grab("GardenGather", GARDEN_GATHER_TYPICAL_S, () -> GardenGather.command(robot, note))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
-                // ---- real: a piece held under the colour sensor (LaneFull), as the roller stop and the light.
+                // ---- real: a piece held under the colour sensor (LaneFull), as the full hold and the light.
                 .trigger("IntakeFull", robot == null ? () -> false : robot.colorSensor::full)
                 // ---- real: the camera, through our HIVE's tracker. See the class comment.
                 .trigger("LeftCellUp", () -> cellUp(ourHive(robot, setup), true))

@@ -158,7 +158,7 @@ public class InitWarningsTest {
     public void aSilentColorSensorSaysWhatChangesForTheDriveTeam() {
         w.evaluate(null, Alliance.RED, Alliance.RED, ON_MARK, null, 40, 20_000, 13.1, 12.0, true);
         assertTrue(w.has(Kind.COLOR_SENSOR));
-        assertEquals("no full light or roller stop: watch the intake", w.action(Kind.COLOR_SENSOR));
+        assertEquals("no full light or full hold: watch the intake", w.action(Kind.COLOR_SENSOR));
         w.evaluate(null, Alliance.RED, Alliance.RED, ON_MARK, null, 40, 20_000, 13.1, 12.0, false);
         assertFalse(w.any());
     }

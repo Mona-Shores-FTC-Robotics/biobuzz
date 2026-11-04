@@ -11,8 +11,9 @@ import java.util.Set;
  * both teams; the drive team changes it here, and the Driver Station's Controls page and the
  * printed cheat sheet follow.
  *
- * <p>Both people can run the intake (R2) and unjam (L2), the same input on each pad. When both
- * press the intake at once, the driver wins ({@link IntakeArbiter}).
+ * <p>Both people can run the intake (R2) and unjam (L2), the same input on each pad. The operator's
+ * R2 toggles the intake; the driver's R2 and either L2 are holds over that toggle, and the driver
+ * wins when both press at once ({@link IntakeArbiter}).
  *
  * <p>A layout leaves out what does nothing on this robot, so the Controls page and the cheat
  * sheet show only buttons that work: {@link #NOT_BOUND} always, and {@link #TURRET_ACTIONS} while

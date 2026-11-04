@@ -34,8 +34,9 @@ import java.util.Locale;
  * arriving under it, shots, and ejects. Data only, logged as {@code /Lane/*}: a count drifts on any
  * missed event, so nothing decides anything from it (mentor, 2 Nov 2026). Its thresholds
  * ({@link #presentAbove}, {@link #leaveBelow}, the hue ranges) come from one bench reading of each
- * piece on robot 20245, 2 Nov 2026, with the sensor at slot 3; logs will refine them, and moving the
- * sensor (to slot 4, the entrance) means measuring them again.
+ * piece on robot 20245, 2 Nov 2026, with the sensor at slot 3. The sensor is now at slot 4, the
+ * entrance, where full has been seen to work; the numbers still want confirming there
+ * ({@code doc/robot-todo.md}), and logs will refine them.
  *
  * <p>The colour is the SDK's normalised reading at the sensor's default gain, unchanged, plus its
  * hue and saturation. Hue and saturation do not depend on the gain or on how far the ball is; the
@@ -88,8 +89,11 @@ public class ColorSensorSubsystem implements Subsystem {
      * logs will tighten it (likely 0.6 to 0.8 s): every full on and off is a match-log event with
      * the dwell and the lane tracker's count.
      *
-     * <p>A false full mends itself: the roller stops, the stars keep pulling the piece through, the
-     * sensor clears, full clears and the roller runs again. So an aggressive value is safe.
+     * <p>A false full does not mend itself: the prefeed stops and the roller drops to its hold power
+     * ({@code PrefeedSubsystem.stopWhenFull}), so a piece that only paused under the sensor stays
+     * until a shot or an unjam moves it. At slot 4, the entrance, a piece held there almost always
+     * means the lane really is full; still, tighten this only from logs, and if false fulls stick
+     * at an event, turn {@code stopWhenFull} off first.
      */
     public static double fullHoldS = 1.0;
 
