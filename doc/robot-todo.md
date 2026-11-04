@@ -239,6 +239,9 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       the pods on 1 Nov after they moved: likely done*)
 - [ ] Corner resets: D-pad left/right in a red corner reads ~(8.1, 133.4) / (8.1, 8.1); Triangle held
       1 s in INIT starts fresh. [PR #274], [PR #277] (*likely done: S4's intro says both work*)
+- [ ] Corner reset is the gyro reset too: hold D-pad up with the robot turned about 45° (forward now
+      wrong), then hold D-pad left squared in the red left corner. **Good:** the Match page says
+      `forward reset`, and stick-up drives away from the red drivers without touching D-pad up.
 - [ ] Log contents: `/Drive/*`, `/Drift/*`, `/Vision/*` keys, a `push:` event at a wall, `jolt:` only
       at real knocks, Pinpoint ID in Metadata, a dwell reason on each pick. [PR #283], [PR #284],
       [PR #285], [PR #286]
