@@ -126,19 +126,19 @@ These gate Belding. Run each from its start, alliance from §2.
       18:06, 4.21 s), so `AutoRegistration.GARDEN_GATHER_TYPICAL_S` is 5.0 now; a few more
       `Last GARDEN gather: N s` lines confirm or replace it. The same runs' `FLOWER pick: done` lines
       say how often a pick ends on `full`. Say whether the corner allows a stick approach for the
-      gather. [S5], [PR #384], [PR #378], [PR HONEST]
+      gather. [S5], [PR #384], [PR #378], [PR #422]
 - [ ] **A volley before the park,** from any Auto run whose trace shows `going for it, not
       parking` (pull its log). **Good:** that volley's last ball left before 30 s on the match clock
       (the launcher's shot count), and the robot ended AUTO at the launch spot, touching no wall
       (LEAVE). **Stop:** the last ball left after 30 s → note the volley's path end → gate open → last
-      ball times: `AutoRegistration.LAUNCH_ALL_LAST_PIECE_S` (4.0) is short. [PR HONEST]
+      ball times: `AutoRegistration.LAUNCH_ALL_LAST_PIECE_S` (4.0) is short. [PR #422]
 - [ ] **Launcher overshoot after a drive:** 4 Nov 00:48 the launcher ran to about 1680 ticks/s of
       1595 ±60 after each drive to `LEFT_LAUNCH_OFFSET`, and `AtSpeed` stayed false about 0.7 s, so
       the gate opened 0.98–1.12 s after arrival where the settle alone took 0.38–0.57 s. Graph
       `/Launcher/LeftTicksPerSecond`, `RightTicksPerSecond` and `AtSpeed` in Panels over an R-Solo-Staging
       run. **Good:** at speed by the time the robot settles. **Stop:** it overshoots again → it is
       the launcher's speed loop (a tuning issue for its own PR), and each volley costs ~0.5 s until
-      then. [PR HONEST]
+      then. [PR #422]
 - [ ] **The CellUp wait with a real tip:** L-Partner with a partner (or a hand) tipping, and
       R-Partner-Tip. **Good:** "Wait for TIP or CELL up" ends on the trigger, not its time limit.
       [PR #377]
@@ -412,6 +412,7 @@ one test at one meeting.
 [PR #384]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/384
 [PR #387]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/387
 [PR #391]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/391
+[PR #422]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/422
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#78]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/78
