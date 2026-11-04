@@ -1,7 +1,7 @@
 {
   "pp": "TeamCode/autos/r-partner-preload.pp",
   "spec": "RPartnerPreloadAuto@50",
-  "design": "real robot",
+  "design": "real robot, turret locked forward",
   "partnerDesign": null,
   "partnerSpeed": null,
   "seeds": [
@@ -52,7 +52,7 @@
   ],
   "metadata": {
     "AutoSource": "r-partner-preload.pp",
-    "SavedBy": "partner curation (Claude, 3 Nov 2026: on time, missing, dead; to be corrected by the mentor)",
-    "SavedAt": "2026-11-03T20:00:00+00:00"
+    "SavedBy": "Claude, 4 Nov 2026 (mentor work): waits at the wall FLOWER until 12 s, checks LEFT, then LEFT volley, scoring FLOWER and park (or RIGHT if LEFT is down); turret locked forward, as the robot runs every Auto",
+    "SavedAt": "2026-11-04T22:00:00+00:00"
   }
 }

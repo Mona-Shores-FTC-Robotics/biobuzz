@@ -20,13 +20,13 @@ public final class RPartnerPreloadAuto {
     public static final String SOURCE = "r-partner-preload.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-03|1:36AM";
+    public static final String SAVED = "11-04|1:51PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {};
+    public static final String[] TRIGGERS = {"CellUp", "Empty"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -52,16 +52,15 @@ public final class RPartnerPreloadAuto {
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose leftLaunchOffset = p.of(41, 121.5, 296.4);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
-        Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
         Pose rightPark = p.of(14.5, 95.7, 0);
+        Pose rightLaunchOffset = p.of(41, 20, 68.7);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose wallFlowerStagingParkControl1 = p.of(26, 75, 0);
-        Pose leftLaunchOffsetParkControl1 = p.of(26, 112, 0);
-        Pose scoringFlowerStagingParkControl1 = p.of(28, 110, 0);
-        Pose toRightLaunchCatchControl1 = p.of(71, 106, 0);
-        Pose toRightLaunchCatchControl2 = p.of(60, 45, 0);
-        Pose toRightParkControl1 = p.of(25, 45, 0);
+        Pose leftLaunchOffsetParkControl1 = p.of(40, 96, 0);
+        Pose toRightParkControl1 = p.of(40, 96, 0);
+        Pose toRightLaunchOffsetControl1 = p.of(34, 100, 0);
+        Pose toRightLaunchOffsetControl2 = p.of(26, 45, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
@@ -69,22 +68,30 @@ public final class RPartnerPreloadAuto {
         Path toLeftLaunchOffset = Paths.line(wallFlowerStaging, leftLaunchOffset).linear(wallFlowerStaging, leftLaunchOffset);
         Path leftLaunchOffsetPark = Paths.curve(leftLaunchOffset, leftLaunchOffsetParkControl1, rightPark).linear(leftLaunchOffset, rightPark);
         Path toScoringFlowerStaging = Paths.line(leftLaunchOffset, scoringFlowerStaging).linear(leftLaunchOffset, scoringFlowerStaging);
-        Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
-        Path toRightLaunchCatch = Paths.curve(scoringFlowerStaging, toRightLaunchCatchControl1, toRightLaunchCatchControl2, rightLaunchCatch).linear(scoringFlowerStaging, rightLaunchCatch);
-        Path toRightPark = Paths.curve(rightLaunchCatch, toRightParkControl1, rightPark).linear(rightLaunchCatch, rightPark);
+        Path toRightPark = Paths.curve(scoringFlowerStaging, toRightParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
+        Path toRightLaunchOffset = Paths.curve(leftLaunchOffset, toRightLaunchOffsetControl1, toRightLaunchOffsetControl2, rightLaunchOffset).linear(leftLaunchOffset, rightLaunchOffset);
+        Path toRightParkPath = Paths.line(rightLaunchOffset, rightPark).linear(rightLaunchOffset, rightPark);
 
         return kit.sequence(
-                kit.guarded("Auto", toRightPark, 2.7,
-                        kit.command("SpinUp"),
-                        kit.command("LaunchAll"),
-                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
-                        kit.command("PickFlower", 8),
-                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 2.5, leftLaunchOffsetPark, 1.8),
-                        kit.command("LaunchAll"),
-                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1, scoringFlowerStagingPark, 1.9),
-                        kit.command("PickFlower", 8),
-                        kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 3),
-                        kit.command("LaunchAll"),
-                        kit.path("to RIGHT_PARK", toRightPark, 2.7)));
+                kit.command("SpinUp"),
+                kit.command("LaunchAll"),
+                kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
+                kit.command("PickFlower", 4.5),
+                kit.firstOf("Wait until 12 s (partner parks)",
+                        kit.when("Empty"),
+                        kit.atMatchSeconds(12)),
+                kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 2.5, leftLaunchOffsetPark, 1.9),
+                kit.firstOf("Wait for TIP or CELL up",
+                        kit.when("CellUp").then(
+                                kit.guarded("If CellUp", toRightPark, 1.9,
+                                        kit.command("LaunchAll"),
+                                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1),
+                                        kit.command("PickFlower", 4.5),
+                                        kit.path("to RIGHT_PARK", toRightPark, 1.9))),
+                        kit.afterMs(750).then(
+                                kit.guarded("Timed out", toRightParkPath, 2.6,
+                                        kit.path("to RIGHT_LAUNCH_OFFSET", toRightLaunchOffset, 2.9),
+                                        kit.command("LaunchAll"),
+                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.6)))));
     }
 }
