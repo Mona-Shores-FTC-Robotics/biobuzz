@@ -34,6 +34,7 @@ import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaneFull;
 import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherResponse;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
@@ -245,6 +246,8 @@ public abstract class RobotOpMode extends OpMode {
     private final MotionWatch feederWatch = new MotionWatch("feeder");
     private String loggedLauncherFault;
     private int loggedPidfWrites;
+    private int loggedSpinUps;
+    private int loggedDips;
     // Drift: pushes and jolts, the camera frame last logged, the Pinpoint's last status.
     private final ImpactWatch impacts = new ImpactWatch();
     /** TeleOp with no handoff: the camera against the declared start in INIT ({@link CameraStart}). */
@@ -1358,6 +1361,30 @@ public abstract class RobotOpMode extends OpMode {
             log.put("/Launcher/RightCurrentAmps", rightAmps);
         }
         log.put("/Launcher/Reversing", robot.launcher.reversing() ? 1 : 0);
+        // Each spin-up's and each shot dip's timing (LauncherResponse), with the battery, once each.
+        LauncherResponse response = robot.launcher.response();
+        if (response.spinUps() != loggedSpinUps) {
+            loggedSpinUps = response.spinUps();
+            log.put("/Launcher/RiseMs", response.riseMs());
+            log.put("/Launcher/SpinOvershootTicksPerSecond", response.spinOvershootTps());
+            log.put("/Launcher/SettleMs", response.settleMs());
+            log.event(String.format(Locale.US,
+                    "launcher: spin-up from %.0f to %.0f ticks/s: in tolerance %.0f ms, overshoot %.0f, at speed %.0f ms (battery %.2f V)",
+                    response.spinFromTps(), robot.launcher.target(), response.riseMs(), response.spinOvershootTps(),
+                    response.settleMs(), lastBatteryVolts));
+        }
+        if (response.dips() != loggedDips) {
+            loggedDips = response.dips();
+            log.put("/Launcher/DipDepthTicksPerSecond", response.dipDepthTps());
+            log.put("/Launcher/RecoverMs", response.recoverMs());
+            log.put("/Launcher/DipOvershootTicksPerSecond", response.dipOvershootTps());
+            if (!Double.isNaN(response.resettleMs())) log.put("/Launcher/ResettleMs", response.resettleMs());
+            log.event(String.format(Locale.US,
+                    "launcher: dip %.0f ticks/s, back in tolerance %.0f ms, overshoot %.0f, at speed %s (battery %.2f V)",
+                    response.dipDepthTps(), response.recoverMs(), response.dipOvershootTps(),
+                    Double.isNaN(response.resettleMs()) ? "not again" : String.format(Locale.US, "%.0f ms", response.resettleMs()),
+                    lastBatteryVolts));
+        }
         // The hub velocity loop's gains as written (nothing until Panels sets one), and each write as an event.
         if (robot.launcher.pidfWrites() != loggedPidfWrites) {
             loggedPidfWrites = robot.launcher.pidfWrites();

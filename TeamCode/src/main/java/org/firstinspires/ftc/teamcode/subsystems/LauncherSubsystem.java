@@ -72,6 +72,9 @@ import java.util.Locale;
  * student writes hit or miss next to each row afterwards. That is how #80's speed-vs-distance
  * table gets its rows. It is a measurement, never a gate: nothing here waits for it.
  *
+ * <p>Each spin-up and each shot's dip is also timed ({@link LauncherResponse}: rise, overshoot,
+ * settle; dip depth, recovery, overshoot after it), for tuning the velocity PIDF from numbers.
+ *
  * <p>Nothing here is measured yet. The directions, the starting setpoint and the tolerance are
  * {@code @Configurable} so the bench sets them in Panels; the values that work get written back
  * here with the robot they were checked on.
@@ -241,6 +244,9 @@ public class LauncherSubsystem implements Subsystem {
     private final AtSpeedTimer readiness = new AtSpeedTimer();
     private boolean atSpeed;
     private final ShotDetector shots = new ShotDetector();
+    private final LauncherResponse response = new LauncherResponse();
+    /** The last update ran the SPINNING branch (not idle, not reversing): a new one starts a spin-up measurement. */
+    private boolean measuring;
     private double lastLeftTarget = Double.NaN;
     private double lastRightTarget = Double.NaN;
     /** The velocity last sent to each wheel; NaN when none is standing, so the next one goes. */
@@ -342,6 +348,8 @@ public class LauncherSubsystem implements Subsystem {
         readiness.reset();
         shots.reset();
         atSpeed = false;
+        response.cancel();
+        measuring = false;
     }
 
     /** What the launcher has been asked to do. The request, not a measurement. */
@@ -385,6 +393,11 @@ public class LauncherSubsystem implements Subsystem {
     /** The common target in force on the last counted shot, ticks per second; NaN before the first. */
     public double lastShotTargetTicksPerSecond() {
         return shots.lastTargetTicksPerSecond();
+    }
+
+    /** Spin-up and dip timings (class comment), for tuning the velocity PIDF. */
+    public LauncherResponse response() {
+        return response;
     }
 
     /** True while the wheels are down in a dip that has not yet recovered: a piece in the wheels, or a jam. */
@@ -559,6 +572,11 @@ public class LauncherSubsystem implements Subsystem {
             atSpeed = false;
             if (!reverse && state == State.SPINNING) spinUpStartedNs = now;
         }
+        if (measuring && (reverse || state != State.SPINNING)) {
+            // Not spinning toward a target any more: a timing in progress means nothing.
+            response.cancel();
+            measuring = false;
+        }
         if (reverse) {
             boolean force = resend.due(now);
             leftSent = command(left, leftFault ? 0.0 : reverseCommandFor(reverseTicksPerSecond, leftReversed),
@@ -596,9 +614,22 @@ public class LauncherSubsystem implements Subsystem {
                     && Math.abs(rightTicksPerSecond - rightTarget) <= toleranceTicksPerSecond;
             atSpeed = readiness.update(within, now, atSpeedHoldMs);
             // A target change (Panels nudge, a table lookup) re-arms the detector: not a shot.
-            if (leftTarget != lastLeftTarget || rightTarget != lastRightTarget) shots.reset();
+            boolean newTarget = leftTarget != lastLeftTarget || rightTarget != lastRightTarget;
+            if (newTarget) shots.reset();
             shots.update(deficit(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond),
                     within, target(), shotDipTicksPerSecond);
+            // A step starts here: from idle, out of an unjam, or to a new target.
+            if (!measuring || newTarget) {
+                response.command(now, Math.min(leftTicksPerSecond, rightTicksPerSecond));
+                measuring = true;
+            }
+            if (leftFault || rightFault) {
+                response.cancel();
+            } else {
+                response.update(now, within, atSpeed,
+                        excess(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond),
+                        shots.inDip(), shots.justCounted(), shots.lastDipTicksPerSecond());
+            }
         } else {
             left.setPower(0.0);
             if (right != null) right.setPower(0.0);
@@ -762,7 +793,8 @@ public class LauncherSubsystem implements Subsystem {
                     Double.isNaN(leftCurrentAmps) ? "current not read while idle"
                             : String.format(Locale.US, "%.1f A (both motors)", leftCurrentAmps)));
             display.line(shotsLine());
-                display.line(pidfLine());
+            display.line(responseLine());
+            display.line(pidfLine());
             return;
         }
         display.line(String.format(Locale.US, "Wheels L %.0f / R %.0f ticks/s%s · %s",
@@ -770,6 +802,7 @@ public class LauncherSubsystem implements Subsystem {
                 Double.isNaN(leftCurrentAmps) ? "current not read while idle"
                         : String.format(Locale.US, "L %.1f / R %.1f A", leftCurrentAmps, rightCurrentAmps)));
         display.line(shotsLine());
+        display.line(responseLine());
         display.line(pidfLine());
     }
 
@@ -780,6 +813,19 @@ public class LauncherSubsystem implements Subsystem {
                 : String.format(Locale.US, "last dip %.0f ticks/s below a %.0f target",
                         shots.lastDipTicksPerSecond(), shots.lastTargetTicksPerSecond());
         return String.format(Locale.US, "Shots %d · %s%s", n, last, shots.inDip() ? " · IN A DIP" : "");
+    }
+
+    /** The last spin-up's and the last dip's timings (LauncherResponse), for the Robot page and the bench. */
+    public String responseLine() {
+        String spin = response.spinUps() == 0 ? "no spin-up timed yet"
+                : String.format(Locale.US, "spin-up rise %.0f ms, over %.0f, at speed %.0f ms",
+                        response.riseMs(), response.spinOvershootTps(), response.settleMs());
+        String dip = response.dips() == 0 ? "no dip timed yet"
+                : String.format(Locale.US, "dip %.0f, back %.0f ms, over %.0f, at speed %s",
+                        response.dipDepthTps(), response.recoverMs(), response.dipOvershootTps(),
+                        Double.isNaN(response.resettleMs()) ? "never"
+                                : String.format(Locale.US, "%.0f ms", response.resettleMs()));
+        return spin + " · " + dip;
     }
 
     private String rpmSuffix() {
@@ -851,6 +897,14 @@ public class LauncherSubsystem implements Subsystem {
      */
     static double deficit(double leftTarget, double leftMeasured, double rightTarget, double rightMeasured) {
         return Math.max(leftTarget - leftMeasured, rightTarget - rightMeasured);
+    }
+
+    /**
+     * How far over its target the faster wheel is, ticks per second: the larger of the two wheels'
+     * excesses, negative when both are under. The mirror of {@link #deficit}. Pure.
+     */
+    static double excess(double leftTarget, double leftMeasured, double rightTarget, double rightMeasured) {
+        return Math.max(leftMeasured - leftTarget, rightMeasured - rightTarget);
     }
 
     /** Clamps a Panels-editable speed to [0, ∞) and treats NaN as 0: a typo spins down, never backwards. */

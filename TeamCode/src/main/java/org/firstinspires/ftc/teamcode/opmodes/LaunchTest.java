@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.Input;
 import org.firstinspires.ftc.teamcode.controls.IntakeToggle;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherResponse;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
 
@@ -341,6 +342,20 @@ public class LaunchTest extends RobotOpMode {
             panels.addData("at_speed", robot.launcher.atSpeed() ? 1.0 : 0.0);
             panels.addData("launcher_reversing", robot.launcher.reversing() ? 1.0 : 0.0);
             panels.addData("shots", robot.launcher.shots());
+            // Tuning the velocity PIDF: the last spin-up's and dip's timings, and the gains as written.
+            LauncherResponse response = robot.launcher.response();
+            panels.addData("launcher_rise_ms", response.riseMs());
+            panels.addData("launcher_overshoot_tps", response.spinOvershootTps());
+            panels.addData("launcher_settle_ms", response.settleMs());
+            panels.addData("launcher_dip_tps", response.dipDepthTps());
+            panels.addData("launcher_recover_ms", response.recoverMs());
+            panels.addData("launcher_dip_overshoot_tps", response.dipOvershootTps());
+            panels.addData("launcher_resettle_ms", response.resettleMs());
+            panels.addData("launcher_p_applied", robot.launcher.appliedP());
+            panels.addData("launcher_i_applied", robot.launcher.appliedI());
+            panels.addData("launcher_d_applied", robot.launcher.appliedD());
+            panels.addData("launcher_f_applied", robot.launcher.appliedF());
+            panels.addData("launcher_f_scale", robot.launcher.fScale());
             panels.addData("feeder_tps", robot.feeder.ticksPerSecond());
             panels.addData("intake_toggle", intakeToggle.on() ? 1.0 : 0.0);
             panels.addData("intake_tps", robot.intake.ticksPerSecond());
