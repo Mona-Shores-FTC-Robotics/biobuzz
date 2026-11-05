@@ -14,7 +14,7 @@ public class LaunchSpeedTableTest {
     private static final double NaN = Double.NaN;
 
     private static double at(double[] ranges, double[] speeds, double rangeIn) {
-        return LaunchSpeedTable.interpolate(ranges, speeds, rangeIn);
+        return LaunchSpeedTable.interpolate(ranges, speeds, rangeIn, 0);
     }
 
     @Test
@@ -34,11 +34,47 @@ public class LaunchSpeedTableTest {
     }
 
     @Test
-    public void pastEitherEndIsTheEndRowNeverAnExtrapolation() {
+    public void withNoExtensionPastEitherEndIsTheEndRow() {
         double[] r = {40, 60, 80};
         double[] s = {1400, 1600, 1900};
-        assertEquals(1400, at(r, s, 10), EPS);
-        assertEquals(1900, at(r, s, 200), EPS);
+        assertEquals(1400, LaunchSpeedTable.interpolate(r, s, 10, 0), EPS);
+        assertEquals(1900, LaunchSpeedTable.interpolate(r, s, 200, 0), EPS);
+        assertEquals(1900, LaunchSpeedTable.interpolate(r, s, 200, NaN), EPS);
+    }
+
+    @Test
+    public void slightlyPastAnEndFollowsThatEndsSlope() {
+        // Close end: 10 ticks/s per inch (40→60); far end: 15 per inch (60→80).
+        double[] r = {40, 60, 80};
+        double[] s = {1400, 1600, 1900};
+        assertEquals(1370, LaunchSpeedTable.interpolate(r, s, 37, 5), EPS);
+        assertEquals(1945, LaunchSpeedTable.interpolate(r, s, 83, 5), EPS);
+    }
+
+    @Test
+    public void farPastAnEndHoldsWhereTheExtensionStops() {
+        double[] r = {40, 60, 80};
+        double[] s = {1400, 1600, 1900};
+        assertEquals(1350, LaunchSpeedTable.interpolate(r, s, 10, 5), EPS);
+        assertEquals(1975, LaunchSpeedTable.interpolate(r, s, 200, 5), EPS);
+    }
+
+    @Test
+    public void theEndSlopeUsesTheTwoOutermostRowsWhateverTheirOrder() {
+        double[] r = {80, 40, 60};
+        double[] s = {1900, 1400, 1600};
+        assertEquals(1370, LaunchSpeedTable.interpolate(r, s, 37, 5), EPS);
+        assertEquals(1945, LaunchSpeedTable.interpolate(r, s, 83, 5), EPS);
+    }
+
+    @Test
+    public void the4NovRowsAnswerAcrossTheSpotsAndALittleBeyond() {
+        double[] r = {39.0, 42.3, 50.5, 55.4};
+        double[] s = {1520, 1560, 1570, 1635};
+        assertEquals(1560, LaunchSpeedTable.interpolate(r, s, 42.3, 5), EPS);
+        assertEquals(1665, LaunchSpeedTable.interpolate(r, s, 57.66, 5), 1.0);
+        assertEquals(1460, LaunchSpeedTable.interpolate(r, s, 30, 5), 1.0);
+        assertEquals(1701, LaunchSpeedTable.interpolate(r, s, 70, 5), 1.0);
     }
 
     @Test
