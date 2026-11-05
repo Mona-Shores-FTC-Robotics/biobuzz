@@ -29,45 +29,25 @@ public final class TeleOpConfig {
 
     /**
      * Everyday driving: the sticks are multiplied by this, and no wheel gets more than this
-     * ({@code WheelPowerCap}), so it is this fraction of turbo in every direction and while turning.
-     * 1.0 would be full power. Clamped to [0, 1], NaN stops.
+     * ({@code WheelPowerCap}). Full power, with the acceleration limit on. Clamped to [0, 1], NaN
+     * stops.
      *
-     * <p>0.7 since 4 Nov 2026, from the 2 and 3 Nov Basic Drive logs on 20245, when L1 and R1 did
-     * not feel like they changed much. Before the wheel cap, 0.8 with the stick at its rim was
-     * normalized to full power about half the time (a diagonal to the robot or a turn), 0.94 of full
-     * power on average, so turbo gave 6% more power: wheels 1660 against 1740 ticks/s, 36 against
-     * 39 in/s (steady segments, the command held over 0.5 s). Now each mode is its share of turbo.
-     *
-     * <p>Turbo has plenty above that: TeleOp holds were too short to reach top speed, and the same
-     * robot under a full-power Auto path ran its wheels at 1800 to 2360 ticks/s and 64 in/s
-     * (R-Solo-Staging, 4 Nov); the Foresight Tuner measured 71 in/s forward. Below that the wheels
-     * run about 2000 ticks/s per unit of power (1040 at 0.5, 1600 at 0.8), so 0.7 is about
-     * 1400 ticks/s and turbo has room for half as much again, given the distance to get there.
-     * History: 0.6 until 29 Oct (the driver held the stick at its rim more than half the time and
-     * almost never used turbo), then 0.8, which with the saturation was nearly turbo. Drivers judge
-     * the new value in Basic Drive ({@code doc/robot-todo.md}). 0.76 since 5 Nov 2026: the drive
-     * team found 0.7 a little slow and asked for about 8% more.
+     * <p>1.0 since 5 Nov 2026, the drive team's call: turbo (R1, full power) is gone and its speed
+     * is now normal, and the old normal (0.76) is now {@link #slowSpeed}. History: 0.6 until 29 Oct,
+     * then 0.8 (which saturated to nearly full power on diagonals before the wheel cap), 0.7 on
+     * 4 Nov, 0.76 on 5 Nov, with turbo at 1.0 on R1.
      */
-    public static double normalSpeed = 0.76;
+    public static double normalSpeed = 1.0;
 
     /**
-     * Stick multiplier and wheel cap while turbo is held, with the acceleration limit off. Full
-     * power. Clamped to [0, 1].
-     */
-    public static double turboSpeed = 1.0;
-
-    /**
-     * Stick multiplier and wheel cap while slow is held, for lining up. Slow wins if both are held.
-     * Clamped to [0, 1].
+     * Stick multiplier and wheel cap while slow (L1) is held, for lining up: this fraction of full
+     * power in every direction and while turning. Clamped to [0, 1].
      *
-     * <p>0.35 on 5 Nov 2026. At 0.25 (4 Nov) the robot drove forward and back but did not strafe
-     * at all on 20245: a mecanum strafe needs more wheel power than a straight drive to overcome
-     * the rollers. 0.45 was too close to normal to feel like a precision mode (57% of normal at the
-     * wheels, 940 against 1660 ticks/s, in the 2 and 3 Nov logs), so 0.35 sits between. The cap
-     * holds the chassis aim's turn to it too. 0.38 since later on 5 Nov: at 0.35 it strafed, and the
-     * drive team asked for about 8% more.
+     * <p>0.76 since 5 Nov 2026: the old normal speed, the drive team's call when turbo became
+     * normal. Before that slow was 0.38 (0.25 on 4 Nov did not strafe on 20245: a mecanum strafe
+     * needs more wheel power than a straight drive to overcome the rollers).
      */
-    public static double slowSpeed = 0.38;
+    public static double slowSpeed = 0.76;
 
     /** Degrees one trim press moves the aim. Clamped to [0, 5]. */
     public static double trimStepDeg = 1.5;

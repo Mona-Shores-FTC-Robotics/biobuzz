@@ -14,7 +14,6 @@ public enum Action {
     INTAKE(Pad.DRIVER, "Intake (hold, over the toggle)"),
     DRIVER_UNJAM(Pad.DRIVER, "Unjam (hold)"),
     SLOW(Pad.DRIVER, "Slow (hold)"),
-    TURBO(Pad.DRIVER, "Turbo (hold)"),
     FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold)"),
     GARDEN_GATHER(Pad.DRIVER, "*Gather GARDEN (hold)"),
     CHASSIS_AIM(Pad.DRIVER, "Aim Chassis (hold)"),

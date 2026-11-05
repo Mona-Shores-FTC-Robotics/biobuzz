@@ -286,7 +286,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         robotCentricCommand = true;
     }
 
-    /** False skips the acceleration limit, for a driver who wants speed now (turbo). */
+    /** False skips the acceleration limit, for a driver who wants speed now. */
     public void setAccelLimited(boolean limited) {
         accelLimited = limited;
     }
@@ -814,7 +814,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             s = strafeLimiter.step(s, accelPerSec, dt);
             t = turnLimiter.step(t, turnAccelPerSec, dt);
         } else {
-            // Keep the limiters in step with what the wheels really get, so leaving turbo drops
+            // Keep the limiters in step with what the wheels really get, so turning the limit back on drops
             // straight to the new command rather than ramping from wherever they were before.
             forwardLimiter.reset(f);
             strafeLimiter.reset(s);

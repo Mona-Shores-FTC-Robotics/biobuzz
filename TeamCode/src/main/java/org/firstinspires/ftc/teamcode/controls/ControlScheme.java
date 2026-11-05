@@ -78,7 +78,6 @@ public final class ControlScheme {
         map.put(Action.INTAKE, Input.R2);
         map.put(Action.DRIVER_UNJAM, Input.L2);
         map.put(Action.SLOW, Input.L1);
-        map.put(Action.TURBO, Input.R1);
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
         map.put(Action.GARDEN_GATHER, Input.TRIANGLE);

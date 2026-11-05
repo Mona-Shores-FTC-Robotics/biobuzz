@@ -308,14 +308,14 @@ measurement is [#255].
 - [ ] **GARDEN into the corner,** driver Triangle near the red GARDEN, three times. **Good:** pressed
       into both walls, intake in the corner; note the `towardWallIn` that works (0 = off).
       [S4 §6], [PR #279]
-- [ ] **Drive speeds, the drivers' call:** Basic Drive, a few minutes each driver: normal, then
-      hold L1 (slow) to line up on a FLOWER, then R1 (turbo) across the field, diagonals included.
-      New defaults normal 0.76 / slow 0.38 / turbo 1.0 (5 Nov: slow 0.25 did not strafe, and both went up about 8% at the drivers' ask), and each mode now caps the wheels, so it is
-      that fraction of turbo in every direction (before, 0.8 on a diagonal was already full power).
-      Change them live in Panels → TeleOpConfig if they ask. **Good:** each mode feels different and
-      the drivers name the values they keep; write those in `TeleOpConfig`, pull the log. **Stop:**
-      normal too slow for everyday driving → raise it in steps of 0.05, checking turbo still feels
-      clearly faster after each; with the cap, normal is now exactly its share of turbo. [PR #425]
+- [ ] **Drive speeds, the drivers' call:** Basic Drive, a few minutes each driver: normal across
+      the field, diagonals included, then hold L1 (slow) to line up on a FLOWER. Turbo is gone
+      (5 Nov): normal is now full power 1.0 (the old turbo, but with the acceleration ramp on), slow
+      is 0.76 (the old normal), and R1 does nothing. Change them live in Panels → TeleOpConfig if
+      they ask. **Good:** the drivers keep full power as normal and slow is slow enough to line up;
+      write the values they keep in `TeleOpConfig`, pull the log. **Stop:** normal feels sluggish
+      off the line compared with the old turbo → the ramp is the difference (turbo skipped it);
+      tell a mentor. [PR #425]
 
 ## 5. Pose and camera (Basic Drive / Vision: HIVE & Pose)
 

@@ -47,7 +47,7 @@ public final class AccelLimiter {
         return current;
     }
 
-    /** Jumps straight to {@code value}, e.g. when the limit is bypassed for turbo. */
+    /** Jumps straight to {@code value}, e.g. when the limit is bypassed. */
     public void reset(double value) {
         current = value;
     }
