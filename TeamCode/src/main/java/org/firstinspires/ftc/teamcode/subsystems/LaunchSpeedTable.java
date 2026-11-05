@@ -37,6 +37,13 @@ import com.bylazar.configurables.annotations.Configurable;
  * worn wheel has room either way, and the range the robot showed rather than these model numbers.
  * Then switch {@link #enabled} on. Both robots share the table (identical hardware); one seen to
  * differ gets a line in {@code RobotDifferences}, never a second table.
+ *
+ * <p><b>Measured</b> on 20245 on 4 Nov 2026, with the launcher PIDF tuned that night, each range the
+ * robot showed ({@code last_shot_range_in}) and the speed the drive team picked as scoring well:
+ * RIGHT_LAUNCH_CATCH 39 in (38.6–39.2) at 1520, RIGHT_LAUNCH_OFFSET 42.3 in at 1560, RIGHT_START
+ * 50.5 in at 1570, and the hand-driven shot near the GARDEN 55.4 in (55.3–55.5) at 1635. The ranges
+ * are 3–4 in shorter than the spots' model numbers above. Beyond 55.4 in the table holds 1635
+ * rather than guess; below 39 in it holds 1520.
  */
 @Configurable
 public final class LaunchSpeedTable {
@@ -49,27 +56,27 @@ public final class LaunchSpeedTable {
      * {@link LauncherSubsystem#targetTicksPerSecond} plus any trim, exactly as before the table, and
      * the rows are ignored; that is also how the rows are measured (Square, trim until it scores,
      * write the speed down). On: every launch uses the table for its range, falling back to the
-     * configured speed only where the table has no answer. Flip it in Panels to try the table and
-     * back if it makes things worse; write it here once the rows are trusted.
+     * configured speed only where the table has no answer. On since 4 Nov 2026 (the rows below);
+     * flip it off in Panels if a launch gets worse, and that is the single speed exactly.
      */
-    public static boolean enabled = false;
+    public static boolean enabled = true;
 
     /** Row 1: horizontal range from the turret axis to the UP CELL's raised row, inches. NaN: no row. */
-    public static double row1RangeIn = Double.NaN;
+    public static double row1RangeIn = 39.0;
     /** Row 1: the launch speed that scores from {@link #row1RangeIn}, ticks per second. NaN: no row. */
-    public static double row1TicksPerSecond = Double.NaN;
+    public static double row1TicksPerSecond = 1520.0;
     /** As row 1. */
-    public static double row2RangeIn = Double.NaN;
+    public static double row2RangeIn = 42.3;
     /** As row 1. */
-    public static double row2TicksPerSecond = Double.NaN;
+    public static double row2TicksPerSecond = 1560.0;
     /** As row 1. */
-    public static double row3RangeIn = Double.NaN;
+    public static double row3RangeIn = 50.5;
     /** As row 1. */
-    public static double row3TicksPerSecond = Double.NaN;
+    public static double row3TicksPerSecond = 1570.0;
     /** As row 1. */
-    public static double row4RangeIn = Double.NaN;
+    public static double row4RangeIn = 55.4;
     /** As row 1. */
-    public static double row4TicksPerSecond = Double.NaN;
+    public static double row4TicksPerSecond = 1635.0;
     /** As row 1. */
     public static double row5RangeIn = Double.NaN;
     /** As row 1. */
