@@ -232,20 +232,4 @@ public class NectarRejectTest {
         }
         assertEquals(0, reject.bursts());
     }
-
-    @Test
-    public void theStartOfABurstIsItsFirstMilliseconds() {
-        blueOnRed(0);
-        blueOnRed(50);
-        assertTrue(reject.burstYoungerThan(200));
-        tick(249);
-        assertTrue(reject.burstYoungerThan(200));
-        tick(250);
-        assertFalse(reject.burstYoungerThan(200));
-        assertTrue(reject.rejecting());
-        assertFalse("0 is never", reject.burstYoungerThan(0));
-        assertFalse("NaN is never", reject.burstYoungerThan(Double.NaN));
-        tick(560);
-        assertFalse("not in the hold-off", reject.burstYoungerThan(10_000));
-    }
 }

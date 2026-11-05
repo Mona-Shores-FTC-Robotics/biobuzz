@@ -522,8 +522,7 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       (intake toggle + prefeed stop)
 - [ ] **Spit out the other alliance's NECTAR** (`NectarReject`; Panels `ColorSensorSubsystem`:
       `rejectEnemyNectar`, `rejectBurstS` 0.5 and `rejectHoldOffS` 0.3, both guesses, the roller at
-      `rejectRollerPower` 1.0 during a burst (0.6 left one at the mouth, 5 Nov), the prefeed backing
-      out for the burst's first `rejectPrefeedS` 0.2 s (a guess) for a NECTAR already past the stars,
+      `rejectRollerPower` 1.0 during a burst (0.6 left one at the mouth, 5 Nov),
       `rejectAfterReadings` 2, the cap `rejectMaxBursts` 3 in `rejectWindowS` 3). Basic Drive, red,
       intake on: feed in a blue NECTAR by hand, ten times, then a red NECTAR and POLLEN ten times
       each. **Good:** every blue one comes back out within about 0.2 s of reaching the sensor and
@@ -532,9 +531,7 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       Repeat as blue with a red NECTAR, then once during a FLOWER pick (the pick's dwell should not
       end early on the burst). **Tune:** bursts back to back on one piece, or the roller takes it
       straight back in after the hold-off → raise `rejectBurstS` or `rejectHoldOffS`; it is thrown
-      much further than needed → lower `rejectBurstS`. A NECTAR still getting past the stars →
-      raise `rejectPrefeedS`; a good piece ahead of it thrown out with it → lower it. Try
-      `rejectAfterReadings` 1 too (a burst 50 ms sooner): blue's hue is far from POLLEN's, red's is close. A `REJECT gave up` or a `FULL with the other
+      much further than needed → lower `rejectBurstS`. A `REJECT gave up` or a `FULL with the other
       alliance's NECTAR` event means a burst could not clear it: film it. A POLLEN or our own NECTAR spat out → the event's hue says which range
       (`redNectarHueMin/Max`, `blueNectarHueMin/Max`) to narrow; until fixed, `rejectEnemyNectar` off.
 - [ ] `IntakeSubsystem.holdPowerWhenFull` is 0 (roller off when full, stars still turning; the drive

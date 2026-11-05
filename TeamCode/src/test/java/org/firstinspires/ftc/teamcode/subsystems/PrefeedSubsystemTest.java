@@ -136,16 +136,4 @@ public class PrefeedSubsystemTest {
         assertEquals("an unjam still backs out", State.OUT,
                 PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.REVERSE, false, true));
     }
-
-    @Test
-    public void theStartOfARejectBacksThePrefeedOut() {
-        assertEquals(State.OUT, PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, false, true, true));
-        assertEquals(State.OUT, PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, true, true, true));
-        assertEquals("then it holds still", State.IDLE,
-                PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, false, true, false));
-        assertEquals("a feed still carries in", State.IN,
-                PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.FEED, false, true, true));
-        assertEquals("no reject, no back-out", State.IN,
-                PrefeedSubsystem.requestFor(IntakeSubsystem.State.IN, FeederSubsystem.State.IDLE, false, false, true));
-    }
 }

@@ -56,7 +56,6 @@ public final class NectarReject {
     private boolean justGaveUp;
     private long bursts;
     private boolean justStarted;
-    private long lastNowMs;
     /** Start times of the latest bursts, a ring, for the cap. */
     private final long[] recent = new long[MAX_TRACKED];
     private int recentCount;
@@ -93,7 +92,6 @@ public final class NectarReject {
                      double holdOffMs, int maxBursts, double windowMs) {
         justStarted = false;
         justGaveUp = false;
-        lastNowMs = nowMs;
         LaneTracker.Piece enemy = enemyNectar(ours);
         if (!enabled || enemy == null || !(burstMs > 0) || Double.isNaN(seenAbove)) {
             phase = Phase.IDLE;
@@ -162,15 +160,6 @@ public final class NectarReject {
     /** Whether a burst is running: the roller and the stars back out. */
     public boolean rejecting() {
         return phase == Phase.BURST;
-    }
-
-    /**
-     * Whether a burst is running and began less than {@code ms} ago, as of the last {@link #step}:
-     * the start of the burst, when the prefeed backs out too ({@code ColorSensorSubsystem.rejectPrefeedS}).
-     * Never for NaN or not positive {@code ms}.
-     */
-    public boolean burstYoungerThan(double ms) {
-        return phase == Phase.BURST && lastNowMs - phaseStartMs < ms;
     }
 
     /** Whether the hold-off after a burst is running: the roller and the stars stay stopped. */
