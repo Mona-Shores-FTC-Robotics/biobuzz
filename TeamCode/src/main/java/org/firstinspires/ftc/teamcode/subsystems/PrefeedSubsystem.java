@@ -186,8 +186,9 @@ public class PrefeedSubsystem implements Subsystem {
             stoppedForFull = false;
         } else {
             boolean full = stopWhenFull && laneFull.getAsBoolean();
-            state = requestFor(intake.starsState(), feeder.state(), full);
-            stoppedForFull = full && requestFor(intake.starsState(), feeder.state()) != state;
+            boolean rejecting = intake.rejecting();
+            state = requestFor(intake.starsState(), feeder.state(), full, rejecting);
+            stoppedForFull = full && requestFor(intake.starsState(), feeder.state(), false, rejecting) != state;
         }
         boolean feeding = override == null && feeder.state() == FeederSubsystem.State.FEED;
         if (feeding && !wasFeeding) {
@@ -244,6 +245,20 @@ public class PrefeedSubsystem implements Subsystem {
      * feed carries pieces toward the gate then. Backing out still wins, and a feed still pushes.
      */
     public static State requestFor(IntakeSubsystem.State intake, FeederSubsystem.State feeder, boolean stopForFull) {
+        return requestFor(intake, feeder, stopForFull, false);
+    }
+
+    /**
+     * As {@link #requestFor(IntakeSubsystem.State, FeederSubsystem.State, boolean)}, and with the
+     * intake {@code rejecting} (spitting out the other alliance's NECTAR, its stars backing out) the
+     * prefeed does not back out with it: it holds still, so only the piece at the entrance goes, or
+     * keeps carrying in while the feeder feeds. The feeder reversing still backs it out.
+     */
+    public static State requestFor(IntakeSubsystem.State intake, FeederSubsystem.State feeder, boolean stopForFull,
+                                   boolean rejecting) {
+        if (rejecting && feeder != FeederSubsystem.State.REVERSE) {
+            return feeder == FeederSubsystem.State.FEED ? State.IN : State.IDLE;
+        }
         if (intake == IntakeSubsystem.State.OUT || feeder == FeederSubsystem.State.REVERSE) {
             return State.OUT;
         }

@@ -126,4 +126,14 @@ public class PrefeedSubsystemTest {
         assertEquals(-0.4, PrefeedSubsystem.powerFor(State.OUT, 0.0, 0.4, false), EPS);
         assertEquals(0.4, PrefeedSubsystem.powerFor(State.OUT, 0.0, 0.4, true), EPS);
     }
+
+    @Test
+    public void aRejectHoldsThePrefeedSoOnlyTheEntrancePieceGoes() {
+        assertEquals(State.IDLE, PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, false, true));
+        assertEquals(State.IDLE, PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, true, true));
+        assertEquals("a feed keeps carrying in", State.IN,
+                PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.FEED, false, true));
+        assertEquals("an unjam still backs out", State.OUT,
+                PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.REVERSE, false, true));
+    }
 }

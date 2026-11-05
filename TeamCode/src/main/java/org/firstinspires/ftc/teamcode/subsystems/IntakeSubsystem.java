@@ -69,6 +69,16 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * indicator green and ends an Auto's {@code IntakeFull} wait; a count of pieces is never used,
  * since it drifts on any missed event (mentor, 2 Nov 2026).
  *
+ * <h2>Spitting out the other alliance's NECTAR</h2>
+ *
+ * <p>While the colour sensor says so ({@code ColorSensorSubsystem.rejecting()}, fed to this class by
+ * {@link #rejectWhile}), the roller and the stars back out at {@link #outPower} and
+ * {@link #starsPower}, over whatever was asked, the full hold and a feed included: the piece at the
+ * entrance is the other alliance's NECTAR, and holding one is a big penalty. The prefeed holds
+ * still meanwhile, so only that piece goes ({@code PrefeedSubsystem.requestFor}). The OpMode's own
+ * eject and the feeder reversing back everything out anyway, so they are unchanged.
+ * {@link #rejecting()} says when it is happening.
+ *
  * <p>The star servo is not written before PLAY: a continuous servo told "stop" creeps if its stop
  * is not quite centred, and nothing may move after INIT (G304.H, G403; see {@link Subsystem}).
  */
@@ -154,6 +164,9 @@ public class IntakeSubsystem implements Subsystem {
     private double ejectStarsPower = Double.NaN;
     private boolean feedAssist;
     private boolean holdingForFull;
+    private boolean rejecting;
+    /** Whether to spit out the piece at the entrance; never until {@link #rejectWhile} is called. */
+    private BooleanSupplier reject = () -> false;
     /** Whether the lane is full; never until {@link #laneFull} is called, so the roller never stops for it. */
     private BooleanSupplier laneFull = () -> false;
     private boolean started;
@@ -195,6 +208,15 @@ public class IntakeSubsystem implements Subsystem {
      */
     public void laneFull(BooleanSupplier full) {
         laneFull = full;
+    }
+
+    /**
+     * Where to read whether to spit out the piece at the entrance (the other alliance's NECTAR).
+     * Wired once by {@code Robot} to the colour sensor, which updates after this subsystem, so a
+     * burst starts one loop after the reading that called for it.
+     */
+    public void rejectWhile(BooleanSupplier rejecting) {
+        reject = rejecting;
     }
 
     /** Ask for pieces in. Takes effect in the next {@link #update()}. */
@@ -256,6 +278,11 @@ public class IntakeSubsystem implements Subsystem {
         return holdingForFull;
     }
 
+    /** Whether the roller and the stars are spitting out the other alliance's NECTAR (class comment). */
+    public boolean rejecting() {
+        return rejecting;
+    }
+
     /** Whether the roller or the stars run only because the feeder is feeding or reversing. */
     public boolean feedAssist() {
         return feedAssist;
@@ -288,6 +315,7 @@ public class IntakeSubsystem implements Subsystem {
         feedAssist = false;
         clearEjectPowers();
         holdingForFull = false;
+        rejecting = false;
         started = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -328,7 +356,13 @@ public class IntakeSubsystem implements Subsystem {
             roller = State.IN;
             starsState = State.IN;
         }
-        feedAssist = !holdingForFull && request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
+        rejecting = started && rejects(request, feed, reject.getAsBoolean());
+        if (rejecting) {
+            holdingForFull = false;
+            roller = State.OUT;
+            starsState = State.OUT;
+        }
+        feedAssist = !holdingForFull && !rejecting && request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
         boolean ownEject = request == State.OUT;
         motor.setPower(powerFor(roller, holdingForFull ? holdPowerWhenFull : inPower,
                 ownEject ? orConfigured(ejectRollerPower, outPower) : outPower));
@@ -362,6 +396,7 @@ public class IntakeSubsystem implements Subsystem {
         roller = State.IDLE;
         starsState = State.IDLE;
         feedAssist = false;
+        rejecting = false;
         motor.setPower(0.0);
         stars.setPower(0.0);
     }
@@ -374,7 +409,8 @@ public class IntakeSubsystem implements Subsystem {
     @Override
     public void describe(Display display) {
         boolean moving = roller != State.IDLE || starsState != State.IDLE;
-        String what = holdingForFull ? String.format(Locale.US,
+        String what = rejecting ? "spitting out the other alliance's NECTAR"
+                : holdingForFull ? String.format(Locale.US,
                 "holding the last piece (lane full) · stars turning, roller %.2f", unitRange(holdPowerWhenFull))
                 : roller == State.IN ? "IN · stars turning"
                 : roller == State.OUT ? "OUT · stars backing"
@@ -428,6 +464,15 @@ public class IntakeSubsystem implements Subsystem {
     static boolean holdsForFull(State request, FeederSubsystem.State feeder, boolean laneFull, boolean enabled) {
         return enabled && laneFull && request != State.OUT
                 && feeder != FeederSubsystem.State.FEED && feeder != FeederSubsystem.State.REVERSE;
+    }
+
+    /**
+     * Whether to spit out the piece at the entrance: the colour sensor says so, and nothing is
+     * already backing the whole lane out (the OpMode's eject, the feeder reversing). Over a request
+     * to take in, the full hold, and a feed alike. Pure, so a test can check it.
+     */
+    static boolean rejects(State request, FeederSubsystem.State feeder, boolean sensorSaysReject) {
+        return sensorSaysReject && request != State.OUT && feeder != FeederSubsystem.State.REVERSE;
     }
 
     /** The star wheels' state: as {@link #rollerFor}, but a feed always turns them. */

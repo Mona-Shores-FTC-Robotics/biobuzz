@@ -32,6 +32,7 @@ import org.firstinspires.ftc.teamcode.logging.BuildStamp;
 import org.firstinspires.ftc.teamcode.logging.MotionWatch;
 import org.firstinspires.ftc.teamcode.logging.Tunables;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaneFull;
@@ -623,6 +624,8 @@ public abstract class RobotOpMode extends OpMode {
         initializing = false;
         logStartCheck();
         setup.lock();
+        // Which NECTAR is the other alliance's, for the colour sensor's reject burst (NectarReject).
+        robot.colorSensor.alliance(setup.alliance());
         driver.prime();
         operator.prime();
         if (!isAutonomous()) {
@@ -1474,6 +1477,14 @@ public abstract class RobotOpMode extends OpMode {
             log.put(LANE_SLOT_KEYS[i], piece == null ? 0 : piece.ordinal() + 1);
         }
         if (lane.event() != null) log.event(lane.event());
+        // The other alliance's NECTAR spat out (NectarReject): one event per burst, with the reading.
+        log.put("/Lane/Rejecting", robot.intake.rejecting() ? 1 : 0);
+        if (robot.colorSensor.reject().justStarted()) {
+            log.event(String.format(Locale.US,
+                    "Lane: REJECT %s at the entrance (hue %.0f°, sat %.2f, brightness %.2f), burst %.2f s, #%d",
+                    robot.colorSensor.lastPiece(), robot.colorSensor.hueDegrees(), robot.colorSensor.saturation(),
+                    robot.colorSensor.alpha(), ColorSensorSubsystem.rejectBurstS, robot.colorSensor.reject().bursts()));
+        }
         // Full (LaneFull): the signal the light, the full hold and IntakeFull use. Every piece's
         // dwell under the sensor, so normal-play logs can tighten ColorSensorSubsystem.fullHoldS.
         LaneFull full = robot.colorSensor.laneFull();
