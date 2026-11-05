@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-05T03:20:31.427Z",
+  "timestamp": "2026-11-05T03:25:11.300Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -66,8 +66,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mw2z05td-jkwfz4",
+      "color": "#b07aa1",
+      "name": "to LEFT_LAUNCH_CLOSE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 57.7,
         "y": 115.4
@@ -82,18 +89,18 @@
         "type": "linear",
         "startDeg": 180,
         "endDeg": 273
-      },
-      "color": "#b07aa1",
+      }
+    },
+    {
+      "id": "line-mw2z05th-whpzzi",
+      "color": "#edc948",
+      "name": "LEFT_LAUNCH_CLOSE park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "to LEFT_LAUNCH_CLOSE"
-    },
-    {
       "kind": "atomic",
-      "id": "line-mw2z05th-whpzzi",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -103,14 +110,7 @@
         "type": "linear",
         "startDeg": 273,
         "endDeg": 0
-      },
-      "color": "#edc948",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "LEFT_LAUNCH_CLOSE park"
+      }
     },
     {
       "id": "link-2",
@@ -190,8 +190,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mw2z8m8r-d4cyle",
+      "color": "#e15759",
+      "name": "to LEFT_LAUNCH_CLOSE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 57.7,
         "y": 115.4
@@ -201,14 +208,7 @@
         "type": "linear",
         "startDeg": 90,
         "endDeg": 273
-      },
-      "color": "#e15759",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "to LEFT_LAUNCH_CLOSE"
+      }
     },
     {
       "id": "line-mw2h249a-0a0w4q",
@@ -252,8 +252,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mw2z1rrz-ltmk3y",
+      "color": "#9c755f",
+      "name": "to RIGHT_LAUNCH_CLOSE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 57.9,
         "y": 28.8
@@ -268,14 +275,7 @@
         "type": "linear",
         "startDeg": 273,
         "endDeg": 93
-      },
-      "color": "#9c755f",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "to RIGHT_LAUNCH_CLOSE"
+      }
     },
     {
       "id": "line-mw2h249b-qfhry3",
