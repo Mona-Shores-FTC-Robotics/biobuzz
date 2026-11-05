@@ -67,9 +67,20 @@ public final class CheatSheet {
         out.append("</header>\n");
         pad(out, "Driver", "gamepad 1", layout, Action.Pad.DRIVER);
         pad(out, "Operator", "gamepad 2", layout, Action.Pad.OPERATOR);
+        out.append(RULES);
         out.append("</div>\n</body></html>\n");
         return out.toString();
     }
+
+    /**
+     * What the drive team does when the Driver Station says something only a restart fixes. From the
+     * 4 Nov R-Solo at 21:26: INIT showed "Pinpoint: bad read" for 50 s, PLAY was pressed, and the
+     * Auto fired from a pose 136 in off and lost its paths ({@code PinpointLoss}).
+     */
+    static final String RULES = "<div class=\"rules\"><b>If the Driver Station says</b>"
+            + "<p><b>Pinpoint: …</b> in INIT → <b>restart the robot before PLAY.</b></p>"
+            + "<p><b>Pinpoint lost</b> in the match → keep driving; Square and pose aim are off. "
+            + "Restart the robot after the match.</p></div>\n";
 
     private static void pad(StringBuilder out, String who, String which, Map<Action, Input> layout, Action.Pad pad) {
         out.append("<section><h2>").append(who).append(" <small>").append(which).append("</small></h2>\n")
@@ -406,5 +417,7 @@ public final class CheatSheet {
             + "h2{margin:0;font-size:24px;color:var(--deep);text-transform:uppercase;letter-spacing:.06em}\n"
             + "h2 small{font-size:14px;color:#666;text-transform:none;letter-spacing:0;font-weight:400}\n"
             + ".note{margin:0;font-size:13px;color:#555}\n"
+            + ".rules{flex:none;border:2px solid var(--deep);border-radius:14px;padding:6px 14px;font-size:15px}\n"
+            + ".rules p{margin:2px 0}\n"
             + "section svg{display:block;width:100%;height:auto;margin:auto 0}\n";
 }

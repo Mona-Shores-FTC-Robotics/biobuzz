@@ -36,6 +36,7 @@ public class CheatSheetTest {
                 assertTrue(team + " sheet is missing " + entry.getKey(),
                         html.contains(entry.getKey().description.replace("&", "&amp;")));
             }
+            assertTrue(team + " sheet is missing the restart rule", html.contains(CheatSheet.RULES));
             String name = "controls-" + team.number + "-" + team.name.toLowerCase() + ".html";
             Files.write(new File(dir, name).toPath(), html.getBytes(StandardCharsets.UTF_8));
         }
