@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-03T21:11:00.365Z",
+  "timestamp": "2026-11-05T23:51:20.286Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -68,7 +68,7 @@
     {
       "id": "line-mw0eq8bt-go9gl6",
       "color": "#b07aa1",
-      "name": "to RIGHT_LAUNCH_CATCH",
+      "name": "to RIGHT_LAUNCH_CLOSE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -76,28 +76,63 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 18
+        "x": 56.1,
+        "y": 26
       },
       "controlPoints": [
         {
-          "x": 64.16238168192905,
-          "y": 98.66088586504156
+          "x": 61.56205564858677,
+          "y": 104.06163823593899
         },
         {
-          "x": 64.46521280206034,
-          "y": 42.58298555377207
+          "x": 66.46549064403115,
+          "y": 20.379850963642557
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 273.4,
-        "endDeg": 91.9
+        "endDeg": 90,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.2,
+              "interpolationType": "linear",
+              "reversed": true,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 273.4,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.2,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": true,
+              "parameters": {
+                "startDeg": 273.4,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mw0rkae5-kh7tv8",
+      "color": "#4e79a7",
+      "name": "RIGHT_LAUNCH_CATCH park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 14.5,
         "y": 117.4
@@ -112,14 +147,7 @@
         "type": "linear",
         "startDeg": 91.9,
         "endDeg": 0
-      },
-      "color": "#4e79a7",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "RIGHT_LAUNCH_CATCH park"
+      }
     },
     {
       "id": "link-2",
@@ -127,13 +155,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 18
+        "x": 56.1,
+        "y": 26
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 451.9
+        "degrees": 90
       }
     },
     {
@@ -153,13 +181,20 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 91.9,
+        "startDeg": 90,
         "endDeg": 180
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mw0rkae5-9j07qg",
+      "color": "#76b7b2",
+      "name": "WALL_FLOWER_STAGING park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 14.5,
         "y": 117.4
@@ -169,14 +204,7 @@
         "type": "linear",
         "startDeg": 180,
         "endDeg": 0
-      },
-      "color": "#76b7b2",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "WALL_FLOWER_STAGING park"
+      }
     },
     {
       "id": "link-3",
@@ -190,7 +218,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 180.00000000000003
+        "degrees": 180
       }
     },
     {
@@ -634,6 +662,11 @@
         41,
         121.5,
         296.4
+      ],
+      "RIGHT_LAUNCH_CLOSE": [
+        56.1,
+        26,
+        90
       ]
     },
     "pathEnds": {
@@ -643,7 +676,7 @@
       "line-mw0c4s2u-8wbzmf": "LEFT_PARK",
       "line-mw0c4s32-8noomj": "LEFT_PARK",
       "line-mw0c4s32-ave4gg": "LEFT_PARK",
-      "line-mw0eq8bt-go9gl6": "RIGHT_LAUNCH_CATCH",
+      "line-mw0eq8bt-go9gl6": "RIGHT_LAUNCH_CLOSE",
       "line-mw0eyliu-i7tra3": "WALL_FLOWER_STAGING",
       "line-mw0f0i5g-sowt7p": "LEFT_LAUNCH_CATCH",
       "line-mw0rkae5-kh7tv8": "LEFT_PARK",
@@ -766,6 +799,7 @@
       "LEFT_PARK",
       "LEFT_START",
       "RIGHT_LAUNCH_CATCH",
+      "RIGHT_LAUNCH_CLOSE",
       "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"
     ],
