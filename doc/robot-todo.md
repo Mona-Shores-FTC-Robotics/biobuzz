@@ -496,13 +496,13 @@ press to press.
 Measured 4 Nov 2026 (20245, tuned PIDF) and in `LaunchSpeedTable` with the table on: 39 in → 1520,
 42.3 → 1560, 50.5 → 1570, 55.4 → 1635. What is left here is the corner spot for Square.
 
-- [ ] **The corner spot for Square:** the shot near the GARDEN scores at 55.4 in and 1635 (its table
-      row). The 4 Nov evening log has it: about 50 shots at 1635 from **(30.2, 10.7), heading 54°**,
-      camera range 54–56 in (`read_logs.py launcher`, the "(no spot)" 1635 rows). Save that as a team
-      spot in the Visualizer (*Save team spots*; drawn for red), then it becomes one
-      `LaunchSpots.Spot` constant and Square drives there whenever it is the nearest spot [PR #423].
-      Check on the robot: Square from near the GARDEN ends at that pose and scores 3–4 of 4.
-      [mentor, 4–5 Nov]
+- [ ] **Square's corner spots:** `RIGHT_LAUNCH_CORNER` (30.2, 10.7, 54°) is where 20245 scored the
+      55.4 in / 1635 row on 4 Nov (about 50 shots in that evening's log); `LEFT_LAUNCH_CORNER`
+      (30.2, 130.8, 306°) is its mirror across the axle line, never fired from. Square drives to
+      either when it is the nearest spot. **Good:** from near each corner, Square ends there and
+      scores 3–4 of 4; the drive in from the GARDEN side touches nothing (it is one straight path).
+      **Stop:** the left one goes long or short → note the range on the Match page; the left corner
+      is also where a partner may leave its POLLEN pile. [mentor, 5 Nov]
 
 ## 7e. Blue alliance (never run on blue yet; HIVE and FLOWERs on the blue side)
 

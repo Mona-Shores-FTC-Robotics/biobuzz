@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * The six spots the TeleOp's "go to launch spot" button may drive to, and which one
+ * The eight spots the TeleOp's "go to launch spot" button may drive to, and which one
  * ({@link #choose}): always the one nearest the robot when the button is pressed. Never one chosen
  * from what the camera believes about the HIVE: the field gets crowded, and the driver stays near
  * where they are (mentor, 4 Nov 2026).
@@ -27,7 +27,7 @@ import java.util.Locale;
  *       facing, and turns to face the raised row of that half's CELL ({@link HiveFieldPoints}).</li>
  *   <li>The four launch spots the Autos fire from, a CATCH in front of each of our CELLs and an
  *       OFFSET off to its side ({@code TeamCode/autos/README.md}), at the heading the Autos launch
- *       at. No generated robot-side copy of these exists, so their numbers are here, and
+ *       at; and a CORNER for each CELL, the long shot (about 55 in) from the corner of our wall. No generated robot-side copy of these exists, so their numbers are here, and
  *       {@code TeamSpotsTest} fails while one differs from its team spot: move a spot in the
  *       Visualizer (Save team spots), then here.</li>
  * </ul>
@@ -47,17 +47,25 @@ public final class LaunchSpots {
      * <p><b>Adding one</b> is one constant here, once it is a team spot in {@code spots.json} (made
      * in the Visualizer): its x, y and launch heading as drawn, and {@code TeamSpotsTest} checks it
      * against the file. Its half, so its CELL, follows from its y, and {@link #choose} takes it
-     * whenever it is the nearest. The next is meant to be a far spot, the long corner shot near
-     * the GARDEN (about (15, 15), facing about 45° toward the RIGHT CELL, about 60 in), added only
-     * once {@code doc/robot-todo.md}'s "Launcher distances" group shows it hits (9/12 or better).
+     * whenever it is the nearest.
      */
     public enum Spot {
         RIGHT_START(StartPositions.RED_AUDIENCE),
         RIGHT_LAUNCH_CATCH(57.5, 18, 91.9),
         RIGHT_LAUNCH_OFFSET(41, 20, 68.7),
+        /**
+         * The long shot, about 55 in (the speed table's 1635 row): where 20245 fired about 50 shots
+         * on 4 Nov 2026, read from that evening's match log.
+         */
+        RIGHT_LAUNCH_CORNER(30.2, 10.7, 54),
         LEFT_START(StartPositions.RED_FAR),
         LEFT_LAUNCH_CATCH(57.5, 123.5, 273.4),
-        LEFT_LAUNCH_OFFSET(41, 121.5, 296.4);
+        LEFT_LAUNCH_OFFSET(41, 121.5, 296.4),
+        /**
+         * RIGHT_LAUNCH_CORNER mirrored across the HIVE's axle line (y 70.75), facing the LEFT CELL
+         * at the same range. Not yet fired from on a robot; next to PARTNER_STAGED_POLLEN.
+         */
+        LEFT_LAUNCH_CORNER(30.2, 130.8, 306);
 
         /** As drawn, for red: the team spot itself (for a start, on the wall). */
         public final Pose red;

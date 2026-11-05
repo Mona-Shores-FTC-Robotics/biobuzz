@@ -21,7 +21,8 @@ import java.util.function.Consumer;
 /**
  * The driver's "go to launch spot" button, held: Pedro drives from the robot's pose to the launch
  * spot nearest it when the button is pressed ({@link LaunchSpots#choose}: our two starts, stopped
- * {@link #startOffWallIn} off the wall, and the Autos' four CATCH and OFFSET spots), and arrives
+ * {@link #startOffWallIn} off the wall, the Autos' four CATCH and OFFSET spots, and the two
+ * CORNER long shots), and arrives
  * aimed at that half's CELL. Never a spot chosen from what the camera believes about the HIVE: the
  * field gets crowded and the driver stays near where they are (mentor, 4 Nov 2026). Letting go, or
  * moving a drive stick, gives the sticks back that same loop, as the FLOWER pick does. At the spot

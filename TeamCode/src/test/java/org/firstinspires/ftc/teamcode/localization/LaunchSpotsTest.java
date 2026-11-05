@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.vision.HiveCellState;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 import org.junit.Test;
 
-/** {@link LaunchSpots#choose}: pose and alliance in, the nearest of the six spots (or a refusal) out. */
+/** {@link LaunchSpots#choose}: pose and alliance in, the nearest of the eight spots (or a refusal) out. */
 public class LaunchSpotsTest {
 
     private static final double C = FieldFrame.FIELD_CENTRE_INCHES;
@@ -39,6 +39,8 @@ public class LaunchSpotsTest {
         assertEquals(Spot.LEFT_START, red(65, 135).spot);
         assertEquals(Spot.LEFT_LAUNCH_CATCH, red(60, 120).spot);
         assertEquals(Spot.LEFT_LAUNCH_OFFSET, red(30, 110).spot);
+        assertEquals(Spot.RIGHT_LAUNCH_CORNER, red(28, 12).spot);
+        assertEquals(Spot.LEFT_LAUNCH_CORNER, red(28, 129).spot);
     }
 
     @Test
@@ -84,7 +86,7 @@ public class LaunchSpotsTest {
 
     @Test
     public void blueIsRedTurnedHalfATurn() {
-        double[][] where = {{30, 30}, {60, 22}, {56, 6}, {65, 135}, {60, 120}, {30, 110}, {45, 70}};
+        double[][] where = {{30, 30}, {60, 22}, {56, 6}, {65, 135}, {60, 120}, {30, 110}, {45, 70}, {28, 12}, {28, 129}};
         for (double[] w : where) {
             Pose p = new Pose(w[0], w[1], 0);
             Choice r = LaunchSpots.choose(p, true, Alliance.RED, OFF_WALL);
