@@ -127,7 +127,7 @@ public class ColorSensorSubsystem implements Subsystem {
 
     /**
      * Whether the other alliance's NECTAR at the entrance is spat out ({@link NectarReject}): the
-     * roller and the stars reverse for {@link #rejectBurstS}, the prefeed still. Off: colours are
+     * roller, the stars and the prefeed reverse for {@link #rejectBurstS}, the whole lane. Off: colours are
      * logged only. Read every loop, so a Panels edit applies at once.
      */
     public static boolean rejectEnemyNectar = true;
@@ -139,6 +139,13 @@ public class ColorSensorSubsystem implements Subsystem {
      * only costs intake time. Set from a robot ({@code doc/robot-todo.md}).
      */
     public static double rejectBurstS = 0.5;
+
+    /**
+     * The roller's power during a reject burst, 0 to 1; the stars run at {@code IntakeSubsystem.starsPower}.
+     * 1.0, not the eject's {@code IntakeSubsystem.outPower} (0.6): at 0.6 a burst on 20245 left a
+     * NECTAR at the mouth, and it rolled back in (5 Nov 2026). Lower it if pieces fly too far.
+     */
+    public static double rejectRollerPower = 1.0;
 
     /**
      * Fresh readings in a row, each the other alliance's NECTAR with a piece present, before a
@@ -226,8 +233,10 @@ public class ColorSensorSubsystem implements Subsystem {
         long now = System.nanoTime();
         lastUpdateNs = now;
         boolean shot = launcher.shotJustDetected();
+        // A reject's hold-off stops everything, but the piece may roll back under the sensor:
+        // keep the fast rate (5 Nov 2026, the slow rate missed one rolling back in).
         boolean canMove = pieceCanMove(intake.state(), intake.starsState(), intake.holdingForFull(),
-                prefeed.state(), feeder.state(), shot);
+                prefeed.state(), feeder.state(), shot) || reject.phase() != NectarReject.Phase.IDLE;
         fresh = readDue(everRead, (now - lastReadNs) / 1_000_000L, canMove, watching,
                 readEveryMs, readIdleEveryMs);
         watching = canMove;
@@ -241,8 +250,9 @@ public class ColorSensorSubsystem implements Subsystem {
                 redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax);
         if (fresh) lastPiece = piece;
         lane.step(fresh, alpha, piece, outward, shot, presentAbove, leaveBelow);
+        // Seen above leaveBelow, not presentAbove: a NECTAR at the edge of the spot still counts.
         reject.step(now / 1_000_000L, fresh, alpha, piece, alliance, rejectEnemyNectar,
-                presentAbove, rejectAfterReadings, rejectBurstS * 1000.0, rejectHoldOffS * 1000.0,
+                Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove), rejectAfterReadings, rejectBurstS * 1000.0, rejectHoldOffS * 1000.0,
                 rejectMaxBursts, rejectWindowS * 1000.0);
         if (fresh) {
             // Full is the sensor alone: a piece held under it for fullHoldS. With fullHoldS off
@@ -269,7 +279,7 @@ public class ColorSensorSubsystem implements Subsystem {
 
     /**
      * Whether the other alliance's NECTAR is being spat out ({@link NectarReject}), as of the last
-     * update. The intake reads it and reverses the roller and the stars; the prefeed holds still.
+     * update. The intake reads it and reverses the roller and the stars; the prefeed follows them out.
      */
     public boolean rejecting() {
         return reject.rejecting();

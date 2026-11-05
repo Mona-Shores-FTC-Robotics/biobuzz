@@ -203,4 +203,33 @@ public class NectarRejectTest {
         step(20, false, BRIGHT, Piece.BLUE_NECTAR, Alliance.RED, true, PRESENT, BURST_MS);
         assertFalse(reject.rejecting());
     }
+
+    /**
+     * 20245, 5 Nov 2026 (23:55 Basic Drive, 25.4 to 26.5 s): a burst left the NECTAR at the mouth,
+     * it rolled back under the sensor during the hold-off, then sat dim at the edge (0.07 to 0.08)
+     * until the roller took it in. It must burst again as it rolls back, dim or not.
+     */
+    @Test
+    public void aPieceRollingBackDuringTheHoldOffIsBurstAgainAtOnce() {
+        double seenAbove = 0.05; // the colour sensor's leaveBelow
+        long[] t = {25380, 25430};
+        for (long ms : t) step(ms, true, 0.81, Piece.BLUE_NECTAR, Alliance.RED, true, seenAbove, BURST_MS);
+        assertTrue(reject.rejecting());
+        step(25681, true, 0.029, Piece.BLUE_NECTAR, Alliance.RED, true, seenAbove, BURST_MS); // gone: hue noise in the dark
+        step(25950, false, Double.NaN, Piece.UNKNOWN, Alliance.RED, true, seenAbove, BURST_MS);
+        assertTrue(reject.holdingOff());
+        step(26165, true, 0.129, Piece.BLUE_NECTAR, Alliance.RED, true, seenAbove, BURST_MS);
+        step(26215, true, 0.084, Piece.BLUE_NECTAR, Alliance.RED, true, seenAbove, BURST_MS);
+        assertTrue("burst again during the hold-off", reject.rejecting());
+        assertEquals(2, reject.bursts());
+    }
+
+    @Test
+    public void anEmptyLaneIsNotAPieceWhateverItsHue() {
+        // An empty lane reads about 0.02, and its hue wanders into blue's range (200° logged).
+        for (int i = 0; i < 10; i++) {
+            step(i * 50L, true, 0.023, Piece.BLUE_NECTAR, Alliance.RED, true, 0.05, BURST_MS);
+        }
+        assertEquals(0, reject.bursts());
+    }
 }
