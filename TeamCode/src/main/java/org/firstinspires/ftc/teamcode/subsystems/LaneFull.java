@@ -11,8 +11,11 @@ package org.firstinspires.ftc.teamcode.subsystems;
  * drifts on any missed event, so it stays in the log only.
  *
  * <p>A held piece is full wherever the sensor is mounted (slot 4, the entrance, since early Nov
- * 2026; slot 3 before). Only time spent while taking in counts toward {@code fullAfterMs}: a piece parked under the
- * sensor while the intake is idle says nothing about whether the lane would take another. Once full,
+ * 2026; slot 3 before). The hold starts only once the intake has taken in with the piece there:
+ * a piece parked under the sensor while the intake was idle all along says nothing about whether
+ * the lane would take another. From then on it counts whether or not the intake keeps running
+ * (5 Nov 2026: drivers let go of the intake about 0.35 s after the 4th piece came in, and a hold
+ * that counted only intaking time never reached 1 s, so the lane never read full). Once full,
  * it stays full while the piece is there, intake or not (the intake holding for it does not undo
  * it), and clears the moment the piece leaves.
  *
@@ -28,12 +31,17 @@ public final class LaneFull {
     /** The most time one reading adds while taking in, ms: twice the 50 ms read interval. */
     static final double MAX_STEP_MS = 100;
 
+    /** The most one reading adds once the intake has stopped with a piece under it, ms: the 250 ms idle read and some. */
+    static final double MAX_IDLE_STEP_MS = 400;
+
     private boolean present;
     private long presentSinceMs;
     private long lastMs;
     private boolean hasLast;
     /** Time under the sensor while taking in, ms, this presence. */
     private double heldWhileIntakingMs;
+    /** Time under the sensor since the intake first took in during this presence, intake or not, ms. */
+    private double heldSinceTakingInMs;
     private boolean full;
     private double endedDwellMs = Double.NaN;
     private boolean endedFull;
@@ -58,6 +66,7 @@ public final class LaneFull {
         // At most MAX_STEP_MS a reading: after a slow idle read (ColorSensorSubsystem.readIdleEveryMs)
         // the gap is mostly time the intake was not running, which must not count toward full.
         double elapsed = hasLast ? Math.min(MAX_STEP_MS, Math.max(0, nowMs - lastMs)) : 0;
+        long previousMs = hasLast ? lastMs : nowMs;
         lastMs = nowMs;
         hasLast = true;
         double leave = Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove);
@@ -72,8 +81,14 @@ public final class LaneFull {
         if (present && !wasPresent) {
             presentSinceMs = nowMs;
             heldWhileIntakingMs = 0;
+            heldSinceTakingInMs = 0;
         } else if (present && intaking) {
             heldWhileIntakingMs += elapsed;
+            heldSinceTakingInMs += elapsed;
+        } else if (present && heldWhileIntakingMs > 0) {
+            // The intake stopped with a piece that came in under it: it keeps counting, at the real
+            // gap between readings (the idle rate is 250 ms), up to MAX_IDLE_STEP_MS for a stall.
+            heldSinceTakingInMs += Math.min(MAX_IDLE_STEP_MS, Math.max(0, nowMs - previousMs));
         } else if (!present && wasPresent) {
             endedDwellMs = nowMs - presentSinceMs;
             endedFull = full;
@@ -82,7 +97,7 @@ public final class LaneFull {
         boolean enabled = fullAfterMs >= 0;
         if (!present || !enabled) {
             full = false;
-        } else if (!full && heldWhileIntakingMs > 0 && heldWhileIntakingMs >= fullAfterMs) {
+        } else if (!full && heldWhileIntakingMs > 0 && heldSinceTakingInMs >= fullAfterMs) {
             // Some time taking in is always needed: a zero hold never makes an idle intake full.
             full = true;
         }

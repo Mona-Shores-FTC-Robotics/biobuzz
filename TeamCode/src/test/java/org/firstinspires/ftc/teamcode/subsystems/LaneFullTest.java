@@ -48,6 +48,16 @@ public class LaneFullTest {
     }
 
     @Test
+    public void aPieceThatCameInStaysFullAfterTheIntakeStops() {
+        // 5 Nov 2026: the 4th piece came in, the driver let go after 350 ms, the piece stayed.
+        hold(BALL, true, 350);
+        assertFalse(lane.full());
+        // Idle reads every 250 ms: 700 ms more under the sensor.
+        for (int i = 0; i < 3; i++) { now += 250; lane.step(now, BALL, false, PRESENT, LEAVE, FULL_AFTER); }
+        assertTrue("past the hold since it came in, intake or not", lane.full());
+    }
+
+    @Test
     public void heldWithTheIntakeIdleIsNotFull() {
         hold(BALL, false, 2000);
         assertFalse(lane.full());
