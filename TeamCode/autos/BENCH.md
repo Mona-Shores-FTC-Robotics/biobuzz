@@ -15,10 +15,26 @@ against the current robot code.
 An Auto here may use spots that are not the team's (`spots.json`); one promoted to master uses
 only the team's.
 
-## What is on the bench (3 Nov 2026)
+## Belding lineup update (5 Nov 2026)
 
-Master holds only the five Autos the students planned for Belding: L-Partner, R-Solo,
-R-Partner-Tip, R-Partner-Preload, R-Solo-Staging. Everything else lives here:
+Master's selected lineup is R-Solo, L-NoCross (formerly L-Partner), and R-NoCross
+(formerly R-Partner-Tip). R-Solo-Nudge remains a draft with its pushed-partner stand-in;
+the coordinated Infraviolet pair is later work.
+
+Two more Autos are benched for Belding, preserved here exactly as they were on master
+at commit `4409b98` (drawing, generated Java, OpMode and simulation request):
+
+- **R-Partner-Preload** (`r-partner-preload`): no dedicated LEFT-preload partner arrangement
+  is being supported at Belding. Negotiate a RIGHT preload start or a park/nudge arrangement.
+- **R-Solo-Staging** (`r-solo-staging`): the staged-preload arrangement is outside the selected
+  baseline; keep R-Solo as the reference instead.
+
+These are preserved experiments, not enabled competition choices on master. Open them from
+`autos-experiment` to resume work. This branch is an archive/bench and may retain older master
+names; it is not the Belding deployment branch. Update it from master and resolve those names
+before promoting another experiment.
+
+## Earlier bench work
 
 - **The four from before:** `r-simple`, `r-quals`, `l-simple`, `l-quals`, as last run on master.
 - **The partner stand-ins:** `partner-r-still`, `partner-l-still`, `partner-park-1`, `partner-park-2`,
