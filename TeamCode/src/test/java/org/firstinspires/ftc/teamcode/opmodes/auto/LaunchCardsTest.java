@@ -32,6 +32,8 @@ public class LaunchCardsTest {
     private boolean spinning;
     private boolean atSpeed;
     private boolean settled;
+    /** The launcher's shot count; -1: a launcher with no detector. */
+    private int shots;
     /** What the approach check ({@code PathEndSettle.readyOnApproach}) says. */
     private boolean readyOnApproach;
     private final List<String> notes = new ArrayList<>();
@@ -45,6 +47,8 @@ public class LaunchCardsTest {
         atSpeed = false;
         settled = true;
         readyOnApproach = false;
+        shots = -1;
+        LaunchCards.launchAllEndAfterShots = 4;
         LaunchCards.launchOnApproach = true;
         PathEndSettle.maxSettleWaitS = 1.0;
         LaunchCards.maxSpinUpWaitS = 2.5;
@@ -54,6 +58,7 @@ public class LaunchCardsTest {
                 new LaunchCards.Launcher() {
                     @Override public void spinUp() { spinning = true; log.add("spinUp"); }
                     @Override public boolean atSpeed() { return atSpeed; }
+                    @Override public int shots() { return shots; }
                 },
                 new LaunchCards.Feeder() {
                     @Override public void feed() { log.add(String.format(java.util.Locale.US, "feed@%.2f", now)); }
@@ -135,6 +140,91 @@ public class LaunchCardsTest {
         assertEquals("fed at maxSpinUpWaitS", 2.5, timeOf(first("feed")), LOOP_S + EPS);
         assertTrue("the log says why: " + notes, notes.stream().anyMatch(n -> n.contains("below launch speed")));
         assertEquals("it still counts as emptying", 1, cards.launchAllsCompleted());
+    }
+
+    /** Runs the scheduler until {@code at} seconds into the feed, then counts one more shot. */
+    private void shotAt(double feedS, double at) {
+        step(feedS + at - now);
+        shots++;
+    }
+
+    @Test
+    public void launchAllEndsItsFeedAtTheFourthCountedShot() {
+        atSpeed = true;
+        LaunchCards.launchAllFeedS = 3.5;
+        shots = 7;                               // shots from earlier volleys do not count
+        Command launch = cards.launchAll();
+        launch.schedule();
+        Scheduler.execute();
+        double fed = timeOf(first("feed"));
+        // 23:41's first volley: the shots counted 1.09, 1.44, 1.94 and 2.36 s into the feed.
+        shotAt(fed, 1.09);
+        shotAt(fed, 1.44);
+        shotAt(fed, 1.94);
+        assertEquals("still feeding after three: " + log, null, first("idle"));
+        shotAt(fed, 2.36);
+        finish(launch, 0.1);
+        assertEquals("ends at the fourth shot, not at 3.5 s", 2.36, timeOf(first("idle")) - fed, 2 * LOOP_S + EPS);
+        assertEquals("it still empties the robot", 1, cards.launchAllsCompleted());
+        assertTrue(notes.toString(), notes.get(notes.size() - 1).contains("ended at the last counted shot"));
+        assertTrue(notes.toString(), notes.get(notes.size() - 1).endsWith(": 4 shots detected"));
+    }
+
+    @Test
+    public void aShortCountFeedsForTheWholeSetTime() {
+        atSpeed = true;
+        LaunchCards.launchAllFeedS = 3.5;
+        shots = 0;
+        Command launch = cards.launchAll();
+        launch.schedule();
+        Scheduler.execute();
+        double fed = timeOf(first("feed"));
+        shotAt(fed, 0.8);
+        shotAt(fed, 1.2);
+        shotAt(fed, 2.1);                        // one missed: three counted
+        finish(launch, 2.0);
+        assertEquals("a count too low costs nothing: the set time", 3.5, timeOf(first("idle")) - fed, LOOP_S + EPS);
+        assertFalse(notes.toString(), notes.get(notes.size() - 1).contains("last counted shot"));
+    }
+
+    @Test
+    public void noDetectorOrTheSwitchOffFeedsForTheSetTime() {
+        atSpeed = true;
+        shots = -1;
+        run(cards.launchAll(), 5.0);
+        assertEquals("no detector", 2.0, timeOf(first("idle")) - timeOf(first("feed")), LOOP_S + EPS);
+
+        log.clear();
+        LaunchCards.launchAllEndAfterShots = 0;
+        shots = 0;
+        Command launch = cards.launchAll();
+        launch.schedule();
+        Scheduler.execute();
+        shots = 4;
+        finish(launch, 5.0);
+        assertEquals("switched off", 2.0, timeOf(first("idle")) - timeOf(first("feed")), LOOP_S + EPS);
+
+        log.clear();
+        LaunchCards.launchAllEndAfterShots = Double.NaN;
+        shots = 0;
+        launch = cards.launchAll();
+        launch.schedule();
+        Scheduler.execute();
+        shots = 4;
+        finish(launch, 5.0);
+        assertEquals("NaN is off", 2.0, timeOf(first("idle")) - timeOf(first("feed")), LOOP_S + EPS);
+    }
+
+    @Test
+    public void launchOneNeverEndsOnTheCount() {
+        atSpeed = true;
+        shots = 0;
+        Command launch = cards.launchOne();
+        launch.schedule();
+        Scheduler.execute();
+        shots = 4;
+        finish(launch, 2.0);
+        assertEquals(0.5, timeOf(first("idle")) - timeOf(first("feed")), LOOP_S + EPS);
     }
 
     @Test
@@ -254,6 +344,25 @@ public class LaunchCardsTest {
         assertEquals(1, cards.launchAllsCompleted());
         assertFalse("fed on the approach, not 'before the robot settled': " + notes,
                 notes.stream().anyMatch(n -> n.contains("before the robot settled")));
+    }
+
+    /** Shots fired on the approach, before the card starts, count toward the volley's four. */
+    @Test
+    public void shotsOnTheApproachCountTowardTheFour() {
+        atSpeed = true;
+        readyOnApproach = true;
+        LaunchCards.launchAllFeedS = 3.5;
+        shots = 2;                               // from the volley before
+        approach(cards.approach(), 15);          // gate opens at 0, the drive runs to 0.3 s
+        shots += 2;                              // two leave before the path ends
+        Command launch = cards.launchAll();
+        launch.schedule();
+        step(0.5);
+        assertEquals("still feeding after two: " + log, null, first("idle"));
+        shots += 2;
+        finish(launch, 0.1);
+        assertTrue("ended at the fourth, well before 3.5 s: " + log, timeOf(first("idle")) < 1.0);
+        assertEquals(1, cards.launchAllsCompleted());
     }
 
     /** The gate waits for the launcher: below speed on the approach, the card feeds as it always has. */
