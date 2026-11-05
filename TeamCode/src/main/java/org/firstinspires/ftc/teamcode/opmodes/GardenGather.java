@@ -199,7 +199,6 @@ public final class GardenGather extends GrabRoutine {
 
     @Override
     protected void stopMechanisms() {
-        releaseIntake();
         retractWhenClear();
     }
 

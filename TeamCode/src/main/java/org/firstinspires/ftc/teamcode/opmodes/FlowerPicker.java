@@ -363,7 +363,6 @@ public final class FlowerPicker extends GrabRoutine {
 
     @Override
     protected void stopMechanisms() {
-        releaseIntake();
         retractWhenClear();
     }
 

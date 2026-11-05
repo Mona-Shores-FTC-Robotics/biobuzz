@@ -6,6 +6,9 @@ package org.firstinspires.ftc.teamcode.controls;
  * and either unjam are holds that win over it while held ({@code IntakeArbiter}). Left on, the intake stops its roller and the prefeed by itself when the
  * lane is full and starts them again when a shot makes room.
  *
+ * <p>The TeleOp starts it on ({@link #IntakeToggle(boolean)}): the intake runs from PLAY unless the
+ * lane is full or the operator turns it off, the same rule as an Auto's.
+ *
  * <p>Pure and allocation-free, called once a loop: it sees the buttons as held or not and works out
  * the presses itself. Switching the toggle off in Panels drops the latch, so the intake never stays
  * on by itself once hold-to-run is back.
@@ -14,6 +17,16 @@ public final class IntakeToggle {
 
     private boolean on;
     private boolean lastPressed;
+
+    /** Starts off. */
+    public IntakeToggle() {
+        this(false);
+    }
+
+    /** Starts {@code on} or off; switching the toggle off in Panels still drops it. */
+    public IntakeToggle(boolean on) {
+        this.on = on;
+    }
 
     /**
      * One loop. {@code enabled} is {@code TeleOpConfig.intakeToggle}; {@code pressed} is either
