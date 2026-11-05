@@ -29,7 +29,9 @@ here waits until after the event.
    open in §7c: the shot count against video, feed pace, the tired battery.
 3. ~~Launch speeds~~ measured on 20245, 4 Nov, now `LaunchSpeedTable`'s rows with the table on
    (§7d): 39 in → 1520 (RIGHT_LAUNCH_CATCH), 42.3 → 1560 (RIGHT_LAUNCH_OFFSET), 50.5 → 1570
-   (RIGHT_START), 55.4 → 1635 (near the GARDEN). Left after the load: Square from
+   (RIGHT_START; 1600 since 5 Nov: at 1580 R-Solo's first volley put 3 of 4 in on video, the
+   fourth low off the front lip), 55.4 → 1635 (near the GARDEN). **Check 1600 at R-Solo's start
+   on video:** all four in, none over the back; if one goes long, settle between 1580 and 1600. Left after the load: Square from
    LEFT_LAUNCH_OFFSET, where TIP 2 in every R Auto but R-Partner-Tip is fired (at 1595 it went
    long), and from each right spot once. **Good:** each scores 3 or 4 of 4 at the table's speed
    (the Match page's "Last launch spot" line shows it). **Stop:** a spot misses → note its range,
@@ -422,7 +424,11 @@ a difference is one `RobotDifferences` line.
       spinning. **Good:** 12 shots counted for 12 fired, none while intaking. **Stop:** if a last
       ball goes uncounted, the gate shut before it reached the wheels: note how long after letting
       go its dip came (log), for a grace after the gate shuts.
-- [ ] **Is the shot count good enough to end a feed?** After the PIDF and feed pace above, fire 10
+- [ ] **Is the shot count good enough to end a feed?** Since 5 Nov each wheel's dip is measured from
+      that wheel's own speed just before, 60 down (it was 70 below target, and the wheels settle
+      about 40 apart, so R-Solo 23:41 counted 2 of the 4 shots its video shows). Replayed over the
+      3–4 Nov logs it never counts more than 4 in an Auto volley; only video can say it is right.
+      After the PIDF and feed pace above, fire 10
       volleys of 4 the way an Auto does (`LaunchAll`, its whole 3.5 s feed), with a phone filming
       the launcher. Per volley, write down the count (Launch Test page, or `/Launcher/Shots` in the
       log) and the balls that left (video). The two mistakes cost different things: a count too low

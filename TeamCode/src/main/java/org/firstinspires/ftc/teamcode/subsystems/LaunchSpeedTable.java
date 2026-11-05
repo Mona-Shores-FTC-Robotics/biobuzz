@@ -42,10 +42,12 @@ import com.bylazar.configurables.annotations.Configurable;
  * <p><b>Measured</b> on 20245 on 4 Nov 2026, with the launcher PIDF tuned that night, each range the
  * robot showed ({@code last_shot_range_in}) and the speed the drive team picked as scoring well:
  * RIGHT_LAUNCH_CATCH 39 in (38.6–39.2) at 1520, RIGHT_LAUNCH_OFFSET 42.3 in at 1560, RIGHT_START
- * 50.5 in at 1570 (raised to 1580 on 5 Nov: R-Solo's start volleys fell a little short), and the
- * hand-driven shot near the GARDEN 55.4 in (55.3–55.5) at 1635. The ranges
+ * 50.5 in at 1570 (raised to 1580 on 5 Nov: R-Solo's start volleys fell a little short; then to
+ * 1600, after R-Solo's 23:41 run on video put three of the first volley's four in at 1580 and the
+ * fourth, low, off the CELL's front lip), and the hand-driven shot near the GARDEN 55.4 in
+ * (55.3–55.5) at 1635. The ranges
  * are 3–4 in shorter than the spots' model numbers above. With {@link #extendIn} at 5 in the
- * table answers from 34 in (about 1460) to 60.4 in (about 1690) and holds those beyond.
+ * table answers from 34 in (about 1460) to 60.4 in (about 1670) and holds those beyond.
  */
 @Configurable
 public final class LaunchSpeedTable {
@@ -90,7 +92,7 @@ public final class LaunchSpeedTable {
     /** As row 1. */
     public static double row3RangeIn = 50.5;
     /** As row 1. */
-    public static double row3TicksPerSecond = 1580.0;
+    public static double row3TicksPerSecond = 1600.0;
     /** As row 1. */
     public static double row4RangeIn = 55.4;
     /** As row 1. */

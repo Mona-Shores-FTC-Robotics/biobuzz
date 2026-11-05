@@ -67,8 +67,9 @@ import java.util.function.BooleanSupplier;
  *
  * <p>A piece meeting the wheels pulls their speed down and the loop pulls it back. That dip is the
  * one thing the launcher can see of a shot without a sensor, so {@link ShotDetector} counts one
- * shot per dip: the wheels were at speed, both fell at least {@link #shotDipTicksPerSecond} below
- * target while the feed gate was open, and came back within tolerance. Spin-up is not a dip (the wheels were
+ * shot per dip: the wheels were at speed, each fell at least {@link #shotDipTicksPerSecond} below
+ * its own speed just before (not the target: the wheels settle a little apart) while the feed gate
+ * was open, and came back within tolerance. Spin-up is not a dip (the wheels were
  * never at speed), a wobble inside the threshold is not a dip, and a target change re-arms the
  * detector so a Panels nudge is not a shot.
  *
@@ -157,15 +158,17 @@ public class LauncherSubsystem implements Subsystem {
     public static double atSpeedHoldMs = 150.0;
 
     /**
-     * How far below its target each wheel must fall, from at speed, for the dip to count as a shot,
-     * ticks per second (both wheels: class comment). Measured on 20245, 1 to 2 Nov 2026, target 1595: every POLLEN shot dipped
-     * the slower wheel 95 (nine shots over three runs; one 135), and the wheels hover within about
-     * 25 at speed. 70 sits between the two. It was 150, a starting guess, and counted no shot at
-     * all, which left the lane tracker's count stuck after firing. Below
-     * {@link #toleranceTicksPerSecond} (60) it would make no difference: a dip only starts once both
-     * wheels leave the at-speed band.
+     * How far below its own speed just before (its level: {@link ShotDetector}) each wheel must fall
+     * for the dip to count as a shot, ticks per second (both wheels: class comment). Measured on
+     * 20245, 1 to 2 Nov 2026, target 1595: every POLLEN shot dipped the slower wheel 95 (nine shots
+     * over three runs; one 135), and the wheels hover within about 25 at speed. It was 150, a
+     * starting guess, and counted no shot at all; then 70 below target, which missed shots on 4 Nov
+     * (R-Solo 23:41: the video shows four shots in the first volley, two counted). Measured from
+     * each wheel's level, that volley's four dips were 85 to 92, 65 and 71; the sag while a ball
+     * presses on the wheels before it is taken (00:02 Basic Drive, 1701 s) is about 45. 60 sits
+     * between. Over the 4 Nov R-Solo runs it never counts more in a volley than the 4 it holds.
      */
-    public static double shotDipTicksPerSecond = 70.0;
+    public static double shotDipTicksPerSecond = 60.0;
 
     /**
      * Flips the left wheel so that a positive command throws a piece out. Checked on robot 20245 on
@@ -685,8 +688,8 @@ public class LauncherSubsystem implements Subsystem {
             // A target change (Panels nudge, a table lookup) re-arms the detector: not a shot.
             boolean newTarget = leftTarget != lastLeftTarget || rightTarget != lastRightTarget;
             if (newTarget) shots.reset();
-            shots.update(deficit(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond),
-                    bothDeficit(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond), within, gateOpen.getAsBoolean(), target(), shotDipTicksPerSecond);
+            shots.update(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond, within,
+                    gateOpen.getAsBoolean(), target(), shotDipTicksPerSecond, now / 1_000_000L);
             // A step starts here: from idle, out of an unjam, or to a new target.
             if (!measuring || newTarget) {
                 response.command(now, Math.min(leftTicksPerSecond, rightTicksPerSecond));
@@ -990,14 +993,6 @@ public class LauncherSubsystem implements Subsystem {
     }
 
     /**
-     * How far below target both wheels are, ticks per second: the smaller of the two shortfalls, so
-     * it passes a threshold only when both wheels do (a shot's dip: class comment). Pure.
-     */
-    static double bothDeficit(double leftTarget, double leftMeasured, double rightTarget, double rightMeasured) {
-        return Math.min(leftTarget - leftMeasured, rightTarget - rightMeasured);
-    }
-
-    /**
      * How far over its target the faster wheel is, ticks per second: the larger of the two wheels'
      * excesses, negative when both are under. The mirror of {@link #deficit}. Pure.
      */
@@ -1012,11 +1007,28 @@ public class LauncherSubsystem implements Subsystem {
 
     /**
      * Counts shots from speed dips (class comment): armed once the wheels are within tolerance,
-     * a dip starts when both wheels' shortfalls reach the threshold with the feed gate open, and the
-     * shot is counted when the wheels are back within tolerance, with the deepest point of the dip. A dip that never recovers (a
-     * jam, or a spin-down) is never counted. Pure, so a test can drive it with made-up readings.
+     * a dip starts when each wheel has fallen the threshold below its own speed just before (its
+     * level) with the feed gate open, and the shot is counted when the wheels are back within
+     * tolerance, with the deepest point of the dip below target. A dip that never recovers (a jam,
+     * or a spin-down) is never counted. Pure, so a test can drive it with made-up readings.
+     *
+     * <p>Each wheel's level, not the target, because the two wheels settle a little apart: on
+     * 20245 on 4 Nov 2026 the left ran about 20 above target and the right about 20 below in every
+     * R-Solo run. Measured from target, a 70 dip on the left read as 50, and R-Solo 23:41's first
+     * volley counted 2 shots where the video shows 4. The level is a running average of each
+     * wheel while the wheels are within tolerance and not in a dip ({@link #LEVEL_WEIGHT} of each
+     * loop's reading, so about the last 0.2 s), taken from the wheel's target after a reset.
+     *
+     * <p>A dip that starts within {@link #MIN_SHOT_GAP_MS} of the last counted shot is the same
+     * shot: a wheel can touch tolerance for one loop on the way back up and fall again. Across the
+     * 3 and 4 Nov logs those splits came 28 to 71 ms apart, and real shots no closer than 200 ms.
      */
     static final class ShotDetector {
+        /** The weight of each loop's reading in a wheel's level (class comment). */
+        static final double LEVEL_WEIGHT = 0.15;
+        /** A dip starting this soon after the last counted shot is that shot again, ms (class comment). */
+        static final long MIN_SHOT_GAP_MS = 150;
+
         private boolean armed;
         private boolean inDip;
         private double deepest;
@@ -1025,17 +1037,23 @@ public class LauncherSubsystem implements Subsystem {
         private double lastDip = Double.NaN;
         private double lastTarget = Double.NaN;
         private boolean justCounted;
+        private double leftLevel = Double.NaN;
+        private double rightLevel = Double.NaN;
+        private boolean shotYet;
+        private long lastShotMs;
 
         /**
-         * Feed this loop's reading. {@code deficit} is how far below target the slower wheel is (the
-         * depth recorded), {@code bothDeficit} how far below target both wheels are (a dip starts only
-         * once it reaches the threshold), {@code within} whether both wheels are inside the at-speed tolerance, {@code gateOpen}
-         * whether a piece can reach the wheels (a dip only starts while it is), {@code target} the
-         * common target in force. Returns true in the loop a shot is counted.
+         * Feed this loop's reading: each wheel's target and measured speed, {@code within} whether
+         * both wheels are inside the at-speed tolerance, {@code gateOpen} whether a piece can reach
+         * the wheels (a dip only starts while it is), {@code target} the common target in force,
+         * {@code nowMs} a clock in milliseconds. Returns true in the loop a shot is counted.
          */
-        boolean update(double deficit, double bothDeficit, boolean within, boolean gateOpen, double target,
-                       double dipThreshold) {
+        boolean update(double leftTarget, double left, double rightTarget, double right, boolean within,
+                       boolean gateOpen, double target, double dipThreshold, long nowMs) {
             justCounted = false;
+            if (Double.isNaN(leftLevel)) leftLevel = leftTarget;
+            if (Double.isNaN(rightLevel)) rightLevel = rightTarget;
+            double deficit = deficit(leftTarget, left, rightTarget, right);
             if (within) {
                 if (inDip) {
                     shots++;
@@ -1043,13 +1061,19 @@ public class LauncherSubsystem implements Subsystem {
                     lastTarget = dipTarget;
                     inDip = false;
                     justCounted = true;
+                    lastShotMs = nowMs;
+                    shotYet = true;
+                } else {
+                    leftLevel += LEVEL_WEIGHT * (left - leftLevel);
+                    rightLevel += LEVEL_WEIGHT * (right - rightLevel);
                 }
                 armed = true;
                 return justCounted;
             }
             if (inDip) {
                 if (deficit > deepest) deepest = deficit;
-            } else if (armed && gateOpen && bothDeficit >= dipThreshold) {
+            } else if (armed && gateOpen && (!shotYet || nowMs - lastShotMs >= MIN_SHOT_GAP_MS)
+                    && Math.min(leftLevel - left, rightLevel - right) >= dipThreshold) {
                 inDip = true;
                 deepest = deficit;
                 dipTarget = target;
@@ -1063,6 +1087,8 @@ public class LauncherSubsystem implements Subsystem {
             inDip = false;
             deepest = 0.0;
             justCounted = false;
+            leftLevel = Double.NaN;
+            rightLevel = Double.NaN;
         }
 
         int shots() {
