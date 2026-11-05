@@ -141,6 +141,13 @@ public class ColorSensorSubsystem implements Subsystem {
     public static double rejectBurstS = 0.5;
 
     /**
+     * The roller's power during a reject burst, 0 to 1; the stars run at {@code IntakeSubsystem.starsPower}.
+     * 1.0, not the eject's {@code IntakeSubsystem.outPower} (0.6): at 0.6 a burst on 20245 left a
+     * NECTAR at the mouth, and it rolled back in (5 Nov 2026). Lower it if pieces fly too far.
+     */
+    public static double rejectRollerPower = 1.0;
+
+    /**
      * Fresh readings in a row, each the other alliance's NECTAR with a piece present, before a
      * burst starts. 2, at the 50 ms read rate, decides in about 0.1 s; a piece passing with the
      * intake running is under the sensor 0.3 to 1.0 s (1 Nov logs). 1 trusts a single reading.
@@ -226,8 +233,10 @@ public class ColorSensorSubsystem implements Subsystem {
         long now = System.nanoTime();
         lastUpdateNs = now;
         boolean shot = launcher.shotJustDetected();
+        // A reject's hold-off stops everything, but the piece may roll back under the sensor:
+        // keep the fast rate (5 Nov 2026, the slow rate missed one rolling back in).
         boolean canMove = pieceCanMove(intake.state(), intake.starsState(), intake.holdingForFull(),
-                prefeed.state(), feeder.state(), shot);
+                prefeed.state(), feeder.state(), shot) || reject.phase() != NectarReject.Phase.IDLE;
         fresh = readDue(everRead, (now - lastReadNs) / 1_000_000L, canMove, watching,
                 readEveryMs, readIdleEveryMs);
         watching = canMove;
@@ -241,8 +250,9 @@ public class ColorSensorSubsystem implements Subsystem {
                 redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax);
         if (fresh) lastPiece = piece;
         lane.step(fresh, alpha, piece, outward, shot, presentAbove, leaveBelow);
+        // Seen above leaveBelow, not presentAbove: a NECTAR at the edge of the spot still counts.
         reject.step(now / 1_000_000L, fresh, alpha, piece, alliance, rejectEnemyNectar,
-                presentAbove, rejectAfterReadings, rejectBurstS * 1000.0, rejectHoldOffS * 1000.0,
+                Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove), rejectAfterReadings, rejectBurstS * 1000.0, rejectHoldOffS * 1000.0,
                 rejectMaxBursts, rejectWindowS * 1000.0);
         if (fresh) {
             // Full is the sensor alone: a piece held under it for fullHoldS. With fullHoldS off

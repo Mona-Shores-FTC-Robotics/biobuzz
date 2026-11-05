@@ -16,14 +16,16 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
  *
  * <ol>
  *   <li><b>Armed:</b> {@code afterReadings} fresh readings in a row show a piece (brightness above
- *       {@code presentAbove}) in the other alliance's NECTAR colour, so one odd reading cannot
+ *       {@code seenAbove}) in the other alliance's NECTAR colour, so one odd reading cannot
  *       throw out our own piece. Then:</li>
  *   <li><b>Burst</b> ({@link Phase#BURST}), {@code burstMs}: the roller and the stars back out,
  *       whatever the sensor sees meanwhile.</li>
  *   <li><b>Hold-off</b> ({@link Phase#HOLD_OFF}), {@code holdOffMs}: the roller and the stars stop,
  *       so the piece rolls clear instead of being taken straight back in. The intake is asked to
  *       take in almost all the time (biobuzz#456), so without this a burst would hand the piece
- *       back to the roller.</li>
+ *       back to the roller. A piece that rolls back under the sensor meanwhile is burst again at
+ *       once, without waiting for the hold-off to end (5 Nov 2026: a NECTAR the burst left at the
+ *       mouth rolled back during the hold-off, and the roller took it in as the hold-off ended).</li>
  *   <li><b>Re-arm only after a different reading:</b> a fresh reading that is not the other
  *       alliance's NECTAR (nothing there, POLLEN, ours). A wrong piece still under the sensor
  *       after the hold-off is not rejected again until the sensor has seen it go: one burst per
@@ -75,7 +77,10 @@ public final class NectarReject {
      * @param piece         the reading's colour, from {@link LaneTracker#classify}
      * @param ours          our alliance; UNKNOWN never rejects
      * @param enabled       the switch; off ends a reject at once and never starts one
-     * @param presentAbove  a piece is there above this brightness; NaN never rejects
+     * @param seenAbove     a piece is there above this brightness; NaN never rejects. The colour
+     *                      sensor passes its {@code leaveBelow}, not its {@code presentAbove}: a
+     *                      NECTAR at the edge of the spot reads 0.07 to 0.09 against an empty
+     *                      lane's 0.02 (5 Nov 2026), and it is still the wrong piece
      * @param afterReadings readings in a row that start a burst; below 1 counts as 1
      * @param burstMs       how long a burst runs, ms; NaN or not positive never rejects
      * @param holdOffMs     how long the intake stays stopped after a burst, ms; NaN or not positive: none
@@ -83,12 +88,12 @@ public final class NectarReject {
      * @param windowMs      the cap's window, ms; NaN or not positive: no cap
      */
     public void step(long nowMs, boolean fresh, double brightness, LaneTracker.Piece piece, Alliance ours,
-                     boolean enabled, double presentAbove, int afterReadings, double burstMs,
+                     boolean enabled, double seenAbove, int afterReadings, double burstMs,
                      double holdOffMs, int maxBursts, double windowMs) {
         justStarted = false;
         justGaveUp = false;
         LaneTracker.Piece enemy = enemyNectar(ours);
-        if (!enabled || enemy == null || !(burstMs > 0) || Double.isNaN(presentAbove)) {
+        if (!enabled || enemy == null || !(burstMs > 0) || Double.isNaN(seenAbove)) {
             phase = Phase.IDLE;
             matching = 0;
             armed = true;
@@ -104,9 +109,9 @@ public final class NectarReject {
             phase = Phase.IDLE;
         }
         if (!fresh) return;
-        boolean seen = piece == enemy && brightness > presentAbove;
-        if (phase != Phase.IDLE) {
-            // A different reading during the burst or the hold-off means the piece has gone.
+        boolean seen = piece == enemy && brightness > seenAbove;
+        if (phase == Phase.BURST) {
+            // A different reading during the burst means the piece has gone.
             if (!seen) armed = true;
             return;
         }
@@ -116,6 +121,7 @@ public final class NectarReject {
             matching = 0;
             return;
         }
+        // Idle, or in the hold-off: the piece is back under the sensor, so it bursts again now.
         if (!armed) return;
         matching++;
         if (matching < Math.max(1, afterReadings)) return;
