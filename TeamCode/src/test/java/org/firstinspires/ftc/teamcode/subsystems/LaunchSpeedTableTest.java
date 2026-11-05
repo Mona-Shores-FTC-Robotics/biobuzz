@@ -68,6 +68,35 @@ public class LaunchSpeedTableTest {
     }
 
     @Test
+    public void aRangeFarPastTheRowsIsNotBelieved() {
+        double[] r = {39.0, 42.3, 50.5, 55.4};
+        double[] s = {1520, 1560, 1570, 1635};
+        assertTrue(LaunchSpeedTable.trusted(r, s, 60.4, 5, 10));
+        assertTrue(LaunchSpeedTable.trusted(r, s, 70.4, 5, 10));
+        assertFalse("4 Nov's bad pose", LaunchSpeedTable.trusted(r, s, 136, 5, 10));
+        assertTrue(LaunchSpeedTable.trusted(r, s, 24, 5, 10));
+        assertFalse(LaunchSpeedTable.trusted(r, s, 23, 5, 10));
+        assertFalse(LaunchSpeedTable.trusted(r, s, NaN, 5, 10));
+        assertFalse("no rows", LaunchSpeedTable.trusted(new double[] {NaN}, new double[] {NaN}, 50, 5, 10));
+        assertTrue("NaN margins are 0: on a row", LaunchSpeedTable.trusted(r, s, 55.4, NaN, NaN));
+        assertFalse("NaN margins are 0: past it", LaunchSpeedTable.trusted(r, s, 55.5, NaN, NaN));
+    }
+
+    @Test
+    public void untrustedRangeFallsBackToTheConfiguredSpeed() {
+        LaunchSpeedTable.enabled = true;
+        LaunchSpeedTable.row1RangeIn = 40;
+        LaunchSpeedTable.row1TicksPerSecond = 1400;
+        LaunchSpeedTable.row2RangeIn = 60;
+        LaunchSpeedTable.row2TicksPerSecond = 1600;
+        LaunchSpeedTable.extendIn = 5;
+        LaunchSpeedTable.trustBeyondIn = 10;
+        assertEquals(1650, LaunchSpeedTable.launchSpeed(70, 1595), EPS);
+        assertEquals(1595, LaunchSpeedTable.launchSpeed(136, 1595), EPS);
+        assertTrue(Double.isNaN(LaunchSpeedTable.ticksPerSecondFor(136)));
+    }
+
+    @Test
     public void the4NovRowsAnswerAcrossTheSpotsAndALittleBeyond() {
         double[] r = {39.0, 42.3, 50.5, 55.4};
         double[] s = {1520, 1560, 1570, 1635};

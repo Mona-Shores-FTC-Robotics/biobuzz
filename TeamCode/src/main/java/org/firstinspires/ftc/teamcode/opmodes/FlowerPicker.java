@@ -63,14 +63,17 @@ public final class FlowerPicker extends GrabRoutine {
      * the wall (by odometry, 5 to 6 did on blue). The intake roller stalls (0 ticks/s at 8 to 10 A, 1 to 4 s) in
      * launch feeds at any value, so it is not this number's doing. Three picks per value is the check
      * (doc/robot-todo.md); the pick's start line in the match log says the value in use. The
-     * Visualizer's {@code CONTACT_STANDOFF_IN} changes with it.
+     * Visualizer's {@code CONTACT_STANDOFF_IN} changes with it. 9.0 since 5 Nov 2026: at 7.0 every
+     * R-Solo push on 4 Nov stalled 1.8-4 in short, pressing into the FLOWER; 9 aims 2 in less deep.
      */
-    public static double contactStandoffIn = 7.0;
+    public static double contactStandoffIn = 9.0;
     /**
      * The stick goes down and the intake starts once the robot is this close to the line-up, inches:
      * the button's line-up, or, in an Auto, the end of the drive before the pick ({@link #approach}).
+     * 24 since 5 Nov 2026: at 18 the stick finished lowering only 0.52-0.55 s before arrival at the
+     * WALL FLOWER (3-4 Nov Auto picks), short of the 0.7 s it wants.
      */
-    public static double lowerWithinIn = 18.0;
+    public static double lowerWithinIn = 24.0;
     /** Time the stick is given to swing down before the push may start, ms. */
     public static double stickDownMs = 700;
     /** The line-up path gives up after this long, ms. */

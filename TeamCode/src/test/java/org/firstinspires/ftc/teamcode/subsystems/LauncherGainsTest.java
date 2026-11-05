@@ -32,7 +32,8 @@ public class LauncherGainsTest {
 
     /** The gains as shipped, put back after each test so no other test sees this one's NaNs. */
     private static final double[] SHIPPED = {LauncherSubsystem.velocityP, LauncherSubsystem.velocityI,
-            LauncherSubsystem.velocityD, LauncherSubsystem.velocityF};
+            LauncherSubsystem.velocityD, LauncherSubsystem.velocityF, LauncherSubsystem.nominalVolts};
+    private static final boolean SHIPPED_COMPENSATE_F = LauncherSubsystem.compensateF;
 
     private final Map<String, List<double[]>> writes = new HashMap<>();
     private LauncherSubsystem launcher;
@@ -82,8 +83,8 @@ public class LauncherGainsTest {
         LauncherSubsystem.velocityI = SHIPPED[1];
         LauncherSubsystem.velocityD = SHIPPED[2];
         LauncherSubsystem.velocityF = SHIPPED[3];
-        LauncherSubsystem.compensateF = false;
-        LauncherSubsystem.nominalVolts = 12.0;
+        LauncherSubsystem.compensateF = SHIPPED_COMPENSATE_F;
+        LauncherSubsystem.nominalVolts = SHIPPED[4];
     }
 
     private List<double[]> left() {

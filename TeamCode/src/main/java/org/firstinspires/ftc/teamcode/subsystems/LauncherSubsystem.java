@@ -251,10 +251,12 @@ public class LauncherSubsystem implements Subsystem {
      * on a tired battery as on the one it was tuned on. Off until a robot run shows it helps.
      * Applies to F as it stands, set here or the hub's own.
      */
-    public static boolean compensateF = false;
+    // On since 5 Nov 2026: on a 12.9-13.4 V battery the wheels ran 20-40 ticks/s over target with F
+    // tuned at 11.8 V (R-Solo logs, 4 Nov), sending shots long and hiding their dips from the shot count.
+    public static boolean compensateF = true;
 
     /** The battery voltage F is tuned at, volts, for {@link #compensateF}. NaN, zero or negative: no compensation. */
-    public static double nominalVolts = 12.0;
+    public static double nominalVolts = 11.8;
 
     /** Above this a gain from Panels is treated as a typo and the hub's own is kept. */
     static final double MAX_GAIN = 1000.0;
