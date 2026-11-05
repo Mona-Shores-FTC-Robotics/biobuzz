@@ -222,7 +222,14 @@ public abstract class GrabRoutine {
     /** The mechanisms put away during the back-out (stick up). Called once, if prepped. */
     protected abstract void unprep();
 
-    /** Everything stops: the end of a grab, finished or not. The drive is stopped by the caller. */
+    /**
+     * The end of a grab, finished or not: its mechanisms stop and the drive is stopped by the
+     * caller. The intake is left running: whoever owns it outside a grab decides from there (an
+     * Auto runs it to the end, {@code BuiltAuto}; the TeleOp hands it back to the operator's
+     * toggle, {@code IntakeArbiter}), and a full lane holds its own last piece either way. Idling it
+     * here left the roller off for R-Solo's drives to the launch spot, and a piece still at the
+     * mouth stayed on the floor (4 Nov 2026).
+     */
     protected abstract void stopMechanisms();
 
     /**
