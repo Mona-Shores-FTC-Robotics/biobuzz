@@ -1,11 +1,11 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-05T13:56:22.088Z",
+  "timestamp": "2026-11-05T14:40:07.980Z",
   "startPoint": {
-    "x": 9.4,
-    "y": 85.1,
+    "x": 10.5,
+    "y": 84,
     "locked": false,
-    "headingDeg": 75
+    "headingDeg": 80
   },
   "lines": [],
   "shapes": [
@@ -229,9 +229,9 @@
     },
     "points": {
       "PARTNER_PUSH_START": [
-        9.4,
-        85.1,
-        75
+        10.5,
+        84,
+        80
       ]
     },
     "pathEnds": {},
