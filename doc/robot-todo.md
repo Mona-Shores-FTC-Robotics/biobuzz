@@ -27,16 +27,13 @@ here waits until after the event.
 2. ~~Launcher PIDF (§7c)~~ done on 20245, 4 Nov: F 14.65, P 40, I 0.2, D 0, now the defaults in
    `LauncherSubsystem`. Load master before item 3 so the robot runs them without Panels. Still
    open in §7c: the shot count against video, feed pace, the tired battery.
-3. The LEFT launch spot's speed, right after the PIDF (same setup, §7d style). TIP 2 in every R
-   Auto but R-Partner-Tip is fired from LEFT_LAUNCH_OFFSET (41 in from the LEFT CELL), and at the
-   one setpoint, 1595, it goes long: the mentor's 4 Nov video, and since #429 the simulator too
-   (run 41891398950 on `claude/bold-ptolemy-aabda1`: R-Solo got TIP 2 in 1 of 10 runs, 6–10 of 12
-   shots in; R-Partner-Preload 2 of 5). From LEFT_LAUNCH_OFFSET facing the LEFT CELL, volleys of 4
-   at 1595, then 1550, 1525, 1500; count hits per volley on video. **Good:** a speed that scores 3
-   or 4 of 4 repeatably → that range and speed as a `LaunchSpeedTable` row, the table on for the
-   Autos (§7d "Then switch it on"), and RIGHT_START still scoring at its row. **Stop:** no speed
-   scores → record the best and its hits; the fallback is moving the left launch spot to about
-   50 in from the LEFT CELL (near (40, 130.5)), a team-spot change in the Visualizer.
+3. ~~Launch speeds~~ measured on 20245, 4 Nov, now `LaunchSpeedTable`'s rows with the table on
+   (§7d): 39 in → 1520 (RIGHT_LAUNCH_CATCH), 42.3 → 1560 (RIGHT_LAUNCH_OFFSET), 50.5 → 1570
+   (RIGHT_START), 55.4 → 1635 (near the GARDEN). Left after the load: Square from
+   LEFT_LAUNCH_OFFSET, where TIP 2 in every R Auto but R-Partner-Tip is fired (at 1595 it went
+   long), and from each right spot once. **Good:** each scores 3 or 4 of 4 at the table's speed
+   (the Match page's "Last launch spot" line shows it). **Stop:** a spot misses → note its range,
+   the speed and long or short; the table switches off in Panels (`LaunchSpeedTable.enabled`).
 4. R-Solo five times or more, the rebuilt one (#439, on master): TIP 1 from the start, the wall FLOWER, then a CellUp check at LEFT_LAUNCH_OFFSET (at
    most 0.75 s). Up: LEFT volley, scoring FLOWER, LEFT volley (TIP 2), park RIGHT_PARK. Down:
    RIGHT_LAUNCH_OFFSET, fire, park. Count TIP 1, TIP 2 and the park on each run, and note when
@@ -460,7 +457,7 @@ a difference is one `RobotDifferences` line.
       **Stop:** record both runs' numbers; write `compensateVoltage` and `feedPower` back only if
       it helped. [4 Nov 00:48 log: 2260 → 2060 ticks/s as the battery fell 10.83 → 10.61 V]
 
-## 7d. Launcher distances (Basic Drive, speed table OFF, HIVE upright, phone filming the HIVE)
+## 7d. Launcher distances (Basic Drive, HIVE upright)
 
 After §7c: the rows are only worth having once the wheels hold their speed. One
 `LauncherSubsystem.targetTicksPerSecond` (1595) serves every distance today. On 4 Nov it went
@@ -475,22 +472,13 @@ page's "Last launch spot" line shows the spot's CELL range and the launch speed:
 Take the middle of the speeds that score 4/4, not the first one that does. The trim carries from
 press to press.
 
-- [ ] **RIGHT_LAUNCH_CATCH** (model: 43 in). **Good:** a range and a speed that scores 4/4.
-- [ ] **RIGHT_LAUNCH_OFFSET** (model: 45 in). **Good:** as above.
-- [ ] **RIGHT_START** (model: 50 in; the camera read 52–53 in on 4 Nov, so take what the page
-      shows). **Good:** as above, or 1595 confirmed.
-- [ ] **Corner shot near the GARDEN** (about (15, 15), facing about 45° toward the RIGHT CELL, model
-      about 64 in): not a team spot, so drive there by hand and fire with FIRE. The Match page's
-      "Last shot" line gives the range and speed. Try 1650–1800. **Good:** 9/12 or better, then it
-      becomes a team spot (Visualizer, *Save team spots*) and one `LaunchSpots.Spot` constant, so
-      Square can go there [PR #423]. **Stop:** "out of range" at any speed. [mentor, 4 Nov]
-- [ ] **Then switch it on:** type the four (range, speed) pairs into `LaunchSpeedTable`'s rows in
-      Panels and turn `enabled` on. The TeleOp and the Autos then use it. **Good:** Square from each
-      spot still scores, a FIRE from between two spots scores as well as its neighbours, and an Auto
-      run scores as it did. Write the rows and `enabled = true` into `LaunchSpeedTable.java` in a PR.
-      **Stop:** if anything got worse, turn `enabled` off: that is today's behaviour exactly.
-      `tools/pull-logs/read_logs.py launcher` lists every logged shot by spot and speed for a check
-      afterwards. [PR for the speed table, `claude/stoic-mendel-xzdx22`]
+Measured 4 Nov 2026 (20245, tuned PIDF) and in `LaunchSpeedTable` with the table on: 39 in → 1520,
+42.3 → 1560, 50.5 → 1570, 55.4 → 1635. What is left here is the corner spot for Square.
+
+- [ ] **The corner spot for Square:** the shot near the GARDEN scores at 55.4 in and 1635 (its table
+      row). For Square to drive there: park where it scored, read x, y and heading off the Robot
+      page's Pose line, save it as a team spot (Visualizer, *Save team spots*), and it becomes one
+      `LaunchSpots.Spot` constant [PR #423]. [mentor, 4 Nov]
 
 ## 8. If time: anyone, no driving
 

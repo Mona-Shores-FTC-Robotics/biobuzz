@@ -17,8 +17,9 @@ import com.bylazar.configurables.annotations.Configurable;
  *
  * <h2>How it answers</h2>
  *
- * <p>Straight-line interpolation between the two rows either side of the range, and the end row's
- * speed beyond either end: never an extrapolation, which past the last row would be a guess. A row
+ * <p>Straight-line interpolation between the two rows either side of the range. Past either end
+ * the end segment's slope carries on for {@link #extendIn} (5 in), then the speed holds: a shot
+ * slightly outside the measured spots gets a speed on the trend, a far one is not a guess. A row
  * counts only with a finite range of zero or more and a finite speed above zero, so a NaN row (the
  * default) is no row and a Panels typo drops one row rather than throwing a wild speed. With no
  * usable row, or a NaN range, the answer is NaN, and the caller keeps
@@ -37,6 +38,13 @@ import com.bylazar.configurables.annotations.Configurable;
  * worn wheel has room either way, and the range the robot showed rather than these model numbers.
  * Then switch {@link #enabled} on. Both robots share the table (identical hardware); one seen to
  * differ gets a line in {@code RobotDifferences}, never a second table.
+ *
+ * <p><b>Measured</b> on 20245 on 4 Nov 2026, with the launcher PIDF tuned that night, each range the
+ * robot showed ({@code last_shot_range_in}) and the speed the drive team picked as scoring well:
+ * RIGHT_LAUNCH_CATCH 39 in (38.6–39.2) at 1520, RIGHT_LAUNCH_OFFSET 42.3 in at 1560, RIGHT_START
+ * 50.5 in at 1570, and the hand-driven shot near the GARDEN 55.4 in (55.3–55.5) at 1635. The ranges
+ * are 3–4 in shorter than the spots' model numbers above. With {@link #extendIn} at 5 in the
+ * table answers from 34 in (about 1460) to 60.4 in (about 1700) and holds those beyond.
  */
 @Configurable
 public final class LaunchSpeedTable {
@@ -49,27 +57,35 @@ public final class LaunchSpeedTable {
      * {@link LauncherSubsystem#targetTicksPerSecond} plus any trim, exactly as before the table, and
      * the rows are ignored; that is also how the rows are measured (Square, trim until it scores,
      * write the speed down). On: every launch uses the table for its range, falling back to the
-     * configured speed only where the table has no answer. Flip it in Panels to try the table and
-     * back if it makes things worse; write it here once the rows are trusted.
+     * configured speed only where the table has no answer. On since 4 Nov 2026 (the rows below);
+     * flip it off in Panels if a launch gets worse, and that is the single speed exactly.
      */
-    public static boolean enabled = false;
+    public static boolean enabled = true;
+
+    /**
+     * How far past the first and last rows, inches, the table keeps their slope before it holds:
+     * a shot a little closer or farther than any measured spot still gets a speed on the trend
+     * (at 4 Nov's rows, about 12 ticks/s per inch at the close end and 13 at the far end) rather
+     * than the end row's. Beyond it the speed holds, never a guess. 0 or NaN: hold at the end row.
+     */
+    public static double extendIn = 5.0;
 
     /** Row 1: horizontal range from the turret axis to the UP CELL's raised row, inches. NaN: no row. */
-    public static double row1RangeIn = Double.NaN;
+    public static double row1RangeIn = 39.0;
     /** Row 1: the launch speed that scores from {@link #row1RangeIn}, ticks per second. NaN: no row. */
-    public static double row1TicksPerSecond = Double.NaN;
+    public static double row1TicksPerSecond = 1520.0;
     /** As row 1. */
-    public static double row2RangeIn = Double.NaN;
+    public static double row2RangeIn = 42.3;
     /** As row 1. */
-    public static double row2TicksPerSecond = Double.NaN;
+    public static double row2TicksPerSecond = 1560.0;
     /** As row 1. */
-    public static double row3RangeIn = Double.NaN;
+    public static double row3RangeIn = 50.5;
     /** As row 1. */
-    public static double row3TicksPerSecond = Double.NaN;
+    public static double row3TicksPerSecond = 1570.0;
     /** As row 1. */
-    public static double row4RangeIn = Double.NaN;
+    public static double row4RangeIn = 55.4;
     /** As row 1. */
-    public static double row4TicksPerSecond = Double.NaN;
+    public static double row4TicksPerSecond = 1635.0;
     /** As row 1. */
     public static double row5RangeIn = Double.NaN;
     /** As row 1. */
@@ -134,26 +150,61 @@ public final class LaunchSpeedTable {
      * usable row or a NaN range. One pass, no sorting, nothing allocated. Pure, so a test can drive it.
      */
     static double interpolate(double[] ranges, double[] speeds, double rangeIn) {
+        return interpolate(ranges, speeds, rangeIn, extendIn);
+    }
+
+    /**
+     * As {@link #interpolate(double[], double[], double)}, extending the end segments by up to
+     * {@code extend} inches: past an end row the speed keeps the slope of that end's two outermost
+     * rows for at most that far, then holds there. A NaN, negative or infinite extension, or a
+     * table of one row, is none: the end row's speed. Pure, so a test can drive it.
+     */
+    static double interpolate(double[] ranges, double[] speeds, double rangeIn, double extend) {
         if (Double.isNaN(rangeIn)) return Double.NaN;
         int below = -1;
         int above = -1;
         int lowest = -1;
+        int nextLowest = -1;
         int highest = -1;
+        int nextHighest = -1;
         int n = Math.min(ranges.length, speeds.length);
         for (int i = 0; i < n; i++) {
             double r = ranges[i];
             if (!usable(r, speeds[i])) continue;
             if (r == rangeIn) return speeds[i];
-            if (lowest < 0 || r < ranges[lowest]) lowest = i;
-            if (highest < 0 || r > ranges[highest]) highest = i;
+            if (lowest < 0 || r < ranges[lowest]) {
+                if (lowest >= 0 && ranges[lowest] != r) nextLowest = lowest;
+                lowest = i;
+            } else if (r > ranges[lowest] && (nextLowest < 0 || r < ranges[nextLowest])) {
+                nextLowest = i;
+            }
+            if (highest < 0 || r > ranges[highest]) {
+                if (highest >= 0 && ranges[highest] != r) nextHighest = highest;
+                highest = i;
+            } else if (r < ranges[highest] && (nextHighest < 0 || r > ranges[nextHighest])) {
+                nextHighest = i;
+            }
             if (r < rangeIn && (below < 0 || r > ranges[below])) below = i;
             if (r > rangeIn && (above < 0 || r < ranges[above])) above = i;
         }
         if (lowest < 0) return Double.NaN;
-        if (below < 0) return speeds[lowest];
-        if (above < 0) return speeds[highest];
-        double f = (rangeIn - ranges[below]) / (ranges[above] - ranges[below]);
-        return speeds[below] + f * (speeds[above] - speeds[below]);
+        double reach = extend >= 0.0 && !Double.isInfinite(extend) ? extend : 0.0;
+        if (below < 0) {
+            if (nextLowest < 0 || reach == 0.0) return speeds[lowest];
+            double at = Math.max(rangeIn, ranges[lowest] - reach);
+            return line(ranges[lowest], speeds[lowest], ranges[nextLowest], speeds[nextLowest], at);
+        }
+        if (above < 0) {
+            if (nextHighest < 0 || reach == 0.0) return speeds[highest];
+            double at = Math.min(rangeIn, ranges[highest] + reach);
+            return line(ranges[nextHighest], speeds[nextHighest], ranges[highest], speeds[highest], at);
+        }
+        return line(ranges[below], speeds[below], ranges[above], speeds[above], rangeIn);
+    }
+
+    /** The speed at {@code x} on the straight line through (r0, s0) and (r1, s1); r0 != r1. */
+    private static double line(double r0, double s0, double r1, double s1, double x) {
+        return s0 + (x - r0) / (r1 - r0) * (s1 - s0);
     }
 
     /**
