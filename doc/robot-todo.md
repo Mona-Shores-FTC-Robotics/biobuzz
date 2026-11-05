@@ -24,9 +24,9 @@ here waits until after the event.
 **Night 1: the launcher, then R-Solo.**
 
 1. Full TeamCode install, then Check: Hardware and the Pinpoint cable (§0, §1).
-2. Launcher PIDF (§7c): baseline, F, P, then real shots; 1–1.5 h. Every shot in every OpMode
-   depends on it. Film the real-shot volleys and write down count against video: that is §7c's
-   shot-count check, done in the same volleys. Change no code from it before the event.
+2. ~~Launcher PIDF (§7c)~~ done on 20245, 4 Nov: F 14.65, P 40, I 0.2, D 0, now the defaults in
+   `LauncherSubsystem`. Load master before item 3 so the robot runs them without Panels. Still
+   open in §7c: the shot count against video, feed pace, the tired battery.
 3. The LEFT launch spot's speed, right after the PIDF (same setup, §7d style). TIP 2 in every R
    Auto but R-Partner-Tip is fired from LEFT_LAUNCH_OFFSET (41 in from the LEFT CELL), and at the
    one setpoint, 1595, it goes long: the mentor's 4 Nov video, and since #429 the simulator too
@@ -403,6 +403,12 @@ the same as `launcher_*` (graph `left_tps`, `right_tps`, `launch_target_tps`); t
 each spin-up and dip as an event, with the battery. Panels edits are lost on restart: write each
 number down as it is found. [branch claude/launcher-tuning]
 
+Tuned on 20245, 4 Nov 2026 (two Launch Test logs, 18:45 and 18:51): the hub's own gains (P 10 I 3 D
+0 F 0, the same in every OpMode) spun up in about 0.98 s from rest; F 14.65, P 40, I 0.2, D 0 in
+about 0.57 s, and after a shot's dip back at speed in a median 0.22 s (overshoot a median 25, 1
+of 94 dips over 60). Those are `LauncherSubsystem`'s defaults now. On 19429, check the same way;
+a difference is one `RobotDifferences` line.
+
 - [ ] **Measure the wheels**, for the surface speeds (in/s, the one unit that compares the feeder
       with the flywheels; ticks/s do not). Calipers on the flywheel: `LauncherSubsystem.wheelDiameterInches`.
       The flywheel module's belt (count teeth, or mark the wheel and turn the motor once by hand):
@@ -412,28 +418,6 @@ number down as it is found. [branch claude/launcher-tuning]
       believed goBILDA 5203 6000 rpm (28 ticks/rev), feeder 5203 435 rpm (384.5). **Good:** the
       Launch Test page shows both surface speeds instead of "unknown". **Stop:** write the numbers
       back with the robot and date.
-- [ ] **Read the defaults.** Power-cycle the robot, start Bench: Launch Test with all four gains
-      NaN. The page's "Velocity PIDF … at init P _ I _ D _ F _" line (and the log's Metadata,
-      `Hardware/LauncherSubsystem`) is the hub's own. Write it down. Then stop, start the OpMode
-      again, still all NaN: **Good:** the same four numbers. **Stop:** if it shows different ones, the
-      hub keeps gains across OpModes; note it, and power-cycle before trusting "at init" again.
-- [ ] **Baseline.** PLAY, Triangle + Circle (setup layer + fire) five times: the step test spins
-      down, waits until still, spins up and times it. **Stop:** record the mean of 5 (in tolerance,
-      overshoot, at speed) and the battery, before changing anything.
-- [ ] **F first.** Set `velocityP` 0, `velocityI` 0, `velocityD` 0, and `velocityF` to
-      32767 ÷ (the speed one wheel reaches at full power, ticks/s; about 2600–2800 for a 6000 rpm
-      5203, so start near 12). Spin up and watch `left_tps`/`right_tps`: raise F until both sit just
-      under 1595, then nudge it to 1595. **Good:** the wheels hold 1595 ±30 with no P at all, at a
-      battery near 12 V. **Stop:** record F and the battery.
-- [ ] **Then P** for rise and overshoot: from about 5, step it up with the step test after each change
-      (mean of 5). **Good:** at speed ≤ 1.0 s from rest, overshoot under the tolerance (60). Too much P
-      shows as overshoot or a wobble at speed. **Stop:** record P and the mean of 5.
-- [ ] **I small, if at all**: only if the wheels sit steadily off 1595 with F and P set; 0.1–0.5,
-      never enough to bring back the overshoot. D stays 0 unless a wobble needs it.
-- [ ] **Real shots.** Fire volleys of 4 (the trim left at 0). The page's dip line and the log's dip
-      events: **Good:** back in tolerance within ~0.3 s of a dip, overshoot after it under 60,
-      at speed again well under the 0.7 s of 4 Nov, and the shot count right. **Stop:** if overshoot
-      after a dip is still past 60, lower P (or I) before anything else.
 - [ ] **Shot count only with the gate open and both wheels down.** A dip now counts only if it
       starts while the gate is open and both wheels are 70 under target (4 Nov log: the intake's
       NECTAR stalls, and the wheels wobbling while a ball pressed on them, counted as shots). Fire 3 volleys of 4, letting go
@@ -466,10 +450,6 @@ number down as it is found. [branch claude/launcher-tuning]
       then 5 with it on (`nominalVolts` = the battery F was tuned at, rounded). **Good:** with it on,
       the mean matches the fresh-battery one within ~0.1 s. **Stop:** record both means and the
       battery; leave it off if it does not help.
-- [ ] **Write it back**: the four gains (and `compensateF`/`nominalVolts` if they helped) into
-      `LauncherSubsystem`, each with the robot and the date, as the other launcher fields are. Check
-      19429 the same way; if its numbers differ, the difference is one line in `RobotDifferences`
-      (the reason, the date, the assignment), never a second field.
 - [ ] **Feeder compensation**, from match logs, not by eye. Pull the logs of a fresh-battery run
       (≥ 12.5 V) and a tired one (≤ 11 V), three volleys each, `FeederSubsystem.compensateVoltage`
       off: per volley, the feeder's ticks/s (`/Feeder/TicksPerSecond`) and the shot spacing (time
