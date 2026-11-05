@@ -30,8 +30,8 @@ here waits until after the event.
 3. ~~Launch speeds~~ measured on 20245, 4 Nov, now `LaunchSpeedTable`'s rows with the table on
    (§7d): 39 in → 1520 (RIGHT_LAUNCH_CATCH), 42.3 → 1560 (RIGHT_LAUNCH_OFFSET), 50.5 → 1570
    (RIGHT_START; 1600 since 5 Nov: at 1580 R-Solo's first volley put 3 of 4 in on video, the
-   fourth low off the front lip), 55.4 → 1635 (near the GARDEN). **Check 1600 at R-Solo's start
-   on video:** all four in, none over the back; if one goes long, settle between 1580 and 1600. Left after the load: Square from
+   fourth low off the front lip), 55.4 → 1635 (near the GARDEN). 1600 confirmed 5 Nov: R-Solo's
+   start volley scored 4 (mentor). Left after the load: Square from
    LEFT_LAUNCH_OFFSET, where TIP 2 in every R Auto but R-Partner-Tip is fired (at 1595 it went
    long), and from each right spot once. **Good:** each scores 3 or 4 of 4 at the table's speed
    (the Match page's "Last launch spot" line shows it). **Stop:** a spot misses → note its range,
@@ -209,7 +209,7 @@ These gate Belding. Run each from its start, alliance from §2.
       (the launcher's shot count), and the robot ended AUTO at the launch spot, touching no wall
       (LEAVE). **Stop:** the last ball left after 30 s → note the volley's path end → gate open → last
       ball times: `AutoRegistration.LAUNCH_ALL_LAST_PIECE_S` (4.0) is short. [PR #422]
-- [ ] **Launcher overshoot after a drive:** 4 Nov 00:48 the launcher ran to about 1680 ticks/s of
+- [x] **Fixed by the PIDF tune (#444), mentor 5 Nov.** **Launcher overshoot after a drive:** 4 Nov 00:48 the launcher ran to about 1680 ticks/s of
       1595 ±60 after each drive to `LEFT_LAUNCH_OFFSET`, and `AtSpeed` stayed false about 0.7 s, so
       the gate opened 0.98–1.12 s after arrival where the settle alone took 0.38–0.57 s. Graph
       `/Launcher/LeftTicksPerSecond`, `RightTicksPerSecond` and `AtSpeed` in Panels over an R-Solo-Staging
@@ -243,7 +243,7 @@ These gate Belding. Run each from its start, alliance from §2.
       (P on the step) in the Visualizer. [PR #391]
 - [ ] **A launch's time limit never cuts a feed;** the Auto graphs the launcher in Panels. **Good:**
       every launch feeds its full `LaunchCards` time; launcher graph live. [PR #333], [PR #334]
-- [ ] **Launch on the approach: fix the launcher overshoot first.** It is a separate issue. After a
+- [x] **Fixed by the PIDF tune (#444), mentor 5 Nov.** **Launch on the approach: fix the launcher overshoot first.** It is a separate issue. After a
       dip the wheels overshot to about 1680 tps and kept AtSpeed false for about 0.7 s (3 and 4 Nov
       R-Solo logs), and the approach's gate waits for AtSpeed too. **Good:** `at_speed` in Panels
       stays 1 through the drive into LEFT_LAUNCH_OFFSET. **Stop:** still overshooting → judge the
