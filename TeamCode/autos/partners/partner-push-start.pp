@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-05T14:40:07.980Z",
+  "timestamp": "2026-11-05T14:47:23.858Z",
   "startPoint": {
     "x": 10.5,
     "y": 84,
@@ -235,7 +235,25 @@
       ]
     },
     "pathEnds": {},
-    "cards": [],
+    "cards": [
+      {
+        "id": "c-mw3nt0sr-50clw",
+        "kind": "firstOf",
+        "label": "Wait for TIP or CELL up",
+        "rows": [
+          {
+            "when": [
+              "CellUp"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 7000,
+            "cards": []
+          }
+        ]
+      }
+    ],
     "startAt": "PARTNER_PUSH_START",
     "exportName": "Partner-Push-Start"
   }
