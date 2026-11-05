@@ -149,6 +149,21 @@ public abstract class GrabRoutine {
         return !lineUp;
     }
 
+    /**
+     * Whether a grab idles the intake when it ends. The button's does: the driver let go. An Auto's
+     * never does, since the Auto runs the intake from PLAY to the end ({@code BuiltAuto}) and a
+     * full lane holds its own last piece: idling it here left the roller off for the drive to the
+     * launch spot, and a piece still at the mouth stayed on the floor (R-Solo, 4 Nov).
+     */
+    static boolean idlesIntakeAtEnd(boolean inAuto) {
+        return !inAuto;
+    }
+
+    /** Ends the intake's part in a grab, by {@link #idlesIntakeAtEnd}. */
+    protected void releaseIntake() {
+        if (idlesIntakeAtEnd(inAuto())) robot.intake.idle();
+    }
+
     // ------------------------------------------------------------- what a grab says about itself
 
     /** For the log and the Match page: "FLOWER pick". */
