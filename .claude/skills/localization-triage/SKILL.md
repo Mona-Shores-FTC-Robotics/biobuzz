@@ -195,8 +195,8 @@ Change **one** camera setting between sessions, or the two logs cannot be compar
 
 ## 3. What this skill does NOT decide
 
-- **Pinpoint offsets and encoder resolution** (`pedro/robots/Robot<team>.java`, `xPodOffset`
-  marked provisional on 19429) come only from the Pinpoint tuner, on the robot. A log can show
+- **Pinpoint offsets and encoder resolution** (`pedro/robots/Robot<team>.java`, 19429's
+  copied from 20245 until measured) come only from the Pinpoint tuner, on the robot. A log can show
   drift (odometry disagrees with tags the same way at every heading, growing with distance
   driven); it cannot give the number. Output a checklist for the next robot meeting.
 - **The reset spots** (`ResetPositions`, `WALL_TO_CENTRE_IN = 8.1`) are derived, not measured.
