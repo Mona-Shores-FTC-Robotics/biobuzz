@@ -62,7 +62,7 @@ public class SimRequestsTest {
             }
             // A stand-in's own request previews it alone after a Visualizer edit; it needs no OpMode.
             checkSource(problems, file, request.get("pp"), autos);
-            boolean draft = new File(drafts, name + ".pp").isFile();
+            boolean draft = ("TeamCode/autos/drafts/" + name + ".pp").equals(request.get("pp"));
             String spec = (String) request.get("spec");
             if (spec == null || spec.isEmpty()) {
                 problems.add(file.getName() + ": no spec");
