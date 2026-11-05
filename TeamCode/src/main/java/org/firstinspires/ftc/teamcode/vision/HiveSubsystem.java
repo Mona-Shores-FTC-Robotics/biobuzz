@@ -27,6 +27,17 @@ public final class HiveSubsystem implements Subsystem {
 
         /** Most the robot may move since it last saw the HIVE, inches. */
         public static double lookToleranceIn = 2;
+
+        /**
+         * Fastest the robot may drive for a mid-tip sighting to count, in/s ({@code HiveTracker}'s
+         * {@code observe}). 10: the two TIPs on 4 and 5 Nov 2026 that started with the robot nearly
+         * still came under 8 in/s; the false ones at 18 in/s and up. <b>Not measured</b> against a
+         * real TIP seen while driving; a robot check.
+         */
+        public static double midTipMaxSpeedInPerSec = 10;
+
+        /** Fastest the robot may turn for a mid-tip sighting to count, degrees/s. 30: as above, 21 and 60. */
+        public static double midTipMaxTurnDegPerSec = 30;
     }
 
     private final LimelightVisionSubsystem vision;
@@ -35,6 +46,8 @@ public final class HiveSubsystem implements Subsystem {
     private final HiveTracker blue = new HiveTracker();
     private Pose redSeenFrom;
     private Pose blueSeenFrom;
+    private Pose lastPose;
+    private long lastMs;
 
     public HiveSubsystem(LimelightVisionSubsystem vision, DriveSubsystem drive) {
         this.vision = vision;
@@ -47,6 +60,7 @@ public final class HiveSubsystem implements Subsystem {
         blue.reset();
         redSeenFrom = null;
         blueSeenFrom = null;
+        lastPose = null;
     }
 
     /** Reads the camera; nothing to move. */
@@ -58,17 +72,32 @@ public final class HiveSubsystem implements Subsystem {
     public void update() {
         long nowMs = System.nanoTime() / 1_000_000L;
         Pose pose = drive.pose();
-        redSeenFrom = step(red, Alliance.RED, redSeenFrom, pose, nowMs);
-        blueSeenFrom = step(blue, Alliance.BLUE, blueSeenFrom, pose, nowMs);
+        boolean steady = steady(lastPose, pose, (nowMs - lastMs) / 1000.0);
+        lastPose = pose;
+        lastMs = nowMs;
+        redSeenFrom = step(red, Alliance.RED, redSeenFrom, pose, steady, nowMs);
+        blueSeenFrom = step(blue, Alliance.BLUE, blueSeenFrom, pose, steady, nowMs);
     }
 
     /** Feeds one tracker; returns where the robot was when it last saw that HIVE. */
-    private Pose step(HiveTracker hive, Alliance alliance, Pose seenFrom, Pose pose, long nowMs) {
+    private Pose step(HiveTracker hive, Alliance alliance, Pose seenFrom, Pose pose, boolean steady, long nowMs) {
         double lostForMs = vision.msSinceHiveSeen(alliance);
         if (lostForMs < HiveTracker.Tuning.lostAfterMs) seenFrom = pose;
         hive.observe(vision.seenHive(alliance), vision.hiveTagsInView(alliance), lostForMs,
-                stillLooking(seenFrom, pose), nowMs);
+                stillLooking(seenFrom, pose), steady, nowMs);
         return seenFrom;
+    }
+
+    /**
+     * Whether the robot, from {@code before} to {@code now} over {@code dtS} seconds, was slow and
+     * hardly turning ({@link Tuning#midTipMaxSpeedInPerSec}, {@link Tuning#midTipMaxTurnDegPerSec}).
+     * True with no earlier pose or no time passed: nothing says it moved. Pure.
+     */
+    static boolean steady(Pose before, Pose now, double dtS) {
+        if (before == null || now == null || !(dtS > 0)) return true;
+        double speed = Math.hypot(now.x() - before.x(), now.y() - before.y()) / dtS;
+        double turn = Math.toDegrees(Math.abs(Math.IEEEremainder(now.heading() - before.heading(), 2 * Math.PI))) / dtS;
+        return !(speed > Tuning.midTipMaxSpeedInPerSec) && !(turn > Tuning.midTipMaxTurnDegPerSec);
     }
 
     private static boolean stillLooking(Pose seenFrom, Pose now) {
