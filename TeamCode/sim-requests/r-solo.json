@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-solo.pp",
-  "spec": "RSoloAuto@50",
+  "spec": "RSoloAuto",
   "design": "real robot, turret locked forward",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -40,7 +40,7 @@
   ],
   "metadata": {
     "AutoSource": "r-solo.pp",
-    "SavedBy": "Claude, 4 Nov 2026 (mentor work): the standby, two TIPs alone. Checks LEFT on the first load into it (TIP 1 missed: RIGHT instead), no 3rd-TIP tail. Partners: the ones R-Solo is for (no Auto, dead, park only); a shooting partner gets R-Partner-Preload",
-    "SavedAt": "2026-11-04T22:00:00+00:00"
+    "SavedBy": "dustinhans",
+    "SavedAt": "2026-11-05T03:20:34.049Z"
   }
 }
