@@ -28,9 +28,9 @@ here waits until after the event.
    `LauncherSubsystem`. Load master before item 3 so the robot runs them without Panels. Still
    open in §7c: the shot count against video, feed pace, the tired battery.
 3. ~~Launch speeds~~ measured on 20245, 4 Nov, now `LaunchSpeedTable`'s rows with the table on
-   (§7d): 39 in → 1520 (RIGHT_LAUNCH_CATCH), 42.3 → 1560 (RIGHT_LAUNCH_OFFSET), 50.5 → 1570
-   (RIGHT_START; 1600 since 5 Nov: at 1580 R-Solo's first volley put 3 of 4 in on video, the
-   fourth low off the front lip), 55.4 → 1635 (near the GARDEN). 1600 confirmed 5 Nov: R-Solo's
+   (§7d; ranges from the turret axis since 5 Nov, so 3.4 in more than first written): 42.4 in → 1520
+   (RIGHT_LAUNCH_CATCH), 45.7 → 1560 (RIGHT_LAUNCH_OFFSET), 53.9 → 1570 (RIGHT_START; 1600 since 5 Nov: at 1580 R-Solo's first volley put 3 of 4 in on video, the
+   fourth low off the front lip), 58.8 → 1635 (near the GARDEN). 1600 confirmed 5 Nov: R-Solo's
    start volley scored 4 (mentor). Left after the load: Square from
    LEFT_LAUNCH_OFFSET, where TIP 2 in every R Auto but R-Partner-Tip is fired (at 1595 it went
    long), and from each right spot once. **Good:** each scores 3 or 4 of 4 at the table's speed
@@ -494,16 +494,27 @@ page's "Last launch spot" line shows the spot's CELL range and the launch speed:
 Take the middle of the speeds that score 4/4, not the first one that does. The trim carries from
 press to press.
 
-Measured 4 Nov 2026 (20245, tuned PIDF) and in `LaunchSpeedTable` with the table on: 39 in → 1520,
-42.3 → 1560, 50.5 → 1570, 55.4 → 1635. What is left here is the corner spot for Square.
+Measured 4 Nov 2026 (20245, tuned PIDF) and in `LaunchSpeedTable` with the table on: 42.4 in → 1520,
+45.7 → 1560, 53.9 → 1600, 58.8 → 1635 (ranges from the turret axis since 5 Nov; first written from
+the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the corner spot for Square.
 
 - [ ] **Square's corner spots:** `RIGHT_LAUNCH_CORNER` (30.2, 10.7, 54°) is where 20245 scored the
-      55.4 in / 1635 row on 4 Nov (about 50 shots in that evening's log); `LEFT_LAUNCH_CORNER`
-      (30.2, 130.8, 306°) is its mirror across the axle line, never fired from. Square drives to
+      58.8 in / 1635 row (55.4 from the wheels' centre) on 4 Nov (about 50 shots in that evening's log); `LEFT_LAUNCH_CORNER`
+      (30.2, 130.8, 302.6°) is its place mirrored across the axle line, aimed at the LEFT CELL,
+      never fired from. RIGHT's 54° points the turret about 7° right of the CELL by the field model
+      (61° would aim it): compare 54° and 61° on video once. Square drives to
       either when it is the nearest spot. **Good:** from near each corner, Square ends there and
       scores 3–4 of 4; the drive in from the GARDEN side touches nothing (it is one straight path).
       **Stop:** the left one goes long or short → note the range on the Match page; the left corner
       is also where a partner may leave its POLLEN pile. [mentor, 5 Nov]
+
+- [ ] **Camera range = pose range, from the turret axis** (since 5 Nov both are measured from the
+      turret, and the table's rows were converted to match). Any Basic Drive with the camera on a
+      CELL: graph `/Launch/CameraRangeIn` and `/Launch/PoseRangeIn` from the match log (an Auto
+      writes both on its `launcher: speed table` line). **Good:** within about 1–2 in at the launch
+      spots, and shots score as before at the same speeds. **Stop:** a steady gap of 3 in or more →
+      the turret offset (`TurretSubsystem.turretForwardIn/LeftIn`, CAD from 24 Oct, never taped)
+      or the camera mount; tape the turret axis from the wheels' midpoint first.
 
 ## 7e. Blue alliance (never run on blue yet; HIVE and FLOWERs on the blue side)
 

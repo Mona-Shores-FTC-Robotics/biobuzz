@@ -62,10 +62,13 @@ public final class LaunchSpots {
         LEFT_LAUNCH_CATCH(57.5, 123.5, 273.4),
         LEFT_LAUNCH_OFFSET(41, 121.5, 296.4),
         /**
-         * RIGHT_LAUNCH_CORNER mirrored across the HIVE's axle line (y 70.75), facing the LEFT CELL
-         * at the same range. Not yet fired from on a robot; next to PARTNER_STAGED_POLLEN.
+         * RIGHT_LAUNCH_CORNER's place mirrored across the HIVE's axle line (y 70.75), at the same
+         * range from the LEFT CELL. Its heading is not the mirror (306°): the turret sits 1.87 in
+         * right of the tracked point, so the robot is not left-right symmetric, and 302.6° is the
+         * heading that points the turret axis at the LEFT CELL's raised row, as the other LEFT
+         * spots were drawn. Not yet fired from on a robot; next to PARTNER_STAGED_POLLEN.
          */
-        LEFT_LAUNCH_CORNER(30.2, 130.8, 306);
+        LEFT_LAUNCH_CORNER(30.2, 130.8, 302.6);
 
         /** As drawn, for red: the team spot itself (for a start, on the wall). */
         public final Pose red;

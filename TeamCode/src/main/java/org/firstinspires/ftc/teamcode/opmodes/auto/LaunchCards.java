@@ -251,12 +251,14 @@ public final class LaunchCards {
                 // table was measured with, and right even when the pose is not), else the pose's.
                 Alliance ours = alliance == null ? null : alliance.get();
                 double camera = cameraRangeIn(robot.vision.sightings(), ours, SIGHTING_FRESH_MS);
+                Pose at = robot.drive.poseReferenced() ? robot.drive.pose() : null;
+                double pose = rangeToHalfCellIn(at, ours);
                 if (!Double.isNaN(camera)) {
-                    spinUpAtRange(camera, "here, camera");
+                    spinUpAtRange(camera, Double.isNaN(pose) ? "here, camera"
+                            : String.format(Locale.US, "here, camera; pose says %.1f in", pose));
                     return;
                 }
-                Pose at = robot.drive.poseReferenced() ? robot.drive.pose() : null;
-                spinUpAtRange(rangeToHalfCellIn(at, ours), "here, pose");
+                spinUpAtRange(pose, "here, pose");
             }
 
             @Override public void spinUpFor(Pose launchPose) {
@@ -298,8 +300,9 @@ public final class LaunchCards {
     static final long SIGHTING_FRESH_MS = 500;
 
     /**
-     * The camera's ground range to the nearest fresh sighting of one of our CELLs, inches; NaN with
-     * none, or with no alliance. The range the speed table was measured with (4 Nov 2026), and the
+     * The camera's ground range from the turret axis to the nearest fresh sighting of one of our
+     * CELLs, inches; NaN with none, or with no alliance. From the turret axis, as the pose's range
+     * ({@link #rangeToHalfCellIn}) and the speed table's rows are, so the two sources agree; the
      * TeleOp's FIRE and Square take it the same way.
      */
     static double cameraRangeIn(List<CellSighting> sightings, Alliance alliance, long freshMs) {
@@ -308,7 +311,7 @@ public final class LaunchCards {
         for (CellSighting sighting : sightings) {
             if (sighting == null || sighting.ageMs() > freshMs) continue;
             if (sighting.cell() == null || !sighting.cell().belongsTo(alliance)) continue;
-            double range = sighting.groundRangeIn();
+            double range = sighting.groundRangeFromIn(TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
             if (Double.isNaN(range)) continue;
             if (Double.isNaN(best) || range < best) best = range;
         }

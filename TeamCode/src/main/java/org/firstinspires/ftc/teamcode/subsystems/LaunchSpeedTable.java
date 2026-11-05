@@ -45,9 +45,17 @@ import com.bylazar.configurables.annotations.Configurable;
  * 50.5 in at 1570 (raised to 1580 on 5 Nov: R-Solo's start volleys fell a little short; then to
  * 1600, after R-Solo's 23:41 run on video put three of the first volley's four in at 1580 and the
  * fourth, low, off the CELL's front lip), and the hand-driven shot near the GARDEN 55.4 in
- * (55.3–55.5) at 1635. The ranges
- * are 3–4 in shorter than the spots' model numbers above. With {@link #extendIn} at 5 in the
- * table answers from 34 in (about 1460) to 60.4 in (about 1670) and holds those beyond.
+ * (55.3–55.5) at 1635.
+ *
+ * <p><b>Those ranges were the camera's from the robot's tracked point</b> (the middle of the
+ * wheels), while the pose's range has always been from the turret axis, 3.33 in behind and 1.87 in
+ * right of it: facing the CELL, about 3.4 in apart. So on 5 Nov every launch range became the turret
+ * axis's, camera and pose alike ({@code CellSighting.groundRangeFromIn}), and each row moved to the
+ * same shot's range from the turret, {@code hypot(r + 3.33, 1.87)} with the CELL straight ahead:
+ * 39.0 → 42.4, 42.3 → 45.7, 50.5 → 53.9, 55.4 → 58.8. The speeds are unchanged, and the
+ * converted ranges agree with the pose's model of each spot to about an inch (CATCH 42.9, OFFSET
+ * 44.6, RIGHT_START on the wall 53.3, the corner 58.1). With {@link #extendIn} at 5 in the table
+ * answers from 37.4 in (about 1460) to 63.8 in (about 1670) and holds those beyond.
  */
 @Configurable
 public final class LaunchSpeedTable {
@@ -76,25 +84,25 @@ public final class LaunchSpeedTable {
     /**
      * How far past {@link #extendIn}, inches, a range may be and still get the table's speed (held
      * at the extension's end). Further out the range is not believed and every launch, TeleOp and
-     * Auto, takes {@link LauncherSubsystem#targetTicksPerSecond}: with 4 Nov's rows, below 24 in or
-     * above 70.4 in. NaN or negative: 0.
+     * Auto, takes {@link LauncherSubsystem#targetTicksPerSecond}: with these rows, below 27.4 in or
+     * above 73.8 in. NaN or negative: 0.
      */
     public static double trustBeyondIn = 10.0;
 
     /** Row 1: horizontal range from the turret axis to the UP CELL's raised row, inches. NaN: no row. */
-    public static double row1RangeIn = 39.0;
+    public static double row1RangeIn = 42.4;
     /** Row 1: the launch speed that scores from {@link #row1RangeIn}, ticks per second. NaN: no row. */
     public static double row1TicksPerSecond = 1520.0;
     /** As row 1. */
-    public static double row2RangeIn = 42.3;
+    public static double row2RangeIn = 45.7;
     /** As row 1. */
     public static double row2TicksPerSecond = 1560.0;
     /** As row 1. */
-    public static double row3RangeIn = 50.5;
+    public static double row3RangeIn = 53.9;
     /** As row 1. */
     public static double row3TicksPerSecond = 1600.0;
     /** As row 1. */
-    public static double row4RangeIn = 55.4;
+    public static double row4RangeIn = 58.8;
     /** As row 1. */
     public static double row4TicksPerSecond = 1635.0;
     /** As row 1. */
