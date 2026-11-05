@@ -6,6 +6,10 @@ under "Drafts", and Save to GitHub saves back here.
 
 ## The 3-TIP swap pairs (4 Nov 2026)
 
+The selected future pair will be called **L-Infraviolet / R-Infraviolet**. The A/B
+files below remain alternative starting points until the mentor chooses the routes;
+this naming cleanup does not promote either pair or add duplicate placeholder Autos.
+
 Starting points for the mentor to refine in the Visualizer, not Autos we run: no OpMode, so the
 Driver Station never lists them, and the Visualizer's Team Autos list (top-level files only) does
 not show them. Open one from its link below. Each pair is two Autos that only work together: **our
@@ -113,20 +117,28 @@ RIGHT_LAUNCH_CATCH, preloads → RIGHT, park.
 L on time, beside its L missing every shot, and beside a dead partner on LEFT_START. A draft's
 request may name its .pp here and its partner may be the other draft (`SimRequestsTest`).
 
-## R-Solo-Push, for a partner with no Auto (4 Nov 2026)
+## R-Solo-Nudge, for a partner with no Auto (4 Nov 2026)
 
-`r-solo-push.pp`: R-Solo's 2-TIP plan with a push. The partner, powered off or with no Auto, starts
-with its back on our alliance wall centred on tile A4 (`PARTNER_PUSH_START`, 8.1, 82.5, facing the
-field), just south of the LOADING ZONE. After the WALL FLOWER pick, our robot backs into its south
+`r-solo-nudge.pp`: R-Solo's 2-TIP plan with a push. The original draft assumed a partner
+with its back on our alliance wall centred on tile A4 (`PARTNER_PUSH_START`, 8.1, 82.5,
+facing the field), just south of the LOADING ZONE. The partner drawing was subsequently
+edited: the current `partners/partner-push-start.pp` starts at **(10.5, 84), heading 80°**.
+Open both drawings together and reconcile the contact geometry before running the draft;
+the rename preserves both files' existing geometry. A match partner uses a motionless
+initialized OpMode. After the WALL FLOWER pick, our robot backs into the partner's south
 side and pushes it 10 in north and 3 in off the wall, partly into the zone, then slides off east and
 goes north between the partner and the HIVE leg to LEFT_LAUNCH_OFFSET. The pushed partner earns
 LEAVE (Q&A Q28) and AUTO PARK (the same reasoning, not yet asked), so SWARM no longer needs our own
 AUTO PARK. It ends with a plain drive to LEFT_PARK after the last launch: no park step, so the
 endgame guard never parks early through the partner.
 
-Simulated with `partners/partner-push-start` and `"pushable": true` (`sim-requests/r-solo-push.json`):
+Simulated with `partners/partner-push-start` and `"pushable": true` (`sim-requests/r-solo-nudge.json`):
 2 TIPs (TIP 2 at 25–27.5 s), partner LEAVE and PARK in every seed; the push costs 2.4 s at our
 second launch against R-Solo (1.7 s route, 0.7 s pushing at a placeholder half speed). PR #427 has
 the details; the robot check is in `doc/robot-todo.md` §3.
 
-Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=TeamCode/autos/drafts/r-solo-push.pp>
+Open both the draft and its partner together:
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-nudge.pp,partners/partner-push-start.pp>.
+The first file is our editable draft; the second draws the partner placement beside it.
+The simulation request retains `PartnerPushStartAuto` and `"pushable": true`.
+There is no R-Solo-Nudge OpMode yet: this is a planning draft, not a qualified competition Auto.

@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/r-partner-tip.pp",
-  "spec": "RPartnerTipAuto@50",
+  "pp": "TeamCode/autos/r-no-cross.pp",
+  "spec": "RNoCrossAuto@50",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -50,7 +50,7 @@
     }
   ],
   "metadata": {
-    "AutoSource": "r-partner-tip.pp",
+    "AutoSource": "r-no-cross.pp",
     "SavedBy": "partner curation (Claude, 3 Nov 2026: on time, missing, dead; to be corrected by the mentor; re-simulated with the out-of-the-way still and broken-down partners, #396)",
     "SavedAt": "2026-11-03T21:40:00+00:00"
   }

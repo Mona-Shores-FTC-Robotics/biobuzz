@@ -10,18 +10,48 @@ Built 3 Nov 2026 for the mentor's lab visit, from `doc/robot-session-1.md` to `-
 was ever ticked**, so nothing here is assumed done. Where the repo has evidence that an item already
 ran, the line says *likely done* and why: strike it if so.
 
-Trimmed 4 Nov against every 20245 match log from 29 Oct to 4 Nov 00:48: the lines the logs confirm
-are gone, and the PR that removed them lists each one with its log evidence. That last log ran the
-build of PR #417, so **nothing merged after it (#422 onward) has run on a robot yet**.
+Trimmed 4 Nov against the earlier 20245 logs. The 5 Nov review subsequently found
+R-Solo running build `733501e`, with the fourth-shot cutoff active and the park settling
+at about 28.5 s. Earlier claims that nothing after PR #422 had run are superseded;
+this is not a claim that every unchecked item below has passed.
 
-## Two robot nights before driver practice: only these
+## Belding work order (agreed 5 Nov)
 
-Two lab nights are left, then driver practice, then the event. The plan, agreed with the Auto
-strategy session on 4 Nov: make the volleys reliable, run the competition Autos until they are
-boring, and freeze the code after night 2 (only numbers change after that). Everything not listed
-here waits until after the event.
+The old night-by-night plan is superseded by this order. R-Solo remains the working
+reference. Keep both turrets locked; do not spend this session tuning benched Autos.
 
-**Night 1: the launcher, then R-Solo.**
+1. **L-NoCross** (formerly L-Partner). Qualify it alongside a reliable RIGHT preload
+   shooter, whether that partner stays clear or parks. **Before qualification:** its
+   current no-TIP branch still crosses to RIGHT; draw a LEFT-side recovery/park in the
+   Visualizer. Then test CELL-up recognition, the two LEFT volleys, the scoring FLOWER
+   pickup, and park, including a partner that never makes TIP 1.
+2. **R-NoCross** (formerly R-Partner-Tip). Qualify the right-side actions, then run it
+   together with L-NoCross as the coordinated two-TIP baseline. Check the five-second
+   CELL-up wait: the current timeout still falls through to LaunchAll. Resolve that in
+   the drawing before relying on missed-TIP recovery. Waiting for the teammate is
+   acceptable; optimize only after the pair is reliable.
+3. **R-Solo-Nudge** (`autos/drafts/r-solo-nudge.pp`). Open it together with
+   `autos/partners/partner-push-start.pp` to see the pushed robot. Physically measure
+   the push, legal starting contact, PARK overlap, clearance and time cost (§3).
+   Target two TIPs and both AUTO PARKs; the current draft is not qualified and has no
+   OpMode. A match partner with no motion still uses an initialized OpMode.
+4. **L-Infraviolet / R-Infraviolet.** Refine one coordinated three-TIP pair after the
+   baseline. The A/B drafts remain candidate routes; do not register placeholders.
+
+- [ ] **After loading the lineup cleanup:** the Driver Station's Autonomous menu has
+      exactly L-NoCross, R-NoCross and R-Solo (with their save timestamps). Preload,
+      Staging, the old Partner names and R-Solo-Nudge are absent. Check INIT on each,
+      including alliance, measured start and the available D-pad options. A stale name
+      after Sloth Load needs a clean restart/reload check before any field test.
+- [ ] **R-Solo reference:** repeat the current three-volley run; record the TIPs and
+      park on video and retain its build/settings with the log.
+
+### Retained R-Solo setup and measurement notes from master
+
+The numbered items below are the previous R-Solo reference procedure, retained in
+full with the mentor's latest measurements. They do not replace the Belding work
+order above or reactivate benched Autos. Names in these historical notes refer to
+the pre-cleanup lineup.
 
 1. Full TeamCode install, then Check: Hardware and the Pinpoint cable (§0, §1).
 2. ~~Launcher PIDF (§7c)~~ done on 20245, 4 Nov: F 14.65, P 40, I 0.2, D 0, now the defaults in
@@ -54,34 +84,18 @@ here waits until after the event.
    log; the wait may need longer. A TIP missed while driving shows as no `HIVE (RED)` TRANSITION
    line around it: note it with the speed.
 
-**Night 2: the partner Autos, 19429 as the partner if it is at the lab.**
-
-5. R-Partner-Preload, the rebuilt one (#439, #441): TIP 1, the wall FLOWER, wait there until 12 s on the match
-   clock, then the same LEFT check. Up: LEFT volley (TIP 2 with the partner's 4), scoring FLOWER,
-   park holding 4. Down: RIGHT, fire, park. Out of the partner's way about 24.5 s. 19429 as the
-   partner, twice: parked by about 13 s, then waiting on its start until 26 s and parking (the
-   match sheet's wording). **Good:** no contact, watched hardest near LEFT_LAUNCH_OFFSET and the
-   scoring FLOWER. **Stop:** contact → note the match time and both poses; it is a Visualizer fix.
-   The 12 s wait is a plain "Wait until 12 s" step in the Visualizer (#441).
-6. R-Partner-Tip only if 19429 can do the whole left TIP; otherwise skip it.
-7. The push for R-Solo-Nudge, 15 min (§3 "push a powered-off robot"). Works → Nudge is in; not →
-   the match sheet's row A stays R-Solo.
-8. In the drivers' practice that night: drive speeds (#425) and Square to the launch spot (#423)
-   (§4, §5). Square not tried → `TeleOpConfig.launchSpot` off.
-
-**Not before the event:** ending the feed at the 4th shot (waits on the count), moving
-SCORING_FLOWER_STAGING 1–2 in west (it clips a partner dead on LEFT_START by about an inch), R-Solo-Staging,
-L-Partner, a third TIP, the pick-depth session (§4), the tape
-measure (§6; the start check reads 0.1–1 in at Red audience on nearly every INIT), 19429's
-bring-up beyond what night 2 needs (§7), Wall Eject (§7b), and the look-only lines of §8–9.
+**Deferred for Belding:** dedicated LEFT-preload partner support, staged-preload
+collection, active turrets, and sophisticated runtime shoot-versus-park decisions.
+R-Partner-Preload and R-Solo-Staging are preserved on `autos-experiment`; their
+old checks are not gates for this lineup. See `TeamCode/autos/BENCH.md`.
 
 Each line: what to do · **Good:** what passing looks like · **Stop:** when to stop and what to
 record · source. `S4 §2` means `doc/robot-session-4.md`, "At the robot", step 2.
 
-20245 throughout unless a line says 19429. The Autos on master are R-Solo, R-Solo-Staging,
-R-Partner-Preload, R-Partner-Tip and L-Partner (#375 removed R-Simple, R-Quals, L-Simple, L-Quals).
+20245 throughout unless a line says 19429. The selectable Autos are R-Solo, R-NoCross and L-NoCross.
+R-Solo-Nudge remains a draft; benched Autos are not deployment choices.
 Starts: **Red audience** (`RIGHT_START`, tile C1) for the R- Autos, **Red far wall** (`LEFT_START`,
-tile C6) for L-Partner. Place by the marks, never by the camera.
+tile C6) for L-NoCross. Place by the marks, never by the camera.
 
 ## 0. Before leaving the laptop
 
@@ -99,7 +113,7 @@ tile C6) for L-Partner. Place by the marks, never by the camera.
       folder, not to pick it. **Stop:** Chrome refuses or forgets the folder → note the Chrome
       version and do Save to GitHub instead. → [Visualizer PR #44]. [autos README](../TeamCode/autos/README.md#open-the-autos-on-master)
 - [ ] **Event-loop dry run, laptop Wi-Fi off:** open the Visualizer once with Wi-Fi on the night before,
-      then offline change one step in one of the five Autos, **Export → Export Auto (Java)** and
+      then offline change one step in one of the three selectable Autos, **Export → Export Auto (Java)** and
       **File → Save to computer**, drop both into the checkout (`generated/` and `TeamCode/autos/`),
       Sloth Load over USB. **Good:** the Visualizer opens and exports offline, the robot runs the
       change. **Stop:** the offline copy does not open → open it online once more and re-check; note
@@ -120,12 +134,12 @@ the Auto, place the robot on the marks, INIT, press **no** alliance button. 5 fr
 about a second. Written out on branch `claude/eager-pasteur-f4trol` (`doc/robot-session-5.md`, last
 section, not on master); this is that section.
 
-- [ ] **L-Partner on Red far wall.** Same pass and fail.
+- [ ] **L-NoCross on Red far wall.** Same pass and fail.
 - [ ] **R-Solo on Red far wall.** **Good:** "On Red far wall, not this Auto's start · … or move to
       Red audience", "No alliance" above it. Press Circle (red): "move to" still says Red audience.
-- [ ] **L-Partner on Red audience.** **Good:** "On Red audience, not this Auto's start · … or move to
+- [ ] **L-NoCross on Red audience.** **Good:** "On Red audience, not this Auto's start · … or move to
       Red far wall", and the plain "Not on the … start" line does **not** also show, even after 10 s.
-- [ ] **Off every start:** R-Solo one tile out from Red audience, same heading, then L-Partner one
+- [ ] **Off every start:** R-Solo one tile out from Red audience, same heading, then L-NoCross one
       tile out from Red far wall. **Good:** no "not this Auto's start" line; after 10 s, "Not on the
       Red audience start" (resp. "Red far wall").
 - [ ] If the field allows: **R-Solo on Blue far wall.** **Good:** `BLUE (vision)`. (Blue audience
@@ -136,7 +150,7 @@ run's match log: the 10 in radius is too tight for placement plus camera error. 
 gap with `tools/pull-logs/read_logs.py`; don't widen past 11.8 in (half of 23.6) without the logs.
 Result, with the gap on each own-start run, → [PR #372].
 
-- [ ] **INIT options, L-Partner on Red far wall:** gamepad 1 D-pad up three times.
+- [ ] **INIT options, L-NoCross on Red far wall:** gamepad 1 D-pad up three times.
       **Good:** one line `partner's last shot ▲▼ 7 s, waiting until 11 s`, amber; down three times
       turns it back green, as drawn (last shot 4 s, waiting until 8 s); D-pad left and right change
       nothing (no Auto offers another park); nothing else on the robot reacts to gamepad 1's D-pad
@@ -153,11 +167,11 @@ Result, with the gap on each own-start run, → [PR #372].
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
 
-## 3. The five Autos, on the field (HIVE upright, preloads in, Panels open)
+## 3. The selected Autos, on the field (HIVE upright, preloads in, Panels open)
 
-These gate Belding. Run each from its start, alliance from §2.
+Use the work order above to select checks; the detailed mechanism checks below are not all Belding gates. Run each from its start, alliance from §2.
 
-- [ ] **Loop-time cuts, before and after:** Loop Time Baseline and one R-Solo-Staging run on master,
+- [ ] **Loop-time cuts, before and after:** Loop Time Baseline and one R-Solo run on the selected build,
       then the same on branch `claude/adoring-dirac-3ag180`, then 2 min of Basic Drive on it (intake
       to full, drive, fire four). Compare with `tools/pull-logs/read_logs.py series`:
       `/Robot/LoopMs` (median, p95), `/Loop/PageMs` (p95), `/Loop/Subsystem/ColorSensorSubsystemMs`,
@@ -174,24 +188,13 @@ These gate Belding. Run each from its start, alliance from §2.
       telemetry this run", and `/Loop/PageMs` p95 is near the Match page's ~0.1 ms (no 7–8 ms field
       sends). Re-enable Panels and confirm the field and graphs come back. **Stop:** the event is
       missing with Panels off → `PanelsSwitch` cannot read the setting; note it in the PR.
-- [ ] **The Autonomous list on the Driver Station shows exactly the five** and nothing named
-      R-Simple, R-Quals, L-Simple or L-Quals. **Good:** five entries, the names above. **Stop:** an old
-      name is listed → a full TeamCode install, then look again. [PR #375]
-- [ ] **Each Auto once:** R-Partner-Preload, L-Partner and R-Solo-Staging (R-Solo twice and
-      R-Partner-Tip ran to their parks on 3 Nov without a FAULT).
-      **Good:** runs to its park without a FAULT; on the lane under the HIVE (x 59–62) the robot
-      clears the brace that R-Quals hit at x 57.5 on 29 Oct. **Stop:** it touches the HIVE leg or
-      brace → stop running that Auto, note where (log pose); it is a Visualizer fix. [PR #374]
-- [ ] **R-Solo-Staging's pile:** four POLLEN on the floor at `PARTNER_STAGED_POLLEN` (36, 124), the
-      robot on Red audience as for any R- Auto, run it.
-      **Good:** the robot drives to the pile, the intake takes four, "Wait for IntakeFull" ends on the
-      sensor, not its 3 s limit. **Stop:** it misses or pushes them → measure where a real partner
-      stages, then move the spot with Save team spots (it re-exports the Autos). The pile's place is a
-      guess until a partner says. [PR #373], [PR #374]
+- [ ] **Each selected Auto once:** L-NoCross and R-NoCross, then the two together.
+      **Good:** no FAULT or robot/HIVE contact; verify the missed-TIP behavior before
+      calling either routine qualified. See the work order above for the intended result.
 - [ ] **One park** (parks moved 4.7–4.9 in, now 14.5 in off the wall). **Good:** part of the robot
       inside the LOADING ZONE. [PR #373]
 - [ ] **Stick down on the drive in:** spotters at WALL_FLOWER_STAGING and SCORING_FLOWER_STAGING,
-      R-Solo or R-Partner-Preload, two picks each. **Good:** the stick swings down about 18 in before
+      R-Solo, two picks each. **Good:** the stick swings down about 18 in before
       the robot stops and touches nothing before the push. **Stop:** it touches → Panels
       `FlowerPicker.lowerWithinIn` 12, write it back. [S5 seam §2], [PR #378]
 - [ ] **The stick lowers earlier at the WALL FLOWER:** the 3–4 Nov Auto picks read `prep done on
@@ -199,7 +202,7 @@ These gate Belding. Run each from its start, alliance from §2.
       wanted, so its Stop applies: Panels `FlowerPicker.lowerWithinIn` 24, then the stick line above.
       **Good:** X ≥ 0.7 at both FLOWERs and the stick still touches nothing. Write 24 back if so.
       [S5 seam §4], [PR #378]
-- [ ] **Time more GARDEN gathers** (R-Solo or R-Partner-Tip): one Auto gather is logged (3 Nov
+- [ ] **Time more GARDEN gathers** (R-Solo or R-NoCross): one Auto gather is logged (3 Nov
       18:06, 4.21 s), so `AutoRegistration.GARDEN_GATHER_TYPICAL_S` is 5.0 now; a few more
       `Last GARDEN gather: N s` lines confirm or replace it. The same runs' `FLOWER pick: done` lines
       say how often a pick ends on `full`. Say whether the corner allows a stick approach for the
@@ -212,31 +215,31 @@ These gate Belding. Run each from its start, alliance from §2.
 - [x] **Fixed by the PIDF tune (#444), mentor 5 Nov.** **Launcher overshoot after a drive:** 4 Nov 00:48 the launcher ran to about 1680 ticks/s of
       1595 ±60 after each drive to `LEFT_LAUNCH_OFFSET`, and `AtSpeed` stayed false about 0.7 s, so
       the gate opened 0.98–1.12 s after arrival where the settle alone took 0.38–0.57 s. Graph
-      `/Launcher/LeftTicksPerSecond`, `RightTicksPerSecond` and `AtSpeed` in Panels over an R-Solo-Staging
+      `/Launcher/LeftTicksPerSecond`, `RightTicksPerSecond` and `AtSpeed` in Panels over an R-Solo
       run. **Good:** at speed by the time the robot settles. **Stop:** it overshoots again → it is
       the launcher's speed loop (a tuning issue for its own PR), and each volley costs ~0.5 s until
       then. [PR #422]
-- [ ] **The CellUp wait with a real tip:** L-Partner with a partner (or a hand) tipping
-      (R-Partner-Tip's ended on the trigger after 3.1 s on 3 Nov). **Good:** "Wait for TIP or CELL up" ends on the trigger, not its time limit.
+- [ ] **The CellUp wait with a real tip:** L-NoCross with a partner (or a hand) tipping
+      (R-NoCross's ended on the trigger after 3.1 s on 3 Nov). **Good:** "Wait for TIP or CELL up" ends on the trigger, not its time limit.
       [PR #377]
-- [ ] **CellUp with the CELL already up:** L-Partner at `LEFT_LAUNCH_CATCH` with the left CELL
+- [ ] **CellUp with the CELL already up:** L-NoCross at `LEFT_LAUNCH_CATCH` with the left CELL
       tipped up by hand first (or a partner's tip over before the wait starts). **Good:** the wait ends
       at once and the Auto fires, not at its limit (8 s on the match clock since #391). Then with the
       CELL **down** and nobody tipping: it waits out its limit and fires anyway (the Auto's own choice for now). **Stop:** it waits with
       the CELL up, or fires at once with it down → save the match log; check which CELL the robot
       aims at from its end of the field (`AutoRegistration.aimedLeft`). [PR #377]
-- [ ] **TIP lag, from the same runs' logs:** seconds from the partner's (or R-Partner-Tip's own)
+- [ ] **TIP lag, from the same runs' logs:** seconds from the partner's (or R-NoCross's own)
       last preload leaving the launcher (the feed's end) to the CellUp trigger. **Good:** 1.5–5 s,
       the simulator's range (it read 0.7–1.2 s with four preloads on the starting NECTAR); a few runs
       agree → that number replaces the 4 s estimate in `AutoRegistration.PARTNER_TIP_LAG_S` and
       `partnerTipLagS` in `TeamCode/autos/timing.json`, together. **Stop:** more than 5 s → the HIVE
       dwell is longer than filmed; record the load in the CELL. [PR #387], [branch claude/funny-goldberg-w0lyw7]
-- [ ] **L-Partner's TIP wait on the match clock:** partner's last shot set to 7 s in INIT (waiting
+- [ ] **L-NoCross's TIP wait on the match clock:** partner's last shot set to 7 s in INIT (waiting
       until 11 s), nobody tips.
       **Good:** the trace shows `Wait for TIP or CELL up: 11.0 s on the match clock` about 11 s into
       the match, then the no-TIP route. **Stop:** it ends at 8 s or counts from its arrival → save
       the log. [PR #391]
-- [ ] **Early park from L-Partner's no-TIP route:** nobody tips, partner's last shot set late (11 s or more)
+- [ ] **Early park from L-NoCross's no-TIP route:** nobody tips, partner's last shot set late (11 s or more)
       so time runs short at RIGHT_LAUNCH_CATCH or WALL_FLOWER_STAGING.
       **Good:** "parking from the spot the robot is on", the park from RIGHT_LAUNCH_CATCH bending west
       of the Red HIVE, parked by 30 s. **Stop:** it touches the HIVE → note the pose; bend that park
@@ -263,8 +266,12 @@ These gate Belding. Run each from its start, alliance from §2.
       lines from the same runs with `launchOnApproach` off. **Good:** X under 0.3 s (was 0.38–0.57),
       and hits as good as before. **Stop:** misses → `PathEndSettle.slowSpeedInPerSec` 3.
       [PR #430]
-- [ ] **Push a powered-off robot (draft R-Solo-Push), first by hand.** A second robot (19429, or any
-      chassis about a robot's weight), powered off, back on the red alliance wall centred on tile A4,
+- [ ] **Push a motionless partner (draft R-Solo-Nudge), first by hand.** First reconcile the
+      paired drawings: the current `partner-push-start.pp` is at (10.5, 84), heading 80°,
+      while the original push procedure below assumed (8.1, 82.5), heading 0°. Do not
+      treat the old contact procedure as qualified for the edited partner placement.
+      A second robot (19429, or any
+      chassis about a robot's weight), motionless in an initialized OpMode for a match, back on the red alliance wall centred on tile A4,
       facing the field (`PARTNER_PUSH_START`, 8.1, 82.5). 20245 in Basic Drive holding 4 POLLEN, its
       **back** against the partner's south side, its left edge about 2.4 in off the wall: push about
       10 in north, drifting a few inches away from the wall (the draft goes 12 in north, 3.5 in out).

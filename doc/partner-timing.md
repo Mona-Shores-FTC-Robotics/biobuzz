@@ -1,5 +1,10 @@
 # Partners in AUTO: timing, waits and branches
 
+**Belding lineup update, 5 Nov:** L-Partner is now L-NoCross and R-Partner-Tip is
+R-NoCross. R-Partner-Preload and R-Solo-Staging are benched on `autos-experiment`.
+The discussion below records the earlier decisions; the accepted Belding priorities
+and remaining fallback work are in `robot-todo.md` and `TeamCode/autos/README.md`.
+
 The decisions from the 3 Nov 2026 discussion of the first partner simulations (PR #385), written
 down so the logic does not have to be rebuilt. They shape how the Autos are drawn, what the
 simulator runs, and what the drive team asks a partner before a match.
