@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.logging;
 
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
+import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveGeometry;
@@ -1141,16 +1144,37 @@ final class FieldSim {
     }
 
     /**
-     * The launch at the robot's one setpoint: aimed straight at {@code target} across the field, at
-     * {@link #setpointTuning}'s pitch and exit speed, the speed scaled by the setpoint against master's. So the
+     * The wheel speed a shot from {@code bot} at {@code target} fires at, ticks/s: master's {@link LaunchSpeedTable}
+     * for the range when it is on (as the robot's Auto does since 4 Nov 2026), else {@link #setpointTicks()}. The range
+     * is the robot's own, from the turret axis to the aim point across the floor ({@link TurretAim#rangeFromFieldIn},
+     * as {@code LaunchCards} works it out from the pose); the robot prefers the camera's, which read 2 to 4 in shorter
+     * on 4 Nov, so a simulated shot may fire a few ticks/s faster than the robot's at the same spot. A test that sets
+     * {@link #setpointTicksPerSecond} fires at that, table or not.
+     */
+    static double launchTicks(Bot bot, double[] target) {
+        if (!Double.isNaN(setpointTicksPerSecond) || !LaunchSpeedTable.enabled) return setpointTicks();
+        double range = TurretAim.rangeFromFieldIn(bot.x, bot.y, bot.h,
+                TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, target[0], target[1]);
+        return LaunchSpeedTable.launchSpeed(range, setpointTicks());
+    }
+
+    /**
+     * The launch at the robot's setpoint: aimed straight at {@code target} across the field, at
+     * {@link #setpointTuning}'s pitch and exit speed, the speed scaled by the wheel speed against master's setpoint
+     * (the speed table's for the range when it is on, {@link #launchTicks}). So the
      * wheel-speed-to-exit-speed conversion is fitted at one distance (RIGHT_START, where 1595 was tuned), and a
      * different setpoint scales it. Null if the target is where the robot is.
      */
     double[] setpointLaunch(RobotDesign design, double[] from, double[] target) {
+        return setpointLaunch(design, from, target, setpointTicks());
+    }
+
+    /** As {@link #setpointLaunch(RobotDesign, double[], double[])}, at {@code wheelTicks} (the speed table's, say). */
+    double[] setpointLaunch(RobotDesign design, double[] from, double[] target, double wheelTicks) {
         double[] tuned = setpointTuning(design);
         double dx = target[0] - from[0], dy = target[1] - from[1], d = Math.hypot(dx, dy);
         if (d < 1e-6 || tuned == null) return null;
-        double speed = tuned[0] * setpointTicks() / LauncherSubsystem.targetTicksPerSecond, pitch = tuned[1];
+        double speed = tuned[0] * wheelTicks / LauncherSubsystem.targetTicksPerSecond, pitch = tuned[1];
         return new double[] {speed * Math.cos(pitch) * dx / d, speed * Math.cos(pitch) * dy / d, speed * Math.sin(pitch)};
     }
 
@@ -1257,7 +1281,7 @@ final class FieldSim {
         double[] from = bot.exitPoint(sideIn);
         from[2] += volleyUpIn;
         boolean setpoint = bot.design.fixedSetpoint && !idealSpeed;
-        double[] v = setpoint ? setpointLaunch(bot.design, from, target)
+        double[] v = setpoint ? setpointLaunch(bot.design, from, target, launchTicks(bot, target))
                 : Double.isNaN(bot.design.fixedPitchDeg)
                 ? launchVelocity(from, target, bot.design.arcExtraPitchDeg)
                 : launchVelocityAtPitch(from, target, Math.toRadians(bot.design.fixedPitchDeg));

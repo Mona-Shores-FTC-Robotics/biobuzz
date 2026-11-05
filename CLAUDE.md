@@ -139,7 +139,7 @@ by hand.
 **The simulator** is test code only (`src/test/.../logging/`: `AutoSim`, `FieldSim`, `SimRunTest`), and
 it runs master's generated Autos as they are. It knows one robot, the real one, in four variants
 (`RobotDesign.real`: turret or locked forward, POLLEN + NECTAR or POLLEN only); a number master
-states (frame, FLOWER stick, feed, launcher setpoint, GARDEN gather) is read from master's code, never copied, and the rest is a
+states (frame, FLOWER stick, feed, launcher setpoint and speed table, GARDEN gather) is read from master's code, never copied, and the rest is a
 placeholder until a match log measures it. It acts as the driver: a partner entry gives
 `lastShotS`, which times the stand-in and sets our partner wait, and a partner fails only by
 `"fails": "misses"` or by being dead on its start (a still stand-in). Touching a partner is a collision,
