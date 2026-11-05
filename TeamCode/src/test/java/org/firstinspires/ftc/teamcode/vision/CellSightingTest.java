@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -49,6 +50,25 @@ public class CellSightingTest {
         assertEquals(0.0, sighting.rowCentreRobot().y(), EPS);
         assertEquals(100.0, sighting.groundRangeIn(), EPS);
         assertEquals(0.0, sighting.bearingRad(), EPS);
+    }
+
+    /**
+     * The launcher's range is from the turret axis, not the tracked point: a CELL 100 in straight
+     * ahead is 103.33 in from a turret 3.33 in behind, and the camera's range from there is the
+     * pose's ({@code TurretAim.rangeFromFieldIn}) for the same robot and CELL, so the two sources
+     * the speed table can take agree.
+     */
+    @Test
+    public void rangeFromTheTurretAxisIsThePosesRange() {
+        CellSighting sighting = CellSighting.fromMembers(CELL, ahead(100, 0, 30, 31, 32, 33), 0L);
+        double forward = -3.33;
+        double left = -1.87;
+
+        assertEquals(Math.hypot(103.33, 1.87), sighting.groundRangeFromIn(forward, left), EPS);
+        assertEquals(sighting.groundRangeIn(), sighting.groundRangeFromIn(0, 0), EPS);
+        // The same robot on the field, at (10, 20) facing +x, with the CELL's row 100 in ahead.
+        assertEquals(TurretAim.rangeFromFieldIn(10, 20, 0, forward, left, 110, 20),
+                sighting.groundRangeFromIn(forward, left), EPS);
     }
 
     /**

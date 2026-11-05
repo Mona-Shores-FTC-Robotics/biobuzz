@@ -42,7 +42,7 @@ import java.util.Set;
  * kind of code a later reader deletes as redundant; this test records that the <em>message</em> is
  * the point.
  *
- * <p>It also encodes the current state of the robots: Foresight is untuned on both. When one
+ * <p>It also encodes the current state of the robots, in {@code FORESIGHT_TUNED}. When one
  * robot's Foresight Tuner output is pasted into its file, the guard test starts failing <em>for
  * that robot</em>, and says so. That is the intended signal, not a bug: "19429 has been tuned" is a
  * real event worth noticing in the build.
@@ -152,7 +152,8 @@ public class ConstantsTest {
      * instead of the guard test below.
      */
     private static final Set<RobotIdentity> FORESIGHT_TUNED = EnumSet.of(
-            RobotIdentity.TEAM_20245);  // 17 Oct 2026, issue #175
+            RobotIdentity.TEAM_20245,   // 17 Oct 2026, issue #175
+            RobotIdentity.TEAM_19429);  // 5 Nov 2026: 20245's block copied, until 19429's own run
 
     @Test
     public void createAlgorithmRefusesToBuildAnUntunedForesight() {

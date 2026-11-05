@@ -188,6 +188,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** With {@link RangeFrom#ODOMETRY}: the CELL measured to, and whether it was the near-end guess. */
     private HiveCell rangeCell;
     private boolean rangeNearEnd;
+    /**
+     * The camera's and the pose's ranges from the turret axis, inches, as {@link #shotRangeIn()}
+     * last found them (NaN when it had none), logged side by side: the same range two ways, so a
+     * gap of more than an inch or two is a pose or camera problem.
+     */
+    private double cameraRangeIn = Double.NaN;
+    private double poseRangeIn = Double.NaN;
     /** The launch speed {@code LaunchSpeedTable} gave, before trim, ticks/s; NaN: the configured speed. */
     private double tableTps = Double.NaN;
     /** The range {@link #tableTps} was read at, inches, and whether it was a launch-spot press's spot. */
@@ -476,6 +483,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         log.put("/Controls/TrimDeg", aimer.trimDeg());
         log.put("/Controls/LauncherTrimTps", launcherTrimTps);
         log.put("/Controls/TableTicksPerSecond", tableTps);
+        log.put("/Launch/CameraRangeIn", cameraRangeIn);
+        log.put("/Launch/PoseRangeIn", poseRangeIn);
         log.put("/Controls/AimErrorDeg", aimErrorDeg);
 
         fire();
@@ -753,8 +762,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     }
 
     /**
-     * The horizontal range to the CELL a shot was aimed at, inches: the camera's ground range to
-     * the nearest fresh CELL of our alliance (any CELL if the alliance is not chosen yet), else the
+     * The horizontal range from the turret axis to the CELL a shot was aimed at, inches (the speed
+     * table's range): the camera's ground range to the nearest fresh CELL of our alliance (any CELL if the alliance is not chosen yet), else the
      * pose's range from the turret axis to the raised row of the CELL our HIVE says is UP (only an
      * UP CELL scores; the near-end CELL while the HIVE is tipping or unseen), else NaN. Sets
      * {@link #lastShotRangeSource} to say which.
@@ -765,14 +774,25 @@ public class BasicDriveTeleOp extends RobotOpMode {
         for (CellSighting sighting : robot.vision.sightings()) {
             if (sighting == null || sighting.ageMs() > SIGHTING_FRESH_MS) continue;
             if (alliance != Alliance.UNKNOWN && !sighting.cell().belongsTo(alliance)) continue;
-            double range = sighting.groundRangeIn();
+            double range = sighting.groundRangeFromIn(TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
             if (Double.isNaN(best) || range < best) best = range;
         }
+        cameraRangeIn = best;
+        poseRangeIn = poseRangeIn(alliance);
         if (!Double.isNaN(best)) {
             rangeFrom = RangeFrom.CAMERA;
             return best;
         }
-        rangeFrom = RangeFrom.NONE;
+        rangeFrom = Double.isNaN(poseRangeIn) ? RangeFrom.NONE : RangeFrom.ODOMETRY;
+        return poseRangeIn;
+    }
+
+    /**
+     * The pose's range from the turret axis to the CELL a shot would aim at (see
+     * {@link #shotRangeIn()}), inches; NaN without a referenced pose, an alliance or a field point.
+     * Sets {@link #rangeCell} and {@link #rangeNearEnd}.
+     */
+    private double poseRangeIn(Alliance alliance) {
         Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
         if (pose == null || alliance == Alliance.UNKNOWN) return Double.NaN;
         nearEndCell = TurretAim.nearEndCell(alliance, pose.y(), nearEndCell, HiveFieldPoints.AXLE_Y_IN, AIM_SWITCH_BAND_IN);
@@ -782,7 +802,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
         HiveCell target = up != null ? up : nearEndCell;
         Vec3 row = target == null ? null : HiveFieldPoints.rowCentre(target, HiveCellState.UP);
         if (row == null) return Double.NaN;
-        rangeFrom = RangeFrom.ODOMETRY;
         rangeCell = target;
         rangeNearEnd = up == null;
         return TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(),
@@ -897,7 +916,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             cells.append(String.format(Locale.US, " · %s %s: bearing %+.0f° (%s), %.0f in",
                     sighting.cell(), robot.vision.state(sighting.cell()), bearingDeg,
                     bearingDeg > 0.5 ? "left" : bearingDeg < -0.5 ? "right" : "ahead",
-                    sighting.groundRangeIn()));
+                    sighting.groundRangeFromIn(TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn)));
         }
         display.line("Aim: " + heading + (cells.length() == 0 ? " · no CELL in view" : cells));
     }

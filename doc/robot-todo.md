@@ -46,6 +46,44 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
 - [ ] **R-Solo reference:** repeat the current three-volley run; record the TIPs and
       park on video and retain its build/settings with the log.
 
+### Retained R-Solo setup and measurement notes from master
+
+The numbered items below are the previous R-Solo reference procedure, retained in
+full with the mentor's latest measurements. They do not replace the Belding work
+order above or reactivate benched Autos. Names in these historical notes refer to
+the pre-cleanup lineup.
+
+1. Full TeamCode install, then Check: Hardware and the Pinpoint cable (§0, §1).
+2. ~~Launcher PIDF (§7c)~~ done on 20245, 4 Nov: F 14.65, P 40, I 0.2, D 0, now the defaults in
+   `LauncherSubsystem`. Load master before item 3 so the robot runs them without Panels. Still
+   open in §7c: the shot count against video, feed pace, the tired battery.
+3. ~~Launch speeds~~ measured on 20245, 4 Nov, now `LaunchSpeedTable`'s rows with the table on
+   (§7d; ranges from the turret axis since 5 Nov, so 3.4 in more than first written): 42.4 in → 1520
+   (RIGHT_LAUNCH_CATCH), 45.7 → 1560 (RIGHT_LAUNCH_OFFSET), 53.9 → 1570 (RIGHT_START; 1600 since 5 Nov: at 1580 R-Solo's first volley put 3 of 4 in on video, the
+   fourth low off the front lip), 58.8 → 1635 (near the GARDEN). 1600 confirmed 5 Nov: R-Solo's
+   start volley scored 4 (mentor). Left after the load: Square from
+   LEFT_LAUNCH_OFFSET, where TIP 2 in every R Auto but R-Partner-Tip is fired (at 1595 it went
+   long), and from each right spot once. **Good:** each scores 3 or 4 of 4 at the table's speed
+   (the Match page's "Last launch spot" line shows it). **Stop:** a spot misses → note its range,
+   the speed and long or short; the table switches off in Panels (`LaunchSpeedTable.enabled`).
+4. R-Solo five times or more, the rebuilt one (#439, on master): TIP 1 from the start, the wall FLOWER, then a CellUp check at LEFT_LAUNCH_CATCH (since 5 Nov; it was LEFT_LAUNCH_OFFSET) (at
+   most 0.75 s). Up: LEFT volley, scoring FLOWER, LEFT volley (TIP 2), park RIGHT_PARK. Down:
+   RIGHT_LAUNCH_OFFSET, fire, park. Count TIP 1, TIP 2 and the park on each run, and note when
+   TIP 2's last ball leaves: the preview says about 27 s, and the check adds 0.6–1 s it does not
+   show, so the park may be skipped for TIP 2. Run half with `LaunchCards.launchOnApproach` on and
+   half off, and judge it only on the volley after the scoring FLOWER: the checked volley stops and
+   settles either way. Not clearly as good on → set it false for the event. Same runs:
+   `FlowerPicker.lowerWithinIn` 24 (§3's WALL FLOWER stick line, a number, not code). Every pick card
+   is now limited to 4.5 s (was 8; logged picks took 1.8–3.7 s): note any pick that hits the limit.
+   **CellUp now needs the camera** (5 Nov): an assumed HIVE position no longer passes it, and a
+   mid-tip sighting counts only with the robot under 10 in/s and 30°/s (`HiveSubsystem.Tuning`).
+   On video, per run: was the LEFT CELL really up at the check, and which way did the Auto go? The
+   match log's `CellUp after` line (or the wait running its 0.75 s) says which. **Good:** up → it
+   fires LEFT, down → the other way, every run. **Stop:** up but it went the other way → the
+   camera did not see the CELL settle in 0.75 s: note the time from arrival to the HIVE line in the
+   log; the wait may need longer. A TIP missed while driving shows as no `HIVE (RED)` TRANSITION
+   line around it: note it with the speed.
+
 **Deferred for Belding:** dedicated LEFT-preload partner support, staged-preload
 collection, active turrets, and sophisticated runtime shoot-versus-park decisions.
 R-Partner-Preload and R-Solo-Staging are preserved on `autos-experiment`; their
@@ -174,7 +212,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       (the launcher's shot count), and the robot ended AUTO at the launch spot, touching no wall
       (LEAVE). **Stop:** the last ball left after 30 s → note the volley's path end → gate open → last
       ball times: `AutoRegistration.LAUNCH_ALL_LAST_PIECE_S` (4.0) is short. [PR #422]
-- [ ] **Launcher overshoot after a drive:** 4 Nov 00:48 the launcher ran to about 1680 ticks/s of
+- [x] **Fixed by the PIDF tune (#444), mentor 5 Nov.** **Launcher overshoot after a drive:** 4 Nov 00:48 the launcher ran to about 1680 ticks/s of
       1595 ±60 after each drive to `LEFT_LAUNCH_OFFSET`, and `AtSpeed` stayed false about 0.7 s, so
       the gate opened 0.98–1.12 s after arrival where the settle alone took 0.38–0.57 s. Graph
       `/Launcher/LeftTicksPerSecond`, `RightTicksPerSecond` and `AtSpeed` in Panels over an R-Solo
@@ -208,7 +246,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       (P on the step) in the Visualizer. [PR #391]
 - [ ] **A launch's time limit never cuts a feed;** the Auto graphs the launcher in Panels. **Good:**
       every launch feeds its full `LaunchCards` time; launcher graph live. [PR #333], [PR #334]
-- [ ] **Launch on the approach: fix the launcher overshoot first.** It is a separate issue. After a
+- [x] **Fixed by the PIDF tune (#444), mentor 5 Nov.** **Launch on the approach: fix the launcher overshoot first.** It is a separate issue. After a
       dip the wheels overshot to about 1680 tps and kept AtSpeed false for about 0.7 s (3 and 4 Nov
       R-Solo logs), and the approach's gate waits for AtSpeed too. **Good:** `at_speed` in Panels
       stays 1 through the drive into LEFT_LAUNCH_OFFSET. **Stop:** still overshooting → judge the
@@ -298,7 +336,8 @@ measurement is [#255].
       match-length drive and note `shadow_offset_in`. [PR #361]
 - [ ] **Panels drawing:** X then B in INIT turns the outline blue → red; each FieldLayers switch
       shows and hides its robot. [PR #356], [PR #307]
-- [ ] **Go to launch spot (driver Square, hold) vs chassis aim (Circle):** pose set (corner or
+- [x] **Done on red at all six spots (mentor, 5 Nov); the two CORNER spots and blue are checked
+      in §7d and §7e.** **Go to launch spot (driver Square, hold) vs chassis aim (Circle):** pose set (corner or
       camera reset), the drivers try both from around the field over a practice, firing from where
       each leaves them. It goes to the nearest of six spots (the two starts and the four
       CATCH/OFFSET spots); press it once near each start: it stops `LaunchSpotDrive.startOffWallIn`
@@ -343,9 +382,16 @@ measurement is [#255].
 
 ## 7. 19429, if it is at the lab
 
-- [ ] **Bring-up, in #175's order:** Check: Hardware, Drive Motor Check (lifted), Mecanum, Pinpoint
-      and Foresight tuners pasted into `Robot19429.java`, Tests procedure, Loop Time Baseline.
-      **Good:** path Autos no longer stop at INIT on Foresight. [#175], [S2 §8]
+- [ ] **Bring-up, in #175's order:** Check: Hardware, Drive Motor Check (lifted), Tests procedure,
+      Loop Time Baseline. `Robot19429.java` holds **20245's Pedro values, copied 5 Nov** (motor
+      directions, pod offsets, Foresight), so 19429 runs the Autos and Square from the first load.
+      **Good:** Basic Drive goes where the stick says (a wrong motor direction is the first thing a
+      copy gets wrong: run the Mecanum tuner and paste it), and R-Solo follows its first path.
+      [#175], [S2 §8]
+- [ ] **Then tune 19429 for real, as soon as there is time:** Pinpoint tuner and Measure: Pod
+      Offsets, then the Foresight Tuner, each pasted over its "copied from 20245" block in
+      `Robot19429.java`. **Good:** each block's comment says it was measured on 19429. Until then,
+      a path that drifts or overshoots on 19429 but not on 20245 is this, not the Auto.
 - [ ] **Anything 19429 does differently** from 20245 (a motor turning the other way, a servo
       position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
       was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.
@@ -455,13 +501,49 @@ page's "Last launch spot" line shows the spot's CELL range and the launch speed:
 Take the middle of the speeds that score 4/4, not the first one that does. The trim carries from
 press to press.
 
-Measured 4 Nov 2026 (20245, tuned PIDF) and in `LaunchSpeedTable` with the table on: 39 in → 1520,
-42.3 → 1560, 50.5 → 1570, 55.4 → 1635. What is left here is the corner spot for Square.
+Measured 4 Nov 2026 (20245, tuned PIDF) and in `LaunchSpeedTable` with the table on: 42.4 in → 1520,
+45.7 → 1560, 53.9 → 1600, 58.8 → 1635 (ranges from the turret axis since 5 Nov; first written from
+the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the corner spot for Square.
 
-- [ ] **The corner spot for Square:** the shot near the GARDEN scores at 55.4 in and 1635 (its table
-      row). For Square to drive there: park where it scored, read x, y and heading off the Robot
-      page's Pose line, save it as a team spot (Visualizer, *Save team spots*), and it becomes one
-      `LaunchSpots.Spot` constant [PR #423]. [mentor, 4 Nov]
+- [ ] **Square's corner spots:** `RIGHT_LAUNCH_CORNER` (30.2, 10.7, 54°) is where 20245 scored the
+      58.8 in / 1635 row (55.4 from the wheels' centre) on 4 Nov (about 50 shots in that evening's log); `LEFT_LAUNCH_CORNER`
+      (30.2, 130.8, 302.6°) is its place mirrored across the axle line, aimed at the LEFT CELL,
+      never fired from. RIGHT's 54° points the turret about 7° right of the CELL by the field model
+      (61° would aim it): compare 54° and 61° on video once. Square drives to
+      either when it is the nearest spot. **Good:** from near each corner, Square ends there and
+      scores 3–4 of 4; the drive in from the GARDEN side touches nothing (it is one straight path).
+      **Stop:** the left one goes long or short → note the range on the Match page; the left corner
+      is also where a partner may leave its POLLEN pile. [mentor, 5 Nov]
+
+- [ ] **Camera range = pose range, from the turret axis** (since 5 Nov both are measured from the
+      turret, and the table's rows were converted to match). Any Basic Drive with the camera on a
+      CELL: graph `/Launch/CameraRangeIn` and `/Launch/PoseRangeIn` from the match log (an Auto
+      writes both on its `launcher: speed table` line). **Good:** within about 1–2 in at the launch
+      spots, and shots score as before at the same speeds. **Stop:** a steady gap of 3 in or more →
+      the turret offset (`TurretSubsystem.turretForwardIn/LeftIn`, CAD from 24 Oct, never taped)
+      or the camera mount; tape the turret axis from the wheels' midpoint first.
+
+## 7e. Blue alliance (never run on blue yet; HIVE and FLOWERs on the blue side)
+
+Everything blue is red turned half a turn about the field centre, in code and unit-tested
+(`LaunchSpotsTest.blueIsRedTurnedHalfATurn`, `NectarRejectTest`), but no robot has run it.
+
+- [ ] **The alliance reads BLUE before PLAY.** Basic Drive with no Auto before it **defaults to
+      red** ("RED (default)" on the Match page) unless vision proposes blue or someone presses B.
+      The NECTAR reject takes the alliance at PLAY, so a blue robot left on the red default spits
+      out **our own** NECTAR and keeps the red. **Good:** "BLUE (vision)" or "BLUE" after B, every
+      time; the drive team checks it before PLAY. **Stop:** vision proposes red on the blue side →
+      save the log.
+- [ ] **NECTAR reject on blue:** intake a red NECTAR → it is spat out; a blue NECTAR and POLLEN →
+      kept. **Good:** both, three times each.
+- [ ] **Square on blue, each spot once:** from near each blue spot, hold Square. **Good:** it drives
+      to the blue mirror of the red spot, faces the blue CELL it serves, and the volley scores.
+      **Stop:** it goes to the wrong half or faces away → note the pose; never across the centre
+      line (it refuses there).
+- [ ] **Corner reset on blue** (the reset corners are measured on red and turned): hold the reset
+      button at a blue corner. **Good:** the pose on the Robot page matches the corner, field-centric
+      forward is right.
+- [ ] **One Auto on blue** (R-Solo from blue's audience start). **Good:** it mirrors the red run.
 
 ## 8. If time: anyone, no driving
 

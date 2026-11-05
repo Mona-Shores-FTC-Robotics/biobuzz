@@ -174,8 +174,22 @@ public final class CellSighting {
     /** False when only one tag was visible, so the row centre may be off along the row. */
     public boolean lateralCorrectionApplied() { return lateralCorrectionApplied; }
 
-    /** Horizontal distance to the measured point, inches. */
+    /**
+     * Horizontal distance to the measured point, inches, from the robot's tracked point (the
+     * middle of the drivetrain's wheels, the robot frame's origin). Not the launcher's range: that
+     * is {@link #groundRangeFromIn} from the turret axis.
+     */
     public double groundRangeIn() { return rowCentreRobot.normXY(); }
+
+    /**
+     * Horizontal distance to the measured point, inches, from a point on the robot
+     * {@code forwardIn} ahead of and {@code leftIn} left of the tracked point (robot frame). From
+     * the turret axis ({@code TurretSubsystem.turretForwardIn/LeftIn}) it is the launcher's range,
+     * the same one the pose gives through {@code TurretAim.rangeFromFieldIn}.
+     */
+    public double groundRangeFromIn(double forwardIn, double leftIn) {
+        return Math.hypot(rowCentreRobot.x() - forwardIn, rowCentreRobot.y() - leftIn);
+    }
 
     /** Straight-line distance to the measured point, inches. */
     public double slantRangeIn() { return rowCentreRobot.norm(); }

@@ -40,6 +40,7 @@ import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
 import org.firstinspires.ftc.teamcode.subsystems.NectarReject;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherResponse;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
+import org.firstinspires.ftc.teamcode.localization.PinpointLoss;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.CalibrationSpots;
@@ -247,6 +248,8 @@ public abstract class RobotOpMode extends OpMode {
     private long initStartNs;
     /** What went wrong with the Pinpoint this INIT: a hard fault is kept once seen, a bad read only while it holds. */
     private final PinpointInitFault pinpointFault = new PinpointInitFault();
+    /** Whether the match log has the one "Pinpoint lost" event this run. */
+    private boolean pinpointLostLogged;
     private String loggedWarnings;
     private boolean loggedLaneFull;
     private long loggedDepartures;
@@ -984,6 +987,9 @@ public abstract class RobotOpMode extends OpMode {
         }
         prevPageButton = pressed;
         display.header();
+        if (!initializing && robot.drive.pinpointLost() && display.page() == Display.Page.MATCH) {
+            display.alert("Pinpoint lost", "keep driving; Square and pose aim are off · restart the robot after the match");
+        }
         if (initializing && display.page() == Display.Page.MATCH) {
             initWarnings.describeTop(display, setup.alliance(), isAutonomous());
         }
@@ -1262,6 +1268,11 @@ public abstract class RobotOpMode extends OpMode {
         if (status != null && !status.equals(loggedPinpointStatus)) {
             log.event("Pinpoint: " + status);
             loggedPinpointStatus = status;
+        }
+        if (robot.drive.pinpointLost() && !pinpointLostLogged) {
+            log.event("Pinpoint lost: " + robot.drive.pinpointLostStatus() + " held "
+                    + PinpointLoss.LOST_AFTER_MS + " ms after PLAY; the pose is not believed for the rest of this run");
+            pinpointLostLogged = true;
         }
 
         // The camera against the odometry, once per gated frame, in field inches.
