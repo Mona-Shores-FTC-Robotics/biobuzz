@@ -16,7 +16,8 @@ import com.bylazar.configurables.annotations.Configurable;
  *   <li>A settled state the camera sees on {@link Tuning#minTags} or more tags is taken as it is.
  *       A single tag flickers in and out at range, and a state built on one would vanish and
  *       "TIP" every time it did (five phantom TIPs on the untouched blue HIVE, 24 Oct 2026).</li>
- *   <li>A TIP starts when a CELL is seen mid-tip for {@link Tuning#midTipMs} running, <em>or</em>
+ *   <li>A TIP starts when a CELL is seen mid-tip for {@link Tuning#midTipMs} running while the
+ *       robot is steady (see {@link #observe(HiveState, int, double, boolean, boolean, long)}), <em>or</em>
  *       when a CELL seen settled drops out of view while the robot keeps looking where it was: a
  *       CELL's tags turn away from the camera as soon as it starts to move. (A robot or POLLEN
  *       blocking the view for longer than {@link Tuning#lostAfterMs} looks the same; if the CELL
@@ -80,24 +81,41 @@ public final class HiveTracker {
     private int tips;
     private int tipsStarted;
 
+    /** {@link #observe(HiveState, int, double, boolean, boolean, long)} with the robot steady. */
+    HiveState observe(HiveState seen, int tagsSeen, double lostForMs, boolean stillLooking, long nowMs) {
+        return observe(seen, tagsSeen, lostForMs, stillLooking, true, nowMs);
+    }
+
     /**
      * Feeds one loop.
+     *
+     * <p>A mid-tip sighting counts only while the robot is {@code steady}. Driving or turning, the
+     * camera's frame lags the pose it is placed with, so a CELL at rest reads at an in-between
+     * height. In 13 of 17 R-Solo runs on 4 and 5 Nov 2026 (20245) a TIP started while the robot
+     * drove at 18 to 40 in/s or turned at 60 to 480 &deg;/s, most as it drove off its first launch
+     * spot; each was assumed finished 3.5 s later, and in R-Solo 00:32, where the HIVE had not
+     * tipped, the robot then fired at a CELL that was down. The two that started with the robot
+     * nearly still (under 8 in/s and 21 &deg;/s) still would. The cost: a real TIP that happens
+     * while the robot drives is not caught mid-tip, only when the camera next sees the HIVE settle.
      *
      * @param seen         what the camera says (see {@link HiveState#of})
      * @param tagsSeen     how many of this HIVE's tags are in the frame behind {@code seen}
      * @param lostForMs    ms since a tag of this HIVE was last in a frame; infinite if never
      * @param stillLooking the robot has not turned or moved since that frame, so the HIVE would
      *                     still be in view if nothing about it had changed
+     * @param steady       the robot is slow and hardly turning ({@code HiveSubsystem.Tuning}), so a
+     *                     mid-tip sighting can be believed
      * @param nowMs        a monotonic clock, in milliseconds
      * @return the state after this loop
      */
-    HiveState observe(HiveState seen, int tagsSeen, double lostForMs, boolean stillLooking, long nowMs) {
+    HiveState observe(HiveState seen, int tagsSeen, double lostForMs, boolean stillLooking, boolean steady,
+                      long nowMs) {
         // The camera's settled state outlives the tags a little; out of view is out of view.
         boolean lost = Tuning.lostAfterMs > 0 ? !(lostForMs < Tuning.lostAfterMs) : Double.isInfinite(lostForMs);
         if (lost) seen = HiveState.UNSEEN;
         boolean solid = tagsSeen >= Math.max(1, Tuning.minTags);
 
-        if (seen != HiveState.TRANSITION || !solid) {
+        if (seen != HiveState.TRANSITION || !solid || !steady) {
             midTipSinceMs = Double.NaN;
         }
 
@@ -114,7 +132,7 @@ public final class HiveTracker {
             }
             // On too few tags: not trusted; whatever we had stands.
         } else if (seen == HiveState.TRANSITION) {
-            if (solid && !assumed) {
+            if (solid && steady && !assumed) {
                 if (Double.isNaN(midTipSinceMs)) midTipSinceMs = nowMs;
                 if (tipping || nowMs - midTipSinceMs >= Math.max(0.0, Tuning.midTipMs)) {
                     startTip((long) midTipSinceMs);

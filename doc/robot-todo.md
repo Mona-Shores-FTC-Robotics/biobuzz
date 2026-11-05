@@ -45,6 +45,14 @@ here waits until after the event.
    settles either way. Not clearly as good on → set it false for the event. Same runs:
    `FlowerPicker.lowerWithinIn` 24 (§3's WALL FLOWER stick line, a number, not code). Every pick card
    is now limited to 4.5 s (was 8; logged picks took 1.8–3.7 s): note any pick that hits the limit.
+   **CellUp now needs the camera** (5 Nov): an assumed HIVE position no longer passes it, and a
+   mid-tip sighting counts only with the robot under 10 in/s and 30°/s (`HiveSubsystem.Tuning`).
+   On video, per run: was the LEFT CELL really up at the check, and which way did the Auto go? The
+   match log's `CellUp after` line (or the wait running its 0.75 s) says which. **Good:** up → it
+   fires LEFT, down → the other way, every run. **Stop:** up but it went the other way → the
+   camera did not see the CELL settle in 0.75 s: note the time from arrival to the HIVE line in the
+   log; the wait may need longer. A TIP missed while driving shows as no `HIVE (RED)` TRANSITION
+   line around it: note it with the speed.
 
 **Night 2: the partner Autos, 19429 as the partner if it is at the lab.**
 

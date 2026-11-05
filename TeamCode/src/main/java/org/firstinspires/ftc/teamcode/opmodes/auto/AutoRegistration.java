@@ -65,14 +65,12 @@ import java.util.function.Function;
  *
  * <h2>LeftCellUp and RightCellUp</h2>
  *
- * <p>True while our HIVE's {@link HiveTracker} says that CELL is up, LEFT and RIGHT as our drive
- * team sees them from our alliance area ({@link HiveState}). They are conditions, not events: the
- * Auto Builder lists only {@code Tip} as an event, so a wait on {@code RightCellUp} ends at once if
- * the RIGHT CELL is already up when it starts. In an Autonomous the HIVE starts where the manual
- * puts it: at PLAY {@link BuiltAuto} has the tracker assume RIGHT_CELL_UP
- * ({@link HiveTracker#assumeMatchStart()}), so {@code RightCellUp} is true from PLAY and
- * {@code LeftCellUp} false, until the camera sees the HIVE settle (which replaces the assumption)
- * or a TIP moves it. Otherwise:
+ * <p>True while our HIVE's {@link HiveTracker} has <em>seen</em> that CELL up, LEFT and RIGHT as
+ * our drive team sees them from our alliance area ({@link HiveState}). They are conditions, not
+ * events: the Auto Builder lists only {@code Tip} as an event, so a wait on {@code RightCellUp}
+ * ends at once if the RIGHT CELL is already seen up when it starts. In an Autonomous the tracker
+ * assumes the manual's RIGHT_CELL_UP at PLAY ({@link HiveTracker#assumeMatchStart()}), but an
+ * assumption is not a sighting: both are false until the camera sees the HIVE settle. Otherwise:
  * <ul>
  *   <li>No alliance chosen: false. {@link BuiltAuto} does not move without one, so this only
  *       matters to a caller outside it.</li>
@@ -80,8 +78,8 @@ import java.util.function.Function;
  *       to its limit or another row ends it. Outside an Autonomous nothing is assumed: a HIVE the
  *       camera has not seen is not "RIGHT CELL up".</li>
  *   <li>A position the tracker assumes, at an Autonomous's PLAY or after a TIP it saw start but
- *       not finish ({@link HiveTracker#assumed()}): taken as it stands, and held only until the
- *       camera next sees the HIVE settle.</li>
+ *       not finish ({@link HiveTracker#assumed()}): false for both, until the camera sees the HIVE
+ *       settle ({@link #cellUp}: R-Solo 5 Nov 00:32 fired at a down CELL on an assumed TIP).</li>
  * </ul>
  *
  * <h2>CellUp</h2>
@@ -253,11 +251,18 @@ public final class AutoRegistration {
     }
 
     /**
-     * {@code LeftCellUp} ({@code left}) or {@code RightCellUp}: what our HIVE's tracker says, and
-     * false with no tracker (no alliance chosen). UNSEEN and TRANSITION are false for both.
+     * {@code LeftCellUp} ({@code left}) or {@code RightCellUp}: what our HIVE's tracker says it has
+     * <em>seen</em>, and false with no tracker (no alliance chosen). UNSEEN and TRANSITION are false
+     * for both, and so is a position the tracker only assumed ({@link HiveTracker#assumed()}: the
+     * match start, or a TIP it did not see finish). Why (R-Solo, 5 Nov 2026 00:32, 20245): the
+     * tracker started a TIP that never happened as the robot turned away from the start, assumed it
+     * finished 3.5 s later, and {@code CellUp} at LEFT_LAUNCH_CLOSE passed in 0.02 s on that guess,
+     * before the camera had a frame from there, and the robot fired at a CELL that was down. Its
+     * wait now lasts until the camera sees the CELL up, or its time runs out and the Auto takes
+     * the other way.
      */
     static boolean cellUp(HiveTracker hive, boolean left) {
-        if (hive == null) return false;
+        if (hive == null || hive.assumed()) return false;
         return left ? hive.leftCellUp() : hive.rightCellUp();
     }
 

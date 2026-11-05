@@ -8,6 +8,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.pedropathing.math.Pose;
+
 import org.firstinspires.ftc.teamcode.logging.HiveComponents;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.After;
@@ -309,5 +311,48 @@ public class HiveTrackerTest {
     public void notTippingHasNoProgress() {
         HiveTracker.Tuning.tipSeconds = 3.5;
         assertEquals(0.0, hive.tipProgress(5000), 0.0);
+    }
+
+    /**
+     * R-Solo, 5 Nov 2026 00:32: the robot drove off its first launch spot at about 30 in/s, turning,
+     * and the camera read the CELL mid-tip for 250 ms. Moving, that is not a TIP.
+     */
+    @Test
+    public void aMidTipSightingWhileTheRobotDrivesIsNotATip() {
+        see(RIGHT_CELL_UP, 0);
+        for (long t = 100; t <= 600; t += 50) {
+            assertEquals(RIGHT_CELL_UP, hive.observe(TRANSITION, 3, 0, false, false, t));
+        }
+        assertFalse(hive.tipping());
+        assertEquals(0, hive.tipsStarted());
+        // Stopped, the same sighting for 250 ms is a TIP, timed from when the robot was steady.
+        hive.observe(TRANSITION, 3, 0, true, true, 700);
+        assertEquals(TRANSITION, hive.observe(TRANSITION, 3, 0, true, true, 950));
+        assertEquals(1, hive.tipsStarted());
+    }
+
+    @Test
+    public void slowingDownMidSightingRestartsTheCount() {
+        see(RIGHT_CELL_UP, 0);
+        hive.observe(TRANSITION, 3, 0, true, true, 100);
+        hive.observe(TRANSITION, 3, 0, false, false, 200);   // a fast loop breaks the run
+        assertEquals(RIGHT_CELL_UP, hive.observe(TRANSITION, 3, 0, true, true, 400));
+        assertEquals(TRANSITION, hive.observe(TRANSITION, 3, 0, true, true, 650));
+    }
+
+    @Test
+    public void steadyIsSlowAndHardlyTurning() {
+        HiveSubsystem.Tuning.midTipMaxSpeedInPerSec = 10;
+        HiveSubsystem.Tuning.midTipMaxTurnDegPerSec = 30;
+        Pose at = new Pose(50, 50, 0);
+        assertTrue("no earlier pose", HiveSubsystem.steady(null, at, 0.02));
+        assertTrue("no time passed", HiveSubsystem.steady(at, at, 0));
+        assertTrue("still", HiveSubsystem.steady(at, at, 0.02));
+        assertTrue("8 in/s", HiveSubsystem.steady(at, new Pose(50.16, 50, 0), 0.02));
+        assertFalse("30 in/s", HiveSubsystem.steady(at, new Pose(50.6, 50, 0), 0.02));
+        assertTrue("20 deg/s", HiveSubsystem.steady(at, new Pose(50, 50, Math.toRadians(0.4)), 0.02));
+        assertFalse("60 deg/s", HiveSubsystem.steady(at, new Pose(50, 50, Math.toRadians(1.2)), 0.02));
+        assertFalse("60 deg/s across the wrap",
+                HiveSubsystem.steady(new Pose(50, 50, Math.toRadians(359.4)), new Pose(50, 50, Math.toRadians(0.6)), 0.02));
     }
 }
