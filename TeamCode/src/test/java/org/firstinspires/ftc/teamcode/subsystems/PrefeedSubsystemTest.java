@@ -128,12 +128,10 @@ public class PrefeedSubsystemTest {
     }
 
     @Test
-    public void aRejectHoldsThePrefeedSoOnlyTheEntrancePieceGoes() {
-        assertEquals(State.IDLE, PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, false, true));
-        assertEquals(State.IDLE, PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, true, true));
-        assertEquals("a feed keeps carrying in", State.IN,
-                PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.FEED, false, true));
-        assertEquals("an unjam still backs out", State.OUT,
-                PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, FeederSubsystem.State.REVERSE, false, true));
+    public void aRejectBacksTheWholeLaneOutEvenDuringAFeed() {
+        // A burst runs the stars out, and the prefeed follows them out, over a feed and the full stop.
+        for (FeederSubsystem.State feeder : FEEDER) {
+            assertEquals(feeder.toString(), State.OUT, PrefeedSubsystem.requestFor(IntakeSubsystem.State.OUT, feeder, true));
+        }
     }
 }

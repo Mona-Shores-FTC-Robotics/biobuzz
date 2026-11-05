@@ -74,9 +74,11 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * <p>While the colour sensor says so ({@code ColorSensorSubsystem.rejecting()}, fed to this class by
  * {@link #rejectWhile}), the roller and the stars back out at
  * {@code ColorSensorSubsystem.rejectRollerPower} and {@link #starsPower}, over whatever was asked, the full hold and a feed included: the piece at the
- * entrance is the other alliance's NECTAR, and holding one is a big penalty. The prefeed holds
- * still meanwhile, so only that piece goes ({@code PrefeedSubsystem.requestFor}). The OpMode's own
- * eject and the feeder reversing back everything out anyway, so they are unchanged.
+ * entrance is the other alliance's NECTAR, and holding one is a big penalty. The prefeed follows
+ * the stars out ({@code PrefeedSubsystem.requestFor}), so the whole lane backs out, as an eject
+ * does: losing a POLLEN costs far less than keeping the NECTAR (mentor, 5 Nov 2026; holding the
+ * prefeed still left a NECTAR that had got past the stars in the lane). The OpMode's own eject and
+ * the feeder reversing back everything out anyway, so they are unchanged.
  * {@link #rejecting()} says when it is happening. After each burst the roller and the stars stay
  * stopped for a hold-off ({@link #holdOffWhile}, {@link #holdingOff()}) over a request to take in
  * and the full hold, so the piece rolls clear rather than being taken straight back in; a feed

@@ -127,7 +127,7 @@ public class ColorSensorSubsystem implements Subsystem {
 
     /**
      * Whether the other alliance's NECTAR at the entrance is spat out ({@link NectarReject}): the
-     * roller and the stars reverse for {@link #rejectBurstS}, the prefeed still. Off: colours are
+     * roller, the stars and the prefeed reverse for {@link #rejectBurstS}, the whole lane. Off: colours are
      * logged only. Read every loop, so a Panels edit applies at once.
      */
     public static boolean rejectEnemyNectar = true;
@@ -279,7 +279,7 @@ public class ColorSensorSubsystem implements Subsystem {
 
     /**
      * Whether the other alliance's NECTAR is being spat out ({@link NectarReject}), as of the last
-     * update. The intake reads it and reverses the roller and the stars; the prefeed holds still.
+     * update. The intake reads it and reverses the roller and the stars; the prefeed follows them out.
      */
     public boolean rejecting() {
         return reject.rejecting();

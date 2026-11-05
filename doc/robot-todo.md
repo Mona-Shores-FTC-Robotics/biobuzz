@@ -526,7 +526,7 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       `rejectAfterReadings` 2, the cap `rejectMaxBursts` 3 in `rejectWindowS` 3). Basic Drive, red,
       intake on: feed in a blue NECTAR by hand, ten times, then a red NECTAR and POLLEN ten times
       each. **Good:** every blue one comes back out within about 0.2 s of reaching the sensor and
-      lands clear of the roller, the pieces already in the lane stay put, and no red NECTAR or
+      lands clear of the roller (the whole lane backs out with it: the mentor's call, 5 Nov), and no red NECTAR or
       POLLEN is ever spat out; each burst is a `Lane: REJECT` event in the match log with its hue.
       Repeat as blue with a red NECTAR, then once during a FLOWER pick (the pick's dwell should not
       end early on the burst). **Tune:** bursts back to back on one piece, or the roller takes it

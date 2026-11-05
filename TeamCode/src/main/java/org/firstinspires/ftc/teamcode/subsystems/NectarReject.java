@@ -7,10 +7,10 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
  * Holding one is a big penalty, so the intake backs it out in a short burst the moment the colour
  * sensor sees it (the mentor's call, 5 Nov 2026).
  *
- * <p>The sensor looks at the entrance, just past the star wheels, so the piece it sees is the
- * newest, still at the roller and the stars: reversing those two alone, with the prefeed still,
- * pushes that one piece out and leaves the rest of the lane where it is
- * ({@code IntakeSubsystem}, {@code PrefeedSubsystem}).
+ * <p>A burst backs the whole lane out: the roller, the stars and the prefeed, as an eject does
+ * ({@code IntakeSubsystem}, {@code PrefeedSubsystem}). Reversing only the roller and the stars, the
+ * prefeed still, kept the rest of the lane, but a NECTAR already past the stars stayed in (20245,
+ * 5 Nov 2026); losing a POLLEN costs far less than keeping the NECTAR (mentor, 5 Nov 2026).
  *
  * <h2>One reject</h2>
  *

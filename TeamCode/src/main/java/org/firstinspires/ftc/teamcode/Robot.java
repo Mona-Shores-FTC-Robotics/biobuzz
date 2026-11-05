@@ -135,7 +135,7 @@ public class Robot {
         // And the prefeed stops, the stars and a slow roller holding the last piece (PrefeedSubsystem.stopWhenFull).
         prefeed.laneFull(colorSensor::full);
         // The other alliance's NECTAR at the entrance is spat out in a burst (NectarReject): the
-        // roller and stars back out, and the prefeed, reading the intake, holds still.
+        // roller and stars back out, and the prefeed, reading the intake, backs out with them.
         intake.rejectWhile(colorSensor::rejecting);
         // Then the roller and stars stop a moment, so the piece rolls clear rather than back in.
         intake.holdOffWhile(colorSensor::holdingOffAfterReject);
