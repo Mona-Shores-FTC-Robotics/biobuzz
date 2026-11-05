@@ -70,6 +70,14 @@ public final class LaunchSpeedTable {
      */
     public static double extendIn = 5.0;
 
+    /**
+     * How far past {@link #extendIn}, inches, a range may be and still get the table's speed (held
+     * at the extension's end). Further out the range is not believed and every launch, TeleOp and
+     * Auto, takes {@link LauncherSubsystem#targetTicksPerSecond}: with 4 Nov's rows, below 24 in or
+     * above 70.4 in. NaN or negative: 0.
+     */
+    public static double trustBeyondIn = 10.0;
+
     /** Row 1: horizontal range from the turret axis to the UP CELL's raised row, inches. NaN: no row. */
     public static double row1RangeIn = 39.0;
     /** Row 1: the launch speed that scores from {@link #row1RangeIn}, ticks per second. NaN: no row. */
@@ -101,10 +109,12 @@ public final class LaunchSpeedTable {
 
     /**
      * The launch speed for {@code rangeIn} from the configured rows, ticks per second; NaN when the
-     * range is NaN or no row is usable, so the caller falls back to the configured speed.
+     * range is NaN, no row is usable, or the range is past {@link #trustBeyondIn} (a bad pose), so
+     * the caller falls back to the configured speed.
      */
     public static double ticksPerSecondFor(double rangeIn) {
         loadRows();
+        if (!trusted(RANGES, SPEEDS, rangeIn, extendIn, trustBeyondIn)) return Double.NaN;
         return interpolate(RANGES, SPEEDS, rangeIn);
     }
 
@@ -117,6 +127,29 @@ public final class LaunchSpeedTable {
         if (!enabled) return configured;
         double tps = ticksPerSecondFor(rangeIn);
         return Double.isNaN(tps) ? configured : tps;
+    }
+
+    /**
+     * Whether {@code rangeIn} is close enough to the rows to answer for: within {@code extend} plus
+     * {@code beyond} inches of the first and last usable rows. A range further out is a bad pose
+     * (a Pinpoint read fault on 4 Nov 2026 gave 136 in, and the table's top speed went long from a
+     * launch spot), so the caller's configured speed is the safer shot. NaN or negative margins
+     * count as 0; with no usable row, or a NaN range, false. Pure, so a test can drive it.
+     */
+    static boolean trusted(double[] ranges, double[] speeds, double rangeIn, double extend, double beyond) {
+        if (Double.isNaN(rangeIn)) return false;
+        double lo = Double.NaN;
+        double hi = Double.NaN;
+        int n = Math.min(ranges.length, speeds.length);
+        for (int i = 0; i < n; i++) {
+            if (!usable(ranges[i], speeds[i])) continue;
+            if (Double.isNaN(lo) || ranges[i] < lo) lo = ranges[i];
+            if (Double.isNaN(hi) || ranges[i] > hi) hi = ranges[i];
+        }
+        if (Double.isNaN(lo)) return false;
+        double margin = (extend >= 0 && !Double.isInfinite(extend) ? extend : 0.0)
+                + (beyond >= 0 && !Double.isInfinite(beyond) ? beyond : 0.0);
+        return rangeIn >= lo - margin && rangeIn <= hi + margin;
     }
 
     /** How many configured rows count (class comment), for the Robot page and the match log. */

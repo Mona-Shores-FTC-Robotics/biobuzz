@@ -15,10 +15,12 @@ import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -206,7 +208,8 @@ public final class LaunchCards {
      * {@link LaunchSpeedTable#enabled} on, each spin-up asks for the table's speed for the range to
      * the CELL on the launch pose's half ({@link #rangeToHalfCellIn}), and logs it: a
      * {@code LaunchAll}'s approach spins up for its path's end as the path starts, so the wheels are
-     * there on arrival; the {@code SpinUp} card and a card's own spin-up use where the robot is.
+     * there on arrival; the {@code SpinUp} card and a card's own spin-up use where the robot is,
+     * by the camera's range when it sees one of our CELLs ({@link #cameraRangeIn}), else the pose's.
      * Held within half the launcher's tolerance ({@link LaunchSpeedTable#held}), so the card's
      * spin-up at the path end, an inch from the approach's pose, never moves the target mid-feed
      * (a new target re-arms at-speed and the shot detector). Off, or with no range, it is the
@@ -226,24 +229,41 @@ public final class LaunchCards {
                     robot.launcher.spinUp();
                     return;
                 }
-                spinUpAt(robot.drive.poseReferenced() ? robot.drive.pose() : null, "here");
+                // Where the robot is: the camera's range when it sees one of our CELLs (what the
+                // table was measured with, and right even when the pose is not), else the pose's.
+                Alliance ours = alliance == null ? null : alliance.get();
+                double camera = cameraRangeIn(robot.vision.sightings(), ours, SIGHTING_FRESH_MS);
+                if (!Double.isNaN(camera)) {
+                    spinUpAtRange(camera, "here, camera");
+                    return;
+                }
+                Pose at = robot.drive.poseReferenced() ? robot.drive.pose() : null;
+                spinUpAtRange(rangeToHalfCellIn(at, ours), "here, pose");
             }
 
             @Override public void spinUpFor(Pose launchPose) {
-                if (LaunchSpeedTable.enabled) spinUpAt(launchPose, "at the path end");
+                if (LaunchSpeedTable.enabled) {
+                    spinUpAtRange(rangeToHalfCellIn(launchPose, alliance == null ? null : alliance.get()),
+                            "at the path end");
+                }
             }
 
-            private void spinUpAt(Pose at, String where) {
-                double range = rangeToHalfCellIn(at, alliance == null ? null : alliance.get());
+            private void spinUpAtRange(double range, String where) {
                 double answer = LaunchSpeedTable.launchSpeed(range, LauncherSubsystem.targetTicksPerSecond);
                 double tps = LaunchSpeedTable.held(heldTps, answer, LauncherSubsystem.toleranceTicksPerSecond / 2.0);
                 boolean changed = Double.compare(tps, heldTps) != 0;
                 heldTps = tps;
                 robot.launcher.spinUp(tps);
                 if (!changed) return;
-                log.accept(Double.isNaN(range)
-                        ? String.format(Locale.US, "launcher: speed table on, no range: configured %.0f ticks/s", tps)
-                        : String.format(Locale.US, "launcher: speed table %.0f ticks/s for %.0f in (%s)", tps, range, where));
+                if (Double.isNaN(range)) {
+                    log.accept(String.format(Locale.US, "launcher: speed table on, no range: configured %.0f ticks/s", tps));
+                } else if (Double.isNaN(LaunchSpeedTable.ticksPerSecondFor(range))) {
+                    log.accept(String.format(Locale.US,
+                            "launcher: %.0f in (%s) is past the speed table, not believed: configured %.0f ticks/s",
+                            range, where, tps));
+                } else {
+                    log.accept(String.format(Locale.US, "launcher: speed table %.0f ticks/s for %.0f in (%s)", tps, range, where));
+                }
             }
             @Override public boolean atSpeed() { return robot.launcher.atSpeed(); }
             @Override public int shots() { return robot.launcher.shots(); }
@@ -254,6 +274,27 @@ public final class LaunchCards {
         };
         return new LaunchCards(launcher, feeder, settle::settled, settle::readyOnApproach, note,
                 () -> System.nanoTime() / 1e9);
+    }
+
+    /** A camera sighting older than this, ms, is not a range: as the TeleOp's FIRE takes it. */
+    static final long SIGHTING_FRESH_MS = 500;
+
+    /**
+     * The camera's ground range to the nearest fresh sighting of one of our CELLs, inches; NaN with
+     * none, or with no alliance. The range the speed table was measured with (4 Nov 2026), and the
+     * TeleOp's FIRE and Square take it the same way.
+     */
+    static double cameraRangeIn(List<CellSighting> sightings, Alliance alliance, long freshMs) {
+        if (sightings == null || alliance == null || alliance == Alliance.UNKNOWN) return Double.NaN;
+        double best = Double.NaN;
+        for (CellSighting sighting : sightings) {
+            if (sighting == null || sighting.ageMs() > freshMs) continue;
+            if (sighting.cell() == null || !sighting.cell().belongsTo(alliance)) continue;
+            double range = sighting.groundRangeIn();
+            if (Double.isNaN(range)) continue;
+            if (Double.isNaN(best) || range < best) best = range;
+        }
+        return best;
     }
 
     /**
