@@ -1,0 +1,23 @@
+{
+  "pp": "TeamCode/autos/partners/partner-push-start.pp",
+  "spec": "PartnerPushStartAuto",
+  "design": "real robot",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "alliance": "RED",
+  "metadata": {
+    "AutoSource": "partner-push-start.pp",
+    "SavedBy": "dustinhans",
+    "SavedAt": "2026-11-05T14:47:25.296Z"
+  }
+}
