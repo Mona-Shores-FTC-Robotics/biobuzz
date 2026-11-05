@@ -59,13 +59,13 @@ public final class TeleOpConfig {
      * Stick multiplier and wheel cap while slow is held, for lining up. Slow wins if both are held.
      * Clamped to [0, 1].
      *
-     * <p>0.25 since 4 Nov 2026, about a third of {@link #normalSpeed}. At 0.45 it was 57% of normal
-     * at the wheels (940 against 1660 ticks/s) and 75% of its speed over the floor (27 against
-     * 36 in/s, in the 2 and 3 Nov logs), too close to normal to feel like a precision mode. At 0.25
-     * the wheels should run about 500 ticks/s, roughly 15 in/s. The cap holds the chassis aim's turn
-     * to it too.
+     * <p>0.35 since 5 Nov 2026. At 0.25 (4 Nov) the robot drove forward and back but did not strafe
+     * at all on 20245: a mecanum strafe needs more wheel power than a straight drive to overcome
+     * the rollers. 0.45 was too close to normal to feel like a precision mode (57% of normal at the
+     * wheels, 940 against 1660 ticks/s, in the 2 and 3 Nov logs), so 0.35 sits between. The cap
+     * holds the chassis aim's turn to it too.
      */
-    public static double slowSpeed = 0.25;
+    public static double slowSpeed = 0.35;
 
     /** Degrees one trim press moves the aim. Clamped to [0, 5]. */
     public static double trimStepDeg = 1.5;

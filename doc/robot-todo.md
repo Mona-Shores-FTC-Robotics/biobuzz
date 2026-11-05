@@ -303,7 +303,7 @@ measurement is [#255].
       [S4 §6], [PR #279]
 - [ ] **Drive speeds, the drivers' call:** Basic Drive, a few minutes each driver: normal, then
       hold L1 (slow) to line up on a FLOWER, then R1 (turbo) across the field, diagonals included.
-      New defaults normal 0.7 / slow 0.25 / turbo 1.0, and each mode now caps the wheels, so it is
+      New defaults normal 0.7 / slow 0.35 / turbo 1.0 (slow was 0.25 until 5 Nov: it did not strafe), and each mode now caps the wheels, so it is
       that fraction of turbo in every direction (before, 0.8 on a diagonal was already full power).
       Change them live in Panels → TeleOpConfig if they ask. **Good:** each mode feels different and
       the drivers name the values they keep; write those in `TeleOpConfig`, pull the log. **Stop:**
