@@ -20,13 +20,13 @@ public final class PartnerPushStartAuto {
     public static final String SOURCE = "partner-push-start.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-04|8:30AM";
+    public static final String SAVED = "11-05|8:56AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"CameraBlind"};
+    public static final String[] TRIGGERS = {};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -36,7 +36,7 @@ public final class PartnerPushStartAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(8.1, 82.5, 0);
+        return poses(rotated).of(9.4, 85.1, 75);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -48,11 +48,8 @@ public final class PartnerPushStartAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose partnerPushStart = p.of(8.1, 82.5, 0);
+        Pose partnerPushStart = p.of(9.4, 85.1, 75);
 
-        return kit.sequence(
-                kit.firstOf("Sits on the push start",
-                        kit.when("CameraBlind"),
-                        kit.afterMs(30000)));
+        return kit.sequence();
     }
 }
