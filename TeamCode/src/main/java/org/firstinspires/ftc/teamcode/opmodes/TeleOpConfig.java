@@ -88,7 +88,8 @@ public final class TeleOpConfig {
      * The operator's R2 toggles the intake on and off instead of running it only while held. On by
      * default since 4 Nov 2026 (the drive team's call): the roller slows to hold the last piece and
      * the prefeed stops by themselves when the lane is full, and both start again when a shot makes
-     * room, so the intake can be left on. The driver's R2 runs it while held and either L2 reverses it while held, over the
+     * room, so the intake is left on: it starts on at PLAY (5 Nov 2026), as in an Auto, and a FLOWER
+     * pick or GARDEN gather ending hands it back to the toggle. The driver's R2 runs it while held and either L2 reverses it while held, over the
      * toggle; letting go returns to it. Firing does not turn it off. Off: hold-to-run on both pads,
      * where letting go of R2 stops the intake.
      */

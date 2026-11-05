@@ -41,8 +41,8 @@ import java.util.Locale;
  *
  * <p>Which input does what is {@link ControlScheme}, one layout for both teams. Both people run
  * the intake (R2) and unjam (L2), the driver winning when both press ({@link IntakeArbiter}); unjam
- * on either pad also reverses the feeder. The operator's R2 toggles the intake on and off
- * ({@link IntakeToggle}, {@code TeleOpConfig.intakeToggle}); the driver's R2 runs it while held and
+ * on either pad also reverses the feeder. The intake is on from PLAY, and the operator's R2 toggles
+ * it off and on ({@link IntakeToggle}, {@code TeleOpConfig.intakeToggle}); the driver's R2 runs it while held and
  * either L2 reverses it while held, each over the toggle, and letting go returns to the toggle. Left
  * on, it stops taking in while the lane is full and starts again when a shot makes room; the
  * driver's hold does not get past full, only unjam does. The Driver Station's Controls page (Share) and the
@@ -142,7 +142,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     private Controls controls;
     private final IntakeArbiter intakeArbiter = new IntakeArbiter();
-    private final IntakeToggle intakeToggle = new IntakeToggle();
+    private final IntakeToggle intakeToggle = new IntakeToggle(true);
     private final FireGates gates = new FireGates();
     private final LongPress headingReset = new LongPress(RESET_HOLD_MS);
     private final LongPress cameraReset = new LongPress(RESET_HOLD_MS);
@@ -507,10 +507,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.status("Lane", Display.Level.OK, robot.colorSensor.full() ? "full" : "room");
         display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
         if (TeleOpConfig.intakeToggle) {
-            display.status("R2 intake", intakeToggle.on() ? Display.Level.WARN : Display.Level.OK,
-                    !intakeToggle.on() ? "off, operator R2 to start"
-                            : robot.colorSensor.full() ? "ON, holding (lane full), operator R2 to stop"
-                            : "ON, operator R2 to stop");
+            display.status("R2 intake", intakeToggle.on() ? Display.Level.OK : Display.Level.WARN,
+                    !intakeToggle.on() ? "OFF, operator R2 to start"
+                            : robot.colorSensor.full() ? "on, holding (lane full), operator R2 to stop"
+                            : "on, operator R2 to stop");
         }
         robot.launcher.describe(display);
         if (!LaunchSpeedTable.enabled) {

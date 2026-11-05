@@ -28,4 +28,13 @@ public class IntakeToggleTest {
         assertFalse("switching it off drops the latch", toggle.update(false, false));
         assertFalse("and switching it back on starts off", toggle.update(true, false));
     }
+
+    @Test
+    public void theTeleOpsStartsOnAndAPressTurnsItOff() {
+        IntakeToggle toggle = new IntakeToggle(true);
+        assertTrue("on from the start", toggle.update(true, false));
+        assertFalse("the operator's press: off", toggle.update(true, true));
+        assertFalse(toggle.update(true, false));
+        assertTrue("the next press: on again", toggle.update(true, true));
+    }
 }
