@@ -918,10 +918,10 @@ tuned Foresight, since only those build a `Follower`.
 The Foresight Tuner's **Max Strafe Velocity** step sends full power straight
 left, robot-centric, with nothing correcting heading. So it shows the robot's own
 strafe, and a robot that arcs there (a "rainbow") has a mechanical problem, not a
-tuning one. Two things hide it in everyday driving. Basic Drive runs at 70%, and
+tuning one. Two things hide it in everyday driving. Basic Drive ramps its acceleration, and
 it is **field-centric** by default, so the Pinpoint heading quietly steers out
 the drift. To see what the tuner sees, open **Drive: Robot-centric** (Utility menu),
-hold the **right bumper** (turbo) and push straight left.
+push straight left (normal speed is full power).
 
 If it arcs there too, run **Check: Drive Motors** (Utility menu, #121) with
 **the robot lifted**. It takes about 20 s:

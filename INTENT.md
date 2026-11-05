@@ -109,7 +109,7 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 ## Meeting checklist
 
 1. Deploy with a full **TeamCode** install (new classes), Activate the robot's config.
-2. **Basic Drive**: drives as before — speeds, turbo, slow, Y resets heading, B toggles mode.
+2. **Basic Drive**: drives as before — speeds (normal full power, L1 slow), Y resets heading, B toggles mode.
 3. Unplug the Pinpoint, re-init: robot drives robot-centric and the DS says NO PINPOINT.
 4. Note the `Loop` line; compare with **LoopTimeBaseline** on the same robot.
 5. Back/Share cycles Match → Controls → Robot in INIT and after PLAY. Controls lists every driver

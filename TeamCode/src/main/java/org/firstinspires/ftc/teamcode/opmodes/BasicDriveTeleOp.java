@@ -221,7 +221,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.INTAKE);
         controls.note(Action.DRIVER_UNJAM);
         controls.note(Action.SLOW);
-        controls.note(Action.TURBO);
         controls.note(Action.FLOWER_PICK);
         controls.note(Action.GARDEN_GATHER);
         controls.note(Action.CHASSIS_AIM);
@@ -410,8 +409,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     protected void onLoop() {
         long now = System.nanoTime();
         boolean slow = controls.held(Action.SLOW);
-        boolean turbo = controls.held(Action.TURBO) && !slow;
-        double scale = unitRange(slow ? TeleOpConfig.slowSpeed : turbo ? TeleOpConfig.turboSpeed : TeleOpConfig.normalSpeed);
+        double scale = unitRange(slow ? TeleOpConfig.slowSpeed : TeleOpConfig.normalSpeed);
 
         double forward = deadband(gamepad1.left_stick_y) * FORWARD_SIGN * scale;
         double strafe = deadband(gamepad1.left_stick_x) * STRAFE_SIGN * scale;
@@ -444,11 +442,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
         boolean chassisAim = chassisAim(rightStick);
         if (!routineActive()) {
             double turnCommand = chassisAim ? chassisAimTurn() : turn;
-            robot.drive.setAccelLimited(!turbo);
-            // The scale is also the wheel cap, so a mode is that fraction of turbo in every
-            // direction: without it, a diagonal or a turn at normal saturated to full power and
-            // turbo felt the same (TeleOpConfig.normalSpeed). The cap holds the chassis aim's turn
-            // too: slow turns slowly whoever asks.
+            robot.drive.setAccelLimited(true);
+            // The scale is also the wheel cap, so slow is that fraction of full power in every
+            // direction: without it, a diagonal or a turn saturated to full power
+            // (TeleOpConfig.slowSpeed). The cap holds the chassis aim's turn too: slow turns
+            // slowly whoever asks.
             if (robotCentric()) {
                 robot.drive.driveRobotCentric(forward, strafe, turnCommand, scale);
             } else {
@@ -485,8 +483,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         display.status("Mode", robotCentric() ? Display.Level.WARN : Display.Level.OK,
                 robotCentric() || !robot.drive.isFieldCentric() ? "robot-centric" : "field-centric");
-        display.status("Speed", turbo ? Display.Level.WARN : Display.Level.OK,
-                slow ? "slow" : turbo ? "TURBO" : "normal");
+        display.status("Speed", Display.Level.OK, slow ? "slow" : "normal");
         if (headingReset.pending() || cameraReset.pending() || leftCornerReset.pending() || rightCornerReset.pending() || turretZero.pending()) {
             display.line(KEEP_HOLDING);
         }
