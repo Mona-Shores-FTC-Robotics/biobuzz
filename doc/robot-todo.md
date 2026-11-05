@@ -497,9 +497,34 @@ Measured 4 Nov 2026 (20245, tuned PIDF) and in `LaunchSpeedTable` with the table
 42.3 → 1560, 50.5 → 1570, 55.4 → 1635. What is left here is the corner spot for Square.
 
 - [ ] **The corner spot for Square:** the shot near the GARDEN scores at 55.4 in and 1635 (its table
-      row). For Square to drive there: park where it scored, read x, y and heading off the Robot
-      page's Pose line, save it as a team spot (Visualizer, *Save team spots*), and it becomes one
-      `LaunchSpots.Spot` constant [PR #423]. [mentor, 4 Nov]
+      row). The 4 Nov evening log has it: about 50 shots at 1635 from **(30.2, 10.7), heading 54°**,
+      camera range 54–56 in (`read_logs.py launcher`, the "(no spot)" 1635 rows). Save that as a team
+      spot in the Visualizer (*Save team spots*; drawn for red), then it becomes one
+      `LaunchSpots.Spot` constant and Square drives there whenever it is the nearest spot [PR #423].
+      Check on the robot: Square from near the GARDEN ends at that pose and scores 3–4 of 4.
+      [mentor, 4–5 Nov]
+
+## 7e. Blue alliance (never run on blue yet; HIVE and FLOWERs on the blue side)
+
+Everything blue is red turned half a turn about the field centre, in code and unit-tested
+(`LaunchSpotsTest.blueIsRedTurnedHalfATurn`, `NectarRejectTest`), but no robot has run it.
+
+- [ ] **The alliance reads BLUE before PLAY.** Basic Drive with no Auto before it **defaults to
+      red** ("RED (default)" on the Match page) unless vision proposes blue or someone presses B.
+      The NECTAR reject takes the alliance at PLAY, so a blue robot left on the red default spits
+      out **our own** NECTAR and keeps the red. **Good:** "BLUE (vision)" or "BLUE" after B, every
+      time; the drive team checks it before PLAY. **Stop:** vision proposes red on the blue side →
+      save the log.
+- [ ] **NECTAR reject on blue:** intake a red NECTAR → it is spat out; a blue NECTAR and POLLEN →
+      kept. **Good:** both, three times each.
+- [ ] **Square on blue, each spot once:** from near each blue spot, hold Square. **Good:** it drives
+      to the blue mirror of the red spot, faces the blue CELL it serves, and the volley scores.
+      **Stop:** it goes to the wrong half or faces away → note the pose; never across the centre
+      line (it refuses there).
+- [ ] **Corner reset on blue** (the reset corners are measured on red and turned): hold the reset
+      button at a blue corner. **Good:** the pose on the Robot page matches the corner, field-centric
+      forward is right.
+- [ ] **One Auto on blue** (R-Solo from blue's audience start). **Good:** it mirrors the red run.
 
 ## 8. If time: anyone, no driving
 
