@@ -7,7 +7,9 @@ import static org.junit.Assert.fail;
 
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.PartnerRLaunchParkAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.PartnerRBrokenDownAuto;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -21,8 +23,9 @@ import java.util.Set;
 
 /**
  * Every Auto's simulation request ({@code TeamCode/sim-requests/<name>.json}) is one the "Simulate Auto"
- * workflow can run: it belongs to an Auto we run, names a generated class and a robot design the simulator
- * knows, and each {@code partners} entry names a stand-in from {@code TeamCode/autos/partners/} (the curated
+ * workflow can run: it previews an Auto we run, a draft or a partner stand-in, names a generated class
+ * and a robot design the simulator knows, and each {@code partners} entry names a stand-in from
+ * {@code TeamCode/autos/partners/} (the curated
  * set the mentor picks per Auto, 3 Nov 2026). A typo would otherwise fail only in the workflow, after the
  * save. The format is {@link SimRunTest}'s, and each request must read as {@link SimRunTest#entries} reads it.
  *
@@ -30,6 +33,9 @@ import java.util.Set;
  * and how it fails ({@code fails}), read and checked, and what the simulator derives from the last shot.
  */
 public class SimRequestsTest {
+
+    @Rule
+    public TemporaryFolder temporary = new TemporaryFolder();
 
     @Test
     @SuppressWarnings("unchecked")
@@ -54,15 +60,9 @@ public class SimRequestsTest {
                 problems.add(file.getName() + ": not JSON (" + e.getMessage() + ")");
                 continue;
             }
-            // The request is the Auto's own: its .pp beside it in TeamCode/autos/ (or drafts/), under the same name.
+            // A stand-in's own request previews it alone after a Visualizer edit; it needs no OpMode.
+            checkSource(problems, file, request.get("pp"), autos);
             boolean draft = new File(drafts, name + ".pp").isFile();
-            String folder = draft ? "TeamCode/autos/drafts/" : "TeamCode/autos/";
-            if (!(folder + name + ".pp").equals(request.get("pp"))) {
-                problems.add(file.getName() + ": pp should be " + folder + name + ".pp, not " + request.get("pp"));
-            }
-            if (!draft && !new File(autos, name + ".pp").isFile()) {
-                problems.add(file.getName() + ": there is no TeamCode/autos/" + name + ".pp; a request belongs to an Auto we run");
-            }
             String spec = (String) request.get("spec");
             if (spec == null || spec.isEmpty()) {
                 problems.add(file.getName() + ": no spec");
@@ -116,6 +116,67 @@ public class SimRequestsTest {
             }
         }
         if (!problems.isEmpty()) fail(String.join("\n", problems));
+    }
+
+    /** The request names its own existing source in one of the Visualizer's three Auto folders. */
+    private static void checkSource(List<String> problems, File request, Object pp, File autos) {
+        String name = request.getName().substring(0, request.getName().length() - ".json".length());
+        for (String folder : new String[] {"", "drafts/", "partners/"}) {
+            String relative = folder + name + ".pp";
+            String path = "TeamCode/autos/" + relative;
+            if (path.equals(pp)) {
+                if (!new File(autos, relative).isFile()) {
+                    problems.add(request.getName() + ": there is no " + path);
+                }
+                return;
+            }
+        }
+        problems.add(request.getName() + ": pp must name " + name
+                + ".pp in TeamCode/autos/, drafts/ or partners/, not " + pp);
+    }
+
+    @Test
+    public void partnerStandInCanBePreviewedAlone() throws Exception {
+        File file = new File("partner-push-start.json");
+        Map<String, Object> request = entry("pp", "TeamCode/autos/partners/partner-push-start.pp",
+                "spec", "PartnerPushStartAuto", "design", RobotDesign.REAL);
+        List<String> problems = new ArrayList<>();
+        checkSource(problems, file, request.get("pp"), new File(TeamCodeDir.get(), "autos"));
+        assertTrue(problems.toString(), problems.isEmpty());
+        assertTrue(generatedExists((String) request.get("spec")));
+        List<SimRunTest.Entry> runs = SimRunTest.entries(request);
+        assertEquals(1, runs.size());
+        assertEquals("PartnerPushStartAuto", runs.get(0).spec);
+        assertEquals("alone", runs.get(0).name);
+        assertNull(runs.get(0).partner);
+    }
+
+    @Test
+    public void requestUsesItsExplicitSourceFolderEvenWhenNamesOverlap() throws Exception {
+        File autos = temporary.newFolder("autos");
+        for (String folder : new String[] {"", "drafts/", "partners/"}) {
+            File source = new File(autos, folder + "example.pp");
+            source.getParentFile().mkdirs();
+            assertTrue(source.createNewFile());
+            List<String> problems = new ArrayList<>();
+            checkSource(problems, new File("example.json"), "TeamCode/autos/" + folder + "example.pp", autos);
+            assertTrue(problems.toString(), problems.isEmpty());
+        }
+    }
+
+    @Test
+    public void requestStillRejectsMissingMisnamedAndUnsupportedSources() throws Exception {
+        File autos = temporary.newFolder("autos");
+        File partners = new File(autos, "partners");
+        assertTrue(partners.mkdir());
+        assertTrue(new File(partners, "example.pp").createNewFile());
+        for (String pp : new String[] {"TeamCode/autos/example.pp", "TeamCode/autos/drafts/example.pp",
+                "TeamCode/autos/partners/other.pp", "TeamCode/autos/unknown/example.pp",
+                "TeamCode/autos/partners/../partners/example.pp", null}) {
+            List<String> problems = new ArrayList<>();
+            checkSource(problems, new File("example.json"), pp, autos);
+            assertEquals("Should reject " + pp + ": " + problems, 1, problems.size());
+        }
     }
 
     private static Map<String, Object> entry(Object... kv) {
