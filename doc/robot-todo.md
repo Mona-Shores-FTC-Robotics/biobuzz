@@ -374,9 +374,16 @@ measurement is [#255].
 
 ## 7. 19429, if it is at the lab
 
-- [ ] **Bring-up, in #175's order:** Check: Hardware, Drive Motor Check (lifted), Mecanum, Pinpoint
-      and Foresight tuners pasted into `Robot19429.java`, Tests procedure, Loop Time Baseline.
-      **Good:** path Autos no longer stop at INIT on Foresight. [#175], [S2 §8]
+- [ ] **Bring-up, in #175's order:** Check: Hardware, Drive Motor Check (lifted), Tests procedure,
+      Loop Time Baseline. `Robot19429.java` holds **20245's Pedro values, copied 5 Nov** (motor
+      directions, pod offsets, Foresight), so 19429 runs the Autos and Square from the first load.
+      **Good:** Basic Drive goes where the stick says (a wrong motor direction is the first thing a
+      copy gets wrong: run the Mecanum tuner and paste it), and R-Solo follows its first path.
+      [#175], [S2 §8]
+- [ ] **Then tune 19429 for real, as soon as there is time:** Pinpoint tuner and Measure: Pod
+      Offsets, then the Foresight Tuner, each pasted over its "copied from 20245" block in
+      `Robot19429.java`. **Good:** each block's comment says it was measured on 19429. Until then,
+      a path that drifts or overshoots on 19429 but not on 20245 is this, not the Auto.
 - [ ] **Anything 19429 does differently** from 20245 (a motor turning the other way, a servo
       position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
       was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.
