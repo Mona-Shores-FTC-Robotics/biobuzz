@@ -12,19 +12,25 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 
 | Auto | Open it |
 |---|---|
-| L-Partner | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/l-partner.pp> |
+| L-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/l-no-cross.pp> |
 | R-Solo | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo.pp> |
-| R-Partner-Tip | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-partner-tip.pp> |
-| R-Partner-Preload | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-partner-preload.pp> |
-| R-Solo-Staging | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo-staging.pp> |
+| R-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-no-cross.pp> |
+
+The Belding work order is **L-NoCross, R-NoCross, R-Solo-Nudge, then the
+L-Infraviolet / R-Infraviolet three-TIP pair**. R-Solo stays the existing reference.
+L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
+those routines: their paths, waits and fallback behavior have not been tuned yet.
+In particular, L-NoCross's existing no-TIP fallback still crosses to RIGHT; replace
+that in the Visualizer before qualifying it as a true no-cross routine. R-NoCross's
+CELL-up timeout also still proceeds to launch. See `doc/robot-todo.md` for the checks.
 
 Inside the Visualizer, the same list is **View → Team Autos: the latest from biobuzz, together…**
 (pick a branch, tick up to four Autos, Reload latest). A pull request's draft opens with its branch
 in the link: `#team=auto/r-solo/r-solo.pp`.
 
 **Drafts** (`drafts/`, Autos with no OpMode yet) are listed in Team Autos under their own heading, and
-open beside a partner stand-in the same way: R-Solo-Push with its pushed partner is
-<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-push.pp,partners/partner-push-start.pp>.
+open beside a partner stand-in the same way: R-Solo-Nudge with its pushed partner is
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-nudge.pp,partners/partner-push-start.pp>.
 Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `drafts/`, and the fast
 lane takes a `.pp` in `drafts/` or `partners/` (Visualizer
 [#67](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/pull/67) lists the drafts).
@@ -64,10 +70,15 @@ and Java on an `auto/<name>` branch when back online.
 
 ## The bench
 
-Everything that is not one of the Autos we run lives on the `autos-experiment` branch (its
-`BENCH.md` says what is there): the Autos from before and earlier experiments. So the Team Autos
-list on `master` is exactly the Driver Station's list. To work on a benched Auto, open it from that
-branch; to bring one back, say so and it comes over on an `auto/<name>` branch.
+R-Partner-Preload and R-Solo-Staging are on `autos-experiment`, with their latest
+drawings, generated Java, OpModes and simulation requests preserved. They have no
+files or selectable OpModes in the active lineup. See [BENCH.md](BENCH.md) for the
+reasons, exact snapshot and links to reopen them. Earlier experiments remain on that
+branch as well. To bring one back, promote its files in a normal PR; adding a drawing
+alone does not register it on the Driver Station.
+
+Drafts remain separate: no OpMode until we deliberately prepare one for a robot test.
+The Team Autos top-level list therefore matches the Driver Station's competition Autos.
 
 ## Partner stand-ins (`partners/`)
 
@@ -87,7 +98,7 @@ accepts a `SOURCE` here as it does in the folder itself.
 | `partner-park-1`, `partner-park-2` | Sits on the left start until 15 s, then parks (two different starts and park spots). |
 | `partner-r-launch-park`, `partner-l-launch-park` | Spins up, waits for its own CELL to be up (at most 12 s), fires all four preloads at it, parks. The right CELL is up at the start, so the right one fires at once; the left one fires once our first TIP raises the left CELL. |
 | `partner-l-tip-park` | The left launch-park, then the scoring FLOWER, four more at the left CELL (eight pieces: a TIP), then parks. |
-| `partner-push-start` | A partner with no Auto that we push: back on our alliance wall, centred on tile A4 just south of the LOADING ZONE, facing the field (`PARTNER_PUSH_START`, 8.1, 82.5, a spot of its own until it earns a team spot), and never moves. Its runs set `"pushable": true`, so our robot moves it instead of colliding (`AutoSim.pushable`). Used by the draft `drafts/r-solo-push` (4 Nov 2026). |
+| `partner-push-start` | A motionless partner that we push. Its current drawing starts at `PARTNER_PUSH_START` (10.5, 84, heading 80°), edited after the original push draft. Open it beside `drafts/r-solo-nudge` and reconcile contact geometry before testing. Its runs set `"pushable": true`, so our robot moves it instead of colliding (`AutoSim.pushable`). |
 | `partner-l-stage-park` | Starts against the wall facing the HIVE with its four POLLEN on the tiles along its left side (the simulator places them, `AutoStudyTest.alongLeftSide`, touching the frame as G304 asks), waits 2 s, drives off along the wall and parks, leaving them. |
 
 A stand-in is drawn and exported like any Auto (Visualizer, or `node scripts/export-auto.mjs`
@@ -113,12 +124,10 @@ they said" and "breaks down partway" are not modelled (mentor, 3 Nov 2026). The 
 
 | Auto | Alone | On time | Missing | Dead |
 |---|---|---|---|---|
-| L-Partner | yes | `partner-r-launch-park`, last shot at 2, 5, 8 and 12 s: our partner wait runs to 6, 9, 12 and 16 s | the same, said 8 s | `partner-r-broken-down`, said 8 s: we wait to 12 s, then take the Otherwise branch |
-| R-Partner-Preload | yes | `partner-l-launch-park`, last shot at 6 and 10 s; `partner-still` (out of the way) | the same, said 6 s | `partner-l-broken-down` |
-| R-Partner-Tip | yes | `partner-l-tip-park` at 50 in/s; `partner-still` (out of the way) | the same | `partner-l-broken-down` |
+| L-NoCross | yes | `partner-r-launch-park`, last shot at 2, 5, 8 and 12 s: our partner wait runs to 6, 9, 12 and 16 s | the same, said 8 s | `partner-r-broken-down`, said 8 s: we wait to 12 s, then take the Otherwise branch |
+| R-NoCross | yes | `partner-l-tip-park` at 50 in/s; `partner-still` (out of the way) | the same | `partner-l-broken-down` |
 | R-Solo | yes | `partner-park-1` (no launches), `partner-still` (out of the way) | | `partner-l-broken-down` |
-| R-Solo-Staging | yes | `partner-l-stage-park` (see the note below) | | |
-| R-Solo-Push (draft, `drafts/`) | yes | `partner-push-start`, pushable: pushed off the wall into the LOADING ZONE | | |
+| R-Solo-Nudge (draft, `drafts/`) | yes | `partner-push-start`, pushable: pushed off the wall into the LOADING ZONE | | |
 
 **The results table** in the workflow's job summary has a row per seed of each run: points, our
 launches and the partner's (and how many went at a down CELL), the TIPs, **the partner's last shot
@@ -129,7 +138,7 @@ and who parked. For an Auto with a partner wait, a run's name ends with the seco
   start, so `partner-r-launch-park`'s last shot lands where `lastShotS` says. The left one waits
   for its CELL (our TIP raises it), so its last shot comes no sooner than that: the "Partner's
   last shot" column says when it did.
-- **L-Partner's dead-partner run collides.** Its Otherwise branch drives to `RIGHT_LAUNCH_CATCH`,
+- **L-NoCross's dead-partner run collides.** Its Otherwise branch drives to `RIGHT_LAUNCH_CATCH`,
   10 in in front of `RIGHT_START`, where a dead partner sits; the mentor kept that spot for now
   (3 Nov 2026), and a "Right CELL up?" check before that launch is shelved until the basics work.
 - **The raw knobs are an override for studies.** An entry's `"timing"` is four knobs, each
@@ -154,14 +163,6 @@ partner for, and which partner states get simulated, is in `doc/partner-timing.m
 
 **The Visualizer's Save & Simulate must keep `partners` and `partnerSeeds`** when it rewrites the
 request (it writes the rest from its dialog): the curation lives in the request, nowhere else.
-
-**R-Solo-Staging needs a Visualizer pass.** A wall-touching left partner's row of POLLEN lies at
-y 129 to 138 (16.2 in frame, 1.4 in POLLEN), and `partner-l-stage-park` leaves it at x 44.5 for
-the intake of a robot at `PARTNER_STAGED_POLLEN` (36, 124, facing 0) to reach. The simulator keeps
-the row where the partner left it until our own robot arrives at `LEFT_LAUNCH_OFFSET` (41, 121.5),
-whose footprint covers the whole intake zone of `PARTNER_STAGED_POLLEN` and sweeps the row away
-before we come for it. Either spot has to move (toward y 133 for the collect, or the launch away
-from the row) before this run means anything; the result shows the sweep (3 Nov 2026).
 
 ## Team spots (`spots.json`)
 
@@ -262,14 +263,14 @@ A Wait step's **Otherwise** steps run only if the wait times out. Its **then** p
 after them:
 
 - **go on with the steps below**: the robot carries on with the steps under the wait, as if the
-  TIP had come (L-Partner: back to `LEFT_LAUNCH_CATCH`, then the rest of the plan).
+  TIP had come (L-NoCross: back to `LEFT_LAUNCH_CATCH`, then the rest of the plan).
 - **park**: the Otherwise ends with its own Park step, and the steps under the wait run only when
   the TIP comes. In the `.pp` and the Java the wait is then the Auto's last step, each of its two
   outcomes holding the rest of its own route.
 
 Either way, every drive in an Otherwise has a park path from its spot (P on the step), as the
 main list's drives do, so a guard that parks early parks from where the robot is. A long one may
-need a bend: L-Partner's park from `RIGHT_LAUNCH_CATCH` bends west of the Red HIVE.
+need a bend: L-NoCross's park from `RIGHT_LAUNCH_CATCH` bends west of the Red HIVE.
 
 ## Changing an Auto at the field (INIT options)
 
@@ -285,7 +286,7 @@ A partner tells us in the queue when they shoot. The drive team enters it in INI
   as drawn and amber once changed; PLAY locks them, and the match log records them
   (`AutoOptions`).
 - **The park: agree it in the queue, don't switch it.** Each Auto parks on its own side's spot
-  (R- Autos `RIGHT_PARK`, L-Partner `LEFT_PARK`); if a partner's Auto parks there, ask them to
+  (R- Autos `RIGHT_PARK`, L-NoCross `LEFT_PARK`); if a partner's Auto parks there, ask them to
   take the other. The INIT park choice exists but no Auto offers it (mentor, 3 Nov 2026): the two
   spots are 21.7 in apart on one wall, two parked robots have about 3.7 in between them, and a
   route to the other spot passes the partner sitting on ours (R-Solo's went within 3 to 8 in of
@@ -299,7 +300,7 @@ A partner tells us in the queue when they shoot. The drive team enters it in INI
   (4 s, `partnerTipLagS` below) after it: the shot's flight, the dwell, the swing and the camera
   settling, 1.5 to 5 s in the simulator's model. The page shows both numbers, never only the sum:
   "partner's last shot ▲▼ 8 s, waiting until 12 s" (mentor, 3 Nov 2026).
-- Today: L-Partner offers the partner's last shot (drawn: wait until 8 s, which reads as a last
+- Today: L-NoCross offers the partner's last shot (drawn: wait until 8 s, which reads as a last
   shot at 4 s). No Auto offers another park.
 
 ## Timing: two sets of numbers
@@ -348,7 +349,7 @@ they came from.
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
     lane latched full 0.44 s after its last spike, 1.43 s in.
   - `tipStartS` 1.0: the two TIPs our own preload volleys made on 3 Nov 2026 (R-Solo 17:59,
-    R-Partner-Tip 18:06; 3 NECTAR plus four POLLEN, as `startLoad` and `tipLoad` say). The camera
+    R-NoCross 18:06; 3 NECTAR plus four POLLEN, as `startLoad` and `tipLoad` say). The camera
     first read TRANSITION 0.91 and 1.08 s after the LaunchAll ended (its gate closed), which was
     1.9 to 2.8 s after the last ball left. The camera sees a swing late, so this errs late. The
     17:59 TIP was confirmed: the camera saw the left CELL up at `LEFT_LAUNCH_OFFSET`.
@@ -358,7 +359,7 @@ they came from.
     (about 0.6 s), the dwell before the rocker moves (0.25 to 3.4 s, `FieldSim.FILMED_TIP_DWELL_SECONDS`),
     the swing (0.58 to 1.12 s, `FILMED_TIP_SECONDS`) and the camera settling; 1.5 to 5 s in all, and 4
     covers all but the longest dwells. The partner wait ends this long after the last shot the driver
-    enters. In the 3 Nov 2026 simulations of L-Partner with four preloads on top of the starting
+    enters. In the 3 Nov 2026 simulations of L-NoCross with four preloads on top of the starting
     NECTAR it came out 0.7 to 1.2 s (a heavy load dwells little). A match log replaces it.
 - **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop
   until it is copied in. Unknown facts are dropped when it loads.

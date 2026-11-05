@@ -186,7 +186,7 @@ public class SimRequestsTest {
     }
 
     private static List<SimRunTest.Entry> entries(Map<String, Object> partner) throws Exception {
-        Map<String, Object> request = entry("spec", "LPartnerAuto@50", "partners", new ArrayList<Object>(Arrays.asList(partner)));
+        Map<String, Object> request = entry("spec", "LNoCrossAuto@50", "partners", new ArrayList<Object>(Arrays.asList(partner)));
         return SimRunTest.entries(request);
     }
 

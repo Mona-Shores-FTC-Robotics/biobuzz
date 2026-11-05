@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/l-partner.pp",
-  "spec": "LPartnerAuto",
+  "pp": "TeamCode/autos/l-no-cross.pp",
+  "spec": "LNoCrossAuto",
   "design": "real robot, turret locked forward, POLLEN only",
   "seeds": [
     1,
@@ -56,7 +56,7 @@
     }
   ],
   "metadata": {
-    "AutoSource": "l-partner.pp",
+    "AutoSource": "l-no-cross.pp",
     "SavedBy": "dustinhans",
     "SavedAt": "2026-11-03T08:19:15.770Z"
   }

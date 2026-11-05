@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/drafts/r-solo-push.pp",
-  "spec": "RSoloPushAuto@50",
+  "pp": "TeamCode/autos/drafts/r-solo-nudge.pp",
+  "spec": "RSoloNudgeAuto@50",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -32,7 +32,7 @@
     }
   ],
   "metadata": {
-    "AutoSource": "drafts/r-solo-push.pp",
+    "AutoSource": "drafts/r-solo-nudge.pp",
     "SavedBy": "draft (Claude, 4 Nov 2026, for the mentor): R-Solo with a no-Auto partner pushed off the wall into the LOADING ZONE",
     "SavedAt": "2026-11-04T13:45:00+00:00"
   }

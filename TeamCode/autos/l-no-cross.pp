@@ -1,17 +1,17 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-04T05:52:32.069Z",
+  "timestamp": "2026-11-03T21:11:00.365Z",
   "startPoint": {
-    "x": 55.6,
-    "y": 7.7,
+    "x": 62.3,
+    "y": 133.8,
     "locked": false,
-    "headingDeg": 90
+    "headingDeg": 270
   },
   "lines": [
     {
-      "id": "line-mw1kq24q-6xs44o",
-      "color": "#e15759",
-      "name": "to PARTNER_STAGED_POLLEN",
+      "id": "line-mw0c4s2s-i6yeu6",
+      "color": "#76b7b2",
+      "name": "to LEFT_LAUNCH_CATCH",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -19,33 +19,20 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 25.6,
-        "y": 130.8
+        "x": 57.5,
+        "y": 123.5
       },
-      "controlPoints": [
-        {
-          "x": 6.095304315387441,
-          "y": 28.99428650368262
-        },
-        {
-          "x": 55.50418677876014,
-          "y": 127.40819476566848
-        },
-        {
-          "x": 23.797594391723326,
-          "y": 119.60003162995552
-        }
-      ],
+      "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
-        "endDeg": 95
+        "startDeg": 270,
+        "endDeg": 273.4
       }
     },
     {
-      "id": "line-mw1l098q-w9e74j",
-      "color": "#edc948",
-      "name": "PARTNER_STAGED_POLLEN park",
+      "id": "line-mw0c4s32-8noomj",
+      "color": "#9c755f",
+      "name": "LEFT_LAUNCH_CATCH park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -54,12 +41,12 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 117.4
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
+        "startDeg": 273.4,
         "endDeg": 0
       }
     },
@@ -69,19 +56,19 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 25.6,
-        "y": 130.8
+        "x": 57.5,
+        "y": 123.5
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 95
+        "degrees": 273.4
       }
     },
     {
-      "id": "line-mw1kwwzp-u5won0",
-      "color": "#f28e2b",
-      "name": "to LEFT_LAUNCH_OFFSET",
+      "id": "line-mw0eq8bt-go9gl6",
+      "color": "#b07aa1",
+      "name": "to RIGHT_LAUNCH_CATCH",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -89,36 +76,50 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 41,
-        "y": 121.5
+        "x": 57.5,
+        "y": 18
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 64.16238168192905,
+          "y": 98.66088586504156
+        },
+        {
+          "x": 64.46521280206034,
+          "y": 42.58298555377207
+        }
+      ],
       "heading": {
         "type": "linear",
-        "startDeg": 95,
-        "endDeg": 296.4
+        "startDeg": 273.4,
+        "endDeg": 91.9
       }
     },
     {
-      "id": "line-mw1l098r-2b3tpk",
-      "color": "#9c755f",
-      "name": "LEFT_LAUNCH_OFFSET park",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
       "kind": "atomic",
+      "id": "line-mw0rkae5-kh7tv8",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 117.4
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 28,
+          "y": 25
+        }
+      ],
       "heading": {
         "type": "linear",
-        "startDeg": 296.4,
+        "startDeg": 91.9,
         "endDeg": 0
-      }
+      },
+      "color": "#4e79a7",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "name": "RIGHT_LAUNCH_CATCH park"
     },
     {
       "id": "link-2",
@@ -126,96 +127,18 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 41,
-        "y": 121.5
+        "x": 57.5,
+        "y": 18
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -63.60000000000002
+        "degrees": 451.9
       }
     },
     {
-      "id": "line-mw1ky48f-01obl5",
-      "color": "#76b7b2",
-      "name": "to SCORING_FLOWER_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.2,
-        "y": 119.3
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 296.4,
-        "endDeg": 90
-      }
-    },
-    {
-      "id": "line-mw1l098r-z98xox",
-      "color": "#b07aa1",
-      "name": "SCORING_FLOWER_STAGING park",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 95.7
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-3",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.2,
-        "y": 119.3
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 450
-      }
-    },
-    {
-      "id": "line-mw1kynq0-8ug1w0",
-      "color": "#4e79a7",
-      "name": "to LEFT_LAUNCH_OFFSET",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 41,
-        "y": 121.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 296.4
-      }
-    },
-    {
-      "id": "line-mw1kyyg8-zj0zuu",
-      "color": "#f28e2b",
+      "id": "line-mw0eyliu-i7tra3",
+      "color": "#9c755f",
       "name": "to WALL_FLOWER_STAGING",
       "locked": false,
       "waitBeforeMs": 0,
@@ -230,33 +153,33 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 296.4,
+        "startDeg": 91.9,
         "endDeg": 180
       }
     },
     {
-      "id": "line-mw1l098r-neryp0",
-      "color": "#b07aa1",
-      "name": "WALL_FLOWER_STAGING park",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
       "kind": "atomic",
+      "id": "line-mw0rkae5-9j07qg",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 117.4
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 180,
         "endDeg": 0
-      }
+      },
+      "color": "#76b7b2",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "name": "WALL_FLOWER_STAGING park"
     },
     {
-      "id": "link-4",
+      "id": "link-3",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -267,91 +190,13 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 180
+        "degrees": 180.00000000000003
       }
     },
     {
-      "id": "line-mw1kzjp7-a3nh49",
-      "color": "#e15759",
-      "name": "to RIGHT_LAUNCH_OFFSET",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 41,
-        "y": 20
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 180,
-        "endDeg": 68.7
-      }
-    },
-    {
-      "id": "line-mw1l098r-fwj7dl",
-      "color": "#59a14f",
-      "name": "RIGHT_LAUNCH_OFFSET park",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 95.7
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 68.7,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-5",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 41,
-        "y": 20
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 68.69999999999999
-      }
-    },
-    {
-      "id": "line-mw1kzrip-bertum",
-      "color": "#b07aa1",
-      "name": "to GARDEN_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 11.5,
-        "y": 22.1
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 68.7,
-        "endDeg": 270
-      }
-    },
-    {
-      "id": "line-mw1l098r-kqt6qg",
+      "id": "line-mw0f0i5g-sowt7p",
       "color": "#76b7b2",
-      "name": "GARDEN_STAGING park",
+      "name": "to LEFT_LAUNCH_CATCH",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -359,40 +204,25 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 95.7
+        "x": 57.5,
+        "y": 123.5
       },
       "controlPoints": [
         {
-          "x": 40.00381679389313,
-          "y": 59.300057765970394
+          "x": 29.549335814058107,
+          "y": 123.70871893085217
         }
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 270,
-        "endDeg": 0
+        "startDeg": 180,
+        "endDeg": 273.4
       }
     },
     {
-      "id": "link-6",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 11.5,
-        "y": 22.1
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": -89.99999999999999
-      }
-    },
-    {
-      "id": "line-mw1l03pe-xnvqy0",
-      "color": "#b07aa1",
-      "name": "to RIGHT_LAUNCH_OFFSET",
+      "id": "line-mw0c4s2t-ne8h5h",
+      "color": "#f28e2b",
+      "name": "to SCORING_FLOWER_STAGING",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -400,20 +230,20 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 41,
-        "y": 20
+        "x": 47.2,
+        "y": 119.3
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 270,
-        "endDeg": 68.7
+        "startDeg": 273.4,
+        "endDeg": 90
       }
     },
     {
-      "id": "line-mw1l098p-xbfuif",
-      "color": "#b07aa1",
-      "name": "to RIGHT_PARK",
+      "id": "line-mw0c4s32-ave4gg",
+      "color": "#e15759",
+      "name": "SCORING_FLOWER_STAGING park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -422,12 +252,69 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 117.4
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 68.7,
+        "startDeg": 90,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-4",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.2,
+        "y": 119.3
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 450
+      }
+    },
+    {
+      "id": "line-mw0c4s2t-m8fs6x",
+      "color": "#f28e2b",
+      "name": "to LEFT_LAUNCH_CATCH",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 123.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 273.4
+      }
+    },
+    {
+      "id": "line-mw0c4s2u-8wbzmf",
+      "color": "#9c755f",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 273.4,
         "endDeg": 0
       }
     }
@@ -597,11 +484,11 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "line-mw1kq24q-6xs44o"
+      "lineId": "line-mw0c4s2s-i6yeu6"
     },
     {
       "kind": "path",
-      "lineId": "line-mw1l098q-w9e74j"
+      "lineId": "line-mw0c4s32-8noomj"
     },
     {
       "kind": "path",
@@ -609,11 +496,11 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mw1kwwzp-u5won0"
+      "lineId": "line-mw0eq8bt-go9gl6"
     },
     {
       "kind": "path",
-      "lineId": "line-mw1l098r-2b3tpk"
+      "lineId": "line-mw0rkae5-kh7tv8"
     },
     {
       "kind": "path",
@@ -621,11 +508,11 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mw1ky48f-01obl5"
+      "lineId": "line-mw0eyliu-i7tra3"
     },
     {
       "kind": "path",
-      "lineId": "line-mw1l098r-z98xox"
+      "lineId": "line-mw0rkae5-9j07qg"
     },
     {
       "kind": "path",
@@ -633,15 +520,15 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mw1kynq0-8ug1w0"
+      "lineId": "line-mw0f0i5g-sowt7p"
     },
     {
       "kind": "path",
-      "lineId": "line-mw1kyyg8-zj0zuu"
+      "lineId": "line-mw0c4s2t-ne8h5h"
     },
     {
       "kind": "path",
-      "lineId": "line-mw1l098r-neryp0"
+      "lineId": "line-mw0c4s32-ave4gg"
     },
     {
       "kind": "path",
@@ -649,35 +536,11 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mw1kzjp7-a3nh49"
+      "lineId": "line-mw0c4s2t-m8fs6x"
     },
     {
       "kind": "path",
-      "lineId": "line-mw1l098r-fwj7dl"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-5"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-mw1kzrip-bertum"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-mw1l098r-kqt6qg"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-6"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-mw1l03pe-xnvqy0"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-mw1l098p-xbfuif"
+      "lineId": "line-mw0c4s2u-8wbzmf"
     }
   ],
   "fieldPoints": [],
@@ -721,9 +584,9 @@
         "IntakeFull",
         "LeftCellUp",
         "RightCellUp",
+        "CellUp",
         "Tip",
-        "CameraBlind",
-        "CellUp"
+        "CameraBlind"
       ],
       "events": [
         "Tip"
@@ -737,25 +600,10 @@
       }
     },
     "points": {
-      "RIGHT_START": [
-        55.6,
-        7.7,
-        90
-      ],
-      "WALL_FLOWER_STAGING": [
-        23.1,
-        47.2,
-        180
-      ],
-      "LEFT_LAUNCH_OFFSET": [
-        41,
-        121.5,
-        296.4
-      ],
-      "PARTNER_STAGED_POLLEN": [
-        25.6,
-        130.8,
-        95
+      "LEFT_START": [
+        62.3,
+        133.8,
+        270
       ],
       "LEFT_LAUNCH_CATCH": [
         57.5,
@@ -767,178 +615,160 @@
         119.3,
         90
       ],
+      "LEFT_PARK": [
+        14.5,
+        117.4,
+        0
+      ],
       "RIGHT_LAUNCH_CATCH": [
         57.5,
         18,
         91.9
       ],
-      "RIGHT_PARK": [
-        14.5,
-        95.7,
-        0
+      "WALL_FLOWER_STAGING": [
+        23.1,
+        47.2,
+        180
       ],
-      "RIGHT_LAUNCH_OFFSET": [
+      "LEFT_LAUNCH_OFFSET": [
         41,
-        20,
-        68.7
-      ],
-      "GARDEN_STAGING": [
-        11.5,
-        22.1,
-        270
+        121.5,
+        296.4
       ]
     },
     "pathEnds": {
-      "line-mw1kq24q-6xs44o": "PARTNER_STAGED_POLLEN",
-      "line-mw1kwwzp-u5won0": "LEFT_LAUNCH_OFFSET",
-      "line-mw1ky48f-01obl5": "SCORING_FLOWER_STAGING",
-      "line-mw1kynq0-8ug1w0": "LEFT_LAUNCH_OFFSET",
-      "line-mw1kyyg8-zj0zuu": "WALL_FLOWER_STAGING",
-      "line-mw1kzjp7-a3nh49": "RIGHT_LAUNCH_OFFSET",
-      "line-mw1kzrip-bertum": "GARDEN_STAGING",
-      "line-mw1l03pe-xnvqy0": "RIGHT_LAUNCH_OFFSET",
-      "line-mw1l098p-xbfuif": "RIGHT_PARK",
-      "line-mw1l098q-w9e74j": "RIGHT_PARK",
-      "line-mw1l098r-2b3tpk": "RIGHT_PARK",
-      "line-mw1l098r-z98xox": "RIGHT_PARK",
-      "line-mw1l098r-neryp0": "RIGHT_PARK",
-      "line-mw1l098r-fwj7dl": "RIGHT_PARK",
-      "line-mw1l098r-kqt6qg": "RIGHT_PARK"
+      "line-mw0c4s2s-i6yeu6": "LEFT_LAUNCH_CATCH",
+      "line-mw0c4s2t-ne8h5h": "SCORING_FLOWER_STAGING",
+      "line-mw0c4s2t-m8fs6x": "LEFT_LAUNCH_CATCH",
+      "line-mw0c4s2u-8wbzmf": "LEFT_PARK",
+      "line-mw0c4s32-8noomj": "LEFT_PARK",
+      "line-mw0c4s32-ave4gg": "LEFT_PARK",
+      "line-mw0eq8bt-go9gl6": "RIGHT_LAUNCH_CATCH",
+      "line-mw0eyliu-i7tra3": "WALL_FLOWER_STAGING",
+      "line-mw0f0i5g-sowt7p": "LEFT_LAUNCH_CATCH",
+      "line-mw0rkae5-kh7tv8": "LEFT_PARK",
+      "line-mw0rkae5-9j07qg": "LEFT_PARK"
     },
     "cards": [
       {
-        "id": "c-mw0be8jx-53efh",
+        "id": "c-mw0c4s2r-jo6tm",
         "kind": "action",
         "name": "SpinUp"
       },
       {
-        "id": "c-mw0be8jy-muq7y",
+        "id": "c-mw0c4s2s-oo8yq",
+        "kind": "path",
+        "lineId": "line-mw0c4s2s-i6yeu6",
+        "park": false
+      },
+      {
+        "id": "c-mw0c4s2s-ptffv",
+        "kind": "firstOf",
+        "label": "Wait for TIP or CELL up",
+        "rows": [
+          {
+            "when": [
+              "CellUp"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 8000,
+            "matchClock": true,
+            "adjustable": true,
+            "cards": [
+              {
+                "id": "c-mw0eq8bt-2vuzy",
+                "kind": "path",
+                "lineId": "line-mw0eq8bt-go9gl6",
+                "park": false
+              },
+              {
+                "id": "c-mw0eygqv-43e96",
+                "kind": "action",
+                "name": "LaunchAll"
+              },
+              {
+                "id": "c-mw0eyliu-eojd4",
+                "kind": "path",
+                "lineId": "line-mw0eyliu-i7tra3",
+                "park": false
+              },
+              {
+                "id": "c-mw0eypgg-196uj",
+                "kind": "action",
+                "name": "PickFlower",
+                "timeoutS": 8
+              },
+              {
+                "id": "c-mw0f0i5g-qi1es",
+                "kind": "path",
+                "lineId": "line-mw0f0i5g-sowt7p",
+                "park": false
+              }
+            ]
+          }
+        ],
+        "alongside": "SpinUp"
+      },
+      {
+        "id": "c-mw0c4s2t-8epji",
         "kind": "action",
         "name": "LaunchAll"
       },
       {
-        "id": "c-mw1kq24q-beqm8",
+        "id": "c-mw0c4s2t-jqsjs",
         "kind": "path",
-        "lineId": "line-mw1kq24q-6xs44o",
+        "lineId": "line-mw0c4s2t-ne8h5h",
         "park": false
       },
       {
-        "id": "c-mw1kwwzp-otch2",
-        "kind": "path",
-        "lineId": "line-mw1kwwzp-u5won0",
-        "park": false
-      },
-      {
-        "id": "c-mw1kwz0k-lyv2l",
-        "kind": "action",
-        "name": "LaunchAll"
-      },
-      {
-        "id": "c-mw1ky48f-sereh",
-        "kind": "path",
-        "lineId": "line-mw1ky48f-01obl5",
-        "park": false
-      },
-      {
-        "id": "c-mw1ky7v1-kfngu",
+        "id": "c-mw0c4s2t-sfdhk",
         "kind": "action",
         "name": "PickFlower",
         "timeoutS": 8
       },
       {
-        "id": "c-mw1kynq0-s6jld",
+        "id": "c-mw0c4s2t-lhsjw",
         "kind": "path",
-        "lineId": "line-mw1kynq0-8ug1w0",
+        "lineId": "line-mw0c4s2t-m8fs6x",
         "park": false
       },
       {
-        "id": "c-mw1kyrv3-8hp66",
+        "id": "c-mw0c4s2u-axth1",
         "kind": "action",
         "name": "LaunchAll"
       },
       {
-        "id": "c-mw1kyyg8-lu6q7",
+        "id": "c-mw0c4s2u-u2yl0",
         "kind": "path",
-        "lineId": "line-mw1kyyg8-zj0zuu",
-        "park": false
-      },
-      {
-        "id": "c-mw1kz0rz-rbck5",
-        "kind": "action",
-        "name": "PickFlower",
-        "timeoutS": 8
-      },
-      {
-        "id": "c-mw1kzjp7-d0065",
-        "kind": "path",
-        "lineId": "line-mw1kzjp7-a3nh49",
-        "park": false
-      },
-      {
-        "id": "c-mw1kzkzj-w8g4f",
-        "kind": "action",
-        "name": "LaunchAll"
-      },
-      {
-        "id": "c-mw1kzrip-81zie",
-        "kind": "path",
-        "lineId": "line-mw1kzrip-bertum",
-        "park": false
-      },
-      {
-        "id": "c-mw1kzvy8-9120c",
-        "kind": "action",
-        "name": "GardenGather",
-        "timeoutS": 8
-      },
-      {
-        "id": "c-mw1l03pe-ay8h3",
-        "kind": "path",
-        "lineId": "line-mw1l03pe-xnvqy0",
-        "park": false
-      },
-      {
-        "id": "c-mw1l0680-5t78r",
-        "kind": "action",
-        "name": "LaunchAll"
-      },
-      {
-        "id": "c-mw1l098p-6lat2",
-        "kind": "path",
-        "lineId": "line-mw1l098p-xbfuif",
+        "lineId": "line-mw0c4s2u-8wbzmf",
         "park": true
       }
     ],
-    "startAt": "RIGHT_START",
+    "startAt": "LEFT_START",
     "linkPaths": [
       "link-1",
       "link-2",
       "link-3",
-      "link-4",
-      "link-5",
-      "link-6"
+      "link-4"
     ],
     "parkFrom": {
-      "c-mw1kq24q-beqm8": "line-mw1l098q-w9e74j",
-      "c-mw1kwwzp-otch2": "line-mw1l098r-2b3tpk",
-      "c-mw1ky48f-sereh": "line-mw1l098r-z98xox",
-      "c-mw1kynq0-s6jld": "line-mw1l098r-2b3tpk",
-      "c-mw1kyyg8-lu6q7": "line-mw1l098r-neryp0",
-      "c-mw1kzjp7-d0065": "line-mw1l098r-fwj7dl",
-      "c-mw1kzrip-81zie": "line-mw1l098r-kqt6qg"
+      "c-mw0c4s2s-oo8yq": "line-mw0c4s32-8noomj",
+      "c-mw0c4s2t-jqsjs": "line-mw0c4s32-ave4gg",
+      "c-mw0eq8bt-2vuzy": "line-mw0rkae5-kh7tv8",
+      "c-mw0eyliu-eojd4": "line-mw0rkae5-9j07qg",
+      "c-mw0f0i5g-qi1es": "line-mw0c4s32-8noomj"
     },
     "teamSpots": [
-      "GARDEN_STAGING",
       "LEFT_LAUNCH_CATCH",
       "LEFT_LAUNCH_OFFSET",
-      "PARTNER_STAGED_POLLEN",
+      "LEFT_PARK",
+      "LEFT_START",
       "RIGHT_LAUNCH_CATCH",
-      "RIGHT_LAUNCH_OFFSET",
-      "RIGHT_PARK",
-      "RIGHT_START",
       "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"
     ],
-    "exportName": "R-Solo-Staging"
+    "exportName": "L-NoCross"
   }
 }

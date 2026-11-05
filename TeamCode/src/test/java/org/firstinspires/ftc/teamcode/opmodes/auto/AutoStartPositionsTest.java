@@ -5,11 +5,9 @@ import static org.junit.Assert.assertEquals;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LPartnerAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RPartnerPreloadAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RPartnerTipAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LNoCrossAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RNoCrossAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloStagingAuto;
 import org.junit.Test;
 
 /**
@@ -27,14 +25,12 @@ public class AutoStartPositionsTest {
     @Test
     public void theRightAutosStartAtTheRedAudienceStart() {
         assertStartsAt(StartPositions.RED_AUDIENCE.pose, RSoloAuto.startPose(false));
-        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RPartnerTipAuto.startPose(false));
-        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RPartnerPreloadAuto.startPose(false));
-        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RSoloStagingAuto.startPose(false));
+        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RNoCrossAuto.startPose(false));
     }
 
     @Test
     public void theLeftAutoStartsAtTheRedFarStart() {
-        assertStartsAt(StartPositions.RED_FAR.pose, LPartnerAuto.startPose(false));
+        assertStartsAt(StartPositions.RED_FAR.pose, LNoCrossAuto.startPose(false));
     }
 
     private static void assertStartsAt(Pose measured, Pose drawn) {

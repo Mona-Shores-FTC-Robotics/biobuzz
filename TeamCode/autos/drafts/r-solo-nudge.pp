@@ -576,6 +576,6 @@
       "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"
     ],
-    "exportName": "R-Solo-Push"
+    "exportName": "R-Solo-Nudge"
   }
 }
