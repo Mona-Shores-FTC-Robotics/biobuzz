@@ -172,4 +172,14 @@ public class IntakeSubsystemTest {
         assertFalse(IntakeSubsystem.rejects(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, true));
         assertFalse(IntakeSubsystem.rejects(IntakeSubsystem.State.IN, FeederSubsystem.State.REVERSE, true));
     }
+
+    @Test
+    public void aHoldOffStopsTakingInButNotAFeedAnEjectOrAnUnjam() {
+        assertTrue(IntakeSubsystem.holdsOff(IntakeSubsystem.State.IN, FeederSubsystem.State.IDLE, true));
+        assertTrue(IntakeSubsystem.holdsOff(IntakeSubsystem.State.IDLE, FeederSubsystem.State.IDLE, true));
+        assertFalse(IntakeSubsystem.holdsOff(IntakeSubsystem.State.IN, FeederSubsystem.State.IDLE, false));
+        assertFalse(IntakeSubsystem.holdsOff(IntakeSubsystem.State.IN, FeederSubsystem.State.FEED, true));
+        assertFalse(IntakeSubsystem.holdsOff(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, true));
+        assertFalse(IntakeSubsystem.holdsOff(IntakeSubsystem.State.IN, FeederSubsystem.State.REVERSE, true));
+    }
 }

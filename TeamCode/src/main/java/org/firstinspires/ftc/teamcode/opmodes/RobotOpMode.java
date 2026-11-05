@@ -37,6 +37,7 @@ import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaneFull;
 import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
+import org.firstinspires.ftc.teamcode.subsystems.NectarReject;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherResponse;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
@@ -1478,12 +1479,17 @@ public abstract class RobotOpMode extends OpMode {
         }
         if (lane.event() != null) log.event(lane.event());
         // The other alliance's NECTAR spat out (NectarReject): one event per burst, with the reading.
-        log.put("/Lane/Rejecting", robot.intake.rejecting() ? 1 : 0);
+        log.put("/Lane/Rejecting", robot.intake.rejecting() ? 2 : robot.intake.holdingOff() ? 1 : 0);
         if (robot.colorSensor.reject().justStarted()) {
             log.event(String.format(Locale.US,
                     "Lane: REJECT %s at the entrance (hue %.0f°, sat %.2f, brightness %.2f), burst %.2f s, #%d",
                     robot.colorSensor.lastPiece(), robot.colorSensor.hueDegrees(), robot.colorSensor.saturation(),
                     robot.colorSensor.alpha(), ColorSensorSubsystem.rejectBurstS, robot.colorSensor.reject().bursts()));
+        }
+        if (robot.colorSensor.reject().justGaveUp()) {
+            log.event(String.format(Locale.US,
+                    "Lane: REJECT gave up: %d bursts in %.1f s, the wrong NECTAR may still be in",
+                    ColorSensorSubsystem.rejectMaxBursts, ColorSensorSubsystem.rejectWindowS));
         }
         // Full (LaneFull): the signal the light, the full hold and IntakeFull use. Every piece's
         // dwell under the sensor, so normal-play logs can tighten ColorSensorSubsystem.fullHoldS.
@@ -1493,6 +1499,12 @@ public abstract class RobotOpMode extends OpMode {
         // Full on and off as events, with the tracker's count: full then three or four shots means it was.
         if (full.full() != loggedLaneFull) {
             loggedLaneFull = full.full();
+            // Full with the wrong NECTAR under the sensor: a reject did not clear it, and an Auto's
+            // IntakeFull would move on holding it.
+            if (loggedLaneFull && robot.colorSensor.lastPiece() == NectarReject.enemyNectar(setup.alliance())) {
+                log.event("Lane: FULL with the other alliance's NECTAR under the sensor (" + robot.colorSensor.lastPiece()
+                        + "): a reject did not clear it");
+            }
             log.event(loggedLaneFull
                     ? String.format(Locale.US, "Lane: FULL, piece under the sensor %.1f s (%.1f s intaking), tracker counts %d",
                             full.presentForMs() / 1000, full.heldWhileIntakingMs() / 1000, lane.count())

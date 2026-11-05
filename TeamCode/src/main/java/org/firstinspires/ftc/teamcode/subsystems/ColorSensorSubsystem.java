@@ -147,6 +147,23 @@ public class ColorSensorSubsystem implements Subsystem {
      */
     public static int rejectAfterReadings = 2;
 
+    /**
+     * After each burst, how long the roller and the stars stay stopped so the piece rolls clear,
+     * seconds. The intake is asked to take in almost all the time (biobuzz#456), so with no hold-off
+     * the roller would take the piece straight back. <b>Not yet measured:</b> 0.3 is a guess.
+     * 0 turns it off.
+     */
+    public static double rejectHoldOffS = 0.3;
+
+    /**
+     * The backstop: more than this many bursts within {@link #rejectWindowS} and the reject stops
+     * until the sensor sees something other than the wrong NECTAR. A piece wedged where a burst
+     * cannot clear it then does not run the intake backwards for the rest of the match. 0: no cap.
+     */
+    public static int rejectMaxBursts = 3;
+    /** The window for {@link #rejectMaxBursts}, seconds. */
+    public static double rejectWindowS = 3.0;
+
     private final NormalizedColorSensor sensor;
     private final LauncherSubsystem launcher;
     private final IntakeSubsystem intake;
@@ -225,7 +242,8 @@ public class ColorSensorSubsystem implements Subsystem {
         if (fresh) lastPiece = piece;
         lane.step(fresh, alpha, piece, outward, shot, presentAbove, leaveBelow);
         reject.step(now / 1_000_000L, fresh, alpha, piece, alliance, rejectEnemyNectar,
-                presentAbove, rejectAfterReadings, rejectBurstS * 1000.0);
+                presentAbove, rejectAfterReadings, rejectBurstS * 1000.0, rejectHoldOffS * 1000.0,
+                rejectMaxBursts, rejectWindowS * 1000.0);
         if (fresh) {
             // Full is the sensor alone: a piece held under it for fullHoldS. With fullHoldS off
             // (NaN or negative), full is off.
@@ -255,6 +273,11 @@ public class ColorSensorSubsystem implements Subsystem {
      */
     public boolean rejecting() {
         return reject.rejecting();
+    }
+
+    /** Whether the hold-off after a burst is running: the intake keeps the roller and stars stopped. */
+    public boolean holdingOffAfterReject() {
+        return reject.holdingOff();
     }
 
     /** The reject itself, for the match log's bursts. */
@@ -391,8 +414,12 @@ public class ColorSensorSubsystem implements Subsystem {
                         + String.format(Locale.US, " · read %.0f ms ago, every %d ms (%s)", readAgeMs(),
                         watching ? readEveryMs : readIdleEveryMs,
                         watching ? "a piece can move" : "nothing moving"));
-        if (reject.rejecting()) {
-            display.status("Reject", Display.Level.WARN, "spitting out the other alliance's NECTAR");
+        if (reject.rejecting() || reject.holdingOff()) {
+            display.status("Reject", Display.Level.WARN, reject.rejecting()
+                    ? "spitting out the other alliance's NECTAR" : "letting the rejected NECTAR roll clear");
+        } else if (reject.gaveUp()) {
+            display.status("Reject", Display.Level.WARN, "gave up after " + rejectMaxBursts
+                    + " bursts: the wrong NECTAR may still be in");
         }
         display.status("Lane (count, log only)", Double.isNaN(presentAbove) ? Display.Level.WARN : Display.Level.OK,
                 lane.lettersFrontToBack() + " front to back, " + lane.count() + " in"

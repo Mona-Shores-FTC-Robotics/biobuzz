@@ -361,7 +361,9 @@ public abstract class GrabRoutine {
         }
         Pose pose = robot.drive.pose();
         double remaining = Math.hypot(in.x() - pose.x(), in.y() - pose.y());
-        if (prepped) dwell.observe(ms(now, startNs), robot.intake.currentAmps(), nn(spikeAboveAmps()));
+        // A reject burst reverses the roller, and its spike is not a piece coming in; the hold-off
+        // stops it. Neither is read, and the dwell keeps its own clock (dwellMs still caps it).
+        if (prepped && !robot.intake.rejectActive()) dwell.observe(ms(now, startNs), robot.intake.currentAmps(), nn(spikeAboveAmps()));
         switch (phase) {
             case LINE_UP:
                 if (Math.abs(Math.toDegrees(wrapRad(in.heading() - pose.heading()))) <= nn(prepWithinDeg())

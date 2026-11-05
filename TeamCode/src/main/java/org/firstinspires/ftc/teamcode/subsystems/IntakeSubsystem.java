@@ -77,7 +77,10 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * entrance is the other alliance's NECTAR, and holding one is a big penalty. The prefeed holds
  * still meanwhile, so only that piece goes ({@code PrefeedSubsystem.requestFor}). The OpMode's own
  * eject and the feeder reversing back everything out anyway, so they are unchanged.
- * {@link #rejecting()} says when it is happening.
+ * {@link #rejecting()} says when it is happening. After each burst the roller and the stars stay
+ * stopped for a hold-off ({@link #holdOffWhile}, {@link #holdingOff()}) over a request to take in
+ * and the full hold, so the piece rolls clear rather than being taken straight back in; a feed
+ * still runs through it.
  *
  * <p>The star servo is not written before PLAY: a continuous servo told "stop" creeps if its stop
  * is not quite centred, and nothing may move after INIT (G304.H, G403; see {@link Subsystem}).
@@ -167,6 +170,9 @@ public class IntakeSubsystem implements Subsystem {
     private boolean rejecting;
     /** Whether to spit out the piece at the entrance; never until {@link #rejectWhile} is called. */
     private BooleanSupplier reject = () -> false;
+    private boolean holdingOff;
+    /** Whether a reject's hold-off is running; never until {@link #holdOffWhile} is called. */
+    private BooleanSupplier holdOff = () -> false;
     /** Whether the lane is full; never until {@link #laneFull} is called, so the roller never stops for it. */
     private BooleanSupplier laneFull = () -> false;
     private boolean started;
@@ -217,6 +223,11 @@ public class IntakeSubsystem implements Subsystem {
      */
     public void rejectWhile(BooleanSupplier rejecting) {
         reject = rejecting;
+    }
+
+    /** Where to read whether a reject's hold-off is running. Wired once by {@code Robot}, as {@link #rejectWhile}. */
+    public void holdOffWhile(BooleanSupplier holdingOff) {
+        holdOff = holdingOff;
     }
 
     /** Ask for pieces in. Takes effect in the next {@link #update()}. */
@@ -283,6 +294,16 @@ public class IntakeSubsystem implements Subsystem {
         return rejecting;
     }
 
+    /** Whether the roller and the stars are stopped after a reject so the piece rolls clear (class comment). */
+    public boolean holdingOff() {
+        return holdingOff;
+    }
+
+    /** Whether the roller and the stars are spitting out a piece, or stopped after one: reject's whole time. */
+    public boolean rejectActive() {
+        return rejecting || holdingOff;
+    }
+
     /** Whether the roller or the stars run only because the feeder is feeding or reversing. */
     public boolean feedAssist() {
         return feedAssist;
@@ -316,6 +337,7 @@ public class IntakeSubsystem implements Subsystem {
         clearEjectPowers();
         holdingForFull = false;
         rejecting = false;
+        holdingOff = false;
         started = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -362,7 +384,13 @@ public class IntakeSubsystem implements Subsystem {
             roller = State.OUT;
             starsState = State.OUT;
         }
-        feedAssist = !holdingForFull && !rejecting && request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
+        holdingOff = started && !rejecting && holdsOff(request, feed, holdOff.getAsBoolean());
+        if (holdingOff) {
+            holdingForFull = false;
+            roller = State.IDLE;
+            starsState = State.IDLE;
+        }
+        feedAssist = !holdingForFull && !rejecting && !holdingOff && request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
         boolean ownEject = request == State.OUT;
         motor.setPower(powerFor(roller, holdingForFull ? holdPowerWhenFull : inPower,
                 ownEject ? orConfigured(ejectRollerPower, outPower) : outPower));
@@ -397,6 +425,7 @@ public class IntakeSubsystem implements Subsystem {
         starsState = State.IDLE;
         feedAssist = false;
         rejecting = false;
+        holdingOff = false;
         motor.setPower(0.0);
         stars.setPower(0.0);
     }
@@ -410,6 +439,7 @@ public class IntakeSubsystem implements Subsystem {
     public void describe(Display display) {
         boolean moving = roller != State.IDLE || starsState != State.IDLE;
         String what = rejecting ? "spitting out the other alliance's NECTAR"
+                : holdingOff ? "stopped: letting the rejected NECTAR roll clear"
                 : holdingForFull ? String.format(Locale.US,
                 "holding the last piece (lane full) · stars turning, roller %.2f", unitRange(holdPowerWhenFull))
                 : roller == State.IN ? "IN · stars turning"
@@ -473,6 +503,15 @@ public class IntakeSubsystem implements Subsystem {
      */
     static boolean rejects(State request, FeederSubsystem.State feeder, boolean sensorSaysReject) {
         return sensorSaysReject && request != State.OUT && feeder != FeederSubsystem.State.REVERSE;
+    }
+
+    /**
+     * Whether a reject's hold-off stops the roller and the stars: the colour sensor says so, and
+     * nothing else moves pieces (no eject, no feed, no unjam), so it stops a request to take in
+     * and the full hold only. Pure, so a test can check it.
+     */
+    static boolean holdsOff(State request, FeederSubsystem.State feeder, boolean sensorSaysHoldOff) {
+        return sensorSaysHoldOff && request != State.OUT && feeder == FeederSubsystem.State.IDLE;
     }
 
     /** The star wheels' state: as {@link #rollerFor}, but a feed always turns them. */

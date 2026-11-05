@@ -137,6 +137,8 @@ public class Robot {
         // The other alliance's NECTAR at the entrance is spat out in a burst (NectarReject): the
         // roller and stars back out, and the prefeed, reading the intake, holds still.
         intake.rejectWhile(colorSensor::rejecting);
+        // Then the roller and stars stop a moment, so the piece rolls clear rather than back in.
+        intake.holdOffWhile(colorSensor::holdingOffAfterReject);
 
         subsystems = Collections.unmodifiableList(
                 Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, feeder, launcher, intake, prefeed,
