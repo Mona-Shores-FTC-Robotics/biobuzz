@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-05T03:43:43.369Z",
+  "timestamp": "2026-11-05T06:30:24.919Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -77,7 +77,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 59.9,
-        "y": 115.5
+        "y": 117.5
       },
       "controlPoints": [
         {
@@ -119,7 +119,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 59.9,
-        "y": 115.5
+        "y": 117.5
       },
       "controlPoints": [],
       "heading": {
@@ -201,7 +201,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 59.9,
-        "y": 115.5
+        "y": 117.5
       },
       "controlPoints": [],
       "heading": {
@@ -243,7 +243,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 59.9,
-        "y": 115.5
+        "y": 117.5
       },
       "controlPoints": [],
       "heading": {
@@ -623,7 +623,7 @@
       ],
       "LEFT_LAUNCH_CLOSE": [
         59.9,
-        115.5,
+        117.5,
         270
       ],
       "RIGHT_LAUNCH_CLOSE": [
