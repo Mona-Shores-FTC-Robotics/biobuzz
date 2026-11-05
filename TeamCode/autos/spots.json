@@ -3,11 +3,13 @@
   "spots": {
     "GARDEN_STAGING": [11.5, 22.1, 270],
     "LEFT_LAUNCH_CATCH": [57.5, 123.5, 273.4],
+    "LEFT_LAUNCH_CLOSE": [57.7, 115.4, 273],
     "LEFT_LAUNCH_OFFSET": [41, 121.5, 296.4],
     "LEFT_PARK": [14.5, 117.4, 0],
     "LEFT_START": [62.3, 133.8, 270],
     "PARTNER_STAGED_POLLEN": [25.6, 130.8, 95],
     "RIGHT_LAUNCH_CATCH": [57.5, 18, 91.9],
+    "RIGHT_LAUNCH_CLOSE": [57.9, 28.8, 93],
     "RIGHT_LAUNCH_OFFSET": [41, 20, 68.7],
     "RIGHT_PARK": [14.5, 95.7, 0],
     "RIGHT_START": [55.6, 7.7, 90],
