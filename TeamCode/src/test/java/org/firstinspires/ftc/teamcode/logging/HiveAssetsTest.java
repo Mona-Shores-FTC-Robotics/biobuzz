@@ -64,6 +64,16 @@ public class HiveAssetsTest {
         assertEquals(staged.size(), HiveAssets.parseCsv(HiveAssets.csv(staged)).size());
     }
 
+    /** The staged pieces the HIVE-sim field leaves out are the ones the starting positions are read from. */
+    @Test
+    public void stagedPiecesAreRecognisedByTheirNodeNames() {
+        assertEquals("Pollen", HiveAssets.pieceKind("Pollen <17>"));
+        assertEquals("Red Nectar", HiveAssets.pieceKind("Red Nectar <3>"));
+        assertEquals("Blue Nectar", HiveAssets.pieceKind("Blue Nectar"));
+        assertEquals(null, HiveAssets.pieceKind("Flower Assembly <2>"));
+        assertEquals(null, HiveAssets.pieceKind("Frame"));
+    }
+
     /**
      * Cutting a model keeps each kept mesh's own vertex bytes, even out of a shared, interleaved
      * buffer view, drops what is not used, and hangs the kept trees under a root with the matrix.

@@ -18,8 +18,11 @@ import java.util.Map;
  * <p><b>Why two folders.</b> AdvantageScope 27 fields cannot move parts; robots can, through
  * articulated components (docs: <i>Custom Assets → Articulated Components</i>). So:
  * <ul>
- *   <li>{@value #FIELD_FOLDER}: the stock field with the HIVE frame and both rockers cut out.
- *       Everything else, the game pieces and their staged copies included, is unchanged.</li>
+ *   <li>{@value #FIELD_FOLDER}: the stock field with the HIVE frame, both rockers and every
+ *       staged POLLEN and NECTAR cut out. The staged pieces are part of the field mesh, so they
+ *       never move; a simulated log draws its own (the {@code /Sim/GamePieces/*} keys), and with the
+ *       stock copies left in, a picked or launched piece left a frozen twin where it started.
+ *       The field config's game-piece models (what those keys draw with) are copied unchanged.</li>
  *   <li>{@value #ROBOT_FOLDER}: the frame as the base model, the red rocker as component 0
  *       and the blue rocker as component 1. Put it on the field at the origin and give it the
  *       {@link HiveComponents#KEY} poses, and the rockers swing about their axle.</li>
@@ -93,9 +96,11 @@ final class HiveAssets {
         int red = field.childNamed(root, "Red Hive");
         int blue = field.childNamed(root, "Blue Hive");
 
-        // The field without the HIVE.
+        // The field without the HIVE and without its staged pieces.
         List<Integer> kept = new ArrayList<>();
-        for (int c : field.children(root)) if (c != frame && c != red && c != blue) kept.add(c);
+        for (int c : field.children(root)) {
+            if (c != frame && c != red && c != blue && pieceKind(field.name(c)) == null) kept.add(c);
+        }
         File fieldDir = new File(out, FIELD_FOLDER);
         fieldDir.mkdirs();
         write(new File(fieldDir, "model.glb"), field.subset(field.name(root), kept, field.localMatrix(root)).write());
@@ -157,10 +162,7 @@ final class HiveAssets {
         double fieldSize = 2 * AdvantageScopeFrame.PEDRO_FIELD_CENTER_IN;
         List<StagedPiece> out = new ArrayList<>();
         for (int c : field.children(root)) {
-            String name = field.name(c);
-            String kind = name.contains("Pollen") ? "Pollen"
-                    : name.contains("Red Nectar") ? "Red Nectar"
-                    : name.contains("Blue Nectar") ? "Blue Nectar" : null;
+            String kind = pieceKind(field.name(c));
             if (kind == null) continue;
             double[] box = pedroBox(field.bounds(c, rootMatrix));
             double x = (box[0] + box[3]) / 2, y = (box[1] + box[4]) / 2, z = (box[2] + box[5]) / 2;
@@ -171,6 +173,13 @@ final class HiveAssets {
             out.add(new StagedPiece(kind, holder, x, y, z));
         }
         return out;
+    }
+
+    /** "Pollen", "Red Nectar" or "Blue Nectar" for a staged piece's node in the field model, else null. */
+    static String pieceKind(String nodeName) {
+        return nodeName.contains("Pollen") ? "Pollen"
+                : nodeName.contains("Red Nectar") ? "Red Nectar"
+                : nodeName.contains("Blue Nectar") ? "Blue Nectar" : null;
     }
 
     /** Anything resting this high is in a CELL; the HIVE's lowest point is 25.5 in up. */

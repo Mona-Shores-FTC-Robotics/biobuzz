@@ -25,7 +25,10 @@ The 2D field is AdvantageScope's own **2026-2027 Field**; it downloads it the fi
 asks for it, so the first open needs internet. The 3D tabs use the simulator's **2026-2027 Field (HIVE
 sim)** and **BIOBUZZ HIVE**, which are cut from that field on each laptop (no FIRST CAD is committed):
 the setup script builds and installs them when they are missing (`HiveAssetsTest`, run with Android Studio's Java),
-and rebuilds them with `-Hive` after AdvantageScope updates its field. It needs AdvantageScope to have shown the
+and rebuilds them with `-Hive` after AdvantageScope updates its field. The HIVE sim field leaves out the field's
+staged POLLEN and NECTAR, which are part of its mesh and never move, so a simulated log's own pieces
+are the only ones drawn. A laptop that built its assets before that change shows frozen balls under
+the moving ones: run the script once with `-Hive` to rebuild them. It needs AdvantageScope to have shown the
 2026-2027 field in a 3D tab once. A laptop without Android Studio installs them from a viewer zip instead.
 
 ## Sending logs to someone without the repo
