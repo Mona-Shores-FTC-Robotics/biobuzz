@@ -34,7 +34,7 @@ here waits until after the event.
    long), and from each right spot once. **Good:** each scores 3 or 4 of 4 at the table's speed
    (the Match page's "Last launch spot" line shows it). **Stop:** a spot misses → note its range,
    the speed and long or short; the table switches off in Panels (`LaunchSpeedTable.enabled`).
-4. R-Solo five times or more, the rebuilt one (#439, on master): TIP 1 from the start, the wall FLOWER, then a CellUp check at LEFT_LAUNCH_OFFSET (at
+4. R-Solo five times or more, the rebuilt one (#439, on master): TIP 1 from the start, the wall FLOWER, then a CellUp check at LEFT_LAUNCH_CATCH (since 5 Nov; it was LEFT_LAUNCH_OFFSET) (at
    most 0.75 s). Up: LEFT volley, scoring FLOWER, LEFT volley (TIP 2), park RIGHT_PARK. Down:
    RIGHT_LAUNCH_OFFSET, fire, park. Count TIP 1, TIP 2 and the park on each run, and note when
    TIP 2's last ball leaves: the preview says about 27 s, and the check adds 0.6–1 s it does not

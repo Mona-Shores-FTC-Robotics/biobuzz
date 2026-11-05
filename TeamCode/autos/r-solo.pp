@@ -68,7 +68,7 @@
     {
       "id": "line-mw0clsus-mahasn",
       "color": "#4e79a7",
-      "name": "to LEFT_LAUNCH_OFFSET",
+      "name": "to LEFT_LAUNCH_CATCH",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -76,8 +76,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 41,
-        "y": 121.5
+        "x": 57.5,
+        "y": 123.5
       },
       "controlPoints": [
         {
@@ -88,13 +88,13 @@
       "heading": {
         "type": "linear",
         "startDeg": 180,
-        "endDeg": 296.4
+        "endDeg": 273.4
       }
     },
     {
       "id": "line-mw0cnl7i-4q4t8s",
       "color": "#59a14f",
-      "name": "LEFT_LAUNCH_OFFSET park",
+      "name": "LEFT_LAUNCH_CATCH park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -113,7 +113,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 296.4,
+        "startDeg": 273.4,
         "endDeg": 0
       }
     },
@@ -123,13 +123,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 41,
-        "y": 121.5
+        "x": 57.5,
+        "y": 123.5
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 296.4
+        "degrees": 273.4
       }
     },
     {
@@ -142,7 +142,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 296.4,
+        "startDeg": 273.4,
         "endDeg": 90
       },
       "color": "#59a14f",
@@ -198,14 +198,14 @@
       "kind": "atomic",
       "id": "line-mw2h249a-z3yeku",
       "endPoint": {
-        "x": 41,
-        "y": 121.5
+        "x": 57.5,
+        "y": 123.5
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
-        "endDeg": 296.4
+        "endDeg": 273.4
       },
       "color": "#59a14f",
       "locked": false,
@@ -213,7 +213,7 @@
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "to LEFT_LAUNCH_OFFSET"
+      "name": "to LEFT_LAUNCH_CATCH"
     },
     {
       "kind": "atomic",
@@ -230,7 +230,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 296.4,
+        "startDeg": 273.4,
         "endDeg": 0
       },
       "color": "#b07aa1",
@@ -247,13 +247,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 41,
-        "y": 121.5
+        "x": 57.5,
+        "y": 123.5
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 296.4
+        "degrees": 273.4
       }
     },
     {
@@ -265,17 +265,17 @@
       },
       "controlPoints": [
         {
-          "x": 34,
-          "y": 100
+          "x": 30,
+          "y": 112
         },
         {
-          "x": 26,
-          "y": 45
+          "x": 24,
+          "y": 50
         }
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 296.4,
+        "startDeg": 273.4,
         "endDeg": 68.7
       },
       "color": "#4e79a7",
@@ -628,11 +628,11 @@
     },
     "pathEnds": {
       "line-mw0be8id-zhk73u": "WALL_FLOWER_STAGING",
-      "line-mw0clsus-mahasn": "LEFT_LAUNCH_OFFSET",
+      "line-mw0clsus-mahasn": "LEFT_LAUNCH_CATCH",
       "line-mw0cnl7i-qkksz9": "RIGHT_PARK",
       "line-mw0cnl7i-4q4t8s": "RIGHT_PARK",
       "line-mw2h249a-6eklj4": "SCORING_FLOWER_STAGING",
-      "line-mw2h249a-z3yeku": "LEFT_LAUNCH_OFFSET",
+      "line-mw2h249a-z3yeku": "LEFT_LAUNCH_CATCH",
       "line-mw2h249a-0a0w4q": "RIGHT_PARK",
       "line-mw2h249b-85xrwn": "RIGHT_LAUNCH_OFFSET",
       "line-mw2h249b-qfhry3": "RIGHT_PARK",
