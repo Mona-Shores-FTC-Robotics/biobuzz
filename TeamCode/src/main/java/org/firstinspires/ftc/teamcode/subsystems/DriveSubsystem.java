@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.localization.HeadingFix;
 import org.firstinspires.ftc.teamcode.localization.FixAverager;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
+import org.firstinspires.ftc.teamcode.localization.PinpointLoss;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.ShadowPose;
@@ -105,6 +106,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private final Mecanum drivetrain;
     private final FusionLocalizer localizer;
     private boolean poseReferenced;
+    /** A Pinpoint fault that held after PLAY: the pose is not believed again this OpMode. */
+    private final PinpointLoss pinpointLoss = new PinpointLoss();
+    private boolean started;
     private final LimelightVisionSubsystem vision;
 
     /** Capture time of the last sighting consumed, per cell — so each frame is used once. */
@@ -605,7 +609,24 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      * sat at init. Anything that drives or aims from field coordinates checks this first.
      */
     public boolean poseReferenced() {
-        return poseReferenced;
+        return poseReferenced && !pinpointLoss.lost();
+    }
+
+    /**
+     * Whether the Pinpoint was lost after PLAY ({@link PinpointLoss}): a fault that held past
+     * {@link PinpointLoss#LOST_AFTER_MS}. From then on {@link #poseReferenced()} is false for the rest
+     * of the OpMode, whatever resets the driver tries (they cannot clear it; a restart does), so
+     * everything that aims or drives from field coordinates degrades as it does without a pose:
+     * Square refuses, a launch takes the camera's range or the configured speed, and the handoff
+     * carries no pose. Driving itself carries on.
+     */
+    public boolean pinpointLost() {
+        return pinpointLoss.lost();
+    }
+
+    /** The status that lost the Pinpoint ({@code FAULT_BAD_READ}), or null while it is not lost. */
+    public String pinpointLostStatus() {
+        return pinpointLoss.lostStatus();
     }
 
     /** Camera fixes offered since the pose was last set. */
@@ -778,9 +799,13 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         lastUpdateNs = System.nanoTime();
     }
 
-    /** Nothing to do: the wheels turn only when an OpMode asks, and it asks only after PLAY. */
+    /**
+     * The wheels turn only when an OpMode asks, and it asks only after PLAY; from here on a Pinpoint
+     * fault that holds counts as lost ({@link PinpointLoss}).
+     */
     @Override
     public void start() {
+        started = true;
     }
 
     @Override
@@ -790,6 +815,12 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         lastUpdateNs = now;
         if (wheelRead.due(now)) {
             for (int i = 0; i < wheels.length; i++) wheelTicksPerSec[i] = wheels[i].getVelocity();
+        }
+
+        if (pinpoint != null) {
+            // The status of the last read (a stored field: no extra I2C), so this sees last loop's.
+            GoBildaPinpointDriver.DeviceStatus status = pinpoint.getDeviceStatus();
+            pinpointLoss.observe(started, status == null ? null : status.name(), now / 1_000_000L);
         }
 
         if (pathControl && follower != null) {
