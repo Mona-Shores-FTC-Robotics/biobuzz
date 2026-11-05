@@ -156,4 +156,30 @@ public class IntakeSubsystemTest {
         assertEquals(1.0, IntakeSubsystem.powerFor(State.IN, 3.0, 0.6), EPS);
         assertEquals(0.0, IntakeSubsystem.powerFor(State.IN, Double.NaN, 0.6), EPS);
     }
+
+    @Test
+    public void aRejectWinsOverTakingInTheHoldAndAFeed() {
+        for (IntakeSubsystem.State request : new IntakeSubsystem.State[] {
+                IntakeSubsystem.State.IN, IntakeSubsystem.State.IDLE}) {
+            assertTrue(IntakeSubsystem.rejects(request, FeederSubsystem.State.IDLE, true));
+            assertTrue(IntakeSubsystem.rejects(request, FeederSubsystem.State.FEED, true));
+            assertFalse(IntakeSubsystem.rejects(request, FeederSubsystem.State.IDLE, false));
+        }
+    }
+
+    @Test
+    public void anEjectOrAnUnjamIsNotAReject() {
+        assertFalse(IntakeSubsystem.rejects(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, true));
+        assertFalse(IntakeSubsystem.rejects(IntakeSubsystem.State.IN, FeederSubsystem.State.REVERSE, true));
+    }
+
+    @Test
+    public void aHoldOffStopsTakingInButNotAFeedAnEjectOrAnUnjam() {
+        assertTrue(IntakeSubsystem.holdsOff(IntakeSubsystem.State.IN, FeederSubsystem.State.IDLE, true));
+        assertTrue(IntakeSubsystem.holdsOff(IntakeSubsystem.State.IDLE, FeederSubsystem.State.IDLE, true));
+        assertFalse(IntakeSubsystem.holdsOff(IntakeSubsystem.State.IN, FeederSubsystem.State.IDLE, false));
+        assertFalse(IntakeSubsystem.holdsOff(IntakeSubsystem.State.IN, FeederSubsystem.State.FEED, true));
+        assertFalse(IntakeSubsystem.holdsOff(IntakeSubsystem.State.OUT, FeederSubsystem.State.IDLE, true));
+        assertFalse(IntakeSubsystem.holdsOff(IntakeSubsystem.State.IN, FeederSubsystem.State.REVERSE, true));
+    }
 }

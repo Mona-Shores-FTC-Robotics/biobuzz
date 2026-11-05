@@ -520,6 +520,19 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       Sensor at slot 4: confirm `presentAbove`/`leaveBelow`/`fullHoldS` there, and that no piece
       merely pausing leaves it stuck "full" (if one does, `PrefeedSubsystem.stopWhenFull` off).
       (intake toggle + prefeed stop)
+- [ ] **Spit out the other alliance's NECTAR** (`NectarReject`; Panels `ColorSensorSubsystem`:
+      `rejectEnemyNectar`, `rejectBurstS` 0.5 and `rejectHoldOffS` 0.3, both guesses,
+      `rejectAfterReadings` 2, the cap `rejectMaxBursts` 3 in `rejectWindowS` 3). Basic Drive, red,
+      intake on: feed in a blue NECTAR by hand, ten times, then a red NECTAR and POLLEN ten times
+      each. **Good:** every blue one comes back out within about 0.2 s of reaching the sensor and
+      lands clear of the roller, the pieces already in the lane stay put, and no red NECTAR or
+      POLLEN is ever spat out; each burst is a `Lane: REJECT` event in the match log with its hue.
+      Repeat as blue with a red NECTAR, then once during a FLOWER pick (the pick's dwell should not
+      end early on the burst). **Tune:** bursts back to back on one piece, or the roller takes it
+      straight back in after the hold-off → raise `rejectBurstS` or `rejectHoldOffS`; it is thrown
+      much further than needed → lower `rejectBurstS`. A `REJECT gave up` or a `FULL with the other
+      alliance's NECTAR` event means a burst could not clear it: film it. A POLLEN or our own NECTAR spat out → the event's hue says which range
+      (`redNectarHueMin/Max`, `blueNectarHueMin/Max`) to narrow; until fixed, `rejectEnemyNectar` off.
 - [ ] `IntakeSubsystem.holdPowerWhenFull` is 0 (roller off when full, stars still turning; the drive
       team's choice after trying 0.2). With 4 loaded: back away fast and turn, toggle off and drive,
       and an Auto that idles after `IntakeFull`: the 4th stays in each time. If it rolls out, raise it

@@ -7,13 +7,15 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
+import org.firstinspires.ftc.teamcode.util.Alliance;
 
 import java.util.Locale;
 
 /**
  * The REV Color Sensor V3 in the transfer: what colour is in front of it, and how bright. Its
- * numbers go to the match log ({@code /ColorSensor/*}) and the Robot page. One thing is decided from
- * it: whether the lane is full (below); its colours are data only.
+ * numbers go to the match log ({@code /ColorSensor/*}) and the Robot page. Two things are decided from
+ * it: whether the lane is full (below), and whether the piece at the entrance is the other
+ * alliance's NECTAR, to spit out (below); its colours are otherwise data only.
  *
  * <p>It is an I2C device, so every read is a round trip to the hub that the bulk cache does not
  * cover: the colour block only. Its proximity side (IR distance) is never read: "full" goes by
@@ -123,6 +125,45 @@ public class ColorSensorSubsystem implements Subsystem {
     public static double blueNectarHueMin = 180;
     public static double blueNectarHueMax = 270;
 
+    /**
+     * Whether the other alliance's NECTAR at the entrance is spat out ({@link NectarReject}): the
+     * roller and the stars reverse for {@link #rejectBurstS}, the prefeed still. Off: colours are
+     * logged only. Read every loop, so a Panels edit applies at once.
+     */
+    public static boolean rejectEnemyNectar = true;
+
+    /**
+     * How long one reject burst runs, seconds. <b>Not yet measured:</b> 0.5 is a guess at long
+     * enough for the roller at {@code IntakeSubsystem.outPower} to throw one piece clear of the
+     * robot. Too short and the roller takes it straight back in (another burst follows); too long
+     * only costs intake time. Set from a robot ({@code doc/robot-todo.md}).
+     */
+    public static double rejectBurstS = 0.5;
+
+    /**
+     * Fresh readings in a row, each the other alliance's NECTAR with a piece present, before a
+     * burst starts. 2, at the 50 ms read rate, decides in about 0.1 s; a piece passing with the
+     * intake running is under the sensor 0.3 to 1.0 s (1 Nov logs). 1 trusts a single reading.
+     */
+    public static int rejectAfterReadings = 2;
+
+    /**
+     * After each burst, how long the roller and the stars stay stopped so the piece rolls clear,
+     * seconds. The intake is asked to take in almost all the time (biobuzz#456), so with no hold-off
+     * the roller would take the piece straight back. <b>Not yet measured:</b> 0.3 is a guess.
+     * 0 turns it off.
+     */
+    public static double rejectHoldOffS = 0.3;
+
+    /**
+     * The backstop: more than this many bursts within {@link #rejectWindowS} and the reject stops
+     * until the sensor sees something other than the wrong NECTAR. A piece wedged where a burst
+     * cannot clear it then does not run the intake backwards for the rest of the match. 0: no cap.
+     */
+    public static int rejectMaxBursts = 3;
+    /** The window for {@link #rejectMaxBursts}, seconds. */
+    public static double rejectWindowS = 3.0;
+
     private final NormalizedColorSensor sensor;
     private final LauncherSubsystem launcher;
     private final IntakeSubsystem intake;
@@ -130,6 +171,10 @@ public class ColorSensorSubsystem implements Subsystem {
     private final FeederSubsystem feeder;
     private final LaneTracker lane = new LaneTracker();
     private final LaneFull laneFull = new LaneFull();
+    private final NectarReject reject = new NectarReject();
+    /** Our alliance, for which NECTAR to reject; UNKNOWN (never rejects) until {@link #alliance} is called. */
+    private Alliance alliance = Alliance.UNKNOWN;
+    private LaneTracker.Piece lastPiece = LaneTracker.Piece.UNKNOWN;
 
     private long lastReadNs;
     private long lastUpdateNs;
@@ -192,10 +237,13 @@ public class ColorSensorSubsystem implements Subsystem {
         // The lane runs outward when the stars do, whatever the roller does.
         boolean outward = intake.starsState() == IntakeSubsystem.State.OUT
                 || prefeed.state() == PrefeedSubsystem.State.OUT;
-        lane.step(fresh, alpha,
-                LaneTracker.classify(hueDeg, pollenHueMin, pollenHueMax,
-                        redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax),
-                outward, shot, presentAbove, leaveBelow);
+        LaneTracker.Piece piece = LaneTracker.classify(hueDeg, pollenHueMin, pollenHueMax,
+                redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax);
+        if (fresh) lastPiece = piece;
+        lane.step(fresh, alpha, piece, outward, shot, presentAbove, leaveBelow);
+        reject.step(now / 1_000_000L, fresh, alpha, piece, alliance, rejectEnemyNectar,
+                presentAbove, rejectAfterReadings, rejectBurstS * 1000.0, rejectHoldOffS * 1000.0,
+                rejectMaxBursts, rejectWindowS * 1000.0);
         if (fresh) {
             // Full is the sensor alone: a piece held under it for fullHoldS. With fullHoldS off
             // (NaN or negative), full is off.
@@ -212,6 +260,34 @@ public class ColorSensorSubsystem implements Subsystem {
     /** The full detector itself, for the match log's dwell of each piece. */
     public LaneFull laneFull() {
         return laneFull;
+    }
+
+    /** Our alliance, for which NECTAR to reject. {@code RobotOpMode} sets it at PLAY, from {@code setup.alliance()}. */
+    public void alliance(Alliance ours) {
+        alliance = ours == null ? Alliance.UNKNOWN : ours;
+    }
+
+    /**
+     * Whether the other alliance's NECTAR is being spat out ({@link NectarReject}), as of the last
+     * update. The intake reads it and reverses the roller and the stars; the prefeed holds still.
+     */
+    public boolean rejecting() {
+        return reject.rejecting();
+    }
+
+    /** Whether the hold-off after a burst is running: the intake keeps the roller and stars stopped. */
+    public boolean holdingOffAfterReject() {
+        return reject.holdingOff();
+    }
+
+    /** The reject itself, for the match log's bursts. */
+    public NectarReject reject() {
+        return reject;
+    }
+
+    /** The colour of the latest reading ({@link LaneTracker#classify}), for the match log. */
+    public LaneTracker.Piece lastPiece() {
+        return lastPiece;
     }
 
     /** What it thinks is in the lane. Data only: never decide anything from it. */
@@ -338,6 +414,13 @@ public class ColorSensorSubsystem implements Subsystem {
                         + String.format(Locale.US, " · read %.0f ms ago, every %d ms (%s)", readAgeMs(),
                         watching ? readEveryMs : readIdleEveryMs,
                         watching ? "a piece can move" : "nothing moving"));
+        if (reject.rejecting() || reject.holdingOff()) {
+            display.status("Reject", Display.Level.WARN, reject.rejecting()
+                    ? "spitting out the other alliance's NECTAR" : "letting the rejected NECTAR roll clear");
+        } else if (reject.gaveUp()) {
+            display.status("Reject", Display.Level.WARN, "gave up after " + rejectMaxBursts
+                    + " bursts: the wrong NECTAR may still be in");
+        }
         display.status("Lane (count, log only)", Double.isNaN(presentAbove) ? Display.Level.WARN : Display.Level.OK,
                 lane.lettersFrontToBack() + " front to back, " + lane.count() + " in"
                         + (Double.isNaN(presentAbove) ? "; presentAbove not set: counts shots only" : ""));

@@ -91,7 +91,7 @@ public class Robot {
     /** The indicator light: what the drive team most needs to know, in one colour. */
     public final IndicatorSubsystem indicator;
 
-    /** The REV Color Sensor V3 in the transfer: colour and distance, logged only, for now. */
+    /** The REV Color Sensor V3 in the transfer: lane full, and the other alliance's NECTAR to spit out. */
     public final ColorSensorSubsystem colorSensor;
 
     /**
@@ -134,6 +134,11 @@ public class Robot {
         intake.laneFull(colorSensor::full);
         // And the prefeed stops, the stars and a slow roller holding the last piece (PrefeedSubsystem.stopWhenFull).
         prefeed.laneFull(colorSensor::full);
+        // The other alliance's NECTAR at the entrance is spat out in a burst (NectarReject): the
+        // roller and stars back out, and the prefeed, reading the intake, holds still.
+        intake.rejectWhile(colorSensor::rejecting);
+        // Then the roller and stars stop a moment, so the piece rolls clear rather than back in.
+        intake.holdOffWhile(colorSensor::holdingOffAfterReject);
 
         subsystems = Collections.unmodifiableList(
                 Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, feeder, launcher, intake, prefeed,
