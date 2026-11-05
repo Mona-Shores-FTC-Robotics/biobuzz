@@ -42,8 +42,10 @@ import java.util.Locale;
  * {@code /ColorSensor/Watching}).
  *
  * <p>It says whether the lane is <b>full</b> ({@link #full()}, {@link LaneFull}): a piece held under
- * it for {@link #fullHoldS} while the intake takes in (sooner, {@link #fullHoldWhenCountedS},
- * when the lane tracker already counts the lane full). The indicator's green, the intake's roller
+ * it for {@link #fullHoldS} while the intake takes in, and nothing else: the lane tracker's count
+ * plays no part (until 5 Nov 2026 a count of 4 cut the hold to 0.3 s, and on a fresh battery the
+ * shot count missed shots, so the count stuck at 4 and a single piece reaching the sensor ended a
+ * FLOWER pick as full). The indicator's green, the intake's roller
  * stop and the Autos' {@code IntakeFull} all read that one signal.
  *
  * <p>It also keeps {@link LaneTracker}: what it thinks is in the lane, slot by slot, from pieces
@@ -113,13 +115,6 @@ public class ColorSensorSubsystem implements Subsystem {
      * at an event, turn {@code stopWhenFull} off first.
      */
     public static double fullHoldS = 1.0;
-
-    /**
-     * As {@link #fullHoldS}, when the lane tracker already counts the lane full ({@link
-     * LaneTracker#full()}): its count is a hint, so green comes almost at once when it is right, and
-     * when it is wrong a passing piece costs the self-mending stop above. Seconds.
-     */
-    public static double fullHoldWhenCountedS = 0.3;
 
     /** Red NECTAR's hue range, degrees; it wraps through 0. Bench, 2 Nov 2026: 9° to 22°, saturation 0.76. */
     public static double redNectarHueMin = 330;
@@ -202,11 +197,10 @@ public class ColorSensorSubsystem implements Subsystem {
                         redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax),
                 outward, shot, presentAbove, leaveBelow);
         if (fresh) {
-            // After the tracker, so its count of this same reading is the hint.
-            // Never sooner than fullHoldS allows: with it off (NaN or negative), full is off.
-            double holdS = lane.full() && fullHoldS >= 0 ? fullHoldWhenCountedS : fullHoldS;
+            // Full is the sensor alone: a piece held under it for fullHoldS. With fullHoldS off
+            // (NaN or negative), full is off.
             laneFull.step(now / 1_000_000L, alpha, intake.requested() == IntakeSubsystem.State.IN,
-                    presentAbove, leaveBelow, holdS * 1000.0);
+                    presentAbove, leaveBelow, fullHoldS * 1000.0);
         }
     }
 
