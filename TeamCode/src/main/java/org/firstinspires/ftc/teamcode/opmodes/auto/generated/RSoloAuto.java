@@ -20,7 +20,7 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-04|1:50PM";
+    public static final String SAVED = "11-04|10:20PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -51,49 +51,48 @@ public final class RSoloAuto {
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
-        Pose leftLaunchCatch = p.of(57.5, 123.5, 273.4);
         Pose rightPark = p.of(14.5, 95.7, 0);
-        Pose rightLaunchOffset = p.of(41, 20, 68.7);
+        Pose leftLaunchClose = p.of(57.7, 115.4, 273);
+        Pose rightLaunchClose = p.of(57.9, 28.8, 93);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toLeftLaunchCatchControl1 = p.of(33.0085, 119.9832, 0);
-        Pose leftLaunchCatchParkControl1 = p.of(40, 96, 0);
+        Pose toLeftLaunchCloseControl1 = p.of(26.2981, 117.5038, 0);
         Pose scoringFlowerStagingParkControl1 = p.of(40, 96, 0);
-        Pose toRightParkControl1 = p.of(40, 96, 0);
-        Pose toRightLaunchOffsetControl1 = p.of(30, 112, 0);
-        Pose toRightLaunchOffsetControl2 = p.of(24, 50, 0);
+        Pose toRightParkControl1 = p.of(43.661, 105.8984, 0);
+        Pose toRightLaunchCloseControl1 = p.of(67.9696, 71.9644, 0);
+        Pose toRightPark_2Control1 = p.of(23.3185, 25.5538, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
-        Path toLeftLaunchCatch = Paths.curve(wallFlowerStaging, toLeftLaunchCatchControl1, leftLaunchCatch).linear(wallFlowerStaging, leftLaunchCatch);
-        Path leftLaunchCatchPark = Paths.curve(leftLaunchCatch, leftLaunchCatchParkControl1, rightPark).linear(leftLaunchCatch, rightPark);
-        Path toScoringFlowerStaging = Paths.line(leftLaunchCatch, scoringFlowerStaging).linear(leftLaunchCatch, scoringFlowerStaging);
+        Path toLeftLaunchClose = Paths.curve(wallFlowerStaging, toLeftLaunchCloseControl1, leftLaunchClose).linear(wallFlowerStaging, leftLaunchClose);
+        Path leftLaunchClosePark = Paths.line(leftLaunchClose, rightPark).linear(leftLaunchClose, rightPark);
+        Path toScoringFlowerStaging = Paths.line(leftLaunchClose, scoringFlowerStaging).linear(leftLaunchClose, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
-        Path toLeftLaunchCatchPath = Paths.line(scoringFlowerStaging, leftLaunchCatch).linear(scoringFlowerStaging, leftLaunchCatch);
-        Path toRightPark = Paths.curve(leftLaunchCatch, toRightParkControl1, rightPark).linear(leftLaunchCatch, rightPark);
-        Path toRightLaunchOffset = Paths.curve(leftLaunchCatch, toRightLaunchOffsetControl1, toRightLaunchOffsetControl2, rightLaunchOffset).linear(leftLaunchCatch, rightLaunchOffset);
-        Path toRightParkPath = Paths.line(rightLaunchOffset, rightPark).linear(rightLaunchOffset, rightPark);
+        Path toLeftLaunchClosePath = Paths.line(scoringFlowerStaging, leftLaunchClose).linear(scoringFlowerStaging, leftLaunchClose);
+        Path toRightPark = Paths.curve(leftLaunchClose, toRightParkControl1, rightPark).linear(leftLaunchClose, rightPark);
+        Path toRightLaunchClose = Paths.curve(leftLaunchClose, toRightLaunchCloseControl1, rightLaunchClose).linear(leftLaunchClose, rightLaunchClose);
+        Path toRightParkPath = Paths.curve(rightLaunchClose, toRightPark_2Control1, rightPark).linear(rightLaunchClose, rightPark);
 
         return kit.sequence(
                 kit.command("SpinUp"),
                 kit.command("LaunchAll"),
                 kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2),
                 kit.command("PickFlower", 4.5),
-                kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 2.8, leftLaunchCatchPark, 2.1),
+                kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClose, 2.7, leftLaunchClosePark, 2),
                 kit.firstOf("Wait for TIP or CELL up",
                         kit.when("CellUp").then(
-                                kit.guarded("If CellUp", toRightPark, 2.1,
+                                kit.guarded("If CellUp", toRightPark, 2,
                                         kit.command("LaunchAll"),
                                         kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.9),
                                         kit.command("PickFlower", 4.5),
-                                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath, 1.3),
+                                        kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClosePath, 1.3),
                                         kit.command("LaunchAll"),
-                                        kit.path("to RIGHT_PARK", toRightPark, 2.1))),
+                                        kit.path("to RIGHT_PARK", toRightPark, 2))),
                         kit.afterMs(750).then(
-                                kit.guarded("Timed out", toRightParkPath, 2.7,
-                                        kit.path("to RIGHT_LAUNCH_OFFSET", toRightLaunchOffset, 3.3),
+                                kit.guarded("Timed out", toRightParkPath, 2.8,
+                                        kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 2.8),
                                         kit.command("LaunchAll"),
-                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.7)))));
+                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.8)))));
     }
 }
