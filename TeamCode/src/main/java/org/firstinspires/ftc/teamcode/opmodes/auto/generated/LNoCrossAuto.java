@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoOption;
@@ -20,7 +21,7 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-03|4:11PM";
+    public static final String SAVED = "11-05|6:51PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -52,21 +53,23 @@ public final class LNoCrossAuto {
         Pose leftLaunchCatch = p.of(57.5, 123.5, 273.4);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose leftPark = p.of(14.5, 117.4, 0);
-        Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
+        Pose rightLaunchClose = p.of(56.1, 26, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toRightLaunchCatchControl1 = p.of(64.1624, 98.6609, 0);
-        Pose toRightLaunchCatchControl2 = p.of(64.4652, 42.583, 0);
+        Pose toRightLaunchCloseControl1 = p.of(61.5621, 104.0616, 0);
+        Pose toRightLaunchCloseControl2 = p.of(66.4655, 20.3799, 0);
+        Pose toRightLaunchCloseSegment1Start = p.of(56.1, 26, 273.4);
+        Pose rightLaunchCatchParkStart = p.of(56.1, 26, 91.9);
         Pose rightLaunchCatchParkControl1 = p.of(28, 25, 0);
         Pose toLeftLaunchCatch_2Control1 = p.of(29.5493, 123.7087, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toLeftLaunchCatch = Paths.line(leftStart, leftLaunchCatch).linear(leftStart, leftLaunchCatch);
         Path leftLaunchCatchPark = Paths.line(leftLaunchCatch, leftPark).linear(leftLaunchCatch, leftPark);
-        Path toRightLaunchCatch = Paths.curve(leftLaunchCatch, toRightLaunchCatchControl1, toRightLaunchCatchControl2, rightLaunchCatch).linear(leftLaunchCatch, rightLaunchCatch);
-        Path rightLaunchCatchPark = Paths.curve(rightLaunchCatch, rightLaunchCatchParkControl1, leftPark).linear(rightLaunchCatch, leftPark);
-        Path toWallFlowerStaging = Paths.line(rightLaunchCatch, wallFlowerStaging).linear(rightLaunchCatch, wallFlowerStaging);
+        Path toRightLaunchClose = Paths.curve(leftLaunchCatch, toRightLaunchCloseControl1, toRightLaunchCloseControl2, rightLaunchClose).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(toRightLaunchCloseSegment1Start, rightLaunchClose).reverse()).until(1, Interpolator.linear(rightLaunchClose, rightLaunchClose)));
+        Path rightLaunchCatchPark = Paths.curve(rightLaunchCatchParkStart, rightLaunchCatchParkControl1, leftPark).linear(rightLaunchCatchParkStart, leftPark);
+        Path toWallFlowerStaging = Paths.line(rightLaunchClose, wallFlowerStaging).linear(rightLaunchClose, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, leftPark).linear(wallFlowerStaging, leftPark);
         Path toLeftLaunchCatchPath = Paths.curve(wallFlowerStaging, toLeftLaunchCatch_2Control1, leftLaunchCatch).linear(wallFlowerStaging, leftLaunchCatch);
         Path toScoringFlowerStaging = Paths.line(leftLaunchCatch, scoringFlowerStaging).linear(leftLaunchCatch, scoringFlowerStaging);
@@ -81,9 +84,9 @@ public final class LNoCrossAuto {
                         kit.firstOf("Wait for TIP or CELL up", kit.command("SpinUp"),
                                 kit.when("CellUp"),
                                 kit.atMatchSeconds(kit.seconds("Wait for TIP or CELL up", 8)).then(
-                                        kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 3.2, rightLaunchCatchPark, 3.3),
+                                        kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.4, rightLaunchCatchPark, 3.2),
                                         kit.command("LaunchAll"),
-                                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9, wallFlowerStagingPark, 2.5),
+                                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.8, wallFlowerStagingPark, 2.5),
                                         kit.command("PickFlower", 8),
                                         kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath, 2.9, leftLaunchCatchPark, 1.9))),
                         kit.command("LaunchAll"),
