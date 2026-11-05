@@ -93,6 +93,12 @@ accepts a `SOURCE` here as it does in the folder itself.
 A stand-in is drawn and exported like any Auto (Visualizer, or `node scripts/export-auto.mjs`
 from a Visualizer checkout); a new one goes here with its class, and into the curation below.
 
+To change a stand-in's start position or route, open its `.pp`, edit it, then **Save to GitHub
+and simulate…**. The save keeps the source in `partners/` and creates or updates its own
+`TeamCode/sim-requests/<name>.json` to preview the stand-in alone. These requests are valid just
+like a competition Auto's or a draft's; they do not require an OpMode or put the stand-in on the
+Driver Station. Requests for our Autos still list it under `partners` to simulate it beside us.
+
 ### Which partners an Auto is simulated with
 
 Each Auto's `TeamCode/sim-requests/<name>.json` lists its runs: the Auto alone, then each
