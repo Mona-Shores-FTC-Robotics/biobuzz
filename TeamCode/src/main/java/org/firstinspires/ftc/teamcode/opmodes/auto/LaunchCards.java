@@ -34,7 +34,8 @@ import java.util.function.Supplier;
  * <p>A launch card spins the launcher up, waits until it is at speed (at most
  * {@link #maxSpinUpWaitS}, then it feeds anyway and logs it) <em>and the robot has
  * settled</em> ({@link PathEndSettle}: aimed at the last path's end heading, and slowing), runs the
- * feeder for a set time, then idles the feeder. A fire step after a path therefore waits for the
+ * feeder for a set time ({@code LaunchAll}: or until the launcher counts its last shot, if sooner),
+ * then idles the feeder. A fire step after a path therefore waits for the
  * robot, not for Pedro's "done" (#193). If the robot has not settled within
  * {@link PathEndSettle#maxSettleWaitS} of the card starting, it feeds anyway and says so in the
  * match log, so a robot that never quite settles still fires. The launcher is left spinning: the Autos call {@code SpinUp} once
@@ -94,6 +95,20 @@ public final class LaunchCards {
     public static double launchAllFeedS = 3.5;
 
     /**
+     * A {@code LaunchAll} ends its feed once the launcher has counted this many shots since the
+     * gate opened, rather than at {@link #launchAllFeedS}, which stays the backstop. 4: a volley
+     * holds four. 0 or NaN: off, every feed runs its set time.
+     *
+     * <p>A count too low costs nothing (the feed runs its set time, as before); only a count too high
+     * would end a feed with a ball still in the robot. On 4 Nov 2026 (20245), replayed with the shot
+     * detector of 5 Nov, every R-Solo volley that counted 4 had its four dips evenly spaced, 0.36 to
+     * 0.62 s apart, as the feeder delivers balls, and R-Solo 23:41's first volley matches its video
+     * (four balls, four counts). The fourth count came 2.0 to 2.6 s after the gate opened, so a full
+     * volley ends about 1 to 1.5 s sooner. Still to prove on video: {@code doc/robot-todo.md}.
+     */
+    public static double launchAllEndAfterShots = 4;
+
+    /**
      * The longest a launch card waits for the launcher to reach speed, seconds; after that it feeds
      * at whatever speed the wheels have reached and says so in the match log. A slightly slow shot
      * beats none: on 1 Nov 2026 (20245) R Quals' first LaunchAll never fed, its right wheel stuck at
@@ -122,7 +137,10 @@ public final class LaunchCards {
          */
         default void spinUpFor(Pose launchPose) { }
         boolean atSpeed();
-        /** Shots the launcher's detector has counted, or -1 if it has none. Logged only, never acted on. */
+        /**
+         * Shots the launcher's detector has counted, or -1 if it has none. A {@code LaunchAll} ends
+         * its feed at {@link #launchAllEndAfterShots} of them; -1 leaves every feed its set time.
+         */
         default int shots() { return -1; }
     }
 
@@ -318,12 +336,13 @@ public final class LaunchCards {
     }
 
     /**
-     * {@code LaunchAll}: spin up, wait for speed and a settled robot, feed for {@link #launchAllFeedS},
+     * {@code LaunchAll}: spin up, wait for speed and a settled robot, feed until the launcher counts
+     * {@link #launchAllEndAfterShots} shots or for {@link #launchAllFeedS}, whichever comes first,
      * idle the feeder. If its {@link #approach()} opened the gate on the drive in, it waits for
      * nothing and ends {@link #launchAllFeedS} after the gate opened.
      */
     public Command launchAll() {
-        return launch("LaunchAll", () -> launchAllFeedS, true);
+        return launch("LaunchAll", () -> launchAllFeedS, () -> launchAllEndAfterShots, true);
     }
 
     /**
@@ -338,13 +357,13 @@ public final class LaunchCards {
 
     /** {@code LaunchOne}: as {@link #launchAll()} with {@link #launchOneFeedS}; does not count toward Empty. */
     public Command launchOne() {
-        return launch("LaunchOne", () -> launchOneFeedS, false);
+        return launch("LaunchOne", () -> launchOneFeedS, () -> 0.0, false);
     }
 
     /**
      * Whether a launch card is feeding now: from the feed's start to the card's end. The Autos hold
      * their steps' time limits while it is ({@code AutoRegistry.holdTimeLimitsWhile}), so a feed
-     * always runs its set time.
+     * always runs to its end: its set time, or a {@code LaunchAll}'s last counted shot.
      */
     public boolean feeding() {
         return feeding > 0;
@@ -364,13 +383,16 @@ public final class LaunchCards {
         return () -> launchAllsCompleted > before;
     }
 
-    private Command launch(String name, DoubleSupplier feedSeconds, boolean countsAsEmptying) {
+    private Command launch(String name, DoubleSupplier feedSeconds, DoubleSupplier endAfterShots,
+                           boolean countsAsEmptying) {
         final double[] fedAt = {Double.NaN};
+        final boolean[] allShotsOut = new boolean[1];
         final double[] startedAt = new double[1];
         final int[] shotsAtFeed = new int[1];
         return new CommandBuilder()
                 .setStart(() -> {
                     fedAt[0] = Double.NaN;
+                    allShotsOut[0] = false;
                     startedAt[0] = secondsNow.getAsDouble();
                     launcher.spinUp();
                     // The drive in already opened the gate: this card only finishes that feed.
@@ -403,18 +425,24 @@ public final class LaunchCards {
                         feed(fedAt, now);
                     }
                 })
-                .setDone(() -> !Double.isNaN(fedAt[0])
-                        && secondsNow.getAsDouble() - fedAt[0] >= nonNegative(feedSeconds.getAsDouble()))
+                .setDone(() -> {
+                    if (Double.isNaN(fedAt[0])) return false;
+                    if (secondsNow.getAsDouble() - fedAt[0] >= nonNegative(feedSeconds.getAsDouble())) return true;
+                    double enough = endAfterShots.getAsDouble();
+                    int shots = launcher.shots();
+                    allShotsOut[0] = enough >= 1 && shots >= 0 && shots - shotsAtFeed[0] >= enough;
+                    return allShotsOut[0];
+                })
                 .setEnd(end -> {
                     feeder.idle();
                     if (!Double.isNaN(fedAt[0])) {
                         feeding--;
                         int shots = launcher.shots();
-                        // Logged to judge the shot detector against what was seen; never acted on
-                        // (mentor, 1 Nov 2026: a feed runs its set time until the detector is proven).
+                        // Logged to judge the shot detector against what was seen (video).
                         if (shots >= 0) {
-                            note.accept(String.format(Locale.US, "%s fed %.2f s (%s): %d shots detected",
-                                    name, secondsNow.getAsDouble() - fedAt[0], end, shots - shotsAtFeed[0]));
+                            note.accept(String.format(Locale.US, "%s fed %.2f s (%s%s): %d shots detected",
+                                    name, secondsNow.getAsDouble() - fedAt[0], end,
+                                    allShotsOut[0] ? ", ended at the last counted shot" : "", shots - shotsAtFeed[0]));
                         }
                     }
                     if (countsAsEmptying && end == EndCondition.NATURALLY) {

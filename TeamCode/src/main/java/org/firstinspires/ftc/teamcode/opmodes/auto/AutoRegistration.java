@@ -125,7 +125,9 @@ public final class AutoRegistration {
      * all but the two slowest after a drive and half of those at PLAY. What the guard needs to know
      * about a volley's pieces is {@link #LAUNCH_ALL_LAST_PIECE_S}; this is for the drive after it.
      * The Visualizer's Typical preview times a LaunchAll from {@code TeamCode/autos/timing.json}
-     * instead ({@code spinUpS}, {@code volleyS}); this is what its Instant preview shows.
+     * instead ({@code spinUpS}, {@code volleyS}); this is what its Instant preview shows. Since
+     * 5 Nov a full volley ends at its 4th counted shot ({@code LaunchCards.launchAllEndAfterShots}),
+     * about 1 s sooner; 4.5 stays, on the safe side, until match logs measure the shorter card.
      */
     public static final double LAUNCH_ALL_TYPICAL_S = 4.5;
 
@@ -139,8 +141,9 @@ public final class AutoRegistration {
      * 00:48). Card start to last piece after a drive: 2.1, 2.75, 3.31 and 3.97 s; at PLAY 3.16 to
      * 3.39 s, and 4.82 s once (3 Nov 18:06, the gate 1.33 s in, the fourth piece 3.49 s after it).
      * 4.0 covers every volley after a drive but one doubtful 4.2 s (2 Nov R-Quals: a single shot
-     * counted, 3.09 s into the feed). The feed itself runs 3.5 s whatever: this is when the pieces
-     * are out, not when the card ends. Re-measure from the next Auto logs.
+     * counted, 3.09 s into the feed). The feed ends at the 4th counted shot or after 3.5 s
+     * ({@code LaunchCards.launchAllEndAfterShots}): this is when the pieces are out, not when the
+     * card ends. Re-measure from the next Auto logs.
      */
     public static final double LAUNCH_ALL_LAST_PIECE_S = 4.0;
 
