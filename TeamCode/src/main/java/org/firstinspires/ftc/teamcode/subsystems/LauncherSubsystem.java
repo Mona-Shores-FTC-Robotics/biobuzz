@@ -40,10 +40,10 @@ import java.util.function.BooleanSupplier;
  * defaults do with no tuned feedforward: after each ball's dip the wheels overshot to about 1680
  * of 1595 and at-speed stayed false for about 0.7 s, and a spin-up from rest took 0.9 to 2.1 s,
  * slowest on a sagging battery. So the four gains are Panels knobs here ({@link #velocityP},
- * {@link #velocityI}, {@link #velocityD}, {@link #velocityF}): NaN, the default, leaves that gain
+ * {@link #velocityI}, {@link #velocityD}, {@link #velocityF}), tuned on 20245 on 4 Nov 2026 (after
+ * a dip: back at speed in a median 0.22 s, overshoot a median 25, from about 0.7 s and 85). NaN leaves that gain
  * at what the hub had when this OpMode's {@link #initialize()} read it ({@link #hubDefaults()},
- * shown on the Robot page and in the match log's Metadata), so nothing changes until someone sets
- * one. The gains go to the hub only when one changes, never every loop: each write is a hub round
+ * shown on the Robot page and in the match log's Metadata). The gains go to the hub only when one changes, never every loop: each write is a hub round
  * trip per wheel. Optionally F follows the battery ({@link #compensateF}): F × {@link #nominalVolts}
  * / battery, from the reading {@code RobotOpMode} already takes once a second
  * ({@link #batteryVolts(double)}), written again only when it moves by more than
@@ -218,25 +218,33 @@ public class LauncherSubsystem implements Subsystem {
     public static double encoderSilentTicksPerSecond = 20.0;
 
     /**
-     * The hub velocity loop's proportional gain for both wheels. NaN (the default): the hub's own,
-     * as read at init ({@link #hubDefaults()}). Not measured yet: see "Tuning the hub's loop" in
-     * the class comment. A negative, infinite or absurd value (above {@link #MAX_GAIN}) counts as
-     * NaN, so a Panels typo leaves the hub's gain in place.
+     * The hub velocity loop's proportional gain for both wheels: 40, tuned on 20245 on 4 Nov 2026
+     * at about 11.8 V with Bench: Launch Test's step test and about 90 real shots (P 20 left the
+     * left wheel 40 ticks/s high after a spin-up; 90 overshot 85–125 from rest). NaN: the hub's
+     * own, as read at init ({@link #hubDefaults()}; P 10 I 3 D 0 F 0 on 20245). A negative,
+     * infinite or absurd value (above {@link #MAX_GAIN}) counts as NaN, so a Panels typo leaves the
+     * hub's gain in place.
      */
-    public static double velocityP = Double.NaN;
+    public static double velocityP = 40.0;
 
-    /** As {@link #velocityP}, the integral gain. Keep it small: it is what winds up into overshoot. */
-    public static double velocityI = Double.NaN;
+    /**
+     * As {@link #velocityP}, the integral gain: 0.2, 20245, 4 Nov 2026. The two wheels need about
+     * 10% different power for the same speed (at F alone the right ran ~150 ticks/s under the
+     * left), and I is what closes each wheel's own offset. 0.3 matched them a little better and
+     * 0.5 slowed the spin-up to ~1 s; keep it small: it is what winds up into overshoot.
+     */
+    public static double velocityI = 0.2;
 
-    /** As {@link #velocityP}, the derivative gain. Usually 0 for a flywheel. */
-    public static double velocityD = Double.NaN;
+    /** As {@link #velocityP}, the derivative gain: 0 (0.01 changed nothing, 4 Nov 2026). */
+    public static double velocityD = 0.0;
 
     /**
      * As {@link #velocityP}, the feedforward gain: the hub's power per tick per second of target,
-     * scaled so that 32767 is full power. A first guess is 32767 / (the speed one wheel reaches at
-     * full power, ticks per second), at {@link #nominalVolts}.
+     * scaled so that 32767 is full power. 14.65, 20245, 4 Nov 2026, at about 11.8 V: with P, I and
+     * D at 0 it held the left wheel near 1560 and the right near 1400 at F 14, so F sits between
+     * the two wheels and P and I take up the rest.
      */
-    public static double velocityF = Double.NaN;
+    public static double velocityF = 14.65;
 
     /**
      * Scale F by the battery: F × {@link #nominalVolts} / battery, so the feedforward pushes as hard

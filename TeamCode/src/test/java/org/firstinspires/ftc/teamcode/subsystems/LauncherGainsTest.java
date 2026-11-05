@@ -30,12 +30,22 @@ public class LauncherGainsTest {
     /** What the fake hub answers for its velocity PIDF. */
     private static final PIDFCoefficients HUB = new PIDFCoefficients(10.0, 3.0, 0.0, 0.0);
 
+    /** The gains as shipped, put back after each test so no other test sees this one's NaNs. */
+    private static final double[] SHIPPED = {LauncherSubsystem.velocityP, LauncherSubsystem.velocityI,
+            LauncherSubsystem.velocityD, LauncherSubsystem.velocityF};
+
     private final Map<String, List<double[]>> writes = new HashMap<>();
     private LauncherSubsystem launcher;
 
     @Before
     public void build() {
-        resetKnobs();
+        // These tests start from the hub's own gains, so every knob begins at NaN.
+        LauncherSubsystem.velocityP = Double.NaN;
+        LauncherSubsystem.velocityI = Double.NaN;
+        LauncherSubsystem.velocityD = Double.NaN;
+        LauncherSubsystem.velocityF = Double.NaN;
+        LauncherSubsystem.compensateF = false;
+        LauncherSubsystem.nominalVolts = 12.0;
         Map<String, Object> fakes = new HashMap<>();
         for (String name : new String[] {DeviceNames.LAUNCHER_LEFT, DeviceNames.LAUNCHER_RIGHT, DeviceNames.FEEDER}) {
             List<double[]> record = new ArrayList<>();
@@ -68,10 +78,10 @@ public class LauncherGainsTest {
 
     @After
     public void resetKnobs() {
-        LauncherSubsystem.velocityP = Double.NaN;
-        LauncherSubsystem.velocityI = Double.NaN;
-        LauncherSubsystem.velocityD = Double.NaN;
-        LauncherSubsystem.velocityF = Double.NaN;
+        LauncherSubsystem.velocityP = SHIPPED[0];
+        LauncherSubsystem.velocityI = SHIPPED[1];
+        LauncherSubsystem.velocityD = SHIPPED[2];
+        LauncherSubsystem.velocityF = SHIPPED[3];
         LauncherSubsystem.compensateF = false;
         LauncherSubsystem.nominalVolts = 12.0;
     }
