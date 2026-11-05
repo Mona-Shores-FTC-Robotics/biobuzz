@@ -139,6 +139,8 @@ public class Robot {
         intake.rejectWhile(colorSensor::rejecting);
         // Then the roller and stars stop a moment, so the piece rolls clear rather than back in.
         intake.holdOffWhile(colorSensor::holdingOffAfterReject);
+        // And the prefeed backs out for the burst's start, for a NECTAR already past the stars.
+        prefeed.backOutForRejectWhile(colorSensor::prefeedBacksOutForReject);
 
         subsystems = Collections.unmodifiableList(
                 Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, feeder, launcher, intake, prefeed,

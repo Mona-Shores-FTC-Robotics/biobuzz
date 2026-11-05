@@ -23,6 +23,10 @@ import java.util.function.BooleanSupplier;
  * loop's request, not last loop's. {@link #override} replaces that for a bench; {@link #follow}
  * gives it back.
  *
+ * <p>During a reject burst (the other alliance's NECTAR at the entrance, {@code NectarReject}) it
+ * backs out for the burst's first {@code ColorSensorSubsystem.rejectPrefeedS}, to hand a NECTAR that
+ * got past the star wheels back to them, then holds still, so the rest of the lane stays.
+ *
  * <p>Once the lane is full ({@link #stopWhenFull}) taking in stops running it, as the intake's
  * roller drops to its hold power, so nothing more is pushed up the lane while the stars hold the last piece; a
  * feed still runs it, and the moment a shot moves the piece off the sensor, taking in runs it again.
@@ -99,6 +103,8 @@ public class PrefeedSubsystem implements Subsystem {
     private boolean stoppedForFull;
     /** Whether the lane is full; never until {@link #laneFull} is called. */
     private BooleanSupplier laneFull = () -> false;
+    /** Whether to back out for the start of a reject burst; never until {@link #backOutForRejectWhile} is called. */
+    private BooleanSupplier backOutForReject = () -> false;
 
     /**
      * Looks the servo up once. A missing servo fails init with the SDK's own message.
@@ -118,6 +124,14 @@ public class PrefeedSubsystem implements Subsystem {
      */
     public void laneFull(BooleanSupplier full) {
         laneFull = full;
+    }
+
+    /**
+     * Where to read whether to back out for the start of a reject burst
+     * ({@code ColorSensorSubsystem.rejectPrefeedS}). Wired once by {@code Robot}.
+     */
+    public void backOutForRejectWhile(BooleanSupplier backOut) {
+        backOutForReject = backOut;
     }
 
     /** Hold the prefeed in {@code state} whatever the intake and feeder ask, for a bench. */
@@ -187,8 +201,9 @@ public class PrefeedSubsystem implements Subsystem {
         } else {
             boolean full = stopWhenFull && laneFull.getAsBoolean();
             boolean rejecting = intake.rejecting();
-            state = requestFor(intake.starsState(), feeder.state(), full, rejecting);
-            stoppedForFull = full && requestFor(intake.starsState(), feeder.state(), false, rejecting) != state;
+            boolean backOut = rejecting && backOutForReject.getAsBoolean();
+            state = requestFor(intake.starsState(), feeder.state(), full, rejecting, backOut);
+            stoppedForFull = full && requestFor(intake.starsState(), feeder.state(), false, rejecting, backOut) != state;
         }
         boolean feeding = override == null && feeder.state() == FeederSubsystem.State.FEED;
         if (feeding && !wasFeeding) {
@@ -256,8 +271,20 @@ public class PrefeedSubsystem implements Subsystem {
      */
     public static State requestFor(IntakeSubsystem.State intake, FeederSubsystem.State feeder, boolean stopForFull,
                                    boolean rejecting) {
+        return requestFor(intake, feeder, stopForFull, rejecting, false);
+    }
+
+    /**
+     * As {@link #requestFor(IntakeSubsystem.State, FeederSubsystem.State, boolean, boolean)}, and with
+     * {@code backOutForReject} (the start of a burst, {@code ColorSensorSubsystem.rejectPrefeedS}) the
+     * prefeed backs out instead of holding still, to hand a NECTAR that got past the stars back to
+     * them. A feed still wins: the prefeed keeps carrying in.
+     */
+    public static State requestFor(IntakeSubsystem.State intake, FeederSubsystem.State feeder, boolean stopForFull,
+                                   boolean rejecting, boolean backOutForReject) {
         if (rejecting && feeder != FeederSubsystem.State.REVERSE) {
-            return feeder == FeederSubsystem.State.FEED ? State.IN : State.IDLE;
+            if (feeder == FeederSubsystem.State.FEED) return State.IN;
+            return backOutForReject ? State.OUT : State.IDLE;
         }
         if (intake == IntakeSubsystem.State.OUT || feeder == FeederSubsystem.State.REVERSE) {
             return State.OUT;

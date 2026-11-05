@@ -148,6 +148,16 @@ public class ColorSensorSubsystem implements Subsystem {
     public static double rejectRollerPower = 1.0;
 
     /**
+     * For the first this many seconds of each burst the prefeed backs out too, at
+     * {@code PrefeedSubsystem.outPower}, then holds still for the rest. A NECTAR that has already
+     * got past the star wheels is touched only by the prefeed, and with the prefeed still it stayed
+     * in (20245, 5 Nov 2026); backing out hands it to the stars, which throw it out. The cost: it
+     * also pulls back the piece ahead of it, which the stars may then throw out too, so keep it
+     * short. <b>Not yet measured:</b> 0.2 is a guess. 0 keeps the prefeed still all burst.
+     */
+    public static double rejectPrefeedS = 0.2;
+
+    /**
      * Fresh readings in a row, each the other alliance's NECTAR with a piece present, before a
      * burst starts. 2, at the 50 ms read rate, decides in about 0.1 s; a piece passing with the
      * intake running is under the sensor 0.3 to 1.0 s (1 Nov logs). 1 trusts a single reading.
@@ -283,6 +293,11 @@ public class ColorSensorSubsystem implements Subsystem {
      */
     public boolean rejecting() {
         return reject.rejecting();
+    }
+
+    /** Whether the prefeed backs out for the start of a burst ({@link #rejectPrefeedS}). */
+    public boolean prefeedBacksOutForReject() {
+        return reject.burstYoungerThan(rejectPrefeedS * 1000.0);
     }
 
     /** Whether the hold-off after a burst is running: the intake keeps the roller and stars stopped. */
