@@ -806,9 +806,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /**
      * The launch speed from {@code LaunchSpeedTable}, once per loop, before the launch-spot press
-     * and the operator's buttons spin anything up. The range is the launch-spot press's spot while
-     * one is driving or holding (so the wheels are at the spot's speed on arrival), else
-     * {@link #shotRangeIn()}. Held within half the launcher's tolerance
+     * and the operator's buttons spin anything up. The range is the camera's, as for FIRE, whenever
+     * it sees one of our CELLs: the table's rows were measured with it (4 Nov 2026), and a press's
+     * planned spot range ran up to 4 in long at RIGHT_LAUNCH_CATCH, so Square fired faster than the
+     * operator's FIRE from the same place. Without a camera range, a launch-spot press uses its
+     * spot's range (the wheels spin up for it on the way), else {@link #shotRangeIn()}'s odometry.
+     * Held within half the launcher's tolerance
      * ({@link LaunchSpeedTable#held}) and never changed while the feeder feeds, so a range that
      * wobbles never re-arms at-speed or the shot detector mid-volley. With the table switched off
      * ({@link LaunchSpeedTable#enabled}) or no usable row, the configured speed stands, exactly as
@@ -822,9 +825,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (!LaunchSpeedTable.enabled || LaunchSpeedTable.usableRows() == 0) {
             next = Double.NaN;
         } else {
+            double shotRange = shotRangeIn();
             double spotRange = launchSpot.spotRangeIn();
-            fromSpot = !Double.isNaN(spotRange);
-            range = fromSpot ? spotRange : shotRangeIn();
+            fromSpot = rangeFrom != RangeFrom.CAMERA && !Double.isNaN(spotRange);
+            range = fromSpot ? spotRange : shotRange;
             next = LaunchSpeedTable.held(tableTps, LaunchSpeedTable.ticksPerSecondFor(range),
                     LauncherSubsystem.toleranceTicksPerSecond / 2.0);
         }

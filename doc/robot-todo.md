@@ -61,7 +61,7 @@ here waits until after the event.
 
 **Not before the event:** ending the feed at the 4th shot (waits on the count), moving
 SCORING_FLOWER_STAGING 1–2 in west (it clips a partner dead on LEFT_START by about an inch), R-Solo-Staging,
-L-Partner, the other launcher distances (§7d), a third TIP, the pick-depth session (§4), the tape
+L-Partner, a third TIP, the pick-depth session (§4), the tape
 measure (§6; the start check reads 0.1–1 in at Red audience on nearly every INIT), 19429's
 bring-up beyond what night 2 needs (§7), Wall Eject (§7b), and the look-only lines of §8–9.
 
@@ -300,7 +300,7 @@ measurement is [#255].
       [S4 §6], [PR #279]
 - [ ] **Drive speeds, the drivers' call:** Basic Drive, a few minutes each driver: normal, then
       hold L1 (slow) to line up on a FLOWER, then R1 (turbo) across the field, diagonals included.
-      New defaults normal 0.7 / slow 0.35 / turbo 1.0 (slow was 0.25 until 5 Nov: it did not strafe), and each mode now caps the wheels, so it is
+      New defaults normal 0.76 / slow 0.38 / turbo 1.0 (5 Nov: slow 0.25 did not strafe, and both went up about 8% at the drivers' ask), and each mode now caps the wheels, so it is
       that fraction of turbo in every direction (before, 0.8 on a diagonal was already full power).
       Change them live in Panels → TeleOpConfig if they ask. **Good:** each mode feels different and
       the drivers name the values they keep; write those in `TeleOpConfig`, pull the log. **Stop:**

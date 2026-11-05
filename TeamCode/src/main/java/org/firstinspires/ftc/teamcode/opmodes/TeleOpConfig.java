@@ -45,9 +45,10 @@ public final class TeleOpConfig {
      * 1400 ticks/s and turbo has room for half as much again, given the distance to get there.
      * History: 0.6 until 29 Oct (the driver held the stick at its rim more than half the time and
      * almost never used turbo), then 0.8, which with the saturation was nearly turbo. Drivers judge
-     * the new value in Basic Drive ({@code doc/robot-todo.md}).
+     * the new value in Basic Drive ({@code doc/robot-todo.md}). 0.76 since 5 Nov 2026: the drive
+     * team found 0.7 a little slow and asked for about 8% more.
      */
-    public static double normalSpeed = 0.7;
+    public static double normalSpeed = 0.76;
 
     /**
      * Stick multiplier and wheel cap while turbo is held, with the acceleration limit off. Full
@@ -59,13 +60,14 @@ public final class TeleOpConfig {
      * Stick multiplier and wheel cap while slow is held, for lining up. Slow wins if both are held.
      * Clamped to [0, 1].
      *
-     * <p>0.35 since 5 Nov 2026. At 0.25 (4 Nov) the robot drove forward and back but did not strafe
+     * <p>0.35 on 5 Nov 2026. At 0.25 (4 Nov) the robot drove forward and back but did not strafe
      * at all on 20245: a mecanum strafe needs more wheel power than a straight drive to overcome
      * the rollers. 0.45 was too close to normal to feel like a precision mode (57% of normal at the
      * wheels, 940 against 1660 ticks/s, in the 2 and 3 Nov logs), so 0.35 sits between. The cap
-     * holds the chassis aim's turn to it too.
+     * holds the chassis aim's turn to it too. 0.38 since later on 5 Nov: at 0.35 it strafed, and the
+     * drive team asked for about 8% more.
      */
-    public static double slowSpeed = 0.35;
+    public static double slowSpeed = 0.38;
 
     /** Degrees one trim press moves the aim. Clamped to [0, 5]. */
     public static double trimStepDeg = 1.5;
