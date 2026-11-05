@@ -329,7 +329,8 @@ measurement is [#255].
       match-length drive and note `shadow_offset_in`. [PR #361]
 - [ ] **Panels drawing:** X then B in INIT turns the outline blue → red; each FieldLayers switch
       shows and hides its robot. [PR #356], [PR #307]
-- [ ] **Go to launch spot (driver Square, hold) vs chassis aim (Circle):** pose set (corner or
+- [x] **Done on red at all six spots (mentor, 5 Nov); the two CORNER spots and blue are checked
+      in §7d and §7e.** **Go to launch spot (driver Square, hold) vs chassis aim (Circle):** pose set (corner or
       camera reset), the drivers try both from around the field over a practice, firing from where
       each leaves them. It goes to the nearest of six spots (the two starts and the four
       CATCH/OFFSET spots); press it once near each start: it stops `LaunchSpotDrive.startOffWallIn`
