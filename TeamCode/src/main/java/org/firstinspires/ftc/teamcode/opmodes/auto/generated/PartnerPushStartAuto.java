@@ -20,7 +20,7 @@ public final class PartnerPushStartAuto {
     public static final String SOURCE = "partner-push-start.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-05|8:50PM";
+    public static final String SAVED = "11-06|2:54AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {};
@@ -36,7 +36,7 @@ public final class PartnerPushStartAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(8, 84, 90);
+        return poses(rotated).of(10.2537, 82, 70);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -48,7 +48,7 @@ public final class PartnerPushStartAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose partnerPushStart = p.of(8, 84, 90);
+        Pose partnerPushStart = p.of(10.2537, 82, 70);
 
         return kit.sequence(
                 kit.firstOf("Hold position",

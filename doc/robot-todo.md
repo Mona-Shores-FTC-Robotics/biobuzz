@@ -292,21 +292,35 @@ Use the work order above to select checks; the detailed mechanism checks below a
       lines from the same runs with `launchOnApproach` off. **Good:** X under 0.3 s (was 0.38–0.57),
       and hits as good as before. **Stop:** misses → `PathEndSettle.slowSpeedInPerSec` 3.
       [PR #430]
-- [ ] **Short nudge, first in Basic Drive with the actual partner.** The revised draft
-      and `partner-push-start.pp` now agree: partner nominally (8, 84), heading 90°,
-      touching the alliance wall and outside the loading zone; our contact pose
-      (10.5, 67.8), heading 270°. Place by the real frame/wall contact and measure the
-      contact gap; the drawing and simulator use different frame dimensions.
-      **Good:** the partner rolls straight toward the zone, a short push puts its
-      body partly over the tape, our loaded robot retains all four pieces, and the
-      east/south peel-off releases contact before curving north. Record the actual
-      push distance, approach speed, whether the partner turns, and time cost.
-      The 300 ms hold and 4.2 in path are not a numerical speed/force cap: test the
-      contact behavior before loading the full automated draft. If the first
-      contact is too hard, add a real local speed limit rather than changing only
-      preview velocity. Then qualify the two-TIP sequence and separate near/far
-      AUTO parks. The old 12 in diagonal-push procedure is superseded. The draft
-      still has no selectable OpMode. [autos draft README](../TeamCode/autos/drafts/README.md#r-solo-nudge-for-a-partner-with-no-auto)
+- [ ] **Angled nudge with the dummy chassis — Utility `Drive: Partner Nudge`.**
+      Sloth Load the nudge-test branch/PR; the three competition Autos stay as they are.
+      [Setup drawing](nudge-test-setup.svg). Red frame: a **16 x 16 in** partner centre
+      at **(10.254, 82.000), heading 70°**, one corner on the alliance wall and its
+      whole body outside the loading zone. Place our centre at **(11.754, 64.193),
+      heading 250°**, rear bumpers parallel, nominal **0.5 in gap and 8.5 in overlap**.
+      Our rear bumper pushes; our front points away from the partner. Measure the
+      dummy and our actual bumper envelope first. If they differ from the drawing,
+      adjust the `.pp` geometry and export before trying contact; these are not size presets.
+      Blue uses the same setup rotated 180° about field centre.
+      - First run without the dummy to check direction, the six-inch stroke and retreat.
+        Choose alliance in INIT, then PLAY. Default Panels `PartnerNudgeTest` settings:
+        **speedInPerSec=4, accelerationInPerSec2=8, timeoutSeconds=8**. Settings are
+        captured at PLAY. STOP and re-INIT to repeat after resetting both robots.
+      - Put the dummy back, with solid bumper contact and wheels free to roll. Run the
+        same short test. **Good:** partner enters the loading zone and ends visibly
+        off the wall, push is gentle, and retreat separates cleanly. The calculated
+        1.88 in wall gap / 5.17 in upfield movement assumes no rotation: measure both.
+        Record actual dimensions, wheel/brake behavior, final wall gap, park overlap,
+        rotation and measured speed in the log/video; repeat from the same marks.
+      - **Stop:** hard initial contact, wheel slip, snagging, unexpected rotation,
+        or timeout. The test cancels and releases the drive at 8 s; it does not keep
+        holding the push endpoint. A speed/acceleration cap is not a force cap.
+        Change one setup or speed variable at a time; do not lengthen a blocked push.
+      - Once repeatable, try with our normal four-piece load and then integrate the
+        measured maneuver into full Solo. The full draft currently has **no** test
+        speed wrapper or competition OpMode; its preview is not a qualified robot run.
+        Two TIPs and double park, followed by 17/18 in partner presets, come after this test.
+      [Draft and Utility details](../TeamCode/autos/drafts/README.md#first-floor-test-drive-partner-nudge)
 
 - [ ] **Infraviolet pair: L early garden, R both flowers.**
       [Candidate, reused paths, cutoffs and timing](../TeamCode/autos/drafts/README.md#l-infraviolet--r-infraviolet-coordinated-three-tip-draft).

@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T01:50:01.571Z",
+  "timestamp": "2026-11-06T07:54:05.879Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -84,17 +84,17 @@
       "id": "nudge-approach",
       "name": "to PARTNER_CONTACT",
       "endPoint": {
-        "x": 10.5,
-        "y": 67.8
+        "x": 11.7538,
+        "y": 64.193
       },
       "controlPoints": [
         {
-          "x": 17,
-          "y": 47.2
+          "x": 22,
+          "y": 50
         },
         {
-          "x": 10.5,
-          "y": 56
+          "x": 10.6538,
+          "y": 61.193
         }
       ],
       "heading": {
@@ -107,7 +107,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 180,
-                "endDeg": 270
+                "endDeg": 250
               }
             },
             {
@@ -115,7 +115,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 270
+                "degrees": 250
               }
             }
           ]
@@ -133,13 +133,13 @@
       "id": "nudge-push",
       "name": "push to PARTNER_PUSH_END",
       "endPoint": {
-        "x": 10.5,
-        "y": 72
+        "x": 13.806,
+        "y": 69.8312
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 270
+        "degrees": 250
       },
       "color": "#ff9da7"
     },
@@ -158,8 +158,8 @@
       },
       "controlPoints": [
         {
-          "x": 30,
-          "y": 68
+          "x": 25.805999999999997,
+          "y": 51.831199999999995
         },
         {
           "x": 36,
@@ -171,8 +171,36 @@
         }
       ],
       "heading": {
-        "type": "constant",
-        "degrees": 270
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.25,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 250
+              }
+            },
+            {
+              "startProgress": 0.25,
+              "endProgress": 0.6,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 250,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.6,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
       },
       "color": "#4e79a7"
     },
@@ -735,14 +763,14 @@
         0
       ],
       "PARTNER_CONTACT": [
-        10.5,
-        67.8,
-        270
+        11.7538,
+        64.193,
+        250
       ],
       "PARTNER_PUSH_END": [
-        10.5,
-        72,
-        270
+        13.806,
+        69.8312,
+        250
       ]
     },
     "pathEnds": {

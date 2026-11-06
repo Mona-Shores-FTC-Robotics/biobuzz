@@ -21,7 +21,7 @@ public final class RSoloNudgeAuto {
     public static final String SOURCE = "r-solo-nudge.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-05|8:50PM";
+    public static final String SAVED = "11-06|2:54AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -55,18 +55,20 @@ public final class RSoloNudgeAuto {
         Pose leftLaunchClose = p.of(59.9, 117.5, 270);
         Pose rightLaunchClose = p.of(56.1, 26, 90);
         Pose leftPark = p.of(14.5, 117.4, 0);
-        Pose partnerContact = p.of(10.5, 67.8, 270);
-        Pose partnerPushEnd = p.of(10.5, 72, 270);
+        Pose partnerContact = p.of(11.7538, 64.193, 250);
+        Pose partnerPushEnd = p.of(13.806, 69.8312, 250);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose wallFlowerStagingParkControl1 = p.of(37, 54, 0);
         Pose wallFlowerStagingParkControl2 = p.of(31, 109, 0);
-        Pose toPartnerContactControl1 = p.of(17, 47.2, 0);
-        Pose toPartnerContactControl2 = p.of(10.5, 56, 0);
-        Pose toPartnerContactSegment1Start = p.of(10.5, 67.8, 180);
-        Pose toLeftLaunchCloseControl1 = p.of(30, 68, 0);
+        Pose toPartnerContactControl1 = p.of(22, 50, 0);
+        Pose toPartnerContactControl2 = p.of(10.6538, 61.193, 0);
+        Pose toPartnerContactSegment1Start = p.of(11.7538, 64.193, 180);
+        Pose toLeftLaunchCloseControl1 = p.of(25.806, 51.8312, 0);
         Pose toLeftLaunchCloseControl2 = p.of(36, 68, 0);
         Pose toLeftLaunchCloseControl3 = p.of(26, 116, 0);
+        Pose toLeftLaunchCloseSegment1Heading = p.of(59.9, 117.5, 250);
+        Pose toLeftLaunchCloseSegment2Start = p.of(59.9, 117.5, 250);
         Pose toRightLaunchCloseControl1 = p.of(58.7683, 101.5686, 0);
         Pose toRightLaunchCloseControl2 = p.of(65.2005, 71.9052, 0);
         Pose toRightLaunchCloseControl3 = p.of(60.6002, 40.901, 0);
@@ -81,7 +83,7 @@ public final class RSoloNudgeAuto {
         Path wallFlowerStagingPark = Paths.curve(wallFlowerStaging, wallFlowerStagingParkControl1, wallFlowerStagingParkControl2, leftPark).linear(wallFlowerStaging, leftPark);
         Path toPartnerContact = Paths.curve(wallFlowerStaging, toPartnerContactControl1, toPartnerContactControl2, partnerContact).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(toPartnerContactSegment1Start, partnerContact)).until(1, Interpolator.constant(partnerContact)));
         Path pushToPartnerPushEnd = Paths.line(partnerContact, partnerPushEnd).constant(partnerPushEnd);
-        Path toLeftLaunchClose = Paths.curve(partnerPushEnd, toLeftLaunchCloseControl1, toLeftLaunchCloseControl2, toLeftLaunchCloseControl3, leftLaunchClose).constant(leftLaunchClose);
+        Path toLeftLaunchClose = Paths.curve(partnerPushEnd, toLeftLaunchCloseControl1, toLeftLaunchCloseControl2, toLeftLaunchCloseControl3, leftLaunchClose).heading(Interpolator.piecewise().until(0.25, Interpolator.constant(toLeftLaunchCloseSegment1Heading)).until(0.6, Interpolator.linear(toLeftLaunchCloseSegment2Start, leftLaunchClose)).until(1, Interpolator.constant(leftLaunchClose)));
         Path leftLaunchClosePark = Paths.line(leftLaunchClose, leftPark).linear(leftLaunchClose, leftPark);
         Path toScoringFlowerStaging = Paths.line(leftLaunchClose, scoringFlowerStaging).linear(leftLaunchClose, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, leftPark).linear(scoringFlowerStaging, leftPark);
@@ -95,11 +97,11 @@ public final class RSoloNudgeAuto {
                 kit.command("LaunchAll"),
                 kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.6),
                 kit.command("PickFlower", 4.5),
-                kit.path("to PARTNER_CONTACT", toPartnerContact, 1.5),
+                kit.path("to PARTNER_CONTACT", toPartnerContact, 1.3),
                 kit.firstOf("Settle before contact",
                         kit.afterMs(300)),
-                kit.path("push to PARTNER_PUSH_END", pushToPartnerPushEnd, 0.6),
-                kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClose, 2.6, leftLaunchClosePark, 2),
+                kit.path("push to PARTNER_PUSH_END", pushToPartnerPushEnd, 0.7),
+                kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClose, 2.7, leftLaunchClosePark, 2),
                 kit.firstOf("Wait for TIP or CELL up",
                         kit.when("CellUp").then(
                                 kit.guarded("If CellUp", toLeftPark, 2,
