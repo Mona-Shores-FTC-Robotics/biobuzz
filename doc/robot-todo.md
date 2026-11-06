@@ -442,6 +442,12 @@ measurement is [#255].
       (54.3, 6.1) vs start (55.6, 7.7). y 1.6 in short means ranges ~3 % long, like 20245's; x 54.3 is
       the old wheels-on-seam placement. Tape lens to tag 35, measure a printed tag, level the camera.
 - [ ] **Drive check table** (10 steps), on both robots. [#62]
+- [ ] **19429's prefeed does not respond** (6 Nov, late; left for 7 Nov). It is a goBILDA Torque
+      servo in continuous mode on **Control Hub servo port 2** (`robot_19429.xml`). Check in order:
+      the cable is in port 2 the right way round (black/brown to the hub's "-" side); the servo
+      runs on a servo tester or another port; it is still in **continuous** mode (the servo
+      programmer was in use for the turret that night); Check: Hardware lists `prefeed`.
+      **Good:** it spins inward in Basic Drive's intake. Without it, pieces do not reach the feeder.
 - [ ] **19429's intake encoder cable is not installed** (seen 6 Nov; note left for the builders).
       Every Basic Drive log says "intake: encoder never moved"; the roller runs, but nothing can
       see a jam. Plug it into the Expansion Hub's encoder socket 0, beside the intake's power port
