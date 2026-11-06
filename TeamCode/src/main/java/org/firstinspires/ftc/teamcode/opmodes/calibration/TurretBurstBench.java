@@ -13,44 +13,40 @@ import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.firstinspires.ftc.teamcode.subsystems.TurretEncoder;
-import org.firstinspires.ftc.teamcode.subsystems.TurretServoControl;
+import org.firstinspires.ftc.teamcode.subsystems.SwyftBurstControl;
 
 import java.util.Locale;
 
 /**
- * Standalone 19429 experiment: SWYFT flashed to continuous rotation, Cypher Max on the 64T
- * drive gear. Restores the October pulse controller without changing the match subsystem.
+ * Standalone 19429 experiment: programmable SWYFT flashed to continuous rotation; Cypher Max
+ * on the 64T drive gear. SWYFT's V2 programmer guide says partial speed is unavailable,
+ * 1500 us RETURNS HOME, and stopping requires PWM disable. Never send a centre pulse here.
  *
- * <p>The XML remains Servo so 20245 and the position-mode implementation stay intact. Here
- * Servo is ONLY a pulse transport: position 0.5 is 1500 us, and signed power p becomes
- * 0.5 + p/2 over 500..2500 us. It is never a request for a physical angle. No XML edit needed.
- * Nothing writes PWM before PLAY; STOP disables the pulse. Only this utility may be run on
- * 19429 while its servo is flashed continuous: the ordinary bench and match OpModes still
- * send position commands. The feeder motor is never powered or reset here.
+ * <p>XML remains Servo; this utility sends only directional endpoints, 500 or 2500 us,
+ * while a burst is active. Every pause, trigger release, stop request and STOP disables PWM
+ * on this servo's port. Short full-speed bursts control average motion, not pulse amplitude.
+ * Source: https://github.com/SWYFT-Robotics/swyft-servo-programmer-v2/blob/main/src/GuideWindow.xaml
+ *
+ * <p>No PWM writes before PLAY. Only this utility may be run on 19429 while its servo is
+ * flashed continuous: ordinary bench/match OpModes still send positional commands. The feeder
+ * motor is never powered or reset here. The software window needs a working encoder and
+ * correct direction and cannot prevent coasting.
  */
-@Utility(name = "Bench: Turret Burst", description = "19429 only, SWYFT CONTINUOUS mode: encoder pulse hold; hold R2 to drive")
+@Utility(name = "Bench: Turret Burst", description = "19429 SWYFT continuous: FULL-SPEED bursts, PWM OFF to stop; hold R2")
 @Configurable
 public class TurretBurstBench extends OpMode {
     public static double turnsPerTurretTurn = 2.75;
     public static int direction = -1;
     /** Starting sign from the earlier bench; verify with a short manual nudge. */
     public static int servoDirection = -1;
-    public static double servoStopPower = 0.0;
-    /** Experimental cap, not a measured tuning value for SWYFT. */
-    public static double maxPower = 0.12;
-    public static double nudgePower = 0.12;
-    public static double kP = 0.004;
-    public static double kD = 0.002;
-    public static double minPower = 0.07;
-    public static double creepPower = 0.12;
-    public static double creepOnMs = 25.0;
-    public static double creepOffMs = 100.0;
-    public static double creepBelowDeg = 10.0;
-    public static double creepMaxRateDps = 30.0;
+    /** Full-speed ON time, clamped by SwyftBurstControl to at most 100 ms. */
+    public static double burstOnMs = 25.0;
+    /** PWM-disabled pause, at least 100 ms. Start with a slow repetition rate. */
+    public static double burstOffMs = 250.0;
     public static double holdToleranceDeg = 1.0;
     public static double targetDeg = 5.0;
     public static double targetStepDeg = 5.0;
-    /** Test window only: check physical clearance first; reduce if cables require it. */
+    /** Test window only: check physical clearance first; reduce if mechanical clearance requires it. */
     public static double travelEachWayDeg = 30.0;
 
     private Servo servo;
@@ -70,10 +66,7 @@ public class TurretBurstBench extends OpMode {
     private double powerSent;
     private String fault;
     private TelemetryManager panels;
-    private final TurretServoControl control = new TurretServoControl();
-    private final TurretServoControl.Gains gains = new TurretServoControl.Gains(
-            kP, kD, creepMaxRateDps, minPower, creepPower, maxPower, creepBelowDeg,
-            holdToleranceDeg, creepOnMs, creepOffMs);
+    private final SwyftBurstControl control = new SwyftBurstControl();
 
     @Override
     public void init() {
@@ -106,10 +99,10 @@ public class TurretBurstBench extends OpMode {
 
     @Override
     public void start() {
-        // Match the programmer's 500 / 1500 / 2500 us signals. No PWM changes during INIT.
+        // SWYFT centre is HOME, not stop. PLAY starts with no signal.
+        pwm.setPwmDisable();
         pwm.setPwmRange(new PwmControl.PwmRange(500, 2500));
-        servo.setPosition(0.5);
-        pwm.setPwmEnable();
+        control.reset();
         started = true;
     }
 
@@ -158,27 +151,21 @@ public class TurretBurstBench extends OpMode {
         upWasDown = gamepad1.dpad_up;
         downWasDown = gamepad1.dpad_down;
         double limit = finite(travelEachWayDeg);
-        if (limit > 0 && limit <= 180) targetDeg = clamp(finite(targetDeg), limit);
-        gains.set(kP, kD, creepMaxRateDps, minPower, creepPower, maxPower, creepBelowDeg,
-                holdToleranceDeg, creepOnMs, creepOffMs);
+        if (limit > 0 && limit <= 180) targetDeg = Math.max(-limit, Math.min(limit, finite(targetDeg)));
         double requested = 0.0;
         if (gamepad1.left_bumper || gamepad1.right_bumper) {
             holding = false;
             requested = (gamepad1.left_bumper ? 1 : 0) - (gamepad1.right_bumper ? 1 : 0);
-            requested *= Math.min(Math.max(finite(nudgePower), 0), gains.maxPower);
-        } else if (holding && deadman) {
-            requested = control.power(targetDeg - angleDeg, rateDps, gains, System.nanoTime());
+        } else if (holding) {
+            double tolerance = finite(holdToleranceDeg);
+            double error = targetDeg - angleDeg;
+            if (tolerance >= 0 && Math.abs(error) > tolerance) requested = Math.signum(error);
         }
         requested = allowedPower(requested, angleDeg, zeroed, started && deadman,
                 gamepad1.b || fault != null, limit);
-        powerSent = clamp(requested * (servoDirection == -1 ? -1 : 1), gains.maxPower);
-        if (started) {
-            // R2 released or Circle held means exact neutral, independent of the trim setting.
-            double trim = deadman && !gamepad1.b && zeroed && fault == null
-                    && Double.isFinite(angleDeg) && limit > 0 && limit <= 180 && Math.abs(angleDeg) < limit
-                    ? clamp(finite(servoStopPower), 0.2) : 0.0;
-            servo.setPosition(0.5 + clamp(powerSent + trim, gains.maxPower) / 2.0);
-        }
+        double burst = control.power(requested, burstOnMs, burstOffMs, System.nanoTime());
+        powerSent = burst * (servoDirection == -1 ? -1 : 1);
+        if (started) writeBurst(servo, pwm, powerSent);
         report();
     }
 
@@ -191,11 +178,23 @@ public class TurretBurstBench extends OpMode {
         return requested;
     }
 
+    /** Servo is a PWM transport: endpoints drive, every zero disables the port; never 0.5. */
+    static void writeBurst(Servo servo, PwmControl pwm, double power) {
+        if (!Double.isFinite(power) || power == 0.0) {
+            pwm.setPwmDisable();
+        } else {
+            servo.setPosition(power > 0 ? 1.0 : 0.0);
+            pwm.setPwmEnable();
+        }
+    }
+
     private void report() {
         telemetry.addLine("19429 SWYFT CONTINUOUS ONLY. Do not run Basic Drive / ordinary Turret bench.");
-        telemetry.addLine("Cross/A: zero at forward with R2 released. R2 held: enable movement.");
+        telemetry.addLine("Cross/A: zero at forward with R2 released. R2 held: enable FULL-SPEED bursts.");
         telemetry.addLine("L1/R1: CCW/CW nudge. Triangle/Y: toggle hold. D-pad up/down: target +/- step.");
-        telemetry.addLine("Circle/B: neutral and cancel hold. Release R2: neutral. STOP: PWM off.");
+        telemetry.addLine("Circle/B, R2 released, and pauses: PWM OFF. STOP: PWM OFF.");
+        telemetry.addData("Build", "SWYFT v2: full-speed bursts / PWM OFF, NO NEUTRAL");
+        telemetry.addData("Burst on/off ms", burstOnMs + " / " + burstOffMs);
         telemetry.addData("Zeroed", zeroed);
         telemetry.addData("Counts", counts);
         telemetry.addData("Angle / rate", String.format(Locale.US, "%.2f deg / %.2f deg/s", angleDeg, rateDps));
@@ -216,7 +215,4 @@ public class TurretBurstBench extends OpMode {
         return Double.isFinite(value) ? value : 0;
     }
 
-    private static double clamp(double value, double limit) {
-        return Math.max(-limit, Math.min(limit, value));
-    }
 }

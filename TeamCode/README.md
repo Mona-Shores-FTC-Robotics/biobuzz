@@ -477,15 +477,21 @@ was cosmetic. These files keep the two equal so the file cannot be misread.
 
 ### The turret: a servo on a servo port, an encoder on a motor's encoder socket
 
-**Experimental branch `spike/19429-turret-burst` (6 Nov):** Utility **Bench: Turret Burst**
-restores the October encoder pulse controller for 19429's SWYFT in continuous mode. It is a
-standalone test, not a change to match aiming. The existing `<Servo>` mapping is deliberately
-kept: this utility sends speed as `0.5 + power/2` with a 500–2500 us PWM range (1500 us neutral).
+**Experimental branch `spike/19429-turret-burst` (6 Nov, corrected for SWYFT):** Utility
+**Bench: Turret Burst** tests 19429's programmable SWYFT in continuous mode. SWYFT's
+[programmer guide](https://github.com/SWYFT-Robotics/swyft-servo-programmer-v2/blob/main/src/GuideWindow.xaml)
+says continuous mode is full-speed only, 1500 us returns HOME, and stopping requires PWM disable.
+The first version of this branch incorrectly reused goBILDA-style partial speed and neutral-stop
+behavior; the robot returned to home when R2 was released. That version is superseded.
+
+The corrected utility sends only 500/2500 us direction endpoints during a burst and disables PWM
+on this port for every pause, R2 release, Circle/B, and STOP. It never sends 1500 us, including at
+PLAY. Default bursts are 25 ms on / 250 ms off at full speed; there is no 12% speed setting.
+The existing `<Servo>` mapping is just the pulse transport here, not position targeting.
 Both XML files and the position subsystem remain unchanged. Never run the ordinary turret bench,
 Basic Drive or Auto on 19429 while its servo is flashed continuous. Reflash position mode before
 returning to those OpModes. Test controls, starting values and checks are in `doc/robot-todo.md`.
-The default 12% cap and +/-30 degree window are experiment limits, not measured robot travel.
-
+The +/-30 degree window is an experiment limit, not measured robot travel; it cannot stop coasting.
 
 The turret has no motor port: all eight are taken. It turns on a goBILDA servo
 in standard (position) mode, a `<Servo>` element and a `Servo` in code (until
