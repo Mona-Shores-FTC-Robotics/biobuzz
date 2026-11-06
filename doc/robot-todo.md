@@ -173,6 +173,52 @@ Result, with the gap on each own-start run, → [PR #372].
 - [ ] **Light looks:** Basic Drive INIT steady red, X → steady blue; off after PLAY; intake until a
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
+- [ ] **19429 SWYFT continuous-mode burst experiment** ([test PR #487](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/487)).
+      **Position hold trial:** SWYFT stays in continuous mode. Zero forward, PLAY, Triangle/Y
+      captures the CURRENT angle (not +5); hold R2 to enable feedback correction. D-pad up/down
+      steps target +/-5 degrees. Start with one +5 then -5 test. It uses recorded 150 ms full-speed
+      corrections, PWM OFF at least 350 ms afterward, then rate <=1 deg/s for 100 ms before another
+      correction. Target band +/-1 degree is experimental, not demonstrated accuracy. R2 release
+      immediately disables PWM; Circle/B cancels hold. Re-enable may correct drift. At target the
+      servo is unpowered, so this restores angle after a push rather than providing a stiff brake.
+      Record settle/overshoot and an external hand displacement with normal logs; do not judge it
+      from just the angle while the drive command is ON. Startup/stop delay remains unexplained.
+      **Load the corrected version:** telemetry must say `SWYFT v5: ENCODER HOLD / recorded`. The original version wrongly treated 1500 us as stop and drove home on release.
+      SWYFT's [own guide](https://github.com/SWYFT-Robotics/swyft-servo-programmer-v2/blob/main/src/GuideWindow.xaml)
+      says 1500 us homes even in continuous mode; stop requires PWM disable, and partial-speed
+      control is unavailable. Only **Bench: Turret Burst**, not Basic Drive, Auto or ordinary
+      Bench: Turret, while flashed continuous. Position-mode checks below are deferred; reflash
+      position mode before returning to them. Servo remains on Control Hub servo port 4; Cypher Max
+      on Expansion Hub motor port 3 encoder socket, 3V3. Programmer: continuous, range 255/255,
+      signals 500/1500/2500 us. Install this branch, activate robot_19429. Confirm mechanical
+      clearance within +/-30 degrees or reduce TurretBurstBench.travelEachWayDeg before PLAY.
+      INIT: align forward, Cross/A with R2 released; hand-turn a measured small arc to check 2.75
+      ratio and CCW-positive angle, then return home and zero again. PLAY leaves PWM disabled.
+      Logging is automatic from INIT to STOP in FIRST/logs, using the normal async match logger.
+      Screen Recording line must name a .wpilog, with no fault. Run a few manual single bursts,
+      pausing at least a second after each; no angle transcription needed. STOP, run the existing
+      tools/pull-logs/pull-logs.cmd on the deployment laptop, and tell the session to pull logs.
+      It sends the bench log to the normal logs/<date>-19429-RC branch when internet is available.
+      The session runs read_logs.py turret to see configured/actual duration, signal, input gating,
+      before/after/delta, 250 ms OFF sample, battery, live setting changes and release interruptions.
+      The latest photo confirmed manualBurstMs was still 125, last ON 126.4 ms, signal 2500 us;
+      successive absolute angles tapered toward zero, so do not treat them as per-burst deltas.
+      Manual now defaults to ONE 250 ms full-speed burst per press, capped at 500 ms: the 100 ms
+      repeating test gave no visible motion (mentor; encoder rate briefly -1.2 then zero).
+      Hold R2 + L1/R1, release to rearm. Watch Inputs R2/L1/R1, PWM enabled (SDK), and the latched
+      burst count/last signal/last ON time. SDK enabled state confirms the API state, not a measured
+      waveform. A short burst may not overcome startup/ramp behavior; that is unconfirmed.
+      Compare one burst with manualBurstMs 250 then 500 only if clearance permits. Report whether
+      the burst count rises, last signal is 500/2500 us, last ON time matches, and angle changes.
+      Set manualSingleBurst false in Panels to return to repeating manual bursts.
+      Verify CCW/CW (else flip servoDirection); release R2 must leave it where it is, not drive home.
+      Triangle/Y now captures the current angle; use the position-hold trial above. D-pad changes by 5.
+      Compare repeated +5/-5 approaches, error, overshoot and drift in Panels' turret_burst_* graphs.
+      Starting timing 25 ms on / 250 ms PWM-off; tune burstOnMs/burstOffMs for SWYFT. On time is
+      capped at 100 ms; off time is clamped to 100..10000 ms. Direction reversals first pause.
+      Circle/B cancels hold and disables PWM; trigger release, pauses, and STOP also disable PWM.
+      Verify no powered movement at INIT/PLAY or during pauses. The software window depends on
+      correct encoder/sign and does not prevent coasting. No full revolution is required.
 - [ ] **19429: the turret re-homes from its encoder** (`TurretSubsystem.rehomeFromEncoder`, on for
       19429). Needs `degreesPerUnit` first (below). Basic Drive: in INIT twirl the turret three
       turns, put it on its mark, PLAY. **Good:** it swings off, then within about a second comes
