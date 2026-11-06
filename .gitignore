@@ -81,3 +81,5 @@ lint/tmp/
 # lint/reports/
 __pycache__/
 
+# Visualizer's local tested checkpoints and interrupted-save journal (keep on the laptop).
+/TeamCode/.auto-workspace/
