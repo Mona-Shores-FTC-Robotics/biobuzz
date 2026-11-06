@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T00:59:30.854Z",
+  "timestamp": "2026-11-06T01:13:52.227Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -257,8 +257,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mw49lw1p-d68tx4",
+      "color": "#4e79a7",
+      "name": "to RIGHT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -273,14 +280,7 @@
         "type": "linear",
         "startDeg": 91.9,
         "endDeg": 0
-      },
-      "color": "#4e79a7",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "to RIGHT_PARK"
+      }
     }
   ],
   "shapes": [
@@ -674,7 +674,8 @@
             ]
           },
           {
-            "afterMs": 7600,
+            "afterMs": 21000,
+            "matchClock": true,
             "cards": [
               {
                 "id": "c-mw49lw1p-64sdq",
