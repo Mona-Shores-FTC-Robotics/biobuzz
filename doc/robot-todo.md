@@ -319,8 +319,8 @@ Use the work order above to select checks; the detailed mechanism checks below a
         a dead L at its start obstructs R's reused LEFT approach.
       - Keep L at the existing RIGHT offset; drive R's final turn and park around
         it, checking actual frame/poker and centre-line clearance. The drawing's
-        minimum centre-line margin near the shot is about 0.9 in, not a tracking tolerance.
-      - Qualify R's new local RIGHT_PAIR_CLOSE shot (60.5, 31, about 99.4 degrees;
+        minimum centre-line margin near the shot is about 1 in along the approach (about 2 in at the shot), not a tracking tolerance.
+      - Qualify R's new local RIGHT_PAIR_CLOSE shot (59.5, 31, about 97.2 degrees;
         turret range about 30 in). L's shared RIGHT offset is unchanged. Check
         camera visibility and the shot line with both robots in position.
       - Test loaded exits after the normal pickup retreat. The long under-HIVE

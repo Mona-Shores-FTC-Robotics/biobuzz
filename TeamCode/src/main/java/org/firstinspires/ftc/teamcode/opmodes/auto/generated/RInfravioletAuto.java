@@ -21,7 +21,7 @@ public final class RInfravioletAuto {
     public static final String SOURCE = "r-infraviolet.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-06|9:44AM";
+    public static final String SAVED = "11-06|9:46AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -62,6 +62,8 @@ public final class RInfravioletAuto {
         Pose wallLaneNorthToLeftLaunchCloseSegment1Start = p.of(59.9, 117.5, 180);
         Pose wallLaneNorthToLeftLaunchCloseSegment1End = p.of(59.9, 117.5, 90);
         Pose wallLaneNorthToLeftLaunchCloseSegment2Start = p.of(59.9, 117.5, 90);
+        Pose wallLaneNorthToLeftLaunchCloseSegment2End = p.of(59.9, 117.5, 0);
+        Pose wallLaneNorthToLeftLaunchCloseSegment3Start = p.of(59.9, 117.5, 0);
         Pose point5 = p.of(32, 108, 270);
         Pose point5Control1 = p.of(44, 112, 0);
         Pose point6 = p.of(32, 96, 270);
@@ -92,7 +94,7 @@ public final class RInfravioletAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path wallFlowerToWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
         Path wallAbortParkToRightPark = Paths.curve(wallFlowerStaging, wallAbortParkToRightParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
-        Path wallLaneNorthToLeftLaunchClose = Paths.curve(wallFlowerStaging, wallLaneNorthToLeftLaunchCloseControl1, leftLaunchClose).heading(Interpolator.piecewise().until(0.12, Interpolator.linear(wallLaneNorthToLeftLaunchCloseSegment1Start, wallLaneNorthToLeftLaunchCloseSegment1End)).until(1, Interpolator.linear(wallLaneNorthToLeftLaunchCloseSegment2Start, leftLaunchClose).reverse()));
+        Path wallLaneNorthToLeftLaunchClose = Paths.curve(wallFlowerStaging, wallLaneNorthToLeftLaunchCloseControl1, leftLaunchClose).heading(Interpolator.piecewise().until(0.12, Interpolator.linear(wallLaneNorthToLeftLaunchCloseSegment1Start, wallLaneNorthToLeftLaunchCloseSegment1End)).until(0.56, Interpolator.linear(wallLaneNorthToLeftLaunchCloseSegment2Start, wallLaneNorthToLeftLaunchCloseSegment2End)).until(1, Interpolator.linear(wallLaneNorthToLeftLaunchCloseSegment3Start, leftLaunchClose)));
         Path leftAbortParkToRightPark = Paths.path(Paths.curve(leftLaunchClose, point5Control1, point5).constant(point5), Paths.line(point5, point6).constant(point6), Paths.line(point7Start, rightPark).linear(point7Start, rightPark));
         Path scoringFlowerToScoringFlowerStaging = Paths.line(leftLaunchClose, scoringFlowerStaging).linear(leftLaunchClose, scoringFlowerStaging);
         Path flowerAbortParkToRightPark = Paths.curve(scoringFlowerStaging, flowerAbortParkToRightParkControl1, flowerAbortParkToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);

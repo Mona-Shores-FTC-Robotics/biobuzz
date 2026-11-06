@@ -45,7 +45,7 @@ drawing elements, not a claim that the newly combined routine has run on hardwar
 
 Shared `spots.json` is unchanged. L keeps **RIGHT_LAUNCH_OFFSET (41, 20, 68.7°)**,
 which the mentor reports is reliable. R's one new shooting point is
-**RIGHT_PAIR_CLOSE (60.5, 31, approximately 99.4°)**: about **30.0 in** from turret
+**RIGHT_PAIR_CLOSE (59.5, 31, approximately 97.2°)**: about **30.0 in** from turret
 axis to the raised target row, approximately **9.4°** off straight-on. Its shot
 needs qualification; no launcher tuning is changed here.
 
@@ -54,7 +54,7 @@ LEFT_CLOSE, about 37 in and straight-on. The original RIGHT offset and RIGHT_CAT
 body footprints overlap. Moving catch right makes the stationary positions fit,
 but leaves too little space for a loaded turn beside L. This candidate instead
 moves R toward a closer shot, allowing its approach and exit to clear L even if L
-remains at the offset. The modeled centre-line margin there is only about 0.9 in:
+remains at the offset. The modeled centre-line margin there is only about 1 in along the approach (about 2 in at the shot):
 check actual robot dimensions, tracking error and both alliance orientations.
 
 ### Loaded motion
@@ -123,6 +123,26 @@ exits, then run the full pair. Measure R seeing TIP 2 settled at LEFT_CLOSE befo
 **16 s** and ready to fire RIGHT before **22.5 s**; measure L ready at its offset
 before **20 s**. Promote to competition OpModes only after three TIPs, both AUTO
 parks and both LEAVEs are demonstrated. Details: [robot-todo §3](../../../doc/robot-todo.md).
+
+### Same-day run order
+
+Use this single candidate pair; the roomier catch-distance alternative was screened
+out because its loaded approach took longer and its park crossed an occupied L
+shooting footprint. It is not added to the Utility list.
+
+1. Sloth Load this PR branch on both robots.
+2. Select **Drive: L-Infraviolet** and **Drive: R-Infraviolet** in Utilities.
+3. Place both at their normal LEFT_START / RIGHT_START marks with four preloads;
+   choose the same alliance and start together. Both trials stop at 30 s.
+4. Film the complete run. Check the first-tip wait, both parks, and whether the
+   fourth piece survives R's last aiming turn. Stop if either robot stalls.
+
+The full simulator initially truncated feeding at readiness timeouts; its registry
+now protects an active feed and uses the robot's feed backstop/shot-count cutoff.
+This correction changes simulated outcomes, not robot feed behavior. A regression
+check exercises the short-timeout wallflower volley. R's missed-tip fallback now
+passes below L's far park after clearing the HIVE, and its wallflower-to-LEFT
+heading uses explicit quarter turns rather than an ambiguous half-turn reversal.
 
 ## R-Solo-Nudge, for a partner with no Auto
 
