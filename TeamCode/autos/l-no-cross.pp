@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-05T23:51:20.286Z",
+  "timestamp": "2026-11-06T00:01:26.793Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -101,7 +101,7 @@
               "startProgress": 0,
               "endProgress": 0.2,
               "interpolationType": "linear",
-              "reversed": true,
+              "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 273.4,
@@ -113,9 +113,9 @@
               "endProgress": 1,
               "interpolationType": "linear",
               "reversed": false,
-              "continueFromPrevious": true,
+              "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 273.4,
+                "startDeg": 90,
                 "endDeg": 90
               }
             }
@@ -237,14 +237,46 @@
       },
       "controlPoints": [
         {
-          "x": 29.549335814058107,
-          "y": 123.70871893085217
+          "x": 39.35072361062994,
+          "y": 59.89970029346436
+        },
+        {
+          "x": 25.497455470737915,
+          "y": 127.60056392485252
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 180,
-        "endDeg": 273.4
+        "endDeg": 273.4,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 273.4
+              }
+            }
+          ]
+        }
       }
     },
     {

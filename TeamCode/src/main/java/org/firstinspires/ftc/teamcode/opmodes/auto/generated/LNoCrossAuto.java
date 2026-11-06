@@ -21,7 +21,7 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-05|6:51PM";
+    public static final String SAVED = "11-05|7:01PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -62,16 +62,20 @@ public final class LNoCrossAuto {
         Pose toRightLaunchCloseSegment1Start = p.of(56.1, 26, 273.4);
         Pose rightLaunchCatchParkStart = p.of(56.1, 26, 91.9);
         Pose rightLaunchCatchParkControl1 = p.of(28, 25, 0);
-        Pose toLeftLaunchCatch_2Control1 = p.of(29.5493, 123.7087, 0);
+        Pose toLeftLaunchCatch_2Control1 = p.of(39.3507, 59.8997, 0);
+        Pose toLeftLaunchCatch_2Control2 = p.of(25.4975, 127.6006, 0);
+        Pose toLeftLaunchCatch_2Segment1Start = p.of(57.5, 123.5, 180);
+        Pose toLeftLaunchCatch_2Segment1End = p.of(57.5, 123.5, 90);
+        Pose toLeftLaunchCatch_2Segment2Start = p.of(57.5, 123.5, 90);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toLeftLaunchCatch = Paths.line(leftStart, leftLaunchCatch).linear(leftStart, leftLaunchCatch);
         Path leftLaunchCatchPark = Paths.line(leftLaunchCatch, leftPark).linear(leftLaunchCatch, leftPark);
-        Path toRightLaunchClose = Paths.curve(leftLaunchCatch, toRightLaunchCloseControl1, toRightLaunchCloseControl2, rightLaunchClose).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(toRightLaunchCloseSegment1Start, rightLaunchClose).reverse()).until(1, Interpolator.linear(rightLaunchClose, rightLaunchClose)));
+        Path toRightLaunchClose = Paths.curve(leftLaunchCatch, toRightLaunchCloseControl1, toRightLaunchCloseControl2, rightLaunchClose).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(toRightLaunchCloseSegment1Start, rightLaunchClose)).until(1, Interpolator.linear(rightLaunchClose, rightLaunchClose)));
         Path rightLaunchCatchPark = Paths.curve(rightLaunchCatchParkStart, rightLaunchCatchParkControl1, leftPark).linear(rightLaunchCatchParkStart, leftPark);
         Path toWallFlowerStaging = Paths.line(rightLaunchClose, wallFlowerStaging).linear(rightLaunchClose, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, leftPark).linear(wallFlowerStaging, leftPark);
-        Path toLeftLaunchCatchPath = Paths.curve(wallFlowerStaging, toLeftLaunchCatch_2Control1, leftLaunchCatch).linear(wallFlowerStaging, leftLaunchCatch);
+        Path toLeftLaunchCatchPath = Paths.curve(wallFlowerStaging, toLeftLaunchCatch_2Control1, toLeftLaunchCatch_2Control2, leftLaunchCatch).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftLaunchCatch_2Segment1Start, toLeftLaunchCatch_2Segment1End)).until(1, Interpolator.linear(toLeftLaunchCatch_2Segment2Start, leftLaunchCatch)));
         Path toScoringFlowerStaging = Paths.line(leftLaunchCatch, scoringFlowerStaging).linear(leftLaunchCatch, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, leftPark).linear(scoringFlowerStaging, leftPark);
         Path toLeftLaunchCatchPath2 = Paths.line(scoringFlowerStaging, leftLaunchCatch).linear(scoringFlowerStaging, leftLaunchCatch);
@@ -84,7 +88,7 @@ public final class LNoCrossAuto {
                         kit.firstOf("Wait for TIP or CELL up", kit.command("SpinUp"),
                                 kit.when("CellUp"),
                                 kit.atMatchSeconds(kit.seconds("Wait for TIP or CELL up", 8)).then(
-                                        kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.4, rightLaunchCatchPark, 3.2),
+                                        kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.3, rightLaunchCatchPark, 3.2),
                                         kit.command("LaunchAll"),
                                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.8, wallFlowerStagingPark, 2.5),
                                         kit.command("PickFlower", 8),
