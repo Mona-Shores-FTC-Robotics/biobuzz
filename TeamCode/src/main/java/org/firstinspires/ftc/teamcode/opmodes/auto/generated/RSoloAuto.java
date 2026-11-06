@@ -75,7 +75,7 @@ public final class RSoloAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
-        Path toLeftLaunchClose = Paths.curve(wallFlowerStaging, toLeftLaunchCloseControl1, leftLaunchClose).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftLaunchCloseSegment1Start, toLeftLaunchCloseSegment1End)).until(1, Interpolator.linear(toLeftLaunchCloseSegment2Start, leftLaunchClose).reverse()));
+        Path toLeftLaunchClose = Paths.curve(wallFlowerStaging, toLeftLaunchCloseControl1, leftLaunchClose).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftLaunchCloseSegment1Start, toLeftLaunchCloseSegment1End)).until(1, Interpolator.longLinear(toLeftLaunchCloseSegment2Start, leftLaunchClose)));
         Path leftLaunchClosePark = Paths.line(leftLaunchCloseParkStart, rightPark).linear(leftLaunchCloseParkStart, rightPark);
         Path toScoringFlowerStaging = Paths.line(leftLaunchClose, scoringFlowerStaging).linear(leftLaunchClose, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
