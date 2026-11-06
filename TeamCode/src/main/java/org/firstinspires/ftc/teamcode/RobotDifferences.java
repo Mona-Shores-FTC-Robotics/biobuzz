@@ -4,6 +4,7 @@ import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,6 +74,10 @@ public final class RobotDifferences {
         differs(RobotIdentity.TEAM_19429,
                 "Intake encoder wire unplugged: use legacy full-lane power hold (6 Nov 2026)",
                 () -> IntakeSubsystem.positionHoldWhenFull = false);
+        differs(RobotIdentity.TEAM_19429,
+                "Prefeed servo does not feed inward at the default direction; reversed makes it feed"
+                        + " inward in Basic Drive's intake (6 Nov 2026)",
+                () -> PrefeedSubsystem.reversed = true);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // Nothing yet: the shared values were mostly measured on 20245.
