@@ -436,6 +436,11 @@ measurement is [#255].
 - [ ] **Its log lands in its own folder** after a pull (`biobuzz-logs\<19429's network>`). [S2 §8]
 - [ ] **Copy 20245's Limelight pipeline** and run the 5-minute start check. [handoff] step 6
 - [ ] **Drive check table** (10 steps), on both robots. [#62]
+- [ ] **19429's intake encoder cable is not installed** (seen 6 Nov; note left for the builders).
+      Every Basic Drive log says "intake: encoder never moved"; the roller runs, but nothing can
+      see a jam. Plug it into the Expansion Hub's encoder socket 0, beside the intake's power port
+      0, then run the intake in Basic Drive. **Good:** that line is gone from the next log. Check
+      20245's too: its picks logged the same line.
 
 ## 7b. Bench: Wall Eject (any field wall, 4 POLLEN, phone filming from above)
 
