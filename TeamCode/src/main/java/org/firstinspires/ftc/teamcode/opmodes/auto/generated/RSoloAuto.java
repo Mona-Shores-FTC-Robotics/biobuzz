@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoOption;
@@ -20,7 +21,7 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-05|1:30AM";
+    public static final String SAVED = "11-05|7:29PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -56,23 +57,30 @@ public final class RSoloAuto {
         Pose rightLaunchClose = p.of(56.1, 26, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toLeftLaunchCloseControl1 = p.of(26.2981, 117.5038, 0);
+        Pose toLeftLaunchCloseControl1 = p.of(29.2986, 127.3052, 0);
+        Pose toLeftLaunchCloseSegment1Start = p.of(59.9, 117.5, 180);
+        Pose toLeftLaunchCloseSegment1End = p.of(59.9, 117.5, 90);
+        Pose toLeftLaunchCloseSegment2Start = p.of(59.9, 117.5, 90);
         Pose leftLaunchCloseParkStart = p.of(59.9, 117.5, 273);
         Pose scoringFlowerStagingParkControl1 = p.of(40, 96, 0);
         Pose toRightParkControl1 = p.of(43.661, 105.8984, 0);
-        Pose toRightLaunchCloseControl1 = p.of(67.9696, 71.9644, 0);
+        Pose toRightLaunchCloseControl1 = p.of(63.9691, 103.7689, 0);
+        Pose toRightLaunchCloseControl2 = p.of(62.6001, 41.7009, 0);
+        Pose toRightLaunchCloseSegment1Start = p.of(56.1, 26, 270);
+        Pose toRightLaunchCloseSegment1End = p.of(56.1, 26, 270);
+        Pose toRightLaunchCloseSegment2Start = p.of(56.1, 26, 270);
         Pose toRightPark_2Control1 = p.of(23.3185, 25.5538, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
-        Path toLeftLaunchClose = Paths.curve(wallFlowerStaging, toLeftLaunchCloseControl1, leftLaunchClose).linear(wallFlowerStaging, leftLaunchClose);
+        Path toLeftLaunchClose = Paths.curve(wallFlowerStaging, toLeftLaunchCloseControl1, leftLaunchClose).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftLaunchCloseSegment1Start, toLeftLaunchCloseSegment1End)).until(1, Interpolator.linear(toLeftLaunchCloseSegment2Start, leftLaunchClose).reverse()));
         Path leftLaunchClosePark = Paths.line(leftLaunchCloseParkStart, rightPark).linear(leftLaunchCloseParkStart, rightPark);
         Path toScoringFlowerStaging = Paths.line(leftLaunchClose, scoringFlowerStaging).linear(leftLaunchClose, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
         Path toLeftLaunchClosePath = Paths.line(scoringFlowerStaging, leftLaunchClose).linear(scoringFlowerStaging, leftLaunchClose);
         Path toRightPark = Paths.curve(leftLaunchClose, toRightParkControl1, rightPark).linear(leftLaunchClose, rightPark);
-        Path toRightLaunchClose = Paths.curve(leftLaunchClose, toRightLaunchCloseControl1, rightLaunchClose).linear(leftLaunchClose, rightLaunchClose);
+        Path toRightLaunchClose = Paths.curve(leftLaunchClose, toRightLaunchCloseControl1, toRightLaunchCloseControl2, rightLaunchClose).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(toRightLaunchCloseSegment1Start, toRightLaunchCloseSegment1End)).until(1, Interpolator.linear(toRightLaunchCloseSegment2Start, rightLaunchClose)));
         Path toRightParkPath = Paths.curve(rightLaunchClose, toRightPark_2Control1, rightPark).linear(rightLaunchClose, rightPark);
 
         return kit.sequence(
@@ -80,7 +88,7 @@ public final class RSoloAuto {
                 kit.command("LaunchAll"),
                 kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2),
                 kit.command("PickFlower", 4.5),
-                kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClose, 2.8, leftLaunchClosePark, 2.1),
+                kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClose, 2.9, leftLaunchClosePark, 2.1),
                 kit.firstOf("Wait for TIP or CELL up",
                         kit.when("CellUp").then(
                                 kit.guarded("If CellUp", toRightPark, 2.1,
@@ -92,7 +100,7 @@ public final class RSoloAuto {
                                         kit.path("to RIGHT_PARK", toRightPark, 2.1))),
                         kit.afterMs(750).then(
                                 kit.guarded("Timed out", toRightParkPath, 2.8,
-                                        kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 2.9),
+                                        kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.2),
                                         kit.command("LaunchAll"),
                                         kit.path("to RIGHT_PARK", toRightParkPath, 2.8)))));
     }
