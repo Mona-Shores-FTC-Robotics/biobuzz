@@ -421,23 +421,15 @@ measurement is [#255].
 
 ## 7. 19429, if it is at the lab
 
-- [ ] **Bring-up, in #175's order:** Check: Hardware, Drive Motor Check (lifted), Tests procedure,
-      Loop Time Baseline. `Robot19429.java` holds **20245's Pedro values, copied 5 Nov** (motor
-      directions, pod offsets, Foresight), so 19429 runs the Autos and Square from the first load.
-      **Good:** Basic Drive goes where the stick says (a wrong motor direction is the first thing a
-      copy gets wrong: run the Mecanum tuner and paste it), and R-Solo follows its first path.
-      [#175], [S2 §8]
-- [ ] **Then tune 19429 for real, as soon as there is time:** Pinpoint tuner and Measure: Pod
-      Offsets, then the Foresight Tuner, each pasted over its "copied from 20245" block in
-      `Robot19429.java`. **Good:** each block's comment says it was measured on 19429. Until then,
-      a path that drifts or overshoots on 19429 but not on 20245 is this, not the Auto.
+- [ ] **R-Solo on 19429:** its first path from the Red audience marks. 19429's drivetrain is tuned
+      on its own values (6 Nov, PR #480: Check: Drive Motors, Pod Offsets, Foresight, Tests all
+      passed), so a path that drifts on 19429 but not on 20245 is now worth reporting. [#175]
 - [ ] **Anything 19429 does differently** from 20245 (a motor turning the other way, a servo
       position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
       was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.
-- [ ] **Its log lands in its own folder** after a pull (`biobuzz-logs\<19429's network>`). [S2 §8]
 - [ ] **19429's Limelight pipeline:** Marker Size set to 82.55 mm on 6 Nov (it was 165.1, the
-      DECODE size; Full 3D Targeting Yes; the rest matched). Power-cycle and check it held, download
-      the pipeline, then run the 5-minute start check and Vision: HIVE & Pose. [handoff] step 6
+      DECODE size; Full 3D Targeting Yes). Later that night 20245's pipeline file was uploaded to
+      19429's slot 0: identical but for its name. Power-cycle and check it held, then run the 5-minute start check and Vision: HIVE & Pose. [handoff] step 6
       First reading after the fix (6 Nov, red audience start, placement not confirmed): camera
       (54.3, 6.1) vs start (55.6, 7.7). y 1.6 in short means ranges ~3 % long, like 20245's; x 54.3 is
       the old wheels-on-seam placement. Tape lens to tag 35, measure a printed tag, level the camera.
