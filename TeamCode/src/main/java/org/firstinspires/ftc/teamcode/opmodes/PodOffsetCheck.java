@@ -74,6 +74,7 @@ public class PodOffsetCheck extends LinearOpMode {
         waitForStart();
 
         List<double[]> results = new ArrayList<>();
+        List<String> legLines = new ArrayList<>();
         for (int leg = 0; leg < LEGS && opModeIsActive(); leg++) {
             double direction = leg % 2 == 0 ? 1.0 : -1.0;
             localizer.setPose(Pose.zero());
@@ -108,7 +109,8 @@ public class PodOffsetCheck extends LinearOpMode {
                 line = String.format(Locale.US, "leg %d: turned %.0f° → xPodOffset %.2f, yPodOffset %.2f",
                         leg + 1, Math.toDegrees(turned), o[0], o[1]);
             }
-            telemetry.addLine(line);
+            legLines.add(line);
+            for (String l : legLines) telemetry.addLine(l);
             telemetry.update();
         }
         drivetrain.drive(new DrivePowers(0.0, 0.0, 0.0), true);
@@ -128,6 +130,9 @@ public class PodOffsetCheck extends LinearOpMode {
                 telemetry.addLine(String.format(Locale.US, "Paste: c.xPodOffset.set(%.2f); c.yPodOffset.set(%.2f);",
                         mean[0], mean[1]));
             }
+            // Each leg stays on screen: odd legs turn one way, even legs the other, so a spread that
+            // splits by direction (the robot not pivoting on its centre) shows here.
+            for (String l : legLines) telemetry.addLine(l);
             telemetry.update();
             sleep(200);
         }
