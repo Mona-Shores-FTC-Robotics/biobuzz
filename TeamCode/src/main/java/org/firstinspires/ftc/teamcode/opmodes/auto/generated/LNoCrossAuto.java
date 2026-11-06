@@ -21,7 +21,7 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-05|7:01PM";
+    public static final String SAVED = "11-05|8:03PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -57,8 +57,9 @@ public final class LNoCrossAuto {
         Pose rightLaunchClose = p.of(56.1, 26, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toRightLaunchCloseControl1 = p.of(61.5621, 104.0616, 0);
-        Pose toRightLaunchCloseControl2 = p.of(66.4655, 20.3799, 0);
+        Pose toRightLaunchCloseControl1 = p.of(56.7614, 93.4601, 0);
+        Pose toRightLaunchCloseControl2 = p.of(68.2657, 72.9873, 0);
+        Pose toRightLaunchCloseControl3 = p.of(58.6996, 26.4005, 0);
         Pose toRightLaunchCloseSegment1Start = p.of(56.1, 26, 273.4);
         Pose rightLaunchCatchParkStart = p.of(56.1, 26, 91.9);
         Pose rightLaunchCatchParkControl1 = p.of(28, 25, 0);
@@ -71,7 +72,7 @@ public final class LNoCrossAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path toLeftLaunchCatch = Paths.line(leftStart, leftLaunchCatch).linear(leftStart, leftLaunchCatch);
         Path leftLaunchCatchPark = Paths.line(leftLaunchCatch, leftPark).linear(leftLaunchCatch, leftPark);
-        Path toRightLaunchClose = Paths.curve(leftLaunchCatch, toRightLaunchCloseControl1, toRightLaunchCloseControl2, rightLaunchClose).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(toRightLaunchCloseSegment1Start, rightLaunchClose)).until(1, Interpolator.linear(rightLaunchClose, rightLaunchClose)));
+        Path toRightLaunchClose = Paths.curve(leftLaunchCatch, toRightLaunchCloseControl1, toRightLaunchCloseControl2, toRightLaunchCloseControl3, rightLaunchClose).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(toRightLaunchCloseSegment1Start, rightLaunchClose)).until(1, Interpolator.linear(rightLaunchClose, rightLaunchClose)));
         Path rightLaunchCatchPark = Paths.curve(rightLaunchCatchParkStart, rightLaunchCatchParkControl1, leftPark).linear(rightLaunchCatchParkStart, leftPark);
         Path toWallFlowerStaging = Paths.line(rightLaunchClose, wallFlowerStaging).linear(rightLaunchClose, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, leftPark).linear(wallFlowerStaging, leftPark);
