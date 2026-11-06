@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-05T06:30:24.919Z",
+  "timestamp": "2026-11-06T00:29:17.474Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -81,14 +81,42 @@
       },
       "controlPoints": [
         {
-          "x": 26.29813410079186,
-          "y": 117.50383341839829
+          "x": 29.298561851629266,
+          "y": 127.30521572102954
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 180,
-        "endDeg": 270
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": true,
+              "continueFromPrevious": true,
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -124,7 +152,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 270
+        "degrees": -90
       }
     },
     {
@@ -248,7 +276,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 270
+        "degrees": -90
       }
     },
     {
@@ -267,14 +295,46 @@
       },
       "controlPoints": [
         {
-          "x": 67.96961085626718,
-          "y": 71.96438612055809
+          "x": 63.969055172325554,
+          "y": 103.76888511821485
+        },
+        {
+          "x": 62.60009355617843,
+          "y": 41.70087889071943
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 270,
-        "endDeg": 90
+        "endDeg": 90,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.8,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
       }
     },
     {
