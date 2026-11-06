@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T00:40:18.385Z",
+  "timestamp": "2026-11-06T00:59:30.854Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -240,6 +240,47 @@
         "startDeg": 91.9,
         "endDeg": 0
       }
+    },
+    {
+      "id": "link-4",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 18
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 91.89999999999998
+      }
+    },
+    {
+      "kind": "atomic",
+      "id": "line-mw49lw1p-d68tx4",
+      "endPoint": {
+        "x": 14.5,
+        "y": 95.7
+      },
+      "controlPoints": [
+        {
+          "x": 17.99745547073791,
+          "y": 42.69799875351612
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 91.9,
+        "endDeg": 0
+      },
+      "color": "#4e79a7",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "name": "to RIGHT_PARK"
     }
   ],
   "shapes": [
@@ -448,6 +489,14 @@
     {
       "kind": "path",
       "lineId": "line-mw0c4s3s-94a0vo"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-4"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw49lw1p-d68tx4"
     }
   ],
   "fieldPoints": [],
@@ -546,7 +595,8 @@
       "line-mw0c4s3s-94a0vo": "RIGHT_PARK",
       "line-mw0c4s3v-i79x23": "RIGHT_PARK",
       "line-mw0c4s3v-u2xhur": "RIGHT_PARK",
-      "line-mw0c4s3v-5u6mr8": "RIGHT_PARK"
+      "line-mw0c4s3v-5u6mr8": "RIGHT_PARK",
+      "line-mw49lw1p-d68tx4": "RIGHT_PARK"
     },
     "cards": [
       {
@@ -586,54 +636,63 @@
             "when": [
               "CellUp"
             ],
-            "cards": []
+            "cards": [
+              {
+                "id": "c-mw0c4s3s-1hcr0",
+                "kind": "action",
+                "name": "LaunchAll"
+              },
+              {
+                "id": "c-mw0c4s3s-ojvp0",
+                "kind": "path",
+                "lineId": "line-mw0c4s3s-fovkx1",
+                "park": false
+              },
+              {
+                "id": "c-mw0c4s3s-qxusx",
+                "kind": "action",
+                "name": "GardenGather",
+                "timeoutS": 8
+              },
+              {
+                "id": "c-mw0c4s3s-78mu4",
+                "kind": "path",
+                "lineId": "line-mw0c4s3s-i2nkle",
+                "park": false
+              },
+              {
+                "id": "c-mw0c4s3s-bj8i6",
+                "kind": "action",
+                "name": "LaunchAll"
+              },
+              {
+                "id": "c-mw0c4s3s-nvtgs",
+                "kind": "path",
+                "lineId": "line-mw0c4s3s-94a0vo",
+                "park": true
+              }
+            ]
           },
           {
-            "afterMs": 5000,
-            "cards": []
+            "afterMs": 7600,
+            "cards": [
+              {
+                "id": "c-mw49lw1p-64sdq",
+                "kind": "path",
+                "lineId": "line-mw49lw1p-d68tx4",
+                "park": true
+              }
+            ]
           }
         ]
-      },
-      {
-        "id": "c-mw0c4s3s-1hcr0",
-        "kind": "action",
-        "name": "LaunchAll"
-      },
-      {
-        "id": "c-mw0c4s3s-ojvp0",
-        "kind": "path",
-        "lineId": "line-mw0c4s3s-fovkx1",
-        "park": false
-      },
-      {
-        "id": "c-mw0c4s3s-qxusx",
-        "kind": "action",
-        "name": "GardenGather",
-        "timeoutS": 8
-      },
-      {
-        "id": "c-mw0c4s3s-78mu4",
-        "kind": "path",
-        "lineId": "line-mw0c4s3s-i2nkle",
-        "park": false
-      },
-      {
-        "id": "c-mw0c4s3s-bj8i6",
-        "kind": "action",
-        "name": "LaunchAll"
-      },
-      {
-        "id": "c-mw0c4s3s-nvtgs",
-        "kind": "path",
-        "lineId": "line-mw0c4s3s-94a0vo",
-        "park": true
       }
     ],
     "startAt": "RIGHT_START",
     "linkPaths": [
       "link-1",
       "link-2",
-      "link-3"
+      "link-3",
+      "link-4"
     ],
     "parkFrom": {
       "c-mw0c4s3r-d5zdz": "line-mw0c4s3v-i79x23",
