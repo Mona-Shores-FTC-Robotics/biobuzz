@@ -8,15 +8,23 @@ import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.firstinspires.ftc.teamcode.subsystems.TurretEncoder;
+import org.firstinspires.ftc.teamcode.logging.BuildStamp;
+import org.firstinspires.ftc.teamcode.logging.MatchLog;
+import org.firstinspires.ftc.teamcode.logging.MatchLogFiles;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.subsystems.SwyftBurstControl;
 import org.firstinspires.ftc.teamcode.subsystems.SwyftSingleBurst;
 
 import java.util.Locale;
+import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Standalone 19429 experiment: programmable SWYFT flashed to continuous rotation; Cypher Max
@@ -70,6 +78,18 @@ public class TurretBurstBench extends OpMode {
     private double rateDps;
     private double powerSent;
     private String fault;
+    private MatchLog log = MatchLog.disabled("not initialized");
+    private VoltageSensor battery;
+    private double batteryVolts = Double.NaN;
+    private long batteryReadNs;
+    private long previousLoopNs;
+    private double loopMs;
+    private double rawRequest;
+    private double allowedRequest;
+    private double burstStartAngle;
+    private double lastBurstDelta;
+    private boolean previousZeroed;
+    private long previousZeroCounts;
     private boolean pwmReportedEnabled;
     private boolean wasDriving;
     private long driveStartedNs;
@@ -101,6 +121,24 @@ public class TurretBurstBench extends OpMode {
         } catch (RuntimeException | LinkageError ignored) {
             // Driver Station telemetry remains available.
         }
+        for (VoltageSensor sensor : hardwareMap.voltageSensor) {
+            battery = sensor;
+            break;
+        }
+        long originNs = System.nanoTime();
+        Map<String, String> metadata = new LinkedHashMap<>();
+        metadata.put("OpMode", "Bench: Turret Burst");
+        metadata.put("RobotConfig", ActiveConfig.name());
+        metadata.put("Build", BuildStamp.describe());
+        metadata.put("GitCommit", BuildStamp.commit());
+        metadata.put("GitBranch", BuildStamp.branch());
+        metadata.put("BenchVersion", "SWYFT v4 recorded diagnostic");
+        File file = MatchLogFiles.next(new File(AppUtil.FIRST_FOLDER, MatchLogFiles.LOGS_FOLDER),
+                MatchLogFiles.matchId(System.currentTimeMillis()), "Bench_Turret_Burst");
+        log = MatchLog.toFile(file, "SWYFT turret bench", metadata,
+                () -> (System.nanoTime() - originNs) / 1000L);
+        log.event("Turret burst INIT; no motion before PLAY; recording inputs, commands and encoder");
+        recordLog();
         report();
     }
 
@@ -116,6 +154,7 @@ public class TurretBurstBench extends OpMode {
         pwm.setPwmRange(new PwmControl.PwmRange(500, 2500));
         control.reset();
         started = true;
+        log.event("Turret burst PLAY; PWM disabled until a drive request");
     }
 
     @Override
@@ -124,6 +163,11 @@ public class TurretBurstBench extends OpMode {
             step();
         } catch (RuntimeException e) {
             pwm.setPwmDisable();
+            powerSent = 0;
+            pwmReportedEnabled = false;
+            log.event("Turret burst FAULT: " + e);
+            recordLog();
+            log.close("Turret burst fault; PWM disabled", 500);
             throw e;
         }
     }
@@ -131,10 +175,24 @@ public class TurretBurstBench extends OpMode {
     @Override
     public void stop() {
         started = false;
-        if (pwm != null) pwm.setPwmDisable();
+        try {
+            if (pwm != null) pwm.setPwmDisable();
+        } finally {
+            powerSent = 0;
+            pwmReportedEnabled = false;
+            recordLog();
+            log.close("Turret burst STOP; final angle is last sample, settling may be incomplete", 500);
+        }
     }
 
     private void step() {
+        long loopNs = System.nanoTime();
+        loopMs = previousLoopNs == 0 ? 0 : (loopNs - previousLoopNs) / 1_000_000.0;
+        previousLoopNs = loopNs;
+        if (battery != null && loopNs - batteryReadNs >= 500_000_000L) {
+            batteryVolts = battery.getVoltage();
+            batteryReadNs = loopNs;
+        }
         fault = null;
         try {
             TurretEncoder encoder = new TurretEncoder(turnsPerTurretTurn, direction);
@@ -178,8 +236,10 @@ public class TurretBurstBench extends OpMode {
             double error = targetDeg - angleDeg;
             if (tolerance >= 0 && Math.abs(error) > tolerance) requested = Math.signum(error);
         }
+        rawRequest = requested;
         requested = allowedPower(requested, angleDeg, zeroed, started && deadman,
                 gamepad1.b || fault != null, limit);
+        allowedRequest = requested;
         double burst;
         if (manual && manualSingleBurst) {
             control.reset();
@@ -196,12 +256,68 @@ public class TurretBurstBench extends OpMode {
             if (driving && !wasDriving) {
                 driveStartedNs = writtenNs;
                 burstsSent++;
+                burstStartAngle = angleDeg;
+                log.event(String.format(Locale.US, "Turret burst #%d START angle %.3f deg, signal %.0f us, manual %.1f ms",
+                        burstsSent, angleDeg, powerSent > 0 ? 2500.0 : 500.0, manualBurstMs));
             }
             if (driving) lastPulseUs = powerSent > 0 ? 2500 : 500;
-            if (!driving && wasDriving) lastBurstMs = (writtenNs - driveStartedNs) / 1_000_000.0;
+            if (!driving && wasDriving) {
+                lastBurstMs = (writtenNs - driveStartedNs) / 1_000_000.0;
+                lastBurstDelta = angleDeg - burstStartAngle;
+                log.event(String.format(Locale.US, "Turret burst #%d END %.1f ms, angle %.3f -> %.3f, delta %+.3f deg, R2 %.2f L1 %s R1 %s",
+                        burstsSent, lastBurstMs, burstStartAngle, angleDeg, lastBurstDelta,
+                        gamepad1.right_trigger, gamepad1.left_bumper, gamepad1.right_bumper));
+            }
             wasDriving = driving;
         }
+        recordLog();
         report();
+    }
+
+    /** The normal asynchronous match logger: no disk writes or waits in the control loop. */
+    private void recordLog() {
+        if (zeroed != previousZeroed || zeroCounts != previousZeroCounts) {
+            log.event("Turret zero reference: zeroed=" + zeroed + ", counts=" + zeroCounts);
+            previousZeroed = zeroed;
+            previousZeroCounts = zeroCounts;
+        }
+        log.match(started ? MatchLog.Mode.TELEOP : MatchLog.Mode.DISABLED, 0);
+        log.loopMs(loopMs);
+        log.put("/TurretBurst/Counts", counts);
+        log.put("/TurretBurst/ZeroCounts", zeroCounts);
+        log.put("/TurretBurst/Zeroed", zeroed ? 1 : 0);
+        log.put("/TurretBurst/AngleDeg", angleDeg);
+        log.put("/TurretBurst/RateDps", rateDps);
+        log.put("/TurretBurst/TargetDeg", targetDeg);
+        log.put("/TurretBurst/ErrorDeg", targetDeg - angleDeg);
+        log.put("/TurretBurst/R2", gamepad1.right_trigger);
+        log.put("/TurretBurst/L1", gamepad1.left_bumper ? 1 : 0);
+        log.put("/TurretBurst/R1", gamepad1.right_bumper ? 1 : 0);
+        log.put("/TurretBurst/Cross", gamepad1.a ? 1 : 0);
+        log.put("/TurretBurst/Triangle", gamepad1.y ? 1 : 0);
+        log.put("/TurretBurst/Circle", gamepad1.b ? 1 : 0);
+        log.put("/TurretBurst/Holding", holding ? 1 : 0);
+        log.put("/TurretBurst/RawRequest", rawRequest);
+        log.put("/TurretBurst/AllowedRequest", allowedRequest);
+        log.put("/TurretBurst/Power", powerSent);
+        // Zero here means no signal, NOT a 0-us pulse, and never a centre/home command.
+        log.put("/TurretBurst/PulseUs", powerSent == 0 ? 0 : powerSent > 0 ? 2500 : 500);
+        log.put("/TurretBurst/PwmEnabledSdk", pwmReportedEnabled ? 1 : 0);
+        log.put("/TurretBurst/BurstCount", burstsSent);
+        log.put("/TurretBurst/LastOnMs", lastBurstMs);
+        log.put("/TurretBurst/LastDriveDeltaDeg", lastBurstDelta);
+        log.put("/TurretBurst/ManualSingleBurst", manualSingleBurst ? 1 : 0);
+        log.put("/TurretBurst/ManualBurstMs", manualBurstMs);
+        log.put("/TurretBurst/BurstOnMs", burstOnMs);
+        log.put("/TurretBurst/BurstOffMs", burstOffMs);
+        log.put("/TurretBurst/ToleranceDeg", holdToleranceDeg);
+        log.put("/TurretBurst/TravelEachWayDeg", travelEachWayDeg);
+        log.put("/TurretBurst/EncoderRatio", turnsPerTurretTurn);
+        log.put("/TurretBurst/EncoderDirection", direction);
+        log.put("/TurretBurst/ServoDirection", servoDirection);
+        log.put("/TurretBurst/BatteryVolts", batteryVolts);
+        log.put("/TurretBurst/SettingsFault", fault == null ? 0 : 1);
+        log.commit();
     }
 
     /** Reject invalid feedback and outward movement at the test window, including manual nudges. */
@@ -228,7 +344,7 @@ public class TurretBurstBench extends OpMode {
         telemetry.addLine("Cross/A: zero at forward with R2 released. R2 held: enable FULL-SPEED bursts.");
         telemetry.addLine("L1/R1: one CCW/CW diagnostic burst; release to rearm. Triangle/Y: hold. D-pad: target.");
         telemetry.addLine("Circle/B, R2 released, and pauses: PWM OFF. STOP: PWM OFF.");
-        telemetry.addData("Build", "SWYFT v3: single-burst diagnostic / PWM OFF");
+        telemetry.addData("Build", "SWYFT v4: RECORDED bursts / PWM OFF");
         telemetry.addData("Burst on/off ms", burstOnMs + " / " + burstOffMs);
         telemetry.addData("Manual test", manualSingleBurst ? "ONE burst, " + manualBurstMs + " ms (max 500)" : "repeating bursts");
         telemetry.addData("Inputs R2 / L1 / R1", String.format(Locale.US, "%.2f / %s / %s",
@@ -236,6 +352,9 @@ public class TurretBurstBench extends OpMode {
         telemetry.addData("PWM enabled (SDK)", pwmReportedEnabled);
         telemetry.addData("Bursts / last signal / last on time", String.format(Locale.US,
                 "%d / %.0f us / %.1f ms", burstsSent, lastPulseUs, lastBurstMs));
+        telemetry.addData("Last drive delta", String.format(Locale.US, "%+.3f deg", lastBurstDelta));
+        telemetry.addData("Recording", log.isLogging() ? log.name() : "FAULT: " + log.failure());
+        telemetry.addData("Log dropped loops", log.droppedLoops());
         telemetry.addData("Zeroed", zeroed);
         telemetry.addData("Counts", counts);
         telemetry.addData("Angle / rate", String.format(Locale.US, "%.2f deg / %.2f deg/s", angleDeg, rateDps));

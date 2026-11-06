@@ -491,6 +491,13 @@ Manual testing now defaults to one 250 ms burst per R2+bumper press (500 ms maxi
 required to rearm, to distinguish a drive-command problem from short-burst startup behavior.
 Telemetry shows inputs, SDK PWM enable state, and latched burst count/signal/duration; this is
 software readback, not a measured waveform. `manualSingleBurst=false` restores repeated manual bursts.
+Recording is automatic from INIT through STOP to `/sdcard/FIRST/logs/`, using the existing async
+`MatchLog` writer and normal `pull-logs.cmd` upload. `/TurretBurst/*` records inputs, gates,
+commands, SDK PWM state, raw/zero counts, angle/rate, battery and every live setting. START/END
+events and per-burst drive deltas supplement the raw series. `read_logs.py turret <log>` computes
+actual movement from absolute readings, shows actual versus configured timing, and reports a
+250 ms OFF sample only when it exists before another burst. No screenshots or hand-written angles
+are needed; recording faults and dropped loops are shown on the utility screen.
 The existing `<Servo>` mapping is just the pulse transport here, not position targeting.
 Both XML files and the position subsystem remain unchanged. Never run the ordinary turret bench,
 Basic Drive or Auto on 19429 while its servo is flashed continuous. Reflash position mode before

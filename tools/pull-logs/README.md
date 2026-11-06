@@ -68,6 +68,24 @@ how far short), the depth, the intake-current spikes (about one per piece), the 
 camera's last gap to odometry along and across the push. It is for reading logs without
 AdvantageScope; nobody at the robot needs Python.
 
+### Turret burst bench recordings
+
+**Bench: Turret Burst** records automatically from INIT through STOP to the same FIRST/logs folder.
+After testing, use `pull-logs.cmd` as usual; no extra files or screenshots are needed. A session
+fetches the published log branch and runs:
+
+```bash
+python3 tools/pull-logs/read_logs.py turret /path/to/Bench_Turret_Burst.wpilog.gz
+```
+
+The report shows each drive command's configured and actual duration, signal and SDK PWM state,
+absolute before/after angles, actual movement, and movement after at least 250 ms OFF if recorded
+before the next burst. Release/cancel/interrupted recordings and changed zero references are
+identified. Full `/TurretBurst/*` series retain inputs, gates, raw counts, battery and live settings.
+Leave about a second between attempts and before STOP so the response after disabling is captured.
+SDK state is software readback, not a measured waveform. There is no automatic upload directly from
+the robot; the existing laptop pull/upload step is still needed.
+
 ## Where logs go
 
 Logs go to the team's shared Google Drive, so nobody has to fetch them from a particular laptop:
