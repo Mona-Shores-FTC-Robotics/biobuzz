@@ -33,7 +33,6 @@ public final class Robot19429 {
 
     /**
      * <b>Mecanum Tuner, measured on 19429, 6 Nov 2026.</b> The same directions as 20245.
-     *
      */
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
         c.frontLeftName.set("frontLeft");
