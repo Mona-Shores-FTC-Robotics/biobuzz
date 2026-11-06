@@ -317,8 +317,8 @@ Use the work order above to select checks; the detailed mechanism checks below a
         holding the push endpoint. A speed/acceleration cap is not a force cap.
         Change one setup or speed variable at a time; do not lengthen a blocked push.
       - Once repeatable, try with our normal four-piece load and then integrate the
-        measured maneuver into full Solo. The full draft currently has **no** test
-        speed wrapper or competition OpMode; its preview is not a qualified robot run.
+        measured maneuver in **Drive: R-Solo-Nudge**, the full Utility with scoped
+        contact limits. Its preview is not a qualified robot run.
         Two TIPs and double park, followed by 17/18 in partner presets, come after this test.
       [Draft and Utility details](../TeamCode/autos/drafts/README.md#first-floor-test-drive-partner-nudge)
 

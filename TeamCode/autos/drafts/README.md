@@ -228,10 +228,9 @@ It releases the drive at completion, Driver Station STOP, loss of pose reference
 or the default **8 s overall timeout**. These are commanded trajectory limits, not
 a contact-force limit; a blocked robot can still press before the timeout.
 
-The full R-Solo-Nudge remains a planning draft **without a selectable OpMode or
-these test-only runtime limits**. Qualify the small maneuver first, then integrate
-its measured approach, push speed and timing into Solo. Two TIPs plus both parks
-remain a goal. No 17/18 in presets are added before proving this first size.
+The full R-Solo-Nudge now also has a Utility trial with scoped contact limits,
+described below. Two TIPs plus both parks remain a goal. No 17/18 in presets
+are added before proving this first size.
 
 Setup and the repeatable test checklist live in
 [robot-todo §3](../../../doc/robot-todo.md).
