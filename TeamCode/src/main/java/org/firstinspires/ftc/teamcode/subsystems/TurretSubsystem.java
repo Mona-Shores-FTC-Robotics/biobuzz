@@ -79,6 +79,23 @@ public class TurretSubsystem implements Subsystem {
     public static double maxPosition = 1.0;
 
     /**
+     * Correct the servo's position from the encoder ({@link TurretRehome}): once the turret is
+     * still, the encoder's angle against the one asked for moves an offset on every position sent,
+     * so a turret twirled by hand while limp (its servo then out of step through the 2.75:1
+     * gearing) comes back to its mark at PLAY, and a knock is undone. Needs a trusted encoder,
+     * zeroed with the turret on its mark (at PLAY), and {@link #degreesPerUnit}; it uses the
+     * encoder's real angle even while {@link #lockedForward}. Off unless a robot's encoder is
+     * trusted: on for 19429 in {@link org.firstinspires.ftc.teamcode.RobotDifferences}.
+     */
+    public static boolean rehomeFromEncoder = false;
+    /** Slower than this the turret counts as still, deg/s. */
+    public static double rehomeStillDps = 5.0;
+    /** Still this long, the servo has finished moving and a correction is made, ms. */
+    public static double rehomeStillMs = 250.0;
+    /** Errors this small are left alone, degrees. */
+    public static double rehomeToleranceDeg = 1.5;
+
+    /**
      * Turret degrees, counter-clockwise seen from above, per +1.0 of servo position; negative if a
      * higher position turns it clockwise. Includes the gearing. NaN until measured with
      * {@code Bench: Turret}: until then the turret holds home and refuses any other angle.
@@ -172,6 +189,10 @@ public class TurretSubsystem implements Subsystem {
     private String runawayNote;
     /** Why the held angle could not be sent, or null. */
     private String aimNote;
+    private final TurretRehome rehome = new TurretRehome();
+    /** The encoder's own angle and rate, whether or not the turret is locked; NaN without one. */
+    private double encoderAngleDeg = Double.NaN;
+    private double encoderRateDps = Double.NaN;
 
     /** Looks both devices up once. A missing one fails init with the SDK's own message. */
     public TurretSubsystem(HardwareMap hardwareMap) {
@@ -310,6 +331,7 @@ public class TurretSubsystem implements Subsystem {
         zeroCounts = counts;
         zeroed = false;
         zeroSource = ZeroSource.NONE;
+        rehome.reset();
     }
     /** PLAY: the servo may be written from now on. */
     @Override
@@ -324,6 +346,13 @@ public class TurretSubsystem implements Subsystem {
         refreshSettings();
         counts = encoderHost.getCurrentPosition();
         double countsPerSecond = encoderHost.getVelocity();
+        if (encoder != null) {
+            encoderAngleDeg = encoder.degrees(counts, zeroCounts);
+            encoderRateDps = encoder.degreesPerSecond(countsPerSecond);
+        } else {
+            encoderAngleDeg = Double.NaN;
+            encoderRateDps = Double.NaN;
+        }
         if (lockedForward) {
             angleDeg = 0.0;
             rateDps = 0.0;
@@ -363,6 +392,12 @@ public class TurretSubsystem implements Subsystem {
         if (Double.isNaN(position)) {
             goLimp();
             return;
+        }
+        if (rehomeFromEncoder && zeroed) {
+            double wantDeg = lockedForward ? 0.0 : targetDeg;
+            position = rehome.step(position, wantDeg, encoderAngleDeg, encoderRateDps, degreesPerUnit,
+                    Math.max(0.0, minPosition), Math.min(1.0, maxPosition), rehomeStillDps, rehomeStillMs,
+                    rehomeToleranceDeg, System.nanoTime());
         }
         double out = pwmStep(position);
         if (limp || out != servoOut || resend.due(System.nanoTime())) {
@@ -444,6 +479,7 @@ public class TurretSubsystem implements Subsystem {
                     ? String.format(Locale.US, "locked straight ahead (0°): %s position %.3f",
                             started ? "holding" : "holds from PLAY at", homePosition)
                     : "homePosition must be inside minPosition..maxPosition: limp");
+            describeRehome(display);
             return;
         }
         if (settingsProblem != null) {
@@ -469,6 +505,25 @@ public class TurretSubsystem implements Subsystem {
         }
         if (aimNote != null) {
             display.status("Turret", Display.Level.WARN, aimNote);
+        }
+        describeRehome(display);
+    }
+
+    /** The encoder correction's line, when it is on. */
+    private void describeRehome(Display display) {
+        if (!rehomeFromEncoder) {
+            return;
+        }
+        if (Double.isNaN(degreesPerUnit) || degreesPerUnit == 0.0) {
+            display.status("Turret re-home", Display.Level.WARN, "off: degreesPerUnit not measured");
+        } else if (rehome.outOfReach()) {
+            display.status("Turret re-home", Display.Level.FAULT, String.format(Locale.US,
+                    "out of reach: encoder %.0f°, turret at a limit. Stop, turn the turret one full turn by hand, put it on its mark, run again",
+                    encoderAngleDeg));
+        } else {
+            display.status("Turret re-home", Display.Level.OK, String.format(Locale.US,
+                    "encoder %.1f° · offset %+.3f · %d corrections%s", encoderAngleDeg, rehome.offset(),
+                    rehome.corrections(), zeroed ? "" : " · waits for the zero at PLAY"));
         }
     }
 

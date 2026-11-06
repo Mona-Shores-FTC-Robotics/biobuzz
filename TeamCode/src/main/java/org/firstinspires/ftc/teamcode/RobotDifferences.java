@@ -66,12 +66,9 @@ public final class RobotDifferences {
                         + " (6 Nov 2026, from the build team; check one turret turn on Bench: Turret)",
                 () -> TurretSubsystem.turnsPerTurretTurn = 2.75);
         differs(RobotIdentity.TEAM_19429,
-                "Turret position guards 0.25 to 0.75 (6 Nov 2026): in SWYFT's continuous mode it ran away"
-                        + " below about 0.22. Flashed to 320° it should not; widen to the measured ends",
-                () -> {
-                    TurretSubsystem.minPosition = 0.25;
-                    TurretSubsystem.maxPosition = 0.75;
-                });
+                "Turret encoder trusted (Cypher Max in its socket, counting, 6 Nov 2026): the servo is"
+                        + " re-homed from it, so a turret twirled in INIT comes back to its mark at PLAY",
+                () -> TurretSubsystem.rehomeFromEncoder = true);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // Nothing yet: the shared values were mostly measured on 20245.

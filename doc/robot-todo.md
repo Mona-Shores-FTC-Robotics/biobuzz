@@ -185,6 +185,12 @@ Result, with the gap on each own-start run, → [PR #372].
       the runaways). SWYFT Servo Programmer V2: Continuous rotation **off**, Total Range **320**,
       Flash, Read (Range ≈ 130/130). Every position held so far (0.514, the 0.25–0.75 limits) is
       then stale: re-measure on Bench: Turret, and set the limits from where the turret really goes.
+- [ ] **19429: the turret re-homes from its encoder** (`TurretSubsystem.rehomeFromEncoder`, on for
+      19429). Needs `degreesPerUnit` first (below). Basic Drive: in INIT twirl the turret three
+      turns, put it on its mark, PLAY. **Good:** it swings off, then within about a second comes
+      back to the mark; the Robot page's "Turret re-home" line shows the corrections. **Stop:** it
+      swings further off → `degreesPerUnit`'s sign is wrong. "out of reach" → one more full turn
+      by hand, on the mark, run again.
 - [ ] **19429: before the turret is unlocked** (`lockedForward` false, the mentor's call). On
       **Bench: Turret** after PLAY: Square at home, step at least 0.1 away: the bench shows
       `degreesPerUnit` from the encoder (19429's 2.75 encoder ratio is applied); step both ways.
