@@ -94,10 +94,9 @@
                  servo port 4 since 6 Nov 2026, as on 20245 (it was on port 0,
                  and before that the Expansion Hub's port 0). Its angle is the
                  Cypher Max on the Expansion Hub's motor port 3 encoder socket,
-                 so the servo and its encoder are on different hubs. Plugged in
-                 and counting on 6 Nov 2026, so on this robot the turret is
-                 unlocked (RobotDifferences): from PLAY it holds its angle on
-                 the encoder. -->
+                 so the servo and its encoder are on different hubs. Locked
+                 (TurretSubsystem.lockedForward) until that encoder is fitted:
+                 from PLAY the servo gets only its stop pulse. -->
             <ContinuousRotationServo name="turret" port="4" />
 
         </LynxModule>
@@ -118,8 +117,7 @@
             <!-- The ENCODER socket beside motor port 3 carries the turret's
                  Studica Cypher Max (quadrature A/B/I, its FTC Control Hub
                  cable), not the feeder's own encoder; the feeder runs without
-                 one. On this robot the feeder's cable was in it until 6 Nov
-                 2026, when the Cypher Max's replaced it. Code reads the turret angle as the feeder's position
+                 one. Code reads the turret angle as the feeder's position
                  (DeviceNames.TURRET_ENCODER_HOST). Set the encoder's switch
                  to 3V3. Build team's choice, 24 Oct 2026. -->
 
