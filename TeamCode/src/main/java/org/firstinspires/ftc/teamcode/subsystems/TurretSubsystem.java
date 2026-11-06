@@ -86,7 +86,7 @@ public class TurretSubsystem implements Subsystem {
     public static double turretForwardIn = -3.33;
     public static double turretLeftIn = -1.87;
 
-    /** How far the turret may be asked to turn each way from home, degrees. Stops are the wires'; NaN = no clamp yet. */
+    /** How far the turret may be asked to turn each way from home, degrees. NaN = no clamp: the turret has no cables, so only the servo's own travel (positions 0 to 1) limits it. */
     public static double travelEachWayDeg = Double.NaN;
 
     /**
