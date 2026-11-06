@@ -173,23 +173,22 @@ Result, with the gap on each own-start run, → [PR #372].
 - [ ] **Light looks:** Basic Drive INIT steady red, X → steady blue; off after PLAY; intake until a
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
-- [ ] **20245 (then 19429), after the 6 Nov rewire: the turret holds home from PLAY.** The servo is
-      now a position servo (`<Servo>`; it must be in standard mode on the goBILDA programmer, or it
-      spins at PLAY: unplug it if so). Turret still locked (`lockedForward`). A **full TeamCode
-      install** (the XML changed), re-Activate, **Check: Hardware**. Then **Bench: Turret**: press
-      PLAY, step the position until the turret's mark points straight ahead, and put that number in
-      `TurretSubsystem.homePosition` (0.5 today, the servo's centre, where it was seen holding).
-      Optional: Square at home, step to a 90° mark, and `degreesPerUnit` = 90 / moved. Then in
-      Basic Drive: set the turret at home by hand in INIT, press PLAY. **Good:** it barely moves at
-      PLAY and springs back when pushed. Also confirm the light looks above still work from the
-      Expansion Hub.
-- [ ] **20245: the turret encoder's cable.** The Cypher Max is fitted on the turret, but the
-      encoder socket beside **Expansion Hub motor port 3** holds the feeder motor's encoder cable
-      (6 Nov). Unplug that, plug in the Cypher Max's cable (switch at 3V3). Check 19429's socket
-      too. Then **Bench: Turret**: Cross at home, turn the turret counter-clockwise by hand
-      (Circle makes the servo limp): `angle` rises, else `TurretSubsystem.direction` = -1; one full
-      turn gives `turnsPerTurretTurn`. Run the feeder: the turret `angle` must not move. Only after
-      that, and with `degreesPerUnit` measured, is `lockedForward` = false the mentor's call.
+- [ ] **19429: the turret holds straight ahead from PLAY.** Its servo is in position mode and
+      points straight ahead at 0.350 (Bench: Turret, 6 Nov; `RobotDifferences`). The Cypher Max
+      replaced the feeder's cable in the motor port 3 encoder socket (6 Nov) and counts
+      (counter-clockwise counts down, as `direction` = -1 says). A **full TeamCode install** (the
+      XML changed), re-Activate, **Check: Hardware**. Then Basic Drive: set the turret on its mark
+      in INIT, PLAY. **Good:** it barely moves and springs back when pushed.
+- [ ] **19429: before the turret is unlocked** (`lockedForward` false, the mentor's call). On
+      **Bench: Turret** after PLAY: Square at 0.350, step to a 90° counter-clockwise mark:
+      `degreesPerUnit` = 90 / moved (signed). Cross at home, one full turret turn by hand (Circle
+      limp): `encoder turns` is `turnsPerTurretTurn`, and anything but 1.0 is a 19429 line.
+- [ ] **20245: the turret servo's mode and its encoder socket.** On the 24 Oct bench its servo was
+      in continuous mode; the code now sends a position, and keeps it at 0.5 (stop, or centre) until
+      this is known. **Bench: Turret**, PLAY, one D-pad press: the turret steps and stops → position
+      mode, find its straight-ahead position like 19429's; it keeps turning → continuous mode:
+      **stop the OpMode**, and either reprogram it to position mode or tell a mentor. Also: which
+      cable is in the motor port 3 encoder socket (the feeder's, or the Cypher Max's).
 
 ## 3. The selected Autos, on the field (HIVE upright, preloads in, Panels open)
 

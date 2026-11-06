@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.RobotDifferences;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
@@ -121,6 +122,12 @@ public class TurretBench extends OpMode {
         }
         if (encoderHost != null) {
             zeroCounts = encoderHost.getCurrentPosition();
+        }
+        // This robot's values (19429's homePosition is its own), as RobotOpMode applies them.
+        try {
+            RobotDifferences.applyForActiveRobot();
+        } catch (RuntimeException e) {
+            if (configWarning == null) configWarning = "robot differences not applied: " + e.getMessage();
         }
         double home = TurretSubsystem.homePosition;
         position = home >= 0.0 && home <= 1.0 ? home : 0.5;

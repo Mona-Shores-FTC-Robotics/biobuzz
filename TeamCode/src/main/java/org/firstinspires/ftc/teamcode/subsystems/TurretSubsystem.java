@@ -57,11 +57,12 @@ public class TurretSubsystem implements Subsystem {
     public static int direction = -1;
 
     /**
-     * The servo position, 0 to 1, with the turret straight ahead (home), held from PLAY. 0.5 is the
-     * servo's centre: the 1500 us pulse the continuous-mode code sent at PLAY until 6 Nov 2026,
-     * where the turret was seen holding, so it holds where it held before. Whether that is
-     * straight ahead is a check on the robot ({@code doc/robot-todo.md}, {@code Bench: Turret}):
-     * set the measured value here.
+     * The servo position, 0 to 1, with the turret straight ahead (home), held from PLAY. 19429's
+     * is measured (0.350, its line in {@link org.firstinspires.ftc.teamcode.RobotDifferences}).
+     * 0.5 here is 20245's, not measured: the servo's centre, the 1500 us pulse the old code sent at
+     * PLAY, which is also "stop" if 20245's servo is still in continuous mode (as it was on the
+     * 24 Oct bench). So 20245 does what it did until its servo's mode is checked
+     * ({@code doc/robot-todo.md}): any other value sent to a continuous servo is a speed.
      */
     public static double homePosition = 0.5;
 
@@ -100,13 +101,13 @@ public class TurretSubsystem implements Subsystem {
      * The turret is held straight ahead and its encoder is not trusted: its angle is 0, whatever
      * the encoder socket reads, and from PLAY the servo holds {@link #homePosition}, never another
      * angle. The mentor's call on 1 Nov 2026: both robots play locked, POLLEN only; since 6 Nov the
-     * servo is plugged in, in position mode, so the turret resists a push. On 20245 the socket
-     * ({@code DeviceNames.TURRET_ENCODER_HOST}) carries the <b>feeder motor's</b> encoder cable (the
-     * Cypher Max is fitted on the turret but not plugged in, 6 Nov), so reading it as the turret's
-     * angle gave thousands of degrees once the feeder ran, and the driver's chassis aim (CELL
-     * bearing minus turret angle) spun the robot without end. Set false only on a robot with the
-     * Cypher Max in that socket, checked on {@code Bench: Turret}, and {@link #degreesPerUnit}
-     * measured.
+     * servo is plugged in, in position mode on 19429, so the turret resists a push. On 20245 the
+     * socket ({@code DeviceNames.TURRET_ENCODER_HOST}) carried the <b>feeder's</b> encoder, so
+     * reading it as the turret's angle gave thousands of degrees once the feeder ran, and the
+     * driver's chassis aim (CELL bearing minus turret angle) spun the robot without end; on 19429
+     * the Cypher Max replaced the feeder's cable in it on 6 Nov. Set false only on a robot with the
+     * Cypher Max in that socket, its ratio checked on {@code Bench: Turret}, and
+     * {@link #degreesPerUnit} measured.
      */
     public static boolean lockedForward = true;
 

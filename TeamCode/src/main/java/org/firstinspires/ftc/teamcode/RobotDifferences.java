@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,11 +55,11 @@ public final class RobotDifferences {
 
     static {
         // ---------------------------------------------------------------- 19429 (Infrared)
-        // Nothing yet: 19429 runs the shared values. One line per difference, with what was seen
-        // and the date, and the subsystem's import at the top of this file. For example:
-        //
-        // differs(RobotIdentity.TEAM_19429, "Intake motor swapped, turns the other way (5 Nov 2026)",
-        //         () -> IntakeSubsystem.reversed = false);
+        // One line per difference, with what was seen and the date, and the subsystem's import at
+        // the top of this file.
+        differs(RobotIdentity.TEAM_19429,
+                "Turret servo (position mode) points straight ahead at 0.350, on Bench: Turret (6 Nov 2026)",
+                () -> TurretSubsystem.homePosition = 0.35);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // Nothing yet: the shared values were mostly measured on 20245.

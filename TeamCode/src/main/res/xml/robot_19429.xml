@@ -94,7 +94,7 @@
                  programmed with the goBILDA servo programmer, on servo port 4
                  since 6 Nov 2026, as on 20245 (it was on port 0,
                  and before that the Expansion Hub's port 0). It holds a position
-                 from PLAY (TurretSubsystem.homePosition). Locked at home
+                 from PLAY: straight ahead is 0.350 (RobotDifferences). Locked at home
                  (TurretSubsystem.lockedForward) until the turret's encoder is
                  plugged in and checked: see the encoder socket beside motor
                  port 3 below. -->
@@ -118,9 +118,9 @@
             <!-- The ENCODER socket beside motor port 3 is meant for the
                  turret's Studica Cypher Max (quadrature A/B/I, its FTC Control
                  Hub cable; set its switch to 3V3), the build team's choice of
-                 24 Oct 2026. On 20245 (6 Nov 2026) the feeder motor's own
-                 encoder cable was found in it instead; on this robot, check
-                 which cable is in it (doc/robot-todo.md). Code reads
+                 24 Oct 2026. The feeder motor's own encoder cable was in it
+                 until 6 Nov 2026, when the Cypher Max's replaced it; it counts
+                 (counter-clockwise counts down). Code reads
                  the turret angle as the feeder's position
                  (DeviceNames.TURRET_ENCODER_HOST); the feeder never uses its
                  encoder for control. -->
