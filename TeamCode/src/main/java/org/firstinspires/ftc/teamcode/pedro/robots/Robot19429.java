@@ -34,9 +34,8 @@ public final class Robot19429 {
     /**
      * <b>Mecanum Tuner, measured on 19429, 6 Nov 2026.</b> The same directions as 20245.
      *
-     * <p>The blocks below that still say "copied from Robot20245.java" have not been measured on
-     * 19429: replace each with that tuner's output on 19429 (Pinpoint, Measure: Pod Offsets,
-     * Foresight).
+     * <p>Values below that still say "copied from Robot20245.java" have not been measured on 19429:
+     * replace each with that tool's output on 19429 (Measure: Pod Offsets, Foresight).
      */
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
         c.frontLeftName.set("frontLeft");
@@ -50,11 +49,16 @@ public final class Robot19429 {
     });
 
     /**
-     * <b>Copied from Robot20245.java on 5 Nov 2026</b> (its pods: Pinpoint Tuner 17 Oct, offsets by
-     * Measure: Pod Offsets 1 Nov). Valid only while 19429's pods sit where 20245's do; re-run
-     * Measure: Pod Offsets on 19429 and replace the two offsets.
+     * Pod type and directions from the Pinpoint Tuner on 19429, 6 Nov 2026: the same as 20245's.
+     *
+     * <p><b>The offsets are still copied from Robot20245.java</b> (its Measure: Pod Offsets, 1 Nov),
+     * not measured on 19429. On 6 Nov the Pinpoint Tuner's hand turn gave x -7.00, y 2.97 (its y is
+     * the number a hand turn gets wrong: 2.2 in on 20245), and a first Measure: Pod Offsets run gave
+     * a mean of x -4.67, y 1.72 with a spread of 1.37 / 2.52 in, too wide to use (low battery). Run
+     * Measure: Pod Offsets on 19429 until its spread is under 0.25 in and paste its two offsets here.
      */
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
+        c.name.set("pinpoint");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         c.xPodOffset.set(-6.51);
         c.yPodOffset.set(1.63);
