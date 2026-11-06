@@ -1,7 +1,8 @@
 # Benched Autos
 
-The active Belding lineup is **L-NoCross, R-NoCross and R-Solo**. R-Solo-Nudge is
-a planning draft under `drafts/`; the Infraviolet pair is a coordinated planning draft. Drafts have no competition OpMode; Infraviolet has Utility trials for bring-up.
+The active Belding lineup is **L-NoCross, R-NoCross, R-Solo and the L-Infraviolet /
+R-Infraviolet pair**. R-Solo-Nudge is a planning draft under `drafts/`; drafts have no
+competition OpMode.
 Partner stand-ins have no selectable OpMode.
 
 ## Benched for Belding, 5 Nov 2026
@@ -43,5 +44,5 @@ The earlier L-scoring-flower / R-garden assignment, wide LEFT/RIGHT offsets and
 exclusive under-HIVE/wall lanes are superseded by L's early garden crossing and
 R taking both flowers. The complete draft remains at
 [07bec0e](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/tree/07bec0eafeabd8f84add5fb5f8a3310c299bbfa3/TeamCode/autos/drafts).
-Keep only `l-infraviolet.pp` and `r-infraviolet.pp` as the active coordinated
-candidate; recover individual ideas from history rather than adding another pair.
+Keep only `l-infraviolet.pp` and `r-infraviolet.pp` (now competition Autos) as the
+coordinated pair; recover individual ideas from history rather than adding another pair.
