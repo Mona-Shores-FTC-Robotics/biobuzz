@@ -34,8 +34,6 @@ public final class Robot19429 {
     /**
      * <b>Mecanum Tuner, measured on 19429, 6 Nov 2026.</b> The same directions as 20245.
      *
-     * <p>Values below that still say "copied from Robot20245.java" have not been measured on 19429:
-     * replace each with that tool's output on 19429 (Measure: Pod Offsets).
      */
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
         c.frontLeftName.set("frontLeft");
@@ -50,18 +48,18 @@ public final class Robot19429 {
 
     /**
      * Pod type and directions from the Pinpoint Tuner on 19429, 6 Nov 2026: the same as 20245's.
-     *
-     * <p><b>The offsets are still copied from Robot20245.java</b> (its Measure: Pod Offsets, 1 Nov),
-     * not measured on 19429. On 6 Nov the Pinpoint Tuner's hand turn gave x -7.00, y 2.97 (its y is
-     * the number a hand turn gets wrong: 2.2 in on 20245), and a first Measure: Pod Offsets run gave
-     * a mean of x -4.67, y 1.72 with a spread of 1.37 / 2.52 in, too wide to use (low battery). Run
-     * Measure: Pod Offsets on 19429 until its spread is under 0.25 in and paste its two offsets here.
+     * The offsets are Measure: Pod Offsets on 19429, 6 Nov 2026, after the back-left wheel's
+     * over-tight pulley was fixed: six legs gave x -5.79, -6.23, -6.14, -6.31, -6.25, -6.34 and
+     * y 2.28, 2.07, 2.00, 2.14, 2.04, ~2.13. The first leg is the outlier; legs 2-6 spread 0.20 in
+     * (x) and 0.14 in (y), and these are their mean. Earlier runs, before the pulley fix, split by
+     * turn direction (spread up to 2.5 in) and were discarded, as was the Pinpoint Tuner's
+     * hand-turn x -7.00, y 2.97.
      */
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set("pinpoint");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        c.xPodOffset.set(-6.51);
-        c.yPodOffset.set(1.63);
+        c.xPodOffset.set(-6.25);
+        c.yPodOffset.set(2.08);
         c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
