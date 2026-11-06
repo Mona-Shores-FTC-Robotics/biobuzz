@@ -104,6 +104,10 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
 - [ ] **20245 rewired 6 Nov:** indicator lights on **Expansion Hub servo port 0**, turret servo on
       **Control Hub servo port 4** (`robot_20245.xml`). A **full TeamCode install** (a Sloth Load
       keeps the old ports), re-Activate `robot_20245`, then **Check: Hardware**.
+- [ ] **19429 rewired 6 Nov:** FLOWER stick on **Control Hub servo port 0**, indicator lights on
+      **port 1**, turret servo on **port 4** (`robot_19429.xml`; 20245's layout but the lights on
+      the Control Hub). A **full TeamCode install**, re-Activate `robot_19429`, then
+      **Check: Hardware**, and the light looks and turret-sits-still checks in §2 on this robot too.
 - [ ] Charged batteries, more than one; swap at 12.0 V. [S4 Before]
 - [ ] Tape measure, phone level app. Four POLLEN per FLOWER reload, and someone to reload. [S4], [S5]
 - [ ] The HIVE on the field, red side, RIGHT CELL up (match start), tags on. [S3 Before], [S4 Before]
