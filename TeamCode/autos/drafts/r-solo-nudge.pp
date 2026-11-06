@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T07:54:05.879Z",
+  "timestamp": "2026-11-06T18:15:26.286925+00:00",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -82,19 +82,19 @@
       "waitBeforeName": "",
       "waitAfterName": "",
       "id": "nudge-approach",
-      "name": "to PARTNER_CONTACT",
+      "name": "to PARTNER_APPROACH",
       "endPoint": {
-        "x": 11.7538,
-        "y": 64.193
+        "x": 13.511579200000002,
+        "y": 59.728712
       },
       "controlPoints": [
         {
-          "x": 22,
-          "y": 50
+          "x": 22.33,
+          "y": 49.160000000000004
         },
         {
-          "x": 10.6538,
-          "y": 61.193
+          "x": 16.539362,
+          "y": 55.23257
         }
       ],
       "heading": {
@@ -103,7 +103,7 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.6,
+              "endProgress": 0.8571428571428572,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 180,
@@ -111,7 +111,7 @@
               }
             },
             {
-              "startProgress": 0.6,
+              "startProgress": 0.8571428571428572,
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
@@ -120,6 +120,35 @@
             }
           ]
         }
+      },
+      "color": "#b07aa1"
+    },
+    {
+      "kind": "atomic",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "id": "nudge-final-contact",
+      "name": "slow approach to PARTNER_CONTACT",
+      "endPoint": {
+        "x": 11.7538,
+        "y": 64.193
+      },
+      "controlPoints": [
+        {
+          "x": 12.213958000000002,
+          "y": 61.65563
+        },
+        {
+          "x": 11.4238,
+          "y": 63.293
+        }
+      ],
+      "heading": {
+        "type": "constant",
+        "degrees": 250
       },
       "color": "#b07aa1"
     },
@@ -771,6 +800,11 @@
         13.806,
         69.8312,
         250
+      ],
+      "PARTNER_APPROACH": [
+        13.511579200000002,
+        59.728712,
+        250
       ]
     },
     "pathEnds": {
@@ -783,9 +817,10 @@
       "line-mw2z05th-whpzzi": "LEFT_PARK",
       "line-mw2z1rrz-ltmk3y": "RIGHT_LAUNCH_CLOSE",
       "line-mw2z8m8r-d4cyle": "LEFT_LAUNCH_CLOSE",
-      "nudge-approach": "PARTNER_CONTACT",
+      "nudge-approach": "PARTNER_APPROACH",
       "nudge-push": "PARTNER_PUSH_END",
-      "nudge-launch": "LEFT_LAUNCH_CLOSE"
+      "nudge-launch": "LEFT_LAUNCH_CLOSE",
+      "nudge-final-contact": "PARTNER_CONTACT"
     },
     "cards": [
       {
@@ -826,6 +861,12 @@
             "cards": []
           }
         ]
+      },
+      {
+        "id": "nudge-final-contact-card",
+        "kind": "path",
+        "lineId": "nudge-final-contact",
+        "park": false
       },
       {
         "id": "nudge-push-card",

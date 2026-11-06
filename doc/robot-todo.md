@@ -794,3 +794,13 @@ one test at one meeting.
 [#251]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/251
 [#255]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/255
 [#261]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/261
+
+### Full Solo-Nudge lab run
+
+- [ ] Load master with the full nudge trial; select **Drive: R-Solo-Nudge**.
+  Normal RIGHT_START, four preloads, the same angled 16x16 dummy placement, chosen
+  alliance. Keep **Drive: Partner Nudge** available for push-only setup checks.
+  Film one complete run and collect its log: fourth-shot completion, gentle contact,
+  partner park/wall clearance, second tip and our park before the 30 s stop.
+  Contact approach and push use fixed 4 in/s, 8 in/s² limits; a blocked contact
+  stops after six seconds. This full trial does not use the push-only Panels knobs.

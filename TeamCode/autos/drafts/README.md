@@ -244,3 +244,21 @@ Open the full planning draft and partner together:
 
 The full draft's simulation still uses a placeholder push model and is not evidence
 of the real chassis's friction, rotation or the Utility's speed limits.
+
+### Full lab trial: Drive: R-Solo-Nudge
+
+Both Utilities are available: **Drive: Partner Nudge** tests just the push/retreat;
+**Drive: R-Solo-Nudge** runs preloads, both flower pickups, the angled push, the
+remaining volleys and far park. For the full run, start our robot at RIGHT_START
+with four preloads, not at the push-only contact mark. Use the same 16x16 partner
+placement from the setup drawing and select the correct alliance.
+
+The full trial splits the existing approach curve without changing its geometry,
+brakes for 300 ms before the final approach, and limits only that short segment
+and the push to 4 in/s and 8 in/s². Contact endpoints require position/heading/speed
+agreement. A contact segment blocked for six seconds stops the trial; the whole
+trial stops at 30 seconds. Other scoring paths retain their normal constraints.
+The generic simulator does not include these runtime speed limits; use this run's
+log to establish whether two tips and park fit. This is a Utility, not a competition
+Autonomous entry. The full trial's limits are fixed, independent of the push-only
+Utility's Panels knobs.
