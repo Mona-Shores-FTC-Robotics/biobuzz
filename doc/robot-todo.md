@@ -191,6 +191,13 @@ Result, with the gap on each own-start run, → [PR #372].
       back to the mark; the Robot page's "Turret re-home" line shows the corrections. **Stop:** it
       swings further off → `degreesPerUnit`'s sign is wrong. "out of reach" → one more full turn
       by hand, on the mark, run again.
+- [ ] **19429: the 360° experiment (Bench: Turret 360).** SWYFT Balance in SWYFT's continuous
+      mode (Continuous rotation **on**: Range 255/255; full speed or off, no partial speed), steered
+      by the Cypher Max. Not match code: flash it back (continuous off, range 320) before Basic
+      Drive. Its javadoc has the checks: direction (`ccwIsLowPulse`), coast (`leadMs`), aim
+      (bursts), push-back. If full speed is too fast to stop, lower Max Power in the SWYFT
+      programmer and measure the coast again. Note the settings that worked, and how well it
+      holds, for the decision to make it the match turret.
 - [ ] **19429: before the turret is unlocked** (`lockedForward` false, the mentor's call). On
       **Bench: Turret** after PLAY: Square at home, step at least 0.1 away: the bench shows
       `degreesPerUnit` from the encoder (19429's 2.75 encoder ratio is applied); step both ways.
