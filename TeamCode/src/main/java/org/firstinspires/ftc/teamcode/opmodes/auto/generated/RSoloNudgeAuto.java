@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoOption;
@@ -20,13 +21,13 @@ public final class RSoloNudgeAuto {
     public static final String SOURCE = "r-solo-nudge.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-04|8:45AM";
+    public static final String SAVED = "11-05|8:50PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {};
+    public static final String[] TRIGGERS = {"CellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -50,39 +51,68 @@ public final class RSoloNudgeAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
-        Pose partnerPushApproach = p.of(10.5, 64.3, 270);
-        Pose partnerPushEnd = p.of(14, 76.3, 270);
-        Pose partnerPushClear = p.of(31, 74.5, 270);
-        Pose leftLaunchOffset = p.of(41, 121.5, 296.4);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
+        Pose leftLaunchClose = p.of(59.9, 117.5, 270);
+        Pose rightLaunchClose = p.of(56.1, 26, 90);
         Pose leftPark = p.of(14.5, 117.4, 0);
+        Pose partnerContact = p.of(10.5, 67.8, 270);
+        Pose partnerPushEnd = p.of(10.5, 72, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toLeftLaunchOffsetControl1 = p.of(32, 110, 0);
+        Pose wallFlowerStagingParkControl1 = p.of(37, 54, 0);
+        Pose wallFlowerStagingParkControl2 = p.of(31, 109, 0);
+        Pose toPartnerContactControl1 = p.of(17, 47.2, 0);
+        Pose toPartnerContactControl2 = p.of(10.5, 56, 0);
+        Pose toPartnerContactSegment1Start = p.of(10.5, 67.8, 180);
+        Pose toLeftLaunchCloseControl1 = p.of(30, 68, 0);
+        Pose toLeftLaunchCloseControl2 = p.of(36, 68, 0);
+        Pose toLeftLaunchCloseControl3 = p.of(26, 116, 0);
+        Pose toRightLaunchCloseControl1 = p.of(58.7683, 101.5686, 0);
+        Pose toRightLaunchCloseControl2 = p.of(65.2005, 71.9052, 0);
+        Pose toRightLaunchCloseControl3 = p.of(60.6002, 40.901, 0);
+        Pose toRightLaunchCloseSegment1Start = p.of(56.1, 26, 270);
+        Pose toRightLaunchCloseSegment1End = p.of(56.1, 26, 270);
+        Pose toRightLaunchCloseSegment2Start = p.of(56.1, 26, 270);
+        Pose toLeftPark_2Control1 = p.of(32, 35, 0);
+        Pose toLeftPark_2Control2 = p.of(33, 111, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
-        Path toPartnerPushApproach = Paths.line(wallFlowerStaging, partnerPushApproach).linear(wallFlowerStaging, partnerPushApproach);
-        Path pushToPartnerPushEnd = Paths.line(partnerPushApproach, partnerPushEnd).constant(partnerPushEnd);
-        Path offThePartnerToPartnerPushClear = Paths.line(partnerPushEnd, partnerPushClear).constant(partnerPushClear);
-        Path toLeftLaunchOffset = Paths.curve(partnerPushClear, toLeftLaunchOffsetControl1, leftLaunchOffset).linear(partnerPushClear, leftLaunchOffset);
-        Path toScoringFlowerStaging = Paths.line(leftLaunchOffset, scoringFlowerStaging).linear(leftLaunchOffset, scoringFlowerStaging);
-        Path toLeftLaunchOffsetPath = Paths.line(scoringFlowerStaging, leftLaunchOffset).linear(scoringFlowerStaging, leftLaunchOffset);
-        Path toLeftPark = Paths.line(leftLaunchOffset, leftPark).linear(leftLaunchOffset, leftPark);
+        Path wallFlowerStagingPark = Paths.curve(wallFlowerStaging, wallFlowerStagingParkControl1, wallFlowerStagingParkControl2, leftPark).linear(wallFlowerStaging, leftPark);
+        Path toPartnerContact = Paths.curve(wallFlowerStaging, toPartnerContactControl1, toPartnerContactControl2, partnerContact).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(toPartnerContactSegment1Start, partnerContact)).until(1, Interpolator.constant(partnerContact)));
+        Path pushToPartnerPushEnd = Paths.line(partnerContact, partnerPushEnd).constant(partnerPushEnd);
+        Path toLeftLaunchClose = Paths.curve(partnerPushEnd, toLeftLaunchCloseControl1, toLeftLaunchCloseControl2, toLeftLaunchCloseControl3, leftLaunchClose).constant(leftLaunchClose);
+        Path leftLaunchClosePark = Paths.line(leftLaunchClose, leftPark).linear(leftLaunchClose, leftPark);
+        Path toScoringFlowerStaging = Paths.line(leftLaunchClose, scoringFlowerStaging).linear(leftLaunchClose, scoringFlowerStaging);
+        Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, leftPark).linear(scoringFlowerStaging, leftPark);
+        Path toLeftLaunchClosePath = Paths.line(scoringFlowerStaging, leftLaunchClose).linear(scoringFlowerStaging, leftLaunchClose);
+        Path toLeftPark = Paths.line(leftLaunchClose, leftPark).linear(leftLaunchClose, leftPark);
+        Path toRightLaunchClose = Paths.curve(leftLaunchClose, toRightLaunchCloseControl1, toRightLaunchCloseControl2, toRightLaunchCloseControl3, rightLaunchClose).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(toRightLaunchCloseSegment1Start, toRightLaunchCloseSegment1End)).until(1, Interpolator.linear(toRightLaunchCloseSegment2Start, rightLaunchClose)));
+        Path toLeftParkPath = Paths.curve(rightLaunchClose, toLeftPark_2Control1, toLeftPark_2Control2, leftPark).linear(rightLaunchClose, leftPark);
 
         return kit.sequence(
                 kit.command("SpinUp"),
                 kit.command("LaunchAll"),
-                kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1),
-                kit.command("PickFlower", 8),
-                kit.path("to PARTNER_PUSH_APPROACH", toPartnerPushApproach, 1.4),
-                kit.path("push: to PARTNER_PUSH_END", pushToPartnerPushEnd, 1),
-                kit.path("off the partner: to PARTNER_PUSH_CLEAR → to LEFT_LAUNCH_OFFSET", Paths.path(offThePartnerToPartnerPushClear, toLeftLaunchOffset), 3.2),
-                kit.command("LaunchAll"),
-                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1),
-                kit.command("PickFlower", 8),
-                kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffsetPath, 1.1),
-                kit.command("LaunchAll"),
-                kit.path("to LEFT_PARK", toLeftPark, 1.5));
+                kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.6),
+                kit.command("PickFlower", 4.5),
+                kit.path("to PARTNER_CONTACT", toPartnerContact, 1.5),
+                kit.firstOf("Settle before contact",
+                        kit.afterMs(300)),
+                kit.path("push to PARTNER_PUSH_END", pushToPartnerPushEnd, 0.6),
+                kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClose, 2.6, leftLaunchClosePark, 2),
+                kit.firstOf("Wait for TIP or CELL up",
+                        kit.when("CellUp").then(
+                                kit.guarded("If CellUp", toLeftPark, 2,
+                                        kit.command("LaunchAll"),
+                                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
+                                        kit.command("PickFlower", 4.5),
+                                        kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClosePath, 1.3),
+                                        kit.command("LaunchAll"),
+                                        kit.path("to LEFT_PARK", toLeftPark, 2))),
+                        kit.afterMs(750).then(
+                                kit.guarded("Timed out", toLeftParkPath, 3.1,
+                                        kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.2),
+                                        kit.command("LaunchAll"),
+                                        kit.path("to LEFT_PARK", toLeftParkPath, 3.1)))));
     }
 }

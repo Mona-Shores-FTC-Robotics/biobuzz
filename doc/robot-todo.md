@@ -292,24 +292,21 @@ Use the work order above to select checks; the detailed mechanism checks below a
       lines from the same runs with `launchOnApproach` off. **Good:** X under 0.3 s (was 0.38–0.57),
       and hits as good as before. **Stop:** misses → `PathEndSettle.slowSpeedInPerSec` 3.
       [PR #430]
-- [ ] **Push a motionless partner (draft R-Solo-Nudge), first by hand.** First reconcile the
-      paired drawings: the current `partner-push-start.pp` is at (10.5, 84), heading 80°,
-      while the original push procedure below assumed (8.1, 82.5), heading 0°. Do not
-      treat the old contact procedure as qualified for the edited partner placement.
-      A second robot (19429, or any
-      chassis about a robot's weight), motionless in an initialized OpMode for a match, back on the red alliance wall centred on tile A4,
-      facing the field (`PARTNER_PUSH_START`, 8.1, 82.5). 20245 in Basic Drive holding 4 POLLEN, its
-      **back** against the partner's south side, its left edge about 2.4 in off the wall: push about
-      10 in north, drifting a few inches away from the wall (the draft goes 12 in north, 3.5 in out).
-      **Good:** the partner ends off the wall (a sheet of paper slides behind it) and over the LOADING
-      ZONE tape, our 4 pieces stay where they were (no jam, none pushed out), the push holds a steady
-      speed. **Record:** the push's speed against an unloaded drive (the simulator assumes half,
-      `AutoSim.PUSH_SPEED_FRACTION`), whether the partner turns, how far it slid out. **Stop:** it
-      stays on the wall → more drift (`PARTNER_PUSH_END` further out), or ask the partner to start
-      with its side on the wall facing the zone so its wheels roll forward; our pieces move → try a
-      side face and note which. Then, if it worked, the draft at speed with a temporary OpMode on a
-      scratch branch: TIP 2 before 30 s, the partner LEAVE and PARK by eye, our robot clear of the
-      partner and the HIVE leg on the way north. [PR #427]
+- [ ] **Short nudge, first in Basic Drive with the actual partner.** The revised draft
+      and `partner-push-start.pp` now agree: partner nominally (8, 84), heading 90°,
+      touching the alliance wall and outside the loading zone; our contact pose
+      (10.5, 67.8), heading 270°. Place by the real frame/wall contact and measure the
+      contact gap; the drawing and simulator use different frame dimensions.
+      **Good:** the partner rolls straight toward the zone, a short push puts its
+      body partly over the tape, our loaded robot retains all four pieces, and the
+      east/south peel-off releases contact before curving north. Record the actual
+      push distance, approach speed, whether the partner turns, and time cost.
+      The 300 ms hold and 4.2 in path are not a numerical speed/force cap: test the
+      contact behavior before loading the full automated draft. If the first
+      contact is too hard, add a real local speed limit rather than changing only
+      preview velocity. Then qualify the two-TIP sequence and separate near/far
+      AUTO parks. The old 12 in diagonal-push procedure is superseded. The draft
+      still has no selectable OpMode. [autos draft README](../TeamCode/autos/drafts/README.md#r-solo-nudge-for-a-partner-with-no-auto)
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 

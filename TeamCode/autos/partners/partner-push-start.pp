@@ -1,11 +1,11 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-05T14:47:23.858Z",
+  "timestamp": "2026-11-06T01:50:01.571Z",
   "startPoint": {
-    "x": 10.5,
+    "x": 8,
     "y": 84,
     "locked": false,
-    "headingDeg": 80
+    "headingDeg": 90
   },
   "lines": [],
   "shapes": [
@@ -229,26 +229,20 @@
     },
     "points": {
       "PARTNER_PUSH_START": [
-        10.5,
+        8,
         84,
-        80
+        90
       ]
     },
     "pathEnds": {},
     "cards": [
       {
-        "id": "c-mw3nt0sr-50clw",
+        "id": "partner-hold",
         "kind": "firstOf",
-        "label": "Wait for TIP or CELL up",
+        "label": "Hold position",
         "rows": [
           {
-            "when": [
-              "CellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 7000,
+            "afterMs": 30000,
             "cards": []
           }
         ]
