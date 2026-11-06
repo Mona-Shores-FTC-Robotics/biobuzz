@@ -32,12 +32,17 @@ public final class Robot19429 {
     private Robot19429() {}
 
     /**
-     * <b>Copied from Robot20245.java on 5 Nov 2026, not measured on 19429.</b> 19429 is built as a
-     * replica of 20245, so its values stand in until 19429's own tuners run. Replace each block
-     * with that tuner's output on 19429 (Mecanum, Pinpoint, Measure: Pod Offsets, Foresight); a
-     * block still marked "copied" has not been measured on this robot.
+     * <b>Mecanum Tuner, measured on 19429, 6 Nov 2026.</b> The same directions as 20245.
+     *
+     * <p>The blocks below that still say "copied from Robot20245.java" have not been measured on
+     * 19429: replace each with that tuner's output on 19429 (Pinpoint, Measure: Pod Offsets,
+     * Foresight).
      */
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
+        c.frontLeftName.set("frontLeft");
+        c.frontRightName.set("frontRight");
+        c.backLeftName.set("backLeft");
+        c.backRightName.set("backRight");
         c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
         c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
         c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
