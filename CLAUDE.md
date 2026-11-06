@@ -137,7 +137,9 @@ by hand.
 → `TeamCode/autos/README.md`
 
 **The simulator** is test code only (`src/test/.../logging/`: `AutoSim`, `FieldSim`, `SimRunTest`), and
-it runs master's generated Autos as they are. It knows one robot, the real one, in four variants
+it runs the current checkout's generated Autos as they are. `tools/simulate-auto/simulate_auto.py`
+runs a saved local candidate with a selected partner or its curated study, without a push or CI;
+its request, results and AdvantageScope logs are under `TeamCode/build/local-sim/`. It knows one robot, the real one, in four variants
 (`RobotDesign.real`: turret or locked forward, POLLEN + NECTAR or POLLEN only); a number master
 states (frame, FLOWER stick, feed, launcher setpoint and speed table, GARDEN gather) is read from master's code, never copied, and the rest is a
 placeholder until a match log measures it. It acts as the driver: a partner entry gives
