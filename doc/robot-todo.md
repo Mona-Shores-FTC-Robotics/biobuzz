@@ -101,6 +101,9 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
 
 - [ ] Master pulled. A **full TeamCode install** if this robot has had none since 2 Nov (the
       indicator light added `res/xml`); Sloth Load after that. [S4 Before], [S5 Before]
+- [ ] **20245 rewired 6 Nov:** indicator lights on **Expansion Hub servo port 0**, turret servo on
+      **Control Hub servo port 4** (`robot_20245.xml`). A **full TeamCode install** (a Sloth Load
+      keeps the old ports), re-Activate `robot_20245`, then **Check: Hardware**.
 - [ ] Charged batteries, more than one; swap at 12.0 V. [S4 Before]
 - [ ] Tape measure, phone level app. Four POLLEN per FLOWER reload, and someone to reload. [S4], [S5]
 - [ ] The HIVE on the field, red side, RIGHT CELL up (match start), tags on. [S3 Before], [S4 Before]
@@ -166,6 +169,11 @@ Result, with the gap on each own-start run, → [PR #372].
 - [ ] **Light looks:** Basic Drive INIT steady red, X → steady blue; off after PLAY; intake until a
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
+- [ ] **20245, after the 6 Nov rewire: the turret sits still.** Turret still locked
+      (`lockedForward`), servo now plugged in on Control Hub port 4. Lift the turret's cables clear,
+      press PLAY, watch 30 s with a mark on the turret. **Good:** no movement. **Stop:** it creeps →
+      unplug the servo, then trim `TurretSubsystem.servoStopPower` in Panels until it holds still
+      and note the value. Also confirm the light looks above still work from the Expansion Hub.
 
 ## 3. The selected Autos, on the field (HIVE upright, preloads in, Panels open)
 
