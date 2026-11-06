@@ -671,7 +671,7 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       alliance's NECTAR` event means a burst could not clear it: film it. A POLLEN or our own NECTAR spat out → the event's hue says which range
       (`redNectarHueMin/Max`, `blueNectarHueMin/Max`) to narrow; until fixed, `rejectEnemyNectar` off.
 - [ ] **Full-lane position hold:** Panels `IntakeSubsystem.positionHoldWhenFull` defaults on
-      for 20245, off for 19429 (encoder wire unplugged; reconnect before enabling). The roller captures
+      for both robots (19429's encoder wire was plugged in 6 Nov, so its off line is gone). The roller captures
       its encoder position once, stars continue inward and prefeed stops. Initial `positionHoldMaxPower` 0.3 and
       2-tick tolerance need robot confirmation. During normal practice, load 4 and back away:
       the 4th stays in and a loose 5th stays out. Match logs include `PositionHolding`,
