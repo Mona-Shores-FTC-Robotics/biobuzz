@@ -173,25 +173,24 @@ Result, with the gap on each own-start run, → [PR #372].
 - [ ] **Light looks:** Basic Drive INIT steady red, X → steady blue; off after PLAY; intake until a
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
-- [ ] **20245, after the 6 Nov rewire: the turret sits still.** Turret still locked
-      (`lockedForward`), servo now plugged in on Control Hub port 4. Lift the turret's cables clear,
-      press PLAY, watch 30 s with a mark on the turret. **Good:** no movement. **Stop:** it creeps →
-      unplug the servo, then trim `TurretSubsystem.servoStopPower` in Panels until it holds still
-      and note the value. Also confirm the light looks above still work from the Expansion Hub.
-- [ ] **19429: the turret, unlocked 6 Nov.** SWYFT servo flashed to continuous rotation (SWYFT USB
-      programmer); Cypher Max on the drive gear in the motor port 3 encoder socket
-      (`RobotDifferences`: unlocked, `turnsPerTurretTurn` 2.75). A **full TeamCode install**,
-      re-Activate, **Check: Hardware**. Someone on Stop. **Bench: Turret** (its own copies of the
-      numbers: set `turnsPerTurretTurn` 2.75 in Panels there), after PLAY, Triangle off:
-      1. Stick centred: the turret stays still. **Stop:** it creeps → trim `servoStopPower`.
-      2. Push the left stick left: the turret turns counter-clockwise seen from above. **Stop:**
-         clockwise → `servoDirection` is +1 on 19429, a `RobotDifferences` line.
-      3. Cross at the home mark, one full turret turn by hand: `encoder turns` ≈ 2.75 and `angle`
-         ≈ 360°. **Stop:** another number → 19429's `turnsPerTurretTurn` line.
-      4. Triangle: it goes to 30° and holds; D-pad moves the target.
-      Then **Basic Drive**: turret on its mark in INIT, PLAY: it holds there, comes back when
-      pushed, and the operator's aim button turns it toward our CELL. A RUNAWAY on the Robot page
-      means check 2. The SWYFT servo cuts out after 10 s stalled: never pin the turret.
+- [ ] **19429: the turret holds straight ahead from PLAY.** Its servo is in position mode and
+      points straight ahead at 0.514 (Bench: Turret, 6 Nov, after a runaway below 0.22 moved it from
+      0.350; positions now kept to 0.25–0.75, `RobotDifferences`). The Cypher Max
+      replaced the feeder's cable in the motor port 3 encoder socket (6 Nov) and counts
+      (counter-clockwise counts down, as `direction` = -1 says). A **full TeamCode install** (the
+      XML changed), re-Activate, **Check: Hardware**. Then Basic Drive: set the turret on its mark
+      in INIT, PLAY. **Good:** it barely moves and springs back when pushed.
+- [ ] **19429: before the turret is unlocked** (`lockedForward` false, the mentor's call). On
+      **Bench: Turret** after PLAY: Square at 0.514, step to a 90° counter-clockwise mark (down; up
+      is clockwise, about 25° per +0.16):
+      `degreesPerUnit` = 90 / moved (signed). Cross at home, one full turret turn by hand (Circle
+      limp): `encoder turns` is `turnsPerTurretTurn`, and anything but 1.0 is a 19429 line.
+- [ ] **20245: the turret servo's mode and its encoder socket.** On the 24 Oct bench its servo was
+      in continuous mode; the code now sends a position, and keeps it at 0.5 (stop, or centre) until
+      this is known. **Bench: Turret**, PLAY, one D-pad press: the turret steps and stops → position
+      mode, find its straight-ahead position like 19429's; it keeps turning → continuous mode:
+      **stop the OpMode**, and either reprogram it to position mode or tell a mentor. Also: which
+      cable is in the motor port 3 encoder socket (the feeder's, or the Cypher Max's).
 
 ## 3. The selected Autos, on the field (HIVE upright, preloads in, Panels open)
 
