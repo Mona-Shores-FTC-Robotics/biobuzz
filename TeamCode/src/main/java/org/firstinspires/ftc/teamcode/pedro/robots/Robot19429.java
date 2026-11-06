@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedro.RobotConstants;
 
-// Needed by the Foresight block.
+// Needed by the Foresight block; kept for the paste of 19429's own tuner output.
 import com.pedropathing.controllers.Controller;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector2D;
@@ -60,33 +60,33 @@ public final class Robot19429 {
     });
 
     /**
-     * <b>Measured on 19429, 6 Nov 2026</b> (Foresight Tuner, at bring-up). The tuner drove with the
-     * {@code drivetrainConfig} and {@code localizerConfig} above as they stood that day; if either is
-     * re-tuned, run the Foresight Tuner again and paste over this block.
+     * <b>Copied from Robot20245.java on 5 Nov 2026</b> (20245's Foresight Tuner run of 1 Nov), so
+     * path Autos and Square's drive to a launch spot run on 19429 before it is tuned. Run the
+     * Foresight Tuner on 19429 and paste its block over this one.
      */
     public static ForesightConfig foresightConfig = new ForesightConfig(
             c -> {
-                Controller primaryTranslationalForward = Controller.proportional(0.46085881081152114);
-                Controller secondaryTranslationalForward = Controller.proportional(0.17027501622063512);
-                Controller primaryTranslationalLateral = Controller.proportional(1.0367085620325478);
-                Controller secondaryTranslationalLateral = Controller.proportional(0.3830361123080656);
+                Controller primaryTranslationalForward = Controller.proportional(0.3711725482151876);
+                Controller secondaryTranslationalForward = Controller.proportional(0.1371383386523627);
+                Controller primaryTranslationalLateral = Controller.proportional(0.8797062454962113);
+                Controller secondaryTranslationalLateral = Controller.proportional(0.32502795152705083);
 
                 c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));
                 c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));
 
-                c.coast.set(Controller.proportionalFeedforward(0.0167362689199765));
-                c.brake.set(Controller.proportionalFeedforward(0.014225828581980024));
+                c.coast.set(Controller.proportionalFeedforward(0.01436619092980278));
+                c.brake.set(Controller.proportionalFeedforward(0.012211262290332363));
 
-                c.headingFeedback.set(Controller.proportional(8.54738558487578));
-                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.04590798884960745, 0.007077275493233542));
+                c.headingFeedback.set(Controller.proportional(6.81102561066061));
+                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.0486307653912525, 0.006041486212840524));
 
-                c.linearBrakeCoefficients.set(Matrix.diag(0.09215363056605187, 0.01810258976052119));
-                c.quadraticBrakeCoefficients.set(Matrix.diag(0.0015818740069037233, 0.0028595937907661267));
+                c.linearBrakeCoefficients.set(Matrix.diag(0.09314850563668818, 0.044191651326303094));
+                c.quadraticBrakeCoefficients.set(Matrix.diag(0.0014603186766220487, 0.002220542921721947));
 
-                c.maxAchievableForwardVelocity.set(66.76302320581648);
-                c.maxAchievableStrafeVelocity.set(44.45771301815713);
-                c.naturalForwardDeceleration.set(37.129381325600164);
-                c.naturalStrafeDeceleration.set(85.8446127901741);
+                c.maxAchievableForwardVelocity.set(71.12855272032681);
+                c.maxAchievableStrafeVelocity.set(53.31840381477558);
+                c.naturalForwardDeceleration.set(32.234283803366466);
+                c.naturalStrafeDeceleration.set(82.41560270612311);
             }
     );
 
