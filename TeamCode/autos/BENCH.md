@@ -1,8 +1,8 @@
 # Benched Autos
 
 The active Belding lineup is **L-NoCross, R-NoCross and R-Solo**. R-Solo-Nudge is
-a planning draft under `drafts/`; the Infraviolet pair is future work. A draft or a
-partner stand-in has no selectable OpMode.
+a planning draft under `drafts/`; the Infraviolet pair is a coordinated planning draft. Drafts have no competition OpMode; Infraviolet has Utility trials for bring-up.
+Partner stand-ins have no selectable OpMode.
 
 ## Benched for Belding, 5 Nov 2026
 
@@ -27,3 +27,12 @@ names and shared spots as needed.
 The old staging collision remains a reason to qualify it before promotion: its
 partner's staged row near `PARTNER_STAGED_POLLEN` can be swept by our approach to
 `LEFT_LAUNCH_OFFSET` before collection. Bench preservation is not qualification.
+
+## Replaced three-TIP A/B sketches
+
+`l-3tip-a`, `r-3tip-a`, `l-3tip-b` and `r-3tip-b` are superseded by the selected
+L-Infraviolet / R-Infraviolet pair. Their drawings, generated classes, R simulation
+requests and original design notes remain intact at
+[master snapshot 6fcc060](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/tree/6fcc060484355ceaa2439efffc3648c5e190c4d6/TeamCode/autos/drafts).
+They are removed from the current draft list to avoid maintaining three competing pairs.
+Restore only an individual experiment if it is needed; do not merge an old snapshot wholesale.

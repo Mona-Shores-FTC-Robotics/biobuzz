@@ -308,6 +308,26 @@ Use the work order above to select checks; the detailed mechanism checks below a
       AUTO parks. The old 12 in diagonal-push procedure is superseded. The draft
       still has no selectable OpMode. [autos draft README](../TeamCode/autos/drafts/README.md#r-solo-nudge-for-a-partner-with-no-auto)
 
+- [ ] **Infraviolet paired draft, after the baseline and nudge.**
+      [Route, cutoffs and timing targets](../TeamCode/autos/drafts/README.md#l-infraviolet--r-infraviolet-coordinated-three-tip-draft).
+      Sloth Load the branch, then use **Utility → Drive: L-Infraviolet / Drive: R-Infraviolet**
+      (automatic STOP at 30 s). First review the two `.pp` files together;
+      the one-second LaunchAll limits guard readiness, not the protected feeding time.
+      - Dry-run L's south and north under-HIVE paths and R's wall-lane paths separately,
+        then together. Check real frame/poker clearance and hold the square heading under HIVE.
+      - Qualify the new local LEFT_PAIR_OFFSET and RIGHT_PAIR_OFFSET shots. At both
+        simultaneous shooting stations check that neither robot blocks the other's camera or shots.
+      - Test L's TIP-2 handoff with R driving away; delay/miss the TIP and verify L holds
+        until 21 s before its far park. R owns the near park, L the far park in every branch.
+      - Measure both flower pickups, the garden gather and final launch readiness. Targets:
+        L at RIGHT close before **21.5 s**, R at RIGHT offset before **22.5 s**. Verify the
+        1 s readiness limit accepts normal arrivals, and an active feed is not cut by it.
+      - Only after those checks, run the complete pair from the Utilities,
+        including delayed and failed volleys. Confirm all three TIPs and both AUTO parks
+        on video; LEAVE requires both robots still clear of walls at AUTO end. The current
+        timing analysis supports two TIPs with both parks; three needs the optimistic timings.
+        Promote the Utility trials to competition OpModes only after qualification.
+
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
 The pick-depth session. Procedure and tables: [S5 At the robot]. The student version of the same
