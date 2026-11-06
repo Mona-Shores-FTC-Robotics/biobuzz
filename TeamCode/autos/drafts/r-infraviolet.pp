@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T14:21:32.658Z",
+  "timestamp": "2026-11-06T14:44:19.446Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -165,7 +165,7 @@
           "heading": {
             "type": "linear",
             "startDeg": 270,
-            "endDeg": 99.36587390075002
+            "endDeg": 97.23932587081833
           },
           "locked": false
         },
@@ -173,13 +173,13 @@
           "kind": "atomic",
           "id": "r-right-close-approach",
           "endPoint": {
-            "x": 60.5,
+            "x": 59.5,
             "y": 31
           },
           "controlPoints": [],
           "heading": {
             "type": "constant",
-            "degrees": 99.36587390075002
+            "degrees": 97.23932587081833
           },
           "locked": false
         }
@@ -222,7 +222,7 @@
                   "endProgress": 0.45,
                   "interpolationType": "constant",
                   "parameters": {
-                    "degrees": 99.36587390075002
+                    "degrees": 97.23932587081833
                   }
                 },
                 {
@@ -230,7 +230,7 @@
                   "endProgress": 1,
                   "interpolationType": "linear",
                   "parameters": {
-                    "startDeg": 99.36587390075002,
+                    "startDeg": 97.23932587081833,
                     "endDeg": 180
                   }
                 }
@@ -324,7 +324,7 @@
       "locked": false
     },
     {
-      "kind": "atomic",
+      "kind": "compound",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -332,22 +332,57 @@
       "waitAfterName": "",
       "id": "r-left-abort-park",
       "name": "left abort park to RIGHT_PARK",
-      "endPoint": {
-        "x": 14.5,
-        "y": 95.7
-      },
-      "controlPoints": [
+      "color": "#e15759",
+      "segments": [
         {
-          "x": 43.66104962939895,
-          "y": 105.89842778806698
+          "kind": "atomic",
+          "id": "r-abort-clear-hive",
+          "endPoint": {
+            "x": 32,
+            "y": 108
+          },
+          "controlPoints": [
+            {
+              "x": 44,
+              "y": 112
+            }
+          ],
+          "heading": {
+            "type": "constant",
+            "degrees": 270
+          },
+          "locked": false
+        },
+        {
+          "kind": "atomic",
+          "id": "r-abort-clear-far-park",
+          "endPoint": {
+            "x": 32,
+            "y": 96
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "constant",
+            "degrees": 270
+          },
+          "locked": false
+        },
+        {
+          "kind": "atomic",
+          "id": "r-abort-near-park",
+          "endPoint": {
+            "x": 14.5,
+            "y": 95.7
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "linear",
+            "startDeg": 270,
+            "endDeg": 0
+          },
+          "locked": false
         }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 0
-      },
-      "color": "#e15759"
+      ]
     },
     {
       "kind": "atomic",
@@ -381,7 +416,11 @@
       "controlPoints": [
         {
           "x": 40,
-          "y": 96
+          "y": 88
+        },
+        {
+          "x": 28,
+          "y": 89
         }
       ],
       "heading": {
@@ -675,9 +714,9 @@
         90
       ],
       "RIGHT_PAIR_CLOSE": [
-        60.5,
+        59.5,
         31,
-        99.36587390075002
+        97.23932587081833
       ],
       "RIGHT_PARK": [
         14.5,

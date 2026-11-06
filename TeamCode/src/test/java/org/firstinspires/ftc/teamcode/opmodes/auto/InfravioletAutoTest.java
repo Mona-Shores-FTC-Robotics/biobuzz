@@ -149,7 +149,7 @@ public class InfravioletAutoTest {
             paths++;
             pose = path.endPose();
             if (Math.abs(pose.x() - 14.5) < .01) parkAt = now;
-            if (lateRightArrival && Math.abs(pose.x() - 60.5) < .01 && Math.abs(pose.y() - 31) < .01) now = 23;
+            if (lateRightArrival && Math.abs(pose.x() - 59.5) < .01 && Math.abs(pose.y() - 31) < .01) now = 23;
             doneAt = now + 0.5;
         }
         @Override public boolean pathDone() { return now >= doneAt; }
