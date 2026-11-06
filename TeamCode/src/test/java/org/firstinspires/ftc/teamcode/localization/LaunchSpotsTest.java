@@ -24,7 +24,7 @@ public class LaunchSpotsTest {
     private static final double EPS = 1e-9;
 
     private static Choice red(double x, double y) {
-        return LaunchSpots.choose(new Pose(x, y, 0), true, Alliance.RED, OFF_WALL);
+        return LaunchSpots.choose(new Pose(x, y, 0), true, Alliance.RED, OFF_WALL, 0.0);
     }
 
     private static double wrap(double rad) {
@@ -50,14 +50,14 @@ public class LaunchSpotsTest {
         assertFalse(c.spot.left);
         assertEquals(Math.hypot(c.target.x() - 45, c.target.y() - 40), c.distanceIn, EPS);
         for (Spot spot : Spot.values()) {
-            Pose t = spot.target(Alliance.RED, OFF_WALL);
+            Pose t = spot.target(Alliance.RED, OFF_WALL, 0.0);
             assertTrue(spot + " is nearer than the choice", Math.hypot(t.x() - 45, t.y() - 40) >= c.distanceIn - EPS);
         }
     }
 
     @Test
     public void aLaunchSpotIsDrivenToAsDrawn() {
-        Pose t = Spot.RIGHT_LAUNCH_CATCH.target(Alliance.RED, OFF_WALL);
+        Pose t = Spot.RIGHT_LAUNCH_CATCH.target(Alliance.RED, OFF_WALL, 0.0);
         assertEquals(57.5, t.x(), EPS);
         assertEquals(18, t.y(), EPS);
         assertEquals(Math.toRadians(91.9), t.heading(), EPS);
@@ -66,7 +66,7 @@ public class LaunchSpotsTest {
     @Test
     public void aStartStopsOffTheWallAimedAtItsHalfsCell() {
         Pose start = StartPositions.RED_AUDIENCE.pose;
-        Pose t = Spot.RIGHT_START.target(Alliance.RED, OFF_WALL);
+        Pose t = Spot.RIGHT_START.target(Alliance.RED, OFF_WALL, 0.0);
         assertEquals(start.x(), t.x(), EPS);
         assertEquals(start.y() + OFF_WALL, t.y(), EPS); // faces 90°: out from the audience wall
         Vec3 row = HiveFieldPoints.rowCentre(HiveCell.rightCell(Alliance.RED), HiveCellState.UP);
@@ -74,7 +74,7 @@ public class LaunchSpotsTest {
         assertEquals("near its start's facing", 0, Math.toDegrees(wrap(t.heading() - start.heading())), 6);
 
         Pose far = StartPositions.RED_FAR.pose;
-        Pose l = Spot.LEFT_START.target(Alliance.RED, OFF_WALL);
+        Pose l = Spot.LEFT_START.target(Alliance.RED, OFF_WALL, 0.0);
         assertEquals(far.y() - OFF_WALL, l.y(), EPS); // faces 270°: out from the far wall
         Vec3 leftRow = HiveFieldPoints.rowCentre(HiveCell.leftCell(Alliance.RED), HiveCellState.UP);
         assertEquals(0, wrap(Math.atan2(leftRow.y() - l.y(), leftRow.x() - l.x()) - l.heading()), EPS);
@@ -89,8 +89,8 @@ public class LaunchSpotsTest {
         double[][] where = {{30, 30}, {60, 22}, {56, 6}, {65, 135}, {60, 120}, {30, 110}, {45, 70}, {28, 12}, {28, 129}};
         for (double[] w : where) {
             Pose p = new Pose(w[0], w[1], 0);
-            Choice r = LaunchSpots.choose(p, true, Alliance.RED, OFF_WALL);
-            Choice b = LaunchSpots.choose(LaunchSpots.turned(p), true, Alliance.BLUE, OFF_WALL);
+            Choice r = LaunchSpots.choose(p, true, Alliance.RED, OFF_WALL, 0.0);
+            Choice b = LaunchSpots.choose(LaunchSpots.turned(p), true, Alliance.BLUE, OFF_WALL, 0.0);
             assertEquals(p.toString(), r.spot, b.spot);
             Pose expected = LaunchSpots.turned(r.target);
             assertEquals(expected.x(), b.target.x(), EPS);
@@ -102,8 +102,8 @@ public class LaunchSpotsTest {
     @Test
     public void everySpotIsOnOurSideAndOnItsCellsHalf() {
         for (Spot spot : Spot.values()) {
-            Pose red = spot.target(Alliance.RED, OFF_WALL);
-            Pose blue = spot.target(Alliance.BLUE, OFF_WALL);
+            Pose red = spot.target(Alliance.RED, OFF_WALL, 0.0);
+            Pose blue = spot.target(Alliance.BLUE, OFF_WALL, 0.0);
             assertTrue(spot + " red", red.x() < C);
             assertTrue(spot + " blue", blue.x() > C);
             assertEquals(spot + " red half", spot.left, LaunchSpots.leftHalf(Alliance.RED, red.y()));
@@ -122,7 +122,7 @@ public class LaunchSpotsTest {
                 assertEquals(expected.x(), row.x(), EPS);
                 assertEquals(expected.y(), row.y(), EPS);
                 // The CELL is on the spot's side of the axle line.
-                Pose t = spot.target(alliance, OFF_WALL);
+                Pose t = spot.target(alliance, OFF_WALL, 0.0);
                 assertEquals(spot + " " + alliance, t.y() > HiveFieldPoints.AXLE_Y_IN, row.y() > HiveFieldPoints.AXLE_Y_IN);
             }
         }
@@ -141,7 +141,7 @@ public class LaunchSpotsTest {
 
     @Test
     public void anUnreferencedPoseIsRefusedAndNothingIsChosen() {
-        Choice c = LaunchSpots.choose(new Pose(40, 30, 0), false, Alliance.RED, OFF_WALL);
+        Choice c = LaunchSpots.choose(new Pose(40, 30, 0), false, Alliance.RED, OFF_WALL, 0.0);
         assertTrue(c.refused());
         assertNull(c.spot);
         assertNull(c.target);
@@ -150,14 +150,33 @@ public class LaunchSpotsTest {
 
     @Test
     public void noPoseNoAllianceOrTheOtherSideIsRefused() {
-        assertTrue(LaunchSpots.choose(null, true, Alliance.RED, OFF_WALL).refused());
-        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, Alliance.UNKNOWN, OFF_WALL).refused());
-        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, null, OFF_WALL).refused());
+        assertTrue(LaunchSpots.choose(null, true, Alliance.RED, OFF_WALL, 0.0).refused());
+        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, Alliance.UNKNOWN, OFF_WALL, 0.0).refused());
+        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, null, OFF_WALL, 0.0).refused());
         // Never across the centre line: red past it or on it, blue short of it.
         Choice past = red(80, 30);
         assertTrue(past.refused());
         assertTrue(past.refusal, past.refusal.contains("centre line"));
         assertTrue(red(C, 30).refused());
-        assertTrue(LaunchSpots.choose(new Pose(60, 110, 0), true, Alliance.BLUE, OFF_WALL).refused());
+        assertTrue(LaunchSpots.choose(new Pose(60, 110, 0), true, Alliance.BLUE, OFF_WALL, 0.0).refused());
+    }
+
+    @Test
+    public void aReachPastTheCentreLineDrivesHomeFromWithinIt() {
+        // 6 Nov 2026: refused at 3 to 4 in past the line (red at 73.9, blue at 67.4).
+        Choice red = LaunchSpots.choose(new Pose(73.9, 125.3, 0), true, Alliance.RED, OFF_WALL, 24.0);
+        assertFalse(red.refusal, red.refused());
+        assertTrue(red.target.x() < C);
+        Choice blue = LaunchSpots.choose(new Pose(67.4, 110, 0), true, Alliance.BLUE, OFF_WALL, 24.0);
+        assertFalse(blue.refusal, blue.refused());
+        assertTrue(blue.target.x() > C);
+        // Past the reach, refused, and the refusal says by how much.
+        Choice far = LaunchSpots.choose(new Pose(C + 30, 30, 0), true, Alliance.RED, OFF_WALL, 24.0);
+        assertTrue(far.refused());
+        assertTrue(far.refusal, far.refusal.contains("30 in past the centre line"));
+        assertTrue(LaunchSpots.choose(new Pose(C - 30, 30, 0), true, Alliance.BLUE, OFF_WALL, 24.0).refused());
+        // NaN or negative reach is 0: strictly our side.
+        assertTrue(LaunchSpots.choose(new Pose(C + 1, 30, 0), true, Alliance.RED, OFF_WALL, Double.NaN).refused());
+        assertTrue(LaunchSpots.choose(new Pose(C + 1, 30, 0), true, Alliance.RED, OFF_WALL, -5).refused());
     }
 }

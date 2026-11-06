@@ -22,7 +22,7 @@ import java.util.function.Consumer;
  * The driver's "go to launch spot" button, held: Pedro drives from the robot's pose to the launch
  * spot nearest it when the button is pressed ({@link LaunchSpots#choose}: our two starts, stopped
  * {@link #startOffWallIn} off the wall, the Autos' four CATCH and OFFSET spots, and the two
- * CORNER long shots), and arrives
+ * CORNER long shots; from our side, or up to {@link #maxPastCentreIn} past the centre line), and arrives
  * aimed at that half's CELL. Never a spot chosen from what the camera believes about the HIVE: the
  * field gets crowded and the driver stays near where they are (mentor, 4 Nov 2026). Letting go, or
  * moving a drive stick, gives the sticks back that same loop, as the FLOWER pick does. At the spot
@@ -64,6 +64,14 @@ public final class LaunchSpotDrive {
      * inches, along the start's facing, rather than into the wall. A starting point. NaN or negative is 0.
      */
     public static double startOffWallIn = 3.0;
+    /**
+     * The button works with the robot's centre up to this far past the centre line, inches, on the
+     * other alliance's side, and drives it home; further than that it refuses. 0, NaN or negative
+     * asks for the robot on our side. 24: on 6 Nov 2026 the press was refused 10 times at 3 to 4 in
+     * past (both robots' logs), and 19429 on blue spent much of a run up to 20 in past. A starting
+     * point, not a measurement.
+     */
+    public static double maxPastCentreIn = 24.0;
 
     private enum Phase { IDLE, DRIVING, HOLDING, REFUSED, ENDED }
 
@@ -205,7 +213,8 @@ public final class LaunchSpotDrive {
         spotRangeIn = Double.NaN;
         this.alliance = alliance;
         Pose pose = robot.drive.pose();
-        choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, startOffWallIn);
+        choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, startOffWallIn,
+                maxPastCentreIn);
         if (choice.refused()) {
             phase = Phase.REFUSED;
             result = "Launch spot REFUSED: " + choice.refusal;
