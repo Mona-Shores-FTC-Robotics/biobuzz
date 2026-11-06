@@ -180,7 +180,7 @@ Result, with the gap on each own-start run, → [PR #372].
       (counter-clockwise counts down, as `direction` = -1 says). A **full TeamCode install** (the
       XML changed), re-Activate, **Check: Hardware**. Then Basic Drive: set the turret on its mark
       in INIT, PLAY. **Good:** it barely moves and springs back when pushed.
-- [ ] **19429: the SWYFT servo out of its "continuous" mode.** It read Range 255/255 (SWYFT's
+- [x] **19429: the SWYFT servo out of its "continuous" mode** (done 6 Nov: 320°, home still 0.514). It read Range 255/255 (SWYFT's
       "continuous": a target about 650° each way that a servo sensing one turn chases at full speed,
       the runaways). SWYFT Servo Programmer V2: Continuous rotation **off**, Total Range **320**,
       Flash, Read (Range ≈ 130/130). Every position held so far (0.514, the 0.25–0.75 limits) is

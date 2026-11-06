@@ -58,16 +58,16 @@ public final class RobotDifferences {
         // One line per difference, with what was seen and the date, and the subsystem's import at
         // the top of this file.
         differs(RobotIdentity.TEAM_19429,
-                "Turret servo (position mode) points straight ahead at 0.514, on Bench: Turret (6 Nov 2026;"
-                        + " 0.350 before a runaway below 0.22 moved it)",
+                "Turret servo (SWYFT, position mode, 320° range) points straight ahead at 0.514, on Bench:"
+                        + " Turret (6 Nov 2026, checked again after flashing it out of SWYFT's continuous mode)",
                 () -> TurretSubsystem.homePosition = 0.514);
         differs(RobotIdentity.TEAM_19429,
                 "Cypher Max rides the goBILDA turret's 64T drive gear, 2.75 turns per turret turn"
                         + " (6 Nov 2026, from the build team; check one turret turn on Bench: Turret)",
                 () -> TurretSubsystem.turnsPerTurretTurn = 2.75);
         differs(RobotIdentity.TEAM_19429,
-                "Turret servo runs away below about 0.22 (Bench: Turret, 6 Nov 2026): floor 0.25. Ceiling 0.75"
-                        + " is a guard as far above home, not measured; raise it in Panels to look",
+                "Turret position guards 0.25 to 0.75 (6 Nov 2026): in SWYFT's continuous mode it ran away"
+                        + " below about 0.22. Flashed to 320° it should not; widen to the measured ends",
                 () -> {
                     TurretSubsystem.minPosition = 0.25;
                     TurretSubsystem.maxPosition = 0.75;
