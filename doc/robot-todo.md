@@ -178,6 +178,16 @@ Result, with the gap on each own-start run, → [PR #372].
       press PLAY, watch 30 s with a mark on the turret. **Good:** no movement. **Stop:** it creeps →
       unplug the servo, then trim `TurretSubsystem.servoStopPower` in Panels until it holds still
       and note the value. Also confirm the light looks above still work from the Expansion Hub.
+- [ ] **19429: the turret, unlocked 6 Nov** (Cypher Max now in the motor port 3 encoder socket;
+      `RobotDifferences` sets `lockedForward` false on 19429 only). Cables clear, someone on Stop.
+      1. **Bench: Turret**, after PLAY, Triangle off: push the left stick left. **Good:** the turret
+         turns counter-clockwise seen from above. **Stop:** clockwise → `servoDirection` is +1 on
+         19429: a `RobotDifferences` line (Bench: Turret has its own copy; set it in Panels there).
+      2. Same bench: Cross at the home mark, one full turret turn by hand: `encoder turns`
+         ≈ 1.0. **Stop:** another number → a `RobotDifferences` line for `turnsPerTurretTurn`.
+      3. **Basic Drive**: set the turret on its mark in INIT, PLAY. **Good:** it holds there and
+         comes back when pushed. **Stop:** it spins off → the Robot page says RUNAWAY and the hold
+         drops; recheck 1. Then the operator's aim button: it turns toward our CELL and holds.
 
 ## 3. The selected Autos, on the field (HIVE upright, preloads in, Panels open)
 

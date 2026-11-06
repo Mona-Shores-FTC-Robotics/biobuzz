@@ -101,7 +101,8 @@ public class TurretSubsystem implements Subsystem {
      * ({@code DeviceNames.TURRET_ENCODER_HOST}) carries the <b>feeder's</b> encoder, so reading it as
      * the turret's angle gave thousands of degrees once the feeder ran, and the driver's chassis aim
      * (CELL bearing minus turret angle) spun the robot without end. Set false only on a robot with a
-     * turret encoder fitted and the servo plugged in.
+     * turret encoder fitted and the servo plugged in: 19429 since 6 Nov 2026, in
+     * {@link org.firstinspires.ftc.teamcode.RobotDifferences}.
      */
     public static boolean lockedForward = true;
 
