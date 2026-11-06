@@ -21,7 +21,7 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-05|7:29PM";
+    public static final String SAVED = "11-05|8:09PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -64,8 +64,9 @@ public final class RSoloAuto {
         Pose leftLaunchCloseParkStart = p.of(59.9, 117.5, 273);
         Pose scoringFlowerStagingParkControl1 = p.of(40, 96, 0);
         Pose toRightParkControl1 = p.of(43.661, 105.8984, 0);
-        Pose toRightLaunchCloseControl1 = p.of(63.9691, 103.7689, 0);
-        Pose toRightLaunchCloseControl2 = p.of(62.6001, 41.7009, 0);
+        Pose toRightLaunchCloseControl1 = p.of(58.7683, 101.5686, 0);
+        Pose toRightLaunchCloseControl2 = p.of(65.2005, 71.9052, 0);
+        Pose toRightLaunchCloseControl3 = p.of(60.6002, 40.901, 0);
         Pose toRightLaunchCloseSegment1Start = p.of(56.1, 26, 270);
         Pose toRightLaunchCloseSegment1End = p.of(56.1, 26, 270);
         Pose toRightLaunchCloseSegment2Start = p.of(56.1, 26, 270);
@@ -80,7 +81,7 @@ public final class RSoloAuto {
         Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
         Path toLeftLaunchClosePath = Paths.line(scoringFlowerStaging, leftLaunchClose).linear(scoringFlowerStaging, leftLaunchClose);
         Path toRightPark = Paths.curve(leftLaunchClose, toRightParkControl1, rightPark).linear(leftLaunchClose, rightPark);
-        Path toRightLaunchClose = Paths.curve(leftLaunchClose, toRightLaunchCloseControl1, toRightLaunchCloseControl2, rightLaunchClose).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(toRightLaunchCloseSegment1Start, toRightLaunchCloseSegment1End)).until(1, Interpolator.linear(toRightLaunchCloseSegment2Start, rightLaunchClose)));
+        Path toRightLaunchClose = Paths.curve(leftLaunchClose, toRightLaunchCloseControl1, toRightLaunchCloseControl2, toRightLaunchCloseControl3, rightLaunchClose).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(toRightLaunchCloseSegment1Start, toRightLaunchCloseSegment1End)).until(1, Interpolator.linear(toRightLaunchCloseSegment2Start, rightLaunchClose)));
         Path toRightParkPath = Paths.curve(rightLaunchClose, toRightPark_2Control1, rightPark).linear(rightLaunchClose, rightPark);
 
         return kit.sequence(
