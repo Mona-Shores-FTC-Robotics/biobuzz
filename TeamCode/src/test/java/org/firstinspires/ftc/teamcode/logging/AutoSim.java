@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.localization.GardenFieldPoints;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoRegistration;
+import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoTrace;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -1223,6 +1224,8 @@ public final class AutoSim {
         double spinStartedAt;
         boolean intakeEnabled = true;
         boolean firing;
+        double activeFeedAt = Double.NaN;
+        double activeFeedLimit;
         /** StreamOn: fire whatever is held whenever the launcher is ready, while the intake keeps taking more. */
         boolean streaming;
         /**
@@ -1444,6 +1447,7 @@ public final class AutoSim {
             if (!streaming && !design.firesOnTheMove && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
             // The next piece is still in the transfer (RobotDesign#transferFeedS): fire once it has arrived.
             if (now < body.stored.get(0).readyAt) return;
+            if (firing && Double.isNaN(activeFeedAt)) activeFeedAt = now;
             reportTurretWait();
             boolean catapult = design.launcher == RobotDesign.Launcher.CATAPULT;
             int volley = catapult ? FieldSim.ROBOT_CAPACITY : design.launchers;
@@ -1582,6 +1586,7 @@ public final class AutoSim {
                     if (over) {
                         result.crossedAt = now;
                         log.putEvent(tag() + "G402: reaches into the other alliance's half", us);
+                        result.timeline.add(String.format(Locale.ROOT, "%5.2f G402 corner (%.2f, %.2f), pose (%.2f, %.2f, %.1f deg)", now, c[0], c[1], pose[0], pose[1], Math.toDegrees(pose[2])));
                         break;
                     }
                 }
@@ -2049,6 +2054,7 @@ public final class AutoSim {
         /** Every command and trigger name the Auto Builder's Autos use, backed by the simulation. */
         private AutoRegistry registry() {
             return new AutoRegistry()
+                    .holdTimeLimitsWhile(() -> firing && !Double.isNaN(activeFeedAt))
                     // A volley, with master's typical and last-piece times: the endgame guard goes for
                     // the next one when its last piece can be out before AUTO ends (AutoKit.guarded).
                     .volley("LaunchAll", AutoRegistration.LAUNCH_ALL_TYPICAL_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S,
@@ -2133,10 +2139,16 @@ public final class AutoSim {
                         spinUp();
                         fireStepBegins();
                         firing = true;
+                        activeFeedAt = Double.NaN;
+                        activeFeedLimit = count == Integer.MAX_VALUE ? LaunchCards.launchAllFeedS : LaunchCards.launchOneFeedS;
                         nextShotAt = Math.max(nextShotAt, now);
-                        shotTarget = count == Integer.MAX_VALUE ? Integer.MAX_VALUE : shotsFired + count;
+                        shotTarget = count == Integer.MAX_VALUE
+                                ? (Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
+                                    ? shotsFired + (int) Math.ceil(LaunchCards.launchAllEndAfterShots) : Integer.MAX_VALUE)
+                                : shotsFired + count;
                     })
-                    .setDone(() -> body.stored.isEmpty() || shotsFired >= shotTarget)
+                    .setDone(() -> body.stored.isEmpty() || shotsFired >= shotTarget
+                            || (!Double.isNaN(activeFeedAt) && now - activeFeedAt >= activeFeedLimit))
                     .setEnd(end -> firing = false);
         }
 

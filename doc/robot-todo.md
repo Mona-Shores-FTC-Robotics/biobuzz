@@ -308,6 +308,37 @@ Use the work order above to select checks; the detailed mechanism checks below a
       AUTO parks. The old 12 in diagonal-push procedure is superseded. The draft
       still has no selectable OpMode. [autos draft README](../TeamCode/autos/drafts/README.md#r-solo-nudge-for-a-partner-with-no-auto)
 
+- [ ] **Infraviolet pair: L early garden, R both flowers.**
+      [Candidate, reused paths, cutoffs and timing](../TeamCode/autos/drafts/README.md#l-infraviolet--r-infraviolet-coordinated-three-tip-draft).
+      Sloth Load `feat/infraviolet-pair`; run **Utility → Drive: L-Infraviolet / Drive: R-Infraviolet**
+      (automatic STOP at 30 s). The previous assignment is preserved in Git history.
+      - Confirm L moves to LEFT_CATCH but never shoots before R's TIP 1 settles.
+        Missing TIP 1 must send L to far park without collecting the garden.
+      - Dry-run both south crossings and the separate parks. L must pass a robot
+        already in RIGHT_PARK without touching it. Stop if either robot stalls;
+        a dead L at its start obstructs R's reused LEFT approach.
+      - Keep L at the existing RIGHT offset; drive R's final turn and park around
+        it, checking actual frame/poker and centre-line clearance. The drawing's
+        minimum centre-line margin near the shot is about 1 in along the approach (about 2 in at the shot), not a tracking tolerance.
+      - Qualify R's new local RIGHT_PAIR_CLOSE shot (59.5, 31, about 97.2 degrees;
+        turret range about 30 in). L's shared RIGHT offset is unchanged. Check
+        camera visibility and the shot line with both robots in position.
+      - Test loaded exits after the normal pickup retreat. The long under-HIVE
+        crossing is forward; R's final shot alignment still has a short backward
+        component. Tune/test retention there before trusting the fourth piece.
+      - Measure R final RIGHT readiness before **22.5 s**; L's before **20 s**.
+        R collects the scoring flower while TIP 2 settles, then confirms RIGHT up
+        at the final shot. Test late arrivals and missed TIP 2: skip the
+        unconfirmed volley and take the
+        assigned park. The 1 s launch timeouts (0.5 s for R's final volley)
+        limit readiness, not an active feed; test the shorter final window.
+      - Run the complete pair, including mismatched drive speeds and missed volleys.
+        Full physics simulation at `63cdc72b` gets three TIPs plus both parks in
+        one of three nominal seeds; the other two execute every volley but get
+        two TIPs and both parks. Shot conversion/retention remains unqualified.
+        Confirm both LEAVEs at AUTO end and both parks on video before promoting
+        the Utility trials to competition OpModes.
+
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
 The pick-depth session. Procedure and tables: [S5 At the robot]. The student version of the same

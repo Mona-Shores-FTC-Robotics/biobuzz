@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RInfravioletAuto;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
@@ -35,4 +36,15 @@ public class SimulatorSmokeTest {
         assertEquals(1, reader.entry(HiveComponents.STRUCTURE_KEY).records.size());
         assertTrue("the HIVE never moved", reader.entry(HiveComponents.KEY).records.size() > 1);
     }
+    @Test
+    public void activeFeedOutlivesInfravioletReadinessTimeout() throws Exception {
+        File log = new File(TeamCodeDir.simLogs(), "smoke-infraviolet-feed.wpilog");
+        AutoSim.Result result = new AutoSim(RInfravioletAuto.class, Alliance.RED, 1)
+                .design(AutoStudyTest.designs().get(RobotDesign.REAL_LOCKED)).write(log);
+        assertTrue("Both preload and wallflower feeds must finish: " + result,
+                result.robots.get(0).launched >= 8);
+        assertFalse(result.robots.get(0).timeline.toString(), result.robots.get(0).timeline.stream()
+                .anyMatch(line -> line.contains("LaunchAll timed out after 1.0 s")));
+    }
+
 }

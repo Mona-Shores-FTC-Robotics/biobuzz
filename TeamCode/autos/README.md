@@ -28,7 +28,7 @@ Inside the Visualizer, the same list is **View → Team Autos: the latest from b
 (pick a branch, tick up to four Autos, Reload latest). A pull request's draft opens with its branch
 in the link: `#team=auto/r-solo/r-solo.pp`.
 
-**Drafts** (`drafts/`, Autos with no OpMode yet) are listed in Team Autos under their own heading, and
+**Drafts** (`drafts/`, no competition OpMode; a draft may have an isolated test Utility) are listed in Team Autos under their own heading, and
 open beside a partner stand-in the same way: R-Solo-Nudge with its pushed partner is
 <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-nudge.pp,partners/partner-push-start.pp>.
 Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `drafts/`, and the fast
