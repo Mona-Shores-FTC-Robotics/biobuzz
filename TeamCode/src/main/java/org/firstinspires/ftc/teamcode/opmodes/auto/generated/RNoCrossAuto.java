@@ -20,7 +20,7 @@ public final class RNoCrossAuto {
     public static final String SOURCE = "r-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-05|7:59PM";
+    public static final String SAVED = "11-05|8:13PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -87,7 +87,7 @@ public final class RNoCrossAuto {
                                         kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatchPath, 2),
                                         kit.command("LaunchAll"),
                                         kit.path("to RIGHT_PARK", toRightPark, 2.9))),
-                        kit.afterMs(7600).then(
+                        kit.atMatchSeconds(21).then(
                                 kit.guarded("Timed out", toRightParkPath, 2.9,
                                         kit.path("to RIGHT_PARK", toRightParkPath, 2.9)))));
     }
