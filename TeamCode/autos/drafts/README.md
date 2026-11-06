@@ -117,25 +117,41 @@ RIGHT_LAUNCH_CATCH, preloads → RIGHT, park.
 L on time, beside its L missing every shot, and beside a dead partner on LEFT_START. A draft's
 request may name its .pp here and its partner may be the other draft (`SimRequestsTest`).
 
-## R-Solo-Nudge, for a partner with no Auto (4 Nov 2026)
+## R-Solo-Nudge, for a partner with no Auto
 
-`r-solo-nudge.pp`: R-Solo's 2-TIP plan with a push. The original draft assumed a partner
-with its back on our alliance wall centred on tile A4 (`PARTNER_PUSH_START`, 8.1, 82.5,
-facing the field), just south of the LOADING ZONE. The partner drawing was subsequently
-edited: the current `partners/partner-push-start.pp` starts at **(10.5, 84), heading 80°**.
-Open both drawings together and reconcile the contact geometry before running the draft;
-the rename preserves both files' existing geometry. A match partner uses a motionless
-initialized OpMode. After the WALL FLOWER pick, our robot backs into the partner's south
-side and pushes it 10 in north and 3 in off the wall, partly into the zone, then slides off east and
-goes north between the partner and the HIVE leg to LEFT_LAUNCH_OFFSET. The pushed partner earns
-LEAVE (Q&A Q28) and AUTO PARK (the same reasoning, not yet asked), so SWARM no longer needs our own
-AUTO PARK. It ends with a plain drive to LEFT_PARK after the last launch: no park step, so the
-endgame guard never parks early through the partner.
+The revised draft uses the current R-Solo scoring positions and CELL-up branch, with
+a short push after the WALL FLOWER pick. The partner drawing and our path are edited
+together. The old 12.5 in diagonal push and its old simulation scores are superseded.
 
-Simulated with `partners/partner-push-start` and `"pushable": true` (`sim-requests/r-solo-nudge.json`):
-2 TIPs (TIP 2 at 25–27.5 s), partner LEAVE and PARK in every seed; the push costs 2.4 s at our
-second launch against R-Solo (1.7 s route, 0.7 s pushing at a placeholder half speed). PR #427 has
-the details; the robot check is in `doc/robot-todo.md` §3.
+1. Partner starts nominally at **(8, 84), heading 90°**, square toward the loading
+   zone, motionless for AUTO. Its 16 in drawn width touches the alliance wall and its
+   front feature starts about 1.1 in outside the loading zone. Physical placement
+   must use the actual robot's wall contact and envelope, not an assumed frame size.
+2. Our robot curves from WALL_FLOWER_STAGING to **PARTNER_CONTACT (10.5, 67.8, 270°)**.
+   It finishes turning over the first 60% and holds that heading on the final approach.
+3. A deliberate **300 ms hold** lets the follower brake before pushing. The following
+   straight path ends at **PARTNER_PUSH_END (10.5, 72, 270°)**: 4.2 in of our travel,
+   including the initial contact gap, rather than a long diagonal shove. The drawn
+   body contact model translates the partner about 3.4 in, leaving part of its body
+   in the loading zone. It does not attempt to earn the partner LEAVE.
+4. One continuous curve peels east and slightly south, then goes north to
+   LEFT_LAUNCH_CLOSE. Its three control points **(30,68), (36,68), (26,116)** shape the
+   curve; none is a robot stop. The separate PUSH_CLEAR stop is removed.
+5. Continue Solo's shooting sequence, with our final park at **LEFT_PARK**, the far
+   end of the zone. The partner occupies the near end. The timeout branch and spot
+   parks also route around that occupied space.
+
+The hold and short stroke are a controlled-contact draft, **not a numerical robot
+speed or force cap**. The current Auto drawing has no per-path runtime speed setting;
+changing its preview velocity would not enforce a gentle push on the robot. Before
+an automated push, measure the contact gap, rolling resistance and actual approach
+speed with the real partner. See `doc/robot-todo.md` §3. Two TIPs and both parks remain
+the goal, not a newly measured result; the browser's conservative endgame preview
+can skip the last volley, and its guard differs from the robot's.
+
+The simulation request uses the locked-turret design and retains
+`PartnerPushStartAuto` with `"pushable": true`. Its push-speed fraction remains a
+placeholder, so simulation timing is not a measurement of contact behavior.
 
 Open both the draft and its partner together:
 <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-nudge.pp,partners/partner-push-start.pp>.

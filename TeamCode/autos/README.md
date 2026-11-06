@@ -98,7 +98,7 @@ accepts a `SOURCE` here as it does in the folder itself.
 | `partner-park-1`, `partner-park-2` | Sits on the left start until 15 s, then parks (two different starts and park spots). |
 | `partner-r-launch-park`, `partner-l-launch-park` | Spins up, waits for its own CELL to be up (at most 12 s), fires all four preloads at it, parks. The right CELL is up at the start, so the right one fires at once; the left one fires once our first TIP raises the left CELL. |
 | `partner-l-tip-park` | The left launch-park, then the scoring FLOWER, four more at the left CELL (eight pieces: a TIP), then parks. |
-| `partner-push-start` | A motionless partner that we push. Its current drawing starts at `PARTNER_PUSH_START` (10.5, 84, heading 80°), edited after the original push draft. Open it beside `drafts/r-solo-nudge` and reconcile contact geometry before testing. Its runs set `"pushable": true`, so our robot moves it instead of colliding (`AutoSim.pushable`). |
+| `partner-push-start` | A motionless partner that we push. The revised drawing starts at `PARTNER_PUSH_START` (8, 84, heading 90°), square toward the loading zone, and holds for 30 s. It is matched to `drafts/r-solo-nudge`'s short straight push. Check actual wall contact, frame envelope and rolling resistance before testing. Its runs set `"pushable": true`, so our robot moves it instead of colliding (`AutoSim.pushable`). |
 | `partner-l-stage-park` | Starts against the wall facing the HIVE with its four POLLEN on the tiles along its left side (the simulator places them, `AutoStudyTest.alongLeftSide`, touching the frame as G304 asks), waits 2 s, drives off along the wall and parks, leaving them. |
 
 A stand-in is drawn and exported like any Auto (Visualizer, or `node scripts/export-auto.mjs`
