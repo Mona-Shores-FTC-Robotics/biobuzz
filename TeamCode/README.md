@@ -478,15 +478,11 @@ was cosmetic. These files keep the two equal so the file cannot be misread.
 ### The turret: a servo on a servo port, an encoder on a motor's encoder socket
 
 The turret has no motor port: all eight are taken. It turns on a goBILDA servo
-in standard (position) mode, a `<Servo>` element and a `Servo` in code (until
-6 Nov 2026 it was in continuous-rotation mode, a `CRServo`). The SDK builds a
-`CRServo` from a `<ContinuousRotationServo>` element, a different class from the
-`Servo` a `<Servo>` element gives, so `DeviceNames.Kind` has `CR_SERVO` beside
-`SERVO` (the prefeed and the intake's stars use it): `ValidateHardware` asks the
-hardware map for the right class, and `RobotConfigXmlTest` still treats the two
-as sharing the six servo ports. The servo's mode is set on the servo itself,
-with the goBILDA programmer, and the XML has to match it: a continuous servo
-sent a position spins.
+in continuous-rotation mode, which the SDK builds as a `CRServo` from a
+`<ContinuousRotationServo>` element, a different class from the `Servo` a
+`<Servo>` element gives. So `DeviceNames.Kind` has `CR_SERVO` beside `SERVO`:
+`ValidateHardware` asks the hardware map for the right class, and
+`RobotConfigXmlTest` still treats the two as sharing the six servo ports.
 
 Its angle comes from a Studica Cypher Max encoder on the turret's drive gear.
 The encoder's quadrature output (2048 counts per encoder turn, both edges of
@@ -516,17 +512,9 @@ home mark for the time it saves (Oct 2026). Set the encoder's voltage switch to
 3V3.
 
 `subsystems/TurretEncoder` is the pure math (counts to degrees, with the
-measured gear ratio and direction). The servo is a goBILDA in standard
-(position) mode since 6 Nov 2026: it holds the position it is sent with its own
-feedback, so from PLAY the turret holds `TurretSubsystem.homePosition` and
-resists a push, with no encoder needed (in continuous mode it could not: with
-no feedback a push just turns it). An angle is `homePosition` plus degrees over
-`degreesPerUnit`, open loop; the encoder, once fitted, only reports the angle and
-catches a wrong sign. Before PLAY the servo is never written (limp), so the
-drive team sets the turret at home by its mark. `Bench: Turret` measures
-`homePosition`, `degreesPerUnit` and the encoder's direction and ratio; its
-javadoc is the checklist. The continuous-mode hold law (`TurretServoControl`,
-tuned 24 Oct 2026) is in git history.
+measured gear ratio and direction) and `Bench: Turret` is the OpMode that
+measures them: encoder direction, gear ratio, servo direction, and a
+proportional hold to try a gain. Its javadoc is the checklist.
 
 ### The Limelight: an Ethernet device, not a hub device
 

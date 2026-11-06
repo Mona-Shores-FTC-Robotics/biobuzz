@@ -47,8 +47,8 @@ import java.util.List;
  * <p>The FLOWER stick and the intake roller are the first mechanisms, and the examples of how
  * small a subsystem can be. The launcher and the feeder are written to the wiring spec the build
  * team wires to (Expansion Hub 1, 2 and 3), ahead of the mechanism, so the first bench test has
- * code to run; nothing in them is measured yet. The turret is a goBILDA servo in position mode
- * (19429, 6 Nov 2026) and a Cypher Max encoder.
+ * code to run; nothing in them is measured yet. The turret is the bench setup on 20245: a
+ * continuous servo and a Cypher Max encoder, with the hold tuned there on 24 Oct 2026.
  */
 public class Robot {
 
@@ -85,7 +85,7 @@ public class Robot {
     /** The feed gate: a plate on a servo, BLOCKING (at most four pieces) or FEEDING (a piece goes to the feeder). */
     public final FeedGateSubsystem feedGate;
 
-    /** The turret: a position servo holding an angle, read back by its own encoder (#81, #169). */
+    /** The turret: a continuous servo holding an angle read from its own encoder (#81, #169). */
     public final TurretSubsystem turret;
 
     /** The indicator light: what the drive team most needs to know, in one colour. */

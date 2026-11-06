@@ -73,16 +73,14 @@ public class InitMovesNothingTest {
 
     @Test
     public void turretWaitsForPlay() {
-        Devices devices = new Devices().motor(DeviceNames.TURRET_ENCODER_HOST).servo(DeviceNames.TURRET);
+        Devices devices = new Devices().motor(DeviceNames.TURRET_ENCODER_HOST).crServo(DeviceNames.TURRET);
         TurretSubsystem turret = new TurretSubsystem(devices.map);
         runInit(turret, devices);
 
         turret.start();
         turret.update();
-        assertEquals("at PLAY the turret's servo is sent home and held",
-                Arrays.asList("setPosition(" + TurretSubsystem.pwmStep(TurretSubsystem.homePosition) + ")",
-                        "setPwmEnable()"),
-                devices.calls(DeviceNames.TURRET));
+        assertTrue("at PLAY the turret's servo is written",
+                devices.calls(DeviceNames.TURRET).get(0).startsWith("setPower("));
     }
 
     @Test

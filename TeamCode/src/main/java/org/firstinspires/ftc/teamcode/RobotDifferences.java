@@ -58,16 +58,13 @@ public final class RobotDifferences {
         // One line per difference, with what was seen and the date, and the subsystem's import at
         // the top of this file.
         differs(RobotIdentity.TEAM_19429,
-                "Turret servo (position mode) points straight ahead at 0.514, on Bench: Turret (6 Nov 2026;"
-                        + " 0.350 before a runaway below 0.22 moved it)",
-                () -> TurretSubsystem.homePosition = 0.514);
+                "Turret encoder (Cypher Max) plugged into the motor port 3 encoder socket and counting,"
+                        + " counter-clockwise counts down (6 Nov 2026): turret unlocked, holds and aims",
+                () -> TurretSubsystem.lockedForward = false);
         differs(RobotIdentity.TEAM_19429,
-                "Turret servo runs away below about 0.22 (Bench: Turret, 6 Nov 2026): floor 0.25. Ceiling 0.75"
-                        + " is a guard as far above home, not measured; raise it in Panels to look",
-                () -> {
-                    TurretSubsystem.minPosition = 0.25;
-                    TurretSubsystem.maxPosition = 0.75;
-                });
+                "Cypher Max rides the goBILDA turret's 64T drive gear, 2.75 turns per turret turn"
+                        + " (6 Nov 2026, from the build team; check one turret turn on Bench: Turret)",
+                () -> TurretSubsystem.turnsPerTurretTurn = 2.75);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // Nothing yet: the shared values were mostly measured on 20245.
