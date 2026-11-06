@@ -66,34 +66,34 @@ public final class Robot19429 {
     });
 
     /**
-     * <b>Foresight Tuner, measured on 19429, 6 Nov 2026</b> (second run; the first ended against a
-     * wall and was discarded). It ran with the pod offsets the robot had loaded that day, before
-     * Measure: Pod Offsets had passed on 19429; if those offsets change by much, run it again.
-     * Max strafe velocity is about 10% below 20245's (48.3 against 53.3 in/s).
+     * <b>Foresight Tuner, measured on 19429, 6 Nov 2026</b> (third run), after the back-left
+     * pulley fix and with the pod offsets above. Two earlier runs were discarded: one ended
+     * against a wall, the other ran with the dragging wheel and the copied offsets. Max forward
+     * velocity matches 20245's (71.1 in/s); max strafe is 49.5 against 20245's 53.3.
      */
     public static ForesightConfig foresightConfig = new ForesightConfig(
             c -> {
-                Controller primaryTranslationalForward = Controller.proportional(0.41196140301573647);
-                Controller secondaryTranslationalForward = Controller.proportional(0.15220873060289228);
-                Controller primaryTranslationalLateral = Controller.proportional(1.4107292622281007);
-                Controller secondaryTranslationalLateral = Controller.proportional(0.5212267670131507);
+                Controller primaryTranslationalForward = Controller.proportional(0.43801082130747016);
+                Controller secondaryTranslationalForward = Controller.proportional(0.16183329460841173);
+                Controller primaryTranslationalLateral = Controller.proportional(1.4568068940618666);
+                Controller secondaryTranslationalLateral = Controller.proportional(0.5382512207587289);
 
                 c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));
                 c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));
 
-                c.coast.set(Controller.proportionalFeedforward(0.01565104954873756));
-                c.brake.set(Controller.proportionalFeedforward(0.013303392116426924));
+                c.coast.set(Controller.proportionalFeedforward(0.014656686746784718));
+                c.brake.set(Controller.proportionalFeedforward(0.01245818373476701));
 
-                c.headingFeedback.set(Controller.proportional(7.637328626529433));
-                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.040932823966850294, 0.007926584272974768));
+                c.headingFeedback.set(Controller.proportional(8.046359308188213));
+                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.04290165098770302, 0.006970842062149467));
 
-                c.linearBrakeCoefficients.set(Matrix.diag(0.08336980978243928, 0.048338401842859854));
-                c.quadraticBrakeCoefficients.set(Matrix.diag(0.0020180228162586743, 0.001995585523220165));
+                c.linearBrakeCoefficients.set(Matrix.diag(0.08751562199330376, 0.06272467615167647));
+                c.quadraticBrakeCoefficients.set(Matrix.diag(0.001752111892720612, 0.0016719201811506651));
 
-                c.maxAchievableForwardVelocity.set(69.09043561746174);
-                c.maxAchievableStrafeVelocity.set(48.280546705798756);
-                c.naturalForwardDeceleration.set(40.93215923957978);
-                c.naturalStrafeDeceleration.set(85.94607752679752);
+                c.maxAchievableForwardVelocity.set(71.09793656842199);
+                c.maxAchievableStrafeVelocity.set(49.49832181942973);
+                c.naturalForwardDeceleration.set(43.05600365664891);
+                c.naturalStrafeDeceleration.set(82.82052826426091);
             }
     );
 
