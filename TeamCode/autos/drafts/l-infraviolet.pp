@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T14:46:33.772Z",
+  "timestamp": "2026-11-06T14:48:53.725Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -151,16 +151,16 @@
           "kind": "atomic",
           "id": "l-park-past-near-robot",
           "endPoint": {
-            "x": 35,
+            "x": 33,
             "y": 114
           },
           "controlPoints": [
             {
-              "x": 35,
+              "x": 31,
               "y": 35
             },
             {
-              "x": 35,
+              "x": 33,
               "y": 95
             }
           ],
@@ -199,7 +199,7 @@
           },
           "controlPoints": [
             {
-              "x": 35,
+              "x": 33,
               "y": 124
             },
             {
@@ -284,16 +284,16 @@
           "kind": "atomic",
           "id": "l-garden-park-past-near-robot",
           "endPoint": {
-            "x": 35,
+            "x": 33,
             "y": 114
           },
           "controlPoints": [
             {
-              "x": 35,
+              "x": 31,
               "y": 38
             },
             {
-              "x": 35,
+              "x": 33,
               "y": 95
             }
           ],
@@ -313,7 +313,7 @@
           },
           "controlPoints": [
             {
-              "x": 35,
+              "x": 33,
               "y": 124
             },
             {

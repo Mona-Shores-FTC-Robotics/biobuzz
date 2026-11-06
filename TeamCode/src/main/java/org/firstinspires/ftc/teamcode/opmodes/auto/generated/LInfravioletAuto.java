@@ -21,7 +21,7 @@ public final class LInfravioletAuto {
     public static final String SOURCE = "l-infraviolet.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-06|9:46AM";
+    public static final String SAVED = "11-06|9:48AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "SpinUp"};
@@ -63,23 +63,23 @@ public final class LInfravioletAuto {
         Pose point4Segment1Start = p.of(56.1, 26, 273.4);
         Pose point4Segment1End = p.of(56.1, 26, 270);
         Pose point4Segment2Heading = p.of(56.1, 26, 270);
-        Pose point6 = p.of(35, 114, 90);
-        Pose point6Control1 = p.of(35, 38, 0);
-        Pose point6Control2 = p.of(35, 95, 0);
-        Pose point7Start = p.of(35, 114, 90);
-        Pose point7Control1 = p.of(35, 124, 0);
+        Pose point6 = p.of(33, 114, 90);
+        Pose point6Control1 = p.of(31, 38, 0);
+        Pose point6Control2 = p.of(33, 95, 0);
+        Pose point7Start = p.of(33, 114, 90);
+        Pose point7Control1 = p.of(33, 124, 0);
         Pose point7Control2 = p.of(27, 124, 0);
         Pose gardenForwardExitToRightLaunchOffsetControl1 = p.of(11.5, 10, 0);
         Pose gardenForwardExitToRightLaunchOffsetControl2 = p.of(34, 10, 0);
         Pose gardenForwardExitToRightLaunchOffsetControl3 = p.of(37.36, 10.67, 0);
-        Pose point10 = p.of(35, 114, 90);
-        Pose point10Control1 = p.of(35, 35, 0);
-        Pose point10Control2 = p.of(35, 95, 0);
-        Pose point10Segment1Start = p.of(35, 114, 68.7);
-        Pose point10Segment1End = p.of(35, 114, 90);
-        Pose point10Segment2Heading = p.of(35, 114, 90);
-        Pose point11Start = p.of(35, 114, 90);
-        Pose point11Control1 = p.of(35, 124, 0);
+        Pose point10 = p.of(33, 114, 90);
+        Pose point10Control1 = p.of(31, 35, 0);
+        Pose point10Control2 = p.of(33, 95, 0);
+        Pose point10Segment1Start = p.of(33, 114, 68.7);
+        Pose point10Segment1End = p.of(33, 114, 90);
+        Pose point10Segment2Heading = p.of(33, 114, 90);
+        Pose point11Start = p.of(33, 114, 90);
+        Pose point11Control1 = p.of(33, 124, 0);
         Pose point11Control2 = p.of(27, 124, 0);
 
         // Paths, written as the stock Visualizer export writes them.
@@ -101,14 +101,14 @@ public final class LInfravioletAuto {
                                 kit.command("LaunchAll", 1),
                                 kit.path("early garden to GARDEN_STAGING", earlyGardenToGardenStaging, 3.9, gardenAbortParkToLeftPark, 3.5),
                                 kit.command("GardenGather", 5.5),
-                                kit.path("garden forward exit to RIGHT_LAUNCH_OFFSET", gardenForwardExitToRightLaunchOffset, 1.8, wallLaneFarParkToLeftPark, 3.5),
+                                kit.path("garden forward exit to RIGHT_LAUNCH_OFFSET", gardenForwardExitToRightLaunchOffset, 1.8, wallLaneFarParkToLeftPark, 3.4),
                                 kit.firstOf("TIP 2 settled: RIGHT up before 20 s",
                                         kit.atMatchSeconds(20).then(
-                                                kit.guarded("Timed out", wallLaneFarParkToLeftPark, 3.5,
-                                                        kit.path("wall lane far park to LEFT_PARK", wallLaneFarParkToLeftPark, 3.5))),
+                                                kit.guarded("Timed out", wallLaneFarParkToLeftPark, 3.4,
+                                                        kit.path("wall lane far park to LEFT_PARK", wallLaneFarParkToLeftPark, 3.4))),
                                         kit.when("RightCellUp").then(
-                                                kit.guarded("If RightCellUp", wallLaneFarParkToLeftPark, 3.5,
+                                                kit.guarded("If RightCellUp", wallLaneFarParkToLeftPark, 3.4,
                                                         kit.command("LaunchAll", 1),
-                                                        kit.path("wall lane far park to LEFT_PARK", wallLaneFarParkToLeftPark, 3.5)))))));
+                                                        kit.path("wall lane far park to LEFT_PARK", wallLaneFarParkToLeftPark, 3.4)))))));
     }
 }
