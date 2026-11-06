@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T14:13:32.275Z",
+  "timestamp": "2026-11-06T14:21:32.658Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -753,24 +753,18 @@
                 "timeoutS": 1
               },
               {
-                "id": "card-r-scoring-flower",
-                "kind": "path",
-                "lineId": "r-scoring-flower",
-                "park": false
-              },
-              {
                 "id": "R-wait-4",
                 "kind": "firstOf",
-                "label": "TIP 2 settled: gather scoring flower before 17 s",
+                "label": "TIP 2 settled before 16 s: scoring flower or park",
                 "rows": [
                   {
-                    "afterMs": 17000,
+                    "afterMs": 16000,
                     "matchClock": true,
                     "cards": [
                       {
-                        "id": "card-r-flower-abort-park",
+                        "id": "card-r-left-abort-park-alt",
                         "kind": "path",
-                        "lineId": "r-flower-abort-park",
+                        "lineId": "r-left-abort-park",
                         "park": true
                       }
                     ]
@@ -780,6 +774,12 @@
                       "RightCellUp"
                     ],
                     "cards": [
+                      {
+                        "id": "card-r-scoring-flower",
+                        "kind": "path",
+                        "lineId": "r-scoring-flower",
+                        "park": false
+                      },
                       {
                         "id": "R-action-3",
                         "kind": "action",
@@ -795,10 +795,10 @@
                       {
                         "id": "R-wait-2",
                         "kind": "firstOf",
-                        "label": "RIGHT up before 22 s, otherwise park",
+                        "label": "RIGHT up before 22.5 s, otherwise park",
                         "rows": [
                           {
-                            "afterMs": 22000,
+                            "afterMs": 22500,
                             "matchClock": true,
                             "cards": [
                               {
@@ -818,7 +818,7 @@
                                 "id": "R-action-1",
                                 "kind": "action",
                                 "name": "LaunchAll",
-                                "timeoutS": 1
+                                "timeoutS": 0.5
                               },
                               {
                                 "id": "card-r-near-park-alt",

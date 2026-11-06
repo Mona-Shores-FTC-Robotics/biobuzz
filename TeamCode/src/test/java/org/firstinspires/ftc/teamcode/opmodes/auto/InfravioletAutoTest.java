@@ -110,7 +110,16 @@ public class InfravioletAutoTest {
         run(RInfravioletAuto.build(kit(), false));
         assertEquals(2, launches());
         assertEquals(1, actions.stream().filter("PickFlower"::equals).count());
-        assertTrue(drive.parkAt >= 17);
+        assertTrue(drive.parkAt >= 16);
+        parked(95.7);
+    }
+
+    @Test public void secondTipAtReloadDeadlineSkipsScoringFlowerAndCrossing() {
+        secondTip = 15.3; // RIGHT settles at 16, exactly the reload deadline
+        run(RInfravioletAuto.build(kit(), false));
+        assertEquals(2, launches());
+        assertEquals(1, actions.stream().filter("PickFlower"::equals).count());
+        assertTrue(drive.parkAt >= 16);
         parked(95.7);
     }
 

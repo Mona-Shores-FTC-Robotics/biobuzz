@@ -23,7 +23,7 @@ After merging, use `master` in that link. Sloth Load the branch and select
 |---|---|---|
 | TIP 1 | Move to LEFT_LAUNCH_CATCH; **wait for LEFT CELL up**, then shoot preloads | Shoot RIGHT preloads, then collect WALL FLOWER |
 | TIP 2 | Immediately cross south under HIVE; gather GARDEN | Wall lane to LEFT_LAUNCH_CLOSE; wait for LEFT up and shoot the wallflower load |
-| Reload | Turn out of garden to the existing RIGHT_LAUNCH_OFFSET | Go to SCORING_FLOWER_STAGING; confirm TIP 2 settled before committing to pickup; collect and turn forward into the south crossing |
+| Reload | Turn out of garden to the existing RIGHT_LAUNCH_OFFSET | At LEFT_CLOSE, confirm TIP 2 settled; collect SCORING FLOWER, then turn forward into the south crossing |
 | TIP 3 | Wait for RIGHT up, contribute four from the offset, then leave | Contribute four from local RIGHT_PAIR_CLOSE |
 | Park | Wall lane to far LEFT_PARK, passing outside a robot already in near park | Clear above L's offset, then wall lane to near RIGHT_PARK |
 
@@ -77,12 +77,16 @@ power and pickup backing-out settings are unchanged.
 |---|---:|---|
 | L: LEFT up for preloads | Before 8 s | Far park; no garden or RIGHT volley |
 | R: LEFT up for wallflower volley | Before 14 s | Near park from LEFT_CLOSE |
-| R: RIGHT up at scoring flower | Before 17 s | Near park without picking or crossing |
+| R: RIGHT up, still at LEFT_CLOSE | Before 16 s | Near park without going to the scoring flower |
 | L: RIGHT up at offset | Before 20 s | Far park without final volley |
-| R: RIGHT up at close shot | Before 22 s | Near park without final volley |
+| R: RIGHT up at close shot | Before 22.5 s | Near park without final volley |
 
 Timeout rows come first: arriving at or after a deadline parks even if the CELL-up
-trigger is true. L's volleys and R's later volleys use a 1 s readiness timeout.
+trigger is true. R checks TIP 2 while still facing the HIVE at LEFT_CLOSE, before
+driving to the scoring flower. The current exporter does not support a clock-only
+branch, and the flower staging heading points away from the camera target. L's
+volleys and R's LEFT volley use a 1 s readiness timeout; R's final volley uses 0.5 s
+to reserve its longer park. Qualify that shorter readiness window on the robot.
 Once feeding starts, existing AutoKit protection allows the four-shot completion
 or 3.5 s feed backstop; **one second is not the volley duration**. A late failed
 pickup or stalled drive can still consume the park margin. Keep the 30 s trial stop.
@@ -102,12 +106,12 @@ robot fails or loses its route. No clock or CELL-up event proves a shared area c
 
 | Timing scenario | TIPs modeled | L finishes | R finishes |
 |---|---:|---:|---:|
-| Existing timing facts: initial 5.1 s launch, later 4 s, flower 3.7 s, garden 5 s | 2 | 24.8 s | 20.8 s |
-| Faster scenario: initial 3.3 s, later 2.5 s, flower 3 s, garden 4.21 s, driving 10% faster | 3 | 22.4 s | 27.3 s |
-| Faster mechanisms, L driving at 0.8× instead | 3 | 25.5 s | 27.3 s |
-| Faster mechanisms, R driving at 0.8× instead | 2 | 22.4 s | 29.0 s |
+| Existing timing facts: initial 5.1 s launch, later 4 s, flower 3.7 s, garden 5 s | 2 | 24.8 s | 19.7 s |
+| Faster scenario: initial 3.3 s, later 2.5 s, flower 3 s, garden 4.21 s, driving 20% faster | 3 | 21.7 s | 27.4 s |
+| Faster mechanisms, L driving at 0.8× instead | 3 | 25.5 s | 27.4 s |
+| Faster mechanisms, R driving at 0.8× instead | 2 | 21.9 s | 18.5 s |
 
-The faster scenario's third TIP settles around **26.0 s**. It is a planning
+The faster scenario's third TIP settles around **26.3 s**. It is a planning
 scenario, not a measured paired result. Three TIPs needs all five four-piece
 volleys to land. The local analysis budgets the full feeding time despite short
 readiness limits, and uses the registered/measured garden time; the browser
@@ -115,8 +119,8 @@ preview can look faster because it currently truncates those durations.
 
 Bring-up: verify L's first-tip wait, run each route empty, test the final RIGHT
 positions and R's turn with L stationary, qualify the new close shot and loaded
-exits, then run the full pair. Measure R ready to pick the scoring flower before
-**17 s** and ready to fire RIGHT before **22 s**; measure L ready at its offset
+exits, then run the full pair. Measure R seeing TIP 2 settled at LEFT_CLOSE before
+**16 s** and ready to fire RIGHT before **22.5 s**; measure L ready at its offset
 before **20 s**. Promote to competition OpModes only after three TIPs, both AUTO
 parks and both LEAVEs are demonstrated. Details: [robot-todo §3](../../../doc/robot-todo.md).
 
