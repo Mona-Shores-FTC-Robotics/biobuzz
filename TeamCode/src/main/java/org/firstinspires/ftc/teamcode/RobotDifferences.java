@@ -58,8 +58,16 @@ public final class RobotDifferences {
         // One line per difference, with what was seen and the date, and the subsystem's import at
         // the top of this file.
         differs(RobotIdentity.TEAM_19429,
-                "Turret servo (position mode) points straight ahead at 0.350, on Bench: Turret (6 Nov 2026)",
-                () -> TurretSubsystem.homePosition = 0.35);
+                "Turret servo (position mode) points straight ahead at 0.514, on Bench: Turret (6 Nov 2026;"
+                        + " 0.350 before a runaway below 0.22 moved it)",
+                () -> TurretSubsystem.homePosition = 0.514);
+        differs(RobotIdentity.TEAM_19429,
+                "Turret servo runs away below about 0.22 (Bench: Turret, 6 Nov 2026): floor 0.25. Ceiling 0.75"
+                        + " is a guard as far above home, not measured; raise it in Panels to look",
+                () -> {
+                    TurretSubsystem.minPosition = 0.25;
+                    TurretSubsystem.maxPosition = 0.75;
+                });
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // Nothing yet: the shared values were mostly measured on 20245.

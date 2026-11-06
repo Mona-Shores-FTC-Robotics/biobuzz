@@ -130,7 +130,7 @@ public class TurretBench extends OpMode {
             if (configWarning == null) configWarning = "robot differences not applied: " + e.getMessage();
         }
         double home = TurretSubsystem.homePosition;
-        position = home >= 0.0 && home <= 1.0 ? home : 0.5;
+        position = clampToLimits(home >= 0.0 && home <= 1.0 ? home : 0.5);
         telemetry.addLine("Bench: Turret. Nothing moves until PLAY; then the servo goes to homePosition.");
         report();
     }
@@ -206,7 +206,7 @@ public class TurretBench extends OpMode {
         boolean y = gamepad1.y;
         if (y && !yWasDown) {
             double home = TurretSubsystem.homePosition;
-            if (home >= 0.0 && home <= 1.0) position = home;
+            if (home >= 0.0 && home <= 1.0) position = clampToLimits(home);
         }
         yWasDown = y;
 
@@ -220,12 +220,27 @@ public class TurretBench extends OpMode {
         lbWasDown = gamepad1.left_bumper;
     }
 
-    /** One step on a press, kept in [0, 1]; a NaN or infinite step does nothing. */
+    /**
+     * One step on a press, kept inside {@code TurretSubsystem.minPosition..maxPosition}: past the
+     * servo's ends it runs away, and a runaway can move the turret's home. A NaN or infinite step
+     * does nothing.
+     */
     static double stepped(double position, boolean down, boolean wasDown, double step) {
         if (!down || wasDown || Double.isNaN(step) || Double.isInfinite(step)) {
             return position;
         }
-        return Math.round(Math.max(0.0, Math.min(1.0, position + step)) * 1000.0) / 1000.0;
+        return clampToLimits(Math.round((position + step) * 1000.0) / 1000.0);
+    }
+
+    /** Into {@code TurretSubsystem.minPosition..maxPosition}, and [0, 1] whatever those say. */
+    static double clampToLimits(double position) {
+        double lo = Math.max(0.0, TurretSubsystem.minPosition);
+        double hi = Math.min(1.0, TurretSubsystem.maxPosition);
+        if (Double.isNaN(lo) || Double.isNaN(hi) || lo > hi) {
+            lo = 0.5;
+            hi = 0.5;
+        }
+        return Math.max(lo, Math.min(hi, position));
     }
 
     // ------------------------------------------------------------ display
@@ -236,6 +251,8 @@ public class TurretBench extends OpMode {
         if (servoFault != null) telemetry.addLine("SERVO FAULT: " + servoFault);
         if (encoderProblem != null) telemetry.addLine("SETTINGS: " + encoderProblem);
         telemetry.addLine("");
+        telemetry.addLine(String.format(Locale.US, "limits %.3f to %.3f (minPosition, maxPosition)",
+                TurretSubsystem.minPosition, TurretSubsystem.maxPosition));
         telemetry.addLine(String.format(Locale.US, "position %.3f  %s  (homePosition in code %.3f)",
                 position, !started ? "not sent until PLAY" : limp ? "LIMP" : "held",
                 TurretSubsystem.homePosition));

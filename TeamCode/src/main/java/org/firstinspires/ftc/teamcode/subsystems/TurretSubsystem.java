@@ -58,13 +58,25 @@ public class TurretSubsystem implements Subsystem {
 
     /**
      * The servo position, 0 to 1, with the turret straight ahead (home), held from PLAY. 19429's
-     * is measured (0.350, its line in {@link org.firstinspires.ftc.teamcode.RobotDifferences}).
+     * is measured (0.514, its line in {@link org.firstinspires.ftc.teamcode.RobotDifferences}).
      * 0.5 here is 20245's, not measured: the servo's centre, the 1500 us pulse the old code sent at
      * PLAY, which is also "stop" if 20245's servo is still in continuous mode (as it was on the
      * 24 Oct bench). So 20245 does what it did until its servo's mode is checked
      * ({@code doc/robot-todo.md}): any other value sent to a continuous servo is a speed.
      */
     public static double homePosition = 0.5;
+
+    /**
+     * The lowest and highest servo position any code may send, the bench included. Past the ends
+     * of what the servo senses it never arrives and keeps turning (19429, Bench: Turret, 6 Nov
+     * 2026: below about 0.22 it ran away, sometimes for good), and if the servo does not turn the
+     * turret 1:1 a runaway also moves {@link #homePosition} (it moved from 0.350 to 0.514 there).
+     * So nothing goes past these: a home or an aim outside them is refused (limp), and an aim is
+     * clamped into them. 0 and 1 here are 20245's, not measured; 19429's are in
+     * {@link org.firstinspires.ftc.teamcode.RobotDifferences}.
+     */
+    public static double minPosition = 0.0;
+    public static double maxPosition = 1.0;
 
     /**
      * Turret degrees, counter-clockwise seen from above, per +1.0 of servo position; negative if a
@@ -327,7 +339,7 @@ public class TurretSubsystem implements Subsystem {
         aimNote = null;
         if (lockedForward) {
             errorDeg = Double.NaN;
-            position = homePosition;
+            position = positionFor(0.0, homePosition, degreesPerUnit, minPosition, maxPosition);
         } else if (mode == Mode.HOLD) {
             errorDeg = Double.isNaN(angleDeg) ? Double.NaN : targetDeg - angleDeg;
             if (Math.abs(errorDeg) > Math.max(finite(runawayDeg), 1.0)) {
@@ -336,7 +348,7 @@ public class TurretSubsystem implements Subsystem {
                         errorDeg);
                 mode = Mode.IDLE;
             } else {
-                position = positionFor(targetDeg, homePosition, degreesPerUnit);
+                position = positionFor(targetDeg, homePosition, degreesPerUnit, minPosition, maxPosition);
                 if (Double.isNaN(position)) {
                     aimNote = "degreesPerUnit not measured: holding home, not " + Math.round(targetDeg) + "°";
                     position = homePosition;
@@ -348,7 +360,7 @@ public class TurretSubsystem implements Subsystem {
         if (!started) {
             return;
         }
-        if (Double.isNaN(position) || position < 0.0 || position > 1.0) {
+        if (Double.isNaN(position)) {
             goLimp();
             return;
         }
@@ -365,12 +377,18 @@ public class TurretSubsystem implements Subsystem {
 
     /**
      * The servo position for {@code deg} from home: {@code home + deg / degreesPerUnit}, clamped
-     * into [0, 1]. 0 degrees is {@code home} whatever {@code degreesPerUnit} is; any other angle
-     * needs a measured, non-zero {@code degreesPerUnit}, or the answer is NaN. A {@code home}
-     * outside [0, 1] is NaN too: a bad value goes limp, never to an end stop.
+     * into the limits {@code [min, max]} (themselves kept inside [0, 1]). 0 degrees is
+     * {@code home} whatever {@code degreesPerUnit} is; any other angle needs a measured, non-zero
+     * {@code degreesPerUnit}, or the answer is NaN. A {@code home} outside the limits, or limits
+     * that are not a range, give NaN too: a bad value goes limp, never past an end.
      */
-    static double positionFor(double deg, double home, double degreesPerUnit) {
-        if (Double.isNaN(home) || home < 0.0 || home > 1.0 || Double.isNaN(deg)) {
+    static double positionFor(double deg, double home, double degreesPerUnit, double min, double max) {
+        double lo = Math.max(0.0, min);
+        double hi = Math.min(1.0, max);
+        if (Double.isNaN(lo) || Double.isNaN(hi) || lo > hi) {
+            return Double.NaN;
+        }
+        if (Double.isNaN(home) || home < lo || home > hi || Double.isNaN(deg)) {
             return Double.NaN;
         }
         if (deg == 0.0) {
@@ -379,7 +397,7 @@ public class TurretSubsystem implements Subsystem {
         if (Double.isNaN(degreesPerUnit) || Double.isInfinite(degreesPerUnit) || degreesPerUnit == 0.0) {
             return Double.NaN;
         }
-        return Math.max(0.0, Math.min(1.0, home + deg / degreesPerUnit));
+        return Math.max(lo, Math.min(hi, home + deg / degreesPerUnit));
     }
 
     private void goLimp() {
@@ -421,11 +439,11 @@ public class TurretSubsystem implements Subsystem {
     @Override
     public void describe(Display display) {
         if (lockedForward) {
-            boolean good = !Double.isNaN(positionFor(0.0, homePosition, degreesPerUnit));
+            boolean good = !Double.isNaN(positionFor(0.0, homePosition, degreesPerUnit, minPosition, maxPosition));
             display.status("Turret", good ? Display.Level.OK : Display.Level.FAULT, good
                     ? String.format(Locale.US, "locked straight ahead (0°): %s position %.3f",
                             started ? "holding" : "holds from PLAY at", homePosition)
-                    : "homePosition must be 0 to 1: limp");
+                    : "homePosition must be inside minPosition..maxPosition: limp");
             return;
         }
         if (settingsProblem != null) {
