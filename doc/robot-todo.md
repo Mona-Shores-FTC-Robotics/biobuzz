@@ -322,6 +322,37 @@ Use the work order above to select checks; the detailed mechanism checks below a
         Two TIPs and double park, followed by 17/18 in partner presets, come after this test.
       [Draft and Utility details](../TeamCode/autos/drafts/README.md#first-floor-test-drive-partner-nudge)
 
+- [ ] **Infraviolet pair: L early garden, R both flowers.**
+      [Candidate, reused paths, cutoffs and timing](../TeamCode/autos/drafts/README.md#l-infraviolet--r-infraviolet-coordinated-three-tip-draft).
+      Sloth Load `feat/infraviolet-pair`; run **Utility → Drive: L-Infraviolet / Drive: R-Infraviolet**
+      (automatic STOP at 30 s). The previous assignment is preserved in Git history.
+      - Confirm L moves to LEFT_CATCH but never shoots before R's TIP 1 settles.
+        Missing TIP 1 must send L to far park without collecting the garden.
+      - Dry-run both south crossings and the separate parks. L must pass a robot
+        already in RIGHT_PARK without touching it. Stop if either robot stalls;
+        a dead L at its start obstructs R's reused LEFT approach.
+      - Keep L at the existing RIGHT offset; drive R's final turn and park around
+        it, checking actual frame/poker and centre-line clearance. The drawing's
+        minimum centre-line margin near the shot is about 1 in along the approach (about 2 in at the shot), not a tracking tolerance.
+      - Qualify R's new local RIGHT_PAIR_CLOSE shot (59.5, 31, about 97.2 degrees;
+        turret range about 30 in). L's shared RIGHT offset is unchanged. Check
+        camera visibility and the shot line with both robots in position.
+      - Test loaded exits after the normal pickup retreat. The long under-HIVE
+        crossing is forward; R's final shot alignment still has a short backward
+        component. Tune/test retention there before trusting the fourth piece.
+      - Measure R final RIGHT readiness before **22.5 s**; L's before **20 s**.
+        R collects the scoring flower while TIP 2 settles, then confirms RIGHT up
+        at the final shot. Test late arrivals and missed TIP 2: skip the
+        unconfirmed volley and take the
+        assigned park. The 1 s launch timeouts (0.5 s for R's final volley)
+        limit readiness, not an active feed; test the shorter final window.
+      - Run the complete pair, including mismatched drive speeds and missed volleys.
+        Full physics simulation at `63cdc72b` gets three TIPs plus both parks in
+        one of three nominal seeds; the other two execute every volley but get
+        two TIPs and both parks. Shot conversion/retention remains unqualified.
+        Confirm both LEAVEs at AUTO end and both parks on video before promoting
+        the Utility trials to competition OpModes.
+
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
 The pick-depth session. Procedure and tables: [S5 At the robot]. The student version of the same
@@ -645,10 +676,15 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       much further than needed → lower `rejectBurstS`. A `REJECT gave up` or a `FULL with the other
       alliance's NECTAR` event means a burst could not clear it: film it. A POLLEN or our own NECTAR spat out → the event's hue says which range
       (`redNectarHueMin/Max`, `blueNectarHueMin/Max`) to narrow; until fixed, `rejectEnemyNectar` off.
-- [ ] `IntakeSubsystem.holdPowerWhenFull` is 0 (roller off when full, stars still turning; the drive
-      team's choice after trying 0.2). With 4 loaded: back away fast and turn, toggle off and drive,
-      and an Auto that idles after `IntakeFull`: the 4th stays in each time. If it rolls out, raise it
-      in Panels (0.2 was tried) and check a 5th is not pulled in.
+- [ ] **Full-lane position hold:** Panels `IntakeSubsystem.positionHoldWhenFull` defaults on
+      for 20245, off for 19429 (encoder wire unplugged; reconnect before enabling). The roller captures
+      its encoder position once, stars continue inward and prefeed stops. Initial `positionHoldMaxPower` 0.3 and
+      2-tick tolerance need robot confirmation. During normal practice, load 4 and back away:
+      the 4th stays in and a loose 5th stays out. Match logs include `PositionHolding`,
+      `HoldTargetTicks`, `HoldErrorTicks` and current. Feed/eject/reject release the hold.
+      If correction is too weak, adjust the max in Panels; if the shaft holds but the ball
+      slips, mechanical retention needs attention. Position hold off restores legacy roller
+      power (`holdPowerWhenFull`); `starsPowerWhenFull` separately controls the stars (default 1).
 - [ ] Unjam with a ball on the launcher wheels: rolls back, launcher returns to speed. [PR #323]
 - [ ] Launch Test on gamepad 1, operator layout. [PR #324]
 - [ ] Turret locked: hold Circle after intaking, the chassis settles on the CELL. [PR #329]

@@ -1,0 +1,51 @@
+{
+  "pp": "TeamCode/autos/drafts/l-infraviolet.pp",
+  "spec": "LInfravioletAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3
+  ],
+  "alliance": "RED",
+  "partners": [
+    {
+      "name": "matching Infraviolet pair",
+      "partner": "RInfravioletAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "matching partner drives 20 percent slower",
+      "partner": "RInfravioletAuto",
+      "timing": {
+        "speed": 40
+      }
+    },
+    {
+      "name": "matching partner misses",
+      "partner": "RInfravioletAuto",
+      "fails": "misses",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "partner stays at its start",
+      "partner": "PartnerRBrokenDownAuto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/l-infraviolet.pp",
+    "SavedBy": "Infraviolet candidate: L early garden, R both flowers; forward loaded crossings",
+    "SavedAt": "2026-11-06T17:51:28.412985+00:00"
+  }
+}

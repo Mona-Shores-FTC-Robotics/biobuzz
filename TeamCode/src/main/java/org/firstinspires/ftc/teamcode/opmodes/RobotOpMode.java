@@ -1386,6 +1386,9 @@ public abstract class RobotOpMode extends OpMode {
         // The intake running with nothing asking for it: it joined a feed (IntakeSubsystem.rollerFor).
         log.put("/Intake/FeedAssist", robot.intake.feedAssist() ? 1 : 0);
         log.put("/Intake/HoldingForFull", robot.intake.holdingForFull() ? 1 : 0);
+        log.put("/Intake/PositionHolding", robot.intake.positionHolding() ? 1 : 0);
+        log.put("/Intake/HoldTargetTicks", robot.intake.holdTargetTicks());
+        log.put("/Intake/HoldErrorTicks", robot.intake.positionHolding() ? robot.intake.holdErrorTicks() : 0);
         // The launcher's speed loop and the feeder, so a log shows what the wheels did at each shot.
         log.put("/Launcher/TargetTicksPerSecond", robot.launcher.isSpinning() ? robot.launcher.target() : 0.0);
         log.put("/Launcher/LeftTicksPerSecond", robot.launcher.leftTicksPerSecond());

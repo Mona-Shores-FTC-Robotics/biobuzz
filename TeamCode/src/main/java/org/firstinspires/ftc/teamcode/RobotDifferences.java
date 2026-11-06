@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,6 +70,9 @@ public final class RobotDifferences {
                 "Turret encoder trusted (Cypher Max in its socket, counting, 6 Nov 2026): the servo is"
                         + " re-homed from it, so a turret twirled in INIT comes back to its mark at PLAY",
                 () -> TurretSubsystem.rehomeFromEncoder = true);
+        differs(RobotIdentity.TEAM_19429,
+                "Intake encoder wire unplugged: use legacy full-lane power hold (6 Nov 2026)",
+                () -> IntakeSubsystem.positionHoldWhenFull = false);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // Nothing yet: the shared values were mostly measured on 20245.

@@ -57,17 +57,10 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  *
  * <h2>Holding the last piece when the lane is full</h2>
  *
- * <p>When the lane is full (the colour sensor's {@link LaneFull}, fed to this class by
- * {@link #laneFull}: a piece held under the sensor), the stars turn inward and the roller turns
- * inward at only {@link #holdPowerWhenFull}: enough to keep the 4th piece in while the robot drives
- * away, too little to pull a 5th off the floor. With the roller stopped and only the stars
- * turning, the 4th rolled out as the robot backed away (4 Nov 2026). It holds whether the OpMode
- * asks to take in or not (the operator's toggle off, an Auto that idled the intake after
- * {@code IntakeFull}), from PLAY only; an eject, a feed and the feeder reversing are unchanged.
- * The prefeed stops while it holds ({@code PrefeedSubsystem.stopWhenFull}).
- * {@link #holdingForFull()} says when it is happening. The same signal turns the
- * indicator green and ends an Auto's {@code IntakeFull} wait; a count of pieces is never used,
- * since it drifts on any missed event (mentor, 2 Nov 2026).
+ * <p>When the sensor says full, capture the roller encoder position once and actively hold it
+ * with RUN_TO_POSITION. The stars continue inward to retain the last piece. Feeding,
+ * ejecting and rejection release the hold before driving normally. The prefeed also stops
+ * ({@code PrefeedSubsystem.stopWhenFull}). Holding starts only after PLAY.
  *
  * <h2>Spitting out the other alliance's NECTAR</h2>
  *
@@ -138,20 +131,28 @@ public class IntakeSubsystem implements Subsystem {
      */
     public static boolean rollerWhileFeeding = true;
 
-    /**
-     * Whether a full lane holds the last piece in (class comment): the stars inward and the roller
-     * at {@link #holdPowerWhenFull}, intake asked for or not. Off: the roller and stars just follow
-     * the request, as before the colour sensor. Read every loop, so a Panels edit applies at once.
-     */
+    /** Enable the full-lane hold, whether intake is requested or idle. */
     public static boolean holdWhenFull = true;
 
     /**
-     * Roller power inward while holding a full lane, 0 to 1. Low enough not to pull a 5th piece in,
-     * high enough that the 4th stays in while the robot backs away. 0 stops the roller while full,
-     * the stars still turning: the drive team's choice on 4 Nov 2026, after trying 0.2. Raise it
-     * in Panels if the 4th rolls out when the robot backs away ({@code doc/robot-todo.md}).
+     * Panels switch: active encoder hold on 20245; RobotDifferences defaults this off on 19429
+     * while its encoder wire is unplugged. Off restores holdPowerWhenFull in normal power mode.
+     * Read every loop, so changing it releases or engages position hold immediately after PLAY.
      */
+    public static boolean positionHoldWhenFull = true;
+
+    /** Maximum correction effort, not a continuous intake speed. Initial value needs robot confirmation. */
+    public static double positionHoldMaxPower = 0.3;
+
+    /** Legacy inward roller power, used only with positionHoldWhenFull off. */
     public static double holdPowerWhenFull = 0.0;
+
+    /** Star-wheel power inward during a full hold; preserves the existing retention behavior. */
+    public static double starsPowerWhenFull = 1.0;
+
+    private boolean positionHolding;
+    private int holdTargetTicks;
+    private int positionTicks;
 
     private final DcMotorEx motor;
     private final CRServo stars;
@@ -281,12 +282,21 @@ public class IntakeSubsystem implements Subsystem {
         return request;
     }
 
-    /** What the star wheels are doing as of the last {@link #update()}; inward while {@link #holdingForFull()}. */
+    /** Whether active encoder position holding is engaged. */
+    public boolean positionHolding() { return positionHolding; }
+
+    /** Fixed target for this hold, encoder ticks. */
+    public int holdTargetTicks() { return holdTargetTicks; }
+
+    /** Target minus measured encoder position from the latest update, ticks. */
+    public int holdErrorTicks() { return holdTargetTicks - positionTicks; }
+
+    /** What the star wheels are doing as of the last {@link #update()}; inward by default while full. */
     public State starsState() {
         return starsState;
     }
 
-    /** Whether the roller and stars are holding the last piece because the lane is full ({@link #holdWhenFull}). */
+    /** Whether the intake is holding the last piece because the lane is full ({@link #holdWhenFull}). */
     public boolean holdingForFull() {
         return holdingForFull;
     }
@@ -341,6 +351,7 @@ public class IntakeSubsystem implements Subsystem {
         rejecting = false;
         holdingOff = false;
         started = false;
+        positionHolding = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         applyDirection();
@@ -351,6 +362,8 @@ public class IntakeSubsystem implements Subsystem {
     private void applyDirection() {
         DcMotorSimple.Direction wanted = directionFor(reversed);
         if (wanted != appliedDirection) {
+            // Direction changes invert encoder coordinates; release and recapture any hold.
+            releasePositionHold();
             motor.setDirection(wanted);
             appliedDirection = wanted;
         }
@@ -378,7 +391,7 @@ public class IntakeSubsystem implements Subsystem {
         holdingForFull = started && holdsForFull(request, feed, laneFull.getAsBoolean(), holdWhenFull);
         if (holdingForFull) {
             roller = State.IN;
-            starsState = State.IN;
+            starsState = unitRange(starsPowerWhenFull) > 0 ? State.IN : State.IDLE;
         }
         rejecting = started && rejects(request, feed, reject.getAsBoolean());
         if (rejecting) {
@@ -394,12 +407,28 @@ public class IntakeSubsystem implements Subsystem {
         }
         feedAssist = !holdingForFull && !rejecting && !holdingOff && request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
         boolean ownEject = request == State.OUT;
-        motor.setPower(powerFor(roller, holdingForFull ? holdPowerWhenFull : inPower,
-                rejecting ? ColorSensorSubsystem.rejectRollerPower
-                        : ownEject ? orConfigured(ejectRollerPower, outPower) : outPower));
+        positionTicks = motor.getCurrentPosition();
+        if (holdingForFull && positionHoldWhenFull) {
+            if (!positionHolding) {
+                motor.setPower(0.0);
+                holdTargetTicks = positionTicks;
+                motor.setTargetPosition(holdTargetTicks);
+                motor.setTargetPositionTolerance(2);
+                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                positionHolding = true;
+            }
+            // Do not use isBusy(): a hold must continue correcting after reaching its target.
+            motor.setPower(unitRange(positionHoldMaxPower));
+        } else {
+            releasePositionHold();
+            motor.setPower(powerFor(roller, holdingForFull ? holdPowerWhenFull : inPower,
+                    rejecting ? ColorSensorSubsystem.rejectRollerPower
+                            : ownEject ? orConfigured(ejectRollerPower, outPower) : outPower));
+        }
         if (started) {
             stars.setPower(starsPowerFor(starsState,
-                    ownEject && starsState == State.OUT ? orConfigured(ejectStarsPower, starsPower) : starsPower,
+                    holdingForFull ? starsPowerWhenFull
+                            : ownEject && starsState == State.OUT ? orConfigured(ejectStarsPower, starsPower) : starsPower,
                     starsReversed));
         }
         ticksPerSecond = motor.getVelocity();
@@ -408,6 +437,15 @@ public class IntakeSubsystem implements Subsystem {
             currentRead.reset();
         } else if (currentEveryLoop || currentRead.due(System.nanoTime())) {
             currentAmps = motor.getCurrent(CurrentUnit.AMPS);
+        }
+    }
+
+    /** Remove correction power before restoring normal power control. */
+    private void releasePositionHold() {
+        if (positionHolding) {
+            motor.setPower(0.0);
+            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            positionHolding = false;
         }
     }
 
@@ -429,6 +467,9 @@ public class IntakeSubsystem implements Subsystem {
         feedAssist = false;
         rejecting = false;
         holdingOff = false;
+        holdingForFull = false;
+        started = false;
+        releasePositionHold();
         motor.setPower(0.0);
         stars.setPower(0.0);
     }
@@ -444,7 +485,11 @@ public class IntakeSubsystem implements Subsystem {
         String what = rejecting ? "spitting out the other alliance's NECTAR"
                 : holdingOff ? "stopped: letting the rejected NECTAR roll clear"
                 : holdingForFull ? String.format(Locale.US,
-                "holding the last piece (lane full) · stars turning, roller %.2f", unitRange(holdPowerWhenFull))
+                "holding the last piece (lane full) · %s · stars %.2f",
+                positionHolding ? String.format(Locale.US, "position %d, error %d ticks, max %.2f",
+                        holdTargetTicks, holdTargetTicks - positionTicks, unitRange(positionHoldMaxPower))
+                        : String.format(Locale.US, "roller power %.2f", unitRange(holdPowerWhenFull)),
+                unitRange(starsPowerWhenFull))
                 : roller == State.IN ? "IN · stars turning"
                 : roller == State.OUT ? "OUT · stars backing"
                 : starsState == State.IN ? "roller idle · stars turning"
@@ -490,7 +535,7 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     /**
-     * Whether a full lane holds the last piece (roller at {@link #holdPowerWhenFull}, stars inward):
+     * Whether a full lane holds the last piece (position hold by default):
      * {@code enabled}, the lane full, the OpMode not ejecting, and the feeder neither feeding nor
      * reversing. Taking in or idle alike. Pure, so a test can check it.
      */
