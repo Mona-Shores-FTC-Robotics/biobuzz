@@ -334,7 +334,9 @@ def turret_bursts(data, settle_s=0.25):
         zero = value('ZeroCounts', start)
         same_zero = zero == value('ZeroCounts', end)
         manual = value('ManualSingleBurst', start, 0) and not value('Holding', start, 0)
-        configured = value('ManualBurstMs' if manual else 'BurstOnMs', start, float('nan'))
+        configured = value('ManualBurstMs', start, float('nan')) if manual else (
+            value('HoldBurstMs', start, value('BurstOnMs', start, float('nan')))
+            if value('Holding', start, 0) else value('BurstOnMs', start, float('nan')))
         next_start = segments[i + 1][0] if i + 1 < len(segments) else float('inf')
         settle_index = bisect.bisect_left(angle_times, end + settle_s)
         settled_at = angle_times[settle_index] if settle_index < len(angle) else float('inf')

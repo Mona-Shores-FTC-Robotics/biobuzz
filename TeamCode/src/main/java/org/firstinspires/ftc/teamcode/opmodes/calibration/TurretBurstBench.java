@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.logging.MatchLogFiles;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.subsystems.SwyftBurstControl;
 import org.firstinspires.ftc.teamcode.subsystems.SwyftSingleBurst;
+import org.firstinspires.ftc.teamcode.subsystems.SwyftPositionHold;
 
 import java.util.Locale;
 import java.io.File;
@@ -56,6 +57,12 @@ public class TurretBurstBench extends OpMode {
     public static double manualBurstMs = 250.0;
     /** PWM-disabled pause, at least 100 ms. Start with a slow repetition rate. */
     public static double burstOffMs = 250.0;
+    /** 150 ms produced median 1.28 degree steps in the recorded 19429 trial. */
+    public static double holdBurstMs = 150.0;
+    /** Wait for the motion after PWM-off before making another decision. */
+    public static double holdOffMs = 350.0;
+    public static double holdStillRateDps = 1.0;
+    public static double holdQuietMs = 100.0;
     public static double holdToleranceDeg = 1.0;
     public static double targetDeg = 5.0;
     public static double targetStepDeg = 5.0;
@@ -99,6 +106,7 @@ public class TurretBurstBench extends OpMode {
     private TelemetryManager panels;
     private final SwyftBurstControl control = new SwyftBurstControl();
     private final SwyftSingleBurst singleBurst = new SwyftSingleBurst();
+    private final SwyftPositionHold positionHold = new SwyftPositionHold();
 
     @Override
     public void init() {
@@ -132,7 +140,7 @@ public class TurretBurstBench extends OpMode {
         metadata.put("Build", BuildStamp.describe());
         metadata.put("GitCommit", BuildStamp.commit());
         metadata.put("GitBranch", BuildStamp.branch());
-        metadata.put("BenchVersion", "SWYFT v4 recorded diagnostic");
+        metadata.put("BenchVersion", "SWYFT v5 encoder hold");
         File file = MatchLogFiles.next(new File(AppUtil.FIRST_FOLDER, MatchLogFiles.LOGS_FOLDER),
                 MatchLogFiles.matchId(System.currentTimeMillis()), "Bench_Turret_Burst");
         log = MatchLog.toFile(file, "SWYFT turret bench", metadata,
@@ -213,7 +221,13 @@ public class TurretBurstBench extends OpMode {
             holding = false;
         }
         aWasDown = gamepad1.a;
-        if (gamepad1.y && !yWasDown && started && zeroed && fault == null) holding = !holding;
+        if (gamepad1.y && !yWasDown && started && zeroed && fault == null) {
+            holding = !holding;
+            if (holding) {
+                targetDeg = angleDeg;
+                log.event("Turret hold selected: capture current angle " + angleDeg);
+            }
+        }
         yWasDown = gamepad1.y;
         if (gamepad1.b) holding = false;
         if (gamepad1.dpad_up && !upWasDown) targetDeg += finite(targetStepDeg);
@@ -227,14 +241,16 @@ public class TurretBurstBench extends OpMode {
         double manualRequest = (gamepad1.left_bumper ? 1 : 0) - (gamepad1.right_bumper ? 1 : 0);
         double diagnostic = singleBurst.power(started && deadman && !gamepad1.b && zeroed
                 && fault == null && manualSingleBurst ? manualRequest : 0, manualBurstMs, nowNs);
+        boolean holdEnabled = holding && !manual && started && deadman && zeroed
+                && !gamepad1.b && fault == null && limit > 0 && limit <= 180;
+        double holdPower = positionHold.power(holdEnabled, targetDeg - angleDeg, rateDps,
+                holdBurstMs, holdOffMs, holdToleranceDeg, holdStillRateDps, holdQuietMs, nowNs);
         double requested = 0.0;
         if (manual) {
             holding = false;
             requested = manualSingleBurst ? diagnostic : manualRequest;
         } else if (holding) {
-            double tolerance = finite(holdToleranceDeg);
-            double error = targetDeg - angleDeg;
-            if (tolerance >= 0 && Math.abs(error) > tolerance) requested = Math.signum(error);
+            requested = holdPower;
         }
         rawRequest = requested;
         requested = allowedPower(requested, angleDeg, zeroed, started && deadman,
@@ -244,6 +260,10 @@ public class TurretBurstBench extends OpMode {
         if (manual && manualSingleBurst) {
             control.reset();
             burst = requested;
+        } else if (holding) {
+            control.reset();
+            burst = requested;
+            if (holdPower != requested) positionHold.cancel(nowNs);
         } else {
             burst = control.power(requested, burstOnMs, burstOffMs, nowNs);
         }
@@ -310,6 +330,11 @@ public class TurretBurstBench extends OpMode {
         log.put("/TurretBurst/ManualBurstMs", manualBurstMs);
         log.put("/TurretBurst/BurstOnMs", burstOnMs);
         log.put("/TurretBurst/BurstOffMs", burstOffMs);
+        log.put("/TurretBurst/HoldBurstMs", holdBurstMs);
+        log.put("/TurretBurst/HoldOffMs", holdOffMs);
+        log.put("/TurretBurst/HoldQuietMs", holdQuietMs);
+        log.put("/TurretBurst/HoldStillRateDps", holdStillRateDps);
+        log.put("/TurretBurst/HoldPhase", positionHold.phase().ordinal());
         log.put("/TurretBurst/ToleranceDeg", holdToleranceDeg);
         log.put("/TurretBurst/TravelEachWayDeg", travelEachWayDeg);
         log.put("/TurretBurst/EncoderRatio", turnsPerTurretTurn);
@@ -342,10 +367,11 @@ public class TurretBurstBench extends OpMode {
     private void report() {
         telemetry.addLine("19429 SWYFT CONTINUOUS ONLY. Do not run Basic Drive / ordinary Turret bench.");
         telemetry.addLine("Cross/A: zero at forward with R2 released. R2 held: enable FULL-SPEED bursts.");
-        telemetry.addLine("L1/R1: one CCW/CW diagnostic burst; release to rearm. Triangle/Y: hold. D-pad: target.");
+        telemetry.addLine("L1/R1: manual burst. Triangle/Y: hold CURRENT angle. D-pad up/down: target +/-5 deg.");
         telemetry.addLine("Circle/B, R2 released, and pauses: PWM OFF. STOP: PWM OFF.");
-        telemetry.addData("Build", "SWYFT v4: RECORDED bursts / PWM OFF");
+        telemetry.addData("Build", "SWYFT v5: ENCODER HOLD / recorded");
         telemetry.addData("Burst on/off ms", burstOnMs + " / " + burstOffMs);
+        telemetry.addData("Hold phase / on / off ms", positionHold.phase() + " / " + holdBurstMs + " / " + holdOffMs);
         telemetry.addData("Manual test", manualSingleBurst ? "ONE burst, " + manualBurstMs + " ms (max 500)" : "repeating bursts");
         telemetry.addData("Inputs R2 / L1 / R1", String.format(Locale.US, "%.2f / %s / %s",
                 gamepad1.right_trigger, gamepad1.left_bumper, gamepad1.right_bumper));

@@ -174,7 +174,16 @@ Result, with the gap on each own-start run, → [PR #372].
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
 - [ ] **19429 SWYFT continuous-mode burst experiment** ([test PR #487](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/487)).
-      **Load the corrected version:** telemetry must say `SWYFT v4: RECORDED bursts / PWM OFF`. The original version wrongly treated 1500 us as stop and drove home on release.
+      **Position hold trial:** SWYFT stays in continuous mode. Zero forward, PLAY, Triangle/Y
+      captures the CURRENT angle (not +5); hold R2 to enable feedback correction. D-pad up/down
+      steps target +/-5 degrees. Start with one +5 then -5 test. It uses recorded 150 ms full-speed
+      corrections, PWM OFF at least 350 ms afterward, then rate <=1 deg/s for 100 ms before another
+      correction. Target band +/-1 degree is experimental, not demonstrated accuracy. R2 release
+      immediately disables PWM; Circle/B cancels hold. Re-enable may correct drift. At target the
+      servo is unpowered, so this restores angle after a push rather than providing a stiff brake.
+      Record settle/overshoot and an external hand displacement with normal logs; do not judge it
+      from just the angle while the drive command is ON. Startup/stop delay remains unexplained.
+      **Load the corrected version:** telemetry must say `SWYFT v5: ENCODER HOLD / recorded`. The original version wrongly treated 1500 us as stop and drove home on release.
       SWYFT's [own guide](https://github.com/SWYFT-Robotics/swyft-servo-programmer-v2/blob/main/src/GuideWindow.xaml)
       says 1500 us homes even in continuous mode; stop requires PWM disable, and partial-speed
       control is unavailable. Only **Bench: Turret Burst**, not Basic Drive, Auto or ordinary
@@ -203,7 +212,7 @@ Result, with the gap on each own-start run, → [PR #372].
       the burst count rises, last signal is 500/2500 us, last ON time matches, and angle changes.
       Set manualSingleBurst false in Panels to return to repeating manual bursts.
       Verify CCW/CW (else flip servoDirection); release R2 must leave it where it is, not drive home.
-      Triangle/Y selects hold at +5 degrees; hold R2 to try it, D-pad up/down changes by 5.
+      Triangle/Y now captures the current angle; use the position-hold trial above. D-pad changes by 5.
       Compare repeated +5/-5 approaches, error, overshoot and drift in Panels' turret_burst_* graphs.
       Starting timing 25 ms on / 250 ms PWM-off; tune burstOnMs/burstOffMs for SWYFT. On time is
       capped at 100 ms; off time is clamped to 100..10000 ms. Direction reversals first pause.

@@ -491,6 +491,16 @@ Manual testing now defaults to one 250 ms burst per R2+bumper press (500 ms maxi
 required to rearm, to distinguish a drive-command problem from short-burst startup behavior.
 Telemetry shows inputs, SDK PWM enable state, and latched burst count/signal/duration; this is
 software readback, not a measured waveform. `manualSingleBurst=false` restores repeated manual bursts.
+**Encoder hold trial (v5):** Triangle/Y captures the current turret angle. While R2 is held,
+encoder error beyond +/-1 degree requests a 150 ms correction (the recorded median step was
+1.28 degrees over 15 attempts). PWM is then OFF for at least 350 ms, followed by 100 ms of encoder
+rate within +/-1 deg/s before another decision. Corrections are capped at 175 ms; crossing the
+target interrupts the drive and still preserves settling time. D-pad steps target by 5 degrees.
+Release R2 to disable; Circle/B cancels hold. The target is restored after drift or a push, but
+PWM is OFF at target: this is not a stiff positional-servo brake. Actual hold accuracy, response
+in both directions, load and battery sensitivity remain robot checks. This supersedes the old
+25 ms / 100 ms maximum hold setup, which could not reliably start the measured SWYFT.
+
 Recording is automatic from INIT through STOP to `/sdcard/FIRST/logs/`, using the existing async
 `MatchLog` writer and normal `pull-logs.cmd` upload. `/TurretBurst/*` records inputs, gates,
 commands, SDK PWM state, raw/zero counts, angle/rate, battery and every live setting. START/END
