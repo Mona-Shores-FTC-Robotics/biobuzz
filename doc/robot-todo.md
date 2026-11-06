@@ -469,6 +469,13 @@ measurement is [#255].
       see a jam. Plug it into the Expansion Hub's encoder socket 0, beside the intake's power port
       0, then run the intake in Basic Drive. **Good:** that line is gone from the next log. Check
       20245's too: its picks logged the same line.
+- [ ] **19429's left launcher axle has play** (seen 6 Nov; a spacer is missing; not planned to
+      fix, recorded in case launching gets worse). If 19429 shows launch trouble that does not
+      follow the gains, check this axle before tuning: the left flywheel's speed ripple or
+      dips larger or slower to recover than the right's, shots pulling to one side, or the left
+      motor's current running high. Compare with 20245's left and right traces (4 Nov).
+      **Good:** the left and right wheels recover alike after a shot. **Stop:** they do not →
+      fit the spacer, then re-check the launcher in §7c.
 
 ## 7b. Bench: Wall Eject (any field wall, 4 POLLEN, phone filming from above)
 
