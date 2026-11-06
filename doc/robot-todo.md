@@ -381,7 +381,8 @@ measurement is [#255].
 
 ## 6. Tape measure and level (camera geometry)
 
-- [ ] **Tag size.** Pipeline 82.55 mm (*likely done: read on 31 Oct, per the handoff*); measure a
+- [ ] **Tag size.** Pipeline 82.55 mm (*19429: was 165.1, the DECODE size, set to 82.55 on 6 Nov;
+      20245: read 82.55 on 31 Oct, check it again*); measure a
       printed tag's black square: 3.25 in. [S4 §1]
 - [ ] **Lens to tag 35 from the Red audience start.** **Good:** tape and camera within 1 in (CAD
       ~57.5 in). [S4 §2]
@@ -408,7 +409,9 @@ measurement is [#255].
       position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
       was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.
 - [ ] **Its log lands in its own folder** after a pull (`biobuzz-logs\<19429's network>`). [S2 §8]
-- [ ] **Copy 20245's Limelight pipeline** and run the 5-minute start check. [handoff] step 6
+- [ ] **19429's Limelight pipeline:** Marker Size set to 82.55 mm on 6 Nov (it was 165.1, the
+      DECODE size; Full 3D Targeting Yes; the rest matched). Power-cycle and check it held, download
+      the pipeline, then run the 5-minute start check and Vision: HIVE & Pose. [handoff] step 6
 - [ ] **Drive check table** (10 steps), on both robots. [#62]
 
 ## 7b. Bench: Wall Eject (any field wall, 4 POLLEN, phone filming from above)

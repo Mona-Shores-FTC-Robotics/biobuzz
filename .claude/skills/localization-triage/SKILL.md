@@ -172,12 +172,13 @@ robot's lens height and pitch with a tape and a level before changing a number.
 
 Exposure, gain and the pipeline live on the camera, so a log cannot show them. When a user says
 "I changed the Limelight", ask for the Input, Configuration and Advanced tabs, and **record them
-next to the log filename**. Checked 31 Oct 2026 on pipeline 0 "DecodeApriltags" (19429's camera):
+next to the log filename**. Checked 31 Oct 2026 on pipeline 0 "DecodeApriltags" (recorded then as 19429's camera, but 19429's
+pipeline 0 "DECODEAprilTag" still had Marker Size 165.1 on 6 Nov, so this was most likely 20245's):
 
 | Setting | Must be | Seen | Why |
 |---|---|---|---|
 | Pipeline type / family | AprilTags, 36h11 | OK | |
-| Marker Size (mm) | **82.55** (3.25 in, `BiobuzzTags.TAG_SIZE_INCHES`) | OK | A wrong size scales every range; it looks exactly like a pitch error that grows with distance. Check this first |
+| Marker Size (mm) | **82.55** (3.25 in, `BiobuzzTags.TAG_SIZE_INCHES`) | OK (19429: was 165.1, set to 82.55 on 6 Nov 2026) | A wrong size scales every range; it looks exactly like a pitch error that grows with distance. Check this first |
 | Full 3D Targeting | **Yes** | OK | Without it no sighting can be built |
 | ID Filters | empty, or only BIOBUZZ tag ids | empty | |
 | Exposure / Gain | measured, then left alone | 1000 (10 ms) / 15, 640x480 @ 90 | Long exposure blurs tags while the robot moves; take readings only when still |
