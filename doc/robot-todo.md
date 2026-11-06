@@ -412,6 +412,9 @@ measurement is [#255].
 - [ ] **19429's Limelight pipeline:** Marker Size set to 82.55 mm on 6 Nov (it was 165.1, the
       DECODE size; Full 3D Targeting Yes; the rest matched). Power-cycle and check it held, download
       the pipeline, then run the 5-minute start check and Vision: HIVE & Pose. [handoff] step 6
+      First reading after the fix (6 Nov, red audience start, placement not confirmed): camera
+      (54.3, 6.1) vs start (55.6, 7.7). y 1.6 in short means ranges ~3 % long, like 20245's; x 54.3 is
+      the old wheels-on-seam placement. Tape lens to tag 35, measure a printed tag, level the camera.
 - [ ] **Drive check table** (10 steps), on both robots. [#62]
 
 ## 7b. Bench: Wall Eject (any field wall, 4 POLLEN, phone filming from above)
