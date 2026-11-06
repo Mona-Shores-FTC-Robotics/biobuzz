@@ -180,11 +180,18 @@ Result, with the gap on each own-start run, → [PR #372].
       (counter-clockwise counts down, as `direction` = -1 says). A **full TeamCode install** (the
       XML changed), re-Activate, **Check: Hardware**. Then Basic Drive: set the turret on its mark
       in INIT, PLAY. **Good:** it barely moves and springs back when pushed.
+- [ ] **19429: the SWYFT servo out of its "continuous" mode.** It read Range 255/255 (SWYFT's
+      "continuous": a target about 650° each way that a servo sensing one turn chases at full speed,
+      the runaways). SWYFT Servo Programmer V2: Continuous rotation **off**, Total Range **320**,
+      Flash, Read (Range ≈ 130/130). Every position held so far (0.514, the 0.25–0.75 limits) is
+      then stale: re-measure on Bench: Turret, and set the limits from where the turret really goes.
 - [ ] **19429: before the turret is unlocked** (`lockedForward` false, the mentor's call). On
-      **Bench: Turret** after PLAY: Square at 0.514, step to a 90° counter-clockwise mark (down; up
-      is clockwise, about 25° per +0.16):
-      `degreesPerUnit` = 90 / moved (signed). Cross at home, one full turret turn by hand (Circle
-      limp): `encoder turns` is `turnsPerTurretTurn`, and anything but 1.0 is a 19429 line.
+      **Bench: Turret** after PLAY: Square at home, step at least 0.1 away: the bench shows
+      `degreesPerUnit` from the encoder (19429's 2.75 encoder ratio is applied); step both ways.
+      First the ratio: Circle (limp), Cross at the home mark, turn the turret by hand to a 45° mark
+      (no further: winding a position servo past its range is what moves home): `angle` ≈ 45°,
+      else 19429's `turnsPerTurretTurn` (2.75) is wrong. Then set `degreesPerUnit`, the real
+      limits (where the turret stops turning, less a margin) and unlock.
 - [ ] **20245: the turret servo's mode and its encoder socket.** On the 24 Oct bench its servo was
       in continuous mode; the code now sends a position, and keeps it at 0.5 (stop, or centre) until
       this is known. **Bench: Turret**, PLAY, one D-pad press: the turret steps and stops → position

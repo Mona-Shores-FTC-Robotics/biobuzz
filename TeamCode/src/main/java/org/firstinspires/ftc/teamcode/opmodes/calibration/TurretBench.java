@@ -75,6 +75,7 @@ public class TurretBench extends OpMode {
 
     private double position = Double.NaN;
     private double markPosition = Double.NaN;
+    private double markAngleDeg = Double.NaN;
     private boolean limp = true;
     private boolean started;
 
@@ -94,6 +95,12 @@ public class TurretBench extends OpMode {
     @Override
     public void init() {
         configWarning = checkActiveConfig();
+        // This robot's values (19429's home, limits and encoder ratio), as RobotOpMode applies them.
+        try {
+            RobotDifferences.applyForActiveRobot();
+        } catch (RuntimeException e) {
+            if (configWarning == null) configWarning = "robot differences not applied: " + e.getMessage();
+        }
         try {
             encoderHost = hardwareMap.get(DcMotorEx.class, DeviceNames.TURRET_ENCODER_HOST);
         } catch (RuntimeException e) {
@@ -122,12 +129,6 @@ public class TurretBench extends OpMode {
         }
         if (encoderHost != null) {
             zeroCounts = encoderHost.getCurrentPosition();
-        }
-        // This robot's values (19429's homePosition is its own), as RobotOpMode applies them.
-        try {
-            RobotDifferences.applyForActiveRobot();
-        } catch (RuntimeException e) {
-            if (configWarning == null) configWarning = "robot differences not applied: " + e.getMessage();
         }
         double home = TurretSubsystem.homePosition;
         position = clampToLimits(home >= 0.0 && home <= 1.0 ? home : 0.5);
@@ -200,7 +201,10 @@ public class TurretBench extends OpMode {
         bWasDown = b;
 
         boolean x = gamepad1.x;
-        if (x && !xWasDown) markPosition = position;
+        if (x && !xWasDown) {
+            markPosition = position;
+            markAngleDeg = angleDeg;
+        }
         xWasDown = x;
 
         boolean y = gamepad1.y;
@@ -257,8 +261,9 @@ public class TurretBench extends OpMode {
                 position, !started ? "not sent until PLAY" : limp ? "LIMP" : "held",
                 TurretSubsystem.homePosition));
         telemetry.addLine(Double.isNaN(markPosition) ? "no mark (Square marks the position here)"
-                : String.format(Locale.US, "mark %.3f  moved %+.3f  → degreesPerUnit = degrees turned / %+.3f",
-                        markPosition, position - markPosition, position - markPosition));
+                : String.format(Locale.US, "mark %.3f  moved %+.3f  turned %s  → degreesPerUnit %s",
+                        markPosition, position - markPosition, deg(angleDeg - markAngleDeg),
+                        perUnit(angleDeg - markAngleDeg, position - markPosition)));
         telemetry.addLine(String.format(Locale.US, "encoder counts %d (zero %d%s)  turns %.3f  angle %s",
                 counts, zeroCounts, zeroed ? "" : ", not zeroed",
                 TurretEncoder.encoderTurns(counts, zeroCounts), deg(angleDeg)));
@@ -302,6 +307,17 @@ public class TurretBench extends OpMode {
         }
         return "Active config is \"" + (active == null ? "none" : active)
                 + "\", which has no turret. Driver Station: Configure Robot -> robot_20245 (or robot_19429) -> Activate.";
+    }
+
+    /**
+     * Encoder degrees over position moved: the turret's own {@code degreesPerUnit}, counter-clockwise
+     * positive. Shown only past 0.05 of travel, where a degree of slack is a small error.
+     */
+    static String perUnit(double turnedDeg, double moved) {
+        if (Double.isNaN(turnedDeg) || Double.isNaN(moved) || Math.abs(moved) < 0.05) {
+            return "n/a (step at least 0.05 from the mark)";
+        }
+        return String.format(Locale.US, "%.1f", turnedDeg / moved);
     }
 
     private static String deg(double value) {

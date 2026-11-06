@@ -62,6 +62,10 @@ public final class RobotDifferences {
                         + " 0.350 before a runaway below 0.22 moved it)",
                 () -> TurretSubsystem.homePosition = 0.514);
         differs(RobotIdentity.TEAM_19429,
+                "Cypher Max rides the goBILDA turret's 64T drive gear, 2.75 turns per turret turn"
+                        + " (6 Nov 2026, from the build team; check one turret turn on Bench: Turret)",
+                () -> TurretSubsystem.turnsPerTurretTurn = 2.75);
+        differs(RobotIdentity.TEAM_19429,
                 "Turret servo runs away below about 0.22 (Bench: Turret, 6 Nov 2026): floor 0.25. Ceiling 0.75"
                         + " is a guard as far above home, not measured; raise it in Panels to look",
                 () -> {
