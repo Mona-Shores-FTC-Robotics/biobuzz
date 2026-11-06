@@ -162,16 +162,23 @@ public final class LaunchSpots {
     /**
      * Which spot to drive to; a pure function of what the robot knows. Refused without a pose, with
      * a pose that is not referenced (field coordinates would mean nothing), with no alliance, or with
-     * the robot on or past the centre line: never drive across it. Every spot is on our side, and a
-     * straight drive between two points on our side stays there. Otherwise the spot whose
-     * {@link Spot#target} is nearest the robot.
+     * the robot's centre {@code pastCentreIn} or more past the centre line, on the other alliance's
+     * side. Every spot is on our side, so a drive from within that reach only comes home across the
+     * line, never out across it. Otherwise the spot whose {@link Spot#target} is nearest the robot.
+     *
+     * <p>{@code pastCentreIn} 0 (or NaN, or negative) asks for the robot strictly on our side. It was
+     * that until 6 Nov 2026: that day's practice refused the press 10 times with the robot 3 to 4 in
+     * past the line (19429 and 20245 match logs), where the drivers pick up and wanted it to work.
      */
-    public static Choice choose(Pose pose, boolean referenced, Alliance alliance, double offWallIn) {
+    public static Choice choose(Pose pose, boolean referenced, Alliance alliance, double offWallIn,
+                                double pastCentreIn) {
         if (pose == null) return Choice.refuse("no pose (no Pinpoint)");
         if (!referenced) return Choice.refuse("pose not on the field yet (corner reset or camera reset first)");
         if (alliance != Alliance.RED && alliance != Alliance.BLUE) return Choice.refuse("no alliance");
-        if (!onOurSide(alliance, pose.x())) {
-            return Choice.refuse("robot on the other alliance's side of the centre line");
+        if (!withinReach(alliance, pose.x(), pastCentreIn)) {
+            return Choice.refuse(String.format(Locale.US,
+                    "robot %.0f in past the centre line, more than the %.0f in it may drive back from",
+                    pastLineIn(alliance, pose.x()), reach(pastCentreIn)));
         }
         Spot best = null;
         Pose bestTarget = null;
@@ -188,9 +195,25 @@ public final class LaunchSpots {
         return new Choice(best, bestTarget, bestIn, null);
     }
 
-    /** The robot's centre is strictly on {@code alliance}'s side of the centre line (red: low x). */
-    static boolean onOurSide(Alliance alliance, double x) {
-        return alliance == Alliance.BLUE ? x > FieldFrame.FIELD_CENTRE_INCHES : x < FieldFrame.FIELD_CENTRE_INCHES;
+    /**
+     * How far the robot's centre is past the centre line onto the other alliance's side, inches
+     * (red's side is low x): negative on our side.
+     */
+    static double pastLineIn(Alliance alliance, double x) {
+        double c = FieldFrame.FIELD_CENTRE_INCHES;
+        return alliance == Alliance.BLUE ? c - x : x - c;
+    }
+
+    /**
+     * The robot's centre is less than {@code pastCentreIn} past the centre line; with 0 (or NaN, or
+     * negative), strictly on {@code alliance}'s side.
+     */
+    static boolean withinReach(Alliance alliance, double x, double pastCentreIn) {
+        return pastLineIn(alliance, x) < reach(pastCentreIn);
+    }
+
+    private static double reach(double pastCentreIn) {
+        return pastCentreIn > 0.0 ? pastCentreIn : 0.0;
     }
 
     /**

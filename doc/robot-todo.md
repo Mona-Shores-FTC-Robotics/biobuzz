@@ -422,6 +422,12 @@ measurement is [#255].
       says `fired by button`, shots counted ≈ 4; FIRE takes the shot (`fired by … operator`); let go
       stops the feeder at once; an idled launcher stays idle. **Stop:** it feeds before it is
       aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+- [ ] **Square from past the centre line (`LaunchSpotDrive.maxPastCentreIn`, 24):** on 6 Nov the
+      drivers pressed Square with the robot 3–4 in past the line and it refused every time. Hold
+      Square with the robot about 6 in, then about 20 in, past the line, on red and on blue.
+      **Good:** it drives home to the nearest spot on our side and fires; past 24 in the Match page
+      says `REFUSED: robot N in past the centre line`. **Stop:** the path heads into the HIVE frame
+      or a partner → let go, note where, and lower `maxPastCentreIn` (0 is the old rule).
 - [ ] **Every press is a drift sample:** across a practice, pull the logs and read each press's
       `launch spot: drift at …` line (camera − odometry at a known spot, settled, never applied) and
       its `CELL N in` range beside the shots it fired. **Good:** gaps stay under
