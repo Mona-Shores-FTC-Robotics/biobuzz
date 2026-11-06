@@ -173,18 +173,6 @@ Result, with the gap on each own-start run, → [PR #372].
 - [ ] **Light looks:** Basic Drive INIT steady red, X → steady blue; off after PLAY; intake until a
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
-- [ ] **19429: the turret holds straight ahead from PLAY.** Its servo is in position mode and
-      points straight ahead at 0.514 (Bench: Turret, 6 Nov, after a runaway below 0.22 moved it from
-      0.350; positions now kept to 0.25–0.75, `RobotDifferences`). The Cypher Max
-      replaced the feeder's cable in the motor port 3 encoder socket (6 Nov) and counts
-      (counter-clockwise counts down, as `direction` = -1 says). A **full TeamCode install** (the
-      XML changed), re-Activate, **Check: Hardware**. Then Basic Drive: set the turret on its mark
-      in INIT, PLAY. **Good:** it barely moves and springs back when pushed.
-- [x] **19429: the SWYFT servo out of its "continuous" mode** (done 6 Nov: 320°, home still 0.514). It read Range 255/255 (SWYFT's
-      "continuous": a target about 650° each way that a servo sensing one turn chases at full speed,
-      the runaways). SWYFT Servo Programmer V2: Continuous rotation **off**, Total Range **320**,
-      Flash, Read (Range ≈ 130/130). Every position held so far (0.514, the 0.25–0.75 limits) is
-      then stale: re-measure on Bench: Turret, and set the limits from where the turret really goes.
 - [ ] **19429: the turret re-homes from its encoder** (`TurretSubsystem.rehomeFromEncoder`, on for
       19429). Needs `degreesPerUnit` first (below). Basic Drive: in INIT twirl the turret three
       turns, put it on its mark, PLAY. **Good:** it swings off, then within about a second comes
