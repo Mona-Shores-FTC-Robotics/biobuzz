@@ -23,7 +23,7 @@ After merging, use `master` in that link. Sloth Load the branch and select
 |---|---|---|
 | TIP 1 | Move to LEFT_LAUNCH_CATCH; **wait for LEFT CELL up**, then shoot preloads | Shoot RIGHT preloads, then collect WALL FLOWER |
 | TIP 2 | Immediately cross south under HIVE; gather GARDEN | Wall lane to LEFT_LAUNCH_CLOSE; wait for LEFT up and shoot the wallflower load |
-| Reload | Turn out of garden to the existing RIGHT_LAUNCH_OFFSET | At LEFT_CLOSE, confirm TIP 2 settled; collect SCORING FLOWER, then turn forward into the south crossing |
+| Reload | Turn out of garden to the existing RIGHT_LAUNCH_OFFSET | Immediately collect SCORING FLOWER while TIP 2 settles, then turn forward into the south crossing |
 | TIP 3 | Wait for RIGHT up, contribute four from the offset, then leave | Contribute four from local RIGHT_PAIR_CLOSE |
 | Park | Wall lane to far LEFT_PARK, passing outside a robot already in near park | Clear above L's offset, then wall lane to near RIGHT_PARK |
 
@@ -77,14 +77,13 @@ power and pickup backing-out settings are unchanged.
 |---|---:|---|
 | L: LEFT up for preloads | Before 8 s | Far park; no garden or RIGHT volley |
 | R: LEFT up for wallflower volley | Before 14 s | Near park from LEFT_CLOSE |
-| R: RIGHT up, still at LEFT_CLOSE | Before 16 s | Near park without going to the scoring flower |
 | L: RIGHT up at offset | Before 20 s | Far park without final volley |
 | R: RIGHT up at close shot | Before 22.5 s | Near park without final volley |
 
 Timeout rows come first: arriving at or after a deadline parks even if the CELL-up
-trigger is true. R checks TIP 2 while still facing the HIVE at LEFT_CLOSE, before
-driving to the scoring flower. The current exporter does not support a clock-only
-branch, and the flower staging heading points away from the camera target. L's
+trigger is true. R collects the scoring flower immediately after its LEFT volley;
+the final RIGHT-up gate confirms TIP 2 before firing. This overlaps pickup with
+TIP settling instead of spending about 1.4 s waiting at LEFT_CLOSE. L's
 volleys and R's LEFT volley use a 1 s readiness timeout; R's final volley uses 0.5 s
 to reserve its longer park. Qualify that shorter readiness window on the robot.
 Once feeding starts, existing AutoKit protection allows the four-shot completion
@@ -119,8 +118,7 @@ preview can look faster because it currently truncates those durations.
 
 Bring-up: verify L's first-tip wait, run each route empty, test the final RIGHT
 positions and R's turn with L stationary, qualify the new close shot and loaded
-exits, then run the full pair. Measure R seeing TIP 2 settled at LEFT_CLOSE before
-**16 s** and ready to fire RIGHT before **22.5 s**; measure L ready at its offset
+exits, then run the full pair. Measure R ready to fire RIGHT before **22.5 s**; measure L ready at its offset
 before **20 s**. Promote to competition OpModes only after three TIPs, both AUTO
 parks and both LEAVEs are demonstrated. Details: [robot-todo §3](../../../doc/robot-todo.md).
 

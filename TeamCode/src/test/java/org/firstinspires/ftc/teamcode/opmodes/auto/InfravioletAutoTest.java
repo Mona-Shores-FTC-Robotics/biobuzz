@@ -105,21 +105,21 @@ public class InfravioletAutoTest {
         parked(95.7);
     }
 
-    @Test public void rightSkipsScoringFlowerWhenSecondTipNeverSettles() {
+    @Test public void rightCollectsWhileTipSettlesButSkipsUnconfirmedFinalVolley() {
         secondTip = Double.POSITIVE_INFINITY;
         run(RInfravioletAuto.build(kit(), false));
         assertEquals(2, launches());
-        assertEquals(1, actions.stream().filter("PickFlower"::equals).count());
-        assertTrue(drive.parkAt >= 16);
+        assertEquals(2, actions.stream().filter("PickFlower"::equals).count());
+        assertTrue(drive.parkAt >= 22.5);
         parked(95.7);
     }
 
-    @Test public void secondTipAtReloadDeadlineSkipsScoringFlowerAndCrossing() {
-        secondTip = 15.3; // RIGHT settles at 16, exactly the reload deadline
+    @Test public void rightWaitsAtFinalShotWhenSecondTipIsLate() {
+        secondTip = 21.8; // RIGHT settles at 22.5, exactly the final-shot deadline
         run(RInfravioletAuto.build(kit(), false));
         assertEquals(2, launches());
-        assertEquals(1, actions.stream().filter("PickFlower"::equals).count());
-        assertTrue(drive.parkAt >= 16);
+        assertEquals(2, actions.stream().filter("PickFlower"::equals).count());
+        assertTrue(drive.parkAt >= 22.5);
         parked(95.7);
     }
 

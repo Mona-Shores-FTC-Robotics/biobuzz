@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T14:48:53.725Z",
+  "timestamp": "2026-11-06T17:44:57.818Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -744,12 +744,12 @@
     },
     "cards": [
       {
-        "id": "R-action-5",
+        "id": "R-action-3",
         "kind": "action",
         "name": "SpinUp"
       },
       {
-        "id": "R-action-6",
+        "id": "R-action-4",
         "kind": "action",
         "name": "LaunchAll"
       },
@@ -760,7 +760,7 @@
         "park": false
       },
       {
-        "id": "R-action-7",
+        "id": "R-action-5",
         "kind": "action",
         "name": "PickFlower",
         "timeoutS": 4.5
@@ -772,7 +772,7 @@
         "park": false
       },
       {
-        "id": "R-wait-9",
+        "id": "R-wait-8",
         "kind": "firstOf",
         "label": "LEFT up before 14 s, otherwise park",
         "rows": [
@@ -794,24 +794,42 @@
             ],
             "cards": [
               {
-                "id": "R-action-8",
+                "id": "R-action-6",
                 "kind": "action",
                 "name": "LaunchAll",
                 "timeoutS": 1
               },
               {
-                "id": "R-wait-4",
+                "id": "card-r-scoring-flower",
+                "kind": "path",
+                "lineId": "r-scoring-flower",
+                "park": false
+              },
+              {
+                "id": "R-action-7",
+                "kind": "action",
+                "name": "PickFlower",
+                "timeoutS": 4.5
+              },
+              {
+                "id": "card-r-loaded-under-hive",
+                "kind": "path",
+                "lineId": "r-loaded-under-hive",
+                "park": false
+              },
+              {
+                "id": "R-wait-2",
                 "kind": "firstOf",
-                "label": "TIP 2 settled before 16 s: scoring flower or park",
+                "label": "RIGHT up before 22.5 s, otherwise park",
                 "rows": [
                   {
-                    "afterMs": 16000,
+                    "afterMs": 22500,
                     "matchClock": true,
                     "cards": [
                       {
-                        "id": "card-r-left-abort-park-alt",
+                        "id": "card-r-near-park",
                         "kind": "path",
-                        "lineId": "r-left-abort-park",
+                        "lineId": "r-near-park",
                         "park": true
                       }
                     ]
@@ -822,60 +840,16 @@
                     ],
                     "cards": [
                       {
-                        "id": "card-r-scoring-flower",
-                        "kind": "path",
-                        "lineId": "r-scoring-flower",
-                        "park": false
-                      },
-                      {
-                        "id": "R-action-3",
+                        "id": "R-action-1",
                         "kind": "action",
-                        "name": "PickFlower",
-                        "timeoutS": 4.5
+                        "name": "LaunchAll",
+                        "timeoutS": 0.5
                       },
                       {
-                        "id": "card-r-loaded-under-hive",
+                        "id": "card-r-near-park-alt",
                         "kind": "path",
-                        "lineId": "r-loaded-under-hive",
-                        "park": false
-                      },
-                      {
-                        "id": "R-wait-2",
-                        "kind": "firstOf",
-                        "label": "RIGHT up before 22.5 s, otherwise park",
-                        "rows": [
-                          {
-                            "afterMs": 22500,
-                            "matchClock": true,
-                            "cards": [
-                              {
-                                "id": "card-r-near-park",
-                                "kind": "path",
-                                "lineId": "r-near-park",
-                                "park": true
-                              }
-                            ]
-                          },
-                          {
-                            "when": [
-                              "RightCellUp"
-                            ],
-                            "cards": [
-                              {
-                                "id": "R-action-1",
-                                "kind": "action",
-                                "name": "LaunchAll",
-                                "timeoutS": 0.5
-                              },
-                              {
-                                "id": "card-r-near-park-alt",
-                                "kind": "path",
-                                "lineId": "r-near-park",
-                                "park": true
-                              }
-                            ]
-                          }
-                        ]
+                        "lineId": "r-near-park",
+                        "park": true
                       }
                     ]
                   }

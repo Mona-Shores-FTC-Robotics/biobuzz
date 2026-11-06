@@ -326,10 +326,10 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - Test loaded exits after the normal pickup retreat. The long under-HIVE
         crossing is forward; R's final shot alignment still has a short backward
         component. Tune/test retention there before trusting the fourth piece.
-      - Measure R confirming TIP 2 at LEFT_CLOSE before **16 s**, then final
-        RIGHT readiness before **22.5 s**; L's final RIGHT readiness before **20 s**.
-        Check TIP 2 before R turns away toward the flower. Test late arrivals
-        and missed TIP 2: skip the reload or unconfirmed volley and take the
+      - Measure R final RIGHT readiness before **22.5 s**; L's before **20 s**.
+        R collects the scoring flower while TIP 2 settles, then confirms RIGHT up
+        at the final shot. Test late arrivals and missed TIP 2: skip the
+        unconfirmed volley and take the
         assigned park. The 1 s launch timeouts (0.5 s for R's final volley)
         limit readiness, not an active feed; test the shorter final window.
       - Run the complete pair, including mismatched drive speeds and missed volleys.

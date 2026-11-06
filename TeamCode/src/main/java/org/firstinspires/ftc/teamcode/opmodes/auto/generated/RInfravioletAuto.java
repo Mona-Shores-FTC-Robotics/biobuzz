@@ -21,7 +21,7 @@ public final class RInfravioletAuto {
     public static final String SOURCE = "r-infraviolet.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-06|9:48AM";
+    public static final String SAVED = "11-06|12:44PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -113,21 +113,16 @@ public final class RInfravioletAuto {
                                         kit.path("left abort park to RIGHT_PARK", leftAbortParkToRightPark, 2.2))),
                         kit.when("LeftCellUp").then(
                                 kit.command("LaunchAll", 1),
-                                kit.firstOf("TIP 2 settled before 16 s: scoring flower or park",
-                                        kit.atMatchSeconds(16).then(
-                                                kit.guarded("Timed out", leftAbortParkToRightPark, 2.2,
-                                                        kit.path("left abort park to RIGHT_PARK", leftAbortParkToRightPark, 2.2))),
+                                kit.path("scoring flower to SCORING_FLOWER_STAGING", scoringFlowerToScoringFlowerStaging, 1.3, flowerAbortParkToRightPark, 2),
+                                kit.command("PickFlower", 4.5),
+                                kit.path("loaded under hive to RIGHT_PAIR_CLOSE", loadedUnderHiveToRightPairClose, 4.3, nearParkToRightPark, 3.4),
+                                kit.firstOf("RIGHT up before 22.5 s, otherwise park",
+                                        kit.atMatchSeconds(22.5).then(
+                                                kit.guarded("Timed out", nearParkToRightPark, 3.4,
+                                                        kit.path("near park to RIGHT_PARK", nearParkToRightPark, 3.4))),
                                         kit.when("RightCellUp").then(
-                                                kit.path("scoring flower to SCORING_FLOWER_STAGING", scoringFlowerToScoringFlowerStaging, 1.3, flowerAbortParkToRightPark, 2),
-                                                kit.command("PickFlower", 4.5),
-                                                kit.path("loaded under hive to RIGHT_PAIR_CLOSE", loadedUnderHiveToRightPairClose, 4.3, nearParkToRightPark, 3.4),
-                                                kit.firstOf("RIGHT up before 22.5 s, otherwise park",
-                                                        kit.atMatchSeconds(22.5).then(
-                                                                kit.guarded("Timed out", nearParkToRightPark, 3.4,
-                                                                        kit.path("near park to RIGHT_PARK", nearParkToRightPark, 3.4))),
-                                                        kit.when("RightCellUp").then(
-                                                                kit.guarded("If RightCellUp", nearParkToRightPark, 3.4,
-                                                                        kit.command("LaunchAll", 0.5),
-                                                                        kit.path("near park to RIGHT_PARK", nearParkToRightPark, 3.4)))))))));
+                                                kit.guarded("If RightCellUp", nearParkToRightPark, 3.4,
+                                                        kit.command("LaunchAll", 0.5),
+                                                        kit.path("near park to RIGHT_PARK", nearParkToRightPark, 3.4)))))));
     }
 }
