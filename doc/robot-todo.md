@@ -631,10 +631,15 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       much further than needed → lower `rejectBurstS`. A `REJECT gave up` or a `FULL with the other
       alliance's NECTAR` event means a burst could not clear it: film it. A POLLEN or our own NECTAR spat out → the event's hue says which range
       (`redNectarHueMin/Max`, `blueNectarHueMin/Max`) to narrow; until fixed, `rejectEnemyNectar` off.
-- [ ] `IntakeSubsystem.holdPowerWhenFull` is 0 (roller off when full, stars still turning; the drive
-      team's choice after trying 0.2). With 4 loaded: back away fast and turn, toggle off and drive,
-      and an Auto that idles after `IntakeFull`: the 4th stays in each time. If it rolls out, raise it
-      in Panels (0.2 was tried) and check a 5th is not pulled in.
+- [ ] **Full-lane position hold:** Panels `IntakeSubsystem.positionHoldWhenFull` defaults on
+      for 20245, off for 19429 (encoder wire unplugged; reconnect before enabling). The roller captures
+      its encoder position once, stars continue inward and prefeed stops. Initial `positionHoldMaxPower` 0.3 and
+      2-tick tolerance need robot confirmation. During normal practice, load 4 and back away:
+      the 4th stays in and a loose 5th stays out. Match logs include `PositionHolding`,
+      `HoldTargetTicks`, `HoldErrorTicks` and current. Feed/eject/reject release the hold.
+      If correction is too weak, adjust the max in Panels; if the shaft holds but the ball
+      slips, mechanical retention needs attention. Position hold off restores legacy roller
+      power (`holdPowerWhenFull`); `starsPowerWhenFull` separately controls the stars (default 1).
 - [ ] Unjam with a ball on the launcher wheels: rolls back, launcher returns to speed. [PR #323]
 - [ ] Launch Test on gamepad 1, operator layout. [PR #324]
 - [ ] Turret locked: hold Circle after intaking, the chassis settles on the CELL. [PR #329]
