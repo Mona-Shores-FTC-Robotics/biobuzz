@@ -90,6 +90,33 @@ Once feeding starts, existing AutoKit protection allows the four-shot completion
 or 3.5 s feed backstop; **one second is not the volley duration**. A late failed
 pickup or stalled drive can still consume the park margin. Keep the 30 s trial stop.
 
+### Full simulator result
+
+At code commit `469d4698`, the L-first paired request runs both generated Autos,
+Pedro paths and AutoKit against the turret-locked robot physics model:
+
+| Seed | AUTO TIPs | L parked | R parked | Both LEAVE |
+|---|---:|---:|---:|---|
+| 1 | 3 (third at 25.52 s) | 23.16 s | 26.80 s | Yes |
+| 2 | 2 | 23.38 s | 26.80 s | Yes |
+| 3 | 2 | 23.44 s | 26.80 s | Yes |
+
+All three execute all five volleys: L launches 8 pieces and R launches 12.
+R reaches its final gate at 21.28 s and begins firing at 21.30 s, before the
+22.5 s cutoff. The two incomplete third tips are scoring/retention outcomes in
+the physics model, not skipped final volleys: the raised CELL ends about 91%
+and 87% loaded. No robot overlap, centre-line crossing or HIVE-frame contact
+is reported in these three runs. The wall-flower routine reports contact with
+the FLOWER during pickup; this is inherited pickup motion, not frame clearance.
+
+With R driving 20% slower, all three seeds get two tips and both parks. With
+R missing every shot, both park without a tip. These are model results, not a
+measured success rate or proof of the new shot on hardware. In particular the
+simulator's intake can collect loose pieces whenever it has room; it does not
+prove fourth-piece retention on the real robot.
+
+[Full simulator run](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/42264531725).
+
 ### Desk checks and the next robot test
 
 The local paired model uses 16.2 in square bodies plus the drawn protrusion,
@@ -105,13 +132,15 @@ robot fails or loses its route. No clock or CELL-up event proves a shared area c
 
 | Timing scenario | TIPs modeled | L finishes | R finishes |
 |---|---:|---:|---:|
-| Existing timing facts: initial 5.1 s launch, later 4 s, flower 3.7 s, garden 5 s | 2 | 24.8 s | 19.7 s |
-| Faster scenario: initial 3.3 s, later 2.5 s, flower 3 s, garden 4.21 s, driving 20% faster | 3 | 21.7 s | 27.4 s |
-| Faster mechanisms, L driving at 0.8× instead | 3 | 25.5 s | 27.4 s |
-| Faster mechanisms, R driving at 0.8× instead | 2 | 21.9 s | 18.5 s |
+| Existing timing facts: initial 5.1 s launch, later 4 s, flower 3.7 s, garden 5 s | 2 | 24.8 s | 30.2 s |
+| Faster scenario: initial 3.3 s, later 2.5 s, flower 3 s, garden 4.21 s, driving 20% faster | 3 | 21.7 s | 25.7 s |
+| Faster mechanisms, L driving at 0.8× instead | 3 | 25.5 s | 25.7 s |
+| Faster mechanisms, R driving at 0.8× instead | 2 | 21.9 s | 28.9 s |
 
-The faster scenario's third TIP settles around **26.3 s**. It is a planning
-scenario, not a measured paired result. Three TIPs needs all five four-piece
+The faster scenario's third TIP settles around **24.6 s**. It is a planning
+scenario, not a measured paired result. The slower existing-facts case overruns
+R's park by 0.2 s in this planning model, which does not execute AutoKit's runtime
+endgame guard; it is not a guaranteed two-park result. Three TIPs needs all five four-piece
 volleys to land. The local analysis budgets the full feeding time despite short
 readiness limits, and uses the registered/measured garden time; the browser
 preview can look faster because it currently truncates those durations.
@@ -123,6 +152,12 @@ before **20 s**. Promote to competition OpModes only after three TIPs, both AUTO
 parks and both LEAVEs are demonstrated. Details: [robot-todo §3](../../../doc/robot-todo.md).
 
 ### Same-day run order
+
+The launcher stays on between volleys. Each launch asks the existing speed table
+for the current camera/pose range (with the table enabled); it does not retain
+the opening shot's target blindly. Intake remains controlled by the existing
+pickup/feed routines. RIGHT_PAIR_CLOSE and its turret-offset aiming heading are
+local to these drafts; shared catch/close spots are unchanged.
 
 Use this single candidate pair; the roomier catch-distance alternative was screened
 out because its loaded approach took longer and its park crossed an occupied L

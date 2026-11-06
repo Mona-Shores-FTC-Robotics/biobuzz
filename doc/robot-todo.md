@@ -333,7 +333,9 @@ Use the work order above to select checks; the detailed mechanism checks below a
         assigned park. The 1 s launch timeouts (0.5 s for R's final volley)
         limit readiness, not an active feed; test the shorter final window.
       - Run the complete pair, including mismatched drive speeds and missed volleys.
-        Three TIPs plus both parks needs faster-than-current timing in the model.
+        Full physics simulation at `469d4698` gets three TIPs plus both parks in
+        one of three nominal seeds; the other two execute every volley but get
+        two TIPs and both parks. Shot conversion/retention remains unqualified.
         Confirm both LEAVEs at AUTO end and both parks on video before promoting
         the Utility trials to competition OpModes.
 
