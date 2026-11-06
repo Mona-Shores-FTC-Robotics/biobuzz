@@ -1,11 +1,11 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T01:50:01.571Z",
+  "timestamp": "2026-11-06T07:54:05.879Z",
   "startPoint": {
-    "x": 8,
-    "y": 84,
+    "x": 10.2537,
+    "y": 82.0,
     "locked": false,
-    "headingDeg": 90
+    "headingDeg": 70
   },
   "lines": [],
   "shapes": [
@@ -177,23 +177,14 @@
     "strafeVelocity": 65,
     "aVelocity": 3.141592653589793,
     "kFriction": 0.1,
-    "rLength": 15.44,
+    "rLength": 16,
     "rWidth": 16,
     "rForward": 0,
     "safetyMargin": 1,
     "maxVelocity": 50,
     "maxAcceleration": 50,
     "maxDeceleration": 50,
-    "features": [
-      {
-        "name": "FLOWER poker",
-        "length": 1.5,
-        "width": 1.5,
-        "forward": 8.5,
-        "left": 0,
-        "collides": true
-      }
-    ]
+    "features": []
   },
   "activePaths": [],
   "auto": {
@@ -229,9 +220,9 @@
     },
     "points": {
       "PARTNER_PUSH_START": [
-        8,
-        84,
-        90
+        10.2537,
+        82.0,
+        70
       ]
     },
     "pathEnds": {},
