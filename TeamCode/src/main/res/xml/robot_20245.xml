@@ -77,15 +77,14 @@
                  carry over. -->
             <Servo name="flowerStick" port="0" />
 
-            <!-- Turret drive: a goBILDA servo in standard (position) mode,
-                 programmed with the goBILDA servo programmer, on servo port 4
-                 since 6 Nov 2026, (it was named on port 1, the dead
-                 port, and unplugged). It holds a position
-                 from PLAY (TurretSubsystem.homePosition). Locked at home
-                 (TurretSubsystem.lockedForward) until the turret's encoder is
-                 plugged in and checked: see the encoder socket beside motor
-                 port 3 below. -->
-            <Servo name="turret" port="4" />
+            <!-- Turret drive: a goBILDA servo in continuous-rotation mode, on
+                 servo port 4 since 6 Nov 2026 (it was named on port 1, the dead
+                 port, and unplugged). The turret has no encoder fitted yet (the
+                 Cypher Max on the Expansion Hub's motor port 3 encoder socket;
+                 today that socket carries the feeder's encoder), so it stays
+                 locked at home (TurretSubsystem.lockedForward): from PLAY the
+                 servo is sent only its stop pulse, never a drive. -->
+            <ContinuousRotationServo name="turret" port="4" />
 
             <!-- Transfer: the prefeed wheel (a goBILDA Torque servo in
                  continuous mode) on servo port 2, and the feed gate (a goBILDA
@@ -121,15 +120,12 @@
             <goBILDA5202SeriesMotor name="launcher_left"  port="1" />
             <goBILDA5202SeriesMotor name="launcher_right" port="2" />
             <goBILDA5202SeriesMotor name="feeder"         port="3" />
-            <!-- The ENCODER socket beside motor port 3 is meant for the
-                 turret's Studica Cypher Max (quadrature A/B/I, its FTC Control
-                 Hub cable; set its switch to 3V3), the build team's choice of
-                 24 Oct 2026. On 20245 the Cypher Max is fitted on the turret
-                 but, as of 6 Nov 2026, the feeder motor's own encoder cable is
-                 in this socket instead: swap it (doc/robot-todo.md). Code reads
-                 the turret angle as the feeder's position
-                 (DeviceNames.TURRET_ENCODER_HOST); the feeder never uses its
-                 encoder for control. -->
+            <!-- The ENCODER socket beside motor port 3 carries the turret's
+                 Studica Cypher Max (quadrature A/B/I, its FTC Control Hub
+                 cable), not the feeder's own encoder; the feeder runs without
+                 one. Code reads the turret angle as the feeder's position
+                 (DeviceNames.TURRET_ENCODER_HOST). Set the encoder's switch
+                 to 3V3. Build team's choice, 24 Oct 2026. -->
 
         </LynxModule>
     </LynxUsbDevice>

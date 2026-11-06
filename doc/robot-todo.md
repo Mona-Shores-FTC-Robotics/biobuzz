@@ -173,23 +173,11 @@ Result, with the gap on each own-start run, → [PR #372].
 - [ ] **Light looks:** Basic Drive INIT steady red, X → steady blue; off after PLAY; intake until a
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
-- [ ] **20245 (then 19429), after the 6 Nov rewire: the turret holds home from PLAY.** The servo is
-      now a position servo (`<Servo>`; it must be in standard mode on the goBILDA programmer, or it
-      spins at PLAY: unplug it if so). Turret still locked (`lockedForward`). A **full TeamCode
-      install** (the XML changed), re-Activate, **Check: Hardware**. Then **Bench: Turret**: press
-      PLAY, step the position until the turret's mark points straight ahead, and put that number in
-      `TurretSubsystem.homePosition` (0.5 today, the servo's centre, where it was seen holding).
-      Optional: Square at home, step to a 90° mark, and `degreesPerUnit` = 90 / moved. Then in
-      Basic Drive: set the turret at home by hand in INIT, press PLAY. **Good:** it barely moves at
-      PLAY and springs back when pushed. Also confirm the light looks above still work from the
-      Expansion Hub.
-- [ ] **20245: the turret encoder's cable.** The Cypher Max is fitted on the turret, but the
-      encoder socket beside **Expansion Hub motor port 3** holds the feeder motor's encoder cable
-      (6 Nov). Unplug that, plug in the Cypher Max's cable (switch at 3V3). Check 19429's socket
-      too. Then **Bench: Turret**: Cross at home, turn the turret counter-clockwise by hand
-      (Circle makes the servo limp): `angle` rises, else `TurretSubsystem.direction` = -1; one full
-      turn gives `turnsPerTurretTurn`. Run the feeder: the turret `angle` must not move. Only after
-      that, and with `degreesPerUnit` measured, is `lockedForward` = false the mentor's call.
+- [ ] **20245, after the 6 Nov rewire: the turret sits still.** Turret still locked
+      (`lockedForward`), servo now plugged in on Control Hub port 4. Lift the turret's cables clear,
+      press PLAY, watch 30 s with a mark on the turret. **Good:** no movement. **Stop:** it creeps →
+      unplug the servo, then trim `TurretSubsystem.servoStopPower` in Panels until it holds still
+      and note the value. Also confirm the light looks above still work from the Expansion Hub.
 
 ## 3. The selected Autos, on the field (HIVE upright, preloads in, Panels open)
 
