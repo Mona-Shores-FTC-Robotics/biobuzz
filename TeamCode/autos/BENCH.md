@@ -36,3 +36,12 @@ requests and original design notes remain intact at
 [master snapshot 6fcc060](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/tree/6fcc060484355ceaa2439efffc3648c5e190c4d6/TeamCode/autos/drafts).
 They are removed from the current draft list to avoid maintaining three competing pairs.
 Restore only an individual experiment if it is needed; do not merge an old snapshot wholesale.
+
+## Previous Infraviolet assignment
+
+The earlier L-scoring-flower / R-garden assignment, wide LEFT/RIGHT offsets and
+exclusive under-HIVE/wall lanes are superseded by L's early garden crossing and
+R taking both flowers. The complete draft remains at
+[07bec0e](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/tree/07bec0eafeabd8f84add5fb5f8a3310c299bbfa3/TeamCode/autos/drafts).
+Keep only `l-infraviolet.pp` and `r-infraviolet.pp` as the active coordinated
+candidate; recover individual ideas from history rather than adding another pair.

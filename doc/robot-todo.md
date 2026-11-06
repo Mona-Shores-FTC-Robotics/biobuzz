@@ -308,25 +308,32 @@ Use the work order above to select checks; the detailed mechanism checks below a
       AUTO parks. The old 12 in diagonal-push procedure is superseded. The draft
       still has no selectable OpMode. [autos draft README](../TeamCode/autos/drafts/README.md#r-solo-nudge-for-a-partner-with-no-auto)
 
-- [ ] **Infraviolet paired draft, after the baseline and nudge.**
-      [Route, cutoffs and timing targets](../TeamCode/autos/drafts/README.md#l-infraviolet--r-infraviolet-coordinated-three-tip-draft).
-      Sloth Load the branch, then use **Utility → Drive: L-Infraviolet / Drive: R-Infraviolet**
-      (automatic STOP at 30 s). First review the two `.pp` files together;
-      the one-second LaunchAll limits guard readiness, not the protected feeding time.
-      - Dry-run L's south and north under-HIVE paths and R's wall-lane paths separately,
-        then together. Check real frame/poker clearance and hold the square heading under HIVE.
-      - Qualify the new local LEFT_PAIR_OFFSET and RIGHT_PAIR_OFFSET shots. At both
-        simultaneous shooting stations check that neither robot blocks the other's camera or shots.
-      - Test L's TIP-2 handoff with R driving away; delay/miss the TIP and verify L holds
-        until 21 s before its far park. R owns the near park, L the far park in every branch.
-      - Measure both flower pickups, the garden gather and final launch readiness. Targets:
-        L at RIGHT close before **21.5 s**, R at RIGHT offset before **22.5 s**. Verify the
-        1 s readiness limit accepts normal arrivals, and an active feed is not cut by it.
-      - Only after those checks, run the complete pair from the Utilities,
-        including delayed and failed volleys. Confirm all three TIPs and both AUTO parks
-        on video; LEAVE requires both robots still clear of walls at AUTO end. The current
-        timing analysis supports two TIPs with both parks; three needs the optimistic timings.
-        Promote the Utility trials to competition OpModes only after qualification.
+- [ ] **Infraviolet pair: L early garden, R both flowers.**
+      [Candidate, reused paths, cutoffs and timing](../TeamCode/autos/drafts/README.md#l-infraviolet--r-infraviolet-coordinated-three-tip-draft).
+      Sloth Load `feat/infraviolet-pair`; run **Utility → Drive: L-Infraviolet / Drive: R-Infraviolet**
+      (automatic STOP at 30 s). The previous assignment is preserved in Git history.
+      - Confirm L moves to LEFT_CATCH but never shoots before R's TIP 1 settles.
+        Missing TIP 1 must send L to far park without collecting the garden.
+      - Dry-run both south crossings and the separate parks. L must pass a robot
+        already in RIGHT_PARK without touching it. Stop if either robot stalls;
+        a dead L at its start obstructs R's reused LEFT approach.
+      - Keep L at the existing RIGHT offset; drive R's final turn and park around
+        it, checking actual frame/poker and centre-line clearance. The drawing's
+        minimum centre-line margin near the shot is about 0.9 in, not a tracking tolerance.
+      - Qualify R's new local RIGHT_PAIR_CLOSE shot (60.5, 31, about 99.4 degrees;
+        turret range about 30 in). L's shared RIGHT offset is unchanged. Check
+        camera visibility and the shot line with both robots in position.
+      - Test loaded exits after the normal pickup retreat. The long under-HIVE
+        crossing is forward; R's final shot alignment still has a short backward
+        component. Tune/test retention there before trusting the fourth piece.
+      - Measure R's scoring-flower readiness before **17 s** and final RIGHT
+        readiness before **22 s**; L's final RIGHT readiness before **20 s**.
+        Test missed TIP 2 and late arrivals: skip the reload/volley and take the
+        assigned park. The 1 s launch timeouts limit readiness, not an active feed.
+      - Run the complete pair, including mismatched drive speeds and missed volleys.
+        Three TIPs plus both parks needs faster-than-current timing in the model.
+        Confirm both LEAVEs at AUTO end and both parks on video before promoting
+        the Utility trials to competition OpModes.
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 

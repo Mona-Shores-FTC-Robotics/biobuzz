@@ -7,116 +7,118 @@ under "Drafts", and Save to GitHub saves back here.
 
 ## L-Infraviolet / R-Infraviolet: coordinated three-TIP draft
 
-The selected pair follows the mentor's fresh-pickup plan. **R owns the wall lane;
-L owns the lane under the HIVE.** Both have separate final parks, off every wall.
-These are planning drafts with generated Java and simulation requests. Run them
-from **Utility → Drive: L-Infraviolet / Drive: R-Infraviolet** for bring-up; the trial
-requests STOP at 30 s. They are **not in the competition Autonomous menu**. L-NoCross and R-NoCross remain the qualified baseline
-pending their robot runs. The older A/B alternatives are [benched](../BENCH.md).
+**One candidate: L takes the garden early; R takes both flowers.** The previous
+Infraviolet assignment is [preserved in history](../BENCH.md#previous-infraviolet-assignment),
+not another selectable draft. NoCross and Solo remain unchanged.
 
-Open both:
-<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/l-infraviolet.pp,drafts/r-infraviolet.pp>.
+Open the candidate pair from its PR branch:
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=feat/infraviolet-pair/drafts/l-infraviolet.pp,drafts/r-infraviolet.pp>.
+After merging, use `master` in that link. Sloth Load the branch and select
+**Utility → Drive: L-Infraviolet / Drive: R-Infraviolet**. The trials request STOP at
+30 s; they are not competition Autonomous entries.
 
-![Infraviolet lanes and shooting stations](../../../doc/infraviolet-layout.svg)
+![Infraviolet routes and shooting positions](../../../doc/infraviolet-layout.svg)
 
-| Phase | R-Infraviolet | L-Infraviolet |
+| Phase | L-Infraviolet | R-Infraviolet |
 |---|---|---|
-| TIP 1 | RIGHT preloads; collect WALL FLOWER | Move to LEFT_LAUNCH_CATCH; wait for LEFT up, then fire preloads |
-| TIP 2 | Wall lane to LEFT_PAIR_OFFSET; add four | Hold position after preloads until TIP 2 starts; do not pick the scoring flower while R is shooting |
-| Reload | Wall lane south to GARDEN; gather | SCORING FLOWER; cross south under HIVE |
-| TIP 3 | Four into RIGHT from RIGHT_PAIR_OFFSET | Four into RIGHT from RIGHT_LAUNCH_CLOSE |
-| Park | Wall lane to near RIGHT_PARK | North under HIVE to far LEFT_PARK |
+| TIP 1 | Move to LEFT_LAUNCH_CATCH; **wait for LEFT CELL up**, then shoot preloads | Shoot RIGHT preloads, then collect WALL FLOWER |
+| TIP 2 | Immediately cross south under HIVE; gather GARDEN | Wall lane to LEFT_LAUNCH_CLOSE; wait for LEFT up and shoot the wallflower load |
+| Reload | Turn out of garden to the existing RIGHT_LAUNCH_OFFSET | Go to SCORING_FLOWER_STAGING; confirm TIP 2 settled before committing to pickup; collect and turn forward into the south crossing |
+| TIP 3 | Wait for RIGHT up, contribute four from the offset, then leave | Contribute four from local RIGHT_PAIR_CLOSE |
+| Park | Wall lane to far LEFT_PARK, passing outside a robot already in near park | Clear above L's offset, then wall lane to near RIGHT_PARK |
 
-L may finish its LEFT volley before R arrives. Their contributions still make the
-same TIP; forcing L to wait solely to fire simultaneously would add no scoring.
-The scoring-flower handoff uses **Tip**, after L's first volley: TIP 1 has already
-settled before that volley starts, so the next event is TIP 2. This is evidence
-that LEFT received enough weight, **not direct sensing of the partner's position**.
-A missed TIP event takes the park fallback; the routine does not guess the flower
-is free. R's departure and L's pickup must still be qualified together.
+Both crossings under HIVE go south, at different stages. L's garden collection
+runs during R's LEFT work. L does not wait for TIP 2 before collecting, and the
+scoring flower belongs only to R. Loose pieces encountered in transit are not
+credited as a substitute for either four-piece pickup. There is no robot-to-robot
+position signal: CELL-up gates establish scoring state, not partner clearance.
 
-### Space and the two offset shots
+### Reused paths and the RIGHT shooting space
 
-The original RIGHT offset and close spots crowd the two robots. This draft uses
-local wider offset points, leaving shared `spots.json` and the baseline Autos alone:
+The opening LEFT_CATCH path is copied from L-NoCross. R's opening wallflower path,
+wallflower-to-LEFT_CLOSE curve control point and LEFT_CLOSE-to-scoring-flower path
+come from R-Solo. The wallflower exit turns north over the first 12% of travel
+instead of continuing the old, slower heading change. L's empty crossing uses
+R-Solo's under-HIVE controls and the straight R-NoCross garden approach. R uses the
+upper controls of that corridor after its new forward flower exit. These are reused
+drawing elements, not a claim that the newly combined routine has run on hardware.
 
-| Point (red frame) | x | y | Heading |
+Shared `spots.json` is unchanged. L keeps **RIGHT_LAUNCH_OFFSET (41, 20, 68.7°)**,
+which the mentor reports is reliable. R's one new shooting point is
+**RIGHT_PAIR_CLOSE (60.5, 31, approximately 99.4°)**: about **30.0 in** from turret
+axis to the raised target row, approximately **9.4°** off straight-on. Its shot
+needs qualification; no launcher tuning is changed here.
+
+The old far LEFT offset is removed: with L already gone, R uses the existing
+LEFT_CLOSE, about 37 in and straight-on. The original RIGHT offset and RIGHT_CATCH
+body footprints overlap. Moving catch right makes the stationary positions fit,
+but leaves too little space for a loaded turn beside L. This candidate instead
+moves R toward a closer shot, allowing its approach and exit to clear L even if L
+remains at the offset. The modeled centre-line margin there is only about 0.9 in:
+check actual robot dimensions, tracking error and both alliance orientations.
+
+### Loaded motion
+
+Keep the normal short flower/garden backing-out routines; the mentor tunes those
+as separate events. L turns forward out of the garden, R turns north promptly out
+of the wallflower, and R turns forward out of the scoring flower before crossing.
+The long loaded under-HIVE leg faces south throughout. Compound path sections are
+one continuous drive, not a stop at every control point or junction.
+
+There is still a short backward component while R turns into the final shot,
+roughly six inches projected along its heading in the drawing. It is not a long
+backward crossing, but retention during that final alignment must be tested. The
+path drawing does not impose a special low runtime speed there. Intake holding
+power and pickup backing-out settings are unchanged.
+
+### Deadlines and parks
+
+| Gate | Latest accepted match time | Timeout / late arrival |
+|---|---:|---|
+| L: LEFT up for preloads | Before 8 s | Far park; no garden or RIGHT volley |
+| R: LEFT up for wallflower volley | Before 14 s | Near park from LEFT_CLOSE |
+| R: RIGHT up at scoring flower | Before 17 s | Near park without picking or crossing |
+| L: RIGHT up at offset | Before 20 s | Far park without final volley |
+| R: RIGHT up at close shot | Before 22 s | Near park without final volley |
+
+Timeout rows come first: arriving at or after a deadline parks even if the CELL-up
+trigger is true. L's volleys and R's later volleys use a 1 s readiness timeout.
+Once feeding starts, existing AutoKit protection allows the four-shot completion
+or 3.5 s feed backstop; **one second is not the volley duration**. A late failed
+pickup or stalled drive can still consume the park margin. Keep the 30 s trial stop.
+
+### Desk checks and the next robot test
+
+The local paired model uses 16.2 in square bodies plus the drawn protrusion,
+animated pickup motion, and 20 ms samples. Nominal, slower, missed-shot and
+mismatched-speed runs had no sampled overlaps. R's final approach and park also
+clear L held stationary at the RIGHT offset. Driven paths clear the HIVE and
+centre line; the inherited wall-touching starts overlap the larger model by 0.4 in.
+
+**A failed L robot still sitting at its start is not protected:** R's reused LEFT
+approach/scoring-flower area overlaps it. This is a coordinated pair for two
+functioning robots, not a recovery Auto for a dead partner. Stop the trial when a
+robot fails or loses its route. No clock or CELL-up event proves a shared area clear.
+
+| Timing scenario | TIPs modeled | L finishes | R finishes |
 |---|---:|---:|---:|
-| LEFT_PAIR_OFFSET (R) | 34 | 124 | 303.161° |
-| LEFT_LAUNCH_CATCH (L) | 57.5 | 123.5 | 273.4° |
-| RIGHT_PAIR_OFFSET (R) | 32 | 20 | 57.714° |
-| RIGHT_LAUNCH_CLOSE (L) | 56.1 | 26 | 90° |
-| RIGHT_PARK (R) | 14.5 | 95.7 | 0° |
-| LEFT_PARK (L) | 14.5 | 117.4 | 0° |
+| Existing timing facts: initial 5.1 s launch, later 4 s, flower 3.7 s, garden 5 s | 2 | 24.8 s | 20.8 s |
+| Faster scenario: initial 3.3 s, later 2.5 s, flower 3 s, garden 4.21 s, driving 10% faster | 3 | 22.4 s | 27.3 s |
+| Faster mechanisms, L driving at 0.8× instead | 3 | 25.5 s | 27.3 s |
+| Faster mechanisms, R driving at 0.8× instead | 2 | 22.4 s | 29.0 s |
 
-The offset headings are geometric aim at the raised CELL row with the existing
-turret offset. **Neither new offset shot is tuned on a robot.** The under-HIVE
-paths turn outside the narrow corridor and hold a square heading through it.
-Control points shape continuous curves; they are not extra stop positions.
+The faster scenario's third TIP settles around **26.0 s**. It is a planning
+scenario, not a measured paired result. Three TIPs needs all five four-piece
+volleys to land. The local analysis budgets the full feeding time despite short
+readiness limits, and uses the registered/measured garden time; the browser
+preview can look faster because it currently truncates those durations.
 
-### Explicit time limits and fallbacks
-
-| Gate | Success | Timeout / late arrival |
-|---|---|---|
-| L: LEFT up before 8 s | Fire LEFT preloads | Wait until 21 s, then far park |
-| R: LEFT up before 14 s | Fire LEFT, depart toward GARDEN | Near park from the LEFT offset |
-| L: TIP 2 starts before 16 s | Pick scoring FLOWER and cross | Wait until 21 s, then far park |
-| R: RIGHT up at GARDEN before 19 s | Gather and go to RIGHT offset | Near park without gathering |
-| L: RIGHT up at close spot before 21.5 s | Final volley, far park | Far park without shooting |
-| R: RIGHT up at offset before 22.5 s | Final volley, near park | Near park without shooting |
-
-Timeout rows come first, so arriving after the cutoff parks even when the CELL-up
-condition is already true. Every branch ends at that robot's assigned park. The
-21 s clearance window prevents L's fallback from crossing R's LEFT shooting space.
-It assumes R completes its scheduled departure; a mechanically stuck robot is not
-detected by this pair. Stop the test if either robot loses its path.
-
-R's LEFT volley and both final volleys have **1 s readiness timeouts**. Existing
-AutoKit behavior protects an active feed: once it begins, it finishes at four
-counted shots or the 3.5 s feed backstop. The timeout is not a one-second volley.
-This budgets about 4.5 s for readiness plus feeding; the final cutoffs reserve the
-drawn park time and a small arrival margin. A skipped or missed volley means the
-three-TIP attempt fails; neither robot improvises a recovery through the other's lane.
-
-### What the desk analysis does and does not establish
-
-With all four pieces landing per volley, current timing facts do **not** demonstrate
-three TIPs plus both parks. The planning comparison below uses the current drawing,
-16.2 in square bodies plus the drawn protrusion, and estimated path motion:
-
-| Timing scenario | Modeled TIPs | L ends | R ends |
-|---|---:|---:|---:|
-| Current timing: 4 s volleys + initial spin-up; 3.7 s flower; 5 s garden | 2 | 22.9 s | 23.1 s |
-| Optimistic: 2.5 s volleys, 0.8 s spin-up, 3 s flower, 4.21 s garden, drives 10% faster | 3 | 27.1 s | 26.1 s |
-| Both drive 20% slower than the drawing, current mechanism timing | 1 | 23.3 s | 16.7 s |
-| Optimistic mechanisms, only L drives slower (0.8×) | 2 | 27.5 s | 26.1 s |
-| Optimistic mechanisms, only R drives slower (0.8×) | 2 | 26.2 s | 27.5 s |
-
-The optimistic third TIP settles around **25.5 s**. Those favorable values are a
-scenario, not a measured paired run. Landing fewer than four per volley defeats
-the five-volley, three-TIP budget; no spill catch is assumed.
-
-The local analysis corrects two browser-preview limitations: it does not truncate
-an already-feeding LaunchAll at its readiness timeout, and it budgets the measured/
-registered GARDEN duration instead of the shorter drawn GARDEN animation. **The
-current Visualizer clock can therefore look faster than this table**, especially
-on the one-second readiness cards. Robot Java tests exercise protected feeds and
-late-arrival branching; generic physics simulations are additional evidence, not
-physical qualification.
-
-Sampled nominal, slower, mismatched-speed, missed-shot and stationary-partner
-scenarios showed no robot-to-robot overlap, including animated pickup/gather motion.
-Driven paths clear the HIVE and centre line in the 16.2 in model. The inherited
-wall-touching start poses overlap the model's wall by 0.4 in because its frame is
-larger than the drawing's 15.44 in length; use the actual start marks, not that
-simulation overlap, to reset the robot. None of these checks proves clearance under
-odometry error, a snag, arbitrary start delay, or a robot stalled in a shared area.
-
-Robot bring-up order is in [robot-todo §3](../../../doc/robot-todo.md): dry paths,
-new offset volleys, actual handoff, measured reloads, then a complete paired run.
-The critical target is **L ready to launch on RIGHT by 21.5 s**, with R ready by
-22.5 s. If these cannot be met repeatably, keep the NoCross pair for Belding rather
-than treating this draft as a qualified three-TIP Auto.
+Bring-up: verify L's first-tip wait, run each route empty, test the final RIGHT
+positions and R's turn with L stationary, qualify the new close shot and loaded
+exits, then run the full pair. Measure R ready to pick the scoring flower before
+**17 s** and ready to fire RIGHT before **22 s**; measure L ready at its offset
+before **20 s**. Promote to competition OpModes only after three TIPs, both AUTO
+parks and both LEAVEs are demonstrated. Details: [robot-todo §3](../../../doc/robot-todo.md).
 
 ## R-Solo-Nudge, for a partner with no Auto
 

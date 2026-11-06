@@ -24,6 +24,8 @@ public class InfravioletAutoTest {
     private double secondTip = 12;
     private boolean lateRightArrival;
     private boolean feeding;
+    private double firstLaunchAt = -1;
+    private double gardenAt = -1;
     private final List<String> actions = new ArrayList<>();
     private final List<String> trace = new ArrayList<>();
     private FakeDrive drive;
@@ -32,7 +34,9 @@ public class InfravioletAutoTest {
 
     private Command lasting(String name, double seconds) {
         double[] began = new double[1];
-        return new CommandBuilder().setStart(() -> { began[0] = now; actions.add(name); feeding = name.equals("LaunchAll"); })
+        return new CommandBuilder().setStart(() -> { began[0] = now; actions.add(name); feeding = name.equals("LaunchAll");
+                    if (feeding && firstLaunchAt < 0) firstLaunchAt = now;
+                    if (name.equals("GardenGather")) gardenAt = now; })
                 .setDone(() -> now - began[0] >= seconds).setEnd(end -> feeding = false);
     }
 
@@ -64,60 +68,79 @@ public class InfravioletAutoTest {
         assertTrue("parked after AUTO: " + now, now < 30);
     }
 
-    @Test public void leftWaitsForSecondTipBeforePickingThenUsesTheFarPark() {
+    @Test public void leftWaitsForFirstTipThenCollectsGardenBeforeSecondTip() {
+        secondTip = 18;
         run(LInfravioletAuto.build(kit(), false));
         assertEquals(2, launches());
-        assertTrue(actions.contains("PickFlower"));
-        assertTrue(drive.flowerAt >= secondTip);
+        assertTrue(firstLaunchAt >= firstTip);
+        assertTrue(gardenAt > firstLaunchAt && gardenAt < secondTip);
+        assertFalse(actions.contains("PickFlower"));
         parked(117.4);
     }
 
-    @Test public void missingSecondTipSkipsFlowerAndWaitsForTheClearanceWindow() {
+    @Test public void missingSecondTipSkipsTheRightVolleyAndUsesTheFarPark() {
         secondTip = Double.POSITIVE_INFINITY;
         run(LInfravioletAuto.build(kit(), false));
         assertEquals(1, launches());
-        assertFalse(actions.contains("PickFlower"));
-        assertTrue(drive.parkAt >= 21);
+        assertTrue(actions.contains("GardenGather"));
+        assertTrue(drive.parkAt >= 20);
         parked(117.4);
     }
 
-    @Test public void missingFirstTipDoesNotSendLeftAcrossToShootRight() {
+    @Test public void missingFirstTipSkipsBothVolleysAndGarden() {
         firstTip = secondTip = Double.POSITIVE_INFINITY;
         run(LInfravioletAuto.build(kit(), false));
         assertEquals(0, launches());
+        assertFalse(actions.contains("GardenGather"));
         assertEquals(2, drive.paths); // opening and its assigned park only
-        assertTrue(drive.parkAt >= 21);
+        assertTrue(drive.parkAt >= 8);
         parked(117.4);
     }
 
-    @Test public void rightCompletesItsThreeVolleysAndUsesTheNearPark() {
+    @Test public void rightCompletesThreeVolleysWithBothFlowersAndUsesTheNearPark() {
         run(RInfravioletAuto.build(kit(), false));
         assertEquals(3, launches());
-        assertTrue(actions.contains("GardenGather"));
+        assertEquals(2, actions.stream().filter("PickFlower"::equals).count());
+        assertFalse(actions.contains("GardenGather"));
         parked(95.7);
+    }
+
+    @Test public void rightSkipsScoringFlowerWhenSecondTipNeverSettles() {
+        secondTip = Double.POSITIVE_INFINITY;
+        run(RInfravioletAuto.build(kit(), false));
+        assertEquals(2, launches());
+        assertEquals(1, actions.stream().filter("PickFlower"::equals).count());
+        assertTrue(drive.parkAt >= 17);
+        parked(95.7);
+    }
+
+    @Test public void leftParksWhenFirstTipArrivesAtTheDeadline() {
+        firstTip = 8;
+        run(LInfravioletAuto.build(kit(), false));
+        assertEquals(0, launches());
+        assertFalse(actions.contains("GardenGather"));
+        parked(117.4);
     }
 
     @Test public void lateFinalArrivalParksEvenWhenRightCellIsAlreadyUp() {
         lateRightArrival = true;
         run(RInfravioletAuto.build(kit(), false));
         assertEquals(2, launches());
-        assertTrue(actions.contains("GardenGather"));
-        assertTrue(trace.stream().anyMatch(s -> s.contains("22.5") && s.contains("after")));
+        assertTrue(trace.stream().anyMatch(s -> s.contains("22") && s.contains("after")));
         parked(95.7);
     }
 
     private final class FakeDrive implements AutoDrive {
         Pose pose = RInfravioletAuto.startPose(false);
         double doneAt;
-        double flowerAt = -1;
+
         double parkAt = -1;
         int paths;
         @Override public void follow(Path path) {
             paths++;
             pose = path.endPose();
-            if (Math.abs(pose.x() - 47.2) < .01 && Math.abs(pose.y() - 119.3) < .01) flowerAt = now;
             if (Math.abs(pose.x() - 14.5) < .01) parkAt = now;
-            if (lateRightArrival && Math.abs(pose.x() - 32) < .01 && Math.abs(pose.y() - 20) < .01) now = 23;
+            if (lateRightArrival && Math.abs(pose.x() - 60.5) < .01 && Math.abs(pose.y() - 31) < .01) now = 23;
             doneAt = now + 0.5;
         }
         @Override public boolean pathDone() { return now >= doneAt; }
