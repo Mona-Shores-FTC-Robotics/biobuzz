@@ -477,6 +477,16 @@ was cosmetic. These files keep the two equal so the file cannot be misread.
 
 ### The turret: a servo on a servo port, an encoder on a motor's encoder socket
 
+**Experimental branch `spike/19429-turret-burst` (6 Nov):** Utility **Bench: Turret Burst**
+restores the October encoder pulse controller for 19429's SWYFT in continuous mode. It is a
+standalone test, not a change to match aiming. The existing `<Servo>` mapping is deliberately
+kept: this utility sends speed as `0.5 + power/2` with a 500–2500 us PWM range (1500 us neutral).
+Both XML files and the position subsystem remain unchanged. Never run the ordinary turret bench,
+Basic Drive or Auto on 19429 while its servo is flashed continuous. Reflash position mode before
+returning to those OpModes. Test controls, starting values and checks are in `doc/robot-todo.md`.
+The default 12% cap and +/-30 degree window are experiment limits, not measured robot travel.
+
+
 The turret has no motor port: all eight are taken. It turns on a goBILDA servo
 in standard (position) mode, a `<Servo>` element and a `Servo` in code (until
 6 Nov 2026 it was in continuous-rotation mode, a `CRServo`). The SDK builds a
