@@ -34,11 +34,11 @@ public class TurretRehomeTest {
         t.settleAt(sent);
         for (int i = 0; i < loops; i++) {
             double before = t.angleDeg;
-            sent = r.step(HOME, 0.0, t.angleDeg, 0.0, DPU, lo, hi, 5.0, 250.0, 1.5, i * 20 * MS);
+            sent = r.step(HOME, 0.0, t.angleDeg, 0.0, DPU, lo, hi, 5.0, 250.0, 1.5, 80.0, i * 20 * MS);
             t.settleAt(sent);
             if (t.angleDeg != before) {
                 // It moved: one loop of motion, so the still clock restarts.
-                r.step(HOME, 0.0, t.angleDeg, 100.0, DPU, lo, hi, 5.0, 250.0, 1.5, i * 20 * MS + 1);
+                r.step(HOME, 0.0, t.angleDeg, 100.0, DPU, lo, hi, 5.0, 250.0, 1.5, 80.0, i * 20 * MS + 1);
             }
         }
         return sent;
@@ -57,19 +57,19 @@ public class TurretRehomeTest {
     @Test
     public void nothingChangesUntilTheTurretHasBeenStill() {
         TurretRehome r = new TurretRehome();
-        double sent = r.step(HOME, 0.0, 30.0, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 0);
+        double sent = r.step(HOME, 0.0, 30.0, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 80.0, 0);
         assertEquals(HOME, sent, EPS);
-        sent = r.step(HOME, 0.0, 30.0, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 100 * MS);
+        sent = r.step(HOME, 0.0, 30.0, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 80.0, 100 * MS);
         assertEquals("still only 100 ms", HOME, sent, EPS);
-        sent = r.step(HOME, 0.0, 30.0, 50.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 300 * MS);
+        sent = r.step(HOME, 0.0, 30.0, 50.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 80.0, 300 * MS);
         assertEquals("moving: no correction", HOME, sent, EPS);
     }
 
     @Test
     public void aSmallErrorIsLeftAlone() {
         TurretRehome r = new TurretRehome();
-        r.step(HOME, 0.0, 1.0, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 0);
-        double sent = r.step(HOME, 0.0, 1.0, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 300 * MS);
+        r.step(HOME, 0.0, 1.0, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 80.0, 0);
+        double sent = r.step(HOME, 0.0, 1.0, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 80.0, 300 * MS);
         assertEquals(HOME, sent, EPS);
         assertEquals(0, r.corrections());
     }
@@ -86,9 +86,9 @@ public class TurretRehomeTest {
     @Test
     public void noScaleOrNoAngleMeansNoCorrection() {
         TurretRehome r = new TurretRehome();
-        r.step(HOME, 0.0, 30.0, 0.0, Double.NaN, 0.0, 1.0, 5.0, 250.0, 1.5, 0);
-        assertEquals(HOME, r.step(HOME, 0.0, 30.0, 0.0, Double.NaN, 0.0, 1.0, 5.0, 250.0, 1.5, 300 * MS), EPS);
-        assertEquals(HOME, r.step(HOME, 0.0, Double.NaN, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 600 * MS), EPS);
+        r.step(HOME, 0.0, 30.0, 0.0, Double.NaN, 0.0, 1.0, 5.0, 250.0, 1.5, 80.0, 0);
+        assertEquals(HOME, r.step(HOME, 0.0, 30.0, 0.0, Double.NaN, 0.0, 1.0, 5.0, 250.0, 1.5, 80.0, 300 * MS), EPS);
+        assertEquals(HOME, r.step(HOME, 0.0, Double.NaN, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 80.0, 600 * MS), EPS);
         assertEquals(0, r.corrections());
     }
 
@@ -100,5 +100,16 @@ public class TurretRehomeTest {
         assertTrue(r.offset() != 0.0);
         r.reset();
         assertEquals(0.0, r.offset(), EPS);
+    }
+
+    @Test
+    public void anImpossibleErrorIsNotBelieved() {
+        TurretRehome r = new TurretRehome();
+        // The Expansion Hub reset: the count went to 0 and the zero now reads -2000°.
+        r.step(HOME, 0.0, -2000.0, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 80.0, 0);
+        double sent = r.step(HOME, 0.0, -2000.0, 0.0, DPU, 0.0, 1.0, 5.0, 250.0, 1.5, 80.0, 300 * MS);
+        assertEquals(HOME, sent, EPS);
+        assertTrue(r.disbelieved());
+        assertEquals(0, r.corrections());
     }
 }
