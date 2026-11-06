@@ -32,12 +32,13 @@ public final class Robot19429 {
     private Robot19429() {}
 
     /**
-     * <b>Copied from Robot20245.java on 5 Nov 2026, not measured on 19429.</b> 19429 is built as a
-     * replica of 20245, so its values stand in until 19429's own tuners run. Replace each block
-     * with that tuner's output on 19429 (Mecanum, Pinpoint, Measure: Pod Offsets, Foresight); a
-     * block still marked "copied" has not been measured on this robot.
+     * <b>Mecanum Tuner, measured on 19429, 6 Nov 2026.</b> The same directions as 20245.
      */
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
+        c.frontLeftName.set("frontLeft");
+        c.frontRightName.set("frontRight");
+        c.backLeftName.set("backLeft");
+        c.backRightName.set("backRight");
         c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
         c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
         c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
@@ -45,14 +46,19 @@ public final class Robot19429 {
     });
 
     /**
-     * <b>Copied from Robot20245.java on 5 Nov 2026</b> (its pods: Pinpoint Tuner 17 Oct, offsets by
-     * Measure: Pod Offsets 1 Nov). Valid only while 19429's pods sit where 20245's do; re-run
-     * Measure: Pod Offsets on 19429 and replace the two offsets.
+     * Pod type and directions from the Pinpoint Tuner on 19429, 6 Nov 2026: the same as 20245's.
+     * The offsets are Measure: Pod Offsets on 19429, 6 Nov 2026, after the back-left wheel's
+     * over-tight pulley was fixed: six legs gave x -5.79, -6.23, -6.14, -6.31, -6.25, -6.34 and
+     * y 2.28, 2.07, 2.00, 2.14, 2.04, ~2.13. The first leg is the outlier; legs 2-6 spread 0.20 in
+     * (x) and 0.14 in (y), and these are their mean. Earlier runs, before the pulley fix, split by
+     * turn direction (spread up to 2.5 in) and were discarded, as was the Pinpoint Tuner's
+     * hand-turn x -7.00, y 2.97.
      */
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
+        c.name.set("pinpoint");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        c.xPodOffset.set(-6.51);
-        c.yPodOffset.set(1.63);
+        c.xPodOffset.set(-6.25);
+        c.yPodOffset.set(2.08);
         c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
@@ -60,33 +66,34 @@ public final class Robot19429 {
     });
 
     /**
-     * <b>Copied from Robot20245.java on 5 Nov 2026</b> (20245's Foresight Tuner run of 1 Nov), so
-     * path Autos and Square's drive to a launch spot run on 19429 before it is tuned. Run the
-     * Foresight Tuner on 19429 and paste its block over this one.
+     * <b>Foresight Tuner, measured on 19429, 6 Nov 2026</b> (third run), after the back-left
+     * pulley fix and with the pod offsets above. Two earlier runs were discarded: one ended
+     * against a wall, the other ran with the dragging wheel and the copied offsets. Max forward
+     * velocity matches 20245's (71.1 in/s); max strafe is 49.5 against 20245's 53.3.
      */
     public static ForesightConfig foresightConfig = new ForesightConfig(
             c -> {
-                Controller primaryTranslationalForward = Controller.proportional(0.3711725482151876);
-                Controller secondaryTranslationalForward = Controller.proportional(0.1371383386523627);
-                Controller primaryTranslationalLateral = Controller.proportional(0.8797062454962113);
-                Controller secondaryTranslationalLateral = Controller.proportional(0.32502795152705083);
+                Controller primaryTranslationalForward = Controller.proportional(0.43801082130747016);
+                Controller secondaryTranslationalForward = Controller.proportional(0.16183329460841173);
+                Controller primaryTranslationalLateral = Controller.proportional(1.4568068940618666);
+                Controller secondaryTranslationalLateral = Controller.proportional(0.5382512207587289);
 
                 c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));
                 c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));
 
-                c.coast.set(Controller.proportionalFeedforward(0.01436619092980278));
-                c.brake.set(Controller.proportionalFeedforward(0.012211262290332363));
+                c.coast.set(Controller.proportionalFeedforward(0.014656686746784718));
+                c.brake.set(Controller.proportionalFeedforward(0.01245818373476701));
 
-                c.headingFeedback.set(Controller.proportional(6.81102561066061));
-                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.0486307653912525, 0.006041486212840524));
+                c.headingFeedback.set(Controller.proportional(8.046359308188213));
+                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.04290165098770302, 0.006970842062149467));
 
-                c.linearBrakeCoefficients.set(Matrix.diag(0.09314850563668818, 0.044191651326303094));
-                c.quadraticBrakeCoefficients.set(Matrix.diag(0.0014603186766220487, 0.002220542921721947));
+                c.linearBrakeCoefficients.set(Matrix.diag(0.08751562199330376, 0.06272467615167647));
+                c.quadraticBrakeCoefficients.set(Matrix.diag(0.001752111892720612, 0.0016719201811506651));
 
-                c.maxAchievableForwardVelocity.set(71.12855272032681);
-                c.maxAchievableStrafeVelocity.set(53.31840381477558);
-                c.naturalForwardDeceleration.set(32.234283803366466);
-                c.naturalStrafeDeceleration.set(82.41560270612311);
+                c.maxAchievableForwardVelocity.set(71.09793656842199);
+                c.maxAchievableStrafeVelocity.set(49.49832181942973);
+                c.naturalForwardDeceleration.set(43.05600365664891);
+                c.naturalStrafeDeceleration.set(82.82052826426091);
             }
     );
 

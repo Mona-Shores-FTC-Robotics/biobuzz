@@ -108,10 +108,10 @@ public final class DeviceNames {
     public static final String INDICATOR = "indicator";
 
     /**
-     * The turret's drive: a goBILDA servo in continuous-rotation mode, so it occupies a servo port
-     * and a {@code <ContinuousRotationServo>} element, not a motor port (all eight are taken).
-     * A Control Hub servo port; which one is in each robot's XML (the two robots differ). Its angle comes from
-     * {@link #TURRET_ENCODER_HOST}.
+     * The turret's drive: a goBILDA servo in standard (position) mode since 6 Nov 2026, so a
+     * {@code <Servo>} element on a servo port, not a motor port (all eight are taken). It holds
+     * the position it is sent. A Control Hub servo port; which one is in each robot's XML. Its
+     * angle comes from {@link #TURRET_ENCODER_HOST}, once the turret's encoder is plugged into it.
      */
     public static final String TURRET = "turret";
 
@@ -204,7 +204,7 @@ public final class DeviceNames {
             new Device(PREFEED, Kind.CR_SERVO),
             new Device(FEED_GATE, Kind.SERVO),
             new Device(INDICATOR, Kind.SERVO),
-            new Device(TURRET, Kind.CR_SERVO),
+            new Device(TURRET, Kind.SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(COLOR_SENSOR, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));

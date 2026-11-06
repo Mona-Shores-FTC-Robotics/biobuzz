@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,11 +55,20 @@ public final class RobotDifferences {
 
     static {
         // ---------------------------------------------------------------- 19429 (Infrared)
-        // Nothing yet: 19429 runs the shared values. One line per difference, with what was seen
-        // and the date, and the subsystem's import at the top of this file. For example:
-        //
-        // differs(RobotIdentity.TEAM_19429, "Intake motor swapped, turns the other way (5 Nov 2026)",
-        //         () -> IntakeSubsystem.reversed = false);
+        // One line per difference, with what was seen and the date, and the subsystem's import at
+        // the top of this file.
+        differs(RobotIdentity.TEAM_19429,
+                "Turret servo (SWYFT, position mode, 320° range) points straight ahead at 0.514, on Bench:"
+                        + " Turret (6 Nov 2026, checked again after flashing it out of SWYFT's continuous mode)",
+                () -> TurretSubsystem.homePosition = 0.514);
+        differs(RobotIdentity.TEAM_19429,
+                "Cypher Max rides the goBILDA turret's 64T drive gear, 2.75 turns per turret turn"
+                        + " (6 Nov 2026, from the build team; check one turret turn on Bench: Turret)",
+                () -> TurretSubsystem.turnsPerTurretTurn = 2.75);
+        differs(RobotIdentity.TEAM_19429,
+                "Turret encoder trusted (Cypher Max in its socket, counting, 6 Nov 2026): the servo is"
+                        + " re-homed from it, so a turret twirled in INIT comes back to its mark at PLAY",
+                () -> TurretSubsystem.rehomeFromEncoder = true);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // Nothing yet: the shared values were mostly measured on 20245.

@@ -173,11 +173,25 @@ Result, with the gap on each own-start run, → [PR #372].
 - [ ] **Light looks:** Basic Drive INIT steady red, X → steady blue; off after PLAY; intake until a
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
-- [ ] **20245, after the 6 Nov rewire: the turret sits still.** Turret still locked
-      (`lockedForward`), servo now plugged in on Control Hub port 4. Lift the turret's cables clear,
-      press PLAY, watch 30 s with a mark on the turret. **Good:** no movement. **Stop:** it creeps →
-      unplug the servo, then trim `TurretSubsystem.servoStopPower` in Panels until it holds still
-      and note the value. Also confirm the light looks above still work from the Expansion Hub.
+- [ ] **19429: the turret re-homes from its encoder** (`TurretSubsystem.rehomeFromEncoder`, on for
+      19429). Needs `degreesPerUnit` first (below). Basic Drive: in INIT twirl the turret three
+      turns, put it on its mark, PLAY. **Good:** it swings off, then within about a second comes
+      back to the mark; the Robot page's "Turret re-home" line shows the corrections. **Stop:** it
+      swings further off → `degreesPerUnit`'s sign is wrong. "out of reach" → one more full turn
+      by hand, on the mark, run again.
+- [ ] **19429: before the turret is unlocked** (`lockedForward` false, the mentor's call). On
+      **Bench: Turret** after PLAY: Square at home, step at least 0.1 away: the bench shows
+      `degreesPerUnit` from the encoder (19429's 2.75 encoder ratio is applied); step both ways.
+      First the ratio: Circle (limp), Cross at the home mark, turn the turret by hand to a 45° mark
+      (no further: winding a position servo past its range is what moves home): `angle` ≈ 45°,
+      else 19429's `turnsPerTurretTurn` (2.75) is wrong. Then set `degreesPerUnit`, the real
+      limits (where the turret stops turning, less a margin) and unlock.
+- [ ] **20245: the turret servo's mode and its encoder socket.** On the 24 Oct bench its servo was
+      in continuous mode; the code now sends a position, and keeps it at 0.5 (stop, or centre) until
+      this is known. **Bench: Turret**, PLAY, one D-pad press: the turret steps and stops → position
+      mode, find its straight-ahead position like 19429's; it keeps turning → continuous mode:
+      **stop the OpMode**, and either reprogram it to position mode or tell a mentor. Also: which
+      cable is in the motor port 3 encoder socket (the feeder's, or the Cypher Max's).
 
 ## 3. The selected Autos, on the field (HIVE upright, preloads in, Panels open)
 
@@ -381,7 +395,8 @@ measurement is [#255].
 
 ## 6. Tape measure and level (camera geometry)
 
-- [ ] **Tag size.** Pipeline 82.55 mm (*likely done: read on 31 Oct, per the handoff*); measure a
+- [ ] **Tag size.** Pipeline 82.55 mm (*19429: was 165.1, the DECODE size, set to 82.55 on 6 Nov;
+      20245: read 82.55 on 31 Oct, check it again*); measure a
       printed tag's black square: 3.25 in. [S4 §1]
 - [ ] **Lens to tag 35 from the Red audience start.** **Good:** tape and camera within 1 in (CAD
       ~57.5 in). [S4 §2]
@@ -394,22 +409,30 @@ measurement is [#255].
 
 ## 7. 19429, if it is at the lab
 
-- [ ] **Bring-up, in #175's order:** Check: Hardware, Drive Motor Check (lifted), Tests procedure,
-      Loop Time Baseline. `Robot19429.java` holds **20245's Pedro values, copied 5 Nov** (motor
-      directions, pod offsets, Foresight), so 19429 runs the Autos and Square from the first load.
-      **Good:** Basic Drive goes where the stick says (a wrong motor direction is the first thing a
-      copy gets wrong: run the Mecanum tuner and paste it), and R-Solo follows its first path.
-      [#175], [S2 §8]
-- [ ] **Then tune 19429 for real, as soon as there is time:** Pinpoint tuner and Measure: Pod
-      Offsets, then the Foresight Tuner, each pasted over its "copied from 20245" block in
-      `Robot19429.java`. **Good:** each block's comment says it was measured on 19429. Until then,
-      a path that drifts or overshoots on 19429 but not on 20245 is this, not the Auto.
+- [ ] **R-Solo on 19429:** its first path from the Red audience marks. 19429's drivetrain is tuned
+      on its own values (6 Nov, PR #480: Check: Drive Motors, Pod Offsets, Foresight, Tests all
+      passed), so a path that drifts on 19429 but not on 20245 is now worth reporting. [#175]
 - [ ] **Anything 19429 does differently** from 20245 (a motor turning the other way, a servo
       position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
       was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.
-- [ ] **Its log lands in its own folder** after a pull (`biobuzz-logs\<19429's network>`). [S2 §8]
-- [ ] **Copy 20245's Limelight pipeline** and run the 5-minute start check. [handoff] step 6
+- [ ] **19429's Limelight pipeline:** Marker Size set to 82.55 mm on 6 Nov (it was 165.1, the
+      DECODE size; Full 3D Targeting Yes). Later that night 20245's pipeline file was uploaded to
+      19429's slot 0: identical but for its name. Power-cycle and check it held, then run the 5-minute start check and Vision: HIVE & Pose. [handoff] step 6
+      First reading after the fix (6 Nov, red audience start, placement not confirmed): camera
+      (54.3, 6.1) vs start (55.6, 7.7). y 1.6 in short means ranges ~3 % long, like 20245's; x 54.3 is
+      the old wheels-on-seam placement. Tape lens to tag 35, measure a printed tag, level the camera.
 - [ ] **Drive check table** (10 steps), on both robots. [#62]
+- [ ] **19429's prefeed does not respond** (6 Nov, late; left for 7 Nov). It is a goBILDA Torque
+      servo in continuous mode on **Control Hub servo port 2** (`robot_19429.xml`). Check in order:
+      the cable is in port 2 the right way round (black/brown to the hub's "-" side); the servo
+      runs on a servo tester or another port; it is still in **continuous** mode (the servo
+      programmer was in use for the turret that night); Check: Hardware lists `prefeed`.
+      **Good:** it spins inward in Basic Drive's intake. Without it, pieces do not reach the feeder.
+- [ ] **19429's intake encoder cable is not installed** (seen 6 Nov; note left for the builders).
+      Every Basic Drive log says "intake: encoder never moved"; the roller runs, but nothing can
+      see a jam. Plug it into the Expansion Hub's encoder socket 0, beside the intake's power port
+      0, then run the intake in Basic Drive. **Good:** that line is gone from the next log. Check
+      20245's too: its picks logged the same line.
 
 ## 7b. Bench: Wall Eject (any field wall, 4 POLLEN, phone filming from above)
 
