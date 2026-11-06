@@ -6,6 +6,24 @@ has its `.pp` file committed here, in the same PR as the Java generated from it.
 
 **New to the Visualizer?** Start with [How to plan an Auto](how-to-plan-an-auto.md).
 
+## Local event work (Belding)
+
+Keep this checkout on the event branch in Android Studio, then connect that same folder using
+Visualizer's **Workspace** button. Open the auto and a partner there; **Save** or Ctrl+S writes
+the source and generated Java into this checkout, including affected autos when team spots move.
+No push, PR, CI run, or merge is needed for each local edit. You run Sloth Load yourself.
+
+After testing a saved candidate, use Workspace's **Mark saved auto tested**. Its checkpoint
+keeps the auto workspace together, including the other autos that share spots; Restore first
+backs up the experiment, then restores those related files. These laptop checkpoints live under
+`TeamCode/.auto-workspace/` and are ignored by Git. Commit/push successful working sources on
+the event branch for a shared backup, then bring the successful changes into master through a PR.
+
+For detailed local simulations and AdvantageScope logs, see
+[`tools/simulate-auto`](../../tools/simulate-auto/README.md). Drafts need their `BuiltAuto` OpMode
+prepared before selection on the Driver Station. The full Visualizer workflow is documented in
+[local-workspace.md](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/blob/main/docs/local-workspace.md).
+
 ## Open the Autos on master
 
 One link each, always the latest on `master` (the Visualizer reads the file from GitHub):
@@ -97,6 +115,7 @@ accepts a `SOURCE` here as it does in the folder itself.
 | `partner-r-broken-down`, `partner-l-broken-down` | A partner that meant to run an Auto and broke down: sits on the right or left start for the whole of AUTO. The "dead" runs use it. |
 | `partner-park-1`, `partner-park-2` | Sits on the left start until 15 s, then parks (two different starts and park spots). |
 | `partner-r-launch-park`, `partner-l-launch-park` | Spins up, waits for its own CELL to be up (at most 12 s), fires all four preloads at it, parks. The right CELL is up at the start, so the right one fires at once; the left one fires once our first TIP raises the left CELL. |
+| `partner-r-launch-stay` | The right launch-park stand-in's spin-up, CELL wait, and preload volley, then stays at its start instead of driving to park. Select it locally to compare shoot-and-stay behavior. |
 | `partner-l-tip-park` | The left launch-park, then the scoring FLOWER, four more at the left CELL (eight pieces: a TIP), then parks. |
 | `partner-push-start` | A motionless 16 x 16 in partner at (10.254, 82), heading 70°, one corner on the wall. Matches the angled `drafts/r-solo-nudge` and the isolated `drafts/partner-nudge-test`. The Utility applies real speed limits; the full draft's push simulation is still a placeholder. |
 | `partner-l-stage-park` | Starts against the wall facing the HIVE with its four POLLEN on the tiles along its left side (the simulator places them, `AutoStudyTest.alongLeftSide`, touching the frame as G304 asks), waits 2 s, drives off along the wall and parks, leaving them. |
