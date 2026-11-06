@@ -92,14 +92,14 @@ pickup or stalled drive can still consume the park margin. Keep the 30 s trial s
 
 ### Full simulator result
 
-At code commit `469d4698`, the L-first paired request runs both generated Autos,
+At code commit `63cdc72b`, the L-first paired request runs both generated Autos,
 Pedro paths and AutoKit against the turret-locked robot physics model:
 
 | Seed | AUTO TIPs | L parked | R parked | Both LEAVE |
 |---|---:|---:|---:|---|
-| 1 | 3 (third at 25.52 s) | 23.16 s | 26.80 s | Yes |
-| 2 | 2 | 23.38 s | 26.80 s | Yes |
-| 3 | 2 | 23.44 s | 26.80 s | Yes |
+| 1 | 3 (third at 25.52 s) | 23.20 s | 26.80 s | Yes |
+| 2 | 2 | 23.42 s | 26.80 s | Yes |
+| 3 | 2 | 23.48 s | 26.80 s | Yes |
 
 All three execute all five volleys: L launches 8 pieces and R launches 12.
 R reaches its final gate at 21.28 s and begins firing at 21.30 s, before the
@@ -115,7 +115,13 @@ measured success rate or proof of the new shot on hardware. In particular the
 simulator's intake can collect loose pieces whenever it has room; it does not
 prove fourth-piece retention on the real robot.
 
-[Full simulator run](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/42264531725).
+The R-first request also gets three/two/two tips in nominal seeds 1–3. With L
+driving 20% slower it retains those tip counts, both parks and both LEAVEs,
+without robot overlap, centre-line crossing or HIVE-frame contact. L departs
+toward the wall first (park controls 25,20 and 35,95), then north past the near
+parked robot, clearing R's final aiming turn even in that slower-L case.
+
+[Final full simulator run](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/42265501484).
 
 ### Desk checks and the next robot test
 
@@ -140,8 +146,7 @@ robot fails or loses its route. No clock or CELL-up event proves a shared area c
 The faster scenario's third TIP settles around **24.6 s**. It is a planning
 scenario, not a measured paired result. The slower existing-facts case overruns
 R's park by 0.2 s in this planning model, which does not execute AutoKit's runtime
-endgame guard; it is not a guaranteed two-park result. Three TIPs needs all five four-piece
-volleys to land. The local analysis budgets the full feeding time despite short
+endgame guard; it is not a guaranteed two-park result. The three-TIP plan needs the planned five volleys, with little margin for missed pieces. The local analysis budgets the full feeding time despite short
 readiness limits, and uses the registered/measured garden time; the browser
 preview can look faster because it currently truncates those durations.
 
