@@ -174,8 +174,7 @@ Result, with the gap on each own-start run, → [PR #372].
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
 - [ ] **19429 SWYFT continuous-mode burst experiment** ([test PR #487](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/487)).
-      **Load the corrected version:** telemetry must say `SWYFT v2: full-speed bursts / PWM OFF,
-      NO NEUTRAL`. The original version wrongly treated 1500 us as stop and drove home on release.
+      **Load the corrected version:** telemetry must say `SWYFT v3: single-burst diagnostic / PWM OFF`. The original version wrongly treated 1500 us as stop and drove home on release.
       SWYFT's [own guide](https://github.com/SWYFT-Robotics/swyft-servo-programmer-v2/blob/main/src/GuideWindow.xaml)
       says 1500 us homes even in continuous mode; stop requires PWM disable, and partial-speed
       control is unavailable. Only **Bench: Turret Burst**, not Basic Drive, Auto or ordinary
@@ -186,7 +185,14 @@ Result, with the gap on each own-start run, → [PR #372].
       clearance within +/-30 degrees or reduce TurretBurstBench.travelEachWayDeg before PLAY.
       INIT: align forward, Cross/A with R2 released; hand-turn a measured small arc to check 2.75
       ratio and CCW-positive angle, then return home and zero again. PLAY leaves PWM disabled.
-      Hold R2 and briefly L1/R1: expect short FULL-SPEED bursts, not a slow continuous nudge.
+      Manual now defaults to ONE 250 ms full-speed burst per press, capped at 500 ms: the 100 ms
+      repeating test gave no visible motion (mentor; encoder rate briefly -1.2 then zero).
+      Hold R2 + L1/R1, release to rearm. Watch Inputs R2/L1/R1, PWM enabled (SDK), and the latched
+      burst count/last signal/last ON time. SDK enabled state confirms the API state, not a measured
+      waveform. A short burst may not overcome startup/ramp behavior; that is unconfirmed.
+      Compare one burst with manualBurstMs 250 then 500 only if clearance permits. Report whether
+      the burst count rises, last signal is 500/2500 us, last ON time matches, and angle changes.
+      Set manualSingleBurst false in Panels to return to repeating manual bursts.
       Verify CCW/CW (else flip servoDirection); release R2 must leave it where it is, not drive home.
       Triangle/Y selects hold at +5 degrees; hold R2 to try it, D-pad up/down changes by 5.
       Compare repeated +5/-5 approaches, error, overshoot and drift in Panels' turret_burst_* graphs.

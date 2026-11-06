@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.firstinspires.ftc.teamcode.subsystems.TurretEncoder;
 import org.firstinspires.ftc.teamcode.subsystems.SwyftBurstControl;
+import org.firstinspires.ftc.teamcode.subsystems.SwyftSingleBurst;
 
 import java.util.Locale;
 
@@ -41,6 +42,10 @@ public class TurretBurstBench extends OpMode {
     public static int servoDirection = -1;
     /** Full-speed ON time, clamped by SwyftBurstControl to at most 100 ms. */
     public static double burstOnMs = 25.0;
+    /** Manual diagnostic: one longer burst per press; release R2/bumpers to rearm. */
+    public static boolean manualSingleBurst = true;
+    /** Diagnostic ON time, capped at 500 ms; hold bursts retain their separate 100 ms cap. */
+    public static double manualBurstMs = 250.0;
     /** PWM-disabled pause, at least 100 ms. Start with a slow repetition rate. */
     public static double burstOffMs = 250.0;
     public static double holdToleranceDeg = 1.0;
@@ -65,8 +70,15 @@ public class TurretBurstBench extends OpMode {
     private double rateDps;
     private double powerSent;
     private String fault;
+    private boolean pwmReportedEnabled;
+    private boolean wasDriving;
+    private long driveStartedNs;
+    private long burstsSent;
+    private double lastBurstMs;
+    private double lastPulseUs;
     private TelemetryManager panels;
     private final SwyftBurstControl control = new SwyftBurstControl();
+    private final SwyftSingleBurst singleBurst = new SwyftSingleBurst();
 
     @Override
     public void init() {
@@ -152,10 +164,15 @@ public class TurretBurstBench extends OpMode {
         downWasDown = gamepad1.dpad_down;
         double limit = finite(travelEachWayDeg);
         if (limit > 0 && limit <= 180) targetDeg = Math.max(-limit, Math.min(limit, finite(targetDeg)));
+        long nowNs = System.nanoTime();
+        boolean manual = gamepad1.left_bumper || gamepad1.right_bumper;
+        double manualRequest = (gamepad1.left_bumper ? 1 : 0) - (gamepad1.right_bumper ? 1 : 0);
+        double diagnostic = singleBurst.power(started && deadman && !gamepad1.b && zeroed
+                && fault == null && manualSingleBurst ? manualRequest : 0, manualBurstMs, nowNs);
         double requested = 0.0;
-        if (gamepad1.left_bumper || gamepad1.right_bumper) {
+        if (manual) {
             holding = false;
-            requested = (gamepad1.left_bumper ? 1 : 0) - (gamepad1.right_bumper ? 1 : 0);
+            requested = manualSingleBurst ? diagnostic : manualRequest;
         } else if (holding) {
             double tolerance = finite(holdToleranceDeg);
             double error = targetDeg - angleDeg;
@@ -163,9 +180,27 @@ public class TurretBurstBench extends OpMode {
         }
         requested = allowedPower(requested, angleDeg, zeroed, started && deadman,
                 gamepad1.b || fault != null, limit);
-        double burst = control.power(requested, burstOnMs, burstOffMs, System.nanoTime());
+        double burst;
+        if (manual && manualSingleBurst) {
+            control.reset();
+            burst = requested;
+        } else {
+            burst = control.power(requested, burstOnMs, burstOffMs, nowNs);
+        }
         powerSent = burst * (servoDirection == -1 ? -1 : 1);
-        if (started) writeBurst(servo, pwm, powerSent);
+        if (started) {
+            writeBurst(servo, pwm, powerSent);
+            pwmReportedEnabled = pwm.isPwmEnabled();
+            long writtenNs = System.nanoTime();
+            boolean driving = powerSent != 0;
+            if (driving && !wasDriving) {
+                driveStartedNs = writtenNs;
+                burstsSent++;
+            }
+            if (driving) lastPulseUs = powerSent > 0 ? 2500 : 500;
+            if (!driving && wasDriving) lastBurstMs = (writtenNs - driveStartedNs) / 1_000_000.0;
+            wasDriving = driving;
+        }
         report();
     }
 
@@ -191,10 +226,16 @@ public class TurretBurstBench extends OpMode {
     private void report() {
         telemetry.addLine("19429 SWYFT CONTINUOUS ONLY. Do not run Basic Drive / ordinary Turret bench.");
         telemetry.addLine("Cross/A: zero at forward with R2 released. R2 held: enable FULL-SPEED bursts.");
-        telemetry.addLine("L1/R1: CCW/CW nudge. Triangle/Y: toggle hold. D-pad up/down: target +/- step.");
+        telemetry.addLine("L1/R1: one CCW/CW diagnostic burst; release to rearm. Triangle/Y: hold. D-pad: target.");
         telemetry.addLine("Circle/B, R2 released, and pauses: PWM OFF. STOP: PWM OFF.");
-        telemetry.addData("Build", "SWYFT v2: full-speed bursts / PWM OFF, NO NEUTRAL");
+        telemetry.addData("Build", "SWYFT v3: single-burst diagnostic / PWM OFF");
         telemetry.addData("Burst on/off ms", burstOnMs + " / " + burstOffMs);
+        telemetry.addData("Manual test", manualSingleBurst ? "ONE burst, " + manualBurstMs + " ms (max 500)" : "repeating bursts");
+        telemetry.addData("Inputs R2 / L1 / R1", String.format(Locale.US, "%.2f / %s / %s",
+                gamepad1.right_trigger, gamepad1.left_bumper, gamepad1.right_bumper));
+        telemetry.addData("PWM enabled (SDK)", pwmReportedEnabled);
+        telemetry.addData("Bursts / last signal / last on time", String.format(Locale.US,
+                "%d / %.0f us / %.1f ms", burstsSent, lastPulseUs, lastBurstMs));
         telemetry.addData("Zeroed", zeroed);
         telemetry.addData("Counts", counts);
         telemetry.addData("Angle / rate", String.format(Locale.US, "%.2f deg / %.2f deg/s", angleDeg, rateDps));

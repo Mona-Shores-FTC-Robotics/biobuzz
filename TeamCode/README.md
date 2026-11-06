@@ -486,7 +486,11 @@ behavior; the robot returned to home when R2 was released. That version is super
 
 The corrected utility sends only 500/2500 us direction endpoints during a burst and disables PWM
 on this port for every pause, R2 release, Circle/B, and STOP. It never sends 1500 us, including at
-PLAY. Default bursts are 25 ms on / 250 ms off at full speed; there is no 12% speed setting.
+PLAY. Hold bursts default to 25 ms on / 250 ms off at full speed; there is no 12% speed setting.
+Manual testing now defaults to one 250 ms burst per R2+bumper press (500 ms maximum), with release
+required to rearm, to distinguish a drive-command problem from short-burst startup behavior.
+Telemetry shows inputs, SDK PWM enable state, and latched burst count/signal/duration; this is
+software readback, not a measured waveform. `manualSingleBurst=false` restores repeated manual bursts.
 The existing `<Servo>` mapping is just the pulse transport here, not position targeting.
 Both XML files and the position subsystem remain unchanged. Never run the ordinary turret bench,
 Basic Drive or Auto on 19429 while its servo is flashed continuous. Reflash position mode before
