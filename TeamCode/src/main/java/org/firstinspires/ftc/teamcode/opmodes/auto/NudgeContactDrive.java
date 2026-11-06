@@ -28,8 +28,8 @@ public final class NudgeContactDrive implements AutoDrive {
         target = path.endPose();
         limited = near(target, contact) || near(target, pushed);
         began = clock.getAsDouble();
-        drive.follow(limited ? path.with(config.maxVelocityConstraint.at(4),
-                config.maxAccelerationConstraint.at(8)) : path);
+        drive.follow(limited ? path.with(config.maxVelocityConstraint.at(4.0),
+                config.maxAccelerationConstraint.at(8.0)) : path);
     }
     @Override public boolean pathDone() {
         if (!drive.pathDone()) return false;
