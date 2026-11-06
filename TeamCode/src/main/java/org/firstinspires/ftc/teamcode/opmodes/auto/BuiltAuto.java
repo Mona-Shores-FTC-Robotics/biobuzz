@@ -7,6 +7,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
+import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
 import org.firstinspires.ftc.teamcode.autokit.AutoOption;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.Display;
@@ -287,7 +288,7 @@ public abstract class BuiltAuto extends RobotOpMode {
         startNs = System.nanoTime();
         // Every line to the match log, the last few to the Match page.
         trace = new AutoTrace(TRACE_LINES, line -> log.event(line));
-        AutoKit kit = new AutoKit(robot.drive, registry, () -> (System.nanoTime() - startNs) / 1e9)
+        AutoKit kit = new AutoKit(autoDrive(rotated), registry, () -> (System.nanoTime() - startNs) / 1e9)
                 .trace(trace)
                 .watchPaths(both(pathLog, settle))
                 .picks(options)
@@ -299,6 +300,9 @@ public abstract class BuiltAuto extends RobotOpMode {
         // Asked for the whole Auto: the intake stops its roller itself when the lane is full.
         if (intakeRequest(0) == IntakeSubsystem.State.IN) robot.intake.intake();
     }
+
+    /** Trial-specific path constraints; ordinary Autos use the drivetrain directly. */
+    protected AutoDrive autoDrive(boolean rotated) { return robot.drive; }
 
     /**
      * What the Auto asks of the intake while it runs: in while the robot has room, idle once it

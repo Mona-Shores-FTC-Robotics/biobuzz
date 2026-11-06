@@ -317,8 +317,8 @@ Use the work order above to select checks; the detailed mechanism checks below a
         holding the push endpoint. A speed/acceleration cap is not a force cap.
         Change one setup or speed variable at a time; do not lengthen a blocked push.
       - Once repeatable, try with our normal four-piece load and then integrate the
-        measured maneuver into full Solo. The full draft currently has **no** test
-        speed wrapper or competition OpMode; its preview is not a qualified robot run.
+        measured maneuver in **Drive: R-Solo-Nudge**, the full Utility with scoped
+        contact limits. Its preview is not a qualified robot run.
         Two TIPs and double park, followed by 17/18 in partner presets, come after this test.
       [Draft and Utility details](../TeamCode/autos/drafts/README.md#first-floor-test-drive-partner-nudge)
 
@@ -794,3 +794,13 @@ one test at one meeting.
 [#251]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/251
 [#255]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/255
 [#261]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/261
+
+### Full Solo-Nudge lab run
+
+- [ ] Load master with the full nudge trial; select **Drive: R-Solo-Nudge**.
+  Normal RIGHT_START, four preloads, the same angled 16x16 dummy placement, chosen
+  alliance. Keep **Drive: Partner Nudge** available for push-only setup checks.
+  Film one complete run and collect its log: fourth-shot completion, gentle contact,
+  partner park/wall clearance, second tip and our park before the 30 s stop.
+  Contact approach and push use fixed 4 in/s, 8 in/s² limits; a blocked contact
+  stops after six seconds. This full trial does not use the push-only Panels knobs.
