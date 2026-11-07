@@ -444,7 +444,7 @@ measurement is [#255].
       practice field with the TeleOp gather button (driver Triangle, held), GARDEN loaded, phone
       filming from above; then once in R-NoCross. It lines up where it always has, stick going
       down; then the drive in curves (`GardenGather.curveToWall`): over to the side wall first,
-      then down it into the corner. It dwells 0.25 s (`dwellMs` 250), backs out at 0.8 speed
+      then down it into the corner. It aims 1 in past the gather pose (`extraDepthIn` 1), dwells 0.4 s (`dwellMs` 400), backs out at 0.8 speed
       (`backSpeed`) with the stick still down, straight up the side wall first then over
       (`curveBackOut`; off is a straight diagonal back), stops, and raises the stick 0.25 s later
       (`raiseAfterStopMs`). Try `curveBackOut` on and off and note which leaves fewer balls behind. **Good:** the side is on the side wall well before the nose reaches

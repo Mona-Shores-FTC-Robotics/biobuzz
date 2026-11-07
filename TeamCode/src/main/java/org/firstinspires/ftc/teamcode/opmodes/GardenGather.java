@@ -63,9 +63,10 @@ public final class GardenGather extends GrabRoutine {
     /**
      * How much further than the GARDEN's gather pose the drive in aims, inches, along the robot's
      * heading. A drive in that hits the wall first just stops there (it stalls), so too much is
-     * safe; tune it in Panels until the gather reaches deep enough.
+     * safe; tune it in Panels until the gather reaches deep enough. 1 since 6 Nov 2026 (mentor), a
+     * starting point for the practice field.
      */
-    public static double extraDepthIn = 0.0;
+    public static double extraDepthIn = 1.0;
     /**
      * How much closer to the alliance (side) wall than the gather pose the drive in aims, inches: the
      * intake has to reach all the way into the corner to scoop the whole GARDEN (30 Oct 2026). More
@@ -110,11 +111,11 @@ public final class GardenGather extends GrabRoutine {
     public static double stallMs = 250;
     /**
      * The dwell, ms, intake running, at the end of the drive in: a cap (a full lane ends it sooner).
-     * 250 since 6 Nov 2026 (mentor): in, a short dwell, and straight back out, rather than the 1.5 s
+     * 400 since 6 Nov 2026 (mentor): in, a short dwell, and straight back out, rather than the 1.5 s
      * every gather that night sat for while bringing in 0 to 1 pieces. Tune it at the practice field
      * with the button.
      */
-    public static double dwellMs = 250;
+    public static double dwellMs = 400;
     /**
      * Ending the dwell from the intake current, as the FLOWER pick does: off (0) until a GARDEN
      * gather has data for it (1 of 17 dwells on 29 Oct had a spike).
