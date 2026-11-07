@@ -25,7 +25,7 @@ public class NectarRejectTest {
 
     private void step(long ms, boolean fresh, double brightness, Piece piece, Alliance ours, boolean enabled,
                       double presentAbove, double burstMs) {
-        reject.step(ms, fresh, brightness, piece, ours, enabled, presentAbove, 2, burstMs,
+        reject.step(ms, fresh, brightness, piece, ours, false, enabled, presentAbove, 2, burstMs,
                 HOLD_OFF_MS, MAX_BURSTS, WINDOW_MS);
     }
 
@@ -50,6 +50,33 @@ public class NectarRejectTest {
         assertEquals(Piece.BLUE_NECTAR, NectarReject.enemyNectar(Alliance.RED));
         assertEquals(Piece.RED_NECTAR, NectarReject.enemyNectar(Alliance.BLUE));
         assertNull(NectarReject.enemyNectar(Alliance.UNKNOWN));
+    }
+
+    @Test
+    public void allNectarRejectsBothColoursAndKeepsPollen() {
+        assertTrue(NectarReject.rejects(Piece.RED_NECTAR, Alliance.RED, true));
+        assertTrue(NectarReject.rejects(Piece.BLUE_NECTAR, Alliance.RED, true));
+        assertTrue(NectarReject.rejects(Piece.RED_NECTAR, Alliance.UNKNOWN, true));
+        assertFalse(NectarReject.rejects(Piece.POLLEN, Alliance.RED, true));
+        assertFalse(NectarReject.rejects(Piece.UNKNOWN, Alliance.BLUE, true));
+        assertFalse("off: our own NECTAR is kept", NectarReject.rejects(Piece.RED_NECTAR, Alliance.RED, false));
+        assertFalse(NectarReject.rejects(Piece.BLUE_NECTAR, Alliance.UNKNOWN, false));
+    }
+
+    @Test
+    public void allNectarBurstsOnOurOwnNectarEvenWithNoAlliance() {
+        reject.step(0, true, BRIGHT, Piece.RED_NECTAR, Alliance.RED, true, true, PRESENT, 2, BURST_MS,
+                HOLD_OFF_MS, MAX_BURSTS, WINDOW_MS);
+        reject.step(50, true, BRIGHT, Piece.RED_NECTAR, Alliance.RED, true, true, PRESENT, 2, BURST_MS,
+                HOLD_OFF_MS, MAX_BURSTS, WINDOW_MS);
+        assertTrue("our own NECTAR is spat out", reject.rejecting());
+
+        NectarReject none = new NectarReject();
+        none.step(0, true, BRIGHT, Piece.BLUE_NECTAR, Alliance.UNKNOWN, true, true, PRESENT, 2, BURST_MS,
+                HOLD_OFF_MS, MAX_BURSTS, WINDOW_MS);
+        none.step(50, true, BRIGHT, Piece.BLUE_NECTAR, Alliance.UNKNOWN, true, true, PRESENT, 2, BURST_MS,
+                HOLD_OFF_MS, MAX_BURSTS, WINDOW_MS);
+        assertTrue("no alliance chosen still rejects", none.rejecting());
     }
 
     @Test
@@ -113,9 +140,9 @@ public class NectarRejectTest {
 
     @Test
     public void noHoldOffGoesStraightToIdle() {
-        reject.step(0, true, BRIGHT, Piece.BLUE_NECTAR, Alliance.RED, true, PRESENT, 2, BURST_MS, 0, MAX_BURSTS, WINDOW_MS);
-        reject.step(50, true, BRIGHT, Piece.BLUE_NECTAR, Alliance.RED, true, PRESENT, 2, BURST_MS, 0, MAX_BURSTS, WINDOW_MS);
-        reject.step(550, false, Double.NaN, Piece.UNKNOWN, Alliance.RED, true, PRESENT, 2, BURST_MS, 0, MAX_BURSTS, WINDOW_MS);
+        reject.step(0, true, BRIGHT, Piece.BLUE_NECTAR, Alliance.RED, false, true, PRESENT, 2, BURST_MS, 0, MAX_BURSTS, WINDOW_MS);
+        reject.step(50, true, BRIGHT, Piece.BLUE_NECTAR, Alliance.RED, false, true, PRESENT, 2, BURST_MS, 0, MAX_BURSTS, WINDOW_MS);
+        reject.step(550, false, Double.NaN, Piece.UNKNOWN, Alliance.RED, false, true, PRESENT, 2, BURST_MS, 0, MAX_BURSTS, WINDOW_MS);
         assertEquals(Phase.IDLE, reject.phase());
     }
 
