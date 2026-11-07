@@ -11,7 +11,7 @@ public enum Action {
     // Driver
     DRIVE(Pad.DRIVER, "Drive"),
     TURN(Pad.DRIVER, "Turn"),
-    INTAKE(Pad.DRIVER, "Intake (hold, over the toggle)"),
+    INTAKE(Pad.DRIVER, "Intake (hold)"),
     DRIVER_UNJAM(Pad.DRIVER, "Unjam (hold)"),
     SLOW(Pad.DRIVER, "Slow (hold)"),
     FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold)"),
@@ -25,7 +25,7 @@ public enum Action {
     AUTO_PARK(Pad.DRIVER, "*Auto-Park (hold)"),
 
     // Operator
-    OPERATOR_INTAKE(Pad.OPERATOR, "Intake On / Off (Toggle)"),
+    OPERATOR_INTAKE(Pad.OPERATOR, "Intake (hold)"),
     UNJAM(Pad.OPERATOR, "Unjam (hold)"),
     LAUNCHER_TOGGLE(Pad.OPERATOR, "Launcher Spin Up / Idle (Toggle)"),
     LAUNCHER_TRIM_DOWN(Pad.OPERATOR, "Launcher Trim Down"),
