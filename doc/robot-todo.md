@@ -447,7 +447,9 @@ measurement is [#255].
       then down it into the corner. It aims 1 in past the gather pose (`extraDepthIn` 1), dwells 0.4 s (`dwellMs` 400), backs out at 0.8 speed
       (`backSpeed`) with the stick still down, straight up the side wall first then over
       (`curveBackOut`; off is a straight diagonal back), stops, and raises the stick 0.25 s later
-      (`raiseAfterStopMs`). Try `curveBackOut` on and off and note which leaves fewer balls behind. **Good:** the side is on the side wall well before the nose reaches
+      (`raiseAfterStopMs`). Try `curveBackOut` on and off and note which leaves fewer balls behind. Then `useStick` off: the
+      stick stays in and the intake drives 2 in deeper (`noStickExtraDepthIn`) all the way to
+      the wall; compare balls in with the stick and without. **Good:** the side is on the side wall well before the nose reaches
       the audience wall, the nose gets there (`GARDEN gather: IN … reached` or under 1 in short,
       against 2–4.5 in on 6 Nov), more balls come in than 6 Nov's 0–1, and the stick never drags
       a ball back out. **Stop:** it scrubs into the side wall and stalls early, or the curve

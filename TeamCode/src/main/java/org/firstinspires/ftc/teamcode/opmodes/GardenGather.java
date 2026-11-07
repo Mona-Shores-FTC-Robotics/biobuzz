@@ -97,6 +97,20 @@ public final class GardenGather extends GrabRoutine {
      * flip it at the practice field to compare.
      */
     public static boolean curveBackOut = true;
+    /**
+     * The FLOWER stick goes down for the gather. Off: the stick stays in, there is no stick wait,
+     * and the drive in aims {@link #noStickExtraDepthIn} deeper, so the intake itself goes all the
+     * way to the audience wall. A test (mentor, 6 Nov 2026) of whether the stick helps at all: it
+     * went in on 30 Oct because the intake alone did not reach deep enough, but that was the
+     * diagonal drive in, which stopped short anyway.
+     */
+    public static boolean useStick = true;
+    /**
+     * Without the stick ({@link #useStick} off), how much deeper the drive in aims, inches, on top of
+     * {@link #extraDepthIn}: the gather pose puts the nose 1.5 in beyond the robot's front at the
+     * wall, and a drive in that meets the wall first just stalls there, so a little more is safe.
+     */
+    public static double noStickExtraDepthIn = 2.0;
     /** Already lined up: this close to the line-up pose, inches, skips the line-up path. */
     public static double atLineUpIn = 1.5;
     /** Already lined up: this square, degrees, skips the line-up path. */
@@ -242,7 +256,7 @@ public final class GardenGather extends GrabRoutine {
         // the side wall for both alliances (red faces 270°, right is -x; blue faces 90°, right is +x).
         Pose g = garden.gather;
         double h = g.heading();
-        double deeper = nn(extraDepthIn);
+        double deeper = nn(extraDepthIn) + (useStick ? 0.0 : nn(noStickExtraDepthIn));
         // A curved drive in reaches the wall's line early: it ends barely toward it, not pinned into it.
         double wall = curveToWall ? nn(laneTowardWallIn) : nn(towardWallIn);
         return InPlan.to(new Pose(g.x() + deeper * Math.cos(h) + wall * Math.sin(h),
@@ -251,7 +265,7 @@ public final class GardenGather extends GrabRoutine {
 
     @Override
     protected void prep() {
-        robot.flowerStick.extend();
+        if (useStick) robot.flowerStick.extend();
         robot.intake.intake();
     }
 
@@ -283,7 +297,7 @@ public final class GardenGather extends GrabRoutine {
         robot.flowerStick.retractWhenClear(garden.gather.x(), garden.gather.y(), nn(retractAfterBackIn));
     }
 
-    @Override protected double prepMs() { return stickDownMs; }
+    @Override protected double prepMs() { return useStick ? stickDownMs : 0.0; }
     @Override protected double settledInPerSec() { return settledInPerSec; }
     @Override protected double dwellQuietMs() { return dwellQuietMs; }
     @Override protected double dwellEmptyMs() { return dwellEmptyMs; }
