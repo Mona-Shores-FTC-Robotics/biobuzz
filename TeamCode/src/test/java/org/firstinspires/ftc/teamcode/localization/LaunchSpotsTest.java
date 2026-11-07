@@ -50,14 +50,14 @@ public class LaunchSpotsTest {
         assertFalse(c.spot.left);
         assertEquals(Math.hypot(c.target.x() - 45, c.target.y() - 40), c.distanceIn, EPS);
         for (Spot spot : Spot.values()) {
-            Pose t = spot.target(Alliance.RED, OFF_WALL, 0.0);
+            Pose t = spot.target(Alliance.RED, OFF_WALL);
             assertTrue(spot + " is nearer than the choice", Math.hypot(t.x() - 45, t.y() - 40) >= c.distanceIn - EPS);
         }
     }
 
     @Test
     public void aLaunchSpotIsDrivenToAsDrawn() {
-        Pose t = Spot.RIGHT_LAUNCH_CATCH.target(Alliance.RED, OFF_WALL, 0.0);
+        Pose t = Spot.RIGHT_LAUNCH_CATCH.target(Alliance.RED, OFF_WALL);
         assertEquals(57.5, t.x(), EPS);
         assertEquals(18, t.y(), EPS);
         assertEquals(Math.toRadians(91.9), t.heading(), EPS);
@@ -66,7 +66,7 @@ public class LaunchSpotsTest {
     @Test
     public void aStartStopsOffTheWallAimedAtItsHalfsCell() {
         Pose start = StartPositions.RED_AUDIENCE.pose;
-        Pose t = Spot.RIGHT_START.target(Alliance.RED, OFF_WALL, 0.0);
+        Pose t = Spot.RIGHT_START.target(Alliance.RED, OFF_WALL);
         assertEquals(start.x(), t.x(), EPS);
         assertEquals(start.y() + OFF_WALL, t.y(), EPS); // faces 90°: out from the audience wall
         Vec3 row = HiveFieldPoints.rowCentre(HiveCell.rightCell(Alliance.RED), HiveCellState.UP);
@@ -74,7 +74,7 @@ public class LaunchSpotsTest {
         assertEquals("near its start's facing", 0, Math.toDegrees(wrap(t.heading() - start.heading())), 6);
 
         Pose far = StartPositions.RED_FAR.pose;
-        Pose l = Spot.LEFT_START.target(Alliance.RED, OFF_WALL, 0.0);
+        Pose l = Spot.LEFT_START.target(Alliance.RED, OFF_WALL);
         assertEquals(far.y() - OFF_WALL, l.y(), EPS); // faces 270°: out from the far wall
         Vec3 leftRow = HiveFieldPoints.rowCentre(HiveCell.leftCell(Alliance.RED), HiveCellState.UP);
         assertEquals(0, wrap(Math.atan2(leftRow.y() - l.y(), leftRow.x() - l.x()) - l.heading()), EPS);
@@ -102,8 +102,8 @@ public class LaunchSpotsTest {
     @Test
     public void everySpotIsOnOurSideAndOnItsCellsHalf() {
         for (Spot spot : Spot.values()) {
-            Pose red = spot.target(Alliance.RED, OFF_WALL, 0.0);
-            Pose blue = spot.target(Alliance.BLUE, OFF_WALL, 0.0);
+            Pose red = spot.target(Alliance.RED, OFF_WALL);
+            Pose blue = spot.target(Alliance.BLUE, OFF_WALL);
             assertTrue(spot + " red", red.x() < C);
             assertTrue(spot + " blue", blue.x() > C);
             assertEquals(spot + " red half", spot.left, LaunchSpots.leftHalf(Alliance.RED, red.y()));
@@ -122,7 +122,7 @@ public class LaunchSpotsTest {
                 assertEquals(expected.x(), row.x(), EPS);
                 assertEquals(expected.y(), row.y(), EPS);
                 // The CELL is on the spot's side of the axle line.
-                Pose t = spot.target(alliance, OFF_WALL, 0.0);
+                Pose t = spot.target(alliance, OFF_WALL);
                 assertEquals(spot + " " + alliance, t.y() > HiveFieldPoints.AXLE_Y_IN, row.y() > HiveFieldPoints.AXLE_Y_IN);
             }
         }
