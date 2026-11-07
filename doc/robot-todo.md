@@ -424,6 +424,14 @@ measurement is [#255].
       says `fired by button`, shots counted ≈ 4; FIRE takes the shot (`fired by … operator`); let go
       stops the feeder at once; an idled launcher stays idle; held 6 s, the gate stays open all 6 s. **Stop:** it feeds before it is
       aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+- [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on, LaunchAll feed
+      3.0 s):** R-NoCross and R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
+      every run; when its second volley ends late the Match page and the log say `… no time to
+      park after it, parking now` and it parks from RIGHT_LAUNCH_CATCH; R-Solo still fires its
+      third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
+      **Stop:** a ball left in the robot after a LaunchAll → `LaunchCards.launchAllFeedS` back to
+      3.5; R-Solo parks instead of its third volley every run → note the time it gave and tell a
+      mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
 - [ ] **Square from past the centre line (`LaunchSpotDrive.maxPastCentreIn`, 24):** on 6 Nov the
       drivers pressed Square with the robot 3–4 in past the line and it refused every time. Hold
       Square with the robot about 6 in, then about 20 in, past the line, on red and on blue.
