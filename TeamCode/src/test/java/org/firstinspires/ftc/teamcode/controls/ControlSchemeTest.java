@@ -34,33 +34,12 @@ public class ControlSchemeTest {
     }
 
     @Test
-    public void aLockedTurretPutsTheLaunchTrimResetOnTheWholeDpad() {
+    public void theLaunchTrimResetIsDpadDownLikeTheTurretsTrimReset() {
         Map<Action, Input> locked = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true);
-        assertEquals(Input.DPAD_ANY, locked.get(Action.LAUNCHER_TRIM_RESET));
         Map<Action, Input> unlocked = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, false);
-        assertFalse("an aiming turret has the D-pad", unlocked.containsKey(Action.LAUNCHER_TRIM_RESET));
-    }
-
-    @Test
-    public void theWholeDpadNeverSharesAPadWithOneDirection() {
-        for (boolean locked : new boolean[]{true, false}) {
-            for (Input pick : Input.values()) {
-                Map<Action, Input> layout = ControlScheme.layout(pick, locked, true);
-                for (Action.Pad pad : Action.Pad.values()) {
-                    boolean any = false;
-                    boolean one = false;
-                    for (Map.Entry<Action, Input> entry : layout.entrySet()) {
-                        if (entry.getKey().pad != pad) continue;
-                        Input input = entry.getValue();
-                        if (input == Input.DPAD_ANY) any = true;
-                        if (input == Input.DPAD_UP || input == Input.DPAD_DOWN
-                                || input == Input.DPAD_LEFT || input == Input.DPAD_RIGHT) one = true;
-                    }
-                    assertFalse(pad + " (turret locked " + locked + ", pick " + pick + ") binds the whole D-pad and one direction",
-                            any && one);
-                }
-            }
-        }
+        assertEquals(Input.DPAD_DOWN, locked.get(Action.LAUNCHER_TRIM_RESET));
+        assertEquals(Input.DPAD_DOWN, unlocked.get(Action.TRIM_RESET));
+        assertFalse("an aiming turret's trim reset does both", unlocked.containsKey(Action.LAUNCHER_TRIM_RESET));
     }
 
     @Test

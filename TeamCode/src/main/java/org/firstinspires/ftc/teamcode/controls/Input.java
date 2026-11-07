@@ -27,12 +27,7 @@ public enum Input {
     DPAD_UP("D-pad up", g -> g.dpad_up),
     DPAD_DOWN("D-pad down", g -> g.dpad_down),
     DPAD_LEFT("D-pad left", g -> g.dpad_left),
-    DPAD_RIGHT("D-pad right", g -> g.dpad_right),
-    /**
-     * Any D-pad direction: one action on the whole D-pad, so nobody has to remember which way. Never
-     * on a pad that also binds a single direction ({@code ControlSchemeTest}).
-     */
-    DPAD_ANY("D-pad (any direction)", g -> g.dpad_up || g.dpad_down || g.dpad_left || g.dpad_right);
+    DPAD_RIGHT("D-pad right", g -> g.dpad_right);
 
     /**
      * A trigger pulled past this counts as pressed. Still clear of a resting trigger's drift; 0.3

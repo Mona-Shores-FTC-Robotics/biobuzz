@@ -438,8 +438,9 @@ measurement is [#255].
       nested `<big>`), readable from the operator's seat; under it the launch speed, then Launcher
       (IDLE / spinning up / READY), Lane, Intake, and nothing else unless something needs doing;
       the details are on the Robot page (Share twice). Operator R1: `TRIM +25` in amber and one
-      rumble blip; L1: two blips; any D-pad direction: back to `TRIM 0` with a long buzz. Turn
-      the intake off: `INTAKE OFF`, big and amber. **Stop:** the trim is no bigger than the lines
+      rumble blip; L1: two blips; D-pad down: back to `TRIM 0` with a long buzz. The intake
+      runs from PLAY with nobody touching R2, and no R2 press on either pad stops it (there is no
+      toggle since 7 Nov); with `TeleOpConfig.intakeAlwaysOn` off it runs only while R2 is held. **Stop:** the trim is no bigger than the lines
       under it (the Driver Station ignored the nesting) → note it, and try `<h1>` in
       `Display.huge`; a pad with no rumble says so in INIT (`rumble:` log lines).
 - [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on, LaunchAll feed

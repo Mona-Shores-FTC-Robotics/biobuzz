@@ -39,9 +39,9 @@ public final class ControlScheme {
     public static final Set<Action> NOT_BOUND = Collections.unmodifiableSet(EnumSet.of(Action.AUTO_PARK));
 
     /**
-     * Bound only while the turret is locked forward, when the operator's D-pad is free: the launch
-     * trim reset on the whole D-pad (mentor, 7 Nov 2026). With the turret aiming, its D-pad trim
-     * reset clears the launch trim too.
+     * Bound only while the turret is locked forward: the launch trim reset, on D-pad down, the
+     * turret's trim reset's button, so the habit carries over (mentor, 7 Nov 2026). With the turret
+     * aiming, its trim reset on D-pad down clears the launch trim too.
      */
     public static final Set<Action> LOCKED_TURRET_ONLY = Collections.unmodifiableSet(EnumSet.of(
             Action.LAUNCHER_TRIM_RESET));
@@ -67,7 +67,7 @@ public final class ControlScheme {
         Map<Action, Input> map = layout(flowerPick);
         if (turretLocked) {
             for (Action action : TURRET_ACTIONS) map.remove(action);
-            map.put(Action.LAUNCHER_TRIM_RESET, Input.DPAD_ANY);
+            map.put(Action.LAUNCHER_TRIM_RESET, Input.DPAD_DOWN);
         }
         if (!launchSpot) map.remove(Action.LAUNCH_SPOT);
         return map;

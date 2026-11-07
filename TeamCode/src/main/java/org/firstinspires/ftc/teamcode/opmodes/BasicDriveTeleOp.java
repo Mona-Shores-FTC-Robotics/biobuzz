@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.controls.ControlScheme;
 import org.firstinspires.ftc.teamcode.controls.Controls;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.IntakeArbiter;
-import org.firstinspires.ftc.teamcode.controls.IntakeToggle;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
@@ -40,12 +39,12 @@ import java.util.Locale;
  * <h2>Controls</h2>
  *
  * <p>Which input does what is {@link ControlScheme}, one layout for both teams. Both people run
- * the intake (R2) and unjam (L2), the driver winning when both press ({@link IntakeArbiter}); unjam
- * on either pad also reverses the feeder. The intake is on from PLAY, and the operator's R2 toggles
- * it off and on ({@link IntakeToggle}, {@code TeleOpConfig.intakeToggle}); the driver's R2 runs it while held and
- * either L2 reverses it while held, each over the toggle, and letting go returns to the toggle. Left
- * on, it stops taking in while the lane is full and starts again when a shot makes room; the
- * driver's hold does not get past full, only unjam does. The Driver Station's Controls page (Share) and the
+ * the intake (R2, hold) and unjam (L2, hold), the driver winning when both press
+ * ({@link IntakeArbiter}); unjam on either pad also reverses the feeder. The intake runs all match
+ * from PLAY ({@code TeleOpConfig.intakeAlwaysOn}), so R2 changes nothing unless that is switched
+ * off to save battery; there is no toggle to turn it off by accident. It stops taking in while the
+ * lane is full and starts again when a shot makes room; nobody's R2 gets past full, only unjam
+ * does. The Driver Station's Controls page (Share) and the
  * printed cheat sheet are both generated from the layout. Nothing here names a button.
  *
  * <p>Buttons do what is asked at once. Fire feeds the moment it is held: the checks a shot could
@@ -82,7 +81,7 @@ import java.util.Locale;
  * first, huge and amber while trimmed, the launch speed it gives, then the launcher, the lane and
  * the intake (big when off), and only what needs doing; the rest is on the Robot page. The trim is
  * on every shot, Square's included, and is felt as well as seen: one rumble blip up, two down, a
- * long buzz when the D-pad (any direction, while the turret is locked) resets it to 0.
+ * long buzz when D-pad down resets it to 0.
  *
  * <p>The operator's light bar is green at launch speed, amber spinning up, blue at idle, with a
  * short rumble the moment it reaches speed. The match log has every fire press with
@@ -155,7 +154,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     private Controls controls;
     private final IntakeArbiter intakeArbiter = new IntakeArbiter();
-    private final IntakeToggle intakeToggle = new IntakeToggle(true);
     private final FireGates gates = new FireGates();
     private final LongPress headingReset = new LongPress(RESET_HOLD_MS);
     private final LongPress cameraReset = new LongPress(RESET_HOLD_MS);
@@ -526,16 +524,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // to the people.
         if (!grabActive()) {
             boolean driverIn = controls.held(Action.INTAKE);
-            boolean operatorIn = controls.held(Action.OPERATOR_INTAKE);
-            // TeleOpConfig.intakeToggle (on by default): the operator's R2 toggles the intake, which
-            // then runs as the operator's request. The driver's R2 stays hold-to-run and wins while
-            // held (IntakeArbiter), as does either unjam; letting go returns to the toggle. A full
-            // lane stops the roller and the prefeed whoever asks: only unjam and a feed get past it.
-            if (TeleOpConfig.intakeToggle) {
-                operatorIn = intakeToggle.update(true, operatorIn);
-            } else {
-                intakeToggle.update(false, false);
-            }
+            // TeleOpConfig.intakeAlwaysOn: the intake runs unless something else asks, counted as the
+            // operator's request (IntakeArbiter); R2 on either pad runs it while held. The driver
+            // wins while held, as does either unjam. A full lane stops the roller and the prefeed
+            // whoever asks: only unjam and a feed get past it.
+            boolean operatorIn = TeleOpConfig.intakeAlwaysOn || controls.held(Action.OPERATOR_INTAKE);
             intakeArbiter.decide(driverIn, controls.held(Action.DRIVER_UNJAM),
                     controls.held(Action.UNJAM), operatorIn);
             setIntake(intakeArbiter.state());
@@ -562,12 +555,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 launcherState());
         display.status("Lane", robot.colorSensor.full() ? Display.Level.OK : Display.Level.WARN,
                 robot.colorSensor.full() ? "FULL" : "room");
-        // Off is the one intake state that loses a match quietly (19429, 6 Nov 2026: off 26 s of a
-        // 104 s run, the lane never full), so it is big.
+        // Off loses a match quietly (19429, 6 Nov 2026: off 26 s of a 104 s run, the lane never
+        // full), so with the intake meant to be on it is big.
         if (intakeRunning()) {
             display.status("Intake", Display.Level.OK, intakeState());
-        } else {
+        } else if (TeleOpConfig.intakeAlwaysOn) {
             display.line(Display.alertWhat("INTAKE OFF"));
+        } else {
+            display.status("Intake", Display.Level.OK, "off (battery saving: hold to run)");
         }
         if (robotCentric() || !robot.drive.isFieldCentric()) {
             display.status("Mode", Display.Level.WARN, "robot-centric");
