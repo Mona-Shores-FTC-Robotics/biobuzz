@@ -303,10 +303,17 @@ Use the work order above to select checks; the detailed mechanism checks below a
       dummy and our actual bumper envelope first. If they differ from the drawing,
       adjust the `.pp` geometry and export before trying contact; these are not size presets.
       Blue uses the same setup rotated 180° about field centre.
+      - **6 Nov runs never moved** (4 in/s and 8 in/s² cap, too little power to start the robot).
+        The cap also stayed on after STOP and stalled later paths until the app restarted. Both
+        are fixed: a `maxPathSpeed` fraction, and the cap cleared whenever a path ends. Still,
+        **after any nudge run, drive R-Solo once before trusting the next Auto.** [PR-NUDGE]
       - First run without the dummy to check direction, the six-inch stroke and retreat.
         Choose alliance in INIT, then PLAY. Default Panels `PartnerNudgeTest` settings:
-        **speedInPerSec=4, accelerationInPerSec2=8, timeoutSeconds=8**. Settings are
-        captured at PLAY. STOP and re-INIT to repeat after resetting both robots.
+        **pathSpeed=0.2** (fraction of top speed, 0.1–0.5), **timeoutSeconds=8**, captured at
+        PLAY. STOP and re-INIT to repeat after resetting both robots. **Measure `pathSpeed`
+        here:** the lowest value that starts the robot and runs the stroke. If 0.2 doesn't
+        move it, try 0.3, then 0.35 (the FLOWER push's slowest known-good). Write the value
+        that works in the log/notes and set it as the default in a PR.
       - Put the dummy back, with solid bumper contact and wheels free to roll. Run the
         same short test. **Good:** partner enters the loading zone and ends visibly
         off the wall, push is gentle, and retreat separates cleanly. The calculated
@@ -315,7 +322,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         rotation and measured speed in the log/video; repeat from the same marks.
       - **Stop:** hard initial contact, wheel slip, snagging, unexpected rotation,
         or timeout. The test cancels and releases the drive at 8 s; it does not keep
-        holding the push endpoint. A speed/acceleration cap is not a force cap.
+        holding the push endpoint. A speed cap is not a force cap.
         Change one setup or speed variable at a time; do not lengthen a blocked push.
       - Once repeatable, try with our normal four-piece load and then integrate the
         measured maneuver in **Drive: R-Solo-Nudge**, the full Utility with scoped
@@ -797,5 +804,6 @@ one test at one meeting.
   alliance. Keep **Drive: Partner Nudge** available for push-only setup checks.
   Film one complete run and collect its log: fourth-shot completion, gentle contact,
   partner park/wall clearance, second tip and our park before the 30 s stop.
-  Contact approach and push use fixed 4 in/s, 8 in/s² limits; a blocked contact
-  stops after six seconds. This full trial does not use the push-only Panels knobs.
+  Contact approach and push use `PartnerNudgeTest.pathSpeed`, read at INIT; set it
+  first with **Drive: Partner Nudge**. A blocked contact stops after six seconds.
+  After the run, drive R-Solo once to confirm normal paths are at full speed. [PR-NUDGE]
