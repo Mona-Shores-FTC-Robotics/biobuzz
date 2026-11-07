@@ -45,6 +45,7 @@ public class SimRequestsTest {
         File partners = new File(autos, "partners");
         // Drafts (TeamCode/autos/drafts/, the 3-TIP pairs): a draft's request names its .pp there, and its partner
         // may be the other draft of its pair, so the pair simulates together before either is an Auto we run.
+        // A coordinated pair we run (l-<name>.pp and r-<name>.pp, both ours) may likewise name its other half.
         File drafts = new File(autos, "drafts");
         File[] files = new File(teamCode, "sim-requests").listFiles((d, n) -> n.endsWith(".json"));
         assertTrue("TeamCode/sim-requests/ is missing or empty", files != null && files.length > 0);
@@ -108,7 +109,8 @@ public class SimRequestsTest {
                 }
                 // A partner is a stand-in from TeamCode/autos/partners/, never one of the Autos we run.
                 String source = (String) Class.forName(AutoStudyTest.PKG + partnerClass).getField("SOURCE").get(null);
-                if (!new File(partners, source).isFile() && !(draft && new File(drafts, source).isFile())) {
+                if (!new File(partners, source).isFile() && !(draft && new File(drafts, source).isFile())
+                        && !pairHalf(name, source, autos)) {
                     problems.add(file.getName() + ": partner " + partnerClass + " comes from " + source
                             + ", which is not in TeamCode/autos/partners/ (a partner is a stand-in, not an Auto we run)");
                 }
@@ -116,6 +118,19 @@ public class SimRequestsTest {
             }
         }
         if (!problems.isEmpty()) fail(String.join("\n", problems));
+    }
+
+    /**
+     * Whether {@code source} is the other half of the coordinated pair the request {@code name} runs: our
+     * {@code l-<x>} with our {@code r-<x>}, or the reverse, both Autos in {@code TeamCode/autos/}.
+     */
+    static boolean pairHalf(String name, String source, File autos) {
+        String other;
+        if (name.startsWith("l-")) other = "r-" + name.substring(2);
+        else if (name.startsWith("r-")) other = "l-" + name.substring(2);
+        else return false;
+        return (other + ".pp").equals(source) && new File(autos, source).isFile()
+                && new File(autos, name + ".pp").isFile();
     }
 
     /** The request names its own existing source in one of the Visualizer's three Auto folders. */
