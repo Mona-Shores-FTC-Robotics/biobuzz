@@ -41,6 +41,7 @@
   "metadata": {
     "AutoSource": "r-solo.pp",
     "SavedBy": "dustinhans",
-    "SavedAt": "2026-11-06T01:09:11.352Z"
+    "SavedAt": "2026-11-06T01:09:11.352Z",
+    "SimNote": "baseline: master 7ed351f as run 6 Nov (4 Nov guard rule, feed 3.5 s)"
   }
 }
