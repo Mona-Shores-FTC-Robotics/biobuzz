@@ -58,11 +58,10 @@ import java.util.Locale;
  * stick, one of them at a time, and the chassis aim on the right stick, since the left stick keeps
  * driving under it.
  *
- * <p>The launcher idles only when whoever spun it up lets it go ({@link LauncherOwner}): a Square
- * press that found it idle idles it when the press ends; one the operator spun up (their toggle,
- * or Fire from idle) stays at launch speed until their toggle idles it. While a Square press is
- * firing, the operator's toggle only keeps the launcher spinning, and their Fire waits for the
- * volley; either one gives them the launcher, so it stays on after the press.
+ * <p>The launcher ({@link LauncherOwner}): letting go of Square means "done shooting", so the
+ * launcher idles when a Square press ends, whoever spun it up. The operator's toggle spins it up
+ * early, so Square finds it at speed; while a Square press is firing the toggle cannot idle it and
+ * their Fire waits for the volley. Without Square, the operator's toggle idles it.
  *
  * <h2>Aiming</h2>
  *
@@ -251,7 +250,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             boolean spotFiring = launchSpot.wantsLauncher();
             LauncherOwner.Effect effect = launcherOwner.operatorToggle(spotFiring);
             if (effect == LauncherOwner.Effect.KEEP) {
-                log.event("launcher: toggle during Square's volley: kept spinning, and stays on after the press");
+                log.event("launcher: toggle during Square's volley: kept spinning (idles when Square is let go)");
             }
             applyLauncher(effect);
         });
@@ -265,9 +264,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.on(Action.TRIM_RESET).onPress(() -> trim(0));
         controls.note(Action.TURRET_ZERO);
 
-        operator.note("Launcher and Square", "spin up early when a shot is coming; while the driver's "
-                + "Square fires, your buttons only keep it spinning (no idle, Fire waits for the volley); "
-                + "you spun it up, you idle it");
+        operator.note("Launcher and Square", "spin up early when a shot is coming; while the driver "
+                + "holds Square, your buttons cannot stop it (no idle, Fire waits for the volley); "
+                + "it idles when Square is let go");
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
     }
@@ -631,8 +630,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /**
      * The launch-spot button's launcher (TeleOpConfig.goToSpotAlsoFires): spun up to the launch
-     * speed and trim as the press starts if it is idle, and idled again when the press ends if the
-     * press was what spun it up and the operator did not take it meanwhile ({@link LauncherOwner}).
+     * speed and trim as the press starts if it is idle, and idled when the press ends, whoever spun
+     * it up: letting go is "done shooting" ({@link LauncherOwner}).
      */
     private void spotLauncher() {
         boolean wants = launchSpot.wantsLauncher();
@@ -678,13 +677,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
      */
     private void fire() {
         boolean rawFire = controls.held(Action.FIRE);
-        // A Square press that fires owns the shot: the operator's FIRE takes the launcher (it stays
-        // on after the press) but feeds nothing until the press ends, so the volley still waits for
-        // the spot, aim and speed. Without goToSpotAlsoFires, Square only drives and FIRE is theirs.
+        // A Square press that fires owns the shot: the operator's FIRE feeds nothing until the press
+        // ends, so the volley still waits for the spot, aim and speed. Without goToSpotAlsoFires,
+        // Square only drives and FIRE is theirs.
         boolean spotFiring = launchSpot.wantsLauncher();
         if (rawFire && !lastRawFire && spotFiring) {
-            launcherOwner.operatorFire(unjamHeld());
-            log.event("fire: held back, Square's volley is firing; the launcher stays on after the press");
+            log.event("fire: held back, Square's volley is firing");
         }
         lastRawFire = rawFire;
         boolean fireHeld = rawFire && !spotFiring;

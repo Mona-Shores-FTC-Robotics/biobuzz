@@ -425,14 +425,14 @@ measurement is [#255].
       feeds after let go → `goToSpotAlsoFires` off. [PR #423]
 - [ ] **The operator cannot hurt a Square volley (`belding-plus`, `LauncherOwner`, 7 Nov):**
       (a) operator spin up, wait for the rumble, then the driver holds Square: the gate opens on
-      arrival with no spin-up wait, and the launcher **stays spinning** after Square is let go
-      until the operator's toggle idles it. (b) Square from idle, operator presses the toggle
-      mid-drive: the launcher keeps spinning (`launcher: toggle during Square's volley: kept
-      spinning`), the volley fires at speed, and it stays on after the press. (c) Square from
-      idle, operator holds FIRE before the robot arrives: nothing feeds early (`fire: held back`),
-      the volley opens at the spot as usual. (d) Square alone: idles when let go, as before.
-      **Stop:** a toggle press during Square idles the launcher, or FIRE feeds before arrival →
-      run master's Basic Drive (`Belding`) and tell a mentor.
+      arrival with no spin-up wait, and the launcher idles when Square is let go. (b) Square from
+      idle, operator presses the toggle mid-drive: the launcher keeps spinning (`launcher: toggle
+      during Square's volley: kept spinning`), the volley fires at speed, and it idles when Square
+      is let go. (c) Square from idle, operator holds FIRE before the robot arrives: nothing feeds
+      early (`fire: held back`), the volley opens at the spot as usual. (d) No Square: operator
+      toggle up, FIRE, toggle down, as before. **Stop:** a toggle press during Square idles the
+      launcher, FIRE feeds before arrival, or the launcher keeps spinning after Square is let go
+      → run `Belding`'s Basic Drive and tell a mentor.
 - [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on, LaunchAll feed
       3.05 s):** R-NoCross and R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
       every run; when its second volley ends late the Match page and the log say `… no time to
