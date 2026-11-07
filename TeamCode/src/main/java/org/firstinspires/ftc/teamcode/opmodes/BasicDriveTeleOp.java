@@ -65,7 +65,7 @@ import java.util.Locale;
  * CELL). While LOCKED, the driver's chassis aim turns the whole robot onto the same CELL; or,
  * experimentally, the driver's launch-spot button drives it to the nearest launch spot and
  * arrives aimed at that half's CELL ({@link LaunchSpotDrive}), and with
- * {@code TeleOpConfig.goToSpotAlsoFires} spins up and fires one volley there. The
+ * {@code TeleOpConfig.goToSpotAlsoFires} spins up and fires there while it is held. The
  * operator's trim nudges either one and stays until reset. It zeroes itself, assuming it starts a
  * match at its home mark, or taking the Auto's zero when an Auto just ran
  * ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy}); the zero button always

@@ -418,10 +418,11 @@ measurement is [#255].
       `TeleOpConfig.launchSpot` off and note where. [PR #423]
 - [ ] **Square also fires (`TeleOpConfig.goToSpotAlsoFires`, on):** loaded, hold Square from
       15–30 in off a spot; then press operator FIRE during a press; then let go mid-feed; then
-      operator launcher toggle to idle mid-press. **Good:** launcher spins up as it drives, one
-      volley once there (`launch spot: gate open … at speed, settled`), all four leave; the end line
+      operator launcher toggle to idle mid-press; then, loaded, hold Square 6 s at a spot (since
+      6 Nov it feeds for as long as Square is held, no 3.5 s cutoff). **Good:** launcher spins up
+      as it drives, feeds once there (`launch spot: gate open … at speed, settled`), all four leave; the end line
       says `fired by button`, shots counted ≈ 4; FIRE takes the shot (`fired by … operator`); let go
-      stops the feeder at once; an idled launcher stays idle. **Stop:** it feeds before it is
+      stops the feeder at once; an idled launcher stays idle; held 6 s, the gate stays open all 6 s. **Stop:** it feeds before it is
       aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
 - [ ] **Square from past the centre line (`LaunchSpotDrive.maxPastCentreIn`, 24):** on 6 Nov the
       drivers pressed Square with the robot 3–4 in past the line and it refused every time. Hold
@@ -573,7 +574,7 @@ After §7c: the rows are only worth having once the wheels hold their speed. One
 the other side of the field.
 
 **The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Match page says
-"Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires one volley.
+"Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires while Square is held.
 On a miss, the operator trims the speed up or down, then Square again, until it scores. The Match
 page's "Last launch spot" line shows the spot's CELL range and the launch speed: write both down.
 Take the middle of the speeds that score 4/4, not the first one that does. The trim carries from
