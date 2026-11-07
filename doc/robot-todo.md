@@ -417,13 +417,22 @@ measurement is [#255].
       **Stop:** it refuses with the pose set, or clips the HIVE or the wall →
       `TeleOpConfig.launchSpot` off and note where. [PR #423]
 - [ ] **Square also fires (`TeleOpConfig.goToSpotAlsoFires`, on):** loaded, hold Square from
-      15–30 in off a spot; then press operator FIRE during a press; then let go mid-feed; then
-      operator launcher toggle to idle mid-press; then, loaded, hold Square 6 s at a spot (since
+      15–30 in off a spot; then let go mid-feed; then, loaded, hold Square 6 s at a spot (since
       6 Nov it feeds for as long as Square is held, no 3.5 s cutoff). **Good:** launcher spins up
       as it drives, feeds once there (`launch spot: gate open … at speed, settled`), all four leave; the end line
-      says `fired by button`, shots counted ≈ 4; FIRE takes the shot (`fired by … operator`); let go
-      stops the feeder at once; an idled launcher stays idle; held 6 s, the gate stays open all 6 s. **Stop:** it feeds before it is
-      aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+      says `fired by button`, shots counted ≈ 4; let go stops the feeder at once and idles the
+      launcher; held 6 s, the gate stays open all 6 s. **Stop:** it feeds before it is aimed, or
+      feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+- [ ] **The operator cannot hurt a Square volley (`belding-plus`, `LauncherOwner`, 7 Nov):**
+      (a) operator spin up, wait for the rumble, then the driver holds Square: the gate opens on
+      arrival with no spin-up wait, and the launcher **stays spinning** after Square is let go
+      until the operator's toggle idles it. (b) Square from idle, operator presses the toggle
+      mid-drive: the launcher keeps spinning (`launcher: toggle during Square's volley: kept
+      spinning`), the volley fires at speed, and it stays on after the press. (c) Square from
+      idle, operator holds FIRE before the robot arrives: nothing feeds early (`fire: held back`),
+      the volley opens at the spot as usual. (d) Square alone: idles when let go, as before.
+      **Stop:** a toggle press during Square idles the launcher, or FIRE feeds before arrival →
+      run master's Basic Drive (`Belding`) and tell a mentor.
 - [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on, LaunchAll feed
       3.05 s):** R-NoCross and R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
       every run; when its second volley ends late the Match page and the log say `… no time to
