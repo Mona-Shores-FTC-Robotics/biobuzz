@@ -445,8 +445,9 @@ measurement is [#255].
       filming from above; then once in R-NoCross. It lines up where it always has, stick going
       down; then the drive in curves (`GardenGather.curveToWall`): over to the side wall first,
       then down it into the corner. It dwells 0.25 s (`dwellMs` 250), backs out at 0.8 speed
-      (`backSpeed`) with the stick still down, stops, and raises the stick 0.25 s later
-      (`raiseAfterStopMs`). **Good:** the side is on the side wall well before the nose reaches
+      (`backSpeed`) with the stick still down, straight up the side wall first then over
+      (`curveBackOut`; off is a straight diagonal back), stops, and raises the stick 0.25 s later
+      (`raiseAfterStopMs`). Try `curveBackOut` on and off and note which leaves fewer balls behind. **Good:** the side is on the side wall well before the nose reaches
       the audience wall, the nose gets there (`GARDEN gather: IN … reached` or under 1 in short,
       against 2–4.5 in on 6 Nov), more balls come in than 6 Nov's 0–1, and the stick never drags
       a ball back out. **Stop:** it scrubs into the side wall and stalls early, or the curve

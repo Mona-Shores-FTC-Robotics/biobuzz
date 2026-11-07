@@ -592,7 +592,7 @@ public abstract class GrabRoutine {
     /** The dwell is over (its time, or the button let go): back out to where the In started. */
     private void startBack(long now, Pose pose) {
         next(now, Phase.BACK);
-        drivePath(pose, home, backSpeed());
+        driveCurve(pose, home, backSpeed(), backControl(pose, home));
     }
 
     private void finish(long now) {
@@ -648,16 +648,28 @@ public abstract class GrabRoutine {
      * to {@code to}'s as a straight In does.
      */
     private void driveIn(Pose from, Pose to) {
-        Pose control = inControl(from, to);
+        driveCurve(from, to, inSpeed(), inControl(from, to));
+    }
+
+    /** {@link #drivePath} when {@code control} is null, else a curve through it, the heading as a straight path's. */
+    private void driveCurve(Pose from, Pose to, double speed, Pose control) {
         if (control == null) {
-            drivePath(from, to, inSpeed());
+            drivePath(from, to, speed);
             return;
         }
         Path path = Paths.curve(from, control, to)
                 .heading(Interpolator.piecewise().until(1, Interpolator.linear(from, to)))
-                .with(speedCap(inSpeed()));
+                .with(speedCap(speed));
         robot.drive.setAccelLimited(true);
         robot.drive.follow(path);
+    }
+
+    /**
+     * A control point for the Back's path, as {@link #inControl} is for the In's: a GARDEN gather's
+     * backs straight up the side wall before turning off it. Null (the default): a straight Back.
+     */
+    protected Pose backControl(Pose from, Pose to) {
+        return null;
     }
 
     /**

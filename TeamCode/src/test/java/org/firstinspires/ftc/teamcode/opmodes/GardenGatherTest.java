@@ -38,4 +38,15 @@ public class GardenGatherTest {
         assertEquals(8.0, c.x(), EPS);
         assertEquals(20.0, c.y(), EPS);
     }
+
+    /**
+     * The back out's control point is the drive in's mirror: from the corner (8.0, 9.5) back to the
+     * start (11.5, 22.1), it is on the wall's line through the corner, level with the start.
+     */
+    @Test
+    public void theBackOutsControlIsUpTheWallLevelWithTheStart() {
+        Pose c = GardenGather.wallControl(new Pose(11.5, 22.1, Math.toRadians(270)), new Pose(8.0, 9.5, Math.toRadians(270)));
+        assertEquals(8.0, c.x(), EPS);
+        assertEquals(22.1, c.y(), EPS);
+    }
 }

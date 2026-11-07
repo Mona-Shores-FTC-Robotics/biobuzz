@@ -89,6 +89,13 @@ public final class GardenGather extends GrabRoutine {
      * {@link #towardWallIn}, which pins it.
      */
     public static double laneTowardWallIn = 0.5;
+    /**
+     * The back out curves too, the drive in run backwards: straight back up the side wall first,
+     * then over to where the drive in started, so the stick, still down, does not sweep sideways
+     * across the corner on the way out. Off: one straight diagonal back. Untried (6 Nov 2026):
+     * flip it at the practice field to compare.
+     */
+    public static boolean curveBackOut = true;
     /** Already lined up: this close to the line-up pose, inches, skips the line-up path. */
     public static double atLineUpIn = 1.5;
     /** Already lined up: this square, degrees, skips the line-up path. */
@@ -208,6 +215,13 @@ public final class GardenGather extends GrabRoutine {
     @Override
     protected Pose inControl(Pose from, Pose to) {
         return curveToWall ? wallControl(from, to) : null;
+    }
+
+    @Override
+    protected Pose backControl(Pose from, Pose to) {
+        // The mirror of the drive in: on the wall's line through where the drive in ended, level
+        // with where it started.
+        return curveBackOut ? wallControl(to, new Pose(from.x(), from.y(), garden.gather.heading())) : null;
     }
 
     /**
