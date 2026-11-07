@@ -1,0 +1,33 @@
+{
+ "auto": "r-partner-tip",
+ "commit": "c6533c88e6452801ac79afba077f29e0d14b5fee",
+ "branch": "claude/relaxed-brahmagupta-fpt0e3",
+ "pp": "TeamCode/autos/r-partner-tip.pp",
+ "spec": "RPartnerTipAuto",
+ "design": "real robot, turret locked forward, POLLEN only",
+ "alliance": "RED",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/41602887424",
+ "finishedAt": "2026-11-03T08:25:44.602794+00:00",
+ "runs": [
+  {
+   "partner": null,
+   "partnerName": null,
+   "folder": "r-partner-tip",
+   "result": "r-partner-tip/c6533c88e6452801ac79afba077f29e0d14b5fee/result.json",
+   "latest": "r-partner-tip/latest.json",
+   "bestSeed": 3,
+   "typicalSeed": 5,
+   "meanPoints": 28.0
+  },
+  {
+   "partner": "PartnerLTipAuto",
+   "partnerName": "partner-l-tip",
+   "folder": "r-partner-tip/with/partner-l-tip",
+   "result": "r-partner-tip/with/partner-l-tip/c6533c88e6452801ac79afba077f29e0d14b5fee/result.json",
+   "latest": "r-partner-tip/with/partner-l-tip/latest.json",
+   "bestSeed": 3,
+   "typicalSeed": 5,
+   "meanPoints": 56.0
+  }
+ ]
+}

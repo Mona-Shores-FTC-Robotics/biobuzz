@@ -1,0 +1,452 @@
+{
+ "designs": [
+  "real robot",
+  "real robot, turret locked forward",
+  "real robot, POLLEN only",
+  "real robot, turret locked forward, POLLEN only"
+ ],
+ "spec": "LInfravioletAuto,PartnerRBrokenDownAuto@50",
+ "design": "real robot, turret locked forward",
+ "partnerDesign": null,
+ "alliance": "RED",
+ "entry": {
+  "name": "partner stays at its start",
+  "folder": "partner-r-broken-down/partner-stays-at-its-start",
+  "spec": "LInfravioletAuto,PartnerRBrokenDownAuto@50",
+  "partner": "PartnerRBrokenDownAuto",
+  "partnerSource": "partner-r-broken-down.pp",
+  "timing": null,
+  "timingSlug": "default",
+  "lastShotS": null,
+  "partnerWaitUntilS": null,
+  "fails": null,
+  "pushable": false,
+  "rows": [
+   {
+    "seed": 1,
+    "log": "seed-1.wpilog",
+    "points": 8,
+    "launched": 0,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "TIP 1 settled: LEFT up before 8 s",
+     "startedAt": 0.62,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "TIP 1 settled: LEFT up before 8 s",
+      "startedAt": 0.62,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 9.700000000000001,
+    "partnerFinishedAt": null,
+    "g409": 0
+   },
+   {
+    "seed": 2,
+    "log": "seed-2.wpilog",
+    "points": 8,
+    "launched": 0,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "TIP 1 settled: LEFT up before 8 s",
+     "startedAt": 0.62,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "TIP 1 settled: LEFT up before 8 s",
+      "startedAt": 0.62,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 9.700000000000001,
+    "partnerFinishedAt": null,
+    "g409": 0
+   },
+   {
+    "seed": 3,
+    "log": "seed-3.wpilog",
+    "points": 8,
+    "launched": 0,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "TIP 1 settled: LEFT up before 8 s",
+     "startedAt": 0.62,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "TIP 1 settled: LEFT up before 8 s",
+      "startedAt": 0.62,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 9.700000000000001,
+    "partnerFinishedAt": null,
+    "g409": 0
+   }
+  ],
+  "partnerDelayS": null,
+  "partnerLaunchS": null,
+  "runs": 3,
+  "meanPoints": 8
+ },
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 8,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-infraviolet",
+     "launched": 0,
+     "finishedAt": 9.700000000000001,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "TIP 1 settled: LEFT up before 8 s",
+       "startedAt": 0.62,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_LAUNCH_CATCH (holds 4)",
+      " 0.62 wait TIP 1 settled: LEFT up before 8 s (holds 4)",
+      " 8.00 TIP 1 settled: LEFT up before 8 s: 8.0 s on the match clock after 7.38 s (holds 4)",
+      " 8.00 path left abort park to LEFT_PARK (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-infraviolet + partner-r-broken-down RED: launched 0, scored 0, HIVE tipped at (never); l-infraviolet launched 0, finished at 9.7 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 66% loaded and 8 held"
+  },
+  {
+   "seed": 2,
+   "log": "seed-2.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 8,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-infraviolet",
+     "launched": 0,
+     "finishedAt": 9.700000000000001,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "TIP 1 settled: LEFT up before 8 s",
+       "startedAt": 0.62,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_LAUNCH_CATCH (holds 4)",
+      " 0.62 wait TIP 1 settled: LEFT up before 8 s (holds 4)",
+      " 8.00 TIP 1 settled: LEFT up before 8 s: 8.0 s on the match clock after 7.38 s (holds 4)",
+      " 8.00 path left abort park to LEFT_PARK (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-infraviolet + partner-r-broken-down RED: launched 0, scored 0, HIVE tipped at (never); l-infraviolet launched 0, finished at 9.7 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 66% loaded and 8 held"
+  },
+  {
+   "seed": 3,
+   "log": "seed-3.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 8,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-infraviolet",
+     "launched": 0,
+     "finishedAt": 9.700000000000001,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "TIP 1 settled: LEFT up before 8 s",
+       "startedAt": 0.62,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_LAUNCH_CATCH (holds 4)",
+      " 0.62 wait TIP 1 settled: LEFT up before 8 s (holds 4)",
+      " 8.00 TIP 1 settled: LEFT up before 8 s: 8.0 s on the match clock after 7.38 s (holds 4)",
+      " 8.00 path left abort park to LEFT_PARK (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-infraviolet + partner-r-broken-down RED: launched 0, scored 0, HIVE tipped at (never); l-infraviolet launched 0, finished at 9.7 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 66% loaded and 8 held"
+  }
+ ],
+ "auto": "l-infraviolet",
+ "commit": "1aa4029a1fa35f2a3a002aeb96bcfda03dd55cfc",
+ "branch": "feat/infraviolet-pair",
+ "pp": "TeamCode/autos/drafts/l-infraviolet.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/42233333704",
+ "finishedAt": "2026-11-06T14:23:41.381860+00:00",
+ "request": {
+  "pp": "TeamCode/autos/drafts/l-infraviolet.pp",
+  "spec": "LInfravioletAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+   1,
+   2,
+   3
+  ],
+  "partnerSeeds": [
+   1,
+   2,
+   3
+  ],
+  "alliance": "RED",
+  "partners": [
+   {
+    "name": "matching Infraviolet pair",
+    "partner": "RInfravioletAuto",
+    "timing": {
+     "speed": 50
+    }
+   },
+   {
+    "name": "matching partner drives 20 percent slower",
+    "partner": "RInfravioletAuto",
+    "timing": {
+     "speed": 40
+    }
+   },
+   {
+    "name": "matching partner misses",
+    "partner": "RInfravioletAuto",
+    "fails": "misses",
+    "timing": {
+     "speed": 50
+    }
+   },
+   {
+    "name": "partner stays at its start",
+    "partner": "PartnerRBrokenDownAuto"
+   }
+  ],
+  "metadata": {
+   "AutoSource": "drafts/l-infraviolet.pp",
+   "SavedBy": "Infraviolet candidate: L early garden, R both flowers; forward loaded crossings",
+   "SavedAt": "2026-11-06T14:21:32.658Z",
+   "SourceCommit": "1aa4029a1fa35f2a3a002aeb96bcfda03dd55cfc",
+   "SourceBranch": "feat/infraviolet-pair",
+   "SourcePath": "TeamCode/autos/drafts/l-infraviolet.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/42233333704"
+  }
+ },
+ "typicalSeed": 2,
+ "bestSeed": 1,
+ "logs": {
+  "1": "l-infraviolet-1aa4029-partner-r-broken-down-partner-stays-at-its-start-seed-1.wpilog",
+  "2": "l-infraviolet-1aa4029-partner-r-broken-down-partner-stays-at-its-start-seed-2.wpilog"
+ },
+ "folder": "partner-r-broken-down/partner-stays-at-its-start"
+}

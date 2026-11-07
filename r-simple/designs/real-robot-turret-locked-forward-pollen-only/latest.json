@@ -1,0 +1,623 @@
+{
+ "designs": [
+  "real robot",
+  "real robot, turret locked forward",
+  "real robot, POLLEN only",
+  "real robot, turret locked forward, POLLEN only"
+ ],
+ "spec": "RSimpleAuto,PartnerPark1Auto@50",
+ "design": "real robot, turret locked forward, POLLEN only",
+ "partnerDesign": null,
+ "alliance": "RED",
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    4.62
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 6.4,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path to RIGHT_PARK (holds 0)",
+      " 3.66 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-park-1",
+     "launched": 0,
+     "finishedAt": 16.92,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 15.44,
+     "timeline": [
+      " 0.00 wait Parks at 15 s: change this to when the partner parks (holds 4)",
+      "15.00 Parks at 15 s: change this to when the partner parks: 15000 ms passed after 15.00 s (holds 4)",
+      "15.02 path to PARTNER_PARK (holds 4)",
+      "15.44 drives into a FLOWER at (58.5, 132.6) heading 276"
+     ]
+    }
+   ],
+   "summary": "r-simple + partner-park-1 RED: launched 4, scored 4, HIVE tipped at 4.6 s; r-simple launched 4, finished at 6.4 s, LEAVE yes, PARK yes; partner-park-1 launched 0, finished at 16.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 15.4 s; 36 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 2,
+   "log": "seed-2.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    4.64
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 6.4,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path to RIGHT_PARK (holds 0)",
+      " 3.66 miss: height POLLEN robot 1",
+      "14.00 miss: nectar red NECTAR robot 1",
+      "14.30 miss: nectar red NECTAR robot 1",
+      "14.60 miss: nectar red NECTAR robot 1",
+      "14.90 miss: nectar red NECTAR robot 1",
+      "15.20 miss: beside red NECTAR robot 1",
+      "16.70 miss: beside red NECTAR robot 1"
+     ]
+    },
+    {
+     "auto": "partner-park-1",
+     "launched": 0,
+     "finishedAt": 16.92,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 15.44,
+     "timeline": [
+      " 0.00 wait Parks at 15 s: change this to when the partner parks (holds 4)",
+      "15.00 Parks at 15 s: change this to when the partner parks: 15000 ms passed after 15.00 s (holds 4)",
+      "15.02 path to PARTNER_PARK (holds 4)",
+      "15.44 drives into a FLOWER at (58.5, 132.6) heading 276"
+     ]
+    }
+   ],
+   "summary": "r-simple + partner-park-1 RED: launched 4, scored 4, HIVE tipped at 4.6 s; r-simple launched 4, finished at 6.4 s, LEAVE yes, PARK yes; partner-park-1 launched 0, finished at 16.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 15.4 s; 36 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 3,
+   "log": "seed-3.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    4.34
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 6.4,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path to RIGHT_PARK (holds 0)",
+      " 3.66 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-park-1",
+     "launched": 0,
+     "finishedAt": 16.92,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 15.44,
+     "timeline": [
+      " 0.00 wait Parks at 15 s: change this to when the partner parks (holds 4)",
+      "15.00 Parks at 15 s: change this to when the partner parks: 15000 ms passed after 15.00 s (holds 4)",
+      "15.02 path to PARTNER_PARK (holds 4)",
+      "15.44 drives into a FLOWER at (58.5, 132.6) heading 276"
+     ]
+    }
+   ],
+   "summary": "r-simple + partner-park-1 RED: launched 4, scored 4, HIVE tipped at 4.3 s; r-simple launched 4, finished at 6.4 s, LEAVE yes, PARK yes; partner-park-1 launched 0, finished at 16.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 15.4 s; 36 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 4,
+   "log": "seed-4.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    4.74
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 6.4,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path to RIGHT_PARK (holds 0)",
+      " 3.66 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-park-1",
+     "launched": 0,
+     "finishedAt": 16.92,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 15.44,
+     "timeline": [
+      " 0.00 wait Parks at 15 s: change this to when the partner parks (holds 4)",
+      "15.00 Parks at 15 s: change this to when the partner parks: 15000 ms passed after 15.00 s (holds 4)",
+      "15.02 path to PARTNER_PARK (holds 4)",
+      "15.44 drives into a FLOWER at (58.5, 132.6) heading 276"
+     ]
+    }
+   ],
+   "summary": "r-simple + partner-park-1 RED: launched 4, scored 4, HIVE tipped at 4.7 s; r-simple launched 4, finished at 6.4 s, LEAVE yes, PARK yes; partner-park-1 launched 0, finished at 16.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 15.4 s; 36 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 5,
+   "log": "seed-5.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    4.62
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 6.4,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path to RIGHT_PARK (holds 0)",
+      " 3.66 miss: height POLLEN robot 1",
+      "11.14 miss: beside red NECTAR robot 1"
+     ]
+    },
+    {
+     "auto": "partner-park-1",
+     "launched": 0,
+     "finishedAt": 16.92,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 15.44,
+     "timeline": [
+      " 0.00 wait Parks at 15 s: change this to when the partner parks (holds 4)",
+      "15.00 Parks at 15 s: change this to when the partner parks: 15000 ms passed after 15.00 s (holds 4)",
+      "15.02 path to PARTNER_PARK (holds 4)",
+      "15.44 drives into a FLOWER at (58.5, 132.6) heading 276"
+     ]
+    }
+   ],
+   "summary": "r-simple + partner-park-1 RED: launched 4, scored 4, HIVE tipped at 4.6 s; r-simple launched 4, finished at 6.4 s, LEAVE yes, PARK yes; partner-park-1 launched 0, finished at 16.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 15.4 s; 36 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 6,
+   "log": "seed-6.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    4.92
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 6.4,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path to RIGHT_PARK (holds 0)",
+      " 3.66 miss: height POLLEN robot 1",
+      "19.26 miss: beside red NECTAR robot 1",
+      "19.56 miss: beside red NECTAR robot 1",
+      "19.86 miss: beside red NECTAR robot 1",
+      "20.16 miss: beside red NECTAR robot 1",
+      "20.46 miss: beside red NECTAR robot 1",
+      "20.76 miss: beside red NECTAR robot 1"
+     ]
+    },
+    {
+     "auto": "partner-park-1",
+     "launched": 0,
+     "finishedAt": 16.92,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 15.44,
+     "timeline": [
+      " 0.00 wait Parks at 15 s: change this to when the partner parks (holds 4)",
+      "15.00 Parks at 15 s: change this to when the partner parks: 15000 ms passed after 15.00 s (holds 4)",
+      "15.02 path to PARTNER_PARK (holds 4)",
+      "15.44 drives into a FLOWER at (58.5, 132.6) heading 276"
+     ]
+    }
+   ],
+   "summary": "r-simple + partner-park-1 RED: launched 4, scored 4, HIVE tipped at 4.9 s; r-simple launched 4, finished at 6.4 s, LEAVE yes, PARK yes; partner-park-1 launched 0, finished at 16.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 15.4 s; 36 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 7,
+   "log": "seed-7.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    4.8
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 6.4,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path to RIGHT_PARK (holds 0)",
+      " 3.66 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-park-1",
+     "launched": 0,
+     "finishedAt": 16.92,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 15.44,
+     "timeline": [
+      " 0.00 wait Parks at 15 s: change this to when the partner parks (holds 4)",
+      "15.00 Parks at 15 s: change this to when the partner parks: 15000 ms passed after 15.00 s (holds 4)",
+      "15.02 path to PARTNER_PARK (holds 4)",
+      "15.44 drives into a FLOWER at (58.5, 132.6) heading 276"
+     ]
+    }
+   ],
+   "summary": "r-simple + partner-park-1 RED: launched 4, scored 4, HIVE tipped at 4.8 s; r-simple launched 4, finished at 6.4 s, LEAVE yes, PARK yes; partner-park-1 launched 0, finished at 16.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 15.4 s; 36 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 8,
+   "log": "seed-8.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    4.54
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 6.4,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path to RIGHT_PARK (holds 0)",
+      " 3.66 miss: height POLLEN robot 1",
+      " 8.66 miss: beside red NECTAR robot 1"
+     ]
+    },
+    {
+     "auto": "partner-park-1",
+     "launched": 0,
+     "finishedAt": 16.92,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 15.44,
+     "timeline": [
+      " 0.00 wait Parks at 15 s: change this to when the partner parks (holds 4)",
+      "15.00 Parks at 15 s: change this to when the partner parks: 15000 ms passed after 15.00 s (holds 4)",
+      "15.02 path to PARTNER_PARK (holds 4)",
+      "15.44 drives into a FLOWER at (58.5, 132.6) heading 276"
+     ]
+    }
+   ],
+   "summary": "r-simple + partner-park-1 RED: launched 4, scored 4, HIVE tipped at 4.5 s; r-simple launched 4, finished at 6.4 s, LEAVE yes, PARK yes; partner-park-1 launched 0, finished at 16.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 15.4 s; 36 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 9,
+   "log": "seed-9.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    4.84
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 6.4,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path to RIGHT_PARK (holds 0)",
+      " 3.66 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-park-1",
+     "launched": 0,
+     "finishedAt": 16.92,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 15.44,
+     "timeline": [
+      " 0.00 wait Parks at 15 s: change this to when the partner parks (holds 4)",
+      "15.00 Parks at 15 s: change this to when the partner parks: 15000 ms passed after 15.00 s (holds 4)",
+      "15.02 path to PARTNER_PARK (holds 4)",
+      "15.44 drives into a FLOWER at (58.5, 132.6) heading 276"
+     ]
+    }
+   ],
+   "summary": "r-simple + partner-park-1 RED: launched 4, scored 4, HIVE tipped at 4.8 s; r-simple launched 4, finished at 6.4 s, LEAVE yes, PARK yes; partner-park-1 launched 0, finished at 16.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 15.4 s; 36 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 10,
+   "log": "seed-10.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    4.68
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 6.4,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path to RIGHT_PARK (holds 0)",
+      " 3.66 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-park-1",
+     "launched": 0,
+     "finishedAt": 16.92,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 15.44,
+     "timeline": [
+      " 0.00 wait Parks at 15 s: change this to when the partner parks (holds 4)",
+      "15.00 Parks at 15 s: change this to when the partner parks: 15000 ms passed after 15.00 s (holds 4)",
+      "15.02 path to PARTNER_PARK (holds 4)",
+      "15.44 drives into a FLOWER at (58.5, 132.6) heading 276"
+     ]
+    }
+   ],
+   "summary": "r-simple + partner-park-1 RED: launched 4, scored 4, HIVE tipped at 4.7 s; r-simple launched 4, finished at 6.4 s, LEAVE yes, PARK yes; partner-park-1 launched 0, finished at 16.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 15.4 s; 36 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  }
+ ],
+ "auto": "r-simple",
+ "commit": "c4101630ec03da24840f2d56bdb6dbc600d91ec2",
+ "branch": "claude/sim-master",
+ "pp": "TeamCode/autos/r-simple.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/41459060607",
+ "finishedAt": "2026-11-02T14:09:47.208891+00:00",
+ "request": {
+  "pp": "TeamCode/autos/r-simple.pp",
+  "spec": "RSimpleAuto,PartnerPark1Auto@50",
+  "design": "real robot, turret locked forward, POLLEN only",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10
+  ],
+  "alliance": "RED",
+  "metadata": {
+   "AutoSource": "r-simple.pp",
+   "SavedBy": "master after #358/#359 (Claude), partnered",
+   "SourceCommit": "c4101630ec03da24840f2d56bdb6dbc600d91ec2",
+   "SourceBranch": "claude/sim-master",
+   "SourcePath": "TeamCode/autos/r-simple.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/41459060607"
+  }
+ },
+ "typicalSeed": 5,
+ "bestSeed": 3,
+ "logs": {
+  "3": "r-simple-c410163-seed-3.wpilog",
+  "5": "r-simple-c410163-seed-5.wpilog"
+ },
+ "designFolder": "designs/real-robot-turret-locked-forward-pollen-only",
+ "namedLogs": {
+  "best": "r-simple_RealRobotTurretLockedForwardPOLLENOnly_2026-11-02_best.wpilog",
+  "typical": "r-simple_RealRobotTurretLockedForwardPOLLENOnly_2026-11-02_typical.wpilog"
+ }
+}

@@ -1,0 +1,1428 @@
+{
+ "designs": [
+  "real robot",
+  "real robot, turret locked forward",
+  "real robot, POLLEN only",
+  "real robot, turret locked forward, POLLEN only"
+ ],
+ "spec": "RInfravioletAuto@50",
+ "design": "real robot, turret locked forward",
+ "partnerDesign": null,
+ "alliance": "RED",
+ "entry": {
+  "name": "alone",
+  "folder": "",
+  "spec": "RInfravioletAuto@50",
+  "partner": null,
+  "partnerSource": null,
+  "timing": null,
+  "timingSlug": null,
+  "lastShotS": null,
+  "partnerWaitUntilS": null,
+  "fails": null,
+  "pushable": false,
+  "rows": [
+   {
+    "seed": 1,
+    "log": "seed-1.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": null,
+    "launchedAtDownCell": 4,
+    "partnerLaunchedAtDownCell": null,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     4.0600000000000005
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 14 s, otherwise park",
+     "startedAt": 11.28,
+     "outcome": "LeftCellUp",
+     "fired": true,
+     "after": 0.02,
+     "at": 11.3
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     {
+      "label": "TIP 2 settled before 16 s: scoring flower or park",
+      "startedAt": 14.54,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": null,
+    "partnerLeave": null,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 18.18,
+    "partnerFinishedAt": null,
+    "g409": 0
+   },
+   {
+    "seed": 2,
+    "log": "seed-2.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": null,
+    "launchedAtDownCell": 3,
+    "partnerLaunchedAtDownCell": null,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     4.26
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 14 s, otherwise park",
+     "startedAt": 11.28,
+     "outcome": "LeftCellUp",
+     "fired": true,
+     "after": 0.02,
+     "at": 11.3
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     {
+      "label": "TIP 2 settled before 16 s: scoring flower or park",
+      "startedAt": 14.54,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": null,
+    "partnerLeave": null,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 18.18,
+    "partnerFinishedAt": null,
+    "g409": 0
+   },
+   {
+    "seed": 3,
+    "log": "seed-3.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": null,
+    "launchedAtDownCell": 4,
+    "partnerLaunchedAtDownCell": null,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     4.08
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 14 s, otherwise park",
+     "startedAt": 11.28,
+     "outcome": "LeftCellUp",
+     "fired": true,
+     "after": 0.02,
+     "at": 11.3
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     {
+      "label": "TIP 2 settled before 16 s: scoring flower or park",
+      "startedAt": 14.54,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": null,
+    "partnerLeave": null,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 18.18,
+    "partnerFinishedAt": null,
+    "g409": 0
+   }
+  ],
+  "runs": 3,
+  "meanPoints": 28
+ },
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    4.0600000000000005
+   ],
+   "launched": 8,
+   "scored": 7,
+   "cellLoad": 0.5228419399429055,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-infraviolet",
+     "launched": 8,
+     "finishedAt": 18.18,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": 11.6,
+     "hitHiveAt": null,
+     "hitFlowerAt": 6.4,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 LaunchAll fires at the low-end CELL, which is not up: those pieces are wasted (holds 2)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path wall flower to WALL_FLOWER_STAGING (holds 0)",
+      " 3.66 miss: height POLLEN robot 1",
+      " 4.78 miss: shot-hive POLLEN robot 1",
+      " 5.46 command PickFlower (holds 0)",
+      " 6.40 drives into a FLOWER at (13.2, 47.4) heading 180",
+      " 6.40 miss: interval POLLEN robot 1",
+      " 6.48 miss: interval POLLEN robot 1",
+      " 6.70 miss: interval POLLEN robot 1",
+      " 6.78 miss: interval POLLEN robot 1",
+      " 6.98 miss: interval POLLEN robot 1",
+      " 7.08 miss: interval POLLEN robot 1",
+      " 7.28 miss: interval POLLEN robot 1",
+      " 7.38 miss: interval POLLEN robot 1",
+      " 7.58 miss: interval POLLEN robot 1",
+      " 7.88 miss: interval POLLEN robot 1",
+      " 8.62 path wall lane north to LEFT_LAUNCH_CLOSE (holds 4)",
+      "11.28 wait LEFT up before 14 s, otherwise park (holds 4)",
+      "11.30 LEFT up before 14 s, otherwise park: LeftCellUp after 0.02 s (holds 4)",
+      "11.30 command LaunchAll (holds 4)",
+      "11.60 G402 corner (70.86, 114.17), pose (59.90, 117.50, 118.1 deg)",
+      "11.92 miss: height POLLEN robot 1",
+      "12.80 miss: height POLLEN robot 1",
+      "13.66 LaunchAll fires at the high-end CELL, which is not up: those pieces are wasted (holds 1)",
+      "13.68 miss: height POLLEN robot 1",
+      "14.54 wait TIP 2 settled before 16 s: scoring flower or park (holds 0)",
+      "14.56 miss: height POLLEN robot 1",
+      "16.00 TIP 2 settled before 16 s: scoring flower or park: 16.0 s on the match clock after 1.46 s (holds 0)",
+      "16.00 path left abort park to RIGHT_PARK (holds 0)"
+     ]
+    }
+   ],
+   "summary": "r-infraviolet RED: launched 8, scored 7, HIVE tipped at 4.1 s; finished at 18.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 52% loaded and 0 held"
+  },
+  {
+   "seed": 2,
+   "log": "seed-2.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    4.26
+   ],
+   "launched": 8,
+   "scored": 7,
+   "cellLoad": 0.5228419399429055,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-infraviolet",
+     "launched": 8,
+     "finishedAt": 18.18,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": 11.6,
+     "hitHiveAt": null,
+     "hitFlowerAt": 6.4,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 LaunchAll fires at the low-end CELL, which is not up: those pieces are wasted (holds 2)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path wall flower to WALL_FLOWER_STAGING (holds 0)",
+      " 3.66 miss: height POLLEN robot 1",
+      " 4.78 miss: shot-hive POLLEN robot 1",
+      " 5.46 command PickFlower (holds 0)",
+      " 6.40 drives into a FLOWER at (13.2, 47.4) heading 180",
+      " 6.40 miss: interval POLLEN robot 1",
+      " 6.48 miss: interval POLLEN robot 1",
+      " 6.70 miss: interval POLLEN robot 1",
+      " 6.78 miss: interval POLLEN robot 1",
+      " 6.98 miss: interval POLLEN robot 1",
+      " 7.08 miss: interval POLLEN robot 1",
+      " 7.28 miss: interval POLLEN robot 1",
+      " 7.38 miss: interval POLLEN robot 1",
+      " 7.58 miss: interval POLLEN robot 1",
+      " 7.88 miss: interval POLLEN robot 1",
+      " 8.62 path wall lane north to LEFT_LAUNCH_CLOSE (holds 4)",
+      "11.28 wait LEFT up before 14 s, otherwise park (holds 4)",
+      "11.30 LEFT up before 14 s, otherwise park: LeftCellUp after 0.02 s (holds 4)",
+      "11.30 command LaunchAll (holds 4)",
+      "11.60 G402 corner (70.86, 114.17), pose (59.90, 117.50, 118.1 deg)",
+      "11.92 miss: height POLLEN robot 1",
+      "12.80 miss: height POLLEN robot 1",
+      "13.68 miss: height POLLEN robot 1",
+      "14.54 wait TIP 2 settled before 16 s: scoring flower or park (holds 0)",
+      "14.56 miss: height POLLEN robot 1",
+      "16.00 TIP 2 settled before 16 s: scoring flower or park: 16.0 s on the match clock after 1.46 s (holds 0)",
+      "16.00 path left abort park to RIGHT_PARK (holds 0)"
+     ]
+    }
+   ],
+   "summary": "r-infraviolet RED: launched 8, scored 7, HIVE tipped at 4.3 s; finished at 18.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 52% loaded and 0 held"
+  },
+  {
+   "seed": 3,
+   "log": "seed-3.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    4.08
+   ],
+   "launched": 8,
+   "scored": 7,
+   "cellLoad": 0.5228419399429055,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-infraviolet",
+     "launched": 8,
+     "finishedAt": 18.18,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": 11.6,
+     "hitHiveAt": null,
+     "hitFlowerAt": 6.4,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.90 LaunchAll fires at the low-end CELL, which is not up: those pieces are wasted (holds 2)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.78 miss: height POLLEN robot 1",
+      " 3.66 path wall flower to WALL_FLOWER_STAGING (holds 0)",
+      " 3.66 miss: height POLLEN robot 1",
+      " 4.78 miss: shot-hive POLLEN robot 1",
+      " 5.46 command PickFlower (holds 0)",
+      " 6.40 drives into a FLOWER at (13.2, 47.4) heading 180",
+      " 6.40 miss: interval POLLEN robot 1",
+      " 6.48 miss: interval POLLEN robot 1",
+      " 6.70 miss: interval POLLEN robot 1",
+      " 6.78 miss: interval POLLEN robot 1",
+      " 6.98 miss: interval POLLEN robot 1",
+      " 7.08 miss: interval POLLEN robot 1",
+      " 7.28 miss: interval POLLEN robot 1",
+      " 7.38 miss: interval POLLEN robot 1",
+      " 7.58 miss: interval POLLEN robot 1",
+      " 7.88 miss: interval POLLEN robot 1",
+      " 8.62 path wall lane north to LEFT_LAUNCH_CLOSE (holds 4)",
+      "11.28 wait LEFT up before 14 s, otherwise park (holds 4)",
+      "11.30 LEFT up before 14 s, otherwise park: LeftCellUp after 0.02 s (holds 4)",
+      "11.30 command LaunchAll (holds 4)",
+      "11.60 G402 corner (70.86, 114.17), pose (59.90, 117.50, 118.1 deg)",
+      "11.92 miss: height POLLEN robot 1",
+      "12.80 miss: height POLLEN robot 1",
+      "13.66 LaunchAll fires at the high-end CELL, which is not up: those pieces are wasted (holds 1)",
+      "13.68 miss: height POLLEN robot 1",
+      "14.54 wait TIP 2 settled before 16 s: scoring flower or park (holds 0)",
+      "14.56 miss: height POLLEN robot 1",
+      "16.00 TIP 2 settled before 16 s: scoring flower or park: 16.0 s on the match clock after 1.46 s (holds 0)",
+      "16.00 path left abort park to RIGHT_PARK (holds 0)"
+     ]
+    }
+   ],
+   "summary": "r-infraviolet RED: launched 8, scored 7, HIVE tipped at 4.1 s; finished at 18.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 52% loaded and 0 held"
+  }
+ ],
+ "entries": [
+  {
+   "name": "alone",
+   "folder": "",
+   "spec": "RInfravioletAuto@50",
+   "partner": null,
+   "partnerSource": null,
+   "timing": null,
+   "timingSlug": null,
+   "lastShotS": null,
+   "partnerWaitUntilS": null,
+   "fails": null,
+   "pushable": false,
+   "rows": [
+    {
+     "seed": 1,
+     "log": "seed-1.wpilog",
+     "points": 28,
+     "launched": 8,
+     "partnerLaunched": null,
+     "launchedAtDownCell": 4,
+     "partnerLaunchedAtDownCell": null,
+     "partnerLastShotAt": null,
+     "tipsAt": [
+      4.0600000000000005
+     ],
+     "autoTips": 1,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": null,
+     "partnerLeave": null,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": null,
+     "g409": 0
+    },
+    {
+     "seed": 2,
+     "log": "seed-2.wpilog",
+     "points": 28,
+     "launched": 8,
+     "partnerLaunched": null,
+     "launchedAtDownCell": 3,
+     "partnerLaunchedAtDownCell": null,
+     "partnerLastShotAt": null,
+     "tipsAt": [
+      4.26
+     ],
+     "autoTips": 1,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": null,
+     "partnerLeave": null,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": null,
+     "g409": 0
+    },
+    {
+     "seed": 3,
+     "log": "seed-3.wpilog",
+     "points": 28,
+     "launched": 8,
+     "partnerLaunched": null,
+     "launchedAtDownCell": 4,
+     "partnerLaunchedAtDownCell": null,
+     "partnerLastShotAt": null,
+     "tipsAt": [
+      4.08
+     ],
+     "autoTips": 1,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": null,
+     "partnerLeave": null,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": null,
+     "g409": 0
+    }
+   ],
+   "runs": 3,
+   "meanPoints": 28
+  },
+  {
+   "name": "matching Infraviolet pair",
+   "folder": "l-infraviolet/matching-infraviolet-pair",
+   "spec": "RInfravioletAuto,LInfravioletAuto@50",
+   "partner": "LInfravioletAuto",
+   "partnerSource": "l-infraviolet.pp",
+   "timing": {
+    "speed": 50
+   },
+   "timingSlug": "speed50.0",
+   "lastShotS": null,
+   "partnerWaitUntilS": null,
+   "fails": null,
+   "pushable": false,
+   "rows": [
+    {
+     "seed": 1,
+     "log": "seed-1.wpilog",
+     "points": 56,
+     "launched": 8,
+     "partnerLaunched": 8,
+     "launchedAtDownCell": 5,
+     "partnerLaunchedAtDownCell": 0,
+     "partnerLastShotAt": 19.8,
+     "tipsAt": [
+      4.0600000000000005,
+      15.9
+     ],
+     "autoTips": 2,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up before 22.5 s, otherwise park",
+       "startedAt": 23.06,
+       "outcome": "22.5 s on the match clock",
+       "fired": false,
+       "after": 0.02,
+       "at": 23.08
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 25.94,
+     "partnerFinishedAt": 23.18,
+     "g409": 0
+    },
+    {
+     "seed": 2,
+     "log": "seed-2.wpilog",
+     "points": 56,
+     "launched": 8,
+     "partnerLaunched": 8,
+     "launchedAtDownCell": 4,
+     "partnerLaunchedAtDownCell": 2,
+     "partnerLastShotAt": 20,
+     "tipsAt": [
+      4.26,
+      15.98
+     ],
+     "autoTips": 2,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": 23.38,
+     "g409": 0
+    },
+    {
+     "seed": 3,
+     "log": "seed-3.wpilog",
+     "points": 56,
+     "launched": 8,
+     "partnerLaunched": 8,
+     "launchedAtDownCell": 4,
+     "partnerLaunchedAtDownCell": 4,
+     "partnerLastShotAt": 19.82,
+     "tipsAt": [
+      4.08,
+      16
+     ],
+     "autoTips": 2,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": 23.2,
+     "g409": 0
+    }
+   ],
+   "partnerDelayS": null,
+   "partnerLaunchS": null,
+   "runs": 3,
+   "meanPoints": 56,
+   "typicalSeed": 2,
+   "bestSeed": 1,
+   "logs": {
+    "1": "r-infraviolet-357a6c3-l-infraviolet-matching-infraviolet-pair-seed-1.wpilog",
+    "2": "r-infraviolet-357a6c3-l-infraviolet-matching-infraviolet-pair-seed-2.wpilog"
+   }
+  },
+  {
+   "name": "matching partner drives 20 percent slower",
+   "folder": "l-infraviolet/matching-partner-drives-20-percent-slower",
+   "spec": "RInfravioletAuto,LInfravioletAuto@50",
+   "partner": "LInfravioletAuto",
+   "partnerSource": "l-infraviolet.pp",
+   "timing": {
+    "speed": 40
+   },
+   "timingSlug": "speed40.0",
+   "lastShotS": null,
+   "partnerWaitUntilS": null,
+   "fails": null,
+   "pushable": false,
+   "rows": [
+    {
+     "seed": 1,
+     "log": "seed-1.wpilog",
+     "points": 56,
+     "launched": 8,
+     "partnerLaunched": 8,
+     "launchedAtDownCell": 5,
+     "partnerLaunchedAtDownCell": 0,
+     "partnerLastShotAt": 20.66,
+     "tipsAt": [
+      4.0600000000000005,
+      15.9
+     ],
+     "autoTips": 2,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up before 22.5 s, otherwise park",
+       "startedAt": 23.06,
+       "outcome": "22.5 s on the match clock",
+       "fired": false,
+       "after": 0.02,
+       "at": 23.08
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 25.94,
+     "partnerFinishedAt": 24.62,
+     "g409": 0
+    },
+    {
+     "seed": 2,
+     "log": "seed-2.wpilog",
+     "points": 56,
+     "launched": 8,
+     "partnerLaunched": 8,
+     "launchedAtDownCell": 4,
+     "partnerLaunchedAtDownCell": 3,
+     "partnerLastShotAt": 20.86,
+     "tipsAt": [
+      4.26,
+      15.98
+     ],
+     "autoTips": 2,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": 24.82,
+     "g409": 0
+    },
+    {
+     "seed": 3,
+     "log": "seed-3.wpilog",
+     "points": 56,
+     "launched": 8,
+     "partnerLaunched": 8,
+     "launchedAtDownCell": 4,
+     "partnerLaunchedAtDownCell": 5,
+     "partnerLastShotAt": 20.68,
+     "tipsAt": [
+      4.08,
+      16
+     ],
+     "autoTips": 2,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": 24.64,
+     "g409": 0
+    }
+   ],
+   "partnerDelayS": null,
+   "partnerLaunchS": null,
+   "runs": 3,
+   "meanPoints": 56,
+   "typicalSeed": 2,
+   "bestSeed": 1,
+   "logs": {
+    "1": "r-infraviolet-357a6c3-l-infraviolet-matching-partner-drives-20-percent-slower-seed-1.wpilog",
+    "2": "r-infraviolet-357a6c3-l-infraviolet-matching-partner-drives-20-percent-slower-seed-2.wpilog"
+   }
+  },
+  {
+   "name": "matching partner misses",
+   "folder": "l-infraviolet/matching-partner-misses",
+   "spec": "RInfravioletAuto,LInfravioletAuto@50",
+   "partner": "LInfravioletAuto",
+   "partnerSource": "l-infraviolet.pp",
+   "timing": {
+    "speed": 50
+   },
+   "timingSlug": "misses-speed50.0",
+   "lastShotS": null,
+   "partnerWaitUntilS": null,
+   "fails": "misses",
+   "pushable": false,
+   "rows": [
+    {
+     "seed": 1,
+     "log": "seed-1.wpilog",
+     "points": 36,
+     "launched": 8,
+     "partnerLaunched": 4,
+     "launchedAtDownCell": 3,
+     "partnerLaunchedAtDownCell": 0,
+     "partnerLastShotAt": 6.72,
+     "tipsAt": [
+      4.0600000000000005
+     ],
+     "autoTips": 1,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": 23.36,
+     "g409": 0
+    },
+    {
+     "seed": 2,
+     "log": "seed-2.wpilog",
+     "points": 36,
+     "launched": 8,
+     "partnerLaunched": 4,
+     "launchedAtDownCell": 3,
+     "partnerLaunchedAtDownCell": 0,
+     "partnerLastShotAt": 6.92,
+     "tipsAt": [
+      4.26
+     ],
+     "autoTips": 1,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": 23.36,
+     "g409": 0
+    },
+    {
+     "seed": 3,
+     "log": "seed-3.wpilog",
+     "points": 36,
+     "launched": 8,
+     "partnerLaunched": 4,
+     "launchedAtDownCell": 3,
+     "partnerLaunchedAtDownCell": 0,
+     "partnerLastShotAt": 6.74,
+     "tipsAt": [
+      4.08
+     ],
+     "autoTips": 1,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": 23.36,
+     "g409": 0
+    }
+   ],
+   "partnerDelayS": null,
+   "partnerLaunchS": null,
+   "runs": 3,
+   "meanPoints": 36,
+   "typicalSeed": 2,
+   "bestSeed": 1,
+   "logs": {
+    "1": "r-infraviolet-357a6c3-l-infraviolet-matching-partner-misses-seed-1.wpilog",
+    "2": "r-infraviolet-357a6c3-l-infraviolet-matching-partner-misses-seed-2.wpilog"
+   }
+  },
+  {
+   "name": "partner stays at its start",
+   "folder": "partner-l-broken-down/partner-stays-at-its-start",
+   "spec": "RInfravioletAuto,PartnerLBrokenDownAuto@50",
+   "partner": "PartnerLBrokenDownAuto",
+   "partnerSource": "partner-l-broken-down.pp",
+   "timing": null,
+   "timingSlug": "default",
+   "lastShotS": null,
+   "partnerWaitUntilS": null,
+   "fails": null,
+   "pushable": false,
+   "rows": [
+    {
+     "seed": 1,
+     "log": "seed-1.wpilog",
+     "points": 28,
+     "launched": 8,
+     "partnerLaunched": 0,
+     "launchedAtDownCell": 4,
+     "partnerLaunchedAtDownCell": 0,
+     "partnerLastShotAt": null,
+     "tipsAt": [
+      4.0600000000000005
+     ],
+     "autoTips": 1,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": 10.86,
+     "parked": true,
+     "partnerParked": false,
+     "partnerLeave": false,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": null,
+     "g409": 0
+    },
+    {
+     "seed": 2,
+     "log": "seed-2.wpilog",
+     "points": 28,
+     "launched": 8,
+     "partnerLaunched": 0,
+     "launchedAtDownCell": 3,
+     "partnerLaunchedAtDownCell": 0,
+     "partnerLastShotAt": null,
+     "tipsAt": [
+      4.26
+     ],
+     "autoTips": 1,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": 10.86,
+     "parked": true,
+     "partnerParked": false,
+     "partnerLeave": false,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": null,
+     "g409": 0
+    },
+    {
+     "seed": 3,
+     "log": "seed-3.wpilog",
+     "points": 28,
+     "launched": 8,
+     "partnerLaunched": 0,
+     "launchedAtDownCell": 4,
+     "partnerLaunchedAtDownCell": 0,
+     "partnerLastShotAt": null,
+     "tipsAt": [
+      4.08
+     ],
+     "autoTips": 1,
+     "wait": {
+      "label": "LEFT up before 14 s, otherwise park",
+      "startedAt": 11.28,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 11.3
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": false,
+     "waits": [
+      {
+       "label": "LEFT up before 14 s, otherwise park",
+       "startedAt": 11.28,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 11.3
+      },
+      {
+       "label": "TIP 2 settled before 16 s: scoring flower or park",
+       "startedAt": 14.54,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": 10.86,
+     "parked": true,
+     "partnerParked": false,
+     "partnerLeave": false,
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 18.18,
+     "partnerFinishedAt": null,
+     "g409": 0
+    }
+   ],
+   "partnerDelayS": null,
+   "partnerLaunchS": null,
+   "runs": 3,
+   "meanPoints": 28,
+   "typicalSeed": 2,
+   "bestSeed": 1,
+   "logs": {
+    "1": "r-infraviolet-357a6c3-partner-l-broken-down-partner-stays-at-its-start-seed-1.wpilog",
+    "2": "r-infraviolet-357a6c3-partner-l-broken-down-partner-stays-at-its-start-seed-2.wpilog"
+   }
+  }
+ ],
+ "auto": "r-infraviolet",
+ "commit": "357a6c3768dc9c0ea062bc0ca5653f781a73624a",
+ "branch": "feat/infraviolet-pair",
+ "pp": "TeamCode/autos/drafts/r-infraviolet.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/42236677674",
+ "finishedAt": "2026-11-06T14:48:59.099987+00:00",
+ "request": {
+  "pp": "TeamCode/autos/drafts/r-infraviolet.pp",
+  "spec": "RInfravioletAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+   1,
+   2,
+   3
+  ],
+  "partnerSeeds": [
+   1,
+   2,
+   3
+  ],
+  "alliance": "RED",
+  "partners": [
+   {
+    "name": "matching Infraviolet pair",
+    "partner": "LInfravioletAuto",
+    "timing": {
+     "speed": 50
+    }
+   },
+   {
+    "name": "matching partner drives 20 percent slower",
+    "partner": "LInfravioletAuto",
+    "timing": {
+     "speed": 40
+    }
+   },
+   {
+    "name": "matching partner misses",
+    "partner": "LInfravioletAuto",
+    "fails": "misses",
+    "timing": {
+     "speed": 50
+    }
+   },
+   {
+    "name": "partner stays at its start",
+    "partner": "PartnerLBrokenDownAuto"
+   }
+  ],
+  "metadata": {
+   "AutoSource": "drafts/r-infraviolet.pp",
+   "SavedBy": "Infraviolet candidate: L early garden, R both flowers; forward loaded crossings",
+   "SavedAt": "2026-11-06T14:44:51.292219+00:00",
+   "SourceCommit": "357a6c3768dc9c0ea062bc0ca5653f781a73624a",
+   "SourceBranch": "feat/infraviolet-pair",
+   "SourcePath": "TeamCode/autos/drafts/r-infraviolet.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/42236677674"
+  }
+ },
+ "typicalSeed": 2,
+ "bestSeed": 1,
+ "logs": {
+  "1": "r-infraviolet-357a6c3-seed-1.wpilog",
+  "2": "r-infraviolet-357a6c3-seed-2.wpilog"
+ },
+ "designFolder": "designs/real-robot-turret-locked-forward",
+ "namedLogs": {
+  "best": "r-infraviolet_RealRobotTurretLockedForward_2026-11-06_best.wpilog",
+  "typical": "r-infraviolet_RealRobotTurretLockedForward_2026-11-06_typical.wpilog"
+ }
+}

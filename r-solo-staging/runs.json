@@ -1,0 +1,33 @@
+{
+ "auto": "r-solo-staging",
+ "commit": "c6533c88e6452801ac79afba077f29e0d14b5fee",
+ "branch": "claude/relaxed-brahmagupta-fpt0e3",
+ "pp": "TeamCode/autos/r-solo-staging.pp",
+ "spec": "RSoloStagingAuto",
+ "design": "real robot, turret locked forward, POLLEN only",
+ "alliance": "RED",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/41602887424",
+ "finishedAt": "2026-11-03T08:25:44.627427+00:00",
+ "runs": [
+  {
+   "partner": null,
+   "partnerName": null,
+   "folder": "r-solo-staging",
+   "result": "r-solo-staging/c6533c88e6452801ac79afba077f29e0d14b5fee/result.json",
+   "latest": "r-solo-staging/latest.json",
+   "bestSeed": 3,
+   "typicalSeed": 5,
+   "meanPoints": 28.0
+  },
+  {
+   "partner": "PartnerLStageParkAuto",
+   "partnerName": "partner-l-stage-park",
+   "folder": "r-solo-staging/with/partner-l-stage-park",
+   "result": "r-solo-staging/with/partner-l-stage-park/c6533c88e6452801ac79afba077f29e0d14b5fee/result.json",
+   "latest": "r-solo-staging/with/partner-l-stage-park/latest.json",
+   "bestSeed": 3,
+   "typicalSeed": 5,
+   "meanPoints": 36.0
+  }
+ ]
+}

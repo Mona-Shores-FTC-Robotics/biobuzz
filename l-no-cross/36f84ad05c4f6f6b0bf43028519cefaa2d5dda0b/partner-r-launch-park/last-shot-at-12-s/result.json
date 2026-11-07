@@ -1,0 +1,936 @@
+{
+ "designs": [
+  "real robot",
+  "real robot, turret locked forward",
+  "real robot, POLLEN only",
+  "real robot, turret locked forward, POLLEN only"
+ ],
+ "spec": "LNoCrossAuto,PartnerRLaunchParkAuto",
+ "design": "real robot, turret locked forward, POLLEN only",
+ "partnerDesign": null,
+ "alliance": "RED",
+ "entry": {
+  "name": "last shot at 12 s",
+  "folder": "partner-r-launch-park/last-shot-at-12-s",
+  "spec": "LNoCrossAuto,PartnerRLaunchParkAuto",
+  "partner": "PartnerRLaunchParkAuto",
+  "partnerSource": "partner-r-launch-park.pp",
+  "timing": null,
+  "timingSlug": "last12s",
+  "lastShotS": 12,
+  "partnerWaitUntilS": 16,
+  "fails": null,
+  "pushable": false,
+  "rows": [
+   {
+    "seed": 1,
+    "log": "seed-1.wpilog",
+    "points": 56,
+    "launched": 8,
+    "partnerLaunched": 4,
+    "launchedAtDownCell": 1,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": 12.040000000000001,
+    "tipsAt": [
+     12.58,
+     23.44
+    ],
+    "autoTips": 2,
+    "wait": {
+     "label": "Wait for TIP or CELL up",
+     "startedAt": 0.62,
+     "outcome": "CellUp",
+     "fired": true,
+     "after": 11.98,
+     "at": 12.6
+    },
+    "firstCellUpAt": 12.6,
+    "hasPartnerWait": true,
+    "waits": [
+     {
+      "label": "Wait for TIP or CELL up",
+      "startedAt": 0.62,
+      "outcome": "CellUp",
+      "fired": true,
+      "after": 11.98,
+      "at": 12.6
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": true,
+    "partnerLeave": true,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 23.7,
+    "partnerFinishedAt": 14.780000000000001,
+    "g409": 0
+   },
+   {
+    "seed": 2,
+    "log": "seed-2.wpilog",
+    "points": 56,
+    "launched": 8,
+    "partnerLaunched": 4,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": 12.040000000000001,
+    "tipsAt": [
+     12.780000000000001,
+     23.8
+    ],
+    "autoTips": 2,
+    "wait": {
+     "label": "Wait for TIP or CELL up",
+     "startedAt": 0.62,
+     "outcome": "CellUp",
+     "fired": true,
+     "after": 12.18,
+     "at": 12.8
+    },
+    "firstCellUpAt": 12.8,
+    "hasPartnerWait": true,
+    "waits": [
+     {
+      "label": "Wait for TIP or CELL up",
+      "startedAt": 0.62,
+      "outcome": "CellUp",
+      "fired": true,
+      "after": 12.18,
+      "at": 12.8
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": true,
+    "partnerLeave": true,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 23.900000000000002,
+    "partnerFinishedAt": 14.780000000000001,
+    "g409": 1
+   },
+   {
+    "seed": 3,
+    "log": "seed-3.wpilog",
+    "points": 56,
+    "launched": 8,
+    "partnerLaunched": 4,
+    "launchedAtDownCell": 2,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": 12.040000000000001,
+    "tipsAt": [
+     12.86,
+     23.8
+    ],
+    "autoTips": 2,
+    "wait": {
+     "label": "Wait for TIP or CELL up",
+     "startedAt": 0.62,
+     "outcome": "CellUp",
+     "fired": true,
+     "after": 12.26,
+     "at": 12.88
+    },
+    "firstCellUpAt": 12.88,
+    "hasPartnerWait": true,
+    "waits": [
+     {
+      "label": "Wait for TIP or CELL up",
+      "startedAt": 0.62,
+      "outcome": "CellUp",
+      "fired": true,
+      "after": 12.26,
+      "at": 12.88
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": true,
+    "partnerLeave": true,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 23.98,
+    "partnerFinishedAt": 14.780000000000001,
+    "g409": 1
+   },
+   {
+    "seed": 4,
+    "log": "seed-4.wpilog",
+    "points": 56,
+    "launched": 8,
+    "partnerLaunched": 4,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": 12.040000000000001,
+    "tipsAt": [
+     12.88,
+     23.96
+    ],
+    "autoTips": 2,
+    "wait": {
+     "label": "Wait for TIP or CELL up",
+     "startedAt": 0.62,
+     "outcome": "CellUp",
+     "fired": true,
+     "after": 12.28,
+     "at": 12.9
+    },
+    "firstCellUpAt": 12.9,
+    "hasPartnerWait": true,
+    "waits": [
+     {
+      "label": "Wait for TIP or CELL up",
+      "startedAt": 0.62,
+      "outcome": "CellUp",
+      "fired": true,
+      "after": 12.28,
+      "at": 12.9
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": true,
+    "partnerLeave": true,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24,
+    "partnerFinishedAt": 14.780000000000001,
+    "g409": 1
+   },
+   {
+    "seed": 5,
+    "log": "seed-5.wpilog",
+    "points": 56,
+    "launched": 8,
+    "partnerLaunched": 4,
+    "launchedAtDownCell": 1,
+    "partnerLaunchedAtDownCell": 1,
+    "partnerLastShotAt": 12.040000000000001,
+    "tipsAt": [
+     12.620000000000001,
+     23.62
+    ],
+    "autoTips": 2,
+    "wait": {
+     "label": "Wait for TIP or CELL up",
+     "startedAt": 0.62,
+     "outcome": "CellUp",
+     "fired": true,
+     "after": 12.02,
+     "at": 12.64
+    },
+    "firstCellUpAt": 12.64,
+    "hasPartnerWait": true,
+    "waits": [
+     {
+      "label": "Wait for TIP or CELL up",
+      "startedAt": 0.62,
+      "outcome": "CellUp",
+      "fired": true,
+      "after": 12.02,
+      "at": 12.64
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": true,
+    "partnerLeave": true,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 23.740000000000002,
+    "partnerFinishedAt": 14.780000000000001,
+    "g409": 0
+   }
+  ],
+  "partnerDelayS": 8.75,
+  "partnerLaunchS": 0.75,
+  "runs": 5,
+  "meanPoints": 56
+ },
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 56,
+   "autoTips": 2,
+   "tipsAt": [
+    12.58,
+    23.44
+   ],
+   "launched": 12,
+   "scored": 11,
+   "cellLoad": 0,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-no-cross",
+     "launched": 8,
+     "finishedAt": 23.7,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 16.54,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for TIP or CELL up",
+       "startedAt": 0.62,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 11.98,
+       "at": 12.6
+      }
+     ],
+     "timeline": [
+      " 0.00 partner wait \"Wait for TIP or CELL up\" set in INIT to 16.0 s on the match clock (holds 4)",
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LEFT_LAUNCH_CATCH (holds 4)",
+      " 0.62 wait Wait for TIP or CELL up (holds 4)",
+      " 0.62 command SpinUp (holds 4)",
+      "12.60 Wait for TIP or CELL up: CellUp after 11.98 s (holds 4)",
+      "12.62 command LaunchAll (holds 4)",
+      "12.66 miss: height POLLEN robot 1",
+      "13.40 miss: height POLLEN robot 1",
+      "13.54 miss: speed POLLEN robot 1",
+      "14.16 miss: height POLLEN robot 1",
+      "14.92 path to SCORING_FLOWER_STAGING (holds 0)",
+      "14.92 miss: height POLLEN robot 1",
+      "15.82 command PickFlower (holds 0)",
+      "16.54 drives into a FLOWER at (47.4, 128.5) heading 89",
+      "16.54 miss: interval POLLEN robot 1",
+      "16.60 miss: interval POLLEN robot 1",
+      "16.84 miss: interval POLLEN robot 1",
+      "16.90 miss: interval POLLEN robot 1",
+      "17.10 miss: interval POLLEN robot 1",
+      "17.20 miss: interval POLLEN robot 1",
+      "17.40 miss: interval POLLEN robot 1",
+      "17.50 miss: interval POLLEN robot 1",
+      "17.70 miss: interval POLLEN robot 1",
+      "18.00 miss: interval POLLEN robot 1",
+      "18.62 path to LEFT_LAUNCH_CATCH (holds 4)",
+      "19.70 command LaunchAll (holds 4)",
+      "19.76 miss: height POLLEN robot 1",
+      "20.52 miss: height POLLEN robot 1",
+      "21.26 LaunchAll fires at the high-end CELL, which is not up: those pieces are wasted (holds 1)",
+      "21.28 miss: height POLLEN robot 1",
+      "22.02 path to LEFT_PARK (holds 0)",
+      "22.02 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-launch-park",
+     "launched": 4,
+     "finishedAt": 14.780000000000001,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for its CELL up",
+       "startedAt": 8.76,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 8.78
+      }
+     ],
+     "timeline": [
+      " 0.00 waits 8.8 s after PLAY before its first card (partner timing) (holds 4)",
+      " 8.76 command SpinUp (holds 4)",
+      " 8.76 wait Wait for its CELL up (holds 4)",
+      " 8.78 Wait for its CELL up: CellUp after 0.02 s (holds 4)",
+      " 8.80 command LaunchAll (holds 4)",
+      " 9.78 miss: height POLLEN robot 2",
+      "10.54 miss: height POLLEN robot 2",
+      "11.30 miss: height POLLEN robot 2",
+      "12.06 path to PARTNER_PARK (holds 0)",
+      "12.06 miss: height POLLEN robot 2",
+      "13.10 miss: nectar red NECTAR robot 2",
+      "13.14 miss: height red NECTAR robot 2",
+      "13.18 miss: shot-hive POLLEN robot 2"
+     ]
+    }
+   ],
+   "summary": "l-no-cross + partner-r-launch-park RED: launched 12, scored 11, HIVE tipped at 12.6 s 23.4 s; l-no-cross launched 8, finished at 23.7 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 16.5 s; partner-r-launch-park launched 4, finished at 14.8 s, LEAVE yes, PARK yes; 56 AUTO points; TELEOP starts with the raised CELL 0% loaded and 0 held"
+  },
+  {
+   "seed": 2,
+   "log": "seed-2.wpilog",
+   "points": 56,
+   "autoTips": 2,
+   "tipsAt": [
+    12.780000000000001,
+    23.8
+   ],
+   "launched": 12,
+   "scored": 11,
+   "cellLoad": 0,
+   "held": 1,
+   "robotsCollidedAt": null,
+   "g409": 1,
+   "robots": [
+    {
+     "auto": "l-no-cross",
+     "launched": 8,
+     "finishedAt": 23.900000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 16.740000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for TIP or CELL up",
+       "startedAt": 0.62,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 12.18,
+       "at": 12.8
+      }
+     ],
+     "timeline": [
+      " 0.00 partner wait \"Wait for TIP or CELL up\" set in INIT to 16.0 s on the match clock (holds 4)",
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LEFT_LAUNCH_CATCH (holds 4)",
+      " 0.62 wait Wait for TIP or CELL up (holds 4)",
+      " 0.62 command SpinUp (holds 4)",
+      "12.80 Wait for TIP or CELL up: CellUp after 12.18 s (holds 4)",
+      "12.82 command LaunchAll (holds 4)",
+      "12.86 miss: height POLLEN robot 1",
+      "13.52 miss: height POLLEN robot 1",
+      "13.60 miss: height POLLEN robot 1",
+      "14.36 miss: height POLLEN robot 1",
+      "14.72 miss: beside red NECTAR robot 1",
+      "15.12 path to SCORING_FLOWER_STAGING (holds 0)",
+      "15.12 miss: height POLLEN robot 1",
+      "16.02 command PickFlower (holds 0)",
+      "16.74 drives into a FLOWER at (47.4, 128.5) heading 89",
+      "16.74 miss: interval POLLEN robot 1",
+      "16.80 miss: interval POLLEN robot 1",
+      "17.04 miss: interval POLLEN robot 1",
+      "17.10 miss: interval POLLEN robot 1",
+      "17.30 miss: interval POLLEN robot 1",
+      "17.40 miss: interval POLLEN robot 1",
+      "17.60 miss: interval POLLEN robot 1",
+      "17.70 miss: interval POLLEN robot 1",
+      "17.90 miss: interval POLLEN robot 1",
+      "18.20 miss: interval POLLEN robot 1",
+      "18.82 path to LEFT_LAUNCH_CATCH (holds 4)",
+      "19.90 command LaunchAll (holds 4)",
+      "19.96 miss: height POLLEN robot 1",
+      "20.72 miss: height POLLEN robot 1",
+      "21.48 miss: height POLLEN robot 1",
+      "22.22 path to LEFT_PARK (holds 0)",
+      "22.24 miss: height POLLEN robot 1",
+      "25.02 miss: chance POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-launch-park",
+     "launched": 4,
+     "finishedAt": 14.780000000000001,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for its CELL up",
+       "startedAt": 8.76,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 8.78
+      }
+     ],
+     "timeline": [
+      " 0.00 waits 8.8 s after PLAY before its first card (partner timing) (holds 4)",
+      " 8.76 command SpinUp (holds 4)",
+      " 8.76 wait Wait for its CELL up (holds 4)",
+      " 8.78 Wait for its CELL up: CellUp after 0.02 s (holds 4)",
+      " 8.80 command LaunchAll (holds 4)",
+      " 9.78 miss: height POLLEN robot 2",
+      "10.54 miss: height POLLEN robot 2",
+      "11.30 miss: height POLLEN robot 2",
+      "12.06 path to PARTNER_PARK (holds 0)",
+      "12.06 miss: height POLLEN robot 2",
+      "13.18 miss: shot-hive POLLEN robot 2",
+      "13.22 miss: height red NECTAR robot 2",
+      "13.24 G409: robot 2 touched a spilled red NECTAR before it reached the tiles (piece at x 50.3, y 41.2, 7.3 in up, falling 143 in/s; 9.9 in ahead of the robot's centre, -4.7 in to its left; robot at x 41.6, y 34.6, heading 63 deg)",
+      "13.26 miss: beside red NECTAR robot 2"
+     ]
+    }
+   ],
+   "summary": "l-no-cross + partner-r-launch-park RED: launched 12, scored 11, HIVE tipped at 12.8 s 23.8 s; l-no-cross launched 8, finished at 23.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 16.7 s; partner-r-launch-park launched 4, finished at 14.8 s, LEAVE yes, PARK yes; 56 AUTO points; TELEOP starts with the raised CELL 0% loaded and 1 held; G409: 1 spilled pieces touched before the tiles"
+  },
+  {
+   "seed": 3,
+   "log": "seed-3.wpilog",
+   "points": 56,
+   "autoTips": 2,
+   "tipsAt": [
+    12.86,
+    23.8
+   ],
+   "launched": 12,
+   "scored": 11,
+   "cellLoad": 0,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 1,
+   "robots": [
+    {
+     "auto": "l-no-cross",
+     "launched": 8,
+     "finishedAt": 23.98,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 16.82,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for TIP or CELL up",
+       "startedAt": 0.62,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 12.26,
+       "at": 12.88
+      }
+     ],
+     "timeline": [
+      " 0.00 partner wait \"Wait for TIP or CELL up\" set in INIT to 16.0 s on the match clock (holds 4)",
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LEFT_LAUNCH_CATCH (holds 4)",
+      " 0.62 wait Wait for TIP or CELL up (holds 4)",
+      " 0.62 command SpinUp (holds 4)",
+      "12.88 Wait for TIP or CELL up: CellUp after 12.26 s (holds 4)",
+      "12.90 command LaunchAll (holds 4)",
+      "12.92 miss: height POLLEN robot 1",
+      "13.50 miss: height POLLEN robot 1",
+      "13.70 miss: height POLLEN robot 1",
+      "14.44 LaunchAll fires at the high-end CELL, which is not up: those pieces are wasted (holds 1)",
+      "14.46 miss: height POLLEN robot 1",
+      "15.20 path to SCORING_FLOWER_STAGING (holds 0)",
+      "15.22 miss: height POLLEN robot 1",
+      "15.26 miss: nectar red NECTAR robot 1",
+      "16.10 command PickFlower (holds 0)",
+      "16.82 drives into a FLOWER at (47.4, 128.5) heading 89",
+      "16.82 miss: interval POLLEN robot 1",
+      "16.88 miss: interval POLLEN robot 1",
+      "17.12 miss: interval POLLEN robot 1",
+      "17.18 miss: interval POLLEN robot 1",
+      "17.38 miss: interval POLLEN robot 1",
+      "17.48 miss: interval POLLEN robot 1",
+      "17.68 miss: interval POLLEN robot 1",
+      "17.78 miss: interval POLLEN robot 1",
+      "17.98 miss: interval POLLEN robot 1",
+      "18.28 miss: interval POLLEN robot 1",
+      "18.90 path to LEFT_LAUNCH_CATCH (holds 4)",
+      "19.98 command LaunchAll (holds 4)",
+      "20.04 miss: height POLLEN robot 1",
+      "20.78 LaunchAll fires at the high-end CELL, which is not up: those pieces are wasted (holds 2)",
+      "20.80 miss: height POLLEN robot 1",
+      "21.56 miss: height POLLEN robot 1",
+      "22.30 path to LEFT_PARK (holds 0)",
+      "22.30 miss: height POLLEN robot 1",
+      "26.06 miss: chance POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-launch-park",
+     "launched": 4,
+     "finishedAt": 14.780000000000001,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for its CELL up",
+       "startedAt": 8.76,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 8.78
+      }
+     ],
+     "timeline": [
+      " 0.00 waits 8.8 s after PLAY before its first card (partner timing) (holds 4)",
+      " 8.76 command SpinUp (holds 4)",
+      " 8.76 wait Wait for its CELL up (holds 4)",
+      " 8.78 Wait for its CELL up: CellUp after 0.02 s (holds 4)",
+      " 8.80 command LaunchAll (holds 4)",
+      " 9.78 miss: height POLLEN robot 2",
+      "10.54 miss: height POLLEN robot 2",
+      "11.30 miss: height POLLEN robot 2",
+      "12.06 path to PARTNER_PARK (holds 0)",
+      "12.06 miss: height POLLEN robot 2",
+      "13.18 miss: shot-hive POLLEN robot 2",
+      "13.30 miss: height red NECTAR robot 2",
+      "13.30 G409: robot 2 touched a spilled red NECTAR before it reached the tiles (piece at x 50.0, y 43.1, 8.2 in up, falling 141 in/s; 9.9 in ahead of the robot's centre, -5.8 in to its left; robot at x 40.0, y 37.5, heading 59 deg)"
+     ]
+    }
+   ],
+   "summary": "l-no-cross + partner-r-launch-park RED: launched 12, scored 11, HIVE tipped at 12.9 s 23.8 s; l-no-cross launched 8, finished at 24.0 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 16.8 s; partner-r-launch-park launched 4, finished at 14.8 s, LEAVE yes, PARK yes; 56 AUTO points; TELEOP starts with the raised CELL 0% loaded and 0 held; G409: 1 spilled pieces touched before the tiles"
+  },
+  {
+   "seed": 4,
+   "log": "seed-4.wpilog",
+   "points": 56,
+   "autoTips": 2,
+   "tipsAt": [
+    12.88,
+    23.96
+   ],
+   "launched": 12,
+   "scored": 11,
+   "cellLoad": 0,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 1,
+   "robots": [
+    {
+     "auto": "l-no-cross",
+     "launched": 8,
+     "finishedAt": 24,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 16.84,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for TIP or CELL up",
+       "startedAt": 0.62,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 12.28,
+       "at": 12.9
+      }
+     ],
+     "timeline": [
+      " 0.00 partner wait \"Wait for TIP or CELL up\" set in INIT to 16.0 s on the match clock (holds 4)",
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LEFT_LAUNCH_CATCH (holds 4)",
+      " 0.62 wait Wait for TIP or CELL up (holds 4)",
+      " 0.62 command SpinUp (holds 4)",
+      "12.90 Wait for TIP or CELL up: CellUp after 12.28 s (holds 4)",
+      "12.92 command LaunchAll (holds 4)",
+      "12.94 miss: height POLLEN robot 1",
+      "13.70 miss: height POLLEN robot 1",
+      "13.72 miss: speed POLLEN robot 1",
+      "14.48 miss: height POLLEN robot 1",
+      "15.22 path to SCORING_FLOWER_STAGING (holds 0)",
+      "15.22 miss: height POLLEN robot 1",
+      "16.12 command PickFlower (holds 0)",
+      "16.84 drives into a FLOWER at (47.4, 128.5) heading 89",
+      "16.84 miss: interval POLLEN robot 1",
+      "16.90 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.20 miss: interval POLLEN robot 1",
+      "17.40 miss: interval POLLEN robot 1",
+      "17.50 miss: interval POLLEN robot 1",
+      "17.70 miss: interval POLLEN robot 1",
+      "17.80 miss: interval POLLEN robot 1",
+      "18.00 miss: interval POLLEN robot 1",
+      "18.30 miss: interval POLLEN robot 1",
+      "18.92 path to LEFT_LAUNCH_CATCH (holds 4)",
+      "20.00 command LaunchAll (holds 4)",
+      "20.06 miss: height POLLEN robot 1",
+      "20.82 miss: height POLLEN robot 1",
+      "21.56 miss: height POLLEN robot 1",
+      "22.32 path to LEFT_PARK (holds 0)",
+      "22.34 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-launch-park",
+     "launched": 4,
+     "finishedAt": 14.780000000000001,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for its CELL up",
+       "startedAt": 8.76,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 8.78
+      }
+     ],
+     "timeline": [
+      " 0.00 waits 8.8 s after PLAY before its first card (partner timing) (holds 4)",
+      " 8.76 command SpinUp (holds 4)",
+      " 8.76 wait Wait for its CELL up (holds 4)",
+      " 8.78 Wait for its CELL up: CellUp after 0.02 s (holds 4)",
+      " 8.80 command LaunchAll (holds 4)",
+      " 9.78 miss: height POLLEN robot 2",
+      "10.54 miss: height POLLEN robot 2",
+      "11.30 miss: height POLLEN robot 2",
+      "12.06 path to PARTNER_PARK (holds 0)",
+      "12.06 miss: height POLLEN robot 2",
+      "13.18 miss: shot-long POLLEN robot 2",
+      "13.32 miss: height red NECTAR robot 2",
+      "13.32 G409: robot 2 touched a spilled red NECTAR before it reached the tiles (piece at x 49.3, y 44.2, 10.4 in up, falling 135 in/s; 9.9 in ahead of the robot's centre, -5.6 in to its left; robot at x 39.4, y 38.7, heading 58 deg)",
+      "23.70 miss: beside red NECTAR robot 2"
+     ]
+    }
+   ],
+   "summary": "l-no-cross + partner-r-launch-park RED: launched 12, scored 11, HIVE tipped at 12.9 s 24.0 s; l-no-cross launched 8, finished at 24.0 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 16.8 s; partner-r-launch-park launched 4, finished at 14.8 s, LEAVE yes, PARK yes; 56 AUTO points; TELEOP starts with the raised CELL 0% loaded and 0 held; G409: 1 spilled pieces touched before the tiles"
+  },
+  {
+   "seed": 5,
+   "log": "seed-5.wpilog",
+   "points": 56,
+   "autoTips": 2,
+   "tipsAt": [
+    12.620000000000001,
+    23.62
+   ],
+   "launched": 12,
+   "scored": 11,
+   "cellLoad": 0,
+   "held": 2,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-no-cross",
+     "launched": 8,
+     "finishedAt": 23.740000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 16.580000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for TIP or CELL up",
+       "startedAt": 0.62,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 12.02,
+       "at": 12.64
+      }
+     ],
+     "timeline": [
+      " 0.00 partner wait \"Wait for TIP or CELL up\" set in INIT to 16.0 s on the match clock (holds 4)",
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LEFT_LAUNCH_CATCH (holds 4)",
+      " 0.62 wait Wait for TIP or CELL up (holds 4)",
+      " 0.62 command SpinUp (holds 4)",
+      "12.64 Wait for TIP or CELL up: CellUp after 12.02 s (holds 4)",
+      "12.66 command LaunchAll (holds 4)",
+      "12.68 miss: height POLLEN robot 1",
+      "13.44 miss: height POLLEN robot 1",
+      "13.52 miss: height POLLEN robot 1",
+      "14.22 miss: height POLLEN robot 1",
+      "14.96 path to SCORING_FLOWER_STAGING (holds 0)",
+      "14.98 miss: height POLLEN robot 1",
+      "15.86 command PickFlower (holds 0)",
+      "16.58 drives into a FLOWER at (47.4, 128.5) heading 89",
+      "16.58 miss: interval POLLEN robot 1",
+      "16.64 miss: interval POLLEN robot 1",
+      "16.88 miss: interval POLLEN robot 1",
+      "16.94 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.24 miss: interval POLLEN robot 1",
+      "17.44 miss: interval POLLEN robot 1",
+      "17.54 miss: interval POLLEN robot 1",
+      "17.74 miss: interval POLLEN robot 1",
+      "18.04 miss: interval POLLEN robot 1",
+      "18.66 path to LEFT_LAUNCH_CATCH (holds 4)",
+      "19.74 command LaunchAll (holds 4)",
+      "19.80 miss: height POLLEN robot 1",
+      "20.54 LaunchAll fires at the high-end CELL, which is not up: those pieces are wasted (holds 2)",
+      "20.56 miss: height POLLEN robot 1",
+      "21.30 miss: height POLLEN robot 1",
+      "22.06 path to LEFT_PARK (holds 0)",
+      "22.06 miss: height POLLEN robot 1",
+      "24.52 miss: speed POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-launch-park",
+     "launched": 4,
+     "finishedAt": 14.780000000000001,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for its CELL up",
+       "startedAt": 8.76,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 8.78
+      }
+     ],
+     "timeline": [
+      " 0.00 waits 8.8 s after PLAY before its first card (partner timing) (holds 4)",
+      " 8.76 command SpinUp (holds 4)",
+      " 8.76 wait Wait for its CELL up (holds 4)",
+      " 8.78 Wait for its CELL up: CellUp after 0.02 s (holds 4)",
+      " 8.80 command LaunchAll (holds 4)",
+      " 9.78 miss: height POLLEN robot 2",
+      "10.54 miss: height POLLEN robot 2",
+      "11.30 miss: height POLLEN robot 2",
+      "12.06 LaunchAll fires at the low-end CELL, which is not up: those pieces are wasted (holds 0)",
+      "12.06 path to PARTNER_PARK (holds 0)",
+      "12.06 miss: height POLLEN robot 2",
+      "13.14 miss: nectar red NECTAR robot 2",
+      "13.18 miss: shot-hive POLLEN robot 2",
+      "15.38 miss: beside POLLEN robot 2"
+     ]
+    }
+   ],
+   "summary": "l-no-cross + partner-r-launch-park RED: launched 12, scored 11, HIVE tipped at 12.6 s 23.6 s; l-no-cross launched 8, finished at 23.7 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 16.6 s; partner-r-launch-park launched 4, finished at 14.8 s, LEAVE yes, PARK yes; 56 AUTO points; TELEOP starts with the raised CELL 0% loaded and 2 held"
+  }
+ ],
+ "auto": "l-no-cross",
+ "commit": "36f84ad05c4f6f6b0bf43028519cefaa2d5dda0b",
+ "branch": "belding-plus",
+ "pp": "TeamCode/autos/l-no-cross.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/42348625218",
+ "finishedAt": "2026-11-07T06:57:16.268328+00:00",
+ "request": {
+  "pp": "TeamCode/autos/l-no-cross.pp",
+  "spec": "LNoCrossAuto",
+  "design": "real robot, turret locked forward, POLLEN only",
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10
+  ],
+  "partnerSeeds": [
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "alliance": "RED",
+  "partners": [
+   {
+    "name": "last shot at 2 s",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 2
+   },
+   {
+    "name": "last shot at 5 s",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 5
+   },
+   {
+    "name": "last shot at 8 s",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 8
+   },
+   {
+    "name": "last shot at 12 s",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 12
+   },
+   {
+    "name": "misses, said 8 s",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 8,
+    "fails": "misses"
+   },
+   {
+    "name": "dead on its start, said 8 s",
+    "partner": "PartnerRBrokenDownAuto",
+    "lastShotS": 8
+   }
+  ],
+  "metadata": {
+   "AutoSource": "l-no-cross.pp",
+   "SavedBy": "dustinhans",
+   "SavedAt": "2026-11-06T01:03:06.672Z",
+   "SimNote": "belding-plus: guard keeps the park (parkAfterVolley), LaunchAll 4.0 s planned, feed 3.0 s",
+   "SourceCommit": "36f84ad05c4f6f6b0bf43028519cefaa2d5dda0b",
+   "SourceBranch": "belding-plus",
+   "SourcePath": "TeamCode/autos/l-no-cross.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/42348625218"
+  }
+ },
+ "typicalSeed": 3,
+ "bestSeed": 1,
+ "logs": {
+  "1": "l-no-cross-36f84ad-partner-r-launch-park-last-shot-at-12-s-seed-1.wpilog",
+  "3": "l-no-cross-36f84ad-partner-r-launch-park-last-shot-at-12-s-seed-3.wpilog"
+ },
+ "folder": "partner-r-launch-park/last-shot-at-12-s"
+}
