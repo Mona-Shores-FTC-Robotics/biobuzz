@@ -230,10 +230,15 @@ public final class Display {
      * value: about 20 characters fit on a row.
      */
     public static String huge(String text, boolean alert) {
+        return huge(text, alert ? Level.WARN : null);
+    }
+
+    /** {@link #huge} in {@code level}'s colour, or the page's own with null. */
+    public static String huge(String text, Level level) {
         StringBuilder html = new StringBuilder();
         for (int i = 0; i < HUGE_NESTING; i++) html.append("<big>");
         html.append("<b>");
-        html.append(alert ? "<font color=\"" + Level.WARN.color + "\">" + text + "</font>" : text);
+        html.append(level != null ? "<font color=\"" + level.color + "\">" + text + "</font>" : text);
         html.append("</b>");
         for (int i = 0; i < HUGE_NESTING; i++) html.append("</big>");
         return html.toString();

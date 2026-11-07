@@ -77,11 +77,12 @@ import java.util.Locale;
  *
  * <h2>What it reports</h2>
  *
- * <p>The Match page is for a glance in a match (mentor, 7 Nov 2026): the operator's launch trim
- * first, huge and amber while trimmed, the launch speed it gives, then the launcher, the lane and
- * the intake (big when off), and only what needs doing; the rest is on the Robot page. The trim is
- * on every shot, Square's included, and is felt as well as seen: one rumble blip up, two down, a
- * long buzz when D-pad down resets it to 0.
+ * <p>The Match page is a glance for the operator and the coach (mentor, 7 Nov 2026), three huge
+ * lines and at most one alert: the launch trim (amber while trimmed), the launcher (READY, SPIN,
+ * IDLE), the lane tracker's piece count with the sensor's FULL beside it, and the most urgent of
+ * no Pinpoint, intake off, robot-centric, Square refused, FLOWER stick out. Everything else is on
+ * the Robot page. The trim is on every shot, Square's included, and is felt as well as seen: one
+ * rumble blip up, two down, a long buzz when D-pad down resets it to 0.
  *
  * <p>The operator's light bar is green at launch speed, amber spinning up, blue at idle, with a
  * short rumble the moment it reaches speed. The match log has every fire press with
@@ -545,47 +546,17 @@ public class BasicDriveTeleOp extends RobotOpMode {
         fire();
         lightBar();
 
-        // The Match page is what the drive team reads at a glance in a match (mentor, 7 Nov 2026):
-        // the launch trim, huge, then the launcher, the lane and the intake, then only what needs
-        // doing. Everything a person testing wants is on the Robot page (describeRobotPage).
+        // The Match page is a glance (mentor, 7 Nov 2026): the operator and the coach read it from
+        // the Driver Station mid-match, so it is three huge lines and one alert, nothing to parse.
+        // Everything a person testing wants is on the Robot page (describeRobotPage).
         display.line(launchTrimLine(launcherTrimTps));
-        display.line(launchSpeedLine(launchSpeed()));
-        display.status("Launcher", !launcherOwner.spinning() ? Display.Level.WARN
-                        : robot.launcher.atSpeed() ? Display.Level.OK : Display.Level.WARN,
-                launcherState());
-        display.status("Lane", robot.colorSensor.full() ? Display.Level.OK : Display.Level.WARN,
-                robot.colorSensor.full() ? "FULL" : "room");
-        // Off loses a match quietly (19429, 6 Nov 2026: off 26 s of a 104 s run, the lane never
-        // full), so with the intake meant to be on it is big.
-        if (intakeRunning()) {
-            display.status("Intake", Display.Level.OK, intakeState());
-        } else if (TeleOpConfig.intakeAlwaysOn) {
-            display.line(Display.alertWhat("INTAKE OFF"));
-        } else {
-            display.status("Intake", Display.Level.OK, "off (battery saving: hold to run)");
-        }
-        if (robotCentric() || !robot.drive.isFieldCentric()) {
-            display.status("Mode", Display.Level.WARN, "robot-centric");
-        }
+        display.line(launcherLine());
+        display.line(piecesLine(robot.colorSensor.lane().count(), robot.colorSensor.full()));
+        String alert = matchAlert();
+        if (alert != null) display.line(Display.huge(alert, Display.Level.WARN));
         if (headingReset.pending() || cameraReset.pending() || leftCornerReset.pending() || rightCornerReset.pending() || turretZero.pending()) {
             display.line(KEEP_HOLDING);
         }
-        if (robot.flowerStick.extended() || robot.flowerStick.waitingToClear()) {
-            display.status("FLOWER stick", Display.Level.WARN, robot.flowerStick.waitingToClear()
-                    ? "OUT until clear of the FLOWER" : "OUT");
-        }
-        String pick = picker.line();
-        if (!pick.isEmpty()) display.line(pick);
-        String gather = gatherer.line();
-        if (!gather.isEmpty()) display.line(gather);
-        String spot = launchSpot.line();
-        if (!spot.isEmpty()) display.line(spot);
-        if (controls.held(Action.CHASSIS_AIM)) {
-            display.line(chassisAimCancelled ? "Chassis aim: cancelled by the right stick (let go to re-arm)"
-                    : turretMode == TurretMode.AIM ? "Chassis aim: off while the turret aims (lock it first)"
-                    : "Chassis aim: " + aimer.source());
-        }
-        showPinpoint();
         recordShot();
         publish();
     }
@@ -659,6 +630,21 @@ public class BasicDriveTeleOp extends RobotOpMode {
     @Override
     protected void describeRobotPage(Display display) {
         display.section("Basic Drive");
+        display.line(launchSpeedLine(launchSpeed()));
+        display.status("Intake", intakeRunning() ? Display.Level.OK : Display.Level.WARN, intakeState()
+                + (TeleOpConfig.intakeAlwaysOn ? "" : " (battery saving: runs while R2 is held)"));
+        String spot = launchSpot.line();
+        if (!spot.isEmpty()) display.line(spot);
+        String pick = picker.line();
+        if (!pick.isEmpty()) display.line(pick);
+        String gather = gatherer.line();
+        if (!gather.isEmpty()) display.line(gather);
+        if (controls.held(Action.CHASSIS_AIM)) {
+            display.line(chassisAimCancelled ? "Chassis aim: cancelled by the right stick (let go to re-arm)"
+                    : turretMode == TurretMode.AIM ? "Chassis aim: off while the turret aims (lock it first)"
+                    : "Chassis aim: " + aimer.source());
+        }
+        showPinpoint();
         display.status("Mode", robotCentric() ? Display.Level.WARN : Display.Level.OK,
                 robotCentric() || !robot.drive.isFieldCentric() ? "robot-centric" : "field-centric");
         display.status("Speed", Display.Level.OK, slowHeld ? "slow" : "normal");
@@ -692,13 +678,35 @@ public class BasicDriveTeleOp extends RobotOpMode {
         showAim();
     }
 
-    /** The Match page's launcher line: idle, spinning up (speed now / target), or ready. */
-    private String launcherState() {
-        if (!launcherOwner.spinning()) return "IDLE";
-        double now = (robot.launcher.leftTicksPerSecond() + robot.launcher.rightTicksPerSecond()) / 2.0;
-        return robot.launcher.atSpeed()
-                ? String.format(Locale.US, "READY %.0f t/s", robot.launcher.target())
-                : String.format(Locale.US, "spinning up %.0f / %.0f t/s", now, robot.launcher.target());
+    /** The Match page's launcher line, huge: READY in green, SPIN in amber, IDLE plain. */
+    private String launcherLine() {
+        if (!launcherOwner.spinning()) return Display.huge("IDLE", (Display.Level) null);
+        return robot.launcher.atSpeed() ? Display.huge("READY", Display.Level.OK)
+                : Display.huge("SPIN", Display.Level.WARN);
+    }
+
+    /**
+     * The Match page's lane line, huge: the lane tracker's count, and FULL in green when the sensor
+     * sees the lane full. The count is the tracker's guess (data only, never decided from); shown
+     * beside the sensor's FULL, a wrong one is plain to the drive team and the coach, which is how
+     * it gets better (mentor, 7 Nov 2026).
+     */
+    static String piecesLine(int count, boolean sensorFull) {
+        String text = count + (count == 1 ? " PIECE" : " PIECES") + (sensorFull ? " FULL" : "");
+        return Display.huge(text, sensorFull ? Display.Level.OK : null);
+    }
+
+    /**
+     * The one thing that needs doing, most urgent first, or null: the Match page's fourth line, huge
+     * and amber. A lost Pinpoint has its own alert above the page (RobotOpMode).
+     */
+    private String matchAlert() {
+        if (!robot.drive.hasHeading() && !robot.drive.pinpointLost()) return "NO PINPOINT";
+        if (TeleOpConfig.intakeAlwaysOn && !intakeRunning()) return "INTAKE OFF";
+        if (robotCentric() || !robot.drive.isFieldCentric()) return "ROBOT-CENTRIC";
+        if (launchSpot.refused()) return "SQUARE REFUSED";
+        if (robot.flowerStick.extended() || robot.flowerStick.waitingToClear()) return "FLOWER STICK OUT";
+        return null;
     }
 
     /** The intake is running, or waiting on a full lane, rather than off. */
