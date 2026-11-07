@@ -78,6 +78,12 @@ import java.util.Locale;
  *
  * <h2>What it reports</h2>
  *
+ * <p>The Match page is for a glance in a match (mentor, 7 Nov 2026): the operator's launch trim
+ * first, huge and amber while trimmed, the launch speed it gives, then the launcher, the lane and
+ * the intake (big when off), and only what needs doing; the rest is on the Robot page. The trim is
+ * on every shot, Square's included, and is felt as well as seen: one rumble blip up, two down, a
+ * long buzz when the D-pad (any direction, while the turret is locked) resets it to 0.
+ *
  * <p>The operator's light bar is green at launch speed, amber spinning up, blue at idle, with a
  * short rumble the moment it reaches speed. The match log has every fire press with
  * its launcher speed, aim error, trim, pose and gates, every trim, who ran the intake each loop,
@@ -134,6 +140,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * while driving.
      */
     private static final int RESET_RUMBLE_MS = 300;
+    /** The launch trim reset's buzz: longer than a trim press's blips, so the two never feel alike. */
+    private static final int LAUNCHER_TRIM_RESET_RUMBLE_MS = 400;
 
     /** The launcher trim step can never be more than this, ticks per second, whatever Panels says. */
     /** Package-private: {@link LaunchTest} caps the same Panels step the same way. */
@@ -168,6 +176,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** When the chassis aim button went down, ns; 0 while it is up. For its log line. */
     private long chassisAimSinceNs;
     private boolean lastFire;
+    /** The driver's slow button this loop, for the Robot page. */
+    private boolean slowHeld;
     /** FIRE as pressed, before a Square volley holds it back: for that press's one log line. */
     private boolean lastRawFire;
     /** This fire press spun the launcher up from idle, so it feeds only once at launch speed. */
@@ -256,12 +266,17 @@ public class BasicDriveTeleOp extends RobotOpMode {
         });
         controls.on(Action.LAUNCHER_TRIM_DOWN).onPress(() -> trimLauncher(-1));
         controls.on(Action.LAUNCHER_TRIM_UP).onPress(() -> trimLauncher(+1));
+        controls.on(Action.LAUNCHER_TRIM_RESET).onPress(this::resetLauncherTrim);
         controls.note(Action.FIRE);
         controls.on(Action.TURRET_LOCK).onPress(this::toggleTurretMode);
         controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
         controls.on(Action.TRIM_LEFT).onPress(() -> trim(+1));
         controls.on(Action.TRIM_RIGHT).onPress(() -> trim(-1));
-        controls.on(Action.TRIM_RESET).onPress(() -> trim(0));
+        // An aiming turret has the D-pad, so its trim reset clears the launch trim too.
+        controls.on(Action.TRIM_RESET).onPress(() -> {
+            trim(0);
+            resetLauncherTrim();
+        });
         controls.note(Action.TURRET_ZERO);
 
         operator.note("Launcher and Square", "spin up early when a shot is coming; while the driver "
@@ -352,22 +367,39 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (launcherOwner.spinning()) {
             robot.launcher.spinUp(launchSpeed());
         }
+        // Felt, not looked at: one blip up, two down (7 Nov 2026).
+        gamepad2.rumbleBlips(direction > 0 ? 1 : 2);
         log.event(String.format(Locale.US, "launcher trim %+.0f ticks/s: launch speed %.0f",
                 launcherTrimTps, launchSpeed()));
     }
 
+    /** The launch trim back to 0, at once if the launcher is at launch speed; one long buzz. */
+    private void resetLauncherTrim() {
+        launcherTrimTps = 0.0;
+        if (launcherOwner.spinning()) {
+            robot.launcher.spinUp(launchSpeed());
+        }
+        gamepad2.rumble(LAUNCHER_TRIM_RESET_RUMBLE_MS);
+        log.event(String.format(Locale.US, "launcher trim reset to 0: launch speed %.0f", launchSpeed()));
+    }
+
     /**
-     * The Match page's first line: the operator's launch-speed trim (R1/L1) and the launch speed it
-     * gives, big and bold; amber while trimmed, so a trim left on is never missed. "LAUNCH TRIM 0"
-     * when there is none. The speed is the next volley's, Square's included: the speed table's for
-     * the range (or the configured one) plus this trim.
+     * The Match page's first line: the operator's launch-speed trim, huge ({@link Display#huge},
+     * about twice ordinary text) so the operator reads it in a glance down at the Driver Station;
+     * amber while trimmed, so a trim left on is never missed. "TRIM 0" when there is none (mentor,
+     * 7 Nov 2026). The trim is on every shot, Square's included.
      */
-    static String launchTrimLine(double trimTps, double launchSpeedTps) {
+    static String launchTrimLine(double trimTps) {
         boolean trimmed = trimTps != 0.0;
-        String text = trimmed
-                ? String.format(Locale.US, "LAUNCH TRIM %+.0f · %.0f t/s", trimTps, launchSpeedTps)
-                : String.format(Locale.US, "LAUNCH TRIM 0 · %.0f t/s", launchSpeedTps);
-        return trimmed ? Display.alertWhat(text) : "<big><b>" + text + "</b></big>";
+        return Display.huge(trimmed ? String.format(Locale.US, "TRIM %+.0f", trimTps) : "TRIM 0", trimmed);
+    }
+
+    /**
+     * The line under the trim: the launch speed it gives, the speed table's for the range (or the
+     * configured one) plus the trim; the next volley's, Square's included.
+     */
+    static String launchSpeedLine(double launchSpeedTps) {
+        return String.format(Locale.US, "launch speed %.0f t/s", launchSpeedTps);
     }
 
     /** +1 a step left, -1 a step right, 0 back to zero. The step is guarded: NaN or negative is no step. */
@@ -444,6 +476,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     protected void onLoop() {
         long now = System.nanoTime();
         boolean slow = controls.held(Action.SLOW);
+        slowHeld = slow;
         double scale = unitRange(slow ? TeleOpConfig.slowSpeed : TeleOpConfig.normalSpeed);
 
         double forward = deadband(gamepad1.left_stick_y) * FORWARD_SIGN * scale;
@@ -519,15 +552,33 @@ public class BasicDriveTeleOp extends RobotOpMode {
         fire();
         lightBar();
 
-        // First on the Match page, big, every loop: the drive team reads it at a glance (6 Nov 2026).
-        display.line(launchTrimLine(launcherTrimTps, launchSpeed()));
-        display.status("Mode", robotCentric() ? Display.Level.WARN : Display.Level.OK,
-                robotCentric() || !robot.drive.isFieldCentric() ? "robot-centric" : "field-centric");
-        display.status("Speed", Display.Level.OK, slow ? "slow" : "normal");
+        // The Match page is what the drive team reads at a glance in a match (mentor, 7 Nov 2026):
+        // the launch trim, huge, then the launcher, the lane and the intake, then only what needs
+        // doing. Everything a person testing wants is on the Robot page (describeRobotPage).
+        display.line(launchTrimLine(launcherTrimTps));
+        display.line(launchSpeedLine(launchSpeed()));
+        display.status("Launcher", !launcherOwner.spinning() ? Display.Level.WARN
+                        : robot.launcher.atSpeed() ? Display.Level.OK : Display.Level.WARN,
+                launcherState());
+        display.status("Lane", robot.colorSensor.full() ? Display.Level.OK : Display.Level.WARN,
+                robot.colorSensor.full() ? "FULL" : "room");
+        // Off is the one intake state that loses a match quietly (19429, 6 Nov 2026: off 26 s of a
+        // 104 s run, the lane never full), so it is big.
+        if (intakeRunning()) {
+            display.status("Intake", Display.Level.OK, intakeState());
+        } else {
+            display.line(Display.alertWhat("INTAKE OFF"));
+        }
+        if (robotCentric() || !robot.drive.isFieldCentric()) {
+            display.status("Mode", Display.Level.WARN, "robot-centric");
+        }
         if (headingReset.pending() || cameraReset.pending() || leftCornerReset.pending() || rightCornerReset.pending() || turretZero.pending()) {
             display.line(KEEP_HOLDING);
         }
-        display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.waitingToClear() ? "out until clear of the FLOWER" : robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));
+        if (robot.flowerStick.extended() || robot.flowerStick.waitingToClear()) {
+            display.status("FLOWER stick", Display.Level.WARN, robot.flowerStick.waitingToClear()
+                    ? "OUT until clear of the FLOWER" : "OUT");
+        }
         String pick = picker.line();
         if (!pick.isEmpty()) display.line(pick);
         String gather = gatherer.line();
@@ -539,46 +590,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                     : turretMode == TurretMode.AIM ? "Chassis aim: off while the turret aims (lock it first)"
                     : "Chassis aim: " + aimer.source());
         }
-        robot.intake.describe(display);
-        // The same signal as the green light and the full hold (LaneFull), for whoever is testing.
-        display.status("Lane", Display.Level.OK, robot.colorSensor.full() ? "full" : "room");
-        display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
-        if (TeleOpConfig.intakeToggle) {
-            display.status("R2 intake", intakeToggle.on() ? Display.Level.OK : Display.Level.WARN,
-                    !intakeToggle.on() ? "OFF, operator R2 to start"
-                            : robot.colorSensor.full() ? "on, holding (lane full), operator R2 to stop"
-                            : "on, operator R2 to stop");
-        }
-        robot.launcher.describe(display);
-        if (!LaunchSpeedTable.enabled) {
-            display.line(String.format(Locale.US, "Speed table: OFF, launch speed %.0f + trim",
-                    LauncherSubsystem.targetTicksPerSecond));
-        } else if (!Double.isNaN(tableTps)) {
-            display.line(String.format(Locale.US, "Speed table: ON, %.0f ticks/s at %.0f in (%s)", tableTps,
-                    tableRangeIn, tableFromSpot ? "launch spot" : "range"));
-        } else {
-            display.line(LaunchSpeedTable.usableRows() > 0 ? "Speed table: ON, no range yet: configured speed"
-                    : "Speed table: ON but no rows: configured speed");
-        }
-        robot.feeder.describe(display);
-        robot.prefeed.describe(display);
-        robot.feedGate.describe(display);
-        robot.turret.describe(display);
-        if (turretMode == TurretMode.AIM) {
-            display.line(aimer.line());
-        } else {
-            display.status("Turret", Display.Level.WARN, "LOCKED forward: the driver points the robot (chassis aim)"
-                    + (aimer.trimDeg() == 0.0 ? "" : String.format(Locale.US, " · trim %+.1f°", aimer.trimDeg())));
-        }
-        display.line("Gates (shadow" + (TeleOpConfig.enforceAtSpeedGate || TeleOpConfig.enforceAimGate ? ", some enforced" : "")
-                + "): " + gates.summary());
-        showHeadingCheck();
-        if (poseNote != null) display.line("Last pose fix: " + poseNote);
-        if (autoParkNote != null) display.line(autoParkNote);
-        recordShot();
-        showAim();
         showPinpoint();
-        display.line(loopTimer.summary());
+        recordShot();
         publish();
     }
 
@@ -642,6 +655,68 @@ public class BasicDriveTeleOp extends RobotOpMode {
             spotPressSeen = false;
             applyLauncher(launcherOwner.spotPressEnded());
         }
+    }
+
+    /**
+     * The Robot page's top: what the Match page used to carry for the people testing (7 Nov 2026),
+     * above every subsystem's own block.
+     */
+    @Override
+    protected void describeRobotPage(Display display) {
+        display.section("Basic Drive");
+        display.status("Mode", robotCentric() ? Display.Level.WARN : Display.Level.OK,
+                robotCentric() || !robot.drive.isFieldCentric() ? "robot-centric" : "field-centric");
+        display.status("Speed", Display.Level.OK, slowHeld ? "slow" : "normal");
+        display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.waitingToClear() ? "out until clear of the FLOWER" : robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));
+        display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
+        if (!LaunchSpeedTable.enabled) {
+            display.line(String.format(Locale.US, "Speed table: OFF, launch speed %.0f + trim",
+                    LauncherSubsystem.targetTicksPerSecond));
+        } else if (!Double.isNaN(tableTps)) {
+            display.line(String.format(Locale.US, "Speed table: ON, %.0f ticks/s at %.0f in (%s)", tableTps,
+                    tableRangeIn, tableFromSpot ? "launch spot" : "range"));
+        } else {
+            display.line(LaunchSpeedTable.usableRows() > 0 ? "Speed table: ON, no range yet: configured speed"
+                    : "Speed table: ON but no rows: configured speed");
+        }
+        if (!Double.isNaN(lastShotRangeIn)) {
+            display.line(String.format(Locale.US, "Last shot: %.0f in (%s) at %.0f ticks/s", lastShotRangeIn,
+                    lastShotRangeSource, robot.launcher.lastShotTargetTicksPerSecond()));
+        }
+        if (turretMode == TurretMode.AIM) {
+            display.line(aimer.line());
+        } else {
+            display.status("Turret", Display.Level.WARN, "LOCKED forward: the driver points the robot (chassis aim)"
+                    + (aimer.trimDeg() == 0.0 ? "" : String.format(Locale.US, " · trim %+.1f°", aimer.trimDeg())));
+        }
+        display.line("Gates (shadow" + (TeleOpConfig.enforceAtSpeedGate || TeleOpConfig.enforceAimGate ? ", some enforced" : "")
+                + "): " + gates.summary());
+        showHeadingCheck();
+        if (poseNote != null) display.line("Last pose fix: " + poseNote);
+        if (autoParkNote != null) display.line(autoParkNote);
+        showAim();
+    }
+
+    /** The Match page's launcher line: idle, spinning up (speed now / target), or ready. */
+    private String launcherState() {
+        if (!launcherOwner.spinning()) return "IDLE";
+        double now = (robot.launcher.leftTicksPerSecond() + robot.launcher.rightTicksPerSecond()) / 2.0;
+        return robot.launcher.atSpeed()
+                ? String.format(Locale.US, "READY %.0f t/s", robot.launcher.target())
+                : String.format(Locale.US, "spinning up %.0f / %.0f t/s", now, robot.launcher.target());
+    }
+
+    /** The intake is running, or waiting on a full lane, rather than off. */
+    private boolean intakeRunning() {
+        return grabActive() || intakeArbiter.owner() != IntakeArbiter.Owner.NONE;
+    }
+
+    /** The Match page's intake line: who runs it, or OFF. */
+    private String intakeState() {
+        if (picker.active()) return "FLOWER pick";
+        if (gatherer.active()) return "GARDEN gather";
+        if (!intakeRunning()) return "OFF";
+        return robot.colorSensor.full() ? "on, holding (lane full)" : "on";
     }
 
     /** A FLOWER pick or a GARDEN gather is driving the robot and running the intake. */
@@ -783,10 +858,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
                     robot.launcher.lastShotDipTicksPerSecond(),
                     Double.isNaN(lastShotRangeIn) ? "unknown"
                             : String.format(Locale.US, "%.0f in (%s)", lastShotRangeIn, lastShotRangeSource)));
-        }
-        if (!Double.isNaN(lastShotRangeIn)) {
-            display.line(String.format(Locale.US, "Last shot: %.0f in (%s) at %.0f ticks/s", lastShotRangeIn,
-                    lastShotRangeSource, robot.launcher.lastShotTargetTicksPerSecond()));
         }
     }
 

@@ -28,7 +28,50 @@ public class ControlSchemeTest {
     public void everyActionIsBoundButTheOnesLeftOut() {
         Map<Action, Input> layout = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK);
         for (Action action : Action.values()) {
-            assertEquals(action.toString(), !ControlScheme.NOT_BOUND.contains(action), layout.containsKey(action));
+            boolean bound = !ControlScheme.NOT_BOUND.contains(action) && !ControlScheme.LOCKED_TURRET_ONLY.contains(action);
+            assertEquals(action.toString(), bound, layout.containsKey(action));
+        }
+    }
+
+    @Test
+    public void aLockedTurretPutsTheLaunchTrimResetOnTheWholeDpad() {
+        Map<Action, Input> locked = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true);
+        assertEquals(Input.DPAD_ANY, locked.get(Action.LAUNCHER_TRIM_RESET));
+        Map<Action, Input> unlocked = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, false);
+        assertFalse("an aiming turret has the D-pad", unlocked.containsKey(Action.LAUNCHER_TRIM_RESET));
+    }
+
+    @Test
+    public void theWholeDpadNeverSharesAPadWithOneDirection() {
+        for (boolean locked : new boolean[]{true, false}) {
+            for (Input pick : Input.values()) {
+                Map<Action, Input> layout = ControlScheme.layout(pick, locked, true);
+                for (Action.Pad pad : Action.Pad.values()) {
+                    boolean any = false;
+                    boolean one = false;
+                    for (Map.Entry<Action, Input> entry : layout.entrySet()) {
+                        if (entry.getKey().pad != pad) continue;
+                        Input input = entry.getValue();
+                        if (input == Input.DPAD_ANY) any = true;
+                        if (input == Input.DPAD_UP || input == Input.DPAD_DOWN
+                                || input == Input.DPAD_LEFT || input == Input.DPAD_RIGHT) one = true;
+                    }
+                    assertFalse(pad + " (turret locked " + locked + ", pick " + pick + ") binds the whole D-pad and one direction",
+                            any && one);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void noInputDoesTwoThingsOnOneGamepadInTheMatchLayouts() {
+        for (boolean locked : new boolean[]{true, false}) {
+            Map<String, Action> seen = new HashMap<>();
+            for (Map.Entry<Action, Input> entry : ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, locked).entrySet()) {
+                String key = entry.getKey().pad + "/" + entry.getValue();
+                Action other = seen.put(key, entry.getKey());
+                assertNull("turret locked " + locked + ": " + key + " is both " + other + " and " + entry.getKey(), other);
+            }
         }
     }
 
@@ -40,7 +83,8 @@ public class ControlSchemeTest {
             assertFalse(action + " offered on a locked turret", locked.containsKey(action));
             assertTrue(action + " missing on an aiming turret", unlocked.containsKey(action));
         }
-        assertEquals("nothing else changes", unlocked.size() - ControlScheme.TURRET_ACTIONS.size(), locked.size());
+        assertEquals("nothing else changes",
+                unlocked.size() - ControlScheme.TURRET_ACTIONS.size() + ControlScheme.LOCKED_TURRET_ONLY.size(), locked.size());
     }
 
     @Test
