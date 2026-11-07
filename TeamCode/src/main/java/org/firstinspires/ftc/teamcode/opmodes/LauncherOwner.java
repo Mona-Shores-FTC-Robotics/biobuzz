@@ -6,20 +6,19 @@ package org.firstinspires.ftc.teamcode.opmodes;
  *
  * <p>The rules, in the words a drive team uses:
  * <ul>
- *   <li><b>Square spun it up, Square spins it down.</b> A launch-spot press that fires
- *       ({@code TeleOpConfig.goToSpotAlsoFires}) and finds the launcher idle spins it up, and
- *       idles it again when the press ends.</li>
- *   <li><b>The operator spun it up, the operator spins it down.</b> Spin up (or Fire from idle)
- *       gives the launcher to the operator; it stays at launch speed until the operator's toggle
- *       idles it, so a launcher spun up early stays spinning through a Square press and after it.</li>
+ *   <li><b>Letting go of Square means "done shooting".</b> A launch-spot press that fires
+ *       ({@code TeleOpConfig.goToSpotAlsoFires}) spins the launcher up if it is idle, and when the
+ *       press ends the launcher idles, whoever spun it up (mentor, 7 Nov 2026: the release is the
+ *       driver saying the volley is over, and a launcher left spinning costs battery).</li>
+ *   <li><b>The operator spins up early.</b> Spin up (or Fire from idle) before Square gives a press
+ *       that finds the launcher already at speed, so the volley does not wait for spin-up.</li>
  *   <li><b>The operator cannot hurt a Square volley.</b> While a Square press is firing, the
- *       operator's toggle never idles the launcher: it keeps it spinning and gives it to the
- *       operator, so it stays on after the press. (Until 7 Nov 2026 the toggle idled it mid-drive,
- *       and the volley then fed below launch speed once its spin-up wait ran out.) A Fire press
- *       during the volley also gives the launcher to the operator; the OpMode holds that press's
- *       feed back so the volley still waits for the spot, aim and speed.</li>
+ *       operator's toggle never idles the launcher. (Until 7 Nov 2026 it idled it mid-drive, and the
+ *       volley then fed below launch speed once its spin-up wait ran out.) The OpMode also holds an
+ *       operator Fire's feed back during the volley, so it still waits for the spot, aim and speed.</li>
+ *   <li><b>Without Square, the toggle idles it.</b> A launcher the operator spun up and shot with
+ *       Fire alone stays on until their toggle.</li>
  * </ul>
- * Nothing else idles it: an idle launcher is one nobody has.
  */
 final class LauncherOwner {
 
@@ -45,38 +44,31 @@ final class LauncherOwner {
             owner = Owner.OPERATOR;
             return Effect.SPIN_UP;
         }
-        if (spotFiring) {
-            owner = Owner.OPERATOR; // keep it, and keep it after the press
-            return Effect.KEEP;
-        }
+        if (spotFiring) return Effect.KEEP; // never idle a volley; the press's end idles it
         owner = Owner.NONE;
         return Effect.SPIN_DOWN;
     }
 
     /**
      * The operator's Fire, at the press. From idle it spins up for the operator, unless unjam is
-     * held (that press feeds nothing); on Square's launcher it takes it over.
+     * held (that press feeds nothing); a spinning launcher is left as it is.
      */
     Effect operatorFire(boolean unjamHeld) {
-        if (owner == Owner.NONE) {
-            if (unjamHeld) return Effect.KEEP;
-            owner = Owner.OPERATOR;
-            return Effect.SPIN_UP;
-        }
+        if (owner != Owner.NONE || unjamHeld) return Effect.KEEP;
         owner = Owner.OPERATOR;
-        return Effect.KEEP;
-    }
-
-    /** A Square press that fires has started. */
-    Effect spotPressStarted() {
-        if (owner != Owner.NONE) return Effect.KEEP;
-        owner = Owner.SPOT;
         return Effect.SPIN_UP;
     }
 
-    /** That press has ended (let go, sticks moved, timed out, pose lost). */
+    /** A Square press that fires has started: the launcher is the press's until it ends. */
+    Effect spotPressStarted() {
+        boolean wasIdle = owner == Owner.NONE;
+        owner = Owner.SPOT;
+        return wasIdle ? Effect.SPIN_UP : Effect.KEEP;
+    }
+
+    /** That press has ended (let go, sticks moved, timed out, pose lost): done shooting, idle. */
     Effect spotPressEnded() {
-        if (owner != Owner.SPOT) return Effect.KEEP;
+        if (owner == Owner.NONE) return Effect.KEEP;
         owner = Owner.NONE;
         return Effect.SPIN_DOWN;
     }

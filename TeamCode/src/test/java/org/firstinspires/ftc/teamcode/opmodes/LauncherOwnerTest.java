@@ -36,25 +36,24 @@ public class LauncherOwnerTest {
     }
 
     @Test
-    public void preSpunLauncherStaysOnThroughAndAfterSquare() {
+    public void preSpunLauncherStaysOnThroughSquareAndIdlesWhenItIsLetGo() {
         LauncherOwner o = new LauncherOwner();
         o.operatorToggle(false);
-        assertEquals(Effect.KEEP, o.spotPressStarted());
-        assertEquals(Effect.KEEP, o.spotPressEnded());
+        assertEquals(Effect.KEEP, o.spotPressStarted()); // already at speed: no spin-up wait
         assertTrue(o.spinning());
-        assertEquals(Owner.OPERATOR, o.owner());
+        assertEquals(Effect.SPIN_DOWN, o.spotPressEnded()); // let go: done shooting
+        assertFalse(o.spinning());
     }
 
     @Test
-    public void toggleDuringSquareNeverSpinsDownAndKeepsItAfter() {
+    public void toggleDuringSquareNeverSpinsDown() {
         LauncherOwner o = new LauncherOwner();
         o.spotPressStarted();
         assertEquals(Effect.KEEP, o.operatorToggle(true));
+        assertEquals(Effect.KEEP, o.operatorToggle(true));
         assertTrue(o.spinning());
-        assertEquals(Effect.KEEP, o.spotPressEnded());
-        assertTrue(o.spinning());
-        // Square is over: the operator's toggle idles it again.
-        assertEquals(Effect.SPIN_DOWN, o.operatorToggle(false));
+        assertEquals(Effect.SPIN_DOWN, o.spotPressEnded());
+        assertFalse(o.spinning());
     }
 
     @Test
@@ -67,10 +66,12 @@ public class LauncherOwnerTest {
     }
 
     @Test
-    public void fireFromIdleSpinsUpForTheOperator() {
+    public void fireFromIdleSpinsUpForTheOperatorAndTheToggleIdlesIt() {
         LauncherOwner o = new LauncherOwner();
         assertEquals(Effect.SPIN_UP, o.operatorFire(false));
         assertEquals(Owner.OPERATOR, o.owner());
+        assertEquals(Effect.KEEP, o.operatorFire(false));
+        assertEquals(Effect.SPIN_DOWN, o.operatorToggle(false));
     }
 
     @Test
@@ -81,11 +82,11 @@ public class LauncherOwnerTest {
     }
 
     @Test
-    public void fireDuringSquareTakesTheLauncherSoItStaysOn() {
+    public void fireDuringSquareChangesNothingAndLettingGoStillIdles() {
         LauncherOwner o = new LauncherOwner();
         o.spotPressStarted();
         assertEquals(Effect.KEEP, o.operatorFire(false));
-        assertEquals(Effect.KEEP, o.spotPressEnded());
-        assertTrue(o.spinning());
+        assertEquals(Owner.SPOT, o.owner());
+        assertEquals(Effect.SPIN_DOWN, o.spotPressEnded());
     }
 }

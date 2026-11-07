@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
  *   <li>The operator wins: their FIRE held at any point before the volley ends gives the shot to
  *       them for the rest of the press ({@link Phase#YIELDED}). Basic Drive no longer asks for
  *       this since 7 Nov 2026: it holds the operator's FIRE back while the volley runs
- *       ({@link LauncherOwner}), so an early press cannot feed before the spot, aim and speed.</li>
+ *       (see {@link LauncherOwner}), so an early press cannot feed before the spot, aim and speed.</li>
  * </ul>
  *
  * <p>There is no "lane empty" check: the robot cannot know it is empty (no piece sensor; the lane
