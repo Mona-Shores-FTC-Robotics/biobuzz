@@ -33,9 +33,12 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 | L-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/l-no-cross.pp> |
 | R-Solo | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo.pp> |
 | R-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-no-cross.pp> |
+| L-Infraviolet + R-Infraviolet (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/l-infraviolet.pp,r-infraviolet.pp> |
 
-The Belding work order is **L-NoCross, R-NoCross, R-Solo-Nudge, then the
-L-Infraviolet / R-Infraviolet three-TIP pair**. R-Solo stays the existing reference.
+The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
+existing reference. **L-Infraviolet / R-Infraviolet** is a coordinated three-TIP pair, run on
+both robots and promoted to competition Autos; run one only with the partner on the other
+([its notes](infraviolet.md)).
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
 those routines: their paths, waits and fallback behavior have not been tuned yet.
 In particular, L-NoCross's existing no-TIP fallback still crosses to RIGHT; replace

@@ -35,11 +35,12 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
    the push, legal starting contact, PARK overlap, clearance and time cost (§3).
    Target two TIPs and both AUTO PARKs; the current draft is not qualified and has no
    OpMode. A match partner with no motion still uses an initialized OpMode.
-4. **L-Infraviolet / R-Infraviolet.** Refine one coordinated three-TIP pair after the
-   baseline. The A/B drafts remain candidate routes; do not register placeholders.
+4. **L-Infraviolet / R-Infraviolet.** Competition Autos: run on both robots and promoted
+   from Utility trials. Keep refining the pair; a dead partner is not covered (§3).
 
 - [ ] **After loading the lineup cleanup:** the Driver Station's Autonomous menu has
-      exactly L-NoCross, R-NoCross and R-Solo (with their save timestamps). Preload,
+      exactly L-NoCross, R-NoCross, R-Solo, L-Infraviolet and R-Infraviolet (with their
+      save timestamps); the old Drive: L/R-Infraviolet Utilities are gone. Preload,
       Staging, the old Partner names and R-Solo-Nudge are absent. Check INIT on each,
       including alliance, measured start and the available D-pad options. A stale name
       after Sloth Load needs a clean restart/reload check before any field test.
@@ -323,9 +324,9 @@ Use the work order above to select checks; the detailed mechanism checks below a
       [Draft and Utility details](../TeamCode/autos/drafts/README.md#first-floor-test-drive-partner-nudge)
 
 - [ ] **Infraviolet pair: L early garden, R both flowers.**
-      [Candidate, reused paths, cutoffs and timing](../TeamCode/autos/drafts/README.md#l-infraviolet--r-infraviolet-coordinated-three-tip-draft).
-      Sloth Load `feat/infraviolet-pair`; run **Utility → Drive: L-Infraviolet / Drive: R-Infraviolet**
-      (automatic STOP at 30 s). The previous assignment is preserved in Git history.
+      [Assignment, reused paths, cutoffs and timing](../TeamCode/autos/infraviolet.md).
+      Run **Autonomous → L-Infraviolet / R-Infraviolet** with the DS AUTO timer on
+      (it stops them at 30 s). The previous assignment is preserved in Git history.
       - Confirm L moves to LEFT_CATCH but never shoots before R's TIP 1 settles.
         Missing TIP 1 must send L to far park without collecting the garden.
       - Dry-run both south crossings and the separate parks. L must pass a robot
@@ -350,8 +351,8 @@ Use the work order above to select checks; the detailed mechanism checks below a
         Full physics simulation at `63cdc72b` gets three TIPs plus both parks in
         one of three nominal seeds; the other two execute every volley but get
         two TIPs and both parks. Shot conversion/retention remains unqualified.
-        Confirm both LEAVEs at AUTO end and both parks on video before promoting
-        the Utility trials to competition OpModes.
+        Confirm both LEAVEs at AUTO end and both parks on video; the pair is
+        already promoted, so log each run that shows otherwise.
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 

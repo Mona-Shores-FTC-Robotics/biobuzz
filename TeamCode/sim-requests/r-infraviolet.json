@@ -1,5 +1,5 @@
 {
-  "pp": "TeamCode/autos/drafts/r-infraviolet.pp",
+  "pp": "TeamCode/autos/r-infraviolet.pp",
   "spec": "RInfravioletAuto@50",
   "design": "real robot, turret locked forward",
   "partnerDesign": null,
@@ -44,7 +44,7 @@
     }
   ],
   "metadata": {
-    "AutoSource": "drafts/r-infraviolet.pp",
+    "AutoSource": "r-infraviolet.pp",
     "SavedBy": "Infraviolet candidate: L early garden, R both flowers; forward loaded crossings",
     "SavedAt": "2026-11-06T17:51:28.413181+00:00"
   }
