@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
+import org.firstinspires.ftc.teamcode.opmodes.PartnerNudgeTest;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.PartnerNudgeTestAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloNudgeAuto;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -25,13 +26,15 @@ public final class RSoloNudgeTrial extends BuiltAuto {
         PartnerNudgeTestAuto.build(drawn, rotated);
         contactDrive = new NudgeContactDrive(robot.drive, Constants.forActiveRobot().foresightConfig,
                 PartnerNudgeTestAuto.startPose(rotated), drawn.paths().get(0).endPose(),
-                robot.drive::odometrySpeedInPerSec, () -> System.nanoTime() / 1e9);
+                robot.drive::odometrySpeedInPerSec, () -> System.nanoTime() / 1e9,
+                PartnerNudgeTest.pathSpeed);
         return contactDrive;
     }
     @Override protected void onInitLoop() {
         super.onInitLoop();
         display.line("FULL NUDGE TEST: normal RIGHT start, four preloads; 16x16 angled partner.");
-        display.line("Contact approach/push: 4 in/s, 8 in/s^2. Automatic STOP at 30 s.");
+        display.line("Contact approach/push: " + PartnerNudgeTest.pathSpeed
+                + " of top speed (Panels PartnerNudgeTest.pathSpeed). Automatic STOP at 30 s.");
     }
     @Override protected void onStart() { began = System.nanoTime(); super.onStart(); }
     @Override protected void onLoop() {

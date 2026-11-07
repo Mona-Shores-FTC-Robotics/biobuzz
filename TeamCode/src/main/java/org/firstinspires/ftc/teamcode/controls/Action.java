@@ -11,7 +11,7 @@ public enum Action {
     // Driver
     DRIVE(Pad.DRIVER, "Drive"),
     TURN(Pad.DRIVER, "Turn"),
-    INTAKE(Pad.DRIVER, "Intake (hold, over the toggle)"),
+    INTAKE(Pad.DRIVER, "Intake (hold)"),
     DRIVER_UNJAM(Pad.DRIVER, "Unjam (hold)"),
     SLOW(Pad.DRIVER, "Slow (hold)"),
     FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold)"),
@@ -25,17 +25,18 @@ public enum Action {
     AUTO_PARK(Pad.DRIVER, "*Auto-Park (hold)"),
 
     // Operator
-    OPERATOR_INTAKE(Pad.OPERATOR, "Intake On / Off (Toggle)"),
+    OPERATOR_INTAKE(Pad.OPERATOR, "Intake (hold)"),
     UNJAM(Pad.OPERATOR, "Unjam (hold)"),
     LAUNCHER_TOGGLE(Pad.OPERATOR, "Launcher Spin Up / Idle (Toggle)"),
     LAUNCHER_TRIM_DOWN(Pad.OPERATOR, "Launcher Trim Down"),
     LAUNCHER_TRIM_UP(Pad.OPERATOR, "Launcher Trim Up"),
+    LAUNCHER_TRIM_RESET(Pad.OPERATOR, "Launcher Trim Reset to 0"),
     FIRE(Pad.OPERATOR, "Fire (hold; spins up first if idle)"),
     FLOWER_STICK(Pad.OPERATOR, "FLOWER Stick Deploy / Retract (Toggle)"),
     TURRET_LOCK(Pad.OPERATOR, "Turret Autoaim (Toggle)"),
     TRIM_LEFT(Pad.OPERATOR, "Trim aim left"),
     TRIM_RIGHT(Pad.OPERATOR, "Trim aim right"),
-    TRIM_RESET(Pad.OPERATOR, "Trim reset"),
+    TRIM_RESET(Pad.OPERATOR, "Trim reset (aim and launcher)"),
     TURRET_ZERO(Pad.OPERATOR, "Zero Turret (hold 0.5\u00a0s)");
 
     /** Which person, and so which gamepad. */

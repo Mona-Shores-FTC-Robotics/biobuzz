@@ -267,6 +267,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      * along a robot axis ({@link WheelPowerCap} has the reason and the measurement).
      */
     public void drive(double forward, double strafe, double turn, double maxWheelPower) {
+        if (pathControl) releasePath();
         pathControl = false;
         robotCentricCommand = false;
         this.forward = forward;
@@ -673,6 +674,17 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             throw new IllegalStateException("Following a path needs the Pinpoint: " + localizerFault);
         }
         follower = new Follower(localizer, drivetrain, Constants.createAlgorithm());
+    }
+
+    /**
+     * Ends Pedro's path or hold. A path's speed caps ({@code .with(...)}) are written into the
+     * robot's static {@code foresightConfig} while it runs, and Pedro puts the old values back only
+     * when the path finishes or its Follower is cleared. A path cut short (the sticks, a timeout,
+     * STOP) left them there for every later path until the app restarted: on 6 Nov the nudge test's
+     * 4 in/s cap stopped R-Solo-Nudge's full-speed paths. So every way out of path control clears it.
+     */
+    private void releasePath() {
+        if (follower != null) follower.stop();
     }
 
     @Override
@@ -1133,6 +1145,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     @Override
     public void stop() {
+        releasePath();
         pathControl = false;
         drivetrain.stop();
     }

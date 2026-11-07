@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.PartnerNudgeTestAut
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
-/** Runs only the drawn push and retreat, with real Pedro constraints and a bounded test duration. */
+/** Runs only the drawn push and retreat, under a Pedro speed cap and a bounded test duration. */
 public final class NudgeTestRun {
     private final AutoDrive drive;
     private final ForesightConfig config;
@@ -21,8 +21,7 @@ public final class NudgeTestRun {
     private final DoubleSupplier clock;
     private final Runnable releaseDrive;
     private final Consumer<String> event;
-    private final double velocity;
-    private final double acceleration;
+    private final double pathSpeed;
     private final double timeout;
     private Command command;
     private double began;
@@ -31,10 +30,9 @@ public final class NudgeTestRun {
 
     public NudgeTestRun(AutoDrive drive, ForesightConfig config, DoubleSupplier speed,
                         DoubleSupplier clock, Runnable releaseDrive, Consumer<String> event,
-                        double velocity, double acceleration, double timeout) {
+                        double pathSpeed, double timeout) {
         // Invalid Panels input refuses the test instead of silently removing a limit.
-        requireRange(velocity, 0.5, 8, "speed (in/s)");
-        requireRange(acceleration, 1, 16, "acceleration (in/s^2)");
+        NudgeContactDrive.requirePathSpeed(pathSpeed);
         requireRange(timeout, 1, 15, "timeout (s)");
         this.drive = drive;
         this.config = config;
@@ -42,8 +40,7 @@ public final class NudgeTestRun {
         this.clock = clock;
         this.releaseDrive = releaseDrive;
         this.event = event;
-        this.velocity = velocity;
-        this.acceleration = acceleration;
+        this.pathSpeed = pathSpeed;
         this.timeout = timeout;
     }
 
@@ -62,8 +59,7 @@ public final class NudgeTestRun {
 
             @Override public void follow(Path path) {
                 target = path.endPose();
-                drive.follow(path.with(config.maxVelocityConstraint.at(velocity),
-                        config.maxAccelerationConstraint.at(acceleration)));
+                drive.follow(NudgeContactDrive.capped(path, config, pathSpeed));
             }
 
             @Override public boolean pathDone() {
@@ -87,8 +83,8 @@ public final class NudgeTestRun {
         command = PartnerNudgeTestAuto.build(kit, rotated);
         running = true;
         result = "Running push and retreat";
-        event.accept("nudge: start, speed limit " + velocity + " in/s, acceleration limit "
-                + acceleration + " in/s^2, timeout " + timeout + " s");
+        event.accept("nudge: start, path speed " + pathSpeed + " of top speed, timeout "
+                + timeout + " s");
         command.schedule();
     }
 
