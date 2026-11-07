@@ -58,6 +58,12 @@ import java.util.Locale;
  * stick, one of them at a time, and the chassis aim on the right stick, since the left stick keeps
  * driving under it.
  *
+ * <p>The launcher idles only when whoever spun it up lets it go ({@link LauncherOwner}): a Square
+ * press that found it idle idles it when the press ends; one the operator spun up (their toggle,
+ * or Fire from idle) stays at launch speed until their toggle idles it. While a Square press is
+ * firing, the operator's toggle only keeps the launcher spinning, and their Fire waits for the
+ * volley; either one gives them the launcher, so it stays on after the press.
+ *
  * <h2>Aiming</h2>
  *
  * <p>The turret starts every OpMode LOCKED straight ahead; the operator's lock button switches it
@@ -155,20 +161,18 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private FlowerPicker picker;
     private GardenGather gatherer;
     private LaunchSpotDrive launchSpot;
-    private boolean launchMode;
+    /** Who has the launcher, and so when it idles: Square's press or the operator ({@link LauncherOwner}). */
+    private final LauncherOwner launcherOwner = new LauncherOwner();
     /** The operator's trim on the launch speed, ticks per second; lasts the OpMode. */
     private double launcherTrimTps;
     private boolean chassisAimCancelled;
     /** When the chassis aim button went down, ns; 0 while it is up. For its log line. */
     private long chassisAimSinceNs;
     private boolean lastFire;
+    /** FIRE as pressed, before a Square volley holds it back: for that press's one log line. */
+    private boolean lastRawFire;
     /** This fire press spun the launcher up from idle, so it feeds only once at launch speed. */
     private boolean spunUpByFire;
-    /**
-     * The launch-spot button spun the launcher up from idle: it idles it again when the press ends,
-     * unless the operator took the launcher (their toggle or FIRE) in the meantime.
-     */
-    private boolean spunUpBySpot;
     /** The current launch-spot press has had its spin-up decided. */
     private boolean spotPressSeen;
     private Bar bar = Bar.NONE;
@@ -244,8 +248,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.OPERATOR_INTAKE);
         controls.note(Action.UNJAM);
         controls.on(Action.LAUNCHER_TOGGLE).onPress(() -> {
-            spunUpBySpot = false; // the operator has the launcher now
-            toggleLauncher();
+            boolean spotFiring = launchSpot.wantsLauncher();
+            LauncherOwner.Effect effect = launcherOwner.operatorToggle(spotFiring);
+            if (effect == LauncherOwner.Effect.KEEP) {
+                log.event("launcher: toggle during Square's volley: kept spinning, and stays on after the press");
+            }
+            applyLauncher(effect);
         });
         controls.on(Action.LAUNCHER_TRIM_DOWN).onPress(() -> trimLauncher(-1));
         controls.on(Action.LAUNCHER_TRIM_UP).onPress(() -> trimLauncher(+1));
@@ -257,6 +265,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.on(Action.TRIM_RESET).onPress(() -> trim(0));
         controls.note(Action.TURRET_ZERO);
 
+        operator.note("Launcher and Square", "spin up early when a shot is coming; while the driver's "
+                + "Square fires, your buttons only keep it spinning (no idle, Fire waits for the volley); "
+                + "you spun it up, you idle it");
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
     }
@@ -300,12 +311,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
         log.event("turret " + turretMode);
     }
 
-    /** Idle speed to launch speed and back. Idle is {@link TeleOpConfig#launcherIdleTicksPerSecond}; 0 stops. */
-    private void toggleLauncher() {
-        launchMode = !launchMode;
-        if (launchMode) {
+    /**
+     * Does what {@link LauncherOwner} decided: launch speed, or idle. Idle is
+     * {@link TeleOpConfig#launcherIdleTicksPerSecond}; 0 stops.
+     */
+    private void applyLauncher(LauncherOwner.Effect effect) {
+        if (effect == LauncherOwner.Effect.KEEP) return;
+        if (effect == LauncherOwner.Effect.SPIN_UP) {
             robot.launcher.spinUp(launchSpeed());
-            log.event(String.format(Locale.US, "launcher: launch speed %.0f ticks/s", launchSpeed()));
+            log.event(String.format(Locale.US, "launcher: launch speed %.0f ticks/s (%s)",
+                    launchSpeed(), launcherOwner.owner() == LauncherOwner.Owner.SPOT ? "Square" : "operator"));
             return;
         }
         double idle = TeleOpConfig.launcherIdleTicksPerSecond;
@@ -335,7 +350,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         double step = TeleOpConfig.launcherTrimStepTps > 0.0
                 ? Math.min(TeleOpConfig.launcherTrimStepTps, MAX_LAUNCHER_TRIM_STEP_TPS) : 0.0;
         launcherTrimTps = Math.max(-LauncherSubsystem.targetTicksPerSecond, launcherTrimTps + direction * step);
-        if (launchMode) {
+        if (launcherOwner.spinning()) {
             robot.launcher.spinUp(launchSpeed());
         }
         log.event(String.format(Locale.US, "launcher trim %+.0f ticks/s: launch speed %.0f",
@@ -456,8 +471,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         boolean sticksMoved = leftStick || rightStick;
         picker.update(controls.held(Action.FLOWER_PICK) && !gatherer.active() && !launchSpot.active(), sticksMoved);
         gatherer.update(controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active(), sticksMoved);
+        // A volley already under way does not yield to the operator's FIRE (fire() holds it back).
         launchSpot.update(controls.held(Action.LAUNCH_SPOT) && !grabActive(), setup.alliance(), sticksMoved,
-                controls.held(Action.FIRE));
+                controls.held(Action.FIRE) && !launchSpot.wantsLauncher());
         updateTableSpeed();
         spotLauncher();
         boolean chassisAim = chassisAim(rightStick);
@@ -614,25 +630,18 @@ public class BasicDriveTeleOp extends RobotOpMode {
     }
 
     /**
-     * The launch-spot button's launcher (TeleOpConfig.goToSpotAlsoFires): spun up to the operator's
-     * launch speed and trim as the press starts, the same toggle the operator's button uses, and
-     * idled again when the press ends if the button was what spun it up.
+     * The launch-spot button's launcher (TeleOpConfig.goToSpotAlsoFires): spun up to the launch
+     * speed and trim as the press starts if it is idle, and idled again when the press ends if the
+     * press was what spun it up and the operator did not take it meanwhile ({@link LauncherOwner}).
      */
     private void spotLauncher() {
         boolean wants = launchSpot.wantsLauncher();
         if (wants && !spotPressSeen) {
-            // Once per press, so an operator who idles the launcher mid-press is not overruled.
             spotPressSeen = true;
-            if (!launchMode) {
-                toggleLauncher();
-                spunUpBySpot = true;
-            }
-        } else if (!wants) {
+            applyLauncher(launcherOwner.spotPressStarted());
+        } else if (!wants && spotPressSeen) {
             spotPressSeen = false;
-            if (spunUpBySpot) {
-                spunUpBySpot = false;
-                if (launchMode) toggleLauncher();
-            }
+            applyLauncher(launcherOwner.spotPressEnded());
         }
     }
 
@@ -668,15 +677,25 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * Every press is one log line with what a gate would have said.
      */
     private void fire() {
-        boolean fireHeld = controls.held(Action.FIRE);
+        boolean rawFire = controls.held(Action.FIRE);
+        // A Square press that fires owns the shot: the operator's FIRE takes the launcher (it stays
+        // on after the press) but feeds nothing until the press ends, so the volley still waits for
+        // the spot, aim and speed. Without goToSpotAlsoFires, Square only drives and FIRE is theirs.
+        boolean spotFiring = launchSpot.wantsLauncher();
+        if (rawFire && !lastRawFire && spotFiring) {
+            launcherOwner.operatorFire(unjamHeld());
+            log.event("fire: held back, Square's volley is firing; the launcher stays on after the press");
+        }
+        lastRawFire = rawFire;
+        boolean fireHeld = rawFire && !spotFiring;
         boolean pressed = fireHeld && !lastFire;
-        if (pressed) spunUpBySpot = false; // the operator's shot: the launcher stays theirs
-        if (pressed && !launchMode && !unjamHeld()) {
-            toggleLauncher();
-            spunUpByFire = true;
+        if (pressed) {
+            boolean wasIdle = !launcherOwner.spinning();
+            applyLauncher(launcherOwner.operatorFire(unjamHeld()));
+            if (wasIdle && launcherOwner.spinning()) spunUpByFire = true;
         }
         if (!fireHeld) spunUpByFire = false;
-        gates.evaluate(launchMode, robot.launcher.atSpeed(), aimErrorDeg, TeleOpConfig.aimToleranceDeg);
+        gates.evaluate(launcherOwner.spinning(), robot.launcher.atSpeed(), aimErrorDeg, TeleOpConfig.aimToleranceDeg);
         boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, TeleOpConfig.enforceAimGate)
                 && (!spunUpByFire || robot.launcher.atSpeed());
         if (pressed) {
@@ -719,14 +738,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 : gates.anyWouldBlock() ? "fired; a gate would have blocked it (shadow)" : "fired; gates clear";
         return String.format(Locale.US, "fire: launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
                 (robot.launcher.leftTicksPerSecond() + robot.launcher.rightTicksPerSecond()) / 2.0,
-                robot.launcher.target(), launchMode ? "" : " (idle)",
+                robot.launcher.target(), launcherOwner.spinning() ? "" : " (idle)",
                 Double.isNaN(aimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f°", aimErrorDeg),
                 aimer.source(), aimer.trimDeg(), turretMode, where, gates.summary(), outcome);
     }
 
     /** The operator's light bar, sent only when it changes; a short rumble on reaching launch speed. */
     private void lightBar() {
-        Bar now = !launchMode ? Bar.IDLE : robot.launcher.atSpeed() ? Bar.AT_SPEED : Bar.SPINNING;
+        Bar now = !launcherOwner.spinning() ? Bar.IDLE : robot.launcher.atSpeed() ? Bar.AT_SPEED : Bar.SPINNING;
         if (now == bar) return;
         switch (now) {
             case AT_SPEED:
@@ -864,7 +883,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         tableTps = next;
         tableRangeIn = range;
         tableFromSpot = fromSpot;
-        if (launchMode) robot.launcher.spinUp(launchSpeed());
+        if (launcherOwner.spinning()) robot.launcher.spinUp(launchSpeed());
         log.event(Double.isNaN(next)
                 ? String.format(Locale.US, "launcher: speed table %s, configured speed %.0f ticks/s",
                         LaunchSpeedTable.enabled ? "has no rows" : "off", launchSpeed())
@@ -883,7 +902,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("left_amps", robot.launcher.leftCurrentAmps());
             panels.addData("right_amps", robot.launcher.rightCurrentAmps());
             panels.addData("at_speed", robot.launcher.atSpeed() ? 1.0 : 0.0);
-            panels.addData("launch_mode", launchMode ? 1.0 : 0.0);
+            panels.addData("launch_mode", launcherOwner.spinning() ? 1.0 : 0.0);
             panels.addData("launcher_trim_tps", launcherTrimTps);
             panels.addData("table_tps", tableTps);
             panels.addData("shots", robot.launcher.shots());
