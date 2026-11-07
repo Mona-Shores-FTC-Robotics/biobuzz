@@ -79,7 +79,7 @@ import java.util.Locale;
  *
  * <p>The Match page is a glance for the operator and the coach (mentor, 7 Nov 2026), three huge
  * lines and at most one alert: the launch trim (amber while trimmed), the launcher (READY, SPIN,
- * IDLE), the lane tracker's piece count with the sensor's FULL beside it, and the most urgent of
+ * IDLE), the lane tracker's piece count (green while the sensor sees the lane full), and the most urgent of
  * no Pinpoint, intake off, robot-centric, Square refused, FLOWER stick out. Everything else is on
  * the Robot page. The trim is on every shot, Square's included, and is felt as well as seen: one
  * rumble blip up, two down, a long buzz when D-pad down resets it to 0.
@@ -686,14 +686,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
     }
 
     /**
-     * The Match page's lane line, huge: the lane tracker's count, and FULL in green when the sensor
-     * sees the lane full. The count is the tracker's guess (data only, never decided from); shown
-     * beside the sensor's FULL, a wrong one is plain to the drive team and the coach, which is how
-     * it gets better (mentor, 7 Nov 2026).
+     * The Match page's lane line, huge: the lane tracker's count, green while the sensor sees the
+     * lane full (the robot's light means the same). Just the number, no "FULL" beside it, which read
+     * as a contradiction when the two disagreed (mentor, 7 Nov 2026). The count is the tracker's guess
+     * (data only, never decided from); a green count under 4 is the tracker missing a piece, plain to
+     * the drive team and the coach, which is how it gets better.
      */
     static String piecesLine(int count, boolean sensorFull) {
-        String text = count + (count == 1 ? " PIECE" : " PIECES") + (sensorFull ? " FULL" : "");
-        return Display.huge(text, sensorFull ? Display.Level.OK : null);
+        return Display.huge(count + (count == 1 ? " PIECE" : " PIECES"), sensorFull ? Display.Level.OK : null);
     }
 
     /**
