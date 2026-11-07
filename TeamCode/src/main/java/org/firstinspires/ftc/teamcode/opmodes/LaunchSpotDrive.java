@@ -116,6 +116,11 @@ public final class LaunchSpotDrive {
         return feed;
     }
 
+    /** This press was refused, and the button is still held: the Match page's alert. */
+    public boolean refused() {
+        return phase == Phase.REFUSED;
+    }
+
     /** Pedro is driving or holding the robot: nothing else may drive it. */
     public boolean active() {
         return phase == Phase.DRIVING || phase == Phase.HOLDING;

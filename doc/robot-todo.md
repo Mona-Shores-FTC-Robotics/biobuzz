@@ -433,16 +433,19 @@ measurement is [#255].
       toggle up, FIRE, toggle down, as before. **Stop:** a toggle press during Square idles the
       launcher, FIRE feeds before arrival, or the launcher keeps spinning after Square is let go
       → run `Belding`'s Basic Drive and tell a mentor.
-- [ ] **Operator's glance page, trim rumble, D-pad trim reset (`belding-plus`, 7 Nov):** Basic
-      Drive, Match page. **Good:** the first line is `TRIM 0` in text about twice ordinary size (three
-      nested `<big>`), readable from the operator's seat; under it the launch speed, then Launcher
-      (IDLE / spinning up / READY), Lane, Intake, and nothing else unless something needs doing;
-      the details are on the Robot page (Share twice). Operator R1: `TRIM +25` in amber and one
-      rumble blip; L1: two blips; D-pad down: back to `TRIM 0` with a long buzz. The intake
-      runs from PLAY with nobody touching R2, and no R2 press on either pad stops it (there is no
-      toggle since 7 Nov); with `TeleOpConfig.intakeAlwaysOn` off it runs only while R2 is held. **Stop:** the trim is no bigger than the lines
-      under it (the Driver Station ignored the nesting) → note it, and try `<h1>` in
-      `Display.huge`; a pad with no rumble says so in INIT (`rumble:` log lines).
+- [ ] **Operator's glance page, trim rumble, D-pad trim reset, no intake toggle (`belding-plus`,
+      7 Nov):** Basic Drive, Match page, read from the operator's seat and from the coach's spot.
+      **Good:** under the header and the alliance line, three lines in text about twice ordinary
+      size (three nested `<big>`): `TRIM 0`, then `IDLE` / `SPIN` (amber) / `READY` (green), then
+      `N PIECES`, with `FULL` in green when the sensor sees the lane full; a fourth, amber, only when
+      something is wrong (`INTAKE OFF`, `ROBOT-CENTRIC`, `SQUARE REFUSED` while Square is held,
+      `FLOWER STICK OUT`, `NO PINPOINT`). Everything else is on the Robot page (Share twice).
+      Operator R1: `TRIM +25` in amber and one rumble blip; L1: two blips; D-pad down: back to
+      `TRIM 0` with a long buzz. The intake runs from PLAY with nobody touching R2, and no R2 press
+      on either pad stops it; with `TeleOpConfig.intakeAlwaysOn` off it runs only while R2 is held.
+      Note every time the count and `FULL` disagree (`3 PIECES FULL`): that is the tracker's error.
+      **Stop:** the three lines are no bigger than the header (the Driver Station ignored the
+      nesting) → note it, and try `<h1>` in `Display.huge`.
 - [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on):** R-NoCross and
       R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
       every run; when its second volley ends late the Match page and the log say `… no time to

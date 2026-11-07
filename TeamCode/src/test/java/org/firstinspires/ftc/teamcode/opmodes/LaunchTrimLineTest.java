@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.junit.Test;
 
-/** Basic Drive's first Match-page line: the operator's launch trim, huge, amber while trimmed. */
+/** Basic Drive's huge Match-page lines: the operator's launch trim (amber while trimmed) and the lane's pieces. */
 public class LaunchTrimLineTest {
 
     @Test
@@ -35,5 +35,15 @@ public class LaunchTrimLineTest {
         String line = BasicDriveTeleOp.launchSpeedLine(1650);
         assertEquals("launch speed 1650 t/s", line);
         assertEquals(1.0, Display.rows(line), 1e-9);
+    }
+
+    @Test
+    public void thePiecesLineIsTheCountHugeWithTheSensorsFullInGreen() {
+        assertEquals(Display.huge("3 PIECES", (Display.Level) null), BasicDriveTeleOp.piecesLine(3, false));
+        assertEquals(Display.huge("1 PIECE", (Display.Level) null), BasicDriveTeleOp.piecesLine(1, false));
+        assertEquals(Display.huge("4 PIECES FULL", Display.Level.OK), BasicDriveTeleOp.piecesLine(4, true));
+        // A count the sensor disagrees with shows as it is: that is how the count gets better.
+        assertEquals(Display.huge("3 PIECES FULL", Display.Level.OK), BasicDriveTeleOp.piecesLine(3, true));
+        assertEquals(Display.HUGE_SCALE, Display.rows(BasicDriveTeleOp.piecesLine(4, true)), 1e-9);
     }
 }
