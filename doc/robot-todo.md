@@ -433,14 +433,18 @@ measurement is [#255].
       toggle up, FIRE, toggle down, as before. **Stop:** a toggle press during Square idles the
       launcher, FIRE feeds before arrival, or the launcher keeps spinning after Square is let go
       → run `Belding`'s Basic Drive and tell a mentor.
-- [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on, LaunchAll feed
-      3.05 s):** R-NoCross and R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
+- [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on):** R-NoCross and
+      R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
       every run; when its second volley ends late the Match page and the log say `… no time to
       park after it, parking now` and it parks from RIGHT_LAUNCH_CATCH; R-Solo still fires its
       third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
-      **Stop:** a ball left in the robot after a LaunchAll → `LaunchCards.launchAllFeedS` back to
-      3.5; R-Solo parks instead of its third volley every run → note the time it gave and tell a
+      **Stop:** R-Solo parks instead of its third volley every run → note the time it gave and tell a
       mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
+- [ ] **Film the Auto volleys (decides `LaunchCards.launchAllFeedS`, 3.5):** 5–6 LaunchAlls,
+      phone slow-motion side-on, the launcher and the Driver Station both in frame. Per volley,
+      write down each ball's time after the gate opens and the launcher's counted shots.
+      **Good:** no ball after 3.0 s in any → `launchAllFeedS` 3.05 in Panels, and the volleys
+      where the count fell short show which way the shot counter misses.
 - [ ] **Square from past the centre line (`LaunchSpotDrive.maxPastCentreIn`, 24):** on 6 Nov the
       drivers pressed Square with the robot 3–4 in past the line and it refused every time. Hold
       Square with the robot about 6 in, then about 20 in, past the line, on red and on blue.
