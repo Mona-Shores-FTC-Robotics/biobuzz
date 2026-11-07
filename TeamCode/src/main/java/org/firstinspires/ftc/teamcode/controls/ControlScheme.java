@@ -38,6 +38,14 @@ public final class ControlScheme {
      */
     public static final Set<Action> NOT_BOUND = Collections.unmodifiableSet(EnumSet.of(Action.AUTO_PARK));
 
+    /**
+     * Bound only while the turret is locked forward, when the operator's D-pad is free: the launch
+     * trim reset on the whole D-pad (mentor, 7 Nov 2026). With the turret aiming, its D-pad trim
+     * reset clears the launch trim too.
+     */
+    public static final Set<Action> LOCKED_TURRET_ONLY = Collections.unmodifiableSet(EnumSet.of(
+            Action.LAUNCHER_TRIM_RESET));
+
     /** The operator's turret controls: left out while the turret is locked forward. */
     public static final Set<Action> TURRET_ACTIONS = Collections.unmodifiableSet(EnumSet.of(
             Action.TURRET_LOCK, Action.TRIM_LEFT, Action.TRIM_RIGHT, Action.TRIM_RESET, Action.TURRET_ZERO));
@@ -59,6 +67,7 @@ public final class ControlScheme {
         Map<Action, Input> map = layout(flowerPick);
         if (turretLocked) {
             for (Action action : TURRET_ACTIONS) map.remove(action);
+            map.put(Action.LAUNCHER_TRIM_RESET, Input.DPAD_ANY);
         }
         if (!launchSpot) map.remove(Action.LAUNCH_SPOT);
         return map;
@@ -68,8 +77,8 @@ public final class ControlScheme {
      * The inputs, with the FLOWER pick on {@code flowerPick}. The pick may be any face button or
      * D-pad direction; whatever driver action had that input moves to the pick's default
      * ({@link #DEFAULT_FLOWER_PICK}), so the two swap and nothing is lost. Anything else (a stick,
-     * a trigger, null) leaves the pick on its default. Every action but {@link #NOT_BOUND},
-     * turret controls included.
+     * a trigger, null) leaves the pick on its default. Every action but {@link #NOT_BOUND} and
+     * {@link #LOCKED_TURRET_ONLY}, turret controls included.
      */
     public static Map<Action, Input> layout(Input flowerPick) {
         EnumMap<Action, Input> map = new EnumMap<>(Action.class);

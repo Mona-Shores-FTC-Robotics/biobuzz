@@ -433,6 +433,15 @@ measurement is [#255].
       toggle up, FIRE, toggle down, as before. **Stop:** a toggle press during Square idles the
       launcher, FIRE feeds before arrival, or the launcher keeps spinning after Square is let go
       → run `Belding`'s Basic Drive and tell a mentor.
+- [ ] **Operator's glance page, trim rumble, D-pad trim reset (`belding-plus`, 7 Nov):** Basic
+      Drive, Match page. **Good:** the first line is `TRIM 0` in text about twice ordinary size (three
+      nested `<big>`), readable from the operator's seat; under it the launch speed, then Launcher
+      (IDLE / spinning up / READY), Lane, Intake, and nothing else unless something needs doing;
+      the details are on the Robot page (Share twice). Operator R1: `TRIM +25` in amber and one
+      rumble blip; L1: two blips; any D-pad direction: back to `TRIM 0` with a long buzz. Turn
+      the intake off: `INTAKE OFF`, big and amber. **Stop:** the trim is no bigger than the lines
+      under it (the Driver Station ignored the nesting) → note it, and try `<h1>` in
+      `Display.huge`; a pad with no rumble says so in INIT (`rumble:` log lines).
 - [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on, LaunchAll feed
       3.05 s):** R-NoCross and R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
       every run; when its second volley ends late the Match page and the log say `… no time to
@@ -590,7 +599,7 @@ After §7c: the rows are only worth having once the wheels hold their speed. One
 `LaunchSpeedTable` (#80). Measure them on the right side; the left spots are the same distances on
 the other side of the field.
 
-**The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Match page says
+**The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Robot page says
 "Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires while Square is held.
 On a miss, the operator trims the speed up or down, then Square again, until it scores. The Match
 page's "Last launch spot" line shows the spot's CELL range and the launch speed: write both down.

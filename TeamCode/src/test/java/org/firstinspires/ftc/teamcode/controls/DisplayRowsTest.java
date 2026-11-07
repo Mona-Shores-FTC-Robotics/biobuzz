@@ -25,4 +25,14 @@ public class DisplayRowsTest {
             assertEquals(s, byRegex(s), Display.visibleLength(s));
         }
     }
+
+    @Test
+    public void hugeTextIsMeasuredAtItsSize() {
+        String huge = Display.huge("TRIM +25", true);
+        assertEquals(Display.HUGE_SCALE, Display.rows(huge), 1e-9);
+        // About 20 characters fit on a huge row; more wraps onto a second.
+        assertEquals(2 * Display.HUGE_SCALE, Display.rows(Display.huge("a launch trim far too long to fit", false)), 1e-9);
+        // One <big> is still 1.25.
+        assertEquals(Display.BIG_SCALE, Display.rows("<big><b>RED</b></big>"), 1e-9);
+    }
 }
