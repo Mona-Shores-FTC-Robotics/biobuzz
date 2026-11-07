@@ -57,7 +57,7 @@ public final class LaunchSpots {
          * The long shot, about 55 in (the speed table's 1635 row): where 20245 fired about 50 shots
          * on 4 Nov 2026, read from that evening's match log.
          */
-        RIGHT_LAUNCH_CORNER(30.2, 10.7, 54),
+        RIGHT_LAUNCH_CORNER(30.2, 10.7, 54, true),
         LEFT_START(StartPositions.RED_FAR),
         LEFT_LAUNCH_CATCH(57.5, 123.5, 273.4),
         LEFT_LAUNCH_OFFSET(41, 121.5, 296.4),
@@ -68,7 +68,7 @@ public final class LaunchSpots {
          * heading that points the turret axis at the LEFT CELL's raised row, as the other LEFT
          * spots were drawn. Not yet fired from on a robot; next to PARTNER_STAGED_POLLEN.
          */
-        LEFT_LAUNCH_CORNER(30.2, 130.8, 302.6);
+        LEFT_LAUNCH_CORNER(30.2, 130.8, 302.6, true);
 
         /** As drawn, for red: the team spot itself (for a start, on the wall). */
         public final Pose red;
@@ -76,35 +76,68 @@ public final class LaunchSpots {
         public final boolean onWall;
         /** Serves our LEFT CELL (else the RIGHT one): which half of the axle line it is on. */
         public final boolean left;
+        /**
+         * The button faces its CELL from here with the turret ({@link #aimTurret}) rather than at the
+         * drawn heading: the CORNER long shots, which no Auto uses. RIGHT_LAUNCH_CORNER's drawn 54°
+         * was read off where 20245 stood on 4 Nov, and it left the locked turret 6.9° off the CELL
+         * (about 7 in at 58 in); mentor, 7 Nov 2026: aim it, without moving the team spot.
+         */
+        public final boolean aimed;
 
         Spot(double x, double y, double headingDeg) {
-            this(new Pose(x, y, Math.toRadians(headingDeg)), false);
+            this(new Pose(x, y, Math.toRadians(headingDeg)), false, false);
+        }
+
+        Spot(double x, double y, double headingDeg, boolean aimed) {
+            this(new Pose(x, y, Math.toRadians(headingDeg)), false, aimed);
         }
 
         Spot(StartPosition start) {
-            this(start.pose, true);
+            this(start.pose, true, true);
         }
 
-        Spot(Pose red, boolean onWall) {
+        Spot(Pose red, boolean onWall, boolean aimed) {
             this.red = red;
             this.onWall = onWall;
+            this.aimed = aimed;
             this.left = leftHalf(Alliance.RED, red.y());
         }
 
         /**
          * Where the button drives for {@code alliance}: the spot, or for a start {@code offWallIn}
          * out from it facing the raised row of its half's CELL; worked out for red and turned half a
-         * turn about the field centre for blue. A NaN or negative {@code offWallIn} is 0.
+         * turn about the field centre for blue. A NaN or negative {@code offWallIn} is 0. A start
+         * faces the row with the robot's centre; {@link #target(Alliance, double, double, double)}
+         * faces it with the turret's axis.
          */
         public Pose target(Alliance alliance, double offWallIn) {
+            return target(alliance, offWallIn, 0.0, 0.0);
+        }
+
+        /**
+         * As {@link #target(Alliance, double)}, a start's heading pointing the turret's axis, not the
+         * robot's centre, at its CELL's raised row ({@link #aimTurret}): the turret sits
+         * {@code turretForwardIn} ahead of the centre and {@code turretLeftIn} to its left
+         * ({@code TurretSubsystem}: 3.33 in behind, 1.87 in right), locked straight ahead. The CORNER
+         * spots ({@link #aimed}) are aimed the same way, from their drawn place; the other spots are
+         * the Autos' launch headings, drawn for the turret already. Mentor, 7 Nov 2026: the
+         * centre-aimed starts left the turret about 2° off the CELL.
+         */
+        public Pose target(Alliance alliance, double offWallIn, double turretForwardIn, double turretLeftIn) {
             Pose p = red;
-            if (onWall) {
+            if (aimed && !onWall) {
+                Vec3 row = cellRow(Alliance.RED);
+                if (row != null) {
+                    p = new Pose(red.x(), red.y(), aimTurret(red.x(), red.y(), row.x(), row.y(), turretForwardIn, turretLeftIn));
+                }
+            } else if (onWall) {
                 double out = offWallIn > 0.0 ? offWallIn : 0.0;
                 double x = red.x() + out * Math.cos(red.heading());
                 double y = red.y() + out * Math.sin(red.heading());
                 HiveCell cell = left ? HiveCell.leftCell(Alliance.RED) : HiveCell.rightCell(Alliance.RED);
                 Vec3 row = HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
-                double heading = row == null ? red.heading() : Math.atan2(row.y() - y, row.x() - x);
+                double heading = row == null ? red.heading()
+                        : aimTurret(x, y, row.x(), row.y(), turretForwardIn, turretLeftIn);
                 p = new Pose(x, y, heading);
             }
             return alliance == Alliance.BLUE ? turned(p) : p;
@@ -172,6 +205,12 @@ public final class LaunchSpots {
      */
     public static Choice choose(Pose pose, boolean referenced, Alliance alliance, double offWallIn,
                                 double pastCentreIn) {
+        return choose(pose, referenced, alliance, offWallIn, pastCentreIn, 0.0, 0.0);
+    }
+
+    /** {@link #choose}, with each start's heading aiming the turret ({@link Spot#target(Alliance, double, double, double)}). */
+    public static Choice choose(Pose pose, boolean referenced, Alliance alliance, double offWallIn,
+                                double pastCentreIn, double turretForwardIn, double turretLeftIn) {
         if (pose == null) return Choice.refuse("no pose (no Pinpoint)");
         if (!referenced) return Choice.refuse("pose not on the field yet (corner reset or camera reset first)");
         if (alliance != Alliance.RED && alliance != Alliance.BLUE) return Choice.refuse("no alliance");
@@ -184,7 +223,7 @@ public final class LaunchSpots {
         Pose bestTarget = null;
         double bestIn = Double.POSITIVE_INFINITY;
         for (Spot spot : Spot.values()) {
-            Pose t = spot.target(alliance, offWallIn);
+            Pose t = spot.target(alliance, offWallIn, turretForwardIn, turretLeftIn);
             double d = Math.hypot(t.x() - pose.x(), t.y() - pose.y());
             if (d < bestIn) {
                 best = spot;
@@ -223,6 +262,25 @@ public final class LaunchSpots {
     static boolean leftHalf(Alliance alliance, double y) {
         boolean scoringEnd = y >= HiveFieldPoints.AXLE_Y_IN;
         return alliance == Alliance.BLUE ? !scoringEnd : scoringEnd;
+    }
+
+    /**
+     * The heading, radians, at which a robot whose centre is at ({@code x}, {@code y}) points its
+     * turret's axis (a turret {@code forwardIn} ahead and {@code leftIn} left of the centre, locked
+     * straight ahead) at ({@code targetX}, {@code targetY}). The axis moves as the robot turns, so
+     * it is solved by turning to the target from the axis a few times; with the turret a few inches
+     * off a target tens of inches away it settles at once. Offsets of 0: the centre's bearing.
+     */
+    static double aimTurret(double x, double y, double targetX, double targetY, double forwardIn, double leftIn) {
+        double f = Double.isNaN(forwardIn) ? 0.0 : forwardIn;
+        double l = Double.isNaN(leftIn) ? 0.0 : leftIn;
+        double h = Math.atan2(targetY - y, targetX - x);
+        for (int i = 0; i < 8; i++) {
+            double ax = x + f * Math.cos(h) - l * Math.sin(h);
+            double ay = y + f * Math.sin(h) + l * Math.cos(h);
+            h = Math.atan2(targetY - ay, targetX - ax);
+        }
+        return h;
     }
 
     /** {@code p} turned half a turn about the field centre: red's pose to blue's. */

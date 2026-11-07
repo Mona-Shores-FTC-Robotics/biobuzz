@@ -179,4 +179,56 @@ public class LaunchSpotsTest {
         assertTrue(LaunchSpots.choose(new Pose(C + 1, 30, 0), true, Alliance.RED, OFF_WALL, Double.NaN).refused());
         assertTrue(LaunchSpots.choose(new Pose(C + 1, 30, 0), true, Alliance.RED, OFF_WALL, -5).refused());
     }
+
+    /**
+     * With the turret's offset (3.33 in behind the centre, 1.87 in right), a start's heading points
+     * the turret's axis, not the centre, at its CELL's raised row: on 6 Nov the centre-aimed
+     * RIGHT_START left the turret 2.1° off, about 1.8 in at 50 in.
+     */
+    @Test
+    public void aStartAimsTheTurretWhenGivenItsOffset() {
+        double fwd = -3.33, left = -1.87;
+        for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
+            for (Spot spot : new Spot[] {Spot.RIGHT_START, Spot.LEFT_START}) {
+                Pose t = spot.target(alliance, OFF_WALL, fwd, left);
+                Vec3 row = spot.cellRow(alliance);
+                double ax = t.x() + fwd * Math.cos(t.heading()) - left * Math.sin(t.heading());
+                double ay = t.y() + fwd * Math.sin(t.heading()) + left * Math.cos(t.heading());
+                assertEquals(spot + " " + alliance, 0, wrap(Math.atan2(row.y() - ay, row.x() - ax) - t.heading()), 1e-6);
+                Pose centre = spot.target(alliance, OFF_WALL);
+                assertEquals("the same place", centre.x(), t.x(), EPS);
+                assertEquals("about 2 degrees from the centre's aim", 2.1,
+                        Math.abs(Math.toDegrees(wrap(t.heading() - centre.heading()))), 0.3);
+            }
+        }
+        // The Autos' launch spots keep their drawn headings either way.
+        assertEquals(Spot.RIGHT_LAUNCH_CATCH.target(Alliance.RED, OFF_WALL).heading(),
+                Spot.RIGHT_LAUNCH_CATCH.target(Alliance.RED, OFF_WALL, fwd, left).heading(), EPS);
+    }
+
+    /**
+     * The CORNER spots are aimed with the turret from their drawn place: RIGHT_LAUNCH_CORNER's drawn
+     * 54° left the turret 6.9° off; LEFT_LAUNCH_CORNER's 302.6° was drawn for the turret already.
+     */
+    @Test
+    public void theCornerSpotsAimTheTurretFromWhereTheyAreDrawn() {
+        double fwd = -3.33, left = -1.87;
+        for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
+            for (Spot spot : new Spot[] {Spot.RIGHT_LAUNCH_CORNER, Spot.LEFT_LAUNCH_CORNER}) {
+                Pose t = spot.target(alliance, OFF_WALL, fwd, left);
+                Vec3 row = spot.cellRow(alliance);
+                double ax = t.x() + fwd * Math.cos(t.heading()) - left * Math.sin(t.heading());
+                double ay = t.y() + fwd * Math.sin(t.heading()) + left * Math.cos(t.heading());
+                assertEquals(spot + " " + alliance, 0, wrap(Math.atan2(row.y() - ay, row.x() - ax) - t.heading()), 1e-6);
+                Pose drawn = alliance == Alliance.BLUE ? LaunchSpots.turned(spot.red) : spot.red;
+                assertEquals("the drawn place", drawn.x(), t.x(), EPS);
+                assertEquals("the drawn place", drawn.y(), t.y(), EPS);
+            }
+        }
+        // Compared as a turn, however the pose stores its heading.
+        assertEquals("right corner: about 61 degrees, not the drawn 54", 0, Math.toDegrees(wrap(
+                Spot.RIGHT_LAUNCH_CORNER.target(Alliance.RED, OFF_WALL, fwd, left).heading() - Math.toRadians(61.3))), 0.3);
+        assertEquals("left corner: as drawn", 0, Math.toDegrees(wrap(
+                Spot.LEFT_LAUNCH_CORNER.target(Alliance.RED, OFF_WALL, fwd, left).heading() - Math.toRadians(302.6))), 0.3);
+    }
 }
