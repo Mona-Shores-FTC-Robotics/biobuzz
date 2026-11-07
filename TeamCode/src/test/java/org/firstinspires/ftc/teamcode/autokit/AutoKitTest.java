@@ -654,6 +654,119 @@ public class AutoKitTest {
         assertEquals(trace.toString(), 1, trace.stream().filter(t -> t.contains("guard OFF")).count());
     }
 
+    // ------------------------------------- the park after the volley (6 Nov 2026)
+
+    /** {@link #volleyKit} with {@link AutoKit#parkAfterVolley} on, its LaunchAll 4.0 s long, as on the robot. */
+    private AutoKit parkKeepingKit(AutoRegistry registry) {
+        return new AutoKit(drive, registry
+                .volley("LaunchAll", 4.0, 4.0, () -> lasting("LaunchAll", 4.0)), () -> now)
+                .trace(trace::add).parkAfterVolley(true);
+    }
+
+    /**
+     * R-NoCross on 19429, 6 Nov 18:22: the second volley done at 15.5 s, then a drive to the GARDEN
+     * (2 s), the gather (5 s typical), a drive back (2 s), the third volley (4 s) and the park
+     * (2.9 s + 1 s margin) would end at 32.4 s. The old rule went (the last piece by 28.5 s) and the
+     * park was 50 in short at 30 s; this one parks now.
+     */
+    @Test
+    public void aTripWhoseVolleyLeavesNoTimeToParkIsNotBegun() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .grab("GardenGather", 5.0, () -> lasting("GardenGather", 4.5)));
+        Path toGarden = line(0, 10), gardenPark = line(10, 20), back = line(10, 0), park = line(0, 40);
+        now = 15.5;
+        run(kit.guarded("If CellUp", park, 2.9,
+                kit.path("to GARDEN_STAGING", toGarden, 2.0, gardenPark, 2.6),
+                kit.command("GardenGather", 8.0),
+                kit.path("to RIGHT_LAUNCH_CATCH", back, 2.0),
+                kit.command("LaunchAll"),
+                kit.path("to RIGHT_PARK", park, 2.9)), 20);
+        assertTrue(trace.toString(), traced("no time to park after it, parking now"));
+        assertFalse(log.toString(), log.contains("GardenGather start"));
+        assertFalse(log.toString(), log.contains("LaunchAll start"));
+        assertEquals("parks from here at once", java.util.Collections.singletonList(park), drive.followed);
+        assertEquals(15.5, drive.followedAt.get(0), 0.05);
+    }
+
+    /** The same trip 2.5 s sooner fits with its park (29.9 s): it goes, fires and parks. */
+    @Test
+    public void aTripWhoseVolleyAndParkFitGoes() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .grab("GardenGather", 5.0, () -> lasting("GardenGather", 4.5)));
+        Path toGarden = line(0, 10), gardenPark = line(10, 20), back = line(10, 0), park = line(0, 40);
+        now = 13.0;
+        run(kit.guarded("If CellUp", park, 2.9,
+                kit.path("to GARDEN_STAGING", toGarden, 2.0, gardenPark, 2.6),
+                kit.command("GardenGather", 8.0),
+                kit.path("to RIGHT_LAUNCH_CATCH", back, 2.0),
+                kit.command("LaunchAll"),
+                kit.path("to RIGHT_PARK", park, 2.9)), 20);
+        assertFalse(trace.toString(), traced("no time to park after it, parking now"));
+        assertTrue(log.toString(), log.contains("LaunchAll NATURALLY"));
+        assertEquals(java.util.Arrays.asList(toGarden, back, park), drive.followed);
+    }
+
+    /**
+     * R-Solo on 19429, 6 Nov 19:10: at 16.5 s a drive (1.3 s), a FLOWER pick (3.7 s), a drive
+     * (1.3 s), the third volley (4 s) and the park (2.1 s + 1 s) end at 29.9 s: it still goes for
+     * the third volley, as it did (parked by 28.2 s).
+     */
+    @Test
+    public void rSolosThirdVolleyStillFits() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .grab("PickFlower", 3.7, () -> lasting("PickFlower", 3.2)));
+        Path toFlower = line(0, 10), flowerPark = line(10, 30), back = line(10, 0), park = line(0, 30);
+        now = 16.5;
+        run(kit.guarded("If CellUp", park, 2.1,
+                kit.path("to SCORING_FLOWER_STAGING", toFlower, 1.3, flowerPark, 1.9),
+                kit.command("PickFlower", 4.5),
+                kit.path("to LEFT_LAUNCH_CLOSE", back, 1.3),
+                kit.command("LaunchAll"),
+                kit.path("to RIGHT_PARK", park, 2.1)), 20);
+        assertFalse(trace.toString(), traced("no time to park after it, parking now"));
+        assertTrue(log.toString(), log.contains("LaunchAll NATURALLY"));
+        assertEquals(java.util.Arrays.asList(toFlower, back, park), drive.followed);
+    }
+
+    /** A volley about to start whose park would not fit after it is not fired: the robot parks. */
+    @Test
+    public void aVolleyThatWouldTakeTheParksTimeIsNotFired() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry());
+        Path park = line(0, 10);
+        now = 24.5; // 24.5 + 4.0 + 2.9 + 1.0 = 32.4
+        run(kit.guarded("Auto", park, 2.9,
+                kit.command("LaunchAll"),
+                kit.path("Park", park, 2.9)), 10);
+        assertFalse(log.toString(), log.contains("LaunchAll start"));
+        assertEquals(24.5, drive.followedAt.get(0), 0.05);
+    }
+
+    /** Off, the 4 Nov rule holds: the same volley is fired, its last piece out by 28.5 s, and the park comes after. */
+    @Test
+    public void offTheVolleyComesFirstAsBefore() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()).parkAfterVolley(false);
+        Path park = line(0, 10);
+        now = 24.5;
+        run(kit.guarded("Auto", park, 2.9,
+                kit.command("LaunchAll"),
+                kit.path("Park", park, 2.9)), 10);
+        assertTrue(log.toString(), log.contains("LaunchAll NATURALLY"));
+        assertEquals("the park after the volley", 28.5, drive.followedAt.get(0), 0.05);
+    }
+
+    /** The guard off (practice) runs the trip anyway and says once that it would have parked. */
+    @Test
+    public void guardOffTracesWhereItWouldHaveParkedForTheVolley() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()).guard(false);
+        Path park = line(0, 10);
+        now = 24.5;
+        run(kit.guarded("Auto", park, 2.9,
+                kit.command("LaunchAll"),
+                kit.path("Park", park, 2.9)), 10);
+        assertTrue(log.toString(), log.contains("LaunchAll NATURALLY"));
+        assertTrue(trace.toString(), traced("would have parked now"));
+    }
+
     // ------------------------------------------------------------ approaches
 
     /** A grab's approach that records what the kit tells it. */
