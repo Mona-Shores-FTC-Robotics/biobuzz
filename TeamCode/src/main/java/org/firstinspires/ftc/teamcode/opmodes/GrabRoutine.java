@@ -84,7 +84,7 @@ import java.util.function.Consumer;
 public abstract class GrabRoutine {
 
     /** Where a grab is. */
-    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, BACK, DONE, ABORTED, REFUSED }
+    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, TWIST, BACK, DONE, ABORTED, REFUSED }
 
     /** Where the In goes, or why there is none. */
     protected static final class InPlan {
@@ -311,7 +311,7 @@ public abstract class GrabRoutine {
     /** Whether a grab is driving the robot, so the OpMode must leave the drive alone. */
     public boolean active() {
         return phase == Phase.LINE_UP || phase == Phase.PREP || phase == Phase.IN
-                || phase == Phase.DWELL || phase == Phase.BACK;
+                || phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.BACK;
     }
 
     /** The grab has ended: done, stopped, or refused. */
@@ -341,7 +341,7 @@ public abstract class GrabRoutine {
                         abort(now, "sticks moved");
                     } else {
                         dwellEndWhy = "let go";
-                        startBack(now, robot.drive.pose());
+                        endDwell(now, robot.drive.pose());
                     }
                 }
                 return;
@@ -429,9 +429,22 @@ public abstract class GrabRoutine {
                         dwell.sawSpike());
                 if (why != null) {
                     dwellEndWhy = why;
-                    startBack(now, pose);
+                    endDwell(now, pose);
                 } else {
                     steer(pose, dwellPushPower());
+                }
+                break;
+            case TWIST:
+                double twistError = wrapRad(twistTarget - pose.heading());
+                if (Math.abs(Math.toDegrees(twistError)) <= TWIST_DONE_DEG || ms(now, phaseStartNs) > nn(twistTimeoutMs())) {
+                    event.accept(String.format(Locale.US, "%s: twist %s in %.2f s, %+.0f° to go", what(),
+                            Math.abs(Math.toDegrees(twistError)) <= TWIST_DONE_DEG ? "done" : "timed out",
+                            ms(now, phaseStartNs) / 1000.0, Math.toDegrees(twistError)));
+                    startBack(now, pose);
+                } else {
+                    // Turn in place, still pressed toward the wall, at most twistPower.
+                    robot.drive.driveRobotCentric(clamp(dwellPushPower(), 1.0), 0.0,
+                            clamp(headingKp() * twistError * 4.0, unitFraction(twistPower())));
                 }
                 break;
             case BACK:
@@ -467,7 +480,7 @@ public abstract class GrabRoutine {
      * when it is cut short, which always stops the grab.
      */
     static boolean releaseFinishes(Phase phase, boolean button) {
-        return button && (phase == Phase.DWELL || phase == Phase.BACK);
+        return button && (phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.BACK);
     }
 
     /** For the Match page: what a grab is doing, or how the last one went. Empty before the first. */
@@ -587,6 +600,41 @@ public abstract class GrabRoutine {
                         : phase == Phase.DWELL && !dwellEndWhy.isEmpty() ? " (" + dwellEndWhy + ")" : "", to));
         phase = to;
         phaseStartNs = now;
+    }
+
+    /** A twist is done once the heading is this close to its target, degrees. */
+    static final double TWIST_DONE_DEG = 4.0;
+    private double twistTarget;
+
+    /** The dwell is over: twist first if the subclass asks ({@link #backTwistDeg}), else back out. */
+    private void endDwell(long now, Pose pose) {
+        double twist = backTwistDeg();
+        if (twist != 0.0 && !Double.isNaN(twist)) {
+            twistTarget = pose.heading() + Math.toRadians(twist);
+            next(now, Phase.TWIST);
+            robot.drive.driveRobotCentric(0.0, 0.0, 0.0);
+            return;
+        }
+        startBack(now, pose);
+    }
+
+    /**
+     * After the dwell, before the back out: turn in place by this many degrees, counterclockwise
+     * positive, pressed toward what the In went into; 0 (the default) for none. The back out then
+     * turns back to where the In started, on its way.
+     */
+    protected double backTwistDeg() {
+        return 0.0;
+    }
+
+    /** The twist's most turn power, (0, 1]. */
+    protected double twistPower() {
+        return 0.4;
+    }
+
+    /** The twist gives up after this long, ms, and backs out from wherever it got to. */
+    protected double twistTimeoutMs() {
+        return 800;
     }
 
     /** The dwell is over (its time, or the button let go): back out to where the In started. */
