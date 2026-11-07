@@ -398,7 +398,7 @@ public abstract class GrabRoutine {
                     progressNs = now;
                     bestRemainingIn = remaining;
                     next(now, Phase.IN);
-                    drivePath(pose, in, inSpeed());
+                    driveIn(pose, in);
                 }
                 break;
             case IN:
@@ -640,6 +640,33 @@ public abstract class GrabRoutine {
                 .with(speedCap(speed));
         robot.drive.setAccelLimited(true);
         robot.drive.follow(path);
+    }
+
+    /**
+     * The In: straight from {@code from} to {@code to} ({@link #drivePath}), or, when the subclass
+     * gives one ({@link #inControl}), a curve through that control point, holding the heading turn
+     * to {@code to}'s as a straight In does.
+     */
+    private void driveIn(Pose from, Pose to) {
+        Pose control = inControl(from, to);
+        if (control == null) {
+            drivePath(from, to, inSpeed());
+            return;
+        }
+        Path path = Paths.curve(from, control, to)
+                .heading(Interpolator.piecewise().until(1, Interpolator.linear(from, to)))
+                .with(speedCap(inSpeed()));
+        robot.drive.setAccelLimited(true);
+        robot.drive.follow(path);
+    }
+
+    /**
+     * A control point for the In's path, which then curves through it rather than running straight:
+     * a GARDEN gather's reaches the side wall's line before the audience wall. Null (the default): a
+     * straight In.
+     */
+    protected Pose inControl(Pose from, Pose to) {
+        return null;
     }
 
     /** Pedro's per-path cap on speed, as a fraction of the active robot's top path speed. */

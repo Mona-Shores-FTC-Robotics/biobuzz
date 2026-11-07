@@ -74,32 +74,21 @@ public final class GardenGather extends GrabRoutine {
      */
     public static double towardWallIn = 2.0;
     /**
-     * An Auto's gather strafes over first: from where the Auto's drive left it, the robot slides
-     * sideways onto the GARDEN's line along the side wall, at the depth it is at, lowering the stick
-     * on the way, and then drives straight in along that wall ({@link #strafePose}). Off: the drive
-     * in is one diagonal from where the card starts. Why (6 Nov 2026, all ten gathers on both robots):
-     * on the diagonal the side met the side wall first, the robot pinned itself there, and the drive
-     * in stalled with the nose 2 to 4.5 in short of the audience wall. The button's gather lines up
-     * on that same line (at the line-up's depth, {@link #lineUpBackIn} back) rather than
-     * {@link #lineUpOutIn} out from it, so it too drives straight in: one routine for the button and
-     * an Auto's card, tried at the practice field with the button.
+     * The drive in curves over to the side wall first: from wherever it starts (the button's line-up
+     * spot, or GARDEN_STAGING where an Auto's card starts) it is a Pedro curve whose control point is
+     * on the side wall's line level with the start ({@link #wallControl}), so the robot moves across
+     * to the wall early and runs down it into the corner. Off: one straight diagonal. Why (6 Nov
+     * 2026, all ten gathers on both robots): on the diagonal the side met the side wall first, the
+     * robot pinned itself there, and the drive in stalled with the nose 2 to 4.5 in short of the
+     * audience wall. The line-up spots are unchanged.
      */
-    public static boolean strafeFirst = true;
+    public static boolean curveToWall = true;
     /**
-     * With {@link #strafeFirst}: how much closer to the side wall than the gather pose the straight
-     * drive in aims, inches. A little, to keep the side on the wall as it goes in; not the diagonal's
+     * With {@link #curveToWall}: how much closer to the side wall than the gather pose the drive in
+     * ends, inches. A little, to keep the side on the wall at the end; not the diagonal's
      * {@link #towardWallIn}, which pins it.
      */
     public static double laneTowardWallIn = 0.5;
-    /**
-     * With {@link #strafeFirst}: the strafe stops at least this far back from the gather pose, inches,
-     * so the stick swings down clear of the audience wall, and at most {@link #strafeMaxBackIn}.
-     */
-    public static double strafeMinBackIn = 8.0;
-    /** See {@link #strafeMinBackIn}, inches. */
-    public static double strafeMaxBackIn = 18.0;
-    /** The strafe gives up after this long, ms: a short move, so a stuck one ends the card early. */
-    public static double strafeTimeoutMs = 1500;
     /** Already lined up: this close to the line-up pose, inches, skips the line-up path. */
     public static double atLineUpIn = 1.5;
     /** Already lined up: this square, degrees, skips the line-up path. */
@@ -208,7 +197,6 @@ public final class GardenGather extends GrabRoutine {
     protected Pose lineUpPose() {
         // Back is against the heading; out is the robot's left, which faces away from the side wall
         // for both alliances (red faces 270°, left is +x; blue faces 90°, left is -x).
-        if (strafeFirst) return strafeLineUpPose();
         Pose p = garden.lineUp;
         double h = p.heading();
         double back = lineUpBackIn;
@@ -217,37 +205,20 @@ public final class GardenGather extends GrabRoutine {
                 p.y() - back * Math.sin(h) + out * Math.cos(h), h);
     }
 
-    /**
-     * The button's line-up: with {@link #strafeFirst}, onto the side wall's line at the line-up's
-     * depth (where an Auto's gather strafes to from GARDEN_STAGING), so the drive in is straight;
-     * otherwise {@link #lineUpOutIn} out from it and {@link #lineUpBackIn} back, the old diagonal.
-     */
-    private Pose strafeLineUpPose() {
-        // GardenFieldPoints' line-up is on the gather pose's line already: only back, never out.
-        Pose p = garden.lineUp;
-        double h = p.heading();
-        double back = nn(lineUpBackIn);
-        return new Pose(p.x() - back * Math.cos(h), p.y() - back * Math.sin(h), h);
-    }
-
     @Override
-    protected InPlan autoLineUp(Pose from) {
-        return strafeFirst ? InPlan.to(strafePose(garden, from, nn(strafeMinBackIn), nn(strafeMaxBackIn))) : null;
+    protected Pose inControl(Pose from, Pose to) {
+        return curveToWall ? wallControl(from, to) : null;
     }
 
-    @Override protected double autoLineUpTimeoutMs() { return strafeTimeoutMs; }
-
     /**
-     * Where an Auto's gather strafes to: on {@code g}'s line (its gather pose's side-wall distance),
-     * facing in, as far back from the gather pose as {@code from} is, held between {@code minIn} and
-     * {@code maxIn}. Back is against the GARDEN's heading.
+     * The drive in's control point: on the line through {@code to} along its heading (the side wall's
+     * line into the corner), level with {@code from}. A curve through it leaves {@code from} toward the
+     * wall and arrives at {@code to} running along the wall.
      */
-    public static Pose strafePose(Garden g, Pose from, double minIn, double maxIn) {
-        Pose p = g.gather;
-        double h = p.heading();
-        double back = -((from.x() - p.x()) * Math.cos(h) + (from.y() - p.y()) * Math.sin(h));
-        double b = Math.max(minIn, Math.min(maxIn, back));
-        return new Pose(p.x() - b * Math.cos(h), p.y() - b * Math.sin(h), h);
+    public static Pose wallControl(Pose from, Pose to) {
+        double h = to.heading();
+        double along = (from.x() - to.x()) * Math.cos(h) + (from.y() - to.y()) * Math.sin(h);
+        return new Pose(to.x() + along * Math.cos(h), to.y() + along * Math.sin(h), h);
     }
 
     @Override
@@ -257,9 +228,8 @@ public final class GardenGather extends GrabRoutine {
         Pose g = garden.gather;
         double h = g.heading();
         double deeper = nn(extraDepthIn);
-        // A strafe-first gather (the button's and an Auto's) is on the wall's line already: in
-        // straight, barely toward it.
-        double wall = strafeFirst ? nn(laneTowardWallIn) : nn(towardWallIn);
+        // A curved drive in reaches the wall's line early: it ends barely toward it, not pinned into it.
+        double wall = curveToWall ? nn(laneTowardWallIn) : nn(towardWallIn);
         return InPlan.to(new Pose(g.x() + deeper * Math.cos(h) + wall * Math.sin(h),
                 g.y() + deeper * Math.sin(h) - wall * Math.cos(h), h));
     }

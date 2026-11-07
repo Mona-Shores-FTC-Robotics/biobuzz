@@ -440,18 +440,19 @@ measurement is [#255].
       third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
       **Stop:** R-Solo parks instead of its third volley every run → note the time it gave and tell a
       mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
-- [ ] **GARDEN gather, straight in and quick out (`garden-gather` branch):** at the practice
-      field with the TeleOp gather button (driver Triangle, held), GARDEN loaded, phone filming
-      from above; then once in R-NoCross. It lines up on the side wall's line (an Auto strafes
-      onto it from GARDEN_STAGING) with the stick going down, drives straight in along the wall,
-      dwells 0.25 s (`GardenGather.dwellMs` 250), backs out at 0.8 speed (`backSpeed`) with the
-      stick still down, stops, and raises the stick 0.25 s later (`raiseAfterStopMs`). **Good:**
-      the nose reaches the audience wall (`GARDEN gather: IN … reached` or under 1 in short,
+- [ ] **GARDEN gather, curve to the wall and quick out (`garden-gather` branch):** at the
+      practice field with the TeleOp gather button (driver Triangle, held), GARDEN loaded, phone
+      filming from above; then once in R-NoCross. It lines up where it always has, stick going
+      down; then the drive in curves (`GardenGather.curveToWall`): over to the side wall first,
+      then down it into the corner. It dwells 0.25 s (`dwellMs` 250), backs out at 0.8 speed
+      (`backSpeed`) with the stick still down, stops, and raises the stick 0.25 s later
+      (`raiseAfterStopMs`). **Good:** the side is on the side wall well before the nose reaches
+      the audience wall, the nose gets there (`GARDEN gather: IN … reached` or under 1 in short,
       against 2–4.5 in on 6 Nov), more balls come in than 6 Nov's 0–1, and the stick never drags
-      a ball back out. **Stop:** the stick or the robot's side hits a wall on the line-up, or the
-      strafe times out → `strafeFirst` off (the old diagonal); `raiseAfterStopMs` -1 is the old
-      stick rule. Tune `dwellMs`, `backSpeed`, `laneTowardWallIn` (0.5) and `extraDepthIn` in
-      Panels and write down what works.
+      a ball back out. **Stop:** it scrubs into the side wall and stalls early, or the curve
+      swings wide → `curveToWall` off (the old diagonal); `raiseAfterStopMs` -1 is the old stick
+      rule. Tune `dwellMs`, `backSpeed`, `laneTowardWallIn` (0.5) and `extraDepthIn` in Panels and
+      write down what works.
 - [ ] **Film the Auto volleys (decides `LaunchCards.launchAllFeedS`, 3.5):** 5–6 LaunchAlls,
       phone slow-motion side-on, the launcher and the Driver Station both in frame. Per volley,
       write down each ball's time after the gate opens and the launcher's counted shots.
