@@ -425,7 +425,7 @@ measurement is [#255].
       stops the feeder at once; an idled launcher stays idle; held 6 s, the gate stays open all 6 s. **Stop:** it feeds before it is
       aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
 - [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on, LaunchAll feed
-      3.0 s):** R-NoCross and R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
+      3.05 s):** R-NoCross and R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
       every run; when its second volley ends late the Match page and the log say `… no time to
       park after it, parking now` and it parks from RIGHT_LAUNCH_CATCH; R-Solo still fires its
       third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
