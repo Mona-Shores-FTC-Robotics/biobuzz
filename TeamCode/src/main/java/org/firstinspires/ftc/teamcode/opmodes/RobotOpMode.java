@@ -242,7 +242,10 @@ public abstract class RobotOpMode extends OpMode {
     /** The battery at INIT, volts; NaN with no sensor. */
     private double batteryAtInitVolts = Double.NaN;
 
-    /** An Autonomous's INIT: what the drive team must fix before PLAY. The light flashes white while there is any. */
+    /**
+     * What the drive team must fix before PLAY: an Autonomous's every warning, a TeleOp's unassigned
+     * gamepad only. The light flashes white while there is any ({@link #initWarningFlash}).
+     */
     private final InitWarnings initWarnings = new InitWarnings();
     /** When INIT was pressed, System.nanoTime: the camera's first frame has a grace period from it. */
     private long initStartNs;
@@ -482,6 +485,8 @@ public abstract class RobotOpMode extends OpMode {
         if (isAutonomous()) {
             updateInitWarnings(startCheck);
         }
+        initWarnings.gamepads(assigned(gamepad1), assigned(gamepad2));
+        watchGamepads();
         beginPage(true);
         // With no handoff and a declared start, the start line says where the robot is; the
         // "no handoff" note would only contradict it.
@@ -582,10 +587,11 @@ public abstract class RobotOpMode extends OpMode {
 
     /**
      * What the indicator light shows this loop: see {@code IndicatorSubsystem}. Only what the drive
-     * team acts on: in INIT an Auto's warnings, else the alliance; after PLAY green when full, else off.
+     * team acts on: in INIT an Auto's warnings or a TeleOp's unassigned gamepad, else the alliance;
+     * after PLAY green when full, else off.
      */
     private void showIndicator(boolean init) {
-        robot.indicator.show(IndicatorSubsystem.choose(init, init && isAutonomous() && initWarnings.any(),
+        robot.indicator.show(IndicatorSubsystem.choose(init, init && initWarningFlash(),
                 robot.colorSensor.full(), setup.alliance()));
     }
 
@@ -699,6 +705,7 @@ public abstract class RobotOpMode extends OpMode {
         beginPage(false);
         driver.update();
         operator.update();
+        watchGamepads();
         long t0 = System.nanoTime();
         onLoop();
         showIndicator(false);
@@ -1107,6 +1114,53 @@ public abstract class RobotOpMode extends OpMode {
                 off ? " — the Pinpoint heading is off: hold still and hold the camera reset" : ""));
     }
 
+    /**
+     * The light flashes white in INIT: an Auto for any warning, a TeleOp for an unassigned gamepad
+     * only (its one INIT warning).
+     */
+    private boolean initWarningFlash() {
+        return isAutonomous() ? initWarnings.any() : initWarnings.gamepadMissing();
+    }
+
+    /** A gamepad assigned to its user on the Driver Station (Options + Cross or Circle). */
+    private static boolean assigned(Gamepad pad) {
+        return pad.getGamepadId() != Gamepad.ID_UNASSOCIATED;
+    }
+
+    /**
+     * One match-log event each time a gamepad is assigned or drops, with its type then (the type
+     * read at INIT can be UNKNOWN for a pad that works: 6 Nov 2026), and one at its first press, so
+     * a log says whether each pad was live. Called every loop, INIT and after PLAY.
+     */
+    private void watchGamepads() {
+        watchGamepad(gamepad1, 0, "gamepad 1 (driver)");
+        watchGamepad(gamepad2, 1, "gamepad 2 (operator)");
+    }
+
+    private void watchGamepad(Gamepad pad, int i, String name) {
+        boolean now = assigned(pad);
+        if (now != padAssigned[i]) {
+            padAssigned[i] = now;
+            log.event(name + (now ? ": assigned (" + pad.type + ")" : ": not assigned"));
+        }
+        if (!padPressed[i] && now && anyInput(pad)) {
+            padPressed[i] = true;
+            log.event(name + ": first input (" + pad.type + ")");
+        }
+    }
+
+    /** Any button down, or a stick or trigger off rest. */
+    private static boolean anyInput(Gamepad pad) {
+        return pad.a || pad.b || pad.x || pad.y || pad.left_bumper || pad.right_bumper
+                || pad.dpad_up || pad.dpad_down || pad.dpad_left || pad.dpad_right
+                || pad.left_trigger > 0.1 || pad.right_trigger > 0.1
+                || Math.abs(pad.left_stick_x) > 0.1 || Math.abs(pad.left_stick_y) > 0.1
+                || Math.abs(pad.right_stick_x) > 0.1 || Math.abs(pad.right_stick_y) > 0.1;
+    }
+
+    private final boolean[] padAssigned = new boolean[2];
+    private final boolean[] padPressed = new boolean[2];
+
     private boolean isAutonomous() {
         return getClass().isAnnotationPresent(Autonomous.class);
     }
@@ -1120,7 +1174,7 @@ public abstract class RobotOpMode extends OpMode {
         telemetry.clear();
         display.header();
         // The light flashes white on every page, so every page says why, in one line.
-        if (initializing && isAutonomous() && initWarnings.any()) {
+        if (initializing && initWarningFlash()) {
             display.line("<b><font color=\"#FFB300\">" + initWarnings.count()
                     + " TO FIX: see the Match page (Share)</font></b>");
         }

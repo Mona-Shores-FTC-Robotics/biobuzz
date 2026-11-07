@@ -38,7 +38,14 @@ public final class InitWarnings {
          * {@code IntakeFull} (an Auto's waits on it run to their limits). Rarely fixable at the
          * field, but the drive team plays differently knowing it (mentor, 2 Nov 2026).
          */
-        COLOR_SENSOR
+        COLOR_SENSOR,
+        /**
+         * A gamepad is not assigned to its user on the Driver Station (Options + Cross, Options +
+         * Circle). The one warning a TeleOp's INIT shows too (mentor, 7 Nov 2026: on 6 Nov 20245's
+         * operator pressed nothing in a 191 s practice, and nobody could tell whether the pad was
+         * live). One warning naming the pads, so the INIT page still fits one screen.
+         */
+        GAMEPADS
     }
 
     /**
@@ -156,6 +163,30 @@ public final class InitWarnings {
         }
     }
 
+    /**
+     * This loop's gamepads, each assigned to its user on the Driver Station or not. Call it every
+     * INIT loop, after {@link #evaluate} in an Auto (which clears it with the rest).
+     */
+    public void gamepads(boolean driverAssigned, boolean operatorAssigned) {
+        if (what[Kind.GAMEPADS.ordinal()] != null) {
+            what[Kind.GAMEPADS.ordinal()] = null;
+            action[Kind.GAMEPADS.ordinal()] = null;
+            count--;
+        }
+        if (driverAssigned && operatorAssigned) return;
+        String whatText = !driverAssigned && !operatorAssigned ? "Gamepads 1 and 2 not assigned"
+                : !driverAssigned ? "Gamepad 1 (driver) not assigned" : "Gamepad 2 (operator) not assigned";
+        String actionText = !driverAssigned && !operatorAssigned
+                ? "driver: Options + Cross · operator: Options + Circle"
+                : !driverAssigned ? "driver: hold Options, press Cross" : "operator: hold Options, press Circle";
+        set(Kind.GAMEPADS, whatText, actionText);
+    }
+
+    /** A gamepad is not assigned: what a TeleOp's INIT warns about, with the light flashing. */
+    public boolean gamepadMissing() {
+        return has(Kind.GAMEPADS);
+    }
+
     private void set(Kind kind, String whatText, String actionText) {
         what[kind.ordinal()] = whatText;
         action[kind.ordinal()] = actionText;
@@ -189,13 +220,15 @@ public final class InitWarnings {
     /**
      * The first line of the INIT page, big: the alliance in its colour, and in an Auto the verdict,
      * READY or how many things to fix, with the warnings under it ({@link #describe}). A TeleOp's
-     * INIT has no warnings (mentor, 2 Nov 2026): the alliance only.
+     * INIT has no other warnings (mentor, 2 Nov 2026): the alliance, and an unassigned gamepad
+     * (7 Nov 2026).
      */
     public void describeTop(Display display, Alliance alliance, boolean autonomous) {
         String who = alliance == Alliance.RED ? "<font color=\"#E53935\">RED ALLIANCE</font>"
                 : alliance == Alliance.BLUE ? "<font color=\"#1E88E5\">BLUE ALLIANCE</font>" : "NO ALLIANCE";
         if (!autonomous) {
             display.line("<big><b>" + who + "</b></big>");
+            if (gamepadMissing()) display.alert(what(Kind.GAMEPADS), action(Kind.GAMEPADS));
             return;
         }
         String verdict = count > 0

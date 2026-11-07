@@ -446,6 +446,13 @@ measurement is [#255].
       Note every green count under 4 (`3 PIECES` in green): that is the tracker missing a piece.
       **Stop:** the three lines are no bigger than the header (the Driver Station ignored the
       nesting) → note it, and try `<h1>` in `Display.huge`.
+- [ ] **Unassigned gamepad warning (`belding-plus`, 7 Nov):** INIT Basic Drive with only
+      gamepad 1 assigned. **Good:** under the alliance, `Gamepad 2 (operator) not assigned` big and
+      amber with `operator: hold Options, press Circle`, and the light flashing white; Options +
+      Circle on the second pad clears both, and the light shows the alliance. Same in an Auto's
+      INIT, in its list. The log has `gamepad 2 (operator): assigned (SONY_PS4)` and, at its first
+      press, `first input`. **Stop:** the warning shows with both pads assigned (the SDK reports
+      no gamepad ID before a pad's first input) → note when it clears, and tell a mentor.
 - [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on, LaunchAll feed
       3.05 s):** R-NoCross and R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
       every run; when its second volley ends late the Match page and the log say `… no time to
