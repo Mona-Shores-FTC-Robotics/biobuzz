@@ -198,6 +198,12 @@ Result, with the gap on each own-start run, → [PR #372].
 
 Use the work order above to select checks; the detailed mechanism checks below are not all Belding gates. Run each from its start, alliance from §2.
 
+- [ ] **Autos keep the park (`belding-park`: `BuiltAuto.parkAfterVolley` on):** R-NoCross and
+      R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks every run; when its second
+      volley ends late the Match page and the log say `… no time to park after it, parking now`
+      and it parks from RIGHT_LAUNCH_CATCH; R-Solo still fires its third volley and parks by about
+      29 s. **Stop:** R-Solo parks instead of its third volley every run → note the time it gave
+      and tell a mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
 - [ ] **Loop-time cuts, before and after:** Loop Time Baseline and one R-Solo run on the selected build,
       then the same on branch `claude/adoring-dirac-3ag180`, then 2 min of Basic Drive on it (intake
       to full, drive, fire four). Compare with `tools/pull-logs/read_logs.py series`:
