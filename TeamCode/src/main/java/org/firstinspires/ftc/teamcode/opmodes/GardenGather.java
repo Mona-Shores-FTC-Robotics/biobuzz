@@ -79,8 +79,10 @@ public final class GardenGather extends GrabRoutine {
      * on the way, and then drives straight in along that wall ({@link #strafePose}). Off: the drive
      * in is one diagonal from where the card starts. Why (6 Nov 2026, all ten gathers on both robots):
      * on the diagonal the side met the side wall first, the robot pinned itself there, and the drive
-     * in stalled with the nose 2 to 4.5 in short of the audience wall. The button's gather (it lines
-     * up first) is unchanged.
+     * in stalled with the nose 2 to 4.5 in short of the audience wall. The button's gather lines up
+     * on that same line (at the line-up's depth, {@link #lineUpBackIn} back) rather than
+     * {@link #lineUpOutIn} out from it, so it too drives straight in: one routine for the button and
+     * an Auto's card, tried at the practice field with the button.
      */
     public static boolean strafeFirst = true;
     /**
@@ -110,8 +112,13 @@ public final class GardenGather extends GrabRoutine {
     public static double stallProgressIn = 0.25;
     /** See {@link #stallProgressIn}, ms. */
     public static double stallMs = 250;
-    /** The dwell, ms, intake running. A cap until pieces can be counted (#181). */
-    public static double dwellMs = 1500;
+    /**
+     * The dwell, ms, intake running, at the end of the drive in: a cap (a full lane ends it sooner).
+     * 250 since 6 Nov 2026 (mentor): in, a short dwell, and straight back out, rather than the 1.5 s
+     * every gather that night sat for while bringing in 0 to 1 pieces. Tune it at the practice field
+     * with the button.
+     */
+    public static double dwellMs = 250;
     /**
      * Ending the dwell from the intake current, as the FLOWER pick does: off (0) until a GARDEN
      * gather has data for it (1 of 17 dwells on 29 Oct had a spike).
@@ -130,9 +137,19 @@ public final class GardenGather extends GrabRoutine {
     public static double settledInPerSec = 8.0;
     /** Forward power during the dwell, to keep the stick seated. 0 for none. */
     public static double dwellPushPower = 0.1;
-    /** The drive back's speed cap, a fraction of the robot's top path speed (0 to 1]. */
-    public static double backSpeed = 0.6;
-    /** The stick comes up once the robot has backed out this far from the drive in's end, inches. */
+    /**
+     * The drive back's speed cap, a fraction of the robot's top path speed (0 to 1]. 0.8 since 6 Nov
+     * 2026 (mentor): back out briskly with the stick still down, then stop.
+     */
+    public static double backSpeed = 0.8;
+    /**
+     * The stick comes up this long after the drive back has stopped, ms: it stays down the whole way
+     * out and rises only once the robot is still (mentor, 6 Nov 2026), so it does not drag pieces out
+     * with it. NaN or negative: the old rule, up once the robot has backed {@link #retractAfterBackIn}.
+     * A gather stopped before its drive back (let go, cut) still uses the old rule.
+     */
+    public static double raiseAfterStopMs = 250;
+    /** Without {@link #raiseAfterStopMs}: the stick comes up once the robot has backed out this far from the drive in's end, inches. */
     public static double retractAfterBackIn = 6.0;
     /** The drive back gives up after this long, ms. */
     public static double backTimeoutMs = 4000;
@@ -191,12 +208,26 @@ public final class GardenGather extends GrabRoutine {
     protected Pose lineUpPose() {
         // Back is against the heading; out is the robot's left, which faces away from the side wall
         // for both alliances (red faces 270°, left is +x; blue faces 90°, left is -x).
+        if (strafeFirst) return strafeLineUpPose();
         Pose p = garden.lineUp;
         double h = p.heading();
         double back = lineUpBackIn;
         double out = lineUpOutIn;
         return new Pose(p.x() - back * Math.cos(h) - out * Math.sin(h),
                 p.y() - back * Math.sin(h) + out * Math.cos(h), h);
+    }
+
+    /**
+     * The button's line-up: with {@link #strafeFirst}, onto the side wall's line at the line-up's
+     * depth (where an Auto's gather strafes to from GARDEN_STAGING), so the drive in is straight;
+     * otherwise {@link #lineUpOutIn} out from it and {@link #lineUpBackIn} back, the old diagonal.
+     */
+    private Pose strafeLineUpPose() {
+        // GardenFieldPoints' line-up is on the gather pose's line already: only back, never out.
+        Pose p = garden.lineUp;
+        double h = p.heading();
+        double back = nn(lineUpBackIn);
+        return new Pose(p.x() - back * Math.cos(h), p.y() - back * Math.sin(h), h);
     }
 
     @Override
@@ -226,8 +257,9 @@ public final class GardenGather extends GrabRoutine {
         Pose g = garden.gather;
         double h = g.heading();
         double deeper = nn(extraDepthIn);
-        // An Auto's strafe-first gather is on the wall's line already: in straight, barely toward it.
-        double wall = strafeFirst && inAuto() ? nn(laneTowardWallIn) : nn(towardWallIn);
+        // A strafe-first gather (the button's and an Auto's) is on the wall's line already: in
+        // straight, barely toward it.
+        double wall = strafeFirst ? nn(laneTowardWallIn) : nn(towardWallIn);
         return InPlan.to(new Pose(g.x() + deeper * Math.cos(h) + wall * Math.sin(h),
                 g.y() + deeper * Math.sin(h) - wall * Math.cos(h), h));
     }
@@ -240,12 +272,22 @@ public final class GardenGather extends GrabRoutine {
 
     @Override
     protected void unprep() {
-        retractWhenClear();
+        // With a timed raise the stick stays down the whole way out (stopMechanisms raises it).
+        if (!timedRaise()) retractWhenClear();
     }
 
     @Override
     protected void stopMechanisms() {
-        retractWhenClear();
+        // The drive back done (or stopped while backing out): raise the stick once the robot is still.
+        if (timedRaise() && phase() == Phase.BACK) {
+            robot.flowerStick.retractAfter(raiseAfterStopMs);
+        } else {
+            retractWhenClear();
+        }
+    }
+
+    private static boolean timedRaise() {
+        return raiseAfterStopMs >= 0.0;
     }
 
     /**
