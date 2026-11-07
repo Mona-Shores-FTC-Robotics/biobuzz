@@ -65,7 +65,7 @@ import java.util.Locale;
  * CELL). While LOCKED, the driver's chassis aim turns the whole robot onto the same CELL; or,
  * experimentally, the driver's launch-spot button drives it to the nearest launch spot and
  * arrives aimed at that half's CELL ({@link LaunchSpotDrive}), and with
- * {@code TeleOpConfig.goToSpotAlsoFires} spins up and fires one volley there. The
+ * {@code TeleOpConfig.goToSpotAlsoFires} spins up and fires there while it is held. The
  * operator's trim nudges either one and stays until reset. It zeroes itself, assuming it starts a
  * match at its home mark, or taking the Auto's zero when an Auto just ran
  * ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy}); the zero button always
@@ -342,6 +342,20 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 launcherTrimTps, launchSpeed()));
     }
 
+    /**
+     * The Match page's first line: the operator's launch-speed trim (R1/L1) and the launch speed it
+     * gives, big and bold; amber while trimmed, so a trim left on is never missed. "LAUNCH TRIM 0"
+     * when there is none. The speed is the next volley's, Square's included: the speed table's for
+     * the range (or the configured one) plus this trim.
+     */
+    static String launchTrimLine(double trimTps, double launchSpeedTps) {
+        boolean trimmed = trimTps != 0.0;
+        String text = trimmed
+                ? String.format(Locale.US, "LAUNCH TRIM %+.0f · %.0f t/s", trimTps, launchSpeedTps)
+                : String.format(Locale.US, "LAUNCH TRIM 0 · %.0f t/s", launchSpeedTps);
+        return trimmed ? Display.alertWhat(text) : "<big><b>" + text + "</b></big>";
+    }
+
     /** +1 a step left, -1 a step right, 0 back to zero. The step is guarded: NaN or negative is no step. */
     private void trim(int direction) {
         double step = TeleOpConfig.trimStepDeg > 0.0 ? Math.min(TeleOpConfig.trimStepDeg, MAX_TRIM_STEP_DEG) : 0.0;
@@ -490,6 +504,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         fire();
         lightBar();
 
+        // First on the Match page, big, every loop: the drive team reads it at a glance (6 Nov 2026).
+        display.line(launchTrimLine(launcherTrimTps, launchSpeed()));
         display.status("Mode", robotCentric() ? Display.Level.WARN : Display.Level.OK,
                 robotCentric() || !robot.drive.isFieldCentric() ? "robot-centric" : "field-centric");
         display.status("Speed", Display.Level.OK, slow ? "slow" : "normal");
@@ -528,10 +544,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
         } else {
             display.line(LaunchSpeedTable.usableRows() > 0 ? "Speed table: ON, no range yet: configured speed"
                     : "Speed table: ON but no rows: configured speed");
-        }
-        if (launcherTrimTps != 0.0) {
-            display.line(String.format(Locale.US, "Launcher trim %+.0f ticks/s: launch speed %.0f",
-                    launcherTrimTps, launchSpeed()));
         }
         robot.feeder.describe(display);
         robot.prefeed.describe(display);

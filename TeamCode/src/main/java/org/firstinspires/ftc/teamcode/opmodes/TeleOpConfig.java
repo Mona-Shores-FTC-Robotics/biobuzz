@@ -98,8 +98,8 @@ public final class TeleOpConfig {
 
     /**
      * The go-to-launch-spot button also launches: the launcher spins up as the drive starts, and
-     * once the robot is at the spot, aimed and settled, one volley feeds as the operator's FIRE
-     * would ({@link SpotVolley}). On for testing in Basic Drive (mentor, 4 Nov 2026): a testing
+     * once the robot is at the spot, aimed and settled, it feeds while the button is held, as the
+     * operator's FIRE does ({@link SpotVolley}). On for testing in Basic Drive (mentor, 4 Nov 2026): a testing
      * choice the team may turn off to give the shot back to the operator. The operator's FIRE and
      * launcher toggle keep working either way and win. Read at each press.
      */

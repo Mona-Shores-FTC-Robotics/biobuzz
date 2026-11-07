@@ -4,22 +4,26 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
 
 /**
- * The one volley the go-to-launch-spot button fires when {@code TeleOpConfig.goToSpotAlsoFires}
- * is on ({@link LaunchSpotDrive}), decided the way an Auto's {@code LaunchAll} card decides it
- * ({@link LaunchCards}), counted from the robot's arrival at the spot, where an Auto's card would
- * start:
+ * The volley the go-to-launch-spot button fires when {@code TeleOpConfig.goToSpotAlsoFires}
+ * is on ({@link LaunchSpotDrive}). It waits as an Auto's {@code LaunchAll} card does
+ * ({@link LaunchCards}), counted from the robot's arrival at the spot, and then feeds for as long
+ * as the button is held, as the operator's FIRE does:
  * <ul>
  *   <li>Wait for the launcher at speed, at most {@link LaunchCards#maxSpinUpWaitS} (then feed
  *       anyway: a slightly slow shot beats none), and for the robot settled
  *       ({@link PathEndSettle#settled}: still, at the path's end heading), at most
  *       {@link PathEndSettle#maxSettleWaitS} (then feed anyway).</li>
- *   <li>Feed for {@link LaunchCards#launchAllFeedS}, then stop: one volley a press.</li>
+ *   <li>Feed until the button is let go ({@link #stop}): no set time. The driver holding the
+ *       button is the signal; a fixed time (it was {@link LaunchCards#launchAllFeedS}, an Auto's,
+ *       until 6 Nov 2026) could only strand a slow piece and leave the robot sitting at the spot
+ *       with the gate shut while the button was still held.</li>
  *   <li>The operator wins: their FIRE held at any point before the volley ends gives the shot to
  *       them for the rest of the press ({@link Phase#YIELDED}).</li>
  * </ul>
  *
  * <p>There is no "lane empty" check: the robot cannot know it is empty (no piece sensor; the lane
- * tracker is data only, never decided from), so, as in an Auto, the feed runs its set time.
+ * tracker is data only, never decided from), so the feed runs while held, and an empty lane just
+ * turns the feeder wheels until the driver lets go.
  *
  * <p>Pure: times in seconds, inputs as booleans, so a test drives it. Once the approach-opened
  * gate lands in {@code LaunchCards}/{@code PathEndSettle} (branch {@code claude/launch-on-approach}),
@@ -27,7 +31,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
  */
 final class SpotVolley {
 
-    enum Phase { OFF, DRIVING, WAITING, FEEDING, DONE, YIELDED }
+    enum Phase { OFF, DRIVING, WAITING, FEEDING, YIELDED }
 
     private Phase phase = Phase.OFF;
     private double arrivedS = Double.NaN;
@@ -59,7 +63,7 @@ final class SpotVolley {
      * @param operatorFiring the operator's FIRE is held
      */
     boolean update(double nowS, boolean arrived, boolean atSpeed, boolean settled, boolean operatorFiring) {
-        if (phase == Phase.OFF || phase == Phase.DONE || phase == Phase.YIELDED) return false;
+        if (phase == Phase.OFF || phase == Phase.YIELDED) return false;
         if (operatorFiring) {
             if (phase == Phase.FEEDING) feedEndS = nowS;
             phase = Phase.YIELDED;
@@ -79,12 +83,7 @@ final class SpotVolley {
             feedStartS = nowS;
             phase = Phase.FEEDING;
         }
-        if (nowS - feedStartS >= nonNegative(LaunchCards.launchAllFeedS)) {
-            feedEndS = nowS;
-            phase = Phase.DONE;
-            return false;
-        }
-        return true;
+        return true; // FEEDING: until the button is let go (stop) or the operator fires
     }
 
     Phase phase() {

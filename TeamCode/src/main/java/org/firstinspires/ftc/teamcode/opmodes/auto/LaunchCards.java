@@ -89,10 +89,15 @@ public final class LaunchCards {
     /**
      * How long the feeder runs for {@code LaunchAll}, seconds. 3.5: in six R Simple runs on 20245
      * (1 Nov 2026) the last ball left 2.4 to 3.0 s after the gate opened, read from the launcher's
-     * dip per ball in the match logs; 3.5 keeps a margin and saves 3.5 s over the 7.0 tried first.
-     * A step's time limit never cuts a feed that has started (AutoRegistry.holdTimeLimitsWhile).
+     * dip per ball in the match logs; 3.5 kept a margin and saved 3.5 s over the 7.0 tried first.
+     * 3.0 since 6 Nov 2026, from every Auto LaunchAll on both robots on 5 and 6 Nov (52 feeds): the
+     * ten that counted four shots had the fourth 2.05 to 2.48 s after the gate opened, and one
+     * counted shot in all 52 came after 3.0 s (3.01 s). It ends sooner only a feed that counted
+     * fewer than four (the shot count ends a full one at its fourth: {@link #launchAllEndAfterShots}),
+     * which gives the park 0.5 s back. Square's volley in TeleOp no longer uses this: it feeds while
+     * held. A step's time limit never cuts a feed that has started (AutoRegistry.holdTimeLimitsWhile).
      */
-    public static double launchAllFeedS = 3.5;
+    public static double launchAllFeedS = 3.0;
 
     /**
      * A {@code LaunchAll} ends its feed once the launcher has counted this many shots since the

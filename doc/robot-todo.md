@@ -425,11 +425,26 @@ measurement is [#255].
       `TeleOpConfig.launchSpot` off and note where. [PR #423]
 - [ ] **Square also fires (`TeleOpConfig.goToSpotAlsoFires`, on):** loaded, hold Square from
       15–30 in off a spot; then press operator FIRE during a press; then let go mid-feed; then
-      operator launcher toggle to idle mid-press. **Good:** launcher spins up as it drives, one
-      volley once there (`launch spot: gate open … at speed, settled`), all four leave; the end line
+      operator launcher toggle to idle mid-press; then, loaded, hold Square 6 s at a spot (since
+      6 Nov it feeds for as long as Square is held, no 3.5 s cutoff). **Good:** launcher spins up
+      as it drives, feeds once there (`launch spot: gate open … at speed, settled`), all four leave; the end line
       says `fired by button`, shots counted ≈ 4; FIRE takes the shot (`fired by … operator`); let go
-      stops the feeder at once; an idled launcher stays idle. **Stop:** it feeds before it is
+      stops the feeder at once; an idled launcher stays idle; held 6 s, the gate stays open all 6 s. **Stop:** it feeds before it is
       aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+- [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on, LaunchAll feed
+      3.0 s):** R-NoCross and R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
+      every run; when its second volley ends late the Match page and the log say `… no time to
+      park after it, parking now` and it parks from RIGHT_LAUNCH_CATCH; R-Solo still fires its
+      third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
+      **Stop:** a ball left in the robot after a LaunchAll → `LaunchCards.launchAllFeedS` back to
+      3.5; R-Solo parks instead of its third volley every run → note the time it gave and tell a
+      mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
+- [ ] **Square from past the centre line (`LaunchSpotDrive.maxPastCentreIn`, 24):** on 6 Nov the
+      drivers pressed Square with the robot 3–4 in past the line and it refused every time. Hold
+      Square with the robot about 6 in, then about 20 in, past the line, on red and on blue.
+      **Good:** it drives home to the nearest spot on our side and fires; past 24 in the Match page
+      says `REFUSED: robot N in past the centre line`. **Stop:** the path heads into the HIVE frame
+      or a partner → let go, note where, and lower `maxPastCentreIn` (0 is the old rule).
 - [ ] **Every press is a drift sample:** across a practice, pull the logs and read each press's
       `launch spot: drift at …` line (camera − odometry at a known spot, settled, never applied) and
       its `CELL N in` range beside the shots it fired. **Good:** gaps stay under
@@ -574,7 +589,7 @@ After §7c: the rows are only worth having once the wheels hold their speed. One
 the other side of the field.
 
 **The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Match page says
-"Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires one volley.
+"Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires while Square is held.
 On a miss, the operator trims the speed up or down, then Square again, until it scores. The Match
 page's "Last launch spot" line shows the spot's CELL range and the launch speed: write both down.
 Take the middle of the speeds that score 4/4, not the first one that does. The trim carries from

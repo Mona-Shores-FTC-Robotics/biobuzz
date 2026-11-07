@@ -24,7 +24,7 @@ public class LaunchSpotsTest {
     private static final double EPS = 1e-9;
 
     private static Choice red(double x, double y) {
-        return LaunchSpots.choose(new Pose(x, y, 0), true, Alliance.RED, OFF_WALL);
+        return LaunchSpots.choose(new Pose(x, y, 0), true, Alliance.RED, OFF_WALL, 0.0);
     }
 
     private static double wrap(double rad) {
@@ -89,8 +89,8 @@ public class LaunchSpotsTest {
         double[][] where = {{30, 30}, {60, 22}, {56, 6}, {65, 135}, {60, 120}, {30, 110}, {45, 70}, {28, 12}, {28, 129}};
         for (double[] w : where) {
             Pose p = new Pose(w[0], w[1], 0);
-            Choice r = LaunchSpots.choose(p, true, Alliance.RED, OFF_WALL);
-            Choice b = LaunchSpots.choose(LaunchSpots.turned(p), true, Alliance.BLUE, OFF_WALL);
+            Choice r = LaunchSpots.choose(p, true, Alliance.RED, OFF_WALL, 0.0);
+            Choice b = LaunchSpots.choose(LaunchSpots.turned(p), true, Alliance.BLUE, OFF_WALL, 0.0);
             assertEquals(p.toString(), r.spot, b.spot);
             Pose expected = LaunchSpots.turned(r.target);
             assertEquals(expected.x(), b.target.x(), EPS);
@@ -141,7 +141,7 @@ public class LaunchSpotsTest {
 
     @Test
     public void anUnreferencedPoseIsRefusedAndNothingIsChosen() {
-        Choice c = LaunchSpots.choose(new Pose(40, 30, 0), false, Alliance.RED, OFF_WALL);
+        Choice c = LaunchSpots.choose(new Pose(40, 30, 0), false, Alliance.RED, OFF_WALL, 0.0);
         assertTrue(c.refused());
         assertNull(c.spot);
         assertNull(c.target);
@@ -150,14 +150,33 @@ public class LaunchSpotsTest {
 
     @Test
     public void noPoseNoAllianceOrTheOtherSideIsRefused() {
-        assertTrue(LaunchSpots.choose(null, true, Alliance.RED, OFF_WALL).refused());
-        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, Alliance.UNKNOWN, OFF_WALL).refused());
-        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, null, OFF_WALL).refused());
+        assertTrue(LaunchSpots.choose(null, true, Alliance.RED, OFF_WALL, 0.0).refused());
+        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, Alliance.UNKNOWN, OFF_WALL, 0.0).refused());
+        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, null, OFF_WALL, 0.0).refused());
         // Never across the centre line: red past it or on it, blue short of it.
         Choice past = red(80, 30);
         assertTrue(past.refused());
         assertTrue(past.refusal, past.refusal.contains("centre line"));
         assertTrue(red(C, 30).refused());
-        assertTrue(LaunchSpots.choose(new Pose(60, 110, 0), true, Alliance.BLUE, OFF_WALL).refused());
+        assertTrue(LaunchSpots.choose(new Pose(60, 110, 0), true, Alliance.BLUE, OFF_WALL, 0.0).refused());
+    }
+
+    @Test
+    public void aReachPastTheCentreLineDrivesHomeFromWithinIt() {
+        // 6 Nov 2026: refused at 3 to 4 in past the line (red at 73.9, blue at 67.4).
+        Choice red = LaunchSpots.choose(new Pose(73.9, 125.3, 0), true, Alliance.RED, OFF_WALL, 24.0);
+        assertFalse(red.refusal, red.refused());
+        assertTrue(red.target.x() < C);
+        Choice blue = LaunchSpots.choose(new Pose(67.4, 110, 0), true, Alliance.BLUE, OFF_WALL, 24.0);
+        assertFalse(blue.refusal, blue.refused());
+        assertTrue(blue.target.x() > C);
+        // Past the reach, refused, and the refusal says by how much.
+        Choice far = LaunchSpots.choose(new Pose(C + 30, 30, 0), true, Alliance.RED, OFF_WALL, 24.0);
+        assertTrue(far.refused());
+        assertTrue(far.refusal, far.refusal.contains("30 in past the centre line"));
+        assertTrue(LaunchSpots.choose(new Pose(C - 30, 30, 0), true, Alliance.BLUE, OFF_WALL, 24.0).refused());
+        // NaN or negative reach is 0: strictly our side.
+        assertTrue(LaunchSpots.choose(new Pose(C + 1, 30, 0), true, Alliance.RED, OFF_WALL, Double.NaN).refused());
+        assertTrue(LaunchSpots.choose(new Pose(C + 1, 30, 0), true, Alliance.RED, OFF_WALL, -5).refused());
     }
 }

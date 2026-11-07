@@ -22,7 +22,7 @@ import java.util.function.Consumer;
  * The driver's "go to launch spot" button, held: Pedro drives from the robot's pose to the launch
  * spot nearest it when the button is pressed ({@link LaunchSpots#choose}: our two starts, stopped
  * {@link #startOffWallIn} off the wall, the Autos' four CATCH and OFFSET spots, and the two
- * CORNER long shots), and arrives
+ * CORNER long shots; from our side, or up to {@link #maxPastCentreIn} past the centre line), and arrives
  * aimed at that half's CELL. Never a spot chosen from what the camera believes about the HIVE: the
  * field gets crowded and the driver stays near where they are (mentor, 4 Nov 2026). Letting go, or
  * moving a drive stick, gives the sticks back that same loop, as the FLOWER pick does. At the spot
@@ -36,9 +36,9 @@ import java.util.function.Consumer;
  *
  * <p>With {@code TeleOpConfig.goToSpotAlsoFires} (on while testing), the press also launches: the
  * launcher spins up as the drive starts (the OpMode does it, at the operator's launch speed and trim),
- * and once the robot is at the spot, aimed and settled, one volley feeds through the same feeder,
+ * and once the robot is at the spot, aimed and settled, it feeds for as long as the button is held, through the same feeder,
  * gate and prefeed path as the operator's FIRE ({@link SpotVolley}: the Autos' {@code LaunchAll}
- * waits and feed time). Letting go stops the drive and the feed at once. The operator's FIRE wins.
+ * waits, then no set feed time). Letting go stops the drive and the feed at once. The operator's FIRE wins.
  *
  * <p>Every press is match-log lines, for comparing practice logs with chassis-aim use: the start
  * (start pose, chosen spot, its distance, and the spot's range to its CELL, so presses are also
@@ -64,6 +64,14 @@ public final class LaunchSpotDrive {
      * inches, along the start's facing, rather than into the wall. A starting point. NaN or negative is 0.
      */
     public static double startOffWallIn = 3.0;
+    /**
+     * The button works with the robot's centre up to this far past the centre line, inches, on the
+     * other alliance's side, and drives it home; further than that it refuses. 0, NaN or negative
+     * asks for the robot on our side. 24: on 6 Nov 2026 the press was refused 10 times at 3 to 4 in
+     * past (both robots' logs), and 19429 on blue spent much of a run up to 20 in past. A starting
+     * point, not a measurement.
+     */
+    public static double maxPastCentreIn = 24.0;
 
     private enum Phase { IDLE, DRIVING, HOLDING, REFUSED, ENDED }
 
@@ -187,8 +195,7 @@ public final class LaunchSpotDrive {
         if (!fires) return "";
         switch (volley.phase()) {
             case WAITING: return " · volley: waiting for speed and settle";
-            case FEEDING: return " · volley: FEEDING";
-            case DONE: return " · volley: fed";
+            case FEEDING: return " · volley: FEEDING, let go to stop";
             case YIELDED: return " · volley: the operator's";
             default: return "";
         }
@@ -205,7 +212,8 @@ public final class LaunchSpotDrive {
         spotRangeIn = Double.NaN;
         this.alliance = alliance;
         Pose pose = robot.drive.pose();
-        choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, startOffWallIn);
+        choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, startOffWallIn,
+                maxPastCentreIn);
         if (choice.refused()) {
             phase = Phase.REFUSED;
             result = "Launch spot REFUSED: " + choice.refusal;
@@ -253,7 +261,7 @@ public final class LaunchSpotDrive {
                 : volley.fired() ? "button" : operatorFired ? "operator" : "nobody";
         String gate = !volley.fired() ? "gate never opened by the button"
                 : String.format(Locale.US, "gate open at %.2f s for %.2f s%s", volley.feedStartS(),
-                        volley.feedEndS() - volley.feedStartS(), feeding ? " (cut by the end of the press)" : "");
+                        volley.feedEndS() - volley.feedStartS(), feeding ? " (until the press ended)" : "");
         // The spot's range and the speed in force (trim included): the speed-table row this press
         // measures, read off the Match page after each volley (LaunchSpeedTable, "Filling it in").
         line += String.format(Locale.US, "; CELL %s, launch %.0f ticks/s", cellRange(choice.target),
