@@ -38,12 +38,12 @@ public class LaunchTrimLineTest {
     }
 
     @Test
-    public void thePiecesLineIsTheCountHugeWithTheSensorsFullInGreen() {
+    public void thePiecesLineIsTheCountHugeGreenWhileTheSensorSeesFull() {
         assertEquals(Display.huge("3 PIECES", (Display.Level) null), BasicDriveTeleOp.piecesLine(3, false));
         assertEquals(Display.huge("1 PIECE", (Display.Level) null), BasicDriveTeleOp.piecesLine(1, false));
-        assertEquals(Display.huge("4 PIECES FULL", Display.Level.OK), BasicDriveTeleOp.piecesLine(4, true));
-        // A count the sensor disagrees with shows as it is: that is how the count gets better.
-        assertEquals(Display.huge("3 PIECES FULL", Display.Level.OK), BasicDriveTeleOp.piecesLine(3, true));
+        assertEquals(Display.huge("4 PIECES", Display.Level.OK), BasicDriveTeleOp.piecesLine(4, true));
+        // A count the sensor disagrees with shows as it is, green: that is how the count gets better.
+        assertEquals(Display.huge("3 PIECES", Display.Level.OK), BasicDriveTeleOp.piecesLine(3, true));
         assertEquals(Display.HUGE_SCALE, Display.rows(BasicDriveTeleOp.piecesLine(4, true)), 1e-9);
     }
 }
