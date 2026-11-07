@@ -440,6 +440,13 @@ measurement is [#255].
       third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
       **Stop:** R-Solo parks instead of its third volley every run → note the time it gave and tell a
       mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
+- [ ] **GARDEN gather strafes over first (`garden-gather` branch, `GardenGather.strafeFirst` on):**
+      R-NoCross (or Bench a GardenGather card), GARDEN loaded, phone filming from above. **Good:**
+      at GARDEN_STAGING the robot slides sideways onto the side wall's line with the stick going
+      down, then drives straight in along the wall and stops with the nose at the audience wall
+      (`GARDEN gather: IN … reached` or under 1 in short, against 2–4.5 in on 6 Nov), and more
+      balls come in. **Stop:** the stick hits the wall, or the strafe times out → `strafeFirst`
+      off (the old diagonal); tune `laneTowardWallIn` (0.5) and `strafeMinBackIn` (8) in Panels.
 - [ ] **Film the Auto volleys (decides `LaunchCards.launchAllFeedS`, 3.5):** 5–6 LaunchAlls,
       phone slow-motion side-on, the launcher and the Driver Station both in frame. Per volley,
       write down each ball's time after the gate opens and the launcher's counted shots.

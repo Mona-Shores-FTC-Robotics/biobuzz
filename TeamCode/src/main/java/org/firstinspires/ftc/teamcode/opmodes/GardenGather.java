@@ -73,6 +73,31 @@ public final class GardenGather extends GrabRoutine {
      * dwell keeps steering it against the wall.
      */
     public static double towardWallIn = 2.0;
+    /**
+     * An Auto's gather strafes over first: from where the Auto's drive left it, the robot slides
+     * sideways onto the GARDEN's line along the side wall, at the depth it is at, lowering the stick
+     * on the way, and then drives straight in along that wall ({@link #strafePose}). Off: the drive
+     * in is one diagonal from where the card starts. Why (6 Nov 2026, all ten gathers on both robots):
+     * on the diagonal the side met the side wall first, the robot pinned itself there, and the drive
+     * in stalled with the nose 2 to 4.5 in short of the audience wall. The button's gather (it lines
+     * up first) is unchanged.
+     */
+    public static boolean strafeFirst = true;
+    /**
+     * With {@link #strafeFirst}: how much closer to the side wall than the gather pose the straight
+     * drive in aims, inches. A little, to keep the side on the wall as it goes in; not the diagonal's
+     * {@link #towardWallIn}, which pins it.
+     */
+    public static double laneTowardWallIn = 0.5;
+    /**
+     * With {@link #strafeFirst}: the strafe stops at least this far back from the gather pose, inches,
+     * so the stick swings down clear of the audience wall, and at most {@link #strafeMaxBackIn}.
+     */
+    public static double strafeMinBackIn = 8.0;
+    /** See {@link #strafeMinBackIn}, inches. */
+    public static double strafeMaxBackIn = 18.0;
+    /** The strafe gives up after this long, ms: a short move, so a stuck one ends the card early. */
+    public static double strafeTimeoutMs = 1500;
     /** Already lined up: this close to the line-up pose, inches, skips the line-up path. */
     public static double atLineUpIn = 1.5;
     /** Already lined up: this square, degrees, skips the line-up path. */
@@ -175,13 +200,34 @@ public final class GardenGather extends GrabRoutine {
     }
 
     @Override
+    protected InPlan autoLineUp(Pose from) {
+        return strafeFirst ? InPlan.to(strafePose(garden, from, nn(strafeMinBackIn), nn(strafeMaxBackIn))) : null;
+    }
+
+    @Override protected double autoLineUpTimeoutMs() { return strafeTimeoutMs; }
+
+    /**
+     * Where an Auto's gather strafes to: on {@code g}'s line (its gather pose's side-wall distance),
+     * facing in, as far back from the gather pose as {@code from} is, held between {@code minIn} and
+     * {@code maxIn}. Back is against the GARDEN's heading.
+     */
+    public static Pose strafePose(Garden g, Pose from, double minIn, double maxIn) {
+        Pose p = g.gather;
+        double h = p.heading();
+        double back = -((from.x() - p.x()) * Math.cos(h) + (from.y() - p.y()) * Math.sin(h));
+        double b = Math.max(minIn, Math.min(maxIn, back));
+        return new Pose(p.x() - b * Math.cos(h), p.y() - b * Math.sin(h), h);
+    }
+
+    @Override
     protected InPlan inPose(Pose from, boolean linedUp) {
         // Deeper is along the heading; toward the wall is the robot's right at the GARDEN heading,
         // the side wall for both alliances (red faces 270°, right is -x; blue faces 90°, right is +x).
         Pose g = garden.gather;
         double h = g.heading();
         double deeper = nn(extraDepthIn);
-        double wall = nn(towardWallIn);
+        // An Auto's strafe-first gather is on the wall's line already: in straight, barely toward it.
+        double wall = strafeFirst && inAuto() ? nn(laneTowardWallIn) : nn(towardWallIn);
         return InPlan.to(new Pose(g.x() + deeper * Math.cos(h) + wall * Math.sin(h),
                 g.y() + deeper * Math.sin(h) - wall * Math.cos(h), h));
     }
