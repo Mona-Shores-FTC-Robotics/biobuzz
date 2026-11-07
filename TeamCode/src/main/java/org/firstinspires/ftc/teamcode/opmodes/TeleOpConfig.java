@@ -86,6 +86,15 @@ public final class TeleOpConfig {
     /** Enforce the aim gate: a feed starts only with the aim within {@link #aimToleranceDeg}. */
     public static boolean enforceAimGate = false;
 
+    /**
+     * Enforce the aim gate while the driver's chassis aim (Circle) is turning the robot, whatever
+     * {@link #enforceAimGate} says: the driver points, the operator's FIRE chooses the moment, and
+     * the feed starts only once the robot is within {@link #aimToleranceDeg} of the CELL, so an
+     * early press waits rather than goes wide. On since 7 Nov 2026 (mentor), with the chassis aim
+     * camera first ({@code ChassisAimTarget}). An unknown aim never blocks.
+     */
+    public static boolean chassisAimGate = true;
+
     /** How far off our CELL a shot may be aimed and still pass the aim gate, degrees. */
     public static double aimToleranceDeg = 3.0;
 

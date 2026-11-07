@@ -423,6 +423,20 @@ measurement is [#255].
       says `fired by button`, shots counted ≈ 4; FIRE takes the shot (`fired by … operator`); let go
       stops the feeder at once; an idled launcher stays idle. **Stop:** it feeds before it is
       aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+- [ ] **Circle is camera first (`ChassisAimTarget`), the fallback when the pose is off:** Basic
+      Drive, loaded, turret locked. (a) Pose good: from 45–55 in, roughly facing our UP CELL, the
+      driver holds Circle and the operator holds FIRE at once. (b) Pose off: knock the pose out
+      (push the robot 6 in sideways by hand, no reset), D-pad up facing the opponents' wall, then
+      the same. (c) Start Circle facing 60° away from the CELL, so it begins on odometry. (d)
+      Mid-turn, a hand over the Limelight for about half a second. **Good:** the Match page reads
+      `Chassis aim: camera, RIGHT CELL` (or LEFT), the robot settles on the CELL in both (a) and
+      (b), and FIRE waits until it is on target and then feeds (`fire: … WAITING: an enforced gate
+      is closed` first, then the volley); in (c) it switches to `camera` once the CELL comes into
+      view; in (d) it reads `camera lost, holding its heading on the gyro` and carries on, not
+      swinging away. Every press logs `chassis aim: camera locked … ; odometry … (gap …)`: (b)'s gap
+      shows the pose error the camera ignored. **Stop:** it turns to the DOWN CELL (the HIVE's state
+      is wrong: note the log's HIVE line), it overshoots and hunts (lower `chassisAimKp`), or FIRE
+      never opens on target (`TeleOpConfig.chassisAimGate` off, note the aim error the log shows).
 - [ ] **Every press is a drift sample:** across a practice, pull the logs and read each press's
       `launch spot: drift at …` line (camera − odometry at a known spot, settled, never applied) and
       its `CELL N in` range beside the shots it fired. **Good:** gaps stay under
