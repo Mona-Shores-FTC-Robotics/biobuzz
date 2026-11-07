@@ -225,9 +225,10 @@ public class LaunchSpotsTest {
                 assertEquals("the drawn place", drawn.y(), t.y(), EPS);
             }
         }
-        assertEquals("right corner: about 61 degrees, not the drawn 54", 61.3,
-                Math.toDegrees(Spot.RIGHT_LAUNCH_CORNER.target(Alliance.RED, OFF_WALL, fwd, left).heading()), 0.3);
-        assertEquals("left corner: as drawn", 302.6,
-                Math.toDegrees(Spot.LEFT_LAUNCH_CORNER.target(Alliance.RED, OFF_WALL, fwd, left).heading()) + 360, 0.3);
+        // Compared as a turn, however the pose stores its heading.
+        assertEquals("right corner: about 61 degrees, not the drawn 54", 0, Math.toDegrees(wrap(
+                Spot.RIGHT_LAUNCH_CORNER.target(Alliance.RED, OFF_WALL, fwd, left).heading() - Math.toRadians(61.3))), 0.3);
+        assertEquals("left corner: as drawn", 0, Math.toDegrees(wrap(
+                Spot.LEFT_LAUNCH_CORNER.target(Alliance.RED, OFF_WALL, fwd, left).heading() - Math.toRadians(302.6))), 0.3);
     }
 }
