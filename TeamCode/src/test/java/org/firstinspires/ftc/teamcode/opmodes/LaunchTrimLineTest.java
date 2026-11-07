@@ -7,28 +7,43 @@ import static org.junit.Assert.assertTrue;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.junit.Test;
 
-/** Basic Drive's first Match-page line: the operator's launch trim, big, amber while trimmed. */
+/** Basic Drive's huge Match-page lines: the operator's launch trim (amber while trimmed) and the lane's pieces. */
 public class LaunchTrimLineTest {
 
     @Test
-    public void noTrimIsShownAsZeroAndNotAmber() {
-        String line = BasicDriveTeleOp.launchTrimLine(0.0, 1600);
-        assertTrue(line, line.contains("LAUNCH TRIM 0 · 1600 t/s"));
-        assertTrue(line, line.startsWith("<big><b>"));
+    public void noTrimIsShownAsZeroHugeAndNotAmber() {
+        String line = BasicDriveTeleOp.launchTrimLine(0.0);
+        assertEquals(Display.huge("TRIM 0", false), line);
+        assertTrue(line, line.startsWith("<big><big><big><b>"));
         assertFalse(line, line.contains("<font"));
     }
 
     @Test
-    public void aTrimIsSignedAmberAndShowsTheSpeedItGives() {
-        String up = BasicDriveTeleOp.launchTrimLine(50, 1650);
-        assertEquals(Display.alertWhat("LAUNCH TRIM +50 · 1650 t/s"), up);
-        String down = BasicDriveTeleOp.launchTrimLine(-25, 1575);
-        assertTrue(down, down.contains("LAUNCH TRIM -25 · 1575 t/s"));
+    public void aTrimIsSignedAndAmber() {
+        assertEquals(Display.huge("TRIM +50", true), BasicDriveTeleOp.launchTrimLine(50));
+        assertEquals(Display.huge("TRIM -25", true), BasicDriveTeleOp.launchTrimLine(-25));
     }
 
     @Test
-    public void itFitsOneRow() {
-        // Big text: one row is 1.25 ordinary rows; the line must not wrap onto a second.
-        assertEquals(Display.BIG_SCALE, Display.rows(BasicDriveTeleOp.launchTrimLine(-200, 1450)), 1e-9);
+    public void itFitsOneHugeRow() {
+        // Huge text: one row is HUGE_SCALE ordinary rows; the line must not wrap onto a second.
+        assertEquals(Display.HUGE_SCALE, Display.rows(BasicDriveTeleOp.launchTrimLine(-200)), 1e-9);
+    }
+
+    @Test
+    public void theSpeedLineUnderItIsOneOrdinaryRow() {
+        String line = BasicDriveTeleOp.launchSpeedLine(1650);
+        assertEquals("launch speed 1650 t/s", line);
+        assertEquals(1.0, Display.rows(line), 1e-9);
+    }
+
+    @Test
+    public void thePiecesLineIsTheCountHugeGreenWhileTheSensorSeesFull() {
+        assertEquals(Display.huge("3 PIECES", (Display.Level) null), BasicDriveTeleOp.piecesLine(3, false));
+        assertEquals(Display.huge("1 PIECE", (Display.Level) null), BasicDriveTeleOp.piecesLine(1, false));
+        assertEquals(Display.huge("4 PIECES", Display.Level.OK), BasicDriveTeleOp.piecesLine(4, true));
+        // A count the sensor disagrees with shows as it is, green: that is how the count gets better.
+        assertEquals(Display.huge("3 PIECES", Display.Level.OK), BasicDriveTeleOp.piecesLine(3, true));
+        assertEquals(Display.HUGE_SCALE, Display.rows(BasicDriveTeleOp.piecesLine(4, true)), 1e-9);
     }
 }

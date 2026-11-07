@@ -424,21 +424,47 @@ measurement is [#255].
       **Stop:** it refuses with the pose set, or clips the HIVE or the wall →
       `TeleOpConfig.launchSpot` off and note where. [PR #423]
 - [ ] **Square also fires (`TeleOpConfig.goToSpotAlsoFires`, on):** loaded, hold Square from
-      15–30 in off a spot; then press operator FIRE during a press; then let go mid-feed; then
-      operator launcher toggle to idle mid-press; then, loaded, hold Square 6 s at a spot (since
+      15–30 in off a spot; then let go mid-feed; then, loaded, hold Square 6 s at a spot (since
       6 Nov it feeds for as long as Square is held, no 3.5 s cutoff). **Good:** launcher spins up
       as it drives, feeds once there (`launch spot: gate open … at speed, settled`), all four leave; the end line
-      says `fired by button`, shots counted ≈ 4; FIRE takes the shot (`fired by … operator`); let go
-      stops the feeder at once; an idled launcher stays idle; held 6 s, the gate stays open all 6 s. **Stop:** it feeds before it is
-      aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
-- [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on, LaunchAll feed
-      3.0 s):** R-NoCross and R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
+      says `fired by button`, shots counted ≈ 4; let go stops the feeder at once and idles the
+      launcher; held 6 s, the gate stays open all 6 s. **Stop:** it feeds before it is aimed, or
+      feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+- [ ] **The operator cannot hurt a Square volley (`belding-plus`, `LauncherOwner`, 7 Nov):**
+      (a) operator spin up, wait for the rumble, then the driver holds Square: the gate opens on
+      arrival with no spin-up wait, and the launcher idles when Square is let go. (b) Square from
+      idle, operator presses the toggle mid-drive: the launcher keeps spinning (`launcher: toggle
+      during Square's volley: kept spinning`), the volley fires at speed, and it idles when Square
+      is let go. (c) Square from idle, operator holds FIRE before the robot arrives: nothing feeds
+      early (`fire: held back`), the volley opens at the spot as usual. (d) No Square: operator
+      toggle up, FIRE, toggle down, as before. **Stop:** a toggle press during Square idles the
+      launcher, FIRE feeds before arrival, or the launcher keeps spinning after Square is let go
+      → run `Belding`'s Basic Drive and tell a mentor.
+- [ ] **Operator's glance page, trim rumble, D-pad trim reset, no intake toggle (`belding-plus`,
+      7 Nov):** Basic Drive, Match page, read from the operator's seat and from the coach's spot.
+      **Good:** under the header and the alliance line, three lines in text about twice ordinary
+      size (three nested `<big>`): `TRIM 0`, then `IDLE` / `SPIN` (amber) / `READY` (green), then
+      `N PIECES`, green while the sensor sees the lane full; a fourth, amber, only when
+      something is wrong (`INTAKE OFF`, `ROBOT-CENTRIC`, `SQUARE REFUSED` while Square is held,
+      `FLOWER STICK OUT`, `NO PINPOINT`). Everything else is on the Robot page (Share twice).
+      Operator R1: `TRIM +25` in amber and one rumble blip; L1: two blips; D-pad down: back to
+      `TRIM 0` with a long buzz. The intake runs from PLAY with nobody touching R2, and no R2 press
+      on either pad stops it; with `TeleOpConfig.intakeAlwaysOn` off it runs only while R2 is held.
+      Note every green count under 4 (`3 PIECES` in green): that is the tracker missing a piece.
+      **Stop:** the three lines are no bigger than the header (the Driver Station ignored the
+      nesting) → note it, and try `<h1>` in `Display.huge`.
+- [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on):** R-NoCross and
+      R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
       every run; when its second volley ends late the Match page and the log say `… no time to
       park after it, parking now` and it parks from RIGHT_LAUNCH_CATCH; R-Solo still fires its
       third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
-      **Stop:** a ball left in the robot after a LaunchAll → `LaunchCards.launchAllFeedS` back to
-      3.5; R-Solo parks instead of its third volley every run → note the time it gave and tell a
+      **Stop:** R-Solo parks instead of its third volley every run → note the time it gave and tell a
       mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
+- [ ] **Film the Auto volleys (decides `LaunchCards.launchAllFeedS`, 3.5):** 5–6 LaunchAlls,
+      phone slow-motion side-on, the launcher and the Driver Station both in frame. Per volley,
+      write down each ball's time after the gate opens and the launcher's counted shots.
+      **Good:** no ball after 3.0 s in any → `launchAllFeedS` 3.05 in Panels, and the volleys
+      where the count fell short show which way the shot counter misses.
 - [ ] **Square from past the centre line (`LaunchSpotDrive.maxPastCentreIn`, 24):** on 6 Nov the
       drivers pressed Square with the robot 3–4 in past the line and it refused every time. Hold
       Square with the robot about 6 in, then about 20 in, past the line, on red and on blue.
@@ -588,7 +614,7 @@ After §7c: the rows are only worth having once the wheels hold their speed. One
 `LaunchSpeedTable` (#80). Measure them on the right side; the left spots are the same distances on
 the other side of the field.
 
-**The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Match page says
+**The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Robot page says
 "Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires while Square is held.
 On a miss, the operator trims the speed up or down, then Square again, until it scores. The Match
 page's "Last launch spot" line shows the spot's CELL range and the launch speed: write both down.
