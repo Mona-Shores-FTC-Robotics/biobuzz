@@ -472,6 +472,11 @@ measurement is [#255].
       write down each ball's time after the gate opens and the launcher's counted shots.
       **Good:** no ball after 3.0 s in any → `launchAllFeedS` 3.05 in Panels, and the volleys
       where the count fell short show which way the shot counter misses.
+- [ ] **Square's start and corner spots aim the turret (`belding-plus`, 7 Nov):** turret locked,
+      hold Square from near each start and each corner (RIGHT_START now 89°, LEFT_START 267°,
+      RIGHT_LAUNCH_CORNER 61° instead of 54°, LEFT_LAUNCH_CORNER 303° as before) and fire.
+      **Good:** the volley goes into the CELL, centred; RIGHT_LAUNCH_CORNER scores at least as well
+      as on 4 Nov. **Stop:** shots land to one side → note which side and by how much.
 - [ ] **Square from past the centre line (`LaunchSpotDrive.maxPastCentreIn`, 24):** on 6 Nov the
       drivers pressed Square with the robot 3–4 in past the line and it refused every time. Hold
       Square with the robot about 6 in, then about 20 in, past the line, on red and on blue.

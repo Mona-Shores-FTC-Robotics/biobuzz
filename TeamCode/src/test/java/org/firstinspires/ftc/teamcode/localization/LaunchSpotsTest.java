@@ -205,4 +205,29 @@ public class LaunchSpotsTest {
         assertEquals(Spot.RIGHT_LAUNCH_CATCH.target(Alliance.RED, OFF_WALL).heading(),
                 Spot.RIGHT_LAUNCH_CATCH.target(Alliance.RED, OFF_WALL, fwd, left).heading(), EPS);
     }
+
+    /**
+     * The CORNER spots are aimed with the turret from their drawn place: RIGHT_LAUNCH_CORNER's drawn
+     * 54° left the turret 6.9° off; LEFT_LAUNCH_CORNER's 302.6° was drawn for the turret already.
+     */
+    @Test
+    public void theCornerSpotsAimTheTurretFromWhereTheyAreDrawn() {
+        double fwd = -3.33, left = -1.87;
+        for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
+            for (Spot spot : new Spot[] {Spot.RIGHT_LAUNCH_CORNER, Spot.LEFT_LAUNCH_CORNER}) {
+                Pose t = spot.target(alliance, OFF_WALL, fwd, left);
+                Vec3 row = spot.cellRow(alliance);
+                double ax = t.x() + fwd * Math.cos(t.heading()) - left * Math.sin(t.heading());
+                double ay = t.y() + fwd * Math.sin(t.heading()) + left * Math.cos(t.heading());
+                assertEquals(spot + " " + alliance, 0, wrap(Math.atan2(row.y() - ay, row.x() - ax) - t.heading()), 1e-6);
+                Pose drawn = alliance == Alliance.BLUE ? LaunchSpots.turned(spot.red) : spot.red;
+                assertEquals("the drawn place", drawn.x(), t.x(), EPS);
+                assertEquals("the drawn place", drawn.y(), t.y(), EPS);
+            }
+        }
+        assertEquals("right corner: about 61 degrees, not the drawn 54", 61.3,
+                Math.toDegrees(Spot.RIGHT_LAUNCH_CORNER.target(Alliance.RED, OFF_WALL, fwd, left).heading()), 0.3);
+        assertEquals("left corner: as drawn", 302.6,
+                Math.toDegrees(Spot.LEFT_LAUNCH_CORNER.target(Alliance.RED, OFF_WALL, fwd, left).heading()) + 360, 0.3);
+    }
 }
