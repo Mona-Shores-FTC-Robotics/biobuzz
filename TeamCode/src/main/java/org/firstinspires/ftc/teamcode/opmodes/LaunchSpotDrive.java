@@ -218,7 +218,7 @@ public final class LaunchSpotDrive {
         this.alliance = alliance;
         Pose pose = robot.drive.pose();
         choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, startOffWallIn,
-                maxPastCentreIn);
+                maxPastCentreIn, TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
         if (choice.refused()) {
             phase = Phase.REFUSED;
             result = "Launch spot REFUSED: " + choice.refusal;
