@@ -147,4 +147,18 @@ public class InitPageFitsTest {
         assertEquals(2.0, Display.rows(long60.toString()), 1e-9);
         assertEquals(2 * Display.BIG_SCALE, Display.rows("<big>" + long60 + "</big>"), 1e-9);
     }
+
+    /** The worst case and an unassigned gamepad: seven warnings, still one screen (7 Nov 2026). */
+    @Test
+    public void sixWarningsAndAnUnassignedGamepadFit() {
+        setup.offerVision(Alliance.RED, "the camera puts the robot on the RED start");
+        setup.chooseManually(Alliance.BLUE);
+        warnings.evaluate("y pod not detected", setup.alliance(), setup.visionAlliance(), OFF_MARK,
+                "not answering", 0, 20_000, 11.8, 12.0, true);
+        warnings.gamepads(false, false);
+        assertEquals(7, warnings.count());
+        writePage(OFF_MARK);
+        assertFits();
+        assertTrue("the gamepads are named", String.join("\n", lines).contains("Gamepads 1 and 2 not assigned"));
+    }
 }
