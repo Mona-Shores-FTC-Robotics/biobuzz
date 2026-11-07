@@ -306,7 +306,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - **6 Nov runs never moved** (4 in/s and 8 in/s² cap, too little power to start the robot).
         The cap also stayed on after STOP and stalled later paths until the app restarted. Both
         are fixed: a `maxPathSpeed` fraction, and the cap cleared whenever a path ends. Still,
-        **after any nudge run, drive R-Solo once before trusting the next Auto.** [PR-NUDGE]
+        **after any nudge run, drive R-Solo once before trusting the next Auto.** [PR #492]
       - First run without the dummy to check direction, the six-inch stroke and retreat.
         Choose alliance in INIT, then PLAY. Default Panels `PartnerNudgeTest` settings:
         **pathSpeed=0.2** (fraction of top speed, 0.1–0.5), **timeoutSeconds=8**, captured at
@@ -771,6 +771,7 @@ one test at one meeting.
 [PR #425]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/425
 [PR #427]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/427
 [PR #430]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/430
+[PR #492]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/492
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#429]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/429
@@ -806,4 +807,4 @@ one test at one meeting.
   partner park/wall clearance, second tip and our park before the 30 s stop.
   Contact approach and push use `PartnerNudgeTest.pathSpeed`, read at INIT; set it
   first with **Drive: Partner Nudge**. A blocked contact stops after six seconds.
-  After the run, drive R-Solo once to confirm normal paths are at full speed. [PR-NUDGE]
+  After the run, drive R-Solo once to confirm normal paths are at full speed. [PR #492]
