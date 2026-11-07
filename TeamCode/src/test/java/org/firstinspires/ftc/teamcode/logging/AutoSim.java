@@ -1306,7 +1306,9 @@ public final class AutoSim {
             // The drive team's INIT picks, as the robot's InitOptions hands them over: the partner wait, if set.
             final String waitOption = matchSecondsOption(autoClass);
             final double waitUntil = partnerWaitUntilS;
-            AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add).picks(new AutoKit.Picks() {
+            AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add)
+                    // As on the robot (BuiltAuto.parkAfterVolley, on): a volley never takes the park's time.
+                    .parkAfterVolley(true).picks(new AutoKit.Picks() {
                 @Override public int choice(String option) { return -1; }
                 @Override public double seconds(String option) { return option.equals(waitOption) ? waitUntil : Double.NaN; }
             });
