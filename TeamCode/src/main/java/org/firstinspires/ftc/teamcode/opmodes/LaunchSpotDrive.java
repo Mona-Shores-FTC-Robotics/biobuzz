@@ -220,9 +220,12 @@ public final class LaunchSpotDrive {
         choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, startOffWallIn,
                 maxPastCentreIn, TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
         if (choice.refused()) {
+            // Not on the field: the drive says what fixes it (a lost Pinpoint is not "no reset yet").
+            String why = pose != null && !robot.drive.poseReferenced() ? robot.drive.notReferencedWhy() : null;
+            if (why == null) why = choice.refusal;
             phase = Phase.REFUSED;
-            result = "Launch spot REFUSED: " + choice.refusal;
-            event.accept("launch spot: refused, " + choice.refusal + ", from " + where(pose));
+            result = "Launch spot REFUSED: " + why;
+            event.accept("launch spot: refused, " + why + ", from " + where(pose));
             return;
         }
         try {

@@ -499,7 +499,7 @@ public abstract class GrabRoutine {
             return;
         }
         if (!robot.drive.poseReferenced()) {
-            refuse("the pose is not on the field yet (an Auto's handoff, or relocalize from the camera)");
+            refuse(robot.drive.notReferencedWhy());
             return;
         }
         String found = findTarget(pose);

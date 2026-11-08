@@ -75,12 +75,17 @@ public final class CheatSheet {
     /**
      * What the drive team does when the Driver Station says something only a restart fixes. From the
      * 4 Nov R-Solo at 21:26: INIT showed "Pinpoint: bad read" for 50 s, PLAY was pressed, and the
-     * Auto fired from a pose 136 in off and lost its paths ({@code PinpointLoss}).
+     * Auto fired from a pose 136 in off and lost its paths ({@code PinpointTrust}). From Belding,
+     * 7 Nov 2026: a Pinpoint that stops reading mid-match usually comes back, and its pose is good
+     * when it does; Square and the FLOWER pick wait for a confirmation.
      */
     static final String RULES = "<div class=\"rules\"><b>If the Driver Station says</b>"
             + "<p><b>Pinpoint: …</b> in INIT → <b>restart the robot before PLAY.</b></p>"
-            + "<p><b>Pinpoint lost</b> in the match → keep driving; Square and pose aim are off. "
-            + "Restart the robot after the match.</p></div>\n";
+            + "<p><b>Pinpoint not reading</b> (driver pad red) → keep driving; Square, FLOWER pick and pose aim "
+            + "are off, and field-centric goes wrong as the robot turns. Coach: note the match time.</p>"
+            + "<p><b>Pinpoint back</b> (driver pad amber) → show the camera a HIVE, or corner reset "
+            + "(D-pad left/right held in the corner). Green: Square works again.</p>"
+            + "<p>After the match: <b>pull the logs</b>, check the Pinpoint cable both ends.</p></div>\n";
 
     private static void pad(StringBuilder out, String who, String which, Map<Action, Input> layout, Action.Pad pad) {
         out.append("<section><h2>").append(who).append(" <small>").append(which).append("</small></h2>\n")

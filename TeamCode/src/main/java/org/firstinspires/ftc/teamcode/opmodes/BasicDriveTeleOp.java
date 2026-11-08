@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.IntakeArbiter;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
@@ -184,6 +185,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** The current launch-spot press has had its spin-up decided. */
     private boolean spotPressSeen;
     private Bar bar = Bar.NONE;
+    /** The Pinpoint's trust as the driver's light bar last showed it, and whether a press was refused last loop. */
+    private PinpointTrust.State driverBar = PinpointTrust.State.TRUSTED;
+    private boolean wasRefused;
     private String poseNote;
     private String autoParkNote;
     private double aimErrorDeg = Double.NaN;
@@ -545,6 +549,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         fire();
         lightBar();
+        driverPad();
 
         // The Match page is a glance (mentor, 7 Nov 2026): the operator and the coach read it from
         // the Driver Station mid-match, so it is three huge lines and one alert, nothing to parse.
@@ -817,6 +822,37 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 robot.launcher.target(), launcherOwner.spinning() ? "" : " (idle)",
                 Double.isNaN(aimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f°", aimErrorDeg),
                 aimer.source(), aimer.trimDeg(), turretMode, where, gates.summary(), outcome);
+    }
+
+    /**
+     * The driver's pad (its light bar is otherwise unused): red while the Pinpoint is not reading,
+     * amber once it reads again and waits for a confirmation, green for 2 s when it is believed again,
+     * with a rumble on each change, since the driver is watching the field, not the Driver Station.
+     * Two blips when a Square or FLOWER pick press is refused, so a refused press is felt. Sent only on
+     * a change.
+     */
+    private void driverPad() {
+        PinpointTrust.State trust = robot.drive.pinpointTrust();
+        if (trust != driverBar) {
+            switch (trust) {
+                case FAULTED:
+                    gamepad1.setLedColor(1.0, 0.0, 0.0, Gamepad.LED_DURATION_CONTINUOUS);
+                    gamepad1.rumble(1.0, 1.0, 600);
+                    break;
+                case CONFIRMING:
+                    gamepad1.setLedColor(1.0, 0.6, 0.0, Gamepad.LED_DURATION_CONTINUOUS);
+                    gamepad1.rumbleBlips(1);
+                    break;
+                default:
+                    gamepad1.setLedColor(0.0, 1.0, 0.0, 2000);
+                    gamepad1.rumbleBlips(1);
+            }
+            log.event("driver light bar: Pinpoint " + trust);
+            driverBar = trust;
+        }
+        boolean refused = launchSpot.refused() || picker.phase() == GrabRoutine.Phase.REFUSED;
+        if (refused && !wasRefused) gamepad1.rumbleBlips(2);
+        wasRefused = refused;
     }
 
     /** The operator's light bar, sent only when it changes; a short rumble on reaching launch speed. */
