@@ -132,9 +132,9 @@ If the hub does wedge: close everything that talks adb, power-cycle the hub, the
 
 ## Reading a log in AdvantageScope
 
-- **First, once per laptop:** `tools/advantagescope/` installs the team's robot model and a match
-  layout with the Field, 3D, Limelight, Loop and Launcher tabs already set up. With it, the rest
-  of this list is already on screen.
+- **First, once per laptop:** `tools/advantagescope/replay/` installs AdvantageScope, the team's
+  robot and HIVE models and a match layout with the Field, 3D, Video, Limelight, Loop and Launcher
+  tabs already set up. With it, the rest of this list is already on screen.
 - **Where the robot was**: drag `/Odometry/Robot` onto a 2D or 3D Field. `/Shadow/Robot` beside it, as a
   ghost, is where the robot would be with still camera fixes on (`localization/ShadowPose`). Pick the 2026-27 FTC
   field in the tab's settings, and `BIOBUZZ Robot` as the robot model.

@@ -1,7 +1,7 @@
 # The robot for AdvantageScope
 
 `Robot_BIOBUZZ/` is the robot drawn from the team's Onshape CAD, for match logs and the simulator's logs in
-AdvantageScope (`tools/advantagescope/` installs it). Pick "BIOBUZZ Robot" in a 3D tab.
+AdvantageScope (`tools/advantagescope/replay/` installs it). Pick "BIOBUZZ Robot" in a 3D tab.
 
 ## Building it from Onshape
 
