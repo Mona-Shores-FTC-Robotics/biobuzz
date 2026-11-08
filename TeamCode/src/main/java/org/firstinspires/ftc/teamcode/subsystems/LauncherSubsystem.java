@@ -67,11 +67,14 @@ import java.util.function.BooleanSupplier;
  *
  * <p>A piece meeting the wheels pulls their speed down and the loop pulls it back. That dip is the
  * one thing the launcher can see of a shot without a sensor, so {@link ShotDetector} counts one
- * shot per dip: the wheels were at speed, each fell at least {@link #shotDipTicksPerSecond} below
- * its own speed just before (not the target: the wheels settle a little apart) while the feed gate
- * was open, and came back within tolerance. Spin-up is not a dip (the wheels were
- * never at speed), a wobble inside the threshold is not a dip, and a target change re-arms the
- * detector so a Panels nudge is not a shot.
+ * shot per dip: the wheels had been at speed, their average fell at least
+ * {@link #shotDipTicksPerSecond} below their speed just before (not the target: the wheels settle a
+ * little apart) while the feed gate was open, both wheels took part, and they came most of the way
+ * back within the 45–180 ms a piece's dip takes. Spin-up is not a dip (the wheels were never at
+ * speed), a wobble inside the threshold is not a dip, a sag slower than a piece is not a shot, and a
+ * big target change starts the detector afresh so a Panels nudge is not a shot. It is still a
+ * reading of the wheel speed: about one piece in twenty leaves no dip it can tell from noise
+ * (ShotDetector's comment has the Belding numbers).
  *
  * <p>A dip that starts with the gate shut is not a shot: no piece can reach the wheels. The match
  * log of 4 Nov 2026 (20245, 00:02 Basic Drive) is why: 17 of 88 counted shots started with the gate
@@ -158,17 +161,15 @@ public class LauncherSubsystem implements Subsystem {
     public static double atSpeedHoldMs = 150.0;
 
     /**
-     * How far below its own speed just before (its level: {@link ShotDetector}) each wheel must fall
-     * for the dip to count as a shot, ticks per second (both wheels: class comment). Measured on
-     * 20245, 1 to 2 Nov 2026, target 1595: every POLLEN shot dipped the slower wheel 95 (nine shots
-     * over three runs; one 135), and the wheels hover within about 25 at speed. It was 150, a
-     * starting guess, and counted no shot at all; then 70 below target, which missed shots on 4 Nov
-     * (R-Solo 23:41: the video shows four shots in the first volley, two counted). Measured from
-     * each wheel's level, that volley's four dips were 85 to 92, 65 and 71; the sag while a ball
-     * presses on the wheels before it is taken (00:02 Basic Drive, 1701 s) is about 45. 60 sits
-     * between. Over the 4 Nov R-Solo runs it never counts more in a volley than the 4 it holds.
+     * How far the two wheels' average must fall below its level (its speed just before:
+     * {@link ShotDetector}) for the dip to count as a shot, ticks per second. 55, from the Belding
+     * Qualifier's logs (7 Nov 2026): POLLEN dips the average 60–100 (NECTAR deeper), and with the
+     * detector's duration window 55 keeps the gate-shut noise at the old rule's rate while finding
+     * 59 of 64 preloaded pieces. Before 8 Nov it was 60 on each wheel separately, which missed
+     * shallow dips on the 20 ticks/s velocity step (47 of those 64). Earlier history: 150, a
+     * starting guess, counted nothing; 70 below target missed shots on 4 Nov.
      */
-    public static double shotDipTicksPerSecond = 60.0;
+    public static double shotDipTicksPerSecond = 55.0;
 
     /**
      * Flips the left wheel so that a positive command throws a piece out. Checked on robot 20245 on
@@ -685,9 +686,9 @@ public class LauncherSubsystem implements Subsystem {
                     && Math.abs(leftTicksPerSecond - leftTarget) <= toleranceTicksPerSecond
                     && Math.abs(rightTicksPerSecond - rightTarget) <= toleranceTicksPerSecond;
             atSpeed = readiness.update(within, now, atSpeedHoldMs);
-            // A target change (Panels nudge, a table lookup) re-arms the detector: not a shot.
+            // A target change (Panels nudge, a table lookup) is not a shot: the detector seeds its
+            // level afresh after a big one and keeps it through the speed table's small ones.
             boolean newTarget = leftTarget != lastLeftTarget || rightTarget != lastRightTarget;
-            if (newTarget) shots.reset();
             shots.update(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond, within,
                     gateOpen.getAsBoolean(), target(), shotDipTicksPerSecond, now / 1_000_000L);
             // A step starts here: from idle, out of an unjam, or to a new target.
@@ -713,6 +714,7 @@ public class LauncherSubsystem implements Subsystem {
             leftCurrentAmps = Double.NaN;
             rightCurrentAmps = Double.NaN;
             atSpeed = false;
+            shots.reset();
         }
         lastLeftTarget = leftTarget;
         lastRightTarget = rightTarget;
@@ -1006,89 +1008,181 @@ public class LauncherSubsystem implements Subsystem {
     }
 
     /**
-     * Counts shots from speed dips (class comment): armed once the wheels are within tolerance,
-     * a dip starts when each wheel has fallen the threshold below its own speed just before (its
-     * level) with the feed gate open, and the shot is counted when the wheels are back within
-     * tolerance, with the deepest point of the dip below target. A dip that never recovers (a jam,
-     * or a spin-down) is never counted. Pure, so a test can drive it with made-up readings.
+     * Counts shots from speed dips (class comment). Pure, so a test can drive it with made-up or
+     * logged readings.
      *
-     * <p>Each wheel's level, not the target, because the two wheels settle a little apart: on
-     * 20245 on 4 Nov 2026 the left ran about 20 above target and the right about 20 below in every
-     * R-Solo run. Measured from target, a 70 dip on the left read as 50, and R-Solo 23:41's first
-     * volley counted 2 shots where the video shows 4. The level is a running average of each
-     * wheel while the wheels are within tolerance and not in a dip ({@link #LEVEL_WEIGHT} of each
-     * loop's reading, so about the last 0.2 s), taken from the wheel's target after a reset.
+     * <p><b>Level.</b> Each wheel's level is its own speed just before, not the target: the two
+     * wheels settle a little apart (on 20245 the left about 20 over, the right about 20 under). It
+     * is seeded from the wheels the first loop both are within tolerance, then follows each wheel
+     * ({@link #LEVEL_WEIGHT} of each loop's reading) while the two wheels' average is within
+     * {@link #LEVEL_BAND_TPS} of it and no dip is in progress, so neither a dip nor the overshoot
+     * after one moves it. Wheels away from it for {@link #RESEED_MS} (settling onto a new target)
+     * seed it again where they are. A target change of more than {@link #RETARGET_TPS} seeds it
+     * afresh; a smaller one (the speed table's every-loop nudges) keeps it.
      *
-     * <p>A dip that starts within {@link #MIN_SHOT_GAP_MS} of the last counted shot is the same
-     * shot: a wheel can touch tolerance for one loop on the way back up and fall again. Across the
-     * 3 and 4 Nov logs those splits came 28 to 71 ms apart, and real shots no closer than 200 ms.
+     * <p><b>Dip.</b> A dip starts when the two wheels' average has fallen {@link #START_BELOW_TPS}
+     * less than the count depth below its level, with the gate open, from a level the wheels were
+     * following within the last {@link #SETTLED_MS}. It ends when the average is back within the
+     * larger of {@link #END_TPS} and {@link #END_FRACTION} of the dip's depth. It is a shot if it
+     * went at least the count depth deep, each wheel at least {@link #EACH_WHEEL_TPS} (both wheels
+     * dip: class comment), and lasted {@link #MIN_DIP_MS} to {@link #MAX_DIP_MS} (see there). A dip still open
+     * after {@link #ABANDON_MS} (a jam, a spin-down) is dropped and the level seeded where the
+     * wheels are.
+     *
+     * <p><b>Why these, and not "back within tolerance".</b> At the Belding Qualifier (7 Nov 2026)
+     * the old rule (each wheel 60 below its level, and back inside the ±60 at-speed band) counted
+     * 47 of the 64 preloaded pieces in the 16 Autos' first volleys. The velocity reads in steps of
+     * 20 ticks/s, so a 60–75 POLLEN dip on the average is often 50 on one wheel: the old rule missed
+     * it. The average halves that step. The duration window is what keeps the noise down: with the
+     * gate shut, where no piece can be a shot, dips this deep happen about 0.14 times a second (the
+     * intake stalling, the battery sagging, the robot starting a path), but they are either one
+     * loop long or slower than 0.2 s, and a piece's dip is 60–140 ms. With the window the shut-gate
+     * rate is 0.064 a second, the old rule's own 0.053. Measured over the Belding logs: 59 of 64
+     * preloaded pieces, 13 of 16 first volleys counted 4, none more than 4; all volleys 329 shots
+     * against 267, out of at most 355 pieces seen arriving (#505). Faster loops count better:
+     * the same logs with every other loop dropped (about 35 ms loops) give 283 against 224.
+     *
+     * <p>A dip that starts within {@link #MIN_SHOT_GAP_MS} of the last counted shot is not a shot:
+     * real shots come no closer than about 0.4 s apart (Belding median 0.47 s).
      */
     static final class ShotDetector {
-        /** The weight of each loop's reading in a wheel's level (class comment). */
-        static final double LEVEL_WEIGHT = 0.15;
-        /** A dip starting this soon after the last counted shot is that shot again, ms (class comment). */
+        /** The weight of each loop's reading in a wheel's level. */
+        static final double LEVEL_WEIGHT = 0.1;
+        /** The level follows the wheels only while their average is this close to it, ticks/s. */
+        static final double LEVEL_BAND_TPS = 30.0;
+        /** Wheels away from the level this long seed it again where they are, ms. */
+        static final long RESEED_MS = 300;
+        /** A dip starts only from a level the wheels were following this recently, ms. */
+        static final long SETTLED_MS = 150;
+        /** A target change bigger than this seeds the level afresh, ticks/s. */
+        static final double RETARGET_TPS = 25.0;
+        /** A dip starts this much short of the count depth, ticks/s, so its first loop is caught. */
+        static final double START_BELOW_TPS = 10.0;
+        /** A dip ends when the average is back within this of the level, ticks/s ... */
+        static final double END_TPS = 20.0;
+        /** ... or within this fraction of the dip's depth, whichever is larger. */
+        static final double END_FRACTION = 0.25;
+        /** Each wheel must fall at least this far below its own level, ticks/s. */
+        static final double EACH_WHEEL_TPS = 25.0;
+        /** A shot's dip lasts at least this long, start to end, ms. */
+        static final long MIN_DIP_MS = 35;
+        /**
+         * And at most this long, ms, plus one loop (the end is seen up to a loop late) and
+         * {@link #DEEP_SLACK_MS_PER_TPS} for each tick/s deeper than twice the count depth.
+         */
+        static final long MAX_DIP_MS = 180;
+        /** A deep dip (NECTAR, a fresh-battery shot) takes longer to recover: ms per tick/s. */
+        static final double DEEP_SLACK_MS_PER_TPS = 1.0;
+        /** A dip still open this long is dropped, ms. */
+        static final long ABANDON_MS = 400;
+        /** A dip starting this soon after the last counted shot is not a shot, ms. */
         static final long MIN_SHOT_GAP_MS = 150;
 
-        private boolean armed;
+        private double leftLevel = Double.NaN;
+        private double rightLevel = Double.NaN;
+        /** When the wheels last left the level's band, ms; -1 while they are in it. */
+        private long outSinceMs = -1;
+        private double lastTargetSeen = Double.NaN;
         private boolean inDip;
+        private long dipStartMs;
         private double deepest;
+        private double leftDeepest;
+        private double rightDeepest;
+        /** The slower wheel's deepest fall below its target in this dip, for the log. */
+        private double deepestBelowTarget;
         private double dipTarget;
         private int shots;
         private double lastDip = Double.NaN;
         private double lastTarget = Double.NaN;
         private boolean justCounted;
-        private double leftLevel = Double.NaN;
-        private double rightLevel = Double.NaN;
         private boolean shotYet;
         private long lastShotMs;
+        /** The previous update's clock, ms; -1 before the first. */
+        private long lastUpdateMs = -1;
 
         /**
          * Feed this loop's reading: each wheel's target and measured speed, {@code within} whether
-         * both wheels are inside the at-speed tolerance, {@code gateOpen} whether a piece can reach
-         * the wheels (a dip only starts while it is), {@code target} the common target in force,
+         * both wheels are inside the at-speed tolerance (seeds the level), {@code gateOpen} whether a
+         * piece can reach the wheels (a dip only starts while it is), {@code target} the common
+         * target in force, {@code countDip} the depth that makes a shot ({@link #shotDipTicksPerSecond}),
          * {@code nowMs} a clock in milliseconds. Returns true in the loop a shot is counted.
          */
         boolean update(double leftTarget, double left, double rightTarget, double right, boolean within,
-                       boolean gateOpen, double target, double dipThreshold, long nowMs) {
+                       boolean gateOpen, double target, double countDip, long nowMs) {
             justCounted = false;
-            if (Double.isNaN(leftLevel)) leftLevel = leftTarget;
-            if (Double.isNaN(rightLevel)) rightLevel = rightTarget;
-            double deficit = deficit(leftTarget, left, rightTarget, right);
-            if (within) {
-                if (inDip) {
-                    shots++;
-                    lastDip = deepest;
-                    lastTarget = dipTarget;
-                    inDip = false;
-                    justCounted = true;
-                    lastShotMs = nowMs;
-                    shotYet = true;
-                } else {
-                    leftLevel += LEVEL_WEIGHT * (left - leftLevel);
-                    rightLevel += LEVEL_WEIGHT * (right - rightLevel);
-                }
-                armed = true;
-                return justCounted;
+            long loopMs = lastUpdateMs < 0 ? 0 : nowMs - lastUpdateMs;
+            lastUpdateMs = nowMs;
+            if (!Double.isNaN(lastTargetSeen) && Math.abs(target - lastTargetSeen) > RETARGET_TPS) reset();
+            lastTargetSeen = target;
+            if (Double.isNaN(leftLevel) || Double.isNaN(rightLevel)) {
+                if (within) seed(left, right);
+                return false;
+            }
+            double dLeft = leftLevel - left;
+            double dRight = rightLevel - right;
+            double d = 0.5 * (dLeft + dRight);
+            if (inDip && nowMs - dipStartMs > ABANDON_MS) {
+                inDip = false;
+                seed(left, right);
+                return false;
             }
             if (inDip) {
-                if (deficit > deepest) deepest = deficit;
-            } else if (armed && gateOpen && (!shotYet || nowMs - lastShotMs >= MIN_SHOT_GAP_MS)
-                    && Math.min(leftLevel - left, rightLevel - right) >= dipThreshold) {
+                if (d > deepest) deepest = d;
+                if (dLeft > leftDeepest) leftDeepest = dLeft;
+                if (dRight > rightDeepest) rightDeepest = dRight;
+                double belowTarget = deficit(leftTarget, left, rightTarget, right);
+                if (belowTarget > deepestBelowTarget) deepestBelowTarget = belowTarget;
+                if (d <= Math.max(END_TPS, END_FRACTION * deepest)) {
+                    inDip = false;
+                    long lasted = nowMs - dipStartMs;
+                    double longest = MAX_DIP_MS + loopMs
+                            + DEEP_SLACK_MS_PER_TPS * Math.max(0.0, deepest - 2.0 * countDip);
+                    if (deepest >= countDip && lasted >= MIN_DIP_MS && lasted <= longest
+                            && Math.min(leftDeepest, rightDeepest) >= EACH_WHEEL_TPS) {
+                        shots++;
+                        lastDip = deepestBelowTarget;
+                        lastTarget = dipTarget;
+                        justCounted = true;
+                        lastShotMs = nowMs;
+                        shotYet = true;
+                    }
+                }
+            } else if (d >= countDip - START_BELOW_TPS && gateOpen
+                    && (!shotYet || nowMs - lastShotMs >= MIN_SHOT_GAP_MS)
+                    && (outSinceMs < 0 || nowMs - outSinceMs <= SETTLED_MS)) {
                 inDip = true;
-                deepest = deficit;
+                dipStartMs = nowMs;
+                deepest = d;
+                leftDeepest = dLeft;
+                rightDeepest = dRight;
+                deepestBelowTarget = deficit(leftTarget, left, rightTarget, right);
                 dipTarget = target;
+            } else if (Math.abs(d) <= LEVEL_BAND_TPS) {
+                leftLevel += LEVEL_WEIGHT * (left - leftLevel);
+                rightLevel += LEVEL_WEIGHT * (right - rightLevel);
+                outSinceMs = -1;
+            } else if (outSinceMs < 0) {
+                outSinceMs = nowMs;
+            } else if (nowMs - outSinceMs > RESEED_MS) {
+                seed(left, right);
             }
-            return false;
+            return justCounted;
         }
 
-        /** Forget the arming and any dip in progress; the count and the last shot stay. */
+        private void seed(double left, double right) {
+            leftLevel = left;
+            rightLevel = right;
+            outSinceMs = -1;
+        }
+
+        /** Forget the level and any dip in progress (spin-down, unjam, a big retarget); the count and the last shot stay. */
         void reset() {
-            armed = false;
             inDip = false;
-            deepest = 0.0;
             justCounted = false;
             leftLevel = Double.NaN;
             rightLevel = Double.NaN;
+            outSinceMs = -1;
+            lastTargetSeen = Double.NaN;
         }
 
         int shots() {
