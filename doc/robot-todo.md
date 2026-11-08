@@ -354,8 +354,8 @@ Use the work order above to select checks; the detailed mechanism checks below a
         Confirm both LEAVEs at AUTO end and both parks on video; the pair is
         already promoted, so log each run that shows otherwise.
 
-- [ ] **Drive times for the planning numbers** (Belding analysis, PR for `claude/*` Belding
-      timing): any Utility that follows a Pedro path, empty and again with 4 POLLEN in the lane, a
+- [ ] **Drive times for the planning numbers** ([#504], the Belding timing analysis): a Utility
+      that follows a Pedro path, empty and again with 4 POLLEN in the lane, a
       charged battery (note `/Robot/BatteryVolts`), three runs each. (a) A straight 90 in run at a
       constant heading, (b) the same 90 in with a 180° turn spread along it, (c) R-Solo's
       `WALL_FLOWER_STAGING` to `LEFT_LAUNCH_CLOSE` (it turns 270° on the way). Read each run's
@@ -812,3 +812,4 @@ one test at one meeting.
   partner park/wall clearance, second tip and our park before the 30 s stop.
   Contact approach and push use fixed 4 in/s, 8 in/s² limits; a blocked contact
   stops after six seconds. This full trial does not use the push-only Panels knobs.
+[#504]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/504
