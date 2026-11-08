@@ -643,8 +643,9 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
 - [ ] Reset holds are 0.5 s and buzz gamepad 1 (turret zero: gamepad 2). If a reset gives no buzz,
       the match log's `rumble:` line says the code sent it, and `Controls/Gamepad1` in Metadata
       names the pad type: swap in another controller (or charge this one) before changing code.
-- [ ] AdvantageScope 3D: the stick swings, the rocker tips the right way; `make-viewer-zip.cmd` and
-      `install.cmd` on Windows. [PR #294], [PR #299]
+- [ ] AdvantageScope 3D: the stick swings, the rocker tips the right way; on a clean Windows account,
+      `tools/advantagescope/replay/README.md` steps 1-2 for one Belding match: models, layout and the
+      video's own lock. [PR #294], [PR #299]
 - [ ] Star-wheel servo turned round on both robots (4 Nov 2026), `IntakeSubsystem.starsReversed` now
       true (`reversed` stays true): on 20245 the roller reads positive (4 Nov logs); left: the stars
       turn inward on 20245, and the same on 19429; L2 backs both out.

@@ -1,0 +1,31 @@
+{
+  "_comment": "Which log is which match, and where its Auto starts in the video. video_start: the time in the video when Auto starts (h:mm:ss.s, the moment the robots start moving). Leave it empty and open-match estimates it from start_utc and the stream's own start time, plus the event's video_shift_s; once a match looks right, type the value open-match printed. Rows come from maintain/find_matches.py.",
+  "events": [
+    {
+      "event": "USMIBEQ",
+      "name": "Belding Qualifier",
+      "date": "2026-11-07",
+      "video": "https://www.youtube.com/watch?v=RE0KNvjR07c",
+      "video_shift_s": 0,
+      "matches": [
+        {"match": "Q-1", "team": 20245, "alliance": "Blue", "start_utc": "2026-11-07T16:03:08.912Z", "video_start": "", "log": "2026-11-07-20245-RC/2026-11-07_11-01-21_R-Solo_11-05_8_09PM.wpilog.gz"},
+        {"match": "Q-4", "team": 19429, "alliance": "Red", "start_utc": "2026-11-07T16:25:46.097Z", "video_start": "", "log": "2026-11-07-19429-RC/2026-11-07_11-36-28_R-Solo_11-05_8_09PM.wpilog.gz"},
+        {"match": "Q-7", "team": 20245, "alliance": "Red", "start_utc": "2026-11-07T16:57:02.596Z", "video_start": "", "log": "2026-11-07-20245-RC/2026-11-07_11-55-58_R-Solo_11-05_8_09PM.wpilog.gz"},
+        {"match": "Q-13", "team": 19429, "alliance": "Blue", "start_utc": "2026-11-07T18:10:09.146Z", "video_start": "", "log": "2026-11-07-19429-RC/2026-11-07_13-20-32_R-Solo_11-05_8_09PM.wpilog.gz"},
+        {"match": "Q-14", "team": 20245, "alliance": "Blue", "start_utc": "2026-11-07T18:20:00.652Z", "video_start": "", "log": "2026-11-07-20245-RC/2026-11-07_13-19-36_L-NoCross_11-05_8_03PM.wpilog.gz"},
+        {"match": "Q-19", "team": 19429, "alliance": "Blue", "start_utc": "2026-11-07T18:50:33.419Z", "video_start": "", "log": "2026-11-07-19429-RC/2026-11-07_14-01-52_R-Solo_11-05_8_09PM.wpilog.gz"},
+        {"match": "Q-26", "team": 19429, "alliance": "Red", "start_utc": "2026-11-07T19:29:50.362Z", "video_start": "", "log": "2026-11-07-19429-RC/2026-11-07_14-41-09_R-Solo_11-05_8_09PM.wpilog.gz"},
+        {"match": "Q-27", "team": 20245, "alliance": "Red", "start_utc": "2026-11-07T19:40:21.805Z", "video_start": "", "log": "2026-11-07-20245-RC/2026-11-07_14-39-52_R-Solo_11-05_8_09PM.wpilog.gz"},
+        {"match": "Q-31", "team": 20245, "alliance": "Blue", "start_utc": "2026-11-07T20:04:46.895Z", "video_start": "", "log": "2026-11-07-20245-RC/2026-11-07_15-04-17_R-Solo_11-05_8_09PM.wpilog.gz"},
+        {"match": "Q-32", "team": 19429, "alliance": "Blue", "start_utc": "2026-11-07T20:10:40.587Z", "video_start": "", "log": "2026-11-07-19429-RC/2026-11-07_15-20-08_R-Solo_11-05_8_09PM.wpilog.gz"},
+        {"match": "M-3", "team": 20245, "alliance": "Red", "start_utc": "2026-11-07T21:23:23.523Z", "video_start": "", "log": "2026-11-07-20245-RC/2026-11-07_16-22-23_L-NoCross_11-05_8_03PM.wpilog.gz"},
+        {"match": "M-4", "team": 19429, "alliance": "Red", "start_utc": "2026-11-07T21:28:34.869Z", "video_start": "", "log": "2026-11-07-19429-RC/2026-11-07_16-39-36_L-NoCross_11-05_8_03PM.wpilog.gz"},
+        {"match": "M-7", "team": 19429, "alliance": "Blue", "start_utc": "2026-11-07T21:54:07.603Z", "video_start": "", "log": "2026-11-07-19429-RC/2026-11-07_17-04-49_L-NoCross_11-05_8_03PM.wpilog.gz"},
+        {"match": "M-7", "team": 20245, "alliance": "Red", "start_utc": "2026-11-07T21:54:07.603Z", "video_start": "", "log": "2026-11-07-20245-RC/2026-11-07_16-53-50_L-NoCross_11-05_8_03PM.wpilog.gz"},
+        {"match": "M-9", "team": 19429, "alliance": "Red", "start_utc": "2026-11-07T22:21:08.993Z", "video_start": "", "log": "2026-11-07-19429-RC/2026-11-07_17-32-26_L-NoCross_11-05_8_03PM.wpilog.gz"},
+        {"match": "M-10", "team": 19429, "alliance": "Blue", "start_utc": "2026-11-07T22:41:02.444Z", "video_start": "", "log": "2026-11-07-19429-RC/2026-11-07_17-52-07_L-NoCross_11-05_8_03PM.wpilog.gz"},
+        {"match": "M-10", "team": 20245, "alliance": "Red", "start_utc": "2026-11-07T22:41:02.444Z", "video_start": "", "log": "2026-11-07-20245-RC/2026-11-07_17-40-34_L-NoCross_11-05_8_03PM.wpilog.gz"}
+      ]
+    }
+  ]
+}

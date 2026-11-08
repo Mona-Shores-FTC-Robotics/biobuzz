@@ -238,6 +238,14 @@
        "controlsHeight": 539
       },
       {
+       "type": 7,
+       "title": "Video",
+       "controller": null,
+       "controllerUUID": "biobuzzmatchvideo000000000000001",
+       "renderer": null,
+       "controlsHeight": 85
+      },
+      {
        "type": 3,
        "title": "Limelight",
        "controller": {

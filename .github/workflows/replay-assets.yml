@@ -1,0 +1,72 @@
+# Builds the match-replay models zip (robot + HIVE field + HIVE) and publishes it as a GitHub release, so a laptop
+# with no repository, no Android Studio and no FIRST CAD gets them from setup.ps1 (tools/advantagescope/replay/).
+#
+# The zip is reproducible: the same commit always gives the same bytes. The release tag is named from the zip's
+# sha256, so a re-run publishes nothing new. The job then checks replay.json pins exactly this zip; when the robot
+# model or the HIVE code changed, it fails and its summary gives the two lines to paste into replay.json.
+name: Replay assets
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'cad/advantagescope/Robot_BIOBUZZ/**'
+      - 'tools/advantagescope/replay/maintain/**'
+      - 'tools/advantagescope/replay/replay.json'
+      - 'TeamCode/src/test/java/org/firstinspires/ftc/teamcode/logging/HiveAssets.java'
+      - 'TeamCode/src/test/java/org/firstinspires/ftc/teamcode/logging/Glb.java'
+      - 'TeamCode/src/main/java/org/firstinspires/ftc/teamcode/logging/HiveComponents.java'
+      - 'TeamCode/src/main/java/org/firstinspires/ftc/teamcode/logging/AdvantageScopeFrame.java'
+      - '.github/workflows/replay-assets.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: replay-assets
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # 21, not 17: Double.toString changed in Java 19, and the zip's bytes (so its pinned sha256) follow it.
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build the zip
+        run: tools/advantagescope/replay/maintain/build-assets.sh "$RUNNER_TEMP/out"
+      - name: Publish it as a release (once per distinct zip)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha="$(cat "$RUNNER_TEMP/out/BIOBUZZ-replay-assets.zip.sha256")"
+          tag="replay-assets-${sha:0:12}"
+          echo "SHA=$sha" >> "$GITHUB_ENV"
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists: nothing to publish."
+          else
+            gh release create "$tag" "$RUNNER_TEMP/out/BIOBUZZ-replay-assets.zip" \
+              --target "$GITHUB_SHA" --latest=false \
+              --title "Match replay models ($tag)" \
+              --notes "Robot and HIVE models for AdvantageScope match replay, built by the Replay assets workflow from ${GITHUB_SHA::7} on ${GITHUB_REF_NAME}. sha256 $sha. Installed by tools/advantagescope/replay/setup.ps1; not for download by hand."
+          fi
+      - name: Check replay.json pins this zip
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          pins = json.load(open("tools/advantagescope/replay/replay.json"))["assets"]
+          tag, sha = os.environ["TAG"], os.environ["SHA"]
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as s:
+              if pins["tag"] == tag and pins["sha256"] == sha:
+                  s.write(f"replay.json pins this zip: `{tag}`.\n")
+                  sys.exit(0)
+              s.write("## replay.json does not pin this zip\n\nLaptops keep installing the old models until "
+                      "`tools/advantagescope/replay/replay.json` says, under `assets`:\n\n"
+                      f"```json\n\"tag\": \"{tag}\",\n\"sha256\": \"{sha}\"\n```\n")
+          print(f"::error::replay.json pins {pins['tag'] or '(none)'}; this commit's zip is {tag} ({sha}). Paste both into replay.json's assets.")
+          sys.exit(1)
+          PY

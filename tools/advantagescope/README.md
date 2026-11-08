@@ -5,39 +5,18 @@ the team's robot drawn from its CAD on the 2026-2027 field, and a layout with th
 review needs. Both came from the simulator branch (`claude/simulator`), which built them for
 simulated matches; this is the part that applies to a real log.
 
-## Once per laptop
+## Once per laptop, and watching a match
 
-1. Install [AdvantageScope](https://github.com/Mechanical-Advantage/AdvantageScope/releases)
-   v27 alpha 6 or newer.
-2. Double-click `setup-advantagescope.cmd`, or:
+**`replay/`** does it all: one pasted line installs the pinned AdvantageScope, the robot and HIVE models, this
+layout (with the Video tab beside a 3D window, no import) and the event's logs; then `open-match Q-14` opens a
+match with its video synced. See [`replay/README.md`](replay/README.md). It replaces the old
+`setup-advantagescope` and `make-viewer-zip` scripts: the models zip it installs is the one to send anyone without
+the repository, and it is published as a GitHub release by the Replay assets workflow, so nobody builds the HIVE
+on their laptop or needs Android Studio for it.
 
-   ```bash
-   powershell -NoProfile -ExecutionPolicy Bypass -File tools/advantagescope/setup-advantagescope.ps1
-   ```
-
-   It copies `cad/advantagescope/Robot_BIOBUZZ` into AdvantageScope's `userAssets` (replacing its
-   older copy and nothing else) and puts `match-layout.json` in `Downloads\biobuzz-match-layout.json`.
-   It never removes the simulator's assets: they are built on the laptop and can't be put back from here.
-3. Start AdvantageScope. **File → Import Layout…** → that file. Run the script again whenever the
-   model or the layout changes in git; it says when the layout needs importing again.
-
-The 2D field is AdvantageScope's own **2026-2027 Field**; it downloads it the first time a Field tab
-asks for it, so the first open needs internet. The 3D tabs use the simulator's **2026-2027 Field (HIVE
-sim)** and **BIOBUZZ HIVE**, which are cut from that field on each laptop (no FIRST CAD is committed):
-the setup script builds and installs them when they are missing (`HiveAssetsTest`, run with Android Studio's Java),
-and rebuilds them with `-Hive` after AdvantageScope updates its field. It needs AdvantageScope to have shown the
-2026-2027 field in a 3D tab once. A laptop without Android Studio installs them from a viewer zip instead.
-
-## Sending logs to someone without the repo
-
-Double-click `make-viewer-zip.cmd`. It writes `Downloads\BIOBUZZ-AdvantageScope.zip`: the robot model as committed,
-this laptop's HIVE field and HIVE (when it has them; it says when it doesn't), the match layout, `install.cmd`, and a
-`README.txt` that says which commit and CAD build it holds. Send that zip once
-to anyone who should watch the logs. They unzip it, double-click `install.cmd` and import the layout, and from then on
-any `.wpilog` you send them plays as-is, robot and moving parts included.
-
-The model changes when the CAD does. After a rebuild (`cad/advantagescope/from_onshape.py`) or a layout change, make a
-new zip and send it; older logs still play with it.
+The 2D field is AdvantageScope's own **2026-2027 Field**; it downloads it the first time a Field tab asks for it,
+so the first open needs internet. The 3D tabs use the simulator's **2026-2027 Field (HIVE sim)** and **BIOBUZZ
+HIVE**, cut from that field (no FIRST CAD is committed) by `HiveAssets` in `replay/maintain/build-assets.sh`.
 
 ## The layout
 
@@ -45,6 +24,7 @@ new zip and send it; older logs still play with it.
 |---|---|
 | **Field** (2D) | `/Odometry/Robot`, the Auto's full path in grey (`/Path/Full`), the path being driven in yellow (`/Path/Active`) and its end as a ghost (`/Path/Target`). Turn on the trail in the tab's options to see where the robot went. |
 | **3D** | The same pose as **BIOBUZZ Robot** (the CAD) on the 3D field, `/Odometry/Robot3d`, with both HIVEs as the robot believed them (below). A simulated log also draws the simulator's HIVE (`/Sim/Hive/*`), its POLLEN and NECTAR rolling (`/Sim/GamePieces/*`), and the partner and opponents as ghosts; each source draws only when its key is in the log, so one layout plays both kinds. |
+| **Video** | The match video, synced to the log by `replay/open-match`. The 3D tab opens in its own window beside it. |
 | **Limelight** | The 3D field seen from the Limelight's lens, as mounted on the model (right-click → Orbit Field to leave). |
 | **Loop** | `/Robot/LoopMs` and the `/Loop/*` split on the left, battery volts on the right, with the robot mode shaded. |
 | **Launcher** | Target, left and right flywheel speed and the feeder's on the left; their currents on the right. |
