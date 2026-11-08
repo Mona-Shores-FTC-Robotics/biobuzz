@@ -139,7 +139,7 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       `Pinpoint: FAULT_BAD_READ` events: (1) a new short 4-pin cable, strain-relieved within 2 in of
       both ends, routed away from motor leads; (2) the Pinpoint on bus 3 instead (its XML only).
       **Good:** none in 5 minutes. **Stop:** still there after both → the Pinpoint itself; note it
-      on the hub photo (§8). [PR #PRNUM]
+      on the hub photo (§8). [PR #503]
 
 ## 2. Any Auto, INIT only, no PLAY (about 20 min; camera connected, HIVE upright)
 
@@ -504,7 +504,7 @@ measurement is [#255].
       confirming with a corner reset instead. **Stop:** never amber after replugging (the bus does not
       come back without a restart: note it), or green with the robot visibly off → raise
       `PinpointTrust.AGREE_FRAMES`. Read `/Drift/GapXIn`/`GapYIn` across the episode (logged while
-      not trusted now) for the full-position check. [PR #PRNUM]
+      not trusted now) for the full-position check. [PR #503]
 - [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
       view now and then; read `/Drift/GapXIn` and `/Drift/GapYIn` (camera minus odometry) over the
       run. **Good:** the gap stays within a few inches, so a launch spot driven late in the match is
