@@ -131,9 +131,15 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
 
 - [ ] **Activate `robot_20245`, run Check: Hardware.** **Good:** nothing reported. **Stop:**
       anything reported; fix it before the rest. [S3 §2], [S4 Before]
-- [ ] **Pinpoint `FAULT_BAD_READ`:** logged 14 times in the 3–4 Nov TeleOps (none in an Auto).
-      Reseat the Pinpoint's I2C cable and check its strain relief. **Good:** a 5-minute Basic Drive
-      with none. **Stop:** still there → swap the cable, note it on the hub photo (§8).
+- [ ] **Pinpoint `FAULT_BAD_READ`:** every Belding match had them (19429 2.3–2.7 a minute enabled
+      on 6–7 Nov, 20245 1.0–1.6, up from 0.03–0.22 before 6 Nov), almost none with nothing running,
+      and two held 7 s and 64 s; the hub's read was cut short in those, so the Pinpoint was not
+      answering on I2C bus 1 (it is alone there). Most likely the cable or its connectors.
+      One change per session, then 5 minutes of Basic Drive with the launcher spinning, counting
+      `Pinpoint: FAULT_BAD_READ` events: (1) a new short 4-pin cable, strain-relieved within 2 in of
+      both ends, routed away from motor leads; (2) the Pinpoint on bus 3 instead (its XML only).
+      **Good:** none in 5 minutes. **Stop:** still there after both → the Pinpoint itself; note it
+      on the hub photo (§8). [PR #PRNUM]
 
 ## 2. Any Auto, INIT only, no PLAY (about 20 min; camera connected, HIVE upright)
 
