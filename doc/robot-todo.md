@@ -354,6 +354,18 @@ Use the work order above to select checks; the detailed mechanism checks below a
         Confirm both LEAVEs at AUTO end and both parks on video; the pair is
         already promoted, so log each run that shows otherwise.
 
+- [ ] **Drive times for the planning numbers** (Belding analysis, PR for `claude/*` Belding
+      timing): any Utility that follows a Pedro path, empty and again with 4 POLLEN in the lane, a
+      charged battery (note `/Robot/BatteryVolts`), three runs each. (a) A straight 90 in run at a
+      constant heading, (b) the same 90 in with a 180° turn spread along it, (c) R-Solo's
+      `WALL_FLOWER_STAGING` to `LEFT_LAUNCH_CLOSE` (it turns 270° on the way). Read each run's
+      `auto: path` to `path end` seconds and `/Drive/OdometrySpeedInPerSec`. **Good:** (a) peaks
+      55–63 in/s and takes about 2.4 s; (b) and (c) cruise 20–30 in/s, (c) 3.6–4.3 s, as at
+      Belding: then the simulator's `TURN_SHARE_RAD_PER_S` (130°/s) stands. A loaded run more than
+      0.3 s slower than the empty one means the planning numbers need a loaded value.
+      **Also:** the two Belding runs that crawled for 4 s about 10 in short of `LEFT_LAUNCH_CLOSE`
+      / `LEFT_LAUNCH_CATCH` (20245, 14:39 and 16:53 hub time) look blocked: check the match video.
+
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
 The pick-depth session. Procedure and tables: [S5 At the robot]. The student version of the same
