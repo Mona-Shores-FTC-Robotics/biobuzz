@@ -70,10 +70,10 @@ to start over; setup puts it back). Setup keeps a laptop's earlier AdvantageScop
 
 | File | What |
 |---|---|
-| `matches.json` | Each event: its stream, `video_shift_s`, and per match the robot, its log, the field's start time and `video_start`. `build/find_matches.py <EVENT>` fills an event from FTCScout and the logs branches. |
+| `matches.json` | Each event: its stream, `video_shift_s`, and per match the robot, its log, the field's start time and `video_start`. `maintain/find_matches.py <EVENT>` fills an event from FTCScout and the logs branches. |
 | `replay.json` | Every download, pinned with its sha256: AdvantageScope, ffmpeg, yt-dlp, Deno, the field bundle and the models zip. |
 | `setup.ps1`, `open-match.ps1`, `Replay.ps1` | The laptop side (Windows PowerShell 5.1). |
-| `build/build-assets.sh` | Builds the models zip, byte for byte the same each time, from `cad/advantagescope/Robot_BIOBUZZ` and the HIVE cut from the pinned field bundle (`HiveAssets`, compiled without Gradle). |
+| `maintain/build-assets.sh` | Builds the models zip, byte for byte the same each time, from `cad/advantagescope/Robot_BIOBUZZ` and the HIVE cut from the pinned field bundle (`HiveAssets`, compiled without Gradle). |
 | `../match-layout.json` | The tabs. Setup writes it into AdvantageScope's saved window state, so nobody imports it. |
 
 **New robot model** (after `cad/advantagescope/from_onshape.py`): push. The **Replay assets** workflow builds the
@@ -81,7 +81,7 @@ zip, publishes it as a release and fails until `replay.json`'s `assets.tag` and 
 gives the two lines to paste. Merge that, then `update-replay` on each laptop. The models go to laptops as the
 release zip, not from git, so the repo's history only grows when the CAD model itself is committed.
 
-**New event**: `python3 tools/advantagescope/replay/build/find_matches.py <EVENT CODE> --video <stream URL>`
+**New event**: `python3 tools/advantagescope/replay/maintain/find_matches.py <EVENT CODE> --video <stream URL>`
 after the logs are pulled, then commit `matches.json`.
 
 **Why the clip carries a countdown**: AdvantageScope has no way to be told to load a video or to apply an offset

@@ -11,7 +11,7 @@ on:
   push:
     paths:
       - 'cad/advantagescope/Robot_BIOBUZZ/**'
-      - 'tools/advantagescope/replay/build/**'
+      - 'tools/advantagescope/replay/maintain/**'
       - 'tools/advantagescope/replay/replay.json'
       - 'TeamCode/src/test/java/org/firstinspires/ftc/teamcode/logging/HiveAssets.java'
       - 'TeamCode/src/test/java/org/firstinspires/ftc/teamcode/logging/Glb.java'
@@ -37,7 +37,7 @@ jobs:
           distribution: temurin
           java-version: '21'
       - name: Build the zip
-        run: tools/advantagescope/replay/build/build-assets.sh "$RUNNER_TEMP/out"
+        run: tools/advantagescope/replay/maintain/build-assets.sh "$RUNNER_TEMP/out"
       - name: Publish it as a release (once per distinct zip)
         env:
           GH_TOKEN: ${{ github.token }}

@@ -16,7 +16,7 @@ on their laptop or needs Android Studio for it.
 
 The 2D field is AdvantageScope's own **2026-2027 Field**; it downloads it the first time a Field tab asks for it,
 so the first open needs internet. The 3D tabs use the simulator's **2026-2027 Field (HIVE sim)** and **BIOBUZZ
-HIVE**, cut from that field (no FIRST CAD is committed) by `HiveAssets` in `replay/build/build-assets.sh`.
+HIVE**, cut from that field (no FIRST CAD is committed) by `HiveAssets` in `replay/maintain/build-assets.sh`.
 
 ## The layout
 
