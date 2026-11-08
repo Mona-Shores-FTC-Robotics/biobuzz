@@ -641,9 +641,12 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       at Belding, the stick was already moving when Square went down. Practise: stop steering,
       press and hold Square. **Good:** ten Square presses in a row, none "sticks moved early" in the
       log. The code side is #495.
-- [ ] **Corner reset after the robot's position is lost** (Match page shows it; Square refuses with
-      "pose not on the field yet"). **Good:** the driver does it without being told, and the next
-      Square drives.
+- [ ] **Drive by hand once the Pinpoint is lost** (the Match page shows "Pinpoint lost"). A corner
+      or camera reset cannot clear it (`PinpointLoss`: only a restart does), so Square and the FLOWER
+      pick stay refused for the rest of the match, even though their refusal text suggests a reset.
+      At Belding, 19429's driver kept pressing Square after the loss (8 presses in 14 s in Q13).
+      Practise: the first refused press means stop pressing it, drive and aim by hand, and restart
+      the robot after the match. **Good:** at most one refused press after a loss.
 - [ ] **Operator: spin up before FIRE** when the next shot is coming, so FIRE finds the launcher at
       speed (first ball 0.8 s instead of 1.5 s). Until #497 decides the software side.
 - [ ] **19429: a shorter route from full to the shot.** At Belding it drove a median 191 in with a
