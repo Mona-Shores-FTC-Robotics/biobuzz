@@ -20,6 +20,7 @@ $Scripts = Join-Path $ReplayHome "scripts"
 $Tools = Env-Or "BIOBUZZ_TOOLS" (Join-Path $ReplayHome "tools")
 $LogsDir = Join-Path $ReplayHome "logs"
 $ClipsDir = Join-Path $ReplayHome "clips"
+$SourcesDir = Join-Path $ReplayHome "sources"   # each match's stretch of the event video, unmarked, downloaded once
 $CacheDir = Join-Path $ReplayHome "cache"
 $BinDir = Join-Path $ReplayHome "bin"
 # AdvantageScope's own folder (Electron's userData): userAssets, prefs, window state, ffmpeg.exe.
@@ -30,6 +31,9 @@ $AssetFolders = @("Robot_BIOBUZZ", "Field3d_BIOBUZZHiveSim", "Robot_BIOBUZZHive"
 # The video clip: from PreS before Auto starts to PostS after (Auto 30 s, transition 8 s, TeleOp 120 s).
 $PreS = 10.0
 $PostS = 170.0
+# A match's source keeps more on each side, so the clip can move (the scoreboard, a -Shift) without a new download.
+$SourcePreS = 40.0
+$SourcePostS = 200.0
 
 function Say([string]$text) { Write-Host $text }
 function Ok([string]$text) { Write-Host "  OK      $text" -ForegroundColor Green }
@@ -249,6 +253,63 @@ function Get-AutoEdges([string]$logPath) {
 
 # --- Video ----------------------------------------------------------------------------------------------------
 
+# The FiM stream's scoreboard shows a hand above the timer for the whole 8 s transition, so the first frame with the
+# hand is the moment the field's Auto ended. This is that hand (marker/scoreboard-hand.gray, cut from a Belding frame
+# with this same crop), and where it sits, as fractions of the frame so any resolution works.
+$HandCrop = "crop=iw*0.036458:ih*0.052778:iw*0.481771:ih*0.834259,scale=28:24:flags=area,format=gray"
+$HandW = 28; $HandH = 24
+if (-not ("BiobuzzScoreboard" -as [type])) {
+    Add-Type -TypeDefinition @"
+using System;
+public static class BiobuzzScoreboard {
+    static double Ncc(byte[] a, int ao, byte[] b, int n) {
+        double ma = 0, mb = 0;
+        for (int i = 0; i < n; i++) { ma += a[ao + i]; mb += b[i]; }
+        ma /= n; mb /= n;
+        double ab = 0, aa = 0, bb = 0;
+        for (int i = 0; i < n; i++) { double x = a[ao + i] - ma, y = b[i] - mb; ab += x * y; aa += x * x; bb += y * y; }
+        return (aa < 1e-6 || bb < 1e-6) ? 0 : ab / Math.Sqrt(aa * bb);
+    }
+    /// <summary>The first frame where the template appears and stays (after at least `before` frames without it):
+    /// { frame index, its match score }, or { -1, best score seen }.</summary>
+    public static double[] Onset(byte[] frames, byte[] template, double threshold, int before, int stay) {
+        int n = template.Length, count = frames.Length / n;
+        double[] score = new double[count];
+        double best = -1;
+        for (int f = 0; f < count; f++) { score[f] = Ncc(frames, f * n, template, n); if (score[f] > best) best = score[f]; }
+        for (int f = before; f + stay <= count; f++) {
+            if (score[f] < threshold) continue;
+            bool absent = true, stays = true;
+            for (int k = f - before; k < f; k++) if (score[k] >= threshold) { absent = false; break; }
+            int held = 0;
+            for (int k = f; k < f + stay; k++) if (score[k] >= threshold) held++;
+            if (held < stay * 0.8) stays = false;
+            if (absent && stays) return new double[] { f, score[f] };
+        }
+        return new double[] { -1, best };
+    }
+}
+"@
+}
+
+# Where the scoreboard's hand first appears in $video between $fromS and $fromS + $durS (seconds into that file):
+# @{ At = seconds into the file; Score = how well it matched (0..1) }, At $null when it never appears there.
+function Find-ScoreboardHand([string]$ffmpeg, [string]$video, [double]$fromS, [double]$durS) {
+    $inv = [Globalization.CultureInfo]::InvariantCulture
+    $raw = Join-Path $CacheDir ("hand-" + [Guid]::NewGuid().ToString("n") + ".gray")
+    New-Item -ItemType Directory -Force $CacheDir | Out-Null
+    & $ffmpeg -hide_banner -loglevel error -y -ss $fromS.ToString("0.000", $inv) -t $durS.ToString("0.000", $inv) -i $video `
+        -vf "fps=30,$HandCrop" -f rawvideo $raw
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $raw)) { throw "ffmpeg could not read the scoreboard from $video" }
+    try {
+        $template = [IO.File]::ReadAllBytes((Join-Path $MarkerDir "scoreboard-hand.gray"))
+        # Present at least 6 of the next 7.5 s (the transition is 8), absent the 2 s before.
+        $r = [BiobuzzScoreboard]::Onset([IO.File]::ReadAllBytes($raw), $template, 0.75, 60, 225)
+    } finally { Remove-Item -Force $raw -ErrorAction SilentlyContinue }
+    if ($r[0] -lt 0) { return @{ At = $null; Score = $r[1] } }
+    return @{ At = $fromS + $r[0] / 30.0; Score = $r[1] }
+}
+
 # "1:23:45.6", "83:45.6" or "5025.6" -> seconds; "" -> $null.
 function ConvertFrom-VideoTime([string]$text) {
     if (-not $text) { return $null }
@@ -302,6 +363,24 @@ function Get-ClipFilter([double]$autoStartS, [double]$autoS) {
     return @{ Filter = $f; Out = "[$last]" }
 }
 
+# Downloads a match's source: $durS seconds of the stream from $fromS, 1280x720, no sound, nothing drawn on it.
+function New-Source([string]$ffmpeg, [string]$inputUrl, [string]$headers, [double]$fromS, [double]$durS, [string]$out) {
+    $inv = [Globalization.CultureInfo]::InvariantCulture
+    $a = @("-hide_banner", "-loglevel", "error", "-stats", "-y")
+    if ($headers -and $inputUrl -match '^https?://') { $a += @("-headers", $headers) }
+    $a += @("-ss", $fromS.ToString("0.000", $inv), "-t", $durS.ToString("0.000", $inv), "-i", $inputUrl,
+        "-vf", "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1",
+        "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", "$out.part.mp4")
+    & $ffmpeg @a
+    if ($LASTEXITCODE -ne 0) { throw "ffmpeg could not download this match's video (exit $LASTEXITCODE; see above)" }
+    if ((Get-Item "$out.part.mp4").Length -lt 20KB) {
+        Remove-Item -Force "$out.part.mp4"
+        throw "the video came out empty: the match is not in that part of the video (check the event's video and video_start)"
+    }
+    if (Test-Path $out) { Remove-Item -Force $out }
+    Move-Item "$out.part.mp4" $out
+}
+
 # Writes the clip: video from $inputUrl (a direct stream URL with its HTTP headers, or a local file) from
 # $fromS for $durS seconds, 1280x720, no sound (AdvantageScope plays none), with the sync marker burnt in.
 function New-Clip([string]$ffmpeg, [string]$inputUrl, $headers, [double]$fromS, [double]$durS, [double]$autoStartS, [double]$autoS, [string]$out) {
@@ -317,7 +396,7 @@ function New-Clip([string]$ffmpeg, [string]$inputUrl, $headers, [double]$fromS, 
         "-pix_fmt", "yuv420p", "-movflags", "+faststart", "$out.part.mp4")
     & $ffmpeg @a
     if ($LASTEXITCODE -ne 0) { throw "ffmpeg could not make the clip (exit $LASTEXITCODE; see above)" }
-    if ((Get-Item "$out.part.mp4").Length -lt 200KB) {
+    if ((Get-Item "$out.part.mp4").Length -lt 20KB) {
         Remove-Item -Force "$out.part.mp4"
         throw "the clip came out empty: the match is not in that part of the video (check the event's video and video_start)"
     }

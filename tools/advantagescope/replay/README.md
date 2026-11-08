@@ -16,9 +16,11 @@ line again keeps what worked and retries the rest. (In a checkout, double-clicki
 ## 2. Pick a match
 
 Double-click **BIOBUZZ Match Replay** on the desktop and type the number of a match from the list, or in a new
-terminal type `open-match Q-14`. The first time a match is opened, its clip is cut from the event stream (about a
-minute) and kept, so it never downloads again. Then AdvantageScope opens on the match's log, with the Video tab
-and the 3D window side by side. That layout is put back every time a match opens, however the last one was left.
+terminal type `open-match Q-14`. The first time a match is opened, its stretch of the event stream is downloaded
+(about a minute) and kept, so it never downloads again. The clip is lined up from the stream's own scoreboard: the
+hand it shows during the 8 s transition marks the end of Auto, and the log's Auto end is put there. Then
+AdvantageScope opens on the match's log, with the Video tab and the 3D window side by side. That layout is put
+back every time a match opens, however the last one was left.
 
 On AdvantageScope's **Video** tab, click the gray file icon, press **Ctrl+V** (the clip's path is on the
 clipboard), then **Enter**. About 45 s into loading, the video locks to the log by itself: robot and HIVEs move in
@@ -46,16 +48,19 @@ opening any match puts the layout back. If it is still wrong, it is the model or
 model's origin and axes are in `cad/advantagescope/README.md`, and the log writes `/Odometry/Robot3d` in
 AdvantageScope's frame (`logging/AdvantageScopeFrame`).
 
-**Video out of sync**: the clip syncs to where `matches.json` says Auto starts in the video. Until someone has
-checked a match, that is an estimate from the stream's start time, good to a few seconds. Watch the start of Auto:
-if the video's robots start moving *d* seconds after the 3D robot, run `open-match Q-14 -Shift d` (before it: a
-negative *d*), and repeat until it looks right. `open-match` then prints the line to put in `matches.json`:
-`video_start` for that match, or `video_shift_s` for the event, which corrects every estimated match at once
-(one stream, one error). Commit it in a PR and every laptop has it.
+**Video out of sync**: `open-match` says how it placed Auto. "From the scoreboard" puts the log's end of Auto on
+the frame where the transition's hand appears: that is right to within how fast our driver pressed PLAY, a few
+tenths of a second. To fix that for a match you study closely, compare one moment of *our* robot in both views
+(it leaving its start, a first shot): if the video's robot moves *d* seconds after the 3D one, run
+`open-match Q-14 -Shift d` (before it: a negative *d*). That re-cuts the clip on the laptop in about half a
+minute, no download. When it looks right, put the `video_start` line it prints into `matches.json` and commit it.
+"Estimated from the stream's start time" means the hand was not found (another overlay, or the match is not where
+expected): that can be seconds off; `video_shift_s` moves every estimate of an event at once.
 
 **The video never locks**: wait until the blue loading bar passes Auto's end (about 45 s of video). If it never
 locks, run `open-match Q-14 -Rebuild` and load the new clip; the clip must be the one `open-match` made, since the
-lock reads a countdown it draws over the stream's bottom-centre until Auto ends.
+lock reads a countdown it draws over the stream's bottom-centre until Auto ends. To download a match's video
+again, delete it from `%LOCALAPPDATA%\BIOBUZZ-Replay\sources` first.
 
 **Video won't download**: YouTube or the school network may be refusing. Try another network. If yt-dlp says
 "Sign in to confirm you're not a bot", add `-CookiesFromBrowser firefox` (or `edge`) while signed in to YouTube in
@@ -93,4 +98,11 @@ after the logs are pulled, then commit `matches.json`.
 0:03, at fixed spots on screen. The clip blacks those spots out until Auto ends and draws that countdown in one,
 timed from `video_start` and the log's own Auto length, so the lock lands exactly on the log. Tied to
 AdvantageScope's code at the pinned version: a new AdvantageScope version means checking `VideoProcessor.ts`
-still reads the same spots.
+still reads the same spots. AdvantageScope's OCR cannot read FiM's own timer (it sits across its spots), which is
+why the scoreboard is read here instead, by matching the transition's hand (`marker/scoreboard-hand.gray`, cut
+from a Belding frame) frame by frame. Another overlay needs another template: cut it the same way, with the crop
+in `Replay.ps1` (`$HandCrop`).
+
+**What is kept on a laptop**: `sources\` holds each match's stretch of the stream, unmarked, 40 s either side
+(roughly 50-100 MB each): the one download, and what to keep if the stream goes away. `clips\` holds the marked clip
+cut from it, only the newest per match.
