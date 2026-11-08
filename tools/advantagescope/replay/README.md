@@ -16,12 +16,16 @@ line again keeps what worked and retries the rest. (In a checkout, double-clicki
 ## 2. Pick a match
 
 Double-click **BIOBUZZ Match Replay** on the desktop and type the number of a match from the list, or in a new
-terminal type `open-match Q-14`. AdvantageScope opens on that match's log. The first time a match is opened,
-its clip is cut from the event stream (about a minute).
+terminal type `open-match Q-14`. The first time a match is opened, its clip is cut from the event stream (about a
+minute) and kept, so it never downloads again. Then AdvantageScope opens on the match's log, with the Video tab
+and the 3D window side by side. That layout is put back every time a match opens, however the last one was left.
 
-Then, on AdvantageScope's **Video** tab, click the gray file icon, press **Ctrl+V** (the clip's path is on the
+On AdvantageScope's **Video** tab, click the gray file icon, press **Ctrl+V** (the clip's path is on the
 clipboard), then **Enter**. About 45 s into loading, the video locks to the log by itself: robot and HIVEs move in
 the 3D window beside the video, in step with it.
+
+**Before a meeting**, double-click **BIOBUZZ Prepare All Matches** (or run `open-match -All`): it downloads
+every match's log and clip without opening anything, so each match opens at once later, with no internet needed.
 
 ## Keeping it current
 
@@ -38,7 +42,7 @@ The 2D field downloads the first time a Field tab shows it, so that needs intern
 
 **Wrong orientation** (robot backwards, sideways, or off its spot): first check the 3D tab's field is
 **2026-2027 Field (HIVE sim)** and the robot model is **BIOBUZZ Robot**; the layout sets both, and
-`update-replay -ResetLayout` puts it back. If it is still wrong, it is the model or the log, not this setup: the
+opening any match puts the layout back. If it is still wrong, it is the model or the log, not this setup: the
 model's origin and axes are in `cad/advantagescope/README.md`, and the log writes `/Odometry/Robot3d` in
 AdvantageScope's frame (`logging/AdvantageScopeFrame`).
 

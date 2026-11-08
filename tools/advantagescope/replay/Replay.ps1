@@ -25,8 +25,6 @@ $BinDir = Join-Path $ReplayHome "bin"
 # AdvantageScope's own folder (Electron's userData): userAssets, prefs, window state, ffmpeg.exe.
 $AsData = Env-Or "BIOBUZZ_AS_DATA" (Join-Path $env:APPDATA "AdvantageScope")
 $AsUserAssets = Join-Path $AsData "userAssets"
-# A running AdvantageScope opens any log path written here within a quarter second (its AdvantageKit hook).
-$AsOpenRequest = Join-Path ([IO.Path]::GetTempPath()) "ascope-log-path.txt"
 $AssetFolders = @("Robot_BIOBUZZ", "Field3d_BIOBUZZHiveSim", "Robot_BIOBUZZHive")
 
 # The video clip: from PreS before Auto starts to PostS after (Auto 30 s, transition 8 s, TeleOp 120 s).
@@ -117,6 +115,53 @@ function Get-AdvantageScopeProcesses { return @(Get-Process -ErrorAction Silentl
 
 # The window-state file AdvantageScope restores at start; one per version.
 function Get-StateFile($pins) { return Join-Path $AsData ("state-" + $pins.advantagescope.version.Replace(".", "_") + ".json") }
+
+$onWindows = $env:OS -eq "Windows_NT"
+
+# Writes the team layout into AdvantageScope's saved window state: match-layout.json's tabs in the main window with
+# Video showing, and the 3D tab in a second window beside it. AdvantageScope reads this only at start and rewrites
+# it four times a second while it runs, so it must be closed (Stop-AdvantageScope) first.
+function Write-TeamLayout($pins) {
+    $layout = Read-Json (Join-Path $ReplayDir "match-layout.json")
+    $hub = $layout.hubs[0]
+    $tabs = @($hub.state.tabs.tabs)
+    $video = -1
+    for ($i = 0; $i -lt $tabs.Count; $i++) { if ([int]$tabs[$i].type -eq 7) { $video = $i } }   # 7: Video
+    $threeD = $tabs | Where-Object { [int]$_.type -eq 3 -and $_.title -eq "3D" } | Select-Object -First 1
+    if ($video -lt 0 -or -not $threeD) { throw "match-layout.json has no Video tab or no 3D tab" }
+
+    # The screen, in the units AdvantageScope uses (Windows' scaled pixels); a common laptop size without it.
+    $area = @{ X = 0; Y = 0; Width = 1536; Height = 816 }
+    if ($onWindows) {
+        try {
+            Add-Type -AssemblyName System.Windows.Forms
+            $wa = [System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea
+            $area = @{ X = $wa.X; Y = $wa.Y; Width = $wa.Width; Height = $wa.Height }
+        } catch { }
+    }
+    $hubWidth = [int]($area.Width * 0.55)
+    $hub.x = $area.X; $hub.y = $area.Y; $hub.width = $hubWidth; $hub.height = $area.Height
+    $hub.state.tabs.selected = $video
+    $satellite = [pscustomobject]@{
+        x = $area.X + $hubWidth; y = $area.Y; width = $area.Width - $hubWidth; height = $area.Height
+        state = [pscustomobject]@{ type = 3; visualizer = $threeD.renderer }
+        uuid = $threeD.controllerUUID
+    }
+    $out = [pscustomobject]@{ hubs = @($hub); satellites = @($satellite) }
+    New-Item -ItemType Directory -Force $AsData | Out-Null
+    # Windows PowerShell 5.1's type data for arrays makes ConvertTo-Json write {"value": [...], "Count": n}.
+    Remove-TypeData System.Array -ErrorAction SilentlyContinue
+    [IO.File]::WriteAllText((Get-StateFile $pins), ($out | ConvertTo-Json -Depth 100 -Compress))
+}
+
+# Closes every AdvantageScope window and waits until it has gone, so it cannot save its state over ours.
+function Stop-AdvantageScope {
+    $running = Get-AdvantageScopeProcesses
+    if ($running.Count -eq 0) { return $false }
+    $running | Stop-Process -Force -ErrorAction SilentlyContinue
+    $running | Wait-Process -Timeout 10 -ErrorAction SilentlyContinue
+    return $true
+}
 
 # --- Match logs -----------------------------------------------------------------------------------------------
 
@@ -265,11 +310,17 @@ function New-Clip([string]$ffmpeg, [string]$inputUrl, $headers, [double]$fromS, 
     $a = @("-hide_banner", "-loglevel", "error", "-stats", "-y")
     if ($headers -and $inputUrl -match '^https?://') { $a += @("-headers", $headers) }
     $a += @("-ss", $fromS.ToString("0.000", $inv), "-t", $durS.ToString("0.000", $inv), "-i", $inputUrl)
-    foreach ($sec in 5, 4, 3, 2) { $a += @("-loop", "1", "-i", (Join-Path $MarkerDir "0-0$sec.png")) }
+    # Each countdown image lasts the clip's length: looped forever, ffmpeg never ends when the video has no frames
+    # there (a video_start past the end of the stream).
+    foreach ($sec in 5, 4, 3, 2) { $a += @("-loop", "1", "-t", $durS.ToString("0.000", $inv), "-i", (Join-Path $MarkerDir "0-0$sec.png")) }
     $a += @("-filter_complex", $g.Filter, "-map", $g.Out, "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
         "-pix_fmt", "yuv420p", "-movflags", "+faststart", "$out.part.mp4")
     & $ffmpeg @a
     if ($LASTEXITCODE -ne 0) { throw "ffmpeg could not make the clip (exit $LASTEXITCODE; see above)" }
+    if ((Get-Item "$out.part.mp4").Length -lt 200KB) {
+        Remove-Item -Force "$out.part.mp4"
+        throw "the clip came out empty: the match is not in that part of the video (check the event's video and video_start)"
+    }
     if (Test-Path $out) { Remove-Item -Force $out }
     Move-Item "$out.part.mp4" $out
 }

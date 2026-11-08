@@ -12,7 +12,8 @@
 #   4. installs the robot and HIVE models (the release zip replay.json pins) into AdvantageScope's userAssets
 #   5. sets AdvantageScope's window up from match-layout.json: the tabs, with Video beside a 3D window
 #   6. downloads the match logs matches.json lists (GitHub's logs/* branches)
-#   7. adds the commands open-match and update-replay, and a desktop shortcut "BIOBUZZ Match Replay"
+#   7. adds the commands open-match and update-replay, and the desktop shortcuts "BIOBUZZ Match Replay" and
+#      "BIOBUZZ Prepare All Matches" (every clip cut ahead of time)
 param(
     [string]$Ref = "",          # the branch or tag to install from (default: the one used last time, else master)
     [switch]$ResetLayout,       # put the team layout back even if this laptop's AdvantageScope layout was changed
@@ -79,7 +80,6 @@ if (-not $Installed) {
 . (Join-Path $PSScriptRoot "Replay.ps1")
 $pins = Get-Pins
 $failed = New-Object System.Collections.ArrayList
-$onWindows = $env:OS -eq "Windows_NT"
 foreach ($d in @($Tools, $LogsDir, $ClipsDir, $CacheDir, $BinDir, (Join-Path $ReplayHome "downloads"))) { New-Item -ItemType Directory -Force $d | Out-Null }
 
 function Step([string]$name, [scriptblock]$body) {
@@ -193,44 +193,15 @@ Step "Layout" {
     $hash = Get-Sha256 $layoutFile
     $same = (Test-Path $state) -and (Test-Path $stamp) -and ((Get-Content -Raw $stamp).Trim() -eq $hash)
     if ($same -and -not $ResetLayout) {
-        Ok "layout is current (to put the team layout back after changing it: setup -ResetLayout)"
+        Ok "layout is current (open-match also puts it back each time it opens a match)"
         return
     }
-    $layout = Read-Json $layoutFile
-    $hub = $layout.hubs[0]
-    $tabs = @($hub.state.tabs.tabs)
-    $video = -1
-    for ($i = 0; $i -lt $tabs.Count; $i++) { if ([int]$tabs[$i].type -eq 7) { $video = $i } }   # 7: Video
-    $threeD = $tabs | Where-Object { $_.type -eq 3 -and $_.title -eq "3D" } | Select-Object -First 1
-    if ($video -lt 0 -or -not $threeD) { throw "match-layout.json has no Video tab or no 3D tab" }
-
-    # The screen, in the units AdvantageScope uses (Windows' scaled pixels); a common laptop size without it.
-    $area = @{ X = 0; Y = 0; Width = 1536; Height = 816 }
-    if ($onWindows) {
-        try {
-            Add-Type -AssemblyName System.Windows.Forms
-            $wa = [System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea
-            $area = @{ X = $wa.X; Y = $wa.Y; Width = $wa.Width; Height = $wa.Height }
-        } catch { }
-    }
-    $hubWidth = [int]($area.Width * 0.55)
-    $hub.x = $area.X; $hub.y = $area.Y; $hub.width = $hubWidth; $hub.height = $area.Height
-    $hub.state.tabs.selected = $video
-    $satellite = [pscustomobject]@{
-        x = $area.X + $hubWidth; y = $area.Y; width = $area.Width - $hubWidth; height = $area.Height
-        state = [pscustomobject]@{ type = 3; visualizer = $threeD.renderer }
-        uuid = $threeD.controllerUUID
-    }
-    $out = [pscustomobject]@{ hubs = @($hub); satellites = @($satellite) }
     if (Test-Path $state) {
         $backup = $state -replace '\.json$', ("-before-biobuzz-" + (Get-Date -Format "yyyyMMdd-HHmmss") + ".json")
         Copy-Item $state $backup
         Warn "saved this laptop's previous AdvantageScope layout as $(Split-Path -Leaf $backup)"
     }
-    New-Item -ItemType Directory -Force $AsData | Out-Null
-    # Windows PowerShell 5.1's type data for arrays makes ConvertTo-Json write {"value": [...], "Count": n}.
-    Remove-TypeData System.Array -ErrorAction SilentlyContinue
-    [IO.File]::WriteAllText($state, ($out | ConvertTo-Json -Depth 100 -Compress))
+    Write-TeamLayout $pins
     Copy-Item -Force $layoutFile (Join-Path $ReplayHome "biobuzz-match-layout.json")
     Set-Content -NoNewline -Path $stamp -Value $hash
     Ok "layout set: Field, 3D, Video, Limelight, Loop and Launcher tabs, with 3D in its own window beside Video"
@@ -273,7 +244,14 @@ Step "Commands" {
     if ($as) { $lnk.IconLocation = "$($as.Exe),0" }
     $lnk.Description = "Pick a BIOBUZZ match and watch it in AdvantageScope with its video"
     $lnk.Save()
-    Ok "commands open-match and update-replay, and the desktop shortcut 'BIOBUZZ Match Replay'"
+    $prep = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $desktop "BIOBUZZ Prepare All Matches.lnk"))
+    $prep.TargetPath = Join-Path $BinDir "open-match.cmd"
+    $prep.Arguments = "-All"
+    $prep.WorkingDirectory = $ReplayHome
+    if ($as) { $prep.IconLocation = "$($as.Exe),0" }
+    $prep.Description = "Download every match's log and video clip now, so each opens at once later"
+    $prep.Save()
+    Ok "commands open-match and update-replay, and desktop shortcuts 'BIOBUZZ Match Replay' and 'BIOBUZZ Prepare All Matches'"
 }
 
 Say ""
