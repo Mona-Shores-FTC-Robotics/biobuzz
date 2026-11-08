@@ -632,6 +632,16 @@ Everything blue is red turned half a turn about the field centre, in code and un
       than 7 POLLEN weights (NECTAR is 1.65) from hits is the number the simulator's hit strength
       (`FieldSim.PLACEHOLDER_IMPULSE_SCALE`, a placeholder) is refitted to; record each count in the
       PR. [#429]
+- [ ] **Driver Hub battery in the logs:** at the end of the session, plug each Driver Hub into the
+      laptop by USB and double-click `pull-logs.cmd`. **Good:** it says `Driver Hub <serial>: battery
+      N % now`, the robot folder gets `<date>_DriverHub-<serial>.battery.txt` and `.dslog.txt`, and
+      `read_logs.py dsbattery` on them gives a falling series from the OS history with sensible
+      times (compare one with the Driver Hub's clock). Then once with the Driver Hub run below 30 %:
+      the `.dslog.txt` has `BatteryChecker: percent remaining: N` lines, and none above 30 %.
+      **Stop:** no Driver Hub found (`adb devices` on the laptop must list it: allow USB debugging on
+      the hub's prompt), `dumpsys batterystats` refused or empty, the battery lines' format or the
+      30 % threshold not as the reader expects, or the folder is `DriverHub` while on the robot's
+      Wi-Fi (the SSID read) → note the exact output in the PR. [Driver Hub battery PR]
 
 ## 9. From PRs merged 29 Oct–1 Nov, not in any session doc
 
