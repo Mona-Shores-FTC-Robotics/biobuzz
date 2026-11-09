@@ -194,9 +194,40 @@ match.
 
 ### 2. Keep R-Solo's 0.75 s check exactly as it is (it was worth +20 in 2 of 9 matches)
 
-It is the reason Q-7 and Q-31 scored their TIP. Its camera sightings came in 0.02–0.05 s, well
-inside 0.75 s. Its false TIPs (logged, not sighted) never fooled it. Don't lengthen it, and don't
-replace it with a wait that trusts the tracker's assumption.
+It is the reason Q-7 and Q-31 scored their TIP. Its false TIPs (logged, not sighted) never fooled
+it. Don't lengthen it, and don't replace it with a wait that trusts the tracker's assumption.
+
+**How quickly the robot knew.** "Sighted" is the first `/Hive/<alliance>/Assumed` = 0 after the drive
+to LEFT_LAUNCH_CLOSE began, measured against the moment that drive ended.
+
+| Run | LEFT CELL sighted, relative to arrival | Wait ended after |
+|---|---|---|
+| Q-1 | −0.48 s | 0.02 s |
+| Q-4 | −0.41 s | 0.02 s |
+| Q-13 | −0.39 s | 0.05 s |
+| Q-19 | −0.49 s | 0.02 s |
+| Q-26 | −0.32 s | 0.02 s |
+| Q-32 | −0.46 s | 0.02 s |
+| Q-27 | −3.34 s (the partner held it up near the HIVE) | 0.02 s |
+| **Q-7** | never: 0–3 tags, no settled sighting | timed out at 0.77 s |
+| **Q-31** | never: 0–2 tags, no settled sighting | timed out at 0.76 s |
+
+When the CELL was up, the camera saw it before the robot stopped. The approach turns onto the HIVE
+in its last half second, and the camera accepted 4–7 tags. When it was down, the camera never saw
+it settled at all, so today "down" can only be known by waiting out the limit.
+
+**Why not 0.1–0.2 s.** It would have worked at Belding, but it gains nothing and risks a lot:
+
+- **Nothing to gain.** A shorter limit saves 0.55–0.65 s, and only when the check fails. In Q-7
+  and Q-31 the fallback route then finished with 6–8 s to spare.
+- **A false "no" is expensive.** It sends the robot to fire at the RIGHT CELL, which is down after
+  our own TIP, and drops the SCORING FLOWER leg.
+- **The early sighting depends on the path.** On 3–4 Nov, at LEFT_LAUNCH_OFFSET with an approach
+  that turned the camera away until late, the sighting came 0.22–0.44 s *after* the drive ended
+  (`timing.json`, `cellCheckS`).
+
+About 0.4 s would still clear every measured case, but only for an approach that ends facing the
+HIVE, and only after a few practice runs confirm it.
 
 ### 3. Don't add a second branch to R-Solo yet; first find out why its second TIP never comes (no change; the open question is worth up to 20)
 
