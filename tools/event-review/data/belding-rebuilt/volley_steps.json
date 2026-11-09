@@ -1,0 +1,58 @@
+[
+ {
+  "robot": "19429",
+  "step": "Drive to the spot",
+  "order": 1,
+  "seconds": 0.54,
+  "samples": 22
+ },
+ {
+  "robot": "19429",
+  "step": "Speed and settle check",
+  "order": 2,
+  "seconds": 0.3,
+  "samples": 15
+ },
+ {
+  "robot": "19429",
+  "step": "Feed to first piece",
+  "order": 3,
+  "seconds": 0.81,
+  "samples": 20
+ },
+ {
+  "robot": "19429",
+  "step": "Each next ball",
+  "order": 4,
+  "seconds": 0.47,
+  "samples": 27
+ },
+ {
+  "robot": "20245",
+  "step": "Drive to the spot",
+  "order": 1,
+  "seconds": 0.68,
+  "samples": 67
+ },
+ {
+  "robot": "20245",
+  "step": "Speed and settle check",
+  "order": 2,
+  "seconds": 0.29,
+  "samples": 57
+ },
+ {
+  "robot": "20245",
+  "step": "Feed to first piece",
+  "order": 3,
+  "seconds": 0.87,
+  "samples": 47
+ },
+ {
+  "robot": "20245",
+  "step": "Each next ball",
+  "order": 4,
+  "seconds": 0.48,
+  "samples": 64
+ }
+]

@@ -1,0 +1,92 @@
+[
+ {
+  "match": "Q23",
+  "alliance": "10104 + 17283",
+  "score": 131,
+  "auto": 16,
+  "ours": false,
+  "penalties_committed": 0,
+  "place": 1
+ },
+ {
+  "match": "Upper final",
+  "alliance": "20245 + 10104",
+  "score": 126,
+  "auto": 31,
+  "ours": true,
+  "penalties_committed": 0,
+  "place": 2
+ },
+ {
+  "match": "Final",
+  "alliance": "20245 + 10104",
+  "score": 109,
+  "auto": 56,
+  "ours": true,
+  "penalties_committed": 0,
+  "place": 3
+ },
+ {
+  "match": "Playoff 1",
+  "alliance": "20245 + 10104",
+  "score": 105,
+  "auto": 56,
+  "ours": true,
+  "penalties_committed": 0,
+  "place": 4
+ },
+ {
+  "match": "Q11",
+  "alliance": "18092 + 10104",
+  "score": 103,
+  "auto": 31,
+  "ours": false,
+  "penalties_committed": 0,
+  "place": 5
+ },
+ {
+  "match": "Q31",
+  "alliance": "5292 + 20245",
+  "score": 101,
+  "auto": 36,
+  "ours": true,
+  "penalties_committed": 0,
+  "place": 6
+ },
+ {
+  "match": "Q7",
+  "alliance": "20245 + 18092",
+  "score": 98,
+  "auto": 36,
+  "ours": true,
+  "penalties_committed": 0,
+  "place": 7
+ },
+ {
+  "match": "Final",
+  "alliance": "5292 + 19429",
+  "score": 98,
+  "auto": 36,
+  "ours": true,
+  "penalties_committed": 0,
+  "place": 8
+ },
+ {
+  "match": "Q5",
+  "alliance": "20862 + 10104",
+  "score": 94,
+  "auto": 28,
+  "ours": false,
+  "penalties_committed": 0,
+  "place": 9
+ },
+ {
+  "match": "Q1",
+  "alliance": "20245 + 18975",
+  "score": 93,
+  "auto": 36,
+  "ours": true,
+  "penalties_committed": 0,
+  "place": 10
+ }
+]

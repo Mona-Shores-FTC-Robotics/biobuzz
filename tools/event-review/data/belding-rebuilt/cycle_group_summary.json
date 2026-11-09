@@ -1,0 +1,46 @@
+[
+ {
+  "robot": "19429",
+  "group": "Filled up",
+  "cycles": 12,
+  "cycle_median_s": 29.0,
+  "balls_per_volley": 2,
+  "share": 0.6,
+  "lost_4th_by_shot": 4,
+  "auto_drive": 5,
+  "fire": 7
+ },
+ {
+  "robot": "19429",
+  "group": "Shot before full",
+  "cycles": 8,
+  "cycle_median_s": 17.32,
+  "balls_per_volley": 2,
+  "share": 0.4,
+  "lost_4th_by_shot": null,
+  "auto_drive": 0,
+  "fire": 8
+ },
+ {
+  "robot": "20245",
+  "group": "Filled up",
+  "cycles": 27,
+  "cycle_median_s": 16.19,
+  "balls_per_volley": 2.4,
+  "share": 0.61,
+  "lost_4th_by_shot": 12,
+  "auto_drive": 27,
+  "fire": 0
+ },
+ {
+  "robot": "20245",
+  "group": "Shot before full",
+  "cycles": 17,
+  "cycle_median_s": 15.17,
+  "balls_per_volley": 2,
+  "share": 0.39,
+  "lost_4th_by_shot": null,
+  "auto_drive": 13,
+  "fire": 4
+ }
+]

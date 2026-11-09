@@ -1,0 +1,26 @@
+[
+ {
+  "battery": "Under 10 V",
+  "order": 1,
+  "shots": 6,
+  "median_ms": 119
+ },
+ {
+  "battery": "10 to 11 V",
+  "order": 2,
+  "shots": 20,
+  "median_ms": 82
+ },
+ {
+  "battery": "11 to 12 V",
+  "order": 3,
+  "shots": 177,
+  "median_ms": 70
+ },
+ {
+  "battery": "Over 12 V",
+  "order": 4,
+  "shots": 62,
+  "median_ms": 68
+ }
+]

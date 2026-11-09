@@ -1,0 +1,34 @@
+[
+ {
+  "robot": "20245",
+  "cancels": 33,
+  "moving_at_press": 31,
+  "cancel_delay": 0.04,
+  "centred_median": 0.12,
+  "centred_025": 22,
+  "held_median": 0.35,
+  "held_1s": 1,
+  "repress_3s": 30,
+  "stick_mag": 0.91,
+  "moving_of": "31 of 33",
+  "centred_of": "22 of 33",
+  "held_of": "1 of 33",
+  "repress_of": "30 of 33"
+ },
+ {
+  "robot": "19429",
+  "cancels": 29,
+  "moving_at_press": 21,
+  "cancel_delay": 0.05,
+  "centred_median": 0.2,
+  "centred_025": 17,
+  "held_median": 1.0,
+  "held_1s": 15,
+  "repress_3s": 22,
+  "stick_mag": 0.7,
+  "moving_of": "21 of 29",
+  "centred_of": "17 of 29",
+  "held_of": "15 of 29",
+  "repress_of": "22 of 29"
+ }
+]

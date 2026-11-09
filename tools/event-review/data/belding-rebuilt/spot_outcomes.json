@@ -1,0 +1,64 @@
+[
+ {
+  "robot": "19429",
+  "outcome": "Let go at the spot",
+  "presses": 14,
+  "shots": 19
+ },
+ {
+  "robot": "19429",
+  "outcome": "Sticks cancelled it on the way",
+  "presses": 29,
+  "shots": 0
+ },
+ {
+  "robot": "19429",
+  "outcome": "Sticks took over at the spot",
+  "presses": 8,
+  "shots": 8
+ },
+ {
+  "robot": "19429",
+  "outcome": "Refused",
+  "presses": 18,
+  "shots": 0
+ },
+ {
+  "robot": "19429",
+  "outcome": "Let go before arriving",
+  "presses": 1,
+  "shots": 0
+ },
+ {
+  "robot": "20245",
+  "outcome": "Let go before arriving",
+  "presses": 27,
+  "shots": 0
+ },
+ {
+  "robot": "20245",
+  "outcome": "Let go at the spot",
+  "presses": 51,
+  "shots": 104,
+  "shots_old": 94
+ },
+ {
+  "robot": "20245",
+  "outcome": "Sticks cancelled it on the way",
+  "presses": 33,
+  "shots": 0
+ },
+ {
+  "robot": "20245",
+  "outcome": "Refused",
+  "presses": 13,
+  "shots": 0
+ },
+ {
+  "robot": "20245",
+  "outcome": "Sticks took over at the spot",
+  "presses": 16,
+  "shots": 21,
+  "shots_old": 17
+ }
+]

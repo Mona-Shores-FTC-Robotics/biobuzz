@@ -1,0 +1,24 @@
+[
+ {
+  "robot": "19429",
+  "top_in_s": 56.8,
+  "fwd_full_in_s": 30.8,
+  "strafe_full_in_s": 20.3,
+  "bursts_under_1s": 0.9,
+  "burst_median_s": 0.3,
+  "tuned_fwd_in_s": 71.1,
+  "tuned_strafe_in_s": 49.5,
+  "held_half_s_in_s": 51.1
+ },
+ {
+  "robot": "20245",
+  "top_in_s": 61.2,
+  "fwd_full_in_s": 34.0,
+  "strafe_full_in_s": 19.8,
+  "bursts_under_1s": 0.96,
+  "burst_median_s": 0.2,
+  "tuned_fwd_in_s": 71.1,
+  "tuned_strafe_in_s": 53.3,
+  "held_half_s_in_s": 50.2
+ }
+]

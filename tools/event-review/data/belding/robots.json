@@ -1,0 +1,36 @@
+[
+ {
+  "robot": "19429",
+  "teleop_median_v": 11.24,
+  "pct_below_10v": 6.5,
+  "pct_below_9v": 0.5,
+  "lowest_v": 8.07,
+  "pushes": 23,
+  "push_s": 18.3,
+  "spot_presses": 70,
+  "cancelled_by_sticks": 29,
+  "refused_pose": 13,
+  "refused_other_half": 5,
+  "fire_ready_s": 0.81,
+  "fire_ready_n": 11,
+  "fire_spinup_s": 1.49,
+  "fire_spinup_n": 12
+ },
+ {
+  "robot": "20245",
+  "teleop_median_v": 11.31,
+  "pct_below_10v": 5.5,
+  "pct_below_9v": 0.4,
+  "lowest_v": 8.73,
+  "pushes": 12,
+  "push_s": 6.2,
+  "spot_presses": 140,
+  "cancelled_by_sticks": 33,
+  "refused_pose": 0,
+  "refused_other_half": 13,
+  "fire_ready_s": null,
+  "fire_ready_n": 0,
+  "fire_spinup_s": 1.55,
+  "fire_spinup_n": 6
+ }
+]
