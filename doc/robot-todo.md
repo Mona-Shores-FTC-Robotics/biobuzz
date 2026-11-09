@@ -658,6 +658,37 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
       where it is. **Good:** a timed practice cycle under 20 s.
 
+## 7g. Turret absolute zero: two Cypher Maxes through the OctoQuad (Bench: OctoQuad, turret by hand)
+
+Both encoders' absolute (PWM) wires to the OctoQuad, which sits on Control Hub I2C bus 3. Off on
+both robots until every value is in (`TurretSubsystem.useAbsoluteZero`). [#169]
+
+- [ ] **Wiring.** Each Cypher Max's voltage switch on **3V3** (the OctoQuad is not 5 V tolerant).
+      Encoder A (the Cypher Max whose quadrature is in the feeder's encoder socket) absolute wire to
+      OctoQuad **channel 4**, encoder B to **channel 5**, each on the channel's signal pin with 3V3
+      and ground. A custom cable: the Cypher Max's absolute output is on its own 3-pin cable, not on
+      the FTC JST-PH one. Activate the config, run **Check: Hardware**.
+- [ ] **Bench: OctoQuad**, INIT. **Good:** firmware 3.x on the first line; channels 4 and 5 show a
+      pulse that changes as the turret is turned. **Stop:** FAULT "not answering" → bus or cable;
+      0 µs on a channel → absolute wire not on its signal pin, or the switch on 5V.
+- [ ] **Pulse ranges.** Square, then turn the turret slowly until each encoder has wrapped at least
+      once (its pulse jumps from widest to narrowest). Write the min and max for A and B into
+      `absPulseMinUsA/MaxUsA/MinUsB/MaxUsB`. One line per robot in `RobotDifferences`: they differ
+      per encoder.
+- [ ] **Directions.** Turn the turret counter-clockwise from above: `absDirectionA`/`B` = +1 for each
+      fraction that rises, -1 for each that falls.
+- [ ] **B's ratio** (`absRatioB` = ring teeth / B's gear teeth, from the mentor's gear). Check by
+      counting B's wraps over one full turret turn, if the travel allows one.
+- [ ] **Travel** (`absEachWayDeg`): degrees each way from home the turret can reach.
+- [ ] **Homes.** Turret on its mark: `absHomeA`, `absHomeB` from the two fractions. Set it on the
+      mark five times, note the spread.
+- [ ] **Check.** With all values in: the solve line gives an angle. Turn to each end and back: the
+      angle follows, the residual stays under a third of the design's separation. Then
+      `useAbsoluteZero = true` for that robot in `RobotDifferences`. **Good:** Basic Drive INIT with
+      the turret turned off its mark: "zeroed from the two absolute encoders", and the Robot page's
+      "Turret abs … vs count" stays within ±1°. **Stop:** "encoders disagree" or "ambiguous" → a
+      value above is wrong, or the gear slips.
+
 ## 8. If time: anyone, no driving
 
 - [ ] **Feed path: gate open to first ball is about 0.85 s** on both robots (Belding median), the

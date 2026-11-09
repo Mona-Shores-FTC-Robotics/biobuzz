@@ -15,6 +15,9 @@ package org.firstinspires.ftc.teamcode.subsystems;
  *       Auto's zero, because the count is still good and the turret may be turned from wherever the
  *       Auto left it. Zeroing at PLAY there would call that spot home.</li>
  *   <li><b>A TeleOp with no Auto before it</b> is a fresh start: zero at PLAY.</li>
+ *   <li><b>The two absolute encoders</b> ({@code TurretSubsystem.useAbsoluteZero}), when they
+ *       agree, beat everything but a person: in INIT they set the zero over an Auto's carried one,
+ *       and PLAY then has nothing to do. A person's zero button still wins over them.</li>
  * </ul>
  *
  * <p>The one case this gets wrong is a person re-homing the turret by hand between an Auto and the
@@ -33,7 +36,12 @@ public final class TurretZeroPolicy {
         return !autonomous && handoffCarriesZero ? Action.RESTORE_FROM_AUTO : Action.NOTHING;
     }
 
-    /** At PLAY: zero here unless something (a person, or the handoff) already did. */
+    /** In INIT, with a good absolute reading: it may set the zero unless a person set it. */
+    public static boolean absoluteMayZero(boolean setByHand) {
+        return !setByHand;
+    }
+
+    /** At PLAY: zero here unless something (a person, the handoff, the absolute encoders) already did. */
     public static Action atPlay(boolean alreadyZeroed) {
         return alreadyZeroed ? Action.NOTHING : Action.ZERO_HERE;
     }

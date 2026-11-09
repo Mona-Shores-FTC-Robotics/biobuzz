@@ -59,6 +59,17 @@
                  (ColorSensorSubsystem). Added 2 Nov 2026. -->
             <RevColorSensorV3 name="colorSensor" port="2" bus="2" />
 
+            <!-- Turret absolute angle: a Digital Chicken Labs OctoQuad (FTC
+                 Edition) on I2C bus 3, the first free one (0 the hub's IMU, 1 the
+                 Pinpoint, 2 the colour sensor). The two Cypher Maxes' absolute
+                 (PWM) outputs go to OctoQuad channels 4 and 5
+                 (TurretSubsystem.ABS_CHANNEL_A / _B), each Cypher Max's voltage
+                 switch on 3V3: the OctoQuad is not 5 V tolerant. Until one answers
+                 here, the Driver Station shows the SDK's "OctoQuad does not report
+                 correct CHIP_ID" warning at startup; nothing reads it unless
+                 TurretSubsystem.useAbsoluteZero is on. -->
+            <OctoQuadFTC name="octoquad" port="3" bus="3" />
+
             <!-- Intake star wheels: a continuous-rotation servo on servo port 5.
                  One-way clutches let a ball overrun the stars inward; the
                  code runs them while the intake pulls in, backwards while

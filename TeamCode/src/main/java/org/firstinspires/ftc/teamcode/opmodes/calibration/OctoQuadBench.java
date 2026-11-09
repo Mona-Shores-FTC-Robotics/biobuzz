@@ -1,64 +1,68 @@
 package org.firstinspires.ftc.teamcode.opmodes.calibration;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.digitalchickenlabs.OctoQuad;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
+import org.firstinspires.ftc.teamcode.RobotDifferences;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
+import org.firstinspires.ftc.teamcode.subsystems.TurretAbsolute;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
 
 import java.util.Locale;
 
 /**
- * Bench test for the turret's angle sensing (#169): an OctoQuad on I2C and two REV Thru-Bore
- * encoders on its pulse-width channels, on a spare Control Hub with {@code robot_octoquad_rig}
- * active. No turret needed. It answers the facts-table rows that do not need one:
+ * Measures the turret's two-encoder absolute zero: two Studica Cypher Maxes geared to the turret at
+ * different ratios, their absolute (PWM) outputs on the OctoQuad's channels
+ * {@link TurretSubsystem#ABS_CHANNEL_A} and {@link TurretSubsystem#ABS_CHANNEL_B}. Runs on a
+ * competition robot (the turret fitted) or on {@code robot_octoquad_rig} (the encoders in hand).
+ * Every value it finds goes into {@code TurretSubsystem}'s {@code abs*} fields, or that robot's
+ * lines in {@code RobotDifferences}. Nothing moves: the turret is turned by hand.
  *
- * <ul>
- *   <li>Does the OctoQuad answer on bus 2, and what firmware is it? SDK 12 needs v3.x.</li>
- *   <li>Which channels are the two encoders on? All four pulse-width channels (4 to 7) are shown,
- *       so plug in anywhere and read it off.</li>
- *   <li>Does each encoder read a clean 1 to 1024 µs pulse, and does it hold still when the shaft
- *       does? That is the noise the two-encoder trick has to beat.</li>
- *   <li>The two-encoder difference: turn the shaft that drives both encoders one full turn and
- *       watch {@code diff}. How far it moves per turn, against how much it jitters at rest, is the
- *       margin that says whether the trick can tell one turret turn from the next.</li>
- * </ul>
+ * <h2>The checklist, in order</h2>
  *
- * <p>Standalone diagnostics, like {@code ValidateHardware}: no {@code Robot}, no {@code Subsystem}.
- * It is the exception CLAUDE.md allows for rigs; the robot's turret code is {@code TurretSubsystem}
- * on PR #174, which this bench feeds numbers to.
+ * <ol>
+ *   <li><b>Does the OctoQuad answer?</b> The first line says its firmware; SDK 12 needs 3.x. A
+ *       FAULT says why not (not plugged in, wrong bus).</li>
+ *   <li><b>Is each encoder on its channel?</b> All four pulse channels (4 to 7) are shown with the
+ *       live pulse width in µs; A and B are marked. A channel reading 0 has no pulse: the
+ *       Cypher Max's absolute wire is not on that channel's signal pin, or its switch is not on
+ *       3V3.</li>
+ *   <li><b>Each encoder's pulse range</b> ({@code absPulseMinUs*}, {@code absPulseMaxUs*}): turn
+ *       the turret slowly through at least one full turn of each encoder and read the running min
+ *       and max. The Cypher Max's PWM frequency differs from encoder to encoder, so its widths do
+ *       too. Square (X) clears them and re-runs the setup.</li>
+ *   <li><b>Directions</b> ({@code absDirectionA}, {@code absDirectionB}): turn the turret
+ *       counter-clockwise seen from above; +1 for each fraction that rises, -1 for each that
+ *       falls. Through a gear mesh the two may differ.</li>
+ *   <li><b>Ratio of B</b> ({@code absRatioB}, ring teeth over B's gear teeth): from the build team;
+ *       check it by counting B's wraps over one turret turn. A's is
+ *       {@code TurretSubsystem.turnsPerTurretTurn}, already measured on {@code Bench: Turret}.</li>
+ *   <li><b>Homes</b> ({@code absHomeA}, {@code absHomeB}): turret on its home mark; read the two
+ *       fractions. Set it on the mark a few times and note the spread.</li>
+ *   <li><b>Travel</b> ({@code absEachWayDeg}): how far the turret can go each way from home.</li>
+ *   <li><b>Check</b>: with every value in, the solve line gives the turret's angle with its
+ *       residual and margin. Turn the turret to each end and back home: the angle must follow,
+ *       and the residual stay well under the margin. The design line shows the separation these
+ *       gears give over that travel; half of it is the error budget.</li>
+ * </ol>
  *
- * <p>Nothing is saved to the OctoQuad's flash: the bank and pulse settings are sent at every init,
- * so a swapped OctoQuad works without a configuration menu visit, the same choice #174 makes.
- *
- * <p>X re-runs the setup after a cable change. Panels gets every reading under flat keys.
+ * <p>Standalone, like {@code ValidateHardware}: no {@code Robot}, no {@code Subsystem}. It applies
+ * this robot's {@code RobotDifferences} first, as {@code RobotOpMode} would, so it shows the values
+ * the turret will run with. Nothing is saved to the OctoQuad's flash: the bank and pulse settings
+ * are sent at every init, as {@code TurretSubsystem} does.
  */
-@Disabled
-@Utility(name = "Bench: OctoQuad", description = "Two Thru-Bores through an OctoQuad; disabled since the turret chose the Cypher Max (#169)")
-@Configurable
+@Utility(name = "Bench: OctoQuad", description = "The turret's two Cypher Max absolute encoders through the OctoQuad: pulse ranges, homes, the solve")
 public class OctoQuadBench extends OpMode {
 
     /** First pulse-width channel of the OctoQuad's second bank. Channels 4 to 7 read pulse widths. */
     public static final int FIRST_PULSE_CHANNEL = 4;
     public static final int PULSE_CHANNELS = 4;
-
-    /** A REV Thru-Bore's absolute output: a pulse 1 to 1024 µs wide, once per revolution. */
-    public static final int PULSE_MIN_US = 1;
-    public static final int PULSE_MAX_US = 1024;
-    static final double DEGREES_PER_US = 360.0 / 1024.0;
-
-    /** The channel encoder A is on (4 to 7). A bench choice; read it off the screen and set it here. */
-    public static int channelA = 4;
-
-    /** The channel encoder B is on (4 to 7). */
-    public static int channelB = 5;
 
     private OctoQuad octoquad;
     private final OctoQuad.EncoderDataBlock data = new OctoQuad.EncoderDataBlock();
@@ -69,6 +73,11 @@ public class OctoQuadBench extends OpMode {
     private String firmware = "?";
     private boolean dataValid;
     private final int[] pulseUs = new int[PULSE_CHANNELS];
+    private final int[] minUs = new int[PULSE_CHANNELS];
+    private final int[] maxUs = new int[PULSE_CHANNELS];
+    private TurretAbsolute.Solution solution;
+    private double fracA = Double.NaN;
+    private double fracB = Double.NaN;
     private TelemetryManager panels;
     private String panelsProblem;
     private boolean xWasDown;
@@ -77,11 +86,17 @@ public class OctoQuadBench extends OpMode {
     public void init() {
         configWarning = checkActiveConfig();
         try {
+            RobotDifferences.applyForActiveRobot();
+        } catch (RuntimeException e) {
+            if (configWarning == null) configWarning = "robot differences not applied: " + e.getMessage();
+        }
+        try {
             octoquad = hardwareMap.get(OctoQuad.class, DeviceNames.OCTOQUAD);
         } catch (RuntimeException e) {
             octoquad = null;
             fault = "OctoQuad \"" + DeviceNames.OCTOQUAD + "\" is not in the active configuration";
         }
+        clearRanges();
         if (octoquad != null) {
             setUp();
         }
@@ -92,7 +107,6 @@ public class OctoQuadBench extends OpMode {
             panels = null;
             panelsProblem = "not available at init: " + e;
         }
-        telemetry.addLine("Bench: OctoQuad. INIT shows the readings; PLAY is the same. Square (X) re-runs setup.");
         report();
     }
 
@@ -101,7 +115,7 @@ public class OctoQuadBench extends OpMode {
         try {
             byte chip = octoquad.getChipId();
             if (chip != OctoQuad.OCTOQUAD_CHIP_ID) {
-                fault = "OctoQuad not answering on I2C (chip id " + chip + "): plugged in? on bus 2?";
+                fault = "OctoQuad not answering on I2C (chip id " + chip + "): plugged in? on the XML's bus?";
                 return;
             }
             OctoQuad.FirmwareVersion version = octoquad.getFirmwareVersion();
@@ -113,12 +127,22 @@ public class OctoQuadBench extends OpMode {
             }
             octoquad.setChannelBankConfig(OctoQuad.ChannelBankConfig.BANK1_QUADRATURE_BANK2_PULSE_WIDTH);
             for (int channel = FIRST_PULSE_CHANNEL; channel < FIRST_PULSE_CHANNEL + PULSE_CHANNELS; channel++) {
-                octoquad.setSingleChannelPulseWidthParams(channel, PULSE_MIN_US, PULSE_MAX_US);
+                octoquad.setSingleChannelPulseWidthParams(channel, 1, PULSE_LIMIT_US);
                 octoquad.setSingleChannelPulseWidthTracksWrap(channel, false);
             }
             fault = null;
         } catch (RuntimeException e) {
             fault = "OctoQuad setup failed: " + (e.getMessage() == null ? e.toString() : e.getMessage());
+        }
+    }
+
+    /** Wider than any Cypher Max pulse (its frame is about 1.7 to 2.1 ms). */
+    static final int PULSE_LIMIT_US = 4000;
+
+    private void clearRanges() {
+        for (int i = 0; i < PULSE_CHANNELS; i++) {
+            minUs[i] = Integer.MAX_VALUE;
+            maxUs[i] = Integer.MIN_VALUE;
         }
     }
 
@@ -136,6 +160,7 @@ public class OctoQuadBench extends OpMode {
         loopTimer.lap();
         boolean x = gamepad1.x;
         if (x && !xWasDown && octoquad != null) {
+            clearRanges();
             setUp();
         }
         xWasDown = x;
@@ -145,15 +170,39 @@ public class OctoQuadBench extends OpMode {
             try {
                 octoquad.readAllEncoderData(data);
                 dataValid = data.isDataValid();
-                for (int i = 0; i < PULSE_CHANNELS; i++) {
-                    pulseUs[i] = dataValid ? data.positions[FIRST_PULSE_CHANNEL + i] : 0;
+                if (dataValid) {
+                    for (int i = 0; i < PULSE_CHANNELS; i++) {
+                        pulseUs[i] = data.positions[FIRST_PULSE_CHANNEL + i];
+                        if (pulseUs[i] > 0) {
+                            minUs[i] = Math.min(minUs[i], pulseUs[i]);
+                            maxUs[i] = Math.max(maxUs[i], pulseUs[i]);
+                        }
+                    }
                 }
             } catch (RuntimeException e) {
                 fault = "read failed: " + (e.getMessage() == null ? e.toString() : e.getMessage());
             }
         }
+        fracA = TurretAbsolute.fractionFromPulse(pulseOn(TurretSubsystem.ABS_CHANNEL_A),
+                TurretSubsystem.absPulseMinUsA, TurretSubsystem.absPulseMaxUsA);
+        fracB = TurretAbsolute.fractionFromPulse(pulseOn(TurretSubsystem.ABS_CHANNEL_B),
+                TurretSubsystem.absPulseMinUsB, TurretSubsystem.absPulseMaxUsB);
+        double separation = separation();
+        double maxResidual = Double.isNaN(TurretSubsystem.absMaxResidualDeg)
+                ? separation / 3.0 : TurretSubsystem.absMaxResidualDeg;
+        solution = TurretAbsolute.solve(fracA, fracB, TurretSubsystem.absHomeA, TurretSubsystem.absHomeB,
+                TurretSubsystem.turnsPerTurretTurn, TurretSubsystem.absRatioB,
+                TurretSubsystem.absDirectionA, TurretSubsystem.absDirectionB,
+                TurretSubsystem.absEachWayDeg, maxResidual, separation / 2.0);
         report();
         publish();
+    }
+
+    private static double separation() {
+        double ratioB = TurretSubsystem.absRatioB;
+        double eachWay = TurretSubsystem.absEachWayDeg;
+        if (!(ratioB > 0) || !(eachWay > 0)) return Double.NaN;
+        return TurretAbsolute.separationDeg(TurretSubsystem.turnsPerTurretTurn, ratioB, eachWay);
     }
 
     private void report() {
@@ -163,22 +212,33 @@ public class OctoQuadBench extends OpMode {
         } else {
             telemetry.addLine("OctoQuad fw " + firmware + (dataValid ? "" : " · data NOT valid this loop"));
         }
+        telemetry.addLine("Square (X): clear min/max and re-run setup. Turn the turret by hand.");
         telemetry.addLine("");
-        telemetry.addLine("ch    pulse us    degrees");
+        telemetry.addLine("ch   pulse us    min    max");
         for (int i = 0; i < PULSE_CHANNELS; i++) {
             int channel = FIRST_PULSE_CHANNEL + i;
-            double deg = degreesFromPulse(pulseUs[i]);
-            telemetry.addLine(String.format(Locale.US, "%d  %9d  %9s%s", channel, pulseUs[i],
-                    Double.isNaN(deg) ? "no pulse" : String.format(Locale.US, "%.1f", deg),
-                    channel == channelA ? "   <- A" : channel == channelB ? "   <- B" : ""));
+            telemetry.addLine(String.format(Locale.US, "%d  %8d  %6s %6s%s", channel, pulseUs[i],
+                    minUs[i] == Integer.MAX_VALUE ? "-" : Integer.toString(minUs[i]),
+                    maxUs[i] == Integer.MIN_VALUE ? "-" : Integer.toString(maxUs[i]),
+                    channel == TurretSubsystem.ABS_CHANNEL_A ? "   <- A"
+                            : channel == TurretSubsystem.ABS_CHANNEL_B ? "   <- B" : ""));
         }
         telemetry.addLine("");
-        double a = degreesFromPulse(pulseOn(channelA));
-        double b = degreesFromPulse(pulseOn(channelB));
-        double diff = wrap360(a - b);
-        telemetry.addLine(String.format(Locale.US, "Encoder A %s · Encoder B %s · diff (A−B) %s",
-                fmt(a), fmt(b), fmt(diff)));
-        telemetry.addLine("Turn the shaft one full turn and note how far diff moves; at rest, how much it jitters.");
+        telemetry.addLine(String.format(Locale.US, "A fraction %s (home %s, dir %d) · B fraction %s (home %s, dir %d)",
+                fmt(fracA), fmt(TurretSubsystem.absHomeA), TurretSubsystem.absDirectionA,
+                fmt(fracB), fmt(TurretSubsystem.absHomeB), TurretSubsystem.absDirectionB));
+        telemetry.addLine("  (fractions need that encoder's absPulseMinUs / absPulseMaxUs)");
+        telemetry.addLine(String.format(Locale.US, "Design: A %.4f, B %s turns per turret turn, ±%s° travel: separation %s°",
+                TurretSubsystem.turnsPerTurretTurn, fmt(TurretSubsystem.absRatioB),
+                fmt(TurretSubsystem.absEachWayDeg), fmt(separation())));
+        if (solution == null) {
+            telemetry.addLine("Solve: no reading yet");
+        } else if (solution.ok()) {
+            telemetry.addLine(String.format(Locale.US, "Solve: turret %.1f° · residual %.1f° · margin %s°",
+                    solution.turretDeg, solution.residualDeg, fmt(solution.marginDeg)));
+        } else {
+            telemetry.addLine("Solve: " + solution.problem);
+        }
         telemetry.addLine("");
         telemetry.addLine(loopTimer.summary());
         if (panelsProblem != null) telemetry.addLine("Panels: " + panelsProblem);
@@ -191,15 +251,15 @@ public class OctoQuadBench extends OpMode {
             panels.addData("oq_fault", fault == null ? 0.0 : 1.0);
             panels.addData("oq_data_valid", dataValid ? 1.0 : 0.0);
             for (int i = 0; i < PULSE_CHANNELS; i++) {
-                int channel = FIRST_PULSE_CHANNEL + i;
-                panels.addData("oq_ch" + channel + "_us", pulseUs[i]);
-                panels.addData("oq_ch" + channel + "_deg", degreesFromPulse(pulseUs[i]));
+                panels.addData("oq_ch" + (FIRST_PULSE_CHANNEL + i) + "_us", pulseUs[i]);
             }
-            double a = degreesFromPulse(pulseOn(channelA));
-            double b = degreesFromPulse(pulseOn(channelB));
-            panels.addData("oq_a_deg", a);
-            panels.addData("oq_b_deg", b);
-            panels.addData("oq_diff_deg", wrap360(a - b));
+            panels.addData("oq_frac_a", fracA);
+            panels.addData("oq_frac_b", fracB);
+            if (solution != null) {
+                panels.addData("oq_turret_deg", solution.turretDeg);
+                panels.addData("oq_residual_deg", solution.residualDeg);
+                panels.addData("oq_margin_deg", solution.marginDeg);
+            }
             panels.addData("loop_ms", loopTimer.lastMs());
             panels.update();
         } catch (RuntimeException ignored) {
@@ -212,37 +272,29 @@ public class OctoQuadBench extends OpMode {
         return i >= 0 && i < PULSE_CHANNELS ? pulseUs[i] : 0;
     }
 
-    private static String fmt(double deg) {
-        return Double.isNaN(deg) ? "n/a" : String.format(Locale.US, "%.1f°", deg);
+    private static String fmt(double value) {
+        return Double.isNaN(value) ? "n/a" : String.format(Locale.US, "%.3f", value);
     }
 
+    /** Null if the active config carries the OctoQuad; otherwise what to activate. */
     private static String checkActiveConfig() {
-        String wanted = RobotIdentity.OCTOQUAD_RIG.configName;
         String active;
         try {
             active = ActiveConfig.name();
         } catch (RuntimeException e) {
             return "Could not read the active configuration: " + e.getMessage();
         }
-        if (wanted.equals(active)) return null;
-        return "Active config is \"" + (active == null ? "none" : active) + "\", not \"" + wanted
-                + "\". Driver Station: Configure Robot -> " + wanted + " -> Activate.";
+        RobotIdentity identity = RobotIdentity.fromConfigName(active);
+        if (identity != null && hasOctoQuad(identity)) return null;
+        return "Active config is \"" + (active == null ? "none" : active)
+                + "\", which has no OctoQuad. Driver Station: Configure Robot -> robot_19429, robot_20245 or "
+                + RobotIdentity.OCTOQUAD_RIG.configName + " -> Activate.";
     }
 
-    /**
-     * A Thru-Bore pulse width to the encoder's own angle, degrees [0, 360), or NaN when the width
-     * is outside the 1 to 1024 µs an absolute output can produce (no encoder, or the quadrature
-     * wire on a pulse channel).
-     */
-    static double degreesFromPulse(int pulseUs) {
-        if (pulseUs < PULSE_MIN_US || pulseUs > PULSE_MAX_US) return Double.NaN;
-        return wrap360((pulseUs - PULSE_MIN_US) * DEGREES_PER_US);
-    }
-
-    /** Degrees into [0, 360). NaN stays NaN. */
-    static double wrap360(double degrees) {
-        if (Double.isNaN(degrees)) return Double.NaN;
-        double d = degrees % 360.0;
-        return d < 0 ? d + 360.0 : d;
+    static boolean hasOctoQuad(RobotIdentity identity) {
+        for (DeviceNames.Device device : identity.devices) {
+            if (DeviceNames.OCTOQUAD.equals(device.name)) return true;
+        }
+        return false;
     }
 }

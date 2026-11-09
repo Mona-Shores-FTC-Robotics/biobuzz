@@ -509,11 +509,41 @@ zero (`TurretZeroPolicy`). The one case it gets wrong is someone re-homing the
 turret by hand between an Auto and the TeleOp without pressing the button.
 Considered and not done: zeroing only by button (a forgotten press is silent:
 nothing can tell the turret was not at home), and a check that the count is
-still where the Auto left it (it cannot tell a bump from a re-home). The
-encoder's absolute PWM output exists, and an OctoQuad could
-read it (the `Bench: OctoQuad` and #169); the build team chose relative plus a
-home mark for the time it saves (Oct 2026). Set the encoder's voltage switch to
-3V3.
+still where the Auto left it (it cannot tell a bump from a re-home). Set the encoder's voltage switch to 3V3.
+
+**The absolute zero: two Cypher Maxes at different ratios.** A Cypher Max also
+has an absolute PWM output (12-bit, about 546 Hz, ±1.2°), which a REV hub
+cannot read: its encoder sockets count quadrature only, and the Cypher Max has
+no analog output. The OctoQuad (`<OctoQuadFTC>`, Control Hub I2C bus 3) reads
+pulse widths on channels 4–7. One absolute encoder on the 64T drive gear turns
+2.75 times per turret turn, so it knows where it is inside its own turn but not
+which turn; a second on a gear with a different tooth count drifts against the
+first by a fixed amount per turn, and the pair names the turn
+(`subsystems/TurretAbsolute`, which tries each turn of encoder A and keeps the
+one whose prediction for B matches). With `TurretSubsystem.useAbsoluteZero`
+on, that sets the zero in INIT (`ZeroSource.ABSOLUTE`), over an Auto's carried
+zero and the PLAY assumption, never over a person's button; the quadrature
+count carries the angle from there, and the OctoQuad is not read after PLAY, so
+the match loop pays nothing for it. Two things to know about the gears and the
+pulses:
+
+- **Choose B's gear for separation, not "one tooth off".** 64T and 63T repeat
+  only after 22.9 turret turns, but candidate turns are then only 5.7° of B
+  apart, inside the encoders' own error. 64T and 56T on the 176T ring repeat
+  after 2.5 turret turns with candidates 51° apart. `TurretAbsolute.separationDeg`
+  is the check; half of it is the error budget.
+- **Each encoder's pulse range is measured, not taken from the datasheet.** The
+  Cypher Max's PWM frequency is 490–603 Hz part to part, and the OctoQuad
+  measures the high time in µs, so the same angle gives different widths on two
+  encoders. `Bench: OctoQuad` shows each channel's running min and max.
+
+The OctoQuad channel is the one port Java knows (`TurretSubsystem.ABS_CHANNEL_A`
+/ `_B`): the XML has no element for it. The bank mode and pulse range are sent
+at every init, never saved to the OctoQuad's flash, so a swapped board works.
+Until an OctoQuad answers on bus 3 the Driver Station shows the SDK's "OctoQuad
+does not report correct CHIP_ID" warning at startup; nothing reads it while
+`useAbsoluteZero` is off. The facts are on #169; the bench checklist is
+`doc/robot-todo.md` § 7g.
 
 `subsystems/TurretEncoder` is the pure math (counts to degrees, with the
 measured gear ratio and direction). The servo is a goBILDA in standard

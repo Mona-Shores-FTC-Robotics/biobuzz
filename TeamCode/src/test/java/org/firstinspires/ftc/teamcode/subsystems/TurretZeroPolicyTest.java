@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy.Action;
 import org.junit.Test;
@@ -33,5 +35,11 @@ public class TurretZeroPolicyTest {
     @Test
     public void atPlayAZeroFromAPersonOrTheHandoffIsKept() {
         assertEquals(Action.NOTHING, TurretZeroPolicy.atPlay(true));
+    }
+
+    @Test
+    public void theAbsoluteEncodersSetTheZeroUnlessAPersonDid() {
+        assertTrue(TurretZeroPolicy.absoluteMayZero(false));
+        assertFalse(TurretZeroPolicy.absoluteMayZero(true));
     }
 }

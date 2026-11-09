@@ -46,7 +46,9 @@ Three layers, each written in exactly one place:
 
 - **A device name appears only in `DeviceNames`.** Never a string literal, never a field on an
   `@Configurable` object. A name is identity, not tuning.
-- **Java never knows a port.** Two robots wired differently differ only in their XML.
+- **Java never knows a port.** Two robots wired differently differ only in their XML. One
+  exception: an OctoQuad channel, which the XML cannot express (`TurretSubsystem.ABS_CHANNEL_A`
+  / `_B`, a specification both robots are wired to).
 - **Adding a device:** the `DeviceNames` constant, the device list of every robot that has it
   (`COMPETITION_ROBOT` covers both), and the element in each of those robots' XML — same PR.
 - **Adding a robot or rig:** a `robot_<name>.xml` plus a `RobotIdentity` line. A rig with
@@ -62,7 +64,9 @@ Three layers, each written in exactly one place:
 - A continuous-rotation servo is `Kind.CR_SERVO` and `<ContinuousRotationServo>`, asked for as
   `CRServo`; it shares the servo ports. The turret's encoder has no device of its own: it is read
   through the encoder socket of `DeviceNames.TURRET_ENCODER_HOST` (a motor whose own encoder the
-  code never uses for control), and only turret code may reset that count.
+  code never uses for control), and only turret code may reset that count. With `TurretSubsystem.useAbsoluteZero` on, two
+  Cypher Maxes at different gear ratios send their absolute PWM to the OctoQuad, and
+  `TurretAbsolute` sets the turret's zero from them in INIT; the OctoQuad is never read after PLAY.
   → README § "The turret: a servo on a servo port, an encoder on a motor's encoder socket"
 - XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what
   the SDK reads; keep `port` equal to it.
@@ -92,7 +96,8 @@ one OpMode to the next and is written and read only by `RobotOpMode`: the Auto's
 the latest loop's state every loop, so a crashed Auto or a restarted TeleOp resumes where the robot
 is. Triangle (Y) held 1 s in INIT discards a handoff ("start fresh"): pose, alliance and turret zero
 go, as if nothing ran before. The turret zeroes itself: a carried zero is taken, and otherwise the turret is assumed at home
-and zeroes at PLAY; the zero button on a gamepad always wins (`TurretZeroPolicy`).
+and zeroes at PLAY; the absolute encoders, when on and agreeing, beat both; the zero button on a
+gamepad always wins (`TurretZeroPolicy`).
 `RobotOpMode` logs an uncaught exception to the match log and rethrows it; it never swallows one.
 
 **Localization.** The Pinpoint carries the pose, through Pedro's `FusionLocalizer`. The camera

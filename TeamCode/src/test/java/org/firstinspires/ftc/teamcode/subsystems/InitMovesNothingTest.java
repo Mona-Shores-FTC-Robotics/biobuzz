@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.qualcomm.hardware.digitalchickenlabs.OctoQuad;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -73,7 +74,8 @@ public class InitMovesNothingTest {
 
     @Test
     public void turretWaitsForPlay() {
-        Devices devices = new Devices().motor(DeviceNames.TURRET_ENCODER_HOST).servo(DeviceNames.TURRET);
+        Devices devices = new Devices().motor(DeviceNames.TURRET_ENCODER_HOST).servo(DeviceNames.TURRET)
+                .i2c(DeviceNames.OCTOQUAD, OctoQuad.class);
         TurretSubsystem turret = new TurretSubsystem(devices.map);
         runInit(turret, devices);
 
@@ -334,6 +336,11 @@ public class InitMovesNothingTest {
 
         Devices motor(String name) {
             return add(name, false, DcMotorEx.class);
+        }
+
+        /** An I2C device: nothing on it moves, but its writes are recorded all the same. */
+        Devices i2c(String name, Class<?> type) {
+            return add(name, false, type);
         }
 
         private Devices add(String name, boolean servo, Class<?>... types) {

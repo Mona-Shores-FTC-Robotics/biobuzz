@@ -115,10 +115,13 @@ public final class DeviceNames {
      */
     public static final String TURRET = "turret";
 
-    // Turret angle sensing: a Digital Chicken Labs OctoQuad (FTC Edition) on
-    // I2C, reading two REV Thru-Bore absolute outputs on its pulse-width
-    // channels (#169). On the OctoQuad bench rig today; on the competition
-    // robots once a turret exists (#174 adds it to COMPETITION_ROBOT).
+    /**
+     * The turret's absolute angle: a Digital Chicken Labs OctoQuad (FTC Edition) on I2C, reading
+     * the two turret Cypher Maxes' absolute (PWM) outputs on its pulse-width channels
+     * ({@code TurretSubsystem.ABS_CHANNEL_A} / {@code _B}, the one port Java knows, since the XML
+     * has no element for an OctoQuad channel). The bus is in each robot's XML. Read only while
+     * {@code TurretSubsystem.useAbsoluteZero} is on, and only in INIT.
+     */
     public static final String OCTOQUAD = "octoquad";
 
     /**
@@ -207,6 +210,7 @@ public final class DeviceNames {
             new Device(TURRET, Kind.SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(COLOR_SENSOR, Kind.I2C),
+            new Device(OCTOQUAD, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
     /**

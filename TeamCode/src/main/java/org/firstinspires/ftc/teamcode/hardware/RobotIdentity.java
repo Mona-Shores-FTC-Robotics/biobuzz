@@ -44,7 +44,7 @@ public enum RobotIdentity {
     /** The BIOBUZZ launcher on a spare Control Hub: two flywheels and the feeder, the robots' motor numbers (#80). */
     LAUNCHER_BENCH("robot_launcher_bench", DeviceNames.LAUNCHER_BENCH),
 
-    /** The OctoQuad turret-encoder bench: a spare Control Hub, the OctoQuad and two Thru-Bores (#169). */
+    /** The OctoQuad turret-encoder bench: a spare Control Hub, the OctoQuad and the turret's two Cypher Maxes (#169). */
     OCTOQUAD_RIG("robot_octoquad_rig", DeviceNames.OCTOQUAD_RIG);
 
     /**
