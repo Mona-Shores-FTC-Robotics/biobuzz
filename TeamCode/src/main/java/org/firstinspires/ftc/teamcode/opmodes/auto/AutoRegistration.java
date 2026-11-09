@@ -170,14 +170,17 @@ public final class AutoRegistration {
     /**
      * Seconds from the partner's last shot to our CELL seen up, added to the last shot their team
      * gives us to make the partner wait ({@link #partnerWaitUntilS}): the shot's flight, the dwell
-     * before the rocker moves, the swing, and the camera settling on the raised CELL. The
-     * simulator's model of each gives 1.5 to 5 s ({@code FieldSim.FILMED_TIP_SECONDS} 0.58 to 1.12 s,
-     * {@code FILMED_TIP_DWELL_SECONDS} 0.25 to 3.4 s, a flight of about 0.6 s, the tracker's settle);
-     * 4 s covers all but the longest dwells. An estimate until a match log times one. Written in
+     * before the rocker moves, the swing, and the camera settling on the raised CELL. Measured at
+     * the Belding Qualifier (7 Nov 2026), stream video against L-NoCross match logs: 4.0, 4.2 and
+     * 4.4 s from the partner's last preload leaving its launcher to our {@code CellUp} (M-3 20245,
+     * M-4 19429, M-10 20245), about 4.3 s in a fourth (M-7 19429) whose launcher was hidden. 4.5 s
+     * covers all of them with the video sync's few tenths to spare (err long). One TIP came about
+     * 7 s after the last shot it could have come from (M-7, red): a partner wait does not cover
+     * that, and the Auto's no-TIP route is the plan for it. Written in
      * {@code TeamCode/autos/timing.json} too ({@code partnerTipLagS}), which
      * {@code PartnerWaitTest} keeps equal to this.
      */
-    public static final double PARTNER_TIP_LAG_S = 4.0;
+    public static final double PARTNER_TIP_LAG_S = 4.5;
 
     /**
      * The match second the Auto's partner wait (its one match-clock {@code AutoOption}, set on the
