@@ -134,6 +134,22 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
 - [ ] **Pinpoint `FAULT_BAD_READ`:** logged 14 times in the 3–4 Nov TeleOps (none in an Auto).
       Reseat the Pinpoint's I2C cable and check its strain relief. **Good:** a 5-minute Basic Drive
       with none. **Stop:** still there → swap the cable, note it on the hub photo (§8).
+      **Belding (7 Nov):** 61 on 19429 (3–11 a match) and 30 on 20245, mostly while driving fast
+      (median 12–19 in/s against 6–10 at random moments), not after impacts. On 19429 the Pinpoint
+      was declared lost in Q13 and the lower final; that refused 13 launch-spot presses and 9 FLOWER
+      picks. Check the mount and connector on both robots, not only the cable.
+- [ ] **20245: backLeft's encoder read 0 in all 8 Belding matches.** The turret's encoder belongs
+      in the encoder socket beside **Expansion Hub** motor port 3 (`feeder`,
+      `DeviceNames.TURRET_ENCODER_HOST`); backLeft is **Control Hub** motor port 3. Check that the
+      turret encoder did not go into backLeft's socket, and that backLeft's own encoder is plugged in.
+      **Good:** Check: Hardware, then a Basic Drive log with all four wheel speeds moving. [#500]
+- [ ] **Both robots: launcher wheel encoder cables.** A wheel read no speed while spinning in one
+      Belding match each (19429 Q32 right wheel, 20245 Q27), and the code shut it off: about 29 s and
+      23 s with no shots. Reseat and strain-relieve both launcher encoder cables. **Good:** a 5-minute
+      Bench: Launch Test with no "reads no speed" event. [#496]
+- [ ] **Both Control Hubs: which IMU chip, and how the hub is mounted** (logo and USB directions,
+      for the SDK's orientation), before the IMU is logged. A Driver Station config scan shows the chip
+      (BHI260AP or BNO055). Then one bench bump test with the IMU logged, to see what a hit looks like. [#498]
 
 ## 2. Any Auto, INIT only, no PLAY (about 20 min; camera connected, HIVE upright)
 
@@ -622,7 +638,31 @@ Everything blue is red turned half a turn about the field centre, in code and un
       forward is right.
 - [ ] **One Auto on blue** (R-Solo from blue's audience start). **Good:** it mirrors the red run.
 
+## 7f. Drive practice from the Belding logs (Basic Drive, two drivers)
+
+The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` branch.
+
+- [ ] **Square with the drive stick centred.** In 50 of 51 Square presses cancelled within 0.1 s
+      at Belding, the stick was already moving when Square went down. Practise: stop steering,
+      press and hold Square. **Good:** ten Square presses in a row, none "sticks moved early" in the
+      log. The code side is #495.
+- [ ] **Drive by hand once the Pinpoint is lost** (the Match page shows "Pinpoint lost"). A corner
+      or camera reset cannot clear it (`PinpointLoss`: only a restart does), so Square and the FLOWER
+      pick stay refused for the rest of the match, even though their refusal text suggests a reset.
+      At Belding, 19429's driver kept pressing Square after the loss (8 presses in 14 s in Q13).
+      Practise: the first refused press means stop pressing it, drive and aim by hand, and restart
+      the robot after the match. **Good:** at most one refused press after a loss.
+- [ ] **Operator: spin up before FIRE** when the next shot is coming, so FIRE finds the launcher at
+      speed (first ball 0.8 s instead of 1.5 s). Until #497 decides the software side.
+- [ ] **19429: a shorter route from full to the shot.** At Belding it drove a median 191 in with a
+      full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
+      where it is. **Good:** a timed practice cycle under 20 s.
+
 ## 8. If time: anyone, no driving
+
+- [ ] **Feed path: gate open to first ball is about 0.85 s** on both robots (Belding median), the
+      biggest single step of a volley. Look at whether the first ball can sit closer to the wheels
+      before the gate opens. Mechanical; no code change.
 
 - [ ] **Photograph both robots' hubs** for `doc/wiring/`, ports against the XML. [#33]
 - [ ] **Launcher: the exit angle and the exit height**, robot off: a protractor on the launch path
