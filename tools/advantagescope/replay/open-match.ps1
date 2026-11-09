@@ -5,6 +5,8 @@
 #   open-match M-7 19429       that robot's log of the match
 #   open-match Q-14 -Shift 1.5 the video 1.5 s later than matches.json says (to try a correction; see the README)
 #   open-match -All            get every match ready (logs and clips) without opening any: before a meeting
+#   open-match Q-14 -Frames    pictures every 0.1 s around Auto's start, named by offset: the first with our lights
+#                              off is the -Shift to use (our driver's PLAY lag)
 #
 # The clip is cut from the stream the first time a match is opened (about a minute) and kept in
 # %LOCALAPPDATA%\BIOBUZZ-Replay\clips, so it never downloads twice. Then AdvantageScope opens, fresh, with the team
@@ -19,6 +21,7 @@ param(
     [switch]$NoVideo,                    # the log only
     [switch]$Rebuild,                    # cut the clip again from this match's video (to download that too, delete it from sources\)
     [switch]$All,                        # every match's log and clip, ready for later; opens nothing
+    [switch]$Frames,                     # pictures around Auto's start, to read our driver's PLAY lag off the lights
     [string]$CookiesFromBrowser = ""     # firefox / edge / chrome: when YouTube says "sign in to confirm"
 )
 
@@ -143,7 +146,7 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS) {
     } else {
         Ok "clip $(Split-Path -Leaf $clip) (already made)"
     }
-    return @{ Clip = $clip; VideoStart = $videoStart; How = $how }
+    return @{ Clip = $clip; VideoStart = $videoStart; How = $how; Source = $source; SourceAutoAt = $autoAt }
 }
 
 try {
@@ -258,6 +261,19 @@ try {
         Bad "no video: $($_.Exception.Message)"
         Open-AdvantageScope
         Finish 1
+    }
+    if ($Frames) {
+        # From the unmarked source (the clip's black boxes could hide our robot). Named by the -Shift each one
+        # would mean: the scoreboard's placement is 0, and the first picture with our lights changed is the shift.
+        $dir = Join-Path (Join-Path $ReplayHome "frames") ("{0}_{1}_{2}" -f $ev.event, ($m.match -replace '[^A-Za-z0-9-]', ''), $m.team)
+        $base = $made.SourceAutoAt - $Shift
+        Export-Frames (Join-Path $Tools "ffmpeg.exe") $made.Source ($base - 0.5) 31 0.1 -0.5 $dir
+        Ok "pictures every 0.1 s from 0.5 s before to 2.5 s after where the scoreboard puts Auto's start: $dir"
+        Say ""
+        Write-Host "  Flip through them (Photos, arrow keys). The first one where our lights have changed (alliance colour" -ForegroundColor Cyan
+        Write-Host "  to off, or to green) is named by the shift to use: +0.40s means  open-match $($m.match) $($m.team) -Shift 0.4" -ForegroundColor Cyan
+        if ($onWindows) { Start-Process explorer.exe $dir }
+        Finish 0
     }
     Open-AdvantageScope
     $clip = $made.Clip; $videoStart = $made.VideoStart

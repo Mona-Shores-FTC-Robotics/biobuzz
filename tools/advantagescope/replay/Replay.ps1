@@ -366,6 +366,26 @@ function Get-ClipFilter([double]$autoStartS, [double]$autoS) {
     return @{ Filter = $f; Out = "[$last]" }
 }
 
+# Saves $count pictures from $video, $stepS apart from $fromS, into $outDir (emptied first), each named by its offset:
+# $labelStart, $labelStart + $stepS, ... as "+0.30s.jpg" / "-0.20s.jpg", so they sort and read as times.
+function Export-Frames([string]$ffmpeg, [string]$video, [double]$fromS, [int]$count, [double]$stepS, [double]$labelStart, [string]$outDir) {
+    $inv = [Globalization.CultureInfo]::InvariantCulture
+    if (Test-Path $outDir) { Remove-Item -Recurse -Force $outDir }
+    New-Item -ItemType Directory -Force $outDir | Out-Null
+    $rate = (1.0 / $stepS).ToString("0.###", $inv)
+    & $ffmpeg -hide_banner -loglevel error -y -ss ([Math]::Max([double]0, $fromS)).ToString("0.000", $inv) -i $video `
+        -vf "fps=$rate" -frames:v $count -q:v 2 (Join-Path $outDir "%03d.jpg")
+    if ($LASTEXITCODE -ne 0) { throw "ffmpeg could not save the pictures (exit $LASTEXITCODE)" }
+    for ($i = 1; $i -le $count; $i++) {
+        $f = Join-Path $outDir ("{0:000}.jpg" -f $i)
+        if (-not (Test-Path $f)) { break }
+        $t = $labelStart + ($i - 1) * $stepS
+        $sign = "+"; if ($t -lt -0.0001) { $sign = "-" }
+        # A leading index keeps them in time order however a viewer sorts names with signs.
+        Rename-Item $f ("{0:00} {1}{2}s.jpg" -f $i, $sign, [Math]::Abs($t).ToString("0.00", $inv))
+    }
+}
+
 # Downloads a match's source: $durS seconds of the stream from $fromS, 1280x720, no sound, nothing drawn on it.
 function New-Source([string]$ffmpeg, [string]$inputUrl, [string]$headers, [double]$fromS, [double]$durS, [string]$out) {
     $inv = [Globalization.CultureInfo]::InvariantCulture
