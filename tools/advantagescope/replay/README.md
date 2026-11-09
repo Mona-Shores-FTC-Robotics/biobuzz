@@ -51,9 +51,10 @@ AdvantageScope's frame (`logging/AdvantageScopeFrame`).
 
 **Video out of sync**: `open-match` says how it placed Auto. "From the scoreboard" puts the log's start of Auto
 30 s before the frame where the transition's hand appears (the field's Auto start): that is right to within how
-fast our driver pressed PLAY, a few tenths of a second, even when our Auto ended early. To fix that for a match you study closely, compare one moment of *our* robot in both views
-(it leaving its start, a first shot): if the video's robot moves *d* seconds after the 3D one, run
-`open-match Q-14 -Shift d` (before it: a negative *d*). That re-cuts the clip on the laptop in about half a
+fast our driver pressed PLAY, a few tenths of a second, even when our Auto ended early. To measure that for a match, run `open-match Q-14 -Frames`: it saves a picture every 0.1 s around Auto's
+start, named by offset, and opens the folder. Our indicator lights change at the instant our driver pressed PLAY
+(alliance colour to off, or green), so the first picture where they have changed is named by the shift to use:
+`+0.40s` means `open-match Q-14 -Shift 0.4`. That re-cuts the clip on the laptop in about half a
 minute, no download. When it looks right, put the `video_start` line it prints into `matches.json` and commit it.
 "Estimated from the stream's start time" means the hand was not found (another overlay, or the match is not where
 expected): that can be seconds off; `video_shift_s` moves every estimate of an event at once.
