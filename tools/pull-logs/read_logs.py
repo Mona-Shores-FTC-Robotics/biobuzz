@@ -11,12 +11,21 @@ with Python. Standard library only.
   python3 tools/pull-logs/read_logs.py launcher LOG.wpilog [...]  every counted shot: speed, pose, nearest
                                                                    team spot, range; then shots per spot
                                                                    and speed, for the speed table (#80)
+  python3 tools/pull-logs/read_logs.py dsbattery FILE [...]       each Driver Hub's own battery over the day,
+                                                                   then every match log given beside it: the DS
+                                                                   battery at its start, lowest, at its end
 
 Logs reach GitHub on logs/<date>-<robot network> branches, sent by Pull-MatchLogs.ps1. A session
 fetches them with:  git fetch origin 'refs/heads/logs/*:refs/remotes/origin/logs/*'
 and reads one with:  git show origin/logs/<branch>:<file>.wpilog.gz > /tmp/x.wpilog.gz
 (the logs go up gzipped; this reads .wpilog and .wpilog.gz alike)
+
+A Driver Hub on USB at the pull adds two files per hub per day beside the robot's logs:
+<date>_DriverHub-<serial>.dslog.txt (the Driver Station app's own log, that day's lines) and
+<date>_DriverHub-<serial>.battery.txt (Android's battery history, one snapshot per pull). Give
+dsbattery all of them and the day's .wpilog files: it sorts them by name.
 """
+import datetime
 import gzip
 import math
 import re
@@ -297,6 +306,214 @@ def launcher(paths):
         print('%-30s %7s %6d  %-10s %s' % (spot, tps, count, '/'.join(sorted(ranges)) or '?', '___ of %d' % count))
 
 
+# ------------------------------------------------------------------ the Driver Hub's own battery
+#
+# The robot cannot log it: in SDK 12.0 the Driver Station never sends its battery to the robot
+# (the heartbeat carries time and robot state only). Two sources on the Driver Hub itself, both
+# pulled by Pull-MatchLogs.ps1 over adb:
+#
+#   *.battery.txt  "dumpsys battery" and "dumpsys batterystats --history": Android's own record
+#                  of every level change and plug-in since the last full charge. The main source.
+#   *.dslog.txt    the Driver Station app's log. Its BatteryChecker (RobotCore 12.0) writes
+#                  "percent remaining: N is charging: B" only while N < 30 (BATTERY_WARN_THRESHOLD;
+#                  the class's LOG_THRESHOLD of 70 is never used), on every battery broadcast and
+#                  every 5 min (FtcDriverStationActivity). So it is empty on a charged hub, and
+#                  only a backstop for the history.
+
+DS_LINE_RE = re.compile(r'^(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)\.(\d{3})\s.*?\bBatteryChecker\s*:\s*'
+                        r'(?:\{[^}]*\}\s*)?percent remaining: (\d+) is charging: (true|false)')
+DS_FILE_RE = re.compile(r'(\d{4})-(\d\d)-(\d\d)_DriverHub-(.+?)\.(dslog|battery)\.txt(?:\.gz)?$')
+HIST_RE = re.compile(r'^\s*(0|\+[0-9dhms]+)\s+\(\d+\)\s+(.*)$')
+DUR_RE = re.compile(r'^\+?(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m(?!s))?(?:(\d+)s)?(?:(\d+)ms)?$')
+SNAPSHOT_HEADER = '=== '  # Pull-MatchLogs.ps1 starts every snapshot with a line like this
+
+
+def _text_lines(path):
+    with (gzip.open(path, 'rt', encoding='utf-8', errors='replace') if path.endswith('.gz')
+          else open(path, encoding='utf-8', errors='replace')) as f:
+        for line in f:
+            yield line.rstrip('\r\n')
+
+
+def _duration_s(text):
+    if text == '0':
+        return 0.0
+    m = DUR_RE.match(text)
+    if not m:
+        return None
+    d, h, mi, s, ms = (int(g) if g else 0 for g in m.groups())
+    return d * 86400 + h * 3600 + mi * 60 + s + ms / 1000.0
+
+
+def ds_log_samples(path):
+    """[(datetime, percent, plugged)] from a Driver Station log; the year is the file name's."""
+    m = DS_FILE_RE.search(path.split('/')[-1])
+    year = int(m.group(1)) if m else datetime.date.today().year
+    out = []
+    for line in _text_lines(path):
+        mm = DS_LINE_RE.match(line)
+        if mm:
+            mo, dd, hh, mi, ss, ms, pct, chg = mm.groups()
+            t = datetime.datetime(year, int(mo), int(dd), int(hh), int(mi), int(ss), int(ms) * 1000)
+            out.append((t, int(pct), chg == 'true'))
+    return out
+
+
+def battery_history_samples(path):
+    """[(datetime, percent, plugged)] from the pull's snapshots: "dumpsys battery" (the level at the
+    pull, at the time in the snapshot's header) and "dumpsys batterystats --history".
+
+    Each record's time is an offset from the snapshot's first record; a TIME: or RESET:TIME: record
+    says what the wall clock was at its offset, so a record's wall time is the latest such clock
+    plus the offset since it. Records before the first clock, or after a START (a reboot) until the
+    next clock, have no wall time and are skipped. plugged is None until the history says."""
+    out = []
+    ref = None          # (offset s, datetime) of the latest TIME record in this snapshot
+    plug = None
+    pulled, powered = None, False   # the snapshot's own time, for "dumpsys battery" (level now)
+    for line in _text_lines(path):
+        if line.startswith(SNAPSHOT_HEADER):
+            ref, plug, powered = None, None, False
+            hm = re.match(r'=== (\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)', line)
+            pulled = datetime.datetime.strptime(hm.group(1), '%Y-%m-%d %H:%M:%S') if hm else None
+            continue
+        if pulled is not None:
+            pm = re.match(r'\s+(?:AC|USB|Wireless|Dock) powered: (true|false)\s*$', line)
+            if pm:
+                powered = powered or pm.group(1) == 'true'
+                continue
+            lm = re.match(r'\s+level: (\d+)\s*$', line)
+            if lm:
+                out.append((pulled, int(lm.group(1)), powered))
+                pulled = None
+                continue
+        m = HIST_RE.match(line)
+        if not m:
+            continue
+        off = _duration_s(m.group(1))
+        rest = m.group(2).strip()
+        if off is None:
+            continue
+        if rest.startswith('RESET:TIME:') or rest.startswith('TIME:'):
+            stamp = rest.split('TIME:', 1)[1].strip().split()[0]
+            try:
+                ref = (off, datetime.datetime.strptime(stamp, '%Y-%m-%d-%H-%M-%S'))
+            except ValueError:
+                ref = None
+            if rest.startswith('RESET'):
+                plug = None
+            continue
+        if rest.startswith('START') or rest.startswith('SHUTDOWN'):
+            ref = None
+            continue
+        lm = re.match(r'(\d{3})\b', rest)
+        if not lm:
+            continue
+        pm = re.search(r'\bplug=(\w+)', rest)
+        if pm:
+            plug = pm.group(1) != 'none'
+        if ref is not None:
+            out.append((ref[1] + datetime.timedelta(seconds=off - ref[0]), int(lm.group(1)), plug))
+    return out
+
+
+def _match_window(path, d):
+    """(start, end) wall times of a match log: MatchId (or the file name) plus its last sample."""
+    mid = (d.get('/RealMetadata/MatchId') or [(0, '')])[0][1]
+    mm = re.search(r'(\d{4}-\d\d-\d\d_\d\d-\d\d-\d\d)', str(mid)) or re.search(
+        r'(\d{4}-\d\d-\d\d_\d\d-\d\d-\d\d)', path.split('/')[-1])
+    if not mm:
+        return None
+    start = datetime.datetime.strptime(mm.group(1), '%Y-%m-%d_%H-%M-%S')
+    last = max((s[-1][0] for s in d.values() if s), default=0.0)
+    return start, start + datetime.timedelta(seconds=last)
+
+
+def _plug(p):
+    return '?' if p is None else ('yes' if p else 'no')
+
+
+def dsbattery(paths):
+    """Each Driver Hub's battery through the day (changes only), then one row per match log and
+    Driver Hub: the DS battery at the match's start, its lowest and at its end, beside the robot's
+    own battery. The match's times are the robot's clock, which the Control Hub takes from the
+    Driver Station, so the two line up to within a few seconds."""
+    hubs = {}
+    logs = []
+    for p in sorted(paths):
+        name = p.split('/')[-1]
+        m = DS_FILE_RE.search(name)
+        if m:
+            src = 'OS history' if m.group(5) == 'battery' else 'DS log'
+            samples = battery_history_samples(p) if m.group(5) == 'battery' else ds_log_samples(p)
+            hubs.setdefault(m.group(4), []).extend((t, pct, plug, src) for t, pct, plug in samples)
+        elif '.wpilog' in name:
+            logs.append(p)
+        else:
+            print('skipped (neither a Driver Hub file nor a .wpilog): ' + name)
+    if not hubs:
+        print('No Driver Hub files (*_DriverHub-*.battery.txt / .dslog.txt) given: was a Driver Hub on '
+              'USB at the pull?')
+    series = {}
+    for hub, samples in sorted(hubs.items()):
+        # The history wins where both have a sample in the same second; snapshots overlap, so dedupe.
+        seen, merged = set(), []
+        for t, pct, plug, src in sorted(samples, key=lambda s: (s[0], s[3] != 'OS history')):
+            key = (t.replace(microsecond=0), pct)
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.append((t, pct, plug, src))
+        series[hub] = merged
+        print('=' * 78)
+        print('Driver Hub %s: %d samples, %s to %s' % (
+            hub, len(merged), merged[0][0].strftime('%Y-%m-%d %H:%M') if merged else '-',
+            merged[-1][0].strftime('%H:%M') if merged else '-'))
+        if merged and all(s[3] == 'DS log' for s in merged):
+            print('  (DS log only: it records only below 30 %, so the hub was under 30 % for all of these)')
+        print('  %-19s %5s %8s  %s' % ('time', 'DS %', 'plugged', 'from'))
+        last = None
+        for i, (t, pct, plug, src) in enumerate(merged):
+            if last is not None and (pct, plug) == last and i != len(merged) - 1:
+                continue
+            last = (pct, plug)
+            print('  %-19s %5d %8s  %s' % (t.strftime('%Y-%m-%d %H:%M:%S'), pct, _plug(plug), src))
+    if not logs:
+        return
+    print()
+    print('%-40s %8s %8s  %-14s %-26s %s' % ('match log', 'start', 'end', 'Driver Hub', 'DS % start / low / end',
+                                           'robot V init / low'))
+    for p in logs:
+        d = read(p)
+        win = _match_window(p, d)
+        name = p.split('/')[-1][:40]
+        volts = [x for _, x in d.get('/Robot/BatteryVolts', []) if isinstance(x, (int, float))]
+        robot = '%s / %s' % ((d.get('/RealMetadata/BatteryAtInit') or [(0, '?')])[0][1],
+                             '%.2f V' % min(volts) if volts else '?')
+        if win is None:
+            print('%-40s %8s %8s  %s' % (name, '?', '?', 'no match time in the log or its name'))
+            continue
+        a, b = win
+        if not series:
+            print('%-40s %8s %8s  %-14s %-26s %s' % (name, a.strftime('%H:%M:%S'), b.strftime('%H:%M:%S'),
+                                                   '-', '-', robot))
+        for hub, merged in sorted(series.items()):
+            before = [s for s in merged if s[0] <= a]
+            inside = [s for s in merged if a <= s[0] <= b]
+            start = before[-1] if before else None
+            end_s = ([s for s in merged if s[0] <= b] or [None])[-1]
+            if start is None and not inside:
+                ds = 'no sample yet'
+            else:
+                lows = [s[1] for s in inside] + ([start[1]] if start else [])
+                ds = '%s / %d / %s' % ('?' if start is None else start[1], min(lows),
+                                       '?' if end_s is None else end_s[1])
+                if start is not None and (a - start[0]).total_seconds() > 1800:
+                    ds += ' (start: %d min old)' % ((a - start[0]).total_seconds() // 60)
+            print('%-40s %8s %8s  %-14s %-26s %s' % (name, a.strftime('%H:%M:%S'), b.strftime('%H:%M:%S'),
+                                                   hub[:14], ds, robot))
+
+
 def main(argv):
     if len(argv) < 3:
         print(__doc__)
@@ -312,6 +529,8 @@ def main(argv):
         picks(argv[2:])
     elif cmd == 'launcher':
         launcher(argv[2:])
+    elif cmd == 'dsbattery':
+        dsbattery(argv[2:])
     elif cmd == 'series':
         d = read(path)
         for k in argv[3:]:
