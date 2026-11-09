@@ -81,7 +81,7 @@ known differences are in `reproduce_rules.py`, each with its reason.
 | Within tolerance | flower_picks (20245 TeleOp push 1.05 vs 1.04: the same mean, rounded the other way) |
 | Not exactly | floor_pickup: `first_piece_s`, `to_full_s` (and the undrawn `collecting_share`) differ by 0.2–0.7 s; issue #508's script is not in the session record, so these follow its written definitions. Its counts, rate and `between_s` reproduce. |
 | Not made | square_issues' undrawn hand-read fields (how soon the Pinpoint came back, refusals a later build would allow). The drawn ones reproduce. |
-| Inputs, not logs | `world_ranks` is FTCScout's season quick-stats at the time of the run (Belding's: 8 Nov, saved in `data/belding/ftcscout/quick-stats-*.json`); a run today gives today's ranks. The page footer says FTCStats, but the Belding numbers came from FTCScout's quick-stats. Awards come from FTCScout's awards list. |
+| Inputs, not logs | `world_ranks` is FTCScout's season quick-stats at the time of the run (Belding's: 8 Nov, saved in `data/belding/ftcscout/quick-stats-*.json`); a run today gives today's ranks. Awards come from FTCScout's awards list. |
 
 Rules the pipeline encodes rather than numbers:
 - **Pieces launched** use PR #506's detector, vendored in `review_lib/shots.py` (the robot's is
@@ -130,7 +130,7 @@ Match logs read with `tools/pull-logs/read_logs.py`. Times are medians unless th
 | Dataset | Section | Source |
 |---|---|---|
 | `results` (`kpis` is computed in the page from it), `field_opr`, `top_scores` | Hero, Against the field | FTCScout REST API, event `USMIBEQ` (OPR and averages: qualification matches) |
-| `world_ranks` | In the world this season | FTCScout season quick-stats, as of 8 Nov (the page footer says FTCStats) |
+| `world_ranks` | In the world this season | FTCScout season quick-stats, as of 8 Nov |
 | `pieces` | Pieces launched per match | Improved shot detector (PR #506), Auto and TeleOp per match |
 | `feed_summary`, `cycle_groups`, `cycle_group_summary`, `cycle_steps` | Cycle time | Volley to volley from the logs; each match's first volley excluded; IR Lower final excluded from first-volley timing (Pinpoint lost) |
 | `volley_pieces`, `volley_steps` | Cycle time cards, Full volley | Reliable 4-shot TeleOp volleys, improved detector |
@@ -149,3 +149,13 @@ less what was left in the lane, capped by the lane's space. All 4 preloads launc
 (drive team). The sensor alone reads 2.4 / 1.2: pieces off a FLOWER arrive nose to tail and read as
 one. `/Lane/Full` is not used: it can read full while the stick holds a piece under the sensor.
 
+
+## Comparing with Belding
+
+Compare a new event against `data/belding-rebuilt/`, not `data/belding/`. It is Belding run through
+this same pipeline, so both events use the same definitions (it differs from the published Belding
+page only in the floor-pickup timings and the hand-read `square_issues` fields listed above):
+
+```
+python3 tools/event-review/compare.py tools/event-review/data/belding-rebuilt tools/event-review/data/<event> --out out/<event>
+```

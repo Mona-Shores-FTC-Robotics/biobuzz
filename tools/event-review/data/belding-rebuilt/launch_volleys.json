@@ -1,0 +1,731 @@
+[
+ {
+  "robot": "19429",
+  "match": "Q4",
+  "match_order": 1,
+  "press": 41.1,
+  "span": 4.6,
+  "t": 43.2,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "19429",
+  "match": "Q4",
+  "match_order": 1,
+  "press": 62.0,
+  "span": 4.6,
+  "t": 63.4,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "19429",
+  "match": "Q4",
+  "match_order": 1,
+  "press": 108.0,
+  "span": 0.8,
+  "t": 108.8,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Q13",
+  "match_order": 2,
+  "press": 26.3,
+  "span": 4.2,
+  "t": 28.1,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "19429",
+  "match": "Q13",
+  "match_order": 2,
+  "press": 54.3,
+  "span": 2.3,
+  "t": 55.5,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "19429",
+  "match": "Q13",
+  "match_order": 2,
+  "press": 77.1,
+  "span": 1.7,
+  "t": 78.3,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "19429",
+  "match": "Q13",
+  "match_order": 2,
+  "press": 113.1,
+  "span": 1.6,
+  "t": 114.7,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Q19",
+  "match_order": 3,
+  "press": 15.1,
+  "span": 4.6,
+  "t": 16.6,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Q19",
+  "match_order": 3,
+  "press": 61.6,
+  "span": 4.2,
+  "t": 63.0,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "19429",
+  "match": "Q26",
+  "match_order": 4,
+  "press": 15.3,
+  "span": 3.6,
+  "t": 16.6,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Q26",
+  "match_order": 4,
+  "press": 49.2,
+  "span": 3.1,
+  "t": 50.0,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Q26",
+  "match_order": 4,
+  "press": 66.0,
+  "span": 3.1,
+  "t": 67.3,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Q26",
+  "match_order": 4,
+  "press": 107.1,
+  "span": 3.0,
+  "t": 107.9,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Q32",
+  "match_order": 5,
+  "press": 21.7,
+  "span": 5.1,
+  "t": 23.6,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Q32",
+  "match_order": 5,
+  "press": 51.8,
+  "span": 4.6,
+  "t": 54.2,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "19429",
+  "match": "Q32",
+  "match_order": 5,
+  "press": 101.0,
+  "span": 3.5,
+  "t": 102.5,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Playoff 1",
+  "match_order": 6,
+  "press": 47.0,
+  "span": 4.0,
+  "t": 48.9,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "19429",
+  "match": "Playoff 1",
+  "match_order": 6,
+  "press": 65.9,
+  "span": 2.9,
+  "t": 67.7,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Playoff 1",
+  "match_order": 6,
+  "press": 86.6,
+  "span": 2.4,
+  "t": 87.3,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Playoff 1",
+  "match_order": 6,
+  "press": 104.6,
+  "span": 2.4,
+  "t": 105.3,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Upper final",
+  "match_order": 7,
+  "press": 55.9,
+  "span": 3.2,
+  "t": 57.3,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "19429",
+  "match": "Upper final",
+  "match_order": 7,
+  "press": 82.2,
+  "span": 0.8,
+  "t": 83.0,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Lower final",
+  "match_order": 8,
+  "press": 76.1,
+  "span": 2.9,
+  "t": 77.5,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Lower final",
+  "match_order": 8,
+  "press": 93.3,
+  "span": 2.9,
+  "t": 94.1,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Lower final",
+  "match_order": 8,
+  "press": 109.7,
+  "span": 3.0,
+  "t": 110.6,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Final",
+  "match_order": 9,
+  "press": 33.2,
+  "span": 2.3,
+  "t": 33.9,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Final",
+  "match_order": 9,
+  "press": 37.5,
+  "span": 5.4,
+  "t": 37.8,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Final",
+  "match_order": 9,
+  "press": 68.4,
+  "span": 8.0,
+  "t": 71.7,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "19429",
+  "match": "Final",
+  "match_order": 9,
+  "press": 92.6,
+  "span": 5.8,
+  "t": 96.7,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "20245",
+  "match": "Q1",
+  "match_order": 1,
+  "press": 2.9,
+  "span": 3.4,
+  "t": 4.7,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q1",
+  "match_order": 1,
+  "press": 14.1,
+  "span": 4.6,
+  "t": 16.5,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q1",
+  "match_order": 1,
+  "press": 31.2,
+  "span": 5.7,
+  "t": 35.6,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q1",
+  "match_order": 1,
+  "press": 46.9,
+  "span": 5.5,
+  "t": 50.1,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q1",
+  "match_order": 1,
+  "press": 85.4,
+  "span": 5.6,
+  "t": 87.0,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q1",
+  "match_order": 1,
+  "press": 104.4,
+  "span": 4.2,
+  "t": 105.9,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q7",
+  "match_order": 2,
+  "press": 12.2,
+  "span": 3.8,
+  "t": 13.4,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q7",
+  "match_order": 2,
+  "press": 25.7,
+  "span": 7.0,
+  "t": 28.3,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q7",
+  "match_order": 2,
+  "press": 42.4,
+  "span": 5.1,
+  "t": 45.6,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q7",
+  "match_order": 2,
+  "press": 60.9,
+  "span": 5.9,
+  "t": 63.6,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q7",
+  "match_order": 2,
+  "press": 76.8,
+  "span": 4.4,
+  "t": 79.1,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q7",
+  "match_order": 2,
+  "press": 99.2,
+  "span": 5.6,
+  "t": 101.6,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q7",
+  "match_order": 2,
+  "press": 110.9,
+  "span": 5.6,
+  "t": 113.6,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q14",
+  "match_order": 3,
+  "press": 8.0,
+  "span": 4.4,
+  "t": 10.5,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q14",
+  "match_order": 3,
+  "press": 20.9,
+  "span": 4.2,
+  "t": 23.1,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q14",
+  "match_order": 3,
+  "press": 68.3,
+  "span": 4.4,
+  "t": 71.1,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q14",
+  "match_order": 3,
+  "press": 85.2,
+  "span": 4.7,
+  "t": 87.9,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q14",
+  "match_order": 3,
+  "press": 95.8,
+  "span": 4.2,
+  "t": 97.9,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q14",
+  "match_order": 3,
+  "press": 104.8,
+  "span": 3.6,
+  "t": 106.7,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q14",
+  "match_order": 3,
+  "press": 116.6,
+  "span": 3.5,
+  "t": 118.8,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q27",
+  "match_order": 4,
+  "press": 16.3,
+  "span": 2.5,
+  "t": 18.2,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "20245",
+  "match": "Q27",
+  "match_order": 4,
+  "press": 33.9,
+  "span": 1.4,
+  "t": 35.0,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "20245",
+  "match": "Q27",
+  "match_order": 4,
+  "press": 51.2,
+  "span": 2.1,
+  "t": 53.3,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "20245",
+  "match": "Q27",
+  "match_order": 4,
+  "press": 68.7,
+  "span": 3.3,
+  "t": 71.0,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "20245",
+  "match": "Q31",
+  "match_order": 5,
+  "press": 9.4,
+  "span": 3.9,
+  "t": 10.3,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "20245",
+  "match": "Q31",
+  "match_order": 5,
+  "press": 36.9,
+  "span": 3.7,
+  "t": 38.5,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q31",
+  "match_order": 5,
+  "press": 63.9,
+  "span": 3.0,
+  "t": 65.7,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q31",
+  "match_order": 5,
+  "press": 80.7,
+  "span": 1.6,
+  "t": 81.9,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q31",
+  "match_order": 5,
+  "press": 86.6,
+  "span": 2.8,
+  "t": 88.2,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Q31",
+  "match_order": 5,
+  "press": 105.2,
+  "span": 2.8,
+  "t": 106.3,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Playoff 1",
+  "match_order": 6,
+  "press": 7.6,
+  "span": 3.3,
+  "t": 9.6,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Playoff 1",
+  "match_order": 6,
+  "press": 21.7,
+  "span": 3.5,
+  "t": 23.4,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Playoff 1",
+  "match_order": 6,
+  "press": 34.9,
+  "span": 3.4,
+  "t": 36.3,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Playoff 1",
+  "match_order": 6,
+  "press": 50.4,
+  "span": 5.6,
+  "t": 53.4,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Playoff 1",
+  "match_order": 6,
+  "press": 73.4,
+  "span": 5.1,
+  "t": 75.9,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Playoff 1",
+  "match_order": 6,
+  "press": 109.5,
+  "span": 4.7,
+  "t": 110.5,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Upper final",
+  "match_order": 7,
+  "press": 25.7,
+  "span": 6.7,
+  "t": 28.3,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Upper final",
+  "match_order": 7,
+  "press": 41.2,
+  "span": 4.2,
+  "t": 43.2,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Upper final",
+  "match_order": 7,
+  "press": 49.7,
+  "span": 5.3,
+  "t": 52.7,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Upper final",
+  "match_order": 7,
+  "press": 65.6,
+  "span": 4.0,
+  "t": 67.9,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Upper final",
+  "match_order": 7,
+  "press": 81.7,
+  "span": 2.2,
+  "t": 82.8,
+  "method": "Operator FIRE"
+ },
+ {
+  "robot": "20245",
+  "match": "Upper final",
+  "match_order": 7,
+  "press": 95.4,
+  "span": 5.0,
+  "t": 97.8,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Upper final",
+  "match_order": 7,
+  "press": 106.9,
+  "span": 5.6,
+  "t": 110.4,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Upper final",
+  "match_order": 7,
+  "press": 117.2,
+  "span": 3.3,
+  "t": 120.3,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Final",
+  "match_order": 8,
+  "press": 12.7,
+  "span": 4.4,
+  "t": 14.9,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Final",
+  "match_order": 8,
+  "press": 31.4,
+  "span": 3.8,
+  "t": 33.1,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Final",
+  "match_order": 8,
+  "press": 50.1,
+  "span": 5.0,
+  "t": 52.4,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Final",
+  "match_order": 8,
+  "press": 59.1,
+  "span": 4.0,
+  "t": 60.7,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Final",
+  "match_order": 8,
+  "press": 68.4,
+  "span": 3.7,
+  "t": 70.6,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Final",
+  "match_order": 8,
+  "press": 79.5,
+  "span": 6.3,
+  "t": 83.3,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Final",
+  "match_order": 8,
+  "press": 92.1,
+  "span": 9.0,
+  "t": 93.8,
+  "method": "Auto-drive"
+ },
+ {
+  "robot": "20245",
+  "match": "Final",
+  "match_order": 8,
+  "press": 108.0,
+  "span": 4.9,
+  "t": 111.2,
+  "method": "Auto-drive"
+ }
+]

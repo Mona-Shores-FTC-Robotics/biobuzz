@@ -26,7 +26,7 @@ if os.path.exists(ev_path):
     ev = json.load(open(ev_path))
     for old, key in (('<h1>Belding Qualifier</h1>', 'name'), ('FTC BIOBUZZ · Nov 7, 2026 ·', 'date'),
                      ('event USMIBEQ;', 'code'), ('as of Nov 8', 'world_as_of'), ("both robots' Saturday match logs", 'match_day'),
-                     ('world ranks from FTCStats (ftcstats.org', 'world_source')):
+                     ('world ranks from FTCScout (season OPR', 'world_source')):
         v = ev.get(key)
         if not v:
             continue

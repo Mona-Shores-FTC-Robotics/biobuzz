@@ -1,0 +1,3098 @@
+[
+ {
+  "team": "19429",
+  "log": "2026-11-07_11-36-28",
+  "phase": "auto",
+  "open_s": 69.38,
+  "open_dur_s": 3.49,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 4,
+  "shots_new": [
+   1.0,
+   1.53,
+   1.98,
+   2.45
+  ],
+  "dip_start_s": [
+   0.89,
+   1.45,
+   1.91,
+   2.38
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_11-36-28",
+  "phase": "auto",
+  "open_s": 82.53,
+  "open_dur_s": 3.5,
+  "lane_at_open": 2,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_11-36-28",
+  "phase": "auto",
+  "open_s": 92.19,
+  "open_dur_s": 3.49,
+  "lane_at_open": 2,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_11-36-28",
+  "phase": "tele",
+  "open_s": 151.45,
+  "open_dur_s": 2.83,
+  "lane_at_open": 3,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.72,
+   1.19,
+   1.64,
+   2.1
+  ],
+  "dip_start_s": [
+   0.63,
+   1.08,
+   1.53,
+   2.06
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_11-36-28",
+  "phase": "tele",
+  "open_s": 171.55,
+  "open_dur_s": 1.61,
+  "lane_at_open": 3,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   0.75,
+   1.21
+  ],
+  "dip_start_s": [
+   0.67,
+   1.11
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_11-36-28",
+  "phase": "tele",
+  "open_s": 211.47,
+  "open_dur_s": 0.89,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 1,
+  "shots_new": [
+   0.79
+  ],
+  "dip_start_s": [
+   0.71
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_11-36-28",
+  "phase": "tele",
+  "open_s": 216.86,
+  "open_dur_s": 0.79,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 2,
+  "shots_new": [
+   0.12,
+   0.84
+  ],
+  "dip_start_s": [
+   -0.0,
+   0.73
+  ],
+  "reliable": false,
+  "why": [
+   "a dip starting under 0.3 s after the gate opened"
+  ]
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_13-20-32",
+  "phase": "auto",
+  "open_s": 88.24,
+  "open_dur_s": 2.13,
+  "lane_at_open": 4,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.75,
+   1.22,
+   1.65,
+   2.18
+  ],
+  "dip_start_s": [
+   0.63,
+   1.13,
+   1.6,
+   2.09
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_13-20-32",
+  "phase": "auto",
+  "open_s": 100.37,
+  "open_dur_s": 3.49,
+  "lane_at_open": 1,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   0.77
+  ],
+  "dip_start_s": [
+   0.68
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_13-20-32",
+  "phase": "auto",
+  "open_s": 110.43,
+  "open_dur_s": 2.49,
+  "lane_at_open": 2,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.83,
+   1.58,
+   2.02,
+   2.55
+  ],
+  "dip_start_s": [
+   0.73,
+   1.51,
+   1.92,
+   2.41
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_13-20-32",
+  "phase": "tele",
+  "open_s": 154.19,
+  "open_dur_s": 3.05,
+  "lane_at_open": 3,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.89,
+   1.35,
+   1.81,
+   2.24
+  ],
+  "dip_start_s": [
+   0.79,
+   1.23,
+   1.73,
+   2.16
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_13-20-32",
+  "phase": "tele",
+  "open_s": 180.57,
+  "open_dur_s": 0.46,
+  "lane_at_open": 2,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_13-20-32",
+  "phase": "tele",
+  "open_s": 181.72,
+  "open_dur_s": 2.24,
+  "lane_at_open": 2,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   0.8,
+   1.29
+  ],
+  "dip_start_s": [
+   0.7,
+   1.19
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_13-20-32",
+  "phase": "tele",
+  "open_s": 203.85,
+  "open_dur_s": 0.05,
+  "lane_at_open": 3,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_13-20-32",
+  "phase": "tele",
+  "open_s": 204.44,
+  "open_dur_s": 2.76,
+  "lane_at_open": 3,
+  "old": 4,
+  "new": 2,
+  "shots_new": [
+   0.93,
+   1.96
+  ],
+  "dip_start_s": [
+   0.81,
+   1.83
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_13-20-32",
+  "phase": "tele",
+  "open_s": 240.76,
+  "open_dur_s": 2.52,
+  "lane_at_open": 3,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   0.97,
+   1.43,
+   1.83
+  ],
+  "dip_start_s": [
+   0.85,
+   1.27,
+   1.71
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-01-52",
+  "phase": "auto",
+  "open_s": 31.98,
+  "open_dur_s": 3.5,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 4,
+  "shots_new": [
+   1.0,
+   1.43,
+   1.89,
+   2.4
+  ],
+  "dip_start_s": [
+   0.9,
+   1.33,
+   1.8,
+   2.3
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-01-52",
+  "phase": "auto",
+  "open_s": 45.55,
+  "open_dur_s": 3.49,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 4,
+  "shots_new": [
+   0.75,
+   1.17,
+   1.56,
+   2.02
+  ],
+  "dip_start_s": [
+   0.67,
+   1.05,
+   1.5,
+   1.96
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-01-52",
+  "phase": "auto",
+  "open_s": 56.85,
+  "open_dur_s": 3.47,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   1.12,
+   2.37
+  ],
+  "dip_start_s": [
+   1.02,
+   2.24
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-01-52",
+  "phase": "tele",
+  "open_s": 85.58,
+  "open_dur_s": 3.44,
+  "lane_at_open": 1,
+  "old": 1,
+  "new": 3,
+  "shots_new": [
+   0.96,
+   1.4,
+   1.92
+  ],
+  "dip_start_s": [
+   0.86,
+   1.32,
+   1.81
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-01-52",
+  "phase": "tele",
+  "open_s": 132.05,
+  "open_dur_s": 2.42,
+  "lane_at_open": 3,
+  "old": 4,
+  "new": 3,
+  "shots_new": [
+   0.94,
+   1.31,
+   1.75
+  ],
+  "dip_start_s": [
+   0.71,
+   1.21,
+   1.67
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "auto",
+  "open_s": 32.04,
+  "open_dur_s": 3.49,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   0.88,
+   1.33,
+   2.34
+  ],
+  "dip_start_s": [
+   0.8,
+   1.28,
+   2.26
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "auto",
+  "open_s": 45.02,
+  "open_dur_s": 3.49,
+  "lane_at_open": 3,
+  "old": 0,
+  "new": 1,
+  "shots_new": [
+   0.74
+  ],
+  "dip_start_s": [
+   0.64
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "auto",
+  "open_s": 54.68,
+  "open_dur_s": 3.47,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 3,
+  "shots_new": [
+   0.69,
+   1.62,
+   2.07
+  ],
+  "dip_start_s": [
+   0.6,
+   1.51,
+   1.99
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "tele",
+  "open_s": 86.61,
+  "open_dur_s": 3.15,
+  "lane_at_open": 2,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.76,
+   1.29,
+   1.78,
+   2.25
+  ],
+  "dip_start_s": [
+   0.68,
+   1.22,
+   1.68,
+   2.17
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "tele",
+  "open_s": 116.67,
+  "open_dur_s": 0.16,
+  "lane_at_open": 2,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "tele",
+  "open_s": 119.99,
+  "open_dur_s": 2.92,
+  "lane_at_open": 2,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   0.81,
+   1.26,
+   1.75
+  ],
+  "dip_start_s": [
+   0.74,
+   1.18,
+   1.6
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "tele",
+  "open_s": 131.69,
+  "open_dur_s": 2.2,
+  "lane_at_open": 1,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "tele",
+  "open_s": 136.8,
+  "open_dur_s": 2.75,
+  "lane_at_open": 1,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   1.28
+  ],
+  "dip_start_s": [
+   1.15
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "tele",
+  "open_s": 139.79,
+  "open_dur_s": 2.04,
+  "lane_at_open": 0,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "tele",
+  "open_s": 142.45,
+  "open_dur_s": 1.4,
+  "lane_at_open": 0,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "tele",
+  "open_s": 144.18,
+  "open_dur_s": 1.45,
+  "lane_at_open": 0,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "tele",
+  "open_s": 145.99,
+  "open_dur_s": 0.81,
+  "lane_at_open": 0,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_14-41-09",
+  "phase": "tele",
+  "open_s": 177.83,
+  "open_dur_s": 2.71,
+  "lane_at_open": 2,
+  "old": 1,
+  "new": 2,
+  "shots_new": [
+   0.81,
+   1.29
+  ],
+  "dip_start_s": [
+   0.74,
+   1.21
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_15-20-08",
+  "phase": "auto",
+  "open_s": 144.16,
+  "open_dur_s": 3.48,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 4,
+  "shots_new": [
+   0.76,
+   1.21,
+   1.68,
+   2.16
+  ],
+  "dip_start_s": [
+   0.68,
+   1.14,
+   1.6,
+   2.07
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_15-20-08",
+  "phase": "auto",
+  "open_s": 157.37,
+  "open_dur_s": 3.48,
+  "lane_at_open": 2,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   0.73
+  ],
+  "dip_start_s": [
+   0.67
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_15-20-08",
+  "phase": "auto",
+  "open_s": 167.24,
+  "open_dur_s": 3.48,
+  "lane_at_open": 3,
+  "old": 1,
+  "new": 2,
+  "shots_new": [
+   0.73,
+   1.18
+  ],
+  "dip_start_s": [
+   0.64,
+   1.11
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_15-20-08",
+  "phase": "tele",
+  "open_s": 205.27,
+  "open_dur_s": 2.82,
+  "lane_at_open": 1,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   0.76,
+   1.7
+  ],
+  "dip_start_s": [
+   0.71,
+   1.59
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_15-20-08",
+  "phase": "tele",
+  "open_s": 235.05,
+  "open_dur_s": 0.12,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_15-20-08",
+  "phase": "tele",
+  "open_s": 235.31,
+  "open_dur_s": 2.88,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 4,
+  "shots_new": [
+   0.49,
+   0.94,
+   1.34,
+   1.82
+  ],
+  "dip_start_s": [
+   0.37,
+   0.84,
+   1.26,
+   1.67
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_15-20-08",
+  "phase": "tele",
+  "open_s": 270.89,
+  "open_dur_s": 3.7,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 3,
+  "shots_new": [
+   0.91,
+   1.24,
+   2.12
+  ],
+  "dip_start_s": [
+   0.79,
+   1.19,
+   2.03
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_15-20-08",
+  "phase": "tele",
+  "open_s": 284.06,
+  "open_dur_s": 3.19,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 1,
+  "shots_new": [
+   1.36
+  ],
+  "dip_start_s": [
+   1.2
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_16-39-36",
+  "phase": "auto",
+  "open_s": 60.21,
+  "open_dur_s": 3.46,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 4,
+  "shots_new": [
+   1.53,
+   2.09,
+   2.58,
+   3.08
+  ],
+  "dip_start_s": [
+   1.44,
+   2.02,
+   2.47,
+   2.99
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_16-39-36",
+  "phase": "auto",
+  "open_s": 70.1,
+  "open_dur_s": 3.49,
+  "lane_at_open": 2,
+  "old": 0,
+  "new": 1,
+  "shots_new": [
+   0.75
+  ],
+  "dip_start_s": [
+   0.66
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_16-39-36",
+  "phase": "tele",
+  "open_s": 109.89,
+  "open_dur_s": 0.47,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_16-39-36",
+  "phase": "tele",
+  "open_s": 112.04,
+  "open_dur_s": 0.69,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_16-39-36",
+  "phase": "tele",
+  "open_s": 115.04,
+  "open_dur_s": 1.07,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_16-39-36",
+  "phase": "tele",
+  "open_s": 137.34,
+  "open_dur_s": 2.66,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   0.84,
+   1.33,
+   1.74
+  ],
+  "dip_start_s": [
+   0.76,
+   1.24,
+   1.67
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_16-39-36",
+  "phase": "tele",
+  "open_s": 155.35,
+  "open_dur_s": 2.48,
+  "lane_at_open": 3,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   1.75
+  ],
+  "dip_start_s": [
+   1.6
+  ],
+  "reliable": false,
+  "why": [
+   "first shot later than 1.6 s"
+  ]
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_16-39-36",
+  "phase": "tele",
+  "open_s": 175.84,
+  "open_dur_s": 2.68,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   0.84,
+   1.27,
+   1.76
+  ],
+  "dip_start_s": [
+   0.7,
+   1.17,
+   1.68
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_16-39-36",
+  "phase": "tele",
+  "open_s": 193.82,
+  "open_dur_s": 2.35,
+  "lane_at_open": 3,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   0.85,
+   1.39
+  ],
+  "dip_start_s": [
+   0.75,
+   1.28
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-04-49",
+  "phase": "auto",
+  "open_s": 80.44,
+  "open_dur_s": 2.15,
+  "lane_at_open": 4,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.74,
+   1.23,
+   1.66,
+   2.15
+  ],
+  "dip_start_s": [
+   0.68,
+   1.14,
+   1.6,
+   2.05
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-04-49",
+  "phase": "auto",
+  "open_s": 89.14,
+  "open_dur_s": 2.03,
+  "lane_at_open": 2,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.75,
+   1.16,
+   1.63,
+   2.07
+  ],
+  "dip_start_s": [
+   0.69,
+   1.09,
+   1.54,
+   1.98
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-04-49",
+  "phase": "tele",
+  "open_s": 166.22,
+  "open_dur_s": 2.34,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 3,
+  "shots_new": [
+   0.78,
+   1.27,
+   1.76
+  ],
+  "dip_start_s": [
+   0.67,
+   1.19,
+   1.65
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-04-49",
+  "phase": "tele",
+  "open_s": 191.85,
+  "open_dur_s": 0.8,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   0.8
+  ],
+  "dip_start_s": [
+   0.65
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-32-26",
+  "phase": "tele",
+  "open_s": 118.22,
+  "open_dur_s": 3.24,
+  "lane_at_open": 0,
+  "old": 0,
+  "new": 4,
+  "shots_new": [
+   0.97,
+   1.36,
+   1.82,
+   2.24
+  ],
+  "dip_start_s": [
+   0.85,
+   1.27,
+   1.72,
+   2.15
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-32-26",
+  "phase": "tele",
+  "open_s": 149.33,
+  "open_dur_s": 2.81,
+  "lane_at_open": 2,
+  "old": 3,
+  "new": 4,
+  "shots_new": [
+   0.82,
+   1.43,
+   1.85,
+   2.36
+  ],
+  "dip_start_s": [
+   0.73,
+   1.29,
+   1.78,
+   2.28
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-32-26",
+  "phase": "tele",
+  "open_s": 166.62,
+  "open_dur_s": 2.86,
+  "lane_at_open": 3,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   0.79,
+   1.21,
+   1.74
+  ],
+  "dip_start_s": [
+   0.63,
+   1.11,
+   1.65
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-32-26",
+  "phase": "tele",
+  "open_s": 183.06,
+  "open_dur_s": 0.99,
+  "lane_at_open": 1,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   0.8
+  ],
+  "dip_start_s": [
+   0.7
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-32-26",
+  "phase": "tele",
+  "open_s": 184.6,
+  "open_dur_s": 2.21,
+  "lane_at_open": 0,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "auto",
+  "open_s": 57.33,
+  "open_dur_s": 2.27,
+  "lane_at_open": 4,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.84,
+   1.37,
+   1.81,
+   2.34
+  ],
+  "dip_start_s": [
+   0.76,
+   1.28,
+   1.7,
+   2.19
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "auto",
+  "open_s": 67.27,
+  "open_dur_s": 3.43,
+  "lane_at_open": 2,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   1.39,
+   2.93,
+   3.37
+  ],
+  "dip_start_s": [
+   1.32,
+   2.84,
+   3.29
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 111.76,
+  "open_dur_s": 2.55,
+  "lane_at_open": 1,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 114.75,
+  "open_dur_s": 1.73,
+  "lane_at_open": 1,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 117.25,
+  "open_dur_s": 2.38,
+  "lane_at_open": 1,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 120.33,
+  "open_dur_s": 3.16,
+  "lane_at_open": 1,
+  "old": 1,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 124.22,
+  "open_dur_s": 4.46,
+  "lane_at_open": 0,
+  "old": 1,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 128.85,
+  "open_dur_s": 1.86,
+  "lane_at_open": 0,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 151.16,
+  "open_dur_s": 1.32,
+  "lane_at_open": 2,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 153.6,
+  "open_dur_s": 1.19,
+  "lane_at_open": 2,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 155.13,
+  "open_dur_s": 8.82,
+  "lane_at_open": 2,
+  "old": 2,
+  "new": 4,
+  "shots_new": [
+   3.25,
+   4.48,
+   5.97,
+   6.48
+  ],
+  "dip_start_s": [
+   3.12,
+   4.35,
+   5.89,
+   6.4
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots",
+   "first shot later than 1.6 s"
+  ]
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 179.22,
+  "open_dur_s": 6.03,
+  "lane_at_open": 2,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   3.08,
+   4.13,
+   4.59
+  ],
+  "dip_start_s": [
+   3.01,
+   4.04,
+   4.45
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots",
+   "first shot later than 1.6 s"
+  ]
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 198.34,
+  "open_dur_s": 1.42,
+  "lane_at_open": 1,
+  "old": 0,
+  "new": 1,
+  "shots_new": [
+   0.78
+  ],
+  "dip_start_s": [
+   0.68
+  ],
+  "reliable": true
+ },
+ {
+  "team": "19429",
+  "log": "2026-11-07_17-52-07",
+  "phase": "tele",
+  "open_s": 199.9,
+  "open_dur_s": 1.13,
+  "lane_at_open": 1,
+  "old": 0,
+  "new": 1,
+  "shots_new": [
+   0.54
+  ],
+  "dip_start_s": [
+   0.39
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-01-21",
+  "phase": "auto",
+  "open_s": 118.67,
+  "open_dur_s": 2.54,
+  "lane_at_open": 4,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.85,
+   1.35,
+   1.83,
+   2.54
+  ],
+  "dip_start_s": [
+   0.76,
+   1.24,
+   1.73,
+   2.41
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-01-21",
+  "phase": "auto",
+  "open_s": 131.53,
+  "open_dur_s": 3.46,
+  "lane_at_open": 3,
+  "old": 2,
+  "new": 4,
+  "shots_new": [
+   0.85,
+   1.22,
+   1.68,
+   2.13
+  ],
+  "dip_start_s": [
+   0.74,
+   1.16,
+   1.6,
+   2.05
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-01-21",
+  "phase": "auto",
+  "open_s": 140.97,
+  "open_dur_s": 3.46,
+  "lane_at_open": 2,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   1.05
+  ],
+  "dip_start_s": [
+   0.95
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-01-21",
+  "phase": "tele",
+  "open_s": 160.89,
+  "open_dur_s": 2.13,
+  "lane_at_open": 0,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   0.84,
+   1.34
+  ],
+  "dip_start_s": [
+   0.77,
+   1.24
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-01-21",
+  "phase": "tele",
+  "open_s": 172.63,
+  "open_dur_s": 2.59,
+  "lane_at_open": 3,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.9,
+   1.26,
+   1.72,
+   2.14
+  ],
+  "dip_start_s": [
+   0.76,
+   1.13,
+   1.63,
+   2.07
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-01-21",
+  "phase": "tele",
+  "open_s": 190.88,
+  "open_dur_s": 2.62,
+  "lane_at_open": 3,
+  "old": 2,
+  "new": 4,
+  "shots_new": [
+   0.86,
+   1.31,
+   1.8,
+   2.23
+  ],
+  "dip_start_s": [
+   0.77,
+   1.21,
+   1.68,
+   2.17
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-01-21",
+  "phase": "tele",
+  "open_s": 206.1,
+  "open_dur_s": 2.88,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 4,
+  "shots_new": [
+   0.98,
+   1.42,
+   1.98,
+   2.47
+  ],
+  "dip_start_s": [
+   0.88,
+   1.33,
+   1.9,
+   2.37
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-01-21",
+  "phase": "tele",
+  "open_s": 243.15,
+  "open_dur_s": 3.45,
+  "lane_at_open": 4,
+  "old": 5,
+  "new": 5,
+  "shots_new": [
+   0.89,
+   1.34,
+   2.04,
+   2.97,
+   3.4
+  ],
+  "dip_start_s": [
+   0.77,
+   1.25,
+   1.95,
+   2.83,
+   3.32
+  ],
+  "reliable": false,
+  "why": [
+   "more than 4 shots",
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-01-21",
+  "phase": "tele",
+  "open_s": 262.33,
+  "open_dur_s": 3.01,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 5,
+  "shots_new": [
+   0.26,
+   0.65,
+   0.9,
+   1.84,
+   2.29
+  ],
+  "dip_start_s": [
+   0.1,
+   0.44,
+   0.81,
+   1.72,
+   2.17
+  ],
+  "reliable": false,
+  "why": [
+   "more than 4 shots",
+   "a gap of 0.8 s or more between shots",
+   "a dip starting under 0.3 s after the gate opened"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-55-58",
+  "phase": "auto",
+  "open_s": 74.77,
+  "open_dur_s": 2.4,
+  "lane_at_open": 4,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.82,
+   1.22,
+   1.76,
+   2.45
+  ],
+  "dip_start_s": [
+   0.7,
+   1.13,
+   1.64,
+   2.34
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-55-58",
+  "phase": "auto",
+  "open_s": 91.62,
+  "open_dur_s": 3.5,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 5,
+  "shots_new": [
+   0.94,
+   1.27,
+   1.75,
+   2.17,
+   2.64
+  ],
+  "dip_start_s": [
+   0.85,
+   1.19,
+   1.64,
+   2.07,
+   2.54
+  ],
+  "reliable": false,
+  "why": [
+   "more than 4 shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-55-58",
+  "phase": "tele",
+  "open_s": 125.92,
+  "open_dur_s": 2.83,
+  "lane_at_open": 2,
+  "old": 4,
+  "new": 3,
+  "shots_new": [
+   1.28,
+   1.79,
+   2.21
+  ],
+  "dip_start_s": [
+   1.2,
+   1.67,
+   2.12
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-55-58",
+  "phase": "tele",
+  "open_s": 140.68,
+  "open_dur_s": 3.44,
+  "lane_at_open": 1,
+  "old": 1,
+  "new": 3,
+  "shots_new": [
+   0.92,
+   2.27,
+   2.67
+  ],
+  "dip_start_s": [
+   0.85,
+   2.15,
+   2.56
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-55-58",
+  "phase": "tele",
+  "open_s": 158.01,
+  "open_dur_s": 2.45,
+  "lane_at_open": 2,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   0.82,
+   1.23,
+   1.72
+  ],
+  "dip_start_s": [
+   0.73,
+   1.14,
+   1.62
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-55-58",
+  "phase": "tele",
+  "open_s": 175.26,
+  "open_dur_s": 3.44,
+  "lane_at_open": 3,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   1.59,
+   2.75,
+   3.15
+  ],
+  "dip_start_s": [
+   1.48,
+   2.65,
+   3.04
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-55-58",
+  "phase": "tele",
+  "open_s": 191.21,
+  "open_dur_s": 2.86,
+  "lane_at_open": 3,
+  "old": 3,
+  "new": 2,
+  "shots_new": [
+   1.71,
+   2.22
+  ],
+  "dip_start_s": [
+   1.6,
+   2.06
+  ],
+  "reliable": false,
+  "why": [
+   "first shot later than 1.6 s"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-55-58",
+  "phase": "tele",
+  "open_s": 214.13,
+  "open_dur_s": 2.42,
+  "lane_at_open": 3,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   0.82,
+   1.28,
+   1.82
+  ],
+  "dip_start_s": [
+   0.73,
+   1.22,
+   1.75
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-55-58",
+  "phase": "tele",
+  "open_s": 217.28,
+  "open_dur_s": 0.4,
+  "lane_at_open": 1,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_11-55-58",
+  "phase": "tele",
+  "open_s": 226.02,
+  "open_dur_s": 3.32,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   0.82,
+   1.67,
+   2.01
+  ],
+  "dip_start_s": [
+   0.7,
+   1.57,
+   1.95
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_13-19-36",
+  "phase": "auto",
+  "open_s": 46.86,
+  "open_dur_s": 3.47,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 2,
+  "shots_new": [
+   1.27,
+   1.69
+  ],
+  "dip_start_s": [
+   1.17,
+   1.62
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_13-19-36",
+  "phase": "auto",
+  "open_s": 58.55,
+  "open_dur_s": 3.46,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   0.83,
+   1.22,
+   2.15
+  ],
+  "dip_start_s": [
+   0.72,
+   1.16,
+   2.05
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_13-19-36",
+  "phase": "tele",
+  "open_s": 82.82,
+  "open_dur_s": 2.52,
+  "lane_at_open": 1,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   0.81,
+   1.24,
+   1.74
+  ],
+  "dip_start_s": [
+   0.71,
+   1.13,
+   1.65
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_13-19-36",
+  "phase": "tele",
+  "open_s": 95.36,
+  "open_dur_s": 2.62,
+  "lane_at_open": 2,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   0.87,
+   1.26,
+   1.76
+  ],
+  "dip_start_s": [
+   0.73,
+   1.19,
+   1.68
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_13-19-36",
+  "phase": "tele",
+  "open_s": 117.47,
+  "open_dur_s": 2.36,
+  "lane_at_open": 2,
+  "old": 0,
+  "new": 3,
+  "shots_new": [
+   0.81,
+   1.29,
+   1.73
+  ],
+  "dip_start_s": [
+   0.75,
+   1.17,
+   1.64
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_13-19-36",
+  "phase": "tele",
+  "open_s": 131.87,
+  "open_dur_s": 0.3,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_13-19-36",
+  "phase": "tele",
+  "open_s": 142.94,
+  "open_dur_s": 2.68,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 3,
+  "shots_new": [
+   0.83,
+   1.34,
+   1.96
+  ],
+  "dip_start_s": [
+   0.77,
+   1.22,
+   1.84
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_13-19-36",
+  "phase": "tele",
+  "open_s": 158.92,
+  "open_dur_s": 3.47,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   2.09,
+   2.66,
+   3.12
+  ],
+  "dip_start_s": [
+   1.92,
+   2.59,
+   2.98
+  ],
+  "reliable": false,
+  "why": [
+   "first shot later than 1.6 s"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_13-19-36",
+  "phase": "tele",
+  "open_s": 170.23,
+  "open_dur_s": 2.52,
+  "lane_at_open": 3,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   0.79,
+   1.73
+  ],
+  "dip_start_s": [
+   0.7,
+   1.67
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_13-19-36",
+  "phase": "tele",
+  "open_s": 178.63,
+  "open_dur_s": 2.56,
+  "lane_at_open": 2,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   0.86,
+   1.26,
+   1.77
+  ],
+  "dip_start_s": [
+   0.77,
+   1.16,
+   1.66
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_13-19-36",
+  "phase": "tele",
+  "open_s": 191.09,
+  "open_dur_s": 2.35,
+  "lane_at_open": 3,
+  "old": 3,
+  "new": 1,
+  "shots_new": [
+   2.23
+  ],
+  "dip_start_s": [
+   2.1
+  ],
+  "reliable": false,
+  "why": [
+   "first shot later than 1.6 s"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_14-39-52",
+  "phase": "auto",
+  "open_s": 40.64,
+  "open_dur_s": 2.13,
+  "lane_at_open": 4,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.82,
+   1.23,
+   1.73,
+   2.18
+  ],
+  "dip_start_s": [
+   0.71,
+   1.14,
+   1.61,
+   2.05
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_14-39-52",
+  "phase": "auto",
+  "open_s": 56.66,
+  "open_dur_s": 3.48,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 4,
+  "shots_new": [
+   0.81,
+   1.23,
+   1.66,
+   2.13
+  ],
+  "dip_start_s": [
+   0.74,
+   1.15,
+   1.6,
+   2.01
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_14-39-52",
+  "phase": "tele",
+  "open_s": 99.09,
+  "open_dur_s": 1.25,
+  "lane_at_open": 2,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   0.88
+  ],
+  "dip_start_s": [
+   0.83
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_14-39-52",
+  "phase": "tele",
+  "open_s": 102.71,
+  "open_dur_s": 2.84,
+  "lane_at_open": 1,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_14-39-52",
+  "phase": "tele",
+  "open_s": 116.03,
+  "open_dur_s": 2.34,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 2,
+  "shots_new": [
+   0.87,
+   1.38
+  ],
+  "dip_start_s": [
+   0.73,
+   1.23
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_14-39-52",
+  "phase": "tele",
+  "open_s": 122.98,
+  "open_dur_s": 0.26,
+  "lane_at_open": 1,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_14-39-52",
+  "phase": "tele",
+  "open_s": 133.32,
+  "open_dur_s": 2.22,
+  "lane_at_open": 3,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   1.8
+  ],
+  "dip_start_s": [
+   1.76
+  ],
+  "reliable": false,
+  "why": [
+   "first shot later than 1.6 s"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_14-39-52",
+  "phase": "tele",
+  "open_s": 151.03,
+  "open_dur_s": 2.45,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   1.82
+  ],
+  "dip_start_s": [
+   1.69
+  ],
+  "reliable": false,
+  "why": [
+   "first shot later than 1.6 s"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_14-39-52",
+  "phase": "tele",
+  "open_s": 164.24,
+  "open_dur_s": 1.97,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 1,
+  "shots_new": [
+   1.36
+  ],
+  "dip_start_s": [
+   1.21
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_14-39-52",
+  "phase": "tele",
+  "open_s": 189.91,
+  "open_dur_s": 0.84,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_15-04-17",
+  "phase": "auto",
+  "open_s": 40.89,
+  "open_dur_s": 2.05,
+  "lane_at_open": 4,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.66,
+   1.08,
+   1.56,
+   2.1
+  ],
+  "dip_start_s": [
+   0.58,
+   0.99,
+   1.47,
+   1.96
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_15-04-17",
+  "phase": "auto",
+  "open_s": 55.97,
+  "open_dur_s": 3.46,
+  "lane_at_open": 3,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   0.8,
+   1.24,
+   2.21
+  ],
+  "dip_start_s": [
+   0.72,
+   1.14,
+   2.12
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_15-04-17",
+  "phase": "tele",
+  "open_s": 88.74,
+  "open_dur_s": 2.97,
+  "lane_at_open": 2,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.9,
+   1.33,
+   1.8,
+   2.18
+  ],
+  "dip_start_s": [
+   0.81,
+   1.23,
+   1.7,
+   2.13
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_15-04-17",
+  "phase": "tele",
+  "open_s": 115.99,
+  "open_dur_s": 2.83,
+  "lane_at_open": 3,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   0.85,
+   1.26,
+   1.73
+  ],
+  "dip_start_s": [
+   0.71,
+   1.15,
+   1.66
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_15-04-17",
+  "phase": "tele",
+  "open_s": 134.23,
+  "open_dur_s": 1.65,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 1,
+  "shots_new": [
+   0.9
+  ],
+  "dip_start_s": [
+   0.83
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_15-04-17",
+  "phase": "tele",
+  "open_s": 143.68,
+  "open_dur_s": 1.66,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   0.82
+  ],
+  "dip_start_s": [
+   0.75
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_15-04-17",
+  "phase": "tele",
+  "open_s": 155.19,
+  "open_dur_s": 0.27,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_15-04-17",
+  "phase": "tele",
+  "open_s": 155.54,
+  "open_dur_s": 0.08,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_15-04-17",
+  "phase": "tele",
+  "open_s": 159.87,
+  "open_dur_s": 0.75,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_15-04-17",
+  "phase": "tele",
+  "open_s": 165.7,
+  "open_dur_s": 2.12,
+  "lane_at_open": 3,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   1.28
+  ],
+  "dip_start_s": [
+   1.14
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_15-04-17",
+  "phase": "tele",
+  "open_s": 184.2,
+  "open_dur_s": 2.26,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   0.83,
+   1.26,
+   1.74
+  ],
+  "dip_start_s": [
+   0.74,
+   1.18,
+   1.67
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-22-23",
+  "phase": "auto",
+  "open_s": 77.56,
+  "open_dur_s": 3.47,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 4,
+  "shots_new": [
+   0.88,
+   1.37,
+   1.88,
+   2.35
+  ],
+  "dip_start_s": [
+   0.79,
+   1.27,
+   1.78,
+   2.26
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-22-23",
+  "phase": "auto",
+  "open_s": 87.47,
+  "open_dur_s": 3.48,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 4,
+  "shots_new": [
+   0.82,
+   1.21,
+   1.68,
+   2.14
+  ],
+  "dip_start_s": [
+   0.71,
+   1.14,
+   1.61,
+   2.06
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-22-23",
+  "phase": "tele",
+  "open_s": 117.67,
+  "open_dur_s": 1.29,
+  "lane_at_open": 2,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   0.82
+  ],
+  "dip_start_s": [
+   0.72
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-22-23",
+  "phase": "tele",
+  "open_s": 131.9,
+  "open_dur_s": 2.31,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   0.85,
+   1.28,
+   1.73
+  ],
+  "dip_start_s": [
+   0.72,
+   1.17,
+   1.65
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-22-23",
+  "phase": "tele",
+  "open_s": 144.88,
+  "open_dur_s": 2.4,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 1,
+  "shots_new": [
+   1.46
+  ],
+  "dip_start_s": [
+   1.38
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-22-23",
+  "phase": "tele",
+  "open_s": 160.28,
+  "open_dur_s": 3.48,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-22-23",
+  "phase": "tele",
+  "open_s": 164.7,
+  "open_dur_s": 0.36,
+  "lane_at_open": 2,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-22-23",
+  "phase": "tele",
+  "open_s": 183.65,
+  "open_dur_s": 3.48,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   1.49,
+   2.38
+  ],
+  "dip_start_s": [
+   1.33,
+   2.29
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-22-23",
+  "phase": "tele",
+  "open_s": 207.27,
+  "open_dur_s": 1.34,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-22-23",
+  "phase": "tele",
+  "open_s": 216.96,
+  "open_dur_s": 1.75,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-22-23",
+  "phase": "tele",
+  "open_s": 219.25,
+  "open_dur_s": 3.47,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   0.62,
+   1.98
+  ],
+  "dip_start_s": [
+   0.53,
+   1.85
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-53-50",
+  "phase": "auto",
+  "open_s": 39.79,
+  "open_dur_s": 3.48,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   0.83,
+   1.76
+  ],
+  "dip_start_s": [
+   0.76,
+   1.66
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-53-50",
+  "phase": "auto",
+  "open_s": 53.97,
+  "open_dur_s": 3.46,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 4,
+  "shots_new": [
+   0.87,
+   1.28,
+   1.68,
+   2.09
+  ],
+  "dip_start_s": [
+   0.72,
+   1.07,
+   1.56,
+   2.05
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-53-50",
+  "phase": "tele",
+  "open_s": 94.01,
+  "open_dur_s": 3.45,
+  "lane_at_open": 4,
+  "old": 4,
+  "new": 4,
+  "shots_new": [
+   0.88,
+   1.37,
+   2.47,
+   3.16
+  ],
+  "dip_start_s": [
+   0.78,
+   1.24,
+   2.32,
+   3.03
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-53-50",
+  "phase": "tele",
+  "open_s": 108.97,
+  "open_dur_s": 2.71,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   1.25,
+   1.73,
+   2.21
+  ],
+  "dip_start_s": [
+   1.1,
+   1.62,
+   2.08
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-53-50",
+  "phase": "tele",
+  "open_s": 117.84,
+  "open_dur_s": 3.29,
+  "lane_at_open": 3,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   1.46,
+   2.39
+  ],
+  "dip_start_s": [
+   1.32,
+   2.28
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-53-50",
+  "phase": "tele",
+  "open_s": 133.62,
+  "open_dur_s": 2.35,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 2,
+  "shots_new": [
+   1.3,
+   1.76
+  ],
+  "dip_start_s": [
+   1.19,
+   1.65
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-53-50",
+  "phase": "tele",
+  "open_s": 142.31,
+  "open_dur_s": 0.24,
+  "lane_at_open": 2,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-53-50",
+  "phase": "tele",
+  "open_s": 148.51,
+  "open_dur_s": 1.2,
+  "lane_at_open": 2,
+  "old": 1,
+  "new": 1,
+  "shots_new": [
+   0.89
+  ],
+  "dip_start_s": [
+   0.76
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-53-50",
+  "phase": "tele",
+  "open_s": 163.6,
+  "open_dur_s": 2.98,
+  "lane_at_open": 4,
+  "old": 5,
+  "new": 5,
+  "shots_new": [
+   0.81,
+   1.33,
+   2.12,
+   2.52,
+   3.01
+  ],
+  "dip_start_s": [
+   0.75,
+   1.24,
+   1.96,
+   2.44,
+   2.92
+  ],
+  "reliable": false,
+  "why": [
+   "more than 4 shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-53-50",
+  "phase": "tele",
+  "open_s": 175.89,
+  "open_dur_s": 2.8,
+  "lane_at_open": 2,
+  "old": 3,
+  "new": 2,
+  "shots_new": [
+   1.19,
+   2.0
+  ],
+  "dip_start_s": [
+   1.07,
+   1.88
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_16-53-50",
+  "phase": "tele",
+  "open_s": 185.54,
+  "open_dur_s": 1.99,
+  "lane_at_open": 2,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   1.33,
+   1.67
+  ],
+  "dip_start_s": [
+   1.2,
+   1.57
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "auto",
+  "open_s": 47.02,
+  "open_dur_s": 3.46,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 4,
+  "shots_new": [
+   0.93,
+   1.39,
+   1.86,
+   2.35
+  ],
+  "dip_start_s": [
+   0.83,
+   1.29,
+   1.79,
+   2.29
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "auto",
+  "open_s": 57.45,
+  "open_dur_s": 3.45,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   0.97,
+   2.64,
+   3.14
+  ],
+  "dip_start_s": [
+   0.91,
+   2.56,
+   3.03
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "tele",
+  "open_s": 91.49,
+  "open_dur_s": 2.77,
+  "lane_at_open": 3,
+  "old": 4,
+  "new": 3,
+  "shots_new": [
+   0.82,
+   1.24,
+   1.69
+  ],
+  "dip_start_s": [
+   0.73,
+   1.11,
+   1.59
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "tele",
+  "open_s": 109.27,
+  "open_dur_s": 1.99,
+  "lane_at_open": 1,
+  "old": 1,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "tele",
+  "open_s": 111.78,
+  "open_dur_s": 0.59,
+  "lane_at_open": 0,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "tele",
+  "open_s": 123.97,
+  "open_dur_s": 3.38,
+  "lane_at_open": 4,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "tele",
+  "open_s": 127.97,
+  "open_dur_s": 3.47,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   1.87,
+   3.0,
+   3.33
+  ],
+  "dip_start_s": [
+   1.77,
+   2.9,
+   3.26
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots",
+   "first shot later than 1.6 s"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "tele",
+  "open_s": 137.32,
+  "open_dur_s": 2.85,
+  "lane_at_open": 4,
+  "old": 3,
+  "new": 3,
+  "shots_new": [
+   0.88,
+   1.71,
+   2.08
+  ],
+  "dip_start_s": [
+   0.75,
+   1.63,
+   1.98
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "tele",
+  "open_s": 147.21,
+  "open_dur_s": 1.86,
+  "lane_at_open": 3,
+  "old": 2,
+  "new": 2,
+  "shots_new": [
+   0.81,
+   1.24
+  ],
+  "dip_start_s": [
+   0.74,
+   1.15
+  ],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "tele",
+  "open_s": 158.18,
+  "open_dur_s": 3.44,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 2,
+  "shots_new": [
+   1.16,
+   2.58
+  ],
+  "dip_start_s": [
+   1.07,
+   2.46
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "tele",
+  "open_s": 170.41,
+  "open_dur_s": 1.94,
+  "lane_at_open": 4,
+  "old": 2,
+  "new": 3,
+  "shots_new": [
+   0.09,
+   0.82,
+   1.68
+  ],
+  "dip_start_s": [
+   -0.0,
+   0.74,
+   1.58
+  ],
+  "reliable": false,
+  "why": [
+   "a gap of 0.8 s or more between shots",
+   "a dip starting under 0.3 s after the gate opened"
+  ]
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "tele",
+  "open_s": 175.22,
+  "open_dur_s": 3.03,
+  "lane_at_open": 2,
+  "old": 0,
+  "new": 0,
+  "shots_new": [],
+  "dip_start_s": [],
+  "reliable": true
+ },
+ {
+  "team": "20245",
+  "log": "2026-11-07_17-40-34",
+  "phase": "tele",
+  "open_s": 187.42,
+  "open_dur_s": 2.55,
+  "lane_at_open": 4,
+  "old": 1,
+  "new": 3,
+  "shots_new": [
+   0.82,
+   1.25,
+   1.74
+  ],
+  "dip_start_s": [
+   0.74,
+   1.19,
+   1.63
+  ],
+  "reliable": true
+ }
+]
