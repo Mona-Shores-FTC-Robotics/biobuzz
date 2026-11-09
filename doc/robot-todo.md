@@ -487,11 +487,6 @@ measurement is [#255].
       video sync will look for that change at PLAY (`tools/advantagescope/replay/`), so the stream
       camera needs to see it from either side.
 - [ ] **Drive check table** (10 steps), on both robots. [#62]
-- [ ] **19429's intake encoder cable is not installed** (seen 6 Nov; note left for the builders).
-      Every Basic Drive log says "intake: encoder never moved"; the roller runs, but nothing can
-      see a jam. Plug it into the Expansion Hub's encoder socket 0, beside the intake's power port
-      0, then run the intake in Basic Drive. **Good:** that line is gone from the next log. Check
-      20245's too: its picks logged the same line.
 
 ## 7b. Bench: Wall Eject (any field wall, 4 POLLEN, phone filming from above)
 
@@ -616,17 +611,13 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the corner spo
       the turret offset (`TurretSubsystem.turretForwardIn/LeftIn`, CAD from 24 Oct, never taped)
       or the camera mount; tape the turret axis from the wheels' midpoint first.
 
-## 7e. Blue alliance (never run on blue yet; HIVE and FLOWERs on the blue side)
+## 7e. Blue alliance (HIVE and FLOWERs on the blue side)
 
 Everything blue is red turned half a turn about the field centre, in code and unit-tested
-(`LaunchSpotsTest.blueIsRedTurnedHalfATurn`, `NectarRejectTest`), but no robot has run it.
+(`LaunchSpotsTest.blueIsRedTurnedHalfATurn`, `NectarRejectTest`). Both robots ran on blue at
+Belding (7 Nov): vision read BLUE in INIT and the Autos ran there. What follows is what those
+matches did not show.
 
-- [ ] **The alliance reads BLUE before PLAY.** Basic Drive with no Auto before it **defaults to
-      red** ("RED (default)" on the Match page) unless vision proposes blue or someone presses B.
-      The NECTAR reject takes the alliance at PLAY, so a blue robot left on the red default spits
-      out **our own** NECTAR and keeps the red. **Good:** "BLUE (vision)" or "BLUE" after B, every
-      time; the drive team checks it before PLAY. **Stop:** vision proposes red on the blue side →
-      save the log.
 - [ ] **NECTAR reject on blue:** intake a red NECTAR → it is spat out; a blue NECTAR and POLLEN →
       kept. **Good:** both, three times each.
 - [ ] **Square on blue, each spot once:** from near each blue spot, hold Square. **Good:** it drives
@@ -636,7 +627,6 @@ Everything blue is red turned half a turn about the field centre, in code and un
 - [ ] **Corner reset on blue** (the reset corners are measured on red and turned): hold the reset
       button at a blue corner. **Good:** the pose on the Robot page matches the corner, field-centric
       forward is right.
-- [ ] **One Auto on blue** (R-Solo from blue's audience start). **Good:** it mirrors the red run.
 
 ## 7f. Drive practice from the Belding logs (Basic Drive, two drivers)
 
