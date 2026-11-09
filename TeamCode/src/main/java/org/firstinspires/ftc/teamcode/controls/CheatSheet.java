@@ -81,10 +81,10 @@ public final class CheatSheet {
      */
     static final String RULES = "<div class=\"rules\"><b>If the Driver Station says</b>"
             + "<p><b>Pinpoint: …</b> in INIT → <b>restart the robot before PLAY.</b></p>"
-            + "<p><b>Pinpoint not reading</b> (driver pad red) → keep driving; Square, FLOWER pick and pose aim "
+            + "<p><b>Pinpoint not reading</b> → keep driving; Square, FLOWER pick and pose aim "
             + "are off, and field-centric goes wrong as the robot turns. Coach: note the match time.</p>"
-            + "<p><b>Pinpoint back</b> (driver pad amber) → show the camera a HIVE, or corner reset "
-            + "(D-pad left/right held in the corner). Green: Square works again.</p>"
+            + "<p><b>Pinpoint back</b> → show the camera a HIVE, or corner reset "
+            + "(D-pad left/right held in the corner); then Square works again.</p>"
             + "<p>After the match: <b>pull the logs</b>, check the Pinpoint cable both ends.</p></div>\n";
 
     private static void pad(StringBuilder out, String who, String which, Map<Action, Input> layout, Action.Pad pad) {
