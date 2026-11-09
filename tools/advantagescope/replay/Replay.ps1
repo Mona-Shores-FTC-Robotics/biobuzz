@@ -29,6 +29,10 @@ $AsUserAssets = Join-Path $AsData "userAssets"
 $AssetFolders = @("Robot_BIOBUZZ", "Field3d_BIOBUZZHiveSim", "Robot_BIOBUZZHive")
 
 # The video clip: from PreS before Auto starts to PostS after (Auto 30 s, transition 8 s, TeleOp 120 s).
+$FieldAutoS = 30.0   # an FTC Auto, by the field's clock
+# The FiM overlay shows the transition's hand this long after the field's Auto really ended: at Belding our light
+# went off (our PLAY) 0.35-0.55 s before the hand said Auto started, in every match where it was in shot.
+$ScoreboardLagS = 0.45
 $PreS = 10.0
 $PostS = 170.0
 # A match's source keeps more on each side, so the clip can move (the scoreboard, a -Shift) without a new download.
@@ -211,6 +215,40 @@ using System.Text;
 public static class BiobuzzWpilog {
     static long Le(byte[] b, int at, int n) { long v = 0; for (int i = n - 1; i >= 0; i--) v = (v << 8) | b[at + i]; return v; }
     /// <summary>{ first enabled time, first disabled time after it } in seconds; NaN where there is none.</summary>
+    /// <summary>Every value of one numeric entry (boolean, int64, float, double) as { t0, v0, t1, v1, ... }, seconds.</summary>
+    public static double[] Series(string path, string key) {
+        byte[] b = File.ReadAllBytes(path);
+        if (b.Length < 12 || Encoding.ASCII.GetString(b, 0, 6) != "WPILOG") throw new Exception(path + " is not a .wpilog");
+        int i = 12 + (int)Le(b, 8, 4);
+        long id = -1; string type = "";
+        List<double> outv = new List<double>();
+        while (i < b.Length) {
+            int h = b[i++];
+            int il = (h & 3) + 1, sl = ((h >> 2) & 3) + 1, tl = ((h >> 4) & 7) + 1;
+            long eid = Le(b, i, il); i += il;
+            int size = (int)Le(b, i, sl); i += sl;
+            long ts = Le(b, i, tl); i += tl;
+            if (i + size > b.Length) break;
+            if (eid == 0) {
+                if (size > 0 && b[i] == 0) {
+                    long e = Le(b, i + 1, 4);
+                    int n = (int)Le(b, i + 5, 4);
+                    string name = Encoding.UTF8.GetString(b, i + 9, n);
+                    int tn = (int)Le(b, i + 9 + n, 4);
+                    if (name == key) { id = e; type = Encoding.UTF8.GetString(b, i + 13 + n, tn); }
+                }
+            } else if (eid == id && size >= 1) {
+                double v = double.NaN;
+                if (type == "boolean") v = b[i] != 0 ? 1 : 0;
+                else if (type == "double" && size == 8) v = BitConverter.ToDouble(b, i);
+                else if (type == "float" && size == 4) v = BitConverter.ToSingle(b, i);
+                else if (type == "int64" && size == 8) v = BitConverter.ToInt64(b, i);
+                if (!double.IsNaN(v)) { outv.Add(ts / 1e6); outv.Add(v); }
+            }
+            i += size;
+        }
+        return outv.ToArray();
+    }
     public static double[] AutoEdges(string path, string key) {
         byte[] b = File.ReadAllBytes(path);
         if (b.Length < 12 || Encoding.ASCII.GetString(b, 0, 6) != "WPILOG") throw new Exception(path + " is not a .wpilog");
@@ -243,6 +281,30 @@ public static class BiobuzzWpilog {
     }
 }
 "@
+}
+
+# What our light did from the log, for Find-OurLight: @{ Ok; Blue; OnS; OffS; Why }. Blue from the alliance
+# station at PLAY (1-3 red, 4-6 blue); OnS, OffS the first lane-full green after PLAY, as seconds after it.
+function Get-LightPattern([string]$logPath) {
+    $e = Get-AutoEdges $logPath
+    $play = $e[0]
+    $st = [BiobuzzWpilog]::Series($logPath, "/DriverStation/AllianceStation")
+    $station = 0
+    for ($i = 0; $i -lt $st.Length; $i += 2) { if ($st[$i] -le $play) { $station = $st[$i + 1] } }
+    if ($station -lt 1 -or $station -gt 6) { return @{ Ok = $false; Why = "the log has no alliance" } }
+    $full = [BiobuzzWpilog]::Series($logPath, "/Lane/Full")
+    $on = $null; $off = $null; $last = 0
+    for ($i = 0; $i -lt $full.Length; $i += 2) {
+        $t = $full[$i]; $v = $full[$i + 1]
+        if ($t -le $play) { $last = $v; continue }
+        if ($null -eq $on -and $v -ge 0.5 -and $last -lt 0.5) { $on = $t - $play }
+        elseif ($null -ne $on -and $v -lt 0.5) { $off = $t - $play; break }
+        $last = $v
+    }
+    if ($null -eq $on -or $null -eq $off -or $on -gt 3 -or ($off - $on) -lt 0.15) {
+        return @{ Ok = $false; Why = "the lane was not full for a moment in the first 3 s, so there was no green flash to find" }
+    }
+    return @{ Ok = $true; Blue = ($station -ge 4); OnS = $on; OffS = $off }
 }
 
 function Get-AutoEdges([string]$logPath) {
@@ -292,6 +354,114 @@ public static class BiobuzzScoreboard {
 "@
 }
 
+# Our own indicator light, found in the video by the pattern the log says it made: our alliance's colour until our
+# driver pressed PLAY, then off, then green for exactly the stretch the lane was full (/Lane/Full), about a second
+# later. Candidates are steady lights in the alliance colour above the overlay; the one whose colour drops and
+# that flashes green at those offsets is ours, and the frame its colour drops is our PLAY. Measured at Belding: the
+# right light and moment in every match where our robot was in shot (score 85-90), nothing above 20 when the
+# camera showed the other field. The pressed-PLAY moment is what the log's Auto start is, so this replaces both
+# the stream's delay and the scoreboard's own lag (0.4-0.6 s at Belding).
+if (-not ("BiobuzzLight" -as [type])) {
+    Add-Type -TypeDefinition @"
+using System;
+public static class BiobuzzLight {
+    /// <summary>rgb: frames of w*h*3 bytes at fps, the first at second t0 of the video. Returns { PLAY (video
+    /// seconds), x, y (cell, of w*h), score, green bump, colour drop }, PLAY -1 when no light scores minScore.</summary>
+    public static double[] Find(byte[] rgb, int w, int h, int fps, double t0, bool blue, double onS, double offS,
+                                double searchFrom, double searchTo, double minScore) {
+        int n = w * h, frames = rgb.Length / (n * 3);
+        // Per-pixel alliance colour and green, as prefix sums over time.
+        float[] col = new float[(frames + 1) * n], grn = new float[(frames + 1) * n];
+        for (int f = 0; f < frames; f++) {
+            int src = f * n * 3, dst = (f + 1) * n, prev = f * n;
+            for (int p = 0; p < n; p++) {
+                int r = rgb[src + 3 * p], g = rgb[src + 3 * p + 1], b = rgb[src + 3 * p + 2];
+                int c = blue ? b - Math.Max(r, g) : r - Math.Max(g, b);
+                col[dst + p] = col[prev + p] + c;
+                grn[dst + p] = grn[prev + p] + (g - Math.Max(r, b));
+            }
+        }
+        Func<float[], int, int, int, float> mean = (a, p, i, j) => (a[j * n + p] - a[i * n + p]) / Math.Max(1, j - i);
+        Func<double, int> fr = s => (int)Math.Round(s * fps);
+        // Candidates: steady and bright in the alliance colour for the first second (before anyone can have pressed),
+        // above the overlay.
+        bool[] cand = new bool[n];
+        int pre = Math.Min(frames, fr(1.0));
+        for (int p = 0; p < n; p++) {
+            if (p / w >= (int)(h * 0.83)) continue;
+            double sum = 0, sq = 0, min = double.MaxValue;
+            for (int f = 0; f < pre; f++) {
+                double v = col[(f + 1) * n + p] - col[f * n + p];
+                sum += v; sq += v * v; if (v < min) min = v;
+            }
+            double m = sum / pre, sd = Math.Sqrt(Math.Max(0, sq / pre - m * m));
+            cand[p] = min >= 60 && sd < 12;
+        }
+        double best = -1, bt = -1, bg = 0, bd = 0; int bp = -1, bi = -1;
+        int iFrom = Math.Max(fr(0.6), fr(searchFrom - t0)), iTo = fr(searchTo - t0);
+        for (int i = iFrom; i <= iTo; i++) {
+            int a0 = i + fr(onS), b0 = i + fr(offS);
+            if (b0 + fr(0.30) > frames || i - fr(0.4) < 0) break;
+            for (int p = 0; p < n; p++) {
+                if (!cand[p]) continue;
+                float inside = mean(grn, p, a0 + 2, b0 - 2);
+                float g = inside - Math.Max(mean(grn, p, a0 - fr(0.30), a0 - 2), mean(grn, p, b0 + 2, b0 + fr(0.30)));
+                float d = mean(col, p, i - fr(0.4), i - 2) - mean(col, p, i + 3, i + fr(0.5));
+                double score = Math.Min(2 * g, d);
+                if (score > best) { best = score; bp = p; bi = i; bg = g; bd = d; }
+            }
+        }
+        if (bp < 0 || best < minScore) return new double[] { -1, -1, -1, best, bg, bd };
+        // The exact frame: the brightest of the light's 3x3 cells, where its colour crosses halfway down.
+        int px = bp % w, py = bp / w;
+        Func<int, double> light = f => {
+            double v = double.MinValue;
+            for (int dy = -1; dy <= 1; dy++) for (int dx = -1; dx <= 1; dx++) {
+                int x = px + dx, y = py + dy;
+                if (x < 0 || y < 0 || x >= w || y >= h) continue;
+                int q = y * w + x;
+                double c = col[(f + 1) * n + q] - col[f * n + q];
+                if (c > v) v = c;
+            }
+            return v;
+        };
+        double before = 0, after = 0; int nb = 0, na = 0;
+        for (int f = bi - fr(0.5); f < bi - fr(0.15); f++) if (f >= 0) { before += light(f); nb++; }
+        for (int f = bi + fr(0.15); f < bi + fr(0.5); f++) if (f < frames) { after += light(f); na++; }
+        before /= Math.Max(1, nb); after /= Math.Max(1, na);
+        double half = (before + after) / 2;
+        int edge = bi;
+        for (int f = bi - fr(0.25); f <= bi + fr(0.25); f++) {
+            if (f > 0 && f < frames && light(f) < half) { edge = f; break; }
+        }
+        bt = t0 + (double)edge / fps;
+        return new double[] { bt, px, py, best, bg, bd };
+    }
+}
+"@
+}
+
+# Our light in $video: $playEstimate (seconds into the file) is where PLAY should be give or take a second and a
+# half; $onS, $offS when the lane-full green came on and went off after PLAY (from the log). @{ At = PLAY in the
+# file, or $null; X; Y (in 1280x720); Score }.
+function Find-OurLight([string]$ffmpeg, [string]$video, [double]$playEstimate, [bool]$blue, [double]$onS, [double]$offS) {
+    $inv = [Globalization.CultureInfo]::InvariantCulture
+    $w = 320; $h = 180; $fps = 60
+    $t0 = [Math]::Max([double]0, $playEstimate - 2.1)
+    $dur = ($playEstimate + 1.0 + $offS + 0.8) - $t0
+    $raw = Join-Path $CacheDir ("light-" + [Guid]::NewGuid().ToString("n") + ".rgb")
+    New-Item -ItemType Directory -Force $CacheDir | Out-Null
+    & $ffmpeg -hide_banner -loglevel error -y -ss $t0.ToString("0.000", $inv) -t $dur.ToString("0.000", $inv) -i $video `
+        -vf "fps=$fps,scale=${w}:${h}:flags=area" -f rawvideo -pix_fmt rgb24 $raw
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $raw)) { throw "ffmpeg could not read our light from $video" }
+    try {
+        $r = [BiobuzzLight]::Find([IO.File]::ReadAllBytes($raw), $w, $h, $fps, $t0, $blue, $onS, $offS,
+            ($playEstimate - 1.5), ($playEstimate + 1.0), 40.0)
+    } finally { Remove-Item -Force $raw -ErrorAction SilentlyContinue }
+    $at = $null; if ($r[0] -ge 0) { $at = $r[0] }
+    return @{ At = $at; X = [int]($r[1] * 1280 / $w); Y = [int]($r[2] * 720 / $h); Score = $r[3] }
+}
+
 # Where the scoreboard's hand first appears in $video between $fromS and $fromS + $durS (seconds into that file):
 # @{ At = seconds into the file; Score = how well it matched (0..1) }, At $null when it never appears there.
 function Find-ScoreboardHand([string]$ffmpeg, [string]$video, [double]$fromS, [double]$durS) {
@@ -302,7 +472,9 @@ function Find-ScoreboardHand([string]$ffmpeg, [string]$video, [double]$fromS, [d
         -vf "fps=30,$HandCrop" -f rawvideo $raw
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path $raw)) { throw "ffmpeg could not read the scoreboard from $video" }
     try {
-        $template = [IO.File]::ReadAllBytes((Join-Path $MarkerDir "scoreboard-hand.gray"))
+        $templateFile = Join-Path $MarkerDir "scoreboard-hand.gray"
+        if (-not (Test-Path $templateFile)) { throw "this laptop's scripts are missing marker\scoreboard-hand.gray: run update-replay again" }
+        $template = [IO.File]::ReadAllBytes($templateFile)
         # Present at least 6 of the next 7.5 s (the transition is 8), absent the 2 s before.
         $r = [BiobuzzScoreboard]::Onset([IO.File]::ReadAllBytes($raw), $template, 0.75, 60, 225)
     } finally { Remove-Item -Force $raw -ErrorAction SilentlyContinue }
@@ -361,6 +533,26 @@ function Get-ClipFilter([double]$autoStartS, [double]$autoS) {
         $n++
     }
     return @{ Filter = $f; Out = "[$last]" }
+}
+
+# Saves $count pictures from $video, $stepS apart from $fromS, into $outDir (emptied first), each named by its offset:
+# $labelStart, $labelStart + $stepS, ... as "+0.30s.jpg" / "-0.20s.jpg", so they sort and read as times.
+function Export-Frames([string]$ffmpeg, [string]$video, [double]$fromS, [int]$count, [double]$stepS, [double]$labelStart, [string]$outDir) {
+    $inv = [Globalization.CultureInfo]::InvariantCulture
+    if (Test-Path $outDir) { Remove-Item -Recurse -Force $outDir }
+    New-Item -ItemType Directory -Force $outDir | Out-Null
+    $rate = (1.0 / $stepS).ToString("0.###", $inv)
+    & $ffmpeg -hide_banner -loglevel error -y -ss ([Math]::Max([double]0, $fromS)).ToString("0.000", $inv) -i $video `
+        -vf "fps=$rate" -frames:v $count -q:v 2 (Join-Path $outDir "%03d.jpg")
+    if ($LASTEXITCODE -ne 0) { throw "ffmpeg could not save the pictures (exit $LASTEXITCODE)" }
+    for ($i = 1; $i -le $count; $i++) {
+        $f = Join-Path $outDir ("{0:000}.jpg" -f $i)
+        if (-not (Test-Path $f)) { break }
+        $t = $labelStart + ($i - 1) * $stepS
+        $sign = "+"; if ($t -lt -0.0001) { $sign = "-" }
+        # A leading index keeps them in time order however a viewer sorts names with signs.
+        Rename-Item $f ("{0:00} {1}{2}s.jpg" -f $i, $sign, [Math]::Abs($t).ToString("0.00", $inv))
+    }
 }
 
 # Downloads a match's source: $durS seconds of the stream from $fromS, 1280x720, no sound, nothing drawn on it.

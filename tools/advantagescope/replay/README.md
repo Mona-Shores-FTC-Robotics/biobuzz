@@ -18,7 +18,8 @@ line again keeps what worked and retries the rest. (In a checkout, double-clicki
 Double-click **BIOBUZZ Match Replay** on the desktop and type the number of a match from the list, or in a new
 terminal type `open-match Q-14`. The first time a match is opened, its stretch of the event stream is downloaded
 (about a minute) and kept, so it never downloads again. The clip is lined up from the stream's own scoreboard: the
-hand it shows during the 8 s transition marks the end of Auto, and the log's Auto end is put there. Then
+hand it shows during the 8 s transition marks the end of the field's 30 s Auto, so the log's Auto start is put
+30 s before it. Then
 AdvantageScope opens on the match's log, with the Video tab and the 3D window side by side. That layout is put
 back every time a match opens, however the last one was left.
 
@@ -48,14 +49,20 @@ opening any match puts the layout back. If it is still wrong, it is the model or
 model's origin and axes are in `cad/advantagescope/README.md`, and the log writes `/Odometry/Robot3d` in
 AdvantageScope's frame (`logging/AdvantageScopeFrame`).
 
-**Video out of sync**: `open-match` says how it placed Auto. "From the scoreboard" puts the log's end of Auto on
-the frame where the transition's hand appears: that is right to within how fast our driver pressed PLAY, a few
-tenths of a second. To fix that for a match you study closely, compare one moment of *our* robot in both views
-(it leaving its start, a first shot): if the video's robot moves *d* seconds after the 3D one, run
-`open-match Q-14 -Shift d` (before it: a negative *d*). That re-cuts the clip on the laptop in about half a
-minute, no download. When it looks right, put the `video_start` line it prints into `matches.json` and commit it.
-"Estimated from the stream's start time" means the hand was not found (another overlay, or the match is not where
-expected): that can be seconds off; `video_shift_s` moves every estimate of an event at once.
+**Video out of sync**: `open-match` says how it placed Auto, best first:
+- "from our robot's light": our indicator light leaves the alliance colour the instant our driver pressed PLAY,
+  which is exactly when the log's Auto starts, and goes green for the moment the lane is full about a second later.
+  `open-match` finds the light that does both at the times the log gives, and lines the clip up to the frame it
+  changes. Right to a frame or two; nothing to check.
+- "from the scoreboard": our robot was out of shot (the camera on the other field, someone in front) or the log had
+  no lane-full flash. Auto is put 30 s before the transition hand, less the overlay's lag (0.45 s, measured at
+  Belding from our light): within a few tenths. `open-match Q-14 -Frames` saves a picture every 0.1 s around it,
+  named by offset; if our robot is visible, the first picture with its light changed is the `-Shift` to use.
+- "estimated from the stream's start time": the hand was not found either (another overlay, or the match is not
+  where expected); seconds off. `video_shift_s` moves every estimate of an event at once.
+
+A `-Shift` re-cuts the clip on the laptop in about half a minute, no download. To keep a hand-checked value, put
+the `video_start` line it prints into `matches.json` and commit it.
 
 **The video never locks**: wait until the blue loading bar passes Auto's end (about 45 s of video). If it never
 locks, run `open-match Q-14 -Rebuild` and load the new clip; the clip must be the one `open-match` made, since the
