@@ -37,6 +37,10 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
  * cannot clear it does not run the intake backwards for the rest of the match. With no alliance
  * chosen, or the switch off, it never fires.
  *
+ * <p>With {@code allNectar} it rejects both NECTAR colours, ours too, and keeps only POLLEN: a
+ * robot locked out of NECTAR ({@code ColorSensorSubsystem.rejectAllNectar}). Then the alliance does
+ * not matter, so it fires even with none chosen.
+ *
  * <p>Pure: no SDK, no allocation, so a test can drive it.
  */
 public final class NectarReject {
@@ -69,13 +73,26 @@ public final class NectarReject {
     }
 
     /**
+     * Whether {@code piece} is one to spit out: the other alliance's NECTAR, or with
+     * {@code allNectar} either NECTAR (a robot locked to POLLEN only, whatever the alliance).
+     */
+    public static boolean rejects(LaneTracker.Piece piece, Alliance ours, boolean allNectar) {
+        if (allNectar && (piece == LaneTracker.Piece.RED_NECTAR || piece == LaneTracker.Piece.BLUE_NECTAR)) {
+            return true;
+        }
+        LaneTracker.Piece enemy = enemyNectar(ours);
+        return enemy != null && piece == enemy;
+    }
+
+    /**
      * One loop.
      *
      * @param nowMs         a monotonic clock, ms
      * @param fresh         whether the sensor was read this loop; brightness and piece are ignored if not
      * @param brightness    the reading's brightness (the clear channel)
      * @param piece         the reading's colour, from {@link LaneTracker#classify}
-     * @param ours          our alliance; UNKNOWN never rejects
+     * @param ours          our alliance; UNKNOWN never rejects, unless {@code allNectar}
+     * @param allNectar     reject both NECTAR colours, ours too; the alliance no longer matters
      * @param enabled       the switch; off ends a reject at once and never starts one
      * @param seenAbove     a piece is there above this brightness; NaN never rejects. The colour
      *                      sensor passes its {@code leaveBelow}, not its {@code presentAbove}: a
@@ -88,12 +105,11 @@ public final class NectarReject {
      * @param windowMs      the cap's window, ms; NaN or not positive: no cap
      */
     public void step(long nowMs, boolean fresh, double brightness, LaneTracker.Piece piece, Alliance ours,
-                     boolean enabled, double seenAbove, int afterReadings, double burstMs,
+                     boolean allNectar, boolean enabled, double seenAbove, int afterReadings, double burstMs,
                      double holdOffMs, int maxBursts, double windowMs) {
         justStarted = false;
         justGaveUp = false;
-        LaneTracker.Piece enemy = enemyNectar(ours);
-        if (!enabled || enemy == null || !(burstMs > 0) || Double.isNaN(seenAbove)) {
+        if (!enabled || (enemyNectar(ours) == null && !allNectar) || !(burstMs > 0) || Double.isNaN(seenAbove)) {
             phase = Phase.IDLE;
             matching = 0;
             armed = true;
@@ -109,7 +125,7 @@ public final class NectarReject {
             phase = Phase.IDLE;
         }
         if (!fresh) return;
-        boolean seen = piece == enemy && brightness > seenAbove;
+        boolean seen = rejects(piece, ours, allNectar) && brightness > seenAbove;
         if (phase == Phase.BURST) {
             // A different reading during the burst means the piece has gone.
             if (!seen) armed = true;

@@ -835,6 +835,12 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       much further than needed → lower `rejectBurstS`. A `REJECT gave up` or a `FULL with the other
       alliance's NECTAR` event means a burst could not clear it: film it. A POLLEN or our own NECTAR spat out → the event's hue says which range
       (`redNectarHueMin/Max`, `blueNectarHueMin/Max`) to narrow; until fixed, `rejectEnemyNectar` off.
+- [ ] **19429 keeps no NECTAR** (`ColorSensorSubsystem.rejectAllNectar`, on for 19429 only in
+      `RobotDifferences`, 7 Nov). Basic Drive on 19429, red then blue: feed in a red NECTAR, a blue
+      NECTAR and a POLLEN, five times each. **Good:** both NECTAR colours come back out on either
+      alliance, every POLLEN is kept, and the match log's Metadata lists the line under
+      `RobotDifferences`. **Stop:** a POLLEN spat out → narrow the NECTAR hue ranges as above; to
+      let 19429 keep NECTAR again, Panels `rejectAllNectar` off (or delete its line).
 - [ ] **Full-lane position hold:** Panels `IntakeSubsystem.positionHoldWhenFull` defaults on
       for both robots (19429's encoder wire was plugged in 6 Nov, so its off line is gone). The roller captures
       its encoder position once, stars continue inward and prefeed stops. Initial `positionHoldMaxPower` 0.3 and

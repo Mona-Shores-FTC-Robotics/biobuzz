@@ -1589,10 +1589,11 @@ public abstract class RobotOpMode extends OpMode {
         // Full on and off as events, with the tracker's count: full then three or four shots means it was.
         if (full.full() != loggedLaneFull) {
             loggedLaneFull = full.full();
-            // Full with the wrong NECTAR under the sensor: a reject did not clear it, and an Auto's
+            // Full with a rejected NECTAR under the sensor: a reject did not clear it, and an Auto's
             // IntakeFull would move on holding it.
-            if (loggedLaneFull && robot.colorSensor.lastPiece() == NectarReject.enemyNectar(setup.alliance())) {
-                log.event("Lane: FULL with the other alliance's NECTAR under the sensor (" + robot.colorSensor.lastPiece()
+            if (loggedLaneFull && NectarReject.rejects(robot.colorSensor.lastPiece(), setup.alliance(),
+                    ColorSensorSubsystem.rejectAllNectar)) {
+                log.event("Lane: FULL with a rejected NECTAR under the sensor (" + robot.colorSensor.lastPiece()
                         + "): a reject did not clear it");
             }
             log.event(loggedLaneFull
