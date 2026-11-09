@@ -49,15 +49,20 @@ opening any match puts the layout back. If it is still wrong, it is the model or
 model's origin and axes are in `cad/advantagescope/README.md`, and the log writes `/Odometry/Robot3d` in
 AdvantageScope's frame (`logging/AdvantageScopeFrame`).
 
-**Video out of sync**: `open-match` says how it placed Auto. "From the scoreboard" puts the log's start of Auto
-30 s before the frame where the transition's hand appears (the field's Auto start): that is right to within how
-fast our driver pressed PLAY, a few tenths of a second, even when our Auto ended early. To measure that for a match, run `open-match Q-14 -Frames`: it saves a picture every 0.1 s around Auto's
-start, named by offset, and opens the folder. Our indicator lights change at the instant our driver pressed PLAY
-(alliance colour to off, or green), so the first picture where they have changed is named by the shift to use:
-`+0.40s` means `open-match Q-14 -Shift 0.4`. That re-cuts the clip on the laptop in about half a
-minute, no download. When it looks right, put the `video_start` line it prints into `matches.json` and commit it.
-"Estimated from the stream's start time" means the hand was not found (another overlay, or the match is not where
-expected): that can be seconds off; `video_shift_s` moves every estimate of an event at once.
+**Video out of sync**: `open-match` says how it placed Auto, best first:
+- "from our robot's light": our indicator light leaves the alliance colour the instant our driver pressed PLAY,
+  which is exactly when the log's Auto starts, and goes green for the moment the lane is full about a second later.
+  `open-match` finds the light that does both at the times the log gives, and lines the clip up to the frame it
+  changes. Right to a frame or two; nothing to check.
+- "from the scoreboard": our robot was out of shot (the camera on the other field, someone in front) or the log had
+  no lane-full flash. Auto is put 30 s before the transition hand, less the overlay's lag (0.45 s, measured at
+  Belding from our light): within a few tenths. `open-match Q-14 -Frames` saves a picture every 0.1 s around it,
+  named by offset; if our robot is visible, the first picture with its light changed is the `-Shift` to use.
+- "estimated from the stream's start time": the hand was not found either (another overlay, or the match is not
+  where expected); seconds off. `video_shift_s` moves every estimate of an event at once.
+
+A `-Shift` re-cuts the clip on the laptop in about half a minute, no download. To keep a hand-checked value, put
+the `video_start` line it prints into `matches.json` and commit it.
 
 **The video never locks**: wait until the blue loading bar passes Auto's end (about 45 s of video). If it never
 locks, run `open-match Q-14 -Rebuild` and load the new clip; the clip must be the one `open-match` made, since the
