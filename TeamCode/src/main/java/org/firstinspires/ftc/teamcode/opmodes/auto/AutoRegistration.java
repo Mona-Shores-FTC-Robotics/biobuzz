@@ -131,6 +131,10 @@ public final class AutoRegistration {
      * guard now also needs the park to fit after a volley ({@code AutoKit.parkAfterVolley}), so
      * this decides whether a late volley is fired or parked: at 4.5 R-Solo would have parked
      * instead of a third volley that fitted (its park was in by 28.2 s on 6 Nov 19:10).
+     * Belding (7 Nov 2026, both robots, 38 LaunchAlls): 2.20 to 4.90 s; after a drive all but two
+     * (4.67, 4.90 s) under 4.5, at PLAY 2.59 to 4.18 s. Most volleys counted fewer than 4 shots, so
+     * the feed ran its whole 3.5 s. A card that runs past the planned 4.0 eats into the park's
+     * margin after it; recheck against the next event's logs.
      */
     public static final double LAUNCH_ALL_TYPICAL_S = 4.0;
 
@@ -146,7 +150,11 @@ public final class AutoRegistration {
      * 4.0 covers every volley after a drive but one doubtful 4.2 s (2 Nov R-Quals: a single shot
      * counted, 3.09 s into the feed). The feed ends at the 4th counted shot or after 3.5 s
      * ({@code LaunchCards.launchAllEndAfterShots}): this is when the pieces are out, not when the
-     * card ends. Re-measure from the next Auto logs.
+     * card ends. Re-measure from the next Auto logs. Belding (7 Nov 2026, 32 LaunchAlls that counted a
+     * shot): the last counted shot 0.94 to 4.59 s after the card started, all but one by 3.88 s. The
+     * one, 4.59 s (19429 L-NoCross, 17:52), opened the gate about 1.2 s in and fed the last two
+     * pieces 1.5 s apart: the gate's delay plus the whole 3.5 s feed, about 4.7 s, is the worst case.
+     * 4.0 stays (the mentor's call: more would make the guard give up on more volleys).
      */
     public static final double LAUNCH_ALL_LAST_PIECE_S = 4.0;
 
@@ -159,9 +167,11 @@ public final class AutoRegistration {
      * never full); 4 Nov 00:48's took 3.41 s (line-up 0.61, dwell 1.02). Not seen yet, but possible:
      * the longest line-up and the whole dwell together, about 4.1 s. The picks logged before the
      * approach (29 Oct to 2 Nov) took 2.1 to 4.3 s, up to 0.7 s of each the stick wait gone now.
-     * Was 4.4, planned for that slow pick (mentor, 3 Nov 2026). Re-measure from the next Auto picks.
+     * Was 4.4, planned for that slow pick (mentor, 3 Nov 2026). The Belding Qualifier (7 Nov 2026, both
+     * robots, R-Solo and L-NoCross): 23 Auto picks, 2.73 to 3.99 s, median 3.68, 8 of them over 3.7
+     * (the whole 2 s dwell every time but two: the lane was never full). 4.0 covers all 23.
      */
-    public static final double PICK_FLOWER_TYPICAL_S = 3.7;
+    public static final double PICK_FLOWER_TYPICAL_S = 4.0;
 
     /**
      * {@code GardenGather}'s typical seconds: a drive in, a dwell and a drive back from wherever the

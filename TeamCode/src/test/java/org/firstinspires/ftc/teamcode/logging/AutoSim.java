@@ -89,10 +89,24 @@ public final class AutoSim {
     /** How often the {@code /Match/} clock is logged. */
     static final double CLOCK_STEP_S = 0.1;
 
-    // Drivetrain profile: the Visualizer log's defaults. A robot that is not tuned yet; the Auto
-    // Builder previews at 60 in/s and 55 in/s², which {@link #speed} can set.
-    static final double MAX_SPEED_IN_PER_S = 40;
-    static final double ACCEL_IN_PER_S2 = 30;
+    // Drivetrain profile, from the Belding match logs (7 Nov 2026, both robots, 70 Auto drives; the
+    // table is in the PR that set these, and doc/robot-todo.md lists the timed run that would
+    // check them). The default is a request's "@50" (SimRunTest): 50 in/s, 45 in/s² up and down. On
+    // its own that is a fair fit for a drive that barely turns while it goes (39 to 98 in: within
+    // about 0.3 s of the logs) but far too quick for one that turns all the way, so the wheels are
+    // shared between driving and turning ({@link #TURN_SHARE_RAD_PER_S}).
+    static final double MAX_SPEED_IN_PER_S = 50;
+    static final double ACCEL_IN_PER_S2 = 45;
+    /**
+     * A mecanum drive's wheels do both jobs: driving at {@code v} while turning at {@code w} needs
+     * {@code v / maxSpeed + w / TURN_SHARE_RAD_PER_S <= 1}, so a path whose heading changes by
+     * {@code k} rad per inch is driven at most {@code maxSpeed / (1 + maxSpeed * k / TURN_SHARE)}.
+     * Belding: the 90 in curves that turn 270° on the way (WALL_FLOWER_STAGING to the left launch
+     * spots) were driven at 20 to 30 in/s the whole way, 3.6 to 4.6 s (drawn 2.9 s); a drive that
+     * does not turn reached 55 to 63 in/s. 130°/s fits the 24 kinds of drive best (a median error
+     * of 0.15 s on 19429, 0.26 s on 20245; 0.5 to 0.6 s with no sharing).
+     */
+    static final double TURN_SHARE_RAD_PER_S = Math.toRadians(130);
 
     // Mechanisms: not measured, like the rest of the simulated robot.
     /** How long after a TIP a drive-team member gets a NECTAR into the LOADING ZONE. */
@@ -2779,7 +2793,11 @@ public final class AutoSim {
 
     // ---- The drivetrain ------------------------------------------------------------------------
 
-    /** Drives Pedro paths on a trapezoidal speed profile; holds still otherwise. */
+    /**
+     * Drives Pedro paths on a speed profile: up at {@link #accel} to at most {@link #maxSpeed}, slower
+     * where the path turns ({@link AutoSim#TURN_SHARE_RAD_PER_S}), braking at {@link #decel} for a slow
+     * stretch ahead and to rest at the end; holds still otherwise.
+     */
     static final class SimDrive implements AutoDrive {
         Pose pose = new Pose(0, 0, 0);
         Path current;
@@ -2789,7 +2807,6 @@ public final class AutoSim {
         double decel = ACCEL_IN_PER_S2;
         /** Turning is rate-limited too: a path ends when the robot is there and facing its way. */
         double maxTurn = RobotDesign.real().maxTurnRadPerS;
-        private double startedAt = Double.NaN;
         private double length;
         /** A straight run from where the robot was to where the path starts, if it was elsewhere. */
         private double leadIn;
@@ -2807,12 +2824,61 @@ public final class AutoSim {
         static final double FIRE_SPEED_IN_PER_S = 6.0;
         private double entrySpeed;
         private double speedNow;
-        /** Seconds of the current path's profile lost to pushing a robot ({@link #slow}): the profile runs that much behind. */
+        /** Seconds of the current path's profile lost to pushing a robot ({@link #slow}), not yet taken off a tick. */
         private double lostS;
+        /** The wheels' share between driving and turning, rad/s: see {@link AutoSim#TURN_SHARE_RAD_PER_S}. */
+        double turnShare = TURN_SHARE_RAD_PER_S;
+        /** The fastest the robot may go at each {@link #limitStep} inches along the run (lead-in and path), braking included. */
+        private double[] limits = new double[0];
+        private double limitStep = 1;
+        /** Inches along the run so far, and the speed along it. */
+        private double travelled, along;
+        private double lastTickAt = Double.NaN;
+        /** Below this the robot creeps, so a run whose limit falls to zero at its end still gets there. */
+        static final double CREEP_IN_PER_S = 2.0;
 
         /** Holds the profile back by {@code seconds}: a robot pushing another moves slower than its path asks. */
         void slow(double seconds) {
             if (current != null) lostS += seconds;
+        }
+
+        /**
+         * The run's speed limits ({@link #limits}): {@link #maxSpeed}, lowered where the path's heading
+         * changes per inch (up to the last {@link #JOIN_IN}, where the robot finishes its turn at its own
+         * rate), then braked back from each slow stretch and from rest at the end.
+         */
+        private void planLimits(double total) {
+            int n = Math.max(2, (int) Math.ceil(total / 0.5));
+            limitStep = total / n;
+            limits = new double[n + 1];
+            double before = Double.NaN;
+            for (int i = 0; i <= n; i++) {
+                double at = i * limitStep, limit = maxSpeed;
+                if (at > leadIn && length > 0 && at < total - JOIN_IN) {
+                    double heading = current.get(clamp01(current.curve.parameter(clamp01((at - leadIn) / length)))).heading();
+                    if (!Double.isNaN(before) && turnShare > 0) {
+                        double perInch = Math.abs(AdvantageScopeFrame.wrap(heading - before)) / limitStep;
+                        limit = maxSpeed / (1 + maxSpeed * perInch / turnShare);
+                    }
+                    before = heading;
+                } else if (length > 0 && at <= leadIn) {
+                    before = current.get(0).heading();
+                }
+                limits[i] = limit;
+            }
+            limits[n] = 0;
+            for (int i = n - 1; i >= 0; i--) {
+                limits[i] = Math.min(limits[i], Math.sqrt(limits[i + 1] * limits[i + 1] + 2 * decel * limitStep));
+            }
+        }
+
+        /** The limit {@code s} inches along the run, between its samples. */
+        private double limitAt(double s) {
+            if (limits.length == 0) return maxSpeed;
+            double f = Math.max(0, s / limitStep);
+            int i = (int) Math.floor(f);
+            if (i >= limits.length - 1) return limits[limits.length - 1];
+            return limits[i] + (limits[i + 1] - limits[i]) * (f - i);
         }
         private double dirX, dirY;
 
@@ -2821,10 +2887,9 @@ public final class AutoSim {
             // Carry the current speed into the new path, as far as it points the same way.
             Pose a = path.get(0), b = path.get(0.02);
             double tx = b.x() - a.x(), ty = b.y() - a.y(), tn = Math.hypot(tx, ty);
-            double along = tn < 1e-9 ? 0 : (dirX * tx + dirY * ty) / tn;
-            entrySpeed = Math.max(0, speedNow * along);
+            double sameWay = tn < 1e-9 ? 0 : (dirX * tx + dirY * ty) / tn;
+            entrySpeed = Math.max(0, speedNow * sameWay);
             current = path;
-            startedAt = Double.NaN; // starts on the next tick
             lostS = 0;
             length = path.curve.length();
             // A path that starts away from the robot (the endgame guard's park, cut in early): the
@@ -2835,6 +2900,10 @@ public final class AutoSim {
             leadFromX = pose.x();
             leadFromY = pose.y();
             if (leadIn > 0) entrySpeed = 0;
+            planLimits(leadIn + length);
+            travelled = 0;
+            this.along = Math.min(entrySpeed, limitAt(0));
+            lastTickAt = Double.NaN;
             done = false;
             aimHeading = Double.NaN;
         }
@@ -2873,9 +2942,19 @@ public final class AutoSim {
                 speedNow = 0;
                 return;
             }
-            if (Double.isNaN(startedAt)) startedAt = now;
             double total = leadIn + length;
-            double s = distanceAt(now - startedAt - lostS, total, maxSpeed, accel, decel, entrySpeed);
+            if (!Double.isNaN(lastTickAt)) {
+                double dt = now - lastTickAt;
+                double lost = Math.min(lostS, dt);
+                lostS -= lost;
+                dt -= lost;
+                double cap = Math.min(maxSpeed, limitAt(travelled));
+                double next = Math.max(Math.min(along + accel * dt, cap), Math.min(CREEP_IN_PER_S, along + accel * dt));
+                travelled = Math.min(total, travelled + 0.5 * (along + next) * dt);
+                along = next;
+            }
+            lastTickAt = now;
+            double s = travelled;
             double px = pose.x(), py = pose.y();
             // The profile's last step lands on the length only to rounding: finish within a micro-inch.
             boolean arrived = s >= total - 1e-6;
@@ -2899,7 +2978,10 @@ public final class AutoSim {
                 double completion = length == 0 || arrived ? 1 : (s - leadIn) / length;
                 goal = current.get(clamp01(current.curve.parameter(clamp01(completion))));
             }
-            double heading = turned(pose.heading(), goal.heading(), maxTurn * LOOP_S);
+            // In the last JOIN_IN the robot turns the rest of the way to the end's heading, at its own turn
+            // rate, as Pedro does: Belding's short 180° hops reached their end still turning at 130 to 190°/s.
+            double want = total - s <= JOIN_IN ? current.get(1).heading() : goal.heading();
+            double heading = turned(pose.heading(), want, maxTurn * LOOP_S);
             pose = new Pose(goal.x(), goal.y(), heading);
             double mx = pose.x() - px, my = pose.y() - py, moved = Math.hypot(mx, my);
             speedNow = moved / LOOP_S;
@@ -2924,34 +3006,6 @@ public final class AutoSim {
         private static double turned(double from, double to, double maxStep) {
             double error = AdvantageScopeFrame.wrap(to - from);
             return from + Math.max(-maxStep, Math.min(maxStep, error));
-        }
-
-        /** As {@link #distanceAt(double, double, double, double, double, double)}, braking as hard as it accelerates. */
-        static double distanceAt(double t, double length, double v, double a, double v0) {
-            return distanceAt(t, length, v, a, a, v0);
-        }
-
-        /** Distance along a rest-to-rest trapezoid {@code t} seconds in, braking as hard as it accelerates. */
-        static double distanceAt(double t, double length, double v, double a) {
-            return distanceAt(t, length, v, a, a, 0);
-        }
-
-        /**
-         * Distance {@code t} seconds into a trapezoid over {@code length}: from speed {@code v0}, accelerating at
-         * {@code a} to at most {@code v}, braking at {@code d} to rest at the end. The peak is where the ramp up
-         * and the ramp down meet: {@code p² = (2·L·a·d + d·v0²) / (a + d)}, the Visualizer's own
-         * {@code calculateMotionProfileTime} when {@code v0} is 0.
-         */
-        static double distanceAt(double t, double length, double v, double a, double d, double v0) {
-            v0 = Math.max(0, Math.min(v0, Math.min(v, Math.sqrt(2 * d * length)))); // can always stop by the end
-            double peak = Math.min(v, Math.sqrt((2 * length * a * d + d * v0 * v0) / (a + d)));
-            double tUp = (peak - v0) / a, sUp = (peak * peak - v0 * v0) / (2 * a);
-            double sDown = peak * peak / (2 * d), tDown = peak / d;
-            double tCruise = Math.max(0, (length - sUp - sDown) / peak);
-            if (t <= tUp) return v0 * t + 0.5 * a * t * t;
-            if (t <= tUp + tCruise) return sUp + peak * (t - tUp);
-            double td = Math.min(t - tUp - tCruise, tDown);
-            return Math.min(length, sUp + peak * tCruise + peak * td - 0.5 * d * td * td);
         }
 
         private static double clamp01(double v) {
