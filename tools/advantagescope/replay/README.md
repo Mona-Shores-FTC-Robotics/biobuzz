@@ -18,7 +18,8 @@ line again keeps what worked and retries the rest. (In a checkout, double-clicki
 Double-click **BIOBUZZ Match Replay** on the desktop and type the number of a match from the list, or in a new
 terminal type `open-match Q-14`. The first time a match is opened, its stretch of the event stream is downloaded
 (about a minute) and kept, so it never downloads again. The clip is lined up from the stream's own scoreboard: the
-hand it shows during the 8 s transition marks the end of Auto, and the log's Auto end is put there. Then
+hand it shows during the 8 s transition marks the end of the field's 30 s Auto, so the log's Auto start is put
+30 s before it. Then
 AdvantageScope opens on the match's log, with the Video tab and the 3D window side by side. That layout is put
 back every time a match opens, however the last one was left.
 
@@ -48,9 +49,9 @@ opening any match puts the layout back. If it is still wrong, it is the model or
 model's origin and axes are in `cad/advantagescope/README.md`, and the log writes `/Odometry/Robot3d` in
 AdvantageScope's frame (`logging/AdvantageScopeFrame`).
 
-**Video out of sync**: `open-match` says how it placed Auto. "From the scoreboard" puts the log's end of Auto on
-the frame where the transition's hand appears: that is right to within how fast our driver pressed PLAY, a few
-tenths of a second. To fix that for a match you study closely, compare one moment of *our* robot in both views
+**Video out of sync**: `open-match` says how it placed Auto. "From the scoreboard" puts the log's start of Auto
+30 s before the frame where the transition's hand appears (the field's Auto start): that is right to within how
+fast our driver pressed PLAY, a few tenths of a second, even when our Auto ended early. To fix that for a match you study closely, compare one moment of *our* robot in both views
 (it leaving its start, a first shot): if the video's robot moves *d* seconds after the 3D one, run
 `open-match Q-14 -Shift d` (before it: a negative *d*). That re-cuts the clip on the laptop in about half a
 minute, no download. When it looks right, put the `video_start` line it prints into `matches.json` and commit it.

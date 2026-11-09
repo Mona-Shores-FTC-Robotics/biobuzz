@@ -29,6 +29,7 @@ $AsUserAssets = Join-Path $AsData "userAssets"
 $AssetFolders = @("Robot_BIOBUZZ", "Field3d_BIOBUZZHiveSim", "Robot_BIOBUZZHive")
 
 # The video clip: from PreS before Auto starts to PostS after (Auto 30 s, transition 8 s, TeleOp 120 s).
+$FieldAutoS = 30.0   # an FTC Auto, by the field's clock
 $PreS = 10.0
 $PostS = 170.0
 # A match's source keeps more on each side, so the clip can move (the scoreboard, a -Shift) without a new download.

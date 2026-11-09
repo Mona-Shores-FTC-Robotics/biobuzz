@@ -36,8 +36,8 @@ function Finish([int]$code) {
 #      after the match. Downloaded once and kept in sources\ (a clip made before sources existed is adopted instead);
 #      every later step works from it, without the internet.
 #   2. where Auto is in it: matches.json's video_start if someone checked it; otherwise the scoreboard. The FiM
-#      overlay shows a hand for the 8 s transition, so the first frame with the hand is the field's end of Auto, and
-#      the log's own Auto ends there. Only if no hand is found does it fall back to the estimate from the stream's
+#      overlay shows a hand for the 8 s transition, so the first frame with the hand is the field's end of Auto, 30 s
+#      after its start, and the log's own Auto starts there. Only if no hand is found does it fall back to the estimate from the stream's
 #      start time.
 #   3. the clip: cut from the source with the sync countdown burnt in. Kept per offset, so a -Shift re-cuts locally.
 # Returns @{ Clip; VideoStart; How }. Throws when there can be no video.
@@ -112,8 +112,9 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS) {
         $look = [Math]::Max([double]0, $estimate + 30 - 25 - $sourceFrom)
         $hand = Find-ScoreboardHand $ffmpeg $source $look 50
         if ($null -ne $hand.At) {
-            # The log's Auto ends where the field's does (our driver's PLAY lag aside).
-            $autoAt = $hand.At - $autoS
+            # The field's Auto is always 30 s, so it started 30 s before the hand. The log's Auto starts there too, give
+            # or take our driver's PLAY lag. Its end is no use: an Auto stopped early (Q-27 at Belding: 28.99 s) ends early.
+            $autoAt = $hand.At - $FieldAutoS
             $off = ($sourceFrom + $autoAt) - $estimate
             $way = "behind"; if ($off -lt 0) { $way = "ahead of" }
             $how = "from the scoreboard: the field's Auto ended at {0} (match {1:N2}); the video was {2:0.0} s {3} the estimate" -f `
