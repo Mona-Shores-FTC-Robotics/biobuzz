@@ -1523,7 +1523,7 @@ final class FieldSim {
      * (about 7.3 POLLEN weights), under the 7.3 to 8 the Field Setup Guide's placed cases allow. It is set so that a
      * fast 4-ball volley onto about 7 weights tips sometimes and one onto 6.5 or less never does
      * ({@code HiveImpulseTest}), and the Guide's gentle tosses (§12.3) still hold on the 2nd and 7th POLLEN. The
-     * Belding Qualifier stream (37 TIPs counted, 9 Nov 2026, recorded in the PR that settled the robot-todo count) has
+     * Belding Qualifier stream (37 TIPs counted, 9 Nov 2026, PR #519) has
      * no CELL tipped by hits under 7 POLLEN weights: the lightest TIP right after a landing held 7.0, and CELLs tipped
      * with no hit at all on 6.95 to 7.0. So the video cannot fit this number; it agrees with the picture above. 0 turns
      * the hits off. 1 until the launcher fired at its one
