@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
+import org.firstinspires.ftc.teamcode.subsystems.TurretEncoder;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
@@ -66,10 +67,15 @@ import java.util.Locale;
  *
  * <p>The turret starts every OpMode LOCKED straight ahead; the operator's lock button switches it
  * to AIM at our CELL ({@link TurretAimer}: left half of the field, left CELL; right half, right
- * CELL). While LOCKED, the driver's chassis aim turns the whole robot onto the same CELL; or,
- * experimentally, the driver's launch-spot button drives it to the nearest launch spot and
- * arrives aimed at that half's CELL ({@link LaunchSpotDrive}), and with
- * {@code TeleOpConfig.goToSpotAlsoFires} spins up and fires there while it is held. The
+ * CELL). While LOCKED, the driver has two ways to shoot. The launch-spot button trusts the
+ * odometry: experimentally, it drives to the nearest launch spot and arrives aimed at that half's
+ * CELL ({@link LaunchSpotDrive}), and with {@code TeleOpConfig.goToSpotAlsoFires} spins up and
+ * fires there while it is held. The chassis aim trusts the camera: it turns the robot onto the UP
+ * CELL of ours the camera sees, holds that heading on the gyro through a short loss of view, and
+ * uses the odometry only when the camera has seen none ({@link ChassisAimTarget}); the operator's
+ * FIRE then chooses the moment, waiting until the robot is on the CELL
+ * ({@code TeleOpConfig.chassisAimGate}). Pose good, the spot; pose off, a gyro reset and the
+ * chassis aim. The
  * operator's trim nudges either one and stays until reset. It zeroes itself, assuming it starts a
  * match at its home mark, or taking the Auto's zero when an Auto just ran
  * ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy}); the zero button always
@@ -172,6 +178,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** The operator's trim on the launch speed, ticks per second; lasts the OpMode. */
     private double launcherTrimTps;
     private boolean chassisAimCancelled;
+    /** The chassis aim's camera-first target ({@link ChassisAimTarget}): where Circle points the robot. */
+    private ChassisAimTarget chassisTarget;
+    /** The chassis aim drove the turn this loop: the aim gate is enforced for FIRE ({@code TeleOpConfig.chassisAimGate}). */
+    private boolean chassisAimDriving;
+    /** The press's last chassis aim, for its let-go log line: error, where it came from, whether the camera locked a CELL. */
+    private double lastChassisAimErrorDeg = Double.NaN;
+    private ChassisAimTarget.Source lastChassisSource = ChassisAimTarget.Source.NONE;
+    private boolean chassisSawCell;
     /** When the chassis aim button went down, ns; 0 while it is up. For its log line. */
     private long chassisAimSinceNs;
     private boolean lastFire;
@@ -222,6 +236,15 @@ public class BasicDriveTeleOp extends RobotOpMode {
     protected void onInit() {
         panels = panelsTelemetry();
         aimer = new TurretAimer(robot);
+        // Made once: the camera's bearing and range to one of our CELLs, NaN unless freshly in view.
+        chassisTarget = new ChassisAimTarget(cell -> {
+            CellSighting s = freshSighting(cell);
+            return s == null ? Double.NaN : TurretAim.fromRobotFrameDeg(s.rowCentreRobot(),
+                    TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
+        }, cell -> {
+            CellSighting s = freshSighting(cell);
+            return s == null ? Double.NaN : s.groundRangeFromIn(TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
+        });
         picker = new FlowerPicker(robot, text -> log.event(text));
         gatherer = new GardenGather(robot, text -> log.event(text));
         launchSpot = new LaunchSpotDrive(robot, text -> log.event(text));
@@ -494,7 +517,22 @@ public class BasicDriveTeleOp extends RobotOpMode {
             aimer.solve(setup.alliance(), AIM_SWITCH_BAND_IN);
         }
         double aimDeg = aimer.aimDeg();
+        // The chassis aim (Circle) is camera first: the CELL the camera sees, then that heading held
+        // on the gyro, and only then the odometry's aim above (ChassisAimTarget).
+        boolean circleHeld = turretMode == TurretMode.LOCKED && controls.held(Action.CHASSIS_AIM);
+        Pose here = robot.drive.pose();
+        HiveTracker ourHive = robot.hive.of(setup.alliance());
+        chassisTarget.update(circleHeld, setup.alliance(),
+                TurretAim.upCellOr(setup.alliance(), ourHive == null ? null : ourHive.state(), null),
+                here == null ? Double.NaN : here.heading(), aimDeg, aimer.trimDeg());
+        if (circleHeld) {
+            aimDeg = chassisTarget.aimDeg();
+            lastChassisSource = chassisTarget.source();
+            chassisSawCell = chassisTarget.cameraThisPress();
+        }
+        if (chassisTarget.lockedThisLoop()) log.event(chassisLockLine());
         aimErrorDeg = Double.isNaN(aimDeg) ? Double.NaN : aimDeg - robot.turret.angleDegrees();
+        if (circleHeld) lastChassisAimErrorDeg = aimErrorDeg;
 
         // A FLOWER pick, a GARDEN gather or the drive to a launch spot drives the robot while held,
         // one at a time; a stick, or letting go (for a grab, before the dwell), hands it back this
@@ -508,6 +546,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         updateTableSpeed();
         spotLauncher();
         boolean chassisAim = chassisAim(rightStick);
+        chassisAimDriving = chassisAim;
         if (!routineActive()) {
             double turnCommand = chassisAim ? chassisAimTurn() : turn;
             robot.drive.setAccelLimited(true);
@@ -570,9 +609,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (!controls.held(Action.CHASSIS_AIM)) {
             if (chassisAimSinceNs != 0) {
                 // One line per press, to compare with the launch-spot button's (LaunchSpotDrive).
-                log.event(String.format(Locale.US, "chassis aim: let go after %.2f s, aim %s, %s",
+                // aimErrorDeg is this loop's, the turret's own aim now the button is up; the press's
+                // last chassis aim is the one to report.
+                log.event(String.format(Locale.US, "chassis aim: let go after %.2f s, aim %s from %s, camera %s, %s",
                         (System.nanoTime() - chassisAimSinceNs) / 1e9,
-                        Double.isNaN(aimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f° off", aimErrorDeg),
+                        Double.isNaN(lastChassisAimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f° off", lastChassisAimErrorDeg),
+                        lastChassisSource, chassisSawCell ? "locked a CELL" : "saw none of ours",
                         chassisAimCancelled ? "cancelled by the right stick" : "not cancelled"));
                 chassisAimSinceNs = 0;
             }
@@ -605,6 +647,36 @@ public class BasicDriveTeleOp extends RobotOpMode {
         double max = unitRange(TeleOpConfig.chassisAimMaxTurn);
         double turn = kp * Math.toRadians(aimErrorDeg);
         return Math.max(-max, Math.min(max, turn));
+    }
+
+    /** {@code cell}'s camera sighting if it is fresh enough to aim by ({@link TurretAimer#SIGHTING_FRESH_MS}), else null. */
+    private CellSighting freshSighting(HiveCell cell) {
+        CellSighting s = robot.vision.sighting(cell);
+        return s != null && s.ageMs() <= TurretAimer.SIGHTING_FRESH_MS ? s : null;
+    }
+
+    /**
+     * The chassis aim's first camera lock in a press, one log line: the camera's bearing and range to
+     * the CELL beside what the odometry would have said for the same CELL. Their gap is how far off
+     * the pose is where it matters for a shot, the evidence for when Circle beats Square.
+     */
+    private String chassisLockLine() {
+        HiveCell cell = chassisTarget.locked();
+        CellSighting s = freshSighting(cell);
+        double fwd = TurretSubsystem.turretForwardIn;
+        double left = TurretSubsystem.turretLeftIn;
+        double camDeg = s == null ? Double.NaN : TurretAim.fromRobotFrameDeg(s.rowCentreRobot(), fwd, left);
+        double camRange = s == null ? Double.NaN : s.groundRangeFromIn(fwd, left);
+        String line = String.format(Locale.US, "chassis aim: camera locked %s CELL, %+.1f° at %.0f in",
+                ChassisAimTarget.driverName(cell), camDeg, camRange);
+        Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
+        Vec3 row = HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+        if (pose == null || row == null) return line + "; odometry: " + (pose == null ? "pose not on the field" : "no field point");
+        double odoDeg = TurretAim.fromFieldDeg(pose.x(), pose.y(), pose.heading(), fwd, left, row.x(), row.y());
+        double odoRange = TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(), fwd, left, row.x(), row.y());
+        return line + String.format(Locale.US, "; odometry %+.1f° at %.0f in (gap %+.1f°, %+.1f in) from (%.1f, %.1f, %.0f°)",
+                odoDeg, odoRange, TurretEncoder.wrap180(odoDeg - camDeg), odoRange - camRange,
+                pose.x(), pose.y(), Math.toDegrees(pose.heading()));
     }
 
     /**
@@ -642,7 +714,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (controls.held(Action.CHASSIS_AIM)) {
             display.line(chassisAimCancelled ? "Chassis aim: cancelled by the right stick (let go to re-arm)"
                     : turretMode == TurretMode.AIM ? "Chassis aim: off while the turret aims (lock it first)"
-                    : "Chassis aim: " + aimer.source());
+                    : "Chassis aim: " + chassisTarget.describe());
         }
         showPinpoint();
         display.status("Mode", robotCentric() ? Display.Level.WARN : Display.Level.OK,
@@ -772,7 +844,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         if (!fireHeld) spunUpByFire = false;
         gates.evaluate(launcherOwner.spinning(), robot.launcher.atSpeed(), aimErrorDeg, TeleOpConfig.aimToleranceDeg);
-        boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, TeleOpConfig.enforceAimGate)
+        // The aim gate also holds while the driver's chassis aim is turning the robot: the driver
+        // points, the operator chooses the moment, and FIRE waits until the robot is on the CELL.
+        boolean enforceAim = TeleOpConfig.enforceAimGate || (TeleOpConfig.chassisAimGate && chassisAimDriving);
+        boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, enforceAim)
                 && (!spunUpByFire || robot.launcher.atSpeed());
         if (pressed) {
             log.event(fireLine(open));
