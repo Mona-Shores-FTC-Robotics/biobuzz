@@ -21,6 +21,31 @@ $Tools = Env-Or "BIOBUZZ_TOOLS" (Join-Path $ReplayHome "tools")
 $LogsDir = Join-Path $ReplayHome "logs"
 $ClipsDir = Join-Path $ReplayHome "clips"
 $SourcesDir = Join-Path $ReplayHome "sources"   # each match's stretch of the event video, unmarked, downloaded once
+
+# The team's shared copy, on the shared Google Drive the match logs go to (tools/pull-logs), as Google Drive for
+# Desktop mounts it: "<letter>:\Shared drives\...", on whatever letter that laptop uses. Each match's video is put
+# there by the first laptop that has it and taken from there by the rest, so YouTube is needed once per match for
+# the whole team, and not at all once the stream is gone. $null without Drive for Desktop, or not on the team drive.
+$TeamFolderRel = "Shared drives\Robotics Team 3572 - Wavelength\2026-2027 FTC Biobuzz"
+function Find-SharedReplay {
+    $override = [Environment]::GetEnvironmentVariable("BIOBUZZ_SHARED")
+    if ($override) { New-Item -ItemType Directory -Force (Join-Path $override "sources") | Out-Null; return $override }
+    foreach ($drive in (Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyContinue)) {
+        $team = Join-Path $drive.Root $TeamFolderRel
+        if (Test-Path -LiteralPath $team -PathType Container) {
+            $replay = Join-Path $team "Replay"
+            try { New-Item -ItemType Directory -Force (Join-Path $replay "sources") | Out-Null; return $replay } catch { return $null }
+        }
+    }
+    return $null
+}
+
+# Copies $from to $to so that a reader never sees half a file: to a .part name first, then renamed.
+function Copy-Whole([string]$from, [string]$to) {
+    Copy-Item -Force -LiteralPath $from -Destination "$to.part"
+    if (Test-Path -LiteralPath $to) { Remove-Item -Force -LiteralPath $to }
+    Move-Item -LiteralPath "$to.part" -Destination $to
+}
 $CacheDir = Join-Path $ReplayHome "cache"
 $BinDir = Join-Path $ReplayHome "bin"
 # AdvantageScope's own folder (Electron's userData): userAssets, prefs, window state, ffmpeg.exe.

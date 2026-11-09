@@ -27,6 +27,12 @@ On AdvantageScope's **Video** tab, click the gray file icon, press **Ctrl+V** (t
 clipboard), then **Enter**. About 45 s into loading, the video locks to the log by itself: robot and HIVEs move in
 the 3D window beside the video, in step with it.
 
+**Shared through the team Google Drive.** On a laptop with Google Drive for Desktop signed in to the team's shared
+drive (the one the match logs go to), each match's video is downloaded from YouTube once for the whole team: the
+first laptop to have it puts it in `2026-2027 FTC Biobuzz\Replay\` there, and every other laptop copies it from
+there instead, which also keeps working after the stream is gone. Nothing to do by hand; a laptop without Drive
+just uses YouTube.
+
 **Before a meeting**, double-click **BIOBUZZ Prepare All Matches** (or run `open-match -All`): it downloads
 every match's log and clip without opening anything, so each match opens at once later, with no internet needed.
 

@@ -68,12 +68,20 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS, [string]$log) {
     }
 
     # Where Auto starts in the video, estimated: the field's start time (FTCScout) after the stream's own start.
-    $startFile = Join-Path $CacheDir ("stream-start-" + (Get-Sha256Text $url) + ".txt")
+    $shared = Find-SharedReplay
+    $startName = "stream-start-" + (Get-Sha256Text $url) + ".txt"
+    $startFile = Join-Path $CacheDir $startName
+    New-Item -ItemType Directory -Force $CacheDir | Out-Null
+    if (-not (Test-Path $startFile) -and $shared -and (Test-Path (Join-Path $shared $startName))) {
+        Copy-Item -Force (Join-Path $shared $startName) $startFile
+    }
     if (Test-Path $startFile) { $streamStart = [double](Get-Content -Raw $startFile) } else {
         $streamStart = (Get-StreamInfo).Start
         if (-not $streamStart) { throw "YouTube gives no start time for ${url}: type this match's video_start into matches.json" }
-        New-Item -ItemType Directory -Force $CacheDir | Out-Null
         Set-Content -NoNewline -Path $startFile -Value $streamStart
+    }
+    if ($shared -and -not (Test-Path (Join-Path $shared $startName))) {
+        try { Copy-Whole $startFile (Join-Path $shared $startName) } catch { }
     }
     $estimate = (ConvertTo-UnixSeconds $m.start_utc) - [double]$streamStart + [double]$ev.video_shift_s
     if ($m.video_start) { $estimate = ConvertFrom-VideoTime $m.video_start }
@@ -83,6 +91,19 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS, [string]$log) {
     $name = "{0}_{1}_{2}" -f $ev.event, ($m.match -replace '[^A-Za-z0-9-]', ''), $m.team
     $source = Join-Path $SourcesDir "$name.mp4"
     $sidecar = "$source.json"
+    $sharedSource = $null; $sharedSidecar = $null
+    if ($shared) {
+        $sharedSource = Join-Path (Join-Path $shared "sources") "$name.mp4"
+        $sharedSidecar = "$sharedSource.json"
+    }
+    if (-not ((Test-Path $source) -and (Test-Path $sidecar)) -and $sharedSource -and (Test-Path $sharedSidecar) -and (Test-Path $sharedSource)) {
+        # On the team Drive (its .json is written last, so the video beside it is whole): copy it, no YouTube.
+        New-Item -ItemType Directory -Force $SourcesDir | Out-Null
+        Say "  ...     copying this match's video from the team Google Drive"
+        Copy-Whole $sharedSource $source
+        Copy-Whole $sharedSidecar $sidecar
+        Ok "this match's video came from the team Drive: nothing to download"
+    }
     if (-not ((Test-Path $source) -and (Test-Path $sidecar))) {
         New-Item -ItemType Directory -Force $SourcesDir | Out-Null
         # A clip from before sources existed (cut at the estimate, 10 s early, 180 s long) holds the whole match:
@@ -103,6 +124,15 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS, [string]$log) {
             New-Source $ffmpeg $info.Url $headers $sourceFrom ($estimate - $sourceFrom + $SourcePostS) $source
         }
         Set-Content -NoNewline -Path $sidecar -Value (@{ url = $url; from = $sourceFrom } | ConvertTo-Json -Compress)
+    }
+    # Share it, once: the first laptop to have a match's video puts it on the team Drive for the rest. The .json last,
+    # since it is what tells another laptop the video is there. A full or offline Drive costs only the sharing.
+    if ($sharedSource -and -not (Test-Path $sharedSidecar)) {
+        try {
+            Say "  ...     putting this match's video on the team Google Drive for the other laptops"
+            Copy-Whole $source $sharedSource
+            Copy-Whole $sidecar $sharedSidecar
+        } catch { Warn "could not put this match's video on the team Drive ($($_.Exception.Message)); it is still here" }
     }
     $meta = Get-Content -Raw $sidecar | ConvertFrom-Json
     $sourceFrom = [double]$meta.from
