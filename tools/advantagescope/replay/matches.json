@@ -1,5 +1,5 @@
 {
-  "_comment": "Which log is which match, and where its Auto starts in the video. video_start: the time in the video when Auto starts (h:mm:ss.s, the moment the robots start moving). Leave it empty and open-match estimates it from start_utc and the stream's own start time, plus the event's video_shift_s; once a match looks right, type the value open-match printed. Rows come from maintain/find_matches.py.",
+  "_comment": "Which log is which match, and where its Auto starts in the video. video_start: the time in the video when Auto starts (h:mm:ss.s, the moment the robots start moving). Leave it empty and open-match lines it up from the stream's scoreboard (the transition's hand marks the end of Auto); start_utc, the stream's own start time and the event's video_shift_s only say where to look, and are the fallback when the hand is not found. Once a match looks right, type the video_start open-match printed. Rows come from maintain/find_matches.py.",
   "events": [
     {
       "event": "USMIBEQ",

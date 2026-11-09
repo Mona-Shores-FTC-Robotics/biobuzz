@@ -27,7 +27,8 @@ try { [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::S
 
 # The files of this folder that make the installed copy (match-layout.json comes from the folder above).
 $Files = @("Replay.ps1", "setup.ps1", "setup.cmd", "open-match.ps1", "open-match.cmd", "replay.json", "matches.json",
-    "marker/0-05.png", "marker/0-04.png", "marker/0-03.png", "marker/0-02.png", "../match-layout.json")
+    "marker/0-05.png", "marker/0-04.png", "marker/0-03.png", "marker/0-02.png", "marker/scoreboard-hand.gray",
+    "../match-layout.json")
 
 if (-not $Installed) {
     # ---- Stage 1: get the scripts, then run the installed setup.ps1 (it may be newer than this one). ----

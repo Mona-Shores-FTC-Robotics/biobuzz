@@ -17,7 +17,7 @@ param(
     [double]$Shift = 0,                  # seconds added to this match's video_start, for a try
     [string]$Event = "",                 # an event code (USMIBEQ) when two events have the same match name
     [switch]$NoVideo,                    # the log only
-    [switch]$Rebuild,                    # cut the clip again even if it is kept
+    [switch]$Rebuild,                    # cut the clip again from this match's video (to download that too, delete it from sources\)
     [switch]$All,                        # every match's log and clip, ready for later; opens nothing
     [string]$CookiesFromBrowser = ""     # firefox / edge / chrome: when YouTube says "sign in to confirm"
 )
@@ -31,10 +31,18 @@ function Finish([int]$code) {
     exit $code
 }
 
-# The match's clip: made the first time (cut from the stream, the countdown burnt in) and kept, so it never downloads
-# twice. Returns @{ Clip; VideoStart; Estimated }. Throws when there can be no video.
+# The match's clip, in three steps:
+#   1. the source: this match's stretch of the event video, unmarked, from 40 s before Auto's estimated start to 40 s
+#      after the match. Downloaded once and kept in sources\ (a clip made before sources existed is adopted instead);
+#      every later step works from it, without the internet.
+#   2. where Auto is in it: matches.json's video_start if someone checked it; otherwise the scoreboard. The FiM
+#      overlay shows a hand for the 8 s transition, so the first frame with the hand is the field's end of Auto, and
+#      the log's own Auto ends there. Only if no hand is found does it fall back to the estimate from the stream's
+#      start time.
+#   3. the clip: cut from the source with the sync countdown burnt in. Kept per offset, so a -Shift re-cuts locally.
+# Returns @{ Clip; VideoStart; How }. Throws when there can be no video.
 function Get-MatchClip($pins, $ev, $m, [double]$autoS) {
-    # 2. Where Auto starts in the video: matches.json's video_start, else estimated from the stream's start time.
+    $inv = [Globalization.CultureInfo]::InvariantCulture
     $url = $ev.video; if ($m.PSObject.Properties["video"] -and $m.video) { $url = $m.video }
     if (-not $url) { throw "matches.json has no video for $($ev.event)" }
     $ffmpeg = Join-Path $Tools "ffmpeg.exe"; $ytdlp = Join-Path $Tools "yt-dlp.exe"; $deno = Join-Path $Tools "deno.exe"
@@ -42,54 +50,99 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS) {
     $ytArgs = @("--no-playlist", "--no-warnings", "--js-runtimes", "deno:$deno", "-f",
         "bv*[height<=720][vcodec^=avc1]/bv*[height<=720][vcodec!^=av01]/b[height<=720]/b")
     if ($CookiesFromBrowser) { $ytArgs += @("--cookies-from-browser", $CookiesFromBrowser) }
-    $info = $null
+    $script:streamInfo = $null
     # Only the three fields needed, one per line (yt-dlp's full JSON is large, and Windows PowerShell's
     # ConvertFrom-Json is fragile with it): when the stream started, the chosen format's URL, and its HTTP headers.
     function Get-StreamInfo {
+        if ($script:streamInfo) { return $script:streamInfo }
         $lines = @(& $ytdlp @ytArgs -O "%(release_timestamp,timestamp)s" -O "%(url)s" -O "%(http_headers)j" $url)
         if ($LASTEXITCODE -ne 0 -or $lines.Count -lt 3) { throw "yt-dlp could not read $url (see above). Troubleshooting: the README's 'Video won't download'." }
         $start = $null
-        if ($lines[0] -match '^\d+(\.\d+)?$') { $start = [double]::Parse($lines[0], [Globalization.CultureInfo]::InvariantCulture) }
-        return @{ Start = $start; Url = $lines[1]; Headers = ($lines[2] | ConvertFrom-Json) }
+        if ($lines[0] -match '^\d+(\.\d+)?$') { $start = [double]::Parse($lines[0], $inv) }
+        $script:streamInfo = @{ Start = $start; Url = $lines[1]; Headers = ($lines[2] | ConvertFrom-Json) }
+        return $script:streamInfo
     }
 
-    $estimated = -not $m.video_start
-    if ($estimated) {
-        $startFile = Join-Path $CacheDir ("stream-start-" + (Get-Sha256Text $url) + ".txt")
-        if (Test-Path $startFile) { $streamStart = [double](Get-Content -Raw $startFile) } else {
-            $info = Get-StreamInfo
-            $streamStart = $info.Start
-            if (-not $streamStart) { throw "YouTube gives no start time for ${url}: type this match's video_start into matches.json" }
-            Set-Content -NoNewline -Path $startFile -Value $streamStart
-        }
-        $matchStart = ConvertTo-UnixSeconds $m.start_utc
-        $videoStart = $matchStart - [double]$streamStart + [double]$ev.video_shift_s
-    } else {
-        $videoStart = ConvertFrom-VideoTime $m.video_start
+    # Where Auto starts in the video, estimated: the field's start time (FTCScout) after the stream's own start.
+    $startFile = Join-Path $CacheDir ("stream-start-" + (Get-Sha256Text $url) + ".txt")
+    if (Test-Path $startFile) { $streamStart = [double](Get-Content -Raw $startFile) } else {
+        $streamStart = (Get-StreamInfo).Start
+        if (-not $streamStart) { throw "YouTube gives no start time for ${url}: type this match's video_start into matches.json" }
+        New-Item -ItemType Directory -Force $CacheDir | Out-Null
+        Set-Content -NoNewline -Path $startFile -Value $streamStart
     }
-    $videoStart += $Shift
-    if ($videoStart -lt 0) { throw "Auto would start $((-$videoStart).ToString('0')) s before the video does: is this event's video right?" }
-    $from = [Math]::Max([double]0, $videoStart - $PreS)
-    $autoInClip = $videoStart - $from
-    $how = "from matches.json"; if ($estimated) { $how = "estimated from the stream's start time" }
+    $estimate = (ConvertTo-UnixSeconds $m.start_utc) - [double]$streamStart + [double]$ev.video_shift_s
+    if ($m.video_start) { $estimate = ConvertFrom-VideoTime $m.video_start }
+    if ($estimate -lt 0) { throw "Auto would start $((-$estimate).ToString('0')) s before the video does: is this event's video right?" }
+
+    # 1. The source.
+    $name = "{0}_{1}_{2}" -f $ev.event, ($m.match -replace '[^A-Za-z0-9-]', ''), $m.team
+    $source = Join-Path $SourcesDir "$name.mp4"
+    $sidecar = "$source.json"
+    if (-not ((Test-Path $source) -and (Test-Path $sidecar))) {
+        New-Item -ItemType Directory -Force $SourcesDir | Out-Null
+        # A clip from before sources existed (cut at the estimate, 10 s early, 180 s long) holds the whole match:
+        # adopt it rather than download again. Its countdown is covered over when the clip is cut from it.
+        $oldFrom = [Math]::Max([double]0, $estimate - $PreS)
+        $oldKey = Get-Sha256Text ("v2|$url|" + $oldFrom.ToString("0.000", $inv) + "|" + ($estimate - $oldFrom).ToString("0.000", $inv) + "|" + $autoS.ToString("0.000", $inv) + "|$PreS|$PostS")
+        $old = Join-Path $ClipsDir ("{0}_{1}.mp4" -f $name, $oldKey.Substring(0, 8))
+        if (Test-Path $old) {
+            Move-Item -Force $old $source
+            $sourceFrom = $oldFrom
+            Ok "kept the clip made earlier as this match's source: nothing to download"
+        } else {
+            $sourceFrom = [Math]::Max([double]0, $estimate - $SourcePreS)
+            Say "  ...     downloading this match's video (about a minute, once per match)"
+            $info = Get-StreamInfo
+            $headers = ""
+            if ($info.Headers) { foreach ($p in $info.Headers.PSObject.Properties) { $headers += "$($p.Name): $($p.Value)`r`n" } }
+            New-Source $ffmpeg $info.Url $headers $sourceFrom ($estimate - $sourceFrom + $SourcePostS) $source
+        }
+        Set-Content -NoNewline -Path $sidecar -Value (@{ url = $url; from = $sourceFrom } | ConvertTo-Json -Compress)
+    }
+    $meta = Get-Content -Raw $sidecar | ConvertFrom-Json
+    $sourceFrom = [double]$meta.from
+
+    # 2. Where Auto starts in the source.
+    if ($m.video_start) {
+        $autoAt = $estimate - $sourceFrom
+        $how = "from matches.json"
+    } else {
+        # The field's Auto ends about 30 s after the estimate; look 25 s either side.
+        $look = [Math]::Max([double]0, $estimate + 30 - 25 - $sourceFrom)
+        $hand = Find-ScoreboardHand $ffmpeg $source $look 50
+        if ($null -ne $hand.At) {
+            # The log's Auto ends where the field's does (our driver's PLAY lag aside).
+            $autoAt = $hand.At - $autoS
+            $off = ($sourceFrom + $autoAt) - $estimate
+            $way = "behind"; if ($off -lt 0) { $way = "ahead of" }
+            $how = "from the scoreboard: the field's Auto ended at {0} (match {1:N2}); the video was {2:0.0} s {3} the estimate" -f `
+                (ConvertTo-VideoTime ($sourceFrom + $hand.At)), $hand.Score, [Math]::Abs($off), $way
+        } else {
+            $autoAt = $estimate - $sourceFrom
+            $how = "estimated from the stream's start time: the scoreboard's transition hand was not found (best match {0:N2})" -f $hand.Score
+        }
+    }
+    $autoAt += $Shift
+    $videoStart = $sourceFrom + $autoAt
     Say "  ...     Auto starts at $(ConvertTo-VideoTime $videoStart) in the video ($how$(if ($Shift) { ", shifted $Shift s" }))"
 
-    # 3. The clip, kept per match and per offset.
-    $inv = [Globalization.CultureInfo]::InvariantCulture
-    $key = Get-Sha256Text ("v2|$url|" + $from.ToString("0.000", $inv) + "|" + $autoInClip.ToString("0.000", $inv) + "|" + $autoS.ToString("0.000", $inv) + "|$PreS|$PostS")
-    $clip = Join-Path $ClipsDir ("{0}_{1}_{2}_{3}.mp4" -f $ev.event, ($m.match -replace '[^A-Za-z0-9-]', ''), $m.team, $key.Substring(0, 8))
+    # 3. The clip.
+    $from = [Math]::Max([double]0, $autoAt - $PreS)
+    $autoInClip = $autoAt - $from
+    $key = Get-Sha256Text ("v3|$url|" + $sourceFrom.ToString("0.000", $inv) + "|" + $from.ToString("0.000", $inv) + "|" + $autoInClip.ToString("0.000", $inv) + "|" + $autoS.ToString("0.000", $inv) + "|$PreS|$PostS")
+    $clip = Join-Path $ClipsDir ("{0}_{1}.mp4" -f $name, $key.Substring(0, 8))
     if ($Rebuild -or -not (Test-Path $clip)) {
-        Say "  ...     cutting the clip from the stream (about a minute, once per match)"
-        if (-not $info) { $info = Get-StreamInfo }
-        $headers = ""
-        if ($info.Headers) { foreach ($p in $info.Headers.PSObject.Properties) { $headers += "$($p.Name): $($p.Value)`r`n" } }
+        Say "  ...     cutting the clip from this match's video (no download)"
         New-Item -ItemType Directory -Force $ClipsDir | Out-Null
-        New-Clip $ffmpeg $info.Url $headers $from ($PreS + $PostS) $autoInClip $autoS $clip
-        Ok "clip $(Split-Path -Leaf $clip), kept for next time"
+        New-Clip $ffmpeg $source "" $from ($PreS + $PostS) $autoInClip $autoS $clip
+        # This match's earlier clips (other offsets) go: the source can cut any of them again in seconds.
+        Get-ChildItem $ClipsDir -Filter "${name}_*.mp4" | Where-Object { $_.FullName -ne $clip } | Remove-Item -Force -ErrorAction SilentlyContinue
+        Ok "clip $(Split-Path -Leaf $clip)"
     } else {
-        Ok "clip $(Split-Path -Leaf $clip) (already made: nothing to download)"
+        Ok "clip $(Split-Path -Leaf $clip) (already made)"
     }
-    return @{ Clip = $clip; VideoStart = $videoStart; Estimated = $estimated }
+    return @{ Clip = $clip; VideoStart = $videoStart; How = $how }
 }
 
 try {
@@ -147,7 +200,7 @@ try {
         for ($i = 0; $i -lt $rows.Count; $i++) {
             $c = $rows[$i]
             $when = [DateTimeOffset]::FromUnixTimeMilliseconds([long](1000 * (ConvertTo-UnixSeconds $c.Row.start_utc))).ToLocalTime().ToString("ddd HH:mm")
-            $v = "video estimated"; if ($c.Row.video_start) { $v = "video checked" }
+            $v = "synced: scoreboard"; if ($c.Row.video_start) { $v = "synced: checked" }
             Say ("  {0,3}  {1,-6} {2}  {3,-4}  {4}  {5,-10} {6}" -f ($i + 1), $c.Row.match, $c.Row.team, $c.Row.alliance, $when, $c.Event.event, $v)
         }
         $pick = Read-Host "Number of the match to open"
@@ -206,7 +259,7 @@ try {
         Finish 1
     }
     Open-AdvantageScope
-    $clip = $made.Clip; $videoStart = $made.VideoStart; $estimated = $made.Estimated
+    $clip = $made.Clip; $videoStart = $made.VideoStart
     $inv = [Globalization.CultureInfo]::InvariantCulture
 
     # 4. The one thing AdvantageScope will not take from a script: choosing the video.
@@ -216,13 +269,10 @@ try {
     Write-Host "  (The clip's path is on the clipboard.) About 45 s after it starts loading, the video locks to the log" -ForegroundColor Cyan
     Write-Host "  by itself: its controls go gray, and from then on it follows the timeline." -ForegroundColor Cyan
     Say ""
-    Say "  If the video's robots move later than the 3D robot, by d seconds: open-match $($m.match) $($m.team) -Shift d"
-    Say "  (earlier: a negative d). When it looks right, make it permanent in matches.json, for this match:"
+    Say "  Synced from the scoreboard, it can still be a few tenths off: how fast our driver pressed PLAY. If the"
+    Say "  video's robot moves d seconds after the 3D robot: open-match $($m.match) $($m.team) -Shift d (before it: -d)."
+    Say "  That re-cuts on this laptop, with no download. To keep it, put this match's line in matches.json:"
     Say "      `"video_start`": `"$(ConvertTo-VideoTime $videoStart)`""
-    if ($estimated) {
-        Say "  or, for every match of this event that has no video_start yet (one stream, one correction):"
-        Say "      `"video_shift_s`": $(([double]$ev.video_shift_s + $Shift).ToString('0.0', $inv))"
-    }
     Finish 0
 } catch {
     Bad $_.Exception.Message
