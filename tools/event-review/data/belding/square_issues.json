@@ -1,0 +1,25 @@
+[
+ {
+  "robot": "19429",
+  "presses": 70,
+  "sticks_cancelled": 29,
+  "dropout_matches": 2,
+  "back_first_s": 7,
+  "back_second_s": 32,
+  "refused_after_back": 19,
+  "refused_in_dropout": 22,
+  "cam_gap_after_in": 1.7,
+  "centre_refused": 5,
+  "centre_ok_now": 4
+ },
+ {
+  "robot": "20245",
+  "presses": 140,
+  "sticks_cancelled": 33,
+  "dropout_matches": 0,
+  "refused_after_back": 0,
+  "refused_in_dropout": 0,
+  "centre_refused": 13,
+  "centre_ok_now": 13
+ }
+]
