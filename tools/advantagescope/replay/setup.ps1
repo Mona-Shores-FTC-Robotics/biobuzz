@@ -240,7 +240,9 @@ Step "Commands" {
     $ps = "powershell -NoProfile -ExecutionPolicy Bypass -File"
     Set-Content -Encoding ASCII -Path (Join-Path $BinDir "open-match.cmd") -Value @(
         "@echo off", "rem BIOBUZZ match replay: open-match Q-14 (or no match to pick one from a list).",
-        "$ps `"$(Join-Path $Scripts 'open-match.ps1')`" %*")
+        "$ps `"$(Join-Path $Scripts 'open-match.ps1')`" %*",
+        "rem If it stopped with an error, keep the window open to read it (also in last-run.log).",
+        "if errorlevel 1 pause")
     Set-Content -Encoding ASCII -Path (Join-Path $BinDir "update-replay.cmd") -Value @(
         "@echo off", "rem BIOBUZZ match replay: update the scripts, AdvantageScope, the models, the layout and the logs.",
         "$ps `"$(Join-Path $Scripts 'setup.ps1')`" %*", "pause")
