@@ -510,7 +510,7 @@
     fn: (top_scores, results) => {
       const ours = top_scores.filter((r) => r.ours).sort((a, b) => b.score - a.score);
       return [{top8_ours: top_scores.filter((r) => r.place <= 8 && r.ours).length, top8: 8,
-        best_score: ours[0].score, best_match: ours[0].match,
+        best_score: ours.length ? ours[0].score : null, best_match: ours.length ? ours[0].match : null,
         matches: results.reduce((a, r) => a + r.matches, 0),
         penalties: results.reduce((a, r) => a + r.penalties_committed, 0),
         crashes: results.reduce((a, r) => a + r.crashes, 0)}];
@@ -530,7 +530,7 @@
     title: 'Share of a battery per match',
     description: 'Median amp-hours the launcher, feeder and intake used in a match, divided by a 3 Ah battery.',
     inputs: ['energy'],
-    fn: (energy) => [{share: energy[0].median_ah / 3}]
+    fn: (energy) => energy.length ? [{share: energy[0].median_ah / 3}] : []
   });
 </script>
 
