@@ -40,7 +40,7 @@ import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
 import org.firstinspires.ftc.teamcode.subsystems.NectarReject;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherResponse;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
-import org.firstinspires.ftc.teamcode.localization.PinpointLoss;
+import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.CalibrationSpots;
@@ -251,8 +251,8 @@ public abstract class RobotOpMode extends OpMode {
     private long initStartNs;
     /** What went wrong with the Pinpoint this INIT: a hard fault is kept once seen, a bad read only while it holds. */
     private final PinpointInitFault pinpointFault = new PinpointInitFault();
-    /** Whether the match log has the one "Pinpoint lost" event this run. */
-    private boolean pinpointLostLogged;
+    /** The Pinpoint's trust as last logged: an event on each change ({@link PinpointTrust}). */
+    private PinpointTrust.State loggedPinpointTrust = PinpointTrust.State.TRUSTED;
     private String loggedWarnings;
     private boolean loggedLaneFull;
     private long loggedDepartures;
@@ -994,8 +994,15 @@ public abstract class RobotOpMode extends OpMode {
         }
         prevPageButton = pressed;
         display.header();
-        if (!initializing && robot.drive.pinpointLost() && display.page() == Display.Page.MATCH) {
-            display.alert("Pinpoint lost", "keep driving; Square and pose aim are off · restart the robot after the match");
+        if (!initializing && display.page() == Display.Page.MATCH) {
+            PinpointTrust.State trust = robot.drive.pinpointTrust();
+            if (trust == PinpointTrust.State.FAULTED) {
+                display.alert("Pinpoint not reading", "keep driving; Square, FLOWER pick and pose aim are off"
+                        + " · field-centric goes wrong as the robot turns · tell the coach the time");
+            } else if (trust == PinpointTrust.State.CONFIRMING) {
+                display.alert("Pinpoint back", "show the camera a HIVE, or corner reset (D-pad left/right held"
+                        + " in the corner): then Square and the FLOWER pick work again");
+            }
         }
         if (initializing && display.page() == Display.Page.MATCH) {
             initWarnings.describeTop(display, setup.alliance(), isAutonomous());
@@ -1323,15 +1330,30 @@ public abstract class RobotOpMode extends OpMode {
             log.event("Pinpoint: " + status);
             loggedPinpointStatus = status;
         }
-        if (robot.drive.pinpointLost() && !pinpointLostLogged) {
-            log.event("Pinpoint lost: " + robot.drive.pinpointLostStatus() + " held "
-                    + PinpointLoss.LOST_AFTER_MS + " ms after PLAY; the pose is not believed for the rest of this run");
-            pinpointLostLogged = true;
+        PinpointTrust.State trust = robot.drive.pinpointTrust();
+        log.put("/Odometry/PinpointTrust", trust.ordinal());
+        if (trust != loggedPinpointTrust) {
+            switch (trust) {
+                case FAULTED:
+                    log.event("Pinpoint lost: " + robot.drive.pinpointLostStatus() + " held "
+                            + PinpointTrust.LOST_AFTER_MS + " ms after PLAY; the pose is not believed until it reads"
+                            + " again and is confirmed");
+                    break;
+                case CONFIRMING:
+                    log.event("Pinpoint back: reading again; the pose waits for a reset or "
+                            + PinpointTrust.AGREE_FRAMES + " camera frames within " + PinpointTrust.AGREE_IN + " in");
+                    break;
+                default:
+                    log.event("Pinpoint trusted again: confirmed by " + robot.drive.pinpointConfirmedBy());
+            }
+            loggedPinpointTrust = trust;
         }
 
-        // The camera against the odometry, once per gated frame, in field inches.
+        // The camera against the odometry, once per gated frame, in field inches. While the Pinpoint
+        // is not believed too (the pose is on the field but not trusted): that is how a recovery is
+        // checked afterwards, with x and y rather than range alone.
         long cameraNs = robot.drive.cameraPoseNs();
-        if (cameraNs != loggedCameraNs && referenced) {
+        if (cameraNs != loggedCameraNs && pose != null && robot.drive.poseSetOnField()) {
             Pose camera = robot.drive.lastCameraPose();
             if (camera != null) {
                 log.put("/Drift/GapXIn", camera.x() - pose.x());

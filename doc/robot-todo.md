@@ -131,9 +131,15 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
 
 - [ ] **Activate `robot_20245`, run Check: Hardware.** **Good:** nothing reported. **Stop:**
       anything reported; fix it before the rest. [S3 §2], [S4 Before]
-- [ ] **Pinpoint `FAULT_BAD_READ`:** logged 14 times in the 3–4 Nov TeleOps (none in an Auto).
-      Reseat the Pinpoint's I2C cable and check its strain relief. **Good:** a 5-minute Basic Drive
-      with none. **Stop:** still there → swap the cable, note it on the hub photo (§8).
+- [ ] **Pinpoint `FAULT_BAD_READ`:** every Belding match had them (19429 2.3–2.7 a minute enabled
+      on 6–7 Nov, 20245 1.0–1.6, up from 0.03–0.22 before 6 Nov), almost none with nothing running,
+      and two held 7 s and 64 s; the hub's read was cut short in those, so the Pinpoint was not
+      answering on I2C bus 1 (it is alone there). Most likely the cable or its connectors.
+      One change per session, then 5 minutes of Basic Drive with the launcher spinning, counting
+      `Pinpoint: FAULT_BAD_READ` events: (1) a new short 4-pin cable, strain-relieved within 2 in of
+      both ends, routed away from motor leads; (2) the Pinpoint on bus 3 instead (its XML only).
+      **Good:** none in 5 minutes. **Stop:** still there after both → the Pinpoint itself; note it
+      on the hub photo (§8). [PR #503]
 
 ## 2. Any Auto, INIT only, no PLAY (about 20 min; camera connected, HIVE upright)
 
@@ -490,6 +496,14 @@ measurement is [#255].
       pairs add to #80's speed-vs-distance table beside §7d's rows. **Stop:** gaps grow
       over the match → the evidence for TeleOp relocalization; set `spotDriftWarnIn` from what the
       drivers can act on. [PR #423]
+- [ ] **Pinpoint recovery mid-match** (Basic Drive, robot on the field, HIVE upright). Drive, then
+      unplug the Pinpoint's I2C cable at the hub for about 3 s and plug it back. **Good:** within
+      0.5 s the Match page says "Pinpoint not reading"; plugged back, "Pinpoint back"; face our HIVE
+      a second → the alert goes, Square works, and the log has `Pinpoint trusted again: confirmed by
+      the camera`. Repeat, confirming with a corner reset instead. **Stop:** never "Pinpoint back"
+      after replugging (the bus does not come back without a restart: note it), or trusted with the
+      robot visibly off → raise `PinpointTrust.AGREE_FRAMES`. Read `/Drift/GapXIn`/`GapYIn` across
+      the episode (logged while not trusted now) for the full-position check. [PR #503]
 - [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
       view now and then; read `/Drift/GapXIn` and `/Drift/GapYIn` (camera minus odometry) over the
       run. **Good:** the gap stays within a few inches, so a launch spot driven late in the match is
