@@ -546,16 +546,24 @@ a difference is one `RobotDifferences` line.
       in the first Auto volleys, so most volleys ran to the backstop. Since 8 Nov the detector uses
       both wheels' average, a duration window (a piece's dip is 35–180 ms) and a smaller count
       depth (55); replayed over the Belding logs it finds 59 of 64, and never more than 4 in a
-      preloaded volley (#505). Only video can say it is right. After the PIDF and feed pace below,
-      fire 10 volleys of 4 the way an Auto does (`LaunchAll`) with a phone filming the launcher. Per
-      volley, write down the count (Launch Test page, or `/Launcher/Shots` in the log) and the balls
-      that left (video). The two mistakes cost different things: a count too low only keeps the
-      3.5 s feed, a count too high ends a feed with a ball still in the robot. **Good:** no volley
-      counted more than left, and at least 9 of 10 counted exactly 4. **Stop:** any over-count: note
-      the volley's time and set `LaunchCards.launchAllEndAfterShots` to 0 (fixed feed) until the
-      throat beam (#505, #213) counts pieces out. Read off the same 10 volleys how long the gate's
-      opening took to the first dip: a long one means the first ball is not waiting at the wheels.
-      [#433, #505; mentor, 8 Nov 2026]
+      preloaded volley (#505). **Checked against the Belding video (9 Nov):** 18 volleys counted by
+      hand, replayed through master's detector (`ShotCountVideoTest`, opt-in): none counted more than
+      left the robot, including three with nothing fed (0 counted in 10.6 s of open gate); 11 of
+      the 14 clearly counted volleys exact (the Belding rule: 9), the other three one short (two in
+      TeleOp, where the loop is slower). Where the video has ball times (Q-7), each count comes
+      0.13–0.17 s after its ball, never before. So `launchAllEndAfterShots` stays 4. What is left,
+      on the robot with the new detector running live, after the PIDF and feed pace below: fire 10
+      volleys of 4 the way an Auto does (`LaunchAll`), and 5 TeleOp Square volleys, with a phone
+      filming the launcher. Per volley, write down the count (Launch Test page, or `/Launcher/Shots`
+      in the log) and the balls that left (video). A count too low only keeps the 3.5 s feed, a
+      count too high ends a feed with a ball still in the robot. **Good:** no volley counted more
+      than left, and at least 9 of 10 Auto volleys counted exactly 4; the TeleOp ones are only
+      for a Square that ends on the count, which waits for the throat beam (#505). **Stop:** any
+      over-count: note the volley's time and set `LaunchCards.launchAllEndAfterShots` to 0 (fixed
+      feed) until the throat beam (#505, #213) counts pieces out. Also note any volley with 5 in the
+      robot (Q-7's 2nd had 5): it ends at the 4th count with the 5th still in. Read off the same
+      volleys how long the gate's opening took to the first dip: a long one means the first ball is
+      not waiting at the wheels. [#433, #505; mentor, 8 Nov 2026; video replay: PR for this item]
 - [ ] **Feed pace**, once the PIDF is set: the aim is each ball arriving after the wheels have
       recovered from the one before. Bench: Launch Test, `FeederSubsystem.feedPower` 0.6, then 0.8,
       then 1.0, 12 balls each (three volleys of 4), fresh battery, from one launch spot. Each dip's
