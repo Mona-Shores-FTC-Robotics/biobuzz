@@ -25,10 +25,18 @@ $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 try { [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12 } catch { }
 
-# The files of this folder that make the installed copy (match-layout.json comes from the folder above).
+# The files that make the installed copy: files.txt, read from wherever the files come from, so a file added later
+# arrives on the first update. This list is only the fallback for a source without files.txt (match-layout.json
+# comes from the folder above).
 $Files = @("Replay.ps1", "setup.ps1", "setup.cmd", "open-match.ps1", "open-match.cmd", "replay.json", "matches.json",
     "marker/0-05.png", "marker/0-04.png", "marker/0-03.png", "marker/0-02.png", "marker/scoreboard-hand.gray",
     "../match-layout.json")
+
+# files.txt's lines, without comments and blanks; the built-in list when there are none.
+function Read-FileList($lines) {
+    $l = @($lines | ForEach-Object { "$_".Trim() } | Where-Object { $_ -and -not $_.StartsWith("#") })
+    if ($l.Count -gt 0) { return $l } else { return $Files }
+}
 
 if (-not $Installed) {
     # ---- Stage 1: get the scripts, then run the installed setup.ps1 (it may be newer than this one). ----
@@ -48,6 +56,12 @@ if (-not $Installed) {
     try {
         if ($checkout) {
             Write-Host "  Scripts from this checkout: $here"
+            $Files = Read-FileList (Get-Content (Join-Path $here "files.txt") -ErrorAction SilentlyContinue)
+            try {
+                $list = (Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/Mona-Shores-FTC-Robotics/biobuzz/$Ref/tools/advantagescope/replay/files.txt").Content
+                if ($list -is [byte[]]) { $list = [Text.Encoding]::UTF8.GetString($list) }
+                $Files = Read-FileList ($list -split "`r?`n")
+            } catch { }   # an older ref has no files.txt: the list above
             foreach ($f in $Files) { Copy-Item (Join-Path $here $f) (Join-Path $stage ($f -replace '^\.\./', '')) }
         } else {
             Write-Host "  Scripts from GitHub, Mona-Shores-FTC-Robotics/biobuzz at '$Ref'"

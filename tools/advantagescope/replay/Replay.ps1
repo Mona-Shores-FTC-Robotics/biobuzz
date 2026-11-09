@@ -302,7 +302,9 @@ function Find-ScoreboardHand([string]$ffmpeg, [string]$video, [double]$fromS, [d
         -vf "fps=30,$HandCrop" -f rawvideo $raw
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path $raw)) { throw "ffmpeg could not read the scoreboard from $video" }
     try {
-        $template = [IO.File]::ReadAllBytes((Join-Path $MarkerDir "scoreboard-hand.gray"))
+        $templateFile = Join-Path $MarkerDir "scoreboard-hand.gray"
+        if (-not (Test-Path $templateFile)) { throw "this laptop's scripts are missing marker\scoreboard-hand.gray: run update-replay again" }
+        $template = [IO.File]::ReadAllBytes($templateFile)
         # Present at least 6 of the next 7.5 s (the transition is 8), absent the 2 s before.
         $r = [BiobuzzScoreboard]::Onset([IO.File]::ReadAllBytes($raw), $template, 0.75, 60, 225)
     } finally { Remove-Item -Force $raw -ErrorAction SilentlyContinue }
