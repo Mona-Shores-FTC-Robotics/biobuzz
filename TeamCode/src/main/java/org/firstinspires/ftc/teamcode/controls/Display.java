@@ -72,6 +72,12 @@ public final class Display {
     public static final double TT_CHARS_PER_LINE = 34;
     /** {@code <big>} text is 1.25 times ordinary (Android's RelativeSizeSpan): wider and taller. */
     public static final double BIG_SCALE = 1.25;
+    /**
+     * {@link #huge} text: three nested {@code <big>}, each 1.25 times the one it is in, so about
+     * twice ordinary text. For the one number a person reads at a glance in a match.
+     */
+    public static final int HUGE_NESTING = 3;
+    public static final double HUGE_SCALE = BIG_SCALE * BIG_SCALE * BIG_SCALE;
     /** {@code <small>} text is 0.8 times ordinary. */
     public static final double SMALL_SCALE = 0.8;
 
@@ -121,10 +127,17 @@ public final class Display {
         for (int i = html.indexOf("<br>"); i >= 0; i = html.indexOf("<br>", i + 4)) breaks++;
         int text = visibleLength(html);
         double perRow = html.contains("<tt>") ? TT_CHARS_PER_LINE : CHARS_PER_LINE;
-        boolean bold = (html.startsWith("<b>") && html.endsWith("</b>")) || html.startsWith("<big><b>");
+        int nested = 0;
+        while (html.startsWith("<big>", nested * 5)) nested++;
+        boolean bold = (html.startsWith("<b>") && html.endsWith("</b>"))
+                || (nested > 0 && html.startsWith("<b>", nested * 5));
         if (bold) perRow *= BOLD_SCALE;
         double height = 1.0;
-        if (html.contains("<big>")) {
+        if (nested > 1) {
+            double scale = Math.pow(BIG_SCALE, nested);
+            perRow /= scale;
+            height = scale;
+        } else if (html.contains("<big>")) {
             perRow /= BIG_SCALE;
             height = BIG_SCALE;
         } else if (html.startsWith("<small>") && html.endsWith("</small>")) {
@@ -210,6 +223,25 @@ public final class Display {
     /** {@link #alert}'s first line, so a caller can measure it ({@link #rows}) before writing. */
     public static String alertWhat(String what) {
         return "<big><b><font color=\"" + Level.WARN.color + "\">" + what + "</font></b></big>";
+    }
+
+    /**
+     * {@code text} {@link #HUGE_SCALE} times ordinary, bold; amber when {@code alert}. One short
+     * value: about 20 characters fit on a row.
+     */
+    public static String huge(String text, boolean alert) {
+        return huge(text, alert ? Level.WARN : null);
+    }
+
+    /** {@link #huge} in {@code level}'s colour, or the page's own with null. */
+    public static String huge(String text, Level level) {
+        StringBuilder html = new StringBuilder();
+        for (int i = 0; i < HUGE_NESTING; i++) html.append("<big>");
+        html.append("<b>");
+        html.append(level != null ? "<font color=\"" + level.color + "\">" + text + "</font>" : text);
+        html.append("</b>");
+        for (int i = 0; i < HUGE_NESTING; i++) html.append("</big>");
+        return html.toString();
     }
 
     /** {@link #alert}'s second line. */

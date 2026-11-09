@@ -25,13 +25,13 @@ public class NudgeTestRunTest {
 
     @Before public void reset() { Scheduler.reset(); }
 
-    private NudgeTestRun run(double velocity, double acceleration, double timeout) {
+    private NudgeTestRun run(double pathSpeed, double timeout) {
         return new NudgeTestRun(drive, config, () -> speed, () -> clock,
-                () -> releases++, line -> { }, velocity, acceleration, timeout);
+                () -> releases++, line -> { }, pathSpeed, timeout);
     }
 
-    @Test public void bothDrawnPathsHaveScopedRealLimitsAndCompletionReleasesDrive() {
-        NudgeTestRun run = run(4, 8, 8);
+    @Test public void bothDrawnPathsHaveAScopedSpeedCapAndCompletionReleasesDrive() {
+        NudgeTestRun run = run(0.2, 8);
         run.start(false);
         for (int i = 0; i < 100 && run.running(); i++) {
             Scheduler.execute();
@@ -45,16 +45,18 @@ public class NudgeTestRunTest {
         assertTrue(run.result().startsWith("Complete"));
         for (Path path : drive.paths) {
             for (Modifier modifier : path.modifiers) modifier.apply();
-            assertEquals(4, config.maxVelocityConstraint.get(), 0);
-            assertEquals(8, config.maxAccelerationConstraint.get(), 0);
-            for (int i = path.modifiers.size() - 1; i >= 0; i--) path.modifiers.get(i).revert();
-            assertEquals(Double.POSITIVE_INFINITY, config.maxVelocityConstraint.get(), 0);
+            assertEquals(0.2, config.maxPathSpeed.get(), 0);
+            // Never Pedro's acceleration cap: from rest it targets one loop's worth of speed and
+            // never starts the robot (6 Nov).
             assertEquals(Double.POSITIVE_INFINITY, config.maxAccelerationConstraint.get(), 0);
+            assertEquals(Double.POSITIVE_INFINITY, config.maxVelocityConstraint.get(), 0);
+            for (int i = path.modifiers.size() - 1; i >= 0; i--) path.modifiers.get(i).revert();
+            assertEquals(Double.POSITIVE_INFINITY, config.maxPathSpeed.get(), 0);
         }
     }
 
     @Test public void earlyPathDoneDoesNotRetreatAndBlockedPushTimesOut() {
-        NudgeTestRun run = run(4, 8, 8);
+        NudgeTestRun run = run(0.2, 8);
         run.start(false);
         for (int i = 0; i < 100; i++) {
             Scheduler.execute();
@@ -74,7 +76,7 @@ public class NudgeTestRunTest {
     }
 
     @Test public void arrivalMustAlsoBeSlowAndAimed() {
-        NudgeTestRun run = run(4, 8, 8);
+        NudgeTestRun run = run(0.2, 8);
         run.start(false);
         for (int i = 0; i < 10; i++) Scheduler.execute();
         Pose end = drive.current.endPose();
@@ -93,7 +95,7 @@ public class NudgeTestRunTest {
     }
 
     @Test public void stopAndPoseLossReleaseDriveWithoutContinuing() {
-        NudgeTestRun run = run(4, 8, 8);
+        NudgeTestRun run = run(0.2, 8);
         run.start(true);
         for (int i = 0; i < 10; i++) Scheduler.execute();
         // Blue follows the rotated drawing, with the same limits.
@@ -108,13 +110,11 @@ public class NudgeTestRunTest {
     }
 
     @Test public void invalidTunablesNeverScheduleMotion() {
-        for (double value : new double[]{Double.NaN, Double.POSITIVE_INFINITY, -1, 0, 9}) {
-            try { run(value, 8, 8); fail("accepted speed " + value); }
+        for (double value : new double[]{Double.NaN, Double.POSITIVE_INFINITY, -1, 0, 0.05, 0.6, 1, 4}) {
+            try { run(value, 8); fail("accepted path speed " + value); }
             catch (IllegalArgumentException expected) { }
         }
-        try { run(4, Double.NaN, 8); fail("accepted NaN acceleration"); }
-        catch (IllegalArgumentException expected) { }
-        try { run(4, 8, 0); fail("accepted zero timeout"); }
+        try { run(0.2, 0); fail("accepted zero timeout"); }
         catch (IllegalArgumentException expected) { }
         assertTrue(drive.paths.isEmpty());
     }

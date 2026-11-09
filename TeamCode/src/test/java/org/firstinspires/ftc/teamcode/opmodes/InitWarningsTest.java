@@ -170,4 +170,23 @@ public class InitWarningsTest {
         assertFalse(w.any());
         assertNull(w.what(Kind.PINPOINT));
     }
+
+    @Test
+    public void anUnassignedGamepadIsOneWarningNamingIt() {
+        InitWarnings w = new InitWarnings();
+        w.gamepads(true, true);
+        assertFalse(w.gamepadMissing());
+        assertEquals(0, w.count());
+        w.gamepads(true, false);
+        assertTrue(w.gamepadMissing());
+        assertEquals(1, w.count());
+        assertEquals("Gamepad 2 (operator) not assigned", w.what(Kind.GAMEPADS));
+        // Called again each loop: never counted twice, and gone once both are assigned.
+        w.gamepads(false, false);
+        assertEquals(1, w.count());
+        assertEquals("Gamepads 1 and 2 not assigned", w.what(Kind.GAMEPADS));
+        w.gamepads(true, true);
+        assertEquals(0, w.count());
+        assertFalse(w.gamepadMissing());
+    }
 }

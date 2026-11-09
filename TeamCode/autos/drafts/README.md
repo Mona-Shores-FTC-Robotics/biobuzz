@@ -38,11 +38,19 @@ LEFT_PARK. The pushed partner occupies the near part of the loading zone.
 
 `drafts/partner-nudge-test.pp` draws **only the push and retreat**. Its generated
 class is run by the Utility **Drive: Partner Nudge**, never the competition Auto menu.
-The wrapper applies Pedro's actual `maxVelocityConstraint` and
-`maxAccelerationConstraint` to both paths: defaults **4 in/s and 8 in/s²**, set in
-Panels under `PartnerNudgeTest`, read once at PLAY. Changing the drawing's preview
-speed does not change these runtime settings. Allowed test ranges are 0.5–8 in/s,
-1–16 in/s² and 1–15 s timeout; invalid values refuse motion.
+The wrapper caps both paths with Pedro's `maxPathSpeed`, a fraction of the
+robot's top path speed: `PartnerNudgeTest.pathSpeed` in Panels, default **0.2**
+(about 14 in/s on 20245, not yet measured), read once at PLAY. Changing the
+drawing's preview speed does not change it. Allowed ranges are 0.1–0.5 of top
+speed and a 1–15 s timeout; invalid values refuse motion.
+
+It is not Pedro's `maxVelocityConstraint` / `maxAccelerationConstraint`. On 6 Nov
+the old 4 in/s, 8 in/s² cap never moved the robot. From rest, Pedro's acceleration
+cap targets one loop's worth of speed (about 0.16 in/s), and our tuned coast
+feedforward has no static term. So the wheels got about 0.2 % power, and the robot
+never started. That cap also stayed applied after a run stopped mid-path, and it
+slowed every later path until the app restarted. `DriveSubsystem` now clears
+Pedro's Follower whenever path control ends (`PathCapReleaseTest`).
 
 It starts at PARTNER_CONTACT, pushes six inches, then retreats four inches east and
 six south at the same heading. Before advancing, the test requires Pedro done,
@@ -76,11 +84,11 @@ with four preloads, not at the push-only contact mark. Use the same 16x16 partne
 placement from the setup drawing and select the correct alliance.
 
 The full trial splits the existing approach curve without changing its geometry,
-brakes for 300 ms before the final approach, and limits only that short segment
-and the push to 4 in/s and 8 in/s². Contact endpoints require position/heading/speed
+brakes for 300 ms before the final approach, and caps only that short segment
+and the push, at `PartnerNudgeTest.pathSpeed`. Contact endpoints require position/heading/speed
 agreement. A contact segment blocked for six seconds stops the trial; the whole
 trial stops at 30 seconds. Other scoring paths retain their normal constraints.
 The generic simulator does not include these runtime speed limits; use this run's
 log to establish whether two tips and park fit. This is a Utility, not a competition
-Autonomous entry. The full trial's limits are fixed, independent of the push-only
-Utility's Panels knobs.
+Autonomous entry. The full trial reads `PartnerNudgeTest.pathSpeed` at INIT, the one
+number for the contact speed: find it with the push-only test first.

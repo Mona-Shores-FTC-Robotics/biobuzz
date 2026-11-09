@@ -40,7 +40,7 @@ import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
 import org.firstinspires.ftc.teamcode.subsystems.NectarReject;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherResponse;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
-import org.firstinspires.ftc.teamcode.localization.PinpointLoss;
+import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.CalibrationSpots;
@@ -242,14 +242,17 @@ public abstract class RobotOpMode extends OpMode {
     /** The battery at INIT, volts; NaN with no sensor. */
     private double batteryAtInitVolts = Double.NaN;
 
-    /** An Autonomous's INIT: what the drive team must fix before PLAY. The light flashes white while there is any. */
+    /**
+     * What the drive team must fix before PLAY: an Autonomous's every warning, a TeleOp's unassigned
+     * gamepad only. The light flashes white while there is any ({@link #initWarningFlash}).
+     */
     private final InitWarnings initWarnings = new InitWarnings();
     /** When INIT was pressed, System.nanoTime: the camera's first frame has a grace period from it. */
     private long initStartNs;
     /** What went wrong with the Pinpoint this INIT: a hard fault is kept once seen, a bad read only while it holds. */
     private final PinpointInitFault pinpointFault = new PinpointInitFault();
-    /** Whether the match log has the one "Pinpoint lost" event this run. */
-    private boolean pinpointLostLogged;
+    /** The Pinpoint's trust as last logged: an event on each change ({@link PinpointTrust}). */
+    private PinpointTrust.State loggedPinpointTrust = PinpointTrust.State.TRUSTED;
     private String loggedWarnings;
     private boolean loggedLaneFull;
     private long loggedDepartures;
@@ -482,6 +485,8 @@ public abstract class RobotOpMode extends OpMode {
         if (isAutonomous()) {
             updateInitWarnings(startCheck);
         }
+        initWarnings.gamepads(assigned(gamepad1), assigned(gamepad2));
+        watchGamepads();
         beginPage(true);
         // With no handoff and a declared start, the start line says where the robot is; the
         // "no handoff" note would only contradict it.
@@ -582,10 +587,11 @@ public abstract class RobotOpMode extends OpMode {
 
     /**
      * What the indicator light shows this loop: see {@code IndicatorSubsystem}. Only what the drive
-     * team acts on: in INIT an Auto's warnings, else the alliance; after PLAY green when full, else off.
+     * team acts on: in INIT an Auto's warnings or a TeleOp's unassigned gamepad, else the alliance;
+     * after PLAY green when full, else off.
      */
     private void showIndicator(boolean init) {
-        robot.indicator.show(IndicatorSubsystem.choose(init, init && isAutonomous() && initWarnings.any(),
+        robot.indicator.show(IndicatorSubsystem.choose(init, init && initWarningFlash(),
                 robot.colorSensor.full(), setup.alliance()));
     }
 
@@ -699,6 +705,7 @@ public abstract class RobotOpMode extends OpMode {
         beginPage(false);
         driver.update();
         operator.update();
+        watchGamepads();
         long t0 = System.nanoTime();
         onLoop();
         showIndicator(false);
@@ -987,8 +994,15 @@ public abstract class RobotOpMode extends OpMode {
         }
         prevPageButton = pressed;
         display.header();
-        if (!initializing && robot.drive.pinpointLost() && display.page() == Display.Page.MATCH) {
-            display.alert("Pinpoint lost", "keep driving; Square and pose aim are off · restart the robot after the match");
+        if (!initializing && display.page() == Display.Page.MATCH) {
+            PinpointTrust.State trust = robot.drive.pinpointTrust();
+            if (trust == PinpointTrust.State.FAULTED) {
+                display.alert("Pinpoint not reading", "keep driving; Square, FLOWER pick and pose aim are off"
+                        + " · field-centric goes wrong as the robot turns · tell the coach the time");
+            } else if (trust == PinpointTrust.State.CONFIRMING) {
+                display.alert("Pinpoint back", "show the camera a HIVE, or corner reset (D-pad left/right held"
+                        + " in the corner): then Square and the FLOWER pick work again");
+            }
         }
         if (initializing && display.page() == Display.Page.MATCH) {
             initWarnings.describeTop(display, setup.alliance(), isAutonomous());
@@ -1107,6 +1121,53 @@ public abstract class RobotOpMode extends OpMode {
                 off ? " — the Pinpoint heading is off: hold still and hold the camera reset" : ""));
     }
 
+    /**
+     * The light flashes white in INIT: an Auto for any warning, a TeleOp for an unassigned gamepad
+     * only (its one INIT warning).
+     */
+    private boolean initWarningFlash() {
+        return isAutonomous() ? initWarnings.any() : initWarnings.gamepadMissing();
+    }
+
+    /** A gamepad assigned to its user on the Driver Station (Options + Cross or Circle). */
+    private static boolean assigned(Gamepad pad) {
+        return pad.getGamepadId() != Gamepad.ID_UNASSOCIATED;
+    }
+
+    /**
+     * One match-log event each time a gamepad is assigned or drops, with its type then (the type
+     * read at INIT can be UNKNOWN for a pad that works: 6 Nov 2026), and one at its first press, so
+     * a log says whether each pad was live. Called every loop, INIT and after PLAY.
+     */
+    private void watchGamepads() {
+        watchGamepad(gamepad1, 0, "gamepad 1 (driver)");
+        watchGamepad(gamepad2, 1, "gamepad 2 (operator)");
+    }
+
+    private void watchGamepad(Gamepad pad, int i, String name) {
+        boolean now = assigned(pad);
+        if (now != padAssigned[i]) {
+            padAssigned[i] = now;
+            log.event(name + (now ? ": assigned (" + pad.type + ")" : ": not assigned"));
+        }
+        if (!padPressed[i] && now && anyInput(pad)) {
+            padPressed[i] = true;
+            log.event(name + ": first input (" + pad.type + ")");
+        }
+    }
+
+    /** Any button down, or a stick or trigger off rest. */
+    private static boolean anyInput(Gamepad pad) {
+        return pad.a || pad.b || pad.x || pad.y || pad.left_bumper || pad.right_bumper
+                || pad.dpad_up || pad.dpad_down || pad.dpad_left || pad.dpad_right
+                || pad.left_trigger > 0.1 || pad.right_trigger > 0.1
+                || Math.abs(pad.left_stick_x) > 0.1 || Math.abs(pad.left_stick_y) > 0.1
+                || Math.abs(pad.right_stick_x) > 0.1 || Math.abs(pad.right_stick_y) > 0.1;
+    }
+
+    private final boolean[] padAssigned = new boolean[2];
+    private final boolean[] padPressed = new boolean[2];
+
     private boolean isAutonomous() {
         return getClass().isAnnotationPresent(Autonomous.class);
     }
@@ -1120,7 +1181,7 @@ public abstract class RobotOpMode extends OpMode {
         telemetry.clear();
         display.header();
         // The light flashes white on every page, so every page says why, in one line.
-        if (initializing && isAutonomous() && initWarnings.any()) {
+        if (initializing && initWarningFlash()) {
             display.line("<b><font color=\"#FFB300\">" + initWarnings.count()
                     + " TO FIX: see the Match page (Share)</font></b>");
         }
@@ -1269,15 +1330,30 @@ public abstract class RobotOpMode extends OpMode {
             log.event("Pinpoint: " + status);
             loggedPinpointStatus = status;
         }
-        if (robot.drive.pinpointLost() && !pinpointLostLogged) {
-            log.event("Pinpoint lost: " + robot.drive.pinpointLostStatus() + " held "
-                    + PinpointLoss.LOST_AFTER_MS + " ms after PLAY; the pose is not believed for the rest of this run");
-            pinpointLostLogged = true;
+        PinpointTrust.State trust = robot.drive.pinpointTrust();
+        log.put("/Odometry/PinpointTrust", trust.ordinal());
+        if (trust != loggedPinpointTrust) {
+            switch (trust) {
+                case FAULTED:
+                    log.event("Pinpoint lost: " + robot.drive.pinpointLostStatus() + " held "
+                            + PinpointTrust.LOST_AFTER_MS + " ms after PLAY; the pose is not believed until it reads"
+                            + " again and is confirmed");
+                    break;
+                case CONFIRMING:
+                    log.event("Pinpoint back: reading again; the pose waits for a reset or "
+                            + PinpointTrust.AGREE_FRAMES + " camera frames within " + PinpointTrust.AGREE_IN + " in");
+                    break;
+                default:
+                    log.event("Pinpoint trusted again: confirmed by " + robot.drive.pinpointConfirmedBy());
+            }
+            loggedPinpointTrust = trust;
         }
 
-        // The camera against the odometry, once per gated frame, in field inches.
+        // The camera against the odometry, once per gated frame, in field inches. While the Pinpoint
+        // is not believed too (the pose is on the field but not trusted): that is how a recovery is
+        // checked afterwards, with x and y rather than range alone.
         long cameraNs = robot.drive.cameraPoseNs();
-        if (cameraNs != loggedCameraNs && referenced) {
+        if (cameraNs != loggedCameraNs && pose != null && robot.drive.poseSetOnField()) {
             Pose camera = robot.drive.lastCameraPose();
             if (camera != null) {
                 log.put("/Drift/GapXIn", camera.x() - pose.x());

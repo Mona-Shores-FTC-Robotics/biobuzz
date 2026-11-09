@@ -65,15 +65,15 @@ public final class TeleOpConfig {
     public static double launcherTrimStepTps = 25.0;
 
     /**
-     * The operator's R2 toggles the intake on and off instead of running it only while held. On by
-     * default since 4 Nov 2026 (the drive team's call): the roller slows to hold the last piece and
-     * the prefeed stops by themselves when the lane is full, and both start again when a shot makes
-     * room, so the intake is left on: it starts on at PLAY (5 Nov 2026), as in an Auto, and a FLOWER
-     * pick or GARDEN gather ending hands it back to the toggle. The driver's R2 runs it while held and either L2 reverses it while held, over the
-     * toggle; letting go returns to it. Firing does not turn it off. Off: hold-to-run on both pads,
-     * where letting go of R2 stops the intake.
+     * The intake runs all match unless something else asks: from PLAY, as in an Auto. The roller
+     * slows to hold the last piece and the prefeed stops by themselves when the lane is full, and
+     * both start again when a shot makes room; either L2 reverses it while held; a FLOWER pick or
+     * GARDEN gather runs it itself. R2 on either pad runs it while held, which with this on changes
+     * nothing (mentor, 7 Nov 2026: until then the operator's R2 was a toggle, and 19429's operator
+     * turned the intake off by accident 12 times in one 104 s run on 6 Nov). Off, to save battery:
+     * the intake runs only while someone holds R2.
      */
-    public static boolean intakeToggle = true;
+    public static boolean intakeAlwaysOn = true;
 
     /**
      * Enforce the at-speed gate: a feed starts only once the launcher is at launch speed (it never
@@ -98,8 +98,8 @@ public final class TeleOpConfig {
 
     /**
      * The go-to-launch-spot button also launches: the launcher spins up as the drive starts, and
-     * once the robot is at the spot, aimed and settled, one volley feeds as the operator's FIRE
-     * would ({@link SpotVolley}). On for testing in Basic Drive (mentor, 4 Nov 2026): a testing
+     * once the robot is at the spot, aimed and settled, it feeds while the button is held, as the
+     * operator's FIRE does ({@link SpotVolley}). On for testing in Basic Drive (mentor, 4 Nov 2026): a testing
      * choice the team may turn off to give the shot back to the operator. The operator's FIRE and
      * launcher toggle keep working either way and win. Read at each press.
      */

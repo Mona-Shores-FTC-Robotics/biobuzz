@@ -131,13 +131,17 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
 
 - [ ] **Activate `robot_20245`, run Check: Hardware.** **Good:** nothing reported. **Stop:**
       anything reported; fix it before the rest. [S3 §2], [S4 Before]
-- [ ] **Pinpoint `FAULT_BAD_READ`:** logged 14 times in the 3–4 Nov TeleOps (none in an Auto).
-      Reseat the Pinpoint's I2C cable and check its strain relief. **Good:** a 5-minute Basic Drive
-      with none. **Stop:** still there → swap the cable, note it on the hub photo (§8).
-      **Belding (7 Nov):** 61 on 19429 (3–11 a match) and 30 on 20245, mostly while driving fast
-      (median 12–19 in/s against 6–10 at random moments), not after impacts. On 19429 the Pinpoint
-      was declared lost in Q13 and the lower final; that refused 13 launch-spot presses and 9 FLOWER
-      picks. Check the mount and connector on both robots, not only the cable.
+- [ ] **Pinpoint `FAULT_BAD_READ`:** every Belding match had them (19429 2.3–2.7 a minute enabled
+      on 6–7 Nov, 20245 1.0–1.6, up from 0.03–0.22 before 6 Nov), almost none with nothing running,
+      and two held 7 s and 64 s; the hub's read was cut short in those, so the Pinpoint was not
+      answering on I2C bus 1 (it is alone there). Most likely the cable or its connectors.
+      One change per session, then 5 minutes of Basic Drive with the launcher spinning, counting
+      `Pinpoint: FAULT_BAD_READ` events: (1) a new short 4-pin cable, strain-relieved within 2 in of
+      both ends, routed away from motor leads; (2) the Pinpoint on bus 3 instead (its XML only).
+      **Good:** none in 5 minutes. **Stop:** still there after both → the Pinpoint itself; note it
+      on the hub photo (§8). [PR #503]
+      On 19429 the Pinpoint was declared lost in Q13 and the lower final; that refused 13
+      launch-spot presses and 9 FLOWER picks. Check the mount and connector on both robots, not only the cable.
 - [ ] **20245: backLeft's encoder read 0 in all 8 Belding matches.** The turret's encoder belongs
       in the encoder socket beside **Expansion Hub** motor port 3 (`feeder`,
       `DeviceNames.TURRET_ENCODER_HOST`); backLeft is **Control Hub** motor port 3. Check that the
@@ -319,10 +323,17 @@ Use the work order above to select checks; the detailed mechanism checks below a
       dummy and our actual bumper envelope first. If they differ from the drawing,
       adjust the `.pp` geometry and export before trying contact; these are not size presets.
       Blue uses the same setup rotated 180° about field centre.
+      - **6 Nov runs never moved** (4 in/s and 8 in/s² cap, too little power to start the robot).
+        The cap also stayed on after STOP and stalled later paths until the app restarted. Both
+        are fixed: a `maxPathSpeed` fraction, and the cap cleared whenever a path ends. Still,
+        **after any nudge run, drive R-Solo once before trusting the next Auto.** [PR #492]
       - First run without the dummy to check direction, the six-inch stroke and retreat.
         Choose alliance in INIT, then PLAY. Default Panels `PartnerNudgeTest` settings:
-        **speedInPerSec=4, accelerationInPerSec2=8, timeoutSeconds=8**. Settings are
-        captured at PLAY. STOP and re-INIT to repeat after resetting both robots.
+        **pathSpeed=0.2** (fraction of top speed, 0.1–0.5), **timeoutSeconds=8**, captured at
+        PLAY. STOP and re-INIT to repeat after resetting both robots. **Measure `pathSpeed`
+        here:** the lowest value that starts the robot and runs the stroke. If 0.2 doesn't
+        move it, try 0.3, then 0.35 (the FLOWER push's slowest known-good). Write the value
+        that works in the log/notes and set it as the default in a PR.
       - Put the dummy back, with solid bumper contact and wheels free to roll. Run the
         same short test. **Good:** partner enters the loading zone and ends visibly
         off the wall, push is gentle, and retreat separates cleanly. The calculated
@@ -331,7 +342,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         rotation and measured speed in the log/video; repeat from the same marks.
       - **Stop:** hard initial contact, wheel slip, snagging, unexpected rotation,
         or timeout. The test cancels and releases the drive at 8 s; it does not keep
-        holding the push endpoint. A speed/acceleration cap is not a force cap.
+        holding the push endpoint. A speed cap is not a force cap.
         Change one setup or speed variable at a time; do not lengthen a blocked push.
       - Once repeatable, try with our normal four-piece load and then integrate the
         measured maneuver in **Drive: R-Solo-Nudge**, the full Utility with scoped
@@ -433,12 +444,65 @@ measurement is [#255].
       **Stop:** it refuses with the pose set, or clips the HIVE or the wall →
       `TeleOpConfig.launchSpot` off and note where. [PR #423]
 - [ ] **Square also fires (`TeleOpConfig.goToSpotAlsoFires`, on):** loaded, hold Square from
-      15–30 in off a spot; then press operator FIRE during a press; then let go mid-feed; then
-      operator launcher toggle to idle mid-press. **Good:** launcher spins up as it drives, one
-      volley once there (`launch spot: gate open … at speed, settled`), all four leave; the end line
-      says `fired by button`, shots counted ≈ 4; FIRE takes the shot (`fired by … operator`); let go
-      stops the feeder at once; an idled launcher stays idle. **Stop:** it feeds before it is
-      aimed, or feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+      15–30 in off a spot; then let go mid-feed; then, loaded, hold Square 6 s at a spot (since
+      6 Nov it feeds for as long as Square is held, no 3.5 s cutoff). **Good:** launcher spins up
+      as it drives, feeds once there (`launch spot: gate open … at speed, settled`), all four leave; the end line
+      says `fired by button`, shots counted ≈ 4; let go stops the feeder at once and idles the
+      launcher; held 6 s, the gate stays open all 6 s. **Stop:** it feeds before it is aimed, or
+      feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+- [ ] **The operator cannot hurt a Square volley (`belding-plus`, `LauncherOwner`, 7 Nov):**
+      (a) operator spin up, wait for the rumble, then the driver holds Square: the gate opens on
+      arrival with no spin-up wait, and the launcher idles when Square is let go. (b) Square from
+      idle, operator presses the toggle mid-drive: the launcher keeps spinning (`launcher: toggle
+      during Square's volley: kept spinning`), the volley fires at speed, and it idles when Square
+      is let go. (c) Square from idle, operator holds FIRE before the robot arrives: nothing feeds
+      early (`fire: held back`), the volley opens at the spot as usual. (d) No Square: operator
+      toggle up, FIRE, toggle down, as before. **Stop:** a toggle press during Square idles the
+      launcher, FIRE feeds before arrival, or the launcher keeps spinning after Square is let go
+      → run `Belding`'s Basic Drive and tell a mentor.
+- [ ] **Operator's glance page, trim rumble, D-pad trim reset, no intake toggle (`belding-plus`,
+      7 Nov):** Basic Drive, Match page, read from the operator's seat and from the coach's spot.
+      **Good:** under the header and the alliance line, three lines in text about twice ordinary
+      size (three nested `<big>`): `TRIM 0`, then `IDLE` / `SPIN` (amber) / `READY` (green), then
+      `N PIECES`, green while the sensor sees the lane full; a fourth, amber, only when
+      something is wrong (`INTAKE OFF`, `ROBOT-CENTRIC`, `SQUARE REFUSED` while Square is held,
+      `FLOWER STICK OUT`, `NO PINPOINT`). Everything else is on the Robot page (Share twice).
+      Operator R1: `TRIM +25` in amber and one rumble blip; L1: two blips; D-pad down: back to
+      `TRIM 0` with a long buzz. The intake runs from PLAY with nobody touching R2, and no R2 press
+      on either pad stops it; with `TeleOpConfig.intakeAlwaysOn` off it runs only while R2 is held.
+      Note every green count under 4 (`3 PIECES` in green): that is the tracker missing a piece.
+      **Stop:** the three lines are no bigger than the header (the Driver Station ignored the
+      nesting) → note it, and try `<h1>` in `Display.huge`.
+- [ ] **Unassigned gamepad warning (`belding-plus`, 7 Nov):** INIT Basic Drive with only
+      gamepad 1 assigned. **Good:** under the alliance, `Gamepad 2 (operator) not assigned` big and
+      amber with `operator: hold Options, press Circle`, and the light flashing white; Options +
+      Circle on the second pad clears both, and the light shows the alliance. Same in an Auto's
+      INIT, in its list. The log has `gamepad 2 (operator): assigned (SONY_PS4)` and, at its first
+      press, `first input`. **Stop:** the warning shows with both pads assigned (the SDK reports
+      no gamepad ID before a pad's first input) → note when it clears, and tell a mentor.
+- [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on):** R-NoCross and
+      R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
+      every run; when its second volley ends late the Match page and the log say `… no time to
+      park after it, parking now` and it parks from RIGHT_LAUNCH_CATCH; R-Solo still fires its
+      third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
+      **Stop:** R-Solo parks instead of its third volley every run → note the time it gave and tell a
+      mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
+- [ ] **Film the Auto volleys (decides `LaunchCards.launchAllFeedS`, 3.5):** 5–6 LaunchAlls,
+      phone slow-motion side-on, the launcher and the Driver Station both in frame. Per volley,
+      write down each ball's time after the gate opens and the launcher's counted shots.
+      **Good:** no ball after 3.0 s in any → `launchAllFeedS` 3.05 in Panels, and the volleys
+      where the count fell short show which way the shot counter misses.
+- [ ] **Square's start and corner spots aim the turret (`belding-plus`, 7 Nov):** turret locked,
+      hold Square from near each start and each corner (RIGHT_START now 89°, LEFT_START 267°,
+      RIGHT_LAUNCH_CORNER 61° instead of 54°, LEFT_LAUNCH_CORNER 303° as before) and fire.
+      **Good:** the volley goes into the CELL, centred; RIGHT_LAUNCH_CORNER scores at least as well
+      as on 4 Nov. **Stop:** shots land to one side → note which side and by how much.
+- [ ] **Square from past the centre line (`LaunchSpotDrive.maxPastCentreIn`, 24):** on 6 Nov the
+      drivers pressed Square with the robot 3–4 in past the line and it refused every time. Hold
+      Square with the robot about 6 in, then about 20 in, past the line, on red and on blue.
+      **Good:** it drives home to the nearest spot on our side and fires; past 24 in the Match page
+      says `REFUSED: robot N in past the centre line`. **Stop:** the path heads into the HIVE frame
+      or a partner → let go, note where, and lower `maxPastCentreIn` (0 is the old rule).
 - [ ] **Every press is a drift sample:** across a practice, pull the logs and read each press's
       `launch spot: drift at …` line (camera − odometry at a known spot, settled, never applied) and
       its `CELL N in` range beside the shots it fired. **Good:** gaps stay under
@@ -446,6 +510,14 @@ measurement is [#255].
       pairs add to #80's speed-vs-distance table beside §7d's rows. **Stop:** gaps grow
       over the match → the evidence for TeleOp relocalization; set `spotDriftWarnIn` from what the
       drivers can act on. [PR #423]
+- [ ] **Pinpoint recovery mid-match** (Basic Drive, robot on the field, HIVE upright). Drive, then
+      unplug the Pinpoint's I2C cable at the hub for about 3 s and plug it back. **Good:** within
+      0.5 s the Match page says "Pinpoint not reading"; plugged back, "Pinpoint back"; face our HIVE
+      a second → the alert goes, Square works, and the log has `Pinpoint trusted again: confirmed by
+      the camera`. Repeat, confirming with a corner reset instead. **Stop:** never "Pinpoint back"
+      after replugging (the bus does not come back without a restart: note it), or trusted with the
+      robot visibly off → raise `PinpointTrust.AGREE_FRAMES`. Read `/Drift/GapXIn`/`GapYIn` across
+      the episode (logged while not trusted now) for the full-position check. [PR #503]
 - [ ] **Pinpoint drift over a 2-minute TeleOp:** Basic Drive for 2 min of ordinary driving, HIVE in
       view now and then; read `/Drift/GapXIn` and `/Drift/GapYIn` (camera minus odometry) over the
       run. **Good:** the gap stays within a few inches, so a launch spot driven late in the match is
@@ -587,8 +659,8 @@ After §7c: the rows are only worth having once the wheels hold their speed. One
 `LaunchSpeedTable` (#80). Measure them on the right side; the left spots are the same distances on
 the other side of the field.
 
-**The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Match page says
-"Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires one volley.
+**The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Robot page says
+"Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires while Square is held.
 On a miss, the operator trims the speed up or down, then Square again, until it scores. The Match
 page's "Last launch spot" line shows the spot's CELL range and the launch speed: write both down.
 Take the middle of the speeds that score 4/4, not the first one that does. The trim carries from
@@ -810,6 +882,7 @@ one test at one meeting.
 [PR #425]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/425
 [PR #427]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/427
 [PR #430]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/430
+[PR #492]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/492
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#429]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/429
@@ -843,5 +916,6 @@ one test at one meeting.
   alliance. Keep **Drive: Partner Nudge** available for push-only setup checks.
   Film one complete run and collect its log: fourth-shot completion, gentle contact,
   partner park/wall clearance, second tip and our park before the 30 s stop.
-  Contact approach and push use fixed 4 in/s, 8 in/s² limits; a blocked contact
-  stops after six seconds. This full trial does not use the push-only Panels knobs.
+  Contact approach and push use `PartnerNudgeTest.pathSpeed`, read at INIT; set it
+  first with **Drive: Partner Nudge**. A blocked contact stops after six seconds.
+  After the run, drive R-Solo once to confirm normal paths are at full speed. [PR #492]

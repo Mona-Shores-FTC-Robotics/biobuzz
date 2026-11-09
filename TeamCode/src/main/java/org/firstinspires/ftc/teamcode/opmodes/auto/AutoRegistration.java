@@ -125,9 +125,14 @@ public final class AutoRegistration {
      * The Visualizer's Typical preview times a LaunchAll from {@code TeamCode/autos/timing.json}
      * instead ({@code spinUpS}, {@code volleyS}); this is what its Instant preview shows. Since
      * 5 Nov a full volley ends at its 4th counted shot ({@code LaunchCards.launchAllEndAfterShots}),
-     * about 1 s sooner; 4.5 stays, on the safe side, until match logs measure the shorter card.
+     * about 1 s sooner. 4.0 since 6 Nov 2026, measured that night on both robots (every LaunchAll
+     * card after a drive, 19429 and 20245): 3.7 to 4.0 s from the card's start to its end, the feed
+     * running its full 3.5 s whenever fewer than 4 shots were counted; at PLAY 2.5 to 5.0 s. The
+     * guard now also needs the park to fit after a volley ({@code AutoKit.parkAfterVolley}), so
+     * this decides whether a late volley is fired or parked: at 4.5 R-Solo would have parked
+     * instead of a third volley that fitted (its park was in by 28.2 s on 6 Nov 19:10).
      */
-    public static final double LAUNCH_ALL_TYPICAL_S = 4.5;
+    public static final double LAUNCH_ALL_TYPICAL_S = 4.0;
 
     /**
      * Seconds from a {@code LaunchAll} card's start to its last piece leaving the robot: what the
