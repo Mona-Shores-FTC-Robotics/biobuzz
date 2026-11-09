@@ -234,6 +234,27 @@ Use the work order above to select checks; the detailed mechanism checks below a
 - [ ] **Each selected Auto once:** L-NoCross and R-NoCross, then the two together.
       **Good:** no FAULT or robot/HIVE contact; verify the missed-TIP behavior before
       calling either routine qualified. See the work order above for the intended result.
+- [ ] **L-NoCross: the two CELL checks in its Otherwise route**, once they are drawn and
+      exported ([the change, step by step](belding-auto-review.md#1-l-nocross-check-the-cell-before-each-volley-in-the-otherwise-route-about-3-points-a-match-in-playoffs-fairly-sure)).
+      Run it against three partner set-ups, each with the TIP wait timing out:
+      - a partner that TIPs the RIGHT CELL a second or two after our 8 s limit (tip it by hand);
+      - no TIP at all;
+      - our own RIGHT volley not tipping it.
+
+      **Good:**
+      - "TIP seen?" ends on `LeftCellUp` within 0.75 s whenever the RIGHT CELL went down, and the
+        robot goes back to LEFT_LAUNCH_CATCH.
+      - "RIGHT CELL still up?" sends the WALL FLOWER's pieces to whichever CELL is up.
+      - No volley at a down CELL.
+
+      **Stop:** a check times out with its CELL in plain view and settled. Note how long the camera
+      took in the log and in the PR.
+- [ ] **R-Solo's second TIP: count what lands.** Film 5 R-Solo runs from the side, and count the
+      pieces that land in the LEFT CELL from V2 and V3. At Belding it never TIPped (0 of 7), while
+      the simulator TIPs it every time.
+      - **It reaches 7 less than about one time in four:** draw R1 (park after V2, dropping the
+        SCORING FLOWER leg; [review](belding-auto-review.md#3-dont-add-a-second-branch-to-r-solo-yet-first-find-out-why-its-second-tip-never-comes-no-change-the-open-question-is-worth-up-to-20)).
+      - **Otherwise:** keep R-Solo as it is.
 - [ ] **RIGHT_PARK is judged out of the LOADING ZONE one time in three.** At Belding the
       scoreboard gave AUTO PARK to every LEFT_PARK end (6 of 6) but to RIGHT_PARK 4 of 6 (not in
       Q-4, red, or Q-31, blue), from the same logged pose each time (14.1–14.5, 95.6–96.1, or its

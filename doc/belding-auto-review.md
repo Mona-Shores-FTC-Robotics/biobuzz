@@ -62,7 +62,7 @@ brackets is the log's (low) shot count.
 | Run | Actual | Branch taken, and why | Scored (official) | What went wrong |
 |---|---|---|---|---|
 | Q-1 · 20245 blue | V1 0–3.1 (4) · WALL drive 3.1–4.9 · pick 4.9–8.7 · drive 8.8–13.0 · V2 13.1–16.9 (2) · SCORING 16.9–18.1 · pick 18.1–21.4 · drive 21.4–22.7 · V3 22.7–26.3 (1) · park 26.3–28.5 | **CellUp** after 0.02 s: the preload volley had TIPped the RIGHT CELL, so the LEFT CELL was up and seen | LEAVE 3, PARK 5; alliance 1 AUTO TIP (ours, the preloads) | The second TIP never came: V2 and V3 put only 3 counted pieces at the LEFT CELL |
-| Q-4 · 19429 red | V1 0–4.0 (2) · WALL 4.0–5.8 · pick 5.8–9.4 · drive 9.5–13.3 · V2 13.3–17.1 (0) · SCORING →18.3 · pick 18.3–21.8 · drive →23.1 · V3 23.1–26.8 (0) · park 26.8–29.0 | **CellUp** 0.02 s. Video: the RIGHT CELL TIPs at about 7.5 s, then the LEFT CELL stays up to 30 s | LEAVE 3, **PARK 0**; 1 TIP (ours) | No second TIP. The park path ended at 28.95 s in the log, but it scored no PARK; the robot is hidden behind the field crew on the stream. Open question |
+| Q-4 · 19429 red | V1 0–4.0 (2) · WALL 4.0–5.8 · pick 5.8–9.4 · drive 9.5–13.3 · V2 13.3–17.1 (0) · SCORING →18.3 · pick 18.3–21.8 · drive →23.1 · V3 23.1–26.8 (0) · park 26.8–29.0 | **CellUp** 0.02 s. Video: the RIGHT CELL TIPs at about 7.5 s, then the LEFT CELL stays up to 30 s | LEAVE 3, **PARK 0**; 1 TIP (ours) | No second TIP. The park path ended at 28.95 s on RIGHT_PARK, but it scored no PARK. The robot is hidden on the stream; `robot-todo.md` §3 has RIGHT_PARK only 1.4 in inside the LOADING ZONE |
 | Q-7 · 20245 red | V1 0–2.9 (4) · WALL →4.7 · pick 4.7–8.4 · drive 8.5–13.0 · wait 0.77 · RIGHT_LAUNCH_CLOSE 13.8–16.6 · V 16.6–20.9 (2) · park 20.9–23.8 | **Timed out**: the camera rightly did not see the LEFT CELL up. Video: the preloads did not TIP (despite the log's assumed TIP at 3.5 s) | LEAVE 3, PARK 5; 1 TIP, **made by the timed-out branch's volley at about 20.5 s** | Nothing: the branch saved the TIP |
 | Q-13 · 19429 blue | V1 0–2.6 (4) · WALL →4.5 · pick 4.5–8.1 · drive 8.1–12.2 · V2 12.3–16.1 (1) · SCORING →17.4 · pick 17.4–21.0 · drive →22.4 · V3 22.4–25.1 (4) · park 25.1–27.4 | **CellUp** 0.05 s | LEAVE 3, PARK 5; 1 TIP (ours) | No second TIP, even with 5 counted at the LEFT CELL |
 | Q-19 · 19429 blue | V1 0–4.2 (2) · WALL →6.0 · pick 6.0–9.5 · drive 9.5–13.8 · V2 13.9–17.7 (0) · SCORING →18.9 · pick 18.9–22.6 · drive →24.1 · V3 **24.1–29.0** (2) · park from 29.0 | **CellUp** 0.02 s | LEAVE 3, **PARK 0**; 1 TIP (ours) | V3's gate opened 1.4 s after the drive, and the feed ran to 29.0 s, so the PARK was lost (the guard lets a started feed finish) |
@@ -99,7 +99,8 @@ brackets is the log's (low) shot count.
   - Q-19: the feed ran to 29.0 s.
   - Q-27: the partner blocked the drive, and the early park from SCORING_FLOWER_STAGING stalled.
   - M-9: the Pinpoint was lost.
-  - Q-4: unexplained.
+  - Q-4: the robot reached RIGHT_PARK but was judged out of the zone (that spot sits 1.4 in inside the
+    edge; `robot-todo.md` §3).
 - **LEAVE was scored in all 17 runs.**
 - **The robot sat waiting for the partner's TIP for 4.7–6.5 s** in the five CELL-up runs. That
   time cannot be spent on a FLOWER pick: the lane already holds the 4 preloads and holds no more,
@@ -272,8 +273,8 @@ recommendation 1 drawn, a late TIP stops costing the preloads.
 
 ### Not ranked: worth a look
 
-- **Q-4's missing AUTO PARK.** The log's path ended at 28.95 s, but no PARK was scored, and the
-  stream hides the robot.
+- **Q-4's missing AUTO PARK.** The robot reached RIGHT_PARK, which is only 1.4 in inside the LOADING
+  ZONE. That spot is already on `robot-todo.md` §3.
 - **Late parks behind long feeds:**
   - Q-19: its feed ran to 29.0 s.
   - M-7 red: its feed ended at 28.4 s, and it parked from the spot.
