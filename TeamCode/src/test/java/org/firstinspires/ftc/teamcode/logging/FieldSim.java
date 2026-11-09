@@ -1522,9 +1522,11 @@ final class FieldSim {
      * and online videos (4 Nov 2026) that launched pieces sometimes TIP a CELL holding 7 POLLEN or 4 POLLEN + 2 NECTAR
      * (about 7.3 POLLEN weights), under the 7.3 to 8 the Field Setup Guide's placed cases allow. It is set so that a
      * fast 4-ball volley onto about 7 weights tips sometimes and one onto 6.5 or less never does
-     * ({@code HiveImpulseTest}), and the Guide's gentle tosses (§12.3) still hold on the 2nd and 7th POLLEN. Replace
-     * it from video counts: the pieces in the CELL at each TIP, against the static threshold ({@code doc/robot-todo.md},
-     * "HIVE: count the pieces in the CELL at each TIP"). 0 turns the hits off. 1 until the launcher fired at its one
+     * ({@code HiveImpulseTest}), and the Guide's gentle tosses (§12.3) still hold on the 2nd and 7th POLLEN. The
+     * Belding Qualifier stream (37 TIPs counted, 9 Nov 2026, PR #519) has
+     * no CELL tipped by hits under 7 POLLEN weights: the lightest TIP right after a landing held 7.0, and CELLs tipped
+     * with no hit at all on 6.95 to 7.0. So the video cannot fit this number; it agrees with the picture above. 0 turns
+     * the hits off. 1 until the launcher fired at its one
      * setpoint (4 Nov 2026); its steeper arc lands harder, so 0.6 gives the same picture.
      */
     static final double PLACEHOLDER_IMPULSE_SCALE = 0.6;
