@@ -38,13 +38,14 @@ function Finish([int]$code) {
 #   1. the source: this match's stretch of the event video, unmarked, from 40 s before Auto's estimated start to 40 s
 #      after the match. Downloaded once and kept in sources\ (a clip made before sources existed is adopted instead);
 #      every later step works from it, without the internet.
-#   2. where Auto is in it: matches.json's video_start if someone checked it; otherwise the scoreboard. The FiM
-#      overlay shows a hand for the 8 s transition, so the first frame with the hand is the field's end of Auto, 30 s
-#      after its start, and the log's own Auto starts there. Only if no hand is found does it fall back to the estimate from the stream's
+#   2. where Auto is in it: matches.json's video_start if someone checked it; otherwise our robot's own light (it
+#      leaves the alliance colour the instant our driver pressed PLAY, which is the log's Auto start), searched for
+#      around the scoreboard's start (the FiM overlay's 8 s transition hand is the field's end of Auto, 30 s after its
+#      start). When the light is out of shot, the scoreboard alone, less the overlay's lag. Only if no hand is found does it fall back to the estimate from the stream's
 #      start time.
 #   3. the clip: cut from the source with the sync countdown burnt in. Kept per offset, so a -Shift re-cuts locally.
 # Returns @{ Clip; VideoStart; How }. Throws when there can be no video.
-function Get-MatchClip($pins, $ev, $m, [double]$autoS) {
+function Get-MatchClip($pins, $ev, $m, [double]$autoS, [string]$log) {
     $inv = [Globalization.CultureInfo]::InvariantCulture
     $url = $ev.video; if ($m.PSObject.Properties["video"] -and $m.video) { $url = $m.video }
     if (-not $url) { throw "matches.json has no video for $($ev.event)" }
@@ -115,13 +116,26 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS) {
         $look = [Math]::Max([double]0, $estimate + 30 - 25 - $sourceFrom)
         $hand = Find-ScoreboardHand $ffmpeg $source $look 50
         if ($null -ne $hand.At) {
-            # The field's Auto is always 30 s, so it started 30 s before the hand. The log's Auto starts there too, give
-            # or take our driver's PLAY lag. Its end is no use: an Auto stopped early (Q-27 at Belding: 28.99 s) ends early.
-            $autoAt = $hand.At - $FieldAutoS
-            $off = ($sourceFrom + $autoAt) - $estimate
-            $way = "behind"; if ($off -lt 0) { $way = "ahead of" }
-            $how = "from the scoreboard: the field's Auto ended at {0} (match {1:N2}); the video was {2:0.0} s {3} the estimate" -f `
-                (ConvertTo-VideoTime ($sourceFrom + $hand.At)), $hand.Score, [Math]::Abs($off), $way
+            # The field's Auto is always 30 s, so it started 30 s before the hand (its end is no use: an Auto stopped
+            # early, Q-27 at Belding, ends early). The overlay shows the hand $ScoreboardLagS late, so our PLAY is about
+            # there; our own light then says exactly where.
+            $fieldStart = $hand.At - $FieldAutoS
+            $autoAt = $fieldStart - $ScoreboardLagS
+            $how = "from the scoreboard (match {0:N2}): our light was not checked" -f $hand.Score
+            $pattern = Get-LightPattern $log
+            if (-not $pattern.Ok) {
+                $how = "from the scoreboard (match {0:N2}); not from our light: {1}" -f $hand.Score, $pattern.Why
+            } else {
+                $light = Find-OurLight $ffmpeg $source $autoAt $pattern.Blue $pattern.OnS $pattern.OffS
+                if ($null -ne $light.At) {
+                    $autoAt = $light.At
+                    $how = "from our robot's light at ({0},{1}), score {2:N0}: it went off {3:0.00} s before the scoreboard's start" -f `
+                        $light.X, $light.Y, $light.Score, ($fieldStart - $light.At)
+                } else {
+                    $how = "from the scoreboard (match {0:N2}); our light was not found (best {1:N0} of 40 needed: our robot out of shot, or hidden)" -f `
+                        $hand.Score, $light.Score
+                }
+            }
         } else {
             $autoAt = $estimate - $sourceFrom
             $how = "estimated from the stream's start time: the scoreboard's transition hand was not found (best match {0:N2})" -f $hand.Score
@@ -180,7 +194,7 @@ try {
             try {
                 $log = Get-MatchLog $pins $c.Row
                 $e = Get-AutoEdges $log
-                [void](Get-MatchClip $pins $c.Event $c.Row ($e[1] - $e[0]))
+                [void](Get-MatchClip $pins $c.Event $c.Row ($e[1] - $e[0]) $log)
                 $ready++
             } catch {
                 Bad $_.Exception.Message
@@ -255,7 +269,7 @@ try {
     if ($NoVideo) { Open-AdvantageScope; Finish 0 }
 
     try {
-        $made = Get-MatchClip $pins $ev $m $autoS
+        $made = Get-MatchClip $pins $ev $m $autoS $log
     } catch {
         # No clip: still show the log, then say why.
         Bad "no video: $($_.Exception.Message)"
