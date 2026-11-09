@@ -677,8 +677,9 @@ both robots until every value is in (`TurretSubsystem.useAbsoluteZero`). [#169]
       per encoder.
 - [ ] **Directions.** Turn the turret counter-clockwise from above: `absDirectionA`/`B` = +1 for each
       fraction that rises, -1 for each that falls.
-- [ ] **B's ratio** (`absRatioB` = ring teeth / B's gear teeth, from the mentor's gear). Check by
-      counting B's wraps over one full turret turn, if the travel allows one.
+- [ ] **B's ratio** (`absRatioB` 4.0: the mentor's 44T gear on the 176T ring or on A's 64T). Check
+      by counting B's wraps over one full turret turn (4), if the travel allows one; otherwise a
+      quarter turret turn should be one wrap of B.
 - [ ] **Travel** (`absEachWayDeg`): degrees each way from home the turret can reach.
 - [ ] **Homes.** Turret on its mark: `absHomeA`, `absHomeB` from the two fractions. Set it on the
       mark five times, note the spread.

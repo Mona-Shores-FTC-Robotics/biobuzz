@@ -173,11 +173,15 @@ public class TurretSubsystem implements Subsystem {
     public static boolean useAbsoluteZero = false;
 
     /**
-     * Encoder B's turns per turret turn: the ring's teeth over B's gear's. From the build team,
-     * checked on {@code Bench: OctoQuad} (one turret turn by hand). Encoder A's is
-     * {@link #turnsPerTurretTurn}: A is the Cypher Max whose quadrature is in the hub socket.
+     * Encoder B's turns per turret turn: the ring's teeth over B's gear's. 4.0: the mentor's 44T
+     * spur gear (9 Nov 2026) against the goBILDA turret's 176T ring, or against A's 64T gear, which
+     * gives the same 4.0. From the design, not yet checked: count B's wraps over one turret turn
+     * on {@code Bench: OctoQuad}. Encoder A's is {@link #turnsPerTurretTurn}: A is the Cypher Max
+     * whose quadrature is in the hub socket (2.75 on 19429's 64T gear). With 64T and 44T the
+     * readings repeat only after 4 turret turns, and candidate turns stay at least 32.7° of B
+     * apart ({@link TurretAbsolute#separationDeg}).
      */
-    public static double absRatioB = Double.NaN;
+    public static double absRatioB = 4.0;
 
     /** +1 if A's absolute reading rises as the turret turns counter-clockwise from above, -1 if not. 0 = not measured. */
     public static int absDirectionA = 0;

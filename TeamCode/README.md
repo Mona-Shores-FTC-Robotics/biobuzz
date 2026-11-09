@@ -530,7 +530,9 @@ pulses:
 - **Choose B's gear for separation, not "one tooth off".** 64T and 63T repeat
   only after 22.9 turret turns, but candidate turns are then only 5.7° of B
   apart, inside the encoders' own error. 64T and 56T on the 176T ring repeat
-  after 2.5 turret turns with candidates 51° apart. `TurretAbsolute.separationDeg`
+  after 2.5 turret turns with candidates 51° apart. The mentor's gear is 44T
+  (`absRatioB` 4.0): with the 64T it repeats after 4 turret turns, candidates at
+  least 32.7° apart (163.6° under 262° of total travel). `TurretAbsolute.separationDeg`
   is the check; half of it is the error budget.
 - **Each encoder's pulse range is measured, not taken from the datasheet.** The
   Cypher Max's PWM frequency is 490–603 Hz part to part, and the OctoQuad

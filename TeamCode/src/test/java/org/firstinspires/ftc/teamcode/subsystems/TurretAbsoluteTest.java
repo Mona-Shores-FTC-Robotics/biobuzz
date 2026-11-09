@@ -99,6 +99,17 @@ public class TurretAbsoluteTest {
     }
 
     @Test
+    public void theMentors44ToothGearAgainstThe64IsWellSeparated() {
+        double ratioB = 176.0 / 44.0;
+        // Under 262° of total travel only one neighbouring turn of A fits: 163.6° apart.
+        assertEquals(360.0 * 5.0 / 11.0, TurretAbsolute.separationDeg(RATIO_A, ratioB, 120.0), 1e-6);
+        // Over any longer travel, up to 4 turret turns, never closer than 32.7°.
+        assertEquals(360.0 / 11.0, TurretAbsolute.separationDeg(RATIO_A, ratioB, 270.0), 1e-6);
+        assertEquals(360.0 / 11.0, TurretAbsolute.separationDeg(RATIO_A, ratioB, 700.0), 1e-6);
+        assertEquals(4.0, TurretAbsolute.unambiguousTurretTurns(176, 64, 44), 1e-12);
+    }
+
+    @Test
     public void missingSettingsSayWhichOne() {
         assertProblem(TurretAbsolute.solve(0.1, 0.2, Double.NaN, 0.2, RATIO_A, RATIO_B, 1, 1,
                 EACH_WAY, MAX_RESIDUAL, MIN_MARGIN), "home");
