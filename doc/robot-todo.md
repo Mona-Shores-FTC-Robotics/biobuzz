@@ -563,7 +563,7 @@ a difference is one `RobotDifferences` line.
       feed) until the throat beam (#505, #213) counts pieces out. Also note any volley with 5 in the
       robot (Q-7's 2nd had 5): it ends at the 4th count with the 5th still in. Read off the same
       volleys how long the gate's opening took to the first dip: a long one means the first ball is
-      not waiting at the wheels. [#433, #505; mentor, 8 Nov 2026; video replay: PR for this item]
+      not waiting at the wheels. [#433, #505; mentor, 8 Nov 2026; video replay #515]
 - [ ] **Feed pace**, once the PIDF is set: the aim is each ball arriving after the wheels have
       recovered from the one before. Bench: Launch Test, `FeederSubsystem.feedPower` 0.6, then 0.8,
       then 1.0, 12 balls each (three volleys of 4), fresh battery, from one launch spot. Each dip's
