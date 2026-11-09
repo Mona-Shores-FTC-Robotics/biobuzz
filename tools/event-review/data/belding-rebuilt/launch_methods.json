@@ -1,0 +1,58 @@
+[
+ {
+  "robot": "20245",
+  "method": "Auto-drive",
+  "volleys": 46,
+  "pieces": 110,
+  "per_volley": 2.4,
+  "press_to_last_s": 3.1,
+  "not_ready": null,
+  "press_to_moving_s": 4.43,
+  "prespun": 2,
+  "prespun_of": "2 of 46",
+  "prespin_save_s": 0.5,
+  "presses_launched_of": "67 of 140"
+ },
+ {
+  "robot": "20245",
+  "method": "Operator FIRE",
+  "volleys": 6,
+  "pieces": 11,
+  "per_volley": 1.8,
+  "press_to_last_s": 2.1,
+  "not_ready": 6,
+  "press_to_moving_s": 2.34,
+  "prespun": 0,
+  "prespun_of": "0 of 6",
+  "prespin_save_s": 0.4,
+  "driver_aim_of": "2 of 6"
+ },
+ {
+  "robot": "19429",
+  "method": "Auto-drive",
+  "volleys": 9,
+  "pieces": 25,
+  "per_volley": 2.8,
+  "press_to_last_s": 2.8,
+  "not_ready": null,
+  "press_to_moving_s": 4.19,
+  "prespun": 4,
+  "prespun_of": "4 of 9",
+  "prespin_save_s": 0.5,
+  "presses_launched_of": "22 of 70"
+ },
+ {
+  "robot": "19429",
+  "method": "Operator FIRE",
+  "volleys": 20,
+  "pieces": 38,
+  "per_volley": 1.9,
+  "press_to_last_s": 1.7,
+  "not_ready": 12,
+  "press_to_moving_s": 3.01,
+  "prespun": 9,
+  "prespun_of": "9 of 20",
+  "prespin_save_s": 0.4,
+  "driver_aim_of": "7 of 20"
+ }
+]

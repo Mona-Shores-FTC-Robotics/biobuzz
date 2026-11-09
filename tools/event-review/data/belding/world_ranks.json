@@ -1,0 +1,50 @@
+[
+ {
+  "robot": "20245",
+  "measure": "Total",
+  "order": 1,
+  "rank": 97,
+  "of": 2138,
+  "top_pct": 4.5
+ },
+ {
+  "robot": "20245",
+  "measure": "Auto",
+  "order": 2,
+  "rank": 118,
+  "of": 2138,
+  "top_pct": 5.5
+ },
+ {
+  "robot": "20245",
+  "measure": "TeleOp",
+  "order": 3,
+  "rank": 131,
+  "of": 2138,
+  "top_pct": 6.1
+ },
+ {
+  "robot": "19429",
+  "measure": "Total",
+  "order": 1,
+  "rank": 230,
+  "of": 2138,
+  "top_pct": 10.8
+ },
+ {
+  "robot": "19429",
+  "measure": "Auto",
+  "order": 2,
+  "rank": 36,
+  "of": 2138,
+  "top_pct": 1.7
+ },
+ {
+  "robot": "19429",
+  "measure": "TeleOp",
+  "order": 3,
+  "rank": 762,
+  "of": 2138,
+  "top_pct": 35.6
+ }
+]

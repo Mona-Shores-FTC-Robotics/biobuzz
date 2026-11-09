@@ -1,0 +1,1287 @@
+<meta name="dash-one-writer">
+<style>
+  /* Layout: a dark, full-bleed sheet; a wavelength spectrum band (infrared to ultraviolet) marks the top and each section. */
+  #dash-root { --dash-gutter: 0; }
+  .bz {
+    --bg: #0A0C12; --panel: #11151F; --panel2: #161B28; --line: #232A3B; --grid: #1E2433;
+    --fg: #EEF1F8; --muted: #8C95AA; --faint: #5B6479;
+    --ir: #FF5B3A; --ir-soft: rgba(255, 91, 58, 0.42); --uv: #5C7DFF; --uv-soft: rgba(92, 125, 255, 0.42);
+    --n1: #2DD4BF; --n2: #FBBF24; --n3: #94A3B8; --n4: #D6A97A;
+    --spectrum: linear-gradient(90deg, #E8263A 0%, #FF7A2F 16%, #FFC531 32%, #3DD68C 50%, #2E9BFF 68%, #5C6CFF 84%, #A45CFF 100%);
+    color-scheme: dark;
+    background: var(--bg); color: var(--fg);
+    font-family: var(--font-anthropic-sans);
+    padding-block: 0 28px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid; gap: 26px;
+  }
+  .bz * { box-sizing: border-box; }
+  .bz .band { height: 5px; background: var(--spectrum); margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px))); }
+  .bz .wrap { width: 100%; max-width: 1180px; margin-inline: auto; display: grid; gap: 26px; }
+
+  .bz .hero { display: grid; gap: 18px; }
+  .bz .event { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 18px; }
+  .bz .event h1 { margin: 0; font-size: clamp(26px, 4.2vw, 44px); font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase; line-height: 1; }
+  .bz .event p { margin: 0; color: var(--muted); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .bz .teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 14px; }
+  .bz .team { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 14px; overflow: hidden; min-width: 0; }
+  .bz .team::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; }
+  .bz .team.ir::before { background: linear-gradient(90deg, #FF7A2F, #E8263A); }
+  .bz .team.uv::before { background: linear-gradient(90deg, #2E9BFF, #A45CFF); }
+  .bz .team img { height: 64px; width: auto; max-width: 100%; display: block; }
+  .bz .award { margin: 0; font-size: clamp(22px, 3vw, 30px); font-weight: 800; letter-spacing: -0.01em; text-transform: uppercase; line-height: 1.05; }
+  .bz .team.ir .award { color: var(--ir); }
+  .bz .team.uv .award { color: var(--uv); }
+  .bz .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; min-height: 28px; }
+  .bz .chips span { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; background: var(--panel2); border: 1px solid var(--line); color: var(--fg); font-variant-numeric: tabular-nums; }
+  .bz .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; }
+  .bz .stats div { display: grid; gap: 2px; min-width: 0; }
+  .bz .stats dt { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .bz .stats dd { margin: 0; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .bz .stats .vs { display: block; font-size: 11px; font-weight: 500; color: var(--faint); letter-spacing: 0; }
+
+  .bz .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 10px; }
+  .bz .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+  .bz .kpi .num { font-size: 38px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .bz .kpi .num.ir { color: var(--ir); } .bz .kpi .num.uv { color: var(--uv); }
+  .bz .kpi .lbl { font-size: 12.5px; color: var(--fg); font-weight: 600; }
+  .bz .kpi .sub { font-size: 11.5px; color: var(--muted); }
+
+  .bz .sec { display: grid; gap: 12px; }
+  .bz .sec-head { display: grid; gap: 8px; }
+  .bz .sec-head .rule { height: 2px; background: var(--spectrum); opacity: 0.85; border-radius: 2px; }
+  .bz .sec-head h2 { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg); display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .bz .sec-head h2 small { font-size: 12.5px; letter-spacing: 0; text-transform: none; font-weight: 500; color: var(--muted); }
+
+  .bz .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 12px; }
+  .bz .chart.short { min-height: 90px; }
+  .bz .tkey { display: inline-flex; gap: 12px; align-items: center; margin-left: auto; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; }
+  .bz .tkey span { display: inline-flex; gap: 5px; align-items: center; }
+  .bz .tkey .ir { color: var(--ir); } .bz .tkey .uv { color: var(--uv); }
+  .bz .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+  .bz .card.wide { grid-column: 1 / -1; }
+  .bz .card h3 { margin: 0; font-size: 14px; font-weight: 700; }
+  .bz .card .cap { margin: 0; font-size: 12px; color: var(--muted); }
+  .bz .chart { position: relative; min-height: 180px; }
+  .bz svg text { font-family: var(--font-anthropic-sans); font-size: 11.5px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  .bz svg text.val { fill: var(--fg); font-weight: 600; }
+  .bz svg text.panel { font-weight: 700; font-size: 12px; letter-spacing: 0.06em; }
+
+  .bz .duos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; }
+  .bz .duo { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; min-width: 0; }
+  .bz .duo .lbl { margin: 0; font-size: 12.5px; font-weight: 600; }
+  .bz .duo .vals { margin: 0; display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap; }
+  .bz .duo .vals span { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .bz .duo .vals .ir { color: var(--ir); } .bz .duo .vals .uv { color: var(--uv); }
+  .bz .duo .sub { margin: 0; font-size: 11.5px; color: var(--muted); }
+  .bz .key { display: flex; gap: 14px; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; font-size: 11.5px; color: var(--muted); }
+  .bz .key li { display: flex; gap: 6px; align-items: center; }
+  .bz .sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--n3); }
+  .bz .sw.sq { border-radius: 2px; }
+  .bz .sw.ir { background: var(--ir); } .bz .sw.uv { background: var(--uv); }
+  .bz .sw.n1 { background: var(--n1); } .bz .sw.n2 { background: var(--n2); } .bz .sw.n3 { background: var(--n3); } .bz .sw.n4 { background: var(--n4); }
+  .bz .sw.fg { background: var(--fg); } .bz .sw.soft { background: var(--muted); opacity: 0.5; } .bz .sw.solid { background: var(--muted); }
+
+  .bz .asks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .bz .ask { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+  .bz .ask h3 { margin: 0; font-size: 14px; font-weight: 700; line-height: 1.25; }
+  .bz .ask p { margin: 0; font-size: 12.5px; color: var(--muted); display: grid; grid-template-columns: 16px 1fr; gap: 4px; }
+  .bz .ask p b { font-weight: 800; }
+  .bz .ask .pro b { color: var(--n1); } .bz .ask .con b { color: var(--n2); }
+  .bz .foot { margin: 0; font-size: 11px; color: var(--faint); line-height: 1.5; max-width: 900px; }
+
+  .bz { --c1: #33506B; --c2: #557A99; --c3: #8DB0CC; --launch: #F5A524; --z1: #FFE2A8; --z2: #FCCB6E; --z3: #F5A524; --z4: #D98710; --c4: #3B8C86; }
+  .bz .sw.z1 { background: var(--z1); } .bz .sw.z2 { background: var(--z2); } .bz .sw.z3 { background: var(--z3); } .bz .sw.z4 { background: var(--z4); }
+  .bz .key b { color: var(--fg); font-weight: 700; letter-spacing: .04em; }
+  .bz .sw.c1 { background: var(--c1); } .bz .sw.c2 { background: var(--c2); } .bz .sw.c3 { background: var(--c3); }
+  .bz .sw.l1 { background: var(--l1); } .bz .sw.l2 { background: var(--l2); } .bz .sw.l3 { background: var(--l3); } .bz .sw.l4 { background: var(--l4); }
+  .bz .flag { display: inline-block; margin-left: 10px; padding: 3px 9px; border-radius: 999px; background: rgba(251,191,36,.14); border: 1px solid rgba(251,191,36,.55); color: #FBBF24; font-size: 10.5px; letter-spacing: .1em; vertical-align: middle; }
+  .bz .callout { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.4); border-radius: 12px; padding: 12px 16px; font-size: 13.5px; line-height: 1.5; color: var(--fg); }
+  .bz .callout b { color: #FBBF24; }
+  .bz .sw.c4 { background: var(--c4); } .bz .uvc { color: var(--uv); } .bz .irc { color: var(--ir); }
+  .bz { --nectar: #E879F9; --unid: #4A5266; --pollen-auto: #E9A800; --pollen-tele: #FFE58F; --al-red: #E8263A; --al-blue: #2E9BFF; } .bz .sw.nectar { background: var(--nectar); } .bz .sw.unid { background: var(--unid); } .bz .sw.pol { background: var(--pollen-auto); } .bz .sw.pol2 { background: var(--pollen-tele); } .bz .sw.nrej { background: transparent; border: 1.5px dashed var(--nectar); } .bz .sw.al-r { background: var(--al-red); } .bz .sw.al-b { background: var(--al-blue); margin-left: -2px; }
+  .bz .stack { display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .bz .world { display: grid; gap: 12px; }
+  .bz .wrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: stretch; }
+  .bz .wrow h4 { grid-column: 1 / -1; margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .06em; }
+  .bz .wt { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; display: grid; gap: 2px; min-width: 0; }
+  .bz .wt .n { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .bz .wt .l { font-size: 11px; color: var(--muted); }
+  .bz .wt.best { border-color: currentColor; }
+  .bz .wh { display: flex; align-items: center; gap: 14px; margin: 2px 0 4px; }
+  .bz .wh .big { font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .bz .wh .wl { font-size: 14px; font-weight: 600; line-height: 1.35; }
+  .bz .wh .muted { font-weight: 400; color: var(--muted); font-size: 12px; }
+  .bz .issues { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .bz .issue { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .bz .issue h3 { margin: 2px 0 0; font-size: 15px; line-height: 1.3; }
+  .bz .issue .vals { margin: 4px 0 0; display: flex; gap: 16px; align-items: baseline; }
+  .bz .issue .vals span { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .bz .issue .vals .ir { color: var(--ir); } .bz .issue .vals .uv { color: var(--uv); }
+  .bz .issue .sub { margin: 0; font-size: 11.5px; color: var(--muted); }
+  .bz .issue .what { margin: 6px 0 0; font-size: 13px; line-height: 1.45; color: var(--muted); flex: 1; }
+  .bz .issue .what b { color: var(--fg); font-weight: 700; }
+  .bz .issue .next { margin: 4px 0 0; padding-top: 10px; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.45; }
+  .bz .issue .next b { font-weight: 700; }
+  .bz .issue .next > span { display: inline-block; margin-right: 8px; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #34D399; }
+  .bz .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .bz .tag { padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border: 1px solid; }
+  .bz .tag.ctl { color: #38BDF8; border-color: rgba(56,189,248,.5); background: rgba(56,189,248,.12); }
+  .bz .tag.swr { color: #FBBF24; border-color: rgba(251,191,36,.5); background: rgba(251,191,36,.12); }
+  .bz .tag.loc { color: #34D399; border-color: rgba(52,211,153,.5); background: rgba(52,211,153,.12); }
+  @media (max-width: 900px) { .bz .issues { grid-template-columns: 1fr; } }
+  .bz .feedstats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 6px 0 10px; }
+  .bz .feedstats .lbl { margin: 0; font-size: 12.5px; font-weight: 600; }
+  .bz .feedstats .vals { margin: 2px 0 0; display: flex; gap: 14px; align-items: baseline; }
+  .bz .feedstats .vals span { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .bz .feedstats .vals .ir { color: var(--ir); } .bz .feedstats .vals .uv { color: var(--uv); }
+  .bz .feedstats .sub { margin: 0; font-size: 11.5px; color: var(--muted); }
+  @media (max-width: 760px) { .bz .feedstats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .bz .sw.dotk { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 3px; vertical-align: middle; }
+  .bz .sw.dotk.ring { background: none; border: 1.6px solid var(--nectar); box-sizing: border-box; }
+  .bz .nsplit { margin-top: 10px; display: grid; gap: 6px; }
+  .bz .nsplit .nh { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .08em; }
+  .bz .nsplit .nrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .bz .nsplit .nt { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; display: grid; gap: 2px; min-width: 0; }
+  .bz .nsplit .nt.hot { border-color: var(--nectar); }
+  .bz .nsplit .nt .n { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .bz .nsplit .nt.hot .n { color: var(--nectar); }
+  .bz .nsplit .nt .l { font-size: 11px; color: var(--muted); }
+  .bz .nsplit .sub { margin: 0; font-size: 11.5px; color: var(--muted); }
+  @media (max-width: 560px) { .bz .nsplit .nrow { grid-template-columns: 1fr; } }
+  .bz .nsplit .ngrid { max-width: 560px; display: grid; grid-template-columns: max-content minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: stretch; }
+  .bz .nsplit .ncol { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--muted); align-self: end; }
+  .bz .nsplit .ncol.nec { color: var(--nectar); }
+  .bz .nsplit .nrowh { font-size: 12px; font-weight: 600; align-self: center; padding-right: 6px; }
+  .bz .fmaps { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; margin-top: 10px; }
+  .bz .fmap { flex: 1 1 260px; max-width: 360px; }
+  .bz .duos.three { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+  .bz .feedstats.two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 640px; }
+  .bz .stops { list-style: none; margin: 4px 0 14px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .bz .stops li { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 12px; color: var(--muted); display: grid; gap: 2px; }
+  .bz .stops .vals { display: flex; gap: 12px; }
+  .bz .stops .vals span { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .bz .stops .vals .ir { color: var(--ir); } .bz .stops .vals .uv { color: var(--uv); }
+  @media (max-width: 760px) { .bz .stops { grid-template-columns: 1fr; } }
+  .bz .gtop { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: start; margin-bottom: 8px; }
+  .bz .gtop .feedstats.two { margin: 18px 0 0; grid-template-columns: 1fr; gap: 22px; max-width: none; }
+  .bz .gtop .nsplit { margin-top: 0; }
+  @media (max-width: 860px) { .bz .gtop { grid-template-columns: 1fr; } }
+  .bz .plans2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 12px; margin: 12px 0; }
+  .bz .plan2 { display: grid; gap: 10px; align-content: start; border-top: 4px solid var(--pc); }
+  .bz .plan2.pa { --pc: #38BDF8; } .bz .plan2.pb { --pc: #F59E0B; }
+  .bz .plan2 .pk { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--pc); display: flex; align-items: center; gap: 8px; }
+  .bz .plan2 .btnk { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--pc); font-size: 13px; }
+  .bz .plan2 h3 { margin: 0; }
+  .bz .lstats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+  .bz .ls .lbl { margin: 0; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .bz .ls .vals { margin: 2px 0 0; display: flex; flex-wrap: wrap; column-gap: 12px; align-items: baseline; }
+  .bz .ls .vals span { white-space: nowrap; }
+  .bz .ls .sub { margin: 2px 0 0; font-size: 11.5px; color: var(--muted); }
+  .bz .ls .vals span { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .bz .ls .vals .ir { color: var(--ir); } .bz .ls .vals .uv { color: var(--uv); }
+  .bz .prespin { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 8px; }
+  .bz .prespin .ph { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .bz .prespin .ph b { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .bz .prespin .chip { font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: rgba(52,211,153,.12); color: #34D399; border: 1px solid rgba(52,211,153,.45); white-space: nowrap; }
+  .bz .prespin .pr { display: grid; grid-template-columns: 92px minmax(0, 1fr) 70px; gap: 10px; align-items: center; }
+  .bz .prespin .pr .nm { font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+  .bz .prespin .pr .tr { height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .bz .prespin .pr .fl { height: 100%; border-radius: 999px; }
+  .bz .prespin .pr .ct { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .bz .plan2 { display: flex; flex-direction: column; gap: 12px; }
+  .bz .plan2 h3 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bz .plan2 .lstats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
+  .bz .plan2 .ls .lbl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bz .plan2 .ls .vals { flex-direction: column; align-items: flex-start; row-gap: 0; }
+  .bz .plan2 .ls .vals span { font-size: 22px; line-height: 1.2; }
+  .bz .plan2 .ls .sub { white-space: nowrap; }
+  .bz .plan2 .prespin { margin-top: auto; }
+  @media (max-width: 560px) { .bz .plan2 h3 { white-space: normal; } .bz .plan2 .ls .lbl { white-space: normal; overflow: visible; min-height: 2.6em; } .bz .plan2 .ls .vals span { font-size: 18px; } .bz .plan2 .ls .sub { white-space: normal; } }
+  .bz { --nolaunch: #2A3344; --stickc: #FBBF24; --okl: #34D399; }
+  .bz .refsplit { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+  .bz .refsplit b { font-weight: 800; font-variant-numeric: tabular-nums; }
+  .bz .refsplit b.uv { color: var(--uv); } .bz .refsplit b.ir { color: var(--ir); }
+  .bz .stickx { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); display: grid; gap: 10px; }
+  .bz .stickx .sh { margin: 0; font-size: 13px; font-weight: 700; color: var(--stickc); letter-spacing: .02em; }
+  .bz .sfacts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .bz .sfacts > div { display: grid; gap: 2px; align-content: start; }
+  .bz .sfacts .vals { margin: 0; display: flex; flex-direction: column; }
+  .bz .sfacts .vals span { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.2; white-space: nowrap; }
+  .bz .sfacts .vals .uv { color: var(--uv); } .bz .sfacts .vals .ir { color: var(--ir); }
+  .bz .sfacts .l { margin: 0; font-size: 12px; color: var(--muted); }
+  @media (max-width: 760px) { .bz .sfacts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .bz .bz-tip { position: absolute; background: #1B2131; border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; font-size: 11.5px; pointer-events: none; white-space: nowrap; z-index: 2; color: var(--fg); }
+  .bz .bz-tip .t1 { color: var(--muted); }
+  .bz [data-dash-source-state=empty] { color: transparent; }
+  .bz [data-dash-source-state=refreshing] { opacity: .5; }
+  @media (max-width: 560px) { .bz .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .bz .kpi .num { font-size: 32px; } }
+</style>
+
+<div class="bz">
+  <div class="band"></div>
+  <div class="wrap">
+
+    <header class="hero" id="top">
+      <div class="event">
+        <h1>Belding Qualifier</h1>
+        <p>FTC BIOBUZZ · Nov 7, 2026 · <span data-draw="v" data-source="results" data-row="0" data-field="teams">—</span> teams</p>
+      </div>
+      <div class="teams">
+        <article class="team uv">
+          <img alt="Ultraviolet 20245" src="LOGO_UV">
+          <p class="award" data-draw="award" data-source="results" data-where="robot=20245" data-field="awards">—</p>
+          <div class="chips" data-draw="chips" data-source="results" data-where="robot=20245"></div>
+          <dl class="stats">
+            <div><dt>Avg score</dt><dd><span data-draw="v" data-source="results" data-where="robot=20245" data-field="avg_np" data-fmt="f1">—</span><span class="vs">field <span data-draw="v" data-source="results" data-where="robot=20245" data-field="field_avg_np" data-fmt="f1">—</span></span></dd></div>
+            <div><dt>Avg auto</dt><dd><span data-draw="v" data-source="results" data-where="robot=20245" data-field="avg_auto" data-fmt="f1">—</span><span class="vs">field <span data-draw="v" data-source="results" data-where="robot=20245" data-field="field_avg_auto" data-fmt="f1">—</span></span></dd></div>
+            <div><dt>Avg teleop</dt><dd><span data-draw="v" data-source="results" data-where="robot=20245" data-field="avg_teleop" data-fmt="f1">—</span><span class="vs">field <span data-draw="v" data-source="results" data-where="robot=20245" data-field="field_avg_teleop" data-fmt="f1">—</span></span></dd></div>
+            <div><dt>OPR</dt><dd><span data-draw="v" data-source="results" data-where="robot=20245" data-field="opr_total" data-fmt="f1">—</span><span class="vs">rank <span data-draw="v" data-source="field_ranks" data-where="measure=opr_total&amp;team=20245" data-field="place" data-fmt="rank">—</span></span></dd></div>
+          </dl>
+        </article>
+        <article class="team ir">
+          <img alt="Infrared 19429" src="LOGO_IR">
+          <p class="award" data-draw="award" data-source="results" data-where="robot=19429" data-field="awards">—</p>
+          <div class="chips" data-draw="chips" data-source="results" data-where="robot=19429"></div>
+          <dl class="stats">
+            <div><dt>Avg score</dt><dd><span data-draw="v" data-source="results" data-where="robot=19429" data-field="avg_np" data-fmt="f1">—</span><span class="vs">field <span data-draw="v" data-source="results" data-where="robot=19429" data-field="field_avg_np" data-fmt="f1">—</span></span></dd></div>
+            <div><dt>Avg auto</dt><dd><span data-draw="v" data-source="results" data-where="robot=19429" data-field="avg_auto" data-fmt="f1">—</span><span class="vs">field <span data-draw="v" data-source="results" data-where="robot=19429" data-field="field_avg_auto" data-fmt="f1">—</span></span></dd></div>
+            <div><dt>Avg teleop</dt><dd><span data-draw="v" data-source="results" data-where="robot=19429" data-field="avg_teleop" data-fmt="f1">—</span><span class="vs">field <span data-draw="v" data-source="results" data-where="robot=19429" data-field="field_avg_teleop" data-fmt="f1">—</span></span></dd></div>
+            <div><dt>OPR</dt><dd><span data-draw="v" data-source="results" data-where="robot=19429" data-field="opr_total" data-fmt="f1">—</span><span class="vs">rank <span data-draw="v" data-source="field_ranks" data-where="measure=opr_total&amp;team=19429" data-field="place" data-fmt="rank">—</span></span></dd></div>
+          </dl>
+        </article>
+      </div>
+    </header>
+
+    <section class="kpis" aria-label="Headline numbers">
+      <div class="kpi"><span class="num ir" data-draw="v" data-source="field_ranks" data-where="measure=opr_auto&amp;team=19429" data-field="place" data-fmt="rank">—</span><span class="lbl">Auto in the field</span><span class="sub">Infrared, Auto OPR</span></div>
+      <div class="kpi"><span class="num uv" data-draw="v" data-source="field_ranks" data-where="measure=opr_teleop&amp;team=20245" data-field="place" data-fmt="rank">—</span><span class="lbl">TeleOp in the field</span><span class="sub">Ultraviolet, TeleOp OPR</span></div>
+      <div class="kpi"><span class="num" data-draw="ratio" data-source="kpis" data-row="0" data-field="top8_ours">—</span><span class="lbl">Top-8 alliance scores</span><span class="sub">had one of our robots</span></div>
+      <div class="kpi"><span class="num" data-draw="v" data-source="kpis" data-row="0" data-field="best_score">—</span><span class="lbl">Our best score</span><span class="sub" data-draw="v" data-source="kpis" data-row="0" data-field="best_match">—</span></div>
+      <div class="kpi"><span class="num" data-draw="v" data-source="kpis" data-row="0" data-field="penalties">—</span><span class="lbl">Penalty points</span><span class="sub">in <span data-draw="v" data-source="kpis" data-row="0" data-field="matches">—</span> matches</span></div>
+      <div class="kpi"><span class="num" data-draw="v" data-source="kpis" data-row="0" data-field="crashes">—</span><span class="lbl">Crashes or resets</span><span class="sub">both robots, all day</span></div>
+    </section>
+
+    <section class="sec" id="field">
+      <div class="sec-head"><div class="rule"></div><h2>Against the field <small>OPR, points added per match · grey = other teams · tick = field median</small></h2></div>
+      <div class="grid">
+        <div class="card wide"><div class="chart" data-draw="fieldChart" data-source="field_opr field_ranks"></div></div>
+        <div class="stack">
+        <div class="card">
+          <h3>Highest alliance scores</h3>
+          <p class="cap">Top 10 of the event</p>
+          <div class="chart" data-draw="topChart" data-source="top_scores"></div>
+        </div>
+        <div class="card">
+          <h3>In the world this season</h3>
+          <div class="wh"><span class="big" data-draw="worldN" data-source="world_ranks" data-row="0" data-field="of">—</span><span class="wl">teams worldwide, ranked by OPR<br><span class="muted">this season, as of Nov 8</span></span></div>
+          <div class="world" data-draw="worldRanks" data-source="world_ranks"></div>
+        </div>
+        </div>
+        <div class="card">
+          <h3>Game pieces launched per match</h3>
+          <ul class="key"><li><span class="sw sq pol"></span>Auto POLLEN</li><li><span class="sw sq pol2"></span>TeleOp POLLEN</li><li><span class="sw sq nectar"></span>Alliance NECTAR</li><li><span class="sw sq nrej"></span>Enemy NECTAR rejected</li></ul>
+          <div class="chart" data-draw="ballsChart" data-source="pieces"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="speed">
+      <div class="sec-head"><div class="rule"></div><h2>Cycle time <small>volley to volley: collect, drive back, launch</small><span class="tkey"><span class="ir"><i class="sw ir"></i>Infrared</span><span class="uv"><i class="sw uv"></i>Ultraviolet</span></span></h2></div>
+      <div class="duos">
+        <div class="duo"><p class="lbl">Launch, press to moving again</p><p class="vals"><span class="uv" data-draw="v" data-source="feed_summary" data-where="robot=20245" data-field="launch_span_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="feed_summary" data-where="robot=19429" data-field="launch_span_s" data-fmt="s1">—</span></p><p class="sub">Median volley, auto-drive or manual</p></div>
+        <div class="duo"><p class="lbl">First TeleOp volley</p><p class="vals"><span class="uv" data-draw="v" data-source="feed_summary" data-where="robot=20245" data-field="first_volley_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="feed_summary" data-where="robot=19429" data-field="first_volley_s" data-fmt="s1">—</span></p><p class="sub">Median from TeleOp start; excl. IR Lower final</p></div>
+        <div class="duo"><p class="lbl">First piece out, full volleys</p><p class="vals"><span class="uv" data-draw="v" data-source="volley_pieces" data-where="robot=20245" data-field="p1" data-fmt="s2">—</span><span class="ir" data-draw="v" data-source="volley_pieces" data-where="robot=19429" data-field="p1" data-fmt="s2">—</span></p><p class="sub">Median, gate open to the launcher</p></div>
+        <div class="duo"><p class="lbl">Each later piece, full volleys</p><p class="vals"><span class="uv" data-draw="v" data-source="volley_pieces" data-where="robot=20245" data-field="later" data-fmt="s2">—</span><span class="ir" data-draw="v" data-source="volley_pieces" data-where="robot=19429" data-field="later" data-fmt="s2">—</span></p><p class="sub">Median, piece to piece</p></div>
+      </div>
+      <div class="grid">
+        <div class="card wide">
+          <h3>A cycle, volley to volley (each match's first volley excluded): filled up vs launched before full</h3>
+          <ul class="key">
+            <li><b>Collect</b></li><li><span class="sw sq c1"></span>To first piece</li><li><span class="sw sq c2"></span>Collecting</li><li><span class="sw sq c3"></span>Drive back with pieces</li><li><span class="sw sq" style="background:linear-gradient(90deg,var(--z1),var(--z2),var(--z3),var(--z4))"></span>Launch, press to moving again</li>
+          </ul>
+          <div class="chart short" data-draw="anatomy" data-source="cycle_groups cycle_group_summary"></div>
+                  </div>
+      </div>
+    </section>
+
+    <section class="sec" id="floor">
+      <div class="sec-head"><div class="rule"></div><h2>Floor pickup <small>TeleOp, driving over pieces with the intake running · no GARDEN gathers in any match</small><span class="tkey"><span class="ir"><i class="sw ir"></i>Infrared</span><span class="uv"><i class="sw uv"></i>Ultraviolet</span></span></h2></div>
+      <div class="duos">
+        <div class="duo"><p class="lbl">Floor pieces per minute</p><p class="vals"><span class="uv" data-draw="v" data-source="floor_pickup" data-where="robot=20245" data-field="per_min" data-fmt="f1">—</span><span class="ir" data-draw="v" data-source="floor_pickup" data-where="robot=19429" data-field="per_min" data-fmt="f1">—</span></p><p class="sub">TeleOp · <span data-draw="v" data-source="floor_pickup" data-where="robot=20245" data-field="floor_teleop" data-fmt="f0">—</span> / <span data-draw="v" data-source="floor_pickup" data-where="robot=19429" data-field="floor_teleop" data-fmt="f0">—</span> pieces</p></div>
+        <div class="duo"><p class="lbl">Last launch to first piece</p><p class="vals"><span class="uv" data-draw="v" data-source="floor_pickup" data-where="robot=20245" data-field="first_piece_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="floor_pickup" data-where="robot=19429" data-field="first_piece_s" data-fmt="s1">—</span></p><p class="sub">Median</p></div>
+        <div class="duo"><p class="lbl">Between floor pieces</p><p class="vals"><span class="uv" data-draw="v" data-source="floor_pickup" data-where="robot=20245" data-field="between_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="floor_pickup" data-where="robot=19429" data-field="between_s" data-fmt="s1">—</span></p><p class="sub">Median</p></div>
+        <div class="duo"><p class="lbl">Last launch to lane full</p><p class="vals"><span class="uv" data-draw="v" data-source="floor_pickup" data-where="robot=20245" data-field="to_full_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="floor_pickup" data-where="robot=19429" data-field="to_full_s" data-fmt="s1">—</span></p><p class="sub">Median, floor-only cycles</p></div>
+      </div>
+      <div class="grid">
+        <div class="card wide">
+          <h3>Where floor pieces were picked up, tile by tile <small class="muted" style="font-weight:400">red and blue matches combined, blue turned half a turn so A1 is always our GARDEN · circle area = share of that robot's pieces</small></h3>
+          <div class="fmaps"><div class="fmap" data-draw="floorMap" data-robot="20245" data-source="floor_tiles"></div><div class="fmap" data-draw="floorMap" data-robot="19429" data-source="floor_tiles"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="flower">
+      <div class="sec-head"><div class="rule"></div><h2>FLOWER picks <small>Cross: line up, stick down, push in, wait, back out</small><span class="tkey"><span class="ir"><i class="sw ir"></i>Infrared</span><span class="uv"><i class="sw uv"></i>Ultraviolet</span></span></h2></div>
+      <div class="duos three">
+        <div class="duo"><p class="lbl">Pieces per Auto pick</p><p class="vals"><span class="uv" data-draw="v" data-source="flower_picks" data-where="robot=20245&amp;mode=Auto" data-field="per_pick" data-fmt="f1">—</span><span class="ir" data-draw="v" data-source="flower_picks" data-where="robot=19429&amp;mode=Auto" data-field="per_pick" data-fmt="f1">—</span></p><p class="sub">Colour sensor and launches combined · <span data-draw="v" data-source="flower_picks" data-where="robot=20245&amp;mode=Auto" data-field="attempts" data-fmt="f0">—</span> / <span data-draw="v" data-source="flower_picks" data-where="robot=19429&amp;mode=Auto" data-field="attempts" data-fmt="f0">—</span> picks</p></div>
+        <div class="duo"><p class="lbl">Auto pick time</p><p class="vals"><span class="uv" data-draw="v" data-source="flower_picks" data-where="robot=20245&amp;mode=Auto" data-field="pick_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="flower_picks" data-where="robot=19429&amp;mode=Auto" data-field="pick_s" data-fmt="s1">—</span></p><p class="sub">Mean, start to back out</p></div>
+        <div class="duo"><p class="lbl">TeleOp presses that reached a FLOWER</p><p class="vals"><span class="uv" data-draw="v" data-source="flower_picks" data-where="robot=20245&amp;mode=TeleOp" data-field="reached_of" data-fmt="">—</span><span class="ir" data-draw="v" data-source="flower_picks" data-where="robot=19429&amp;mode=TeleOp" data-field="reached_of" data-fmt="">—</span></p><p class="sub">Cross presses</p></div>
+      </div>
+      <div class="grid">
+        <div class="card wide">
+          <h3>A FLOWER pick, phase by phase <small class="muted" style="font-weight:400">mean of picks that reached a FLOWER</small></h3>
+          <ul class="key"><li><span class="sw sq c1"></span>Line up</li><li><span class="sw sq c2"></span>Stick down</li><li><span class="sw sq c3"></span>Push in</li><li><span class="sw sq" style="background:var(--okl)"></span>Wait at the FLOWER</li><li><span class="sw sq" style="background:var(--c4)"></span>Back out</li></ul>
+          <div class="chart" style="min-height:0" data-draw="flowerPhases" data-source="flower_picks"></div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card wide">
+          <h3>Each TeleOp Cross press: did it reach a FLOWER?</h3>
+          <ul class="key"><li><span class="sw sq" style="background:var(--okl)"></span>Reached a FLOWER</li><li><span class="sw sq" style="background:var(--stickc)"></span>Didn't reach: stick moving</li><li><span class="sw sq" style="background:var(--stickc);opacity:.5"></span>Didn't reach: let go early</li><li><span class="sw sq" style="background:var(--stickc);opacity:.3"></span>Didn't reach: refused</li></ul>
+          <div class="chart" style="min-height:0" data-draw="flowerBar" data-source="flower_picks"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="driving">
+      <div class="sec-head"><div class="rule"></div><h2>Driving <small>TeleOp, the driver at the sticks</small><span class="tkey"><span class="ir"><i class="sw ir"></i>Infrared</span><span class="uv"><i class="sw uv"></i>Ultraviolet</span></span></h2></div>
+      <div class="duos three">
+        <div class="duo"><p class="lbl">Full stick, driving forward</p><p class="vals"><span class="uv" data-draw="v" data-source="drive_speed" data-where="robot=20245" data-field="fwd_full_in_s" data-fmt="ins">—</span><span class="ir" data-draw="v" data-source="drive_speed" data-where="robot=19429" data-field="fwd_full_in_s" data-fmt="ins">—</span></p><p class="sub">Median while moving · strafing <span data-draw="v" data-source="drive_speed" data-where="robot=20245" data-field="strafe_full_in_s" data-fmt="f0">—</span> / <span data-draw="v" data-source="drive_speed" data-where="robot=19429" data-field="strafe_full_in_s" data-fmt="f0">—</span></p></div>
+        <div class="duo"><p class="lbl">Fastest speed held ½ s</p><p class="vals"><span class="uv" data-draw="v" data-source="drive_speed" data-where="robot=20245" data-field="held_half_s_in_s" data-fmt="ins">—</span><span class="ir" data-draw="v" data-source="drive_speed" data-where="robot=19429" data-field="held_half_s_in_s" data-fmt="ins">—</span></p><p class="sub">Any direction, all TeleOps</p></div>
+        <div class="duo"><p class="lbl">Driving to launch, full</p><p class="vals"><span class="uv" data-draw="v" data-source="drive_trips" data-where="robot=20245" data-field="full_moving_in_s" data-fmt="ins">—</span><span class="ir" data-draw="v" data-source="drive_trips" data-where="robot=19429" data-field="full_moving_in_s" data-fmt="ins">—</span></p><p class="sub">Heading out empty: <span data-draw="v" data-source="drive_trips" data-where="robot=20245" data-field="empty_moving_in_s" data-fmt="f0">—</span> / <span data-draw="v" data-source="drive_trips" data-where="robot=19429" data-field="empty_moving_in_s" data-fmt="f0">—</span></p></div>
+      </div>
+</section>
+    <section class="sec" id="launching">
+      <div class="sec-head"><div class="rule"></div><h2>Launching <small>two ways to launch in TeleOp</small><span class="tkey"><span class="ir"><i class="sw ir"></i>Infrared</span><span class="uv"><i class="sw uv"></i>Ultraviolet</span></span></h2></div>
+      <div class="grid">
+        <div class="card wide">
+          <h3>TeleOp volleys, by how they were launched</h3>
+          <ul class="key"><li><span class="sw sq" style="background:#38BDF8"></span>Auto-drive</li><li><span class="sw sq" style="background:#F59E0B"></span>Manual</li></ul>
+          <div class="chart" style="min-height:0" data-draw="volleyBlocks" data-source="launch_volleys"></div>
+        </div>
+      </div>
+      <div class="plans2">
+        <div class="card plan2 pa">
+          <p class="pk"><span class="btnk">□</span>Auto-drive</p>
+          <h3>The robot drives to a measured spot and launches</h3>
+          <div class="lstats"><div class="ls"><p class="lbl">Volleys</p><p class="vals"><span class="uv" data-draw="v" data-source="launch_methods" data-where="robot=20245&amp;method=Auto-drive" data-field="volleys" data-fmt="f0">—</span><span class="ir" data-draw="v" data-source="launch_methods" data-where="robot=19429&amp;method=Auto-drive" data-field="volleys" data-fmt="f0">—</span></p></div><div class="ls"><p class="lbl">Launch time</p><p class="vals"><span class="uv" data-draw="v" data-source="launch_methods" data-where="robot=20245&amp;method=Auto-drive" data-field="press_to_moving_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="launch_methods" data-where="robot=19429&amp;method=Auto-drive" data-field="press_to_moving_s" data-fmt="s1">—</span></p><p class="sub">Press to driving away</p></div><div class="ls"><p class="lbl">Presses that launched</p><p class="vals"><span class="uv" data-draw="v" data-source="launch_methods" data-where="robot=20245&amp;method=Auto-drive" data-field="presses_launched_of">—</span><span class="ir" data-draw="v" data-source="launch_methods" data-where="robot=19429&amp;method=Auto-drive" data-field="presses_launched_of">—</span></p></div></div>
+          <div class="prespin" data-draw="prespinAuto" data-source="launch_methods"></div>
+        </div>
+        <div class="card plan2 pb">
+          <p class="pk"><span class="btnk">○</span>Manual</p>
+          <h3>Operator launches; driver auto-aims (○)</h3>
+          <div class="lstats"><div class="ls"><p class="lbl">Volleys</p><p class="vals"><span class="uv" data-draw="v" data-source="launch_methods" data-where="robot=20245&amp;method=Operator%20FIRE" data-field="volleys" data-fmt="f0">—</span><span class="ir" data-draw="v" data-source="launch_methods" data-where="robot=19429&amp;method=Operator%20FIRE" data-field="volleys" data-fmt="f0">—</span></p></div><div class="ls"><p class="lbl">Launch time</p><p class="vals"><span class="uv" data-draw="v" data-source="launch_methods" data-where="robot=20245&amp;method=Operator%20FIRE" data-field="press_to_moving_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="launch_methods" data-where="robot=19429&amp;method=Operator%20FIRE" data-field="press_to_moving_s" data-fmt="s1">—</span></p><p class="sub">Press to driving away</p></div><div class="ls"><p class="lbl">Chassis auto-aimed</p><p class="vals"><span class="uv" data-draw="v" data-source="launch_methods" data-where="robot=20245&amp;method=Operator%20FIRE" data-field="driver_aim_of">—</span><span class="ir" data-draw="v" data-source="launch_methods" data-where="robot=19429&amp;method=Operator%20FIRE" data-field="driver_aim_of">—</span></p></div></div>
+          <div class="prespin" data-draw="prespinManual" data-source="launch_methods"></div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card wide">
+          <h3>A full volley, piece by piece</h3>
+          <ul class="key"><li><span class="sw sq" style="background:var(--z4)"></span>1st piece, from the gate opening</li><li><span class="sw sq" style="background:var(--z2)"></span>Each later piece</li><li><span class="sw sq" style="background:none;border:1.5px dashed var(--muted)"></span>Lane empty, robot still at the spot</li></ul>
+          <div class="chart" style="min-height:0" data-draw="volleyPieces" data-source="volley_pieces"></div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card wide">
+          <h3>Each auto-drive press: did it launch?</h3>
+          <ul class="key"><li><span class="sw sq" style="background:var(--okl)"></span>Launched</li><li><span class="sw sq" style="background:var(--stickc)"></span>Didn't launch: stick still moving</li><li><span class="sw sq" style="background:var(--stickc);opacity:.45"></span>Didn't launch: other reasons</li></ul>
+          <div class="chart" style="min-height:0" data-draw="pressBar" data-source="spot_outcomes robots square_issues"></div>
+          <div class="stickx">
+            <p class="sh">How a moving stick cancels a press <span style="color:var(--muted);font-weight:400">· a typical cancel, from the match medians</span></p>
+            <div class="chart" style="min-height:0" data-draw="stickTimeline" data-source="stick_cancels"></div>
+            <div class="sfacts">
+              <div><p class="vals"><span class="uv" data-draw="v" data-source="stick_cancels" data-where="robot=20245" data-field="moving_of">—</span><span class="ir" data-draw="v" data-source="stick_cancels" data-where="robot=19429" data-field="moving_of">—</span></p><p class="l">cancels where the stick was still moving when Square went down</p></div>
+              <div><p class="vals"><span class="uv" data-draw="v" data-source="stick_cancels" data-where="robot=20245" data-field="centred_of">—</span><span class="ir" data-draw="v" data-source="stick_cancels" data-where="robot=19429" data-field="centred_of">—</span></p><p class="l">stick back at centre within ¼ s of the press</p></div>
+              <div><p class="vals"><span class="uv" data-draw="v" data-source="stick_cancels" data-where="robot=20245" data-field="held_of">—</span><span class="ir" data-draw="v" data-source="stick_cancels" data-where="robot=19429" data-field="held_of">—</span></p><p class="l">kept holding Square 1 s or more after it cancelled</p></div>
+              <div><p class="vals"><span class="uv" data-draw="v" data-source="stick_cancels" data-where="robot=20245" data-field="repress_of">—</span><span class="ir" data-draw="v" data-source="stick_cancels" data-where="robot=19429" data-field="repress_of">—</span></p><p class="l">pressed Square again within 3 s</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="sec" id="battery">
+      <div class="sec-head"><div class="rule"></div><h2>Battery <small>every match started fresh; the sag barely mattered</small><span class="tkey"><span class="ir"><i class="sw ir"></i>Infrared</span><span class="uv"><i class="sw uv"></i>Ultraviolet</span></span></h2></div>
+      <div class="duos">
+        <div class="duo"><p class="lbl">Typical voltage in a match</p><p class="vals"><span class="ir" data-draw="v" data-source="robots" data-where="robot=19429" data-field="teleop_median_v" data-fmt="v">—</span><span class="uv" data-draw="v" data-source="robots" data-where="robot=20245" data-field="teleop_median_v" data-fmt="v">—</span></p><p class="sub">Median under load</p></div>
+        <div class="duo"><p class="lbl">Time under 9 V</p><p class="vals"><span class="ir" data-draw="v" data-source="robots" data-where="robot=19429" data-field="pct_below_9v" data-fmt="pct1">—</span><span class="uv" data-draw="v" data-source="robots" data-where="robot=20245" data-field="pct_below_9v" data-fmt="pct1">—</span></p><p class="sub">Of each match</p></div>
+        <div class="duo"><p class="lbl">Launch recovery, fresh vs low</p><p class="vals"><span data-draw="v" data-source="shot_recovery" data-where="battery=Over%2012%20V" data-field="median_ms" data-fmt="ms">—</span><span style="color:var(--n2)" data-draw="v" data-source="shot_recovery" data-where="battery=Under%2010%20V" data-field="median_ms" data-fmt="ms">—</span></p><p class="sub">Over 12 V vs under 10 V</p></div>
+        <div class="duo"><p class="lbl">Battery used by mechanisms</p><p class="vals"><span data-draw="v" data-source="energy_share" data-row="0" data-field="share" data-fmt="pct0">—</span></p><p class="sub">Launcher, feeder, intake per match</p></div>
+      </div>
+      <div class="grid">
+        <div class="card wide">
+          <h3>Battery in each match</h3>
+          <ul class="key"><li><span class="sw n1"></span>At INIT</li><li><span class="sw n2"></span>TeleOp start</li><li><span class="sw n3"></span>Typical</li><li><span class="sw fg"></span>Lowest</li><li>Dashed: INIT warning level</li></ul>
+          <div class="chart" data-draw="battChart" data-source="matches"></div>
+        </div>
+      </div>
+    </section>
+
+
+    <p class="foot">Sources: official event results via FTCScout (ftcscout.org, event USMIBEQ; OPR and averages are qualification matches), world ranks from FTCScout (season OPR, as of Nov 8) and both robots' Saturday match logs. Battery is sampled once a second. Pieces launched are counted by the improved shot detector (PR #506), which still misses about 1 piece in 12 to 20; NECTAR comes from the lane's colour sensor. Times are medians.</p>
+  </div>
+</div>
+
+<script>
+  window.bz = window.bz || {};
+  const INIT_WARN_V = 12.0;
+  bz.INIT_WARN_V = INIT_WARN_V;
+  bz.ROBOTS = ['19429', '20245'];
+  bz.TEAM = {'19429': {name: 'Infrared', color: 'var(--ir)', soft: 'var(--ir-soft)'}, '20245': {name: 'Ultraviolet', color: 'var(--uv)', soft: 'var(--uv-soft)'}};
+  bz.tc = (r) => (bz.TEAM[r] || {}).color || 'var(--n3)';
+  bz.tn = (r) => ((bz.TEAM[r] || {}).name || r).toUpperCase();
+  bz.tip = (el) => {
+    const t = document.createElement('div');
+    t.className = 'bz-tip'; t.hidden = true; el.appendChild(t);
+    return {
+      show(ev, lines) {
+        t.replaceChildren(...lines.map((s, i) => { const d = document.createElement('div'); if (i === 0) d.className = 't1'; d.textContent = s; return d; }));
+        t.hidden = false;
+        const box = el.getBoundingClientRect();
+        let x = ev.clientX - box.left + 12, y = ev.clientY - box.top + 12;
+        if (x + t.offsetWidth > el.clientWidth) x = Math.max(0, ev.clientX - box.left - t.offsetWidth - 12);
+        if (y + t.offsetHeight > el.clientHeight) y = Math.max(0, ev.clientY - box.top - t.offsetHeight - 12);
+        t.style.left = x + 'px'; t.style.top = y + 'px';
+      },
+      hide() { t.hidden = true; }
+    };
+  };
+  bz.ready = (el, ids) => {
+    const bad = ids.map((id) => dash.data(id)).find((d) => d.status !== 'ok');
+    if (!bad) { el.classList.remove('dash-skeleton'); return true; }
+    el.replaceChildren();
+    if (bad.status === 'error' || bad.status === 'connect') {
+      el.classList.remove('dash-skeleton');
+      const p = document.createElement('div');
+      p.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:.5rem;min-height:inherit;color:var(--muted);font-size:12px';
+      const dot = document.createElement('span');
+      dot.style.cssText = 'width:.375rem;height:.375rem;border-radius:50%;background:var(--color-bad)';
+      p.append(dot, document.createTextNode('Failed to load'));
+      el.appendChild(p);
+    } else el.classList.add('dash-skeleton');
+    return false;
+  };
+  bz.row = (el) => {
+    const id = el.getAttribute('data-source');
+    const d = dash.data(id);
+    if (d.status !== 'ok') return undefined;
+    const where = el.getAttribute('data-where');
+    if (!where) return d.data[Number(el.getAttribute('data-row') || 0)];
+    const q = [...new URLSearchParams(where)];
+    return d.data.find((r) => q.every(([k, v]) => String(r[k]) === v));
+  };
+  bz.fmt = (v, f) => {
+    if (v == null || Number.isNaN(v)) return '—';
+    switch (f) {
+      case 'f0': return d3.format('.0f')(v);
+      case 'f1': return d3.format('.1f')(v);
+      case 's1': return d3.format('.1f')(v) + ' s';
+      case 's2': return d3.format('.2f')(v) + ' s';
+      case 'v': return d3.format('.1f')(v) + ' V';
+      case 'pct1': return d3.format('.1f')(v) + '%';
+      case 'pct0': return d3.format('.0%')(v);
+      case 'ms': return v + ' ms';
+      case 'ins': return d3.format('.0f')(v) + ' in/s';
+      case 'ft': return d3.format('.0f')(v) + ' ft';
+      case 'rank': return '#' + v;
+      default: return String(v);
+    }
+  };
+  bz.clean = (g) => g.attr('font-size', null).attr('font-family', null);
+
+  dash.calc('field_ranks', {
+    title: 'Our place on each measure',
+    description: "Each measure's teams sorted from highest to lowest OPR, with our two robots' places.",
+    inputs: ['field_opr'],
+    fn: (field_opr) => {
+      const out = [];
+      for (const k of ['opr_total', 'opr_auto', 'opr_auto_hive', 'opr_teleop', 'opr_teleop_hive', 'opr_tips']) {
+        [...field_opr].sort((a, b) => b[k] - a[k]).forEach((r, i) => { if (r.ours) out.push({measure: k, team: r.team, value: r[k], place: i + 1}); });
+      }
+      return out;
+    }
+  });
+  dash.calc('kpis', {
+    title: 'Headline numbers',
+    description: 'Top-8 alliance scores that had one of our robots, our best alliance score, and penalties, matches and crashes summed over both robots.',
+    inputs: ['top_scores', 'results'],
+    fn: (top_scores, results) => {
+      const ours = top_scores.filter((r) => r.ours).sort((a, b) => b.score - a.score);
+      return [{top8_ours: top_scores.filter((r) => r.place <= 8 && r.ours).length, top8: 8,
+        best_score: ours.length ? ours[0].score : null, best_match: ours.length ? ours[0].match : null,
+        matches: results.reduce((a, r) => a + r.matches, 0),
+        penalties: results.reduce((a, r) => a + r.penalties_committed, 0),
+        crashes: results.reduce((a, r) => a + r.crashes, 0)}];
+    }
+  });
+  dash.calc('spin_median', {
+    title: 'Spin-ups per match, median',
+    description: "Median number of TeleOp launcher spin-ups from a stop per match, per robot.",
+    inputs: ['matches'],
+    fn: (matches) => ['19429', '20245'].map((robot) => {
+      const xs = matches.filter((m) => m.robot === robot).map((m) => m.spinups).sort((a, b) => a - b);
+      const n = xs.length;
+      return {robot, median: n % 2 ? xs[(n - 1) / 2] : (xs[n / 2 - 1] + xs[n / 2]) / 2};
+    })
+  });
+  dash.calc('energy_share', {
+    title: 'Share of a battery per match',
+    description: 'Median amp-hours the launcher, feeder and intake used in a match, divided by a 3 Ah battery.',
+    inputs: ['energy'],
+    fn: (energy) => energy.length ? [{share: energy[0].median_ah / 3}] : []
+  });
+</script>
+
+<script>
+  dash.draw('worldN', (el) => { const d = dash.data('world_ranks'); el.textContent = d.status === 'ok' && d.data.length ? d3.format(',')(d.data[0].of) : '—'; });
+  dash.draw('worldRanks', (el) => {
+    const w = dash.data('world_ranks');
+    el.replaceChildren();
+    if (w.status !== 'ok') return;
+    for (const robot of ['20245', '19429']) {
+      const row = document.createElement('div'); row.className = 'wrow'; row.style.color = bz.tc(robot);
+      const h = document.createElement('h4'); h.textContent = bz.tn(robot); row.appendChild(h);
+      const rs = w.data.filter((r) => r.robot === robot).sort((a, b) => a.order - b.order);
+      const best = rs.reduce((a, b) => (b.top_pct < a.top_pct ? b : a), rs[0]);
+      for (const r of rs) {
+        const t = document.createElement('div'); t.className = 'wt' + (r === best ? ' best' : '');
+        t.setAttribute('data-source', 'world_ranks'); t.setAttribute('data-where', `robot=${robot}&measure=${r.measure}`); t.setAttribute('data-field', 'rank');
+        const n = document.createElement('span'); n.className = 'n'; n.textContent = '#' + r.rank;
+        const l = document.createElement('span'); l.className = 'l'; l.textContent = `${r.measure} · top ${r.top_pct < 10 ? d3.format('.0f')(Math.max(1, r.top_pct)) : d3.format('.0f')(r.top_pct)}%`;
+        t.append(n, l); row.appendChild(t);
+      }
+      el.appendChild(row);
+    }
+  });
+  dash.draw('lost', (el) => { const r = bz.row(el); el.textContent = r && r.lost_4th_by_shot != null ? `${r.lost_4th_by_shot} of ${r.cycles}` : '—'; });
+  dash.draw('v', (el) => { const r = bz.row(el); el.textContent = r ? bz.fmt(r[el.getAttribute('data-field')], el.getAttribute('data-fmt')) : '—'; });
+  dash.draw('ratio', (el) => { const r = bz.row(el); el.textContent = r ? `${r.top8_ours}/${r.top8}` : '—'; });
+  dash.draw('share', (el) => { const r = bz.row(el); el.textContent = r ? d3.format('.0%')(r.cancelled_by_sticks / r.spot_presses) : '—'; });
+  dash.draw('award', (el) => {
+    const r = bz.row(el);
+    el.textContent = r ? (r.awards.split(', ')[0] === 'Winner' ? 'Event winner' : r.awards.split(', ')[0]) : '—';
+  });
+  dash.draw('chips', (el) => {
+    const r = bz.row(el);
+    el.replaceChildren();
+    if (!r) return;
+    const chips = [`#${r.qual_rank} seed`, `${r.wins}–${r.losses} quals`, ...r.awards.split(', ').slice(1)];
+    for (const c of chips) { const s = document.createElement('span'); s.textContent = c; el.appendChild(s); }
+  });
+</script>
+
+<script>
+  bz.hbars = (el, rows, opts) => {
+    const W = el.clientWidth || 400;
+    const barH = opts.barH || 18, gap = opts.gap || 9, top = 2;
+    const svg = d3.create('svg').attr('width', '100%');
+    el.replaceChildren(svg.node());
+    const probe = svg.append('text');
+    let lw = 0, vw = 0;
+    for (const r of rows) { probe.text(r.label); lw = Math.max(lw, probe.node().getComputedTextLength()); probe.attr('class', 'val').text(r.text); vw = Math.max(vw, probe.node().getComputedTextLength()); probe.attr('class', null); }
+    probe.remove();
+    const left = Math.ceil(lw) + 10, right = Math.ceil(vw) + 8;
+    const x = d3.scaleLinear([0, opts.max || d3.max(rows, (r) => r.value || 0) || 1], [left, Math.max(left + 20, W - right)]);
+    const H = top + rows.length * (barH + gap);
+    svg.attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    const tip = bz.tip(el);
+    rows.forEach((r, i) => {
+      const y = top + i * (barH + gap);
+      svg.append('text').attr('x', left - 8).attr('y', y + barH / 2).attr('dy', '0.32em').attr('text-anchor', 'end').text(r.label);
+      const w = r.value == null ? 0 : Math.max(2, x(r.value) - left);
+      const bar = svg.append('rect').attr('x', left).attr('y', y).attr('width', w).attr('height', barH).attr('rx', 3)
+        .attr('fill', r.color || 'var(--n3)').attr('fill-opacity', r.opacity == null ? 1 : r.opacity);
+      if (r.mark) for (const [k, v] of Object.entries(r.mark)) bar.attr(k, v);
+      svg.append('text').attr('class', 'val').attr('x', left + w + 6).attr('y', y + barH / 2).attr('dy', '0.32em').text(r.text);
+      svg.append('rect').attr('x', 0).attr('y', y - gap / 2).attr('width', W).attr('height', barH + gap).attr('fill', 'transparent')
+        .on('pointermove', (ev) => tip.show(ev, [r.label, r.tip || r.text])).on('pointerleave', () => tip.hide());
+    });
+  };
+
+  dash.draw('topChart', (el) => {
+    if (!bz.ready(el, ['top_scores'])) return;
+    const rows = dash.data('top_scores').data.slice().sort((a, b) => a.place - b.place);
+    bz.hbars(el, rows.map((r) => {
+      const team = r.alliance.includes('20245') ? '20245' : '19429';
+      return {label: `${r.match} · ${r.alliance}`, value: r.score, text: String(r.score), color: r.ours ? bz.tc(team) : 'var(--faint)',
+        tip: `${r.score} points (Auto ${r.auto})`, mark: {'data-source': 'top_scores', 'data-where': `place=${r.place}`, 'data-field': 'score'}};
+    }), {});
+  });
+
+  dash.draw('fireChart', (el) => {
+    if (!bz.ready(el, ['robots'])) return;
+    const rows = [];
+    for (const r of dash.data('robots').data) {
+      const nm = bz.TEAM[r.robot].name;
+      rows.push({label: `${nm} · launcher already at speed`, value: r.fire_ready_s, color: bz.tc(r.robot),
+        text: r.fire_ready_s == null ? 'no presses' : bz.fmt(r.fire_ready_s, 's2'), tip: r.fire_ready_s == null ? 'No hand-fired volleys with the launcher ready' : `${r.fire_ready_n} presses`,
+        mark: {'data-source': 'robots', 'data-where': `robot=${r.robot}`, 'data-field': 'fire_ready_s'}});
+      rows.push({label: `${nm} · launcher was stopped`, value: r.fire_spinup_s, color: bz.tc(r.robot), opacity: 0.45,
+        text: r.fire_spinup_s == null ? 'no presses' : bz.fmt(r.fire_spinup_s, 's2'), tip: `${r.fire_spinup_n} presses`,
+        mark: {'data-source': 'robots', 'data-where': `robot=${r.robot}`, 'data-field': 'fire_spinup_s'}});
+    }
+    bz.hbars(el, rows, {barH: 20});
+  });
+
+  dash.draw('outcomeChart', (el) => {
+    if (!bz.ready(el, ['spot_outcomes'])) return;
+    const order = ['Let go at the spot', 'Sticks took over at the spot', 'Let go before arriving', 'Sticks cancelled it on the way', 'Refused'];
+    const short = {'Let go at the spot': 'Launched at the spot', 'Sticks took over at the spot': 'Launched, then sticks ended it', 'Let go before arriving': 'Let go early', 'Sticks cancelled it on the way': 'Sticks cancelled', 'Refused': 'Refused'};
+    const data = dash.data('spot_outcomes').data;
+    const W = el.clientWidth || 600;
+    const half = W >= 620;
+    el.replaceChildren();
+    const box = document.createElement('div');
+    box.style.cssText = `display:grid;grid-template-columns:${half ? '1fr 1fr' : '1fr'};gap:18px`;
+    el.appendChild(box);
+    const max = d3.max(data, (d) => d.presses);
+    for (const robot of ['20245', '19429']) {
+      const cell = document.createElement('div');
+      cell.style.cssText = 'position:relative;min-width:0';
+      box.appendChild(cell);
+      const rows = order.map((o) => data.find((d) => d.robot === robot && d.outcome === o)).filter(Boolean).map((r) => ({
+        label: short[r.outcome], value: r.presses, color: bz.tc(robot), opacity: r.shots > 0 ? 1 : 0.3,
+        text: `${r.presses} presses · ${r.shots} pieces`, tip: `${bz.TEAM[robot].name}: ${r.presses} presses, ${r.shots} pieces`,
+        mark: {'data-source': 'spot_outcomes', 'data-where': `robot=${robot}&outcome=${encodeURIComponent(r.outcome)}`, 'data-field': 'presses'}}));
+      const head = document.createElement('div');
+      head.style.cssText = `font-size:12px;font-weight:700;letter-spacing:.06em;margin-bottom:6px;color:${bz.tc(robot)}`;
+      head.textContent = bz.tn(robot);
+      cell.appendChild(head);
+      const c = document.createElement('div');
+      c.style.cssText = 'position:relative';
+      cell.appendChild(c);
+      bz.hbars(c, rows, {max});
+    }
+  });
+</script>
+
+<script>
+  dash.draw('fieldChart', (el) => {
+    if (!bz.ready(el, ['field_opr', 'field_ranks'])) return;
+    const field = dash.data('field_opr').data, ranks = dash.data('field_ranks').data;
+    const measures = [['opr_total', 'Total'], ['opr_auto', 'Auto'], ['opr_auto_hive', 'Auto HIVE'], ['opr_teleop', 'TeleOp'], ['opr_teleop_hive', 'TeleOp HIVE'], ['opr_tips', 'TIPs']];
+    const W = el.clientWidth || 600;
+    const rowH = 58, top = 4, left = 92, right = 16;
+    const H = top + measures.length * rowH;
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node());
+    const tip = bz.tip(el);
+    const fmt = (k) => k === 'opr_tips' ? d3.format('.2f') : d3.format('.1f');
+    measures.forEach(([k, name], i) => {
+      const cy = top + i * rowH + 29;
+      const vals = field.map((r) => r[k]);
+      const x = d3.scaleLinear([Math.min(0, d3.min(vals)), d3.max(vals)], [left, W - right]).nice();
+      svg.append('text').attr('class', 'panel').attr('x', 0).attr('y', cy).attr('dy', '0.32em').style('fill', 'var(--fg)').text(name.toUpperCase());
+      svg.append('line').attr('x1', left).attr('x2', W - right).attr('y1', cy).attr('y2', cy).attr('stroke', 'var(--grid)').attr('stroke-width', 2);
+      const med = d3.median(vals);
+      svg.append('line').attr('x1', x(med)).attr('x2', x(med)).attr('y1', cy - 9).attr('y2', cy + 9).attr('stroke', 'var(--muted)').attr('stroke-width', 2);
+      for (const r of field.filter((f) => !f.ours)) {
+        svg.append('circle').attr('cx', x(r[k])).attr('cy', cy).attr('r', 4).attr('fill', 'var(--faint)')
+          .on('pointermove', (ev) => tip.show(ev, [`Team ${r.team}`, `${name} OPR ${fmt(k)(r[k])}`])).on('pointerleave', () => tip.hide());
+      }
+      bz.ROBOTS.forEach((team, ri) => {
+        const rk = ranks.find((q) => q.measure === k && q.team === team);
+        if (!rk) return;
+        const cx = x(rk.value);
+        svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', 8).attr('fill', bz.tc(team)).attr('stroke', 'var(--panel)').attr('stroke-width', 2)
+          .attr('data-source', 'field_opr').attr('data-where', `team=${team}`).attr('data-field', k)
+          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[team].name} ${team}`, `${name} OPR ${fmt(k)(rk.value)}`, `#${rk.place} of ${field.length}`])).on('pointerleave', () => tip.hide());
+        const ty = ri === 0 ? cy - 15 : cy + 24;
+        const t = svg.append('text').attr('class', 'val').attr('x', cx).attr('y', ty).attr('text-anchor', 'middle')
+          .attr('data-source', 'field_ranks').attr('data-where', `measure=${k}&team=${team}`).attr('data-field', 'place')
+          .style('fill', bz.tc(team)).style('font-size', '12.5px').text(`#${rk.place}`);
+        const w = t.node().getComputedTextLength();
+        if (cx + w / 2 > W) t.attr('text-anchor', 'end').attr('x', W - 2);
+      });
+    });
+  });
+
+  bz.matchBars = (el, rows, opts) => {
+    const W = el.clientWidth || 400;
+    const ph = opts.ph || 120, gap = 22, top = 18, bottom = 64, left = 26;
+    const H = bz.ROBOTS.length * (ph + top + bottom) + gap;
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node());
+    const tip = bz.tip(el);
+    const ymax = d3.max(rows, opts.total) || 1;
+    ['20245', '19429'].forEach((robot, pi) => {
+      const rs = rows.filter((r) => r.robot === robot).sort((a, b) => a.order - b.order);
+      const oy = pi * (ph + top + bottom + gap);
+      const x = d3.scaleBand(rs.map((r) => r.match), [left, W - 2]).padding(0.28);
+      const y = d3.scaleLinear([0, ymax], [oy + top + ph, oy + top + 8]);
+      svg.append('text').attr('class', 'panel').attr('x', 0).attr('y', oy + 11).style('fill', bz.tc(robot)).text(bz.tn(robot));
+      for (const v of y.ticks(3)) {
+        svg.append('line').attr('x1', left).attr('x2', W - 2).attr('y1', y(v)).attr('y2', y(v)).attr('stroke', 'var(--grid)');
+        svg.append('text').attr('x', left - 6).attr('y', y(v)).attr('dy', '0.32em').attr('text-anchor', 'end').text(v);
+      }
+      for (const r of rs) {
+        const bw = Math.min(28, x.bandwidth()), bx = x(r.match) + (x.bandwidth() - bw) / 2;
+        opts.bars(svg, r, robot, bx, bw, y);
+        svg.append('rect').attr('x', x(r.match)).attr('y', oy + top).attr('width', x.bandwidth()).attr('height', ph).attr('fill', 'transparent')
+          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name} · ${r.match}`, ...opts.tip(r)])).on('pointerleave', () => tip.hide());
+      }
+      rs.forEach((r) => {
+        const cx = x(r.match) + x.bandwidth() / 2, cy = y(0) + 10;
+        svg.append('text').attr('x', cx).attr('y', cy).attr('text-anchor', 'end').attr('dy', '0.32em')
+          .attr('transform', `rotate(-35 ${cx} ${cy})`).text(r.match);
+      });
+    });
+  };
+
+  dash.draw('ballsChart', (el) => {
+    if (!bz.ready(el, ['pieces'])) return;
+    const rows = dash.data('pieces').data;
+    const up = [['auto_pollen', 'var(--pollen-auto)', 1, 'Auto POLLEN'], ['teleop_pollen', 'var(--pollen-tele)', 1, 'TeleOp POLLEN'], ['nectar_shot', 'var(--nectar)', 1, 'Alliance NECTAR'], ['unidentified', 'var(--unid)', 1, 'Not identified']];
+    const W = el.clientWidth || 400;
+    const ph = 130, dn = 34, gap = 26, top = 18, bottom = 74, left = 26;
+    const H = 2 * (top + ph + dn + bottom) + gap;
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node()); svg.style('display', 'block');
+    const tip = bz.tip(el);
+    const upMax = d3.max(rows, (r) => d3.sum(up, ([k]) => r[k] || 0)) || 1;
+    ['20245', '19429'].forEach((robot, pi) => {
+      const rs = rows.filter((r) => r.robot === robot).sort((a, b) => a.order - b.order);
+      const oy = pi * (top + ph + dn + bottom + gap);
+      const x = d3.scaleBand(rs.map((r) => r.match), [left, W - 2]).padding(0.28);
+      const y0 = oy + top + ph;
+      const y = d3.scaleLinear([0, upMax], [y0, oy + top + 6]);
+      svg.append('text').attr('class', 'panel').attr('x', 0).attr('y', oy + 11).style('fill', bz.tc(robot)).text(bz.tn(robot));
+      for (const v of y.ticks(3)) {
+        svg.append('line').attr('x1', left).attr('x2', W - 2).attr('y1', y(v)).attr('y2', y(v)).attr('stroke', 'var(--grid)');
+        svg.append('text').attr('x', left - 6).attr('y', y(v)).attr('dy', '0.32em').attr('text-anchor', 'end').text(v);
+      }
+      svg.append('line').attr('x1', left).attr('x2', W - 2).attr('y1', y0).attr('y2', y0).attr('stroke', 'var(--muted)');
+      svg.append('text').attr('x', left - 6).attr('y', y0 + dn / 2).attr('dy', '0.32em').attr('text-anchor', 'end').style('font-size', '10px').style('fill', 'var(--nectar)').text('rej');
+      for (const r of rs) {
+        const bw = Math.min(28, x.bandwidth()), bx = x(r.match) + (x.bandwidth() - bw) / 2;
+        const where = `robot=${robot}&match=${encodeURIComponent(r.match)}`;
+        let acc = 0;
+        for (const [k, col, op] of up) {
+          if (!r[k]) continue;
+          svg.append('rect').attr('x', bx).attr('y', y(acc + r[k])).attr('width', bw).attr('height', y(acc) - y(acc + r[k]))
+            .attr('fill', col).attr('fill-opacity', op).attr('data-source', 'pieces').attr('data-where', where).attr('data-field', k);
+          acc += r[k];
+        }
+        if (r.nectar_rejected) {
+          const bwid = Math.max(18, Math.min(30, x.bandwidth())), bh = 18, cx0 = x(r.match) + x.bandwidth() / 2;
+          svg.append('rect').attr('x', cx0 - bwid / 2).attr('y', y0 + (dn - bh) / 2).attr('width', bwid).attr('height', bh).attr('rx', 4)
+            .attr('fill', 'var(--nectar)').attr('fill-opacity', 0.12).attr('stroke', 'var(--nectar)').attr('stroke-width', 1.5).attr('stroke-dasharray', '3 2');
+          svg.append('text').attr('class', 'val').attr('x', cx0).attr('y', y0 + dn / 2).attr('dy', '0.34em').attr('text-anchor', 'middle')
+            .style('fill', 'var(--nectar)').attr('data-source', 'pieces').attr('data-where', where).attr('data-field', 'nectar_rejected').text(r.nectar_rejected);
+        }
+        const cx = x(r.match) + x.bandwidth() / 2;
+        const ly = y0 + dn + 6;
+        svg.append('text').attr('x', cx).attr('y', ly).attr('text-anchor', 'end').attr('dy', '0.32em').attr('transform', `rotate(-35 ${cx} ${ly})`)
+          .style('fill', r.alliance === 'Red' ? 'var(--al-red)' : 'var(--al-blue)').style('font-weight', '700')
+          .attr('data-source', 'pieces').attr('data-where', where).attr('data-field', 'alliance').text(r.match);
+        svg.append('rect').attr('x', x(r.match)).attr('y', oy + top).attr('width', x.bandwidth()).attr('height', ph + dn).attr('fill', 'transparent')
+          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name} · ${r.match} · ${r.alliance} alliance`, ...up.filter(([k]) => r[k]).map(([k, , , n]) => `${n}: ${r[k]}`), ...(r.nectar_rejected ? [`Enemy NECTAR rejected: ${r.nectar_rejected}`] : [])]))
+          .on('pointerleave', () => tip.hide());
+      }
+    });
+  });
+
+  dash.draw('spinChart', (el) => {
+    if (!bz.ready(el, ['matches'])) return;
+    bz.matchBars(el, dash.data('matches').data, {
+      ph: 100,
+      total: (r) => r.spinups,
+      bars: (svg, r, robot, bx, bw, y) => {
+        svg.append('rect').attr('x', bx).attr('y', y(r.spinups)).attr('width', bw).attr('height', y(0) - y(r.spinups)).attr('rx', 2)
+          .attr('fill', bz.tc(robot)).attr('data-source', 'matches').attr('data-where', `robot=${robot}&match=${encodeURIComponent(r.match)}`).attr('data-field', 'spinups');
+        svg.append('text').attr('class', 'val').attr('x', bx + bw / 2).attr('y', y(r.spinups) - 4).attr('text-anchor', 'middle').text(r.spinups);
+      },
+      tip: (r) => [`${r.spinups} spin-ups`, `${d3.format('.1f')(r.spinup_wait_s)} s reaching speed`, `Launcher on ${r.launcher_on_pct}% of match`]
+    });
+  });
+
+  dash.draw('anatomy', (el) => {
+    if (!bz.ready(el, ['cycle_groups', 'cycle_group_summary'])) return;
+    const data = dash.data('cycle_groups').data, summ = dash.data('cycle_group_summary').data;
+    const W = el.clientWidth || 600;
+    const left = W < 520 ? 118 : 168, right = W < 520 ? 52 : 64, funnel = 18, zoomH = 18, gapG = 22, gapR = 26;
+    const robots = ['20245', '19429'], groups = ['Filled up', 'Shot before full'];
+    const steps = (rb, g) => data.filter((d) => d.robot === rb && d.group === g && d.seconds != null).sort((a, b) => a.order - b.order);
+    const tot = (rb, g, ph) => d3.sum(steps(rb, g).filter((d) => !ph || d.phase === ph), (d) => d.seconds);
+    const maxN = d3.max(summ, (s) => s.cycles) || 1;
+    const barH = (n) => Math.round(12 + 22 * n / maxN);
+    const x = d3.scaleLinear([0, Math.ceil(d3.max(robots.flatMap((r) => groups.map((g) => tot(r, g)))) / 5) * 5], [left, W - right]);
+    const zx = d3.scaleLinear([0, Math.ceil(d3.max(robots.flatMap((r) => groups.map((g) => tot(r, g, 'launch')))) * 2) / 2], [left, W - right]);
+    let H = 4;
+    for (const r of robots) { H += 20; for (const g of groups) { const s = summ.find((q) => q.robot === r && q.group === g); H += Math.max(barH(s ? s.cycles : 0), 42) + gapG; } H += gapR; } H -= gapR + gapG - 6;
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node()); svg.style('display', 'block');
+    const lg = svg.append('defs').append('linearGradient').attr('id', 'bzLaunchAll');
+    [['0%', 'var(--z1)'], ['33%', 'var(--z2)'], ['66%', 'var(--z3)'], ['100%', 'var(--z4)']].forEach(([o, c]) => lg.append('stop').attr('offset', o).attr('stop-color', c));
+    const tip = bz.tip(el);
+    const colColor = (d) => `var(--c${d.order})`;
+    const label = (x0, w, y, h, text, dark) => {
+      const t = svg.append('text').attr('x', x0 + w / 2).attr('y', y + h / 2).attr('dy', '0.32em').attr('text-anchor', 'middle')
+        .attr('pointer-events', 'none').style('fill', dark ? '#0A0C12' : '#EEF1F8').style('font-weight', '700').text(text);
+      if (t.node().getComputedTextLength() > w - 6 || h < 15) t.remove();
+    };
+    let y = 4;
+    for (const robot of robots) {
+      svg.append('text').attr('class', 'panel').attr('x', 0).attr('y', y + 10).style('fill', bz.tc(robot)).text(bz.tn(robot));
+      y += 20;
+      for (const g of groups) {
+        const s = summ.find((q) => q.robot === robot && q.group === g); const st = steps(robot, g);
+        const h = barH(s ? s.cycles : 0);
+        svg.append('text').attr('x', 0).attr('y', y + h / 2 - 6).attr('dy', '0.32em').style('fill', 'var(--fg)').style('font-weight', '700').text(g === 'Shot before full' ? 'Launched before full' : g);
+        svg.append('text').attr('x', 0).attr('y', y + h / 2 + 8).attr('dy', '0.32em')
+          .attr('data-source', 'cycle_group_summary').attr('data-where', `robot=${robot}&group=${encodeURIComponent(g)}`).attr('data-field', 'cycles')
+          .text(s ? `${s.cycles} cycles` : '');
+        svg.append('text').attr('x', 0).attr('y', y + h / 2 + 22).attr('dy', '0.32em').style('fill', 'var(--muted)').style('font-size', '11px').text(s ? [s.auto_drive ? `${s.auto_drive} auto-drive` : '', s.fire ? `${s.fire} manual` : ''].filter(Boolean).join(' · ') : '');
+        let acc = 0;
+        for (const d of st.filter((q) => q.phase === 'collect')) {
+          const x0 = x(acc), w = x(acc + d.seconds) - x0;
+          svg.append('rect').attr('x', x0 + 0.5).attr('y', y).attr('width', Math.max(1, w - 1)).attr('height', h).attr('rx', 2).attr('fill', colColor(d))
+            .attr('data-source', 'cycle_groups').attr('data-where', `robot=${robot}&group=${encodeURIComponent(g)}&step=${encodeURIComponent(d.step)}`).attr('data-field', 'seconds')
+            .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name} · ${g === 'Shot before full' ? 'Launched before full' : g} · ${d.step}`, `${d3.format('.1f')(d.seconds)} s median`, `${d.samples} cycles`])).on('pointerleave', () => tip.hide());
+          label(x0, w, y, h, d3.format('.1f')(d.seconds), d.order === 3);
+          acc += d.seconds;
+        }
+        const lt = tot(robot, g, 'launch'), lx0 = x(acc), lw = x(acc + lt) - lx0;
+        svg.append('rect').attr('x', lx0 + 0.5).attr('y', y).attr('width', Math.max(2, lw - 1)).attr('height', h).attr('rx', 2).attr('fill', 'url(#bzLaunchAll)')
+          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name} · ${g} · Launch`, `${d3.format('.1f')(lt)} s median`])).on('pointerleave', () => tip.hide());
+        svg.append('text').attr('class', 'val').attr('x', x(acc + lt) + 6).attr('y', y + h / 2).attr('dy', '0.32em').text(`${d3.format('.1f')(acc + lt)} s`);
+        label(lx0, lw, y, h, d3.format('.1f')(lt), true);
+        y = y + Math.max(h, 42) + gapG;
+      }
+      y += gapR;
+    }
+  });
+
+  dash.draw('nectarSplit', (el) => {
+    el.replaceChildren();
+    const d = dash.data('feed_nectar');
+    if (d.status !== 'ok') return;
+    const rs = d.data.filter((r) => r.robot === '20245').sort((a, b) => a.order - b.order);
+    const h = document.createElement('p'); h.className = 'nh'; h.style.color = bz.tc('20245'); h.textContent = 'ULTRAVIOLET: POLLEN VS NECTAR'; el.appendChild(h);
+    const grid = document.createElement('div'); grid.className = 'ngrid';
+    const cell = (txt, cls) => { const c = document.createElement('div'); c.className = cls; c.textContent = txt; grid.appendChild(c); };
+    cell('', 'ncol'); cell('POLLEN', 'ncol'); cell('NECTAR', 'ncol nec');
+    for (const pos of ['First out', 'Each later piece']) {
+      cell(pos, 'nrowh');
+      for (const piece of ['POLLEN', 'NECTAR']) {
+        const r = rs.find((x) => x.position === pos && x.piece === piece);
+        const t = document.createElement('div'); t.className = 'nt' + (piece === 'NECTAR' ? ' hot' : '');
+        if (r) {
+          t.setAttribute('data-source', 'feed_nectar'); t.setAttribute('data-where', `robot=20245&piece=${piece}&position=${encodeURIComponent(pos)}`); t.setAttribute('data-field', 'median_s');
+          const n = document.createElement('span'); n.className = 'n'; n.textContent = bz.fmt(r.median_s, 's2');
+          const l = document.createElement('span'); l.className = 'l'; l.textContent = `${r.over_1s} of ${r.n} over 1 s`;
+          t.append(n, l);
+        }
+        grid.appendChild(t);
+      }
+    }
+    el.appendChild(grid);
+  });
+  dash.draw('gateChart', (el) => {
+    if (!bz.ready(el, ['feed_volleys', 'feed_summary'])) return;
+    const rows = dash.data('feed_volleys').data, sum = dash.data('feed_summary').data;
+    const W = el.clientWidth || 600, left = 92, right = 16, top = 8, laneH = 64, gap = 14, bottom = 28, XMAX = 2.6;
+    const robots = ['20245', '19429'];
+    const H = top + robots.length * laneH + (robots.length - 1) * gap + bottom;
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node());
+    const tip = bz.tip(el);
+    const x = d3.scaleLinear([0, XMAX], [left, W - right]);
+    const yEnd = top + robots.length * laneH + (robots.length - 1) * gap;
+    for (const v of d3.range(0, XMAX + 0.01, 0.5)) {
+      svg.append('line').attr('x1', x(v)).attr('x2', x(v)).attr('y1', top).attr('y2', yEnd).attr('stroke', 'var(--grid)');
+      svg.append('text').attr('x', x(v)).attr('y', yEnd + 16).attr('text-anchor', 'middle').text(v === 0 ? '0' : d3.format('.1f')(v) + ' s');
+    }
+    robots.forEach((robot, i) => {
+      const oy = top + i * (laneH + gap), cy = oy + laneH / 2;
+      const s = sum.find((r) => r.robot === robot);
+      svg.append('text').attr('class', 'panel').attr('x', 0).attr('y', cy).attr('dy', '0.32em').style('fill', bz.tc(robot)).text(bz.tn(robot));
+      if (s) {
+        svg.append('rect').attr('x', x(0)).attr('y', oy + 4).attr('width', x(s.next_median_s) - x(0)).attr('height', laneH - 8).attr('fill', 'var(--grid)').attr('opacity', 0.9)
+          .attr('data-source', 'feed_summary').attr('data-where', `robot=${robot}`).attr('data-field', 'next_median_s');
+        svg.append('text').attr('x', x(s.next_median_s) - 4).attr('y', oy + 14).attr('text-anchor', 'end').style('font-size', '10px').style('fill', 'var(--muted)').text('next piece');
+        svg.append('line').attr('x1', x(s.first_median_s)).attr('x2', x(s.first_median_s)).attr('y1', oy + 2).attr('y2', oy + laneH - 2).attr('stroke', bz.tc(robot)).attr('stroke-width', 2)
+          .attr('data-source', 'feed_summary').attr('data-where', `robot=${robot}`).attr('data-field', 'first_median_s');
+      }
+      const rs = rows.filter((r) => r.robot === robot).sort((a, b) => a.first_s - b.first_s);
+      const placed = [];
+      for (const r of rs) {
+        const px = x(Math.min(r.first_s, XMAX));
+        let dy = 0;
+        for (let k = 0; k < 40; k++) {
+          const cand = (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 6;
+          if (!placed.some((p) => Math.abs(p[0] - px) < 6 && Math.abs(p[1] - cand) < 6)) { dy = cand; break; }
+        }
+        placed.push([px, dy]);
+        svg.append('circle').attr('cx', px).attr('cy', cy + Math.max(-laneH / 2 + 5, Math.min(laneH / 2 - 5, dy))).attr('r', 2.8)
+          .attr('fill', r.nectar === 'front' ? 'var(--nectar)' : r.nectar === 'behind' ? 'none' : bz.tc(robot))
+          .attr('stroke', r.nectar === 'behind' ? 'var(--nectar)' : 'none').attr('stroke-width', 1.4)
+          .attr('opacity', r.nectar !== 'none' ? 1 : r.first_s > 1 ? 0.9 : 0.5)
+          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name} · ${r.phase}`, `First piece ${d3.format('.2f')(r.first_s)} s`, `Lane held ${r.lane}, ${r.shots} shot${r.shots === 1 ? '' : 's'}`, r.nectar === 'front' ? 'NECTAR first out' : r.nectar === 'behind' ? 'NECTAR further back' : 'POLLEN only'])).on('pointerleave', () => tip.hide());
+      }
+    });
+  });
+  dash.draw('methodSplit', (el) => {
+    if (!bz.ready(el, ['launch_methods'])) return;
+    const rows = dash.data('launch_methods').data;
+    const W = el.clientWidth || 600, left = 110, right = 16, rowH = 34, gap = 14, top = 4;
+    const robots = ['20245', '19429'], methods = [['Auto-drive', '#38BDF8'], ['Operator FIRE', '#F59E0B']];
+    const H = top + robots.length * rowH + (robots.length - 1) * gap + 6;
+    const total = (r) => d3.sum(rows.filter((x) => x.robot === r), (x) => x.pieces);
+    const x = d3.scaleLinear([0, d3.max(robots, total)], [left, W - right - 40]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node());
+    const tip = bz.tip(el);
+    robots.forEach((robot, i) => {
+      const y = top + i * (rowH + gap);
+      svg.append('text').attr('class', 'panel').attr('x', 0).attr('y', y + rowH / 2).attr('dy', '0.32em').style('fill', bz.tc(robot)).text(bz.tn(robot));
+      let x0 = 0;
+      for (const [method, color] of methods) {
+        const r = rows.find((q) => q.robot === robot && q.method === method);
+        if (!r) continue;
+        const xa = x(x0), xb = x(x0 + r.pieces);
+        svg.append('rect').attr('x', xa).attr('y', y).attr('width', Math.max(1, xb - xa - 2)).attr('height', rowH).attr('rx', 3).attr('fill', color)
+          .attr('data-source', 'launch_methods').attr('data-where', `robot=${robot}&method=${encodeURIComponent(method)}`).attr('data-field', 'pieces')
+          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name} · ${method}`, `${r.pieces} pieces in ${r.volleys} volleys`])).on('pointerleave', () => tip.hide());
+        if (xb - xa > 7.2 * (method.length + String(r.pieces).length + 3) + 16) svg.append('text').attr('x', xa + 8).attr('y', y + rowH / 2).attr('dy', '0.32em').style('fill', '#0A0C12').style('font-weight', '700').style('font-size', '12px').attr('pointer-events', 'none').text(`${method} · ${r.pieces}`);
+        else svg.append('text').attr('x', xa + (xb - xa) / 2).attr('y', y + rowH / 2).attr('dy', '0.32em').attr('text-anchor', 'middle').style('fill', '#0A0C12').style('font-weight', '700').style('font-size', '12px').attr('pointer-events', 'none').text(r.pieces);
+        x0 += r.pieces;
+      }
+      svg.append('text').attr('x', x(x0) + 6).attr('y', y + rowH / 2).attr('dy', '0.32em').style('fill', 'var(--fg)').style('font-weight', '700').text(x0);
+    });
+  });
+  dash.draw('volleyPieces', (el) => {
+    if (!bz.ready(el, ['volley_pieces'])) return;
+    const rows = dash.data('volley_pieces').data;
+    const W = el.clientWidth || 600, narrow = W < 560;
+    const left = narrow ? 108 : 150, right = narrow ? 10 : 178, rowH = 30, gap = 22, top = 8, axisH = narrow ? 58 : 44;
+    const robots = ['20245', '19429'], FEED = 3.5;
+    const H = top + robots.length * rowH + (robots.length - 1) * gap + axisH + (narrow ? robots.length * 34 : 0);
+    const x = d3.scaleLinear([0, FEED + 0.15], [left, W - right]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node());
+    const tip = bz.tip(el);
+    const yEnd = top + robots.length * rowH + (robots.length - 1) * gap + (narrow ? robots.length * 34 : 0);
+    for (const s of [0, 1, 2, 3]) {
+      svg.append('line').attr('x1', x(s)).attr('x2', x(s)).attr('y1', top - 4).attr('y2', yEnd + 4).attr('stroke', 'var(--grid)');
+      svg.append('text').attr('x', x(s)).attr('y', yEnd + 18).attr('text-anchor', 'middle').style('font-size', '10.5px').text(`${s} s`);
+    }
+    const tot = d3.median(rows, (r) => r.total);
+    const mark = (t, label, dash, strong, row) => {
+      svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', top - 4).attr('y2', yEnd + 4).attr('stroke', strong ? 'var(--fg)' : 'var(--muted)').attr('stroke-dasharray', dash).attr('stroke-opacity', strong ? 0.7 : 0.8);
+      svg.append('text').attr('x', narrow ? W - right : x(t)).attr('y', yEnd + 34 + (narrow ? row * 14 : 0)).attr('text-anchor', narrow ? 'end' : 'middle').style('font-size', '10.5px').style('fill', strong ? 'var(--fg)' : 'var(--muted)').style('font-weight', '700').text(label);
+    };
+    mark(tot, `All 4 out, ${d3.format('.1f')(tot)} s`, '2 3', true, 0);
+    mark(FEED, `Feed limit, ${FEED} s`, '4 3', false, 1);
+    robots.forEach((robot, i) => {
+      const r = rows.find((q) => q.robot === robot); if (!r) return;
+      const y = top + i * (rowH + gap) + (narrow ? i * 34 : 0);
+      svg.append('text').attr('class', 'panel').attr('x', 0).attr('y', y + 11).style('fill', bz.tc(robot)).text(bz.tn(robot));
+      svg.append('text').attr('x', 0).attr('y', y + 26).style('font-size', '11px').text(narrow ? `${r.volleys} volleys` : `${r.volleys} volleys, all 4 seen`)
+        .attr('data-source', 'volley_pieces').attr('data-where', `robot=${robot}&pieces=4`).attr('data-field', 'volleys');
+      let acc = 0;
+      for (let k = 1; k <= 4; k++) {
+        const s = r['p' + k]; const x0 = x(acc), w = x(acc + s) - x0;
+        svg.append('rect').attr('x', x0 + 0.5).attr('y', y).attr('width', Math.max(1, w - 1)).attr('height', rowH).attr('rx', 3).attr('fill', k === 1 ? 'var(--z4)' : 'var(--z2)')
+          .attr('data-source', 'volley_pieces').attr('data-where', `robot=${robot}&pieces=4`).attr('data-field', 'p' + k)
+          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name}`, `Piece ${k}: ${d3.format('.2f')(s)} s`])).on('pointerleave', () => tip.hide());
+        const t = svg.append('text').attr('x', x0 + w / 2).attr('y', y + rowH / 2).attr('dy', '0.32em').attr('text-anchor', 'middle').attr('pointer-events', 'none').style('fill', '#0A0C12').style('font-weight', '700').text(d3.format('.2f')(s));
+        if (t.node().getComputedTextLength() > w - 6) t.remove();
+        acc += s;
+      }
+      const leave = r.leave_s;
+      if (leave > acc) {
+        svg.append('rect').attr('x', x(acc) + 1).attr('y', y + 1).attr('width', x(leave) - x(acc) - 2).attr('height', rowH - 2).attr('rx', 3)
+          .attr('fill', 'none').attr('stroke', 'var(--muted)').attr('stroke-dasharray', '3 3')
+          .attr('data-source', 'volley_pieces').attr('data-where', `robot=${robot}&pieces=4`).attr('data-field', 'leave_s');
+        const t = svg.append('text').attr('x', (x(acc) + x(leave)) / 2).attr('y', y + rowH / 2).attr('dy', '0.32em').attr('text-anchor', 'middle').style('fill', 'var(--muted)').style('font-weight', '700').text(`+${d3.format('.1f')(leave - r.total)} s`);
+        if (t.node().getComputedTextLength() > x(leave) - x(acc) - 6) t.remove();
+      }
+      const lx = narrow ? left : W - right + 14, ly = narrow ? y + rowH + 14 : y + 11;
+      if (narrow) svg.append('text').attr('x', lx).attr('y', ly).style('fill', 'var(--fg)').style('font-size', '11.5px').text(`Moves off ${d3.format('.1f')(leave)} s (${r.leave_n} volleys)`);
+      else { svg.append('text').attr('x', lx).attr('y', ly).style('fill', 'var(--fg)').style('font-weight', '700').text(`Moves off at ${d3.format('.1f')(leave)} s`);
+        svg.append('text').attr('x', lx).attr('y', ly + 15).style('font-size', '11px').text(`${r.leave_n} full-lane TeleOp volleys`); }
+    });
+  });
+  dash.draw('volleyBlocks', (el) => {
+    if (!bz.ready(el, ['launch_volleys'])) return;
+    const rows = dash.data('launch_volleys').data;
+    const W = el.clientWidth || 600, narrow = W < 520, left = narrow ? 0 : 118, right = narrow ? 8 : 96;
+    const robots = ['20245', '19429'], col = { 'Auto-drive': '#38BDF8', 'Operator FIRE': '#F59E0B' };
+    const avail = W - left - right;
+    const gapM = narrow ? 1 : 2;
+    const maxN = d3.max(robots, (r) => rows.filter((x) => x.robot === r).length + gapM * new Set(rows.filter((x) => x.robot === r).map((x) => x.match)).size);
+    const cell = Math.max(5, Math.min(18, Math.floor(avail / maxN)));
+    const bh = narrow ? 18 : 26, laneH = bh + 34, top = 4;
+    const H = top + robots.length * (laneH + (narrow ? 18 : 0)) + 4;
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node());
+    const tip = bz.tip(el);
+    robots.forEach((robot, i) => {
+      const oy = top + i * (laneH + (narrow ? 18 : 0));
+      const by = oy + (narrow ? 18 : 0);
+      svg.append('text').attr('class', 'panel').attr('x', 0).attr('y', narrow ? oy + 10 : by + bh / 2).attr('dy', narrow ? 0 : '0.32em').style('fill', bz.tc(robot)).text(bz.tn(robot));
+      const rs = rows.filter((x) => x.robot === robot);
+      const matches = [...new Set(rs.map((x) => x.match))];
+      let x = left;
+      for (const mt of matches) {
+        const vs = rs.filter((r) => r.match === mt);
+        const x0 = x;
+        for (const v of vs) {
+          svg.append('rect').attr('x', x + 0.5).attr('y', by).attr('width', cell - 1.5).attr('height', bh).attr('rx', 2).attr('fill', col[v.method])
+            .attr('data-source', 'launch_volleys').attr('data-where', `robot=${robot}&match=${encodeURIComponent(mt)}&press=${v.press}`).attr('data-field', 'method')
+            .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name} · ${mt}`, `${v.method === 'Operator FIRE' ? 'Manual' : v.method} volley at ${d3.format('.0f')(v.press)} s`, `Launch time ${d3.format('.1f')(v.span)} s`])).on('pointerleave', () => tip.hide());
+          x += cell;
+        }
+        svg.append('text').attr('x', (x0 + x) / 2).attr('y', by + bh + 13).attr('text-anchor', 'middle').style('font-size', '10.5px').text(vs.length * cell >= 22 ? mt.replace('Playoff ', 'P').replace('Upper final', 'UF').replace('Lower final', 'LF') : '');
+        x += cell * gapM;
+      }
+      if (narrow) svg.append('text').attr('class', 'val').attr('x', 118).attr('y', oy + 10).text(`${rs.length} volleys`);
+      else svg.append('text').attr('class', 'val').attr('x', x - cell + 4).attr('y', by + bh / 2).attr('dy', '0.32em').text(`${rs.length} volleys`);
+    });
+  });
+  const prespin = (el, method) => {
+    if (!bz.ready(el, ['launch_methods'])) return;
+    el.replaceChildren();
+    const rs = dash.data('launch_methods').data.filter((r) => r.method === method);
+    if (!rs.length) return;
+    const ph = document.createElement('div'); ph.className = 'ph';
+    const t = document.createElement('b'); t.textContent = 'Launcher pre-spun before the press';
+    const c = document.createElement('span'); c.className = 'chip'; c.textContent = `Pre-spun saves ~${d3.format('.1f')(rs[0].prespin_save_s)} s a volley`;
+    c.setAttribute('data-source', 'launch_methods'); c.setAttribute('data-where', `robot=${rs[0].robot}&method=${encodeURIComponent(method)}`); c.setAttribute('data-field', 'prespin_save_s');
+    ph.append(t, c); el.appendChild(ph);
+    for (const robot of ['20245', '19429']) {
+      const r = rs.find((q) => q.robot === robot); if (!r) continue;
+      const row = document.createElement('div'); row.className = 'pr';
+      const nm = document.createElement('span'); nm.className = 'nm'; nm.style.color = bz.tc(robot); nm.textContent = bz.tn(robot);
+      const tr = document.createElement('div'); tr.className = 'tr';
+      const fl = document.createElement('div'); fl.className = 'fl'; fl.style.background = bz.tc(robot); fl.style.width = `${r.volleys ? 100 * r.prespun / r.volleys : 0}%`;
+      tr.appendChild(fl);
+      const ct = document.createElement('span'); ct.className = 'ct'; ct.textContent = r.prespun_of;
+      ct.setAttribute('data-source', 'launch_methods'); ct.setAttribute('data-where', `robot=${robot}&method=${encodeURIComponent(method)}`); ct.setAttribute('data-field', 'prespun_of');
+      row.append(nm, tr, ct); el.appendChild(row);
+    }
+  };
+  dash.draw('prespinAuto', (el) => prespin(el, 'Auto-drive'));
+  dash.draw('prespinManual', (el) => prespin(el, 'Operator FIRE'));
+  dash.draw('floorMap', (el) => {
+    if (!bz.ready(el, ['floor_tiles'])) return;
+    const all = dash.data('floor_tiles').data, robot = el.dataset.robot;
+    const tot = (r) => d3.sum(all.filter((t) => t.robot === r), (t) => t.n);
+    const maxShare = d3.max(all, (t) => t.n / tot(t.robot));
+    const rows = all.filter((t) => t.robot === robot), total = tot(robot);
+    const ir = robot === '19429', col = ir ? 'var(--ir)' : 'var(--uv)';
+    const W = Math.min(el.clientWidth || 320, 360), pad = 18, top = 26, cell = (W - pad - 4) / 6, H = top + 6 * cell + 20;
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    svg.append('text').attr('x', pad).attr('y', 15).style('font-size', '12.5px').style('font-weight', '700').style('fill', col).text(`${ir ? 'INFRARED' : 'ULTRAVIOLET'}`);
+    svg.append('text').attr('x', W - 4).attr('y', 15).attr('text-anchor', 'end').style('font-size', '11.5px').style('fill', 'var(--muted)').text(`${total} floor pieces with a position`);
+    const cols = 'ABCDEF';
+    svg.append('rect').attr('x', pad).attr('y', top).attr('width', 6 * cell).attr('height', 6 * cell).attr('fill', '#000');
+    svg.append('image').attr('href', 'FIELD_IMG').attr('x', pad).attr('y', top).attr('width', 6 * cell).attr('height', 6 * cell).attr('opacity', 0.8);
+    for (const t of rows) {
+      const cx = pad + cols.indexOf(t.col) * cell, cy = top + (6 - t.row) * cell;
+      if (t.n) svg.append('circle').attr('cx', cx + cell / 2).attr('cy', cy + cell / 2).attr('r', Math.max(9, 0.48 * cell * Math.sqrt((t.n / total) / maxShare))).attr('fill', col).attr('fill-opacity', 0.82).attr('stroke', '#0A0C12').attr('stroke-width', 1.5);
+      if (t.n) svg.append('text').attr('x', cx + cell / 2).attr('y', cy + cell / 2 + 4).attr('text-anchor', 'middle').style('font-size', '12px').style('font-weight', '700').style('fill', '#fff').style('paint-order', 'stroke').style('stroke', 'rgba(0,0,0,.55)').style('stroke-width', '2.5px').text(t.n);
+    }
+    const gx = pad, gy = top + 5 * cell;
+    svg.append('text').attr('x', gx + 4).attr('y', gy + cell - 5).style('font-size', '8.5px').style('font-weight', '700').style('letter-spacing', '.06em').style('fill', 'rgba(255,255,255,.7)').text('GARDEN');
+    for (let i = 0; i < 6; i++) {
+      svg.append('text').attr('x', pad + i * cell + cell / 2).attr('y', top + 6 * cell + 14).attr('text-anchor', 'middle').style('font-size', '10.5px').style('fill', 'var(--muted)').text(cols[i]);
+      svg.append('text').attr('x', pad - 6).attr('y', top + (5 - i) * cell + cell / 2 + 4).attr('text-anchor', 'end').style('font-size', '10.5px').style('fill', 'var(--muted)').text(i + 1);
+    }
+    el.replaceChildren(svg.node());
+  });
+  const outcomeBars = (el, segs, okWord, failWord) => {
+    const W = el.clientWidth || 600, narrow = W < 560, left = narrow ? 0 : 118, right = narrow ? 8 : 92, rowH = 34, brk = 22, gap = narrow ? 44 : 36, top = 2, under = narrow ? 28 : 16;
+    const robots = ['20245', '19429'];
+    const maxT = d3.max(robots, (r) => d3.sum(segs(r), (s) => s.n));
+    const x = d3.scaleLinear([0, maxT], [left, W - right]);
+    const block = (narrow ? 18 : 0) + brk + rowH;
+    const H = top + robots.length * block + (robots.length - 1) * gap + under + 6;
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node());
+    const tip = bz.tip(el);
+    robots.forEach((robot, i) => {
+      const oy = top + i * (block + gap);
+      const by = oy + (narrow ? 18 : 0) + brk;
+      svg.append('text').attr('class', 'panel').attr('x', 0).attr('y', narrow ? oy + 11 : by + rowH / 2).attr('dy', narrow ? 0 : '0.32em').style('fill', bz.tc(robot)).text(bz.tn(robot));
+      const ss = segs(robot), total = d3.sum(ss, (s) => s.n), ok = ss[0].n;
+      // brackets
+      let brkEnd = -1e9;
+      const bracket = (x0, x1, text, col) => {
+        const yb = by - 6;
+        svg.append('path').attr('d', `M${x0 + 1},${yb + 4} V${yb} H${x1 - 1} V${yb + 4}`).attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.5);
+        const t = svg.append('text').attr('y', yb - 5).attr('text-anchor', 'start').style('font-size', '11.5px').style('font-weight', '700').style('fill', col).text(text);
+        if (t.node().getComputedTextLength() > x1 - x0 - 4) t.text(text.split(' · ')[0]);
+        if (t.node().getComputedTextLength() > x1 - x0 - 4) t.text(t.text().replace(failWord, "Didn't"));
+        const tw = t.node().getComputedTextLength();
+        const tx = Math.min(W - 2 - tw, Math.max(x0, brkEnd + 10, (x0 + x1) / 2 - tw / 2));
+        t.attr('x', tx);
+        brkEnd = tx + tw;
+      };
+      const pc = (n) => `${Math.round(100 * n / total)}%`;
+      bracket(x(0), x(ok), narrow ? `${okWord} ${pc(ok)}` : `${okWord} ${ok} · ${pc(ok)}`, 'var(--okl)');
+      bracket(x(ok), x(total), narrow ? `${failWord} ${pc(total - ok)}` : `${failWord} ${total - ok} · ${pc(total - ok)}`, 'var(--stickc)');
+      const undersLabels = [];
+      let acc = 0;
+      for (const s of ss) {
+        if (!s.n) continue;
+        const x0 = x(acc), w = x(acc + s.n) - x0;
+        svg.append('rect').attr('x', x0 + 0.5).attr('y', by).attr('width', Math.max(1, w - 1)).attr('height', rowH).attr('rx', 3).attr('fill', s.fill).attr('fill-opacity', s.op)
+          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name}`, `${s.k === 'ok' ? okWord : failWord + ': ' + s.label}: ${s.n} of ${total} presses`])).on('pointerleave', () => tip.hide());
+        const t = svg.append('text').attr('x', x0 + w / 2).attr('y', by + rowH / 2).attr('dy', '0.32em').attr('text-anchor', 'middle').attr('pointer-events', 'none').style('fill', s.ink).style('font-weight', '700').style('font-size', '12px')
+          .text(s.k === 'ok' ? String(s.n) : `${s.label} ${s.n}`);
+        if (t.node().getComputedTextLength() > w - 8) { t.text(String(s.n)); if (s.k !== 'ok') undersLabels.push([x0 + w / 2, s.label, s.n]); }
+        if (t.node().getComputedTextLength() > w - 4) t.remove();
+        acc += s.n;
+      }
+      if (narrow && undersLabels.length) {
+        const words = undersLabels.map(([, lab, n]) => `${n} ${lab}`);
+        const t1 = svg.append('text').attr('x', x(0)).attr('y', by + rowH + 13).style('font-size', '10.5px').style('fill', 'var(--muted)').text(words.join(' · '));
+        if (t1.node().getComputedTextLength() > W - 4 && words.length > 1) {
+          const h = Math.ceil(words.length / 2);
+          t1.text(words.slice(0, h).join(' · '));
+          svg.append('text').attr('x', x(0)).attr('y', by + rowH + 26).style('font-size', '10.5px').style('fill', 'var(--muted)').text(words.slice(h).join(' · '));
+        }
+        undersLabels.length = 0;
+      }
+      let lastX = -1e9;
+      for (const [cx, lab] of undersLabels) {
+        const t = svg.append('text').attr('x', cx).attr('y', by + rowH + 13).attr('text-anchor', 'middle').style('font-size', '10.5px').style('fill', 'var(--muted)').text(lab);
+        const w2 = t.node().getComputedTextLength();
+        if (cx - w2 / 2 < lastX + 6) { t.attr('x', Math.max(cx, lastX + 6 + w2 / 2)); }
+        if (+t.attr('x') + w2 / 2 > W - 2) t.attr('x', W - 2 - w2 / 2);
+        lastX = +t.attr('x') + w2 / 2;
+      }
+      if (!narrow) svg.append('text').attr('class', 'val').attr('x', x(total) + 8).attr('y', by + rowH / 2).attr('dy', '0.32em').text(`${total} presses`);
+      else svg.append('text').attr('class', 'val').attr('x', 118).attr('y', oy + 11).text(`${total} presses`);
+    });
+  };
+  dash.draw('pressBar', (el) => {
+    if (!bz.ready(el, ['spot_outcomes', 'robots', 'square_issues'])) return;
+    const data = dash.data('spot_outcomes').data, rob = dash.data('robots').data, sq = dash.data('square_issues').data;
+    const segs = (robot) => {
+      const g = (o) => (data.find((d) => d.robot === robot && d.outcome === o) || {}).presses || 0;
+      const pose = (rob.find((r) => r.robot === robot) || {}).refused_pose || 0;
+      const centre = (sq.find((r) => r.robot === robot) || {}).centre_refused || 0;
+      return [
+        { k: 'ok', label: 'launched', n: g('Let go at the spot') + g('Sticks took over at the spot'), fill: 'var(--okl)', op: 1, ink: '#0A0C12' },
+        { k: 'stick', label: 'stick moving', n: g('Sticks cancelled it on the way'), fill: 'var(--stickc)', op: 1, ink: '#0A0C12' },
+        { k: 'early', label: 'let go early', n: g('Let go before arriving'), fill: 'var(--stickc)', op: 0.5, ink: '#0A0C12' },
+        { k: 'refused', label: 'refused', n: pose + centre, fill: 'var(--stickc)', op: 0.3, ink: 'var(--fg)' },
+      ];
+    };
+    outcomeBars(el, segs, 'Launched', "Didn't launch");
+  });
+  dash.draw('flowerBar', (el) => {
+    if (!bz.ready(el, ['flower_picks'])) return;
+    const d = dash.data('flower_picks').data;
+    const segs = (robot) => { const r = d.find((q) => q.robot === robot && q.mode === 'TeleOp') || {}; return [
+      { k: 'ok', label: 'reached', n: r.reached || 0, fill: 'var(--okl)', op: 1, ink: '#0A0C12' },
+      { k: 'stick', label: 'stick moving', n: r.stick || 0, fill: 'var(--stickc)', op: 1, ink: '#0A0C12' },
+      { k: 'early', label: 'let go early', n: r.early || 0, fill: 'var(--stickc)', op: 0.5, ink: '#0A0C12' },
+      { k: 'refused', label: 'refused', n: r.refused || 0, fill: 'var(--stickc)', op: 0.3, ink: 'var(--fg)' },
+    ]; };
+    outcomeBars(el, segs, 'Reached a FLOWER', "Didn't reach");
+  });
+  dash.draw('flowerPhases', (el) => {
+    if (!bz.ready(el, ['flower_picks'])) return;
+    const d = dash.data('flower_picks').data;
+    const rows = [['20245', 'Auto'], ['19429', 'Auto'], ['20245', 'TeleOp'], ['19429', 'TeleOp']].map(([r, m]) => d.find((q) => q.robot === r && q.mode === m)).filter(Boolean);
+    const ph = [['line_up', 'Line up', 'var(--c1)', '#EEF1F8'], ['prep', 'Stick down', 'var(--c2)', '#EEF1F8'], ['push', 'Push in', 'var(--c3)', '#0A0C12'], ['dwell', 'Wait at the FLOWER', 'var(--okl)', '#0A0C12'], ['back', 'Back out', 'var(--c4)', '#EEF1F8']];
+    const W = el.clientWidth || 600, narrow = W < 560, left = narrow ? 0 : 150, right = narrow ? 8 : 128, rowH = 26, gap = narrow ? 30 : 12, modeGap = 16;
+    const x = d3.scaleLinear([0, 4], [left, W - right]);
+    const H = rows.length * (rowH + gap) + modeGap + 22;
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node());
+    const tip = bz.tip(el);
+    let y = 0;
+    rows.forEach((r, i) => {
+      if (i === 2) y += modeGap;
+      const ly = narrow ? y + 11 : y + (narrow ? 0 : 0) + rowH / 2;
+      const by = narrow ? y + 16 : y;
+      svg.append('text').attr('class', 'panel').attr('x', 0).attr('y', narrow ? y + 11 : by + rowH / 2).attr('dy', narrow ? 0 : '0.32em').style('fill', bz.tc(r.robot)).text(`${bz.tn(r.robot)} · ${r.mode}`);
+      let acc = 0;
+      for (const [k, lab, col, ink] of ph) {
+        const v = r[k] || 0; if (v <= 0) continue;
+        const x0 = x(acc), w = x(acc + v) - x0;
+        svg.append('rect').attr('x', x0 + 0.5).attr('y', by).attr('width', Math.max(1, w - 1)).attr('height', rowH).attr('rx', 3).attr('fill', col)
+          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[r.robot].name} · ${r.mode}`, `${lab}: ${v.toFixed(2)} s (mean)`])).on('pointerleave', () => tip.hide());
+        const t = svg.append('text').attr('x', x0 + w / 2).attr('y', by + rowH / 2).attr('dy', '0.32em').attr('text-anchor', 'middle').attr('pointer-events', 'none').style('fill', ink).style('font-weight', '700').style('font-size', '11.5px').text(v.toFixed(1));
+        if (t.node().getComputedTextLength() > w - 6) t.remove();
+        acc += v;
+      }
+      const lbl = r.per_pick != null ? `${acc.toFixed(1)} s · ${r.per_pick.toFixed(1)} pieces` : `${acc.toFixed(1)} s`;
+      svg.append('text').attr('class', 'val').attr('x', narrow ? W - 2 : x(acc) + 8).attr('y', narrow ? y + 11 : by + rowH / 2).attr('dy', narrow ? 0 : '0.32em').attr('text-anchor', narrow ? 'end' : 'start').text(lbl);
+      y += rowH + gap + (narrow ? 16 : 0) - (narrow ? 16 : 0);
+    });
+    const ax = svg.append('g').attr('transform', `translate(0,${H - 18})`);
+    for (let s = 0; s <= 4; s++) ax.append('text').attr('x', x(s)).attr('y', 12).attr('text-anchor', s === 0 && narrow ? 'start' : 'middle').style('font-size', '10.5px').style('fill', 'var(--muted)').text(`${s} s`);
+  });
+  dash.draw('stickTimeline', (el) => {
+    if (!bz.ready(el, ['stick_cancels'])) return;
+    const rs = dash.data('stick_cancels').data;
+    const W = el.clientWidth || 600, narrow = W < 560, left = 10, right = 10, top = 10, H = narrow ? 128 : 112;
+    const centred = d3.median(rs, (r) => r.centred_median), delay = d3.median(rs, (r) => r.cancel_delay), mag = d3.median(rs, (r) => r.stick_mag);
+    const x = d3.scaleLinear([-0.4, 0.5], [left, W - right]);
+    const yb = top + 54, y = d3.scaleLinear([0, 1], [yb, top + 6]);
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node());
+    // threshold band
+    svg.append('rect').attr('x', x(-0.4)).attr('y', y(0.2)).attr('width', x(0.5) - x(-0.4)).attr('height', yb - y(0.2)).attr('fill', 'var(--grid)');
+    svg.append('text').attr('x', x(0.5)).attr('y', y(0.2) - 4).attr('text-anchor', 'end').style('font-size', '10px').text('centred (under 20%)');
+    // stick curve: easing off from mag to 0 at "centred"
+    const pts = d3.range(-0.4, 0.5001, 0.01).map((t) => [t, t < -0.2 ? mag : t >= centred ? 0 : mag * (centred - t) / (centred + 0.2)]);
+    svg.append('path').attr('d', d3.line().x((p) => x(p[0])).y((p) => y(p[1]))(pts)).attr('fill', 'none').attr('stroke', 'var(--fg)').attr('stroke-width', 2.5);
+    svg.append('text').attr('x', x(-0.4) + 2).attr('y', y(mag) - 6).style('font-size', '10.5px').style('fill', 'var(--fg)').text('drive stick, easing off');
+    const mark = (t, col, label, row) => {
+      svg.append('line').attr('x1', x(t)).attr('x2', x(t)).attr('y1', top).attr('y2', yb + 6).attr('stroke', col).attr('stroke-width', 2);
+      svg.append('text').attr('x', x(t)).attr('y', yb + 20 + row * 14).attr('text-anchor', 'middle').style('font-size', '11px').style('font-weight', '700').style('fill', col).text(label);
+    };
+    mark(0, 'var(--fg)', 'Square pressed', 0);
+    mark(delay, 'var(--stickc)', `cancelled +${d3.format('.2f')(delay)} s`, 1);
+    mark(centred, 'var(--muted)', `stick centred +${d3.format('.2f')(centred)} s`, narrow ? 2 : 0);
+  });
+  dash.draw('battChart', (el) => {
+    if (!bz.ready(el, ['matches'])) return;
+    const rows = dash.data('matches').data;
+    const W = el.clientWidth || 600;
+    const rowH = 20, top = 18, bottom = 24, panelGap = 22, left = 92, right = 14;
+    const twoCol = W >= 760;
+    const series = [['init_v', 'At INIT', 'var(--n1)'], ['teleop_play_v', 'TeleOp start', 'var(--n2)'], ['teleop_median_v', 'Typical', 'var(--n3)'], ['teleop_low_v', 'Lowest', 'var(--fg)']];
+    const robots = ['20245', '19429'];
+    const counts = robots.map((r) => rows.filter((m) => m.robot === r).length);
+    const panelH = (n) => 18 + n * rowH;
+    const colW = twoCol ? (W - 24) / 2 : W;
+    const H = twoCol ? top + panelH(d3.max(counts)) + bottom : top + panelH(counts[0]) + panelGap + panelH(counts[1]) + bottom;
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    el.replaceChildren(svg.node());
+    const tip = bz.tip(el);
+    robots.forEach((robot, i) => {
+      const ox = twoCol ? i * (colW + 24) : 0;
+      const oy = twoCol ? top : top + (i ? panelH(counts[0]) + panelGap : 0);
+      const x = d3.scaleLinear([7.5, 14], [ox + left, ox + colW - right]);
+      const rs = rows.filter((r) => r.robot === robot).sort((a, b) => a.order - b.order);
+      const yEnd = oy + panelH(rs.length);
+      for (const v of d3.range(8, 14.01, 1)) {
+        svg.append('line').attr('x1', x(v)).attr('x2', x(v)).attr('y1', oy + 14).attr('y2', yEnd).attr('stroke', 'var(--grid)');
+        svg.append('text').attr('x', x(v)).attr('y', yEnd + 14).attr('text-anchor', 'middle').text(v + ' V');
+      }
+      svg.append('line').attr('x1', x(bz.INIT_WARN_V)).attr('x2', x(bz.INIT_WARN_V)).attr('y1', oy + 10).attr('y2', yEnd).attr('stroke', 'var(--muted)').attr('stroke-dasharray', '4 3');
+      svg.append('text').attr('class', 'panel').attr('x', ox).attr('y', oy + 4).style('fill', bz.tc(robot)).text(bz.tn(robot));
+      rs.forEach((r, j) => {
+        const cy = oy + 18 + j * rowH + rowH / 2;
+        svg.append('text').attr('x', ox + left - 8).attr('y', cy).attr('dy', '0.32em').attr('text-anchor', 'end').text(r.match);
+        svg.append('line').attr('x1', x(r.teleop_low_v)).attr('x2', x(r.init_v)).attr('y1', cy).attr('y2', cy).attr('stroke', 'var(--line)').attr('stroke-width', 3).attr('stroke-linecap', 'round');
+        for (const [k, , c] of series) {
+          svg.append('circle').attr('cx', x(r[k])).attr('cy', cy).attr('r', 4.5).attr('fill', c)
+            .attr('data-source', 'matches').attr('data-where', `robot=${robot}&match=${encodeURIComponent(r.match)}`).attr('data-field', k);
+        }
+        svg.append('rect').attr('x', ox + left).attr('y', cy - rowH / 2).attr('width', colW - left - right).attr('height', rowH).attr('fill', 'transparent')
+          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name} · ${r.match}`, ...series.map(([k, n]) => `${n}: ${bz.fmt(r[k], 'v')}`)])).on('pointerleave', () => tip.hide());
+      });
+    });
+  });
+</script>

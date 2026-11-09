@@ -1,0 +1,20 @@
+[
+ {
+  "robot": "20245",
+  "own_nectar_in": 17,
+  "opposing_at_sensor": 3,
+  "opposing_rejected": 3,
+  "opposing_launched": 0,
+  "false_rejects": 1,
+  "own_nectar_launched": 15
+ },
+ {
+  "robot": "19429",
+  "own_nectar_in": 1,
+  "opposing_at_sensor": 0,
+  "opposing_rejected": 0,
+  "opposing_launched": 0,
+  "false_rejects": 0,
+  "own_nectar_launched": 0
+ }
+]

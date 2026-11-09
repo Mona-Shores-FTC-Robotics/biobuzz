@@ -1,0 +1,4 @@
+/out/
+# The repo ignores build/ folders; this one is source.
+!build/
+__pycache__/

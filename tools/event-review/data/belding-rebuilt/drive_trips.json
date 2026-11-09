@@ -1,0 +1,16 @@
+[
+ {
+  "robot": "19429",
+  "full_moving_in_s": 21.9,
+  "empty_moving_in_s": 21.0,
+  "full_trips": 7,
+  "empty_trips": 22
+ },
+ {
+  "robot": "20245",
+  "full_moving_in_s": 22.7,
+  "empty_moving_in_s": 29.4,
+  "full_trips": 27,
+  "empty_trips": 17
+ }
+]

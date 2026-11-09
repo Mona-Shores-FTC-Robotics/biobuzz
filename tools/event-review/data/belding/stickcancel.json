@@ -1,0 +1,1 @@
+{"20245": {"cancels": 33, "moving_at_press": 31, "cancel_delay": 0.04, "centred_median": 0.12, "centred_025": 22, "held_median": 0.35, "held_1s": 1, "repress_3s": 30, "stick_mag": 0.91}, "19429": {"cancels": 29, "moving_at_press": 21, "cancel_delay": 0.05, "centred_median": 0.2, "centred_025": 17, "held_median": 1.0, "held_1s": 15, "repress_3s": 22, "stick_mag": 0.7}}

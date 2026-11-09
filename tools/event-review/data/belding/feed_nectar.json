@@ -1,0 +1,38 @@
+[
+ {
+  "robot": "20245",
+  "piece": "POLLEN",
+  "position": "First out",
+  "order": 0,
+  "n": 59,
+  "median_s": 0.84,
+  "over_1s": 19
+ },
+ {
+  "robot": "20245",
+  "piece": "NECTAR",
+  "position": "First out",
+  "order": 1,
+  "n": 8,
+  "median_s": 1.23,
+  "over_1s": 6
+ },
+ {
+  "robot": "20245",
+  "piece": "POLLEN",
+  "position": "Each later piece",
+  "order": 2,
+  "n": 72,
+  "median_s": 0.49,
+  "over_1s": 4
+ },
+ {
+  "robot": "20245",
+  "piece": "NECTAR",
+  "position": "Each later piece",
+  "order": 3,
+  "n": 7,
+  "median_s": 0.93,
+  "over_1s": 3
+ }
+]

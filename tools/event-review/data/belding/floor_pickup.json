@@ -1,0 +1,24 @@
+[
+ {
+  "robot": "20245",
+  "per_min": 9.0,
+  "first_piece_s": 4.1,
+  "between_s": 1.8,
+  "to_full_s": 7.3,
+  "collecting_share": 0.59,
+  "floor_teleop": 144,
+  "flower_teleop": 15,
+  "floor_share": 0.91
+ },
+ {
+  "robot": "19429",
+  "per_min": 3.8,
+  "first_piece_s": 6.6,
+  "between_s": 3.5,
+  "to_full_s": 14.3,
+  "collecting_share": 0.46,
+  "floor_teleop": 68,
+  "flower_teleop": 8,
+  "floor_share": 0.89
+ }
+]

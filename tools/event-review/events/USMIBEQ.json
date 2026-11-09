@@ -1,0 +1,28 @@
+{
+  "event": "USMIBEQ",
+  "season": 2026,
+  "name": "Belding Qualifier",
+  "date": "Nov 7, 2026",
+  "match_day": "Saturday",
+  "world_as_of": "Nov 8",
+  "world_source": "FTCScout (season OPR",
+  "teams": {"19429": "Infrared", "20245": "Ultraviolet"},
+  "playoff_names": {"3": "Playoff 1", "4": "Playoff 1", "7": "Upper final", "9": "Lower final", "10": "Final"},
+  "match_names": {},
+  "frozen_pose": {
+    "19429": {"2026-11-07_13-20-32": [[225.6, 233.6]], "2026-11-07_17-32-26": [[41.8, 106.2]]}
+  },
+  "pose_excluded": {
+    "19429": {"2026-11-07_13-20-32": [[226.0, 1e9]], "2026-11-07_17-32-26": [[0, 1e9]]}
+  },
+  "exclude": {
+    "first_volley": [["19429", "Lower final"]],
+    "leave": [["19429", "Lower final"]]
+  },
+  "notes": {
+    "frozen_pose": "Pinpoint lost (FAULT_BAD_READ): odometry froze. Dropped from driving speed and trips.",
+    "pose_excluded": "Floor-pickup tiles: Q13 from T+99 s and all of the Lower final (issue #508).",
+    "exclude.first_volley": "19429 Lower final: Pinpoint lost at PLAY, so its first TeleOp volley is not a driving time.",
+    "exclude.leave": "Same match: dropped from 'moves off' in the full-volley chart."
+  }
+}
