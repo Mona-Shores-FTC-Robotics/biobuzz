@@ -464,6 +464,12 @@ measurement is [#255].
       First reading after the fix (6 Nov, red audience start, placement not confirmed): camera
       (54.3, 6.1) vs start (55.6, 7.7). y 1.6 in short means ranges ~3 % long, like 20245's; x 54.3 is
       the old wheels-on-seam placement. Tape lens to tag 35, measure a printed tag, level the camera.
+- [ ] **19429's rear indicator light is dark** (seen in the Belding stream, 7 Nov; the front one
+      works). Both lights are Y-cabled to one servo port and get the same signal, so it is the rear
+      light, its plug or its branch of the Y-cable, not code: reseat or swap it, then INIT any Auto.
+      **Good:** both lights show the alliance colour in INIT and go off at PLAY. The match-replay
+      video sync will look for that change at PLAY (`tools/advantagescope/replay/`), so the stream
+      camera needs to see it from either side.
 - [ ] **Drive check table** (10 steps), on both robots. [#62]
 - [ ] **19429's intake encoder cable is not installed** (seen 6 Nov; note left for the builders).
       Every Basic Drive log says "intake: encoder never moved"; the roller runs, but nothing can
