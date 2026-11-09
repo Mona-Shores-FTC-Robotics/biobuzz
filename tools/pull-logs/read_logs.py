@@ -4,6 +4,7 @@ with Python. Standard library only.
 
   python3 tools/pull-logs/read_logs.py summary LOG.wpilog [...]   per run: build, battery, knobs,
                                                                    events, every feed (gate open)
+  python3 tools/pull-logs/read_logs.py turret LOG.wpilog [...]   per burst: timing, signal, before/after, delta
   python3 tools/pull-logs/read_logs.py keys LOG.wpilog            every key and its sample count
   python3 tools/pull-logs/read_logs.py series LOG.wpilog KEY [...] a key's samples, time in s
   python3 tools/pull-logs/read_logs.py picks LOG.wpilog [...]     every FLOWER pick: how the push
@@ -27,6 +28,7 @@ dsbattery all of them and the day's .wpilog files: it sorts them by name.
 """
 import datetime
 import gzip
+import bisect
 import math
 import re
 import struct
@@ -513,6 +515,94 @@ def dsbattery(paths):
             print('%-40s %8s %8s  %-14s %-26s %s' % (name, a.strftime('%H:%M:%S'), b.strftime('%H:%M:%S'),
                                                    hub[:14], ds, robot))
 
+def turret_bursts(data, settle_s=0.25):
+    """Per-command movement from recorded absolute angles; never assume the angle is a delta.
+
+    A settled sample needs 250 ms of recorded OFF time without a new burst or zero reference.
+    SDK signal/enable values describe software commands, not an oscilloscope measurement.
+    """
+    prefix = '/TurretBurst/'
+    def value(key, t, default=None):
+        v = at(data.get(prefix + key, []), t)
+        return default if v is None else v
+
+    power = data.get(prefix + 'Power', [])
+    angle = data.get(prefix + 'AngleDeg', [])
+    if not power or not angle:
+        return []
+    segments, active = [], None
+    previous = 0
+    for t, p in power:
+        direction = 1 if p > 0 else -1 if p < 0 else 0
+        if active is not None and direction != previous:
+            segments.append((active[0], t, active[1], True))
+            active = None
+        if direction and active is None:
+            active = (t, direction)
+        previous = direction
+    if active is not None:
+        segments.append((active[0], power[-1][0], active[1], False))
+    angle_times = [t for t, _ in angle]
+    rows = []
+    for i, (start, end, direction, ended) in enumerate(segments):
+        before = value('AngleDeg', start, float('nan'))
+        after = value('AngleDeg', end, float('nan'))
+        zero = value('ZeroCounts', start)
+        same_zero = zero == value('ZeroCounts', end)
+        manual = value('ManualSingleBurst', start, 0) and not value('Holding', start, 0)
+        configured = value('ManualBurstMs', start, float('nan')) if manual else (
+            value('HoldBurstMs', start, value('BurstOnMs', start, float('nan')))
+            if value('Holding', start, 0) else value('BurstOnMs', start, float('nan')))
+        next_start = segments[i + 1][0] if i + 1 < len(segments) else float('inf')
+        settle_index = bisect.bisect_left(angle_times, end + settle_s)
+        settled_at = angle_times[settle_index] if settle_index < len(angle) else float('inf')
+        settled = (ended and next_start > settled_at and same_zero
+                   and value('ZeroCounts', settled_at) == zero)
+        settled_angle = angle[settle_index][1] if settled else float('nan')
+        if not ended:
+            reason = 'incomplete'
+        elif value('Circle', end, 0):
+            reason = 'cancel'
+        elif value('R2', end, 0) <= 0.5 or (not value('Holding', end, 0)
+                and not value('L1', end, 0) and not value('R1', end, 0)):
+            reason = 'released'
+        elif value('RawRequest', end, 0) and not value('AllowedRequest', end, 0):
+            reason = 'blocked'
+        else:
+            reason = 'ended'
+        rows.append(dict(start_s=start, configured_ms=configured,
+                         on_ms=value('LastOnMs', end, (end - start) * 1000) if ended else (end-start)*1000,
+                         pulse_us=value('PulseUs', start, 0),
+                         pwm_enabled=value('PwmEnabledSdk', start, 0),
+                         before_deg=before, after_deg=after,
+                         drive_delta_deg=after-before if same_zero else float('nan'),
+                         settled_delta_deg=settled_angle-before, settled=settled,
+                         reason=reason, zero_changed=not same_zero,
+                         battery_v=value('BatteryVolts', start, float('nan'))))
+    return rows
+
+
+def turret(paths):
+    for path in paths:
+        data = read(path)
+        print(path)
+        for k in ('Build', 'BenchVersion', 'RobotConfig'):
+            values = data.get('/RealMetadata/' + k, [])
+            if values:
+                print('  %s: %s' % (k, values[-1][1]))
+        rows = turret_bursts(data)
+        if not rows:
+            print('  No recorded turret drive commands. Check /TurretBurst/R2, L1, R1, Zeroed, RawRequest and AllowedRequest.')
+            continue
+        print('  SDK commands/readback only; settled = 250 ms recorded OFF, not proof of rest.')
+        print('  #   start  set/ms   on/ms signal PWM   before -> after    drive-delta settle-delta  volts  end')
+        for i, r in enumerate(rows, 1):
+            print('%3d %7.2f %7.1f %7.1f %6.0f %3.0f %8.3f -> %8.3f %11.3f %12.3f %6.2f  %s%s' %
+                  (i, r['start_s'], r['configured_ms'], r['on_ms'], r['pulse_us'], r['pwm_enabled'],
+                   r['before_deg'], r['after_deg'], r['drive_delta_deg'], r['settled_delta_deg'],
+                   r['battery_v'], r['reason'], ' ZERO CHANGED' if r['zero_changed'] else ''))
+        print()
+
 
 def main(argv):
     if len(argv) < 3:
@@ -531,6 +621,8 @@ def main(argv):
         launcher(argv[2:])
     elif cmd == 'dsbattery':
         dsbattery(argv[2:])
+    elif cmd == 'turret':
+        turret(argv[2:])
     elif cmd == 'series':
         d = read(path)
         for k in argv[3:]:
