@@ -26,6 +26,8 @@ param(
 )
 
 . (Join-Path $PSScriptRoot "Replay.ps1")
+# Everything this run prints also goes to last-run.log, so a window that closed too soon can still be read.
+try { New-Item -ItemType Directory -Force $ReplayHome | Out-Null; Start-Transcript -Path (Join-Path $ReplayHome "last-run.log") -Force | Out-Null } catch { }
 $menu = -not $Match -and -not $All
 $pause = -not $Match   # started from a shortcut: keep the window open to read
 
@@ -138,6 +140,36 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS, [string]$log) {
         if ($j.PSObject.Properties["marked"]) { $isMarked = [bool]$j.marked }
         else { $isMarked = [Math]::Abs([double]$j.from - [Math]::Max([double]0, $estimate - $PreS)) -lt 0.5 }
     } catch { }
+    # A marked video can't be shared, so with the team Drive here, swap it for a clean one: the Drive's copy if it
+    # has one, else a fresh download (a minute). If neither works, keep the marked one: it still plays here.
+    if ($isMarked -and $sharedSource) {
+        try {
+            $cleanOnDrive = $false
+            if ((Test-Path $sharedSidecar) -and (Test-Path $sharedSource)) {
+                $sj = Get-Content -Raw $sharedSidecar | ConvertFrom-Json
+                $cleanOnDrive = -not ($sj.PSObject.Properties["marked"] -and [bool]$sj.marked)
+            }
+            if ($cleanOnDrive) {
+                Say "  ...     this match's video here has the old sync marks drawn on it: taking the team Drive's clean copy"
+                Copy-Whole $sharedSource $source
+                Copy-Whole $sharedSidecar $sidecar
+            } else {
+                Say "  ...     this match's video here has the old sync marks drawn on it: downloading a clean copy to share (about a minute)"
+                $cleanFrom = [Math]::Max([double]0, $estimate - $SourcePreS)
+                $info = Get-StreamInfo
+                $headers = ""
+                if ($info.Headers) { foreach ($p in $info.Headers.PSObject.Properties) { $headers += "$($p.Name): $($p.Value)`r`n" } }
+                New-Source $ffmpeg $info.Url $headers $cleanFrom ($estimate - $cleanFrom + $SourcePostS) "$source.clean.mp4"
+                Move-Item -Force "$source.clean.mp4" $source
+                Set-Content -NoNewline -Path $sidecar -Value (@{ url = $url; from = $cleanFrom; marked = $false } | ConvertTo-Json -Compress)
+            }
+            $isMarked = $false
+            Ok "this match's video is now clean"
+        } catch {
+            Remove-Item -Force "$source.clean.mp4", "$source.clean.mp4.part.mp4" -ErrorAction SilentlyContinue
+            Warn "kept the marked copy, which still plays here but is not shared: $($_.Exception.Message)"
+        }
+    }
     if ($sharedSource -and -not $isMarked -and -not (Test-Path $sharedSidecar)) {
         try {
             Say "  ...     putting this match's video on the team Google Drive for the other laptops"
