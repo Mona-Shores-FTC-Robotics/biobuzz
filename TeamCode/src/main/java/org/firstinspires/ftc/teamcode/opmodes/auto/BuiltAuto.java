@@ -105,6 +105,16 @@ public abstract class BuiltAuto extends RobotOpMode {
      */
     public static boolean endgameGuard = true;
 
+    /**
+     * The endgame guard keeps the park: it goes for a volley only when the park still fits after it,
+     * and parks at once rather than start a trip (a drive, a grab) to a volley that would leave no
+     * time to park ({@code AutoKit.parkAfterVolley}). On since 6 Nov 2026: that night R-NoCross's
+     * third volley (after the GARDEN gather) counted 0 to 1 pieces and cost AUTO PARK twice on 19429
+     * and nearly on 20245, and AUTO PARK can decide the SWARM RP whenever a partner misses its LEAVE
+     * or a PARK. Off is the 4 Nov rule: a volley whose last piece is out by 30 s comes first.
+     */
+    public static boolean parkAfterVolley = true;
+
 
     /** How many of the Auto's latest trace lines the Match page shows. */
     private static final int TRACE_LINES = 4;
@@ -292,7 +302,8 @@ public abstract class BuiltAuto extends RobotOpMode {
                 .trace(trace)
                 .watchPaths(both(pathLog, settle))
                 .picks(options)
-                .guard(endgameGuard);
+                .guard(endgameGuard)
+                .parkAfterVolley(parkAfterVolley);
         if (!endgameGuard) log.event("Endgame guard OFF (practice): every card runs, no park for time");
         Command auto = build.apply(kit, rotated);
         pathLog.plan(kit.paths());

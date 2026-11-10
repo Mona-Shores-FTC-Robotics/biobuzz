@@ -26,6 +26,7 @@ public final class TurretRehome {
     private long stillSinceNs;
     private boolean still;
     private boolean outOfReach;
+    private boolean disbelieved;
     private int corrections;
 
     /** Forget everything: a new OpMode, or a new zero. */
@@ -33,6 +34,7 @@ public final class TurretRehome {
         offset = 0.0;
         still = false;
         outOfReach = false;
+        disbelieved = false;
         corrections = 0;
     }
 
@@ -50,11 +52,14 @@ public final class TurretRehome {
      * @param stillDps       slower than this, the turret counts as still
      * @param stillMs        still this long, the servo has finished: correct
      * @param toleranceDeg   errors this small are left alone
+     * @param believeDeg     errors bigger than this are not believed and not corrected: a position
+     *                       servo cannot put the turret that far off, so the encoder is wrong (its
+     *                       count reset when the Expansion Hub lost power, say)
      * @param nowNs          {@code System.nanoTime()}
      */
     public double step(double position, double targetDeg, double angleDeg, double rateDps,
                        double degreesPerUnit, double lo, double hi, double stillDps, double stillMs,
-                       double toleranceDeg, long nowNs) {
+                       double toleranceDeg, double believeDeg, long nowNs) {
         boolean usable = !Double.isNaN(angleDeg) && !Double.isNaN(targetDeg) && !Double.isNaN(degreesPerUnit)
                 && !Double.isInfinite(degreesPerUnit) && degreesPerUnit != 0.0;
         boolean isStill = !Double.isNaN(rateDps) && Math.abs(rateDps) < stillDps;
@@ -66,7 +71,11 @@ public final class TurretRehome {
         }
         if (usable && still && (nowNs - stillSinceNs) / 1e6 >= stillMs) {
             double errorDeg = targetDeg - angleDeg;
-            if (Math.abs(errorDeg) > toleranceDeg) {
+            disbelieved = Math.abs(errorDeg) > believeDeg;
+            if (disbelieved) {
+                // Leave the offset where it is: the last good correction still holds.
+                outOfReach = false;
+            } else if (Math.abs(errorDeg) > toleranceDeg) {
                 double wanted = offset + errorDeg / degreesPerUnit;
                 double clamped = Math.max(lo - position, Math.min(hi - position, wanted));
                 outOfReach = clamped != wanted;
@@ -91,6 +100,14 @@ public final class TurretRehome {
     /** The last correction wanted more than the limits allow: the turret sits at a limit, not home. */
     public boolean outOfReach() {
         return outOfReach;
+    }
+
+    /**
+     * The encoder's angle was too far from the target to be true: nothing was corrected. The
+     * encoder's count was likely reset (the Expansion Hub lost power) and needs a new zero.
+     */
+    public boolean disbelieved() {
+        return disbelieved;
     }
 
     /** How many corrections were made since {@link #reset()}. */

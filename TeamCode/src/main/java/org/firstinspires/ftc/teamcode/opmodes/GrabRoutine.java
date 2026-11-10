@@ -84,7 +84,7 @@ import java.util.function.Consumer;
 public abstract class GrabRoutine {
 
     /** Where a grab is. */
-    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, BACK, DONE, ABORTED, REFUSED }
+    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, TWIST, BACK, DONE, ABORTED, REFUSED }
 
     /** Where the In goes, or why there is none. */
     protected static final class InPlan {
@@ -311,7 +311,7 @@ public abstract class GrabRoutine {
     /** Whether a grab is driving the robot, so the OpMode must leave the drive alone. */
     public boolean active() {
         return phase == Phase.LINE_UP || phase == Phase.PREP || phase == Phase.IN
-                || phase == Phase.DWELL || phase == Phase.BACK;
+                || phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.BACK;
     }
 
     /** The grab has ended: done, stopped, or refused. */
@@ -341,7 +341,7 @@ public abstract class GrabRoutine {
                         abort(now, "sticks moved");
                     } else {
                         dwellEndWhy = "let go";
-                        startBack(now, robot.drive.pose());
+                        endDwell(now, robot.drive.pose());
                     }
                 }
                 return;
@@ -398,7 +398,7 @@ public abstract class GrabRoutine {
                     progressNs = now;
                     bestRemainingIn = remaining;
                     next(now, Phase.IN);
-                    drivePath(pose, in, inSpeed());
+                    driveIn(pose, in);
                 }
                 break;
             case IN:
@@ -429,9 +429,22 @@ public abstract class GrabRoutine {
                         dwell.sawSpike());
                 if (why != null) {
                     dwellEndWhy = why;
-                    startBack(now, pose);
+                    endDwell(now, pose);
                 } else {
                     steer(pose, dwellPushPower());
+                }
+                break;
+            case TWIST:
+                double twistError = wrapRad(twistTarget - pose.heading());
+                if (Math.abs(Math.toDegrees(twistError)) <= TWIST_DONE_DEG || ms(now, phaseStartNs) > nn(twistTimeoutMs())) {
+                    event.accept(String.format(Locale.US, "%s: twist %s in %.2f s, %+.0f° to go", what(),
+                            Math.abs(Math.toDegrees(twistError)) <= TWIST_DONE_DEG ? "done" : "timed out",
+                            ms(now, phaseStartNs) / 1000.0, Math.toDegrees(twistError)));
+                    startBack(now, pose);
+                } else {
+                    // Turn in place, still pressed toward the wall, at most twistPower.
+                    robot.drive.driveRobotCentric(clamp(dwellPushPower(), 1.0), 0.0,
+                            clamp(headingKp() * twistError * 4.0, unitFraction(twistPower())));
                 }
                 break;
             case BACK:
@@ -467,7 +480,7 @@ public abstract class GrabRoutine {
      * when it is cut short, which always stops the grab.
      */
     static boolean releaseFinishes(Phase phase, boolean button) {
-        return button && (phase == Phase.DWELL || phase == Phase.BACK);
+        return button && (phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.BACK);
     }
 
     /** For the Match page: what a grab is doing, or how the last one went. Empty before the first. */
@@ -499,7 +512,7 @@ public abstract class GrabRoutine {
             return;
         }
         if (!robot.drive.poseReferenced()) {
-            refuse("the pose is not on the field yet (an Auto's handoff, or relocalize from the camera)");
+            refuse(robot.drive.notReferencedWhy());
             return;
         }
         String found = findTarget(pose);
@@ -589,10 +602,45 @@ public abstract class GrabRoutine {
         phaseStartNs = now;
     }
 
+    /** A twist is done once the heading is this close to its target, degrees. */
+    static final double TWIST_DONE_DEG = 4.0;
+    private double twistTarget;
+
+    /** The dwell is over: twist first if the subclass asks ({@link #backTwistDeg}), else back out. */
+    private void endDwell(long now, Pose pose) {
+        double twist = backTwistDeg();
+        if (twist != 0.0 && !Double.isNaN(twist)) {
+            twistTarget = pose.heading() + Math.toRadians(twist);
+            next(now, Phase.TWIST);
+            robot.drive.driveRobotCentric(0.0, 0.0, 0.0);
+            return;
+        }
+        startBack(now, pose);
+    }
+
+    /**
+     * After the dwell, before the back out: turn in place by this many degrees, counterclockwise
+     * positive, pressed toward what the In went into; 0 (the default) for none. The back out then
+     * turns back to where the In started, on its way.
+     */
+    protected double backTwistDeg() {
+        return 0.0;
+    }
+
+    /** The twist's most turn power, (0, 1]. */
+    protected double twistPower() {
+        return 0.4;
+    }
+
+    /** The twist gives up after this long, ms, and backs out from wherever it got to. */
+    protected double twistTimeoutMs() {
+        return 800;
+    }
+
     /** The dwell is over (its time, or the button let go): back out to where the In started. */
     private void startBack(long now, Pose pose) {
         next(now, Phase.BACK);
-        drivePath(pose, home, backSpeed());
+        driveCurve(pose, home, backSpeed(), backControl(pose, home));
     }
 
     private void finish(long now) {
@@ -640,6 +688,45 @@ public abstract class GrabRoutine {
                 .with(speedCap(speed));
         robot.drive.setAccelLimited(true);
         robot.drive.follow(path);
+    }
+
+    /**
+     * The In: straight from {@code from} to {@code to} ({@link #drivePath}), or, when the subclass
+     * gives one ({@link #inControl}), a curve through that control point, holding the heading turn
+     * to {@code to}'s as a straight In does.
+     */
+    private void driveIn(Pose from, Pose to) {
+        driveCurve(from, to, inSpeed(), inControl(from, to));
+    }
+
+    /** {@link #drivePath} when {@code control} is null, else a curve through it, the heading as a straight path's. */
+    private void driveCurve(Pose from, Pose to, double speed, Pose control) {
+        if (control == null) {
+            drivePath(from, to, speed);
+            return;
+        }
+        Path path = Paths.curve(from, control, to)
+                .heading(Interpolator.piecewise().until(1, Interpolator.linear(from, to)))
+                .with(speedCap(speed));
+        robot.drive.setAccelLimited(true);
+        robot.drive.follow(path);
+    }
+
+    /**
+     * A control point for the Back's path, as {@link #inControl} is for the In's: a GARDEN gather's
+     * backs straight up the side wall before turning off it. Null (the default): a straight Back.
+     */
+    protected Pose backControl(Pose from, Pose to) {
+        return null;
+    }
+
+    /**
+     * A control point for the In's path, which then curves through it rather than running straight:
+     * a GARDEN gather's reaches the side wall's line before the audience wall. Null (the default): a
+     * straight In.
+     */
+    protected Pose inControl(Pose from, Pose to) {
+        return null;
     }
 
     /** Pedro's per-path cap on speed, as a fraction of the active robot's top path speed. */

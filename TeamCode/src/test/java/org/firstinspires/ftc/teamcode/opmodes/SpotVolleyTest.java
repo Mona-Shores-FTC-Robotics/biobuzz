@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
 import org.junit.Test;
 
-/** {@link SpotVolley}: the launch-spot button's one volley, waited for as an Auto's LaunchAll is. */
+/** {@link SpotVolley}: the launch-spot button's volley, waited for as an Auto's LaunchAll is, fed while held. */
 public class SpotVolleyTest {
 
     private static final double FEED = LaunchCards.launchAllFeedS;
@@ -31,16 +31,18 @@ public class SpotVolleyTest {
     }
 
     @Test
-    public void atSpeedAndSettledOnArrivalFeedsForTheLaunchAllTimeThenStops() {
+    public void atSpeedAndSettledOnArrivalFeedsForAsLongAsItIsHeld() {
         SpotVolley v = started();
         assertTrue(v.update(2.0, true, true, true, false));
         assertEquals(2.0, v.feedStartS(), 1e-9);
         assertEquals("at speed, settled", v.why());
-        assertTrue(v.update(2.0 + FEED - 0.01, true, true, true, false));
-        assertFalse(v.update(2.0 + FEED, true, true, true, false));
-        assertEquals(SpotVolley.Phase.DONE, v.phase());
-        // One volley a press: nothing more while still held.
-        assertFalse(v.update(2.0 + FEED + 5, true, true, true, false));
+        // No set time: an Auto's LaunchAll would have stopped at FEED; held, this keeps feeding.
+        assertTrue(v.update(2.0 + FEED, true, true, true, false));
+        assertTrue(v.update(2.0 + FEED + 5, true, true, true, false));
+        assertEquals(SpotVolley.Phase.FEEDING, v.phase());
+        assertTrue(Double.isNaN(v.feedEndS()));
+        v.stop(2.0 + FEED + 6);
+        assertEquals(2.0 + FEED + 6, v.feedEndS(), 1e-9);
     }
 
     @Test

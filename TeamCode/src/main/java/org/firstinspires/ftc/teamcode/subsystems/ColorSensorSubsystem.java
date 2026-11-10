@@ -133,6 +133,13 @@ public class ColorSensorSubsystem implements Subsystem {
     public static boolean rejectEnemyNectar = true;
 
     /**
+     * Whether the reject spits out <b>both</b> NECTAR colours, ours too, so the robot keeps only
+     * POLLEN. Off: only the other alliance's NECTAR. Needs {@link #rejectEnemyNectar} on. A robot
+     * locked out of NECTAR flips it in {@code RobotDifferences}. Read every loop.
+     */
+    public static boolean rejectAllNectar = false;
+
+    /**
      * How long one reject burst runs, seconds. <b>Not yet measured:</b> 0.5 is a guess at long
      * enough for the roller at {@code IntakeSubsystem.outPower} to throw one piece clear of the
      * robot. Too short and the roller takes it straight back in (another burst follows); too long
@@ -251,7 +258,7 @@ public class ColorSensorSubsystem implements Subsystem {
         if (fresh) lastPiece = piece;
         lane.step(fresh, alpha, piece, outward, shot, presentAbove, leaveBelow);
         // Seen above leaveBelow, not presentAbove: a NECTAR at the edge of the spot still counts.
-        reject.step(now / 1_000_000L, fresh, alpha, piece, alliance, rejectEnemyNectar,
+        reject.step(now / 1_000_000L, fresh, alpha, piece, alliance, rejectAllNectar, rejectEnemyNectar,
                 Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove), rejectAfterReadings, rejectBurstS * 1000.0, rejectHoldOffS * 1000.0,
                 rejectMaxBursts, rejectWindowS * 1000.0);
         if (fresh) {
