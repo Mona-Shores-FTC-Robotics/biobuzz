@@ -550,7 +550,10 @@ a difference is one `RobotDifferences` line.
       hand, replayed through master's detector (`ShotCountVideoTest`, opt-in): none counted more than
       left the robot, including three with nothing fed (0 counted in 10.6 s of open gate); 11 of
       the 14 clearly counted volleys exact (the Belding rule: 9), the other three one short (two in
-      TeleOp, where the loop is slower). Where the video has ball times (Q-7), each count comes
+      TeleOp, where the loop is slower). Since 10 Nov the level seeds only once the wheels hold the
+      target (it seeded on wheels still falling onto a new one): 12 of 14, none over, and a third
+      less noise with the gate shut. The two left are a 36 ticks/s dip, no deeper than the noise,
+      and a ball with no dip at all: only the throat beam counts those. Where the video has ball times (Q-7), each count comes
       0.13–0.17 s after its ball, never before. So `launchAllEndAfterShots` stays 4. What is left,
       on the robot with the new detector running live, after the PIDF and feed pace below: fire 10
       volleys of 4 the way an Auto does (`LaunchAll`), and 5 TeleOp Square volleys, with a phone

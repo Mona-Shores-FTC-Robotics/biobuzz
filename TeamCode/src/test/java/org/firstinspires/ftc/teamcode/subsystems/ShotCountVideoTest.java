@@ -36,9 +36,11 @@ import java.util.zip.GZIPInputStream;
  * directory holding that branch's files ({@code <team>/matches/<log>.wpilog.gz}). Prints every volley of every
  * match log, then the video table.
  *
- * <p>Result on master's detector (9 Nov 2026): no volley counted above the video; 11 of the 14 clearly counted
- * volleys exact (the Belding rule's logged count: 9), the other three one short. In Q-7's 2nd volley, the one with
- * ball times, each count comes 0.13–0.17 s after its ball leaves, never before.
+ * <p>Result (10 Nov 2026, with the level seeded once the wheels hold the target): no volley counted above the
+ * video; 12 of the 14 clearly counted volleys exact (the 8 Nov detector: 11; the Belding rule's logged count: 9),
+ * the other two one short: Q-14's 2nd volley (a 36 ticks/s dip, as deep as the shut-gate noise) and M-10's TeleOp
+ * single ball (no dip at all). In Q-7's 2nd volley, the one with ball times, each count comes 0.13–0.17 s after its
+ * ball leaves, never before.
  */
 public class ShotCountVideoTest {
 

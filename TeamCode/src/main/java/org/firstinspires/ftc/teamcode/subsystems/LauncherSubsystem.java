@@ -1013,7 +1013,9 @@ public class LauncherSubsystem implements Subsystem {
      *
      * <p><b>Level.</b> Each wheel's level is its own speed just before, not the target: the two
      * wheels settle a little apart (on 20245 the left about 20 over, the right about 20 under). It
-     * is seeded from the wheels the first loop both are within tolerance, then follows each wheel
+     * is seeded from the wheels once both have been within tolerance for {@link #SEED_HOLD_MS} and
+     * their average is within {@link #SEED_BAND_TPS} of the target (or within tolerance for
+     * {@link #SEED_ANYWAY_MS}, whatever the average), then follows each wheel
      * ({@link #LEVEL_WEIGHT} of each loop's reading) while the two wheels' average is within
      * {@link #LEVEL_BAND_TPS} of it and no dip is in progress, so neither a dip nor the overshoot
      * after one moves it. Wheels away from it for {@link #RESEED_MS} (settling onto a new target)
@@ -1077,6 +1079,21 @@ public class LauncherSubsystem implements Subsystem {
         static final long ABANDON_MS = 400;
         /** A dip starting this soon after the last counted shot is not a shot, ms. */
         static final long MIN_SHOT_GAP_MS = 150;
+        /**
+         * The level is seeded only after both wheels have been within tolerance this long, ms (the
+         * at-speed hold), and with their average this close to the target, ticks/s. Seeded the first
+         * loop within tolerance, it caught wheels still falling onto a lower target: Belding Q-4
+         * (19429), 1613 → 1477, seeded at 1520 with the wheels on their way to 1480, and the gate
+         * opened 0.27 s later. Every reading at the new target then looked 40 below the level. Over
+         * the Belding logs this seed lowers the shut-gate noise from 0.067 to 0.041 dips a second,
+         * gets one more of the 14 clearly video-counted volleys right (12) and none over, and leaves
+         * no practice Auto's first volley under 3 (#515).
+         */
+        static final long SEED_HOLD_MS = 150;
+        /** See {@link #SEED_HOLD_MS}. Most loops' average is this close (median offset −14 to +7 per match). */
+        static final double SEED_BAND_TPS = 20.0;
+        /** Within tolerance this long seeds the level anyway, ms, so wheels settled off target still count. */
+        static final long SEED_ANYWAY_MS = 500;
 
         private double leftLevel = Double.NaN;
         private double rightLevel = Double.NaN;
@@ -1099,6 +1116,8 @@ public class LauncherSubsystem implements Subsystem {
         private long lastShotMs;
         /** The previous update's clock, ms; -1 before the first. */
         private long lastUpdateMs = -1;
+        /** Since when both wheels have been within tolerance while the level is unseeded, ms; -1 while not. */
+        private long withinSinceMs = -1;
 
         /**
          * Feed this loop's reading: each wheel's target and measured speed, {@code within} whether
@@ -1115,7 +1134,16 @@ public class LauncherSubsystem implements Subsystem {
             if (!Double.isNaN(lastTargetSeen) && Math.abs(target - lastTargetSeen) > RETARGET_TPS) reset();
             lastTargetSeen = target;
             if (Double.isNaN(leftLevel) || Double.isNaN(rightLevel)) {
-                if (within) seed(left, right);
+                if (!within) {
+                    withinSinceMs = -1;
+                    return false;
+                }
+                if (withinSinceMs < 0) withinSinceMs = nowMs;
+                long held = nowMs - withinSinceMs;
+                double offTarget = Math.abs(0.5 * (left + right) - 0.5 * (leftTarget + rightTarget));
+                if ((held >= SEED_HOLD_MS && offTarget <= SEED_BAND_TPS) || held >= SEED_ANYWAY_MS) {
+                    seed(left, right);
+                }
                 return false;
             }
             double dLeft = leftLevel - left;
@@ -1182,6 +1210,7 @@ public class LauncherSubsystem implements Subsystem {
             leftLevel = Double.NaN;
             rightLevel = Double.NaN;
             outSinceMs = -1;
+            withinSinceMs = -1;
             lastTargetSeen = Double.NaN;
         }
 
