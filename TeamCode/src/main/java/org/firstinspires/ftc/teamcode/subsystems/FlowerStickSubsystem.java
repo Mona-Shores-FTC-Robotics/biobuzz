@@ -80,6 +80,8 @@ public class FlowerStickSubsystem implements Subsystem {
     private double clearX;
     private double clearY;
     private double clearIn;
+    // A pending retractAfter: the stick comes in at this System.currentTimeMillis, or -1 for none.
+    private long retractAtMs = -1;
 
     /**
      * Looks the servo up once. A missing servo fails init with the SDK's own message.
@@ -95,6 +97,7 @@ public class FlowerStickSubsystem implements Subsystem {
     /** Ask for the stick out. Takes effect in the next {@link #update()}. */
     public void extend() {
         waitingToClear = false;
+        retractAtMs = -1;
         askOut(true);
     }
 
@@ -106,6 +109,7 @@ public class FlowerStickSubsystem implements Subsystem {
     /** Ask for the stick in. Takes effect in the next {@link #update()}. */
     public void retract() {
         waitingToClear = false;
+        retractAtMs = -1;
         askOut(false);
     }
 
@@ -119,15 +123,27 @@ public class FlowerStickSubsystem implements Subsystem {
      */
     public void retractWhenClear(double x, double y, double inches) {
         if (!out) return;
+        retractAtMs = -1;
         waitingToClear = true;
         clearX = x;
         clearY = y;
         clearIn = inches;
     }
 
-    /** Whether the stick is out only until the robot is clear ({@link #retractWhenClear}). */
+    /**
+     * Ask for the stick in {@code delayMs} from now (NaN or negative: now): a GARDEN gather raises it
+     * once the robot has backed out and stopped, so the stick does not drag pieces back out with it.
+     * Any other request replaces it, as for {@link #retractWhenClear}.
+     */
+    public void retractAfter(double delayMs) {
+        if (!out) return;
+        waitingToClear = false;
+        retractAtMs = System.currentTimeMillis() + (delayMs > 0.0 ? Math.round(delayMs) : 0L);
+    }
+
+    /** Whether the stick is out only until the robot is clear ({@link #retractWhenClear}) or a set time ({@link #retractAfter}). */
     public boolean waitingToClear() {
-        return waitingToClear;
+        return waitingToClear || retractAtMs >= 0;
     }
 
     /**
@@ -136,6 +152,7 @@ public class FlowerStickSubsystem implements Subsystem {
      */
     public void toggle() {
         waitingToClear = false;
+        retractAtMs = -1;
         askOut(!out);
     }
 
@@ -180,6 +197,7 @@ public class FlowerStickSubsystem implements Subsystem {
     @Override
     public void initialize() {
         waitingToClear = false;
+        retractAtMs = -1;
         out = false;
         outSinceNs = 0;
         lastOut = false;
@@ -209,6 +227,10 @@ public class FlowerStickSubsystem implements Subsystem {
         long now = System.currentTimeMillis();
         if (waitingToClear && clearOf(drive.pose(), clearX, clearY, clearIn)) {
             waitingToClear = false;
+            askOut(false);
+        }
+        if (retractAtMs >= 0 && now >= retractAtMs) {
+            retractAtMs = -1;
             askOut(false);
         }
         if (out != lastOut) {

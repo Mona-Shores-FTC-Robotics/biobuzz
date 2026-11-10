@@ -28,7 +28,29 @@ public class ControlSchemeTest {
     public void everyActionIsBoundButTheOnesLeftOut() {
         Map<Action, Input> layout = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK);
         for (Action action : Action.values()) {
-            assertEquals(action.toString(), !ControlScheme.NOT_BOUND.contains(action), layout.containsKey(action));
+            boolean bound = !ControlScheme.NOT_BOUND.contains(action) && !ControlScheme.LOCKED_TURRET_ONLY.contains(action);
+            assertEquals(action.toString(), bound, layout.containsKey(action));
+        }
+    }
+
+    @Test
+    public void theLaunchTrimResetIsDpadDownLikeTheTurretsTrimReset() {
+        Map<Action, Input> locked = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true);
+        Map<Action, Input> unlocked = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, false);
+        assertEquals(Input.DPAD_DOWN, locked.get(Action.LAUNCHER_TRIM_RESET));
+        assertEquals(Input.DPAD_DOWN, unlocked.get(Action.TRIM_RESET));
+        assertFalse("an aiming turret's trim reset does both", unlocked.containsKey(Action.LAUNCHER_TRIM_RESET));
+    }
+
+    @Test
+    public void noInputDoesTwoThingsOnOneGamepadInTheMatchLayouts() {
+        for (boolean locked : new boolean[]{true, false}) {
+            Map<String, Action> seen = new HashMap<>();
+            for (Map.Entry<Action, Input> entry : ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, locked).entrySet()) {
+                String key = entry.getKey().pad + "/" + entry.getValue();
+                Action other = seen.put(key, entry.getKey());
+                assertNull("turret locked " + locked + ": " + key + " is both " + other + " and " + entry.getKey(), other);
+            }
         }
     }
 
@@ -40,7 +62,8 @@ public class ControlSchemeTest {
             assertFalse(action + " offered on a locked turret", locked.containsKey(action));
             assertTrue(action + " missing on an aiming turret", unlocked.containsKey(action));
         }
-        assertEquals("nothing else changes", unlocked.size() - ControlScheme.TURRET_ACTIONS.size(), locked.size());
+        assertEquals("nothing else changes",
+                unlocked.size() - ControlScheme.TURRET_ACTIONS.size() + ControlScheme.LOCKED_TURRET_ONLY.size(), locked.size());
     }
 
     @Test
