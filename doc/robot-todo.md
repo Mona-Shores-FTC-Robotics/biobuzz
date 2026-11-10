@@ -290,8 +290,33 @@ Use the work order above to select checks; the detailed mechanism checks below a
 - [ ] **Each selected Auto once:** L-NoCross and R-NoCross, then the two together.
       **Good:** no FAULT or robot/HIVE contact; verify the missed-TIP behavior before
       calling either routine qualified. See the work order above for the intended result.
-- [ ] **One park** (parks moved 4.7–4.9 in, now 14.5 in off the wall). **Good:** part of the robot
-      inside the LOADING ZONE. [PR #373]
+- [ ] **L-NoCross: the two CELL checks in its Otherwise route**, once they are drawn and
+      exported ([the change, step by step](belding-auto-review.md#1-l-nocross-check-the-cell-before-each-volley-in-the-otherwise-route-about-3-points-a-match-in-playoffs-fairly-sure)).
+      Run it against three partner set-ups, each with the TIP wait timing out:
+      - a partner that TIPs the RIGHT CELL a second or two after our 8 s limit (tip it by hand);
+      - no TIP at all;
+      - our own RIGHT volley not tipping it.
+
+      **Good:**
+      - "TIP seen?" ends on `LeftCellUp` within 0.75 s whenever the RIGHT CELL went down, and the
+        robot goes back to LEFT_LAUNCH_CATCH.
+      - "RIGHT CELL still up?" sends the WALL FLOWER's pieces to whichever CELL is up.
+      - No volley at a down CELL.
+
+      **Stop:** a check times out with its CELL in plain view and settled. Note how long the camera
+      took in the log and in the PR.
+- [ ] **R-Solo's second TIP: count what lands.** Film 5 R-Solo runs from the side, and count the
+      pieces that land in the LEFT CELL from V2 and V3. At Belding it never TIPped (0 of 7), while
+      the simulator TIPs it every time.
+      - **It reaches 7 less than about one time in four:** draw R1 (park after V2, dropping the
+        SCORING FLOWER leg; [review](belding-auto-review.md#3-dont-add-a-second-branch-to-r-solo-yet-first-find-out-why-its-second-tip-never-comes-no-change-the-open-question-is-worth-up-to-20)).
+      - **Otherwise:** keep R-Solo as it is.
+- [ ] **RIGHT_PARK is judged out of the LOADING ZONE one time in three.** At Belding the
+      scoreboard gave AUTO PARK to every LEFT_PARK end (6 of 6) but to RIGHT_PARK 4 of 6 (not in
+      Q-4, red, or Q-31, blue), from the same logged pose each time (14.1–14.5, 95.6–96.1, or its
+      blue turn); by the field model its centre is only 1.4 in inside the zone's edge. Put the robot
+      on RIGHT_PARK and look at the tape from above. **Good:** clearly over the line → leave it; on
+      the line → move RIGHT_PARK toward LEFT_PARK's end in the Visualizer and Save team spots. [PR #373]
 - [ ] **Stick down on the drive in:** spotters at WALL_FLOWER_STAGING and SCORING_FLOWER_STAGING,
       R-Solo, two picks each. **Good:** the stick swings down about 18 in before
       the robot stops and touches nothing before the push. **Stop:** it touches → Panels
@@ -496,8 +521,8 @@ measurement is [#255].
       match-length drive and note `shadow_offset_in`. [PR #361]
 - [ ] **Panels drawing:** X then B in INIT turns the outline blue → red; each FieldLayers switch
       shows and hides its robot. [PR #356], [PR #307]
-- [x] **Done on red at all six spots (mentor, 5 Nov); the two CORNER spots and blue are checked
-      in §7d and §7e.** **Go to launch spot (driver Square, hold) vs chassis aim (Circle):** pose set (corner or
+- [x] **Done on red at all six spots (mentor, 5 Nov); blue and the left corner at Belding (7 Nov);
+      the right corner's heading is in §7d.** **Go to launch spot (driver Square, hold) vs chassis aim (Circle):** pose set (corner or
       camera reset), the drivers try both from around the field over a practice, firing from where
       each leaves them. It goes to the nearest of six spots (the two starts and the four
       CATCH/OFFSET spots); press it once near each start: it stops `LaunchSpotDrive.startOffWallIn`
@@ -771,17 +796,13 @@ press to press.
 
 Measured 4 Nov 2026 (20245, tuned PIDF) and in `LaunchSpeedTable` with the table on: 42.4 in → 1520,
 45.7 → 1560, 53.9 → 1600, 58.8 → 1635 (ranges from the turret axis since 5 Nov; first written from
-the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the corner spot for Square.
+the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corner's heading.
 
-- [ ] **Square's corner spots:** `RIGHT_LAUNCH_CORNER` (30.2, 10.7, 54°) is where 20245 scored the
-      58.8 in / 1635 row (55.4 from the wheels' centre) on 4 Nov (about 50 shots in that evening's log); `LEFT_LAUNCH_CORNER`
-      (30.2, 130.8, 302.6°) is its place mirrored across the axle line, aimed at the LEFT CELL,
-      never fired from. RIGHT's 54° points the turret about 7° right of the CELL by the field model
-      (61° would aim it): compare 54° and 61° on video once. Square drives to
-      either when it is the nearest spot. **Good:** from near each corner, Square ends there and
-      scores 3–4 of 4; the drive in from the GARDEN side touches nothing (it is one straight path).
-      **Stop:** the left one goes long or short → note the range on the Match page; the left corner
-      is also where a partner may leave its POLLEN pile. [mentor, 5 Nov]
+- [ ] **`RIGHT_LAUNCH_CORNER` faces about 5° right of the CELL.** At Belding (turret locked
+      forward) the aim error held at +4.5° there on red (Q-7) and +5.5° on blue (Q-31), against 0°
+      at `LEFT_LAUNCH_CORNER` (M-7, red) and within ±2.5° at the other spots; 3 and 2 shots counted
+      of 4. Set its heading to about 59° in the Visualizer (Save team spots), then hold Square there
+      once. **Good:** aim error under 2° on the Match page and 3–4 of 4 in. [mentor, 5 Nov]
 
 - [ ] **Camera range = pose range, from the turret axis** (since 5 Nov both are measured from the
       turret, and the table's rows were converted to match). Any Basic Drive with the camera on a
@@ -802,12 +823,6 @@ Everything blue is red turned half a turn about the field centre, in code and un
       out **our own** NECTAR and keeps the red. **Good:** "BLUE (vision)" or "BLUE" after B, every
       time; the drive team checks it before PLAY. **Stop:** vision proposes red on the blue side →
       save the log.
-- [ ] **NECTAR reject on blue:** intake a red NECTAR → it is spat out; a blue NECTAR and POLLEN →
-      kept. **Good:** both, three times each.
-- [ ] **Square on blue, each spot once:** from near each blue spot, hold Square. **Good:** it drives
-      to the blue mirror of the red spot, faces the blue CELL it serves, and the volley scores.
-      **Stop:** it goes to the wrong half or faces away → note the pose; never across the centre
-      line (it refuses there).
 - [ ] **Corner reset on blue** (the reset corners are measured on red and turned): hold the reset
       button at a blue corner. **Good:** the pose on the Robot page matches the corner, field-centric
       forward is right.
@@ -845,13 +860,6 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       that replaces the simulator's placeholders (`FieldSim.SETPOINT_PITCH_DEG` 75°, exit height
       17 in). **Stop:** if the angle changes with the wheel speed (a flexible hood), say so instead.
       [#429]
-- [ ] **HIVE: count the pieces in the CELL at each TIP** (no robot: our practice videos and online
-      match videos). For each TIP: the POLLEN and NECTAR in the CELL just before it moved, whether it
-      tipped on a landing piece (and how many landed in the last second), or on a piece placed or
-      rolling in. **Good:** 20 TIPs or more, each with its count. **Stop:** a CELL that tips on fewer
-      than 7 POLLEN weights (NECTAR is 1.65) from hits is the number the simulator's hit strength
-      (`FieldSim.PLACEHOLDER_IMPULSE_SCALE`, a placeholder) is refitted to; record each count in the
-      PR. [#429]
 - [ ] **Driver Hub battery in the logs:** at the end of the session, plug each Driver Hub into the
       laptop by USB and double-click `pull-logs.cmd`. **Good:** it says `Driver Hub <serial>: battery
       N % now`, the robot folder gets `<date>_DriverHub-<serial>.battery.txt` and `.dslog.txt`, and
