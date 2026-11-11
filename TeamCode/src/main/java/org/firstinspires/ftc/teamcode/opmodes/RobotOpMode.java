@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.controls.Handoff;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
+import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.logging.AdvantageScopeKeys;
 import org.firstinspires.ftc.teamcode.logging.GamepadLog;
 import org.firstinspires.ftc.teamcode.logging.MatchLog;
@@ -263,6 +264,9 @@ public abstract class RobotOpMode extends OpMode {
     private final MotionWatch intakeWatch = new MotionWatch("intake");
     private int loggedWedgeClears;
     private final MotionWatch feederWatch = new MotionWatch("feeder");
+    /** The feeder motor's encoder socket reads the turret, not the feeder: no stall watch on it. */
+    private static final boolean FEEDER_SOCKET_IS_THE_TURRETS =
+            DeviceNames.FEEDER.equals(DeviceNames.TURRET_ENCODER_HOST);
     private String loggedLauncherFault;
     private int loggedPidfWrites;
     private int loggedSpinUps;
@@ -1640,8 +1644,13 @@ public abstract class RobotOpMode extends OpMode {
                         && !robot.intake.holdingForFull(),
                 robot.intake.ticksPerSecond(), now);
         if (stalled != null) log.event(stalled);
-        stalled = feederWatch.check(robot.feeder.power() != 0.0, robot.feeder.ticksPerSecond(), now);
-        if (stalled != null) log.event(stalled);
+        // The feeder's encoder socket holds the turret's encoder (DeviceNames.TURRET_ENCODER_HOST),
+        // so its speed says nothing about the feeder: with the turret locked the watch tripped on
+        // every feed of every Belding match and would have hidden a real jam (#500).
+        if (!FEEDER_SOCKET_IS_THE_TURRETS) {
+            stalled = feederWatch.check(robot.feeder.power() != 0.0, robot.feeder.ticksPerSecond(), now);
+            if (stalled != null) log.event(stalled);
+        }
         if (!Double.isNaN(loopMs)) {
             log.loopMs(loopMs);
             if (loopMs > SLOW_LOOP_EVENT_MS) {
