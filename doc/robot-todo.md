@@ -297,8 +297,18 @@ Use the work order above to select checks; the detailed mechanism checks below a
 - [ ] **Each selected Auto once:** L-NoCross and R-NoCross, then the two together.
       **Good:** no FAULT or robot/HIVE contact; verify the missed-TIP behavior before
       calling either routine qualified. See the work order above for the intended result.
-- [ ] **L-NoCross: the two CELL checks in its Otherwise route**, once they are drawn and
-      exported ([the change, step by step](belding-auto-review.md#1-l-nocross-check-the-cell-before-each-volley-in-the-otherwise-route-about-3-points-a-match-in-playoffs-fairly-sure)).
+- [ ] **L-NoCross: the two CELL checks in its Otherwise route**, drawn and exported 10 Nov
+      ([the change, step by step](belding-auto-review.md#1-l-nocross-check-the-cell-before-each-volley-in-the-otherwise-route-about-3-points-a-match-in-playoffs-fairly-sure)).
+      As exported, every route ends on LEFT_LAUNCH_CATCH and goes on with the steps below the wait,
+      so the one endgame guard watches all of it: "RIGHT CELL still up?" seen up fires at the RIGHT
+      CELL and then drives to LEFT_LAUNCH_CATCH if the guard lets it (else it parks from
+      RIGHT_LAUNCH_CLOSE, the bent park). New drives, never driven on a robot: RIGHT_LAUNCH_CLOSE →
+      LEFT_LAUNCH_CATCH (the existing curve reversed, turning over its second half, drawn 3.0 s) and
+      WALL_FLOWER_STAGING → RIGHT_LAUNCH_CLOSE (straight, drawn 1.8 s): time both, and watch the
+      first under the HIVE. In the simulator it scores as master does with every curated partner
+      and parks every run; with a partner whose TIP lands while we cross, the 4 preloads go into
+      the up LEFT CELL instead of the down RIGHT one (0–1 at a down CELL, master 4), with no time
+      left for a second volley.
       Run it against three partner set-ups, each with the TIP wait timing out:
       - a partner that TIPs the RIGHT CELL a second or two after our 8 s limit (tip it by hand);
       - no TIP at all;
