@@ -52,9 +52,10 @@ public final class MatchLog {
      * Metadata lines one loop can carry: PLAY writes every tunable at once, then the OpMode's own
      * lines (an Auto's {@code AutoOptions}). More are counted as dropped. {@code TunablesTest} keeps
      * the tunables {@link #METADATA_HEADROOM} short of it: at 160, the Belding build's 160 tunables
-     * filled the PLAY loop and every L-NoCross log lost its {@code AutoOptions}.
+     * filled the PLAY loop and every L-NoCross log lost its {@code AutoOptions}; master has since
+     * passed 250.
      */
-    public static final int MAX_METADATA_PER_LOOP = 320;
+    public static final int MAX_METADATA_PER_LOOP = 512;
     /** Slots PLAY's loop keeps free after the tunables, for the OpMode's own metadata. */
     public static final int METADATA_HEADROOM = 64;
     /** Frames in flight between the loop and the writer: about 1.3 s of loops at 50 Hz. */
