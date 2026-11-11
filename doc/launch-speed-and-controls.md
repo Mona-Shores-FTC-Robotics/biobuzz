@@ -268,8 +268,10 @@ What to know before choosing:
 
 **Built to go with it:** `TeleOpConfig.pauseFeedOffAim` (off until tried). The robot itself holds
 a Circle or Square feed back while it is knocked more than 3° off its aim and feeds again once it
-is back inside half of that. It reacts in one loop, where a person takes a third of a second, but
-it sees only a turn, not a sideways shove, and it cannot see a hit coming. The two would work
+is back inside half of that. For Square that is a turn off the spot's heading or a push off the
+spot of the same angle at the spot's range (2.6 in at 50 in); for Circle it is the aim on the CELL
+itself. It reacts in one loop, where a person takes a third of a second, but it cannot see a hit
+coming. The two would work
 together.
 
 ### When the turret works

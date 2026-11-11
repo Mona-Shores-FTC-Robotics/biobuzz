@@ -158,8 +158,9 @@ public final class TeleOpConfig {
      * A feed the driver's button started (Square's volley, Circle's with {@link #circleAlsoFires})
      * holds back while the robot is knocked off its aim, and feeds again when it is back
      * ({@link AimPause}): for Circle, more than {@link #aimToleranceDeg} off the CELL or the aim
-     * lost; for Square, the robot turned more than that off the spot's heading. The operator's FIRE
-     * is never paused. It sees a turn, not a sideways shove. Off until tried on a robot (mentor,
+     * lost; for Square, the robot turned more than that off the spot's heading, or pushed far enough
+     * off the spot to move the shot the same angle (2.6 in at 50 in). The operator's FIRE is never
+     * paused. Off until tried on a robot (mentor,
      * 11 Nov 2026; {@code doc/robot-todo.md} §7f): each pause costs the feed's lead again, so a
      * robot that is jostled all the time could stutter. Read every loop.
      */

@@ -180,15 +180,19 @@ public final class LaunchSpotDrive {
                 && settle.readyOnApproach(choice.target, robot.drive.pose(), remainingIn());
         feed = volley.update(s(now), phase == Phase.HOLDING, robot.launcher.atSpeed(), settle.settled(), operatorFiring,
                 onApproach);
-        // Knocked off the spot's heading while feeding (TeleOpConfig.pauseFeedOffAim): hold back
-        // until the Follower has turned it back. The volley's own state is untouched.
+        // Knocked off the spot while feeding (TeleOpConfig.pauseFeedOffAim): turned off its heading,
+        // or, once arrived, pushed off its position by as much as moves the shot the same angle at
+        // the spot's range. Hold back until the Follower has brought it back. The volley's own
+        // state is untouched.
         if (feed) {
-            double offDeg = headingOffDeg();
+            double headingDeg = headingOffDeg();
+            double offIn = phase == Phase.HOLDING ? remainingIn() : Double.NaN;
+            double offDeg = shotOffDeg(headingDeg, offIn, spotRangeIn);
             boolean was = aimPause.paused();
             if (aimPause.update(TeleOpConfig.pauseFeedOffAim, offDeg, TeleOpConfig.aimToleranceDeg, false)) feed = false;
             if (aimPause.paused() != was) {
-                event.accept(String.format(Locale.US, "launch spot: feed %s, %+.1f° off the spot's heading",
-                        aimPause.paused() ? "paused" : "resumed", offDeg));
+                event.accept(String.format(Locale.US, "launch spot: feed %s, %+.1f° and %.1f in off the spot",
+                        aimPause.paused() ? "paused" : "resumed", headingDeg, offIn));
             }
         }
         if (volley.fired() && !feedLogged) {
@@ -349,6 +353,19 @@ public final class LaunchSpotDrive {
      */
     public double spotRangeIn() {
         return active() ? spotRangeIn : Double.NaN;
+    }
+
+    /**
+     * How far a shot is off because the robot is off its spot, degrees, never negative: the larger of
+     * its turn off the spot's heading and the angle its distance off the spot is at the spot's range
+     * to the CELL (2.6 in is 3° at 50 in). A distance or range that is not known (NaN, or no range)
+     * leaves the heading alone; NaN with neither. Pure, so a test can drive it.
+     */
+    static double shotOffDeg(double headingOffDeg, double offIn, double rangeIn) {
+        double turn = Math.abs(headingOffDeg);
+        if (!(offIn >= 0.0) || !(rangeIn > 0.0)) return turn;
+        double shove = Math.toDegrees(Math.atan2(offIn, rangeIn));
+        return Double.isNaN(turn) ? shove : Math.max(turn, shove);
     }
 
     /** How far the robot is turned off the spot's heading, degrees, signed; NaN without a pose. */

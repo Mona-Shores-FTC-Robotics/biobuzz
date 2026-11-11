@@ -986,8 +986,9 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       driver needs to line up without shooting → leave it off.
 - [ ] **A feed pauses when the robot is knocked off its aim** (`TeleOpConfig.pauseFeedOffAim`, off
       until this check; `AimPause`). On in Panels, loaded. (a) Square at a spot, feeding: a second
-      person turns the robot by hand about 10°. The feed stops (`launch spot: feed paused, N° off
-      the spot's heading`), the robot turns back, and it feeds again (`feed resumed`). (b) With
+      person turns the robot by hand about 10°, then pushes it about 4 in sideways without
+      turning it. Each time the feed stops (`launch spot: feed paused, N° and M in off the spot`),
+      the robot comes back, and it feeds again (`feed resumed`). (b) With
       `circleAlsoFires` on, the same while Circle feeds (`chassis aim: feed paused`). (c) Ordinary
       driving and shooting for five minutes with it on. **Good:** (a) and (b), no piece jammed in
       the gate plate by a pause, and in (c) no pause without a real knock. **Stop:** it stutters

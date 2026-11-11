@@ -125,4 +125,16 @@ public class SpotVolleyTest {
         assertTrue(v.update(0.9, true, true, true, false, false));
         assertEquals("at speed, settled", v.why());
     }
+
+    @Test
+    public void aShoveOffTheSpotCountsAsTheAngleItMovesTheShot() {
+        // 2.62 in off at 50 in is 3 degrees; a turn larger than that wins.
+        assertEquals(3.0, LaunchSpotDrive.shotOffDeg(0.5, 2.62, 50.0), 0.01);
+        assertEquals(7.0, LaunchSpotDrive.shotOffDeg(-7.0, 2.62, 50.0), 1e-9);
+        // Still driving in (no distance), or no range to the CELL: the turn alone.
+        assertEquals(1.0, LaunchSpotDrive.shotOffDeg(1.0, Double.NaN, 50.0), 1e-9);
+        assertEquals(1.0, LaunchSpotDrive.shotOffDeg(-1.0, 4.0, Double.NaN), 1e-9);
+        // No pose for the heading, but a distance: the shove alone.
+        assertEquals(3.0, LaunchSpotDrive.shotOffDeg(Double.NaN, 2.62, 50.0), 0.01);
+    }
 }
