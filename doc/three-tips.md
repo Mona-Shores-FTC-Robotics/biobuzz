@@ -431,6 +431,24 @@ then with every shot staying in and every FLOWER pick full, so luck is gone and 
 
 No pairing makes a third TIP in any of its 240 runs.
 
+**Why, beyond these four drawings.** A Belding-style partner gives at most its 4 preloads, so our
+robot still has to land 15 of the 19 pieces: its preloads and three more loads. Unlike rung 1, a
+bound with no driving does not rule that out (it gives TIP 3 at 28.8 s), so the reason is the field's
+distances. The best case, with Belding's shortest times and the partner's 4 going into the LEFT CELL
+the moment it is up:
+
+```
+our preloads, TIP 1 at the earliest we made it                      6.0 s
+WALL FLOWER: drive 2.1 + pick 3.6, from the end of the preloads     robot loaded at 8.3 s
+drive to a LEFT spot 2.9, volley 3.6                                last LEFT piece at 14.8 s
+shortest dwell and swing 4.2                                        TIP 2 at 19.0 s
+SCORING FLOWER: drive 1.3 + pick 3.6                                robot loaded at 19.7 s
+drive to a RIGHT spot 3.4, volley 3.6                               4 of 8 in the RIGHT CELL at 26.7 s
+```
+
+The RIGHT CELL still needs 4 more, a pick and a volley away, and AUTO ends 3.3 s later. That is the
+19.4 s second TIP in the first row of the table, and the same wall in every pairing.
+
 The earliest second TIP is 19.4 s. The RIGHT CELL then needs 8 pieces by about 25 s, and a Belding
 volley of 4 takes 4 s after the robot is there with them: two volleys from one robot do not fit, and
 one volley from each robot needs both standing at a RIGHT spot, loaded, at 19.4 s, which no drawing
