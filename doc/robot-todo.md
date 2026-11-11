@@ -896,6 +896,19 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       the robot after the match. **Good:** at most one refused press after a loss.
 - [ ] **Operator: spin up before FIRE** when the next shot is coming, so FIRE finds the launcher at
       speed (first ball 0.8 s instead of 1.5 s). Until #497 decides the software side.
+- [ ] **Launch timing, before any change from `doc/launch-speed-and-controls.md` is trusted.**
+      Three counts, each from ordinary Basic Drive with a full lane, HIVE upright; read them with
+      `tools/event-review/archive/belding-scripts/ctl/launch_time.py`.
+      (a) *Circle then FIRE, as on master since #532:* ten launches from around the field, the
+      operator holding FIRE before the driver holds Circle. **Good:** `chassis aim: pressed` to the
+      first `shot` line under 1.5 s in eight of ten; note how many pieces go in.
+      (b) *Launcher left on:* the operator spins up at PLAY and never idles it, for a full 2-minute
+      TeleOp. **Good:** no brownout, and the battery at the end is within 0.3 V of a run with the
+      launcher idled between volleys.
+      (c) *Do shots need the settle?* Ten Square volleys, someone counting pieces in against the
+      `launch spot: arrived … X in and Y° off` line of each. This is the evidence for opening the
+      gate on the approach and for whether 3° is tighter than a shot needs; Belding's logs have no
+      hits or misses.
 - [ ] **19429: a shorter route from full to the shot.** At Belding it drove a median 191 in with a
       full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
       where it is. **Good:** a timed practice cycle under 20 s.
