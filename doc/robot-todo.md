@@ -474,7 +474,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s).
       - Five runs alone, filmed from the side, partner off `LEFT_START`. Count the pieces that
         stay in the LEFT CELL from each LEFT volley, and the TIPs. **Good:** 8 of 8 stay in on
-        most runs (the simulator's half of the runs assumes 0.92 a shot; `doc/one-robot-two-tips.md`). This is
+        most runs. This is
         also the count the Belding review asked for on R-Solo.
       - **The third volley must run.** Master's guard parks without it when the second volley
         ends after about 16.8 s (the calibrated simulator: 15.8 s). Read the card times from
@@ -483,9 +483,11 @@ Use the work order above to select checks; the detailed mechanism checks below a
         `PICK_FLOWER_TYPICAL_S`) need measuring again.
       - **`LEFT_LAUNCH_OFFSET`, the last volley's spot,** has not been fired from on the left.
         Hold Square there first and count: **Good:** 3 or 4 of 4 stay in.
-      - **The measurements `doc/one-robot-two-tips.md` asks for** come from these same runs and a
-        few bench counts: balls that stay in from each LEFT spot, SCORING picks that come back
-        full, how many POLLEN tip the practice HIVE, and the time from the last ball to the TIP.
+      - **Count what each volley fires** (`read_logs.py volleys` on each run's log, and the film):
+        at Belding R-Solo's two LEFT volleys never fired 8 between them, and Infrared's loads
+        came up short on both FLOWERs. **Good:** 4 fired after every pick. **Stop:** fewer →
+        film where the pieces stop (FLOWER, intake, lane, feed) before anything else
+        (`doc/one-robot-two-tips.md` lists the other measurements).
       - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
         piece leaves the robot and the camera sights the LEFT CELL before the stop.
       [mentor session, 10 Nov]
@@ -826,10 +828,10 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
 
 - [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`.** The table's rows start
       at 42.4 in, so both CLOSE spots fire at an extrapolated speed (1459–1480 ticks/s in the
-      Belding logs). R-Solo fired both LEFT volleys from there and made its second TIP in 0 of 7
-      runs; L-NoCross from `LEFT_LAUNCH_CATCH` (the 42.4 in row) made it in 3 of 5. Run the loop
-      above at `RIGHT_LAUNCH_CLOSE` and write the speed into `LaunchSpeedTable` row 5.
-      **Good:** 4 of 4 stay in the CELL at the row's speed. [mentor session, 10 Nov]
+      Belding logs). The four measured rows fit one arc, which puts 36 in at about 1513 ticks/s
+      (1458 to 1573 allowed by the fit). Run the loop above at `RIGHT_LAUNCH_CLOSE` and write the
+      speed into `LaunchSpeedTable` row 5. **Good:** 4 of 4 stay in the CELL at the row's speed.
+      [`doc/one-robot-two-tips.md`]
 
 - [ ] **Camera range = pose range, from the turret axis** (since 5 Nov both are measured from the
       turret, and the table's rows were converted to match). Any Basic Drive with the camera on a

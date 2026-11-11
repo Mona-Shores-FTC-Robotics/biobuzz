@@ -8,16 +8,20 @@ package org.firstinspires.ftc.teamcode.logging;
  *
  * <p><b>What it sets, and from what:</b>
  * <ul>
- *   <li><b>How many launched pieces stay in the CELL, by launch range</b> ({@link #stayInFraction}). The physics
- *       launcher (one pitch, a forgiving CELL) scored about the same from every spot; the matches did not.
- *       RIGHT_START, 53.9 in at 1600 ticks/s: 0.82. The preloads made the first TIP in 7 of 9 R-Solo runs, and
- *       three in is usually enough; Q-31's put 3 of 4 in, and the 5 Nov video's fourth ball fell off the front
- *       lip. LEFT_LAUNCH_CATCH, 42 in at 1521-1528: 0.92. L-NoCross put 8 of 8 in often enough for a second TIP
- *       in 3 of 5 runs, and 0.92 gives 8 of 8 half the time. The CLOSE
- *       spots, 36 in at an extrapolated 1459-1480: 0.65. R-Solo's two LEFT volleys from there made no second TIP
- *       in 7 runs, which bounds it below about 0.8; on the Q-13 stream balls drop back out of the CELL; and Q-31's
- *       volley from RIGHT_LAUNCH_CLOSE put 3 in. 0.65 is the middle of what those allow, an estimate until the
- *       robot fires counted volleys from there ({@code doc/robot-todo.md} section 7d).</li>
+ *   <li><b>How many pieces a volley after a FLOWER pick fires</b> ({@link #load}). This is what decided the
+ *       second TIP. Counted from the launcher wheels' dips ({@code read_logs.py volleys}), R-Solo's two LEFT
+ *       volleys never fired eight pieces between them (0, 3, 4, 6, 6, 6 to 7 and 7), and L-NoCross made its second
+ *       TIP in three of the four runs where eight were fired. Infrared's loads came up short on both FLOWERs;
+ *       Ultraviolet's were full but for Q-1's wedge.</li>
+ *   <li><b>How many launched pieces stay in the CELL, by launch range</b> ({@link #stayInFraction}). A piece
+ *       that reaches a raised CELL stays in (mentor, 10 Nov 2026); the ones lost go wide, fall short, or go at a
+ *       CELL that is down. 0.95 from the CATCH spots (42.4 in): eight fired made the TIP three times in four.
+ *       0.90 from RIGHT_START (53.9 in): the preloads made the first TIP in 7 of 9 runs, and Q-31's put 3 of 4
+ *       in. 0.70 from the CLOSE spots (36 in, below every measured row of {@code LaunchSpeedTable}), on thin
+ *       evidence: Q-31's volley from RIGHT_LAUNCH_CLOSE put 3 in of the 4 or 5 it fired, and on the Q-13 stream
+ *       balls from LEFT_LAUNCH_CLOSE drop in front of the HIVE. Every counted Auto shot was aimed within 0.8
+ *       degrees by the pose, fired standing still, with the wheels at or above their target, so the logs do not
+ *       say which shots went wide or short.</li>
  *   <li><b>The dwell before a TIP</b> ({@link #DWELL_S}): the partner's TIP was seen 4.0 to 4.4 s after its last
  *       shot left (M-3, M-4; PR #517), and R-Solo's preload TIP came at about 7.5 s (Q-4). Less the flight, the
  *       swing and the camera's settle, and counted from the ball that takes the CELL over (often the third, half a
@@ -33,7 +37,6 @@ package org.firstinspires.ftc.teamcode.logging;
  *       those feeds ran their whole set time (volleys of 3.6 to 4.0 s) where the simulator's ended at the fourth
  *       shot; only the preload volley ends on the count. A pick stays {@link #PICK_DWELL_S} longer.</li>
  *   <li><b>No knock from a hit</b> ({@link #apply}): every AUTO TIP sat out its dwell.</li>
- *   <li><b>SCORING FLOWER picks that come back short</b> ({@link #SCORING_PICK_SHORT}).</li>
  * </ul>
  *
  * <p><b>Not set here</b> (still the simulator's own): drive times (the 270 degree curve to the LEFT spots took
@@ -53,13 +56,14 @@ final class BeldingCalibration {
     static boolean guardAsAtBelding = "1".equals(System.getenv("BIOBUZZ_AUTO_BELDING_GUARD"));
 
     /** Launch range from the turret axis, inches, and the fraction of launched pieces that stay in the CELL. */
-    static final double[][] STAY_IN = {{36.0, env("BIOBUZZ_BELDING_STAY_CLOSE", 0.65)},
-            {42.4, env("BIOBUZZ_BELDING_STAY_CATCH", 0.92)}, {53.9, env("BIOBUZZ_BELDING_STAY_START", 0.82)}};
+    static final double[][] STAY_IN = {{36.0, env("BIOBUZZ_BELDING_STAY_CLOSE", 0.70)},
+            {42.4, env("BIOBUZZ_BELDING_STAY_CATCH", 0.95)}, {53.9, env("BIOBUZZ_BELDING_STAY_START", 0.90)}};
 
     /**
      * What-ifs for "what would the robot need": {@code BIOBUZZ_BELDING_STAY_CLOSE/_CATCH/_START} set a row of
      * {@link #STAY_IN} (better aim or a tuned speed), {@code BIOBUZZ_BELDING_WHOLE_FEED=0} ends every volley at
-     * its fourth shot (a shot counter that works), and {@code BIOBUZZ_BELDING_PICK_DWELL} sets {@link #PICK_DWELL_S}.
+     * its fourth shot (a shot counter that works), {@code BIOBUZZ_BELDING_PICK_DWELL} sets {@link #PICK_DWELL_S},
+     * and {@code BIOBUZZ_BELDING_ROBOT} picks whose loads are drawn ({@link #load}).
      */
     static final boolean WHOLE_FEED = !"0".equals(System.getenv("BIOBUZZ_BELDING_WHOLE_FEED"));
 
@@ -105,11 +109,32 @@ final class BeldingCalibration {
     static final double PICK_DWELL_S = env("BIOBUZZ_BELDING_PICK_DWELL", 0.7);
 
     /**
-     * The share of SCORING FLOWER picks that come back with nothing: 2 of R-Solo's 14 (Q-4 stopped 4.6 in short and
-     * took none; Q-1 wedged two at the intake and its last volley fired about one). The WALL FLOWER picks were
-     * clean on video. {@code BIOBUZZ_BELDING_PICK_SHORT} sets it (0: a pick that always works).
+     * How many pieces each robot's volley after a FLOWER pick actually fired at Belding, counted from the launcher
+     * wheels' dips in the match logs (one sharp dip a ball; within one of the video count on the nine volleys that
+     * were also counted on video, never under; capped at the lane's four). Infrared's loads came up short on
+     * both FLOWERs; Ultraviolet's were full but for Q-1's wedge.
      */
-    static final double SCORING_PICK_SHORT = env("BIOBUZZ_BELDING_PICK_SHORT", 2.0 / 14);
+    static final int[] IR_WALL = {0, 2, 4, 2, 1}, IR_SCORING = {0, 4, 3, 4, 2, 0, 4, 4};
+    static final int[] UV_WALL = {4, 4, 4, 4, 4, 4}, UV_SCORING = {1, 4, 4};
+
+    /**
+     * {@code BIOBUZZ_BELDING_ROBOT}: whose loads a run draws from: "19429" (Infrared), "20245" (Ultraviolet), "both"
+     * (the default: every logged volley) or "full" (every load is four: the pick, the lane and the feed all work).
+     */
+    static final String ROBOT = System.getenv("BIOBUZZ_BELDING_ROBOT") == null ? "both" : System.getenv("BIOBUZZ_BELDING_ROBOT");
+
+    /** The pieces of a pick that reach the launcher, drawn from {@link #ROBOT}'s logged volleys at that FLOWER. */
+    static int load(boolean scoringFlower, java.util.Random luck) {
+        int[] ir = scoringFlower ? IR_SCORING : IR_WALL, uv = scoringFlower ? UV_SCORING : UV_WALL;
+        switch (ROBOT) {
+            case "full": return 4;
+            case "19429": return ir[luck.nextInt(ir.length)];
+            case "20245": return uv[luck.nextInt(uv.length)];
+            default:
+                int i = luck.nextInt(ir.length + uv.length);
+                return i < ir.length ? ir[i] : uv[i - ir.length];
+        }
+    }
 
     /** What {@link #apply} replaced, for {@link #restore}. */
     private static double[] dwellBefore;

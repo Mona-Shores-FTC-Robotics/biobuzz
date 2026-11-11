@@ -65,7 +65,9 @@ branches and reads them with `read_logs.py` (below). Nothing to type.
 
 `read_logs.py` reads a `.wpilog` with plain Python (standard library only): `summary` gives, per
 run, the build, battery, every launch knob at PLAY, the key events and every feed (gate open:
-launcher speed at the open and its lowest, feeder speed, shots counted, battery low). `picks`
+launcher speed at the open and its lowest, feeder speed, shots counted, battery low). `volleys`
+gives, for every LaunchAll of an Autonomous, the balls it fired, counted from the launcher wheels'
+dips (one sharp dip a ball), beside the shot counter's number. `picks`
 gives one line per FLOWER pick: how the push ended (reached, stalled, path done or timed out, and
 how far short), the depth, the intake-current spikes (about one per piece), the lane count and the
 camera's last gap to odometry along and across the push. It is for reading logs without

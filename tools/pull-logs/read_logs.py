@@ -12,6 +12,9 @@ with Python. Standard library only.
   python3 tools/pull-logs/read_logs.py launcher LOG.wpilog [...]  every counted shot: speed, pose, nearest
                                                                    team spot, range; then shots per spot
                                                                    and speed, for the speed table (#80)
+  python3 tools/pull-logs/read_logs.py volleys LOG.wpilog [...]   every Auto LaunchAll: the balls it fired,
+                                                                   counted from the launcher wheels' dips,
+                                                                   beside the shot counter's number
   python3 tools/pull-logs/read_logs.py dsbattery FILE [...]       each Driver Hub's own battery over the day,
                                                                    then every match log given beside it: the DS
                                                                    battery at its start, lowest, at its end
@@ -330,6 +333,56 @@ DUR_RE = re.compile(r'^\+?(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m(?!s))?(?:(\d+)s)?(?:(\
 SNAPSHOT_HEADER = '=== '  # Pull-MatchLogs.ps1 starts every snapshot with a line like this
 
 
+def wheel_dips(speeds, target, under=0.978, level=0.988, apart_s=0.28):
+    """Times of the balls in [(seconds, wheel ticks/s)]: one ball is one sharp dip, a local low at
+    least 2.2% under the target, coming from a level within 1.2% of the target held just before it,
+    and at least 0.28 s after the last. Against the nine Belding Auto volleys that were also counted
+    on video it was within one ball of the video every time and never under it; the shot counter was
+    under on seven. A volley that starts from a standstill (the preloads) hides its dips in the
+    spin-up: do not count that one this way."""
+    out = []
+    for t, v in speeds[1:-1]:  # a low needs a sample either side of it
+        if v > target * under:
+            continue
+        if v > min(x for tt, x in speeds if abs(tt - t) <= 0.12) + 1e-9:
+            continue
+        before = sorted(x for tt, x in speeds if t - 0.40 <= tt <= t - 0.12)
+        if len(before) < 3 or before[len(before) // 2] < target * level:
+            continue
+        if out and t - out[-1] < apart_s:
+            continue
+        out.append(t)
+    return out
+
+
+def volleys(paths):
+    """Every LaunchAll card of each log's Autonomous: when it ran, the target speed, the balls it
+    fired by the wheels' dips (wheel_dips), and what the shot counter said. The first volley of an
+    Auto fires from a standstill and is not counted by dips."""
+    print('%-34s %-13s %6s  %-14s %s' % ('log', 'volley (s)', 'target', 'balls by dips', 'counter'))
+    for path in paths:
+        d = read(path)
+        events = [(t, str(v)) for t, v in d.get('/Events', [])]
+        play = [t for t, v in events if re.match(r'PLAY: (RED|BLUE) alliance', v)]
+        if not play:
+            continue
+        t0 = play[0]
+        left, right = d.get('/Launcher/LeftTicksPerSecond', []), d.get('/Launcher/RightTicksPerSecond', [])
+        target, shots = d.get('/Launcher/TargetTicksPerSecond', []), d.get('/Launcher/Shots', [])
+        cards = [(t, v) for t, v in events if t0 <= t <= t0 + 33 and v.startswith('auto:')]
+        starts = [t for t, v in cards if 'auto: command LaunchAll' in v]
+        for i, ts in enumerate(starts):
+            later = [t for t, v in cards if t > ts + 0.5]
+            te = min(later[0] if later else ts + 5, ts + 5.5)
+            tgt = at(target, ts + 1.0) or at(target, ts)
+            speeds = [(ta, (a + b) / 2) for (ta, a), (tb, b) in zip(left, right) if ts - 0.45 <= ta <= te + 0.1]
+            if not tgt or not speeds:
+                continue
+            counted = (at(shots, te) or 0) - (at(shots, ts) or 0)
+            dips = 'from a standstill' if i == 0 else str(len([t for t in wheel_dips(speeds, tgt) if ts - 0.05 <= t <= te + 0.1]))
+            print('%-34s %5.1f-%-5.1f  %6.0f  %-14s %.0f' % (path.split('/')[-1][:34], ts - t0, te - t0, tgt, dips, counted))
+
+
 def _text_lines(path):
     with (gzip.open(path, 'rt', encoding='utf-8', errors='replace') if path.endswith('.gz')
           else open(path, encoding='utf-8', errors='replace')) as f:
@@ -619,6 +672,8 @@ def main(argv):
         picks(argv[2:])
     elif cmd == 'launcher':
         launcher(argv[2:])
+    elif cmd == 'volleys':
+        volleys(argv[2:])
     elif cmd == 'dsbattery':
         dsbattery(argv[2:])
     elif cmd == 'turret':

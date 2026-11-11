@@ -181,5 +181,37 @@ class TurretReportTest(unittest.TestCase):
         self.assertTrue(math.isnan(rows[0]['drive_delta_deg']))
         self.assertFalse(rows[0]['settled'])
 
+
+class WheelDips(unittest.TestCase):
+    """read_logs.wheel_dips: one ball is one sharp dip of the launcher wheels."""
+
+    @staticmethod
+    def trace(dips_at, target=1500.0, step=0.02, length=4.0, depth=0.05):
+        out = []
+        for k in range(int(length / step)):
+            t = k * step
+            v = target * 1.005
+            for d in dips_at:
+                if 0 <= t - d < 0.10:
+                    v = target * (1 - depth * (1 - (t - d) / 0.10))
+            out.append((t, v))
+        return out
+
+    def test_counts_each_ball_once(self):
+        balls = read_logs.wheel_dips(self.trace([1.5, 1.95, 2.4, 2.85]), 1500.0)
+        self.assertEqual(4, len(balls))
+        self.assertAlmostEqual(1.5, balls[0], places=1)
+
+    def test_a_steady_wheel_fired_nothing(self):
+        self.assertEqual([], read_logs.wheel_dips(self.trace([]), 1500.0))
+
+    def test_a_shallow_ripple_is_not_a_ball(self):
+        self.assertEqual([], read_logs.wheel_dips(self.trace([1.5, 2.2], depth=0.012), 1500.0))
+
+    def test_a_dip_with_no_steady_level_before_it_is_not_counted(self):
+        # The wheels arriving at a new target: low from the first sample.
+        t = self.trace([0.0, 1.5])
+        self.assertEqual(1, len(read_logs.wheel_dips(t, 1500.0)))
+
 if __name__ == '__main__':
     unittest.main()
