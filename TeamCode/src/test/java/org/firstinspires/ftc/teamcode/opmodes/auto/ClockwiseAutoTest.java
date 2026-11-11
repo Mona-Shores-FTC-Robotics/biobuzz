@@ -148,7 +148,7 @@ public class ClockwiseAutoTest {
         run(RClockwiseAuto.build(kit(), false));
         assertEquals("preloads, the first load, the SCORING FLOWER load", 3, count("LaunchAll"));
         assertFalse("it never crossed: " + trace, trace.contains("path back under the HIVE to RIGHT_PAIR_CATCH"));
-        assertTrue("not before TR: " + drive.parkAt, drive.parkAt >= 26.8);
+        assertTrue("not before TR: " + drive.parkAt, drive.parkAt >= 26.7);
         parked(95.7);
     }
 
@@ -158,7 +158,7 @@ public class ClockwiseAutoTest {
         drive.arriveAt(47.2, 119.3, 20.0);
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
-        assertTrue(drive.parkAt >= 26.8);
+        assertTrue(drive.parkAt >= 26.7);
         parked(95.7);
     }
 
@@ -169,7 +169,7 @@ public class ClockwiseAutoTest {
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
         assertFalse(trace.toString(), trace.contains("path back under the HIVE to RIGHT_PAIR_CATCH"));
-        assertTrue(drive.parkAt >= 26.8);
+        assertTrue(drive.parkAt >= 26.7);
         parked(95.7);
     }
 

@@ -121,7 +121,7 @@ measured field facts — NaN or empty until measured, never guessed. Each measur
 only the team's spots (`TeamCode/autos/README.md` lists them, side first: `RIGHT_START`,
 `RIGHT_PARK`); one that needs another spot lives on the `autos-experiment` branch. The pairs' own
 launch spots, where two robots stand at one end at once (`RIGHT_PAIR_CLOSE`, `LEFT_PAIR_OFFSET`,
-`RIGHT_PAIR_CATCH`), are the exception until a robot has shot from them. An Autonomous declares its start by
+`LEFT_PAIR_CATCH`, `RIGHT_PAIR_CATCH`), are the exception until a robot has shot from them. An Autonomous declares its start by
 overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check. A TeleOp with
 no handoff declares its alliance's start too (`StartPositions.forAlliance`), so a test drive starts
 from a known pose with the right field-centric forward; after an Auto it keeps the Auto's pose. The drive team

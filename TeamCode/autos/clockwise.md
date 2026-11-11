@@ -13,12 +13,13 @@ Open the pair together:
 **What the simulator says, set to the Belding Qualifier** (24 seeds a row; the full tables are below):
 
 - Both robots park and nothing touches in every run, with either robot 20% slow and with either
-  robot's preloads missed, for both pickup choices.
+  robot's preloads missed, for both pickup choices. No robot touches a spilled piece before it
+  reaches the tiles (G409) in any run.
 - At least one TIP comes in every normal run, and two in 18 of 24 when R takes the WALL FLOWER
-  (2 of 24 when R takes the GARDEN).
-- **Three TIPs never come at Belding's volley times.** R is ready to cross at 19.2 s and must
-  start by 18.4 s. With volleys of 2.4 s and every load full, three come in 5 of 24, all
-  complete by 30 s ("What a third TIP needs", below).
+  (3 of 24 when R takes the GARDEN).
+- **Three TIPs never come at Belding's volley times.** R is ready to cross at about 19.4 s and
+  must start by 16.2 s. With volleys of 2.4 s, three come in 16 of 120 runs with Belding's loads
+  and 38 of 120 with every load full ("What a third TIP needs", below).
 - **A missed R preload volley still gets TIP 1, in 23 of 24 runs, but never TIP 2.** L crosses
   and shoots its preloads at RIGHT from the right end; that TIP comes at 19.8 to 22.2 s.
 
@@ -26,11 +27,11 @@ Open the pair together:
 
 | | R-Clockwise | L-Clockwise |
 |---|---|---|
-| TIP 1 | Shoot the preloads at RIGHT at once, from RIGHT_START | Drive to LEFT_LAUNCH_CATCH and wait |
+| TIP 1 | Shoot the preloads at RIGHT at once, from RIGHT_START | Drive to LEFT_PAIR_CATCH and wait |
 | First pickup | The WALL FLOWER, or the GARDEN | |
 | TIP 2 | Outside lane to LEFT_PAIR_OFFSET; shoot at LEFT | Shoot the preloads at LEFT once it is up |
 | Second pickup | The SCORING FLOWER | Under the HIVE; the GARDEN, or the WALL FLOWER |
-| TIP 3 | Back straight out, under the HIVE to RIGHT_PAIR_CATCH; shoot at RIGHT | RIGHT_LAUNCH_OFFSET; shoot at RIGHT |
+| TIP 3 | Wait 2.3 s for TIP 2's spill to land, back straight out, under the HIVE to RIGHT_PAIR_CATCH; shoot at RIGHT | RIGHT_LAUNCH_OFFSET; shoot at RIGHT |
 | Park | Outside lane to RIGHT_PARK | Outside lane to LEFT_PARK |
 
 **The loop.** Under the HIVE is one-way, left to right. The outside lane is one-way, right to
@@ -49,11 +50,19 @@ short way, 123°, as it goes up the outside lane, where the first drawing turned
 SCORING FLOWER it backs straight out and under the HIVE without turning, and arrives at the right
 end already facing the HIVE. The first drawing made a forward U-turn there.
 
+**R waits 2.3 s at the SCORING FLOWER before it backs under the HIVE.** TIP 2 dwells 3.6 to
+4.2 s and then spills; a robot under the HIVE as it tips touches the falling pieces (G409). In a
+what-if with short volleys, where R does cross, the first drawing touched a spilled piece in 35
+of 120 runs with Belding's loads and 50 of 120 with full loads. With the wait, and both parks
+drawn round the spill (R's right park goes west along the audience wall before it turns up the
+lane; R's catch park goes west, north of the LEFT spill, first), it is 0 of 120 in both. The
+simulator now counts G409 in every row (`g409` in `result.json`).
+
 ## The stops: one question each, "which CELL is up by this time?"
 
 | Stop | Question | Yes | No |
 |---|---|---|---|
-| **L1:** L at LEFT_LAUNCH_CATCH, preloads | LEFT up by T1? | Shoot at LEFT | Cross under the HIVE, shoot at RIGHT from RIGHT_LAUNCH_CATCH to finish TIP 1, then park |
+| **L1:** L at LEFT_PAIR_CATCH, preloads | LEFT up by T1? | Shoot at LEFT | Cross under the HIVE, shoot at RIGHT from RIGHT_LAUNCH_CATCH to finish TIP 1, then park |
 | **R2:** R at LEFT_PAIR_OFFSET, first load | LEFT up by T2? | Shoot at LEFT | Park |
 | **R3:** R with the SCORING FLOWER load | RIGHT up by T3? | Shoot at RIGHT, park | Shoot at LEFT to finish TIP 2, then park |
 | **L2:** L at RIGHT_LAUNCH_OFFSET, pickup load | RIGHT up by T4? | Shoot at RIGHT, park | Park |
@@ -70,7 +79,7 @@ ends in the park.
 the left end or at LEFT from the right, and it cannot see the HIVE while it backs away from the
 FLOWER. So when the SCORING FLOWER pick ends, R asks only the clock:
 
-- **Before T3c: go for TIP 3.** R backs under the HIVE during the dwell and asks at
+- **Before T3c: go for TIP 3.** R waits for the spill, backs under the HIVE and asks at
   RIGHT_PAIR_CATCH: RIGHT up by T3r? Yes, shoot at RIGHT and park by the outside lane. No, park
   the same way with the load. The "no" of the table is given up on this side: a robot fast enough
   to cross cannot also finish TIP 2.
@@ -95,12 +104,12 @@ Belding; **every one is a robot check** (`doc/robot-todo.md` §3).
 | **T1** LEFT up by | 9.5 s | TIP 1 from R's preloads was seen at 6.5 to 8.8 s (median 6.7; Belding Q-4, about 7.5 s) |
 | **T2** LEFT up by | 21 s | Covers most of the rescue: L leaves at T1, is across at 13.9 s and has shot by 16.8 s; that TIP was seen at 18.7 to 22.2 s |
 | **TS** scoring FLOWER by | 19.4 s | R's LEFT volley ends at 15.6 s (16.5 s at 20% slow, 18.0 s after a GARDEN pickup) |
-| **T3c** cross by | 18.4 s | The crossing (3.3 s), the volley (4.0 s), the park from RIGHT_PAIR_CATCH (3.3 s) and the guard's 1 s margin end at 30 s |
-| **T3r** RIGHT up by, at the right spot | 21.7 s | The volley, that park and the margin |
+| **T3c** cross by | 16.2 s | The wait for the spill (2.3 s), the crossing (3.3 s), the volley (4.0 s), the park from RIGHT_PAIR_CATCH (3.2 s) and the guard's 1 s margin end at 30 s |
+| **T3r** RIGHT up by, at the right spot | 21.8 s | The volley, that park and the margin |
 | **TRr** park from the right at | 24.0 s | L has left RIGHT_LAUNCH_OFFSET for its park (TL), so R does not meet it joining the lane |
-| **T3** RIGHT up by | 22.3 s | R is at LEFT_LAUNCH_CATCH at 20.8 s; a TIP 2 from the first eight pieces came at 18.6 to 20.7 s |
-| **T3b** LEFT shot by | 22.8 s | The volley (4.0 s), the park from there (2.2 s) and the margin |
-| **TR** park at | 26.8 s | R leaves LEFT_LAUNCH_CATCH for RIGHT_PARK: the latest the guard allows, and L has passed |
+| **T3** RIGHT up by | 22.3 s | R is at LEFT_LAUNCH_CATCH at 21.3 s; a TIP 2 from the first eight pieces came at 18.6 to 20.7 s |
+| **T3b** LEFT shot by | 22.7 s | The volley (4.0 s), the park from there (2.3 s) and the margin |
+| **TR** park at | 26.7 s | R leaves LEFT_LAUNCH_CATCH for RIGHT_PARK: the latest the guard allows, and L has passed |
 | **T4** RIGHT up by | 19.2 s | L's volley must end, and L pass the left end, before R parks at TR |
 | **TL** park at | 22.7 s | L leaves RIGHT_LAUNCH_OFFSET for LEFT_PARK once R has left the SCORING FLOWER |
 | **TLr** park after the crossing at | 24.6 s | L1's "no" only: L leaves RIGHT_LAUNCH_CATCH once R, which shot late at LEFT, has parked from the left spot (by 26.6 s) |
@@ -119,8 +128,8 @@ on the robots tells one where the other is, so the times above keep them apart.
   line. L goes first: it leaves at TL and is parked by 26.2 s (27.4 s at 20% slow). R stands at
   LEFT_LAUNCH_CATCH until TR and crosses at about 27.6 s.
 - **L's lane passes within 2 in of a robot at the SCORING FLOWER.** RIGHT_PARK and
-  SCORING_FLOWER_STAGING leave a 17 in gap for a 16 in robot. R is at the FLOWER from 16.8 to
-  19.2 s (to 20.8 s at 20% slow), and L reaches it no sooner than 24.4 s.
+  SCORING_FLOWER_STAGING leave a 17 in gap for a 16 in robot. R is at the FLOWER from 17.0 to
+  19.6 s (later at 20% slow), and L reaches it no sooner than 24.4 s.
 - **R's park from the right side joins the lane L leaves by.** R waits until TRr, when L has
   gone, and follows it up the lane; nothing crosses.
 - With R on the GARDEN, R's lane north passes the WALL FLOWER where L picks. L waits at the lane's
@@ -128,7 +137,7 @@ on the robots tells one where the other is, so the times above keep them apart.
 
 **How much slack that is.** In the simulator the separation held with either robot from 20% fast
 to 40% slow, except L: at 30% slow L touched R in 2 of 8 runs (R on the WALL FLOWER), and at 40%
-slow in 7 of 8 for either pickup. A real drive is not the simulator's (Belding's 270° curve to
+slow in 7 of 8 for either pickup (8 seeds a row, on the route as it is now). A real drive is not the simulator's (Belding's 270° curve to
 the LEFT spots took 3.5 to 4.6 s against a drawn 2.9 s), so these margins are the first thing to
 check on the field.
 
@@ -152,18 +161,24 @@ before PLAY. Both robots must show the same trigger.
 ## Spots
 
 Team spots, unchanged: RIGHT_START, LEFT_START, WALL_FLOWER_STAGING, GARDEN_STAGING,
-SCORING_FLOWER_STAGING, LEFT_LAUNCH_CATCH, RIGHT_LAUNCH_CATCH (L1's "no"), RIGHT_LAUNCH_OFFSET,
-RIGHT_PARK, LEFT_PARK.
+SCORING_FLOWER_STAGING, LEFT_LAUNCH_CATCH (R's rescue, after L has left), RIGHT_LAUNCH_CATCH
+(L1's "no"), RIGHT_LAUNCH_OFFSET, RIGHT_PARK, LEFT_PARK.
 
-Two launch spots are the pair's own, because two robots stand at one end at once and
+Three launch spots are the pair's own, because two robots stand at one end at once and
 LEFT_LAUNCH_CATCH and LEFT_LAUNCH_OFFSET overlap (as do the RIGHT ones):
 
-| Spot | Pose | Range to its CELL | Clear of the partner |
-|---|---|---|---|
-| LEFT_PAIR_OFFSET | (36.0, 121.5, 302.8°) | 46.9 in | 2.8 in from L at LEFT_LAUNCH_CATCH |
-| RIGHT_PAIR_CATCH | (61.0, 13.0, 96.2°) | 48.0 in | 2.5 in from L at RIGHT_LAUNCH_OFFSET; its corner 0.9 in inside the field's centre line |
+| Spot | Who | Pose | Range to its CELL | Clear of the partner |
+|---|---|---|---|---|
+| LEFT_PAIR_OFFSET | R | (40.0, 128.0, 294.4°) | 51.0 in | 3.0 in from L at LEFT_PAIR_CATCH; 3.2 in from the far wall |
+| LEFT_PAIR_CATCH | L | (61.5, 123.5, 267.6°) | about 43 in | |
+| RIGHT_PAIR_CATCH | R | (61.0, 13.0, 96.2°) | 48.0 in | 2.5 in from L at RIGHT_LAUNCH_OFFSET; its corner 0.9 in inside the field's centre line |
 
-Neither is in `spots.json`: they become team spots through the Visualizer's *Save team spots*
+**LEFT_PAIR_OFFSET is 24.4° off square to the CELL.** The first drawing's (36.0, 121.5, 302.8°)
+was 32.8° off, beyond the 26° or so the launch-spots work (#536) found a shot still goes in at.
+The spot moved toward the CELL's centre line, and L moved 4 in east, to LEFT_PAIR_CATCH, to make
+room. It is 4 in longer (51.0 against 46.9 in).
+
+None is in `spots.json`: they become team spots through the Visualizer's *Save team spots*
 once a robot has shot from them. Infraviolet's RIGHT_PAIR_CLOSE (30 in) is not used: the Belding
 calibration keeps 0.70 of shots from the CLOSE spots and 0.95 from 42 in.
 
@@ -185,20 +200,20 @@ counts only those complete at 30 s.
 | R 20% slow | 0 | 18 (18) | 24 | 24 | 0 | 0 | 0 |
 | L 20% slow | 0 | 18 (18) | 24 | 24 | 0 | 0 | 0 |
 | R's preload volley missed | 0 | 0 (0) | 23 | 24 | 0 | 0 | 0 |
-| L's preload volley missed | 0 | 4 (3) | 21 | 24 | 0 | 0 | 0 |
+| L's preload volley missed | 0 | 6 (4) | 21 | 24 | 0 | 0 | 0 |
 
 | R takes the GARDEN, L the WALL FLOWER | Three TIPs | Two TIPs or more (by 30 s) | One or more | Both parked | Robot contact | HIVE contact | Against the loop |
 |---|---|---|---|---|---|---|---|
-| Normal | 0 | 2 (2) | 24 | 24 | 0 | 0 | 0 |
+| Normal | 0 | 3 (3) | 24 | 24 | 0 | 0 | 0 |
 | R 20% slow | 0 | 4 (4) | 24 | 24 | 0 | 0 | 0 |
-| L 20% slow | 0 | 2 (2) | 24 | 24 | 0 | 0 | 0 |
+| L 20% slow | 0 | 3 (3) | 24 | 24 | 0 | 0 | 0 |
 | R's preload volley missed | 0 | 0 (0) | 23 | 24 | 0 | 0 | 0 |
 | L's preload volley missed | 0 | 0 (0) | 21 | 24 | 0 | 0 | 0 |
 
-No robot's corner crossed the field's centre line in any run. Run from L's side
-(`sim-requests/l-clockwise.json`, L as the first robot), the same rows give the same counts but
-for the luck of the draw in two: L's preloads missed, 6 (4 by 30 s); R on the GARDEN, 3 in each
-of the first three rows.
+No robot's corner crossed the field's centre line, and no robot touched a spilled piece before
+it reached the tiles (G409), in any run. Run from L's side (`sim-requests/l-clockwise.json`, L
+as the first robot), the same rows give the same counts but for the luck of the draw: L's
+preloads missed, 6 (5 by 30 s); R on the GARDEN, 2, 4 and 2 in the first three rows.
 
 L's preloads are missed on the row where L waits for LEFT to come up; in the three runs with no
 TIP 1 from R, L crosses and its volley at RIGHT is the one that goes wide, so those runs have no
@@ -209,9 +224,9 @@ TIP (21 of 24).
 | Done when | WALL FLOWER choice | GARDEN choice |
 |---|---|---|
 | 1. Three TIPs in at least 50% of runs | **Short: 0 of 24** | **Short: 0 of 24** |
-| 2. Two TIPs or more in 100%, forced fallbacks included | **Short:** normal 18 of 24; R's preloads missed 0 of 24 (one TIP in 23); L's preloads missed 4 of 24 | **Short:** normal 2 of 24; 0 of 24 in both fallbacks (one TIP in 23 and 21) |
+| 2. Two TIPs or more in 100%, forced fallbacks included | **Short:** normal 18 of 24; R's preloads missed 0 of 24 (one TIP in 23); L's preloads missed 6 of 24 | **Short:** normal 3 of 24; 0 of 24 in both fallbacks (one TIP in 23 and 21) |
 | 3. Both robots parked in 100% | Met: 120 of 120 | Met: 120 of 120 |
-| 4. No contact and no lane against the loop in 100%, either robot 20% slow | Met: 0 in 120 | Met: 0 in 120 |
+| 4. No contact and no lane against the loop in 100%, either robot 20% slow | Met: 0 in 120 (and no G409) | Met: 0 in 120 (and no G409) |
 
 ### What a third TIP needs
 
@@ -222,39 +237,39 @@ R's time, as the simulator has it at Belding's numbers (R on the WALL FLOWER):
 | Preload volley | 3.7 | 3.7 |
 | Drive to the WALL FLOWER | 2.0 | 5.6 |
 | Pick | 3.2 | 8.8 |
-| Outside lane to LEFT_PAIR_OFFSET | 3.0 (the first drawing: 4.0) | 11.9 |
-| Volley at LEFT | 3.8 | 15.6 |
-| Drive to the SCORING FLOWER | 1.2 | 16.8 |
-| Pick | 2.4 | 19.2 |
+| Outside lane to LEFT_PAIR_OFFSET | 3.1 (the first drawing: 4.0) | 12.0 |
+| Volley at LEFT | 3.8 | 15.7 |
+| Drive to the SCORING FLOWER | 1.2 | 17.0 |
+| Pick | 2.4 to 2.7 | 19.4 to 19.6 |
 
-R must start across by 18.4 s (T3c) and is ready at 19.2 s: 0.8 s short. The redraw took a
-second off the outside lane and two off the move after the SCORING FLOWER; the rest is in the
-volleys and the picks.
+R must start across by 16.2 s (T3c) and is ready at about 19.4 s: 3.2 s short, 2.3 s of it the
+wait for TIP 2's spill. The redraw took a second off the outside lane and two off the move after
+the SCORING FLOWER; the rest is in the volleys and the picks.
 
-**What volley time buys** (R on the WALL FLOWER, normal, 24 seeds; a what-if, not the robot): a
-shot counter that works, the gap between shots set for both robots, the guard planning the volley
-at that length, and T3c, T3r, T3b and T4 moved to match.
+**What volley time buys** (R on the WALL FLOWER, normal, 120 seeds; a what-if, not the robot): a
+shot counter that works, 0.47 s between shots for both robots (a 2.4 s volley), 0.98 of shots
+staying in, the guard planning the volley at that length, and T3c, T3r, T3b and T4 moved to
+match.
 
-| Volley (gap between shots) | Belding's loads: three TIPs, two or more | Every load full: three TIPs, two or more |
-|---|---|---|
-| 3.6 s (0.88 s, as now) | 0, 14 | 0, 20 |
-| 2.8 s (0.6 s) | 0, 9 | 1, 13 |
-| 2.4 s (0.45 s) | 1, 9 | 5, 13 |
-| 1.9 s (0.3 s) | 0, 9 | 2, 13 |
+| Loads | Three TIPs | Two or more | G409 |
+|---|---|---|---|
+| Belding's | 16 of 120 | 78 of 120 | 0 |
+| Every FLOWER load full | 38 of 120 | 108 of 120 | 0 |
 
-Every three-TIP run was complete by 30 s (the third at about 26 s), with both robots parked.
+An earlier sweep, before the wait for the spill (24 seeds a row), found nothing more below 2.4 s
+and no third TIP at 2.8 s or longer with Belding's loads.
 
-- **Shorter volleys get R across in time**, from about 2.8 s. Below 2.4 s nothing more is
-  gained: the next limit is elsewhere.
+- **Shorter volleys get R across in time**, at about 2.4 s. Below that nothing more is gained:
+  the next limit is elsewhere.
 - **Crossing costs the TIP 2 rescue.** Once R is fast enough to cross, a short first eight at
-  LEFT is no longer made up from the left end, so two TIPs fall from 20 of 24 to 13 with full
-  loads. T3c at 0 in INIT puts the rescue back and gives up the third TIP.
+  LEFT is no longer made up from the left end. T3c at 0 in INIT puts the rescue back and gives
+  up the third TIP.
 - **L's load is the next limit.** RIGHT needs seven or eight launched pieces for TIP 3: R's four
   and L's pickup. The simulated GARDEN gather takes two (the robot's take 0 to 2), so the third
   TIP came only in runs where L held more. A GARDEN gather that takes four, or L on a FLOWER,
   comes before any more volley time.
-- **Eight of eight must stay in at LEFT** on the field that tips at eight (0.93 from
-  LEFT_PAIR_OFFSET, 0.95 from LEFT_LAUNCH_CATCH), or TIP 2 never comes and R has crossed.
+- **Eight of eight must stay in at LEFT** on the field that tips at eight (about 0.91 from
+  LEFT_PAIR_OFFSET at 51 in, 0.95 from LEFT_PAIR_CATCH), or TIP 2 never comes and R has crossed.
 - **A full lane read at the FLOWERs** (the pick's dwell ending on full) is not in this table: the
   simulator's picks are already 2.4 and 3.2 s, where Belding's ran 2.7 to 4.0 s (median 3.7 s).
   On the robot it is worth another second or so.
@@ -274,7 +289,7 @@ Every three-TIP run was complete by 30 s (the third at about 26 s), with both ro
   (TIP 2 at 18.6 to 20.7 s) and nine from R's SCORING FLOWER load at LEFT (26.7 to 27.9 s). A 20% slow
   R now makes the rescue too (18 of 24; 9 of 24 on the first drawing).
 - **With L's preloads missed** LEFT gets only R's two loads, and both must be full and stay in:
-  4 of 24, three of them complete by 30 s.
+  6 of 24, four of them complete by 30 s.
 - **The GARDEN gives two pieces, not four.** R's first LEFT volley then cannot make eight, and R
   is back from the SCORING FLOWER too late to shoot again.
 
@@ -291,7 +306,7 @@ Every three-TIP run was complete by 30 s (the third at about 26 s), with both ro
   `LaunchAll` and `LaunchOne`.
 - **The simulator** (test code): `"loop"`, `"picks"`, `"partnerPicks"`, `"oursFails"`,
   `"ourSpeed"` and `"ourLaunchS"` in a request, `"fails": "misses preloads"` for a partner, and
-  each row's `tipsBy30`, HIVE contact, centre-line crossing and against-the-loop time for both
+  each row's `tipsBy30`, `g409`, HIVE contact, centre-line crossing and against-the-loop time for both
   robots (TeamCode/README.md, "Simulating an Auto").
 - **The Visualizer:** a route choice, camera-or-timer stops, times on the menu, the partner note,
   and `scripts/save-auto.mjs`, which saved these files (Visualizer `docs/auto-format.md`, "A
@@ -315,7 +330,7 @@ BIOBUZZ_SIM_RUN=/tmp/clockwise ./gradlew :TeamCode:testDebugUnitTest --tests '*S
 
 `result.json`'s `entries` hold one row per run: `autoTips`, `tipsBy30`, `parked`, `partnerParked`,
 `robotsCollidedAt`, `hitHiveAt`, `partnerHitHiveAt`, `crossedAt`, `againstLoopAt`,
-`partnerAgainstLoopAt`.
+`partnerAgainstLoopAt`, `g409`.
 
 The volley what-if is the same request with `"ourLaunchS"` and the partner's
 `"timing": {"launchS": …}` set to the gap between shots, the four times in `"picks"`, and

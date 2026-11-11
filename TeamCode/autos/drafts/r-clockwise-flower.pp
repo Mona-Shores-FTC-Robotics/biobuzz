@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-11T21:46:01.744Z",
+  "timestamp": "2026-11-11T22:39:09.493Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -81,8 +81,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 36,
-        "y": 121.5
+        "x": 40,
+        "y": 128
       },
       "controlPoints": [
         {
@@ -104,7 +104,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 180,
-                "endDeg": 302.8
+                "endDeg": 294.4
               }
             },
             {
@@ -112,7 +112,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 302.8
+                "degrees": 294.4
               }
             }
           ]
@@ -141,7 +141,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 302.8,
+        "startDeg": 294.4,
         "endDeg": 360
       }
     },
@@ -151,13 +151,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 36,
-        "y": 121.5
+        "x": 40,
+        "y": 128
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -57.19999999999999
+        "degrees": -65.60000000000002
       }
     },
     {
@@ -177,7 +177,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 302.8,
+        "startDeg": 294.4,
         "endDeg": 450
       }
     },
@@ -223,7 +223,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 450.00000000000006
+        "degrees": 450
       }
     },
     {
@@ -259,8 +259,29 @@
       "kind": "compound",
       "segments": [
         {
+          "id": "r-catch-park-west",
+          "color": "#f28e2b",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 40,
+            "y": 122
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "linear",
+            "startDeg": 273.4,
+            "endDeg": 270
+          }
+        },
+        {
           "id": "r-catch-park-clear",
-          "color": "#e15759",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -274,19 +295,18 @@
           },
           "controlPoints": [
             {
-              "x": 45,
-              "y": 113
+              "x": 35,
+              "y": 121
             }
           ],
           "heading": {
-            "type": "linear",
-            "startDeg": 273.4,
-            "endDeg": 270
+            "type": "constant",
+            "degrees": 270
           }
         },
         {
           "id": "r-catch-park-lane",
-          "color": "#59a14f",
+          "color": "#f28e2b",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -306,7 +326,7 @@
         },
         {
           "id": "r-catch-park-in",
-          "color": "#9c755f",
+          "color": "#edc948",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -339,7 +359,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 450.00000000000006
+        "degrees": 450
       }
     },
     {
@@ -355,7 +375,7 @@
       "segments": [
         {
           "id": "r-cross-out",
-          "color": "#9c755f",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -384,7 +404,7 @@
         },
         {
           "id": "r-cross-south",
-          "color": "#b07aa1",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -426,38 +446,8 @@
       "kind": "compound",
       "segments": [
         {
-          "id": "r-right-park-clear",
-          "color": "#e15759",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 56,
-            "y": 41.5
-          },
-          "controlPoints": [
-            {
-              "x": 61,
-              "y": 30
-            },
-            {
-              "x": 61,
-              "y": 41.5
-            }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 96.2,
-            "endDeg": 90
-          }
-        },
-        {
           "id": "r-right-park-west",
-          "color": "#59a14f",
+          "color": "#f28e2b",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -467,17 +457,27 @@
           "kind": "atomic",
           "endPoint": {
             "x": 33,
-            "y": 41.5
+            "y": 30
           },
-          "controlPoints": [],
+          "controlPoints": [
+            {
+              "x": 48,
+              "y": 12
+            },
+            {
+              "x": 34,
+              "y": 14
+            }
+          ],
           "heading": {
-            "type": "constant",
-            "degrees": 90
+            "type": "linear",
+            "startDeg": 96.2,
+            "endDeg": 90
           }
         },
         {
           "id": "r-right-park-lane",
-          "color": "#e15759",
+          "color": "#76b7b2",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -492,7 +492,7 @@
           "controlPoints": [
             {
               "x": 30,
-              "y": 65
+              "y": 60
             },
             {
               "x": 30,
@@ -571,6 +571,10 @@
     },
     {
       "kind": "path",
+      "lineId": "r-catch-park-west"
+    },
+    {
+      "kind": "path",
       "lineId": "r-catch-park-clear"
     },
     {
@@ -592,10 +596,6 @@
     {
       "kind": "path",
       "lineId": "r-cross-south"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-right-park-clear"
     },
     {
       "kind": "path",
@@ -675,9 +675,9 @@
         180
       ],
       "LEFT_PAIR_OFFSET": [
-        36,
-        121.5,
-        302.8
+        40,
+        128,
+        294.4
       ],
       "SCORING_FLOWER_STAGING": [
         47.2,
@@ -806,10 +806,10 @@
                       {
                         "id": "r-gate-cross",
                         "kind": "firstOf",
-                        "label": "Time to cross for TIP 3: before 18.4 s",
+                        "label": "Time to cross for TIP 3: before 16.2 s",
                         "rows": [
                           {
-                            "afterMs": 18400,
+                            "afterMs": 16200,
                             "matchClock": true,
                             "cards": [
                               {
@@ -830,19 +830,19 @@
                                       {
                                         "id": "r-gate-left",
                                         "kind": "firstOf",
-                                        "label": "Time to shoot at LEFT: before 22.8 s",
+                                        "label": "Time to shoot at LEFT: before 22.7 s",
                                         "rows": [
                                           {
-                                            "afterMs": 22800,
+                                            "afterMs": 22700,
                                             "matchClock": true,
                                             "cards": [
                                               {
                                                 "id": "r-hold-b",
                                                 "kind": "firstOf",
-                                                "label": "L has passed: park at 26.8 s",
+                                                "label": "L has passed: park at 26.7 s",
                                                 "rows": [
                                                   {
-                                                    "afterMs": 26800,
+                                                    "afterMs": 26700,
                                                     "matchClock": true,
                                                     "cards": []
                                                   }
@@ -870,10 +870,10 @@
                                               {
                                                 "id": "r-hold-a",
                                                 "kind": "firstOf",
-                                                "label": "L has passed: park at 26.8 s",
+                                                "label": "L has passed: park at 26.7 s",
                                                 "rows": [
                                                   {
-                                                    "afterMs": 26800,
+                                                    "afterMs": 26700,
                                                     "matchClock": true,
                                                     "cards": []
                                                   }
@@ -899,10 +899,10 @@
                                       {
                                         "id": "r-hold-c",
                                         "kind": "firstOf",
-                                        "label": "L has passed: park at 26.8 s",
+                                        "label": "L has passed: park at 26.7 s",
                                         "rows": [
                                           {
-                                            "afterMs": 26800,
+                                            "afterMs": 26700,
                                             "matchClock": true,
                                             "cards": []
                                           }
@@ -926,6 +926,17 @@
                             ],
                             "cards": [
                               {
+                                "id": "r-spill",
+                                "kind": "firstOf",
+                                "label": "Let TIP 2's spill land before backing under the HIVE",
+                                "rows": [
+                                  {
+                                    "afterMs": 2300,
+                                    "cards": []
+                                  }
+                                ]
+                              },
+                              {
                                 "id": "r-c-cross",
                                 "kind": "path",
                                 "lineId": "r-cross",
@@ -934,10 +945,10 @@
                               {
                                 "id": "r-stop-3r",
                                 "kind": "firstOf",
-                                "label": "R3: RIGHT up by 21.7 s at the right spot, otherwise park",
+                                "label": "R3: RIGHT up by 21.8 s at the right spot, otherwise park",
                                 "rows": [
                                   {
-                                    "afterMs": 21700,
+                                    "afterMs": 21800,
                                     "matchClock": true,
                                     "cards": [
                                       {
