@@ -79,6 +79,8 @@ public final class LaunchSpotDrive {
     private final Consumer<String> event;
     /** The Autos' settle check (still, at the path's end heading), fed this drive's path. */
     private final PathEndSettle settle;
+    /** The volley's feed held back while the robot is knocked off the spot's heading ({@code TeleOpConfig.pauseFeedOffAim}). */
+    private final AimPause aimPause = new AimPause();
     private final SpotVolley volley = new SpotVolley();
 
     private Phase phase = Phase.IDLE;
@@ -178,6 +180,17 @@ public final class LaunchSpotDrive {
                 && settle.readyOnApproach(choice.target, robot.drive.pose(), remainingIn());
         feed = volley.update(s(now), phase == Phase.HOLDING, robot.launcher.atSpeed(), settle.settled(), operatorFiring,
                 onApproach);
+        // Knocked off the spot's heading while feeding (TeleOpConfig.pauseFeedOffAim): hold back
+        // until the Follower has turned it back. The volley's own state is untouched.
+        if (feed) {
+            double offDeg = headingOffDeg();
+            boolean was = aimPause.paused();
+            if (aimPause.update(TeleOpConfig.pauseFeedOffAim, offDeg, TeleOpConfig.aimToleranceDeg, false)) feed = false;
+            if (aimPause.paused() != was) {
+                event.accept(String.format(Locale.US, "launch spot: feed %s, %+.1f° off the spot's heading",
+                        aimPause.paused() ? "paused" : "resumed", offDeg));
+            }
+        }
         if (volley.fired() && !feedLogged) {
             feedLogged = true;
             event.accept(Double.isNaN(arriveS)
@@ -254,6 +267,7 @@ public final class LaunchSpotDrive {
         settle.pathStarted(path);
         phase = Phase.DRIVING;
         fires = TeleOpConfig.goToSpotAlsoFires;
+        aimPause.reset();
         if (fires) volley.start();
         shotsAtStart = robot.launcher.shots();
         spotRangeIn = rangeIn(to);
@@ -335,6 +349,13 @@ public final class LaunchSpotDrive {
      */
     public double spotRangeIn() {
         return active() ? spotRangeIn : Double.NaN;
+    }
+
+    /** How far the robot is turned off the spot's heading, degrees, signed; NaN without a pose. */
+    private double headingOffDeg() {
+        Pose pose = robot.drive.pose();
+        return pose == null ? Double.NaN
+                : Math.toDegrees(Math.IEEEremainder(choice.target.heading() - pose.heading(), 2 * Math.PI));
     }
 
     private double remainingIn() {

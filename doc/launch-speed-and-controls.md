@@ -226,6 +226,86 @@ robot, `TeleOpConfig.spotFeedsOnApproach`, off until its check passes. 3: behind
 `TeleOpConfig.circleAlsoFires`, off until its check passes. The three checks are in
 `doc/robot-todo.md` §7f. 4 is open.
 
+### What the operator does when the driver shoots
+
+With the launcher always on and both of the driver's buttons firing, the operator has no part in
+an ordinary shot. What is left:
+
+- **Launcher trim** (and its reset): the one correction the robot cannot make for itself, since
+  only a person sees shots landing short or long. It becomes the operator's main job.
+- **Unjam**, the **FLOWER stick**, and the launcher's **off / on** switch.
+- **Fire now**: the backup when the robot has no aim to fire on (pose lost and no CELL in view,
+  or a HIVE the tracker has wrong), and for clearing the lane.
+- **Watching and calling**: the piece count and READY on the Match page, which CELL is up, and
+  the alerts.
+
+For it: at Belding both people pressed for the same shot in 15 of 19429's 32 launches, and those
+were the slowest. Against it: a student with little to do drifts, and under defense a second
+person who fires the moment the robot swings on target may beat a driver doing both. The Circle
+check in `doc/robot-todo.md` §7f runs both ways so the drive teams can say which they prefer.
+
+### Open, for the students: an operator "hold fire" button
+
+The mentor's idea (11 Nov 2026): the driver fires whenever they want with no input from the
+operator, and the operator has a button that **blocks** the feed while held. They hold it when a
+defender is about to hit the robot and let go when it is clear, so a shot that would have been
+knocked wide is not wasted. Held means "do not feed"; doing nothing means the driver's shots go.
+
+What to know before choosing:
+
+- Each stop and restart costs the feed's lead again: 0.7 to 0.9 s at Belding from the gate
+  opening to the first piece, against 0.49 s between pieces. The build team's transfer work may
+  shorten it, and every tenth it removes makes this button cheaper to use.
+- It cannot stop a piece already past the gate, and a person needs about a third of a second to
+  react. It helps when the operator sees the hit coming.
+- Which button. Not decided; the students who hold the pad should say:
+
+| Option | Hold fire on | "Fire now" | For | Against |
+|---|---|---|---|---|
+| A | Operator Circle | removed | One fewer thing to learn | Nothing can fire when the robot has no aim. Circle has meant "shoot" all season |
+| B | Operator Circle | moves to Triangle | Keeps the backup | Circle flips meaning; Triangle is the turret's button once the turret aims |
+| C | Operator R2 | stays on Circle | Nothing the operators know changes; a trigger suits a squeeze-and-hold | R2 is the operator's intake when `intakeAlwaysOn` is off |
+
+**Built to go with it:** `TeleOpConfig.pauseFeedOffAim` (off until tried). The robot itself holds
+a Circle or Square feed back while it is knocked more than 3° off its aim and feeds again once it
+is back inside half of that. It reacts in one loop, where a person takes a third of a second, but
+it sees only a turn, not a sideways shove, and it cannot see a hit coming. The two would work
+together.
+
+### When the turret works
+
+Today the turret is locked forward and the driver points the whole robot. Once it aims, pointing
+stops being anyone's job, and the layout should say so. A proposal to start from, not a decision:
+
+| | Turret locked (today) | Turret aiming |
+|---|---|---|
+| Who points | The driver, with Circle (chassis turns) or Square (drives to a spot) | The turret, by itself, all TeleOp, as the launcher is always on |
+| Driver Circle (hold) | Turn the robot onto the CELL, and fire with `circleAlsoFires` | **Fire.** Feeds once the turret is on the CELL and the launcher is at speed. The robot does not turn, so the driver keeps driving while it shoots |
+| Driver Square (hold) | Drive to a spot, aim the chassis, fire | Drive to a spot and fire. The spot's heading stops mattering, so feeding on the approach gets safer |
+| Operator Triangle | Not bound | Turret auto / locked forward: the way back to today's layout if the turret misbehaves |
+| Operator D-pad | Launch trim reset only | Aim trim left / right, reset, and zero the turret (already in the layout, hidden while locked) |
+| The aim gate | The chassis within 3° of the CELL | The turret within 3° of the CELL: the same number in the code today (aim minus turret angle) |
+| Knocked by a defender | The robot is off its aim until the driver or Circle turns it back | The turret turns back on its own; `pauseFeedOffAim` covers the moment in between |
+
+What has to change in the code for it, none of it built:
+
+- **Circle fires while the turret aims.** Today Circle does nothing unless the turret is locked.
+- **The turret should choose its CELL the way Circle does.** `TurretAimer` picks the CELL from the
+  pose (which half of the field the robot is in) and uses the camera only for the angle.
+  `ChassisAimTarget` is camera first, with the remembered sighting behind it, and never lets the
+  pose choose: that is what survived the Pinpoint faults. One target for both.
+- **The turret aims from PLAY**, with the operator's Triangle as its off switch, so nobody has to
+  remember to turn it on.
+
+What nobody knows yet, each a robot check when there is a turret to run:
+
+- How fast the turret gets onto a CELL after the robot turns, which decides whether "aimed, then
+  how long" really drops to the feed's lead alone.
+- How far it can turn. Past its limit either the driver turns the robot or Circle turns the
+  chassis just enough to bring the CELL back in reach.
+- Whether the camera turns with it. If the camera stays on the chassis, the driver still has to
+  face the HIVE when the pose is lost.
+
 ## 4. Using the controls well (draft for the drive teams)
 
 **Where it should live.** Which button does what is written once, in `ControlScheme`, and shown on

@@ -984,6 +984,14 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       not feed. **Good:** pressed to first shot under 1.5 s in eight of ten, as many pieces in as
       with FIRE, and the drivers say which they want. **Stop:** it feeds off the CELL, or the
       driver needs to line up without shooting → leave it off.
+- [ ] **A feed pauses when the robot is knocked off its aim** (`TeleOpConfig.pauseFeedOffAim`, off
+      until this check; `AimPause`). On in Panels, loaded. (a) Square at a spot, feeding: a second
+      person turns the robot by hand about 10°. The feed stops (`launch spot: feed paused, N° off
+      the spot's heading`), the robot turns back, and it feeds again (`feed resumed`). (b) With
+      `circleAlsoFires` on, the same while Circle feeds (`chassis aim: feed paused`). (c) Ordinary
+      driving and shooting for five minutes with it on. **Good:** (a) and (b), no piece jammed in
+      the gate plate by a pause, and in (c) no pause without a real knock. **Stop:** it stutters
+      with nobody touching the robot, or the plate closes on a piece → leave it off and note which.
 - [ ] **19429: a shorter route from full to the shot.** At Belding it drove a median 191 in with a
       full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
       where it is. **Good:** a timed practice cycle under 20 s.

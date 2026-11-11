@@ -187,6 +187,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private boolean circleFed;
     /** Circle asked for a feed last loop: its first loop spins an idle launcher up. */
     private boolean lastCircleFire;
+    /** Circle's feed held back while the robot is knocked off the CELL ({@code TeleOpConfig.pauseFeedOffAim}). */
+    private final AimPause circlePause = new AimPause();
     /** The chassis aim's camera-first target ({@link ChassisAimTarget}): where Circle points the robot. */
     private ChassisAimTarget chassisTarget;
     /** The chassis aim drove the turn this loop: the aim gate is enforced for FIRE ({@code TeleOpConfig.chassisAimGate}). */
@@ -911,6 +913,20 @@ public class BasicDriveTeleOp extends RobotOpMode {
             circleFed = true;
             log.event(String.format(Locale.US, "chassis aim: gate open %.2f s after the press, aim %+.1f° from %s, at speed",
                     (System.nanoTime() - chassisAimSinceNs) / 1e9, aimErrorDeg, lastChassisSource));
+        }
+        // Knocked off the CELL, or the aim lost, while Circle feeds (TeleOpConfig.pauseFeedOffAim):
+        // it stops asking, the gate shuts, and it starts again as above once aimed and at speed.
+        if (!circleFire) {
+            circlePause.reset();
+        } else if (circleFed) {
+            boolean was = circlePause.paused();
+            if (circlePause.update(TeleOpConfig.pauseFeedOffAim, aimErrorDeg, TeleOpConfig.aimToleranceDeg, true)) {
+                circleFire = false;
+            }
+            if (circlePause.paused() != was) {
+                log.event(String.format(Locale.US, "chassis aim: feed %s, aim %s", circlePause.paused() ? "paused" : "resumed",
+                        Double.isNaN(aimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f° off", aimErrorDeg)));
+            }
         }
         FeederSubsystem.State feed = FeederSubsystem.requestFor(fireHeld || spotFeed || circleFire, unjamHeld(),
                 fireHeld ? open : spotFeed || circleOpen, true, robot.feeder.state() == FeederSubsystem.State.FEED);

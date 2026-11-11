@@ -155,6 +155,17 @@ public final class TeleOpConfig {
     public static boolean circleAlsoFires = false;
 
     /**
+     * A feed the driver's button started (Square's volley, Circle's with {@link #circleAlsoFires})
+     * holds back while the robot is knocked off its aim, and feeds again when it is back
+     * ({@link AimPause}): for Circle, more than {@link #aimToleranceDeg} off the CELL or the aim
+     * lost; for Square, the robot turned more than that off the spot's heading. The operator's FIRE
+     * is never paused. It sees a turn, not a sideways shove. Off until tried on a robot (mentor,
+     * 11 Nov 2026; {@code doc/robot-todo.md} §7f): each pause costs the feed's lead again, so a
+     * robot that is jostled all the time could stutter. Read every loop.
+     */
+    public static boolean pauseFeedOffAim = false;
+
+    /**
      * At a launch spot, settled and facing the HIVE, a camera-vs-odometry gap past this many inches
      * puts "corner reset suggested" on the Match page ({@link LaunchSpotDrive}). The gap is only
      * logged and shown, never applied: still and continuous fixes stay off until measured. 3 in is
