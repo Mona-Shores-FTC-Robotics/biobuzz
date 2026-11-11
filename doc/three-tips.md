@@ -48,6 +48,22 @@ was run"). Differences under 5 of 120 are not differences.
 
 Both "met" rows are the simulator's, on the placeholders listed under "What the simulator rests on".
 
+**Can today's robot run the rung 1 and rung 2 drawings? No, and this is why it cannot.** They meet the
+target in the calibrated simulator, which is all a study can show. On the robot each of these is
+missing, and without any one of them the simulator's third TIP is gone:
+
+| The drawing needs | The robot today | Third TIPs of 120 without it |
+|---|---|---|
+| A turret that tracks a CELL while the robot drives | The turret ran locked forward at Belding | 0 |
+| A shot fired while moving that stays in as often as a standing one | Nothing fires on the move; the kit waits for the robot to slow | 0 with no moving launch; 28 with an unled one |
+| 0.98 of shots staying in | 0.92 at best, inferred, never counted | 13 |
+| A feed that ends on the fourth ball, 0.5 s a shot or less | The counter undercounts after a pick, so the feed runs its whole 3.5 s | 0 |
+| A card that picks up a row of 4 loose pieces in about 2.5 s | No such card; GARDEN gathers took 0 to 2 of 4 | 0 at half the sweep speed |
+| Paths driven at 60 in/s or more | The Autos are drawn at 50 | 23 at 50 in/s (smallest set) |
+
+So there is no drawing the robot can run today that meets the target, for rung 1 or rung 2, and no
+drawing could be: the robot's own third TIP is out of reach by the bound below.
+
 **The baseline the rungs are measured against, the robot as it ran at Belding:** R-Three-Tip, 117 / 57 /
 0. That is not a drawing waiting to be improved. No drawing can make its third TIP (a bound with no
 driving puts it at 30.4 s; at three times the drive speed with every shot in it is still 120 / 118 /
