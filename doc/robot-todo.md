@@ -474,13 +474,15 @@ Use the work order above to select checks; the detailed mechanism checks below a
       Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s).
       - Five runs alone, filmed from the side, partner off `LEFT_START`. Count the pieces that
         stay in the LEFT CELL from each LEFT volley, and the TIPs. **Good:** 8 of 8 stay in on
-        most runs (the simulator's 34 of 60 assumes 0.92 a shot; 0.96 gives 45 of 60). This is
+        most runs (the simulator's 34 of 60 assumes 0.92 a shot; 0.96 gives 44 of 60). This is
         also the count the Belding review asked for on R-Solo.
-      - **The second volley has to end by 16.3 s**, or master's guard parks without the third
-        (the calibrated simulator: 15.8 s). Read the card times from each run's log
-        (`read_logs.py summary`). **Stop:** it ends after 16 s on most runs → the drawing needs
-        more time (the `LEFT_LAUNCH_OFFSET` third volley in the draft's notes) or the guard's
-        numbers (`LAUNCH_ALL_TYPICAL_S`, `PICK_FLOWER_TYPICAL_S`) need measuring again.
+      - **The third volley must run.** Master's guard parks without it when the second volley
+        ends after about 16.8 s (the calibrated simulator: 15.8 s). Read the card times from
+        each run's log (`read_logs.py summary`). **Stop:** `parking now` after the second
+        volley → note when that volley ended; the guard's numbers (`LAUNCH_ALL_TYPICAL_S`,
+        `PICK_FLOWER_TYPICAL_S`) need measuring again.
+      - **`LEFT_LAUNCH_OFFSET`, the last volley's spot,** has not been fired from on the left.
+        Hold Square there first and count: **Good:** 3 or 4 of 4 stay in.
       - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
         piece leaves the robot and the camera sights the LEFT CELL before the stop.
       [mentor session, 10 Nov]

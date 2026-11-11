@@ -5,7 +5,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RTwoTipAuto;
 
 /** Runs the {@link RTwoTipAuto} draft from the Utility menu, with the same thirty-second stop as an AUTO period. */
 @Utility(name = "Drive: R-Two-Tip " + RTwoTipAuto.SAVED,
-        description = "Draft: R-Solo's steps, LEFT volleys from LEFT_LAUNCH_CATCH; 30 s trial")
+        description = "Draft: R-Solo's steps, LEFT volleys from the measured spots; 30 s trial")
 public final class RTwoTipTrial extends BuiltAuto {
     private long startedNs;
 

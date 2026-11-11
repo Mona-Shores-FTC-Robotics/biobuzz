@@ -30,59 +30,68 @@ Autos differ in other ways, so this is the likely cause, not a proven one.
 
 **What changed from R-Solo:**
 
-- Both LEFT volleys are at `LEFT_LAUNCH_CATCH`, the spot L-NoCross made its second TIPs from.
+- The first LEFT volley is at `LEFT_LAUNCH_CATCH`, the spot L-NoCross made its second TIPs from
+  (the 42.4 in row). The second is at `LEFT_LAUNCH_OFFSET`, right beside the SCORING FLOWER (the
+  45.7 in row): the hop from the pick is 1.1 s instead of 1.3 s and the park from there 1.8 s
+  instead of 2.1 s, which is the time the guard needs.
 - The drive from the WALL FLOWER turns the short way (180° to 273°, done by 60% of the drive) and faces
   the HIVE for the rest. R-Solo's turns 270° and took 3.5–4.6 s against 2.9 s drawn.
 - The timed-out route is R-Solo's (back to `RIGHT_LAUNCH_CLOSE`, launch, park): it made the TIP both
   times it ran at Belding. Its turn starts a little later so no corner reaches the centre line.
-- The park bends south (control point (30, 86)) and comes into `RIGHT_PARK` from the field side.
-- Only team spots. The preview's CELL-up route is 28.9 s, as R-Solo's; its worst case is 30.2 s
-  (R-Solo: 31.7 s).
+- The park from `LEFT_LAUNCH_OFFSET` bends a little south (control point (26, 92)).
+- Only team spots. The preview's CELL-up route is 28.9 s with 1.1 s spare and no guard park
+  (R-Solo's: 28.9 s with the guard parking); its worst case is 29.7 s (R-Solo: 31.7 s).
 
 **In the simulator set to Belding** (`BeldingCalibration`, 60 seeds each; TeamCode/README.md,
 "Simulating an Auto"), with master's endgame guard, one robot:
 
-| | Two TIPs |
-|---|---|
-| R-Solo | 0 of 60 |
-| **R-Two-Tip** | **34 of 60**, the second at about 29 s |
-| R-Two-Tip driving 10% slower | 0 of 60 |
+| | Two TIPs | Second TIP at |
+|---|---|---|
+| R-Solo | 0 of 60 | |
+| **R-Two-Tip** | **34 of 60** | 28.6 s |
+| R-Two-Tip driving 10% slower | 34 of 60 | 29.0 s |
+| R-Two-Tip driving 20% slower | 34 of 60 | 29.9 s |
+| R-Two-Tip driving 28% slower | 0 of 60 | |
 
-- **No spare pieces.** A robot holds 4 and fits three volleys in 30 s. The first TIP takes the
-  preloads; the LEFT CELL starts empty and needs 8 POLLEN (7 on a field that tips light). So every
-  piece of the two LEFT volleys has to stay in: at 0.92 a shot that is about half the runs, and with
-  the driving time taken out altogether it is still about half.
-- **No spare time.** Master's guard goes for the third volley only if the park still fits after it:
-  the second volley has to end by 16.3 s, and it ends at 15.8 s. Driving 10% slower, the third volley
-  is skipped. The second TIP then lands at 27 to 30 s, against the end of AUTO.
-- Other one-robot drawings tried in it: the preloads from `RIGHT_LAUNCH_CATCH`; the third volley from
-  `LEFT_LAUNCH_OFFSET` (frees about 0.5 s); both. None made more TIPs. Catching the first TIP's spill
-  (3 NECTAR) took about one piece a run.
+- **It makes two TIPs in a little over half the runs, and that is the pieces.** A robot holds 4 and
+  fits three volleys in 30 s. The first TIP takes the preloads; the LEFT CELL starts empty and needs 8
+  POLLEN (7 on a field that tips light). So every piece of the two LEFT volleys has to stay in. Of
+  the 26 runs lost, 3 missed the first TIP and 23 had a LEFT piece miss.
+- **The time holds to 20% slower.** Master's guard goes for the third volley only if the park still
+  fits after it. With both LEFT volleys at `LEFT_LAUNCH_CATCH` the second volley ended half a second
+  inside that limit and driving 10% slower lost every second TIP; with the last volley at
+  `LEFT_LAUNCH_OFFSET` it does not. The second TIP still lands late, 27 to 30 s.
+- Other one-robot drawings tried in it: both LEFT volleys at `LEFT_LAUNCH_CATCH` (34 of 60, but 0 of
+  60 at 10% slower); the preloads from `RIGHT_LAUNCH_CATCH` (no more TIPs, and its park from that
+  spot crosses the Red HIVE); the first LEFT volley from `LEFT_LAUNCH_OFFSET` (no time gained).
+  Catching the first TIP's spill (3 NECTAR) took about one piece a run.
 
 **What the robot would need** (the same Auto, one change at a time, 60 seeds each):
 
-| Change | Two TIPs | Driving 10% / 20% slower |
+| Change | Two TIPs | Driving 28% slower |
 |---|---|---|
-| As at Belding | 34 of 60 | 0 of 60 / — |
-| **Shots from the LEFT spot stay in 0.96 of the time** (0.92 at Belding) | **45 of 60** | |
+| As at Belding | 34 of 60 | 0 of 60 |
+| **Shots from the LEFT spots stay in 0.96 of the time** (0.92 at Belding) | **44 of 60** | |
 | 0.98 of the time | 49 of 60 | |
 | Shots from `RIGHT_START` stay in 0.92 of the time (0.82) | 35 of 60 | |
-| **A shot counter that works**, so a volley ends at its fourth shot, not after the whole 3.5 s feed | 34 of 60 | **34 of 60 / 36 of 60** |
-| Picks 0.7 s quicker | 34 of 60 | 0 of 60 / — |
-| Driving 10% faster | 37 of 60 | |
-| The turret unlocked | 34 of 60 | 0 of 60 / — |
-| The counter, 0.96 from the LEFT spot and 0.92 from the start | 46 of 60 | — / 45 of 60 |
+| **A shot counter that works**, so a volley ends at its fourth shot, not after the whole 3.5 s feed | 34 of 60, the second TIP 0.8 s sooner | 35 of 60 |
+| The turret unlocked | 33 of 60 | |
+| The counter, 0.96 from the LEFT spots and 0.92 from the start | 46 of 60 | 48 of 60 |
 
-- **Accuracy at the LEFT launch spot is what makes two TIPs:** each LEFT miss costs the TIP, and 8 in
-  a row have to stay in. From 0.92 to 0.96 is one more ball in 25.
-- **The shot counter is what makes it dependable:** it takes about a second off each volley after a
-  pick, which is the slack the guard and the 30 s need. It adds no TIPs by itself.
+With both LEFT volleys at `LEFT_LAUNCH_CATCH`, picks 0.7 s quicker made no difference and driving 10%
+faster made it 37 of 60.
+
+- **Accuracy at the LEFT launch spots is what makes two TIPs:** each LEFT miss costs the TIP, and 8
+  in a row have to stay in. From 0.92 to 0.96 is one more ball in 25.
+- **The shot counter buys time, not TIPs:** it takes about a second off each volley after a pick, so
+  the second TIP lands sooner and the Auto still works 28% slower.
 - **A turret, quicker picks and a faster drive change little** for this route.
 - **Not in the simulator:** a SCORING FLOWER pick that comes back short loses the second TIP outright.
   Two of R-Solo's 14 did at Belding (Q-1's wedge, Q-4's stop short), so multiply every row by about
   0.86 until the pick is fixed.
 - Every row rests on the calibration's 0.92 for `LEFT_LAUNCH_CATCH`, which comes from L-NoCross's 3 of
-  5, not from counted balls.
+  5, not from counted balls, and on 0.89 for `LEFT_LAUNCH_OFFSET`, which is read off the table's rows
+  by range: that spot was measured on the right side and has not been fired from on the left.
 
 **Not settled:**
 

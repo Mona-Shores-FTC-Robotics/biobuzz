@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-11T01:22:57.602Z",
+  "timestamp": "2026-11-11T02:41:40.764Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -31,7 +31,7 @@
     },
     {
       "kind": "atomic",
-      "id": "line-mwbfpy2i-8cr1uh",
+      "id": "line-mwbij6hj-y7c6ew",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -42,7 +42,7 @@
         "startDeg": 180,
         "endDeg": 0
       },
-      "color": "#76b7b2",
+      "color": "#59a14f",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -121,7 +121,7 @@
     },
     {
       "kind": "atomic",
-      "id": "line-mwbfpy2i-f17c1l",
+      "id": "line-mwbij6hk-eyn74i",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -132,7 +132,7 @@
         "startDeg": 273.4,
         "endDeg": 0
       },
-      "color": "#59a14f",
+      "color": "#b07aa1",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -178,7 +178,7 @@
     },
     {
       "kind": "atomic",
-      "id": "line-mwbfpy2i-p3htkz",
+      "id": "line-mwbij6hk-5pezgk",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -189,7 +189,7 @@
         "startDeg": 90,
         "endDeg": 0
       },
-      "color": "#e15759",
+      "color": "#9c755f",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -215,7 +215,7 @@
     {
       "id": "scoring-back",
       "color": "#edc948",
-      "name": "to LEFT_LAUNCH_CATCH",
+      "name": "to LEFT_LAUNCH_OFFSET",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -223,14 +223,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 41,
+        "y": 121.5
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
-        "endDeg": 273.4
+        "endDeg": 296.4
       }
     },
     {
@@ -249,13 +249,13 @@
       },
       "controlPoints": [
         {
-          "x": 30,
-          "y": 86
+          "x": 26,
+          "y": 92
         }
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 273.4,
+        "startDeg": 296.4,
         "endDeg": 0
       }
     },
@@ -532,7 +532,7 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mwbfpy2i-8cr1uh"
+      "lineId": "line-mwbij6hj-y7c6ew"
     },
     {
       "kind": "path",
@@ -544,7 +544,7 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mwbfpy2i-f17c1l"
+      "lineId": "line-mwbij6hk-eyn74i"
     },
     {
       "kind": "path",
@@ -556,7 +556,7 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mwbfpy2i-p3htkz"
+      "lineId": "line-mwbij6hk-5pezgk"
     },
     {
       "kind": "path",
@@ -660,6 +660,11 @@
         119.3,
         90
       ],
+      "LEFT_LAUNCH_OFFSET": [
+        41,
+        121.5,
+        296.4
+      ],
       "RIGHT_PARK": [
         14.5,
         95.7,
@@ -675,13 +680,13 @@
       "to-wall": "WALL_FLOWER_STAGING",
       "wall-lane": "LEFT_LAUNCH_CATCH",
       "to-scoring": "SCORING_FLOWER_STAGING",
-      "scoring-back": "LEFT_LAUNCH_CATCH",
+      "scoring-back": "LEFT_LAUNCH_OFFSET",
       "left-park": "RIGHT_PARK",
       "to-right-close": "RIGHT_LAUNCH_CLOSE",
       "right-park": "RIGHT_PARK",
-      "line-mwbfpy2i-8cr1uh": "RIGHT_PARK",
-      "line-mwbfpy2i-f17c1l": "RIGHT_PARK",
-      "line-mwbfpy2i-p3htkz": "RIGHT_PARK"
+      "line-mwbij6hj-y7c6ew": "RIGHT_PARK",
+      "line-mwbij6hk-eyn74i": "RIGHT_PARK",
+      "line-mwbij6hk-5pezgk": "RIGHT_PARK"
     },
     "cards": [
       {
@@ -791,12 +796,13 @@
       "link-4"
     ],
     "parkFrom": {
-      "c-p-12": "line-mwbfpy2i-8cr1uh",
-      "c-p-14": "line-mwbfpy2i-f17c1l",
-      "c-p-2": "line-mwbfpy2i-p3htkz"
+      "c-p-12": "line-mwbij6hj-y7c6ew",
+      "c-p-14": "line-mwbij6hk-eyn74i",
+      "c-p-2": "line-mwbij6hk-5pezgk"
     },
     "teamSpots": [
       "LEFT_LAUNCH_CATCH",
+      "LEFT_LAUNCH_OFFSET",
       "RIGHT_LAUNCH_CLOSE",
       "RIGHT_PARK",
       "RIGHT_START",
