@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-11T01:18:12.003Z",
+  "timestamp": "2026-11-11T01:22:57.602Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -31,7 +31,7 @@
     },
     {
       "kind": "atomic",
-      "id": "line-mwbfjtpa-mke99j",
+      "id": "line-mwbfpy2i-8cr1uh",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -42,7 +42,7 @@
         "startDeg": 180,
         "endDeg": 0
       },
-      "color": "#f28e2b",
+      "color": "#76b7b2",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -121,7 +121,7 @@
     },
     {
       "kind": "atomic",
-      "id": "line-mwbfjtpa-tcv1p1",
+      "id": "line-mwbfpy2i-f17c1l",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -132,7 +132,7 @@
         "startDeg": 273.4,
         "endDeg": 0
       },
-      "color": "#4e79a7",
+      "color": "#59a14f",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -178,7 +178,7 @@
     },
     {
       "kind": "atomic",
-      "id": "line-mwbfjtpa-ggzdxf",
+      "id": "line-mwbfpy2i-p3htkz",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -189,7 +189,7 @@
         "startDeg": 90,
         "endDeg": 0
       },
-      "color": "#b07aa1",
+      "color": "#e15759",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -249,8 +249,8 @@
       },
       "controlPoints": [
         {
-          "x": 43.66,
-          "y": 105.9
+          "x": 30,
+          "y": 86
         }
       ],
       "heading": {
@@ -532,7 +532,7 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mwbfjtpa-mke99j"
+      "lineId": "line-mwbfpy2i-8cr1uh"
     },
     {
       "kind": "path",
@@ -544,7 +544,7 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mwbfjtpa-tcv1p1"
+      "lineId": "line-mwbfpy2i-f17c1l"
     },
     {
       "kind": "path",
@@ -556,7 +556,7 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mwbfjtpa-ggzdxf"
+      "lineId": "line-mwbfpy2i-p3htkz"
     },
     {
       "kind": "path",
@@ -679,9 +679,9 @@
       "left-park": "RIGHT_PARK",
       "to-right-close": "RIGHT_LAUNCH_CLOSE",
       "right-park": "RIGHT_PARK",
-      "line-mwbfjtpa-mke99j": "RIGHT_PARK",
-      "line-mwbfjtpa-tcv1p1": "RIGHT_PARK",
-      "line-mwbfjtpa-ggzdxf": "RIGHT_PARK"
+      "line-mwbfpy2i-8cr1uh": "RIGHT_PARK",
+      "line-mwbfpy2i-f17c1l": "RIGHT_PARK",
+      "line-mwbfpy2i-p3htkz": "RIGHT_PARK"
     },
     "cards": [
       {
@@ -791,9 +791,9 @@
       "link-4"
     ],
     "parkFrom": {
-      "c-p-12": "line-mwbfjtpa-mke99j",
-      "c-p-14": "line-mwbfjtpa-tcv1p1",
-      "c-p-2": "line-mwbfjtpa-ggzdxf"
+      "c-p-12": "line-mwbfpy2i-8cr1uh",
+      "c-p-14": "line-mwbfpy2i-f17c1l",
+      "c-p-2": "line-mwbfpy2i-p3htkz"
     },
     "teamSpots": [
       "LEFT_LAUNCH_CATCH",

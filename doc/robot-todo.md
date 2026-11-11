@@ -471,14 +471,15 @@ Use the work order above to select checks; the detailed mechanism checks below a
 
 - [ ] **R-Two-Tip draft (`autos/drafts/r-two-tip.pp`): R-Solo's steps from the measured LEFT spot.**
       [Why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-two-tip-r-solos-steps-fired-from-the-measured-left-spot).
-      It has no OpMode yet: add a `BuiltAuto` wrapper before the first run.
+      Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s).
       - Five runs alone, filmed from the side, partner off `LEFT_START`. Count the pieces that
         stay in the LEFT CELL from each LEFT volley, and the TIPs. **Good:** 7 or 8 of 8 stay in
         on most runs. This is also the count the Belding review asked for on R-Solo.
       - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
         piece leaves the robot and the camera sights the LEFT CELL before the stop.
-      - With a partner (our other robot running a left "wait for the CELL, launch, park"):
-        count the pieces in the LEFT CELL and when the second TIP comes (simulated at 17–21 s).
+      - With our other robot on **Autonomous → L-Infraviolet**: dry-run both parks first (ours
+        bends south into `RIGHT_PARK`; L is on `LEFT_PARK` by about 23 s), then the full run.
+        Count the pieces in the LEFT CELL and when the second TIP comes (simulated at 17–20 s).
       [mentor session, 10 Nov]
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)

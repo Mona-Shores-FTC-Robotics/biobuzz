@@ -10,10 +10,11 @@ these under "Drafts", and Save to GitHub saves back here.
 
 R-Solo made its second TIP in 0 of 7 runs at the Belding Qualifier. This draft keeps R-Solo's
 steps and its 0.75 s CELL check, and changes where the LEFT volleys are fired from. Mentor
-session, 10 Nov 2026; not yet run on a robot, and it has no OpMode.
+session, 10 Nov 2026; not yet run on a robot. It runs from the Utility **Drive: R-Two-Tip**
+(a 30 s trial, as the Infraviolet pair had before it was promoted), not from the Autonomous menu.
 
 Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-two-tip.pp>
-(with the left partner: add `,partners/partner-l-launch-park.pp`).
+(with our other robot: add `,l-infraviolet.pp`).
 
 **Why R-Solo's second TIP never came.** Both of its LEFT volleys are fired from
 `LEFT_LAUNCH_CLOSE`, 36 in from the CELL. `LaunchSpeedTable`'s measured rows run from 42.4 to
@@ -46,29 +47,46 @@ drawing gives a lone robot a ninth piece at the LEFT CELL: the SCORING FLOWER is
 near it, and a third trip does not fit. Catching the first TIP's spill (3 NECTAR, 4.95 POLLEN
 weights) was tried in the simulator and took about one piece a run.
 
-**Where the spare shots come from: a partner's four preloads.** A partner that starts on the
-left, waits for the LEFT CELL to come up (or about 9 s) and then launches its preloads puts 12
-pieces at the LEFT CELL where 8 are needed. `partners/partner-l-launch-park` is that partner.
-Simulated, 20 seeds each, turret locked forward:
+**Where the spare shots come from: our other robot's four preloads.** L-Infraviolet, a competition
+Auto that has run on both robots, drives to `LEFT_LAUNCH_CATCH`, launches its preloads once the
+LEFT CELL is up (before 8 s) and crosses south to the GARDEN, so it has left the spot before this
+Auto arrives there. The LEFT CELL then gets 12 pieces (its 4, our WALL FLOWER's 4, our SCORING
+FLOWER's 4) where 8 are needed, and the second TIP comes off the first two of those volleys.
+A partner team that starts on the left, waits for the LEFT CELL and launches its preloads
+(`partners/partner-l-launch-park`) gives the same result. Simulated with `AutoStudyTest`, 20 seeds
+each, turret locked forward:
 
-| Shots that score | R-Solo alone | R-Two-Tip alone | R-Two-Tip + left partner's preloads |
-|---|---|---|---|
-| 92 % (spread 1) | second TIP 20 of 20 | 19 of 20 | 20 of 20, at 16.7 s |
-| 79 % (spread 2) | 8 of 20, 36 points | 7 of 20, 35 points | **16 of 20, 52 points**, at 21.0 s |
-| 79 %, Belding Field 2's HIVE | 9 of 20 | | **16 of 20** |
-| 58 % (spread 3) | 2 of 20, 30 points | | 6 of 20, 42 points |
+| Shots that score | R-Solo alone | R-Two-Tip alone | L-Infraviolet + R-Infraviolet | L-Infraviolet + R-Two-Tip |
+|---|---|---|---|---|
+| 92 % (spread 1) | second TIP 20 of 20 | 19 of 20 | 20 of 20, 51 points | 20 of 20, 56 points, at 16.7 s |
+| 79 % (spread 2) | 8 of 20, 36 points | 7 of 20, 35 points | 8 of 20, 36 points | **16 of 20, 52 points**, at 19.8 s |
+| 58 % (spread 3) | 2 of 20, 30 points | | 1 of 20, 23 points | 6 of 20, 42 points |
 
-The 4 of 20 it loses at spread 2 are the runs where the preloads did not make the first TIP. The
-simulator does not know that the 36 in speed is unmeasured, so alone the two Autos look the same
-there; the Belding table above is the evidence for the spot.
+- Our robot driving 20 % slower (40 in/s): the same 20 of 20 and 16 of 20.
+- With the stand-in left partner in place of L-Infraviolet: 20 of 20, 16 of 20 and 6 of 20, and
+  16 of 20 at Belding Field 2's tip point.
+- The 4 of 20 it loses at spread 2 are the runs where our preloads did not make the first TIP:
+  the timed-out route then makes one TIP, as R-Solo's did in Q-7 and Q-31.
+- L-Infraviolet's own third-TIP try (GARDEN, then the RIGHT CELL) still runs; it has only its own
+  4 pieces there, so it is a bonus, not part of the plan.
+- The simulator does not know that the 36 in speed is unmeasured, so alone the two Autos look the
+  same there; the Belding table above is the evidence for the spot.
+- The request in `TeamCode/sim-requests/r-two-tip.json` uses the stand-in: a request may name
+  only stand-ins or its own pair's other half as partners.
+
+**The park bends south** (control point (30, 86)) so the robot comes into `RIGHT_PARK` from the
+field side, clear of L-Infraviolet already on `LEFT_PARK`. With the straight park the two touched
+at about 25 s in every run; with the bend, in 3 of 80.
 
 **Not settled:**
 
 - `LEFT_LAUNCH_CATCH` overlaps a robot sitting on `LEFT_START` (the simulator: contact at 11.7 s
   with a dead partner there). A partner with no Auto has to start somewhere else on the wall, or
   the 36 in row gets measured and R-Solo's `LEFT_LAUNCH_CLOSE` is used instead.
-- With the launching partner there is no contact when the first TIP comes (16 of 16 runs: it has
-  fired and gone before we arrive). When the first TIP does not come it is still on its start.
+- With L-Infraviolet the two robots touched in 3 of 80 simulated runs, at 23.6–25.6 s, as we
+  park beside it. Dry-run both parks before a full run.
+- The stand-in left partner is clear when the first TIP comes (16 of 16 runs). When it does not
+  come, that partner is still on its start, under our launch spot.
 - The robot checks are in [robot-todo §3](../../../doc/robot-todo.md).
 
 ## R-Solo-Nudge, for a partner with no Auto
