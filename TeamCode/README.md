@@ -1163,28 +1163,43 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   either edge (`HiveCalibration.BELDING_FIELD_1`/`_2`); `HiveFieldTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
   both still pass the Guide's placed cases.
 - **The Belding calibration** (`BeldingCalibration`, off by default): `BIOBUZZ_AUTO_CALIBRATION=belding` on a
-  study, or `"calibration": "belding"` in a request, replaces three placeholders with what the Belding Qualifier's
-  17 Auto logs, stream video and official scores showed (7 Nov 2026). **The share of launched pieces that stay in
-  the CELL, by launch range:** 0.82 from RIGHT_START (53.9 in), 0.92 from the CATCH spots (42.4 in, a measured row
-  of `LaunchSpeedTable`), 0.65 from the CLOSE spots (36 in, below every measured row; an estimate bounded by
-  R-Solo's 0 of 7 second TIPs and Q-31's 3 landed of a RIGHT_LAUNCH_CLOSE volley). **The dwell before a TIP:** 2.6
-  to 3.4 s, so the rocker moves 2.2 to 2.6 s after the last ball leaves, as M-3 and M-4 showed. **Where the HIVE
-  tips:** Field 1's point on odd seeds, Field 2's on even ones. With it, 40 seeds each:
+  study, or `"calibration": "belding"` in a request, replaces placeholders with what the Belding Qualifier's 17
+  Auto logs, stream video and official scores showed (7 Nov 2026):
+  - **The share of launched pieces that stay in the CELL, by launch range:** 0.82 from RIGHT_START (53.9 in),
+    0.92 from the CATCH spots (42.4 in, a measured row of `LaunchSpeedTable`), 0.65 from the CLOSE spots (36 in,
+    below every measured row; an estimate bounded by R-Solo's 0 of 7 second TIPs and Q-31's 3 landed of a
+    RIGHT_LAUNCH_CLOSE volley).
+  - **The dwell before a TIP,** 3.2 to 3.8 s, and no knock from a hit: every AUTO TIP there sat out its dwell,
+    where the placeholder knock tipped the CELL 0.7 s after the last ball left.
+  - **Where the HIVE tips:** Field 1's point on odd seeds, Field 2's on even ones, set where eight launched POLLEN
+    tip it.
+  - **How long a volley and a pick take:** the shot counter undercounted after every FLOWER pick, so those feeds
+    run their whole set time; a pick stays 0.7 s longer.
+  - `BIOBUZZ_AUTO_BELDING_GUARD=1` also runs the endgame guard as the Belding build did (master at 7ed351f: a
+    volley before the park), for replaying the Autos that ran there. Without it the guard is master's.
+
+  With both, 40 seeds each:
 
   | | Belding | Simulator, calibrated | Simulator, uncalibrated |
   |---|---|---|---|
   | R-Solo: first TIP from the preloads | 7 of 9 | 36 of 40 | 20 of 20 |
-  | R-Solo: second TIP | 0 of 7 | 1 of 40 | 20 of 20 |
-  | L-NoCross beside a right preload shooter: second TIP | 3 of 5 | 18 of 40 | 20 of 20 |
+  | R-Solo: when that TIP comes | about 7.5 s (Q-4) | 7.4 s | 4.3 s |
+  | R-Solo: second TIP | 0 of 7 | 3 of 40 | 20 of 20 |
+  | L-NoCross beside a right preload shooter: second TIP | 3 of 5 | 17 of 40 | 20 of 20 |
+  | Partner's last shot to our CellUp | 4.0 to 4.4 s (M-3, M-4) | 3.8 to 4.4 s, median 4.0 | 0.7 s |
+  | R-Solo: arrives LEFT, second volley ends, third volley, park starts | 13.0, 16.9, 23.1 to 26.8, 26.8 s (medians) | 13.0, 16.7, 22.7 to 26.4, 26.4 s | 12.0, 14.8, 21.0 to 23.8 s |
 
   ```bash
-  BIOBUZZ_AUTO_CALIBRATION=belding BIOBUZZ_AUTO_STUDY="RSoloAuto@50;LNoCrossAuto,PartnerRLaunchParkAuto@50" \
+  BIOBUZZ_AUTO_CALIBRATION=belding BIOBUZZ_AUTO_BELDING_GUARD=1 \
+    BIOBUZZ_AUTO_STUDY="RSoloAuto@50;LNoCrossAuto,PartnerRLaunchParkAuto@50" \
     BIOBUZZ_AUTO_DESIGNS="real robot, turret locked forward" BIOBUZZ_AUTO_RUNS=40 \
     ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
   ```
-  **Not calibrated:** drive times (the 270° curve to the LEFT spots took 3.5 to 4.6 s against 2.9 s), the two
-  SCORING FLOWER picks that came back short (Q-1, Q-4), and contact with other robots (Q-27). The 0.65 is the
-  number to replace first: fire counted volleys from a CLOSE spot (`doc/robot-todo.md` §7d).
+  **What it shows about master today:** with Belding-length volleys, master's guard (the park must fit after a
+  volley) parks R-Solo after its second volley in every run, 0.4 s short of going for the third.
+  **Not calibrated:** drive times beyond what the simulator's own drive gives, the two SCORING FLOWER picks that
+  came back short (Q-1, Q-4), and contact with other robots (Q-27). The 0.65 is the number to replace first: fire
+  counted volleys from a CLOSE spot (`doc/robot-todo.md` §7d).
 - **The launcher fires at the robot's one setpoint.** The real robot's designs fire every shot at master's
   `LauncherSubsystem.targetTicksPerSecond` (`RobotDesign.fixedSetpoint`), at one pitch, whatever the distance,
   so a shot from nearer or further than RIGHT_START goes long or short. **Measured:** the setpoint, and that it

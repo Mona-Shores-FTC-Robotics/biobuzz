@@ -74,14 +74,12 @@ public class SimRunTest {
         out.put("designs", new ArrayList<>(AutoStudyTest.designs().keySet()));
         // "calibration": "belding" in the request: the Belding Qualifier's shots, dwell and HIVEs (BeldingCalibration).
         boolean beldingBefore = BeldingCalibration.on;
-        double[] dwellBefore = FieldSim.tipDwellRange;
         double tipPointBefore = HiveCalibration.tipPointInBand;
         try {
             Map<String, Object> request = request(dir);
             if ("belding".equals(request.get("calibration"))) BeldingCalibration.on = true;
             if (BeldingCalibration.on) {
-                FieldSim.tipDwellRange = BeldingCalibration.DWELL_S;
-                FieldSim.tipDwellOverloadedS = BeldingCalibration.DWELL_S[0];
+                BeldingCalibration.apply();
                 out.put("calibration", "belding");
             }
             runAll(request, dir, out);
@@ -89,9 +87,8 @@ public class SimRunTest {
             out.put("error", describe(t));
             throw t;
         } finally {
+            BeldingCalibration.restore();
             BeldingCalibration.on = beldingBefore;
-            FieldSim.tipDwellRange = dwellBefore;
-            FieldSim.tipDwellOverloadedS = FieldSim.FILMED_TIP_DWELL_OVERLOADED_S;
             HiveCalibration.tipPointInBand = tipPointBefore;
             write(dir, out);
         }

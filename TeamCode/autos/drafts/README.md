@@ -53,8 +53,8 @@ LEFT CELL is up (before 8 s) and crosses south to the GARDEN, so it has left the
 Auto arrives there. The LEFT CELL then gets 12 pieces (its 4, our WALL FLOWER's 4, our SCORING
 FLOWER's 4) where 8 are needed, and the second TIP comes off the first two of those volleys.
 A partner team that starts on the left, waits for the LEFT CELL and launches its preloads
-(`partners/partner-l-launch-park`) gives the same result. Simulated with `AutoStudyTest`, 20 seeds
-each, turret locked forward:
+(`partners/partner-l-launch-park`) does the same. First, the simulator as it was, before it was set to
+Belding (`AutoStudyTest`, 20 seeds each, turret locked forward; the shot percentages are its spread knob):
 
 | Shots that score | R-Solo alone | R-Two-Tip alone | L-Infraviolet + R-Infraviolet | L-Infraviolet + R-Two-Tip |
 |---|---|---|---|---|
@@ -75,36 +75,49 @@ each, turret locked forward:
   only stand-ins or its own pair's other half as partners.
 
 **In the simulator set to Belding** (`BeldingCalibration`, 40 seeds each; TeamCode/README.md, "Simulating
-an Auto"): shots stay in at the rate each launch spot showed at Belding, the CELL sits about 3 s before it
-tips, and the two fields' tip points alternate. It reproduces Belding's R-Solo (second TIP 1 of 40, against
-0 of 7) and L-NoCross (18 of 40, against 3 of 5).
+an Auto"). Shots stay in at the rate each launch spot showed at Belding, the CELL sits 3.2 to 3.8 s before it
+tips, volleys and picks take as long as they did there, and the two fields' tip points alternate. Replaying
+Belding it gives R-Solo's second TIP in 3 of 40 runs (Belding 0 of 7), L-NoCross's in 17 of 40 (3 of 5), the
+first TIP at 7.4 s (about 7.5 s) and our CellUp 4.0 s after a partner's last shot (4.0 to 4.4 s). The rows
+below run with master's endgame guard, as the robot would today:
 
 | | Two TIPs | Points |
 |---|---|---|
-| R-Solo alone | 1 of 40 | 28.0 |
+| R-Solo alone | 0 of 40 | 27.5 |
 | R-Two-Tip alone | 18 of 40 | 36.5 |
-| L-Infraviolet + R-Infraviolet | 4 of 40 | 31.5 |
-| **L-Infraviolet + R-Two-Tip** | **36 of 40** | 53.5 |
+| L-Infraviolet + R-Infraviolet | 3 of 40 | 31.0 |
+| **L-Infraviolet + R-Two-Tip** | **33 of 40** | 52.0 |
+| R-Two-Tip + a left partner that launches its preloads once its CELL is up | 36 of 40, touching it every run | 54.0 |
 
 - Alone, 18 of 40 is the ceiling: all 8 pieces of the two LEFT volleys have to stay in.
-- The 4 of 40 the pair loses are runs where our preloads did not make the first TIP.
-- Launching the preloads from `RIGHT_LAUNCH_CATCH` instead of the start was tried: 20 of 40 alone and
-  37 of 40 paired, but it touched spilled pieces before they landed in 3 runs (G409) and its park
-  from that spot crosses the Red HIVE. Not kept.
+- Of the 7 the pair loses, 4 are runs where our preloads did not make the first TIP.
+- **The time limit that decides it.** Master's guard goes for the third volley only if the park still
+  fits after it: the second volley has to end by 16.3 s. In the simulator it ends at 15.8 s, half a
+  second inside. Driving 6% slower still makes it; 10% slower does not, and then it is 0 of 40 alone
+  and 15 of 40 paired (the LEFT CELL gets 8 pieces, none spare). R-Solo's second volley ended at
+  16.1 to 17.7 s at Belding, so R-Solo as drawn would now park without its third volley.
+- Tried and not kept:
+  - the preloads from `RIGHT_LAUNCH_CATCH`: 20 of 40 alone and 36 of 40 paired, but its park from
+    that spot crosses the Red HIVE and its worst case is 31.0 s;
+  - the third volley from `LEFT_LAUNCH_OFFSET`, beside the SCORING FLOWER: it frees about 0.5 s and
+    holds 18 of 40 alone even 20% slower, but that spot is in L-Infraviolet's lane to `LEFT_PARK`
+    and the two touched at about 23 s in 36 of 40 runs. It is the drawing to use if this Auto is
+    only ever run alone;
+  - the second volley from `LEFT_LAUNCH_OFFSET` and the third from `LEFT_LAUNCH_CATCH`: no time gained.
+- The stand-in left partner is still leaving its start when we arrive at `LEFT_LAUNCH_CATCH`: with
+  the real dwell the LEFT CELL comes up at about 8.3 s, so it fires until about 12 s.
 
 **The park bends south** (control point (30, 86)) so the robot comes into `RIGHT_PARK` from the
 field side, clear of L-Infraviolet already on `LEFT_PARK`. With the straight park the two touched
-at about 25 s in every run; with the bend, in 3 of 80.
+at about 25 s in every run; with the bend, in 1 of 40 calibrated runs.
 
 **Not settled:**
 
 - `LEFT_LAUNCH_CATCH` overlaps a robot sitting on `LEFT_START` (the simulator: contact at 11.7 s
   with a dead partner there). A partner with no Auto has to start somewhere else on the wall, or
   the 36 in row gets measured and R-Solo's `LEFT_LAUNCH_CLOSE` is used instead.
-- With L-Infraviolet the two robots touched in 3 of 80 simulated runs, at 23.6–25.6 s, as we
-  park beside it. Dry-run both parks before a full run.
-- The stand-in left partner is clear when the first TIP comes (16 of 16 runs). When it does not
-  come, that partner is still on its start, under our launch spot.
+- With L-Infraviolet the two robots touched in 1 of 40 calibrated runs, as we park beside it.
+  Dry-run both parks before a full run.
 - The robot checks are in [robot-todo §3](../../../doc/robot-todo.md).
 
 ## R-Solo-Nudge, for a partner with no Auto

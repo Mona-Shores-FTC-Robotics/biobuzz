@@ -475,11 +475,16 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - Five runs alone, filmed from the side, partner off `LEFT_START`. Count the pieces that
         stay in the LEFT CELL from each LEFT volley, and the TIPs. **Good:** 7 or 8 of 8 stay in
         on most runs. This is also the count the Belding review asked for on R-Solo.
+      - **The second volley has to end by 16.3 s**, or master's guard parks without the third
+        (the calibrated simulator: 15.8 s). Read the card times from each run's log
+        (`read_logs.py summary`). **Stop:** it ends after 16 s on most runs → the drawing needs
+        more time (the `LEFT_LAUNCH_OFFSET` third volley in the draft's notes) or the guard's
+        numbers (`LAUNCH_ALL_TYPICAL_S`, `PICK_FLOWER_TYPICAL_S`) need measuring again.
       - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
         piece leaves the robot and the camera sights the LEFT CELL before the stop.
       - With our other robot on **Autonomous → L-Infraviolet**: dry-run both parks first (ours
         bends south into `RIGHT_PARK`; L is on `LEFT_PARK` by about 23 s), then the full run.
-        Count the pieces in the LEFT CELL and when the second TIP comes (simulated at 17–20 s).
+        Count the pieces in the LEFT CELL and when the second TIP comes (the calibrated simulator: about 20 to 24 s).
       [mentor session, 10 Nov]
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)

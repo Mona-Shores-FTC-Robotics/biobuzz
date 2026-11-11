@@ -21,15 +21,20 @@ package org.firstinspires.ftc.teamcode.logging;
  *   <li><b>The dwell before a TIP</b> ({@link #DWELL_S}): the partner's TIP was seen 4.0 to 4.4 s after its last
  *       shot left (M-3, M-4; PR #517), and R-Solo's preload TIP came at about 7.5 s (Q-4). Less the flight, the
  *       swing and the camera's settle, and counted from the ball that takes the CELL over (often the third, half a
- *       second before the last), the CELL sat 2.6 to 3.4 s, overloaded or not.</li>
+ *       second before the last), the CELL sat 3.2 to 3.8 s, overloaded or not.</li>
  *   <li><b>Where the HIVE tips</b> ({@link #tipPoint}): Field 1 at about 7.0 POLLEN weights, Field 2 at about
  *       7.95 to 8.0 (PR #519). Odd qualification matches were on Field 1, so odd seeds are Field 1 and even
- *       seeds Field 2.</li>
+ *       seeds Field 2. Field 2's point is {@link #FIELD_2_TIP_POINT}, where eight launched POLLEN tip it as they
+ *       did there; at the Guide's upper edge the simulated CELL held eight every time.</li>
+ *   <li><b>How long a volley and a pick take</b>: the shot counter undercounted after every FLOWER pick, so
+ *       those feeds ran their whole set time (volleys of 3.6 to 4.0 s) where the simulator's ended at the fourth
+ *       shot; only the preload volley ends on the count. A pick stays {@link #PICK_DWELL_S} longer.</li>
+ *   <li><b>No knock from a hit</b> ({@link #apply}): every AUTO TIP sat out its dwell.</li>
  * </ul>
  *
  * <p><b>Not set here</b> (still the simulator's own): drive times (the 270 degree curve to the LEFT spots took
  * 3.5 to 4.6 s against 2.9 s), the two SCORING FLOWER picks that came back short (Q-1's wedge, Q-4's stop short),
- * the shot counter, and contact with other robots (Q-27).
+ * and contact with other robots (Q-27).
  */
 final class BeldingCalibration {
     private BeldingCalibration() {}
@@ -37,11 +42,18 @@ final class BeldingCalibration {
     /** On for this JVM's runs; a request or a test may set it. */
     static boolean on = "belding".equals(System.getenv("BIOBUZZ_AUTO_CALIBRATION"));
 
+    /**
+     * {@code BIOBUZZ_AUTO_BELDING_GUARD=1}: the endgame guard as the Belding build ran it (master at 7ed351f: a volley
+     * before the park), for replaying R-Solo and L-NoCross as they ran there. Off, the guard is master's
+     * ({@code BuiltAuto.parkAfterVolley}), which is what a new Auto will run with.
+     */
+    static boolean guardAsAtBelding = "1".equals(System.getenv("BIOBUZZ_AUTO_BELDING_GUARD"));
+
     /** Launch range from the turret axis, inches, and the fraction of launched pieces that stay in the CELL. */
     static final double[][] STAY_IN = {{36.0, 0.65}, {42.4, 0.92}, {53.9, 0.82}};
 
     /** Seconds a CELL over its tipping weight sits before the rocker moves: {shortest, longest}. */
-    static final double[] DWELL_S = {2.6, 3.4};
+    static final double[] DWELL_S = {3.2, 3.8};
 
     /** The fraction that stays in from {@code rangeIn}: straight lines between the rows, held beyond them. */
     static double stayInFraction(double rangeIn) {
@@ -55,13 +67,48 @@ final class BeldingCalibration {
         return STAY_IN[STAY_IN.length - 1][1];
     }
 
+    /** Field 2's tip point in the Guide's band, for launched pieces (see the class comment). */
+    static final double FIELD_2_TIP_POINT = 0.65;
+
     /** Where this run's HIVEs tip in the Guide's band: Field 1 on odd seeds, Field 2 on even ones. */
     static double tipPoint(long seed) {
-        return seed % 2 != 0 ? HiveCalibration.BELDING_FIELD_1 : HiveCalibration.BELDING_FIELD_2;
+        return seed % 2 != 0 ? HiveCalibration.BELDING_FIELD_1 : FIELD_2_TIP_POINT;
+    }
+
+    /**
+     * Seconds a FLOWER pick stays on the FLOWER even once the lane is full: the logged picks took 3.3 to 3.8 s card
+     * to card, the simulator's about 2.9 s.
+     */
+    static final double PICK_DWELL_S = 0.7;
+
+    /** What {@link #apply} replaced, for {@link #restore}. */
+    private static double[] dwellBefore;
+    private static double impulseBefore = Double.NaN;
+
+    /**
+     * Sets the simulator's statics for a calibrated run (call only when {@link #on}): the dwell, overloaded or not,
+     * and no knock from a hit. At Belding every AUTO TIP sat out its dwell, however hard the volley landed; the
+     * placeholder knock tipped the CELL the moment the last ball hit, 0.7 s after it left.
+     */
+    static void apply() {
+        dwellBefore = FieldSim.tipDwellRange;
+        impulseBefore = FieldSim.impulseScale;
+        FieldSim.tipDwellRange = DWELL_S;
+        FieldSim.tipDwellOverloadedS = DWELL_S[0];
+        FieldSim.impulseScale = 0;
+    }
+
+    /** Puts back what {@link #apply} replaced; harmless when it never ran. */
+    static void restore() {
+        if (Double.isNaN(impulseBefore)) return;
+        FieldSim.tipDwellRange = dwellBefore;
+        FieldSim.tipDwellOverloadedS = FieldSim.FILMED_TIP_DWELL_OVERLOADED_S;
+        FieldSim.impulseScale = impulseBefore;
+        impulseBefore = Double.NaN;
     }
 
     /** A shot that does not stay in leaves this much slower than the range needs: it drops in front of the CELL. */
     static final double MISS_SPEED_FACTOR = 0.85;
     /** A shot that stays in keeps this much of the placeholder spread, so it still lands in different places. */
-    static final double HIT_SPREAD = 0.25;
+    static final double HIT_SPREAD = 0.0;
 }

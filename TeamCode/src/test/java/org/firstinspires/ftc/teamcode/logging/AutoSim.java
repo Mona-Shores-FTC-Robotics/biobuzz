@@ -1323,7 +1323,7 @@ public final class AutoSim {
             final double waitUntil = partnerWaitUntilS;
             AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add)
                     // As on the robot (BuiltAuto.parkAfterVolley, on): a volley never takes the park's time.
-                    .parkAfterVolley(true).picks(new AutoKit.Picks() {
+                    .parkAfterVolley(!(BeldingCalibration.on && BeldingCalibration.guardAsAtBelding)).picks(new AutoKit.Picks() {
                 @Override public int choice(String option) { return -1; }
                 @Override public double seconds(String option) { return option.equals(waitOption) ? waitUntil : Double.NaN; }
             });
@@ -2150,9 +2150,13 @@ public final class AutoSim {
             }
         }
 
+        /** LaunchAll cards this robot has started: the Belding calibration's later volleys run their whole feed. */
+        private int launchAllsStarted;
+
         private Command launch(int count) {
             return new CommandBuilder()
                     .setStart(() -> {
+                        boolean wholeFeed = BeldingCalibration.on && count == Integer.MAX_VALUE && launchAllsStarted++ > 0;
                         spinUp();
                         fireStepBegins();
                         firing = true;
@@ -2160,11 +2164,12 @@ public final class AutoSim {
                         activeFeedLimit = count == Integer.MAX_VALUE ? LaunchCards.launchAllFeedS : LaunchCards.launchOneFeedS;
                         nextShotAt = Math.max(nextShotAt, now);
                         shotTarget = count == Integer.MAX_VALUE
-                                ? (Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
+                                ? (!wholeFeed && Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
                                     ? shotsFired + (int) Math.ceil(LaunchCards.launchAllEndAfterShots) : Integer.MAX_VALUE)
                                 : shotsFired + count;
                     })
-                    .setDone(() -> body.stored.isEmpty() || shotsFired >= shotTarget
+                    .setDone(() -> (body.stored.isEmpty() && shotTarget != Integer.MAX_VALUE) || shotsFired >= shotTarget
+                            || (body.stored.isEmpty() && Double.isNaN(activeFeedAt))
                             || (!Double.isNaN(activeFeedAt) && now - activeFeedAt >= activeFeedLimit))
                     .setEnd(end -> firing = false);
         }
@@ -2326,7 +2331,8 @@ public final class AutoSim {
                             phase[0] = 2;
                             dwellFrom[0] = now;
                         } else if (phase[0] == 2 && (Double.isNaN(pickS)
-                                ? FieldSim.full(body) || now - dwellFrom[0] >= FlowerPicker.dwellMs / 1000.0
+                                ? (FieldSim.full(body) && (!BeldingCalibration.on || now - dwellFrom[0] >= BeldingCalibration.PICK_DWELL_S))
+                                    || now - dwellFrom[0] >= FlowerPicker.dwellMs / 1000.0
                                 : now - dwellFrom[0] >= pickS)) {
                             phase[0] = 3;
                             double[] at = pedro(drive.pose);
