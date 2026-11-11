@@ -23,9 +23,9 @@ public class FlowerFieldPointsTest {
     @Test
     public void theFourCentresAreTheFieldModels() {
         assertCentre(FlowerFieldPoints.RED_WALL, 2.71, 47.36);
-        assertCentre(FlowerFieldPoints.RED_FAR, 47.36, 138.79);
+        assertCentre(FlowerFieldPoints.RED_SCORING, 47.36, 138.79);
         assertCentre(FlowerFieldPoints.BLUE_WALL, 138.79, 94.14);
-        assertCentre(FlowerFieldPoints.BLUE_FAR, 94.14, 2.71);
+        assertCentre(FlowerFieldPoints.BLUE_AUDIENCE, 94.14, 2.71);
     }
 
     /** Each blue FLOWER is its red one turned 180° about the field centre, facing the other way. */
@@ -33,7 +33,7 @@ public class FlowerFieldPointsTest {
     public void blueIsRedTurnedAboutTheCentre() {
         double c = FieldFrame.FIELD_CENTRE_INCHES;
         assertTurned(FlowerFieldPoints.RED_WALL, FlowerFieldPoints.BLUE_WALL, c);
-        assertTurned(FlowerFieldPoints.RED_FAR, FlowerFieldPoints.BLUE_FAR, c);
+        assertTurned(FlowerFieldPoints.RED_SCORING, FlowerFieldPoints.BLUE_AUDIENCE, c);
     }
 
     /** A robot facing a FLOWER faces its wall: the FLOWER is the nearer side, the wall just beyond it. */
@@ -49,10 +49,10 @@ public class FlowerFieldPointsTest {
         }
     }
 
-    /** R-Quals' far FLOWER point (47.36, 126.64) facing 90° is this model's red FAR FLOWER, 12.15 in back. */
+    /** R-Quals' SCORING FLOWER point (47.36, 126.64) facing 90° is this model's red SCORING FLOWER, 12.15 in back. */
     @Test
-    public void theDrawnFarFlowerPointIsAStandoffFromThisOne() {
-        Pose drawn = FlowerFieldPoints.standoff(FlowerFieldPoints.RED_FAR, 12.15);
+    public void theDrawnScoringFlowerPointIsAStandoffFromThisOne() {
+        Pose drawn = FlowerFieldPoints.standoff(FlowerFieldPoints.RED_SCORING, 12.15);
         assertEquals(47.36, drawn.x(), 1e-6);
         assertEquals(126.64, drawn.y(), 1e-6);
         assertEquals(Math.PI / 2, drawn.heading(), EPS);
@@ -69,8 +69,8 @@ public class FlowerFieldPointsTest {
     @Test
     public void nearestWithinRangeOrNone() {
         assertSame(FlowerFieldPoints.RED_WALL, FlowerFieldPoints.nearest(20, 50, 48));
-        assertSame(FlowerFieldPoints.RED_FAR, FlowerFieldPoints.nearest(47, 110, 48));
-        assertSame(FlowerFieldPoints.BLUE_FAR, FlowerFieldPoints.nearest(94, 30, 48));
+        assertSame(FlowerFieldPoints.RED_SCORING, FlowerFieldPoints.nearest(47, 110, 48));
+        assertSame(FlowerFieldPoints.BLUE_AUDIENCE, FlowerFieldPoints.nearest(94, 30, 48));
         assertNull("the field centre is far from every FLOWER", FlowerFieldPoints.nearest(
                 FieldFrame.FIELD_CENTRE_INCHES, FieldFrame.FIELD_CENTRE_INCHES, 48));
         assertNull("a zero range finds nothing off a FLOWER", FlowerFieldPoints.nearest(20, 50, 0));

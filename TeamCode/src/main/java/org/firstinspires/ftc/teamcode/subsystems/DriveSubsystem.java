@@ -106,6 +106,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private final Mecanum drivetrain;
     private final FusionLocalizer localizer;
     private boolean poseReferenced;
+    private int poseSets;
     /** A Pinpoint fault that held after PLAY: the pose is not believed until it reads again and is confirmed. */
     private final PinpointTrust pinpointTrust = new PinpointTrust();
     private boolean started;
@@ -320,6 +321,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     public void setPose(Pose pose) {
         if (localizer != null && pose != null) {
             localizer.setPose(pose);
+            poseSets++;
             shadow.follow();
             poseReferenced = true;
             pinpointTrust.poseSet(System.nanoTime() / 1_000_000L);
@@ -598,6 +600,14 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     /** Heading relative to the last {@link #resetHeading()}, radians. 0 without a Pinpoint. */
     public double heading() {
         return localizer == null ? 0.0 : localizer.pose().heading() - headingOffset;
+    }
+
+    /**
+     * How many times the pose has been set on purpose ({@link #setPose}: a start, a handoff, a corner
+     * or camera reset). A point remembered in the Pinpoint's frame is stale once this changes.
+     */
+    public int poseSets() {
+        return poseSets;
     }
 
     /** Field pose in Pedro coordinates, or null without a Pinpoint. */

@@ -12,6 +12,9 @@ with Python. Standard library only.
   python3 tools/pull-logs/read_logs.py launcher LOG.wpilog [...]  every counted shot: speed, pose, nearest
                                                                    team spot, range; then shots per spot
                                                                    and speed, for the speed table (#80)
+  python3 tools/pull-logs/read_logs.py volleys LOG.wpilog [...]   every Auto LaunchAll: the balls it fired,
+                                                                   counted from the launcher wheels' dips,
+                                                                   beside the shot counter's number
   python3 tools/pull-logs/read_logs.py dsbattery FILE [...]       each Driver Hub's own battery over the day,
                                                                    then every match log given beside it: the DS
                                                                    battery at its start, lowest, at its end
@@ -127,7 +130,13 @@ def summary(path):
                  (at(S, b) or 0) - (at(S, a) or 0), low(V, a, b)))
 
 
-FLOWER_FACING = {'red WALL': math.pi, 'red FAR': math.pi / 2, 'blue WALL': 0.0, 'blue FAR': -math.pi / 2}
+FLOWER_FACING = {'red WALL': math.pi, 'red SCORING': math.pi / 2, 'blue WALL': 0.0, 'blue AUDIENCE': -math.pi / 2}
+
+
+def flower_name(name):
+    """A FLOWER's name as the logs print it now. Logs before 12 Nov 2026 called the two non-WALL
+    FLOWERs "FAR": red's is on the scoring-table wall (SCORING), blue's on the audience wall (AUDIENCE)."""
+    return {'red FAR': 'red SCORING', 'blue FAR': 'blue AUDIENCE'}.get(name, name)
 
 
 def spikes(amps, a, b, above=1.35, gap_s=0.08):
@@ -163,7 +172,7 @@ def picks(paths):
     about 3.5 % long (doc/robot-session-4.md), so it is a hint about the sign and size of a pose
     error, not a measurement of it.
     """
-    print('%-19s %7s %-10s %-22s %-24s %5s %3s %-6s %6s %6s  %s' % (
+    print('%-19s %7s %-13s %-22s %-24s %5s %3s %-6s %6s %6s  %s' % (
         'log', 't', 'flower', 'how', 'push end', 'depth', 'spk', 'lane', 'along', 'side', 'outcome'))
     for path in paths:
         d = read(path)
@@ -180,7 +189,7 @@ def picks(paths):
             if not m:
                 i += 1
                 continue
-            flower, how = m.group(1), m.group(4)
+            flower, how = flower_name(m.group(1)), m.group(4)
             # Newer logs end the start line with ", contact 7.0 in": the push depth as it was set then,
             # which Panels may have changed since INIT. Older logs fall back to the start-of-run value.
             cm = re.search(r', contact ([\d.]+) in', how)
@@ -218,7 +227,7 @@ def picks(paths):
             else:
                 along_s = '%+6.1f' % (x * math.cos(f) + y * math.sin(f))
                 side_s = '%+6.1f' % (-x * math.sin(f) + y * math.cos(f))
-            print('%-19s %7.1f %-10s %-22s %-24s %5.1f %3d %-6s %6s %6s  %s' % (
+            print('%-19s %7.1f %-13s %-22s %-24s %5.1f %3d %-6s %6s %6s  %s' % (
                 path.split('/')[-1][:19], t, flower, how[:22], push_end, depth, spikes(amps, a, b),
                 lane_s, along_s, side_s, outcome))
 
@@ -328,6 +337,56 @@ DS_FILE_RE = re.compile(r'(\d{4})-(\d\d)-(\d\d)_DriverHub-(.+?)\.(dslog|battery)
 HIST_RE = re.compile(r'^\s*(0|\+[0-9dhms]+)\s+\(\d+\)\s+(.*)$')
 DUR_RE = re.compile(r'^\+?(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m(?!s))?(?:(\d+)s)?(?:(\d+)ms)?$')
 SNAPSHOT_HEADER = '=== '  # Pull-MatchLogs.ps1 starts every snapshot with a line like this
+
+
+def wheel_dips(speeds, target, under=0.978, level=0.988, apart_s=0.28):
+    """Times of the balls in [(seconds, wheel ticks/s)]: one ball is one sharp dip, a local low at
+    least 2.2% under the target, coming from a level within 1.2% of the target held just before it,
+    and at least 0.28 s after the last. Against the nine Belding Auto volleys that were also counted
+    on video it was within one ball of the video every time and never under it; the shot counter was
+    under on seven. A volley that starts from a standstill (the preloads) hides its dips in the
+    spin-up: do not count that one this way."""
+    out = []
+    for t, v in speeds[1:-1]:  # a low needs a sample either side of it
+        if v > target * under:
+            continue
+        if v > min(x for tt, x in speeds if abs(tt - t) <= 0.12) + 1e-9:
+            continue
+        before = sorted(x for tt, x in speeds if t - 0.40 <= tt <= t - 0.12)
+        if len(before) < 3 or before[len(before) // 2] < target * level:
+            continue
+        if out and t - out[-1] < apart_s:
+            continue
+        out.append(t)
+    return out
+
+
+def volleys(paths):
+    """Every LaunchAll card of each log's Autonomous: when it ran, the target speed, the balls it
+    fired by the wheels' dips (wheel_dips), and what the shot counter said. The first volley of an
+    Auto fires from a standstill and is not counted by dips."""
+    print('%-34s %-13s %6s  %-14s %s' % ('log', 'volley (s)', 'target', 'balls by dips', 'counter'))
+    for path in paths:
+        d = read(path)
+        events = [(t, str(v)) for t, v in d.get('/Events', [])]
+        play = [t for t, v in events if re.match(r'PLAY: (RED|BLUE) alliance', v)]
+        if not play:
+            continue
+        t0 = play[0]
+        left, right = d.get('/Launcher/LeftTicksPerSecond', []), d.get('/Launcher/RightTicksPerSecond', [])
+        target, shots = d.get('/Launcher/TargetTicksPerSecond', []), d.get('/Launcher/Shots', [])
+        cards = [(t, v) for t, v in events if t0 <= t <= t0 + 33 and v.startswith('auto:')]
+        starts = [t for t, v in cards if 'auto: command LaunchAll' in v]
+        for i, ts in enumerate(starts):
+            later = [t for t, v in cards if t > ts + 0.5]
+            te = min(later[0] if later else ts + 5, ts + 5.5)
+            tgt = at(target, ts + 1.0) or at(target, ts)
+            speeds = [(ta, (a + b) / 2) for (ta, a), (tb, b) in zip(left, right) if ts - 0.45 <= ta <= te + 0.1]
+            if not tgt or not speeds:
+                continue
+            counted = (at(shots, te) or 0) - (at(shots, ts) or 0)
+            dips = 'from a standstill' if i == 0 else str(len([t for t in wheel_dips(speeds, tgt) if ts - 0.05 <= t <= te + 0.1]))
+            print('%-34s %5.1f-%-5.1f  %6.0f  %-14s %.0f' % (path.split('/')[-1][:34], ts - t0, te - t0, tgt, dips, counted))
 
 
 def _text_lines(path):
@@ -619,6 +678,8 @@ def main(argv):
         picks(argv[2:])
     elif cmd == 'launcher':
         launcher(argv[2:])
+    elif cmd == 'volleys':
+        volleys(argv[2:])
     elif cmd == 'dsbattery':
         dsbattery(argv[2:])
     elif cmd == 'turret':
