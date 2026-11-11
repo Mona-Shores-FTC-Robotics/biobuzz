@@ -73,6 +73,11 @@ Order matters — later reads are interpreted in light of earlier ones.
 5. `git log` since the last brief — on `master` **and on branches with no open PR**. Work that
    bypassed the board is exactly how finished work gets stranded here; look for it every time.
 6. The collaborator list, to know who exists.
+7. **The latest event's fix list**: the `fixlist` link for the most recent event in
+   `tools/match-review/videos.json`, read with `ArtifactData list url=<fixlist> collection=items`
+   (the `match-review` skill, section 6, describes the fields). Open items are `status` `todo`;
+   `priority: true` are its Top 5. An item with a linked issue is that issue: count it once. If the
+   session has no `ArtifactData` tool (a scheduled Routine may not), say so in the brief and go on.
 
 ## 4. Propose priorities
 
@@ -129,6 +134,8 @@ Use this format exactly — it gets read on a phone in a parking lot.
 | Mentor | Task | Robot? | Suits |
 
 **Bench (laptop only, grab one if you're free):** #NN, #NN, #NN
+
+**Fix list (<event>):** N of M finished; Top 5 still open: <titles>
 
 **Needs a decision from a human:** #NN — overdue by N days
 ```
