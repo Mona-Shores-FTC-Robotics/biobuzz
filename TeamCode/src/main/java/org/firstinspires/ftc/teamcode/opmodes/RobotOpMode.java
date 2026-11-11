@@ -236,6 +236,17 @@ public abstract class RobotOpMode extends OpMode {
 
     /** Below this at INIT the battery is reported, on the INIT page and in the log: 12.0 V resting is nearly empty. */
     static final double LOW_BATTERY_VOLTS = 12.0;
+    /**
+     * The same for an Autonomous, which starts a match: every Belding match battery read 12.8 V or
+     * more at INIT, and the practice batteries that started at 10.5 to 11.2 V sagged to 6.0 to
+     * 6.6 V under load (#501). A TeleOp keeps 12.0 V, so practice on a part-used battery does not nag.
+     */
+    static final double LOW_BATTERY_VOLTS_AUTO = 12.8;
+    /** The INIT warning level for this OpMode: a match's (an Autonomous) or practice's. */
+    private double lowBatteryVolts() {
+        return isAutonomous() ? LOW_BATTERY_VOLTS_AUTO : LOW_BATTERY_VOLTS;
+    }
+
     /** The INIT page's battery warning, null when the battery read fine or there is no sensor. */
     private String batteryNote;
     /** The low-battery rumble has gone, once per INIT: 29 Oct's low runs all had the page warning. */
@@ -440,8 +451,8 @@ public abstract class RobotOpMode extends OpMode {
             batteryAtInitVolts = volts;
             robot.batteryVolts(volts);
             log.metadata("BatteryAtInit", String.format(Locale.US, "%.2f V", volts));
-            if (volts < LOW_BATTERY_VOLTS) {
-                batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, LOW_BATTERY_VOLTS);
+            if (volts < lowBatteryVolts()) {
+                batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, lowBatteryVolts());
                 log.event("battery low: " + batteryNote);
             }
         }
@@ -581,7 +592,7 @@ public abstract class RobotOpMode extends OpMode {
                 : startFor(chosen == Alliance.UNKNOWN ? otherStart.alliance : chosen);
         initWarnings.evaluate(pinpointProblem, chosen, setup.visionAlliance(), startCheck,
                 cameraProblem, robot.vision.freshResultCount(), (System.nanoTime() - initStartNs) / 1_000_000L,
-                batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent(),
+                batteryAtInitVolts, lowBatteryVolts(), robot.colorSensor.silent(),
                 robot.drive.lastFrame().count() >= LocalizationTuning.minFixTags, otherStart, moveTo);
         String summary = initWarnings.summary();
         if (!summary.equals(loggedWarnings)) {
