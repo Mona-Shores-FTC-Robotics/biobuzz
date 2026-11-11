@@ -545,6 +545,8 @@ public class AutoStudyTest {
         // BIOBUZZ_AUTO_TIP_DWELL=0: no dwell before a TIP (the simulator before issue #167), for before/after comparisons.
         double[] dwellRange = FieldSim.tipDwellRange;
         if ("0".equals(System.getenv("BIOBUZZ_AUTO_TIP_DWELL"))) FieldSim.tipDwellRange = null;
+        // BIOBUZZ_AUTO_CALIBRATION=belding: the Belding Qualifier's shots, dwell and HIVEs (BeldingCalibration).
+        if (BeldingCalibration.on) BeldingCalibration.apply();
         // BIOBUZZ_AUTO_HIVE_FIELD: where the HIVEs tip in the guide's band. "belding1" (about 7.0 POLLEN weights),
         // "belding2" (about 7.95-8.0), "guide" (the middle, the default) or a number 0-1 (HiveCalibration.tipPointInBand).
         String hiveField = System.getenv("BIOBUZZ_AUTO_HIVE_FIELD");
@@ -568,6 +570,7 @@ public class AutoStudyTest {
             AutoSim.fireOnlyWhenStill = false;
             org.firstinspires.ftc.teamcode.vision.HiveTracker.Tuning.tipSeconds = tipBefore;
             FieldSim.tipSecondsRange = tipRange;
+            BeldingCalibration.restore();
             FieldSim.tipDwellRange = dwellRange;
             HiveCalibration.tipPointInBand = HiveCalibration.GUIDE_MIDDLE;
         }

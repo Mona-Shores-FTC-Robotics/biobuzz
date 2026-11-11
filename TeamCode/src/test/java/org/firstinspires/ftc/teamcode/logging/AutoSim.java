@@ -801,6 +801,7 @@ public final class AutoSim {
         Result result = new Result(runName(), alliance, names);
         for (Bot b : bots) result.robots.get(b.index).alliance = b.alliance;
         for (Bot b : bots) result.opponents |= b.alliance != alliance;
+        if (BeldingCalibration.on) HiveCalibration.tipPointInBand = BeldingCalibration.tipPoint(seed);
         HiveCalibration calibration = HiveCalibration.current();
         sim = new FieldSim(HiveAssets.committedStagedPieces(), seed, calibration.fit());
         boolean red = alliance == Alliance.RED;
@@ -1322,7 +1323,7 @@ public final class AutoSim {
             final double waitUntil = partnerWaitUntilS;
             AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add)
                     // As on the robot (BuiltAuto.parkAfterVolley, on): a volley never takes the park's time.
-                    .parkAfterVolley(true).picks(new AutoKit.Picks() {
+                    .parkAfterVolley(!(BeldingCalibration.on && BeldingCalibration.guardAsAtBelding)).picks(new AutoKit.Picks() {
                 @Override public int choice(String option) { return -1; }
                 @Override public double seconds(String option) { return option.equals(waitOption) ? waitUntil : Double.NaN; }
             });
@@ -2149,9 +2150,13 @@ public final class AutoSim {
             }
         }
 
+        /** LaunchAll cards this robot has started: the Belding calibration's later volleys run their whole feed. */
+        private int launchAllsStarted;
+
         private Command launch(int count) {
             return new CommandBuilder()
                     .setStart(() -> {
+                        boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.WHOLE_FEED && count == Integer.MAX_VALUE && launchAllsStarted++ > 0;
                         spinUp();
                         fireStepBegins();
                         firing = true;
@@ -2159,11 +2164,12 @@ public final class AutoSim {
                         activeFeedLimit = count == Integer.MAX_VALUE ? LaunchCards.launchAllFeedS : LaunchCards.launchOneFeedS;
                         nextShotAt = Math.max(nextShotAt, now);
                         shotTarget = count == Integer.MAX_VALUE
-                                ? (Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
+                                ? (!wholeFeed && Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
                                     ? shotsFired + (int) Math.ceil(LaunchCards.launchAllEndAfterShots) : Integer.MAX_VALUE)
                                 : shotsFired + count;
                     })
-                    .setDone(() -> body.stored.isEmpty() || shotsFired >= shotTarget
+                    .setDone(() -> (body.stored.isEmpty() && shotTarget != Integer.MAX_VALUE) || shotsFired >= shotTarget
+                            || (body.stored.isEmpty() && Double.isNaN(activeFeedAt))
                             || (!Double.isNaN(activeFeedAt) && now - activeFeedAt >= activeFeedLimit))
                     .setEnd(end -> firing = false);
         }
@@ -2262,6 +2268,9 @@ public final class AutoSim {
          * model ({@link #extractor}), as for a path an Auto draws to a FLOWER. A design with the intake at the back
          * picks backwards: the rule runs on the intake's heading.
          */
+        /** Its own stream, so the calibration's short picks leave every other draw as it was. */
+        private final java.util.Random pickLuck = new java.util.Random((seed + 1) * 0x9E3779B97F4A7C15L);
+
         private Command pickFlower() {
             final Pose[] square = new Pose[1];
             final Pose[] contact = new Pose[1];
@@ -2297,7 +2306,12 @@ public final class AutoSim {
                         square[0] = new Pose(sq.x(), sq.y(), sq.heading() - flip);
                         contact[0] = new Pose(in.x(), in.y(), in.heading() - flip);
                         intakeBefore[0] = intakeEnabled;
-                        intakeEnabled = true;
+                        // The Belding calibration: a SCORING FLOWER pick comes back with nothing this often.
+                        boolean scoringFlower = Math.abs(flower.y - centre) > 60;
+                        boolean comesBackShort = BeldingCalibration.on && scoringFlower
+                                && pickLuck.nextDouble() < BeldingCalibration.SCORING_PICK_SHORT;
+                        if (comesBackShort) pending.add("PickFlower: comes back short (Belding calibration)");
+                        intakeEnabled = !comesBackShort;
                         Pose from = new Pose(at[0], at[1], at[2]);
                         double turn = Math.abs(Math.IEEEremainder(at[2] - square[0].heading(), 2 * Math.PI));
                         if (Math.hypot(at[0] - square[0].x(), at[1] - square[0].y()) <= FlowerPicker.atApproachIn
@@ -2325,7 +2339,8 @@ public final class AutoSim {
                             phase[0] = 2;
                             dwellFrom[0] = now;
                         } else if (phase[0] == 2 && (Double.isNaN(pickS)
-                                ? FieldSim.full(body) || now - dwellFrom[0] >= FlowerPicker.dwellMs / 1000.0
+                                ? (FieldSim.full(body) && (!BeldingCalibration.on || now - dwellFrom[0] >= BeldingCalibration.PICK_DWELL_S))
+                                    || now - dwellFrom[0] >= FlowerPicker.dwellMs / 1000.0
                                 : now - dwellFrom[0] >= pickS)) {
                             phase[0] = 3;
                             double[] at = pedro(drive.pose);

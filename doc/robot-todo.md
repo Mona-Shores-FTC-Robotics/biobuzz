@@ -469,6 +469,27 @@ Use the work order above to select checks; the detailed mechanism checks below a
       **Also:** the two Belding runs that crawled for 4 s about 10 in short of `LEFT_LAUNCH_CLOSE`
       / `LEFT_LAUNCH_CATCH` (20245, 14:39 and 16:53 hub time) look blocked: check the match video.
 
+- [ ] **R-Two-Tip draft (`autos/drafts/r-two-tip.pp`): R-Solo's steps from the measured LEFT spot.**
+      [Why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-two-tip-r-solos-steps-fired-from-the-measured-left-spot).
+      Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s).
+      - Five runs alone, filmed from the side, partner off `LEFT_START`. Count the pieces that
+        stay in the LEFT CELL from each LEFT volley, and the TIPs. **Good:** 8 of 8 stay in on
+        most runs (the simulator's half of the runs assumes 0.92 a shot; `doc/one-robot-two-tips.md`). This is
+        also the count the Belding review asked for on R-Solo.
+      - **The third volley must run.** Master's guard parks without it when the second volley
+        ends after about 16.8 s (the calibrated simulator: 15.8 s). Read the card times from
+        each run's log (`read_logs.py summary`). **Stop:** `parking now` after the second
+        volley → note when that volley ended; the guard's numbers (`LAUNCH_ALL_TYPICAL_S`,
+        `PICK_FLOWER_TYPICAL_S`) need measuring again.
+      - **`LEFT_LAUNCH_OFFSET`, the last volley's spot,** has not been fired from on the left.
+        Hold Square there first and count: **Good:** 3 or 4 of 4 stay in.
+      - **The measurements `doc/one-robot-two-tips.md` asks for** come from these same runs and a
+        few bench counts: balls that stay in from each LEFT spot, SCORING picks that come back
+        full, how many POLLEN tip the practice HIVE, and the time from the last ball to the TIP.
+      - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
+        piece leaves the robot and the camera sights the LEFT CELL before the stop.
+      [mentor session, 10 Nov]
+
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
 The pick-depth session. Procedure and tables: [S5 At the robot]. The student version of the same
@@ -802,6 +823,13 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       at `LEFT_LAUNCH_CORNER` (M-7, red) and within ±2.5° at the other spots; 3 and 2 shots counted
       of 4. Set its heading to about 59° in the Visualizer (Save team spots), then hold Square there
       once. **Good:** aim error under 2° on the Match page and 3–4 of 4 in. [mentor, 5 Nov]
+
+- [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`.** The table's rows start
+      at 42.4 in, so both CLOSE spots fire at an extrapolated speed (1459–1480 ticks/s in the
+      Belding logs). R-Solo fired both LEFT volleys from there and made its second TIP in 0 of 7
+      runs; L-NoCross from `LEFT_LAUNCH_CATCH` (the 42.4 in row) made it in 3 of 5. Run the loop
+      above at `RIGHT_LAUNCH_CLOSE` and write the speed into `LaunchSpeedTable` row 5.
+      **Good:** 4 of 4 stay in the CELL at the row's speed. [mentor session, 10 Nov]
 
 - [ ] **Camera range = pose range, from the turret axis** (since 5 Nov both are measured from the
       turret, and the table's rows were converted to match). Any Basic Drive with the camera on a

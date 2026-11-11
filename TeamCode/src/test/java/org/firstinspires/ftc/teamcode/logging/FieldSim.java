@@ -250,6 +250,8 @@ final class FieldSim {
      */
     static final double[] FILMED_TIP_DWELL_SECONDS = {0.25, 3.4};
     static final double FILMED_TIP_DWELL_OVERLOADED_S = 0.5;
+    /** The longest dwell of a CELL a full POLLEN past its threshold; {@link BeldingCalibration} sets its own. */
+    static double tipDwellOverloadedS = FILMED_TIP_DWELL_OVERLOADED_S;
     static double[] tipDwellRange = FILMED_TIP_DWELL_SECONDS;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
     static double robotRestitution = ROBOT_RESTITUTION;
@@ -1280,16 +1282,25 @@ final class FieldSim {
         if (stored.isEmpty()) return null;
         double[] from = bot.exitPoint(sideIn);
         from[2] += volleyUpIn;
-        boolean setpoint = bot.design.fixedSetpoint && !idealSpeed;
+        // The Belding calibration: the share of shots that stay in is the matches', by range, not the launcher model's.
+        boolean belding = BeldingCalibration.on && bot.design.fixedSetpoint;
+        boolean beldingMiss = false;
+        if (belding) {
+            double range = TurretAim.rangeFromFieldIn(bot.x, bot.y, bot.h,
+                    TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, target[0], target[1]);
+            beldingMiss = random.nextDouble() >= BeldingCalibration.stayInFraction(range);
+        }
+        boolean setpoint = bot.design.fixedSetpoint && !idealSpeed && !belding;
         double[] v = setpoint ? setpointLaunch(bot.design, from, target, launchTicks(bot, target))
                 : Double.isNaN(bot.design.fixedPitchDeg)
                 ? launchVelocity(from, target, bot.design.arcExtraPitchDeg)
                 : launchVelocityAtPitch(from, target, Math.toRadians(bot.design.fixedPitchDeg));
         if (v == null) return null;
-        double spread = spreadScale * spreadScaleShot;
+        double spread = spreadScale * spreadScaleShot * (belding ? BeldingCalibration.HIT_SPREAD : 1);
         double speedSpread = setpoint ? bot.design.setpointSpeedSpread : PLACEHOLDER_SPEED_SPREAD;
         double angleSpread = setpoint ? bot.design.setpointAngleSpreadRad : PLACEHOLDER_ANGLE_SPREAD_RAD;
         double speed = 1 + speedSpread * spread * noise(0);
+        if (beldingMiss) speed *= BeldingCalibration.MISS_SPEED_FACTOR;
         if (!bot.design.dedicatedLaunchers) {
             speed *= stored.get(0).kind == Kind.POLLEN ? bot.design.pollenSpeedFactor : bot.design.nectarSpeedFactor;
         }
@@ -1598,7 +1609,7 @@ final class FieldSim {
         }
         lever = n > 0 ? lever / n : (CELL_BACK_IN + CELL_OPENING_IN) / 2;
         double excessPollen = Math.min(1, Math.abs(torque) / (weight(Kind.POLLEN) * lever));
-        double longest = tipDwellRange[1] + (FILMED_TIP_DWELL_OVERLOADED_S - tipDwellRange[1]) * excessPollen;
+        double longest = tipDwellRange[1] + (tipDwellOverloadedS - tipDwellRange[1]) * excessPollen;
         double dwell = Math.min(tipDwellRange[0], longest) + r.dwellDraw * Math.max(0, longest - tipDwellRange[0]);
         if (time - r.dwellFrom < dwell) return true;
         events.add(String.format(Locale.ROOT, "%s HIVE over its tipping weight for %.2f s; the rocker moves", r.alliance, time - r.dwellFrom));
