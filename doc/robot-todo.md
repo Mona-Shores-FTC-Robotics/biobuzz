@@ -831,6 +831,28 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       above at `RIGHT_LAUNCH_CLOSE` and write the speed into `LaunchSpeedTable` row 5.
       **Good:** 4 of 4 stay in the CELL at the row's speed. [mentor session, 10 Nov]
 
+- [ ] **Count the balls that stay in, spot by spot** (the number `doc/three-tips.md` and
+      `doc/one-robot-two-tips.md` both turn on). Five volleys of four from `RIGHT_START`,
+      `LEFT_LAUNCH_CATCH` and `LEFT_LAUNCH_OFFSET`, filmed from the side, fed by a FLOWER pick as in an
+      Auto, not by hand. Write down pieces that stay in of 20 at each. The simulator has 0.82, 0.92 and
+      0.89, inferred from TIPs, never counted. **Good:** 19 or 20 of 20 at the LEFT spots (0.98 gives two
+      TIPs in 3 runs of 4 beside a partner that only leaves its preloads; 0.92 gives half).
+      [mentor session, 11 Nov]
+
+- [ ] **A row of 4 loose POLLEN, picked up at a creep** (Basic Drive, intake on; `doc/three-tips.md`'s
+      partner row). Lay 4 POLLEN touching in a line on open tiles and drive along the line at about
+      6 in/s (a quarter stick), 10 times, then 10 times with the row against a wall as the GARDEN's is.
+      Count the pieces in the lane each time and time first touch to full from the log
+      (`read_logs.py picks`). The simulator's 1.3 to 2.6 s and 4 of 4 are a placeholder; the GARDEN
+      gathers in practice took 0 to 2 (#508). **Good:** 4 of 4 in under 2.5 s, 9 times in 10.
+      [mentor session, 11 Nov]
+
+- [ ] **A shot while the robot rolls** (Basic Drive, only once the turret tracks a CELL while driving).
+      Drive past `LEFT_LAUNCH_OFFSET` along the far wall at about 20 in/s and fire four on the way,
+      5 passes each way, filmed. Count what stays in against the same spot standing still. The
+      simulator's what-if assumes a moving shot stays in as often as a standing one once it is led for
+      the robot's speed; unled, 1 in 4 of its runs made the second TIP. [mentor session, 11 Nov]
+
 - [ ] **Camera range = pose range, from the turret axis** (since 5 Nov both are measured from the
       turret, and the table's rows were converted to match). Any Basic Drive with the camera on a
       CELL: graph `/Launch/CameraRangeIn` and `/Launch/PoseRangeIn` from the match log (an Auto

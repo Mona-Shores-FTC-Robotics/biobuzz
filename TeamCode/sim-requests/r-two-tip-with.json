@@ -1,0 +1,53 @@
+{
+  "pp": "TeamCode/autos/drafts/r-two-tip-with.pp",
+  "spec": "RTwoTipWithAuto",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "fires its preloads at the far CELL once it is up",
+      "partner": "PartnerLFillParkAuto"
+    },
+    {
+      "name": "fires its preloads at the far CELL at 9 s",
+      "partner": "PartnerLTimedFillParkAuto"
+    },
+    {
+      "name": "stays out of the way",
+      "partner": "PartnerStillAuto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/r-two-tip-with.pp",
+    "SavedBy": "mentor session, 11 Nov 2026",
+    "SavedAt": "2026-11-11T05:00:00.000Z",
+    "SimNote": "doc/three-tips.md rung 3: R-Two-Tip beside a partner that puts its 4 preloads into the LEFT CELL; run with the Belding calibration"
+  }
+}

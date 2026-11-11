@@ -1217,6 +1217,31 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   from RIGHT_START it keeps pieces from about 1500 to 1650 ticks/s where the robot's tuning shows about ±1.5%
   (a real CELL spits a piece that hits its back or lip too fast). `LauncherSetpointTest`
   (`BIOBUZZ_SIM_CHECKS=1`) checks both spots; `BIOBUZZ_SIM_IDEAL_SPEED=1` puts back the speed per distance.
+- **A loose row, and the what-ifs for `doc/three-tips.md`** (11 Nov 2026). All sim only; the robot has none of these cards.
+  - `SweepRow`: the robot creeps straight ahead with the intake on over a row of loose pieces lying along its
+    line (a partner's 4 preloads left on the tiles, or the GARDEN's row along the wall), until it is full or has
+    gone 18 in. At driving speed the simulated intake takes the first piece and knocks the rest away, since it
+    takes one piece every `intakeIntervalS`. **Placeholder:** the creep, 6 in/s (`AutoSim.sweepRowSpeedInPerS`,
+    `BIOBUZZ_SIM_SWEEP_SPEED`): three quarters of a POLLEN's width every 0.35 s. Nobody has timed the robot over
+    a loose row; its GARDEN gathers in practice took 0 to 2 of 4 (#508).
+  - `CollectSeen` now reaches a piece with the real robot's intake, which takes on contact: its chase used to
+    stop a path's last 4 in short of the piece.
+  - A stand-in whose class name has `Stage` sets its 4 preloads along its left side at its own start
+    (`partner-l-stage-leave-park` is the one that then only parks); `StageFront` sets them across its front.
+  - `StreamOn` with `BIOBUZZ_AUTO_DESIGN_SET="compensatesMotion=true"` is launching while moving: the shot is
+    led for the robot's own speed. **Placeholder:** the lead is perfect, and a moving shot stays in as often
+    as a standing one from that range. Without the lead the robot's speed is added to the ball and most miss.
+  - `BIOBUZZ_AUTO_DESIGN_SET="shotIntervalS=0.47"` sets the seconds between shots (the simulator's own is the
+    3.5 s set feed over 4; Belding's balls left 0.47 s apart after a first at 0.75 s).
+  - `BIOBUZZ_SIM_TYPICAL_LAUNCH_ALL`, `_PICK_FLOWER`, `_GARDEN_GATHER`: the typical seconds the endgame guard
+    plans with, in place of master's `AutoRegistration` constants. A what-if that speeds a mechanism up sets
+    its typical time to match, or the guard parks for a volley that would have fitted.
+    `BIOBUZZ_SIM_GARDEN_S` sets the least a `GardenGather` takes.
+  - Every STUDY line is followed by `by 30 s: TIP1 a/n TIP2 b/n TIP3 c/n`: the same TIPs counted only when
+    complete by the end of AUTO's 30 s. The STUDY line itself also counts a TIP that completes in the
+    transition (§10.5 B), which the endgame guard does not plan on.
+  - `BothCellsSpotScanTest` (`BIOBUZZ_SIM_BOTH_CELLS=1`): the share of shots the simulated CELLs keep from a
+    grid of spots, at each CELL. No spot keeps both: the CELLs open away from each other.
 - **The human's long roll** (`BIOBUZZ_AUTO_HUMAN_ENTRY=aim`, for PR #424's study): each owed NECTAR is rolled
   from the LOADING ZONE (released on the tile at `AutoSim.humanAimFrom`, (5.5, 95) for red) at the intake mouth
   of a robot on a team spot (`BIOBUZZ_AUTO_HUMAN_AIM_SPOT`, a `spots.json` name or `x,y,heading`;

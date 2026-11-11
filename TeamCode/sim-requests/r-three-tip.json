@@ -1,0 +1,45 @@
+{
+  "pp": "TeamCode/autos/drafts/r-three-tip.pp",
+  "spec": "RThreeTipAuto",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "leaves its 4 preloads and parks",
+      "partner": "PartnerLStageLeaveParkAuto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/r-three-tip.pp",
+    "SavedBy": "mentor session, 11 Nov 2026",
+    "SavedAt": "2026-11-11T05:00:00.000Z",
+    "SimNote": "doc/three-tips.md rung 1 as the Belding robot: the partner's row and the SCORING FLOWER into LEFT, the WALL FLOWER and the GARDEN into RIGHT; run with the Belding calibration; SweepRow is a sim-only card"
+  }
+}

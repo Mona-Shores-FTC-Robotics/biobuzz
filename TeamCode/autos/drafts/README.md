@@ -79,6 +79,49 @@ Auto working when the robot runs slow; drive time and a turret change little.
   somewhere else on the wall, or the 36 in row gets measured and R-Solo's `LEFT_LAUNCH_CLOSE` is used.
 - The robot checks are in [robot-todo §3](../../../doc/robot-todo.md).
 
+## R-Three-Tip and R-Three-Tip-Stream: three TIPs from one robot, a study's drawings
+
+Not Autos to run. They are the route behind [`doc/three-tips.md`](../../../doc/three-tips.md)
+(mentor session, 11 Nov 2026): the partner's 4 preloads and the SCORING FLOWER into the LEFT CELL,
+then the WALL FLOWER and the GARDEN into the RIGHT CELL. Both use `SweepRow`, a card only the
+simulator has; R-Three-Tip-Stream also uses the simulator's `StreamOn` and `StreamOff`.
+
+- R-Three-Tip, every volley a `LaunchAll` from a stop:
+  <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-three-tip.pp,partners/partner-l-stage-leave-park.pp>
+- R-Three-Tip-Stream, the same stops with the launcher firing between them, drawn at 70 in/s:
+  <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-three-tip-stream.pp,partners/partner-l-stage-leave-park.pp>
+
+The stand-in `partners/partner-l-stage-leave-park` starts on the far wall west of the SCORING
+FLOWER with its 4 POLLEN in a row along its field side, and drives to the LOADING ZONE at PLAY.
+
+| In the simulator set to Belding, 120 seeds, TIPs by 30 s | 2 TIPs | 3 TIPs |
+|---|---|---|
+| R-Three-Tip, the Belding robot | 57 | 0 |
+| R-Three-Tip-Stream, every what-if on | 107 | 99 |
+| R-Three-Tip-Stream, the smallest set that meets the target (turret, launching while moving, 0.98 staying in, feed 0.47 s a shot, 70 in/s) | 96 | 87 |
+
+As saved, the stream draft's request runs with Belding's own accuracy and feed; the what-if knobs
+are in the study's "How it was run".
+
+## R-Two-Tip-With: two TIPs beside a partner that fills the far CELL
+
+R-Two-Tip with its drive up the wall lane pulled in (control point (30, 110)), for a partner that
+starts on the far wall at (30, 133.8), fires its 4 preloads at the LEFT CELL once it is up, and
+parks along the far wall. Mentor session, 11 Nov 2026; not run on a robot.
+
+Open the pair:
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-two-tip-with.pp,partners/partner-l-fill-park.pp>
+
+| In the simulator set to Belding, 120 seeds, the Belding robot | 2 TIPs | Second TIP at |
+|---|---|---|
+| R-Two-Tip-With alone | 57 | 28.4 s |
+| beside `partner-l-fill-park` (fires when it sees the CELL up) | 109 | 23.0 s |
+| beside `partner-l-timed-fill-park` (fires at 9 s) | 109 | 23.0 s |
+
+The LEFT CELL gets 12 shots for the 8 it needs, which is the whole gain. No two robots touch in
+any run. What to ask a partner, and which Belding partners could have done it, is in
+[`doc/three-tips.md`](../../../doc/three-tips.md), rung 3.
+
 ## R-Solo-Nudge, for a partner with no Auto
 
 The angled draft targets both partner AUTO PARK and LEAVE: a **16 x 16 in** chassis
