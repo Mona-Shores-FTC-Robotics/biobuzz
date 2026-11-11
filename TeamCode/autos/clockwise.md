@@ -207,6 +207,12 @@ TIP (21 of 24).
 - With every load full (`BIOBUZZ_BELDING_ROBOT=full`), two TIPs come in 21 of 24 normal runs,
   every run that has a TIP 1, and three TIPs still in none.
 
+- **The old guard alone changes nothing.** Run with a volley allowed before the park
+  (`BIOBUZZ_AUTO_BELDING_GUARD=1`), every row of both tables is the same, because T3c and T4 are
+  this Auto's own clock checks. Moving them as well would let R cross at 22.1 s only in the runs
+  whose TIP 2 came from the first eight pieces (9 of 24), with R's last piece out at about
+  29.6 s, the TIP after 30 s, R not parked and L leaving late through R's crossing.
+
 ### Why two TIPs are not certain
 
 - **A late TIP 1 leaves no time for TIP 2.** R's preloads stay in 0.90 of the time from
