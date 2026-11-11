@@ -44,7 +44,7 @@ was run"). Differences under 5 of 120 are not differences.
 |---|---|---|---|
 | 1, the Belding robot, partner leaves 4 | R-Three-Tip | 57 / 0 | **No, and it cannot.** By the budget: about 42 s of work. By a run: with every shot staying in and every pick full, the same robot makes 117 / 0. Its second TIP lands at 26.1 s, which leaves 4 s to put 8 pieces into the RIGHT CELL and wait out a 4.75 s dwell |
 | 1 and 2, with the allowed what-ifs | R-Three-Tip-Stream | 107 / 99 with all of them; 96 / 87 with the smallest set | Yes, but only in the simulator, and on three placeholders (the row sweep, a perfect lead on a moving shot, stay-in by range alone) |
-| 3, the Belding robot beside a Belding-style partner | R-Two-Tip-With | 109 / 0 | **Two TIPs yes, three no:** the second TIP lands at 23 s in the best pairing and the third needs 8 more pieces in by about 25 s |
+| 3, the Belding robot beside a Belding-style partner | R-Two-Tip-With | 109 / 0 | **Two TIPs yes (109 is over 90). Three no, and it cannot:** with every shot staying in, the best pairing's second TIP lands at 19.4 s and all four pairings make 0 third TIPs of 120 |
 
 ## The budget (step 0)
 
@@ -368,6 +368,25 @@ or 9.0 to 11.8 s (timer); our WALL FLOWER volley follows at 13 to 17 s and the S
   and a FLOWER pick, all 8 in) while we hold 4 for the RIGHT CELL and fetch 4 more. R-NoCross beside
   exactly that stand-in makes 0 of 120, and our own two robots as the Infraviolet pair make 0.
 
+### Why no pairing makes a third TIP, shown by runs
+
+The same four pairings with every shot staying in and every FLOWER pick full, the timing as at
+Belding. Luck is gone; what is left is time.
+
+| Pairing | 1 TIP | 2 TIPs | 3 TIPs | TIP 2 at |
+|---|---|---|---|---|
+| R-Two-Tip-With, partner fires its preloads at the LEFT CELL | 120 | 120 | **0** | 19.4 s |
+| R-NoCross, partner makes the LEFT TIP alone | 120 | 120 | **0** | 22.9 s |
+| L-NoCross, partner fires its preloads at the RIGHT CELL | 120 | 120 | **0** | 22.9 s |
+| The Infraviolet pair (both robots ours) | 120 | 120 | **0** | 20.4 s |
+
+The earliest second TIP is 19.4 s. The RIGHT CELL then needs 8 pieces by about 25 s, and a Belding
+volley of 4 takes 4 s after the robot is there with them: two volleys from one robot do not fit, and
+one volley from each robot needs both standing at a RIGHT spot, loaded, at 19.4 s, which no drawing
+here reaches (our robot is at the LEFT CELL finishing TIP 2, or still picking). So **for three TIPs
+the partner would have to do what the rung 2 what-if robot does**; "fire your preloads" is not enough,
+and nothing a Belding partner did comes close.
+
 ### The Belding matches that missed a second TIP
 
 - **The seven R-Solo qualifiers with a first TIP from the preloads (Q-1, Q-4, Q-13, Q-19, Q-26,
@@ -451,6 +470,10 @@ more.
 | R-Two-Tip-With, partner fires at the LEFT CELL at 9 s | 120 | 109 | 0 | 7.6 s | 23.0 s |  | no |
 | the same pair, our shots stay in at 0.98 | 120 | 119 | 0 | 7.0 s | 20.0 s |  | no |
 | R-NoCross, partner makes the LEFT TIP alone | 120 | 58 | 0 | 7.5 s | 23.0 s |  | no |
+| R-Two-Tip-With + that partner, every shot in, every pick full | 120 | 120 | 0 | 7.0 s | 19.4 s |  | no |
+| R-NoCross + a partner that makes the LEFT TIP, every shot in, every pick full | 120 | 120 | 0 | 7.0 s | 22.9 s |  | no |
+| L-NoCross + a partner that fires at the RIGHT CELL, every shot in, every pick full | 120 | 120 | 0 | 7.0 s | 22.9 s |  | no |
+| the Infraviolet pair, every shot in, every pick full | 120 | 120 | 0 | 7.0 s | 20.4 s |  | no |
 | the Infraviolet pair | 117 | 22 | 0 | 7.2 s | 20.5 s |  | no |
 
 ## How it was run
