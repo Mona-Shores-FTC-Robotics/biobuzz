@@ -48,50 +48,30 @@ Autos differ in other ways, so this is the likely cause, not a proven one.
 | | Two TIPs | Second TIP at |
 |---|---|---|
 | R-Solo | 0 of 60 | |
-| **R-Two-Tip** | **34 of 60** | 28.6 s |
-| R-Two-Tip driving 10% slower | 34 of 60 | 29.0 s |
-| R-Two-Tip driving 20% slower | 34 of 60 | 29.9 s |
+| **R-Two-Tip** | **31 of 60** | 28.6 s |
+| R-Two-Tip driving 10% slower | 30 of 60 | 29.1 s |
+| R-Two-Tip driving 20% slower | 31 of 60 | 29.8 s |
 | R-Two-Tip driving 28% slower | 0 of 60 | |
 
-- **It makes two TIPs in a little over half the runs, and that is the pieces.** A robot holds 4 and
+- **It makes two TIPs in about half the runs (60 of 120 over more seeds), and that is the pieces.** A robot holds 4 and
   fits three volleys in 30 s. The first TIP takes the preloads; the LEFT CELL starts empty and needs 8
   POLLEN (7 on a field that tips light). So every piece of the two LEFT volleys has to stay in. Of
-  the 26 runs lost, 3 missed the first TIP and 23 had a LEFT piece miss.
+  the runs lost, about 1 in 9 missed the first TIP, about 1 in 9 had the SCORING FLOWER pick come back
+  with nothing (as 2 of 14 did at Belding), and the rest had a LEFT piece miss.
 - **The time holds to 20% slower.** Master's guard goes for the third volley only if the park still
   fits after it. With both LEFT volleys at `LEFT_LAUNCH_CATCH` the second volley ended half a second
   inside that limit and driving 10% slower lost every second TIP; with the last volley at
   `LEFT_LAUNCH_OFFSET` it does not. The second TIP still lands late, 27 to 30 s.
-- Other one-robot drawings tried in it: both LEFT volleys at `LEFT_LAUNCH_CATCH` (34 of 60, but 0 of
-  60 at 10% slower); the preloads from `RIGHT_LAUNCH_CATCH` (no more TIPs, and its park from that
+- Other one-robot drawings tried in it: both LEFT volleys at `LEFT_LAUNCH_CATCH` (as many TIPs, but none
+  at 10% slower); the preloads from `RIGHT_LAUNCH_CATCH` (no more TIPs, and its park from that
   spot crosses the Red HIVE); the first LEFT volley from `LEFT_LAUNCH_OFFSET` (no time gained).
   Catching the first TIP's spill (3 NECTAR) took about one piece a run.
 
-**What the robot would need** (the same Auto, one change at a time, 60 seeds each):
-
-| Change | Two TIPs | Driving 28% slower |
-|---|---|---|
-| As at Belding | 34 of 60 | 0 of 60 |
-| **Shots from the LEFT spots stay in 0.96 of the time** (0.92 at Belding) | **44 of 60** | |
-| 0.98 of the time | 49 of 60 | |
-| Shots from `RIGHT_START` stay in 0.92 of the time (0.82) | 35 of 60 | |
-| **A shot counter that works**, so a volley ends at its fourth shot, not after the whole 3.5 s feed | 34 of 60, the second TIP 0.8 s sooner | 35 of 60 |
-| The turret unlocked | 33 of 60 | |
-| The counter, 0.96 from the LEFT spots and 0.92 from the start | 46 of 60 | 48 of 60 |
-
-With both LEFT volleys at `LEFT_LAUNCH_CATCH`, picks 0.7 s quicker made no difference and driving 10%
-faster made it 37 of 60.
-
-- **Accuracy at the LEFT launch spots is what makes two TIPs:** each LEFT miss costs the TIP, and 8
-  in a row have to stay in. From 0.92 to 0.96 is one more ball in 25.
-- **The shot counter buys time, not TIPs:** it takes about a second off each volley after a pick, so
-  the second TIP lands sooner and the Auto still works 28% slower.
-- **A turret, quicker picks and a faster drive change little** for this route.
-- **Not in the simulator:** a SCORING FLOWER pick that comes back short loses the second TIP outright.
-  Two of R-Solo's 14 did at Belding (Q-1's wedge, Q-4's stop short), so multiply every row by about
-  0.86 until the pick is fixed.
-- Every row rests on the calibration's 0.92 for `LEFT_LAUNCH_CATCH`, which comes from L-NoCross's 3 of
-  5, not from counted balls, and on 0.89 for `LEFT_LAUNCH_OFFSET`, which is read off the table's rows
-  by range: that spot was measured on the right side and has not been fired from on the left.
+**What the robot would need** to make two TIPs in 3 runs of 4 is in
+[`doc/one-robot-two-tips.md`](../../../doc/one-robot-two-tips.md), with the SCORING FLOWER picks that
+came back short at Belding counted in (as drawn: 60 of 120). In short: 0.98 of the shots from the LEFT
+spots staying in, and a pick that always comes back full, give 94 of 120; the shot counter keeps the
+Auto working when the robot runs slow; drive time and a turret change little.
 
 **Not settled:**
 

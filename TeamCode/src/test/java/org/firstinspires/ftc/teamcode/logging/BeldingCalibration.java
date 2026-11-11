@@ -33,11 +33,11 @@ package org.firstinspires.ftc.teamcode.logging;
  *       those feeds ran their whole set time (volleys of 3.6 to 4.0 s) where the simulator's ended at the fourth
  *       shot; only the preload volley ends on the count. A pick stays {@link #PICK_DWELL_S} longer.</li>
  *   <li><b>No knock from a hit</b> ({@link #apply}): every AUTO TIP sat out its dwell.</li>
+ *   <li><b>SCORING FLOWER picks that come back short</b> ({@link #SCORING_PICK_SHORT}).</li>
  * </ul>
  *
  * <p><b>Not set here</b> (still the simulator's own): drive times (the 270 degree curve to the LEFT spots took
- * 3.5 to 4.6 s against 2.9 s), the two SCORING FLOWER picks that came back short (Q-1's wedge, Q-4's stop short),
- * and contact with other robots (Q-27).
+ * 3.5 to 4.6 s against 2.9 s) and contact with other robots (Q-27).
  */
 final class BeldingCalibration {
     private BeldingCalibration() {}
@@ -103,6 +103,13 @@ final class BeldingCalibration {
      * to card, the simulator's about 2.9 s.
      */
     static final double PICK_DWELL_S = env("BIOBUZZ_BELDING_PICK_DWELL", 0.7);
+
+    /**
+     * The share of SCORING FLOWER picks that come back with nothing: 2 of R-Solo's 14 (Q-4 stopped 4.6 in short and
+     * took none; Q-1 wedged two at the intake and its last volley fired about one). The WALL FLOWER picks were
+     * clean on video. {@code BIOBUZZ_BELDING_PICK_SHORT} sets it (0: a pick that always works).
+     */
+    static final double SCORING_PICK_SHORT = env("BIOBUZZ_BELDING_PICK_SHORT", 2.0 / 14);
 
     /** What {@link #apply} replaced, for {@link #restore}. */
     private static double[] dwellBefore;

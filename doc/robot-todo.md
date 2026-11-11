@@ -474,7 +474,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s).
       - Five runs alone, filmed from the side, partner off `LEFT_START`. Count the pieces that
         stay in the LEFT CELL from each LEFT volley, and the TIPs. **Good:** 8 of 8 stay in on
-        most runs (the simulator's 34 of 60 assumes 0.92 a shot; 0.96 gives 44 of 60). This is
+        most runs (the simulator's half of the runs assumes 0.92 a shot; `doc/one-robot-two-tips.md`). This is
         also the count the Belding review asked for on R-Solo.
       - **The third volley must run.** Master's guard parks without it when the second volley
         ends after about 16.8 s (the calibrated simulator: 15.8 s). Read the card times from
@@ -483,6 +483,9 @@ Use the work order above to select checks; the detailed mechanism checks below a
         `PICK_FLOWER_TYPICAL_S`) need measuring again.
       - **`LEFT_LAUNCH_OFFSET`, the last volley's spot,** has not been fired from on the left.
         Hold Square there first and count: **Good:** 3 or 4 of 4 stay in.
+      - **The measurements `doc/one-robot-two-tips.md` asks for** come from these same runs and a
+        few bench counts: balls that stay in from each LEFT spot, SCORING picks that come back
+        full, how many POLLEN tip the practice HIVE, and the time from the last ball to the TIP.
       - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
         piece leaves the robot and the camera sights the LEFT CELL before the stop.
       [mentor session, 10 Nov]
