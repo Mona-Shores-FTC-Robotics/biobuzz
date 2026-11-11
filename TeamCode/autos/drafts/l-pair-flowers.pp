@@ -86,8 +86,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 47.2,
-        "y": 119.3
+        "x": 47.4,
+        "y": 118.4
       },
       "controlPoints": [],
       "heading": {
@@ -128,8 +128,8 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 47.2,
-        "y": 119.3
+        "x": 47.4,
+        "y": 118.4
       },
       "controlPoints": [],
       "heading": {
@@ -624,8 +624,8 @@
         0
       ],
       "SCORING_FLOWER_STAGING": [
-        47.2,
-        119.3,
+        47.4,
+        118.4,
         90
       ],
       "WALL_FLOWER_STAGING": [
@@ -787,7 +787,6 @@
       "LEFT_LAUNCH_OFFSET",
       "LEFT_START",
       "RIGHT_PARK",
-      "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"
     ],
     "exportName": "L-Pair-Flowers"

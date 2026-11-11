@@ -52,7 +52,7 @@ public final class LPairFlowersAuto {
         Pose leftStart = p.of(62.3, 133.8, 270);
         Pose leftLaunchOffset = p.of(41, 121.5, 296.4);
         Pose rightPark = p.of(14.5, 95.7, 0);
-        Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
+        Pose scoringFlowerStaging = p.of(47.4, 118.4, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose laneRight = p.of(26, 40, 27.7);
 

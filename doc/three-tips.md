@@ -139,10 +139,10 @@ comes up, and by keeping the second robot loaded and waiting at the RIGHT CELL:
 | 14.0 to 15.5 s | Volley 3: the FLOWER's 4 at the LEFT CELL | |
 | 15.5 to 22.9 s | **TIP 2 dwell:** wall lane to the WALL FLOWER, picks 4, moves to the lane spot (26, 40) | |
 | 21.2 s | | **TIP 2.** Volley 4: the GARDEN's 4 at the RIGHT CELL (to 22.7 s) |
-| 22.7 s on | | Leaves under the HIVE, east of the lane, to (60, 104), then parks at `LEFT_PARK`, the far end |
+| 22.7 s on | | Leaves under the HIVE in one curve, east of the lane, and parks at `LEFT_PARK`, the far end (4.1 s) |
 | 22.9 to 24.6 s | Volley 5: the WALL FLOWER's 4 at the RIGHT CELL | |
 | 24.6 s on | Drives up the lane and parks at `RIGHT_PARK`, the near end | |
-| 29.7 s | **TIP 3** (27.8 s on average) | |
+| 29.7 s | **TIP 3** (28.0 s on average) | |
 
 Those are one run's times; the averages are in the table below. If the LEFT CELL is not up by 13 s L
 parks; if the RIGHT CELL is not back up, L gives up at 23.5 s and R at 25 s.
@@ -151,10 +151,24 @@ parks; if the RIGHT CELL is not back up, L gives up at 23.5 s and R at 25 s.
 the wall lane, each to the park end on its own side. That only worked at the fast pace: at Belding's
 volley time (the Visualizer's default) L runs about 3 s later, and the robots touched in 66 of 120
 runs, as the mentor saw in the Visualizer. Now the lane and the near park end (`RIGHT_PARK`) are L's
-alone, from every spot it can give up at, and R leaves the other way, under the HIVE, to the far end
-(`LEFT_PARK`). Robots touching, of 120 runs: **0 at Belding's pace and 0 with the shot counter**, for
-both R drawings. At Belding's pace one robot is still short of its park at 30 s in 8 or 9 runs of
-120; with the shot counter both park every time.
+alone, from every spot it can give up at, and R leaves the other way: one curve from
+`RIGHT_LAUNCH_OFFSET` under the HIVE to the far end (`LEFT_PARK`), which is also the park its endgame
+guard uses, so a late park takes the same road.
+
+| Of 120 runs, both R drawings | At Belding's pace | With the shot counter |
+|---|---|---|
+| The two robots touch | 0 | 0 |
+| A robot touches the HIVE frame or crosses the centre line | 0 | 0 |
+| A robot is not parked at 30 s | 2 or 3 (L, still driving) | 0 |
+
+Two things that table does not settle. **The road under the HIVE is narrow:** between our foot bar and
+the centre line an 18 in robot has 5.75 in to spare, and the curve keeps about 1.5 in on each side. The
+simulator drives it clean; a real robot at 50 in/s has not (`doc/robot-todo.md`). It is the same
+road the "hide under the HIVE" partners use. **At Belding's pace R's last volley is rarely fired:**
+the 4.1 s park does not fit after a 4 s volley unless the RIGHT CELL is back up by 21.9 s, so the
+guard parks R with the GARDEN's 4 still aboard. That costs nothing there, since a third TIP is out of
+reach at that pace anyway. The simulator also flags every FLOWER pick as "drives into a FLOWER"; that
+is the pick itself reaching the holder, and master's Autos get the same flag.
 
 **In the Visualizer** the pair previews as it runs here: with each robot's "Volley time" slider at
 its default 4.0 s the match shows 2 TIPs, and at 2.2 s (a feed that ends on the fourth ball) it shows
@@ -167,13 +181,17 @@ its default 4.0 s the match shows 2 TIPs, and at 2.2 s (a feed that ends on the 
 | the same, with the row sweep at 3 in/s | 120 | 97 | 32 | 19.2 s | 28.1 s | no |
 | Belding's feed (the whole 3.5 s) | 120 | 97 | 0 | 22.1 s | | no |
 | Feed 0.3 s a shot | 120 | 97 | 84 | 17.9 s | 26.0 s | **met** |
-| 40 in/s | 120 | 97 | 84 | 19.5 s | 28.7 s | **met** |
+| 40 in/s (rerun with R's exit under the HIVE: a robot is not parked at 30 s in 23 of 240) | 120 | 97 | 79 | 19.7 s | 28.9 s | **met** |
 | 60 in/s | 120 | 97 | 85 | 19.0 s | 27.1 s | **met** |
 | FLOWER picks fixed | 120 | 108 | 94 | 19.2 s | 27.8 s | **met** |
 | Stay in 1.0 | 120 | 108 | 108 | 19.2 s | 27.8 s | **met** |
 | Stay in 0.96 | 120 | 80 | 61 | 19.2 s | 27.8 s | no |
 | Belding's accuracy | 120 | 58 | 28 | 19.3 s | 28.0 s | no |
 | Everything as at Belding | 120 | 58 | 0 | 22.2 s | | no |
+
+The top two rows, the 40 in/s row and the last row were run again after R's exit moved under the HIVE
+(11 Nov): same counts, with TIP 2 at 19.4 s and TIP 3 at 28.0 s. The other rows are from the first
+drawing, whose ending differed only after the last volley.
 
 **The pair needs three things, and no new mechanism:**
 

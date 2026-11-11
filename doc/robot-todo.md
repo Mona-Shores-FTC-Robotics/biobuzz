@@ -839,6 +839,10 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       TIPs in 3 runs of 4 beside a partner that only leaves its preloads; 0.92 gives half).
       [mentor session, 11 Nov]
 
+- [ ] **The road under the HIVE** (`doc/three-tips.md`, R-Pair-Garden's exit; draft PR #531): drive
+      `RIGHT_LAUNCH_OFFSET` to `LEFT_PARK` under the HIVE, slowly first, then at 50 in/s, 5 times.
+      The curve keeps about 1.5 in from our foot bar and from the centre line. **Pass:** no touch
+      and no crossing in 5 of 5. Write down the closest it came on each side.
 - [ ] **A row of 4 loose POLLEN, picked up at a creep** (Basic Drive, intake on; `doc/three-tips.md`'s
       partner row). Lay 4 POLLEN touching in a line on open tiles and drive along the line at about
       6 in/s (a quarter stick), 10 times, then 10 times with the row against a wall as the GARDEN's is.
