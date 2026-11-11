@@ -110,13 +110,19 @@ on a robot. Only `LaunchAll`, `PickFlower`, `GardenGather` and CELL-up waits, ev
 at a team launch spot, so the Visualizer previews it and neither robot needs a turret.
 
 - **L** drives from `LEFT_START` to `LEFT_LAUNCH_OFFSET`, fires its 4 preloads when the LEFT CELL comes
-  up, picks the SCORING FLOWER and fires again, then takes the WALL FLOWER's 4 to the RIGHT CELL from
-  the wall lane. Every park of L's goes up that lane to `RIGHT_PARK`, the near end.
-- **R** makes the first TIP with its preloads, gathers the GARDEN, and waits loaded at
-  `RIGHT_LAUNCH_OFFSET` for the RIGHT CELL to come back up (until 25 s). It never enters the wall
-  lane after the GARDEN: it leaves in one curve under the HIVE and parks at `LEFT_PARK`, the far end; the guard's park is
-  that same curve. It clears our foot bar and the centre line by about 1.5 in each: try it slowly first.
-  The two robots touch in 0 of 120 runs at Belding's volley time and 0 with the shot counter.
+  up, picks the SCORING FLOWER and fires again, then picks the WALL FLOWER. With a full intake before
+  23 s it drives south to `RIGHT_WALL_NEAR` (34.4, 12.6), on the audience wall 24 degrees off square
+  to the RIGHT CELL, and fires there; otherwise it parks. Every park of L's goes up the wall lane to
+  `RIGHT_PARK`, the near end. (The first drawing fired this volley from the lane, 62 degrees off
+  square; the mentor's verdict was that it never goes in.)
+- **R** makes the first TIP with its preloads, gathers the GARDEN, and waits loaded on
+  `RIGHT_LAUNCH_CATCH`, square in front of the RIGHT CELL, for it to come back up (until 25 s). It
+  leaves straight under the HIVE and parks at `LEFT_PARK`, the far end; the guard's park is that same
+  curve, with 3.3 in each side between our foot bar and the centre line: try it slowly first.
+- The two robots touch in 0 of 120 runs at Belding's volley time and 0 with the shot counter, and
+  both park in all of them.
+- `RIGHT_WALL_NEAR` is not a team spot yet. It is the Square launch spots work's spot (biobuzz#536)
+  moved 2 in along and 2 in off the wall, so 4 in of floor separates L from R on `RIGHT_LAUNCH_CATCH`.
 
 Open the pair:
 <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/l-pair-flowers.pp,drafts/r-pair-garden.pp>.

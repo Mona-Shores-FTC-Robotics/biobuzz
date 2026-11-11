@@ -130,45 +130,54 @@ comes up, and by keeping the second robot loaded and waiting at the RIGHT CELL:
 `GardenGather`, the CELL-up waits), every volley is fired from a stop at a team launch spot, and
 **neither robot needs a turret.**
 
-| Time, one run | L-Pair-Flowers | R-Pair-Garden |
+| Time, one run (seed 5, row sweep) | L-Pair-Flowers | R-Pair-Garden |
 |---|---|---|
 | 0 to 2.5 s | Drives 1.1 s from `LEFT_START` to `LEFT_LAUNCH_OFFSET`. Waits | Volley 1: 4 preloads at the RIGHT CELL from `RIGHT_START` |
-| 2.5 to 9 s | Waits for the LEFT CELL | Gathers the GARDEN (4.5 to 6.9 s), drives to `RIGHT_LAUNCH_OFFSET`, waits loaded |
-| 7.7 s | **TIP 1.** Volley 2: 4 preloads at the LEFT CELL (to 9.1 s) | |
-| 9.1 to 14.0 s | SCORING FLOWER pick, back to `LEFT_LAUNCH_OFFSET` | waits |
-| 14.0 to 15.5 s | Volley 3: the FLOWER's 4 at the LEFT CELL | |
-| 15.5 to 22.9 s | **TIP 2 dwell:** wall lane to the WALL FLOWER, picks 4, moves to the lane spot (26, 40) | |
-| 21.2 s | | **TIP 2.** Volley 4: the GARDEN's 4 at the RIGHT CELL (to 22.7 s) |
-| 22.7 s on | | Leaves under the HIVE in one curve, east of the lane, and parks at `LEFT_PARK`, the far end (4.1 s) |
-| 22.9 to 24.6 s | Volley 5: the WALL FLOWER's 4 at the RIGHT CELL | |
-| 24.6 s on | Drives up the lane and parks at `RIGHT_PARK`, the near end | |
-| 29.7 s | **TIP 3** (28.0 s on average) | |
+| 2.5 to 9 s | Waits for the LEFT CELL | Gathers the GARDEN (4.5 to 6.9 s), drives to `RIGHT_LAUNCH_CATCH`, square in front of the RIGHT CELL, waits loaded |
+| 6.2 s | **TIP 1.** Volley 2: 4 preloads at the LEFT CELL (to 7.6 s) | |
+| 7.6 to 12.5 s | SCORING FLOWER pick, back to `LEFT_LAUNCH_OFFSET` | waits |
+| 12.5 to 14.0 s | Volley 3: the FLOWER's 4 at the LEFT CELL | |
+| 14.0 to 22.2 s | **TIP 2 dwell:** wall lane to the WALL FLOWER, picks 4 (full at 20.1 s), drives south to `RIGHT_WALL_NEAR` (34.4, 12.6) at the audience wall | |
+| 18.7 s | | **TIP 2.** Volley 4: the GARDEN's 4 at the RIGHT CELL (to 20.1 s) |
+| 20.1 s on | | Leaves straight under the HIVE and parks at `LEFT_PARK`, the far end (done 24.2 s) |
+| 22.3 to 24.0 s | Volley 5: the WALL FLOWER's 4 at the RIGHT CELL, 24 degrees off square | |
+| 24.0 s on | Drives up the wall lane and parks at `RIGHT_PARK`, the near end (done 27.1 s) | |
+| 28.0 s | **TIP 3** (28.7 s on average) | |
 
 Those are one run's times; the averages are in the table below. If the LEFT CELL is not up by 13 s L
-parks; if the RIGHT CELL is not back up, L gives up at 23.5 s and R at 25 s.
+parks. L goes south only with a full intake before 23 s, and otherwise parks from the WALL FLOWER. If
+the RIGHT CELL is not back up, both give up at 25 s.
 
-**The two never share a road.** The first version of this pair had R wait for L and then follow it up
-the wall lane, each to the park end on its own side. That only worked at the fast pace: at Belding's
-volley time (the Visualizer's default) L runs about 3 s later, and the robots touched in 66 of 120
-runs, as the mentor saw in the Visualizer. Now the lane and the near park end (`RIGHT_PARK`) are L's
-alone, from every spot it can give up at, and R leaves the other way: one curve from
-`RIGHT_LAUNCH_OFFSET` under the HIVE to the far end (`LEFT_PARK`), which is also the park its endgame
-guard uses, so a late park takes the same road.
+**Every volley is fired from the CELL's own end of the field** (mentor, 11 Nov). The first drawing had
+L fire its last 4 at the RIGHT CELL from the wall lane, (26, 40), which is 62 degrees off square to
+the CELL's row. The simulator let it through because it scores a shot by range only. The mentor's
+verdict was that it will never go in, and the Square launch spots work (biobuzz#536) agrees: the
+steepest shot ever fired in a log is about 33 degrees, its spots are capped at 26, and the row's
+opening seen from 62 degrees is under half its width. So L's last volley now comes from the audience
+wall, at that work's `RIGHT_WALL_NEAR` moved 2 in along and 2 in off the wall (24 degrees, 54 in), and
+R stands on the team's `RIGHT_LAUNCH_CATCH` (square on, 42 in), 4 in of floor between the two frames.
+L's trip is 30 in longer, which is why TIP 3 now comes at 28.7 s, not 28.0 s.
+
+**The two never share a road.** The first drawing also had R wait for L and follow it up the wall
+lane. At Belding's volley time (the Visualizer's default) L runs about 3 s later, and the robots
+touched in 66 of 120 runs, as the mentor saw in the Visualizer. Now the wall lane and the near park
+end (`RIGHT_PARK`) are L's alone, and R leaves the other way: one nearly straight curve from
+`RIGHT_LAUNCH_CATCH` under the HIVE to the far end (`LEFT_PARK`), which is also the park its endgame
+guard uses.
 
 | Of 120 runs, both R drawings | At Belding's pace | With the shot counter |
 |---|---|---|
 | The two robots touch | 0 | 0 |
 | A robot touches the HIVE frame or crosses the centre line | 0 | 0 |
-| A robot is not parked at 30 s | 2 or 3 (L, still driving) | 0 |
+| A robot is not parked at 30 s | 0 | 0 |
 
-Two things that table does not settle. **The road under the HIVE is narrow:** between our foot bar and
-the centre line an 18 in robot has 5.75 in to spare, and the curve keeps about 1.5 in on each side. The
-simulator drives it clean; a real robot at 50 in/s has not (`doc/robot-todo.md`). It is the same
-road the "hide under the HIVE" partners use. **At Belding's pace R's last volley is rarely fired:**
-the 4.1 s park does not fit after a 4 s volley unless the RIGHT CELL is back up by 21.9 s, so the
-guard parks R with the GARDEN's 4 still aboard. That costs nothing there, since a third TIP is out of
-reach at that pace anyway. The simulator also flags every FLOWER pick as "drives into a FLOWER"; that
-is the pick itself reaching the holder, and master's Autos get the same flag.
+What that table does not settle. **The road under the HIVE** leaves 3.3 in on each side between our
+foot bar and the centre line; the simulator drives it clean, a real robot has not
+(`doc/robot-todo.md`). **At Belding's pace L never fires its last volley** (it is not full before
+23 s, so it parks) and R rarely does, which costs nothing there, since a third TIP is out of reach at
+that pace. **No stay-in share by angle exists**, for any spot: the logs count balls leaving, and the
+calibration is by range from near-square shots. The simulator also flags every FLOWER pick as "drives
+into a FLOWER"; that is the pick itself reaching the holder, and master's Autos get the same flag.
 
 **In the Visualizer** the pair previews as it runs here: with each robot's "Volley time" slider at
 its default 4.0 s the match shows 2 TIPs, and at 2.2 s (a feed that ends on the fourth ball) it shows
@@ -176,12 +185,12 @@ its default 4.0 s the match shows 2 TIPs, and at 2.2 s (a feed that ends on the 
 
 | The pair, real cards, no turret | 1 TIP | 2 TIPs | 3 TIPs | TIP 2 at | TIP 3 at | Target |
 |---|---|---|---|---|---|---|
-| **Feed ends on the fourth ball (0.47 s a shot), stay in 0.98, 50 in/s, the GARDEN gives 4** | 120 | 97 | 85 | 19.2 s | 27.8 s | **met** |
-| the same, but the GARDEN by the robot's own routine as the simulator runs it (it takes 2) | 120 | 97 | 29 | 19.2 s | 27.8 s | no |
+| **Feed ends on the fourth ball (0.47 s a shot), stay in 0.98, 50 in/s, the GARDEN gives 4** | 120 | 97 | 82 | 19.2 s | 28.7 s | **met** |
+| the same, but the GARDEN by the robot's own routine as the simulator runs it (it takes 2) | 120 | 97 | 20 | 19.2 s | 28.8 s | no |
 | the same, with the row sweep at 3 in/s | 120 | 97 | 32 | 19.2 s | 28.1 s | no |
 | Belding's feed (the whole 3.5 s) | 120 | 97 | 0 | 22.1 s | | no |
 | Feed 0.3 s a shot | 120 | 97 | 84 | 17.9 s | 26.0 s | **met** |
-| 40 in/s (rerun with R's exit under the HIVE: a robot is not parked at 30 s in 23 of 240) | 120 | 97 | 79 | 19.7 s | 28.9 s | **met** |
+| 40 in/s (first drawing; not rerun, and with 1.3 s to spare at 50 in/s the new one will do worse) | 120 | 97 | 84 | 19.5 s | 28.7 s | not known |
 | 60 in/s | 120 | 97 | 85 | 19.0 s | 27.1 s | **met** |
 | FLOWER picks fixed | 120 | 108 | 94 | 19.2 s | 27.8 s | **met** |
 | Stay in 1.0 | 120 | 108 | 108 | 19.2 s | 27.8 s | **met** |
@@ -189,9 +198,11 @@ its default 4.0 s the match shows 2 TIPs, and at 2.2 s (a feed that ends on the 
 | Belding's accuracy | 120 | 58 | 28 | 19.3 s | 28.0 s | no |
 | Everything as at Belding | 120 | 58 | 0 | 22.2 s | | no |
 
-The top two rows, the 40 in/s row and the last row were run again after R's exit moved under the HIVE
-(11 Nov): same counts, with TIP 2 at 19.4 s and TIP 3 at 28.0 s. The other rows are from the first
-drawing, whose ending differed only after the last volley.
+The top two rows and the last row are from the drawing as it is now (11 Nov: L's last volley from the
+audience wall, R's exit under the HIVE). **Every other row is from the first drawing**, whose last
+volley was the side shot and whose ending was 0.7 s quicker: read those as upper bounds. The margin is
+the thing to notice: TIP 3 comes 1.3 s before the buzzer on average, so anything that costs a second
+(a slower drive, a slow pick) takes third TIPs away.
 
 **The pair needs three things, and no new mechanism:**
 
@@ -833,7 +844,11 @@ Not modelled:
 - **A pick that returns 1 to 3 pieces.** A FLOWER pick comes back full or, 2 times in 14 at the
   SCORING FLOWER, with nothing. Belding's picks averaged 2.0 (Infrared) and 3.2 (Ultraviolet) by the
   lane sensor, which undercounts; the true share of full picks is not known.
-- **Shots from the side of a CELL.** The stay-in share is by range only. The lane spot (26, 40) is
+- **Shots from the side of a CELL: the solo drawings still have one.** `R-Three-Tip`, `R-Three-Tip-Stream`
+  and `R-Three-Tip-Still` fire a volley at the RIGHT CELL from the wall lane, (26, 40), 62 degrees off
+  square, and the spot scan below recommends that lane for both CELLs. The mentor's verdict (11 Nov) is
+  that such a shot never goes in, so **their third-TIP counts are not to be believed until they are
+  redrawn with every volley within about 26 degrees of square**; the pair above has been. The stay-in share is by range only. The lane spot (26, 40) is
   40 in from the RIGHT CELL at an angle nobody has fired from.
 - **The GARDEN against the wall.** The sweep takes its 4 in 2.6 s; the robot's own gather routine
   took 0 to 2 in practice.

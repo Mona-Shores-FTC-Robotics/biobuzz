@@ -840,9 +840,13 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       [mentor session, 11 Nov]
 
 - [ ] **The road under the HIVE** (`doc/three-tips.md`, R-Pair-Garden's exit; draft PR #531): drive
-      `RIGHT_LAUNCH_OFFSET` to `LEFT_PARK` under the HIVE, slowly first, then at 50 in/s, 5 times.
-      The curve keeps about 1.5 in from our foot bar and from the centre line. **Pass:** no touch
-      and no crossing in 5 of 5. Write down the closest it came on each side.
+      `RIGHT_LAUNCH_CATCH` to `LEFT_PARK` under the HIVE, slowly first, then at 50 in/s, 5 times.
+      The curve leaves 3.3 in between the frame and our foot bar, and the same to the centre line.
+      **Pass:** no touch and no crossing in 5 of 5. Write down the closest it came on each side.
+- [ ] **Two robots at the audience wall, both shooting** (`doc/three-tips.md`, the pair's last two
+      volleys): one on `RIGHT_LAUNCH_CATCH`, one at (34.4, 12.6) heading 65.9. **Pass:** 4 in of floor
+      between the frames, and 4 of 4 stay in from each, fired one after the other. Count the ones
+      that stay in from the angled spot: nothing has measured a shot 24 degrees off square.
 - [ ] **A row of 4 loose POLLEN, picked up at a creep** (Basic Drive, intake on; `doc/three-tips.md`'s
       partner row). Lay 4 POLLEN touching in a line on open tiles and drive along the line at about
       6 in/s (a quarter stick), 10 times, then 10 times with the row against a wall as the GARDEN's is.

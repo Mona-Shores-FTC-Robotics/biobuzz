@@ -110,7 +110,7 @@
     {
       "id": "to-offset",
       "color": "#b07aa1",
-      "name": "to RIGHT_LAUNCH_OFFSET",
+      "name": "to RIGHT_LAUNCH_CATCH",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -118,38 +118,38 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 41,
-        "y": 20
+        "x": 57.5,
+        "y": 18
       },
       "controlPoints": [],
       "heading": {
         "type": "piecewise",
         "startDeg": 270,
-        "endDeg": 68.7,
+        "endDeg": 91.9,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.6,
+              "endProgress": 0.7,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 270,
-                "endDeg": 68.7
+                "endDeg": 91.9
               }
             },
             {
-              "startProgress": 0.6,
+              "startProgress": 0.7,
               "endProgress": 1,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 68.7,
-                "endDeg": 68.7
+                "startDeg": 91.9,
+                "endDeg": 91.9
               }
             }
           ]
@@ -172,23 +172,19 @@
       },
       "controlPoints": [
         {
-          "x": 70,
-          "y": 2
-        },
-        {
-          "x": 57,
+          "x": 59,
           "y": 40
         },
         {
-          "x": 60,
+          "x": 58,
           "y": 70
         },
         {
-          "x": 60,
+          "x": 58,
           "y": 100
         },
         {
-          "x": 72,
+          "x": 76,
           "y": 138
         },
         {
@@ -198,7 +194,7 @@
       ],
       "heading": {
         "type": "piecewise",
-        "startDeg": 68.7,
+        "startDeg": 91.9,
         "endDeg": 0,
         "degrees": 0,
         "reverse": false,
@@ -206,17 +202,17 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.15,
+              "endProgress": 0.1,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 68.7,
+                "startDeg": 91.9,
                 "endDeg": 90
               }
             },
             {
-              "startProgress": 0.15,
+              "startProgress": 0.1,
               "endProgress": 0.7,
               "interpolationType": "linear",
               "reversed": false,
@@ -488,10 +484,10 @@
         7.7,
         90
       ],
-      "RIGHT_LAUNCH_OFFSET": [
-        41,
-        20,
-        68.7
+      "RIGHT_LAUNCH_CATCH": [
+        57.5,
+        18,
+        91.9
       ],
       "LEFT_PARK": [
         14.5,
@@ -507,7 +503,7 @@
     "pathEnds": {
       "to-garden": "GARDEN_STAGING",
       "garden-park": "LEFT_PARK",
-      "to-offset": "RIGHT_LAUNCH_OFFSET",
+      "to-offset": "RIGHT_LAUNCH_CATCH",
       "offset-park": "LEFT_PARK"
     },
     "cards": [
@@ -588,7 +584,7 @@
     "teamSpots": [
       "GARDEN_STAGING",
       "LEFT_PARK",
-      "RIGHT_LAUNCH_OFFSET",
+      "RIGHT_LAUNCH_CATCH",
       "RIGHT_START"
     ],
     "exportName": "R-Pair-Garden"
