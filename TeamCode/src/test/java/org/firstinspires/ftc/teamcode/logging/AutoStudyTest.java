@@ -201,6 +201,12 @@ public class AutoStudyTest {
     static Map<String, Object> picks;
     static Map<String, Object> partnerPicks;
     static String oursFails;
+    /**
+     * A what-if for our own robot ({@code "ourLaunchS"} on a request or an entry): seconds between its shots, in
+     * place of its design's ({@link AutoSim#launchSeconds}); NaN: the design's. A partner entry's
+     * {@code "timing": {"launchS": …}} is the same knob for the other robot.
+     */
+    static double oursLaunchS = Double.NaN;
 
     static final class PartnerTiming {
         /** The partner's last shot as their team said it, seconds after PLAY; NaN: not given. */
@@ -469,6 +475,7 @@ public class AutoStudyTest {
         sim.loop(loop);
         if (picks != null) sim.picks(picks);
         if ("misses preloads".equals(oursFails)) sim.missesPreloads();
+        if (!Double.isNaN(oursLaunchS)) sim.launchSeconds(oursLaunchS);
         // The partner's last shot as their team said it: our driver enters it in INIT, and our partner wait ends that
         // plus the TIP lag later (master's AutoRegistration; BuiltAuto).
         if (timing != null && !Double.isNaN(timing.lastShotS)) {

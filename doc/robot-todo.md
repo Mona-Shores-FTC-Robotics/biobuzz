@@ -517,35 +517,49 @@ Use the work order above to select checks; the detailed mechanism checks below a
         parks on LEFT_PARK by 30 s; write when it arrived, when its last piece left and when it
         parked (drawn: 13.9, 16.8 and 28.7 s). **Stop:** it is not parked by 30 s → set TLr
         earlier in INIT and note the drive's real seconds.
-      - **R's view of the HIVE at R3.** R at LEFT_LAUNCH_CATCH facing the HIVE after the forward
-        turn from SCORING_FLOWER_STAGING, RIGHT CELL up. **Good:** `RightCellUp` within 0.3 s of
-        arriving (Vision: HIVE & Pose shows the RIGHT CELL's tags settled UP from that pose).
-        **Stop:** the camera sees only the LEFT CELL from there → note which tags it does see.
-        The same at LEFT_PAIR_OFFSET for R2 (`LeftCellUp`, 302.8°).
+      - **R's view of the HIVE at R3, at both ends.** At RIGHT_PAIR_CATCH, having backed in from
+        under the HIVE (it arrives facing 96°): **Good:** `RightCellUp` within 0.3 s of arriving
+        with the RIGHT CELL up (Vision: HIVE & Pose shows that CELL's tags settled UP from the
+        pose). At LEFT_LAUNCH_CATCH, after the turn from SCORING_FLOWER_STAGING: the same for
+        the RIGHT CELL from the left end. **Stop:** the camera does not settle the CELL from
+        either pose → note which tags it does see. The same at LEFT_PAIR_OFFSET for R2
+        (`LeftCellUp`, 302.8°).
+      - **R backward with a load.** Four POLLEN in the lane: back up the outside lane from
+        WALL_FLOWER_STAGING to LEFT_PAIR_OFFSET (it turns 123° on the way), and back from
+        SCORING_FLOWER_STAGING under the HIVE to RIGHT_PAIR_CATCH (no turn), at Auto speed.
+        **Good:** four still in the lane at each end, five runs of each. **Stop:** a piece
+        leaves → note where on the path, and whether braking or the turn did it.
       - **The two new launch spots**, one robot at a time: eight pieces from LEFT_PAIR_OFFSET
-        (36.0, 121.5, 302.8°; 46.9 in) and eight from RIGHT_PAIR_CATCH (63.0, 18.0, 99.9°;
-        43.3 in), counted on video. Then both robots standing: R at LEFT_PAIR_OFFSET with L at
+        (36.0, 121.5, 302.8°; 46.9 in) and eight from RIGHT_PAIR_CATCH (61.0, 13.0, 96.2°;
+        48.0 in), counted on video. Then both robots standing: R at LEFT_PAIR_OFFSET with L at
         LEFT_LAUNCH_CATCH, and R at RIGHT_PAIR_CATCH with L at RIGHT_LAUNCH_OFFSET. **Good:** a
         hand's width between frames and pokers (drawn 2.8 and 2.5 in), neither in the other's
-        shot. Once shot from, make both team spots in the Visualizer (*Save team spots*).
+        shot, and no corner of R over the field's centre line at RIGHT_PAIR_CATCH (drawn 0.9 in
+        inside). Once shot from, make both team spots in the Visualizer (*Save team spots*).
       - **The new paths, each robot alone, HIVE in place, no partner:** R's outside lane from the
-        WALL FLOWER and from the GARDEN to LEFT_PAIR_OFFSET; the forward turn from the SCORING
-        FLOWER to LEFT_LAUNCH_CATCH; the catch park and the left park into RIGHT_PARK; under the
-        HIVE to RIGHT_PAIR_CATCH and the outside lane from there to RIGHT_PARK. L's under the
+        WALL FLOWER and from the GARDEN to LEFT_PAIR_OFFSET; back under the HIVE from the
+        SCORING FLOWER to RIGHT_PAIR_CATCH and the outside lane from there to RIGHT_PARK; the
+        turn from the SCORING FLOWER to LEFT_LAUNCH_CATCH; the catch park and the left park into
+        RIGHT_PARK. L's under the HIVE to RIGHT_LAUNCH_CATCH and its park from there; under the
         HIVE to the lane's end and on to WALL_FLOWER_STAGING (it turns west just past the end of
-        the HIVE's foot bar: watch that corner), and the FLOWER to RIGHT_LAUNCH_OFFSET. **Good:** no
-        touch of the HIVE's feet or a wall; write each drive's seconds beside the drawn ones.
-        **Stop:** a corner touches → note the pose and bend the path in the Visualizer.
+        the HIVE's foot bar: watch that corner), and the FLOWER to RIGHT_LAUNCH_OFFSET.
+        **Good:** no touch of the HIVE's feet or a wall; write each drive's seconds beside the
+        drawn ones. **Stop:** a corner touches → note the pose and bend the path in the Visualizer.
       - **T1 to T4 and the clock checks, from the log of each run:** when `LeftCellUp` first fires
         for L (T1 9.5 s), when R arrives at LEFT_PAIR_OFFSET and its volley ends (T2 21 s, TS
-        19.4 s), when R is back at LEFT_LAUNCH_CATCH (T3 22.3 s, T3b 22.8 s), when L arrives at
+        19.4 s), when R's SCORING FLOWER pick ends (T3c 18.4 s: drawn 19.2 s, so R does not
+        cross yet), when R is at LEFT_LAUNCH_CATCH (T3 22.3 s, T3b 22.8 s), when L arrives at
         RIGHT_LAUNCH_OFFSET (T4 19.2 s) and when each robot is parked (TL 22.7 s, TR 26.8 s).
         **Good:** each within 0.5 s of the simulator's (clockwise.md, "The times"). Otherwise
         set the row in INIT for the next run and write the measured value on the PR; the drawn
         values change only in the Visualizer.
+      - **The crossing for TIP 3, once the volleys are short enough,** or with T3c set late in
+        INIT to try it: R backs under the HIVE, asks for RIGHT up at RIGHT_PAIR_CATCH until
+        21.7 s (T3r), and does not leave for its park before 24.0 s (TRr), when L has gone.
+        **Stop the run by hand** if L is still at RIGHT_LAUNCH_OFFSET when R moves off.
       - **The two crossings, both robots, with a spotter at the left end:** L must be parked on
         LEFT_PARK before R leaves LEFT_LAUNCH_CATCH (drawn: L parked 26.2 s, R leaves 26.8 s),
-        and R must be off SCORING_FLOWER_STAGING before L passes it (R leaves 20.6 s, L passes
+        and R must be off SCORING_FLOWER_STAGING before L passes it (R leaves 19.2 s, L passes
         24.4 s). **Stop the run by hand** if L is still in the lane when R moves. In the
         simulator contact first appears with L 30% slow.
       - **The fallbacks, on purpose, both robots:** hold R's preloads back (L1 "no" as above; R

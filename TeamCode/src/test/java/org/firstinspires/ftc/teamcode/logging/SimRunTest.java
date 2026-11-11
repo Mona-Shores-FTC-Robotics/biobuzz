@@ -126,6 +126,8 @@ public class SimRunTest {
         /** {@code "picks"}, {@code "partnerPicks"}: the INIT picks for this entry's runs, ours and the partner's; null: the request's, else as drawn. */
         Map<String, Object> picks;
         Map<String, Object> partnerPicks;
+        /** {@code "ourLaunchS"}: a what-if, seconds between our own shots; null: the design's. */
+        Object ourLaunchS;
 
         Entry(String name, String spec, String partner, RobotDesign partnerDesign, String partnerDesignName, double partnerSpeed,
               AutoStudyTest.PartnerTiming timing, Map<String, Object> timingJson, List<Object> seeds, String folder) {
@@ -196,6 +198,7 @@ public class SimRunTest {
             }
             made.oursFails = (String) oursFails;
             if (e.get("picks") instanceof Map) made.picks = (Map<String, Object>) e.get("picks");
+            made.ourLaunchS = e.get("ourLaunchS");
             if (e.get("partnerPicks") instanceof Map) made.partnerPicks = (Map<String, Object>) e.get("partnerPicks");
             out.add(made);
         }
@@ -270,6 +273,8 @@ public class SimRunTest {
                             : request.get("picks") instanceof Map ? (Map<String, Object>) request.get("picks") : null;
                     AutoStudyTest.partnerPicks = entry.partnerPicks != null ? entry.partnerPicks
                             : request.get("partnerPicks") instanceof Map ? (Map<String, Object>) request.get("partnerPicks") : null;
+                    Object launchS = entry.ourLaunchS != null ? entry.ourLaunchS : request.get("ourLaunchS");
+                    AutoStudyTest.oursLaunchS = launchS instanceof Number ? ((Number) launchS).doubleValue() : Double.NaN;
                     AutoStudyTest.oursFails = entry.oursFails != null ? entry.oursFails
                             : first && request.get("oursFails") instanceof String ? (String) request.get("oursFails") : null;
                     AutoSim.Result r = AutoStudyTest.run(entry.spec, design, entry.partnerDesign, entry.partnerSpeed, entry.timing,
@@ -285,6 +290,7 @@ public class SimRunTest {
                 AutoStudyTest.picks = null;
                 AutoStudyTest.partnerPicks = null;
                 AutoStudyTest.oursFails = null;
+                AutoStudyTest.oursLaunchS = Double.NaN;
                 // Our partner wait, only for an Auto that has one: the last shot sets nothing on any other.
                 boolean hasWait = false;
                 for (Object row : rows) hasWait |= Boolean.TRUE.equals(((Map<?, ?>) row).get("hasPartnerWait"));
@@ -382,6 +388,8 @@ public class SimRunTest {
         m.put("tipsBy30", (double) by30);
         m.put("hitHiveAt", time(ours.hitHiveAt));
         m.put("partnerHitHiveAt", partner == null ? null : time(partner.hitHiveAt));
+        m.put("crossedAt", time(ours.crossedAt));
+        m.put("partnerCrossedAt", partner == null ? null : time(partner.crossedAt));
         m.put("againstLoopAt", time(ours.againstLoopAt));
         m.put("againstLoopLane", ours.againstLoopLane);
         m.put("partnerAgainstLoopAt", partner == null ? null : time(partner.againstLoopAt));

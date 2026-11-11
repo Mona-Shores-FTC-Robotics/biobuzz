@@ -1250,9 +1250,14 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
     forcing a pair onto its fallback rows.
   - `"ourSpeed": 40` on an entry: our own drive profile for that entry, so either robot of a pair can be
     the slow one.
+  - `"ourLaunchS": 0.45` on the request or an entry: a what-if, the seconds between our own shots (the
+    partner's is its `"timing": {"launchS": …}`). With `BIOBUZZ_SIM_VOLLEY_PLANNED_S=2.4` the endgame guard
+    plans a volley at that length, where it otherwise plans master's `LAUNCH_ALL_TYPICAL_S`. Together they
+    ask what a shorter volley would let an Auto go for; neither is the robot.
 
   Each row then also carries `tipsBy30` (TIPs complete at 30 s; `autoTips` also takes one that completes in
-  the transition), `hitHiveAt` and `partnerHitHiveAt`, and `againstLoopAt` and `partnerAgainstLoopAt`.
+  the transition), `hitHiveAt` and `partnerHitHiveAt`, `crossedAt` and `partnerCrossedAt` (a corner over the
+  field's centre line), and `againstLoopAt` and `partnerAgainstLoopAt`.
 - **From the Visualizer**, Save & Simulate to `master` commits the `.pp`, its Java and the Auto's
   own `TeamCode/sim-requests/<name>.json` to an `auto/<name>` branch and opens a pull request that
   merges itself once CI passes (the fast lane, `.github/CONTRIBUTING.md`). The "Simulate Auto"

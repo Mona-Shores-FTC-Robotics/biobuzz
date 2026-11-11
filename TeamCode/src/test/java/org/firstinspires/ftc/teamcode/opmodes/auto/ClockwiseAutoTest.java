@@ -104,7 +104,7 @@ public class ClockwiseAutoTest {
         assertEquals(3, count("LaunchAll"));
         assertEquals(2, count("PickFlower"));
         assertEquals(0, count("GardenGather"));
-        assertTrue("it crossed under the HIVE: " + trace, trace.contains("path under the HIVE to RIGHT_PAIR_CATCH"));
+        assertTrue("it crossed under the HIVE: " + trace, trace.contains("path back under the HIVE to RIGHT_PAIR_CATCH"));
         parked(95.7);
     }
 
@@ -128,13 +128,26 @@ public class ClockwiseAutoTest {
         parked(95.7);
     }
 
-    /** R3 "no": RIGHT is not up by T3, so R finishes TIP 2 at LEFT, then waits for L to pass before it parks. */
+    /** In time to cross but RIGHT never comes up: R keeps its load, lets L leave, and parks by the outside lane. */
+    @Test public void rightCrossesInTimeAndParksWithItsLoadWhenRightIsNotUp() {
+        secondTip = Double.POSITIVE_INFINITY;
+        run(RClockwiseAuto.build(kit(), false));
+        assertTrue(trace.toString(), trace.contains("path back under the HIVE to RIGHT_PAIR_CATCH"));
+        assertEquals("the preloads and the first load", 2, count("LaunchAll"));
+        assertTrue("not before TRr: " + drive.parkAt, drive.parkAt >= 24.0);
+        parked(95.7);
+    }
+
+    /**
+     * Too late to cross (the pick ends after T3c), and RIGHT is not up by T3: R turns to face the HIVE, finishes
+     * TIP 2 at LEFT, then waits for L to pass before it parks.
+     */
     @Test public void rightShootsAtLeftAgainWhenRightIsNotUpAndParksAfterLHasPassed() {
         secondTip = Double.POSITIVE_INFINITY;
-        drive.arriveAt(57.5, 123.5, 22.0);  // back at LEFT_LAUNCH_CATCH when the simulator has it there
+        drive.arriveAt(47.2, 119.3, 19.0);  // at the SCORING FLOWER late, as at Belding's volley times
         run(RClockwiseAuto.build(kit(), false));
         assertEquals("preloads, the first load, the SCORING FLOWER load", 3, count("LaunchAll"));
-        assertFalse("it never crossed: " + trace, trace.contains("path under the HIVE to RIGHT_PAIR_CATCH"));
+        assertFalse("it never crossed: " + trace, trace.contains("path back under the HIVE to RIGHT_PAIR_CATCH"));
         assertTrue("not before TR: " + drive.parkAt, drive.parkAt >= 26.8);
         parked(95.7);
     }
@@ -142,20 +155,20 @@ public class ClockwiseAutoTest {
     /** R3 "no", too late: past T3b the LEFT volley is skipped, so the park still fits. */
     @Test public void rightSkipsTheLateLeftVolleyAndStillWaitsForLToPass() {
         secondTip = Double.POSITIVE_INFINITY;
-        drive.arriveAt(57.5, 123.5, 23.5);
+        drive.arriveAt(47.2, 119.3, 20.0);
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
         assertTrue(drive.parkAt >= 26.8);
         parked(95.7);
     }
 
-    /** R3 "yes", too late to cross: R keeps its load, waits for L to pass and parks from the left. */
+    /** Too late to cross, and RIGHT is up: TIP 2 is done, so R keeps its load, waits for L to pass and parks from the left. */
     @Test public void rightDoesNotCrossAfterT3c() {
         secondTip = 20.5;
-        drive.arriveAt(57.5, 123.5, 22.0);
+        drive.arriveAt(47.2, 119.3, 16.0);
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
-        assertFalse(trace.toString(), trace.contains("path under the HIVE to RIGHT_PAIR_CATCH"));
+        assertFalse(trace.toString(), trace.contains("path back under the HIVE to RIGHT_PAIR_CATCH"));
         assertTrue(drive.parkAt >= 26.8);
         parked(95.7);
     }

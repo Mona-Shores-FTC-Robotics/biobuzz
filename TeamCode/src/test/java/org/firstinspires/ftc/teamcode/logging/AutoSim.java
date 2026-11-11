@@ -596,6 +596,13 @@ public final class AutoSim {
         return this;
     }
 
+    /**
+     * The seconds the endgame guard plans a volley at: master's {@code AutoRegistration.LAUNCH_ALL_TYPICAL_S}, or a
+     * what-if ({@code BIOBUZZ_SIM_VOLLEY_PLANNED_S}) for asking what a shorter volley would let an Auto go for.
+     */
+    static final double VOLLEY_PLANNED_S = System.getenv("BIOBUZZ_SIM_VOLLEY_PLANNED_S") == null
+            ? AutoRegistration.LAUNCH_ALL_TYPICAL_S : Double.parseDouble(System.getenv("BIOBUZZ_SIM_VOLLEY_PLANNED_S"));
+
     private boolean loopCheck;
     /** The loop's lanes run this far either side of the field's centre line, where the HIVE stands between them. */
     static final double LOOP_FROM_CENTRE_IN = 21.0;
@@ -2170,7 +2177,7 @@ public final class AutoSim {
                     .holdTimeLimitsWhile(() -> firing && !Double.isNaN(activeFeedAt))
                     // A volley, with master's typical and last-piece times: the endgame guard goes for
                     // the next one when its last piece can be out before AUTO ends (AutoKit.guarded).
-                    .volley("LaunchAll", AutoRegistration.LAUNCH_ALL_TYPICAL_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S,
+                    .volley("LaunchAll", VOLLEY_PLANNED_S, Math.min(VOLLEY_PLANNED_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S),
                             () -> launch(Integer.MAX_VALUE))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))

@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-11T18:20:37.322Z",
+  "timestamp": "2026-11-11T21:46:04.282Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -148,7 +148,7 @@
         },
         {
           "id": "l-rescue-aim",
-          "color": "#f28e2b",
+          "color": "#4e79a7",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -181,7 +181,7 @@
       "segments": [
         {
           "id": "l-rescue-park-clear",
-          "color": "#f28e2b",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -211,7 +211,7 @@
         },
         {
           "id": "l-rescue-park-west",
-          "color": "#b07aa1",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -231,7 +231,7 @@
         },
         {
           "id": "l-rescue-park-lane",
-          "color": "#b07aa1",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -260,7 +260,7 @@
         },
         {
           "id": "l-rescue-park-turn",
-          "color": "#f28e2b",
+          "color": "#76b7b2",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -493,7 +493,7 @@
       "segments": [
         {
           "id": "l-pickup-park-lane",
-          "color": "#edc948",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -542,7 +542,7 @@
         },
         {
           "id": "l-pickup-park-turn",
-          "color": "#76b7b2",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -630,7 +630,7 @@
       "segments": [
         {
           "id": "l-park-lane",
-          "color": "#f28e2b",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -679,7 +679,7 @@
         },
         {
           "id": "l-park-turn",
-          "color": "#9c755f",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
