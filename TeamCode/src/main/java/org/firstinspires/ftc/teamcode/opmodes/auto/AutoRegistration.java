@@ -239,6 +239,9 @@ public final class AutoRegistration {
                 // on the drive in, once aimed and at speed (LaunchCards.approach).
                 .volley("LaunchAll", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S, () -> launch.launchAll(),
                         launch == null ? null : launch.approach())
+                // The same volley at our HIVE's other CELL, beyond the near one (LaunchCards.launchAllFar): a
+                // paired Auto's robot finishing the other end's TIP from where it stands. No approach.
+                .volley("LaunchAllFar", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S, () -> launch.launchAllFar(), null)
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
@@ -265,7 +268,11 @@ public final class AutoRegistration {
                 // comment. Mid-tip detection (tags vanishing while the robot holds still) is #173's.
                 // No alliance chosen never says Tip.
                 .triggerSince("Tip", () -> tipSince(robot, setup))
-                .trigger("CameraBlind", () -> cameraBlind(robot));
+                .trigger("CameraBlind", () -> cameraBlind(robot))
+                // Always true: a wait on it asks only its time. The time row is checked first, so
+                // "Always, at most until 19 s on the match clock" takes its time row when the clock
+                // is already past 19 s and its trigger row at once otherwise: "is there still time?".
+                .trigger("Always", () -> true);
     }
 
     /**

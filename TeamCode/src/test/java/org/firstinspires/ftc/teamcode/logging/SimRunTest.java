@@ -121,6 +121,11 @@ public class SimRunTest {
         final List<Object> seeds;
         /** Where its result and logs go, under the request's folder: "" for the first entry. */
         final String folder;
+        /** {@code "oursFails": "misses preloads"}: our own first volley goes wide ({@link AutoSim#missesPreloads}); null: it works. */
+        String oursFails;
+        /** {@code "picks"}, {@code "partnerPicks"}: the INIT picks for this entry's runs, ours and the partner's; null: the request's, else as drawn. */
+        Map<String, Object> picks;
+        Map<String, Object> partnerPicks;
 
         Entry(String name, String spec, String partner, RobotDesign partnerDesign, String partnerDesignName, double partnerSpeed,
               AutoStudyTest.PartnerTiming timing, Map<String, Object> timingJson, List<Object> seeds, String folder) {
@@ -180,8 +185,19 @@ public class SimRunTest {
                     throw new IllegalArgumentException("two partners entries share the folder \"" + folder + "\": give one a different name");
                 }
             }
-            out.add(new Entry(name, base + "," + cls + profile, cls, designName == null ? null : design(designName), designName,
-                    partnerSpeed, timing, timingJson, own, folder));
+            // "ourSpeed": our own drive profile for this entry (a pair with our robot the slow one).
+            String ourProfile = e.get("ourSpeed") instanceof Number ? "@" + ((Number) e.get("ourSpeed")).doubleValue()
+                    : e.get("ourSpeed") instanceof String ? "@" + e.get("ourSpeed") : profile;
+            Entry made = new Entry(name, base + "," + cls + ourProfile, cls, designName == null ? null : design(designName), designName,
+                    partnerSpeed, timing, timingJson, own, folder);
+            Object oursFails = e.get("oursFails");
+            if (oursFails != null && !"misses preloads".equals(oursFails)) {
+                throw new IllegalArgumentException("\"oursFails\" is \"misses preloads\" or absent: " + oursFails);
+            }
+            made.oursFails = (String) oursFails;
+            if (e.get("picks") instanceof Map) made.picks = (Map<String, Object>) e.get("picks");
+            if (e.get("partnerPicks") instanceof Map) made.partnerPicks = (Map<String, Object>) e.get("partnerPicks");
+            out.add(made);
         }
         return out;
     }
@@ -249,6 +265,13 @@ public class SimRunTest {
                     long seed = (long) value;
                     String log = "seed-" + seed + ".wpilog";
                     metadata.put("SimSeed", String.valueOf(seed));
+                    AutoStudyTest.loop = request.get("loop") instanceof String ? (String) request.get("loop") : null;
+                    AutoStudyTest.picks = entry.picks != null ? entry.picks
+                            : request.get("picks") instanceof Map ? (Map<String, Object>) request.get("picks") : null;
+                    AutoStudyTest.partnerPicks = entry.partnerPicks != null ? entry.partnerPicks
+                            : request.get("partnerPicks") instanceof Map ? (Map<String, Object>) request.get("partnerPicks") : null;
+                    AutoStudyTest.oursFails = entry.oursFails != null ? entry.oursFails
+                            : first && request.get("oursFails") instanceof String ? (String) request.get("oursFails") : null;
                     AutoSim.Result r = AutoStudyTest.run(entry.spec, design, entry.partnerDesign, entry.partnerSpeed, entry.timing,
                             seed, alliance, metadata, new File(folder, log));
                     System.out.println("SIMRUN " + entry.name + " seed " + seed + ": " + r);
@@ -258,6 +281,10 @@ public class SimRunTest {
                 }
                 done = true;
             } finally {
+                AutoStudyTest.loop = null;
+                AutoStudyTest.picks = null;
+                AutoStudyTest.partnerPicks = null;
+                AutoStudyTest.oursFails = null;
                 // Our partner wait, only for an Auto that has one: the last shot sets nothing on any other.
                 boolean hasWait = false;
                 for (Object row : rows) hasWait |= Boolean.TRUE.equals(((Map<?, ?>) row).get("hasPartnerWait"));
@@ -292,6 +319,9 @@ public class SimRunTest {
         m.put("partnerWaitUntilS", said ? org.firstinspires.ftc.teamcode.opmodes.auto.AutoRegistration.partnerWaitUntilS(entry.timing.lastShotS) : null);
         m.put("fails", entry.timing == null ? null : entry.timing.fails);
         m.put("pushable", entry.timing != null && entry.timing.pushable);
+        m.put("oursFails", entry.oursFails);
+        m.put("picks", entry.picks);
+        m.put("partnerPicks", entry.partnerPicks);
         return m;
     }
 
@@ -345,6 +375,17 @@ public class SimRunTest {
         m.put("finishedAt", ours.finished ? ours.finishedAt : null);
         m.put("partnerFinishedAt", partner == null || !partner.finished ? null : partner.finishedAt);
         m.put("g409", (double) r.g409);
+        // For a paired Auto: TIPs complete by 30 s (the count above also takes one that completes in the transition),
+        // each robot into the HIVE frame, and each robot against the request's loop.
+        int by30 = 0;
+        for (double t : r.tipsAt) if (t < org.firstinspires.ftc.teamcode.autokit.AutoKit.AUTO_LENGTH_S) by30++;
+        m.put("tipsBy30", (double) by30);
+        m.put("hitHiveAt", time(ours.hitHiveAt));
+        m.put("partnerHitHiveAt", partner == null ? null : time(partner.hitHiveAt));
+        m.put("againstLoopAt", time(ours.againstLoopAt));
+        m.put("againstLoopLane", ours.againstLoopLane);
+        m.put("partnerAgainstLoopAt", partner == null ? null : time(partner.againstLoopAt));
+        m.put("partnerAgainstLoopLane", partner == null ? null : partner.againstLoopLane);
         return m;
     }
 

@@ -141,6 +141,12 @@ public final class LaunchCards {
          * launch from there. Nothing by default; the robot's launcher uses it for the speed table.
          */
         default void spinUpFor(Pose launchPose) { }
+        /**
+         * Spin up for a launch from where the robot is at our HIVE's other CELL, the one beyond the
+         * CELL on the robot's half ({@code LaunchAllFar}). {@link #spinUp()} by default; the robot's
+         * launcher asks the speed table for that longer range.
+         */
+        default void spinUpFar() { spinUp(); }
         boolean atSpeed();
         /**
          * Shots the launcher's detector has counted, or -1 if it has none. A {@code LaunchAll} ends
@@ -266,6 +272,16 @@ public final class LaunchCards {
                 spinUpAtRange(pose, "here, pose");
             }
 
+            @Override public void spinUpFar() {
+                if (!LaunchSpeedTable.enabled) {
+                    robot.launcher.spinUp();
+                    return;
+                }
+                // The pose's range only: the camera's nearest sighting is the near CELL, not this one.
+                Pose at = robot.drive.poseReferenced() ? robot.drive.pose() : null;
+                spinUpAtRange(rangeToFarCellIn(at, alliance == null ? null : alliance.get()), "here, far CELL, pose");
+            }
+
             @Override public void spinUpFor(Pose launchPose) {
                 if (LaunchSpeedTable.enabled) {
                     spinUpAtRange(rangeToHalfCellIn(launchPose, alliance == null ? null : alliance.get()),
@@ -338,6 +354,21 @@ public final class LaunchCards {
                 TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y());
     }
 
+    /**
+     * As {@link #rangeToHalfCellIn}, to the raised row of our HIVE's <em>other</em> CELL, the one on
+     * the far side of the axle from {@code pose}: what {@code LaunchAllFar} fires at.
+     */
+    static double rangeToFarCellIn(Pose pose, Alliance alliance) {
+        if (pose == null || alliance == null || alliance == Alliance.UNKNOWN) return Double.NaN;
+        // The pose turned about the axle picks the far CELL the way the near one is picked.
+        double mirroredY = 2 * HiveFieldPoints.AXLE_Y_IN - pose.y();
+        HiveCell cell = TurretAim.nearEndCell(alliance, mirroredY, null, HiveFieldPoints.AXLE_Y_IN, 0.0);
+        Vec3 row = cell == null ? null : HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+        if (row == null) return Double.NaN;
+        return TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(),
+                TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y());
+    }
+
     /** {@code SpinUp}: ask the launcher for speed and finish at once. The wheels come up while the robot drives. */
     public Command spinUp() {
         return Commands.instant(launcher::spinUp);
@@ -350,7 +381,25 @@ public final class LaunchCards {
      * nothing and ends {@link #launchAllFeedS} after the gate opened.
      */
     public Command launchAll() {
-        return launch("LaunchAll", () -> launchAllFeedS, () -> launchAllEndAfterShots, true);
+        return launch("LaunchAll", () -> launchAllFeedS, () -> launchAllEndAfterShots, true, launcher::spinUp);
+    }
+
+    /**
+     * {@code LaunchAllFar}: {@link #launchAll()} at our HIVE's other CELL, the one beyond the CELL
+     * on the robot's half, for a paired Auto's robot that finishes the other end's TIP from where it
+     * stands (L-Clockwise at the left spot, when the LEFT CELL is not up in time: the RIGHT CELL
+     * still is). Only the launch speed differs: {@link Launcher#spinUpFar()} asks for the far row's
+     * range. The aim does not: both rows of a HIVE share their field x, so from a spot square to the
+     * HIVE the turret's bearing to the near CELL is the far CELL's too. It has no approach (the
+     * gate never opens on the drive in), and it waits for the settle like any launch card.
+     *
+     * <p><b>Not measured:</b> whether a shot at that range (about 67 in from LEFT_LAUNCH_CATCH)
+     * clears the lowered near CELL and stays in the far one, and the speed for it; the speed table
+     * has no row that far, so until one is measured this fires at the configured speed
+     * ({@code doc/robot-todo.md}).
+     */
+    public Command launchAllFar() {
+        return launch("LaunchAllFar", () -> launchAllFeedS, () -> launchAllEndAfterShots, true, launcher::spinUpFar);
     }
 
     /**
@@ -365,7 +414,7 @@ public final class LaunchCards {
 
     /** {@code LaunchOne}: as {@link #launchAll()} with {@link #launchOneFeedS}; does not count toward Empty. */
     public Command launchOne() {
-        return launch("LaunchOne", () -> launchOneFeedS, () -> 0.0, false);
+        return launch("LaunchOne", () -> launchOneFeedS, () -> 0.0, false, launcher::spinUp);
     }
 
     /**
@@ -392,7 +441,7 @@ public final class LaunchCards {
     }
 
     private Command launch(String name, DoubleSupplier feedSeconds, DoubleSupplier endAfterShots,
-                           boolean countsAsEmptying) {
+                           boolean countsAsEmptying, Runnable spinUp) {
         final double[] fedAt = {Double.NaN};
         final boolean[] allShotsOut = new boolean[1];
         final double[] startedAt = new double[1];
@@ -402,7 +451,7 @@ public final class LaunchCards {
                     fedAt[0] = Double.NaN;
                     allShotsOut[0] = false;
                     startedAt[0] = secondsNow.getAsDouble();
-                    launcher.spinUp();
+                    spinUp.run();
                     // The drive in already opened the gate: this card only finishes that feed.
                     if (countsAsEmptying && !Double.isNaN(approachFedAt)) {
                         fedAt[0] = approachFedAt;
