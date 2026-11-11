@@ -38,6 +38,10 @@ the connector. It can download a **link-shared** Drive file. After an event:
    https://claude.ai/artifact/4NCKpRLVnWVvFTKtNzgEWS), and add its link as `"gallery"` on the
    event in `videos.json`. Sessions read and add to it as the `match-review` skill says. Share it
    from its Share menu so others can see it; viewers sign in to Claude.
+6. Optional: a fix list for the event (copy Belding's layout,
+   https://claude.ai/artifact/BitckTyT6BjGbAXSgx9i6X), with its link as `"fixlist"` on the event.
+   Sessions read it as the `match-review` skill, section 6, says, and `season-standup` puts its
+   open Top 5 in the meeting brief.
 
 The event and its matches must already be in `tools/advantagescope/replay/matches.json`
 (`maintain/find_matches.py`). Folder ids live here, not in `matches.json`, because

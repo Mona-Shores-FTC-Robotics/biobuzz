@@ -1,6 +1,6 @@
 ---
 name: match-review
-description: Review a match from its robot log and its match video, lined up - what the robot did, when, and whether the log is telling the truth - and use or add to the event's video-evidence gallery. Use for "what happened in Q-14?", "review the match", "check the video", "look at the logs and the replay", "match video", "replay", "did it really shoot 4?", "was the lane really full?", "we want to improve X, use the gallery", "add this to the gallery", "video evidence", or any claim from a log that should be checked against video.
+description: Review a match from its robot log and its match video, lined up - what the robot did, when, and whether the log is telling the truth - and use or add to the event's video-evidence gallery. Use for "what happened in Q-14?", "review the match", "check the video", "look at the logs and the replay", "match video", "replay", "did it really shoot 4?", "was the lane really full?", "we want to improve X, use the gallery", "add this to the gallery", "video evidence", any claim from a log that should be checked against video, or "the fix list".
 ---
 
 # Match review: log and video together
@@ -116,6 +116,28 @@ gallery):
 The gallery starts private. Others see it only once the mentor shares it (Share menu), and
 viewers must be signed in to Claude: the pictures load from its database. A new event gets a new
 gallery only when the mentor asks for one; add its link to `videos.json` in a PR.
+
+## 6. The fix list: what the team is doing about it
+
+Each event can also have a fix list: the `fixlist` link for the event in
+`tools/match-review/videos.json` (Belding: "Belding Fix List"). It is a claude.ai artifact on the
+mentor's account, read and written with `ArtifactData`, collection `items`, one document per action.
+
+```
+ArtifactData list  url=<fixlist>  collection=items  out_dir=<scratchpad>/fixlist
+```
+
+Each document: `title` (an action: what to do), `detail` (**Do**, **Why** with the evidence,
+**Done when**), `area` (`Hardware`, `Software`, `Drive practice`, `Field and scoring`), `robot`,
+`status` (`todo` = not done, `done` = resolved, `skipped`), `priority` (true = Top 5), `order`,
+`link` and `linkLabel` (its issue or PR).
+
+- **Before reviewing a match,** read the open items: a review that confirms, refutes or narrows one
+  says which, by title.
+- **Write only when the mentor asks or agrees.** A new item is an action, never a finding: a verb
+  first in `title`, and `detail` in the Do / Why / Done when shape. Mark an item `done` or
+  `skipped` only on the mentor's word or with merged evidence (its PR), and say why in `detail`.
+  Read the document first and pin each write to its `version`.
 
 ## Where the video comes from
 
