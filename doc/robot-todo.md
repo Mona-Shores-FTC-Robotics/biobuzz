@@ -312,6 +312,15 @@ Use the work order above to select checks; the detailed mechanism checks below a
 
       **Stop:** a check times out with its CELL in plain view and settled. Note how long the camera
       took in the log and in the PR.
+- [ ] **The HIVE tracker counts only what the camera sees** (branch `claude/pensive-mccarthy-0wkna8`):
+      one R-Solo run and two minutes of TeleOp, filmed, turning away from the HIVE and back several
+      times, with one TIP made by hand while the robot sits still facing it. **Good:** no
+      `HIVE (…): TRANSITION` line as the robot turns away, only `UNSEEN`; after each turn back the
+      HIVE line names the CELL the video shows up; the hand TIP reads `TRANSITION`, then the other
+      CELL; the Robot page's "at least N TIPs" is never above the video's count. In TeleOp with no
+      CELL in view, the `speed table … (odometry, <CELL>)` line names our CELL at the robot's end of
+      the field. **Stop:** the hand TIP reads `UNSEEN` before the camera settles it → note the
+      seconds from `TRANSITION` to the settled line (`HiveTracker.Tuning.confirmSeconds`, a number).
 - [ ] **R-Solo's second TIP: count what lands.** Film 5 R-Solo runs from the side, and count the
       pieces that land in the LEFT CELL from V2 and V3. At Belding it never TIPped (0 of 7), while
       the simulator TIPs it every time.
@@ -648,11 +657,23 @@ measurement is [#255].
       `Chassis aim: camera, RIGHT CELL` (or LEFT), the robot settles on the CELL in both (a) and
       (b), and FIRE waits until it is on target and then feeds (`fire: … WAITING: an enforced gate
       is closed` first, then the volley); in (c) it switches to `camera` once the CELL comes into
-      view; in (d) it reads `camera lost, holding its heading on the gyro` and carries on, not
+      view; in (d) it reads `camera not on it, aiming where it last saw it` and carries on, not
       swinging away. Every press logs `chassis aim: camera locked … ; odometry … (gap …)`: (b)'s gap
       shows the pose error the camera ignored. **Stop:** it turns to the DOWN CELL (the HIVE's state
       is wrong: note the log's HIVE line), it overshoots and hunts (lower `chassisAimKp`), or FIRE
       never opens on target (`TeleOpConfig.chassisAimGate` off, note the aim error the log shows).
+- [ ] **Circle's anchor: where the camera last saw the CELL** (branch `claude/pensive-mccarthy-0wkna8`):
+      Basic Drive, loaded, turret locked, filmed. (a) Circle on the CELL, then a hand over the
+      Limelight and strafe about 24 in with Circle still held. (b) Circle on the CELL, let go, turn
+      90° away and drive about 3 ft, then hold Circle again with the Limelight covered. (c) As (b)
+      with the pose knocked out first (push the robot 6 in sideways by hand, no reset). (d) As (b),
+      but a corner reset before the second press. **Good:** in (a) to (c) the Robot page reads
+      `camera not on it, aiming where it last saw it`, the robot turns onto the CELL, and FIRE's
+      shots land (the log's `shot N: … (where the camera last saw …)` range within about 2 in of a
+      tape); in (d) it reads `odometry` or holds its heading, never the old point. **Stop:** it
+      settles more than about 3° off the CELL in (a) → the frame behind the anchor was too old for
+      a turning robot: note the turn rate, and lower `ChassisAimTarget.ANCHOR_MAX_AGE_MS` (120, a
+      number).
 - [ ] **Every press is a drift sample:** across a practice, pull the logs and read each press's
       `launch spot: drift at …` line (camera − odometry at a known spot, settled, never applied) and
       its `CELL N in` range beside the shots it fired. **Good:** gaps stay under

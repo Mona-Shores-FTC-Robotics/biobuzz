@@ -79,10 +79,10 @@ public final class TurretAim {
     /**
      * Our CELL that is UP by the HIVE's state, else {@code fallback}: the right CELL for
      * {@link HiveState#RIGHT_CELL_UP}, the left for {@link HiveState#LEFT_CELL_UP}, and
-     * {@code fallback} (the near-end CELL) while the HIVE is tipping or unseen. Only an UP CELL
-     * scores, so a range from odometry is taken to this one: the near-end CELL by itself is the
-     * DOWN one half the time. An assumed state counts (after a TIP the camera did not see finish,
-     * or at an Autonomous's start): it is still a better guess than which end the robot is at.
+     * {@code fallback} while the HIVE is tipping or unseen. For the chassis aim's camera lock
+     * ({@code ChassisAimTarget}), which takes only the UP CELL while the HIVE's state is known. The
+     * turret's aim and the odometry range do not use it: they go to the near-end CELL. The
+     * match-start position an Autonomous assumed counts.
      *
      * @param alliance ours; UNKNOWN gives {@code fallback}
      * @param state    our HIVE's {@code HiveTracker.state()}; null gives {@code fallback}

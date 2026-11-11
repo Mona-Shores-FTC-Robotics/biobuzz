@@ -71,8 +71,8 @@ public class AutoRegistrationTest {
     }
 
     /**
-     * R-Solo, 5 Nov 2026 00:32: a position the tracker only assumed (the match start, or a TIP it
-     * did not see finish) is not a CELL seen up. The wait runs on until the camera sees it.
+     * R-Solo, 5 Nov 2026 00:32: the match-start position the tracker only assumed is not a
+     * CELL seen up. The wait runs on until the camera sees it.
      */
     @Test
     public void anAssumedPositionIsNeitherCellUp() {
