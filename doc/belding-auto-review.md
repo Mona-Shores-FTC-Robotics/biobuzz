@@ -67,7 +67,7 @@ brackets is the log's (low) shot count.
 | Q-13 · 19429 blue | V1 0–2.6 (4) · WALL →4.5 · pick 4.5–8.1 · drive 8.1–12.2 · V2 12.3–16.1 (1) · SCORING →17.4 · pick 17.4–21.0 · drive →22.4 · V3 22.4–25.1 (4) · park 25.1–27.4 | **CellUp** 0.05 s | LEAVE 3, PARK 5; 1 TIP (ours) | No second TIP, even with 5 counted at the LEFT CELL |
 | Q-19 · 19429 blue | V1 0–4.2 (2) · WALL →6.0 · pick 6.0–9.5 · drive 9.5–13.8 · V2 13.9–17.7 (0) · SCORING →18.9 · pick 18.9–22.6 · drive →24.1 · V3 **24.1–29.0** (2) · park from 29.0 | **CellUp** 0.02 s | LEAVE 3, **PARK 0**; 1 TIP (ours) | V3's gate opened 1.4 s after the drive, and the feed ran to 29.0 s, so the PARK was lost (the guard lets a started feed finish) |
 | Q-26 · 19429 red | V1 0–3.9 (2) · WALL →5.7 · pick 5.7–9.5 · drive →13.0 · V2 13.1–16.9 (0) · SCORING →18.1 · pick 18.1–21.6 · drive →22.8 · V3 22.8–26.5 (1) · park 26.5– | **CellUp** 0.02 s | LEAVE 3, PARK 5; 1 TIP (ours) | No second TIP |
-| Q-27 · 20245 red | V1 0–3.5 (4) · WALL →5.3 · pick 5.3–8.9 · drive **9.0–17.0** (planned 2.9) · V2 17.0–20.9 (2) · SCORING →22.0 · pick 22.0–25.6 · guard parks from SCORING_FLOWER_STAGING at 25.7 | **CellUp** 0.02 s; the guard then skipped the drive back to LEFT_LAUNCH_CLOSE (4.2 s left, 4.4 s needed) | LEAVE 3, **PARK 0**; 1 TIP (ours) | Video: our robot and the partner (15547) were in contact under the HIVE from 11 to 16 s, which cost about 4 s. The park from the SCORING staging spot stalled about 10 in short (PR #517) |
+| Q-27 · 20245 red | V1 0–3.5 (4) · WALL →5.3 · pick 5.3–8.9 · drive **9.0–17.0** (planned 2.9) · V2 17.0–20.9 (2) · SCORING →22.0 · pick 22.0–25.6 · guard parks from SCORING_FLOWER_STAGING at 25.7 | **CellUp** 0.02 s; the guard then skipped the drive back to LEFT_LAUNCH_CLOSE (4.2 s left, 4.4 s needed) | LEAVE 3, **PARK 0**; 1 TIP (ours) | Video: our robot and blue's 20863 (an opponent) were in contact under the HIVE from 11 to 16 s, which cost about 4 s. The park from the SCORING staging spot stalled about 10 in short (PR #517) |
 | Q-31 · 20245 blue | V1 0–3.3 (4) · WALL →5.1 · pick 5.1–8.7 · drive →12.5 · wait 0.76 · RIGHT_LAUNCH_CLOSE 13.2–15.6 · V 15.6–19.8 (2) · park 19.8– | **Timed out**. Video: the preloads did not TIP | LEAVE 3, PARK 5; 1 TIP, **made by the timed-out branch's volley at about 19.5 s** | Nothing: the branch saved the TIP |
 | Q-32 · 19429 blue | V1 0–4.2 (3) · WALL →6.0 · pick 6.0–9.7 · drive →13.5 · V2 13.6–17.4 (1) · SCORING →18.6 · pick 18.6–22.3 · drive →23.5 · V3 23.5–27.3 (1) · park 27.3– | **CellUp** 0.02 s | LEAVE 3, PARK 5; 1 TIP (ours) | No second TIP |
 
@@ -97,7 +97,7 @@ brackets is the log's (low) shot count.
   preloads plus one pick.
 - **AUTO PARK missed in 4 of 17 runs:**
   - Q-19: the feed ran to 29.0 s.
-  - Q-27: the partner blocked the drive, and the early park from SCORING_FLOWER_STAGING stalled.
+  - Q-27: an opponent (20863) blocked the drive under the HIVE, and the early park from SCORING_FLOWER_STAGING stalled.
   - M-9: the Pinpoint was lost.
   - Q-4: the robot reached RIGHT_PARK but was judged out of the zone (that spot sits 1.4 in inside the
     edge; `robot-todo.md` §3).
@@ -209,7 +209,7 @@ to LEFT_LAUNCH_CLOSE began, measured against the moment that drive ended.
 | Q-19 | −0.49 s | 0.02 s |
 | Q-26 | −0.32 s | 0.02 s |
 | Q-32 | −0.46 s | 0.02 s |
-| Q-27 | −3.34 s (the partner held it up near the HIVE) | 0.02 s |
+| Q-27 | −3.34 s (an opponent held it up near the HIVE) | 0.02 s |
 | **Q-7** | never: 0–3 tags, no settled sighting | timed out at 0.77 s |
 | **Q-31** | never: 0–2 tags, no settled sighting | timed out at 0.76 s |
 
