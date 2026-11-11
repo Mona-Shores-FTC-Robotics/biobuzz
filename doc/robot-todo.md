@@ -255,10 +255,10 @@ Result, with the gap on each own-start run, → [PR #372].
       by hand, on the mark, run again.
 - [ ] **19429: before the turret is unlocked** (`lockedForward` false, the mentor's call). On
       **Bench: Turret** after PLAY: Square at home, step at least 0.1 away: the bench shows
-      `degreesPerUnit` from the encoder (19429's 2.75 encoder ratio is applied); step both ways.
+      `degreesPerUnit` from the encoder (the 2.75 encoder ratio is applied); step both ways.
       First the ratio: Circle (limp), Cross at the home mark, turn the turret by hand to a 45° mark
       (no further: winding a position servo past its range is what moves home): `angle` ≈ 45°,
-      else 19429's `turnsPerTurretTurn` (2.75) is wrong. Then set `degreesPerUnit`, the real
+      else `turnsPerTurretTurn` (2.75) is wrong. Then set `degreesPerUnit`, the real
       limits (where the turret stops turning, less a margin) and unlock.
 - [ ] **20245: the turret servo's mode and its encoder socket.** On the 24 Oct bench its servo was
       in continuous mode; the code now sends a position, and keeps it at 0.5 (stop, or centre) until
@@ -919,14 +919,12 @@ both robots until every value is in (`TurretSubsystem.useAbsoluteZero`). [#169]
       per encoder.
 - [ ] **Directions.** Turn the turret counter-clockwise from above: `absDirectionA`/`B` = +1 for each
       fraction that rises, -1 for each that falls.
-- [ ] **B's ratio** (`absRatioB` 4.0: the mentor's 44T gear on the 176T ring or on A's 64T). Check
-      by counting B's wraps over one full turret turn (4), if the travel allows one; otherwise a
-      quarter turret turn should be one wrap of B.
-- [ ] **Travel** (`absEachWayDeg`): degrees each way from home the turret can reach.
+- [ ] **Ratios** (`turnsPerTurretTurn` 2.75 for A's 64T, `absRatioB` 4.0 for B's 44T, both on the
+      176T ring; from the CAD). Turn the turret one full turn by hand: A wraps 2.75 times, B 4.
 - [ ] **Homes.** Turret on its mark: `absHomeA`, `absHomeB` from the two fractions. Set it on the
       mark five times, note the spread.
-- [ ] **Check.** With all values in: the solve line gives an angle. Turn to each end and back: the
-      angle follows, the residual stays under a third of the design's separation. Then
+- [ ] **Check.** With all values in: the solve line gives an angle. Turn the turret several full
+      turns each way and back home (no stops): the angle follows, the residual stays under a third of the design's separation. Then
       `useAbsoluteZero = true` for that robot in `RobotDifferences`. **Good:** Basic Drive INIT with
       the turret turned off its mark: "zeroed from the two absolute encoders", and the Robot page's
       "Turret abs … vs count" stays within ±1°. **Stop:** "encoders disagree" or "ambiguous" → a

@@ -45,11 +45,10 @@ import java.util.Locale;
  *       {@code TurretSubsystem.turnsPerTurretTurn}, already measured on {@code Bench: Turret}.</li>
  *   <li><b>Homes</b> ({@code absHomeA}, {@code absHomeB}): turret on its home mark; read the two
  *       fractions. Set it on the mark a few times and note the spread.</li>
- *   <li><b>Travel</b> ({@code absEachWayDeg}): how far the turret can go each way from home.</li>
- *   <li><b>Check</b>: with every value in, the solve line gives the turret's angle with its
- *       residual and margin. Turn the turret to each end and back home: the angle must follow,
- *       and the residual stay well under the margin. The design line shows the separation these
- *       gears give over that travel; half of it is the error budget.</li>
+ *   <li><b>Check</b>: with every value in, the solve line gives the turret's direction, (-180°,
+ *       180°] from home, with its residual and margin. Turn the turret slowly through several full
+ *       turns and back home: the angle must follow, and the residual stay well under a third of
+ *       the design line's separation (half of it is the error budget).</li>
  * </ol>
  *
  * <p>Standalone, like {@code ValidateHardware}: no {@code Robot}, no {@code Subsystem}. It applies
@@ -193,16 +192,15 @@ public class OctoQuadBench extends OpMode {
         solution = TurretAbsolute.solve(fracA, fracB, TurretSubsystem.absHomeA, TurretSubsystem.absHomeB,
                 TurretSubsystem.turnsPerTurretTurn, TurretSubsystem.absRatioB,
                 TurretSubsystem.absDirectionA, TurretSubsystem.absDirectionB,
-                TurretSubsystem.absEachWayDeg, maxResidual, separation / 2.0);
+                maxResidual, separation / 2.0);
         report();
         publish();
     }
 
     private static double separation() {
         double ratioB = TurretSubsystem.absRatioB;
-        double eachWay = TurretSubsystem.absEachWayDeg;
-        if (!(ratioB > 0) || !(eachWay > 0)) return Double.NaN;
-        return TurretAbsolute.separationDeg(TurretSubsystem.turnsPerTurretTurn, ratioB, eachWay);
+        if (!(ratioB > 0)) return Double.NaN;
+        return TurretAbsolute.separationDeg(TurretSubsystem.turnsPerTurretTurn, ratioB);
     }
 
     private void report() {
@@ -228,9 +226,10 @@ public class OctoQuadBench extends OpMode {
                 fmt(fracA), fmt(TurretSubsystem.absHomeA), TurretSubsystem.absDirectionA,
                 fmt(fracB), fmt(TurretSubsystem.absHomeB), TurretSubsystem.absDirectionB));
         telemetry.addLine("  (fractions need that encoder's absPulseMinUs / absPulseMaxUs)");
-        telemetry.addLine(String.format(Locale.US, "Design: A %.4f, B %s turns per turret turn, ±%s° travel: separation %s°",
+        telemetry.addLine(String.format(Locale.US, "Design: A %.4f, B %s turns per turret turn: repeats every %d turret turns, separation %s°",
                 TurretSubsystem.turnsPerTurretTurn, fmt(TurretSubsystem.absRatioB),
-                fmt(TurretSubsystem.absEachWayDeg), fmt(separation())));
+                TurretAbsolute.periodTurretTurns(TurretSubsystem.turnsPerTurretTurn, TurretSubsystem.absRatioB),
+                fmt(separation())));
         if (solution == null) {
             telemetry.addLine("Solve: no reading yet");
         } else if (solution.ok()) {

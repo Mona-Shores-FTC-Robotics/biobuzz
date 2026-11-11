@@ -64,8 +64,13 @@ public class TurretSubsystem implements Subsystem {
 
     // ------------------------------------------------------------ measured on the bench (20245)
 
-    /** Encoder turns per turret turn: 2038 counts per flag turn on the bench, so 1 (24 Oct 2026). */
-    public static double turnsPerTurretTurn = 1.0;
+    /**
+     * Encoder turns per turret turn: the Cypher Max on the 64T gear against the 176T ring, 2.75.
+     * Both robots get this layout (the mentor's CAD, 11 Nov 2026), so it is the shared value; it is
+     * encoder A of the absolute pair too. Check one turret turn on {@code Bench: Turret}. (20245's
+     * old bench encoder read 1:1 on 24 Oct 2026, before this layout.)
+     */
+    public static double turnsPerTurretTurn = 2.75;
 
     /** +1 if the count rises as the turret turns counter-clockwise seen from above. -1 on 20245: it falls (robot, 24 Oct 2026). */
     public static int direction = -1;
@@ -180,12 +185,12 @@ public class TurretSubsystem implements Subsystem {
 
     /**
      * Encoder B's turns per turret turn: the ring's teeth over B's gear's. 4.0: the mentor's 44T
-     * spur gear (9 Nov 2026) against the goBILDA turret's 176T ring, or against A's 64T gear, which
-     * gives the same 4.0. From the design, not yet checked: count B's wraps over one turret turn
-     * on {@code Bench: OctoQuad}. Encoder A's is {@link #turnsPerTurretTurn}: A is the Cypher Max
-     * whose quadrature is in the hub socket (2.75 on 19429's 64T gear). With 64T and 44T the
-     * readings repeat only after 4 turret turns, and candidate turns stay at least 32.7° of B
-     * apart ({@link TurretAbsolute#separationDeg}).
+     * spur gear meshing the 176T ring directly (CAD, 11 Nov 2026). From the design, not yet
+     * checked: a quarter turret turn is one wrap of B on {@code Bench: OctoQuad}. Encoder A's is
+     * {@link #turnsPerTurretTurn} (the 64T gear, also on the ring; its quadrature is in the hub
+     * socket). With 64T and 44T the readings repeat after exactly 4 turret turns, so the pair gives
+     * the turret's direction however many turns it has made, and candidates stay at least 32.7° of
+     * B apart ({@link TurretAbsolute#separationDeg}).
      */
     public static double absRatioB = 4.0;
 
@@ -208,9 +213,6 @@ public class TurretSubsystem implements Subsystem {
     public static double absPulseMaxUsA = Double.NaN;
     public static double absPulseMinUsB = Double.NaN;
     public static double absPulseMaxUsB = Double.NaN;
-
-    /** How far the turret can turn each way from home, degrees, for the search. From the CAD or by turning it to each end. NaN until known. */
-    public static double absEachWayDeg = Double.NaN;
 
     /**
      * Readings further apart than this, in degrees of encoder B, are refused (slipped, or a value
@@ -483,16 +485,17 @@ public class TurretSubsystem implements Subsystem {
         absPulseB = octoData.positions[ABS_CHANNEL_B];
         double fa = TurretAbsolute.fractionFromPulse(absPulseA, absPulseMinUsA, absPulseMaxUsA);
         double fb = TurretAbsolute.fractionFromPulse(absPulseB, absPulseMinUsB, absPulseMaxUsB);
-        double separation = TurretAbsolute.separationDeg(turnsPerTurretTurn, absRatioB, absEachWayDeg);
+        double separation = TurretAbsolute.separationDeg(turnsPerTurretTurn, absRatioB);
         double maxResidual = Double.isNaN(absMaxResidualDeg) ? separation / 3.0 : absMaxResidualDeg;
         absSolution = TurretAbsolute.solve(fa, fb, absHomeA, absHomeB, turnsPerTurretTurn, absRatioB,
-                absDirectionA, absDirectionB, absEachWayDeg, maxResidual, separation / 2.0);
+                absDirectionA, absDirectionB, maxResidual, separation / 2.0);
         if (!absSolution.ok() || encoder == null) {
             absCheckDeg = Double.NaN;
             return;
         }
         double quadDeg = zeroed ? encoder.degrees(counts, zeroCounts) : Double.NaN;
-        absCheckDeg = absSolution.turretDeg - quadDeg;
+        // The turret has no stops, so compare pointing directions: a whole turn apart is no change.
+        absCheckDeg = TurretAbsolute.wrap180(absSolution.turretDeg - quadDeg);
         if (!TurretZeroPolicy.absoluteMayZero(zeroSource == ZeroSource.HAND)) {
             return;
         }

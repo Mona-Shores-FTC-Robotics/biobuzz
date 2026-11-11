@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import java.util.Locale;
+
 /**
  * The turret's absolute angle from two absolute encoders geared to it at different ratios: the
  * "two-encoder" (vernier, Chinese-remainder) trick. Plain Java, so all of it is unit tested at a
@@ -7,13 +9,23 @@ package org.firstinspires.ftc.teamcode.subsystems;
  *
  * <h2>The trick</h2>
  *
- * <p>An absolute encoder geared up from the turret (19429's Cypher Max on the 64T drive gear turns
- * 2.75 times per turret turn) knows where it is inside its own turn, but not which of its turns the
- * turret is on. A second absolute encoder on a gear with a different tooth count turns a different
- * number of times per turret turn, so the pair of readings drifts apart by a fixed amount for every
- * turn of the first one. For each turn the first encoder could be on, this predicts what the second
- * should read, and keeps the one turn whose prediction matches. That gives the turret's angle at
- * power-on, with nothing moving and no home mark.
+ * <p>An absolute encoder geared up from the turret (a Cypher Max on a 64T gear against the 176T
+ * ring turns 2.75 times per turret turn) knows where it is inside its own turn, but not which of
+ * its turns the turret is on. A second absolute encoder on a gear with a different tooth count (44T:
+ * 4.0 turns per turret turn) turns a different number of times per turret turn, so the pair of
+ * readings drifts apart by a fixed amount for every turn of the first one. For each turn the first
+ * encoder could be on, this predicts what the second should read, and keeps the one whose
+ * prediction matches. That gives the turret's angle at power-on, with nothing moving and no home
+ * mark. EasyCRT (YAMS, Team 6911) documents the same search.
+ *
+ * <h2>A turret with no stops</h2>
+ *
+ * <p>The turret has no stops and no wires, so at power-on it may be any number of turns from home.
+ * The pair of readings repeats after {@link #periodTurretTurns} turret turns (4 for 64T and 44T on
+ * the 176T ring: lcm(64, 44) / 176). Because that is a <b>whole</b> number of turret turns, every
+ * repeat points the same way, so the pair always gives the turret's true pointing direction. A pair
+ * of ratios whose readings repeat on a fraction of a turret turn could not, and is refused. The
+ * search covers the whole period, and the answer is wrapped into (-180, 180] degrees from home.
  *
  * <p>Two numbers say whether a reading can be trusted:
  *
@@ -22,47 +34,44 @@ package org.firstinspires.ftc.teamcode.subsystems;
  *       its own degrees. Noise, backlash and the encoders' own error (the Cypher Max states
  *       ±1.2°) all land here. Above {@code maxResidualDeg}, the readings disagree: an encoder
  *       slipped, a gear jumped a tooth, or a value below is wrong.</li>
- *   <li>{@link Solution#marginDeg}: how far the runner-up turn's prediction is from the reading.
- *       The answer is only unambiguous while the runner-up is well clear of the winner; below
- *       {@code minMarginDeg} it is refused.</li>
+ *   <li>{@link Solution#marginDeg}: how far the runner-up's prediction is from the reading. Below
+ *       {@code minMarginDeg} the answer is ambiguous and refused.</li>
  * </ul>
  *
- * <p>{@link #separationDeg} is the design check: the closest any two candidate turns ever come for
- * a pair of ratios over a travel. Half of it is the most error the readings can carry before the
- * wrong turn wins. Pick the second gear to make it large, not just "different by one tooth": two
- * gears a tooth apart drift slowly, which gives a long unambiguous range but candidates only a few
- * degrees apart.
+ * <p>{@link #separationDeg} is the design check: the closest any two candidates ever come, in
+ * degrees of encoder B (32.7° for 64T and 44T). Half of it is the most error the readings can
+ * carry before the wrong candidate wins. Two gears a tooth apart would leave only a few degrees.
  *
  * <h2>Inputs</h2>
  *
  * <p>Each encoder's reading is a fraction of its own turn, [0, 1). Its home reading is that
  * fraction with the turret at its home mark. Its direction is +1 if its reading rises as the turret
- * turns counter-clockwise seen from above (Pedro's frame), -1 if it falls; a gear mesh reverses it,
- * and the Cypher Max's absolute output counts the opposite way to its quadrature, so measure it.
+ * turns counter-clockwise seen from above (Pedro's frame), -1 if it falls; the Cypher Max's absolute
+ * output counts the opposite way to its quadrature, so measure it.
+ *
+ * <p>Read both encoders at the same instant with the turret still (one OctoQuad read in INIT does
+ * both): a turret moving between the two reads looks like a disagreement.
  */
 public final class TurretAbsolute {
 
     private TurretAbsolute() {
     }
 
-    /**
-     * Candidates this far past the travel are still considered, so a turret sitting on a stop with
-     * a little noise is not pushed onto the wrong turn.
-     */
-    public static final double TRAVEL_SLACK_DEG = 10.0;
+    /** The longest period searched for, in turret turns. Real gears repeat far sooner. */
+    static final int MAX_PERIOD_TURRET_TURNS = 64;
 
     /** One solve. {@link #ok()} says whether {@link #turretDeg} can be used. */
     public static final class Solution {
         /** Why there is no angle, or null when {@link #turretDeg} is good. */
         public final String problem;
-        /** Turret degrees from home, counter-clockwise positive, not wrapped; NaN with a problem. */
+        /** Turret degrees from home, counter-clockwise positive, in (-180, 180]; NaN with a problem. */
         public final double turretDeg;
         /** Encoder B's distance from the winning prediction, degrees of B; NaN if not solved. */
         public final double residualDeg;
         /** Encoder B's distance from the runner-up's prediction, degrees of B; NaN if none. */
         public final double marginDeg;
 
-        Solution(String problem, double turretDeg, double residualDeg, double marginDeg) {
+        public Solution(String problem, double turretDeg, double residualDeg, double marginDeg) {
             this.problem = problem;
             this.turretDeg = turretDeg;
             this.residualDeg = residualDeg;
@@ -75,25 +84,23 @@ public final class TurretAbsolute {
     }
 
     /**
-     * The turret's angle from the two readings.
+     * The turret's pointing angle from the two readings.
      *
-     * @param fracA       encoder A's reading, a fraction of its turn [0, 1); NaN for no reading
-     * @param fracB       encoder B's reading, the same way
-     * @param homeA       A's reading with the turret at home, [0, 1); NaN until measured
-     * @param homeB       B's reading with the turret at home
-     * @param ratioA      A's turns per turret turn, positive (2.75 for 64T on a 176T ring)
-     * @param ratioB      B's turns per turret turn, positive and different from A's
-     * @param dirA        +1 or -1, see the class comment
-     * @param dirB        +1 or -1
-     * @param eachWayDeg  how far the turret can be from home either way, degrees; the search is kept
-     *                    inside it, so a smaller travel gives a bigger margin
+     * @param fracA          encoder A's reading, a fraction of its turn [0, 1); NaN for no reading
+     * @param fracB          encoder B's reading, the same way
+     * @param homeA          A's reading with the turret at home, [0, 1); NaN until measured
+     * @param homeB          B's reading with the turret at home
+     * @param ratioA         A's turns per turret turn, positive (2.75 for 64T on a 176T ring)
+     * @param ratioB         B's turns per turret turn, positive and different from A's
+     * @param dirA           +1 or -1, see the class comment
+     * @param dirB           +1 or -1
      * @param maxResidualDeg readings further apart than this disagree
      * @param minMarginDeg   a runner-up closer than this makes the answer ambiguous
      */
     public static Solution solve(double fracA, double fracB, double homeA, double homeB,
                                  double ratioA, double ratioB, int dirA, int dirB,
-                                 double eachWayDeg, double maxResidualDeg, double minMarginDeg) {
-        String bad = checkSettings(homeA, homeB, ratioA, ratioB, dirA, dirB, eachWayDeg);
+                                 double maxResidualDeg, double minMarginDeg) {
+        String bad = checkSettings(homeA, homeB, ratioA, ratioB, dirA, dirB);
         if (bad != null) {
             return new Solution(bad, Double.NaN, Double.NaN, Double.NaN);
         }
@@ -101,22 +108,16 @@ public final class TurretAbsolute {
             return new Solution("no reading from encoder " + (Double.isNaN(fracA) ? "A" : "B"),
                     Double.NaN, Double.NaN, Double.NaN);
         }
-        // A's turns since home, inside one turn; the candidates add whole turns of A.
+        int period = periodTurretTurns(ratioA, ratioB);
+        // A's turns since home, inside one turn; each candidate adds a whole turn of A. Over one
+        // period A makes period * ratioA whole turns, and each is one candidate.
         double partA = dirA * wrapHalf(fracA - homeA);
-        double windowDeg = eachWayDeg + TRAVEL_SLACK_DEG;
-        double eachWayTurnsA = windowDeg / 360.0 * ratioA;
-        int kMin = (int) Math.floor(-eachWayTurnsA - partA) - 1;
-        int kMax = (int) Math.ceil(eachWayTurnsA - partA) + 1;
-
+        int candidates = (int) Math.round(period * ratioA);
         double bestErr = Double.POSITIVE_INFINITY;
         double secondErr = Double.POSITIVE_INFINITY;
         double bestTurret = Double.NaN;
-        for (int k = kMin; k <= kMax; k++) {
-            double turnsA = partA + k;
-            double turretTurns = turnsA / ratioA;
-            if (Math.abs(turretTurns * 360.0) > windowDeg) {
-                continue;
-            }
+        for (int k = 0; k < candidates; k++) {
+            double turretTurns = (partA + k) / ratioA;
             double predictedB = homeB + dirB * turretTurns * ratioB;
             double err = Math.abs(wrapHalf(fracB - predictedB));
             if (err < bestErr) {
@@ -127,50 +128,54 @@ public final class TurretAbsolute {
                 secondErr = err;
             }
         }
-        if (Double.isNaN(bestTurret)) {
-            return new Solution("no candidate inside the travel", Double.NaN, Double.NaN, Double.NaN);
-        }
         double residualDeg = bestErr * 360.0;
         double marginDeg = Double.isInfinite(secondErr) ? Double.NaN : secondErr * 360.0;
         if (residualDeg > maxResidualDeg) {
-            return new Solution(String.format(java.util.Locale.US,
-                    "encoders disagree by %.1f° (limit %.1f°): slipped, or a ratio or home is wrong",
+            return new Solution(String.format(Locale.US,
+                    "encoders disagree by %.1f° (limit %.1f°): turret moving, a gear slipped, or a value is wrong",
                     residualDeg, maxResidualDeg), Double.NaN, residualDeg, marginDeg);
         }
         if (!Double.isNaN(marginDeg) && marginDeg < minMarginDeg) {
-            return new Solution(String.format(java.util.Locale.US,
-                    "ambiguous: the next turn is %.1f° away (need %.1f°)", marginDeg, minMarginDeg),
+            return new Solution(String.format(Locale.US,
+                    "ambiguous: the runner-up is %.1f° away (need %.1f°)", marginDeg, minMarginDeg),
                     Double.NaN, residualDeg, marginDeg);
         }
-        return new Solution(null, bestTurret * 360.0, residualDeg, marginDeg);
+        return new Solution(null, wrap180(bestTurret * 360.0), residualDeg, marginDeg);
     }
 
     /**
-     * The design check: over a turret travel of {@code eachWayDeg} either way from home, the
-     * smallest distance, in degrees of encoder B, between the predictions of any two of A's turns.
-     * Half of it is the error budget. Depends only on the ratios and the travel, not on the homes.
+     * After how many turret turns both readings first repeat (the turret turns over which both
+     * encoders make whole turns), when that is a whole number of turret turns; 0 when it is not,
+     * or is longer than {@link #MAX_PERIOD_TURRET_TURNS}: then two turret angles that point
+     * different ways give the same pair, and the pair cannot give a direction.
      */
-    public static double separationDeg(double ratioA, double ratioB, double eachWayDeg) {
-        // Two candidates whole A-turns apart (dk) differ in B by dk * ratioB / ratioA turns.
-        // Inside the travel, dk can be up to the number of A turns across the whole travel.
-        int maxDk = (int) Math.floor(2.0 * (eachWayDeg + TRAVEL_SLACK_DEG) / 360.0 * ratioA);
+    public static int periodTurretTurns(double ratioA, double ratioB) {
+        int maxTurnsA = (int) Math.ceil(MAX_PERIOD_TURRET_TURNS * ratioA);
+        for (int turnsA = 1; turnsA <= maxTurnsA; turnsA++) {
+            if (isWhole(turnsA * ratioB / ratioA)) {
+                double turret = turnsA / ratioA;
+                return isWhole(turret) ? (int) Math.rint(turret) : 0;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * The design check: the smallest distance, in degrees of encoder B, between the predictions of
+     * any two candidates over one period. Half of it is the error budget. NaN if the ratios have
+     * no whole-turn period.
+     */
+    public static double separationDeg(double ratioA, double ratioB) {
+        int period = periodTurretTurns(ratioA, ratioB);
+        if (period == 0) {
+            return Double.NaN;
+        }
+        int candidates = (int) Math.round(period * ratioA);
         double closest = Double.POSITIVE_INFINITY;
-        for (int dk = 1; dk <= maxDk; dk++) {
-            double d = Math.abs(wrapHalf(dk * ratioB / ratioA)) * 360.0;
-            closest = Math.min(closest, d);
+        for (int dk = 1; dk < candidates; dk++) {
+            closest = Math.min(closest, Math.abs(wrapHalf(dk * ratioB / ratioA)) * 360.0);
         }
         return closest;
-    }
-
-    /**
-     * How far the turret turns before the pair of readings repeats, in turret turns, for tooth
-     * counts: the ring's, and the gear on each encoder. The search never needs to go further.
-     */
-    public static double unambiguousTurretTurns(int ringTeeth, int gearTeethA, int gearTeethB) {
-        if (ringTeeth <= 0 || gearTeethA <= 0 || gearTeethB <= 0) {
-            throw new IllegalArgumentException("tooth counts must be positive");
-        }
-        return lcm(gearTeethA, gearTeethB) / (double) ringTeeth;
     }
 
     /**
@@ -194,12 +199,15 @@ public final class TurretAbsolute {
     }
 
     private static String checkSettings(double homeA, double homeB, double ratioA, double ratioB,
-                                        int dirA, int dirB, double eachWayDeg) {
+                                        int dirA, int dirB) {
         if (!(ratioA > 0) || !(ratioB > 0) || Double.isInfinite(ratioA) || Double.isInfinite(ratioB)) {
-            return "gear ratios not set (absRatioA / absRatioB)";
+            return "gear ratios not set (turnsPerTurretTurn / absRatioB)";
         }
         if (Math.abs(ratioA - ratioB) < 1e-9) {
             return "the two ratios are equal: the trick needs different gears";
+        }
+        if (periodTurretTurns(ratioA, ratioB) == 0) {
+            return "these ratios never repeat on a whole turret turn: no pointing direction";
         }
         if ((dirA != 1 && dirA != -1) || (dirB != 1 && dirB != -1)) {
             return "directions not measured (absDirectionA / absDirectionB)";
@@ -207,10 +215,11 @@ public final class TurretAbsolute {
         if (Double.isNaN(homeA) || Double.isNaN(homeB)) {
             return "home readings not measured (absHomeA / absHomeB)";
         }
-        if (!(eachWayDeg > 0) || Double.isInfinite(eachWayDeg)) {
-            return "travel not set (absEachWayDeg)";
-        }
         return null;
+    }
+
+    private static boolean isWhole(double x) {
+        return Math.abs(x - Math.rint(x)) < 1e-6;
     }
 
     /** {@code turns} wrapped into [-0.5, 0.5). */
@@ -218,16 +227,14 @@ public final class TurretAbsolute {
         return turns - Math.floor(turns + 0.5);
     }
 
-    private static long lcm(long a, long b) {
-        return a / gcd(a, b) * b;
-    }
-
-    private static long gcd(long a, long b) {
-        while (b != 0) {
-            long t = a % b;
-            a = b;
-            b = t;
+    /** {@code deg} wrapped into (-180, 180]. */
+    static double wrap180(double deg) {
+        double wrapped = deg % 360.0;
+        if (wrapped <= -180.0) {
+            wrapped += 360.0;
+        } else if (wrapped > 180.0) {
+            wrapped -= 360.0;
         }
-        return a;
+        return wrapped;
     }
 }

@@ -11,16 +11,16 @@ import java.util.Random;
 
 public class TurretAbsoluteTest {
 
-    /** The goBILDA turret's 176T ring: 64T on encoder A (2.75), a 56T example gear on B. */
+    /** The turret's 176T ring: encoder A on a 64T gear (2.75), encoder B on the 44T gear (4.0). */
     private static final double RATIO_A = 176.0 / 64.0;
-    private static final double RATIO_B = 176.0 / 56.0;
+    private static final double RATIO_B = 176.0 / 44.0;
     private static final double HOME_A = 0.37;
     private static final double HOME_B = 0.81;
-    private static final double EACH_WAY = 270.0;
-    private static final double MAX_RESIDUAL = 8.0;
-    private static final double MIN_MARGIN = 16.0;
+    private static final double SEPARATION = 360.0 / 11.0;
+    private static final double MAX_RESIDUAL = SEPARATION / 3.0;
+    private static final double MIN_MARGIN = SEPARATION / 2.0;
 
-    /** What the two encoders read with the turret at {@code turretDeg}. */
+    /** What the two encoders read with the turret {@code turretDeg} from home, any number of turns. */
     private static double[] readings(double turretDeg, int dirA, int dirB) {
         double turns = turretDeg / 360.0;
         double a = HOME_A + dirA * turns * RATIO_A;
@@ -30,15 +30,23 @@ public class TurretAbsoluteTest {
 
     private static TurretAbsolute.Solution solve(double[] r, int dirA, int dirB) {
         return TurretAbsolute.solve(r[0], r[1], HOME_A, HOME_B, RATIO_A, RATIO_B, dirA, dirB,
-                EACH_WAY, MAX_RESIDUAL, MIN_MARGIN);
+                MAX_RESIDUAL, MIN_MARGIN);
     }
 
     @Test
-    public void everyAngleInTheTravelComesBack() {
-        for (double deg = -EACH_WAY; deg <= EACH_WAY; deg += 0.5) {
-            TurretAbsolute.Solution s = solve(readings(deg, 1, -1), 1, -1);
+    public void the64And44RepeatAfterFourWholeTurretTurns() {
+        assertEquals(4, TurretAbsolute.periodTurretTurns(RATIO_A, RATIO_B));
+        assertEquals(SEPARATION, TurretAbsolute.separationDeg(RATIO_A, RATIO_B), 1e-6);
+    }
+
+    @Test
+    public void everyPointingDirectionComesBackHoweverManyTurnsFromHome() {
+        // No stops: the turret may be any number of turns from home at power-on.
+        for (double deg = -2000.0; deg <= 2000.0; deg += 0.5) {
+            TurretAbsolute.Solution s = solve(readings(deg, 1, 1), 1, 1);
             assertTrue(deg + ": " + s.problem, s.ok());
-            assertEquals(deg, s.turretDeg, 1e-6);
+            assertEquals(deg + "", 0.0, TurretAbsolute.wrap180(deg - s.turretDeg), 1e-6);
+            assertTrue(s.turretDeg > -180.0 && s.turretDeg <= 180.0);
         }
     }
 
@@ -46,10 +54,10 @@ public class TurretAbsoluteTest {
     public void bothDirectionsWork() {
         int[][] dirs = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
         for (int[] d : dirs) {
-            for (double deg : new double[] {-200, -45, 0, 30, 181, 260}) {
+            for (double deg : new double[] {-170, -45, 0, 30, 179, 541}) {
                 TurretAbsolute.Solution s = solve(readings(deg, d[0], d[1]), d[0], d[1]);
                 assertTrue(s.ok());
-                assertEquals(deg, s.turretDeg, 1e-6);
+                assertEquals(0.0, TurretAbsolute.wrap180(deg - s.turretDeg), 1e-6);
             }
         }
     }
@@ -57,23 +65,23 @@ public class TurretAbsoluteTest {
     @Test
     public void readingErrorsWithinTheBudgetStillPickTheRightTurn() {
         Random random = new Random(169);
-        double noiseTurns = 2.0 / 360.0; // ±2° on each encoder: worse than the stated ±1.2°
+        double noiseTurns = 3.0 / 360.0; // ±3° on each encoder: worse than the stated ±1.2°
         for (int i = 0; i < 5000; i++) {
-            double deg = (random.nextDouble() * 2 - 1) * EACH_WAY;
-            double[] r = readings(deg, 1, 1);
+            double deg = (random.nextDouble() * 2 - 1) * 1440.0;
+            double[] r = readings(deg, 1, -1);
             r[0] = wrap01(r[0] + (random.nextDouble() * 2 - 1) * noiseTurns);
             r[1] = wrap01(r[1] + (random.nextDouble() * 2 - 1) * noiseTurns);
-            TurretAbsolute.Solution s = solve(r, 1, 1);
+            TurretAbsolute.Solution s = solve(r, 1, -1);
             assertTrue(deg + ": " + s.problem, s.ok());
             // A's error divided by its ratio is the turret's error.
-            assertEquals(deg, s.turretDeg, 2.0 / RATIO_A + 1e-9);
+            assertEquals(0.0, TurretAbsolute.wrap180(deg - s.turretDeg), 3.0 / RATIO_A + 1e-9);
         }
     }
 
     @Test
     public void aSlippedEncoderIsCaughtNotBelieved() {
         double[] r = readings(40.0, 1, 1);
-        r[1] = wrap01(r[1] + 25.0 / 360.0); // B jumped 25°: no turn of A explains it
+        r[1] = wrap01(r[1] + 16.0 / 360.0); // B jumped 16°: halfway between two candidates
         TurretAbsolute.Solution s = solve(r, 1, 1);
         assertFalse(s.ok());
         assertTrue(s.problem, s.problem.startsWith("encoders disagree"));
@@ -81,46 +89,32 @@ public class TurretAbsoluteTest {
     }
 
     @Test
-    public void gearsOneToothApartAreTooCloseForThisTravel() {
+    public void gearsOneToothApartAreTooClose() {
         double ratioB = 176.0 / 63.0;
-        // 64T and 63T: candidates only 5.7° of B apart.
-        assertEquals(360.0 * (64.0 / 63.0 - 1.0), TurretAbsolute.separationDeg(RATIO_A, ratioB, EACH_WAY), 1e-6);
-        TurretAbsolute.Solution s = TurretAbsolute.solve(0.1, 0.2, 0.1, 0.2, RATIO_A, ratioB, 1, 1,
-                EACH_WAY, MAX_RESIDUAL, MIN_MARGIN);
-        assertFalse(s.ok());
-        assertTrue(s.problem, s.problem.startsWith("ambiguous"));
+        // 64T and 63T never repeat on a whole turret turn within the search, so no direction.
+        assertEquals(0, TurretAbsolute.periodTurretTurns(RATIO_A, ratioB));
+        assertProblem(TurretAbsolute.solve(0.1, 0.2, 0.1, 0.2, RATIO_A, ratioB, 1, 1,
+                MAX_RESIDUAL, MIN_MARGIN), "whole turret turn");
     }
 
     @Test
-    public void theExamplePairIsWellSeparated() {
-        // 64T and 56T on a 176T ring: candidates at least 51° of B apart over ±270°.
-        assertEquals(360.0 / 7.0, TurretAbsolute.separationDeg(RATIO_A, RATIO_B, EACH_WAY), 1e-6);
-        assertEquals(448.0 / 176.0, TurretAbsolute.unambiguousTurretTurns(176, 64, 56), 1e-12);
-    }
-
-    @Test
-    public void theMentors44ToothGearAgainstThe64IsWellSeparated() {
-        double ratioB = 176.0 / 44.0;
-        // Under 262° of total travel only one neighbouring turn of A fits: 163.6° apart.
-        assertEquals(360.0 * 5.0 / 11.0, TurretAbsolute.separationDeg(RATIO_A, ratioB, 120.0), 1e-6);
-        // Over any longer travel, up to 4 turret turns, never closer than 32.7°.
-        assertEquals(360.0 / 11.0, TurretAbsolute.separationDeg(RATIO_A, ratioB, 270.0), 1e-6);
-        assertEquals(360.0 / 11.0, TurretAbsolute.separationDeg(RATIO_A, ratioB, 700.0), 1e-6);
-        assertEquals(4.0, TurretAbsolute.unambiguousTurretTurns(176, 64, 44), 1e-12);
+    public void aRatioThatRepeatsOffAWholeTurnIsRefused() {
+        // 64T and 56T repeat after 2.55 turret turns: two repeats point different ways.
+        assertEquals(0, TurretAbsolute.periodTurretTurns(176.0 / 64.0, 176.0 / 56.0));
     }
 
     @Test
     public void missingSettingsSayWhichOne() {
         assertProblem(TurretAbsolute.solve(0.1, 0.2, Double.NaN, 0.2, RATIO_A, RATIO_B, 1, 1,
-                EACH_WAY, MAX_RESIDUAL, MIN_MARGIN), "home");
+                MAX_RESIDUAL, MIN_MARGIN), "home");
         assertProblem(TurretAbsolute.solve(0.1, 0.2, 0.1, 0.2, Double.NaN, RATIO_B, 1, 1,
-                EACH_WAY, MAX_RESIDUAL, MIN_MARGIN), "ratio");
+                MAX_RESIDUAL, MIN_MARGIN), "ratio");
         assertProblem(TurretAbsolute.solve(0.1, 0.2, 0.1, 0.2, RATIO_A, RATIO_A, 1, 1,
-                EACH_WAY, MAX_RESIDUAL, MIN_MARGIN), "equal");
+                MAX_RESIDUAL, MIN_MARGIN), "equal");
         assertProblem(TurretAbsolute.solve(0.1, 0.2, 0.1, 0.2, RATIO_A, RATIO_B, 0, 1,
-                EACH_WAY, MAX_RESIDUAL, MIN_MARGIN), "direction");
+                MAX_RESIDUAL, MIN_MARGIN), "direction");
         assertProblem(TurretAbsolute.solve(0.1, Double.NaN, 0.1, 0.2, RATIO_A, RATIO_B, 1, 1,
-                EACH_WAY, MAX_RESIDUAL, MIN_MARGIN), "encoder B");
+                MAX_RESIDUAL, MIN_MARGIN), "encoder B");
     }
 
     @Test

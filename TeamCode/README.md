@@ -564,13 +564,18 @@ count carries the angle from there, and the OctoQuad is not read after PLAY, so
 the match loop pays nothing for it. Two things to know about the gears and the
 pulses:
 
-- **Choose B's gear for separation, not "one tooth off".** 64T and 63T repeat
-  only after 22.9 turret turns, but candidate turns are then only 5.7° of B
-  apart, inside the encoders' own error. 64T and 56T on the 176T ring repeat
-  after 2.5 turret turns with candidates 51° apart. The mentor's gear is 44T
-  (`absRatioB` 4.0): with the 64T it repeats after 4 turret turns, candidates at
-  least 32.7° apart (163.6° under 262° of total travel). `TurretAbsolute.separationDeg`
-  is the check; half of it is the error budget.
+- **The turret has no stops and no wires**, so at power-on it may be any number
+  of turns from home. The pair must therefore repeat on a *whole* number of
+  turret turns: then every repeat points the same way and the pair always gives
+  the turret's direction. The mentor's 64T and 44T, both on the 176T ring
+  (2.75 and 4.0), repeat after exactly 4 turret turns (lcm(64, 44) / 176).
+  64T and 56T would repeat after 2.55 turret turns, so two repeats would point different
+  ways; `TurretAbsolute.periodTurretTurns` refuses such a pair.
+- **Choose B's gear for separation, not "one tooth off".** Candidates for 64T
+  and 44T stay 32.7° of B apart (gcd(64, 44) / 44 of a turn); half of that is
+  the error budget against the Cypher Max's ±1.2° plus backlash. 64T and 63T
+  would leave 5.7°, inside the encoders' own error. `TurretAbsolute.separationDeg`
+  is the check.
 - **Each encoder's pulse range is measured, not taken from the datasheet.** The
   Cypher Max's PWM frequency is 490–603 Hz part to part, and the OctoQuad
   measures the high time in µs, so the same angle gives different widths on two

@@ -64,10 +64,6 @@ public final class RobotDifferences {
                         + " Turret (6 Nov 2026, checked again after flashing it out of SWYFT's continuous mode)",
                 () -> TurretSubsystem.homePosition = 0.514);
         differs(RobotIdentity.TEAM_19429,
-                "Cypher Max rides the goBILDA turret's 64T drive gear, 2.75 turns per turret turn"
-                        + " (6 Nov 2026, from the build team; check one turret turn on Bench: Turret)",
-                () -> TurretSubsystem.turnsPerTurretTurn = 2.75);
-        differs(RobotIdentity.TEAM_19429,
                 "Turret encoder trusted (Cypher Max in its socket, counting, 6 Nov 2026): the servo is"
                         + " re-homed from it, so a turret twirled in INIT comes back to its mark at PLAY",
                 () -> TurretSubsystem.rehomeFromEncoder = true);
