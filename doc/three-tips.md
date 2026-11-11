@@ -40,11 +40,18 @@ was run"). Differences under 5 of 120 are not differences.
 
 ### Each rung, against the target
 
-| Rung | Best drawing | 2 TIPs / 3 TIPs of 120 | Meets the target? |
+| Rung, as the goal sets it | Its drawing | 1 / 2 / 3 TIPs of 120 | Target (90 and 60) |
 |---|---|---|---|
-| 1, the Belding robot, partner leaves 4 | R-Three-Tip | 57 / 0 | **No, and no drawing can.** A bound with no driving and the best of every Belding measurement puts TIP 3 at 30.4 s or later. By the budget: about 42 s of work. Driving three times as fast with every shot in: 118 / 0. By runs: 57 / 0 as at Belding, and 117 / 0 with every shot staying in and every pick full. Its second TIP lands at 26.1 s, which leaves 4 s to put 8 pieces into the RIGHT CELL and wait out a 4.75 s dwell |
-| 1 and 2, with the allowed what-ifs | R-Three-Tip-Stream | 107 / 99 with all of them; 96 / 87 with the smallest set | Yes, but only in the simulator, and on three placeholders (the row sweep, a perfect lead on a moving shot, stay-in by range alone) |
-| 3, the Belding robot beside a Belding-style partner | R-Two-Tip-With | 109 / 0 | **Two TIPs yes (109 is over 90). Three no, and it cannot:** all four pairings make 0 third TIPs of 120 as at Belding, and still 0 of 120 with every shot staying in, where the earliest second TIP is 19.4 s |
+| **1: solo with a 360° turret and the allowed what-ifs**, partner only leaves its 4 preloads | R-Three-Tip-Stream | 120 / 107 / 99 | **Met** |
+| **2: the smallest set of changes** | R-Three-Tip-Stream: turret, launching while moving, stay in 0.98, feed 0.47 s a shot, 70 in/s | 120 / 96 / 87 | **Met** |
+| **3: the Belding robot, better pathing only, beside a Belding-style partner** | R-Two-Tip-With, partner fires its preloads into the far CELL | 120 / 109 / 0 | **2 TIPs met (109). 3 TIPs cannot be:** 0 of 120 in every pairing, as at Belding and with every shot staying in |
+
+Both "met" rows are the simulator's, on the placeholders listed under "What the simulator rests on".
+
+**The baseline the rungs are measured against, the robot as it ran at Belding:** R-Three-Tip, 117 / 57 /
+0. That is not a drawing waiting to be improved. No drawing can make its third TIP (a bound with no
+driving puts it at 30.4 s; at three times the drive speed with every shot in it is still 120 / 118 /
+0), and its second TIP is 57 of 120 because all 8 LEFT pieces must stay in at 0.92.
 
 ## The budget (step 0)
 
