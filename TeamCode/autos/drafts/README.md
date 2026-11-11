@@ -103,32 +103,40 @@ FLOWER with its 4 POLLEN in a row along its field side, and drives to the LOADIN
 As saved, the stream draft's request runs with Belding's own accuracy and feed; the what-if knobs
 are in the study's "How it was run".
 
-## L-Pair-Flowers and R-Pair-Garden: a three-TIP pair with no moving shots
+## L-Pair-Flowers and R-Pair-Garden: a three-TIP pair on real cards, no turret
 
 From the mentor's review of [`doc/three-tips.md`](../../../doc/three-tips.md) (11 Nov 2026); not run
-on a robot. L waits beside the SCORING FLOWER with a turret, fires its 4 preloads standing still as
-the LEFT CELL comes up and the FLOWER's 4 as they come in, then takes the WALL FLOWER's 4 to the RIGHT
-CELL. R makes the first TIP with its preloads, sweeps the GARDEN, and waits loaded at
-`RIGHT_LAUNCH_OFFSET`. L uses the simulator's `StreamOn`; R uses `SweepRow`.
+on a robot. Only `LaunchAll`, `PickFlower`, `GardenGather` and CELL-up waits, every volley from a stop
+at a team launch spot, so the Visualizer previews it and neither robot needs a turret.
+
+- **L** drives from `LEFT_START` to `LEFT_LAUNCH_OFFSET`, fires its 4 preloads when the LEFT CELL comes
+  up, picks the SCORING FLOWER and fires again, then takes the WALL FLOWER's 4 to the RIGHT CELL from
+  the wall lane.
+- **R** makes the first TIP with its preloads, gathers the GARDEN, and waits loaded at
+  `RIGHT_LAUNCH_OFFSET` for the RIGHT CELL to come back up.
 
 Open the pair:
-<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/l-pair-flowers.pp,drafts/r-pair-garden.pp>
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/l-pair-flowers.pp,drafts/r-pair-garden.pp>.
+In the Match view, set each robot's "Volley time" to 2.2 s (a feed that ends on the fourth ball): the
+HIVE row goes from 2 TIPs to 3.
 
-| In the simulator set to Belding, 120 seeds, TIPs by 30 s, no shot fired while moving | 2 TIPs | 3 TIPs |
+| In the simulator set to Belding, 120 seeds, TIPs by 30 s, both turrets locked | 2 TIPs | 3 TIPs |
 |---|---|---|
-| Feed 0.47 s a shot, 0.98 staying in, 50 in/s | 98 | 88 |
-| The same with Belding's accuracy | 30 | 10 |
-| Infraviolet, feed 0.47 ending on the fourth, 0.98 staying in | 108 | 0 |
+| Feed ending on the fourth ball, 0.98 staying in, 50 in/s, the GARDEN giving 4 (`r-pair-garden-sweep`) | 97 | 85 |
+| The same with the robot's own `GardenGather` as the simulator runs it (takes 2) | 97 | 29 |
+| Belding's whole 3.5 s feed | 97 | 0 |
+| Belding's accuracy | 58 | 28 |
+| Infraviolet, feed ending on the fourth ball, 0.98 staying in | 108 | 0 |
 
-It stands on 0.98 of shots staying in and on 4 pieces out of the GARDEN. Only L needs the turret.
-With those assumptions no two robots touch in 120 runs. Run as saved, with Belding's accuracy and feed
-and none of the what-ifs, L is sometimes so late that it is still on the WALL FLOWER when R drives to
-park, and they touch in 3 runs of 120: the deadlines (L gives up at 23 s, R at 25.5 s) are set for the
-faster robot.
+`r-pair-garden-sweep` is R-Pair-Garden with the simulator's `SweepRow` in place of `GardenGather`: what
+the pair makes when the GARDEN pickup gets all 4. The pair needs the shot counter, the accuracy, and
+that pickup; nothing else.
 
 ## L-Three-Tip: a partner makes the first TIP and we do the rest
 
-The same L opening, then the WALL FLOWER and the GARDEN ourselves, beside
+A what-if drawing on simulator-only cards (`StreamOn`, `SweepRow`), so the Visualizer shows its path
+but not its scoring. A turret robot waits by the SCORING FLOWER, fires 8 as the LEFT CELL comes up,
+then takes the WALL FLOWER and the GARDEN itself, beside
 `partners/partner-r-tip-far-park` (fires its preloads at the RIGHT CELL from the audience start and
 parks at the far end of the LOADING ZONE). The study uses it to say how early a partner's first TIP has
 to come: the RIGHT CELL down by about 7 s, and only with a 0.3 s feed and 70 in/s (99 and 89 of 120).
@@ -137,6 +145,7 @@ to come: the RIGHT CELL down by about 7 s, and only with a 0.3 s feed and 70 in/
 
 ## R-Three-Tip-Still: the solo route with every volley from a stop
 
+A what-if drawing on simulator-only cards, so the Visualizer shows its path but not its scoring.
 R-Three-Tip-Stream's stops with no shot fired while moving (`BIOBUZZ_AUTO_FIRE_STILL=1`): 96 and 84 of
 120 with a turret, 0.98 staying in, a 0.3 s feed and 70 in/s.
 
