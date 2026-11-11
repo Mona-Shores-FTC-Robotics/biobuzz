@@ -25,9 +25,10 @@ package org.firstinspires.ftc.teamcode.logging;
  *   <li><b>Where the HIVE tips</b> ({@link #tipPoint}): Field 1 at about 7.0 POLLEN weights, Field 2 at about
  *       7.95 to 8.0 (PR #519). Odd qualification matches were on Field 1, so odd seeds are Field 1 and even
  *       seeds Field 2. The points are set for launched pieces, which rest nearer the axle than the Guide's
- *       placed ones: {@link #FIELD_1_TIP_POINT}, where seven launched POLLEN tip it about two times in three
- *       (it tipped on seven twice and held seven once), and {@link #FIELD_2_TIP_POINT}, where eight tip it
- *       nearly every time. Field 1's is below the Guide's band, as that field was (it tipped on 6.95).</li>
+ *       placed ones. Field 1 wandered: it tipped on seven POLLEN twice and held seven once, so two odd seeds in
+ *       three use {@link #FIELD_1_TIP_POINT} (seven launched POLLEN tip it, six do not) and the third
+ *       {@link #FIELD_1_HOLDS_SEVEN_POINT} (it takes eight). Both are below the Guide's band, as that field was
+ *       (it tipped on 6.95). Field 2 uses {@link #FIELD_2_TIP_POINT}: eight tip it, seven do not.</li>
  *   <li><b>How long a volley and a pick take</b>: the shot counter undercounted after every FLOWER pick, so
  *       those feeds ran their whole set time (volleys of 3.6 to 4.0 s) where the simulator's ended at the fourth
  *       shot; only the preload volley ends on the count. A pick stays {@link #PICK_DWELL_S} longer.</li>
@@ -52,7 +53,15 @@ final class BeldingCalibration {
     static boolean guardAsAtBelding = "1".equals(System.getenv("BIOBUZZ_AUTO_BELDING_GUARD"));
 
     /** Launch range from the turret axis, inches, and the fraction of launched pieces that stay in the CELL. */
-    static final double[][] STAY_IN = {{36.0, 0.65}, {42.4, 0.92}, {53.9, 0.82}};
+    static final double[][] STAY_IN = {{36.0, env("BIOBUZZ_BELDING_STAY_CLOSE", 0.65)},
+            {42.4, env("BIOBUZZ_BELDING_STAY_CATCH", 0.92)}, {53.9, env("BIOBUZZ_BELDING_STAY_START", 0.82)}};
+
+    /**
+     * What-ifs for "what would the robot need": {@code BIOBUZZ_BELDING_STAY_CLOSE/_CATCH/_START} set a row of
+     * {@link #STAY_IN} (better aim or a tuned speed), {@code BIOBUZZ_BELDING_WHOLE_FEED=0} ends every volley at
+     * its fourth shot (a shot counter that works), and {@code BIOBUZZ_BELDING_PICK_DWELL} sets {@link #PICK_DWELL_S}.
+     */
+    static final boolean WHOLE_FEED = !"0".equals(System.getenv("BIOBUZZ_BELDING_WHOLE_FEED"));
 
     /** Seconds a CELL over its tipping weight sits before the rocker moves: {shortest, longest}. */
     static final double[] DWELL_S = {3.6, 4.2};
@@ -73,7 +82,9 @@ final class BeldingCalibration {
      * Field 1's and Field 2's tip points in the Guide's band, for launched pieces (see the class comment).
      * {@code BIOBUZZ_BELDING_F1} and {@code BIOBUZZ_BELDING_F2} override them, for refitting.
      */
-    static double FIELD_1_TIP_POINT = env("BIOBUZZ_BELDING_F1", -0.3);
+    static double FIELD_1_TIP_POINT = env("BIOBUZZ_BELDING_F1", -0.45);
+    /** Field 1 on the matches it held seven POLLEN: one in three (it tipped on seven twice and held seven once). */
+    static double FIELD_1_HOLDS_SEVEN_POINT = env("BIOBUZZ_BELDING_F1_HOLDS", -0.3);
     static double FIELD_2_TIP_POINT = env("BIOBUZZ_BELDING_F2", 0.5);
 
     private static double env(String name, double otherwise) {
@@ -83,14 +94,15 @@ final class BeldingCalibration {
 
     /** Where this run's HIVEs tip in the Guide's band: Field 1 on odd seeds, Field 2 on even ones. */
     static double tipPoint(long seed) {
-        return seed % 2 != 0 ? FIELD_1_TIP_POINT : FIELD_2_TIP_POINT;
+        if (seed % 2 == 0) return FIELD_2_TIP_POINT;
+        return (seed / 2) % 3 == 0 ? FIELD_1_HOLDS_SEVEN_POINT : FIELD_1_TIP_POINT;
     }
 
     /**
      * Seconds a FLOWER pick stays on the FLOWER even once the lane is full: the logged picks took 3.3 to 3.8 s card
      * to card, the simulator's about 2.9 s.
      */
-    static final double PICK_DWELL_S = 0.7;
+    static final double PICK_DWELL_S = env("BIOBUZZ_BELDING_PICK_DWELL", 0.7);
 
     /** What {@link #apply} replaced, for {@link #restore}. */
     private static double[] dwellBefore;

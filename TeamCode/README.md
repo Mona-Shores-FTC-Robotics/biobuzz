@@ -1172,29 +1172,34 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   - **The dwell before a TIP,** 3.6 to 4.2 s, and no knock from a hit: every AUTO TIP there sat out its dwell,
     where the placeholder knock tipped the CELL 0.7 s after the last ball left.
   - **Where the HIVE tips:** Field 1's point on odd seeds, Field 2's on even ones, both set for launched pieces:
-    seven launched POLLEN tip Field 1 about two times in three, eight tip Field 2 nearly every time.
+    Field 1 wandered, so seven launched POLLEN tip it on two odd seeds in three and eight on the third; eight tip
+    Field 2.
   - **How long a volley and a pick take:** the shot counter undercounted after every FLOWER pick, so those feeds
     run their whole set time; a pick stays 0.7 s longer.
   - `BIOBUZZ_AUTO_BELDING_GUARD=1` also runs the endgame guard as the Belding build did (master at 7ed351f: a
     volley before the park), for replaying the Autos that ran there. Without it the guard is master's.
 
-  With both, 40 seeds each:
+  With both, 60 seeds each:
 
   | | Belding | Simulator, calibrated | Simulator, uncalibrated |
   |---|---|---|---|
-  | R-Solo: first TIP from the preloads | 7 of 9 | 37 of 40 | 20 of 20 |
+  | R-Solo: first TIP from the preloads | 7 of 9 | 57 of 60 | 20 of 20 |
   | R-Solo: when that TIP comes | about 7.5 s (Q-4) | 7.2 s | 4.3 s |
-  | R-Solo: second TIP | 0 of 7 | 1 of 40 | 20 of 20 |
-  | L-NoCross beside a right preload shooter: second TIP | 3 of 5 | 20 of 40 | 20 of 20 |
-  | Partner's last shot to our CellUp | 4.0 to 4.4 s (M-3, M-4) | 3.9 to 4.5 s, median 4.0 | 0.7 s |
+  | R-Solo: second TIP | 0 of 7 | 6 of 60 | 20 of 20 |
+  | L-NoCross beside a right preload shooter: second TIP | 3 of 5 | 33 of 60 | 20 of 20 |
+  | Partner's last shot to our CellUp | 4.0 to 4.4 s (M-3, M-4) | 3.9 to 4.5 s, median 4.1 | 0.7 s |
   | R-Solo: arrives LEFT, second volley ends, third volley, park starts | 13.0, 16.9, 23.1 to 26.8, 26.8 s (medians) | 13.0, 16.7, 22.7 to 26.4, 26.4 s | 12.0, 14.8, 21.0 to 23.8 s |
 
   ```bash
   BIOBUZZ_AUTO_CALIBRATION=belding BIOBUZZ_AUTO_BELDING_GUARD=1 \
     BIOBUZZ_AUTO_STUDY="RSoloAuto@50;LNoCrossAuto,PartnerRLaunchParkAuto@50" \
-    BIOBUZZ_AUTO_DESIGNS="real robot, turret locked forward" BIOBUZZ_AUTO_RUNS=40 \
+    BIOBUZZ_AUTO_DESIGNS="real robot, turret locked forward" BIOBUZZ_AUTO_RUNS=60 \
     ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
   ```
+  **What-ifs** for "what would the robot need": `BIOBUZZ_BELDING_STAY_CATCH` / `_START` / `_CLOSE` set a launch
+  spot's share that stays in, `BIOBUZZ_BELDING_WHOLE_FEED=0` ends every volley at its fourth shot (a shot counter
+  that works), `BIOBUZZ_BELDING_PICK_DWELL` the pick's extra time. `TeamCode/autos/drafts/README.md` has the table
+  for one robot.
   **What it shows about master today:** with Belding-length volleys, master's guard (the park must fit after a
   volley) parks R-Solo after its second volley in every run, 0.4 s short of going for the third.
   **Not calibrated:** drive times beyond what the simulator's own drive gives, the two SCORING FLOWER picks that

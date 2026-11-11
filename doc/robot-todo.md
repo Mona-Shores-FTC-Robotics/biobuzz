@@ -473,8 +473,9 @@ Use the work order above to select checks; the detailed mechanism checks below a
       [Why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-two-tip-r-solos-steps-fired-from-the-measured-left-spot).
       Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s).
       - Five runs alone, filmed from the side, partner off `LEFT_START`. Count the pieces that
-        stay in the LEFT CELL from each LEFT volley, and the TIPs. **Good:** 7 or 8 of 8 stay in
-        on most runs. This is also the count the Belding review asked for on R-Solo.
+        stay in the LEFT CELL from each LEFT volley, and the TIPs. **Good:** 8 of 8 stay in on
+        most runs (the simulator's 34 of 60 assumes 0.92 a shot; 0.96 gives 45 of 60). This is
+        also the count the Belding review asked for on R-Solo.
       - **The second volley has to end by 16.3 s**, or master's guard parks without the third
         (the calibrated simulator: 15.8 s). Read the card times from each run's log
         (`read_logs.py summary`). **Stop:** it ends after 16 s on most runs → the drawing needs
@@ -482,22 +483,6 @@ Use the work order above to select checks; the detailed mechanism checks below a
         numbers (`LAUNCH_ALL_TYPICAL_S`, `PICK_FLOWER_TYPICAL_S`) need measuring again.
       - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
         piece leaves the robot and the camera sights the LEFT CELL before the stop.
-      - With our other robot on **Autonomous → L-Infraviolet**: dry-run both parks first (ours
-        bends south into `RIGHT_PARK`; L is on `LEFT_PARK` by about 23 s), then the full run.
-        Count the pieces in the LEFT CELL and when the second TIP comes (the calibrated simulator: about 20 to 24 s).
-      [mentor session, 10 Nov]
-
-- [ ] **R-Two-Tip-Pair draft (`autos/drafts/r-two-tip-pair.pp`) beside L-NoCross.**
-      [The plan and the simulator runs](../TeamCode/autos/drafts/README.md#r-two-tip-pair-the-right-half-beside-l-nocross).
-      Right robot: Utility **Drive: R-Two-Tip-Pair**. Left robot: **Autonomous → L-NoCross**, with
-      "partner's last shot" set to 5 s in INIT.
-      - First, alone: hold a volley from `LEFT_LAUNCH_WEST` (24, 122, facing 314°) and count what
-        stays in the LEFT CELL. **Good:** 3 or 4 of 4. **Stop:** 2 or fewer → trim the speed there
-        and add the row, or move the spot along the wall lane.
-      - Dry-run both robots without pieces: 4 in between them while L-NoCross is at the SCORING
-        FLOWER and we are on the spot (12 to 16 s).
-      - Then five full runs, filmed. Count the pieces in the LEFT CELL after each of the three
-        volleys and when the second TIP comes (the calibrated simulator: about 20 s).
       [mentor session, 10 Nov]
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)

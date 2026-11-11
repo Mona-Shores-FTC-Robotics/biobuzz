@@ -2156,7 +2156,7 @@ public final class AutoSim {
         private Command launch(int count) {
             return new CommandBuilder()
                     .setStart(() -> {
-                        boolean wholeFeed = BeldingCalibration.on && count == Integer.MAX_VALUE && launchAllsStarted++ > 0;
+                        boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.WHOLE_FEED && count == Integer.MAX_VALUE && launchAllsStarted++ > 0;
                         spinUp();
                         fireStepBegins();
                         firing = true;
