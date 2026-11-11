@@ -257,9 +257,13 @@ directions, port checks — stops and adds its checks to `doc/robot-todo.md` (th
 waits on the robot, in the group with the same setup, linking its PR or issue) instead of a guess,
 never a new session doc.
 Match logs reach a session on GitHub: `tools/pull-logs` sends them to throwaway
-`logs/<date>-<robot network>` branches. "Pull logs" means fetch
-`'refs/heads/logs/*:refs/remotes/origin/logs/*'` and read them with
+`logs/<date>-<robot network>` branches, and an event's match logs live on
+`events/<date>-<event>` branches (`events/2026-11-belding`: `<team>/matches/*.wpilog.gz`).
+"Pull logs" means fetch `'refs/heads/logs/*:refs/remotes/origin/logs/*'` and
+`'refs/heads/events/*:refs/remotes/origin/events/*'` and read them with
 `tools/pull-logs/read_logs.py`; never ask the mentor to move log files by hand.
+Reviewing a match (its log, its video, or one checked against the other) follows the
+`match-review` skill.
 Remote containers have no `gh`; use the GitHub MCP tools.
 
 ## Process
