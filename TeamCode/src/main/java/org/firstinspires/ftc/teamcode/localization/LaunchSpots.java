@@ -8,138 +8,131 @@ import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 /**
- * The eight spots the TeleOp's "go to launch spot" button may drive to, and which one
- * ({@link #choose}): always the one nearest the robot when the button is pressed. Never one chosen
- * from what the camera believes about the HIVE: the field gets crowded, and the driver stays near
- * where they are (mentor, 4 Nov 2026).
+ * The twelve spots the TeleOp's two "go to launch spot" buttons drive to, and which one
+ * ({@link #choose}): the spot of the asked {@link Row} that is in line with the robot.
  *
- * <p>Each is a team spot ({@code TeamCode/autos/spots.json}, drawn for red), turned half a turn
- * about the field centre for blue:
+ * <p>Two rows on each half of our HIVE, drawn for red and turned half a turn about the field centre
+ * for blue:
  * <ul>
- *   <li>The two starts, {@code RIGHT_START} and {@code LEFT_START}, which are also our preload
- *       launch spots: read from {@link StartPositions}, where they are measured. A start is on the
- *       wall, back against it, so the button stops {@code offWallIn} out from it along the start's
- *       facing, and turns to face the raised row of that half's CELL ({@link HiveFieldPoints}).</li>
- *   <li>The four launch spots the Autos fire from, a CATCH in front of each of our CELLs and an
- *       OFFSET off to its side ({@code TeamCode/autos/README.md}), at the heading the Autos launch
- *       at; and a CORNER for each CELL, the long shot (about 55 in) from the corner of our wall. No generated robot-side copy of these exists, so their numbers are here, and
- *       {@code TeamSpotsTest} fails while one differs from its team spot: move a spot in the
- *       Visualizer (Save team spots), then here.</li>
+ *   <li>{@link Row#WALL} (the driver's Square): three spots along the side wall, each touching it.
+ *       At Belding (7 Nov 2026) the open-floor spots were hit from the flank as the gate opened; a
+ *       wall behind the robot stops a push from the front.</li>
+ *   <li>{@link Row#CLOSE} (the driver's Triangle): three spots in front of them, about 36 in from the
+ *       CELL, on open floor. The side two overlap the middle one, so they are alternatives.</li>
  * </ul>
+ * and three {@link Column}s in each row: {@link Column#HIVE} straight in front of the CELL,
+ * {@link Column#NEAR} on our side of it, {@link Column#FAR} past it (a few inches past the centre
+ * line; fair in TELEOP).
  *
- * <p>Each CELL is scored only from its own half, and every spot is on its CELL's half: RIGHT_ spots
- * are below the axle line for red (our RIGHT CELL), LEFT_ above, so after the half turn a RIGHT_
- * spot still serves blue's RIGHT CELL.
+ * <p><b>Which one.</b> The half of the field the robot is in picks LEFT or RIGHT, and the robot's
+ * place along the wall picks the column: whichever of that half's three WALL spots is nearest along
+ * the wall. The row is the button's. So the driver's rule is "Square for the wall, Triangle for
+ * close, the one in front of where I am", and sliding along the wall before the press picks
+ * another. It replaced "the nearest of the spots" (mentor, 11 Nov 2026): with twelve spots that
+ * sent half of Belding's presses to open floor by a few inches' difference. Never a spot chosen
+ * from what the camera believes about the HIVE (mentor, 4 Nov 2026).
+ *
+ * <p><b>Placed for the turret, locked forward</b> ({@code TurretSubsystem}: 3.33 in behind the
+ * centre, 1.87 in right of it). A HIVE-column spot is squared to the wall with the turret's axis in
+ * line with the CELL's raised row, so the WALL one has its whole back on the wall. The others turn
+ * to point the turret's axis at the row ({@link #aimTurret}) and, in the WALL row, touch the wall
+ * with one corner of the frame. LEFT and RIGHT are not mirror images: the turret is not on the
+ * centre line, and LEFT_WALL_NEAR sits against the far side of the SCORING FLOWER.
+ *
+ * <p>These are not team spots: no Auto launches from them, so they are written only here and
+ * {@code TeamCode/autos/spots.json} does not list them. {@code LaunchSpotsTest} checks that each
+ * WALL spot touches its wall without crossing it and that no two spots that may be used together
+ * overlap.
  */
 public final class LaunchSpots {
 
     private LaunchSpots() {
     }
 
+    /** Which button: the row along the side wall, or the one in front of it. */
+    public enum Row { WALL, CLOSE }
+
+    /** Where along the wall: on our side of the HIVE, straight in front of the CELL, or past it. */
+    public enum Column { NEAR, HIVE, FAR }
+
+    /** The frame is square: from its centre to its back, front and either side (measured, {@link ResetPositions}). */
+    static final double FRAME_HALF_IN = ResetPositions.WALL_TO_CENTRE_IN;
+
     /**
-     * A spot, drawn for red.
+     * A spot, drawn for red: x, y and the heading that aims the turret from there (degrees).
      *
-     * <p><b>Adding one</b> is one constant here, once it is a team spot in {@code spots.json} (made
-     * in the Visualizer): its x, y and launch heading as drawn, and {@code TeamSpotsTest} checks it
-     * against the file. Its half, so its CELL, follows from its y, and {@link #choose} takes it
-     * whenever it is the nearest.
+     * <p><b>Moving one:</b> change its numbers here; {@code LaunchSpotsTest} fails a WALL spot that
+     * no longer touches its wall and two neighbours that overlap. A HIVE-column spot keeps its drawn
+     * heading (squared to the wall); the others are re-aimed from their place with the turret's
+     * offsets as the robot has them, so their drawn heading is only what that comes to today.
      */
     public enum Spot {
-        RIGHT_START(StartPositions.RED_AUDIENCE),
-        RIGHT_LAUNCH_CATCH(57.5, 18, 91.9),
-        RIGHT_LAUNCH_OFFSET(41, 20, 68.7),
-        /**
-         * The long shot, about 55 in (the speed table's 1635 row): where 20245 fired about 50 shots
-         * on 4 Nov 2026, read from that evening's match log.
-         */
-        RIGHT_LAUNCH_CORNER(30.2, 10.7, 54, true),
-        LEFT_START(StartPositions.RED_FAR),
-        LEFT_LAUNCH_CATCH(57.5, 123.5, 273.4),
-        LEFT_LAUNCH_OFFSET(41, 121.5, 296.4),
-        /**
-         * RIGHT_LAUNCH_CORNER's place mirrored across the HIVE's axle line (y 70.75), at the same
-         * range from the LEFT CELL. Its heading is not the mirror (306°): the turret sits 1.87 in
-         * right of the tracked point, so the robot is not left-right symmetric, and 302.6° is the
-         * heading that points the turret axis at the LEFT CELL's raised row, as the other LEFT
-         * spots were drawn. Not yet fired from on a robot; next to PARTNER_STAGED_POLLEN.
-         */
-        LEFT_LAUNCH_CORNER(30.2, 130.8, 302.6, true);
+        RIGHT_WALL_NEAR(Row.WALL, Column.NEAR, 36.4, 10.6, 67.4),
+        RIGHT_WALL_HIVE(Row.WALL, Column.HIVE, 56.1, 8.1, 90.0),
+        RIGHT_WALL_FAR(Row.WALL, Column.FAR, 75.8, 10.6, 112.8),
+        RIGHT_CLOSE_NEAR(Row.CLOSE, Column.NEAR, 45.2, 27.9, 70.0),
+        RIGHT_CLOSE_HIVE(Row.CLOSE, Column.HIVE, 56.1, 25.3, 90.0),
+        RIGHT_CLOSE_FAR(Row.CLOSE, Column.FAR, 66.9, 27.6, 110.0),
+        /** Its corner is against the SCORING FLOWER's far side, the FLOWER between it and LEFT_WALL_HIVE. */
+        LEFT_WALL_NEAR(Row.WALL, Column.NEAR, 37.8, 130.7, 295.5),
+        /** Back on the wall, the SCORING FLOWER about 2 in from its side. */
+        LEFT_WALL_HIVE(Row.WALL, Column.HIVE, 59.9, 133.4, 270.0),
+        LEFT_WALL_FAR(Row.WALL, Column.FAR, 79.5, 130.9, 247.5),
+        LEFT_CLOSE_NEAR(Row.CLOSE, Column.NEAR, 49.1, 113.9, 290.0),
+        LEFT_CLOSE_HIVE(Row.CLOSE, Column.HIVE, 59.9, 116.2, 270.0),
+        LEFT_CLOSE_FAR(Row.CLOSE, Column.FAR, 70.8, 113.6, 250.0);
 
-        /** As drawn, for red: the team spot itself (for a start, on the wall). */
+        public final Row row;
+        public final Column column;
+        /** As drawn, for red. */
         public final Pose red;
-        /** A start on the wall: driven to {@code offWallIn} out from it, aimed at the CELL. */
-        public final boolean onWall;
         /** Serves our LEFT CELL (else the RIGHT one): which half of the axle line it is on. */
         public final boolean left;
-        /**
-         * The button faces its CELL from here with the turret ({@link #aimTurret}) rather than at the
-         * drawn heading: the CORNER long shots, which no Auto uses. RIGHT_LAUNCH_CORNER's drawn 54°
-         * was read off where 20245 stood on 4 Nov, and it left the locked turret 6.9° off the CELL
-         * (about 7 in at 58 in); mentor, 7 Nov 2026: aim it, without moving the team spot.
-         */
+        /** Turned to point the turret's axis at its CELL from where it is drawn; a HIVE-column spot is not. */
         public final boolean aimed;
 
-        Spot(double x, double y, double headingDeg) {
-            this(new Pose(x, y, Math.toRadians(headingDeg)), false, false);
+        Spot(Row row, Column column, double x, double y, double headingDeg) {
+            this.row = row;
+            this.column = column;
+            this.red = new Pose(x, y, Math.toRadians(headingDeg));
+            this.left = leftHalf(Alliance.RED, y);
+            this.aimed = column != Column.HIVE;
         }
 
-        Spot(double x, double y, double headingDeg, boolean aimed) {
-            this(new Pose(x, y, Math.toRadians(headingDeg)), false, aimed);
-        }
-
-        Spot(StartPosition start) {
-            this(start.pose, true, true);
-        }
-
-        Spot(Pose red, boolean onWall, boolean aimed) {
-            this.red = red;
-            this.onWall = onWall;
-            this.aimed = aimed;
-            this.left = leftHalf(Alliance.RED, red.y());
-        }
-
-        /**
-         * Where the button drives for {@code alliance}: the spot, or for a start {@code offWallIn}
-         * out from it facing the raised row of its half's CELL; worked out for red and turned half a
-         * turn about the field centre for blue. A NaN or negative {@code offWallIn} is 0. A start
-         * faces the row with the robot's centre; {@link #target(Alliance, double, double, double)}
-         * faces it with the turret's axis.
-         */
-        public Pose target(Alliance alliance, double offWallIn) {
-            return target(alliance, offWallIn, 0.0, 0.0);
-        }
-
-        /**
-         * As {@link #target(Alliance, double)}, a start's heading pointing the turret's axis, not the
-         * robot's centre, at its CELL's raised row ({@link #aimTurret}): the turret sits
-         * {@code turretForwardIn} ahead of the centre and {@code turretLeftIn} to its left
-         * ({@code TurretSubsystem}: 3.33 in behind, 1.87 in right), locked straight ahead. The CORNER
-         * spots ({@link #aimed}) are aimed the same way, from their drawn place; the other spots are
-         * the Autos' launch headings, drawn for the turret already. Mentor, 7 Nov 2026: the
-         * centre-aimed starts left the turret about 2° off the CELL.
-         */
-        public Pose target(Alliance alliance, double offWallIn, double turretForwardIn, double turretLeftIn) {
-            Pose p = red;
-            if (aimed && !onWall) {
-                Vec3 row = cellRow(Alliance.RED);
-                if (row != null) {
-                    p = new Pose(red.x(), red.y(), aimTurret(red.x(), red.y(), row.x(), row.y(), turretForwardIn, turretLeftIn));
-                }
-            } else if (onWall) {
-                double out = offWallIn > 0.0 ? offWallIn : 0.0;
-                double x = red.x() + out * Math.cos(red.heading());
-                double y = red.y() + out * Math.sin(red.heading());
-                HiveCell cell = left ? HiveCell.leftCell(Alliance.RED) : HiveCell.rightCell(Alliance.RED);
-                Vec3 row = HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
-                double heading = row == null ? red.heading()
-                        : aimTurret(x, y, row.x(), row.y(), turretForwardIn, turretLeftIn);
-                p = new Pose(x, y, heading);
+        /** The spot of {@code row} and {@code column} on the LEFT half ({@code left}) or the RIGHT. */
+        static Spot of(boolean left, Row row, Column column) {
+            for (Spot spot : values()) {
+                if (spot.left == left && spot.row == row && spot.column == column) return spot;
             }
+            throw new IllegalStateException("no " + (left ? "LEFT " : "RIGHT ") + row + " " + column + " spot");
+        }
+
+        /** As {@link #target(Alliance, double, double, double)} with the turret on the robot's centre. */
+        public Pose target(Alliance alliance, double wallGapIn) {
+            return target(alliance, wallGapIn, 0.0, 0.0);
+        }
+
+        /**
+         * Where the button drives for {@code alliance}: worked out for red and turned half a turn
+         * about the field centre for blue. A WALL spot is drawn touching its wall and is driven to
+         * {@code wallGapIn} out from it (NaN or negative: 0, touching). Every spot but a HIVE-column
+         * one then faces its CELL's raised row with the turret's axis ({@link #aimTurret}): the
+         * turret sits {@code turretForwardIn} ahead of the centre and {@code turretLeftIn} to its
+         * left, locked straight ahead.
+         */
+        public Pose target(Alliance alliance, double wallGapIn, double turretForwardIn, double turretLeftIn) {
+            double gap = row == Row.WALL && wallGapIn > 0.0 ? wallGapIn : 0.0;
+            double x = red.x();
+            double y = red.y() + (left ? -gap : gap); // the LEFT wall is the high-y one
+            double heading = red.heading();
+            Vec3 cell = cellRow(Alliance.RED);
+            if (aimed && cell != null) {
+                heading = aimTurret(x, y, cell.x(), cell.y(), turretForwardIn, turretLeftIn);
+            }
+            Pose p = new Pose(x, y, heading);
             return alliance == Alliance.BLUE ? turned(p) : p;
         }
 
@@ -184,11 +177,11 @@ public final class LaunchSpots {
             return refusal != null;
         }
 
-        /** "RIGHT_LAUNCH_CATCH (nearest, 23 in)", or the refusal. */
+        /** "RIGHT_WALL_HIVE (in line, 23 in)", or the refusal. */
         @Override
         public String toString() {
             return refused() ? "refused: " + refusal
-                    : String.format(Locale.US, "%s (nearest, %.0f in)", spot, distanceIn);
+                    : String.format(Locale.US, "%s (in line, %.0f in)", spot, distanceIn);
         }
     }
 
@@ -196,20 +189,20 @@ public final class LaunchSpots {
      * Which spot to drive to; a pure function of what the robot knows. Refused without a pose, with
      * a pose that is not referenced (field coordinates would mean nothing), with no alliance, or with
      * the robot's centre {@code pastCentreIn} or more past the centre line, on the other alliance's
-     * side. Every spot is on our side, so a drive from within that reach only comes home across the
-     * line, never out across it. Otherwise the spot whose {@link Spot#target} is nearest the robot.
+     * side. Otherwise the spot of {@code row} on the robot's half of the field, in the
+     * {@link #columnFor column} the robot is in line with.
      *
      * <p>{@code pastCentreIn} 0 (or NaN, or negative) asks for the robot strictly on our side. It was
      * that until 6 Nov 2026: that day's practice refused the press 10 times with the robot 3 to 4 in
      * past the line (19429 and 20245 match logs), where the drivers pick up and wanted it to work.
      */
-    public static Choice choose(Pose pose, boolean referenced, Alliance alliance, double offWallIn,
+    public static Choice choose(Pose pose, boolean referenced, Alliance alliance, Row row, double wallGapIn,
                                 double pastCentreIn) {
-        return choose(pose, referenced, alliance, offWallIn, pastCentreIn, 0.0, 0.0);
+        return choose(pose, referenced, alliance, row, wallGapIn, pastCentreIn, 0.0, 0.0);
     }
 
-    /** {@link #choose}, with each start's heading aiming the turret ({@link Spot#target(Alliance, double, double, double)}). */
-    public static Choice choose(Pose pose, boolean referenced, Alliance alliance, double offWallIn,
+    /** {@link #choose}, with each turned spot's heading aiming the turret ({@link Spot#target(Alliance, double, double, double)}). */
+    public static Choice choose(Pose pose, boolean referenced, Alliance alliance, Row row, double wallGapIn,
                                 double pastCentreIn, double turretForwardIn, double turretLeftIn) {
         if (pose == null) return Choice.refuse("no pose (no Pinpoint)");
         if (!referenced) return Choice.refuse("pose not on the field yet (corner reset or camera reset first)");
@@ -219,19 +212,31 @@ public final class LaunchSpots {
                     "robot %.0f in past the centre line, more than the %.0f in it may drive back from",
                     pastLineIn(alliance, pose.x()), reach(pastCentreIn)));
         }
-        Spot best = null;
-        Pose bestTarget = null;
-        double bestIn = Double.POSITIVE_INFINITY;
-        for (Spot spot : Spot.values()) {
-            Pose t = spot.target(alliance, offWallIn, turretForwardIn, turretLeftIn);
-            double d = Math.hypot(t.x() - pose.x(), t.y() - pose.y());
+        boolean left = leftHalf(alliance, pose.y());
+        // The spots are drawn for red: read the robot's place along the wall in red's frame.
+        double xAsRed = alliance == Alliance.BLUE ? 2 * FieldFrame.FIELD_CENTRE_INCHES - pose.x() : pose.x();
+        Spot spot = Spot.of(left, row == null ? Row.WALL : row, columnFor(left, xAsRed));
+        Pose target = spot.target(alliance, wallGapIn, turretForwardIn, turretLeftIn);
+        return new Choice(spot, target, Math.hypot(target.x() - pose.x(), target.y() - pose.y()), null);
+    }
+
+    /**
+     * The column a robot at {@code xAsRed} (its x in red's frame) is in line with, on the LEFT half
+     * ({@code left}) or the RIGHT: that of the half's WALL spot nearest it along the wall. Both rows
+     * use the WALL row's columns, so Square and Triangle pressed from one place go to the wall spot
+     * and the close spot of the same column. Level between two, the one nearer the HIVE's front.
+     */
+    static Column columnFor(boolean left, double xAsRed) {
+        Column best = Column.HIVE;
+        double bestIn = Math.abs(Spot.of(left, Row.WALL, Column.HIVE).red.x() - xAsRed);
+        for (Column column : new Column[] {Column.NEAR, Column.FAR}) {
+            double d = Math.abs(Spot.of(left, Row.WALL, column).red.x() - xAsRed);
             if (d < bestIn) {
-                best = spot;
-                bestTarget = t;
+                best = column;
                 bestIn = d;
             }
         }
-        return new Choice(best, bestTarget, bestIn, null);
+        return best;
     }
 
     /**
@@ -287,14 +292,5 @@ public final class LaunchSpots {
     static Pose turned(Pose p) {
         double c = FieldFrame.FIELD_CENTRE_INCHES;
         return new Pose(2 * c - p.x(), 2 * c - p.y(), p.heading() + Math.PI);
-    }
-
-    /** The spots whose numbers are written here (not read from a start), for {@code TeamSpotsTest}. */
-    static Spot[] writtenHere() {
-        List<Spot> spots = new ArrayList<>();
-        for (Spot spot : Spot.values()) {
-            if (!spot.onWall) spots.add(spot);
-        }
-        return spots.toArray(new Spot[0]);
     }
 }

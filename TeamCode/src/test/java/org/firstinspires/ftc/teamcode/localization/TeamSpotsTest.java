@@ -59,30 +59,6 @@ public class TeamSpotsTest {
         }
     }
 
-    /**
-     * The TeleOp's launch spots written in {@link LaunchSpots} are the team spots of the same names,
-     * at the same pose: the button drives where the Autos launch from. Its two starts are read from
-     * {@link StartPositions}, checked above.
-     */
-    @Test
-    public void everyLaunchSpotIsItsTeamSpot() {
-        Map<String, double[]> spots = spots();
-        for (LaunchSpots.Spot launch : LaunchSpots.writtenHere()) {
-            String name = launch.name();
-            double[] spot = spots.get(name);
-            if (spot == null) {
-                fail("LaunchSpots has " + name + " but spots.json has no such team spot");
-            }
-            assertFalse(name + " in spots.json has no heading; a launch spot needs one", Double.isNaN(spot[2]));
-            String where = name + " in spots.json is (" + spot[0] + ", " + spot[1] + ", " + spot[2]
-                    + " deg) but LaunchSpots says (" + launch.red.x() + ", " + launch.red.y() + ", "
-                    + Math.toDegrees(launch.red.heading()) + " deg): copy the spot into LaunchSpots";
-            assertEquals(where, spot[0], launch.red.x(), 0.01);
-            assertEquals(where, spot[1], launch.red.y(), 0.01);
-            assertEquals(where, 0, Math.IEEEremainder(Math.toDegrees(launch.red.heading()) - spot[2], 360), 0.01);
-        }
-    }
-
     @Test
     public void aSpotThatIsNotAMeasuredStartIsNotOne() {
         assertNull(StartPositions.forTeamSpot("WALL_FLOWER_STAGING"));

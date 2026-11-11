@@ -115,6 +115,15 @@ public final class TeleOpConfig {
     public static boolean launchSpot = true;
 
     /**
+     * The close row's button (Triangle: the launch spot about 36 in from the CELL, in front of the
+     * wall one). Off until a launcher speed is measured there: {@code LaunchSpeedTable}'s rows start
+     * at 42.4 in and its trend stops at 37.4, so a close volley fires at the held end speed, too
+     * fast (mentor, 11 Nov 2026; {@code doc/robot-todo.md}). Off leaves it out of the layout, the
+     * Controls page and the button's reading; {@link #launchSpot} off takes it out too. Read at INIT.
+     */
+    public static boolean launchSpotClose = ControlScheme.LAUNCH_SPOT_CLOSE_DEFAULT;
+
+    /**
      * The go-to-launch-spot button also launches: the launcher spins up as the drive starts, and
      * once the robot is at the spot, aimed and settled, it feeds while the button is held, as the
      * operator's FIRE does ({@link SpotVolley}). On for testing in Basic Drive (mentor, 4 Nov 2026): a testing

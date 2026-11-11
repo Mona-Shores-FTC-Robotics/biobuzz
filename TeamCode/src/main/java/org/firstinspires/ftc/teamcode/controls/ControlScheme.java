@@ -55,21 +55,39 @@ public final class ControlScheme {
      * match TeleOp and the cheat sheet use, so a locked turret's buttons are not offered.
      */
     public static Map<Action, Input> layout(Input flowerPick, boolean turretLocked) {
-        return layout(flowerPick, turretLocked, true);
+        return layout(flowerPick, turretLocked, true, LAUNCH_SPOT_CLOSE_DEFAULT);
     }
 
     /**
+     * Whether the close row's launch-spot button is bound unless a switch says otherwise: the cheat
+     * sheet's layout and {@code TeleOpConfig.launchSpotClose}'s starting value, so the printed sheet
+     * and the TeleOp agree. Off until a launcher speed is measured at the close spots' range.
+     */
+    public static final boolean LAUNCH_SPOT_CLOSE_DEFAULT = false;
+
+    /**
      * As {@link #layout(Input, boolean)}, also leaving out the go-to-launch-spot button unless
-     * {@code launchSpot} ({@code TeleOpConfig.launchSpot}, on while the drivers try it): the
-     * match TeleOp's layout.
+     * {@code launchSpot} ({@code TeleOpConfig.launchSpot}, on while the drivers try it); the close
+     * row's button is as {@link #LAUNCH_SPOT_CLOSE_DEFAULT} says, and goes with it.
      */
     public static Map<Action, Input> layout(Input flowerPick, boolean turretLocked, boolean launchSpot) {
+        return layout(flowerPick, turretLocked, launchSpot, LAUNCH_SPOT_CLOSE_DEFAULT);
+    }
+
+    /**
+     * As {@link #layout(Input, boolean, boolean)}, the close row's button ({@link Action#LAUNCH_SPOT_CLOSE})
+     * left out unless {@code launchSpotClose} too ({@code TeleOpConfig.launchSpotClose}): the match
+     * TeleOp's layout.
+     */
+    public static Map<Action, Input> layout(Input flowerPick, boolean turretLocked, boolean launchSpot,
+                                            boolean launchSpotClose) {
         Map<Action, Input> map = layout(flowerPick);
         if (turretLocked) {
             for (Action action : TURRET_ACTIONS) map.remove(action);
             map.put(Action.LAUNCHER_TRIM_RESET, Input.DPAD_DOWN);
         }
         if (!launchSpot) map.remove(Action.LAUNCH_SPOT);
+        if (!launchSpot || !launchSpotClose) map.remove(Action.LAUNCH_SPOT_CLOSE);
         return map;
     }
 
@@ -89,9 +107,14 @@ public final class ControlScheme {
         map.put(Action.SLOW, Input.L1);
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
-        map.put(Action.GARDEN_GATHER, Input.TRIANGLE);
-        // Experimental, to try against chassis aim (Circle); TeleOpConfig.launchSpot unbinds it.
+        // Never pressed in a Belding match (7 Nov 2026), so it gave Triangle to the close launch
+        // spots and took the one free bumper (mentor, 11 Nov 2026).
+        map.put(Action.GARDEN_GATHER, Input.R1);
+        // Experimental, to try against chassis aim (Circle); TeleOpConfig.launchSpot unbinds both,
+        // TeleOpConfig.launchSpotClose the close row's alone. Square: the spot on the side wall in
+        // line with the robot; Triangle: the close one in front of it (LaunchSpots).
         map.put(Action.LAUNCH_SPOT, Input.SQUARE);
+        map.put(Action.LAUNCH_SPOT_CLOSE, Input.TRIANGLE);
         // Pose and heading fixes are occasional, so they sit on the D-pad and leave the face
         // buttons for play.
         map.put(Action.RESET_HEADING, Input.DPAD_UP);

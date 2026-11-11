@@ -28,7 +28,8 @@ import com.bylazar.configurables.annotations.Configurable;
  *
  * <h2>Filling it in</h2>
  *
- * <p>With {@link #enabled} off, in Basic Drive: Square drives to the nearest launch spot and fires;
+ * <p>With {@link #enabled} off, in Basic Drive: Square drives to the launch spot in line with the
+ * robot and fires (the rows below were measured at the spots it drove to until 11 Nov 2026);
  * the operator trims the speed up or down and Square fires again, until it scores. The Match page's
  * "Last launch spot" line then shows the spot's range and the speed to write down. One row per
  * spot, measured on the right side; the left spots are the same distances on the other side:
