@@ -969,7 +969,7 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
 Square now drives to one of six spots on the side walls and Triangle to one of six close spots in
 front of them (`localization/LaunchSpots`: LEFT or RIGHT by the half the robot is in, NEAR / HIVE /
 FAR by where it is along the wall). Gather GARDEN moved from Triangle to the driver's R1. Turret
-locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts).
+locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536]
 
 - [ ] **Each wall spot, on red then blue:** pose set, loaded, hold Square from about 2 ft out in
       front of each of the six (`RIGHT_WALL_NEAR`, `_HIVE`, `_FAR`, and the LEFT three). **Good:**
@@ -1162,6 +1162,7 @@ one test at one meeting.
 [PR #391]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/391
 [PR #422]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/422
 [PR #423]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/423
+[PR #536]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/536
 [PR #425]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/425
 [PR #427]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/427
 [PR #430]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/430
