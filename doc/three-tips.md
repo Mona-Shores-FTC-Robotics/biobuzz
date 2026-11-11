@@ -139,14 +139,22 @@ comes up, and by keeping the second robot loaded and waiting at the RIGHT CELL:
 | 14.0 to 15.5 s | Volley 3: the FLOWER's 4 at the LEFT CELL | |
 | 15.5 to 22.9 s | **TIP 2 dwell:** wall lane to the WALL FLOWER, picks 4, moves to the lane spot (26, 40) | |
 | 21.2 s | | **TIP 2.** Volley 4: the GARDEN's 4 at the RIGHT CELL (to 22.7 s) |
-| 22.9 to 24.6 s | Volley 5: the WALL FLOWER's 4 at the RIGHT CELL | waits for L to clear the lane |
-| 24.6 s on | Parks at `LEFT_PARK` by 27.8 s | Leaves at 25.5 s, parks at `RIGHT_PARK` |
+| 22.7 s on | | Leaves under the HIVE, east of the lane, to (60, 104), then parks at `LEFT_PARK`, the far end |
+| 22.9 to 24.6 s | Volley 5: the WALL FLOWER's 4 at the RIGHT CELL | |
+| 24.6 s on | Drives up the lane and parks at `RIGHT_PARK`, the near end | |
 | 29.7 s | **TIP 3** (27.8 s on average) | |
 
-Those are one run's times; the averages are in the table below. No two robots touch and neither
-touches the field in any of the 120 runs, and both park every time. If the LEFT CELL is not up by
-13 s L parks; if the RIGHT CELL is not back up, L gives up at 23.5 s and R at 25.5 s, in that order,
-so they do not meet in the lane.
+Those are one run's times; the averages are in the table below. If the LEFT CELL is not up by 13 s L
+parks; if the RIGHT CELL is not back up, L gives up at 23.5 s and R at 25 s.
+
+**The two never share a road.** The first version of this pair had R wait for L and then follow it up
+the wall lane, each to the park end on its own side. That only worked at the fast pace: at Belding's
+volley time (the Visualizer's default) L runs about 3 s later, and the robots touched in 66 of 120
+runs, as the mentor saw in the Visualizer. Now the lane and the near park end (`RIGHT_PARK`) are L's
+alone, from every spot it can give up at, and R leaves the other way, under the HIVE, to the far end
+(`LEFT_PARK`). Robots touching, of 120 runs: **0 at Belding's pace and 0 with the shot counter**, for
+both R drawings. At Belding's pace one robot is still short of its park at 30 s in 8 or 9 runs of
+120; with the shot counter both park every time.
 
 **In the Visualizer** the pair previews as it runs here: with each robot's "Volley time" slider at
 its default 4.0 s the match shows 2 TIPs, and at 2.2 s (a feed that ends on the fourth ball) it shows

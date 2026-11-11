@@ -74,12 +74,16 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 117.4
       },
       "controlPoints": [
         {
           "x": 22,
           "y": 60
+        },
+        {
+          "x": 24,
+          "y": 105
         }
       ],
       "heading": {
@@ -153,9 +157,9 @@
       }
     },
     {
-      "id": "offset-park",
+      "id": "under-hive",
       "color": "#edc948",
-      "name": "to RIGHT_PARK",
+      "name": "under the HIVE to HIVE_NORTH",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -163,30 +167,34 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 95.7
+        "x": 60,
+        "y": 104
       },
       "controlPoints": [
         {
-          "x": 31,
-          "y": 46
+          "x": 60,
+          "y": 20
         },
         {
-          "x": 29,
-          "y": 80
+          "x": 61,
+          "y": 50
+        },
+        {
+          "x": 61,
+          "y": 85
         }
       ],
       "heading": {
         "type": "piecewise",
         "startDeg": 68.7,
-        "endDeg": 0,
+        "endDeg": 90,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.25,
+              "endProgress": 0.2,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
@@ -196,8 +204,51 @@
               }
             },
             {
-              "startProgress": 0.25,
-              "endProgress": 0.7,
+              "startProgress": 0.2,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "offset-park",
+      "color": "#e15759",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 44,
+          "y": 118
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "startDeg": 90,
+        "endDeg": 0,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
@@ -207,7 +258,7 @@
               }
             },
             {
-              "startProgress": 0.7,
+              "startProgress": 0.5,
               "endProgress": 1,
               "interpolationType": "linear",
               "reversed": false,
@@ -403,6 +454,10 @@
     },
     {
       "kind": "path",
+      "lineId": "under-hive"
+    },
+    {
+      "kind": "path",
       "lineId": "offset-park"
     }
   ],
@@ -473,9 +528,14 @@
         20,
         68.7
       ],
-      "RIGHT_PARK": [
+      "HIVE_NORTH": [
+        60,
+        104,
+        90
+      ],
+      "LEFT_PARK": [
         14.5,
-        95.7,
+        117.4,
         0
       ],
       "GARDEN_STAGING": [
@@ -486,9 +546,10 @@
     },
     "pathEnds": {
       "to-garden": "GARDEN_STAGING",
-      "garden-park": "RIGHT_PARK",
+      "garden-park": "LEFT_PARK",
       "to-offset": "RIGHT_LAUNCH_OFFSET",
-      "offset-park": "RIGHT_PARK"
+      "under-hive": "HIVE_NORTH",
+      "offset-park": "LEFT_PARK"
     },
     "cards": [
       {
@@ -520,16 +581,22 @@
         "park": false
       },
       {
-        "id": "c-w-10",
+        "id": "c-w-11",
         "kind": "firstOf",
-        "label": "RIGHT up before 25.5 s, otherwise park",
+        "label": "RIGHT up before 25 s, otherwise park",
         "rows": [
           {
-            "afterMs": 25500,
+            "afterMs": 25000,
             "matchClock": true,
             "cards": [
               {
                 "id": "c-p-6",
+                "kind": "path",
+                "lineId": "under-hive",
+                "park": false
+              },
+              {
+                "id": "c-p-7",
                 "kind": "path",
                 "lineId": "offset-park",
                 "park": true
@@ -542,24 +609,18 @@
             ],
             "cards": [
               {
-                "id": "c-a-7",
+                "id": "c-a-8",
                 "kind": "action",
                 "name": "LaunchAll"
               },
               {
-                "id": "c-w-8",
-                "kind": "firstOf",
-                "label": "Let the partner clear the lane",
-                "rows": [
-                  {
-                    "afterMs": 25500,
-                    "matchClock": true,
-                    "cards": []
-                  }
-                ]
+                "id": "c-p-9",
+                "kind": "path",
+                "lineId": "under-hive",
+                "park": false
               },
               {
-                "id": "c-p-9",
+                "id": "c-p-10",
                 "kind": "path",
                 "lineId": "offset-park",
                 "park": true
@@ -574,13 +635,12 @@
       "link-1"
     ],
     "parkFrom": {
-      "c-p-3": "garden-park",
-      "c-p-5": "offset-park"
+      "c-p-3": "garden-park"
     },
     "teamSpots": [
       "GARDEN_STAGING",
+      "LEFT_PARK",
       "RIGHT_LAUNCH_OFFSET",
-      "RIGHT_PARK",
       "RIGHT_START"
     ],
     "exportName": "R-Pair-Garden"

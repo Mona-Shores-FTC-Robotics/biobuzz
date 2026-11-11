@@ -111,9 +111,11 @@ at a team launch spot, so the Visualizer previews it and neither robot needs a t
 
 - **L** drives from `LEFT_START` to `LEFT_LAUNCH_OFFSET`, fires its 4 preloads when the LEFT CELL comes
   up, picks the SCORING FLOWER and fires again, then takes the WALL FLOWER's 4 to the RIGHT CELL from
-  the wall lane.
+  the wall lane. Every park of L's goes up that lane to `RIGHT_PARK`, the near end.
 - **R** makes the first TIP with its preloads, gathers the GARDEN, and waits loaded at
-  `RIGHT_LAUNCH_OFFSET` for the RIGHT CELL to come back up.
+  `RIGHT_LAUNCH_OFFSET` for the RIGHT CELL to come back up (until 25 s). It never enters the wall
+  lane after the GARDEN: it leaves under the HIVE to (60, 104) and parks at `LEFT_PARK`, the far end.
+  The two robots touch in 0 of 120 runs at Belding's volley time and 0 with the shot counter.
 
 Open the pair:
 <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/l-pair-flowers.pp,drafts/r-pair-garden.pp>.

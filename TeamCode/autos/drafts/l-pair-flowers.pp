@@ -46,9 +46,14 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 95.7
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 26,
+          "y": 92
+        }
+      ],
       "heading": {
         "type": "linear",
         "startDeg": 296.4,
@@ -103,9 +108,14 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 95.7
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 28,
+          "y": 96
+        }
+      ],
       "heading": {
         "type": "linear",
         "startDeg": 90,
@@ -218,14 +228,9 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 95.7
       },
-      "controlPoints": [
-        {
-          "x": 26,
-          "y": 80
-        }
-      ],
+      "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 180,
@@ -271,7 +276,7 @@
     {
       "id": "lane-park",
       "color": "#ff9da7",
-      "name": "to LEFT_PARK",
+      "name": "to RIGHT_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -280,16 +285,12 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 95.7
       },
       "controlPoints": [
         {
-          "x": 27,
+          "x": 26,
           "y": 70
-        },
-        {
-          "x": 27,
-          "y": 105
         }
       ],
       "heading": {
@@ -617,9 +618,9 @@
         121.5,
         296.4
       ],
-      "LEFT_PARK": [
+      "RIGHT_PARK": [
         14.5,
-        117.4,
+        95.7,
         0
       ],
       "SCORING_FLOWER_STAGING": [
@@ -640,14 +641,14 @@
     },
     "pathEnds": {
       "to-offset": "LEFT_LAUNCH_OFFSET",
-      "offset-park": "LEFT_PARK",
+      "offset-park": "RIGHT_PARK",
       "to-scoring": "SCORING_FLOWER_STAGING",
-      "scoring-park": "LEFT_PARK",
+      "scoring-park": "RIGHT_PARK",
       "scoring-back": "LEFT_LAUNCH_OFFSET",
       "offset-to-wall": "WALL_FLOWER_STAGING",
-      "wall-park": "LEFT_PARK",
+      "wall-park": "RIGHT_PARK",
       "to-lane-right": "LANE_RIGHT",
-      "lane-park": "LEFT_PARK"
+      "lane-park": "RIGHT_PARK"
     },
     "cards": [
       {
@@ -784,8 +785,8 @@
     },
     "teamSpots": [
       "LEFT_LAUNCH_OFFSET",
-      "LEFT_PARK",
       "LEFT_START",
+      "RIGHT_PARK",
       "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"
     ],
