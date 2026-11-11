@@ -348,31 +348,25 @@ Use the work order above to select checks; the detailed mechanism checks below a
       run. **Good:** at speed by the time the robot settles. **Stop:** it overshoots again → it is
       the launcher's speed loop (a tuning issue for its own PR), and each volley costs ~0.5 s until
       then. [PR #422]
-- [ ] **The CellUp wait with a real tip:** L-NoCross with a partner (or a hand) tipping
-      (R-NoCross's ended on the trigger after 3.1 s on 3 Nov). **Good:** "Wait for TIP or CELL up" ends on the trigger, not its time limit.
-      [PR #377]
 - [ ] **CellUp with the CELL already up:** L-NoCross at `LEFT_LAUNCH_CATCH` with the left CELL
       tipped up by hand first (or a partner's tip over before the wait starts). **Good:** the wait ends
       at once and the Auto fires, not at its limit (8 s on the match clock since #391). Then with the
       CELL **down** and nobody tipping: it waits out its limit and fires anyway (the Auto's own choice for now). **Stop:** it waits with
       the CELL up, or fires at once with it down → save the match log; check which CELL the robot
       aims at from its end of the field (`AutoRegistration.aimedLeft`). [PR #377]
-- [ ] **TIP lag, from the same runs' logs:** seconds from the partner's (or R-NoCross's own)
-      last preload leaving the launcher (the feed's end) to the CellUp trigger. **Good:** 1.5–5 s,
-      the simulator's range (it read 0.7–1.2 s with four preloads on the starting NECTAR); a few runs
-      agree → that number replaces the 4 s estimate in `AutoRegistration.PARTNER_TIP_LAG_S` and
-      `partnerTipLagS` in `TeamCode/autos/timing.json`, together. **Stop:** more than 5 s → the HIVE
-      dwell is longer than filmed; record the load in the CELL. [PR #387], [branch claude/funny-goldberg-w0lyw7]
+      *Belding (7 Nov):* no L-NoCross run started its wait with the CELL up. R-Solo Q-27 (20245) did: the red CELL tipped about 6 s in and stayed up, and its wait ended "CellUp after 0.02 s". The CELL-down half ran three times (Q-14 20245, M-7 20245, M-9 19429): video shows the CELL down at each 8 s limit, and the Auto took its no-TIP route.
 - [ ] **L-NoCross's TIP wait on the match clock:** partner's last shot set to 7 s in INIT (waiting
       until 11 s), nobody tips.
       **Good:** the trace shows `Wait for TIP or CELL up: 11.0 s on the match clock` about 11 s into
       the match, then the no-TIP route. **Stop:** it ends at 8 s or counts from its arrival → save
       the log. [PR #391]
+      *Belding (7 Nov):* every L-NoCross run had the limit at the drawn 8 s (nobody entered a later shot). The three timeouts ended "8.0 s on the match clock" 7.00–7.12 s after the wait began, so the limit is on the match clock. The 11 s setting was not tried.
 - [ ] **Early park from L-NoCross's no-TIP route:** nobody tips, partner's last shot set late (11 s or more)
       so time runs short at RIGHT_LAUNCH_CATCH or WALL_FLOWER_STAGING.
       **Good:** "parking from the spot the robot is on", the park from RIGHT_LAUNCH_CATCH bending west
       of the Red HIVE, parked by 30 s. **Stop:** it touches the HIVE → note the pose; bend that park
       (P on the step) in the Visualizer. [PR #391]
+      *Belding (7 Nov):* the bent RIGHT_LAUNCH_CATCH park never ran. Q-14 (20245) parked early from SCORING_FLOWER_STAGING: it reached LEFT_PARK (127.2, 24.2) at the field's 30 s, still slowing, against the partner by the wall and nowhere near the HIVE. M-7 (20245) parked early from LEFT_LAUNCH_CATCH with 1.4 s left of a 2.9 s park: it was still at 24 in/s at the field's 30 s, and the disable stopped it about 9 in short of LEFT_PARK. Our PLAY was 0.9–2.6 s after the field's start, so our 30 s ends that much after the field's.
 - [ ] **A launch's time limit never cuts a feed;** the Auto graphs the launcher in Panels. **Good:**
       every launch feeds its full `LaunchCards` time; launcher graph live. [PR #333], [PR #334]
 - [x] **Fixed by the PIDF tune (#444), mentor 5 Nov.** **Launch on the approach: fix the launcher overshoot first.** It is a separate issue. After a

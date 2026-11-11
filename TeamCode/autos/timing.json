@@ -52,9 +52,9 @@
       "note": "4 POLLEN if every shot lands; lower it for misses."
     },
     "partnerTipLagS": {
-      "value": 4.0,
-      "source": "estimate",
-      "note": "Partner's last shot to our CELL seen up: flight, dwell, swing, camera; 1.5-5 s in the simulator."
+      "value": 4.5,
+      "source": "measured, Belding Qualifier video and L-NoCross logs, 7 Nov 2026",
+      "note": "Partner's last shot leaving to our CellUp: 4.0, 4.2, 4.4 s (about 4.3 in a fourth); 4.5 errs long."
     }
   }
 }
