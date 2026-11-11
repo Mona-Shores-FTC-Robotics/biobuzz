@@ -38,6 +38,14 @@ was run"). Differences under 5 of 120 are not differences.
 - **The one measurement that would most change the answer: count the balls that stay in from the
   LEFT launch spots.** Every result here turns on that share, and it has never been counted.
 
+### Each rung, against the target
+
+| Rung | Best drawing | 2 TIPs / 3 TIPs of 120 | Meets the target? |
+|---|---|---|---|
+| 1, the Belding robot, partner leaves 4 | R-Three-Tip | 57 / 0 | **No, and it cannot:** the budget below puts three TIPs at about 42 s for this robot, and the run agrees (the guard parks after the third volley) |
+| 1 and 2, with the allowed what-ifs | R-Three-Tip-Stream | 107 / 99 with all of them; 96 / 87 with the smallest set | Yes, but only in the simulator, and on three placeholders (the row sweep, a perfect lead on a moving shot, stay-in by range alone) |
+| 3, the Belding robot beside a Belding-style partner | R-Two-Tip-With | 109 / 0 | **Two TIPs yes, three no:** the second TIP lands at 23 s in the best pairing and the third needs 8 more pieces in by about 25 s |
+
 ## The budget (step 0)
 
 Everything here is from the Field Setup Guide's HIVE calibration as the simulator holds it
@@ -219,6 +227,11 @@ left before the feed ends.
 | shots not led for the robot's motion | 33 | 28 | 27.5 |
 | the row sweep at 3 in/s instead of 6 | 105 | 24 | |
 
+**Launching NECTAR** is on in every row (the real robot's design takes and launches it). With it off
+the all-what-ifs run makes 107 and 90, against 107 and 99: a stray NECTAR from the spill in a volley is
+worth 1.65. Whether the human enters NECTAR makes no difference (107 and 101 without): the route
+never goes to the LOADING ZONE for it, and the budget shows why it cannot afford to.
+
 Ranked by what the third TIP loses without it: **launching while moving (and so the turret), the
 feed, the accuracy**, then drive speed, then the picks. Unlimited turret travel adds nothing.
 
@@ -371,6 +384,56 @@ In order of how much each could change the answer:
 
 1, 2 and 5 are new items in `doc/robot-todo.md` §7d; 3 is §7c and the fix list; 4 is in
 `one-robot-two-tips.md`.
+
+## Every row
+
+Each row is 120 runs. Counts are runs with at least that many TIPs complete by 30 s; times are the mean
+time of that TIP over the runs that made it before TELEOP (so a time past 30 s means some came in the
+transition and are not in the count). The target is met where 2 TIPs is 90 or more and 3 TIPs is 60 or
+more.
+
+| Row | 1 TIP | 2 TIPs | 3 TIPs | TIP 1 at | TIP 2 at | TIP 3 at | Target |
+|---|---|---|---|---|---|---|---|
+| R-Two-Tip alone, the Belding robot | 119 | 58 | 0 | 7.5 s | 28.5 s |  | no |
+| R-Three-Tip, the Belding robot, partner leaves 4 | 117 | 57 | 0 | 7.2 s | 26.0 s |  | no |
+| + turret, unlimited travel | 117 | 58 | 0 | 7.2 s | 25.9 s |  | no |
+| + drive 70 in/s | 117 | 54 | 0 | 7.2 s | 24.8 s |  | no |
+| + feed 0.47 s a shot, ends on the fourth | 117 | 54 | 0 | 6.6 s | 21.7 s |  | no |
+| + feed 0.3 s a shot, ends on the fourth | 117 | 55 | 0 | 6.3 s | 20.3 s |  | no |
+| + FLOWER picks: no extra dwell, none short | 117 | 64 | 0 | 7.2 s | 26.0 s |  | no |
+| + stay in 0.98 | 120 | 95 | 0 | 7.0 s | 26.0 s |  | no |
+| + stay in 0.96 | 119 | 79 | 0 | 7.0 s | 26.1 s |  | no |
+| + launching while moving (turret, led) | 118 | 21 | 0 | 7.6 s | 19.5 s |  | no |
+| the Belding robot, not launching NECTAR | 117 | 54 | 0 | 7.2 s | 26.1 s |  | no |
+| R-Three-Tip-Stream, all what-ifs | 120 | 107 | 99 | 6.1 s | 14.1 s | 26.9 s | **met** |
+| all, without the turret (locked, `LaunchAll` route) | 120 | 107 | 0 | 6.1 s | 19.1 s |  | no |
+| all, turret travel 393° | 120 | 107 | 99 | 6.1 s | 14.1 s | 26.9 s | **met** |
+| all, 50 in/s | 120 | 108 | 91 | 6.1 s | 15.0 s | 29.2 s | **met** |
+| all, Belding's feed (0.875 s a shot, whole feed) | 120 | 55 | 0 | 7.0 s | 18.9 s | 31.8 s | no |
+| all, feed 0.47 s a shot | 120 | 107 | 97 | 6.4 s | 14.9 s | 28.5 s | **met** |
+| all, Belding's picks | 120 | 96 | 89 | 6.1 s | 14.1 s | 27.0 s | **met** |
+| all, Belding's accuracy | 120 | 42 | 13 | 6.8 s | 14.3 s | 27.4 s | no |
+| all, stay in 0.95 | 120 | 83 | 66 | 6.3 s | 14.2 s | 27.1 s | no |
+| all, stay in 0.96 | 120 | 87 | 74 | 6.3 s | 14.2 s | 27.1 s | no |
+| all, stay in 1.0 | 120 | 119 | 119 | 6.1 s | 14.1 s | 26.9 s | **met** |
+| all, without launching while moving (`LaunchAll` route, turret) | 120 | 107 | 0 | 6.1 s | 19.3 s |  | no |
+| all, shots not led for the robot's motion | 120 | 33 | 28 | 6.1 s | 14.8 s | 27.5 s | no |
+| all, row sweep at 3 in/s | 120 | 105 | 24 | 6.1 s | 15.7 s | 29.7 s | no |
+| all, not launching NECTAR | 120 | 107 | 90 | 6.1 s | 14.1 s | 27.2 s | **met** |
+| all, no human NECTAR entered | 120 | 107 | 101 | 6.1 s | 14.1 s | 27.0 s | **met** |
+| turret + moving + stay in 0.98 + feed 0.47, 50 in/s | 120 | 96 | 23 | 6.4 s | 15.5 s | 30.5 s | no |
+| turret + moving + stay in 0.98 + feed 0.3, 50 in/s | 120 | 97 | 80 | 6.1 s | 15.0 s | 29.2 s | **met** |
+| turret + moving + stay in 0.98 + feed 0.47, 60 in/s | 120 | 97 | 66 | 6.4 s | 15.1 s | 29.4 s | **met** |
+| turret + moving + stay in 0.98 + feed 0.47, 70 in/s | 120 | 96 | 87 | 6.4 s | 14.9 s | 28.5 s | **met** |
+| turret + moving + stay in 0.96 + feed 0.47, 70 in/s | 120 | 78 | 62 | 6.6 s | 14.9 s | 28.6 s | no |
+| R-Two-Tip, partner only parks | 119 | 58 | 0 | 7.5 s | 28.6 s |  | no |
+| L-NoCross, partner fires its preloads at the RIGHT CELL | 119 | 55 | 0 | 7.4 s | 22.8 s |  | no |
+| R-Two-Tip-With alone | 119 | 57 | 0 | 7.5 s | 28.4 s |  | no |
+| R-Two-Tip-With, partner fires its preloads at the LEFT CELL once it is up | 120 | 109 | 0 | 7.6 s | 23.0 s |  | no |
+| R-Two-Tip-With, partner fires at the LEFT CELL at 9 s | 120 | 109 | 0 | 7.6 s | 23.0 s |  | no |
+| the same pair, our shots stay in at 0.98 | 120 | 119 | 0 | 7.0 s | 20.0 s |  | no |
+| R-NoCross, partner makes the LEFT TIP alone | 120 | 58 | 0 | 7.5 s | 23.0 s |  | no |
+| the Infraviolet pair | 117 | 22 | 0 | 7.2 s | 20.5 s |  | no |
 
 ## How it was run
 
