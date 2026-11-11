@@ -179,9 +179,11 @@ that pace. **No stay-in share by angle exists**, for any spot: the logs count ba
 calibration is by range from near-square shots. The simulator also flags every FLOWER pick as "drives
 into a FLOWER"; that is the pick itself reaching the holder, and master's Autos get the same flag.
 
-**In the Visualizer** the pair previews as it runs here: with each robot's "Volley time" slider at
-its default 4.0 s the match shows 2 TIPs, and at 2.2 s (a feed that ends on the fourth ball) it shows
-3 TIPs with L done at 27.8 s.
+**In the Visualizer** the pair previews as it runs here, with two sliders moved on each robot. At the
+defaults (Volley time 4.0 s) the match shows 2 TIPs. For the three-TIP run set **Volley time to 2.2 s**
+(a feed that ends on the fourth ball) and **Intake full to 0 s**: L's gate after the WALL FLOWER asks
+for a full intake, which the pick has already filled, and the Visualizer's default adds 1.9 s to that
+wait. Then it shows 3 TIPs with L done at 28.7 s, 1.3 s to spare.
 
 | The pair, real cards, no turret | 1 TIP | 2 TIPs | 3 TIPs | TIP 2 at | TIP 3 at | Target |
 |---|---|---|---|---|---|---|
