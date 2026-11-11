@@ -489,6 +489,16 @@ Use the work order above to select checks; the detailed mechanism checks below a
       55–63 in/s and takes about 2.4 s; (b) and (c) cruise 20–30 in/s, (c) 3.6–4.3 s, as at
       Belding: then the simulator's `TURN_SHARE_RAD_PER_S` (130°/s) stands. A loaded run more than
       0.3 s slower than the empty one means the planning numbers need a loaded value.
+      **What these runs decide** (10 Nov, from the 17 Belding logs): the Visualizer's drawn times
+      are within 0.1 to 0.6 s, on the slow side, for every kind of Auto drive but one: the 90 to
+      100 in curves from `WALL_FLOWER_STAGING` to the left launch spots, drawn 2.9 s, driven in a
+      median 4.1 s (R-Solo, 9 runs) and 4.3 s (L-NoCross, 2). Timing every drive by the
+      simulator's shared-wheels rule (130°/s) in the Visualizer was tried and not kept: it put
+      those curves at 4.35 s but made the rest worse (51 in with a 90° turn: 2.3 s against 1.8 s
+      driven; 13 in with a 180° turn: 1.8 s against 1.2 s; 92 in with its 180° turn in the first
+      fifth: 3.8 s against 2.6 to 2.9 s). A 180° turn bunched at the start of a 92 in drive cost
+      nothing, so the slow curves may be their sharp bend, not their turn: (b) against (c) tells
+      which, and so whether turning the short way (the R-Two-Tip draft) would help.
       **Also:** the two Belding runs that crawled for 4 s about 10 in short of `LEFT_LAUNCH_CLOSE`
       / `LEFT_LAUNCH_CATCH` (20245, 14:39 and 16:53 hub time) look blocked: check the match video.
 
