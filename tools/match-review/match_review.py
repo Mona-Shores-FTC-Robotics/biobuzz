@@ -8,6 +8,9 @@ Pillow optional (captioned contact sheets).
   match_review.py frames EVENT MATCH TEAM (--auto S... | --teleop S...) [--span 1] [--fps 10]
                          [--crop X,Y,W,H] [--scale 2] [--sheet]
   match_review.py clip   EVENT MATCH TEAM (--auto S | --teleop S) [--len 6] [--crop X,Y,W,H] [--scale 2]
+  match_review.py still  EVENT MATCH TEAM (--auto S... | --teleop S...) --title "..." [--note "..."]...
+                         [--crop X,Y,W,H] [--scale 1] [--cols N] [--name NAME]
+                                                 one captioned JPEG (<= 2000 px wide) for the gallery
 
 EVENT is the event code (USMIBEQ), MATCH as matches.json writes it (Q-1, M-7), TEAM 19429 or 20245.
 Times are seconds after that period's PLAY in the log (Auto: "PLAY: <colour> alliance"; TeleOp:
@@ -475,6 +478,61 @@ def do_clip(a):
     print('clip   %s (%s %.2f s + %g s)' % (os.path.relpath(dst, REPO), period, t, a.len))
 
 
+def do_still(a):
+    """One captioned JPEG for the gallery: a frame per time, each captioned with its log time and note,
+    a title on top, light background, at most 2000 px wide."""
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        die('still needs Pillow (pip install pillow)')
+    s = do_sync(a, quiet=True)
+    out = folder(a.event, a.match, a.team)
+    times = [('auto', t) for t in a.auto or []] + [('teleop', t) for t in a.teleop or []]
+    if not times:
+        die('give --auto and/or --teleop times')
+    notes = a.note or []
+    if notes and len(notes) != len(times):
+        die('give one --note per time (%d times, %d notes)' % (len(times), len(notes)))
+    vf = ','.join(crop_filter(a)) or 'null'
+    ims = []
+    for k, (period, t) in enumerate(times):
+        tmp = os.path.join(out, 'still-part.png')
+        run(['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-ss', '%.3f' % to_video(s, period, t),
+             '-i', video_path(out), '-frames:v', '1', '-vf', vf, tmp])
+        cap = '%s %.2f s' % ('Auto' if period == 'auto' else 'TeleOp', t)
+        if notes:
+            cap += ': ' + notes[k]
+        ims.append((Image.open(tmp).convert('RGB'), cap))
+        os.remove(tmp)
+
+    def font(bold, size):
+        for f in ('DejaVuSans-Bold.ttf' if bold else 'DejaVuSans.ttf', 'Arial Bold.ttf' if bold else 'Arial.ttf'):
+            for d in ('/usr/share/fonts/truetype/dejavu/', '/Library/Fonts/', 'C:/Windows/Fonts/', ''):
+                try:
+                    return ImageFont.truetype(d + f, size)
+                except OSError:
+                    pass
+        return ImageFont.load_default()
+    fb, fn = font(True, 26), font(False, 22)
+    w, h = ims[0][0].size
+    cols = a.cols or min(len(ims), 3)
+    rows = (len(ims) + cols - 1) // cols
+    pad, cap, top = 12, 34, 50
+    S = Image.new('RGB', (cols * (w + pad) + pad, top + rows * (h + cap + pad) + pad), (246, 246, 242))
+    d = ImageDraw.Draw(S)
+    d.text((pad, 12), a.title, fill=(20, 20, 20), font=fb)
+    for k, (im, c) in enumerate(ims):
+        x, y = pad + (k % cols) * (w + pad), top + (k // cols) * (h + cap + pad)
+        d.text((x, y + 4), c, fill=(20, 20, 20), font=fn)
+        S.paste(im, (x, y + cap))
+    if S.width > 2000:
+        S = S.resize((2000, int(S.height * 2000 / S.width)), Image.LANCZOS)
+    name = a.name or 'still_' + '_'.join('%s%g' % (p[0].upper(), t) for p, t in times)
+    dst = os.path.join(out, name + '.jpg')
+    S.save(dst, quality=85)
+    print('still  %s (%dx%d, %.0f KB)' % (os.path.relpath(dst, REPO), S.width, S.height, os.path.getsize(dst) / 1e3))
+
+
 def video_path(out):
     return os.path.join(out, 'video.mp4')
 
@@ -506,6 +564,17 @@ def main():
         else:
             sp.add_argument('--len', type=float, default=6.0)
         sp.set_defaults(play_at=None)
+    sp = sub.add_parser('still', help='one captioned JPEG for the gallery')
+    common(sp)
+    sp.add_argument('--auto', type=float, nargs='+')
+    sp.add_argument('--teleop', type=float, nargs='+')
+    sp.add_argument('--crop', help='X,Y,W,H in 1280x720 pixels')
+    sp.add_argument('--scale', type=float, default=1.0, help='lanczos scale after the crop')
+    sp.add_argument('--title', required=True, help='one plain sentence, drawn on top')
+    sp.add_argument('--note', action='append', help='a caption per time, in order (repeat the flag)')
+    sp.add_argument('--cols', type=int)
+    sp.add_argument('--name', help='file name without .jpg')
+    sp.set_defaults(play_at=None)
     a = p.parse_args()
     for tool in ('ffmpeg', 'ffprobe', 'curl'):
         if not shutil.which(tool):
@@ -520,6 +589,8 @@ def main():
         do_sync(a)
     elif a.cmd == 'frames':
         do_frames(a)
+    elif a.cmd == 'still':
+        do_still(a)
     else:
         do_clip(a)
 

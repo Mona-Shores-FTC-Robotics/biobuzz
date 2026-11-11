@@ -1,6 +1,6 @@
 ---
 name: match-review
-description: Review a match from its robot log and its match video, lined up - what the robot did, when, and whether the log is telling the truth. Use for "what happened in Q-14?", "review the match", "check the video", "look at the logs and the replay", "match video", "replay", "did it really shoot 4?", "was the lane really full?", or any claim from a log that should be checked against video.
+description: Review a match from its robot log and its match video, lined up - what the robot did, when, and whether the log is telling the truth - and use or add to the event's video-evidence gallery. Use for "what happened in Q-14?", "review the match", "check the video", "look at the logs and the replay", "match video", "replay", "did it really shoot 4?", "was the lane really full?", "we want to improve X, use the gallery", "add this to the gallery", "video evidence", or any claim from a log that should be checked against video.
 ---
 
 # Match review: log and video together
@@ -41,11 +41,13 @@ The sync line names how it was found. Accept it only after **two** agreeing even
   video the green comes on about 0.1 s after the log's FULL.
 - **A second event**, by eye: a later green, a ball in the air at a counted shot, or the scoreboard
   clock (it reads 2:30 at the field's Auto start). The helper prints candidate times.
-- **The scoreboard** switches 2:01 → 0:08 (the transition) at the field's end of Auto. In
-  qualifiers the log's Auto PLAY ≈ switch − 30.45 s. **In the Belding playoffs our PLAY was 1–4 s
-  later than that**, so the switch alone is wrong there; the helper uses it only to know where to
-  look for the light. "scoreboard only" in the sync line means: find PLAY by eye and rerun with
-  `--play-at <seconds into video.mp4>`.
+- **The scoreboard** switches 2:01 → 0:08 (the transition) at the field's end of Auto. Our PLAY
+  is often later than the field's start: the log's Auto PLAY was switch − 30.45 s in most Belding
+  qualifiers, but 1–4 s later in the playoffs and about 2 s later in Q-14. So the switch alone is
+  never the sync; the helper uses it only to know where to look for the light. "scoreboard only"
+  in the sync line means: find PLAY by eye and rerun with `--play-at <seconds into video.mp4>`.
+  A late PLAY also means the robot's own 30 s runs past the field's Auto: check what it was doing
+  at the switch.
 - TeleOp PLAY is `PLAY: field forward = driver forward`; the helper places it by the log's
   offset from Auto PLAY. Check it on a TeleOp green before reading TeleOp closely.
 
@@ -70,6 +72,50 @@ The sync line names how it was found. Accept it only after **two** agreeing even
 - Old-style clips (made before 9 Nov 2026) have black boxes and a burned-in countdown in their
   first ~40 s; the clean sources the helper downloads do not. In Belding's M-7 and M-10 our robots
   played each other: both teams' files are the same footage, each synced to its own light.
+
+## 5. The gallery: the event's video evidence
+
+Each event has a gallery of captioned stills, each lined up with a log: the `gallery` link for the
+event in `tools/match-review/videos.json` (Belding: "Belding Video Evidence"). It is a claude.ai
+artifact on the mentor's account; a session reads and writes it with the `ArtifactData` tool,
+collection `photos`, one document per still.
+
+**Asked to improve something** ("we want better FLOWER picks, use the gallery"): read the gallery
+first, then go to video only for what it lacks.
+
+```
+ArtifactData list  url=<gallery>  collection=photos  out_dir=<scratchpad>/gallery
+```
+
+Each document: `order` (sort position), `match`, `robot` (`19429`, `20245` or `Both`), `topic`,
+`title` (one plain sentence), `caption` (log times and what the picture shows), `url`
+(`/_blob/<id>`), `source`. Filter by `topic` and `match`; topics are what was looked at
+("Shot counter", "Full lane calls", "FLOWER picks", "Intake jams", "Auto", ...). A caption is a
+claim checked once; when the change you are planning rests on it, re-check it with step 1 before
+building on it. To see a picture, `Artifact read` with `url=<gallery>` and `path=<id>` saves it
+locally.
+
+**Adding stills**, when the mentor asks or agrees (a write is visible to everyone who can open the
+gallery):
+
+1. Make each one with the helper (a captioned JPEG, at most 2000 px wide; aim under 300 KB):
+   ```
+   python3 tools/match-review/match_review.py still USMIBEQ Q-14 20245 --auto 23.0 23.5 23.9 24.4 \
+       --crop 600,140,340,320 --scale 1.5 --cols 2 \
+       --title "Q-14 20245, Auto volley 2: log counts 2 shots, video shows 4" \
+       --note "piece 1 rising" --note "piece 2" --note "piece 3" --note "piece 4"
+   ```
+   Look at it before uploading.
+2. Upload: `Artifact` publish with `url=<gallery>`, `asset: true`, `file_paths: [the JPEGs]`. Use
+   each result's `/_blob/<id>` url verbatim.
+3. Read the collection, then one `ArtifactData batch` of `set`s, one per still: a short slug
+   `doc_id` (`q14-auto-volley2`), an `order` next to the stills on the same topic and unused, an
+   existing `topic` when one fits, `source: "match-review helper"`. Never change or delete
+   another document unless asked.
+
+The gallery starts private. Others see it only once the mentor shares it (Share menu), and
+viewers must be signed in to Claude: the pictures load from its database. A new event gets a new
+gallery only when the mentor asks for one; add its link to `videos.json` in a PR.
 
 ## Where the video comes from
 
