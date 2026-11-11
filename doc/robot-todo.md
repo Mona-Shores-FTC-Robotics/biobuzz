@@ -914,26 +914,16 @@ both robots until every value is in (`TurretSubsystem.useAbsoluteZero`). [#169]
       today), or each encoder gets one absolute cable and the match reads the OctoQuad (needs a code
       change; **Bench: Turret Absolute** times the read). Check Studica's pinout before crimping.
       Activate the config, run **Check: Hardware**.
-- [ ] **Bench: OctoQuad**, INIT. **Good:** firmware 3.x on the first line; channels 4 and 5 show a
-      pulse that changes as the turret is turned. **Stop:** FAULT "not answering" → bus or cable;
-      0 µs on a channel → absolute wire not on its signal pin, or the switch on 5V.
-- [ ] **Pulse ranges.** Square, then turn the turret slowly until each encoder has wrapped at least
-      once (its pulse jumps from widest to narrowest). Write the min and max for A and B into
-      `absPulseMinUsA/MaxUsA/MinUsB/MaxUsB`. One line per robot in `RobotDifferences`: they differ
-      per encoder.
-- [ ] **Directions.** Turn the turret counter-clockwise from above: `absDirectionA`/`B` = +1 for each
-      fraction that rises, -1 for each that falls.
-- [ ] **Ratios** (`turnsPerTurretTurn` 2.75 for A's 64T, `absRatioB` 4.0 for B's 44T, both on the
-      176T ring; from the CAD). Turn the turret one full turn by hand: A wraps 2.75 times, B 4.
-- [ ] **Homes.** Turret on its mark: `absHomeA`, `absHomeB` from the two fractions. Set it on the
-      mark five times, note the spread.
-- [ ] **Check.** With all values in: the solve line gives an angle. Turn the turret several full
-      turns each way and back home (no stops): the angle follows, the residual stays under a third of the design's separation. Then
-      `useAbsoluteZero = true` for that robot in `RobotDifferences`. **Good:** Basic Drive INIT with
-      the turret turned off its mark: "zeroed from the two absolute encoders", and the Robot page's
-      "Turret abs … vs count" stays within ±1°. **Stop:** "encoders disagree" or "ambiguous" → a
-      value above is wrong, or the gear slips.
-
+- [ ] **Bench: OctoQuad**, the guided setup (turret by hand, nothing moves). It shows one step at a
+      time and moves on by itself: the OctoQuad answers (firmware 3.x, a pulse on channels 4 and 5);
+      turn the turret slowly about a full turn (each encoder's pulse range, 2 wraps each); let go,
+      then turn it counter-clockwise about 45° (directions, and B's movement against A's checks the
+      2.75 and 4.0 ratios and that A and B are not swapped); on the home mark, Cross (home readings);
+      then the check: a quarter turn counter-clockwise reads about +90°, back on the mark about 0°,
+      Cross. **Done:** it shows the `RobotDifferences` lines for this robot, also on Panels (copy
+      them from the laptop) and in the Robot Controller log. Paste them, Sloth Load. Run it on the
+      home mark five times and note the home readings' spread. **Stop:** a step that will not
+      finish says why on the screen; "−90°" in the check means step 3 was turned clockwise.
 - [ ] **Bench: Turret Absolute**, after the values above. In INIT turn the turret by hand through
       several turns, and push the robot round. **Good:** "Absolute pair", "1 · Count" (if its cable
       is in) and "2 · Absolute only" agree within a degree or two at every angle; "Points" changes

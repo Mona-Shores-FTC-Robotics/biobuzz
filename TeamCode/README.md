@@ -579,7 +579,7 @@ pulses:
 - **Each encoder's pulse range is measured, not taken from the datasheet.** The
   Cypher Max's PWM frequency is 490–603 Hz part to part, and the OctoQuad
   measures the high time in µs, so the same angle gives different widths on two
-  encoders. `Bench: OctoQuad` shows each channel's running min and max.
+  encoders. `Bench: OctoQuad` measures them in its guided setup.
 
 The OctoQuad channel is the one port Java knows (`TurretSubsystem.ABS_CHANNEL_A`
 / `_B`): the XML has no element for it. The bank mode and pulse range are sent
@@ -588,6 +588,15 @@ Until an OctoQuad answers on bus 3 the Driver Station shows the SDK's "OctoQuad
 does not report correct CHIP_ID" warning at startup; nothing reads it while
 `useAbsoluteZero` is off. The facts are on #169; the bench checklist is
 `doc/robot-todo.md` § 7g.
+
+**Bench: OctoQuad** is a guided setup (`opmodes/calibration/AbsoluteSetup`,
+unit tested with simulated encoders): one step at a time on the Driver Station,
+each moving on by itself, from "the OctoQuad answers" through each encoder's
+pulse range, its direction (with B's movement checked against A's by the gear
+ratio, which also catches swapped channels) and the home readings, to a check.
+It ends with the `RobotDifferences` lines for that robot, on the Driver Station,
+on Panels (to copy) and in the Robot Controller log, and applies them until the
+app restarts.
 
 **Bench: Turret Absolute** shows every way the robot can know the turret's
 angle side by side, whichever way the encoders end up wired: the absolute pair

@@ -223,12 +223,12 @@ public final class TurretAbsolute {
     }
 
     /** {@code turns} wrapped into [-0.5, 0.5). */
-    static double wrapHalf(double turns) {
+    public static double wrapHalf(double turns) {
         return turns - Math.floor(turns + 0.5);
     }
 
     /** {@code deg} wrapped into (-180, 180]. */
-    static double wrap180(double deg) {
+    public static double wrap180(double deg) {
         double wrapped = deg % 360.0;
         if (wrapped <= -180.0) {
             wrapped += 360.0;
