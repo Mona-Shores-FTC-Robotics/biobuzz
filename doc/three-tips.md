@@ -42,7 +42,7 @@ was run"). Differences under 5 of 120 are not differences.
 
 | Rung | Best drawing | 2 TIPs / 3 TIPs of 120 | Meets the target? |
 |---|---|---|---|
-| 1, the Belding robot, partner leaves 4 | R-Three-Tip | 57 / 0 | **No, and it cannot:** the budget below puts three TIPs at about 42 s for this robot, and the run agrees (the guard parks after the third volley) |
+| 1, the Belding robot, partner leaves 4 | R-Three-Tip | 57 / 0 | **No, and it cannot.** By the budget: about 42 s of work. By a run: with every shot staying in and every pick full, the same robot makes 117 / 0. Its second TIP lands at 26.1 s, which leaves 4 s to put 8 pieces into the RIGHT CELL and wait out a 4.75 s dwell |
 | 1 and 2, with the allowed what-ifs | R-Three-Tip-Stream | 107 / 99 with all of them; 96 / 87 with the smallest set | Yes, but only in the simulator, and on three placeholders (the row sweep, a perfect lead on a moving shot, stay-in by range alone) |
 | 3, the Belding robot beside a Belding-style partner | R-Two-Tip-With | 109 / 0 | **Two TIPs yes, three no:** the second TIP lands at 23 s in the best pairing and the third needs 8 more pieces in by about 25 s |
 
@@ -187,6 +187,23 @@ travel:** the run with today's 393° window scores the same.
 The what-ifs, and the number each is set to: turret with unlimited travel; 70 in/s; feed 0.3 s a
 shot ending on the fourth; FLOWER picks with no extra dwell and none short; 0.98 staying in from
 every range; launching while moving, led for the robot's speed.
+
+### Why the Belding robot cannot, shown by a run
+
+The 57 of 120 is luck (8 of 8 have to stay in). The 0 of 120 is time, and no luck changes it:
+
+| R-Three-Tip, the Belding robot, partner leaves 4 | 1 TIP | 2 TIPs | 3 TIPs | TIP 2 at |
+|---|---|---|---|---|
+| As at Belding | 117 | 57 | 0 | 26.0 s |
+| **Every shot stays in and every pick comes back full; the timing as at Belding** | 120 | 117 | **0** | 26.1 s |
+| the same, with the guard as the Belding build ran it (a volley before the park) | 120 | 117 | 0 | 26.1 s |
+
+The robot's third volley ends at 21.9 s. From there the cards to the next volley are 10.2 s (the
+drive to the WALL FLOWER, the pick, the drive to the lane), the volley 4.0 s and the park 3.8 s:
+39.9 s, so the guard parks. Even without a guard, the fourth volley would end at about 36 s and the
+RIGHT CELL would hold 4 of the 8 it needs. **No drawing fixes this for the Belding robot:** the second
+TIP cannot come before about 22 s (8 pieces, two volleys of 4 s and a pickup between them, after TIP 1
+at 7.5 s, then the 4.75 s dwell), and a third needs its deciding piece in by about 25 s.
 
 ## Rung 2: what would have to change
 
@@ -396,6 +413,7 @@ more.
 |---|---|---|---|---|---|---|---|
 | R-Two-Tip alone, the Belding robot | 119 | 58 | 0 | 7.5 s | 28.5 s |  | no |
 | R-Three-Tip, the Belding robot, partner leaves 4 | 117 | 57 | 0 | 7.2 s | 26.0 s |  | no |
+| the Belding robot's timing, every shot stays in, every pick full | 120 | 117 | 0 | 7.0 s | 26.1 s |  | no |
 | + turret, unlimited travel | 117 | 58 | 0 | 7.2 s | 25.9 s |  | no |
 | + drive 70 in/s | 117 | 54 | 0 | 7.2 s | 24.8 s |  | no |
 | + feed 0.47 s a shot, ends on the fourth | 117 | 54 | 0 | 6.6 s | 21.7 s |  | no |
