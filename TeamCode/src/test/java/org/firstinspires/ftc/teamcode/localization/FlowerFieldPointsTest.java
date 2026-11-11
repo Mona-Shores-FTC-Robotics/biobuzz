@@ -25,7 +25,7 @@ public class FlowerFieldPointsTest {
         assertCentre(FlowerFieldPoints.RED_WALL, 2.71, 47.36);
         assertCentre(FlowerFieldPoints.RED_SCORING, 47.36, 138.79);
         assertCentre(FlowerFieldPoints.BLUE_WALL, 138.79, 94.14);
-        assertCentre(FlowerFieldPoints.BLUE_SCORING, 94.14, 2.71);
+        assertCentre(FlowerFieldPoints.BLUE_AUDIENCE, 94.14, 2.71);
     }
 
     /** Each blue FLOWER is its red one turned 180° about the field centre, facing the other way. */
@@ -33,7 +33,7 @@ public class FlowerFieldPointsTest {
     public void blueIsRedTurnedAboutTheCentre() {
         double c = FieldFrame.FIELD_CENTRE_INCHES;
         assertTurned(FlowerFieldPoints.RED_WALL, FlowerFieldPoints.BLUE_WALL, c);
-        assertTurned(FlowerFieldPoints.RED_SCORING, FlowerFieldPoints.BLUE_SCORING, c);
+        assertTurned(FlowerFieldPoints.RED_SCORING, FlowerFieldPoints.BLUE_AUDIENCE, c);
     }
 
     /** A robot facing a FLOWER faces its wall: the FLOWER is the nearer side, the wall just beyond it. */
@@ -70,7 +70,7 @@ public class FlowerFieldPointsTest {
     public void nearestWithinRangeOrNone() {
         assertSame(FlowerFieldPoints.RED_WALL, FlowerFieldPoints.nearest(20, 50, 48));
         assertSame(FlowerFieldPoints.RED_SCORING, FlowerFieldPoints.nearest(47, 110, 48));
-        assertSame(FlowerFieldPoints.BLUE_SCORING, FlowerFieldPoints.nearest(94, 30, 48));
+        assertSame(FlowerFieldPoints.BLUE_AUDIENCE, FlowerFieldPoints.nearest(94, 30, 48));
         assertNull("the field centre is far from every FLOWER", FlowerFieldPoints.nearest(
                 FieldFrame.FIELD_CENTRE_INCHES, FieldFrame.FIELD_CENTRE_INCHES, 48));
         assertNull("a zero range finds nothing off a FLOWER", FlowerFieldPoints.nearest(20, 50, 0));

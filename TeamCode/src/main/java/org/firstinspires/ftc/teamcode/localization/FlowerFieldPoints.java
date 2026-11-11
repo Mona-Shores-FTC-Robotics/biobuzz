@@ -24,8 +24,10 @@ import java.util.List;
  * <p>A robot picks a FLOWER facing its wall: {@link Flower#facingRad} is the heading that points the
  * robot's front at the wall, and {@link #standoff} the pose a given distance back from the FLOWER's
  * centre along it. The names say which half of the field a FLOWER is in (red on the low-x side, as
- * {@link HiveFieldPoints} has the HIVEs) and use the Autos' own words for the two on each half; they
- * say nothing about who may use it.
+ * {@link HiveFieldPoints} has the HIVEs) and which wall it is on: WALL for the side wall, and for the other
+ * the end of the field, SCORING (the scoring-table side, high y) or AUDIENCE (low y), the words
+ * {@code HiveCell} uses. They say nothing about who may use it: the Autos' {@code SCORING_FLOWER_STAGING},
+ * drawn for red, is at the red SCORING FLOWER, and on a blue run at the blue AUDIENCE FLOWER.
  */
 public final class FlowerFieldPoints {
 
@@ -59,16 +61,16 @@ public final class FlowerFieldPoints {
 
     /** The red half's FLOWER on the low-x wall: the Autos' WALL_FLOWER. A robot faces -x. */
     public static final Flower RED_WALL = new Flower("red WALL FLOWER", CENTRE_FROM_WALL_IN, ALONG_WALL_IN, Math.PI);
-    /** The red half's FLOWER on the high-y wall: the Autos' SCORING_FLOWER. A robot faces +y. */
+    /** The red half's FLOWER on the scoring-table wall (high y): the Autos' SCORING_FLOWER_STAGING. A robot faces +y. */
     public static final Flower RED_SCORING = new Flower("red SCORING FLOWER", ALONG_WALL_IN, S - CENTRE_FROM_WALL_IN, Math.PI / 2);
     /** {@link #RED_WALL} turned 180° about the centre. A robot faces +x. */
     public static final Flower BLUE_WALL = new Flower("blue WALL FLOWER", S - CENTRE_FROM_WALL_IN, S - ALONG_WALL_IN, 0.0);
-    /** {@link #RED_SCORING} turned 180° about the centre. A robot faces -y. */
-    public static final Flower BLUE_SCORING = new Flower("blue SCORING FLOWER", S - ALONG_WALL_IN, CENTRE_FROM_WALL_IN, -Math.PI / 2);
+    /** {@link #RED_SCORING} turned 180° about the centre, on the audience wall (low y). A robot faces -y. */
+    public static final Flower BLUE_AUDIENCE = new Flower("blue AUDIENCE FLOWER", S - ALONG_WALL_IN, CENTRE_FROM_WALL_IN, -Math.PI / 2);
 
     /** All four. */
     public static final List<Flower> ALL = Collections.unmodifiableList(
-            Arrays.asList(RED_WALL, RED_SCORING, BLUE_WALL, BLUE_SCORING));
+            Arrays.asList(RED_WALL, RED_SCORING, BLUE_WALL, BLUE_AUDIENCE));
 
     private FlowerFieldPoints() {
     }

@@ -120,9 +120,9 @@ public class FlowerPickerTest {
     public void nearestFlowerFollowsThePicksOwnRule() {
         assertEquals(FlowerFieldPoints.RED_WALL, FlowerPicker.nearest(26.7, 47.4, true));
         assertEquals("out of range", null, FlowerPicker.nearest(70.0, 20.0, true));
-        // From (60, 20) the blue SCORING FLOWER is 38 in away, across the centre line.
+        // From (60, 20) the blue AUDIENCE FLOWER is 38 in away, across the centre line.
         assertEquals("an Auto never crosses the centre line", null, FlowerPicker.nearest(60.0, 20.0, true));
-        assertEquals("the button may", FlowerFieldPoints.BLUE_SCORING, FlowerPicker.nearest(60.0, 20.0, false));
+        assertEquals("the button may", FlowerFieldPoints.BLUE_AUDIENCE, FlowerPicker.nearest(60.0, 20.0, false));
     }
 
     /** A spot far off the line, turned away, or past the FLOWER is a drawing error: the card refuses. */

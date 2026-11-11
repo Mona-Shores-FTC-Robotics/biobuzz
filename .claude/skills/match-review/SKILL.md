@@ -61,7 +61,7 @@ The sync line names how it was found. Accept it only after **two** agreeing even
 - **`Lane: FULL`** means a piece sat under the entry sensor for 1 s. That is a full lane, or two
   pieces wedged at the intake, or the robot pushing intake-first into pieces at a wall. Look before
   calling it any of them.
-- Logs from before 12 Nov 2026 call the SCORING FLOWER "FAR" (`read_logs.py` prints SCORING for both). Always write **SCORING** (the other is WALL).
+- The FLOWERs are named for their wall: WALL (side wall), and SCORING (scoring-table wall, red half) or AUDIENCE (audience wall, blue half). An Auto's SCORING FLOWER leg is drawn for red, so on a blue run it picks the blue AUDIENCE FLOWER. Logs from before 12 Nov 2026 say "red FAR" / "blue FAR" for these; `read_logs.py` prints the new names.
 
 ## 4. Read the video honestly
 

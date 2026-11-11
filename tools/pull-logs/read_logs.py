@@ -127,12 +127,13 @@ def summary(path):
                  (at(S, b) or 0) - (at(S, a) or 0), low(V, a, b)))
 
 
-FLOWER_FACING = {'red WALL': math.pi, 'red SCORING': math.pi / 2, 'blue WALL': 0.0, 'blue SCORING': -math.pi / 2}
+FLOWER_FACING = {'red WALL': math.pi, 'red SCORING': math.pi / 2, 'blue WALL': 0.0, 'blue AUDIENCE': -math.pi / 2}
 
 
 def flower_name(name):
-    """A FLOWER's name as the logs print it now: logs before Nov 2026 called the SCORING FLOWER "FAR"."""
-    return re.sub(r'\bFAR\b', 'SCORING', name)
+    """A FLOWER's name as the logs print it now. Logs before 12 Nov 2026 called the two non-WALL
+    FLOWERs "FAR": red's is on the scoring-table wall (SCORING), blue's on the audience wall (AUDIENCE)."""
+    return {'red FAR': 'red SCORING', 'blue FAR': 'blue AUDIENCE'}.get(name, name)
 
 
 def spikes(amps, a, b, above=1.35, gap_s=0.08):
@@ -168,7 +169,7 @@ def picks(paths):
     about 3.5 % long (doc/robot-session-4.md), so it is a hint about the sign and size of a pose
     error, not a measurement of it.
     """
-    print('%-19s %7s %-12s %-22s %-24s %5s %3s %-6s %6s %6s  %s' % (
+    print('%-19s %7s %-13s %-22s %-24s %5s %3s %-6s %6s %6s  %s' % (
         'log', 't', 'flower', 'how', 'push end', 'depth', 'spk', 'lane', 'along', 'side', 'outcome'))
     for path in paths:
         d = read(path)
@@ -223,7 +224,7 @@ def picks(paths):
             else:
                 along_s = '%+6.1f' % (x * math.cos(f) + y * math.sin(f))
                 side_s = '%+6.1f' % (-x * math.sin(f) + y * math.cos(f))
-            print('%-19s %7.1f %-12s %-22s %-24s %5.1f %3d %-6s %6s %6s  %s' % (
+            print('%-19s %7.1f %-13s %-22s %-24s %5.1f %3d %-6s %6s %6s  %s' % (
                 path.split('/')[-1][:19], t, flower, how[:22], push_end, depth, spikes(amps, a, b),
                 lane_s, along_s, side_s, outcome))
 
