@@ -545,6 +545,10 @@ public class AutoStudyTest {
         // BIOBUZZ_AUTO_TIP_DWELL=0: no dwell before a TIP (the simulator before issue #167), for before/after comparisons.
         double[] dwellRange = FieldSim.tipDwellRange;
         if ("0".equals(System.getenv("BIOBUZZ_AUTO_TIP_DWELL"))) FieldSim.tipDwellRange = null;
+        // BIOBUZZ_AUTO_HIVE_FIELD: where the HIVEs tip in the guide's band. "belding1" (about 7.0 POLLEN weights),
+        // "belding2" (about 7.95-8.0), "guide" (the middle, the default) or a number 0-1 (HiveCalibration.tipPointInBand).
+        String hiveField = System.getenv("BIOBUZZ_AUTO_HIVE_FIELD");
+        if (hiveField != null) HiveCalibration.tipPointInBand = HiveCalibration.tipPointInBand(hiveField);
         // BIOBUZZ_AUTO_TURRET_DEG_PER_S: every turret's slew (0: aims at once, as the simulation did before 9 Oct 2026).
         String slew = System.getenv("BIOBUZZ_AUTO_TURRET_DEG_PER_S");
         AutoSim.turretSlewOverrideRadPerS = slew == null ? Double.NaN : Math.toRadians(Double.parseDouble(slew));
@@ -565,6 +569,7 @@ public class AutoStudyTest {
             org.firstinspires.ftc.teamcode.vision.HiveTracker.Tuning.tipSeconds = tipBefore;
             FieldSim.tipSecondsRange = tipRange;
             FieldSim.tipDwellRange = dwellRange;
+            HiveCalibration.tipPointInBand = HiveCalibration.GUIDE_MIDDLE;
         }
     }
 
