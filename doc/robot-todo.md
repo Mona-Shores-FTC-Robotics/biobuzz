@@ -178,12 +178,21 @@ run's match log: the 10 in radius is too tight for placement plus camera error. 
 gap with `tools/pull-logs/read_logs.py`; don't widen past 11.8 in (half of 23.6) without the logs.
 Result, with the gap on each own-start run, → [PR #372].
 
-- [ ] **INIT options, L-NoCross on Red far wall:** gamepad 1 D-pad up three times.
-      **Good:** one line `partner's last shot ▲▼ 7 s, waiting until 11.5 s`, amber; down three times
-      turns it back green, as drawn (last shot 4 s, waiting until 8.5 s); D-pad left and right change
-      nothing (no Auto offers another park); nothing else on the robot reacts to gamepad 1's D-pad
+- [ ] **INIT menu, L-NoCross on Red far wall:** gamepad 1 D-pad right three times (its one row,
+      the partner's last shot, is selected).
+      **Good:** one line `▶ partner's last shot ◀▶ 7 s, waiting until 11.5 s`, amber; left three times
+      turns it back green, as drawn (last shot 4 s, waiting until 8.5 s); D-pad up and down change
+      nothing (one row); nothing else on the robot reacts to gamepad 1's D-pad
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
-      [PR #391]. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
+      [PR #391]; the menu is the Clockwise PR's.
+- [ ] **INIT menu, R-Clockwise on Red audience, then L-Clockwise on Red far wall** (INIT only).
+      **Good:** `▶ Pickup ◀▶: WALL_FLOWER · ▲▼ row 1 of 8` (L: `GARDEN`, `row 1 of 6`), then
+      `Partner runs L-Clockwise: Pickup GARDEN · Shot trigger CAMERA`, then every row's value in small
+      print. D-pad down walks the rows and wraps; right on Pickup shows GARDEN and the partner line
+      changes to `Pickup WALL_FLOWER`; right on a time adds 0.5 s; everything changed is amber and bold.
+      Read the two robots' pages to each other: each partner line matches the other's rows. With
+      warnings filling the page the list goes first, then the partner line, and the selected row stays.
+      **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
       8.0 s, and no log can say what INIT showed (the next item). Show the drive team the line too.
 - [ ] **The chosen INIT options reach the match log** (same run: set the partner's last shot to 7 s,
       PLAY, let it run a few seconds, STOP). Belding's logs lost every `AutoOptions` line: PLAY
@@ -464,6 +473,56 @@ Use the work order above to select checks; the detailed mechanism checks below a
         Confirm both LEAVEs at AUTO end and both parks on video; the pair is
         already promoted, so log each run that shows otherwise.
 
+- [ ] **Clockwise pair: R-Clockwise beside L-Clockwise.**
+      [The plan, the stops, the times and the lane study](../TeamCode/autos/clockwise.md). Not yet
+      driven; Infraviolet stays on the menu until this has on both robots. Run with the DS AUTO
+      timer on. In this order, since each step decides whether the next is worth running:
+      - **L's shot at RIGHT from the left spot** (`LaunchAllFar`). Robot at LEFT_LAUNCH_CATCH,
+        LEFT CELL down, RIGHT CELL up, four POLLEN: Utility or TeleOp volley aimed as the card
+        aims (square to the HIVE), at the configured speed, then at 50 and 100 ticks/s more. Film
+        from the side. **Good:** pieces clear the lowered LEFT CELL and stay in the RIGHT one;
+        write the speed that did it as the speed table's row for 69 in. **Stop:** they hit the HIVE or
+        the LEFT CELL, as all four do in the simulator (the CELLs open away from each other) →
+        L1's "no" cannot finish TIP 1 from there; say so on the PR (clockwise.md, "What would
+        change it", has the other way: L crosses first).
+      - **R's view of the HIVE at R3.** R at LEFT_LAUNCH_CATCH facing the HIVE after the forward
+        turn from SCORING_FLOWER_STAGING, RIGHT CELL up. **Good:** `RightCellUp` within 0.3 s of
+        arriving (Vision: HIVE & Pose shows the RIGHT CELL's tags settled UP from that pose).
+        **Stop:** the camera sees only the LEFT CELL from there → note which tags it does see.
+        The same at LEFT_PAIR_OFFSET for R2 (`LeftCellUp`, 302.8°).
+      - **The two new launch spots**, one robot at a time: eight pieces from LEFT_PAIR_OFFSET
+        (36.0, 121.5, 302.8°; 46.9 in) and eight from RIGHT_PAIR_CATCH (63.0, 18.0, 99.9°;
+        43.3 in), counted on video. Then both robots standing: R at LEFT_PAIR_OFFSET with L at
+        LEFT_LAUNCH_CATCH, and R at RIGHT_PAIR_CATCH with L at RIGHT_LAUNCH_OFFSET. **Good:** a
+        hand's width between frames and pokers (drawn 2.8 and 2.5 in), neither in the other's
+        shot. Once shot from, make both team spots in the Visualizer (*Save team spots*).
+      - **The new paths, each robot alone, HIVE in place, no partner:** R's outside lane from the
+        WALL FLOWER and from the GARDEN to LEFT_PAIR_OFFSET; the forward turn from the SCORING
+        FLOWER to LEFT_LAUNCH_CATCH; the catch park and the left park into RIGHT_PARK; under the
+        HIVE to RIGHT_PAIR_CATCH and the outside lane from there to RIGHT_PARK. L's under the
+        HIVE to the lane's end and on to WALL_FLOWER_STAGING (it turns west just past the end of
+        the HIVE's foot bar: watch that corner), and the FLOWER to RIGHT_LAUNCH_OFFSET. **Good:** no
+        touch of the HIVE's feet or a wall; write each drive's seconds beside the drawn ones.
+        **Stop:** a corner touches → note the pose and bend the path in the Visualizer.
+      - **T1 to T4 and the clock checks, from the log of each run:** when `LeftCellUp` first fires
+        for L (T1 9.5 s), when R arrives at LEFT_PAIR_OFFSET and its volley ends (T2 18 s, TS
+        19.4 s), when R is back at LEFT_LAUNCH_CATCH (T3 22.3 s, T3b 22.8 s), when L arrives at
+        RIGHT_LAUNCH_OFFSET (T4 19.2 s) and when each robot is parked (TL 22.7 s, TR 26.8 s).
+        **Good:** each within 0.5 s of the simulator's (clockwise.md, "The times"). Otherwise
+        set the row in INIT for the next run and write the measured value on the PR; the drawn
+        values change only in the Visualizer.
+      - **The two crossings, both robots, with a spotter at the left end:** L must be parked on
+        LEFT_PARK before R leaves LEFT_LAUNCH_CATCH (drawn: L parked 26.2 s, R leaves 26.8 s),
+        and R must be off SCORING_FLOWER_STAGING before L passes it (R leaves 20.6 s, L passes
+        24.4 s). **Stop the run by hand** if L is still in the lane when R moves. In the
+        simulator contact first appears with L 30% slow.
+      - **The fallbacks, on purpose:** hold R's preloads back (L1 "no": L shoots at RIGHT at
+        9.5 s, R parks at 18 s), then L's (R3 "no": R shoots its SCORING FLOWER load at LEFT and
+        parks at 26.8 s). **Good:** the trace shows those rows, and both robots park.
+      - **The other pickup:** Pickup GARDEN on R and WALL_FLOWER on L. **Good:** L stands at the
+        lane's end until 15.5 s (TF) and R has passed the WALL FLOWER by then.
+      - **Shot trigger TIMER on both,** with T1 8, T2 13 and T3 21.5 set in INIT, the camera
+        covered. **Good:** each stop shoots at its time; nothing waits on the HIVE.
 - [ ] **Drive times for the planning numbers** ([#504], the Belding timing analysis): a Utility
       that follows a Pedro path, empty and again with 4 POLLEN in the lane, a
       charged battery (note `/Robot/BatteryVolts`), three runs each. (a) A straight 90 in run at a

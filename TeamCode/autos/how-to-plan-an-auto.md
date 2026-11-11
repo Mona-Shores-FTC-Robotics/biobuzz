@@ -73,12 +73,14 @@ On a path card:
 
 Use **↑ ↓** to reorder a card, **Duplicate** to copy it, **✕ Delete** to remove it.
 
-**Commands the robot knows today:** `SpinUp`, `LaunchAll`, `LaunchOne`. **Triggers:** `Tip` (our
+**Commands the robot knows today:** `SpinUp`, `LaunchAll`, `LaunchOne`, and `LaunchAllFar`
+(`LaunchAll` at our HIVE's other CELL, the one beyond the near one; not yet shot on a robot). **Triggers:** `Tip` (our
 HIVE tipped since the wait began), `Empty` (the launcher has fired everything), `CameraBlind` (no
 HIVE tag seen for half a second), `LeftCellUp` and `RightCellUp` (the camera sees that CELL of our
 HIVE up right now: not while the HIVE is out of view or mid-TIP, and true at once if it is already
 up when the wait starts), and `IntakeFull` (the lane is full: a piece held under the colour sensor while the
-intake runs, the same signal that stops the roller and turns the robot's light green). The full list is `AutoRegistration` in the code, and the
+intake runs, the same signal that stops the roller and turns the robot's light green). `Always` is always true: a wait on it asks only its time ("is it still before 19 s?"),
+since a wait's time row is checked first. The full list is `AutoRegistration` in the code, and the
 editor loads the same list. There's no "intake on" command, because the robot collects on its own
 whenever it isn't full or launching. Need something else? Add it in **Setup**, and tell a mentor,
 since that's a request for new robot code.

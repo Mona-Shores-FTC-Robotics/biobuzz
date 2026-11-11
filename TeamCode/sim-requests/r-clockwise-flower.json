@@ -1,0 +1,84 @@
+{
+  "pp": "TeamCode/autos/drafts/r-clockwise-flower.pp",
+  "spec": "RClockwiseFlowerAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "calibration": "belding",
+  "loop": "clockwise",
+  "seeds": [
+    1
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "alliance": "RED",
+  "partners": [
+    {
+      "name": "normal",
+      "partner": "LClockwiseGardenAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "R 20 percent slow",
+      "partner": "LClockwiseGardenAuto",
+      "ourSpeed": 40,
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "L 20 percent slow",
+      "partner": "LClockwiseGardenAuto",
+      "timing": {
+        "speed": 40
+      }
+    },
+    {
+      "name": "R preloads missed",
+      "partner": "LClockwiseGardenAuto",
+      "oursFails": "misses preloads",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "L preloads missed",
+      "partner": "LClockwiseGardenAuto",
+      "fails": "misses preloads",
+      "timing": {
+        "speed": 50
+      }
+    }
+  ],
+  "metadata": {
+    "AutoSource": "r-clockwise-flower.pp",
+    "SavedBy": "Clockwise lane study: R takes the WALL FLOWER, L the GARDEN, as plain drafts",
+    "SavedAt": "2026-11-11T17:35:17.399112+00:00"
+  }
+}
