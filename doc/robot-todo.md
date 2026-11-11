@@ -179,8 +179,8 @@ gap with `tools/pull-logs/read_logs.py`; don't widen past 11.8 in (half of 23.6)
 Result, with the gap on each own-start run, → [PR #372].
 
 - [ ] **INIT options, L-NoCross on Red far wall:** gamepad 1 D-pad up three times.
-      **Good:** one line `partner's last shot ▲▼ 7 s, waiting until 11 s`, amber; down three times
-      turns it back green, as drawn (last shot 4 s, waiting until 8 s); D-pad left and right change
+      **Good:** one line `partner's last shot ▲▼ 7 s, waiting until 11.5 s`, amber; down three times
+      turns it back green, as drawn (last shot 4 s, waiting until 8.5 s); D-pad left and right change
       nothing (no Auto offers another park); nothing else on the robot reacts to gamepad 1's D-pad
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
       [PR #391]
@@ -350,15 +350,15 @@ Use the work order above to select checks; the detailed mechanism checks below a
       then. [PR #422]
 - [ ] **CellUp with the CELL already up:** L-NoCross at `LEFT_LAUNCH_CATCH` with the left CELL
       tipped up by hand first (or a partner's tip over before the wait starts). **Good:** the wait ends
-      at once and the Auto fires, not at its limit (8 s on the match clock since #391). Then with the
+      at once and the Auto fires, not at its limit (8.5 s on the match clock). Then with the
       CELL **down** and nobody tipping: it waits out its limit and fires anyway (the Auto's own choice for now). **Stop:** it waits with
       the CELL up, or fires at once with it down → save the match log; check which CELL the robot
       aims at from its end of the field (`AutoRegistration.aimedLeft`). [PR #377]
       *Belding (7 Nov):* no L-NoCross run started its wait with the CELL up. R-Solo Q-27 (20245) did: the red CELL tipped about 6 s in and stayed up, and its wait ended "CellUp after 0.02 s". The CELL-down half ran three times (Q-14 20245, M-7 20245, M-9 19429): video shows the CELL down at each 8 s limit, and the Auto took its no-TIP route.
 - [ ] **L-NoCross's TIP wait on the match clock:** partner's last shot set to 7 s in INIT (waiting
-      until 11 s), nobody tips.
-      **Good:** the trace shows `Wait for TIP or CELL up: 11.0 s on the match clock` about 11 s into
-      the match, then the no-TIP route. **Stop:** it ends at 8 s or counts from its arrival → save
+      until 11.5 s), nobody tips.
+      **Good:** the trace shows `Wait for TIP or CELL up: 11.5 s on the match clock` about 11.5 s into
+      the match, then the no-TIP route. **Stop:** it ends at 8.5 s or counts from its arrival → save
       the log. [PR #391]
       *Belding (7 Nov):* every L-NoCross run had the limit at the drawn 8 s (nobody entered a later shot). The three timeouts ended "8.0 s on the match clock" 7.00–7.12 s after the wait began, so the limit is on the match clock. The 11 s setting was not tried.
 - [ ] **Early park from L-NoCross's no-TIP route:** nobody tips, partner's last shot set late (11 s or more)
