@@ -1,8 +1,0 @@
--proc:none
--d
-/tmp/claude-0/-home-user-biobuzz/453ef043-040a-52d8-99eb-216e4f0be9e2/scratchpad/out3
--cp
-/tmp/claude-0/-home-user-biobuzz/453ef043-040a-52d8-99eb-216e4f0be9e2/scratchpad/sdk/Hardware/classes.jar:/tmp/claude-0/-home-user-biobuzz/453ef043-040a-52d8-99eb-216e4f0be9e2/scratchpad/sdk/RobotCore/classes.jar:/root/.m2/repository/junit/junit/4.13.2/junit-4.13.2.jar
--sourcepath
-TeamCode/src/main/java:/tmp/claude-0/-home-user-biobuzz/453ef043-040a-52d8-99eb-216e4f0be9e2/scratchpad/stub
-TeamCode/src/test/java/org/firstinspires/ftc/teamcode/subsystems/InitMovesNothingTest.java
