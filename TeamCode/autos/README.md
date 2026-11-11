@@ -322,8 +322,8 @@ A partner tells us in the queue when they shoot. The drive team enters it in INI
   driver enters the partner's last shot and the wait ends `AutoRegistration.PARTNER_TIP_LAG_S`
   (4.5 s, `partnerTipLagS` below) after it: the shot's flight, the dwell, the swing and the camera
   settling, 4.0 to 4.4 s at the Belding Qualifier. The page shows both numbers, never only the sum:
-  "partner's last shot ▲▼ 8 s, waiting until 12 s" (mentor, 3 Nov 2026).
-- Today: L-NoCross offers the partner's last shot (drawn: wait until 8 s, which reads as a last
+  "partner's last shot ▲▼ 8 s, waiting until 12.5 s" (mentor, 3 Nov 2026).
+- Today: L-NoCross offers the partner's last shot (drawn: wait until 8.5 s, which reads as a last
   shot at 4 s). No Auto offers another park.
 
 ## Timing: two sets of numbers
