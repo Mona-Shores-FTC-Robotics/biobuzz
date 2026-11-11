@@ -1301,8 +1301,11 @@ public abstract class RobotOpMode extends OpMode {
             log.put(HIVE_STATE_KEYS[i], state);
             log.put(HIVE_ASSUMED_KEYS[i], h.assumed() ? 1 : 0);
             log.hive(HiveComponents.of(a), HiveComponents.believedRad(a, h, nowMs));
-            if (state != loggedHiveState[i]) {
-                log.event("HIVE (" + a + "): " + h.state() + (h.assumed() ? " (assumed)" : ""));
+            // Only a state the camera saw is an event. An assumed one (the match start, a TIP taken
+            // as finished after the robot turned away) stays in the Assumed key: at Belding most
+            // "(assumed)" TIP lines never happened on video, and read as TIPs in the log.
+            if (!h.assumed() && state != loggedHiveState[i]) {
+                log.event("HIVE (" + a + "): " + h.state());
                 loggedHiveState[i] = state;
             }
         }
