@@ -22,7 +22,7 @@ was run"). Differences under 5 of 120 are not differences.
 - **Three TIPs alone take a different robot.** The smallest set that meets the target is all of
   these together: a turret that tracks the CELL while the robot drives; launching while moving; 0.98
   of shots staying in from every range; a feed that ends on the fourth ball at Belding's own spacing
-  (0.47 s a shot); 60 in/s or more; and a row of loose pieces picked up in about 2 s, twice. That makes
+  (0.5 s a shot or less); 60 in/s or more; and a row of loose pieces picked up in about 2.5 s, twice. That makes
   **2 TIPs in 96 and 3 TIPs in 87 of 120** at 70 in/s, the third at 28.5 s (97 and 66 at 60 in/s).
   Take any one away and the third TIP goes: without launching while moving 0 of 120, with Belding's
   accuracy 13, at 50 in/s 23.
@@ -266,6 +266,20 @@ Picks as at Belding in all of these. The set needs 60 in/s or more, or a 0.3 s f
 turret, the moving launch and the accuracy; with neither, the third TIP comes after 30 s. At 0.96
 staying in, the second TIP drops to 78 and the set fails the target whatever the third does.
 
+### The value each number has to reach
+
+Stepped one at a time on the smallest set (turret, launching while moving, stay in 0.98, feed 0.47 s
+a shot, 70 in/s, row sweep 6 in/s). None of these was tuned to get the answer; this is where the
+answer changes. 2 TIPs / 3 TIPs of 120:
+
+| Number | Fails | On the line | Meets the target | Value needed |
+|---|---|---|---|---|
+| Shots that stay in | 0.96: 78 / 62 | 0.97: 89 / 75 | 0.98: 96 / 87; 0.99: 102 / 101 | **0.98** (0.92 by inference at Belding) |
+| Drive speed | 50 in/s: 96 / 23; 55: 96 / 47 | 60: 97 / 66 | 65: 96 / 81; 70: 96 / 87 | **60 in/s, 65 for margin** (the Autos are drawn at 50) |
+| Seconds a shot, feed ending on the fourth | 0.75: 97 / 0 | 0.6: 96 / 59 | 0.47: 96 / 87; 0.3: 107 / 97 | **0.5 s or less** (0.47 at Belding once the first ball is out; the set feed made it 0.875) |
+| Row sweep, a placeholder | 3 in/s: 94 / 0; 4: 97 / 24 | | 5: 97 / 71; 6: 96 / 87; 8: 94 / 85 | **5 in/s or more: a row of 4 in about 2.5 s** (never timed) |
+| The lead on a moving shot, a placeholder | none: 33 / 28 (with every what-if on) | | perfect: 107 / 99 | **A moving shot that stays in as often as a standing one** (never tried) |
+
 ### What each would take
 
 | | To build or tune | On the list as | Before the next event? |
@@ -466,6 +480,16 @@ more.
 | turret + moving + stay in 0.98 + feed 0.47, 60 in/s | 120 | 97 | 66 | 6.4 s | 15.1 s | 29.4 s | **met** |
 | turret + moving + stay in 0.98 + feed 0.47, 70 in/s | 120 | 96 | 87 | 6.4 s | 14.9 s | 28.5 s | **met** |
 | turret + moving + stay in 0.96 + feed 0.47, 70 in/s | 120 | 78 | 62 | 6.6 s | 14.9 s | 28.6 s | no |
+| smallest set, stay in 0.97 | 120 | 89 | 75 | 6.4 s | 14.9 s | 28.5 s | no |
+| smallest set, stay in 0.99 | 120 | 102 | 101 | 6.4 s | 14.8 s | 28.5 s | **met** |
+| smallest set, 55 in/s | 120 | 96 | 47 | 6.4 s | 15.3 s | 30.0 s | no |
+| smallest set, 65 in/s | 120 | 96 | 81 | 6.4 s | 15.0 s | 29.0 s | **met** |
+| smallest set, feed 0.6 s a shot | 120 | 96 | 59 | 6.6 s | 16.0 s | 29.6 s | no |
+| smallest set, feed 0.75 s a shot | 120 | 97 | 0 | 6.8 s | 17.6 s | 32.1 s | no |
+| smallest set, row sweep 3 in/s | 120 | 94 | 0 | 6.4 s | 16.4 s |  | no |
+| smallest set, row sweep 4 in/s | 120 | 97 | 24 | 6.4 s | 15.7 s | 30.4 s | no |
+| smallest set, row sweep 5 in/s | 120 | 97 | 71 | 6.4 s | 15.2 s | 29.2 s | **met** |
+| smallest set, row sweep 8 in/s | 120 | 94 | 85 | 6.4 s | 14.5 s | 27.7 s | **met** |
 | R-Two-Tip, partner only parks | 119 | 58 | 0 | 7.5 s | 28.6 s |  | no |
 | L-NoCross, partner fires its preloads at the RIGHT CELL | 119 | 55 | 0 | 7.4 s | 22.8 s |  | no |
 | R-Two-Tip-With alone | 119 | 57 | 0 | 7.5 s | 28.4 s |  | no |
