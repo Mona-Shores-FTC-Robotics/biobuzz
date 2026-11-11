@@ -2,7 +2,10 @@
 
 For the mentor to decide. Nothing here changes a binding or a gate: it is the measurement from the
 Belding Qualifier (7 Nov 2026), the changes it points to, a simpler layout, and a draft guide for
-the drive teams. Code as on master after #532 (Circle's camera anchor).
+the drive teams. Code as on master after #532 (Circle's camera anchor) and #534 (a stick already
+moving no longer cancels Square, #495; the launcher keeps spinning 3 s after Square, #497; a
+launcher wheel cut for reading no speed is retried, #496). Section 2 replays those rules over the
+Belding presses to say what they already recover and what is left.
 
 **Short version.** At Belding the median time from the first press to the first piece leaving was
 3.4 s on 19429 and 2.75 s on 20245. Very little of it was the aim gate or the speed gate. It went
@@ -10,6 +13,10 @@ to Square presses that did not take (19429), to the drive to the spot and to the
 between the gate opening and the first piece reaching the wheels (both robots). The launcher was
 at speed at the first press in 17 of 84 launches. Even a perfect launch, launcher at speed and
 robot aimed, took 0.73 s to put a piece out.
+
+Since Belding, #534 has fixed the largest loss (a moving stick cancelling Square). Replayed over
+the Belding presses, its 3 s launcher grace reaches only 14 of 79 launches, so the open questions
+are the launcher staying on, the feed starting before the robot has stopped, and who fires.
 
 ## 1. Where the time goes
 
@@ -113,48 +120,56 @@ at 240 fps to find why the first ball is slow").
 
 Seconds are means per launch from the table above unless a row says otherwise.
 
+### Already on master (#534), replayed over the Belding presses
+
+| Change | What it recovers | What it leaves |
+|---|---|---|
+| A stick already moving at the press no longer cancels Square, Cross or Triangle (#495, `FreshSticks`) | In 58 of the 62 stick-cancelled presses the stick was back at centre within 0.6 s of the press, so the new rule would have kept them. Among presses that went on to launch: 0.80 s per Square launch on 19429 (6 of 22), 0.29 s on 20245 (21 of 67) | 20245's 27 taps let go before arriving, and the 31 refusals |
+| The launcher keeps spinning 3 s after Square is let go (#497) | Re-presses inside one attempt find it at speed | **Most launches.** Only 6 of 18 (19429) and 8 of 61 (20245) launches began within 3 s of the last Square press ending; the median gap was 3.3 s and 9.0 s. The first shot of a cycle is still cold |
+| A launcher wheel cut for reading no speed is retried (#496) | The 10 s fault set aside in 19429's Q-32 | |
+
+### Still open, ranked by seconds per launch
+
 | # | Change | Saves, 19429 | Saves, 20245 | How sure |
 |---|---|---|---|---|
-| 1 | A Square or Cross press survives a stick that was already moving (#495), and a tap is told apart from a hold | up to 2.1 s | up to 0.6 s | Sure of the cost. The refused share (18 presses on 19429) is the Pinpoint's, not this fix's |
-| 2 | Square opens the gate on the approach, as an Auto's LaunchAll already does, instead of after arriving and settling | 0.1 s sure, up to 0.6 s | 0.2 s sure, up to 0.8 s | The settle wait is measured. The rest needs a robot: do shots fired while slowing stay in? |
-| 3 | The launcher is at launch speed all TeleOp (#497 made the rule, not a 2 s grace) | 0.2 s in a Square launch, 0.6 to 0.8 s in every other launch | 0.3 s, and 0.6 to 0.7 s | Sure. FIRE at speed 0.73 s, from idle 1.51 s |
-| 4 | Shorten gate open to first piece (hardware, on the fix list) | about 0.2 s | about 0.3 to 0.4 s | The gap to later pieces (0.49 s) is measured. What can be gained is not known until it is filmed |
+| 1 | Square opens the gate on the approach, as an Auto's LaunchAll already does, instead of after arriving and settling | 0.1 s sure, up to 0.6 s | 0.2 s sure, up to 0.8 s | The settle wait is measured. The rest needs a robot: do shots fired while slowing stay in? |
+| 2 | The launcher is at launch speed all TeleOp, not for 3 s after Square | 0.2 s in a Square launch, 0.6 to 0.8 s in every other launch | 0.3 s, and 0.6 to 0.7 s | Sure. FIRE at speed 0.73 s, from idle 1.51 s; the 3 s grace reaches 13 to 33% of launches |
+| 3 | Shorten gate open to first piece (hardware, on the fix list) | about 0.2 s | about 0.3 to 0.4 s | The gap to later pieces (0.49 s) is measured. What can be gained is not known until it is filmed |
+| 4 | A tap on Square is told apart from a hold | none (1 tap) | up to 0.3 s | The 27 taps are measured; whether they were mistakes is not |
 | 5 | The driver's Circle also fires once aimed and at speed (section 3) | not measurable from Belding | not measurable | Two launches with a 3.0 s wait for FIRE. Thin |
 | 6 | A change of the speed table's target does not re-arm "at speed" when the wheels are already inside the new tolerance | under 0.1 s | under 0.15 s | Sure, and small |
 | 7 | Loosen the aim gate or the 150 ms at-speed hold | 0.04 s | 0.0 s | Sure it is not worth it |
 
 Notes on each.
 
-1. **Presses that take.** The largest loss on 19429 and the third largest on 20245. #495 is
-   already a top-five item for the stick. The new part is the 27 taps on 20245: the driver expects
-   a tap to work. Two ways to answer that, for the mentor to choose: teach "hold" (the guide
-   below), or make a tap latch until the volley ends or a stick moves. A latch is one more rule to
-   learn, so the proposal is to fix the stick first and count taps again at the next event.
-2. **Feed on the approach.** After arriving, Square waits for the settle check (0.11 and 0.23 s a
+1. **Feed on the approach.** After arriving, Square waits for the settle check (0.11 and 0.23 s a
    launch) and then the full feed lead (0.7 to 0.9 s). An Auto's `LaunchAll` opens the gate near
    the end of the path once aimed and at speed (`LaunchCards.launchOnApproach`, on at Belding);
    `SpotVolley` names the place where the same rule plugs in for Square. The first piece then
    reaches the wheels as the robot stops instead of 0.7 s after. It only works if the launcher is
-   at speed before the robot arrives, which is change 3.
-3. **Launcher always at speed.** In a Square launch the drive hides the spin-up, so the measured
+   at speed before the robot arrives, which is change 2.
+2. **Launcher always at speed.** In a Square launch the drive hides the spin-up, so the measured
    saving is small. It matters more than its row says: more defense means fewer clean Square
    drives and more shots from where the robot is, and every one of those pays 0.6 s of spin-up
-   today (1.2 to 1.5 s at worst). It costs about 3 A. The operators were already doing it by hand
-   in half the matches, and the toggle's state is the thing they got wrong: 34 of 52 FIRE presses
-   found the launcher idle or not at speed. Proposed as `TeleOpConfig.launcherAlwaysOn`, like
-   `intakeAlwaysOn`, with the operator's Cross kept as the off switch. It replaces "letting go of
-   Square idles the launcher" (7 Nov), which was a battery rule.
-4. **The feed lead.** Not software. It is in every launch on both robots and is 20245's single
+   (1.2 to 1.5 s at worst) unless a Square press ended in the last 3 s. It costs about 3 A. The
+   operators were already doing it by hand in half the matches, and the toggle's state is the
+   thing they got wrong: 34 of 52 FIRE presses found the launcher idle or not at speed. Proposed
+   as `TeleOpConfig.launcherAlwaysOn`, like `intakeAlwaysOn`, with the operator's Cross kept as
+   the off switch; `launcherKeepSpinningAfterSquareS` then has nothing left to do.
+3. **The feed lead.** Not software. It is in every launch on both robots and is 20245's single
    biggest wait, so it is worth the bench hour the fix list already asks for.
+4. **Taps.** 27 of 20245's Square presses were let go before arriving, median hold 0.35 s. Either
+   the driver expects a tap to work, or changed their mind. Teach "hold" first (the guide below)
+   and count taps again at the next event; a latch is one more rule to learn.
 5. **One decision.** See section 3.
 6. **Retarget.** A new target more than 60 ticks/s from the wheels drops "at speed" until they get
    there and hold 150 ms. With the launcher always on this happens while driving, not at the spot,
-   so change 3 removes most of it.
+   so change 2 removes most of it.
 7. **Gates.** Leave them. They are not where the time goes, and without a record of which shots
    went in there is no evidence that 3° or 60 ticks/s is tighter than the shots need.
 
 What the logs cannot say: whether shots fired earlier or from a moving robot still go in. Changes
-2 and 5 each have a check in `doc/robot-todo.md` §7f before they are trusted.
+1 and 5 each have a check in `doc/robot-todo.md` §7f before they are trusted.
 
 ## 3. A simpler layout
 
@@ -177,12 +192,12 @@ One rule for the driver: **hold a button to shoot, let go to stop.** Two buttons
 | Driver | Today | Proposed |
 |---|---|---|
 | Circle (hold) | Turns the robot onto the CELL. The operator's FIRE shoots | **Shoot from here:** turns onto the CELL and feeds once aimed and at speed, for as long as it is held |
-| Square (hold) | Drives to the nearest launch spot, then fires | **Go to a spot and shoot:** the same, feeding on the approach (change 2) |
+| Square (hold) | Drives to the nearest launch spot, then fires | **Go to a spot and shoot:** the same, feeding on the approach (change 1) |
 | Everything else | | Unchanged |
 
 | Operator | Today | Proposed |
 |---|---|---|
-| Launcher toggle (Cross) | Spin up or idle. Must be right before FIRE | **Launcher off / on.** On by itself from PLAY (change 3); pressed only to save a battery or stop a fault |
+| Launcher toggle (Cross) | Spin up or idle. Must be right before FIRE | **Launcher off / on.** On by itself from PLAY (change 2); pressed only to save a battery or stop a fault |
 | FIRE (Circle, hold) | The trigger for Circle, and a way to shoot without the driver | **Fire now:** feeds at once at launch speed, aimed or not. For when the camera and the pose both have nothing, and for clearing the lane |
 | Trim, unjam, FLOWER stick, turret | | Unchanged |
 
@@ -196,13 +211,13 @@ What it costs:
   flow safe, and a switch could keep both for a practice.
 - It is a new behaviour on Circle, so it needs the robot (§7f) before a match.
 
-**A smaller step, if the mentor prefers:** changes 1 and 3 only, and no change to who fires. That
-removes the invisible toggle and the cancelled presses, which is most of the measured time, and
+**A smaller step, if the mentor prefers:** change 2 only, and no change to who fires. With the
+stick fix already merged, that removes the invisible toggle as well, and
 leaves the Circle and FIRE question until practice logs have more than 16 Circle presses in them.
 
 Decisions asked of the mentor:
-1. Launcher on all TeleOp (change 3): yes or no.
-2. Square feeds on the approach (change 2): try it on the robot, or leave it.
+1. Launcher on all TeleOp (change 2), replacing the 3 s grace: yes or no.
+2. Square feeds on the approach (change 1): try it on the robot, or leave it.
 3. Circle fires by itself: yes, behind a switch for a practice, or no.
 4. Taps on Square: teach "hold", or latch.
 
@@ -226,9 +241,9 @@ The draft, written for today's controls:
 
 - **The robot knows where it is → hold Square.** It drives to the nearest launch spot, aims, and
   shoots by itself. Keep holding until the pieces are gone, then let go.
-  - Take your thumb off the drive stick before you press. A stick that is still moving cancels
-    Square at once.
   - Hold it. A tap does nothing.
+  - You can press while still steering: the robot takes over. Pushing a stick after that takes
+    the robot back.
   - Use it when you are near a launch spot and nobody is in the way.
 - **The robot is lost, blocked or far from a spot → hold Circle.** It turns the robot onto the
   CELL using the camera. You can keep driving with the left stick while it turns. The operator
@@ -244,7 +259,8 @@ Square will not. If Square says no once, do not press it again: go to Circle.
 
 - When the lane has pieces and the driver turns for the HIVE, spin the launcher up. Your light bar
   goes amber, then green with a buzz: green means ready.
-- When the driver holds Square, do nothing. The robot shoots. Your FIRE waits for it.
+- When the driver holds Square, do nothing. The robot shoots. Your FIRE waits for it. The
+  launcher stays on for 3 s after Square is let go, then idles.
 - When the driver holds Circle, hold FIRE. You can press early: it waits until the robot is on the
   CELL and the launcher is at speed, then feeds. Hold until the count on the Match page stops
   dropping.
@@ -268,7 +284,6 @@ The Match page tells you which kind of lost it is.
 
 ### Habits that cost the most time at Belding
 
-- Pressing Square with the stick still moving (62 presses cancelled).
 - Tapping Square instead of holding it (27 presses on 20245).
 - Pressing Square again and again after a refusal (8 presses in 14 s in one match).
 - FIRE with the launcher off: the first piece takes twice as long (1.5 s, not 0.7 s).
@@ -285,8 +300,8 @@ spin-up and the FIRE rules.
 
 | Fix-list item | This review |
 |---|---|
-| Stop Square and Cross cancelling when the stick was already moving (#495) | Confirms, and sizes it: up to 2.1 s a launch on 19429, 0.6 s on 20245. Adds the 27 taps on 20245 |
-| Keep the launcher spinning after Square so FIRE is ready (#497) | Confirms the numbers (0.73 s against 1.51 s). Narrows the fix: on for all of TeleOp, since 3 A is cheap and a short grace still leaves the first shot of a cycle cold |
+| Stop Square and Cross cancelling when the stick was already moving (#495) | Merged (#534). Replayed: it keeps 58 of the 62 cancelled presses. The 27 taps on 20245 are not covered |
+| Keep the launcher spinning after Square so FIRE is ready (#497) | Merged as a 3 s grace (#534). Replayed: it reaches 6 of 18 launches on 19429 and 8 of 61 on 20245. On for all of TeleOp would reach every one, for about 3 A |
 | Film a volley at 240 fps to find why the first ball is slow | Confirms: 0.71 and 0.77 s, the biggest single wait on 20245 (23 of 55 launches) |
-| Centre the drive stick before pressing Square or Cross | Confirms. It is in the guide |
+| Centre the drive stick before pressing Square or Cross | No longer needed once #534 is on the robots |
 | Practise driving by hand and the corner reset after a Pinpoint loss | Confirms. 13 of 19429's 18 refusals followed the Pinpoint faults. The guide separates "refused" (a reset helps) from "Pinpoint lost" (it does not) |
