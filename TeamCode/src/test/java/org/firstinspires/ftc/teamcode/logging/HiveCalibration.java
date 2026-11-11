@@ -43,9 +43,29 @@ import java.util.Map;
  * <p><b>The fit</b> ({@link #fit}) runs FIRST's calibration in the simulation. With the rocker held,
  * it places each case's pieces against the back skin and reads the resting torque: once with the
  * case one POLLEN short (must hold) and once with it complete (must tip). The holding torque goes
- * in the middle of the range every case allows. It then times a TIP and scales the swing speed
- * until the TIP takes the measured time. {@code HiveCalibrationTest} runs all six rows of §12.3
- * against the result.
+ * at {@link #tipPointInBand} of the range every case allows: by default its middle. It then times a
+ * TIP and scales the swing speed until the TIP takes the measured time. {@code HiveImpulseTest}
+ * runs all six rows of §12.3 against the result.
+ *
+ * <p><b>Where a real field's HIVEs sat in that range</b> ({@link #tipPointInBand}). The guide's cases
+ * leave a band: above 7.0 POLLEN weights (7 POLLEN must hold) and at most 7.95 (3 NECTAR + 3 POLLEN
+ * must tip). At the Belding Qualifier (7 Nov 2026) the two fields sat at opposite edges of that band,
+ * which the stream video and the scoresheets show:
+ * <ul>
+ *   <li><b>Field 1</b> ({@link #BELDING_FIELD_1}) tipped at about 7.0. Both of its HIVEs tipped on
+ *       loads the guide says must hold, with no hit: 6.95 in Q-1, and 7 POLLEN in Q-13 on both HIVEs.
+ *       The same field held those loads at other times (6.95 for more than 50 s in Q-19 and Q-27,
+ *       7 POLLEN for 20 s in Q-27), and once held 7.95 for 7.5 s (Q-31 blue). So its tip point sat at
+ *       the band's lower edge, spread by about a POLLEN.</li>
+ *   <li><b>Field 2</b> ({@link #BELDING_FIELD_2}) tipped at about 7.95–8.0, on both HIVEs. It tipped
+ *       on 3 NECTAR + 3 POLLEN and on 8 POLLEN, slowly (1.4–3.7 s after the last piece), never on
+ *       less than 7.95 that could be counted with confidence, and it held 6.95 to the end of a match
+ *       (Q-28, Q-30). So its tip point sat at the band's upper edge.</li>
+ * </ul>
+ * The red and blue HIVEs of one field agreed, so a field is the unit. No hit tipped a CELL under 7.0
+ * on either field, and none of the event's 44 scoresheets ended a match with 8 or more pieces in a
+ * CELL. Each event's fields are set by its own staff, so the default stays the guide's middle (about
+ * where the two Belding fields average). Pick a field to ask how an Auto does at either edge.
  */
 final class HiveCalibration {
 
@@ -80,6 +100,35 @@ final class HiveCalibration {
     static final double MEASURED_DROP_IN = Double.NaN;
     static final double MEASURED_REBOUND_IN = Double.NaN;
     // The tip time is HiveTracker.Tuning.tipSeconds.
+
+    /** Where the holding torque goes in the range the guide's cases allow: 0 its heaviest "holds" case, 1 its lightest "tips" case. */
+    static final double GUIDE_MIDDLE = 0.5;
+    /**
+     * Belding Qualifier Field 1, both HIVEs: tipped at about 7.0, the band's lower edge. Just inside it, so
+     * the guide's placed "holds" cases still hold. Evidence above and in the PR that set it.
+     */
+    static final double BELDING_FIELD_1 = 0.05;
+    /** Belding Qualifier Field 2, both HIVEs: tipped at about 7.95–8.0, the band's upper edge. Just inside it. */
+    static final double BELDING_FIELD_2 = 0.95;
+    /**
+     * Where this simulation's HIVEs sit in the guide's band ({@link #GUIDE_MIDDLE} unless a study picks a
+     * field: {@code BIOBUZZ_AUTO_HIVE_FIELD} in {@code AutoStudyTest}). Must be inside 0–1, so every
+     * placed case of §12 still holds or tips as the guide says.
+     */
+    static double tipPointInBand = GUIDE_MIDDLE;
+
+    /** {@link #tipPointInBand} for a field's name: "guide", "belding1", "belding2", or a number from 0 to 1. */
+    static double tipPointInBand(String field) {
+        switch (field.trim().toLowerCase(Locale.ROOT)) {
+            case "guide": return GUIDE_MIDDLE;
+            case "belding1": return BELDING_FIELD_1;
+            case "belding2": return BELDING_FIELD_2;
+            default:
+                double v = Double.parseDouble(field);
+                if (!(v >= 0 && v <= 1)) throw new IllegalArgumentException("tip point in band must be 0-1: " + field);
+                return v;
+        }
+    }
 
     // ---- Assumed until then: not measurements. ------------------------------------------------
 
@@ -142,14 +191,23 @@ final class HiveCalibration {
         throw new IllegalStateException("no calibration case starts from the match-start NECTAR");
     }
 
+    private static String bandName(double p) {
+        if (p == GUIDE_MIDDLE) return "the guide's middle";
+        if (p == BELDING_FIELD_1) return "Belding Field 1, about 7.0 POLLEN weights";
+        if (p == BELDING_FIELD_2) return "Belding Field 2, about 7.95-8.0 POLLEN weights";
+        return "a what-if";
+    }
+
     /** For the log's metadata. */
     String describe() {
         List<String> cases = new ArrayList<>();
         for (TipCase c : tipCases) cases.add(c.toString());
         return String.format(Locale.ROOT,
                 "HIVE calibrated as FIRST's Event Field Setup Guide 12.3: tips on %s, holds on one POLLEN fewer;"
+                        + " tip point %.2f of the way from the heaviest hold to the lightest tip (%s);"
                         + " NECTAR %.2f POLLEN weights (AndyMark); tip %.2f s; tile restitution %.2f. %s",
-                String.join(" and on ", cases), nectarPerPollen, tipSeconds, tileRestitution,
+                String.join(" and on ", cases), tipPointInBand, bandName(tipPointInBand),
+                nectarPerPollen, tipSeconds, tileRestitution,
                 assumed.isEmpty() ? "Tip time and bounce measured." : "Assumed, not measured: " + String.join(", ", assumed) + ".");
     }
 
@@ -165,7 +223,7 @@ final class HiveCalibration {
      * seeds scored 61.3 and 57.3).
      */
     FieldSim.Physics fit() {
-        String key = tipCases + "/" + nectarPerPollen + "/" + tipSeconds + "/" + tileRestitution;
+        String key = tipCases + "/" + nectarPerPollen + "/" + tipSeconds + "/" + tileRestitution + "/" + tipPointInBand;
         synchronized (FITTED) {
             FieldSim.Physics physics = FITTED.get(key);
             if (physics == null) {
@@ -214,7 +272,7 @@ final class HiveCalibration {
         if (!(highestHold < lowestTip)) {
             throw new IllegalStateException("no holding torque satisfies every case:" + seen);
         }
-        double hold = (highestHold + lowestTip) / 2;
+        double hold = highestHold + (lowestTip - highestHold) * tipPointInBand;
 
         // 2. The swing speed that makes a TIP take the measured time.
         double swing = 1.5;

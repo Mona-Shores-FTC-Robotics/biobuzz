@@ -1154,6 +1154,14 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   weights) tips 13 runs in 20, onto 7 POLLEN 1, onto 6.3 weights or less never. `HiveImpulseTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
   and the Guide's six §12.3 rows; `BIOBUZZ_SIM_SWEEP=0.5,1,2` prints every case at each strength, for
   refitting it to the video counts in `doc/robot-todo.md`.
+- **Where a field's HIVEs tip.** The Guide's cases leave a band: a CELL tips somewhere above 7.0 POLLEN
+  weights and at or below 7.95. The simulation tips in the band's middle (`HiveCalibration.GUIDE_MIDDLE`).
+  **Measured** at the Belding Qualifier (7 Nov 2026, stream video and the 44 scoresheets): Field 1 tipped at
+  about 7.0, the lower edge (it tipped on 6.95 and on 7 POLLEN, loads the Guide says must hold, but also held
+  them for long stretches and once held 7.95 for 7.5 s); Field 2 tipped at about 7.95–8.0, the upper edge,
+  slowly. Each field's two HIVEs agreed. `BIOBUZZ_AUTO_HIVE_FIELD=belding1` or `belding2` runs a study at
+  either edge (`HiveCalibration.BELDING_FIELD_1`/`_2`); `HiveFieldTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
+  both still pass the Guide's placed cases.
 - **The launcher fires at the robot's one setpoint.** The real robot's designs fire every shot at master's
   `LauncherSubsystem.targetTicksPerSecond` (`RobotDesign.fixedSetpoint`), at one pitch, whatever the distance,
   so a shot from nearer or further than RIGHT_START goes long or short. **Measured:** the setpoint, and that it
