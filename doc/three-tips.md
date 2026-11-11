@@ -137,26 +137,42 @@ comes up, and by keeping the second robot loaded and waiting at the RIGHT CELL:
 | 6.2 s | **TIP 1.** Volley 2: 4 preloads at the LEFT CELL (to 7.6 s) | |
 | 7.6 to 12.5 s | SCORING FLOWER pick, back to `LEFT_LAUNCH_OFFSET` | waits |
 | 12.5 to 14.0 s | Volley 3: the FLOWER's 4 at the LEFT CELL | |
-| 14.0 to 22.2 s | **TIP 2 dwell:** wall lane to the WALL FLOWER, picks 4 (full at 20.1 s), drives south to `RIGHT_WALL_NEAR` (34.4, 12.6) at the audience wall | |
+| 14.0 to 23.3 s | **TIP 2 dwell:** wall lane to the WALL FLOWER, picks 4 (full at 20.1 s), waits for 21.2 s on the clock so R has left, drives south to the same spot, `RIGHT_LAUNCH_CATCH` | |
 | 18.7 s | | **TIP 2.** Volley 4: the GARDEN's 4 at the RIGHT CELL (to 20.1 s) |
 | 20.1 s on | | Leaves straight under the HIVE and parks at `LEFT_PARK`, the far end (done 24.2 s) |
-| 22.3 to 24.0 s | Volley 5: the WALL FLOWER's 4 at the RIGHT CELL, 24 degrees off square | |
-| 24.0 s on | Drives up the wall lane and parks at `RIGHT_PARK`, the near end (done 27.1 s) | |
-| 28.0 s | **TIP 3** (28.7 s on average) | |
+| 23.3 to 25.0 s | Volley 5: the WALL FLOWER's 4 at the RIGHT CELL, square on from 42 in | |
+| 25.0 s on | Drives up the wall lane and parks at `RIGHT_PARK`, the near end | |
+| 29.2 s | **TIP 3** (29.8 s on average) | |
 
 Those are one run's times; the averages are in the table below. If the LEFT CELL is not up by 13 s L
-parks. L goes south only with a full intake before 23 s, and otherwise parks from the WALL FLOWER. If
-the RIGHT CELL is not back up, both give up at 25 s.
+parks. L goes south only with a full intake before 22.5 s, and otherwise parks from the WALL FLOWER. R
+fires only if the RIGHT CELL is back up by 20.5 s, and otherwise leaves then; L gives up at 25 s.
 
 **Every volley is fired from the CELL's own end of the field** (mentor, 11 Nov). The first drawing had
 L fire its last 4 at the RIGHT CELL from the wall lane, (26, 40), which is 62 degrees off square to
 the CELL's row. The simulator let it through because it scores a shot by range only. The mentor's
 verdict was that it will never go in, and the Square launch spots work (biobuzz#536) agrees: the
 steepest shot ever fired in a log is about 33 degrees, its spots are capped at 26, and the row's
-opening seen from 62 degrees is under half its width. So L's last volley now comes from the audience
-wall, at that work's `RIGHT_WALL_NEAR` moved 2 in along and 2 in off the wall (24 degrees, 54 in), and
-R stands on the team's `RIGHT_LAUNCH_CATCH` (square on, 42 in), 4 in of floor between the two frames.
-L's trip is 30 in longer, which is why TIP 3 now comes at 28.7 s, not 28.0 s.
+opening seen from 62 degrees is under half its width.
+
+**Both last volleys come from one square spot, one robot after the other** (mentor, 11 Nov). There is
+room for one robot square in front of the RIGHT CELL. A second spot beside it is 24 degrees off square
+at 54 in, which nothing has measured, and the mentor would not plan on it. So R fires from
+`RIGHT_LAUNCH_CATCH` (square on, 42 in, the calibration's best range) and leaves, and L takes the same
+spot after it. Neither robot can see the other, so the hand-over is by the clock: R is off the spot
+by 22.4 s at the latest, and L does not start toward it before 21.2 s. **That wait costs about a
+second, and the pair has no second to give:**
+
+| With the shot counter, stay in 0.98, 50 in/s, of 120 | 2 TIPs | 3 TIPs by 30 s | TIP 3 at | Robots touch |
+|---|---|---|---|---|
+| L on its own angled spot at the wall (24 degrees, 54 in), R square | 97 | 82 (GARDEN gives 4), 20 (own gather) | 28.7 s | 0 |
+| One square spot, L drives in as soon as it is full | 97 | 73, 16 | 29.0 s | 35, 14 |
+| **One square spot, L waits for the clock (as drawn now)** | 97 | **53**, 12 | 29.8 s | 0 |
+
+So the safe shared spot makes the third TIP in 53 of 120, under the 60 the target asks for, and the
+angled spot makes it in 82 only if a 24 degree shot stays in as well as a square one. Which is better
+on a field is a robot question (`doc/robot-todo.md`): count the balls that stay in from the angled
+spot. The earlier drawing with the angled spot is commit `f6fd8daa` of this branch.
 
 **The two never share a road.** The first drawing also had R wait for L and follow it up the wall
 lane. At Belding's volley time (the Visualizer's default) L runs about 3 s later, and the robots
@@ -170,11 +186,14 @@ guard uses.
 | The two robots touch | 0 | 0 |
 | A robot touches the HIVE frame or crosses the centre line | 0 | 0 |
 | A robot is not parked at 30 s | 0 | 0 |
+| A robot is hit by a spilled piece before it lands (G409) | 5 or 6 (R) | 0 |
 
-What that table does not settle. **The road under the HIVE** leaves 3.3 in on each side between our
+What that table does not settle. **At Belding's pace R drives under the HIVE as the CELL tips** (it
+leaves at 20.5 s and TIP 2 comes at about 22 s), and the spill lands on it in 5 or 6 runs of 120: a
+foul. With the shot counter TIP 2 has already happened when R leaves. **The road under the HIVE** leaves 3.3 in on each side between our
 foot bar and the centre line; the simulator drives it clean, a real robot has not
 (`doc/robot-todo.md`). **At Belding's pace L never fires its last volley** (it is not full before
-23 s, so it parks) and R rarely does, which costs nothing there, since a third TIP is out of reach at
+22.5 s, so it parks) and R rarely does, which costs nothing there, since a third TIP is out of reach at
 that pace. **No stay-in share by angle exists**, for any spot: the logs count balls leaving, and the
 calibration is by range from near-square shots. The simulator also flags every FLOWER pick as "drives
 into a FLOWER"; that is the pick itself reaching the holder, and master's Autos get the same flag.
@@ -183,12 +202,12 @@ into a FLOWER"; that is the pick itself reaching the holder, and master's Autos 
 defaults (Volley time 4.0 s) the match shows 2 TIPs. For the three-TIP run set **Volley time to 2.2 s**
 (a feed that ends on the fourth ball) and **Intake full to 0 s**: L's gate after the WALL FLOWER asks
 for a full intake, which the pick has already filled, and the Visualizer's default adds 1.9 s to that
-wait. Then it shows 3 TIPs with L done at 28.7 s, 1.3 s to spare.
+wait. Then L's last volley ends at about 25 s and the third TIP falls at or just after 30 s.
 
 | The pair, real cards, no turret | 1 TIP | 2 TIPs | 3 TIPs | TIP 2 at | TIP 3 at | Target |
 |---|---|---|---|---|---|---|
-| **Feed ends on the fourth ball (0.47 s a shot), stay in 0.98, 50 in/s, the GARDEN gives 4** | 120 | 97 | 82 | 19.2 s | 28.7 s | **met** |
-| the same, but the GARDEN by the robot's own routine as the simulator runs it (it takes 2) | 120 | 97 | 20 | 19.2 s | 28.8 s | no |
+| **Feed ends on the fourth ball (0.47 s a shot), stay in 0.98, 50 in/s, the GARDEN gives 4** | 120 | 97 | 53 | 19.2 s | 29.8 s | no |
+| the same, but the GARDEN by the robot's own routine as the simulator runs it (it takes 2) | 120 | 97 | 12 | 19.2 s | 29.9 s | no |
 | the same, with the row sweep at 3 in/s | 120 | 97 | 32 | 19.2 s | 28.1 s | no |
 | Belding's feed (the whole 3.5 s) | 120 | 97 | 0 | 22.1 s | | no |
 | Feed 0.3 s a shot | 120 | 97 | 84 | 17.9 s | 26.0 s | **met** |
@@ -200,10 +219,10 @@ wait. Then it shows 3 TIPs with L done at 28.7 s, 1.3 s to spare.
 | Belding's accuracy | 120 | 58 | 28 | 19.3 s | 28.0 s | no |
 | Everything as at Belding | 120 | 58 | 0 | 22.2 s | | no |
 
-The top two rows and the last row are from the drawing as it is now (11 Nov: L's last volley from the
-audience wall, R's exit under the HIVE). **Every other row is from the first drawing**, whose last
+The top two rows and the last row are from the drawing as it is now (11 Nov: both last volleys from
+the one square spot, R's exit under the HIVE). **Every other row is from the first drawing**, whose last
 volley was the side shot and whose ending was 0.7 s quicker: read those as upper bounds. The margin is
-the thing to notice: TIP 3 comes 1.3 s before the buzzer on average, so anything that costs a second
+the thing to notice: TIP 3 now comes 0.2 s before the buzzer on average, so anything that costs a second
 (a slower drive, a slow pick) takes third TIPs away.
 
 **The pair needs three things, and no new mechanism:**

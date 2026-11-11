@@ -538,10 +538,10 @@
       {
         "id": "c-w-9",
         "kind": "firstOf",
-        "label": "RIGHT up before 25 s, otherwise park",
+        "label": "RIGHT up before 20.5 s, otherwise park",
         "rows": [
           {
-            "afterMs": 25000,
+            "afterMs": 20500,
             "matchClock": true,
             "cards": [
               {

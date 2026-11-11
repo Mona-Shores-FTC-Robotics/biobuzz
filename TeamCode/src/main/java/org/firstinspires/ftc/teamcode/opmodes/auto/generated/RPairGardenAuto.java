@@ -85,8 +85,8 @@ public final class RPairGardenAuto {
                 kit.path("to GARDEN_STAGING", toGardenStaging, 2.1, gardenStagingPark, 3),
                 kit.command("GardenGather", 7),
                 kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 2.1, underTheHiveToLeftPark, 3.8),
-                kit.firstOf("RIGHT up before 25 s, otherwise park",
-                        kit.atMatchSeconds(25).then(
+                kit.firstOf("RIGHT up before 20.5 s, otherwise park",
+                        kit.atMatchSeconds(20.5).then(
                                 kit.guarded("Timed out", underTheHiveToLeftPark, 3.8,
                                         kit.path("under the HIVE to LEFT_PARK", underTheHiveToLeftPark, 3.8))),
                         kit.when("RightCellUp").then(

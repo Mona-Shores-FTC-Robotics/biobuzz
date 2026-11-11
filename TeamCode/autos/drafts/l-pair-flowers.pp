@@ -255,7 +255,7 @@
     {
       "id": "to-right-wall",
       "color": "#76b7b2",
-      "name": "to RIGHT_WALL_NEAR",
+      "name": "to RIGHT_LAUNCH_CATCH",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -263,19 +263,19 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 34.4,
-        "y": 12.6
+        "x": 57.5,
+        "y": 18
       },
       "controlPoints": [
         {
-          "x": 26,
-          "y": 30
+          "x": 30,
+          "y": 22
         }
       ],
       "heading": {
         "type": "piecewise",
         "startDeg": 180,
-        "endDeg": 65.9,
+        "endDeg": 91.9,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
@@ -288,7 +288,7 @@
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 180,
-                "endDeg": 65.9
+                "endDeg": 91.9
               }
             },
             {
@@ -298,8 +298,8 @@
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 65.9,
-                "endDeg": 65.9
+                "startDeg": 91.9,
+                "endDeg": 91.9
               }
             }
           ]
@@ -322,21 +322,21 @@
       },
       "controlPoints": [
         {
-          "x": 38,
-          "y": 28
+          "x": 46,
+          "y": 30
+        },
+        {
+          "x": 20,
+          "y": 30
         },
         {
           "x": 25,
-          "y": 50
-        },
-        {
-          "x": 25,
-          "y": 82
+          "y": 86
         }
       ],
       "heading": {
         "type": "piecewise",
-        "startDeg": 65.9,
+        "startDeg": 91.9,
         "endDeg": 0,
         "degrees": 0,
         "reverse": false,
@@ -349,7 +349,7 @@
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 65.9,
+                "startDeg": 91.9,
                 "endDeg": 90
               }
             },
@@ -674,10 +674,10 @@
         47.2,
         180
       ],
-      "RIGHT_WALL_NEAR": [
-        34.4,
-        12.6,
-        65.9
+      "RIGHT_LAUNCH_CATCH": [
+        57.5,
+        18,
+        91.9
       ]
     },
     "pathEnds": {
@@ -688,7 +688,7 @@
       "scoring-back": "LEFT_LAUNCH_OFFSET",
       "offset-to-wall": "WALL_FLOWER_STAGING",
       "wall-park": "RIGHT_PARK",
-      "to-right-wall": "RIGHT_WALL_NEAR",
+      "to-right-wall": "RIGHT_LAUNCH_CATCH",
       "lane-park": "RIGHT_PARK"
     },
     "cards": [
@@ -704,7 +704,7 @@
         "park": false
       },
       {
-        "id": "c-w-18",
+        "id": "c-w-19",
         "kind": "firstOf",
         "label": "LEFT up before 13 s, otherwise park",
         "rows": [
@@ -766,12 +766,12 @@
                 "timeoutS": 4.5
               },
               {
-                "id": "c-w-17",
+                "id": "c-w-18",
                 "kind": "firstOf",
-                "label": "Full before 23 s, otherwise park",
+                "label": "Full before 22.5 s, otherwise park",
                 "rows": [
                   {
-                    "afterMs": 23000,
+                    "afterMs": 22500,
                     "matchClock": true,
                     "cards": [
                       {
@@ -788,13 +788,25 @@
                     ],
                     "cards": [
                       {
-                        "id": "c-p-12",
+                        "id": "c-w-12",
+                        "kind": "firstOf",
+                        "label": "Let R leave the spot",
+                        "rows": [
+                          {
+                            "afterMs": 21200,
+                            "matchClock": true,
+                            "cards": []
+                          }
+                        ]
+                      },
+                      {
+                        "id": "c-p-13",
                         "kind": "path",
                         "lineId": "to-right-wall",
                         "park": false
                       },
                       {
-                        "id": "c-w-16",
+                        "id": "c-w-17",
                         "kind": "firstOf",
                         "label": "RIGHT up before 25 s, otherwise park",
                         "rows": [
@@ -803,7 +815,7 @@
                             "matchClock": true,
                             "cards": [
                               {
-                                "id": "c-p-13",
+                                "id": "c-p-14",
                                 "kind": "path",
                                 "lineId": "lane-park",
                                 "park": true
@@ -816,12 +828,12 @@
                             ],
                             "cards": [
                               {
-                                "id": "c-a-14",
+                                "id": "c-a-15",
                                 "kind": "action",
                                 "name": "LaunchAll"
                               },
                               {
-                                "id": "c-p-15",
+                                "id": "c-p-16",
                                 "kind": "path",
                                 "lineId": "lane-park",
                                 "park": true
@@ -849,11 +861,12 @@
       "c-p-2": "offset-park",
       "c-p-5": "scoring-park",
       "c-p-9": "wall-park",
-      "c-p-12": "lane-park"
+      "c-p-13": "lane-park"
     },
     "teamSpots": [
       "LEFT_LAUNCH_OFFSET",
       "LEFT_START",
+      "RIGHT_LAUNCH_CATCH",
       "RIGHT_PARK",
       "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"

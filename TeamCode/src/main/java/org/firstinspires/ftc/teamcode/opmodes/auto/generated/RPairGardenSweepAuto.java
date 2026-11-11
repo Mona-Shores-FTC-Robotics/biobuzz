@@ -90,8 +90,8 @@ public final class RPairGardenSweepAuto {
                 kit.path("to GARDEN_ROW_START", toGardenRowStart, 1.8, gardenRowStartPark, 3.3),
                 kit.command("SweepRow", 4),
                 kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 1.8, underTheHiveToLeftPark, 3.8),
-                kit.firstOf("RIGHT up before 25 s, otherwise park",
-                        kit.atMatchSeconds(25).then(
+                kit.firstOf("RIGHT up before 20.5 s, otherwise park",
+                        kit.atMatchSeconds(20.5).then(
                                 kit.guarded("Timed out", underTheHiveToLeftPark, 3.8,
                                         kit.path("under the HIVE to LEFT_PARK", underTheHiveToLeftPark, 3.8))),
                         kit.when("RightCellUp").then(

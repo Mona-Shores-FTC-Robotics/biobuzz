@@ -54,7 +54,7 @@ public final class LPairFlowersAuto {
         Pose rightPark = p.of(14.5, 95.7, 0);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
-        Pose rightWallNear = p.of(34.4, 12.6, 65.9);
+        Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose toLeftLaunchOffsetControl1 = p.of(58, 122, 0);
@@ -63,12 +63,12 @@ public final class LPairFlowersAuto {
         Pose wallLaneToWallFlowerStagingControl1 = p.of(24, 104, 0);
         Pose wallLaneToWallFlowerStagingControl2 = p.of(24, 70, 0);
         Pose wallLaneToWallFlowerStagingSegment1Start = p.of(23.1, 47.2, 296.4);
-        Pose toRightWallNearControl1 = p.of(26, 30, 0);
-        Pose toRightWallNearSegment1Start = p.of(34.4, 12.6, 180);
-        Pose toRightParkControl1 = p.of(38, 28, 0);
-        Pose toRightParkControl2 = p.of(25, 50, 0);
-        Pose toRightParkControl3 = p.of(25, 82, 0);
-        Pose toRightParkSegment1Start = p.of(14.5, 95.7, 65.9);
+        Pose toRightLaunchCatchControl1 = p.of(30, 22, 0);
+        Pose toRightLaunchCatchSegment1Start = p.of(57.5, 18, 180);
+        Pose toRightParkControl1 = p.of(46, 30, 0);
+        Pose toRightParkControl2 = p.of(20, 30, 0);
+        Pose toRightParkControl3 = p.of(25, 86, 0);
+        Pose toRightParkSegment1Start = p.of(14.5, 95.7, 91.9);
         Pose toRightParkSegment1End = p.of(14.5, 95.7, 90);
         Pose toRightParkSegment2Start = p.of(14.5, 95.7, 90);
         Pose toRightParkSegment2End = p.of(14.5, 95.7, 90);
@@ -82,8 +82,8 @@ public final class LPairFlowersAuto {
         Path toLeftLaunchOffsetPath = Paths.line(scoringFlowerStaging, leftLaunchOffset).linear(scoringFlowerStaging, leftLaunchOffset);
         Path wallLaneToWallFlowerStaging = Paths.curve(leftLaunchOffset, wallLaneToWallFlowerStagingControl1, wallLaneToWallFlowerStagingControl2, wallFlowerStaging).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(wallLaneToWallFlowerStagingSegment1Start, wallFlowerStaging)).until(1, Interpolator.linear(wallFlowerStaging, wallFlowerStaging)));
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
-        Path toRightWallNear = Paths.curve(wallFlowerStaging, toRightWallNearControl1, rightWallNear).heading(Interpolator.piecewise().until(0.7, Interpolator.linear(toRightWallNearSegment1Start, rightWallNear)).until(1, Interpolator.linear(rightWallNear, rightWallNear)));
-        Path toRightPark = Paths.curve(rightWallNear, toRightParkControl1, toRightParkControl2, toRightParkControl3, rightPark).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(toRightParkSegment1Start, toRightParkSegment1End)).until(0.7, Interpolator.linear(toRightParkSegment2Start, toRightParkSegment2End)).until(1, Interpolator.linear(toRightParkSegment3Start, rightPark)));
+        Path toRightLaunchCatch = Paths.curve(wallFlowerStaging, toRightLaunchCatchControl1, rightLaunchCatch).heading(Interpolator.piecewise().until(0.7, Interpolator.linear(toRightLaunchCatchSegment1Start, rightLaunchCatch)).until(1, Interpolator.linear(rightLaunchCatch, rightLaunchCatch)));
+        Path toRightPark = Paths.curve(rightLaunchCatch, toRightParkControl1, toRightParkControl2, toRightParkControl3, rightPark).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(toRightParkSegment1Start, toRightParkSegment1End)).until(0.7, Interpolator.linear(toRightParkSegment2Start, toRightParkSegment2End)).until(1, Interpolator.linear(toRightParkSegment3Start, rightPark)));
 
         return kit.sequence(
                 kit.command("SpinUp"),
@@ -100,19 +100,21 @@ public final class LPairFlowersAuto {
                                 kit.command("LaunchAll"),
                                 kit.path("wall lane to WALL_FLOWER_STAGING", wallLaneToWallFlowerStaging, 2.6, wallFlowerStagingPark, 2),
                                 kit.command("PickFlower", 4.5),
-                                kit.firstOf("Full before 23 s, otherwise park",
-                                        kit.atMatchSeconds(23).then(
+                                kit.firstOf("Full before 22.5 s, otherwise park",
+                                        kit.atMatchSeconds(22.5).then(
                                                 kit.guarded("Timed out", wallFlowerStagingPark, 2,
                                                         kit.path("WALL_FLOWER_STAGING park", wallFlowerStagingPark, 2))),
                                         kit.when("IntakeFull").then(
-                                                kit.path("to RIGHT_WALL_NEAR", toRightWallNear, 1.8, toRightPark, 2.8),
+                                                kit.firstOf("Let R leave the spot",
+                                                        kit.atMatchSeconds(21.2)),
+                                                kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 2, toRightPark, 2.9),
                                                 kit.firstOf("RIGHT up before 25 s, otherwise park",
                                                         kit.atMatchSeconds(25).then(
-                                                                kit.guarded("Timed out", toRightPark, 2.8,
-                                                                        kit.path("to RIGHT_PARK", toRightPark, 2.8))),
+                                                                kit.guarded("Timed out", toRightPark, 2.9,
+                                                                        kit.path("to RIGHT_PARK", toRightPark, 2.9))),
                                                         kit.when("RightCellUp").then(
-                                                                kit.guarded("If RightCellUp", toRightPark, 2.8,
+                                                                kit.guarded("If RightCellUp", toRightPark, 2.9,
                                                                         kit.command("LaunchAll"),
-                                                                        kit.path("to RIGHT_PARK", toRightPark, 2.8)))))))));
+                                                                        kit.path("to RIGHT_PARK", toRightPark, 2.9)))))))));
     }
 }
