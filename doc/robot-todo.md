@@ -905,11 +905,15 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
 Both encoders' absolute (PWM) wires to the OctoQuad, which sits on Control Hub I2C bus 3. Off on
 both robots until every value is in (`TurretSubsystem.useAbsoluteZero`). [#169]
 
-- [ ] **Wiring.** Each Cypher Max's voltage switch on **3V3** (the OctoQuad is not 5 V tolerant).
-      Encoder A (the Cypher Max whose quadrature is in the feeder's encoder socket) absolute wire to
-      OctoQuad **channel 4**, encoder B to **channel 5**, each on the channel's signal pin with 3V3
-      and ground. A custom cable: the Cypher Max's absolute output is on its own 3-pin cable, not on
-      the FTC JST-PH one. Activate the config, run **Check: Hardware**.
+- [ ] **Wiring (not decided yet).** Each Cypher Max's voltage switch on **3V3** (the OctoQuad is
+      not 5 V tolerant). Encoder A (64T) absolute signal to OctoQuad **channel 4**, encoder B (44T)
+      to **channel 5**, each on the channel's A (signal) pin with 3V3 and ground. A Cypher Max has
+      one 10-pin connector, and no stock cable carries both outputs: the FTC JST-PH cable is
+      quadrature only, the absolute output is on its own 3-pin cable. So either A gets a custom
+      split cable (quadrature to the feeder's encoder socket, absolute to the OctoQuad: the code
+      today), or each encoder gets one absolute cable and the match reads the OctoQuad (needs a code
+      change; **Bench: Turret Absolute** times the read). Check Studica's pinout before crimping.
+      Activate the config, run **Check: Hardware**.
 - [ ] **Bench: OctoQuad**, INIT. **Good:** firmware 3.x on the first line; channels 4 and 5 show a
       pulse that changes as the turret is turned. **Stop:** FAULT "not answering" → bus or cable;
       0 µs on a channel → absolute wire not on its signal pin, or the switch on 5V.
@@ -929,6 +933,14 @@ both robots until every value is in (`TurretSubsystem.useAbsoluteZero`). [#169]
       the turret turned off its mark: "zeroed from the two absolute encoders", and the Robot page's
       "Turret abs … vs count" stays within ±1°. **Stop:** "encoders disagree" or "ambiguous" → a
       value above is wrong, or the gear slips.
+
+- [ ] **Bench: Turret Absolute**, after the values above. In INIT turn the turret by hand through
+      several turns, and push the robot round. **Good:** "Absolute pair", "1 · Count" (if its cable
+      is in) and "2 · Absolute only" agree within a degree or two at every angle; "Points" changes
+      by the robot's turn plus the turret's; with the turret aimed by eye at our raised CELL, "turret
+      off by" reads within 2°, and Panels' green line lands on the CELL. Note "OctoQuad read" (last
+      and worst ms) beside the loop time: that number decides the wiring. **Stop:** a source that
+      jumps by tens of degrees → a wrap missed, or a value in § 7g wrong.
 
 ## 8. If time: anyone, no driving
 

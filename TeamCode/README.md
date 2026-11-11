@@ -589,6 +589,15 @@ does not report correct CHIP_ID" warning at startup; nothing reads it while
 `useAbsoluteZero` is off. The facts are on #169; the bench checklist is
 `doc/robot-todo.md` § 7g.
 
+**Bench: Turret Absolute** shows every way the robot can know the turret's
+angle side by side, whichever way the encoders end up wired: the absolute pair
+(solved live), the 64T encoder's quadrature count in the feeder's socket, the
+64T encoder's absolute reading with its wraps counted (one absolute cable per
+encoder, the OctoQuad read during the match), and what the servo was told. It
+times each OctoQuad read, so the wiring can be chosen from a number, and shows
+where the turret points on the field (heading plus turret angle) against the
+bearing to our raised CELL, with the turret drawn on Panels' field.
+
 `subsystems/TurretEncoder` is the pure math (counts to degrees, with the
 measured gear ratio and direction). The servo is a goBILDA in standard
 (position) mode since 6 Nov 2026: it holds the position it is sent with its own

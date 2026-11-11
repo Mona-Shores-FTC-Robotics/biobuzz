@@ -66,7 +66,8 @@ Three layers, each written in exactly one place:
   through the encoder socket of `DeviceNames.TURRET_ENCODER_HOST` (a motor whose own encoder the
   code never uses for control), and only turret code may reset that count. With `TurretSubsystem.useAbsoluteZero` on, two
   Cypher Maxes at different gear ratios send their absolute PWM to the OctoQuad, and
-  `TurretAbsolute` sets the turret's zero from them in INIT; the OctoQuad is never read after PLAY.
+  `TurretAbsolute` sets the turret's zero from them in INIT; a match never reads the OctoQuad after
+  PLAY (only **Bench: Turret Absolute** does, through `readAbsoluteLive()`).
   → README § "The turret: a servo on a servo port, an encoder on a motor's encoder socket"
 - XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what
   the SDK reads; keep `port` equal to it.
