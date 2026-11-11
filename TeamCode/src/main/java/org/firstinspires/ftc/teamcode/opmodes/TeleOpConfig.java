@@ -123,6 +123,16 @@ public final class TeleOpConfig {
      */
     public static double spotDriftWarnIn = 3.0;
 
+    /**
+     * A drive stick already off centre when Square, the FLOWER pick or the GARDEN gather is pressed
+     * does not cancel the press until it has been centred once, or has stayed off centre this many
+     * seconds after the press ({@link FreshSticks}); a stick moved after the press cancels at once,
+     * as ever. 0.6 s is a starting point, <b>not measured</b>: at Belding the stick was moving at
+     * 50 of the 51 Square presses cancelled within 0.1 s (#495). Clamped to [0, 2]; 0 or NaN is
+     * the old rule, any stick cancels at once.
+     */
+    public static double staleStickCancelsAfterS = 0.6;
+
     /** Chassis aim: turn power per radian of heading error. A starting point, not a measurement. */
     public static double chassisAimKp = 1.0;
 

@@ -854,10 +854,16 @@ matches did not show.
 
 The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` branch.
 
-- [ ] **Square with the drive stick centred.** In 50 of 51 Square presses cancelled within 0.1 s
-      at Belding, the stick was already moving when Square went down. Practise: stop steering,
-      press and hold Square. **Good:** ten Square presses in a row, none "sticks moved early" in the
-      log. The code side is #495.
+- [ ] **Square, Cross and Triangle pressed while still steering** (`FreshSticks`, #495). In 50 of
+      51 Square presses cancelled within 0.1 s at Belding, the stick was already moving when Square
+      went down. A stick already off centre at the press is now ignored until it centres once, or
+      for `TeleOpConfig.staleStickCancelsAfterS` (0.6 s, not measured). Basic Drive: drive toward a
+      launch spot and press Square without letting the stick go, ten times; then the same with
+      Cross at a FLOWER. Then, holding Square with the stick centred, push the stick. **Good:** none
+      of the ten ends `sticks moved early`, the robot takes over within about half a second of the
+      stick coming back, and a stick pushed after the press hands the robot back at once.
+      **Stop:** the robot fights a driver who meant to keep driving → lower
+      `staleStickCancelsAfterS` (0 is the old rule) and note the value that felt right.
 - [ ] **Drive by hand once the Pinpoint is lost** (the Match page shows "Pinpoint lost"). A corner
       or camera reset cannot clear it (`PinpointLoss`: only a restart does), so Square and the FLOWER
       pick stay refused for the rest of the match, even though their refusal text suggests a reset.

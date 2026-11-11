@@ -173,6 +173,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private FlowerPicker picker;
     private GardenGather gatherer;
     private LaunchSpotDrive launchSpot;
+    private final FreshSticks pickSticks = new FreshSticks();
+    private final FreshSticks gatherSticks = new FreshSticks();
+    private final FreshSticks spotSticks = new FreshSticks();
     /** Who has the launcher, and so when it idles: Square's press or the operator ({@link LauncherOwner}). */
     private final LauncherOwner launcherOwner = new LauncherOwner();
     /** The operator's trim on the launch speed, ticks per second; lasts the OpMode. */
@@ -537,11 +540,18 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // A FLOWER pick, a GARDEN gather or the drive to a launch spot drives the robot while held,
         // one at a time; a stick, or letting go (for a grab, before the dwell), hands it back this
         // loop. Let go in a grab's dwell, it backs out first.
+        // Only a stick moved after the press: one still moving from the drive up to it is ignored
+        // until it centres (FreshSticks, #495).
         boolean sticksMoved = leftStick || rightStick;
-        picker.update(controls.held(Action.FLOWER_PICK) && !gatherer.active() && !launchSpot.active(), sticksMoved);
-        gatherer.update(controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active(), sticksMoved);
+        double nowS = now / 1e9;
+        double staleS = staleStickCancelsAfterS();
+        boolean pickHeld = controls.held(Action.FLOWER_PICK) && !gatherer.active() && !launchSpot.active();
+        picker.update(pickHeld, pickSticks.moved(pickHeld, sticksMoved, nowS, staleS));
+        boolean gatherHeld = controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active();
+        gatherer.update(gatherHeld, gatherSticks.moved(gatherHeld, sticksMoved, nowS, staleS));
         // A volley already under way does not yield to the operator's FIRE (fire() holds it back).
-        launchSpot.update(controls.held(Action.LAUNCH_SPOT) && !grabActive(), setup.alliance(), sticksMoved,
+        boolean spotHeld = controls.held(Action.LAUNCH_SPOT) && !grabActive();
+        launchSpot.update(spotHeld, setup.alliance(), spotSticks.moved(spotHeld, sticksMoved, nowS, staleS),
                 controls.held(Action.FIRE) && !launchSpot.wantsLauncher());
         updateTableSpeed();
         spotLauncher();
@@ -1112,6 +1122,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
      */
     private static double unitRange(double value) {
         return value > 0.0 ? Math.min(value, 1.0) : 0.0;
+    }
+
+    /** {@link TeleOpConfig#staleStickCancelsAfterS}, guarded: [0, 2] s, NaN is 0 (the old rule). */
+    private static double staleStickCancelsAfterS() {
+        double v = TeleOpConfig.staleStickCancelsAfterS;
+        return v > 0.0 ? Math.min(v, 2.0) : 0.0;
     }
 
     private static double deadband(double value) {
