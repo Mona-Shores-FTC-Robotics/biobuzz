@@ -591,9 +591,11 @@ function Export-Frames([string]$ffmpeg, [string]$video, [double]$fromS, [int]$co
 }
 
 # Downloads a match's source: $durS seconds of the stream from $fromS, 1280x720, no sound, nothing drawn on it.
+# No -stats, here or in New-Clip: ffmpeg redraws its progress on one line, and a window that keeps a transcript
+# prints every redraw end to end, hundreds of them. The caller says how long to expect instead.
 function New-Source([string]$ffmpeg, [string]$inputUrl, [string]$headers, [double]$fromS, [double]$durS, [string]$out) {
     $inv = [Globalization.CultureInfo]::InvariantCulture
-    $a = @("-hide_banner", "-loglevel", "error", "-stats", "-y")
+    $a = @("-hide_banner", "-loglevel", "error", "-y")
     if ($headers -and $inputUrl -match '^https?://') { $a += @("-headers", $headers) }
     $a += @("-ss", $fromS.ToString("0.000", $inv), "-t", $durS.ToString("0.000", $inv), "-i", $inputUrl,
         "-vf", "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1",
@@ -613,7 +615,7 @@ function New-Source([string]$ffmpeg, [string]$inputUrl, [string]$headers, [doubl
 function New-Clip([string]$ffmpeg, [string]$inputUrl, $headers, [double]$fromS, [double]$durS, [double]$autoStartS, [double]$autoS, [string]$out) {
     $inv = [Globalization.CultureInfo]::InvariantCulture
     $g = Get-ClipFilter $autoStartS $autoS
-    $a = @("-hide_banner", "-loglevel", "error", "-stats", "-y")
+    $a = @("-hide_banner", "-loglevel", "error", "-y")
     if ($headers -and $inputUrl -match '^https?://') { $a += @("-headers", $headers) }
     $a += @("-ss", $fromS.ToString("0.000", $inv), "-t", $durS.ToString("0.000", $inv), "-i", $inputUrl)
     # Each countdown image lasts the clip's length: looped forever, ffmpeg never ends when the video has no frames

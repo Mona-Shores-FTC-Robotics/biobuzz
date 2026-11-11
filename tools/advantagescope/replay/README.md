@@ -17,7 +17,7 @@ line again keeps what worked and retries the rest. (In a checkout, double-clicki
 
 Double-click **BIOBUZZ Match Replay** on the desktop and type the number of a match from the list, or in a new
 terminal type `open-match Q-14`. The first time a match is opened, its stretch of the event stream is downloaded
-(about a minute) and kept, so it never downloads again. The clip is lined up from the stream's own scoreboard: the
+(about three minutes) and kept, so it never downloads again. The clip is lined up from the stream's own scoreboard: the
 hand it shows during the 8 s transition marks the end of the field's 30 s Auto, so the log's Auto start is put
 30 s before it. Then
 AdvantageScope opens on the match's log, with the Video tab and the 3D window side by side. That layout is put
@@ -34,7 +34,8 @@ there instead, which also keeps working after the stream is gone. Nothing to do 
 just uses YouTube.
 
 **Before a meeting**, double-click **BIOBUZZ Prepare All Matches** (or run `open-match -All`): it downloads
-every match's log and clip without opening anything, so each match opens at once later, with no internet needed.
+every match's log and clip without opening anything, so each match opens at once later, with no internet needed. For a whole event that is
+most of an hour (17 matches at Belding), so start it well before the meeting.
 
 ## Keeping it current
 

@@ -8,7 +8,7 @@
 #   open-match Q-14 -Frames    pictures every 0.1 s around Auto's start, named by offset: the first with our lights
 #                              off is the -Shift to use (our driver's PLAY lag)
 #
-# The clip is cut from the stream the first time a match is opened (about a minute) and kept in
+# The clip is cut from the stream the first time a match is opened (about three minutes) and kept in
 # %LOCALAPPDATA%\BIOBUZZ-Replay\clips, so it never downloads twice. Then AdvantageScope opens, fresh, with the team
 # layout (an open one is closed and reopened). It cannot be told to load a video, so the clip's path goes on the
 # clipboard: Video tab, file icon, Ctrl+V, Enter. The clip carries a countdown where
@@ -121,7 +121,7 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS, [string]$log) {
             Ok "kept the clip made earlier as this match's source: nothing to download"
         } else {
             $sourceFrom = [Math]::Max([double]0, $estimate - $SourcePreS)
-            Say "  ...     downloading this match's video (about a minute, once per match)"
+            Say "  ...     downloading this match's video (about three minutes, once per match; nothing prints until it is done)"
             $info = Get-StreamInfo
             $headers = ""
             if ($info.Headers) { foreach ($p in $info.Headers.PSObject.Properties) { $headers += "$($p.Name): $($p.Value)`r`n" } }
@@ -154,7 +154,7 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS, [string]$log) {
                 Copy-Whole $sharedSource $source
                 Copy-Whole $sharedSidecar $sidecar
             } else {
-                Say "  ...     this match's video here has the old sync marks drawn on it: downloading a clean copy to share (about a minute)"
+                Say "  ...     this match's video here has the old sync marks drawn on it: downloading a clean copy to share (about three minutes)"
                 $cleanFrom = [Math]::Max([double]0, $estimate - $SourcePreS)
                 $info = Get-StreamInfo
                 $headers = ""
@@ -259,7 +259,7 @@ try {
 
     if ($All) {
         Say ""
-        Say "Getting every match ready: $($rows.Count) logs and clips (about a minute for each clip not made yet)"
+        Say "Getting every match ready: $($rows.Count) logs and clips (about three minutes for each match whose video is not downloaded yet)"
         $ready = 0; $failed = 0
         foreach ($c in $rows) {
             Say ""
