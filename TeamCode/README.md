@@ -1162,6 +1162,29 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   slowly. Each field's two HIVEs agreed. `BIOBUZZ_AUTO_HIVE_FIELD=belding1` or `belding2` runs a study at
   either edge (`HiveCalibration.BELDING_FIELD_1`/`_2`); `HiveFieldTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
   both still pass the Guide's placed cases.
+- **The Belding calibration** (`BeldingCalibration`, off by default): `BIOBUZZ_AUTO_CALIBRATION=belding` on a
+  study, or `"calibration": "belding"` in a request, replaces three placeholders with what the Belding Qualifier's
+  17 Auto logs, stream video and official scores showed (7 Nov 2026). **The share of launched pieces that stay in
+  the CELL, by launch range:** 0.82 from RIGHT_START (53.9 in), 0.92 from the CATCH spots (42.4 in, a measured row
+  of `LaunchSpeedTable`), 0.65 from the CLOSE spots (36 in, below every measured row; an estimate bounded by
+  R-Solo's 0 of 7 second TIPs and Q-31's 3 landed of a RIGHT_LAUNCH_CLOSE volley). **The dwell before a TIP:** 2.6
+  to 3.4 s, so the rocker moves 2.2 to 2.6 s after the last ball leaves, as M-3 and M-4 showed. **Where the HIVE
+  tips:** Field 1's point on odd seeds, Field 2's on even ones. With it, 40 seeds each:
+
+  | | Belding | Simulator, calibrated | Simulator, uncalibrated |
+  |---|---|---|---|
+  | R-Solo: first TIP from the preloads | 7 of 9 | 36 of 40 | 20 of 20 |
+  | R-Solo: second TIP | 0 of 7 | 1 of 40 | 20 of 20 |
+  | L-NoCross beside a right preload shooter: second TIP | 3 of 5 | 18 of 40 | 20 of 20 |
+
+  ```bash
+  BIOBUZZ_AUTO_CALIBRATION=belding BIOBUZZ_AUTO_STUDY="RSoloAuto@50;LNoCrossAuto,PartnerRLaunchParkAuto@50" \
+    BIOBUZZ_AUTO_DESIGNS="real robot, turret locked forward" BIOBUZZ_AUTO_RUNS=40 \
+    ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
+  ```
+  **Not calibrated:** drive times (the 270° curve to the LEFT spots took 3.5 to 4.6 s against 2.9 s), the two
+  SCORING FLOWER picks that came back short (Q-1, Q-4), and contact with other robots (Q-27). The 0.65 is the
+  number to replace first: fire counted volleys from a CLOSE spot (`doc/robot-todo.md` §7d).
 - **The launcher fires at the robot's one setpoint.** The real robot's designs fire every shot at master's
   `LauncherSubsystem.targetTicksPerSecond` (`RobotDesign.fixedSetpoint`), at one pitch, whatever the distance,
   so a shot from nearer or further than RIGHT_START goes long or short. **Measured:** the setpoint, and that it

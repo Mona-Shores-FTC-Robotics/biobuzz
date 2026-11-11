@@ -72,12 +72,27 @@ public class SimRunTest {
         File dir = new File(folder);
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("designs", new ArrayList<>(AutoStudyTest.designs().keySet()));
+        // "calibration": "belding" in the request: the Belding Qualifier's shots, dwell and HIVEs (BeldingCalibration).
+        boolean beldingBefore = BeldingCalibration.on;
+        double[] dwellBefore = FieldSim.tipDwellRange;
+        double tipPointBefore = HiveCalibration.tipPointInBand;
         try {
-            runAll(request(dir), dir, out);
+            Map<String, Object> request = request(dir);
+            if ("belding".equals(request.get("calibration"))) BeldingCalibration.on = true;
+            if (BeldingCalibration.on) {
+                FieldSim.tipDwellRange = BeldingCalibration.DWELL_S;
+                FieldSim.tipDwellOverloadedS = BeldingCalibration.DWELL_S[0];
+                out.put("calibration", "belding");
+            }
+            runAll(request, dir, out);
         } catch (Throwable t) {
             out.put("error", describe(t));
             throw t;
         } finally {
+            BeldingCalibration.on = beldingBefore;
+            FieldSim.tipDwellRange = dwellBefore;
+            FieldSim.tipDwellOverloadedS = FieldSim.FILMED_TIP_DWELL_OVERLOADED_S;
+            HiveCalibration.tipPointInBand = tipPointBefore;
             write(dir, out);
         }
     }

@@ -74,6 +74,24 @@ each, turret locked forward:
 - The request in `TeamCode/sim-requests/r-two-tip.json` uses the stand-in: a request may name
   only stand-ins or its own pair's other half as partners.
 
+**In the simulator set to Belding** (`BeldingCalibration`, 40 seeds each; TeamCode/README.md, "Simulating
+an Auto"): shots stay in at the rate each launch spot showed at Belding, the CELL sits about 3 s before it
+tips, and the two fields' tip points alternate. It reproduces Belding's R-Solo (second TIP 1 of 40, against
+0 of 7) and L-NoCross (18 of 40, against 3 of 5).
+
+| | Two TIPs | Points |
+|---|---|---|
+| R-Solo alone | 1 of 40 | 28.0 |
+| R-Two-Tip alone | 18 of 40 | 36.5 |
+| L-Infraviolet + R-Infraviolet | 4 of 40 | 31.5 |
+| **L-Infraviolet + R-Two-Tip** | **36 of 40** | 53.5 |
+
+- Alone, 18 of 40 is the ceiling: all 8 pieces of the two LEFT volleys have to stay in.
+- The 4 of 40 the pair loses are runs where our preloads did not make the first TIP.
+- Launching the preloads from `RIGHT_LAUNCH_CATCH` instead of the start was tried: 20 of 40 alone and
+  37 of 40 paired, but it touched spilled pieces before they landed in 3 runs (G409) and its park
+  from that spot crosses the Red HIVE. Not kept.
+
 **The park bends south** (control point (30, 86)) so the robot comes into `RIGHT_PARK` from the
 field side, clear of L-Infraviolet already on `LEFT_PARK`. With the straight park the two touched
 at about 25 s in every run; with the bend, in 3 of 80.

@@ -24,6 +24,7 @@
     5
   ],
   "alliance": "RED",
+  "calibration": "belding",
   "partners": [
     {
       "name": "stays out of the way",
@@ -42,6 +43,6 @@
     "AutoSource": "drafts/r-two-tip.pp",
     "SavedBy": "mentor session, 10 Nov 2026",
     "SavedAt": "2026-11-11T01:22:57.602Z",
-    "SimNote": "R-Solo's steps with both LEFT volleys from LEFT_LAUNCH_CATCH (the measured 42 in row); the left-partner run is the one with spare shots"
+    "SimNote": "R-Solo's steps with both LEFT volleys from LEFT_LAUNCH_CATCH (the measured 42 in row), run with the Belding calibration; the left-partner run is the one with spare shots"
   }
 }

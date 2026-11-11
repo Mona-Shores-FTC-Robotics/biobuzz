@@ -801,6 +801,7 @@ public final class AutoSim {
         Result result = new Result(runName(), alliance, names);
         for (Bot b : bots) result.robots.get(b.index).alliance = b.alliance;
         for (Bot b : bots) result.opponents |= b.alliance != alliance;
+        if (BeldingCalibration.on) HiveCalibration.tipPointInBand = BeldingCalibration.tipPoint(seed);
         HiveCalibration calibration = HiveCalibration.current();
         sim = new FieldSim(HiveAssets.committedStagedPieces(), seed, calibration.fit());
         boolean red = alliance == Alliance.RED;
