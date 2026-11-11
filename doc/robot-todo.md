@@ -190,7 +190,7 @@ Result, with the gap on each own-start run, → [PR #372].
       wrote 160 tunables into a 160-slot loop. **Good:** `read_logs.py series <log>
       /RealMetadata/AutoOptions` prints `… partner's last shot 7 s, until 11.5 s (drawn 8.5 s)`, and
       the log's last events have no `metadata lines` drop. **Stop:** it is missing → save the log.
-      [PR fixing the cap]
+      [PR #529](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/529)
 - [ ] **INIT with the Limelight unplugged** (the warning line itself was logged 4 Nov 00:43; what is
       left is what the drive team sees). **Good:** light
       flashes white, "Camera: not answering" at the top of the Match page with what to do, the page
