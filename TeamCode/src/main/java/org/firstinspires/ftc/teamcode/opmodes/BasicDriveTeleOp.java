@@ -59,10 +59,11 @@ import java.util.Locale;
  * stick, one of them at a time, and the chassis aim on the right stick, since the left stick keeps
  * driving under it.
  *
- * <p>The launcher ({@link LauncherOwner}): letting go of Square means "done shooting", so the
- * launcher idles when a Square press ends, whoever spun it up. The operator's toggle spins it up
- * early, so Square finds it at speed; while a Square press is firing the toggle cannot idle it and
- * their Fire waits for the volley. Without Square, the operator's toggle idles it.
+ * <p>The launcher ({@link LauncherOwner}) is at launch speed from PLAY ({@code
+ * TeleOpConfig.launcherAlwaysOn}), so a shot never waits for it; the operator's toggle switches it
+ * off and on. While a Square press is firing the toggle cannot idle it and their Fire waits for
+ * the volley. With the switch off, or once the operator has switched the launcher off, letting go
+ * of Square means "done shooting" and it idles a few seconds later.
  *
  * <h2>Aiming</h2>
  *
@@ -182,6 +183,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** The operator's trim on the launch speed, ticks per second; lasts the OpMode. */
     private double launcherTrimTps;
     private boolean chassisAimCancelled;
+    /** Circle's own feed has started this press ({@code TeleOpConfig.circleAlsoFires}): for its log lines. */
+    private boolean circleFed;
+    /** Circle asked for a feed last loop: its first loop spins an idle launcher up. */
+    private boolean lastCircleFire;
     /** The chassis aim's camera-first target ({@link ChassisAimTarget}): where Circle points the robot. */
     private ChassisAimTarget chassisTarget;
     /** The chassis aim drove the turn this loop: the aim gate is enforced for FIRE ({@code TeleOpConfig.chassisAimGate}). */
@@ -312,9 +317,15 @@ public class BasicDriveTeleOp extends RobotOpMode {
         });
         controls.note(Action.TURRET_ZERO);
 
-        operator.note("Launcher and Square", "spin up early when a shot is coming; while the driver "
+        operator.note("Launcher", TeleOpConfig.launcherAlwaysOn
+                ? "on from PLAY; your toggle switches it off and on. While the driver holds Square, "
+                + "your buttons cannot stop it (no off, Fire waits for the volley)"
+                : "spin up early when a shot is coming; while the driver "
                 + "holds Square, your buttons cannot stop it (no idle, Fire waits for the volley); "
                 + "it idles a few seconds after Square is let go, unless you Fire first");
+        if (TeleOpConfig.circleAlsoFires) {
+            driver.note("Aim Chassis", "also fires: it feeds once aimed and at speed, while held");
+        }
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
     }
@@ -337,6 +348,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         aimer.off();
         robot.turret.home();
         log.event("PLAY: " + (robotCentric() ? "robot-centric" : "field-centric"));
+        // On all TeleOp (TeleOpConfig.launcherAlwaysOn): after PLAY, so nothing moves before it.
+        applyLauncher(launcherOwner.playStarted(TeleOpConfig.launcherAlwaysOn));
     }
 
     /** The pose set to our alliance's measured spot in {@code corner}, if it has been measured. */
@@ -634,12 +647,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 // One line per press, to compare with the launch-spot button's (LaunchSpotDrive).
                 // aimErrorDeg is this loop's, the turret's own aim now the button is up; the press's
                 // last chassis aim is the one to report.
-                log.event(String.format(Locale.US, "chassis aim: let go after %.2f s, aim %s from %s, camera %s, %s",
+                log.event(String.format(Locale.US, "chassis aim: let go after %.2f s, aim %s from %s, camera %s, %s%s",
                         (System.nanoTime() - chassisAimSinceNs) / 1e9,
                         Double.isNaN(lastChassisAimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f° off", lastChassisAimErrorDeg),
                         lastChassisSource, chassisSawCell ? "locked a CELL" : "saw none of ours",
-                        chassisAimCancelled ? "cancelled by the right stick" : "not cancelled"));
+                        chassisAimCancelled ? "cancelled by the right stick" : "not cancelled",
+                        !TeleOpConfig.circleAlsoFires ? "" : circleFed ? ", fed by Circle" : ", Circle never fed"));
                 chassisAimSinceNs = 0;
+                circleFed = false;
             }
             chassisAimCancelled = false;
             return false;
@@ -715,7 +730,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
             applyLauncher(launcherOwner.spotPressStarted());
         } else if (!wants && spotPressSeen) {
             spotPressSeen = false;
-            applyLauncher(launcherOwner.spotPressEnded(System.nanoTime() / 1e9, keepSpinningAfterSquareS()));
+            applyLauncher(launcherOwner.spotPressEnded(System.nanoTime() / 1e9, keepSpinningAfterSquareS(),
+                    TeleOpConfig.launcherAlwaysOn));
         }
         applyLauncher(launcherOwner.tick(System.nanoTime() / 1e9));
     }
@@ -800,6 +816,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private String matchAlert() {
         if (!robot.drive.hasHeading() && !robot.drive.pinpointLost()) return "NO PINPOINT";
         if (TeleOpConfig.intakeAlwaysOn && !intakeRunning()) return "INTAKE OFF";
+        if (TeleOpConfig.launcherAlwaysOn && !launcherOwner.spinning()) return "LAUNCHER OFF";
         if (robotCentric() || !robot.drive.isFieldCentric()) return "ROBOT-CENTRIC";
         if (launchSpot.refused()) return "SQUARE REFUSED";
         if (robot.flowerStick.extended() || robot.flowerStick.waitingToClear()) return "FLOWER STICK OUT";
@@ -883,8 +900,20 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // through the same request: it has already waited for speed and settle as an Auto's
         // LaunchAll does (SpotVolley), and the operator's FIRE, which it yields to, comes first.
         boolean spotFeed = !fireHeld && launchSpot.feedRequested();
-        FeederSubsystem.State feed = FeederSubsystem.requestFor(fireHeld || spotFeed, unjamHeld(),
-                fireHeld ? open : spotFeed, true, robot.feeder.state() == FeederSubsystem.State.FEED);
+        // Circle that also fires (TeleOpConfig.circleAlsoFires): while the chassis aim is turning the
+        // robot it asks for a feed, which starts once the aim is known and on the CELL and the
+        // launcher is at speed, and then runs while held, as any feed does. FIRE and Square come first.
+        boolean circleFire = TeleOpConfig.circleAlsoFires && chassisAimDriving && !fireHeld && !spotFiring;
+        if (circleFire && !lastCircleFire) applyLauncher(launcherOwner.operatorFire(unjamHeld()));
+        lastCircleFire = circleFire;
+        boolean circleOpen = circleFire && gates.aimedAtSpeed();
+        if (circleOpen && !circleFed) {
+            circleFed = true;
+            log.event(String.format(Locale.US, "chassis aim: gate open %.2f s after the press, aim %+.1f° from %s, at speed",
+                    (System.nanoTime() - chassisAimSinceNs) / 1e9, aimErrorDeg, lastChassisSource));
+        }
+        FeederSubsystem.State feed = FeederSubsystem.requestFor(fireHeld || spotFeed || circleFire, unjamHeld(),
+                fireHeld ? open : spotFeed || circleOpen, true, robot.feeder.state() == FeederSubsystem.State.FEED);
         switch (feed) {
             case FEED:
                 robot.feeder.feed();

@@ -27,7 +27,7 @@ public enum Action {
     // Operator
     OPERATOR_INTAKE(Pad.OPERATOR, "Intake (hold)"),
     UNJAM(Pad.OPERATOR, "Unjam (hold)"),
-    LAUNCHER_TOGGLE(Pad.OPERATOR, "Launcher Spin Up / Idle (Toggle)"),
+    LAUNCHER_TOGGLE(Pad.OPERATOR, "Launcher Off / On (Toggle)"),
     LAUNCHER_TRIM_DOWN(Pad.OPERATOR, "Launcher Trim Down"),
     LAUNCHER_TRIM_UP(Pad.OPERATOR, "Launcher Trim Up"),
     LAUNCHER_TRIM_RESET(Pad.OPERATOR, "Launcher Trim Reset to 0"),

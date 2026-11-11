@@ -65,6 +65,18 @@ final class SpotVolley {
      * @param operatorFiring the operator's FIRE is held
      */
     boolean update(double nowS, boolean arrived, boolean atSpeed, boolean settled, boolean operatorFiring) {
+        return update(nowS, arrived, atSpeed, settled, operatorFiring, false);
+    }
+
+    /**
+     * As {@link #update(double, boolean, boolean, boolean, boolean)}, and with {@code onApproach}
+     * the feed may start before the robot arrives: while it is still driving, at launch speed, and
+     * close, aimed and hardly turning ({@code PathEndSettle.readyOnApproach}, as an Auto's
+     * {@code LaunchAll} does), so the first piece reaches the wheels about as the robot stops.
+     * {@code TeleOpConfig.spotFeedsOnApproach}.
+     */
+    boolean update(double nowS, boolean arrived, boolean atSpeed, boolean settled, boolean operatorFiring,
+                   boolean onApproach) {
         if (phase == Phase.OFF || phase == Phase.YIELDED) return false;
         if (operatorFiring) {
             if (phase == Phase.FEEDING) feedEndS = nowS;
@@ -72,7 +84,13 @@ final class SpotVolley {
             return false;
         }
         if (phase == Phase.DRIVING) {
-            if (!arrived) return false;
+            if (!arrived) {
+                if (!(onApproach && atSpeed)) return false;
+                why = "on the approach, at speed";
+                feedStartS = nowS;
+                phase = Phase.FEEDING;
+                return true;
+            }
             arrivedS = nowS;
             phase = Phase.WAITING;
         }

@@ -23,6 +23,12 @@ package org.firstinspires.ftc.teamcode.opmodes;
  *       operator Fire's feed back during the volley, so it still waits for the spot, aim and speed.</li>
  *   <li><b>Without Square, the toggle idles it.</b> A launcher the operator spun up and shot with
  *       Fire alone stays on until their toggle.</li>
+ *   <li><b>On all TeleOp</b> ({@code TeleOpConfig.launcherAlwaysOn}, mentor, 11 Nov 2026): the
+ *       launcher spins up at PLAY as the operator's, and a Square press that ends hands it back
+ *       to the operator still spinning, not to the few seconds above. The operator's toggle is
+ *       then the off switch: once they have switched it off, the rules above apply until they
+ *       switch it on again or Fire. Replayed over Belding, the few seconds reached 14 of 79
+ *       launches ({@code doc/launch-speed-and-controls.md}).</li>
  * </ul>
  */
 final class LauncherOwner {
@@ -35,6 +41,8 @@ final class LauncherOwner {
 
     private Owner owner = Owner.NONE;
     private double lingerUntilS;
+    /** The operator's toggle last switched the launcher off: it stays off until they turn it on or Fire. */
+    private boolean switchedOff;
 
     Owner owner() {
         return owner;
@@ -49,10 +57,12 @@ final class LauncherOwner {
     Effect operatorToggle(boolean spotFiring) {
         if (owner == Owner.NONE) {
             owner = Owner.OPERATOR;
+            switchedOff = false;
             return Effect.SPIN_UP;
         }
         if (spotFiring) return Effect.KEEP; // never idle a volley; the press's end idles it
         owner = Owner.NONE;
+        switchedOff = true;
         return Effect.SPIN_DOWN;
     }
 
@@ -64,6 +74,15 @@ final class LauncherOwner {
         if (owner == Owner.LINGER && !unjamHeld) owner = Owner.OPERATOR; // theirs now, until their toggle
         if (owner != Owner.NONE || unjamHeld) return Effect.KEEP;
         owner = Owner.OPERATOR;
+        switchedOff = false;
+        return Effect.SPIN_UP;
+    }
+
+    /** PLAY. With {@code alwaysOn} the launcher spins up now, as the operator's, and stays on. */
+    Effect playStarted(boolean alwaysOn) {
+        if (!alwaysOn || owner != Owner.NONE) return Effect.KEEP;
+        owner = Owner.OPERATOR;
+        switchedOff = false;
         return Effect.SPIN_UP;
     }
 
@@ -83,7 +102,19 @@ final class LauncherOwner {
      *                      NaN idles it at once
      */
     Effect spotPressEnded(double nowS, double keepSpinningS) {
+        return spotPressEnded(nowS, keepSpinningS, false);
+    }
+
+    /**
+     * As {@link #spotPressEnded(double, double)}; with {@code alwaysOn}, and unless the operator
+     * has switched the launcher off, it goes back to the operator still spinning.
+     */
+    Effect spotPressEnded(double nowS, double keepSpinningS, boolean alwaysOn) {
         if (owner == Owner.NONE) return Effect.KEEP;
+        if (alwaysOn && !switchedOff) {
+            owner = Owner.OPERATOR;
+            return Effect.KEEP;
+        }
         if (keepSpinningS > 0.0) {
             owner = Owner.LINGER;
             lingerUntilS = nowS + keepSpinningS;

@@ -56,6 +56,11 @@ public final class FireGates {
         return atSpeed == Verdict.BLOCK || aim == Verdict.BLOCK;
     }
 
+    /** The launcher is at speed and the aim is known and on our CELL: what Circle's own feed waits for. */
+    public boolean aimedAtSpeed() {
+        return atSpeed == Verdict.PASS && aim == Verdict.PASS;
+    }
+
     /** Whether the enforced gates let a feed start now. With nothing enforced, always true. */
     public boolean enforcedOpen(boolean enforceAtSpeed, boolean enforceAim) {
         return !(enforceAtSpeed && atSpeed == Verdict.BLOCK) && !(enforceAim && aim == Verdict.BLOCK);

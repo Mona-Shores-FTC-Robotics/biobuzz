@@ -52,4 +52,18 @@ public class FireGatesTest {
         gates.evaluate(true, true, -3.1, 3.0);
         assertEquals(Verdict.BLOCK, gates.verdict(Gate.AIM_ON_TARGET));
     }
+
+    @Test
+    public void circlesOwnFeedNeedsAKnownAimOnTheCellAndTheLauncherAtSpeed() {
+        gates.evaluate(true, true, 1.0, 3.0);
+        assertTrue(gates.aimedAtSpeed());
+        gates.evaluate(true, true, 5.0, 3.0);
+        assertFalse(gates.aimedAtSpeed());
+        gates.evaluate(true, false, 1.0, 3.0);
+        assertFalse(gates.aimedAtSpeed());
+        // An unknown aim never blocks the operator's FIRE, and never feeds for Circle.
+        gates.evaluate(true, true, Double.NaN, 3.0);
+        assertTrue(gates.enforcedOpen(true, true));
+        assertFalse(gates.aimedAtSpeed());
+    }
 }

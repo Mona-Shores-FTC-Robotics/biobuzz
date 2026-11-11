@@ -1,6 +1,6 @@
 # Launching faster, and controls that are easier to learn
 
-For the mentor to decide. Nothing here changes a binding or a gate: it is the measurement from the
+Written for the mentor to decide; the decisions made are at the end of section 3. The review itself changes no binding or gate: it is the measurement from the
 Belding Qualifier (7 Nov 2026), the changes it points to, a simpler layout, and a draft guide for
 the drive teams. Code as on master after #532 (Circle's camera anchor) and #534 (a stick already
 moving no longer cancels Square, #495; the launcher keeps spinning 3 s after Square, #497; a
@@ -220,6 +220,11 @@ Decisions asked of the mentor:
 2. Square feeds on the approach (change 1): try it on the robot, or leave it.
 3. Circle fires by itself: yes, behind a switch for a practice, or no.
 4. Taps on Square: teach "hold", or latch.
+
+**Decided 11 Nov 2026 (mentor).** 1: yes, `TeleOpConfig.launcherAlwaysOn`, on. 2: try it on the
+robot, `TeleOpConfig.spotFeedsOnApproach`, off until its check passes. 3: behind a switch,
+`TeleOpConfig.circleAlsoFires`, off until its check passes. The three checks are in
+`doc/robot-todo.md` §7f. 4 is open.
 
 ## 4. Using the controls well (draft for the drive teams)
 

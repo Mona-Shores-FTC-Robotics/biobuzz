@@ -68,6 +68,17 @@ public final class TeleOpConfig {
     public static double launcherKeepSpinningAfterSquareS = 3.0;
 
     /**
+     * The launcher is at launch speed all TeleOp: it spins up at PLAY and stays on through every
+     * Square press, and the operator's toggle is its off switch ({@link LauncherOwner}). On since
+     * 11 Nov 2026 (mentor): at Belding the launcher was at speed at the first press in 17 of 84
+     * launches, a FIRE from idle put the first piece out in 1.5 s against 0.7 s at speed, and
+     * {@link #launcherKeepSpinningAfterSquareS} would have reached 14 of 79 launches
+     * ({@code doc/launch-speed-and-controls.md}). It draws about 3 A. Off: the launcher runs only
+     * when someone asks, as before. Read at PLAY and when a Square press ends.
+     */
+    public static boolean launcherAlwaysOn = true;
+
+    /**
      * Ticks per second one launcher trim press moves the launch speed. Clamped to [0, 200]. The
      * trim lasts the OpMode; the launch speed it trims is {@code LauncherSubsystem.targetTicksPerSecond}.
      */
@@ -122,6 +133,26 @@ public final class TeleOpConfig {
      * launcher toggle keep working either way and win. Read at each press.
      */
     public static boolean goToSpotAlsoFires = true;
+
+    /**
+     * The go-to-launch-spot button's volley may start before the robot arrives: while it is close
+     * to the spot, aimed, hardly turning and at launch speed ({@code PathEndSettle.readyOnApproach},
+     * the Autos' rule and knobs), so the first piece reaches the wheels about as the robot stops
+     * rather than 0.7 to 0.9 s after it has settled. Off until tried on a robot (mentor, 11 Nov
+     * 2026; {@code doc/robot-todo.md} §7f): whether pieces fired while slowing still go in is not
+     * known. Read every loop of a press.
+     */
+    public static boolean spotFeedsOnApproach = false;
+
+    /**
+     * The driver's chassis aim (Circle) also fires: held, it turns the robot onto the CELL and,
+     * once the aim is known and within {@link #aimToleranceDeg} and the launcher is at speed, it
+     * feeds for as long as it is held, as the launch-spot button does at its spot. The right stick
+     * or letting go stops it. An unknown aim never feeds. The operator's FIRE works as before and
+     * comes first. Off until tried on a robot (mentor, 11 Nov 2026; {@code doc/robot-todo.md}
+     * §7f): on, the driver cannot line up without shooting. Read every loop.
+     */
+    public static boolean circleAlsoFires = false;
 
     /**
      * At a launch spot, settled and facing the HIVE, a camera-vs-odometry gap past this many inches

@@ -948,28 +948,42 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       Practise: the first refused press means stop pressing it, drive and aim by hand, and restart
       the robot after the match. **Good:** at most one refused press after a loss.
 - [ ] **Operator: spin up before FIRE** when the next shot is coming, so FIRE finds the launcher at
-      speed (first ball 0.8 s instead of 1.5 s).
+      speed (first ball 0.8 s instead of 1.5 s). Only with `TeleOpConfig.launcherAlwaysOn` off:
+      on, the launcher is already spinning.
 - [ ] **The launcher keeps spinning after Square** (`TeleOpConfig.launcherKeepSpinningAfterSquareS`,
-      3 s, not measured; #497). Basic Drive, loaded: (a) hold Square, fire, let go, and press Square
+      3 s, not measured; #497). With `TeleOpConfig.launcherAlwaysOn` off in Panels (on, the
+      launcher never idles after Square). Basic Drive, loaded: (a) hold Square, fire, let go, and press Square
       again within 2 s: the gate opens on arrival with no spin-up wait. (b) Let go of Square and the
       operator holds FIRE within 2 s: the first ball leaves at once, and the launcher then stays on
       until the operator's toggle. (c) Let go and touch nothing: `launcher: idle` in the log about
       3 s later, and the Match page reads IDLE. (d) Let go, operator toggle at once: it idles at
       once. **Good:** all four, and the drivers say whether 3 s is long enough for their cycle.
       **Stop:** they want it off between volleys → 0 in Panels is the old rule.
-- [ ] **Launch timing, before any change from `doc/launch-speed-and-controls.md` is trusted.**
-      Three counts, each from ordinary Basic Drive with a full lane, HIVE upright; read them with
-      `tools/event-review/archive/belding-scripts/ctl/launch_time.py`.
-      (a) *Circle then FIRE, as on master since #532:* ten launches from around the field, the
-      operator holding FIRE before the driver holds Circle. **Good:** `chassis aim: pressed` to the
-      first `shot` line under 1.5 s in eight of ten; note how many pieces go in.
-      (b) *Launcher left on:* the operator spins up at PLAY and never idles it, for a full 2-minute
-      TeleOp. **Good:** no brownout, and the battery at the end is within 0.3 V of a run with the
-      launcher idled between volleys.
-      (c) *Do shots need the settle?* Ten Square volleys, someone counting pieces in against the
-      `launch spot: arrived … X in and Y° off` line of each. This is the evidence for opening the
-      gate on the approach and for whether 3° is tighter than a shot needs; Belding's logs have no
-      hits or misses.
+- [ ] **The launcher is on all TeleOp** (`TeleOpConfig.launcherAlwaysOn`, on; mentor 11 Nov,
+      `doc/launch-speed-and-controls.md`). Basic Drive: at PLAY the launcher spins up by itself
+      and the Match page reads READY; it stays READY through a Square press and after it is let
+      go; the operator's FIRE puts the first ball out at once. The operator's Cross switches it
+      off (Match page: LAUNCHER OFF) and on again. Then a full 2-minute TeleOp of ordinary
+      driving. **Good:** all of that, no brownout, and the battery at the end within 0.3 V of a
+      run with the switch off. **Stop:** brownouts or a sagging battery → `launcherAlwaysOn` off
+      in Panels (the 3 s rule above is back) and note the voltages.
+- [ ] **Square feeds on the approach** (`TeleOpConfig.spotFeedsOnApproach`, off until this check).
+      Loaded, HIVE upright, someone counting pieces in. Ten Square volleys from 15 to 30 in off a
+      spot with the switch off, then ten with it on in Panels. **Good:** with it on the log reads
+      `launch spot: gate open … (N in before the spot), on the approach, at speed`, the first ball
+      leaves about as the robot stops, and as many pieces go in as with it off → write `true`
+      into `TeleOpConfig`. **Stop:** fewer go in, or it feeds while still turning → leave it off
+      and note the counts; the knobs are `PathEndSettle.launchWithinIn` (6 in) and
+      `launchTurnDegPerSec`, shared with the Autos.
+- [ ] **Circle also fires** (`TeleOpConfig.circleAlsoFires`, off until this check). First with it
+      off, as on master since #532: ten launches from around the field, the operator holding FIRE
+      before the driver holds Circle; note `chassis aim: pressed` to the first `shot` line. Then
+      on in Panels, the operator hands off: the driver holds Circle, the robot turns onto the CELL
+      and feeds by itself (`chassis aim: gate open N s after the press`), and stops when Circle is
+      let go or the right stick moves. Facing away from the HIVE with no CELL ever seen, it must
+      not feed. **Good:** pressed to first shot under 1.5 s in eight of ten, as many pieces in as
+      with FIRE, and the drivers say which they want. **Stop:** it feeds off the CELL, or the
+      driver needs to line up without shooting → leave it off.
 - [ ] **19429: a shorter route from full to the shot.** At Belding it drove a median 191 in with a
       full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
       where it is. **Good:** a timed practice cycle under 20 s.

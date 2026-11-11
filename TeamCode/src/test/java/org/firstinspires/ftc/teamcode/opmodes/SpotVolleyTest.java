@@ -103,4 +103,26 @@ public class SpotVolleyTest {
         assertEquals(0.0, SpotVolley.nonNegative(-1), 0);
         assertEquals(2.5, SpotVolley.nonNegative(2.5), 0);
     }
+
+    @Test
+    public void onTheApproachItFeedsBeforeArrivingOnceAtSpeed() {
+        SpotVolley v = started();
+        assertFalse(v.update(0.3, false, false, false, false, true)); // close and aimed, not at speed
+        assertFalse(v.update(0.4, false, true, false, false, false)); // at speed, not close yet
+        assertTrue(v.update(0.5, false, true, false, false, true));
+        assertEquals(0.5, v.feedStartS(), 1e-9);
+        assertEquals("on the approach, at speed", v.why());
+        // It keeps feeding through the arrival and the settle, with no second wait.
+        assertTrue(v.update(0.8, true, true, false, false, false));
+        assertTrue(v.update(1.0, true, false, false, false, false));
+        assertEquals(SpotVolley.Phase.FEEDING, v.phase());
+    }
+
+    @Test
+    public void withoutTheApproachItStillWaitsForArrival() {
+        SpotVolley v = started();
+        assertFalse(v.update(0.5, false, true, true, false, false));
+        assertTrue(v.update(0.9, true, true, true, false, false));
+        assertEquals("at speed, settled", v.why());
+    }
 }

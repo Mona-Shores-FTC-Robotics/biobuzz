@@ -144,4 +144,53 @@ public class LauncherOwnerTest {
         assertEquals(Effect.KEEP, o.operatorFire(true));
         assertEquals(Effect.SPIN_DOWN, o.tick(13.0));
     }
+
+    @Test
+    public void alwaysOnSpinsUpAtPlayAndStaysOnThroughSquare() {
+        LauncherOwner o = new LauncherOwner();
+        assertEquals(Effect.SPIN_UP, o.playStarted(true));
+        assertEquals(Owner.OPERATOR, o.owner());
+        assertEquals(Effect.KEEP, o.spotPressStarted());
+        assertEquals(Effect.KEEP, o.spotPressEnded(10.0, 3.0, true));
+        assertEquals(Owner.OPERATOR, o.owner());
+        // No linger to run out: it is still on long after.
+        assertEquals(Effect.KEEP, o.tick(100.0));
+        assertTrue(o.spinning());
+    }
+
+    @Test
+    public void notAlwaysOnPlayLeavesItIdle() {
+        LauncherOwner o = new LauncherOwner();
+        assertEquals(Effect.KEEP, o.playStarted(false));
+        assertFalse(o.spinning());
+    }
+
+    @Test
+    public void alwaysOnTheOperatorsToggleIsTheOffSwitchAndSquareThenLingers() {
+        LauncherOwner o = new LauncherOwner();
+        o.playStarted(true);
+        assertEquals(Effect.SPIN_DOWN, o.operatorToggle(false));
+        assertFalse(o.spinning());
+        // Switched off on purpose: Square still fires, and then idles by the few-seconds rule.
+        assertEquals(Effect.SPIN_UP, o.spotPressStarted());
+        assertEquals(Effect.KEEP, o.spotPressEnded(10.0, 3.0, true));
+        assertEquals(Owner.LINGER, o.owner());
+        assertEquals(Effect.SPIN_DOWN, o.tick(13.0));
+        // Switched on again: back to always on.
+        assertEquals(Effect.SPIN_UP, o.operatorToggle(false));
+        o.spotPressStarted();
+        assertEquals(Effect.KEEP, o.spotPressEnded(20.0, 3.0, true));
+        assertEquals(Owner.OPERATOR, o.owner());
+    }
+
+    @Test
+    public void alwaysOnAFireAfterSwitchingOffTurnsItBackOn() {
+        LauncherOwner o = new LauncherOwner();
+        o.playStarted(true);
+        o.operatorToggle(false);
+        assertEquals(Effect.SPIN_UP, o.operatorFire(false));
+        o.spotPressStarted();
+        assertEquals(Effect.KEEP, o.spotPressEnded(5.0, 3.0, true));
+        assertEquals(Owner.OPERATOR, o.owner());
+    }
 }

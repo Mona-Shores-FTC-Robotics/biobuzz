@@ -172,11 +172,19 @@ public final class LaunchSpotDrive {
         if (phase == Phase.HOLDING && Double.isNaN(driftGapIn) && settle.settled()) sampleDrift();
         if (operatorFiring) operatorFired = true;
         if (!fires) return;
-        feed = volley.update(s(now), phase == Phase.HOLDING, robot.launcher.atSpeed(), settle.settled(), operatorFiring);
+        // On the approach (TeleOpConfig.spotFeedsOnApproach): close, aimed and hardly turning, as an
+        // Auto's LaunchAll opens its gate; the volley also wants the launcher at speed.
+        boolean onApproach = TeleOpConfig.spotFeedsOnApproach && phase == Phase.DRIVING
+                && settle.readyOnApproach(choice.target, robot.drive.pose(), remainingIn());
+        feed = volley.update(s(now), phase == Phase.HOLDING, robot.launcher.atSpeed(), settle.settled(), operatorFiring,
+                onApproach);
         if (volley.fired() && !feedLogged) {
             feedLogged = true;
-            event.accept(String.format(Locale.US, "launch spot: gate open %.2f s after the press (%.2f s after arriving), %s",
-                    volley.feedStartS(), volley.feedStartS() - arriveS, volley.why()));
+            event.accept(Double.isNaN(arriveS)
+                    ? String.format(Locale.US, "launch spot: gate open %.2f s after the press (%.1f in before the spot), %s",
+                            volley.feedStartS(), remainingIn(), volley.why())
+                    : String.format(Locale.US, "launch spot: gate open %.2f s after the press (%.2f s after arriving), %s",
+                            volley.feedStartS(), volley.feedStartS() - arriveS, volley.why()));
         }
     }
 
