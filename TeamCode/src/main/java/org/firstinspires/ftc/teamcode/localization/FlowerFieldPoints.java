@@ -19,7 +19,7 @@ import java.util.List;
  * {@value #ALONG_WALL_IN} in along it from a corner; the other two FLOWERs are those two turned
  * 180° about the field centre. The FLOWER stick's own study ({@code tools/robot-cad/flower.py},
  * spike/179) has the same 2.71 in from the centre to the wall. The committed Autos agree: R-Quals
- * drives to (47.36, 126.64) facing 90° for the far FLOWER, 12.15 in out from this one's centre.
+ * drives to (47.36, 126.64) facing 90° for the SCORING FLOWER, 12.15 in out from this one's centre.
  *
  * <p>A robot picks a FLOWER facing its wall: {@link Flower#facingRad} is the heading that points the
  * robot's front at the wall, and {@link #standoff} the pose a given distance back from the FLOWER's
@@ -59,16 +59,16 @@ public final class FlowerFieldPoints {
 
     /** The red half's FLOWER on the low-x wall: the Autos' WALL_FLOWER. A robot faces -x. */
     public static final Flower RED_WALL = new Flower("red WALL FLOWER", CENTRE_FROM_WALL_IN, ALONG_WALL_IN, Math.PI);
-    /** The red half's FLOWER on the high-y wall: the Autos' FAR_FLOWER. A robot faces +y. */
-    public static final Flower RED_FAR = new Flower("red FAR FLOWER", ALONG_WALL_IN, S - CENTRE_FROM_WALL_IN, Math.PI / 2);
+    /** The red half's FLOWER on the high-y wall: the Autos' SCORING_FLOWER. A robot faces +y. */
+    public static final Flower RED_SCORING = new Flower("red SCORING FLOWER", ALONG_WALL_IN, S - CENTRE_FROM_WALL_IN, Math.PI / 2);
     /** {@link #RED_WALL} turned 180° about the centre. A robot faces +x. */
     public static final Flower BLUE_WALL = new Flower("blue WALL FLOWER", S - CENTRE_FROM_WALL_IN, S - ALONG_WALL_IN, 0.0);
-    /** {@link #RED_FAR} turned 180° about the centre. A robot faces -y. */
-    public static final Flower BLUE_FAR = new Flower("blue FAR FLOWER", S - ALONG_WALL_IN, CENTRE_FROM_WALL_IN, -Math.PI / 2);
+    /** {@link #RED_SCORING} turned 180° about the centre. A robot faces -y. */
+    public static final Flower BLUE_SCORING = new Flower("blue SCORING FLOWER", S - ALONG_WALL_IN, CENTRE_FROM_WALL_IN, -Math.PI / 2);
 
     /** All four. */
     public static final List<Flower> ALL = Collections.unmodifiableList(
-            Arrays.asList(RED_WALL, RED_FAR, BLUE_WALL, BLUE_FAR));
+            Arrays.asList(RED_WALL, RED_SCORING, BLUE_WALL, BLUE_SCORING));
 
     private FlowerFieldPoints() {
     }
