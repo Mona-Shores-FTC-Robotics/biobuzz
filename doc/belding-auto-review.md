@@ -40,7 +40,8 @@ most of these TIPs never happened:
 
 No branch was misled, because `CellUp`, `LeftCellUp` and `RightCellUp` accept only a sighting
 (`AutoRegistration.cellUp`). But anyone reading `HIVE … (assumed)` lines in a log should treat them
-as noise.
+as noise. (Since this review the tracker no longer starts or assumes a TIP when tags leave the
+frame: it counts only a change between two settled sightings.)
 
 ## Every run
 

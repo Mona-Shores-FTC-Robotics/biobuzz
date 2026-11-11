@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.controls.Handoff;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
+import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.logging.AdvantageScopeKeys;
 import org.firstinspires.ftc.teamcode.logging.GamepadLog;
 import org.firstinspires.ftc.teamcode.logging.MatchLog;
@@ -235,6 +236,17 @@ public abstract class RobotOpMode extends OpMode {
 
     /** Below this at INIT the battery is reported, on the INIT page and in the log: 12.0 V resting is nearly empty. */
     static final double LOW_BATTERY_VOLTS = 12.0;
+    /**
+     * The same for an Autonomous, which starts a match: every Belding match battery read 12.8 V or
+     * more at INIT, and the practice batteries that started at 10.5 to 11.2 V sagged to 6.0 to
+     * 6.6 V under load (#501). A TeleOp keeps 12.0 V, so practice on a part-used battery does not nag.
+     */
+    static final double LOW_BATTERY_VOLTS_AUTO = 12.8;
+    /** The INIT warning level for this OpMode: a match's (an Autonomous) or practice's. */
+    private double lowBatteryVolts() {
+        return isAutonomous() ? LOW_BATTERY_VOLTS_AUTO : LOW_BATTERY_VOLTS;
+    }
+
     /** The INIT page's battery warning, null when the battery read fine or there is no sensor. */
     private String batteryNote;
     /** The low-battery rumble has gone, once per INIT: 29 Oct's low runs all had the page warning. */
@@ -261,7 +273,11 @@ public abstract class RobotOpMode extends OpMode {
 
     // A mechanism asked to move whose encoder never does: one event each, from the log alone.
     private final MotionWatch intakeWatch = new MotionWatch("intake");
+    private int loggedWedgeClears;
     private final MotionWatch feederWatch = new MotionWatch("feeder");
+    /** The feeder motor's encoder socket reads the turret, not the feeder: no stall watch on it. */
+    private static final boolean FEEDER_SOCKET_IS_THE_TURRETS =
+            DeviceNames.FEEDER.equals(DeviceNames.TURRET_ENCODER_HOST);
     private String loggedLauncherFault;
     private int loggedPidfWrites;
     private int loggedSpinUps;
@@ -435,8 +451,8 @@ public abstract class RobotOpMode extends OpMode {
             batteryAtInitVolts = volts;
             robot.batteryVolts(volts);
             log.metadata("BatteryAtInit", String.format(Locale.US, "%.2f V", volts));
-            if (volts < LOW_BATTERY_VOLTS) {
-                batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, LOW_BATTERY_VOLTS);
+            if (volts < lowBatteryVolts()) {
+                batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, lowBatteryVolts());
                 log.event("battery low: " + batteryNote);
             }
         }
@@ -576,7 +592,7 @@ public abstract class RobotOpMode extends OpMode {
                 : startFor(chosen == Alliance.UNKNOWN ? otherStart.alliance : chosen);
         initWarnings.evaluate(pinpointProblem, chosen, setup.visionAlliance(), startCheck,
                 cameraProblem, robot.vision.freshResultCount(), (System.nanoTime() - initStartNs) / 1_000_000L,
-                batteryAtInitVolts, LOW_BATTERY_VOLTS, robot.colorSensor.silent(),
+                batteryAtInitVolts, lowBatteryVolts(), robot.colorSensor.silent(),
                 robot.drive.lastFrame().count() >= LocalizationTuning.minFixTags, otherStart, moveTo);
         String summary = initWarnings.summary();
         if (!summary.equals(loggedWarnings)) {
@@ -1282,6 +1298,8 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Drive/CommandTurn", robot.drive.appliedTurn());
         log.put("/Drive/CommandFieldCentric", robot.drive.commandFieldCentric() ? 1 : 0);
         log.put("/Drive/OdometrySpeedInPerSec", speed);
+        // Beside CommandTurn: a turn rate nobody commanded is the clearest sign of a hit (#498).
+        log.put("/Drive/OdometryTurnRadPerSec", robot.drive.odometryTurnRadPerSec());
         for (int i = 0; i < WHEEL_KEYS.length; i++) log.put(WHEEL_KEYS[i], robot.drive.wheelTicksPerSec(i));
         log.put("/FlowerStick/Out", robot.flowerStick.extended() ? 1 : 0);
         log.put("/FlowerStick/Powered", robot.flowerStick.limp() ? 0 : 1);
@@ -1296,8 +1314,11 @@ public abstract class RobotOpMode extends OpMode {
             log.put(HIVE_STATE_KEYS[i], state);
             log.put(HIVE_ASSUMED_KEYS[i], h.assumed() ? 1 : 0);
             log.hive(HiveComponents.of(a), HiveComponents.believedRad(a, h, nowMs));
-            if (state != loggedHiveState[i]) {
-                log.event("HIVE (" + a + "): " + h.state() + (h.assumed() ? " (assumed)" : ""));
+            // Only a state the camera saw is an event. An assumed one (the match start, a TIP taken
+            // as finished after the robot turned away) stays in the Assumed key: at Belding most
+            // "(assumed)" TIP lines never happened on video, and read as TIPs in the log.
+            if (!h.assumed() && state != loggedHiveState[i]) {
+                log.event("HIVE (" + a + "): " + h.state());
                 loggedHiveState[i] = state;
             }
         }
@@ -1461,6 +1482,12 @@ public abstract class RobotOpMode extends OpMode {
         }
         // The intake running with nothing asking for it: it joined a feed (IntakeSubsystem.rollerFor).
         log.put("/Intake/FeedAssist", robot.intake.feedAssist() ? 1 : 0);
+        log.put("/Intake/Unwedging", robot.intake.unwedging() ? 1 : 0);
+        if (robot.intake.wedgeClears() != loggedWedgeClears) {
+            loggedWedgeClears = robot.intake.wedgeClears();
+            log.event(String.format(Locale.US, "intake: wedged (%.0f ticks/s at %.1f A, nothing under the sensor): backing out, clear %d",
+                    robot.intake.ticksPerSecond(), intakeAmps, loggedWedgeClears));
+        }
         log.put("/Intake/HoldingForFull", robot.intake.holdingForFull() ? 1 : 0);
         log.put("/Intake/PositionHolding", robot.intake.positionHolding() ? 1 : 0);
         log.put("/Intake/HoldTargetTicks", robot.intake.holdTargetTicks());
@@ -1623,6 +1650,9 @@ public abstract class RobotOpMode extends OpMode {
         String launcherFault = robot.launcher.fault();
         if (launcherFault != null && !launcherFault.equals(loggedLauncherFault)) {
             log.event("launcher: " + launcherFault);
+        } else if (launcherFault == null && loggedLauncherFault != null && robot.launcher.isSpinning()) {
+            // A cut wheel, tried again, read speed (EncoderWatch): how long a dropout really lasts.
+            log.event("launcher: reads speed again, wheel restored");
         }
         loggedLauncherFault = launcherFault;
         // Not while holding a full lane: the slow roller pressing on the last piece may barely turn.
@@ -1630,8 +1660,13 @@ public abstract class RobotOpMode extends OpMode {
                         && !robot.intake.holdingForFull(),
                 robot.intake.ticksPerSecond(), now);
         if (stalled != null) log.event(stalled);
-        stalled = feederWatch.check(robot.feeder.power() != 0.0, robot.feeder.ticksPerSecond(), now);
-        if (stalled != null) log.event(stalled);
+        // The feeder's encoder socket holds the turret's encoder (DeviceNames.TURRET_ENCODER_HOST),
+        // so its speed says nothing about the feeder: with the turret locked the watch tripped on
+        // every feed of every Belding match and would have hidden a real jam (#500).
+        if (!FEEDER_SOCKET_IS_THE_TURRETS) {
+            stalled = feederWatch.check(robot.feeder.power() != 0.0, robot.feeder.ticksPerSecond(), now);
+            if (stalled != null) log.event(stalled);
+        }
         if (!Double.isNaN(loopMs)) {
             log.loopMs(loopMs);
             if (loopMs > SLOW_LOOP_EVENT_MS) {

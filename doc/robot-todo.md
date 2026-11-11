@@ -151,6 +151,13 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       Belding match each (19429 Q32 right wheel, 20245 Q27), and the code shut it off: about 29 s and
       23 s with no shots. Reseat and strain-relieve both launcher encoder cables. **Good:** a 5-minute
       Bench: Launch Test with no "reads no speed" event. [#496]
+- [ ] **A launcher wheel that drops out comes back** (`EncoderWatch`, #496). Bench: Launch Test,
+      launcher spinning: pull one wheel's encoder cable at the hub, wait 5 s, plug it back.
+      **Good:** the Match page warns within about half a second and that wheel stops; it kicks
+      for half a second about every 2.5 s while unplugged; within about 3 s of plugging back the
+      warning clears, the log has `launcher: reads speed again, wheel restored`, and the launcher
+      reads READY with no spin-down. **Stop:** the pulsing wheel does anything alarming → Panels
+      `LauncherSubsystem.encoderRetryAfterMs` 0 (the old rule: cut until spun down).
 - [ ] **Both Control Hubs: which IMU chip, and how the hub is mounted** (logo and USB directions,
       for the SDK's orientation), before the IMU is logged. A Driver Station config scan shows the chip
       (BHI260AP or BNO055). Then one bench bump test with the IMU logged, to see what a hit looks like. [#498]
@@ -306,8 +313,18 @@ Use the work order above to select checks; the detailed mechanism checks below a
 - [ ] **Each selected Auto once:** L-NoCross and R-NoCross, then the two together.
       **Good:** no FAULT or robot/HIVE contact; verify the missed-TIP behavior before
       calling either routine qualified. See the work order above for the intended result.
-- [ ] **L-NoCross: the two CELL checks in its Otherwise route**, once they are drawn and
-      exported ([the change, step by step](belding-auto-review.md#1-l-nocross-check-the-cell-before-each-volley-in-the-otherwise-route-about-3-points-a-match-in-playoffs-fairly-sure)).
+- [ ] **L-NoCross: the two CELL checks in its Otherwise route**, drawn and exported 10 Nov
+      ([the change, step by step](belding-auto-review.md#1-l-nocross-check-the-cell-before-each-volley-in-the-otherwise-route-about-3-points-a-match-in-playoffs-fairly-sure)).
+      As exported, every route ends on LEFT_LAUNCH_CATCH and goes on with the steps below the wait,
+      so the one endgame guard watches all of it: "RIGHT CELL still up?" seen up fires at the RIGHT
+      CELL and then drives to LEFT_LAUNCH_CATCH if the guard lets it (else it parks from
+      RIGHT_LAUNCH_CLOSE, the bent park). New drives, never driven on a robot: RIGHT_LAUNCH_CLOSE →
+      LEFT_LAUNCH_CATCH (the existing curve reversed, turning over its second half, drawn 3.0 s) and
+      WALL_FLOWER_STAGING → RIGHT_LAUNCH_CLOSE (straight, drawn 1.8 s): time both, and watch the
+      first under the HIVE. In the simulator it scores as master does with every curated partner
+      and parks every run; with a partner whose TIP lands while we cross, the 4 preloads go into
+      the up LEFT CELL instead of the down RIGHT one (0–1 at a down CELL, master 4), with no time
+      left for a second volley.
       Run it against three partner set-ups, each with the TIP wait timing out:
       - a partner that TIPs the RIGHT CELL a second or two after our 8 s limit (tip it by hand);
       - no TIP at all;
@@ -321,18 +338,33 @@ Use the work order above to select checks; the detailed mechanism checks below a
 
       **Stop:** a check times out with its CELL in plain view and settled. Note how long the camera
       took in the log and in the PR.
+- [ ] **The HIVE tracker counts only what the camera sees** (branch `claude/pensive-mccarthy-0wkna8`):
+      one R-Solo run and two minutes of TeleOp, filmed, turning away from the HIVE and back several
+      times, with one TIP made by hand while the robot sits still facing it. **Good:** no
+      `HIVE (…): TRANSITION` line as the robot turns away, only `UNSEEN`; after each turn back the
+      HIVE line names the CELL the video shows up; the hand TIP reads `TRANSITION`, then the other
+      CELL; the Robot page's "at least N TIPs" is never above the video's count. In TeleOp with no
+      CELL in view, the `speed table … (odometry, <CELL>)` line names our CELL at the robot's end of
+      the field. **Stop:** the hand TIP reads `UNSEEN` before the camera settles it → note the
+      seconds from `TRANSITION` to the settled line (`HiveTracker.Tuning.confirmSeconds`, a number).
 - [ ] **R-Solo's second TIP: count what lands.** Film 5 R-Solo runs from the side, and count the
       pieces that land in the LEFT CELL from V2 and V3. At Belding it never TIPped (0 of 7), while
       the simulator TIPs it every time.
       - **It reaches 7 less than about one time in four:** draw R1 (park after V2, dropping the
         SCORING FLOWER leg; [review](belding-auto-review.md#3-dont-add-a-second-branch-to-r-solo-yet-first-find-out-why-its-second-tip-never-comes-no-change-the-open-question-is-worth-up-to-20)).
       - **Otherwise:** keep R-Solo as it is.
-- [ ] **RIGHT_PARK is judged out of the LOADING ZONE one time in three.** At Belding the
-      scoreboard gave AUTO PARK to every LEFT_PARK end (6 of 6) but to RIGHT_PARK 4 of 6 (not in
-      Q-4, red, or Q-31, blue), from the same logged pose each time (14.1–14.5, 95.6–96.1, or its
-      blue turn); by the field model its centre is only 1.4 in inside the zone's edge. Put the robot
-      on RIGHT_PARK and look at the tape from above. **Good:** clearly over the line → leave it; on
-      the line → move RIGHT_PARK toward LEFT_PARK's end in the Visualizer and Save team spots. [PR #373]
+- [ ] **RIGHT_PARK moved 3 in toward LEFT_PARK (y 95.7 → 98.7), unseen: check it on the tape.**
+      At Belding the scoreboard gave AUTO PARK to every LEFT_PARK end (6 of 6) but to RIGHT_PARK
+      4 of 6 (not in Q-4, red, or Q-31, blue), from the same logged pose each time (14.1–14.5,
+      95.6–96.1, or its blue turn); by the field model its centre was only 1.4 in inside the zone's
+      edge. The move was made from those numbers, with no robot on a field (R-Solo, R-NoCross and
+      the R-Two-Tip draft re-exported; in the simulator both still park and touch no partner on
+      LEFT_PARK). Put the robot on RIGHT_PARK and look at the tape from above, then put a second
+      robot on LEFT_PARK. **Good:** clearly over the line, and a hand's width between the two
+      robots (the model leaves about 2.7 in for 16 in frames). **Stop:** still on the line, or the
+      two touch → move RIGHT_PARK again in the Visualizer and Save team spots, by what the tape
+      shows. R-Infraviolet keeps its own RIGHT_PARK at 95.7 (its park passes close to L's): move
+      it only with the pair on the field. [PR #373], [#516]
 - [ ] **Stick down on the drive in:** spotters at WALL_FLOWER_STAGING and SCORING_FLOWER_STAGING,
       R-Solo, two picks each. **Good:** the stick swings down about 18 in before
       the robot stops and touches nothing before the push. **Stop:** it touches → Panels
@@ -532,6 +564,16 @@ Use the work order above to select checks; the detailed mechanism checks below a
       55–63 in/s and takes about 2.4 s; (b) and (c) cruise 20–30 in/s, (c) 3.6–4.3 s, as at
       Belding: then the simulator's `TURN_SHARE_RAD_PER_S` (130°/s) stands. A loaded run more than
       0.3 s slower than the empty one means the planning numbers need a loaded value.
+      **What these runs decide** (10 Nov, from the 17 Belding logs): the Visualizer's drawn times
+      are within 0.1 to 0.6 s, on the slow side, for every kind of Auto drive but one: the 90 to
+      100 in curves from `WALL_FLOWER_STAGING` to the left launch spots, drawn 2.9 s, driven in a
+      median 4.1 s (R-Solo, 9 runs) and 4.3 s (L-NoCross, 2). Timing every drive by the
+      simulator's shared-wheels rule (130°/s) in the Visualizer was tried and not kept: it put
+      those curves at 4.35 s but made the rest worse (51 in with a 90° turn: 2.3 s against 1.8 s
+      driven; 13 in with a 180° turn: 1.8 s against 1.2 s; 92 in with its 180° turn in the first
+      fifth: 3.8 s against 2.6 to 2.9 s). A 180° turn bunched at the start of a 92 in drive cost
+      nothing, so the slow curves may be their sharp bend, not their turn: (b) against (c) tells
+      which, and so whether turning the short way (the R-Two-Tip draft) would help.
       **Also:** the two Belding runs that crawled for 4 s about 10 in short of `LEFT_LAUNCH_CLOSE`
       / `LEFT_LAUNCH_CATCH` (20245, 14:39 and 16:53 hub time) look blocked: check the match video.
 
@@ -583,6 +625,20 @@ measurement is [#255].
       turns before it pushes. [S4 §7], [PR #281]
 - [ ] **Ten picks from loaded FLOWERs:** pieces left behind. **Good:** none left, no waiting on an
       empty FLOWER (the dwell also ends on `full` since #384). **Stop:** tune `dwellQuietMs`. [S4 §7]
+- [ ] **A wedged intake backs itself out** (`WedgeClear`, on; `IntakeSubsystem.clearWedge`, #507).
+      At Belding the roller stalled in 8 of the 17 match logs (under 50 ticks/s at 7–10 A; it runs
+      at about 2400 and under 3.4 A), the worst for 13 s with an empty lane (Infrared Q26). Now a
+      stall of 1 s with nothing under the lane sensor backs the roller and stars out for 0.25 s
+      (the prefeed follows the stars, as in a reject), at most 3 times in a row. Bench, intake on,
+      lane empty: roll in pairs of POLLEN side by side, 20 pairs, and hold one piece against the
+      roller by hand once. Then with the lane full (4 in, the light green) push a 5th at the mouth
+      for 3 s. **Good:** each wedge logs `intake: wedged … backing out, clear N` and the pair then
+      goes in; held by hand it tries 3 times and stops; the full lane never backs out and keeps all
+      4; a FLOWER pick in R-Solo still ends as before. **Stop:** it backs out with pieces in a
+      healthy lane, or throws a piece clear of the robot → Panels `clearWedge` off, and note the
+      `/Intake/TicksPerSecond` and `/Intake/CurrentAmps` at that moment. The 0.25 s (`wedgeBackMs`)
+      is a guess: write back what frees a pair without throwing it. This is the code half of the
+      fix list's "stop two pieces wedging"; the guide or sprung wall at the pinch is still open.
 - [ ] **Let go mid-push, then mid-dwell.** **Good:** mid-dwell backs out, stick up once ~18 in clear;
       operator Square while waiting raises it at once. [PR #273], [PR #280]
 - [ ] **GARDEN into the corner,** driver Triangle near the red GARDEN, three times. **Good:** pressed
@@ -707,11 +763,23 @@ measurement is [#255].
       `Chassis aim: camera, RIGHT CELL` (or LEFT), the robot settles on the CELL in both (a) and
       (b), and FIRE waits until it is on target and then feeds (`fire: … WAITING: an enforced gate
       is closed` first, then the volley); in (c) it switches to `camera` once the CELL comes into
-      view; in (d) it reads `camera lost, holding its heading on the gyro` and carries on, not
+      view; in (d) it reads `camera not on it, aiming where it last saw it` and carries on, not
       swinging away. Every press logs `chassis aim: camera locked … ; odometry … (gap …)`: (b)'s gap
       shows the pose error the camera ignored. **Stop:** it turns to the DOWN CELL (the HIVE's state
       is wrong: note the log's HIVE line), it overshoots and hunts (lower `chassisAimKp`), or FIRE
       never opens on target (`TeleOpConfig.chassisAimGate` off, note the aim error the log shows).
+- [ ] **Circle's anchor: where the camera last saw the CELL** (branch `claude/pensive-mccarthy-0wkna8`):
+      Basic Drive, loaded, turret locked, filmed. (a) Circle on the CELL, then a hand over the
+      Limelight and strafe about 24 in with Circle still held. (b) Circle on the CELL, let go, turn
+      90° away and drive about 3 ft, then hold Circle again with the Limelight covered. (c) As (b)
+      with the pose knocked out first (push the robot 6 in sideways by hand, no reset). (d) As (b),
+      but a corner reset before the second press. **Good:** in (a) to (c) the Robot page reads
+      `camera not on it, aiming where it last saw it`, the robot turns onto the CELL, and FIRE's
+      shots land (the log's `shot N: … (where the camera last saw …)` range within about 2 in of a
+      tape); in (d) it reads `odometry` or holds its heading, never the old point. **Stop:** it
+      settles more than about 3° off the CELL in (a) → the frame behind the anchor was too old for
+      a turning robot: note the turn rate, and lower `ChassisAimTarget.ANCHOR_MAX_AGE_MS` (120, a
+      number).
 - [ ] **Every press is a drift sample:** across a practice, pull the logs and read each press's
       `launch spot: drift at …` line (camera − odometry at a known spot, settled, never applied) and
       its `CELL N in` range beside the shots it fired. **Good:** gaps stay under
@@ -922,10 +990,16 @@ matches did not show.
 
 The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` branch.
 
-- [ ] **Square with the drive stick centred.** In 50 of 51 Square presses cancelled within 0.1 s
-      at Belding, the stick was already moving when Square went down. Practise: stop steering,
-      press and hold Square. **Good:** ten Square presses in a row, none "sticks moved early" in the
-      log. The code side is #495.
+- [ ] **Square, Cross and Triangle pressed while still steering** (`FreshSticks`, #495). In 50 of
+      51 Square presses cancelled within 0.1 s at Belding, the stick was already moving when Square
+      went down. A stick already off centre at the press is now ignored until it centres once, or
+      for `TeleOpConfig.staleStickCancelsAfterS` (0.6 s, not measured). Basic Drive: drive toward a
+      launch spot and press Square without letting the stick go, ten times; then the same with
+      Cross at a FLOWER. Then, holding Square with the stick centred, push the stick. **Good:** none
+      of the ten ends `sticks moved early`, the robot takes over within about half a second of the
+      stick coming back, and a stick pushed after the press hands the robot back at once.
+      **Stop:** the robot fights a driver who meant to keep driving → lower
+      `staleStickCancelsAfterS` (0 is the old rule) and note the value that felt right.
 - [ ] **Drive by hand once the Pinpoint is lost** (the Match page shows "Pinpoint lost"). A corner
       or camera reset cannot clear it (`PinpointLoss`: only a restart does), so Square and the FLOWER
       pick stay refused for the rest of the match, even though their refusal text suggests a reset.
@@ -933,7 +1007,15 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       Practise: the first refused press means stop pressing it, drive and aim by hand, and restart
       the robot after the match. **Good:** at most one refused press after a loss.
 - [ ] **Operator: spin up before FIRE** when the next shot is coming, so FIRE finds the launcher at
-      speed (first ball 0.8 s instead of 1.5 s). Until #497 decides the software side.
+      speed (first ball 0.8 s instead of 1.5 s).
+- [ ] **The launcher keeps spinning after Square** (`TeleOpConfig.launcherKeepSpinningAfterSquareS`,
+      3 s, not measured; #497). Basic Drive, loaded: (a) hold Square, fire, let go, and press Square
+      again within 2 s: the gate opens on arrival with no spin-up wait. (b) Let go of Square and the
+      operator holds FIRE within 2 s: the first ball leaves at once, and the launcher then stays on
+      until the operator's toggle. (c) Let go and touch nothing: `launcher: idle` in the log about
+      3 s later, and the Match page reads IDLE. (d) Let go, operator toggle at once: it idles at
+      once. **Good:** all four, and the drivers say whether 3 s is long enough for their cycle.
+      **Stop:** they want it off between volleys → 0 in Panels is the old rule.
 - [ ] **19429: a shorter route from full to the shot.** At Belding it drove a median 191 in with a
       full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
       where it is. **Good:** a timed practice cycle under 20 s.
@@ -1000,6 +1082,10 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       much further than needed → lower `rejectBurstS`. A `REJECT gave up` or a `FULL with the other
       alliance's NECTAR` event means a burst could not clear it: film it. A POLLEN or our own NECTAR spat out → the event's hue says which range
       (`redNectarHueMin/Max`, `blueNectarHueMin/Max`) to narrow; until fixed, `rejectEnemyNectar` off.
+      Since 10 Nov the red NECTAR / POLLEN boundary is 42° / 43° (it was 47° / 48°), from the
+      Belding logs: a dim POLLEN at 46° was spat out, real red NECTAR read up to 39°. The gap is
+      narrow, so in this check feed some POLLEN in slowly and half-covered (a dim reading) and note
+      every hue the Robot page shows between 35° and 55° with what the piece really was.
 - [ ] **19429 keeps no NECTAR** (`ColorSensorSubsystem.rejectAllNectar`, on for 19429 only in
       `RobotDifferences`, 7 Nov). Basic Drive on 19429, red then blue: feed in a red NECTAR, a blue
       NECTAR and a POLLEN, five times each. **Good:** both NECTAR colours come back out on either

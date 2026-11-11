@@ -53,12 +53,26 @@
       "name": "dead on its start, said 8 s",
       "partner": "PartnerRBrokenDownAuto",
       "lastShotS": 8
+    },
+    {
+      "name": "late: starts 4 s late, wait left as drawn",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "startDelayS": 4
+      }
+    },
+    {
+      "name": "late: starts 6 s late, wait left as drawn",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "startDelayS": 6
+      }
     }
   ],
   "metadata": {
     "AutoSource": "l-no-cross.pp",
     "SavedBy": "dustinhans",
     "SavedAt": "2026-11-06T01:03:06.672Z",
-    "SimNote": "belding-plus: guard keeps the park (parkAfterVolley), LaunchAll 4.0 s planned, feed 3.0 s"
+    "SimNote": "CELL checks in the no-TIP route (TIP seen?, RIGHT CELL still up?), with two late partners"
   }
 }

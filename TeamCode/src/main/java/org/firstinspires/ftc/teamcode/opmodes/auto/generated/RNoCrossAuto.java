@@ -20,7 +20,7 @@ public final class RNoCrossAuto {
     public static final String SOURCE = "r-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-05|8:13PM";
+    public static final String SAVED = "11-10|10:38PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -52,7 +52,7 @@ public final class RNoCrossAuto {
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
         Pose gardenStaging = p.of(11.5, 22.1, 270);
-        Pose rightPark = p.of(14.5, 95.7, 0);
+        Pose rightPark = p.of(14.5, 98.7, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose wallFlowerStagingParkControl1 = p.of(26, 75, 0);
@@ -88,7 +88,7 @@ public final class RNoCrossAuto {
                                         kit.command("LaunchAll"),
                                         kit.path("to RIGHT_PARK", toRightPark, 2.9))),
                         kit.atMatchSeconds(21).then(
-                                kit.guarded("Timed out", toRightParkPath, 2.9,
-                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.9)))));
+                                kit.guarded("Timed out", toRightParkPath, 3,
+                                        kit.path("to RIGHT_PARK", toRightParkPath, 3)))));
     }
 }

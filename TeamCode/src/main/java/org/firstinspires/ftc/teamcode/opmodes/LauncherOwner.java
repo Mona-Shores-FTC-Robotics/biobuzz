@@ -6,10 +6,15 @@ package org.firstinspires.ftc.teamcode.opmodes;
  *
  * <p>The rules, in the words a drive team uses:
  * <ul>
- *   <li><b>Letting go of Square means "done shooting".</b> A launch-spot press that fires
- *       ({@code TeleOpConfig.goToSpotAlsoFires}) spins the launcher up if it is idle, and when the
- *       press ends the launcher idles, whoever spun it up (mentor, 7 Nov 2026: the release is the
- *       driver saying the volley is over, and a launcher left spinning costs battery).</li>
+ *   <li><b>Letting go of Square means "done shooting", a few seconds later.</b> A launch-spot
+ *       press that fires ({@code TeleOpConfig.goToSpotAlsoFires}) spins the launcher up if it is
+ *       idle, and when the press ends the launcher idles, whoever spun it up (mentor, 7 Nov 2026:
+ *       the release is the driver saying the volley is over). It idles
+ *       {@code TeleOpConfig.launcherKeepSpinningAfterSquareS} after the press ends, not at once
+ *       (#497): at Belding Ultraviolet stopped and restarted the launcher within a second 48
+ *       times, and 12 of Infrared's 35 FIRE presses found it below speed. A Square pressed again in
+ *       that time finds it at speed; the operator's Fire in that time takes it over, and it then
+ *       stays on until their toggle; their toggle in that time idles it at once.</li>
  *   <li><b>The operator spins up early.</b> Spin up (or Fire from idle) before Square gives a press
  *       that finds the launcher already at speed, so the volley does not wait for spin-up.</li>
  *   <li><b>The operator cannot hurt a Square volley.</b> While a Square press is firing, the
@@ -22,12 +27,14 @@ package org.firstinspires.ftc.teamcode.opmodes;
  */
 final class LauncherOwner {
 
-    enum Owner { NONE, SPOT, OPERATOR }
+    /** {@code LINGER}: a Square press has ended and the launcher is still spinning for a moment. */
+    enum Owner { NONE, SPOT, OPERATOR, LINGER }
 
     /** What the OpMode does to the launcher after a press. */
     enum Effect { SPIN_UP, SPIN_DOWN, KEEP }
 
     private Owner owner = Owner.NONE;
+    private double lingerUntilS;
 
     Owner owner() {
         return owner;
@@ -54,6 +61,7 @@ final class LauncherOwner {
      * held (that press feeds nothing); a spinning launcher is left as it is.
      */
     Effect operatorFire(boolean unjamHeld) {
+        if (owner == Owner.LINGER && !unjamHeld) owner = Owner.OPERATOR; // theirs now, until their toggle
         if (owner != Owner.NONE || unjamHeld) return Effect.KEEP;
         owner = Owner.OPERATOR;
         return Effect.SPIN_UP;
@@ -66,9 +74,28 @@ final class LauncherOwner {
         return wasIdle ? Effect.SPIN_UP : Effect.KEEP;
     }
 
-    /** That press has ended (let go, sticks moved, timed out, pose lost): done shooting, idle. */
-    Effect spotPressEnded() {
+    /**
+     * That press has ended (let go, sticks moved, timed out, pose lost): done shooting. It idles
+     * now, or with {@code keepSpinningS} above zero it keeps spinning that long ({@link #tick}).
+     *
+     * @param nowS          a clock, seconds
+     * @param keepSpinningS how long the launcher stays at speed after the press; 0, negative or
+     *                      NaN idles it at once
+     */
+    Effect spotPressEnded(double nowS, double keepSpinningS) {
         if (owner == Owner.NONE) return Effect.KEEP;
+        if (keepSpinningS > 0.0) {
+            owner = Owner.LINGER;
+            lingerUntilS = nowS + keepSpinningS;
+            return Effect.KEEP;
+        }
+        owner = Owner.NONE;
+        return Effect.SPIN_DOWN;
+    }
+
+    /** Every loop: idles a launcher left spinning after a Square press once its time is up. */
+    Effect tick(double nowS) {
+        if (owner != Owner.LINGER || nowS < lingerUntilS) return Effect.KEEP;
         owner = Owner.NONE;
         return Effect.SPIN_DOWN;
     }

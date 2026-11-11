@@ -21,13 +21,13 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-05|8:03PM";
+    public static final String SAVED = "11-10|10:45PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"CellUp"};
+    public static final String[] TRIGGERS = {"CellUp", "LeftCellUp", "RightCellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -63,9 +63,10 @@ public final class LNoCrossAuto {
         Pose toRightLaunchCloseSegment1Start = p.of(56.1, 26, 273.4);
         Pose rightLaunchCatchParkStart = p.of(56.1, 26, 91.9);
         Pose rightLaunchCatchParkControl1 = p.of(28, 25, 0);
-        Pose toLeftLaunchCatch_2Control1 = p.of(39.3507, 59.8997, 0);
-        Pose toLeftLaunchCatch_2Control2 = p.of(25.4975, 127.6006, 0);
-        Pose toLeftLaunchCatch_2Segment1Start = p.of(57.5, 123.5, 180);
+        Pose toLeftLaunchCatch_2Control1 = p.of(58.6996, 26.4005, 0);
+        Pose toLeftLaunchCatch_2Control2 = p.of(68.2657, 72.9873, 0);
+        Pose toLeftLaunchCatch_2Control3 = p.of(56.7614, 93.4601, 0);
+        Pose toLeftLaunchCatch_2Segment1Start = p.of(57.5, 123.5, 90);
         Pose toLeftLaunchCatch_2Segment1End = p.of(57.5, 123.5, 90);
         Pose toLeftLaunchCatch_2Segment2Start = p.of(57.5, 123.5, 90);
 
@@ -74,9 +75,10 @@ public final class LNoCrossAuto {
         Path leftLaunchCatchPark = Paths.line(leftLaunchCatch, leftPark).linear(leftLaunchCatch, leftPark);
         Path toRightLaunchClose = Paths.curve(leftLaunchCatch, toRightLaunchCloseControl1, toRightLaunchCloseControl2, toRightLaunchCloseControl3, rightLaunchClose).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(toRightLaunchCloseSegment1Start, rightLaunchClose)).until(1, Interpolator.linear(rightLaunchClose, rightLaunchClose)));
         Path rightLaunchCatchPark = Paths.curve(rightLaunchCatchParkStart, rightLaunchCatchParkControl1, leftPark).linear(rightLaunchCatchParkStart, leftPark);
+        Path toLeftLaunchCatchPath = Paths.curve(rightLaunchClose, toLeftLaunchCatch_2Control1, toLeftLaunchCatch_2Control2, toLeftLaunchCatch_2Control3, leftLaunchCatch).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftLaunchCatch_2Segment1Start, toLeftLaunchCatch_2Segment1End)).until(1, Interpolator.linear(toLeftLaunchCatch_2Segment2Start, leftLaunchCatch)));
         Path toWallFlowerStaging = Paths.line(rightLaunchClose, wallFlowerStaging).linear(rightLaunchClose, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, leftPark).linear(wallFlowerStaging, leftPark);
-        Path toLeftLaunchCatchPath = Paths.curve(wallFlowerStaging, toLeftLaunchCatch_2Control1, toLeftLaunchCatch_2Control2, leftLaunchCatch).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftLaunchCatch_2Segment1Start, toLeftLaunchCatch_2Segment1End)).until(1, Interpolator.linear(toLeftLaunchCatch_2Segment2Start, leftLaunchCatch)));
+        Path toRightLaunchClosePath = Paths.line(wallFlowerStaging, rightLaunchClose).linear(wallFlowerStaging, rightLaunchClose);
         Path toScoringFlowerStaging = Paths.line(leftLaunchCatch, scoringFlowerStaging).linear(leftLaunchCatch, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, leftPark).linear(scoringFlowerStaging, leftPark);
         Path toLeftLaunchCatchPath2 = Paths.line(scoringFlowerStaging, leftLaunchCatch).linear(scoringFlowerStaging, leftLaunchCatch);
@@ -90,10 +92,20 @@ public final class LNoCrossAuto {
                                 kit.when("CellUp"),
                                 kit.atMatchSeconds(kit.seconds("Wait for TIP or CELL up", 8.5)).then(
                                         kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.3, rightLaunchCatchPark, 3.2),
-                                        kit.command("LaunchAll"),
-                                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.8, wallFlowerStagingPark, 2.5),
-                                        kit.command("PickFlower", 8),
-                                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath, 2.9, leftLaunchCatchPark, 1.9))),
+                                        kit.firstOf("TIP seen?",
+                                                kit.when("LeftCellUp").then(
+                                                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath, 3, leftLaunchCatchPark, 1.9)),
+                                                kit.afterMs(750).then(
+                                                        kit.command("LaunchAll"),
+                                                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.8, wallFlowerStagingPark, 2.5),
+                                                        kit.command("PickFlower", 8),
+                                                        kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClosePath, 1.8, rightLaunchCatchPark, 3.2),
+                                                        kit.firstOf("RIGHT CELL still up?",
+                                                                kit.when("RightCellUp").then(
+                                                                        kit.command("LaunchAll"),
+                                                                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath, 3, leftLaunchCatchPark, 1.9)),
+                                                                kit.afterMs(750).then(
+                                                                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath, 3, leftLaunchCatchPark, 1.9))))))),
                         kit.command("LaunchAll"),
                         kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
                         kit.command("PickFlower", 8),

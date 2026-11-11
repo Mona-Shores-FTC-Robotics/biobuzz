@@ -283,7 +283,12 @@ public abstract class BuiltAuto extends RobotOpMode {
     protected void onStart() {
         robot.drive.setStartCandidates();
         options.lock();
-        if (!options.isEmpty()) log.metadata("AutoOptions", options.summary());
+        if (!options.isEmpty()) {
+            // An event too: PLAY writes every tunable as metadata in this same loop, and the
+            // options were dropped from every Belding log, so nobody could tell what was set.
+            log.metadata("AutoOptions", options.summary());
+            log.event("auto options: " + options.summary());
+        }
         Alliance alliance = setup.alliance();
         if (alliance == Alliance.UNKNOWN) {
             problem = "No alliance chosen before PLAY (Square (X) = blue, Circle (B) = red during INIT). Not moving.";

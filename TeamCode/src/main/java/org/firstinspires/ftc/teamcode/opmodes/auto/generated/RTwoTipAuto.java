@@ -21,7 +21,7 @@ public final class RTwoTipAuto {
     public static final String SOURCE = "r-two-tip.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-10|9:41PM";
+    public static final String SAVED = "11-10|10:38PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -54,7 +54,7 @@ public final class RTwoTipAuto {
         Pose leftLaunchCatch = p.of(57.5, 123.5, 273.4);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose leftLaunchOffset = p.of(41, 121.5, 296.4);
-        Pose rightPark = p.of(14.5, 95.7, 0);
+        Pose rightPark = p.of(14.5, 98.7, 0);
         Pose rightLaunchClose = p.of(56.1, 26, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
@@ -84,9 +84,9 @@ public final class RTwoTipAuto {
         return kit.sequence(
                 kit.command("SpinUp"),
                 kit.command("LaunchAll"),
-                kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2),
+                kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
                 kit.command("PickFlower", 4.5),
-                kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 2.9, leftLaunchCatchPark, 2.1),
+                kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 2.9, leftLaunchCatchPark, 2),
                 kit.firstOf("Wait for TIP or CELL up",
                         kit.when("CellUp").then(
                                 kit.guarded("If CellUp", toRightPark, 1.8,
@@ -97,9 +97,9 @@ public final class RTwoTipAuto {
                                         kit.command("LaunchAll"),
                                         kit.path("to RIGHT_PARK", toRightPark, 1.8))),
                         kit.afterMs(750).then(
-                                kit.guarded("Timed out", toRightParkPath, 2.8,
+                                kit.guarded("Timed out", toRightParkPath, 2.9,
                                         kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.4),
                                         kit.command("LaunchAll"),
-                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.8)))));
+                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.9)))));
     }
 }
