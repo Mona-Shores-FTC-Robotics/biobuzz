@@ -318,12 +318,18 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - **It reaches 7 less than about one time in four:** draw R1 (park after V2, dropping the
         SCORING FLOWER leg; [review](belding-auto-review.md#3-dont-add-a-second-branch-to-r-solo-yet-first-find-out-why-its-second-tip-never-comes-no-change-the-open-question-is-worth-up-to-20)).
       - **Otherwise:** keep R-Solo as it is.
-- [ ] **RIGHT_PARK is judged out of the LOADING ZONE one time in three.** At Belding the
-      scoreboard gave AUTO PARK to every LEFT_PARK end (6 of 6) but to RIGHT_PARK 4 of 6 (not in
-      Q-4, red, or Q-31, blue), from the same logged pose each time (14.1–14.5, 95.6–96.1, or its
-      blue turn); by the field model its centre is only 1.4 in inside the zone's edge. Put the robot
-      on RIGHT_PARK and look at the tape from above. **Good:** clearly over the line → leave it; on
-      the line → move RIGHT_PARK toward LEFT_PARK's end in the Visualizer and Save team spots. [PR #373]
+- [ ] **RIGHT_PARK moved 3 in toward LEFT_PARK (y 95.7 → 98.7), unseen: check it on the tape.**
+      At Belding the scoreboard gave AUTO PARK to every LEFT_PARK end (6 of 6) but to RIGHT_PARK
+      4 of 6 (not in Q-4, red, or Q-31, blue), from the same logged pose each time (14.1–14.5,
+      95.6–96.1, or its blue turn); by the field model its centre was only 1.4 in inside the zone's
+      edge. The move was made from those numbers, with no robot on a field (R-Solo, R-NoCross and
+      the R-Two-Tip draft re-exported; in the simulator both still park and touch no partner on
+      LEFT_PARK). Put the robot on RIGHT_PARK and look at the tape from above, then put a second
+      robot on LEFT_PARK. **Good:** clearly over the line, and a hand's width between the two
+      robots (the model leaves about 2.7 in for 16 in frames). **Stop:** still on the line, or the
+      two touch → move RIGHT_PARK again in the Visualizer and Save team spots, by what the tape
+      shows. R-Infraviolet keeps its own RIGHT_PARK at 95.7 (its park passes close to L's): move
+      it only with the pair on the field. [PR #373], [#516]
 - [ ] **Stick down on the drive in:** spotters at WALL_FLOWER_STAGING and SCORING_FLOWER_STAGING,
       R-Solo, two picks each. **Good:** the stick swings down about 18 in before
       the robot stops and touches nothing before the push. **Stop:** it touches → Panels

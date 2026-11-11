@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T01:09:07.897Z",
+  "timestamp": "2026-11-11T03:38:59.883Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -41,7 +41,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [],
       "heading": {
@@ -131,7 +131,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [],
       "heading": {
@@ -172,7 +172,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 270,
+        "startDeg": -90,
         "endDeg": 90
       }
     },
@@ -188,7 +188,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -214,7 +214,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 90
+        "degrees": -270
       }
     },
     {
@@ -250,7 +250,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -353,7 +353,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -638,7 +638,7 @@
       ],
       "typicalS": {
         "LaunchAll": 4.5,
-        "PickFlower": 4.0,
+        "PickFlower": 4,
         "GardenGather": 5,
         "LaunchOne": 0.5,
         "SpinUp": 0.1
@@ -672,7 +672,7 @@
       ],
       "RIGHT_PARK": [
         14.5,
-        95.7,
+        98.7,
         0
       ],
       "GARDEN_STAGING": [
