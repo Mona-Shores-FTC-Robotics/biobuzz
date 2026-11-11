@@ -265,7 +265,7 @@ try {
             Say ""
             Say "$($c.Row.match) $($c.Row.team)"
             try {
-                $log = Get-MatchLog $pins $c.Row
+                $log = Get-MatchLog $pins $c.Row $c.Event
                 $e = Get-AutoEdges $log
                 [void](Get-MatchClip $pins $c.Event $c.Row ($e[1] - $e[0]) $log)
                 $ready++
@@ -324,7 +324,7 @@ try {
     Say "Opening $label"
 
     # 1. The log. AdvantageScope opens last, once the clip is ready, so its window and the instructions come together.
-    $log = Get-MatchLog $pins $m
+    $log = Get-MatchLog $pins $m $ev
     $edges = Get-AutoEdges $log
     $autoS = $edges[1] - $edges[0]
     $as = Find-AdvantageScope

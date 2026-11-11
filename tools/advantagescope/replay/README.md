@@ -81,8 +81,9 @@ that browser. If it says the format or the player changed, YouTube moved on: bum
 newest [yt-dlp release](https://github.com/yt-dlp/yt-dlp/releases) (version, URL, sha256) in a PR, then
 `update-replay`.
 
-**Log won't download**: the logs come from the `logs/<date>-<robot>` branches on GitHub; they are throwaway
-branches, so keep an event's branches until its matches are reviewed.
+**Log won't download**: a log comes from its event's `events/<date>-<event>` branch on GitHub (the event's `logs`
+in `matches.json`), else from the throwaway `logs/<date>-<robot>` branch it was pulled to. Scripts older than that
+look only on `logs/*`: run `update-replay`.
 
 **Something else**: `-NoVideo` opens only the log. Everything lives in `%LOCALAPPDATA%\BIOBUZZ-Replay` (delete it
 to start over; setup puts it back). Setup keeps a laptop's earlier AdvantageScope layout as
@@ -92,7 +93,7 @@ to start over; setup puts it back). Setup keeps a laptop's earlier AdvantageScop
 
 | File | What |
 |---|---|
-| `matches.json` | Each event: its stream, `video_shift_s`, and per match the robot, its log, the field's start time and `video_start`. `maintain/find_matches.py <EVENT>` fills an event from FTCScout and the logs branches. |
+| `matches.json` | Each event: its stream, its `logs` branch, `video_shift_s`, and per match the robot, its log, the field's start time and `video_start`. `maintain/find_matches.py <EVENT>` fills an event from FTCScout and the logs branches. |
 | `replay.json` | Every download, pinned with its sha256: AdvantageScope, ffmpeg, yt-dlp, Deno, the field bundle and the models zip. |
 | `setup.ps1`, `open-match.ps1`, `Replay.ps1` | The laptop side (Windows PowerShell 5.1). |
 | `maintain/build-assets.sh` | Builds the models zip, byte for byte the same each time, from `cad/advantagescope/Robot_BIOBUZZ` and the HIVE cut from the pinned field bundle (`HiveAssets`, compiled without Gradle). |

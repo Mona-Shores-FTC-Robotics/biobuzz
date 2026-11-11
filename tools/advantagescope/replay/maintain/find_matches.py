@@ -118,6 +118,8 @@ def main():
     entry = {"event": a.event, "name": ev["name"], "date": ev["end"],
              "video": a.video or (old or {}).get("video", ""), "video_shift_s": (old or {}).get("video_shift_s", 0),
              "matches": rows}
+    if (old or {}).get("logs"):
+        entry["logs"] = old["logs"]  # the events/* branch that keeps the logs, typed once they are moved there
     doc["events"] = [entry] + [e for e in doc["events"] if e["event"] != a.event]
     write(doc)
     print(f"Wrote {len(rows)} matches for {a.event} into matches.json", file=sys.stderr)
@@ -132,6 +134,8 @@ def write(doc):
         lines.append("    {")
         for k in ("event", "name", "date", "video", "video_shift_s"):
             lines.append(f"      {json.dumps(k)}: {json.dumps(e[k])},")
+        if e.get("logs"):
+            lines.append(f'      "logs": {json.dumps(e["logs"])},')
         lines.append('      "matches": [')
         for j, m in enumerate(e["matches"]):
             lines.append("        " + json.dumps(m) + ("," if j < len(e["matches"]) - 1 else ""))
