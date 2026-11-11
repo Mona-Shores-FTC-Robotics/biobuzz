@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.IntakeArbiter;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
@@ -71,8 +72,8 @@ import java.util.Locale;
  * odometry: experimentally, it drives to the nearest launch spot and arrives aimed at that half's
  * CELL ({@link LaunchSpotDrive}), and with {@code TeleOpConfig.goToSpotAlsoFires} spins up and
  * fires there while it is held. The chassis aim trusts the camera: it turns the robot onto the UP
- * CELL of ours the camera sees, holds that heading on the gyro through a short loss of view, and
- * uses the odometry only when the camera has seen none ({@link ChassisAimTarget}); the operator's
+ * CELL of ours the camera sees, aims and ranges to where the camera last saw it when the camera is
+ * not on it, and uses the odometry only with neither ({@link ChassisAimTarget}); the operator's
  * FIRE then chooses the moment, waiting until the robot is on the CELL
  * ({@code TeleOpConfig.chassisAimGate}). Pose good, the spot; pose off, a gyro reset and the
  * chassis aim. The
@@ -186,6 +187,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private double lastChassisAimErrorDeg = Double.NaN;
     private ChassisAimTarget.Source lastChassisSource = ChassisAimTarget.Source.NONE;
     private boolean chassisSawCell;
+    /** Circle is aiming the chassis this loop (held, turret LOCKED): its range is the shot's. */
+    private boolean chassisAiming;
     /** When the chassis aim button went down, ns; 0 while it is up. For its log line. */
     private long chassisAimSinceNs;
     private boolean lastFire;
@@ -208,10 +211,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private String lastShotRangeSource = "";
 
     /** Where {@link #shotRangeIn()} took its last range from. */
-    private enum RangeFrom { NONE, CAMERA, ODOMETRY }
+    private enum RangeFrom { NONE, CAMERA, ANCHOR, ODOMETRY }
 
     private RangeFrom rangeFrom = RangeFrom.NONE;
-    /** With {@link RangeFrom#ODOMETRY}: the CELL measured to (ours at the robot's end of the field). */
+    /**
+     * The CELL measured to: with {@link RangeFrom#ODOMETRY} ours at the robot's end of the field,
+     * with {@link RangeFrom#ANCHOR} the one Circle is on.
+     */
     private HiveCell rangeCell;
     /**
      * The camera's and the pose's ranges from the turret axis, inches, as {@link #shotRangeIn()}
@@ -235,7 +241,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     protected void onInit() {
         panels = panelsTelemetry();
         aimer = new TurretAimer(robot);
-        // Made once: the camera's bearing and range to one of our CELLs, NaN unless freshly in view.
+        // Made once: the camera's bearing, range and frame age for one of our CELLs, NaN unless freshly in view.
         chassisTarget = new ChassisAimTarget(cell -> {
             CellSighting s = freshSighting(cell);
             return s == null ? Double.NaN : TurretAim.fromRobotFrameDeg(s.rowCentreRobot(),
@@ -243,7 +249,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }, cell -> {
             CellSighting s = freshSighting(cell);
             return s == null ? Double.NaN : s.groundRangeFromIn(TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
-        });
+        }, cell -> {
+            CellSighting s = freshSighting(cell);
+            return s == null ? Double.NaN : s.ageMs();
+        }, () -> TurretSubsystem.turretForwardIn, () -> TurretSubsystem.turretLeftIn);
         picker = new FlowerPicker(robot, text -> log.event(text));
         gatherer = new GardenGather(robot, text -> log.event(text));
         launchSpot = new LaunchSpotDrive(robot, text -> log.event(text));
@@ -516,14 +525,19 @@ public class BasicDriveTeleOp extends RobotOpMode {
             aimer.solve(setup.alliance(), AIM_SWITCH_BAND_IN);
         }
         double aimDeg = aimer.aimDeg();
-        // The chassis aim (Circle) is camera first: the CELL the camera sees, then that heading held
-        // on the gyro, and only then the odometry's aim above (ChassisAimTarget).
+        // The chassis aim (Circle) is camera first: the CELL the camera sees, then where the camera
+        // last saw it (the anchor), and only then the odometry's aim above (ChassisAimTarget). It
+        // runs every loop, held or not, so the anchor is ready when the press starts.
         boolean circleHeld = turretMode == TurretMode.LOCKED && controls.held(Action.CHASSIS_AIM);
+        chassisAiming = circleHeld;
         Pose here = robot.drive.pose();
         HiveTracker ourHive = robot.hive.of(setup.alliance());
         chassisTarget.update(circleHeld, setup.alliance(),
                 TurretAim.upCellOr(setup.alliance(), ourHive == null ? null : ourHive.state(), null),
-                here == null ? Double.NaN : here.heading(), aimDeg, aimer.trimDeg());
+                here == null ? Double.NaN : here.x(), here == null ? Double.NaN : here.y(),
+                here == null ? Double.NaN : here.heading(),
+                here != null && robot.drive.pinpointTrust() != PinpointTrust.State.FAULTED,
+                robot.drive.poseSets(), aimDeg, aimer.trimDeg());
         if (circleHeld) {
             aimDeg = chassisTarget.aimDeg();
             lastChassisSource = chassisTarget.source();
@@ -940,7 +954,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /**
      * The horizontal range from the turret axis to the CELL a shot was aimed at, inches (the speed
-     * table's range): the camera's ground range to the nearest fresh CELL of our alliance (any CELL if the alliance is not chosen yet), else the
+     * table's range). While Circle aims the chassis it is the range to the CELL Circle is on: the
+     * camera's, else to where the camera last saw it ({@link ChassisAimTarget}'s anchor), so the
+     * aim and the launch speed are for the same CELL and neither needs the pose to be right.
+     * Otherwise: the camera's ground range to the nearest fresh CELL of our alliance (any CELL if the alliance is not chosen yet), else the
      * pose's range from the turret axis to the raised row of our CELL at the robot's end of the
      * field, the one the turret aims at ({@link TurretAim#nearEndCell}), else NaN. Sets
      * {@link #lastShotRangeSource} to say which.
@@ -956,6 +973,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         cameraRangeIn = best;
         poseRangeIn = poseRangeIn(alliance);
+        double circleRange = chassisAiming ? chassisTarget.rangeIn() : Double.NaN;
+        if (!Double.isNaN(circleRange)) {
+            boolean camera = chassisTarget.source() == ChassisAimTarget.Source.CAMERA;
+            if (camera) cameraRangeIn = circleRange;
+            rangeFrom = camera ? RangeFrom.CAMERA : RangeFrom.ANCHOR;
+            rangeCell = chassisTarget.locked();
+            return circleRange;
+        }
         if (!Double.isNaN(best)) {
             rangeFrom = RangeFrom.CAMERA;
             return best;
@@ -986,6 +1011,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         switch (rangeFrom) {
             case CAMERA:
                 return "camera";
+            case ANCHOR:
+                return "where the camera last saw " + rangeCell;
             case ODOMETRY:
                 return "odometry, " + rangeCell;
             default:
