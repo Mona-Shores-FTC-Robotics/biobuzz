@@ -375,13 +375,22 @@ they came from.
   - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
     lane latched full 0.44 s after its last spike, 1.43 s in.
-  - `tipStartS` 1.0: the two TIPs our own preload volleys made on 3 Nov 2026 (R-Solo 17:59,
-    R-NoCross 18:06; 3 NECTAR plus four POLLEN, as `startLoad` and `tipLoad` say). The camera
-    first read TRANSITION 0.91 and 1.08 s after the LaunchAll ended (its gate closed), which was
-    1.9 to 2.8 s after the last ball left. The camera sees a swing late, so this errs late. The
-    17:59 TIP was confirmed: the camera saw the left CELL up at `LEFT_LAUNCH_OFFSET`.
-  - `tipSwingS` 0.7 (estimate): the camera saw two swings, both tipped by hand (1 Nov 23:16, 2 Nov
-    16:51), 0.57 and 0.43 s from TRANSITION to settled. It sees a swing late.
+  - `tipStartS` 1.4 and `tipSwingS` 1.6 (measured): together, the 3.0 s from a LaunchAll's end to
+    the camera's `CellUp`. At the Belding Qualifier (7 Nov 2026, the stream video against the
+    L-NoCross match logs) a CELL was read up 4.0, 4.2 and 4.4 s after the last ball left: the
+    flight (about 0.5 s), the dwell before the rocker moves (1.8 to 2.4 s), the swing (1.0 to
+    1.4 s) and the camera settling (0.3 to 0.5 s). The preview counts from the LaunchAll's end, not
+    from the last ball, and a set 3.5 s feed ends about 1.2 s after its last ball (the last ball
+    leaves 1.7 to 2.9 s after the gate opens: `volleyS`). So the swing starts 2.6 - 1.2 = 1.4 s
+    after the LaunchAll ends (`tipStartS`), and the CELL reads up 1.2 + 0.4 = 1.6 s later
+    (`tipSwingS`, the swing and the camera).
+    - **These two go with `volleyS`.** If `volleyS` comes down because the feed ends on its fourth
+      ball, raise `tipStartS` by the same amount: the last ball to `CellUp` stays about 4.2 s.
+    - A preload volley, which ends on the count, previews its TIP about 0.6 s late (8.1 s against
+      Belding's 7.5 s), because `volleyS` is the longer set feed. That errs the safe way.
+    - Before 11 Nov 2026 these were 1.0 and 0.7 (1.7 s together), from the two TIPs our own preload
+      volleys made on 3 Nov (the camera first read TRANSITION 0.91 and 1.08 s after the LaunchAll
+      ended) and two hand-tipped swings (0.43 and 0.57 s). No AUTO TIP at Belding came that soon.
   - `partnerTipLagS` 4.5 (measured): from the partner's last preload leaving its launcher to our
     `CellUp`, timed on the Belding Qualifier's stream video against the L-NoCross match logs (7 Nov
     2026): 4.0, 4.2 and 4.4 s, and about 4.3 s in a fourth whose launcher was hidden. 4.5 errs long
