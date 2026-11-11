@@ -63,11 +63,16 @@ public class ShotDetectorTraceTest {
 
     /** Replays a trace; {@code forceGateOpen} lets every dip start. Returns the shots counted. */
     private static int replay(String name, boolean forceGateOpen) throws IOException {
+        return replay(name, forceGateOpen, COUNT_DIP);
+    }
+
+    /** Replays a trace at count depth {@code countDip}. Returns the shots counted. */
+    private static int replay(String name, boolean forceGateOpen, double countDip) throws IOException {
         ShotDetector d = new ShotDetector();
         for (Loop l : trace(name)) {
             boolean within = Math.abs(l.left - l.target) <= TOLERANCE && Math.abs(l.right - l.target) <= TOLERANCE;
             d.update(l.target, l.left, l.target, l.right, within, forceGateOpen || l.gateOpen, l.target,
-                    COUNT_DIP, l.ms);
+                    countDip, l.ms);
         }
         return d.shots();
     }
@@ -98,5 +103,19 @@ public class ShotDetectorTraceTest {
         // Belding rule would have counted 2 of its slow sags; the duration window counts none.
         assertEquals(0, replay("belding-20245-16-53-50-gate-shut.csv", false));
         assertEquals(0, replay("belding-20245-16-53-50-gate-shut.csv", true));
+    }
+
+    @Test
+    public void wheelsStillFallingOntoANewTargetDoNotSeedTheLevel() {
+        // 19429, 11:36 (Q-4), second volley: nothing was fed (video). The target drops 1613 → 1477
+        // and the gate opens 0.27 s later. Seeded the first loop within tolerance, the level sat at
+        // 1517 with the wheels on their way to 1480, and at a count depth of 45 two of the settling
+        // sags counted as shots. Seeded once the wheels have held the band, none do, at either depth.
+        try {
+            assertEquals(0, replay("belding-19429-11-36-28-auto-retarget.csv", false));
+            assertEquals(0, replay("belding-19429-11-36-28-auto-retarget.csv", false, 45.0));
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
     }
 }

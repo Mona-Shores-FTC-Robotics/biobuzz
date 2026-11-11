@@ -203,6 +203,14 @@ public final class AutoKit {
 
     /** {@link #guard}: false only for a practice run that times the whole plan. */
     private boolean guardOn = true;
+    /** {@link #parkAfterVolley}: a volley is gone for only when the park still fits after it. */
+    private boolean parkAfterVolley;
+    /**
+     * Set by {@link #goForVolleyIfItFits} with {@link #parkAfterVolley} on: the cards from here to
+     * the next volley, that volley and then the park do not fit before AUTO ends, so the guard parks
+     * now rather than start a trip whose volley would leave no time to park. Why, for the trace.
+     */
+    private String volleyLeavesNoPark;
     /** With the guard off, whether the one "would have parked" line has been traced. */
     private boolean guardWouldHaveActed;
 
@@ -231,6 +239,19 @@ public final class AutoKit {
      */
     public AutoKit guard(boolean on) {
         this.guardOn = on;
+        return this;
+    }
+
+    /**
+     * True: the guard goes for a volley only when that volley's card and then the park both fit
+     * before AUTO ends (plus {@link #GUARD_MARGIN_S}), and before each card it parks at once if the
+     * cards from there to the next volley, the volley and the park do not. A volley is never fired
+     * into the park's time. False (the default here; {@code BuiltAuto.parkAfterVolley} decides on
+     * the robot): the rule of 4 Nov 2026, where a volley whose last piece is out by 30 s comes first
+     * and the park may be lost. See {@link #guarded}.
+     */
+    public AutoKit parkAfterVolley(boolean on) {
+        this.parkAfterVolley = on;
         return this;
     }
 
@@ -550,7 +571,15 @@ public final class AutoKit {
      * starts: an exported drive's time, a command's or grab's typical time, a plain wait's earliest
      * time limit, then the volley's last-piece time; a card it cannot time (a block, a drive with no
      * time, a wait with a command alongside or no limit) ends it with no. If yes, that card goes and
-     * nothing parks or cuts it, whatever the park needs. It asks again at the next card, so a chain
+     * nothing parks or cuts it, whatever the park needs.
+     *
+     * <p><b>With {@link #parkAfterVolley} on (on the robot since 6 Nov 2026), the park comes too.</b>
+     * The look-ahead then also adds the volley's card time and the guard's park after it, plus
+     * {@link #GUARD_MARGIN_S}; it goes for the volley only if that ends by 30 s, and if the volley is
+     * found but that does not fit, the guard parks now, before the card starts: a trip (a drive, a
+     * grab) toward a volley that would leave no time to park is never begun, since once there its
+     * drive-in may open the gate and a feeding launch is never cut. A chain the look-ahead cannot
+     * time falls to the park rule below, as before. It asks again at the next card, so a chain
      * that ran long falls back to the park rule below. The robot ends AUTO wherever the volley left
      * it, a launch spot off the walls, so LEAVE is kept: the grabs the chain runs end, at their
      * typical times, before the volley's last piece does.
@@ -678,13 +707,25 @@ public final class AutoKit {
     private void goForVolleyIfItFits(Command[] cards, int from) {
         Command target = null;
         goingForVolley = false;
-        double at = secondsSinceStart.getAsDouble();
+        volleyLeavesNoPark = null;
+        double now = secondsSinceStart.getAsDouble();
+        double at = now;
         for (int i = from; i < cards.length - 1; i++) {
             Plan plan = plans.get(cards[i]);
             if (plan == null) break;
             if (plan.isVolley()) {
                 volleyLastPieceAt = at + plan.lastPieceS;
                 goingForVolley = volleyLastPieceAt <= AUTO_LENGTH_S;
+                if (parkAfterVolley && !Double.isNaN(ownParkSeconds)) {
+                    double volleyS = plan.secondsFrom.applyAsDouble(at);
+                    double parkedAt = at + volleyS + ownParkSeconds + GUARD_MARGIN_S;
+                    if (volleyS >= 0 && parkedAt > AUTO_LENGTH_S) {
+                        goingForVolley = false;
+                        volleyLeavesNoPark = String.format(Locale.US,
+                                "%.1f s of cards to the next volley, the volley (%.1f s) and the park (%.1f s + %.1f s margin) end at %.1f s",
+                                at - now, volleyS, ownParkSeconds, GUARD_MARGIN_S, parkedAt);
+                    }
+                }
                 if (goingForVolley) target = cards[i];
                 break;
             }
@@ -730,6 +771,17 @@ public final class AutoKit {
             return;
         }
         goForVolleyIfItFits(cards, index[0]);
+        if (!last && volleyLeavesNoPark != null) {
+            if (guardOn) {
+                trace.accept(label + ": " + volleyLeavesNoPark + ": no time to park after it, parking now");
+                startPark(parkNow(park), current, parking);
+                return;
+            }
+            if (!guardWouldHaveActed) {
+                guardWouldHaveActed = true;
+                trace.accept(label + ": guard OFF: " + volleyLeavesNoPark + ": would have parked now");
+            }
+        }
         if (!last && tooLateToContinue(label, parkSecondsNow(parkSeconds), "parking now")) {
             startPark(parkNow(park), current, parking);
             return;

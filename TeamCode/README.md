@@ -477,6 +477,43 @@ was cosmetic. These files keep the two equal so the file cannot be misread.
 
 ### The turret: a servo on a servo port, an encoder on a motor's encoder socket
 
+**Experimental branch `spike/19429-turret-burst` (6 Nov, corrected for SWYFT):** Utility
+**Bench: Turret Burst** tests 19429's programmable SWYFT in continuous mode. SWYFT's
+[programmer guide](https://github.com/SWYFT-Robotics/swyft-servo-programmer-v2/blob/main/src/GuideWindow.xaml)
+says continuous mode is full-speed only, 1500 us returns HOME, and stopping requires PWM disable.
+The first version of this branch incorrectly reused goBILDA-style partial speed and neutral-stop
+behavior; the robot returned to home when R2 was released. That version is superseded.
+
+The corrected utility sends only 500/2500 us direction endpoints during a burst and disables PWM
+on this port for every pause, R2 release, Circle/B, and STOP. It never sends 1500 us, including at
+PLAY. Hold bursts default to 25 ms on / 250 ms off at full speed; there is no 12% speed setting.
+Manual testing now defaults to one 250 ms burst per R2+bumper press (500 ms maximum), with release
+required to rearm, to distinguish a drive-command problem from short-burst startup behavior.
+Telemetry shows inputs, SDK PWM enable state, and latched burst count/signal/duration; this is
+software readback, not a measured waveform. `manualSingleBurst=false` restores repeated manual bursts.
+**Encoder hold trial (v5):** Triangle/Y captures the current turret angle. While R2 is held,
+encoder error beyond +/-1 degree requests a 150 ms correction (the recorded median step was
+1.28 degrees over 15 attempts). PWM is then OFF for at least 350 ms, followed by 100 ms of encoder
+rate within +/-1 deg/s before another decision. Corrections are capped at 175 ms; crossing the
+target interrupts the drive and still preserves settling time. D-pad steps target by 5 degrees.
+Release R2 to disable; Circle/B cancels hold. The target is restored after drift or a push, but
+PWM is OFF at target: this is not a stiff positional-servo brake. Actual hold accuracy, response
+in both directions, load and battery sensitivity remain robot checks. This supersedes the old
+25 ms / 100 ms maximum hold setup, which could not reliably start the measured SWYFT.
+
+Recording is automatic from INIT through STOP to `/sdcard/FIRST/logs/`, using the existing async
+`MatchLog` writer and normal `pull-logs.cmd` upload. `/TurretBurst/*` records inputs, gates,
+commands, SDK PWM state, raw/zero counts, angle/rate, battery and every live setting. START/END
+events and per-burst drive deltas supplement the raw series. `read_logs.py turret <log>` computes
+actual movement from absolute readings, shows actual versus configured timing, and reports a
+250 ms OFF sample only when it exists before another burst. No screenshots or hand-written angles
+are needed; recording faults and dropped loops are shown on the utility screen.
+The existing `<Servo>` mapping is just the pulse transport here, not position targeting.
+Both XML files and the position subsystem remain unchanged. Never run the ordinary turret bench,
+Basic Drive or Auto on 19429 while its servo is flashed continuous. Reflash position mode before
+returning to those OpModes. Test controls, starting values and checks are in `doc/robot-todo.md`.
+The +/-30 degree window is an experiment limit, not measured robot travel; it cannot stop coasting.
+
 The turret has no motor port: all eight are taken. It turns on a goBILDA servo
 in standard (position) mode, a `<Servo>` element and a `Servo` in code (until
 6 Nov 2026 it was in continuous-rotation mode, a `CRServo`). The SDK builds a
@@ -1038,11 +1075,11 @@ the editor; `AutoRegistrationTest` keeps the two in step.
 enters it during an Autonomous's INIT with gamepad 1's D-pad up/down (`InitOptions`, 1 s a press;
 left/right picks the park). The Auto's one wait drawn "until the match clock reads …" and offered
 in INIT (`AutoOption.matchSeconds`, exported as `kit.atMatchSeconds(kit.seconds(...))`) then ends
-at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 4 s for the shot's flight, the dwell
-before the rocker moves, the swing and the camera settling (1.5 to 5 s in the simulator's model).
+at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 4.5 s for the shot's flight, the dwell
+before the rocker moves, the swing and the camera settling (4.0 to 4.4 s at the Belding Qualifier).
 `partnerTipLagS` in `TeamCode/autos/timing.json` is the same number, and `PartnerWaitTest` keeps the
 two equal. The Match page shows both numbers, never only the sum: "partner's last shot ▲▼ 8 s,
-waiting until 12 s". Nothing entered, the wait runs as drawn. It is still a time limit: a feed that
+waiting until 12.5 s". Nothing entered, the wait runs as drawn. It is still a time limit: a feed that
 has started finishes first. L-Partner's "Wait for TIP or CELL up" is the one partner wait on master.
 
 `autokit` depends only on Ivy and Pedro, so `AutoKitTest` runs every card through Ivy's real

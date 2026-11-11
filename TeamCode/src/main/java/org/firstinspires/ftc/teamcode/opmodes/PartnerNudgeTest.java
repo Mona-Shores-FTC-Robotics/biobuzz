@@ -14,9 +14,15 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 @Utility(name = "Drive: Partner Nudge " + PartnerNudgeTestAuto.SAVED,
         description = "Angled 16x16 chassis: short push, retreat, release drive; no shooting")
 public final class PartnerNudgeTest extends RobotOpMode {
-    /** Initial test settings, not measured tune values. Read once at PLAY. */
-    public static double speedInPerSec = 4;
-    public static double accelerationInPerSec2 = 8;
+    /**
+     * The contact approach and push's speed cap, a fraction of the robot's top path speed (Pedro's
+     * {@code maxPathSpeed}), 0.1 to 0.5. Read once at PLAY here, and at INIT by Drive: R-Solo-Nudge,
+     * which uses the same number: find it with this test, then run the full trial. Not measured: 0.2
+     * is a first try (about 14 in/s on 20245, 3.5 times the power of the 4 in/s cap that never moved
+     * it on 6 Nov); 0.35 is the slowest the robot is known to move under (the FLOWER push, 30 Oct).
+     */
+    public static double pathSpeed = 0.2;
+    /** Initial test setting, not a measured value. Read once at PLAY. */
     public static double timeoutSeconds = 8;
 
     private NudgeTestRun run;
@@ -33,8 +39,8 @@ public final class PartnerNudgeTest extends RobotOpMode {
         display.line("16x16 partner, 20 degrees toward field interior; see nudge setup in robot-todo.");
         display.line("Place us at the drawn PARTNER_CONTACT with a 0.5 in bumper gap.");
         display.line("PLAY: push 6 in, retreat; re-INIT to repeat. Choose red or blue.");
-        display.line("Nudge limit: " + speedInPerSec + " in/s; " + accelerationInPerSec2
-                + " in/s^2; timeout " + timeoutSeconds + " s");
+        display.line("Nudge path speed: " + pathSpeed + " of top speed; timeout "
+                + timeoutSeconds + " s");
     }
 
     @Override protected void onStart() {
@@ -47,7 +53,7 @@ public final class PartnerNudgeTest extends RobotOpMode {
             run = new NudgeTestRun(robot.drive, Constants.forActiveRobot().foresightConfig,
                     robot.drive::odometrySpeedInPerSec, () -> System.nanoTime() / 1e9,
                     () -> robot.drive.drive(0, 0, 0), log::event,
-                    speedInPerSec, accelerationInPerSec2, timeoutSeconds);
+                    pathSpeed, timeoutSeconds);
         } catch (IllegalArgumentException e) {
             problem = e.getMessage();
             robot.drive.drive(0, 0, 0);

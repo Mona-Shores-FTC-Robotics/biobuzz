@@ -139,9 +139,24 @@ public class LauncherSubsystemTest {
         return pair(d, TARGET, measured, measured, true, DIP);
     }
 
+    /**
+     * A detector whose wheels have held {@code target} for 200 ms, as they have before a feed: the
+     * level is seeded only once they have held it for {@code ShotDetector.SEED_HOLD_MS}.
+     */
+    private ShotDetector settled(double target) {
+        ShotDetector d = new ShotDetector();
+        settle(d, target);
+        return d;
+    }
+
+    /** Five loops (200 ms) at {@code target}, gate shut. */
+    private void settle(ShotDetector d, double target) {
+        for (int i = 0; i < 5; i++) pair(d, target, target, target, false, DIP);
+    }
+
     @Test
     public void aDipFromAtSpeedThatRecoversIsOneShot() {
-        ShotDetector d = new ShotDetector();
+        ShotDetector d = settled(TARGET);
         at(d, 1500); at(d, 1490);                 // at speed: armed
         assertFalse(at(d, 1300));                 // the piece hits: dip starts
         assertFalse(at(d, 1150));                 // bottom
@@ -177,7 +192,7 @@ public class LauncherSubsystemTest {
 
     @Test
     public void twoDipsAreTwoShotsAndBothWheelsMustDip() {
-        ShotDetector d = new ShotDetector();
+        ShotDetector d = settled(TARGET);
         at(d, 1500);
         at(d, 1200); assertTrue(at(d, 1500));
         // Right wheel alone drops: not a dip.
@@ -195,15 +210,16 @@ public class LauncherSubsystemTest {
 
     @Test
     public void aDipThatNeverRecoversIsNotCountedAndResetDropsIt() {
-        ShotDetector d = new ShotDetector();
+        ShotDetector d = settled(TARGET);
         at(d, 1500);
         at(d, 1000); at(d, 900);
         assertTrue(d.inDip());
         d.reset();                                // spin-down, or a target change
         assertFalse(d.inDip());
         assertEquals(0, d.shots());
-        // Not armed after a reset: a return to speed is not a shot, and the next dip is.
+        // Not armed after a reset: a return to speed is not a shot, and once settled the next dip is.
         assertFalse(at(d, 1500));
+        settle(d, TARGET);
         at(d, 1200); assertTrue(at(d, 1500));
         assertEquals(1, d.shots());
     }
@@ -253,7 +269,7 @@ public class LauncherSubsystemTest {
     @Test
     public void aFedShotsSharpDipIsStillOneShot() {
         // A real shot: gate open, both wheels fall 150–200 within a loop or two and recover.
-        ShotDetector d = new ShotDetector();
+        ShotDetector d = settled(LOG_TARGET);
         assertEquals(1, sameOnBoth(d, true, 1600, 1595, 1440, 1400, 1470, 1530, 1580, 1600));
         assertEquals(195.0, d.lastDipTicksPerSecond(), EPS);
         sameOnBoth(d, true, 1595, 1600, 1595, 1590);   // at speed between the shots
@@ -292,7 +308,10 @@ public class LauncherSubsystemTest {
     public void theShallowSagBeforeAFedShotIsNotAShot() {
         // 1701.15 s and 1701.22 s (target 1620 there; here 25 lower): feeder loaded at 6 A, the wheels
         // hover 60 and 80 under target and two shots were counted. Then the real one at 1701.64 s.
+        // The level is the hover's (the first rule seeded it on the hover's first loop; now the wheels
+        // hold it for ShotDetector.SEED_ANYWAY_MS, since the hover is past the seed band).
         ShotDetector d = new ShotDetector();
+        for (int i = 0; i < 14; i++) pair(d, LOG_TARGET, 1575, 1555, false, LOG_DIP);
         assertEquals(0, fed(d, 1575, 1555, 1555, 1555, 1535, 1515, 1555, 1535,
                 1555, 1535, 1555, 1515, 1575, 1535, 1595, 1575, 1595, 1595));
         assertEquals(1, fed(d, 1555, 1555, 1395, 1395, 1435, 1415, 1475, 1475, 1515, 1495, 1575, 1555));
@@ -300,7 +319,7 @@ public class LauncherSubsystemTest {
 
     @Test
     public void aDipThatStartsWithTheGateOpenCountsEvenIfItShutsBeforeRecovery() {
-        ShotDetector d = new ShotDetector();
+        ShotDetector d = settled(LOG_TARGET);
         logged(d, 1595, 1595, true);
         logged(d, 1420, 1410, true);              // the piece hits with the gate open
         logged(d, 1450, 1450, false);             // the driver lets go: the gate shuts mid-dip
@@ -310,7 +329,7 @@ public class LauncherSubsystemTest {
 
     @Test
     public void aGateShutDipDoesNotSpoilTheNextFedShot() {
-        ShotDetector d = new ShotDetector();
+        ShotDetector d = settled(LOG_TARGET);
         logged(d, 1595, 1595, false);
         sameOnBoth(d, false, 1540, 1500, 1510, 1590);   // the intake's sag: ignored
         assertEquals(1, sameOnBoth(d, true, 1600, 1420, 1470, 1590));
@@ -349,6 +368,31 @@ public class LauncherSubsystemTest {
         int before = d.shots();
         for (int i = 0; i < leftRight.length; i += 2) pair(d, target, leftRight[i], leftRight[i + 1], true, LOG_DIP);
         return d.shots() - before;
+    }
+
+    @Test
+    public void theLevelWaitsForTheWheelsToHoldTheTarget() {
+        // Within tolerance but still falling onto the target: no level yet, so no dip can start.
+        ShotDetector d = new ShotDetector();
+        for (double v : new double[] {1550, 1530, 1510}) pair(d, TARGET, v, v, true, DIP);
+        assertFalse(pair(d, TARGET, 1340, 1340, true, DIP));
+        assertFalse(d.inDip());
+        // Held near the target for the seed hold: the next dip is a shot.
+        settle(d, TARGET);
+        at(d, 1200);
+        assertTrue(at(d, 1500));
+        assertEquals(1, d.shots());
+    }
+
+    @Test
+    public void wheelsSettledOffTargetStillSeedTheLevelInTime() {
+        // Both wheels 30 under target, past the seed band, but held within tolerance: after
+        // ShotDetector.SEED_ANYWAY_MS the level is seeded where they are and a dip counts.
+        ShotDetector d = new ShotDetector();
+        for (int i = 0; i < 14; i++) pair(d, TARGET, 1470, 1470, true, DIP);
+        at(d, 1250);
+        assertTrue(at(d, 1470));
+        assertEquals(1, d.shots());
     }
 
     @Test
