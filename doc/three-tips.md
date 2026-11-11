@@ -198,11 +198,18 @@ that pace. **No stay-in share by angle exists**, for any spot: the logs count ba
 calibration is by range from near-square shots. The simulator also flags every FLOWER pick as "drives
 into a FLOWER"; that is the pick itself reaching the holder, and master's Autos get the same flag.
 
-**In the Visualizer** the pair previews as it runs here, with two sliders moved on each robot. At the
-defaults (Volley time 4.0 s) the match shows 2 TIPs. For the three-TIP run set **Volley time to 2.2 s**
-(a feed that ends on the fourth ball) and **Intake full to 0 s**: L's gate after the WALL FLOWER asks
-for a full intake, which the pick has already filled, and the Visualizer's default adds 1.9 s to that
-wait. Then L's last volley ends at about 25 s and the third TIP falls at or just after 30 s.
+**In the Visualizer** (swept over both sliders on both robots, 11 Nov, the drawing as it is now):
+
+| Volley time | Intake full 0 s | 0.5 s | 1.0 s | 1.9 s (default) |
+|---|---|---|---|---|
+| 1.5 s | 3 TIPs | 3 | 3 | 3 |
+| 2.0 s | 3 TIPs | 3 | 2 | 2 |
+| 2.2 s | 2 TIPs | 2 | 2 | 2 |
+| 2.5 s to 4.0 s (default) | 2 TIPs | 2 | 2 | 2 |
+
+So the shared square spot needs a volley of 2.0 s or less. Belding's balls left 0.47 s apart after a
+first ball at 0.75 s, which is 2.2 s to the fourth ball even with a feed that stops on it: not quite
+enough. A 1.5 s volley is 0.3 s a shot.
 
 | The pair, real cards, no turret | 1 TIP | 2 TIPs | 3 TIPs | TIP 2 at | TIP 3 at | Target |
 |---|---|---|---|---|---|---|
