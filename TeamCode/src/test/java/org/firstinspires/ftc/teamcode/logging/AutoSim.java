@@ -2184,6 +2184,15 @@ public final class AutoSim {
         /** LaunchAll cards this robot has started: the Belding calibration's later volleys run their whole feed. */
         private int launchAllsStarted;
 
+        /**
+         * A LaunchAll's set feed time: the robot's {@code LaunchCards.launchAllFeedS}, or
+         * {@code BIOBUZZ_SIM_LAUNCH_ALL_FEED_S} for "what would a shorter feed buy" (three-tips study, 11 Nov 2026).
+         */
+        private double launchAllFeedS() {
+            String v = System.getenv("BIOBUZZ_SIM_LAUNCH_ALL_FEED_S");
+            return v == null || v.isEmpty() ? LaunchCards.launchAllFeedS : Double.parseDouble(v);
+        }
+
         private Command launch(int count) {
             return new CommandBuilder()
                     .setStart(() -> {
@@ -2192,7 +2201,7 @@ public final class AutoSim {
                         fireStepBegins();
                         firing = true;
                         activeFeedAt = Double.NaN;
-                        activeFeedLimit = count == Integer.MAX_VALUE ? LaunchCards.launchAllFeedS : LaunchCards.launchOneFeedS;
+                        activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS() : LaunchCards.launchOneFeedS;
                         nextShotAt = Math.max(nextShotAt, now);
                         shotTarget = count == Integer.MAX_VALUE
                                 ? (!wholeFeed && Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0

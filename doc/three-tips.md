@@ -211,6 +211,25 @@ So the shared square spot needs a volley of 2.0 s or less. Belding's balls left 
 first ball at 0.75 s, which is 2.2 s to the fourth ball even with a feed that stops on it: not quite
 enough. A 1.5 s volley is 0.3 s a shot.
 
+**A shorter set feed does not buy a TIP** (mentor's question, 11 Nov). The Belding logs: 0.78 s from
+gate open to the first ball, 0.47 s between balls, so the fourth leaves at 2.19 s; the counter saw
+all four in 9 of 38 volleys and every other feed ran its 3.5 s. The last ball the launcher saw had
+left by 2.8 s in 29 of 32 volleys and by 3.1 s in 31. Run with the counter failing after the first
+volley, as at Belding, balls 0.47 s apart, 120 runs (`BIOBUZZ_SIM_LAUNCH_ALL_FEED_S`):
+
+| Set feed | 2 TIPs, Belding's accuracy / 0.98 | 3 TIPs by 30 s, angled spot | 3 TIPs by 30 s, shared square spot | Robots touch, shared spot |
+|---|---|---|---|---|
+| 3.5 s (today) | 59 / 97 | not run | 0 / 0 | 8 / 7 |
+| 3.1 s | 59 / 97 | 0 / 0 | 0 / 0 | 11 / 21 |
+| 2.8 s | 59 / 97 | 0 / 0 | 0 / 0 | 14 / 21 |
+| ends on the fourth ball (2.2 s) | 58 / 97 | 27 / 82 | 19 / 53 | 4 / 0 |
+
+Two TIPs do not move: the balls land when they land, and only the card ends sooner. The third TIP
+needs the 2.2 s volley, which only the counter gives. And the shared square spot is only safe at the
+pace its clock times were set for: with a longer volley R is still on the spot when L drives in. The
+simulator's balls always leave on time, so it does not show the cost of a short feed, a ball left in
+the robot (3 of 32 volleys at 2.8 s).
+
 | The pair, real cards, no turret | 1 TIP | 2 TIPs | 3 TIPs | TIP 2 at | TIP 3 at | Target |
 |---|---|---|---|---|---|---|
 | **Feed ends on the fourth ball (0.47 s a shot), stay in 0.98, 50 in/s, the GARDEN gives 4** | 120 | 97 | 53 | 19.2 s | 29.8 s | no |
