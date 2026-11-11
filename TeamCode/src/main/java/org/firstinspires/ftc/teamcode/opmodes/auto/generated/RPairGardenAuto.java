@@ -50,8 +50,10 @@ public final class RPairGardenAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose rightStart = p.of(55.6, 7.7, 90);
-        Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
+        Pose rightPairCatch = p.of(61, 13, 96.2);
         Pose leftPark = p.of(14.5, 117.4, 0);
+        Pose hiveNorth = p.of(58.5, 100.5, 90);
+        Pose rescueTurn = p.of(26, 100.5, 90);
         Pose gardenStaging = p.of(11.5, 22.1, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
@@ -61,37 +63,53 @@ public final class RPairGardenAuto {
         Pose toGardenStagingSegment2Start = p.of(11.5, 22.1, 90);
         Pose gardenStagingParkControl1 = p.of(22, 60, 0);
         Pose gardenStagingParkControl2 = p.of(24, 105, 0);
-        Pose toRightLaunchCatchSegment1Start = p.of(57.5, 18, 270);
-        Pose underTheHiveToLeftParkControl1 = p.of(59, 40, 0);
+        Pose toRightPairCatchSegment1Start = p.of(61, 13, 270);
+        Pose underTheHiveToLeftParkControl1 = p.of(60, 40, 0);
         Pose underTheHiveToLeftParkControl2 = p.of(58, 70, 0);
         Pose underTheHiveToLeftParkControl3 = p.of(58, 100, 0);
         Pose underTheHiveToLeftParkControl4 = p.of(76, 138, 0);
         Pose underTheHiveToLeftParkControl5 = p.of(26, 120, 0);
-        Pose underTheHiveToLeftParkSegment1Start = p.of(14.5, 117.4, 91.9);
+        Pose underTheHiveToLeftParkSegment1Start = p.of(14.5, 117.4, 96.2);
         Pose underTheHiveToLeftParkSegment1End = p.of(14.5, 117.4, 90);
         Pose underTheHiveToLeftParkSegment2Start = p.of(14.5, 117.4, 90);
         Pose underTheHiveToLeftParkSegment2End = p.of(14.5, 117.4, 90);
         Pose underTheHiveToLeftParkSegment3Start = p.of(14.5, 117.4, 90);
+        Pose underTheHiveToHiveNorthControl1 = p.of(60, 40, 0);
+        Pose underTheHiveToHiveNorthControl2 = p.of(58.5, 70, 0);
+        Pose underTheHiveToHiveNorthSegment1Start = p.of(58.5, 100.5, 96.2);
+        Pose rescueTurnToLeftParkControl1 = p.of(13, 99, 0);
+        Pose rescueTurnToLeftParkSegment1Start = p.of(14.5, 117.4, 90);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toGardenStaging = Paths.curve(rightStart, toGardenStagingControl1, gardenStaging).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(toGardenStagingSegment1Start, toGardenStagingSegment1End)).until(1, Interpolator.linear(toGardenStagingSegment2Start, gardenStaging)));
         Path gardenStagingPark = Paths.curve(gardenStaging, gardenStagingParkControl1, gardenStagingParkControl2, leftPark).linear(gardenStaging, leftPark);
-        Path toRightLaunchCatch = Paths.line(gardenStaging, rightLaunchCatch).heading(Interpolator.piecewise().until(0.7, Interpolator.linear(toRightLaunchCatchSegment1Start, rightLaunchCatch)).until(1, Interpolator.linear(rightLaunchCatch, rightLaunchCatch)));
-        Path underTheHiveToLeftPark = Paths.curve(rightLaunchCatch, underTheHiveToLeftParkControl1, underTheHiveToLeftParkControl2, underTheHiveToLeftParkControl3, underTheHiveToLeftParkControl4, underTheHiveToLeftParkControl5, leftPark).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(underTheHiveToLeftParkSegment1Start, underTheHiveToLeftParkSegment1End)).until(0.7, Interpolator.linear(underTheHiveToLeftParkSegment2Start, underTheHiveToLeftParkSegment2End)).until(1, Interpolator.linear(underTheHiveToLeftParkSegment3Start, leftPark)));
+        Path toRightPairCatch = Paths.line(gardenStaging, rightPairCatch).heading(Interpolator.piecewise().until(0.7, Interpolator.linear(toRightPairCatchSegment1Start, rightPairCatch)).until(1, Interpolator.linear(rightPairCatch, rightPairCatch)));
+        Path underTheHiveToLeftPark = Paths.curve(rightPairCatch, underTheHiveToLeftParkControl1, underTheHiveToLeftParkControl2, underTheHiveToLeftParkControl3, underTheHiveToLeftParkControl4, underTheHiveToLeftParkControl5, leftPark).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(underTheHiveToLeftParkSegment1Start, underTheHiveToLeftParkSegment1End)).until(0.7, Interpolator.linear(underTheHiveToLeftParkSegment2Start, underTheHiveToLeftParkSegment2End)).until(1, Interpolator.linear(underTheHiveToLeftParkSegment3Start, leftPark)));
+        Path underTheHiveToHiveNorth = Paths.curve(rightPairCatch, underTheHiveToHiveNorthControl1, underTheHiveToHiveNorthControl2, hiveNorth).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(underTheHiveToHiveNorthSegment1Start, hiveNorth)).until(1, Interpolator.linear(hiveNorth, hiveNorth)));
+        Path sidewaysToRescueTurn = Paths.line(hiveNorth, rescueTurn).linear(hiveNorth, rescueTurn);
+        Path rescueTurnToLeftPark = Paths.curve(rescueTurn, rescueTurnToLeftParkControl1, leftPark).heading(Interpolator.piecewise().until(1, Interpolator.linear(rescueTurnToLeftParkSegment1Start, leftPark)));
 
         return kit.sequence(
                 kit.command("SpinUp"),
                 kit.command("LaunchAll"),
                 kit.path("to GARDEN_STAGING", toGardenStaging, 2.1, gardenStagingPark, 3),
                 kit.command("GardenGather", 7),
-                kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 2.1, underTheHiveToLeftPark, 3.8),
-                kit.firstOf("RIGHT up before 20.5 s, otherwise park",
-                        kit.atMatchSeconds(20.5).then(
-                                kit.guarded("Timed out", underTheHiveToLeftPark, 3.8,
-                                        kit.path("under the HIVE to LEFT_PARK", underTheHiveToLeftPark, 3.8))),
+                kit.path("to RIGHT_PAIR_CATCH", toRightPairCatch, 2.2, underTheHiveToLeftPark, 3.9),
+                kit.firstOf("RIGHT still up before 16 s: TIP 1 did not come",
+                        kit.atMatchSeconds(16).then(
+                                kit.firstOf("RIGHT up before 25 s, otherwise park",
+                                        kit.atMatchSeconds(25).then(
+                                                kit.guarded("Timed out", underTheHiveToLeftPark, 3.9,
+                                                        kit.path("under the HIVE to LEFT_PARK", underTheHiveToLeftPark, 3.9))),
+                                        kit.when("RightCellUp").then(
+                                                kit.guarded("If RightCellUp", underTheHiveToLeftPark, 3.9,
+                                                        kit.command("LaunchAll"),
+                                                        kit.path("under the HIVE to LEFT_PARK", underTheHiveToLeftPark, 3.9))))),
                         kit.when("RightCellUp").then(
-                                kit.guarded("If RightCellUp", underTheHiveToLeftPark, 3.8,
+                                kit.guarded("If RightCellUp", rescueTurnToLeftPark, 1.4,
                                         kit.command("LaunchAll"),
-                                        kit.path("under the HIVE to LEFT_PARK", underTheHiveToLeftPark, 3.8)))));
+                                        kit.path("under the HIVE to HIVE_NORTH", underTheHiveToHiveNorth, 2.8),
+                                        kit.path("sideways to RESCUE_TURN", sidewaysToRescueTurn, 1.7),
+                                        kit.path("RESCUE_TURN to LEFT_PARK", rescueTurnToLeftPark, 1.4)))));
     }
 }

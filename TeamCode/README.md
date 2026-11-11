@@ -1235,6 +1235,9 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
     fires only at stops (seated on a FLOWER, or waiting at a spot).
   - `BIOBUZZ_AUTO_DESIGN_SET="shotIntervalS=0.47"` sets the seconds between shots (the simulator's own is the
     3.5 s set feed over 4; Belding's balls left 0.47 s apart after a first at 0.75 s).
+  - `BIOBUZZ_SIM_PRELOADS_MISS=1` (or `2`) sends that robot's first four shots wide, for a pair run as
+    `BIOBUZZ_AUTO_STUDY="A,B"`: 1 is the first Auto, 2 the second. `BIOBUZZ_AUTO_PARTNER_SPEED` sets the
+    second robot's speed, so `"A,B@40"` with it at 50 is "the first robot 20% slow".
   - `BIOBUZZ_SIM_LAUNCH_ALL_FEED_S` sets a LaunchAll's set feed time in the simulator only (the robot's is
     `LaunchCards.launchAllFeedS`), for "what would a shorter feed buy".
   - `BIOBUZZ_SIM_TYPICAL_LAUNCH_ALL`, `_PICK_FLOWER`, `_GARDEN_GATHER`: the typical seconds the endgame guard

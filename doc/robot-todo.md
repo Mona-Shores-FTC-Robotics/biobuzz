@@ -840,13 +840,17 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       [mentor session, 11 Nov]
 
 - [ ] **The road under the HIVE** (`doc/three-tips.md`, R-Pair-Garden's exit; draft PR #531): drive
-      `RIGHT_LAUNCH_CATCH` to `LEFT_PARK` under the HIVE, slowly first, then at 50 in/s, 5 times.
+      `RIGHT_PAIR_CATCH` (61, 13) to `LEFT_PARK` under the HIVE, slowly first, then at 50 in/s, 5 times.
       The curve leaves 3.3 in between the frame and our foot bar, and the same to the centre line.
       **Pass:** no touch and no crossing in 5 of 5. Write down the closest it came on each side.
-- [ ] **A shot 24 degrees off square** (`doc/three-tips.md`, the pair's last volley): from
-      (34.4, 12.6) heading 65.9 at the RIGHT CELL, 5 volleys of 4, and 5 from `RIGHT_LAUNCH_CATCH`
-      for comparison. Count the ones that stay in. **Good:** the angled spot within 1 ball in 20 of
-      the square one; then L can have its own spot and the pair gets its second back.
+- [ ] **Two robots at the right end, both shooting** (`doc/three-tips.md`, the pair's last two
+      volleys): one on `RIGHT_PAIR_CATCH` (61, 13, 96.2), one on `RIGHT_LAUNCH_OFFSET`. 5 volleys of
+      4 from each, one after the other. Count the ones that stay in. **Good:** the two frames do
+      not touch, and the OFFSET spot (21 degrees off square) is within 1 ball in 20 of the other.
+- [ ] **R's rescue road** (`doc/three-tips.md`, "The blend"): with a robot standing on
+      `LEFT_LAUNCH_OFFSET`, drive `RIGHT_PAIR_CATCH` under the HIVE to (58.5, 100.5), sideways to
+      (26, 100.5), and into `LEFT_PARK`. It has 2 in on each side between the foot bar's end and
+      that robot. **Pass:** no touch in 5 of 5, slowly first.
 - [ ] **A row of 4 loose POLLEN, picked up at a creep** (Basic Drive, intake on; `doc/three-tips.md`'s
       partner row). Lay 4 POLLEN touching in a line on open tiles and drive along the line at about
       6 in/s (a quarter stick), 10 times, then 10 times with the row against a wall as the GARDEN's is.

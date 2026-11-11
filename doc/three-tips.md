@@ -133,72 +133,111 @@ comes up, and by keeping the second robot loaded and waiting at the RIGHT CELL:
 | Time, one run (seed 5, row sweep) | L-Pair-Flowers | R-Pair-Garden |
 |---|---|---|
 | 0 to 2.5 s | Drives 1.1 s from `LEFT_START` to `LEFT_LAUNCH_OFFSET`. Waits | Volley 1: 4 preloads at the RIGHT CELL from `RIGHT_START` |
-| 2.5 to 9 s | Waits for the LEFT CELL | Gathers the GARDEN (4.5 to 6.9 s), drives to `RIGHT_LAUNCH_CATCH`, square in front of the RIGHT CELL, waits loaded |
+| 2.5 to 9 s | Waits for the LEFT CELL | Gathers the GARDEN (4.5 to 6.9 s), drives to `RIGHT_PAIR_CATCH` (61, 13), 6 degrees off square to the RIGHT CELL, waits loaded |
 | 6.2 s | **TIP 1.** Volley 2: 4 preloads at the LEFT CELL (to 7.6 s) | |
 | 7.6 to 12.5 s | SCORING FLOWER pick, back to `LEFT_LAUNCH_OFFSET` | waits |
 | 12.5 to 14.0 s | Volley 3: the FLOWER's 4 at the LEFT CELL | |
-| 14.0 to 23.3 s | **TIP 2 dwell:** wall lane to the WALL FLOWER, picks 4 (full at 20.1 s), waits for 21.2 s on the clock so R has left, drives south to the same spot, `RIGHT_LAUNCH_CATCH` | |
+| 14.0 to 22.1 s | **TIP 2 dwell:** wall lane to the WALL FLOWER, picks 4 (full at 20.1 s), drives south to `RIGHT_LAUNCH_OFFSET` (41, 20), beside R's spot | |
 | 18.7 s | | **TIP 2.** Volley 4: the GARDEN's 4 at the RIGHT CELL (to 20.1 s) |
-| 20.1 s on | | Leaves straight under the HIVE and parks at `LEFT_PARK`, the far end (done 24.2 s) |
-| 23.3 to 25.0 s | Volley 5: the WALL FLOWER's 4 at the RIGHT CELL, square on from 42 in | |
-| 25.0 s on | Drives up the wall lane and parks at `RIGHT_PARK`, the near end | |
-| 29.2 s | **TIP 3** (29.8 s on average) | |
+| 20.1 s on | | Leaves straight under the HIVE and parks at `LEFT_PARK`, the far end |
+| 22.1 to 23.9 s | Volley 5: the WALL FLOWER's 4 at the RIGHT CELL, 21 degrees off square from 44 in | |
+| 23.9 s on | Drives up the wall lane and parks at `RIGHT_PARK`, the near end | |
+| 28.1 s | **TIP 3** (29.0 s on average) | |
 
-Those are one run's times; the averages are in the table below. If the LEFT CELL is not up by 13 s L
-parks. L goes south only with a full intake before 22.5 s, and otherwise parks from the WALL FLOWER. R
-fires only if the RIGHT CELL is back up by 20.5 s, and otherwise leaves then; L gives up at 25 s.
+Those are one run's times; the averages are in the table below.
 
-**Every volley is fired from the CELL's own end of the field** (mentor, 11 Nov). The first drawing had
-L fire its last 4 at the RIGHT CELL from the wall lane, (26, 40), which is 62 degrees off square to
-the CELL's row. The simulator let it through because it scores a shot by range only. The mentor's
-verdict was that it will never go in, and the Square launch spots work (biobuzz#536) agrees: the
-steepest shot ever fired in a log is about 33 degrees, its spots are capped at 26, and the row's
-opening seen from 62 degrees is under half its width.
+### The blend with R-Clockwise / L-Clockwise (11 Nov)
 
-**Both last volleys come from one square spot, one robot after the other** (mentor, 11 Nov). There is
-room for one robot square in front of the RIGHT CELL. A second spot beside it is 24 degrees off square
-at 54 in, which nothing has measured, and the mentor would not plan on it. So R fires from
-`RIGHT_LAUNCH_CATCH` (square on, 42 in, the calibration's best range) and leaves, and L takes the same
-spot after it. Neither robot can see the other, so the hand-over is by the clock: R is off the spot
-by 22.4 s at the latest, and L does not start toward it before 21.2 s. **That wait costs about a
-second, and the pair has no second to give:**
+The mentor asked this study and the Clockwise session (biobuzz#535) whose pair is better. Both
+sessions' answer: neither outright, and the pair above is now the blend. Run on the same footing by
+each session on its own branch (feed ends on the fourth ball at 0.47 s a shot, stay in 0.98, the
+robot's own GARDEN gather, 120 runs, by 30 s), before the blend:
 
-| With the shot counter, stay in 0.98, 50 in/s, of 120 | 2 TIPs | 3 TIPs by 30 s | TIP 3 at | Robots touch |
+| | This pair | Clockwise |
+|---|---|---|
+| 2 or more TIPs | 97 | 79 |
+| 3 TIPs | 12 to 20 | 15 (40 with every FLOWER load full) |
+| A robot hit by a spilled piece under the HIVE (G409) | 0 | 35 to 50 |
+| Both parked, no contact | 120 | 120 |
+| A missed preload volley | not handled | TIP 1 still comes in 23 of 24 |
+| Run with a slow robot or a missed preload volley | no | yes |
+
+**Kept from this pair:** the division of the field. L fills the LEFT CELL alone and takes both
+FLOWERs; nobody crosses the field with a load, so nobody drives under a CELL as it tips, and both
+robots' LEFT accuracy is not needed for TIP 2.
+
+**Taken from Clockwise:**
+
+- **Two spots side by side at the right end, not one shared by the clock.** R stands on Clockwise's
+  `RIGHT_PAIR_CATCH` (61, 13; 6 degrees off square) and L on the team's `RIGHT_LAUNCH_OFFSET`
+  (41, 20; 21 degrees off square, the angled spot Belding's Square volleys used most: 65 balls out,
+  none counted in). That gives back the second the shared spot cost.
+- **A TIP 1 fallback, in two parts.** If the RIGHT CELL is still up when R comes back from the GARDEN
+  (before 16 s), R's preloads did not tip it: R fires the GARDEN's pieces at it at once and parks. If
+  the LEFT CELL is not up by 12 s, L drives the wall lane to the right end and fires its preloads at
+  the RIGHT CELL if it is still up, then waits until 24 s so R has parked, and parks.
+- **Its stress runs:** either preload volley missed, either robot 20% slow or 20% fast.
+
+**Not taken:** the TIP 2 rescue (Clockwise's R fires a spare load at LEFT; here R never goes to that
+end loaded), the one-way loop (its session found the contacts were at parks, not head-on in a lane),
+and the INIT menu. Its `LEFT_PAIR_OFFSET` is 32.8 degrees off square and is not used.
+
+| Of 60 runs each (own GARDEN gather) | TIP 1 | 2 TIPs | 3 TIPs by 30 s | Both parked | Robots touch | G409 |
+|---|---|---|---|---|---|---|
+| Belding's pace, normal | 60 | 30 | 0 | 60 | 0 | 2 |
+| Belding's pace, L's preloads miss | 59 | 0 | 0 | 60 | 0 | 0 |
+| Belding's pace, R's preloads miss | 60 | 0 | 0 | 60 | 0 | 4 |
+| Belding's pace, L or R 20% slow or fast (4 rows) | 60 | 30 | 0 | 60 | 0 | 0 to 8 |
+| Shot counter, normal | 60 | 49 | 9 | 60 | 0 | 0 |
+| Shot counter, L's preloads miss | 60 | 0 | 0 | 60 | 0 | 0 |
+| Shot counter, R's preloads miss | 60 | 0 | 0 | 60 | 0 | 0 |
+| Shot counter, L or R 20% slow or fast (4 rows) | 60 | 49 | 6 to 11 | 60 | 0 | 0 |
+
+What the stress runs found on the way, each fixed in the drawing: R's exit under the HIVE passed L's
+stations at the left end, which is only safe once L has gone south, so after a rescue volley R takes
+a different way (under the HIVE, sideways along y 100.5, into `LEFT_PARK` from the south); L's
+give-up park and its lane south clipped a robot already on `LEFT_PARK`; and a first version of L's
+fallback left late and met R in the lane. **What is still open:** a missed preload volley costs TIP 2
+in every run, since nothing here makes up the four pieces; at Belding's pace R is hit by a spilled
+piece in up to 8 of 60 runs with R slow (it drives under the HIVE as a CELL tips); R's rescue road
+has 2 in on each side between the foot bar's end and L's station; and a dead robot on a start spot
+was not run.
+
+**How the pair got here** (mentor's review, 11 Nov, in order):
+
+1. The first drawing had L fire its last 4 at the RIGHT CELL from the wall lane, (26, 40), 62
+   degrees off square. The simulator scores a shot by range only and let it through. The mentor's
+   verdict was that it never goes in, and the Square launch spots work (biobuzz#536) agrees: the
+   steepest shot ever fired in a log is about 33 degrees and its spots are capped at 26. **Every
+   volley is now fired from the CELL's own end of the field.**
+2. It also had R follow L up the wall lane to park. At Belding's volley time L runs 3 s later and
+   the robots touched in 66 of 120 runs, as the mentor saw in the Visualizer. **The wall lane and
+   `RIGHT_PARK` are L's; R leaves under the HIVE to `LEFT_PARK`.**
+3. L's last volley moved to the audience wall, 24 degrees off square at 54 in (commit `f6fd8daa`),
+   then, since nothing has measured that shot, onto R's square spot in turn by the clock, which cost
+   a second and was only safe at one pace:
+
+| With the shot counter, stay in 0.98, 50 in/s, of 120 | 2 TIPs | 3 TIPs by 30 s (GARDEN gives 4 / own gather) | TIP 3 at | Robots touch |
 |---|---|---|---|---|
-| L on its own angled spot at the wall (24 degrees, 54 in), R square | 97 | 82 (GARDEN gives 4), 20 (own gather) | 28.7 s | 0 |
-| One square spot, L drives in as soon as it is full | 97 | 73, 16 | 29.0 s | 35, 14 |
-| **One square spot, L waits for the clock (as drawn now)** | 97 | **53**, 12 | 29.8 s | 0 |
+| L on its own spot at the wall (24 degrees, 54 in), R square | 97 | 82 / 20 | 28.7 s | 0 |
+| One square spot, L drives in as soon as it is full | 97 | 73 / 16 | 29.0 s | 35 / 14 |
+| One square spot, L waits for the clock | 97 | 53 / 12 | 29.8 s | 0 |
+| **The blend: `RIGHT_PAIR_CATCH` and `RIGHT_LAUNCH_OFFSET` side by side (as drawn now)** | 97 | **79 / 15** | 29.0 s | 0 |
 
-So the safe shared spot makes the third TIP in 53 of 120, under the 60 the target asks for, and the
-angled spot makes it in 82 only if a 24 degree shot stays in as well as a square one. Which is better
-on a field is a robot question (`doc/robot-todo.md`): count the balls that stay in from the angled
-spot. The earlier drawing with the angled spot is commit `f6fd8daa` of this branch.
-
-**The two never share a road.** The first drawing also had R wait for L and follow it up the wall
-lane. At Belding's volley time (the Visualizer's default) L runs about 3 s later, and the robots
-touched in 66 of 120 runs, as the mentor saw in the Visualizer. Now the wall lane and the near park
-end (`RIGHT_PARK`) are L's alone, and R leaves the other way: one nearly straight curve from
-`RIGHT_LAUNCH_CATCH` under the HIVE to the far end (`LEFT_PARK`), which is also the park its endgame
-guard uses.
-
-| Of 120 runs, both R drawings | At Belding's pace | With the shot counter |
+| Of 120 runs, both R drawings, the blend | At Belding's pace | With the shot counter |
 |---|---|---|
 | The two robots touch | 0 | 0 |
 | A robot touches the HIVE frame or crosses the centre line | 0 | 0 |
 | A robot is not parked at 30 s | 0 | 0 |
-| A robot is hit by a spilled piece before it lands (G409) | 5 or 6 (R) | 0 |
+| A robot is hit by a spilled piece before it lands (G409) | 0 to 2 (R) | 0 |
 
-What that table does not settle. **At Belding's pace R drives under the HIVE as the CELL tips** (it
-leaves at 20.5 s and TIP 2 comes at about 22 s), and the spill lands on it in 5 or 6 runs of 120: a
-foul. With the shot counter TIP 2 has already happened when R leaves. **The road under the HIVE** leaves 3.3 in on each side between our
-foot bar and the centre line; the simulator drives it clean, a real robot has not
-(`doc/robot-todo.md`). **At Belding's pace L never fires its last volley** (it is not full before
-22.5 s, so it parks) and R rarely does, which costs nothing there, since a third TIP is out of reach at
-that pace. **No stay-in share by angle exists**, for any spot: the logs count balls leaving, and the
-calibration is by range from near-square shots. The simulator also flags every FLOWER pick as "drives
-into a FLOWER"; that is the pick itself reaching the holder, and master's Autos get the same flag.
+**No stay-in share by angle exists**, for any spot: the logs count balls leaving, and the calibration
+is by range from near-square shots. The pair's last volley is 21 degrees off square, and its two LEFT
+volleys from `LEFT_LAUNCH_OFFSET` are 27. The simulator also flags every FLOWER pick as "drives into
+a FLOWER"; that is the pick itself reaching the holder, and master's Autos get the same flag.
 
-**In the Visualizer** (swept over both sliders on both robots, 11 Nov, the drawing as it is now):
+**In the Visualizer** (swept over both sliders on both robots, 11 Nov, for the shared square spot
+drawing; not swept again for the blend, which is about a second quicker):
 
 | Volley time | Intake full 0 s | 0.5 s | 1.0 s | 1.9 s (default) |
 |---|---|---|---|---|
@@ -207,7 +246,7 @@ into a FLOWER"; that is the pick itself reaching the holder, and master's Autos 
 | 2.2 s | 2 TIPs | 2 | 2 | 2 |
 | 2.5 s to 4.0 s (default) | 2 TIPs | 2 | 2 | 2 |
 
-So the shared square spot needs a volley of 2.0 s or less. Belding's balls left 0.47 s apart after a
+So the shared square spot needed a volley of 2.0 s or less. Belding's balls left 0.47 s apart after a
 first ball at 0.75 s, which is 2.2 s to the fourth ball even with a feed that stops on it: not quite
 enough. A 1.5 s volley is 0.3 s a shot.
 
@@ -232,8 +271,8 @@ the robot (3 of 32 volleys at 2.8 s).
 
 | The pair, real cards, no turret | 1 TIP | 2 TIPs | 3 TIPs | TIP 2 at | TIP 3 at | Target |
 |---|---|---|---|---|---|---|
-| **Feed ends on the fourth ball (0.47 s a shot), stay in 0.98, 50 in/s, the GARDEN gives 4** | 120 | 97 | 53 | 19.2 s | 29.8 s | no |
-| the same, but the GARDEN by the robot's own routine as the simulator runs it (it takes 2) | 120 | 97 | 12 | 19.2 s | 29.9 s | no |
+| **Feed ends on the fourth ball (0.47 s a shot), stay in 0.98, 50 in/s, the GARDEN gives 4** | 120 | 97 | 79 | 19.2 s | 29.0 s | **met** |
+| the same, but the GARDEN by the robot's own routine as the simulator runs it (it takes 2) | 120 | 97 | 15 | 19.2 s | 29.0 s | no |
 | the same, with the row sweep at 3 in/s | 120 | 97 | 32 | 19.2 s | 28.1 s | no |
 | Belding's feed (the whole 3.5 s) | 120 | 97 | 0 | 22.1 s | | no |
 | Feed 0.3 s a shot | 120 | 97 | 84 | 17.9 s | 26.0 s | **met** |
@@ -245,10 +284,9 @@ the robot (3 of 32 volleys at 2.8 s).
 | Belding's accuracy | 120 | 58 | 28 | 19.3 s | 28.0 s | no |
 | Everything as at Belding | 120 | 58 | 0 | 22.2 s | | no |
 
-The top two rows and the last row are from the drawing as it is now (11 Nov: both last volleys from
-the one square spot, R's exit under the HIVE). **Every other row is from the first drawing**, whose last
+The top two rows and the last row are from the drawing as it is now (11 Nov: the blend). **Every other row is from the first drawing**, whose last
 volley was the side shot and whose ending was 0.7 s quicker: read those as upper bounds. The margin is
-the thing to notice: TIP 3 now comes 0.2 s before the buzzer on average, so anything that costs a second
+the thing to notice: TIP 3 comes 1.0 s before the buzzer on average, so anything that costs a second
 (a slower drive, a slow pick) takes third TIPs away.
 
 **The pair needs three things, and no new mechanism:**

@@ -1238,6 +1238,16 @@ public final class AutoSim {
         double pickS = Double.NaN;
         /** Every launch goes wide ({@link AutoSim#misses}). */
         boolean missesWide;
+
+        /**
+         * {@code BIOBUZZ_SIM_PRELOADS_MISS=1} or {@code 2}: that robot's first four shots (its preloads) go wide, for
+         * "what does the pair do when a preload volley misses" (three-tips study, 11 Nov 2026). Robot 1 is the first
+         * Auto of the spec, robot 2 the second.
+         */
+        boolean preloadsMiss() {
+            String v = System.getenv("BIOBUZZ_SIM_PRELOADS_MISS");
+            return v != null && !v.isEmpty() && Integer.parseInt(v) == index + 1 && shotsFired < 4;
+        }
         /** The partner wait's match second ({@link AutoSim#partnerWaitUntil}); NaN: as drawn. */
         double partnerWaitUntilS = Double.NaN;
         /** This fire step has said it fires at a down CELL. */
@@ -1530,7 +1540,7 @@ public final class AutoSim {
                 }
                 double[] from = body.exitPoint(side);
                 double shotYaw = yawError;
-                if (missesWide) {
+                if (missesWide || preloadsMiss()) {
                     // A missing partner: its shot leaves MISS_WIDE_IN to the side of the CELL at that range.
                     double range = Math.max(1, Math.hypot(aim[0] - from[0], aim[1] - from[1]));
                     shotYaw += Math.atan2(MISS_WIDE_IN, range);

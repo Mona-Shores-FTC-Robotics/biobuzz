@@ -111,17 +111,20 @@ at a team launch spot, so the Visualizer previews it and neither robot needs a t
 
 - **L** drives from `LEFT_START` to `LEFT_LAUNCH_OFFSET`, fires its 4 preloads when the LEFT CELL comes
   up, picks the SCORING FLOWER and fires again, then picks the WALL FLOWER. With a full intake before
-  22.5 s it waits for 21.2 s on the clock, drives south to `RIGHT_LAUNCH_CATCH`, square in front of
-  the RIGHT CELL, and fires there after R has left; otherwise it parks. Every park of L's goes up the
-  wall lane to `RIGHT_PARK`, the near end.
+  23 s it drives south to `RIGHT_LAUNCH_OFFSET` and fires at the RIGHT CELL; otherwise it parks. Every
+  park of L's goes up the wall lane to `RIGHT_PARK`, the near end.
 - **R** makes the first TIP with its preloads, gathers the GARDEN, and waits loaded on
-  `RIGHT_LAUNCH_CATCH`, square in front of the RIGHT CELL, for it to come back up (until 20.5 s, so it is off the spot before L comes). It
-  leaves straight under the HIVE and parks at `LEFT_PARK`, the far end; the guard's park is that same
-  curve, with 3.3 in each side between our foot bar and the centre line: try it slowly first.
-- The two robots touch in 0 of 120 runs at Belding's volley time and 0 with the shot counter, and
-  both park in all of them.
-- Sharing the one square spot by the clock costs about a second: with the shot counter the third TIP
-  comes by 30 s in 53 of 120 (82 when L had its own angled spot at the wall, commit `f6fd8daa`).
+  `RIGHT_PAIR_CATCH` (61, 13), beside L's spot, for the RIGHT CELL to come back up (until 25 s). It
+  leaves straight under the HIVE and parks at `LEFT_PARK`, the far end.
+- **If TIP 1 does not come:** R, finding the RIGHT CELL still up when it is back from the GARDEN
+  (before 16 s), fires the GARDEN's pieces at it and parks by another way (under the HIVE, sideways
+  along y 100.5, into `LEFT_PARK` from the south, since L is still at the left end). L, if the LEFT
+  CELL is not up by 12 s, drives the wall lane to `RIGHT_LAUNCH_OFFSET`, fires its preloads at the
+  RIGHT CELL if it is still up, waits until 24 s so R has parked, and parks.
+- This is the blend with R-Clockwise / L-Clockwise (biobuzz#535): this pair's division of the field,
+  Clockwise's two spots side by side and its TIP 1 fallback. With either preload volley missed and
+  either robot 20% slow or fast, both robots park and nothing touches in every simulated run.
+- `RIGHT_PAIR_CATCH` is not a team spot yet (it is Clockwise's), and nothing here has run on a robot.
 
 Open the pair:
 <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/l-pair-flowers.pp,drafts/r-pair-garden.pp>.
