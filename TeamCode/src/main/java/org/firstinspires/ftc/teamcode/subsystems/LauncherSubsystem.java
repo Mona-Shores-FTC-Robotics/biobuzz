@@ -60,8 +60,9 @@ import java.util.function.BooleanSupplier;
  * <p>A velocity loop with no encoder feedback drives the motor to full power forever, trying to
  * reach a speed it never sees. The intake's encoder cable was unplugged at its first bench test,
  * so this is not hypothetical. A wheel that is commanded and still reads no speed after
- * {@link #encoderFaultAfterMs} is cut and reported on the Match page; {@link #spinDown()} clears
- * the fault so a fixed cable can be tried again without restarting.
+ * {@link #encoderFaultAfterMs} without a break is cut and reported on the Match page, and tried
+ * again every {@link #encoderRetryAfterMs} ({@link EncoderWatch}): a reading that dropped out and
+ * came back restores the wheel by itself. {@link #spinDown()} clears the fault too.
  *
  * <h2>Shots are counted from the speed dip</h2>
  *
@@ -213,10 +214,19 @@ public class LauncherSubsystem implements Subsystem {
     public static double wheelDiameterInches = Double.NaN;
 
     /**
-     * A wheel commanded for this long that still reads below {@link #encoderSilentTicksPerSecond}
-     * is treated as having no encoder and is cut. Long enough for a real spin-up to show movement.
+     * A wheel commanded for this long without a break that still reads below
+     * {@link #encoderSilentTicksPerSecond} is treated as having no encoder and is cut. Long enough
+     * for a real spin-up to show movement.
      */
     public static double encoderFaultAfterMs = 500.0;
+
+    /**
+     * A cut wheel is commanded again this long after the cut, and restored if it then reads speed
+     * ({@link EncoderWatch}). At Belding a cut wheel stayed off until the launcher was next spun
+     * down: 29 s and 23 s with nothing launched (#496). 2 s is a starting point, <b>not
+     * measured</b>. 0, negative or NaN never retries: cut until {@link #spinDown()}.
+     */
+    public static double encoderRetryAfterMs = 2000.0;
 
     /** Below this measured speed, a commanded wheel is "not moving" for the encoder check. */
     public static double encoderSilentTicksPerSecond = 20.0;
@@ -286,8 +296,8 @@ public class LauncherSubsystem implements Subsystem {
     private double leftCurrentAmps = Double.NaN;
     private double rightCurrentAmps = Double.NaN;
     private long spinUpStartedNs = -1;
-    private boolean leftFault;
-    private boolean rightFault;
+    private final EncoderWatch leftWatch = new EncoderWatch();
+    private final EncoderWatch rightWatch = new EncoderWatch();
     private final AtSpeedTimer readiness = new AtSpeedTimer();
     private boolean atSpeed;
     private final ShotDetector shots = new ShotDetector();
@@ -402,6 +412,8 @@ public class LauncherSubsystem implements Subsystem {
     private void beginSpinning() {
         if (state != State.SPINNING) {
             spinUpStartedNs = System.nanoTime();
+            leftWatch.restart(spinUpStartedNs);
+            rightWatch.restart(spinUpStartedNs);
             readiness.reset();
             shots.reset();
         }
@@ -412,8 +424,8 @@ public class LauncherSubsystem implements Subsystem {
     public void spinDown() {
         state = State.IDLE;
         spinUpStartedNs = -1;
-        leftFault = false;
-        rightFault = false;
+        leftWatch.restart(-1);
+        rightWatch.restart(-1);
         readiness.reset();
         shots.reset();
         atSpeed = false;
@@ -583,6 +595,8 @@ public class LauncherSubsystem implements Subsystem {
 
     /** A one-line description of what is wrong, or null when nothing is. */
     public String fault() {
+        boolean leftFault = leftWatch.fault();
+        boolean rightFault = rightWatch.fault();
         if (layout == Layout.Y_CABLED && leftFault) return "launcher reads no speed while commanded: encoder cable?";
         if (leftFault && rightFault) return "both wheels read no speed while commanded: encoder cables?";
         if (leftFault) return "left wheel reads no speed while commanded: encoder cable?";
@@ -627,7 +641,8 @@ public class LauncherSubsystem implements Subsystem {
      * ({@link #reverseFor}) and nothing else is judged. Otherwise a velocity write per wheel when
      * its target changes (and every {@link #RESEND_MS}), one read of each speed (from the bulk read)
      * and, while running, one of each current every {@link IntakeSubsystem#CURRENT_READ_MS}. A wheel that has been commanded for
-     * {@link #encoderFaultAfterMs} and still reads nothing is cut until {@link #spinDown()}.
+     * {@link #encoderFaultAfterMs} and still reads nothing is cut, and tried again every
+     * {@link #encoderRetryAfterMs} ({@link EncoderWatch}).
      */
     @Override
     public void update() {
@@ -649,7 +664,11 @@ public class LauncherSubsystem implements Subsystem {
             readiness.reset();
             shots.reset();
             atSpeed = false;
-            if (!reverse && state == State.SPINNING) spinUpStartedNs = now;
+            if (!reverse && state == State.SPINNING) {
+                spinUpStartedNs = now;
+                leftWatch.restart(now);
+                rightWatch.restart(now);
+            }
         }
         if (measuring && (reverse || state != State.SPINNING)) {
             // Not spinning toward a target any more: a timing in progress means nothing.
@@ -658,27 +677,27 @@ public class LauncherSubsystem implements Subsystem {
         }
         if (reverse) {
             boolean force = resend.due(now);
-            leftSent = command(left, leftFault ? 0.0 : reverseCommandFor(reverseTicksPerSecond, leftReversed),
+            leftSent = command(left, leftWatch.cut() ? 0.0 : reverseCommandFor(reverseTicksPerSecond, leftReversed),
                     leftSent, force);
             if (right != null) {
-                rightSent = command(right, rightFault ? 0.0 : reverseCommandFor(reverseTicksPerSecond, rightReversed),
+                rightSent = command(right, rightWatch.cut() ? 0.0 : reverseCommandFor(reverseTicksPerSecond, rightReversed),
                         rightSent, force);
             }
             readCurrents(now);
         } else if (state == State.SPINNING) {
-            double elapsedMs = (now - spinUpStartedNs) / 1e6;
-            if (!leftFault && encoderSilent(leftTarget, leftTicksPerSecond, elapsedMs,
-                    encoderFaultAfterMs, encoderSilentTicksPerSecond)) {
-                leftFault = true;
-            }
-            if (right != null && !rightFault && encoderSilent(rightTarget, rightTicksPerSecond, elapsedMs,
-                    encoderFaultAfterMs, encoderSilentTicksPerSecond)) {
-                rightFault = true;
-            }
-            boolean force = resend.due(now);
-            leftSent = command(left, leftFault ? 0.0 : commandFor(leftTarget, leftReversed), leftSent, force);
+            leftWatch.update(leftTarget, leftTicksPerSecond, now,
+                    encoderFaultAfterMs, encoderSilentTicksPerSecond, encoderRetryAfterMs);
             if (right != null) {
-                rightSent = command(right, rightFault ? 0.0 : commandFor(rightTarget, rightReversed),
+                rightWatch.update(rightTarget, rightTicksPerSecond, now,
+                        encoderFaultAfterMs, encoderSilentTicksPerSecond, encoderRetryAfterMs);
+            }
+            // Reported, and not "at speed", from the cut until the wheel reads speed again.
+            boolean leftFault = leftWatch.fault();
+            boolean rightFault = rightWatch.fault();
+            boolean force = resend.due(now);
+            leftSent = command(left, leftWatch.cut() ? 0.0 : commandFor(leftTarget, leftReversed), leftSent, force);
+            if (right != null) {
+                rightSent = command(right, rightWatch.cut() ? 0.0 : commandFor(rightTarget, rightReversed),
                         rightSent, force);
             }
             readCurrents(now);

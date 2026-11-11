@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T01:13:52.227Z",
+  "timestamp": "2026-11-11T03:38:59.868Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -41,7 +41,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -103,7 +103,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -165,7 +165,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -227,7 +227,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -268,7 +268,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -549,7 +549,7 @@
       ],
       "typicalS": {
         "LaunchAll": 4.5,
-        "PickFlower": 4.0,
+        "PickFlower": 4,
         "GardenGather": 5,
         "LaunchOne": 0.5,
         "SpinUp": 0.1
@@ -583,7 +583,7 @@
       ],
       "RIGHT_PARK": [
         14.5,
-        95.7,
+        98.7,
         0
       ]
     },

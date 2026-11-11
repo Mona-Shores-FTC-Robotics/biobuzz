@@ -43,7 +43,9 @@ L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only re
 those routines: their paths, waits and fallback behavior have not been tuned yet.
 In particular, L-NoCross's existing no-TIP fallback still crosses to RIGHT; replace
 that in the Visualizer before qualifying it as a true no-cross routine. R-NoCross's
-CELL-up timeout also still proceeds to launch. See `doc/robot-todo.md` for the checks.
+CELL-up timeout also still proceeds to launch. Since 10 Nov L-NoCross's no-TIP route checks
+the CELL before each volley ("TIP seen?" at RIGHT_LAUNCH_CLOSE, "RIGHT CELL still up?" after the
+WALL FLOWER pick), so it no longer fires at a down CELL. See `doc/robot-todo.md` for the checks.
 
 Inside the Visualizer, the same list is **View → Team Autos: the latest from biobuzz, together…**
 (pick a branch, tick up to four Autos, Reload latest). A pull request's draft opens with its branch

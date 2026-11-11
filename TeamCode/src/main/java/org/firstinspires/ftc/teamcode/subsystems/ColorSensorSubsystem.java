@@ -95,9 +95,12 @@ public class ColorSensorSubsystem implements Subsystem {
     /**
      * POLLEN's hue range, degrees (min above max wraps through 0). Bench, 2 Nov 2026: 73° to 94° at
      * rest, saturation about 0.7 (it falls to 0.35 when pressed against the sensor; the hue holds).
-     * The low end sits midway to red NECTAR's highest reading.
+     * The low end is from the Belding logs (7 Nov 2026, 17 matches), no longer midway to red
+     * NECTAR's bench reading: a POLLEN seen dimly (brightness under 0.2) read 44° to 55°, and one at
+     * 46° was spat out as red NECTAR (20245, Q31, on blue), while real red NECTAR read up to 40°.
+     * The gap is narrow and rests on a few pieces: check it against the next logs.
      */
-    public static double pollenHueMin = 48;
+    public static double pollenHueMin = 43;
     public static double pollenHueMax = 130;
     /**
      * A piece held under the sensor this long while the intake takes in means the lane is full,
@@ -118,9 +121,15 @@ public class ColorSensorSubsystem implements Subsystem {
      */
     public static double fullHoldS = 1.0;
 
-    /** Red NECTAR's hue range, degrees; it wraps through 0. Bench, 2 Nov 2026: 9° to 22°, saturation 0.76. */
+    /**
+     * Red NECTAR's hue range, degrees; it wraps through 0. Bench, 2 Nov 2026: 9° to 22°, saturation
+     * 0.76. In the Belding matches it read mostly 10° to 24°, and 33° to 39° for a piece the lane
+     * logged as red NECTAR (19429, the 16:39 playoff; a second run of 35° to 40° readings in its
+     * 14:41 match looks the same), so the top is 42, not the 35 first proposed: 35 would have
+     * kept those as POLLEN. It was 47 until 10 Nov 2026 ({@link #pollenHueMin} says why).
+     */
     public static double redNectarHueMin = 330;
-    public static double redNectarHueMax = 47;
+    public static double redNectarHueMax = 42;
     /** Blue NECTAR's hue range, degrees. Bench, 2 Nov 2026: 212° to 232°, saturation 0.62 to 0.88. */
     public static double blueNectarHueMin = 180;
     public static double blueNectarHueMax = 270;

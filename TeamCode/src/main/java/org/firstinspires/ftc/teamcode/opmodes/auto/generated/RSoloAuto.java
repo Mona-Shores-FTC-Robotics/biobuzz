@@ -21,7 +21,7 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-05|8:09PM";
+    public static final String SAVED = "11-10|10:38PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -52,7 +52,7 @@ public final class RSoloAuto {
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
-        Pose rightPark = p.of(14.5, 95.7, 0);
+        Pose rightPark = p.of(14.5, 98.7, 0);
         Pose leftLaunchClose = p.of(59.9, 117.5, 270);
         Pose rightLaunchClose = p.of(56.1, 26, 90);
 
@@ -87,22 +87,22 @@ public final class RSoloAuto {
         return kit.sequence(
                 kit.command("SpinUp"),
                 kit.command("LaunchAll"),
-                kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2),
+                kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
                 kit.command("PickFlower", 4.5),
-                kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClose, 2.9, leftLaunchClosePark, 2.1),
+                kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClose, 2.9, leftLaunchClosePark, 2),
                 kit.firstOf("Wait for TIP or CELL up",
                         kit.when("CellUp").then(
-                                kit.guarded("If CellUp", toRightPark, 2.1,
+                                kit.guarded("If CellUp", toRightPark, 2,
                                         kit.command("LaunchAll"),
                                         kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.9),
                                         kit.command("PickFlower", 4.5),
                                         kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClosePath, 1.3),
                                         kit.command("LaunchAll"),
-                                        kit.path("to RIGHT_PARK", toRightPark, 2.1))),
+                                        kit.path("to RIGHT_PARK", toRightPark, 2))),
                         kit.afterMs(750).then(
-                                kit.guarded("Timed out", toRightParkPath, 2.8,
+                                kit.guarded("Timed out", toRightParkPath, 2.9,
                                         kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.2),
                                         kit.command("LaunchAll"),
-                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.8)))));
+                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.9)))));
     }
 }

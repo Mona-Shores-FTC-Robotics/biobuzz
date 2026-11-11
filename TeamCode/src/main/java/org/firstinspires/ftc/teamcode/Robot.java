@@ -132,6 +132,9 @@ public class Robot {
         colorSensor = new ColorSensorSubsystem(hardwareMap, launcher, intake, prefeed, feeder);
         // The intake holds the last piece in once the lane is full (IntakeSubsystem.holdWhenFull).
         intake.laneFull(colorSensor::full);
+        // A stalled roller with a piece under the sensor is the lane backed up, not a wedge
+        // (WedgeClear); with the sensor not answering nothing can tell, so no wedge is cleared.
+        intake.laneBackedUp(() -> colorSensor.silent() || colorSensor.lane().present());
         // And the prefeed stops, the stars and a slow roller holding the last piece (PrefeedSubsystem.stopWhenFull).
         prefeed.laneFull(colorSensor::full);
         // The other alliance's NECTAR at the entrance is spat out in a burst (NectarReject): the

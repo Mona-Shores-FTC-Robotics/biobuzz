@@ -174,6 +174,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private FlowerPicker picker;
     private GardenGather gatherer;
     private LaunchSpotDrive launchSpot;
+    private final FreshSticks pickSticks = new FreshSticks();
+    private final FreshSticks gatherSticks = new FreshSticks();
+    private final FreshSticks spotSticks = new FreshSticks();
     /** Who has the launcher, and so when it idles: Square's press or the operator ({@link LauncherOwner}). */
     private final LauncherOwner launcherOwner = new LauncherOwner();
     /** The operator's trim on the launch speed, ticks per second; lasts the OpMode. */
@@ -290,7 +293,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             boolean spotFiring = launchSpot.wantsLauncher();
             LauncherOwner.Effect effect = launcherOwner.operatorToggle(spotFiring);
             if (effect == LauncherOwner.Effect.KEEP) {
-                log.event("launcher: toggle during Square's volley: kept spinning (idles when Square is let go)");
+                log.event("launcher: toggle during Square's volley: kept spinning (idles after Square is let go)");
             }
             applyLauncher(effect);
         });
@@ -311,7 +314,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         operator.note("Launcher and Square", "spin up early when a shot is coming; while the driver "
                 + "holds Square, your buttons cannot stop it (no idle, Fire waits for the volley); "
-                + "it idles when Square is let go");
+                + "it idles a few seconds after Square is let go, unless you Fire first");
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
     }
@@ -550,11 +553,18 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // A FLOWER pick, a GARDEN gather or the drive to a launch spot drives the robot while held,
         // one at a time; a stick, or letting go (for a grab, before the dwell), hands it back this
         // loop. Let go in a grab's dwell, it backs out first.
+        // Only a stick moved after the press: one still moving from the drive up to it is ignored
+        // until it centres (FreshSticks, #495).
         boolean sticksMoved = leftStick || rightStick;
-        picker.update(controls.held(Action.FLOWER_PICK) && !gatherer.active() && !launchSpot.active(), sticksMoved);
-        gatherer.update(controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active(), sticksMoved);
+        double nowS = now / 1e9;
+        double staleS = staleStickCancelsAfterS();
+        boolean pickHeld = controls.held(Action.FLOWER_PICK) && !gatherer.active() && !launchSpot.active();
+        picker.update(pickHeld, pickSticks.moved(pickHeld, sticksMoved, nowS, staleS));
+        boolean gatherHeld = controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active();
+        gatherer.update(gatherHeld, gatherSticks.moved(gatherHeld, sticksMoved, nowS, staleS));
         // A volley already under way does not yield to the operator's FIRE (fire() holds it back).
-        launchSpot.update(controls.held(Action.LAUNCH_SPOT) && !grabActive(), setup.alliance(), sticksMoved,
+        boolean spotHeld = controls.held(Action.LAUNCH_SPOT) && !grabActive();
+        launchSpot.update(spotHeld, setup.alliance(), spotSticks.moved(spotHeld, sticksMoved, nowS, staleS),
                 controls.held(Action.FIRE) && !launchSpot.wantsLauncher());
         updateTableSpeed();
         spotLauncher();
@@ -694,8 +704,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /**
      * The launch-spot button's launcher (TeleOpConfig.goToSpotAlsoFires): spun up to the launch
-     * speed and trim as the press starts if it is idle, and idled when the press ends, whoever spun
-     * it up: letting go is "done shooting" ({@link LauncherOwner}).
+     * speed and trim as the press starts if it is idle, and idled
+     * {@link TeleOpConfig#launcherKeepSpinningAfterSquareS} after the press ends, whoever spun it
+     * up: letting go is "done shooting" ({@link LauncherOwner}).
      */
     private void spotLauncher() {
         boolean wants = launchSpot.wantsLauncher();
@@ -704,8 +715,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
             applyLauncher(launcherOwner.spotPressStarted());
         } else if (!wants && spotPressSeen) {
             spotPressSeen = false;
-            applyLauncher(launcherOwner.spotPressEnded());
+            applyLauncher(launcherOwner.spotPressEnded(System.nanoTime() / 1e9, keepSpinningAfterSquareS()));
         }
+        applyLauncher(launcherOwner.tick(System.nanoTime() / 1e9));
     }
 
     /**
@@ -1134,6 +1146,18 @@ public class BasicDriveTeleOp extends RobotOpMode {
      */
     private static double unitRange(double value) {
         return value > 0.0 ? Math.min(value, 1.0) : 0.0;
+    }
+
+    /** {@link TeleOpConfig#launcherKeepSpinningAfterSquareS}, guarded: [0, 10] s, NaN is 0 (idle at once). */
+    private static double keepSpinningAfterSquareS() {
+        double v = TeleOpConfig.launcherKeepSpinningAfterSquareS;
+        return v > 0.0 ? Math.min(v, 10.0) : 0.0;
+    }
+
+    /** {@link TeleOpConfig#staleStickCancelsAfterS}, guarded: [0, 2] s, NaN is 0 (the old rule). */
+    private static double staleStickCancelsAfterS() {
+        double v = TeleOpConfig.staleStickCancelsAfterS;
+        return v > 0.0 ? Math.min(v, 2.0) : 0.0;
     }
 
     private static double deadband(double value) {
