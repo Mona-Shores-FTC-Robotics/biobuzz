@@ -878,7 +878,15 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       Practise: the first refused press means stop pressing it, drive and aim by hand, and restart
       the robot after the match. **Good:** at most one refused press after a loss.
 - [ ] **Operator: spin up before FIRE** when the next shot is coming, so FIRE finds the launcher at
-      speed (first ball 0.8 s instead of 1.5 s). Until #497 decides the software side.
+      speed (first ball 0.8 s instead of 1.5 s).
+- [ ] **The launcher keeps spinning after Square** (`TeleOpConfig.launcherKeepSpinningAfterSquareS`,
+      3 s, not measured; #497). Basic Drive, loaded: (a) hold Square, fire, let go, and press Square
+      again within 2 s: the gate opens on arrival with no spin-up wait. (b) Let go of Square and the
+      operator holds FIRE within 2 s: the first ball leaves at once, and the launcher then stays on
+      until the operator's toggle. (c) Let go and touch nothing: `launcher: idle` in the log about
+      3 s later, and the Match page reads IDLE. (d) Let go, operator toggle at once: it idles at
+      once. **Good:** all four, and the drivers say whether 3 s is long enough for their cycle.
+      **Stop:** they want it off between volleys → 0 in Panels is the old rule.
 - [ ] **19429: a shorter route from full to the shot.** At Belding it drove a median 191 in with a
       full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
       where it is. **Good:** a timed practice cycle under 20 s.

@@ -59,6 +59,15 @@ public final class TeleOpConfig {
     public static double launcherIdleTicksPerSecond = 0.0;
 
     /**
+     * After a Square press that fires ends, the launcher stays at launch speed this many seconds
+     * before it idles ({@link LauncherOwner}), so a Square pressed again or the operator's Fire
+     * finds it at speed: the first ball then leaves in about 0.8 s, not 1.5 s (#497, Belding). 3 s
+     * is a starting point, <b>not measured</b>; the launcher at speed draws about 3 A. Clamped to
+     * [0, 10]; 0 or NaN idles it the moment Square is let go (the rule of 7 Nov 2026).
+     */
+    public static double launcherKeepSpinningAfterSquareS = 3.0;
+
+    /**
      * Ticks per second one launcher trim press moves the launch speed. Clamped to [0, 200]. The
      * trim lasts the OpMode; the launch speed it trims is {@code LauncherSubsystem.targetTicksPerSecond}.
      */

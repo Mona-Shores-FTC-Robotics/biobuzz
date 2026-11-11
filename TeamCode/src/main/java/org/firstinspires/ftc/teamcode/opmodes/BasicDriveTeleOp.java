@@ -285,7 +285,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             boolean spotFiring = launchSpot.wantsLauncher();
             LauncherOwner.Effect effect = launcherOwner.operatorToggle(spotFiring);
             if (effect == LauncherOwner.Effect.KEEP) {
-                log.event("launcher: toggle during Square's volley: kept spinning (idles when Square is let go)");
+                log.event("launcher: toggle during Square's volley: kept spinning (idles after Square is let go)");
             }
             applyLauncher(effect);
         });
@@ -306,7 +306,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         operator.note("Launcher and Square", "spin up early when a shot is coming; while the driver "
                 + "holds Square, your buttons cannot stop it (no idle, Fire waits for the volley); "
-                + "it idles when Square is let go");
+                + "it idles a few seconds after Square is let go, unless you Fire first");
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
     }
@@ -691,8 +691,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /**
      * The launch-spot button's launcher (TeleOpConfig.goToSpotAlsoFires): spun up to the launch
-     * speed and trim as the press starts if it is idle, and idled when the press ends, whoever spun
-     * it up: letting go is "done shooting" ({@link LauncherOwner}).
+     * speed and trim as the press starts if it is idle, and idled
+     * {@link TeleOpConfig#launcherKeepSpinningAfterSquareS} after the press ends, whoever spun it
+     * up: letting go is "done shooting" ({@link LauncherOwner}).
      */
     private void spotLauncher() {
         boolean wants = launchSpot.wantsLauncher();
@@ -701,8 +702,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
             applyLauncher(launcherOwner.spotPressStarted());
         } else if (!wants && spotPressSeen) {
             spotPressSeen = false;
-            applyLauncher(launcherOwner.spotPressEnded());
+            applyLauncher(launcherOwner.spotPressEnded(System.nanoTime() / 1e9, keepSpinningAfterSquareS()));
         }
+        applyLauncher(launcherOwner.tick(System.nanoTime() / 1e9));
     }
 
     /**
@@ -1122,6 +1124,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
      */
     private static double unitRange(double value) {
         return value > 0.0 ? Math.min(value, 1.0) : 0.0;
+    }
+
+    /** {@link TeleOpConfig#launcherKeepSpinningAfterSquareS}, guarded: [0, 10] s, NaN is 0 (idle at once). */
+    private static double keepSpinningAfterSquareS() {
+        double v = TeleOpConfig.launcherKeepSpinningAfterSquareS;
+        return v > 0.0 ? Math.min(v, 10.0) : 0.0;
     }
 
     /** {@link TeleOpConfig#staleStickCancelsAfterS}, guarded: [0, 2] s, NaN is 0 (the old rule). */
