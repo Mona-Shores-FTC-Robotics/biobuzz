@@ -61,7 +61,7 @@ The sync line names how it was found. Accept it only after **two** agreeing even
 - **`Lane: FULL`** means a piece sat under the entry sensor for 1 s. That is a full lane, or two
   pieces wedged at the intake, or the robot pushing intake-first into pieces at a wall. Look before
   calling it any of them.
-- The logs call the SCORING FLOWER "FAR". Always write **SCORING** (the other is WALL).
+- Logs from before 12 Nov 2026 call the SCORING FLOWER "FAR" (`read_logs.py` prints SCORING for both). Always write **SCORING** (the other is WALL).
 
 ## 4. Read the video honestly
 

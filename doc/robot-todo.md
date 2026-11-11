@@ -322,10 +322,10 @@ Use the work order above to select checks; the detailed mechanism checks below a
       the robot stops and touches nothing before the push. **Stop:** it touches → Panels
       `FlowerPicker.lowerWithinIn` 12, write it back. [S5 seam §2], [PR #378]
       Belding stream (7 Nov): at the WALL FLOWER it swings from 12–17 in out, is down 4–5 in before
-      the stop and reaches the FLOWER's foot with no visible knock; the FAR approach is hidden behind
-      the FLOWER and wall, so only the FAR FLOWER still needs spotters.
+      the stop and reaches the FLOWER's foot with no visible knock; the SCORING approach is hidden behind
+      the FLOWER and wall, so only the SCORING FLOWER still needs spotters.
 - [ ] **The stick lowers earlier at the WALL FLOWER:** the 3–4 Nov Auto picks read `prep done on
-      the way in` 0.52–0.55 s at the WALL FLOWER (FAR FLOWER 0.80–0.84), under the 0.7 s this check
+      the way in` 0.52–0.55 s at the WALL FLOWER (SCORING FLOWER 0.80–0.84), under the 0.7 s this check
       wanted, so its Stop applies: Panels `FlowerPicker.lowerWithinIn` 24, then the stick line above.
       **Good:** X ≥ 0.7 at both FLOWERs and the stick still touches nothing. Write 24 back if so.
       [S5 seam §4], [PR #378]

@@ -2,6 +2,7 @@
 # written by: python3 tools/pull-logs/read_logs.py picks <the session's .wpilog files>
 # Columns are explained in read_logs.py's picks(). Depth is as odometry had it; along/side are the camera's
 # last gap to odometry at the pick (negative along: the robot was really further from the FLOWER).
+# "FAR" below is the SCORING FLOWER: these logs predate the rename, and the reader now prints SCORING.
 
 log                       t flower     how                    push end                 depth spk lane    along   side  outcome
 2026-10-29_18-47-28    59.3 red WALL   -                      reached                   12.0   2 -           -      -  done
