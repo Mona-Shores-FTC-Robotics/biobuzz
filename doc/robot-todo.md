@@ -183,7 +183,14 @@ Result, with the gap on each own-start run, → [PR #372].
       turns it back green, as drawn (last shot 4 s, waiting until 8.5 s); D-pad left and right change
       nothing (no Auto offers another park); nothing else on the robot reacts to gamepad 1's D-pad
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
-      [PR #391]
+      [PR #391]. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
+      8.0 s, and no log can say what INIT showed (the next item). Show the drive team the line too.
+- [ ] **The chosen INIT options reach the match log** (same run: set the partner's last shot to 7 s,
+      PLAY, let it run a few seconds, STOP). Belding's logs lost every `AutoOptions` line: PLAY
+      wrote 160 tunables into a 160-slot loop. **Good:** `read_logs.py series <log>
+      /RealMetadata/AutoOptions` prints `… partner's last shot 7 s, until 11.5 s (drawn 8.5 s)`, and
+      the log's last events have no `metadata lines` drop. **Stop:** it is missing → save the log.
+      [PR fixing the cap]
 - [ ] **INIT with the Limelight unplugged** (the warning line itself was logged 4 Nov 00:43; what is
       left is what the drive team sees). **Good:** light
       flashes white, "Camera: not answering" at the top of the Match page with what to do, the page

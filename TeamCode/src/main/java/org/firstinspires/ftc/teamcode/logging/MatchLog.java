@@ -48,8 +48,15 @@ public final class MatchLog {
     public static final int MAX_EVENTS_PER_LOOP = 8;
     /** Pose sets ({@link #poses}, {@link #pose(String, double, double, double)}) one loop can carry. */
     public static final int MAX_POSE_SETS_PER_LOOP = 8;
-    /** Metadata lines one loop can carry: PLAY writes every tunable at once. More are counted as dropped. */
-    public static final int MAX_METADATA_PER_LOOP = 160;
+    /**
+     * Metadata lines one loop can carry: PLAY writes every tunable at once, then the OpMode's own
+     * lines (an Auto's {@code AutoOptions}). More are counted as dropped. {@code TunablesTest} keeps
+     * the tunables {@link #METADATA_HEADROOM} short of it: at 160, the Belding build's 160 tunables
+     * filled the PLAY loop and every L-NoCross log lost its {@code AutoOptions}.
+     */
+    public static final int MAX_METADATA_PER_LOOP = 320;
+    /** Slots PLAY's loop keeps free after the tunables, for the OpMode's own metadata. */
+    public static final int METADATA_HEADROOM = 64;
     /** Frames in flight between the loop and the writer: about 1.3 s of loops at 50 Hz. */
     public static final int FRAMES = 64;
     /** How often the writer flushes (and syncs a file): the most a brownout can lose. */
@@ -150,6 +157,7 @@ public final class MatchLog {
     private boolean channelsFullReported;
     private int droppedLoops;
     private int droppedEvents;
+    private int droppedMetadata;
     private volatile boolean closed;
 
     // Written by the loop thread before a frame naming them is handed over, so the queue's
@@ -379,7 +387,7 @@ public final class MatchLog {
             frame.metadataKeys[i] = key;
             frame.metadataValues[i] = value == null ? "" : value;
         } else {
-            droppedEvents++;
+            droppedMetadata++;
         }
     }
 
@@ -447,8 +455,12 @@ public final class MatchLog {
     public void close(String lastEvent, long waitMs) {
         if (closed) return;
         if (lastEvent != null) event(lastEvent);
-        if (droppedLoops > 0 || droppedEvents > 0) {
-            event("log: dropped " + droppedLoops + " loops and " + droppedEvents + " events (writer behind)");
+        if (droppedLoops > 0) {
+            event("log: dropped " + droppedLoops + " loops (writer behind)");
+        }
+        if (droppedEvents > 0 || droppedMetadata > 0) {
+            event("log: dropped " + droppedEvents + " events or pose sets and " + droppedMetadata
+                    + " metadata lines (more than one loop carries)");
         }
         boolean writerRunning;
         synchronized (lifecycle) {
