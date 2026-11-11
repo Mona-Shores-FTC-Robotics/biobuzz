@@ -546,23 +546,31 @@ and needs all of them. **What makes the second TIP reliable is a partner whose 4
 LEFT CELL**, so it gets 12 shots for the 8 it needs.
 
 **The drawing:**
-[R-Two-Tip-With beside partner-l-fill-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-two-tip-with.pp,partners/partner-l-fill-park.pp).
-It is R-Two-Tip with its drive up the wall lane pulled in (control point (30, 110)), so it stays
-clear of the partner. The partner starts on the far wall at (30, 133.8), west of the SCORING
-FLOWER and clear of `LEFT_LAUNCH_CATCH`, fires its 4 at the LEFT CELL from there (50 in), then
-drives along the far wall to the LOADING ZONE. No two robots touch in any of the 120 runs. We TIP
-the RIGHT CELL with our preloads at 7.6 s; the partner's 4 go in at about 6.5 to 9.3 s (watching)
-or 9.0 to 11.8 s (timer); our WALL FLOWER volley follows at 13 to 17 s and the SCORING FLOWER's at
-23 to 26 s if it is still needed.
+[R-Two-Tip-With beside partner-l-fill-hide-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-two-tip-with.pp,partners/partner-l-fill-hide-park.pp).
+A partner that can shoot does it from directly in front of a CELL, so the stand-in starts on
+`LEFT_START`. That is where `LEFT_LAUNCH_CATCH` is, so our route fires both LEFT volleys from
+`LEFT_LAUNCH_OFFSET` instead (45.7 in, a measured row), which is clear of a robot on `LEFT_START`.
+The partner fires its 4 at the LEFT CELL (once it sees it up, or at 9 s on a timer), then drives
+straight under the HIVE and waits there, as some Belding partners did, until 23 s. It then leaves by
+the audience side and parks at `RIGHT_PARK`; we park at `LEFT_PARK`, next to our last launch spot.
+No two robots touch in any of the 120 runs, with either partner. We TIP the RIGHT CELL with our
+preloads at 7.2 s; the partner's 4 go in at about 6.5 to 9.3 s (watching) or 9.0 to 11.7 s (timer);
+our WALL FLOWER volley follows at 13 to 17 s and the SCORING FLOWER's at 23 to 26 s if it is still
+needed. Alone, this drawing makes 2 TIPs in 61 of 120.
+
+Two things this drawing gives up: if our preloads do not TIP, it parks instead of driving under the
+HIVE to fire at the RIGHT CELL again (the partner may be there), and a partner under the HIVE is in
+the way of anything else that wants that lane. (An earlier version of this section had the partner
+start further along the far wall; no Belding partner shoots from there.)
 
 ### The asks
 
-- **For two reliable TIPs:** "Start on the far wall beside the SCORING FLOWER. At 9 s, fire your
-  preloads at the far CELL. Then drive along the far wall to the LOADING ZONE." With Belding's
-  accuracy that is 109 of 120.
+- **For two reliable TIPs:** "Start in front of the far CELL (`LEFT_START`). At 9 s, fire your
+  preloads at it. Then drive under the HIVE and wait there until 23 s, and park at the near end of
+  the LOADING ZONE." With Belding's accuracy that is 109 of 120.
   - **Who could have met it:** 5292 and 10104 launch and score, but from the audience start at the
-    RIGHT CELL; they would need a 9 s wait and an aim at the other CELL from the far wall, which
-    nobody has seen them do. 9133 launches but put none in. The other seven launched nothing.
+    RIGHT CELL; they would need to start in front of the other CELL and add a 9 s wait, which nobody
+    has seen them do. 9133 launches but put none in. The other seven launched nothing.
   - **With 5292 or 10104 as they are** (they take the audience start and TIP the RIGHT CELL), we
     run L-NoCross and the second TIP is a coin flip, as it was (3 of 5).
 - **"Leave your 4 and park"** is what nine of ten qualifier partners could have done, and it is
@@ -730,7 +738,7 @@ BIOBUZZ_AUTO_CALIBRATION=belding BIOBUZZ_AUTO_RUNS=120 \
 # The Belding robot rows: nothing but the first line, with
 #   BIOBUZZ_AUTO_STUDY="RThreeTipAuto,PartnerLStageLeaveParkAuto@50"
 #   BIOBUZZ_AUTO_DESIGNS="real robot, turret locked forward"
-# Rung 3: BIOBUZZ_AUTO_STUDY="RTwoTipWithAuto,PartnerLFillParkAuto@50", the same design.
+# Rung 3: BIOBUZZ_AUTO_STUDY="RTwoTipWithAuto,PartnerLFillHideParkAuto@50", the same design.
 # No moving shots: add BIOBUZZ_AUTO_FIRE_STILL=1 and drop compensatesMotion. The pair:
 #   BIOBUZZ_AUTO_STUDY="LPairFlowersAuto,RPairGardenAuto@50" BIOBUZZ_AUTO_DESIGNS="real robot"
 #   BIOBUZZ_AUTO_PARTNER_DESIGN="real robot, turret locked forward"
@@ -759,7 +767,7 @@ Added for this study, in test code only (TeamCode/README.md, "Simulating an Auto
 |---|---|---|
 | `SweepRow` card | The robot creeps along a row of loose pieces with the intake on | **Placeholder:** a 6 in/s creep (three quarters of a POLLEN's width every `intakeIntervalS`, 0.35 s, itself a placeholder) and an 0.85 grab chance. Not tuned to the answer: at 3 in/s the third TIP falls to 24 of 120 |
 | Launching while moving | `StreamOn` fires at the raised CELL whenever it is aimed and within 60 in; `compensatesMotion` leads the shot | **Placeholder:** the lead is perfect and a moving shot stays in as often as a standing one from that range. Unled, 28 of 120 |
-| The stand-ins | `partner-l-stage-leave-park` (row along its side), `partner-l-fill-park`, `partner-l-timed-fill-park` | A stand-in shoots as our robot does (0.85 from 50 in) |
+| The stand-ins | `partner-l-stage-leave-park` (row along its side), `partner-l-fill-hide-park`, `partner-l-timed-fill-hide-park`, `partner-r-tip-far-park` | A stand-in shoots as our robot does (0.85 from 50 in) |
 | The guard's typical times | `BIOBUZZ_SIM_TYPICAL_*` | Set by hand to match each what-if |
 | Counts by 30 s | the `by 30 s` line | |
 | `CollectSeen` reaching a piece | The real robot's intake takes on contact; the chase stopped 4 in short | Not used in the final routes |

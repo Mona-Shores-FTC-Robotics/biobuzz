@@ -30,8 +30,15 @@
       }
     },
     {
+      "id": "wall-park",
+      "color": "#f28e2b",
+      "name": "WALL_FLOWER_STAGING park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
       "kind": "atomic",
-      "id": "line-mwbij6hj-y7c6ew",
       "endPoint": {
         "x": 14.5,
         "y": 95.7
@@ -41,14 +48,7 @@
         "type": "linear",
         "startDeg": 180,
         "endDeg": 0
-      },
-      "color": "#59a14f",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "WALL_FLOWER_STAGING park"
+      }
     },
     {
       "id": "link-1",
@@ -67,8 +67,8 @@
     },
     {
       "id": "wall-lane",
-      "color": "#f28e2b",
-      "name": "to LEFT_LAUNCH_CATCH",
+      "color": "#b07aa1",
+      "name": "to LEFT_LAUNCH_OFFSET",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -76,19 +76,19 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 41,
+        "y": 121.5
       },
       "controlPoints": [
         {
-          "x": 30,
-          "y": 110
+          "x": 26,
+          "y": 105
         }
       ],
       "heading": {
         "type": "piecewise",
         "startDeg": 180,
-        "endDeg": 273.4,
+        "endDeg": 296.4,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
@@ -101,7 +101,7 @@
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 180,
-                "endDeg": 273.4
+                "endDeg": 296.4
               }
             },
             {
@@ -111,8 +111,8 @@
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 273.4,
-                "endDeg": 273.4
+                "startDeg": 296.4,
+                "endDeg": 296.4
               }
             }
           ]
@@ -120,25 +120,25 @@
       }
     },
     {
-      "kind": "atomic",
-      "id": "line-mwbij6hk-eyn74i",
-      "endPoint": {
-        "x": 14.5,
-        "y": 95.7
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 273.4,
-        "endDeg": 0
-      },
-      "color": "#b07aa1",
+      "id": "offset-park",
+      "color": "#edc948",
+      "name": "to LEFT_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "name": "LEFT_LAUNCH_CATCH park"
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 296.4,
+        "endDeg": 0
+      }
     },
     {
       "id": "link-2",
@@ -146,18 +146,18 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 41,
+        "y": 121.5
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 273.4
+        "degrees": 296.4
       }
     },
     {
       "id": "to-scoring",
-      "color": "#b07aa1",
+      "color": "#e15759",
       "name": "to SCORING_FLOWER_STAGING",
       "locked": false,
       "waitBeforeMs": 0,
@@ -172,30 +172,30 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 273.4,
+        "startDeg": 296.4,
         "endDeg": 90
       }
     },
     {
+      "id": "scoring-park",
+      "color": "#4e79a7",
+      "name": "SCORING_FLOWER_STAGING park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
       "kind": "atomic",
-      "id": "line-mwbij6hk-5pezgk",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 117.4
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
         "endDeg": 0
-      },
-      "color": "#9c755f",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "SCORING_FLOWER_STAGING park"
+      }
     },
     {
       "id": "link-3",
@@ -209,12 +209,12 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 450
+        "degrees": 90
       }
     },
     {
       "id": "scoring-back",
-      "color": "#edc948",
+      "color": "#9c755f",
       "name": "to LEFT_LAUNCH_OFFSET",
       "locked": false,
       "waitBeforeMs": 0,
@@ -231,135 +231,6 @@
         "type": "linear",
         "startDeg": 90,
         "endDeg": 296.4
-      }
-    },
-    {
-      "id": "left-park",
-      "color": "#e15759",
-      "name": "to RIGHT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 95.7
-      },
-      "controlPoints": [
-        {
-          "x": 26,
-          "y": 92
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 296.4,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-4",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 57.5,
-        "y": 123.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 273.4
-      }
-    },
-    {
-      "id": "to-right-close",
-      "color": "#4e79a7",
-      "name": "to RIGHT_LAUNCH_CLOSE",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 56.1,
-        "y": 26
-      },
-      "controlPoints": [
-        {
-          "x": 58.77,
-          "y": 101.57
-        },
-        {
-          "x": 65.2,
-          "y": 71.9
-        },
-        {
-          "x": 59.6,
-          "y": 40.9
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "startDeg": 270,
-        "endDeg": 90,
-        "degrees": 0,
-        "reverse": false,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.87,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 270
-              }
-            },
-            {
-              "startProgress": 0.87,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 90
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "right-park",
-      "color": "#9c755f",
-      "name": "to RIGHT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 95.7
-      },
-      "controlPoints": [
-        {
-          "x": 23.32,
-          "y": 25.55
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 0
       }
     }
   ],
@@ -532,7 +403,7 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mwbij6hj-y7c6ew"
+      "lineId": "wall-park"
     },
     {
       "kind": "path",
@@ -544,7 +415,7 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mwbij6hk-eyn74i"
+      "lineId": "offset-park"
     },
     {
       "kind": "path",
@@ -556,7 +427,7 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mwbij6hk-5pezgk"
+      "lineId": "scoring-park"
     },
     {
       "kind": "path",
@@ -565,22 +436,6 @@
     {
       "kind": "path",
       "lineId": "scoring-back"
-    },
-    {
-      "kind": "path",
-      "lineId": "left-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-4"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-right-close"
-    },
-    {
-      "kind": "path",
-      "lineId": "right-park"
     }
   ],
   "fieldPoints": [],
@@ -650,75 +505,67 @@
         47.2,
         180
       ],
-      "LEFT_LAUNCH_CATCH": [
-        57.5,
-        123.5,
-        273.4
+      "LEFT_LAUNCH_OFFSET": [
+        41,
+        121.5,
+        296.4
       ],
       "SCORING_FLOWER_STAGING": [
         47.2,
         119.3,
         90
       ],
-      "LEFT_LAUNCH_OFFSET": [
-        41,
-        121.5,
-        296.4
+      "LEFT_PARK": [
+        14.5,
+        117.4,
+        0
       ],
       "RIGHT_PARK": [
         14.5,
         95.7,
         0
-      ],
-      "RIGHT_LAUNCH_CLOSE": [
-        56.1,
-        26,
-        90
       ]
     },
     "pathEnds": {
       "to-wall": "WALL_FLOWER_STAGING",
-      "wall-lane": "LEFT_LAUNCH_CATCH",
+      "wall-park": "RIGHT_PARK",
+      "wall-lane": "LEFT_LAUNCH_OFFSET",
+      "offset-park": "LEFT_PARK",
       "to-scoring": "SCORING_FLOWER_STAGING",
-      "scoring-back": "LEFT_LAUNCH_OFFSET",
-      "left-park": "RIGHT_PARK",
-      "to-right-close": "RIGHT_LAUNCH_CLOSE",
-      "right-park": "RIGHT_PARK",
-      "line-mwbij6hj-y7c6ew": "RIGHT_PARK",
-      "line-mwbij6hk-eyn74i": "RIGHT_PARK",
-      "line-mwbij6hk-5pezgk": "RIGHT_PARK"
+      "scoring-park": "LEFT_PARK",
+      "scoring-back": "LEFT_LAUNCH_OFFSET"
     },
     "cards": [
       {
-        "id": "c-a-10",
+        "id": "c-a-1",
         "kind": "action",
         "name": "SpinUp"
       },
       {
-        "id": "c-a-11",
+        "id": "c-a-2",
         "kind": "action",
         "name": "LaunchAll"
       },
       {
-        "id": "c-p-12",
+        "id": "c-p-3",
         "kind": "path",
         "lineId": "to-wall",
         "park": false
       },
       {
-        "id": "c-a-13",
+        "id": "c-a-4",
         "kind": "action",
         "name": "PickFlower",
         "timeoutS": 4.5
       },
       {
-        "id": "c-p-14",
+        "id": "c-p-5",
         "kind": "path",
         "lineId": "wall-lane",
         "park": false
       },
       {
-        "id": "c-w-15",
+        "id": "c-w-13",
         "kind": "firstOf",
         "label": "Wait for TIP or CELL up",
         "rows": [
@@ -728,37 +575,37 @@
             ],
             "cards": [
               {
-                "id": "c-a-1",
+                "id": "c-a-6",
                 "kind": "action",
                 "name": "LaunchAll"
               },
               {
-                "id": "c-p-2",
+                "id": "c-p-7",
                 "kind": "path",
                 "lineId": "to-scoring",
                 "park": false
               },
               {
-                "id": "c-a-3",
+                "id": "c-a-8",
                 "kind": "action",
                 "name": "PickFlower",
                 "timeoutS": 4.5
               },
               {
-                "id": "c-p-4",
+                "id": "c-p-9",
                 "kind": "path",
                 "lineId": "scoring-back",
                 "park": false
               },
               {
-                "id": "c-a-5",
+                "id": "c-a-10",
                 "kind": "action",
                 "name": "LaunchAll"
               },
               {
-                "id": "c-p-6",
+                "id": "c-p-11",
                 "kind": "path",
-                "lineId": "left-park",
+                "lineId": "offset-park",
                 "park": true
               }
             ]
@@ -767,20 +614,9 @@
             "afterMs": 750,
             "cards": [
               {
-                "id": "c-p-7",
+                "id": "c-p-12",
                 "kind": "path",
-                "lineId": "to-right-close",
-                "park": false
-              },
-              {
-                "id": "c-a-8",
-                "kind": "action",
-                "name": "LaunchAll"
-              },
-              {
-                "id": "c-p-9",
-                "kind": "path",
-                "lineId": "right-park",
+                "lineId": "offset-park",
                 "park": true
               }
             ]
@@ -792,18 +628,16 @@
     "linkPaths": [
       "link-1",
       "link-2",
-      "link-3",
-      "link-4"
+      "link-3"
     ],
     "parkFrom": {
-      "c-p-12": "line-mwbij6hj-y7c6ew",
-      "c-p-14": "line-mwbij6hk-eyn74i",
-      "c-p-2": "line-mwbij6hk-5pezgk"
+      "c-p-3": "wall-park",
+      "c-p-5": "offset-park",
+      "c-p-7": "scoring-park"
     },
     "teamSpots": [
-      "LEFT_LAUNCH_CATCH",
       "LEFT_LAUNCH_OFFSET",
-      "RIGHT_LAUNCH_CLOSE",
+      "LEFT_PARK",
       "RIGHT_PARK",
       "RIGHT_START",
       "SCORING_FLOWER_STAGING",

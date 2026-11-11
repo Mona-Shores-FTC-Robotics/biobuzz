@@ -32,12 +32,12 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "fires its preloads at the far CELL once it is up",
-      "partner": "PartnerLFillParkAuto"
+      "name": "fires its preloads at the far CELL once it is up, hides under the HIVE, parks late",
+      "partner": "PartnerLFillHideParkAuto"
     },
     {
-      "name": "fires its preloads at the far CELL at 9 s",
-      "partner": "PartnerLTimedFillParkAuto"
+      "name": "the same, firing at 9 s on a timer",
+      "partner": "PartnerLTimedFillHideParkAuto"
     },
     {
       "name": "stays out of the way",
@@ -48,6 +48,6 @@
     "AutoSource": "drafts/r-two-tip-with.pp",
     "SavedBy": "mentor session, 11 Nov 2026",
     "SavedAt": "2026-11-11T05:00:00.000Z",
-    "SimNote": "doc/three-tips.md rung 3: R-Two-Tip beside a partner that puts its 4 preloads into the LEFT CELL; run with the Belding calibration"
+    "SimNote": "doc/three-tips.md rung 3: R-Two-Tip from LEFT_LAUNCH_OFFSET beside a partner at LEFT_START that puts its 4 preloads into the LEFT CELL and hides under the HIVE; run with the Belding calibration"
   }
 }

@@ -2,16 +2,16 @@
   "version": "2.0.0",
   "timestamp": "2026-11-11T05:00:00.000Z",
   "startPoint": {
-    "x": 30,
+    "x": 62.3,
     "y": 133.8,
     "locked": false,
     "headingDeg": 270
   },
   "lines": [
     {
-      "id": "along",
+      "id": "hide",
       "color": "#59a14f",
-      "name": "to PARTNER_ALONG_WALL",
+      "name": "to UNDER_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -19,8 +19,28 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 16,
-        "y": 133.4
+        "x": 60.5,
+        "y": 72
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "exit",
+      "color": "#f28e2b",
+      "name": "to HIVE_SOUTH_EXIT",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 58,
+        "y": 40
       },
       "controlPoints": [],
       "heading": {
@@ -30,8 +50,8 @@
     },
     {
       "id": "park",
-      "color": "#f28e2b",
-      "name": "to PARTNER_PARK",
+      "color": "#b07aa1",
+      "name": "to RIGHT_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -39,13 +59,62 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 9.8,
-        "y": 119
+        "x": 14.5,
+        "y": 95.7
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 28
+        },
+        {
+          "x": 24,
+          "y": 60
+        }
+      ],
       "heading": {
-        "type": "constant",
-        "degrees": 270
+        "type": "piecewise",
+        "startDeg": 270,
+        "endDeg": 0,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.4,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 180
+              }
+            },
+            {
+              "startProgress": 0.4,
+              "endProgress": 0.75,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.75,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 0
+              }
+            }
+          ]
+        }
       }
     }
   ],
@@ -214,7 +283,11 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "along"
+      "lineId": "hide"
+    },
+    {
+      "kind": "path",
+      "lineId": "exit"
     },
     {
       "kind": "path",
@@ -278,25 +351,31 @@
       }
     },
     "points": {
-      "PARTNER_FAR_WALL_START": [
-        30,
+      "LEFT_START": [
+        62.3,
         133.8,
         270
       ],
-      "PARTNER_ALONG_WALL": [
-        16,
-        133.4,
+      "UNDER_HIVE": [
+        60.5,
+        72,
         270
       ],
-      "PARTNER_PARK": [
-        9.8,
-        119,
+      "HIVE_SOUTH_EXIT": [
+        58,
+        40,
         270
+      ],
+      "RIGHT_PARK": [
+        14.5,
+        95.7,
+        0
       ]
     },
     "pathEnds": {
-      "along": "PARTNER_ALONG_WALL",
-      "park": "PARTNER_PARK"
+      "hide": "UNDER_HIVE",
+      "exit": "HIVE_SOUTH_EXIT",
+      "park": "RIGHT_PARK"
     },
     "cards": [
       {
@@ -324,20 +403,41 @@
       {
         "id": "c-p-4",
         "kind": "path",
-        "lineId": "along",
+        "lineId": "hide",
         "park": false
       },
       {
-        "id": "c-p-5",
+        "id": "c-w-5",
+        "kind": "firstOf",
+        "label": "Hides under the HIVE until 23 s",
+        "rows": [
+          {
+            "afterMs": 23000,
+            "matchClock": true,
+            "cards": []
+          }
+        ]
+      },
+      {
+        "id": "c-p-6",
+        "kind": "path",
+        "lineId": "exit",
+        "park": false
+      },
+      {
+        "id": "c-p-7",
         "kind": "path",
         "lineId": "park",
         "park": true
       }
     ],
-    "startAt": "PARTNER_FAR_WALL_START",
+    "startAt": "LEFT_START",
     "linkPaths": [],
     "parkFrom": {},
-    "teamSpots": [],
-    "exportName": "Partner-L-Timed-Fill-Park"
+    "teamSpots": [
+      "LEFT_START",
+      "RIGHT_PARK"
+    ],
+    "exportName": "Partner-L-Timed-Fill-Hide-Park"
   }
 }

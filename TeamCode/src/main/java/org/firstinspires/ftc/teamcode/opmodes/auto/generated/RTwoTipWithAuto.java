@@ -51,55 +51,41 @@ public final class RTwoTipWithAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
-        Pose leftLaunchCatch = p.of(57.5, 123.5, 273.4);
-        Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose leftLaunchOffset = p.of(41, 121.5, 296.4);
+        Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
+        Pose leftPark = p.of(14.5, 117.4, 0);
         Pose rightPark = p.of(14.5, 95.7, 0);
-        Pose rightLaunchClose = p.of(56.1, 26, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toLeftLaunchCatchControl1 = p.of(30, 110, 0);
-        Pose toLeftLaunchCatchSegment1Start = p.of(57.5, 123.5, 180);
-        Pose toRightParkControl1 = p.of(26, 92, 0);
-        Pose toRightLaunchCloseControl1 = p.of(58.77, 101.57, 0);
-        Pose toRightLaunchCloseControl2 = p.of(65.2, 71.9, 0);
-        Pose toRightLaunchCloseControl3 = p.of(59.6, 40.9, 0);
-        Pose toRightLaunchCloseSegment1Start = p.of(56.1, 26, 270);
-        Pose toRightLaunchCloseSegment1End = p.of(56.1, 26, 270);
-        Pose toRightLaunchCloseSegment2Start = p.of(56.1, 26, 270);
-        Pose toRightPark_2Control1 = p.of(23.32, 25.55, 0);
+        Pose toLeftLaunchOffsetControl1 = p.of(26, 105, 0);
+        Pose toLeftLaunchOffsetSegment1Start = p.of(41, 121.5, 180);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
-        Path toLeftLaunchCatch = Paths.curve(wallFlowerStaging, toLeftLaunchCatchControl1, leftLaunchCatch).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(toLeftLaunchCatchSegment1Start, leftLaunchCatch)).until(1, Interpolator.linear(leftLaunchCatch, leftLaunchCatch)));
-        Path leftLaunchCatchPark = Paths.line(leftLaunchCatch, rightPark).linear(leftLaunchCatch, rightPark);
-        Path toScoringFlowerStaging = Paths.line(leftLaunchCatch, scoringFlowerStaging).linear(leftLaunchCatch, scoringFlowerStaging);
-        Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, rightPark).linear(scoringFlowerStaging, rightPark);
-        Path toLeftLaunchOffset = Paths.line(scoringFlowerStaging, leftLaunchOffset).linear(scoringFlowerStaging, leftLaunchOffset);
-        Path toRightPark = Paths.curve(leftLaunchOffset, toRightParkControl1, rightPark).linear(leftLaunchOffset, rightPark);
-        Path toRightLaunchClose = Paths.curve(leftLaunchCatch, toRightLaunchCloseControl1, toRightLaunchCloseControl2, toRightLaunchCloseControl3, rightLaunchClose).heading(Interpolator.piecewise().until(0.87, Interpolator.linear(toRightLaunchCloseSegment1Start, toRightLaunchCloseSegment1End)).until(1, Interpolator.linear(toRightLaunchCloseSegment2Start, rightLaunchClose)));
-        Path toRightParkPath = Paths.curve(rightLaunchClose, toRightPark_2Control1, rightPark).linear(rightLaunchClose, rightPark);
+        Path toLeftLaunchOffset = Paths.curve(wallFlowerStaging, toLeftLaunchOffsetControl1, leftLaunchOffset).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(toLeftLaunchOffsetSegment1Start, leftLaunchOffset)).until(1, Interpolator.linear(leftLaunchOffset, leftLaunchOffset)));
+        Path toLeftPark = Paths.line(leftLaunchOffset, leftPark).linear(leftLaunchOffset, leftPark);
+        Path toScoringFlowerStaging = Paths.line(leftLaunchOffset, scoringFlowerStaging).linear(leftLaunchOffset, scoringFlowerStaging);
+        Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, leftPark).linear(scoringFlowerStaging, leftPark);
+        Path toLeftLaunchOffsetPath = Paths.line(scoringFlowerStaging, leftLaunchOffset).linear(scoringFlowerStaging, leftLaunchOffset);
 
         return kit.sequence(
                 kit.command("SpinUp"),
                 kit.command("LaunchAll"),
                 kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2),
                 kit.command("PickFlower", 4.5),
-                kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 2.8, leftLaunchCatchPark, 2.1),
+                kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 2.6, toLeftPark, 1.5),
                 kit.firstOf("Wait for TIP or CELL up",
                         kit.when("CellUp").then(
-                                kit.guarded("If CellUp", toRightPark, 1.8,
+                                kit.guarded("If CellUp", toLeftPark, 1.5,
                                         kit.command("LaunchAll"),
-                                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.8),
+                                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1, scoringFlowerStagingPark, 1.7),
                                         kit.command("PickFlower", 4.5),
-                                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 1.1),
+                                        kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffsetPath, 1.1),
                                         kit.command("LaunchAll"),
-                                        kit.path("to RIGHT_PARK", toRightPark, 1.8))),
+                                        kit.path("to LEFT_PARK", toLeftPark, 1.5))),
                         kit.afterMs(750).then(
-                                kit.guarded("Timed out", toRightParkPath, 2.8,
-                                        kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.4),
-                                        kit.command("LaunchAll"),
-                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.8)))));
+                                kit.guarded("Timed out", toLeftPark, 1.5,
+                                        kit.path("to LEFT_PARK", toLeftPark, 1.5)))));
     }
 }

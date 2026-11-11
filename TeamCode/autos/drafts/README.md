@@ -144,22 +144,24 @@ R-Three-Tip-Stream's stops with no shot fired while moving (`BIOBUZZ_AUTO_FIRE_S
 
 ## R-Two-Tip-With: two TIPs beside a partner that fills the far CELL
 
-R-Two-Tip with its drive up the wall lane pulled in (control point (30, 110)), for a partner that
-starts on the far wall at (30, 133.8), fires its 4 preloads at the LEFT CELL once it is up, and
-parks along the far wall. Mentor session, 11 Nov 2026; not run on a robot.
+R-Two-Tip with both LEFT volleys from `LEFT_LAUNCH_OFFSET`, which is clear of a robot on `LEFT_START`,
+and its park at `LEFT_PARK`. It is for a partner that starts on `LEFT_START`, fires its 4 preloads at
+the LEFT CELL once it is up, hides under the HIVE until 23 s and parks at `RIGHT_PARK`
+(`partners/partner-l-fill-hide-park`, or `partner-l-timed-fill-hide-park`, which fires at 9 s).
+Mentor session, 11 Nov 2026; not run on a robot. If our preloads do not TIP, it parks: it does not
+drive under the HIVE, where the partner may be.
 
 Open the pair:
-<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-two-tip-with.pp,partners/partner-l-fill-park.pp>
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-two-tip-with.pp,partners/partner-l-fill-hide-park.pp>
 
 | In the simulator set to Belding, 120 seeds, the Belding robot | 2 TIPs | Second TIP at |
 |---|---|---|
-| R-Two-Tip-With alone | 57 | 28.4 s |
-| beside `partner-l-fill-park` (fires when it sees the CELL up) | 109 | 23.0 s |
-| beside `partner-l-timed-fill-park` (fires at 9 s) | 109 | 23.0 s |
+| R-Two-Tip-With alone | 61 | 28.0 s |
+| beside `partner-l-fill-hide-park` (fires when it sees the CELL up) | 109 | 23.0 s |
+| beside `partner-l-timed-fill-hide-park` (fires at 9 s) | 109 | 23.0 s |
 
 The LEFT CELL gets 12 shots for the 8 it needs, which is the whole gain. No two robots touch in
-any run. What to ask a partner, and which Belding partners could have done it, is in
-[`doc/three-tips.md`](../../../doc/three-tips.md), rung 3.
+any run. What to ask a partner is in [`doc/three-tips.md`](../../../doc/three-tips.md), rung 3.
 
 ## R-Solo-Nudge, for a partner with no Auto
 
