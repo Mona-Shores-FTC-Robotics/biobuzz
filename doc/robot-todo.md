@@ -151,6 +151,13 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       Belding match each (19429 Q32 right wheel, 20245 Q27), and the code shut it off: about 29 s and
       23 s with no shots. Reseat and strain-relieve both launcher encoder cables. **Good:** a 5-minute
       Bench: Launch Test with no "reads no speed" event. [#496]
+- [ ] **A launcher wheel that drops out comes back** (`EncoderWatch`, #496). Bench: Launch Test,
+      launcher spinning: pull one wheel's encoder cable at the hub, wait 5 s, plug it back.
+      **Good:** the Match page warns within about half a second and that wheel stops; it kicks
+      for half a second about every 2.5 s while unplugged; within about 3 s of plugging back the
+      warning clears, the log has `launcher: reads speed again, wheel restored`, and the launcher
+      reads READY with no spin-down. **Stop:** the pulsing wheel does anything alarming → Panels
+      `LauncherSubsystem.encoderRetryAfterMs` 0 (the old rule: cut until spun down).
 - [ ] **Both Control Hubs: which IMU chip, and how the hub is mounted** (logo and USB directions,
       for the SDK's orientation), before the IMU is logged. A Driver Station config scan shows the chip
       (BHI260AP or BNO055). Then one bench bump test with the IMU logged, to see what a hit looks like. [#498]

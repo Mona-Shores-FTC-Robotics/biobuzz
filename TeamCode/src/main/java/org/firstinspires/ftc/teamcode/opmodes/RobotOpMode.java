@@ -1623,6 +1623,9 @@ public abstract class RobotOpMode extends OpMode {
         String launcherFault = robot.launcher.fault();
         if (launcherFault != null && !launcherFault.equals(loggedLauncherFault)) {
             log.event("launcher: " + launcherFault);
+        } else if (launcherFault == null && loggedLauncherFault != null && robot.launcher.isSpinning()) {
+            // A cut wheel, tried again, read speed (EncoderWatch): how long a dropout really lasts.
+            log.event("launcher: reads speed again, wheel restored");
         }
         loggedLauncherFault = launcherFault;
         // Not while holding a full lane: the slow roller pressing on the last piece may barely turn.
