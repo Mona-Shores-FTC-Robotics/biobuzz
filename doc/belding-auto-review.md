@@ -6,8 +6,9 @@ video together, then checked against the official AUTO scores (FTCScout, saved i
 the simulator first. Mentor review, 9 Nov 2026.
 
 R-Solo ran in qualifiers, and L-NoCross ran in the playoffs and in Ultraviolet's Q-14.
-Infrared is 19429 and Ultraviolet is 20245. Times are seconds after our PLAY. In the logs the
-SCORING FLOWER is called "FAR"; here it is the SCORING FLOWER, and the other one is the WALL FLOWER.
+Infrared is 19429 and Ultraviolet is 20245. Times are seconds after our PLAY. Logs from before
+12 Nov 2026 call the non-WALL FLOWER "FAR"; here it is the SCORING FLOWER (the Autos' leg, drawn for red; on
+a blue run it is the blue AUDIENCE FLOWER), and the other one is the WALL FLOWER.
 For red, the LEFT CELL is the SCORING-side CELL and the RIGHT CELL is the AUDIENCE-side CELL.
 
 ## How it was read

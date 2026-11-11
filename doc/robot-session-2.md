@@ -68,7 +68,7 @@ which has the Auto runtime (#189), the match log (#112), the taped red start (`S
        *Stop line: leaves the start and parks, 3 of 3.* **Paths are done.**
 
 6. [ ] **Auto: R-Quals, red, once.** Eleven paths with waits between them, about the full 30 s:
-       START → S_CATCH → the far FLOWER (47, 127) → N_FIRE (57.5, 119) → S_FIRE (55, 24) →
+       START → S_CATCH → the SCORING FLOWER (47, 127) → N_FIRE (57.5, 119) → S_FIRE (55, 24) →
        LANE_FIRE (45, 26) → the wall FLOWER (15, 47) → FIRE3 → PARK (10.5, 95). With no HIVE
        seen, every `Tip` wait runs to its limit, and the endgame guard may cut to PARK early;
        the Match page's trace lines say which, and the same lines are in the log's `/Events`.

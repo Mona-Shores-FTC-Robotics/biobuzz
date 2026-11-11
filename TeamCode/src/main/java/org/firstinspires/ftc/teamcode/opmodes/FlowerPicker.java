@@ -54,7 +54,7 @@ public final class FlowerPicker extends GrabRoutine {
      * Where the push aims: this far back from the FLOWER's centre, inches. The push also ends when the
      * robot stalls against the FLOWER. The 29 Oct 2026 logs on 20245 put that first touch at 12.2 to
      * 12.5 in (as odometry had it), so a target of 12.0 ends "reached" with the stick short of the
-     * FLOWER whenever the pose is a fraction of an inch long, and on 3 Nov an Auto's FAR pick did
+     * FLOWER whenever the pose is a fraction of an inch long, and on 3 Nov an Auto's SCORING FLOWER pick did
      * exactly that (camera 1.8 in further out than odometry, intake current flat, nothing taken). Pushes
      * aimed at 5.0 and at 7.0 on the red WALL FLOWER both stalled at 10.0 to 10.4 in from the centre
      * (3 Nov), so any target under about 9 ends the same way, by stall, and 7.0 leaves about 3 in of grace
