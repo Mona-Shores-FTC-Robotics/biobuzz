@@ -19,21 +19,28 @@ was run"). Differences under 5 of 120 are not differences.
   fits three volleys in 30 s with or without the row, and the LEFT CELL needs all 8 of the two it
   gets. **Shot accuracy is what is missing, not pieces:** 0.98 of shots staying in gives 95 of 120
   with nothing else changed.
-- **Three TIPs alone take a different robot.** The smallest set that meets the target is all of
-  these together: a turret that tracks the CELL while the robot drives; launching while moving; 0.98
-  of shots staying in from every range; a feed that ends on the fourth ball at Belding's own spacing
-  (0.5 s a shot or less); 60 in/s or more; and a row of loose pieces picked up in about 2.5 s, twice. That makes
-  **2 TIPs in 96 and 3 TIPs in 87 of 120** at 70 in/s, the third at 28.5 s (97 and 66 at 60 in/s).
-  Take any one away and the third TIP goes: without launching while moving 0 of 120, with Belding's
-  accuracy 13, at 50 in/s 23.
-- **None of that is realistic before the next event** except the accuracy work and the shot
-  counter, which are already on the fix list and are what the second TIP needs anyway.
+- **Three TIPs alone take a different robot, but not one that launches while moving.** Firing only
+  while standing still, with a turret, 0.98 of shots staying in, a feed of 0.3 s a shot and 60 in/s or
+  more, the solo route makes **2 TIPs in 96 and 3 TIPs in 84 of 120** (70 in/s). At Belding's 0.47 s
+  a shot it misses by half a second (third TIP at 30.6 s). With launching while moving the 0.47 s feed
+  is enough (96 and 87), but a moving shot that accurate is not something to plan on.
+- **A pair of ours does it with room to spare.** One robot waits by the SCORING FLOWER with a turret
+  and fires its preloads and the FLOWER's 4 as the LEFT CELL comes up, then takes the WALL FLOWER; the
+  other makes the first TIP, sweeps the GARDEN beside its start and waits loaded. No moving shots,
+  0.47 s a shot, 50 in/s, 0.98 staying in: **2 TIPs in 98 and 3 TIPs in 88 of 120**, the third at
+  24.6 s. Infraviolet under the same assumptions makes 108 and 0.
+- **For scouting: how early the partner's RIGHT TIP must come.** For three TIPs, the RIGHT CELL must be
+  down by about **10 s** if the partner also brings 4 more to the RIGHT CELL later, and by about
+  **7 s** if all it does is fire its preloads (and then only with our 0.3 s feed and 70 in/s). For
+  two TIPs it can be as late as 12 s.
+- **What is realistic:** the accuracy work and the shot counter are on the fix list and are what the
+  second TIP needs anyway. The turret, a 0.3 s feed and a reliable GARDEN pickup are the new work.
 - **The least a partner must do for two reliable TIPs is fire its 4 preloads into the far CELL
   once it is up, then park.** Beside that partner, our Belding robot on R-Two-Tip makes **2 TIPs in
   109 of 120**, the second at 23.0 s. A partner on a 9 s timer does as well as one that watches
   the HIVE. Of our Belding partners only 5292 and 10104 launched and scored in AUTO at all; nine of
   our ten qualifier partners launched nothing.
-- **No Belding-style partner makes a third TIP possible.** It would have to make a whole TIP of 8
+- **No Belding-style partner makes a third TIP possible for the robot as it ran at Belding.** It would have to make a whole TIP of 8
   by itself and early. No alliance at the event made two AUTO TIPs without one of our robots on it.
 - **The one measurement that would most change the answer: count the balls that stay in from the
   LEFT launch spots.** Every result here turns on that share, and it has never been counted.
@@ -46,7 +53,10 @@ was run"). Differences under 5 of 120 are not differences.
 | **2: the smallest set of changes** | R-Three-Tip-Stream: turret, launching while moving, stay in 0.98, feed 0.47 s a shot, 70 in/s | 120 / 96 / 87 | **Met** |
 | **3: the Belding robot, better pathing only, beside a Belding-style partner** | R-Two-Tip-With, partner fires its preloads into the far CELL | 120 / 109 / 0 | **2 TIPs met (109). 3 TIPs cannot be:** 0 of 120 in every pairing, as at Belding and with every shot staying in |
 
-Both "met" rows are the simulator's, on the placeholders listed under "What the simulator rests on".
+| **Solo, no moving shots** (added after the mentor's review) | R-Three-Tip-Still: turret, stay in 0.98, feed 0.3, 70 in/s | 120 / 96 / 84 | **Met** |
+| **A pair of ours, no moving shots** (added after the mentor's review) | L-Pair-Flowers + R-Pair-Garden: feed 0.47, stay in 0.98, 50 in/s | 120 / 98 / 88 | **Met** |
+
+Every "met" row is the simulator's, on the placeholders listed under "What the simulator rests on".
 
 **Can today's robot run the rung 1 and rung 2 drawings? No, and this is why it cannot.** They meet the
 target in the calibrated simulator, which is all a study can show. On the robot each of these is
@@ -68,6 +78,138 @@ drawing could be: the robot's own third TIP is out of reach by the bound below.
 0. That is not a drawing waiting to be improved. No drawing can make its third TIP (a bound with no
 driving puts it at 30.4 s; at three times the drive speed with every shot in it is still 120 / 118 /
 0), and its second TIP is 57 of 120 because all 8 LEFT pieces must stay in at 0.92.
+
+## After the mentor's review: no moving shots, pairs, and what to scout
+
+Three questions from the mentor on reading the study (11 Nov), each answered with runs. Everything
+here fires **only while the robot is still** (`BIOBUZZ_AUTO_FIRE_STILL=1`), with the Belding calibration,
+120 seeds, TIPs by 30 s. "Stay in 0.98" and the feed are set as in rung 2; picks are as at Belding.
+
+### Is launching while moving necessary? No
+
+[R-Three-Tip-Still](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-three-tip-still.pp,partners/partner-l-stage-leave-park.pp)
+is the stream route with every volley fired from a stop: at the end of the partner's row, on the
+SCORING FLOWER as its pieces come in, in the lane, and at the corner. The turret is what makes
+that work, since the robot never turns or drives to a launch spot.
+
+| Solo, turret, stay in 0.98, no moving shots | 1 TIP | 2 TIPs | 3 TIPs | TIP 2 at | TIP 3 at | Target |
+|---|---|---|---|---|---|---|
+| Feed 0.47 s a shot, 50 in/s | 120 | 96 | 0 | 17.4 s | | no |
+| Feed 0.47, 60 in/s | 120 | 98 | 1 | 16.6 s | 30.7 s | no |
+| Feed 0.47, 70 in/s | 120 | 96 | 15 | 16.6 s | 30.6 s | no |
+| Feed 0.47, 70 in/s, picks fixed | 120 | 107 | 17 | 16.6 s | 30.6 s | no |
+| **Feed 0.3, 60 in/s** | 120 | 98 | 66 | 15.3 s | 29.6 s | **met** |
+| **Feed 0.3, 70 in/s** | 120 | 96 | 84 | 16.7 s | 28.7 s | **met** |
+| Feed 0.3, 70 in/s, picks fixed | 120 | 107 | 94 | 16.7 s | 28.6 s | **met** |
+| Feed 0.47, 70 in/s, turret locked | 120 | 0 | 0 | | | no |
+
+Standing still costs about 2 s over the whole Auto. A 0.3 s feed pays for it; Belding's 0.47 s does
+not, by about half a second. The locked-turret row is 0 because this route never points the robot at
+a CELL; without a turret the robot is back to driving to a launch spot for each volley (rung 2's
+"without the turret" row: 107 and 0).
+
+### A better pair than Infraviolet
+
+Infraviolet has the right idea, five loads between two robots, and it made three TIPs once on the
+practice field. In the Belding-calibrated simulator it makes none, for one reason: its LEFT CELL waits
+for a load driven up from the WALL FLOWER, so the second TIP lands at 18 to 20 s, and its own
+deadlines (L gives up on the RIGHT CELL at 20 s, R at 22.5 s) then park both robots. They were set
+when a TIP came within a second of the last ball; at Belding every CELL sat about 4 s first.
+
+| Infraviolet | 1 TIP | 2 TIPs | 3 TIPs | TIP 2 at | TIP 3 at |
+|---|---|---|---|---|---|
+| As at Belding | 117 | 22 | 0 | 20.5 s | |
+| Feed 0.47 ending on the fourth, stay in 0.98 | 120 | 108 | 0 | 18.2 s | |
+| Feed 0.3, stay in 0.98, 60 in/s | 120 | 108 | 26 | 16.5 s | 27.3 s |
+
+The new pair moves the second TIP earlier by putting 8 pieces beside the LEFT CELL before it comes up:
+[L-Pair-Flowers and R-Pair-Garden](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/l-pair-flowers.pp,drafts/r-pair-garden.pp).
+
+| Time, one run | L-Pair-Flowers (turret) | R-Pair-Garden (turret locked, as at Belding) |
+|---|---|---|
+| 0 to 2.5 s | Drives 1.1 s from the far wall to a spot beside the SCORING FLOWER, (41, 121.5), 45.7 in from the LEFT CELL. Waits | Volley 1: 4 preloads at the RIGHT CELL from `RIGHT_START` |
+| 2.5 to 8 s | Waits, turret on the LEFT CELL | Sweeps the GARDEN (4.2 to 6.7 s), drives to `RIGHT_LAUNCH_OFFSET`, waits loaded |
+| 7.7 s | **TIP 1.** Volley 2: 4 preloads, standing (to 9.2 s) | |
+| 9.5 to 12.7 s | On the SCORING FLOWER: Volley 3 as its 4 come in | |
+| 12.8 to 18.9 s | **TIP 2 dwell:** wall lane to the WALL FLOWER, picks 4 | waits |
+| 17.3 s | | **TIP 2.** Volley 4: the GARDEN's 4 at the RIGHT CELL (to 18.8 s) |
+| 19.5 to 21.3 s | Volley 5 from the lane, (26, 40): the WALL FLOWER's 4 at the RIGHT CELL | |
+| 21.3 s on | Parks at `LEFT_PARK` | Leaves at 25 s, after L has cleared the lane; parks at `RIGHT_PARK` by 28 s |
+| 26.5 s | **TIP 3** | |
+
+Those are one run's times; the averages are in the table below. No two robots touch and neither
+touches the field in any of the 120 runs, and both park every time.
+If the RIGHT CELL is not back up, L gives up at 23 s and R at 25.5 s, in that order, so they do not
+meet in the lane.
+
+| The pair, no moving shots | 1 TIP | 2 TIPs | 3 TIPs | TIP 2 at | TIP 3 at | Target |
+|---|---|---|---|---|---|---|
+| **Feed 0.47 s a shot, stay in 0.98, 50 in/s** | 120 | 98 | 88 | 15.4 s | 24.6 s | **met** |
+| 40 in/s | 120 | 98 | 87 | 15.6 s | 25.4 s | **met** |
+| 60 in/s | 120 | 98 | 86 | 15.3 s | 24.0 s | **met** |
+| Belding's feed (0.875 s a shot, whole feed) | 120 | 97 | 79 | 19.0 s | 28.7 s | **met** |
+| Feed 0.3 | 120 | 99 | 86 | 14.6 s | 23.3 s | **met** |
+| FLOWER picks fixed | 120 | 109 | 97 | 15.6 s | 24.6 s | **met** |
+| Stay in 1.0 | 120 | 108 | 108 | 15.4 s | 24.5 s | **met** |
+| Stay in 0.96 | 120 | 82 | 64 | 16.5 s | 24.7 s | no |
+| Stay in 0.95 | 120 | 78 | 57 | 16.6 s | 24.6 s | no |
+| Belding's accuracy | 120 | 30 | 10 | 16.6 s | 24.8 s | no |
+| Everything as at Belding except L's turret | 120 | 19 | 5 | 20.6 s | 29.4 s | no |
+| GARDEN sweep at 3 in/s | 120 | 98 | 29 | 15.4 s | 25.0 s | no |
+| L's turret locked too | 120 | 0 | 0 | | | no |
+
+The pair has about 5 s to spare, so drive speed and feed hardly matter: it meets the target at
+40 in/s and with Belding's whole feed. **It stands on two things: 0.98 of shots staying in, and 4 pieces
+out of the GARDEN.** The first is the same accuracy work as everything else. The second is a
+placeholder (the row sweep); the robot's own GARDEN gather took 0 to 2 of 4 in practice. R has 10 s
+of waiting beside the GARDEN, so it can afford a slow, careful gather; that is the thing to build.
+Only L needs the turret.
+
+### What to scout: how early the RIGHT TIP has to come
+
+Two kinds of partner, with the partner's preload volley delayed a second at a time. The first TIP
+comes in 120 of 120 runs in every row of both tables. "RIGHT CELL
+down" is when the first TIP completes; a partner's last preload leaves about 4.5 s before that.
+
+**A partner that only fires its preloads at the RIGHT CELL and parks; we do the rest alone**
+([L-Three-Tip](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/l-three-tip.pp,partners/partner-r-tip-far-park.pp):
+the SCORING FLOWER burst, then the WALL FLOWER, then the GARDEN):
+
+| RIGHT CELL down at | Feed 0.47, 60 in/s: 2 / 3 TIPs | TIP 3 at | Feed 0.3, 70 in/s: 2 / 3 TIPs | TIP 3 at |
+|---|---|---|---|---|
+| 6.1 to 6.4 s | 98 / 30 | 30.2 s | 99 / 89 | 28.0 s |
+| 7.2 to 7.4 s | 98 / 2 | 31.0 s | 99 / 81 | 29.0 s |
+| 8.2 to 8.4 s | 98 / 0 | | 98 / 50 | 30.0 s |
+| 9.2 to 9.4 s | 98 / 0 | | 98 / 4 | 30.8 s |
+| 10.2 to 12.4 s | 98 / 0 | | 98 / 0 | |
+
+**A partner that also brings 4 more to the RIGHT CELL when it comes back up** (as R-Pair-Garden does;
+feed 0.47, 50 in/s):
+
+| RIGHT CELL down at | 2 / 3 TIPs | TIP 3 at |
+|---|---|---|
+| 6.4 s | 98 / 88 | 24.6 s |
+| 7.4 s | 98 / 88 | 25.6 s |
+| 9.4 s | 98 / 88 | 27.6 s |
+| 10.4 s | 98 / 86 | 28.6 s |
+| 11.4 s | 98 / 53 | 29.6 s |
+| 12.4 s | 98 / 34 | 30.4 s |
+
+**The rules of thumb for a scout:**
+
+- Every second the first TIP is late is a second off the end. The third TIP comes about 18 s after the
+  first with a partner that brings a second load, and about 22 to 24 s after it when we do the rest.
+- **Three TIPs with a partner that brings a second load:** RIGHT CELL down by 10 s, which is its last
+  preload out by about 5.5 s with at least 3 staying in.
+- **Three TIPs with a preloads-only partner:** RIGHT CELL down by 7 s (last preload out by about 2.5 s),
+  and only if we have the 0.3 s feed and 70 in/s. Not viable with a 0.47 s feed.
+- **Two TIPs:** RIGHT CELL down by 12 s is enough (98 of 120 at every delay tried).
+- Count how many preloads stay in. At Belding the two TIPs that came late (M-7 red, M-9) were the two
+  where exactly 3 stayed; the CELL then sat about 6 s.
+- **Against those lines, on the field's clock** (our PLAY was 1.3 to 4.0 s late in the playoffs, so add
+  that to the table in rung 3): 10104's RIGHT CELL was down at about 6.5, 8.0 and 11.1 s; 5292's at
+  about 9.1, 9.3, 9.3 and 13.2 s. Both would do for a second-load plan most of the time; only 10104,
+  twice, was early enough for a preloads-only plan. Neither brought a second load.
 
 ## The budget (step 0)
 
@@ -589,6 +731,10 @@ BIOBUZZ_AUTO_CALIBRATION=belding BIOBUZZ_AUTO_RUNS=120 \
 #   BIOBUZZ_AUTO_STUDY="RThreeTipAuto,PartnerLStageLeaveParkAuto@50"
 #   BIOBUZZ_AUTO_DESIGNS="real robot, turret locked forward"
 # Rung 3: BIOBUZZ_AUTO_STUDY="RTwoTipWithAuto,PartnerLFillParkAuto@50", the same design.
+# No moving shots: add BIOBUZZ_AUTO_FIRE_STILL=1 and drop compensatesMotion. The pair:
+#   BIOBUZZ_AUTO_STUDY="LPairFlowersAuto,RPairGardenAuto@50" BIOBUZZ_AUTO_DESIGNS="real robot"
+#   BIOBUZZ_AUTO_PARTNER_DESIGN="real robot, turret locked forward"
+# A late first TIP: a request's partner entry with "timing": {"startDelayS": 3} (TeamCode/sim-requests/l-three-tip.json).
 # The spot scan: BIOBUZZ_SIM_BOTH_CELLS=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*BothCellsSpotScanTest*' -i
 ```
 

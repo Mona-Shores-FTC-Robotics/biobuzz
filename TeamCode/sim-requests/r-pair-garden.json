@@ -1,0 +1,46 @@
+{
+  "pp": "TeamCode/autos/drafts/r-pair-garden.pp",
+  "spec": "RPairGardenAuto",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "the other half of the pair",
+      "partner": "LPairFlowersAuto",
+      "design": "real robot"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/r-pair-garden.pp",
+    "SavedBy": "mentor session, 11 Nov 2026",
+    "SavedAt": "2026-11-11T05:00:00.000Z",
+    "SimNote": "doc/three-tips.md: the pair. This half makes TIP 1 with its preloads, sweeps the GARDEN and waits loaded at RIGHT_LAUNCH_OFFSET for the RIGHT CELL to come back up; as saved it runs with Belding's own accuracy and feed, and the what-if knobs in doc/three-tips.md 'How it was run' give the tables"
+  }
+}

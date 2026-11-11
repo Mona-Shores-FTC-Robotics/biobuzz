@@ -1231,6 +1231,8 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   - `StreamOn` with `BIOBUZZ_AUTO_DESIGN_SET="compensatesMotion=true"` is launching while moving: the shot is
     led for the robot's own speed. **Placeholder:** the lead is perfect, and a moving shot stays in as often
     as a standing one from that range. Without the lead the robot's speed is added to the ball and most miss.
+    `BIOBUZZ_AUTO_FIRE_STILL=1` is the opposite what-if: no shot leaves unless the robot is still, so `StreamOn`
+    fires only at stops (seated on a FLOWER, or waiting at a spot).
   - `BIOBUZZ_AUTO_DESIGN_SET="shotIntervalS=0.47"` sets the seconds between shots (the simulator's own is the
     3.5 s set feed over 4; Belding's balls left 0.47 s apart after a first at 0.75 s).
   - `BIOBUZZ_SIM_TYPICAL_LAUNCH_ALL`, `_PICK_FLOWER`, `_GARDEN_GATHER`: the typical seconds the endgame guard

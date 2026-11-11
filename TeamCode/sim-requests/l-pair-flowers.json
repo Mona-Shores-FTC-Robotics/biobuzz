@@ -1,0 +1,46 @@
+{
+  "pp": "TeamCode/autos/drafts/l-pair-flowers.pp",
+  "spec": "LPairFlowersAuto",
+  "design": "real robot",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "the other half of the pair",
+      "partner": "RPairGardenAuto",
+      "design": "real robot, turret locked forward"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/l-pair-flowers.pp",
+    "SavedBy": "mentor session, 11 Nov 2026",
+    "SavedAt": "2026-11-11T05:00:00.000Z",
+    "SimNote": "doc/three-tips.md: the pair. This half waits by the SCORING FLOWER with a turret, fires 8 as the LEFT CELL comes up, then the WALL FLOWER's 4 at the RIGHT CELL; as saved it runs with Belding's own accuracy and feed, and the what-if knobs in doc/three-tips.md 'How it was run' give the tables"
+  }
+}
