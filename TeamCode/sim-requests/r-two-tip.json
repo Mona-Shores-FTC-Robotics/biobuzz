@@ -1,0 +1,47 @@
+{
+  "pp": "TeamCode/autos/drafts/r-two-tip.pp",
+  "spec": "RTwoTipAuto",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "alliance": "RED",
+  "partners": [
+    {
+      "name": "stays out of the way",
+      "partner": "PartnerStillAuto"
+    },
+    {
+      "name": "left partner launches its preloads once its CELL is up",
+      "partner": "PartnerLLaunchParkAuto"
+    },
+    {
+      "name": "parks at 15 s",
+      "partner": "PartnerPark1Auto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/r-two-tip.pp",
+    "SavedBy": "mentor session, 10 Nov 2026",
+    "SavedAt": "2026-11-11T01:18:12.003Z",
+    "SimNote": "R-Solo's steps with both LEFT volleys from LEFT_LAUNCH_CATCH (the measured 42 in row); the left-partner run is the one with spare shots"
+  }
+}

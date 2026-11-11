@@ -55,6 +55,8 @@ open beside a partner stand-in the same way: R-Solo-Nudge with its pushed partne
 Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `drafts/`, and the fast
 lane takes a `.pp` in `drafts/` or `partners/` (Visualizer
 [#67](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/pull/67) lists the drafts).
+R-Two-Tip, R-Solo's steps with both LEFT volleys from `LEFT_LAUNCH_CATCH`, is a draft too
+([its notes](drafts/README.md)).
 
 **The polish loop.** Open the Auto from master, change it, **Save to GitHub and simulate…** under
 the same name: that makes or updates its `auto/<name>` branch and pull request, the simulator runs

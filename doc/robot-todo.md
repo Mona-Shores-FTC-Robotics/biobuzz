@@ -469,6 +469,18 @@ Use the work order above to select checks; the detailed mechanism checks below a
       **Also:** the two Belding runs that crawled for 4 s about 10 in short of `LEFT_LAUNCH_CLOSE`
       / `LEFT_LAUNCH_CATCH` (20245, 14:39 and 16:53 hub time) look blocked: check the match video.
 
+- [ ] **R-Two-Tip draft (`autos/drafts/r-two-tip.pp`): R-Solo's steps from the measured LEFT spot.**
+      [Why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-two-tip-r-solos-steps-fired-from-the-measured-left-spot).
+      It has no OpMode yet: add a `BuiltAuto` wrapper before the first run.
+      - Five runs alone, filmed from the side, partner off `LEFT_START`. Count the pieces that
+        stay in the LEFT CELL from each LEFT volley, and the TIPs. **Good:** 7 or 8 of 8 stay in
+        on most runs. This is also the count the Belding review asked for on R-Solo.
+      - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
+        piece leaves the robot and the camera sights the LEFT CELL before the stop.
+      - With a partner (our other robot running a left "wait for the CELL, launch, park"):
+        count the pieces in the LEFT CELL and when the second TIP comes (simulated at 17–21 s).
+      [mentor session, 10 Nov]
+
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
 The pick-depth session. Procedure and tables: [S5 At the robot]. The student version of the same
@@ -802,6 +814,13 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       at `LEFT_LAUNCH_CORNER` (M-7, red) and within ±2.5° at the other spots; 3 and 2 shots counted
       of 4. Set its heading to about 59° in the Visualizer (Save team spots), then hold Square there
       once. **Good:** aim error under 2° on the Match page and 3–4 of 4 in. [mentor, 5 Nov]
+
+- [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`.** The table's rows start
+      at 42.4 in, so both CLOSE spots fire at an extrapolated speed (1459–1480 ticks/s in the
+      Belding logs). R-Solo fired both LEFT volleys from there and made its second TIP in 0 of 7
+      runs; L-NoCross from `LEFT_LAUNCH_CATCH` (the 42.4 in row) made it in 3 of 5. Run the loop
+      above at `RIGHT_LAUNCH_CLOSE` and write the speed into `LaunchSpeedTable` row 5.
+      **Good:** 4 of 4 stay in the CELL at the row's speed. [mentor session, 10 Nov]
 
 - [ ] **Camera range = pose range, from the turret axis** (since 5 Nov both are measured from the
       turret, and the table's rows were converted to match). Any Basic Drive with the camera on a

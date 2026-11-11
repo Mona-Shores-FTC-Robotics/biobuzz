@@ -6,6 +6,71 @@ partner-nudge experiment has Utility trials for bring-up. The nudge
 Utility's runtime speed limits are not modeled by AutoSim. The Visualizer lists
 these under "Drafts", and Save to GitHub saves back here.
 
+## R-Two-Tip: R-Solo's steps, fired from the measured LEFT spot
+
+R-Solo made its second TIP in 0 of 7 runs at the Belding Qualifier. This draft keeps R-Solo's
+steps and its 0.75 s CELL check, and changes where the LEFT volleys are fired from. Mentor
+session, 10 Nov 2026; not yet run on a robot, and it has no OpMode.
+
+Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-two-tip.pp>
+(with the left partner: add `,partners/partner-l-launch-park.pp`).
+
+**Why R-Solo's second TIP never came.** Both of its LEFT volleys are fired from
+`LEFT_LAUNCH_CLOSE`, 36 in from the CELL. `LaunchSpeedTable`'s measured rows run from 42.4 to
+58.8 in, so at 36 in the launcher gets a speed nobody has fired: the first row's slope carried
+5 in and then held.
+
+| Belding Auto volleys at the LEFT CELL | Spot (range) | Launch speed in the log | Second TIP |
+|---|---|---|---|
+| R-Solo, 7 runs | `LEFT_LAUNCH_CLOSE` (36 in) | 1459–1480 ticks/s, extrapolated | 0 of 7 |
+| L-NoCross, 5 runs | `LEFT_LAUNCH_CATCH` (42 in) | 1521–1528 ticks/s, the measured row | 3 of 5 |
+
+On the Q-13 stream (19429, R-Solo's third volley, Auto 23.4–25.2 s), balls drop back to the floor
+in front of the HIVE at 24.1–24.3, 24.5–24.6 and 25.1–25.2 s. Twelve runs is a small sample, and
+the two Autos differ in other ways, so this is the likely cause, not a proven one.
+
+**What changed from R-Solo:**
+
+- Both LEFT volleys are at `LEFT_LAUNCH_CATCH`, the spot L-NoCross made its second TIPs from.
+- The drive from the WALL FLOWER turns the short way (180° to 273°, done by 60% of the drive)
+  and faces the HIVE for the rest. R-Solo's turns 270° and took 3.5–4.6 s against 2.9 s drawn.
+- The timed-out route is R-Solo's (back to `RIGHT_LAUNCH_CLOSE`, launch, park): it made the TIP
+  both times it ran at Belding. Its turn starts a little later so no corner reaches the centre line.
+- Only team spots. The preview's CELL-up route is 28.9 s, as R-Solo's; its worst case is 30.2 s
+  (R-Solo: 31.7 s).
+
+**What it cannot do alone: spare shots.** A robot holds 4 pieces and fits three volleys in 30 s,
+so it launches 12. The first TIP takes the 4 preloads. The LEFT CELL starts empty and needs about
+8 POLLEN (`doc/robot-todo.md`, PR #519), which is every piece of the other two volleys. No
+drawing gives a lone robot a ninth piece at the LEFT CELL: the SCORING FLOWER is the only source
+near it, and a third trip does not fit. Catching the first TIP's spill (3 NECTAR, 4.95 POLLEN
+weights) was tried in the simulator and took about one piece a run.
+
+**Where the spare shots come from: a partner's four preloads.** A partner that starts on the
+left, waits for the LEFT CELL to come up (or about 9 s) and then launches its preloads puts 12
+pieces at the LEFT CELL where 8 are needed. `partners/partner-l-launch-park` is that partner.
+Simulated, 20 seeds each, turret locked forward:
+
+| Shots that score | R-Solo alone | R-Two-Tip alone | R-Two-Tip + left partner's preloads |
+|---|---|---|---|
+| 92 % (spread 1) | second TIP 20 of 20 | 19 of 20 | 20 of 20, at 16.7 s |
+| 79 % (spread 2) | 8 of 20, 36 points | 7 of 20, 35 points | **16 of 20, 52 points**, at 21.0 s |
+| 79 %, Belding Field 2's HIVE | 9 of 20 | | **16 of 20** |
+| 58 % (spread 3) | 2 of 20, 30 points | | 6 of 20, 42 points |
+
+The 4 of 20 it loses at spread 2 are the runs where the preloads did not make the first TIP. The
+simulator does not know that the 36 in speed is unmeasured, so alone the two Autos look the same
+there; the Belding table above is the evidence for the spot.
+
+**Not settled:**
+
+- `LEFT_LAUNCH_CATCH` overlaps a robot sitting on `LEFT_START` (the simulator: contact at 11.7 s
+  with a dead partner there). A partner with no Auto has to start somewhere else on the wall, or
+  the 36 in row gets measured and R-Solo's `LEFT_LAUNCH_CLOSE` is used instead.
+- With the launching partner there is no contact when the first TIP comes (16 of 16 runs: it has
+  fired and gone before we arrive). When the first TIP does not come it is still on its start.
+- The robot checks are in [robot-todo §3](../../../doc/robot-todo.md).
+
 ## R-Solo-Nudge, for a partner with no Auto
 
 The angled draft targets both partner AUTO PARK and LEAVE: a **16 x 16 in** chassis
