@@ -24,7 +24,7 @@ public final class RPairGardenAuto {
     public static final String SAVED = "11-11|12:00AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"LaunchAll", "SpinUp", "SweepRow"};
+    public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
     public static final String[] TRIGGERS = {"RightCellUp"};
@@ -50,22 +50,17 @@ public final class RPairGardenAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose rightStart = p.of(55.6, 7.7, 90);
-        Pose gardenRowStart = p.of(22, 8, 180);
         Pose rightLaunchOffset = p.of(41, 20, 68.7);
         Pose rightPark = p.of(14.5, 95.7, 0);
+        Pose gardenStaging = p.of(11.5, 22.1, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toGardenRowStartControl1 = p.of(52, 20, 0);
-        Pose toGardenRowStartControl2 = p.of(36, 12, 0);
-        Pose toGardenRowStartControl3 = p.of(32, 8, 0);
-        Pose toGardenRowStartSegment1Start = p.of(22, 8, 90);
-        Pose toGardenRowStartSegment1End = p.of(22, 8, 90);
-        Pose toGardenRowStartSegment2Start = p.of(22, 8, 90);
-        Pose gardenRowStartParkControl1 = p.of(24, 60, 0);
-        Pose toRightLaunchOffsetControl1 = p.of(24, 14, 0);
-        Pose toRightLaunchOffsetSegment1Start = p.of(41, 20, 180);
-        Pose toRightLaunchOffsetSegment1End = p.of(41, 20, 180);
-        Pose toRightLaunchOffsetSegment2Start = p.of(41, 20, 180);
+        Pose toGardenStagingControl1 = p.of(40, 20, 0);
+        Pose toGardenStagingSegment1Start = p.of(11.5, 22.1, 90);
+        Pose toGardenStagingSegment1End = p.of(11.5, 22.1, 90);
+        Pose toGardenStagingSegment2Start = p.of(11.5, 22.1, 90);
+        Pose gardenStagingParkControl1 = p.of(22, 60, 0);
+        Pose toRightLaunchOffsetSegment1Start = p.of(41, 20, 270);
         Pose toRightParkControl1 = p.of(31, 46, 0);
         Pose toRightParkControl2 = p.of(29, 80, 0);
         Pose toRightParkSegment1Start = p.of(14.5, 95.7, 68.7);
@@ -75,17 +70,17 @@ public final class RPairGardenAuto {
         Pose toRightParkSegment3Start = p.of(14.5, 95.7, 90);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path toGardenRowStart = Paths.curve(rightStart, toGardenRowStartControl1, toGardenRowStartControl2, toGardenRowStartControl3, gardenRowStart).heading(Interpolator.piecewise().until(0.15, Interpolator.linear(toGardenRowStartSegment1Start, toGardenRowStartSegment1End)).until(0.6, Interpolator.linear(toGardenRowStartSegment2Start, gardenRowStart)).until(1, Interpolator.linear(gardenRowStart, gardenRowStart)));
-        Path gardenRowStartPark = Paths.curve(gardenRowStart, gardenRowStartParkControl1, rightPark).linear(gardenRowStart, rightPark);
-        Path toRightLaunchOffset = Paths.curve(gardenRowStart, toRightLaunchOffsetControl1, rightLaunchOffset).heading(Interpolator.piecewise().until(0.45, Interpolator.linear(toRightLaunchOffsetSegment1Start, toRightLaunchOffsetSegment1End)).until(1, Interpolator.linear(toRightLaunchOffsetSegment2Start, rightLaunchOffset)));
+        Path toGardenStaging = Paths.curve(rightStart, toGardenStagingControl1, gardenStaging).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(toGardenStagingSegment1Start, toGardenStagingSegment1End)).until(1, Interpolator.linear(toGardenStagingSegment2Start, gardenStaging)));
+        Path gardenStagingPark = Paths.curve(gardenStaging, gardenStagingParkControl1, rightPark).linear(gardenStaging, rightPark);
+        Path toRightLaunchOffset = Paths.line(gardenStaging, rightLaunchOffset).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(toRightLaunchOffsetSegment1Start, rightLaunchOffset)).until(1, Interpolator.linear(rightLaunchOffset, rightLaunchOffset)));
         Path toRightPark = Paths.curve(rightLaunchOffset, toRightParkControl1, toRightParkControl2, rightPark).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(toRightParkSegment1Start, toRightParkSegment1End)).until(0.7, Interpolator.linear(toRightParkSegment2Start, toRightParkSegment2End)).until(1, Interpolator.linear(toRightParkSegment3Start, rightPark)));
 
         return kit.sequence(
                 kit.command("SpinUp"),
                 kit.command("LaunchAll"),
-                kit.path("to GARDEN_ROW_START", toGardenRowStart, 1.8, gardenRowStartPark, 2.8),
-                kit.command("SweepRow", 4),
-                kit.path("to RIGHT_LAUNCH_OFFSET", toRightLaunchOffset, 1.5, toRightPark, 2.7),
+                kit.path("to GARDEN_STAGING", toGardenStaging, 2.1, gardenStagingPark, 2.5),
+                kit.command("GardenGather", 7),
+                kit.path("to RIGHT_LAUNCH_OFFSET", toRightLaunchOffset, 1.8, toRightPark, 2.7),
                 kit.firstOf("RIGHT up before 25.5 s, otherwise park",
                         kit.atMatchSeconds(25.5).then(
                                 kit.guarded("Timed out", toRightPark, 2.7,
@@ -94,7 +89,7 @@ public final class RPairGardenAuto {
                                 kit.guarded("If RightCellUp", toRightPark, 2.7,
                                         kit.command("LaunchAll"),
                                         kit.firstOf("Let the partner clear the lane",
-                                                kit.atMatchSeconds(25)),
+                                                kit.atMatchSeconds(25.5)),
                                         kit.path("to RIGHT_PARK", toRightPark, 2.7)))));
     }
 }

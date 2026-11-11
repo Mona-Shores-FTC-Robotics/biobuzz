@@ -33,14 +33,13 @@
   "partners": [
     {
       "name": "the other half of the pair",
-      "partner": "LPairFlowersAuto",
-      "design": "real robot"
+      "partner": "LPairFlowersAuto"
     }
   ],
   "metadata": {
     "AutoSource": "drafts/r-pair-garden.pp",
     "SavedBy": "mentor session, 11 Nov 2026",
-    "SavedAt": "2026-11-11T05:00:00.000Z",
-    "SimNote": "doc/three-tips.md: the pair. This half makes TIP 1 with its preloads, sweeps the GARDEN and waits loaded at RIGHT_LAUNCH_OFFSET for the RIGHT CELL to come back up; as saved it runs with Belding's own accuracy and feed, and the what-if knobs in doc/three-tips.md 'How it was run' give the tables"
+    "SavedAt": "2026-11-11T17:30:00.000Z",
+    "SimNote": "doc/three-tips.md: the pair, real cards only. This half makes TIP 1 with its preloads, gathers the GARDEN with the robot's own routine and waits loaded at RIGHT_LAUNCH_OFFSET for the RIGHT CELL to come back up; as saved it runs with Belding's own accuracy and feed, and the what-if knobs in doc/three-tips.md 'How it was run' give the tables"
   }
 }

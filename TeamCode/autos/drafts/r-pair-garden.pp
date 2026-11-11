@@ -11,7 +11,7 @@
     {
       "id": "to-garden",
       "color": "#59a14f",
-      "name": "to GARDEN_ROW_START",
+      "name": "to GARDEN_STAGING",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -19,34 +19,26 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 22,
-        "y": 8.0
+        "x": 11.5,
+        "y": 22.1
       },
       "controlPoints": [
         {
-          "x": 52,
+          "x": 40,
           "y": 20
-        },
-        {
-          "x": 36,
-          "y": 12
-        },
-        {
-          "x": 32,
-          "y": 8.0
         }
       ],
       "heading": {
         "type": "piecewise",
         "startDeg": 90,
-        "endDeg": 180,
+        "endDeg": 270,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.15,
+              "endProgress": 0.3,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
@@ -56,25 +48,14 @@
               }
             },
             {
-              "startProgress": 0.15,
-              "endProgress": 0.6,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 180
-              }
-            },
-            {
-              "startProgress": 0.6,
+              "startProgress": 0.3,
               "endProgress": 1,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 180,
-                "endDeg": 180
+                "startDeg": 90,
+                "endDeg": 270
               }
             }
           ]
@@ -84,7 +65,7 @@
     {
       "id": "garden-park",
       "color": "#f28e2b",
-      "name": "GARDEN_ROW_START park",
+      "name": "GARDEN_STAGING park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -97,13 +78,13 @@
       },
       "controlPoints": [
         {
-          "x": 24,
+          "x": 22,
           "y": 60
         }
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 180,
+        "startDeg": 270,
         "endDeg": 0
       }
     },
@@ -113,13 +94,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 12,
-        "y": 8.0
+        "x": 11.5,
+        "y": 22.1
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 180
+        "degrees": 270
       }
     },
     {
@@ -136,15 +117,10 @@
         "x": 41,
         "y": 20
       },
-      "controlPoints": [
-        {
-          "x": 24,
-          "y": 14
-        }
-      ],
+      "controlPoints": [],
       "heading": {
         "type": "piecewise",
-        "startDeg": 180,
+        "startDeg": 270,
         "endDeg": 68.7,
         "degrees": 0,
         "reverse": false,
@@ -152,23 +128,23 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.45,
+              "endProgress": 0.6,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 180,
-                "endDeg": 180
+                "startDeg": 270,
+                "endDeg": 68.7
               }
             },
             {
-              "startProgress": 0.45,
+              "startProgress": 0.6,
               "endProgress": 1,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 180,
+                "startDeg": 68.7,
                 "endDeg": 68.7
               }
             }
@@ -464,10 +440,7 @@
         "PickFlower",
         "GardenGather",
         "LaunchOne",
-        "SpinUp",
-        "SweepRow",
-        "StreamOn",
-        "StreamOff"
+        "SpinUp"
       ],
       "conditions": [
         "Empty",
@@ -486,10 +459,7 @@
         "PickFlower": 4,
         "GardenGather": 5,
         "LaunchOne": 0.5,
-        "SpinUp": 0.1,
-        "SweepRow": 2.5,
-        "StreamOn": 0.1,
-        "StreamOff": 0.1
+        "SpinUp": 0.1
       }
     },
     "points": {
@@ -497,16 +467,6 @@
         55.6,
         7.7,
         90
-      ],
-      "GARDEN_ROW_START": [
-        22,
-        8.0,
-        180
-      ],
-      "GARDEN_ROW_END": [
-        12,
-        8.0,
-        180
       ],
       "RIGHT_LAUNCH_OFFSET": [
         41,
@@ -517,10 +477,15 @@
         14.5,
         95.7,
         0
+      ],
+      "GARDEN_STAGING": [
+        11.5,
+        22.1,
+        270
       ]
     },
     "pathEnds": {
-      "to-garden": "GARDEN_ROW_START",
+      "to-garden": "GARDEN_STAGING",
       "garden-park": "RIGHT_PARK",
       "to-offset": "RIGHT_LAUNCH_OFFSET",
       "offset-park": "RIGHT_PARK"
@@ -545,8 +510,8 @@
       {
         "id": "c-a-4",
         "kind": "action",
-        "name": "SweepRow",
-        "timeoutS": 4
+        "name": "GardenGather",
+        "timeoutS": 7
       },
       {
         "id": "c-p-5",
@@ -587,7 +552,7 @@
                 "label": "Let the partner clear the lane",
                 "rows": [
                   {
-                    "afterMs": 25000,
+                    "afterMs": 25500,
                     "matchClock": true,
                     "cards": []
                   }
@@ -613,6 +578,7 @@
       "c-p-5": "offset-park"
     },
     "teamSpots": [
+      "GARDEN_STAGING",
       "RIGHT_LAUNCH_OFFSET",
       "RIGHT_PARK",
       "RIGHT_START"

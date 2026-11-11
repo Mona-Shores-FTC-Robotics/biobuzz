@@ -1,7 +1,7 @@
 {
   "pp": "TeamCode/autos/drafts/l-pair-flowers.pp",
   "spec": "LPairFlowersAuto",
-  "design": "real robot",
+  "design": "real robot, turret locked forward",
   "partnerDesign": null,
   "partnerSpeed": null,
   "seeds": [
@@ -33,14 +33,17 @@
   "partners": [
     {
       "name": "the other half of the pair",
-      "partner": "RPairGardenAuto",
-      "design": "real robot, turret locked forward"
+      "partner": "RPairGardenAuto"
+    },
+    {
+      "name": "the other half, with a GARDEN pickup that gets all 4",
+      "partner": "RPairGardenSweepAuto"
     }
   ],
   "metadata": {
     "AutoSource": "drafts/l-pair-flowers.pp",
     "SavedBy": "mentor session, 11 Nov 2026",
-    "SavedAt": "2026-11-11T05:00:00.000Z",
-    "SimNote": "doc/three-tips.md: the pair. This half waits by the SCORING FLOWER with a turret, fires 8 as the LEFT CELL comes up, then the WALL FLOWER's 4 at the RIGHT CELL; as saved it runs with Belding's own accuracy and feed, and the what-if knobs in doc/three-tips.md 'How it was run' give the tables"
+    "SavedAt": "2026-11-11T17:30:00.000Z",
+    "SimNote": "doc/three-tips.md: the pair, real cards only, no turret. This half fires its preloads at the LEFT CELL when it comes up, then the SCORING FLOWER's 4, then takes the WALL FLOWER's 4 to the RIGHT CELL; as saved it runs with Belding's own accuracy and feed, and the what-if knobs in doc/three-tips.md 'How it was run' give the tables"
   }
 }
