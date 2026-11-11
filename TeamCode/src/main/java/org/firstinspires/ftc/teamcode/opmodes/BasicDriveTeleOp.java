@@ -211,9 +211,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private enum RangeFrom { NONE, CAMERA, ODOMETRY }
 
     private RangeFrom rangeFrom = RangeFrom.NONE;
-    /** With {@link RangeFrom#ODOMETRY}: the CELL measured to, and whether it was the near-end guess. */
+    /** With {@link RangeFrom#ODOMETRY}: the CELL measured to (ours at the robot's end of the field). */
     private HiveCell rangeCell;
-    private boolean rangeNearEnd;
     /**
      * The camera's and the pose's ranges from the turret axis, inches, as {@link #shotRangeIn()}
      * last found them (NaN when it had none), logged side by side: the same range two ways, so a
@@ -942,8 +941,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /**
      * The horizontal range from the turret axis to the CELL a shot was aimed at, inches (the speed
      * table's range): the camera's ground range to the nearest fresh CELL of our alliance (any CELL if the alliance is not chosen yet), else the
-     * pose's range from the turret axis to the raised row of the CELL our HIVE says is UP (only an
-     * UP CELL scores; the near-end CELL while the HIVE is tipping or unseen), else NaN. Sets
+     * pose's range from the turret axis to the raised row of our CELL at the robot's end of the
+     * field, the one the turret aims at ({@link TurretAim#nearEndCell}), else NaN. Sets
      * {@link #lastShotRangeSource} to say which.
      */
     private double shotRangeIn() {
@@ -968,20 +967,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /**
      * The pose's range from the turret axis to the CELL a shot would aim at (see
      * {@link #shotRangeIn()}), inches; NaN without a referenced pose, an alliance or a field point.
-     * Sets {@link #rangeCell} and {@link #rangeNearEnd}.
+     * It is the near-end CELL whatever the HIVE's state: the range must be to the CELL the shot is
+     * aimed at, and the operator decides whether that one is up. Sets {@link #rangeCell}.
      */
     private double poseRangeIn(Alliance alliance) {
         Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
         if (pose == null || alliance == Alliance.UNKNOWN) return Double.NaN;
         nearEndCell = TurretAim.nearEndCell(alliance, pose.y(), nearEndCell, HiveFieldPoints.AXLE_Y_IN, AIM_SWITCH_BAND_IN);
-        // Only an UP CELL scores: take the one the HIVE says is up, the near-end one only while unknown.
-        HiveTracker hive = robot.hive.of(alliance);
-        HiveCell up = TurretAim.upCellOr(alliance, hive == null ? null : hive.state(), null);
-        HiveCell target = up != null ? up : nearEndCell;
-        Vec3 row = target == null ? null : HiveFieldPoints.rowCentre(target, HiveCellState.UP);
+        Vec3 row = nearEndCell == null ? null : HiveFieldPoints.rowCentre(nearEndCell, HiveCellState.UP);
         if (row == null) return Double.NaN;
-        rangeCell = target;
-        rangeNearEnd = up == null;
+        rangeCell = nearEndCell;
         return TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(),
                 TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y());
     }
@@ -992,7 +987,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             case CAMERA:
                 return "camera";
             case ODOMETRY:
-                return "odometry, " + rangeCell + (rangeNearEnd ? " (HIVE unknown: near end)" : "");
+                return "odometry, " + rangeCell;
             default:
                 return "";
         }

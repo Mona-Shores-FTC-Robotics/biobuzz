@@ -10,24 +10,16 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 
 /**
  * Both HIVEs over the match (see {@link HiveTracker}): what the camera says, plus whether the robot
- * is still looking where it last saw each one, which is how a TIP is caught when a CELL's tags turn
- * away from the camera. Reads {@link LimelightVisionSubsystem} and the drive's pose; drives nothing.
+ * is steady enough for a mid-tip sighting to be believed. Reads {@link LimelightVisionSubsystem}
+ * and the drive's pose; drives nothing.
  *
- * <p>The pose only has to be consistent with itself, so this works without a field reference;
- * without a Pinpoint it cannot tell whether the robot turned, and only a CELL seen mid-tip or
- * settled starts or ends a TIP.
+ * <p>The pose only has to be consistent with itself, so this works without a field reference.
  */
 public final class HiveSubsystem implements Subsystem {
 
-    /** How still "still looking" is. Set on a field. */
+    /** How steady "steady" is. Set on a field. */
     @Configurable
     public static class Tuning {
-        /** Most the robot may turn since it last saw the HIVE, degrees. */
-        public static double lookToleranceDeg = 5;
-
-        /** Most the robot may move since it last saw the HIVE, inches. */
-        public static double lookToleranceIn = 2;
-
         /**
          * Fastest the robot may drive for a mid-tip sighting to count, in/s ({@code HiveTracker}'s
          * {@code observe}). 10: the two TIPs on 4 and 5 Nov 2026 that started with the robot nearly
@@ -44,8 +36,6 @@ public final class HiveSubsystem implements Subsystem {
     private final DriveSubsystem drive;
     private final HiveTracker red = new HiveTracker();
     private final HiveTracker blue = new HiveTracker();
-    private Pose redSeenFrom;
-    private Pose blueSeenFrom;
     private Pose lastPose;
     private long lastMs;
 
@@ -58,8 +48,6 @@ public final class HiveSubsystem implements Subsystem {
     public void initialize() {
         red.reset();
         blue.reset();
-        redSeenFrom = null;
-        blueSeenFrom = null;
         lastPose = null;
     }
 
@@ -75,17 +63,14 @@ public final class HiveSubsystem implements Subsystem {
         boolean steady = steady(lastPose, pose, (nowMs - lastMs) / 1000.0);
         lastPose = pose;
         lastMs = nowMs;
-        redSeenFrom = step(red, Alliance.RED, redSeenFrom, pose, steady, nowMs);
-        blueSeenFrom = step(blue, Alliance.BLUE, blueSeenFrom, pose, steady, nowMs);
+        step(red, Alliance.RED, steady, nowMs);
+        step(blue, Alliance.BLUE, steady, nowMs);
     }
 
-    /** Feeds one tracker; returns where the robot was when it last saw that HIVE. */
-    private Pose step(HiveTracker hive, Alliance alliance, Pose seenFrom, Pose pose, boolean steady, long nowMs) {
-        double lostForMs = vision.msSinceHiveSeen(alliance);
-        if (lostForMs < HiveTracker.Tuning.lostAfterMs) seenFrom = pose;
-        hive.observe(vision.seenHive(alliance), vision.hiveTagsInView(alliance), lostForMs,
-                stillLooking(seenFrom, pose), steady, nowMs);
-        return seenFrom;
+    /** Feeds one tracker. */
+    private void step(HiveTracker hive, Alliance alliance, boolean steady, long nowMs) {
+        hive.observe(vision.seenHive(alliance), vision.hiveTagsInView(alliance),
+                vision.msSinceHiveSeen(alliance), steady, nowMs);
     }
 
     /**
@@ -98,13 +83,6 @@ public final class HiveSubsystem implements Subsystem {
         double speed = Math.hypot(now.x() - before.x(), now.y() - before.y()) / dtS;
         double turn = Math.toDegrees(Math.abs(Math.IEEEremainder(now.heading() - before.heading(), 2 * Math.PI))) / dtS;
         return !(speed > Tuning.midTipMaxSpeedInPerSec) && !(turn > Tuning.midTipMaxTurnDegPerSec);
-    }
-
-    private static boolean stillLooking(Pose seenFrom, Pose now) {
-        if (seenFrom == null || now == null) return false;
-        double turned = Math.abs(Math.IEEEremainder(now.heading() - seenFrom.heading(), 2 * Math.PI));
-        double moved = Math.hypot(now.x() - seenFrom.x(), now.y() - seenFrom.y());
-        return turned <= Math.toRadians(Tuning.lookToleranceDeg) && moved <= Tuning.lookToleranceIn;
     }
 
     /**
@@ -133,6 +111,6 @@ public final class HiveSubsystem implements Subsystem {
     }
 
     private static String describe(HiveTracker hive) {
-        return hive.state() + (hive.assumed() ? " (assumed)" : "") + ", " + hive.tips() + " TIPs";
+        return hive.state() + (hive.assumed() ? " (assumed)" : "") + ", at least " + hive.tips() + " TIPs";
     }
 }

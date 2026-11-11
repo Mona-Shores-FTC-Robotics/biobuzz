@@ -312,6 +312,15 @@ Use the work order above to select checks; the detailed mechanism checks below a
 
       **Stop:** a check times out with its CELL in plain view and settled. Note how long the camera
       took in the log and in the PR.
+- [ ] **The HIVE tracker counts only what the camera sees** (branch `claude/pensive-mccarthy-0wkna8`):
+      one R-Solo run and two minutes of TeleOp, filmed, turning away from the HIVE and back several
+      times, with one TIP made by hand while the robot sits still facing it. **Good:** no
+      `HIVE (…): TRANSITION` line as the robot turns away, only `UNSEEN`; after each turn back the
+      HIVE line names the CELL the video shows up; the hand TIP reads `TRANSITION`, then the other
+      CELL; the Robot page's "at least N TIPs" is never above the video's count. In TeleOp with no
+      CELL in view, the `speed table … (odometry, <CELL>)` line names our CELL at the robot's end of
+      the field. **Stop:** the hand TIP reads `UNSEEN` before the camera settles it → note the
+      seconds from `TRANSITION` to the settled line (`HiveTracker.Tuning.confirmSeconds`, a number).
 - [ ] **R-Solo's second TIP: count what lands.** Film 5 R-Solo runs from the side, and count the
       pieces that land in the LEFT CELL from V2 and V3. At Belding it never TIPped (0 of 7), while
       the simulator TIPs it every time.
