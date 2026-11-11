@@ -59,6 +59,15 @@ public final class TeleOpConfig {
     public static double launcherIdleTicksPerSecond = 0.0;
 
     /**
+     * After a Square press that fires ends, the launcher stays at launch speed this many seconds
+     * before it idles ({@link LauncherOwner}), so a Square pressed again or the operator's Fire
+     * finds it at speed: the first ball then leaves in about 0.8 s, not 1.5 s (#497, Belding). 3 s
+     * is a starting point, <b>not measured</b>; the launcher at speed draws about 3 A. Clamped to
+     * [0, 10]; 0 or NaN idles it the moment Square is let go (the rule of 7 Nov 2026).
+     */
+    public static double launcherKeepSpinningAfterSquareS = 3.0;
+
+    /**
      * Ticks per second one launcher trim press moves the launch speed. Clamped to [0, 200]. The
      * trim lasts the OpMode; the launch speed it trims is {@code LauncherSubsystem.targetTicksPerSecond}.
      */
@@ -122,6 +131,16 @@ public final class TeleOpConfig {
      * never warns.
      */
     public static double spotDriftWarnIn = 3.0;
+
+    /**
+     * A drive stick already off centre when Square, the FLOWER pick or the GARDEN gather is pressed
+     * does not cancel the press until it has been centred once, or has stayed off centre this many
+     * seconds after the press ({@link FreshSticks}); a stick moved after the press cancels at once,
+     * as ever. 0.6 s is a starting point, <b>not measured</b>: at Belding the stick was moving at
+     * 50 of the 51 Square presses cancelled within 0.1 s (#495). Clamped to [0, 2]; 0 or NaN is
+     * the old rule, any stick cancels at once.
+     */
+    public static double staleStickCancelsAfterS = 0.6;
 
     /** Chassis aim: turn power per radian of heading error. A starting point, not a measurement. */
     public static double chassisAimKp = 1.0;

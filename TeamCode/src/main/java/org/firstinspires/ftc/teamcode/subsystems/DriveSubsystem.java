@@ -791,6 +791,14 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         return localizer == null ? Double.NaN : localizer.velocity().linSpeed();
     }
 
+    /**
+     * Turn rate from the localizer (the Pinpoint's own heading rate, in its bulk read), radians/s,
+     * counter-clockwise positive; NaN without one. A turn nobody commanded is what a hit looks like.
+     */
+    public double odometryTurnRadPerSec() {
+        return localizer == null ? Double.NaN : localizer.velocity().omega;
+    }
+
     /** The Pinpoint's status as of the localizer's last read (READY when well), or null without one. */
     public GoBildaPinpointDriver.DeviceStatus pinpointStatus() {
         return pinpoint == null ? null : pinpoint.getDeviceStatus();
