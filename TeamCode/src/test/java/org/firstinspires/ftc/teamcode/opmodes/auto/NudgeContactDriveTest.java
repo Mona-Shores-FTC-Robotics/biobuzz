@@ -22,7 +22,7 @@ public class NudgeContactDriveTest {
         AutoKit kit = new AutoKit(drive, new AutoRegistry(), () -> 0);
         PartnerNudgeTestAuto.build(kit, rotated);
         return new NudgeContactDrive(drive, config, PartnerNudgeTestAuto.startPose(rotated),
-                kit.paths().get(0).endPose(), () -> speed, () -> time);
+                kit.paths().get(0).endPose(), () -> speed, () -> time, 0.25);
     }
     private AutoKit full(boolean rotated) {
         AutoRegistry registry = new AutoRegistry();
@@ -42,11 +42,11 @@ public class NudgeContactDriveTest {
                     limited++;
                     assertTrue("Only short contact strokes may be slowed", path.curve.length() < 9);
                     for (Modifier m : drive.path.modifiers) m.apply();
-                    assertEquals(4, config.maxVelocityConstraint.get(), 0);
-                    assertEquals(8, config.maxAccelerationConstraint.get(), 0);
-                    for (int i = drive.path.modifiers.size() - 1; i >= 0; i--) drive.path.modifiers.get(i).revert();
-                    assertEquals(Double.POSITIVE_INFINITY, config.maxVelocityConstraint.get(), 0);
+                    assertEquals(0.25, config.maxPathSpeed.get(), 0);
                     assertEquals(Double.POSITIVE_INFINITY, config.maxAccelerationConstraint.get(), 0);
+                    assertEquals(Double.POSITIVE_INFINITY, config.maxVelocityConstraint.get(), 0);
+                    for (int i = drive.path.modifiers.size() - 1; i >= 0; i--) drive.path.modifiers.get(i).revert();
+                    assertEquals(Double.POSITIVE_INFINITY, config.maxPathSpeed.get(), 0);
                 }
             }
             assertEquals("Full drawing must keep the test's contact/push endpoints", 2, limited);
@@ -72,6 +72,15 @@ public class NudgeContactDriveTest {
         assertSame(ordinary, drive.path);
         assertTrue(wrapper.pathDone());
         assertFalse(wrapper.contactTimedOut());
+    }
+    @Test public void aBadPathSpeedIsRefusedAtConstruction() {
+        for (double value : new double[] {Double.NaN, 0, 0.05, 0.6, 4}) {
+            try {
+                new NudgeContactDrive(drive, config, new Pose(0, 0, 0), new Pose(6, 0, 0),
+                        () -> 0, () -> 0, value);
+                fail("accepted path speed " + value);
+            } catch (IllegalArgumentException expected) { }
+        }
     }
     private static final class FakeDrive implements AutoDrive {
         Path path;

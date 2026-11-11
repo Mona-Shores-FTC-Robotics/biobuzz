@@ -55,6 +55,8 @@ open beside a partner stand-in the same way: R-Solo-Nudge with its pushed partne
 Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `drafts/`, and the fast
 lane takes a `.pp` in `drafts/` or `partners/` (Visualizer
 [#67](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/pull/67) lists the drafts).
+R-Two-Tip, R-Solo's steps with the LEFT volleys from the measured launch spots, is a draft too
+([its notes](drafts/README.md)).
 
 **The polish loop.** Open the Auto from master, change it, **Save to GitHub and simulate…** under
 the same name: that makes or updates its `auto/<name>` branch and pull request, the simulator runs
@@ -139,7 +141,7 @@ stand-in as a partner (`"partners"`; the request format is in `SimRunTest`'s jav
 "Simulate Auto" workflow runs every entry and publishes each one. **The simulator acts as our
 driver:** an entry gives the one number we ask a partner, `"lastShotS"` ("when does your last
 preload leave?"). That times the stand-in's launch, and sets our partner wait as the driver would
-in INIT: the last shot plus the TIP lag (`partnerTipLagS` in `timing.json`, 4 s). Each Auto with a
+in INIT: the last shot plus the TIP lag (`partnerTipLagS` in `timing.json`, 4.5 s). Each Auto with a
 partner runs it **on time**, **missing** (`"fails": "misses"`: every shot wide, no TIP, it still
 parks on schedule) and **dead** (a broken-down stand-in on its start). Nothing in between: "later than
 they said" and "breaks down partway" are not modelled (mentor, 3 Nov 2026). The curation, the mentor's to correct:
@@ -320,10 +322,10 @@ A partner tells us in the queue when they shoot. The drive team enters it in INI
 - **The partner wait on the match clock.** "Until 8 s" ends at 8 s into the match however late
   the robot got there, unlike "at most 7 s", which starts counting when the wait begins. The
   driver enters the partner's last shot and the wait ends `AutoRegistration.PARTNER_TIP_LAG_S`
-  (4 s, `partnerTipLagS` below) after it: the shot's flight, the dwell, the swing and the camera
-  settling, 1.5 to 5 s in the simulator's model. The page shows both numbers, never only the sum:
-  "partner's last shot ▲▼ 8 s, waiting until 12 s" (mentor, 3 Nov 2026).
-- Today: L-NoCross offers the partner's last shot (drawn: wait until 8 s, which reads as a last
+  (4.5 s, `partnerTipLagS` below) after it: the shot's flight, the dwell, the swing and the camera
+  settling, 4.0 to 4.4 s at the Belding Qualifier. The page shows both numbers, never only the sum:
+  "partner's last shot ▲▼ 8 s, waiting until 12.5 s" (mentor, 3 Nov 2026).
+- Today: L-NoCross offers the partner's last shot (drawn: wait until 8.5 s, which reads as a last
   shot at 4 s). No Auto offers another park.
 
 ## Timing: two sets of numbers
@@ -378,12 +380,14 @@ they came from.
     17:59 TIP was confirmed: the camera saw the left CELL up at `LEFT_LAUNCH_OFFSET`.
   - `tipSwingS` 0.7 (estimate): the camera saw two swings, both tipped by hand (1 Nov 23:16, 2 Nov
     16:51), 0.57 and 0.43 s from TRANSITION to settled. It sees a swing late.
-  - `partnerTipLagS` 4.0 (estimate): from the partner's last shot leaving to our `CellUp`: the flight
-    (about 0.6 s), the dwell before the rocker moves (0.25 to 3.4 s, `FieldSim.FILMED_TIP_DWELL_SECONDS`),
-    the swing (0.58 to 1.12 s, `FILMED_TIP_SECONDS`) and the camera settling; 1.5 to 5 s in all, and 4
-    covers all but the longest dwells. The partner wait ends this long after the last shot the driver
-    enters. In the 3 Nov 2026 simulations of L-NoCross with four preloads on top of the starting
-    NECTAR it came out 0.7 to 1.2 s (a heavy load dwells little). A match log replaces it.
+  - `partnerTipLagS` 4.5 (measured): from the partner's last preload leaving its launcher to our
+    `CellUp`, timed on the Belding Qualifier's stream video against the L-NoCross match logs (7 Nov
+    2026): 4.0, 4.2 and 4.4 s, and about 4.3 s in a fourth whose launcher was hidden. 4.5 errs long
+    by the video sync's few tenths. That is the flight (about 0.5 s), the dwell before the rocker
+    moves (1.8 to 2.4 s there), the swing (1.0 to 1.4 s) and the camera settling (0.3 to 0.5 s).
+    The partner wait ends this long after the last shot the driver enters. One TIP came about 7 s
+    after the last shot it could have come from, which no partner wait covers; the 3 Nov
+    simulations' 0.7 to 1.2 s (four preloads on the starting NECTAR) were short.
 - **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop
   until it is copied in. Unknown facts are dropped when it loads.
 - **`partnerTipLagS` is also the robot's** (`AutoRegistration.PARTNER_TIP_LAG_S`: the partner wait

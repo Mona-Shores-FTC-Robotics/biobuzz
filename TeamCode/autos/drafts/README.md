@@ -6,6 +6,80 @@ partner-nudge experiment has Utility trials for bring-up. The nudge
 Utility's runtime speed limits are not modeled by AutoSim. The Visualizer lists
 these under "Drafts", and Save to GitHub saves back here.
 
+## R-Two-Tip: one robot, two TIPs
+
+R-Solo made its second TIP in 0 of 7 runs at the Belding Qualifier. This draft keeps R-Solo's steps and
+its 0.75 s CELL check, fires the LEFT volleys from measured rows of the speed table, and shortens the
+last leg so master's guard lets the third volley go. Mentor session, 10 Nov 2026; not yet run on a
+robot. It runs from the Utility **Drive: R-Two-Tip** (a 30 s trial), not from the Autonomous menu.
+
+Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-two-tip.pp>
+
+**Why R-Solo's second TIP never came: it never fired eight pieces at the LEFT CELL.** The launcher's
+wheels dip once for each ball, so the match logs give each volley's count
+(`read_logs.py volleys`; within one ball of the video on the nine volleys also counted on video, never
+under). The LEFT CELL starts empty and needs 8.
+
+| Belding, pieces fired at the LEFT CELL | Runs | Second TIP |
+|---|---|---|
+| R-Solo, both LEFT volleys together: 0, 3, 4, 6, 6, 6 to 7, 7 | 7 | 0 of 7 |
+| L-NoCross, 8 fired (preloads, then the SCORING FLOWER load) | 4 | 3 of 4 |
+| L-NoCross, second volley fired nothing | 1 | 0 of 1 |
+
+- **The short loads were mostly Infrared's.** Its WALL FLOWER volleys fired 0, 2, 4, 2 and 1 pieces;
+  Ultraviolet's fired 4 every time (six volleys). After the SCORING FLOWER, Infrared fired 0, 4, 3, 4,
+  2, 0, 4, 4 and Ultraviolet 1 (Q-1's wedge), 4, 4.
+- **Ultraviolet got one clean try at the whole route** (Q-1, where the SCORING pick wedged). Q-27 was
+  held up by an opponent, and Q-7 and Q-31 took the timed-out route.
+- A piece that reaches a raised CELL stays in (mentor, 10 Nov 2026). Every counted Auto shot was aimed
+  within 0.8° by the pose, fired standing still, with the wheels at or above target, so the logs do not
+  show which shots went wide or short.
+- R-Solo's LEFT volleys were also fired from `LEFT_LAUNCH_CLOSE` (36 in), below every measured row of
+  the speed table, at an extrapolated 1459 to 1480 ticks/s. Belding cannot say how much that cost,
+  because eight pieces never went up from there.
+
+**What changed from R-Solo:**
+
+- The first LEFT volley is at `LEFT_LAUNCH_CATCH` (the 42.4 in row, where L-NoCross made its second
+  TIPs). The second is at `LEFT_LAUNCH_OFFSET`, right beside the SCORING FLOWER (the 45.7 in row): the
+  hop from the pick is 1.1 s instead of 1.3 s and the park from there 1.8 s instead of 2.1 s, which is
+  the time the guard needs.
+- The drive from the WALL FLOWER turns the short way (180° to 273°, done by 60% of the drive) and faces
+  the HIVE for the rest. R-Solo's turns 270° and took 3.5–4.6 s against 2.9 s drawn.
+- The timed-out route is R-Solo's (back to `RIGHT_LAUNCH_CLOSE`, launch, park): it made the TIP both
+  times it ran at Belding. Its turn starts a little later so no corner reaches the centre line.
+- Only team spots. The preview's CELL-up route is 28.9 s with 1.1 s spare and no guard park (R-Solo's:
+  28.9 s with the guard parking); its worst case is 29.7 s (R-Solo: 31.7 s).
+
+**In the simulator set to Belding** (`BeldingCalibration`, 120 seeds each; TeamCode/README.md,
+"Simulating an Auto"), one robot, master's endgame guard:
+
+| R-Two-Tip, with the loads of | Two TIPs of 120 | Second TIP at |
+|---|---|---|
+| Infrared as at Belding | 9 | 28.8 s |
+| Ultraviolet as at Belding | 56 | 28.5 s |
+| Ultraviolet, driving 10% / 20% slower | 56 / 58 | 29.1 / 29.9 s |
+| a robot whose every load is four | 86 | 28.6 s |
+| the same, driving 28% slower | 0 | |
+
+- R-Solo with every load four: 0 of 120. Master's guard parks it after its second volley, which ends
+  half a second too late for the park to fit after a third.
+- Other one-robot drawings tried: both LEFT volleys at `LEFT_LAUNCH_CATCH` (as many TIPs, but none
+  at 10% slower); the preloads from `RIGHT_LAUNCH_CATCH` (no more TIPs, and its park from that spot
+  crosses the Red HIVE); the first LEFT volley from `LEFT_LAUNCH_OFFSET` (no time gained). Catching
+  the first TIP's spill (3 NECTAR) took about one piece a run.
+
+**What the robot would need** to make two TIPs in 3 runs of 4 is in
+[`doc/one-robot-two-tips.md`](../../../doc/one-robot-two-tips.md). In short: every load after a pick
+reaching the launcher gets it to 86 of 120 by itself; with 0.99 of the LEFT shots staying in, 106.
+
+**Not settled:**
+
+- `LEFT_LAUNCH_CATCH` overlaps a robot sitting on `LEFT_START`. A partner with no Auto has to start
+  somewhere else on the wall.
+- `LEFT_LAUNCH_OFFSET` has not been fired from on the left.
+- The robot checks are in [robot-todo §3](../../../doc/robot-todo.md).
+
 ## R-Solo-Nudge, for a partner with no Auto
 
 The angled draft targets both partner AUTO PARK and LEAVE: a **16 x 16 in** chassis
@@ -38,11 +112,19 @@ LEFT_PARK. The pushed partner occupies the near part of the loading zone.
 
 `drafts/partner-nudge-test.pp` draws **only the push and retreat**. Its generated
 class is run by the Utility **Drive: Partner Nudge**, never the competition Auto menu.
-The wrapper applies Pedro's actual `maxVelocityConstraint` and
-`maxAccelerationConstraint` to both paths: defaults **4 in/s and 8 in/s²**, set in
-Panels under `PartnerNudgeTest`, read once at PLAY. Changing the drawing's preview
-speed does not change these runtime settings. Allowed test ranges are 0.5–8 in/s,
-1–16 in/s² and 1–15 s timeout; invalid values refuse motion.
+The wrapper caps both paths with Pedro's `maxPathSpeed`, a fraction of the
+robot's top path speed: `PartnerNudgeTest.pathSpeed` in Panels, default **0.2**
+(about 14 in/s on 20245, not yet measured), read once at PLAY. Changing the
+drawing's preview speed does not change it. Allowed ranges are 0.1–0.5 of top
+speed and a 1–15 s timeout; invalid values refuse motion.
+
+It is not Pedro's `maxVelocityConstraint` / `maxAccelerationConstraint`. On 6 Nov
+the old 4 in/s, 8 in/s² cap never moved the robot. From rest, Pedro's acceleration
+cap targets one loop's worth of speed (about 0.16 in/s), and our tuned coast
+feedforward has no static term. So the wheels got about 0.2 % power, and the robot
+never started. That cap also stayed applied after a run stopped mid-path, and it
+slowed every later path until the app restarted. `DriveSubsystem` now clears
+Pedro's Follower whenever path control ends (`PathCapReleaseTest`).
 
 It starts at PARTNER_CONTACT, pushes six inches, then retreats four inches east and
 six south at the same heading. Before advancing, the test requires Pedro done,
@@ -76,11 +158,11 @@ with four preloads, not at the push-only contact mark. Use the same 16x16 partne
 placement from the setup drawing and select the correct alliance.
 
 The full trial splits the existing approach curve without changing its geometry,
-brakes for 300 ms before the final approach, and limits only that short segment
-and the push to 4 in/s and 8 in/s². Contact endpoints require position/heading/speed
+brakes for 300 ms before the final approach, and caps only that short segment
+and the push, at `PartnerNudgeTest.pathSpeed`. Contact endpoints require position/heading/speed
 agreement. A contact segment blocked for six seconds stops the trial; the whole
 trial stops at 30 seconds. Other scoring paths retain their normal constraints.
 The generic simulator does not include these runtime speed limits; use this run's
 log to establish whether two tips and park fit. This is a Utility, not a competition
-Autonomous entry. The full trial's limits are fixed, independent of the push-only
-Utility's Panels knobs.
+Autonomous entry. The full trial reads `PartnerNudgeTest.pathSpeed` at INIT, the one
+number for the contact speed: find it with the push-only test first.

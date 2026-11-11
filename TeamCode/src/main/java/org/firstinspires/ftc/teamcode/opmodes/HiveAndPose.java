@@ -430,8 +430,8 @@ public class HiveAndPose extends RobotOpMode {
             level = Display.Level.WARN;
         }
         display.status(alliance.toString(), level, "<b>" + which + "</b>"
-                + (hive.assumed() ? " (assumed: TIP not seen to finish)" : "")
-                + " · " + hive.tips() + " TIP" + (hive.tips() == 1 ? "" : "s"));
+                + (hive.assumed() ? " (assumed: the match start, not seen yet)" : "")
+                + " · at least " + hive.tips() + " TIP" + (hive.tips() == 1 ? "" : "s"));
     }
 
     private void showCells() {

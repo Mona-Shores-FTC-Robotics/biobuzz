@@ -477,6 +477,43 @@ was cosmetic. These files keep the two equal so the file cannot be misread.
 
 ### The turret: a servo on a servo port, an encoder on a motor's encoder socket
 
+**Experimental branch `spike/19429-turret-burst` (6 Nov, corrected for SWYFT):** Utility
+**Bench: Turret Burst** tests 19429's programmable SWYFT in continuous mode. SWYFT's
+[programmer guide](https://github.com/SWYFT-Robotics/swyft-servo-programmer-v2/blob/main/src/GuideWindow.xaml)
+says continuous mode is full-speed only, 1500 us returns HOME, and stopping requires PWM disable.
+The first version of this branch incorrectly reused goBILDA-style partial speed and neutral-stop
+behavior; the robot returned to home when R2 was released. That version is superseded.
+
+The corrected utility sends only 500/2500 us direction endpoints during a burst and disables PWM
+on this port for every pause, R2 release, Circle/B, and STOP. It never sends 1500 us, including at
+PLAY. Hold bursts default to 25 ms on / 250 ms off at full speed; there is no 12% speed setting.
+Manual testing now defaults to one 250 ms burst per R2+bumper press (500 ms maximum), with release
+required to rearm, to distinguish a drive-command problem from short-burst startup behavior.
+Telemetry shows inputs, SDK PWM enable state, and latched burst count/signal/duration; this is
+software readback, not a measured waveform. `manualSingleBurst=false` restores repeated manual bursts.
+**Encoder hold trial (v5):** Triangle/Y captures the current turret angle. While R2 is held,
+encoder error beyond +/-1 degree requests a 150 ms correction (the recorded median step was
+1.28 degrees over 15 attempts). PWM is then OFF for at least 350 ms, followed by 100 ms of encoder
+rate within +/-1 deg/s before another decision. Corrections are capped at 175 ms; crossing the
+target interrupts the drive and still preserves settling time. D-pad steps target by 5 degrees.
+Release R2 to disable; Circle/B cancels hold. The target is restored after drift or a push, but
+PWM is OFF at target: this is not a stiff positional-servo brake. Actual hold accuracy, response
+in both directions, load and battery sensitivity remain robot checks. This supersedes the old
+25 ms / 100 ms maximum hold setup, which could not reliably start the measured SWYFT.
+
+Recording is automatic from INIT through STOP to `/sdcard/FIRST/logs/`, using the existing async
+`MatchLog` writer and normal `pull-logs.cmd` upload. `/TurretBurst/*` records inputs, gates,
+commands, SDK PWM state, raw/zero counts, angle/rate, battery and every live setting. START/END
+events and per-burst drive deltas supplement the raw series. `read_logs.py turret <log>` computes
+actual movement from absolute readings, shows actual versus configured timing, and reports a
+250 ms OFF sample only when it exists before another burst. No screenshots or hand-written angles
+are needed; recording faults and dropped loops are shown on the utility screen.
+The existing `<Servo>` mapping is just the pulse transport here, not position targeting.
+Both XML files and the position subsystem remain unchanged. Never run the ordinary turret bench,
+Basic Drive or Auto on 19429 while its servo is flashed continuous. Reflash position mode before
+returning to those OpModes. Test controls, starting values and checks are in `doc/robot-todo.md`.
+The +/-30 degree window is an experiment limit, not measured robot travel; it cannot stop coasting.
+
 The turret has no motor port: all eight are taken. It turns on a goBILDA servo
 in standard (position) mode, a `<Servo>` element and a `Servo` in code (until
 6 Nov 2026 it was in continuous-rotation mode, a `CRServo`). The SDK builds a
@@ -1070,11 +1107,11 @@ the editor; `AutoRegistrationTest` keeps the two in step.
 enters it during an Autonomous's INIT with gamepad 1's D-pad up/down (`InitOptions`, 1 s a press;
 left/right picks the park). The Auto's one wait drawn "until the match clock reads …" and offered
 in INIT (`AutoOption.matchSeconds`, exported as `kit.atMatchSeconds(kit.seconds(...))`) then ends
-at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 4 s for the shot's flight, the dwell
-before the rocker moves, the swing and the camera settling (1.5 to 5 s in the simulator's model).
+at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 4.5 s for the shot's flight, the dwell
+before the rocker moves, the swing and the camera settling (4.0 to 4.4 s at the Belding Qualifier).
 `partnerTipLagS` in `TeamCode/autos/timing.json` is the same number, and `PartnerWaitTest` keeps the
 two equal. The Match page shows both numbers, never only the sum: "partner's last shot ▲▼ 8 s,
-waiting until 12 s". Nothing entered, the wait runs as drawn. It is still a time limit: a feed that
+waiting until 12.5 s". Nothing entered, the wait runs as drawn. It is still a time limit: a feed that
 has started finishes first. L-Partner's "Wait for TIP or CELL up" is the one partner wait on master.
 
 `autokit` depends only on Ivy and Pedro, so `AutoKitTest` runs every card through Ivy's real
@@ -1149,6 +1186,61 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   weights) tips 13 runs in 20, onto 7 POLLEN 1, onto 6.3 weights or less never. `HiveImpulseTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
   and the Guide's six §12.3 rows; `BIOBUZZ_SIM_SWEEP=0.5,1,2` prints every case at each strength, for
   refitting it to the video counts in `doc/robot-todo.md`.
+- **Where a field's HIVEs tip.** The Guide's cases leave a band: a CELL tips somewhere above 7.0 POLLEN
+  weights and at or below 7.95. The simulation tips in the band's middle (`HiveCalibration.GUIDE_MIDDLE`).
+  **Measured** at the Belding Qualifier (7 Nov 2026, stream video and the 44 scoresheets): Field 1 tipped at
+  about 7.0, the lower edge (it tipped on 6.95 and on 7 POLLEN, loads the Guide says must hold, but also held
+  them for long stretches and once held 7.95 for 7.5 s); Field 2 tipped at about 7.95–8.0, the upper edge,
+  slowly. Each field's two HIVEs agreed. `BIOBUZZ_AUTO_HIVE_FIELD=belding1` or `belding2` runs a study at
+  either edge (`HiveCalibration.BELDING_FIELD_1`/`_2`); `HiveFieldTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
+  both still pass the Guide's placed cases.
+- **The Belding calibration** (`BeldingCalibration`, off by default): `BIOBUZZ_AUTO_CALIBRATION=belding` on a
+  study, or `"calibration": "belding"` in a request, replaces placeholders with what the Belding Qualifier's 17
+  Auto logs, stream video and official scores showed (7 Nov 2026):
+  - **How many pieces a volley after a FLOWER pick fires,** drawn from what each robot's volleys fired there,
+    counted from the launcher wheels' dips (`read_logs.py volleys`; within one ball of the video on the nine
+    volleys also counted on video). Infrared's WALL FLOWER volleys fired 0, 2, 4, 2, 1 and its SCORING FLOWER ones
+    0, 4, 3, 4, 2, 0, 4, 4; Ultraviolet's fired 4 six times at the WALL FLOWER and 1, 4, 4 at the SCORING FLOWER.
+    `BIOBUZZ_BELDING_ROBOT=19429`, `20245`, `both` (the default) or `full` (every load is four).
+  - **The share of launched pieces that stay in the CELL, by launch range:** 0.95 from the CATCH spots (42.4
+    in), 0.90 from RIGHT_START (53.9 in), 0.70 from the CLOSE spots (36 in, on thin evidence). A piece that
+    reaches a raised CELL stays in; the ones lost go wide, fall short or go at a down CELL.
+  - **The dwell before a TIP,** 3.6 to 4.2 s, and no knock from a hit: every AUTO TIP there sat out its dwell,
+    where the placeholder knock tipped the CELL 0.7 s after the last ball left.
+  - **Where the HIVE tips:** Field 1's point on odd seeds, Field 2's on even ones, both set for launched pieces:
+    Field 1 wandered, so seven launched POLLEN tip it on two odd seeds in three and eight on the third; eight tip
+    Field 2.
+  - **How long a volley and a pick take:** the shot counter undercounted after every FLOWER pick, so those feeds
+    run their whole set time; a pick stays 0.7 s longer.
+  - `BIOBUZZ_AUTO_BELDING_GUARD=1` also runs the endgame guard as the Belding build did (master at 7ed351f: a
+    volley before the park), for replaying the Autos that ran there. Without it the guard is master's.
+
+  With both, 60 seeds each, with each robot's own loads:
+
+  | | Belding | Simulator, calibrated | Simulator, uncalibrated |
+  |---|---|---|---|
+  | First TIP from the preloads | 7 of 9 | 57 of 60 | 20 of 20 |
+  | When that TIP comes | about 7.5 s (Q-4) | 7.1 s | 4.3 s |
+  | R-Solo, Infrared: second TIP | 0 of 5 | 0 of 60 | 20 of 20 |
+  | R-Solo, Ultraviolet: second TIP | 0 of 2 | 6 of 60 | 20 of 20 |
+  | L-NoCross, Infrared: second TIP | 1 of 3 | 22 of 60 | 20 of 20 |
+  | L-NoCross, Ultraviolet: second TIP | 2 of 2 | 29 of 60 | 20 of 20 |
+  | Partner's last shot to our CellUp | 4.0 to 4.4 s (M-3, M-4) | 3.9 to 4.5 s, median 4.1 | 0.7 s |
+  | R-Solo: arrives LEFT, second volley ends, third volley, park starts | 13.0, 16.9, 23.1 to 26.8, 26.8 s (medians) | 13.0, 16.7, 22.7 to 26.4, 26.4 s | 12.0, 14.8, 21.0 to 23.8 s |
+
+  ```bash
+  BIOBUZZ_AUTO_CALIBRATION=belding BIOBUZZ_AUTO_BELDING_GUARD=1 \
+    BIOBUZZ_AUTO_STUDY="RSoloAuto@50;LNoCrossAuto,PartnerRLaunchParkAuto@50" \
+    BIOBUZZ_AUTO_DESIGNS="real robot, turret locked forward" BIOBUZZ_AUTO_RUNS=60 \
+    ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
+  ```
+  **What-ifs** for "what would the robot need": `BIOBUZZ_BELDING_STAY_CATCH` / `_START` / `_CLOSE` set a launch
+  spot's share that stays in, `BIOBUZZ_BELDING_WHOLE_FEED=0` ends every volley at its fourth shot (a shot counter
+  that works), `BIOBUZZ_BELDING_ROBOT` whose loads are drawn. `doc/one-robot-two-tips.md` has the ranking for one robot.
+  **What it shows about master today:** with Belding-length volleys, master's guard (the park must fit after a
+  volley) parks R-Solo after its second volley in every run, 0.4 s short of going for the third.
+  **Not calibrated:** drive times beyond what the simulator's own drive gives, and contact with other robots (Q-27). The 0.70 is the weakest number: fire
+  counted volleys from a CLOSE spot (`doc/robot-todo.md` §7d).
 - **The launcher fires at the robot's one setpoint.** The real robot's designs fire every shot at master's
   `LauncherSubsystem.targetTicksPerSecond` (`RobotDesign.fixedSetpoint`), at one pitch, whatever the distance,
   so a shot from nearer or further than RIGHT_START goes long or short. **Measured:** the setpoint, and that it

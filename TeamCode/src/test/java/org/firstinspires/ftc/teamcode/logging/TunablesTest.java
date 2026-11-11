@@ -49,6 +49,23 @@ public class TunablesTest {
                 annotated, listed);
     }
 
+    /**
+     * PLAY writes every tunable as metadata in one loop, then the OpMode's own lines. At Belding
+     * the tunables alone filled that loop, and the Auto's {@code AutoOptions} line never reached a log.
+     */
+    @Test
+    public void tunablesLeaveRoomInPlaysLoopForTheOpModesMetadata() {
+        int count = 0;
+        for (Class<?> cls : Tunables.CLASSES) {
+            for (java.lang.reflect.Field field : cls.getDeclaredFields()) {
+                if (Tunables.isTunable(field)) count++;
+            }
+        }
+        assertTrue(count + " tunables leave fewer than " + MatchLog.METADATA_HEADROOM
+                        + " metadata slots in PLAY's loop: raise MatchLog.MAX_METADATA_PER_LOOP",
+                count + MatchLog.METADATA_HEADROOM <= MatchLog.MAX_METADATA_PER_LOOP);
+    }
+
     @SuppressWarnings("unused")
     static class Sample {
         public static double knob = 1.5;

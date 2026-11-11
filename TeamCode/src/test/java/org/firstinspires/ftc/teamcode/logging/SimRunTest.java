@@ -72,12 +72,24 @@ public class SimRunTest {
         File dir = new File(folder);
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("designs", new ArrayList<>(AutoStudyTest.designs().keySet()));
+        // "calibration": "belding" in the request: the Belding Qualifier's shots, dwell and HIVEs (BeldingCalibration).
+        boolean beldingBefore = BeldingCalibration.on;
+        double tipPointBefore = HiveCalibration.tipPointInBand;
         try {
-            runAll(request(dir), dir, out);
+            Map<String, Object> request = request(dir);
+            if ("belding".equals(request.get("calibration"))) BeldingCalibration.on = true;
+            if (BeldingCalibration.on) {
+                BeldingCalibration.apply();
+                out.put("calibration", "belding");
+            }
+            runAll(request, dir, out);
         } catch (Throwable t) {
             out.put("error", describe(t));
             throw t;
         } finally {
+            BeldingCalibration.restore();
+            BeldingCalibration.on = beldingBefore;
+            HiveCalibration.tipPointInBand = tipPointBefore;
             write(dir, out);
         }
     }

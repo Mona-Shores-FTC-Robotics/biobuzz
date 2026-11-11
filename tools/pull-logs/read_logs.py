@@ -4,6 +4,7 @@ with Python. Standard library only.
 
   python3 tools/pull-logs/read_logs.py summary LOG.wpilog [...]   per run: build, battery, knobs,
                                                                    events, every feed (gate open)
+  python3 tools/pull-logs/read_logs.py turret LOG.wpilog [...]   per burst: timing, signal, before/after, delta
   python3 tools/pull-logs/read_logs.py keys LOG.wpilog            every key and its sample count
   python3 tools/pull-logs/read_logs.py series LOG.wpilog KEY [...] a key's samples, time in s
   python3 tools/pull-logs/read_logs.py picks LOG.wpilog [...]     every FLOWER pick: how the push
@@ -11,13 +12,26 @@ with Python. Standard library only.
   python3 tools/pull-logs/read_logs.py launcher LOG.wpilog [...]  every counted shot: speed, pose, nearest
                                                                    team spot, range; then shots per spot
                                                                    and speed, for the speed table (#80)
+  python3 tools/pull-logs/read_logs.py volleys LOG.wpilog [...]   every Auto LaunchAll: the balls it fired,
+                                                                   counted from the launcher wheels' dips,
+                                                                   beside the shot counter's number
+  python3 tools/pull-logs/read_logs.py dsbattery FILE [...]       each Driver Hub's own battery over the day,
+                                                                   then every match log given beside it: the DS
+                                                                   battery at its start, lowest, at its end
 
 Logs reach GitHub on logs/<date>-<robot network> branches, sent by Pull-MatchLogs.ps1. A session
 fetches them with:  git fetch origin 'refs/heads/logs/*:refs/remotes/origin/logs/*'
 and reads one with:  git show origin/logs/<branch>:<file>.wpilog.gz > /tmp/x.wpilog.gz
 (the logs go up gzipped; this reads .wpilog and .wpilog.gz alike)
+
+A Driver Hub on USB at the pull adds two files per hub per day beside the robot's logs:
+<date>_DriverHub-<serial>.dslog.txt (the Driver Station app's own log, that day's lines) and
+<date>_DriverHub-<serial>.battery.txt (Android's battery history, one snapshot per pull). Give
+dsbattery all of them and the day's .wpilog files: it sorts them by name.
 """
+import datetime
 import gzip
+import bisect
 import math
 import re
 import struct
@@ -116,7 +130,13 @@ def summary(path):
                  (at(S, b) or 0) - (at(S, a) or 0), low(V, a, b)))
 
 
-FLOWER_FACING = {'red WALL': math.pi, 'red FAR': math.pi / 2, 'blue WALL': 0.0, 'blue FAR': -math.pi / 2}
+FLOWER_FACING = {'red WALL': math.pi, 'red SCORING': math.pi / 2, 'blue WALL': 0.0, 'blue AUDIENCE': -math.pi / 2}
+
+
+def flower_name(name):
+    """A FLOWER's name as the logs print it now. Logs before 12 Nov 2026 called the two non-WALL
+    FLOWERs "FAR": red's is on the scoring-table wall (SCORING), blue's on the audience wall (AUDIENCE)."""
+    return {'red FAR': 'red SCORING', 'blue FAR': 'blue AUDIENCE'}.get(name, name)
 
 
 def spikes(amps, a, b, above=1.35, gap_s=0.08):
@@ -152,7 +172,7 @@ def picks(paths):
     about 3.5 % long (doc/robot-session-4.md), so it is a hint about the sign and size of a pose
     error, not a measurement of it.
     """
-    print('%-19s %7s %-10s %-22s %-24s %5s %3s %-6s %6s %6s  %s' % (
+    print('%-19s %7s %-13s %-22s %-24s %5s %3s %-6s %6s %6s  %s' % (
         'log', 't', 'flower', 'how', 'push end', 'depth', 'spk', 'lane', 'along', 'side', 'outcome'))
     for path in paths:
         d = read(path)
@@ -169,7 +189,7 @@ def picks(paths):
             if not m:
                 i += 1
                 continue
-            flower, how = m.group(1), m.group(4)
+            flower, how = flower_name(m.group(1)), m.group(4)
             # Newer logs end the start line with ", contact 7.0 in": the push depth as it was set then,
             # which Panels may have changed since INIT. Older logs fall back to the start-of-run value.
             cm = re.search(r', contact ([\d.]+) in', how)
@@ -207,7 +227,7 @@ def picks(paths):
             else:
                 along_s = '%+6.1f' % (x * math.cos(f) + y * math.sin(f))
                 side_s = '%+6.1f' % (-x * math.sin(f) + y * math.cos(f))
-            print('%-19s %7.1f %-10s %-22s %-24s %5.1f %3d %-6s %6s %6s  %s' % (
+            print('%-19s %7.1f %-13s %-22s %-24s %5.1f %3d %-6s %6s %6s  %s' % (
                 path.split('/')[-1][:19], t, flower, how[:22], push_end, depth, spikes(amps, a, b),
                 lane_s, along_s, side_s, outcome))
 
@@ -297,6 +317,352 @@ def launcher(paths):
         print('%-30s %7s %6d  %-10s %s' % (spot, tps, count, '/'.join(sorted(ranges)) or '?', '___ of %d' % count))
 
 
+# ------------------------------------------------------------------ the Driver Hub's own battery
+#
+# The robot cannot log it: in SDK 12.0 the Driver Station never sends its battery to the robot
+# (the heartbeat carries time and robot state only). Two sources on the Driver Hub itself, both
+# pulled by Pull-MatchLogs.ps1 over adb:
+#
+#   *.battery.txt  "dumpsys battery" and "dumpsys batterystats --history": Android's own record
+#                  of every level change and plug-in since the last full charge. The main source.
+#   *.dslog.txt    the Driver Station app's log. Its BatteryChecker (RobotCore 12.0) writes
+#                  "percent remaining: N is charging: B" only while N < 30 (BATTERY_WARN_THRESHOLD;
+#                  the class's LOG_THRESHOLD of 70 is never used), on every battery broadcast and
+#                  every 5 min (FtcDriverStationActivity). So it is empty on a charged hub, and
+#                  only a backstop for the history.
+
+DS_LINE_RE = re.compile(r'^(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)\.(\d{3})\s.*?\bBatteryChecker\s*:\s*'
+                        r'(?:\{[^}]*\}\s*)?percent remaining: (\d+) is charging: (true|false)')
+DS_FILE_RE = re.compile(r'(\d{4})-(\d\d)-(\d\d)_DriverHub-(.+?)\.(dslog|battery)\.txt(?:\.gz)?$')
+HIST_RE = re.compile(r'^\s*(0|\+[0-9dhms]+)\s+\(\d+\)\s+(.*)$')
+DUR_RE = re.compile(r'^\+?(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m(?!s))?(?:(\d+)s)?(?:(\d+)ms)?$')
+SNAPSHOT_HEADER = '=== '  # Pull-MatchLogs.ps1 starts every snapshot with a line like this
+
+
+def wheel_dips(speeds, target, under=0.978, level=0.988, apart_s=0.28):
+    """Times of the balls in [(seconds, wheel ticks/s)]: one ball is one sharp dip, a local low at
+    least 2.2% under the target, coming from a level within 1.2% of the target held just before it,
+    and at least 0.28 s after the last. Against the nine Belding Auto volleys that were also counted
+    on video it was within one ball of the video every time and never under it; the shot counter was
+    under on seven. A volley that starts from a standstill (the preloads) hides its dips in the
+    spin-up: do not count that one this way."""
+    out = []
+    for t, v in speeds[1:-1]:  # a low needs a sample either side of it
+        if v > target * under:
+            continue
+        if v > min(x for tt, x in speeds if abs(tt - t) <= 0.12) + 1e-9:
+            continue
+        before = sorted(x for tt, x in speeds if t - 0.40 <= tt <= t - 0.12)
+        if len(before) < 3 or before[len(before) // 2] < target * level:
+            continue
+        if out and t - out[-1] < apart_s:
+            continue
+        out.append(t)
+    return out
+
+
+def volleys(paths):
+    """Every LaunchAll card of each log's Autonomous: when it ran, the target speed, the balls it
+    fired by the wheels' dips (wheel_dips), and what the shot counter said. The first volley of an
+    Auto fires from a standstill and is not counted by dips."""
+    print('%-34s %-13s %6s  %-14s %s' % ('log', 'volley (s)', 'target', 'balls by dips', 'counter'))
+    for path in paths:
+        d = read(path)
+        events = [(t, str(v)) for t, v in d.get('/Events', [])]
+        play = [t for t, v in events if re.match(r'PLAY: (RED|BLUE) alliance', v)]
+        if not play:
+            continue
+        t0 = play[0]
+        left, right = d.get('/Launcher/LeftTicksPerSecond', []), d.get('/Launcher/RightTicksPerSecond', [])
+        target, shots = d.get('/Launcher/TargetTicksPerSecond', []), d.get('/Launcher/Shots', [])
+        cards = [(t, v) for t, v in events if t0 <= t <= t0 + 33 and v.startswith('auto:')]
+        starts = [t for t, v in cards if 'auto: command LaunchAll' in v]
+        for i, ts in enumerate(starts):
+            later = [t for t, v in cards if t > ts + 0.5]
+            te = min(later[0] if later else ts + 5, ts + 5.5)
+            tgt = at(target, ts + 1.0) or at(target, ts)
+            speeds = [(ta, (a + b) / 2) for (ta, a), (tb, b) in zip(left, right) if ts - 0.45 <= ta <= te + 0.1]
+            if not tgt or not speeds:
+                continue
+            counted = (at(shots, te) or 0) - (at(shots, ts) or 0)
+            dips = 'from a standstill' if i == 0 else str(len([t for t in wheel_dips(speeds, tgt) if ts - 0.05 <= t <= te + 0.1]))
+            print('%-34s %5.1f-%-5.1f  %6.0f  %-14s %.0f' % (path.split('/')[-1][:34], ts - t0, te - t0, tgt, dips, counted))
+
+
+def _text_lines(path):
+    with (gzip.open(path, 'rt', encoding='utf-8', errors='replace') if path.endswith('.gz')
+          else open(path, encoding='utf-8', errors='replace')) as f:
+        for line in f:
+            yield line.rstrip('\r\n')
+
+
+def _duration_s(text):
+    if text == '0':
+        return 0.0
+    m = DUR_RE.match(text)
+    if not m:
+        return None
+    d, h, mi, s, ms = (int(g) if g else 0 for g in m.groups())
+    return d * 86400 + h * 3600 + mi * 60 + s + ms / 1000.0
+
+
+def ds_log_samples(path):
+    """[(datetime, percent, plugged)] from a Driver Station log; the year is the file name's."""
+    m = DS_FILE_RE.search(path.split('/')[-1])
+    year = int(m.group(1)) if m else datetime.date.today().year
+    out = []
+    for line in _text_lines(path):
+        mm = DS_LINE_RE.match(line)
+        if mm:
+            mo, dd, hh, mi, ss, ms, pct, chg = mm.groups()
+            t = datetime.datetime(year, int(mo), int(dd), int(hh), int(mi), int(ss), int(ms) * 1000)
+            out.append((t, int(pct), chg == 'true'))
+    return out
+
+
+def battery_history_samples(path):
+    """[(datetime, percent, plugged)] from the pull's snapshots: "dumpsys battery" (the level at the
+    pull, at the time in the snapshot's header) and "dumpsys batterystats --history".
+
+    Each record's time is an offset from the snapshot's first record; a TIME: or RESET:TIME: record
+    says what the wall clock was at its offset, so a record's wall time is the latest such clock
+    plus the offset since it. Records before the first clock, or after a START (a reboot) until the
+    next clock, have no wall time and are skipped. plugged is None until the history says."""
+    out = []
+    ref = None          # (offset s, datetime) of the latest TIME record in this snapshot
+    plug = None
+    pulled, powered = None, False   # the snapshot's own time, for "dumpsys battery" (level now)
+    for line in _text_lines(path):
+        if line.startswith(SNAPSHOT_HEADER):
+            ref, plug, powered = None, None, False
+            hm = re.match(r'=== (\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)', line)
+            pulled = datetime.datetime.strptime(hm.group(1), '%Y-%m-%d %H:%M:%S') if hm else None
+            continue
+        if pulled is not None:
+            pm = re.match(r'\s+(?:AC|USB|Wireless|Dock) powered: (true|false)\s*$', line)
+            if pm:
+                powered = powered or pm.group(1) == 'true'
+                continue
+            lm = re.match(r'\s+level: (\d+)\s*$', line)
+            if lm:
+                out.append((pulled, int(lm.group(1)), powered))
+                pulled = None
+                continue
+        m = HIST_RE.match(line)
+        if not m:
+            continue
+        off = _duration_s(m.group(1))
+        rest = m.group(2).strip()
+        if off is None:
+            continue
+        if rest.startswith('RESET:TIME:') or rest.startswith('TIME:'):
+            stamp = rest.split('TIME:', 1)[1].strip().split()[0]
+            try:
+                ref = (off, datetime.datetime.strptime(stamp, '%Y-%m-%d-%H-%M-%S'))
+            except ValueError:
+                ref = None
+            if rest.startswith('RESET'):
+                plug = None
+            continue
+        if rest.startswith('START') or rest.startswith('SHUTDOWN'):
+            ref = None
+            continue
+        lm = re.match(r'(\d{3})\b', rest)
+        if not lm:
+            continue
+        pm = re.search(r'\bplug=(\w+)', rest)
+        if pm:
+            plug = pm.group(1) != 'none'
+        if ref is not None:
+            out.append((ref[1] + datetime.timedelta(seconds=off - ref[0]), int(lm.group(1)), plug))
+    return out
+
+
+def _match_window(path, d):
+    """(start, end) wall times of a match log: MatchId (or the file name) plus its last sample."""
+    mid = (d.get('/RealMetadata/MatchId') or [(0, '')])[0][1]
+    mm = re.search(r'(\d{4}-\d\d-\d\d_\d\d-\d\d-\d\d)', str(mid)) or re.search(
+        r'(\d{4}-\d\d-\d\d_\d\d-\d\d-\d\d)', path.split('/')[-1])
+    if not mm:
+        return None
+    start = datetime.datetime.strptime(mm.group(1), '%Y-%m-%d_%H-%M-%S')
+    last = max((s[-1][0] for s in d.values() if s), default=0.0)
+    return start, start + datetime.timedelta(seconds=last)
+
+
+def _plug(p):
+    return '?' if p is None else ('yes' if p else 'no')
+
+
+def dsbattery(paths):
+    """Each Driver Hub's battery through the day (changes only), then one row per match log and
+    Driver Hub: the DS battery at the match's start, its lowest and at its end, beside the robot's
+    own battery. The match's times are the robot's clock, which the Control Hub takes from the
+    Driver Station, so the two line up to within a few seconds."""
+    hubs = {}
+    logs = []
+    for p in sorted(paths):
+        name = p.split('/')[-1]
+        m = DS_FILE_RE.search(name)
+        if m:
+            src = 'OS history' if m.group(5) == 'battery' else 'DS log'
+            samples = battery_history_samples(p) if m.group(5) == 'battery' else ds_log_samples(p)
+            hubs.setdefault(m.group(4), []).extend((t, pct, plug, src) for t, pct, plug in samples)
+        elif '.wpilog' in name:
+            logs.append(p)
+        else:
+            print('skipped (neither a Driver Hub file nor a .wpilog): ' + name)
+    if not hubs:
+        print('No Driver Hub files (*_DriverHub-*.battery.txt / .dslog.txt) given: was a Driver Hub on '
+              'USB at the pull?')
+    series = {}
+    for hub, samples in sorted(hubs.items()):
+        # The history wins where both have a sample in the same second; snapshots overlap, so dedupe.
+        seen, merged = set(), []
+        for t, pct, plug, src in sorted(samples, key=lambda s: (s[0], s[3] != 'OS history')):
+            key = (t.replace(microsecond=0), pct)
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.append((t, pct, plug, src))
+        series[hub] = merged
+        print('=' * 78)
+        print('Driver Hub %s: %d samples, %s to %s' % (
+            hub, len(merged), merged[0][0].strftime('%Y-%m-%d %H:%M') if merged else '-',
+            merged[-1][0].strftime('%H:%M') if merged else '-'))
+        if merged and all(s[3] == 'DS log' for s in merged):
+            print('  (DS log only: it records only below 30 %, so the hub was under 30 % for all of these)')
+        print('  %-19s %5s %8s  %s' % ('time', 'DS %', 'plugged', 'from'))
+        last = None
+        for i, (t, pct, plug, src) in enumerate(merged):
+            if last is not None and (pct, plug) == last and i != len(merged) - 1:
+                continue
+            last = (pct, plug)
+            print('  %-19s %5d %8s  %s' % (t.strftime('%Y-%m-%d %H:%M:%S'), pct, _plug(plug), src))
+    if not logs:
+        return
+    print()
+    print('%-40s %8s %8s  %-14s %-26s %s' % ('match log', 'start', 'end', 'Driver Hub', 'DS % start / low / end',
+                                           'robot V init / low'))
+    for p in logs:
+        d = read(p)
+        win = _match_window(p, d)
+        name = p.split('/')[-1][:40]
+        volts = [x for _, x in d.get('/Robot/BatteryVolts', []) if isinstance(x, (int, float))]
+        robot = '%s / %s' % ((d.get('/RealMetadata/BatteryAtInit') or [(0, '?')])[0][1],
+                             '%.2f V' % min(volts) if volts else '?')
+        if win is None:
+            print('%-40s %8s %8s  %s' % (name, '?', '?', 'no match time in the log or its name'))
+            continue
+        a, b = win
+        if not series:
+            print('%-40s %8s %8s  %-14s %-26s %s' % (name, a.strftime('%H:%M:%S'), b.strftime('%H:%M:%S'),
+                                                   '-', '-', robot))
+        for hub, merged in sorted(series.items()):
+            before = [s for s in merged if s[0] <= a]
+            inside = [s for s in merged if a <= s[0] <= b]
+            start = before[-1] if before else None
+            end_s = ([s for s in merged if s[0] <= b] or [None])[-1]
+            if start is None and not inside:
+                ds = 'no sample yet'
+            else:
+                lows = [s[1] for s in inside] + ([start[1]] if start else [])
+                ds = '%s / %d / %s' % ('?' if start is None else start[1], min(lows),
+                                       '?' if end_s is None else end_s[1])
+                if start is not None and (a - start[0]).total_seconds() > 1800:
+                    ds += ' (start: %d min old)' % ((a - start[0]).total_seconds() // 60)
+            print('%-40s %8s %8s  %-14s %-26s %s' % (name, a.strftime('%H:%M:%S'), b.strftime('%H:%M:%S'),
+                                                   hub[:14], ds, robot))
+
+def turret_bursts(data, settle_s=0.25):
+    """Per-command movement from recorded absolute angles; never assume the angle is a delta.
+
+    A settled sample needs 250 ms of recorded OFF time without a new burst or zero reference.
+    SDK signal/enable values describe software commands, not an oscilloscope measurement.
+    """
+    prefix = '/TurretBurst/'
+    def value(key, t, default=None):
+        v = at(data.get(prefix + key, []), t)
+        return default if v is None else v
+
+    power = data.get(prefix + 'Power', [])
+    angle = data.get(prefix + 'AngleDeg', [])
+    if not power or not angle:
+        return []
+    segments, active = [], None
+    previous = 0
+    for t, p in power:
+        direction = 1 if p > 0 else -1 if p < 0 else 0
+        if active is not None and direction != previous:
+            segments.append((active[0], t, active[1], True))
+            active = None
+        if direction and active is None:
+            active = (t, direction)
+        previous = direction
+    if active is not None:
+        segments.append((active[0], power[-1][0], active[1], False))
+    angle_times = [t for t, _ in angle]
+    rows = []
+    for i, (start, end, direction, ended) in enumerate(segments):
+        before = value('AngleDeg', start, float('nan'))
+        after = value('AngleDeg', end, float('nan'))
+        zero = value('ZeroCounts', start)
+        same_zero = zero == value('ZeroCounts', end)
+        manual = value('ManualSingleBurst', start, 0) and not value('Holding', start, 0)
+        configured = value('ManualBurstMs', start, float('nan')) if manual else (
+            value('HoldBurstMs', start, value('BurstOnMs', start, float('nan')))
+            if value('Holding', start, 0) else value('BurstOnMs', start, float('nan')))
+        next_start = segments[i + 1][0] if i + 1 < len(segments) else float('inf')
+        settle_index = bisect.bisect_left(angle_times, end + settle_s)
+        settled_at = angle_times[settle_index] if settle_index < len(angle) else float('inf')
+        settled = (ended and next_start > settled_at and same_zero
+                   and value('ZeroCounts', settled_at) == zero)
+        settled_angle = angle[settle_index][1] if settled else float('nan')
+        if not ended:
+            reason = 'incomplete'
+        elif value('Circle', end, 0):
+            reason = 'cancel'
+        elif value('R2', end, 0) <= 0.5 or (not value('Holding', end, 0)
+                and not value('L1', end, 0) and not value('R1', end, 0)):
+            reason = 'released'
+        elif value('RawRequest', end, 0) and not value('AllowedRequest', end, 0):
+            reason = 'blocked'
+        else:
+            reason = 'ended'
+        rows.append(dict(start_s=start, configured_ms=configured,
+                         on_ms=value('LastOnMs', end, (end - start) * 1000) if ended else (end-start)*1000,
+                         pulse_us=value('PulseUs', start, 0),
+                         pwm_enabled=value('PwmEnabledSdk', start, 0),
+                         before_deg=before, after_deg=after,
+                         drive_delta_deg=after-before if same_zero else float('nan'),
+                         settled_delta_deg=settled_angle-before, settled=settled,
+                         reason=reason, zero_changed=not same_zero,
+                         battery_v=value('BatteryVolts', start, float('nan'))))
+    return rows
+
+
+def turret(paths):
+    for path in paths:
+        data = read(path)
+        print(path)
+        for k in ('Build', 'BenchVersion', 'RobotConfig'):
+            values = data.get('/RealMetadata/' + k, [])
+            if values:
+                print('  %s: %s' % (k, values[-1][1]))
+        rows = turret_bursts(data)
+        if not rows:
+            print('  No recorded turret drive commands. Check /TurretBurst/R2, L1, R1, Zeroed, RawRequest and AllowedRequest.')
+            continue
+        print('  SDK commands/readback only; settled = 250 ms recorded OFF, not proof of rest.')
+        print('  #   start  set/ms   on/ms signal PWM   before -> after    drive-delta settle-delta  volts  end')
+        for i, r in enumerate(rows, 1):
+            print('%3d %7.2f %7.1f %7.1f %6.0f %3.0f %8.3f -> %8.3f %11.3f %12.3f %6.2f  %s%s' %
+                  (i, r['start_s'], r['configured_ms'], r['on_ms'], r['pulse_us'], r['pwm_enabled'],
+                   r['before_deg'], r['after_deg'], r['drive_delta_deg'], r['settled_delta_deg'],
+                   r['battery_v'], r['reason'], ' ZERO CHANGED' if r['zero_changed'] else ''))
+        print()
+
+
 def main(argv):
     if len(argv) < 3:
         print(__doc__)
@@ -312,6 +678,12 @@ def main(argv):
         picks(argv[2:])
     elif cmd == 'launcher':
         launcher(argv[2:])
+    elif cmd == 'volleys':
+        volleys(argv[2:])
+    elif cmd == 'dsbattery':
+        dsbattery(argv[2:])
+    elif cmd == 'turret':
+        turret(argv[2:])
     elif cmd == 'series':
         d = read(path)
         for k in argv[3:]:

@@ -108,6 +108,12 @@ public class TurretSubsystem implements Subsystem {
     public static double rehomeStillMs = 250.0;
     /** Errors this small are left alone, degrees. */
     public static double rehomeToleranceDeg = 1.5;
+    /**
+     * Errors bigger than this are not believed, degrees. A twirl leaves the turret at most half a
+     * servo turn off (about 65° through 2.75:1); much more means the encoder's count is wrong (the
+     * Expansion Hub reset, say), and acting on it would swing the turret off its mark.
+     */
+    public static double rehomeBelieveDeg = 80.0;
 
     /**
      * Turret degrees, counter-clockwise seen from above, per +1.0 of servo position; negative if a
@@ -567,7 +573,7 @@ public class TurretSubsystem implements Subsystem {
             double wantDeg = lockedForward ? 0.0 : targetDeg;
             position = rehome.step(position, wantDeg, encoderAngleDeg, encoderRateDps, degreesPerUnit,
                     Math.max(0.0, minPosition), Math.min(1.0, maxPosition), rehomeStillDps, rehomeStillMs,
-                    rehomeToleranceDeg, System.nanoTime());
+                    rehomeToleranceDeg, rehomeBelieveDeg, System.nanoTime());
         }
         double out = pwmStep(position);
         if (limp || out != servoOut || resend.due(System.nanoTime())) {
@@ -716,6 +722,10 @@ public class TurretSubsystem implements Subsystem {
         }
         if (Double.isNaN(degreesPerUnit) || degreesPerUnit == 0.0) {
             display.status("Turret re-home", Display.Level.WARN, "off: degreesPerUnit not measured");
+        } else if (rehome.disbelieved()) {
+            display.status("Turret re-home", Display.Level.FAULT, String.format(Locale.US,
+                    "encoder reads %.0f° off: not believed, holding the last correction. Hub reset? Restart the OpMode with the turret on its mark",
+                    encoderAngleDeg));
         } else if (rehome.outOfReach()) {
             display.status("Turret re-home", Display.Level.FAULT, String.format(Locale.US,
                     "out of reach: encoder %.0f°, turret at a limit. Stop, turn the turret one full turn by hand, put it on its mark, run again",

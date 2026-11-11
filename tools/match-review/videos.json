@@ -1,0 +1,8 @@
+{
+  "_comment": "Per event: folder, the link-shared Google Drive folder holding the clean match videos (USMIBEQ_<match>_<team>.mp4 and its .json), the only copy a cloud session can download; gallery, the event's video-evidence gallery (a claude.ai artifact); fixlist, the fix list made from the event (a claude.ai artifact). How to add an event: tools/match-review/README.md.",
+  "events": {
+    "USMIBEQ": {"name": "Belding Qualifier", "folder": "19nrvYnZTh9cSt2n1x-84oFOyRnJBWYt2",
+                "gallery": "https://claude.ai/artifact/4NCKpRLVnWVvFTKtNzgEWS",
+                "fixlist": "https://claude.ai/artifact/BitckTyT6BjGbAXSgx9i6X"}
+  }
+}

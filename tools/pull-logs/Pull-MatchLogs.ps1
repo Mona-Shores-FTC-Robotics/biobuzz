@@ -19,6 +19,11 @@ logging/MatchLog). This script:
      again at home or school, robot or no robot). Your checkout is never touched: the branch is
      written with git's plumbing, not by switching branches.
 
+A Driver Hub plugged into this laptop by USB is pulled too (never written to, never deleted
+from): its Driver Station log and Android's battery history, into the same robot folder, so they
+go up on the same logs/<date>-<robot network> branch. read_logs.py dsbattery reads them. The robot
+cannot log the Driver Hub's battery itself: the Driver Station never sends it.
+
 With -Watch it repeats every few seconds and opens a log each time it stops growing, which is
 when the OpMode stopped. The workflow at the robot is then: stop the OpMode, look at the laptop.
 
@@ -59,6 +64,18 @@ being written.
 Logs from this many days before today (by the date in the file name) are sent to GitHub too.
 Default 0: today's only. Older logs are already on Drive, and sending them costs minutes.
 
+.PARAMETER DriverHub
+A Driver Hub to pull from: its adb serial, or host[:port] if its adb listens on Wi-Fi. By default
+every device adb lists that holds the Driver Station app's log (in practice, a Driver Hub on USB).
+
+.PARAMETER NoDriverHub
+Do not look for a Driver Hub.
+
+.PARAMETER RobotNetwork
+The robot folder a Driver Hub's files go in when neither it nor this laptop is on a robot's
+network (pulled at home after an event), e.g. 20245-RC. Otherwise: the Driver Hub's own network,
+if it is a robot's, else this laptop's.
+
 .PARAMETER Adb
 The adb.exe to use. By default: the one behind an adb server that is already running (so a
 laptop that talks to the hub through REV Hardware Client keeps using that adb), else Android
@@ -84,6 +101,9 @@ param(
     [switch]$NoPublish,
     [switch]$KeepOnRobot,
     [int]$PublishDays = 0,
+    [string]$DriverHub,
+    [switch]$NoDriverHub,
+    [string]$RobotNetwork,
     [string]$Adb,
     [string]$AdvantageScope
 )
@@ -92,6 +112,9 @@ Set-StrictMode -Version 2
 $ErrorActionPreference = 'Continue'
 
 $RemoteFolder = '/sdcard/FIRST/logs'
+# The Driver Station app's own log (RobotLog in SDK 12.0: "logcat -f <sdcard>/driverStationLog.txt
+# -r4096 -n4"): this file plus .1 (newer) to .4 (oldest), 4 MB each, so about 20 MB of history.
+$DsLogRemote = '/sdcard/driverStationLog.txt'
 # The team's folder on Google Drive, relative to a drive root. Drive for Desktop mounts shared
 # drives under "<letter>:\Shared drives\"; the letter is per laptop, so every drive is tried.
 $SharedDriveLogs = 'Shared drives\Robotics Team 3572 - Wavelength\2026-2027 FTC Biobuzz\Logs'
@@ -337,6 +360,131 @@ function Open-Log {
     }
 }
 
+# ------------------------------------------------------------------ the Driver Hub
+
+# The Driver Hubs adb can see: every device in the 'device' state, other than the Control Hub,
+# whose storage holds the Driver Station app's log. With -DriverHub, that one only.
+function Get-DriverHubSerials {
+    if ($DriverHub) {
+        $serial = $DriverHub
+        if ($serial -match '^\d+\.\d+\.\d+\.\d+$') { $serial = "${serial}:5555" }
+        if ($serial -match ':\d+$') {
+            # A Driver Hub on Wi-Fi: connect it the way the hub is connected.
+            $reply = (Invoke-Adb @('connect', $serial)) -join ' '
+            if ($reply -notmatch 'connected to') { Say "Driver Hub ${serial}: adb could not connect: $reply"; return @() }
+        }
+        return @($serial)
+    }
+    $candidates = @()
+    foreach ($line in (Invoke-Adb @('devices'))) {
+        if ($line -match '^(\S+)\s+device\s*$' -and $Matches[1] -ne $Target) { $candidates += $Matches[1] }
+    }
+    $found = @()
+    foreach ($serial in $candidates) {
+        $probe = (Invoke-Adb @('-s', $serial, 'shell', "ls $DsLogRemote 2>/dev/null")) -join ''
+        if ($probe -match 'driverStationLog') { $found += $serial }
+    }
+    return @($found)
+}
+
+# Which robot folder a Driver Hub's files go in: -RobotNetwork; else the network the Driver Hub is
+# on, if it is a robot's ("<team>-RC", "<team>-<letter>-RC"); else the laptop's robot folder; else
+# DriverHub (and it says so).
+function Get-DriverHubLabel {
+    param([string]$Serial, [string]$Fallback)
+    if ($RobotNetwork) { return ($RobotNetwork -replace '[^A-Za-z0-9._-]', '_') }
+    foreach ($line in (Invoke-Adb @('-s', $Serial, 'shell', 'dumpsys wifi | grep -m 1 "mWifiInfo SSID"'))) {
+        if ($line -match 'SSID:\s*"?([^",]+?)"?\s*,') {
+            $ssid = $Matches[1]
+            if ($ssid -match '-RC$') { return ($ssid -replace '[^A-Za-z0-9._-]', '_') }
+        }
+    }
+    if ($Fallback -and $Fallback -ne 'robot') { return $Fallback }
+    Say 'Driver Hub: not on a robot network and neither is this laptop; its files go in DriverHub (pass -RobotNetwork 20245-RC to file them with that robot).'
+    return 'DriverHub'
+}
+
+# Copies one Driver Hub's log and battery history into its robot folder, as two files a day:
+#   <date>_DriverHub-<serial>.dslog.txt    that day's lines of the Driver Station log, merged with
+#                                          what earlier pulls kept (the hub's own log rolls over)
+#   <date>_DriverHub-<serial>.battery.txt  today's: one snapshot per pull of "dumpsys battery" and
+#                                          "dumpsys batterystats --history" (Android's record of
+#                                          every level change since the last full charge)
+# Nothing on the Driver Hub is changed or deleted.
+function Sync-DriverHub {
+    param([string]$Serial, [string]$Root, [string]$Fallback)
+    $label = Get-DriverHubLabel -Serial $Serial -Fallback $Fallback
+    $hubId = ((Invoke-Adb @('-s', $Serial, 'shell', 'getprop ro.serialno')) -join '').Trim()
+    if (-not $hubId) { $hubId = $Serial }
+    $hubId = $hubId -replace '[^A-Za-z0-9._-]', '_'
+    $folder = Join-Path $Root $label
+    New-Item -ItemType Directory -Force -Path $folder | Out-Null
+
+    $tmp = Join-Path $env:TEMP ('biobuzz-ds-' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+    try {
+        # Oldest first: logcat's -r moves the file to .1, .1 to .2 and so on, so .4 is the oldest.
+        $lines = New-Object System.Collections.Generic.List[string]
+        foreach ($suffix in @('.4', '.3', '.2', '.1', '')) {
+            $local = Join-Path $tmp "ds$suffix.txt"
+            Invoke-Adb @('-s', $Serial, 'pull', "$DsLogRemote$suffix", $local) | Out-Null
+            if (Test-Path -LiteralPath $local) { $lines.AddRange([string[]][System.IO.File]::ReadAllLines($local)) }
+        }
+        if ($lines.Count -eq 0) { Say "Driver Hub ${hubId}: no Driver Station log could be pulled." }
+
+        # logcat's "threadtime" lines start "MM-dd HH:mm:ss.fff": no year, so the day is the laptop's.
+        # New lines are appended after what earlier pulls kept, oldest file first, so the file stays
+        # in time order without sorting (read_logs.py sorts its samples anyway).
+        for ($back = 0; $back -le $PublishDays; $back++) {
+            $day = (Get-Date).Date.AddDays(-$back)
+            $prefix = $day.ToString('MM-dd') + ' '
+            $path = Join-Path $folder ("{0}_DriverHub-{1}.dslog.txt" -f $day.ToString('yyyy-MM-dd'), $hubId)
+            $kept = New-Object System.Collections.Generic.List[string]
+            $seen = New-Object System.Collections.Generic.HashSet[string]
+            if (Test-Path -LiteralPath $path) {
+                foreach ($l in [System.IO.File]::ReadAllLines($path)) { if ($seen.Add($l)) { $kept.Add($l) } }
+            }
+            $before = $kept.Count
+            foreach ($l in $lines) {
+                if ($l.StartsWith($prefix) -and $seen.Add($l)) { $kept.Add($l) }
+            }
+            if ($kept.Count -eq $before) { continue }
+            [System.IO.File]::WriteAllLines($path, [string[]]$kept.ToArray())
+            Say ("Driver Hub {0}: {1} new Driver Station log line(s) for {2} in {3}" -f $hubId, ($kept.Count - $before), $day.ToString('yyyy-MM-dd'), $label)
+        }
+    } finally {
+        Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    $now = Get-Date
+    $stats = @(Invoke-Adb @('-s', $Serial, 'shell', 'dumpsys battery; dumpsys batterystats --history'))
+    $path = Join-Path $folder ("{0}_DriverHub-{1}.battery.txt" -f $now.ToString('yyyy-MM-dd'), $hubId)
+    # read_logs.py starts a snapshot at a line beginning "=== <date> <time>": keep that shape.
+    $header = "=== {0} Driver Hub {1}: dumpsys battery; dumpsys batterystats --history ===" -f $now.ToString('yyyy-MM-dd HH:mm:ss', [Globalization.CultureInfo]::InvariantCulture), $hubId
+    Add-Content -LiteralPath $path -Value (@($header) + $stats)
+    $level = ($stats | Where-Object { $_ -match '^\s+level:\s*\d+' } | Select-Object -First 1)
+    if ($level) { $level = ($level -replace '\D', '') + ' %' } else { $level = 'level unknown' }
+    Say "Driver Hub ${hubId}: battery $level now; battery history saved in $label."
+}
+
+# Every Driver Hub adb can see. Never fails the pull: anything wrong is said and the pull goes on.
+function Sync-DriverHubs {
+    param([string]$Root, [string]$Fallback)
+    if ($NoDriverHub) { return }
+    $serials = @(Get-DriverHubSerials)
+    if ($serials.Count -eq 0) {
+        if ($DriverHub) { Say "Driver Hub $DriverHub does not answer." }
+        return
+    }
+    foreach ($serial in $serials) {
+        try {
+            Sync-DriverHub -Serial $serial -Root $Root -Fallback $Fallback
+        } catch {
+            Say "Driver Hub ${serial}: could not pull its log: $_"
+        }
+    }
+}
+
 # ------------------------------------------------------------------ send to GitHub
 
 # Which logs have gone up already: "<robot folder>/<file name>/<size>", one per line. A log that
@@ -380,7 +528,10 @@ function Publish-Logs {
     $since = (Get-Date).Date.AddDays(-$PublishDays).ToString('yyyy-MM-dd')
     $todo = @()
     foreach ($dir in @(Get-ChildItem -LiteralPath $Root -Directory -ErrorAction SilentlyContinue)) {
-        foreach ($f in @(Get-ChildItem -LiteralPath $dir.FullName -Filter '*.wpilog' -File -ErrorAction SilentlyContinue)) {
+        # Match logs, and a Driver Hub's log and battery history (Sync-DriverHub).
+        $files = @(Get-ChildItem -LiteralPath $dir.FullName -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -like '*.wpilog' -or $_.Name -like '*.dslog.txt' -or $_.Name -like '*.battery.txt' })
+        foreach ($f in $files) {
             if ($f.Name.Length -lt 10 -or $f.Name.Substring(0, 10) -lt $since) { continue }
             $key = "$($dir.Name)/$($f.Name)/$($f.Length)"
             if ($done.ContainsKey($key)) { continue }
@@ -468,6 +619,9 @@ if ($Dest -eq $LocalLogs) {
     Say "logs go to $Folder"
 }
 
+# A Driver Hub on USB first: it needs no robot, so this also works at home after an event.
+Sync-DriverHubs -Root $Dest -Fallback (Split-Path -Leaf $Folder)
+
 if (-not $Watch) {
     # No robot is fine: this is also how logs pulled on the robot's Wi-Fi reach GitHub later.
     if (-not (Connect-Robot)) {
@@ -529,6 +683,7 @@ while ($true) {
         # A log just finished: up to GitHub with it, if this laptop has internet too (a second
         # Wi-Fi adapter); otherwise it waits for a later run.
         if ($settled) {
+            Sync-DriverHubs -Root $Dest -Fallback (Split-Path -Leaf $Folder)
             Publish-Logs -Root $Dest
             Remove-PublishedFromRobot -Remote $remote -Label (Split-Path -Leaf $Folder)
         }

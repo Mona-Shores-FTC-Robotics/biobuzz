@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.localization.HeadingFix;
 import org.firstinspires.ftc.teamcode.localization.FixAverager;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
-import org.firstinspires.ftc.teamcode.localization.PinpointLoss;
+import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.ShadowPose;
@@ -106,8 +106,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private final Mecanum drivetrain;
     private final FusionLocalizer localizer;
     private boolean poseReferenced;
-    /** A Pinpoint fault that held after PLAY: the pose is not believed again this OpMode. */
-    private final PinpointLoss pinpointLoss = new PinpointLoss();
+    private int poseSets;
+    /** A Pinpoint fault that held after PLAY: the pose is not believed until it reads again and is confirmed. */
+    private final PinpointTrust pinpointTrust = new PinpointTrust();
     private boolean started;
     private final LimelightVisionSubsystem vision;
 
@@ -267,6 +268,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      * along a robot axis ({@link WheelPowerCap} has the reason and the measurement).
      */
     public void drive(double forward, double strafe, double turn, double maxWheelPower) {
+        if (pathControl) releasePath();
         pathControl = false;
         robotCentricCommand = false;
         this.forward = forward;
@@ -319,8 +321,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     public void setPose(Pose pose) {
         if (localizer != null && pose != null) {
             localizer.setPose(pose);
+            poseSets++;
             shadow.follow();
             poseReferenced = true;
+            pinpointTrust.poseSet(System.nanoTime() / 1_000_000L);
             fixCount = 0;
             recentFixNext = 0;
             recentFixFilled = 0;
@@ -598,6 +602,14 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         return localizer == null ? 0.0 : localizer.pose().heading() - headingOffset;
     }
 
+    /**
+     * How many times the pose has been set on purpose ({@link #setPose}: a start, a handoff, a corner
+     * or camera reset). A point remembered in the Pinpoint's frame is stale once this changes.
+     */
+    public int poseSets() {
+        return poseSets;
+    }
+
     /** Field pose in Pedro coordinates, or null without a Pinpoint. */
     public Pose pose() {
         return localizer == null ? null : localizer.pose();
@@ -609,25 +621,68 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      * sat at init. Anything that drives or aims from field coordinates checks this first.
      */
     public boolean poseReferenced() {
-        return poseReferenced && !pinpointLoss.lost();
+        return poseReferenced && pinpointTrust.trusted();
     }
 
     /**
-     * Whether the Pinpoint was lost after PLAY ({@link PinpointLoss}): a fault that held past
-     * {@link PinpointLoss#LOST_AFTER_MS}. From then on {@link #poseReferenced()} is false for the rest
-     * of the OpMode, whatever resets the driver tries (they cannot clear it; a restart does), so
-     * everything that aims or drives from field coordinates degrades as it does without a pose:
-     * Square refuses, a launch takes the camera's range or the configured speed, and the handoff
-     * carries no pose. Driving itself carries on.
+     * Whether the pose has been put in field coordinates (a start, a handoff, a seed, a reset),
+     * believed or not: while the Pinpoint is {@link #pinpointLost() lost} this stays true and
+     * {@link #poseReferenced()} does not. For the log's camera-vs-odometry gap, which is how a
+     * recovery is checked afterwards; never for driving or aiming.
      */
-    public boolean pinpointLost() {
-        return pinpointLoss.lost();
+    public boolean poseSetOnField() {
+        return poseReferenced;
     }
 
-    /** The status that lost the Pinpoint ({@code FAULT_BAD_READ}), or null while it is not lost. */
-    public String pinpointLostStatus() {
-        return pinpointLoss.lostStatus();
+    /**
+     * Whether the pose is not believed because of the Pinpoint ({@link PinpointTrust}): a fault that
+     * held past {@link PinpointTrust#LOST_AFTER_MS} and either still holds or has cleared without a
+     * confirmation yet (a corner reset, a camera reset, or the camera agreeing). Meanwhile
+     * {@link #poseReferenced()} is false, so everything that aims or drives from field coordinates
+     * degrades as it does without a pose: Square and the FLOWER pick refuse, a launch takes the
+     * camera's range or the configured speed, and the handoff carries no pose. Driving carries on.
+     */
+    public boolean pinpointLost() {
+        return !pinpointTrust.trusted();
     }
+
+    /** Trusted, faulted, or reading again and waiting for a confirmation. */
+    public PinpointTrust.State pinpointTrust() {
+        return pinpointTrust.state();
+    }
+
+    /** The status of the last fault that held ({@code FAULT_BAD_READ}), or null if none has. */
+    public String pinpointLostStatus() {
+        return pinpointTrust.faultStatus();
+    }
+
+    /** What confirmed the pose after the last fault, or null. */
+    public String pinpointConfirmedBy() {
+        return pinpointTrust.confirmedBy();
+    }
+
+    /** Agreeing camera frames in a row so far while confirming, of {@link PinpointTrust#AGREE_FRAMES}. */
+    public int pinpointAgreeingFrames() {
+        return pinpointTrust.agreeingFrames();
+    }
+
+    /** Why an aim or a drive from field coordinates must refuse: what fixes it. Null when {@link #poseReferenced()}. */
+    public String notReferencedWhy() {
+        if (localizer == null) return "no Pinpoint";
+        switch (pinpointTrust.state()) {
+            case FAULTED: return WHY_FAULTED;
+            case CONFIRMING: return WHY_CONFIRMING;
+            default: return poseReferenced ? null : WHY_NOT_SET;
+        }
+    }
+
+    /** {@link #notReferencedWhy()}'s texts: constants, so a refusal allocates nothing. */
+    public static final String WHY_FAULTED =
+            "Pinpoint not reading: keep driving (field-centric goes wrong as the robot turns); wait for PINPOINT BACK";
+    public static final String WHY_CONFIRMING =
+            "Pinpoint back, pose not confirmed: show the camera a HIVE, or corner reset (D-pad left/right, held in the corner)";
+    public static final String WHY_NOT_SET =
+            "pose not on the field yet: corner reset (D-pad left/right, held in the corner) or camera reset (D-pad down, robot still)";
 
     /** Camera fixes offered since the pose was last set. */
     public int fixCount() {
@@ -673,6 +728,17 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             throw new IllegalStateException("Following a path needs the Pinpoint: " + localizerFault);
         }
         follower = new Follower(localizer, drivetrain, Constants.createAlgorithm());
+    }
+
+    /**
+     * Ends Pedro's path or hold. A path's speed caps ({@code .with(...)}) are written into the
+     * robot's static {@code foresightConfig} while it runs, and Pedro puts the old values back only
+     * when the path finishes or its Follower is cleared. A path cut short (the sticks, a timeout,
+     * STOP) left them there for every later path until the app restarted: on 6 Nov the nudge test's
+     * 4 in/s cap stopped R-Solo-Nudge's full-speed paths. So every way out of path control clears it.
+     */
+    private void releasePath() {
+        if (follower != null) follower.stop();
     }
 
     @Override
@@ -801,7 +867,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /**
      * The wheels turn only when an OpMode asks, and it asks only after PLAY; from here on a Pinpoint
-     * fault that holds counts as lost ({@link PinpointLoss}).
+     * fault that holds counts as lost ({@link PinpointTrust}).
      */
     @Override
     public void start() {
@@ -820,7 +886,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         if (pinpoint != null) {
             // The status of the last read (a stored field: no extra I2C), so this sees last loop's.
             GoBildaPinpointDriver.DeviceStatus status = pinpoint.getDeviceStatus();
-            pinpointLoss.observe(started, status == null ? null : status.name(), now / 1_000_000L);
+            pinpointTrust.observe(started, status == null ? null : status.name(), now / 1_000_000L);
         }
 
         if (pathControl && follower != null) {
@@ -916,6 +982,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         Pose fix = new Pose(gate.x(), gate.y(), Double.NaN);
         lastCameraPose = new Pose(gate.x(), gate.y(), heading);
         lastCameraPoseNs = System.nanoTime();
+        // After a fault: the camera agreeing with the pose is one way it is believed again.
+        Pose current = localizer.pose();
+        pinpointTrust.cameraGap(Math.hypot(gate.x() - current.x(), gate.y() - current.y()),
+                lastCameraPoseNs / 1_000_000L);
         if (still) {
             Pose full = fitAccepted();
             recordWouldRelocalize(fix, full);
@@ -1013,6 +1083,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         }
         lastPose = pose;
         lastPoseNs = now;
+        // A faulted Pinpoint's pose is frozen, so it always looks still: it says nothing, and the
+        // still-only camera paths (averaged fixes, the lost-pose reset, heading fixes) must wait.
+        if (pinpointTrust.state() == PinpointTrust.State.FAULTED) stillThisLoop = false;
         if (!stillThisLoop) {
             stillSinceNs = -1;
             return false;
@@ -1133,6 +1206,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     @Override
     public void stop() {
+        releasePath();
         pathControl = false;
         drivetrain.stop();
     }
@@ -1177,8 +1251,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         Pose pose = localizer.pose();
         String where = String.format(java.util.Locale.US, "(%.1f, %.1f, %.0f°)",
                 pose.x(), pose.y(), Math.toDegrees(pose.heading()));
-        if (poseReferenced) {
+        if (poseReferenced && pinpointTrust.trusted()) {
             display.status("Pose", Display.Level.OK, where);
+        } else if (poseReferenced) {
+            display.status("Pose", Display.Level.WARN, where + " — not believed: " + notReferencedWhy());
         } else {
             display.status("Pose", Display.Level.WARN,
                     "not field-referenced — no start, handoff or camera seed yet");

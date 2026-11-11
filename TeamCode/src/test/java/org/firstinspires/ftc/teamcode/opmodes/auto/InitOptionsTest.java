@@ -90,8 +90,8 @@ public class InitOptionsTest {
         options.describe(display);
         assertEquals(1, lines.size());
         assertTrue(lines.toString(), lines.get(0).contains("Park ◀▶: LEFT_PARK"));
-        // Both numbers, never only the sum: the drawn 8.5 s limit is a last shot at 4.5 s plus the 4 s lag.
-        assertTrue(lines.toString(), lines.get(0).contains("partner's last shot ▲▼ 4.5 s, waiting until 8.5 s"));
+        // Both numbers, never only the sum: the drawn 8.5 s limit is a last shot at 4 s plus the 4.5 s lag.
+        assertTrue(lines.toString(), lines.get(0).contains("partner's last shot ▲▼ 4 s, waiting until 8.5 s"));
         assertTrue(lines.toString(), lines.get(0).contains("#4CAF50"));
         assertTrue("one line, wrapped at most once", display.linesUsed() <= 2);
 
@@ -101,7 +101,7 @@ public class InitOptionsTest {
         options.describe(display);
         String line = lines.get(lines.size() - 1);
         assertTrue(line, line.contains("Park ◀▶: RIGHT_PARK"));
-        assertTrue(line, line.contains("5.5 s, waiting until 9.5 s"));
+        assertTrue(line, line.contains("▲▼ 5 s, waiting until 9.5 s"));
         assertTrue(line, line.contains("#FFB300"));
         assertTrue(options.summary(), options.summary().contains("Park=RIGHT_PARK (drawn LEFT_PARK)"));
     }
@@ -113,7 +113,7 @@ public class InitOptionsTest {
         Display display = new Display(lines::add);
         for (int i = 0; i < 15; i++) display.line("warning " + i);
         options.describe(display);
-        assertTrue(lines.toString(), lines.get(lines.size() - 1).contains("shot ▲▼ 4.5+4=8.5 s"));
+        assertTrue(lines.toString(), lines.get(lines.size() - 1).contains("shot ▲▼ 4+4.5=8.5 s"));
         assertTrue(display.linesUsed() <= Display.SCREEN_LINES);
 
         lines.clear();

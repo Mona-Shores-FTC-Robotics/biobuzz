@@ -33,6 +33,9 @@ once TeleOp stops. Optional; the one-shot pull is the normal way.
 | `-KeepOnRobot` | do not delete from the hub what has reached GitHub (deleting is the default) |
 | `-Robot 192.168.49.1` | a phone Robot Controller instead of a Control Hub |
 | `-Dest <folder>` | somewhere other than the Drive folder |
+| `-NoDriverHub` | do not look for a Driver Hub on USB (below) |
+| `-DriverHub <serial or ip:port>` | that Driver Hub only |
+| `-RobotNetwork 20245-RC` | the robot folder for a Driver Hub pulled away from the robot's Wi-Fi |
 
 ## Sent to GitHub, so a Claude session can read them
 
@@ -62,11 +65,67 @@ branches and reads them with `read_logs.py` (below). Nothing to type.
 
 `read_logs.py` reads a `.wpilog` with plain Python (standard library only): `summary` gives, per
 run, the build, battery, every launch knob at PLAY, the key events and every feed (gate open:
-launcher speed at the open and its lowest, feeder speed, shots counted, battery low). `picks`
+launcher speed at the open and its lowest, feeder speed, shots counted, battery low). `volleys`
+gives, for every LaunchAll of an Autonomous, the balls it fired, counted from the launcher wheels'
+dips (one sharp dip a ball), beside the shot counter's number. `picks`
 gives one line per FLOWER pick: how the push ended (reached, stalled, path done or timed out, and
 how far short), the depth, the intake-current spikes (about one per piece), the lane count and the
 camera's last gap to odometry along and across the push. It is for reading logs without
 AdvantageScope; nobody at the robot needs Python.
+
+## The Driver Hub's own battery
+
+The robot's logs hold the robot's 12 V battery only. The Driver Hub's battery cannot be logged by
+the robot: in SDK 12.0 the Driver Station never sends it (the heartbeat carries time and robot
+state only, and no command carries a battery level; the reverse, the RC's phone battery to the DS,
+does exist). It is on the Driver Hub itself, so the pull takes it from there:
+
+**Plug the Driver Hub into the laptop by USB before double-clicking `pull-logs.cmd`.** The pull
+finds it (any adb device holding the Driver Station's log), copies, into the same robot folder and
+so onto the same `logs/<date>-<robot network>` branch:
+
+- `<date>_DriverHub-<serial>.battery.txt`: one snapshot per pull of `dumpsys battery` (the level
+  now) and `dumpsys batterystats --history`, Android's own record of every level change and
+  plug-in since the last full charge. This is the time series. Pull at least once before putting
+  the Driver Hub on its charger: Android starts the history afresh when a charged device is
+  unplugged, and earlier snapshots are kept, so what was pulled is never lost.
+- `<date>_DriverHub-<serial>.dslog.txt`: that day's lines of the Driver Station app's log
+  (`/sdcard/driverStationLog.txt` and its four rotations, 4 MB each). Its `BatteryChecker` writes
+  `percent remaining: N is charging: B` **only while N is below 30 %** (checked in the v12.0
+  Driver Station APK: `BATTERY_WARN_THRESHOLD`; the class's `LOG_THRESHOLD` of 70 is never read),
+  on every battery broadcast and every 5 minutes. Nothing we control can make it log more (the DS
+  app is FIRST's), so it is a backstop for a dying hub, not the series. It also holds the DS's
+  side of any disconnect, which is why the whole day is kept.
+
+Nothing on the Driver Hub is changed or deleted. Its folder is the robot network the Driver Hub is
+on, else the laptop's, else `-RobotNetwork`, else `DriverHub`. Then, in a session:
+
+```bash
+python3 tools/pull-logs/read_logs.py dsbattery 2026-11-08_DriverHub-*.txt.gz 2026-11-08_*.wpilog.gz
+```
+
+prints each Driver Hub's battery through the day (changes only) and, for each match log, the DS
+battery at its start, its lowest and at its end beside the robot's battery at INIT and its lowest.
+The match's times are the robot's clock, which the Control Hub takes from the Driver Station.
+`test_read_logs.py` checks the reader on made-up lines in these formats.
+
+## Turret burst bench recordings
+
+**Bench: Turret Burst** records automatically from INIT through STOP to the same FIRST/logs folder.
+After testing, use `pull-logs.cmd` as usual; no extra files or screenshots are needed. A session
+fetches the published log branch and runs:
+
+```bash
+python3 tools/pull-logs/read_logs.py turret /path/to/Bench_Turret_Burst.wpilog.gz
+```
+
+The report shows each drive command's configured and actual duration, signal and SDK PWM state,
+absolute before/after angles, actual movement, and movement after at least 250 ms OFF if recorded
+before the next burst. Release/cancel/interrupted recordings and changed zero references are
+identified. Full `/TurretBurst/*` series retain inputs, gates, raw counts, battery and live settings.
+Leave about a second between attempts and before STOP so the response after disabling is captured.
+SDK state is software readback, not a measured waveform. There is no automatic upload directly from
+the robot; the existing laptop pull/upload step is still needed.
 
 ## Where logs go
 

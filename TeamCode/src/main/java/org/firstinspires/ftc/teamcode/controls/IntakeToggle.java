@@ -1,13 +1,10 @@
 package org.firstinspires.ftc.teamcode.controls;
 
 /**
- * The operator's intake button as a toggle instead of a hold ({@code TeleOpConfig.intakeToggle},
- * on by default): a press turns the intake on, the next press turns it off. The driver's intake
- * and either unjam are holds that win over it while held ({@code IntakeArbiter}). Left on, the intake stops its roller and the prefeed by itself when the
- * lane is full and starts them again when a shot makes room.
- *
- * <p>The TeleOp starts it on ({@link #IntakeToggle(boolean)}): the intake runs from PLAY unless the
- * lane is full or the operator turns it off, the same rule as an Auto's.
+ * An intake button as a toggle instead of a hold: a press turns the intake on, the next press turns
+ * it off. Only the bench uses it now ({@code LaunchTest}). Basic Drive dropped its toggle on 7 Nov
+ * 2026: its intake runs all match ({@code TeleOpConfig.intakeAlwaysOn}), and 19429's operator
+ * turned it off by accident 12 times in one run on 6 Nov.
  *
  * <p>Pure and allocation-free, called once a loop: it sees the buttons as held or not and works out
  * the presses itself. Switching the toggle off in Panels drops the latch, so the intake never stays
@@ -29,7 +26,7 @@ public final class IntakeToggle {
     }
 
     /**
-     * One loop. {@code enabled} is {@code TeleOpConfig.intakeToggle}; {@code pressed} is either
+     * One loop. {@code enabled}: the toggle is in use; {@code pressed} is either
      * intake button held. Returns whether the intake should run in.
      */
     public boolean update(boolean enabled, boolean pressed) {

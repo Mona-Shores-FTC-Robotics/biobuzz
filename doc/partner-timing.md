@@ -65,7 +65,7 @@ Built in the follow-up to PR #385: a request's partner entry gives `lastShotS`, 
 `"fails": "misses"` or a still stand-in for the two failures (`TeamCode/autos/README.md` has the
 curation, `SimRunTest` the format). The raw `timing` knobs stay as an override for studies. On the
 robot the number goes in on gamepad 1's D-pad in INIT (`InitOptions`), and the TIP lag is
-`AutoRegistration.PARTNER_TIP_LAG_S` (4 s), also `partnerTipLagS` in `TeamCode/autos/timing.json`.
+`AutoRegistration.PARTNER_TIP_LAG_S` (4.5 s, measured at Belding), also `partnerTipLagS` in `TeamCode/autos/timing.json`.
 
 ## LaunchAll does what it is told
 

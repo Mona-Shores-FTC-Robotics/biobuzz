@@ -120,9 +120,9 @@ public class FlowerPickerTest {
     public void nearestFlowerFollowsThePicksOwnRule() {
         assertEquals(FlowerFieldPoints.RED_WALL, FlowerPicker.nearest(26.7, 47.4, true));
         assertEquals("out of range", null, FlowerPicker.nearest(70.0, 20.0, true));
-        // From (60, 20) the blue FAR FLOWER is 38 in away, across the centre line.
+        // From (60, 20) the blue AUDIENCE FLOWER is 38 in away, across the centre line.
         assertEquals("an Auto never crosses the centre line", null, FlowerPicker.nearest(60.0, 20.0, true));
-        assertEquals("the button may", FlowerFieldPoints.BLUE_FAR, FlowerPicker.nearest(60.0, 20.0, false));
+        assertEquals("the button may", FlowerFieldPoints.BLUE_AUDIENCE, FlowerPicker.nearest(60.0, 20.0, false));
     }
 
     /** A spot far off the line, turned away, or past the FLOWER is a drawing error: the card refuses. */
@@ -135,8 +135,8 @@ public class FlowerPickerTest {
         assertNull("29° the short way round", FlowerPicker.squareUpRefusal(wall,
                 new Pose(22.21, 47.36, -Math.PI + Math.toRadians(29)), 12, 30));
         assertNotNull("behind the FLOWER", FlowerPicker.squareUpRefusal(wall, new Pose(1.0, 47.36, Math.PI), 12, 30));
-        // The far FLOWER faces +y: its line runs along x = 47.36.
-        assertNull(FlowerPicker.squareUpRefusal(FlowerFieldPoints.RED_FAR, new Pose(47.36, 119.0, Math.PI / 2), 12, 30));
+        // The red SCORING FLOWER faces +y: its line runs along x = 47.36.
+        assertNull(FlowerPicker.squareUpRefusal(FlowerFieldPoints.RED_SCORING, new Pose(47.36, 119.0, Math.PI / 2), 12, 30));
     }
 
     /** An Auto may not cross the centre line (x = 70.75), so it only grabs on its own half. */
@@ -152,7 +152,8 @@ public class FlowerPickerTest {
     @Test
     public void lettingGoFinishesOnlyFromTheDwellOn() {
         for (GrabRoutine.Phase phase : GrabRoutine.Phase.values()) {
-            boolean dwellOrBack = phase == GrabRoutine.Phase.DWELL || phase == GrabRoutine.Phase.BACK;
+            boolean dwellOrBack = phase == GrabRoutine.Phase.DWELL || phase == GrabRoutine.Phase.TWIST
+                    || phase == GrabRoutine.Phase.BACK;
             assertEquals(phase.toString(), dwellOrBack, GrabRoutine.releaseFinishes(phase, true));
             assertEquals("an Auto's card cut short always stops: " + phase, false,
                     GrabRoutine.releaseFinishes(phase, false));
