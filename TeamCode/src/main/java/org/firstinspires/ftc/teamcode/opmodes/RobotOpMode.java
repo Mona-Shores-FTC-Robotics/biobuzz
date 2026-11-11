@@ -261,6 +261,7 @@ public abstract class RobotOpMode extends OpMode {
 
     // A mechanism asked to move whose encoder never does: one event each, from the log alone.
     private final MotionWatch intakeWatch = new MotionWatch("intake");
+    private int loggedWedgeClears;
     private final MotionWatch feederWatch = new MotionWatch("feeder");
     private String loggedLauncherFault;
     private int loggedPidfWrites;
@@ -1461,6 +1462,12 @@ public abstract class RobotOpMode extends OpMode {
         }
         // The intake running with nothing asking for it: it joined a feed (IntakeSubsystem.rollerFor).
         log.put("/Intake/FeedAssist", robot.intake.feedAssist() ? 1 : 0);
+        log.put("/Intake/Unwedging", robot.intake.unwedging() ? 1 : 0);
+        if (robot.intake.wedgeClears() != loggedWedgeClears) {
+            loggedWedgeClears = robot.intake.wedgeClears();
+            log.event(String.format(Locale.US, "intake: wedged (%.0f ticks/s at %.1f A, nothing under the sensor): backing out, clear %d",
+                    robot.intake.ticksPerSecond(), intakeAmps, loggedWedgeClears));
+        }
         log.put("/Intake/HoldingForFull", robot.intake.holdingForFull() ? 1 : 0);
         log.put("/Intake/PositionHolding", robot.intake.positionHolding() ? 1 : 0);
         log.put("/Intake/HoldTargetTicks", robot.intake.holdTargetTicks());

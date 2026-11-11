@@ -538,6 +538,20 @@ measurement is [#255].
       turns before it pushes. [S4 §7], [PR #281]
 - [ ] **Ten picks from loaded FLOWERs:** pieces left behind. **Good:** none left, no waiting on an
       empty FLOWER (the dwell also ends on `full` since #384). **Stop:** tune `dwellQuietMs`. [S4 §7]
+- [ ] **A wedged intake backs itself out** (`WedgeClear`, on; `IntakeSubsystem.clearWedge`, #507).
+      At Belding the roller stalled in 8 of the 17 match logs (under 50 ticks/s at 7–10 A; it runs
+      at about 2400 and under 3.4 A), the worst for 13 s with an empty lane (Infrared Q26). Now a
+      stall of 1 s with nothing under the lane sensor backs the roller and stars out for 0.25 s
+      (the prefeed follows the stars, as in a reject), at most 3 times in a row. Bench, intake on,
+      lane empty: roll in pairs of POLLEN side by side, 20 pairs, and hold one piece against the
+      roller by hand once. Then with the lane full (4 in, the light green) push a 5th at the mouth
+      for 3 s. **Good:** each wedge logs `intake: wedged … backing out, clear N` and the pair then
+      goes in; held by hand it tries 3 times and stops; the full lane never backs out and keeps all
+      4; a FLOWER pick in R-Solo still ends as before. **Stop:** it backs out with pieces in a
+      healthy lane, or throws a piece clear of the robot → Panels `clearWedge` off, and note the
+      `/Intake/TicksPerSecond` and `/Intake/CurrentAmps` at that moment. The 0.25 s (`wedgeBackMs`)
+      is a guess: write back what frees a pair without throwing it. This is the code half of the
+      fix list's "stop two pieces wedging"; the guide or sprung wall at the pinch is still open.
 - [ ] **Let go mid-push, then mid-dwell.** **Good:** mid-dwell backs out, stick up once ~18 in clear;
       operator Square while waiting raises it at once. [PR #273], [PR #280]
 - [ ] **GARDEN into the corner,** driver Triangle near the red GARDEN, three times. **Good:** pressed
