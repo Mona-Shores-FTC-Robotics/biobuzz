@@ -142,8 +142,7 @@ The faster scenario's third TIP settles around **24.6 s**. It is a planning
 scenario, not a measured paired result. The slower existing-facts case overruns
 R's park by 0.2 s in this planning model, which does not execute AutoKit's runtime
 endgame guard; it is not a guaranteed two-park result. The three-TIP plan needs the planned five volleys, with little margin for missed pieces. The local analysis budgets the full feeding time despite short
-readiness limits, and uses the registered/measured garden time; the browser
-preview can look faster because it currently truncates those durations.
+readiness limits, and uses the registered/measured garden time.
 
 Bring-up: verify L's first-tip wait, run each route empty, test the final RIGHT
 positions and R's turn with L stationary, qualify the new close shot and loaded
