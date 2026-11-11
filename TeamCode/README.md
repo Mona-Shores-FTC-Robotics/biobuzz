@@ -1169,10 +1169,10 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
     0.92 from the CATCH spots (42.4 in, a measured row of `LaunchSpeedTable`), 0.65 from the CLOSE spots (36 in,
     below every measured row; an estimate bounded by R-Solo's 0 of 7 second TIPs and Q-31's 3 landed of a
     RIGHT_LAUNCH_CLOSE volley).
-  - **The dwell before a TIP,** 3.2 to 3.8 s, and no knock from a hit: every AUTO TIP there sat out its dwell,
+  - **The dwell before a TIP,** 3.6 to 4.2 s, and no knock from a hit: every AUTO TIP there sat out its dwell,
     where the placeholder knock tipped the CELL 0.7 s after the last ball left.
-  - **Where the HIVE tips:** Field 1's point on odd seeds, Field 2's on even ones, set where eight launched POLLEN
-    tip it.
+  - **Where the HIVE tips:** Field 1's point on odd seeds, Field 2's on even ones, both set for launched pieces:
+    seven launched POLLEN tip Field 1 about two times in three, eight tip Field 2 nearly every time.
   - **How long a volley and a pick take:** the shot counter undercounted after every FLOWER pick, so those feeds
     run their whole set time; a pick stays 0.7 s longer.
   - `BIOBUZZ_AUTO_BELDING_GUARD=1` also runs the endgame guard as the Belding build did (master at 7ed351f: a
@@ -1182,11 +1182,11 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
 
   | | Belding | Simulator, calibrated | Simulator, uncalibrated |
   |---|---|---|---|
-  | R-Solo: first TIP from the preloads | 7 of 9 | 36 of 40 | 20 of 20 |
-  | R-Solo: when that TIP comes | about 7.5 s (Q-4) | 7.4 s | 4.3 s |
-  | R-Solo: second TIP | 0 of 7 | 3 of 40 | 20 of 20 |
-  | L-NoCross beside a right preload shooter: second TIP | 3 of 5 | 17 of 40 | 20 of 20 |
-  | Partner's last shot to our CellUp | 4.0 to 4.4 s (M-3, M-4) | 3.8 to 4.4 s, median 4.0 | 0.7 s |
+  | R-Solo: first TIP from the preloads | 7 of 9 | 37 of 40 | 20 of 20 |
+  | R-Solo: when that TIP comes | about 7.5 s (Q-4) | 7.2 s | 4.3 s |
+  | R-Solo: second TIP | 0 of 7 | 1 of 40 | 20 of 20 |
+  | L-NoCross beside a right preload shooter: second TIP | 3 of 5 | 20 of 40 | 20 of 20 |
+  | Partner's last shot to our CellUp | 4.0 to 4.4 s (M-3, M-4) | 3.9 to 4.5 s, median 4.0 | 0.7 s |
   | R-Solo: arrives LEFT, second volley ends, third volley, park starts | 13.0, 16.9, 23.1 to 26.8, 26.8 s (medians) | 13.0, 16.7, 22.7 to 26.4, 26.4 s | 12.0, 14.8, 21.0 to 23.8 s |
 
   ```bash

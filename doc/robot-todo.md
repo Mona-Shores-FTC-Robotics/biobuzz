@@ -487,6 +487,19 @@ Use the work order above to select checks; the detailed mechanism checks below a
         Count the pieces in the LEFT CELL and when the second TIP comes (the calibrated simulator: about 20 to 24 s).
       [mentor session, 10 Nov]
 
+- [ ] **R-Two-Tip-Pair draft (`autos/drafts/r-two-tip-pair.pp`) beside L-NoCross.**
+      [The plan and the simulator runs](../TeamCode/autos/drafts/README.md#r-two-tip-pair-the-right-half-beside-l-nocross).
+      Right robot: Utility **Drive: R-Two-Tip-Pair**. Left robot: **Autonomous → L-NoCross**, with
+      "partner's last shot" set to 5 s in INIT.
+      - First, alone: hold a volley from `LEFT_LAUNCH_WEST` (24, 122, facing 314°) and count what
+        stays in the LEFT CELL. **Good:** 3 or 4 of 4. **Stop:** 2 or fewer → trim the speed there
+        and add the row, or move the spot along the wall lane.
+      - Dry-run both robots without pieces: 4 in between them while L-NoCross is at the SCORING
+        FLOWER and we are on the spot (12 to 16 s).
+      - Then five full runs, filmed. Count the pieces in the LEFT CELL after each of the three
+        volleys and when the second TIP comes (the calibrated simulator: about 20 s).
+      [mentor session, 10 Nov]
+
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
 The pick-depth session. Procedure and tables: [S5 At the robot]. The student version of the same

@@ -21,11 +21,13 @@ package org.firstinspires.ftc.teamcode.logging;
  *   <li><b>The dwell before a TIP</b> ({@link #DWELL_S}): the partner's TIP was seen 4.0 to 4.4 s after its last
  *       shot left (M-3, M-4; PR #517), and R-Solo's preload TIP came at about 7.5 s (Q-4). Less the flight, the
  *       swing and the camera's settle, and counted from the ball that takes the CELL over (often the third, half a
- *       second before the last), the CELL sat 3.2 to 3.8 s, overloaded or not.</li>
+ *       second before the last), the CELL sat 3.6 to 4.2 s, overloaded or not.</li>
  *   <li><b>Where the HIVE tips</b> ({@link #tipPoint}): Field 1 at about 7.0 POLLEN weights, Field 2 at about
  *       7.95 to 8.0 (PR #519). Odd qualification matches were on Field 1, so odd seeds are Field 1 and even
- *       seeds Field 2. Field 2's point is {@link #FIELD_2_TIP_POINT}, where eight launched POLLEN tip it as they
- *       did there; at the Guide's upper edge the simulated CELL held eight every time.</li>
+ *       seeds Field 2. The points are set for launched pieces, which rest nearer the axle than the Guide's
+ *       placed ones: {@link #FIELD_1_TIP_POINT}, where seven launched POLLEN tip it about two times in three
+ *       (it tipped on seven twice and held seven once), and {@link #FIELD_2_TIP_POINT}, where eight tip it
+ *       nearly every time. Field 1's is below the Guide's band, as that field was (it tipped on 6.95).</li>
  *   <li><b>How long a volley and a pick take</b>: the shot counter undercounted after every FLOWER pick, so
  *       those feeds ran their whole set time (volleys of 3.6 to 4.0 s) where the simulator's ended at the fourth
  *       shot; only the preload volley ends on the count. A pick stays {@link #PICK_DWELL_S} longer.</li>
@@ -53,7 +55,7 @@ final class BeldingCalibration {
     static final double[][] STAY_IN = {{36.0, 0.65}, {42.4, 0.92}, {53.9, 0.82}};
 
     /** Seconds a CELL over its tipping weight sits before the rocker moves: {shortest, longest}. */
-    static final double[] DWELL_S = {3.2, 3.8};
+    static final double[] DWELL_S = {3.6, 4.2};
 
     /** The fraction that stays in from {@code rangeIn}: straight lines between the rows, held beyond them. */
     static double stayInFraction(double rangeIn) {
@@ -67,12 +69,21 @@ final class BeldingCalibration {
         return STAY_IN[STAY_IN.length - 1][1];
     }
 
-    /** Field 2's tip point in the Guide's band, for launched pieces (see the class comment). */
-    static final double FIELD_2_TIP_POINT = 0.65;
+    /**
+     * Field 1's and Field 2's tip points in the Guide's band, for launched pieces (see the class comment).
+     * {@code BIOBUZZ_BELDING_F1} and {@code BIOBUZZ_BELDING_F2} override them, for refitting.
+     */
+    static double FIELD_1_TIP_POINT = env("BIOBUZZ_BELDING_F1", -0.3);
+    static double FIELD_2_TIP_POINT = env("BIOBUZZ_BELDING_F2", 0.5);
+
+    private static double env(String name, double otherwise) {
+        String v = System.getenv(name);
+        return v == null ? otherwise : Double.parseDouble(v);
+    }
 
     /** Where this run's HIVEs tip in the Guide's band: Field 1 on odd seeds, Field 2 on even ones. */
     static double tipPoint(long seed) {
-        return seed % 2 != 0 ? HiveCalibration.BELDING_FIELD_1 : FIELD_2_TIP_POINT;
+        return seed % 2 != 0 ? FIELD_1_TIP_POINT : FIELD_2_TIP_POINT;
     }
 
     /**
