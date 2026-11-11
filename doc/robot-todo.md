@@ -993,6 +993,10 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       much further than needed → lower `rejectBurstS`. A `REJECT gave up` or a `FULL with the other
       alliance's NECTAR` event means a burst could not clear it: film it. A POLLEN or our own NECTAR spat out → the event's hue says which range
       (`redNectarHueMin/Max`, `blueNectarHueMin/Max`) to narrow; until fixed, `rejectEnemyNectar` off.
+      Since 10 Nov the red NECTAR / POLLEN boundary is 42° / 43° (it was 47° / 48°), from the
+      Belding logs: a dim POLLEN at 46° was spat out, real red NECTAR read up to 39°. The gap is
+      narrow, so in this check feed some POLLEN in slowly and half-covered (a dim reading) and note
+      every hue the Robot page shows between 35° and 55° with what the piece really was.
 - [ ] **19429 keeps no NECTAR** (`ColorSensorSubsystem.rejectAllNectar`, on for 19429 only in
       `RobotDifferences`, 7 Nov). Basic Drive on 19429, red then blue: feed in a red NECTAR, a blue
       NECTAR and a POLLEN, five times each. **Good:** both NECTAR colours come back out on either
