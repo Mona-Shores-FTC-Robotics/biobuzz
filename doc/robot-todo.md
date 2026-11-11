@@ -476,6 +476,13 @@ Use the work order above to select checks; the detailed mechanism checks below a
       **Also:** the two Belding runs that crawled for 4 s about 10 in short of `LEFT_LAUNCH_CLOSE`
       / `LEFT_LAUNCH_CATCH` (20245, 14:39 and 16:53 hub time) look blocked: check the match video.
 
+- [ ] **Lane study drafts (`autos/drafts/r-outside-lane-short.pp`, `l-under-hive.pp`): three gaps to measure, no PLAY.**
+      [What the simulator showed](../TeamCode/autos/drafts/README.md#lane-study-r-outsidelane-and-l-underhive).
+      Place two robots by hand on the spots and measure the gap between them, FLOWER stick included:
+      (a) `LEFT_LAUNCH_OFFSET` and `LEFT_LAUNCH_CATCH` (16.6 in centre to centre; the simulator calls it contact);
+      (b) `RIGHT_LAUNCH_CLOSE` and `RIGHT_START` (18.3 in; contact while the robot turns in);
+      (c) `LEFT_LAUNCH_OFFSET` and a robot driving the straight line from `LEFT_START` to the park zone.
+      The drafts have no OpMode: nothing here is driven.
 - [ ] **R-Two-Tip draft (`autos/drafts/r-two-tip.pp`): R-Solo's steps from the measured LEFT spot.**
       [Why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-two-tip-r-solos-steps-fired-from-the-measured-left-spot).
       Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s).

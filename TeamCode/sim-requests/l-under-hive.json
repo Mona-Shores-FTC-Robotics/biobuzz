@@ -1,0 +1,104 @@
+{
+  "pp": "TeamCode/autos/drafts/l-under-hive.pp",
+  "spec": "LUnderHiveAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "matching R-OutsideLane",
+      "partner": "ROutsideLaneAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "matching R-OutsideLane-Short",
+      "partner": "ROutsideLaneShortAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "R-OutsideLane-Short drives 20 percent slower",
+      "partner": "ROutsideLaneShortAuto",
+      "timing": {
+        "speed": 40
+      }
+    },
+    {
+      "name": "R-OutsideLane-Short misses every shot",
+      "partner": "ROutsideLaneShortAuto",
+      "fails": "misses",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "partner dead on its right start, said 8 s",
+      "partner": "PartnerRBrokenDownAuto",
+      "lastShotS": 8
+    },
+    {
+      "name": "partner launches and parks, last shot at 5 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 5
+    },
+    {
+      "name": "partner launches and stays, last shot at 5 s",
+      "partner": "PartnerRLaunchStayAuto",
+      "lastShotS": 5
+    }
+  ],
+  "metadata": {
+    "AutoSource": "l-under-hive.pp",
+    "SavedBy": "Lane study: R keeps to the wall lane, L to the under-HIVE lane",
+    "SavedAt": "2026-11-11T00:00:00+00:00"
+  }
+}
