@@ -1287,6 +1287,8 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Drive/CommandTurn", robot.drive.appliedTurn());
         log.put("/Drive/CommandFieldCentric", robot.drive.commandFieldCentric() ? 1 : 0);
         log.put("/Drive/OdometrySpeedInPerSec", speed);
+        // Beside CommandTurn: a turn rate nobody commanded is the clearest sign of a hit (#498).
+        log.put("/Drive/OdometryTurnRadPerSec", robot.drive.odometryTurnRadPerSec());
         for (int i = 0; i < WHEEL_KEYS.length; i++) log.put(WHEEL_KEYS[i], robot.drive.wheelTicksPerSec(i));
         log.put("/FlowerStick/Out", robot.flowerStick.extended() ? 1 : 0);
         log.put("/FlowerStick/Powered", robot.flowerStick.limp() ? 0 : 1);
