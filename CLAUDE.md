@@ -239,6 +239,11 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
 - **Never patch `FtcRobotController/`.** It is stock v12.0 and gets replaced wholesale.
 - **SDK 12 split `AprilTagDetection`** into `AprilTagSingleDetection` /
   `AprilTagClusterDetection`; old `.id`/`.metadata`/`.center` code does not compile.
+- **A CELL is scored only from its own end of the field.** A HIVE's two CELLs open away from
+  each other, so a shot from the left end cannot go into the RIGHT CELL, nor one from the right
+  end into the LEFT. Never plan, draw, register or simulate a launch at the CELL beyond the near
+  one, as a fallback or a what-if: a robot that must score the other CELL drives to that end
+  first. `AutoRegistrationTest` fails a launch command that is not at the near CELL.
 - **BIOBUZZ AprilTags move** (they sit on the tipping HIVE). Never use Limelight MegaTag
   (`getBotpose*`) or any fixed field map: one position per tag is wrong whenever its CELL has
   tipped. Tag fixes enter the pose only through `localization/`, using the CELL's settled UP/DOWN

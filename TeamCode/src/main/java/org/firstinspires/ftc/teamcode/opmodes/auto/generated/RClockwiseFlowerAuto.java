@@ -21,7 +21,7 @@ public final class RClockwiseFlowerAuto {
     public static final String SOURCE = "r-clockwise-flower.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-11|12:28PM";
+    public static final String SAVED = "11-11|1:20PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -85,20 +85,21 @@ public final class RClockwiseFlowerAuto {
         Pose point15Segment1Start = p.of(62, 44, 273.4);
         Pose point15Segment1End = p.of(62, 44, 270);
         Pose point15Segment2Heading = p.of(62, 44, 270);
-        Pose point16Segment1Start = p.of(63, 18, 270);
-        Pose point17 = p.of(56, 41.5, 180);
-        Pose point17Control1 = p.of(63, 34, 0);
-        Pose point17Control2 = p.of(61, 41.5, 0);
-        Pose point17Segment1Heading = p.of(56, 41.5, 99.9);
-        Pose point17Segment2Start = p.of(56, 41.5, 99.9);
-        Pose point17Segment2End = p.of(56, 41.5, 180);
-        Pose point18 = p.of(33, 41.5, 180);
-        Pose point19Control1 = p.of(30, 65, 0);
-        Pose point19Control2 = p.of(30, 87, 0);
-        Pose point19Segment1Start = p.of(14.5, 95.7, 180);
-        Pose point19Segment1End = p.of(14.5, 95.7, 90);
-        Pose point19Segment2Heading = p.of(14.5, 95.7, 90);
-        Pose point19Segment3Start = p.of(14.5, 95.7, 90);
+        Pose point16Start = p.of(62, 44, 270);
+        Pose point16 = p.of(62.8, 24, 99.9);
+        Pose point18 = p.of(56, 41.5, 180);
+        Pose point18Control1 = p.of(63, 34, 0);
+        Pose point18Control2 = p.of(61, 41.5, 0);
+        Pose point18Segment1Heading = p.of(56, 41.5, 99.9);
+        Pose point18Segment2Start = p.of(56, 41.5, 99.9);
+        Pose point18Segment2End = p.of(56, 41.5, 180);
+        Pose point19 = p.of(33, 41.5, 180);
+        Pose point20Control1 = p.of(30, 65, 0);
+        Pose point20Control2 = p.of(30, 87, 0);
+        Pose point20Segment1Start = p.of(14.5, 95.7, 180);
+        Pose point20Segment1End = p.of(14.5, 95.7, 90);
+        Pose point20Segment2Heading = p.of(14.5, 95.7, 90);
+        Pose point20Segment3Start = p.of(14.5, 95.7, 90);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
@@ -109,8 +110,8 @@ public final class RClockwiseFlowerAuto {
         Path scoringFlowerParkToRightPark = Paths.curve(scoringFlowerStaging, scoringFlowerParkToRightParkControl1, scoringFlowerParkToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);
         Path forwardTurnToLeftLaunchCatch = Paths.curve(scoringFlowerStaging, forwardTurnToLeftLaunchCatchControl1, forwardTurnToLeftLaunchCatchControl2, leftLaunchCatch).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(forwardTurnToLeftLaunchCatchSegment1Start, forwardTurnToLeftLaunchCatchSegment1End)).until(1, Interpolator.linear(forwardTurnToLeftLaunchCatchSegment2Start, leftLaunchCatch)));
         Path catchParkToRightPark = Paths.path(Paths.curve(leftLaunchCatch, point11Control1, point11).linear(leftLaunchCatch, point11), Paths.line(point11, point12).constant(point12), Paths.line(point13Start, rightPark).linear(point13Start, rightPark));
-        Path underTheHiveToRightPairCatch = Paths.path(Paths.curve(leftLaunchCatch, point15Control1, point15Control2, point15).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(point15Segment1Start, point15Segment1End)).until(1, Interpolator.constant(point15Segment2Heading))), Paths.line(point15, rightPairCatch).heading(Interpolator.piecewise().until(0.75, Interpolator.linear(point16Segment1Start, rightPairCatch)).until(1, Interpolator.constant(rightPairCatch))));
-        Path outsideLaneToRightPark = Paths.path(Paths.curve(rightPairCatch, point17Control1, point17Control2, point17).heading(Interpolator.piecewise().until(0.4, Interpolator.constant(point17Segment1Heading)).until(1, Interpolator.linear(point17Segment2Start, point17Segment2End))), Paths.line(point17, point18).constant(point18), Paths.curve(point18, point19Control1, point19Control2, rightPark).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(point19Segment1Start, point19Segment1End)).until(0.65, Interpolator.constant(point19Segment2Heading)).until(1, Interpolator.linear(point19Segment3Start, rightPark))));
+        Path underTheHiveToRightPairCatch = Paths.path(Paths.curve(leftLaunchCatch, point15Control1, point15Control2, point15).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(point15Segment1Start, point15Segment1End)).until(1, Interpolator.constant(point15Segment2Heading))), Paths.line(point16Start, point16).linear(point16Start, point16), Paths.line(point16, rightPairCatch).constant(rightPairCatch));
+        Path outsideLaneToRightPark = Paths.path(Paths.curve(rightPairCatch, point18Control1, point18Control2, point18).heading(Interpolator.piecewise().until(0.4, Interpolator.constant(point18Segment1Heading)).until(1, Interpolator.linear(point18Segment2Start, point18Segment2End))), Paths.line(point18, point19).constant(point19), Paths.curve(point19, point20Control1, point20Control2, rightPark).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(point20Segment1Start, point20Segment1End)).until(0.65, Interpolator.constant(point20Segment2Heading)).until(1, Interpolator.linear(point20Segment3Start, rightPark))));
 
         return kit.sequence(
                 kit.command("SpinUp"),
@@ -118,8 +119,8 @@ public final class RClockwiseFlowerAuto {
                 kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, pickupParkToRightPark, 2.1),
                 kit.command("PickFlower", 4.5),
                 kit.path("outside lane to LEFT_PAIR_OFFSET", outsideLaneToLeftPairOffset, 2.8, leftParkToRightPark, 1.7),
-                kit.firstOf("R2: LEFT up by 18 s, otherwise park",
-                        kit.atMatchSeconds(18).then(
+                kit.firstOf("R2: LEFT up by 21 s, otherwise park",
+                        kit.atMatchSeconds(21).then(
                                 kit.guarded("Timed out", leftParkToRightPark, 1.7,
                                         kit.path("left park to RIGHT_PARK", leftParkToRightPark, 1.7))),
                         kit.when("LeftCellUp").then(

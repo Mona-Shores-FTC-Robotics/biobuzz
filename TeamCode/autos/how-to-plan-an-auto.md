@@ -73,8 +73,11 @@ On a path card:
 
 Use **↑ ↓** to reorder a card, **Duplicate** to copy it, **✕ Delete** to remove it.
 
-**Commands the robot knows today:** `SpinUp`, `LaunchAll`, `LaunchOne`, and `LaunchAllFar`
-(`LaunchAll` at our HIVE's other CELL, the one beyond the near one; not yet shot on a robot). **Triggers:** `Tip` (our
+**A CELL is scored only from its own end of the field.** The HIVE's two CELLs open away from each
+other, so a robot at the left end can only put pieces in the LEFT CELL. To score the RIGHT CELL
+it drives to the right end first. Never draw a shot at the far CELL.
+
+**Commands the robot knows today:** `SpinUp`, `LaunchAll`, `LaunchOne`. **Triggers:** `Tip` (our
 HIVE tipped since the wait began), `Empty` (the launcher has fired everything), `CameraBlind` (no
 HIVE tag seen for half a second), `LeftCellUp` and `RightCellUp` (the camera sees that CELL of our
 HIVE up right now: not while the HIVE is out of view or mid-TIP, and true at once if it is already

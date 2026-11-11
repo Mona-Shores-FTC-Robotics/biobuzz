@@ -57,7 +57,6 @@ public class LaunchCardsTest {
         cards = new LaunchCards(
                 new LaunchCards.Launcher() {
                     @Override public void spinUp() { spinning = true; log.add("spinUp"); }
-                    @Override public void spinUpFar() { spinning = true; log.add("spinUpFar"); }
                     @Override public boolean atSpeed() { return atSpeed; }
                     @Override public int shots() { return shots; }
                 },
@@ -133,36 +132,6 @@ public class LaunchCardsTest {
     }
 
     /** #193: a fire after a path waits for the robot to be still and aimed, not for Pedro's done. */
-    /** LaunchAllFar is LaunchAll at the far CELL: only the spin-up differs, and it counts as emptying. */
-    @Test
-    public void launchAllFarSpinsUpForTheFarCellAndFeedsAsLaunchAll() {
-        run(cards.launchAllFar(), 6.0);
-        assertEquals("spinUpFar", log.get(0));
-        assertFalse("never the near CELL's spin-up: " + log, log.contains("spinUp"));
-        assertEquals("feeds for launchAllFeedS", 2.0, timeOf(first("idle")) - timeOf(first("feed")), LOOP_S + EPS);
-        assertEquals(1, cards.launchAllsCompleted());
-    }
-
-    /** The far volley has no approach: a gate opened on the drive in for a LaunchAll is not its to take. */
-    @Test
-    public void launchAllFarWaitsForTheSettleLikeAnyLaunch() {
-        settled = false;
-        atSpeed = true;
-        Command launch = cards.launchAllFar();
-        launch.schedule();
-        for (int i = 0; i < 10; i++) {
-            Scheduler.execute();
-            now += LOOP_S;
-        }
-        assertTrue("no feed before the robot settles: " + log, log.stream().noneMatch(l -> l.startsWith("feed")));
-        settled = true;
-        for (int i = 0; i < 3; i++) {
-            Scheduler.execute();
-            now += LOOP_S;
-        }
-        assertTrue(log.toString(), log.stream().anyMatch(l -> l.startsWith("feed")));
-    }
-
     /** 1 Nov 2026: a wheel that never reaches speed must not keep every ball in the robot. */
     @Test
     public void aLauncherThatNeverReachesSpeedFeedsAnywayAtTheMaxWaitAndTheLogSaysSo() {

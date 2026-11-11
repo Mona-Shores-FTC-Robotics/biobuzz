@@ -239,9 +239,6 @@ public final class AutoRegistration {
                 // on the drive in, once aimed and at speed (LaunchCards.approach).
                 .volley("LaunchAll", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S, () -> launch.launchAll(),
                         launch == null ? null : launch.approach())
-                // The same volley at our HIVE's other CELL, beyond the near one (LaunchCards.launchAllFar): a
-                // paired Auto's robot finishing the other end's TIP from where it stands. No approach.
-                .volley("LaunchAllFar", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S, () -> launch.launchAllFar(), null)
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at

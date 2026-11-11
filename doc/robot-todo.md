@@ -509,14 +509,14 @@ Use the work order above to select checks; the detailed mechanism checks below a
       [The plan, the stops, the times and the lane study](../TeamCode/autos/clockwise.md). Not yet
       driven; Infraviolet stays on the menu until this has on both robots. Run with the DS AUTO
       timer on. In this order, since each step decides whether the next is worth running:
-      - **L's shot at RIGHT from the left spot** (`LaunchAllFar`). Robot at LEFT_LAUNCH_CATCH,
-        LEFT CELL down, RIGHT CELL up, four POLLEN: Utility or TeleOp volley aimed as the card
-        aims (square to the HIVE), at the configured speed, then at 50 and 100 ticks/s more. Film
-        from the side. **Good:** pieces clear the lowered LEFT CELL and stay in the RIGHT one;
-        write the speed that did it as the speed table's row for 69 in. **Stop:** they hit the HIVE or
-        the LEFT CELL, as all four do in the simulator (the CELLs open away from each other) →
-        L1's "no" cannot finish TIP 1 from there; say so on the PR (clockwise.md, "What would
-        change it", has the other way: L crosses first).
+      - **L1's "no": L crosses and shoots at RIGHT from the right end.** (The plan first had L
+        shoot at RIGHT from the left spot. That cannot work: a CELL is scored only from its own
+        end, CLAUDE.md "Hard constraints".) Hold R's preloads back. **Good:** at 9.5 s L drives
+        under the HIVE to RIGHT_LAUNCH_CATCH, turns to face the HIVE without a corner over the
+        field's centre line, shoots its four at the RIGHT CELL, stands until 24.6 s (TLr) and
+        parks on LEFT_PARK by 30 s; write when it arrived, when its last piece left and when it
+        parked (drawn: 13.9, 16.8 and 28.7 s). **Stop:** it is not parked by 30 s → set TLr
+        earlier in INIT and note the drive's real seconds.
       - **R's view of the HIVE at R3.** R at LEFT_LAUNCH_CATCH facing the HIVE after the forward
         turn from SCORING_FLOWER_STAGING, RIGHT CELL up. **Good:** `RightCellUp` within 0.3 s of
         arriving (Vision: HIVE & Pose shows the RIGHT CELL's tags settled UP from that pose).
@@ -537,7 +537,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         touch of the HIVE's feet or a wall; write each drive's seconds beside the drawn ones.
         **Stop:** a corner touches → note the pose and bend the path in the Visualizer.
       - **T1 to T4 and the clock checks, from the log of each run:** when `LeftCellUp` first fires
-        for L (T1 9.5 s), when R arrives at LEFT_PAIR_OFFSET and its volley ends (T2 18 s, TS
+        for L (T1 9.5 s), when R arrives at LEFT_PAIR_OFFSET and its volley ends (T2 21 s, TS
         19.4 s), when R is back at LEFT_LAUNCH_CATCH (T3 22.3 s, T3b 22.8 s), when L arrives at
         RIGHT_LAUNCH_OFFSET (T4 19.2 s) and when each robot is parked (TL 22.7 s, TR 26.8 s).
         **Good:** each within 0.5 s of the simulator's (clockwise.md, "The times"). Otherwise
@@ -548,9 +548,10 @@ Use the work order above to select checks; the detailed mechanism checks below a
         and R must be off SCORING_FLOWER_STAGING before L passes it (R leaves 20.6 s, L passes
         24.4 s). **Stop the run by hand** if L is still in the lane when R moves. In the
         simulator contact first appears with L 30% slow.
-      - **The fallbacks, on purpose:** hold R's preloads back (L1 "no": L shoots at RIGHT at
-        9.5 s, R parks at 18 s), then L's (R3 "no": R shoots its SCORING FLOWER load at LEFT and
-        parks at 26.8 s). **Good:** the trace shows those rows, and both robots park.
+      - **The fallbacks, on purpose, both robots:** hold R's preloads back (L1 "no" as above; R
+        shoots its first load at LEFT when it comes up, or parks at 21 s if it has not, and R is
+        parked from the left spot before L passes), then L's (R3 "no": R shoots its SCORING
+        FLOWER load at LEFT and parks at 26.8 s). **Good:** the trace shows those rows, and both robots park.
       - **The other pickup:** Pickup GARDEN on R and WALL_FLOWER on L. **Good:** L stands at the
         lane's end until 15.5 s (TF) and R has passed the WALL FLOWER by then.
       - **Shot trigger TIMER on both,** with T1 8, T2 13 and T3 21.5 set in INIT, the camera

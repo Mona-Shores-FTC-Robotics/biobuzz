@@ -1253,10 +1253,6 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
 
   Each row then also carries `tipsBy30` (TIPs complete at 30 s; `autoTips` also takes one that completes in
   the transition), `hitHiveAt` and `partnerHitHiveAt`, and `againstLoopAt` and `partnerAgainstLoopAt`.
-- **`LaunchAllFar`** fires as `LaunchAll` does, at our HIVE's other CELL. Under the Belding calibration its
-  share that stays in is the longest measured row's (0.90, held beyond 53.9 in), which nothing measured
-  supports at 69 in; in the simulator the shot from LEFT_LAUNCH_CATCH hits the HIVE anyway, because the
-  CELLs open away from each other.
 - **From the Visualizer**, Save & Simulate to `master` commits the `.pp`, its Java and the Auto's
   own `TeamCode/sim-requests/<name>.json` to an `auto/<name>` branch and opens a pull request that
   merges itself once CI passes (the fast lane, `.github/CONTRIBUTING.md`). The "Simulate Auto"

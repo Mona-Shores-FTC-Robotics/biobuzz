@@ -90,4 +90,25 @@ public class AutoRegistrationTest {
         if (new File(dir, "src/main/java").isDirectory()) return dir;
         return new File(dir, "TeamCode");
     }
+
+    /**
+     * A CELL is scored only from its own end of the field: a HIVE's two CELLs open away from each other, so no
+     * shot from the left end goes into the RIGHT CELL (mentor, 11 Nov 2026, after a "LaunchAllFar" card was drawn
+     * as a fallback and hit the HIVE in every simulated run). The launch commands are the ones that aim at the
+     * CELL at the robot's end ({@code TurretAimer}); a new one needs the same aim, and its name here.
+     */
+    @Test
+    public void everyLaunchIsAtTheCellAtTheRobotsEnd() throws Exception {
+        String json = new String(java.nio.file.Files.readAllBytes(new File(teamCode(), "auto-registry.json").toPath()),
+                java.nio.charset.StandardCharsets.UTF_8);
+        java.util.regex.Matcher names = java.util.regex.Pattern.compile("\\{\"name\": \"([^\"]+)\"").matcher(json);
+        java.util.List<String> launches = new java.util.ArrayList<>();
+        while (names.find()) {
+            String name = names.group(1);
+            if (name.startsWith("Launch") || name.startsWith("Shoot") || name.startsWith("Fire")) launches.add(name);
+        }
+        assertEquals("a launch command that is not LaunchAll or LaunchOne: both aim at the CELL at the robot's end, and"
+                        + " no other CELL can be scored from there (CLAUDE.md, Hard constraints)",
+                java.util.Arrays.asList("LaunchAll", "LaunchOne"), launches);
+    }
 }

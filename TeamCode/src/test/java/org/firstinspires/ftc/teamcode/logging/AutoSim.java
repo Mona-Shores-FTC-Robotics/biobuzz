@@ -1259,10 +1259,8 @@ public final class AutoSim {
         boolean missesWide;
         /** The first launch volley goes wide ({@link AutoSim#missesPreloads}). */
         boolean missesPreloads;
-        /** Volleys (LaunchAll, LaunchAllFar) this robot has started. */
+        /** Volleys (LaunchAll) this robot has started. */
         int volleysStarted;
-        /** The running volley is aimed at the far CELL (LaunchAllFar). */
-        boolean farAim;
         /** The running volley goes wide: {@link #missesWide}, or the first one of {@link #missesPreloads}. */
         boolean wideNow;
         /** INIT picks by option name ({@link AutoSim#picks}); null: as drawn. */
@@ -1491,7 +1489,7 @@ public final class AutoSim {
             // a shot at a down CELL is a wasted preload, there for the results to show. StreamOn, which master's
             // Autos do not use, keeps firing only at the raised CELL.
             FieldSim.Rocker hive = sim.rocker(alliance);
-            int aimedEnd = firing ? (farAim ? -aimedEnd() : aimedEnd()) : hive.raisedEnd();
+            int aimedEnd = firing ? aimedEnd() : hive.raisedEnd();
             double[] aim = aimedEnd == 0 ? null : hive.aimPointFor(aimedEnd);
             boolean cellDown = hive.raisedEnd() != aimedEnd;
             double yawError = 0;
@@ -1585,7 +1583,7 @@ public final class AutoSim {
                     rr.launchedAtDownCell++;
                     if (!downCellReported) {
                         downCellReported = true;
-                        pending.add(String.format(Locale.ROOT, (farAim ? "LaunchAllFar" : "LaunchAll") + " fires at the %s CELL, which is not up: those pieces are wasted",
+                        pending.add(String.format(Locale.ROOT, "LaunchAll fires at the %s CELL, which is not up: those pieces are wasted",
                                 aimedEnd > 0 ? "high-end" : "low-end"));
                     }
                 }
@@ -2174,9 +2172,6 @@ public final class AutoSim {
                     // the next one when its last piece can be out before AUTO ends (AutoKit.guarded).
                     .volley("LaunchAll", AutoRegistration.LAUNCH_ALL_TYPICAL_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S,
                             () -> launch(Integer.MAX_VALUE))
-                    // The same volley at our HIVE's other CELL, the one beyond the near one (master's LaunchAllFar).
-                    .volley("LaunchAllFar", AutoRegistration.LAUNCH_ALL_TYPICAL_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S,
-                            () -> launch(Integer.MAX_VALUE, true))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
                     .command("CollectSeen", 2.0, this::collectSeen)
@@ -2259,13 +2254,8 @@ public final class AutoSim {
         private int launchAllsStarted;
 
         private Command launch(int count) {
-            return launch(count, false);
-        }
-
-        private Command launch(int count, boolean far) {
             return new CommandBuilder()
                     .setStart(() -> {
-                        farAim = far;
                         wideNow = missesPreloads && count == Integer.MAX_VALUE && volleysStarted == 0;
                         if (count == Integer.MAX_VALUE) volleysStarted++;
                         boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.WHOLE_FEED && count == Integer.MAX_VALUE && launchAllsStarted++ > 0;
