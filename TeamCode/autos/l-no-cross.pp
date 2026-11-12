@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-11T03:45:15.819Z",
+  "timestamp": "2026-11-12T20:03:26.000Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -844,32 +844,9 @@
                     "label": "Timed out",
                     "cards": [
                       {
-                        "id": "c-mw0eygqv-43e96",
-                        "kind": "action",
-                        "name": "LaunchAll"
-                      },
-                      {
-                        "id": "c-mw0eyliu-eojd4",
-                        "kind": "path",
-                        "lineId": "line-mw0eyliu-i7tra3",
-                        "park": false
-                      },
-                      {
-                        "id": "c-mw0eypgg-196uj",
-                        "kind": "action",
-                        "name": "PickFlower",
-                        "timeoutS": 8
-                      },
-                      {
-                        "id": "c-mwbksy73-9zdyx",
-                        "kind": "path",
-                        "lineId": "line-mwbksy73-eapgv2",
-                        "park": false
-                      },
-                      {
-                        "id": "c-mwbksy73-hdkpl",
+                        "id": "c-mwdn0a03-lnru1",
                         "kind": "firstOf",
-                        "label": "RIGHT CELL still up?",
+                        "label": "RIGHT CELL up?",
                         "rows": [
                           {
                             "when": [
@@ -878,15 +855,65 @@
                             "label": "If RightCellUp",
                             "cards": [
                               {
-                                "id": "c-mwbksy73-zz0f1",
+                                "id": "c-mw0eygqv-43e96",
                                 "kind": "action",
                                 "name": "LaunchAll"
                               },
                               {
-                                "id": "c-mwbksy73-ll6j1",
+                                "id": "c-mw0eyliu-eojd4",
                                 "kind": "path",
-                                "lineId": "line-mwbksy73-ypsvit",
+                                "lineId": "line-mw0eyliu-i7tra3",
                                 "park": false
+                              },
+                              {
+                                "id": "c-mw0eypgg-196uj",
+                                "kind": "action",
+                                "name": "PickFlower",
+                                "timeoutS": 8
+                              },
+                              {
+                                "id": "c-mwbksy73-9zdyx",
+                                "kind": "path",
+                                "lineId": "line-mwbksy73-eapgv2",
+                                "park": false
+                              },
+                              {
+                                "id": "c-mwbksy73-hdkpl",
+                                "kind": "firstOf",
+                                "label": "RIGHT CELL still up?",
+                                "rows": [
+                                  {
+                                    "when": [
+                                      "RightCellUp"
+                                    ],
+                                    "label": "If RightCellUp",
+                                    "cards": [
+                                      {
+                                        "id": "c-mwbksy73-zz0f1",
+                                        "kind": "action",
+                                        "name": "LaunchAll"
+                                      },
+                                      {
+                                        "id": "c-mwbksy73-ll6j1",
+                                        "kind": "path",
+                                        "lineId": "line-mwbksy73-ypsvit",
+                                        "park": false
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "afterMs": 750,
+                                    "label": "Timed out",
+                                    "cards": [
+                                      {
+                                        "id": "c-mwbksy73-46ewy",
+                                        "kind": "path",
+                                        "lineId": "line-mwbksy73-ypsvit",
+                                        "park": false
+                                      }
+                                    ]
+                                  }
+                                ]
                               }
                             ]
                           },
@@ -895,7 +922,7 @@
                             "label": "Timed out",
                             "cards": [
                               {
-                                "id": "c-mwbksy73-46ewy",
+                                "id": "c-mwdn0a03-lnbk1",
                                 "kind": "path",
                                 "lineId": "line-mwbksy73-ypsvit",
                                 "park": false
@@ -914,9 +941,30 @@
         "alongside": "SpinUp"
       },
       {
-        "id": "c-mw0c4s2t-8epji",
-        "kind": "action",
-        "name": "LaunchAll"
+        "id": "c-mwdn0a03-lnv2c",
+        "kind": "firstOf",
+        "label": "LEFT CELL up?",
+        "rows": [
+          {
+            "when": [
+              "CellUp"
+            ],
+            "label": "If CellUp",
+            "cards": [
+              {
+                "id": "c-mw0c4s2t-8epji",
+                "kind": "action",
+                "name": "LaunchAll"
+              }
+            ]
+          },
+          {
+            "afterMs": 23000,
+            "matchClock": true,
+            "label": "Timed out",
+            "cards": []
+          }
+        ]
       },
       {
         "id": "c-mw0c4s2t-jqsjs",
@@ -937,9 +985,30 @@
         "park": false
       },
       {
-        "id": "c-mw0c4s2u-axth1",
-        "kind": "action",
-        "name": "LaunchAll"
+        "id": "c-mwdn0a03-lnv3c",
+        "kind": "firstOf",
+        "label": "LEFT CELL back up?",
+        "rows": [
+          {
+            "when": [
+              "CellUp"
+            ],
+            "label": "If CellUp",
+            "cards": [
+              {
+                "id": "c-mw0c4s2u-axth1",
+                "kind": "action",
+                "name": "LaunchAll"
+              }
+            ]
+          },
+          {
+            "afterMs": 23000,
+            "matchClock": true,
+            "label": "Timed out",
+            "cards": []
+          }
+        ]
       },
       {
         "id": "c-mw0c4s2u-u2yl0",
@@ -965,7 +1034,8 @@
       "c-mwbksy73-ll6j1": "line-mw0c4s32-8noomj",
       "c-mwbksy73-46ewy": "line-mw0c4s32-8noomj",
       "c-mwbksy73-u5fhh": "line-mw0c4s32-8noomj",
-      "c-mwbksy73-9zdyx": "line-mw0rkae5-kh7tv8"
+      "c-mwbksy73-9zdyx": "line-mw0rkae5-kh7tv8",
+      "c-mwdn0a03-lnbk1": "line-mw0c4s32-8noomj"
     },
     "teamSpots": [
       "LEFT_LAUNCH_CATCH",

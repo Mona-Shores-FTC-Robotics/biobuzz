@@ -43,9 +43,16 @@ L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only re
 those routines: their paths, waits and fallback behavior have not been tuned yet.
 In particular, L-NoCross's existing no-TIP fallback still crosses to RIGHT; replace
 that in the Visualizer before qualifying it as a true no-cross routine. R-NoCross's
-CELL-up timeout also still proceeds to launch. Since 10 Nov L-NoCross's no-TIP route checks
-the CELL before each volley ("TIP seen?" at RIGHT_LAUNCH_CLOSE, "RIGHT CELL still up?" after the
-WALL FLOWER pick), so it no longer fires at a down CELL. See `doc/robot-todo.md` for the checks.
+CELL-up wait runs until 21 s on the match clock, then parks without launching.
+
+**Every volley after an Auto's first sits behind a CELL check** (R-Solo, R-NoCross and L-NoCross,
+12 Nov): a wait for `CellUp` (or `RightCellUp`) whose trigger row holds only the LaunchAll, and
+whose time row is empty, so a CELL that is not seen up means no volley and the Auto goes on.
+Two volleys at Belding went at a down CELL (Q-14, M-7). The first volley, into the RIGHT CELL
+the manual starts up, has no check. Draw a new volley the same way; the endgame guard counts
+such a check as its volley, so the park is kept as before. A check that waits on the match
+clock stops early enough for the volley and the park after it (22 s in R-NoCross, 23 s in
+L-NoCross). See `doc/robot-todo.md` for the robot checks.
 
 Inside the Visualizer, the same list is **View → Team Autos: the latest from biobuzz, together…**
 (pick a branch, tick up to four Autos, Reload latest). A pull request's draft opens with its branch

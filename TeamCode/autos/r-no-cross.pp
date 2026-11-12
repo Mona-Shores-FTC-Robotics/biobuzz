@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-11T03:38:59.868Z",
+  "timestamp": "2026-11-12T20:03:26.000Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -661,9 +661,30 @@
                 "park": false
               },
               {
-                "id": "c-mw0c4s3s-bj8i6",
-                "kind": "action",
-                "name": "LaunchAll"
+                "id": "c-mwdn0a02-rncv3",
+                "kind": "firstOf",
+                "label": "RIGHT CELL back up?",
+                "rows": [
+                  {
+                    "when": [
+                      "CellUp"
+                    ],
+                    "label": "If CellUp",
+                    "cards": [
+                      {
+                        "id": "c-mw0c4s3s-bj8i6",
+                        "kind": "action",
+                        "name": "LaunchAll"
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 22000,
+                    "matchClock": true,
+                    "label": "Timed out",
+                    "cards": []
+                  }
+                ]
               },
               {
                 "id": "c-mw0c4s3s-nvtgs",

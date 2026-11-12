@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-11T03:38:59.883Z",
+  "timestamp": "2026-11-12T20:03:26.000Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -771,9 +771,29 @@
                 "park": false
               },
               {
-                "id": "c-mw2h249a-p5yh3",
-                "kind": "action",
-                "name": "LaunchAll"
+                "id": "c-mwdn0a01-rsv3c",
+                "kind": "firstOf",
+                "label": "LEFT CELL still up?",
+                "rows": [
+                  {
+                    "when": [
+                      "CellUp"
+                    ],
+                    "label": "If CellUp",
+                    "cards": [
+                      {
+                        "id": "c-mw2h249a-p5yh3",
+                        "kind": "action",
+                        "name": "LaunchAll"
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 750,
+                    "label": "Timed out",
+                    "cards": []
+                  }
+                ]
               },
               {
                 "id": "c-mw2h249a-nxkzp",
@@ -793,9 +813,29 @@
                 "park": false
               },
               {
-                "id": "c-mw2h249b-xpbq7",
-                "kind": "action",
-                "name": "LaunchAll"
+                "id": "c-mwdn0a01-rsfb1",
+                "kind": "firstOf",
+                "label": "RIGHT CELL still up?",
+                "rows": [
+                  {
+                    "when": [
+                      "CellUp"
+                    ],
+                    "label": "If CellUp",
+                    "cards": [
+                      {
+                        "id": "c-mw2h249b-xpbq7",
+                        "kind": "action",
+                        "name": "LaunchAll"
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 750,
+                    "label": "Timed out",
+                    "cards": []
+                  }
+                ]
               },
               {
                 "id": "c-mw2h249b-tphk6",

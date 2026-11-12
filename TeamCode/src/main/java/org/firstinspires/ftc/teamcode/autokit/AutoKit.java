@@ -342,6 +342,8 @@ public final class AutoKit {
         final Command inner = registry.command(name);
         final boolean grab = registry.isGrab(name);
         final double grabSeconds = grab ? registry.typicalSeconds(name) : 0.0;
+        final boolean volley = registry.isVolley(name);
+        final double volleySeconds = volley ? registry.typicalSeconds(name) : 0.0;
         final AutoRegistry.Approach approach = registry.approach(name);
         final CommandCard card = approach == null ? null : new CommandCard();
         if (card != null) card.before = approach;
@@ -357,6 +359,14 @@ public final class AutoKit {
                     // A grab the guard could not cut must not start unless it and the park both fit.
                     refused[0] = grab && !Double.isNaN(guardParkSeconds)
                             && tooLateToContinue(guardLabel, grabSeconds + guardParkSeconds, "not starting " + name);
+                    // Nor a volley, with parkAfterVolley on: once it feeds it is never cut. The guard's
+                    // look-ahead already decides for a volley in its own list or behind a "CELL up?"
+                    // check (goingForVolley, or it parked before this card); this is a volley deeper
+                    // in a block's row, which the look-ahead cannot see.
+                    if (!refused[0] && volley && parkAfterVolley && !Double.isNaN(guardParkSeconds)) {
+                        refused[0] = tooLateToContinue(guardLabel, volleySeconds + guardParkSeconds,
+                                "not starting " + name + ", no time to park after it");
+                    }
                     if (refused[0]) parkWanted = true;
                     // The drive before it may have got the grab's mechanisms ready: put them away.
                     if (refused[0]) {
@@ -522,7 +532,33 @@ public final class AutoKit {
             if (chosen[0] != null) chosen[0].end(end);
         });
         Plan plan = waitPlan(alongside, rows);
+        if (plan == null) plan = checkPlan(alongside, rows);
         return plan == null ? card : planned(plan, card);
+    }
+
+    /**
+     * A "CELL up?" check's plan: the volley it guards. The check is a wait whose trigger row holds
+     * one card, a volley, and whose time limits hold none: "fire if the CELL is up, else go on". The
+     * guard's look-ahead then counts it as that volley, as if the check passed at once, so a trip
+     * toward a checked volley that would leave no time to park is not begun, exactly as toward a
+     * bare one. Null for any other block. The drawing keeps the check's own time limit early enough
+     * that a volley starting at the limit still leaves the park its time.
+     */
+    private Plan checkPlan(Command alongside, Row[] rows) {
+        if (alongside != null) return null;
+        Plan volley = null;
+        boolean limited = false;
+        for (Row row : rows) {
+            if (row.timeLimit) {
+                if (row.cards.length > 0) return null;
+                limited = true;
+                continue;
+            }
+            if (volley != null || row.cards.length != 1) return null;
+            volley = plans.get(row.cards[0]);
+            if (volley == null || !volley.isVolley()) return null;
+        }
+        return limited ? volley : null;
     }
 
     /**
@@ -597,6 +633,14 @@ public final class AutoKit {
      * running inside: it cuts the block at the deadline while a wait or a command inside it runs,
      * never while a path inside it drives, and a path inside it that does not fit does not start:
      * it finishes at once, the block ends, and the guard parks.
+     *
+     * <p><b>A volley behind a "CELL up?" check counts as a volley</b> (12 Nov 2026). Every volley
+     * after an Auto's first sits behind such a check, a wait whose trigger row holds only the
+     * LaunchAll, so that none goes at a down CELL (Belding Q-14, M-7). The look-ahead counts the
+     * check as its volley ({@link #checkPlan}), so the rules above hold for it unchanged. A volley
+     * deeper in a block, which the look-ahead cannot see, asks for itself as it starts, with
+     * {@link #parkAfterVolley} on: if it, at its typical time, and the park from here do not fit,
+     * it does not fire, the block ends and the guard parks.
      *
      * <p><b>Grabs are treated as paths.</b> A grab ({@link AutoRegistry#grab}: a FLOWER pick, a
      * GARDEN gather) drives the robot off its spot and back, so the guard never cuts one either.

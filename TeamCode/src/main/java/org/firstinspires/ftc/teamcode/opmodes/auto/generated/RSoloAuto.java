@@ -21,7 +21,7 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-10|10:38PM";
+    public static final String SAVED = "11-12|3:03PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -97,12 +97,18 @@ public final class RSoloAuto {
                                         kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.9),
                                         kit.command("PickFlower", 4.5),
                                         kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClosePath, 1.3),
-                                        kit.command("LaunchAll"),
+                                        kit.firstOf("LEFT CELL still up?",
+                                                kit.when("CellUp").then(
+                                                        kit.command("LaunchAll")),
+                                                kit.afterMs(750)),
                                         kit.path("to RIGHT_PARK", toRightPark, 2))),
                         kit.afterMs(750).then(
                                 kit.guarded("Timed out", toRightParkPath, 2.9,
                                         kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.2),
-                                        kit.command("LaunchAll"),
+                                        kit.firstOf("RIGHT CELL still up?",
+                                                kit.when("CellUp").then(
+                                                        kit.command("LaunchAll")),
+                                                kit.afterMs(750)),
                                         kit.path("to RIGHT_PARK", toRightParkPath, 2.9)))));
     }
 }
