@@ -530,9 +530,10 @@ Use the work order above to select checks; the detailed mechanism checks below a
         rolling (a path card never settles). **Good:** the launch starts within about 0.5 s of
         arriving and the pose has not jumped. **Stop:** the robot bounces off or the Pinpoint
         faults → note the speed it arrived at.
-      - **R backward with a load.** Four POLLEN in the lane: up the outside lane onto
-        LEFT_WALL_NEAR, and back from SCORING_FLOWER_STAGING under the HIVE onto RIGHT_START, at
-        Auto speed. **Good:** four still in the lane at each end, five runs of each. **Stop:** a
+      - **Backward and turning with a load.** Four POLLEN in the lane: R up the outside lane onto
+        LEFT_WALL_NEAR, and back from SCORING_FLOWER_STAGING under the HIVE onto RIGHT_START; L
+        from GARDEN_STAGING to RIGHT_WALL_NEAR (it turns 157° as it drives, with no loop back to
+        the audience wall), at Auto speed. **Good:** four still in the lane at each end, five runs of each. **Stop:** a
         piece leaves → note where on the path, and whether braking or the turn did it.
       - **The two parks, both robots.** RIGHT_PARK and LEFT_PARK leave 2.7 in between parked
         robots. Park R first, then run L's park; then the other order. **Good:** neither touches
