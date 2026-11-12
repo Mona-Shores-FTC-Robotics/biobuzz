@@ -43,7 +43,8 @@ both robots and promoted to competition Autos; run one only with the partner on 
 **L-Clockwise / R-Clockwise** is its successor: the same pair on a one-way loop, with a fixed
 fallback at each stop, a pickup the drive teams choose in INIT, and shots by the camera or the
 timer. It has not driven on a robot yet; Infraviolet stays selectable until it has on both
-([its notes and lane study](clockwise.md)).
+([its notes](clockwise.md)). Its volleys are from the
+drivers' Square spots (`LaunchSpots`), not team spots.
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
 those routines: their paths, waits and fallback behavior have not been tuned yet.
 In particular, L-NoCross's existing no-TIP fallback still crosses to RIGHT; replace

@@ -506,79 +506,68 @@ Use the work order above to select checks; the detailed mechanism checks below a
         already promoted, so log each run that shows otherwise.
 
 - [ ] **Clockwise pair: R-Clockwise beside L-Clockwise.**
-      [The plan, the stops, the times and the lane study](../TeamCode/autos/clockwise.md). Not yet
+      [The plan, the stops, the times and the simulator's tables](../TeamCode/autos/clockwise.md). Not yet
       driven; Infraviolet stays on the menu until this has on both robots. Run with the DS AUTO
-      timer on. In this order, since each step decides whether the next is worth running:
-      - **L1's "no": L crosses and shoots at RIGHT from the right end.** (The plan first had L
-        shoot at RIGHT from the left spot. That cannot work: a CELL is scored only from its own
-        end, CLAUDE.md "Hard constraints".) Hold R's preloads back. **Good:** at 9.5 s L drives
-        under the HIVE to RIGHT_LAUNCH_CATCH, turns to face the HIVE without a corner over the
-        field's centre line, shoots its four at the RIGHT CELL, stands until 24.6 s (TLr) and
-        parks on LEFT_PARK by 30 s; write when it arrived, when its last piece left and when it
-        parked (drawn: 13.9, 16.8 and 28.7 s). **Stop:** it is not parked by 30 s → set TLr
-        earlier in INIT and note the drive's real seconds.
-      - **R's view of the HIVE at R3, at both ends.** At RIGHT_PAIR_CATCH, having backed in from
-        under the HIVE (it arrives facing 96°): **Good:** `RightCellUp` within 0.3 s of arriving
-        with the RIGHT CELL up (Vision: HIVE & Pose shows that CELL's tags settled UP from the
-        pose). At LEFT_LAUNCH_CATCH, after the turn from SCORING_FLOWER_STAGING: the same for
-        the RIGHT CELL from the left end. **Stop:** the camera does not settle the CELL from
-        either pose → note which tags it does see. The same at LEFT_PAIR_OFFSET for R2
-        (`LeftCellUp`, 294.4°), and at LEFT_PAIR_CATCH for L's L1 (267.6°).
-      - **R backward with a load.** Four POLLEN in the lane: back up the outside lane from
-        WALL_FLOWER_STAGING to LEFT_PAIR_OFFSET (it turns 123° on the way), and back from
-        SCORING_FLOWER_STAGING under the HIVE to RIGHT_PAIR_CATCH (no turn), at Auto speed.
-        **Good:** four still in the lane at each end, five runs of each. **Stop:** a piece
-        leaves → note where on the path, and whether braking or the turn did it.
-      - **The three new launch spots**, one robot at a time: eight pieces from LEFT_PAIR_OFFSET
-        (40.0, 128.0, 294.4°; 51.0 in, 24.4° off square to the CELL: the widest angle and the
-        longest shot of the pair, so count these first), eight from LEFT_PAIR_CATCH (61.5,
-        123.5, 267.6°; about 43 in) and eight from RIGHT_PAIR_CATCH (61.0, 13.0, 96.2°;
-        48.0 in), counted on video. Then both robots standing: R at LEFT_PAIR_OFFSET with L at
-        LEFT_PAIR_CATCH, and R at RIGHT_PAIR_CATCH with L at RIGHT_LAUNCH_OFFSET. **Good:** a
-        hand's width between frames and pokers (drawn 3.0 and 2.5 in), R's corner off the far
-        wall at LEFT_PAIR_OFFSET (drawn 3.2 in), neither in the other's
-        shot, and no corner of R over the field's centre line at RIGHT_PAIR_CATCH (drawn 0.9 in
-        inside). Once shot from, make all three team spots in the Visualizer (*Save team spots*).
-      - **The spill after a TIP, on video, with pieces in both CELLs:** how long after the TIP
-        the last spilled piece is still on the tiles' way down, and where the spill lands at
-        each end. R waits 2.3 s at the SCORING FLOWER before backing under the HIVE, and both
-        its parks are drawn round the spill. **Good:** nothing still falling 2.3 s after the
-        HIVE starts to tip, and no piece on R's drawn park paths. **Stop:** a piece is → write
-        the seconds and where; the wait and the paths change in the Visualizer.
-      - **The new paths, each robot alone, HIVE in place, no partner:** R's outside lane from the
-        WALL FLOWER and from the GARDEN to LEFT_PAIR_OFFSET; back under the HIVE from the
-        SCORING FLOWER to RIGHT_PAIR_CATCH and the outside lane from there to RIGHT_PARK; the
-        turn from the SCORING FLOWER to LEFT_LAUNCH_CATCH; the catch park and the left park into
-        RIGHT_PARK. L's under the HIVE to RIGHT_LAUNCH_CATCH and its park from there; under the
-        HIVE to the lane's end and on to WALL_FLOWER_STAGING (it turns west just past the end of
-        the HIVE's foot bar: watch that corner), and the FLOWER to RIGHT_LAUNCH_OFFSET.
-        **Good:** no touch of the HIVE's feet or a wall; write each drive's seconds beside the
-        drawn ones. **Stop:** a corner touches → note the pose and bend the path in the Visualizer.
-      - **T1 to T4 and the clock checks, from the log of each run:** when `LeftCellUp` first fires
-        for L (T1 9.5 s), when R arrives at LEFT_PAIR_OFFSET and its volley ends (T2 21 s, TS
-        19.4 s), when R's SCORING FLOWER pick ends (T3c 16.2 s: drawn 19.4 s, so R does not
-        cross yet), when R is at LEFT_LAUNCH_CATCH (T3 22.3 s, T3b 22.7 s), when L arrives at
-        RIGHT_LAUNCH_OFFSET (T4 19.2 s) and when each robot is parked (TL 22.7 s, TR 26.7 s).
-        **Good:** each within 0.5 s of the simulator's (clockwise.md, "The times"). Otherwise
-        set the row in INIT for the next run and write the measured value on the PR; the drawn
-        values change only in the Visualizer.
-      - **The crossing for TIP 3, once the volleys are short enough,** or with T3c set late in
-        INIT to try it: R waits 2.3 s, backs under the HIVE, asks for RIGHT up at RIGHT_PAIR_CATCH until
-        21.8 s (T3r), and does not leave for its park before 24.0 s (TRr), when L has gone.
-        **Stop the run by hand** if L is still at RIGHT_LAUNCH_OFFSET when R moves off.
-      - **The two crossings, both robots, with a spotter at the left end:** L must be parked on
-        LEFT_PARK before R leaves LEFT_LAUNCH_CATCH (drawn: L parked 26.2 s, R leaves 26.7 s),
-        and R must be off SCORING_FLOWER_STAGING before L passes it (R leaves 19.6 s, L passes
-        24.4 s). **Stop the run by hand** if L is still in the lane when R moves. In the
-        simulator contact first appears with L 30% slow.
-      - **The fallbacks, on purpose, both robots:** hold R's preloads back (L1 "no" as above; R
-        shoots its first load at LEFT when it comes up, or parks at 21 s if it has not, and R is
-        parked from the left spot before L passes), then L's (R3 "no": R shoots its SCORING
-        FLOWER load at LEFT and parks at 26.7 s). **Good:** the trace shows those rows, and both robots park.
+      timer on. Every volley is from a Square (wall row) spot. In this order, since each step
+      decides whether the next is worth running:
+      - **Volleys from the four launch spots, in TeleOp first** (hold Square): eight pieces each
+        from RIGHT_START, LEFT_WALL_HIVE, LEFT_WALL_NEAR and RIGHT_WALL_NEAR, counted on video.
+        **Good:** 7 or 8 of 8 stay in from each. **Stop:** a spot holds fewer → note which and by
+        how much; the pair shoots from all four. All are about 50 in from the row.
+      - **Each robot alone, HIVE in place, no partner, the new paths:** R's outside lane from the
+        WALL FLOWER and from the GARDEN onto LEFT_WALL_NEAR (a corner touches the far wall, the
+        SCORING FLOWER beside it); LEFT_WALL_NEAR to the SCORING FLOWER; back under the HIVE from
+        the SCORING FLOWER onto RIGHT_START (no turn, it ends with its back on the audience
+        wall); the outside lane from there to RIGHT_PARK; the turn round the SCORING FLOWER to
+        LEFT_WALL_HIVE and the park from there (set T3b late in INIT to make it run). L's 2.4 in
+        slide to LEFT_WALL_HIVE; under the HIVE to RIGHT_START and its park from there; under the
+        HIVE to the GARDEN and on to RIGHT_WALL_NEAR; under the HIVE to the lane's end and on to
+        WALL_FLOWER_STAGING (it turns west just past the end of the HIVE's foot bar: watch that
+        corner), and the FLOWER to RIGHT_WALL_NEAR. **Good:** no touch of the HIVE's feet, a
+        FLOWER or a wall but at the spot itself; write each drive's seconds beside the drawn
+        ones. **Stop:** a corner touches → note the pose and bend the path in the Visualizer.
+      - **Arriving on a wall.** Three of the four spots end against a wall with the robot still
+        rolling (a path card never settles). **Good:** the launch starts within about 0.5 s of
+        arriving and the pose has not jumped. **Stop:** the robot bounces off or the Pinpoint
+        faults → note the speed it arrived at.
+      - **R backward with a load.** Four POLLEN in the lane: up the outside lane onto
+        LEFT_WALL_NEAR, and back from SCORING_FLOWER_STAGING under the HIVE onto RIGHT_START, at
+        Auto speed. **Good:** four still in the lane at each end, five runs of each. **Stop:** a
+        piece leaves → note where on the path, and whether braking or the turn did it.
+      - **The two parks, both robots.** RIGHT_PARK and LEFT_PARK leave 2.7 in between parked
+        robots. Park R first, then run L's park; then the other order. **Good:** neither touches
+        the other coming in (L turns east of the park zone and drives straight in; R comes in
+        along RIGHT_PARK's own line). **Stop:** a touch → note which robot was moving and where.
+      - **R's view of the HIVE at each stop:** `LeftCellUp` on LEFT_WALL_NEAR (295.5°),
+        `RightCellUp` on RIGHT_START having backed in (90°), and `RightCellUp` from
+        LEFT_WALL_HIVE (270°). L: `LeftCellUp` on LEFT_WALL_HIVE and `RightCellUp` on
+        RIGHT_WALL_NEAR (66.9°). **Good:** each within 0.3 s of arriving with that CELL up.
+        **Stop:** the camera does not settle the CELL → note which tags it does see.
+      - **The spill after a TIP, on video, with pieces in both CELLs:** how long after the last
+        ball leaves the last spilled piece is still falling, and where the spill lands at each
+        end. R waits 2.3 s at the SCORING FLOWER before backing under the HIVE, and L waits to
+        22.5 s (TLr) on RIGHT_START after a rescue volley. **Good:** nothing still falling when
+        either moves, and no piece lands on a robot standing on a wall spot. **Stop:** a piece
+        does → write the seconds and where; the waits change in the Visualizer.
+      - **The times, from `read_logs.py steps` on each run's log:** `LeftCellUp` for L (T1
+        9.5 s; the Belding films have it as late as 9.98 s, so expect to raise it); R on
+        LEFT_WALL_NEAR and its volley's end (T2 15.5 s, TS 16.9 s; drawn 12.0 and 15.8 s); R's
+        SCORING FLOWER pick's end (T3c 16.2 s, T3b 18.9 s; drawn 20.1 s, so R parks from the
+        FLOWER); L on RIGHT_WALL_NEAR (T4 19.2 s) and each robot parked (TL 22.7 s). **Good:**
+        each within 0.5 s of the drawn. Otherwise set the row in INIT for the next run and write
+        the measured value on the PR; the drawn values change only in the Visualizer.
+      - **The rescue and the crossing, once the volleys are short enough,** or with T3b or T3c
+        set late in INIT to try one: the rescue (R to LEFT_WALL_HIVE, a volley, park at 26.4 s,
+        TR) and the crossing (R waits 2.3 s, backs onto RIGHT_START, asks until 21.8 s, T3r, and
+        does not leave before 24.0 s, TRr). **Stop the run by hand** if L is still in the lane
+        when R leaves LEFT_WALL_HIVE, or still on RIGHT_WALL_NEAR when R leaves RIGHT_START.
+      - **The fallbacks, on purpose, both robots:** hold R's preloads back (L1 "no": at 9.5 s L
+        crosses, shoots from RIGHT_START and parks at 22.5 s; R parks at 15.5 s with its load),
+        then L's. **Good:** the trace shows those rows, and both robots park.
       - **The other pickup:** Pickup GARDEN on R and WALL_FLOWER on L. **Good:** L stands at the
         lane's end until 15.5 s (TF) and R has passed the WALL FLOWER by then.
-      - **Shot trigger TIMER on both,** with T1 8, T2 13 and T3 21.5 set in INIT, the camera
-        covered. **Good:** each stop shoots at its time; nothing waits on the HIVE.
+      - **Shot trigger TIMER on both,** with T1 8 and T2 13 set in INIT, the camera covered.
+        **Good:** each stop shoots at its time; nothing waits on the HIVE.
 - [ ] **Drive times for the planning numbers** ([#504], the Belding timing analysis): a Utility
       that follows a Pedro path, empty and again with 4 POLLEN in the lane, a
       charged battery (note `/Robot/BatteryVolts`), three runs each. (a) A straight 90 in run at a

@@ -12,7 +12,7 @@ these under "Drafts", and Save to GitHub saves back here.
 `l-clockwise-flower.pp`: the Clockwise pair's two pickup choices, each drawn with one pickup and
 no INIT menu, so the lanes, the fallback paths and the clock times could be simulated before the
 menu, the route choice and the camera-or-timer stops were built. Their numbers and what they
-showed are in [clockwise.md](../clockwise.md), "The lane study"; the pair in `TeamCode/autos/`
+showed are in [clockwise.md](../clockwise.md), "The simulator's tables"; the pair in `TeamCode/autos/`
 is the one to run. No OpMode. Requests: `sim-requests/r-clockwise-flower.json` and
 `r-clockwise-garden.json`.
 

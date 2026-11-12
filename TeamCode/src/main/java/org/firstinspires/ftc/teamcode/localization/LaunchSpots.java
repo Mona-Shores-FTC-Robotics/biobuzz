@@ -42,8 +42,10 @@ import java.util.Locale;
  * with one corner of the frame. LEFT and RIGHT are not mirror images: the turret is not on the
  * centre line, and LEFT_WALL_NEAR sits against the far side of the SCORING FLOWER.
  *
- * <p>But for {@code RIGHT_START}, these are not team spots: no Auto launches from them, so they
- * are written only here and {@code TeamCode/autos/spots.json} does not list them. {@code LaunchSpotsTest} checks that each
+ * <p>But for {@code RIGHT_START}, these are not team spots: they are written only here and
+ * {@code TeamCode/autos/spots.json} does not list them. The Clockwise pair launches from the wall
+ * row, so its {@code .pp} files carry the same numbers and {@code ClockwiseAutoTest} compares
+ * them: move a wall spot here and export those two Autos again. {@code LaunchSpotsTest} checks that each
  * WALL spot touches its wall without crossing it and that no two spots that may be used together
  * overlap.
  */
