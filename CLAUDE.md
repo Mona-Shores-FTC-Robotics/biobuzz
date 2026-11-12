@@ -155,12 +155,16 @@ each, on any branch but master, and publishes to the `sim-results` branch.
 → README § "Simulating an Auto"
 
 **Volley and TIP times** have one set of names (`TeamCode/autos/timing-terms.md`): the moments
-launch starts, gate opens, first ball leaves, last ball leaves, feed ends, swing starts, CELL settled,
+launch starts, gate opens, first ball leaves, last ball leaves, feed ends, swing plain, CELL settled,
 CELL read up; and the intervals spin-up wait, feed, volley (the whole `LaunchAll` step) and TIP lag
-(last ball leaves to CELL read up). A time about a TIP is counted from "last ball leaves", never from
-the feed's end, which moves with the shot counter. Never "dwell" or "volley time" alone: say which
-interval. A time outside those names states both its ends, and says whether the Visualizer's preview
-or the Java simulator produced it; counts of TIPs, parks and contacts come from the simulator.
+(last ball leaves to CELL read up). A time about a TIP is counted from "last ball leaves" to "CELL
+settled" or "CELL read up": never from the feed's end, which moves with the shot counter, nor from the
+swing's start, which is a slow creep with no sharp beginning. The TIP lag is quoted with its load: about
+4.1 s (up to 6.7) for a CELL at its tipping weight, about 2.5 s for one well past it. Never "dwell" or
+"volley time" alone, and never the robot's logged TRANSITION as a sighting of the swing. A time outside
+those names states both its ends, which clock (the robot's PLAY or the field's) and whether the
+Visualizer's preview or the Java simulator produced it; counts of TIPs, parks and contacts come from the
+simulator.
 → `TeamCode/autos/timing-terms.md`
 
 **Cameras.** The Limelight is for AprilTags only (pitched up at the HIVE). Game pieces come from

@@ -324,8 +324,8 @@ A partner tells us in the queue when they shoot. The drive team enters it in INI
 - **The partner wait on the match clock.** "Until 8 s" ends at 8 s into the match however late
   the robot got there, unlike "at most 7 s", which starts counting when the wait begins. The
   driver enters the partner's last shot and the wait ends `AutoRegistration.PARTNER_TIP_LAG_S`
-  (4.5 s, `partnerTipLagS` below) after it: the shot's flight, the dwell, the swing and the camera
-  settling, 4.0 to 4.4 s at the Belding Qualifier. The page shows both numbers, never only the sum:
+  (4.5 s, `partnerTipLagS` below) after it: the shot's flight, the rocker's creep and swing, and the camera
+  settling: 3.6 to 4.3 s in four films at the Belding Qualifier, longer in others ([timing-terms.md](timing-terms.md)). The page shows both numbers, never only the sum:
   "partner's last shot ▲▼ 8 s, waiting until 12.5 s" (mentor, 3 Nov 2026).
 - Today: L-NoCross offers the partner's last shot (drawn: wait until 8.5 s, which reads as a last
   shot at 4 s). No Auto offers another park.
@@ -376,29 +376,27 @@ they came from.
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
     lane latched full 0.44 s after its last spike, 1.43 s in.
   - `tipStartS` 1.4 and `tipSwingS` 1.6 (measured): together, the 3.0 s from a LaunchAll's end to
-    the camera's `CellUp`. At the Belding Qualifier (7 Nov 2026, the stream video against the
-    L-NoCross match logs) a CELL was read up 4.0, 4.2 and 4.4 s after the last ball left: the
-    flight (about 0.5 s), the dwell before the rocker moves (1.8 to 2.4 s), the swing (1.0 to
-    1.4 s) and the camera settling (0.3 to 0.5 s). The preview counts from the LaunchAll's end, not
-    from the last ball, and a set 3.5 s feed ends about 1.2 s after its last ball (the last ball
-    leaves 1.7 to 2.9 s after the gate opens: `volleyS`). So the swing starts 2.6 - 1.2 = 1.4 s
-    after the LaunchAll ends (`tipStartS`), and the CELL reads up 1.2 + 0.4 = 1.6 s later
-    (`tipSwingS`, the swing and the camera).
+    the camera's `CellUp`, for a CELL at its tipping weight and a feed that ran its set 3.5 s. From
+    the Belding films ([timing-terms.md](timing-terms.md)): the other CELL settled a median 3.9 s
+    after the last ball left and a watching camera read it 0.2 s later, 4.1 s in all; a set feed
+    ends about 1.2 s after its last ball. The split puts the swing plainly under way 1.4 s after
+    the feed ends and the CELL read up 1.6 s after that.
     - **These two go with `volleyS`.** If `volleyS` comes down because the feed ends on its fourth
-      ball, raise `tipStartS` by the same amount: the last ball to `CellUp` stays about 4.2 s.
-    - A preload volley, which ends on the count, previews its TIP about 0.6 s late (8.1 s against
-      Belding's 7.5 s), because `volleyS` is the longer set feed. That errs the safe way.
+      ball, raise `tipStartS` by the same amount: the last ball to `CellUp` stays about 4.1 s.
+    - **They are the middle, not the limit.** An at-weight TIP took up to 6.7 s from the last ball,
+      and one on nine or more pieces about 2.5 s. The preview has one value for all of them.
     - Before 11 Nov 2026 these were 1.0 and 0.7 (1.7 s together), from the two TIPs our own preload
       volleys made on 3 Nov (the camera first read TRANSITION 0.91 and 1.08 s after the LaunchAll
-      ended) and two hand-tipped swings (0.43 and 0.57 s). No AUTO TIP at Belding came that soon.
+      ended, a reading the Belding films show comes from the robot driving off) and two hand-tipped
+      swings (0.43 and 0.57 s).
   - `partnerTipLagS` 4.5 (measured): from the partner's last preload leaving its launcher to our
-    `CellUp`, timed on the Belding Qualifier's stream video against the L-NoCross match logs (7 Nov
-    2026): 4.0, 4.2 and 4.4 s, and about 4.3 s in a fourth whose launcher was hidden. 4.5 errs long
-    by the video sync's few tenths. That is the flight (about 0.5 s), the dwell before the rocker
-    moves (1.8 to 2.4 s there), the swing (1.0 to 1.4 s) and the camera settling (0.3 to 0.5 s).
-    The partner wait ends this long after the last shot the driver enters. One TIP came about 7 s
-    after the last shot it could have come from, which no partner wait covers; the 3 Nov
-    simulations' 0.7 to 1.2 s (four preloads on the starting NECTAR) were short.
+    `CellUp`. Re-measured from the Belding films on 11 Nov 2026 ([timing-terms.md](timing-terms.md)):
+    3.57, 3.96, 4.07 and 4.25 s in the four films where a waiting robot watched a partner's
+    preloads and the partner's launcher could be seen. Over all 13 TIPs on a CELL at its tipping
+    weight, the last ball to the CELL settled took 3.4 to 6.5 s (median 3.9), and a watching camera
+    read it 0.2 s later: 4.5 s catches 9 of the 13, 5.2 s catches 11, 6.7 s all of them. The partner
+    wait ends this long after the last shot the driver enters. The 3 Nov simulations' 0.7 to 1.2 s
+    (four preloads on the starting NECTAR) were short.
 - **The words for these times** (launch starts, gate opens, last ball leaves, feed ends, TIP lag)
   and which moment each fact counts from are in [timing-terms.md](timing-terms.md).
 - **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop
