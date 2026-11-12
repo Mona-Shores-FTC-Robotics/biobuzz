@@ -646,56 +646,82 @@
                 "timeoutS": 1
               },
               {
-                "id": "card-r-scoring-flower",
-                "kind": "path",
-                "lineId": "r-scoring-flower",
-                "park": false
-              },
-              {
-                "id": "R-pick-scoring",
-                "kind": "action",
-                "name": "PickFlower",
-                "timeoutS": 4.5
-              },
-              {
-                "id": "card-r-wall-lane-south",
-                "kind": "path",
-                "lineId": "r-wall-lane-south",
-                "park": false
-              },
-              {
-                "id": "R-wait-right",
+                "id": "R-time-for-third",
                 "kind": "firstOf",
-                "label": "RIGHT up before 26 s, otherwise park",
+                "label": "LEFT volley done before 15 s, otherwise park",
                 "rows": [
                   {
-                    "afterMs": 26000,
+                    "afterMs": 15000,
                     "matchClock": true,
                     "cards": [
                       {
-                        "id": "card-r-right-park-timeout",
+                        "id": "card-r-left-park-late",
                         "kind": "path",
-                        "lineId": "r-right-park",
+                        "lineId": "r-left-park",
                         "park": true
                       }
                     ]
                   },
                   {
                     "when": [
-                      "RightCellUp"
+                      "CellUp"
                     ],
                     "cards": [
                       {
-                        "id": "R-launch-right",
-                        "kind": "action",
-                        "name": "LaunchAll",
-                        "timeoutS": 0.5
+                        "id": "card-r-scoring-flower",
+                        "kind": "path",
+                        "lineId": "r-scoring-flower",
+                        "park": false
                       },
                       {
-                        "id": "card-r-right-park",
+                        "id": "R-pick-scoring",
+                        "kind": "action",
+                        "name": "PickFlower",
+                        "timeoutS": 4.5
+                      },
+                      {
+                        "id": "card-r-wall-lane-south",
                         "kind": "path",
-                        "lineId": "r-right-park",
-                        "park": true
+                        "lineId": "r-wall-lane-south",
+                        "park": false
+                      },
+                      {
+                        "id": "R-wait-right",
+                        "kind": "firstOf",
+                        "label": "RIGHT up before 26 s, otherwise park",
+                        "rows": [
+                          {
+                            "afterMs": 26000,
+                            "matchClock": true,
+                            "cards": [
+                              {
+                                "id": "card-r-right-park-timeout",
+                                "kind": "path",
+                                "lineId": "r-right-park",
+                                "park": true
+                              }
+                            ]
+                          },
+                          {
+                            "when": [
+                              "RightCellUp"
+                            ],
+                            "cards": [
+                              {
+                                "id": "R-launch-right",
+                                "kind": "action",
+                                "name": "LaunchAll",
+                                "timeoutS": 0.5
+                              },
+                              {
+                                "id": "card-r-right-park",
+                                "kind": "path",
+                                "lineId": "r-right-park",
+                                "park": true
+                              }
+                            ]
+                          }
+                        ]
                       }
                     ]
                   }

@@ -27,7 +27,7 @@ public final class ROutsideLaneAuto {
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"LeftCellUp", "RightCellUp"};
+    public static final String[] TRIGGERS = {"CellUp", "LeftCellUp", "RightCellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -97,16 +97,21 @@ public final class ROutsideLaneAuto {
                                         kit.path("left park to RIGHT_PARK", leftParkToRightPark, 1.9))),
                         kit.when("LeftCellUp").then(
                                 kit.command("LaunchAll", 1),
-                                kit.path("scoring flower to SCORING_FLOWER_STAGING", scoringFlowerToScoringFlowerStaging, 1.1, flowerAbortParkToRightPark, 2.1),
-                                kit.command("PickFlower", 4.5),
-                                kit.path("wall lane south to RIGHT_CLOSE_NEAR", wallLaneSouthToRightCloseNear, 3.5, wallLaneParkToRightPark, 2.6),
-                                kit.firstOf("RIGHT up before 26 s, otherwise park",
-                                        kit.atMatchSeconds(26).then(
-                                                kit.guarded("Timed out", wallLaneParkToRightPark, 2.6,
-                                                        kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.6))),
-                                        kit.when("RightCellUp").then(
-                                                kit.guarded("If RightCellUp", wallLaneParkToRightPark, 2.6,
-                                                        kit.command("LaunchAll", 0.5),
-                                                        kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.6)))))));
+                                kit.firstOf("LEFT volley done before 15 s, otherwise park",
+                                        kit.atMatchSeconds(15).then(
+                                                kit.guarded("Timed out", leftParkToRightPark, 1.9,
+                                                        kit.path("left park to RIGHT_PARK", leftParkToRightPark, 1.9))),
+                                        kit.when("CellUp").then(
+                                                kit.path("scoring flower to SCORING_FLOWER_STAGING", scoringFlowerToScoringFlowerStaging, 1.1, flowerAbortParkToRightPark, 2.1),
+                                                kit.command("PickFlower", 4.5),
+                                                kit.path("wall lane south to RIGHT_CLOSE_NEAR", wallLaneSouthToRightCloseNear, 3.5, wallLaneParkToRightPark, 2.6),
+                                                kit.firstOf("RIGHT up before 26 s, otherwise park",
+                                                        kit.atMatchSeconds(26).then(
+                                                                kit.guarded("Timed out", wallLaneParkToRightPark, 2.6,
+                                                                        kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.6))),
+                                                        kit.when("RightCellUp").then(
+                                                                kit.guarded("If RightCellUp", wallLaneParkToRightPark, 2.6,
+                                                                        kit.command("LaunchAll", 0.5),
+                                                                        kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.6)))))))));
     }
 }
