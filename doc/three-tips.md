@@ -5,6 +5,68 @@ TeamCode/README.md, "Simulating an Auto"), 120 seeds a row, both Belding HIVE fi
 endgame guard. It builds on [`one-robot-two-tips.md`](one-robot-two-tips.md) and
 [`belding-auto-review.md`](belding-auto-review.md). No robot code changes here.
 
+## Where this ended (12 Nov 2026): read this first
+
+**Verdict (mentor, 12 Nov): the drawings here are not being pursued.** The study's findings stand;
+its Autos do not. Everything below this section is the working record, in the order it was done, and
+parts of it are overtaken: where a number here disagrees with one further down, this section and
+"Rerun on master's calibration" win.
+
+**What was asked.** Can one of our robots make three AUTO TIPs alone, and if not, what is the least a
+partner must do. Later: a better paired Auto than Infraviolet.
+
+**What was found, and is worth keeping:**
+
+- **Three TIPs take every POLLEN on our side of the field:** 19 landed of 20 launched (both preload
+  sets, both FLOWERs, the GARDEN). There is no spare piece, so every pickup must deliver 4.
+- **One robot as it ran at Belding cannot do it:** about 42 s of work.
+- **Full FLOWER loads are the biggest lever on two TIPs:** 52 of 120 with Belding's logged loads,
+  83 with full ones, nothing else changed. Then shots that stay in.
+- **A shorter set feed buys no TIP.** The balls land when they land. The feed's length matters only
+  as the backstop when the shot counter misses; the logs support about 3.0 s (a ball cut off in 1
+  volley of 32) where 3.5 s is set.
+- **A volley is about 2.5 s when the count ends it** (0.3 s wait, 0.78 s gate to first ball, three
+  gaps of 0.47 s). A third TIP needs about 1.8 s. The 0.78 s before the first ball is where that
+  would come from, not the spacing.
+- **A CELL is shot only from its own end, within about 26 degrees of square.** The simulator scores
+  by range only and let a 62 degree shot through.
+- **There is one square spot in front of a CELL.** Two robots there need two spots side by side (one
+  angled), or a hand-over by the clock that costs a second and breaks when the pace changes.
+- **A robot that drives under the HIVE as a CELL tips takes the spill** (G409).
+- **Run the stress cases** (a preload volley missed, a robot 20% slow or fast). Every contact the
+  pair had in them was invisible in normal runs.
+
+**Why the pair was dropped.** L-Pair-Flowers / R-Pair-Garden never crosses the field with a load,
+which is why it has no contact and no spill. It pays with one overworked robot and one idle one: L
+drives about 300 in and fires three volleys (12 pieces), R fires two (8, four of them from the GARDEN,
+the pickup that works worst) and stands loaded for 10 s. Its third TIP needs a 1.8 s volley in the
+Visualizer's preview. Infraviolet has made three TIPs on the robots; this has never driven.
+
+**The drawings, and what each is good for:**
+
+| Drawing (`TeamCode/autos/drafts/`) | Can a robot run it? | Keep for |
+|---|---|---|
+| `l-pair-flowers` + `r-pair-garden` | Yes, real cards | The blend with Clockwise; the stress-tested fallbacks and park roads |
+| `r-pair-garden-sweep` | No (`SweepRow` is simulator-only) | What a GARDEN gather that takes 4 would buy |
+| `r-two-tip-with` + `partners/partner-l-timed-fill-hide-park` | Yes, real cards | A two-TIP Auto beside a partner that fills the far CELL and hides under the HIVE. Scored on the first calibration only; not rerun |
+| `r-three-tip`, `r-three-tip-stream`, `r-three-tip-still`, `l-three-tip` | No (simulator-only cards, a turret, a side shot) | The solo budget: what a different robot would need |
+
+**If this is picked up again:**
+
+1. Start from robot data, not the simulator: FLOWER loads per robot, whether the count ends the
+   feed, gate to first ball. The checks are in `doc/robot-todo.md` section 7d.
+2. Check the simulator against a real result first. It gives Infraviolet no third TIP in 24 runs,
+   and the robots have made three. Its Belding rows carry Belding's short loads, the old counter's
+   3.5 s feeds and a TIP lag with no fast case, so they read low for the robots as they are now.
+3. Rerun before quoting: `TeamCode/README.md`, "Simulating an Auto", lists every knob used here
+   (`BIOBUZZ_AUTO_STUDY="A,B@50"`, `BIOBUZZ_BELDING_ROBOT`, `BIOBUZZ_BELDING_WHOLE_FEED`,
+   `BIOBUZZ_SIM_LAUNCH_ALL_FEED_S`, `BIOBUZZ_SIM_PRELOADS_MISS`, `BIOBUZZ_SIM_TYPICAL_LAUNCH_ALL`).
+   Count contacts from each run's timeline (`BIOBUZZ_AUTO_TIMELINE=all`); a run without it hides them.
+4. Say which clock a time is on and use the names in `TeamCode/autos/timing-terms.md`. This document
+   predates them.
+5. The other two studies of the same days: Clockwise (biobuzz#535, `TeamCode/autos/clockwise.md`) and
+   the Square launch spots (biobuzz#536).
+
 **The target:** in the same runs, 2 TIPs in at least 90 of 120 and 3 TIPs in at least 60 of 120.
 Counts are TIPs complete by 30 s; a TIP that completes in the transition is not counted (see "How it
 was run"). Differences under 5 of 120 are not differences.
