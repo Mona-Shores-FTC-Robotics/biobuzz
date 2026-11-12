@@ -72,7 +72,9 @@ public class ControlSchemeTest {
         Map<Action, Input> off = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true, false);
         assertEquals(Input.SQUARE, on.get(Action.LAUNCH_SPOT));
         assertFalse(off.containsKey(Action.LAUNCH_SPOT));
-        assertEquals("nothing else changes", on.size() - 1, off.size());
+        // Off takes the close row's button with it, where the default binds that one.
+        assertEquals("nothing else changes",
+                on.size() - (ControlScheme.LAUNCH_SPOT_CLOSE_DEFAULT ? 2 : 1), off.size());
         // The two-switch layout (the cheat sheet's) keeps it, as the TeleOp's default does.
         assertEquals(on, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true));
         // Moving the FLOWER pick onto Square swaps the launch spot onto Cross.

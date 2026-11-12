@@ -42,8 +42,8 @@ import java.util.Locale;
  * with one corner of the frame. LEFT and RIGHT are not mirror images: the turret is not on the
  * centre line, and LEFT_WALL_NEAR sits against the far side of the SCORING FLOWER.
  *
- * <p>These are not team spots: no Auto launches from them, so they are written only here and
- * {@code TeamCode/autos/spots.json} does not list them. {@code LaunchSpotsTest} checks that each
+ * <p>But for {@code RIGHT_START}, these are not team spots: no Auto launches from them, so they
+ * are written only here and {@code TeamCode/autos/spots.json} does not list them. {@code LaunchSpotsTest} checks that each
  * WALL spot touches its wall without crossing it and that no two spots that may be used together
  * overlap.
  */
@@ -70,8 +70,16 @@ public final class LaunchSpots {
      * offsets as the robot has them, so their drawn heading is only what that comes to today.
      */
     public enum Spot {
-        RIGHT_WALL_NEAR(Row.WALL, Column.NEAR, 36.4, 10.6, 67.4),
-        RIGHT_WALL_HIVE(Row.WALL, Column.HIVE, 56.1, 8.1, 90.0),
+        RIGHT_WALL_NEAR(Row.WALL, Column.NEAR, 35.9, 10.6, 66.9),
+        /**
+         * The RIGHT half's WALL-row, HIVE-column spot is our measured start itself
+         * ({@link StartPositions#RED_AUDIENCE}, the team spot {@code RIGHT_START}): the robot starts
+         * there, fires its preloads there, and Square brings it back there, so it is one point
+         * with one name (mentor, 12 Nov 2026). Squared to the wall as placed, the turret's axis is
+         * half an inch off the row's centre. The LEFT half's is its own spot: {@code LEFT_START} is
+         * placed on the centre-line seam, 2.4 in from where the turret lines up.
+         */
+        RIGHT_START(Row.WALL, Column.HIVE, StartPositions.RED_AUDIENCE.pose),
         RIGHT_WALL_FAR(Row.WALL, Column.FAR, 75.8, 10.6, 112.8),
         RIGHT_CLOSE_NEAR(Row.CLOSE, Column.NEAR, 45.2, 27.9, 70.0),
         RIGHT_CLOSE_HIVE(Row.CLOSE, Column.HIVE, 56.1, 25.3, 90.0),
@@ -95,10 +103,14 @@ public final class LaunchSpots {
         public final boolean aimed;
 
         Spot(Row row, Column column, double x, double y, double headingDeg) {
+            this(row, column, new Pose(x, y, Math.toRadians(headingDeg)));
+        }
+
+        Spot(Row row, Column column, Pose red) {
             this.row = row;
             this.column = column;
-            this.red = new Pose(x, y, Math.toRadians(headingDeg));
-            this.left = leftHalf(Alliance.RED, y);
+            this.red = red;
+            this.left = leftHalf(Alliance.RED, red.y());
             this.aimed = column != Column.HIVE;
         }
 
@@ -177,7 +189,7 @@ public final class LaunchSpots {
             return refusal != null;
         }
 
-        /** "RIGHT_WALL_HIVE (in line, 23 in)", or the refusal. */
+        /** "RIGHT_WALL_NEAR (in line, 23 in)", or the refusal. */
         @Override
         public String toString() {
             return refused() ? "refused: " + refusal
