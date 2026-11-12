@@ -108,7 +108,7 @@ public class ClockwiseAutoTest {
         assertEquals(3, count("LaunchAll"));
         assertEquals(2, count("PickFlower"));
         assertEquals(0, count("GardenGather"));
-        assertTrue("it crossed under the HIVE: " + trace, trace.contains("path back under the HIVE to RIGHT_START"));
+        assertTrue("it crossed under the HIVE: " + trace, trace.contains("path back under the HIVE to RIGHT_CLOSE_HIVE"));
         parked(98.7);
     }
 
@@ -136,23 +136,23 @@ public class ClockwiseAutoTest {
     @Test public void rightCrossesInTimeAndParksWithItsLoadWhenRightIsNotUp() {
         secondTip = Double.POSITIVE_INFINITY;
         run(RClockwiseAuto.build(kit(), false));
-        assertTrue(trace.toString(), trace.contains("path back under the HIVE to RIGHT_START"));
+        assertTrue(trace.toString(), trace.contains("path back under the HIVE to RIGHT_CLOSE_HIVE"));
         assertEquals("the preloads and the first load", 2, count("LaunchAll"));
-        assertTrue("not before TRr: " + drive.parkAt, drive.parkAt >= 24.0);
+        assertTrue("not before TRr: " + drive.parkAt, drive.parkAt >= 25.0);
         parked(98.7);
     }
 
     /**
-     * Too late to cross (the pick ends after T3c) but before T3b, and RIGHT is not up by T3: R goes to the wall
-     * in front of the LEFT CELL, finishes TIP 2 there, then waits for L to pass before it parks.
+     * Too late to cross (the pick ends after T3c) but before T3b, and RIGHT is not up by T3: R goes to the close-row spot
+     * in front of the LEFT CELL (the close row), finishes TIP 2 there, then waits for L to pass before it parks.
      */
     @Test public void rightShootsAtLeftAgainWhenRightIsNotUpAndParksAfterLHasPassed() {
         secondTip = Double.POSITIVE_INFINITY;
-        drive.arriveAt(47.2, 119.3, 15.6);  // the pick ends at 18.6 s: after T3c, before T3b
+        drive.arriveAt(47.2, 119.3, 18.0);  // the pick ends at 21.0 s: after T3c, before T3b
         run(RClockwiseAuto.build(kit(), false));
         assertEquals("preloads, the first load, the SCORING FLOWER load", 3, count("LaunchAll"));
-        assertFalse("it never crossed: " + trace, trace.contains("path back under the HIVE to RIGHT_START"));
-        assertTrue(trace.toString(), trace.contains("path turn to LEFT_WALL_HIVE"));
+        assertFalse("it never crossed: " + trace, trace.contains("path back under the HIVE to RIGHT_CLOSE_HIVE"));
+        assertTrue(trace.toString(), trace.contains("path turn to LEFT_CLOSE_HIVE"));
         assertTrue("not before TR: " + drive.parkAt, drive.parkAt >= 26.4);
         parked(98.7);
     }
@@ -163,7 +163,7 @@ public class ClockwiseAutoTest {
         drive.arriveAt(47.2, 119.3, 20.0);
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
-        assertFalse(trace.toString(), trace.contains("path turn to LEFT_WALL_HIVE"));
+        assertFalse(trace.toString(), trace.contains("path turn to LEFT_CLOSE_HIVE"));
         assertTrue("straight from the FLOWER: " + drive.parkAt, drive.parkAt >= 23 && drive.parkAt < 23.5);
         parked(98.7);
     }
@@ -171,10 +171,10 @@ public class ClockwiseAutoTest {
     /** Too late to cross, and RIGHT is up: TIP 2 is done, so R keeps its load, waits for L to pass and parks from the left. */
     @Test public void rightDoesNotCrossAfterT3c() {
         secondTip = 18;
-        drive.arriveAt(47.2, 119.3, 15.6);
+        drive.arriveAt(47.2, 119.3, 18.0);
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
-        assertFalse(trace.toString(), trace.contains("path back under the HIVE to RIGHT_START"));
+        assertFalse(trace.toString(), trace.contains("path back under the HIVE to RIGHT_CLOSE_HIVE"));
         assertTrue(drive.parkAt >= 26.4);
         parked(98.7);
     }
@@ -274,12 +274,15 @@ public class ClockwiseAutoTest {
         now = 0;
     }
 
-    /** Every volley of the pair is from a wall-row spot the drivers' Square goes to ({@link LaunchSpots}): one set to tune. */
+    /**
+     * Every volley of the pair is from a spot the drivers' buttons go to ({@link LaunchSpots}): the wall row
+     * (Square), but for R's third volley and its rescue of TIP 2, which are from the close row (Triangle).
+     */
     @Test public void everyVolleyIsFromASquareSpot() {
         run(RClockwiseAuto.build(kit(), false));
         shotFrom(0, LaunchSpots.Spot.RIGHT_START);
         shotFrom(1, LaunchSpots.Spot.LEFT_WALL_NEAR);
-        shotFrom(2, LaunchSpots.Spot.RIGHT_START);
+        shotFrom(2, LaunchSpots.Spot.RIGHT_CLOSE_HIVE);
         again();
         run(LClockwiseAuto.build(kit(), false));
         shotFrom(0, LaunchSpots.Spot.LEFT_WALL_HIVE);
@@ -288,9 +291,9 @@ public class ClockwiseAutoTest {
 
     @Test public void theRescueVolleysAreFromSquareSpotsToo() {
         secondTip = Double.POSITIVE_INFINITY;
-        drive.arriveAt(47.2, 119.3, 15.6);
+        drive.arriveAt(47.2, 119.3, 18.0);
         run(RClockwiseAuto.build(kit(), false));
-        shotFrom(2, LaunchSpots.Spot.LEFT_WALL_HIVE);
+        shotFrom(2, LaunchSpots.Spot.LEFT_CLOSE_HIVE);
         again();
         firstTip = Double.POSITIVE_INFINITY;
         run(LClockwiseAuto.build(kit(), false));

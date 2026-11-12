@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-12T20:29:12.303Z",
+  "timestamp": "2026-11-12T22:32:04.760Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -51,7 +51,7 @@
       "segments": [
         {
           "id": "r-pickup-park-lane",
-          "color": "#9c755f",
+          "color": "#edc948",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -81,7 +81,7 @@
         },
         {
           "id": "r-pickup-park-turn",
-          "color": "#e15759",
+          "color": "#edc948",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -290,61 +290,23 @@
     {
       "id": "r-to-catch",
       "color": "#e15759",
-      "name": "turn to LEFT_WALL_HIVE",
+      "name": "turn to LEFT_CLOSE_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "kind": "compound",
-      "segments": [
-        {
-          "id": "r-to-catch-east",
-          "color": "#b07aa1",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 59.9,
-            "y": 121
-          },
-          "controlPoints": [
-            {
-              "x": 53,
-              "y": 117
-            }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 90,
-            "endDeg": 270
-          }
-        },
-        {
-          "id": "r-to-catch-wall",
-          "color": "#9c755f",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 59.9,
-            "y": 133.4
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "constant",
-            "degrees": 270
-          }
-        }
-      ]
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.9,
+        "y": 116.2
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 270
+      }
     },
     {
       "id": "r-catch-park",
@@ -358,34 +320,8 @@
       "kind": "compound",
       "segments": [
         {
-          "id": "r-catch-park-out",
-          "color": "#9c755f",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 56,
-            "y": 118
-          },
-          "controlPoints": [
-            {
-              "x": 59.9,
-              "y": 126
-            }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 270,
-            "endDeg": 360
-          }
-        },
-        {
           "id": "r-catch-park-south",
-          "color": "#76b7b2",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -399,13 +335,14 @@
           },
           "controlPoints": [
             {
-              "x": 53,
+              "x": 57,
               "y": 106
             }
           ],
           "heading": {
-            "type": "constant",
-            "degrees": 360
+            "type": "linear",
+            "startDeg": 270,
+            "endDeg": 360
           }
         },
         {
@@ -448,7 +385,7 @@
     {
       "id": "r-cross",
       "color": "#e15759",
-      "name": "back under the HIVE to RIGHT_START",
+      "name": "back under the HIVE to RIGHT_CLOSE_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -496,8 +433,8 @@
           "waitAfterName": "",
           "kind": "atomic",
           "endPoint": {
-            "x": 55.6,
-            "y": 7.7
+            "x": 56.1,
+            "y": 25.3
           },
           "controlPoints": [
             {
@@ -506,7 +443,7 @@
             },
             {
               "x": 58,
-              "y": 40
+              "y": 45
             }
           ],
           "heading": {
@@ -529,7 +466,7 @@
       "segments": [
         {
           "id": "r-right-park-west",
-          "color": "#76b7b2",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -539,27 +476,22 @@
           "kind": "atomic",
           "endPoint": {
             "x": 33,
-            "y": 30
+            "y": 34
           },
           "controlPoints": [
             {
-              "x": 48,
-              "y": 12
-            },
-            {
-              "x": 34,
-              "y": 14
+              "x": 46,
+              "y": 27
             }
           ],
           "heading": {
-            "type": "linear",
-            "startDeg": 90,
-            "endDeg": 90
+            "type": "constant",
+            "degrees": 90
           }
         },
         {
           "id": "r-right-park-lane",
-          "color": "#4e79a7",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -653,15 +585,7 @@
     },
     {
       "kind": "path",
-      "lineId": "r-to-catch-east"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-to-catch-wall"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-catch-park-out"
+      "lineId": "r-to-catch"
     },
     {
       "kind": "path",
@@ -770,10 +694,15 @@
         119.3,
         90
       ],
-      "LEFT_WALL_HIVE": [
+      "LEFT_CLOSE_HIVE": [
         59.9,
-        133.4,
+        116.2,
         270
+      ],
+      "RIGHT_CLOSE_HIVE": [
+        56.1,
+        25.3,
+        90
       ],
       "RIGHT_PARK": [
         14.5,
@@ -788,9 +717,9 @@
       "r-left-park": "RIGHT_PARK",
       "r-scoring-flower": "SCORING_FLOWER_STAGING",
       "r-flower-park": "RIGHT_PARK",
-      "r-to-catch-wall": "LEFT_WALL_HIVE",
+      "r-to-catch": "LEFT_CLOSE_HIVE",
       "r-catch-park-in": "RIGHT_PARK",
-      "r-cross-south": "RIGHT_START",
+      "r-cross-south": "RIGHT_CLOSE_HIVE",
       "r-right-park-lane": "RIGHT_PARK"
     },
     "cards": [
@@ -887,19 +816,19 @@
                       {
                         "id": "r-gate-cross",
                         "kind": "firstOf",
-                        "label": "Time to cross for TIP 3: before 18.5 s",
+                        "label": "Time to cross for TIP 3: before 20.7 s",
                         "rows": [
                           {
-                            "afterMs": 18500,
+                            "afterMs": 20700,
                             "matchClock": true,
                             "cards": [
                               {
                                 "id": "r-gate-left",
                                 "kind": "firstOf",
-                                "label": "Time to finish TIP 2 at LEFT: before 18.9 s",
+                                "label": "Time to finish TIP 2 at LEFT: before 22.4 s",
                                 "rows": [
                                   {
-                                    "afterMs": 18900,
+                                    "afterMs": 22400,
                                     "matchClock": true,
                                     "cards": [
                                       {
@@ -924,10 +853,10 @@
                                       {
                                         "id": "r-stop-3",
                                         "kind": "firstOf",
-                                        "label": "R3: RIGHT up by 21.7 s, otherwise finish TIP 2 at LEFT",
+                                        "label": "R3: RIGHT up by 23 s, otherwise finish TIP 2 at LEFT",
                                         "rows": [
                                           {
-                                            "afterMs": 21700,
+                                            "afterMs": 23000,
                                             "matchClock": true,
                                             "cards": [
                                               {
@@ -1003,19 +932,19 @@
                               {
                                 "id": "r-stop-3r",
                                 "kind": "firstOf",
-                                "label": "R3: RIGHT up by 21.8 s at the right spot, otherwise park",
+                                "label": "R3: RIGHT up by 23.5 s at the right spot, otherwise park",
                                 "rows": [
                                   {
-                                    "afterMs": 21800,
+                                    "afterMs": 23500,
                                     "matchClock": true,
                                     "cards": [
                                       {
                                         "id": "r-hold-right-no",
                                         "kind": "firstOf",
-                                        "label": "L has left for its park: park at 24 s",
+                                        "label": "L has left for its park: park at 25 s",
                                         "rows": [
                                           {
-                                            "afterMs": 24000,
+                                            "afterMs": 25000,
                                             "matchClock": true,
                                             "cards": []
                                           }
@@ -1043,10 +972,10 @@
                                       {
                                         "id": "r-hold-right-yes",
                                         "kind": "firstOf",
-                                        "label": "L has left for its park: park at 24 s",
+                                        "label": "L has left for its park: park at 25 s",
                                         "rows": [
                                           {
-                                            "afterMs": 24000,
+                                            "afterMs": 25000,
                                             "matchClock": true,
                                             "cards": []
                                           }

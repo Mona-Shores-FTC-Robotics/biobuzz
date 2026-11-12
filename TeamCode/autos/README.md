@@ -44,7 +44,7 @@ both robots and promoted to competition Autos; run one only with the partner on 
 fallback at each stop, a pickup the drive teams choose in INIT, and shots by the camera or the
 timer. It has not driven on a robot yet; Infraviolet stays selectable until it has on both
 ([its notes](clockwise.md)). Its volleys are from the
-drivers' Square spots (`LaunchSpots`), not team spots.
+drivers' Square and Triangle spots (`LaunchSpots`), not team spots.
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
 those routines: their paths, waits and fallback behavior have not been tuned yet.
 In particular, L-NoCross's existing no-TIP fallback still crosses to RIGHT; replace
@@ -259,7 +259,7 @@ robot to PARK by 30 s (mentor, 4 Nov 2026, quals and playoffs alike):
 - **First, before each step it asks: can this, and every step up to the next Launch all, be done
   with that volley's last ball out before 30 s?** It adds the steps' times (a drive's drawn time, a
   pick's or gather's typical time, a wait's "at most") and then `AutoRegistration.LAUNCH_ALL_LAST_PIECE_S`
-  (4.0 s from the Launch all's start to its last ball). If yes, the robot goes, and nothing parks or
+  (2.5 s from the Launch all's start to its last ball; 4.0 until 12 Nov 2026). If yes, the robot goes, and nothing parks or
   cuts it until that volley has fired. Why: an AUTO TIP is 20 points and counts toward the
   POLLINATOR RPs; AUTO PARK is 5. AUTO PARK does count toward the SWARM RP (both robots' LEAVE +
   PARK points, AUTO and end of match, 16 or more of 26: manual TU03 Tables 10-2 and 10-3), but

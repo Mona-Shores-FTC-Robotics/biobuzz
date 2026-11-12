@@ -44,8 +44,8 @@ import java.util.Locale;
  *
  * <p>But for {@code RIGHT_START}, these are not team spots: they are written only here and
  * {@code TeamCode/autos/spots.json} does not list them. The Clockwise pair launches from the wall
- * row, so its {@code .pp} files carry the same numbers and {@code ClockwiseAutoTest} compares
- * them: move a wall spot here and export those two Autos again. {@code LaunchSpotsTest} checks that each
+ * row and the two close HIVE-column spots, so its {@code .pp} files carry the same numbers and
+ * {@code ClockwiseAutoTest} compares them: move one of those here and export those two Autos again. {@code LaunchSpotsTest} checks that each
  * WALL spot touches its wall without crossing it and that no two spots that may be used together
  * overlap.
  */
