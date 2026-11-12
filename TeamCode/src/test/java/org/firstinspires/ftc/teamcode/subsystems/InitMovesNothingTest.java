@@ -76,7 +76,7 @@ public class InitMovesNothingTest {
     @Test
     public void turretWaitsForPlay() {
         Devices devices = new Devices().motor(DeviceNames.TURRET_ENCODER_HOST).servo(DeviceNames.TURRET)
-                .analog(DeviceNames.TURRET_ABS_A).analog(DeviceNames.TURRET_ABS_B);
+                .analog(DeviceNames.TURRET_ABS_64).analog(DeviceNames.TURRET_ABS_44);
         TurretSubsystem turret = new TurretSubsystem(devices.map);
         runInit(turret, devices);
 

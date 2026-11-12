@@ -919,7 +919,7 @@ mentor's CAD, 11 Nov 2026). Off on both robots until every value is in
       64T's 4-pin quadrature into the feeder's encoder socket is optional: without it, set
       `absAngleInMatch = true` for that robot (the angle all match from A's analog reading). Full
       **TeamCode** install (the configs gained two analog inputs), activate the config, run
-      **Check: Hardware**: `turretAbsA` and `turretAbsB` are AnalogInput.
+      **Check: Hardware**: `turretAbs64` and `turretAbs44` are AnalogInput.
 - [ ] **Bench: Turret Absolute Setup**, the guided setup (turret by hand, nothing moves). It shows one
       step at a time and moves on by itself: wiggle the turret (both readings move: both cables
       in); turn it slowly about a full turn (each encoder's voltage range, 2 wraps each); let go,

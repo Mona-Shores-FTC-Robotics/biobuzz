@@ -64,8 +64,8 @@
                  JST joiner board into the Control Hub's analog port 0-1: A on input
                  0, B on input 1. Not wired yet (the mentor's CAD, 11 Nov 2026);
                  nothing reads them unless TurretSubsystem.useAbsoluteZero is on. -->
-            <AnalogInput name="turretAbsA" port="0" />
-            <AnalogInput name="turretAbsB" port="1" />
+            <AnalogInput name="turretAbs64" port="0" />
+            <AnalogInput name="turretAbs44" port="1" />
 
             <!-- Intake star wheels: a continuous-rotation servo on servo port 5.
                  One-way clutches let a ball overrun the stars inward; the

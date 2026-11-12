@@ -578,7 +578,7 @@ port by itself; the joiner board is Melonbotics' way to plug in even one, and
 it ships with most of their products. Which encoder lands on input 0 depends on
 the side of the board it is plugged into; the guided setup catches a swap (B
 moves 0.69 times as far as A instead of 1.45). The ports are written only in
-each robot's XML (`turretAbsA` on input 0, `turretAbsB` on input 1).
+each robot's XML (`turretAbs64` on input 0, `turretAbs44` on input 1).
 
 One absolute encoder on the 64T gear knows where it is inside its own turn but
 not which turn; a second on a gear with a different tooth count drifts against

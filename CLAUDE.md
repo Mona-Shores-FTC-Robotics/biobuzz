@@ -63,7 +63,7 @@ Three layers, each written in exactly one place:
   `CRServo`; it shares the servo ports. The turret's encoder has no device of its own: it is read
   through the encoder socket of `DeviceNames.TURRET_ENCODER_HOST` (a motor whose own encoder the
   code never uses for control), and only turret code may reset that count. With `TurretSubsystem.useAbsoluteZero` on, two
-  Melonbotics encoders at different gear ratios (`DeviceNames.TURRET_ABS_A` / `_B`, `Kind.ANALOG`,
+  Melonbotics encoders at different gear ratios (`DeviceNames.TURRET_ABS_64` / `_44`, `Kind.ANALOG`,
   `<AnalogInput>`) give their absolute angle as a voltage on hub analog inputs, and `TurretAbsolute`
   sets the turret's zero from them in INIT only; with `absAngleInMatch` the match's angle comes
   from A's analog reading with its wraps counted instead of the count.

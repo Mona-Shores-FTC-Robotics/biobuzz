@@ -23,7 +23,7 @@ import java.util.Locale;
 /**
  * The guided setup of the turret's two absolute encoders: Melonbotics Through Bore Encoders on the
  * 176T ring (A on the 64T gear, B on the 44T), their analog outputs on the hub's analog inputs
- * {@link DeviceNames#TURRET_ABS_A} and {@link DeviceNames#TURRET_ABS_B}. Nothing moves: the turret
+ * {@link DeviceNames#TURRET_ABS_64} and {@link DeviceNames#TURRET_ABS_44}. Nothing moves: the turret
  * is turned by hand.
  *
  * <p>The Driver Station shows one step at a time ({@link AbsoluteSetup}), each moving on by itself
@@ -70,10 +70,10 @@ public class TurretAbsoluteSetupBench extends OpMode {
         // After this robot's values are applied, so the ratios are the ones it runs with.
         setup = new AbsoluteSetup(TurretSubsystem.absRatioA, TurretSubsystem.absRatioB);
         try {
-            encoderA = hardwareMap.get(AnalogInput.class, DeviceNames.TURRET_ABS_A);
-            encoderB = hardwareMap.get(AnalogInput.class, DeviceNames.TURRET_ABS_B);
+            encoderA = hardwareMap.get(AnalogInput.class, DeviceNames.TURRET_ABS_64);
+            encoderB = hardwareMap.get(AnalogInput.class, DeviceNames.TURRET_ABS_44);
         } catch (RuntimeException e) {
-            fault = "analog inputs \"" + DeviceNames.TURRET_ABS_A + "\" / \"" + DeviceNames.TURRET_ABS_B
+            fault = "analog inputs \"" + DeviceNames.TURRET_ABS_64 + "\" / \"" + DeviceNames.TURRET_ABS_44
                     + "\" are not in the active configuration";
         }
         try {
@@ -205,8 +205,8 @@ public class TurretAbsoluteSetupBench extends OpMode {
         boolean a = false;
         boolean b = false;
         for (DeviceNames.Device device : identity.devices) {
-            a |= DeviceNames.TURRET_ABS_A.equals(device.name);
-            b |= DeviceNames.TURRET_ABS_B.equals(device.name);
+            a |= DeviceNames.TURRET_ABS_64.equals(device.name);
+            b |= DeviceNames.TURRET_ABS_44.equals(device.name);
         }
         return a && b;
     }

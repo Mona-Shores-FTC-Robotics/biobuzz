@@ -121,8 +121,8 @@ public final class DeviceNames {
      * A on the 64T gear, B on the 44T ({@code TurretSubsystem.useAbsoluteZero}). Hub analog inputs;
      * which ones is in each robot's XML (two channels of one analog port, with a JST joiner board).
      */
-    public static final String TURRET_ABS_A = "turretAbsA";
-    public static final String TURRET_ABS_B = "turretAbsB";
+    public static final String TURRET_ABS_64 = "turretAbs64";
+    public static final String TURRET_ABS_44 = "turretAbs44";
 
     // Turret angle sensing: a Digital Chicken Labs OctoQuad (FTC Edition) on
     // I2C, reading two REV Thru-Bore absolute outputs on its pulse-width
@@ -221,8 +221,8 @@ public final class DeviceNames {
             new Device(TURRET, Kind.SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(COLOR_SENSOR, Kind.I2C),
-            new Device(TURRET_ABS_A, Kind.ANALOG),
-            new Device(TURRET_ABS_B, Kind.ANALOG),
+            new Device(TURRET_ABS_64, Kind.ANALOG),
+            new Device(TURRET_ABS_44, Kind.ANALOG),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
     /**

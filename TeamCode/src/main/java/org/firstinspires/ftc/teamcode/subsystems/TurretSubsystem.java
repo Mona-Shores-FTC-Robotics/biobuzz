@@ -48,7 +48,7 @@ import java.util.Locale;
  * <p>With {@link #useAbsoluteZero} on, the turret also knows its angle with nothing moving: two
  * Melonbotics Through Bore Encoders on the 176T ring, A on the 64T gear ({@link #absRatioA}) and B
  * on the 44T ({@link #absRatioB}), send their absolute angle as an analog voltage to two hub
- * analog inputs ({@link DeviceNames#TURRET_ABS_A}, {@link DeviceNames#TURRET_ABS_B}).
+ * analog inputs ({@link DeviceNames#TURRET_ABS_64}, {@link DeviceNames#TURRET_ABS_44}).
  * {@link TurretAbsolute} turns the two readings into the turret's angle, and during INIT that
  * sets the zero ({@link ZeroSource#ABSOLUTE}), so the turret need not sit on its mark at PLAY and a
  * TeleOp after a crash knows where it is. A person's zero button still wins. The quadrature count
@@ -306,8 +306,8 @@ public class TurretSubsystem implements Subsystem {
         pwm = servo instanceof PwmControl ? (PwmControl) servo : null;
         // Always in the configuration; an unplugged input just reads a fixed voltage, which the
         // solve then refuses (the setup's first step checks both move).
-        absA = hardwareMap.get(AnalogInput.class, DeviceNames.TURRET_ABS_A);
-        absB = hardwareMap.get(AnalogInput.class, DeviceNames.TURRET_ABS_B);
+        absA = hardwareMap.get(AnalogInput.class, DeviceNames.TURRET_ABS_64);
+        absB = hardwareMap.get(AnalogInput.class, DeviceNames.TURRET_ABS_44);
     }
 
     // ------------------------------------------------------------ requests
