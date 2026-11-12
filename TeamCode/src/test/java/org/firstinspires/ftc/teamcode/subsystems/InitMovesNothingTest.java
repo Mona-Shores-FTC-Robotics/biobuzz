@@ -5,7 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.qualcomm.hardware.digitalchickenlabs.OctoQuad;
+import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.AnalogInputController;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -75,7 +76,7 @@ public class InitMovesNothingTest {
     @Test
     public void turretWaitsForPlay() {
         Devices devices = new Devices().motor(DeviceNames.TURRET_ENCODER_HOST).servo(DeviceNames.TURRET)
-                .i2c(DeviceNames.OCTOQUAD, OctoQuad.class);
+                .analog(DeviceNames.TURRET_ABS_A).analog(DeviceNames.TURRET_ABS_B);
         TurretSubsystem turret = new TurretSubsystem(devices.map);
         runInit(turret, devices);
 
@@ -338,9 +339,18 @@ public class InitMovesNothingTest {
             return add(name, false, DcMotorEx.class);
         }
 
-        /** An I2C device: nothing on it moves, but its writes are recorded all the same. */
-        Devices i2c(String name, Class<?> type) {
-            return add(name, false, type);
+        /**
+         * An analog input. {@code AnalogInput} is a class, not an interface, so the fake is the real
+         * class on a fake controller that reads 0 V. It writes nothing.
+         */
+        Devices analog(String name) {
+            AnalogInputController controller = (AnalogInputController) Proxy.newProxyInstance(
+                    getClass().getClassLoader(), new Class<?>[] {AnalogInputController.class},
+                    (proxy, method, args) -> defaultFor(method.getReturnType(), method.getName(), name));
+            calls.put(name, new ArrayList<>());
+            isServo.put(name, false);
+            fakes.put(name, new AnalogInput(controller, 0));
+            return this;
         }
 
         private Devices add(String name, boolean servo, Class<?>... types) {

@@ -548,64 +548,85 @@ Considered and not done: zeroing only by button (a forgotten press is silent:
 nothing can tell the turret was not at home), and a check that the count is
 still where the Auto left it (it cannot tell a bump from a re-home). Set the encoder's voltage switch to 3V3.
 
-**The absolute zero: two Cypher Maxes at different ratios.** A Cypher Max also
-has an absolute PWM output (12-bit, about 546 Hz, ±1.2°), which a REV hub
-cannot read: its encoder sockets count quadrature only, and the Cypher Max has
-no analog output. The OctoQuad (`<OctoQuadFTC>`, Control Hub I2C bus 3) reads
-pulse widths on channels 4–7. One absolute encoder on the 64T drive gear turns
-2.75 times per turret turn, so it knows where it is inside its own turn but not
-which turn; a second on a gear with a different tooth count drifts against the
-first by a fixed amount per turn, and the pair names the turn
+**The absolute zero: two Melonbotics encoders at different ratios.** The
+turret's two absolute encoders are Melonbotics Through Bore Encoders meshing
+the 176T ring directly: A on a 64T gear (2.75 turns per turret turn), B on a 44T
+(4.0). Each has two connectors, and they are options, not both required: a
+3-pin JST with the absolute angle as an analog voltage (about 0 V to 3.2 V over
+one turn of the encoder, ±1.0°), and a 4-pin JST with a quadrature count. The
+absolute zero needs only the 3-pin analog outputs, and a REV hub reads those on
+its analog inputs with no extra board; they come in the hub's bulk read, so
+reading them every loop costs nothing.
+
+```
+                    Control Hub
+                  ┌──────────────────────────────┐
+ 64T encoder (A)  │  analog port "0-1"           │
+ 3-pin analog ──┐ │   input 0 ◀── A's angle      │
+                ├─┤   input 1 ◀── B's angle      │
+ 44T encoder (B)│ │   3.3 V and ground to both   │
+ 3-pin analog ──┘ │                              │
+   (joined by one └──────────────────────────────┘
+   Melonbotics JST joiner board: two 3-pin in, one 4-pin out)
+
+ Optional: A's 4-pin quadrature ──▶ the encoder socket beside Expansion Hub
+ motor port 3 (the feeder's, DeviceNames.TURRET_ENCODER_HOST). B never needs one.
+```
+
+One joiner board per robot. A 3-pin cable does not fit the hub's 4-pin analog
+port by itself; the joiner board is Melonbotics' way to plug in even one, and
+it ships with most of their products. Which encoder lands on input 0 depends on
+the side of the board it is plugged into; the guided setup catches a swap (B
+moves 0.69 times as far as A instead of 1.45). The ports are written only in
+each robot's XML (`turretAbsA` on input 0, `turretAbsB` on input 1).
+
+One absolute encoder on the 64T gear knows where it is inside its own turn but
+not which turn; a second on a gear with a different tooth count drifts against
+the first by a fixed amount per turn, and the pair names the turn
 (`subsystems/TurretAbsolute`, which tries each turn of encoder A and keeps the
-one whose prediction for B matches). With `TurretSubsystem.useAbsoluteZero`
-on, that sets the zero in INIT (`ZeroSource.ABSOLUTE`), over an Auto's carried
-zero and the PLAY assumption, never over a person's button; the quadrature
-count carries the angle from there, and the OctoQuad is not read after PLAY, so
-the match loop pays nothing for it. Two things to know about the gears and the
-pulses:
+one whose prediction for B matches). With `TurretSubsystem.useAbsoluteZero` on,
+that sets the zero in INIT (`ZeroSource.ABSOLUTE`), over an Auto's carried zero
+and the PLAY assumption, never over a person's button. During the match the
+angle comes from the quadrature count (A's 4-pin cable in the feeder's socket),
+or, with `absAngleInMatch` and no 4-pin cable, from A's analog reading with its
+wraps counted. Two things to know about the gears and the readings:
 
 - **The turret has no stops and no wires**, so at power-on it may be any number
   of turns from home. The pair must therefore repeat on a *whole* number of
   turret turns: then every repeat points the same way and the pair always gives
-  the turret's direction. The mentor's 64T and 44T, both on the 176T ring
-  (2.75 and 4.0), repeat after exactly 4 turret turns (lcm(64, 44) / 176).
-  64T and 56T would repeat after 2.55 turret turns, so two repeats would point different
-  ways; `TurretAbsolute.periodTurretTurns` refuses such a pair.
+  the turret's direction. 64T and 44T on the 176T ring repeat after exactly 4
+  turret turns (lcm(64, 44) / 176). 64T and 56T would repeat after 2.55 turret
+  turns, so two repeats would point different ways;
+  `TurretAbsolute.periodTurretTurns` refuses such a pair.
 - **Choose B's gear for separation, not "one tooth off".** Candidates for 64T
   and 44T stay 32.7° of B apart (gcd(64, 44) / 44 of a turn); half of that is
-  the error budget against the Cypher Max's ±1.2° plus backlash. 64T and 63T
-  would leave 5.7°, inside the encoders' own error. `TurretAbsolute.separationDeg`
-  is the check.
-- **Each encoder's pulse range is measured, not taken from the datasheet.** The
-  Cypher Max's PWM frequency is 490–603 Hz part to part, and the OctoQuad
-  measures the high time in µs, so the same angle gives different widths on two
-  encoders. `Bench: OctoQuad` measures them in its guided setup.
+  the error budget against the encoders' ±1.0° plus backlash. 64T and 63T would
+  leave 5.7°, inside the encoders' own error. `TurretAbsolute.separationDeg` is
+  the check.
+- **Each encoder's voltage range is measured**, not taken as the nominal 0 to
+  3.2 V: the guided setup reads each one's lowest and highest reading.
+- **A Melonbotics encoder's 4-pin quadrature does not count 2048 per turn** as
+  the Cypher Max did (`TurretEncoder.COUNTS_PER_ENCODER_TURN`), so with that
+  cable in the socket, one turret turn on `Bench: Turret` has to read 2.75
+  encoder turns before the count is trusted. The absolute pair's own ratio,
+  `absRatioA`, is a gear fact and kept apart from `turnsPerTurretTurn` for that
+  reason.
 
-The OctoQuad channel is the one port Java knows (`TurretSubsystem.ABS_CHANNEL_A`
-/ `_B`): the XML has no element for it. The bank mode and pulse range are sent
-at every init, never saved to the OctoQuad's flash, so a swapped board works.
-Until an OctoQuad answers on bus 3 the Driver Station shows the SDK's "OctoQuad
-does not report correct CHIP_ID" warning at startup; nothing reads it while
-`useAbsoluteZero` is off. The facts are on #169; the bench checklist is
-`doc/robot-todo.md` § 7g.
-
-**Bench: OctoQuad** is a guided setup (`opmodes/calibration/AbsoluteSetup`,
-unit tested with simulated encoders): one step at a time on the Driver Station,
-each moving on by itself, from "the OctoQuad answers" through each encoder's
-pulse range, its direction (with B's movement checked against A's by the gear
-ratio, which also catches swapped channels) and the home readings, to a check.
-It ends with the `RobotDifferences` lines for that robot, on the Driver Station,
-on Panels (to copy) and in the Robot Controller log, and applies them until the
-app restarts.
+**Bench: Turret Absolute Setup** is a guided setup
+(`opmodes/calibration/AbsoluteSetup`, unit tested with simulated encoders): one
+step at a time on the Driver Station, each moving on by itself, from "both
+readings move" through each encoder's voltage range, its direction (with B's
+movement checked against A's by the gear ratio, which also catches swapped
+inputs) and the home readings, to a check. It ends with the `RobotDifferences`
+lines for that robot, on the Driver Station, on Panels (to copy) and in the
+Robot Controller log, and applies them until the app restarts.
 
 **Bench: Turret Absolute** shows every way the robot can know the turret's
-angle side by side, whichever way the encoders end up wired: the absolute pair
-(solved live), the 64T encoder's quadrature count in the feeder's socket, the
-64T encoder's absolute reading with its wraps counted (one absolute cable per
-encoder, the OctoQuad read during the match), and what the servo was told. It
-times each OctoQuad read, so the wiring can be chosen from a number, and shows
-where the turret points on the field (heading plus turret angle) against the
-bearing to our raised CELL, with the turret drawn on Panels' field.
+angle side by side: the absolute pair (solved live), the 64T encoder's
+quadrature count in the feeder's socket, the 64T encoder's analog reading with
+its wraps counted, and what the servo was told. It shows where the turret
+points on the field (heading plus turret angle) against the bearing to our
+raised CELL, with the turret drawn on Panels' field.
 
 `subsystems/TurretEncoder` is the pure math (counts to degrees, with the
 measured gear ratio and direction). The servo is a goBILDA in standard

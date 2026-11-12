@@ -46,9 +46,7 @@ Three layers, each written in exactly one place:
 
 - **A device name appears only in `DeviceNames`.** Never a string literal, never a field on an
   `@Configurable` object. A name is identity, not tuning.
-- **Java never knows a port.** Two robots wired differently differ only in their XML. One
-  exception: an OctoQuad channel, which the XML cannot express (`TurretSubsystem.ABS_CHANNEL_A`
-  / `_B`, a specification both robots are wired to).
+- **Java never knows a port.** Two robots wired differently differ only in their XML.
 - **Adding a device:** the `DeviceNames` constant, the device list of every robot that has it
   (`COMPETITION_ROBOT` covers both), and the element in each of those robots' XML — same PR.
 - **Adding a robot or rig:** a `robot_<name>.xml` plus a `RobotIdentity` line. A rig with
@@ -65,9 +63,10 @@ Three layers, each written in exactly one place:
   `CRServo`; it shares the servo ports. The turret's encoder has no device of its own: it is read
   through the encoder socket of `DeviceNames.TURRET_ENCODER_HOST` (a motor whose own encoder the
   code never uses for control), and only turret code may reset that count. With `TurretSubsystem.useAbsoluteZero` on, two
-  Cypher Maxes at different gear ratios send their absolute PWM to the OctoQuad, and
-  `TurretAbsolute` sets the turret's zero from them in INIT; a match never reads the OctoQuad after
-  PLAY (only **Bench: Turret Absolute** does, through `readAbsoluteLive()`).
+  Melonbotics encoders at different gear ratios (`DeviceNames.TURRET_ABS_A` / `_B`, `Kind.ANALOG`,
+  `<AnalogInput>`) give their absolute angle as a voltage on hub analog inputs, and `TurretAbsolute`
+  sets the turret's zero from them in INIT only; with `absAngleInMatch` the match's angle comes
+  from A's analog reading with its wraps counted instead of the count.
   → README § "The turret: a servo on a servo port, an encoder on a motor's encoder socket"
 - XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what
   the SDK reads; keep `port` equal to it.

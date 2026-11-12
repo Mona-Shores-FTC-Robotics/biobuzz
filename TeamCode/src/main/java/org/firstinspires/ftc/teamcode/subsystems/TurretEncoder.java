@@ -13,9 +13,8 @@ package org.firstinspires.ftc.teamcode.subsystems;
  * counting across OpModes while the hub stays on. So the turret's angle is the count since the
  * turret was last known to be at home, which a person puts it at before INIT.
  *
- * <p>The encoder also has an absolute PWM output. With a second Cypher Max on a different gear,
- * the OctoQuad reads both and {@link TurretAbsolute} sets the zero this count is measured from
- * ({@code TurretSubsystem.useAbsoluteZero}).
+ * <p>The encoder also has an absolute PWM output, which an OctoQuad could read. Not used today
+ * (the build team chose relative plus a home mark, Oct 2026); nothing here stops adding it later.
  *
  * <h2>The two measured values</h2>
  *

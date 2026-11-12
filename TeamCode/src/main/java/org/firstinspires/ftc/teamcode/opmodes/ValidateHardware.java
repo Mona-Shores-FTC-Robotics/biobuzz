@@ -5,6 +5,7 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
@@ -222,6 +223,8 @@ public class ValidateHardware extends LinearOpMode {
                 return Servo.class;
             case CR_SERVO:
                 return CRServo.class;
+            case ANALOG:
+                return AnalogInput.class;
             case ETHERNET:
                 // The only Ethernet device SDK 12 builds (HardwareFactory.mapEthernetOverUsb).
                 return Limelight3A.class;

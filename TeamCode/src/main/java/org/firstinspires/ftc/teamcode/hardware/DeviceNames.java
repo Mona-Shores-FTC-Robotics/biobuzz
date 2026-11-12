@@ -116,12 +116,18 @@ public final class DeviceNames {
     public static final String TURRET = "turret";
 
     /**
-     * The turret's absolute angle: a Digital Chicken Labs OctoQuad (FTC Edition) on I2C, reading
-     * the two turret Cypher Maxes' absolute (PWM) outputs on its pulse-width channels
-     * ({@code TurretSubsystem.ABS_CHANNEL_A} / {@code _B}, the one port Java knows, since the XML
-     * has no element for an OctoQuad channel). The bus is in each robot's XML. Read only while
-     * {@code TurretSubsystem.useAbsoluteZero} is on, and only in INIT.
+     * The turret's two absolute encoders, Melonbotics Through Bore Encoders on the 176T ring, read
+     * through their analog outputs (3-pin JST: about 0 V to 3.2 V over one turn of the encoder):
+     * A on the 64T gear, B on the 44T ({@code TurretSubsystem.useAbsoluteZero}). Hub analog inputs;
+     * which ones is in each robot's XML (two channels of one analog port, with a JST joiner board).
      */
+    public static final String TURRET_ABS_A = "turretAbsA";
+    public static final String TURRET_ABS_B = "turretAbsB";
+
+    // Turret angle sensing: a Digital Chicken Labs OctoQuad (FTC Edition) on
+    // I2C, reading two REV Thru-Bore absolute outputs on its pulse-width
+    // channels (#169). On the OctoQuad bench rig today; on the competition
+    // robots once a turret exists (#174 adds it to COMPETITION_ROBOT).
     public static final String OCTOQUAD = "octoquad";
 
     /**
@@ -154,6 +160,11 @@ public final class DeviceNames {
          */
         CR_SERVO,
         I2C,
+        /**
+         * An analog input: {@code <AnalogInput>}, asked for as {@code AnalogInput}. A REV hub has
+         * analog inputs 0 to 3, two to each 4-pin analog port.
+         */
+        ANALOG,
 
         /**
          * A device on the Control Hub's USB-Ethernet link — in SDK 12, a
@@ -210,7 +221,8 @@ public final class DeviceNames {
             new Device(TURRET, Kind.SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(COLOR_SENSOR, Kind.I2C),
-            new Device(OCTOQUAD, Kind.I2C),
+            new Device(TURRET_ABS_A, Kind.ANALOG),
+            new Device(TURRET_ABS_B, Kind.ANALOG),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
     /**

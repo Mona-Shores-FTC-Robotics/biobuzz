@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.qualcomm.hardware.digitalchickenlabs.OctoQuad;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
@@ -43,18 +43,19 @@ import java.util.Locale;
  * <b>never</b> sets its power or mode, and never resets its count: zero is a software offset, so
  * the feeder (today's host) is untouched.
  *
- * <h2>The absolute zero (two Cypher Maxes through the OctoQuad)</h2>
+ * <h2>The absolute zero (two Melonbotics encoders' analog outputs)</h2>
  *
- * <p>With {@link #useAbsoluteZero} on, the turret also knows its angle with nothing moving: the
- * Cypher Max above (encoder A, {@link #turnsPerTurretTurn} turns per turret turn) and a second
- * Cypher Max on a different gear (encoder B, {@link #absRatioB}) send their absolute PWM outputs
- * to the OctoQuad ({@link DeviceNames#OCTOQUAD}), channels {@link #ABS_CHANNEL_A} and
- * {@link #ABS_CHANNEL_B}. {@link TurretAbsolute} turns the two readings into the turret's angle,
- * and during INIT that sets the zero ({@link ZeroSource#ABSOLUTE}), so the turret need not sit on
- * its mark at PLAY and a TeleOp after a crash knows where it is. A person's zero button still
- * wins. The quadrature count carries the angle from there: the OctoQuad is read only in INIT,
- * so the match loop pays nothing for it. Off until a robot's values are measured on
- * {@code Bench: OctoQuad}; then on for that robot in {@link org.firstinspires.ftc.teamcode.RobotDifferences}.
+ * <p>With {@link #useAbsoluteZero} on, the turret also knows its angle with nothing moving: two
+ * Melonbotics Through Bore Encoders on the 176T ring, A on the 64T gear ({@link #absRatioA}) and B
+ * on the 44T ({@link #absRatioB}), send their absolute angle as an analog voltage to two hub
+ * analog inputs ({@link DeviceNames#TURRET_ABS_A}, {@link DeviceNames#TURRET_ABS_B}).
+ * {@link TurretAbsolute} turns the two readings into the turret's angle, and during INIT that
+ * sets the zero ({@link ZeroSource#ABSOLUTE}), so the turret need not sit on its mark at PLAY and a
+ * TeleOp after a crash knows where it is. A person's zero button still wins. The quadrature count
+ * carries the angle from there; the analog inputs come in the hub's bulk read, so reading them
+ * every loop costs nothing, and the Robot page compares the two all match. Off until a robot's
+ * values are measured on {@code Bench: Turret Absolute Setup}; then on for that robot in
+ * {@link org.firstinspires.ftc.teamcode.RobotDifferences}.
  *
  * <p>The values below are both robots', measured on 20245. One that 19429 measures differently is
  * a line in {@link org.firstinspires.ftc.teamcode.RobotDifferences}, not a second field here.
@@ -65,10 +66,13 @@ public class TurretSubsystem implements Subsystem {
     // ------------------------------------------------------------ measured on the bench (20245)
 
     /**
-     * Encoder turns per turret turn: the Cypher Max on the 64T gear against the 176T ring, 2.75.
-     * Both robots get this layout (the mentor's CAD, 11 Nov 2026), so it is the shared value; it is
-     * encoder A of the absolute pair too. Check one turret turn on {@code Bench: Turret}. (20245's
-     * old bench encoder read 1:1 on 24 Oct 2026, before this layout.)
+     * Quadrature-encoder turns per turret turn, for the count in the feeder's encoder socket: the
+     * encoder on the 64T gear against the 176T ring, 2.75 (the mentor's CAD, 11 Nov 2026; both
+     * robots, so it is the shared value). It converts counts with
+     * {@link TurretEncoder#COUNTS_PER_ENCODER_TURN} (a Cypher Max's 2048): a Melonbotics encoder's
+     * 4-pin output counts a different number per turn, so check one turret turn on
+     * {@code Bench: Turret} before trusting it (doc/robot-todo.md § 7g). The absolute pair's ratio
+     * is {@link #absRatioA}, a gear fact, kept apart for that reason.
      */
     public static double turnsPerTurretTurn = 2.75;
 
@@ -165,33 +169,25 @@ public class TurretSubsystem implements Subsystem {
      */
     public static boolean lockedForward = true;
 
-    // ------------------------------------------------------------ absolute zero (OctoQuad)
+    // ------------------------------------------------------------ absolute zero (analog)
 
     /**
-     * The OctoQuad channels the two Cypher Maxes' absolute (PWM) outputs are wired to. A
-     * specification, like a port in {@code robot_*.xml}: wire them here. The one place Java knows a
-     * port, because the XML has no element for an OctoQuad channel (CLAUDE.md). Channels 4 to 7 are
-     * the OctoQuad's second bank, set to pulse width.
-     */
-    public static final int ABS_CHANNEL_A = 4;
-    public static final int ABS_CHANNEL_B = 5;
-
-    /**
-     * Zero the turret from the two absolute encoders in INIT. Off: the OctoQuad is not touched and
+     * Zero the turret from the two absolute encoders in INIT. Off: the analog inputs are not read and
      * the turret zeroes as before (at PLAY, from the Auto, or by hand). Turn it on for a robot in
      * {@code RobotDifferences} once every value below is measured.
      */
     public static boolean useAbsoluteZero = false;
 
     /**
-     * Encoder B's turns per turret turn: the ring's teeth over B's gear's. 4.0: the mentor's 44T
-     * spur gear meshing the 176T ring directly (CAD, 11 Nov 2026). From the design, not yet
-     * checked: a quarter turret turn is one wrap of B on {@code Bench: OctoQuad}. Encoder A's is
-     * {@link #turnsPerTurretTurn} (the 64T gear, also on the ring; its quadrature is in the hub
-     * socket). With 64T and 44T the readings repeat after exactly 4 turret turns, so the pair gives
-     * the turret's direction however many turns it has made, and candidates stay at least 32.7° of
-     * B apart ({@link TurretAbsolute#separationDeg}).
+     * Each absolute encoder's turns per turret turn: the ring's teeth over its gear's, from the
+     * mentor's CAD (11 Nov 2026): A on a 64T gear, 176 / 64 = 2.75; B on a 44T, 176 / 44 = 4.0,
+     * both meshing the 176T ring directly. Design facts; the guided setup checks B against A. Kept
+     * apart from {@link #turnsPerTurretTurn}, which converts the quadrature count and so also
+     * carries that encoder's counts per turn. With 64T and 44T the readings repeat after exactly 4
+     * turret turns, so the pair gives the turret's direction however many turns it has made, and
+     * candidates stay at least 32.7° of B apart ({@link TurretAbsolute#separationDeg}).
      */
+    public static double absRatioA = 2.75;
     public static double absRatioB = 4.0;
 
     /** +1 if A's absolute reading rises as the turret turns counter-clockwise from above, -1 if not. 0 = not measured. */
@@ -205,14 +201,14 @@ public class TurretSubsystem implements Subsystem {
     public static double absHomeB = Double.NaN;
 
     /**
-     * Each encoder's narrowest and widest absolute pulse, µs, read off {@code Bench: OctoQuad}
-     * while the encoder turns through its own zero. The Cypher Max's PWM frequency differs from
-     * one encoder to the next (490 to 603 Hz), so these are per encoder, never the datasheet's.
+     * Each encoder's lowest and highest analog reading, volts, measured by
+     * {@code Bench: Turret Absolute Setup} while the encoder turns through its own zero. Nominally
+     * 0 to 3.2 V; measured per encoder, since its output and the hub's input both vary a little.
      */
-    public static double absPulseMinUsA = Double.NaN;
-    public static double absPulseMaxUsA = Double.NaN;
-    public static double absPulseMinUsB = Double.NaN;
-    public static double absPulseMaxUsB = Double.NaN;
+    public static double absVoltsMinA = Double.NaN;
+    public static double absVoltsMaxA = Double.NaN;
+    public static double absVoltsMinB = Double.NaN;
+    public static double absVoltsMaxB = Double.NaN;
 
     /**
      * Readings further apart than this, in degrees of encoder B, are refused (slipped, or a value
@@ -220,6 +216,13 @@ public class TurretSubsystem implements Subsystem {
      * design's own budget, until the bench measures the real spread.
      */
     public static double absMaxResidualDeg = Double.NaN;
+
+    /**
+     * The turret's angle all match from encoder A's analog reading with its wraps counted, not from
+     * the quadrature count: for a robot with no quadrature cable in the feeder's encoder socket.
+     * Needs {@link #useAbsoluteZero}. Off: the count carries the angle, as without the encoders.
+     */
+    public static boolean absAngleInMatch = false;
 
     /** In INIT, the zero is taken again from the absolute pair if the two disagree by more than this, degrees. */
     public static double absRezeroDeg = 1.0;
@@ -246,26 +249,23 @@ public class TurretSubsystem implements Subsystem {
     private final DcMotorEx encoderHost;
     private final Servo servo;
     private final PwmControl pwm;   // null if this servo cannot switch its pulse off
-    /** Read only while {@link #useAbsoluteZero} is on, and only in INIT. */
-    private final OctoQuad octoquad;
-    private final OctoQuad.EncoderDataBlock octoData = new OctoQuad.EncoderDataBlock();
-    /** Why the OctoQuad is not read, or null while it is. */
-    private String absFault;
+    /** The two absolute encoders; read only while {@link #useAbsoluteZero} or {@link #readAbsoluteLive()}. */
+    private final AnalogInput absA;
+    private final AnalogInput absB;
     private TurretAbsolute.Solution absSolution;
-    private int absPulseA;
-    private int absPulseB;
+    private double absVoltsA = Double.NaN;
+    private double absVoltsB = Double.NaN;
     /** Absolute angle minus the quadrature angle at the last solve, degrees; NaN without one. */
     private double absCheckDeg = Double.NaN;
-    /** Read the OctoQuad every loop, INIT and PLAY ({@link #readAbsoluteLive()}): the bench's mode. */
+    /** Read the absolute encoders whether or not {@link #useAbsoluteZero} is on: the bench's mode. */
     private boolean absoluteLive;
-    private boolean octoSetUp;
     private double absFracA = Double.NaN;
     private double absFracB = Double.NaN;
     /** Encoder A's turns from home, its wraps counted since the last good solve; NaN when not tracking. */
     private double absTrackTurnsA = Double.NaN;
     private double absLastFracA = Double.NaN;
-    private double octoReadMs = Double.NaN;
-    private double octoReadMaxMs = Double.NaN;
+    private double absTrackDps = Double.NaN;
+    private long absTrackNs;
 
     private TurretEncoder encoder;
     private double encoderTurnsSetting = Double.NaN;
@@ -304,9 +304,10 @@ public class TurretSubsystem implements Subsystem {
         encoderHost = hardwareMap.get(DcMotorEx.class, DeviceNames.TURRET_ENCODER_HOST);
         servo = hardwareMap.get(Servo.class, DeviceNames.TURRET);
         pwm = servo instanceof PwmControl ? (PwmControl) servo : null;
-        // Always in the configuration (the SDK builds it from the XML whether or not a board is
-        // plugged in), so "found" never means "answering": setUpOctoQuad() checks that.
-        octoquad = hardwareMap.get(OctoQuad.class, DeviceNames.OCTOQUAD);
+        // Always in the configuration; an unplugged input just reads a fixed voltage, which the
+        // solve then refuses (the setup's first step checks both move).
+        absA = hardwareMap.get(AnalogInput.class, DeviceNames.TURRET_ABS_A);
+        absB = hardwareMap.get(AnalogInput.class, DeviceNames.TURRET_ABS_B);
     }
 
     // ------------------------------------------------------------ requests
@@ -387,26 +388,21 @@ public class TurretSubsystem implements Subsystem {
 
     // ------------------------------------------------------------ reads
 
-    /** The last two-encoder solve, or null before the first OctoQuad read. */
+    /** The last two-encoder solve, or null before the first read. */
     public TurretAbsolute.Solution absoluteSolution() {
         return absSolution;
     }
 
-    /** Why the OctoQuad is not being read, or null. */
-    public String absoluteFault() {
-        return absFault;
+    /** The two encoders' analog readings, volts; NaN before the first read. */
+    public double absoluteVoltsA() {
+        return absVoltsA;
     }
 
-    /** The raw pulse widths on channels A and B, µs. */
-    public int absolutePulseA() {
-        return absPulseA;
+    public double absoluteVoltsB() {
+        return absVoltsB;
     }
 
-    public int absolutePulseB() {
-        return absPulseB;
-    }
-
-    /** Each encoder's reading as a fraction of its turn, [0, 1); NaN until its pulse range is set. */
+    /** Each encoder's reading as a fraction of its turn, [0, 1); NaN until its voltage range is set. */
     public double absoluteFractionA() {
         return absFracA;
     }
@@ -417,21 +413,12 @@ public class TurretSubsystem implements Subsystem {
 
     /** The angle from encoder A's absolute reading with its wraps counted, degrees, not wrapped; NaN when not tracking. */
     public double absoluteTrackedDegrees() {
-        return Double.isNaN(absTrackTurnsA) ? Double.NaN : absTrackTurnsA / turnsPerTurretTurn * 360.0;
+        return Double.isNaN(absTrackTurnsA) ? Double.NaN : absTrackTurnsA / absRatioA * 360.0;
     }
 
     /** The solve's direction minus the count's, degrees, wrapped; NaN without both. */
     public double absoluteVsCountDegrees() {
         return absCheckDeg;
-    }
-
-    /** How long the last OctoQuad read took, and the longest since init, ms; NaN before the first. */
-    public double octoQuadReadMs() {
-        return octoReadMs;
-    }
-
-    public double octoQuadReadMaxMs() {
-        return octoReadMaxMs;
     }
 
     /** The quadrature count's angle from the zero, degrees, not wrapped, even while {@link #lockedForward}; NaN without settings. */
@@ -502,96 +489,33 @@ public class TurretSubsystem implements Subsystem {
         rehome.reset();
         absSolution = null;
         absCheckDeg = Double.NaN;
-        absFault = null;
-        octoSetUp = false;
         absTrackTurnsA = Double.NaN;
-        octoReadMaxMs = Double.NaN;
-        if (useAbsoluteZero) {
-            ensureOctoQuad();
-        }
-    }
-
-    private void ensureOctoQuad() {
-        if (!octoSetUp) {
-            absFault = setUpOctoQuad();
-            octoSetUp = true;
-        }
+        absTrackDps = Double.NaN;
     }
 
     /**
-     * The bench's mode: read the OctoQuad every loop, in INIT and after PLAY, whatever
-     * {@link #useAbsoluteZero} says, so every way of knowing the turret's angle can be watched side
-     * by side. The zero is still taken only in INIT. A match OpMode never calls this.
+     * The bench's mode: read the absolute encoders every loop whatever {@link #useAbsoluteZero}
+     * says, so every way of knowing the turret's angle can be watched side by side. The zero is
+     * still taken only in INIT. A match OpMode never calls this.
      */
     public void readAbsoluteLive() {
         absoluteLive = true;
-        ensureOctoQuad();
     }
-
-    /** Set the OctoQuad up again (after a cable change), and forget the wrap count. */
-    public void retryOctoQuad() {
-        octoSetUp = false;
-        absTrackTurnsA = Double.NaN;
-        octoReadMaxMs = Double.NaN;
-        ensureOctoQuad();
-    }
-
-    /** Null if the OctoQuad is ready; otherwise why not. Sent every init, never saved to its flash. */
-    private String setUpOctoQuad() {
-        try {
-            byte chip = octoquad.getChipId();
-            if (chip != OctoQuad.OCTOQUAD_CHIP_ID) {
-                return "OctoQuad not answering on I2C (chip id " + chip + "): plugged in? right bus?";
-            }
-            OctoQuad.FirmwareVersion version = octoquad.getFirmwareVersion();
-            if (version.maj < OctoQuad.SUPPORTED_FW_VERSION_MAJ) {
-                return "OctoQuad firmware " + version + "; SDK 12 needs "
-                        + OctoQuad.SUPPORTED_FW_VERSION_MAJ + ".x";
-            }
-            octoquad.setChannelBankConfig(OctoQuad.ChannelBankConfig.BANK1_QUADRATURE_BANK2_PULSE_WIDTH);
-            for (int channel : new int[] {ABS_CHANNEL_A, ABS_CHANNEL_B}) {
-                octoquad.setSingleChannelPulseWidthParams(channel, 1, ABS_PULSE_LIMIT_US);
-                octoquad.setSingleChannelPulseWidthTracksWrap(channel, false);
-            }
-            return null;
-        } catch (RuntimeException e) {
-            return "OctoQuad setup failed: " + (e.getMessage() == null ? e.toString() : e.getMessage());
-        }
-    }
-
-    /** Wider than any Cypher Max pulse (a frame is about 1.7 to 2.1 ms). */
-    static final int ABS_PULSE_LIMIT_US = 4000;
 
     /**
-     * One OctoQuad read and solve, in INIT only. A good solve sets the zero unless a person set it,
-     * and sets it again if the quadrature angle has drifted from it (the turret was moved while
-     * the first solve was taken).
+     * Both analog readings, the solve, and the wrap count. In INIT a good solve sets the zero unless
+     * a person set it, and sets it again if the quadrature angle has drifted from it (the turret was
+     * moved while the first solve was taken). The analog inputs come in the hub's bulk read, so
+     * this costs no extra hub round trip.
      */
     private void readAbsolute() {
-        if (absFault != null) {
-            return;
-        }
-        long t0 = System.nanoTime();
-        try {
-            octoquad.readAllEncoderData(octoData);
-        } catch (RuntimeException e) {
-            absFault = "OctoQuad read failed: " + (e.getMessage() == null ? e.toString() : e.getMessage());
-            return;
-        }
-        octoReadMs = (System.nanoTime() - t0) / 1e6;
-        octoReadMaxMs = Double.isNaN(octoReadMaxMs) ? octoReadMs : Math.max(octoReadMaxMs, octoReadMs);
-        if (!octoData.isDataValid()) {
-            absSolution = new TurretAbsolute.Solution("OctoQuad data not valid this loop",
-                    Double.NaN, Double.NaN, Double.NaN);
-            return;
-        }
-        absPulseA = octoData.positions[ABS_CHANNEL_A];
-        absPulseB = octoData.positions[ABS_CHANNEL_B];
-        absFracA = TurretAbsolute.fractionFromPulse(absPulseA, absPulseMinUsA, absPulseMaxUsA);
-        absFracB = TurretAbsolute.fractionFromPulse(absPulseB, absPulseMinUsB, absPulseMaxUsB);
-        double separation = TurretAbsolute.separationDeg(turnsPerTurretTurn, absRatioB);
+        absVoltsA = absA.getVoltage();
+        absVoltsB = absB.getVoltage();
+        absFracA = TurretAbsolute.fractionOfRange(absVoltsA, absVoltsMinA, absVoltsMaxA, ABS_SLACK_VOLTS);
+        absFracB = TurretAbsolute.fractionOfRange(absVoltsB, absVoltsMinB, absVoltsMaxB, ABS_SLACK_VOLTS);
+        double separation = TurretAbsolute.separationDeg(absRatioA, absRatioB);
         double maxResidual = Double.isNaN(absMaxResidualDeg) ? separation / 3.0 : absMaxResidualDeg;
-        absSolution = TurretAbsolute.solve(absFracA, absFracB, absHomeA, absHomeB, turnsPerTurretTurn,
+        absSolution = TurretAbsolute.solve(absFracA, absFracB, absHomeA, absHomeB, absRatioA,
                 absRatioB, absDirectionA, absDirectionB, maxResidual, separation / 2.0);
         trackAbsolute();
         if (!absSolution.ok() || encoder == null) {
@@ -612,13 +536,18 @@ public class TurretSubsystem implements Subsystem {
         }
     }
 
+    /** A reading this far outside an encoder's measured range, volts, still counts (noise at the ends). */
+    static final double ABS_SLACK_VOLTS = 0.05;
+
     /**
      * The turret's angle from encoder A's absolute reading alone, its wraps counted from the last
-     * good solve: what the match would use with no quadrature cable. A turret turning less than
-     * half a turn of A between two reads (65° of turret at 2.75:1) is followed; a missed read
-     * drops the count until the next good solve.
+     * good solve: the match's angle with {@link #absAngleInMatch}, with no quadrature cable. A
+     * turret turning less than half a turn of A between two loops (65° of turret at 2.75:1) is
+     * followed; a reading outside A's range drops the count until the next good solve.
      */
     private void trackAbsolute() {
+        long now = System.nanoTime();
+        double before = absoluteTrackedDegrees();
         if (!Double.isNaN(absTrackTurnsA)) {
             if (Double.isNaN(absFracA)) {
                 absTrackTurnsA = Double.NaN;
@@ -628,9 +557,13 @@ public class TurretSubsystem implements Subsystem {
             }
         }
         if (Double.isNaN(absTrackTurnsA) && absSolution.ok()) {
-            absTrackTurnsA = absSolution.turretDeg / 360.0 * turnsPerTurretTurn;
+            absTrackTurnsA = absSolution.turretDeg / 360.0 * absRatioA;
             absLastFracA = absFracA;
         }
+        double after = absoluteTrackedDegrees();
+        double dt = (now - absTrackNs) / 1e9;
+        absTrackDps = Double.isNaN(before) || Double.isNaN(after) || !(dt > 0) ? Double.NaN : (after - before) / dt;
+        absTrackNs = now;
     }
     /** PLAY: the servo may be written from now on. */
     @Override
@@ -652,15 +585,24 @@ public class TurretSubsystem implements Subsystem {
             encoderAngleDeg = Double.NaN;
             encoderRateDps = Double.NaN;
         }
-        if ((useAbsoluteZero && !started) || absoluteLive) {
+        if (useAbsoluteZero || absoluteLive) {
             readAbsolute();
             if (encoder != null && zeroed) {
                 encoderAngleDeg = encoder.degrees(counts, zeroCounts);
             }
         }
+        boolean fromAbsolute = absAngleInMatch && useAbsoluteZero;
+        if (fromAbsolute) {
+            // No quadrature cable: the 64T encoder's absolute reading, its wraps counted, is the angle.
+            encoderAngleDeg = absoluteTrackedDegrees();
+            encoderRateDps = absTrackDps;
+        }
         if (lockedForward) {
             angleDeg = 0.0;
             rateDps = 0.0;
+        } else if (fromAbsolute) {
+            angleDeg = encoderAngleDeg;
+            rateDps = encoderRateDps;
         } else if (encoder != null) {
             angleDeg = encoder.degrees(counts, zeroCounts);
             rateDps = encoder.degreesPerSecond(countsPerSecond);
@@ -768,7 +710,7 @@ public class TurretSubsystem implements Subsystem {
     @Override
     public String health() {
         String abs = useAbsoluteZero
-                ? "; absolute zero: " + (absFault != null ? absFault : "OctoQuad answers on I2C")
+                ? "; absolute zero on (" + (absAngleInMatch ? "the angle from the 64T's analog all match" : "the count carries the angle") + ")"
                 : "";
         return turretHealth() + abs;
     }
@@ -828,15 +770,11 @@ public class TurretSubsystem implements Subsystem {
         if (!useAbsoluteZero) {
             return;
         }
-        if (absFault != null) {
-            display.status("Turret abs", Display.Level.FAULT, absFault);
-        } else if (started && !absoluteLive) {
-            display.status("Turret abs", Display.Level.OK, "not read after PLAY; the count carries the angle");
-        } else if (absSolution == null) {
+        if (absSolution == null) {
             display.status("Turret abs", Display.Level.WARN, "no reading yet");
         } else if (!absSolution.ok()) {
             display.status("Turret abs", Display.Level.WARN, String.format(Locale.US,
-                    "%s · pulses A %d B %d µs", absSolution.problem, absPulseA, absPulseB));
+                    "%s · A %.3f V, B %.3f V", absSolution.problem, absVoltsA, absVoltsB));
         } else {
             display.status("Turret abs", Display.Level.OK, String.format(Locale.US,
                     "%.1f° · residual %.1f° · margin %.0f° · vs count %+.1f°",

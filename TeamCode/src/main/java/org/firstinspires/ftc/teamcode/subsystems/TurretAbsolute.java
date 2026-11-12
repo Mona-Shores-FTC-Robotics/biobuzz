@@ -5,11 +5,11 @@ import java.util.Locale;
 /**
  * The turret's absolute angle from two absolute encoders geared to it at different ratios: the
  * "two-encoder" (vernier, Chinese-remainder) trick. Plain Java, so all of it is unit tested at a
- * laptop; the OctoQuad read is the caller's.
+ * laptop; the hardware read is the caller's.
  *
  * <h2>The trick</h2>
  *
- * <p>An absolute encoder geared up from the turret (a Cypher Max on a 64T gear against the 176T
+ * <p>An absolute encoder geared up from the turret (a Melonbotics encoder on a 64T gear against the 176T
  * ring turns 2.75 times per turret turn) knows where it is inside its own turn, but not which of
  * its turns the turret is on. A second absolute encoder on a gear with a different tooth count (44T:
  * 4.0 turns per turret turn) turns a different number of times per turret turn, so the pair of
@@ -31,8 +31,8 @@ import java.util.Locale;
  *
  * <ul>
  *   <li>{@link Solution#residualDeg}: how far the second encoder is from the best prediction, in
- *       its own degrees. Noise, backlash and the encoders' own error (the Cypher Max states
- *       ±1.2°) all land here. Above {@code maxResidualDeg}, the readings disagree: an encoder
+ *       its own degrees. Noise, backlash and the encoders' own error (the Melonbotics encoder states
+ *       ±1.0°) all land here. Above {@code maxResidualDeg}, the readings disagree: an encoder
  *       slipped, a gear jumped a tooth, or a value below is wrong.</li>
  *   <li>{@link Solution#marginDeg}: how far the runner-up's prediction is from the reading. Below
  *       {@code minMarginDeg} the answer is ambiguous and refused.</li>
@@ -46,11 +46,10 @@ import java.util.Locale;
  *
  * <p>Each encoder's reading is a fraction of its own turn, [0, 1). Its home reading is that
  * fraction with the turret at its home mark. Its direction is +1 if its reading rises as the turret
- * turns counter-clockwise seen from above (Pedro's frame), -1 if it falls; the Cypher Max's absolute
- * output counts the opposite way to its quadrature, so measure it.
+ * turns counter-clockwise seen from above (Pedro's frame), -1 if it falls; so measure it.
  *
- * <p>Read both encoders at the same instant with the turret still (one OctoQuad read in INIT does
- * both): a turret moving between the two reads looks like a disagreement.
+ * <p>Read both encoders at the same instant with the turret still (the hub's bulk read takes
+ * both at once): a turret moving between the two reads looks like a disagreement.
  */
 public final class TurretAbsolute {
 
@@ -179,21 +178,19 @@ public final class TurretAbsolute {
     }
 
     /**
-     * A pulse width to a fraction of the encoder's turn, [0, 1), from that encoder's own measured
-     * narrowest and widest pulse; NaN if the width is outside them by more than a few microseconds
-     * (no encoder, or the wrong wire). The Cypher Max's PWM runs at 490 to 603 Hz part to part, so
-     * its pulse widths differ from encoder to encoder: each one's range is measured on
-     * {@code Bench: OctoQuad}, never assumed.
+     * A reading to a fraction of the encoder's turn, [0, 1), from that encoder's own measured lowest
+     * and highest reading; NaN if it is outside them by more than {@code slack} (no encoder, or the
+     * wrong wire), or the range is not measured. Each encoder's range is measured on the bench,
+     * never assumed.
      */
-    public static double fractionFromPulse(int pulseUs, double minUs, double maxUs) {
-        if (Double.isNaN(minUs) || Double.isNaN(maxUs) || !(maxUs > minUs)) {
+    public static double fractionOfRange(double value, double min, double max, double slack) {
+        if (Double.isNaN(value) || Double.isNaN(min) || Double.isNaN(max) || !(max > min)) {
             return Double.NaN;
         }
-        double slack = 4.0;
-        if (pulseUs < minUs - slack || pulseUs > maxUs + slack) {
+        if (value < min - slack || value > max + slack) {
             return Double.NaN;
         }
-        double f = (pulseUs - minUs) / (maxUs - minUs);
+        double f = (value - min) / (max - min);
         f = f - Math.floor(f);
         return f >= 1.0 ? 0.0 : f;
     }

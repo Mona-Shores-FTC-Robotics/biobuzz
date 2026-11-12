@@ -118,13 +118,15 @@ public class TurretAbsoluteTest {
     }
 
     @Test
-    public void aPulseBecomesAFractionOfTheEncodersOwnRange() {
-        assertEquals(0.0, TurretAbsolute.fractionFromPulse(10, 10, 1810), 1e-12);
-        assertEquals(0.5, TurretAbsolute.fractionFromPulse(910, 10, 1810), 1e-12);
-        assertEquals(0.0, TurretAbsolute.fractionFromPulse(1810, 10, 1810), 1e-12);
-        assertTrue(Double.isNaN(TurretAbsolute.fractionFromPulse(0, 10, 1810)));
-        assertTrue(Double.isNaN(TurretAbsolute.fractionFromPulse(3000, 10, 1810)));
-        assertTrue(Double.isNaN(TurretAbsolute.fractionFromPulse(500, Double.NaN, 1810)));
+    public void aReadingBecomesAFractionOfTheEncodersOwnRange() {
+        assertEquals(0.0, TurretAbsolute.fractionOfRange(0.01, 0.01, 3.21, 0.05), 1e-12);
+        assertEquals(0.5, TurretAbsolute.fractionOfRange(1.61, 0.01, 3.21, 0.05), 1e-12);
+        assertEquals(0.0, TurretAbsolute.fractionOfRange(3.21, 0.01, 3.21, 0.05), 1e-12);
+        // Just outside the range is noise at an end, and still a reading; far outside is not.
+        assertEquals(0.0, TurretAbsolute.fractionOfRange(3.23, 0.01, 3.21, 0.05) , 0.01);
+        assertTrue(Double.isNaN(TurretAbsolute.fractionOfRange(3.3, 0.01, 3.21, 0.05)));
+        assertTrue(Double.isNaN(TurretAbsolute.fractionOfRange(1.0, Double.NaN, 3.21, 0.05)));
+        assertTrue(Double.isNaN(TurretAbsolute.fractionOfRange(Double.NaN, 0.01, 3.21, 0.05)));
     }
 
     private static void assertProblem(TurretAbsolute.Solution s, String word) {

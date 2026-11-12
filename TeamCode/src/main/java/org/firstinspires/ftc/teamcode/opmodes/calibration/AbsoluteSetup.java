@@ -8,13 +8,15 @@ import java.util.Locale;
 
 /**
  * The guided setup of the turret's two absolute encoders, one step at a time: plain Java, so every
- * step is unit tested at a laptop. {@code Bench: OctoQuad} feeds it the OctoQuad's readings every
- * loop and shows {@link #title()} and {@link #lines()}.
+ * step is unit tested at a laptop. {@code Bench: Turret Absolute Setup} feeds it the two
+ * Melonbotics encoders' analog readings, volts, every loop and shows {@link #title()} and
+ * {@link #lines()}.
  *
  * <ol>
- *   <li>{@link Step#BOARD}: the OctoQuad answers and both channels have a pulse.</li>
- *   <li>{@link Step#RANGES}: turn the turret slowly; each encoder's narrowest and widest pulse,
- *       once it has wrapped twice. The Cypher Max's clock differs per encoder, so these do too.</li>
+ *   <li>{@link Step#BOARD}: wiggle the turret; both readings move (an unplugged input still reads a
+ *       voltage, so moving is the only proof a cable is in).</li>
+ *   <li>{@link Step#RANGES}: turn the turret slowly; each encoder's lowest and highest reading,
+ *       once it has wrapped twice. Nominally 0 to 3.2 V; measured per encoder.</li>
  *   <li>{@link Step#DIRECTIONS}: turn it counter-clockwise; which way each reading moves, and
  *       whether B moved the gears' ratio to A.</li>
  *   <li>{@link Step#HOME}: on the home mark, Cross; both readings averaged while still.</li>
@@ -27,25 +29,27 @@ final class AbsoluteSetup {
 
     enum Step { BOARD, RANGES, DIRECTIONS, HOME, CHECK, DONE }
 
-    /** Loops in a row with both pulses present before the board counts as working. */
-    static final int BOARD_LOOPS = 10;
+    /** How far each reading must move in the first step, volts, to show its cable is in. */
+    static final double WIGGLE_VOLTS = 0.15;
     /** Wraps each encoder must make before its range is trusted. */
     static final int WRAPS_NEEDED = 2;
-    /** A step between two loops bigger than this, µs, is too fast to catch the ends of the range. */
-    static final int SLOW_STEP_US = 12;
-    /** A Cypher Max's pulse range, µs: its frame is 1.66 to 2.04 ms (490 to 603 Hz). Outside it, the range is wrong. */
-    static final double MIN_SPAN_US = 1500;
-    static final double MAX_SPAN_US = 2200;
+    /** A step between two loops bigger than this, volts, is too fast to catch the ends of the range (about 2° of encoder). */
+    static final double SLOW_STEP_VOLTS = 0.02;
+    /** A Melonbotics encoder's range, volts: nominally 0 to 3.2. Outside these, the range is wrong. */
+    static final double MIN_SPAN_VOLTS = 2.8;
+    static final double MAX_SPAN_VOLTS = 3.4;
+    /** A reading this far outside a measured range, volts, still counts (noise at the ends). */
+    static final double SLACK_VOLTS = 0.05;
     /** The direction step needs this much turret turn, degrees, then stillness. */
     static final double DIRECTION_TURN_DEG = 30;
     /** B's movement against A's may differ from the gears' ratio by this fraction. */
     static final double RATIO_TOLERANCE = 0.15;
     /** Loops with the readings this still (turns of the encoder per loop) count as still. */
     static final int STILL_LOOPS = 15;
-    static final double STILL_TURNS = 0.002;
+    static final double STILL_TURNS = 0.004;
     /** Loops averaged for the home readings, and the most they may spread, turns. */
     static final int HOME_LOOPS = 25;
-    static final double HOME_SPREAD_TURNS = 0.004;
+    static final double HOME_SPREAD_TURNS = 0.006;
 
     private final double ratioA;
     private final double ratioB;
@@ -54,7 +58,10 @@ final class AbsoluteSetup {
     private String problem;
 
     // BOARD
-    private int boardLoops;
+    private double firstA = Double.NaN;
+    private double firstB = Double.NaN;
+    private boolean movedA;
+    private boolean movedB;
 
     // RANGES
     private final Range rangeA = new Range();
@@ -105,7 +112,7 @@ final class AbsoluteSetup {
     }
 
     /** One loop's readings. {@code cross} is a press (true for one loop). */
-    void update(boolean boardOk, String boardProblem, int pulseA, int pulseB, boolean cross) {
+    void update(boolean boardOk, String boardProblem, double pulseA, double pulseB, boolean cross) {
         switch (step) {
             case BOARD:
                 board(boardOk, boardProblem, pulseA, pulseB);
@@ -152,7 +159,10 @@ final class AbsoluteSetup {
         problem = null;
         switch (next) {
             case BOARD:
-                boardLoops = 0;
+                firstA = Double.NaN;
+                firstB = Double.NaN;
+                movedA = false;
+                movedB = false;
                 break;
             case RANGES:
                 rangeA.reset();
@@ -180,29 +190,35 @@ final class AbsoluteSetup {
 
     // ---------------------------------------------------------------- steps
 
-    private void board(boolean ok, String why, int pulseA, int pulseB) {
-        if (!ok) {
-            problem = why;
-            boardLoops = 0;
-        } else if (pulseA <= 0 || pulseB <= 0) {
-            problem = "no pulse on " + (pulseA <= 0 ? "A (64T, channel 4)" : "B (44T, channel 5)")
-                    + ": absolute wire on the channel's A pin? switch on 3V3?";
-            boardLoops = 0;
-        } else {
-            problem = null;
-            if (++boardLoops >= BOARD_LOOPS) enter(Step.RANGES);
+    private void board(boolean ok, String why, double a, double b) {
+        if (!ok || Double.isNaN(a) || Double.isNaN(b)) {
+            problem = why != null ? why : "no reading";
+            return;
+        }
+        if (Double.isNaN(firstA)) {
+            firstA = a;
+            firstB = b;
+        }
+        movedA |= Math.abs(a - firstA) > WIGGLE_VOLTS;
+        movedB |= Math.abs(b - firstB) > WIGGLE_VOLTS;
+        problem = null;
+        if (movedA && movedB) {
+            enter(Step.RANGES);
+        } else if (movedA || movedB) {
+            problem = (movedA ? "B (44T, analog input 1)" : "A (64T, analog input 0)")
+                    + " has not moved yet: keep turning; if it never does, check its cable in the joiner board";
         }
     }
 
-    private void ranges(int pulseA, int pulseB) {
-        if (pulseA <= 0 || pulseB <= 0) {
-            problem = "a pulse dropped out: check the cables";
+    private void ranges(double pulseA, double pulseB) {
+        if (Double.isNaN(pulseA) || Double.isNaN(pulseB)) {
+            problem = "a reading dropped out: check the cables";
             return;
         }
         rangeA.add(pulseA);
         rangeB.add(pulseB);
         problem = null;
-        if (rangeA.lastStep > SLOW_STEP_US || rangeB.lastStep > SLOW_STEP_US) {
+        if (rangeA.lastStep > SLOW_STEP_VOLTS || rangeB.lastStep > SLOW_STEP_VOLTS) {
             problem = "a little slower: the ends of the range are easy to miss";
         }
         if (rangeA.done() && rangeB.done()) {
@@ -218,17 +234,18 @@ final class AbsoluteSetup {
 
     private static String spanProblem(String name, Range r) {
         double span = r.max - r.min;
-        if (span < MIN_SPAN_US || span > MAX_SPAN_US) {
-            return String.format(Locale.US, "%s's range is %.0f µs, not 1500 to 2200 like a Cypher Max's.", name, span);
+        if (span < MIN_SPAN_VOLTS || span > MAX_SPAN_VOLTS) {
+            return String.format(Locale.US, "%s's range is %.2f V, not %.1f to %.1f like a Melonbotics encoder's.",
+                    name, span, MIN_SPAN_VOLTS, MAX_SPAN_VOLTS);
         }
         return null;
     }
 
-    private void directions(int pulseA, int pulseB, boolean cross) {
+    private void directions(double pulseA, double pulseB, boolean cross) {
         double a = fraction(pulseA, rangeA);
         double b = fraction(pulseB, rangeB);
         if (Double.isNaN(a) || Double.isNaN(b)) {
-            problem = "a pulse is outside the range just found: Back (D-pad left) and find the ranges again";
+            problem = "a reading is outside the range just found: Back (D-pad left) and find the ranges again";
             return;
         }
         if (ratioFailed) {
@@ -277,11 +294,11 @@ final class AbsoluteSetup {
         return Math.abs(accA) / ratioA * 360.0;
     }
 
-    private void home(int pulseA, int pulseB, boolean cross) {
+    private void home(double pulseA, double pulseB, boolean cross) {
         double a = fraction(pulseA, rangeA);
         double b = fraction(pulseB, rangeB);
         if (Double.isNaN(a) || Double.isNaN(b)) {
-            problem = "a pulse is outside the range found: Back (D-pad left) to the ranges";
+            problem = "a reading is outside the range found: Back (D-pad left) to the ranges";
             homing = false;
             return;
         }
@@ -340,10 +357,10 @@ final class AbsoluteSetup {
     List<String> pasteLines(String robot, String date) {
         List<String> out = new ArrayList<>();
         out.add("differs(RobotIdentity." + robot + ",");
-        out.add("        \"Turret absolute encoders measured on Bench: OctoQuad's guided setup (" + date + ")\",");
+        out.add("        \"Turret absolute encoders measured on Bench: Turret Absolute Setup (" + date + ")\",");
         out.add("        () -> {");
-        out.add(String.format(Locale.US, "            TurretSubsystem.absPulseMinUsA = %.0f; TurretSubsystem.absPulseMaxUsA = %.0f;", minA(), maxA()));
-        out.add(String.format(Locale.US, "            TurretSubsystem.absPulseMinUsB = %.0f; TurretSubsystem.absPulseMaxUsB = %.0f;", minB(), maxB()));
+        out.add(String.format(Locale.US, "            TurretSubsystem.absVoltsMinA = %.3f; TurretSubsystem.absVoltsMaxA = %.3f;", minA(), maxA()));
+        out.add(String.format(Locale.US, "            TurretSubsystem.absVoltsMinB = %.3f; TurretSubsystem.absVoltsMaxB = %.3f;", minB(), maxB()));
         out.add(String.format(Locale.US, "            TurretSubsystem.absDirectionA = %d; TurretSubsystem.absDirectionB = %d;", dirA, dirB));
         out.add(String.format(Locale.US, "            TurretSubsystem.absHomeA = %.4f; TurretSubsystem.absHomeB = %.4f;", homeA, homeB));
         out.add("            TurretSubsystem.useAbsoluteZero = true;");
@@ -355,8 +372,8 @@ final class AbsoluteSetup {
 
     String title() {
         switch (step) {
-            case BOARD: return "1 of 5 · Check the OctoQuad";
-            case RANGES: return "2 of 5 · Each encoder's pulse range";
+            case BOARD: return "1 of 5 · Check both encoders";
+            case RANGES: return "2 of 5 · Each encoder's range";
             case DIRECTIONS: return "3 of 5 · Which way each encoder turns";
             case HOME: return "4 of 5 · The home readings";
             case CHECK: return "5 of 5 · Check";
@@ -369,7 +386,8 @@ final class AbsoluteSetup {
         List<String> out = new ArrayList<>();
         switch (step) {
             case BOARD:
-                out.add("Nothing to do if both channels show a pulse: it moves on by itself.");
+                out.add("Turn the turret a little either way: both readings must move.");
+                out.add(String.format(Locale.US, "A (64T) %s · B (44T) %s", movedA ? "moved ✓" : "waiting", movedB ? "moved ✓" : "waiting"));
                 break;
             case RANGES:
                 out.add("Turn the turret slowly by hand, about one full turn, either way.");
@@ -412,14 +430,14 @@ final class AbsoluteSetup {
 
     private static String rangeLine(String name, Range r) {
         if (r.count == 0) return name + ": no pulse yet";
-        return String.format(Locale.US, "%s: %d to %d µs · wraps %d of %d%s", name, (int) r.min, (int) r.max,
+        return String.format(Locale.US, "%s: %.3f to %.3f V · wraps %d of %d%s", name, r.min, r.max,
                 Math.min(r.wraps, WRAPS_NEEDED), WRAPS_NEEDED, r.done() ? " ✓" : "");
     }
 
     // ---------------------------------------------------------------- helpers
 
-    private static double fraction(int pulse, Range r) {
-        return TurretAbsolute.fractionFromPulse(pulse, r.min, r.max);
+    private static double fraction(double reading, Range r) {
+        return TurretAbsolute.fractionOfRange(reading, r.min, r.max, SLACK_VOLTS);
     }
 
     private static double wrap01(double f) {
@@ -432,9 +450,9 @@ final class AbsoluteSetup {
         double max;
         int wraps;
         int count;
-        /** This loop's step, µs, unless it was a wrap. */
-        int lastStep;
-        private int last;
+        /** This loop's step, volts, unless it was a wrap. */
+        double lastStep;
+        private double last;
 
         void reset() {
             min = Double.NaN;
@@ -448,14 +466,14 @@ final class AbsoluteSetup {
             reset();
         }
 
-        void add(int pulse) {
+        void add(double pulse) {
             if (count == 0) {
                 min = pulse;
                 max = pulse;
             } else {
-                int step = Math.abs(pulse - last);
+                double step = Math.abs(pulse - last);
                 double span = max - min;
-                if (span > 500 && step > 0.6 * span) {
+                if (span > 0.9 && step > 0.6 * span) {
                     wraps++;
                     lastStep = 0;
                 } else {

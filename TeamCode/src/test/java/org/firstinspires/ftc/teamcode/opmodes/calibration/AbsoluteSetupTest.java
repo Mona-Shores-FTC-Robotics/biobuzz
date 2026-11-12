@@ -10,31 +10,32 @@ import org.junit.Test;
 
 import java.util.List;
 
-/** The guided setup, driven by two simulated Cypher Maxes on a turret turned by hand. */
+/** The guided setup, driven by two simulated Melonbotics encoders' analog outputs on a turret turned by hand. */
 public class AbsoluteSetupTest {
 
     private static final double RATIO_A = 176.0 / 64.0;
     private static final double RATIO_B = 176.0 / 44.0;
 
-    /** Two encoders with their own pulse range, direction and home, and the turret's angle. */
+    /** Two encoders with their own voltage range, direction and home, and the turret's angle. */
     private static final class Rig {
         double turretDeg;
-        int minA = 9, maxA = 1835, minB = 12, maxB = 1702;
+        double minA = 0.004, maxA = 3.214, minB = 0.009, maxB = 3.187;
         int dirA = -1, dirB = -1;
         double homeA = 0.62, homeB = 0.17;
         boolean swapped;
 
-        int pulse(double ratio, int dir, double home, int min, int max) {
+        /** The hub reads about a millivolt per step. */
+        double pulse(double ratio, int dir, double home, double min, double max) {
             double f = home + dir * turretDeg / 360.0 * ratio;
             f -= Math.floor(f);
-            return (int) Math.round(min + f * (max - min));
+            return Math.round((min + f * (max - min)) * 1000.0) / 1000.0;
         }
 
-        int pulseA() {
+        double pulseA() {
             return swapped ? pulse(RATIO_B, dirB, homeB, minB, maxB) : pulse(RATIO_A, dirA, homeA, minA, maxA);
         }
 
-        int pulseB() {
+        double pulseB() {
             return swapped ? pulse(RATIO_A, dirA, homeA, minA, maxA) : pulse(RATIO_B, dirB, homeB, minB, maxB);
         }
     }
@@ -56,9 +57,15 @@ public class AbsoluteSetupTest {
         for (int i = 0; i < loops; i++) loop(setup, rig, false);
     }
 
+    /** A wiggle: both readings move, so both cables are in. */
+    private static void wiggle(AbsoluteSetup setup, Rig rig) {
+        turn(setup, rig, 30, 0.5);
+        turn(setup, rig, -30, 0.5);
+    }
+
     /** Through BOARD, RANGES and DIRECTIONS, ending at HOME. */
     private static void toHome(AbsoluteSetup setup, Rig rig) {
-        still(setup, rig, AbsoluteSetup.BOARD_LOOPS);
+        wiggle(setup, rig);
         assertEquals(AbsoluteSetup.Step.RANGES, setup.step());
         turn(setup, rig, -400, 0.5);
         assertEquals(AbsoluteSetup.Step.DIRECTIONS, setup.step());
@@ -76,10 +83,10 @@ public class AbsoluteSetupTest {
         assertEquals(rig.dirA, setup.dirA());
         assertEquals(rig.dirB, setup.dirB());
         // Sampled once a loop while turning, an end can be one loop's step short (0.5° of turret here).
-        assertEquals(rig.minA, setup.minA(), AbsoluteSetup.SLOW_STEP_US);
-        assertEquals(rig.maxA, setup.maxA(), AbsoluteSetup.SLOW_STEP_US);
-        assertEquals(rig.minB, setup.minB(), AbsoluteSetup.SLOW_STEP_US);
-        assertEquals(rig.maxB, setup.maxB(), AbsoluteSetup.SLOW_STEP_US);
+        assertEquals(rig.minA, setup.minA(), AbsoluteSetup.SLOW_STEP_VOLTS);
+        assertEquals(rig.maxA, setup.maxA(), AbsoluteSetup.SLOW_STEP_VOLTS);
+        assertEquals(rig.minB, setup.minB(), AbsoluteSetup.SLOW_STEP_VOLTS);
+        assertEquals(rig.maxB, setup.maxB(), AbsoluteSetup.SLOW_STEP_VOLTS);
 
         // Back on the mark, then Cross: the home readings.
         rig.turretDeg = 0;
@@ -92,8 +99,8 @@ public class AbsoluteSetupTest {
         // The solve with what it found gives the turret's angle anywhere, several turns out.
         for (double deg = -900; deg <= 900; deg += 7.5) {
             rig.turretDeg = deg;
-            double fa = TurretAbsolute.fractionFromPulse(rig.pulseA(), setup.minA(), setup.maxA());
-            double fb = TurretAbsolute.fractionFromPulse(rig.pulseB(), setup.minB(), setup.maxB());
+            double fa = TurretAbsolute.fractionOfRange(rig.pulseA(), setup.minA(), setup.maxA(), AbsoluteSetup.SLACK_VOLTS);
+            double fb = TurretAbsolute.fractionOfRange(rig.pulseB(), setup.minB(), setup.maxB(), AbsoluteSetup.SLACK_VOLTS);
             TurretAbsolute.Solution s = TurretAbsolute.solve(fa, fb, setup.homeA(), setup.homeB(),
                     RATIO_A, RATIO_B, setup.dirA(), setup.dirB(), 10.9, 16.4);
             assertTrue(deg + ": " + s.problem, s.ok());
@@ -108,13 +115,14 @@ public class AbsoluteSetupTest {
     }
 
     @Test
-    public void noPulseOnAChannelSaysWhich() {
+    public void anEncoderThatNeverMovesSaysWhich() {
         AbsoluteSetup setup = new AbsoluteSetup(RATIO_A, RATIO_B);
-        setup.update(true, null, 900, 0, false);
+        setup.update(true, null, 1.0, 0.0, false);
+        setup.update(true, null, 1.5, 0.0, false);
         assertEquals(AbsoluteSetup.Step.BOARD, setup.step());
-        assertTrue(setup.problem(), setup.problem().contains("B (44T, channel 5)"));
-        setup.update(false, "OctoQuad not answering", 900, 900, false);
-        assertEquals("OctoQuad not answering", setup.problem());
+        assertTrue(setup.problem(), setup.problem().contains("B (44T, analog input 1)"));
+        setup.update(false, "no reading", 1.5, 0.0, false);
+        assertEquals("no reading", setup.problem());
     }
 
     @Test
@@ -141,11 +149,11 @@ public class AbsoluteSetupTest {
     }
 
     @Test
-    public void aRangeNoCypherMaxGivesIsRefused() {
+    public void aRangeNoMelonboticsEncoderGivesIsRefused() {
         Rig rig = new Rig();
-        rig.maxA = 900; // a span of 891 µs
+        rig.maxA = 2.0; // a span of 2 V
         AbsoluteSetup setup = new AbsoluteSetup(RATIO_A, RATIO_B);
-        still(setup, rig, AbsoluteSetup.BOARD_LOOPS);
+        wiggle(setup, rig);
         turn(setup, rig, -400, 0.5);
         assertEquals(AbsoluteSetup.Step.RANGES, setup.step());
         assertTrue(setup.problem(), setup.problem().contains("A's range"));
@@ -155,7 +163,7 @@ public class AbsoluteSetupTest {
     public void backAndRedoStartAStepAgain() {
         Rig rig = new Rig();
         AbsoluteSetup setup = new AbsoluteSetup(RATIO_A, RATIO_B);
-        still(setup, rig, AbsoluteSetup.BOARD_LOOPS);
+        wiggle(setup, rig);
         turn(setup, rig, -100, 0.5);
         setup.redo();
         assertEquals(AbsoluteSetup.Step.RANGES, setup.step());

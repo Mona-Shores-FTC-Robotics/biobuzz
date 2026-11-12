@@ -19,19 +19,19 @@ import java.util.Locale;
 
 /**
  * The turret's angle every way the robot can know it, side by side, and where that points on the
- * field: the bench for the two-Cypher-Max absolute encoders, whichever way they end up wired.
+ * field: the bench for the turret's two Melonbotics absolute encoders, whichever angle source the
+ * match ends up using.
  *
  * <h2>What it shows</h2>
  *
  * <ul>
- *   <li><b>Absolute pair</b>: the two-encoder solve through the OctoQuad, live every loop (the
- *       match does it only in INIT), with its residual and margin.</li>
- *   <li><b>1 · Count</b>: the 64T encoder's quadrature in the feeder's hub socket, if a cable is
- *       there (the split-cable wiring). It stays at 0 with no cable in the socket.</li>
- *   <li><b>2 · Absolute only</b>: the 64T encoder's absolute reading with its wraps counted from
- *       the solve (one absolute cable per encoder, the OctoQuad read during the match).</li>
+ *   <li><b>Absolute pair</b>: the two-encoder solve from both analog inputs, live every loop, with
+ *       its residual and margin.</li>
+ *   <li><b>1 · Count</b>: the 64T encoder's quadrature in the feeder's hub socket, if its 4-pin
+ *       cable is there. It stays at 0 with no cable in the socket.</li>
+ *   <li><b>2 · Absolute only</b>: the 64T encoder's analog reading with its wraps counted from the
+ *       solve: the match's angle with {@code TurretSubsystem.absAngleInMatch}, no 4-pin cable.</li>
  *   <li><b>3 · Servo</b>: what the servo is being told (no encoder during the match).</li>
- *   <li><b>OctoQuad read</b>: how long each read takes, last and worst: the cost of wiring 2.</li>
  *   <li><b>On the field</b>: the robot's heading plus the turret's angle is where the turret points
  *       in Pedro's frame; beside it the bearing to our raised CELL and how far the turret is off it.
  *       Panels' field view draws the turret's pointer (yellow) and the line to the CELL (green).</li>
@@ -43,7 +43,7 @@ import java.util.Locale;
  * Nothing moves before PLAY. D-pad left/right picks which angle the field section uses. After PLAY
  * the turret holds home as it does in a match (or, unlocked, Square aims it at our raised CELL),
  * and every reading keeps updating. The values it needs are {@code TurretSubsystem}'s {@code abs*}
- * fields, measured on {@code Bench: OctoQuad} ({@code doc/robot-todo.md} § 7g).
+ * fields, measured on {@code Bench: Turret Absolute Setup} ({@code doc/robot-todo.md} § 7g).
  */
 @Utility(name = "Bench: Turret Absolute",
         description = "The turret's angle from the absolute pair, the count, absolute-only and the servo, and where it points on the field")
@@ -90,9 +90,6 @@ public class TurretAbsoluteBench extends RobotOpMode {
         driver.when("D-pad left", "Field angle from the previous source", () -> gamepad1.dpad_left)
                 .duringInit()
                 .onPress(() -> source = Source.values()[(source.ordinal() + Source.values().length - 1) % Source.values().length]);
-        driver.when("Cross (A)", "OctoQuad: set it up again (after a cable change)", () -> gamepad1.a)
-                .duringInit()
-                .onPress(robot.turret::retryOctoQuad);
         driver.when("D-pad up", "Turret: zero here, at its home mark", () -> gamepad1.dpad_up)
                 .duringInit()
                 .onPress(robot.turret::zeroHere);
@@ -138,13 +135,11 @@ public class TurretAbsoluteBench extends RobotOpMode {
         display.line(Display.huge(Double.isNaN(angle) ? "—" : String.format(Locale.US, "%+.1f°",
                 TurretEncoder.wrap180(angle)), Double.isNaN(angle) ? Display.Level.WARN : null));
 
-        if (turret.absoluteFault() != null) {
-            display.status("Absolute pair", Display.Level.FAULT, turret.absoluteFault() + " · Cross (A) retries");
-        } else if (solve == null) {
+        if (solve == null) {
             display.status("Absolute pair", Display.Level.WARN, "no reading yet");
         } else if (!solve.ok()) {
             display.status("Absolute pair", Display.Level.WARN, String.format(Locale.US,
-                    "%s · pulses A %d B %d µs", solve.problem, turret.absolutePulseA(), turret.absolutePulseB()));
+                    "%s · A %.3f V, B %.3f V", solve.problem, turret.absoluteVoltsA(), turret.absoluteVoltsB()));
         } else {
             display.status("Absolute pair", Display.Level.OK, String.format(Locale.US,
                     "%+.1f° · residual %.1f° · margin %.0f°", solve.turretDeg, solve.residualDeg, solve.marginDeg));
@@ -161,12 +156,11 @@ public class TurretAbsoluteBench extends RobotOpMode {
         display.status("3 · Servo", Display.Level.OK, Double.isNaN(servo)
                 ? "limp (INIT, or idle): told nothing" : String.format(Locale.US, "told %+.1f°%s", servo,
                 TurretSubsystem.lockedForward ? " (locked forward)" : ""));
-        display.status("OctoQuad read", Display.Level.OK, String.format(Locale.US,
-                "%s ms, worst %s ms · loop %.1f ms", ms(turret.octoQuadReadMs()), ms(turret.octoQuadReadMaxMs()),
-                loopTimer.lastMs()));
+        display.status("Match uses", Display.Level.OK, (TurretSubsystem.absAngleInMatch ? "2 · absolute only" : "1 · count")
+                + String.format(Locale.US, " (absAngleInMatch) · loop %.1f ms", loopTimer.lastMs()));
 
         showField(angle);
-        display.line("<small>Turn the turret by hand in INIT · D-pad ◀ ▶ angle source · Cross (A) OctoQuad setup · "
+        display.line("<small>Turn the turret by hand in INIT · D-pad ◀ ▶ angle source · "
                 + "D-pad up zero here · after PLAY: Square (X) aim, D-pad down home · Share (Back): robot pages</small>");
         publish(angle, tracked, count);
     }
@@ -224,9 +218,8 @@ public class TurretAbsoluteBench extends RobotOpMode {
             panels.addData("tab_count_deg", count);
             panels.addData("tab_tracked_deg", tracked);
             panels.addData("tab_servo_deg", robot.turret.commandedDegrees());
-            panels.addData("tab_pulse_a_us", robot.turret.absolutePulseA());
-            panels.addData("tab_pulse_b_us", robot.turret.absolutePulseB());
-            panels.addData("tab_octoquad_ms", robot.turret.octoQuadReadMs());
+            panels.addData("tab_a_volts", robot.turret.absoluteVoltsA());
+            panels.addData("tab_b_volts", robot.turret.absoluteVoltsB());
             panels.update();
         } catch (RuntimeException ignored) {
             // Telemetry never takes the robot down.
@@ -260,9 +253,5 @@ public class TurretAbsoluteBench extends RobotOpMode {
 
     private static String deg(double value) {
         return Double.isNaN(value) ? "—" : String.format(Locale.US, "%+.1f°", value);
-    }
-
-    private static String ms(double value) {
-        return Double.isNaN(value) ? "—" : String.format(Locale.US, "%.2f", value);
     }
 }

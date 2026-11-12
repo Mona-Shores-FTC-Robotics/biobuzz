@@ -62,6 +62,8 @@ public class RobotConfigXmlTest {
 
     /** The SDK's element for a continuous-rotation servo ({@code BuiltInConfigurationType.CONTINUOUS_ROTATION_SERVO}). */
     private static final String CR_SERVO_TAG = "ContinuousRotationServo";
+    /** The SDK's element for a hub analog input. */
+    private static final String ANALOG_TAG = "AnalogInput";
 
     /**
      * What {@code SerialNumber.fromString} needs to see to build an
@@ -263,7 +265,7 @@ public class RobotConfigXmlTest {
                 }
 
                 int port = intAttribute(file, name, device, "port");
-                int maxPort = kind == DeviceNames.Kind.MOTOR ? 3 : 5;
+                int maxPort = kind == DeviceNames.Kind.MOTOR || kind == DeviceNames.Kind.ANALOG ? 3 : 5;
                 assertTrue(file.getName() + ": \"" + name + "\" is a " + kind + " on port " + port
                                 + "; a REV hub has " + kind + " ports 0-" + maxPort + ".",
                         port >= 0 && port <= maxPort);
@@ -379,6 +381,9 @@ public class RobotConfigXmlTest {
         }
         if (CR_SERVO_TAG.equals(device.getTagName())) {
             return DeviceNames.Kind.CR_SERVO;
+        }
+        if (ANALOG_TAG.equals(device.getTagName())) {
+            return DeviceNames.Kind.ANALOG;
         }
         if (device.getTagName().contains("Servo")) {
             return DeviceNames.Kind.SERVO;

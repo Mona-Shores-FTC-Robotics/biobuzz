@@ -900,37 +900,48 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
       where it is. **Good:** a timed practice cycle under 20 s.
 
-## 7g. Turret absolute zero: two Cypher Maxes through the OctoQuad (Bench: OctoQuad, turret by hand)
+## 7g. Turret absolute zero: two Melonbotics encoders' analog outputs (turret by hand)
 
-Both encoders' absolute (PWM) wires to the OctoQuad, which sits on Control Hub I2C bus 3. Off on
-both robots until every value is in (`TurretSubsystem.useAbsoluteZero`). [#169]
+Two Melonbotics Through Bore Encoders on the 176T ring: A on the 64T gear, B on the 44T (the
+mentor's CAD, 11 Nov 2026). Off on both robots until every value is in
+(`TurretSubsystem.useAbsoluteZero`). [#169]
 
-- [ ] **Wiring (not decided yet).** Each Cypher Max's voltage switch on **3V3** (the OctoQuad is
-      not 5 V tolerant). Encoder A (64T) absolute signal to OctoQuad **channel 4**, encoder B (44T)
-      to **channel 5**, each on the channel's A (signal) pin with 3V3 and ground. A Cypher Max has
-      one 10-pin connector, and no stock cable carries both outputs: the FTC JST-PH cable is
-      quadrature only, the absolute output is on its own 3-pin cable. So either A gets a custom
-      split cable (quadrature to the feeder's encoder socket, absolute to the OctoQuad: the code
-      today), or each encoder gets one absolute cable and the match reads the OctoQuad (needs a code
-      change; **Bench: Turret Absolute** times the read). Check Studica's pinout before crimping.
-      Activate the config, run **Check: Hardware**.
-- [ ] **Bench: OctoQuad**, the guided setup (turret by hand, nothing moves). It shows one step at a
-      time and moves on by itself: the OctoQuad answers (firmware 3.x, a pulse on channels 4 and 5);
-      turn the turret slowly about a full turn (each encoder's pulse range, 2 wraps each); let go,
+```
+ 64T encoder (A) 3-pin analog ──┐
+                                ├─[ JST joiner board ]── 4-pin ──▶ Control Hub analog port "0-1"
+ 44T encoder (B) 3-pin analog ──┘                                   (A → input 0, B → input 1)
+
+ Optional: A's 4-pin quadrature ──▶ encoder socket beside Expansion Hub motor port 3 (the feeder's)
+```
+
+- [ ] **Wiring.** One joiner board per robot: both encoders' 3-pin analog cables into it, its 4-pin
+      cable into the Control Hub's analog port **0-1**. The 44T never needs its 4-pin cable. The
+      64T's 4-pin quadrature into the feeder's encoder socket is optional: without it, set
+      `absAngleInMatch = true` for that robot (the angle all match from A's analog reading). Full
+      **TeamCode** install (the configs gained two analog inputs), activate the config, run
+      **Check: Hardware**: `turretAbsA` and `turretAbsB` are AnalogInput.
+- [ ] **Bench: Turret Absolute Setup**, the guided setup (turret by hand, nothing moves). It shows one
+      step at a time and moves on by itself: wiggle the turret (both readings move: both cables
+      in); turn it slowly about a full turn (each encoder's voltage range, 2 wraps each); let go,
       then turn it counter-clockwise about 45° (directions, and B's movement against A's checks the
-      2.75 and 4.0 ratios and that A and B are not swapped); on the home mark, Cross (home readings);
-      then the check: a quarter turn counter-clockwise reads about +90°, back on the mark about 0°,
-      Cross. **Done:** it shows the `RobotDifferences` lines for this robot, also on Panels (copy
-      them from the laptop) and in the Robot Controller log. Paste them, Sloth Load. Run it on the
-      home mark five times and note the home readings' spread. **Stop:** a step that will not
-      finish says why on the screen; "−90°" in the check means step 3 was turned clockwise.
-- [ ] **Bench: Turret Absolute**, after the values above. In INIT turn the turret by hand through
-      several turns, and push the robot round. **Good:** "Absolute pair", "1 · Count" (if its cable
-      is in) and "2 · Absolute only" agree within a degree or two at every angle; "Points" changes
-      by the robot's turn plus the turret's; with the turret aimed by eye at our raised CELL, "turret
-      off by" reads within 2°, and Panels' green line lands on the CELL. Note "OctoQuad read" (last
-      and worst ms) beside the loop time: that number decides the wiring. **Stop:** a source that
-      jumps by tens of degrees → a wrap missed, or a value in § 7g wrong.
+      2.75 and 4.0 ratios and that A and B are not swapped on the joiner board); on the home mark,
+      Cross (home readings); then the check: a quarter turn counter-clockwise reads about +90°,
+      back on the mark about 0°, Cross. **Done:** it shows the `RobotDifferences` lines for this
+      robot, also on Panels (copy them from the laptop) and in the Robot Controller log. Paste them,
+      Sloth Load. Run it on the home mark five times and note the home readings' spread.
+      **Stop:** a step that will not finish says why on the screen; "−90°" in the check means step
+      3 was turned clockwise.
+- [ ] **If the 64T's 4-pin cable is in the feeder's socket:** **Bench: Turret**, one full turret turn
+      by hand reads 2.75 encoder turns. A Melonbotics encoder does not count 2048 per turn as the
+      Cypher Max did, so expect another number until `TurretEncoder.COUNTS_PER_ENCODER_TURN` is set
+      from it.
+- [ ] **Bench: Turret Absolute.** In INIT turn the turret by hand through several turns, and push the
+      robot round. **Good:** "Absolute pair", "1 · Count" (if its cable is in) and "2 · Absolute
+      only" agree within a degree or two at every angle; "Points" changes by the robot's turn plus
+      the turret's; with the turret aimed by eye at our raised CELL, "turret off by" reads within
+      2°, and Panels' green line lands on the CELL. Watch "2 · Absolute only" sit still with the
+      turret still (its noise) and follow a fast hand turn: that decides `absAngleInMatch`.
+      **Stop:** a source that jumps by tens of degrees → a wrap missed, or a value above wrong.
 
 ## 8. If time: anyone, no driving
 
