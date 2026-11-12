@@ -914,7 +914,8 @@ mentor's CAD, 11 Nov 2026). Off on both robots until every value is in
 - [ ] **Wiring.** One joiner board per robot: both encoders' 3-pin analog cables into it, its 4-pin
       cable into the Control Hub's analog port **0-1**. Neither encoder's 4-pin cable is used: the
       turret's angle all match comes from the 64T's analog reading (`absAngleInMatch`, on). The
-      Cypher Max comes out of the feeder's encoder socket. Full
+      Cypher Max comes out of the feeder's encoder socket and the feeder's own encoder goes back in
+      (the turret no longer reads that socket). Full
       **TeamCode** install (the configs gained two analog inputs), activate the config, run
       **Check: Hardware**: `turretAbs64` and `turretAbs44` are AnalogInput.
 - [ ] **Bench: Turret Absolute Setup**, the guided setup (turret by hand, nothing moves). It shows one

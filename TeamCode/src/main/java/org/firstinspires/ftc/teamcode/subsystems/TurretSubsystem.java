@@ -318,6 +318,16 @@ public class TurretSubsystem implements Subsystem {
         zeroCounts = counts;
         zeroed = true;
         zeroSource = ZeroSource.HAND;
+        if (absoluteCarriesAngle()) {
+            // The angle is the 64T encoder's wrap count: this is now 0.
+            absTrackTurnsA = 0.0;
+            absLastFracA = absFracA;
+        }
+    }
+
+    /** True when the 64T encoder's analog reading is the turret's angle, and the encoder socket is not read for it. */
+    private boolean absoluteCarriesAngle() {
+        return absAngleInMatch && useAbsoluteZero;
     }
 
     /** At PLAY: the turret is assumed at home, so zero here unless a person or the handoff already did. */
@@ -519,6 +529,23 @@ public class TurretSubsystem implements Subsystem {
         absSolution = TurretAbsolute.solve(absFracA, absFracB, absHomeA, absHomeB, absRatioA,
                 absRatioB, absDirectionA, absDirectionB, maxResidual, separation / 2.0);
         trackAbsolute();
+        if (absoluteCarriesAngle()) {
+            // The encoder socket is the feeder's own encoder in this wiring: never compare with it or
+            // zero from it. The wrap count is seeded from the solve, so the zero is just a verdict.
+            absCheckDeg = Double.NaN;
+            if (!started && absSolution.ok() && TurretZeroPolicy.absoluteMayZero(zeroSource == ZeroSource.HAND)) {
+                zeroed = true;
+                zeroSource = ZeroSource.ABSOLUTE;
+                // In INIT the solve wins over the wrap count, as it does over the count: a first
+                // solve taken while the turret was still being turned is corrected once it is still.
+                double drift = TurretAbsolute.wrap180(absoluteTrackedDegrees() - absSolution.turretDeg);
+                if (!(Math.abs(drift) <= Math.abs(finite(absRezeroDeg)))) {
+                    absTrackTurnsA = absSolution.turretDeg / 360.0 * absRatioA;
+                    absLastFracA = absFracA;
+                }
+            }
+            return;
+        }
         if (!absSolution.ok() || encoder == null) {
             absCheckDeg = Double.NaN;
             return;
@@ -592,7 +619,7 @@ public class TurretSubsystem implements Subsystem {
                 encoderAngleDeg = encoder.degrees(counts, zeroCounts);
             }
         }
-        boolean fromAbsolute = absAngleInMatch && useAbsoluteZero;
+        boolean fromAbsolute = absoluteCarriesAngle();
         if (fromAbsolute) {
             // No quadrature cable: the 64T encoder's absolute reading, its wraps counted, is the angle.
             encoderAngleDeg = absoluteTrackedDegrees();
