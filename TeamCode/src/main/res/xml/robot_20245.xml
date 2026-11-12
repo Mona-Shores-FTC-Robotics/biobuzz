@@ -133,7 +133,9 @@
                  turret's Studica Cypher Max (quadrature A/B/I, its FTC Control
                  Hub cable; set its switch to 3V3), the build team's choice of
                  24 Oct 2026. Until 1 Nov the feeder's own encoder was in it;
-                 check which cable is in it now (doc/robot-todo.md). Code reads
+                 by Belding (7 Nov) the turret's encoder was: with the feeder
+                 running the socket read about 0 counts/s, not the feeder's
+                 1,700 of 1 Nov (match logs). Code reads
                  the turret angle as the feeder's position
                  (DeviceNames.TURRET_ENCODER_HOST); the feeder never uses its
                  encoder for control. -->

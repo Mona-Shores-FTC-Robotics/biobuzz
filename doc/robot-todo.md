@@ -260,10 +260,10 @@ Result, with the gap on each own-start run, → [PR #372].
       (no further: winding a position servo past its range is what moves home): `angle` ≈ 45°,
       else `turnsPerTurretTurn` (2.75) is wrong. Then set `degreesPerUnit`, the real
       limits (where the turret stops turning, less a margin) and unlock.
-- [ ] **20245: the turret servo's straight-ahead position and its encoder socket.** The servo is in
-      position mode, like 19429's (mentor, 12 Nov 2026); it is sent 0.5, its centre, until its
-      straight-ahead position is measured. **Bench: Turret**, PLAY: find it like 19429's (0.514).
-      Also: which cable is in the motor port 3 encoder socket (the feeder's, or the Cypher Max's).
+- [ ] **20245: the turret servo's straight-ahead position.** The servo is in position mode, like
+      19429's (mentor, 12 Nov 2026); it is sent 0.5, its centre, until its straight-ahead position
+      is measured. **Bench: Turret**, PLAY: find it like 19429's (0.514). (Its motor port 3 encoder
+      socket held the turret's encoder at Belding, not the feeder's: the Belding logs.)
 
 ## 3. The selected Autos, on the field (HIVE upright, preloads in, Panels open)
 
