@@ -968,6 +968,8 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       run with the switch off. **Stop:** brownouts or a sagging battery → `launcherAlwaysOn` off
       in Panels (the 3 s rule above is back) and note the voltages.
 - [ ] **Square feeds on the approach** (`TeleOpConfig.spotFeedsOnApproach`, off until this check).
+      **Wait for the build team's transfer work** (mentor, 11 Nov): it exists to hide the 0.7 s
+      from gate open to first ball, and a faster transfer may leave nothing to hide.
       Loaded, HIVE upright, someone counting pieces in. Ten Square volleys from 15 to 30 in off a
       spot with the switch off, then ten with it on in Panels. **Good:** with it on the log reads
       `launch spot: gate open … (N in before the spot), on the approach, at speed`, the first ball
@@ -985,7 +987,8 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       with FIRE, and the drivers say which they want. **Stop:** it feeds off the CELL, or the
       driver needs to line up without shooting → leave it off.
 - [ ] **A feed pauses when the robot is knocked off its aim** (`TeleOpConfig.pauseFeedOffAim`, off
-      until this check; `AimPause`). On in Panels, loaded. (a) Square at a spot, feeding: a second
+      until this check; `AimPause`). **Wait for the build team's transfer work** (mentor, 11 Nov):
+      a pause shuts the gate plate into moving pieces, and the plate and the feed path may change. On in Panels, loaded. (a) Square at a spot, feeding: a second
       person turns the robot by hand about 10°, then pushes it about 4 in sideways without
       turning it. Each time the feed stops (`launch spot: feed paused, N° and M in off the spot`),
       the robot comes back, and it feeds again (`feed resumed`). (b) With

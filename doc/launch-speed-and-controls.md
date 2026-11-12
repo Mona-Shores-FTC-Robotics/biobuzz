@@ -274,6 +274,18 @@ itself. It reacts in one loop, where a person takes a third of a second, but it 
 coming. The two would work
 together.
 
+### Waiting on the build team's transfer work
+
+Decided 11 Nov 2026 (mentor): no software for the transfer's speed, or for the gate plate
+closing mid-feed, until the build team's work on the transfer is seen. The path today is the
+prefeed wheel pushing pieces along foam walls, the gate plate, the feeder wheel, then the launcher
+wheel above it. The plate is the stop because the feeder's grip is not trusted to hold a piece
+back, so a pause has to shut the plate into the queue the prefeed is pushing. The code records one
+jam of that kind already (a NECTAR against the plate as it opened, 1 Nov). Ideas kept for when the
+transfer is settled, none built: a wedge or rounded nose and some flex on the plate; the prefeed
+backing off for a moment as the plate closes; a beam at the throat to close into a gap. Until
+then `spotFeedsOnApproach` and `pauseFeedOffAim` stay off and their robot checks wait.
+
 ### When the turret works
 
 Today the turret is locked forward and the driver points the whole robot. Once it aims, pointing
