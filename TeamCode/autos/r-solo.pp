@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-12T20:03:26.000Z",
+  "timestamp": "2026-11-12T20:37:41.054Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -276,6 +276,47 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "line-mwdn0a01-rsp3c",
+      "color": "#b07aa1",
+      "name": "to RIGHT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 43.66104962939895,
+          "y": 105.89842778806698
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-5",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.9,
+        "y": 117.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
         "degrees": -90
       }
     },
@@ -343,6 +384,47 @@
     },
     {
       "id": "line-mw2h249b-qfhry3",
+      "color": "#4e79a7",
+      "name": "to RIGHT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 23.318491425705457,
+          "y": 25.553800445201325
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-6",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 56.1,
+        "y": 26
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "line-mwdn0a01-rspfb",
       "color": "#4e79a7",
       "name": "to RIGHT_PARK",
       "locked": false,
@@ -581,11 +663,27 @@
     },
     {
       "kind": "path",
+      "lineId": "line-mwdn0a01-rsp3c"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-5"
+    },
+    {
+      "kind": "path",
       "lineId": "line-mw2z1rrz-ltmk3y"
     },
     {
       "kind": "path",
       "lineId": "line-mw2h249b-qfhry3"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-6"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mwdn0a01-rspfb"
     }
   ],
   "fieldPoints": [],
@@ -706,7 +804,9 @@
       "line-mw2z05td-jkwfz4": "LEFT_LAUNCH_CLOSE",
       "line-mw2z05th-whpzzi": "RIGHT_PARK",
       "line-mw2z1rrz-ltmk3y": "RIGHT_LAUNCH_CLOSE",
-      "line-mw2z8m8r-d4cyle": "LEFT_LAUNCH_CLOSE"
+      "line-mw2z8m8r-d4cyle": "LEFT_LAUNCH_CLOSE",
+      "line-mwdn0a01-rsp3c": "RIGHT_PARK",
+      "line-mwdn0a01-rspfb": "RIGHT_PARK"
     },
     "cards": [
       {
@@ -779,27 +879,32 @@
                     "when": [
                       "CellUp"
                     ],
-                    "label": "If CellUp",
                     "cards": [
                       {
                         "id": "c-mw2h249a-p5yh3",
                         "kind": "action",
                         "name": "LaunchAll"
+                      },
+                      {
+                        "id": "c-mw2h249a-nxkzp",
+                        "kind": "path",
+                        "lineId": "line-mw2h249a-0a0w4q",
+                        "park": true
                       }
                     ]
                   },
                   {
                     "afterMs": 750,
-                    "label": "Timed out",
-                    "cards": []
+                    "cards": [
+                      {
+                        "id": "c-mwdn0a01-rsp3c",
+                        "kind": "path",
+                        "lineId": "line-mwdn0a01-rsp3c",
+                        "park": true
+                      }
+                    ]
                   }
                 ]
-              },
-              {
-                "id": "c-mw2h249a-nxkzp",
-                "kind": "path",
-                "lineId": "line-mw2h249a-0a0w4q",
-                "park": true
               }
             ]
           },
@@ -821,27 +926,32 @@
                     "when": [
                       "CellUp"
                     ],
-                    "label": "If CellUp",
                     "cards": [
                       {
                         "id": "c-mw2h249b-xpbq7",
                         "kind": "action",
                         "name": "LaunchAll"
+                      },
+                      {
+                        "id": "c-mw2h249b-tphk6",
+                        "kind": "path",
+                        "lineId": "line-mw2h249b-qfhry3",
+                        "park": true
                       }
                     ]
                   },
                   {
                     "afterMs": 750,
-                    "label": "Timed out",
-                    "cards": []
+                    "cards": [
+                      {
+                        "id": "c-mwdn0a01-rspfb",
+                        "kind": "path",
+                        "lineId": "line-mwdn0a01-rspfb",
+                        "park": true
+                      }
+                    ]
                   }
                 ]
-              },
-              {
-                "id": "c-mw2h249b-tphk6",
-                "kind": "path",
-                "lineId": "line-mw2h249b-qfhry3",
-                "park": true
               }
             ]
           }
@@ -853,7 +963,9 @@
       "link-1",
       "link-2",
       "link-3",
-      "link-4"
+      "link-4",
+      "link-5",
+      "link-6"
     ],
     "parkFrom": {
       "c-mw0be8id-e596r": "line-mw0cnl7i-qkksz9",

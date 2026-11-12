@@ -46,13 +46,14 @@ that in the Visualizer before qualifying it as a true no-cross routine. R-NoCros
 CELL-up wait runs until 21 s on the match clock, then parks without launching.
 
 **Every volley after an Auto's first sits behind a CELL check** (R-Solo, R-NoCross and L-NoCross,
-12 Nov): a wait for `CellUp` (or `RightCellUp`) whose trigger row holds only the LaunchAll, and
-whose time row is empty, so a CELL that is not seen up means no volley and the Auto goes on.
-Two volleys at Belding went at a down CELL (Q-14, M-7). The first volley, into the RIGHT CELL
-the manual starts up, has no check. Draw a new volley the same way; the endgame guard counts
-such a check as its volley, so the park is kept as before. A check that waits on the match
-clock stops early enough for the volley and the park after it (22 s in R-NoCross, 23 s in
-L-NoCross). See `doc/robot-todo.md` for the robot checks.
+12 Nov), drawn as ordinary builder steps: Drive to the launch spot, **Wait for CELL up** with an
+Otherwise that parks, then Launch all. Inside an Otherwise that goes on (L-NoCross's no-TIP route)
+the check's Otherwise drives back and "skips the steps below" instead. Either way a CELL that is
+not seen up means no volley. Two volleys at Belding went at a down CELL (Q-14, M-7). The first
+volley, into the RIGHT CELL the manual starts up, has no check. Draw a new volley the same way;
+the endgame guard counts such a check as its volley, so the park is kept as before. A check that
+waits on the match clock stops early enough for the volley and the park after it (22 s in
+R-NoCross, 23 s in L-NoCross). See `doc/robot-todo.md` for the robot checks.
 
 Inside the Visualizer, the same list is **View → Team Autos: the latest from biobuzz, together…**
 (pick a branch, tick up to four Autos, Reload latest). A pull request's draft opens with its branch

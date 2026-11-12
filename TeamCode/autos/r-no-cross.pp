@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-12T20:03:26.000Z",
+  "timestamp": "2026-11-12T20:37:41.081Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -257,6 +257,47 @@
       }
     },
     {
+      "id": "line-mwdn0a02-rnpv3",
+      "color": "#f28e2b",
+      "name": "to RIGHT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 15.997166640885917,
+          "y": 48.29877451345818
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 91.9,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-5",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 18
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 91.89999999999998
+      }
+    },
+    {
       "id": "line-mw49lw1p-d68tx4",
       "color": "#4e79a7",
       "name": "to RIGHT_PARK",
@@ -496,6 +537,14 @@
     },
     {
       "kind": "path",
+      "lineId": "line-mwdn0a02-rnpv3"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-5"
+    },
+    {
+      "kind": "path",
       "lineId": "line-mw49lw1p-d68tx4"
     }
   ],
@@ -596,7 +645,8 @@
       "line-mw0c4s3v-i79x23": "RIGHT_PARK",
       "line-mw0c4s3v-u2xhur": "RIGHT_PARK",
       "line-mw0c4s3v-5u6mr8": "RIGHT_PARK",
-      "line-mw49lw1p-d68tx4": "RIGHT_PARK"
+      "line-mw49lw1p-d68tx4": "RIGHT_PARK",
+      "line-mwdn0a02-rnpv3": "RIGHT_PARK"
     },
     "cards": [
       {
@@ -669,28 +719,33 @@
                     "when": [
                       "CellUp"
                     ],
-                    "label": "If CellUp",
                     "cards": [
                       {
                         "id": "c-mw0c4s3s-bj8i6",
                         "kind": "action",
                         "name": "LaunchAll"
+                      },
+                      {
+                        "id": "c-mw0c4s3s-nvtgs",
+                        "kind": "path",
+                        "lineId": "line-mw0c4s3s-94a0vo",
+                        "park": true
                       }
                     ]
                   },
                   {
                     "afterMs": 22000,
                     "matchClock": true,
-                    "label": "Timed out",
-                    "cards": []
+                    "cards": [
+                      {
+                        "id": "c-mwdn0a02-rnpv3",
+                        "kind": "path",
+                        "lineId": "line-mwdn0a02-rnpv3",
+                        "park": true
+                      }
+                    ]
                   }
                 ]
-              },
-              {
-                "id": "c-mw0c4s3s-nvtgs",
-                "kind": "path",
-                "lineId": "line-mw0c4s3s-94a0vo",
-                "park": true
               }
             ]
           },
@@ -714,7 +769,8 @@
       "link-1",
       "link-2",
       "link-3",
-      "link-4"
+      "link-4",
+      "link-5"
     ],
     "parkFrom": {
       "c-mw0c4s3r-d5zdz": "line-mw0c4s3v-i79x23",

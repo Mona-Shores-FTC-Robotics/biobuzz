@@ -20,7 +20,7 @@ public final class RNoCrossAuto {
     public static final String SOURCE = "r-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-12|3:03PM";
+    public static final String SAVED = "11-12|3:37PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -59,7 +59,8 @@ public final class RNoCrossAuto {
         Pose rightLaunchCatchParkControl1 = p.of(25, 45, 0);
         Pose gardenStagingParkControl1 = p.of(28, 55, 0);
         Pose toRightParkControl1 = p.of(15.9972, 48.2988, 0);
-        Pose toRightPark_2Control1 = p.of(17.9975, 42.698, 0);
+        Pose toRightPark_2Control1 = p.of(15.9972, 48.2988, 0);
+        Pose toRightPark_3Control1 = p.of(17.9975, 42.698, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
@@ -71,27 +72,32 @@ public final class RNoCrossAuto {
         Path toRightLaunchCatchPath = Paths.line(gardenStaging, rightLaunchCatch).linear(gardenStaging, rightLaunchCatch);
         Path toRightPark = Paths.curve(rightLaunchCatch, toRightParkControl1, rightPark).linear(rightLaunchCatch, rightPark);
         Path toRightParkPath = Paths.curve(rightLaunchCatch, toRightPark_2Control1, rightPark).linear(rightLaunchCatch, rightPark);
+        Path toRightParkPath2 = Paths.curve(rightLaunchCatch, toRightPark_3Control1, rightPark).linear(rightLaunchCatch, rightPark);
 
         return kit.sequence(
-                kit.command("SpinUp"),
-                kit.command("LaunchAll"),
-                kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
-                kit.command("PickFlower", 8),
-                kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 1.9, rightLaunchCatchPark, 2.9),
-                kit.firstOf("Wait for TIP or CELL up",
-                        kit.when("CellUp").then(
-                                kit.guarded("If CellUp", toRightPark, 2.9,
-                                        kit.command("LaunchAll"),
-                                        kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenStagingPark, 2.6),
-                                        kit.command("GardenGather", 8),
-                                        kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatchPath, 2),
-                                        kit.firstOf("RIGHT CELL back up?",
-                                                kit.when("CellUp").then(
-                                                        kit.command("LaunchAll")),
-                                                kit.atMatchSeconds(22)),
-                                        kit.path("to RIGHT_PARK", toRightPark, 2.9))),
-                        kit.atMatchSeconds(21).then(
-                                kit.guarded("Timed out", toRightParkPath, 3,
-                                        kit.path("to RIGHT_PARK", toRightParkPath, 3)))));
+                kit.guarded("Auto", toRightParkPath2, 3,
+                        kit.command("SpinUp"),
+                        kit.command("LaunchAll"),
+                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
+                        kit.command("PickFlower", 8),
+                        kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 1.9, rightLaunchCatchPark, 2.9),
+                        kit.firstOf("Wait for TIP or CELL up",
+                                kit.when("CellUp").then(
+                                        kit.guarded("If CellUp", toRightParkPath, 2.9,
+                                                kit.command("LaunchAll"),
+                                                kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenStagingPark, 2.6),
+                                                kit.command("GardenGather", 8),
+                                                kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatchPath, 2),
+                                                kit.firstOf("RIGHT CELL back up?",
+                                                        kit.when("CellUp").then(
+                                                                kit.guarded("If CellUp", toRightPark, 2.9,
+                                                                        kit.command("LaunchAll"),
+                                                                        kit.path("to RIGHT_PARK", toRightPark, 2.9))),
+                                                        kit.atMatchSeconds(22).then(
+                                                                kit.guarded("Timed out", toRightParkPath, 2.9,
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.9)))))),
+                                kit.atMatchSeconds(21).then(
+                                        kit.guarded("Timed out", toRightParkPath2, 3,
+                                                kit.path("to RIGHT_PARK", toRightParkPath2, 3))))));
     }
 }

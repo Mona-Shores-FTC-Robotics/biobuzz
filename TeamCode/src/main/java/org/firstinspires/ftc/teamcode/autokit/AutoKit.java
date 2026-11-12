@@ -190,6 +190,11 @@ public final class AutoKit {
     }
 
     private final Map<Command, Plan> plans = new IdentityHashMap<>();
+    /** Every {@link #guarded} list, and the volley's plan of each whose first card is a volley. */
+    private final Set<Command> guards = Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Map<Command, Plan> guardedVolleys = new IdentityHashMap<>();
+    /** The CELL checks ({@link #checkPlan}): the look-ahead counts one as its volley, even as a list's last card. */
+    private final Set<Command> checks = Collections.newSetFromMap(new IdentityHashMap<>());
     /**
      * The running guard's card, and every card after it up to the next volley, fit with that
      * volley's last piece out before AUTO ends: no park, and no cut, until the next card starts.
@@ -532,33 +537,50 @@ public final class AutoKit {
             if (chosen[0] != null) chosen[0].end(end);
         });
         Plan plan = waitPlan(alongside, rows);
-        if (plan == null) plan = checkPlan(alongside, rows);
-        return plan == null ? card : planned(plan, card);
+        if (plan != null) return planned(plan, card);
+        plan = checkPlan(alongside, rows);
+        if (plan == null) return card;
+        checks.add(card);
+        return planned(plan, card);
     }
 
     /**
-     * A "CELL up?" check's plan: the volley it guards. The check is a wait whose trigger row holds
-     * one card, a volley, and whose time limits hold none: "fire if the CELL is up, else go on". The
-     * guard's look-ahead then counts it as that volley, as if the check passed at once, so a trip
-     * toward a checked volley that would leave no time to park is not begun, exactly as toward a
-     * bare one. Null for any other block. The drawing keeps the check's own time limit early enough
-     * that a volley starting at the limit still leaves the park its time.
+     * A CELL check's plan: the volley it guards. A check is a wait whose one trigger row starts
+     * with a volley: "wait for the CELL to be up, then launch; otherwise park" (the Visualizer's
+     * Wait with an Otherwise that parks: the trigger row is its own {@link #guarded} list, whose
+     * first card is the volley, and it is its list's last card), or the bare volley alone with no
+     * cards on its time limits ("fire if the CELL is up, else go on"). The guard's look-ahead
+     * counts the check as that volley, as if the check passed at once, so a trip toward a checked
+     * volley that would leave no time to park is not begun, exactly as toward a bare one. Null for
+     * any other block. The drawing keeps the check's own time limit early enough that a volley
+     * starting at the limit still leaves the park its time.
      */
     private Plan checkPlan(Command alongside, Row[] rows) {
         if (alongside != null) return null;
         Plan volley = null;
+        boolean guardedRow = false;
         boolean limited = false;
         for (Row row : rows) {
             if (row.timeLimit) {
-                if (row.cards.length > 0) return null;
                 limited = true;
                 continue;
             }
             if (volley != null || row.cards.length != 1) return null;
             volley = plans.get(row.cards[0]);
+            if (volley == null) {
+                volley = guardedVolleys.get(row.cards[0]);
+                guardedRow = volley != null;
+            }
             if (volley == null || !volley.isVolley()) return null;
         }
-        return limited ? volley : null;
+        if (volley == null || !limited) return null;
+        // A time limit's cards run with the guard still "going for the volley" unless they are a
+        // guarded list of their own: the bare form allows none.
+        for (Row row : rows) {
+            if (!row.timeLimit || row.cards.length == 0) continue;
+            if (!guardedRow || row.cards.length != 1 || !guards.contains(row.cards[0])) return null;
+        }
+        return volley;
     }
 
     /**
@@ -634,13 +656,15 @@ public final class AutoKit {
      * never while a path inside it drives, and a path inside it that does not fit does not start:
      * it finishes at once, the block ends, and the guard parks.
      *
-     * <p><b>A volley behind a "CELL up?" check counts as a volley</b> (12 Nov 2026). Every volley
-     * after an Auto's first sits behind such a check, a wait whose trigger row holds only the
-     * LaunchAll, so that none goes at a down CELL (Belding Q-14, M-7). The look-ahead counts the
-     * check as its volley ({@link #checkPlan}), so the rules above hold for it unchanged. A volley
-     * deeper in a block, which the look-ahead cannot see, asks for itself as it starts, with
-     * {@link #parkAfterVolley} on: if it, at its typical time, and the park from here do not fit,
-     * it does not fire, the block ends and the guard parks.
+     * <p><b>A volley behind a CELL check counts as a volley</b> (12 Nov 2026). Every volley after an
+     * Auto's first sits behind a check, the Visualizer's "Wait for CELL up, Otherwise park" (or,
+     * inside an Otherwise that goes on, "Otherwise skip"), so that none goes at a down CELL
+     * (Belding Q-14, M-7). The look-ahead counts the check as its volley ({@link #checkPlan}), so
+     * the rules above hold for it unchanged, though it is its list's last card: each of its
+     * outcomes is a guarded list of its own, which parks. A volley deeper in a block, which the
+     * look-ahead cannot see, asks for itself as it starts, with {@link #parkAfterVolley} on: if
+     * it, at its typical time, and the park from here do not fit, it does not fire, the block ends
+     * and the guard parks.
      *
      * <p><b>Grabs are treated as paths.</b> A grab ({@link AutoRegistry#grab}: a FLOWER pick, a
      * GARDEN gather) drives the robot off its spot and back, so the guard never cuts one either.
@@ -720,6 +744,9 @@ public final class AutoKit {
             if (current[0] != null) current[0].end(end);
             stopWatching();
         });
+        guards.add(card);
+        Plan first = cards.length > 0 ? plans.get(cards[0]) : null;
+        if (first != null && first.isVolley()) guardedVolleys.put(card, first);
         return card;
     }
 
@@ -745,8 +772,9 @@ public final class AutoKit {
     /**
      * Before {@code cards[from]} starts: whether it and every card after it up to the next volley,
      * at their planned times, then that volley's last piece, are done before AUTO ends. The last
-     * card is the park and is never looked at; a card with no {@link Plan} ends the look-ahead with
-     * no. Sets {@link #goingForVolley} until the next card starts.
+     * card is the park and is never looked at, unless it is a CELL check ({@link #checkPlan}: a
+     * wait that parks either way), which counts as its volley; a card with no {@link Plan} ends
+     * the look-ahead with no. Sets {@link #goingForVolley} until the next card starts.
      */
     private void goForVolleyIfItFits(Command[] cards, int from) {
         Command target = null;
@@ -754,7 +782,8 @@ public final class AutoKit {
         volleyLeavesNoPark = null;
         double now = secondsSinceStart.getAsDouble();
         double at = now;
-        for (int i = from; i < cards.length - 1; i++) {
+        int end = cards.length > 0 && checks.contains(cards[cards.length - 1]) ? cards.length : cards.length - 1;
+        for (int i = from; i < end; i++) {
             Plan plan = plans.get(cards[i]);
             if (plan == null) break;
             if (plan.isVolley()) {

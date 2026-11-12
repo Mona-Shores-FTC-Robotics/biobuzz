@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-12T20:03:26.000Z",
+  "timestamp": "2026-11-12T20:37:41.107Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -169,8 +169,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mwbksy73-ypsvit",
+      "color": "#4e79a7",
+      "name": "to LEFT_LAUNCH_CATCH",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 57.5,
         "y": 123.5
@@ -221,14 +228,7 @@
             }
           ]
         }
-      },
-      "color": "#4e79a7",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "to LEFT_LAUNCH_CATCH"
+      }
     },
     {
       "id": "link-3",
@@ -303,8 +303,15 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mwbksy73-eapgv2",
+      "color": "#e15759",
+      "name": "to RIGHT_LAUNCH_CLOSE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 56.1,
         "y": 26
@@ -314,14 +321,7 @@
         "type": "linear",
         "startDeg": 180,
         "endDeg": 90
-      },
-      "color": "#e15759",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "to RIGHT_LAUNCH_CLOSE"
+      }
     },
     {
       "id": "link-5",
@@ -418,6 +418,78 @@
     },
     {
       "id": "line-mw0c4s2u-8wbzmf",
+      "color": "#9c755f",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 273.4,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-7",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 123.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": -86.60000000000002
+      }
+    },
+    {
+      "id": "line-mwdn0a03-lnp3c",
+      "color": "#9c755f",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 273.4,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-8",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 123.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 273.4
+      }
+    },
+    {
+      "id": "line-mwdn0a03-lnp2c",
       "color": "#9c755f",
       "name": "to LEFT_PARK",
       "locked": false,
@@ -672,6 +744,22 @@
     {
       "kind": "path",
       "lineId": "line-mw0c4s2u-8wbzmf"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-7"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mwdn0a03-lnp3c"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-8"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mwdn0a03-lnp2c"
     }
   ],
   "fieldPoints": [],
@@ -784,7 +872,9 @@
       "line-mw0rkae5-kh7tv8": "LEFT_PARK",
       "line-mw0rkae5-9j07qg": "LEFT_PARK",
       "line-mwbksy73-ypsvit": "LEFT_LAUNCH_CATCH",
-      "line-mwbksy73-eapgv2": "RIGHT_LAUNCH_CLOSE"
+      "line-mwbksy73-eapgv2": "RIGHT_LAUNCH_CLOSE",
+      "line-mwdn0a03-lnp3c": "LEFT_PARK",
+      "line-mwdn0a03-lnp2c": "LEFT_PARK"
     },
     "cards": [
       {
@@ -852,7 +942,6 @@
                             "when": [
                               "RightCellUp"
                             ],
-                            "label": "If RightCellUp",
                             "cards": [
                               {
                                 "id": "c-mw0eygqv-43e96",
@@ -919,7 +1008,6 @@
                           },
                           {
                             "afterMs": 750,
-                            "label": "Timed out",
                             "cards": [
                               {
                                 "id": "c-mwdn0a03-lnbk1",
@@ -949,72 +1037,82 @@
             "when": [
               "CellUp"
             ],
-            "label": "If CellUp",
             "cards": [
               {
                 "id": "c-mw0c4s2t-8epji",
                 "kind": "action",
                 "name": "LaunchAll"
+              },
+              {
+                "id": "c-mw0c4s2t-jqsjs",
+                "kind": "path",
+                "lineId": "line-mw0c4s2t-ne8h5h",
+                "park": false
+              },
+              {
+                "id": "c-mw0c4s2t-sfdhk",
+                "kind": "action",
+                "name": "PickFlower",
+                "timeoutS": 8
+              },
+              {
+                "id": "c-mw0c4s2t-lhsjw",
+                "kind": "path",
+                "lineId": "line-mw0c4s2t-m8fs6x",
+                "park": false
+              },
+              {
+                "id": "c-mwdn0a03-lnv3c",
+                "kind": "firstOf",
+                "label": "LEFT CELL back up?",
+                "rows": [
+                  {
+                    "when": [
+                      "CellUp"
+                    ],
+                    "cards": [
+                      {
+                        "id": "c-mw0c4s2u-axth1",
+                        "kind": "action",
+                        "name": "LaunchAll"
+                      },
+                      {
+                        "id": "c-mw0c4s2u-u2yl0",
+                        "kind": "path",
+                        "lineId": "line-mw0c4s2u-8wbzmf",
+                        "park": true
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 23000,
+                    "matchClock": true,
+                    "cards": [
+                      {
+                        "id": "c-mwdn0a03-lnp3c",
+                        "kind": "path",
+                        "lineId": "line-mwdn0a03-lnp3c",
+                        "park": true
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
           {
             "afterMs": 23000,
             "matchClock": true,
-            "label": "Timed out",
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "c-mw0c4s2t-jqsjs",
-        "kind": "path",
-        "lineId": "line-mw0c4s2t-ne8h5h",
-        "park": false
-      },
-      {
-        "id": "c-mw0c4s2t-sfdhk",
-        "kind": "action",
-        "name": "PickFlower",
-        "timeoutS": 8
-      },
-      {
-        "id": "c-mw0c4s2t-lhsjw",
-        "kind": "path",
-        "lineId": "line-mw0c4s2t-m8fs6x",
-        "park": false
-      },
-      {
-        "id": "c-mwdn0a03-lnv3c",
-        "kind": "firstOf",
-        "label": "LEFT CELL back up?",
-        "rows": [
-          {
-            "when": [
-              "CellUp"
-            ],
-            "label": "If CellUp",
             "cards": [
               {
-                "id": "c-mw0c4s2u-axth1",
-                "kind": "action",
-                "name": "LaunchAll"
+                "id": "c-mwdn0a03-lnp2c",
+                "kind": "path",
+                "lineId": "line-mwdn0a03-lnp2c",
+                "park": true
               }
             ]
-          },
-          {
-            "afterMs": 23000,
-            "matchClock": true,
-            "label": "Timed out",
-            "cards": []
           }
         ]
-      },
-      {
-        "id": "c-mw0c4s2u-u2yl0",
-        "kind": "path",
-        "lineId": "line-mw0c4s2u-8wbzmf",
-        "park": true
       }
     ],
     "startAt": "LEFT_START",
@@ -1024,7 +1122,9 @@
       "link-3",
       "link-4",
       "link-5",
-      "link-6"
+      "link-6",
+      "link-7",
+      "link-8"
     ],
     "parkFrom": {
       "c-mw0c4s2s-oo8yq": "line-mw0c4s32-8noomj",

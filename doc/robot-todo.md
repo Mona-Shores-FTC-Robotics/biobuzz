@@ -337,9 +337,10 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - L-NoCross: "RIGHT CELL up?" (0.75 s, after "TIP seen?") before its first RIGHT volley;
         "LEFT CELL up?" and "LEFT CELL back up?" before each LEFT volley, waiting until 23 s.
 
-      A check that times out fires nothing and the Auto goes on (in R-Solo and at the last volley,
-      to its park). A drive into a checked volley no longer opens the gate on the way in, so that
-      volley starts from a stopped robot. Run each Auto with the HIVE left alone, then with the
+      A check that times out fires nothing: the robot parks, or on L-NoCross's no-TIP route
+      drives back to LEFT_LAUNCH_CATCH. A drive into a checked volley no longer opens the gate on
+      the way in, so that volley starts from a stopped robot. Each check is a Wait step with an
+      Otherwise in the Visualizer; all three Autos open in the builder. Run each Auto with the HIVE left alone, then with the
       checked CELL held down by hand at each check in turn.
 
       **Good:** with the CELL up, each check ends on `CellUp` (or `RightCellUp`) within about

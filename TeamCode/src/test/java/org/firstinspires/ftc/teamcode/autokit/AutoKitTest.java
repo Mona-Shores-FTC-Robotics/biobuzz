@@ -782,6 +782,87 @@ public class AutoKitTest {
     }
 
     /**
+     * The Visualizer's form of the check, "Wait for CELL up, Otherwise park": the wait is its
+     * list's last card and each outcome is a guarded list of its own. R-NoCross's GARDEN trip at
+     * 15.5 s is still not begun, since its volley would leave no time to park.
+     */
+    @Test
+    public void aTripToAWaitThatParksEitherWayIsNotBegunWhenItsVolleyLeavesNoPark() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .grab("GardenGather", 5.0, () -> lasting("GardenGather", 4.5))
+                .trigger("CellUp", () -> true));
+        Path toGarden = line(0, 10), gardenPark = line(10, 20), back = line(10, 0), park = line(0, 40);
+        now = 15.5;
+        run(kit.guarded("If CellUp", park, 2.9,
+                kit.path("to GARDEN_STAGING", toGarden, 2.0, gardenPark, 2.6),
+                kit.command("GardenGather", 8.0),
+                kit.path("to RIGHT_LAUNCH_CATCH", back, 2.0),
+                kit.firstOf("RIGHT CELL back up?",
+                        kit.when("CellUp").then(kit.guarded("If CellUp", park, 2.9,
+                                kit.command("LaunchAll"), kit.path("to RIGHT_PARK", park, 2.9))),
+                        kit.atMatchSeconds(22).then(kit.guarded("Timed out", park, 2.9,
+                                kit.path("to RIGHT_PARK", park, 2.9))))), 20);
+        assertTrue(trace.toString(), traced("no time to park after it, parking now"));
+        assertFalse(log.toString(), log.contains("GardenGather start"));
+        assertEquals("parks from here at once", java.util.Collections.singletonList(park), drive.followed);
+    }
+
+    /** The same Auto 2.5 s sooner: the trip goes, the CELL is up, the volley fires and the robot parks. */
+    @Test
+    public void aWaitThatParksEitherWayFiresWhenTheCellIsUp() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .grab("GardenGather", 5.0, () -> lasting("GardenGather", 4.5))
+                .trigger("CellUp", () -> true));
+        Path toGarden = line(0, 10), gardenPark = line(10, 20), back = line(10, 0), park = line(0, 40);
+        now = 13.0;
+        run(kit.guarded("If CellUp", park, 2.9,
+                kit.path("to GARDEN_STAGING", toGarden, 2.0, gardenPark, 2.6),
+                kit.command("GardenGather", 8.0),
+                kit.path("to RIGHT_LAUNCH_CATCH", back, 2.0),
+                kit.firstOf("RIGHT CELL back up?",
+                        kit.when("CellUp").then(kit.guarded("If CellUp", park, 2.9,
+                                kit.command("LaunchAll"), kit.path("to RIGHT_PARK", park, 2.9))),
+                        kit.atMatchSeconds(22).then(kit.guarded("Timed out", park, 2.9,
+                                kit.path("to RIGHT_PARK", park, 2.9))))), 20);
+        assertTrue(log.toString(), log.contains("LaunchAll NATURALLY"));
+        assertEquals(java.util.Arrays.asList(toGarden, back, park), drive.followed);
+    }
+
+    /** The CELL never comes up: the wait runs to 22 s on the match clock, nothing is fired, and the robot parks. */
+    @Test
+    public void aWaitThatParksEitherWayFiresNothingAtADownCell() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry().trigger("CellUp", () -> false));
+        Path back = line(10, 0), park = line(0, 40);
+        now = 19.0;
+        run(kit.guarded("If CellUp", park, 2.9,
+                kit.path("to RIGHT_LAUNCH_CATCH", back, 2.0),
+                kit.firstOf("RIGHT CELL back up?",
+                        kit.when("CellUp").then(kit.guarded("If CellUp", park, 2.9,
+                                kit.command("LaunchAll"), kit.path("to RIGHT_PARK", park, 2.9))),
+                        kit.atMatchSeconds(22).then(kit.guarded("Timed out", park, 2.9,
+                                kit.path("to RIGHT_PARK", park, 2.9))))), 20);
+        assertFalse(log.toString(), log.contains("LaunchAll start"));
+        assertEquals(java.util.Arrays.asList(back, park), drive.followed);
+        assertEquals("parks when the wait's time is up", 22.0, drive.followedAt.get(1), 0.05);
+    }
+
+    /** The CELL comes up too late for the volley and the park: the volley is not fired, and the robot parks. */
+    @Test
+    public void aWaitThatParksEitherWayDoesNotFireAVolleyThatLeavesNoPark() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry().trigger("CellUp", () -> now >= 25.0));
+        Path park = line(0, 40);
+        now = 21.5;
+        run(kit.guarded("If CellUp", park, 2.9,
+                kit.firstOf("RIGHT CELL back up?",
+                        kit.when("CellUp").then(kit.guarded("If CellUp", park, 2.9,
+                                kit.command("LaunchAll"), kit.path("to RIGHT_PARK", park, 2.9))),
+                        kit.atMatchSeconds(26).then(kit.guarded("Timed out", park, 2.9,
+                                kit.path("to RIGHT_PARK", park, 2.9))))), 20);
+        assertFalse(log.toString(), log.contains("LaunchAll start"));
+        assertEquals(25.0, drive.followedAt.get(0), 0.05);
+    }
+
+    /**
      * A volley deeper in a block, where the look-ahead cannot see it, asks for itself: 24.5 + 4.0 +
      * 2.9 + 1.0 = 32.4 s, so it is not fired and the robot parks.
      */

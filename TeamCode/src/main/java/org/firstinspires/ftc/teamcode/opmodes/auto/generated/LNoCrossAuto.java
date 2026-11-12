@@ -21,7 +21,7 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-12|3:03PM";
+    public static final String SAVED = "11-12|3:37PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -83,9 +83,11 @@ public final class LNoCrossAuto {
         Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, leftPark).linear(scoringFlowerStaging, leftPark);
         Path toLeftLaunchCatchPath2 = Paths.line(scoringFlowerStaging, leftLaunchCatch).linear(scoringFlowerStaging, leftLaunchCatch);
         Path toLeftPark = Paths.line(leftLaunchCatch, leftPark).linear(leftLaunchCatch, leftPark);
+        Path toLeftParkPath = Paths.line(leftLaunchCatch, leftPark).linear(leftLaunchCatch, leftPark);
+        Path toLeftParkPath2 = Paths.line(leftLaunchCatch, leftPark).linear(leftLaunchCatch, leftPark);
 
         return kit.sequence(
-                kit.guarded("Auto", toLeftPark, 1.9,
+                kit.guarded("Auto", toLeftParkPath2, 1.9,
                         kit.command("SpinUp"),
                         kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 1, leftLaunchCatchPark, 1.9),
                         kit.firstOf("Wait for TIP or CELL up", kit.command("SpinUp"),
@@ -112,15 +114,21 @@ public final class LNoCrossAuto {
                                                                         kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath, 3, leftLaunchCatchPark, 1.9))))))),
                         kit.firstOf("LEFT CELL up?",
                                 kit.when("CellUp").then(
-                                        kit.command("LaunchAll")),
-                                kit.atMatchSeconds(23)),
-                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
-                        kit.command("PickFlower", 8),
-                        kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath2, 1.3),
-                        kit.firstOf("LEFT CELL back up?",
-                                kit.when("CellUp").then(
-                                        kit.command("LaunchAll")),
-                                kit.atMatchSeconds(23)),
-                        kit.path("to LEFT_PARK", toLeftPark, 1.9)));
+                                        kit.guarded("If CellUp", toLeftParkPath, 1.9,
+                                                kit.command("LaunchAll"),
+                                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
+                                                kit.command("PickFlower", 8),
+                                                kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatchPath2, 1.3),
+                                                kit.firstOf("LEFT CELL back up?",
+                                                        kit.when("CellUp").then(
+                                                                kit.guarded("If CellUp", toLeftPark, 1.9,
+                                                                        kit.command("LaunchAll"),
+                                                                        kit.path("to LEFT_PARK", toLeftPark, 1.9))),
+                                                        kit.atMatchSeconds(23).then(
+                                                                kit.guarded("Timed out", toLeftParkPath, 1.9,
+                                                                        kit.path("to LEFT_PARK", toLeftParkPath, 1.9)))))),
+                                kit.atMatchSeconds(23).then(
+                                        kit.guarded("Timed out", toLeftParkPath2, 1.9,
+                                                kit.path("to LEFT_PARK", toLeftParkPath2, 1.9))))));
     }
 }
