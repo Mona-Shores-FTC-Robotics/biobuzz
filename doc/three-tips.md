@@ -48,7 +48,7 @@ Visualizer's preview. Infraviolet has made three TIPs on the robots; this has ne
 |---|---|---|
 | `l-pair-flowers` + `r-pair-garden` | Yes, real cards | The blend with Clockwise; the stress-tested fallbacks and park roads |
 | `r-pair-garden-sweep` | No (`SweepRow` is simulator-only) | What a GARDEN gather that takes 4 would buy |
-| `r-two-tip-with` + `partners/partner-l-timed-fill-hide-park` | Yes, real cards | A two-TIP Auto beside a partner that fills the far CELL and hides under the HIVE. Scored on the first calibration only; not rerun |
+| `r-two-tip-with` + `partners/partner-l-timed-fill-hide-park` | Yes, real cards | Not pursued either (mentor, 12 Nov). The partner is drawn wrong: it leaves the HIVE to the south and parks at `RIGHT_PARK`. Real partners that hide under the HIVE back out near the end and park on the left side, their own, so our robot's park at `LEFT_PARK` and its last lane are where the partner would be. Scored on the first calibration only |
 | `r-three-tip`, `r-three-tip-stream`, `r-three-tip-still`, `l-three-tip` | No (simulator-only cards, a turret, a side shot) | The solo budget: what a different robot would need |
 
 **If this is picked up again:**
