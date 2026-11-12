@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-11T02:41:40.764Z",
+  "timestamp": "2026-11-11T03:38:59.840Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -30,25 +30,25 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mwbij6hj-y7c6ew",
+      "color": "#59a14f",
+      "name": "WALL_FLOWER_STAGING park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 180,
         "endDeg": 0
-      },
-      "color": "#59a14f",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "WALL_FLOWER_STAGING park"
+      }
     },
     {
       "id": "link-1",
@@ -120,25 +120,25 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mwbij6hk-eyn74i",
+      "color": "#b07aa1",
+      "name": "LEFT_LAUNCH_CATCH park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 273.4,
         "endDeg": 0
-      },
-      "color": "#b07aa1",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "LEFT_LAUNCH_CATCH park"
+      }
     },
     {
       "id": "link-2",
@@ -177,25 +177,25 @@
       }
     },
     {
-      "kind": "atomic",
       "id": "line-mwbij6hk-5pezgk",
+      "color": "#9c755f",
+      "name": "SCORING_FLOWER_STAGING park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
         "endDeg": 0
-      },
-      "color": "#9c755f",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "name": "SCORING_FLOWER_STAGING park"
+      }
     },
     {
       "id": "link-3",
@@ -245,7 +245,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -348,7 +348,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -667,7 +667,7 @@
       ],
       "RIGHT_PARK": [
         14.5,
-        95.7,
+        98.7,
         0
       ],
       "RIGHT_LAUNCH_CLOSE": [

@@ -132,6 +132,16 @@ public class LaneTrackerTest {
         assertFalse(lane.present());
     }
 
+    @Test
+    public void theShippedRangesSplitBeldingsReadings() {
+        // 7 Nov 2026: red NECTAR read as high as 39; a dim POLLEN at 46 was spat out as red NECTAR.
+        assertEquals(Piece.RED_NECTAR, shipped(12));
+        assertEquals(Piece.RED_NECTAR, shipped(39));
+        assertEquals(Piece.POLLEN, shipped(46));
+        assertEquals(Piece.POLLEN, shipped(55));
+        assertEquals(Piece.POLLEN, shipped(95));
+    }
+
     private static Piece shipped(double hue) {
         return LaneTracker.classify(hue, ColorSensorSubsystem.pollenHueMin, ColorSensorSubsystem.pollenHueMax,
                 ColorSensorSubsystem.redNectarHueMin, ColorSensorSubsystem.redNectarHueMax,

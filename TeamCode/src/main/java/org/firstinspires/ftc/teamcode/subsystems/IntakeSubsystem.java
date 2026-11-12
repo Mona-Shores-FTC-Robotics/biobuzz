@@ -150,6 +150,29 @@ public class IntakeSubsystem implements Subsystem {
     /** Star-wheel power inward during a full hold; preserves the existing retention behavior. */
     public static double starsPowerWhenFull = 1.0;
 
+    /**
+     * Back the roller and stars out for a moment when the roller is wedged ({@link WedgeClear}):
+     * stalled at high current while taking in, with nothing under the lane sensor. On since
+     * 10 Nov 2026, from the Belding logs; <b>not run on a robot</b>. Off, a wedge holds until the
+     * driver ejects.
+     */
+    public static boolean clearWedge = true;
+
+    /** Below this roller speed, ticks/s, the roller is not turning. It runs at about 2400; Belding's stalls read under 50. */
+    public static double wedgeStallTicksPerSecond = 100.0;
+
+    /** At or above this roller current, amps, a roller that is not turning is held. Belding's stalls drew 7 to 10 A; running, under 3.4 A nine times in ten. */
+    public static double wedgeStallAmps = 5.0;
+
+    /** A stall this long without a break is a wedge, ms. Belding's stalls that let go by themselves lasted under 0.8 s. */
+    public static double wedgeStallMs = 1000.0;
+
+    /** How long a wedge clear backs out, ms. A guess, <b>not measured</b>. Clamped to [0, 1000]. */
+    public static double wedgeBackMs = 250.0;
+
+    /** Bursts in a row, with the roller never running free between them, before it stops trying. */
+    public static int wedgeMaxBursts = 3;
+
     private boolean positionHolding;
     private int holdTargetTicks;
     private int positionTicks;
@@ -174,6 +197,10 @@ public class IntakeSubsystem implements Subsystem {
     /** Whether to spit out the piece at the entrance; never until {@link #rejectWhile} is called. */
     private BooleanSupplier reject = () -> false;
     private boolean holdingOff;
+    private boolean unwedging;
+    private final WedgeClear wedge = new WedgeClear();
+    /** Whether a stall is the lane backed up, not a wedge; never until {@link #laneBackedUp} is called, so no wedge is cleared. */
+    private BooleanSupplier laneBackedUp = () -> true;
     /** Whether a reject's hold-off is running; never until {@link #holdOffWhile} is called. */
     private BooleanSupplier holdOff = () -> false;
     /** Whether the lane is full; never until {@link #laneFull} is called, so the roller never stops for it. */
@@ -226,6 +253,15 @@ public class IntakeSubsystem implements Subsystem {
      */
     public void rejectWhile(BooleanSupplier rejecting) {
         reject = rejecting;
+    }
+
+    /**
+     * Where to read whether a stalled roller is only pressing on a backed-up lane: a piece under
+     * the lane sensor, or a sensor that is not answering (then nothing can tell, and no wedge is
+     * cleared). Wired once by {@code Robot}, as {@link #laneFull}.
+     */
+    public void laneBackedUp(BooleanSupplier backedUp) {
+        laneBackedUp = backedUp;
     }
 
     /** Where to read whether a reject's hold-off is running. Wired once by {@code Robot}, as {@link #rejectWhile}. */
@@ -311,9 +347,22 @@ public class IntakeSubsystem implements Subsystem {
         return holdingOff;
     }
 
-    /** Whether the roller and the stars are spitting out a piece, or stopped after one: reject's whole time. */
+    /**
+     * Whether the roller and the stars are spitting out a piece, or stopped after one (reject's
+     * whole time), or backing out of a wedge: the roller's current is not a piece coming in.
+     */
     public boolean rejectActive() {
-        return rejecting || holdingOff;
+        return rejecting || holdingOff || unwedging;
+    }
+
+    /** Whether the roller and the stars are backing out of a wedge this loop ({@link WedgeClear}). */
+    public boolean unwedging() {
+        return unwedging;
+    }
+
+    /** Wedge clears since this OpMode started. */
+    public int wedgeClears() {
+        return wedge.bursts();
     }
 
     /** Whether the roller or the stars run only because the feeder is feeding or reversing. */
@@ -405,6 +454,17 @@ public class IntakeSubsystem implements Subsystem {
             roller = State.IDLE;
             starsState = State.IDLE;
         }
+        // A wedge: the OpMode's own intake, stalled, with the lane not backed up. The speed and
+        // current are the last loop's.
+        boolean takingIn = started && clearWedge && request == State.IN && roller == State.IN
+                && !holdingForFull && !rejecting && !holdingOff && !laneBackedUp.getAsBoolean();
+        unwedging = wedge.update(takingIn, ticksPerSecond, currentAmps, System.nanoTime(),
+                wedgeStallTicksPerSecond, wedgeStallAmps, wedgeStallMs,
+                Math.min(Math.max(wedgeBackMs, 0.0), 1000.0), wedgeMaxBursts);
+        if (unwedging) {
+            roller = State.OUT;
+            starsState = State.OUT;
+        }
         feedAssist = !holdingForFull && !rejecting && !holdingOff && request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
         boolean ownEject = request == State.OUT;
         positionTicks = motor.getCurrentPosition();
@@ -482,7 +542,8 @@ public class IntakeSubsystem implements Subsystem {
     @Override
     public void describe(Display display) {
         boolean moving = roller != State.IDLE || starsState != State.IDLE;
-        String what = rejecting ? "spitting out the other alliance's NECTAR"
+        String what = unwedging ? "backing out of a wedge"
+                : rejecting ? "spitting out the other alliance's NECTAR"
                 : holdingOff ? "stopped: letting the rejected NECTAR roll clear"
                 : holdingForFull ? String.format(Locale.US,
                 "holding the last piece (lane full) · %s · stars %.2f",

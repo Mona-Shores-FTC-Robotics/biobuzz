@@ -77,8 +77,8 @@ import java.util.function.Function;
  *   <li>{@link HiveState#UNSEEN} or {@link HiveState#TRANSITION}: false for both, so the wait runs
  *       to its limit or another row ends it. Outside an Autonomous nothing is assumed: a HIVE the
  *       camera has not seen is not "RIGHT CELL up".</li>
- *   <li>A position the tracker assumes, at an Autonomous's PLAY or after a TIP it saw start but
- *       not finish ({@link HiveTracker#assumed()}): false for both, until the camera sees the HIVE
+ *   <li>The position the tracker assumes at an Autonomous's PLAY
+ *       ({@link HiveTracker#assumed()}): false for both, until the camera sees the HIVE
  *       settle ({@link #cellUp}: R-Solo 5 Nov 00:32 fired at a down CELL on an assumed TIP).</li>
  * </ul>
  *
@@ -271,13 +271,13 @@ public final class AutoRegistration {
     /**
      * {@code LeftCellUp} ({@code left}) or {@code RightCellUp}: what our HIVE's tracker says it has
      * <em>seen</em>, and false with no tracker (no alliance chosen). UNSEEN and TRANSITION are false
-     * for both, and so is a position the tracker only assumed ({@link HiveTracker#assumed()}: the
-     * match start, or a TIP it did not see finish). Why (R-Solo, 5 Nov 2026 00:32, 20245): the
-     * tracker started a TIP that never happened as the robot turned away from the start, assumed it
+     * for both, and so is the match-start position the tracker only assumed
+     * ({@link HiveTracker#assumed()}). Why (R-Solo, 5 Nov 2026 00:32, 20245): the tracker of the
+     * time started a TIP that never happened as the robot turned away from the start, assumed it
      * finished 3.5 s later, and {@code CellUp} at LEFT_LAUNCH_CLOSE passed in 0.02 s on that guess,
-     * before the camera had a frame from there, and the robot fired at a CELL that was down. Its
-     * wait now lasts until the camera sees the CELL up, or its time runs out and the Auto takes
-     * the other way.
+     * before the camera had a frame from there, and the robot fired at a CELL that was down. The
+     * tracker no longer assumes a TIP, and this wait lasts until the camera sees the CELL up, or
+     * its time runs out and the Auto takes the other way.
      */
     static boolean cellUp(HiveTracker hive, boolean left) {
         if (hive == null || hive.assumed()) return false;

@@ -2328,6 +2328,7 @@ public final class AutoSim {
             final double[] dwellFrom = new double[1];
             final double[] squareFrom = new double[1];
             final boolean[] intakeBefore = new boolean[1];
+            final boolean[] pickAtScoringFlower = new boolean[1];
             final double flip = design.intakeAtBack ? Math.PI : 0.0;
             return new CommandBuilder()
                     .setStart(() -> {
@@ -2356,12 +2357,8 @@ public final class AutoSim {
                         square[0] = new Pose(sq.x(), sq.y(), sq.heading() - flip);
                         contact[0] = new Pose(in.x(), in.y(), in.heading() - flip);
                         intakeBefore[0] = intakeEnabled;
-                        // The Belding calibration: a SCORING FLOWER pick comes back with nothing this often.
-                        boolean scoringFlower = Math.abs(flower.y - centre) > 60;
-                        boolean comesBackShort = BeldingCalibration.on && scoringFlower
-                                && pickLuck.nextDouble() < BeldingCalibration.SCORING_PICK_SHORT;
-                        if (comesBackShort) pending.add("PickFlower: comes back short (Belding calibration)");
-                        intakeEnabled = !comesBackShort;
+                        pickAtScoringFlower[0] = Math.abs(flower.y - centre) > 60;
+                        intakeEnabled = true;
                         Pose from = new Pose(at[0], at[1], at[2]);
                         double turn = Math.abs(Math.IEEEremainder(at[2] - square[0].heading(), 2 * Math.PI));
                         if (Math.hypot(at[0] - square[0].x(), at[1] - square[0].y()) <= FlowerPicker.atApproachIn
@@ -2400,6 +2397,19 @@ public final class AutoSim {
                     .setDone(() -> phase[0] == 0 || phase[0] == 5 || (phase[0] == 3 && drive.pathDone()))
                     .setEnd(end -> {
                         if (phase[0] == 0) return;
+                        // The Belding calibration: of the pieces picked, only as many as that robot's next volley
+                        // fired there get as far as the launcher (a short pick, a wedge, a jam on the feed side).
+                        if (BeldingCalibration.on && end == EndCondition.NATURALLY) {
+                            int reach = BeldingCalibration.load(pickAtScoringFlower[0], pickLuck);
+                            int lost = 0;
+                            while (body.stored.size() > reach) {
+                                FieldSim.Piece gone = body.stored.remove(body.stored.size() - 1);
+                                gone.where = FieldSim.Where.OUTSIDE;
+                                gone.x = -1000;
+                                lost++;
+                            }
+                            if (lost > 0) pending.add("PickFlower: " + lost + " of the load never reach the launcher (Belding calibration)");
+                        }
                         intakeEnabled = intakeBefore[0];
                         if (end != EndCondition.NATURALLY) drive.hold(drive.pose);
                     });

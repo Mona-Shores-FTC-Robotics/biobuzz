@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-06T01:03:03.647Z",
+  "timestamp": "2026-11-11T03:45:15.819Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -169,6 +169,83 @@
       }
     },
     {
+      "kind": "atomic",
+      "id": "line-mwbksy73-ypsvit",
+      "endPoint": {
+        "x": 57.5,
+        "y": 123.5
+      },
+      "controlPoints": [
+        {
+          "x": 58.69963001513299,
+          "y": 26.400462127763195
+        },
+        {
+          "x": 68.26574509695736,
+          "y": 72.987287864473
+        },
+        {
+          "x": 56.76137344482316,
+          "y": 93.46014040136694
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "startDeg": 90,
+        "endDeg": 273.4,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 273.4
+              }
+            }
+          ]
+        }
+      },
+      "color": "#4e79a7",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "name": "to LEFT_LAUNCH_CATCH"
+    },
+    {
+      "id": "link-3",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 56.1,
+        "y": 26
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
       "id": "line-mw0eyliu-i7tra3",
       "color": "#9c755f",
       "name": "to WALL_FLOWER_STAGING",
@@ -211,7 +288,7 @@
       }
     },
     {
-      "id": "link-3",
+      "id": "link-4",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -226,61 +303,39 @@
       }
     },
     {
-      "id": "line-mw0f0i5g-sowt7p",
-      "color": "#76b7b2",
-      "name": "to LEFT_LAUNCH_CATCH",
+      "kind": "atomic",
+      "id": "line-mwbksy73-eapgv2",
+      "endPoint": {
+        "x": 56.1,
+        "y": 26
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 180,
+        "endDeg": 90
+      },
+      "color": "#e15759",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
+      "name": "to RIGHT_LAUNCH_CLOSE"
+    },
+    {
+      "id": "link-5",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
         "y": 123.5
       },
-      "controlPoints": [
-        {
-          "x": 39.35072361062994,
-          "y": 59.89970029346436
-        },
-        {
-          "x": 25.497455470737915,
-          "y": 127.60056392485252
-        }
-      ],
+      "controlPoints": [],
       "heading": {
-        "type": "piecewise",
-        "startDeg": 180,
-        "endDeg": 273.4,
-        "degrees": 0,
-        "reverse": false,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 180,
-                "endDeg": 90
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 273.4
-              }
-            }
-          ]
-        }
+        "type": "constant",
+        "degrees": 273.4
       }
     },
     {
@@ -326,7 +381,7 @@
       }
     },
     {
-      "id": "link-4",
+      "id": "link-6",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -572,6 +627,14 @@
     },
     {
       "kind": "path",
+      "lineId": "line-mwbksy73-ypsvit"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-3"
+    },
+    {
+      "kind": "path",
       "lineId": "line-mw0eyliu-i7tra3"
     },
     {
@@ -580,11 +643,15 @@
     },
     {
       "kind": "path",
-      "lineId": "link-3"
+      "lineId": "link-4"
     },
     {
       "kind": "path",
-      "lineId": "line-mw0f0i5g-sowt7p"
+      "lineId": "line-mwbksy73-eapgv2"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-5"
     },
     {
       "kind": "path",
@@ -596,7 +663,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-4"
+      "lineId": "link-6"
     },
     {
       "kind": "path",
@@ -657,7 +724,7 @@
       ],
       "typicalS": {
         "LaunchAll": 4.5,
-        "PickFlower": 4.0,
+        "PickFlower": 4,
         "GardenGather": 5,
         "LaunchOne": 0.5,
         "SpinUp": 0.1
@@ -714,9 +781,10 @@
       "line-mw0c4s32-ave4gg": "LEFT_PARK",
       "line-mw0eq8bt-go9gl6": "RIGHT_LAUNCH_CLOSE",
       "line-mw0eyliu-i7tra3": "WALL_FLOWER_STAGING",
-      "line-mw0f0i5g-sowt7p": "LEFT_LAUNCH_CATCH",
       "line-mw0rkae5-kh7tv8": "LEFT_PARK",
-      "line-mw0rkae5-9j07qg": "LEFT_PARK"
+      "line-mw0rkae5-9j07qg": "LEFT_PARK",
+      "line-mwbksy73-ypsvit": "LEFT_LAUNCH_CATCH",
+      "line-mwbksy73-eapgv2": "RIGHT_LAUNCH_CLOSE"
     },
     "cards": [
       {
@@ -753,27 +821,92 @@
                 "park": false
               },
               {
-                "id": "c-mw0eygqv-43e96",
-                "kind": "action",
-                "name": "LaunchAll"
-              },
-              {
-                "id": "c-mw0eyliu-eojd4",
-                "kind": "path",
-                "lineId": "line-mw0eyliu-i7tra3",
-                "park": false
-              },
-              {
-                "id": "c-mw0eypgg-196uj",
-                "kind": "action",
-                "name": "PickFlower",
-                "timeoutS": 8
-              },
-              {
-                "id": "c-mw0f0i5g-qi1es",
-                "kind": "path",
-                "lineId": "line-mw0f0i5g-sowt7p",
-                "park": false
+                "id": "c-mwbksy73-krzqd",
+                "kind": "firstOf",
+                "label": "TIP seen?",
+                "rows": [
+                  {
+                    "when": [
+                      "LeftCellUp"
+                    ],
+                    "label": "If LeftCellUp",
+                    "cards": [
+                      {
+                        "id": "c-mwbksy73-u5fhh",
+                        "kind": "path",
+                        "lineId": "line-mwbksy73-ypsvit",
+                        "park": false
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 750,
+                    "label": "Timed out",
+                    "cards": [
+                      {
+                        "id": "c-mw0eygqv-43e96",
+                        "kind": "action",
+                        "name": "LaunchAll"
+                      },
+                      {
+                        "id": "c-mw0eyliu-eojd4",
+                        "kind": "path",
+                        "lineId": "line-mw0eyliu-i7tra3",
+                        "park": false
+                      },
+                      {
+                        "id": "c-mw0eypgg-196uj",
+                        "kind": "action",
+                        "name": "PickFlower",
+                        "timeoutS": 8
+                      },
+                      {
+                        "id": "c-mwbksy73-9zdyx",
+                        "kind": "path",
+                        "lineId": "line-mwbksy73-eapgv2",
+                        "park": false
+                      },
+                      {
+                        "id": "c-mwbksy73-hdkpl",
+                        "kind": "firstOf",
+                        "label": "RIGHT CELL still up?",
+                        "rows": [
+                          {
+                            "when": [
+                              "RightCellUp"
+                            ],
+                            "label": "If RightCellUp",
+                            "cards": [
+                              {
+                                "id": "c-mwbksy73-zz0f1",
+                                "kind": "action",
+                                "name": "LaunchAll"
+                              },
+                              {
+                                "id": "c-mwbksy73-ll6j1",
+                                "kind": "path",
+                                "lineId": "line-mwbksy73-ypsvit",
+                                "park": false
+                              }
+                            ]
+                          },
+                          {
+                            "afterMs": 750,
+                            "label": "Timed out",
+                            "cards": [
+                              {
+                                "id": "c-mwbksy73-46ewy",
+                                "kind": "path",
+                                "lineId": "line-mwbksy73-ypsvit",
+                                "park": false
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
@@ -820,14 +953,19 @@
       "link-1",
       "link-2",
       "link-3",
-      "link-4"
+      "link-4",
+      "link-5",
+      "link-6"
     ],
     "parkFrom": {
       "c-mw0c4s2s-oo8yq": "line-mw0c4s32-8noomj",
       "c-mw0c4s2t-jqsjs": "line-mw0c4s32-ave4gg",
       "c-mw0eq8bt-2vuzy": "line-mw0rkae5-kh7tv8",
       "c-mw0eyliu-eojd4": "line-mw0rkae5-9j07qg",
-      "c-mw0f0i5g-qi1es": "line-mw0c4s32-8noomj"
+      "c-mwbksy73-ll6j1": "line-mw0c4s32-8noomj",
+      "c-mwbksy73-46ewy": "line-mw0c4s32-8noomj",
+      "c-mwbksy73-u5fhh": "line-mw0c4s32-8noomj",
+      "c-mwbksy73-9zdyx": "line-mw0rkae5-kh7tv8"
     },
     "teamSpots": [
       "LEFT_LAUNCH_CATCH",

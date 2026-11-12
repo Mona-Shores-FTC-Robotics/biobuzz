@@ -6,77 +6,78 @@ partner-nudge experiment has Utility trials for bring-up. The nudge
 Utility's runtime speed limits are not modeled by AutoSim. The Visualizer lists
 these under "Drafts", and Save to GitHub saves back here.
 
-## R-Two-Tip: one robot, two TIPs, from the measured LEFT spot
+## R-Two-Tip: one robot, two TIPs
 
 R-Solo made its second TIP in 0 of 7 runs at the Belding Qualifier. This draft keeps R-Solo's steps and
-its 0.75 s CELL check, and changes where the LEFT volleys are fired from. Mentor session, 10 Nov 2026;
-not yet run on a robot. It runs from the Utility **Drive: R-Two-Tip** (a 30 s trial), not from the
-Autonomous menu.
+its 0.75 s CELL check, fires the LEFT volleys from measured rows of the speed table, and shortens the
+last leg so master's guard lets the third volley go. Mentor session, 10 Nov 2026; not yet run on a
+robot. It runs from the Utility **Drive: R-Two-Tip** (a 30 s trial), not from the Autonomous menu.
 
 Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-two-tip.pp>
 
-**Why R-Solo's second TIP never came.** Both of its LEFT volleys are fired from `LEFT_LAUNCH_CLOSE`,
-36 in from the CELL. `LaunchSpeedTable`'s measured rows run from 42.4 to 58.8 in, so at 36 in the
-launcher gets a speed nobody has fired: the first row's slope carried 5 in and then held.
+**Why R-Solo's second TIP never came: it never fired eight pieces at the LEFT CELL.** The launcher's
+wheels dip once for each ball, so the match logs give each volley's count
+(`read_logs.py volleys`; within one ball of the video on the nine volleys also counted on video, never
+under). The LEFT CELL starts empty and needs 8.
 
-| Belding Auto volleys at the LEFT CELL | Spot (range) | Launch speed in the log | Second TIP |
-|---|---|---|---|
-| R-Solo, 7 runs | `LEFT_LAUNCH_CLOSE` (36 in) | 1459–1480 ticks/s, extrapolated | 0 of 7 |
-| L-NoCross, 5 runs | `LEFT_LAUNCH_CATCH` (42 in) | 1521–1528 ticks/s, the measured row | 3 of 5 |
+| Belding, pieces fired at the LEFT CELL | Runs | Second TIP |
+|---|---|---|
+| R-Solo, both LEFT volleys together: 0, 3, 4, 6, 6, 6 to 7, 7 | 7 | 0 of 7 |
+| L-NoCross, 8 fired (preloads, then the SCORING FLOWER load) | 4 | 3 of 4 |
+| L-NoCross, second volley fired nothing | 1 | 0 of 1 |
 
-On the Q-13 stream (19429, R-Solo's third volley, Auto 23.4–25.2 s), balls drop back to the floor in
-front of the HIVE at 24.1–24.3, 24.5–24.6 and 25.1–25.2 s. Twelve runs is a small sample, and the two
-Autos differ in other ways, so this is the likely cause, not a proven one.
+- **The short loads were mostly Infrared's.** Its WALL FLOWER volleys fired 0, 2, 4, 2 and 1 pieces;
+  Ultraviolet's fired 4 every time (six volleys). After the SCORING FLOWER, Infrared fired 0, 4, 3, 4,
+  2, 0, 4, 4 and Ultraviolet 1 (Q-1's wedge), 4, 4.
+- **Ultraviolet got one clean try at the whole route** (Q-1, where the SCORING pick wedged). Q-27 was
+  held up by an opponent, and Q-7 and Q-31 took the timed-out route.
+- A piece that reaches a raised CELL stays in (mentor, 10 Nov 2026). Every counted Auto shot was aimed
+  within 0.8° by the pose, fired standing still, with the wheels at or above target, so the logs do not
+  show which shots went wide or short.
+- R-Solo's LEFT volleys were also fired from `LEFT_LAUNCH_CLOSE` (36 in), below every measured row of
+  the speed table, at an extrapolated 1459 to 1480 ticks/s. Belding cannot say how much that cost,
+  because eight pieces never went up from there.
 
 **What changed from R-Solo:**
 
-- The first LEFT volley is at `LEFT_LAUNCH_CATCH`, the spot L-NoCross made its second TIPs from
-  (the 42.4 in row). The second is at `LEFT_LAUNCH_OFFSET`, right beside the SCORING FLOWER (the
-  45.7 in row): the hop from the pick is 1.1 s instead of 1.3 s and the park from there 1.8 s
-  instead of 2.1 s, which is the time the guard needs.
+- The first LEFT volley is at `LEFT_LAUNCH_CATCH` (the 42.4 in row, where L-NoCross made its second
+  TIPs). The second is at `LEFT_LAUNCH_OFFSET`, right beside the SCORING FLOWER (the 45.7 in row): the
+  hop from the pick is 1.1 s instead of 1.3 s and the park from there 1.8 s instead of 2.1 s, which is
+  the time the guard needs.
 - The drive from the WALL FLOWER turns the short way (180° to 273°, done by 60% of the drive) and faces
   the HIVE for the rest. R-Solo's turns 270° and took 3.5–4.6 s against 2.9 s drawn.
 - The timed-out route is R-Solo's (back to `RIGHT_LAUNCH_CLOSE`, launch, park): it made the TIP both
   times it ran at Belding. Its turn starts a little later so no corner reaches the centre line.
-- The park from `LEFT_LAUNCH_OFFSET` bends a little south (control point (26, 92)).
-- Only team spots. The preview's CELL-up route is 28.9 s with 1.1 s spare and no guard park
-  (R-Solo's: 28.9 s with the guard parking); its worst case is 29.7 s (R-Solo: 31.7 s).
+- Only team spots. The preview's CELL-up route is 28.9 s with 1.1 s spare and no guard park (R-Solo's:
+  28.9 s with the guard parking); its worst case is 29.7 s (R-Solo: 31.7 s).
 
-**In the simulator set to Belding** (`BeldingCalibration`, 60 seeds each; TeamCode/README.md,
-"Simulating an Auto"), with master's endgame guard, one robot:
+**In the simulator set to Belding** (`BeldingCalibration`, 120 seeds each; TeamCode/README.md,
+"Simulating an Auto"), one robot, master's endgame guard:
 
-| | Two TIPs | Second TIP at |
+| R-Two-Tip, with the loads of | Two TIPs of 120 | Second TIP at |
 |---|---|---|
-| R-Solo | 0 of 60 | |
-| **R-Two-Tip** | **31 of 60** | 28.6 s |
-| R-Two-Tip driving 10% slower | 30 of 60 | 29.1 s |
-| R-Two-Tip driving 20% slower | 31 of 60 | 29.8 s |
-| R-Two-Tip driving 28% slower | 0 of 60 | |
+| Infrared as at Belding | 9 | 28.8 s |
+| Ultraviolet as at Belding | 56 | 28.5 s |
+| Ultraviolet, driving 10% / 20% slower | 56 / 58 | 29.1 / 29.9 s |
+| a robot whose every load is four | 86 | 28.6 s |
+| the same, driving 28% slower | 0 | |
 
-- **It makes two TIPs in about half the runs (60 of 120 over more seeds), and that is the pieces.** A robot holds 4 and
-  fits three volleys in 30 s. The first TIP takes the preloads; the LEFT CELL starts empty and needs 8
-  POLLEN (7 on a field that tips light). So every piece of the two LEFT volleys has to stay in. Of
-  the runs lost, about 1 in 9 missed the first TIP, about 1 in 9 had the SCORING FLOWER pick come back
-  with nothing (as 2 of 14 did at Belding), and the rest had a LEFT piece miss.
-- **The time holds to 20% slower.** Master's guard goes for the third volley only if the park still
-  fits after it. With both LEFT volleys at `LEFT_LAUNCH_CATCH` the second volley ended half a second
-  inside that limit and driving 10% slower lost every second TIP; with the last volley at
-  `LEFT_LAUNCH_OFFSET` it does not. The second TIP still lands late, 27 to 30 s.
-- Other one-robot drawings tried in it: both LEFT volleys at `LEFT_LAUNCH_CATCH` (as many TIPs, but none
-  at 10% slower); the preloads from `RIGHT_LAUNCH_CATCH` (no more TIPs, and its park from that
-  spot crosses the Red HIVE); the first LEFT volley from `LEFT_LAUNCH_OFFSET` (no time gained).
-  Catching the first TIP's spill (3 NECTAR) took about one piece a run.
+- R-Solo with every load four: 0 of 120. Master's guard parks it after its second volley, which ends
+  half a second too late for the park to fit after a third.
+- Other one-robot drawings tried: both LEFT volleys at `LEFT_LAUNCH_CATCH` (as many TIPs, but none
+  at 10% slower); the preloads from `RIGHT_LAUNCH_CATCH` (no more TIPs, and its park from that spot
+  crosses the Red HIVE); the first LEFT volley from `LEFT_LAUNCH_OFFSET` (no time gained). Catching
+  the first TIP's spill (3 NECTAR) took about one piece a run.
 
 **What the robot would need** to make two TIPs in 3 runs of 4 is in
-[`doc/one-robot-two-tips.md`](../../../doc/one-robot-two-tips.md), with the SCORING FLOWER picks that
-came back short at Belding counted in (as drawn: 60 of 120). In short: 0.98 of the shots from the LEFT
-spots staying in, and a pick that always comes back full, give 94 of 120; the shot counter keeps the
-Auto working when the robot runs slow; drive time and a turret change little.
+[`doc/one-robot-two-tips.md`](../../../doc/one-robot-two-tips.md). In short: every load after a pick
+reaching the launcher gets it to 86 of 120 by itself; with 0.99 of the LEFT shots staying in, 106.
 
 **Not settled:**
 
 - `LEFT_LAUNCH_CATCH` overlaps a robot sitting on `LEFT_START`. A partner with no Auto has to start
-  somewhere else on the wall, or the 36 in row gets measured and R-Solo's `LEFT_LAUNCH_CLOSE` is used.
+  somewhere else on the wall.
+- `LEFT_LAUNCH_OFFSET` has not been fired from on the left.
 - The robot checks are in [robot-todo §3](../../../doc/robot-todo.md).
 
 ## R-Three-Tip and R-Three-Tip-Stream: three TIPs from one robot, a study's drawings

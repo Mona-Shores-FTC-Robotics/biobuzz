@@ -5,9 +5,22 @@ video together, then checked against the official AUTO scores (FTCScout, saved i
 `tools/event-review/data/belding/ftcscout/`). It ends with the changes worth making, each run in
 the simulator first. Mentor review, 9 Nov 2026.
 
+> **Corrected from the films, 11 Nov 2026** (`TeamCode/autos/timing-terms.md`, which has every TIP's
+> times). Three things below are wrong or loose, and are left as written:
+> - **M-3's second TIP was the partner's.** Eight of our balls sat in the LEFT CELL for 7 s without
+>   moving; it went when 10104 drove under the HIVE and added three.
+> - **"Field time" is not our clock.** In the playoffs our PLAY was 0.9 to 4.0 s after the field's
+>   start. On our own clocks the second TIPs settled 3.8 s (M-7, 19429) and 5.0 s (M-10, 20245) after
+>   our last ball left: the usual TIP lag, not a late TIP.
+> - **A TIP time "at about N s" is the fast, visible end of the swing.** The rocker creeps from the
+>   moment the last ball lands. Q-4's "about 7.5 s" settled at 8.25 s; Q-32's preload TIP settled at
+>   9.25 s. The TIP lag is 3.6 to 4.3 s in the four films measured end to end, and up to 6.7 s over
+>   all of them, where this review says 4.0 to 4.4 s.
+
 R-Solo ran in qualifiers, and L-NoCross ran in the playoffs and in Ultraviolet's Q-14.
-Infrared is 19429 and Ultraviolet is 20245. Times are seconds after our PLAY. In the logs the
-SCORING FLOWER is called "FAR"; here it is the SCORING FLOWER, and the other one is the WALL FLOWER.
+Infrared is 19429 and Ultraviolet is 20245. Times are seconds after our PLAY. Logs from before
+12 Nov 2026 call the non-WALL FLOWER "FAR"; here it is the SCORING FLOWER (the Autos' leg, drawn for red; on
+a blue run it is the blue AUDIENCE FLOWER), and the other one is the WALL FLOWER.
 For red, the LEFT CELL is the SCORING-side CELL and the RIGHT CELL is the AUDIENCE-side CELL.
 
 ## How it was read
@@ -39,7 +52,8 @@ most of these TIPs never happened:
 
 No branch was misled, because `CellUp`, `LeftCellUp` and `RightCellUp` accept only a sighting
 (`AutoRegistration.cellUp`). But anyone reading `HIVE … (assumed)` lines in a log should treat them
-as noise.
+as noise. (Since this review the tracker no longer starts or assumes a TIP when tags leave the
+frame: it counts only a change between two settled sightings.)
 
 ## Every run
 

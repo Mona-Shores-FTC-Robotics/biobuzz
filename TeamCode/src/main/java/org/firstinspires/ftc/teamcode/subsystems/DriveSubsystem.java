@@ -106,6 +106,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private final Mecanum drivetrain;
     private final FusionLocalizer localizer;
     private boolean poseReferenced;
+    private int poseSets;
     /** A Pinpoint fault that held after PLAY: the pose is not believed until it reads again and is confirmed. */
     private final PinpointTrust pinpointTrust = new PinpointTrust();
     private boolean started;
@@ -320,6 +321,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     public void setPose(Pose pose) {
         if (localizer != null && pose != null) {
             localizer.setPose(pose);
+            poseSets++;
             shadow.follow();
             poseReferenced = true;
             pinpointTrust.poseSet(System.nanoTime() / 1_000_000L);
@@ -600,6 +602,14 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         return localizer == null ? 0.0 : localizer.pose().heading() - headingOffset;
     }
 
+    /**
+     * How many times the pose has been set on purpose ({@link #setPose}: a start, a handoff, a corner
+     * or camera reset). A point remembered in the Pinpoint's frame is stale once this changes.
+     */
+    public int poseSets() {
+        return poseSets;
+    }
+
     /** Field pose in Pedro coordinates, or null without a Pinpoint. */
     public Pose pose() {
         return localizer == null ? null : localizer.pose();
@@ -779,6 +789,14 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     /** Speed over the ground from the localizer, inches/s; NaN without one. Works without a Follower. */
     public double odometrySpeedInPerSec() {
         return localizer == null ? Double.NaN : localizer.velocity().linSpeed();
+    }
+
+    /**
+     * Turn rate from the localizer (the Pinpoint's own heading rate, in its bulk read), radians/s,
+     * counter-clockwise positive; NaN without one. A turn nobody commanded is what a hit looks like.
+     */
+    public double odometryTurnRadPerSec() {
+        return localizer == null ? Double.NaN : localizer.velocity().omega;
     }
 
     /** The Pinpoint's status as of the localizer's last read (READY when well), or null without one. */
