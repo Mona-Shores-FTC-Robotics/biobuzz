@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.IntakeArbiter;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.localization.LaunchSpots;
 import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
@@ -68,9 +69,10 @@ import java.util.Locale;
  *
  * <p>The turret starts every OpMode LOCKED straight ahead; the operator's lock button switches it
  * to AIM at our CELL ({@link TurretAimer}: left half of the field, left CELL; right half, right
- * CELL). While LOCKED, the driver has two ways to shoot. The launch-spot button trusts the
- * odometry: experimentally, it drives to the nearest launch spot and arrives aimed at that half's
- * CELL ({@link LaunchSpotDrive}), and with {@code TeleOpConfig.goToSpotAlsoFires} spins up and
+ * CELL). While LOCKED, the driver has two ways to shoot. The launch-spot buttons trust the
+ * odometry: experimentally, Square drives to the launch spot on the side wall in line with the
+ * robot, Triangle (behind {@code TeleOpConfig.launchSpotClose}) to the close one in front of it,
+ * and the robot arrives aimed at that half's CELL ({@link LaunchSpotDrive}), and with {@code TeleOpConfig.goToSpotAlsoFires} spins up and
  * fires there while it is held. The chassis aim trusts the camera: it turns the robot onto the UP
  * CELL of ours the camera sees, aims and ranges to where the camera last saw it when the camera is
  * not on it, and uses the odometry only with neither ({@link ChassisAimTarget}); the operator's
@@ -261,8 +263,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         launchSpot = new LaunchSpotDrive(robot, text -> log.event(text));
         // A locked turret's controls are left out, so the pages show only buttons that work.
         controls = new Controls(TeleOpConfig.flowerPickButton, TurretSubsystem.lockedForward,
-                TeleOpConfig.launchSpot, gamepad1, gamepad2, driver, operator);
+                TeleOpConfig.launchSpot, TeleOpConfig.launchSpotClose, gamepad1, gamepad2, driver, operator);
         log.metadata("Controls/LaunchSpot", TeleOpConfig.launchSpot ? "bound" : "off");
+        log.metadata("Controls/LaunchSpotClose",
+                TeleOpConfig.launchSpot && TeleOpConfig.launchSpotClose ? "bound" : "off");
         log.metadata("Controls/Drive", robotCentric() ? "robot-centric" : "field-centric");
         // Which controller each pad is, as the SDK sees it at INIT: a pad that cannot rumble says so.
         log.metadata("Controls/Gamepad1", String.valueOf(gamepad1.type));
@@ -278,6 +282,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.GARDEN_GATHER);
         controls.note(Action.CHASSIS_AIM);
         controls.note(Action.LAUNCH_SPOT);
+        controls.note(Action.LAUNCH_SPOT_CLOSE);
         controls.note(Action.RESET_HEADING);
         controls.note(Action.RESET_LEFT_CORNER);
         controls.note(Action.RESET_RIGHT_CORNER);
@@ -563,8 +568,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
         boolean gatherHeld = controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active();
         gatherer.update(gatherHeld, gatherSticks.moved(gatherHeld, sticksMoved, nowS, staleS));
         // A volley already under way does not yield to the operator's FIRE (fire() holds it back).
-        boolean spotHeld = controls.held(Action.LAUNCH_SPOT) && !grabActive();
-        launchSpot.update(spotHeld, setup.alliance(), spotSticks.moved(spotHeld, sticksMoved, nowS, staleS),
+        // Square: the wall row; Triangle: the close row. The row is read when the press starts, and
+        // the wall wins if both go down in one loop.
+        boolean wallHeld = controls.held(Action.LAUNCH_SPOT);
+        boolean closeHeld = controls.held(Action.LAUNCH_SPOT_CLOSE);
+        boolean spotHeld = (wallHeld || closeHeld) && !grabActive();
+        LaunchSpots.Row spotRow = wallHeld ? LaunchSpots.Row.WALL : LaunchSpots.Row.CLOSE;
+        launchSpot.update(spotHeld, spotRow, setup.alliance(), spotSticks.moved(spotHeld, sticksMoved, nowS, staleS),
                 controls.held(Action.FIRE) && !launchSpot.wantsLauncher());
         updateTableSpeed();
         spotLauncher();
@@ -801,7 +811,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (!robot.drive.hasHeading() && !robot.drive.pinpointLost()) return "NO PINPOINT";
         if (TeleOpConfig.intakeAlwaysOn && !intakeRunning()) return "INTAKE OFF";
         if (robotCentric() || !robot.drive.isFieldCentric()) return "ROBOT-CENTRIC";
-        if (launchSpot.refused()) return "SQUARE REFUSED";
+        if (launchSpot.refused()) return launchSpot.row() == LaunchSpots.Row.CLOSE ? "TRIANGLE REFUSED" : "SQUARE REFUSED";
         if (robot.flowerStick.extended() || robot.flowerStick.waitingToClear()) return "FLOWER STICK OUT";
         return null;
     }
