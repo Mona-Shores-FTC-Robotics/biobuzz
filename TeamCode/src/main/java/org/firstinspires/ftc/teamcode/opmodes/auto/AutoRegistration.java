@@ -183,19 +183,20 @@ public final class AutoRegistration {
     public static final double GARDEN_GATHER_TYPICAL_S = 5.0;
 
     /**
-     * Seconds from the partner's last shot to our CELL seen up, added to the last shot their team
-     * gives us to make the partner wait ({@link #partnerWaitUntilS}): the shot's flight, the dwell
-     * before the rocker moves, the swing, and the camera settling on the raised CELL. Measured at
-     * the Belding Qualifier (7 Nov 2026), stream video against L-NoCross match logs: 4.0, 4.2 and
-     * 4.4 s from the partner's last preload leaving its launcher to our {@code CellUp} (M-3 20245,
-     * M-4 19429, M-10 20245), about 4.3 s in a fourth (M-7 19429) whose launcher was hidden. 4.5 s
-     * covers all of them with the video sync's few tenths to spare (err long). One TIP came about
-     * 7 s after the last shot it could have come from (M-7, red): a partner wait does not cover
-     * that, and the Auto's no-TIP route is the plan for it. Written in
-     * {@code TeamCode/autos/timing.json} too ({@code partnerTipLagS}), which
+     * The TIP lag a partner wait allows: seconds from the partner's last ball leaving its launcher to
+     * our camera reading the CELL up, added to the last shot their team gives us
+     * ({@link #partnerWaitUntilS}). It is a give-up limit, not a prediction: the wait ends the moment
+     * {@code CellUp} fires, so a longer limit costs time only when the TIP is not coming.
+     * Measured from the Belding Qualifier's films (7 Nov 2026; {@code TeamCode/autos/timing-terms.md}
+     * has every TIP): for a CELL at its tipping weight, as a partner's four preloads leave it, the
+     * other CELL settled 3.4 to 6.5 s after the last ball left (13 TIPs, median 3.9) and a watching
+     * camera read it 0.2 s later. 5.5 s catches 11 of the 13; the 4.5 s used until 12 Nov 2026 caught
+     * 9. The two it misses (5.6 and 6.7 s) are left to the Auto's no-TIP route, which still scores.
+     * A half second keeps the drive team's number whole: a wait drawn "until 8.5 s" reads as a last
+     * shot at 3 s. Written in {@code TeamCode/autos/timing.json} too ({@code partnerTipLagS}), which
      * {@code PartnerWaitTest} keeps equal to this.
      */
-    public static final double PARTNER_TIP_LAG_S = 4.5;
+    public static final double PARTNER_TIP_LAG_S = 5.5;
 
     /**
      * The match second the Auto's partner wait (its one match-clock {@code AutoOption}, set on the

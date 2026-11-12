@@ -1075,8 +1075,8 @@ the editor; `AutoRegistrationTest` keeps the two in step.
 enters it during an Autonomous's INIT with gamepad 1's D-pad up/down (`InitOptions`, 1 s a press;
 left/right picks the park). The Auto's one wait drawn "until the match clock reads …" and offered
 in INIT (`AutoOption.matchSeconds`, exported as `kit.atMatchSeconds(kit.seconds(...))`) then ends
-at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 4.5 s for the shot's flight, the dwell
-before the rocker moves, the swing and the camera settling (3.6 to 4.3 s in four films at the Belding Qualifier, up to 6.7 s over all of them: `TeamCode/autos/timing-terms.md`).
+at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 5.5 s, a give-up limit covering the shot's flight, the rocker's
+creep and swing and the camera settling (3.6 to 4.3 s in four films at the Belding Qualifier, up to 6.7 s over all of them: `TeamCode/autos/timing-terms.md`).
 `partnerTipLagS` in `TeamCode/autos/timing.json` is the same number, and `PartnerWaitTest` keeps the
 two equal. The Match page shows both numbers, never only the sum: "partner's last shot ▲▼ 8 s,
 waiting until 12.5 s". Nothing entered, the wait runs as drawn. It is still a time limit: a feed that

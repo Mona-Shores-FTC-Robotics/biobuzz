@@ -20,7 +20,7 @@ import java.util.Locale;
  *   <li><b>D-pad up / down</b>: the partner's last shot, their answer to "when does your last
  *       preload leave?", {@link #STEP_S} a press. The wait gives up
  *       {@link AutoRegistration#PARTNER_TIP_LAG_S} after it, on the match clock, and the page shows
- *       both numbers, never only the sum: "partner's last shot 8 s, waiting until 12 s". One such
+ *       both numbers, never only the sum: "partner's last shot 8 s, waiting until 13.5 s". One such
  *       wait per Auto (mentor, 3 Nov 2026).</li>
  * </ul>
  *

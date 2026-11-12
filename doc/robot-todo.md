@@ -25,6 +25,10 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
    current no-TIP branch still crosses to RIGHT; draw a LEFT-side recovery/park in the
    Visualizer. Then test CELL-up recognition, the two LEFT volleys, the scoring FLOWER
    pickup, and park, including a partner that never makes TIP 1.
+   **Partner wait:** the limit is now the partner's last shot plus 5.5 s (was 4.5;
+   `TeamCode/autos/timing-terms.md`). Check the INIT line reads "partner's last shot 3 s,
+   waiting until 8.5 s" untouched, and in the run with a partner that never makes TIP 1, that
+   the no-TIP route still parks in time, starting a second later than before.
 2. **R-NoCross** (formerly R-Partner-Tip). Qualify the right-side actions, then run it
    together with L-NoCross as the coordinated two-TIP baseline. Check the five-second
    CELL-up wait: the current timeout still falls through to LaunchAll. Resolve that in
