@@ -86,11 +86,10 @@
             <Servo name="flowerStick" port="0" />
 
             <!-- Turret drive: a goBILDA servo on servo port 4 since 6 Nov 2026
-                 (it was named on port 1, the dead port, and unplugged). It was
-                 in continuous mode on the 24 Oct bench; 19429's is in position
-                 mode, and the code sends a position. Until this one's mode is
-                 checked it is sent only 0.5 (TurretSubsystem.homePosition),
-                 which is "stop" in continuous mode and centre in position mode. Locked at home
+                 (it was named on port 1, the dead port, and unplugged), in
+                 position mode like 19429's (mentor, 12 Nov 2026). Its
+                 straight-ahead position is not measured yet, so it is sent
+                 0.5 (TurretSubsystem.homePosition), the servo's centre. Locked at home
                  (TurretSubsystem.lockedForward) until the turret's encoder is
                  plugged in and checked: see the encoder socket beside motor
                  port 3 below. -->

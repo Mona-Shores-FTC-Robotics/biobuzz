@@ -82,10 +82,9 @@ public class TurretSubsystem implements Subsystem {
     /**
      * The servo position, 0 to 1, with the turret straight ahead (home), held from PLAY. 19429's
      * is measured (0.514, its line in {@link org.firstinspires.ftc.teamcode.RobotDifferences}).
-     * 0.5 here is 20245's, not measured: the servo's centre, the 1500 us pulse the old code sent at
-     * PLAY, which is also "stop" if 20245's servo is still in continuous mode (as it was on the
-     * 24 Oct bench). So 20245 does what it did until its servo's mode is checked
-     * ({@code doc/robot-todo.md}): any other value sent to a continuous servo is a speed.
+     * 0.5 here is 20245's, not measured: the servo's centre. Both robots' turret servos are in
+     * position mode (mentor, 12 Nov 2026); measure 20245's straight-ahead position on
+     * {@code Bench: Turret} like 19429's.
      */
     public static double homePosition = 0.5;
 
