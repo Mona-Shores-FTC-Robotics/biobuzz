@@ -909,13 +909,12 @@ mentor's CAD, 11 Nov 2026). Off on both robots until every value is in
                                 ├─[ JST joiner board ]── 4-pin ──▶ Control Hub analog port "0-1"
  44T encoder (B) 3-pin analog ──┘                                   (A → input 0, B → input 1)
 
- Optional: A's 4-pin quadrature ──▶ encoder socket beside Expansion Hub motor port 3 (the feeder's)
 ```
 
 - [ ] **Wiring.** One joiner board per robot: both encoders' 3-pin analog cables into it, its 4-pin
-      cable into the Control Hub's analog port **0-1**. The 44T never needs its 4-pin cable. The
-      64T's 4-pin quadrature into the feeder's encoder socket is optional: without it, set
-      `absAngleInMatch = true` for that robot (the angle all match from A's analog reading). Full
+      cable into the Control Hub's analog port **0-1**. Neither encoder's 4-pin cable is used: the
+      turret's angle all match comes from the 64T's analog reading (`absAngleInMatch`, on). The
+      Cypher Max comes out of the feeder's encoder socket. Full
       **TeamCode** install (the configs gained two analog inputs), activate the config, run
       **Check: Hardware**: `turretAbs64` and `turretAbs44` are AnalogInput.
 - [ ] **Bench: Turret Absolute Setup**, the guided setup (turret by hand, nothing moves). It shows one
@@ -938,7 +937,8 @@ mentor's CAD, 11 Nov 2026). Off on both robots until every value is in
       only" agree within a degree or two at every angle; "Points" changes by the robot's turn plus
       the turret's; with the turret aimed by eye at our raised CELL, "turret off by" reads within
       2°, and Panels' green line lands on the CELL. Watch "2 · Absolute only" sit still with the
-      turret still (its noise) and follow a fast hand turn: that decides `absAngleInMatch`.
+      turret still (its noise) and follow a fast hand turn. If it jumps, put the 64T's 4-pin cable
+      in the feeder's encoder socket and turn `absAngleInMatch` off for that robot.
       **Stop:** a source that jumps by tens of degrees → a wrap missed, or a value above wrong.
 
 ## 8. If time: anyone, no driving

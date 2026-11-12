@@ -65,8 +65,8 @@ Three layers, each written in exactly one place:
   code never uses for control), and only turret code may reset that count. With `TurretSubsystem.useAbsoluteZero` on, two
   Melonbotics encoders at different gear ratios (`DeviceNames.TURRET_ABS_64` / `_44`, `Kind.ANALOG`,
   `<AnalogInput>`) give their absolute angle as a voltage on hub analog inputs, and `TurretAbsolute`
-  sets the turret's zero from them in INIT only; with `absAngleInMatch` the match's angle comes
-  from A's analog reading with its wraps counted instead of the count.
+  sets the turret's zero from them in INIT only; with `absAngleInMatch` (on) the match's angle
+  comes from the 64T's analog reading with its wraps counted instead of the count.
   → README § "The turret: a servo on a servo port, an encoder on a motor's encoder socket"
 - XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what
   the SDK reads; keep `port` equal to it.

@@ -587,9 +587,9 @@ the first by a fixed amount per turn, and the pair names the turn
 one whose prediction for B matches). With `TurretSubsystem.useAbsoluteZero` on,
 that sets the zero in INIT (`ZeroSource.ABSOLUTE`), over an Auto's carried zero
 and the PLAY assumption, never over a person's button. During the match the
-angle comes from the quadrature count (A's 4-pin cable in the feeder's socket),
-or, with `absAngleInMatch` and no 4-pin cable, from A's analog reading with its
-wraps counted. Two things to know about the gears and the readings:
+angle comes from the 64T's analog reading with its wraps counted
+(`absAngleInMatch`, on: the proposed wiring, analog only); turned off, it comes
+from the 64T's 4-pin quadrature count in the feeder's encoder socket instead. Two things to know about the gears and the readings:
 
 - **The turret has no stops and no wires**, so at power-on it may be any number
   of turns from home. The pair must therefore repeat on a *whole* number of

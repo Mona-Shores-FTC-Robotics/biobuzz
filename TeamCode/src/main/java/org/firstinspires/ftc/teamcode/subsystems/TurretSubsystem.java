@@ -51,9 +51,9 @@ import java.util.Locale;
  * analog inputs ({@link DeviceNames#TURRET_ABS_64}, {@link DeviceNames#TURRET_ABS_44}).
  * {@link TurretAbsolute} turns the two readings into the turret's angle, and during INIT that
  * sets the zero ({@link ZeroSource#ABSOLUTE}), so the turret need not sit on its mark at PLAY and a
- * TeleOp after a crash knows where it is. A person's zero button still wins. The quadrature count
- * carries the angle from there; the analog inputs come in the hub's bulk read, so reading them
- * every loop costs nothing, and the Robot page compares the two all match. Off until a robot's
+ * TeleOp after a crash knows where it is. A person's zero button still wins. From there the 64T
+ * encoder's analog reading, its wraps counted, carries the angle ({@link #absAngleInMatch}); the
+ * analog inputs come in the hub's bulk read, so reading them every loop costs nothing. Off until a robot's
  * values are measured on {@code Bench: Turret Absolute Setup}; then on for that robot in
  * {@link org.firstinspires.ftc.teamcode.RobotDifferences}.
  *
@@ -217,11 +217,13 @@ public class TurretSubsystem implements Subsystem {
     public static double absMaxResidualDeg = Double.NaN;
 
     /**
-     * The turret's angle all match from encoder A's analog reading with its wraps counted, not from
-     * the quadrature count: for a robot with no quadrature cable in the feeder's encoder socket.
-     * Needs {@link #useAbsoluteZero}. Off: the count carries the angle, as without the encoders.
+     * The turret's angle all match from the 64T encoder's analog reading with its wraps counted, not
+     * from the quadrature count: the proposed wiring (analog only, no cable in the feeder's encoder
+     * socket; the wiring sheet). Takes effect only with {@link #useAbsoluteZero}; until then the
+     * count carries the angle, as today. Turn it off for a robot whose 64T encoder's 4-pin cable is
+     * in that socket, if the analog angle proves too jumpy on {@code Bench: Turret Absolute}.
      */
-    public static boolean absAngleInMatch = false;
+    public static boolean absAngleInMatch = true;
 
     /** In INIT, the zero is taken again from the absolute pair if the two disagree by more than this, degrees. */
     public static double absRezeroDeg = 1.0;
