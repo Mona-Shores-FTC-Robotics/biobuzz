@@ -126,6 +126,9 @@ at a team launch spot, so the Visualizer previews it and neither robot needs a t
   Clockwise's two spots side by side and its TIP 1 fallback. With either preload volley missed and
   either robot 20% slow or fast, both robots park and nothing touches in every simulated run.
 - `RIGHT_PAIR_CATCH` is not a team spot yet (it is Clockwise's), and nothing here has run on a robot.
+- On master's calibration (12 Nov, logged FLOWER loads): two TIPs in 52 of 120 at Belding's pace and
+  63 with the shot counter and 0.98 stay-in; 108, and three TIPs in 88, only when every FLOWER load
+  is full and the GARDEN gives 4. `doc/three-tips.md` has the table.
 
 Open the pair:
 <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/l-pair-flowers.pp,drafts/r-pair-garden.pp>.

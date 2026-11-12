@@ -46,7 +46,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -140,7 +140,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -260,7 +260,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [],
       "heading": {
@@ -434,7 +434,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 95.7
+        "y": 98.7
       },
       "controlPoints": [
         {
@@ -781,7 +781,7 @@
       ],
       "RIGHT_PARK": [
         14.5,
-        95.7,
+        98.7,
         0
       ],
       "SCORING_FLOWER_STAGING": [

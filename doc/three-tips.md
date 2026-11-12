@@ -146,6 +146,55 @@ comes up, and by keeping the second robot loaded and waiting at the RIGHT CELL:
 
 Those are one run's times; the averages are in the table below.
 
+### Rerun on master's calibration (12 Nov): read these numbers first
+
+Master moved while this study ran, and the branch now has it merged. Three things changed what the
+pair scores, so **the counts in this section replace every other count for the pair in this
+document**; the rest are from the earlier calibration and are kept for the comparisons they make.
+
+- **FLOWER loads are drawn from the Belding logs** (`BeldingCalibration.load`, biobuzz#528): the
+  pieces a volley after a pick actually fired. 19429's loads were often short (WALL 0, 2, 4, 2, 1);
+  20245's were full but once. The earlier calibration had one pick in seven come back empty.
+- **Stay-in by range is 0.70 / 0.95 / 0.90** (36 / 42 / 54 in), where it was 0.65 / 0.92 / 0.82.
+- **`RIGHT_PARK` is 3 in deeper** (y 98.7); L's park in the drawing moved with it.
+
+The pair as drawn (the blend), 120 runs, counted by 30 s on the robot's clock:
+
+| Pace and loads | 2 TIPs | 3 TIPs, own GARDEN gather | 3 TIPs, GARDEN gives 4 | Both parked | Robots touch | G409 |
+|---|---|---|---|---|---|---|
+| As at Belding, logged loads | 52 | 0 | 0 | 120 | 0 | 3 to 8 |
+| As at Belding, every FLOWER load full | 83 | 0 | 0 | 120 | 0 | 3 to 8 |
+| Shot counter and stay in 0.98, logged loads | 63 | 6 | 30 | 120 | 0 | 0 |
+| **Shot counter and stay in 0.98, every FLOWER load full** | **108** | 17 | **88** | 120 | 0 | 0 |
+
+So the target (two TIPs in 90 and three in 60, of 120) is met only in the last row, with a GARDEN
+that gives 4. **The pair now needs four things, not three:** a feed that ends on the fourth ball,
+shots that stay in, a GARDEN gather that takes 4, and **FLOWER picks that deliver 4 to the launcher
+every time**, which only 20245 did at Belding. The loads are the biggest single lever on two TIPs:
+52 to 83 at Belding's pace with nothing else changed.
+
+The stress runs again, 60 each, logged loads: with either preload volley missed, or either robot 20%
+slow or fast, at both paces, both robots park and nothing touches in all 14 rows, and a missed R
+preload volley still gets TIP 1 in 60 of 60. A missed preload volley still costs TIP 2 in every run.
+**At Belding's pace R is hit by a spilled piece (G409) in 8 of 60 normal runs and 18 of 60 with R
+slow:** it leaves under the HIVE as the RIGHT CELL goes down. With the shot counter it is 0.
+
+Three cautions on the third-TIP counts, from the timing standard that is now binding
+(`TeamCode/autos/timing-terms.md`):
+
+- **Which clock.** "By 30 s" here is the robot's own clock, from its PLAY. In Belding's playoffs our
+  PLAY came 0.9 to 4.0 s after the field's start, and the field's clock is the one that scores.
+- **The TIP lag has a slow tail the simulator does not.** From last ball leaves to CELL settled, a
+  CELL at its tipping weight (this pair lands exactly 8) took 3.4 to 6.5 s on film, median 3.9; the
+  simulator's is 3.9 to 4.5 s. The pair's third TIP settles at 29.0 s on average.
+- So read the three-TIP counts as upper bounds. The two-TIP counts are not at risk from either:
+  TIP 2 settles at about 19 s with the shot counter and 22 s at Belding's pace.
+
+**Words.** This document was written before the standard and uses "volley time" for the whole
+`LaunchAll` step (the standard's "volley"), "feed" as the standard does, and "dwell" for the part of
+the TIP lag before the swing. Where it says a TIP comes "4.75 s after the deciding piece", read
+"TIP lag, about 4.1 s from last ball leaves, up to 6.7 s".
+
 ### The blend with R-Clockwise / L-Clockwise (11 Nov)
 
 The mentor asked this study and the Clockwise session (biobuzz#535) whose pair is better. Both

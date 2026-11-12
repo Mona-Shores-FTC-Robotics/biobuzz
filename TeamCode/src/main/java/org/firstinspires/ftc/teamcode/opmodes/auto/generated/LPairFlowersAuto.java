@@ -51,7 +51,7 @@ public final class LPairFlowersAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose leftStart = p.of(62.3, 133.8, 270);
         Pose leftLaunchOffset = p.of(41, 121.5, 296.4);
-        Pose rightPark = p.of(14.5, 95.7, 0);
+        Pose rightPark = p.of(14.5, 98.7, 0);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose rightLaunchOffset = p.of(41, 20, 68.7);
@@ -60,7 +60,7 @@ public final class LPairFlowersAuto {
         Pose toLeftLaunchOffsetControl1 = p.of(58, 122, 0);
         Pose leftLaunchOffsetParkControl1 = p.of(40, 100, 0);
         Pose leftLaunchOffsetParkControl2 = p.of(30, 93, 0);
-        Pose leftLaunchOffsetParkSegment1Start = p.of(14.5, 95.7, 296.4);
+        Pose leftLaunchOffsetParkSegment1Start = p.of(14.5, 98.7, 296.4);
         Pose wallLaneToRightLaunchOffsetControl1 = p.of(34, 104, 0);
         Pose wallLaneToRightLaunchOffsetControl2 = p.of(27, 50, 0);
         Pose wallLaneToRightLaunchOffsetSegment1Start = p.of(41, 20, 296.4);
@@ -68,11 +68,11 @@ public final class LPairFlowersAuto {
         Pose wallLaneToRightLaunchOffsetSegment2Start = p.of(41, 20, 270);
         Pose toRightParkControl1 = p.of(30, 40, 0);
         Pose toRightParkControl2 = p.of(25, 82, 0);
-        Pose toRightParkSegment1Start = p.of(14.5, 95.7, 68.7);
-        Pose toRightParkSegment1End = p.of(14.5, 95.7, 90);
-        Pose toRightParkSegment2Start = p.of(14.5, 95.7, 90);
-        Pose toRightParkSegment2End = p.of(14.5, 95.7, 90);
-        Pose toRightParkSegment3Start = p.of(14.5, 95.7, 90);
+        Pose toRightParkSegment1Start = p.of(14.5, 98.7, 68.7);
+        Pose toRightParkSegment1End = p.of(14.5, 98.7, 90);
+        Pose toRightParkSegment2Start = p.of(14.5, 98.7, 90);
+        Pose toRightParkSegment2End = p.of(14.5, 98.7, 90);
+        Pose toRightParkSegment3Start = p.of(14.5, 98.7, 90);
         Pose scoringFlowerStagingParkControl1 = p.of(28, 96, 0);
         Pose wallLaneToWallFlowerStagingControl1 = p.of(34, 104, 0);
         Pose wallLaneToWallFlowerStagingControl2 = p.of(27, 70, 0);
@@ -112,16 +112,16 @@ public final class LPairFlowersAuto {
                                                         kit.path("to RIGHT_PARK", toRightPark, 2.7))))),
                         kit.when("LeftCellUp").then(
                                 kit.command("LaunchAll"),
-                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1, scoringFlowerStagingPark, 1.9),
+                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1, scoringFlowerStagingPark, 1.8),
                                 kit.command("PickFlower", 4.5),
                                 kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffsetPath, 1.1),
                                 kit.command("LaunchAll"),
-                                kit.path("wall lane to WALL_FLOWER_STAGING", wallLaneToWallFlowerStaging, 2.6, wallFlowerStagingPark, 2),
+                                kit.path("wall lane to WALL_FLOWER_STAGING", wallLaneToWallFlowerStaging, 2.6, wallFlowerStagingPark, 2.1),
                                 kit.command("PickFlower", 4.5),
                                 kit.firstOf("Full before 23 s, otherwise park",
                                         kit.atMatchSeconds(23).then(
-                                                kit.guarded("Timed out", wallFlowerStagingPark, 2,
-                                                        kit.path("WALL_FLOWER_STAGING park", wallFlowerStagingPark, 2))),
+                                                kit.guarded("Timed out", wallFlowerStagingPark, 2.1,
+                                                        kit.path("WALL_FLOWER_STAGING park", wallFlowerStagingPark, 2.1))),
                                         kit.when("IntakeFull").then(
                                                 kit.path("to RIGHT_LAUNCH_OFFSET", toRightLaunchOffset, 1.7, toRightPark, 2.7),
                                                 kit.firstOf("RIGHT up before 25 s, otherwise park",
