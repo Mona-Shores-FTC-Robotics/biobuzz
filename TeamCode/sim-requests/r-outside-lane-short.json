@@ -1,0 +1,86 @@
+{
+  "pp": "TeamCode/autos/drafts/r-outside-lane-short.pp",
+  "spec": "ROutsideLaneShortAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "matching L-UnderHive",
+      "partner": "LUnderHiveAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "L-UnderHive drives 20 percent slower",
+      "partner": "LUnderHiveAuto",
+      "timing": {
+        "speed": 40
+      }
+    },
+    {
+      "name": "L-UnderHive misses every shot",
+      "partner": "LUnderHiveAuto",
+      "fails": "misses",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "partner dead on its left start",
+      "partner": "PartnerLBrokenDownAuto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "r-outside-lane-short.pp",
+    "SavedBy": "Lane pair: R on the wall lane, L under the HIVE",
+    "SavedAt": "2026-11-12T00:00:00+00:00"
+  }
+}

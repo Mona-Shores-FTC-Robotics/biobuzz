@@ -518,6 +518,17 @@ Use the work order above to select checks; the detailed mechanism checks below a
       **Also:** the two Belding runs that crawled for 4 s about 10 in short of `LEFT_LAUNCH_CLOSE`
       / `LEFT_LAUNCH_CATCH` (20245, 14:39 and 16:53 hub time) look blocked: check the match video.
 
+- [ ] **The lane pair drafts: Drive: R-OutsideLane-Short, Drive: L-UnderHive, then Drive: R-OutsideLane.**
+      [Routes and the simulator's numbers](../TeamCode/autos/drafts/README.md#the-lane-pair-r-outsidelane-and-l-underhive).
+      Each stops itself at 30 s. In this order:
+      - **Each alone, no pieces:** it drives its route and parks. **Stop:** it touches the HIVE, a
+        FLOWER it is not picking, or crosses the centre line → save the log.
+      - **R-OutsideLane-Short with L-UnderHive,** four preloads each. Count the pieces that stay in
+        from L4 (L's preloads) and from `LEFT_LAUNCH_OFFSET` (R's WALL FLOWER load), and the TIPs.
+        Check the gap between the robots at the left end (L on L4, R on `LEFT_LAUNCH_OFFSET`).
+      - **R-OutsideLane with L-UnderHive, last.** R5 and R4 overlap. **Stop the run** if R is coming
+        in to R5 while L is still on R4, and note the match second.
+      - Film each paired run from the side.
 - [ ] **R-Two-Tip draft (`autos/drafts/r-two-tip.pp`): R-Solo's steps from the measured LEFT spot.**
       [Why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-two-tip-r-solos-steps-fired-from-the-measured-left-spot).
       Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s).
