@@ -767,7 +767,8 @@ measurement is [#255].
       write down each ball's time after the gate opens and the launcher's counted shots.
       **Good:** no ball after 3.0 s in any → `launchAllFeedS` 3.05 in Panels, and the volleys
       where the count fell short show which way the shot counter misses.
-- [ ] **Square's start and corner spots aim the turret (`belding-plus`, 7 Nov):** turret locked,
+- [ ] **Superseded 11 Nov by "Square and Triangle launch spots" in §7f (Square no longer drives to
+      the starts or the corners).** **Square's start and corner spots aim the turret (`belding-plus`, 7 Nov):** turret locked,
       hold Square from near each start and each corner (RIGHT_START now 89°, LEFT_START 267°,
       RIGHT_LAUNCH_CORNER 61° instead of 54°, LEFT_LAUNCH_CORNER 303° as before) and fire.
       **Good:** the volley goes into the CELL, centred; RIGHT_LAUNCH_CORNER scores at least as well
@@ -775,7 +776,8 @@ measurement is [#255].
 - [ ] **Square from past the centre line (`LaunchSpotDrive.maxPastCentreIn`, 24):** on 6 Nov the
       drivers pressed Square with the robot 3–4 in past the line and it refused every time. Hold
       Square with the robot about 6 in, then about 20 in, past the line, on red and on blue.
-      **Good:** it drives home to the nearest spot on our side and fires; past 24 in the Match page
+      **Good:** it drives to the wall spot in line with the robot (past the line that is the FAR one,
+      `…_WALL_FAR`) and fires; past 24 in the Match page
       says `REFUSED: robot N in past the centre line`. **Stop:** the path heads into the HIVE frame
       or a partner → let go, note where, and lower `maxPastCentreIn` (0 is the old rule).
 - [ ] **Circle is camera first (`ChassisAimTarget`), the fallback when the pose is off:** Basic
@@ -968,7 +970,7 @@ After §7c: the rows are only worth having once the wheels hold their speed. One
 the other side of the field.
 
 **The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Robot page says
-"Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires while Square is held.
+"Speed table: OFF"), hold Square. The robot drives to the wall launch spot in line with it and fires while Square is held.
 On a miss, the operator trims the speed up or down, then Square again, until it scores. The Match
 page's "Last launch spot" line shows the spot's CELL range and the launch speed: write both down.
 Take the middle of the speeds that score 4/4, not the first one that does. The trim carries from
@@ -978,13 +980,14 @@ Measured 4 Nov 2026 (20245, tuned PIDF) and in `LaunchSpeedTable` with the table
 45.7 → 1560, 53.9 → 1600, 58.8 → 1635 (ranges from the turret axis since 5 Nov; first written from
 the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corner's heading.
 
-- [ ] **`RIGHT_LAUNCH_CORNER` faces about 5° right of the CELL.** At Belding (turret locked
+- [ ] **Superseded 11 Nov: Square no longer drives to the corners (§7f).** **`RIGHT_LAUNCH_CORNER` faces about 5° right of the CELL.** At Belding (turret locked
       forward) the aim error held at +4.5° there on red (Q-7) and +5.5° on blue (Q-31), against 0°
       at `LEFT_LAUNCH_CORNER` (M-7, red) and within ±2.5° at the other spots; 3 and 2 shots counted
       of 4. Set its heading to about 59° in the Visualizer (Save team spots), then hold Square there
       once. **Good:** aim error under 2° on the Match page and 3–4 of 4 in. [mentor, 5 Nov]
 
-- [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`.** The table's rows start
+- [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`, and for Triangle's close
+      row (34.6 to 35.7 in; `TeleOpConfig.launchSpotClose` stays off until this row is in).** The table's rows start
       at 42.4 in, so both CLOSE spots fire at an extrapolated speed (1459–1480 ticks/s in the
       Belding logs). The four measured rows fit one arc, which puts 36 in at about 1513 ticks/s
       (1458 to 1573 allowed by the fit). Run the loop above at `RIGHT_LAUNCH_CLOSE` and write the
@@ -1043,6 +1046,42 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
 - [ ] **19429: a shorter route from full to the shot.** At Belding it drove a median 191 in with a
       full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
       where it is. **Good:** a timed practice cycle under 20 s.
+
+### Square and Triangle launch spots (11 Nov; nothing here has been driven)
+
+Square now drives to one of six spots on the side walls and Triangle to one of six close spots in
+front of them (`localization/LaunchSpots`: LEFT or RIGHT by the half the robot is in, NEAR / HIVE /
+FAR by where it is along the wall). Gather GARDEN moved from Triangle to the driver's R1. Turret
+locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536]
+
+- [ ] **Each wall spot, on red then blue:** pose set, loaded, hold Square from about 2 ft out in
+      front of each of the six (`RIGHT_WALL_NEAR`, `_HIVE`, `_FAR`, and the LEFT three). **Good:**
+      the log says `launch spot: start … → <the spot in line> … (in line, N in)`, then `arrived`
+      and `gate open … settled` within about 2 s; the HIVE spots sit with the whole back on the
+      wall, the NEAR and FAR ones with one corner on it; 3 or 4 of 4 stay in. Write the count per
+      spot. **Stop:** a press that never arrives or never settles (the pose is asking it to push
+      into the wall) → `LaunchSpotDrive.wallGapIn` 1 in Panels and try again; note which spot.
+- [ ] **LEFT_WALL_NEAR and LEFT_WALL_HIVE at the SCORING FLOWER:** NEAR's corner should rest
+      against the FLOWER's far side and HIVE's side about 2 in from its near side. **Stop:** either
+      drives into the FLOWER → note by how much; the spot's x moves in `LaunchSpots`.
+- [ ] **The FAR spots are 5 to 9 in past the centre line** (fair in TELEOP). Hold Square from just
+      past the HIVE on each side. **Good:** arrives and scores as the others do. **Stop:** the
+      straight path clips the HIVE frame from where the drivers would press it → note where.
+- [ ] **Both robots on neighbouring spots:** one on `RIGHT_WALL_HIVE`, the other pressed to
+      `RIGHT_WALL_NEAR`, then `RIGHT_WALL_FAR`; the same on the left. They are drawn 1 in apart.
+      **Good:** no contact, both volleys score. **Stop:** they touch → note the gap the logs show
+      (`arrived … X in … off`, `drift`), and the side spot's x moves out by that much.
+- [ ] **The column is the one the driver expects:** from six or so places around our half, the
+      driver says which wall spot they expect before pressing. **Good:** it goes there every time.
+      The boundaries are halfway between the wall spots along the wall (red RIGHT: x 46.3 and 66.0;
+      LEFT: 48.9 and 69.7).
+- [ ] **Triangle, after the 36 in row is measured (§7d):** `TeleOpConfig.launchSpotClose` on in
+      Panels before INIT; hold Triangle in front of each column on both sides. **Good:** drives to
+      the `…_CLOSE_…` spot of that column, 34.6 to 35.7 in from the CELL, 3 or 4 of 4 in. The NEAR
+      and FAR close spots overlap the HIVE one by about a third of a robot: never send both robots
+      to the middle and a side one at once.
+- [ ] **Gather GARDEN on the driver's R1:** hold R1 at the GARDEN as Triangle was held before.
+      **Good:** the gather runs as it did; the Controls page and the cheat sheet show R1.
 
 ## 8. If time: anyone, no driving
 
@@ -1206,6 +1245,7 @@ one test at one meeting.
 [PR #391]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/391
 [PR #422]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/422
 [PR #423]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/423
+[PR #536]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/536
 [PR #425]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/425
 [PR #427]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/427
 [PR #430]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/430

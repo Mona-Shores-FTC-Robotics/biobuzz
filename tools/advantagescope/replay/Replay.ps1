@@ -199,22 +199,32 @@ function Stop-AdvantageScope {
 # --- Match logs -----------------------------------------------------------------------------------------------
 
 # matches.json's "log" is "<logs branch>/<file>.wpilog.gz"; the laptop keeps it unzipped as logs\<branch>\<file>.wpilog.
+# The logs/* branches are throwaway: once an event's logs are kept, they are on the event's "logs" branch
+# (events/<date>-<event>) as <team>/matches/<file>, which is tried first.
 function Get-LogPath([string]$log) {
     $parts = $log -split "/"
     return Join-Path (Join-Path $LogsDir $parts[0]) ($parts[1] -replace '\.gz$', '')
 }
 
-function Get-MatchLog($pins, $match) {
+function Get-MatchLog($pins, $match, $ofEvent = $null) {
     $path = Get-LogPath $match.log
     if (Test-Path $path) { return $path }
     $parts = $match.log -split "/"
-    $url = "https://raw.githubusercontent.com/$($pins.repo)/refs/heads/logs/$($parts[0])/$($parts[1])"
+    $raw = "https://raw.githubusercontent.com/$($pins.repo)/refs/heads"
+    $places = @()
+    if ($ofEvent -and $ofEvent.logs) { $places += "$($ofEvent.logs)/$($match.team)/matches/$($parts[1])" }
+    $places += "logs/$($parts[0])/$($parts[1])"
     $gz = "$path.gz"
     New-Item -ItemType Directory -Force (Split-Path -Parent $path) | Out-Null
-    try {
-        Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $gz
-    } catch {
-        throw "could not download $($match.log) from GitHub ($($_.Exception.Message)). Is the logs/$($parts[0]) branch still there?"
+    $got = $false; $why = ""
+    foreach ($place in $places) {
+        try {
+            Invoke-WebRequest -UseBasicParsing -Uri "$raw/$place" -OutFile $gz
+            $got = $true; break
+        } catch { $why = $_.Exception.Message }
+    }
+    if (-not $got) {
+        throw "could not download $($parts[1]) from GitHub ($why). Looked on: $($places -join ', ')"
     }
     $in = [IO.File]::OpenRead($gz)
     try {
@@ -581,9 +591,11 @@ function Export-Frames([string]$ffmpeg, [string]$video, [double]$fromS, [int]$co
 }
 
 # Downloads a match's source: $durS seconds of the stream from $fromS, 1280x720, no sound, nothing drawn on it.
+# No -stats, here or in New-Clip: ffmpeg redraws its progress on one line, and a window that keeps a transcript
+# prints every redraw end to end, hundreds of them. The caller says how long to expect instead.
 function New-Source([string]$ffmpeg, [string]$inputUrl, [string]$headers, [double]$fromS, [double]$durS, [string]$out) {
     $inv = [Globalization.CultureInfo]::InvariantCulture
-    $a = @("-hide_banner", "-loglevel", "error", "-stats", "-y")
+    $a = @("-hide_banner", "-loglevel", "error", "-y")
     if ($headers -and $inputUrl -match '^https?://') { $a += @("-headers", $headers) }
     $a += @("-ss", $fromS.ToString("0.000", $inv), "-t", $durS.ToString("0.000", $inv), "-i", $inputUrl,
         "-vf", "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1",
@@ -603,7 +615,7 @@ function New-Source([string]$ffmpeg, [string]$inputUrl, [string]$headers, [doubl
 function New-Clip([string]$ffmpeg, [string]$inputUrl, $headers, [double]$fromS, [double]$durS, [double]$autoStartS, [double]$autoS, [string]$out) {
     $inv = [Globalization.CultureInfo]::InvariantCulture
     $g = Get-ClipFilter $autoStartS $autoS
-    $a = @("-hide_banner", "-loglevel", "error", "-stats", "-y")
+    $a = @("-hide_banner", "-loglevel", "error", "-y")
     if ($headers -and $inputUrl -match '^https?://') { $a += @("-headers", $headers) }
     $a += @("-ss", $fromS.ToString("0.000", $inv), "-t", $durS.ToString("0.000", $inv), "-i", $inputUrl)
     # Each countdown image lasts the clip's length: looped forever, ffmpeg never ends when the video has no frames

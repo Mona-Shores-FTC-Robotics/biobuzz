@@ -11,7 +11,7 @@
 #   3. fetches ffmpeg, yt-dlp and Deno (to cut match clips from the event stream) into ...\BIOBUZZ-Replay\tools
 #   4. installs the robot and HIVE models (the release zip replay.json pins) into AdvantageScope's userAssets
 #   5. sets AdvantageScope's window up from match-layout.json: the tabs, with Video beside a 3D window
-#   6. downloads the match logs matches.json lists (GitHub's logs/* branches)
+#   6. downloads the match logs matches.json lists (GitHub's events/* branches, else logs/*)
 #   7. adds the commands open-match and update-replay, and the desktop shortcuts "BIOBUZZ Match Replay" and
 #      "BIOBUZZ Prepare All Matches" (every clip cut ahead of time)
 param(
@@ -229,7 +229,7 @@ Step "Match logs" {
     $have = 0; $got = 0
     foreach ($e in $doc.events) {
         foreach ($m in $e.matches) {
-            if (Test-Path (Get-LogPath $m.log)) { $have++ } else { [void](Get-MatchLog $pins $m); $got++ }
+            if (Test-Path (Get-LogPath $m.log)) { $have++ } else { [void](Get-MatchLog $pins $m $e); $got++ }
         }
     }
     Ok "match logs: $got downloaded, $have already here ($LogsDir)"

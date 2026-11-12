@@ -1,5 +1,5 @@
 {
-  "_comment": "Which log is which match, and where its Auto starts in the video. video_start: the time in the video when Auto starts (h:mm:ss.s, the moment the robots start moving). Leave it empty and open-match lines it up from the stream's scoreboard (the transition's hand marks the end of Auto); start_utc, the stream's own start time and the event's video_shift_s only say where to look, and are the fallback when the hand is not found. Once a match looks right, type the video_start open-match printed. Rows come from maintain/find_matches.py.",
+  "_comment": "Which log is which match, and where its Auto starts in the video. video_start: the time in the video when Auto starts (h:mm:ss.s, the moment the robots start moving). Leave it empty and open-match lines it up from the stream's scoreboard (the transition's hand marks the end of Auto); start_utc, the stream's own start time and the event's video_shift_s only say where to look, and are the fallback when the hand is not found. Once a match looks right, type the video_start open-match printed. logs: the events/* branch that keeps the event's logs (<team>/matches/<file>), tried before the throwaway logs/* branch the log names. Rows come from maintain/find_matches.py.",
   "events": [
     {
       "event": "USMIBEQ",
@@ -7,6 +7,7 @@
       "date": "2026-11-07",
       "video": "https://www.youtube.com/watch?v=RE0KNvjR07c",
       "video_shift_s": 0,
+      "logs": "events/2026-11-belding",
       "matches": [
         {"match": "Q-1", "team": 20245, "alliance": "Blue", "start_utc": "2026-11-07T16:03:08.912Z", "video_start": "", "log": "2026-11-07-20245-RC/2026-11-07_11-01-21_R-Solo_11-05_8_09PM.wpilog.gz"},
         {"match": "Q-4", "team": 19429, "alliance": "Red", "start_utc": "2026-11-07T16:25:46.097Z", "video_start": "", "log": "2026-11-07-19429-RC/2026-11-07_11-36-28_R-Solo_11-05_8_09PM.wpilog.gz"},

@@ -27,14 +27,14 @@
       "note": "Last piece a median 1.5 s after the push starts, plus about 0.4 s to latch full."
     },
     "tipStartS": {
-      "value": 1.0,
-      "source": "measured, 20245, 3 Nov 2026",
-      "note": "Camera saw the swing start 0.9 and 1.1 s after LaunchAll ended (two preload TIPs)."
+      "value": 1.4,
+      "source": "measured, Belding Qualifier video and L-NoCross logs, 7 Nov 2026",
+      "note": "The rocker moved 2.3-2.9 s after the last ball left (flight 0.5 s, dwell 1.8-2.4 s); a set 3.5 s feed ends about 1.2 s after its last ball."
     },
     "tipSwingS": {
-      "value": 0.7,
-      "source": "estimate",
-      "note": "Two hand-tipped swings read 0.43 and 0.57 s; a TIP on 8 POLLEN is not logged yet."
+      "value": 1.6,
+      "source": "measured, Belding Qualifier video and L-NoCross logs, 7 Nov 2026",
+      "note": "Swing 1.0-1.4 s, then 0.3-0.5 s for the camera to read the CELL up. With tipStartS: last ball to CellUp about 4.2 s."
     },
     "tipLoad": {
       "value": 8,
