@@ -166,3 +166,46 @@ The generic simulator does not include these runtime speed limits; use this run'
 log to establish whether two tips and park fit. This is a Utility, not a competition
 Autonomous entry. The full trial reads `PartnerNudgeTest.pathSpeed` at INIT, the one
 number for the contact speed: find it with the push-only test first.
+
+## The lane pair: R-OutsideLane and L-UnderHive
+
+A second way at three TIPs beside the Clockwise pair: R keeps to the wall side of the HIVE and L
+to the under-HIVE side. Mentor session, 12 Nov 2026. Drafts, never driven; each runs from the
+Utility menu and stops itself at 30 s.
+
+Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-outside-lane.pp,drafts/l-under-hive.pp>
+
+| Utility | Route |
+|---|---|
+| **Drive: R-OutsideLane** | Preloads at RIGHT, WALL FLOWER, wall lane to `LEFT_LAUNCH_OFFSET`, LEFT up before 14 s, volley. **If that volley is done before 15 s:** SCORING FLOWER, wall lane back to R5, RIGHT up before 26 s, volley, park right. **Otherwise** park right from the left spot |
+| **Drive: L-UnderHive** | L4, LEFT up before 9 s, preloads, under the HIVE to the GARDEN, R4, RIGHT up before 22 s, volley, back under the HIVE, park left |
+
+L4, R4 and R5 are the TeleOp's close launch spots (`LaunchSpots`: `LEFT_CLOSE_HIVE`,
+`RIGHT_CLOSE_HIVE`, `RIGHT_CLOSE_NEAR`), local points in these drafts, not team spots. A wait that
+runs out parks the robot.
+
+**R falls back by itself** (mentor, 12 Nov 2026: no separate short Auto). The third volley needs
+the pick, the drive back, the volley and the park, about 14 s on a 2.5 s volley, so R goes for it
+only if its LEFT volley is done before 15 s. With today's 4 s volleys that volley ends at about
+15.8 s and R parks, done at 17.5 s. On a 2.5 s volley it ends at about 13 s and R goes on.
+
+**In the simulator as the robot runs today** (Belding calibration, 4 s volleys, 20 seeds, the pair):
+
+| Two TIPs | Both parked | Robots touch |
+|---|---|---|
+| 4 | 20 | 2 |
+
+- **R parked after its LEFT volley in 18 of 20.** In the other two a short FLOWER load ended that
+  volley early, R went on, and it met L leaving the GARDEN at about 20 s.
+- **On a planned 2.5 s volley both robots fire their last volleys,** and R comes in to R5 while L
+  is on R4: the two spots overlap, and the robots touched in most runs. Not resolved yet.
+- **Two TIPs came in 9 of 20 with L's preloads from `LEFT_LAUNCH_CATCH`.** The drop to 4 is the
+  calibration keeping 0.70 of balls from 36 in, a figure from before a launcher speed was measured
+  there. Count the volleys from L4 before judging it.
+- **No third TIP in any run:** the RIGHT CELL gets R's four and the two or three L's GARDEN gather
+  takes.
+
+The earlier lane study (closed PR #533) is why this is not offered as safe beside any partner: a
+left partner driving to the park zone or taking the SCORING FLOWER meets R at its left spot, and
+the full R meets a robot left on `LEFT_START`. The robot checks are in
+[robot-todo §3](../../../doc/robot-todo.md).
