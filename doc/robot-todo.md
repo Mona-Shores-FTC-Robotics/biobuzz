@@ -904,7 +904,7 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       once. **Good:** aim error under 2° on the Match page and 3–4 of 4 in. [mentor, 5 Nov]
 
 - [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`, and for Triangle's close
-      row (34.6 to 35.7 in; `TeleOpConfig.launchSpotClose` stays off until this row is in).** The table's rows start
+      row (34.6 to 35.7 in; Triangle is on, and drives there, so the loop below can be run from it).** The table's rows start
       at 42.4 in, so both CLOSE spots fire at an extrapolated speed (1459–1480 ticks/s in the
       Belding logs). The four measured rows fit one arc, which puts 36 in at about 1513 ticks/s
       (1458 to 1573 allowed by the fit). Run the loop above at `RIGHT_LAUNCH_CLOSE` and write the
@@ -972,7 +972,8 @@ FAR by where it is along the wall). Gather GARDEN moved from Triangle to the dri
 locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536]
 
 - [ ] **Each wall spot, on red then blue:** pose set, loaded, hold Square from about 2 ft out in
-      front of each of the six (`RIGHT_WALL_NEAR`, `_HIVE`, `_FAR`, and the LEFT three). **Good:**
+      front of each of the six (`RIGHT_WALL_NEAR`, `RIGHT_START`, `RIGHT_WALL_FAR`, and the LEFT
+      three; the RIGHT middle one is the measured start itself, since 12 Nov). **Good:**
       the log says `launch spot: start … → <the spot in line> … (in line, N in)`, then `arrived`
       and `gate open … settled` within about 2 s; the HIVE spots sit with the whole back on the
       wall, the NEAR and FAR ones with one corner on it; 3 or 4 of 4 stay in. Write the count per
@@ -984,19 +985,25 @@ locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai arti
 - [ ] **The FAR spots are 5 to 9 in past the centre line** (fair in TELEOP). Hold Square from just
       past the HIVE on each side. **Good:** arrives and scores as the others do. **Stop:** the
       straight path clips the HIVE frame from where the drivers would press it → note where.
-- [ ] **Both robots on neighbouring spots:** one on `RIGHT_WALL_HIVE`, the other pressed to
+- [ ] **Both robots on neighbouring spots:** one on `RIGHT_START`, the other pressed to
       `RIGHT_WALL_NEAR`, then `RIGHT_WALL_FAR`; the same on the left. They are drawn 1 in apart.
       **Good:** no contact, both volleys score. **Stop:** they touch → note the gap the logs show
       (`arrived … X in … off`, `drift`), and the side spot's x moves out by that much.
 - [ ] **The column is the one the driver expects:** from six or so places around our half, the
       driver says which wall spot they expect before pressing. **Good:** it goes there every time.
-      The boundaries are halfway between the wall spots along the wall (red RIGHT: x 46.3 and 66.0;
+      The boundaries are halfway between the wall spots along the wall (red RIGHT: x 45.8 and 65.7;
       LEFT: 48.9 and 69.7).
-- [ ] **Triangle, after the 36 in row is measured (§7d):** `TeleOpConfig.launchSpotClose` on in
-      Panels before INIT; hold Triangle in front of each column on both sides. **Good:** drives to
+- [ ] **Triangle (on since 12 Nov; measure the 36 in row with it first, §7d: until then it fires
+      at the table's held end speed, about 1460):** hold Triangle in front of each column on both sides. **Good:** drives to
       the `…_CLOSE_…` spot of that column, 34.6 to 35.7 in from the CELL, 3 or 4 of 4 in. The NEAR
       and FAR close spots overlap the HIVE one by about a third of a robot: never send both robots
       to the middle and a side one at once.
+- [ ] **`RIGHT_LAUNCH_CATCH` against `RIGHT_CLOSE_HIVE`, before the Autos give CATCH up** (mentor,
+      12 Nov; needs the 36 in row first, §7d). Neither button drives to CATCH now: drive there by
+      hand (57.5, 18, facing the CELL; the Match page's "Last shot" line shows 43 in) and fire with
+      FIRE; then Triangle in front of the HIVE for `RIGHT_CLOSE_HIVE` (36 in). Ten volleys of 4
+      from each, counting how many stay in. **Good:** one is clearly better; write both counts
+      here. CATCH stays a team spot only if it scores more.
 - [ ] **Gather GARDEN on the driver's R1:** hold R1 at the GARDEN as Triangle was held before.
       **Good:** the gather runs as it did; the Controls page and the cheat sheet show R1.
 

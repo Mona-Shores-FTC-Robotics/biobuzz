@@ -61,9 +61,11 @@ public final class ControlScheme {
     /**
      * Whether the close row's launch-spot button is bound unless a switch says otherwise: the cheat
      * sheet's layout and {@code TeleOpConfig.launchSpotClose}'s starting value, so the printed sheet
-     * and the TeleOp agree. Off until a launcher speed is measured at the close spots' range.
+     * and the TeleOp agree. On (mentor, 12 Nov 2026): the launcher speed for the close spots' range
+     * is easier to measure with the button driving there. Until that row is in
+     * {@code LaunchSpeedTable}, a close volley fires at the table's held end speed.
      */
-    public static final boolean LAUNCH_SPOT_CLOSE_DEFAULT = false;
+    public static final boolean LAUNCH_SPOT_CLOSE_DEFAULT = true;
 
     /**
      * As {@link #layout(Input, boolean)}, also leaving out the go-to-launch-spot button unless

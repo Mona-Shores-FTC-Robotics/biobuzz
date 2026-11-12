@@ -82,6 +82,18 @@ public class LaunchSpotsTest {
     }
 
     @Test
+    public void theRightWallHiveSpotIsTheMeasuredStart() {
+        Pose start = StartPositions.RED_AUDIENCE.pose;
+        Pose t = target(Spot.RIGHT_START);
+        assertEquals(start.x(), t.x(), EPS);
+        assertEquals(start.y(), t.y(), EPS);
+        assertEquals(0, wrap(start.heading() - t.heading()), EPS);
+        assertEquals(Spot.RIGHT_START, Spot.of(false, Row.WALL, Column.HIVE));
+        // The LEFT start is placed on the centre-line seam, so the LEFT spot is its own.
+        assertTrue(Math.abs(StartPositions.RED_FAR.pose.x() - target(Spot.LEFT_WALL_HIVE).x()) > 2.0);
+    }
+
+    @Test
     public void thereAreTwelveOnePerHalfRowAndColumn() {
         assertEquals(12, Spot.values().length);
         for (boolean left : new boolean[] {false, true}) {
@@ -91,7 +103,10 @@ public class LaunchSpotsTest {
                     assertEquals(left, spot.left);
                     assertEquals(row, spot.row);
                     assertEquals(column, spot.column);
-                    assertEquals(spot.name(), (left ? "LEFT_" : "RIGHT_") + row + "_" + column, spot.name());
+                    // The RIGHT wall's HIVE spot is the measured start, under the start's name.
+                    String name = spot == Spot.RIGHT_START ? "RIGHT_START"
+                            : (left ? "LEFT_" : "RIGHT_") + row + "_" + column;
+                    assertEquals(name, spot.name());
                 }
             }
         }
@@ -101,7 +116,7 @@ public class LaunchSpotsTest {
     public void theButtonsRowAndTheRobotsPlaceAlongTheWallPickTheSpot() {
         // RIGHT half (below the axle line for red), from anywhere between the wall and the HIVE.
         assertEquals(Spot.RIGHT_WALL_NEAR, red(Row.WALL, 30, 30).spot);
-        assertEquals(Spot.RIGHT_WALL_HIVE, red(Row.WALL, 56, 45).spot);
+        assertEquals(Spot.RIGHT_START, red(Row.WALL, 56, 45).spot);
         assertEquals(Spot.RIGHT_WALL_FAR, red(Row.WALL, 72, 20).spot);
         assertEquals(Spot.RIGHT_CLOSE_NEAR, red(Row.CLOSE, 30, 30).spot);
         assertEquals(Spot.RIGHT_CLOSE_HIVE, red(Row.CLOSE, 56, 45).spot);
@@ -112,7 +127,7 @@ public class LaunchSpotsTest {
         assertEquals(Spot.LEFT_WALL_FAR, red(Row.WALL, 75, 120).spot);
         assertEquals(Spot.LEFT_CLOSE_HIVE, red(Row.CLOSE, 60, 100).spot);
         // No row asked for is the wall row.
-        assertEquals(Spot.RIGHT_WALL_HIVE, red(null, 56, 45).spot);
+        assertEquals(Spot.RIGHT_START, red(null, 56, 45).spot);
     }
 
     @Test
@@ -153,7 +168,8 @@ public class LaunchSpotsTest {
                     (Math.toDegrees(t.heading()) + 360) % 360, 1e-6);
             Vec3 row = spot.cellRow(Alliance.RED);
             double ax = t.x() + FWD * Math.cos(t.heading()) - LEFT * Math.sin(t.heading());
-            assertEquals(spot + ": the turret's axis is in line with the row's centre", row.x(), ax, 0.25);
+            // RIGHT_START is where the robot is placed (frame on the seam): half an inch off.
+            assertEquals(spot + ": the turret's axis is in line with the row's centre", row.x(), ax, 0.6);
         }
     }
 
@@ -205,8 +221,10 @@ public class LaunchSpotsTest {
                 high = Math.max(high, corner[1]);
             }
             // The LEFT half's wall is the high-y one. Touching: within a quarter inch, never through it.
+            // The measured start has its back on the wall at 7.7 in, where the corner resets measured
+            // 8.1 from wall to centre (FRAME_HALF_IN): 0.4 in "through" here is that difference.
             double gap = spot.left ? SIZE - high : low;
-            assertTrue(spot + " is " + (-gap) + " in through its wall", gap > -0.15);
+            assertTrue(spot + " is " + (-gap) + " in through its wall", gap > (spot == Spot.RIGHT_START ? -0.45 : -0.15));
             if (spot.row == Row.WALL) {
                 assertTrue(spot + " is " + gap + " in off its wall", gap < 0.25);
             } else {
@@ -313,7 +331,7 @@ public class LaunchSpotsTest {
                 assertEquals(spot + " " + alliance, t.y() > HiveFieldPoints.AXLE_Y_IN, row.y() > HiveFieldPoints.AXLE_Y_IN);
             }
         }
-        assertNull(Spot.RIGHT_WALL_HIVE.cellRow(Alliance.UNKNOWN));
+        assertNull(Spot.RIGHT_START.cellRow(Alliance.UNKNOWN));
     }
 
     @Test
