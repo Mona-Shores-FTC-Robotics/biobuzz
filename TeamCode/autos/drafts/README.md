@@ -80,6 +80,113 @@ reaching the launcher gets it to 86 of 120 by itself; with 0.99 of the LEFT shot
 - `LEFT_LAUNCH_OFFSET` has not been fired from on the left.
 - The robot checks are in [robot-todo §3](../../../doc/robot-todo.md).
 
+## R-Three-Tip and R-Three-Tip-Stream: three TIPs from one robot, a study's drawings
+
+Not Autos to run. They are the route behind [`doc/three-tips.md`](../../../doc/three-tips.md)
+(mentor session, 11 Nov 2026): the partner's 4 preloads and the SCORING FLOWER into the LEFT CELL,
+then the WALL FLOWER and the GARDEN into the RIGHT CELL. Both use `SweepRow`, a card only the
+simulator has; R-Three-Tip-Stream also uses the simulator's `StreamOn` and `StreamOff`.
+
+- R-Three-Tip, every volley a `LaunchAll` from a stop:
+  <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-three-tip.pp,partners/partner-l-stage-leave-park.pp>
+- R-Three-Tip-Stream, the same stops with the launcher firing between them, drawn at 70 in/s:
+  <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-three-tip-stream.pp,partners/partner-l-stage-leave-park.pp>
+
+The stand-in `partners/partner-l-stage-leave-park` starts on the far wall west of the SCORING
+FLOWER with its 4 POLLEN in a row along its field side, and drives to the LOADING ZONE at PLAY.
+
+| In the simulator set to Belding, 120 seeds, TIPs by 30 s | 2 TIPs | 3 TIPs |
+|---|---|---|
+| R-Three-Tip, the Belding robot | 57 | 0 |
+| R-Three-Tip-Stream, every what-if on | 107 | 99 |
+| R-Three-Tip-Stream, the smallest set that meets the target (turret, launching while moving, 0.98 staying in, feed 0.47 s a shot, 70 in/s) | 96 | 87 |
+
+As saved, the stream draft's request runs with Belding's own accuracy and feed; the what-if knobs
+are in the study's "How it was run".
+
+## L-Pair-Flowers and R-Pair-Garden: a three-TIP pair on real cards, no turret
+
+From the mentor's review of [`doc/three-tips.md`](../../../doc/three-tips.md) (11 Nov 2026); not run
+on a robot. Only `LaunchAll`, `PickFlower`, `GardenGather` and CELL-up waits, every volley from a stop
+at a team launch spot, so the Visualizer previews it and neither robot needs a turret.
+
+- **L** drives from `LEFT_START` to `LEFT_LAUNCH_OFFSET`, fires its 4 preloads when the LEFT CELL comes
+  up, picks the SCORING FLOWER and fires again, then picks the WALL FLOWER. With a full intake before
+  23 s it drives south to `RIGHT_LAUNCH_OFFSET` and fires at the RIGHT CELL; otherwise it parks. Every
+  park of L's goes up the wall lane to `RIGHT_PARK`, the near end.
+- **R** makes the first TIP with its preloads, gathers the GARDEN, and waits loaded on
+  `RIGHT_PAIR_CATCH` (61, 13), beside L's spot, for the RIGHT CELL to come back up (until 25 s). It
+  leaves straight under the HIVE and parks at `LEFT_PARK`, the far end.
+- **If TIP 1 does not come:** R, finding the RIGHT CELL still up when it is back from the GARDEN
+  (before 16 s), fires the GARDEN's pieces at it and parks by another way (under the HIVE, sideways
+  along y 100.5, into `LEFT_PARK` from the south, since L is still at the left end). L, if the LEFT
+  CELL is not up by 12 s, drives the wall lane to `RIGHT_LAUNCH_OFFSET`, fires its preloads at the
+  RIGHT CELL if it is still up, waits until 24 s so R has parked, and parks.
+- This is the blend with R-Clockwise / L-Clockwise (biobuzz#535): this pair's division of the field,
+  Clockwise's two spots side by side and its TIP 1 fallback. With either preload volley missed and
+  either robot 20% slow or fast, both robots park and nothing touches in every simulated run.
+- `RIGHT_PAIR_CATCH` is not a team spot yet (it is Clockwise's), and nothing here has run on a robot.
+- On master's calibration (12 Nov, logged FLOWER loads): two TIPs in 52 of 120 at Belding's pace and
+  63 with the shot counter and 0.98 stay-in; 108, and three TIPs in 88, only when every FLOWER load
+  is full and the GARDEN gives 4. `doc/three-tips.md` has the table.
+
+Open the pair:
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/l-pair-flowers.pp,drafts/r-pair-garden.pp>.
+In the Match view, set each robot's "Volley time" to 2.2 s (a feed that ends on the fourth ball): the
+HIVE row goes from 2 TIPs to 3.
+
+| In the simulator set to Belding, 120 seeds, TIPs by 30 s, both turrets locked | 2 TIPs | 3 TIPs |
+|---|---|---|
+| Feed ending on the fourth ball, 0.98 staying in, 50 in/s, the GARDEN giving 4 (`r-pair-garden-sweep`) | 97 | 85 |
+| The same with the robot's own `GardenGather` as the simulator runs it (takes 2) | 97 | 29 |
+| Belding's whole 3.5 s feed | 97 | 0 |
+| Belding's accuracy | 58 | 28 |
+| Infraviolet, feed ending on the fourth ball, 0.98 staying in | 108 | 0 |
+
+`r-pair-garden-sweep` is R-Pair-Garden with the simulator's `SweepRow` in place of `GardenGather`: what
+the pair makes when the GARDEN pickup gets all 4. The pair needs the shot counter, the accuracy, and
+that pickup; nothing else.
+
+## L-Three-Tip: a partner makes the first TIP and we do the rest
+
+A what-if drawing on simulator-only cards (`StreamOn`, `SweepRow`), so the Visualizer shows its path
+but not its scoring. A turret robot waits by the SCORING FLOWER, fires 8 as the LEFT CELL comes up,
+then takes the WALL FLOWER and the GARDEN itself, beside
+`partners/partner-r-tip-far-park` (fires its preloads at the RIGHT CELL from the audience start and
+parks at the far end of the LOADING ZONE). The study uses it to say how early a partner's first TIP has
+to come: the RIGHT CELL down by about 7 s, and only with a 0.3 s feed and 70 in/s (99 and 89 of 120).
+
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/l-three-tip.pp,partners/partner-r-tip-far-park.pp>
+
+## R-Three-Tip-Still: the solo route with every volley from a stop
+
+A what-if drawing on simulator-only cards, so the Visualizer shows its path but not its scoring.
+R-Three-Tip-Stream's stops with no shot fired while moving (`BIOBUZZ_AUTO_FIRE_STILL=1`): 96 and 84 of
+120 with a turret, 0.98 staying in, a 0.3 s feed and 70 in/s.
+
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-three-tip-still.pp,partners/partner-l-stage-leave-park.pp>
+
+## R-Two-Tip-With: two TIPs beside a partner that fills the far CELL
+
+R-Two-Tip with both LEFT volleys from `LEFT_LAUNCH_OFFSET`, which is clear of a robot on `LEFT_START`,
+and its park at `LEFT_PARK`. It is for a partner that starts on `LEFT_START`, fires its 4 preloads at
+the LEFT CELL once it is up, hides under the HIVE until 23 s and parks at `RIGHT_PARK`
+(`partners/partner-l-fill-hide-park`, or `partner-l-timed-fill-hide-park`, which fires at 9 s).
+Mentor session, 11 Nov 2026; not run on a robot. If our preloads do not TIP, it parks: it does not
+drive under the HIVE, where the partner may be.
+
+Open the pair:
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-two-tip-with.pp,partners/partner-l-fill-hide-park.pp>
+
+| In the simulator set to Belding, 120 seeds, the Belding robot | 2 TIPs | Second TIP at |
+|---|---|---|
+| R-Two-Tip-With alone | 61 | 28.0 s |
+| beside `partner-l-fill-hide-park` (fires when it sees the CELL up) | 109 | 23.0 s |
+| beside `partner-l-timed-fill-hide-park` (fires at 9 s) | 109 | 23.0 s |
+
+The LEFT CELL gets 12 shots for the 8 it needs, which is the whole gain. No two robots touch in
+any run. What to ask a partner is in [`doc/three-tips.md`](../../../doc/three-tips.md), rung 3.
+
 ## R-Solo-Nudge, for a partner with no Auto
 
 The angled draft targets both partner AUTO PARK and LEAVE: a **16 x 16 in** chassis

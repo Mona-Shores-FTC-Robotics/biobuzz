@@ -437,6 +437,34 @@ public final class AutoSim {
     private List<double[]> lastArc;
     private int lane;
 
+    /**
+     * A card's typical time as the endgame guard plans with it: master's ({@code AutoRegistration}), unless a what-if
+     * says the mechanism is faster ({@code BIOBUZZ_SIM_TYPICAL_LAUNCH_ALL}, {@code _PICK_FLOWER}, {@code _GARDEN_GATHER},
+     * seconds). A robot whose volley took 1.5 s would have 1.5 in master's constant, so a study that speeds a
+     * mechanism up sets its typical time to match, or the guard parks for a volley that would have fitted.
+     */
+    static double typical(String card, double masters) {
+        String v = System.getenv("BIOBUZZ_SIM_TYPICAL_" + card);
+        return v == null ? masters : Double.parseDouble(v);
+    }
+
+    /**
+     * The least a GardenGather takes, seconds: master's typical time, a placeholder until an Auto's gather is timed.
+     * {@code BIOBUZZ_SIM_GARDEN_S} sets it for a what-if (0: only as long as the routine's own drive and dwell).
+     */
+    static double gardenGatherMinS = Double.parseDouble(System.getenv().getOrDefault("BIOBUZZ_SIM_GARDEN_S",
+            Double.toString(AutoRegistration.GARDEN_GATHER_TYPICAL_S)));
+
+    /** How far a SweepRow creeps at most, inches: a row of 4 POLLEN is 11.2 in long, and it starts a few inches short. */
+    static final double SWEEP_ROW_REACH_IN = 18;
+    /**
+     * A SweepRow's creep, in/s. A placeholder: 6 is three quarters of a POLLEN's width (2.8 in) every {@link RobotDesign#intakeIntervalS}
+     * (0.35 s, itself a placeholder), so each piece of a touching row is taken as the intake reaches
+     * it. {@code BIOBUZZ_SIM_SWEEP_SPEED} sets it. Nobody has timed the robot over a loose row; its GARDEN gathers in
+     * practice took 0 to 2 of 4 (issue #508).
+     */
+    static double sweepRowSpeedInPerS = Double.parseDouble(System.getenv().getOrDefault("BIOBUZZ_SIM_SWEEP_SPEED", "6"));
+
     /** One robot running {@code autoClass} for {@code alliance}. */
     AutoSim(Class<?> autoClass, Alliance alliance, long seed) {
         this.alliance = alliance;
@@ -1210,6 +1238,16 @@ public final class AutoSim {
         double pickS = Double.NaN;
         /** Every launch goes wide ({@link AutoSim#misses}). */
         boolean missesWide;
+
+        /**
+         * {@code BIOBUZZ_SIM_PRELOADS_MISS=1} or {@code 2}: that robot's first four shots (its preloads) go wide, for
+         * "what does the pair do when a preload volley misses" (three-tips study, 11 Nov 2026). Robot 1 is the first
+         * Auto of the spec, robot 2 the second.
+         */
+        boolean preloadsMiss() {
+            String v = System.getenv("BIOBUZZ_SIM_PRELOADS_MISS");
+            return v != null && !v.isEmpty() && Integer.parseInt(v) == index + 1 && shotsFired < 4;
+        }
         /** The partner wait's match second ({@link AutoSim#partnerWaitUntil}); NaN: as drawn. */
         double partnerWaitUntilS = Double.NaN;
         /** This fire step has said it fires at a down CELL. */
@@ -1502,7 +1540,7 @@ public final class AutoSim {
                 }
                 double[] from = body.exitPoint(side);
                 double shotYaw = yawError;
-                if (missesWide) {
+                if (missesWide || preloadsMiss()) {
                     // A missing partner: its shot leaves MISS_WIDE_IN to the side of the CELL at that range.
                     double range = Math.max(1, Math.hypot(aim[0] - from[0], aim[1] - from[1]));
                     shotYaw += Math.atan2(MISS_WIDE_IN, range);
@@ -2074,8 +2112,8 @@ public final class AutoSim {
                     .holdTimeLimitsWhile(() -> firing && !Double.isNaN(activeFeedAt))
                     // A volley, with master's typical and last-piece times: the endgame guard goes for
                     // the next one when its last piece can be out before AUTO ends (AutoKit.guarded).
-                    .volley("LaunchAll", AutoRegistration.LAUNCH_ALL_TYPICAL_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S,
-                            () -> launch(Integer.MAX_VALUE))
+                    .volley("LaunchAll", typical("LAUNCH_ALL", AutoRegistration.LAUNCH_ALL_TYPICAL_S),
+                            typical("LAUNCH_ALL", AutoRegistration.LAUNCH_ALL_LAST_PIECE_S), () -> launch(Integer.MAX_VALUE))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
                     .command("CollectSeen", 2.0, this::collectSeen)
@@ -2104,8 +2142,11 @@ public final class AutoSim {
                     .command("CatchIn", 1.0, () -> catchCard(false))
                     // The robot's grabs (master's AutoRegistration, typical times and all): the endgame guard never
                     // cuts one, and does not start one unless it and the park fit.
-                    .grab("PickFlower", AutoRegistration.PICK_FLOWER_TYPICAL_S, this::pickFlower)
-                    .grab("GardenGather", AutoRegistration.GARDEN_GATHER_TYPICAL_S, this::gardenGather)
+                    .grab("PickFlower", typical("PICK_FLOWER", AutoRegistration.PICK_FLOWER_TYPICAL_S), this::pickFlower)
+                    .grab("GardenGather", typical("GARDEN_GATHER", AutoRegistration.GARDEN_GATHER_TYPICAL_S), this::gardenGather)
+                    // A row of loose pieces on the tiles ahead (a partner's preloads left for us, doc/three-tips.md):
+                    // sim only, the robot has no such card.
+                    .grab("SweepRow", SWEEP_ROW_REACH_IN / sweepRowSpeedInPerS, this::sweepRow)
                     .trigger("IntakeFull", this::fullSensed)
                     // What the robot holds is worth 4 POLLEN or more, a NECTAR counting its weight (mentor, 8 Oct 2026:
                     // "2 nectar 1 P ... would have been enough"). Needs a sensor that tells NECTAR from POLLEN.
@@ -2153,6 +2194,15 @@ public final class AutoSim {
         /** LaunchAll cards this robot has started: the Belding calibration's later volleys run their whole feed. */
         private int launchAllsStarted;
 
+        /**
+         * A LaunchAll's set feed time: the robot's {@code LaunchCards.launchAllFeedS}, or
+         * {@code BIOBUZZ_SIM_LAUNCH_ALL_FEED_S} for "what would a shorter feed buy" (three-tips study, 11 Nov 2026).
+         */
+        private double launchAllFeedS() {
+            String v = System.getenv("BIOBUZZ_SIM_LAUNCH_ALL_FEED_S");
+            return v == null || v.isEmpty() ? LaunchCards.launchAllFeedS : Double.parseDouble(v);
+        }
+
         private Command launch(int count) {
             return new CommandBuilder()
                     .setStart(() -> {
@@ -2161,7 +2211,7 @@ public final class AutoSim {
                         fireStepBegins();
                         firing = true;
                         activeFeedAt = Double.NaN;
-                        activeFeedLimit = count == Integer.MAX_VALUE ? LaunchCards.launchAllFeedS : LaunchCards.launchOneFeedS;
+                        activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS() : LaunchCards.launchOneFeedS;
                         nextShotAt = Math.max(nextShotAt, now);
                         shotTarget = count == Integer.MAX_VALUE
                                 ? (!wholeFeed && Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
@@ -2380,6 +2430,41 @@ public final class AutoSim {
          * routine's own phases are unmeasured from an Auto, the simulated drive is quicker than the robot's, and 6 s is
          * what an Auto is planned with. Placeholder until an Auto's match log times a gather.
          */
+        /**
+         * SweepRow (sim only; doc/three-tips.md): the robot creeps straight ahead with the intake on, over a row of
+         * loose pieces lying along its line, until it is full or has gone {@link #SWEEP_ROW_REACH_IN}. The creep is
+         * {@link #sweepRowSpeedInPerS}: at driving speed the intake takes the first piece and knocks the rest away,
+         * since it takes one piece every {@link RobotDesign#intakeIntervalS}.
+         */
+        private Command sweepRow() {
+            final double[] speedBefore = new double[1];
+            final boolean[] intakeBefore = new boolean[1];
+            final int[] heldBefore = new int[1];
+            final double[] startedAt = new double[1];
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        startedAt[0] = now;
+                        speedBefore[0] = drive.maxSpeed;
+                        intakeBefore[0] = intakeEnabled;
+                        heldBefore[0] = body.stored.size();
+                        intakeEnabled = true;
+                        drive.maxSpeed = sweepRowSpeedInPerS;
+                        double[] at = pedro(drive.pose);
+                        Pose from = new Pose(at[0], at[1], at[2]);
+                        Pose to = new Pose(at[0] + (SWEEP_ROW_REACH_IN + SimDrive.JOIN_IN) * Math.cos(at[2]),
+                                at[1] + (SWEEP_ROW_REACH_IN + SimDrive.JOIN_IN) * Math.sin(at[2]), at[2]);
+                        drive.follow(Paths.line(from, to).constant(to));
+                    })
+                    .setDone(() -> FieldSim.full(body) || drive.pathDone())
+                    .setEnd(end -> {
+                        drive.maxSpeed = speedBefore[0];
+                        intakeEnabled = intakeBefore[0];
+                        drive.hold(drive.pose);
+                        pending.add(String.format(Locale.ROOT, "SweepRow: took %d in %.1f s, holds %d",
+                                body.stored.size() - heldBefore[0], now - startedAt[0], body.stored.size()));
+                    });
+        }
+
         private Command gardenGather() {
             final double[] startedAt = new double[1];
             final double[] phaseFrom = new double[1];
@@ -2443,7 +2528,7 @@ public final class AutoSim {
                                     body.stored.size() - heldBefore[0], now - startedAt[0], body.stored.size(), left));
                         }
                     })
-                    .setDone(() -> phase[0] == 0 || (phase[0] == 4 && now - startedAt[0] >= AutoRegistration.GARDEN_GATHER_TYPICAL_S))
+                    .setDone(() -> phase[0] == 0 || (phase[0] == 4 && now - startedAt[0] >= gardenGatherMinS))
                     .setEnd(end -> {
                         intakeEnabled = intakeBefore[0];
                         drive.maxSpeed = speedBefore[0];
@@ -2646,7 +2731,11 @@ public final class AutoSim {
             double bearing = Math.atan2(p.y - at[1], p.x - at[0]);
             double heading = design.intakeAtBack ? bearing + Math.PI : bearing;
             double mouth = design.frameIn / 2 + design.intakeReachIn + body.slideOut;
-            double tx = p.x - (mouth - 1) * Math.cos(bearing), ty = p.y - (mouth - 1) * Math.sin(bearing);
+            // An intake that takes on contact (the real robot's) has to bring its face onto the piece, and a path is
+            // done SimDrive.JOIN_IN short of its end: the chase aims that much past the piece, so the face is on it
+            // while the robot is still rolling (doc/three-tips.md; before, the real robot's chase stopped short).
+            double past = design.intakeOnContact ? SimDrive.JOIN_IN + 1 : 0;
+            double tx = p.x - (mouth - 1 - past) * Math.cos(bearing), ty = p.y - (mouth - 1 - past) * Math.sin(bearing);
             // Stay on our own half (with room for the corners of a robot turned any way), and inside
             // the walls.
             double half = span(design) / 2, corner = span(design) * Math.sqrt(0.5);

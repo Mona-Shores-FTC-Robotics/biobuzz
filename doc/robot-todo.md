@@ -911,6 +911,40 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       speed into `LaunchSpeedTable` row 5. **Good:** 4 of 4 stay in the CELL at the row's speed.
       [`doc/one-robot-two-tips.md`]
 
+- [ ] **Count the balls that stay in, spot by spot** (the number `doc/three-tips.md` and
+      `doc/one-robot-two-tips.md` both turn on). Five volleys of four from `RIGHT_START`,
+      `LEFT_LAUNCH_CATCH` and `LEFT_LAUNCH_OFFSET`, filmed from the side, fed by a FLOWER pick as in an
+      Auto, not by hand. Write down pieces that stay in of 20 at each. The simulator has 0.82, 0.92 and
+      0.89, inferred from TIPs, never counted. **Good:** 19 or 20 of 20 at the LEFT spots (0.98 gives two
+      TIPs in 3 runs of 4 beside a partner that only leaves its preloads; 0.92 gives half).
+      [mentor session, 11 Nov]
+
+- [ ] **The road under the HIVE** (`doc/three-tips.md`, R-Pair-Garden's exit; draft PR #531): drive
+      `RIGHT_PAIR_CATCH` (61, 13) to `LEFT_PARK` under the HIVE, slowly first, then at 50 in/s, 5 times.
+      The curve leaves 3.3 in between the frame and our foot bar, and the same to the centre line.
+      **Pass:** no touch and no crossing in 5 of 5. Write down the closest it came on each side.
+- [ ] **Two robots at the right end, both shooting** (`doc/three-tips.md`, the pair's last two
+      volleys): one on `RIGHT_PAIR_CATCH` (61, 13, 96.2), one on `RIGHT_LAUNCH_OFFSET`. 5 volleys of
+      4 from each, one after the other. Count the ones that stay in. **Good:** the two frames do
+      not touch, and the OFFSET spot (21 degrees off square) is within 1 ball in 20 of the other.
+- [ ] **R's rescue road** (`doc/three-tips.md`, "The blend"): with a robot standing on
+      `LEFT_LAUNCH_OFFSET`, drive `RIGHT_PAIR_CATCH` under the HIVE to (58.5, 100.5), sideways to
+      (26, 100.5), and into `LEFT_PARK`. It has 2 in on each side between the foot bar's end and
+      that robot. **Pass:** no touch in 5 of 5, slowly first.
+- [ ] **A row of 4 loose POLLEN, picked up at a creep** (Basic Drive, intake on; `doc/three-tips.md`'s
+      partner row). Lay 4 POLLEN touching in a line on open tiles and drive along the line at about
+      6 in/s (a quarter stick), 10 times, then 10 times with the row against a wall as the GARDEN's is.
+      Count the pieces in the lane each time and time first touch to full from the log
+      (`read_logs.py picks`). The simulator's 1.3 to 2.6 s and 4 of 4 are a placeholder; the GARDEN
+      gathers in practice took 0 to 2 (#508). **Good:** 4 of 4 in under 2.5 s, 9 times in 10.
+      [mentor session, 11 Nov]
+
+- [ ] **A shot while the robot rolls** (Basic Drive, only once the turret tracks a CELL while driving).
+      Drive past `LEFT_LAUNCH_OFFSET` along the far wall at about 20 in/s and fire four on the way,
+      5 passes each way, filmed. Count what stays in against the same spot standing still. The
+      simulator's what-if assumes a moving shot stays in as often as a standing one once it is led for
+      the robot's speed; unled, 1 in 4 of its runs made the second TIP. [mentor session, 11 Nov]
+
 - [ ] **Camera range = pose range, from the turret axis** (since 5 Nov both are measured from the
       turret, and the table's rows were converted to match). Any Basic Drive with the camera on a
       CELL: graph `/Launch/CameraRangeIn` and `/Launch/PoseRangeIn` from the match log (an Auto

@@ -12,9 +12,9 @@
       "note": "Median of 83 spin-ups to launch speed; 0.9-2.1 s, slowest on a low battery."
     },
     "volleyS": {
-      "value": 4.0,
-      "source": "measured, 20245, 2-4 Nov 2026",
-      "note": "8 LaunchAlls after a drive: 3.6-4.6 s, median 4.0 (settle, speed, the set 3.5 s feed); last ball 1.7-2.9 s after the gate opened."
+      "value": 2.5,
+      "source": "what-if on this study's branch only (mentor, 12 Nov 2026); master's measured value is 4.0",
+      "note": "A volley the count ends: 0.3 s wait, gate to fourth ball 2.19 s (Belding logs: 0.78 s to the first ball, 0.47 s between). When the set 3.5 s feed runs out it is 3.8-4.2 s, which is what Belding did in 29 of 38 volleys."
     },
     "cellCheckS": {
       "value": 0.75,

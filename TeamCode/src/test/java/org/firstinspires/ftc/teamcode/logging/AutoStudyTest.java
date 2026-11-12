@@ -177,6 +177,9 @@ public class AutoStudyTest {
         if (byName != null || !partner.getSimpleName().contains("Stage")) return byName;
         com.pedropathing.math.Pose start = (com.pedropathing.math.Pose) partner.getMethod("startPose", boolean.class).invoke(null, false);
         // The stand-ins are the real robot's size (RobotDesign.real): the row touches that frame.
+        if (partner.getSimpleName().contains("StageFront")) {
+            return acrossFront(new double[] {start.x(), start.y(), Math.toDegrees(start.heading())}, RobotDesign.REAL_FRAME_IN / 2);
+        }
         return alongLeftSide(new double[] {start.x(), start.y(), Math.toDegrees(start.heading())}, RobotDesign.REAL_FRAME_IN / 2);
     }
 
@@ -346,6 +349,22 @@ public class AutoStudyTest {
         public String toString() {
             return slug();
         }
+    }
+
+    /**
+     * 4 POLLEN in a row across the front of a robot at {x, y, heading}, each touching it: a {@code Partner…StageFront…}
+     * stand-in's, for a partner that starts with its back on the wall and leaves its preloads on the field side
+     * ({@code partner-wall-stage-front-park}, doc/three-tips.md).
+     */
+    static double[][] acrossFront(double[] pose, double halfFrameIn) {
+        double h = Math.toRadians(pose[2]), gap = halfFrameIn + FieldSim.POLLEN_RADIUS_IN + 0.2;
+        double[] f = {Math.cos(h), Math.sin(h)}, l = {-Math.sin(h), Math.cos(h)};
+        double[][] spots = new double[4][];
+        for (int i = 0; i < 4; i++) {
+            double along = (i - 1.5) * (2 * FieldSim.POLLEN_RADIUS_IN);
+            spots[i] = new double[] {pose[0] + gap * f[0] + along * l[0], pose[1] + gap * f[1] + along * l[1]};
+        }
+        return spots;
     }
 
     /** 4 POLLEN in a row along the left side of an 18 in robot at {x, y, heading}, each touching it. */
@@ -844,5 +863,12 @@ public class AutoStudyTest {
                 + (theirRuns == 0 ? "" : String.format(Locale.ROOT, ", the other alliance %.1f pts", theirPoints / theirRuns))
                 + (launched == 0 ? "" : String.format(Locale.ROOT, ", shots %.0f%% of %.1f", 100.0 * scored / launched, (double) launched / runs)));
         System.out.println("STUDY " + line);
+        // The same TIPs counted the conservative way: complete by the end of AUTO's 30 s. The line above counts a TIP
+        // that completes in the transition too (section 10.5 B), which the endgame guard does not plan on.
+        int[] by30 = new int[3];
+        for (Row r : rows) {
+            for (int i = 0; i < r.tips.size() && i < by30.length; i++) if (r.tips.get(i) <= org.firstinspires.ftc.teamcode.autokit.AutoKit.AUTO_LENGTH_S) by30[i]++;
+        }
+        System.out.println(String.format(Locale.ROOT, "STUDY   by 30 s: TIP1 %d/%d TIP2 %d/%d TIP3 %d/%d", by30[0], runs, by30[1], runs, by30[2], runs));
     }
 }
