@@ -184,7 +184,7 @@ public final class AutoRegistration {
 
     /**
      * The TIP lag a partner wait allows: seconds from the partner's last ball leaving its launcher to
-     * our camera reading the CELL up, added to the last shot their team gives us
+     * our camera reading the CELL up, added to the partner's last shot
      * ({@link #partnerWaitUntilS}). It is a give-up limit, not a prediction: the wait ends the moment
      * {@code CellUp} fires, so a longer limit costs time only when the TIP is not coming.
      * Measured from the Belding Qualifier's films (7 Nov 2026; {@code TeamCode/autos/timing-terms.md}
@@ -192,17 +192,17 @@ public final class AutoRegistration {
      * other CELL settled 3.4 to 6.5 s after the last ball left (13 TIPs, median 3.9) and a watching
      * camera read it 0.2 s later. 5.5 s catches 11 of the 13; the 4.5 s used until 12 Nov 2026 caught
      * 9. The two it misses (5.6 and 6.7 s) are left to the Auto's no-TIP route, which still scores.
-     * A half second keeps the drive team's number whole: a wait drawn "until 8.5 s" reads as a last
-     * shot at 3 s. Written in {@code TeamCode/autos/timing.json} too ({@code partnerTipLagS}), which
+     * Written in {@code TeamCode/autos/timing.json} too ({@code partnerTipLagS}), which
      * {@code PartnerWaitTest} keeps equal to this.
      */
     public static final double PARTNER_TIP_LAG_S = 5.5;
 
     /**
-     * The match second the Auto's partner wait (its one match-clock {@code AutoOption}, set on the
-     * D-pad in INIT: {@link InitOptions}) ends at, for the partner's last shot as their team said
-     * it: that plus {@link #PARTNER_TIP_LAG_S}. NaN gives NaN. The simulator sets its partner wait
-     * from this too, as the driver would.
+     * The match second a partner wait should give up at, for a partner whose last ball leaves at
+     * {@code partnerLastShotS}: that plus {@link #PARTNER_TIP_LAG_S}. NaN gives NaN. It is how a
+     * wait's drawn limit is chosen (a partner's preloads are away by about 3.5 s, so 9 s), and what
+     * the simulator, which is told a stand-in's last shot, sets the wait to. On the robot the drive
+     * team moves the limit itself, in INIT ({@link InitOptions}).
      */
     public static double partnerWaitUntilS(double partnerLastShotS) {
         return Double.isNaN(partnerLastShotS) ? Double.NaN : partnerLastShotS + PARTNER_TIP_LAG_S;

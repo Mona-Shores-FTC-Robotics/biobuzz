@@ -810,7 +810,7 @@
             "cards": []
           },
           {
-            "afterMs": 8500,
+            "afterMs": 9000,
             "matchClock": true,
             "adjustable": true,
             "cards": [

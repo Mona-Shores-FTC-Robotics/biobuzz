@@ -307,7 +307,7 @@ A partner tells us in the queue when they shoot. The drive team enters it in INI
 | D-pad | Changes | Offered by |
 |---|---|---|
 | Left / Right | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
-| Up / Down | the partner's last shot (their answer to "when does your last preload leave?"), 1 s a press; our partner wait gives up the TIP lag after it, on the match clock | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
+| Up / Down | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for partner's TIP until 9 s". Down to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
 
 - **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
   as drawn and amber once changed; PLAY locks them, and the match log records them
@@ -323,12 +323,16 @@ A partner tells us in the queue when they shoot. The drive team enters it in INI
   with its end moved, and the endgame guard reserves that park's time.
 - **The partner wait on the match clock.** "Until 8 s" ends at 8 s into the match however late
   the robot got there, unlike "at most 7 s", which starts counting when the wait begins. The
-  driver enters the partner's last shot and the wait ends `AutoRegistration.PARTNER_TIP_LAG_S`
-  (5.5 s, `partnerTipLagS` below) after it: the shot's flight, the rocker's creep and swing, and the camera
-  settling: 3.6 to 4.3 s in four films at the Belding Qualifier, longer in others ([timing-terms.md](timing-terms.md)). The page shows both numbers, never only the sum:
-  "partner's last shot ▲▼ 8 s, waiting until 13.5 s" (mentor, 3 Nov 2026).
-- Today: L-NoCross offers the partner's last shot (drawn: wait until 8.5 s, which reads as a last
-  shot at 3 s). No Auto offers another park.
+  robot fires on the camera's `CellUp`; the number is only when it stops waiting. The drive team
+  asks a partner one thing, "do you shoot your preloads right at the start?", and moves the number
+  only if the answer is not yes: up to 6 s after the second they say they shoot, or down to 0 if
+  they do not shoot (mentor, 12 Nov 2026; until then the driver entered the partner's last shot
+  and the page showed it with the wait).
+- **Where the drawn 9 s comes from:** a partner's preloads are away by about 3.5 s, and
+  `AutoRegistration.PARTNER_TIP_LAG_S` (5.5 s, `partnerTipLagS` below) is the TIP lag a wait
+  allows after that ([timing-terms.md](timing-terms.md)).
+- Today: L-NoCross offers its wait for the partner's TIP (drawn: until 9 s). No Auto offers another
+  park.
 
 ## Timing: two sets of numbers
 
@@ -396,8 +400,7 @@ they came from.
     13 TIPs on a CELL at its tipping weight, the last ball to the CELL settled took 3.4 to 6.5 s
     (median 3.9), and a watching camera read it 0.2 s later. 5.5 s catches 11 of the 13; the 4.5 s
     used until 12 Nov 2026 caught 9; 6.7 s would catch all of them. The wait ends as soon as
-    `CellUp` fires, so the longer limit costs time only when the TIP is not coming. A half second
-    keeps the drive team's number whole (a wait drawn "until 8.5 s" is a last shot at 3 s).
+    `CellUp` fires, so the longer limit costs time only when the TIP is not coming.
 - **The words for these times** (launch starts, gate opens, last ball leaves, feed ends, TIP lag)
   and which moment each fact counts from are in [timing-terms.md](timing-terms.md).
 - **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop

@@ -33,7 +33,7 @@ public final class LNoCrossAuto {
     public static final String DRAWN_FOR = "RED";
 
     /** What the drive team may change during INIT, on gamepad 1's D-pad; nothing changed, the Auto runs as drawn. */
-    public static final AutoOption[] OPTIONS = {AutoOption.matchSeconds("Wait for TIP or CELL up", 8.5)};
+    public static final AutoOption[] OPTIONS = {AutoOption.matchSeconds("Wait for TIP or CELL up", 9)};
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
@@ -90,7 +90,7 @@ public final class LNoCrossAuto {
                         kit.path("to LEFT_LAUNCH_CATCH", toLeftLaunchCatch, 1, leftLaunchCatchPark, 1.9),
                         kit.firstOf("Wait for TIP or CELL up", kit.command("SpinUp"),
                                 kit.when("CellUp"),
-                                kit.atMatchSeconds(kit.seconds("Wait for TIP or CELL up", 8.5)).then(
+                                kit.atMatchSeconds(kit.seconds("Wait for TIP or CELL up", 9)).then(
                                         kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.3, rightLaunchCatchPark, 3.2),
                                         kit.firstOf("TIP seen?",
                                                 kit.when("LeftCellUp").then(

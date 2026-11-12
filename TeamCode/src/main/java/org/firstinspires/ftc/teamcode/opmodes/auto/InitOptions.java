@@ -10,18 +10,19 @@ import java.util.Locale;
 
 /**
  * The drive team's picks for an Auto's {@link AutoOption}s, made during INIT at the field: the
- * partner says where they park and when their last preload leaves while the robots queue, and
- * gamepad 1's D-pad changes it.
+ * partner says where they park and whether they shoot their preloads at the start while the robots
+ * queue, and gamepad 1's D-pad changes it.
  *
  * <ul>
  *   <li><b>D-pad left / right</b>: the PARK spot. A choice named {@code LEFT_…} or {@code RIGHT_…}
  *       goes with that key (sides as the drive team sees them; the robot turns the spots for
  *       BLUE, so the names hold for both alliances); other names step through the list.</li>
- *   <li><b>D-pad up / down</b>: the partner's last shot, their answer to "when does your last
- *       preload leave?", {@link #STEP_S} a press. The wait gives up
- *       {@link AutoRegistration#PARTNER_TIP_LAG_S} after it, on the match clock, and the page shows
- *       both numbers, never only the sum: "partner's last shot 8 s, waiting until 13.5 s". One such
- *       wait per Auto (mentor, 3 Nov 2026).</li>
+ *   <li><b>D-pad up / down</b>: how long the Auto waits for the partner's TIP: the match second
+ *       its wait gives up, {@link #STEP_S} a press. The page reads "waiting for partner's TIP until
+ *       9 s", one number a student can say. The robot fires on the camera's {@code CellUp}, so the
+ *       number is only when it stops waiting. The question for a partner is "do you shoot your
+ *       preloads right at the start?": yes leaves it as drawn, "later" moves it up, and "we don't"
+ *       takes it down to 0, which does not wait at all. One such wait per Auto.</li>
  * </ul>
  *
  * <p>Nothing touched, the Auto runs as drawn. Each option takes one line of the INIT page, amber
@@ -32,8 +33,8 @@ public final class InitOptions implements AutoKit.Picks {
 
     /** One press of up or down. */
     public static final double STEP_S = 1.0;
-    /** The latest a partner's last shot may be set to: past this the Auto has nothing left to wait for. */
-    public static final double LATEST_LAST_SHOT_S = 25.0;
+    /** The latest the wait may be set to give up: past this the Auto has no time left for what follows. */
+    public static final double LATEST_WAIT_S = 28.0;
 
     private final AutoOption[] options;
     private final int[] choice;
@@ -72,8 +73,8 @@ public final class InitOptions implements AutoKit.Picks {
         if (!locked) {
             if (left && !wasLeft) side("LEFT_", -1);
             if (right && !wasRight) side("RIGHT_", +1);
-            if (up && !wasUp) lastShot(+STEP_S);
-            if (down && !wasDown) lastShot(-STEP_S);
+            if (up && !wasUp) waitUntil(+STEP_S);
+            if (down && !wasDown) waitUntil(-STEP_S);
         }
         wasLeft = left;
         wasRight = right;
@@ -101,22 +102,14 @@ public final class InitOptions implements AutoKit.Picks {
         }
     }
 
-    private void lastShot(double step) {
+    /** Moves the wait's give-up time by {@code step}, between the match's start and {@link #LATEST_WAIT_S}. */
+    private void waitUntil(double step) {
         for (int i = 0; i < options.length; i++) {
             AutoOption option = options[i];
             if (option.kind != AutoOption.Kind.MATCH_SECONDS) continue;
-            double shot = Math.max(0, Math.min(LATEST_LAST_SHOT_S, partnerLastShot(i) + step));
-            double limit = AutoRegistration.partnerWaitUntilS(shot);
+            double limit = Math.max(0, Math.min(LATEST_WAIT_S, limit(i) + step));
             seconds[i] = Math.abs(limit - option.drawnSeconds) < 1e-9 ? Double.NaN : limit;
         }
-    }
-
-    /**
-     * The partner's last shot the option's limit stands for: the limit less
-     * {@link AutoRegistration#PARTNER_TIP_LAG_S}. As drawn, the drawing's limit less the lag.
-     */
-    private double partnerLastShot(int i) {
-        return Math.max(0, limit(i) - AutoRegistration.PARTNER_TIP_LAG_S);
     }
 
     private double limit(int i) {
@@ -141,8 +134,8 @@ public final class InitOptions implements AutoKit.Picks {
 
     /**
      * The options on one line of the INIT page, green as drawn and amber once any is changed:
-     * "● Park ◀▶: RIGHT_PARK · partner's last shot ▲▼ 8 s, waiting until 12 s". Shorter when the page is
-     * nearly full ("shot ▲▼ 8+4=12 s"), and left off when it is full: the warnings above it come first, and the picks
+     * "● Park ◀▶: RIGHT_PARK · waiting for partner's TIP ▲▼ until 9 s". Shorter when the page is
+     * nearly full ("TIP ▲▼ until 9 s"), and left off when it is full: the warnings above it come first, and the picks
      * still hold and go to the match log (the page is one screen, {@link Display}).
      */
     public void describe(Display display) {
@@ -158,9 +151,8 @@ public final class InitOptions implements AutoKit.Picks {
                 park = option.name + " ◀▶: " + option.choices.get(choice[i] < 0 ? 0 : choice[i]);
             } else {
                 changed |= !Double.isNaN(seconds[i]);
-                // Short, for a nearly full page, and still all three numbers: the last shot, the lag, the wait.
-                tipShort = "shot ▲▼ " + fmt(partnerLastShot(i)) + "+" + fmt(AutoRegistration.PARTNER_TIP_LAG_S) + "=" + fmt(limit(i)) + " s";
-                tipLong = "partner's last shot ▲▼ " + fmt(partnerLastShot(i)) + " s, waiting until " + fmt(limit(i)) + " s";
+                tipShort = "TIP ▲▼ until " + fmt(limit(i)) + " s";
+                tipLong = "waiting for partner's TIP ▲▼ until " + fmt(limit(i)) + " s";
             }
         }
         Display.Level level = changed ? Display.Level.WARN : Display.Level.OK;
@@ -188,8 +180,8 @@ public final class InitOptions implements AutoKit.Picks {
                 parts.add(String.format(Locale.US, "%s=%s (drawn %s)", option.name,
                         option.choices.get(choice[i] < 0 ? 0 : choice[i]), option.choices.get(0)));
             } else {
-                parts.add(String.format(Locale.US, "%s: partner's last shot %s s, until %s s (drawn %s s)", option.name,
-                        fmt(partnerLastShot(i)), fmt(limit(i)), fmt(option.drawnSeconds)));
+                parts.add(String.format(Locale.US, "%s: waiting for partner's TIP until %s s (drawn %s s)", option.name,
+                        fmt(limit(i)), fmt(option.drawnSeconds)));
             }
         }
         return String.join("; ", parts);

@@ -1071,16 +1071,20 @@ once, a trigger that never fires), shown on the Driver Station at INIT, so an Au
 finished robot runs on today's robot as a timed script. `auto-registry.json` is the same list for
 the editor; `AutoRegistrationTest` keeps the two in step.
 
-**The partner wait.** Teams are asked one number: "when does your last preload leave?". The driver
-enters it during an Autonomous's INIT with gamepad 1's D-pad up/down (`InitOptions`, 1 s a press;
-left/right picks the park). The Auto's one wait drawn "until the match clock reads …" and offered
-in INIT (`AutoOption.matchSeconds`, exported as `kit.atMatchSeconds(kit.seconds(...))`) then ends
-at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 5.5 s, a give-up limit covering the shot's flight, the rocker's
-creep and swing and the camera settling (3.6 to 4.3 s in four films at the Belding Qualifier, up to 6.7 s over all of them: `TeamCode/autos/timing-terms.md`).
+**The partner wait.** The robot fires on the camera's `CellUp`; a partner wait's number is only when
+it stops waiting. The Driver Station reads "waiting for partner's TIP until 9 s", and gamepad 1's
+D-pad up/down moves that second during an Autonomous's INIT (`InitOptions`, 1 s a press; left/right
+picks the park). The drive team asks a partner "do you shoot your preloads right at the start?" and
+changes it only if the answer is not yes. The wait is the Auto's one wait drawn "until the match
+clock reads …" and offered in INIT (`AutoOption.matchSeconds`, exported as
+`kit.atMatchSeconds(kit.seconds(...))`). Its drawn value comes from
+`AutoRegistration.PARTNER_TIP_LAG_S`: 5.5 s after the partner's last ball, a give-up limit covering
+the shot's flight, the rocker's creep and swing and the camera settling (3.6 to 4.3 s in four films
+at the Belding Qualifier, up to 6.7 s over all of them: `TeamCode/autos/timing-terms.md`).
 `partnerTipLagS` in `TeamCode/autos/timing.json` is the same number, and `PartnerWaitTest` keeps the
-two equal. The Match page shows both numbers, never only the sum: "partner's last shot ▲▼ 8 s,
-waiting until 12.5 s". Nothing entered, the wait runs as drawn. It is still a time limit: a feed that
-has started finishes first. L-Partner's "Wait for TIP or CELL up" is the one partner wait on master.
+two equal; the simulator, which is told a stand-in's last shot, sets the wait from it. Nothing
+entered, the wait runs as drawn. It is still a time limit: a feed that has started finishes first.
+L-Partner's "Wait for TIP or CELL up" is the one partner wait on master.
 
 `autokit` depends only on Ivy and Pedro, so `AutoKitTest` runs every card through Ivy's real
 `Scheduler` against a fake drivetrain, on a laptop.
