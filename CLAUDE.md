@@ -154,6 +154,15 @@ changes (each Auto's own `TeamCode/sim-requests/<name>.json`, else `TeamCode/sim
 each, on any branch but master, and publishes to the `sim-results` branch.
 → README § "Simulating an Auto"
 
+**Volley and TIP times** have one set of names (`TeamCode/autos/timing-terms.md`): the moments
+launch starts, gate opens, first ball leaves, last ball leaves, feed ends, swing starts, CELL settled,
+CELL read up; and the intervals spin-up wait, feed, volley (the whole `LaunchAll` step) and TIP lag
+(last ball leaves to CELL read up). A time about a TIP is counted from "last ball leaves", never from
+the feed's end, which moves with the shot counter. Never "dwell" or "volley time" alone: say which
+interval. A time outside those names states both its ends, and says whether the Visualizer's preview
+or the Java simulator produced it; counts of TIPs, parks and contacts come from the simulator.
+→ `TeamCode/autos/timing-terms.md`
+
 **Cameras.** The Limelight is for AprilTags only (pitched up at the HIVE). Game pieces come from
 the webcam (`vision/PieceVisionSubsystem`, the SDK's colour-blob processor), enabled only while
 intaking because it costs Control Hub CPU. Never switch the Limelight to a colour pipeline — it

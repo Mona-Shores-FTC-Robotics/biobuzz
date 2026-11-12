@@ -390,6 +390,8 @@ they came from.
     The partner wait ends this long after the last shot the driver enters. One TIP came about 7 s
     after the last shot it could have come from, which no partner wait covers; the 3 Nov
     simulations' 0.7 to 1.2 s (four preloads on the starting NECTAR) were short.
+- **The words for these times** (launch starts, gate opens, last ball leaves, feed ends, TIP lag)
+  and which moment each fact counts from are in [timing-terms.md](timing-terms.md).
 - **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop
   until it is copied in. Unknown facts are dropped when it loads.
 - **`partnerTipLagS` is also the robot's** (`AutoRegistration.PARTNER_TIP_LAG_S`: the partner wait
