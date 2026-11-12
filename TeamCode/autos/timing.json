@@ -12,9 +12,9 @@
       "note": "Median of 83 spin-ups to launch speed; 0.9-2.1 s, slowest on a low battery."
     },
     "volleyS": {
-      "value": 4.0,
-      "source": "measured, 20245, 2-4 Nov 2026",
-      "note": "8 LaunchAlls after a drive: 3.6-4.6 s, median 4.0 (settle, speed, the set 3.5 s feed); last ball 1.7-2.9 s after the gate opened."
+      "value": 2.5,
+      "source": "PLAN, not measured (mentor, 12 Nov 2026): the feed ends on its fourth ball. Measured with the set 3.5 s feed: 4.0",
+      "note": "On the lane-pair branch only. Belding films: the fourth ball leaves 2.0-2.5 s after the gate opens; today the feed runs on to 3.5 s because the shot counter undercounts."
     },
     "cellCheckS": {
       "value": 0.75,
@@ -27,9 +27,9 @@
       "note": "Last piece a median 1.5 s after the push starts, plus about 0.4 s to latch full."
     },
     "tipStartS": {
-      "value": 1.4,
-      "source": "measured, Belding Qualifier video and L-NoCross logs, 7 Nov 2026",
-      "note": "The rocker moved 2.3-2.9 s after the last ball left (flight 0.5 s, dwell 1.8-2.4 s); a set 3.5 s feed ends about 1.2 s after its last ball."
+      "value": 2.6,
+      "source": "PLAN, with volleyS 2.5: a counted feed ends about 0.1 s after its last ball, not 1.2 s (measured value with the set feed: 1.4)",
+      "note": "Keeps the last ball to CellUp at the films' 4.1 s for a CELL at its tipping weight: 2.6 here plus tipSwingS 1.6, less the 0.1 s."
     },
     "tipSwingS": {
       "value": 1.6,
