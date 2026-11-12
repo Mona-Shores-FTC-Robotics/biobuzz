@@ -2074,7 +2074,7 @@ public final class AutoSim {
                     .holdTimeLimitsWhile(() -> firing && !Double.isNaN(activeFeedAt))
                     // A volley, with master's typical and last-piece times: the endgame guard goes for
                     // the next one when its last piece can be out before AUTO ends (AutoKit.guarded).
-                    .volley("LaunchAll", AutoRegistration.LAUNCH_ALL_TYPICAL_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S,
+                    .volley("LaunchAll", guardVolleyS(AutoRegistration.LAUNCH_ALL_TYPICAL_S), guardVolleyS(AutoRegistration.LAUNCH_ALL_LAST_PIECE_S),
                             () -> launch(Integer.MAX_VALUE))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
@@ -2148,6 +2148,16 @@ public final class AutoSim {
                 pending.add(String.format(Locale.ROOT, "turret: the fire step began %.1f s after the side switch", now - crossedAt));
                 crossedAt = Double.NaN;
             }
+        }
+
+        /**
+         * The volley length the endgame guard plans with: the robot's ({@code AutoRegistration}), or
+         * {@code BIOBUZZ_SIM_GUARD_VOLLEY_S} for "what if we planned on a quicker volley" (with
+         * {@code BIOBUZZ_SIM_SHOT_INTERVAL_S}, which makes the simulated volley that quick). A what-if only.
+         */
+        private double guardVolleyS(double robots) {
+            String v = System.getenv("BIOBUZZ_SIM_GUARD_VOLLEY_S");
+            return v != null && !v.trim().isEmpty() ? Double.parseDouble(v.trim()) : robots;
         }
 
         /** LaunchAll cards this robot has started: the Belding calibration's later volleys run their whole feed. */

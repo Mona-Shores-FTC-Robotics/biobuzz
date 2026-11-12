@@ -430,9 +430,22 @@ final class RobotDesign {
         d.intakeWidthIn = 0.9 * d.frameWidthIn;
         d.intakeOnContact = true;
         d.extractorSeatIn = FlowerPicker.contactStandoffIn - d.frameIn / 2;
-        d.shotIntervalS = LaunchCards.launchAllFeedS / 4;
+        d.shotIntervalS = shotIntervalS();
         d.fixedSetpoint = true;
         return d;
+    }
+
+    /**
+     * Seconds between the real robot's shots in a volley: the set feed spread over four, as master has it, or
+     * {@code BIOBUZZ_SIM_SHOT_INTERVAL_S} for "what would a quicker volley buy". At Belding the fourth ball left
+     * 2.0 to 2.5 s after the gate opened ({@code TeamCode/autos/timing-terms.md}), which is about 0.55 s a shot
+     * here; with {@code BIOBUZZ_BELDING_WHOLE_FEED=0} the volley then ends on its fourth shot, a volley of about
+     * 2.5 s. A what-if only: the robot's feed is {@code LaunchCards}' and is not changed.
+     */
+    static double shotIntervalS() {
+        String v = System.getenv("BIOBUZZ_SIM_SHOT_INTERVAL_S");
+        if (v != null && !v.trim().isEmpty()) return Double.parseDouble(v.trim());
+        return LaunchCards.launchAllFeedS / 4;
     }
 
     /** {@link #real()} with the turret locked straight ahead (R-Quals-Locked): the drivetrain aims. */
