@@ -50,9 +50,9 @@ public final class LUnderHiveAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose leftStart = p.of(62.3, 133.8, 270);
-        Pose leftLaunchCatch = p.of(57.5, 123.5, 273.4);
+        Pose leftCloseHive = p.of(59.9, 116.2, 270);
         Pose gardenStaging = p.of(11.5, 22.1, 270);
-        Pose rightStart = p.of(55.6, 7.7, 90);
+        Pose rightCloseHive = p.of(56.1, 25.3, 90);
         Pose leftPark = p.of(14.5, 117.4, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
@@ -60,7 +60,7 @@ public final class LUnderHiveAuto {
         Pose point4Control1 = p.of(58.7683, 101.5686, 0);
         Pose point4Control2 = p.of(65.2005, 71.9052, 0);
         Pose point4Control3 = p.of(60.6, 40.9, 0);
-        Pose point4Segment1Start = p.of(56.1, 26, 273.4);
+        Pose point4Segment1Start = p.of(56.1, 26, 270);
         Pose point4Segment1End = p.of(56.1, 26, 270);
         Pose point4Segment2Heading = p.of(56.1, 26, 270);
         Pose point6 = p.of(56.1, 26, 90);
@@ -75,45 +75,43 @@ public final class LUnderHiveAuto {
         Pose point8Start = p.of(59, 104, 90);
         Pose point8Control1 = p.of(59, 118, 0);
         Pose point8Control2 = p.of(35, 117.4, 0);
-        Pose point10 = p.of(50, 17, 90);
-        Pose point10Segment1Start = p.of(50, 17, 270);
-        Pose point10Segment1End = p.of(50, 17, 360);
-        Pose point10Segment2Start = p.of(50, 17, 0);
-        Pose point10Segment2End = p.of(50, 17, 90);
-        Pose point12 = p.of(59, 104, 90);
-        Pose point12Control1 = p.of(60.6, 40.9, 0);
-        Pose point12Control2 = p.of(65.2, 71.9, 0);
-        Pose point13Start = p.of(59, 104, 90);
-        Pose point13Control1 = p.of(59, 118, 0);
-        Pose point13Control2 = p.of(35, 117.4, 0);
+        Pose gardenExitToRightCloseHiveSegment1Start = p.of(56.1, 25.3, 270);
+        Pose gardenExitToRightCloseHiveSegment1End = p.of(56.1, 25.3, 360);
+        Pose gardenExitToRightCloseHiveSegment2Start = p.of(56.1, 25.3, 0);
+        Pose point11 = p.of(59, 104, 90);
+        Pose point11Control1 = p.of(60.6, 40.9, 0);
+        Pose point11Control2 = p.of(65.2, 71.9, 0);
+        Pose point12Start = p.of(59, 104, 90);
+        Pose point12Control1 = p.of(59, 118, 0);
+        Pose point12Control2 = p.of(35, 117.4, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path openToLeftLaunchCatch = Paths.line(leftStart, leftLaunchCatch).linear(leftStart, leftLaunchCatch);
-        Path leftAbortParkToLeftPark = Paths.line(leftLaunchCatch, leftPark).linear(leftLaunchCatch, leftPark);
-        Path earlyGardenToGardenStaging = Paths.path(Paths.curve(leftLaunchCatch, point4Control1, point4Control2, point4Control3, point4).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(point4Segment1Start, point4Segment1End)).until(1, Interpolator.constant(point4Segment2Heading))), Paths.line(point4, gardenStaging).constant(gardenStaging));
+        Path openToLeftCloseHive = Paths.line(leftStart, leftCloseHive).linear(leftStart, leftCloseHive);
+        Path leftAbortParkToLeftPark = Paths.line(leftCloseHive, leftPark).linear(leftCloseHive, leftPark);
+        Path earlyGardenToGardenStaging = Paths.path(Paths.curve(leftCloseHive, point4Control1, point4Control2, point4Control3, point4).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(point4Segment1Start, point4Segment1End)).until(1, Interpolator.constant(point4Segment2Heading))), Paths.line(point4, gardenStaging).constant(gardenStaging));
         Path gardenAbortParkToLeftPark = Paths.path(Paths.line(gardenStaging, point6).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(point6Segment1Start, point6Segment1End)).until(1, Interpolator.linear(point6Segment2Start, point6Segment2End))), Paths.curve(point7Start, point7Control1, point7Control2, point7).linear(point7Start, point7), Paths.curve(point8Start, point8Control1, point8Control2, leftPark).linear(point8Start, leftPark));
-        Path gardenExitToRightStart = Paths.path(Paths.line(gardenStaging, point10).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(point10Segment1Start, point10Segment1End)).until(1, Interpolator.linear(point10Segment2Start, point10Segment2End))), Paths.line(point10, rightStart).constant(rightStart));
-        Path underHiveParkToLeftPark = Paths.path(Paths.curve(rightStart, point12Control1, point12Control2, point12).linear(rightStart, point12), Paths.curve(point13Start, point13Control1, point13Control2, leftPark).linear(point13Start, leftPark));
+        Path gardenExitToRightCloseHive = Paths.line(gardenStaging, rightCloseHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(gardenExitToRightCloseHiveSegment1Start, gardenExitToRightCloseHiveSegment1End)).until(1, Interpolator.linear(gardenExitToRightCloseHiveSegment2Start, rightCloseHive)));
+        Path underHiveParkToLeftPark = Paths.path(Paths.curve(rightCloseHive, point11Control1, point11Control2, point11).linear(rightCloseHive, point11), Paths.curve(point12Start, point12Control1, point12Control2, leftPark).linear(point12Start, leftPark));
 
         return kit.sequence(
                 kit.command("SpinUp"),
-                kit.path("open to LEFT_LAUNCH_CATCH", openToLeftLaunchCatch, 1, leftAbortParkToLeftPark, 1.9),
+                kit.path("open to LEFT_CLOSE_HIVE", openToLeftCloseHive, 1.2, leftAbortParkToLeftPark, 2),
                 kit.firstOf("LEFT up before 9 s, otherwise park",
                         kit.atMatchSeconds(9).then(
-                                kit.guarded("Timed out", leftAbortParkToLeftPark, 1.9,
-                                        kit.path("left abort park to LEFT_PARK", leftAbortParkToLeftPark, 1.9))),
+                                kit.guarded("Timed out", leftAbortParkToLeftPark, 2,
+                                        kit.path("left abort park to LEFT_PARK", leftAbortParkToLeftPark, 2))),
                         kit.when("LeftCellUp").then(
                                 kit.command("LaunchAll", 1),
-                                kit.path("early garden to GARDEN_STAGING", earlyGardenToGardenStaging, 3.9, gardenAbortParkToLeftPark, 4.6),
+                                kit.path("early garden to GARDEN_STAGING", earlyGardenToGardenStaging, 3.8, gardenAbortParkToLeftPark, 4.6),
                                 kit.command("GardenGather", 5.5),
-                                kit.path("garden exit to RIGHT_START", gardenExitToRightStart, 2.1, underHiveParkToLeftPark, 4),
+                                kit.path("garden exit to RIGHT_CLOSE_HIVE", gardenExitToRightCloseHive, 1.9, underHiveParkToLeftPark, 3.7),
                                 kit.firstOf("RIGHT up before 22 s, otherwise park",
                                         kit.atMatchSeconds(22).then(
-                                                kit.guarded("Timed out", underHiveParkToLeftPark, 4,
-                                                        kit.path("under hive park to LEFT_PARK", underHiveParkToLeftPark, 4))),
+                                                kit.guarded("Timed out", underHiveParkToLeftPark, 3.7,
+                                                        kit.path("under hive park to LEFT_PARK", underHiveParkToLeftPark, 3.7))),
                                         kit.when("RightCellUp").then(
-                                                kit.guarded("If RightCellUp", underHiveParkToLeftPark, 4,
+                                                kit.guarded("If RightCellUp", underHiveParkToLeftPark, 3.7,
                                                         kit.command("LaunchAll", 1),
-                                                        kit.path("under hive park to LEFT_PARK", underHiveParkToLeftPark, 4)))))));
+                                                        kit.path("under hive park to LEFT_PARK", underHiveParkToLeftPark, 3.7)))))));
     }
 }

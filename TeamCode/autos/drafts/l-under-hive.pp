@@ -12,17 +12,17 @@
       "kind": "atomic",
       "id": "l-open",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 59.9,
+        "y": 116.2
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 270,
-        "endDeg": 273.4
+        "endDeg": 270
       },
       "locked": false,
-      "name": "open to LEFT_LAUNCH_CATCH",
+      "name": "open to LEFT_CLOSE_HIVE",
       "color": "#4e79a7",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -63,7 +63,7 @@
                   "endProgress": 0.1,
                   "interpolationType": "linear",
                   "parameters": {
-                    "startDeg": 273.4,
+                    "startDeg": 270,
                     "endDeg": 270
                   }
                 },
@@ -104,62 +104,41 @@
       "waitAfterName": ""
     },
     {
-      "kind": "compound",
+      "kind": "atomic",
       "id": "l-garden-exit",
-      "segments": [
-        {
-          "kind": "atomic",
-          "id": "l-garden-east",
-          "endPoint": {
-            "x": 50,
-            "y": 17
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "piecewise",
-            "piecewiseHeading": {
-              "segments": [
-                {
-                  "startProgress": 0,
-                  "endProgress": 0.5,
-                  "interpolationType": "linear",
-                  "parameters": {
-                    "startDeg": 270,
-                    "endDeg": 360
-                  }
-                },
-                {
-                  "startProgress": 0.5,
-                  "endProgress": 1,
-                  "interpolationType": "linear",
-                  "parameters": {
-                    "startDeg": 0,
-                    "endDeg": 90
-                  }
-                }
-              ]
+      "endPoint": {
+        "x": 56.1,
+        "y": 25.3
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 360
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 0,
+                "endDeg": 90
+              }
             }
-          },
-          "locked": false
-        },
-        {
-          "kind": "atomic",
-          "id": "l-back-to-wall",
-          "endPoint": {
-            "x": 55.6,
-            "y": 7.7
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "constant",
-            "degrees": 90
-          },
-          "locked": false
+          ]
         }
-      ],
-      "name": "garden exit to RIGHT_START",
-      "color": "#4e79a7",
+      },
       "locked": false,
+      "name": "garden exit to RIGHT_CLOSE_HIVE",
+      "color": "#4e79a7",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -230,17 +209,17 @@
       "kind": "atomic",
       "id": "l-link-left",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 59.9,
+        "y": 116.2
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 0,
-        "endDeg": 273.4
+        "endDeg": 270
       },
       "locked": false,
-      "name": "Link to LEFT_LAUNCH_CATCH"
+      "name": "Link to LEFT_CLOSE_HIVE"
     },
     {
       "kind": "atomic",
@@ -252,7 +231,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 273.4,
+        "startDeg": 270,
         "endDeg": 0
       },
       "locked": false,
@@ -601,19 +580,19 @@
         133.8,
         270
       ],
-      "LEFT_LAUNCH_CATCH": [
-        57.5,
-        123.5,
-        273.4
+      "LEFT_CLOSE_HIVE": [
+        59.9,
+        116.2,
+        270
       ],
       "GARDEN_STAGING": [
         11.5,
         22.1,
         270
       ],
-      "RIGHT_START": [
-        55.6,
-        7.7,
+      "RIGHT_CLOSE_HIVE": [
+        56.1,
+        25.3,
         90
       ],
       "LEFT_PARK": [
@@ -623,9 +602,9 @@
       ]
     },
     "pathEnds": {
-      "l-open": "LEFT_LAUNCH_CATCH",
+      "l-open": "LEFT_CLOSE_HIVE",
       "l-early-garden": "GARDEN_STAGING",
-      "l-garden-exit": "RIGHT_START",
+      "l-garden-exit": "RIGHT_CLOSE_HIVE",
       "l-under-hive-park": "LEFT_PARK",
       "l-left-abort-park": "LEFT_PARK",
       "l-garden-abort-park": "LEFT_PARK"
