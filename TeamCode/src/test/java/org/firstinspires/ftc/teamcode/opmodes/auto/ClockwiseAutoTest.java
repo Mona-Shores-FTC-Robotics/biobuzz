@@ -148,7 +148,7 @@ public class ClockwiseAutoTest {
      */
     @Test public void rightShootsAtLeftAgainWhenRightIsNotUpAndParksAfterLHasPassed() {
         secondTip = Double.POSITIVE_INFINITY;
-        drive.arriveAt(47.2, 119.3, 13.5);  // the pick ends at 16.5 s: after T3c, before T3b
+        drive.arriveAt(47.2, 119.3, 15.6);  // the pick ends at 18.6 s: after T3c, before T3b
         run(RClockwiseAuto.build(kit(), false));
         assertEquals("preloads, the first load, the SCORING FLOWER load", 3, count("LaunchAll"));
         assertFalse("it never crossed: " + trace, trace.contains("path back under the HIVE to RIGHT_START"));
@@ -171,7 +171,7 @@ public class ClockwiseAutoTest {
     /** Too late to cross, and RIGHT is up: TIP 2 is done, so R keeps its load, waits for L to pass and parks from the left. */
     @Test public void rightDoesNotCrossAfterT3c() {
         secondTip = 18;
-        drive.arriveAt(47.2, 119.3, 13.5);
+        drive.arriveAt(47.2, 119.3, 15.6);
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
         assertFalse(trace.toString(), trace.contains("path back under the HIVE to RIGHT_START"));
@@ -288,7 +288,7 @@ public class ClockwiseAutoTest {
 
     @Test public void theRescueVolleysAreFromSquareSpotsToo() {
         secondTip = Double.POSITIVE_INFINITY;
-        drive.arriveAt(47.2, 119.3, 13.5);
+        drive.arriveAt(47.2, 119.3, 15.6);
         run(RClockwiseAuto.build(kit(), false));
         shotFrom(2, LaunchSpots.Spot.LEFT_WALL_HIVE);
         again();

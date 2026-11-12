@@ -22,7 +22,7 @@ fails if a volley of the pair is from anywhere else.
 - At least one TIP comes in every normal run, and two in 9 of 24 when R takes the WALL FLOWER (3
   of 24 when R takes the GARDEN).
 - **Three TIPs never come.** R finishes its SCORING FLOWER pick at about 20.1 s and would have to
-  start across by 16.2 s.
+  start across by 18.5 s.
 - **The simulator reads low against the robots.** The mentor has run the Infraviolet pair on the
   robots and scored three TIPs; this simulator gives Infraviolet none in 24 runs. So these counts
   are a floor for comparing drawings, not a forecast. The robots' logs decide.
@@ -35,7 +35,7 @@ fails if a volley of the pair is from anywhere else.
 | First pickup | The WALL FLOWER, or the GARDEN | |
 | TIP 2 | Outside lane to LEFT_WALL_NEAR; shoot at LEFT | Shoot the preloads at LEFT once it is up |
 | Second pickup | The SCORING FLOWER | Under the HIVE; the GARDEN, or the WALL FLOWER |
-| TIP 3 | Wait 2.3 s, back straight out and under the HIVE onto RIGHT_START; shoot at RIGHT | RIGHT_WALL_NEAR; shoot at RIGHT |
+| TIP 3 | Back straight out and under the HIVE onto RIGHT_START; shoot at RIGHT | RIGHT_WALL_NEAR; shoot at RIGHT |
 | Park | Outside lane to RIGHT_PARK | Outside lane to LEFT_PARK |
 
 **The loop.** Under the HIVE is one-way, left to right. The outside lane is one-way, right to
@@ -51,12 +51,13 @@ the other. It is one row of each robot's INIT menu, **Pickup**, and it changes o
 short way as it goes up the outside lane. From the SCORING FLOWER it backs straight out, under the
 HIVE and onto the wall at RIGHT_START without turning at all.
 
-**R waits 2.3 s at the SCORING FLOWER before it backs under the HIVE**, so that TIP 2's spill has
-landed. In a what-if with a short feed (below), the first drawing drove into pieces still falling
-(G409) in 35 of 120 runs and 50 of 120 with full loads; with the wait it was 0 of 120 in both
-(measured on the route before the Square spots). The films in `timing-terms.md` put the CELL
-settling 3.4 to 6.5 s after the last ball leaves, so a fixed wait is a first value, not a
-measurement: `doc/robot-todo.md` has the video check.
+**R does not wait for TIP 2's spill before it backs under the HIVE** (mentor, 12 Nov 2026: deal
+with it if it shows on the field). An earlier drawing waited 2.3 s there. In a what-if with a short
+feed, on the route before the Square spots, R drove into pieces still falling (G409) in 35 of 120
+runs without the wait and 0 of 120 with it. At Belding's numbers R never crosses, so the simulator's
+tables below show none. `doc/robot-todo.md` has the video check. Another way round it, not drawn:
+L takes the WALL FLOWER and R goes straight to the SCORING FLOWER, shoots it to make TIP 2, and
+goes on under the HIVE to the GARDEN.
 
 ## The stops: one question each, "which CELL is up by this time?"
 
@@ -75,7 +76,7 @@ L finishes TIP 1 and R finishes TIP 2. Neither robot needs to know why a TIP is 
 **R3 is asked at one end or the other, and the clock picks which.** When the SCORING FLOWER pick
 ends, R asks only the clock:
 
-- **Before T3c: go for TIP 3.** R waits for the spill, backs under the HIVE and asks on
+- **Before T3c: go for TIP 3.** R backs under the HIVE and asks on
   RIGHT_START: RIGHT up by T3r? Yes, shoot at RIGHT and park by the outside lane. No, park the
   same way with the load.
 - **After T3c, before T3b: finish TIP 2.** R goes to LEFT_WALL_HIVE and asks: RIGHT up by T3? Yes,
@@ -98,7 +99,7 @@ Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-tod
 | **T1** LEFT up by | 9.5 s | TIP 1 from R's preloads was read up at 6.5 to 8.8 s in the simulator. The Belding films have it settled as late as 9.98 s after our PLAY, so this is likely short |
 | **T2** LEFT up by | 15.5 s | R is at LEFT_WALL_NEAR at 12.0 s. A volley begun later ends after 19.3 s, and R's park would then cross the lane as L comes up it |
 | **TS** scoring FLOWER by | 16.9 s | R's LEFT volley (launch starts to feed ends) is over at 15.8 s. Later than 16.9 s, the pick and the park after it meet L in the lane |
-| **T3c** cross by | 16.2 s | The wait for the spill (2.3 s), the crossing (3.3 s), a volley as the guard plans it (4.0 s), the park from RIGHT_START (3.2 s) and the guard's 1 s margin end at 30 s |
+| **T3c** cross by | 18.5 s | The crossing (3.3 s), a volley as the robot's guard plans it (4.0 s, `AutoRegistration.LAUNCH_ALL_TYPICAL_S`), the park from RIGHT_START (3.2 s) and the guard's 1 s margin end at 30 s |
 | **T3r** RIGHT up by, on RIGHT_START | 21.8 s | The volley, that park and the margin |
 | **TRr** park from the right at | 24.0 s | L has left RIGHT_WALL_NEAR for its park (TL) |
 | **T3b** LEFT rescue by | 18.9 s | The drive to LEFT_WALL_HIVE (2.5 s), the volley (4.0 s), the park from there (3.5 s) and the margin |
@@ -233,8 +234,8 @@ R's time in the simulator at Belding's numbers (R on the WALL FLOWER):
 | Drive to the SCORING FLOWER | 1.4 | 17.2 |
 | Pick | 2.9 | 20.1 |
 
-R must start across by 16.2 s (T3c) and is ready at 20.1 s: 3.9 s short, 2.3 s of it the wait for
-the spill. The rest is in the two volleys and the two picks.
+R must start across by 18.5 s (T3c) and is ready at 20.1 s: 1.6 s short. It is in the two volleys
+and the two picks.
 
 **What a shorter feed bought, on the route before the Square spots** (R on the WALL FLOWER, normal,
 120 seeds; a what-if, not the robot): a shot counter that works, 0.47 s between shots (gate to last

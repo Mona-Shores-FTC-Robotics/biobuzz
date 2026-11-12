@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-12T20:07:07.329Z",
+  "timestamp": "2026-11-12T20:29:12.303Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -51,7 +51,7 @@
       "segments": [
         {
           "id": "r-pickup-park-lane",
-          "color": "#76b7b2",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -81,7 +81,7 @@
         },
         {
           "id": "r-pickup-park-turn",
-          "color": "#76b7b2",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -326,7 +326,7 @@
         },
         {
           "id": "r-to-catch-wall",
-          "color": "#76b7b2",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -359,7 +359,7 @@
       "segments": [
         {
           "id": "r-catch-park-out",
-          "color": "#f28e2b",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -487,7 +487,7 @@
         },
         {
           "id": "r-cross-south",
-          "color": "#59a14f",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -529,7 +529,7 @@
       "segments": [
         {
           "id": "r-right-park-west",
-          "color": "#9c755f",
+          "color": "#76b7b2",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -559,7 +559,7 @@
         },
         {
           "id": "r-right-park-lane",
-          "color": "#9c755f",
+          "color": "#4e79a7",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -887,10 +887,10 @@
                       {
                         "id": "r-gate-cross",
                         "kind": "firstOf",
-                        "label": "Time to cross for TIP 3: before 16.2 s",
+                        "label": "Time to cross for TIP 3: before 18.5 s",
                         "rows": [
                           {
-                            "afterMs": 16200,
+                            "afterMs": 18500,
                             "matchClock": true,
                             "cards": [
                               {
@@ -994,17 +994,6 @@
                               "Always"
                             ],
                             "cards": [
-                              {
-                                "id": "r-spill",
-                                "kind": "firstOf",
-                                "label": "Let TIP 2's spill land before backing under the HIVE",
-                                "rows": [
-                                  {
-                                    "afterMs": 2300,
-                                    "cards": []
-                                  }
-                                ]
-                              },
                               {
                                 "id": "r-c-cross",
                                 "kind": "path",

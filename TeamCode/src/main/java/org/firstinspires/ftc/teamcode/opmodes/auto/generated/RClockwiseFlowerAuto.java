@@ -21,7 +21,7 @@ public final class RClockwiseFlowerAuto {
     public static final String SOURCE = "r-clockwise-flower.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-12|3:07PM";
+    public static final String SAVED = "11-12|3:29PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -115,8 +115,8 @@ public final class RClockwiseFlowerAuto {
                                         kit.when("Always").then(
                                                 kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerParkToRightPark, 1.9),
                                                 kit.command("PickFlower", 4.5),
-                                                kit.firstOf("Time to cross for TIP 3: before 16.2 s",
-                                                        kit.atMatchSeconds(16.2).then(
+                                                kit.firstOf("Time to cross for TIP 3: before 18.5 s",
+                                                        kit.atMatchSeconds(18.5).then(
                                                                 kit.firstOf("Time to finish TIP 2 at LEFT: before 18.9 s",
                                                                         kit.atMatchSeconds(18.9).then(
                                                                                 kit.guarded("Timed out", scoringFlowerParkToRightPark, 1.9,
@@ -136,8 +136,6 @@ public final class RClockwiseFlowerAuto {
                                                                                                                 kit.atMatchSeconds(26.4)),
                                                                                                         kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.5))))))),
                                                         kit.when("Always").then(
-                                                                kit.firstOf("Let TIP 2's spill land before backing under the HIVE",
-                                                                        kit.afterMs(2300)),
                                                                 kit.path("back under the HIVE to RIGHT_START", backUnderTheHiveToRightStart, 3.4, outsideLaneToRightPark, 3.2),
                                                                 kit.firstOf("R3: RIGHT up by 21.8 s at the right spot, otherwise park",
                                                                         kit.atMatchSeconds(21.8).then(

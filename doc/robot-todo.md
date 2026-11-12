@@ -546,20 +546,21 @@ Use the work order above to select checks; the detailed mechanism checks below a
         **Stop:** the camera does not settle the CELL → note which tags it does see.
       - **The spill after a TIP, on video, with pieces in both CELLs:** how long after the last
         ball leaves the last spilled piece is still falling, and where the spill lands at each
-        end. R waits 2.3 s at the SCORING FLOWER before backing under the HIVE, and L waits to
+        end. R does not wait before backing under the HIVE from the SCORING FLOWER (in the simulator
+        it drove into falling pieces in about a third of the runs where it crossed), and L waits to
         22.5 s (TLr) on RIGHT_START after a rescue volley. **Good:** nothing still falling when
         either moves, and no piece lands on a robot standing on a wall spot. **Stop:** a piece
         does → write the seconds and where; the waits change in the Visualizer.
       - **The times, from `read_logs.py steps` on each run's log:** `LeftCellUp` for L (T1
         9.5 s; the Belding films have it as late as 9.98 s, so expect to raise it); R on
         LEFT_WALL_NEAR and its volley's end (T2 15.5 s, TS 16.9 s; drawn 12.0 and 15.8 s); R's
-        SCORING FLOWER pick's end (T3c 16.2 s, T3b 18.9 s; drawn 20.1 s, so R parks from the
+        SCORING FLOWER pick's end (T3c 18.5 s, T3b 18.9 s; drawn 20.1 s, so R parks from the
         FLOWER); L on RIGHT_WALL_NEAR (T4 19.2 s) and each robot parked (TL 22.7 s). **Good:**
         each within 0.5 s of the drawn. Otherwise set the row in INIT for the next run and write
         the measured value on the PR; the drawn values change only in the Visualizer.
       - **The rescue and the crossing, once the volleys are short enough,** or with T3b or T3c
         set late in INIT to try one: the rescue (R to LEFT_WALL_HIVE, a volley, park at 26.4 s,
-        TR) and the crossing (R waits 2.3 s, backs onto RIGHT_START, asks until 21.8 s, T3r, and
+        TR) and the crossing (R backs onto RIGHT_START, asks until 21.8 s, T3r, and
         does not leave before 24.0 s, TRr). **Stop the run by hand** if L is still in the lane
         when R leaves LEFT_WALL_HIVE, or still on RIGHT_WALL_NEAR when R leaves RIGHT_START.
       - **The fallbacks, on purpose, both robots:** hold R's preloads back (L1 "no": at 9.5 s L
