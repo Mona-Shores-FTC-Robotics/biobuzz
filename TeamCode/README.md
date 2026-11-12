@@ -1076,7 +1076,7 @@ enters it during an Autonomous's INIT with gamepad 1's D-pad up/down (`InitOptio
 left/right picks the park). The Auto's one wait drawn "until the match clock reads …" and offered
 in INIT (`AutoOption.matchSeconds`, exported as `kit.atMatchSeconds(kit.seconds(...))`) then ends
 at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 4.5 s for the shot's flight, the dwell
-before the rocker moves, the swing and the camera settling (4.0 to 4.4 s at the Belding Qualifier).
+before the rocker moves, the swing and the camera settling (3.6 to 4.3 s in four films at the Belding Qualifier, up to 6.7 s over all of them: `TeamCode/autos/timing-terms.md`).
 `partnerTipLagS` in `TeamCode/autos/timing.json` is the same number, and `PartnerWaitTest` keeps the
 two equal. The Match page shows both numbers, never only the sum: "partner's last shot ▲▼ 8 s,
 waiting until 12.5 s". Nothing entered, the wait runs as drawn. It is still a time limit: a feed that
@@ -1193,7 +1193,7 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   | R-Solo, Ultraviolet: second TIP | 0 of 2 | 6 of 60 | 20 of 20 |
   | L-NoCross, Infrared: second TIP | 1 of 3 | 22 of 60 | 20 of 20 |
   | L-NoCross, Ultraviolet: second TIP | 2 of 2 | 29 of 60 | 20 of 20 |
-  | Partner's last shot to our CellUp | 4.0 to 4.4 s (M-3, M-4) | 3.9 to 4.5 s, median 4.1 | 0.7 s |
+  | Partner's last shot to our CellUp | 3.6 to 4.3 s (M-3, M-4, M-10 twice; re-measured 11 Nov, `TeamCode/autos/timing-terms.md`) | 3.9 to 4.5 s, median 4.1 | 0.7 s |
   | R-Solo: arrives LEFT, second volley ends, third volley, park starts | 13.0, 16.9, 23.1 to 26.8, 26.8 s (medians) | 13.0, 16.7, 22.7 to 26.4, 26.4 s | 12.0, 14.8, 21.0 to 23.8 s |
 
   ```bash
