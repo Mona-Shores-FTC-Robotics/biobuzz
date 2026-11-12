@@ -904,7 +904,7 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       once. **Good:** aim error under 2° on the Match page and 3–4 of 4 in. [mentor, 5 Nov]
 
 - [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`, and for Triangle's close
-      row (34.6 to 35.7 in; `TeleOpConfig.launchSpotClose` stays off until this row is in).** The table's rows start
+      row (34.6 to 35.7 in; Triangle is on, and drives there, so the loop below can be run from it).** The table's rows start
       at 42.4 in, so both CLOSE spots fire at an extrapolated speed (1459–1480 ticks/s in the
       Belding logs). The four measured rows fit one arc, which puts 36 in at about 1513 ticks/s
       (1458 to 1573 allowed by the fit). Run the loop above at `RIGHT_LAUNCH_CLOSE` and write the
@@ -993,8 +993,8 @@ locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai arti
       driver says which wall spot they expect before pressing. **Good:** it goes there every time.
       The boundaries are halfway between the wall spots along the wall (red RIGHT: x 45.8 and 65.7;
       LEFT: 48.9 and 69.7).
-- [ ] **Triangle, after the 36 in row is measured (§7d):** `TeleOpConfig.launchSpotClose` on in
-      Panels before INIT; hold Triangle in front of each column on both sides. **Good:** drives to
+- [ ] **Triangle (on since 12 Nov; measure the 36 in row with it first, §7d: until then it fires
+      at the table's held end speed, about 1460):** hold Triangle in front of each column on both sides. **Good:** drives to
       the `…_CLOSE_…` spot of that column, 34.6 to 35.7 in from the CELL, 3 or 4 of 4 in. The NEAR
       and FAR close spots overlap the HIVE one by about a third of a robot: never send both robots
       to the middle and a side one at once.

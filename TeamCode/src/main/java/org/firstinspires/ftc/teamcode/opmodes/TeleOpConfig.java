@@ -116,10 +116,11 @@ public final class TeleOpConfig {
 
     /**
      * The close row's button (Triangle: the launch spot about 36 in from the CELL, in front of the
-     * wall one). Off until a launcher speed is measured there: {@code LaunchSpeedTable}'s rows start
-     * at 42.4 in and its trend stops at 37.4, so a close volley fires at the held end speed, too
-     * fast (mentor, 11 Nov 2026; {@code doc/robot-todo.md}). Off leaves it out of the layout, the
-     * Controls page and the button's reading; {@link #launchSpot} off takes it out too. Read at INIT.
+     * wall one). On, so the close spots can be driven to and their launcher speed measured
+     * (mentor, 12 Nov 2026): {@code LaunchSpeedTable}'s rows start at 42.4 in and its trend stops at
+     * 37.4, so until a row is measured at 36 in a close volley fires at the held end speed
+     * ({@code doc/robot-todo.md}). Off leaves it out of the layout, the Controls page and the
+     * button's reading; {@link #launchSpot} off takes it out too. Read at INIT.
      */
     public static boolean launchSpotClose = ControlScheme.LAUNCH_SPOT_CLOSE_DEFAULT;
 
