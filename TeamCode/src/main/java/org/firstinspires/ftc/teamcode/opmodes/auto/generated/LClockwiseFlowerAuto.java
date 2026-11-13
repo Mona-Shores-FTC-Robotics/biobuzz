@@ -21,7 +21,7 @@ public final class LClockwiseFlowerAuto {
     public static final String SOURCE = "l-clockwise-flower.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-12|9:21PM";
+    public static final String SAVED = "11-13|9:18AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -130,35 +130,37 @@ public final class LClockwiseFlowerAuto {
         Path outsideLaneToLeftPark = Paths.path(Paths.curve(rightWallNear, point24Control1, point24Control2, point24).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(point24Segment1Start, point24Segment1End)).until(1, Interpolator.constant(point24Segment2Heading))), Paths.curve(point25Start, point25Control1, point25).linear(point25Start, point25), Paths.line(point25, leftPark).constant(leftPark));
 
         return kit.sequence(
-                kit.command("SpinUp"),
-                kit.path("open to LEFT_WALL_HIVE", openToLeftWallHive, 0.5, catchParkToLeftPark, 2.1),
-                kit.firstOf("L1: LEFT up by 9.5 s, otherwise cross and finish TIP 1 at RIGHT",
-                        kit.atMatchSeconds(9.5).then(
-                                kit.guarded("Timed out", rightCatchParkToLeftPark, 4.3,
-                                        kit.path("under the HIVE to RIGHT_START", underTheHiveToRightStart, 4.2),
-                                        kit.command("LaunchAll", 1),
-                                        kit.firstOf("R has parked from the left spot: park at 22.5 s",
-                                                kit.atMatchSeconds(22.5)),
-                                        kit.path("right catch park to LEFT_PARK", rightCatchParkToLeftPark, 4.3))),
-                        kit.when("LeftCellUp").then(
-                                kit.command("LaunchAll", 1),
-                                kit.path("under the HIVE to the lane's end", underTheHiveToTheLaneSEndPath, 3, laneSEndParkToLeftPark, 3.8),
-                                kit.firstOf("R has passed the FLOWER: go at 15.5 s",
-                                        kit.atMatchSeconds(15.5)),
-                                kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.8, pickupParkToLeftPark, 3.2),
-                                kit.command("PickFlower", 4.5),
-                                kit.path("FLOWER to RIGHT_WALL_NEAR", flowerToRightWallNear, 2.1, outsideLaneToLeftPark, 3.9),
-                                kit.firstOf("L2: RIGHT up by 19.2 s, otherwise keep the load",
-                                        kit.atMatchSeconds(19.2).then(
-                                                kit.guarded("Timed out", outsideLaneToLeftPark, 3.9,
-                                                        kit.firstOf("R has left the scoring FLOWER: park at 22.7 s",
-                                                                kit.atMatchSeconds(22.7)),
-                                                        kit.path("outside lane to LEFT_PARK", outsideLaneToLeftPark, 3.9))),
-                                        kit.when("RightCellUp").then(
-                                                kit.guarded("If RightCellUp", outsideLaneToLeftPark, 3.9,
-                                                        kit.command("LaunchAll", 1),
-                                                        kit.firstOf("R has left the scoring FLOWER: park at 22.7 s",
-                                                                kit.atMatchSeconds(22.7)),
-                                                        kit.path("outside lane to LEFT_PARK", outsideLaneToLeftPark, 3.9)))))));
+                kit.guarded("Auto", catchParkToLeftPark, 2.1,
+                        kit.command("SpinUp"),
+                        kit.path("open to LEFT_WALL_HIVE", openToLeftWallHive, 0.5, catchParkToLeftPark, 2.1),
+                        kit.firstOf("L1: LEFT up by 9.5 s, otherwise cross and finish TIP 1 at RIGHT",
+                                kit.atMatchSeconds(9.5).then(
+                                        kit.guarded("Timed out", rightCatchParkToLeftPark, 4.3,
+                                                kit.path("under the HIVE to RIGHT_START", underTheHiveToRightStart, 4.2),
+                                                kit.command("LaunchAll", 1),
+                                                kit.firstOf("R has parked from the left spot: park at 22.5 s",
+                                                        kit.atMatchSeconds(22.5)),
+                                                kit.path("right catch park to LEFT_PARK", rightCatchParkToLeftPark, 4.3))),
+                                kit.when("LeftCellUp").then(
+                                        kit.guarded("If LeftCellUp", outsideLaneToLeftPark, 3.9,
+                                                kit.command("LaunchAll", 1),
+                                                kit.path("under the HIVE to the lane's end", underTheHiveToTheLaneSEndPath, 3, laneSEndParkToLeftPark, 3.8),
+                                                kit.firstOf("R has passed the FLOWER: go at 15.5 s",
+                                                        kit.atMatchSeconds(15.5)),
+                                                kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.8, pickupParkToLeftPark, 3.2),
+                                                kit.command("PickFlower", 4.5),
+                                                kit.path("FLOWER to RIGHT_WALL_NEAR", flowerToRightWallNear, 2.1, outsideLaneToLeftPark, 3.9),
+                                                kit.firstOf("L2: RIGHT up by 19.2 s, otherwise keep the load",
+                                                        kit.atMatchSeconds(19.2).then(
+                                                                kit.guarded("Timed out", outsideLaneToLeftPark, 3.9,
+                                                                        kit.firstOf("R has left the scoring FLOWER: park at 22.7 s",
+                                                                                kit.atMatchSeconds(22.7)),
+                                                                        kit.path("outside lane to LEFT_PARK", outsideLaneToLeftPark, 3.9))),
+                                                        kit.when("RightCellUp").then(
+                                                                kit.guarded("If RightCellUp", outsideLaneToLeftPark, 3.9,
+                                                                        kit.command("LaunchAll", 1),
+                                                                        kit.firstOf("R has left the scoring FLOWER: park at 22.7 s",
+                                                                                kit.atMatchSeconds(22.7)),
+                                                                        kit.path("outside lane to LEFT_PARK", outsideLaneToLeftPark, 3.9)))))))));
     }
 }

@@ -775,6 +775,48 @@ public class AutoKitTest {
         assertEquals(15.5, drive.followedAt.get(0), 0.05);
     }
 
+    /**
+     * The same late trip with the drive team's Priority on the third TIP ({@link AutoOption#PRIORITY},
+     * its first leg, the drawing's): the volley's last piece is out by 30 s, so it goes and fires, and
+     * the park takes what time is left.
+     */
+    @Test
+    public void withThePriorityOnTheTipAVolleyComesBeforeThePark() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .grab("GardenGather", 5.0, () -> lasting("GardenGather", 4.5)));
+        Path toGarden = line(0, 10), gardenPark = line(10, 20), back = line(10, 0), park = line(0, 40);
+        now = 15.5;
+        run(kit.guarded("If CellUp", park, 2.9,
+                kit.route(AutoOption.PRIORITY, 0, () -> kit.path("to GARDEN_STAGING", toGarden, 2.0, gardenPark, 2.6)),
+                kit.route(AutoOption.PRIORITY, 0, () -> kit.command("GardenGather", 8.0)),
+                kit.route(AutoOption.PRIORITY, 0, () -> kit.path("to RIGHT_LAUNCH_CATCH", back, 2.0)),
+                kit.route(AutoOption.PRIORITY, 0, () -> kit.command("LaunchAll")),
+                kit.route(AutoOption.PRIORITY, 1, () -> kit.path("to RIGHT_PARK", park, 2.9))), 20);
+        assertFalse(trace.toString(), traced("no time to park after it, parking now"));
+        assertTrue(log.toString(), log.contains("LaunchAll start"));
+    }
+
+    /** With the Priority on the park (the second leg), the park's rule stands: the late trip is not begun. */
+    @Test
+    public void withThePriorityOnTheParkTheParkStillComesFirst() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .grab("GardenGather", 5.0, () -> lasting("GardenGather", 4.5)));
+        kit.picks(new AutoKit.Picks() {
+            @Override public int choice(String option) { return AutoOption.PRIORITY.equals(option) ? 1 : -1; }
+            @Override public double seconds(String option) { return Double.NaN; }
+        });
+        Path toGarden = line(0, 10), gardenPark = line(10, 20), back = line(10, 0), park = line(0, 40);
+        now = 15.5;
+        run(kit.guarded("If CellUp", park, 2.9,
+                kit.route(AutoOption.PRIORITY, 1, () -> kit.path("to GARDEN_STAGING", toGarden, 2.0, gardenPark, 2.6)),
+                kit.route(AutoOption.PRIORITY, 1, () -> kit.command("GardenGather", 8.0)),
+                kit.route(AutoOption.PRIORITY, 1, () -> kit.path("to RIGHT_LAUNCH_CATCH", back, 2.0)),
+                kit.route(AutoOption.PRIORITY, 1, () -> kit.command("LaunchAll")),
+                kit.route(AutoOption.PRIORITY, 1, () -> kit.path("to RIGHT_PARK", park, 2.9))), 20);
+        assertTrue(trace.toString(), traced("no time to park after it, parking now"));
+        assertFalse(log.toString(), log.contains("LaunchAll start"));
+    }
+
     /** The same trip 2.5 s sooner fits with its park (29.9 s): it goes, fires and parks. */
     @Test
     public void aTripWhoseVolleyAndParkFitGoes() {

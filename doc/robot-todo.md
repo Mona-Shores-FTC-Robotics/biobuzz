@@ -559,9 +559,9 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - **Each robot alone, HIVE in place, no partner, the new paths:** R's outside lane from the
         WALL FLOWER and from the GARDEN onto LEFT_WALL_NEAR (a corner touches the far wall, the
         SCORING FLOWER beside it); LEFT_WALL_NEAR to the SCORING FLOWER; back under the HIVE from
-        the half turn from the SCORING FLOWER to LEFT_CLOSE_HIVE and the park from there; and,
-        with T3c set to 30 in INIT, forward out of the SCORING FLOWER and under the HIVE to
-        RIGHT_CLOSE_HIVE (it will not have time to shoot) and the outside lane from there. L's 2.4 in
+        the half turn from the SCORING FLOWER to LEFT_CLOSE_HIVE and the park from there; and
+        from LEFT_CLOSE_HIVE under the HIVE nose-first to RIGHT_CLOSE_HIVE (it turns to the HIVE
+        after it is out from under it) and the outside lane from there. L's 2.4 in
         slide to LEFT_WALL_HIVE; under the HIVE to RIGHT_START and its park from there; under the
         HIVE to the GARDEN and on to RIGHT_WALL_NEAR; under the HIVE to the lane's end and on to
         WALL_FLOWER_STAGING (it turns west just past the end of the HIVE's foot bar: watch that
@@ -598,15 +598,19 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - **The times, from `read_logs.py steps` on each run's log:** `LeftCellUp` for L (T1
         9.5 s; the Belding films have it as late as 9.98 s, so expect to raise it); R on
         LEFT_WALL_NEAR and its volley's end (T2 15.5 s, TS 17.6 s; drawn 13.2 and 17.0 s); R's
-        SCORING FLOWER pick's end (T3c 17.2 s, T3b 22.4 s; drawn 21.3 s, so R stays left); L on
+        SCORING FLOWER pick's end (T3b 22.2 s; drawn 21.3 s); R at LEFT_CLOSE_HIVE (T3 23.2 s; drawn 23.1 s); L on
         RIGHT_WALL_NEAR (T4 19.2 s) and each robot parked (TL 22.7 s). **Good:**
         each within 0.5 s of the drawn. Otherwise set the row in INIT for the next run and write
         the measured value on the PR; the drawn values change only in the Visualizer.
-      - **The rescue, both robots, with a spotter at the left end:** as drawn R goes to
-        LEFT_CLOSE_HIVE, shoots if RIGHT is not up by 23.0 s, and parks at 26.4 s (TR) or when
-        its volley ends. **Stop the run by hand** if L is still in the lane when R leaves
-        LEFT_CLOSE_HIVE. Watch for pieces from a TIP landing on R at the close row (in the
-        simulator, 3 to 4 runs in 24).
+      - **The look, and the Priority row.** After the SCORING FLOWER R turns to LEFT_CLOSE_HIVE and
+        asks for RIGHT up until 23.2 s. With L's preloads and R's first load in LEFT (TIP 2 comes):
+        on Priority THREE_TIP R goes under the HIVE nose-first and shoots at RIGHT, and is not
+        parked at 30 s; on PARK it waits to 26.4 s and parks with its load. With TIP 2 held back
+        (hold L's preloads): R shoots at LEFT and parks. **Good:** the trace shows the row taken,
+        the last ball at RIGHT leaves before 30 s on the DS timer, and the robot is off the walls
+        when AUTO ends. **Stop the run by hand** if L is still in the lane when R leaves
+        LEFT_CLOSE_HIVE for its park. Write when R reached LEFT_CLOSE_HIVE, when `RightCellUp`
+        fired, and when its last ball left: T3 (23.2 s) and T3b (22.2 s) are set from the simulator.
       - **The fallbacks, on purpose, both robots:** hold R's preloads back (L1 "no": at 9.5 s L
         crosses, shoots from RIGHT_START and parks at 22.5 s; R parks at 15.5 s with its load),
         then L's. **Good:** the trace shows those rows, and both robots park.

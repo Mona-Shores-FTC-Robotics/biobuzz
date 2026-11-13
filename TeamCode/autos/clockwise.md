@@ -32,9 +32,13 @@ from the WALL FLOWER is 4.4 s (3.2 s backward), and the road under the HIVE 6.2 
 
 - Both robots park and the robots do not touch in every run, with either robot 20% slow and with
   either robot's preloads missed, for both pickup choices.
-- **R no longer crosses for the third TIP**: nose-first it would have to start by 17.2 s and is
-  ready at 21.3 s. It stays left and finishes TIP 2 with its SCORING FLOWER load when the first
-  eight fall short.
+- **R looks before it crosses.** After the SCORING FLOWER it turns to the HIVE at the left end.
+  RIGHT up means TIP 2 has come: it goes under the HIVE and shoots at RIGHT for TIP 3. RIGHT not up
+  by 23.2 s: it shoots its load at LEFT to finish TIP 2, and parks.
+- **The third volley may take the park's time** (mentor, 13 Nov 2026). A TIP counts as AUTO when
+  the last ball is out by 30 s, so with the INIT row **Priority** on THREE_TIP (drawn) R shoots at
+  RIGHT and ends AUTO there, not parked. On PARK it keeps its load and parks. R was not parked in
+  8 of 24 normal runs with Belding's volleys, and in none with a working shot counter.
 - Two TIPs come in 16 of 24 normal runs when R takes the WALL FLOWER, and none when R takes the
   GARDEN. Three TIPs: 0.
 - R touches a spilled piece (G409) in 3 to 4 of 24 runs: it shoots its last load from the close
@@ -51,7 +55,7 @@ from the WALL FLOWER is 4.4 s (3.2 s backward), and the road under the HIVE 6.2 
 | First pickup | The WALL FLOWER, or the GARDEN | |
 | TIP 2 | Outside lane to LEFT_WALL_NEAR; shoot at LEFT | Shoot the preloads at LEFT once it is up |
 | Second pickup | The SCORING FLOWER | Under the HIVE; the GARDEN, or the WALL FLOWER |
-| TIP 3 | Only if early (T3c): forward out of the FLOWER, nose-first under the HIVE to RIGHT_CLOSE_HIVE; shoot at RIGHT. Otherwise finish TIP 2 from LEFT_CLOSE_HIVE | RIGHT_WALL_NEAR; shoot at RIGHT |
+| TIP 3 | Turn to the HIVE at LEFT_CLOSE_HIVE and look. RIGHT up: nose-first under the HIVE to RIGHT_CLOSE_HIVE, shoot at RIGHT. Not up: finish TIP 2 from where it stands | RIGHT_WALL_NEAR; shoot at RIGHT |
 | Park | Outside lane to RIGHT_PARK | Outside lane to LEFT_PARK |
 
 **The loop.** Under the HIVE is one-way, left to right. The outside lane is one-way, right to
@@ -94,15 +98,18 @@ L finishes TIP 1 and R finishes TIP 2. Neither robot needs to know why a TIP is 
 **R3 is asked at one end or the other, and the clock picks which.** When the SCORING FLOWER pick
 ends, R asks only the clock:
 
-- **Before T3c: go for TIP 3.** R drives under the HIVE and asks at
-  RIGHT_CLOSE_HIVE: RIGHT up by T3r? Yes, shoot at RIGHT and park by the outside lane. No, park the
-  same way with the load.
-- **After T3c, before T3b: finish TIP 2.** R goes to LEFT_CLOSE_HIVE and asks: RIGHT up by T3? Yes,
-  TIP 2 is done and it parks. No, it shoots its load at LEFT and parks.
-- **After T3b: park straight from the SCORING FLOWER.** The volley and the park after it would not
-  fit.
+- **Before T3b: go and look.** R turns to the HIVE at LEFT_CLOSE_HIVE (it must turn round to go
+  under the HIVE nose-first anyway) and asks: RIGHT up by T3?
+  - **Yes: TIP 2 has come.** With Priority on THREE_TIP, R goes under the HIVE, shoots at RIGHT
+    and parks if there is time left. With Priority on PARK it waits for L to pass and parks with
+    its load.
+  - **No: TIP 2 has not come.** R shoots its load at LEFT, then parks.
+- **After T3b: park straight from the SCORING FLOWER.** The look, a volley and the park after it
+  would not fit.
 
-Setting **T3c to 0 in INIT** keeps R on the left.
+**Priority** is read by the kit (`AutoOption.PRIORITY`): on THREE_TIP the guard asks of a volley
+only that its last ball is out by 30 s; on PARK a volley must leave time for the park, as in every
+other Auto.
 
 **One more clock check**, TS, sits after R's first LEFT volley: go for the SCORING FLOWER only
 before TS. Later than that R parks from LEFT_WALL_NEAR at once, before L comes up the lane.
@@ -117,11 +124,8 @@ Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-tod
 | **T1** LEFT up by | 9.5 s | TIP 1 from R's preloads was read up at 6.5 to 8.8 s in the simulator. The Belding films have it settled as late as 9.98 s after our PLAY, so this is likely short |
 | **T2** LEFT up by | 15.5 s | R is at LEFT_WALL_NEAR at 13.2 s. A volley begun later ends late enough that R's park would cross the lane as L comes up it |
 | **TS** scoring FLOWER by | 17.6 s | R's LEFT volley (launch starts to feed ends) is over at 17.0 s. Later than 17.6 s, the pick and the park after it meet L in the lane |
-| **T3c** cross by | 17.2 s | The crossing (6.2 s nose-first), a volley as the robot's guard plans it (2.5 s), the park from RIGHT_CLOSE_HIVE (about 3 s) and the guard's 1 s margin end at 30 s |
-| **T3r** RIGHT up by, at RIGHT_CLOSE_HIVE | 23.5 s | The volley, that park and the margin |
-| **TRr** park from the right at | 25.0 s | L has left RIGHT_WALL_NEAR for its park (TL) and is up the lane, 20% slow included |
-| **T3b** LEFT rescue by | 22.4 s | The drive to LEFT_CLOSE_HIVE (1.5 s), the volley (2.5 s), the park from there (about 2.6 s) and the margin |
-| **T3** RIGHT up by, at LEFT_CLOSE_HIVE | 23.0 s | R is there about 1.5 s after it leaves the FLOWER; a later arrival shoots at once |
+| **T3b** look by | 22.2 s | The drive to LEFT_CLOSE_HIVE (1.7 s), a volley there (2.5 s), the park (about 2.6 s) and the guard's 1 s margin end at 30 s |
+| **T3** RIGHT up by, at LEFT_CLOSE_HIVE | 23.2 s | The crossing from there (about 4.3 s) and a volley's last ball (2.5 s) end at 30 s. Not up by then: R shoots at LEFT |
 | **TR** park from LEFT_CLOSE_HIVE at | 26.4 s | L has turned in to LEFT_PARK |
 | **T4** RIGHT up by | 19.2 s | L's volley must end, and L be parked, before R leaves LEFT_CLOSE_HIVE for its park, even when the volley runs its whole 3.5 s feed |
 | **TL** park at | 22.7 s | L leaves RIGHT_WALL_NEAR for LEFT_PARK once R has left the SCORING FLOWER |
@@ -143,10 +147,10 @@ Two TIPs or more, R on the WALL FLOWER, normal, 24 seeds, Belding's volleys:
 | Wall and close rows, backward legs, R crossing, guard at 2.5 s | 9 of 24 | 24 | 0 |
 | Wall and close rows, nose-first legs, R staying left, guard at 2.5 s (now) | 16 of 24 | 24 | 0 |
 
-- **Staying left brings the TIP 2 rescue back.** When R crossed, a short first eight at LEFT was
-  not made up. Now R shoots its SCORING FLOWER load at LEFT from the close row.
-- **R 20% slow is too late for the rescue too** (T3b) and parks from the FLOWER: 8 of 24.
-- **T3c at 0 in INIT** keeps R on the left and brings the rescue back.
+- **Looking first keeps the TIP 2 rescue.** When R crossed blind, a short first eight at LEFT was
+  not made up. Now R crosses only when it has seen RIGHT up, and otherwise shoots its SCORING
+  FLOWER load at LEFT from the close row.
+- **R 20% slow is too late to look** (T3b) and parks from the FLOWER: 8 of 24.
 - **The wall-row shots are about 50 in** (LEFT_WALL_NEAR 51, LEFT_WALL_HIVE 50, RIGHT_START 50,
   RIGHT_WALL_NEAR 52, robot centre to the row); the close-row ones about 32 in. The calibration
   keeps about 0.91 of balls from the wall row and 0.70 from the close row, the second on thin
@@ -165,7 +169,8 @@ Nothing on the robots tells one where the other is, so the times above keep them
   (TR, from LEFT_CLOSE_HIVE).
 - **A robot on LEFT_WALL_NEAR blocks the way into LEFT_PARK.** Its corner is inside the park's
   approach, so R never stands there late: T2 and TS send it to its park first.
-- **R's park from the right side joins the lane L leaves by.** R waits until TRr.
+- **R's park from the right side joins the lane L leaves by.** R is not at the right end before
+  about 27 s, long after L has left (TL).
 - With R on the GARDEN, R's lane north passes the WALL FLOWER where L picks. L waits until TF.
 
 The speed tolerance beyond 20% slow has not been rerun on this route. Before the Square spots the
@@ -179,8 +184,9 @@ selected row, what the partner's menu must show, and every row's value.
 | Row | R-Clockwise | L-Clockwise |
 |---|---|---|
 | Pickup | WALL_FLOWER (drawn), GARDEN | GARDEN (drawn), WALL_FLOWER |
+| Priority | THREE_TIP (drawn), PARK | |
 | Shot trigger | CAMERA (drawn), TIMER | the same |
-| Times | T2, TS, T3c, T3r, TRr, T3b, T3, TR | T1, TLr, TF, T4, TL |
+| Times | T2, TS, T3b, T3, TR | T1, TLr, TF, T4, TL |
 | Partner line | "Partner runs L-Clockwise: Pickup GARDEN · Shot trigger CAMERA" | "Partner runs R-Clockwise: Pickup WALL_FLOWER · Shot trigger CAMERA" |
 
 **Shot trigger TIMER** is for a robot that cannot see the HIVE. Each stop then fires its "yes"
@@ -214,27 +220,25 @@ robots' Belding loads, master's endgame guard at 2.5 s, 24 seeds a row, `sim-req
 "By 30 s" counts only TIPs settled at 30 s on the robot's clock. HIVE contact, a lane against the
 loop and a corner over the centre line were 0 in every row of both settings.
 
-**Belding's volleys** (the request as saved):
+**Belding's volleys** (the request as saved; Priority THREE_TIP):
 
-| R takes the WALL FLOWER, L the GARDEN | Three TIPs | Two TIPs or more (by 30 s) | One or more | Both parked | Robot contact | G409 runs |
-|---|---|---|---|---|---|---|
-| Normal | 0 | 16 (16) | 24 | 24 | 0 | 3 |
-| R 20% slow | 0 | 8 (8) | 24 | 24 | 0 | 0 |
-| L 20% slow | 0 | 16 (16) | 24 | 24 | 0 | 4 |
-| R's preload volley missed | 0 | 0 (0) | 23 | 24 | 0 | 0 |
-| L's preload volley missed | 0 | 3 (0) | 21 | 24 | 0 | 0 |
+| R takes the WALL FLOWER, L the GARDEN | Three TIPs | Two TIPs or more (by 30 s) | One or more | R parked | L parked | Robot contact | G409 runs |
+|---|---|---|---|---|---|---|---|
+| Normal | 0 | 16 (16) | 24 | 16 | 24 | 0 | 3 |
+| R 20% slow | 0 | 8 (8) | 24 | 24 | 24 | 0 | 0 |
+| L 20% slow | 0 | 16 (16) | 24 | 16 | 24 | 0 | 4 |
+| R's preload volley missed | 0 | 0 (0) | 23 | 24 | 24 | 0 | 0 |
+| L's preload volley missed | 0 | 3 (0) | 21 | 24 | 24 | 0 | 0 |
 
-| R takes the GARDEN, L the WALL FLOWER | Three TIPs | Two TIPs or more (by 30 s) | One or more | Both parked | Robot contact | G409 runs |
-|---|---|---|---|---|---|---|
-| Normal | 0 | 0 (0) | 24 | 24 | 0 | 0 |
-| R 20% slow | 0 | 0 (0) | 24 | 24 | 0 | 0 |
-| L 20% slow | 0 | 0 (0) | 24 | 24 | 0 | 0 |
-| R's preload volley missed | 0 | 0 (0) | 23 | 24 | 0 | 0 |
-| L's preload volley missed | 0 | 0 (0) | 21 | 24 | 0 | 0 |
+With R on the GARDEN every row has both robots parked, no contact and no second TIP: the nose-first
+lane puts R's LEFT volley past TS, so it parks without the SCORING FLOWER.
 
-With R on the GARDEN, the nose-first lane puts R's LEFT volley past TS, so it parks without the
-SCORING FLOWER. The setting with a working shot counter has not been rerun on these legs, and
-`sim-requests/l-clockwise.json` was run by CI, not here.
+**A shot counter that works** (0.47 s between shots for both robots, `BIOBUZZ_BELDING_WHOLE_FEED=0`),
+R on the WALL FLOWER: two TIPs 16, 16 and 16 of 24 (normal, R slow, L slow); R parked 24, 19 and
+24; no contact. With Priority on PARK, normal: 16 of 24, both parked 24.
+
+The simulator still shows no third TIP: it has TIP 2 in under half the runs R could cross in, and
+L's GARDEN load at two pieces. `sim-requests/l-clockwise.json` was run by CI, not here.
 
 ### Against the session's goal
 
@@ -242,7 +246,7 @@ SCORING FLOWER. The setting with a working shot counter has not been rerun on th
 |---|---|---|
 | 1. Three TIPs in at least 50% of runs | **Short: 0 of 24** | **Short: 0 of 24** |
 | 2. Two TIPs or more in 100%, forced fallbacks included | **Short:** normal 16 of 24; R's preloads missed 0 of 24, L's 3 of 24 | **Short:** 0 of 24 in every row |
-| 3. Both robots parked in 100% | Met: 120 of 120 | Met: 120 of 120 |
+| 3. Both robots parked in 100% | **By choice, no:** R shoots its third volley and is not parked in 16 of 120 (Priority THREE_TIP). L 120 of 120 | Met: 120 of 120 |
 | 4. No contact and no lane against the loop in 100%, either robot 20% slow | Met for robots, the HIVE and the loop: 0 in 120. **G409 in 7 of 120** | Met: 0 in 120 |
 
 ## What a third TIP needs
@@ -262,15 +266,16 @@ R's time in the simulator at Belding's numbers (R on the WALL FLOWER), beside it
 | Ready | 21.3 | 19.5 |
 | Under the HIVE to RIGHT_CLOSE_HIVE | 6.2 nose-first | 2.4 backward |
 
-Nose-first, R would have to start across by 17.2 s (T3c) and is ready at 21.3 s. **A third TIP
-needs the pieces to stay in on a backward leg** (a mechanical fix is being looked at), or about
-four seconds from somewhere else. On that first drive a four-piece volley fed in 1.9 s and the
-three-piece one ran the whole 3.5 s feed.
+Nose-first, R is at LEFT_CLOSE_HIVE at about 23.1 s in the simulator (about 21 s by the robot's
+own times with a four-ball LEFT volley), the crossing from there is about 4.3 s, and the volley's
+last ball leaves about 2 s after that: 27.5 to 29 s. The park does not fit after it, which is what
+the Priority row decides. **Backing under the HIVE with a load** (2.4 s on the robot) would leave
+time for both; a mechanical fix is being looked at.
 
 **What a shorter feed bought, on the route before the Square spots** (R on the WALL FLOWER, normal,
 120 seeds; a what-if, not the robot): a shot counter that works, 0.47 s between shots (gate to last
 ball about 1.4 s, a 2.4 s volley), 0.98 of balls staying in, the guard planning that volley, and
-T3c, T3r, T3b and T4 moved to match.
+the clock times moved to match.
 
 | Loads | Three TIPs | Two or more | G409 |
 |---|---|---|---|
@@ -281,7 +286,7 @@ This has not been rerun on the present spots.
 
 - **L's load is the next limit.** RIGHT needs seven or eight launched pieces for TIP 3: R's four
   and L's pickup. The simulated GARDEN gather takes two.
-- **Crossing costs the TIP 2 rescue.** T3c at 0 in INIT keeps the rescue and gives up the third TIP.
+- **Crossing blind cost the TIP 2 rescue**; R now looks first.
 - **Giving up the parks does not buy a third TIP in the simulator** (120 seeds, before the Square
   spots): with no time kept for R's park, three TIPs 0 and two or more 53 of 120 (from 97); with
   neither robot parking, five three-TIP runs, all settled after 30 s, and the robots touched in 68.
