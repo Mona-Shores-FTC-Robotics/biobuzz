@@ -1072,8 +1072,9 @@ finished robot runs on today's robot as a timed script. `auto-registry.json` is 
 the editor; `AutoRegistrationTest` keeps the two in step.
 
 **The partner wait.** Teams are asked one number: "when does your last preload leave?". The driver
-enters it during an Autonomous's INIT with gamepad 1's D-pad up/down (`InitOptions`, 1 s a press;
-left/right picks the park). The Auto's one wait drawn "until the match clock reads …" and offered
+enters it during an Autonomous's INIT on gamepad 1's D-pad (`InitOptions`: up/down selects a row of
+the Auto's menu, left/right changes it; the partner's last shot is a row, 1 s a press, and so is
+the park). The Auto's one wait drawn "until the match clock reads …" and offered
 in INIT (`AutoOption.matchSeconds`, exported as `kit.atMatchSeconds(kit.seconds(...))`) then ends
 at the last shot plus `AutoRegistration.PARTNER_TIP_LAG_S`: 4.5 s for the shot's flight, the dwell
 before the rocker moves, the swing and the camera settling (3.6 to 4.3 s in four films at the Belding Qualifier, up to 6.7 s over all of them: `TeamCode/autos/timing-terms.md`).
@@ -1234,6 +1235,29 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   shot and our first CellUp (the TIP lag, seed by seed), how our first wait ended and when, the
   first robot collision and whether we parked. Which partners each Auto runs with is in
   `TeamCode/autos/README.md`.
+- **A paired Auto** (R-Clockwise beside L-Clockwise, `TeamCode/autos/clockwise.md`) is run as our Auto with
+  the other half as a `partners` entry, and a request may also say:
+  - `"loop": "clockwise"`: both robots are checked against the one-way loop. Beside the HIVE (21 in either
+    side of the field's centre line), a robot at x 45 in or beyond, as drawn for RED, is in the lane under
+    the HIVE and may only go from the left end to the right; nearer the wall it is in the outside lane and
+    may only go from the right end to the left. More than 3 in the other way is reported (`againstLoopAt`,
+    `againstLoopLane`); nothing is stopped.
+  - `"picks"` and `"partnerPicks"` (the request's, or an entry's own): each robot's INIT menu, by row name:
+    a choice by its name (`{"Pickup": "GARDEN"}`, `{"Shot trigger": "TIMER"}`) or a time in seconds
+    (`{"T2 LEFT up by": 13}`). The simulator hands them to the generated Auto as `InitOptions` does.
+  - `"oursFails": "misses preloads"` on an entry, or `"fails": "misses preloads"` for its partner: that
+    robot's first volley goes wide, as `"misses"` sends every one, and the rest are aimed as usual. For
+    forcing a pair onto its fallback rows.
+  - `"ourSpeed": 40` on an entry: our own drive profile for that entry, so either robot of a pair can be
+    the slow one.
+  - `"ourLaunchS": 0.45` on the request or an entry: a what-if, the seconds between our own shots (the
+    partner's is its `"timing": {"launchS": …}`). With `BIOBUZZ_SIM_VOLLEY_PLANNED_S=2.4` the endgame guard
+    plans a volley at that length, where it otherwise plans master's `LAUNCH_ALL_TYPICAL_S`. Together they
+    ask what a shorter volley would let an Auto go for; neither is the robot.
+
+  Each row then also carries `tipsBy30` (TIPs complete at 30 s; `autoTips` also takes one that completes in
+  the transition), `hitHiveAt` and `partnerHitHiveAt`, `crossedAt` and `partnerCrossedAt` (a corner over the
+  field's centre line), and `againstLoopAt` and `partnerAgainstLoopAt`.
 - **From the Visualizer**, Save & Simulate to `master` commits the `.pp`, its Java and the Auto's
   own `TeamCode/sim-requests/<name>.json` to an `auto/<name>` branch and opens a pull request that
   merges itself once CI passes (the fast lane, `.github/CONTRIBUTING.md`). The "Simulate Auto"

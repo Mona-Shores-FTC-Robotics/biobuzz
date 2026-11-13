@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import java.util.function.DoubleUnaryOperator;
 
 /**
@@ -288,6 +289,53 @@ public final class AutoKit {
         return Collections.unmodifiableList(allPaths);
     }
 
+    /**
+     * What {@link #route} hands back for a card that is not on the picked route. Every card list
+     * the kit takes ({@link #sequence}, {@link #guarded}, a {@link Row}'s cards) drops it, so the
+     * Auto runs as if the card had never been written: no empty step, no extra loop.
+     */
+    private static final Command OFF_ROUTE = Commands.instant(() -> { });
+
+    /**
+     * One card of a route choice: where the drive team's INIT pick of {@code option} is choice
+     * {@code index} (0, the drawing's, when nothing was picked), the card {@code card} builds;
+     * otherwise nothing. The Auto Builder writes the cards of each alternative leg one after
+     * another, each wrapped in this, so the card list stays flat and the endgame guard plans
+     * through whichever leg was picked exactly as through any other cards. The card is built only
+     * when picked, so the leg not driven adds no path to {@link #paths()}.
+     *
+     * <pre>
+     * kit.route("Pickup", 0, () -&gt; kit.path("to WALL_FLOWER_STAGING", toWallFlower, 2.1, park, 2.1)),
+     * kit.route("Pickup", 0, () -&gt; kit.command("PickFlower", 4.5)),
+     * kit.route("Pickup", 1, () -&gt; kit.path("to GARDEN_STAGING", toGarden, 2.4, park, 3.1)),
+     * kit.route("Pickup", 1, () -&gt; kit.command("GardenGather", 5.5)),
+     * </pre>
+     */
+    public Command route(String option, int index, Supplier<Command> card) {
+        int picked = picks.choice(option);
+        return (picked < 0 ? 0 : picked) == index ? card.get() : OFF_ROUTE;
+    }
+
+    /** {@code cards} without the ones {@link #route} left off; the same array when there are none. */
+    private static Command[] onRoute(Command[] cards) {
+        int off = 0;
+        for (Command card : cards) if (card == OFF_ROUTE) off++;
+        if (off == 0) return cards;
+        Command[] out = new Command[cards.length - off];
+        int n = 0;
+        for (Command card : cards) if (card != OFF_ROUTE) out[n++] = card;
+        return out;
+    }
+
+    /**
+     * Whether the drive team picked the timer for the shots ({@link AutoOption#SHOT_TRIGGER}): the
+     * robot does not look at the HIVE, and each {@link #shotWhen} fires at its time. Camera, the
+     * drawing's, when nothing was picked.
+     */
+    public boolean shotsOnTimer() {
+        return picks.choice(AutoOption.SHOT_TRIGGER) == 1;
+    }
+
     /** Seconds left in the Autonomous period. */
     public double timeLeft() {
         return AUTO_LENGTH_S - secondsSinceStart.getAsDouble();
@@ -296,7 +344,8 @@ public final class AutoKit {
     // ------------------------------------------------------------------ cards
 
     /** Runs {@code cards} one after another. A path card right before a command card runs the command's approach. */
-    public Command sequence(Command... cards) {
+    public Command sequence(Command... given) {
+        final Command[] cards = onRoute(given);
         pairApproaches(cards);
         return cards.length == 0 ? nothing() : Groups.sequential(cards);
     }
@@ -472,7 +521,10 @@ public final class AutoKit {
     public Command firstOf(String label, Command alongside, Row... rows) {
         if (rows.length == 0) throw new IllegalArgumentException(label + " has no rows");
         final Command[] branches = new Command[rows.length];
-        for (int i = 0; i < rows.length; i++) branches[i] = sequence(rows[i].cards);
+        for (int i = 0; i < rows.length; i++) {
+            rows[i].cards = onRoute(rows[i].cards);
+            branches[i] = sequence(rows[i].cards);
+        }
         final double[] startedAt = new double[1];
         final Command[] chosen = new Command[1];
         final boolean[] alongsideRunning = new boolean[1];
@@ -626,7 +678,8 @@ public final class AutoKit {
      * as soon as the park needed the time, and a drive refused to set off for a volley that would
      * have finished in time, to keep a 5-point park.
      */
-    public Command guarded(String label, Path parkPath, double parkSeconds, Command... cards) {
+    public Command guarded(String label, Path parkPath, double parkSeconds, Command... given) {
+        final Command[] cards = onRoute(given);
         final Command park = traced("path " + label + " park", follow(label + " park", parkPath, false, null, null, null));
         pairApproaches(cards);
         final int[] index = new int[1];
@@ -855,6 +908,31 @@ public final class AutoKit {
         row.timeLimit = true;
         row.longestFrom = startsAt -> Math.max(0.0, seconds - startsAt);
         return row;
+    }
+
+    /**
+     * The "yes" row of a stop that asks "is this CELL up by this time?", for a robot that shoots by
+     * the camera or by the clock ({@link #shotsOnTimer}). By the camera it is {@link #when}: true
+     * when the registered trigger is. On the timer the robot cannot see the HIVE, so the row is
+     * true once the match clock reaches {@code seconds}: the robot shoots at its time. Pair it with
+     * {@link #shotLimit} on the same seconds, written first, for the "no" row.
+     */
+    public Row shotWhen(String trigger, double seconds) {
+        registry.requireTrigger(trigger);
+        if (!shotsOnTimer()) return when(trigger);
+        Row row = new Row(String.format(Locale.US, "%s taken as true at %.1f s (shots on the timer)", trigger, seconds),
+                waited -> secondsSinceStart.getAsDouble() >= seconds);
+        row.longestFrom = startsAt -> Math.max(0.0, seconds - startsAt);
+        return row;
+    }
+
+    /**
+     * The "no" row of the same stop: {@link #atMatchSeconds} by the camera (the CELL was not seen up
+     * in time), and never true on the timer, where the robot follows the "yes" row only.
+     */
+    public Row shotLimit(double seconds) {
+        if (!shotsOnTimer()) return atMatchSeconds(seconds);
+        return new Row(String.format(Locale.US, "no limit: shots on the timer (%.1f s)", seconds), waited -> false);
     }
 
     // ---------------------------------------------------------------- helpers

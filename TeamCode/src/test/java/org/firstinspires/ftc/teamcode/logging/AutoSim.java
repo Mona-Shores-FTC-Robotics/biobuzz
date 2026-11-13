@@ -246,6 +246,12 @@ public final class AutoSim {
         boolean cameraDown;
         /** When the robot first ran into the HIVE frame's feet, which a real one cannot; NaN if never. */
         double hitHiveAt = Double.NaN;
+        /**
+         * When the robot first drove a lane against the loop ({@link AutoSim#loop}), and which lane; NaN and null
+         * if it never did, or no loop was asked for.
+         */
+        double againstLoopAt = Double.NaN;
+        String againstLoopLane;
         /** When the robot's body first overlapped a FLOWER holder, which a real one cannot; NaN if never. */
         double hitFlowerAt = Double.NaN;
         /** When the robot's outline first reached through a field wall by more than {@link #WALL_SLACK_IN}; NaN if never. */
@@ -556,6 +562,54 @@ public final class AutoSim {
         configuring.missesWide = true;
         return this;
     }
+
+    /**
+     * This robot's first launch volley goes wide, as {@link #misses} sends every one ({@code "fails": "misses preloads"}
+     * in a simulate request, for us or for a partner entry): its preloads cause no TIP, and everything it fires
+     * afterwards is aimed as usual. For forcing a paired Auto onto its fallback rows.
+     */
+    AutoSim missesPreloads() {
+        configuring.missesPreloads = true;
+        return this;
+    }
+
+    /**
+     * The drive team's INIT picks for this robot, by option name, as {@code InitOptions} hands them to the generated
+     * Auto: a choice by its name ({@code "Pickup": "GARDEN"}) or a match-clock time in seconds. An option the Auto
+     * does not have is ignored.
+     */
+    AutoSim picks(java.util.Map<String, Object> picks) {
+        configuring.picks = picks;
+        return this;
+    }
+
+    /**
+     * Checks every robot of our alliance against a one-way loop ({@code "loop": "clockwise"} in a simulate request):
+     * beside the HIVE ({@link #LOOP_FROM_CENTRE_IN} either side of the field's centre line), the lane under the HIVE
+     * ({@link #LOOP_LANE_SPLIT_X_IN} and beyond, as drawn for RED) is driven only from the left end to the right, and
+     * the outside lane only from the right end to the left. A robot that goes more than {@link #LOOP_SLACK_IN} the
+     * other way in a lane is reported ({@link RobotResult#againstLoopAt}); nothing is stopped.
+     */
+    AutoSim loop(String name) {
+        if (name != null && !"clockwise".equals(name)) throw new IllegalArgumentException("the only loop is \"clockwise\": " + name);
+        loopCheck = name != null;
+        return this;
+    }
+
+    /**
+     * The seconds the endgame guard plans a volley at: master's {@code AutoRegistration.LAUNCH_ALL_TYPICAL_S}, or a
+     * what-if ({@code BIOBUZZ_SIM_VOLLEY_PLANNED_S}) for asking what a shorter volley would let an Auto go for.
+     */
+    static final double VOLLEY_PLANNED_S = System.getenv("BIOBUZZ_SIM_VOLLEY_PLANNED_S") == null
+            ? AutoRegistration.LAUNCH_ALL_TYPICAL_S : Double.parseDouble(System.getenv("BIOBUZZ_SIM_VOLLEY_PLANNED_S"));
+
+    private boolean loopCheck;
+    /** The loop's lanes run this far either side of the field's centre line, where the HIVE stands between them. */
+    static final double LOOP_FROM_CENTRE_IN = 21.0;
+    /** Drawn for RED: a robot centre at this x or beyond is in the lane under the HIVE, nearer the wall in the outside lane. */
+    static final double LOOP_LANE_SPLIT_X_IN = 45.0;
+    /** Inches a robot may back up in a lane (a path's settle, a turn about a corner) before it counts as against the loop. */
+    static final double LOOP_SLACK_IN = 3.0;
 
     /**
      * The match second this robot's partner wait (its Auto's one match-clock {@code AutoOption}) ends at, as
@@ -1210,6 +1264,17 @@ public final class AutoSim {
         double pickS = Double.NaN;
         /** Every launch goes wide ({@link AutoSim#misses}). */
         boolean missesWide;
+        /** The first launch volley goes wide ({@link AutoSim#missesPreloads}). */
+        boolean missesPreloads;
+        /** Volleys (LaunchAll) this robot has started. */
+        int volleysStarted;
+        /** The running volley goes wide: {@link #missesWide}, or the first one of {@link #missesPreloads}. */
+        boolean wideNow;
+        /** INIT picks by option name ({@link AutoSim#picks}); null: as drawn. */
+        java.util.Map<String, Object> picks;
+        /** Inches driven against the loop in the lane the robot is in, and that lane; see {@link AutoSim#loop}. */
+        double againstLoopIn;
+        int loopLane;
         /** The partner wait's match second ({@link AutoSim#partnerWaitUntil}); NaN: as drawn. */
         double partnerWaitUntilS = Double.NaN;
         /** This fire step has said it fires at a down CELL. */
@@ -1324,9 +1389,18 @@ public final class AutoSim {
             AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add)
                     // As on the robot (BuiltAuto.parkAfterVolley, on): a volley never takes the park's time.
                     .parkAfterVolley(!(BeldingCalibration.on && BeldingCalibration.guardAsAtBelding)).picks(new AutoKit.Picks() {
-                @Override public int choice(String option) { return -1; }
-                @Override public double seconds(String option) { return option.equals(waitOption) ? waitUntil : Double.NaN; }
+                @Override public int choice(String option) { return pickedChoice(autoClass, picks, option); }
+                @Override public double seconds(String option) {
+                    Object picked = picks == null ? null : picks.get(option);
+                    if (picked instanceof Number) return ((Number) picked).doubleValue();
+                    return option.equals(waitOption) ? waitUntil : Double.NaN;
+                }
             });
+            if (picks != null) {
+                for (java.util.Map.Entry<String, Object> pick : picks.entrySet()) {
+                    if (hasOption(autoClass, pick.getKey())) pending.add("INIT pick: " + pick.getKey() + " = " + pick.getValue());
+                }
+            }
             result.hasPartnerWait = waitOption != null;
             if (waitOption != null && !Double.isNaN(waitUntil)) {
                 pending.add(String.format(Locale.ROOT, "partner wait \"%s\" set in INIT to %.1f s on the match clock", waitOption, waitUntil));
@@ -1502,7 +1576,7 @@ public final class AutoSim {
                 }
                 double[] from = body.exitPoint(side);
                 double shotYaw = yawError;
-                if (missesWide) {
+                if (missesWide || wideNow) {
                     // A missing partner: its shot leaves MISS_WIDE_IN to the side of the CELL at that range.
                     double range = Math.max(1, Math.hypot(aim[0] - from[0], aim[1] - from[1]));
                     shotYaw += Math.atan2(MISS_WIDE_IN, range);
@@ -1521,6 +1595,10 @@ public final class AutoSim {
                     }
                 }
                 if (missesWide && shotsFired == 0) pending.add("misses: every shot goes wide (partner timing)");
+                if (wideNow && !missesWide && !wideReported) {
+                    wideReported = true;
+                    pending.add("misses preloads: this volley goes wide (forced fallback)");
+                }
                 shotsFired++;
                 lastArc = FieldSim.arc(from, v, aim[2] - 4, 30);
                 log.putEvent((index == 0 ? "" : "robot " + (index + 1) + " ") + "launcher: shot "
@@ -1531,6 +1609,30 @@ public final class AutoSim {
             sim.volleyUpIn = 0;
             if (lastArc != null) log.putPose3dArray(FieldSimLog.KEY_SHOT, FieldSim.trajectory(lastArc), us);
             nextShotAt = now + (catapult ? design.spinUpS : shotIntervalS());
+        }
+
+        /**
+         * One step of the loop check ({@link AutoSim#loop}): {@code dy} is this step's travel along the lanes, field
+         * frame. Blue's side is red's turned half a turn, so its lanes and directions turn with it.
+         */
+        private void loopStep(RobotResult result, double[] pose, double dy) {
+            boolean blue = alliance == Alliance.BLUE;
+            double x = blue ? FieldSim.FIELD_SIZE_IN - pose[0] : pose[0], y = blue ? FieldSim.FIELD_SIZE_IN - pose[1] : pose[1];
+            if (blue) dy = -dy;
+            int lane = Math.abs(y - FieldSim.CENTRE_IN) > LOOP_FROM_CENTRE_IN ? 0 : x >= LOOP_LANE_SPLIT_X_IN ? 1 : 2;
+            if (lane != loopLane) {
+                loopLane = lane;
+                againstLoopIn = 0;
+            }
+            if (lane == 0) return;
+            // Under the HIVE: left end (high y) to right end, so y falls. The outside lane: y rises.
+            double against = lane == 1 ? dy : -dy;
+            againstLoopIn = Math.max(0, againstLoopIn + against);
+            if (againstLoopIn > LOOP_SLACK_IN) {
+                result.againstLoopAt = now;
+                result.againstLoopLane = lane == 1 ? "under the HIVE" : "the outside lane";
+                result.timeline.add(String.format(Locale.ROOT, "%5.2f DRIVES AGAINST THE LOOP in %s at (%.1f, %.1f)", now, result.againstLoopLane, pose[0], pose[1]));
+            }
         }
 
         void move(WpiLog log, RobotResult result, boolean running, long step, long us) throws IOException {
@@ -1566,6 +1668,7 @@ public final class AutoSim {
                 raisedSince = now;
             }
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
+            if (loopCheck && running && Double.isNaN(result.againstLoopAt)) loopStep(result, pose, vy * LOOP_S);
             if (Double.isNaN(result.hitHiveAt)) {
                 for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
                     if (FieldSim.inHiveFrame(c[0], c[1])) {
@@ -2074,7 +2177,7 @@ public final class AutoSim {
                     .holdTimeLimitsWhile(() -> firing && !Double.isNaN(activeFeedAt))
                     // A volley, with master's typical and last-piece times: the endgame guard goes for
                     // the next one when its last piece can be out before AUTO ends (AutoKit.guarded).
-                    .volley("LaunchAll", AutoRegistration.LAUNCH_ALL_TYPICAL_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S,
+                    .volley("LaunchAll", VOLLEY_PLANNED_S, Math.min(VOLLEY_PLANNED_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S),
                             () -> launch(Integer.MAX_VALUE))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
@@ -2131,7 +2234,9 @@ public final class AutoSim {
                     // 14 s or more): the robot times it from the HIVE camera's state.
                     .trigger("TipOverdue", () -> !cameraDown && sim.rocker(alliance).raisedEnd() != 0 && now - raisedSince >= TIP_OVERDUE_S)
                     .trigger("Empty", () -> design.countsPieces && body.stored.isEmpty())
-                    .trigger("CameraBlind", () -> cameraDown);
+                    .trigger("CameraBlind", () -> cameraDown)
+                    // Always true (master's Always): a wait on it asks only its time, "is it before this on the clock?".
+                    .trigger("Always", () -> true);
         }
 
         /**
@@ -2150,12 +2255,16 @@ public final class AutoSim {
             }
         }
 
+        private boolean wideReported;
+
         /** LaunchAll cards this robot has started: the Belding calibration's later volleys run their whole feed. */
         private int launchAllsStarted;
 
         private Command launch(int count) {
             return new CommandBuilder()
                     .setStart(() -> {
+                        wideNow = missesPreloads && count == Integer.MAX_VALUE && volleysStarted == 0;
+                        if (count == Integer.MAX_VALUE) volleysStarted++;
                         boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.WHOLE_FEED && count == Integer.MAX_VALUE && launchAllsStarted++ > 0;
                         spinUp();
                         fireStepBegins();
@@ -2780,6 +2889,36 @@ public final class AutoSim {
         }
 
         /** The name of the Auto's match-clock option (its partner wait), or null if it has none. */
+        /** The index of the choice {@code picks} names for {@code option} in the Auto's OPTIONS; -1: as drawn. */
+        private int pickedChoice(Class<?> auto, java.util.Map<String, Object> picks, String option) {
+            Object picked = picks == null ? null : picks.get(option);
+            if (!(picked instanceof String)) return -1;
+            try {
+                for (org.firstinspires.ftc.teamcode.autokit.AutoOption o
+                        : (org.firstinspires.ftc.teamcode.autokit.AutoOption[]) auto.getField("OPTIONS").get(null)) {
+                    if (!o.name.equals(option)) continue;
+                    int index = o.choices.indexOf(picked);
+                    if (index < 0) throw new IllegalArgumentException(auto.getSimpleName() + ": \"" + option + "\" has no choice \"" + picked + "\": " + o.choices);
+                    return index == 0 ? -1 : index;
+                }
+            } catch (ReflectiveOperationException e) {
+                return -1;
+            }
+            return -1;
+        }
+
+        private boolean hasOption(Class<?> auto, String option) {
+            try {
+                for (org.firstinspires.ftc.teamcode.autokit.AutoOption o
+                        : (org.firstinspires.ftc.teamcode.autokit.AutoOption[]) auto.getField("OPTIONS").get(null)) {
+                    if (o.name.equals(option)) return true;
+                }
+            } catch (ReflectiveOperationException e) {
+                return false;
+            }
+            return false;
+        }
+
         private String matchSecondsOption(Class<?> auto) {
             try {
                 for (org.firstinspires.ftc.teamcode.autokit.AutoOption o

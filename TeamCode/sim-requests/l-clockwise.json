@@ -1,0 +1,182 @@
+{
+  "pp": "TeamCode/autos/l-clockwise.pp",
+  "spec": "LClockwiseAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "calibration": "belding",
+  "loop": "clockwise",
+  "seeds": [
+    1
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "alliance": "RED",
+  "partners": [
+    {
+      "name": "R takes the WALL FLOWER: normal",
+      "partner": "RClockwiseAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "R takes the WALL FLOWER: R 20 percent slow",
+      "partner": "RClockwiseAuto",
+      "timing": {
+        "speed": 40
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "R takes the WALL FLOWER: L 20 percent slow",
+      "partner": "RClockwiseAuto",
+      "ourSpeed": 40,
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "R takes the WALL FLOWER: R preloads missed",
+      "partner": "RClockwiseAuto",
+      "fails": "misses preloads",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "R takes the WALL FLOWER: L preloads missed",
+      "partner": "RClockwiseAuto",
+      "oursFails": "misses preloads",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "R takes the GARDEN: normal",
+      "partner": "RClockwiseAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    },
+    {
+      "name": "R takes the GARDEN: R 20 percent slow",
+      "partner": "RClockwiseAuto",
+      "timing": {
+        "speed": 40
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    },
+    {
+      "name": "R takes the GARDEN: L 20 percent slow",
+      "partner": "RClockwiseAuto",
+      "ourSpeed": 40,
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    },
+    {
+      "name": "R takes the GARDEN: R preloads missed",
+      "partner": "RClockwiseAuto",
+      "fails": "misses preloads",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    },
+    {
+      "name": "R takes the GARDEN: L preloads missed",
+      "partner": "RClockwiseAuto",
+      "oursFails": "misses preloads",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    }
+  ],
+  "metadata": {
+    "AutoSource": "l-clockwise.pp",
+    "SavedBy": "Clockwise pair, from L's side: both pickup choices, normal, either robot 20% slow, either robot's preloads missed",
+    "SavedAt": "2026-11-12T22:39:22.118239+00:00"
+  }
+}
