@@ -358,7 +358,14 @@ they came from.
   - `spinUpS` 1.1: 83 spin-ups from rest to launch speed (1500 to 1625 ticks/s), median 1.1 s,
     middle half 1.0 to 1.3, all 0.9 to 2.1 (slowest on a sagging battery). The first LaunchAll at
     PLAY waited 0.94 to 1.36 s for it.
-  - `volleyS` 4.0: LaunchAll after a drive with the launcher at speed, the settle, the wait for
+  - `volleyS` 2.5 (plan, mentor 12 Nov 2026): a LaunchAll that ends on its fourth ball. In the
+    Belding films the fourth ball left 2.0 to 2.5 s after the gate opened (0.6 to 0.95 s to the
+    first, about 0.45 s between), and a counted volley took 2.2 to 3.5 s with its spin-up wait.
+    **The robot does not do this every time yet:** when the launcher counts fewer than four shots
+    the feed runs its set 3.5 s, and the endgame guard plans on 4.0 s
+    ([timing-terms.md](timing-terms.md), "Still to change"). The figure before, measured with the
+    set feed running out:
+    4.0: LaunchAll after a drive with the launcher at speed, the settle, the wait for
     speed and `LaunchCards`' set 3.5 s feed. Every LaunchAll with the 3.5 s feed after a drive in the
     2 to 4 Nov logs (8: R-Quals 2 Nov, R-Solo 3 Nov 17:30 and 17:59, R-Solo-Staging 4 Nov 00:48):
     3.60 to 4.64 s, median 4.04. The slowest two (4.45, 4.64 s) were 4 Nov 00:48, where the gate
@@ -382,14 +389,15 @@ they came from.
   - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
     lane latched full 0.44 s after its last spike, 1.43 s in.
-  - `tipStartS` 1.4 and `tipSwingS` 1.6 (measured): together, the 3.0 s from a LaunchAll's end to
-    the camera's `CellUp`, for a CELL at its tipping weight and a feed that ran its set 3.5 s. From
-    the Belding films ([timing-terms.md](timing-terms.md)): the other CELL settled a median 3.9 s
-    after the last ball left and a watching camera read it 0.2 s later, 4.1 s in all; a set feed
-    ends about 1.2 s after its last ball. The split puts the swing plainly under way 1.4 s after
-    the feed ends and the CELL read up 1.6 s after that.
+  - `tipStartS` 2.6 and `tipSwingS` 1.6 (measured): together, the 4.2 s from a LaunchAll's end to
+    the camera's `CellUp`, for a CELL at its tipping weight and a volley that ends on its fourth
+    ball. From the Belding films ([timing-terms.md](timing-terms.md)): the other CELL settled a
+    median 3.9 s after the last ball left and a watching camera read it 0.2 s later, 4.1 s in all;
+    a counted feed ends about 0.1 s after its last ball. With the 4.0 s volley these were 1.4 and
+    1.6, because a set feed runs 1.2 s past its last ball.
     - **These two go with `volleyS`.** If `volleyS` comes down because the feed ends on its fourth
-      ball, raise `tipStartS` by the same amount: the last ball to `CellUp` stays about 4.1 s.
+      ball, raise `tipStartS` by the same amount (done 12 Nov 2026: 4.0 to 2.5, and 1.4 to 2.6): the
+      last ball to `CellUp` stays about 4.1 s.
     - **They are the middle, not the limit.** An at-weight TIP took up to 6.7 s from the last ball,
       and one on nine or more pieces about 2.5 s. The preview has one value for all of them.
     - Before 11 Nov 2026 these were 1.0 and 0.7 (1.7 s together), from the two TIPs our own preload
