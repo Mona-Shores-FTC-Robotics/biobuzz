@@ -18,9 +18,11 @@ import java.util.Locale;
  *       steps through the choices. A choice named {@code LEFT_…} or {@code RIGHT_…} goes with that
  *       key (sides as the drive team sees them; the robot turns the spots for BLUE, so the names
  *       hold for both alliances).</li>
- *   <li><b>The partner wait</b> ({@link AutoOption.Kind#MATCH_SECONDS}): the row is the second
- *       on the match clock at which the robot stops waiting for the partner's TIP, "waiting for
- *       partner's TIP until 9 s", and left / right move that second, {@link #STEP_S} a press.
+ *   <li><b>The wait for a TIP</b> ({@link AutoOption.Kind#MATCH_SECONDS}): the row is the second
+ *       on the match clock at which the robot stops waiting for a TIP, named as the drawing
+ *       names it, "waiting for TIP 1 until 9 s" (mentor, 13 Nov 2026: the TIP's number says more
+ *       than "partner's TIP", which is what an Auto drawn before then still reads), and left /
+ *       right move that second, {@link #STEP_S} a press.
  *       One number, because a partner rarely knows when its last preload leaves (mentor,
  *       12 Nov 2026). A partner that shoots later than at the start: set it about
  *       {@link AutoRegistration#PARTNER_TIP_LAG_S} after the second they say; 0 does not wait.</li>
@@ -219,8 +221,8 @@ public final class InitOptions implements AutoKit.Picks {
                 return option.name + arrows + ": " + chosen(i);
             case MATCH_SECONDS:
                 // The one number the drive team moves; short on a nearly full page.
-                return keys ? "waiting for partner's TIP ◀▶ until " + fmt(value(i)) + " s"
-                        : "TIP ◀▶ until " + fmt(value(i)) + " s";
+                return keys ? "waiting for " + option.tipName() + " ◀▶ until " + fmt(value(i)) + " s"
+                        : (option.tip > 0 ? option.tipName() : "TIP") + " ◀▶ until " + fmt(value(i)) + " s";
             default:
                 return option.name + arrows + ": " + fmt(value(i)) + " s";
         }
@@ -235,7 +237,7 @@ public final class InitOptions implements AutoKit.Picks {
                 text = option.name + " " + chosen(i);
                 break;
             case MATCH_SECONDS:
-                text = "partner's TIP until " + fmt(value(i)) + " s";
+                text = option.tipName() + " until " + fmt(value(i)) + " s";
                 break;
             default:
                 text = option.name + " " + fmt(value(i)) + " s";
@@ -281,8 +283,8 @@ public final class InitOptions implements AutoKit.Picks {
                     parts.add(String.format(Locale.US, "%s=%s (drawn %s)", option.name, chosen(i), option.choices.get(0)));
                     break;
                 case MATCH_SECONDS:
-                    parts.add(String.format(Locale.US, "%s: waiting for partner's TIP until %s s (drawn %s s)", option.name,
-                            fmt(value(i)), fmt(option.drawnSeconds)));
+                    parts.add(String.format(Locale.US, "%s: waiting for %s until %s s (drawn %s s)", option.name,
+                            option.tipName(), fmt(value(i)), fmt(option.drawnSeconds)));
                     break;
                 case TIME:
                     parts.add(String.format(Locale.US, "%s=%s s (drawn %s s)", option.name, fmt(value(i)), fmt(option.drawnSeconds)));

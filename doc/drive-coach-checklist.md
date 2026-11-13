@@ -19,7 +19,7 @@ Controls page and the printed cheat sheet are the only place for those.
 - [ ] Robot on the marks (wall and seam), never placed by the camera.
 - [ ] Both gamepads assigned: no `Gamepad 2 (operator) not assigned` on the Driver Station.
 - [ ] **A left-side Auto (L-NoCross): ask the partner "do you shoot your preloads right at the start?"**
-      Yes: touch nothing; the Driver Station reads "waiting for partner's TIP until 9 s". Later: gamepad 1
+      Yes: touch nothing; the Driver Station reads "waiting for TIP 1 until 9 s". Later: gamepad 1
       D-pad right, a second a press, to 6 s after the second they say they shoot. They don't shoot: D-pad left
       to 0, so the robot does not wait. Left on the default at Belding, the wait timed out 3 times.
 - [ ] No amber or red line on the Match page; the light shows our alliance.

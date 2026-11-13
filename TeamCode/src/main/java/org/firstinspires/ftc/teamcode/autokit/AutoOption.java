@@ -35,8 +35,9 @@ public final class AutoOption {
         /** One of a few named choices; the first is the drawing's. */
         CHOICE,
         /**
-         * The partner wait: a wait's limit on the match clock, which the drive team moves as
-         * it is ("waiting for partner's TIP until 9 s").
+         * The wait for a TIP: a wait's limit on the match clock, which the drive team moves as
+         * it is ("waiting for TIP 1 until 9 s"; "waiting for partner's TIP until 9 s" when the
+         * drawing does not say which TIP).
          */
         MATCH_SECONDS,
         /** A time on the match clock the Auto acts on, seconds since it started, set as it is. */
@@ -57,17 +58,32 @@ public final class AutoOption {
      * what the partner must be set to for each of that option's choices, in its order.
      */
     public final String follows;
+    /**
+     * {@link Kind#MATCH_SECONDS}: which TIP of the match the wait is for, 1 to 3, as the drawing
+     * says; 0 when it does not. The INIT page names it: "waiting for TIP 2".
+     */
+    public final int tip;
 
     private AutoOption(String name, Kind kind, List<String> choices, double drawnSeconds) {
-        this(name, kind, choices, drawnSeconds, null);
+        this(name, kind, choices, drawnSeconds, null, 0);
     }
 
     private AutoOption(String name, Kind kind, List<String> choices, double drawnSeconds, String follows) {
+        this(name, kind, choices, drawnSeconds, follows, 0);
+    }
+
+    private AutoOption(String name, Kind kind, List<String> choices, double drawnSeconds, String follows, int tip) {
         this.name = name;
         this.kind = kind;
         this.choices = choices;
         this.drawnSeconds = drawnSeconds;
         this.follows = follows;
+        this.tip = tip;
+    }
+
+    /** What the INIT page calls the TIP a {@link Kind#MATCH_SECONDS} wait is for: "TIP 2", or "partner's TIP". */
+    public String tipName() {
+        return tip > 0 ? "TIP " + tip : "partner's TIP";
     }
 
     /** The PARK spot: the drawing's first, then the others the drive team may pick. */
@@ -88,6 +104,13 @@ public final class AutoOption {
     public static AutoOption matchSeconds(String name, double drawnSeconds) {
         if (!(drawnSeconds >= 0)) throw new IllegalArgumentException(name + ": " + drawnSeconds + " s");
         return new AutoOption(name, Kind.MATCH_SECONDS, Collections.<String>emptyList(), drawnSeconds);
+    }
+
+    /** {@link #matchSeconds(String, double)} for a wait whose drawing says which TIP it is for, 1 to 3. */
+    public static AutoOption matchSeconds(String name, double drawnSeconds, int tip) {
+        if (!(drawnSeconds >= 0)) throw new IllegalArgumentException(name + ": " + drawnSeconds + " s");
+        if (tip < 1 || tip > 3) throw new IllegalArgumentException(name + ": TIP " + tip);
+        return new AutoOption(name, Kind.MATCH_SECONDS, Collections.<String>emptyList(), drawnSeconds, null, tip);
     }
 
     /** A time on the match clock the Auto acts on ("T2"), {@code drawnSeconds} as drawn. */

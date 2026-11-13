@@ -324,7 +324,7 @@ row has it selected already.
 
 | Row | Left / Right changes | Offered by |
 |---|---|---|
-| The partner wait | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for partner's TIP until 9 s". Left to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
+| The partner wait | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for TIP 1 until 9 s": the TIP is the one the builder's *It waits for* names (an Auto that names none reads "partner's TIP"). Left to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
 | Park | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
 | A route choice (Clockwise's Pickup and Priority) | the leg the robot drives | a *Choose in INIT* step (`clockwise.md`) |
 
