@@ -20,6 +20,12 @@ public final class AutoOption {
     public static final String PARK = "Park";
 
     /** The option that picks what a stop's shot goes by: the camera's sight of the CELL, or the clock. */
+    /**
+     * The name of the choice between a third TIP and the park, when there is time for only one: a
+     * route choice (two legs) drawn with this name, the TIP's leg first. {@code AutoKit.route} reads it:
+     * with the TIP picked, a volley comes before the park for that Auto.
+     */
+    public static final String PRIORITY = "Priority";
     public static final String SHOT_TRIGGER = "Shot trigger";
     /** {@link #SHOT_TRIGGER}'s choices, the camera first: the drawing's. */
     public static final String CAMERA = "CAMERA";

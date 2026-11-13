@@ -209,12 +209,10 @@ Result, with the gap on each own-start run, → [PR #372].
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
       [PR #391]; the menu is the Clockwise PR's.
 - [ ] **INIT menu, R-Clockwise on Red audience, then L-Clockwise on Red far wall** (INIT only).
-      **Good:** `▶ Pickup ◀▶: WALL_FLOWER · ▲▼ row 1 of 8` (L: `GARDEN`, `row 1 of 6`), then
-      `Partner runs L-Clockwise: Pickup GARDEN · Shot trigger CAMERA`, then every row's value in small
-      print. D-pad down walks the rows and wraps; right on Pickup shows GARDEN and the partner line
-      changes to `Pickup WALL_FLOWER`; right on a time adds 0.5 s; everything changed is amber and bold.
-      Read the two robots' pages to each other: each partner line matches the other's rows. With
-      warnings filling the page the list goes first, then the partner line, and the selected row stays.
+      **Good:** R shows three rows (waiting for partner's TIP until 23.2 s, Pickup WALL_FLOWER,
+      Priority THREE_TIP), L two (until 9.5 s, Pickup GARDEN). D-pad down walks the rows and wraps;
+      right on Pickup shows the other pickup; right on the time adds 1 s; everything changed is amber
+      and bold. Read the two robots' Pickup rows to each other: WALL_FLOWER pairs with GARDEN.
       **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
       8.0 s, and no log can say what INIT showed (the next item). Show the drive team the line too.
 - [ ] **The chosen INIT options reach the match log** (same run: set the wait to 12 s,
@@ -559,11 +557,11 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - **Each robot alone, HIVE in place, no partner, the new paths:** R's outside lane from the
         WALL FLOWER and from the GARDEN onto LEFT_WALL_NEAR (a corner touches the far wall, the
         SCORING FLOWER beside it); LEFT_WALL_NEAR to the SCORING FLOWER; back under the HIVE from
-        the SCORING FLOWER to RIGHT_CLOSE_HIVE (no turn); the outside lane from there to
-        RIGHT_PARK; the half turn from the SCORING FLOWER to LEFT_CLOSE_HIVE and the park from
-        there (set T3c to 0 in INIT to make it run). L's 2.4 in
+        the half turn from the SCORING FLOWER to LEFT_CLOSE_HIVE and the park from there; and
+        from LEFT_CLOSE_HIVE under the HIVE nose-first to RIGHT_CLOSE_HIVE (it turns to the HIVE
+        after it is out from under it) and the outside lane from there. L's 2.4 in
         slide to LEFT_WALL_HIVE; under the HIVE to RIGHT_START and its park from there; under the
-        HIVE to the GARDEN and on to RIGHT_WALL_NEAR; under the HIVE to the lane's end and on to
+        HIVE to the GARDEN and on to RIGHT_WALL_NEAR; under the HIVE to LANE_END and on to
         WALL_FLOWER_STAGING (it turns west just past the end of the HIVE's foot bar: watch that
         corner), and the FLOWER to RIGHT_WALL_NEAR. **Good:** no touch of the HIVE's feet, a
         FLOWER or a wall but at the spot itself; write each drive's seconds beside the drawn
@@ -572,11 +570,13 @@ Use the work order above to select checks; the detailed mechanism checks below a
         rolling (a path card never settles). **Good:** the launch starts within about 0.5 s of
         arriving and the pose has not jumped. **Stop:** the robot bounces off or the Pinpoint
         faults → note the speed it arrived at.
-      - **Backward and turning with a load.** Four POLLEN in the lane: R up the outside lane onto
-        LEFT_WALL_NEAR, and back from SCORING_FLOWER_STAGING under the HIVE to RIGHT_CLOSE_HIVE; L
-        from GARDEN_STAGING to RIGHT_WALL_NEAR (it turns 157° as it drives, with no loop back to
-        the audience wall), at Auto speed. **Good:** four still in the lane at each end, five runs of each. **Stop:** a
-        piece leaves → note where on the path, and whether braking or the turn did it.
+      - **Turning with a load.** On 12 Nov (20245) pieces left the intake on both backward legs;
+        every loaded leg is now nose-first. Four POLLEN in the lane: R from the WALL FLOWER up the
+        outside lane onto LEFT_WALL_NEAR (it turns north at once, then round to aim), R from the
+        SCORING FLOWER to LEFT_CLOSE_HIVE (a half turn in 13 in), and L from GARDEN_STAGING and
+        from the WALL FLOWER to RIGHT_WALL_NEAR, at Auto speed. **Good:** four still in the lane
+        at each end, five runs of each. **Stop:** a piece leaves → note where on the path, and
+        whether braking or the turn did it.
       - **The two parks, both robots.** RIGHT_PARK and LEFT_PARK leave 2.7 in between parked
         robots. Park R first, then run L's park; then the other order. **Good:** neither touches
         the other coming in (L turns east of the park zone and drives straight in; R comes in
@@ -595,23 +595,25 @@ Use the work order above to select checks; the detailed mechanism checks below a
         does → write the seconds and where; the waits change in the Visualizer.
       - **The times, from `read_logs.py steps` on each run's log:** `LeftCellUp` for L (T1
         9.5 s; the Belding films have it as late as 9.98 s, so expect to raise it); R on
-        LEFT_WALL_NEAR and its volley's end (T2 15.5 s, TS 16.9 s; drawn 12.0 and 15.8 s); R's
-        SCORING FLOWER pick's end (T3c 20.7 s, T3b 22.4 s; drawn 20.1 s, so R crosses); R at
-        RIGHT_CLOSE_HIVE (T3r 23.5 s; drawn 22.9 s); L on RIGHT_WALL_NEAR (T4 20.6 s) and each robot parked (TL 22.7 s). **Good:**
+        LEFT_WALL_NEAR and its volley's end (T2 15.5 s, TS 17.6 s; drawn 13.2 and 17.0 s); R's
+        SCORING FLOWER pick's end (T3b 22.2 s; drawn 21.3 s); R at LEFT_CLOSE_HIVE (T3 23.2 s; drawn 23.1 s); L on
+        RIGHT_WALL_NEAR (T4 19.2 s) and each robot parked (TL 22.7 s). **Good:**
         each within 0.5 s of the drawn. Otherwise set the row in INIT for the next run and write
         the measured value on the PR; the drawn values change only in the Visualizer.
-      - **The crossing and the rescue, both robots, with a spotter at each end:** as drawn R
-        crosses, asks at RIGHT_CLOSE_HIVE until 23.5 s (T3r) and does not leave before 25.0 s
-        (TRr); with T3c at 0 it goes to LEFT_CLOSE_HIVE, shoots, and parks at 26.4 s (TR). **Stop
-        the run by hand** if L is still on RIGHT_WALL_NEAR or low in the lane when R leaves
-        RIGHT_CLOSE_HIVE, or still in the lane when R leaves LEFT_CLOSE_HIVE. Watch for R backing
-        into pieces falling from TIP 2 (in the simulator, 2 to 5 runs in 24): write when the
-        last piece landed and when R went under.
+      - **The look, and the Priority row.** After the SCORING FLOWER R turns to LEFT_CLOSE_HIVE and
+        asks for RIGHT up until 23.2 s. With L's preloads and R's first load in LEFT (TIP 2 comes):
+        on Priority THREE_TIP R goes under the HIVE nose-first and shoots at RIGHT, and is not
+        parked at 30 s; on PARK it waits to 26.4 s and parks with its load. With TIP 2 held back
+        (hold L's preloads): R shoots at LEFT and parks. **Good:** the trace shows the row taken,
+        the last ball at RIGHT leaves before 30 s on the DS timer, and the robot is off the walls
+        when AUTO ends. **Stop the run by hand** if L is still in the lane when R leaves
+        LEFT_CLOSE_HIVE for its park. Write when R reached LEFT_CLOSE_HIVE, when `RightCellUp`
+        fired, and when its last ball left: T3 (23.2 s) and T3b (22.2 s) are set from the simulator.
       - **The fallbacks, on purpose, both robots:** hold R's preloads back (L1 "no": at 9.5 s L
         crosses, shoots from RIGHT_START and parks at 22.5 s; R parks at 15.5 s with its load),
         then L's. **Good:** the trace shows those rows, and both robots park.
       - **The other pickup:** Pickup GARDEN on R and WALL_FLOWER on L. **Good:** L stands at the
-        lane's end until 15.5 s (TF) and R has passed the WALL FLOWER by then.
+        LANE_END until 15.5 s (TF) and R has passed the WALL FLOWER by then.
       - **Shot trigger TIMER on both,** with T1 8 and T2 13 set in INIT, the camera covered.
         **Good:** each stop shoots at its time; nothing waits on the HIVE.
 - [ ] **Drive times for the planning numbers** ([#504], the Belding timing analysis): a Utility
