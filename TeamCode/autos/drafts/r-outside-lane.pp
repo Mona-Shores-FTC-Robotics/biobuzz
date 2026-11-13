@@ -138,28 +138,9 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.45,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 270
-              }
-            },
-            {
-              "startProgress": 0.45,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 90
-              }
-            }
-          ]
-        }
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 90
       },
       "locked": false,
       "name": "scoring flower to SCORING_FLOWER_STAGING",
@@ -178,12 +159,12 @@
       },
       "controlPoints": [
         {
-          "x": 22,
-          "y": 125
+          "x": 26,
+          "y": 119
         },
         {
           "x": 26,
-          "y": 45
+          "y": 52
         }
       ],
       "heading": {
@@ -192,32 +173,15 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.25,
+              "endProgress": 0.5,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 180
-              }
-            },
-            {
-              "startProgress": 0.25,
-              "endProgress": 0.4,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 180,
                 "endDeg": 270
               }
             },
             {
-              "startProgress": 0.4,
-              "endProgress": 0.75,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 270
-              }
-            },
-            {
-              "startProgress": 0.75,
+              "startProgress": 0.5,
               "endProgress": 1,
               "interpolationType": "linear",
               "parameters": {

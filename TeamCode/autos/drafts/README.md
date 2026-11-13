@@ -243,10 +243,15 @@ only if its LEFT volley is done before 15.5 s. With today's 4 s volleys that vol
   two at about 22 s on R's third trip, where R5 and R4 overlap.
 - **Fewer two-TIP runs from L4 than from the spots further out** is the calibration keeping 0.70 of
   balls from 36 in, on thin evidence (below).
-- **The third volley depends on that leg's real time.** The check is drawn at 15.5 s (was 15). The
-  Visualizer's preview has the leg at about 3 s and R done at 28.8 s on a 2.5 s volley; if the leg
-  takes the simulator's 4.4 s, R's LEFT volley ends at about 15.7 s and it parks. The endgame guard
-  parks R whenever the third volley and the park do not both fit.
+- **R's time decides the third TIP; L has 4.6 s to spare.** A path study (13 Nov 2026, the
+  Visualizer's timing, each shape checked in the simulator for the HIVE and the centre line) took
+  0.7 s off R: it turns toward the SCORING FLOWER as it leaves the left spot (1.3 s, was 1.6), and
+  drives back down on a straighter line with its two turns spread along it (3.0 s, was 3.4). Its
+  other drives are at what the robot's top speed allows. In the preview the third volley now fires
+  and its TIP settles at 30.0 s on a 2.5 s volley, 29.7 s on 2.4 s. A line 4 in nearer the HIVE was
+  0.1 s quicker and clipped the HIVE's corner in the simulator while R turned.
+- **The preview's 3 s for the intake-first leg is not measured** (above). If that leg takes the
+  simulator's 4.4 s, R's LEFT volley ends at about 15.7 s and it parks after it.
 - **From `LEFT_LAUNCH_OFFSET`, R parked after its LEFT volley in 18 of 20.** In the other two a short FLOWER load ended that
   volley early, R went on, and it met L leaving the GARDEN at about 20 s.
 - **On a planned 2.5 s volley both robots fire their last volleys,** and R comes in to R5 while L
