@@ -98,6 +98,37 @@ public class SpotVolleyTest {
     }
 
     @Test
+    public void onTheApproachAtSpeedItFeedsBeforeArrivingAndKeepsFeedingAfter() {
+        SpotVolley v = started();
+        assertFalse("not near the spot yet", v.update(0.3, false, true, false, false, false));
+        assertTrue(v.update(0.5, false, true, false, true, false));
+        assertEquals(0.5, v.feedStartS(), 1e-9);
+        assertEquals("on the approach, at speed", v.why());
+        assertTrue("arriving does not restart it", v.update(0.8, true, true, false, false, false));
+        assertEquals(0.5, v.feedStartS(), 1e-9);
+        assertEquals(SpotVolley.Phase.FEEDING, v.phase());
+    }
+
+    @Test
+    public void onTheApproachBelowSpeedItWaitsAsBefore() {
+        SpotVolley v = started();
+        assertFalse(v.update(0.5, false, false, false, true, false));
+        assertEquals(SpotVolley.Phase.DRIVING, v.phase());
+        // Arrived, the usual waits apply, counted from arrival.
+        assertFalse(v.update(1.0, true, false, true, true, false));
+        assertTrue(v.update(1.2, true, true, true, false, false));
+        assertEquals("at speed, settled", v.why());
+    }
+
+    @Test
+    public void theOperatorStillWinsOnTheApproach() {
+        SpotVolley v = started();
+        assertFalse(v.update(0.5, false, true, false, true, true));
+        assertEquals(SpotVolley.Phase.YIELDED, v.phase());
+        assertFalse(v.fired());
+    }
+
+    @Test
     public void aPanelsTypoMakesAShortWaitNeverAStuckOne() {
         assertEquals(0.0, SpotVolley.nonNegative(Double.NaN), 0);
         assertEquals(0.0, SpotVolley.nonNegative(-1), 0);

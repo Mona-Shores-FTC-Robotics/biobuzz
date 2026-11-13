@@ -36,7 +36,8 @@ import java.util.function.Consumer;
  *
  * <p>With {@code TeleOpConfig.goToSpotAlsoFires} (on while testing), the press also launches: the
  * launcher spins up as the drive starts (the OpMode does it, at the operator's launch speed and trim),
- * and once the robot is at the spot, aimed and settled, it feeds for as long as the button is held, through the same feeder,
+ * and once the robot is at the spot, aimed and settled (or, with {@code TeleOpConfig.squareGateOnApproach},
+ * already on the approach: near the spot, aimed and at speed), it feeds for as long as the button is held, through the same feeder,
  * gate and prefeed path as the operator's FIRE ({@link SpotVolley}: the Autos' {@code LaunchAll}
  * waits, then no set feed time). Letting go stops the drive and the feed at once. The operator's FIRE wins.
  *
@@ -183,11 +184,17 @@ public final class LaunchSpotDrive {
         if (phase == Phase.HOLDING && Double.isNaN(driftGapIn) && settle.settled()) sampleDrift();
         if (operatorFiring) operatorFired = true;
         if (!fires) return;
-        feed = volley.update(s(now), phase == Phase.HOLDING, robot.launcher.atSpeed(), settle.settled(), operatorFiring);
+        boolean onApproach = TeleOpConfig.squareGateOnApproach && phase == Phase.DRIVING
+                && settle.readyOnApproach(choice.target, robot.drive.pose(), remainingIn());
+        feed = volley.update(s(now), phase == Phase.HOLDING, robot.launcher.atSpeed(), settle.settled(),
+                onApproach, operatorFiring);
         if (volley.fired() && !feedLogged) {
             feedLogged = true;
-            event.accept(String.format(Locale.US, "launch spot: gate open %.2f s after the press (%.2f s after arriving), %s",
-                    volley.feedStartS(), volley.feedStartS() - arriveS, volley.why()));
+            String when = Double.isNaN(arriveS)
+                    ? String.format(Locale.US, "before arriving, %.1f in out", remainingIn())
+                    : String.format(Locale.US, "%.2f s after arriving", volley.feedStartS() - arriveS);
+            event.accept(String.format(Locale.US, "launch spot: gate open %.2f s after the press (%s), %s",
+                    volley.feedStartS(), when, volley.why()));
         }
     }
 
@@ -197,7 +204,7 @@ public final class LaunchSpotDrive {
         switch (phase) {
             case DRIVING:
                 return String.format(Locale.US, "Launch spot: driving to %s, %.0f in to go · %.1f s",
-                        choice.spot, remainingIn(), s(now));
+                        choice.spot, remainingIn(), s(now)) + volleyNote();
             case HOLDING:
                 return String.format(Locale.US, "Launch spot: AT %s, holding (arrived in %.1f s)%s · let go to drive",
                         choice.spot, arriveS, volleyNote()) + driftNote;
