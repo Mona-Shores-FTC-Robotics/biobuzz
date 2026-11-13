@@ -6,6 +6,19 @@ partner-nudge experiment has Utility trials for bring-up. The nudge
 Utility's runtime speed limits are not modeled by AutoSim. The Visualizer lists
 these under "Drafts", and Save to GitHub saves back here.
 
+## Clockwise with the backward legs: the three-TIP draft
+
+`r-clockwise-backward.pp` with `l-clockwise-backward.pp`: the Clockwise pair as it first ran
+(20245 alone, 12 Nov 2026). R backs up the outside lane with its WALL FLOWER load and backs under
+the HIVE with its SCORING FLOWER load, which is what leaves time to cross for a third TIP: in the
+simulator it is ready at 20.1 s and crosses by 20.7 s. On that drive pieces left the intake on both
+backward legs, so the pair on the Autonomous menu drives nose-first and stays a two-TIP plan
+(mentor, 13 Nov 2026). This draft is kept for when the robot can hold a load driving backward. No
+OpMode. Request: `sim-requests/r-clockwise-backward.json`.
+
+Open the pair:
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-clockwise-backward.pp,drafts/l-clockwise-backward.pp>
+
 ## The Clockwise lane study: four plain drafts
 
 `r-clockwise-flower.pp` with `l-clockwise-garden.pp`, and `r-clockwise-garden.pp` with

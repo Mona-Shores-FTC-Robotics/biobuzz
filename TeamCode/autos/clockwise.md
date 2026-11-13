@@ -20,7 +20,10 @@ and Auto, so a TeleOp volley is data for the Auto and the speed table is tuned i
 `LAUNCH_ALL_LAST_PIECE_S`, 4.0 until 12 Nov 2026; the mentor's call, for every Auto). The times
 below are set for that.
 
-**With a load the robot drives nose-first** (mentor, 12 Nov 2026). On its first drive (20245,
+**With a load the robot drives nose-first** (mentor, 12 and 13 Nov 2026: every Auto on the
+Autonomous menu does). The version with the backward legs, which is the one that has time to cross
+for a third TIP, is kept as a draft: `drafts/r-clockwise-backward.pp` with
+`drafts/l-clockwise-backward.pp`. On its first drive (20245,
 alone) pieces left the intake on both legs it drove backward. After a pick it backs off the few
 inches the pick itself does, then turns to face the way it is going. That costs time: the lane
 from the WALL FLOWER is 4.4 s (3.2 s backward), and the road under the HIVE 6.2 s (2.7 s).
