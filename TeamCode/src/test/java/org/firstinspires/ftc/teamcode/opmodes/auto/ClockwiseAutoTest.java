@@ -236,27 +236,6 @@ public class ClockwiseAutoTest {
         parked(117.4);
     }
 
-    // ---- shots on the timer ------------------------------------------------------------------
-
-    /** On the timer nobody looks at the HIVE: each stop takes its "yes" row at its time. */
-    @Test public void onTheTimerLeftShootsAtLeftAtT1AndAtRightAtT4() {
-        choices.put(AutoOption.SHOT_TRIGGER, 1);
-        firstTip = secondTip = Double.POSITIVE_INFINITY;
-        run(LClockwiseAuto.build(kit(), false));
-        assertFalse("never the crossing for TIP 1: " + trace, trace.contains("path under the HIVE to RIGHT_START"));
-        assertEquals(2, count("LaunchAll"));
-        assertEquals(9.5, startedAt.get("LaunchAll"), 0.05);
-        parked(117.4);
-    }
-
-    @Test public void onTheTimerRightShootsAtLeftAtT2() {
-        choices.put(AutoOption.SHOT_TRIGGER, 1);
-        firstTip = secondTip = Double.POSITIVE_INFINITY;
-        run(RClockwiseAuto.build(kit(), false));
-        assertEquals("the preloads, then the first load at T2", 2, count("LaunchAll"));
-        parked(98.7);
-    }
-
     // ---- the launch spots are the TeleOp's ---------------------------------------------------
 
     private void shotFrom(int volley, LaunchSpots.Spot spot) {
@@ -308,17 +287,19 @@ public class ClockwiseAutoTest {
         assertEquals(141.5 - 98.7, drive.pose.y(), .01);
     }
 
-    /** What the menu offers, as the drive teams read it to each other. */
-    @Test public void theTwoMenusNameEachOthersPickup() {
-        assertEquals("[WALL_FLOWER, GARDEN]", RClockwiseAuto.OPTIONS[0].choices.toString());
-        assertEquals("[GARDEN, WALL_FLOWER]", LClockwiseAuto.OPTIONS[0].choices.toString());
-        AutoOption rightsPartner = RClockwiseAuto.OPTIONS[RClockwiseAuto.OPTIONS.length - 1];
-        AutoOption leftsPartner = LClockwiseAuto.OPTIONS[LClockwiseAuto.OPTIONS.length - 1];
-        assertEquals("L-Clockwise", rightsPartner.name);
-        assertEquals("R-Clockwise", leftsPartner.name);
-        // R on its first choice needs L on L's first, and so on down the two lists.
-        assertEquals(LClockwiseAuto.OPTIONS[0].choices, rightsPartner.choices);
-        assertEquals(RClockwiseAuto.OPTIONS[0].choices, leftsPartner.choices);
+    /** The whole INIT menu: one time each (the wait for the partner's TIP), the pickup, and R's priority. */
+    @Test public void theMenusAreOneTimeAndTheChoices() {
+        assertEquals(3, RClockwiseAuto.OPTIONS.length);
+        assertEquals(AutoOption.Kind.MATCH_SECONDS, RClockwiseAuto.OPTIONS[0].kind);
+        assertEquals("Pickup", RClockwiseAuto.OPTIONS[1].name);
+        assertEquals("[WALL_FLOWER, GARDEN]", RClockwiseAuto.OPTIONS[1].choices.toString());
+        assertEquals(AutoOption.PRIORITY, RClockwiseAuto.OPTIONS[2].name);
+        assertEquals("[THREE_TIP, PARK]", RClockwiseAuto.OPTIONS[2].choices.toString());
+        assertEquals(2, LClockwiseAuto.OPTIONS.length);
+        assertEquals(AutoOption.Kind.MATCH_SECONDS, LClockwiseAuto.OPTIONS[0].kind);
+        assertEquals("Pickup", LClockwiseAuto.OPTIONS[1].name);
+        // R on its first pickup needs L on L's first: the two lists pair in order.
+        assertEquals("[GARDEN, WALL_FLOWER]", LClockwiseAuto.OPTIONS[1].choices.toString());
     }
 
     private final class FakeDrive implements AutoDrive {

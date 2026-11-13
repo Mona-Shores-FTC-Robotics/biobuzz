@@ -326,7 +326,7 @@ row has it selected already.
 |---|---|---|
 | The partner wait | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for partner's TIP until 9 s". Left to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
 | Park | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
-| A paired Auto's pickup, shot trigger and times | as the row says | the Clockwise pair (`clockwise.md`) |
+| A route choice (Clockwise's Pickup and Priority) | the leg the robot drives | a *Choose in INIT* step (`clockwise.md`) |
 
 - **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
   as drawn and amber once changed; PLAY locks them, and the match log records them

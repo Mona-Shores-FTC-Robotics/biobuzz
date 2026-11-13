@@ -116,7 +116,8 @@ before TS. Later than that R parks from LEFT_WALL_NEAR at once, before L comes u
 
 ## The times
 
-All on the robot's match clock (from its own PLAY), all rows of the INIT menu. The values are the
+All on the robot's match clock (from its own PLAY). Each robot has **one** of them on its INIT menu, its
+wait for the partner's TIP (L: T1; R: T3); the rest are fixed in the drawing. The values are the
 Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-todo.md` §3).
 
 | Row | Value | Where it comes from |
@@ -178,20 +179,28 @@ first contact was with L 30% slow (2 of 8 runs).
 
 ## The INIT menu
 
-Gamepad 1's D-pad: **up / down selects a row, left / right changes it.** The page shows the
-selected row, what the partner's menu must show, and every row's value.
+Gamepad 1's D-pad: **up / down selects a row, left / right changes it.** Three rows on R, two on L.
 
 | Row | R-Clockwise | L-Clockwise |
 |---|---|---|
+| Waiting for partner's TIP until | 23.2 s (T3: RIGHT up, seen from LEFT_CLOSE_HIVE) | 9.5 s (T1: LEFT up) |
 | Pickup | WALL_FLOWER (drawn), GARDEN | GARDEN (drawn), WALL_FLOWER |
 | Priority | THREE_TIP (drawn), PARK | |
-| Shot trigger | CAMERA (drawn), TIMER | the same |
-| Times | T2, TS, T3b, T3, TR | T1, TLr, TF, T4, TL |
-| Partner line | "Partner runs L-Clockwise: Pickup GARDEN · Shot trigger CAMERA" | "Partner runs R-Clockwise: Pickup WALL_FLOWER · Shot trigger CAMERA" |
 
-**Shot trigger TIMER** is for a robot that cannot see the HIVE. Each stop then fires its "yes"
-row at its time and never takes the "no" row: set T1, T2 and T3 to the times the TIPs are expected
-before PLAY. Both robots must show the same trigger.
+The two Pickup rows pair in order: R on WALL_FLOWER needs L on GARDEN, R on GARDEN needs L on
+WALL_FLOWER. The page no longer says so; the drive teams read the rows to each other.
+
+Every volley after the preloads waits for the camera to read its CELL up, with the wait's trigger
+checked first: a CELL read up a moment after the time still gets its volley if the endgame guard says
+it fits. There is no shot on a timer (mentor, 13 Nov 2026): a robot that cannot see the HIVE takes each
+wait's Otherwise.
+
+Both files are builder steps only (Visualizer `isSimple`), so they open and edit in the Simple
+builder. The export guards each list that ends in a wait or a choice that parks, which the earlier
+hand-made form did not. Simulated beside the earlier form (Belding, 24 runs, R on WALL_FLOWER,
+Priority THREE_TIP): the same counts with both at speed, with L 20% slow, and with either preload
+volley missed. With R 20% slow, R now crosses and shoots at RIGHT in 12 of 24 runs where it parked
+before (both parked 12, was 22; G409 0, was 6).
 
 ## Spots
 
@@ -306,7 +315,7 @@ This has not been rerun on the present spots.
   both robots (TeamCode/README.md, "Simulating an Auto").
 - **The log reader:** `tools/pull-logs/read_logs.py steps`, the same step table for every Auto's
   log.
-- **The Visualizer:** a route choice, camera-or-timer stops, times on the menu, the partner note,
+- **The Visualizer:** a route choice, clock checks, timed holds,
   and `scripts/save-auto.mjs`, which saved these files.
 
 The `.pp` files were assembled by a script from the route's points and saved with the Visualizer's

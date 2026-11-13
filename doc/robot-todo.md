@@ -209,12 +209,10 @@ Result, with the gap on each own-start run, → [PR #372].
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
       [PR #391]; the menu is the Clockwise PR's.
 - [ ] **INIT menu, R-Clockwise on Red audience, then L-Clockwise on Red far wall** (INIT only).
-      **Good:** `▶ Pickup ◀▶: WALL_FLOWER · ▲▼ row 1 of 8` (L: `GARDEN`, `row 1 of 6`), then
-      `Partner runs L-Clockwise: Pickup GARDEN · Shot trigger CAMERA`, then every row's value in small
-      print. D-pad down walks the rows and wraps; right on Pickup shows GARDEN and the partner line
-      changes to `Pickup WALL_FLOWER`; right on a time adds 0.5 s; everything changed is amber and bold.
-      Read the two robots' pages to each other: each partner line matches the other's rows. With
-      warnings filling the page the list goes first, then the partner line, and the selected row stays.
+      **Good:** R shows three rows (waiting for partner's TIP until 23.2 s, Pickup WALL_FLOWER,
+      Priority THREE_TIP), L two (until 9.5 s, Pickup GARDEN). D-pad down walks the rows and wraps;
+      right on Pickup shows the other pickup; right on the time adds 1 s; everything changed is amber
+      and bold. Read the two robots' Pickup rows to each other: WALL_FLOWER pairs with GARDEN.
       **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
       8.0 s, and no log can say what INIT showed (the next item). Show the drive team the line too.
 - [ ] **The chosen INIT options reach the match log** (same run: set the wait to 12 s,
