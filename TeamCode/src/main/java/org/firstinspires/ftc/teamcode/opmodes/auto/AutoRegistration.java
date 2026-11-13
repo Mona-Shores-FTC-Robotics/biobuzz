@@ -55,8 +55,10 @@ import java.util.function.Function;
  * has an approach ({@code AutoRegistry.Approach}, {@link FlowerPicker#approach}): the path card
  * right before it lowers the stick over its last 18 in, so the pick's stick wait is over when the
  * card starts. {@code GardenGather} has one too ({@link GardenGather#approach}): the path card right
- * before it lowers the stick over its last 24 in, but only once the robot faces the GARDEN (a stick
- * swung down while the robot still turned in the corner came down on the wall, 30 Oct 2026).
+ * before it lowers the stick over its last 24 in, but only on a drive that ends facing the GARDEN
+ * and once the robot has held that facing 0.2 s (a stick swung down while the robot still turned, or
+ * faced another way, came down on the wall: 30 Oct and 13 Nov 2026). A drive that turns all the way
+ * in leaves the stick to the card.
  *
  * <p>{@code SpinUp}, {@code LaunchAll}, {@code LaunchOne} and {@code Empty} are real since the
  * launcher and feeder landed (#194): see {@link LaunchCards}, including what {@code Empty} means
@@ -189,8 +191,8 @@ public final class AutoRegistration {
      * 1.5, back 0.74 to 0.89). The dwell has been 0.4 s and the back out faster since 6 Nov: the ten
      * gathers of 12 Nov dwelt 0.40 to 0.43 and backed out in 0.61 to 0.67, and the one that started
      * at the staging spot took 3.26 s. The slowest of each phase add up to 3.73 s (0.75 + 1.66 +
-     * 0.43 + 0.89), so 4.0 covers a gather as the code runs it now, before the stick comes down on
-     * the drive in ({@link GardenGather#approach}), which takes up to 0.7 s more off. No Auto has
+     * 0.43 + 0.89), so 4.0 covers a gather as the code runs it now, the stick wait included: only a
+     * drive that arrives already facing the GARDEN loses it ({@link GardenGather#approach}). No Auto has
      * been logged with these settings yet (doc/robot-todo.md). Was 5.0 (one Auto gather, 4.21 s with
      * the long dwell), and 6.0 before any was logged.
      */

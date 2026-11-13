@@ -1150,7 +1150,7 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (4 s, which covers the nine
   Auto gathers logged 3 to 7 Nov with the dwell as it is now); the FLOWER stick, which goes down on the
   robot's gather, is not modelled in the GARDEN, so the simulator's intake reaches the wall and takes 2 or
-  3 pieces where the robot stalled 3.6 in short and took 0 to 2. With the Belding calibration a gather
+  3 pieces where the robot stops 3.6 in short, the stick on the wall, and brought in 0 to 2. With the Belding calibration a gather
   keeps only what a logged one brought in (`BeldingCalibration.gardenLoad`).
 - **Hits on the HIVE.** The rocker's static balance is fitted to the Field Setup Guide's placed cases
   (`HiveCalibration`). On top of it, a launched piece striking a CELL hands the rocker the angular momentum

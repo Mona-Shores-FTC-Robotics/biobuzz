@@ -35,23 +35,23 @@ import java.util.function.Consumer;
  * robot faces the GARDEN to within {@link #lowerWithinDeg}, the stick goes down and the intake starts,
  * so the {@link #stickDownMs} wait has run when the card starts ({@link #readySinceNs}). Measured,
  * 3 to 7 Nov 2026: all nine Auto gathers stood 0.70 to 0.75 s at GARDEN_STAGING for the stick before
- * they moved. The facing rule is the button's own, which has lowered the stick at the same spot since
- * 30 Oct, so a drive that still turns as it arrives (R-NoCross's) lowers it only at the very end.
+ * they moved. <b>The stick never comes down while the robot is turning or facing another way</b>
+ * ({@link #lowerOnApproach}): the drive must end facing the GARDEN, and the robot must have held
+ * that facing for {@link #facingHoldMs}. So only a drive whose turn is finished early gains the
+ * time; one that turns all the way in (R-NoCross's) leaves the stick to the card, as before.
  *
  * <p><b>What the logs say (13 Nov 2026, the 36 gathers of 1 to 12 Nov on both robots that drove
  * in):</b> with the stick down every drive in stalled short. 32 stopped with the robot's centre 11.5
  * to 14.8 in from the audience wall (median 13.1), 3.6 in short of the gather pose, the old diagonal
  * and the 12 Nov curve alike; the other four stopped further out still. A FLOWER
  * push stalls at the same distance from its wall (10.0 to 10.4 in from a FLOWER that is 2.71 in off
- * it), and on 29 Oct, before the stick, six gathers ran their whole path to the wall. So it is the
- * stick on the wall that stops the robot, with the intake's nose about 3.6 in from the wall and the
- * GARDEN's POLLEN (2.8 in across, against the wall) just out of its reach. The nine Auto gathers
- * brought in 0 to 2 pieces, 1.0 on average, never 3. {@link #useStick} off is the check that decides
- * it (doc/robot-todo.md).
- *
- * <p>Every number here is a starting point to tune in Panels, not a measurement. The Visualizer's
- * picture of a gather ({@code lib/simple/garden.ts}) uses the same numbers: change one, change the
- * other.
+ * it). That is the stick, down, meeting the wall: it is the ramp the GARDEN's POLLEN pop over as the
+ * robot drives in (mentor, 13 Nov 2026: three come over it; the fourth, in the corner, is a
+ * mechanical fix in progress). Unlike a FLOWER's, the pieces have no drop to carry them on into the
+ * intake, so what the gather brings in is decided after the drive in: the nine Auto gathers fired 0
+ * to 2 in their next volley, 1.0 on average, never 3, and the lane count often rose seconds after
+ * the gather ended. What is missing is a driving sequence that corrals the pieces into the intake
+ * before the stick comes up (doc/robot-todo.md); none has been tried yet.
  */
 @Configurable
 public final class GardenGather extends GrabRoutine {
@@ -95,6 +95,16 @@ public final class GardenGather extends GrabRoutine {
      * end, enough for the whole {@link #stickDownMs}.
      */
     public static double approachLowerWithinIn = 24.0;
+    /**
+     * With {@link #lowerOnDriveIn}: the robot must have faced the GARDEN (to within
+     * {@link #lowerWithinDeg}) for this long without a break, ms, before the stick may come down on the
+     * drive in: the turn is over, not passing through. The stick came down on the field wall when it
+     * was lowered with the robot facing the wrong way (mentor, 13 Nov 2026). A drive that turns all
+     * the way in (R-NoCross's and R-Clockwise's turn half a turn evenly over the whole drive: 22° off
+     * with 6 in to go, facing only for its last 0.1 s) never lowers the stick early; its card does,
+     * standing, as before. To gain the 0.7 s there, draw the turn finished early in the Visualizer.
+     */
+    public static double facingHoldMs = 200;
     /**
      * How much further than the GARDEN's gather pose the drive in aims, inches, along the robot's
      * heading. A drive in that hits the wall first just stops there (it stalls), so too much is
@@ -260,6 +270,10 @@ public final class GardenGather extends GrabRoutine {
         private final Consumer<String> event;
         /** The GARDEN the gather after this drive will go for, from where the drive ends; null for none. */
         private Garden garden;
+        /** Whether the drive ends facing that GARDEN: one that does not never lowers the stick. */
+        private boolean endsFacing;
+        /** Since when the robot has faced the GARDEN without a break, System.nanoTime, or 0 while it does not. */
+        private long facingSinceNs;
         private boolean lowered;
 
         Approach(Robot robot, Consumer<String> event) {
@@ -270,12 +284,21 @@ public final class GardenGather extends GrabRoutine {
         @Override
         public void started(Pose end) {
             garden = nearest(end.x(), end.y(), true);
+            endsFacing = garden != null && facing(garden, end.heading());
+            facingSinceNs = 0;
             lowered = false;
         }
 
         @Override
         public void approaching(Pose pose, double remainingIn) {
-            if (lowered || garden == null || !lowerOnApproach(garden, pose, remainingIn)) return;
+            if (lowered || garden == null || !endsFacing) return;
+            long now = System.nanoTime();
+            if (!facing(garden, pose.heading())) {
+                facingSinceNs = 0;
+                return;
+            }
+            if (facingSinceNs == 0) facingSinceNs = now;
+            if (!lowerOnApproach(remainingIn, (now - facingSinceNs) / 1e6)) return;
             lowered = true;
             robot.flowerStick.extend();
             robot.intake.intake();
@@ -292,16 +315,22 @@ public final class GardenGather extends GrabRoutine {
     }
 
     /**
-     * Whether the drive in to a gather from {@code g} may lower the stick with the robot at
-     * {@code pose}, {@code remainingIn} from the drive's end: with the stick in use and
-     * {@link #lowerOnDriveIn} on, within {@link #approachLowerWithinIn} of the end, and facing the
-     * GARDEN to within {@link #lowerWithinDeg}. The facing rule is what keeps the stick off the side
-     * wall: swung down while the robot still turned in the corner, it came down on it (30 Oct 2026).
+     * Whether the drive in to a gather may lower the stick, {@code remainingIn} from the drive's end,
+     * with the robot having faced the GARDEN for {@code facedMs} without a break on a drive that ends
+     * facing it: with the stick in use and {@link #lowerOnDriveIn} on, within
+     * {@link #approachLowerWithinIn} of the end, and the facing held {@link #facingHoldMs}. The
+     * facing rules are what keep the stick off the field wall: it came down on it when lowered while
+     * the robot still turned in the corner (30 Oct 2026) and when facing the wrong way (13 Nov).
      */
-    static boolean lowerOnApproach(Garden g, Pose pose, double remainingIn) {
+    static boolean lowerOnApproach(double remainingIn, double facedMs) {
         return useStick && lowerOnDriveIn
                 && remainingIn <= nn(approachLowerWithinIn)
-                && Math.abs(Math.toDegrees(wrapRad(g.gather.heading() - pose.heading()))) <= nn(lowerWithinDeg);
+                && facedMs >= nn(facingHoldMs);
+    }
+
+    /** Whether a robot at {@code headingRad} faces {@code g} to within {@link #lowerWithinDeg}. */
+    static boolean facing(Garden g, double headingRad) {
+        return Math.abs(Math.toDegrees(wrapRad(g.gather.heading() - headingRad))) <= nn(lowerWithinDeg);
     }
 
     /**

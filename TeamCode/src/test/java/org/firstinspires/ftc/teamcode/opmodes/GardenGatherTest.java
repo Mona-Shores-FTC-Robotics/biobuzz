@@ -56,36 +56,41 @@ public class GardenGatherTest {
     }
 
     /**
-     * The drive to GARDEN_STAGING (11.5, 22.1) lowers the stick over its last approachLowerWithinIn
-     * (24 in), and only while the robot faces the GARDEN to within lowerWithinDeg (10°): a stick swung
-     * down while the robot still turned in the corner came down on the side wall (30 Oct 2026).
+     * The drive to GARDEN_STAGING lowers the stick over its last approachLowerWithinIn (24 in), and
+     * only once the robot has faced the GARDEN for facingHoldMs (200 ms) without a break: the stick
+     * came down on the field wall when lowered while the robot turned or faced another way.
      */
     @Test
-    public void theDriveInLowersTheStickOnceCloseAndFacingTheGarden() {
-        GardenFieldPoints.Garden red = GardenFieldPoints.RED; // faces the audience wall, 270°
-        Pose facing = new Pose(11.5, 44.0, Math.toRadians(270));
-        assertEquals("30 in from the drive's end: not yet", false, GardenGather.lowerOnApproach(red, facing, 30.0));
-        assertEquals("22 in from the end, facing the GARDEN: now", true, GardenGather.lowerOnApproach(red, facing, 22.0));
-        assertEquals("8° off: still facing it", true,
-                GardenGather.lowerOnApproach(red, new Pose(11.5, 30.0, Math.toRadians(262)), 8.0));
-        // R-NoCross turns half a turn on its way in: 2 in from the end it was still more than 10° off.
-        assertEquals("still turning toward the side wall: not yet", false,
-                GardenGather.lowerOnApproach(red, new Pose(13.0, 23.0, Math.toRadians(240)), 2.0));
-        assertEquals("blue's GARDEN faces 90°", true,
-                GardenGather.lowerOnApproach(GardenFieldPoints.BLUE, new Pose(130.0, 100.0, Math.toRadians(92)), 20.0));
+    public void theDriveInLowersTheStickOnceCloseAndTheTurnIsOver() {
+        assertEquals("30 in from the drive's end: not yet", false, GardenGather.lowerOnApproach(30.0, 1000));
+        assertEquals("22 in from the end, facing for a second: now", true, GardenGather.lowerOnApproach(22.0, 1000));
+        assertEquals("just turned to face it: not yet", false, GardenGather.lowerOnApproach(22.0, 50));
+        // R-NoCross turns half a turn evenly on its way in: it faces the GARDEN only for its last 0.1 s.
+        assertEquals("facing for 100 ms, 2 in out: the card lowers it, standing", false,
+                GardenGather.lowerOnApproach(2.0, 100));
+    }
+
+    /** Facing is within lowerWithinDeg (10°) of the GARDEN's heading: red's 270°, blue's 90°. */
+    @Test
+    public void facingIsWithinTenDegreesOfTheGardensHeading() {
+        assertEquals(true, GardenGather.facing(GardenFieldPoints.RED, Math.toRadians(262)));
+        assertEquals(true, GardenGather.facing(GardenFieldPoints.RED, Math.toRadians(-90)));
+        assertEquals("22° off, as R-NoCross is 6 in out", false, GardenGather.facing(GardenFieldPoints.RED, Math.toRadians(248)));
+        assertEquals("facing the side wall", false, GardenGather.facing(GardenFieldPoints.RED, Math.toRadians(180)));
+        assertEquals(true, GardenGather.facing(GardenFieldPoints.BLUE, Math.toRadians(92)));
+        assertEquals(false, GardenGather.facing(GardenFieldPoints.BLUE, Math.toRadians(270)));
     }
 
     /** Both switches turn the early stick off: without the stick, and with lowerOnDriveIn off. */
     @Test
     public void theEarlyStickHasTwoOffSwitches() {
-        Pose facing = new Pose(11.5, 30.0, Math.toRadians(270));
         boolean stick = GardenGather.useStick, early = GardenGather.lowerOnDriveIn;
         try {
             GardenGather.useStick = false;
-            assertEquals("no stick in this gather", false, GardenGather.lowerOnApproach(GardenFieldPoints.RED, facing, 8.0));
+            assertEquals("no stick in this gather", false, GardenGather.lowerOnApproach(8.0, 1000));
             GardenGather.useStick = true;
             GardenGather.lowerOnDriveIn = false;
-            assertEquals("the card lowers it itself", false, GardenGather.lowerOnApproach(GardenFieldPoints.RED, facing, 8.0));
+            assertEquals("the card lowers it itself", false, GardenGather.lowerOnApproach(8.0, 1000));
         } finally {
             GardenGather.useStick = stick;
             GardenGather.lowerOnDriveIn = early;

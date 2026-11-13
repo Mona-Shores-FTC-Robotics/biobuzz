@@ -2486,7 +2486,7 @@ public final class AutoSim {
          *
          * <p>The FLOWER stick goes down on the robot's gather; the simulator does not model the stick in the GARDEN,
          * only the intake, so its gather reaches the wall and takes 2 or 3 pieces where the robot's nine logged Auto
-         * gathers stalled 3.6 in short of it and took 0 to 2. The Belding calibration keeps only as many as a logged
+         * gathers stopped 3.6 in short of it, the stick on the wall, and brought in 0 to 2. The Belding calibration keeps only as many as a logged
          * gather brought in ({@link BeldingCalibration#gardenLoad}). The gather takes no less than
          * {@link AutoRegistration#GARDEN_GATHER_TYPICAL_S}: the simulated drive is quicker than the robot's, and
          * that number, which covers the logged gathers' phases, is what an Auto is planned with.

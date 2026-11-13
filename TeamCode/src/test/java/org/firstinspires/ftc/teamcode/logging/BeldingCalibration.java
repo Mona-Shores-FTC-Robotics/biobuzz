@@ -142,9 +142,10 @@ final class BeldingCalibration {
      * How many pieces each robot's GARDEN gather brought in, in the nine Auto gathers logged from GARDEN_STAGING
      * (3 to 7 Nov 2026, the practice fields at home and at Belding; no Belding match gathered). Counted from the
      * next volley's wheel dips less what the lane held before the gather, or from the lane count where no volley
-     * followed. Never more than two: with the FLOWER stick down the robot stalls with its centre about 13.1 in
-     * from the audience wall, 3.6 in short of the gather pose, so the intake does not reach the row of POLLEN
-     * against the wall ({@code GardenGather}). The logs do not say how many pieces each GARDEN held.
+     * followed. Never more than two: the pieces pop over the FLOWER stick as the robot drives in, but nothing yet
+     * carries them on into the intake before the stick comes up ({@code GardenGather}). The lane count read low
+     * after gathers on 12 Nov, so the two taken from it may be low. The logs do not say how many pieces each
+     * GARDEN held.
      */
     static final int[] IR_GARDEN = {0, 2, 2, 0, 1, 0}, UV_GARDEN = {2, 2, 0};
 
