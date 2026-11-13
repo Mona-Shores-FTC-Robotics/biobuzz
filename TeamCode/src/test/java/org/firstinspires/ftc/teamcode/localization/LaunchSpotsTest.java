@@ -75,7 +75,8 @@ public class LaunchSpotsTest {
                     minB = Math.min(minB, d);
                     maxB = Math.max(maxB, d);
                 }
-                if (maxA <= minB || maxB <= minA) return false;
+                // Edge to edge is not an overlap (LEFT_WALL_HIVE, stood off, meets LEFT_CLOSE_HIVE).
+                if (maxA <= minB + 1e-6 || maxB <= minA + 1e-6) return false;
             }
         }
         return true;
@@ -89,7 +90,7 @@ public class LaunchSpotsTest {
         assertEquals(start.y(), Spot.RIGHT_START.red.y(), EPS);
         Pose t = target(Spot.RIGHT_START);
         assertEquals(start.x(), t.x(), EPS);
-        assertEquals(start.y() + LaunchSpots.RIGHT_WALL_STAND_OFF_IN, t.y(), EPS);
+        assertEquals(start.y() + LaunchSpots.WALL_STAND_OFF_IN, t.y(), EPS);
         assertEquals(0, wrap(start.heading() - t.heading()), EPS);
         assertEquals(Spot.RIGHT_START, Spot.of(false, Row.WALL, Column.HIVE));
         // The LEFT start is placed on the centre-line seam, so the LEFT spot is its own.
@@ -240,13 +241,13 @@ public class LaunchSpotsTest {
     }
 
     @Test
-    public void theRightWallRowStandsAnInchOutAndNothingElseDoes() {
+    public void theWallRowStandsAnInchOutAndTheCloseRowDoesNot() {
         for (Spot spot : Spot.values()) {
-            boolean rightWall = spot.row == Row.WALL && !spot.left;
-            assertEquals(spot.name(), rightWall ? 1.0 : 0.0, spot.standOffIn, EPS);
+            assertEquals(spot.name(), spot.row == Row.WALL ? 1.0 : 0.0, spot.standOffIn, EPS);
             Pose t = target(spot);
             assertEquals(spot.name(), spot.red.x(), t.x(), EPS);
-            assertEquals(spot.name(), spot.red.y() + spot.standOffIn, t.y(), EPS); // RIGHT: out is +y
+            // Out from the wall is toward the axle line: +y on the RIGHT half, -y on the LEFT.
+            assertEquals(spot.name(), spot.red.y() + (spot.left ? -spot.standOffIn : spot.standOffIn), t.y(), EPS);
         }
     }
 

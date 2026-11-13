@@ -61,11 +61,12 @@ public final class LaunchSpots {
     public enum Column { NEAR, HIVE, FAR }
 
     /**
-     * The RIGHT half's three WALL spots are driven to this far out from the audience wall, toward
-     * the HIVE, inches (mentor, 13 Nov 2026). The TeleOp's buttons only: the spots as drawn, and so
-     * the Autos that launch from them, do not move.
+     * The six WALL spots are driven to this far out from their side wall, toward the HIVE, inches
+     * (mentor, 13 Nov 2026). The TeleOp's buttons only: the spots as drawn, and so the Autos that
+     * launch from them, do not move. With it LEFT_WALL_HIVE's frame meets LEFT_CLOSE_HIVE's edge
+     * to edge, and RIGHT_START's is 0.4 in from RIGHT_CLOSE_HIVE's.
      */
-    static final double RIGHT_WALL_STAND_OFF_IN = 1.0;
+    static final double WALL_STAND_OFF_IN = 1.0;
 
     /** The frame is square: from its centre to its back, front and either side (measured, {@link ResetPositions}). */
     static final double FRAME_HALF_IN = ResetPositions.WALL_TO_CENTRE_IN;
@@ -112,8 +113,7 @@ public final class LaunchSpots {
         public final boolean aimed;
         /**
          * How far out from its wall, toward the HIVE, the button stops, inches, on top of
-         * {@code wallGapIn}: {@link #RIGHT_WALL_STAND_OFF_IN} for the RIGHT half's WALL row, 0 for
-         * every other spot. {@link #red} stays the spot as drawn, touching the wall, which is what
+         * {@code wallGapIn}: {@link #WALL_STAND_OFF_IN} for a WALL-row spot, 0 for a CLOSE-row one. {@link #red} stays the spot as drawn, touching the wall, which is what
          * the Clockwise Autos launch from ({@code ClockwiseAutoTest}); an Auto's {@code RIGHT_START}
          * volley is fired from the start itself, where the robot is placed.
          */
@@ -129,7 +129,7 @@ public final class LaunchSpots {
             this.red = red;
             this.left = leftHalf(Alliance.RED, red.y());
             this.aimed = column != Column.HIVE;
-            this.standOffIn = row == Row.WALL && !this.left ? RIGHT_WALL_STAND_OFF_IN : 0.0;
+            this.standOffIn = row == Row.WALL ? WALL_STAND_OFF_IN : 0.0;
         }
 
         /** The spot of {@code row} and {@code column} on the LEFT half ({@code left}) or the RIGHT. */
