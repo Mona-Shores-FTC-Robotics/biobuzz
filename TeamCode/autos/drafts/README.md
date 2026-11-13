@@ -237,6 +237,29 @@ does not wait for it:
 - **R drives the last stretch into `RIGHT_PARK` straight** along the park's own line (parked robots
   are 2.7 in apart).
 
+**Pickup, in the INIT menu** (mentor, 13 Nov 2026: the row R-Clockwise has). Each trial offers one
+row, `Pickup`, on gamepad 1's D-pad left and right:
+
+| | Drawn | The other choice |
+|---|---|---|
+| R-OutsideLane | `WALL_FLOWER` | `GARDEN`: the GARDEN in its own corner, then up the wall lane as before |
+| L-UnderHive | `GARDEN` | `WALL_FLOWER`: under the HIVE, then across to the WALL FLOWER |
+
+The two robots must show different pickups. Nothing checks that: the drive teams read their rows
+to each other.
+
+- **Leave both as drawn for now.** The swap (R `GARDEN`, L `WALL_FLOWER`) does not work with today's
+  gather. In the simulator the gather keeps R in its corner for the card's whole 5.5 s, because it
+  takes 2 or 3 pieces and waits for a fourth. R is still leaving when L comes across to the WALL
+  FLOWER, and the robots touched in 17 of 20 runs. R then reaches the left spot at about 16.9 s,
+  after its 14 s limit, and parks: one TIP.
+- **What the swap needs:** R out of the corner by about 9.5 s, which is a gather of about 4 s or
+  less. Then R's first pickup is 25 in from its start, where the WALL FLOWER is 50 in.
+- **L's way to the WALL FLOWER leaves its lane.** It comes out from under the HIVE at the south end
+  and crosses to the alliance wall, where R drives. Only the clock keeps them apart.
+- **Both on `GARDEN`** touched in 17 of 20 (the same corner). **Both on `WALL_FLOWER`** ran as the
+  drawn pairing does: L finds the FLOWER already picked.
+
 **R falls back by itself** (mentor, 12 Nov 2026: no separate short Auto). The third volley needs
 the pick, the drive back, the volley and the park, about 14 s on a 2.5 s volley, so R goes for it
 only if its LEFT volley is done before 15.5 s. With today's 4 s volleys that volley ends at about
