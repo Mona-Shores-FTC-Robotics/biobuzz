@@ -190,7 +190,7 @@ Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=mast
 
 | Utility | Route |
 |---|---|
-| **Drive: R-OutsideLane** | Preloads at RIGHT, WALL FLOWER, wall lane up and across to L4, LEFT up before 14 s, volley. **If that volley is done before 15 s:** SCORING FLOWER, wall lane back to R5, RIGHT up before 26 s, volley, park right. **Otherwise** park right from the left spot |
+| **Drive: R-OutsideLane** | Preloads at RIGHT, WALL FLOWER, wall lane up and across to L4, LEFT up before 14 s, volley. **If that volley is done before 15.5 s:** SCORING FLOWER, wall lane back to R5, RIGHT up before 26 s, volley, park right. **Otherwise** park right from the left spot |
 | **Drive: L-UnderHive** | L4, LEFT up before 9 s, preloads, under the HIVE to the GARDEN, R4, RIGHT up before 22 s, volley, back under the HIVE, park left |
 
 Every volley is from a spot the drivers' buttons go to (`LaunchSpots`), as a new Auto must be: R's
@@ -203,9 +203,15 @@ preloads from (mentor, 13 Nov 2026: in front of the HIVE, not the corner and not
 L is meant to have fired and gone under the HIVE while R picks the WALL FLOWER and drives up, so R
 does not wait for it:
 
-- **L leaves the spot about 2.7 s after it reads LEFT up,** and R comes within reach of it at 11.4 s.
-  In 18 of 20 simulated runs L had gone 0.9 s or more before that. In 2 the first TIP was read late
-  (8.3 and 8.8 s), L was still leaving, and the robots touched.
+- **R drives there intake first** (mentor, 13 Nov 2026): the fourth ball of a load rides on the
+  floor, and backing up lets it squirt out. Out of the WALL FLOWER R turns north, comes round to
+  face the way it drives, and turns to the HIVE only over the last of the way in, as R-Solo and
+  R-Infraviolet do. That is three quarters of a turn where backing in was one quarter, and it costs
+  about 1 s (the simulator's turning is fitted to Belding's logs of this drive): R is on the spot at
+  12.8 s, not 11.8 s. The trip back from the SCORING FLOWER already faced the way it drives.
+- **L leaves the spot about 2.7 s after it reads LEFT up,** and R comes within reach of it at 12.0 s.
+  In 19 of 20 simulated runs L had gone before that. In 1 the first TIP was read late (8.8 s), L was
+  still leaving, and the robots touched.
 - **Tried and dropped:** a wait for L until 12 s (no contact, but R's LEFT volley then starts at
   13.5 s and the third volley never fits); a wider turn in (slower by 0.3 s, and it met L on its
   way to an early park); L1, the wall-row spot behind this one (a longer drive, and a turn there
@@ -215,24 +221,27 @@ does not wait for it:
 
 **R falls back by itself** (mentor, 12 Nov 2026: no separate short Auto). The third volley needs
 the pick, the drive back, the volley and the park, about 14 s on a 2.5 s volley, so R goes for it
-only if its LEFT volley is done before 15 s. With today's 4 s volleys that volley ends at about
+only if its LEFT volley is done before 15.5 s. With today's 4 s volleys that volley ends at about
 15.8 s and R parks, done at 17.5 s. On a 2.5 s volley it ends at about 13 s and R goes on.
 
 **In the simulator as the robot runs today** (Belding calibration, 4 s volleys, 20 seeds, the pair):
 
 | R's LEFT volley from | Two TIPs | Both parked | Robots touch |
 |---|---|---|---|
-| L4, as drawn now | 2 | 20 | 4 |
+| L4, intake first, as drawn now | 2 | 20 | 3 |
+| L4, backing in, tried | 2 | 20 | 4 |
 | L1 with a wait for L, tried | 4 | 20 | 0 |
 | L2, tried | 3 | 20 | 2 |
 | `LEFT_LAUNCH_OFFSET`, before | 4 | 20 | 2 |
 
-- **The four contacts as drawn now:** two at the left spot at 11.4 s (L still leaving, above), and
-  two at about 21 s on R's third trip, where R5 and R4 overlap.
+- **The three contacts as drawn now:** one at the left spot at 12.0 s (L still leaving, above), and
+  two at about 22 s on R's third trip, where R5 and R4 overlap.
 - **Fewer two-TIP runs from L4 than from the spots further out** is the calibration keeping 0.70 of
   balls from 36 in, on thin evidence (below).
-- **R reaches L4 at 11.8 s.** On a 2.5 s volley its LEFT volley is done at about 14.4 s, before the
-  15 s check, and it goes for the third.
+- **The third volley is now a close call.** On a 2.5 s volley R's LEFT volley is done at about
+  15.3 s, so the check is drawn at 15.5 s (was 15). The Visualizer's preview, which does not price
+  the turning, has R done at 28.8 s; with the turning's second that is about 29.8 s, and the endgame
+  guard parks R instead whenever the third volley and the park do not both fit.
 - **From `LEFT_LAUNCH_OFFSET`, R parked after its LEFT volley in 18 of 20.** In the other two a short FLOWER load ended that
   volley early, R went on, and it met L leaving the GARDEN at about 20 s.
 - **On a planned 2.5 s volley both robots fire their last volleys,** and R comes in to R5 while L

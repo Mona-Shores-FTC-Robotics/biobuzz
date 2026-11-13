@@ -641,12 +641,15 @@ Use the work order above to select checks; the detailed mechanism checks below a
       Each stops itself at 30 s. In this order:
       - **Each alone, no pieces:** it drives its route and parks. **Stop:** it touches the HIVE, a
         FLOWER it is not picking, or crosses the centre line → save the log.
-      - **R alone, four preloads:** note the match second its LEFT volley ends. Past 15 s it parks
-        from the left spot (expected today); before 15 s it goes on to the SCORING FLOWER and R5.
+      - **R alone, four preloads:** note the match second its LEFT volley ends. Past 15.5 s it parks
+        from the left spot (expected today); before 15.5 s it goes on to the SCORING FLOWER and R5.
       - **Both together,** four preloads each. Count the pieces that stay in from L4 (L's preloads)
         and from the same spot by R (its WALL FLOWER load), and the TIPs.
+      - **Does R keep its four going up the lane?** It drives intake first now, turning to the
+        HIVE only at the end. Count what its LEFT volley fires. **Good:** 4. **Stop:** 3 → note
+        where the ball left (the film), and whether it was in the last turn into the spot.
       - **Does L clear L4 before R gets there?** Both fire from L4. Note the match second L leaves
-        it and the second R arrives (drawn: R within reach at 11.4 s, there at 11.8 s). **Stop:**
+        it and the second R arrives (drawn: R within reach at 12.0 s, there at 12.8 s). **Stop:**
         R arrives while L is still on the spot or just leaving → note both seconds; the fix is a
         short wait for R, which costs its third volley.
       - **R's park from L4:** it squares up and drives into `RIGHT_PARK` straight. **Stop:** it
