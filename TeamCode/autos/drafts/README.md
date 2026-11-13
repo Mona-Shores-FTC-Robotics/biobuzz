@@ -190,28 +190,28 @@ Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=mast
 
 | Utility | Route |
 |---|---|
-| **Drive: R-OutsideLane** | Preloads at RIGHT, WALL FLOWER, wall lane to a hold beside the HIVE until 12 s, in to L1, LEFT up before 15 s, volley. **If that volley is done before 15 s:** SCORING FLOWER, wall lane back to R5, RIGHT up before 26 s, volley, park right. **Otherwise** park right from the left spot |
+| **Drive: R-OutsideLane** | Preloads at RIGHT, WALL FLOWER, wall lane up and across to L4, LEFT up before 14 s, volley. **If that volley is done before 15 s:** SCORING FLOWER, wall lane back to R5, RIGHT up before 26 s, volley, park right. **Otherwise** park right from the left spot |
 | **Drive: L-UnderHive** | L4, LEFT up before 9 s, preloads, under the HIVE to the GARDEN, R4, RIGHT up before 22 s, volley, back under the HIVE, park left |
 
 Every volley is from a spot the drivers' buttons go to (`LaunchSpots`), as a new Auto must be: R's
-preloads from `RIGHT_START`, its LEFT volley from L1 (`LEFT_WALL_HIVE`, the wall row in front of
-the LEFT CELL), and L4, R4 and R5 from the close row (`LEFT_CLOSE_HIVE`, `RIGHT_CLOSE_HIVE`,
-`RIGHT_CLOSE_NEAR`). They are local points in these drafts, not team spots. A wait that runs out
-parks the robot.
+preloads from `RIGHT_START`, and the rest from the close row: `LEFT_CLOSE_HIVE` (L4, in front of the
+LEFT CELL), `RIGHT_CLOSE_HIVE` (R4) and `RIGHT_CLOSE_NEAR` (R5). They are local points in these
+drafts, not team spots. A wait that runs out parks the robot.
 
-**R's LEFT volley is from in front of the HIVE** (mentor, 13 Nov 2026: not from the corner; it was
-`LEFT_LAUNCH_OFFSET`, then L2 for a day). The way to L1 goes south of the SCORING FLOWER, across
-the spot L fires its preloads from, so:
+**R's LEFT volley is from the close spot in front of the LEFT CELL,** L4, the spot L fires its
+preloads from (mentor, 13 Nov 2026: in front of the HIVE, not the corner and not back at the wall).
+L is meant to have fired and gone under the HIVE while R picks the WALL FLOWER and drives up, so R
+does not wait for it:
 
-- **R waits clear of L until 12 s on the match clock** (`LEFT_HOLD`, beside the HIVE's north end),
-  then drives in. L had left by 11.5 s in every simulated run; without the wait the robots touched
-  in 2 of 20. The wait costs R about 1.3 s.
-- **R turns for the SCORING FLOWER after it has left L1,** not on the spot: turning there puts a
-  corner of the frame over the centre line.
+- **L leaves the spot about 2.7 s after it reads LEFT up,** and R comes within reach of it at 11.4 s.
+  In 18 of 20 simulated runs L had gone 0.9 s or more before that. In 2 the first TIP was read late
+  (8.3 and 8.8 s), L was still leaving, and the robots touched.
+- **Tried and dropped:** a wait for L until 12 s (no contact, but R's LEFT volley then starts at
+  13.5 s and the third volley never fits); a wider turn in (slower by 0.3 s, and it met L on its
+  way to an early park); L1, the wall-row spot behind this one (a longer drive, and a turn there
+  crosses the centre line); L2, the corner.
 - **R drives the last stretch into `RIGHT_PARK` straight** along the park's own line (parked robots
   are 2.7 in apart).
-- **L1 is where `LEFT_START` is.** A partner dead on its start is hit every time: this is a pair,
-  never run beside anything but L-UnderHive.
 
 **R falls back by itself** (mentor, 12 Nov 2026: no separate short Auto). The third volley needs
 the pick, the drive back, the volley and the park, about 14 s on a 2.5 s volley, so R goes for it
@@ -222,14 +222,17 @@ only if its LEFT volley is done before 15 s. With today's 4 s volleys that volle
 
 | R's LEFT volley from | Two TIPs | Both parked | Robots touch |
 |---|---|---|---|
-| L1, as drawn now | 4 | 20 | 0 |
-| L4, tried | 2 | 20 | 0 |
+| L4, as drawn now | 2 | 20 | 4 |
+| L1 with a wait for L, tried | 4 | 20 | 0 |
 | L2, tried | 3 | 20 | 2 |
 | `LEFT_LAUNCH_OFFSET`, before | 4 | 20 | 2 |
 
-- **From L1, R parked after its LEFT volley in all 20,** done at a median 20.2 s. Its LEFT volley now
-  starts at about 13.5 s, so it is not done before 15 s even on a 2.5 s volley: as drawn, R does not
-  go for the third volley. The two contacts in the older rows were on that third trip.
+- **The four contacts as drawn now:** two at the left spot at 11.4 s (L still leaving, above), and
+  two at about 21 s on R's third trip, where R5 and R4 overlap.
+- **Fewer two-TIP runs from L4 than from the spots further out** is the calibration keeping 0.70 of
+  balls from 36 in, on thin evidence (below).
+- **R reaches L4 at 11.8 s.** On a 2.5 s volley its LEFT volley is done at about 14.4 s, before the
+  15 s check, and it goes for the third.
 - **From `LEFT_LAUNCH_OFFSET`, R parked after its LEFT volley in 18 of 20.** In the other two a short FLOWER load ended that
   volley early, R went on, and it met L leaving the GARDEN at about 20 s.
 - **On a planned 2.5 s volley both robots fire their last volleys,** and R comes in to R5 while L

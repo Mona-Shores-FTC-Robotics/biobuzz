@@ -642,15 +642,15 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - **Each alone, no pieces:** it drives its route and parks. **Stop:** it touches the HIVE, a
         FLOWER it is not picking, or crosses the centre line → save the log.
       - **R alone, four preloads:** note the match second its LEFT volley ends. Past 15 s it parks
-        from the left spot (expected, even on a short volley: it starts at about 13.5 s); before 15 s it goes on to the SCORING FLOWER and R5.
+        from the left spot (expected today); before 15 s it goes on to the SCORING FLOWER and R5.
       - **Both together,** four preloads each. Count the pieces that stay in from L4 (L's preloads)
-        and from L1, `LEFT_WALL_HIVE` (R's WALL FLOWER load), and the TIPs.
-      - **R's wait for L:** R stops beside the HIVE's north end until 12 s, then drives in across
-        L4 to L1. Note the match second L leaves L4. **Stop:** L is still on L4 at 12 s → note the
-        second; the wait (`L has left: go in at 12 s` in the drawing) needs to be later.
-      - **R leaving L1:** it backs off before it turns for the SCORING FLOWER or the park.
-        **Stop:** it turns on the spot (a corner crosses the centre line), or comes into
-        `RIGHT_PARK` at an angle beside a parked robot → save the log.
+        and from the same spot by R (its WALL FLOWER load), and the TIPs.
+      - **Does L clear L4 before R gets there?** Both fire from L4. Note the match second L leaves
+        it and the second R arrives (drawn: R within reach at 11.4 s, there at 11.8 s). **Stop:**
+        R arrives while L is still on the spot or just leaving → note both seconds; the fix is a
+        short wait for R, which costs its third volley.
+      - **R's park from L4:** it squares up and drives into `RIGHT_PARK` straight. **Stop:** it
+        comes in at an angle beside a parked robot → save the log.
       - **If R goes on while L is on the right side:** R5 and R4 overlap, and R passes the GARDEN
         as L leaves it. **Stop the run** if they are closing, and note the match second.
       - Film each paired run from the side.
