@@ -94,24 +94,26 @@ public final class LUnderHiveAuto {
         Path underHiveParkToLeftPark = Paths.path(Paths.curve(rightCloseHive, point11Control1, point11Control2, point11).linear(rightCloseHive, point11), Paths.curve(point11, point12Control1, point12Control2, leftPark).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(point12Segment1Start, leftPark)).until(1, Interpolator.constant(leftPark))));
 
         return kit.sequence(
-                kit.command("SpinUp"),
-                kit.path("open to LEFT_CLOSE_HIVE", openToLeftCloseHive, 1.2, leftAbortParkToLeftPark, 2),
-                kit.firstOf("LEFT up before 9 s, otherwise park",
-                        kit.atMatchSeconds(9).then(
-                                kit.guarded("Timed out", leftAbortParkToLeftPark, 2,
-                                        kit.path("left abort park to LEFT_PARK", leftAbortParkToLeftPark, 2))),
-                        kit.when("LeftCellUp").then(
-                                kit.command("LaunchAll", 1),
-                                kit.path("early garden to GARDEN_STAGING", earlyGardenToGardenStaging, 3.8, gardenAbortParkToLeftPark, 4.6),
-                                kit.command("GardenGather", 5.5),
-                                kit.path("garden exit to RIGHT_CLOSE_HIVE", gardenExitToRightCloseHive, 1.9, underHiveParkToLeftPark, 3.7),
-                                kit.firstOf("RIGHT up before 22 s, otherwise park",
-                                        kit.atMatchSeconds(22).then(
-                                                kit.guarded("Timed out", underHiveParkToLeftPark, 3.7,
-                                                        kit.path("under hive park to LEFT_PARK", underHiveParkToLeftPark, 3.7))),
-                                        kit.when("RightCellUp").then(
-                                                kit.guarded("If RightCellUp", underHiveParkToLeftPark, 3.7,
-                                                        kit.command("LaunchAll", 1),
-                                                        kit.path("under hive park to LEFT_PARK", underHiveParkToLeftPark, 3.7)))))));
+                kit.guarded("Auto", leftAbortParkToLeftPark, 2,
+                        kit.command("SpinUp"),
+                        kit.path("open to LEFT_CLOSE_HIVE", openToLeftCloseHive, 1.2, leftAbortParkToLeftPark, 2),
+                        kit.firstOf("LEFT up before 9 s, otherwise park",
+                                kit.atMatchSeconds(9).then(
+                                        kit.guarded("Timed out", leftAbortParkToLeftPark, 2,
+                                                kit.path("left abort park to LEFT_PARK", leftAbortParkToLeftPark, 2))),
+                                kit.when("LeftCellUp").then(
+                                        kit.guarded("If LeftCellUp", underHiveParkToLeftPark, 3.7,
+                                                kit.command("LaunchAll", 1),
+                                                kit.path("early garden to GARDEN_STAGING", earlyGardenToGardenStaging, 3.8, gardenAbortParkToLeftPark, 4.6),
+                                                kit.command("GardenGather", 5.5),
+                                                kit.path("garden exit to RIGHT_CLOSE_HIVE", gardenExitToRightCloseHive, 1.9, underHiveParkToLeftPark, 3.7),
+                                                kit.firstOf("RIGHT up before 22 s, otherwise park",
+                                                        kit.atMatchSeconds(22).then(
+                                                                kit.guarded("Timed out", underHiveParkToLeftPark, 3.7,
+                                                                        kit.path("under hive park to LEFT_PARK", underHiveParkToLeftPark, 3.7))),
+                                                        kit.when("RightCellUp").then(
+                                                                kit.guarded("If RightCellUp", underHiveParkToLeftPark, 3.7,
+                                                                        kit.command("LaunchAll", 1),
+                                                                        kit.path("under hive park to LEFT_PARK", underHiveParkToLeftPark, 3.7)))))))));
     }
 }
