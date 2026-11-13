@@ -222,6 +222,10 @@ They are not in `spots.json` (but for RIGHT_START): `LaunchSpots` is where they 
 the `.pp` files carry the same numbers, which `ClockwiseAutoTest` compares. A spot moved in
 `LaunchSpots` means these two Autos exported again.
 
+One more point is L-Clockwise's own, **LANE_END** (60.5, 34, 270°): where L comes out from under the
+HIVE and holds for R to pass before the WALL FLOWER. It is a waypoint, not a place a drive team
+puts the robot, so it is not a team spot; it has a name so the Visualizer keeps that drive's park.
+
 ## The simulator's tables
 
 Java simulator, `"calibration": "belding"`, real robot with the turret locked forward, both
