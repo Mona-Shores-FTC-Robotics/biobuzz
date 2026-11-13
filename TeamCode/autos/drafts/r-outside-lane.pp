@@ -30,49 +30,100 @@
       "waitAfterName": ""
     },
     {
-      "kind": "atomic",
+      "kind": "compound",
       "id": "r-wall-lane-north",
-      "endPoint": {
-        "x": 41,
-        "y": 121.5
-      },
-      "controlPoints": [
+      "segments": [
         {
-          "x": 24,
-          "y": 85
-        },
-        {
-          "x": 36,
-          "y": 108
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
+          "kind": "atomic",
+          "id": "r-wall-lane-north-up",
+          "endPoint": {
+            "x": 36,
+            "y": 100
+          },
+          "controlPoints": [
             {
-              "startProgress": 0,
-              "endProgress": 0.6,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 180,
-                "endDeg": 296.4
-              }
+              "x": 27,
+              "y": 76
             },
             {
-              "startProgress": 0.6,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 296.4
-              }
+              "x": 32,
+              "y": 92
             }
-          ]
+          ],
+          "heading": {
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.2,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 180,
+                    "endDeg": 90
+                  }
+                },
+                {
+                  "startProgress": 0.2,
+                  "endProgress": 1,
+                  "interpolationType": "constant",
+                  "parameters": {
+                    "degrees": 90
+                  }
+                }
+              ]
+            }
+          },
+          "locked": false
+        },
+        {
+          "kind": "atomic",
+          "id": "r-wall-lane-north-in",
+          "endPoint": {
+            "x": 59.9,
+            "y": 116.2
+          },
+          "controlPoints": [
+            {
+              "x": 40,
+              "y": 112
+            },
+            {
+              "x": 52,
+              "y": 114
+            }
+          ],
+          "heading": {
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.5,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 90,
+                    "endDeg": 0
+                  }
+                },
+                {
+                  "startProgress": 0.5,
+                  "endProgress": 1,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 360,
+                    "endDeg": 270
+                  }
+                }
+              ]
+            }
+          },
+          "locked": false
         }
-      },
-      "locked": false,
-      "name": "wall lane north to LEFT_LAUNCH_OFFSET",
+      ],
+      "name": "wall lane north to LEFT_CLOSE_HIVE",
       "color": "#e15759",
+      "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -87,9 +138,28 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "linear",
-        "startDeg": 296.4,
-        "endDeg": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.45,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.45,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
       },
       "locked": false,
       "name": "scoring flower to SCORING_FLOWER_STAGING",
@@ -196,43 +266,83 @@
       "kind": "atomic",
       "id": "r-link-left",
       "endPoint": {
-        "x": 41,
-        "y": 121.5
+        "x": 59.9,
+        "y": 116.2
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 0,
-        "endDeg": 296.4
+        "endDeg": 270
       },
       "locked": false,
-      "name": "Link to LEFT_LAUNCH_OFFSET"
+      "name": "Link to LEFT_CLOSE_HIVE"
     },
     {
-      "kind": "atomic",
+      "kind": "compound",
       "id": "r-left-park",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
+      "segments": [
         {
-          "x": 41,
-          "y": 100
+          "kind": "atomic",
+          "id": "r-left-park-out",
+          "endPoint": {
+            "x": 38,
+            "y": 98.7
+          },
+          "controlPoints": [
+            {
+              "x": 56,
+              "y": 108
+            },
+            {
+              "x": 47,
+              "y": 108
+            }
+          ],
+          "heading": {
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.3,
+                  "interpolationType": "constant",
+                  "parameters": {
+                    "degrees": 270
+                  }
+                },
+                {
+                  "startProgress": 0.3,
+                  "endProgress": 1,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 270,
+                    "endDeg": 360
+                  }
+                }
+              ]
+            }
+          },
+          "locked": false
         },
         {
-          "x": 30,
-          "y": 95.7
+          "kind": "atomic",
+          "id": "r-left-park-in",
+          "endPoint": {
+            "x": 14.5,
+            "y": 98.7
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "constant",
+            "degrees": 360
+          },
+          "locked": false
         }
       ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 296.4,
-        "endDeg": 360
-      },
-      "locked": false,
       "name": "left park to RIGHT_PARK",
       "color": "#e15759",
+      "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -557,10 +667,10 @@
         47.2,
         180
       ],
-      "LEFT_LAUNCH_OFFSET": [
-        41,
-        121.5,
-        296.4
+      "LEFT_CLOSE_HIVE": [
+        59.9,
+        116.2,
+        270
       ],
       "RIGHT_PARK": [
         14.5,
@@ -580,7 +690,7 @@
     },
     "pathEnds": {
       "r-wall-flower": "WALL_FLOWER_STAGING",
-      "r-wall-lane-north": "LEFT_LAUNCH_OFFSET",
+      "r-wall-lane-north": "LEFT_CLOSE_HIVE",
       "r-left-park": "RIGHT_PARK",
       "r-wall-abort-park": "RIGHT_PARK",
       "r-scoring-flower": "SCORING_FLOWER_STAGING",
@@ -648,10 +758,10 @@
               {
                 "id": "R-time-for-third",
                 "kind": "firstOf",
-                "label": "LEFT volley done before 15 s, otherwise park",
+                "label": "LEFT volley done before 15.5 s, otherwise park",
                 "rows": [
                   {
-                    "afterMs": 15000,
+                    "afterMs": 15500,
                     "matchClock": true,
                     "cards": [
                       {

@@ -35,7 +35,10 @@ consistently; "when do you fire" means different things to different teams.
 - The driver enters that number in init (dpad). The DS shows it.
 - The Auto's partner wait is that number plus a named TIP-lag constant, kept with the other
   measured times, never hidden in code. The DS line reads "partner's last shot 8 s, waiting
-  until 12 s". The program adds the margin, but on screen.
+  until 12 s". The program adds the margin, but on screen. **Changed 12 Nov 2026 (mentor):**
+  teams rarely know when their last preload leaves. The DS now reads "waiting for partner's TIP
+  until 9 s", the D-pad moves that one number, and the question is "do you shoot your preloads
+  right at the start?". The simulator still takes a stand-in's last shot and adds the lag.
 - Err long. The costs are not symmetric: waiting a few seconds too long costs the last thing in
   the Auto, probably the GARDEN; giving up a few seconds too early costs four preloads fired at a
   down CELL, a collision at the partner's firing spot, and the TIP we were waiting for anyway. The
@@ -65,7 +68,7 @@ Built in the follow-up to PR #385: a request's partner entry gives `lastShotS`, 
 `"fails": "misses"` or a still stand-in for the two failures (`TeamCode/autos/README.md` has the
 curation, `SimRunTest` the format). The raw `timing` knobs stay as an override for studies. On the
 robot the number goes in on gamepad 1's D-pad in INIT (`InitOptions`), and the TIP lag is
-`AutoRegistration.PARTNER_TIP_LAG_S` (4.5 s, measured at Belding), also `partnerTipLagS` in `TeamCode/autos/timing.json`.
+`AutoRegistration.PARTNER_TIP_LAG_S` (5.5 s, a give-up limit set from the Belding films: `TeamCode/autos/timing-terms.md`), also `partnerTipLagS` in `TeamCode/autos/timing.json`.
 
 ## LaunchAll does what it is told
 

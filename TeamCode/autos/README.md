@@ -51,9 +51,17 @@ L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only re
 those routines: their paths, waits and fallback behavior have not been tuned yet.
 In particular, L-NoCross's existing no-TIP fallback still crosses to RIGHT; replace
 that in the Visualizer before qualifying it as a true no-cross routine. R-NoCross's
-CELL-up timeout also still proceeds to launch. Since 10 Nov L-NoCross's no-TIP route checks
-the CELL before each volley ("TIP seen?" at RIGHT_LAUNCH_CLOSE, "RIGHT CELL still up?" after the
-WALL FLOWER pick), so it no longer fires at a down CELL. See `doc/robot-todo.md` for the checks.
+CELL-up wait runs until 21 s on the match clock, then parks without launching.
+
+**Every volley after an Auto's first sits behind a CELL check** (R-Solo, R-NoCross and L-NoCross,
+12 Nov), drawn as ordinary builder steps: Drive to the launch spot, **Wait for CELL up** with an
+Otherwise that parks, then Launch all. Inside an Otherwise that goes on (L-NoCross's no-TIP route)
+the check's Otherwise drives back and "skips the steps below" instead. Either way a CELL that is
+not seen up means no volley. Two volleys at Belding went at a down CELL (Q-14, M-7). The first
+volley, into the RIGHT CELL the manual starts up, has no check. Draw a new volley the same way;
+the endgame guard counts such a check as its volley, so the park is kept as before. A check that
+waits on the match clock stops early enough for the volley and the park after it (22 s in
+R-NoCross, 23 s in L-NoCross). See `doc/robot-todo.md` for the robot checks.
 
 Inside the Visualizer, the same list is **View → Team Autos: the latest from biobuzz, together…**
 (pick a branch, tick up to four Autos, Reload latest). A pull request's draft opens with its branch
@@ -152,7 +160,7 @@ stand-in as a partner (`"partners"`; the request format is in `SimRunTest`'s jav
 "Simulate Auto" workflow runs every entry and publishes each one. **The simulator acts as our
 driver:** an entry gives the one number we ask a partner, `"lastShotS"` ("when does your last
 preload leave?"). That times the stand-in's launch, and sets our partner wait as the driver would
-in INIT: the last shot plus the TIP lag (`partnerTipLagS` in `timing.json`, 4.5 s). Each Auto with a
+in INIT: the last shot plus the TIP lag (`partnerTipLagS` in `timing.json`, 5.5 s). Each Auto with a
 partner runs it **on time**, **missing** (`"fails": "misses"`: every shot wide, no TIP, it still
 parks on schedule) and **dead** (a broken-down stand-in on its start). Nothing in between: "later than
 they said" and "breaks down partway" are not modelled (mentor, 3 Nov 2026). The curation, the mentor's to correct:
@@ -310,13 +318,15 @@ need a bend: L-NoCross's park from `RIGHT_LAUNCH_CATCH` bends west of the Red HI
 
 ## Changing an Auto at the field (INIT options)
 
-A partner tells us in the queue when they shoot. The drive team enters it in INIT with
-**gamepad 1's D-pad**, no new export needed (`opmodes/auto/InitOptions`):
+The drive team changes an Auto in INIT with **gamepad 1's D-pad**, no new export needed
+(`opmodes/auto/InitOptions`): **up / down selects a row, left / right changes it.** An Auto with one
+row has it selected already.
 
-| D-pad | Changes | Offered by |
+| Row | Left / Right changes | Offered by |
 |---|---|---|
-| Left / Right | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
-| Up / Down | the partner's last shot (their answer to "when does your last preload leave?"), 1 s a press; our partner wait gives up the TIP lag after it, on the match clock | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
+| The partner wait | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for partner's TIP until 9 s". Left to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
+| Park | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
+| A paired Auto's pickup, shot trigger and times | as the row says | the Clockwise pair (`clockwise.md`) |
 
 - **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
   as drawn and amber once changed; PLAY locks them, and the match log records them
@@ -332,12 +342,16 @@ A partner tells us in the queue when they shoot. The drive team enters it in INI
   with its end moved, and the endgame guard reserves that park's time.
 - **The partner wait on the match clock.** "Until 8 s" ends at 8 s into the match however late
   the robot got there, unlike "at most 7 s", which starts counting when the wait begins. The
-  driver enters the partner's last shot and the wait ends `AutoRegistration.PARTNER_TIP_LAG_S`
-  (4.5 s, `partnerTipLagS` below) after it: the shot's flight, the rocker's creep and swing, and the camera
-  settling: 3.6 to 4.3 s in four films at the Belding Qualifier, longer in others ([timing-terms.md](timing-terms.md)). The page shows both numbers, never only the sum:
-  "partner's last shot ▲▼ 8 s, waiting until 12.5 s" (mentor, 3 Nov 2026).
-- Today: L-NoCross offers the partner's last shot (drawn: wait until 8.5 s, which reads as a last
-  shot at 4 s). No Auto offers another park.
+  robot fires on the camera's `CellUp`; the number is only when it stops waiting. The drive team
+  asks a partner one thing, "do you shoot your preloads right at the start?", and moves the number
+  only if the answer is not yes: up to 6 s after the second they say they shoot, or down to 0 if
+  they do not shoot (mentor, 12 Nov 2026; until then the driver entered the partner's last shot
+  and the page showed it with the wait).
+- **Where the drawn 9 s comes from:** a partner's preloads are away by about 3.5 s, and
+  `AutoRegistration.PARTNER_TIP_LAG_S` (5.5 s, `partnerTipLagS` below) is the TIP lag a wait
+  allows after that ([timing-terms.md](timing-terms.md)).
+- Today: L-NoCross offers its wait for the partner's TIP (drawn: until 9 s). No Auto offers another
+  park.
 
 ## Timing: two sets of numbers
 
@@ -360,7 +374,14 @@ they came from.
   - `spinUpS` 1.1: 83 spin-ups from rest to launch speed (1500 to 1625 ticks/s), median 1.1 s,
     middle half 1.0 to 1.3, all 0.9 to 2.1 (slowest on a sagging battery). The first LaunchAll at
     PLAY waited 0.94 to 1.36 s for it.
-  - `volleyS` 4.0: LaunchAll after a drive with the launcher at speed, the settle, the wait for
+  - `volleyS` 2.5 (plan, mentor 12 Nov 2026): a LaunchAll that ends on its fourth ball. In the
+    Belding films the fourth ball left 2.0 to 2.5 s after the gate opened (0.6 to 0.95 s to the
+    first, about 0.45 s between), and a counted volley took 2.2 to 3.5 s with its spin-up wait.
+    **The robot does not do this every time yet:** when the launcher counts fewer than four shots
+    the feed runs its set 3.5 s, and the endgame guard plans on 4.0 s
+    ([timing-terms.md](timing-terms.md), "Still to change"). The figure before, measured with the
+    set feed running out:
+    4.0: LaunchAll after a drive with the launcher at speed, the settle, the wait for
     speed and `LaunchCards`' set 3.5 s feed. Every LaunchAll with the 3.5 s feed after a drive in the
     2 to 4 Nov logs (8: R-Quals 2 Nov, R-Solo 3 Nov 17:30 and 17:59, R-Solo-Staging 4 Nov 00:48):
     3.60 to 4.64 s, median 4.04. The slowest two (4.45, 4.64 s) were 4 Nov 00:48, where the gate
@@ -384,28 +405,29 @@ they came from.
   - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
     lane latched full 0.44 s after its last spike, 1.43 s in.
-  - `tipStartS` 1.4 and `tipSwingS` 1.6 (measured): together, the 3.0 s from a LaunchAll's end to
-    the camera's `CellUp`, for a CELL at its tipping weight and a feed that ran its set 3.5 s. From
-    the Belding films ([timing-terms.md](timing-terms.md)): the other CELL settled a median 3.9 s
-    after the last ball left and a watching camera read it 0.2 s later, 4.1 s in all; a set feed
-    ends about 1.2 s after its last ball. The split puts the swing plainly under way 1.4 s after
-    the feed ends and the CELL read up 1.6 s after that.
+  - `tipStartS` 2.6 and `tipSwingS` 1.6 (measured): together, the 4.2 s from a LaunchAll's end to
+    the camera's `CellUp`, for a CELL at its tipping weight and a volley that ends on its fourth
+    ball. From the Belding films ([timing-terms.md](timing-terms.md)): the other CELL settled a
+    median 3.9 s after the last ball left and a watching camera read it 0.2 s later, 4.1 s in all;
+    a counted feed ends about 0.1 s after its last ball. With the 4.0 s volley these were 1.4 and
+    1.6, because a set feed runs 1.2 s past its last ball.
     - **These two go with `volleyS`.** If `volleyS` comes down because the feed ends on its fourth
-      ball, raise `tipStartS` by the same amount: the last ball to `CellUp` stays about 4.1 s.
+      ball, raise `tipStartS` by the same amount (done 12 Nov 2026: 4.0 to 2.5, and 1.4 to 2.6): the
+      last ball to `CellUp` stays about 4.1 s.
     - **They are the middle, not the limit.** An at-weight TIP took up to 6.7 s from the last ball,
       and one on nine or more pieces about 2.5 s. The preview has one value for all of them.
     - Before 11 Nov 2026 these were 1.0 and 0.7 (1.7 s together), from the two TIPs our own preload
       volleys made on 3 Nov (the camera first read TRANSITION 0.91 and 1.08 s after the LaunchAll
       ended, a reading the Belding films show comes from the robot driving off) and two hand-tipped
       swings (0.43 and 0.57 s).
-  - `partnerTipLagS` 4.5 (measured): from the partner's last preload leaving its launcher to our
-    `CellUp`. Re-measured from the Belding films on 11 Nov 2026 ([timing-terms.md](timing-terms.md)):
-    3.57, 3.96, 4.07 and 4.25 s in the four films where a waiting robot watched a partner's
-    preloads and the partner's launcher could be seen. Over all 13 TIPs on a CELL at its tipping
-    weight, the last ball to the CELL settled took 3.4 to 6.5 s (median 3.9), and a watching camera
-    read it 0.2 s later: 4.5 s catches 9 of the 13, 5.2 s catches 11, 6.7 s all of them. The partner
-    wait ends this long after the last shot the driver enters. The 3 Nov simulations' 0.7 to 1.2 s
-    (four preloads on the starting NECTAR) were short.
+  - `partnerTipLagS` 5.5 (measured): the give-up limit of a partner wait, from the partner's last
+    preload leaving its launcher to our `CellUp`. From the Belding films, re-measured 11 Nov 2026
+    ([timing-terms.md](timing-terms.md)): 3.57, 3.96, 4.07 and 4.25 s in the four films where a
+    waiting robot watched a partner's preloads and the partner's launcher could be seen. Over all
+    13 TIPs on a CELL at its tipping weight, the last ball to the CELL settled took 3.4 to 6.5 s
+    (median 3.9), and a watching camera read it 0.2 s later. 5.5 s catches 11 of the 13; the 4.5 s
+    used until 12 Nov 2026 caught 9; 6.7 s would catch all of them. The wait ends as soon as
+    `CellUp` fires, so the longer limit costs time only when the TIP is not coming.
 - **The words for these times** (launch starts, gate opens, last ball leaves, feed ends, TIP lag)
   and which moment each fact counts from are in [timing-terms.md](timing-terms.md).
 - **Change `timing.json` by hand, in a PR**, or in the dialog, which keeps a change on that laptop

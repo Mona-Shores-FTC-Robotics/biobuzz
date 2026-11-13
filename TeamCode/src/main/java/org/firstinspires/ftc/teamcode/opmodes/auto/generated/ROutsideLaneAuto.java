@@ -51,18 +51,32 @@ public final class ROutsideLaneAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
-        Pose leftLaunchOffset = p.of(41, 121.5, 296.4);
+        Pose leftCloseHive = p.of(59.9, 116.2, 270);
         Pose rightPark = p.of(14.5, 98.7, 0);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose rightCloseNear = p.of(45.2, 27.9, 70);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose wallAbortParkToRightParkControl1 = p.of(26, 75, 0);
-        Pose wallLaneNorthToLeftLaunchOffsetControl1 = p.of(24, 85, 0);
-        Pose wallLaneNorthToLeftLaunchOffsetControl2 = p.of(36, 108, 0);
-        Pose wallLaneNorthToLeftLaunchOffsetSegment1Start = p.of(41, 121.5, 180);
-        Pose leftParkToRightParkControl1 = p.of(41, 100, 0);
-        Pose leftParkToRightParkControl2 = p.of(30, 95.7, 0);
+        Pose point4 = p.of(36, 100, 90);
+        Pose point4Control1 = p.of(27, 76, 0);
+        Pose point4Control2 = p.of(32, 92, 0);
+        Pose point4Segment1Start = p.of(36, 100, 180);
+        Pose point4Segment1End = p.of(36, 100, 90);
+        Pose point4Segment2Heading = p.of(36, 100, 90);
+        Pose point5Control1 = p.of(40, 112, 0);
+        Pose point5Control2 = p.of(52, 114, 0);
+        Pose point5Segment1Start = p.of(59.9, 116.2, 90);
+        Pose point5Segment1End = p.of(59.9, 116.2, 0);
+        Pose point5Segment2Start = p.of(59.9, 116.2, 360);
+        Pose point6 = p.of(38, 98.7, 360);
+        Pose point6Control1 = p.of(56, 108, 0);
+        Pose point6Control2 = p.of(47, 108, 0);
+        Pose point6Segment1Heading = p.of(38, 98.7, 270);
+        Pose point6Segment2Start = p.of(38, 98.7, 270);
+        Pose point6Segment2End = p.of(38, 98.7, 360);
+        Pose scoringFlowerToScoringFlowerStagingSegment1Heading = p.of(47.2, 119.3, 270);
+        Pose scoringFlowerToScoringFlowerStagingSegment2Start = p.of(47.2, 119.3, 270);
         Pose flowerAbortParkToRightParkControl1 = p.of(40, 88, 0);
         Pose flowerAbortParkToRightParkControl2 = p.of(28, 89, 0);
         Pose wallLaneSouthToRightCloseNearControl1 = p.of(22, 125, 0);
@@ -78,40 +92,43 @@ public final class ROutsideLaneAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path wallFlowerToWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
         Path wallAbortParkToRightPark = Paths.curve(wallFlowerStaging, wallAbortParkToRightParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
-        Path wallLaneNorthToLeftLaunchOffset = Paths.curve(wallFlowerStaging, wallLaneNorthToLeftLaunchOffsetControl1, wallLaneNorthToLeftLaunchOffsetControl2, leftLaunchOffset).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(wallLaneNorthToLeftLaunchOffsetSegment1Start, leftLaunchOffset)).until(1, Interpolator.constant(leftLaunchOffset)));
-        Path leftParkToRightPark = Paths.curve(leftLaunchOffset, leftParkToRightParkControl1, leftParkToRightParkControl2, rightPark).linear(leftLaunchOffset, rightPark);
-        Path scoringFlowerToScoringFlowerStaging = Paths.line(leftLaunchOffset, scoringFlowerStaging).linear(leftLaunchOffset, scoringFlowerStaging);
+        Path wallLaneNorthToLeftCloseHive = Paths.path(Paths.curve(wallFlowerStaging, point4Control1, point4Control2, point4).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(point4Segment1Start, point4Segment1End)).until(1, Interpolator.constant(point4Segment2Heading))), Paths.curve(point4, point5Control1, point5Control2, leftCloseHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(point5Segment1Start, point5Segment1End)).until(1, Interpolator.linear(point5Segment2Start, leftCloseHive))));
+        Path leftParkToRightPark = Paths.path(Paths.curve(leftCloseHive, point6Control1, point6Control2, point6).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(point6Segment1Heading)).until(1, Interpolator.linear(point6Segment2Start, point6Segment2End))), Paths.line(point6, rightPark).constant(rightPark));
+        Path scoringFlowerToScoringFlowerStaging = Paths.line(leftCloseHive, scoringFlowerStaging).heading(Interpolator.piecewise().until(0.45, Interpolator.constant(scoringFlowerToScoringFlowerStagingSegment1Heading)).until(1, Interpolator.linear(scoringFlowerToScoringFlowerStagingSegment2Start, scoringFlowerStaging)));
         Path flowerAbortParkToRightPark = Paths.curve(scoringFlowerStaging, flowerAbortParkToRightParkControl1, flowerAbortParkToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);
         Path wallLaneSouthToRightCloseNear = Paths.curve(scoringFlowerStaging, wallLaneSouthToRightCloseNearControl1, wallLaneSouthToRightCloseNearControl2, rightCloseNear).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(wallLaneSouthToRightCloseNearSegment1Start, wallLaneSouthToRightCloseNearSegment1End)).until(0.4, Interpolator.linear(wallLaneSouthToRightCloseNearSegment2Start, wallLaneSouthToRightCloseNearSegment2End)).until(0.75, Interpolator.constant(wallLaneSouthToRightCloseNearSegment3Heading)).until(1, Interpolator.linear(wallLaneSouthToRightCloseNearSegment4Start, rightCloseNear)));
         Path wallLaneParkToRightPark = Paths.curve(rightCloseNear, wallLaneParkToRightParkControl1, rightPark).linear(rightCloseNear, rightPark);
 
         return kit.sequence(
-                kit.command("SpinUp"),
-                kit.command("LaunchAll"),
-                kit.path("wall flower to WALL_FLOWER_STAGING", wallFlowerToWallFlowerStaging, 2.1, wallAbortParkToRightPark, 2.1),
-                kit.command("PickFlower", 4.5),
-                kit.path("wall lane north to LEFT_LAUNCH_OFFSET", wallLaneNorthToLeftLaunchOffset, 2.6, leftParkToRightPark, 1.9),
-                kit.firstOf("LEFT up before 14 s, otherwise park",
-                        kit.atMatchSeconds(14).then(
-                                kit.guarded("Timed out", leftParkToRightPark, 1.9,
-                                        kit.path("left park to RIGHT_PARK", leftParkToRightPark, 1.9))),
-                        kit.when("LeftCellUp").then(
-                                kit.command("LaunchAll", 1),
-                                kit.firstOf("LEFT volley done before 15 s, otherwise park",
-                                        kit.atMatchSeconds(15).then(
-                                                kit.guarded("Timed out", leftParkToRightPark, 1.9,
-                                                        kit.path("left park to RIGHT_PARK", leftParkToRightPark, 1.9))),
-                                        kit.when("CellUp").then(
-                                                kit.path("scoring flower to SCORING_FLOWER_STAGING", scoringFlowerToScoringFlowerStaging, 1.1, flowerAbortParkToRightPark, 2.1),
-                                                kit.command("PickFlower", 4.5),
-                                                kit.path("wall lane south to RIGHT_CLOSE_NEAR", wallLaneSouthToRightCloseNear, 3.5, wallLaneParkToRightPark, 2.6),
-                                                kit.firstOf("RIGHT up before 26 s, otherwise park",
-                                                        kit.atMatchSeconds(26).then(
-                                                                kit.guarded("Timed out", wallLaneParkToRightPark, 2.6,
-                                                                        kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.6))),
-                                                        kit.when("RightCellUp").then(
-                                                                kit.guarded("If RightCellUp", wallLaneParkToRightPark, 2.6,
-                                                                        kit.command("LaunchAll", 0.5),
-                                                                        kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.6)))))))));
+                kit.guarded("Auto", leftParkToRightPark, 2.1,
+                        kit.command("SpinUp"),
+                        kit.command("LaunchAll"),
+                        kit.path("wall flower to WALL_FLOWER_STAGING", wallFlowerToWallFlowerStaging, 2.1, wallAbortParkToRightPark, 2.1),
+                        kit.command("PickFlower", 4.5),
+                        kit.path("wall lane north to LEFT_CLOSE_HIVE", wallLaneNorthToLeftCloseHive, 3, leftParkToRightPark, 2.1),
+                        kit.firstOf("LEFT up before 14 s, otherwise park",
+                                kit.atMatchSeconds(14).then(
+                                        kit.guarded("Timed out", leftParkToRightPark, 2.1,
+                                                kit.path("left park to RIGHT_PARK", leftParkToRightPark, 2.1))),
+                                kit.when("LeftCellUp").then(
+                                        kit.guarded("If LeftCellUp", leftParkToRightPark, 2.1,
+                                                kit.command("LaunchAll", 1),
+                                                kit.firstOf("LEFT volley done before 15.5 s, otherwise park",
+                                                        kit.atMatchSeconds(15.5).then(
+                                                                kit.guarded("Timed out", leftParkToRightPark, 2.1,
+                                                                        kit.path("left park to RIGHT_PARK", leftParkToRightPark, 2.1))),
+                                                        kit.when("CellUp").then(
+                                                                kit.guarded("If CellUp", wallLaneParkToRightPark, 2.6,
+                                                                        kit.path("scoring flower to SCORING_FLOWER_STAGING", scoringFlowerToScoringFlowerStaging, 1.6, flowerAbortParkToRightPark, 2.1),
+                                                                        kit.command("PickFlower", 4.5),
+                                                                        kit.path("wall lane south to RIGHT_CLOSE_NEAR", wallLaneSouthToRightCloseNear, 3.5, wallLaneParkToRightPark, 2.6),
+                                                                        kit.firstOf("RIGHT up before 26 s, otherwise park",
+                                                                                kit.atMatchSeconds(26).then(
+                                                                                        kit.guarded("Timed out", wallLaneParkToRightPark, 2.6,
+                                                                                                kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.6))),
+                                                                                kit.when("RightCellUp").then(
+                                                                                        kit.guarded("If RightCellUp", wallLaneParkToRightPark, 2.6,
+                                                                                                kit.command("LaunchAll", 0.5),
+                                                                                                kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.6))))))))))));
     }
 }

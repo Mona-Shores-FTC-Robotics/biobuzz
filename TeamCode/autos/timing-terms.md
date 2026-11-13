@@ -50,8 +50,8 @@ A camera facing the HIVE read the CELL up 0.14 to 0.23 s after it settled (six f
 - **TIP lag, CELL at its tipping weight: about 4.1 s, and up to 6.7 s.** The four measured end to
   end, a waiting robot watching a partner's preloads: 3.57, 3.96, 4.07 and 4.25 s.
 - **TIP lag, CELL well past its weight: about 2.5 s.**
-- **A limit of last ball + 4.5 s** (`PARTNER_TIP_LAG_S`) catches 9 of the 13 at-weight TIPs.
-  Last ball + 5.2 s catches 11; + 6.7 s catches all 13.
+- **A limit of last ball + 5.5 s** (`PARTNER_TIP_LAG_S`) catches 11 of the 13 at-weight TIPs.
+  Last ball + 4.5 s, used until 12 Nov 2026, caught 9; + 6.7 s catches all 13.
 
 A CELL at its weight can also hold. Eight of our own balls sat in the LEFT CELL for 7 s in M-3
 without moving, and it went only when the partner added three. Six pieces (three POLLEN on the
@@ -99,11 +99,11 @@ three it starts with) sagged the CELL a pixel in Q-31 and held.
 | Number | File | Counts | Against the films |
 |---|---|---|---|
 | `spinUpS` 1.1 | `timing.json` (preview) | Spin-up wait from rest | Agrees |
-| `volleyS` 4.0 | `timing.json` (preview) | Volley after a drive, the set feed running out | Agrees for that case; a counted volley is 2.2 to 3.5 s |
-| `tipStartS` 1.4, `tipSwingS` 1.6 | `timing.json` (preview) | **5 → 6 and 6 → 8: from the feed's end, the one exception to rule 1** | 3.0 s together is the median at-weight TIP lag (4.1 s) less the 1.2 s a set feed runs past its last ball. Move them with `volleyS` |
-| `partnerTipLagS` 4.5 | `timing.json` (preview) | TIP lag | Catches 9 of 13 at-weight TIPs |
-| `PARTNER_TIP_LAG_S` 4.5 | `AutoRegistration` (robot) | TIP lag; `PartnerWaitTest` keeps it equal to `partnerTipLagS` | The same |
-| `LAUNCH_ALL_TYPICAL_S`, `LAUNCH_ALL_LAST_PIECE_S` 4.0 | `AutoRegistration` (robot's guard) | Volley; and 1 → 4, as planned | The last ball left 2.6 to 3.4 s after a preload launch started, 2.1 to 4.5 s after a later one |
+| `volleyS` 2.5 | `timing.json` (preview) | Volley that ends on its fourth ball: the plan (mentor, 12 Nov 2026) | A counted volley was 2.2 to 3.5 s; with the set feed running out, 3.8 to 4.2 s. The robot's feed and guard still use the longer figures (below) |
+| `tipStartS` 2.6, `tipSwingS` 1.6 | `timing.json` (preview) | **5 → 6 and 6 → 8: from the feed's end, the one exception to rule 1** | 4.2 s together is the median at-weight TIP lag (4.1 s) plus the 0.1 s a counted feed runs past its last ball. Move them with `volleyS` |
+| `partnerTipLagS` 5.5 | `timing.json` (preview) | TIP lag, as a give-up limit | Catches 11 of 13 at-weight TIPs |
+| `PARTNER_TIP_LAG_S` 5.5 | `AutoRegistration` (robot) | TIP lag; `PartnerWaitTest` keeps it equal to `partnerTipLagS` | The same |
+| `LAUNCH_ALL_TYPICAL_S`, `LAUNCH_ALL_LAST_PIECE_S` 2.5 | `AutoRegistration` (robot's guard) | Volley; and 1 → 4, as planned | The last ball left 2.6 to 3.4 s after a preload launch started, 2.1 to 4.5 s after a later one |
 | `launchAllFeedS` 3.5, `launchAllEndAfterShots` 4 | `LaunchCards` (robot) | Feed | Agrees |
 | `tipDwellRange`, `DWELL_S` 3.6 to 4.2 | `FieldSim`, `BeldingCalibration` (simulator) | From the ball that takes the CELL over landing to the rocker leaving its stop | See "Still to change" |
 
@@ -115,13 +115,19 @@ Recorded here so no session re-derives them; none is changed by the PR that adde
   (`tipDwellOverloadedS` is set to 3.6 s). The films show 2.2 to 2.5 s to settled for nine or more
   pieces. It also has no slow tail: its last ball to `CellUp` is 3.9 to 4.5 s where the films run
   to 6.7 s. Changing it moves every simulator count, so it needs its own PR with before and after.
-- **Wait limits.** A wait for a TIP from four preloads that ends 8 or 9 s after PLAY misses the
-  slower films: the CELL settled at 8.25 s (Q-4), 9.25 s (Q-32) and 9.98 s (M-7) after our PLAY.
+- **The robot does not yet fire a 2.5 s volley every time.** The preview and the endgame guard plan on
+  one (`volleyS`; `LAUNCH_ALL_TYPICAL_S`, `LAUNCH_ALL_LAST_PIECE_S`). On the robot the feed still runs
+  its set 3.5 s whenever the launcher counts fewer than four shots, which was most volleys at Belding.
+  Until the count is reliable, a plan fits more into 30 s than the robot does.
+- **L-Infraviolet's first wait stays at 8 s**, which gives up on the slower films: it is also what
+  keeps L clear of R's arrival at the left launch spot (`infraviolet.md`).
+- **Wait limits still set by the match clock.** A wait for our own TIP counts from the robot's own
+  last ball best of all ("at most 6.7 s after my last ball"); the kit has no such limit yet, only
+  "at most" from the wait's start and "until" on the match clock.
 - **The preview counts a TIP from the feed's end.** Counting from the last ball, with the load,
   would remove the exception above. It is a Visualizer change.
-- **Two Java comments still give the old 4.0 to 4.4 s** as Belding's TIP lag
-  (`AutoRegistration.PARTNER_TIP_LAG_S`, `BeldingCalibration`). They change with the code they
-  describe.
+- **`BeldingCalibration`'s comment still gives the old 4.0 to 4.4 s** as Belding's TIP lag. It
+  changes with the calibration it describes.
 - **The robot's TRANSITION on drive-off** is a `HiveTracker` artefact worth an issue: every log
   has false ones.
 

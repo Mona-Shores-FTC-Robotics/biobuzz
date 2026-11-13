@@ -38,7 +38,7 @@ import java.util.List;
  */
 public enum RobotIdentity {
 
-    TEAM_19429("robot_19429", DeviceNames.COMPETITION_ROBOT),
+    TEAM_19429("robot_19429", DeviceNames.ROBOT_19429),
     TEAM_20245("robot_20245", DeviceNames.COMPETITION_ROBOT),
 
     /** The BIOBUZZ launcher on a spare Control Hub: two flywheels and the feeder, the robots' motor numbers (#80). */

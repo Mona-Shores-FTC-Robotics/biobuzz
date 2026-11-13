@@ -18,11 +18,12 @@ import java.util.Locale;
  *       steps through the choices. A choice named {@code LEFT_…} or {@code RIGHT_…} goes with that
  *       key (sides as the drive team sees them; the robot turns the spots for BLUE, so the names
  *       hold for both alliances).</li>
- *   <li><b>The partner wait</b> ({@link AutoOption.Kind#MATCH_SECONDS}): the row is the partner's
- *       last shot, their answer to "when does your last preload leave?", {@link #STEP_S} a press.
- *       The wait gives up {@link AutoRegistration#PARTNER_TIP_LAG_S} after it, on the match clock,
- *       and the row shows both numbers, never only the sum: "partner's last shot 8 s, waiting
- *       until 12.5 s" (mentor, 3 Nov 2026).</li>
+ *   <li><b>The partner wait</b> ({@link AutoOption.Kind#MATCH_SECONDS}): the row is the second
+ *       on the match clock at which the robot stops waiting for the partner's TIP, "waiting for
+ *       partner's TIP until 9 s", and left / right move that second, {@link #STEP_S} a press.
+ *       One number, because a partner rarely knows when its last preload leaves (mentor,
+ *       12 Nov 2026). A partner that shoots later than at the start: set it about
+ *       {@link AutoRegistration#PARTNER_TIP_LAG_S} after the second they say; 0 does not wait.</li>
  *   <li><b>A time</b> ({@link AutoOption.Kind#TIME}): a match-clock time the Auto acts on, set as
  *       it is, {@link #TIME_STEP_S} a press.</li>
  * </ul>
@@ -39,10 +40,10 @@ import java.util.Locale;
  */
 public final class InitOptions implements AutoKit.Picks {
 
-    /** One press on the partner's last shot. */
+    /** One press on the partner wait. */
     public static final double STEP_S = 1.0;
-    /** The latest a partner's last shot may be set to: past this the Auto has nothing left to wait for. */
-    public static final double LATEST_LAST_SHOT_S = 25.0;
+    /** The latest the partner wait may be set to: past this the Auto has nothing left to wait for. */
+    public static final double LATEST_WAIT_S = 28.0;
     /** One press on a time. */
     public static final double TIME_STEP_S = 0.5;
 
@@ -121,11 +122,9 @@ public final class InitOptions implements AutoKit.Picks {
                 choice[i] = next == 0 ? -1 : next;
                 break;
             }
-            case MATCH_SECONDS: {
-                double shot = Math.max(0, Math.min(LATEST_LAST_SHOT_S, partnerLastShot(i) + step * STEP_S));
-                set(i, AutoRegistration.partnerWaitUntilS(shot));
+            case MATCH_SECONDS:
+                set(i, Math.max(0, Math.min(LATEST_WAIT_S, value(i) + step * STEP_S)));
                 break;
-            }
             case TIME:
                 set(i, Math.max(0, Math.min(AutoKit.AUTO_LENGTH_S, value(i) + step * TIME_STEP_S)));
                 break;
@@ -137,14 +136,6 @@ public final class InitOptions implements AutoKit.Picks {
     /** {@code value} for option {@code i}, or as drawn when it is the drawing's. */
     private void set(int i, double value) {
         seconds[i] = Math.abs(value - options[i].drawnSeconds) < 1e-9 ? Double.NaN : value;
-    }
-
-    /**
-     * The partner's last shot the option's limit stands for: the limit less
-     * {@link AutoRegistration#PARTNER_TIP_LAG_S}. As drawn, the drawing's limit less the lag.
-     */
-    private double partnerLastShot(int i) {
-        return Math.max(0, value(i) - AutoRegistration.PARTNER_TIP_LAG_S);
     }
 
     private double value(int i) {
@@ -227,9 +218,9 @@ public final class InitOptions implements AutoKit.Picks {
             case CHOICE:
                 return option.name + arrows + ": " + chosen(i);
             case MATCH_SECONDS:
-                // Both numbers and the wait, never only the sum; short on a nearly full page.
-                return keys ? "partner's last shot ◀▶ " + fmt(partnerLastShot(i)) + " s, waiting until " + fmt(value(i)) + " s"
-                        : "shot ◀▶ " + fmt(partnerLastShot(i)) + "+" + fmt(AutoRegistration.PARTNER_TIP_LAG_S) + "=" + fmt(value(i)) + " s";
+                // The one number the drive team moves; short on a nearly full page.
+                return keys ? "waiting for partner's TIP ◀▶ until " + fmt(value(i)) + " s"
+                        : "TIP ◀▶ until " + fmt(value(i)) + " s";
             default:
                 return option.name + arrows + ": " + fmt(value(i)) + " s";
         }
@@ -244,7 +235,7 @@ public final class InitOptions implements AutoKit.Picks {
                 text = option.name + " " + chosen(i);
                 break;
             case MATCH_SECONDS:
-                text = "last shot " + fmt(partnerLastShot(i)) + " s";
+                text = "partner's TIP until " + fmt(value(i)) + " s";
                 break;
             default:
                 text = option.name + " " + fmt(value(i)) + " s";
@@ -290,8 +281,8 @@ public final class InitOptions implements AutoKit.Picks {
                     parts.add(String.format(Locale.US, "%s=%s (drawn %s)", option.name, chosen(i), option.choices.get(0)));
                     break;
                 case MATCH_SECONDS:
-                    parts.add(String.format(Locale.US, "%s: partner's last shot %s s, until %s s (drawn %s s)", option.name,
-                            fmt(partnerLastShot(i)), fmt(value(i)), fmt(option.drawnSeconds)));
+                    parts.add(String.format(Locale.US, "%s: waiting for partner's TIP until %s s (drawn %s s)", option.name,
+                            fmt(value(i)), fmt(option.drawnSeconds)));
                     break;
                 case TIME:
                     parts.add(String.format(Locale.US, "%s=%s s (drawn %s s)", option.name, fmt(value(i)), fmt(option.drawnSeconds)));

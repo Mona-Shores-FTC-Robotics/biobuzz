@@ -65,7 +65,7 @@ import java.util.function.Function;
  *
  * <p><b>The drive team may change a few things in INIT</b> ({@link InitOptions}), in one menu on
  * gamepad 1's D-pad: up / down selects a row, left / right changes it. The rows are the Auto's own:
- * the PARK spot, the partner's last shot (when its TIP wait gives up), and for a paired Auto its
+ * the PARK spot, the second its wait for the partner's TIP gives up, and for a paired Auto its
  * pickup, whether it shoots by the camera or the timer, and its times. The generated
  * {@code OPTIONS} says which; the Auto is built at PLAY with the picks, and they go to the match log.
  *

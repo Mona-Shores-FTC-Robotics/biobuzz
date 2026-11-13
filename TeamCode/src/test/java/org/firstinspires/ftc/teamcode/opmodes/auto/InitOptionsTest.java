@@ -67,26 +67,25 @@ public class InitOptionsTest {
     }
 
     /**
-     * "Our last preload leaves at 8 s": the partner's last shot plus the TIP lag is when the wait gives up
-     * (mentor, 3 Nov 2026).
+     * The row is the second the wait gives up, and left / right move it: one number, because a
+     * partner rarely knows when its last preload leaves (mentor, 12 Nov 2026).
      */
     @Test
-    public void thePartnerWaitsRowIsThePartnersLastShotAndTheWaitFollows() {
+    public void thePartnerWaitsRowIsTheSecondTheWaitGivesUp() {
         down(options);
-        double drawnShot = 8.5 - AutoRegistration.PARTNER_TIP_LAG_S;
-        int presses = (int) Math.round((8 - drawnShot) / InitOptions.STEP_S);
-        for (int i = 0; i < presses; i++) right(options);
-        double shot = drawnShot + presses * InitOptions.STEP_S;
-        assertEquals(shot + AutoRegistration.PARTNER_TIP_LAG_S, options.seconds("Wait for TIP or CELL up"), 1e-9);
-        for (int i = 0; i < presses; i++) left(options);
+        for (int i = 0; i < 3; i++) right(options);
+        assertEquals(8.5 + 3 * InitOptions.STEP_S, options.seconds("Wait for TIP or CELL up"), 1e-9);
+        for (int i = 0; i < 3; i++) left(options);
         assertEquals("back to the drawing's", Double.NaN, options.seconds("Wait for TIP or CELL up"), 0);
     }
 
     @Test
-    public void theLastShotNeverGoesBeforeTheMatchStarts() {
+    public void theWaitStaysBetweenZeroAndItsLatest() {
         down(options);
         for (int i = 0; i < 40; i++) left(options);
-        assertEquals(AutoRegistration.PARTNER_TIP_LAG_S, options.seconds("Wait for TIP or CELL up"), 1e-9);
+        assertEquals("0 does not wait", 0, options.seconds("Wait for TIP or CELL up"), 1e-9);
+        for (int i = 0; i < 60; i++) right(options);
+        assertEquals(InitOptions.LATEST_WAIT_S, options.seconds("Wait for TIP or CELL up"), 1e-9);
     }
 
     @Test
@@ -177,8 +176,7 @@ public class InitOptionsTest {
         assertEquals(2, lines.size());
         assertTrue(lines.toString(), lines.get(0).contains("▶ Park ◀▶: LEFT_PARK"));
         assertTrue(lines.toString(), lines.get(0).contains("#4CAF50"));
-        // Both numbers, never only the sum: the drawn 8.5 s limit is a last shot at 4 s plus the 4.5 s lag.
-        assertTrue(lines.toString(), lines.get(1).contains("Park LEFT_PARK · last shot 4 s"));
+        assertTrue(lines.toString(), lines.get(1).contains("Park LEFT_PARK · partner's TIP until 8.5 s"));
         assertTrue("two rows of the screen, wrapped at most once", display.linesUsed() <= 3);
 
         lines.clear();
@@ -188,7 +186,7 @@ public class InitOptionsTest {
         right(options);
         options.describe(display);
         String line = lines.get(lines.size() - 2);
-        assertTrue(line, line.contains("▶ partner's last shot ◀▶ 5 s, waiting until 9.5 s"));
+        assertTrue(line, line.contains("▶ waiting for partner's TIP ◀▶ until 9.5 s"));
         assertTrue(line, line.contains("#FFB300"));
         assertTrue(lines.toString(), lines.get(lines.size() - 1).contains("<b>Park RIGHT_PARK</b>"));
         assertTrue(options.summary(), options.summary().contains("Park=RIGHT_PARK (drawn LEFT_PARK)"));
@@ -203,7 +201,7 @@ public class InitOptionsTest {
         for (int i = 0; i < 15; i++) display.line("warning " + i);
         options.describe(display);
         assertEquals(16, lines.size());
-        assertTrue(lines.toString(), lines.get(lines.size() - 1).contains("shot ◀▶ 4+4.5=8.5 s"));
+        assertTrue(lines.toString(), lines.get(lines.size() - 1).contains("TIP ◀▶ until 8.5 s"));
         assertTrue(display.linesUsed() <= Display.SCREEN_LINES);
 
         lines.clear();

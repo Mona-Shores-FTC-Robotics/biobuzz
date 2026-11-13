@@ -25,11 +25,13 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
    current no-TIP branch still crosses to RIGHT; draw a LEFT-side recovery/park in the
    Visualizer. Then test CELL-up recognition, the two LEFT volleys, the scoring FLOWER
    pickup, and park, including a partner that never makes TIP 1.
+   **Partner wait:** drawn to give up at 9 s (was 8.5), and the INIT line reads "waiting for
+   partner's TIP until 9 s"; D-pad left and right move that second. In the run with a partner that
+   never makes TIP 1, check the no-TIP route still parks in time, starting half a second later.
 2. **R-NoCross** (formerly R-Partner-Tip). Qualify the right-side actions, then run it
-   together with L-NoCross as the coordinated two-TIP baseline. Check the five-second
-   CELL-up wait: the current timeout still falls through to LaunchAll. Resolve that in
-   the drawing before relying on missed-TIP recovery. Waiting for the teammate is
-   acceptable; optimize only after the pair is reliable.
+   together with L-NoCross as the coordinated two-TIP baseline. Its CELL-up wait runs
+   until 21 s on the match clock and then parks without launching. Waiting for the
+   teammate is acceptable; optimize only after the pair is reliable.
 3. **R-Solo-Nudge** (`autos/drafts/r-solo-nudge.pp`). Open it together with
    `autos/partners/partner-push-start.pp` to see the pushed robot. Physically measure
    the push, legal starting contact, PARK overlap, clearance and time cost (§3).
@@ -109,6 +111,20 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       **port 1**, turret servo on **port 4** (`robot_19429.xml`; 20245's layout but the lights on
       the Control Hub). A **full TeamCode install**, re-Activate `robot_19429`, then
       **Check: Hardware**, and the light looks and turret-sits-still checks in §2 on this robot too.
+- [ ] **19429 rewired 13 Nov: two intake star-wheel servos and the turret moved.** Right star wheel
+      on **Control Hub servo port 4** (`intakeStarsRight`), left on **port 5** (`intakeStars`),
+      turret servo on **Expansion Hub servo port 5** (`robot_19429.xml`). A **full TeamCode
+      install**, re-Activate `robot_19429`, then **Check: Hardware** (it lists `intakeStarsRight`).
+      Then Basic Drive, PLAY, intake on: **both** stars turn inward. If the right one turns
+      outward, flip `IntakeSubsystem.starsRightReversed` in Panels (the default `false` is a guess
+      that it is mounted mirror-image to the left), see it turn inward, and put the value that
+      worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
+      out. Turret: still sits at home after PLAY, as before.
+- [ ] **Panels 1.0.20 (FullPanels bump):** a **full TeamCode install** on each robot (a Sloth Load
+      keeps the old Panels). **Good:** Panels opens at `192.168.43.1:8001`, the field and graphs
+      update, the Driver Station still lists every `robot_*` config after a Sloth Load, and
+      restarting the Robot Controller app brings Panels back without a `BindException`.
+      **Stop:** any of those fails → back to `fullpanels:1.0.19` and note it in the PR. [PR #548]
 - [ ] Charged batteries, more than one; swap at 12.0 V. [S4 Before]
 - [ ] Tape measure, phone level app. Four POLLEN per FLOWER reload, and someone to reload. [S4], [S5]
 - [ ] The HIVE on the field, red side, RIGHT CELL up (match start), tags on. [S3 Before], [S4 Before]
@@ -186,9 +202,9 @@ gap with `tools/pull-logs/read_logs.py`; don't widen past 11.8 in (half of 23.6)
 Result, with the gap on each own-start run, → [PR #372].
 
 - [ ] **INIT menu, L-NoCross on Red far wall:** gamepad 1 D-pad right three times (its one row,
-      the partner's last shot, is selected).
-      **Good:** one line `▶ partner's last shot ◀▶ 7 s, waiting until 11.5 s`, amber; left three times
-      turns it back green, as drawn (last shot 4 s, waiting until 8.5 s); D-pad up and down change
+      the partner wait, is selected).
+      **Good:** one line `▶ waiting for partner's TIP ◀▶ until 12 s`, amber; left three times
+      turns it back green, as drawn (until 9 s); D-pad up and down change
       nothing (one row); nothing else on the robot reacts to gamepad 1's D-pad
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
       [PR #391]; the menu is the Clockwise PR's.
@@ -201,10 +217,10 @@ Result, with the gap on each own-start run, → [PR #372].
       warnings filling the page the list goes first, then the partner line, and the selected row stays.
       **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
       8.0 s, and no log can say what INIT showed (the next item). Show the drive team the line too.
-- [ ] **The chosen INIT options reach the match log** (same run: set the partner's last shot to 7 s,
+- [ ] **The chosen INIT options reach the match log** (same run: set the wait to 12 s,
       PLAY, let it run a few seconds, STOP). Belding's logs lost every `AutoOptions` line: PLAY
       wrote 160 tunables into a 160-slot loop. **Good:** `read_logs.py series <log>
-      /RealMetadata/AutoOptions` prints `… partner's last shot 7 s, until 11.5 s (drawn 8.5 s)`, and
+      /RealMetadata/AutoOptions` prints `… waiting for partner's TIP until 12 s (drawn 9 s)`, and
       the log's last events have no `metadata lines` drop. **Stop:** it is missing → save the log.
       [PR #529](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/529)
 - [ ] **INIT with the Limelight unplugged** (the warning line itself was logged 4 Nov 00:43; what is
@@ -338,6 +354,26 @@ Use the work order above to select checks; the detailed mechanism checks below a
 
       **Stop:** a check times out with its CELL in plain view and settled. Note how long the camera
       took in the log and in the PR.
+- [ ] **Every volley after the first waits for its CELL to be seen up** (12 Nov, R-Solo, R-NoCross
+      and L-NoCross; the first volley, into the RIGHT CELL the manual starts up, is the one with no
+      check). New checks, none run on a robot:
+      - R-Solo: "RIGHT CELL still up?" (0.75 s) before the volley back at RIGHT_LAUNCH_CLOSE, and
+        "LEFT CELL still up?" (0.75 s) before the third volley.
+      - R-NoCross: "RIGHT CELL back up?" before the third volley, waiting until 22 s on the match clock.
+      - L-NoCross: "RIGHT CELL up?" (0.75 s, after "TIP seen?") before its first RIGHT volley;
+        "LEFT CELL up?" and "LEFT CELL back up?" before each LEFT volley, waiting until 23 s.
+
+      A check that times out fires nothing: the robot parks, or on L-NoCross's no-TIP route
+      drives back to LEFT_LAUNCH_CATCH. A drive into a checked volley no longer opens the gate on
+      the way in, so that volley starts from a stopped robot. Each check is a Wait step with an
+      Otherwise in the Visualizer; all three Autos open in the builder. Run each Auto with the HIVE left alone, then with the
+      checked CELL held down by hand at each check in turn.
+
+      **Good:** with the CELL up, each check ends on `CellUp` (or `RightCellUp`) within about
+      0.1 s and the volley fires; held down, the match log has the check `timed out`, no ball
+      leaves, and the robot parks in time. **Stop:** a check times out with its CELL up, in plain
+      view and settled → save the match log and note how long the camera took; a volley that used
+      to fit now starts too late to finish → note the times of the drive's end and the gate.
 - [ ] **The HIVE tracker counts only what the camera sees** (branch `claude/pensive-mccarthy-0wkna8`):
       one R-Solo run and two minutes of TeleOp, filmed, turning away from the HIVE and back several
       times, with one TIP made by hand while the robot sits still facing it. **Good:** no
@@ -398,18 +434,17 @@ Use the work order above to select checks; the detailed mechanism checks below a
       then. [PR #422]
 - [ ] **CellUp with the CELL already up:** L-NoCross at `LEFT_LAUNCH_CATCH` with the left CELL
       tipped up by hand first (or a partner's tip over before the wait starts). **Good:** the wait ends
-      at once and the Auto fires, not at its limit (8.5 s on the match clock). Then with the
+      at once and the Auto fires, not at its limit (9 s on the match clock). Then with the
       CELL **down** and nobody tipping: it waits out its limit and fires anyway (the Auto's own choice for now). **Stop:** it waits with
       the CELL up, or fires at once with it down → save the match log; check which CELL the robot
       aims at from its end of the field (`AutoRegistration.aimedLeft`). [PR #377]
       *Belding (7 Nov):* no L-NoCross run started its wait with the CELL up. R-Solo Q-27 (20245) did: the red CELL tipped about 6 s in and stayed up, and its wait ended "CellUp after 0.02 s". The CELL-down half ran three times (Q-14 20245, M-7 20245, M-9 19429): video shows the CELL down at each 8 s limit, and the Auto took its no-TIP route.
-- [ ] **L-NoCross's TIP wait on the match clock:** partner's last shot set to 7 s in INIT (waiting
-      until 11.5 s), nobody tips.
-      **Good:** the trace shows `Wait for TIP or CELL up: 11.5 s on the match clock` about 11.5 s into
-      the match, then the no-TIP route. **Stop:** it ends at 8.5 s or counts from its arrival → save
+- [ ] **L-NoCross's TIP wait on the match clock:** the wait set to 12 s in INIT, nobody tips.
+      **Good:** the trace shows `Wait for TIP or CELL up: 12.0 s on the match clock` about 12 s into
+      the match, then the no-TIP route. **Stop:** it ends at 9 s or counts from its arrival → save
       the log. [PR #391]
       *Belding (7 Nov):* every L-NoCross run had the limit at the drawn 8 s (nobody entered a later shot). The three timeouts ended "8.0 s on the match clock" 7.00–7.12 s after the wait began, so the limit is on the match clock. The 11 s setting was not tried.
-- [ ] **Early park from L-NoCross's no-TIP route:** nobody tips, partner's last shot set late (11 s or more)
+- [ ] **Early park from L-NoCross's no-TIP route:** nobody tips, the wait set late (16 s or more)
       so time runs short at RIGHT_LAUNCH_CATCH or WALL_FLOWER_STAGING.
       **Good:** "parking from the spot the robot is on", the park from RIGHT_LAUNCH_CATCH bending west
       of the Red HIVE, parked by 30 s. **Stop:** it touches the HIVE → note the pose; bend that park
@@ -606,11 +641,22 @@ Use the work order above to select checks; the detailed mechanism checks below a
       Each stops itself at 30 s. In this order:
       - **Each alone, no pieces:** it drives its route and parks. **Stop:** it touches the HIVE, a
         FLOWER it is not picking, or crosses the centre line → save the log.
-      - **R alone, four preloads:** note the match second its LEFT volley ends. Past 15 s it parks
-        from the left spot (expected today); before 15 s it goes on to the SCORING FLOWER and R5.
+      - **R alone, four preloads:** note the match second its LEFT volley ends. Past 15.5 s it parks
+        from the left spot (expected today); before 15.5 s it goes on to the SCORING FLOWER and R5.
       - **Both together,** four preloads each. Count the pieces that stay in from L4 (L's preloads)
-        and from `LEFT_LAUNCH_OFFSET` (R's WALL FLOWER load), and the TIPs. Check the gap between
-        the robots at the left end (L on L4, R on `LEFT_LAUNCH_OFFSET`).
+        and from the same spot by R (its WALL FLOWER load), and the TIPs.
+      - **Does R keep its four going up the lane?** It drives intake first now, turning to the
+        HIVE only at the end. Count what its LEFT volley fires. **Good:** 4. **Stop:** 3 → note
+        where the ball left (the film), and whether it was in the last turn into the spot.
+      - **Time R's leg from the WALL FLOWER to the left spot** (`auto: path wall lane north` to
+        its `path end`). Drawn about 3 s; the simulator says 4.4 s. **Good:** under 3.6 s, and the
+        third volley fits on a 2.5 s volley. Over 4 s → R parks after its LEFT volley; say so.
+      - **Does L clear L4 before R gets there?** Both fire from L4. Note the match second L leaves
+        it and the second R arrives (simulated: R within reach at 12.0 s, there at 13.2 s). **Stop:**
+        R arrives while L is still on the spot or just leaving → note both seconds; the fix is a
+        short wait for R, which costs its third volley.
+      - **R's park from L4:** it squares up and drives into `RIGHT_PARK` straight. **Stop:** it
+        comes in at an angle beside a parked robot → save the log.
       - **If R goes on while L is on the right side:** R5 and R4 overlap, and R passes the GARDEN
         as L leaves it. **Stop the run** if they are closing, and note the match second.
       - Film each paired run from the side.
@@ -909,6 +955,12 @@ about 0.57 s, and after a shot's dip back at speed in a median 0.22 s (overshoot
 of 94 dips over 60). Those are `LauncherSubsystem`'s defaults now. On 19429, check the same way;
 a difference is one `RobotDifferences` line.
 
+- [ ] **FIRE from the 1000 idle** (Basic Drive; `TeleOpConfig.launcherIdleTicksPerSecond` 1000 since
+      13 Nov). Spin up, toggle the launcher off so it idles at 1000, then press and hold the operator's
+      FIRE. **Good:** the gate opens only once the wheels reach the launch speed (the `fire:` line, then
+      `/Launcher/AtSpeed`), and the volley scores like one from rest. **Stop:** balls leave slow → note
+      the log; set the idle back to 0 in Panels. Also note the battery at the end of a match with it.
+      Before this PR, FIRE from an idle at speed could open the gate at the idle speed.
 - [ ] **Measure the wheels**, for the surface speeds (in/s, the one unit that compares the feeder
       with the flywheels; ticks/s do not). Calipers on the flywheel: `LauncherSubsystem.wheelDiameterInches`.
       The flywheel module's belt (count teeth, or mark the wheel and turn the motor once by hand):
@@ -1082,6 +1134,14 @@ locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai arti
       they launch from the spots as drawn. **Good:** it arrives and settles without pushing on the
       wall, and scores as before. **Stop:** it still presses the wall, or a defender can now get
       behind it → note which, and the number changes there.
+- [ ] **Square's early gate (`TeleOpConfig.squareGateOnApproach`, on since 13 Nov; nothing driven):**
+      the gate opens on the approach, within `PathEndSettle.launchWithinIn` (6 in) of the spot,
+      aimed and at speed. Ten Square volleys with it on and ten off, same spots, filmed. The log says
+      `gate open … (before arriving, N in out), on the approach` when it fired early. **Good:** the
+      first ball leaves sooner after the press (`gate open X s after the press`; Belding's median was
+      1.03 s) and 3 or 4 of 4 still stay in, as with it off. **Stop:** more misses with it on, or
+      the robot still moving at the wall spot as the balls leave → try `launchWithinIn` 3 in Panels
+      (it is the Autos' number too), else switch it off and note the counts.
 - [ ] **LEFT_WALL_NEAR and LEFT_WALL_HIVE at the SCORING FLOWER:** NEAR's corner should rest
       against the FLOWER's far side and HIVE's side about 2 in from its near side. **Stop:** either
       drives into the FLOWER → note by how much; the spot's x moves in `LaunchSpots`.
