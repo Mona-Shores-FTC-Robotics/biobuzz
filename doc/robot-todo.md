@@ -209,8 +209,8 @@ Result, with the gap on each own-start run, → [PR #372].
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
       [PR #391]; the menu is the Clockwise PR's.
 - [ ] **INIT menu, R-Clockwise on Red audience, then L-Clockwise on Red far wall** (INIT only).
-      **Good:** R shows three rows (waiting for partner's TIP until 23.2 s, Pickup WALL_FLOWER,
-      Priority THREE_TIP), L two (until 9.5 s, Pickup GARDEN). D-pad down walks the rows and wraps;
+      **Good:** R shows three rows (waiting for TIP 2 until 23.2 s, Pickup WALL_FLOWER,
+      Priority THREE_TIP), L two (waiting for TIP 1 until 9.5 s, Pickup GARDEN). D-pad down walks the rows and wraps;
       right on Pickup shows the other pickup; right on the time adds 1 s; everything changed is amber
       and bold. Read the two robots' Pickup rows to each other: WALL_FLOWER pairs with GARDEN.
       **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn

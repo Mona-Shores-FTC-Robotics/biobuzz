@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-13T15:16:20.254Z",
+  "timestamp": "2026-11-13T17:39:25.006Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -203,7 +203,7 @@
       "segments": [
         {
           "id": "r-pickup-park-lane-garden",
-          "color": "#e15759",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -432,7 +432,7 @@
       "segments": [
         {
           "id": "r-catch-park-south",
-          "color": "#59a14f",
+          "color": "#f28e2b",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -458,7 +458,7 @@
         },
         {
           "id": "r-catch-park-in",
-          "color": "#e15759",
+          "color": "#4e79a7",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -506,7 +506,7 @@
       "segments": [
         {
           "id": "r-cross-out",
-          "color": "#edc948",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -535,7 +535,7 @@
         },
         {
           "id": "r-cross-south",
-          "color": "#4e79a7",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -577,7 +577,7 @@
       "segments": [
         {
           "id": "r-right-park-west",
-          "color": "#f28e2b",
+          "color": "#edc948",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -602,7 +602,7 @@
         },
         {
           "id": "r-right-park-lane",
-          "color": "#e15759",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -1132,6 +1132,7 @@
                                     "afterMs": 23500,
                                     "matchClock": true,
                                     "adjustable": true,
+                                    "tip": 2,
                                     "cards": [
                                       {
                                         "id": "r-hold-right-no",

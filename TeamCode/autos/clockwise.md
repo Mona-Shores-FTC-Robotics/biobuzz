@@ -117,7 +117,7 @@ before TS. Later than that R parks from LEFT_WALL_NEAR at once, before L comes u
 ## The times
 
 All on the robot's match clock (from its own PLAY). Each robot has **one** of them on its INIT menu, its
-wait for the partner's TIP (L: T1; R: T3); the rest are fixed in the drawing. The values are the
+wait to see a TIP (L: TIP 1, the time T1; R: TIP 2, the time T3); the rest are fixed in the drawing. The values are the
 Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-todo.md` §3).
 
 | Row | Value | Where it comes from |
@@ -183,7 +183,7 @@ Gamepad 1's D-pad: **up / down selects a row, left / right changes it.** Three r
 
 | Row | R-Clockwise | L-Clockwise |
 |---|---|---|
-| Waiting for partner's TIP until | 23.2 s (T3: RIGHT up, seen from LEFT_CLOSE_HIVE) | 9.5 s (T1: LEFT up) |
+| Waiting for TIP … until | **TIP 2** until 23.2 s (T3: RIGHT up, seen from LEFT_CLOSE_HIVE) | **TIP 1** until 9.5 s (T1: LEFT up) |
 | Pickup | WALL_FLOWER (drawn), GARDEN | GARDEN (drawn), WALL_FLOWER |
 | Priority | THREE_TIP (drawn), PARK | |
 
