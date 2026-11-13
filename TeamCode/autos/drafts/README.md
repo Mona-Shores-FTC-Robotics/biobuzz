@@ -6,6 +6,19 @@ partner-nudge experiment has Utility trials for bring-up. The nudge
 Utility's runtime speed limits are not modeled by AutoSim. The Visualizer lists
 these under "Drafts", and Save to GitHub saves back here.
 
+## The Clockwise lane study: four plain drafts
+
+`r-clockwise-flower.pp` with `l-clockwise-garden.pp`, and `r-clockwise-garden.pp` with
+`l-clockwise-flower.pp`: the Clockwise pair's two pickup choices, each drawn with one pickup and
+no INIT menu, so the lanes, the fallback paths and the clock times could be simulated before the
+menu, the route choice and the camera-or-timer stops were built. Their numbers and what they
+showed are in [clockwise.md](../clockwise.md), "The simulator's tables"; the pair in `TeamCode/autos/`
+is the one to run. No OpMode. Requests: `sim-requests/r-clockwise-flower.json` and
+`r-clockwise-garden.json`.
+
+Open a pair:
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-clockwise-flower.pp,drafts/l-clockwise-garden.pp>
+
 ## R-Two-Tip: one robot, two TIPs
 
 R-Solo made its second TIP in 0 of 7 runs at the Belding Qualifier. This draft keeps R-Solo's steps and
