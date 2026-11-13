@@ -109,6 +109,11 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       **port 1**, turret servo on **port 4** (`robot_19429.xml`; 20245's layout but the lights on
       the Control Hub). A **full TeamCode install**, re-Activate `robot_19429`, then
       **Check: Hardware**, and the light looks and turret-sits-still checks in §2 on this robot too.
+- [ ] **Panels 1.0.20 (FullPanels bump):** a **full TeamCode install** on each robot (a Sloth Load
+      keeps the old Panels). **Good:** Panels opens at `192.168.43.1:8001`, the field and graphs
+      update, the Driver Station still lists every `robot_*` config after a Sloth Load, and
+      restarting the Robot Controller app brings Panels back without a `BindException`.
+      **Stop:** any of those fails → back to `fullpanels:1.0.19` and note it in the PR. [PR #548]
 - [ ] Charged batteries, more than one; swap at 12.0 V. [S4 Before]
 - [ ] Tape measure, phone level app. Four POLLEN per FLOWER reload, and someone to reload. [S4], [S5]
 - [ ] The HIVE on the field, red side, RIGHT CELL up (match start), tags on. [S3 Before], [S4 Before]
