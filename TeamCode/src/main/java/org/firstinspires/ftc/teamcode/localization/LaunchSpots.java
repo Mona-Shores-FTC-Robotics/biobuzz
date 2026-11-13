@@ -60,6 +60,13 @@ public final class LaunchSpots {
     /** Where along the wall: on our side of the HIVE, straight in front of the CELL, or past it. */
     public enum Column { NEAR, HIVE, FAR }
 
+    /**
+     * The RIGHT half's three WALL spots are driven to this far out from the audience wall, toward
+     * the HIVE, inches (mentor, 13 Nov 2026). The TeleOp's buttons only: the spots as drawn, and so
+     * the Autos that launch from them, do not move.
+     */
+    static final double RIGHT_WALL_STAND_OFF_IN = 1.0;
+
     /** The frame is square: from its centre to its back, front and either side (measured, {@link ResetPositions}). */
     static final double FRAME_HALF_IN = ResetPositions.WALL_TO_CENTRE_IN;
 
@@ -103,6 +110,14 @@ public final class LaunchSpots {
         public final boolean left;
         /** Turned to point the turret's axis at its CELL from where it is drawn; a HIVE-column spot is not. */
         public final boolean aimed;
+        /**
+         * How far out from its wall, toward the HIVE, the button stops, inches, on top of
+         * {@code wallGapIn}: {@link #RIGHT_WALL_STAND_OFF_IN} for the RIGHT half's WALL row, 0 for
+         * every other spot. {@link #red} stays the spot as drawn, touching the wall, which is what
+         * the Clockwise Autos launch from ({@code ClockwiseAutoTest}); an Auto's {@code RIGHT_START}
+         * volley is fired from the start itself, where the robot is placed.
+         */
+        public final double standOffIn;
 
         Spot(Row row, Column column, double x, double y, double headingDeg) {
             this(row, column, new Pose(x, y, Math.toRadians(headingDeg)));
@@ -114,6 +129,7 @@ public final class LaunchSpots {
             this.red = red;
             this.left = leftHalf(Alliance.RED, red.y());
             this.aimed = column != Column.HIVE;
+            this.standOffIn = row == Row.WALL && !this.left ? RIGHT_WALL_STAND_OFF_IN : 0.0;
         }
 
         /** The spot of {@code row} and {@code column} on the LEFT half ({@code left}) or the RIGHT. */
@@ -132,13 +148,13 @@ public final class LaunchSpots {
         /**
          * Where the button drives for {@code alliance}: worked out for red and turned half a turn
          * about the field centre for blue. A WALL spot is drawn touching its wall and is driven to
-         * {@code wallGapIn} out from it (NaN or negative: 0, touching). Every spot but a HIVE-column
+         * its {@link #standOffIn} plus {@code wallGapIn} out from it (NaN or negative: 0). Every spot but a HIVE-column
          * one then faces its CELL's raised row with the turret's axis ({@link #aimTurret}): the
          * turret sits {@code turretForwardIn} ahead of the centre and {@code turretLeftIn} to its
          * left, locked straight ahead.
          */
         public Pose target(Alliance alliance, double wallGapIn, double turretForwardIn, double turretLeftIn) {
-            double gap = row == Row.WALL && wallGapIn > 0.0 ? wallGapIn : 0.0;
+            double gap = standOffIn + (row == Row.WALL && wallGapIn > 0.0 ? wallGapIn : 0.0);
             double x = red.x();
             double y = red.y() + (left ? -gap : gap); // the LEFT wall is the high-y one
             double heading = red.heading();
