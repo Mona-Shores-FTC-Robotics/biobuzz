@@ -152,7 +152,8 @@ public class FlowerPickerTest {
     @Test
     public void lettingGoFinishesOnlyFromTheDwellOn() {
         for (GrabRoutine.Phase phase : GrabRoutine.Phase.values()) {
-            boolean dwellOrBack = phase == GrabRoutine.Phase.DWELL || phase == GrabRoutine.Phase.TWIST
+            boolean dwellOrBack = phase == GrabRoutine.Phase.DWELL || phase == GrabRoutine.Phase.BACK_OFF
+                    || phase == GrabRoutine.Phase.TWIST
                     || phase == GrabRoutine.Phase.BACK;
             assertEquals(phase.toString(), dwellOrBack, GrabRoutine.releaseFinishes(phase, true));
             assertEquals("an Auto's card cut short always stops: " + phase, false,
@@ -168,5 +169,65 @@ public class FlowerPickerTest {
         assertEquals(false, GrabRoutine.settled(11.5, 2.0));
         assertEquals("no follower speed", true, GrabRoutine.settled(Double.NaN, 2.0));
         assertEquals("a Panels typo never waits forever", false, GrabRoutine.settled(0.5, -1.0));
+    }
+
+    @Test
+    public void masterIsTheDefaultAndStaysOneDwellLong() {
+        assertEquals("the Belding pick until a robot has shown another is better",
+                FlowerPicker.Routine.MASTER, FlowerPicker.routine);
+        assertEquals(FlowerPicker.dwellMs, FlowerPicker.atFlowerCapMs(), EPS);
+        assertEquals("a full lane ends the one dwell at once", 0.0, FlowerPicker.fullEndsAfterMs(), EPS);
+        assertEquals(1, FlowerPicker.pushesInUse());
+    }
+
+    @Test
+    public void aClearedPanelsFieldRunsMaster() {
+        FlowerPicker.Routine was = FlowerPicker.routine;
+        FlowerPicker.routine = null;
+        try {
+            assertEquals(FlowerPicker.Routine.MASTER, FlowerPicker.routineInUse());
+            assertEquals(FlowerPicker.dwellMs, FlowerPicker.atFlowerCapMs(), EPS);
+        } finally {
+            FlowerPicker.routine = was;
+        }
+    }
+
+    @Test
+    public void fastStaysItsOwnShorterDwellAndHandsOverWithTheStickClear() {
+        FlowerPicker.Routine was = FlowerPicker.routine;
+        FlowerPicker.routine = FlowerPicker.Routine.FAST;
+        try {
+            assertEquals(FlowerPicker.fastDwellMs, FlowerPicker.atFlowerCapMs(), EPS);
+            assertEquals(true, FlowerPicker.fastDwellMs < FlowerPicker.dwellMs);
+            assertEquals(1, FlowerPicker.pushesInUse());
+            assertEquals("never handed over with the stick still in the FLOWER", true,
+                    FlowerPicker.handOverBackIn >= FlowerPicker.retractAfterBackIn);
+        } finally {
+            FlowerPicker.routine = was;
+        }
+    }
+
+    @Test
+    public void multiPushStaysItsDwellsAndTheMovesBetweenAndIsNoLongerThanMaster() {
+        FlowerPicker.Routine was = FlowerPicker.routine;
+        int count = FlowerPicker.multiPushCount;
+        FlowerPicker.routine = FlowerPicker.Routine.MULTI_PUSH;
+        try {
+            double move = FlowerPicker.MULTI_PUSH_MOVE_MS;
+            assertEquals(2, FlowerPicker.pushesInUse());
+            assertEquals(FlowerPicker.multiFirstDwellMs + move + FlowerPicker.multiLastDwellMs, FlowerPicker.atFlowerCapMs(), EPS);
+            assertEquals("full ends only the last dwell", FlowerPicker.multiFirstDwellMs + move, FlowerPicker.fullEndsAfterMs(), EPS);
+            assertEquals("at the FLOWER no longer than MASTER's dwell and its 0.27 s stall wait", true,
+                    FlowerPicker.atFlowerCapMs() <= FlowerPicker.dwellMs + 270);
+            assertEquals("the stick stays down through the back-off", true,
+                    FlowerPicker.multiBackOffIn < FlowerPicker.retractAfterBackIn);
+            FlowerPicker.multiPushCount = 9;
+            assertEquals("a typo is held to three pushes", 3, FlowerPicker.pushesInUse());
+            FlowerPicker.multiPushCount = 0;
+            assertEquals("and never under two", 2, FlowerPicker.pushesInUse());
+        } finally {
+            FlowerPicker.routine = was;
+            FlowerPicker.multiPushCount = count;
+        }
     }
 }

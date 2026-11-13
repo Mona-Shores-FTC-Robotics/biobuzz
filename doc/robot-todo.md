@@ -724,6 +724,71 @@ measurement is [#255].
       `/Intake/TicksPerSecond` and `/Intake/CurrentAmps` at that moment. The 0.25 s (`wedgeBackMs`)
       is a guess: write back what frees a pair without throwing it. This is the code half of the
       fix list's "stop two pieces wedging"; the guide or sprung wall at the pinch is still open.
+- [ ] **FLOWER pick: a 1 s dwell, ten picks on 20245 first** (Panels `FlowerPicker.dwellMs` 1000,
+      from 2000; a number, no code; `routine` MASTER). Do this before the three-routines line
+      below if PR #550 is not on the robot yet: it is the cheap way to a faster pick, and the
+      biggest single part of what `FAST` does. Why: of a Belding Auto pick's 3.6 s (median 3.68, 23
+      picks, match logs), 2.0 s is the dwell, and on 20245 it is mostly waiting: the FLOWER is empty
+      within about 0.8 s of contact (Q-27, film) and the 4th piece comes in as the robot backs out;
+      of the pieces that do arrive in a dwell, half are in by 0.5 s after contact and nine in ten
+      by 1.4 s (78 Auto picks, intake current). So a 1.0 s cap gives up some late pieces: that is
+      what this counts. Expected pick: about 2.6 s.
+      *Setup:* as the line below (empty lane, 4 POLLEN in the FLOWER, reload every pick). R-Solo
+      from the Red audience marks, five runs, so five picks at the WALL FLOWER and five at the
+      SCORING FLOWER; the last five runs at 2000 on the same night are the baseline if there is no
+      20-pick baseline yet.
+      *Write down, per pick:* pieces the next volley fired (by eye or phone; `read_logs.py steps`
+      for the wheel-dip count, never the lane count or the shot counter), pick time (`Last FLOWER
+      pick: N s`), how the dwell ended (`DWELL N s (dwellMs)` or `(full)`), and pieces left on the
+      floor or in the FLOWER.
+      **Good:** 4 fired from at least 9 of the 10, nothing left behind, pick time about 1 s under
+      the 2000 runs → go on to 20 at each FLOWER (18 of 20), then write 1000 into `FlowerPicker`,
+      re-measure `AutoRegistration.PICK_FLOWER_TYPICAL_S`, and tell whoever owns the Autos that
+      each pick is about 1 s shorter. **Stop:** 3 or fewer from more than one pick → try 1400 (the
+      nine-in-ten mark), ten more; still short → leave 2000 and say so here. On 19429 only after its
+      stick check (§7): its dwell brought nothing in 7 of 13 Belding picks, so a shorter one loses
+      little there but proves nothing either.
+- [ ] **FLOWER pick: three routines, 20 picks at each FLOWER on each robot** (Panels
+      `FlowerPicker.routine`: `MASTER`, the default and the Belding pick; `FAST`; `MULTI_PUSH`;
+      PR #550). The pick's start line in the match log names the routine.
+      Where a Belding pick's 3.66 s went (median, 25 Auto picks, both robots, match logs): waiting
+      to slow after the drive in 0.13 · push moving 0.66 (8.8 in) · push stopped before the stall is
+      called 0.27 · dwell 2.01 · back-out 0.63 (9.7 in; 6 in at 0.44).
+      `FAST` takes the waiting out: no wait to slow, the dwell is 1.0 s from contact, and the pick
+      ends 6 in into the back-out, still rolling, the stick lifting on its own once clear.
+      **Expected about 2.2 s**, 1.5 s under MASTER. `MULTI_PUSH` is FAST with two pushes: dwell
+      0.6 s, back off 3 in with the stick down and the intake on, push again, dwell at most 0.5 s.
+      **Expected about 3.0 s.** Why two pushes: at Belding the last piece came in as the robot
+      backed off, not in the dwell (20245: 0.1 to 0.4 s into the back-out in 6 of 10 match Auto
+      picks, the FLOWER empty within about 0.8 s of contact on Q-27's film; 19429: nothing in the
+      dwell in 7 of 13, a piece 0.6 to 0.7 s into the back-out in 11, the POLLEN still in the
+      FLOWER through the dwell on Q-13's film). Neither expected time has been run on a robot.
+      *Setup:* an empty lane before every pick, 4 POLLEN in the FLOWER, someone to reload. R-Solo
+      from the Red audience marks, 10 runs per robot per routine (10 picks at each FLOWER), then 10
+      more at each FLOWER in Basic Drive with the pick button held to the end, firing every load
+      before the next pick. MASTER first: it is the baseline, and nobody has counted 20 on either
+      robot. Five picks of a new routine before committing to its 20.
+      *Write down, per pick:* **pieces the next volley fired** (count the balls leaving, by eye or
+      phone; `read_logs.py steps` gives the wheel-dip count, never the lane count or the shot
+      counter); **pick time** (`Last FLOWER pick: N s`); **stall depth** of each push (`IN … (stalled
+      N in short)`); pieces left on the floor or in the FLOWER; for MULTI_PUSH the `BACK_OFF N s`
+      line (0.6 is its timeout).
+      *Watch, on FAST and MULTI_PUSH, the hand-over:* the Auto's next drive starts with the robot
+      about 3 to 4 in short of the staging spot and still rolling back. **Good:** it flows into the
+      drive, no swerve, and the stick is out of the FLOWER before the robot turns or strafes.
+      **Stop:** the stick drags on the FLOWER or the drive hooks → `handOverBackIn` 0 (backs all the
+      way, as MASTER) and say so here. Lower than 6 only after the stick's reach is measured
+      (§4, "Touch point and stick reach").
+      **Good:** `FAST`: 4 fired from at least 18 of 20 at each FLOWER, no worse than that robot's
+      MASTER count, pick time at least 1 s under MASTER's. `MULTI_PUSH`: 4 from at least 18 of 20,
+      more often than MASTER and FAST on that robot, pick time no more than MASTER's. Then set the
+      winner as `routine`'s default, re-measure `AutoRegistration.PICK_FLOWER_TYPICAL_S` (4.0 is
+      MASTER's), replace `MULTI_PUSH_MOVE_MS` (0.65 s, an estimate) from the logs, and tell whoever
+      owns the Autos how much shorter a pick is. **Stop:** FAST loses a piece MASTER gets →
+      `fastDwellMs` 1400, ten more; the push goes in crooked → `fastSettledInPerSec` 8; MULTI_PUSH's
+      second push knocks a piece away or wedges one at the mouth → `multiBackOffIn` 2, then 5, five
+      picks each. If a routine is no better than MASTER on a robot, leave MASTER and say so here
+      (on 19429 see its stick check in §7 first).
 - [ ] **Let go mid-push, then mid-dwell.** **Good:** mid-dwell backs out, stick up once ~18 in clear;
       operator Square while waiting raises it at once. [PR #273], [PR #280]
 - [ ] **GARDEN into the corner,** driver Triangle near the red GARDEN, three times. **Good:** pressed
@@ -910,6 +975,18 @@ measurement is [#255].
 - [ ] **Anything 19429 does differently** from 20245 (a motor turning the other way, a servo
       position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
       was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.
+- [ ] **19429's FLOWER stick against 20245's, before judging any pick routine on 19429.** On the
+      Belding stream 20245's stick empties a FLOWER within about 0.8 s of touching it (Q-27, red
+      WALL); 19429's left the POLLEN standing in the FLOWER for a whole 2 s dwell (Q-13, blue WALL),
+      and they came out only as it backed off. Same code, same numbers, and
+      `FlowerStickSubsystem.EXTENDED` 0.0 was measured on 20245 only (19429's stick was rewired to
+      Control Hub servo port 0 on 6 Nov and has no line in `RobotDifferences`). Both robots side by
+      side at one loaded FLOWER, stick down, pushed in by hand: measure the stick tip's height off
+      the tile, how far it reaches ahead of the frame, and where on the FLOWER's foot it lands;
+      film both from the side. **Good:** the same within a quarter inch, and 19429's FLOWER empties
+      while pressed. **Stop:** it differs → fix the stick or its down position on 19429 (a servo
+      position that differs is one `RobotDifferences` line, with the date), then do §4's 20 picks.
+      A stick that does not trip the FLOWER is not fixed by `MULTI_PUSH`, only hidden by it.
 - [ ] **19429's Limelight pipeline:** Marker Size set to 82.55 mm on 6 Nov (it was 165.1, the
       DECODE size; Full 3D Targeting Yes). Later that night 20245's pipeline file was uploaded to
       19429's slot 0: identical but for its name. Power-cycle and check it held, then run the 5-minute start check and Vision: HIVE & Pose. [handoff] step 6

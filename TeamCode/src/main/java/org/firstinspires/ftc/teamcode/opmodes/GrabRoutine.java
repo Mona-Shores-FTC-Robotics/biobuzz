@@ -53,6 +53,24 @@ import java.util.function.Consumer;
  *       {@link #backSpeed}. {@link #unprep} once the robot has backed {@link #unprepAfterBackIn}.</li>
  * </ol>
  *
+ * <p><b>Three things a subclass may change, each off by default</b> (a FLOWER pick's
+ * {@code FlowerPicker.routine} turns them on):
+ * <ul>
+ *   <li><b>The dwell counts from contact</b> ({@link #dwellFromContact}): from the moment the robot
+ *       last got closer on the In, not from the moment the stall was declared {@link #stallMs} later.
+ *       The mechanisms are already in what they went into for that quarter second.</li>
+ *   <li><b>An early hand-over</b> ({@link #handOverBackIn}): the grab ends once the robot has backed
+ *       that far, still rolling, rather than at the end of the Back's path, so the Auto's next drive
+ *       (or the driver) has the robot sooner. The mechanisms are put away as for a grab cut short
+ *       ({@link #stopMechanisms}), which for a FLOWER pick lifts the stick once it is clear.</li>
+ *   <li><b>More than one push</b> ({@link #pushCount}): the In and the dwell run that many times.
+ *       Every dwell but the last lasts {@link #firstDwellMs} whatever the lane says, then the robot
+ *       backs off {@link #backOffIn} along the line it came in on, mechanisms still out
+ *       ({@link Phase#BACK_OFF}), and goes in again; the last dwell is at most {@link #lastDwellMs}
+ *       under the usual rules, then the Back as above. Letting go of the button during a back-off
+ *       or a later In means done, like the dwell.</li>
+ * </ul>
+ *
  * <p><b>Its contract: it ends where its In started.</b> On the button that is the line-up pose. On an
  * Auto's card ({@link #command}) it is the square-up pose when the subclass squares up
  * ({@link #autoLineUp}: a FLOWER pick), else where the card started (a GARDEN gather): the Auto's
@@ -84,7 +102,7 @@ import java.util.function.Consumer;
 public abstract class GrabRoutine {
 
     /** Where a grab is. */
-    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, TWIST, BACK, DONE, ABORTED, REFUSED }
+    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, BACK_OFF, TWIST, BACK, DONE, ABORTED, REFUSED }
 
     /** Where the In goes, or why there is none. */
     protected static final class InPlan {
@@ -122,6 +140,10 @@ public abstract class GrabRoutine {
     private Pose inEnd;
     private String inEndWhy = "";
     private boolean unprepped;
+    /** Ins started in this grab: 1, or more on a grab of several pushes. */
+    private int pushes;
+    /** When the dwell now running counts from: its start, or the In's contact ({@link #dwellFromContact}). */
+    private long dwellFromNs;
     /** When the line-up's path was first done, or -1. */
     private long lineUpDoneNs = -1;
     /** This grab's line-up gives up after this long: the button's, or an Auto's square-up's. */
@@ -276,6 +298,47 @@ public abstract class GrabRoutine {
     protected boolean dwellFull() {
         return false;
     }
+    /**
+     * The dwell's time counts from the In's contact (the robot's last progress) rather than from the
+     * stall being declared {@link #stallMs} later. Off by default.
+     */
+    protected boolean dwellFromContact() {
+        return false;
+    }
+
+    /**
+     * The grab ends once the robot has backed this far from where its last In ended, inches, without
+     * finishing the Back's path; 0 (the default) backs all the way to where the In started.
+     */
+    protected double handOverBackIn() {
+        return 0.0;
+    }
+
+    /** How many times the grab goes in; 1 by default (see the class comment). */
+    protected int pushCount() {
+        return 1;
+    }
+
+    /** Several pushes: the length of every dwell but the last, ms. Nothing ends it sooner but the driver. */
+    protected double firstDwellMs() {
+        return 600;
+    }
+
+    /** Several pushes: how far the robot backs off between Ins, inches; under 1 is no further In. */
+    protected double backOffIn() {
+        return 3.0;
+    }
+
+    /** Several pushes: a back-off gives up after this long, ms, and the next In starts from there. */
+    protected double backOffTimeoutMs() {
+        return 600;
+    }
+
+    /** Several pushes: the last dwell's cap, ms, in place of {@link #dwellMs}. */
+    protected double lastDwellMs() {
+        return 500;
+    }
+
     /** A current this many amps over the roller's free-running current is a piece. */
     protected abstract double spikeAboveAmps();
     protected abstract double dwellPushPower();
@@ -311,7 +374,7 @@ public abstract class GrabRoutine {
     /** Whether a grab is driving the robot, so the OpMode must leave the drive alone. */
     public boolean active() {
         return phase == Phase.LINE_UP || phase == Phase.PREP || phase == Phase.IN
-                || phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.BACK;
+                || phase == Phase.DWELL || phase == Phase.BACK_OFF || phase == Phase.TWIST || phase == Phase.BACK;
     }
 
     /** The grab has ended: done, stopped, or refused. */
@@ -332,16 +395,21 @@ public abstract class GrabRoutine {
     public void update(boolean held, boolean sticksMoved) {
         long now = System.nanoTime();
         if (!held && !(finishing && active())) {
-            if (active() && releaseFinishes(phase, lineUp)) {
+            // A later In of a grab of several pushes counts as the dwell does: it has been in once.
+            boolean secondIn = lineUp && phase == Phase.IN && pushes >= 2;
+            if (active() && (releaseFinishes(phase, lineUp) || secondIn)) {
                 finishing = true;
                 event.accept(String.format(Locale.US, "%s: let go in %s, %.2f s in: done, backing out",
                         what(), phase, ms(now, phaseStartNs) / 1000.0));
-                if (phase == Phase.DWELL) {
+                if (phase == Phase.DWELL || phase == Phase.BACK_OFF || secondIn) {
                     if (sticksMoved) {
                         abort(now, "sticks moved");
-                    } else {
+                    } else if (phase == Phase.DWELL) {
                         dwellEndWhy = "let go";
                         endDwell(now, robot.drive.pose());
+                    } else {
+                        if (secondIn) inEndWhy = "let go";
+                        startBack(now, robot.drive.pose());
                     }
                 }
                 return;
@@ -397,6 +465,7 @@ public abstract class GrabRoutine {
                                 || ms(now, phaseStartNs) >= SETTLE_MAX_MS)) {
                     progressNs = now;
                     bestRemainingIn = remaining;
+                    pushes = 1;
                     next(now, Phase.IN);
                     driveIn(pose, in);
                 }
@@ -419,12 +488,27 @@ public abstract class GrabRoutine {
                 }
                 if (!inEndWhy.isEmpty()) {
                     inEnd = pose;
+                    // Stalled: the robot has been against it since its last progress.
+                    dwellFromNs = dwellFromContact() && inEndWhy.startsWith("stalled") ? progressNs : now;
                     next(now, Phase.DWELL);
                     steer(pose, dwellPushPower());
                 }
                 break;
             case DWELL:
-                String why = dwellEnd(ms(now, phaseStartNs) >= nn(dwellMs()), dwellFull(),
+                if (anotherInAhead(pushCount(), pushes, nn(backOffIn()),
+                        Math.hypot(home.x() - pose.x(), home.y() - pose.y()))) {
+                    // Not the last dwell: its own length, and a full lane does not end it (the full
+                    // sensor has latched on one or two pieces held at the mouth).
+                    if (ms(now, dwellFromNs) >= nn(firstDwellMs())) {
+                        dwellEndWhy = "going in again";
+                        next(now, Phase.BACK_OFF);
+                        drivePath(pose, backOffPose(pose, home, nn(backOffIn())), backSpeed());
+                    } else {
+                        steer(pose, dwellPushPower());
+                    }
+                    break;
+                }
+                String why = dwellEnd(ms(now, dwellFromNs) >= nn(pushes >= 2 ? lastDwellMs() : dwellMs()), dwellFull(),
                         dwell.done(ms(now, startNs), ms(phaseStartNs, startNs), dwellQuietMs(), dwellEmptyMs()),
                         dwell.sawSpike());
                 if (why != null) {
@@ -432,6 +516,18 @@ public abstract class GrabRoutine {
                     endDwell(now, pose);
                 } else {
                     steer(pose, dwellPushPower());
+                }
+                break;
+            case BACK_OFF:
+                // Mechanisms stay out; the roller takes what the first In shook loose.
+                if (robot.drive.pathDone() || ms(now, phaseStartNs) > nn(backOffTimeoutMs())) {
+                    pushes++;
+                    inEndWhy = "";
+                    dwellEndWhy = "";
+                    progressNs = now;
+                    bestRemainingIn = remaining;
+                    next(now, Phase.IN);
+                    driveIn(pose, in);
                 }
                 break;
             case TWIST:
@@ -453,7 +549,8 @@ public abstract class GrabRoutine {
                     unprepped = true;
                     unprep();
                 }
-                if (robot.drive.pathDone() || ms(now, phaseStartNs) > nn(backTimeoutMs())) {
+                if (robot.drive.pathDone() || ms(now, phaseStartNs) > nn(backTimeoutMs())
+                        || handOverNow(nn(handOverBackIn()), backed)) {
                     finish(now);
                 }
                 break;
@@ -480,7 +577,36 @@ public abstract class GrabRoutine {
      * when it is cut short, which always stops the grab.
      */
     static boolean releaseFinishes(Phase phase, boolean button) {
-        return button && (phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.BACK);
+        return button && (phase == Phase.DWELL || phase == Phase.BACK_OFF || phase == Phase.TWIST
+                || phase == Phase.BACK);
+    }
+
+    /**
+     * Whether another In follows the dwell now running: the grab goes in {@code pushCount} times and
+     * this is not the last, the back-off is a real move (1 in or more) and there is that much room
+     * behind the robot before where its In started.
+     */
+    static boolean anotherInAhead(int pushCount, int pushes, double backOffIn, double roomIn) {
+        return pushes >= 1 && pushes < pushCount && backOffIn >= 1.0 && roomIn >= 1.0;
+    }
+
+    /**
+     * Whether the Back hands the robot over now, {@code backedIn} from where the last In ended:
+     * {@code handOverBackIn} is on (over 0) and the robot has backed that far.
+     */
+    static boolean handOverNow(double handOverBackIn, double backedIn) {
+        return handOverBackIn > 0.0 && backedIn >= handOverBackIn;
+    }
+
+    /**
+     * Where a grab of several pushes backs off to: {@code backOffIn} from {@code at} toward {@code home} (where
+     * the In started), never past it, facing as {@code home} does.
+     */
+    static Pose backOffPose(Pose at, Pose home, double backOffIn) {
+        double room = Math.hypot(home.x() - at.x(), home.y() - at.y());
+        if (!(room > 1e-6)) return new Pose(at.x(), at.y(), home.heading());
+        double f = Math.min(1.0, nn(backOffIn) / room);
+        return new Pose(at.x() + f * (home.x() - at.x()), at.y() + f * (home.y() - at.y()), home.heading());
     }
 
     /** For the Match page: what a grab is doing, or how the last one went. Empty before the first. */
@@ -500,6 +626,7 @@ public abstract class GrabRoutine {
         Arrays.fill(phaseMs, 0.0);
         prepped = false;
         unprepped = false;
+        pushes = 0;
         finishing = false;
         lineUpDoneNs = -1;
         dwell.reset();
@@ -593,9 +720,10 @@ public abstract class GrabRoutine {
     }
 
     private void next(long now, Phase to) {
-        phaseMs[phase.ordinal()] = ms(now, phaseStartNs);
+        double took = ms(now, phaseStartNs);
+        phaseMs[phase.ordinal()] += took; // several pushes run IN and DWELL more than once: the totals add up
         event.accept(String.format(Locale.US, "%s: %s %.2f s%s, then %s", what(), phase,
-                phaseMs[phase.ordinal()] / 1000.0,
+                took / 1000.0,
                 phase == Phase.IN ? " (" + inEndWhy + ")"
                         : phase == Phase.DWELL && !dwellEndWhy.isEmpty() ? " (" + dwellEndWhy + ")" : "", to));
         phase = to;
@@ -644,14 +772,16 @@ public abstract class GrabRoutine {
     }
 
     private void finish(long now) {
-        phaseMs[phase.ordinal()] = ms(now, phaseStartNs);
+        phaseMs[phase.ordinal()] += ms(now, phaseStartNs);
         stopAll();
         phase = Phase.DONE;
         result = String.format(Locale.US,
-                "Last %s: %.2f s · line-up %.2f, prep %.2f, in %.2f (%s), dwell %.2f, back %.2f", what(),
+                "Last %s: %.2f s · line-up %.2f, prep %.2f, in %.2f (%s), dwell %.2f, back %.2f%s", what(),
                 ms(now, startNs) / 1000.0, phaseMs[Phase.LINE_UP.ordinal()] / 1000.0,
                 phaseMs[Phase.PREP.ordinal()] / 1000.0, phaseMs[Phase.IN.ordinal()] / 1000.0, inEndWhy,
-                phaseMs[Phase.DWELL.ordinal()] / 1000.0, phaseMs[Phase.BACK.ordinal()] / 1000.0);
+                phaseMs[Phase.DWELL.ordinal()] / 1000.0, phaseMs[Phase.BACK.ordinal()] / 1000.0,
+                pushes >= 2 ? String.format(Locale.US, " · %d pushes: in and dwell add them all, back-offs %.2f",
+                        pushes, phaseMs[Phase.BACK_OFF.ordinal()] / 1000.0) : "");
         event.accept(what() + ": done, " + target + ". " + result);
     }
 
