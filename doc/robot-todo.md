@@ -644,8 +644,11 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - **R alone, four preloads:** note the match second its LEFT volley ends. Past 15 s it parks
         from the left spot (expected today); before 15 s it goes on to the SCORING FLOWER and R5.
       - **Both together,** four preloads each. Count the pieces that stay in from L4 (L's preloads)
-        and from `LEFT_LAUNCH_OFFSET` (R's WALL FLOWER load), and the TIPs. Check the gap between
-        the robots at the left end (L on L4, R on `LEFT_LAUNCH_OFFSET`).
+        and from L2, `LEFT_WALL_NEAR` (R's WALL FLOWER load), and the TIPs. Check the gap between
+        the robots at the left end (L on L4, R on L2).
+      - **R's park from L2 with a robot on `LEFT_PARK`** (stand one there, or let L's first wait
+        run out): R leaves L2 without turning, squares up, and drives into `RIGHT_PARK` straight.
+        **Stop:** it turns beside the parked robot, or comes in at an angle → save the log.
       - **If R goes on while L is on the right side:** R5 and R4 overlap, and R passes the GARDEN
         as L leaves it. **Stop the run** if they are closing, and note the match second.
       - Film each paired run from the side.

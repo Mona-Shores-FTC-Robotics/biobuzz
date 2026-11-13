@@ -190,12 +190,18 @@ Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=mast
 
 | Utility | Route |
 |---|---|
-| **Drive: R-OutsideLane** | Preloads at RIGHT, WALL FLOWER, wall lane to `LEFT_LAUNCH_OFFSET`, LEFT up before 14 s, volley. **If that volley is done before 15 s:** SCORING FLOWER, wall lane back to R5, RIGHT up before 26 s, volley, park right. **Otherwise** park right from the left spot |
+| **Drive: R-OutsideLane** | Preloads at RIGHT, WALL FLOWER, wall lane to L2, LEFT up before 14 s, volley. **If that volley is done before 15 s:** SCORING FLOWER, wall lane back to R5, RIGHT up before 26 s, volley, park right. **Otherwise** park right from the left spot |
 | **Drive: L-UnderHive** | L4, LEFT up before 9 s, preloads, under the HIVE to the GARDEN, R4, RIGHT up before 22 s, volley, back under the HIVE, park left |
 
-L4, R4 and R5 are the TeleOp's close launch spots (`LaunchSpots`: `LEFT_CLOSE_HIVE`,
-`RIGHT_CLOSE_HIVE`, `RIGHT_CLOSE_NEAR`), local points in these drafts, not team spots. A wait that
-runs out parks the robot.
+Every volley is from a spot the drivers' buttons go to (`LaunchSpots`), as a new Auto must be: R's
+preloads from `RIGHT_START`, its LEFT volley from L2 (`LEFT_WALL_NEAR`, the wall row; it was
+`LEFT_LAUNCH_OFFSET` until 13 Nov 2026), and L4, R4 and R5 from the close row (`LEFT_CLOSE_HIVE`,
+`RIGHT_CLOSE_HIVE`, `RIGHT_CLOSE_NEAR`). They are local points in these drafts, not team spots. A
+wait that runs out parks the robot.
+
+**L2 is 23 in from a robot on `LEFT_PARK`,** where L parks early when its first wait runs out. So R
+comes up to L2 east of the park zone, leaves it without turning until it is clear, and drives the
+last 23 in into `RIGHT_PARK` straight along the park's own line (parked robots are 2.7 in apart).
 
 **R falls back by itself** (mentor, 12 Nov 2026: no separate short Auto). The third volley needs
 the pick, the drive back, the volley and the park, about 14 s on a 2.5 s volley, so R goes for it
@@ -204,15 +210,17 @@ only if its LEFT volley is done before 15 s. With today's 4 s volleys that volle
 
 **In the simulator as the robot runs today** (Belding calibration, 4 s volleys, 20 seeds, the pair):
 
-| Two TIPs | Both parked | Robots touch |
-|---|---|---|
-| 4 | 20 | 2 |
+| R's LEFT volley from | Two TIPs | Both parked | Robots touch |
+|---|---|---|---|
+| L2, as drawn now | 3 | 20 | 2 |
+| `LEFT_LAUNCH_OFFSET`, before | 4 | 20 | 2 |
 
+- **The two contacts are the same in both rows,** and neither is at the left end.
 - **R parked after its LEFT volley in 18 of 20.** In the other two a short FLOWER load ended that
   volley early, R went on, and it met L leaving the GARDEN at about 20 s.
 - **On a planned 2.5 s volley both robots fire their last volleys,** and R comes in to R5 while L
   is on R4: the two spots overlap, and the robots touched in most runs. Not resolved yet.
-- **Two TIPs came in 9 of 20 with L's preloads from `LEFT_LAUNCH_CATCH`.** The drop to 4 is the
+- **Two TIPs came in 9 of 20 with L's preloads from `LEFT_LAUNCH_CATCH`.** The drop to 4 was the
   calibration keeping 0.70 of balls from 36 in, a figure from before a launcher speed was measured
   there. Count the volleys from L4 before judging it.
 - **No third TIP in any run:** the RIGHT CELL gets R's four and the two or three L's GARDEN gather
