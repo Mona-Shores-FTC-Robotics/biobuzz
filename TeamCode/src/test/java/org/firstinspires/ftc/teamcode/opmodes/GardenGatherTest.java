@@ -106,4 +106,29 @@ public class GardenGatherTest {
         assertEquals("an Auto never crosses the centre line", GardenFieldPoints.BLUE, GardenGather.nearest(72.0, 60.0, true));
         assertEquals("the button may", GardenFieldPoints.RED, GardenGather.nearest(72.0, 60.0, false));
     }
+
+    /** The style is Panels' TeleOpConfig.gardenGatherStyle; a cleared field is CLASSIC, never a crash. */
+    @Test
+    public void theStyleComesFromTeleOpConfigAndDefaultsToClassic() {
+        GardenGather.Style before = TeleOpConfig.gardenGatherStyle;
+        try {
+            assertEquals("until a style is seen to bring in more", GardenGather.Style.CLASSIC, before);
+            TeleOpConfig.gardenGatherStyle = null;
+            assertEquals(GardenGather.Style.CLASSIC, GardenGather.style());
+            TeleOpConfig.gardenGatherStyle = GardenGather.Style.HARD_STOP_PUSH;
+            assertEquals(GardenGather.Style.HARD_STOP_PUSH, GardenGather.style());
+        } finally {
+            TeleOpConfig.gardenGatherStyle = before;
+        }
+    }
+
+    /** Every corral phase is one the button may be let go in: the robot finishes and backs out on its own. */
+    @Test
+    public void lettingGoDuringTheCorralStillFinishesTheGather() {
+        for (GrabRoutine.Phase phase : new GrabRoutine.Phase[] {GrabRoutine.Phase.CORRAL_BACK,
+                GrabRoutine.Phase.CORRAL_HOLD, GrabRoutine.Phase.PUSH, GrabRoutine.Phase.HOLD}) {
+            assertEquals(phase.toString(), true, GrabRoutine.releaseFinishes(phase, true));
+            assertEquals("an Auto's card cut short stops", false, GrabRoutine.releaseFinishes(phase, false));
+        }
+    }
 }

@@ -842,6 +842,20 @@ measurement is [#255].
       stop at the end of the back out, a longer hold before the stick rises, a short push forward
       again, or the twist: `twistOnBackOut`). **Stop:** fewer than 3 come over the ramp → that is
       the drive in or the mechanism, not the back out; tell a mentor before tuning a sequence.
+- [ ] **GARDEN gather styles (13 Nov; none has been run):** same setup as the film above, Panels
+      → TeleOpConfig → `gardenGatherStyle`, 3 gathers per style, GARDEN reloaded each time, fire
+      and count the volley after each. The gather's start line in the log says the style.
+      CLASSIC: back out, ease to a stop, stick up 0.25 s later. HARD_STOP: straight back 5 in at
+      0.6 power with no ramp, a dead stop, a 0.3 s stand, then the drive back
+      (`GardenGather.hardStopBackIn`, `hardStopPower`, `hardStopHoldMs`). HARD_STOP_PUSH: the same,
+      then 0.3 s forward again at 0.3 (`rePushMs`, `rePushPower`). LONG_HOLD: CLASSIC, then a
+      0.7 s stand before the stick comes up (`longHoldMs`). TWIST: 30° against the wall first.
+      **Good:** one style puts 3 (4 with the corner fix) in the volley three times running, in
+      under 4.0 s (`Last GARDEN gather: N s`) → write it into `TeleOpConfig.gardenGatherStyle`,
+      with the numbers that worked, and try it once in an Auto. **Stop:** the dead stop is soft
+      (the robot coasts) → say so: the drive motors may not brake at zero power, and the style
+      needs a reverse pulse instead. A style over 4.0 s → raise
+      `AutoRegistration.GARDEN_GATHER_TYPICAL_S` to cover it before it runs in an Auto.
 - [ ] **GARDEN gather, the smaller knobs (after the film above, same setup):** one at a
       time, 3 gathers each, counting pieces. (a) `stallMs` 150: the robot has stopped 0.27 to 0.47 s
       (median 0.36) before the stall rule ends the drive in; 150 should take 0.1 s off. **Stop:**

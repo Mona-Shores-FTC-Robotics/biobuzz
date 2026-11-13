@@ -152,8 +152,11 @@ public class FlowerPickerTest {
     @Test
     public void lettingGoFinishesOnlyFromTheDwellOn() {
         for (GrabRoutine.Phase phase : GrabRoutine.Phase.values()) {
+            // The dwell and everything after it: the twist, a corral's phases, the drive back and its hold.
             boolean dwellOrBack = phase == GrabRoutine.Phase.DWELL || phase == GrabRoutine.Phase.TWIST
-                    || phase == GrabRoutine.Phase.BACK;
+                    || phase == GrabRoutine.Phase.CORRAL_BACK || phase == GrabRoutine.Phase.CORRAL_HOLD
+                    || phase == GrabRoutine.Phase.PUSH || phase == GrabRoutine.Phase.BACK
+                    || phase == GrabRoutine.Phase.HOLD;
             assertEquals(phase.toString(), dwellOrBack, GrabRoutine.releaseFinishes(phase, true));
             assertEquals("an Auto's card cut short always stops: " + phase, false,
                     GrabRoutine.releaseFinishes(phase, false));

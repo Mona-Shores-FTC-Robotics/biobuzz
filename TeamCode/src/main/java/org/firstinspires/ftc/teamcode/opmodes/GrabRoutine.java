@@ -84,7 +84,7 @@ import java.util.function.Consumer;
 public abstract class GrabRoutine {
 
     /** Where a grab is. */
-    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, TWIST, BACK, DONE, ABORTED, REFUSED }
+    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, TWIST, CORRAL_BACK, CORRAL_HOLD, PUSH, BACK, HOLD, DONE, ABORTED, REFUSED }
 
     /** Where the In goes, or why there is none. */
     protected static final class InPlan {
@@ -311,7 +311,9 @@ public abstract class GrabRoutine {
     /** Whether a grab is driving the robot, so the OpMode must leave the drive alone. */
     public boolean active() {
         return phase == Phase.LINE_UP || phase == Phase.PREP || phase == Phase.IN
-                || phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.BACK;
+                || phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.CORRAL_BACK
+                || phase == Phase.CORRAL_HOLD || phase == Phase.PUSH || phase == Phase.BACK
+                || phase == Phase.HOLD;
     }
 
     /** The grab has ended: done, stopped, or refused. */
@@ -440,12 +442,45 @@ public abstract class GrabRoutine {
                     event.accept(String.format(Locale.US, "%s: twist %s in %.2f s, %+.0f° to go", what(),
                             Math.abs(Math.toDegrees(twistError)) <= TWIST_DONE_DEG ? "done" : "timed out",
                             ms(now, phaseStartNs) / 1000.0, Math.toDegrees(twistError)));
-                    startBack(now, pose);
+                    startCorral(now, pose);
                 } else {
                     // Turn in place, still pressed toward the wall, at most twistPower.
                     robot.drive.driveRobotCentric(clamp(dwellPushPower(), 1.0), 0.0,
                             clamp(headingKp() * twistError * 4.0, unitFraction(twistPower())));
                 }
+                break;
+            case CORRAL_BACK:
+                // Straight back at a set power, no ramp, then nothing: the stop is the point.
+                if (Math.hypot(pose.x() - corralFrom.x(), pose.y() - corralFrom.y()) >= nn(corralBackIn())
+                        || ms(now, phaseStartNs) > CORRAL_BACK_MAX_MS) {
+                    next(now, Phase.CORRAL_HOLD);
+                    robot.drive.driveRobotCentric(0.0, 0.0, 0.0);
+                } else {
+                    robot.drive.driveRobotCentric(-unitFraction(corralBackPower()), 0.0,
+                            clamp(headingKp() * wrapRad(in.heading() - pose.heading()), maxCorrection()));
+                }
+                break;
+            case CORRAL_HOLD:
+                if (ms(now, phaseStartNs) >= nn(corralHoldMs())) {
+                    if (nn(rePushMs()) > 0.0) {
+                        next(now, Phase.PUSH);
+                        steer(pose, rePushPower());
+                    } else {
+                        startBack(now, pose);
+                    }
+                } else {
+                    robot.drive.driveRobotCentric(0.0, 0.0, 0.0);
+                }
+                break;
+            case PUSH:
+                if (ms(now, phaseStartNs) >= nn(rePushMs())) {
+                    startBack(now, pose);
+                } else {
+                    steer(pose, rePushPower());
+                }
+                break;
+            case HOLD:
+                if (ms(now, phaseStartNs) >= nn(holdBeforeDoneMs())) finish(now);
                 break;
             case BACK:
                 double backed = Math.hypot(pose.x() - inEnd.x(), pose.y() - inEnd.y());
@@ -454,7 +489,11 @@ public abstract class GrabRoutine {
                     unprep();
                 }
                 if (robot.drive.pathDone() || ms(now, phaseStartNs) > nn(backTimeoutMs())) {
-                    finish(now);
+                    if (nn(holdBeforeDoneMs()) > 0.0) {
+                        next(now, Phase.HOLD); // the follower holds where the path ended
+                    } else {
+                        finish(now);
+                    }
                 }
                 break;
             default:
@@ -480,7 +519,9 @@ public abstract class GrabRoutine {
      * when it is cut short, which always stops the grab.
      */
     static boolean releaseFinishes(Phase phase, boolean button) {
-        return button && (phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.BACK);
+        return button && (phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.CORRAL_BACK
+                || phase == Phase.CORRAL_HOLD || phase == Phase.PUSH || phase == Phase.BACK
+                || phase == Phase.HOLD);
     }
 
     /** For the Match page: what a grab is doing, or how the last one went. Empty before the first. */
@@ -615,7 +656,63 @@ public abstract class GrabRoutine {
             robot.drive.driveRobotCentric(0.0, 0.0, 0.0);
             return;
         }
+        startCorral(now, pose);
+    }
+
+    /** The corral's straight back gives up after this long, ms, and stops where it is. */
+    static final double CORRAL_BACK_MAX_MS = 1000;
+    private Pose corralFrom;
+
+    /**
+     * After the dwell (and any twist), before the drive back: the corral, if the subclass asks for
+     * one ({@link #corralBackIn}), else straight to the drive back. The corral is a short drive
+     * straight back at a set power with no ramp, then a dead stop, so whatever the robot was
+     * dragging back with it keeps going into the intake; a stand ({@link #corralHoldMs}); and
+     * optionally a push forward again ({@link #rePushMs}). The drive back then starts from wherever
+     * that left the robot, and still ends where the In started.
+     */
+    private void startCorral(long now, Pose pose) {
+        if (nn(corralBackIn()) > 0.0) {
+            corralFrom = pose;
+            next(now, Phase.CORRAL_BACK);
+            robot.drive.setAccelLimited(false); // a dead stop, not a ramp; the drive back turns it on again
+            robot.drive.driveRobotCentric(-unitFraction(corralBackPower()), 0.0, 0.0);
+            return;
+        }
         startBack(now, pose);
+    }
+
+    /** The corral's straight back before its dead stop, inches; 0 (the default) for no corral. */
+    protected double corralBackIn() {
+        return 0.0;
+    }
+
+    /** The corral's straight back's power, (0, 1]. */
+    protected double corralBackPower() {
+        return 0.6;
+    }
+
+    /** The stand after the corral's dead stop, ms, mechanisms as they are. */
+    protected double corralHoldMs() {
+        return 300;
+    }
+
+    /** After the stand, a push forward again along the In's line for this long, ms; 0 (the default) for none. */
+    protected double rePushMs() {
+        return 0.0;
+    }
+
+    /** The push forward's power, (0, 1]. */
+    protected double rePushPower() {
+        return 0.3;
+    }
+
+    /**
+     * A stand at the end of the drive back, ms, mechanisms as they are, before the grab is done and
+     * they are put away; 0 (the default) for none.
+     */
+    protected double holdBeforeDoneMs() {
+        return 0.0;
     }
 
     /**

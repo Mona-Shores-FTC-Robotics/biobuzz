@@ -57,6 +57,52 @@ import java.util.function.Consumer;
 public final class GardenGather extends GrabRoutine {
 
     /**
+     * What the robot does between the dwell at the wall and the stick coming up: the ways to try of
+     * corralling the pieces that popped over the stick into the intake, which has no drop to feed
+     * it as a FLOWER does (mentor, 13 Nov 2026). Chosen in Panels ({@code TeleOpConfig.gardenGatherStyle});
+     * the button and an Auto's card run the same one. None has been run on a robot: film each.
+     */
+    public enum Style {
+        /** As before 13 Nov: back out with the stick down, ease to a stop, stick up {@link #raiseAfterStopMs} later. */
+        CLASSIC,
+        /**
+         * Straight back {@link #hardStopBackIn} at {@link #hardStopPower} with no ramp, then a dead
+         * stop: the pieces the stick was dragging back keep going, into the intake. A stand of
+         * {@link #hardStopHoldMs}, then the drive back as CLASSIC.
+         */
+        HARD_STOP,
+        /** HARD_STOP, then a push forward again for {@link #rePushMs} at {@link #rePushPower} before the drive back. */
+        HARD_STOP_PUSH,
+        /** CLASSIC, but the robot stands {@link #longHoldMs} at the end of the drive back, intake running, before the stick comes up. */
+        LONG_HOLD,
+        /** The twist against the wall ({@link #twistDeg}) before the drive back, as {@link #twistOnBackOut}. */
+        TWIST
+    }
+
+    /** HARD_STOP: how far straight back before the dead stop, inches. A plan. */
+    public static double hardStopBackIn = 5.0;
+    /** HARD_STOP: the straight back's power, (0, 1]. A plan. */
+    public static double hardStopPower = 0.6;
+    /** HARD_STOP: the stand after the dead stop, ms, stick down and intake running. A plan. */
+    public static double hardStopHoldMs = 300;
+    /** HARD_STOP_PUSH: the push forward after the stand, ms. A plan. */
+    public static double rePushMs = 300;
+    /** HARD_STOP_PUSH: the push forward's power, (0, 1]. A plan. */
+    public static double rePushPower = 0.3;
+    /** LONG_HOLD: the stand at the end of the drive back before the stick comes up, ms. A plan. */
+    public static double longHoldMs = 700;
+
+    /** The style in use, as Panels has it now; null (a cleared field) is CLASSIC. */
+    static Style style() {
+        Style style = TeleOpConfig.gardenGatherStyle;
+        return style == null ? Style.CLASSIC : style;
+    }
+
+    private static boolean hardStop() {
+        return style() == Style.HARD_STOP || style() == Style.HARD_STOP_PUSH;
+    }
+
+    /**
      * Only a GARDEN this close to the robot is gathered from, inches: the whole of our half, since in
      * an Auto the centre line is the limit that matters.
      */
@@ -356,6 +402,12 @@ public final class GardenGather extends GrabRoutine {
         return "GARDEN gather";
     }
 
+    /** The style in use, for the gather's start line in the match log. */
+    @Override
+    protected String startNote() {
+        return ", style " + style();
+    }
+
     @Override
     protected String findTarget(Pose pose) {
         // The nearest in range; in an Auto, only one on the robot's own half (GrabRoutine).
@@ -442,7 +494,9 @@ public final class GardenGather extends GrabRoutine {
     @Override
     protected void stopMechanisms() {
         // The drive back done (or stopped while backing out): raise the stick once the robot is still.
-        if (timedRaise() && phase() == Phase.BACK) {
+        if (timedRaise() && phase() == Phase.HOLD) {
+            robot.flowerStick.retractAfter(0); // it has stood its hold already
+        } else if (timedRaise() && phase() == Phase.BACK) {
             robot.flowerStick.retractAfter(raiseAfterStopMs);
         } else {
             retractWhenClear();
@@ -461,7 +515,13 @@ public final class GardenGather extends GrabRoutine {
         robot.flowerStick.retractWhenClear(garden.gather.x(), garden.gather.y(), nn(retractAfterBackIn));
     }
 
-    @Override protected double backTwistDeg() { return twistOnBackOut ? twistDeg : 0.0; }
+    @Override protected double backTwistDeg() { return twistOnBackOut || style() == Style.TWIST ? twistDeg : 0.0; }
+    @Override protected double corralBackIn() { return hardStop() ? hardStopBackIn : 0.0; }
+    @Override protected double corralBackPower() { return hardStopPower; }
+    @Override protected double corralHoldMs() { return hardStopHoldMs; }
+    @Override protected double rePushMs() { return style() == Style.HARD_STOP_PUSH ? rePushMs : 0.0; }
+    @Override protected double rePushPower() { return rePushPower; }
+    @Override protected double holdBeforeDoneMs() { return style() == Style.LONG_HOLD ? longHoldMs : 0.0; }
     @Override protected double twistPower() { return twistPower; }
     @Override protected double twistTimeoutMs() { return twistTimeoutMs; }
     @Override protected double prepMs() { return useStick ? stickDownMs : 0.0; }
