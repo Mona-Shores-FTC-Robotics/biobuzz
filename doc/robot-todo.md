@@ -415,11 +415,35 @@ Use the work order above to select checks; the detailed mechanism checks below a
       [S5 seam §4], [PR #378]
       Belding (24, master's value since 5 Nov): WALL 0.62–0.73 s in 11 Auto picks (4 reach 0.7), FAR
       0.94–1.29 s; on video the WALL stick lands 0.2–0.4 s before the stop, touching nothing seen.
-- [ ] **Time more GARDEN gathers** (R-Solo or R-NoCross): one Auto gather is logged (3 Nov
-      18:06, 4.21 s), so `AutoRegistration.GARDEN_GATHER_TYPICAL_S` is 5.0 now; a few more
-      `Last GARDEN gather: N s` lines confirm or replace it. The same runs' `FLOWER pick: done` lines
-      say how often a pick ends on `full`. Say whether the corner allows a stick approach for the
-      gather. [S5], [PR #384], [PR #378], [PR #422]
+- [ ] **Time GARDEN gathers as the code runs them now** (R-NoCross and L-UnderHive or L-Clockwise
+      with Pickup GARDEN, GARDEN loaded with its 4 POLLEN, two runs each; count the pieces left in
+      the GARDEN by eye after each). Nine Auto gathers are logged (3 to 7 Nov, both robots): 4.13
+      to 4.76 s with the old 1.5 s dwell, 0 to 2 pieces each. None is logged with the 0.4 s dwell,
+      so `AutoRegistration.GARDEN_GATHER_TYPICAL_S` 4.0 is the logged phases added up, not a run.
+      **Good:** every `Last GARDEN gather: N s` line is under 4.0 (about 3.1 on R-NoCross, about
+      2.5 where the stick came down on the drive in). **Stop:** one over 4.0 → write the line down
+      and raise the number to cover it. Say how many pieces each gather left behind. [S5],
+      [PR #384], [PR #378], [PR #422]
+- [ ] **GARDEN gather, stick down on the drive in (13 Nov; never run):** spotter at the GARDEN
+      corner watching the stick and both walls, L-UnderHive or L-Clockwise with Pickup GARDEN (they
+      arrive facing the GARDEN), then R-NoCross (it turns half a turn evenly on its way in). The
+      stick may come down early only on a drive that ends facing the GARDEN, once the robot has held
+      that facing 0.2 s (`GardenGather.facingHoldMs`), never while it turns. **Good:** on the L Autos
+      the log says `GARDEN gather: stick down on the drive in, N in to go` with N near 24, then
+      `prep done on the way in, 0.7 s ago` or more and `PREP 0.2 s` or less, and the stick touches
+      no wall and no ball before the drive in. On R-NoCross there is no `stick down on the drive in`
+      line at all: the card lowers it standing, `PREP 0.7 s`, as before. **Stop:** the stick comes
+      down while the robot is still turning, or touches a wall → Panels `lowerOnDriveIn` off (the
+      card lowers it itself) and write down the heading and where it touched; it only touches the
+      floor ahead of a ball → `approachLowerWithinIn` 12.
+- [ ] **R-NoCross and R-Clockwise: draw the turn to GARDEN_STAGING finished early (Visualizer):**
+      both turn from 90° to 270° evenly over the whole drive, so the robot is 22° off with 6 in to go
+      and the stick stays up until the card (0.7 s standing). Draw the heading turned to 270° by
+      about halfway, held from there, and export. The turn passes through facing the side wall, so
+      it must be over while the robot is still well out from it. **Good:** the robot faces the
+      GARDEN from about 24 in out, the log says `stick down on the drive in`, and the gather starts
+      with `PREP 0.2 s` or less. **Stop:** the faster turn swings the robot off its line or toward
+      the wall → the old drawing, and the 0.7 s stays.
 - [ ] **A volley before the park,** from any Auto run whose trace shows `going for it, not
       parking` (pull its log). **Good:** that volley's last ball left before 30 s on the match clock
       (the launcher's shot count), and the robot ended AUTO at the launch spot, touching no wall
@@ -868,6 +892,35 @@ measurement is [#255].
       third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
       **Stop:** R-Solo parks instead of its third volley every run → note the time it gave and tell a
       mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
+- [ ] **GARDEN gather: film what the pieces do, first (decides the corral sequence):** TeleOp
+      gather button, GARDEN loaded with 4 POLLEN, phone filming from above and from the side, 5
+      gathers, reloading each time; then fire and count the volley. What is known: the stick is
+      the ramp the pieces pop over on the drive in (mentor, 13 Nov: three come over, the corner
+      one is a mechanical fix in progress), and it rests on the audience wall with the robot's
+      centre about 13.1 in out (32 of 36 logged gathers). Yet the nine Auto gathers fired only 0
+      to 2 in their next volley, and the lane count often rose seconds after the gather ended. So
+      pieces come over the ramp and do not get on into the intake before it lifts: there is no drop
+      to carry them, as a FLOWER has. Write down, per gather: how many come over the ramp, where
+      they sit when the robot starts back, how many are in the robot when the stick rises (today:
+      0.25 s after the back out stops, `raiseAfterStopMs`), and how many fall out as it rises.
+      **Good:** the film shows where the pieces are lost, and that names the move to add (a hard
+      stop at the end of the back out, a longer hold before the stick rises, a short push forward
+      again, or the twist: `twistOnBackOut`). **Stop:** fewer than 3 come over the ramp → that is
+      the drive in or the mechanism, not the back out; tell a mentor before tuning a sequence.
+- [ ] **GARDEN gather, the smaller knobs (after the film above, same setup):** one at a
+      time, 3 gathers each, counting pieces. (a) `stallMs` 150: the robot has stopped 0.27 to 0.47 s
+      (median 0.36) before the stall rule ends the drive in; 150 should take 0.1 s off. **Stop:**
+      a drive in that ends before the robot reaches the corner → back to 250. (b) `dwellMs` 200
+      and 800 against 400: in the logs a piece that came in was counted 0.25 to 0.5 s after the
+      robot stopped and the 1.5 s dwell brought no more than the 0.4 s one, but no gather had a
+      loaded GARDEN on film. Keep the shortest that loses no piece. (c) `inSpeed` is not worth
+      trying: the 9 in drive in peaks at 11 to 25 in/s, under its cap, and takes 0.8 to 1.1 s
+      either way. (d) With 3 pieces already in the lane, gather a fourth and watch the back out
+      (mentor, 13 Nov: the fourth ball rides on the floor at the front and backing up can let it
+      squirt out). Three logged gathers started with 3; one brought a fourth in and kept it through
+      a 7 in back out, by the lane count. **Stop:** the fourth is left on the floor twice → tell a
+      mentor: the gather then needs to turn out rather than back out, which changes where its card
+      ends and so the Autos' drawings.
 - [ ] **GARDEN gather, curve to the wall and quick out (`garden-gather` branch):** at the
       practice field with the TeleOp gather button (driver Triangle, held), GARDEN loaded, phone
       filming from above; then once in R-NoCross. It lines up where it always has, stick going
