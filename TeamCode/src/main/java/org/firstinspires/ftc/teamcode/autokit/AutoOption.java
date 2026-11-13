@@ -29,8 +29,8 @@ public final class AutoOption {
         /** One of a few named choices; the first is the drawing's. */
         CHOICE,
         /**
-         * The partner wait: a wait's limit on the match clock, which the drive team sets as the
-         * partner's last shot (the limit is that plus the TIP lag).
+         * The partner wait: a wait's limit on the match clock, which the drive team moves as
+         * it is ("waiting for partner's TIP until 9 s").
          */
         MATCH_SECONDS,
         /** A time on the match clock the Auto acts on, seconds since it started, set as it is. */

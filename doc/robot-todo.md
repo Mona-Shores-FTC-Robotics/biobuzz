@@ -25,6 +25,9 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
    current no-TIP branch still crosses to RIGHT; draw a LEFT-side recovery/park in the
    Visualizer. Then test CELL-up recognition, the two LEFT volleys, the scoring FLOWER
    pickup, and park, including a partner that never makes TIP 1.
+   **Partner wait:** drawn to give up at 9 s (was 8.5), and the INIT line reads "waiting for
+   partner's TIP until 9 s"; D-pad left and right move that second. In the run with a partner that
+   never makes TIP 1, check the no-TIP route still parks in time, starting half a second later.
 2. **R-NoCross** (formerly R-Partner-Tip). Qualify the right-side actions, then run it
    together with L-NoCross as the coordinated two-TIP baseline. Its CELL-up wait runs
    until 21 s on the match clock and then parks without launching. Waiting for the
@@ -199,9 +202,9 @@ gap with `tools/pull-logs/read_logs.py`; don't widen past 11.8 in (half of 23.6)
 Result, with the gap on each own-start run, → [PR #372].
 
 - [ ] **INIT menu, L-NoCross on Red far wall:** gamepad 1 D-pad right three times (its one row,
-      the partner's last shot, is selected).
-      **Good:** one line `▶ partner's last shot ◀▶ 7 s, waiting until 11.5 s`, amber; left three times
-      turns it back green, as drawn (last shot 4 s, waiting until 8.5 s); D-pad up and down change
+      the partner wait, is selected).
+      **Good:** one line `▶ waiting for partner's TIP ◀▶ until 12 s`, amber; left three times
+      turns it back green, as drawn (until 9 s); D-pad up and down change
       nothing (one row); nothing else on the robot reacts to gamepad 1's D-pad
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
       [PR #391]; the menu is the Clockwise PR's.
@@ -214,10 +217,10 @@ Result, with the gap on each own-start run, → [PR #372].
       warnings filling the page the list goes first, then the partner line, and the selected row stays.
       **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
       8.0 s, and no log can say what INIT showed (the next item). Show the drive team the line too.
-- [ ] **The chosen INIT options reach the match log** (same run: set the partner's last shot to 7 s,
+- [ ] **The chosen INIT options reach the match log** (same run: set the wait to 12 s,
       PLAY, let it run a few seconds, STOP). Belding's logs lost every `AutoOptions` line: PLAY
       wrote 160 tunables into a 160-slot loop. **Good:** `read_logs.py series <log>
-      /RealMetadata/AutoOptions` prints `… partner's last shot 7 s, until 11.5 s (drawn 8.5 s)`, and
+      /RealMetadata/AutoOptions` prints `… waiting for partner's TIP until 12 s (drawn 9 s)`, and
       the log's last events have no `metadata lines` drop. **Stop:** it is missing → save the log.
       [PR #529](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/529)
 - [ ] **INIT with the Limelight unplugged** (the warning line itself was logged 4 Nov 00:43; what is
@@ -431,18 +434,17 @@ Use the work order above to select checks; the detailed mechanism checks below a
       then. [PR #422]
 - [ ] **CellUp with the CELL already up:** L-NoCross at `LEFT_LAUNCH_CATCH` with the left CELL
       tipped up by hand first (or a partner's tip over before the wait starts). **Good:** the wait ends
-      at once and the Auto fires, not at its limit (8.5 s on the match clock). Then with the
+      at once and the Auto fires, not at its limit (9 s on the match clock). Then with the
       CELL **down** and nobody tipping: it waits out its limit and fires anyway (the Auto's own choice for now). **Stop:** it waits with
       the CELL up, or fires at once with it down → save the match log; check which CELL the robot
       aims at from its end of the field (`AutoRegistration.aimedLeft`). [PR #377]
       *Belding (7 Nov):* no L-NoCross run started its wait with the CELL up. R-Solo Q-27 (20245) did: the red CELL tipped about 6 s in and stayed up, and its wait ended "CellUp after 0.02 s". The CELL-down half ran three times (Q-14 20245, M-7 20245, M-9 19429): video shows the CELL down at each 8 s limit, and the Auto took its no-TIP route.
-- [ ] **L-NoCross's TIP wait on the match clock:** partner's last shot set to 7 s in INIT (waiting
-      until 11.5 s), nobody tips.
-      **Good:** the trace shows `Wait for TIP or CELL up: 11.5 s on the match clock` about 11.5 s into
-      the match, then the no-TIP route. **Stop:** it ends at 8.5 s or counts from its arrival → save
+- [ ] **L-NoCross's TIP wait on the match clock:** the wait set to 12 s in INIT, nobody tips.
+      **Good:** the trace shows `Wait for TIP or CELL up: 12.0 s on the match clock` about 12 s into
+      the match, then the no-TIP route. **Stop:** it ends at 9 s or counts from its arrival → save
       the log. [PR #391]
       *Belding (7 Nov):* every L-NoCross run had the limit at the drawn 8 s (nobody entered a later shot). The three timeouts ended "8.0 s on the match clock" 7.00–7.12 s after the wait began, so the limit is on the match clock. The 11 s setting was not tried.
-- [ ] **Early park from L-NoCross's no-TIP route:** nobody tips, partner's last shot set late (11 s or more)
+- [ ] **Early park from L-NoCross's no-TIP route:** nobody tips, the wait set late (16 s or more)
       so time runs short at RIGHT_LAUNCH_CATCH or WALL_FLOWER_STAGING.
       **Good:** "parking from the spot the robot is on", the park from RIGHT_LAUNCH_CATCH bending west
       of the Red HIVE, parked by 30 s. **Stop:** it touches the HIVE → note the pose; bend that park

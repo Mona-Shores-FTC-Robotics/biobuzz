@@ -52,9 +52,9 @@
       "note": "4 POLLEN if every shot lands; lower it for misses."
     },
     "partnerTipLagS": {
-      "value": 4.5,
-      "source": "measured, Belding Qualifier video and L-NoCross logs, 7 Nov 2026",
-      "note": "Partner's last shot leaving to our CellUp: 4.0, 4.2, 4.4 s (about 4.3 in a fourth); 4.5 errs long."
+      "value": 5.5,
+      "source": "measured, Belding Qualifier films, 7 Nov 2026 (re-measured 11 Nov)",
+      "note": "Partner's last ball leaving to our CellUp, as a give-up limit: catches 11 of 13 at-weight TIPs (median lag 4.1 s; 4.5 caught 9; 6.7 catches all)."
     }
   }
 }

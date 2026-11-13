@@ -75,6 +75,12 @@ power and pickup backing-out settings are unchanged.
 | L: RIGHT up at offset | Before 20 s | Far park without final volley |
 | R: RIGHT up at close shot | Before 22.5 s | Near park without final volley |
 
+**L's 8 s is a clearance limit as well as a TIP limit, so it stays.** At Belding the CELL settled as
+late as 9.25 s after four preloads, and 8 s gives up on those runs. Tried at 10 s in the simulator
+(12 Nov 2026, Belding calibration, 20 seeds): a run that fired at 8.8 s was still leaving
+LEFT_LAUNCH_CATCH at 12.2 s, when R arrives at LEFT_LAUNCH_CLOSE beside it, and the robots touched.
+A later limit needs R's arrival moved first.
+
 Timeout rows come first: arriving at or after a deadline parks even if the CELL-up
 trigger is true. R collects the scoring flower immediately after its LEFT volley;
 the final RIGHT-up gate confirms TIP 2 before firing. This overlaps pickup with
