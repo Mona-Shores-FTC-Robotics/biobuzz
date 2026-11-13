@@ -1075,6 +1075,13 @@ locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai arti
       wall, the NEAR and FAR ones with one corner on it; 3 or 4 of 4 stay in. Write the count per
       spot. **Stop:** a press that never arrives or never settles (the pose is asking it to push
       into the wall) → `LaunchSpotDrive.wallGapIn` 1 in Panels and try again; note which spot.
+- [ ] **The wall row stops 1 in out from the wall (13 Nov, `LaunchSpots.WALL_STAND_OFF_IN`):**
+      Square to any of the six wall spots now stops 1 in toward the HIVE from where it is drawn.
+      `LEFT_WALL_NEAR` is then about half an inch clear of the SCORING FLOWER, and a robot on
+      `LEFT_WALL_HIVE` meets one on `LEFT_CLOSE_HIVE` edge to edge. The Autos are not changed:
+      they launch from the spots as drawn. **Good:** it arrives and settles without pushing on the
+      wall, and scores as before. **Stop:** it still presses the wall, or a defender can now get
+      behind it → note which, and the number changes there.
 - [ ] **LEFT_WALL_NEAR and LEFT_WALL_HIVE at the SCORING FLOWER:** NEAR's corner should rest
       against the FLOWER's far side and HIVE's side about 2 in from its near side. **Stop:** either
       drives into the FLOWER → note by how much; the spot's x moves in `LaunchSpots`.
