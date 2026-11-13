@@ -128,7 +128,7 @@ Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-tod
 | **T3b** look by | 22.2 s | The drive to LEFT_CLOSE_HIVE (1.7 s), a volley there (2.5 s), the park (about 2.6 s) and the guard's 1 s margin end at 30 s |
 | **T3** RIGHT up by, at LEFT_CLOSE_HIVE | 23.2 s | The crossing from there (about 4.3 s) and a volley's last ball (2.5 s) end at 30 s. Not up by then: R shoots at LEFT |
 | **TR** park from LEFT_CLOSE_HIVE at | 26.4 s | L has turned in to LEFT_PARK |
-| **T4** RIGHT up by | 19.2 s | L's volley must end, and L be parked, before R leaves LEFT_CLOSE_HIVE for its park, even when the volley runs its whole 3.5 s feed |
+| **T4** RIGHT up by | 22 s | TIP 2 was read up at 19.8 to 21.8 s in the simulator (to 22.6 s with R 20% slow), so at 19.2 s L gave up before it and never shot its second load. L stands at RIGHT_WALL_NEAR until TL anyway, so waiting costs nothing. A volley begun at 22 s ends after TL: L then leaves for its park when the volley ends, about 24.5 s |
 | **TL** park at | 22.7 s | L leaves RIGHT_WALL_NEAR for LEFT_PARK once R has left the SCORING FLOWER |
 | **TLr** park after the crossing at | 22.5 s | L1's "no" only: the TIP its volley makes was read up at 19.6 to 20.2 s, and its park goes through where that spill lands |
 | **TF** FLOWER at | 15.5 s | L's WALL FLOWER leg only: R, coming north from the GARDEN, has passed the FLOWER |

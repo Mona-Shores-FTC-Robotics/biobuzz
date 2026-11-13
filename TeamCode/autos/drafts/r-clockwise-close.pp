@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-13T17:56:40.919Z",
+  "timestamp": "2026-11-13T18:09:04.480Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -83,7 +83,7 @@
       "segments": [
         {
           "id": "r-lane-up-flower",
-          "color": "#59a14f",
+          "color": "#76b7b2",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -132,7 +132,7 @@
         },
         {
           "id": "r-lane-in-flower",
-          "color": "#9c755f",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -195,7 +195,7 @@
       "segments": [
         {
           "id": "r-catch-park-south",
-          "color": "#4e79a7",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -221,7 +221,7 @@
         },
         {
           "id": "r-catch-park-in",
-          "color": "#e15759",
+          "color": "#76b7b2",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -299,7 +299,7 @@
       "segments": [
         {
           "id": "r-pickup-park-lane-garden",
-          "color": "#edc948",
+          "color": "#76b7b2",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -329,7 +329,7 @@
         },
         {
           "id": "r-pickup-park-turn-garden",
-          "color": "#4e79a7",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -383,7 +383,7 @@
       "segments": [
         {
           "id": "r-lane-up-garden",
-          "color": "#b07aa1",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -445,7 +445,7 @@
         },
         {
           "id": "r-lane-in-garden",
-          "color": "#f28e2b",
+          "color": "#4e79a7",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -634,7 +634,7 @@
       "segments": [
         {
           "id": "r-cross-south",
-          "color": "#76b7b2",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -663,7 +663,7 @@
         },
         {
           "id": "r-cross-turn",
-          "color": "#f28e2b",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -684,7 +684,7 @@
         },
         {
           "id": "r-cross-aim",
-          "color": "#59a14f",
+          "color": "#76b7b2",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -717,7 +717,7 @@
       "segments": [
         {
           "id": "r-right-park-west",
-          "color": "#9c755f",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -742,7 +742,7 @@
         },
         {
           "id": "r-right-park-lane",
-          "color": "#e15759",
+          "color": "#4e79a7",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,

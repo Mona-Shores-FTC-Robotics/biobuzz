@@ -597,7 +597,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         9.5 s; the Belding films have it as late as 9.98 s, so expect to raise it); R on
         LEFT_WALL_NEAR and its volley's end (T2 15.5 s, TS 17.6 s; drawn 13.2 and 17.0 s); R's
         SCORING FLOWER pick's end (T3b 22.2 s; drawn 21.3 s); R at LEFT_CLOSE_HIVE (T3 23.2 s; drawn 23.1 s); L on
-        RIGHT_WALL_NEAR (T4 19.2 s) and each robot parked (TL 22.7 s). **Good:**
+        RIGHT_WALL_NEAR (T4 22 s) and each robot parked (TL 22.7 s). **Good:**
         each within 0.5 s of the drawn. Otherwise set the row in INIT for the next run and write
         the measured value on the PR; the drawn values change only in the Visualizer.
       - **The look, and the Priority row.** After the SCORING FLOWER R turns to LEFT_CLOSE_HIVE and
