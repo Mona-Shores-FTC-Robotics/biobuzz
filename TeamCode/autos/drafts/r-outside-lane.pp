@@ -53,7 +53,7 @@
           "heading": {
             "type": "linear",
             "startDeg": 180,
-            "endDeg": 270
+            "endDeg": 20
           },
           "locked": false
         },
@@ -75,8 +75,9 @@
             }
           ],
           "heading": {
-            "type": "constant",
-            "degrees": 270
+            "type": "linear",
+            "startDeg": 380,
+            "endDeg": 270
           },
           "locked": false
         }
@@ -718,10 +719,10 @@
               {
                 "id": "R-time-for-third",
                 "kind": "firstOf",
-                "label": "LEFT volley done before 15 s, otherwise park",
+                "label": "LEFT volley done before 15.5 s, otherwise park",
                 "rows": [
                   {
-                    "afterMs": 15000,
+                    "afterMs": 15500,
                     "matchClock": true,
                     "cards": [
                       {

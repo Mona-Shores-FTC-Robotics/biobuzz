@@ -58,9 +58,10 @@ public final class ROutsideLaneAuto {
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose wallAbortParkToRightParkControl1 = p.of(26, 75, 0);
-        Pose point4 = p.of(36, 100, 270);
+        Pose point4 = p.of(36, 100, 20);
         Pose point4Control1 = p.of(27, 76, 0);
         Pose point4Control2 = p.of(32, 92, 0);
+        Pose point5Start = p.of(36, 100, 380);
         Pose point5Control1 = p.of(40, 112, 0);
         Pose point5Control2 = p.of(52, 114, 0);
         Pose point6 = p.of(38, 98.7, 360);
@@ -86,7 +87,7 @@ public final class ROutsideLaneAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path wallFlowerToWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
         Path wallAbortParkToRightPark = Paths.curve(wallFlowerStaging, wallAbortParkToRightParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
-        Path wallLaneNorthToLeftCloseHive = Paths.path(Paths.curve(wallFlowerStaging, point4Control1, point4Control2, point4).linear(wallFlowerStaging, point4), Paths.curve(point4, point5Control1, point5Control2, leftCloseHive).constant(leftCloseHive));
+        Path wallLaneNorthToLeftCloseHive = Paths.path(Paths.curve(wallFlowerStaging, point4Control1, point4Control2, point4).linear(wallFlowerStaging, point4), Paths.curve(point5Start, point5Control1, point5Control2, leftCloseHive).linear(point5Start, leftCloseHive));
         Path leftParkToRightPark = Paths.path(Paths.curve(leftCloseHive, point6Control1, point6Control2, point6).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(point6Segment1Heading)).until(1, Interpolator.linear(point6Segment2Start, point6Segment2End))), Paths.line(point6, rightPark).constant(rightPark));
         Path scoringFlowerToScoringFlowerStaging = Paths.line(leftCloseHive, scoringFlowerStaging).heading(Interpolator.piecewise().until(0.45, Interpolator.constant(scoringFlowerToScoringFlowerStagingSegment1Heading)).until(1, Interpolator.linear(scoringFlowerToScoringFlowerStagingSegment2Start, scoringFlowerStaging)));
         Path flowerAbortParkToRightPark = Paths.curve(scoringFlowerStaging, flowerAbortParkToRightParkControl1, flowerAbortParkToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);
@@ -107,8 +108,8 @@ public final class ROutsideLaneAuto {
                                 kit.when("LeftCellUp").then(
                                         kit.guarded("If LeftCellUp", leftParkToRightPark, 2.1,
                                                 kit.command("LaunchAll", 1),
-                                                kit.firstOf("LEFT volley done before 15 s, otherwise park",
-                                                        kit.atMatchSeconds(15).then(
+                                                kit.firstOf("LEFT volley done before 15.5 s, otherwise park",
+                                                        kit.atMatchSeconds(15.5).then(
                                                                 kit.guarded("Timed out", leftParkToRightPark, 2.1,
                                                                         kit.path("left park to RIGHT_PARK", leftParkToRightPark, 2.1))),
                                                         kit.when("CellUp").then(
