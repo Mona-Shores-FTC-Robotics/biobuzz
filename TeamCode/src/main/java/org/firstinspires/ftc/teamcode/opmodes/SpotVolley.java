@@ -27,9 +27,13 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
  * tracker is data only, never decided from), so the feed runs while held, and an empty lane just
  * turns the feeder wheels until the driver lets go.
  *
- * <p>Pure: times in seconds, inputs as booleans, so a test drives it. Once the approach-opened
- * gate lands in {@code LaunchCards}/{@code PathEndSettle} (branch {@code claude/launch-on-approach}),
- * {@link #update}'s wait is where it plugs in.
+ * <p>With {@code TeleOpConfig.squareGateOnApproach} the gate may also open before the robot
+ * arrives, as an Auto's {@code LaunchAll} does after a path ({@code LaunchCards.launchOnApproach}):
+ * once the robot is near the spot and aimed ({@link PathEndSettle#readyOnApproach}) with the
+ * launcher at speed, so the first ball leaves about as the robot stops, instead of after the
+ * arrival, the settle and the 0.8 to 0.9 s from gate open to first ball.
+ *
+ * <p>Pure: times in seconds, inputs as booleans, so a test drives it.
  */
 final class SpotVolley {
 
@@ -65,6 +69,17 @@ final class SpotVolley {
      * @param operatorFiring the operator's FIRE is held
      */
     boolean update(double nowS, boolean arrived, boolean atSpeed, boolean settled, boolean operatorFiring) {
+        return update(nowS, arrived, atSpeed, settled, false, operatorFiring);
+    }
+
+    /**
+     * {@link #update(double, boolean, boolean, boolean, boolean)}, and also: while still driving,
+     * {@code readyOnApproach} (near the spot and aimed, {@link PathEndSettle#readyOnApproach}) with
+     * the launcher at speed starts the feed before arrival. Never without the launcher at speed:
+     * the spin-up wait is counted from arrival, and a shot on the move is only worth it at speed.
+     */
+    boolean update(double nowS, boolean arrived, boolean atSpeed, boolean settled, boolean readyOnApproach,
+                   boolean operatorFiring) {
         if (phase == Phase.OFF || phase == Phase.YIELDED) return false;
         if (operatorFiring) {
             if (phase == Phase.FEEDING) feedEndS = nowS;
@@ -72,6 +87,12 @@ final class SpotVolley {
             return false;
         }
         if (phase == Phase.DRIVING) {
+            if (!arrived && readyOnApproach && atSpeed) {
+                why = "on the approach, at speed";
+                feedStartS = nowS;
+                phase = Phase.FEEDING;
+                return true;
+            }
             if (!arrived) return false;
             arrivedS = nowS;
             phase = Phase.WAITING;

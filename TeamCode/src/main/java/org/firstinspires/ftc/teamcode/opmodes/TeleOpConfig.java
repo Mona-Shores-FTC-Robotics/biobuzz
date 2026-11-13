@@ -141,6 +141,20 @@ public final class TeleOpConfig {
     public static boolean goToSpotAlsoFires = true;
 
     /**
+     * With {@link #goToSpotAlsoFires}: the launch-spot button's volley opens the gate on the
+     * approach, before the robot arrives, as an Auto's {@code LaunchAll} after a path does
+     * ({@code LaunchCards.launchOnApproach}). It opens once the robot is within
+     * {@code PathEndSettle.launchWithinIn} (6 in) of the spot, within
+     * {@code PathEndSettle.aimToleranceDeg} of its heading and turning slower than
+     * {@code PathEndSettle.launchTurnDegPerSec}, with the launcher at speed; those knobs are the
+     * Autos' too. Off: the gate waits for arrival and the settle, as before. On since 13 Nov 2026
+     * (mentor), <b>not yet driven</b>: at Belding the gate opened a median 0.30 s after arriving,
+     * plus 0.8 to 0.9 s from gate open to first ball. Turn it off if the volleys miss more than
+     * they did (the shot count and video, {@code doc/robot-todo.md}). Read every loop.
+     */
+    public static boolean squareGateOnApproach = true;
+
+    /**
      * At a launch spot, settled and facing the HIVE, a camera-vs-odometry gap past this many inches
      * puts "corner reset suggested" on the Match page ({@link LaunchSpotDrive}). The gap is only
      * logged and shown, never applied: still and continuous fixes stay off until measured. 3 in is

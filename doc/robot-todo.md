@@ -998,6 +998,14 @@ locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai arti
       wall, the NEAR and FAR ones with one corner on it; 3 or 4 of 4 stay in. Write the count per
       spot. **Stop:** a press that never arrives or never settles (the pose is asking it to push
       into the wall) → `LaunchSpotDrive.wallGapIn` 1 in Panels and try again; note which spot.
+- [ ] **Square's early gate (`TeleOpConfig.squareGateOnApproach`, on since 13 Nov; nothing driven):**
+      the gate opens on the approach, within `PathEndSettle.launchWithinIn` (6 in) of the spot,
+      aimed and at speed. Ten Square volleys with it on and ten off, same spots, filmed. The log says
+      `gate open … (before arriving, N in out), on the approach` when it fired early. **Good:** the
+      first ball leaves sooner after the press (`gate open X s after the press`; Belding's median was
+      1.03 s) and 3 or 4 of 4 still stay in, as with it off. **Stop:** more misses with it on, or
+      the robot still rolling into the wall as the balls leave → try `launchWithinIn` 3 in Panels
+      (it is the Autos' number too), else switch it off and note the counts.
 - [ ] **LEFT_WALL_NEAR and LEFT_WALL_HIVE at the SCORING FLOWER:** NEAR's corner should rest
       against the FLOWER's far side and HIVE's side about 2 in from its near side. **Stop:** either
       drives into the FLOWER → note by how much; the spot's x moves in `LaunchSpots`.
