@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-13T02:00:41.503Z",
+  "timestamp": "2026-11-13T02:21:29.969Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -100,18 +100,27 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.4,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 180
-              }
-            },
-            {
-              "startProgress": 0.4,
-              "endProgress": 0.9,
+              "endProgress": 0.12,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 180,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.12,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 0.9,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
                 "endDeg": 295.5
               }
             },
@@ -255,9 +264,29 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 270
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.4,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 450,
+                "endDeg": 360
+              }
+            },
+            {
+              "startProgress": 0.4,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 360,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -273,7 +302,7 @@
       "segments": [
         {
           "id": "r-catch-park-south",
-          "color": "#9c755f",
+          "color": "#edc948",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -299,7 +328,7 @@
         },
         {
           "id": "r-catch-park-in",
-          "color": "#e15759",
+          "color": "#f28e2b",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -337,7 +366,7 @@
     {
       "id": "r-cross",
       "color": "#e15759",
-      "name": "back under the HIVE to RIGHT_CLOSE_HIVE",
+      "name": "under the HIVE to RIGHT_CLOSE_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -347,7 +376,7 @@
       "segments": [
         {
           "id": "r-cross-out",
-          "color": "#4e79a7",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -356,27 +385,77 @@
           "waitAfterName": "",
           "kind": "atomic",
           "endPoint": {
-            "x": 59,
-            "y": 97
+            "x": 59.9,
+            "y": 117.5
           },
           "controlPoints": [
             {
               "x": 47.2,
-              "y": 108
+              "y": 132
             },
             {
-              "x": 58,
-              "y": 108
+              "x": 59.9,
+              "y": 132
             }
           ],
           "heading": {
-            "type": "constant",
-            "degrees": 90
+            "type": "tangential",
+            "reverse": false
           }
         },
         {
           "id": "r-cross-south",
-          "color": "#59a14f",
+          "color": "#76b7b2",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 58.3,
+            "y": 41
+          },
+          "controlPoints": [
+            {
+              "x": 58.8,
+              "y": 101.6
+            },
+            {
+              "x": 65.2,
+              "y": 71.9
+            }
+          ],
+          "heading": {
+            "type": "constant",
+            "degrees": 270
+          }
+        },
+        {
+          "id": "r-cross-turn",
+          "color": "#9c755f",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 57.2,
+            "y": 33
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "linear",
+            "startDeg": 270,
+            "endDeg": 90
+          }
+        },
+        {
+          "id": "r-cross-aim",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -388,16 +467,7 @@
             "x": 56.1,
             "y": 25.3
           },
-          "controlPoints": [
-            {
-              "x": 59.5,
-              "y": 70
-            },
-            {
-              "x": 58,
-              "y": 45
-            }
-          ],
+          "controlPoints": [],
           "heading": {
             "type": "constant",
             "degrees": 90
@@ -418,7 +488,7 @@
       "segments": [
         {
           "id": "r-right-park-west",
-          "color": "#f28e2b",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -443,7 +513,7 @@
         },
         {
           "id": "r-right-park-lane",
-          "color": "#b07aa1",
+          "color": "#f28e2b",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -557,6 +627,14 @@
     },
     {
       "kind": "path",
+      "lineId": "r-cross-turn"
+    },
+    {
+      "kind": "path",
+      "lineId": "r-cross-aim"
+    },
+    {
+      "kind": "path",
       "lineId": "r-right-park-west"
     },
     {
@@ -667,7 +745,7 @@
       "r-flower-park": "RIGHT_PARK",
       "r-to-catch": "LEFT_CLOSE_HIVE",
       "r-catch-park-in": "RIGHT_PARK",
-      "r-cross-south": "RIGHT_CLOSE_HIVE",
+      "r-cross-aim": "RIGHT_CLOSE_HIVE",
       "r-right-park-lane": "RIGHT_PARK"
     },
     "cards": [
@@ -730,10 +808,10 @@
               {
                 "id": "r-gate-flower",
                 "kind": "firstOf",
-                "label": "Time for the scoring FLOWER: before 16.9 s",
+                "label": "Time for the scoring FLOWER: before 17.6 s",
                 "rows": [
                   {
-                    "afterMs": 16900,
+                    "afterMs": 17600,
                     "matchClock": true,
                     "cards": [
                       {
@@ -764,10 +842,10 @@
                       {
                         "id": "r-gate-cross",
                         "kind": "firstOf",
-                        "label": "Time to cross for TIP 3: before 20.7 s",
+                        "label": "Time to cross for TIP 3: before 17.2 s",
                         "rows": [
                           {
-                            "afterMs": 20700,
+                            "afterMs": 17200,
                             "matchClock": true,
                             "cards": [
                               {

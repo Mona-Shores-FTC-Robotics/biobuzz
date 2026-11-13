@@ -21,7 +21,7 @@ public final class LClockwiseFlowerAuto {
     public static final String SOURCE = "l-clockwise-flower.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-12|5:32PM";
+    public static final String SAVED = "11-12|9:21PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -103,6 +103,10 @@ public final class LClockwiseFlowerAuto {
         Pose point20Control1 = p.of(35, 112, 0);
         Pose flowerToRightWallNearControl1 = p.of(28, 38, 0);
         Pose flowerToRightWallNearControl2 = p.of(32, 20, 0);
+        Pose flowerToRightWallNearSegment1Start = p.of(35.9, 10.6, 180);
+        Pose flowerToRightWallNearSegment1End = p.of(35.9, 10.6, 270);
+        Pose flowerToRightWallNearSegment2Heading = p.of(35.9, 10.6, 270);
+        Pose flowerToRightWallNearSegment3Start = p.of(35.9, 10.6, 270);
         Pose point24 = p.of(34, 106, 90);
         Pose point24Control1 = p.of(25, 20, 0);
         Pose point24Control2 = p.of(35, 92, 0);
@@ -122,7 +126,7 @@ public final class LClockwiseFlowerAuto {
         Path laneSEndParkToLeftPark = Paths.path(Paths.curve(underTheHiveToTheLaneSEnd, point14Control1, point14Control2, point14).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(point14Segment1Start, point14Segment1End)).until(1, Interpolator.constant(point14Segment2Heading))), Paths.curve(point15Start, point15Control1, point15).linear(point15Start, point15), Paths.line(point15, leftPark).constant(leftPark));
         Path toWallFlowerStaging = Paths.curve(linkNeverDriven_3, toWallFlowerStagingControl1, toWallFlowerStagingControl2, toWallFlowerStagingControl3, wallFlowerStaging).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toWallFlowerStagingSegment1Start, wallFlowerStaging)).until(1, Interpolator.constant(wallFlowerStaging)));
         Path pickupParkToLeftPark = Paths.path(Paths.curve(wallFlowerStaging, point19Control1, point19Control2, point19).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(point19Segment1Start, point19Segment1End)).until(1, Interpolator.constant(point19Segment2Heading))), Paths.curve(point20Start, point20Control1, point20).linear(point20Start, point20), Paths.line(point20, leftPark).constant(leftPark));
-        Path flowerToRightWallNear = Paths.curve(wallFlowerStaging, flowerToRightWallNearControl1, flowerToRightWallNearControl2, rightWallNear).linear(wallFlowerStaging, rightWallNear);
+        Path flowerToRightWallNear = Paths.curve(wallFlowerStaging, flowerToRightWallNearControl1, flowerToRightWallNearControl2, rightWallNear).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(flowerToRightWallNearSegment1Start, flowerToRightWallNearSegment1End)).until(0.6, Interpolator.constant(flowerToRightWallNearSegment2Heading)).until(1, Interpolator.linear(flowerToRightWallNearSegment3Start, rightWallNear)));
         Path outsideLaneToLeftPark = Paths.path(Paths.curve(rightWallNear, point24Control1, point24Control2, point24).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(point24Segment1Start, point24Segment1End)).until(1, Interpolator.constant(point24Segment2Heading))), Paths.curve(point25Start, point25Control1, point25).linear(point25Start, point25), Paths.line(point25, leftPark).constant(leftPark));
 
         return kit.sequence(
@@ -143,9 +147,9 @@ public final class LClockwiseFlowerAuto {
                                         kit.atMatchSeconds(15.5)),
                                 kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.8, pickupParkToLeftPark, 3.2),
                                 kit.command("PickFlower", 4.5),
-                                kit.path("FLOWER to RIGHT_WALL_NEAR", flowerToRightWallNear, 1.8, outsideLaneToLeftPark, 3.9),
-                                kit.firstOf("L2: RIGHT up by 20.6 s, otherwise keep the load",
-                                        kit.atMatchSeconds(20.6).then(
+                                kit.path("FLOWER to RIGHT_WALL_NEAR", flowerToRightWallNear, 2.1, outsideLaneToLeftPark, 3.9),
+                                kit.firstOf("L2: RIGHT up by 19.2 s, otherwise keep the load",
+                                        kit.atMatchSeconds(19.2).then(
                                                 kit.guarded("Timed out", outsideLaneToLeftPark, 3.9,
                                                         kit.firstOf("R has left the scoring FLOWER: park at 22.7 s",
                                                                 kit.atMatchSeconds(22.7)),

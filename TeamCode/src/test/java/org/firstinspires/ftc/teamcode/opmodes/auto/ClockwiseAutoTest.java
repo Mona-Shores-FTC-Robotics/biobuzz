@@ -108,7 +108,7 @@ public class ClockwiseAutoTest {
         assertEquals(3, count("LaunchAll"));
         assertEquals(2, count("PickFlower"));
         assertEquals(0, count("GardenGather"));
-        assertTrue("it crossed under the HIVE: " + trace, trace.contains("path back under the HIVE to RIGHT_CLOSE_HIVE"));
+        assertTrue("it crossed under the HIVE: " + trace, trace.contains("path under the HIVE to RIGHT_CLOSE_HIVE"));
         parked(98.7);
     }
 
@@ -136,7 +136,7 @@ public class ClockwiseAutoTest {
     @Test public void rightCrossesInTimeAndParksWithItsLoadWhenRightIsNotUp() {
         secondTip = Double.POSITIVE_INFINITY;
         run(RClockwiseAuto.build(kit(), false));
-        assertTrue(trace.toString(), trace.contains("path back under the HIVE to RIGHT_CLOSE_HIVE"));
+        assertTrue(trace.toString(), trace.contains("path under the HIVE to RIGHT_CLOSE_HIVE"));
         assertEquals("the preloads and the first load", 2, count("LaunchAll"));
         assertTrue("not before TRr: " + drive.parkAt, drive.parkAt >= 25.0);
         parked(98.7);
@@ -151,7 +151,7 @@ public class ClockwiseAutoTest {
         drive.arriveAt(47.2, 119.3, 18.0);  // the pick ends at 21.0 s: after T3c, before T3b
         run(RClockwiseAuto.build(kit(), false));
         assertEquals("preloads, the first load, the SCORING FLOWER load", 3, count("LaunchAll"));
-        assertFalse("it never crossed: " + trace, trace.contains("path back under the HIVE to RIGHT_CLOSE_HIVE"));
+        assertFalse("it never crossed: " + trace, trace.contains("path under the HIVE to RIGHT_CLOSE_HIVE"));
         assertTrue(trace.toString(), trace.contains("path turn to LEFT_CLOSE_HIVE"));
         assertTrue("not before TR: " + drive.parkAt, drive.parkAt >= 26.4);
         parked(98.7);
@@ -174,14 +174,14 @@ public class ClockwiseAutoTest {
         drive.arriveAt(47.2, 119.3, 18.0);
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
-        assertFalse(trace.toString(), trace.contains("path back under the HIVE to RIGHT_CLOSE_HIVE"));
+        assertFalse(trace.toString(), trace.contains("path under the HIVE to RIGHT_CLOSE_HIVE"));
         assertTrue(drive.parkAt >= 26.4);
         parked(98.7);
     }
 
     /** After a late first LEFT volley there is no time for the SCORING FLOWER: R parks from the left spot. */
     @Test public void rightSkipsTheScoringFlowerAfterTs() {
-        firstTip = 14.5;
+        firstTip = 15.0;
         secondTip = Double.POSITIVE_INFINITY;
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));

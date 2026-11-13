@@ -21,7 +21,7 @@ public final class RClockwiseGardenAuto {
     public static final String SOURCE = "r-clockwise-garden.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-12|9:00PM";
+    public static final String SAVED = "11-12|9:21PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -78,19 +78,25 @@ public final class RClockwiseGardenAuto {
         Pose toScoringFlowerStagingControl1 = p.of(38, 119, 0);
         Pose scoringFlowerParkToRightParkControl1 = p.of(40, 100, 0);
         Pose scoringFlowerParkToRightParkControl2 = p.of(28, 96, 0);
+        Pose turnToLeftCloseHiveSegment1Start = p.of(59.9, 116.2, 450);
+        Pose turnToLeftCloseHiveSegment1End = p.of(59.9, 116.2, 360);
+        Pose turnToLeftCloseHiveSegment2Start = p.of(59.9, 116.2, 360);
         Pose point12 = p.of(50, 98.7, 360);
         Pose point12Control1 = p.of(57, 106, 0);
-        Pose point15 = p.of(59, 97, 90);
-        Pose point15Control1 = p.of(47.2, 108, 0);
-        Pose point15Control2 = p.of(58, 108, 0);
-        Pose point16Control1 = p.of(59.5, 70, 0);
-        Pose point16Control2 = p.of(58, 45, 0);
-        Pose point17 = p.of(33, 34, 90);
-        Pose point17Control1 = p.of(46, 27, 0);
-        Pose point18Control1 = p.of(30, 60, 0);
-        Pose point18Control2 = p.of(30, 87, 0);
-        Pose point18Segment1Heading = p.of(14.5, 98.7, 90);
-        Pose point18Segment2Start = p.of(14.5, 98.7, 90);
+        Pose point15 = p.of(59.9, 117.5, -90);
+        Pose point15Control1 = p.of(47.2, 132, 0);
+        Pose point15Control2 = p.of(59.9, 132, 0);
+        Pose point16 = p.of(58.3, 41, 270);
+        Pose point16Control1 = p.of(58.8, 101.6, 0);
+        Pose point16Control2 = p.of(65.2, 71.9, 0);
+        Pose point17Start = p.of(58.3, 41, 270);
+        Pose point17 = p.of(57.2, 33, 90);
+        Pose point19 = p.of(33, 34, 90);
+        Pose point19Control1 = p.of(46, 27, 0);
+        Pose point20Control1 = p.of(30, 60, 0);
+        Pose point20Control2 = p.of(30, 87, 0);
+        Pose point20Segment1Heading = p.of(14.5, 98.7, 90);
+        Pose point20Segment2Start = p.of(14.5, 98.7, 90);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toGardenStaging = Paths.curve(rightStart, toGardenStagingControl1, toGardenStagingControl2, gardenStaging).linear(rightStart, gardenStaging);
@@ -99,10 +105,10 @@ public final class RClockwiseGardenAuto {
         Path leftParkToRightPark = Paths.curve(leftWallNear, leftParkToRightParkControl1, rightPark).linear(leftWallNear, rightPark);
         Path toScoringFlowerStaging = Paths.curve(leftWallNear, toScoringFlowerStagingControl1, scoringFlowerStaging).linear(leftWallNear, scoringFlowerStaging);
         Path scoringFlowerParkToRightPark = Paths.curve(scoringFlowerStaging, scoringFlowerParkToRightParkControl1, scoringFlowerParkToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);
-        Path turnToLeftCloseHive = Paths.line(scoringFlowerStaging, leftCloseHive).linear(scoringFlowerStaging, leftCloseHive);
+        Path turnToLeftCloseHive = Paths.line(scoringFlowerStaging, leftCloseHive).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(turnToLeftCloseHiveSegment1Start, turnToLeftCloseHiveSegment1End)).until(1, Interpolator.linear(turnToLeftCloseHiveSegment2Start, leftCloseHive)));
         Path catchParkToRightPark = Paths.path(Paths.curve(leftCloseHive, point12Control1, point12).linear(leftCloseHive, point12), Paths.line(point12, rightPark).constant(rightPark));
-        Path backUnderTheHiveToRightCloseHive = Paths.path(Paths.curve(scoringFlowerStaging, point15Control1, point15Control2, point15).constant(point15), Paths.curve(point15, point16Control1, point16Control2, rightCloseHive).constant(rightCloseHive));
-        Path outsideLaneToRightPark = Paths.path(Paths.curve(rightCloseHive, point17Control1, point17).constant(point17), Paths.curve(point17, point18Control1, point18Control2, rightPark).heading(Interpolator.piecewise().until(0.65, Interpolator.constant(point18Segment1Heading)).until(1, Interpolator.linear(point18Segment2Start, rightPark))));
+        Path underTheHiveToRightCloseHive = Paths.path(Paths.curve(scoringFlowerStaging, point15Control1, point15Control2, point15).tangent(), Paths.curve(point15, point16Control1, point16Control2, point16).constant(point16), Paths.line(point17Start, point17).linear(point17Start, point17), Paths.line(point17, rightCloseHive).constant(rightCloseHive));
+        Path outsideLaneToRightPark = Paths.path(Paths.curve(rightCloseHive, point19Control1, point19).constant(point19), Paths.curve(point19, point20Control1, point20Control2, rightPark).heading(Interpolator.piecewise().until(0.65, Interpolator.constant(point20Segment1Heading)).until(1, Interpolator.linear(point20Segment2Start, rightPark))));
 
         return kit.sequence(
                 kit.command("SpinUp"),
@@ -116,15 +122,15 @@ public final class RClockwiseGardenAuto {
                                         kit.path("left park to RIGHT_PARK", leftParkToRightPark, 1.9))),
                         kit.when("LeftCellUp").then(
                                 kit.command("LaunchAll", 1),
-                                kit.firstOf("Time for the scoring FLOWER: before 16.9 s",
-                                        kit.atMatchSeconds(16.9).then(
+                                kit.firstOf("Time for the scoring FLOWER: before 17.6 s",
+                                        kit.atMatchSeconds(17.6).then(
                                                 kit.guarded("Timed out", leftParkToRightPark, 1.9,
                                                         kit.path("left park to RIGHT_PARK", leftParkToRightPark, 1.9))),
                                         kit.when("Always").then(
                                                 kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerParkToRightPark, 1.9),
                                                 kit.command("PickFlower", 4.5),
-                                                kit.firstOf("Time to cross for TIP 3: before 20.7 s",
-                                                        kit.atMatchSeconds(20.7).then(
+                                                kit.firstOf("Time to cross for TIP 3: before 17.2 s",
+                                                        kit.atMatchSeconds(17.2).then(
                                                                 kit.firstOf("Time to finish TIP 2 at LEFT: before 22.4 s",
                                                                         kit.atMatchSeconds(22.4).then(
                                                                                 kit.guarded("Timed out", scoringFlowerParkToRightPark, 1.9,
@@ -144,7 +150,7 @@ public final class RClockwiseGardenAuto {
                                                                                                                 kit.atMatchSeconds(26.4)),
                                                                                                         kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))))))),
                                                         kit.when("Always").then(
-                                                                kit.path("back under the HIVE to RIGHT_CLOSE_HIVE", backUnderTheHiveToRightCloseHive, 3, outsideLaneToRightPark, 2.9),
+                                                                kit.path("under the HIVE to RIGHT_CLOSE_HIVE", underTheHiveToRightCloseHive, 4.4, outsideLaneToRightPark, 2.9),
                                                                 kit.firstOf("R3: RIGHT up by 23.5 s at the right spot, otherwise park",
                                                                         kit.atMatchSeconds(23.5).then(
                                                                                 kit.guarded("Timed out", outsideLaneToRightPark, 2.9,

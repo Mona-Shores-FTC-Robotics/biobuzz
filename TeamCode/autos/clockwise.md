@@ -20,18 +20,22 @@ and Auto, so a TeleOp volley is data for the Auto and the speed table is tuned i
 `LAUNCH_ALL_LAST_PIECE_S`, 4.0 until 12 Nov 2026; the mentor's call, for every Auto). The times
 below are set for that.
 
-**What the Java simulator says** (24 seeds a row; tables below). Two settings: Belding's volleys
-(most ran the whole 3.5 s feed, about 3.8 s a volley), and a shot counter that works (about 2.4 to
-2.9 s a volley):
+**With a load the robot drives nose-first** (mentor, 12 Nov 2026). On its first drive (20245,
+alone) pieces left the intake on both legs it drove backward. After a pick it backs off the few
+inches the pick itself does, then turns to face the way it is going. That costs time: the lane
+from the WALL FLOWER is 4.4 s (3.2 s backward), and the road under the HIVE 6.2 s (2.7 s).
 
-- Both robots park and the robots do not touch in every run of both settings, with either robot
-  20% slow and with either robot's preloads missed, for both pickup choices.
-- **R now crosses for the third TIP** (it is ready at 20.1 s; T3c is 20.7 s). It shoots at RIGHT
-  only if RIGHT is up when it gets there.
-- Two TIPs come in 9 of 24 normal runs when R takes the WALL FLOWER (3 of 24 on the GARDEN).
-  Three TIPs: 0 of 24 with Belding's volleys, 1 of 24 with a working counter.
-- **R touches a spilled piece (G409) in 2 to 5 of 24 runs** when it takes the WALL FLOWER: it
-  backs under the HIVE as TIP 2 spills, with no wait (mentor, 12 Nov 2026).
+**What the Java simulator says** (24 seeds a row, Belding's volleys; tables below):
+
+- Both robots park and the robots do not touch in every run, with either robot 20% slow and with
+  either robot's preloads missed, for both pickup choices.
+- **R no longer crosses for the third TIP**: nose-first it would have to start by 17.2 s and is
+  ready at 21.3 s. It stays left and finishes TIP 2 with its SCORING FLOWER load when the first
+  eight fall short.
+- Two TIPs come in 16 of 24 normal runs when R takes the WALL FLOWER, and none when R takes the
+  GARDEN. Three TIPs: 0.
+- R touches a spilled piece (G409) in 3 to 4 of 24 runs: it shoots its last load from the close
+  row, where a spill lands.
 - **The simulator reads low against the robots.** The mentor has run the Infraviolet pair on the
   robots and scored three TIPs; this simulator gives Infraviolet none in 24 runs. So these counts
   are a floor for comparing drawings, not a forecast. The robots' logs decide.
@@ -44,7 +48,7 @@ below are set for that.
 | First pickup | The WALL FLOWER, or the GARDEN | |
 | TIP 2 | Outside lane to LEFT_WALL_NEAR; shoot at LEFT | Shoot the preloads at LEFT once it is up |
 | Second pickup | The SCORING FLOWER | Under the HIVE; the GARDEN, or the WALL FLOWER |
-| TIP 3 | Back straight out and under the HIVE to RIGHT_CLOSE_HIVE; shoot at RIGHT | RIGHT_WALL_NEAR; shoot at RIGHT |
+| TIP 3 | Only if early (T3c): forward out of the FLOWER, nose-first under the HIVE to RIGHT_CLOSE_HIVE; shoot at RIGHT. Otherwise finish TIP 2 from LEFT_CLOSE_HIVE | RIGHT_WALL_NEAR; shoot at RIGHT |
 | Park | Outside lane to RIGHT_PARK | Outside lane to LEFT_PARK |
 
 **The loop.** Under the HIVE is one-way, left to right. The outside lane is one-way, right to
@@ -56,17 +60,14 @@ the other. It is one row of each robot's INIT menu, **Pickup**, and it changes o
 
 **The parks are fixed.** R always ends on RIGHT_PARK and L on LEFT_PARK. Only the path in differs.
 
-**R's leg up the outside lane.** On its first drive (20245, 12 Nov 2026) pieces left the intake as
-R accelerated backward: the intake holds still once the lane reads full. From the WALL FLOWER it
-now keeps its FLOWER heading while it gets up to speed (it drives sideways), and turns the short way
-to aim only as it cruises and slows. Untested: a robot check. From the GARDEN it turns nose-first
-for the lane, as R-Solo and Infraviolet do.
+**R's loaded legs.** From the WALL FLOWER it turns north in the first eighth of the lane and
+drives it nose-first, as R-Solo and Infraviolet do, turning to aim over the second half. From the
+GARDEN the same. From the SCORING FLOWER to LEFT_CLOSE_HIVE it turns east, the way it is going,
+then on round to the HIVE. The crossing is R-Infraviolet's road: forward out of the FLOWER, south
+under the HIVE nose-first, and a half turn to aim at the end. L turns south out of the WALL FLOWER
+before it turns to its launch spot.
 
-**R still backs under the HIVE with a load** (mentor, 11 Nov 2026: it can; a mechanical fix for
-the pieces is being looked at). From the SCORING FLOWER it backs straight out and under
-the HIVE to RIGHT_CLOSE_HIVE without turning at all.
-
-**R does not wait for TIP 2's spill before it backs under the HIVE** (mentor, 12 Nov 2026: deal
+**R does not wait for TIP 2's spill before it goes under the HIVE** (mentor, 12 Nov 2026: deal
 with it if it shows on the field). An earlier drawing waited 2.3 s there. In a what-if with a short
 feed, on the route before the Square spots, R drove into pieces still falling (G409) in 35 of 120
 runs without the wait and 0 of 120 with it. The tables below show it in 2 to 5 of 24. `doc/robot-todo.md` has the video check. Another way round it, not drawn:
@@ -90,7 +91,7 @@ L finishes TIP 1 and R finishes TIP 2. Neither robot needs to know why a TIP is 
 **R3 is asked at one end or the other, and the clock picks which.** When the SCORING FLOWER pick
 ends, R asks only the clock:
 
-- **Before T3c: go for TIP 3.** R backs under the HIVE and asks at
+- **Before T3c: go for TIP 3.** R drives under the HIVE and asks at
   RIGHT_CLOSE_HIVE: RIGHT up by T3r? Yes, shoot at RIGHT and park by the outside lane. No, park the
   same way with the load.
 - **After T3c, before T3b: finish TIP 2.** R goes to LEFT_CLOSE_HIVE and asks: RIGHT up by T3? Yes,
@@ -111,15 +112,15 @@ Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-tod
 | Row | Value | Where it comes from |
 |---|---|---|
 | **T1** LEFT up by | 9.5 s | TIP 1 from R's preloads was read up at 6.5 to 8.8 s in the simulator. The Belding films have it settled as late as 9.98 s after our PLAY, so this is likely short |
-| **T2** LEFT up by | 15.5 s | R is at LEFT_WALL_NEAR at 12.0 s. A volley begun later ends late enough that R's park would cross the lane as L comes up it |
-| **TS** scoring FLOWER by | 16.9 s | R's LEFT volley (launch starts to feed ends) is over at 15.8 s. Later than 16.9 s, the pick and the park after it meet L in the lane |
-| **T3c** cross by | 20.7 s | The crossing (2.7 s), a volley as the robot's guard plans it (2.5 s), the park from RIGHT_CLOSE_HIVE (about 3 s) and the guard's 1 s margin end at 30 s |
-| **T3r** RIGHT up by, at RIGHT_CLOSE_HIVE | 23.5 s | The volley, that park and the margin. R is there at 22.9 s |
+| **T2** LEFT up by | 15.5 s | R is at LEFT_WALL_NEAR at 13.2 s. A volley begun later ends late enough that R's park would cross the lane as L comes up it |
+| **TS** scoring FLOWER by | 17.6 s | R's LEFT volley (launch starts to feed ends) is over at 17.0 s. Later than 17.6 s, the pick and the park after it meet L in the lane |
+| **T3c** cross by | 17.2 s | The crossing (6.2 s nose-first), a volley as the robot's guard plans it (2.5 s), the park from RIGHT_CLOSE_HIVE (about 3 s) and the guard's 1 s margin end at 30 s |
+| **T3r** RIGHT up by, at RIGHT_CLOSE_HIVE | 23.5 s | The volley, that park and the margin |
 | **TRr** park from the right at | 25.0 s | L has left RIGHT_WALL_NEAR for its park (TL) and is up the lane, 20% slow included |
 | **T3b** LEFT rescue by | 22.4 s | The drive to LEFT_CLOSE_HIVE (1.5 s), the volley (2.5 s), the park from there (about 2.6 s) and the margin |
 | **T3** RIGHT up by, at LEFT_CLOSE_HIVE | 23.0 s | R is there about 1.5 s after it leaves the FLOWER; a later arrival shoots at once |
 | **TR** park from LEFT_CLOSE_HIVE at | 26.4 s | L has turned in to LEFT_PARK |
-| **T4** RIGHT up by | 20.6 s | L's volley (2.5 s as planned) must end, and L pass the left end, before R parks |
+| **T4** RIGHT up by | 19.2 s | L's volley must end, and L be parked, before R leaves LEFT_CLOSE_HIVE for its park, even when the volley runs its whole 3.5 s feed |
 | **TL** park at | 22.7 s | L leaves RIGHT_WALL_NEAR for LEFT_PARK once R has left the SCORING FLOWER |
 | **TLr** park after the crossing at | 22.5 s | L1's "no" only: the TIP its volley makes was read up at 19.6 to 20.2 s, and its park goes through where that spill lands |
 | **TF** FLOWER at | 15.5 s | L's WALL FLOWER leg only: R, coming north from the GARDEN, has passed the FLOWER |
@@ -134,14 +135,14 @@ Two TIPs or more, R on the WALL FLOWER, normal, 24 seeds, Belding's volleys:
 
 | Route | Two TIPs or more | Both parked | Robot contact |
 |---|---|---|---|
-| Hand-made pair spots, rescue from LEFT_LAUNCH_CATCH, guard at 4.0 s | 18 of 24 | 24 | 0 |
-| Wall row only, guard at 4.0 s | 9 of 24 | 24 | 0 |
-| Wall row, close row for R's third volley and rescue, guard at 2.5 s (now) | 9 of 24 | 24 | 0 |
+| Hand-made pair spots, backward legs, rescue from LEFT_LAUNCH_CATCH, guard at 4.0 s | 18 of 24 | 24 | 0 |
+| Wall row only, backward legs, guard at 4.0 s | 9 of 24 | 24 | 0 |
+| Wall and close rows, backward legs, R crossing, guard at 2.5 s | 9 of 24 | 24 | 0 |
+| Wall and close rows, nose-first legs, R staying left, guard at 2.5 s (now) | 16 of 24 | 24 | 0 |
 
-- **R crosses instead of rescuing.** With the first route R stayed left and finished TIP 2 with
-  its SCORING FLOWER load in nine of the 18 runs. Now it is in time to cross (T3c), so it goes for
-  TIP 3 and a short first eight at LEFT is not made up. With R 20% slow it is too late to cross,
-  takes the rescue, and two TIPs come in 17 of 24.
+- **Staying left brings the TIP 2 rescue back.** When R crossed, a short first eight at LEFT was
+  not made up. Now R shoots its SCORING FLOWER load at LEFT from the close row.
+- **R 20% slow is too late for the rescue too** (T3b) and parks from the FLOWER: 8 of 24.
 - **T3c at 0 in INIT** keeps R on the left and brings the rescue back.
 - **The wall-row shots are about 50 in** (LEFT_WALL_NEAR 51, LEFT_WALL_HIVE 50, RIGHT_START 50,
   RIGHT_WALL_NEAR 52, robot centre to the row); the close-row ones about 32 in. The calibration
@@ -214,61 +215,54 @@ loop and a corner over the centre line were 0 in every row of both settings.
 
 | R takes the WALL FLOWER, L the GARDEN | Three TIPs | Two TIPs or more (by 30 s) | One or more | Both parked | Robot contact | G409 runs |
 |---|---|---|---|---|---|---|
-| Normal | 0 | 9 (9) | 24 | 24 | 0 | 2 |
-| R 20% slow | 0 | 17 (17) | 24 | 24 | 0 | 5 |
-| L 20% slow | 0 | 9 (9) | 24 | 24 | 0 | 2 |
+| Normal | 0 | 16 (16) | 24 | 24 | 0 | 3 |
+| R 20% slow | 0 | 8 (8) | 24 | 24 | 0 | 0 |
+| L 20% slow | 0 | 16 (16) | 24 | 24 | 0 | 4 |
 | R's preload volley missed | 0 | 0 (0) | 23 | 24 | 0 | 0 |
-| L's preload volley missed | 0 | 0 (0) | 21 | 24 | 0 | 0 |
+| L's preload volley missed | 0 | 3 (0) | 21 | 24 | 0 | 0 |
 
 | R takes the GARDEN, L the WALL FLOWER | Three TIPs | Two TIPs or more (by 30 s) | One or more | Both parked | Robot contact | G409 runs |
 |---|---|---|---|---|---|---|
-| Normal | 0 | 3 (3) | 24 | 24 | 0 | 0 |
-| R 20% slow | 0 | 5 (5) | 24 | 24 | 0 | 0 |
-| L 20% slow | 0 | 3 (3) | 24 | 24 | 0 | 0 |
+| Normal | 0 | 0 (0) | 24 | 24 | 0 | 0 |
+| R 20% slow | 0 | 0 (0) | 24 | 24 | 0 | 0 |
+| L 20% slow | 0 | 0 (0) | 24 | 24 | 0 | 0 |
 | R's preload volley missed | 0 | 0 (0) | 23 | 24 | 0 | 0 |
 | L's preload volley missed | 0 | 0 (0) | 21 | 24 | 0 | 0 |
 
-**A shot counter that works** (the same request with 0.47 s between shots for both robots and
-`BIOBUZZ_BELDING_WHOLE_FEED=0`):
-
-| R takes the WALL FLOWER, L the GARDEN | Three TIPs | Two TIPs or more | One or more | Both parked | Robot contact | G409 runs |
-|---|---|---|---|---|---|---|
-| Normal | 1 | 8 | 24 | 24 | 0 | 5 |
-| R 20% slow | 0 | 7 | 24 | 24 | 0 | 5 |
-| L 20% slow | 0 | 8 | 24 | 24 | 0 | 5 |
-| R's preload volley missed | 0 | 0 | 23 | 24 | 0 | 0 |
-| L's preload volley missed | 0 | 0 | 21 | 24 | 0 | 0 |
-
-With R on the GARDEN that setting gives 2, 2, 2, 0, 0 two-TIP runs, no three, all parked, no
-contact, no G409. `sim-requests/l-clockwise.json` (L as the first robot) was run by CI, not here.
+With R on the GARDEN, the nose-first lane puts R's LEFT volley past TS, so it parks without the
+SCORING FLOWER. The setting with a working shot counter has not been rerun on these legs, and
+`sim-requests/l-clockwise.json` was run by CI, not here.
 
 ### Against the session's goal
 
 | Done when | WALL FLOWER choice | GARDEN choice |
 |---|---|---|
-| 1. Three TIPs in at least 50% of runs | **Short: 0 of 24** (1 of 24 with a working counter) | **Short: 0 of 24** |
-| 2. Two TIPs or more in 100%, forced fallbacks included | **Short:** normal 9 of 24; 0 of 24 in both fallbacks (one TIP in 23 and 21) | **Short:** normal 3 of 24; 0 of 24 in both fallbacks |
+| 1. Three TIPs in at least 50% of runs | **Short: 0 of 24** | **Short: 0 of 24** |
+| 2. Two TIPs or more in 100%, forced fallbacks included | **Short:** normal 16 of 24; R's preloads missed 0 of 24, L's 3 of 24 | **Short:** 0 of 24 in every row |
 | 3. Both robots parked in 100% | Met: 120 of 120 | Met: 120 of 120 |
-| 4. No contact and no lane against the loop in 100%, either robot 20% slow | Met for robots, the HIVE and the loop: 0 in 120. **G409 in 9 of 120** | Met: 0 in 120 |
+| 4. No contact and no lane against the loop in 100%, either robot 20% slow | Met for robots, the HIVE and the loop: 0 in 120. **G409 in 7 of 120** | Met: 0 in 120 |
 
 ## What a third TIP needs
 
-R's time in the simulator at Belding's numbers (R on the WALL FLOWER):
+R's time in the simulator at Belding's numbers (R on the WALL FLOWER), beside its first drive
+(20245 alone, 12 Nov 2026, on the backward legs):
 
-| R's step | Seconds | Ends at |
+| R's step | Simulator, now | Robot, backward legs |
 |---|---|---|
-| Preload volley | 3.7 | 3.7 |
-| Drive to the WALL FLOWER | 2.0 | 5.6 |
-| Pick | 3.2 | 8.8 |
-| Outside lane to LEFT_WALL_NEAR | 3.2 | 12.0 |
-| Volley at LEFT | 3.8 | 15.8 |
-| Drive to the SCORING FLOWER | 1.4 | 17.2 |
-| Pick | 2.9 | 20.1 |
+| Preload volley | 3.7 | 3.2 |
+| Drive to the WALL FLOWER | 2.0 | 2.0 |
+| Pick | 3.2 | 3.2 (three pieces) |
+| Outside lane to LEFT_WALL_NEAR | 4.4 nose-first | 3.0 backward |
+| Volley at LEFT | 3.8 | 3.7 (three loaded, so the whole 3.5 s feed) |
+| Drive to the SCORING FLOWER | 1.4 | 1.5 |
+| Pick | 2.9 | 2.8 |
+| Ready | 21.3 | 19.5 |
+| Under the HIVE to RIGHT_CLOSE_HIVE | 6.2 nose-first | 2.4 backward |
 
-R must start across by 20.7 s (T3c) and is ready at 20.1 s, so it crosses and is at
-RIGHT_CLOSE_HIVE at 22.9 s. **What it then lacks is RIGHT up and enough pieces**: TIP 2 came in
-only 9 of 24 runs, so RIGHT is usually still down when R arrives, and RIGHT needs seven or eight
-launched pieces of which L's GARDEN pickup brings two.
+Nose-first, R would have to start across by 17.2 s (T3c) and is ready at 21.3 s. **A third TIP
+needs the pieces to stay in on a backward leg** (a mechanical fix is being looked at), or about
+four seconds from somewhere else. On that first drive a four-piece volley fed in 1.9 s and the
+three-piece one ran the whole 3.5 s feed.
 
 **What a shorter feed bought, on the route before the Square spots** (R on the WALL FLOWER, normal,
 120 seeds; a what-if, not the robot): a shot counter that works, 0.47 s between shots (gate to last
