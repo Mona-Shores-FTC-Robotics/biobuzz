@@ -711,6 +711,29 @@ measurement is [#255].
       `/Intake/TicksPerSecond` and `/Intake/CurrentAmps` at that moment. The 0.25 s (`wedgeBackMs`)
       is a guess: write back what frees a pair without throwing it. This is the code half of the
       fix list's "stop two pieces wedging"; the guide or sprung wall at the pinch is still open.
+- [ ] **FLOWER pick: a 1 s dwell, ten picks on 20245 first** (Panels `FlowerPicker.dwellMs` 1000,
+      from 2000; a number, no code; `inAndOut` off). Do this before the in-and-out line below: it
+      is the cheap way to a faster pick. Why: of a Belding Auto pick's 3.6 s (median 3.68, 23
+      picks, match logs), 2.0 s is the dwell, and on 20245 it is mostly waiting: the FLOWER is empty
+      within about 0.8 s of contact (Q-27, film) and the 4th piece comes in as the robot backs out;
+      of the pieces that do arrive in a dwell, half are in by 0.5 s after contact and nine in ten
+      by 1.4 s (78 Auto picks, intake current). So a 1.0 s cap gives up some late pieces: that is
+      what this counts. Expected pick: about 2.6 s.
+      *Setup:* as the line below (empty lane, 4 POLLEN in the FLOWER, reload every pick). R-Solo
+      from the Red audience marks, five runs, so five picks at the WALL FLOWER and five at the
+      SCORING FLOWER; the last five runs at 2000 on the same night are the baseline if there is no
+      20-pick baseline yet.
+      *Write down, per pick:* pieces the next volley fired (by eye or phone; `read_logs.py steps`
+      for the wheel-dip count, never the lane count or the shot counter), pick time (`Last FLOWER
+      pick: N s`), how the dwell ended (`DWELL N s (dwellMs)` or `(full)`), and pieces left on the
+      floor or in the FLOWER.
+      **Good:** 4 fired from at least 9 of the 10, nothing left behind, pick time about 1 s under
+      the 2000 runs → go on to 20 at each FLOWER (18 of 20), then write 1000 into `FlowerPicker`,
+      re-measure `AutoRegistration.PICK_FLOWER_TYPICAL_S`, and tell whoever owns the Autos that
+      each pick is about 1 s shorter. **Stop:** 3 or fewer from more than one pick → try 1400 (the
+      nine-in-ten mark), ten more; still short → leave 2000 and say so here. On 19429 only after its
+      stick check (§7): its dwell brought nothing in 7 of 13 Belding picks, so a shorter one loses
+      little there but proves nothing either.
 - [ ] **FLOWER pick: in and out, 20 picks at each FLOWER on each robot** (`FlowerPicker.inAndOut`,
       off; this PR). Why: at Belding the last piece came in as the robot backed off, not in the
       dwell. 20245's FLOWER was empty within about 0.8 s of contact and its 4th piece was taken 0.1
