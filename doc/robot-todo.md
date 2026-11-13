@@ -26,7 +26,7 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
    Visualizer. Then test CELL-up recognition, the two LEFT volleys, the scoring FLOWER
    pickup, and park, including a partner that never makes TIP 1.
    **Partner wait:** drawn to give up at 9 s (was 8.5), and the INIT line reads "waiting for
-   partner's TIP until 9 s"; D-pad left and right move that second. In the run with a partner that
+   TIP 1 until 9 s"; D-pad left and right move that second. In the run with a partner that
    never makes TIP 1, check the no-TIP route still parks in time, starting half a second later.
 2. **R-NoCross** (formerly R-Partner-Tip). Qualify the right-side actions, then run it
    together with L-NoCross as the coordinated two-TIP baseline. Its CELL-up wait runs
@@ -203,7 +203,7 @@ Result, with the gap on each own-start run, → [PR #372].
 
 - [ ] **INIT menu, L-NoCross on Red far wall:** gamepad 1 D-pad right three times (its one row,
       the partner wait, is selected).
-      **Good:** one line `▶ waiting for partner's TIP ◀▶ until 12 s`, amber; left three times
+      **Good:** one line `▶ waiting for TIP 1 ◀▶ until 12 s`, amber; left three times
       turns it back green, as drawn (until 9 s); D-pad up and down change
       nothing (one row); nothing else on the robot reacts to gamepad 1's D-pad
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
@@ -220,7 +220,7 @@ Result, with the gap on each own-start run, → [PR #372].
 - [ ] **The chosen INIT options reach the match log** (same run: set the wait to 12 s,
       PLAY, let it run a few seconds, STOP). Belding's logs lost every `AutoOptions` line: PLAY
       wrote 160 tunables into a 160-slot loop. **Good:** `read_logs.py series <log>
-      /RealMetadata/AutoOptions` prints `… waiting for partner's TIP until 12 s (drawn 9 s)`, and
+      /RealMetadata/AutoOptions` prints `… waiting for TIP 1 until 12 s (drawn 9 s)`, and
       the log's last events have no `metadata lines` drop. **Stop:** it is missing → save the log.
       [PR #529](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/529)
 - [ ] **INIT with the Limelight unplugged** (the warning line itself was logged 4 Nov 00:43; what is

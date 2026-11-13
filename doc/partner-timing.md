@@ -36,8 +36,8 @@ consistently; "when do you fire" means different things to different teams.
 - The Auto's partner wait is that number plus a named TIP-lag constant, kept with the other
   measured times, never hidden in code. The DS line reads "partner's last shot 8 s, waiting
   until 12 s". The program adds the margin, but on screen. **Changed 12 Nov 2026 (mentor):**
-  teams rarely know when their last preload leaves. The DS now reads "waiting for partner's TIP
-  until 9 s", the D-pad moves that one number, and the question is "do you shoot your preloads
+  teams rarely know when their last preload leaves. The DS now reads "waiting for TIP 1
+  until 9 s" (the TIP's number since 13 Nov; "partner's TIP" before), the D-pad moves that one number, and the question is "do you shoot your preloads
   right at the start?". The simulator still takes a stand-in's last shot and adds the lag.
 - Err long. The costs are not symmetric: waiting a few seconds too long costs the last thing in
   the Auto, probably the GARDEN; giving up a few seconds too early costs four preloads fired at a

@@ -192,6 +192,27 @@ public class InitOptionsTest {
         assertTrue(options.summary(), options.summary().contains("Park=RIGHT_PARK (drawn LEFT_PARK)"));
     }
 
+    /** A wait whose drawing says which TIP it is for names it on the page and in the match log. */
+    @Test
+    public void theWaitNamesItsTip() {
+        InitOptions named = new InitOptions(new AutoOption[] {
+                AutoOption.park("LEFT_PARK", "RIGHT_PARK"),
+                AutoOption.matchSeconds("R3 RIGHT up by", 23.2, 2)});
+        List<String> lines = new ArrayList<>();
+        Display display = new Display(lines::add);
+        down(named);
+        named.describe(display);
+        assertTrue(lines.toString(), lines.get(0).contains("▶ waiting for TIP 2 ◀▶ until 23.2 s"));
+        assertTrue(lines.toString(), lines.get(1).contains("Park LEFT_PARK · TIP 2 until 23.2 s"));
+        assertTrue(named.summary(), named.summary().contains("R3 RIGHT up by: waiting for TIP 2 until 23.2 s (drawn 23.2 s)"));
+    }
+
+    /** The TIP is 1 to 3: the drawing cannot name a fourth. */
+    @Test(expected = IllegalArgumentException.class)
+    public void aTipIsOneToThree() {
+        AutoOption.matchSeconds("Wait", 9, 4);
+    }
+
     /** A full page keeps its warnings: the menu shortens to its selected row, then gives way (the picks still hold). */
     @Test
     public void aFullPageShortensThenLeavesOutTheOptions() {

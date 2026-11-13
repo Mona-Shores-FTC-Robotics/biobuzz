@@ -1083,7 +1083,7 @@ finished robot runs on today's robot as a timed script. `auto-registry.json` is 
 the editor; `AutoRegistrationTest` keeps the two in step.
 
 **The partner wait.** The robot fires on the camera's `CellUp`; a partner wait's number is only when
-it stops waiting. The Driver Station reads "waiting for partner's TIP until 9 s", a row of the
+it stops waiting. The Driver Station reads "waiting for TIP 1 until 9 s" (the TIP the drawing names), a row of the
 Auto's INIT menu on gamepad 1's D-pad (`InitOptions`: up/down selects a row, left/right changes it;
 the wait moves 1 s a press, and the park is a row too). The drive team asks a partner "do you shoot
 your preloads right at the start?" and changes it only if the answer is not yes. The wait is the
