@@ -29,10 +29,9 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
    partner's TIP until 9 s"; D-pad left and right move that second. In the run with a partner that
    never makes TIP 1, check the no-TIP route still parks in time, starting half a second later.
 2. **R-NoCross** (formerly R-Partner-Tip). Qualify the right-side actions, then run it
-   together with L-NoCross as the coordinated two-TIP baseline. Check the five-second
-   CELL-up wait: the current timeout still falls through to LaunchAll. Resolve that in
-   the drawing before relying on missed-TIP recovery. Waiting for the teammate is
-   acceptable; optimize only after the pair is reliable.
+   together with L-NoCross as the coordinated two-TIP baseline. Its CELL-up wait runs
+   until 21 s on the match clock and then parks without launching. Waiting for the
+   teammate is acceptable; optimize only after the pair is reliable.
 3. **R-Solo-Nudge** (`autos/drafts/r-solo-nudge.pp`). Open it together with
    `autos/partners/partner-push-start.pp` to see the pushed robot. Physically measure
    the push, legal starting contact, PARK overlap, clearance and time cost (§3).
@@ -355,6 +354,26 @@ Use the work order above to select checks; the detailed mechanism checks below a
 
       **Stop:** a check times out with its CELL in plain view and settled. Note how long the camera
       took in the log and in the PR.
+- [ ] **Every volley after the first waits for its CELL to be seen up** (12 Nov, R-Solo, R-NoCross
+      and L-NoCross; the first volley, into the RIGHT CELL the manual starts up, is the one with no
+      check). New checks, none run on a robot:
+      - R-Solo: "RIGHT CELL still up?" (0.75 s) before the volley back at RIGHT_LAUNCH_CLOSE, and
+        "LEFT CELL still up?" (0.75 s) before the third volley.
+      - R-NoCross: "RIGHT CELL back up?" before the third volley, waiting until 22 s on the match clock.
+      - L-NoCross: "RIGHT CELL up?" (0.75 s, after "TIP seen?") before its first RIGHT volley;
+        "LEFT CELL up?" and "LEFT CELL back up?" before each LEFT volley, waiting until 23 s.
+
+      A check that times out fires nothing: the robot parks, or on L-NoCross's no-TIP route
+      drives back to LEFT_LAUNCH_CATCH. A drive into a checked volley no longer opens the gate on
+      the way in, so that volley starts from a stopped robot. Each check is a Wait step with an
+      Otherwise in the Visualizer; all three Autos open in the builder. Run each Auto with the HIVE left alone, then with the
+      checked CELL held down by hand at each check in turn.
+
+      **Good:** with the CELL up, each check ends on `CellUp` (or `RightCellUp`) within about
+      0.1 s and the volley fires; held down, the match log has the check `timed out`, no ball
+      leaves, and the robot parks in time. **Stop:** a check times out with its CELL up, in plain
+      view and settled → save the match log and note how long the camera took; a volley that used
+      to fit now starts too late to finish → note the times of the drive's end and the gate.
 - [ ] **The HIVE tracker counts only what the camera sees** (branch `claude/pensive-mccarthy-0wkna8`):
       one R-Solo run and two minutes of TeleOp, filmed, turning away from the HIVE and back several
       times, with one TIP made by hand while the robot sits still facing it. **Good:** no
@@ -415,7 +434,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       then. [PR #422]
 - [ ] **CellUp with the CELL already up:** L-NoCross at `LEFT_LAUNCH_CATCH` with the left CELL
       tipped up by hand first (or a partner's tip over before the wait starts). **Good:** the wait ends
-      at once and the Auto fires, not at its limit (8.5 s on the match clock). Then with the
+      at once and the Auto fires, not at its limit (9 s on the match clock). Then with the
       CELL **down** and nobody tipping: it waits out its limit and fires anyway (the Auto's own choice for now). **Stop:** it waits with
       the CELL up, or fires at once with it down → save the match log; check which CELL the robot
       aims at from its end of the field (`AutoRegistration.aimedLeft`). [PR #377]
