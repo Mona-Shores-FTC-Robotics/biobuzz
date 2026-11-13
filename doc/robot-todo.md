@@ -113,7 +113,7 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       keeps the old Panels). **Good:** Panels opens at `192.168.43.1:8001`, the field and graphs
       update, the Driver Station still lists every `robot_*` config after a Sloth Load, and
       restarting the Robot Controller app brings Panels back without a `BindException`.
-      **Stop:** any of those fails → back to `fullpanels:1.0.19` and note it in the PR.
+      **Stop:** any of those fails → back to `fullpanels:1.0.19` and note it in the PR. [PR #548]
 - [ ] Charged batteries, more than one; swap at 12.0 V. [S4 Before]
 - [ ] Tape measure, phone level app. Four POLLEN per FLOWER reload, and someone to reload. [S4], [S5]
 - [ ] The HIVE on the field, red side, RIGHT CELL up (match start), tags on. [S3 Before], [S4 Before]
