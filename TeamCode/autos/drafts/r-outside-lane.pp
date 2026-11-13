@@ -51,9 +51,28 @@
             }
           ],
           "heading": {
-            "type": "linear",
-            "startDeg": 180,
-            "endDeg": 20
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.2,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 180,
+                    "endDeg": 90
+                  }
+                },
+                {
+                  "startProgress": 0.2,
+                  "endProgress": 1,
+                  "interpolationType": "constant",
+                  "parameters": {
+                    "degrees": 90
+                  }
+                }
+              ]
+            }
           },
           "locked": false
         },
@@ -75,9 +94,29 @@
             }
           ],
           "heading": {
-            "type": "linear",
-            "startDeg": 380,
-            "endDeg": 270
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.5,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 90,
+                    "endDeg": 0
+                  }
+                },
+                {
+                  "startProgress": 0.5,
+                  "endProgress": 1,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 360,
+                    "endDeg": 270
+                  }
+                }
+              ]
+            }
           },
           "locked": false
         }

@@ -648,8 +648,11 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - **Does R keep its four going up the lane?** It drives intake first now, turning to the
         HIVE only at the end. Count what its LEFT volley fires. **Good:** 4. **Stop:** 3 → note
         where the ball left (the film), and whether it was in the last turn into the spot.
+      - **Time R's leg from the WALL FLOWER to the left spot** (`auto: path wall lane north` to
+        its `path end`). Drawn about 3 s; the simulator says 4.4 s. **Good:** under 3.6 s, and the
+        third volley fits on a 2.5 s volley. Over 4 s → R parks after its LEFT volley; say so.
       - **Does L clear L4 before R gets there?** Both fire from L4. Note the match second L leaves
-        it and the second R arrives (drawn: R within reach at 12.0 s, there at 12.8 s). **Stop:**
+        it and the second R arrives (simulated: R within reach at 12.0 s, there at 13.2 s). **Stop:**
         R arrives while L is still on the spot or just leaving → note both seconds; the fix is a
         short wait for R, which costs its third volley.
       - **R's park from L4:** it squares up and drives into `RIGHT_PARK` straight. **Stop:** it
