@@ -172,7 +172,7 @@ dependencies {
     // and scans through Sinister), so the Dairy fork
     // com.bylazar.sloth:fullpanels:0.3.2+1.0.13 is frozen and no longer needed.
     // Its `panels` module pins androidx.appcompat strictly to 1.2.0.
-    implementation("com.bylazar:fullpanels:1.0.19")
+    implementation("com.bylazar:fullpanels:1.0.20")
 
     // FTC Dashboard is deliberately absent. It and Panels each work alone; with
     // both present the Robot Controller crash-loops on a BindException before

@@ -239,7 +239,7 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
 ## Hard constraints
 
 - **Dependency versions are a locked set:** Sloth `0.3.2`, Pedro 3.0.2 + AutoTune, Panels
-  `com.bylazar:fullpanels` 1.0.19 (upstream, Sloth-native; not the frozen `com.bylazar.sloth`
+  `com.bylazar:fullpanels` 1.0.20 (upstream, Sloth-native; not the frozen `com.bylazar.sloth`
   fork), Ivy 1.1.x, `androidx.appcompat {strictly 1.2.0}`. Never bump one alone; close
   Dependabot PRs that raise `appcompat`. A Load or AGP bump also re-checks `dexSlothR` in
   `TeamCode/build.gradle` (see Sloth above).
