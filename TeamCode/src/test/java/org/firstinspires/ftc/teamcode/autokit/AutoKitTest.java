@@ -241,6 +241,93 @@ public class AutoKitTest {
         assertEquals("[ShootAll]", log.toString());
     }
 
+    // -------------------------------------------------- a route choice, and shots by camera or timer
+
+    private void pick(String option, int index) {
+        kit.picks(new AutoKit.Picks() {
+            @Override public int choice(String name) { return name.equals(option) ? index : -1; }
+            @Override public double seconds(String name) { return Double.NaN; }
+        });
+    }
+
+    /** One leg per choice, written one after the other: only the picked leg's cards exist. */
+    private Command twoLegs(Path a, Path b, Path park) {
+        return kit.guarded("Auto", park, 1.0,
+                kit.command("SpinUp"),
+                kit.route("Pickup", 0, () -> kit.path("leg A", a)),
+                kit.route("Pickup", 0, () -> kit.command("IntakeOn")),
+                kit.route("Pickup", 1, () -> kit.path("leg B", b)),
+                kit.route("Pickup", 1, () -> kit.command("IntakeOff")),
+                kit.command("ShootAll"),
+                kit.path("park", park));
+    }
+
+    @Test
+    public void withNoPickTheFirstLegIsDriven() {
+        Path a = line(0, 10), b = line(0, 20), park = line(20, 30);
+        run(twoLegs(a, b, park), 10);
+        assertEquals("[SpinUp, IntakeOn, ShootAll]", log.toString());
+        assertEquals("the leg not driven adds no path to the plan", java.util.Arrays.asList(a, park), kit.paths());
+        assertTrue(trace.toString(), trace.contains("path leg A"));
+        assertFalse(trace.toString(), trace.contains("path leg B"));
+    }
+
+    @Test
+    public void thePickedLegIsDrivenAndTheOtherIsNotBuilt() {
+        pick("Pickup", 1);
+        Path a = line(0, 10), b = line(0, 20), park = line(20, 30);
+        run(twoLegs(a, b, park), 10);
+        assertEquals("[SpinUp, IntakeOff, ShootAll]", log.toString());
+        assertEquals(java.util.Arrays.asList(b, park), kit.paths());
+    }
+
+    /** A card off the route is dropped from a row's cards and a plain sequence too, not run as an empty step. */
+    @Test
+    public void aCardOffTheRouteIsDroppedFromEveryList() {
+        tipped = true;
+        run(kit.sequence(
+                kit.route("Pickup", 1, () -> kit.command("IntakeOff")),
+                kit.firstOf("Tipped?", kit.when("HiveTipped").then(
+                        kit.route("Pickup", 1, () -> kit.command("IntakeOff")),
+                        kit.route("Pickup", 0, () -> kit.command("ShootAll"))),
+                        kit.afterMs(500))), 2);
+        assertEquals("[ShootAll]", log.toString());
+    }
+
+    /** By the camera a stop is "the CELL is up by this time?": yes when seen, no at the time. */
+    @Test
+    public void byTheCameraAShotWaitsForTheTriggerAndGivesUpAtItsTime() {
+        assertFalse(kit.shotsOnTimer());
+        run(kit.firstOf("LEFT up by 1 s",
+                kit.shotLimit(1.0).then(kit.command("IntakeOff")),
+                kit.shotWhen("HiveTipped", 1.0).then(kit.command("ShootAll"))), 3);
+        assertEquals("never seen: the no row at its time", "[IntakeOff]", log.toString());
+        assertEquals(1.0, now, LOOP_S + 1e-9);
+
+        log.clear();
+        Scheduler.reset();
+        now = 0;
+        tipped = true;
+        run(kit.firstOf("LEFT up by 1 s",
+                kit.shotLimit(1.0).then(kit.command("IntakeOff")),
+                kit.shotWhen("HiveTipped", 1.0).then(kit.command("ShootAll"))), 3);
+        assertEquals("seen at once: the yes row", "[ShootAll]", log.toString());
+        assertTrue(now < 0.2);
+    }
+
+    /** On the timer the robot cannot see the HIVE: it shoots at its time and takes the yes row only. */
+    @Test
+    public void onTheTimerAShotFiresAtItsTimeAndOnlyTheYesRow() {
+        pick(AutoOption.SHOT_TRIGGER, 1);
+        assertTrue(kit.shotsOnTimer());
+        tipped = true;  // the camera's answer is not looked at
+        run(kit.firstOf("LEFT up by 1 s",
+                kit.shotLimit(1.0).then(kit.command("IntakeOff")),
+                kit.shotWhen("HiveTipped", 1.0).then(kit.command("ShootAll"))), 3);
+        assertEquals("[ShootAll]", log.toString());
+        assertEquals("at its time, not when the trigger says", 1.0, now, LOOP_S + 1e-9);
+    }
+
     @Test
     public void withNoPicksEveryOptionIsAsDrawn() {
         assertEquals("LEFT", kit.pick(AutoOption.PARK, "LEFT", "RIGHT"));

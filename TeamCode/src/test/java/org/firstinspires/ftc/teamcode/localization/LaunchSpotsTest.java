@@ -75,7 +75,8 @@ public class LaunchSpotsTest {
                     minB = Math.min(minB, d);
                     maxB = Math.max(maxB, d);
                 }
-                if (maxA <= minB || maxB <= minA) return false;
+                // Edge to edge is not an overlap (LEFT_WALL_HIVE, stood off, meets LEFT_CLOSE_HIVE).
+                if (maxA <= minB + 1e-6 || maxB <= minA + 1e-6) return false;
             }
         }
         return true;
@@ -84,9 +85,12 @@ public class LaunchSpotsTest {
     @Test
     public void theRightWallHiveSpotIsTheMeasuredStart() {
         Pose start = StartPositions.RED_AUDIENCE.pose;
+        // As drawn it is the start; Square stops its stand-off out from it, squared as the start is.
+        assertEquals(start.x(), Spot.RIGHT_START.red.x(), EPS);
+        assertEquals(start.y(), Spot.RIGHT_START.red.y(), EPS);
         Pose t = target(Spot.RIGHT_START);
         assertEquals(start.x(), t.x(), EPS);
-        assertEquals(start.y(), t.y(), EPS);
+        assertEquals(start.y() + LaunchSpots.WALL_STAND_OFF_IN, t.y(), EPS);
         assertEquals(0, wrap(start.heading() - t.heading()), EPS);
         assertEquals(Spot.RIGHT_START, Spot.of(false, Row.WALL, Column.HIVE));
         // The LEFT start is placed on the centre-line seam, so the LEFT spot is its own.
@@ -186,9 +190,11 @@ public class LaunchSpotsTest {
                 assertEquals(spot + " " + alliance, 0, wrap(Math.atan2(row.y() - ay, row.x() - ax) - t.heading()), 1e-6);
             }
         }
-        // The drawn heading is what that comes to with today's turret offsets.
+        // The drawn heading is what that comes to with today's turret offsets, from where it is drawn.
         for (Spot spot : Spot.values()) {
-            assertEquals(spot.name(), 0, Math.toDegrees(wrap(target(spot).heading() - spot.red.heading())), 0.3);
+            double h = spot.aimed ? LaunchSpots.aimTurret(spot.red.x(), spot.red.y(), spot.cellRow(Alliance.RED).x(),
+                    spot.cellRow(Alliance.RED).y(), FWD, LEFT) : spot.red.heading();
+            assertEquals(spot.name(), 0, Math.toDegrees(wrap(h - spot.red.heading())), 0.3);
         }
     }
 
@@ -204,7 +210,7 @@ public class LaunchSpotsTest {
             assertTrue(spot + " comes in " + offSquareDeg + " deg off square", offSquareDeg <= 26.0);
             double range = Math.hypot(row.x() - ax, row.y() - ay);
             if (spot.row == Row.WALL) {
-                assertTrue(spot + " range " + range, range > 52 && range < 56);
+                assertTrue(spot + " range " + range, range > 51.5 && range < 56);
             } else {
                 assertTrue(spot + " range " + range, range > 34 && range < 37);
             }
@@ -223,13 +229,25 @@ public class LaunchSpotsTest {
             // The LEFT half's wall is the high-y one. Touching: within a quarter inch, never through it.
             // The measured start has its back on the wall at 7.7 in, where the corner resets measured
             // 8.1 from wall to centre (FRAME_HALF_IN): 0.4 in "through" here is that difference.
-            double gap = spot.left ? SIZE - high : low;
+            // Less its stand-off: where the spot is drawn.
+            double gap = (spot.left ? SIZE - high : low) - spot.standOffIn;
             assertTrue(spot + " is " + (-gap) + " in through its wall", gap > (spot == Spot.RIGHT_START ? -0.45 : -0.15));
             if (spot.row == Row.WALL) {
                 assertTrue(spot + " is " + gap + " in off its wall", gap < 0.25);
             } else {
                 assertTrue(spot + " is a close spot, off the wall", gap > 15);
             }
+        }
+    }
+
+    @Test
+    public void theWallRowStandsAnInchOutAndTheCloseRowDoesNot() {
+        for (Spot spot : Spot.values()) {
+            assertEquals(spot.name(), spot.row == Row.WALL ? 1.0 : 0.0, spot.standOffIn, EPS);
+            Pose t = target(spot);
+            assertEquals(spot.name(), spot.red.x(), t.x(), EPS);
+            // Out from the wall is toward the axle line: +y on the RIGHT half, -y on the LEFT.
+            assertEquals(spot.name(), spot.red.y() + (spot.left ? -spot.standOffIn : spot.standOffIn), t.y(), EPS);
         }
     }
 

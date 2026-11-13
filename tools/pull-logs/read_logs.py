@@ -15,6 +15,9 @@ with Python. Standard library only.
   python3 tools/pull-logs/read_logs.py volleys LOG.wpilog [...]   every Auto LaunchAll: the balls it fired,
                                                                    counted from the launcher wheels' dips,
                                                                    beside the shot counter's number
+  python3 tools/pull-logs/read_logs.py steps LOG.wpilog [...]     every Auto card, the same table for every Auto:
+                                                                   start, length, pieces held, and for a volley
+                                                                   the gate wait, gate to last ball and balls
   python3 tools/pull-logs/read_logs.py dsbattery FILE [...]       each Driver Hub's own battery over the day,
                                                                    then every match log given beside it: the DS
                                                                    battery at its start, lowest, at its end
@@ -389,6 +392,108 @@ def volleys(paths):
             print('%-34s %5.1f-%-5.1f  %6.0f  %-14s %.0f' % (path.split('/')[-1][:34], ts - t0, te - t0, tgt, dips, counted))
 
 
+def _auto_steps(d):
+    """[(kind, name, start, end)] for the cards of a log's Autonomous, seconds from PLAY, from the kit's
+    own "auto: path|command|wait <name>" events. A card ends when the next starts; the last at 30 s or
+    the last event of the Auto, whichever is first. Also returns PLAY's log time, or None with no Auto."""
+    events = [(t, str(v)) for t, v in d.get('/Events', [])]
+    play = [t for t, v in events if re.match(r'PLAY: (RED|BLUE) alliance', v)]
+    if not play:
+        return [], None
+    t0 = play[0]
+    starts = []
+    for t, v in events:
+        m = re.match(r'auto: (path|command|wait) (.*)', v)
+        if m and t0 <= t <= t0 + 33:
+            starts.append((m.group(1), m.group(2).strip(), t))
+    if not starts:
+        return [], t0
+    last = max([t for t, v in events if t0 <= t <= t0 + 33] + [starts[-1][2]])
+    out = []
+    for i, (kind, name, t) in enumerate(starts):
+        end = starts[i + 1][2] if i + 1 < len(starts) else min(max(last, t), t0 + 30)
+        out.append((kind, name, t - t0, end - t0))
+    return out, t0
+
+
+def steps(paths):
+    """The same table for every Auto, one row per card, so two Autos' logs compare step for step:
+
+      start, s    seconds from PLAY to the card's start, and the card's length (to the next card's start)
+      lane        /Lane/Count at the card's start -> at its end (pieces held; newer logs only)
+      gate        LaunchAll only: seconds from the card's start to the feed gate opening (the spin-up
+                  and settle wait)
+      last ball   LaunchAll only: seconds from the gate opening to the last ball, by the wheels' dips
+                  (wheel_dips); '-' for a volley from a standstill, whose dips hide in the spin-up
+      balls       LaunchAll only: balls by the wheels' dips, then the shot counter's number
+      note        a wait: what ended it; a pick: how the push ended
+
+    Then one block per log of the numbers to compare between Autos: each pick's time and what it
+    brought (the balls the next volley fired, by dips: the lane count is shown too, but it has read 4
+    through a volley that fired four, so it is not the measure), each volley's length, its gate wait
+    and its gate-to-last-ball, and each drive's seconds by name."""
+    for path in paths:
+        d = read(path)
+        cards, t0 = _auto_steps(d)
+        md = lambda k: (d.get('/RealMetadata/' + k) or [(0, '?')])[0][1]
+        print('=' * 100)
+        print('%s | %s | %s | build %s' % (path.split('/')[-1], md('OpMode'), md('RobotConfig'), md('Build')))
+        if not cards:
+            print('  no Autonomous cards in this log')
+            continue
+        events = [(t - t0, str(v)) for t, v in d.get('/Events', [])]
+        lane = [(t - t0, v) for t, v in d.get('/Lane/Count', [])]
+        gate = [(t - t0, v) for t, v in d.get('/FeedGate/Feeding', [])]
+        left, right = d.get('/Launcher/LeftTicksPerSecond', []), d.get('/Launcher/RightTicksPerSecond', [])
+        target, shots = d.get('/Launcher/TargetTicksPerSecond', []), d.get('/Launcher/Shots', [])
+        print('  %6s %5s  %-8s %-38s %-6s %5s %9s %-7s %s' % ('start', 's', 'kind', 'card', 'lane', 'gate', 'last ball', 'balls', 'note'))
+        picks_, volleys_, drives = [], [], []
+        n_launch = 0
+        for kind, name, a, b in cards:
+            l0, l1 = at(lane, a), at(lane, b)
+            lane_s = '-' if l0 is None else '%d->%d' % (l0, l1 if l1 is not None else l0)
+            gate_s = ball_s = balls_s = ''
+            note = ''
+            if kind == 'command' and name.startswith('LaunchAll'):
+                n_launch += 1
+                opened = [t for t, v in gate if v and a - 0.05 <= t <= b + 0.05]
+                g = opened[0] if opened else None
+                tgt = at(target, t0 + a + 1.0) or at(target, t0 + a)
+                speeds = [(ta, (x + y) / 2) for (ta, x), (tb, y) in zip(left, right) if t0 + a - 0.45 <= ta <= t0 + b + 0.1]
+                counted = (at(shots, t0 + b) or 0) - (at(shots, t0 + a) or 0)
+                dips = [] if n_launch == 1 or not tgt or not speeds else [t - t0 for t in wheel_dips(speeds, tgt) if a - 0.05 <= t - t0 <= b + 0.1]
+                gate_s = '-' if g is None else '%.2f' % (g - a)
+                ball_s = '-' if g is None or not dips else '%.2f' % (dips[-1] - g)
+                balls_s = ('?' if n_launch == 1 else str(len(dips))) + '/%.0f' % counted
+                volleys_.append((a, b - a, None if g is None else g - a, None if g is None or not dips else dips[-1] - g,
+                                 None if n_launch == 1 else len(dips), counted))
+            elif kind == 'command' and (name.startswith('PickFlower') or name.startswith('GardenGather')):
+                ends = [v for t, v in events if a <= t <= b + 0.05 and ('then DWELL' in v or 'stopped in' in v)]
+                m = re.search(r'\((.*?)\)', ends[0]) if ends else None
+                note = m.group(1) if m else ''
+                picks_.append((name, a, b - a, l0, l1))
+            elif kind == 'wait':
+                done = [v for t, v in events if a <= t <= b + 0.05 and v.startswith('auto: ' + name + ':')]
+                note = done[-1].split(':', 2)[2].strip() if done else ''
+            elif kind == 'path':
+                if (kind, name, a, b) == cards[-1]:
+                    note = 'the last card: its end is not logged, so this runs to 30 s'
+                else:
+                    drives.append((name, b - a))
+            print('  %6.1f %5.2f  %-8s %-38s %-6s %5s %9s %-7s %s' % (a, b - a, kind, name[:38], lane_s, gate_s, ball_s, balls_s, note[:60]))
+        print('  -- to compare between Autos --')
+        for name, a, s, l0, l1 in picks_:
+            nxt = [v for v in volleys_ if v[0] > a]
+            fired = '-' if not nxt else '?' if nxt[0][4] is None else '%d' % nxt[0][4]
+            print('  pick    %-14s at %5.1f s: %.2f s; the next volley fired %s; lane count %s' % (
+                name, a, s, fired, '-' if l0 is None else '%d->%d' % (l0, l1 if l1 is not None else l0)))
+        for a, s, g, lb, n, c in volleys_:
+            print('  volley  at %5.1f s: %.2f s whole card; gate wait %s; gate to last ball %s; balls %s by dips, %.0f counted' % (
+                a, s, '-' if g is None else '%.2f s' % g, '-' if lb is None else '%.2f s' % lb, '?' if n is None else n, c))
+        for name, s in drives:
+            print('  drive   %-40s %.2f s' % (name[:40], s))
+
+
 def _text_lines(path):
     with (gzip.open(path, 'rt', encoding='utf-8', errors='replace') if path.endswith('.gz')
           else open(path, encoding='utf-8', errors='replace')) as f:
@@ -680,6 +785,8 @@ def main(argv):
         launcher(argv[2:])
     elif cmd == 'volleys':
         volleys(argv[2:])
+    elif cmd == 'steps':
+        steps(argv[2:])
     elif cmd == 'dsbattery':
         dsbattery(argv[2:])
     elif cmd == 'turret':
