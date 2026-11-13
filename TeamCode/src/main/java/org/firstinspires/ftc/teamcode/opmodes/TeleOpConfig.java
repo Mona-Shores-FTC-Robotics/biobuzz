@@ -29,8 +29,8 @@ public final class TeleOpConfig {
 
     /**
      * How the GARDEN gather corrals the pieces into the intake between its dwell at the wall and
-     * the stick coming up ({@link GardenGather.Style}): CLASSIC (as before), HARD_STOP, HARD_STOP_PUSH,
-     * LONG_HOLD or TWIST. Pick one in Panels, gather, count the pieces, try the next; the gather's
+     * the stick coming up ({@link GardenGather.Style}): CLASSIC (as before), HARD_STOP, HARD_STOP_PUSH
+     * or LONG_HOLD. Pick one in Panels, gather, count the pieces, try the next; the gather's
      * start line in the match log says which ran. The Autos' gather uses it too. Each style's numbers
      * are on {@link GardenGather}. None has been run yet (13 Nov 2026), so CLASSIC until one is seen
      * to bring in more.

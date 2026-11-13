@@ -839,8 +839,8 @@ measurement is [#255].
       they sit when the robot starts back, how many are in the robot when the stick rises (today:
       0.25 s after the back out stops, `raiseAfterStopMs`), and how many fall out as it rises.
       **Good:** the film shows where the pieces are lost, and that names the move to add (a hard
-      stop at the end of the back out, a longer hold before the stick rises, a short push forward
-      again, or the twist: `twistOnBackOut`). **Stop:** fewer than 3 come over the ramp → that is
+      stop at the end of the back out, a longer hold before the stick rises, or a short push
+      forward again). **Stop:** fewer than 3 come over the ramp → that is
       the drive in or the mechanism, not the back out; tell a mentor before tuning a sequence.
 - [ ] **GARDEN gather styles (13 Nov; none has been run):** same setup as the film above, Panels
       → TeleOpConfig → `gardenGatherStyle`, 3 gathers per style, GARDEN reloaded each time, fire
@@ -849,7 +849,8 @@ measurement is [#255].
       0.6 power with no ramp, a dead stop, a 0.3 s stand, then the drive back
       (`GardenGather.hardStopBackIn`, `hardStopPower`, `hardStopHoldMs`). HARD_STOP_PUSH: the same,
       then 0.3 s forward again at 0.3 (`rePushMs`, `rePushPower`). LONG_HOLD: CLASSIC, then a
-      0.7 s stand before the stick comes up (`longHoldMs`). TWIST: 30° against the wall first.
+      0.7 s stand before the stick comes up (`longHoldMs`). (The twist against the wall is gone,
+      13 Nov: it turns the stick into the wall.)
       **Good:** one style puts 3 (4 with the corner fix) in the volley three times running, in
       under 4.0 s (`Last GARDEN gather: N s`) → write it into `TeleOpConfig.gardenGatherStyle`,
       with the numbers that worked, and try it once in an Auto. **Stop:** the dead stop is soft
@@ -879,9 +880,7 @@ measurement is [#255].
       (`curveBackOut`; off is a straight diagonal back), stops, and raises the stick 0.25 s later
       (`raiseAfterStopMs`). Try `curveBackOut` on and off and note which leaves fewer balls behind. Then `useStick` off: the
       stick stays in and the intake drives 2 in deeper (`noStickExtraDepthIn`) all the way to
-      the wall; compare balls in with the stick and without. Then `twistOnBackOut` on (either way):
-      after the dwell it turns 30° counterclockwise in place against the wall (`twistDeg`,
-      `twistPower` 0.4), then backs out; note whether more balls roll in. **Good:** the side is on the side wall well before the nose reaches
+      the wall; compare balls in with the stick and without. **Good:** the side is on the side wall well before the nose reaches
       the audience wall, the nose gets there (`GARDEN gather: IN … reached` or under 1 in short,
       against 2–4.5 in on 6 Nov), more balls come in than 6 Nov's 0–1, and the stick never drags
       a ball back out. **Stop:** it scrubs into the side wall and stalls early, or the curve

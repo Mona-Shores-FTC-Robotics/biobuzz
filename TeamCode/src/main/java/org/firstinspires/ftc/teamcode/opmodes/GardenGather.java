@@ -74,9 +74,7 @@ public final class GardenGather extends GrabRoutine {
         /** HARD_STOP, then a push forward again for {@link #rePushMs} at {@link #rePushPower} before the drive back. */
         HARD_STOP_PUSH,
         /** CLASSIC, but the robot stands {@link #longHoldMs} at the end of the drive back, intake running, before the stick comes up. */
-        LONG_HOLD,
-        /** The twist against the wall ({@link #twistDeg}) before the drive back, as {@link #twistOnBackOut}. */
-        TWIST
+        LONG_HOLD
     }
 
     /** HARD_STOP: how far straight back before the dead stop, inches. A plan. */
@@ -202,19 +200,6 @@ public final class GardenGather extends GrabRoutine {
      * wall, and a drive in that meets the wall first just stalls there, so a little more is safe.
      */
     public static double noStickExtraDepthIn = 2.0;
-    /**
-     * After the dwell, the robot turns in place by {@link #twistDeg} (counterclockwise positive),
-     * still pressed toward the audience wall, before it backs out (and turns back on the way), to try
-     * rolling balls into the intake (mentor, 6 Nov 2026). Off by default: a test, with the stick or
-     * without ({@link #useStick}).
-     */
-    public static boolean twistOnBackOut = false;
-    /** The twist, degrees, counterclockwise positive (the same turn on both alliances). */
-    public static double twistDeg = 30.0;
-    /** The twist's most turn power, (0, 1]. */
-    public static double twistPower = 0.4;
-    /** The twist gives up after this long, ms, and backs out from wherever it got to. */
-    public static double twistTimeoutMs = 800;
     /** Already lined up: this close to the line-up pose, inches, skips the line-up path. */
     public static double atLineUpIn = 1.5;
     /** Already lined up: this square, degrees, skips the line-up path. */
@@ -515,15 +500,12 @@ public final class GardenGather extends GrabRoutine {
         robot.flowerStick.retractWhenClear(garden.gather.x(), garden.gather.y(), nn(retractAfterBackIn));
     }
 
-    @Override protected double backTwistDeg() { return twistOnBackOut || style() == Style.TWIST ? twistDeg : 0.0; }
     @Override protected double corralBackIn() { return hardStop() ? hardStopBackIn : 0.0; }
     @Override protected double corralBackPower() { return hardStopPower; }
     @Override protected double corralHoldMs() { return hardStopHoldMs; }
     @Override protected double rePushMs() { return style() == Style.HARD_STOP_PUSH ? rePushMs : 0.0; }
     @Override protected double rePushPower() { return rePushPower; }
     @Override protected double holdBeforeDoneMs() { return style() == Style.LONG_HOLD ? longHoldMs : 0.0; }
-    @Override protected double twistPower() { return twistPower; }
-    @Override protected double twistTimeoutMs() { return twistTimeoutMs; }
     @Override protected double prepMs() { return useStick ? stickDownMs : 0.0; }
     @Override protected double settledInPerSec() { return settledInPerSec; }
     @Override protected double dwellQuietMs() { return dwellQuietMs; }

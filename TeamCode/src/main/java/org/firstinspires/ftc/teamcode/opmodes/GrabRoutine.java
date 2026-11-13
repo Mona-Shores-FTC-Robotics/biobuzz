@@ -84,7 +84,7 @@ import java.util.function.Consumer;
 public abstract class GrabRoutine {
 
     /** Where a grab is. */
-    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, TWIST, CORRAL_BACK, CORRAL_HOLD, PUSH, BACK, HOLD, DONE, ABORTED, REFUSED }
+    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, CORRAL_BACK, CORRAL_HOLD, PUSH, BACK, HOLD, DONE, ABORTED, REFUSED }
 
     /** Where the In goes, or why there is none. */
     protected static final class InPlan {
@@ -311,7 +311,7 @@ public abstract class GrabRoutine {
     /** Whether a grab is driving the robot, so the OpMode must leave the drive alone. */
     public boolean active() {
         return phase == Phase.LINE_UP || phase == Phase.PREP || phase == Phase.IN
-                || phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.CORRAL_BACK
+                || phase == Phase.DWELL || phase == Phase.CORRAL_BACK
                 || phase == Phase.CORRAL_HOLD || phase == Phase.PUSH || phase == Phase.BACK
                 || phase == Phase.HOLD;
     }
@@ -436,19 +436,6 @@ public abstract class GrabRoutine {
                     steer(pose, dwellPushPower());
                 }
                 break;
-            case TWIST:
-                double twistError = wrapRad(twistTarget - pose.heading());
-                if (Math.abs(Math.toDegrees(twistError)) <= TWIST_DONE_DEG || ms(now, phaseStartNs) > nn(twistTimeoutMs())) {
-                    event.accept(String.format(Locale.US, "%s: twist %s in %.2f s, %+.0f° to go", what(),
-                            Math.abs(Math.toDegrees(twistError)) <= TWIST_DONE_DEG ? "done" : "timed out",
-                            ms(now, phaseStartNs) / 1000.0, Math.toDegrees(twistError)));
-                    startCorral(now, pose);
-                } else {
-                    // Turn in place, still pressed toward the wall, at most twistPower.
-                    robot.drive.driveRobotCentric(clamp(dwellPushPower(), 1.0), 0.0,
-                            clamp(headingKp() * twistError * 4.0, unitFraction(twistPower())));
-                }
-                break;
             case CORRAL_BACK:
                 // Straight back at a set power, no ramp, then nothing: the stop is the point.
                 if (Math.hypot(pose.x() - corralFrom.x(), pose.y() - corralFrom.y()) >= nn(corralBackIn())
@@ -519,7 +506,7 @@ public abstract class GrabRoutine {
      * when it is cut short, which always stops the grab.
      */
     static boolean releaseFinishes(Phase phase, boolean button) {
-        return button && (phase == Phase.DWELL || phase == Phase.TWIST || phase == Phase.CORRAL_BACK
+        return button && (phase == Phase.DWELL || phase == Phase.CORRAL_BACK
                 || phase == Phase.CORRAL_HOLD || phase == Phase.PUSH || phase == Phase.BACK
                 || phase == Phase.HOLD);
     }
@@ -643,19 +630,8 @@ public abstract class GrabRoutine {
         phaseStartNs = now;
     }
 
-    /** A twist is done once the heading is this close to its target, degrees. */
-    static final double TWIST_DONE_DEG = 4.0;
-    private double twistTarget;
-
-    /** The dwell is over: twist first if the subclass asks ({@link #backTwistDeg}), else back out. */
+    /** The dwell is over: the corral, if the subclass asks for one, else the drive back. */
     private void endDwell(long now, Pose pose) {
-        double twist = backTwistDeg();
-        if (twist != 0.0 && !Double.isNaN(twist)) {
-            twistTarget = pose.heading() + Math.toRadians(twist);
-            next(now, Phase.TWIST);
-            robot.drive.driveRobotCentric(0.0, 0.0, 0.0);
-            return;
-        }
         startCorral(now, pose);
     }
 
@@ -664,7 +640,7 @@ public abstract class GrabRoutine {
     private Pose corralFrom;
 
     /**
-     * After the dwell (and any twist), before the drive back: the corral, if the subclass asks for
+     * After the dwell, before the drive back: the corral, if the subclass asks for
      * one ({@link #corralBackIn}), else straight to the drive back. The corral is a short drive
      * straight back at a set power with no ramp, then a dead stop, so whatever the robot was
      * dragging back with it keeps going into the intake; a stand ({@link #corralHoldMs}); and
@@ -713,25 +689,6 @@ public abstract class GrabRoutine {
      */
     protected double holdBeforeDoneMs() {
         return 0.0;
-    }
-
-    /**
-     * After the dwell, before the back out: turn in place by this many degrees, counterclockwise
-     * positive, pressed toward what the In went into; 0 (the default) for none. The back out then
-     * turns back to where the In started, on its way.
-     */
-    protected double backTwistDeg() {
-        return 0.0;
-    }
-
-    /** The twist's most turn power, (0, 1]. */
-    protected double twistPower() {
-        return 0.4;
-    }
-
-    /** The twist gives up after this long, ms, and backs out from wherever it got to. */
-    protected double twistTimeoutMs() {
-        return 800;
     }
 
     /** The dwell is over (its time, or the button let go): back out to where the In started. */
