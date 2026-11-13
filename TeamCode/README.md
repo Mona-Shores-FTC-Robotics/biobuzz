@@ -21,7 +21,7 @@ and why — so the reasoning survives past whoever added it.
 | Pedro AutoTune | `com.pedropathing:tuning:1.0.3-beta.1` | Robot-hosted tuning webpage. Backs the procedures in `org.firstinspires.ftc.teamcode.pedro`. |
 | Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework. NextFTC v2 is built on it too; we use it directly — see § "Deliberately excluded" for why. |
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
-| Panels | `com.bylazar:fullpanels:1.0.19` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Upstream is Sloth-native from 1.0.16; the Dairy fork `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` we used until Oct 2026 is frozen at that version. |
+| Panels | `com.bylazar:fullpanels:1.0.20` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Upstream is Sloth-native from 1.0.16; the Dairy fork `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` we used until Oct 2026 is frozen at that version. |
 
 
 FTC Dashboard used to be the tenth row of that table. It is gone — not because it
@@ -49,7 +49,7 @@ others in the same commit:
 2. **Panels declares its own Sloth dependency.** Since FullPanels 1.0.16
    (3 Oct 2026, when Oscar's Sloth support was merged upstream) the plain
    `com.bylazar` artifacts depend on `dev.frozenmilk.sinister:Sloth` directly —
-   1.0.19 asks for `0.3.2` — and `configurables` / `opmodecontrol` are Sinister
+   1.0.20 asks for `0.3.2` — and `configurables` / `opmodecontrol` are Sinister
    `Scanner`s. So the Sloth version Panels wants, the one AutoTune wants and the
    one we declare must agree, and `dev.frozenmilk:Load` (the Gradle plugin)
    must match too. Before that, the same lock was expressed by the Dairy fork's
@@ -57,7 +57,7 @@ others in the same commit:
    last one published; the fork is frozen there and we moved off it in #220).
    The Sloth build of FTC Dashboard (`com.acmerobotics.slothboard`) still uses
    that prefix scheme.
-3. **Panels (`panels` 1.0.8, inside FullPanels 1.0.19; the same since
+3. **Panels (`panels` 1.0.9, inside FullPanels 1.0.20; the same since
    `0.3.2+1.0.5`) declares `androidx.appcompat:appcompat` as
    `{strictly 1.2.0}`.** That is why `build.dependencies.gradle` pins appcompat
    at `1.2.0` and not something newer. A Dependabot PR raising appcompat will
