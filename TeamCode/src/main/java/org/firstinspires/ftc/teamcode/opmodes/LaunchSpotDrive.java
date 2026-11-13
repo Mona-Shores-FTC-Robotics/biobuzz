@@ -19,12 +19,12 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
- * The driver's "go to launch spot" button, held: Pedro drives from the robot's pose to the launch
- * spot nearest it when the button is pressed ({@link LaunchSpots#choose}: our two starts, stopped
- * {@link #startOffWallIn} off the wall, the Autos' four CATCH and OFFSET spots, and the two
- * CORNER long shots; from our side, or up to {@link #maxPastCentreIn} past the centre line), and arrives
- * aimed at that half's CELL. Never a spot chosen from what the camera believes about the HIVE: the
- * field gets crowded and the driver stays near where they are (mentor, 4 Nov 2026). Letting go, or
+ * The driver's two "go to launch spot" buttons, held: Pedro drives from the robot's pose to the
+ * launch spot in line with it when the button is pressed ({@link LaunchSpots#choose}: Square the
+ * spot on the side wall, Triangle the close one in front of it; from our side, or up to
+ * {@link #maxPastCentreIn} past the centre line), and arrives aimed at that half's CELL. Never a
+ * spot chosen from what the camera believes about the HIVE: the field gets crowded and the driver
+ * stays near where they are (mentor, 4 Nov 2026). Letting go, or
  * moving a drive stick, gives the sticks back that same loop, as the FLOWER pick does. At the spot
  * the Follower holds it until the button is let go.
  *
@@ -36,7 +36,8 @@ import java.util.function.Consumer;
  *
  * <p>With {@code TeleOpConfig.goToSpotAlsoFires} (on while testing), the press also launches: the
  * launcher spins up as the drive starts (the OpMode does it, at the operator's launch speed and trim),
- * and once the robot is at the spot, aimed and settled, it feeds for as long as the button is held, through the same feeder,
+ * and once the robot is at the spot, aimed and settled (or, with {@code TeleOpConfig.squareGateOnApproach},
+ * already on the approach: near the spot, aimed and at speed), it feeds for as long as the button is held, through the same feeder,
  * gate and prefeed path as the operator's FIRE ({@link SpotVolley}: the Autos' {@code LaunchAll}
  * waits, then no set feed time). Letting go stops the drive and the feed at once. The operator's FIRE wins.
  *
@@ -60,10 +61,12 @@ public final class LaunchSpotDrive {
     /** The drive gives up after this long, ms, and hands the sticks back. NaN or negative gives up at once. */
     public static double timeoutMs = 6000;
     /**
-     * A start spot is on the wall, the robot's back against it: the drive stops this far out from it,
-     * inches, along the start's facing, rather than into the wall. A starting point. NaN or negative is 0.
+     * A WALL-row spot is drawn touching the side wall: the drive stops this far out from it, inches.
+     * 0 (the default; NaN or negative is 0): touching, which is the point of the row (mentor, 11 Nov
+     * 2026). Not yet driven on a robot: if a press at the wall never arrives or never settles, the
+     * pose is asking the robot to push into the wall, and an inch here is the fix to try.
      */
-    public static double startOffWallIn = 3.0;
+    public static double wallGapIn = 0.0;
     /**
      * The button works with the robot's centre up to this far past the centre line, inches, on the
      * other alliance's side, and drives it home; further than that it refuses. 0, NaN or negative
@@ -83,6 +86,8 @@ public final class LaunchSpotDrive {
 
     private Phase phase = Phase.IDLE;
     private LaunchSpots.Choice choice;
+    /** The row of the press under way or last made: which button it was. */
+    private LaunchSpots.Row row = LaunchSpots.Row.WALL;
     private long startNs;
     private double arriveS = Double.NaN;
     private String result = "";
@@ -121,6 +126,11 @@ public final class LaunchSpotDrive {
         return phase == Phase.REFUSED;
     }
 
+    /** The row of the press under way, or of the last one: the wall button's or the close button's. */
+    public LaunchSpots.Row row() {
+        return row;
+    }
+
     /** Pedro is driving or holding the robot: nothing else may drive it. */
     public boolean active() {
         return phase == Phase.DRIVING || phase == Phase.HOLDING;
@@ -129,12 +139,13 @@ public final class LaunchSpotDrive {
     /**
      * One step, every loop.
      *
-     * @param held        the button is held
+     * @param held        a launch-spot button is held
+     * @param row         which one, read when the press starts: the wall row's or the close row's
      * @param alliance    ours ({@code setup.alliance()})
      * @param sticksMoved a drive stick is off centre: the driver wants the robot back
      * @param operatorFiring the operator's FIRE is held: it wins over the button's volley
      */
-    public void update(boolean held, Alliance alliance, boolean sticksMoved, boolean operatorFiring) {
+    public void update(boolean held, LaunchSpots.Row row, Alliance alliance, boolean sticksMoved, boolean operatorFiring) {
         long now = System.nanoTime();
         feed = false;
         if (!held) {
@@ -143,6 +154,7 @@ public final class LaunchSpotDrive {
             return;
         }
         if (phase == Phase.IDLE) {
+            this.row = row == null ? LaunchSpots.Row.WALL : row;
             start(now, alliance);
             return;
         }
@@ -172,11 +184,17 @@ public final class LaunchSpotDrive {
         if (phase == Phase.HOLDING && Double.isNaN(driftGapIn) && settle.settled()) sampleDrift();
         if (operatorFiring) operatorFired = true;
         if (!fires) return;
-        feed = volley.update(s(now), phase == Phase.HOLDING, robot.launcher.atSpeed(), settle.settled(), operatorFiring);
+        boolean onApproach = TeleOpConfig.squareGateOnApproach && phase == Phase.DRIVING
+                && settle.readyOnApproach(choice.target, robot.drive.pose(), remainingIn());
+        feed = volley.update(s(now), phase == Phase.HOLDING, robot.launcher.atSpeed(), settle.settled(),
+                onApproach, operatorFiring);
         if (volley.fired() && !feedLogged) {
             feedLogged = true;
-            event.accept(String.format(Locale.US, "launch spot: gate open %.2f s after the press (%.2f s after arriving), %s",
-                    volley.feedStartS(), volley.feedStartS() - arriveS, volley.why()));
+            String when = Double.isNaN(arriveS)
+                    ? String.format(Locale.US, "before arriving, %.1f in out", remainingIn())
+                    : String.format(Locale.US, "%.2f s after arriving", volley.feedStartS() - arriveS);
+            event.accept(String.format(Locale.US, "launch spot: gate open %.2f s after the press (%s), %s",
+                    volley.feedStartS(), when, volley.why()));
         }
     }
 
@@ -186,7 +204,7 @@ public final class LaunchSpotDrive {
         switch (phase) {
             case DRIVING:
                 return String.format(Locale.US, "Launch spot: driving to %s, %.0f in to go · %.1f s",
-                        choice.spot, remainingIn(), s(now));
+                        choice.spot, remainingIn(), s(now)) + volleyNote();
             case HOLDING:
                 return String.format(Locale.US, "Launch spot: AT %s, holding (arrived in %.1f s)%s · let go to drive",
                         choice.spot, arriveS, volleyNote()) + driftNote;
@@ -217,7 +235,7 @@ public final class LaunchSpotDrive {
         spotRangeIn = Double.NaN;
         this.alliance = alliance;
         Pose pose = robot.drive.pose();
-        choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, startOffWallIn,
+        choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, row, wallGapIn,
                 maxPastCentreIn, TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
         if (choice.refused()) {
             // Not on the field: the drive says what fixes it (a lost Pinpoint is not "no reset yet").

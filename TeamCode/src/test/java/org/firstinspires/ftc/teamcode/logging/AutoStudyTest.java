@@ -191,6 +191,23 @@ public class AutoStudyTest {
      * (the drive profile of the spec, the design's feed and the robot's FlowerPicker dwell).
      * See {@link AutoSim#startDelay}, {@link AutoSim#speed}, {@link AutoSim#launchSeconds}, {@link AutoSim#pickSeconds}.
      */
+    /**
+     * What a simulate request may also set for a run, read by {@link #run} (set by {@code SimRunTest} per entry, null
+     * otherwise): the one-way loop to check both robots against ({@link AutoSim#loop}), the drive team's INIT picks
+     * for our robot and for the partner's ({@link AutoSim#picks}; a pair's settings must match, and each robot's menu
+     * names its own choices), and how our own robot fails ("misses preloads": {@link AutoSim#missesPreloads}).
+     */
+    static String loop;
+    static Map<String, Object> picks;
+    static Map<String, Object> partnerPicks;
+    static String oursFails;
+    /**
+     * A what-if for our own robot ({@code "ourLaunchS"} on a request or an entry): seconds between its shots, in
+     * place of its design's ({@link AutoSim#launchSeconds}); NaN: the design's. A partner entry's
+     * {@code "timing": {"launchS": …}} is the same knob for the other robot.
+     */
+    static double oursLaunchS = Double.NaN;
+
     static final class PartnerTiming {
         /** The partner's last shot as their team said it, seconds after PLAY; NaN: not given. */
         double lastShotS = Double.NaN;
@@ -234,11 +251,11 @@ public class AutoStudyTest {
                     if (t.lastShotS > org.firstinspires.ftc.teamcode.autokit.AutoKit.AUTO_LENGTH_S) throw new IllegalArgumentException("lastShotS is past the end of AUTO: " + last);
                 }
                 if (fails != null) {
-                    if (!"misses".equals(fails)) {
+                    if (!"misses".equals(fails) && !"misses preloads".equals(fails)) {
                         throw new IllegalArgumentException("\"fails\" is \"misses\" or absent (a dead partner is a still stand-in,"
-                                + " partner-r-broken-down or partner-l-broken-down): " + fails);
+                                + " partner-r-broken-down or partner-l-broken-down), or \"misses preloads\" (only its first volley): " + fails);
                     }
-                    t.fails = "misses";
+                    t.fails = (String) fails;
                 }
             }
             if (json == null) return t;
@@ -321,6 +338,7 @@ public class AutoStudyTest {
             if (!Double.isNaN(launch)) sim.launchSeconds(launch);
             if (!Double.isNaN(pickS)) sim.pickSeconds(pickS);
             if ("misses".equals(fails)) sim.misses();
+            if ("misses preloads".equals(fails)) sim.missesPreloads();
             if (pushable) sim.pushable();
         }
 
@@ -328,7 +346,7 @@ public class AutoStudyTest {
         String slug() {
             StringBuilder b = new StringBuilder();
             if (!Double.isNaN(lastShotS)) b.append("last").append(num(lastShotS)).append("s");
-            if (fails != null) b.append(b.length() > 0 ? "-" : "").append(fails);
+            if (fails != null) b.append(b.length() > 0 ? "-" : "").append(fails.replace(' ', '-'));
             if (pushable) b.append(b.length() > 0 ? "-" : "").append("pushable");
             if (startDelayS > 0) b.append(b.length() > 0 ? "-" : "");
             if (startDelayS > 0) b.append("start").append(num(startDelayS)).append("s");
@@ -454,6 +472,10 @@ public class AutoStudyTest {
         String[] autos = sides[0].split(",");
         Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, profile[1], profile[2]).design(design);
+        sim.loop(loop);
+        if (picks != null) sim.picks(picks);
+        if ("misses preloads".equals(oursFails)) sim.missesPreloads();
+        if (!Double.isNaN(oursLaunchS)) sim.launchSeconds(oursLaunchS);
         // The partner's last shot as their team said it: our driver enters it in INIT, and our partner wait ends that
         // plus the TIP lag later (master's AutoRegistration; BuiltAuto).
         if (timing != null && !Double.isNaN(timing.lastShotS)) {
@@ -491,6 +513,7 @@ public class AutoStudyTest {
             double[] pProfile = Double.isNaN(partnerSpeed) ? profile : profile(Double.toString(partnerSpeed));
             Class<?> second = Class.forName(PKG + autoName(autos[1]));
             sim.alsoRun(second).speed(pProfile[0], pProfile[1], pProfile[2]).design(partnerDesign == null ? design : partnerDesign);
+            if (partnerPicks != null) sim.picks(partnerPicks);
             if (timing != null) {
                 timing.derive(second, partnerDesign == null ? design : partnerDesign);
                 timing.apply(sim, pProfile);

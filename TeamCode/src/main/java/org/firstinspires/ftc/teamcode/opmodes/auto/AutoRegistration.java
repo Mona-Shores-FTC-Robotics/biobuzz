@@ -135,8 +135,13 @@ public final class AutoRegistration {
      * (4.67, 4.90 s) under 4.5, at PLAY 2.59 to 4.18 s. Most volleys counted fewer than 4 shots, so
      * the feed ran its whole 3.5 s. A card that runs past the planned 4.0 eats into the park's
      * margin after it; recheck against the next event's logs.
+     * 2.5 since 12 Nov 2026 (the mentor's call, with the shot counter ending a full volley at its
+     * 4th shot: 19429's L-NoCross volleys at Belding ran 2.20 and 2.35 s that way). Not yet measured
+     * as the usual case: a volley whose counter misses a ball still feeds its whole 3.5 s and runs
+     * about 4 s, which now eats the park's margin. Read {@code read_logs.py steps} on the next
+     * Auto logs and raise this again if most volleys run long.
      */
-    public static final double LAUNCH_ALL_TYPICAL_S = 4.0;
+    public static final double LAUNCH_ALL_TYPICAL_S = 2.5;
 
     /**
      * Seconds from a {@code LaunchAll} card's start to its last piece leaving the robot: what the
@@ -154,9 +159,12 @@ public final class AutoRegistration {
      * shot): the last counted shot 0.94 to 4.59 s after the card started, all but one by 3.88 s. The
      * one, 4.59 s (19429 L-NoCross, 17:52), opened the gate about 1.2 s in and fed the last two
      * pieces 1.5 s apart: the gate's delay plus the whole 3.5 s feed, about 4.7 s, is the worst case.
-     * 4.0 stays (the mentor's call: more would make the guard give up on more volleys).
+     * 4.0 stayed after Belding (the mentor's call: more would make the guard give up on more volleys).
+     * 2.5 since 12 Nov 2026, with {@link #LAUNCH_ALL_TYPICAL_S} (the mentor's call): at Belding the
+     * last counted shot was later than 2.5 s into the card in many volleys, so a late volley the
+     * guard now lets go may have a piece still in the robot at 30 s. Recheck with the next logs.
      */
-    public static final double LAUNCH_ALL_LAST_PIECE_S = 4.0;
+    public static final double LAUNCH_ALL_LAST_PIECE_S = 2.5;
 
     /**
      * {@code PickFlower}'s typical seconds, from the card's start to its end. Measured on 20245
@@ -266,7 +274,11 @@ public final class AutoRegistration {
                 // comment. Mid-tip detection (tags vanishing while the robot holds still) is #173's.
                 // No alliance chosen never says Tip.
                 .triggerSince("Tip", () -> tipSince(robot, setup))
-                .trigger("CameraBlind", () -> cameraBlind(robot));
+                .trigger("CameraBlind", () -> cameraBlind(robot))
+                // Always true: a wait on it asks only its time. The time row is checked first, so
+                // "Always, at most until 19 s on the match clock" takes its time row when the clock
+                // is already past 19 s and its trigger row at once otherwise: "is there still time?".
+                .trigger("Always", () -> true);
     }
 
     /**

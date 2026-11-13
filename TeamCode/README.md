@@ -21,7 +21,7 @@ and why — so the reasoning survives past whoever added it.
 | Pedro AutoTune | `com.pedropathing:tuning:1.0.3-beta.1` | Robot-hosted tuning webpage. Backs the procedures in `org.firstinspires.ftc.teamcode.pedro`. |
 | Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework. NextFTC v2 is built on it too; we use it directly — see § "Deliberately excluded" for why. |
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
-| Panels | `com.bylazar:fullpanels:1.0.19` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Upstream is Sloth-native from 1.0.16; the Dairy fork `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` we used until Oct 2026 is frozen at that version. |
+| Panels | `com.bylazar:fullpanels:1.0.20` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Upstream is Sloth-native from 1.0.16; the Dairy fork `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` we used until Oct 2026 is frozen at that version. |
 
 
 FTC Dashboard used to be the tenth row of that table. It is gone — not because it
@@ -49,7 +49,7 @@ others in the same commit:
 2. **Panels declares its own Sloth dependency.** Since FullPanels 1.0.16
    (3 Oct 2026, when Oscar's Sloth support was merged upstream) the plain
    `com.bylazar` artifacts depend on `dev.frozenmilk.sinister:Sloth` directly —
-   1.0.19 asks for `0.3.2` — and `configurables` / `opmodecontrol` are Sinister
+   1.0.20 asks for `0.3.2` — and `configurables` / `opmodecontrol` are Sinister
    `Scanner`s. So the Sloth version Panels wants, the one AutoTune wants and the
    one we declare must agree, and `dev.frozenmilk:Load` (the Gradle plugin)
    must match too. Before that, the same lock was expressed by the Dairy fork's
@@ -57,7 +57,7 @@ others in the same commit:
    last one published; the fork is frozen there and we moved off it in #220).
    The Sloth build of FTC Dashboard (`com.acmerobotics.slothboard`) still uses
    that prefix scheme.
-3. **Panels (`panels` 1.0.8, inside FullPanels 1.0.19; the same since
+3. **Panels (`panels` 1.0.9, inside FullPanels 1.0.20; the same since
    `0.3.2+1.0.5`) declares `androidx.appcompat:appcompat` as
    `{strictly 1.2.0}`.** That is why `build.dependencies.gradle` pins appcompat
    at `1.2.0` and not something newer. A Dependabot PR raising appcompat will
@@ -1072,15 +1072,16 @@ finished robot runs on today's robot as a timed script. `auto-registry.json` is 
 the editor; `AutoRegistrationTest` keeps the two in step.
 
 **The partner wait.** The robot fires on the camera's `CellUp`; a partner wait's number is only when
-it stops waiting. The Driver Station reads "waiting for partner's TIP until 9 s", and gamepad 1's
-D-pad up/down moves that second during an Autonomous's INIT (`InitOptions`, 1 s a press; left/right
-picks the park). The drive team asks a partner "do you shoot your preloads right at the start?" and
-changes it only if the answer is not yes. The wait is the Auto's one wait drawn "until the match
-clock reads …" and offered in INIT (`AutoOption.matchSeconds`, exported as
-`kit.atMatchSeconds(kit.seconds(...))`). Its drawn value comes from
-`AutoRegistration.PARTNER_TIP_LAG_S`: 5.5 s after the partner's last ball, a give-up limit covering
-the shot's flight, the rocker's creep and swing and the camera settling (3.6 to 4.3 s in four films
-at the Belding Qualifier, up to 6.7 s over all of them: `TeamCode/autos/timing-terms.md`).
+it stops waiting. The Driver Station reads "waiting for partner's TIP until 9 s", a row of the
+Auto's INIT menu on gamepad 1's D-pad (`InitOptions`: up/down selects a row, left/right changes it;
+the wait moves 1 s a press, and the park is a row too). The drive team asks a partner "do you shoot
+your preloads right at the start?" and changes it only if the answer is not yes. The wait is the
+Auto's one wait drawn "until the match clock reads …" and offered in INIT
+(`AutoOption.matchSeconds`, exported as `kit.atMatchSeconds(kit.seconds(...))`). Its drawn value
+comes from `AutoRegistration.PARTNER_TIP_LAG_S`: 5.5 s after the partner's last ball, a give-up
+limit covering the shot's flight, the rocker's creep and swing and the camera settling (3.6 to
+4.3 s in four films at the Belding Qualifier, up to 6.7 s over all of them:
+`TeamCode/autos/timing-terms.md`).
 `partnerTipLagS` in `TeamCode/autos/timing.json` is the same number, and `PartnerWaitTest` keeps the
 two equal; the simulator, which is told a stand-in's last shot, sets the wait from it. Nothing
 entered, the wait runs as drawn. It is still a time limit: a feed that has started finishes first.
@@ -1238,6 +1239,29 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   shot and our first CellUp (the TIP lag, seed by seed), how our first wait ended and when, the
   first robot collision and whether we parked. Which partners each Auto runs with is in
   `TeamCode/autos/README.md`.
+- **A paired Auto** (R-Clockwise beside L-Clockwise, `TeamCode/autos/clockwise.md`) is run as our Auto with
+  the other half as a `partners` entry, and a request may also say:
+  - `"loop": "clockwise"`: both robots are checked against the one-way loop. Beside the HIVE (21 in either
+    side of the field's centre line), a robot at x 45 in or beyond, as drawn for RED, is in the lane under
+    the HIVE and may only go from the left end to the right; nearer the wall it is in the outside lane and
+    may only go from the right end to the left. More than 3 in the other way is reported (`againstLoopAt`,
+    `againstLoopLane`); nothing is stopped.
+  - `"picks"` and `"partnerPicks"` (the request's, or an entry's own): each robot's INIT menu, by row name:
+    a choice by its name (`{"Pickup": "GARDEN"}`, `{"Shot trigger": "TIMER"}`) or a time in seconds
+    (`{"T2 LEFT up by": 13}`). The simulator hands them to the generated Auto as `InitOptions` does.
+  - `"oursFails": "misses preloads"` on an entry, or `"fails": "misses preloads"` for its partner: that
+    robot's first volley goes wide, as `"misses"` sends every one, and the rest are aimed as usual. For
+    forcing a pair onto its fallback rows.
+  - `"ourSpeed": 40` on an entry: our own drive profile for that entry, so either robot of a pair can be
+    the slow one.
+  - `"ourLaunchS": 0.45` on the request or an entry: a what-if, the seconds between our own shots (the
+    partner's is its `"timing": {"launchS": …}`). With `BIOBUZZ_SIM_VOLLEY_PLANNED_S=2.4` the endgame guard
+    plans a volley at that length, where it otherwise plans master's `LAUNCH_ALL_TYPICAL_S`. Together they
+    ask what a shorter volley would let an Auto go for; neither is the robot.
+
+  Each row then also carries `tipsBy30` (TIPs complete at 30 s; `autoTips` also takes one that completes in
+  the transition), `hitHiveAt` and `partnerHitHiveAt`, `crossedAt` and `partnerCrossedAt` (a corner over the
+  field's centre line), and `againstLoopAt` and `partnerAgainstLoopAt`.
 - **From the Visualizer**, Save & Simulate to `master` commits the `.pp`, its Java and the Auto's
   own `TeamCode/sim-requests/<name>.json` to an `auto/<name>` branch and opens a pull request that
   merges itself once CI passes (the fast lane, `.github/CONTRIBUTING.md`). The "Simulate Auto"

@@ -34,11 +34,17 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 | R-Solo | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo.pp> |
 | R-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-no-cross.pp> |
 | L-Infraviolet + R-Infraviolet (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/l-infraviolet.pp,r-infraviolet.pp> |
+| L-Clockwise + R-Clockwise (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-clockwise.pp,l-clockwise.pp> |
 
 The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
 existing reference. **L-Infraviolet / R-Infraviolet** is a coordinated three-TIP pair, run on
 both robots and promoted to competition Autos; run one only with the partner on the other
 ([its notes](infraviolet.md)).
+**L-Clockwise / R-Clockwise** is its successor: the same pair on a one-way loop, with a fixed
+fallback at each stop, a pickup the drive teams choose in INIT, and shots by the camera or the
+timer. It has not driven on a robot yet; Infraviolet stays selectable until it has on both
+([its notes](clockwise.md)). Its volleys are from the
+drivers' Square and Triangle spots (`LaunchSpots`), not team spots.
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
 those routines: their paths, waits and fallback behavior have not been tuned yet.
 In particular, L-NoCross's existing no-TIP fallback still crosses to RIGHT; replace
@@ -58,7 +64,8 @@ Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `
 lane takes a `.pp` in `drafts/` or `partners/` (Visualizer
 [#67](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/pull/67) lists the drafts).
 R-Two-Tip, R-Solo's steps with the LEFT volleys from the measured launch spots, is a draft too
-([its notes](drafts/README.md)).
+([its notes](drafts/README.md)). So are the four plain drafts of the Clockwise lane study, one
+per robot per pickup ([clockwise.md](clockwise.md)).
 
 **The polish loop.** Open the Auto from master, change it, **Save to GitHub and simulate…** under
 the same name: that makes or updates its `auto/<name>` branch and pull request, the simulator runs
@@ -201,7 +208,7 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 | `RIGHT_START`, `LEFT_START` | The measured starts (`localization/StartPositions`). |
 | `RIGHT_LAUNCH_CATCH`, `LEFT_LAUNCH_CATCH` | In front of that CELL, just outside where its spill lands, clear of a partner on the start. |
 | `RIGHT_LAUNCH_OFFSET`, `LEFT_LAUNCH_OFFSET` | Off to the side of that CELL and angled at it, so a partner in front of the CELL is not disturbed. |
-| `RIGHT_LAUNCH_CORNER`, `LEFT_LAUNCH_CORNER` | The long shot (about 55 in) from the corner of our wall, for the TeleOp's go-to-launch-spot button. RIGHT is where 20245 scored it on 4 Nov; LEFT is its place mirrored across the axle line, turned to aim the turret (which sits off-centre) at the LEFT CELL; not yet fired from. |
+| `RIGHT_LAUNCH_CORNER`, `LEFT_LAUNCH_CORNER` | The long shot (about 55 in) from the corner of our wall, drawn for the TeleOp's go-to-launch-spot button, which stopped using them on 11 Nov 2026 (its spots are now `localization/LaunchSpots`' own, not team spots); no Auto uses them. RIGHT is where 20245 scored it on 4 Nov; LEFT is its place mirrored across the axle line, turned to aim the turret (which sits off-centre) at the LEFT CELL; not yet fired from. |
 | `WALL_FLOWER_STAGING`, `SCORING_FLOWER_STAGING` | Where a Pick flower step starts (on the FLOWER's line, 18–24 in out). |
 | `GARDEN_STAGING` | Where a Garden gather step starts; the gather pose itself is the robot code's (`GardenFieldPoints`). |
 | `RIGHT_PARK`, `LEFT_PARK` | 14.5 in off the alliance wall, facing 0 (the intake toward the field), in the LOADING ZONE. |
@@ -252,7 +259,7 @@ robot to PARK by 30 s (mentor, 4 Nov 2026, quals and playoffs alike):
 - **First, before each step it asks: can this, and every step up to the next Launch all, be done
   with that volley's last ball out before 30 s?** It adds the steps' times (a drive's drawn time, a
   pick's or gather's typical time, a wait's "at most") and then `AutoRegistration.LAUNCH_ALL_LAST_PIECE_S`
-  (4.0 s from the Launch all's start to its last ball). If yes, the robot goes, and nothing parks or
+  (2.5 s from the Launch all's start to its last ball; 4.0 until 12 Nov 2026). If yes, the robot goes, and nothing parks or
   cuts it until that volley has fired. Why: an AUTO TIP is 20 points and counts toward the
   POLLINATOR RPs; AUTO PARK is 5. AUTO PARK does count toward the SWARM RP (both robots' LEAVE +
   PARK points, AUTO and end of match, 16 or more of 26: manual TU03 Tables 10-2 and 10-3), but
@@ -301,13 +308,15 @@ need a bend: L-NoCross's park from `RIGHT_LAUNCH_CATCH` bends west of the Red HI
 
 ## Changing an Auto at the field (INIT options)
 
-A partner tells us in the queue when they shoot. The drive team enters it in INIT with
-**gamepad 1's D-pad**, no new export needed (`opmodes/auto/InitOptions`):
+The drive team changes an Auto in INIT with **gamepad 1's D-pad**, no new export needed
+(`opmodes/auto/InitOptions`): **up / down selects a row, left / right changes it.** An Auto with one
+row has it selected already.
 
-| D-pad | Changes | Offered by |
+| Row | Left / Right changes | Offered by |
 |---|---|---|
-| Left / Right | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
-| Up / Down | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for partner's TIP until 9 s". Down to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
+| The partner wait | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for partner's TIP until 9 s". Left to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
+| Park | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
+| A paired Auto's pickup, shot trigger and times | as the row says | the Clockwise pair (`clockwise.md`) |
 
 - **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
   as drawn and amber once changed; PLAY locks them, and the match log records them
@@ -355,7 +364,14 @@ they came from.
   - `spinUpS` 1.1: 83 spin-ups from rest to launch speed (1500 to 1625 ticks/s), median 1.1 s,
     middle half 1.0 to 1.3, all 0.9 to 2.1 (slowest on a sagging battery). The first LaunchAll at
     PLAY waited 0.94 to 1.36 s for it.
-  - `volleyS` 4.0: LaunchAll after a drive with the launcher at speed, the settle, the wait for
+  - `volleyS` 2.5 (plan, mentor 12 Nov 2026): a LaunchAll that ends on its fourth ball. In the
+    Belding films the fourth ball left 2.0 to 2.5 s after the gate opened (0.6 to 0.95 s to the
+    first, about 0.45 s between), and a counted volley took 2.2 to 3.5 s with its spin-up wait.
+    **The robot does not do this every time yet:** when the launcher counts fewer than four shots
+    the feed runs its set 3.5 s, and the endgame guard plans on 4.0 s
+    ([timing-terms.md](timing-terms.md), "Still to change"). The figure before, measured with the
+    set feed running out:
+    4.0: LaunchAll after a drive with the launcher at speed, the settle, the wait for
     speed and `LaunchCards`' set 3.5 s feed. Every LaunchAll with the 3.5 s feed after a drive in the
     2 to 4 Nov logs (8: R-Quals 2 Nov, R-Solo 3 Nov 17:30 and 17:59, R-Solo-Staging 4 Nov 00:48):
     3.60 to 4.64 s, median 4.04. The slowest two (4.45, 4.64 s) were 4 Nov 00:48, where the gate
@@ -379,14 +395,15 @@ they came from.
   - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
     lane latched full 0.44 s after its last spike, 1.43 s in.
-  - `tipStartS` 1.4 and `tipSwingS` 1.6 (measured): together, the 3.0 s from a LaunchAll's end to
-    the camera's `CellUp`, for a CELL at its tipping weight and a feed that ran its set 3.5 s. From
-    the Belding films ([timing-terms.md](timing-terms.md)): the other CELL settled a median 3.9 s
-    after the last ball left and a watching camera read it 0.2 s later, 4.1 s in all; a set feed
-    ends about 1.2 s after its last ball. The split puts the swing plainly under way 1.4 s after
-    the feed ends and the CELL read up 1.6 s after that.
+  - `tipStartS` 2.6 and `tipSwingS` 1.6 (measured): together, the 4.2 s from a LaunchAll's end to
+    the camera's `CellUp`, for a CELL at its tipping weight and a volley that ends on its fourth
+    ball. From the Belding films ([timing-terms.md](timing-terms.md)): the other CELL settled a
+    median 3.9 s after the last ball left and a watching camera read it 0.2 s later, 4.1 s in all;
+    a counted feed ends about 0.1 s after its last ball. With the 4.0 s volley these were 1.4 and
+    1.6, because a set feed runs 1.2 s past its last ball.
     - **These two go with `volleyS`.** If `volleyS` comes down because the feed ends on its fourth
-      ball, raise `tipStartS` by the same amount: the last ball to `CellUp` stays about 4.1 s.
+      ball, raise `tipStartS` by the same amount (done 12 Nov 2026: 4.0 to 2.5, and 1.4 to 2.6): the
+      last ball to `CellUp` stays about 4.1 s.
     - **They are the middle, not the limit.** An at-weight TIP took up to 6.7 s from the last ball,
       and one on nine or more pieces about 2.5 s. The preview has one value for all of them.
     - Before 11 Nov 2026 these were 1.0 and 0.7 (1.7 s together), from the two TIPs our own preload

@@ -26,7 +26,7 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
    Visualizer. Then test CELL-up recognition, the two LEFT volleys, the scoring FLOWER
    pickup, and park, including a partner that never makes TIP 1.
    **Partner wait:** drawn to give up at 9 s (was 8.5), and the INIT line reads "waiting for
-   partner's TIP until 9 s"; D-pad up and down move that second. In the run with a partner that
+   partner's TIP until 9 s"; D-pad left and right move that second. In the run with a partner that
    never makes TIP 1, check the no-TIP route still parks in time, starting half a second later.
 2. **R-NoCross** (formerly R-Partner-Tip). Qualify the right-side actions, then run it
    together with L-NoCross as the coordinated two-TIP baseline. Check the five-second
@@ -112,6 +112,20 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       **port 1**, turret servo on **port 4** (`robot_19429.xml`; 20245's layout but the lights on
       the Control Hub). A **full TeamCode install**, re-Activate `robot_19429`, then
       **Check: Hardware**, and the light looks and turret-sits-still checks in §2 on this robot too.
+- [ ] **19429 rewired 13 Nov: two intake star-wheel servos and the turret moved.** Right star wheel
+      on **Control Hub servo port 4** (`intakeStarsRight`), left on **port 5** (`intakeStars`),
+      turret servo on **Expansion Hub servo port 5** (`robot_19429.xml`). A **full TeamCode
+      install**, re-Activate `robot_19429`, then **Check: Hardware** (it lists `intakeStarsRight`).
+      Then Basic Drive, PLAY, intake on: **both** stars turn inward. If the right one turns
+      outward, flip `IntakeSubsystem.starsRightReversed` in Panels (the default `false` is a guess
+      that it is mounted mirror-image to the left), see it turn inward, and put the value that
+      worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
+      out. Turret: still sits at home after PLAY, as before.
+- [ ] **Panels 1.0.20 (FullPanels bump):** a **full TeamCode install** on each robot (a Sloth Load
+      keeps the old Panels). **Good:** Panels opens at `192.168.43.1:8001`, the field and graphs
+      update, the Driver Station still lists every `robot_*` config after a Sloth Load, and
+      restarting the Robot Controller app brings Panels back without a `BindException`.
+      **Stop:** any of those fails → back to `fullpanels:1.0.19` and note it in the PR. [PR #548]
 - [ ] Charged batteries, more than one; swap at 12.0 V. [S4 Before]
 - [ ] Tape measure, phone level app. Four POLLEN per FLOWER reload, and someone to reload. [S4], [S5]
 - [ ] The HIVE on the field, red side, RIGHT CELL up (match start), tags on. [S3 Before], [S4 Before]
@@ -188,12 +202,21 @@ run's match log: the 10 in radius is too tight for placement plus camera error. 
 gap with `tools/pull-logs/read_logs.py`; don't widen past 11.8 in (half of 23.6) without the logs.
 Result, with the gap on each own-start run, → [PR #372].
 
-- [ ] **INIT options, L-NoCross on Red far wall:** gamepad 1 D-pad up three times.
-      **Good:** one line `waiting for partner's TIP ▲▼ until 12 s`, amber; down three times
-      turns it back green, as drawn (until 9 s); D-pad left and right change
-      nothing (no Auto offers another park); nothing else on the robot reacts to gamepad 1's D-pad
+- [ ] **INIT menu, L-NoCross on Red far wall:** gamepad 1 D-pad right three times (its one row,
+      the partner wait, is selected).
+      **Good:** one line `▶ waiting for partner's TIP ◀▶ until 12 s`, amber; left three times
+      turns it back green, as drawn (until 9 s); D-pad up and down change
+      nothing (one row); nothing else on the robot reacts to gamepad 1's D-pad
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
-      [PR #391]. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
+      [PR #391]; the menu is the Clockwise PR's.
+- [ ] **INIT menu, R-Clockwise on Red audience, then L-Clockwise on Red far wall** (INIT only).
+      **Good:** `▶ Pickup ◀▶: WALL_FLOWER · ▲▼ row 1 of 8` (L: `GARDEN`, `row 1 of 6`), then
+      `Partner runs L-Clockwise: Pickup GARDEN · Shot trigger CAMERA`, then every row's value in small
+      print. D-pad down walks the rows and wraps; right on Pickup shows GARDEN and the partner line
+      changes to `Pickup WALL_FLOWER`; right on a time adds 0.5 s; everything changed is amber and bold.
+      Read the two robots' pages to each other: each partner line matches the other's rows. With
+      warnings filling the page the list goes first, then the partner line, and the selected row stays.
+      **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
       8.0 s, and no log can say what INIT showed (the next item). Show the drive team the line too.
 - [ ] **The chosen INIT options reach the match log** (same run: set the wait to 12 s,
       PLAY, let it run a few seconds, STOP). Belding's logs lost every `AutoOptions` line: PLAY
@@ -498,6 +521,80 @@ Use the work order above to select checks; the detailed mechanism checks below a
         Confirm both LEAVEs at AUTO end and both parks on video; the pair is
         already promoted, so log each run that shows otherwise.
 
+- [ ] **Clockwise pair: R-Clockwise beside L-Clockwise.**
+      [The plan, the stops, the times and the simulator's tables](../TeamCode/autos/clockwise.md). Not yet
+      driven; Infraviolet stays on the menu until this has on both robots. Run with the DS AUTO
+      timer on. Every volley is from a spot the drivers' Square or Triangle goes to, and the guard
+      plans a volley at 2.5 s (4.0 until 12 Nov), for every Auto. In this order, since each step
+      decides whether the next is worth running:
+      - **Volleys from the six launch spots, in TeleOp first:** eight pieces each from
+        RIGHT_START, LEFT_WALL_HIVE, LEFT_WALL_NEAR and RIGHT_WALL_NEAR (hold Square; about 50 in)
+        and from RIGHT_CLOSE_HIVE and LEFT_CLOSE_HIVE (hold Triangle; about 32 in), counted on
+        video. **Good:** 7 or 8 of 8 stay in from each. **Stop:** a spot holds fewer → note which
+        and by how much; the pair shoots from all six.
+      - **How long a volley really is**, from `read_logs.py steps` on every Auto run tonight:
+        the whole card, the gate wait, and gate to last ball. **Good:** the card is 2.5 s or less
+        in most volleys. **Stop:** most run about 4 s (the counter missed a ball and the feed ran
+        its 3.5 s) → `AutoRegistration.LAUNCH_ALL_TYPICAL_S` and `LAUNCH_ALL_LAST_PIECE_S` go back
+        up, or a late volley eats the park in every Auto.
+      - **Each robot alone, HIVE in place, no partner, the new paths:** R's outside lane from the
+        WALL FLOWER and from the GARDEN onto LEFT_WALL_NEAR (a corner touches the far wall, the
+        SCORING FLOWER beside it); LEFT_WALL_NEAR to the SCORING FLOWER; back under the HIVE from
+        the SCORING FLOWER to RIGHT_CLOSE_HIVE (no turn); the outside lane from there to
+        RIGHT_PARK; the half turn from the SCORING FLOWER to LEFT_CLOSE_HIVE and the park from
+        there (set T3c to 0 in INIT to make it run). L's 2.4 in
+        slide to LEFT_WALL_HIVE; under the HIVE to RIGHT_START and its park from there; under the
+        HIVE to the GARDEN and on to RIGHT_WALL_NEAR; under the HIVE to the lane's end and on to
+        WALL_FLOWER_STAGING (it turns west just past the end of the HIVE's foot bar: watch that
+        corner), and the FLOWER to RIGHT_WALL_NEAR. **Good:** no touch of the HIVE's feet, a
+        FLOWER or a wall but at the spot itself; write each drive's seconds beside the drawn
+        ones. **Stop:** a corner touches → note the pose and bend the path in the Visualizer.
+      - **Arriving on a wall.** Three of the four wall-row spots end against a wall with the robot still
+        rolling (a path card never settles). **Good:** the launch starts within about 0.5 s of
+        arriving and the pose has not jumped. **Stop:** the robot bounces off or the Pinpoint
+        faults → note the speed it arrived at.
+      - **Backward and turning with a load.** Four POLLEN in the lane: R up the outside lane onto
+        LEFT_WALL_NEAR, and back from SCORING_FLOWER_STAGING under the HIVE to RIGHT_CLOSE_HIVE; L
+        from GARDEN_STAGING to RIGHT_WALL_NEAR (it turns 157° as it drives, with no loop back to
+        the audience wall), at Auto speed. **Good:** four still in the lane at each end, five runs of each. **Stop:** a
+        piece leaves → note where on the path, and whether braking or the turn did it.
+      - **The two parks, both robots.** RIGHT_PARK and LEFT_PARK leave 2.7 in between parked
+        robots. Park R first, then run L's park; then the other order. **Good:** neither touches
+        the other coming in (L turns east of the park zone and drives straight in; R comes in
+        along RIGHT_PARK's own line). **Stop:** a touch → note which robot was moving and where.
+      - **R's view of the HIVE at each stop:** `LeftCellUp` on LEFT_WALL_NEAR (295.5°),
+        `RightCellUp` at RIGHT_CLOSE_HIVE having backed in (90°), and `RightCellUp` from
+        LEFT_CLOSE_HIVE (270°). L: `LeftCellUp` on LEFT_WALL_HIVE and `RightCellUp` on
+        RIGHT_WALL_NEAR (66.9°). **Good:** each within 0.3 s of arriving with that CELL up.
+        **Stop:** the camera does not settle the CELL → note which tags it does see.
+      - **The spill after a TIP, on video, with pieces in both CELLs:** how long after the last
+        ball leaves the last spilled piece is still falling, and where the spill lands at each
+        end. R does not wait before backing under the HIVE from the SCORING FLOWER (in the simulator
+        it drove into falling pieces in about a third of the runs where it crossed), and L waits to
+        22.5 s (TLr) on RIGHT_START after a rescue volley. **Good:** nothing still falling when
+        either moves, and no piece lands on a robot standing on a wall spot. **Stop:** a piece
+        does → write the seconds and where; the waits change in the Visualizer.
+      - **The times, from `read_logs.py steps` on each run's log:** `LeftCellUp` for L (T1
+        9.5 s; the Belding films have it as late as 9.98 s, so expect to raise it); R on
+        LEFT_WALL_NEAR and its volley's end (T2 15.5 s, TS 16.9 s; drawn 12.0 and 15.8 s); R's
+        SCORING FLOWER pick's end (T3c 20.7 s, T3b 22.4 s; drawn 20.1 s, so R crosses); R at
+        RIGHT_CLOSE_HIVE (T3r 23.5 s; drawn 22.9 s); L on RIGHT_WALL_NEAR (T4 20.6 s) and each robot parked (TL 22.7 s). **Good:**
+        each within 0.5 s of the drawn. Otherwise set the row in INIT for the next run and write
+        the measured value on the PR; the drawn values change only in the Visualizer.
+      - **The crossing and the rescue, both robots, with a spotter at each end:** as drawn R
+        crosses, asks at RIGHT_CLOSE_HIVE until 23.5 s (T3r) and does not leave before 25.0 s
+        (TRr); with T3c at 0 it goes to LEFT_CLOSE_HIVE, shoots, and parks at 26.4 s (TR). **Stop
+        the run by hand** if L is still on RIGHT_WALL_NEAR or low in the lane when R leaves
+        RIGHT_CLOSE_HIVE, or still in the lane when R leaves LEFT_CLOSE_HIVE. Watch for R backing
+        into pieces falling from TIP 2 (in the simulator, 2 to 5 runs in 24): write when the
+        last piece landed and when R went under.
+      - **The fallbacks, on purpose, both robots:** hold R's preloads back (L1 "no": at 9.5 s L
+        crosses, shoots from RIGHT_START and parks at 22.5 s; R parks at 15.5 s with its load),
+        then L's. **Good:** the trace shows those rows, and both robots park.
+      - **The other pickup:** Pickup GARDEN on R and WALL_FLOWER on L. **Good:** L stands at the
+        lane's end until 15.5 s (TF) and R has passed the WALL FLOWER by then.
+      - **Shot trigger TIMER on both,** with T1 8 and T2 13 set in INIT, the camera covered.
+        **Good:** each stop shoots at its time; nothing waits on the HIVE.
 - [ ] **Drive times for the planning numbers** ([#504], the Belding timing analysis): a Utility
       that follows a Pedro path, empty and again with 4 POLLEN in the lane, a
       charged battery (note `/Robot/BatteryVolts`), three runs each. (a) A straight 90 in run at a
@@ -520,6 +617,19 @@ Use the work order above to select checks; the detailed mechanism checks below a
       **Also:** the two Belding runs that crawled for 4 s about 10 in short of `LEFT_LAUNCH_CLOSE`
       / `LEFT_LAUNCH_CATCH` (20245, 14:39 and 16:53 hub time) look blocked: check the match video.
 
+- [ ] **The lane pair drafts: Drive: R-OutsideLane and Drive: L-UnderHive.**
+      [Routes and the simulator's numbers](../TeamCode/autos/drafts/README.md#the-lane-pair-r-outsidelane-and-l-underhive).
+      Each stops itself at 30 s. In this order:
+      - **Each alone, no pieces:** it drives its route and parks. **Stop:** it touches the HIVE, a
+        FLOWER it is not picking, or crosses the centre line → save the log.
+      - **R alone, four preloads:** note the match second its LEFT volley ends. Past 15 s it parks
+        from the left spot (expected today); before 15 s it goes on to the SCORING FLOWER and R5.
+      - **Both together,** four preloads each. Count the pieces that stay in from L4 (L's preloads)
+        and from `LEFT_LAUNCH_OFFSET` (R's WALL FLOWER load), and the TIPs. Check the gap between
+        the robots at the left end (L on L4, R on `LEFT_LAUNCH_OFFSET`).
+      - **If R goes on while L is on the right side:** R5 and R4 overlap, and R passes the GARDEN
+        as L leaves it. **Stop the run** if they are closing, and note the match second.
+      - Film each paired run from the side.
 - [ ] **R-Two-Tip draft (`autos/drafts/r-two-tip.pp`): R-Solo's steps from the measured LEFT spot.**
       [Why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-two-tip-r-solos-steps-fired-from-the-measured-left-spot).
       Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s).
@@ -686,7 +796,8 @@ measurement is [#255].
       write down each ball's time after the gate opens and the launcher's counted shots.
       **Good:** no ball after 3.0 s in any → `launchAllFeedS` 3.05 in Panels, and the volleys
       where the count fell short show which way the shot counter misses.
-- [ ] **Square's start and corner spots aim the turret (`belding-plus`, 7 Nov):** turret locked,
+- [ ] **Superseded 11 Nov by "Square and Triangle launch spots" in §7f (Square no longer drives to
+      the starts or the corners).** **Square's start and corner spots aim the turret (`belding-plus`, 7 Nov):** turret locked,
       hold Square from near each start and each corner (RIGHT_START now 89°, LEFT_START 267°,
       RIGHT_LAUNCH_CORNER 61° instead of 54°, LEFT_LAUNCH_CORNER 303° as before) and fire.
       **Good:** the volley goes into the CELL, centred; RIGHT_LAUNCH_CORNER scores at least as well
@@ -694,7 +805,8 @@ measurement is [#255].
 - [ ] **Square from past the centre line (`LaunchSpotDrive.maxPastCentreIn`, 24):** on 6 Nov the
       drivers pressed Square with the robot 3–4 in past the line and it refused every time. Hold
       Square with the robot about 6 in, then about 20 in, past the line, on red and on blue.
-      **Good:** it drives home to the nearest spot on our side and fires; past 24 in the Match page
+      **Good:** it drives to the wall spot in line with the robot (past the line that is the FAR one,
+      `…_WALL_FAR`) and fires; past 24 in the Match page
       says `REFUSED: robot N in past the centre line`. **Stop:** the path heads into the HIVE frame
       or a partner → let go, note where, and lower `maxPastCentreIn` (0 is the old rule).
 - [ ] **Circle is camera first (`ChassisAimTarget`), the fallback when the pose is off:** Basic
@@ -813,6 +925,12 @@ about 0.57 s, and after a shot's dip back at speed in a median 0.22 s (overshoot
 of 94 dips over 60). Those are `LauncherSubsystem`'s defaults now. On 19429, check the same way;
 a difference is one `RobotDifferences` line.
 
+- [ ] **FIRE from the 1000 idle** (Basic Drive; `TeleOpConfig.launcherIdleTicksPerSecond` 1000 since
+      13 Nov). Spin up, toggle the launcher off so it idles at 1000, then press and hold the operator's
+      FIRE. **Good:** the gate opens only once the wheels reach the launch speed (the `fire:` line, then
+      `/Launcher/AtSpeed`), and the volley scores like one from rest. **Stop:** balls leave slow → note
+      the log; set the idle back to 0 in Panels. Also note the battery at the end of a match with it.
+      Before this PR, FIRE from an idle at speed could open the gate at the idle speed.
 - [ ] **Measure the wheels**, for the surface speeds (in/s, the one unit that compares the feeder
       with the flywheels; ticks/s do not). Calipers on the flywheel: `LauncherSubsystem.wheelDiameterInches`.
       The flywheel module's belt (count teeth, or mark the wheel and turn the motor once by hand):
@@ -887,7 +1005,7 @@ After §7c: the rows are only worth having once the wheels hold their speed. One
 the other side of the field.
 
 **The loop, at each spot:** with `LaunchSpeedTable.enabled` off (the Robot page says
-"Speed table: OFF"), hold Square. The robot drives to the nearest launch spot and fires while Square is held.
+"Speed table: OFF"), hold Square. The robot drives to the wall launch spot in line with it and fires while Square is held.
 On a miss, the operator trims the speed up or down, then Square again, until it scores. The Match
 page's "Last launch spot" line shows the spot's CELL range and the launch speed: write both down.
 Take the middle of the speeds that score 4/4, not the first one that does. The trim carries from
@@ -897,13 +1015,14 @@ Measured 4 Nov 2026 (20245, tuned PIDF) and in `LaunchSpeedTable` with the table
 45.7 → 1560, 53.9 → 1600, 58.8 → 1635 (ranges from the turret axis since 5 Nov; first written from
 the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corner's heading.
 
-- [ ] **`RIGHT_LAUNCH_CORNER` faces about 5° right of the CELL.** At Belding (turret locked
+- [ ] **Superseded 11 Nov: Square no longer drives to the corners (§7f).** **`RIGHT_LAUNCH_CORNER` faces about 5° right of the CELL.** At Belding (turret locked
       forward) the aim error held at +4.5° there on red (Q-7) and +5.5° on blue (Q-31), against 0°
       at `LEFT_LAUNCH_CORNER` (M-7, red) and within ±2.5° at the other spots; 3 and 2 shots counted
       of 4. Set its heading to about 59° in the Visualizer (Save team spots), then hold Square there
       once. **Good:** aim error under 2° on the Match page and 3–4 of 4 in. [mentor, 5 Nov]
 
-- [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`.** The table's rows start
+- [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`, and for Triangle's close
+      row (34.6 to 35.7 in; Triangle is on, and drives there, so the loop below can be run from it).** The table's rows start
       at 42.4 in, so both CLOSE spots fire at an extrapolated speed (1459–1480 ticks/s in the
       Belding logs). The four measured rows fit one arc, which puts 36 in at about 1513 ticks/s
       (1458 to 1573 allowed by the fit). Run the loop above at `RIGHT_LAUNCH_CLOSE` and write the
@@ -962,6 +1081,64 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
 - [ ] **19429: a shorter route from full to the shot.** At Belding it drove a median 191 in with a
       full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
       where it is. **Good:** a timed practice cycle under 20 s.
+
+### Square and Triangle launch spots (11 Nov; nothing here has been driven)
+
+Square now drives to one of six spots on the side walls and Triangle to one of six close spots in
+front of them (`localization/LaunchSpots`: LEFT or RIGHT by the half the robot is in, NEAR / HIVE /
+FAR by where it is along the wall). Gather GARDEN moved from Triangle to the driver's R1. Turret
+locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536]
+
+- [ ] **Each wall spot, on red then blue:** pose set, loaded, hold Square from about 2 ft out in
+      front of each of the six (`RIGHT_WALL_NEAR`, `RIGHT_START`, `RIGHT_WALL_FAR`, and the LEFT
+      three; the RIGHT middle one is the measured start itself, since 12 Nov). **Good:**
+      the log says `launch spot: start … → <the spot in line> … (in line, N in)`, then `arrived`
+      and `gate open … settled` within about 2 s; the HIVE spots sit with the whole back on the
+      wall, the NEAR and FAR ones with one corner on it; 3 or 4 of 4 stay in. Write the count per
+      spot. **Stop:** a press that never arrives or never settles (the pose is asking it to push
+      into the wall) → `LaunchSpotDrive.wallGapIn` 1 in Panels and try again; note which spot.
+- [ ] **The wall row stops 1 in out from the wall (13 Nov, `LaunchSpots.WALL_STAND_OFF_IN`):**
+      Square to any of the six wall spots now stops 1 in toward the HIVE from where it is drawn.
+      `LEFT_WALL_NEAR` is then about half an inch clear of the SCORING FLOWER, and a robot on
+      `LEFT_WALL_HIVE` meets one on `LEFT_CLOSE_HIVE` edge to edge. The Autos are not changed:
+      they launch from the spots as drawn. **Good:** it arrives and settles without pushing on the
+      wall, and scores as before. **Stop:** it still presses the wall, or a defender can now get
+      behind it → note which, and the number changes there.
+- [ ] **Square's early gate (`TeleOpConfig.squareGateOnApproach`, on since 13 Nov; nothing driven):**
+      the gate opens on the approach, within `PathEndSettle.launchWithinIn` (6 in) of the spot,
+      aimed and at speed. Ten Square volleys with it on and ten off, same spots, filmed. The log says
+      `gate open … (before arriving, N in out), on the approach` when it fired early. **Good:** the
+      first ball leaves sooner after the press (`gate open X s after the press`; Belding's median was
+      1.03 s) and 3 or 4 of 4 still stay in, as with it off. **Stop:** more misses with it on, or
+      the robot still moving at the wall spot as the balls leave → try `launchWithinIn` 3 in Panels
+      (it is the Autos' number too), else switch it off and note the counts.
+- [ ] **LEFT_WALL_NEAR and LEFT_WALL_HIVE at the SCORING FLOWER:** NEAR's corner should rest
+      against the FLOWER's far side and HIVE's side about 2 in from its near side. **Stop:** either
+      drives into the FLOWER → note by how much; the spot's x moves in `LaunchSpots`.
+- [ ] **The FAR spots are 5 to 9 in past the centre line** (fair in TELEOP). Hold Square from just
+      past the HIVE on each side. **Good:** arrives and scores as the others do. **Stop:** the
+      straight path clips the HIVE frame from where the drivers would press it → note where.
+- [ ] **Both robots on neighbouring spots:** one on `RIGHT_START`, the other pressed to
+      `RIGHT_WALL_NEAR`, then `RIGHT_WALL_FAR`; the same on the left. They are drawn 1 in apart.
+      **Good:** no contact, both volleys score. **Stop:** they touch → note the gap the logs show
+      (`arrived … X in … off`, `drift`), and the side spot's x moves out by that much.
+- [ ] **The column is the one the driver expects:** from six or so places around our half, the
+      driver says which wall spot they expect before pressing. **Good:** it goes there every time.
+      The boundaries are halfway between the wall spots along the wall (red RIGHT: x 45.8 and 65.7;
+      LEFT: 48.9 and 69.7).
+- [ ] **Triangle (on since 12 Nov; measure the 36 in row with it first, §7d: until then it fires
+      at the table's held end speed, about 1460):** hold Triangle in front of each column on both sides. **Good:** drives to
+      the `…_CLOSE_…` spot of that column, 34.6 to 35.7 in from the CELL, 3 or 4 of 4 in. The NEAR
+      and FAR close spots overlap the HIVE one by about a third of a robot: never send both robots
+      to the middle and a side one at once.
+- [ ] **`RIGHT_LAUNCH_CATCH` against `RIGHT_CLOSE_HIVE`, before the Autos give CATCH up** (mentor,
+      12 Nov; needs the 36 in row first, §7d). Neither button drives to CATCH now: drive there by
+      hand (57.5, 18, facing the CELL; the Match page's "Last shot" line shows 43 in) and fire with
+      FIRE; then Triangle in front of the HIVE for `RIGHT_CLOSE_HIVE` (36 in). Ten volleys of 4
+      from each, counting how many stay in. **Good:** one is clearly better; write both counts
+      here. CATCH stays a team spot only if it scores more.
+- [ ] **Gather GARDEN on the driver's R1:** hold R1 at the GARDEN as Triangle was held before.
+      **Good:** the gather runs as it did; the Controls page and the cheat sheet show R1.
 
 ## 8. If time: anyone, no driving
 
@@ -1125,6 +1302,7 @@ one test at one meeting.
 [PR #391]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/391
 [PR #422]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/422
 [PR #423]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/423
+[PR #536]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/536
 [PR #425]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/425
 [PR #427]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/427
 [PR #430]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/430
