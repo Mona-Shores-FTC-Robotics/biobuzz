@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-13T13:37:11.896Z",
+  "timestamp": "2026-11-13T15:16:20.254Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -203,7 +203,7 @@
       "segments": [
         {
           "id": "r-pickup-park-lane-garden",
-          "color": "#59a14f",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -233,7 +233,7 @@
         },
         {
           "id": "r-pickup-park-turn-garden",
-          "color": "#f28e2b",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -458,7 +458,7 @@
         },
         {
           "id": "r-catch-park-in",
-          "color": "#b07aa1",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -506,7 +506,7 @@
       "segments": [
         {
           "id": "r-cross-out",
-          "color": "#76b7b2",
+          "color": "#edc948",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -535,7 +535,7 @@
         },
         {
           "id": "r-cross-south",
-          "color": "#e15759",
+          "color": "#4e79a7",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -577,7 +577,7 @@
       "segments": [
         {
           "id": "r-right-park-west",
-          "color": "#4e79a7",
+          "color": "#f28e2b",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -602,7 +602,7 @@
         },
         {
           "id": "r-right-park-lane",
-          "color": "#59a14f",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -932,19 +932,6 @@
         "label": "R2: LEFT up by 15.5 s, otherwise park",
         "rows": [
           {
-            "afterMs": 15500,
-            "matchClock": true,
-            "option": "T2 LEFT up by",
-            "cards": [
-              {
-                "id": "r-c-left-park",
-                "kind": "path",
-                "lineId": "r-left-park",
-                "park": true
-              }
-            ]
-          },
-          {
             "when": [
               "LeftCellUp"
             ],
@@ -963,7 +950,6 @@
                   {
                     "afterMs": 16900,
                     "matchClock": true,
-                    "option": "TS scoring FLOWER by",
                     "cards": [
                       {
                         "id": "r-c-left-park-s",
@@ -998,7 +984,6 @@
                           {
                             "afterMs": 20700,
                             "matchClock": true,
-                            "option": "T3c cross by",
                             "cards": [
                               {
                                 "id": "r-gate-left",
@@ -1008,7 +993,6 @@
                                   {
                                     "afterMs": 22400,
                                     "matchClock": true,
-                                    "option": "T3b LEFT rescue by",
                                     "cards": [
                                       {
                                         "id": "r-c-flower-park",
@@ -1035,9 +1019,33 @@
                                         "label": "R3: RIGHT up by 23 s, otherwise finish TIP 2 at LEFT",
                                         "rows": [
                                           {
+                                            "when": [
+                                              "RightCellUp"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "r-hold-c",
+                                                "kind": "firstOf",
+                                                "label": "L has passed: park at 26.4 s",
+                                                "rows": [
+                                                  {
+                                                    "afterMs": 26400,
+                                                    "matchClock": true,
+                                                    "cards": []
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "id": "r-c-catch-park-c",
+                                                "kind": "path",
+                                                "lineId": "r-catch-park",
+                                                "park": true
+                                              }
+                                            ]
+                                          },
+                                          {
                                             "afterMs": 23000,
                                             "matchClock": true,
-                                            "option": "T3 RIGHT up by",
                                             "cards": [
                                               {
                                                 "id": "r-launch-left-again",
@@ -1053,7 +1061,6 @@
                                                   {
                                                     "afterMs": 26400,
                                                     "matchClock": true,
-                                                    "option": "TR park at",
                                                     "cards": []
                                                   }
                                                 ]
@@ -1065,35 +1072,8 @@
                                                 "park": true
                                               }
                                             ]
-                                          },
-                                          {
-                                            "when": [
-                                              "RightCellUp"
-                                            ],
-                                            "cards": [
-                                              {
-                                                "id": "r-hold-c",
-                                                "kind": "firstOf",
-                                                "label": "L has passed: park at 26.4 s",
-                                                "rows": [
-                                                  {
-                                                    "afterMs": 26400,
-                                                    "matchClock": true,
-                                                    "option": "TR park at",
-                                                    "cards": []
-                                                  }
-                                                ]
-                                              },
-                                              {
-                                                "id": "r-c-catch-park-c",
-                                                "kind": "path",
-                                                "lineId": "r-catch-park",
-                                                "park": true
-                                              }
-                                            ]
                                           }
-                                        ],
-                                        "shot": true
+                                        ]
                                       }
                                     ]
                                   }
@@ -1115,34 +1095,8 @@
                               {
                                 "id": "r-stop-3r",
                                 "kind": "firstOf",
-                                "label": "R3: RIGHT up by 23.5 s at the right spot, otherwise park",
+                                "label": "R3 RIGHT up by",
                                 "rows": [
-                                  {
-                                    "afterMs": 23500,
-                                    "matchClock": true,
-                                    "option": "T3r RIGHT up by, at the right spot",
-                                    "cards": [
-                                      {
-                                        "id": "r-hold-right-no",
-                                        "kind": "firstOf",
-                                        "label": "L has left for its park: park at 25 s",
-                                        "rows": [
-                                          {
-                                            "afterMs": 25000,
-                                            "matchClock": true,
-                                            "option": "TRr park from the right at",
-                                            "cards": []
-                                          }
-                                        ]
-                                      },
-                                      {
-                                        "id": "r-c-right-park-no",
-                                        "kind": "path",
-                                        "lineId": "r-right-park",
-                                        "park": true
-                                      }
-                                    ]
-                                  },
                                   {
                                     "when": [
                                       "RightCellUp"
@@ -1162,7 +1116,6 @@
                                           {
                                             "afterMs": 25000,
                                             "matchClock": true,
-                                            "option": "TRr park from the right at",
                                             "cards": []
                                           }
                                         ]
@@ -1174,9 +1127,33 @@
                                         "park": true
                                       }
                                     ]
+                                  },
+                                  {
+                                    "afterMs": 23500,
+                                    "matchClock": true,
+                                    "adjustable": true,
+                                    "cards": [
+                                      {
+                                        "id": "r-hold-right-no",
+                                        "kind": "firstOf",
+                                        "label": "L has left for its park: park at 25 s",
+                                        "rows": [
+                                          {
+                                            "afterMs": 25000,
+                                            "matchClock": true,
+                                            "cards": []
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "id": "r-c-right-park-no",
+                                        "kind": "path",
+                                        "lineId": "r-right-park",
+                                        "park": true
+                                      }
+                                    ]
                                   }
-                                ],
-                                "shot": true
+                                ]
                               }
                             ]
                           }
@@ -1187,9 +1164,20 @@
                 ]
               }
             ]
+          },
+          {
+            "afterMs": 15500,
+            "matchClock": true,
+            "cards": [
+              {
+                "id": "r-c-left-park",
+                "kind": "path",
+                "lineId": "r-left-park",
+                "park": true
+              }
+            ]
           }
-        ],
-        "shot": true
+        ]
       }
     ],
     "startAt": "RIGHT_START",
@@ -1208,14 +1196,6 @@
       "r-c-flower": "r-flower-park",
       "r-c-catch": "r-catch-park",
       "r-c-cross": "r-right-park"
-    },
-    "partner": {
-      "auto": "L-Clockwise-Backward",
-      "follows": "Pickup",
-      "settings": [
-        "GARDEN",
-        "WALL_FLOWER"
-      ]
     },
     "exportName": "R-Clockwise-Backward"
   }

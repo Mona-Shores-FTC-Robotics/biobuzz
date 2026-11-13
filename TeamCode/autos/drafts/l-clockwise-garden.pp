@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-13T14:18:05.187Z",
+  "timestamp": "2026-11-13T15:16:40.792Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -93,6 +93,325 @@
       }
     },
     {
+      "id": "l-pickup",
+      "color": "#4e79a7",
+      "name": "under the HIVE to GARDEN_STAGING",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "compound",
+      "segments": [
+        {
+          "id": "l-under-hive",
+          "color": "#f28e2b",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 56.1,
+            "y": 26
+          },
+          "controlPoints": [
+            {
+              "x": 58.76832619047272,
+              "y": 101.56857289931824
+            },
+            {
+              "x": 65.20046354104544,
+              "y": 71.90515781237575
+            },
+            {
+              "x": 60.600162310030015,
+              "y": 40.90098343477904
+            }
+          ],
+          "heading": {
+            "type": "constant",
+            "degrees": 270
+          }
+        },
+        {
+          "id": "l-to-garden",
+          "color": "#edc948",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 11.5,
+            "y": 22.1
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "constant",
+            "degrees": 270
+          }
+        }
+      ]
+    },
+    {
+      "id": "l-pickup-park",
+      "color": "#4e79a7",
+      "name": "pickup park to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "compound",
+      "segments": [
+        {
+          "id": "l-pickup-park-lane",
+          "color": "#76b7b2",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 34,
+            "y": 106
+          },
+          "controlPoints": [
+            {
+              "x": 31,
+              "y": 38
+            },
+            {
+              "x": 33,
+              "y": 92
+            }
+          ],
+          "heading": {
+            "type": "linear",
+            "startDeg": 270,
+            "endDeg": 90
+          }
+        },
+        {
+          "id": "l-pickup-park-turn-face",
+          "color": "#b07aa1",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 36,
+            "y": 118.2
+          },
+          "controlPoints": [
+            {
+              "x": 35,
+              "y": 112
+            }
+          ],
+          "heading": {
+            "type": "linear",
+            "startDeg": 90,
+            "endDeg": 0
+          }
+        },
+        {
+          "id": "l-pickup-park-turn",
+          "color": "#76b7b2",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 14.5,
+            "y": 117.4
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "constant",
+            "degrees": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "link-2",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 11.5,
+        "y": 22.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "l-to-offset",
+      "color": "#4e79a7",
+      "name": "GARDEN to RIGHT_WALL_NEAR",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 35.9,
+        "y": 10.6
+      },
+      "controlPoints": [
+        {
+          "x": 21,
+          "y": 14
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 426.9
+      }
+    },
+    {
+      "id": "l-park",
+      "color": "#4e79a7",
+      "name": "outside lane to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "compound",
+      "segments": [
+        {
+          "id": "l-park-lane",
+          "color": "#b07aa1",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 34,
+            "y": 106
+          },
+          "controlPoints": [
+            {
+              "x": 25,
+              "y": 20
+            },
+            {
+              "x": 35,
+              "y": 92
+            }
+          ],
+          "heading": {
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.2,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 66.9,
+                    "endDeg": 90
+                  }
+                },
+                {
+                  "startProgress": 0.2,
+                  "endProgress": 1,
+                  "interpolationType": "constant",
+                  "parameters": {
+                    "degrees": 90
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "l-park-turn-face",
+          "color": "#edc948",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 36,
+            "y": 118.2
+          },
+          "controlPoints": [
+            {
+              "x": 35,
+              "y": 112
+            }
+          ],
+          "heading": {
+            "type": "linear",
+            "startDeg": 90,
+            "endDeg": 0
+          }
+        },
+        {
+          "id": "l-park-turn",
+          "color": "#b07aa1",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 14.5,
+            "y": 117.4
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "constant",
+            "degrees": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "link-3",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.9,
+        "y": 133.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
       "id": "l-rescue",
       "color": "#4e79a7",
       "name": "under the HIVE to RIGHT_START",
@@ -105,7 +424,7 @@
       "segments": [
         {
           "id": "l-rescue-south",
-          "color": "#e15759",
+          "color": "#edc948",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -134,7 +453,7 @@
         },
         {
           "id": "l-rescue-turn",
-          "color": "#e15759",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -155,7 +474,7 @@
         },
         {
           "id": "l-rescue-aim",
-          "color": "#b07aa1",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -217,7 +536,7 @@
         },
         {
           "id": "l-rescue-park-west",
-          "color": "#edc948",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -237,7 +556,7 @@
         },
         {
           "id": "l-rescue-park-lane",
-          "color": "#b07aa1",
+          "color": "#edc948",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -266,7 +585,7 @@
         },
         {
           "id": "l-rescue-park-turn-face",
-          "color": "#f28e2b",
+          "color": "#edc948",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -292,326 +611,7 @@
         },
         {
           "id": "l-rescue-park-turn",
-          "color": "#59a14f",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 14.5,
-            "y": 117.4
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "constant",
-            "degrees": 0
-          }
-        }
-      ]
-    },
-    {
-      "id": "link-2",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59.9,
-        "y": 133.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "l-pickup",
-      "color": "#4e79a7",
-      "name": "under the HIVE to GARDEN_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "compound",
-      "segments": [
-        {
-          "id": "l-under-hive",
-          "color": "#e15759",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 56.1,
-            "y": 26
-          },
-          "controlPoints": [
-            {
-              "x": 58.76832619047272,
-              "y": 101.56857289931824
-            },
-            {
-              "x": 65.20046354104544,
-              "y": 71.90515781237575
-            },
-            {
-              "x": 60.600162310030015,
-              "y": 40.90098343477904
-            }
-          ],
-          "heading": {
-            "type": "constant",
-            "degrees": 270
-          }
-        },
-        {
-          "id": "l-to-garden",
-          "color": "#4e79a7",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 11.5,
-            "y": 22.1
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "constant",
-            "degrees": 270
-          }
-        }
-      ]
-    },
-    {
-      "id": "l-pickup-park",
-      "color": "#4e79a7",
-      "name": "pickup park to LEFT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "compound",
-      "segments": [
-        {
-          "id": "l-pickup-park-lane",
-          "color": "#b07aa1",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 34,
-            "y": 106
-          },
-          "controlPoints": [
-            {
-              "x": 31,
-              "y": 38
-            },
-            {
-              "x": 33,
-              "y": 92
-            }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 270,
-            "endDeg": 90
-          }
-        },
-        {
-          "id": "l-pickup-park-turn-face",
-          "color": "#b07aa1",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 36,
-            "y": 118.2
-          },
-          "controlPoints": [
-            {
-              "x": 35,
-              "y": 112
-            }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 90,
-            "endDeg": 0
-          }
-        },
-        {
-          "id": "l-pickup-park-turn",
-          "color": "#59a14f",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 14.5,
-            "y": 117.4
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "constant",
-            "degrees": 0
-          }
-        }
-      ]
-    },
-    {
-      "id": "link-3",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 11.5,
-        "y": 22.1
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "l-to-offset",
-      "color": "#4e79a7",
-      "name": "GARDEN to RIGHT_WALL_NEAR",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 35.9,
-        "y": 10.6
-      },
-      "controlPoints": [
-        {
-          "x": 21,
-          "y": 14
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 426.9
-      }
-    },
-    {
-      "id": "l-park",
-      "color": "#4e79a7",
-      "name": "outside lane to LEFT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "compound",
-      "segments": [
-        {
-          "id": "l-park-lane",
-          "color": "#4e79a7",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 34,
-            "y": 106
-          },
-          "controlPoints": [
-            {
-              "x": 25,
-              "y": 20
-            },
-            {
-              "x": 35,
-              "y": 92
-            }
-          ],
-          "heading": {
-            "type": "piecewise",
-            "piecewiseHeading": {
-              "segments": [
-                {
-                  "startProgress": 0,
-                  "endProgress": 0.2,
-                  "interpolationType": "linear",
-                  "parameters": {
-                    "startDeg": 66.9,
-                    "endDeg": 90
-                  }
-                },
-                {
-                  "startProgress": 0.2,
-                  "endProgress": 1,
-                  "interpolationType": "constant",
-                  "parameters": {
-                    "degrees": 90
-                  }
-                }
-              ]
-            }
-          }
-        },
-        {
-          "id": "l-park-turn-face",
-          "color": "#4e79a7",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 36,
-            "y": 118.2
-          },
-          "controlPoints": [
-            {
-              "x": 35,
-              "y": 112
-            }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 90,
-            "endDeg": 0
-          }
-        },
-        {
-          "id": "l-park-turn",
-          "color": "#76b7b2",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -648,6 +648,50 @@
     },
     {
       "kind": "path",
+      "lineId": "l-under-hive"
+    },
+    {
+      "kind": "path",
+      "lineId": "l-to-garden"
+    },
+    {
+      "kind": "path",
+      "lineId": "l-pickup-park-lane"
+    },
+    {
+      "kind": "path",
+      "lineId": "l-pickup-park-turn-face"
+    },
+    {
+      "kind": "path",
+      "lineId": "l-pickup-park-turn"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "l-to-offset"
+    },
+    {
+      "kind": "path",
+      "lineId": "l-park-lane"
+    },
+    {
+      "kind": "path",
+      "lineId": "l-park-turn-face"
+    },
+    {
+      "kind": "path",
+      "lineId": "l-park-turn"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-3"
+    },
+    {
+      "kind": "path",
       "lineId": "l-rescue-south"
     },
     {
@@ -677,50 +721,6 @@
     {
       "kind": "path",
       "lineId": "l-rescue-park-turn"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-2"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-under-hive"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-to-garden"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-pickup-park-lane"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-pickup-park-turn-face"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-pickup-park-turn"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-3"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-to-offset"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-park-lane"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-park-turn-face"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-park-turn"
     }
   ],
   "fieldPoints": [],
@@ -837,44 +837,8 @@
       {
         "id": "l-stop-1",
         "kind": "firstOf",
-        "label": "L1: LEFT up by 9.5 s, otherwise cross and finish TIP 1 at RIGHT",
+        "label": "L1 LEFT up by",
         "rows": [
-          {
-            "afterMs": 9500,
-            "matchClock": true,
-            "cards": [
-              {
-                "id": "l-c-rescue",
-                "kind": "path",
-                "lineId": "l-rescue",
-                "park": false
-              },
-              {
-                "id": "l-launch-rescue",
-                "kind": "action",
-                "name": "LaunchAll",
-                "timeoutS": 1
-              },
-              {
-                "id": "l-hold-rescue",
-                "kind": "firstOf",
-                "label": "R has parked from the left spot: park at 22.5 s",
-                "rows": [
-                  {
-                    "afterMs": 22500,
-                    "matchClock": true,
-                    "cards": []
-                  }
-                ]
-              },
-              {
-                "id": "l-c-rescue-park",
-                "kind": "path",
-                "lineId": "l-rescue-park",
-                "park": true
-              }
-            ]
-          },
           {
             "when": [
               "LeftCellUp"
@@ -910,30 +874,6 @@
                 "label": "L2: RIGHT up by 19.2 s, otherwise keep the load",
                 "rows": [
                   {
-                    "afterMs": 19200,
-                    "matchClock": true,
-                    "cards": [
-                      {
-                        "id": "l-hold-no",
-                        "kind": "firstOf",
-                        "label": "R has left the scoring FLOWER: park at 22.7 s",
-                        "rows": [
-                          {
-                            "afterMs": 22700,
-                            "matchClock": true,
-                            "cards": []
-                          }
-                        ]
-                      },
-                      {
-                        "id": "l-c-park-no",
-                        "kind": "path",
-                        "lineId": "l-park",
-                        "park": true
-                      }
-                    ]
-                  },
-                  {
                     "when": [
                       "RightCellUp"
                     ],
@@ -963,8 +903,68 @@
                         "park": true
                       }
                     ]
+                  },
+                  {
+                    "afterMs": 19200,
+                    "matchClock": true,
+                    "cards": [
+                      {
+                        "id": "l-hold-no",
+                        "kind": "firstOf",
+                        "label": "R has left the scoring FLOWER: park at 22.7 s",
+                        "rows": [
+                          {
+                            "afterMs": 22700,
+                            "matchClock": true,
+                            "cards": []
+                          }
+                        ]
+                      },
+                      {
+                        "id": "l-c-park-no",
+                        "kind": "path",
+                        "lineId": "l-park",
+                        "park": true
+                      }
+                    ]
                   }
                 ]
+              }
+            ]
+          },
+          {
+            "afterMs": 9500,
+            "matchClock": true,
+            "cards": [
+              {
+                "id": "l-c-rescue",
+                "kind": "path",
+                "lineId": "l-rescue",
+                "park": false
+              },
+              {
+                "id": "l-launch-rescue",
+                "kind": "action",
+                "name": "LaunchAll",
+                "timeoutS": 1
+              },
+              {
+                "id": "l-hold-rescue",
+                "kind": "firstOf",
+                "label": "R has parked from the left spot: park at 22.5 s",
+                "rows": [
+                  {
+                    "afterMs": 22500,
+                    "matchClock": true,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "l-c-rescue-park",
+                "kind": "path",
+                "lineId": "l-rescue-park",
+                "park": true
               }
             ]
           }
