@@ -172,23 +172,62 @@ public class FlowerPickerTest {
     }
 
     @Test
-    public void inAndOutIsOffAndThePickStaysOneDwellLong() {
-        assertEquals("off until a robot has shown it helps", false, FlowerPicker.inAndOut);
+    public void masterIsTheDefaultAndStaysOneDwellLong() {
+        assertEquals("the Belding pick until a robot has shown another is better",
+                FlowerPicker.Routine.MASTER, FlowerPicker.routine);
         assertEquals(FlowerPicker.dwellMs, FlowerPicker.atFlowerCapMs(), EPS);
         assertEquals("a full lane ends the one dwell at once", 0.0, FlowerPicker.fullEndsAfterMs(), EPS);
+        assertEquals(1, FlowerPicker.pushesInUse());
     }
 
     @Test
-    public void inAndOutStaysBothDwellsAndTheMoveBetweenThem() {
-        boolean was = FlowerPicker.inAndOut;
-        FlowerPicker.inAndOut = true;
+    public void aClearedPanelsFieldRunsMaster() {
+        FlowerPicker.Routine was = FlowerPicker.routine;
+        FlowerPicker.routine = null;
         try {
-            double move = FlowerPicker.IN_AND_OUT_MOVE_MS;
-            assertEquals(FlowerPicker.firstDwellMs + move + FlowerPicker.secondDwellMs, FlowerPicker.atFlowerCapMs(), EPS);
-            assertEquals("full ends only the second dwell", FlowerPicker.firstDwellMs + move, FlowerPicker.fullEndsAfterMs(), EPS);
-            assertEquals("the stick stays down through the back-off", true, FlowerPicker.backOffIn < FlowerPicker.retractAfterBackIn);
+            assertEquals(FlowerPicker.Routine.MASTER, FlowerPicker.routineInUse());
+            assertEquals(FlowerPicker.dwellMs, FlowerPicker.atFlowerCapMs(), EPS);
         } finally {
-            FlowerPicker.inAndOut = was;
+            FlowerPicker.routine = was;
+        }
+    }
+
+    @Test
+    public void fastStaysItsOwnShorterDwellAndHandsOverWithTheStickClear() {
+        FlowerPicker.Routine was = FlowerPicker.routine;
+        FlowerPicker.routine = FlowerPicker.Routine.FAST;
+        try {
+            assertEquals(FlowerPicker.fastDwellMs, FlowerPicker.atFlowerCapMs(), EPS);
+            assertEquals(true, FlowerPicker.fastDwellMs < FlowerPicker.dwellMs);
+            assertEquals(1, FlowerPicker.pushesInUse());
+            assertEquals("never handed over with the stick still in the FLOWER", true,
+                    FlowerPicker.handOverBackIn >= FlowerPicker.retractAfterBackIn);
+        } finally {
+            FlowerPicker.routine = was;
+        }
+    }
+
+    @Test
+    public void multiPushStaysItsDwellsAndTheMovesBetweenAndIsNoLongerThanMaster() {
+        FlowerPicker.Routine was = FlowerPicker.routine;
+        int count = FlowerPicker.multiPushCount;
+        FlowerPicker.routine = FlowerPicker.Routine.MULTI_PUSH;
+        try {
+            double move = FlowerPicker.MULTI_PUSH_MOVE_MS;
+            assertEquals(2, FlowerPicker.pushesInUse());
+            assertEquals(FlowerPicker.multiFirstDwellMs + move + FlowerPicker.multiLastDwellMs, FlowerPicker.atFlowerCapMs(), EPS);
+            assertEquals("full ends only the last dwell", FlowerPicker.multiFirstDwellMs + move, FlowerPicker.fullEndsAfterMs(), EPS);
+            assertEquals("at the FLOWER no longer than MASTER's dwell and its 0.27 s stall wait", true,
+                    FlowerPicker.atFlowerCapMs() <= FlowerPicker.dwellMs + 270);
+            assertEquals("the stick stays down through the back-off", true,
+                    FlowerPicker.multiBackOffIn < FlowerPicker.retractAfterBackIn);
+            FlowerPicker.multiPushCount = 9;
+            assertEquals("a typo is held to three pushes", 3, FlowerPicker.pushesInUse());
+            FlowerPicker.multiPushCount = 0;
+            assertEquals("and never under two", 2, FlowerPicker.pushesInUse());
+        } finally {
+            FlowerPicker.routine = was;
+            FlowerPicker.multiPushCount = count;
         }
     }
 }

@@ -2445,8 +2445,9 @@ public final class AutoSim {
                             phase[0] = 2;
                             dwellFrom[0] = now;
                         } else if (phase[0] == 2 && (Double.isNaN(pickS)
-                                // The robot's own numbers: one dwell, or with FlowerPicker.inAndOut two and the
-                                // move between them, which a full lane cannot cut before the second.
+                                // The robot's own numbers, by FlowerPicker.routine: one dwell, or MULTI_PUSH's dwells
+                                // and the moves between them, which a full lane cannot cut before the last. FAST's
+                                // early hand-over on the back-out is not modelled: the drive back runs to its end.
                                 ? (FieldSim.full(body) && now - dwellFrom[0] >= FlowerPicker.fullEndsAfterMs() / 1000.0
                                         && (!BeldingCalibration.on || now - dwellFrom[0] >= BeldingCalibration.PICK_DWELL_S))
                                     || now - dwellFrom[0] >= FlowerPicker.atFlowerCapMs() / 1000.0

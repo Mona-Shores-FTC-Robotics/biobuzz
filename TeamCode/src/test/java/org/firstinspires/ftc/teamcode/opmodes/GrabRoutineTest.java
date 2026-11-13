@@ -34,13 +34,22 @@ public class GrabRoutineTest {
     }
 
     @Test
-    public void onlyTheFirstDwellOfAnInAndOutHasASecondInAhead() {
-        assertEquals(true, GrabRoutine.secondInAhead(true, 1, 5.0, 8.0));
-        assertEquals("switched off: one push", false, GrabRoutine.secondInAhead(false, 1, 5.0, 8.0));
-        assertEquals("the second dwell ends the pick", false, GrabRoutine.secondInAhead(true, 2, 5.0, 8.0));
-        assertEquals("a back-off under an inch is no back-off", false, GrabRoutine.secondInAhead(true, 1, 0.5, 8.0));
-        assertEquals("a typo (NaN) is no back-off", false, GrabRoutine.secondInAhead(true, 1, Double.NaN, 8.0));
-        assertEquals("no room behind: the In started here", false, GrabRoutine.secondInAhead(true, 1, 5.0, 0.2));
+    public void anotherInFollowsEveryDwellButTheLast() {
+        assertEquals(true, GrabRoutine.anotherInAhead(2, 1, 3.0, 8.0));
+        assertEquals("one push: never", false, GrabRoutine.anotherInAhead(1, 1, 3.0, 8.0));
+        assertEquals("the second of two is the last", false, GrabRoutine.anotherInAhead(2, 2, 3.0, 8.0));
+        assertEquals("the second of three is not", true, GrabRoutine.anotherInAhead(3, 2, 3.0, 8.0));
+        assertEquals("a back-off under an inch is no back-off", false, GrabRoutine.anotherInAhead(2, 1, 0.5, 8.0));
+        assertEquals("a typo (NaN) is no back-off", false, GrabRoutine.anotherInAhead(2, 1, Double.NaN, 8.0));
+        assertEquals("no room behind: the In started here", false, GrabRoutine.anotherInAhead(2, 1, 3.0, 0.2));
+    }
+
+    @Test
+    public void theBackHandsOverOnceBackedFarEnoughAndOnlyWhenAsked() {
+        assertEquals("off: back all the way", false, GrabRoutine.handOverNow(0.0, 9.0));
+        assertEquals(false, GrabRoutine.handOverNow(6.0, 5.9));
+        assertEquals(true, GrabRoutine.handOverNow(6.0, 6.0));
+        assertEquals("a typo (NaN) backs all the way", false, GrabRoutine.handOverNow(Double.NaN, 9.0));
     }
 
     @Test

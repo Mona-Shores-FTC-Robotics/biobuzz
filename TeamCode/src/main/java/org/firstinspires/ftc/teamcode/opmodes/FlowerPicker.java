@@ -36,8 +36,9 @@ import java.util.function.Consumer;
  * at the pick's own line-up, so when the card starts the {@link #stickDownMs} wait has usually run
  * out already ({@link #readySinceNs}). Measured 29 Oct to 2 Nov 2026: the push started 0.70 to
  * 0.73 s after the drive ended, all of it the stick wait. The pick itself is unchanged: square up,
- * push to contact, dwell, back out (mentor, 3 Nov 2026: the two stay separate cards). {@link #inAndOut}
- * (off) makes that two pushes with a short back-off between them.
+ * push to contact, dwell, back out (mentor, 3 Nov 2026: the two stay separate cards).
+ * {@link #routine} picks between that pick ({@code MASTER}), the same with the waiting taken out
+ * ({@code FAST}) and one of two pushes ({@code MULTI_PUSH}).
  *
  * <p>Every number here is a starting point to tune in Panels, not a measurement. The two standoffs
  * come from the Autos' drawings (contact about 12 in from the centre, as R-Quals draws its FLOWER
@@ -126,60 +127,115 @@ public final class FlowerPicker extends GrabRoutine {
      * as before.
      */
     public static boolean dwellEndsOnFull = true;
+    /** Which pick runs: see {@link #routine}. */
+    public enum Routine { MASTER, FAST, MULTI_PUSH }
+
     /**
-     * <b>In and out</b>: push in, dwell {@link #firstDwellMs}, back off {@link #backOffIn} with the
-     * stick down and the intake running, push in again, dwell at most {@link #secondDwellMs}, back
-     * out. <b>Off</b> (one push and one dwell, as before) until a robot has shown it brings 4 more
-     * often (doc/robot-todo.md, "FLOWER pick: in and out"); flip it in Panels to try it.
+     * <b>Which pick runs</b>, on the button and on an Auto's {@code PickFlower} card alike. Change it
+     * in Panels; it is read when a pick starts, and the pick's start line in the match log names it.
      *
-     * <p>Why (13 Nov 2026, from the Belding Qualifier's logs and stream): the dwell is not when the
-     * last piece comes in. On 20245 the FLOWER is empty within about 0.8 s of contact (Q-27, film) and
-     * the 4th piece is taken as the robot starts to back out (0.1 to 0.4 s into the back-out in 6 of
-     * its 10 match Auto picks, intake current). On 19429 the FLOWER kept its POLLEN for the whole 2 s
-     * dwell (Q-13, film): 7 of its 13 match Auto picks had no piece arrive in the dwell, and 11 had
-     * one arrive 0.6 to 0.7 s into the back-out. So the back-off is put in the middle, where a second
-     * push can follow it, and the dwells are cut to pay for it. The first dwell ignores the full
-     * sensor: on 12 Nov both R-Clockwise picks ended on "full" after 1.41 and 1.04 s with 2 and 1
-     * counted, a piece held under the sensor at the mouth, not a full lane.
+     * <ul>
+     *   <li>{@link Routine#MASTER} (the default): the pick as it was at the Belding Qualifier. One push,
+     *       a dwell of up to {@link #dwellMs} counted from the stall being declared, and a back-out all
+     *       the way to where the push started.</li>
+     *   <li>{@link Routine#FAST}: the same one push with the waiting taken out. The push starts without
+     *       waiting for the robot to slow ({@link #fastSettledInPerSec}); the dwell is
+     *       {@link #fastDwellMs} counted from contact; the pick ends {@link #handOverBackIn} into the
+     *       back-out, still rolling, the stick lifting on its own once clear.</li>
+     *   <li>{@link Routine#MULTI_PUSH}: FAST's push and hand-over, with {@link #multiPushCount} pushes:
+     *       dwell {@link #multiFirstDwellMs}, back off {@link #multiBackOffIn} with the stick down and
+     *       the intake on, push again, dwell at most {@link #multiLastDwellMs}. Only the last dwell
+     *       ends on a full lane.</li>
+     * </ul>
+     *
+     * <p><b>Where a Belding pick's 3.66 s went</b> (median of 25 Auto picks, both robots, the 7 Nov
+     * match logs and 12 Nov's two; odometry and the pick's own event lines):
+     * <pre>
+     *   waiting to slow after the drive in   0.13 s   (it arrives at 9 to 27 in/s, waits for 8)
+     *   push, moving                         0.66 s   (8.8 in, from rest)
+     *   push, stopped, stall not yet called  0.27 s   (stallMs 250: the stick is already in the FLOWER)
+     *   dwell                                2.01 s   (the cap, 20 times in 25)
+     *   back-out                             0.63 s   (9.7 in; 2 in at 0.22 s, 3 at 0.29, 4 at 0.34,
+     *                                                  6 at 0.44; the stick is up at 0.52)
+     * </pre>
+     * FAST's numbers come from that table: no wait to slow (about 0.1 s), the 0.27 s stall wait
+     * counted as dwell, a dwell of 1.0 s from contact (on 20245 the FLOWER is empty within about 0.8 s
+     * of contact on Q-27's film, and half the pieces that arrive in a dwell are in by 0.76 s after
+     * contact, nine in ten by 1.67), and a hand-over 6 in back (0.44 s, not 0.63). About 2.2 s
+     * expected, 1.5 s under MASTER. MULTI_PUSH spends part of that on a second push: about 3.0 s
+     * expected. Why a second push: the last piece came in as the robot backed off, not in the dwell
+     * (20245: 0.1 to 0.4 s into the back-out in 6 of its 10 match Auto picks; 19429: nothing arrived
+     * in the dwell in 7 of 13, a piece 0.6 to 0.7 s into the back-out in 11), and on 12 Nov both picks'
+     * dwells ended on "full" with 2 and 1 counted. None of the expected times or loads has been run
+     * on a robot: doc/robot-todo.md, "FLOWER pick: three routines".
      */
-    public static boolean inAndOut = false;
+    public static Routine routine = Routine.MASTER;
     /**
-     * In and out: the first dwell, ms. On 20245 half the pieces that arrive in a dwell are in by
-     * 0.5 s after contact and nine in ten by 1.4 s (78 Auto picks, 29 Oct to 12 Nov 2026, intake
-     * current); 800 takes the first burst and leaves the stragglers to the back-off. A starting point.
+     * FAST and MULTI_PUSH: the push starts once the robot is slower than this after the drive in,
+     * inches/s. Above any speed a drive hands over at (9 to 27 in/s at Belding), so no wait; lower it
+     * toward {@link #settledInPerSec} if the push goes in crooked.
      */
-    public static double firstDwellMs = 800;
+    public static double fastSettledInPerSec = 30.0;
+    /** FAST: the dwell's cap, ms, counted from contact (MASTER's {@link #dwellMs} counts from the stall call, 0.27 s later). */
+    public static double fastDwellMs = 1000;
     /**
-     * In and out: how far the robot backs off between the pushes, inches, the stick still down. Less
-     * than {@link #retractAfterBackIn}, the distance at which the stick is clear to lift. A starting
-     * point, not a measurement.
+     * FAST and MULTI_PUSH: the pick ends once the robot has backed this far from where the push
+     * ended, inches, still rolling; the Auto's next drive or the driver has it from there. 6.0 is
+     * {@link #retractAfterBackIn}, where the stick is clear to lift, so the robot is never handed
+     * over with the stick still in the FLOWER; go lower only once the stick's reach is measured.
+     * 0 backs all the way, as MASTER does.
      */
-    public static double backOffIn = 5.0;
-    /** In and out: the back-off gives up after this long, ms, and the second push starts from there. */
-    public static double backOffTimeoutMs = 800;
-    /** In and out: the second dwell's cap, ms; the full lane ends it sooner ({@link #dwellEndsOnFull}). */
-    public static double secondDwellMs = 600;
+    public static double handOverBackIn = 6.0;
+    /** MULTI_PUSH: how many pushes, 2 or 3. */
+    public static int multiPushCount = 2;
+    /** MULTI_PUSH: every dwell but the last, ms from contact. A full lane does not end it. */
+    public static double multiFirstDwellMs = 600;
     /**
-     * In and out: the back-off and the second push together, ms, for anything that plans a pick's
-     * length without running it (the simulator). An estimate, not measured: 5 in out and back at the
-     * push's pace, which covered about 8 in in 0.9 s at Belding. Replace it from the first logs.
+     * MULTI_PUSH: how far the robot backs off between pushes, inches, the stick still down: under
+     * {@link #retractAfterBackIn}. 3 in took 0.29 s of a Belding back-out. A starting point.
      */
-    public static final double IN_AND_OUT_MOVE_MS = 900;
+    public static double multiBackOffIn = 3.0;
+    /** MULTI_PUSH: a back-off gives up after this long, ms, and the next push starts from there. */
+    public static double multiBackOffTimeoutMs = 600;
+    /** MULTI_PUSH: the last dwell's cap, ms from contact; a full lane ends it sooner ({@link #dwellEndsOnFull}). */
+    public static double multiLastDwellMs = 500;
+    /**
+     * MULTI_PUSH: one back-off and the push after it, ms, for anything that plans a pick's length
+     * without running it (the simulator). An estimate, not measured: 3 in out (0.29 s at Belding) and
+     * 3 in back in. Replace it from the first logs.
+     */
+    public static final double MULTI_PUSH_MOVE_MS = 650;
+
+    /** The routine in use; a cleared Panels field runs MASTER. */
+    static Routine routineInUse() {
+        return routine == null ? Routine.MASTER : routine;
+    }
+
+    /** MULTI_PUSH's pushes, held to 2 or 3; 1 for the other routines. */
+    static int pushesInUse() {
+        return routineInUse() == Routine.MULTI_PUSH ? Math.max(2, Math.min(3, multiPushCount)) : 1;
+    }
 
     /**
      * The longest the robot stays at the FLOWER, from first contact to the start of the back-out, ms:
-     * {@link #dwellMs}, or with {@link #inAndOut} both dwells and the move between them.
+     * MASTER's {@link #dwellMs}, FAST's {@link #fastDwellMs}, or MULTI_PUSH's dwells and the moves
+     * between them.
      */
     public static double atFlowerCapMs() {
-        return inAndOut ? nn(firstDwellMs) + IN_AND_OUT_MOVE_MS + nn(secondDwellMs) : nn(dwellMs);
+        switch (routineInUse()) {
+            case FAST: return nn(fastDwellMs);
+            case MULTI_PUSH: return fullEndsAfterMs() + nn(multiLastDwellMs);
+            default: return nn(dwellMs);
+        }
     }
 
     /**
      * How long after first contact a full lane may first end the stay at the FLOWER, ms: at once, or
-     * with {@link #inAndOut} not until the second dwell.
+     * with MULTI_PUSH not until the last dwell.
      */
     public static double fullEndsAfterMs() {
-        return inAndOut ? nn(firstDwellMs) + IN_AND_OUT_MOVE_MS : 0.0;
+        return routineInUse() == Routine.MULTI_PUSH
+                ? (pushesInUse() - 1) * (nn(multiFirstDwellMs) + MULTI_PUSH_MOVE_MS) : 0.0;
     }
     /**
      * The dwell ends this long after the intake current's last spike, ms (0: off). <b>Off</b> since
@@ -227,6 +283,9 @@ public final class FlowerPicker extends GrabRoutine {
     public static double maxCorrection = 0.25;
 
     private Flower flower;
+    /** The routine this pick runs, and its pushes: {@link #routine} as it was when the pick started. */
+    private Routine running = Routine.MASTER;
+    private int runningPushes = 1;
 
     /** The button's pick: lines up first. */
     public FlowerPicker(Robot robot, Consumer<String> event) {
@@ -326,13 +385,15 @@ public final class FlowerPicker extends GrabRoutine {
     /** How deep this push aims, as it is now: Panels can change it after the log's metadata is written. */
     @Override
     protected String startNote() {
+        Routine r = running;
         return String.format(Locale.US, ", contact %.1f in%s", nn(contactStandoffIn),
-                inAndOut ? String.format(Locale.US, ", in and out (dwell %.1f s, back off %.1f in, dwell %.1f s)",
-                        nn(firstDwellMs) / 1000.0, nn(backOffIn), nn(secondDwellMs) / 1000.0) : "");
+                r == Routine.MASTER ? "" : ", " + r);
     }
 
     @Override
     protected String findTarget(Pose pose) {
+        running = routineInUse();
+        runningPushes = pushesInUse();
         // The nearest in range; in an Auto, only one on the robot's own half (GrabRoutine).
         flower = nearest(pose.x(), pose.y(), inAuto());
         return flower == null ? null : flower.toString();
@@ -449,17 +510,20 @@ public final class FlowerPicker extends GrabRoutine {
     @Override protected double inTimeoutMs() { return pushTimeoutMs; }
     @Override protected double stallProgressIn() { return stallProgressIn; }
     @Override protected double stallMs() { return stallMs; }
-    @Override protected double dwellMs() { return dwellMs; }
-    @Override protected boolean inAndOut() { return inAndOut; }
-    @Override protected double firstDwellMs() { return firstDwellMs; }
-    @Override protected double backOffIn() { return backOffIn; }
-    @Override protected double backOffTimeoutMs() { return backOffTimeoutMs; }
-    @Override protected double secondDwellMs() { return secondDwellMs; }
+    @Override protected double dwellMs() { return running == Routine.FAST ? fastDwellMs : dwellMs; }
+    // The routine is read once, as the pick starts (findTarget): a Panels change mid-pick waits for the next.
+    @Override protected boolean dwellFromContact() { return running != Routine.MASTER; }
+    @Override protected double handOverBackIn() { return running == Routine.MASTER ? 0.0 : handOverBackIn; }
+    @Override protected int pushCount() { return runningPushes; }
+    @Override protected double firstDwellMs() { return multiFirstDwellMs; }
+    @Override protected double backOffIn() { return multiBackOffIn; }
+    @Override protected double backOffTimeoutMs() { return multiBackOffTimeoutMs; }
+    @Override protected double lastDwellMs() { return multiLastDwellMs; }
     @Override protected double dwellQuietMs() { return dwellQuietMs; }
     @Override protected boolean dwellFull() { return dwellEndsOnFull && robot.colorSensor.full(); }
     @Override protected double dwellEmptyMs() { return dwellEmptyMs; }
     @Override protected double spikeAboveAmps() { return spikeAboveAmps; }
-    @Override protected double settledInPerSec() { return settledInPerSec; }
+    @Override protected double settledInPerSec() { return running == Routine.MASTER ? settledInPerSec : fastSettledInPerSec; }
     @Override protected double dwellPushPower() { return dwellPushPower; }
     @Override protected double backSpeed() { return backSpeed; }
     @Override protected double unprepAfterBackIn() { return retractAfterBackIn; }
