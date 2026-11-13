@@ -44,7 +44,9 @@ both robots and promoted to competition Autos; run one only with the partner on 
 fallback at each stop, a pickup the drive teams choose in INIT, and shots by the camera or the
 timer. It has not driven on a robot yet; Infraviolet stays selectable until it has on both
 ([its notes](clockwise.md)). Its volleys are from the
-drivers' Square and Triangle spots (`LaunchSpots`), not team spots.
+drivers' Square and Triangle spots (`LaunchSpots`), not team spots. It drives nose-first with a load; the version
+with backward legs, which has time for a third TIP, is the draft `r-clockwise-backward.pp` with
+`l-clockwise-backward.pp`.
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
 those routines: their paths, waits and fallback behavior have not been tuned yet.
 In particular, L-NoCross's existing no-TIP fallback still crosses to RIGHT; replace
@@ -324,7 +326,7 @@ row has it selected already.
 |---|---|---|
 | The partner wait | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for partner's TIP until 9 s". Left to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
 | Park | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
-| A paired Auto's pickup, shot trigger and times | as the row says | the Clockwise pair (`clockwise.md`) |
+| A route choice (Clockwise's Pickup and Priority) | the leg the robot drives | a *Choose in INIT* step (`clockwise.md`) |
 
 - **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
   as drawn and amber once changed; PLAY locks them, and the match log records them
