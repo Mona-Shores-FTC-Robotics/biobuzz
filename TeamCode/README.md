@@ -1051,6 +1051,17 @@ drive at the contact standoff) was considered and rejected: the pick would no lo
 works in isolation. `GardenGather` has no approach yet: its stick came down on the wall when swung
 early in the corner (30 Oct 2026).
 
+`FlowerPicker.routine` (Panels) picks which pick runs. `MASTER`, the default, is the pick as it ran
+at the Belding Qualifier. `FAST` is the same one push with the waiting taken out: no wait to slow
+after the drive in, a 1.0 s dwell counted from contact (not from the stall call 0.27 s later), and
+the pick ends 6 in into the back-out, still rolling, the stick lifting on its own once clear; about
+2.2 s expected against Belding's 3.66. `MULTI_PUSH` is FAST with two pushes and a 3 in back-off
+between them, stick down and intake on (`GrabRoutine.Phase.BACK_OFF`), because at Belding the last
+piece came in as the robot backed off, not during the dwell; about 3.0 s expected. Neither is
+measured: `doc/robot-todo.md` §4 has the 20 picks per FLOWER per robot that decide the default. The
+measured breakdown of a Belding pick is on `FlowerPicker.routine`; the simulator reads the pick's
+length from `FlowerPicker.atFlowerCapMs()` for whichever routine is set.
+
 **A `LaunchAll` after a path launches on the approach**, as a good TeleOp driver does (mentor,
 4 Nov 2026). `LaunchCards.approach()` opens the gate once three things hold: the robot is within
 `PathEndSettle.launchWithinIn` (6 in) of the path's end, within `aimToleranceDeg` (3°) of the end

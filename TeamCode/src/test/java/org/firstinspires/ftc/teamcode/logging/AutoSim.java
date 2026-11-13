@@ -545,7 +545,7 @@ public final class AutoSim {
 
     /**
      * Seconds this robot stands at a FLOWER with its intake on in PickFlower, full or not, instead of the
-     * robot's {@code FlowerPicker.dwellMs} (which ends early once it is full); NaN for the robot's. Its drives
+     * robot's {@code FlowerPicker.atFlowerCapMs()} (which ends early once it is full); NaN for the robot's. Its drives
      * to and from the FLOWER are at its {@link #speed}.
      */
     AutoSim pickSeconds(double atFlowerS) {
@@ -2371,7 +2371,7 @@ public final class AutoSim {
          * PickFlower, as the robot's {@code FlowerPicker.command} runs it from an Auto: the nearest FLOWER on the
          * robot's own half within {@code maxRangeIn}; a square-up onto that FLOWER's line, facing it, at the distance
          * the Auto's drive stopped (held between {@code minAutoStartIn} and {@code approachStandoffIn}); a push in
-         * to {@code contactStandoffIn}, the intake on, a dwell until full or {@code dwellMs}, and a drive back to the
+         * to {@code contactStandoffIn}, the intake on, a dwell until full or {@code atFlowerCapMs()}, and a drive back to the
          * squared-up spot. It refuses, doing nothing, where the robot does ({@code FlowerPicker.squareUpRefusal}).
          * Rule and numbers are read from FlowerPicker, never copied. Whether pieces come out is the extractor's
          * model ({@link #extractor}), as for a path an Auto draws to a FLOWER. A design with the intake at the back
@@ -2445,8 +2445,12 @@ public final class AutoSim {
                             phase[0] = 2;
                             dwellFrom[0] = now;
                         } else if (phase[0] == 2 && (Double.isNaN(pickS)
-                                ? (FieldSim.full(body) && (!BeldingCalibration.on || now - dwellFrom[0] >= BeldingCalibration.PICK_DWELL_S))
-                                    || now - dwellFrom[0] >= FlowerPicker.dwellMs / 1000.0
+                                // The robot's own numbers, by FlowerPicker.routine: one dwell, or MULTI_PUSH's dwells
+                                // and the moves between them, which a full lane cannot cut before the last. FAST's
+                                // early hand-over on the back-out is not modelled: the drive back runs to its end.
+                                ? (FieldSim.full(body) && now - dwellFrom[0] >= FlowerPicker.fullEndsAfterMs() / 1000.0
+                                        && (!BeldingCalibration.on || now - dwellFrom[0] >= BeldingCalibration.PICK_DWELL_S))
+                                    || now - dwellFrom[0] >= FlowerPicker.atFlowerCapMs() / 1000.0
                                 : now - dwellFrom[0] >= pickS)) {
                             phase[0] = 3;
                             double[] at = pedro(drive.pose);
