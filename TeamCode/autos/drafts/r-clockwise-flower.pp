@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-12T22:32:04.008Z",
+  "timestamp": "2026-11-13T02:00:41.503Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -100,7 +100,15 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.7,
+              "endProgress": 0.4,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 180
+              }
+            },
+            {
+              "startProgress": 0.4,
+              "endProgress": 0.9,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 180,
@@ -108,7 +116,7 @@
               }
             },
             {
-              "startProgress": 0.7,
+              "startProgress": 0.9,
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
@@ -265,7 +273,7 @@
       "segments": [
         {
           "id": "r-catch-park-south",
-          "color": "#b07aa1",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -291,7 +299,7 @@
         },
         {
           "id": "r-catch-park-in",
-          "color": "#b07aa1",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -339,7 +347,7 @@
       "segments": [
         {
           "id": "r-cross-out",
-          "color": "#b07aa1",
+          "color": "#4e79a7",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -368,7 +376,7 @@
         },
         {
           "id": "r-cross-south",
-          "color": "#e15759",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -410,7 +418,7 @@
       "segments": [
         {
           "id": "r-right-park-west",
-          "color": "#4e79a7",
+          "color": "#f28e2b",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -435,7 +443,7 @@
         },
         {
           "id": "r-right-park-lane",
-          "color": "#e15759",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,

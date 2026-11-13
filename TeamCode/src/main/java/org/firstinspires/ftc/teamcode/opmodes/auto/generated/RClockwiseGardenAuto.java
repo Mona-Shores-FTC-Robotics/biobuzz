@@ -21,7 +21,7 @@ public final class RClockwiseGardenAuto {
     public static final String SOURCE = "r-clockwise-garden.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-12|5:32PM";
+    public static final String SAVED = "11-12|9:00PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -69,6 +69,11 @@ public final class RClockwiseGardenAuto {
         Pose outsideLaneToLeftWallNearControl2 = p.of(29.5, 72, 0);
         Pose outsideLaneToLeftWallNearControl3 = p.of(29, 108, 0);
         Pose outsideLaneToLeftWallNearSegment1Start = p.of(37.8, 130.7, 270);
+        Pose outsideLaneToLeftWallNearSegment1End = p.of(37.8, 130.7, 180);
+        Pose outsideLaneToLeftWallNearSegment2Start = p.of(37.8, 130.7, 180);
+        Pose outsideLaneToLeftWallNearSegment2End = p.of(37.8, 130.7, 90);
+        Pose outsideLaneToLeftWallNearSegment3Heading = p.of(37.8, 130.7, 90);
+        Pose outsideLaneToLeftWallNearSegment4Start = p.of(37.8, 130.7, 90);
         Pose leftParkToRightParkControl1 = p.of(31, 104, 0);
         Pose toScoringFlowerStagingControl1 = p.of(38, 119, 0);
         Pose scoringFlowerParkToRightParkControl1 = p.of(40, 100, 0);
@@ -90,7 +95,7 @@ public final class RClockwiseGardenAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path toGardenStaging = Paths.curve(rightStart, toGardenStagingControl1, toGardenStagingControl2, gardenStaging).linear(rightStart, gardenStaging);
         Path pickupParkToRightPark = Paths.path(Paths.curve(gardenStaging, point2Control1, point2Control2, point2).linear(gardenStaging, point2), Paths.curve(point3Start, point3Control1, rightPark).linear(point3Start, rightPark));
-        Path outsideLaneToLeftWallNear = Paths.curve(gardenStaging, outsideLaneToLeftWallNearControl1, outsideLaneToLeftWallNearControl2, outsideLaneToLeftWallNearControl3, leftWallNear).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(outsideLaneToLeftWallNearSegment1Start, leftWallNear)).until(1, Interpolator.constant(leftWallNear)));
+        Path outsideLaneToLeftWallNear = Paths.curve(gardenStaging, outsideLaneToLeftWallNearControl1, outsideLaneToLeftWallNearControl2, outsideLaneToLeftWallNearControl3, leftWallNear).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(outsideLaneToLeftWallNearSegment1Start, outsideLaneToLeftWallNearSegment1End)).until(0.2, Interpolator.linear(outsideLaneToLeftWallNearSegment2Start, outsideLaneToLeftWallNearSegment2End)).until(0.5, Interpolator.constant(outsideLaneToLeftWallNearSegment3Heading)).until(0.9, Interpolator.linear(outsideLaneToLeftWallNearSegment4Start, leftWallNear)).until(1, Interpolator.constant(leftWallNear)));
         Path leftParkToRightPark = Paths.curve(leftWallNear, leftParkToRightParkControl1, rightPark).linear(leftWallNear, rightPark);
         Path toScoringFlowerStaging = Paths.curve(leftWallNear, toScoringFlowerStagingControl1, scoringFlowerStaging).linear(leftWallNear, scoringFlowerStaging);
         Path scoringFlowerParkToRightPark = Paths.curve(scoringFlowerStaging, scoringFlowerParkToRightParkControl1, scoringFlowerParkToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);
@@ -104,7 +109,7 @@ public final class RClockwiseGardenAuto {
                 kit.command("LaunchAll"),
                 kit.path("to GARDEN_STAGING", toGardenStaging, 2, pickupParkToRightPark, 2.8),
                 kit.command("GardenGather", 5.5),
-                kit.path("outside lane to LEFT_WALL_NEAR", outsideLaneToLeftWallNear, 3.3, leftParkToRightPark, 1.9),
+                kit.path("outside lane to LEFT_WALL_NEAR", outsideLaneToLeftWallNear, 3.6, leftParkToRightPark, 1.9),
                 kit.firstOf("R2: LEFT up by 15.5 s, otherwise park",
                         kit.atMatchSeconds(15.5).then(
                                 kit.guarded("Timed out", leftParkToRightPark, 1.9,

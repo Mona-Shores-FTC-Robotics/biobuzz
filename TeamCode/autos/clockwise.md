@@ -56,8 +56,14 @@ the other. It is one row of each robot's INIT menu, **Pickup**, and it changes o
 
 **The parks are fixed.** R always ends on RIGHT_PARK and L on LEFT_PARK. Only the path in differs.
 
-**R drives backward with a load** (mentor, 11 Nov 2026: it can). From the WALL FLOWER it turns the
-short way as it goes up the outside lane. From the SCORING FLOWER it backs straight out and under
+**R's leg up the outside lane.** On its first drive (20245, 12 Nov 2026) pieces left the intake as
+R accelerated backward: the intake holds still once the lane reads full. From the WALL FLOWER it
+now keeps its FLOWER heading while it gets up to speed (it drives sideways), and turns the short way
+to aim only as it cruises and slows. Untested: a robot check. From the GARDEN it turns nose-first
+for the lane, as R-Solo and Infraviolet do.
+
+**R still backs under the HIVE with a load** (mentor, 11 Nov 2026: it can; a mechanical fix for
+the pieces is being looked at). From the SCORING FLOWER it backs straight out and under
 the HIVE to RIGHT_CLOSE_HIVE without turning at all.
 
 **R does not wait for TIP 2's spill before it backs under the HIVE** (mentor, 12 Nov 2026: deal

@@ -21,7 +21,7 @@ public final class RClockwiseFlowerAuto {
     public static final String SOURCE = "r-clockwise-flower.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-12|5:32PM";
+    public static final String SAVED = "11-12|9:00PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -61,7 +61,8 @@ public final class RClockwiseFlowerAuto {
         Pose pickupParkToRightParkControl1 = p.of(26, 75, 0);
         Pose outsideLaneToLeftWallNearControl1 = p.of(29.5, 72, 0);
         Pose outsideLaneToLeftWallNearControl2 = p.of(29, 108, 0);
-        Pose outsideLaneToLeftWallNearSegment1Start = p.of(37.8, 130.7, 180);
+        Pose outsideLaneToLeftWallNearSegment1Heading = p.of(37.8, 130.7, 180);
+        Pose outsideLaneToLeftWallNearSegment2Start = p.of(37.8, 130.7, 180);
         Pose leftParkToRightParkControl1 = p.of(31, 104, 0);
         Pose toScoringFlowerStagingControl1 = p.of(38, 119, 0);
         Pose scoringFlowerParkToRightParkControl1 = p.of(40, 100, 0);
@@ -83,7 +84,7 @@ public final class RClockwiseFlowerAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
         Path pickupParkToRightPark = Paths.curve(wallFlowerStaging, pickupParkToRightParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
-        Path outsideLaneToLeftWallNear = Paths.curve(wallFlowerStaging, outsideLaneToLeftWallNearControl1, outsideLaneToLeftWallNearControl2, leftWallNear).heading(Interpolator.piecewise().until(0.7, Interpolator.linear(outsideLaneToLeftWallNearSegment1Start, leftWallNear)).until(1, Interpolator.constant(leftWallNear)));
+        Path outsideLaneToLeftWallNear = Paths.curve(wallFlowerStaging, outsideLaneToLeftWallNearControl1, outsideLaneToLeftWallNearControl2, leftWallNear).heading(Interpolator.piecewise().until(0.4, Interpolator.constant(outsideLaneToLeftWallNearSegment1Heading)).until(0.9, Interpolator.linear(outsideLaneToLeftWallNearSegment2Start, leftWallNear)).until(1, Interpolator.constant(leftWallNear)));
         Path leftParkToRightPark = Paths.curve(leftWallNear, leftParkToRightParkControl1, rightPark).linear(leftWallNear, rightPark);
         Path toScoringFlowerStaging = Paths.curve(leftWallNear, toScoringFlowerStagingControl1, scoringFlowerStaging).linear(leftWallNear, scoringFlowerStaging);
         Path scoringFlowerParkToRightPark = Paths.curve(scoringFlowerStaging, scoringFlowerParkToRightParkControl1, scoringFlowerParkToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);

@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-12T22:32:04.760Z",
+  "timestamp": "2026-11-13T02:00:42.173Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -51,7 +51,7 @@
       "segments": [
         {
           "id": "r-pickup-park-lane",
-          "color": "#edc948",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -81,7 +81,7 @@
         },
         {
           "id": "r-pickup-park-turn",
-          "color": "#edc948",
+          "color": "#4e79a7",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -156,15 +156,41 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.6,
+              "endProgress": 0.1,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 270,
+                "endDeg": 180
+              }
+            },
+            {
+              "startProgress": 0.1,
+              "endProgress": 0.2,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.2,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 0.9,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
                 "endDeg": 295.5
               }
             },
             {
-              "startProgress": 0.6,
+              "startProgress": 0.9,
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
@@ -321,7 +347,7 @@
       "segments": [
         {
           "id": "r-catch-park-south",
-          "color": "#b07aa1",
+          "color": "#59a14f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -347,7 +373,7 @@
         },
         {
           "id": "r-catch-park-in",
-          "color": "#f28e2b",
+          "color": "#edc948",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -395,7 +421,7 @@
       "segments": [
         {
           "id": "r-cross-out",
-          "color": "#76b7b2",
+          "color": "#edc948",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -424,7 +450,7 @@
         },
         {
           "id": "r-cross-south",
-          "color": "#b07aa1",
+          "color": "#e15759",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -466,7 +492,7 @@
       "segments": [
         {
           "id": "r-right-park-west",
-          "color": "#9c755f",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -491,7 +517,7 @@
         },
         {
           "id": "r-right-park-lane",
-          "color": "#e15759",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,

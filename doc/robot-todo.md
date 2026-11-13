@@ -537,7 +537,9 @@ Use the work order above to select checks; the detailed mechanism checks below a
         rolling (a path card never settles). **Good:** the launch starts within about 0.5 s of
         arriving and the pose has not jumped. **Stop:** the robot bounces off or the Pinpoint
         faults → note the speed it arrived at.
-      - **Backward and turning with a load.** Four POLLEN in the lane: R up the outside lane onto
+      - **Backward and turning with a load.** On 12 Nov (20245) pieces left the intake on both
+        backward legs; the lane leg from the WALL FLOWER is redrawn (sideways while it gets up to
+        speed, turning to aim later). Four POLLEN in the lane: R up the outside lane onto
         LEFT_WALL_NEAR, and back from SCORING_FLOWER_STAGING under the HIVE to RIGHT_CLOSE_HIVE; L
         from GARDEN_STAGING to RIGHT_WALL_NEAR (it turns 157° as it drives, with no loop back to
         the audience wall), at Auto speed. **Good:** four still in the lane at each end, five runs of each. **Stop:** a
