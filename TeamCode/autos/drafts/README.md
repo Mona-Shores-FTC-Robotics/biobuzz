@@ -190,18 +190,28 @@ Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=mast
 
 | Utility | Route |
 |---|---|
-| **Drive: R-OutsideLane** | Preloads at RIGHT, WALL FLOWER, wall lane to L2, LEFT up before 14 s, volley. **If that volley is done before 15 s:** SCORING FLOWER, wall lane back to R5, RIGHT up before 26 s, volley, park right. **Otherwise** park right from the left spot |
+| **Drive: R-OutsideLane** | Preloads at RIGHT, WALL FLOWER, wall lane to a hold beside the HIVE until 12 s, in to L1, LEFT up before 15 s, volley. **If that volley is done before 15 s:** SCORING FLOWER, wall lane back to R5, RIGHT up before 26 s, volley, park right. **Otherwise** park right from the left spot |
 | **Drive: L-UnderHive** | L4, LEFT up before 9 s, preloads, under the HIVE to the GARDEN, R4, RIGHT up before 22 s, volley, back under the HIVE, park left |
 
 Every volley is from a spot the drivers' buttons go to (`LaunchSpots`), as a new Auto must be: R's
-preloads from `RIGHT_START`, its LEFT volley from L2 (`LEFT_WALL_NEAR`, the wall row; it was
-`LEFT_LAUNCH_OFFSET` until 13 Nov 2026), and L4, R4 and R5 from the close row (`LEFT_CLOSE_HIVE`,
-`RIGHT_CLOSE_HIVE`, `RIGHT_CLOSE_NEAR`). They are local points in these drafts, not team spots. A
-wait that runs out parks the robot.
+preloads from `RIGHT_START`, its LEFT volley from L1 (`LEFT_WALL_HIVE`, the wall row in front of
+the LEFT CELL), and L4, R4 and R5 from the close row (`LEFT_CLOSE_HIVE`, `RIGHT_CLOSE_HIVE`,
+`RIGHT_CLOSE_NEAR`). They are local points in these drafts, not team spots. A wait that runs out
+parks the robot.
 
-**L2 is 23 in from a robot on `LEFT_PARK`,** where L parks early when its first wait runs out. So R
-comes up to L2 east of the park zone, leaves it without turning until it is clear, and drives the
-last 23 in into `RIGHT_PARK` straight along the park's own line (parked robots are 2.7 in apart).
+**R's LEFT volley is from in front of the HIVE** (mentor, 13 Nov 2026: not from the corner; it was
+`LEFT_LAUNCH_OFFSET`, then L2 for a day). The way to L1 goes south of the SCORING FLOWER, across
+the spot L fires its preloads from, so:
+
+- **R waits clear of L until 12 s on the match clock** (`LEFT_HOLD`, beside the HIVE's north end),
+  then drives in. L had left by 11.5 s in every simulated run; without the wait the robots touched
+  in 2 of 20. The wait costs R about 1.3 s.
+- **R turns for the SCORING FLOWER after it has left L1,** not on the spot: turning there puts a
+  corner of the frame over the centre line.
+- **R drives the last stretch into `RIGHT_PARK` straight** along the park's own line (parked robots
+  are 2.7 in apart).
+- **L1 is where `LEFT_START` is.** A partner dead on its start is hit every time: this is a pair,
+  never run beside anything but L-UnderHive.
 
 **R falls back by itself** (mentor, 12 Nov 2026: no separate short Auto). The third volley needs
 the pick, the drive back, the volley and the park, about 14 s on a 2.5 s volley, so R goes for it
@@ -212,11 +222,15 @@ only if its LEFT volley is done before 15 s. With today's 4 s volleys that volle
 
 | R's LEFT volley from | Two TIPs | Both parked | Robots touch |
 |---|---|---|---|
-| L2, as drawn now | 3 | 20 | 2 |
+| L1, as drawn now | 4 | 20 | 0 |
+| L4, tried | 2 | 20 | 0 |
+| L2, tried | 3 | 20 | 2 |
 | `LEFT_LAUNCH_OFFSET`, before | 4 | 20 | 2 |
 
-- **The two contacts are the same in both rows,** and neither is at the left end.
-- **R parked after its LEFT volley in 18 of 20.** In the other two a short FLOWER load ended that
+- **From L1, R parked after its LEFT volley in all 20,** done at a median 20.2 s. Its LEFT volley now
+  starts at about 13.5 s, so it is not done before 15 s even on a 2.5 s volley: as drawn, R does not
+  go for the third volley. The two contacts in the older rows were on that third trip.
+- **From `LEFT_LAUNCH_OFFSET`, R parked after its LEFT volley in 18 of 20.** In the other two a short FLOWER load ended that
   volley early, R went on, and it met L leaving the GARDEN at about 20 s.
 - **On a planned 2.5 s volley both robots fire their last volleys,** and R comes in to R5 while L
   is on R4: the two spots overlap, and the robots touched in most runs. Not resolved yet.

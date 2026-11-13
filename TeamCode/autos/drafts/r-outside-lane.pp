@@ -33,45 +33,55 @@
       "kind": "atomic",
       "id": "r-wall-lane-north",
       "endPoint": {
-        "x": 37.8,
-        "y": 130.7
+        "x": 36,
+        "y": 100
       },
       "controlPoints": [
         {
           "x": 27,
-          "y": 78
+          "y": 76
         },
         {
-          "x": 40,
-          "y": 106
+          "x": 32,
+          "y": 92
         }
       ],
       "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.7,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 180,
-                "endDeg": 295.5
-              }
-            },
-            {
-              "startProgress": 0.7,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 295.5
-              }
-            }
-          ]
-        }
+        "type": "linear",
+        "startDeg": 180,
+        "endDeg": 270
       },
       "locked": false,
-      "name": "wall lane north to LEFT_WALL_NEAR",
+      "name": "wall lane north to LEFT_HOLD",
+      "color": "#e15759",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "kind": "atomic",
+      "id": "r-into-left",
+      "endPoint": {
+        "x": 59.9,
+        "y": 133.4
+      },
+      "controlPoints": [
+        {
+          "x": 40,
+          "y": 112
+        },
+        {
+          "x": 60,
+          "y": 112
+        }
+      ],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      },
+      "locked": false,
+      "name": "in to LEFT_WALL_HIVE",
       "color": "#e15759",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -87,14 +97,33 @@
       },
       "controlPoints": [
         {
-          "x": 38,
+          "x": 60,
           "y": 119
         }
       ],
       "heading": {
-        "type": "linear",
-        "startDeg": 295.5,
-        "endDeg": 450
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.45,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.45,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
       },
       "locked": false,
       "name": "scoring flower to SCORING_FLOWER_STAGING",
@@ -201,17 +230,17 @@
       "kind": "atomic",
       "id": "r-link-left",
       "endPoint": {
-        "x": 37.8,
-        "y": 130.7
+        "x": 59.9,
+        "y": 133.4
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 0,
-        "endDeg": 295.5
+        "endDeg": 270
       },
       "locked": false,
-      "name": "Link to LEFT_WALL_NEAR"
+      "name": "Link to LEFT_WALL_HIVE"
     },
     {
       "kind": "compound",
@@ -226,12 +255,12 @@
           },
           "controlPoints": [
             {
-              "x": 46,
+              "x": 60,
               "y": 112
             },
             {
-              "x": 46,
-              "y": 98.7
+              "x": 48,
+              "y": 110
             }
           ],
           "heading": {
@@ -243,7 +272,7 @@
                   "endProgress": 0.3,
                   "interpolationType": "constant",
                   "parameters": {
-                    "degrees": 295.5
+                    "degrees": 270
                   }
                 },
                 {
@@ -251,7 +280,7 @@
                   "endProgress": 1,
                   "interpolationType": "linear",
                   "parameters": {
-                    "startDeg": 295.5,
+                    "startDeg": 270,
                     "endDeg": 360
                   }
                 }
@@ -324,6 +353,64 @@
       "locked": false,
       "name": "flower abort park to RIGHT_PARK",
       "color": "#e15759",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "kind": "atomic",
+      "id": "r-link-hold",
+      "endPoint": {
+        "x": 36,
+        "y": 100
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 0,
+        "endDeg": 270
+      },
+      "locked": false,
+      "name": "Link to LEFT_HOLD"
+    },
+    {
+      "kind": "compound",
+      "id": "r-hold-park",
+      "segments": [
+        {
+          "kind": "atomic",
+          "id": "r-hold-park-out",
+          "endPoint": {
+            "x": 30,
+            "y": 98.7
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "linear",
+            "startDeg": 270,
+            "endDeg": 360
+          },
+          "locked": false
+        },
+        {
+          "kind": "atomic",
+          "id": "r-hold-park-in",
+          "endPoint": {
+            "x": 14.5,
+            "y": 98.7
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "constant",
+            "degrees": 360
+          },
+          "locked": false
+        }
+      ],
+      "name": "hold park to RIGHT_PARK",
+      "color": "#e15759",
+      "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -602,10 +689,15 @@
         47.2,
         180
       ],
-      "LEFT_WALL_NEAR": [
-        37.8,
-        130.7,
-        295.5
+      "LEFT_HOLD": [
+        36,
+        100,
+        270
+      ],
+      "LEFT_WALL_HIVE": [
+        59.9,
+        133.4,
+        270
       ],
       "RIGHT_PARK": [
         14.5,
@@ -625,7 +717,9 @@
     },
     "pathEnds": {
       "r-wall-flower": "WALL_FLOWER_STAGING",
-      "r-wall-lane-north": "LEFT_WALL_NEAR",
+      "r-wall-lane-north": "LEFT_HOLD",
+      "r-into-left": "LEFT_WALL_HIVE",
+      "r-hold-park": "RIGHT_PARK",
       "r-left-park": "RIGHT_PARK",
       "r-wall-abort-park": "RIGHT_PARK",
       "r-scoring-flower": "SCORING_FLOWER_STAGING",
@@ -663,12 +757,30 @@
         "park": false
       },
       {
-        "id": "R-wait-left",
+        "id": "R-hold-for-l",
         "kind": "firstOf",
-        "label": "LEFT up before 14 s, otherwise park",
+        "label": "L has left: go in at 12 s",
         "rows": [
           {
-            "afterMs": 14000,
+            "afterMs": 12000,
+            "matchClock": true,
+            "cards": []
+          }
+        ]
+      },
+      {
+        "id": "card-r-into-left",
+        "kind": "path",
+        "lineId": "r-into-left",
+        "park": false
+      },
+      {
+        "id": "R-wait-left",
+        "kind": "firstOf",
+        "label": "LEFT up before 15 s, otherwise park",
+        "rows": [
+          {
+            "afterMs": 15000,
             "matchClock": true,
             "cards": [
               {
@@ -781,7 +893,8 @@
     "exportName": "R-OutsideLane",
     "parkFrom": {
       "card-r-wall-flower": "r-wall-abort-park",
-      "card-r-wall-lane-north": "r-left-park",
+      "card-r-wall-lane-north": "r-hold-park",
+      "card-r-into-left": "r-left-park",
       "card-r-scoring-flower": "r-flower-abort-park",
       "card-r-wall-lane-south": "r-right-park"
     }
