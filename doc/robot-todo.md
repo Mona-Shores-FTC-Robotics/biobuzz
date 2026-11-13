@@ -109,6 +109,15 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       **port 1**, turret servo on **port 4** (`robot_19429.xml`; 20245's layout but the lights on
       the Control Hub). A **full TeamCode install**, re-Activate `robot_19429`, then
       **Check: Hardware**, and the light looks and turret-sits-still checks in §2 on this robot too.
+- [ ] **19429 rewired 13 Nov: two intake star-wheel servos and the turret moved.** Right star wheel
+      on **Control Hub servo port 4** (`intakeStarsRight`), left on **port 5** (`intakeStars`),
+      turret servo on **Expansion Hub servo port 5** (`robot_19429.xml`). A **full TeamCode
+      install**, re-Activate `robot_19429`, then **Check: Hardware** (it lists `intakeStarsRight`).
+      Then Basic Drive, PLAY, intake on: **both** stars turn inward. If the right one turns
+      outward, flip `IntakeSubsystem.starsRightReversed` in Panels (the default `false` is a guess
+      that it is mounted mirror-image to the left), see it turn inward, and put the value that
+      worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
+      out. Turret: still sits at home after PLAY, as before.
 - [ ] **Panels 1.0.20 (FullPanels bump):** a **full TeamCode install** on each robot (a Sloth Load
       keeps the old Panels). **Good:** Panels opens at `192.168.43.1:8001`, the field and graphs
       update, the Driver Station still lists every `robot_*` config after a Sloth Load, and
