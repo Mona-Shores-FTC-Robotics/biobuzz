@@ -826,6 +826,12 @@ about 0.57 s, and after a shot's dip back at speed in a median 0.22 s (overshoot
 of 94 dips over 60). Those are `LauncherSubsystem`'s defaults now. On 19429, check the same way;
 a difference is one `RobotDifferences` line.
 
+- [ ] **FIRE from the 1000 idle** (Basic Drive; `TeleOpConfig.launcherIdleTicksPerSecond` 1000 since
+      13 Nov). Spin up, toggle the launcher off so it idles at 1000, then press and hold the operator's
+      FIRE. **Good:** the gate opens only once the wheels reach the launch speed (the `fire:` line, then
+      `/Launcher/AtSpeed`), and the volley scores like one from rest. **Stop:** balls leave slow → note
+      the log; set the idle back to 0 in Panels. Also note the battery at the end of a match with it.
+      Before this PR, FIRE from an idle at speed could open the gate at the idle speed.
 - [ ] **Measure the wheels**, for the surface speeds (in/s, the one unit that compares the feeder
       with the flywheels; ticks/s do not). Calipers on the flywheel: `LauncherSubsystem.wheelDiameterInches`.
       The flywheel module's belt (count teeth, or mark the wheel and turn the motor once by hand):

@@ -53,10 +53,17 @@ public final class TeleOpConfig {
     public static double trimStepDeg = 1.5;
 
     /**
-     * The launcher's speed when toggled to idle, ticks per second. 0 stops it. The launch speed is
-     * {@code LauncherSubsystem.targetTicksPerSecond}.
+     * The launcher's speed when it idles (toggled off, or a Square press's keep-spinning time is
+     * up), ticks per second. 0 stops it. Never above the launch speed
+     * ({@code LauncherSubsystem.targetTicksPerSecond}, or the speed table's). It applies from the
+     * first idle on: at PLAY the launcher is stopped until something spins it up.
+     *
+     * <p>1000 since 13 Nov 2026, the mentor's call after trying it on the robot: the wheels only
+     * have to climb from 1000 to the launch speed, so the gate opens sooner after a press (at
+     * Belding, with 0, the launcher was not yet at speed on arrival in 42 of 72 Square volleys).
+     * The cost is the battery the wheels draw while idling, not measured. Was 0.
      */
-    public static double launcherIdleTicksPerSecond = 0.0;
+    public static double launcherIdleTicksPerSecond = 1000.0;
 
     /**
      * After a Square press that fires ends, the launcher stays at launch speed this many seconds
