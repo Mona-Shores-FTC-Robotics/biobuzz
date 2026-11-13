@@ -201,7 +201,7 @@ public class InitOptionsTest {
         for (int i = 0; i < 15; i++) display.line("warning " + i);
         options.describe(display);
         assertEquals(16, lines.size());
-        assertTrue(lines.toString(), lines.get(lines.size() - 1).contains("shot ◀▶ 4+4.5=8.5 s"));
+        assertTrue(lines.toString(), lines.get(lines.size() - 1).contains("TIP ◀▶ until 8.5 s"));
         assertTrue(display.linesUsed() <= Display.SCREEN_LINES);
 
         lines.clear();
