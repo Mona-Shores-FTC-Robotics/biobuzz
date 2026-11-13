@@ -152,7 +152,8 @@ public class FlowerPickerTest {
     @Test
     public void lettingGoFinishesOnlyFromTheDwellOn() {
         for (GrabRoutine.Phase phase : GrabRoutine.Phase.values()) {
-            boolean dwellOrBack = phase == GrabRoutine.Phase.DWELL || phase == GrabRoutine.Phase.TWIST
+            boolean dwellOrBack = phase == GrabRoutine.Phase.DWELL || phase == GrabRoutine.Phase.BACK_OFF
+                    || phase == GrabRoutine.Phase.TWIST
                     || phase == GrabRoutine.Phase.BACK;
             assertEquals(phase.toString(), dwellOrBack, GrabRoutine.releaseFinishes(phase, true));
             assertEquals("an Auto's card cut short always stops: " + phase, false,
@@ -168,5 +169,26 @@ public class FlowerPickerTest {
         assertEquals(false, GrabRoutine.settled(11.5, 2.0));
         assertEquals("no follower speed", true, GrabRoutine.settled(Double.NaN, 2.0));
         assertEquals("a Panels typo never waits forever", false, GrabRoutine.settled(0.5, -1.0));
+    }
+
+    @Test
+    public void inAndOutIsOffAndThePickStaysOneDwellLong() {
+        assertEquals("off until a robot has shown it helps", false, FlowerPicker.inAndOut);
+        assertEquals(FlowerPicker.dwellMs, FlowerPicker.atFlowerCapMs(), EPS);
+        assertEquals("a full lane ends the one dwell at once", 0.0, FlowerPicker.fullEndsAfterMs(), EPS);
+    }
+
+    @Test
+    public void inAndOutStaysBothDwellsAndTheMoveBetweenThem() {
+        boolean was = FlowerPicker.inAndOut;
+        FlowerPicker.inAndOut = true;
+        try {
+            double move = FlowerPicker.IN_AND_OUT_MOVE_MS;
+            assertEquals(FlowerPicker.firstDwellMs + move + FlowerPicker.secondDwellMs, FlowerPicker.atFlowerCapMs(), EPS);
+            assertEquals("full ends only the second dwell", FlowerPicker.firstDwellMs + move, FlowerPicker.fullEndsAfterMs(), EPS);
+            assertEquals("the stick stays down through the back-off", true, FlowerPicker.backOffIn < FlowerPicker.retractAfterBackIn);
+        } finally {
+            FlowerPicker.inAndOut = was;
+        }
     }
 }

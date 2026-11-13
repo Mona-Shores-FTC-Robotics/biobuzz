@@ -197,13 +197,16 @@ def picks(paths):
             # which Panels may have changed since INIT. Older logs fall back to the start-of-run value.
             cm = re.search(r', contact ([\d.]+) in', how)
             pick_contact = float(cm.group(1)) if cm else contact
-            how = re.sub(r', contact [\d.]+ in', '', how).strip(', ') or '-'
+            how = re.sub(r', contact [\d.]+ in', '', how)
+            if ', in and out' in how:  # FlowerPicker.inAndOut: two pushes; the push end and depth are the second's
+                how = re.sub(r', in and out \(.*?\)', '', how).strip(', ') + ', in+out'
+            how = how.strip(', ') or '-'
             t_in = t_dwell = t_back = t_end = None
             push_end, outcome = '-', '?'
             j = i + 1
             while j < len(ev) and 'start,' not in ev[j][1] and 'refused' not in ev[j][1]:
                 tj, ej = ev[j]
-                if 'then IN' in ej:
+                if 'then IN' in ej and t_in is None:  # an in-and-out pick goes IN twice: the first
                     t_in = tj
                 mm = re.search(r'IN [\d.]+ s \((.*?)\), then DWELL', ej)
                 if mm:

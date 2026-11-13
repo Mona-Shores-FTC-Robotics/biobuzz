@@ -1051,6 +1051,13 @@ drive at the contact standoff) was considered and rejected: the pick would no lo
 works in isolation. `GardenGather` has no approach yet: its stick came down on the wall when swung
 early in the corner (30 Oct 2026).
 
+`FlowerPicker.inAndOut` (off) makes the pick two pushes: dwell `firstDwellMs`, back off `backOffIn`
+with the stick down and the intake on (`GrabRoutine.Phase.BACK_OFF`), push again, dwell at most
+`secondDwellMs`, back out. At the Belding Qualifier the last piece came in as the robot backed off,
+not during the dwell (both robots, logs and stream), and 19429's FLOWER often kept its POLLEN while
+pressed. It stays off until `doc/robot-todo.md` §4's 20 picks per FLOWER per robot show it brings 4
+more often; the simulator reads the pick's length from `FlowerPicker.atFlowerCapMs()` either way.
+
 **A `LaunchAll` after a path launches on the approach**, as a good TeleOp driver does (mentor,
 4 Nov 2026). `LaunchCards.approach()` opens the gate once three things hold: the robot is within
 `PathEndSettle.launchWithinIn` (6 in) of the path's end, within `aimToleranceDeg` (3°) of the end

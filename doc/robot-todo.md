@@ -711,6 +711,36 @@ measurement is [#255].
       `/Intake/TicksPerSecond` and `/Intake/CurrentAmps` at that moment. The 0.25 s (`wedgeBackMs`)
       is a guess: write back what frees a pair without throwing it. This is the code half of the
       fix list's "stop two pieces wedging"; the guide or sprung wall at the pinch is still open.
+- [ ] **FLOWER pick: in and out, 20 picks at each FLOWER on each robot** (`FlowerPicker.inAndOut`,
+      off; this PR). Why: at Belding the last piece came in as the robot backed off, not in the
+      dwell. 20245's FLOWER was empty within about 0.8 s of contact and its 4th piece was taken 0.1
+      to 0.4 s into the back-out (6 of 10 match Auto picks; Q-27 on film). 19429's FLOWER kept its
+      POLLEN through the whole 2 s dwell (Q-13 on film): 7 of its 13 match Auto picks had nothing
+      arrive in the dwell, 11 had a piece arrive 0.6 to 0.7 s into the back-out. In and out puts a
+      5 in back-off in the middle, stick down and intake on, then a second push: dwell 0.8 s, back
+      off, push, dwell at most 0.6 s. The first dwell ignores `full` (12 Nov: both R-Clockwise picks
+      ended on `full` after 1.41 and 1.04 s with 2 and 1 counted).
+      *Setup:* an empty lane before every pick, 4 POLLEN in the FLOWER, someone to reload. Run
+      R-Solo from the Red audience marks (it picks the WALL FLOWER, launches, then the SCORING
+      FLOWER, launches), 10 runs per robot per setting, so each FLOWER gets 10 Auto picks; then 10
+      more at each FLOWER in Basic Drive with the pick button held to the end, firing every load
+      before the next pick. Do the whole 20 + 20 first with `inAndOut` off (today's pick, the
+      baseline: nobody has counted 20 on either robot), then with it on in Panels.
+      *Write down, per pick:* **pieces the next volley fired** (count the balls leaving, by eye or
+      phone; `read_logs.py steps` gives the wheel-dip count, never the lane count or the shot
+      counter); **pick time** (`Last FLOWER pick: N s`); **stall depth** of each push (`IN … (stalled
+      N in short)`, twice per pick when on); pieces left on the floor or in the FLOWER; and whether
+      the back-off's `BACK_OFF N s` line reads under 0.8 (0.8 is its timeout).
+      **Good:** 4 fired from at least 18 of 20 picks at each FLOWER on each robot, pick time no more
+      than 0.3 s over the same robot's baseline (the Autos have about 1 s to spare in all), nothing
+      left on the floor. Then set `inAndOut = true` in `FlowerPicker`, write the back-off and second
+      push's measured seconds into `IN_AND_OUT_MOVE_MS` (0.9 is an estimate), and re-measure
+      `AutoRegistration.PICK_FLOWER_TYPICAL_S`. **Stop:** the second push stalls much shorter than
+      the first, or knocks a piece away (pieces in front of the intake, pushed into the FLOWER's
+      foot) → `backOffIn` 3, then 7, five picks each; the stick lifts during the back-off →
+      `backOffIn` is not under `retractAfterBackIn` 6; a pick over 4.0 s → `firstDwellMs` 600,
+      `secondDwellMs` 400. If on is no better than off on a robot, leave it off and say so here:
+      the cause is then not the routine (see the 19429 stick check in §7).
 - [ ] **Let go mid-push, then mid-dwell.** **Good:** mid-dwell backs out, stick up once ~18 in clear;
       operator Square while waiting raises it at once. [PR #273], [PR #280]
 - [ ] **GARDEN into the corner,** driver Triangle near the red GARDEN, three times. **Good:** pressed
@@ -897,6 +927,18 @@ measurement is [#255].
 - [ ] **Anything 19429 does differently** from 20245 (a motor turning the other way, a servo
       position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
       was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.
+- [ ] **19429's FLOWER stick against 20245's, before judging any pick routine on 19429.** On the
+      Belding stream 20245's stick empties a FLOWER within about 0.8 s of touching it (Q-27, red
+      WALL); 19429's left the POLLEN standing in the FLOWER for a whole 2 s dwell (Q-13, blue WALL),
+      and they came out only as it backed off. Same code, same numbers, and
+      `FlowerStickSubsystem.EXTENDED` 0.0 was measured on 20245 only (19429's stick was rewired to
+      Control Hub servo port 0 on 6 Nov and has no line in `RobotDifferences`). Both robots side by
+      side at one loaded FLOWER, stick down, pushed in by hand: measure the stick tip's height off
+      the tile, how far it reaches ahead of the frame, and where on the FLOWER's foot it lands;
+      film both from the side. **Good:** the same within a quarter inch, and 19429's FLOWER empties
+      while pressed. **Stop:** it differs → fix the stick or its down position on 19429 (a servo
+      position that differs is one `RobotDifferences` line, with the date), then do §4's 20 picks.
+      A stick that does not trip the FLOWER is not fixed by in and out, only hidden by it.
 - [ ] **19429's Limelight pipeline:** Marker Size set to 82.55 mm on 6 Nov (it was 165.1, the
       DECODE size; Full 3D Targeting Yes). Later that night 20245's pipeline file was uploaded to
       19429's slot 0: identical but for its name. Power-cycle and check it held, then run the 5-minute start check and Vision: HIVE & Pose. [handoff] step 6

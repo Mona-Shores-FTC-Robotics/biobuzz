@@ -36,7 +36,8 @@ import java.util.function.Consumer;
  * at the pick's own line-up, so when the card starts the {@link #stickDownMs} wait has usually run
  * out already ({@link #readySinceNs}). Measured 29 Oct to 2 Nov 2026: the push started 0.70 to
  * 0.73 s after the drive ended, all of it the stick wait. The pick itself is unchanged: square up,
- * push to contact, dwell, back out (mentor, 3 Nov 2026: the two stay separate cards).
+ * push to contact, dwell, back out (mentor, 3 Nov 2026: the two stay separate cards). {@link #inAndOut}
+ * (off) makes that two pushes with a short back-off between them.
  *
  * <p>Every number here is a starting point to tune in Panels, not a measurement. The two standoffs
  * come from the Autos' drawings (contact about 12 in from the centre, as R-Quals draws its FLOWER
@@ -125,6 +126,61 @@ public final class FlowerPicker extends GrabRoutine {
      * as before.
      */
     public static boolean dwellEndsOnFull = true;
+    /**
+     * <b>In and out</b>: push in, dwell {@link #firstDwellMs}, back off {@link #backOffIn} with the
+     * stick down and the intake running, push in again, dwell at most {@link #secondDwellMs}, back
+     * out. <b>Off</b> (one push and one dwell, as before) until a robot has shown it brings 4 more
+     * often (doc/robot-todo.md, "FLOWER pick: in and out"); flip it in Panels to try it.
+     *
+     * <p>Why (13 Nov 2026, from the Belding Qualifier's logs and stream): the dwell is not when the
+     * last piece comes in. On 20245 the FLOWER is empty within about 0.8 s of contact (Q-27, film) and
+     * the 4th piece is taken as the robot starts to back out (0.1 to 0.4 s into the back-out in 6 of
+     * its 10 match Auto picks, intake current). On 19429 the FLOWER kept its POLLEN for the whole 2 s
+     * dwell (Q-13, film): 7 of its 13 match Auto picks had no piece arrive in the dwell, and 11 had
+     * one arrive 0.6 to 0.7 s into the back-out. So the back-off is put in the middle, where a second
+     * push can follow it, and the dwells are cut to pay for it. The first dwell ignores the full
+     * sensor: on 12 Nov both R-Clockwise picks ended on "full" after 1.41 and 1.04 s with 2 and 1
+     * counted, a piece held under the sensor at the mouth, not a full lane.
+     */
+    public static boolean inAndOut = false;
+    /**
+     * In and out: the first dwell, ms. On 20245 half the pieces that arrive in a dwell are in by
+     * 0.5 s after contact and nine in ten by 1.4 s (78 Auto picks, 29 Oct to 12 Nov 2026, intake
+     * current); 800 takes the first burst and leaves the stragglers to the back-off. A starting point.
+     */
+    public static double firstDwellMs = 800;
+    /**
+     * In and out: how far the robot backs off between the pushes, inches, the stick still down. Less
+     * than {@link #retractAfterBackIn}, the distance at which the stick is clear to lift. A starting
+     * point, not a measurement.
+     */
+    public static double backOffIn = 5.0;
+    /** In and out: the back-off gives up after this long, ms, and the second push starts from there. */
+    public static double backOffTimeoutMs = 800;
+    /** In and out: the second dwell's cap, ms; the full lane ends it sooner ({@link #dwellEndsOnFull}). */
+    public static double secondDwellMs = 600;
+    /**
+     * In and out: the back-off and the second push together, ms, for anything that plans a pick's
+     * length without running it (the simulator). An estimate, not measured: 5 in out and back at the
+     * push's pace, which covered about 8 in in 0.9 s at Belding. Replace it from the first logs.
+     */
+    public static final double IN_AND_OUT_MOVE_MS = 900;
+
+    /**
+     * The longest the robot stays at the FLOWER, from first contact to the start of the back-out, ms:
+     * {@link #dwellMs}, or with {@link #inAndOut} both dwells and the move between them.
+     */
+    public static double atFlowerCapMs() {
+        return inAndOut ? nn(firstDwellMs) + IN_AND_OUT_MOVE_MS + nn(secondDwellMs) : nn(dwellMs);
+    }
+
+    /**
+     * How long after first contact a full lane may first end the stay at the FLOWER, ms: at once, or
+     * with {@link #inAndOut} not until the second dwell.
+     */
+    public static double fullEndsAfterMs() {
+        return inAndOut ? nn(firstDwellMs) + IN_AND_OUT_MOVE_MS : 0.0;
+    }
     /**
      * The dwell ends this long after the intake current's last spike, ms (0: off). <b>Off</b> since
      * 1 Nov 2026, the mentor's call: on 20245 the pick barely dwelt at all. A spike during the push
@@ -270,7 +326,9 @@ public final class FlowerPicker extends GrabRoutine {
     /** How deep this push aims, as it is now: Panels can change it after the log's metadata is written. */
     @Override
     protected String startNote() {
-        return String.format(Locale.US, ", contact %.1f in", nn(contactStandoffIn));
+        return String.format(Locale.US, ", contact %.1f in%s", nn(contactStandoffIn),
+                inAndOut ? String.format(Locale.US, ", in and out (dwell %.1f s, back off %.1f in, dwell %.1f s)",
+                        nn(firstDwellMs) / 1000.0, nn(backOffIn), nn(secondDwellMs) / 1000.0) : "");
     }
 
     @Override
@@ -392,6 +450,11 @@ public final class FlowerPicker extends GrabRoutine {
     @Override protected double stallProgressIn() { return stallProgressIn; }
     @Override protected double stallMs() { return stallMs; }
     @Override protected double dwellMs() { return dwellMs; }
+    @Override protected boolean inAndOut() { return inAndOut; }
+    @Override protected double firstDwellMs() { return firstDwellMs; }
+    @Override protected double backOffIn() { return backOffIn; }
+    @Override protected double backOffTimeoutMs() { return backOffTimeoutMs; }
+    @Override protected double secondDwellMs() { return secondDwellMs; }
     @Override protected double dwellQuietMs() { return dwellQuietMs; }
     @Override protected boolean dwellFull() { return dwellEndsOnFull && robot.colorSensor.full(); }
     @Override protected double dwellEmptyMs() { return dwellEmptyMs; }
