@@ -5,6 +5,7 @@ import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.localization.GardenFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.GardenFieldPoints.Garden;
 
@@ -27,6 +28,26 @@ import java.util.function.Consumer;
  * ({@link GardenFieldPoints}); an Auto's {@code GardenGather} card runs it to the end
  * ({@link #command}) with no line-up: it drives in to the GARDEN from wherever the card is called and
  * comes back there. Each phase is timed and written to the match log.
+ *
+ * <p><b>In an Auto the stick comes down on the drive to the card.</b> The path card before a
+ * {@code GardenGather} card runs this gather's {@link #approach} ({@code AutoKit},
+ * {@code AutoRegistry.Approach}): over the last {@link #approachLowerWithinIn} of that drive, once the
+ * robot faces the GARDEN to within {@link #lowerWithinDeg}, the stick goes down and the intake starts,
+ * so the {@link #stickDownMs} wait has run when the card starts ({@link #readySinceNs}). Measured,
+ * 3 to 7 Nov 2026: all nine Auto gathers stood 0.70 to 0.75 s at GARDEN_STAGING for the stick before
+ * they moved. The facing rule is the button's own, which has lowered the stick at the same spot since
+ * 30 Oct, so a drive that still turns as it arrives (R-NoCross's) lowers it only at the very end.
+ *
+ * <p><b>What the logs say (13 Nov 2026, the 36 gathers of 1 to 12 Nov on both robots that drove
+ * in):</b> with the stick down every drive in stalled short. 32 stopped with the robot's centre 11.5
+ * to 14.8 in from the audience wall (median 13.1), 3.6 in short of the gather pose, the old diagonal
+ * and the 12 Nov curve alike; the other four stopped further out still. A FLOWER
+ * push stalls at the same distance from its wall (10.0 to 10.4 in from a FLOWER that is 2.71 in off
+ * it), and on 29 Oct, before the stick, six gathers ran their whole path to the wall. So it is the
+ * stick on the wall that stops the robot, with the intake's nose about 3.6 in from the wall and the
+ * GARDEN's POLLEN (2.8 in across, against the wall) just out of its reach. The nine Auto gathers
+ * brought in 0 to 2 pieces, 1.0 on average, never 3. {@link #useStick} off is the check that decides
+ * it (doc/robot-todo.md).
  *
  * <p>Every number here is a starting point to tune in Panels, not a measurement. The Visualizer's
  * picture of a gather ({@code lib/simple/garden.ts}) uses the same numbers: change one, change the
@@ -60,6 +81,20 @@ public final class GardenGather extends GrabRoutine {
     public static double lowerWithinDeg = 10.0;
     /** Time the stick is given to swing down before the drive in may start, ms. */
     public static double stickDownMs = 700;
+    /**
+     * In an Auto, the drive before the gather's card lowers the stick and starts the intake on its way
+     * in ({@link #approach}). Off: the card lowers it itself and stands {@link #stickDownMs} first, as
+     * every gather did before 13 Nov 2026.
+     */
+    public static boolean lowerOnDriveIn = true;
+    /**
+     * With {@link #lowerOnDriveIn}: the stick goes down once the robot is this close to the end of the
+     * drive before the card, inches, and faces the GARDEN to within {@link #lowerWithinDeg}. 24 is the
+     * FLOWER pick's ({@code FlowerPicker.lowerWithinIn}): a plan, not yet run at the GARDEN. A drive that
+     * arrived facing the GARDEN (L-Infraviolet's, 6 and 7 Nov) was 24 in out 0.77 to 0.86 s before its
+     * end, enough for the whole {@link #stickDownMs}.
+     */
+    public static double approachLowerWithinIn = 24.0;
     /**
      * How much further than the GARDEN's gather pose the drive in aims, inches, along the robot's
      * heading. A drive in that hits the wall first just stops there (it stalls), so too much is
@@ -137,12 +172,21 @@ public final class GardenGather extends GrabRoutine {
     /** See {@link #stallProgressIn}, ms. */
     public static double stallMs = 250;
     /**
-     * The dwell, ms, intake running, at the end of the drive in: a cap (a full lane ends it sooner).
-     * 400 since 6 Nov 2026 (mentor): in, a short dwell, and straight back out, rather than the 1.5 s
-     * every gather that night sat for while bringing in 0 to 1 pieces. Tune it at the practice field
-     * with the button.
+     * The dwell, ms, intake running, at the end of the drive in: a cap (a full lane ends it sooner,
+     * {@link #dwellEndsOnFull}). 400 since 6 Nov 2026 (mentor): in, a short dwell, and straight back
+     * out, rather than the 1.5 s every gather that night sat for while bringing in 0 to 1 pieces. Tune
+     * it at the practice field with the button. The robot has already stood at the wall 0.27 to 0.47 s
+     * (median 0.36) when the dwell starts: that is how long the stall rule ({@link #stallMs}) takes to
+     * end the drive in. In the logs a piece that came in was counted 0.25 to 0.5 s after the robot
+     * stopped, and a longer dwell brought no more: 1.0 a gather at 1.5 s (9 Auto gathers), against
+     * 0 to 2 at 0.4 s (10 button gathers, 12 Nov).
      */
     public static double dwellMs = 400;
+    /**
+     * The dwell ends as soon as the lane is full (the colour sensor's full), as the FLOWER pick's does.
+     * Until 13 Nov 2026 a gather with a full lane sat out the whole dwell (3 Nov 18:18, 4 held: 4.6 s).
+     */
+    public static boolean dwellEndsOnFull = true;
     /**
      * Ending the dwell from the intake current, as the FLOWER pick does: off (0) until a GARDEN
      * gather has data for it (1 of 17 dwells on 29 Oct had a spike).
@@ -200,6 +244,84 @@ public final class GardenGather extends GrabRoutine {
         return GrabRoutine.command(() -> new GardenGather(robot, event, false));
     }
 
+    /**
+     * What the drive before an Auto's {@code GardenGather} card does for it: the stick down and the
+     * intake on over the last {@link #approachLowerWithinIn} of the drive, once the robot faces the
+     * GARDEN the gather will go for from the drive's end ({@link #lowerOnApproach}). Registered with
+     * the grab ({@code AutoRegistration}); {@code AutoKit} runs it while that path card drives.
+     * Cancelled, the stick comes back up.
+     */
+    public static AutoRegistry.Approach approach(Robot robot, Consumer<String> event) {
+        return new Approach(robot, event);
+    }
+
+    private static final class Approach implements AutoRegistry.Approach {
+        private final Robot robot;
+        private final Consumer<String> event;
+        /** The GARDEN the gather after this drive will go for, from where the drive ends; null for none. */
+        private Garden garden;
+        private boolean lowered;
+
+        Approach(Robot robot, Consumer<String> event) {
+            this.robot = robot;
+            this.event = event;
+        }
+
+        @Override
+        public void started(Pose end) {
+            garden = nearest(end.x(), end.y(), true);
+            lowered = false;
+        }
+
+        @Override
+        public void approaching(Pose pose, double remainingIn) {
+            if (lowered || garden == null || !lowerOnApproach(garden, pose, remainingIn)) return;
+            lowered = true;
+            robot.flowerStick.extend();
+            robot.intake.intake();
+            event.accept(String.format(Locale.US, "GARDEN gather: stick down on the drive in, %.1f in to go", remainingIn));
+        }
+
+        @Override
+        public void cancel() {
+            if (!lowered) return;
+            lowered = false;
+            robot.flowerStick.retract();
+            event.accept("GARDEN gather: not running after this drive, stick up");
+        }
+    }
+
+    /**
+     * Whether the drive in to a gather from {@code g} may lower the stick with the robot at
+     * {@code pose}, {@code remainingIn} from the drive's end: with the stick in use and
+     * {@link #lowerOnDriveIn} on, within {@link #approachLowerWithinIn} of the end, and facing the
+     * GARDEN to within {@link #lowerWithinDeg}. The facing rule is what keeps the stick off the side
+     * wall: swung down while the robot still turned in the corner, it came down on it (30 Oct 2026).
+     */
+    static boolean lowerOnApproach(Garden g, Pose pose, double remainingIn) {
+        return useStick && lowerOnDriveIn
+                && remainingIn <= nn(approachLowerWithinIn)
+                && Math.abs(Math.toDegrees(wrapRad(g.gather.heading() - pose.heading()))) <= nn(lowerWithinDeg);
+    }
+
+    /**
+     * The GARDEN whose gather pose is nearest ({@code x}, {@code y}) within {@link #maxRangeIn}, or
+     * null; with {@code ownHalfOnly}, only one on the same side of the centre line (an Auto's rule).
+     */
+    static Garden nearest(double x, double y, boolean ownHalfOnly) {
+        Garden nearest = null;
+        double best = nn(maxRangeIn);
+        for (Garden f : GardenFieldPoints.ALL) {
+            if (ownHalfOnly && !ownHalf(x, f.gather.x())) continue;
+            double range = Math.hypot(f.gather.x() - x, f.gather.y() - y);
+            if (range <= best) {
+                nearest = f;
+                best = range;
+            }
+        }
+        return nearest;
+    }
+
     @Override
     protected String what() {
         return "GARDEN gather";
@@ -208,16 +330,7 @@ public final class GardenGather extends GrabRoutine {
     @Override
     protected String findTarget(Pose pose) {
         // The nearest in range; in an Auto, only one on the robot's own half (GrabRoutine).
-        garden = null;
-        double best = nn(maxRangeIn);
-        for (Garden f : GardenFieldPoints.ALL) {
-            if (inAuto() && !ownHalf(pose.x(), f.gather.x())) continue;
-            double range = Math.hypot(f.gather.x() - pose.x(), f.gather.y() - pose.y());
-            if (range <= best) {
-                garden = f;
-                best = range;
-            }
-        }
+        garden = nearest(pose.x(), pose.y(), inAuto());
         return garden == null ? null : garden.toString();
     }
 
@@ -282,6 +395,15 @@ public final class GardenGather extends GrabRoutine {
         robot.intake.intake();
     }
 
+    /**
+     * The stick already down when the gather starts (an Auto's drive lowered it on the way in,
+     * {@link #approach}; or the driver has it down): the stick wait counts from then.
+     */
+    @Override
+    protected long readySinceNs() {
+        return useStick && robot.flowerStick.extended() ? robot.flowerStick.extendedSinceNs() : 0;
+    }
+
     @Override
     protected void unprep() {
         // With a timed raise the stick stays down the whole way out (stopMechanisms raises it).
@@ -316,6 +438,7 @@ public final class GardenGather extends GrabRoutine {
     @Override protected double prepMs() { return useStick ? stickDownMs : 0.0; }
     @Override protected double settledInPerSec() { return settledInPerSec; }
     @Override protected double dwellQuietMs() { return dwellQuietMs; }
+    @Override protected boolean dwellFull() { return dwellEndsOnFull && robot.colorSensor.full(); }
     @Override protected double dwellEmptyMs() { return dwellEmptyMs; }
     @Override protected double spikeAboveAmps() { return spikeAboveAmps; }
     @Override protected double prepWithinIn() { return lowerWithinIn; }

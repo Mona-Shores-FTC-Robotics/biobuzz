@@ -36,6 +36,8 @@ package org.firstinspires.ftc.teamcode.logging;
  *   <li><b>How long a volley and a pick take</b>: the shot counter undercounted after every FLOWER pick, so
  *       those feeds ran their whole set time (volleys of 3.6 to 4.0 s) where the simulator's ended at the fourth
  *       shot; only the preload volley ends on the count. A pick stays {@link #PICK_DWELL_S} longer.</li>
+ *   <li><b>How many pieces a GARDEN gather brings in</b> ({@link #gardenLoad}): 0 to 2, 1.0 on average, in the
+ *       nine Auto gathers logged; the simulator's own intake took 2 or 3.</li>
  *   <li><b>No knock from a hit</b> ({@link #apply}): every AUTO TIP sat out its dwell.</li>
  * </ul>
  *
@@ -133,6 +135,28 @@ final class BeldingCalibration {
             default:
                 int i = luck.nextInt(ir.length + uv.length);
                 return i < ir.length ? ir[i] : uv[i - ir.length];
+        }
+    }
+
+    /**
+     * How many pieces each robot's GARDEN gather brought in, in the nine Auto gathers logged from GARDEN_STAGING
+     * (3 to 7 Nov 2026, the practice fields at home and at Belding; no Belding match gathered). Counted from the
+     * next volley's wheel dips less what the lane held before the gather, or from the lane count where no volley
+     * followed. Never more than two: with the FLOWER stick down the robot stalls with its centre about 13.1 in
+     * from the audience wall, 3.6 in short of the gather pose, so the intake does not reach the row of POLLEN
+     * against the wall ({@code GardenGather}). The logs do not say how many pieces each GARDEN held.
+     */
+    static final int[] IR_GARDEN = {0, 2, 2, 0, 1, 0}, UV_GARDEN = {2, 2, 0};
+
+    /** The pieces a GARDEN gather brings in, drawn from {@link #ROBOT}'s logged gathers ("full": all four). */
+    static int gardenLoad(java.util.Random luck) {
+        switch (ROBOT) {
+            case "full": return 4;
+            case "19429": return IR_GARDEN[luck.nextInt(IR_GARDEN.length)];
+            case "20245": return UV_GARDEN[luck.nextInt(UV_GARDEN.length)];
+            default:
+                int i = luck.nextInt(IR_GARDEN.length + UV_GARDEN.length);
+                return i < IR_GARDEN.length ? IR_GARDEN[i] : UV_GARDEN[i - IR_GARDEN.length];
         }
     }
 
