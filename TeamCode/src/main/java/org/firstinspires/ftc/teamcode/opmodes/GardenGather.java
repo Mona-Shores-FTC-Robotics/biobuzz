@@ -86,10 +86,11 @@ public final class GardenGather extends GrabRoutine {
     public static boolean curveToWall = true;
     /**
      * With {@link #curveToWall}: how much closer to the side wall than the gather pose the drive in
-     * ends, inches. A little, to keep the side on the wall at the end; not the diagonal's
-     * {@link #towardWallIn}, which pins it.
+     * ends, inches. Enough to keep the side on the wall at the end: the wall stops it, and the drive
+     * in ends when it stalls. 2.0 since 14 Nov 2026 (mentor, at the field: the gather sat too far off
+     * the wall at 0.5).
      */
-    public static double laneTowardWallIn = 0.5;
+    public static double laneTowardWallIn = 2.0;
     /**
      * The back out curves too, the drive in run backwards: straight back up the side wall first,
      * then over to where the drive in started, so the stick, still down, does not sweep sideways
@@ -128,8 +129,12 @@ public final class GardenGather extends GrabRoutine {
     public static double atLineUpIn = 1.5;
     /** Already lined up: this square, degrees, skips the line-up path. */
     public static double atLineUpDeg = 5.0;
-    /** The drive in's speed cap, a fraction of the robot's top path speed (0 to 1]. */
-    public static double inSpeed = 0.5;
+    /**
+     * The drive in's speed cap, a fraction of the robot's top path speed (0 to 1]. 1.0 since 14 Nov
+     * 2026 (mentor, at the field): at 0.5 the curve over to the side wall, mostly a strafe, was very
+     * slow.
+     */
+    public static double inSpeed = 1.0;
     /** The drive in gives up after this long, ms. */
     public static double inTimeoutMs = 4000;
     /** Less progress than this, inches, in {@link #stallMs} means the robot is against something. */
@@ -159,8 +164,11 @@ public final class GardenGather extends GrabRoutine {
      * as the FLOWER pick's, from the 2 a launch waits for ({@code PathEndSettle}).
      */
     public static double settledInPerSec = 8.0;
-    /** Forward power during the dwell, to keep the stick seated. 0 for none. */
-    public static double dwellPushPower = 0.1;
+    /**
+     * Forward power during the dwell, to keep the stick seated and the intake pressed into the
+     * corner. 0 for none. 0.7 since 14 Nov 2026 (mentor, at the field; 0.1 before).
+     */
+    public static double dwellPushPower = 0.7;
     /**
      * The drive back's speed cap, a fraction of the robot's top path speed (0 to 1]. 0.8 since 6 Nov
      * 2026 (mentor): back out briskly with the stick still down, then stop.
