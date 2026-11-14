@@ -2,7 +2,8 @@
 
 > **Superseded, do not print (14 Nov).** The round hood below drops the slanted face that guides GARDEN balls,
 > which is what the present blue shoulder does well. Three ways to carry that slant on to the blue wall are sketched on
-> the 14 Nov photos in [`concepts.png`](concepts.png); the chosen one replaces this part once the lab measurements are in.
+> the 14 Nov photos in [`concepts.png`](concepts.png), and as 3D shapes on the Onshape robot model in
+> [`concepts3d.png`](concepts3d.png) (`concepts3d.py`); the chosen one replaces this part once the lab measurements are in.
 
 On 20245 the FLOWER stick's white walls sit against the arms' wheel hubs. On 19429 the blue wall on the **right
 arm** sits well inboard of it, leaving about 1.75 in of bare 8 mm shaft between the wall and the wheel, and on
