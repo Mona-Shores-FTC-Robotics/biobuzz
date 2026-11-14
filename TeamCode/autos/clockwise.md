@@ -117,7 +117,7 @@ before TS. Later than that R parks from LEFT_WALL_NEAR at once, before L comes u
 ## The times
 
 All on the robot's match clock (from its own PLAY). Each robot has **one** of them on its INIT menu, its
-wait for the partner's TIP (L: T1; R: T3); the rest are fixed in the drawing. The values are the
+wait to see a TIP (L: TIP 1, the time T1; R: TIP 2, the time T3); the rest are fixed in the drawing. The values are the
 Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-todo.md` §3).
 
 | Row | Value | Where it comes from |
@@ -128,7 +128,7 @@ Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-tod
 | **T3b** look by | 22.2 s | The drive to LEFT_CLOSE_HIVE (1.7 s), a volley there (2.5 s), the park (about 2.6 s) and the guard's 1 s margin end at 30 s |
 | **T3** RIGHT up by, at LEFT_CLOSE_HIVE | 23.2 s | The crossing from there (about 4.3 s) and a volley's last ball (2.5 s) end at 30 s. Not up by then: R shoots at LEFT |
 | **TR** park from LEFT_CLOSE_HIVE at | 26.4 s | L has turned in to LEFT_PARK |
-| **T4** RIGHT up by | 19.2 s | L's volley must end, and L be parked, before R leaves LEFT_CLOSE_HIVE for its park, even when the volley runs its whole 3.5 s feed |
+| **T4** RIGHT up by | 22 s | TIP 2 was read up at 19.8 to 21.8 s in the simulator (to 22.6 s with R 20% slow), so at 19.2 s L gave up before it and never shot its second load. L stands at RIGHT_WALL_NEAR until TL anyway, so waiting costs nothing. A volley begun at 22 s ends after TL: L then leaves for its park when the volley ends, about 24.5 s |
 | **TL** park at | 22.7 s | L leaves RIGHT_WALL_NEAR for LEFT_PARK once R has left the SCORING FLOWER |
 | **TLr** park after the crossing at | 22.5 s | L1's "no" only: the TIP its volley makes was read up at 19.6 to 20.2 s, and its park goes through where that spill lands |
 | **TF** FLOWER at | 15.5 s | L's WALL FLOWER leg only: R, coming north from the GARDEN, has passed the FLOWER |
@@ -183,7 +183,7 @@ Gamepad 1's D-pad: **up / down selects a row, left / right changes it.** Three r
 
 | Row | R-Clockwise | L-Clockwise |
 |---|---|---|
-| Waiting for partner's TIP until | 23.2 s (T3: RIGHT up, seen from LEFT_CLOSE_HIVE) | 9.5 s (T1: LEFT up) |
+| Waiting for TIP … until | **TIP 2** until 23.2 s (T3: RIGHT up, seen from LEFT_CLOSE_HIVE) | **TIP 1** until 9.5 s (T1: LEFT up) |
 | Pickup | WALL_FLOWER (drawn), GARDEN | GARDEN (drawn), WALL_FLOWER |
 | Priority | THREE_TIP (drawn), PARK | |
 

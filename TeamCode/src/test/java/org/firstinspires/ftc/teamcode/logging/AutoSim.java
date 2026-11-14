@@ -2548,6 +2548,11 @@ public final class AutoSim {
                             drive.hold(drive.pose);
                             intakeEnabled = intakeBefore[0];
                             drive.maxSpeed = speedBefore[0];
+                            // Best case (BIOBUZZ_BELDING_ROBOT=full): every load is four, a gather's too.
+                            if (BeldingCalibration.on && BeldingCalibration.fullLoads()) {
+                                int more = sim.topUpFromGarden(body, 2 * FieldSim.GARDEN_LENGTH_IN, 4);
+                                if (more > 0) pending.add("GardenGather: " + more + " more taken, a full load (best case)");
+                            }
                             int left = 0;
                             for (FieldSim.Piece q : sim.pieces) {
                                 if (q.where == FieldSim.Where.FIELD && FieldSim.garden(q.x, q.y) != null) left++;

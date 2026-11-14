@@ -209,8 +209,8 @@ Result, with the gap on each own-start run, → [PR #372].
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
       [PR #391]; the menu is the Clockwise PR's.
 - [ ] **INIT menu, R-Clockwise on Red audience, then L-Clockwise on Red far wall** (INIT only).
-      **Good:** R shows three rows (waiting for partner's TIP until 23.2 s, Pickup WALL_FLOWER,
-      Priority THREE_TIP), L two (until 9.5 s, Pickup GARDEN). D-pad down walks the rows and wraps;
+      **Good:** R shows three rows (waiting for TIP 2 until 23.2 s, Pickup WALL_FLOWER,
+      Priority THREE_TIP), L two (waiting for TIP 1 until 9.5 s, Pickup GARDEN). D-pad down walks the rows and wraps;
       right on Pickup shows the other pickup; right on the time adds 1 s; everything changed is amber
       and bold. Read the two robots' Pickup rows to each other: WALL_FLOWER pairs with GARDEN.
       **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
@@ -597,7 +597,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         9.5 s; the Belding films have it as late as 9.98 s, so expect to raise it); R on
         LEFT_WALL_NEAR and its volley's end (T2 15.5 s, TS 17.6 s; drawn 13.2 and 17.0 s); R's
         SCORING FLOWER pick's end (T3b 22.2 s; drawn 21.3 s); R at LEFT_CLOSE_HIVE (T3 23.2 s; drawn 23.1 s); L on
-        RIGHT_WALL_NEAR (T4 19.2 s) and each robot parked (TL 22.7 s). **Good:**
+        RIGHT_WALL_NEAR (T4 22 s) and each robot parked (TL 22.7 s). **Good:**
         each within 0.5 s of the drawn. Otherwise set the row in INIT for the next run and write
         the measured value on the PR; the drawn values change only in the Visualizer.
       - **The look, and the Priority row.** After the SCORING FLOWER R turns to LEFT_CLOSE_HIVE and

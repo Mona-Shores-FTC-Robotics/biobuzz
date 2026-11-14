@@ -119,9 +119,14 @@ final class BeldingCalibration {
 
     /**
      * {@code BIOBUZZ_BELDING_ROBOT}: whose loads a run draws from: "19429" (Infrared), "20245" (Ultraviolet), "both"
-     * (the default: every logged volley) or "full" (every load is four: the pick, the lane and the feed all work).
+     * (the default: every logged volley) or "full" (every load is four: the pick, the gather, the lane and the feed all work).
      */
     static final String ROBOT = System.getenv("BIOBUZZ_BELDING_ROBOT") == null ? "both" : System.getenv("BIOBUZZ_BELDING_ROBOT");
+
+    /** Whether every load is four ({@link #ROBOT} "full"): a FLOWER pick's, and a GARDEN gather's too. */
+    static boolean fullLoads() {
+        return "full".equals(ROBOT);
+    }
 
     /** The pieces of a pick that reach the launcher, drawn from {@link #ROBOT}'s logged volleys at that FLOWER. */
     static int load(boolean scoringFlower, java.util.Random luck) {
