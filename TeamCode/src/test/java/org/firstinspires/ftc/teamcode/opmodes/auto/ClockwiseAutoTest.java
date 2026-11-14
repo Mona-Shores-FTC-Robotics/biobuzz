@@ -117,7 +117,7 @@ public class ClockwiseAutoTest {
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(1, count("GardenGather"));
         assertEquals("only the SCORING FLOWER", 1, count("PickFlower"));
-        assertTrue(trace.toString(), trace.contains("path outside lane from the GARDEN to LEFT_WALL_NEAR"));
+        assertTrue(trace.toString(), trace.contains("path outside lane from the GARDEN to LEFT_CLOSE_HIVE"));
         assertFalse(trace.toString(), trace.contains("path to WALL_FLOWER_STAGING"));
         parked(98.7);
     }
@@ -259,7 +259,7 @@ public class ClockwiseAutoTest {
     @Test public void everyVolleyIsFromASquareSpot() {
         run(RClockwiseAuto.build(kit(), false));
         shotFrom(0, LaunchSpots.Spot.RIGHT_START);
-        shotFrom(1, LaunchSpots.Spot.LEFT_WALL_NEAR);
+        shotFrom(1, LaunchSpots.Spot.LEFT_CLOSE_HIVE);
         shotFrom(2, LaunchSpots.Spot.RIGHT_CLOSE_HIVE);
         again();
         run(LClockwiseAuto.build(kit(), false));

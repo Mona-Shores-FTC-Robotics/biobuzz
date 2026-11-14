@@ -54,7 +54,7 @@ from the WALL FLOWER is 4.4 s (3.2 s backward), and the road under the HIVE 6.2 
 |---|---|---|
 | TIP 1 | Shoot the preloads at RIGHT at once, from RIGHT_START | Slide 2.4 in to LEFT_WALL_HIVE and wait |
 | First pickup | The WALL FLOWER, or the GARDEN | |
-| TIP 2 | Outside lane to LEFT_WALL_NEAR; shoot at LEFT | Shoot the preloads at LEFT once it is up |
+| TIP 2 | Outside lane to LEFT_CLOSE_HIVE; shoot at LEFT | Shoot the preloads at LEFT once it is up |
 | Second pickup | The SCORING FLOWER | Under the HIVE; the GARDEN, or the WALL FLOWER |
 | TIP 3 | Turn to the HIVE at LEFT_CLOSE_HIVE and look. RIGHT up: nose-first under the HIVE to RIGHT_CLOSE_HIVE, shoot at RIGHT. Not up: finish TIP 2 from where it stands | RIGHT_WALL_NEAR; shoot at RIGHT |
 | Park | Outside lane to RIGHT_PARK | Outside lane to LEFT_PARK |
@@ -87,7 +87,7 @@ goes on under the HIVE to the GARDEN.
 | Stop | Question | Yes | No |
 |---|---|---|---|
 | **L1:** L at LEFT_WALL_HIVE, preloads | LEFT up by T1? | Shoot at LEFT | Cross under the HIVE, shoot at RIGHT from RIGHT_START to finish TIP 1, then park |
-| **R2:** R at LEFT_WALL_NEAR, first load | LEFT up by T2? | Shoot at LEFT | Park |
+| **R2:** R at LEFT_CLOSE_HIVE, first load | LEFT up by T2? | Shoot at LEFT | Park |
 | **R3:** R with the SCORING FLOWER load | RIGHT up by T3? | Shoot at RIGHT, park | Shoot at LEFT to finish TIP 2, then park |
 | **L2:** L at RIGHT_WALL_NEAR, pickup load | RIGHT up by T4? | Shoot at RIGHT, park | Park |
 
@@ -113,7 +113,7 @@ only that its last ball is out by 30 s; on PARK a volley must leave time for the
 other Auto.
 
 **One more clock check**, TS, sits after R's first LEFT volley: go for the SCORING FLOWER only
-before TS. Later than that R parks from LEFT_WALL_NEAR at once, before L comes up the lane.
+before TS. Later than that R parks from LEFT_CLOSE_HIVE at once, before L comes up the lane.
 
 ## The times
 
@@ -124,7 +124,7 @@ Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-tod
 | Row | Value | Where it comes from |
 |---|---|---|
 | **T1** LEFT up by | 9.5 s | TIP 1 from R's preloads was read up at 6.5 to 8.8 s in the simulator. The Belding films have it settled as late as 9.98 s after our PLAY, so this is likely short |
-| **T2** LEFT up by | 15.5 s | R is at LEFT_WALL_NEAR at 13.2 s. A volley begun later ends late enough that R's park would cross the lane as L comes up it |
+| **T2** LEFT up by | 15.5 s | R is at LEFT_CLOSE_HIVE at 13.2 s. A volley begun later ends late enough that R's park would cross the lane as L comes up it |
 | **TS** scoring FLOWER by | 17.6 s | R's LEFT volley (launch starts to feed ends) is over at 17.0 s. Later than 17.6 s, the pick and the park after it meet L in the lane |
 | **T3b** look by | 22.2 s | The drive to LEFT_CLOSE_HIVE (1.7 s), a volley there (2.5 s), the park (about 2.6 s) and the guard's 1 s margin end at 30 s |
 | **T3** RIGHT up by, at LEFT_CLOSE_HIVE | 23.2 s | The crossing from there (about 4.3 s) and a volley's last ball (2.5 s) end at 30 s. Not up by then: R shoots at LEFT |
@@ -167,10 +167,10 @@ Two TIPs or more, R on the WALL FLOWER, normal, 24 seeds, Belding's volleys:
 Nothing on the robots tells one where the other is, so the times above keep them apart.
 
 - **R's park crosses L's way to LEFT_PARK.** R parks either well before L comes up the lane (from
-  LEFT_WALL_NEAR by T2 or TS, from the SCORING FLOWER at about 20.2 s) or after L has turned in
+  LEFT_CLOSE_HIVE by T2 or TS, from the SCORING FLOWER at about 20.2 s) or after L has turned in
   (TR, from LEFT_CLOSE_HIVE).
-- **A robot on LEFT_WALL_NEAR blocks the way into LEFT_PARK.** Its corner is inside the park's
-  approach, so R never stands there late: T2 and TS send it to its park first.
+- **R on LEFT_CLOSE_HIVE is on L's road south.** L has left its preload spot before R arrives
+  (13.2 s) unless TIP 1 is late; see "R's second volley is from in front of the HIVE".
 - **R's park from the right side joins the lane L leaves by.** R is not at the right end before
   about 27 s, long after L has left (TL).
 - With R on the GARDEN, R's lane north passes the WALL FLOWER where L picks. L waits until TF.
@@ -203,6 +203,19 @@ Priority THREE_TIP): the same counts with both at speed, with L 20% slow, and wi
 volley missed. With R 20% slow, R now crosses and shoots at RIGHT in 12 of 24 runs where it parked
 before (both parked 12, was 22; G409 0, was 6).
 
+## R's second volley is from in front of the HIVE
+
+R shoots its first load at LEFT from **LEFT_CLOSE_HIVE** (36 in), not from LEFT_WALL_NEAR, the far-wall
+corner beside the SCORING FLOWER (about 53 in). On 20245 (14 Nov 2026) the pair ran well but that volley
+from the corner was the weak one (mentor). The drive up the lane takes the same time, and R reaches the
+spot at 13.2 s as before.
+
+The spot is on L's road: L shoots its preloads from the wall behind it and then drives south under the
+HIVE through it. L has left by about 9 to 11 s and R arrives at 13.2 s. In the simulator with Belding's
+shot rates the robots touch there in 2 of 24 runs, at about 12.2 s, the runs where TIP 1 came at 8.3 s
+or later so L left late; with every shot in, in none. The lane pair (R-OutsideLane, L-UnderHive) opens
+the same way and touches in 1 of 24. A robot check (`doc/robot-todo.md`).
+
 ## Spots
 
 Team spots: RIGHT_START, LEFT_START, WALL_FLOWER_STAGING, GARDEN_STAGING, SCORING_FLOWER_STAGING,
@@ -213,11 +226,10 @@ Launch spots, all from `LaunchSpots`, drawn for red:
 | Spot | Who shoots there | Pose |
 |---|---|---|
 | RIGHT_START | R's preloads; L's rescue of TIP 1 | (55.6, 7.7, 90°), back on the audience wall |
-| LEFT_WALL_NEAR | R's first load | (37.8, 130.7, 295.5°), a corner on the far wall, beside the SCORING FLOWER |
 | LEFT_WALL_HIVE | L's preloads | (59.9, 133.4, 270°), back on the far wall |
 | RIGHT_WALL_NEAR | L's pickup load | (35.9, 10.6, 66.9°), a corner on the audience wall |
 | RIGHT_CLOSE_HIVE | R's TIP 3 volley | (56.1, 25.3, 90°), the close row, open floor |
-| LEFT_CLOSE_HIVE | R's rescue of TIP 2 | (59.9, 116.2, 270°), the close row, open floor |
+| LEFT_CLOSE_HIVE | R's first load (its second volley), its look at the HIVE, and its rescue of TIP 2 | (59.9, 116.2, 270°), the close row, open floor |
 
 They are not in `spots.json` (but for RIGHT_START): `LaunchSpots` is where they are written, and
 the `.pp` files carry the same numbers, which `ClockwiseAutoTest` compares. A spot moved in
@@ -273,7 +285,7 @@ R's time in the simulator at Belding's numbers (R on the WALL FLOWER), beside it
 | Preload volley | 3.7 | 3.2 |
 | Drive to the WALL FLOWER | 2.0 | 2.0 |
 | Pick | 3.2 | 3.2 (three pieces) |
-| Outside lane to LEFT_WALL_NEAR | 4.4 nose-first | 3.0 backward |
+| Outside lane to LEFT_CLOSE_HIVE | 4.4 nose-first | 3.0 backward |
 | Volley at LEFT | 3.8 | 3.7 (three loaded, so the whole 3.5 s feed) |
 | Drive to the SCORING FLOWER | 1.4 | 1.5 |
 | Pick | 2.9 | 2.8 |

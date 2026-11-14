@@ -555,8 +555,8 @@ Use the work order above to select checks; the detailed mechanism checks below a
         its 3.5 s) → `AutoRegistration.LAUNCH_ALL_TYPICAL_S` and `LAUNCH_ALL_LAST_PIECE_S` go back
         up, or a late volley eats the park in every Auto.
       - **Each robot alone, HIVE in place, no partner, the new paths:** R's outside lane from the
-        WALL FLOWER and from the GARDEN onto LEFT_WALL_NEAR (a corner touches the far wall, the
-        SCORING FLOWER beside it); LEFT_WALL_NEAR to the SCORING FLOWER; back under the HIVE from
+        WALL FLOWER and from the GARDEN onto LEFT_CLOSE_HIVE (in front of the HIVE, on L's road:
+        L must be gone); LEFT_CLOSE_HIVE to the SCORING FLOWER; back under the HIVE from
         the half turn from the SCORING FLOWER to LEFT_CLOSE_HIVE and the park from there; and
         from LEFT_CLOSE_HIVE under the HIVE nose-first to RIGHT_CLOSE_HIVE (it turns to the HIVE
         after it is out from under it) and the outside lane from there. L's 2.4 in
@@ -572,7 +572,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         faults → note the speed it arrived at.
       - **Turning with a load.** On 12 Nov (20245) pieces left the intake on both backward legs;
         every loaded leg is now nose-first. Four POLLEN in the lane: R from the WALL FLOWER up the
-        outside lane onto LEFT_WALL_NEAR (it turns north at once, then round to aim), R from the
+        outside lane onto LEFT_CLOSE_HIVE (it turns north at once, then round to aim), R from the
         SCORING FLOWER to LEFT_CLOSE_HIVE (a half turn in 13 in), and L from GARDEN_STAGING and
         from the WALL FLOWER to RIGHT_WALL_NEAR, at Auto speed. **Good:** four still in the lane
         at each end, five runs of each. **Stop:** a piece leaves → note where on the path, and
@@ -581,7 +581,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         robots. Park R first, then run L's park; then the other order. **Good:** neither touches
         the other coming in (L turns east of the park zone and drives straight in; R comes in
         along RIGHT_PARK's own line). **Stop:** a touch → note which robot was moving and where.
-      - **R's view of the HIVE at each stop:** `LeftCellUp` on LEFT_WALL_NEAR (295.5°),
+      - **R's view of the HIVE at each stop:** `LeftCellUp` on LEFT_CLOSE_HIVE (270°),
         `RightCellUp` at RIGHT_CLOSE_HIVE having backed in (90°), and `RightCellUp` from
         LEFT_CLOSE_HIVE (270°). L: `LeftCellUp` on LEFT_WALL_HIVE and `RightCellUp` on
         RIGHT_WALL_NEAR (66.9°). **Good:** each within 0.3 s of arriving with that CELL up.
@@ -595,7 +595,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         does → write the seconds and where; the waits change in the Visualizer.
       - **The times, from `read_logs.py steps` on each run's log:** `LeftCellUp` for L (T1
         9.5 s; the Belding films have it as late as 9.98 s, so expect to raise it); R on
-        LEFT_WALL_NEAR and its volley's end (T2 15.5 s, TS 17.6 s; drawn 13.2 and 17.0 s); R's
+        LEFT_CLOSE_HIVE and its volley's end (T2 15.5 s, TS 17.6 s; drawn 13.2 and 17.0 s); R's
         SCORING FLOWER pick's end (T3b 22.2 s; drawn 21.3 s); R at LEFT_CLOSE_HIVE (T3 23.2 s; drawn 23.1 s); L on
         RIGHT_WALL_NEAR (T4 22 s) and each robot parked (TL 22.7 s). **Good:**
         each within 0.5 s of the drawn. Otherwise set the row in INIT for the next run and write
