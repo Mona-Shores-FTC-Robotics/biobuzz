@@ -541,12 +541,12 @@ Use the work order above to select checks; the detailed mechanism checks below a
 - [ ] **Clockwise pair: R-Clockwise beside L-Clockwise.**
       [The plan, the stops, the times and the simulator's tables](../TeamCode/autos/clockwise.md). Not yet
       driven; Infraviolet stays on the menu until this has on both robots. Run with the DS AUTO
-      timer on. Every volley is from a spot the drivers' Square or Triangle goes to, and the guard
+      timer on. Every volley is from a spot the drivers' Square goes to, and the guard
       plans a volley at 2.5 s (4.0 until 12 Nov), for every Auto. In this order, since each step
       decides whether the next is worth running:
       - **Volleys from the six launch spots, in TeleOp first:** eight pieces each from
         RIGHT_START, LEFT_WALL_HIVE, LEFT_WALL_NEAR and RIGHT_WALL_NEAR (hold Square; about 50 in)
-        and from RIGHT_CLOSE_HIVE and LEFT_CLOSE_HIVE (hold Triangle; about 32 in), counted on
+        and from RIGHT_CLOSE_HIVE and LEFT_CLOSE_HIVE (hold Square from the middle tile row in front of them; about 32 in), counted on
         video. **Good:** 7 or 8 of 8 stay in from each. **Stop:** a spot holds fewer → note which
         and by how much; the pair shoots from all six.
       - **How long a volley really is**, from `read_logs.py steps` on every Auto run tonight:
@@ -898,7 +898,7 @@ measurement is [#255].
       write down each ball's time after the gate opens and the launcher's counted shots.
       **Good:** no ball after 3.0 s in any → `launchAllFeedS` 3.05 in Panels, and the volleys
       where the count fell short show which way the shot counter misses.
-- [ ] **Superseded 11 Nov by "Square and Triangle launch spots" in §7f (Square no longer drives to
+- [ ] **Superseded 11 Nov by "Square launch spots" in §7f (Square no longer drives to
       the starts or the corners).** **Square's start and corner spots aim the turret (`belding-plus`, 7 Nov):** turret locked,
       hold Square from near each start and each corner (RIGHT_START now 89°, LEFT_START 267°,
       RIGHT_LAUNCH_CORNER 61° instead of 54°, LEFT_LAUNCH_CORNER 303° as before) and fire.
@@ -1135,8 +1135,8 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       of 4. Set its heading to about 59° in the Visualizer (Save team spots), then hold Square there
       once. **Good:** aim error under 2° on the Match page and 3–4 of 4 in. [mentor, 5 Nov]
 
-- [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`, and for Triangle's close
-      row (34.6 to 35.7 in; Triangle is on, and drives there, so the loop below can be run from it).** The table's rows start
+- [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`, and for the close
+      row (34.6 to 35.7 in; Square drives there from the middle tile row, so the loop below can be run from it).** The table's rows start
       at 42.4 in, so both CLOSE spots fire at an extrapolated speed (1459–1480 ticks/s in the
       Belding logs). The four measured rows fit one arc, which puts 36 in at about 1513 ticks/s
       (1458 to 1573 allowed by the fit). Run the loop above at `RIGHT_LAUNCH_CLOSE` and write the
@@ -1196,17 +1196,19 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
       where it is. **Good:** a timed practice cycle under 20 s.
 
-### Square and Triangle launch spots (11 Nov; nothing here has been driven)
+### Square launch spots (11 Nov, one button again 14 Nov; nothing here has been driven)
 
-Square now drives to one of six spots on the side walls and Triangle to one of six close spots in
-front of them (`localization/LaunchSpots`: LEFT or RIGHT by the half the robot is in, NEAR / HIVE /
-FAR by where it is along the wall). Gather GARDEN moved from Triangle to the driver's R1. Turret
-locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536]
+Square drives to one of the six spots on the half the robot is in, picked by its tile row
+(`localization/LaunchSpots`): from the tile row against the end wall (audience or scoring table),
+the nearest of the three wall spots; from the next row in, the nearest of the three close spots,
+the middle one counted 6 in nearer (`LaunchSpots.CENTRE_BIAS_IN`); from the two rows beside the
+centre line, refused. Gather GARDEN is back on Triangle; R1 is free. Turret locked. Map and
+reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536]
 
 - [ ] **Each wall spot, on red then blue:** pose set, loaded, hold Square from about 2 ft out in
       front of each of the six (`RIGHT_WALL_NEAR`, `RIGHT_START`, `RIGHT_WALL_FAR`, and the LEFT
       three; the RIGHT middle one is the measured start itself, since 12 Nov). **Good:**
-      the log says `launch spot: start … → <the spot in line> … (in line, N in)`, then `arrived`
+      the log says `launch spot: start … → <the spot> … (nearest, N in)`, then `arrived`
       and `gate open … settled` within about 2 s; the HIVE spots sit with the whole back on the
       wall, the NEAR and FAR ones with one corner on it; 3 or 4 of 4 stay in. Write the count per
       spot. **Stop:** a press that never arrives or never settles (the pose is asking it to push
@@ -1236,23 +1238,25 @@ locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai arti
       `RIGHT_WALL_NEAR`, then `RIGHT_WALL_FAR`; the same on the left. They are drawn 1 in apart.
       **Good:** no contact, both volleys score. **Stop:** they touch → note the gap the logs show
       (`arrived … X in … off`, `drift`), and the side spot's x moves out by that much.
-- [ ] **The column is the one the driver expects:** from six or so places around our half, the
-      driver says which wall spot they expect before pressing. **Good:** it goes there every time.
-      The boundaries are halfway between the wall spots along the wall (red RIGHT: x 45.8 and 65.7;
-      LEFT: 48.9 and 69.7).
-- [ ] **Triangle (on since 12 Nov; measure the 36 in row with it first, §7d: until then it fires
-      at the table's held end speed, about 1460):** hold Triangle in front of each column on both sides. **Good:** drives to
-      the `…_CLOSE_…` spot of that column, 34.6 to 35.7 in from the CELL, 3 or 4 of 4 in. The NEAR
+- [ ] **The spot is the one the driver expects:** from six or so places on each of the two tile
+      rows of our half, the driver says which spot they expect before pressing. **Good:** it goes
+      there every time, and a press from the two rows beside the centre line says `SQUARE REFUSED`.
+      **Stop:** a press goes somewhere unexpected → note where it was pressed from; the middle close
+      spot's favour (`CENTRE_BIAS_IN`, 6 in) or the row edge is the number to change.
+- [ ] **The close spots (measure the 36 in row first, §7d: until then they fire at the table's held
+      end speed, about 1460):** hold Square from the middle tile row in front of each of the three on
+      both sides. **Good:** drives to that `…_CLOSE_…` spot, 34.6 to 35.7 in from the CELL, 3 or 4 of 4 in. The NEAR
       and FAR close spots overlap the HIVE one by about a third of a robot: never send both robots
       to the middle and a side one at once.
 - [ ] **`RIGHT_LAUNCH_CATCH` against `RIGHT_CLOSE_HIVE`, before the Autos give CATCH up** (mentor,
       12 Nov; needs the 36 in row first, §7d). Neither button drives to CATCH now: drive there by
       hand (57.5, 18, facing the CELL; the Match page's "Last shot" line shows 43 in) and fire with
-      FIRE; then Triangle in front of the HIVE for `RIGHT_CLOSE_HIVE` (36 in). Ten volleys of 4
+      FIRE; then Square from the middle tile row in front of the HIVE for `RIGHT_CLOSE_HIVE` (36 in). Ten volleys of 4
       from each, counting how many stay in. **Good:** one is clearly better; write both counts
       here. CATCH stays a team spot only if it scores more.
-- [ ] **Gather GARDEN on the driver's R1:** hold R1 at the GARDEN as Triangle was held before.
-      **Good:** the gather runs as it did; the Controls page and the cheat sheet show R1.
+- [ ] **Gather GARDEN back on the driver's Triangle (14 Nov):** hold Triangle at the GARDEN.
+      **Good:** the gather runs as it did; the Controls page and the cheat sheet show Triangle, and
+      R1 does nothing.
 
 ## 8. If time: anyone, no driving
 

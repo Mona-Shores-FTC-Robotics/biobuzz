@@ -20,8 +20,8 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
 import org.junit.Test;
 
 /**
- * {@link LaunchSpots}: pose, alliance and the button's row in, the spot in line with the robot (or a
- * refusal) out; and the twelve spots' geometry, for a turret locked forward.
+ * {@link LaunchSpots}: pose and alliance in, the spot the robot's tile row picks (or a refusal)
+ * out; and the twelve spots' geometry, for a turret locked forward.
  */
 public class LaunchSpotsTest {
 
@@ -33,8 +33,8 @@ public class LaunchSpotsTest {
     /** Past centre far enough for every FAR spot: the TeleOp's reach. */
     private static final double REACH = 24.0;
 
-    private static Choice red(Row row, double x, double y) {
-        return LaunchSpots.choose(new Pose(x, y, 0), true, Alliance.RED, row, 0.0, REACH, FWD, LEFT);
+    private static Choice red(double x, double y) {
+        return LaunchSpots.choose(new Pose(x, y, 0), true, Alliance.RED, 0.0, REACH, FWD, LEFT);
     }
 
     private static Pose target(Spot spot) {
@@ -117,49 +117,70 @@ public class LaunchSpotsTest {
     }
 
     @Test
-    public void theButtonsRowAndTheRobotsPlaceAlongTheWallPickTheSpot() {
-        // RIGHT half (below the axle line for red), from anywhere between the wall and the HIVE.
-        assertEquals(Spot.RIGHT_WALL_NEAR, red(Row.WALL, 30, 30).spot);
-        assertEquals(Spot.RIGHT_START, red(Row.WALL, 56, 45).spot);
-        assertEquals(Spot.RIGHT_WALL_FAR, red(Row.WALL, 72, 20).spot);
-        assertEquals(Spot.RIGHT_CLOSE_NEAR, red(Row.CLOSE, 30, 30).spot);
-        assertEquals(Spot.RIGHT_CLOSE_HIVE, red(Row.CLOSE, 56, 45).spot);
-        assertEquals(Spot.RIGHT_CLOSE_FAR, red(Row.CLOSE, 72, 20).spot);
-        // LEFT half.
-        assertEquals(Spot.LEFT_WALL_NEAR, red(Row.WALL, 30, 110).spot);
-        assertEquals(Spot.LEFT_WALL_HIVE, red(Row.WALL, 60, 100).spot);
-        assertEquals(Spot.LEFT_WALL_FAR, red(Row.WALL, 75, 120).spot);
-        assertEquals(Spot.LEFT_CLOSE_HIVE, red(Row.CLOSE, 60, 100).spot);
-        // No row asked for is the wall row.
-        assertEquals(Spot.RIGHT_START, red(null, 56, 45).spot);
+    public void theTileRowPicksTheRowAndTheNearestSpotInItIsChosen() {
+        // RIGHT half (below the axle line for red). The tile row against the audience wall: wall spots.
+        assertEquals(Spot.RIGHT_WALL_NEAR, red(30, 15).spot);
+        assertEquals(Spot.RIGHT_START, red(56, 15).spot);
+        assertEquals(Spot.RIGHT_WALL_FAR, red(80, 20).spot);
+        // The next tile row in: close spots.
+        assertEquals(Spot.RIGHT_CLOSE_NEAR, red(30, 35).spot);
+        assertEquals(Spot.RIGHT_CLOSE_HIVE, red(56, 40).spot);
+        assertEquals(Spot.RIGHT_CLOSE_FAR, red(75, 35).spot);
+        // LEFT half: the tile row against the scoring table's wall, then the next one in.
+        assertEquals(Spot.LEFT_WALL_NEAR, red(30, 125).spot);
+        assertEquals(Spot.LEFT_WALL_HIVE, red(60, 125).spot);
+        assertEquals(Spot.LEFT_WALL_FAR, red(80, 128).spot);
+        assertEquals(Spot.LEFT_CLOSE_NEAR, red(40, 100).spot);
+        assertEquals(Spot.LEFT_CLOSE_HIVE, red(60, 105).spot);
     }
 
     @Test
-    public void theColumnIsTheNearestWallSpotAlongTheWallHoweverFarFromIt() {
-        for (boolean left : new boolean[] {false, true}) {
-            double near = Spot.of(left, Row.WALL, Column.NEAR).red.x();
-            double hive = Spot.of(left, Row.WALL, Column.HIVE).red.x();
-            double far = Spot.of(left, Row.WALL, Column.FAR).red.x();
-            assertTrue(near < hive && hive < far);
-            assertEquals(Column.NEAR, LaunchSpots.columnFor(left, 0));
-            assertEquals(Column.NEAR, LaunchSpots.columnFor(left, (near + hive) / 2 - 0.1));
-            assertEquals(Column.HIVE, LaunchSpots.columnFor(left, (near + hive) / 2 + 0.1));
-            assertEquals(Column.HIVE, LaunchSpots.columnFor(left, (hive + far) / 2 - 0.1));
-            assertEquals(Column.FAR, LaunchSpots.columnFor(left, (hive + far) / 2 + 0.1));
-            assertEquals(Column.FAR, LaunchSpots.columnFor(left, SIZE));
+    public void theTwoTileRowsBesideTheCentreLineAreRefused() {
+        for (double y : new double[] {50, 60, 70, 72, 80, 90}) {
+            Choice c = red(30, y);
+            assertTrue("y " + y, c.refused());
+            assertTrue(c.refusal, c.refusal.contains("beside the centre line"));
         }
-        // The same column for both buttons, and for every distance from the wall on that half.
-        for (double y : new double[] {5, 30, 60}) {
-            assertEquals(Column.NEAR, red(Row.WALL, 40, y).spot.column);
-            assertEquals(Column.NEAR, red(Row.CLOSE, 40, y).spot.column);
-        }
+    }
+
+    @Test
+    public void theRowIsTheTileRowsAndTheBandBesideTheCentreLineHasNone() {
+        double t = FieldFrame.TILE_INCHES;
+        assertEquals(Row.WALL, LaunchSpots.rowFor(0));
+        assertEquals(Row.WALL, LaunchSpots.rowFor(t - 0.1));
+        assertEquals(Row.CLOSE, LaunchSpots.rowFor(t + 0.1));
+        assertEquals(Row.CLOSE, LaunchSpots.rowFor(2 * t - 0.1));
+        assertNull(LaunchSpots.rowFor(2 * t + 0.1));
+        assertNull(LaunchSpots.rowFor(C));
+        assertNull(LaunchSpots.rowFor(4 * t - 0.1));
+        assertEquals(Row.CLOSE, LaunchSpots.rowFor(4 * t + 0.1));
+        assertEquals(Row.CLOSE, LaunchSpots.rowFor(5 * t - 0.1));
+        assertEquals(Row.WALL, LaunchSpots.rowFor(5 * t + 0.1));
+        assertEquals(Row.WALL, LaunchSpots.rowFor(SIZE));
+    }
+
+    @Test
+    public void theMiddleCloseSpotIsFavouredByTheCentreBias() {
+        // From (50, 40) RIGHT_CLOSE_NEAR is nearer by 2.9 in, inside the 6 in bias: the middle one wins.
+        Spot near = Spot.RIGHT_CLOSE_NEAR, hive = Spot.RIGHT_CLOSE_HIVE;
+        double toNear = Math.hypot(near.red.x() - 50, near.red.y() - 40);
+        double toHive = Math.hypot(hive.red.x() - 50, hive.red.y() - 40);
+        assertTrue(toNear < toHive && toHive - toNear < LaunchSpots.CENTRE_BIAS_IN);
+        assertEquals(hive, red(50, 40).spot);
+        // Past the bias the side spot still wins.
+        assertEquals(near, red(30, 35).spot);
+        // The wall row has no bias: the nearest wall spot.
+        Spot wallNear = Spot.RIGHT_WALL_NEAR, start = Spot.RIGHT_START;
+        double mid = (wallNear.red.x() + start.red.x()) / 2;
+        assertEquals(wallNear, LaunchSpots.nearest(false, Row.WALL, mid - 1, 9));
+        assertEquals(start, LaunchSpots.nearest(false, Row.WALL, mid + 1, 9));
     }
 
     @Test
     public void theChoiceSaysHowFarTheDriveIs() {
-        Choice c = red(Row.WALL, 45, 40);
+        Choice c = red(45, 40);
         assertEquals(Math.hypot(c.target.x() - 45, c.target.y() - 40), c.distanceIn, EPS);
-        assertTrue(c.toString(), c.toString().contains("in line"));
+        assertTrue(c.toString(), c.toString().contains("nearest"));
     }
 
     @Test
@@ -302,20 +323,20 @@ public class LaunchSpotsTest {
 
     @Test
     public void blueIsRedTurnedHalfATurn() {
-        double[][] where = {{30, 30}, {60, 22}, {56, 6}, {65, 135}, {60, 120}, {30, 110}, {45, 60}, {75, 12}, {80, 129}};
-        for (Row row : Row.values()) {
-            for (double[] w : where) {
-                Pose p = new Pose(w[0], w[1], 0);
-                Choice r = LaunchSpots.choose(p, true, Alliance.RED, row, 0.0, REACH, FWD, LEFT);
-                Choice b = LaunchSpots.choose(LaunchSpots.turned(p), true, Alliance.BLUE, row, 0.0, REACH, FWD, LEFT);
-                assertNotNull(p.toString(), r.spot);
-                assertEquals(p.toString(), r.spot, b.spot);
-                Pose expected = LaunchSpots.turned(r.target);
-                assertEquals(expected.x(), b.target.x(), EPS);
-                assertEquals(expected.y(), b.target.y(), EPS);
-                assertEquals(0, wrap(expected.heading() - b.target.heading()), EPS);
-            }
+        double[][] where = {{30, 30}, {60, 22}, {56, 6}, {65, 135}, {60, 120}, {30, 110}, {45, 40}, {75, 12}, {80, 129}};
+        for (double[] w : where) {
+            Pose p = new Pose(w[0], w[1], 0);
+            Choice r = LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT);
+            Choice b = LaunchSpots.choose(LaunchSpots.turned(p), true, Alliance.BLUE, 0.0, REACH, FWD, LEFT);
+            assertNotNull(p.toString(), r.spot);
+            assertEquals(p.toString(), r.spot, b.spot);
+            Pose expected = LaunchSpots.turned(r.target);
+            assertEquals(expected.x(), b.target.x(), EPS);
+            assertEquals(expected.y(), b.target.y(), EPS);
+            assertEquals(0, wrap(expected.heading() - b.target.heading()), EPS);
         }
+        // The band beside the centre line is refused for both alliances alike.
+        assertTrue(LaunchSpots.choose(LaunchSpots.turned(new Pose(30, 60, 0)), true, Alliance.BLUE, 0.0, REACH).refused());
     }
 
     @Test
@@ -364,7 +385,7 @@ public class LaunchSpotsTest {
 
     @Test
     public void anUnreferencedPoseIsRefusedAndNothingIsChosen() {
-        Choice c = LaunchSpots.choose(new Pose(40, 30, 0), false, Alliance.RED, Row.WALL, 0.0, 0.0);
+        Choice c = LaunchSpots.choose(new Pose(40, 30, 0), false, Alliance.RED, 0.0, 0.0);
         assertTrue(c.refused());
         assertNull(c.spot);
         assertNull(c.target);
@@ -373,31 +394,31 @@ public class LaunchSpotsTest {
 
     @Test
     public void noPoseNoAllianceOrTheOtherSideIsRefused() {
-        assertTrue(LaunchSpots.choose(null, true, Alliance.RED, Row.WALL, 0.0, 0.0).refused());
-        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, Alliance.UNKNOWN, Row.WALL, 0.0, 0.0).refused());
-        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, null, Row.WALL, 0.0, 0.0).refused());
+        assertTrue(LaunchSpots.choose(null, true, Alliance.RED, 0.0, 0.0).refused());
+        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, Alliance.UNKNOWN, 0.0, 0.0).refused());
+        assertTrue(LaunchSpots.choose(new Pose(40, 30, 0), true, null, 0.0, 0.0).refused());
         // With no reach: red past the centre line or on it, blue short of it.
-        Choice past = LaunchSpots.choose(new Pose(80, 30, 0), true, Alliance.RED, Row.WALL, 0.0, 0.0);
+        Choice past = LaunchSpots.choose(new Pose(80, 30, 0), true, Alliance.RED, 0.0, 0.0);
         assertTrue(past.refused());
         assertTrue(past.refusal, past.refusal.contains("centre line"));
-        assertTrue(LaunchSpots.choose(new Pose(C, 30, 0), true, Alliance.RED, Row.CLOSE, 0.0, 0.0).refused());
-        assertTrue(LaunchSpots.choose(new Pose(60, 110, 0), true, Alliance.BLUE, Row.WALL, 0.0, 0.0).refused());
+        assertTrue(LaunchSpots.choose(new Pose(C, 30, 0), true, Alliance.RED, 0.0, 0.0).refused());
+        assertTrue(LaunchSpots.choose(new Pose(60, 110, 0), true, Alliance.BLUE, 0.0, 0.0).refused());
     }
 
     @Test
     public void aReachPastTheCentreLineWorksFromWithinIt() {
         // 6 Nov 2026: refused at 3 to 4 in past the line (red at 73.9, blue at 67.4).
-        Choice red = LaunchSpots.choose(new Pose(73.9, 125.3, 0), true, Alliance.RED, Row.WALL, 0.0, 24.0);
+        Choice red = LaunchSpots.choose(new Pose(73.9, 125.3, 0), true, Alliance.RED, 0.0, 24.0);
         assertFalse(red.refusal, red.refused());
-        Choice blue = LaunchSpots.choose(new Pose(67.4, 110, 0), true, Alliance.BLUE, Row.WALL, 0.0, 24.0);
+        Choice blue = LaunchSpots.choose(new Pose(67.4, 110, 0), true, Alliance.BLUE, 0.0, 24.0);
         assertFalse(blue.refusal, blue.refused());
         // Past the reach, refused, and the refusal says by how much.
-        Choice far = LaunchSpots.choose(new Pose(C + 30, 30, 0), true, Alliance.RED, Row.WALL, 0.0, 24.0);
+        Choice far = LaunchSpots.choose(new Pose(C + 30, 30, 0), true, Alliance.RED, 0.0, 24.0);
         assertTrue(far.refused());
         assertTrue(far.refusal, far.refusal.contains("30 in past the centre line"));
-        assertTrue(LaunchSpots.choose(new Pose(C - 30, 30, 0), true, Alliance.BLUE, Row.WALL, 0.0, 24.0).refused());
+        assertTrue(LaunchSpots.choose(new Pose(C - 30, 30, 0), true, Alliance.BLUE, 0.0, 24.0).refused());
         // NaN or negative reach is 0: strictly our side.
-        assertTrue(LaunchSpots.choose(new Pose(C + 1, 30, 0), true, Alliance.RED, Row.WALL, 0.0, Double.NaN).refused());
-        assertTrue(LaunchSpots.choose(new Pose(C + 1, 30, 0), true, Alliance.RED, Row.WALL, 0.0, -5).refused());
+        assertTrue(LaunchSpots.choose(new Pose(C + 1, 30, 0), true, Alliance.RED, 0.0, Double.NaN).refused());
+        assertTrue(LaunchSpots.choose(new Pose(C + 1, 30, 0), true, Alliance.RED, 0.0, -5).refused());
     }
 }

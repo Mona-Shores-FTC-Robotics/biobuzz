@@ -19,9 +19,10 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
- * The driver's two "go to launch spot" buttons, held: Pedro drives from the robot's pose to the
- * launch spot in line with it when the button is pressed ({@link LaunchSpots#choose}: Square the
- * spot on the side wall, Triangle the close one in front of it; from our side, or up to
+ * The driver's "go to launch spot" button (Square), held: Pedro drives from the robot's pose to
+ * the launch spot its tile row picks when the button is pressed ({@link LaunchSpots#choose}: the
+ * nearest on the side wall from the row against the end wall, the nearest close one from the next
+ * row in, none from the two rows beside the centre line; from our side, or up to
  * {@link #maxPastCentreIn} past the centre line), and arrives aimed at that half's CELL. Never a
  * spot chosen from what the camera believes about the HIVE: the field gets crowded and the driver
  * stays near where they are (mentor, 4 Nov 2026). Letting go, or
@@ -86,8 +87,6 @@ public final class LaunchSpotDrive {
 
     private Phase phase = Phase.IDLE;
     private LaunchSpots.Choice choice;
-    /** The row of the press under way or last made: which button it was. */
-    private LaunchSpots.Row row = LaunchSpots.Row.WALL;
     private long startNs;
     private double arriveS = Double.NaN;
     private String result = "";
@@ -126,11 +125,6 @@ public final class LaunchSpotDrive {
         return phase == Phase.REFUSED;
     }
 
-    /** The row of the press under way, or of the last one: the wall button's or the close button's. */
-    public LaunchSpots.Row row() {
-        return row;
-    }
-
     /** Pedro is driving or holding the robot: nothing else may drive it. */
     public boolean active() {
         return phase == Phase.DRIVING || phase == Phase.HOLDING;
@@ -139,13 +133,12 @@ public final class LaunchSpotDrive {
     /**
      * One step, every loop.
      *
-     * @param held        a launch-spot button is held
-     * @param row         which one, read when the press starts: the wall row's or the close row's
+     * @param held        the launch-spot button is held
      * @param alliance    ours ({@code setup.alliance()})
      * @param sticksMoved a drive stick is off centre: the driver wants the robot back
      * @param operatorFiring the operator's FIRE is held: it wins over the button's volley
      */
-    public void update(boolean held, LaunchSpots.Row row, Alliance alliance, boolean sticksMoved, boolean operatorFiring) {
+    public void update(boolean held, Alliance alliance, boolean sticksMoved, boolean operatorFiring) {
         long now = System.nanoTime();
         feed = false;
         if (!held) {
@@ -154,7 +147,6 @@ public final class LaunchSpotDrive {
             return;
         }
         if (phase == Phase.IDLE) {
-            this.row = row == null ? LaunchSpots.Row.WALL : row;
             start(now, alliance);
             return;
         }
@@ -235,7 +227,7 @@ public final class LaunchSpotDrive {
         spotRangeIn = Double.NaN;
         this.alliance = alliance;
         Pose pose = robot.drive.pose();
-        choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, row, wallGapIn,
+        choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, wallGapIn,
                 maxPastCentreIn, TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
         if (choice.refused()) {
             // Not on the field: the drive says what fixes it (a lost Pinpoint is not "no reset yet").

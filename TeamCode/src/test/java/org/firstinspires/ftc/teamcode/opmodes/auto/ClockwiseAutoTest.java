@@ -253,8 +253,8 @@ public class ClockwiseAutoTest {
     }
 
     /**
-     * Every volley of the pair is from a spot the drivers' buttons go to ({@link LaunchSpots}): the wall row
-     * (Square), but for R's third volley and its rescue of TIP 2, which are from the close row (Triangle).
+     * Every volley of the pair is from a spot the drivers' Square goes to ({@link LaunchSpots}): the wall row,
+     * but for R's third volley and its rescue of TIP 2, which are from the close row.
      */
     @Test public void everyVolleyIsFromASquareSpot() {
         run(RClockwiseAuto.build(kit(), false));

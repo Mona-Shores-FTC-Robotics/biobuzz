@@ -121,7 +121,7 @@ measured field facts — NaN or empty until measured, never guessed. Each measur
 only the team's spots (`TeamCode/autos/README.md` lists them, side first: `RIGHT_START`,
 `RIGHT_PARK`); one that needs another spot lives on the `autos-experiment` branch. Two exceptions:
 Infraviolet's own `RIGHT_PAIR_CLOSE`, until a robot has shot from it, and the Clockwise pair, whose every
-volley is from a spot of `LaunchSpots` (the drivers' Square and Triangle), written there and compared by
+volley is from a spot of `LaunchSpots` (the drivers' Square), written there and compared by
 `ClockwiseAutoTest`: a new Auto launches from those, never from a spot of its own. An Autonomous declares its start by
 overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check. A TeleOp with
 no handoff declares its alliance's start too (`StartPositions.forAlliance`), so a test drive starts
