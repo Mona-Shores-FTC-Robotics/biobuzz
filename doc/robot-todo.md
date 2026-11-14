@@ -1200,9 +1200,12 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
 
 Square drives to one of the six spots on the half the robot is in, picked by its tile row
 (`localization/LaunchSpots`): from the tile row against the end wall (audience or scoring table),
-the nearest of the three wall spots; from the next row in, the nearest of the three close spots,
-the middle one counted 6 in nearer (`LaunchSpots.CENTRE_BIAS_IN`); from the two rows beside the
-centre line, refused. Gather GARDEN is back on Triangle; R1 is free. Turret locked. Map and
+the nearest of the three wall spots, the middle one counted 6 in nearer
+(`LaunchSpotDrive.wallCentreBiasIn`, in Panels); from the next row in, the nearest of the three close spots,
+the middle one counted 6 in nearer (`LaunchSpotDrive.closeCentreBiasIn`, in Panels); from the two rows beside the
+centre line, refused. The close spots are driven 2.5 in back toward their end wall
+(`LaunchSpotDrive.closeBackIn`, in Panels; 14 Nov: close volleys were hitting the HIVE's lip).
+Gather GARDEN is back on Triangle; R1 is free. Turret locked. Map and
 reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536]
 
 - [ ] **Each wall spot, on red then blue:** pose set, loaded, hold Square from about 2 ft out in
@@ -1242,10 +1245,14 @@ reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536
       rows of our half, the driver says which spot they expect before pressing. **Good:** it goes
       there every time, and a press from the two rows beside the centre line says `SQUARE REFUSED`.
       **Stop:** a press goes somewhere unexpected → note where it was pressed from; the middle close
-      spot's favour (`CENTRE_BIAS_IN`, 6 in) or the row edge is the number to change.
+      spot's favour (`LaunchSpotDrive.wallCentreBiasIn` or `closeCentreBiasIn` in Panels, 6 in each;
+      try them there first) or the row edge is the number to change.
 - [ ] **The close spots (measure the 36 in row first, §7d: until then they fire at the table's held
       end speed, about 1460):** hold Square from the middle tile row in front of each of the three on
-      both sides. **Good:** drives to that `…_CLOSE_…` spot, 34.6 to 35.7 in from the CELL, 3 or 4 of 4 in. The NEAR
+      both sides. **Good:** drives to that `…_CLOSE_…` spot, 2.5 in back from where it is drawn
+      (`closeBackIn`), about 37 to 38 in from the CELL, 3 or 4 of 4 in, clear of the HIVE's lip.
+      **Stop:** still hitting the lip, or now short → change `closeBackIn` in Panels and write the
+      number that works here. The NEAR
       and FAR close spots overlap the HIVE one by about a third of a robot: never send both robots
       to the middle and a side one at once.
 - [ ] **`RIGHT_LAUNCH_CATCH` against `RIGHT_CLOSE_HIVE`, before the Autos give CATCH up** (mentor,
