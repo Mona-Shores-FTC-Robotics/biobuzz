@@ -1,5 +1,9 @@
 # Stick shoulder for 19429, right arm
 
+> **Superseded, do not print (14 Nov).** The round hood below drops the slanted face that guides GARDEN balls,
+> which is what the present blue shoulder does well. Three ways to carry that slant on to the blue wall are sketched on
+> the 14 Nov photos in [`concepts.png`](concepts.png); the chosen one replaces this part once the lab measurements are in.
+
 On 20245 the FLOWER stick's white walls sit against the arms' wheel hubs. On 19429 the blue wall on the **right
 arm** sits well inboard of it, leaving about 1.75 in of bare 8 mm shaft between the wall and the wheel, and on
 14 Nov the FLOWER's lip caught there: every Auto WALL FLOWER pick on 19429 stopped 4.4–5.5 in short with nothing
