@@ -76,6 +76,13 @@ public final class LaunchSpotDrive {
      * point, not a measurement.
      */
     public static double maxPastCentreIn = 24.0;
+    /**
+     * From the middle tile row, the middle close spot ({@code …_CLOSE_HIVE}) counts as this much
+     * nearer than it is, inches, so it wins more of the row ({@link LaunchSpots#choose}). 6 (mentor,
+     * 14 Nov 2026), chosen on the "Square Launch Spots" map; 0, NaN or negative is plain nearest.
+     * Read at each press.
+     */
+    public static double centreBiasIn = LaunchSpots.DEFAULT_CENTRE_BIAS_IN;
 
     private enum Phase { IDLE, DRIVING, HOLDING, REFUSED, ENDED }
 
@@ -228,7 +235,7 @@ public final class LaunchSpotDrive {
         this.alliance = alliance;
         Pose pose = robot.drive.pose();
         choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, wallGapIn,
-                maxPastCentreIn, TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
+                maxPastCentreIn, TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, centreBiasIn);
         if (choice.refused()) {
             // Not on the field: the drive says what fixes it (a lost Pinpoint is not "no reset yet").
             String why = pose != null && !robot.drive.poseReferenced() ? robot.drive.notReferencedWhy() : null;
