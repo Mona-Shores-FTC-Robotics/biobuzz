@@ -150,7 +150,7 @@ public class InitOptionsTest {
         List<String> lines = new ArrayList<>();
         menu.describe(new Display(lines::add));
         assertTrue(lines.toString(), lines.get(0).contains("▶ Pickup ◀▶: WALL_FLOWER"));
-        assertTrue(lines.toString(), lines.get(0).contains("▲▼ row 1 of 4"));
+        assertTrue(lines.toString(), lines.get(0).contains("▲▼1/4"));
         assertTrue(lines.toString(), lines.get(1).contains("Partner runs L-Clockwise: Pickup GARDEN · Shot trigger CAMERA"));
         assertTrue(lines.toString(), lines.get(2).contains("T2 LEFT up by 18 s"));
 

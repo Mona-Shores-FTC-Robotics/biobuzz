@@ -213,6 +213,8 @@ Result, with the gap on each own-start run, → [PR #372].
       Priority THREE_TIP), L two (waiting for TIP 1 until 9.5 s, Pickup GARDEN). D-pad down walks the rows and wraps;
       right on Pickup shows the other pickup; right on the time adds 1 s; everything changed is amber
       and bold. Read the two robots' Pickup rows to each other: WALL_FLOWER pairs with GARDEN.
+      The selected row ends `▲▼1/3` and stays on one line; on 14 Nov 2026 it wrapped (it ended
+      `· ▲▼ row 1 of 3`). **Stop:** the selected row still wraps → photograph it.
       **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
       8.0 s, and no log can say what INIT showed (the next item). Show the drive team the line too.
 - [ ] **The chosen INIT options reach the match log** (same run: set the wait to 12 s,
@@ -540,7 +542,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
 
 - [ ] **Clockwise pair: R-Clockwise beside L-Clockwise.**
       [The plan, the stops, the times and the simulator's tables](../TeamCode/autos/clockwise.md). Not yet
-      driven; Infraviolet stays on the menu until this has on both robots. Run with the DS AUTO
+      driven as a pair; Infraviolet is on the Utility menu (Drive: R-Infraviolet, Drive: L-Infraviolet). Run with the DS AUTO
       timer on. Every volley is from a spot the drivers' Square goes to, and the guard
       plans a volley at 2.5 s (4.0 until 12 Nov), for every Auto. In this order, since each step
       decides whether the next is worth running:

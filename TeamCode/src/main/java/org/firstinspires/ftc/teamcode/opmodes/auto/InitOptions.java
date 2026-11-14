@@ -171,7 +171,7 @@ public final class InitOptions implements AutoKit.Picks {
     /**
      * The menu on the INIT page, green as drawn and amber once any row is changed:
      * <pre>
-     * ● ▶ Pickup ◀▶: WALL_FLOWER · ▲▼ row 1 of 8
+     * ● ▶ Pickup ◀▶: WALL_FLOWER ▲▼1/3
      *   Pickup WALL_FLOWER · Shot trigger CAMERA · T2 18 s · …
      *   Partner runs L-Clockwise: Pickup GARDEN · Shot trigger CAMERA
      * </pre>
@@ -187,7 +187,8 @@ public final class InitOptions implements AutoKit.Picks {
         Display.Level level = any ? Display.Level.WARN : Display.Level.OK;
         if (rows.length > 0) {
             int i = rows[selected];
-            String where = rows.length > 1 ? " · ▲▼ row " + (selected + 1) + " of " + rows.length : "";
+            // Short, so the longest row ("waiting for TIP 2 ◀▶ until 23.2 s") stays on one line of the page.
+            String where = rows.length > 1 ? " ▲▼" + (selected + 1) + "/" + rows.length : "";
             String[] tries = {"▶ " + row(i, true) + where, row(i, false)};
             boolean written = false;
             for (String text : tries) {
