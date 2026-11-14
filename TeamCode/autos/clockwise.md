@@ -11,8 +11,9 @@ Open the pair together:
 <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-clockwise.pp,l-clockwise.pp>
 
 **Every volley is from a spot the drivers' buttons go to** (`localization/LaunchSpots`; mentor,
-12 Nov 2026): the wall row (Square), but for R's third volley and its rescue of TIP 2, which are
-from the close row (Triangle) because the drives to them are shorter. One set of spots for TeleOp
+12 Nov 2026): the wall row, but for R's third volley and its rescue of TIP 2, which are from the
+close row because the drives to them are shorter. Square goes to both rows in TeleOp, by the tile
+row the robot is in (14 Nov 2026). One set of spots for TeleOp
 and Auto, so a TeleOp volley is data for the Auto and the speed table is tuned in one place.
 `ClockwiseAutoTest` fails if a volley of the pair is from anywhere else.
 
