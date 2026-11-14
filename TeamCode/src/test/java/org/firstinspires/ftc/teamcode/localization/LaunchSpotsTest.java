@@ -183,25 +183,66 @@ public class LaunchSpotsTest {
         assertEquals(wallNear, LaunchSpots.nearest(false, Row.WALL, mid - 5, 9, 6.0));
         // Each row reads its own number.
         Pose p = new Pose(mid - 1, 15, 0);
-        assertEquals(start, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 6.0, 0.0).spot);
-        assertEquals(wallNear, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 0.0, 6.0).spot);
+        assertEquals(start, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 6.0, 0.0, 0.0).spot);
+        assertEquals(wallNear, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 0.0, 6.0, 0.0).spot);
     }
 
     @Test
     public void theCentreBiasIsTheCallersAndNoneIsPlainNearest() {
         Pose p = new Pose(50, 40, 0);
         // The Panels number, passed in: 0 is plain nearest, so the side spot wins from (50, 40).
-        assertEquals(Spot.RIGHT_CLOSE_NEAR, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 6.0, 0.0).spot);
-        assertEquals(Spot.RIGHT_CLOSE_HIVE, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 0.0, 6.0).spot);
+        assertEquals(Spot.RIGHT_CLOSE_NEAR, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 6.0, 0.0, 0.0).spot);
+        assertEquals(Spot.RIGHT_CLOSE_HIVE, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 0.0, 6.0, 0.0).spot);
         // NaN or negative is no bias, never a penalty on the middle spot.
         for (double bad : new double[] {Double.NaN, -10}) {
-            assertEquals(Spot.RIGHT_CLOSE_NEAR, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, bad, bad).spot);
+            assertEquals(Spot.RIGHT_CLOSE_NEAR, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, bad, bad, 0.0).spot);
         }
         // A big bias sends the whole row to the middle spot.
-        assertEquals(Spot.RIGHT_CLOSE_HIVE, LaunchSpots.choose(new Pose(10, 35, 0), true, Alliance.RED, 0.0, REACH, FWD, LEFT, 0.0, 100).spot);
-        assertEquals(Spot.RIGHT_START, LaunchSpots.choose(new Pose(10, 15, 0), true, Alliance.RED, 0.0, REACH, FWD, LEFT, 100, 0.0).spot);
+        assertEquals(Spot.RIGHT_CLOSE_HIVE, LaunchSpots.choose(new Pose(10, 35, 0), true, Alliance.RED, 0.0, REACH, FWD, LEFT, 0.0, 100, 0.0).spot);
+        assertEquals(Spot.RIGHT_START, LaunchSpots.choose(new Pose(10, 15, 0), true, Alliance.RED, 0.0, REACH, FWD, LEFT, 100, 0.0, 0.0).spot);
         // The shorter forms use the defaults, as the TeleOp starts.
         assertEquals(Spot.RIGHT_CLOSE_HIVE, red(50, 40).spot);
+    }
+
+    @Test
+    public void theCloseRowComesBackTowardItsWallAndReAims() {
+        for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
+            for (Spot spot : Spot.values()) {
+                Pose drawn = spot.target(alliance, 0.0, 0.0, FWD, LEFT);
+                Pose back = spot.target(alliance, 0.0, 2.5, FWD, LEFT);
+                if (spot.row == Row.WALL) {
+                    // The wall row does not move.
+                    assertEquals(spot.name(), drawn.x(), back.x(), EPS);
+                    assertEquals(spot.name(), drawn.y(), back.y(), EPS);
+                    continue;
+                }
+                // 2.5 in straight toward its end wall (red: the RIGHT wall is low y), x unchanged.
+                Pose drawnRed = spot.target(Alliance.RED, 0.0, 0.0, FWD, LEFT);
+                Pose backRed = spot.target(Alliance.RED, 0.0, 2.5, FWD, LEFT);
+                assertEquals(spot.name(), drawnRed.x(), backRed.x(), EPS);
+                assertEquals(spot.name(), spot.left ? 2.5 : -2.5, backRed.y() - drawnRed.y(), EPS);
+                // Still aimed at its CELL's row, so the range grows by about the pull-back.
+                Vec3 row = spot.cellRow(alliance);
+                double ax = back.x() + FWD * Math.cos(back.heading()) - LEFT * Math.sin(back.heading());
+                double ay = back.y() + FWD * Math.sin(back.heading()) + LEFT * Math.cos(back.heading());
+                if (spot.aimed) {
+                    assertEquals(spot + " " + alliance, 0, wrap(Math.atan2(row.y() - ay, row.x() - ax) - back.heading()), 1e-6);
+                } else {
+                    assertEquals(spot.name(), drawn.heading(), back.heading(), EPS);
+                }
+            }
+        }
+        // NaN or negative: as drawn.
+        Pose drawn = Spot.RIGHT_CLOSE_HIVE.target(Alliance.RED, 0.0, 0.0, FWD, LEFT);
+        for (double bad : new double[] {Double.NaN, -3}) {
+            assertEquals(drawn.y(), Spot.RIGHT_CLOSE_HIVE.target(Alliance.RED, 0.0, bad, FWD, LEFT).y(), EPS);
+        }
+        // The press drives to the pulled-back spot, but picks the same spot as without it.
+        Pose p = new Pose(56, 40, 0);
+        Choice none = LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 6.0, 6.0, 0.0);
+        Choice back = LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 6.0, 6.0, 2.5);
+        assertEquals(none.spot, back.spot);
+        assertEquals(none.target.y() - 2.5, back.target.y(), EPS);
     }
 
     @Test

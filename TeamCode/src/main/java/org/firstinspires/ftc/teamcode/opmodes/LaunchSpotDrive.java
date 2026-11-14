@@ -90,6 +90,13 @@ public final class LaunchSpotDrive {
      * Read at each press.
      */
     public static double closeCentreBiasIn = LaunchSpots.DEFAULT_CLOSE_CENTRE_BIAS_IN;
+    /**
+     * All six close spots are driven this far back from where they are drawn, straight toward
+     * their end wall, inches; the four side ones re-aim from there. 2.5 (mentor, 14 Nov 2026): close
+     * volleys were hitting the lip of the HIVE and needed to come back 2 to 3 in. 0, NaN or
+     * negative: the spots as drawn. Which spot a press goes to does not change. Read at each press.
+     */
+    public static double closeBackIn = LaunchSpots.DEFAULT_CLOSE_BACK_IN;
 
     private enum Phase { IDLE, DRIVING, HOLDING, REFUSED, ENDED }
 
@@ -243,7 +250,7 @@ public final class LaunchSpotDrive {
         Pose pose = robot.drive.pose();
         choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, wallGapIn,
                 maxPastCentreIn, TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn,
-                wallCentreBiasIn, closeCentreBiasIn);
+                wallCentreBiasIn, closeCentreBiasIn, closeBackIn);
         if (choice.refused()) {
             // Not on the field: the drive says what fixes it (a lost Pinpoint is not "no reset yet").
             String why = pose != null && !robot.drive.poseReferenced() ? robot.drive.notReferencedWhy() : null;

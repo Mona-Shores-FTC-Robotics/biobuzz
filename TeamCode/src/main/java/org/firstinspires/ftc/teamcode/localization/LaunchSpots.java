@@ -93,6 +93,15 @@ public final class LaunchSpots {
      */
     public static final double DEFAULT_WALL_CENTRE_BIAS_IN = 6.0;
 
+    /**
+     * The six CLOSE spots are driven to this far back from where they are drawn, straight toward
+     * their end wall, inches: the starting value of {@code LaunchSpotDrive.closeBackIn}, the Panels
+     * number. 2.5 (mentor, 14 Nov 2026): close volleys were hitting the lip of the HIVE and needed to
+     * come back 2 to 3 in. The TeleOp's button only, as the wall row's stand-off: the spots as
+     * drawn, and so the Clockwise Autos' close volleys, do not move.
+     */
+    public static final double DEFAULT_CLOSE_BACK_IN = 2.5;
+
     /** The frame is square: from its centre to its back, front and either side (measured, {@link ResetPositions}). */
     static final double FRAME_HALF_IN = ResetPositions.WALL_TO_CENTRE_IN;
 
@@ -170,16 +179,26 @@ public final class LaunchSpots {
             return target(alliance, wallGapIn, 0.0, 0.0);
         }
 
+        /** As {@link #target(Alliance, double, double, double, double)} with no CLOSE pull-back. */
+        public Pose target(Alliance alliance, double wallGapIn, double turretForwardIn, double turretLeftIn) {
+            return target(alliance, wallGapIn, 0.0, turretForwardIn, turretLeftIn);
+        }
+
         /**
          * Where the button drives for {@code alliance}: worked out for red and turned half a turn
          * about the field centre for blue. A WALL spot is drawn touching its wall and is driven to
-         * its {@link #standOffIn} plus {@code wallGapIn} out from it (NaN or negative: 0). Every spot but a HIVE-column
+         * its {@link #standOffIn} plus {@code wallGapIn} out from it (NaN or negative: 0); a CLOSE spot
+         * is driven {@code closeBackIn} back from where it is drawn, straight toward its end wall (NaN
+         * or negative: 0). Every spot but a HIVE-column
          * one then faces its CELL's raised row with the turret's axis ({@link #aimTurret}): the
          * turret sits {@code turretForwardIn} ahead of the centre and {@code turretLeftIn} to its
          * left, locked straight ahead.
          */
-        public Pose target(Alliance alliance, double wallGapIn, double turretForwardIn, double turretLeftIn) {
-            double gap = standOffIn + (row == Row.WALL && wallGapIn > 0.0 ? wallGapIn : 0.0);
+        public Pose target(Alliance alliance, double wallGapIn, double closeBackIn, double turretForwardIn,
+                           double turretLeftIn) {
+            // Out from the wall, toward the HIVE: the wall row's stand-off, or the close row's pull-back.
+            double gap = standOffIn + (row == Row.WALL && wallGapIn > 0.0 ? wallGapIn : 0.0)
+                    - (row == Row.CLOSE && closeBackIn > 0.0 ? closeBackIn : 0.0);
             double x = red.x();
             double y = red.y() + (left ? -gap : gap); // the LEFT wall is the high-y one
             double heading = red.heading();
@@ -260,17 +279,19 @@ public final class LaunchSpots {
     public static Choice choose(Pose pose, boolean referenced, Alliance alliance, double wallGapIn,
                                 double pastCentreIn, double turretForwardIn, double turretLeftIn) {
         return choose(pose, referenced, alliance, wallGapIn, pastCentreIn, turretForwardIn, turretLeftIn,
-                DEFAULT_WALL_CENTRE_BIAS_IN, DEFAULT_CLOSE_CENTRE_BIAS_IN);
+                DEFAULT_WALL_CENTRE_BIAS_IN, DEFAULT_CLOSE_CENTRE_BIAS_IN, DEFAULT_CLOSE_BACK_IN);
     }
 
     /**
      * {@link #choose(Pose, boolean, Alliance, double, double, double, double)}, the middle WALL spot
      * counted {@code wallCentreBiasIn} nearer and the middle CLOSE spot {@code closeCentreBiasIn}
-     * ({@link #nearest}).
+     * ({@link #nearest}), and a CLOSE spot driven {@code closeBackIn} back toward its end wall
+     * ({@link Spot#target(Alliance, double, double, double, double)}). The pick is made among the
+     * spots as drawn, so the pull-back never changes which spot a press goes to.
      */
     public static Choice choose(Pose pose, boolean referenced, Alliance alliance, double wallGapIn,
                                 double pastCentreIn, double turretForwardIn, double turretLeftIn,
-                                double wallCentreBiasIn, double closeCentreBiasIn) {
+                                double wallCentreBiasIn, double closeCentreBiasIn, double closeBackIn) {
         if (pose == null) return Choice.refuse("no pose (no Pinpoint)");
         if (!referenced) return Choice.refuse("pose not on the field yet (corner reset or camera reset first)");
         if (alliance != Alliance.RED && alliance != Alliance.BLUE) return Choice.refuse("no alliance");
@@ -289,7 +310,7 @@ public final class LaunchSpots {
         }
         Spot spot = nearest(leftHalf(alliance, pose.y()), row, xAsRed, yAsRed,
                 row == Row.WALL ? wallCentreBiasIn : closeCentreBiasIn);
-        Pose target = spot.target(alliance, wallGapIn, turretForwardIn, turretLeftIn);
+        Pose target = spot.target(alliance, wallGapIn, closeBackIn, turretForwardIn, turretLeftIn);
         return new Choice(spot, target, Math.hypot(target.x() - pose.x(), target.y() - pose.y()), null);
     }
 
