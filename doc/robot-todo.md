@@ -891,7 +891,7 @@ measurement is [#255].
       against 2–4.5 in on 6 Nov), more balls come in than 6 Nov's 0–1, and the stick never drags
       a ball back out. **Stop:** it scrubs into the side wall and stalls early, or the curve
       swings wide → `curveToWall` off (the old diagonal); `raiseAfterStopMs` -1 is the old stick
-      rule. Tune `dwellMs`, `backSpeed`, `laneTowardWallIn` (0.5) and `extraDepthIn` in Panels and
+      rule. Tune `dwellMs`, `backSpeed`, `laneTowardWallIn` (2.0 since 14 Nov, with `inSpeed` 1.0, `dwellPushPower` 1.0, `lowerWithinIn` 10, `lowerWithinDeg` 30, `settledInPerSec` 20, `maxRangeIn` 45: 8 gathers on 19429, 4 in a row) and `extraDepthIn` in Panels and
       write down what works.
 - [ ] **Film the Auto volleys (decides `LaunchCards.launchAllFeedS`, 3.5):** 5–6 LaunchAlls,
       phone slow-motion side-on, the launcher and the Driver Station both in frame. Per volley,
