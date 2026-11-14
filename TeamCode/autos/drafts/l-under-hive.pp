@@ -391,6 +391,223 @@
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": ""
+    },
+    {
+      "kind": "atomic",
+      "id": "l-link-left-flower",
+      "endPoint": {
+        "x": 59.9,
+        "y": 116.2
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 0,
+        "endDeg": 270
+      },
+      "locked": false,
+      "name": "Link to LEFT_CLOSE_HIVE"
+    },
+    {
+      "kind": "compound",
+      "id": "l-to-wall-flower",
+      "segments": [
+        {
+          "kind": "atomic",
+          "id": "l-empty-under-hive-flower",
+          "endPoint": {
+            "x": 58,
+            "y": 38
+          },
+          "controlPoints": [
+            {
+              "x": 58.8,
+              "y": 101.6
+            },
+            {
+              "x": 65.2,
+              "y": 71.9
+            },
+            {
+              "x": 61,
+              "y": 50
+            }
+          ],
+          "heading": {
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.1,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 270,
+                    "endDeg": 270
+                  }
+                },
+                {
+                  "startProgress": 0.1,
+                  "endProgress": 1,
+                  "interpolationType": "constant",
+                  "parameters": {
+                    "degrees": 270
+                  }
+                }
+              ]
+            }
+          },
+          "locked": false
+        },
+        {
+          "kind": "atomic",
+          "id": "l-empty-to-flower",
+          "endPoint": {
+            "x": 23.1,
+            "y": 47.2
+          },
+          "controlPoints": [
+            {
+              "x": 46,
+              "y": 30
+            },
+            {
+              "x": 32,
+              "y": 47.2
+            }
+          ],
+          "heading": {
+            "type": "linear",
+            "startDeg": 270,
+            "endDeg": 180
+          },
+          "locked": false
+        }
+      ],
+      "name": "under hive to WALL_FLOWER_STAGING",
+      "color": "#4e79a7",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "kind": "atomic",
+      "id": "l-flower-exit",
+      "endPoint": {
+        "x": 56.1,
+        "y": 25.3
+      },
+      "controlPoints": [
+        {
+          "x": 34,
+          "y": 40
+        },
+        {
+          "x": 48,
+          "y": 27
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.6,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 360
+              }
+            },
+            {
+              "startProgress": 0.6,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 0,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
+      },
+      "locked": false,
+      "name": "wall flower exit to RIGHT_CLOSE_HIVE",
+      "color": "#4e79a7",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "kind": "atomic",
+      "id": "l-link-flower",
+      "endPoint": {
+        "x": 23.1,
+        "y": 47.2
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 0,
+        "endDeg": 180
+      },
+      "locked": false,
+      "name": "Link to WALL_FLOWER_STAGING"
+    },
+    {
+      "kind": "compound",
+      "id": "l-flower-abort-park",
+      "segments": [
+        {
+          "kind": "atomic",
+          "id": "l-flower-abort-up",
+          "endPoint": {
+            "x": 37,
+            "y": 117.4
+          },
+          "controlPoints": [
+            {
+              "x": 28,
+              "y": 75
+            },
+            {
+              "x": 40,
+              "y": 104
+            }
+          ],
+          "heading": {
+            "type": "linear",
+            "startDeg": 180,
+            "endDeg": 0
+          },
+          "locked": false
+        },
+        {
+          "kind": "atomic",
+          "id": "l-flower-abort-in",
+          "endPoint": {
+            "x": 14.5,
+            "y": 117.4
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "constant",
+            "degrees": 0
+          },
+          "locked": false
+        }
+      ],
+      "name": "wall flower abort park to LEFT_PARK",
+      "color": "#4e79a7",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
     }
   ],
   "shapes": [
@@ -637,6 +854,11 @@
         14.5,
         117.4,
         0
+      ],
+      "WALL_FLOWER_STAGING": [
+        23.1,
+        47.2,
+        180
       ]
     },
     "pathEnds": {
@@ -645,7 +867,10 @@
       "l-garden-exit": "RIGHT_CLOSE_HIVE",
       "l-under-hive-park": "LEFT_PARK",
       "l-left-abort-park": "LEFT_PARK",
-      "l-garden-abort-park": "LEFT_PARK"
+      "l-garden-abort-park": "LEFT_PARK",
+      "l-to-wall-flower": "WALL_FLOWER_STAGING",
+      "l-flower-exit": "RIGHT_CLOSE_HIVE",
+      "l-flower-abort-park": "LEFT_PARK"
     },
     "cards": [
       {
@@ -688,22 +913,62 @@
                 "timeoutS": 1
               },
               {
-                "id": "card-l-early-garden",
-                "kind": "path",
-                "lineId": "l-early-garden",
-                "park": false
-              },
-              {
-                "id": "L-garden",
-                "kind": "action",
-                "name": "GardenGather",
-                "timeoutS": 5.5
-              },
-              {
-                "id": "card-l-garden-exit",
-                "kind": "path",
-                "lineId": "l-garden-exit",
-                "park": false
+                "id": "L-pickup",
+                "kind": "firstOf",
+                "label": "Pickup: GARDEN or WALL_FLOWER",
+                "choice": "Pickup",
+                "rows": [
+                  {
+                    "when": [
+                      "Pickup"
+                    ],
+                    "label": "GARDEN",
+                    "cards": [
+                      {
+                        "id": "card-l-early-garden",
+                        "kind": "path",
+                        "lineId": "l-early-garden",
+                        "park": false
+                      },
+                      {
+                        "id": "L-garden",
+                        "kind": "action",
+                        "name": "GardenGather",
+                        "timeoutS": 5.5
+                      },
+                      {
+                        "id": "card-l-garden-exit",
+                        "kind": "path",
+                        "lineId": "l-garden-exit",
+                        "park": false
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 0,
+                    "label": "WALL_FLOWER",
+                    "cards": [
+                      {
+                        "id": "card-l-to-wall-flower",
+                        "kind": "path",
+                        "lineId": "l-to-wall-flower",
+                        "park": false
+                      },
+                      {
+                        "id": "L-pick-wall",
+                        "kind": "action",
+                        "name": "PickFlower",
+                        "timeoutS": 4.5
+                      },
+                      {
+                        "id": "card-l-flower-exit",
+                        "kind": "path",
+                        "lineId": "l-flower-exit",
+                        "park": false
+                      }
+                    ]
+                  }
+                ]
               },
               {
                 "id": "L-wait-right",
@@ -753,7 +1018,9 @@
     "parkFrom": {
       "card-l-open": "l-left-abort-park",
       "card-l-early-garden": "l-garden-abort-park",
-      "card-l-garden-exit": "l-under-hive-park"
+      "card-l-garden-exit": "l-under-hive-park",
+      "card-l-to-wall-flower": "l-flower-abort-park",
+      "card-l-flower-exit": "l-under-hive-park"
     }
   }
 }

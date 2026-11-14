@@ -647,6 +647,11 @@ Use the work order above to select checks; the detailed mechanism checks below a
         from the left spot (expected today); before 15.5 s it goes on to the SCORING FLOWER and R5.
       - **Both together,** four preloads each. Count the pieces that stay in from L4 (L's preloads)
         and from the same spot by R (its WALL FLOWER load), and the TIPs.
+      - **The Pickup row:** in INIT each trial shows `▶ Pickup ◀▶: WALL_FLOWER` (R) or `GARDEN` (L);
+        D-pad left and right change it and the line turns amber. **Leave both as drawn.** The swap
+        (R `GARDEN`, L `WALL_FLOWER`) waits on a quicker GARDEN gather: the robots meet at the south
+        end. To try it, run R alone on `GARDEN` first and note the second it leaves the corner.
+        **Good:** by about 9.5 s. Later → do not run the swap as a pair.
       - **Does R keep its four going up the lane?** It drives intake first now, turning to the
         HIVE only at the end. Count what its LEFT volley fires. **Good:** 4. **Stop:** 3 → note
         where the ball left (the film), and whether it was in the last turn into the spot.

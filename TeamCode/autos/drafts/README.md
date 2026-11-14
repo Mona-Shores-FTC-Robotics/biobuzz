@@ -237,6 +237,29 @@ does not wait for it:
 - **R drives the last stretch into `RIGHT_PARK` straight** along the park's own line (parked robots
   are 2.7 in apart).
 
+**Pickup, in the INIT menu** (mentor, 13 Nov 2026: the row R-Clockwise has). Each trial offers one
+row, `Pickup`, on gamepad 1's D-pad left and right:
+
+| | Drawn | The other choice |
+|---|---|---|
+| R-OutsideLane | `WALL_FLOWER` | `GARDEN`: the GARDEN in its own corner, then up the wall lane as before |
+| L-UnderHive | `GARDEN` | `WALL_FLOWER`: under the HIVE, then across to the WALL FLOWER |
+
+The two robots must show different pickups. Nothing checks that: the drive teams read their rows
+to each other.
+
+- **Leave both as drawn for now.** The swap (R `GARDEN`, L `WALL_FLOWER`) does not work with today's
+  gather. In the simulator the gather keeps R in its corner for the card's whole 5.5 s, because it
+  takes 2 or 3 pieces and waits for a fourth. R is still leaving when L comes across to the WALL
+  FLOWER, and the robots touched in 17 of 20 runs. R then reaches the left spot at about 16.9 s,
+  after its 14 s limit, and parks: one TIP.
+- **What the swap needs:** R out of the corner by about 9.5 s, which is a gather of about 4 s or
+  less. Then R's first pickup is 25 in from its start, where the WALL FLOWER is 50 in.
+- **L's way to the WALL FLOWER leaves its lane.** It comes out from under the HIVE at the south end
+  and crosses to the alliance wall, where R drives. Only the clock keeps them apart.
+- **Both on `GARDEN`** touched in 17 of 20 (the same corner). **Both on `WALL_FLOWER`** ran as the
+  drawn pairing does: L finds the FLOWER already picked.
+
 **R falls back by itself** (mentor, 12 Nov 2026: no separate short Auto). The third volley needs
 the pick, the drive back, the volley and the park, about 14 s on a 2.5 s volley, so R goes for it
 only if its LEFT volley is done before 15.5 s. With today's 4 s volleys that volley ends at about
@@ -256,10 +279,15 @@ only if its LEFT volley is done before 15.5 s. With today's 4 s volleys that vol
   two at about 22 s on R's third trip, where R5 and R4 overlap.
 - **Fewer two-TIP runs from L4 than from the spots further out** is the calibration keeping 0.70 of
   balls from 36 in, on thin evidence (below).
-- **The third volley depends on that leg's real time.** The check is drawn at 15.5 s (was 15). The
-  Visualizer's preview has the leg at about 3 s and R done at 28.8 s on a 2.5 s volley; if the leg
-  takes the simulator's 4.4 s, R's LEFT volley ends at about 15.7 s and it parks. The endgame guard
-  parks R whenever the third volley and the park do not both fit.
+- **R's time decides the third TIP; L has 4.6 s to spare.** A path study (13 Nov 2026, the
+  Visualizer's timing, each shape checked in the simulator for the HIVE and the centre line) took
+  0.7 s off R: it turns toward the SCORING FLOWER as it leaves the left spot (1.3 s, was 1.6), and
+  drives back down on a straighter line with its two turns spread along it (3.0 s, was 3.4). Its
+  other drives are at what the robot's top speed allows. In the preview the third volley now fires
+  and its TIP settles at 30.0 s on a 2.5 s volley, 29.7 s on 2.4 s. A line 4 in nearer the HIVE was
+  0.1 s quicker and clipped the HIVE's corner in the simulator while R turned.
+- **The preview's 3 s for the intake-first leg is not measured** (above). If that leg takes the
+  simulator's 4.4 s, R's LEFT volley ends at about 15.7 s and it parks after it.
 - **From `LEFT_LAUNCH_OFFSET`, R parked after its LEFT volley in 18 of 20.** In the other two a short FLOWER load ended that
   volley early, R went on, and it met L leaving the GARDEN at about 20 s.
 - **On a planned 2.5 s volley both robots fire their last volleys,** and R comes in to R5 while L
