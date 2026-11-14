@@ -1200,8 +1200,9 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
 
 Square drives to one of the six spots on the half the robot is in, picked by its tile row
 (`localization/LaunchSpots`): from the tile row against the end wall (audience or scoring table),
-the nearest of the three wall spots; from the next row in, the nearest of the three close spots,
-the middle one counted 6 in nearer (`LaunchSpotDrive.centreBiasIn`, in Panels); from the two rows beside the
+the nearest of the three wall spots, the middle one counted 6 in nearer
+(`LaunchSpotDrive.wallCentreBiasIn`, in Panels); from the next row in, the nearest of the three close spots,
+the middle one counted 6 in nearer (`LaunchSpotDrive.closeCentreBiasIn`, in Panels); from the two rows beside the
 centre line, refused. Gather GARDEN is back on Triangle; R1 is free. Turret locked. Map and
 reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536]
 
@@ -1242,8 +1243,8 @@ reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536
       rows of our half, the driver says which spot they expect before pressing. **Good:** it goes
       there every time, and a press from the two rows beside the centre line says `SQUARE REFUSED`.
       **Stop:** a press goes somewhere unexpected → note where it was pressed from; the middle close
-      spot's favour (`LaunchSpotDrive.centreBiasIn` in Panels, 6 in; try it there first) or the row edge is
-      the number to change.
+      spot's favour (`LaunchSpotDrive.wallCentreBiasIn` or `closeCentreBiasIn` in Panels, 6 in each;
+      try them there first) or the row edge is the number to change.
 - [ ] **The close spots (measure the 36 in row first, §7d: until then they fire at the table's held
       end speed, about 1460):** hold Square from the middle tile row in front of each of the three on
       both sides. **Good:** drives to that `…_CLOSE_…` spot, 34.6 to 35.7 in from the CELL, 3 or 4 of 4 in. The NEAR

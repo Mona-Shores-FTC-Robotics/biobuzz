@@ -77,12 +77,19 @@ public final class LaunchSpotDrive {
      */
     public static double maxPastCentreIn = 24.0;
     /**
+     * From the tile row against the end wall, the middle wall spot ({@code RIGHT_START},
+     * {@code LEFT_WALL_HIVE}) counts as this much nearer than it is, inches, so it wins more of the
+     * row ({@link LaunchSpots#choose}). 6 to start, as the close row's (mentor, 14 Nov 2026); 0, NaN
+     * or negative is plain nearest. Read at each press.
+     */
+    public static double wallCentreBiasIn = LaunchSpots.DEFAULT_WALL_CENTRE_BIAS_IN;
+    /**
      * From the middle tile row, the middle close spot ({@code …_CLOSE_HIVE}) counts as this much
      * nearer than it is, inches, so it wins more of the row ({@link LaunchSpots#choose}). 6 (mentor,
      * 14 Nov 2026), chosen on the "Square Launch Spots" map; 0, NaN or negative is plain nearest.
      * Read at each press.
      */
-    public static double centreBiasIn = LaunchSpots.DEFAULT_CENTRE_BIAS_IN;
+    public static double closeCentreBiasIn = LaunchSpots.DEFAULT_CLOSE_CENTRE_BIAS_IN;
 
     private enum Phase { IDLE, DRIVING, HOLDING, REFUSED, ENDED }
 
@@ -235,7 +242,8 @@ public final class LaunchSpotDrive {
         this.alliance = alliance;
         Pose pose = robot.drive.pose();
         choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, wallGapIn,
-                maxPastCentreIn, TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, centreBiasIn);
+                maxPastCentreIn, TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn,
+                wallCentreBiasIn, closeCentreBiasIn);
         if (choice.refused()) {
             // Not on the field: the drive says what fixes it (a lost Pinpoint is not "no reset yet").
             String why = pose != null && !robot.drive.poseReferenced() ? robot.drive.notReferencedWhy() : null;

@@ -165,30 +165,42 @@ public class LaunchSpotsTest {
         Spot near = Spot.RIGHT_CLOSE_NEAR, hive = Spot.RIGHT_CLOSE_HIVE;
         double toNear = Math.hypot(near.red.x() - 50, near.red.y() - 40);
         double toHive = Math.hypot(hive.red.x() - 50, hive.red.y() - 40);
-        assertTrue(toNear < toHive && toHive - toNear < LaunchSpots.DEFAULT_CENTRE_BIAS_IN);
+        assertTrue(toNear < toHive && toHive - toNear < LaunchSpots.DEFAULT_CLOSE_CENTRE_BIAS_IN);
         assertEquals(hive, red(50, 40).spot);
         // Past the bias the side spot still wins.
         assertEquals(near, red(30, 35).spot);
-        // The wall row has no bias: the nearest wall spot.
+    }
+
+    @Test
+    public void theMiddleWallSpotIsFavouredByItsOwnBias() {
+        // Along the wall, the halfway point between RIGHT_WALL_NEAR and RIGHT_START moves toward
+        // RIGHT_WALL_NEAR as the bias grows.
         Spot wallNear = Spot.RIGHT_WALL_NEAR, start = Spot.RIGHT_START;
         double mid = (wallNear.red.x() + start.red.x()) / 2;
-        assertEquals(wallNear, LaunchSpots.nearest(false, Row.WALL, mid - 1, 9, LaunchSpots.DEFAULT_CENTRE_BIAS_IN));
-        assertEquals(start, LaunchSpots.nearest(false, Row.WALL, mid + 1, 9, LaunchSpots.DEFAULT_CENTRE_BIAS_IN));
+        assertEquals(wallNear, LaunchSpots.nearest(false, Row.WALL, mid - 1, 9, 0.0));
+        assertEquals(start, LaunchSpots.nearest(false, Row.WALL, mid + 1, 9, 0.0));
+        assertEquals(start, LaunchSpots.nearest(false, Row.WALL, mid - 1, 9, 6.0));
+        assertEquals(wallNear, LaunchSpots.nearest(false, Row.WALL, mid - 5, 9, 6.0));
+        // Each row reads its own number.
+        Pose p = new Pose(mid - 1, 15, 0);
+        assertEquals(start, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 6.0, 0.0).spot);
+        assertEquals(wallNear, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 0.0, 6.0).spot);
     }
 
     @Test
     public void theCentreBiasIsTheCallersAndNoneIsPlainNearest() {
         Pose p = new Pose(50, 40, 0);
         // The Panels number, passed in: 0 is plain nearest, so the side spot wins from (50, 40).
-        assertEquals(Spot.RIGHT_CLOSE_NEAR, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 0.0).spot);
-        assertEquals(Spot.RIGHT_CLOSE_HIVE, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 6.0).spot);
+        assertEquals(Spot.RIGHT_CLOSE_NEAR, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 6.0, 0.0).spot);
+        assertEquals(Spot.RIGHT_CLOSE_HIVE, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, 0.0, 6.0).spot);
         // NaN or negative is no bias, never a penalty on the middle spot.
         for (double bad : new double[] {Double.NaN, -10}) {
-            assertEquals(Spot.RIGHT_CLOSE_NEAR, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, bad).spot);
+            assertEquals(Spot.RIGHT_CLOSE_NEAR, LaunchSpots.choose(p, true, Alliance.RED, 0.0, REACH, FWD, LEFT, bad, bad).spot);
         }
-        // A big bias sends the whole middle row to the middle spot.
-        assertEquals(Spot.RIGHT_CLOSE_HIVE, LaunchSpots.choose(new Pose(10, 35, 0), true, Alliance.RED, 0.0, REACH, FWD, LEFT, 100).spot);
-        // The shorter forms use the default, as the TeleOp starts.
+        // A big bias sends the whole row to the middle spot.
+        assertEquals(Spot.RIGHT_CLOSE_HIVE, LaunchSpots.choose(new Pose(10, 35, 0), true, Alliance.RED, 0.0, REACH, FWD, LEFT, 0.0, 100).spot);
+        assertEquals(Spot.RIGHT_START, LaunchSpots.choose(new Pose(10, 15, 0), true, Alliance.RED, 0.0, REACH, FWD, LEFT, 100, 0.0).spot);
+        // The shorter forms use the defaults, as the TeleOp starts.
         assertEquals(Spot.RIGHT_CLOSE_HIVE, red(50, 40).spot);
     }
 

@@ -31,10 +31,12 @@ import java.util.Locale;
  * its centre is in ({@link FieldFrame#TILE_INCHES}) picks the row:
  * <ul>
  *   <li>the tile row against that half's end wall (the audience wall or the scoring table's): the
- *       nearest of the half's three WALL spots;</li>
+ *       nearest of the half's three WALL spots, the HIVE-column one counted {@code wallCentreBiasIn}
+ *       nearer than it is ({@code LaunchSpotDrive.wallCentreBiasIn} in Panels,
+ *       {@link #DEFAULT_WALL_CENTRE_BIAS_IN} to start);</li>
  *   <li>the next tile row in: the nearest of its three CLOSE spots, the HIVE-column one counted
- *       {@code centreBiasIn} nearer than it is ({@code LaunchSpotDrive.centreBiasIn} in Panels,
- *       {@link #DEFAULT_CENTRE_BIAS_IN} to start);</li>
+ *       {@code closeCentreBiasIn} nearer than it is ({@code LaunchSpotDrive.closeCentreBiasIn} in Panels,
+ *       {@link #DEFAULT_CLOSE_CENTRE_BIAS_IN} to start);</li>
  *   <li>the two tile rows beside the centre line (between the alliance wall and the HIVE): refused.</li>
  * </ul>
  * It replaced Square for the wall row and Triangle for the close row, each in the column in line
@@ -77,11 +79,19 @@ public final class LaunchSpots {
 
     /**
      * From the middle tile row, the HIVE-column CLOSE spot counts as this much nearer than it is,
-     * inches (mentor, 14 Nov 2026): the starting value of {@code LaunchSpotDrive.centreBiasIn}, the
-     * Panels number. Without it the HIVE-column spot, 2.5 in nearer the wall than its two
+     * inches (mentor, 14 Nov 2026): the starting value of {@code LaunchSpotDrive.closeCentreBiasIn},
+     * the Panels number. Without it the HIVE-column spot, 2.5 in nearer the wall than its two
      * neighbours, would win only a sliver that closes toward the HIVE.
      */
-    public static final double DEFAULT_CENTRE_BIAS_IN = 6.0;
+    public static final double DEFAULT_CLOSE_CENTRE_BIAS_IN = 6.0;
+
+    /**
+     * From the tile row against the end wall, the HIVE-column WALL spot counts as this much nearer
+     * than it is, inches: the starting value of {@code LaunchSpotDrive.wallCentreBiasIn}, the Panels
+     * number. 6, as the close row's (mentor, 14 Nov 2026): it moves each edge of the middle wall
+     * spot's zone about 3 in outward along the wall. Not driven yet.
+     */
+    public static final double DEFAULT_WALL_CENTRE_BIAS_IN = 6.0;
 
     /** The frame is square: from its centre to its back, front and either side (measured, {@link ResetPositions}). */
     static final double FRAME_HALF_IN = ResetPositions.WALL_TO_CENTRE_IN;
@@ -250,16 +260,17 @@ public final class LaunchSpots {
     public static Choice choose(Pose pose, boolean referenced, Alliance alliance, double wallGapIn,
                                 double pastCentreIn, double turretForwardIn, double turretLeftIn) {
         return choose(pose, referenced, alliance, wallGapIn, pastCentreIn, turretForwardIn, turretLeftIn,
-                DEFAULT_CENTRE_BIAS_IN);
+                DEFAULT_WALL_CENTRE_BIAS_IN, DEFAULT_CLOSE_CENTRE_BIAS_IN);
     }
 
     /**
-     * {@link #choose(Pose, boolean, Alliance, double, double, double, double)}, the middle CLOSE spot
-     * counted {@code centreBiasIn} nearer ({@link #nearest}).
+     * {@link #choose(Pose, boolean, Alliance, double, double, double, double)}, the middle WALL spot
+     * counted {@code wallCentreBiasIn} nearer and the middle CLOSE spot {@code closeCentreBiasIn}
+     * ({@link #nearest}).
      */
     public static Choice choose(Pose pose, boolean referenced, Alliance alliance, double wallGapIn,
                                 double pastCentreIn, double turretForwardIn, double turretLeftIn,
-                                double centreBiasIn) {
+                                double wallCentreBiasIn, double closeCentreBiasIn) {
         if (pose == null) return Choice.refuse("no pose (no Pinpoint)");
         if (!referenced) return Choice.refuse("pose not on the field yet (corner reset or camera reset first)");
         if (alliance != Alliance.RED && alliance != Alliance.BLUE) return Choice.refuse("no alliance");
@@ -276,7 +287,8 @@ public final class LaunchSpots {
         if (row == null) {
             return Choice.refuse("robot on the two tile rows beside the centre line (drive toward an end wall first)");
         }
-        Spot spot = nearest(leftHalf(alliance, pose.y()), row, xAsRed, yAsRed, centreBiasIn);
+        Spot spot = nearest(leftHalf(alliance, pose.y()), row, xAsRed, yAsRed,
+                row == Row.WALL ? wallCentreBiasIn : closeCentreBiasIn);
         Pose target = spot.target(alliance, wallGapIn, turretForwardIn, turretLeftIn);
         return new Choice(spot, target, Math.hypot(target.x() - pose.x(), target.y() - pose.y()), null);
     }
@@ -295,9 +307,9 @@ public final class LaunchSpots {
 
     /**
      * The spot of {@code row} on the LEFT half ({@code left}) or the RIGHT nearest a robot at
-     * ({@code xAsRed}, {@code yAsRed}), straight-line to the spot as drawn; in the CLOSE row the
-     * HIVE-column spot counts {@code centreBiasIn} nearer (NaN or negative: 0, plain nearest). Level,
-     * the HIVE column.
+     * ({@code xAsRed}, {@code yAsRed}), straight-line to the spot as drawn, the row's HIVE-column
+     * spot counted {@code centreBiasIn} nearer (NaN or negative: 0, plain nearest). Level, the HIVE
+     * column.
      */
     static Spot nearest(boolean left, Row row, double xAsRed, double yAsRed, double centreBiasIn) {
         double bias = centreBiasIn > 0.0 ? centreBiasIn : 0.0;
@@ -306,7 +318,7 @@ public final class LaunchSpots {
         for (Column column : new Column[] {Column.HIVE, Column.NEAR, Column.FAR}) {
             Spot spot = Spot.of(left, row, column);
             double d = Math.hypot(spot.red.x() - xAsRed, spot.red.y() - yAsRed);
-            if (row == Row.CLOSE && column == Column.HIVE) d -= bias;
+            if (column == Column.HIVE) d -= bias;
             if (d < bestIn) {
                 best = spot;
                 bestIn = d;
