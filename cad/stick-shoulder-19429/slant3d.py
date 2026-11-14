@@ -5,9 +5,12 @@
 
 What the face does: a ball the robot drives into rides UP it, and while it is on it, the face's sideways tilt rolls it
 toward the robot's middle (to the right, looking at the robot's front). So the face is a ramp like the orange one,
-rising toward the robot, AND higher at the arm than at the blue wall. A face tilted both ways meets the floor on a
-diagonal: further forward at the arm, back at the blue wall's front tip, where the ball rolls on past the tip onto the
-orange ramp. The red arrows on the face are the way a ball on it is pushed (straight downhill on the face).
+rising toward the robot, AND higher at the arm than at the blue wall.
+
+Nothing goes further forward than the orange ramp's front edge (mentor, 14 Nov). So the face's front edge runs along
+that line: high at the arm, above the wheel, as the present blue shoulder sits, and down to the floor at the blue
+wall's front tip, where a ball rolls on past the tip onto the orange ramp. The red arrows on the face are the way a
+ball on it is pushed (straight downhill on the face).
 
 Shape only, for agreeing on it: no screw holes yet, sizes from the CAD (cad/advantagescope), not yet 19429's. Every
 number that sets the face is a constant below.
@@ -38,9 +41,9 @@ WALL_OUT = WALL_Y - WALL_T                 # the blue wall's outer face
 WHEEL_GAP = 2.0                            # the wheel sits this far off the arm (as the CAD's left one does)
 # ---- the face ----
 INCLINE_DEG = 45.0          # how steeply it rises toward the robot (the orange ramp's job, for a ball against the arm)
-TIP_X = 14.0                # its foot at the blue wall: level with the orange ramp's front edge, the wall's front tip
-ARM_X = 64.0                # its foot at the arm: this much further forward makes the sideways tilt
-FOOT_UP = 3.0               # its foot above the floor, so it never drags
+EDGE_ARM_UP = 46.0          # its front edge above the floor at the arm: clear of the wheel, where the blue shoulder is
+FOOT_UP = 3.0               # its front edge above the floor at the blue wall's tip, so it never drags
+FRONT_INSET = 0.0           # its front edge this far behind the orange ramp's front edge (never ahead of it)
 TOP_Z = 52.0                # how high it goes, above the shaft axis
 FACE_T = 4.0                # plate thickness
 POLLEN_D = 71.0             # 2.8 in
@@ -81,24 +84,30 @@ def hull(pts):
 
 
 class Face:
-    """The plane z = foot_z + tan(incline) * (foot_x(y) - x), foot_x running from ARM_X at the arm to TIP_X at the wall."""
+    """The plane z = edge_z(y) + tan(incline) * (front_x - x): its front edge at x = front_x (the orange ramp's front
+    edge), at EDGE_ARM_UP above the floor at the arm, falling to FOOT_UP at the blue wall."""
 
-    def __init__(self, floor_z):
-        self.foot_z = floor_z + FOOT_UP
+    def __init__(self, floor_z, front_x):
+        self.floor_z = floor_z
+        self.front_x = front_x - FRONT_INSET
         self.k = math.tan(math.radians(INCLINE_DEG))
+        self.slope = (FOOT_UP - EDGE_ARM_UP) / (WALL_OUT - ARM_Y)       # edge height per mm along y (negative)
 
-    def foot_x(self, y):
-        return TIP_X + (ARM_X - TIP_X) * (WALL_OUT - y) / (WALL_OUT - ARM_Y)
+    def edge_z(self, y):
+        return self.floor_z + EDGE_ARM_UP + self.slope * (y - ARM_Y)
 
     def x_at(self, y, z):
-        return self.foot_x(y) - (z - self.foot_z) / self.k
+        return self.front_x - (z - self.edge_z(y)) / self.k
 
     def point(self, y, z):
         return np.array([self.x_at(y, z), y, z])
 
+    def grad(self):
+        return np.array([self.k, -self.slope, 1.0])
+
     def normal(self):
-        """Out of the face: forward, up, and toward the robot's middle (the gradient of z - plane(x, y))."""
-        g = np.array([self.k, self.k * (ARM_X - TIP_X) / (WALL_OUT - ARM_Y), 1.0])
+        """Out of the face: forward, up, and toward the robot's middle."""
+        g = self.grad()
         return g / np.linalg.norm(g)
 
     def downhill(self):
@@ -111,7 +120,7 @@ class Face:
 
 def slant_piece(face, a):
     """The face plate, a side plate up the arm to the arm tab, a side plate on the blue wall, and the two tabs."""
-    corners = [face.point(ARM_Y, face.foot_z), face.point(WALL_OUT, face.foot_z), face.point(WALL_OUT, TOP_Z), face.point(ARM_Y, TOP_Z)]
+    corners = [face.point(ARM_Y, face.edge_z(ARM_Y)), face.point(WALL_OUT, face.edge_z(WALL_OUT)), face.point(WALL_OUT, TOP_Z), face.point(ARM_Y, TOP_Z)]
     n = face.normal()
     plate = hull(corners + [c - n * FACE_T for c in corners])
     u = np.array(a); v = np.array([-u[1], u[0]]); v = v if v[1] > 0 else -v
@@ -120,9 +129,9 @@ def slant_piece(face, a):
     arm_tab = tab_pts(ARM_Y, ARM_Y + 4, 30, 72, -4, 14)
     # the arm side plate stays above the wheel: from the face's arm edge above WHEEL_TOP to the tab
     wheel_top = 17.75 + 10
-    arm_side = hull([tuple(face.point(y, z)) for y in (ARM_Y, ARM_Y + 4) for z in (wheel_top, TOP_Z)] + arm_tab)
+    arm_side = hull([tuple(face.point(y, z)) for y in (ARM_Y, ARM_Y + 4) for z in (max(wheel_top, face.edge_z(y)), TOP_Z)] + arm_tab)
     wall_tab = tab_pts(WALL_OUT - 4, WALL_OUT, 20, 60, -8, 18)
-    wall_side = hull([tuple(face.point(y, z)) for y in (WALL_OUT - 4, WALL_OUT) for z in (face.foot_z, TOP_Z)] + wall_tab)
+    wall_side = hull([tuple(face.point(y, z)) for y in (WALL_OUT - 4, WALL_OUT) for z in (face.edge_z(y), TOP_Z)] + wall_tab)
     return [plate, arm_side, wall_side]
 
 
@@ -130,10 +139,10 @@ def arrows(face, n_rows=3, n_cols=3, length=26.0):
     """Short red bars on the face pointing downhill, with a dot at the head."""
     out = []
     d = face.downhill(); nrm = face.normal()
-    for i in range(n_rows):
-        z = face.foot_z + 12 + i * (TOP_Z - face.foot_z - 22) / max(1, n_rows - 1)
-        for j in range(n_cols):
-            y = ARM_Y + 8 + j * (WALL_OUT - ARM_Y - 16) / max(1, n_cols - 1)
+    for j in range(n_cols):
+        y = ARM_Y + 8 + j * (WALL_OUT - ARM_Y - 16) / max(1, n_cols - 1)
+        for i in range(n_rows):
+            z = face.edge_z(y) + 10 + i * (TOP_Z - face.edge_z(y) - 20) / max(1, n_rows - 1)
             p = face.point(y, z) + nrm * 1.5
             seg = trimesh.creation.cylinder(radius=1.4, segment=[p - d * length / 2, p + d * length / 2], sections=12)
             head = trimesh.creation.icosphere(radius=3.2); head.apply_translation(p + d * length / 2)
@@ -155,14 +164,12 @@ def wheel_hits(face, a, y0, y1, r):
 
 
 def ball_on(face, y):
-    """A POLLEN resting on the floor against the face at y."""
+    """A POLLEN on the floor, centred at y, just touching the face."""
     r = POLLEN_D / 2
-    nrm = face.normal()
-    # centre at height r above the floor (floor = foot_z - FOOT_UP), r from the face along its normal
-    zc = face.foot_z - FOOT_UP + r
-    c = face.point(y, zc - nrm[2] * r) + nrm * r
-    c[2] = zc
-    b = trimesh.creation.icosphere(subdivisions=3, radius=r); b.apply_translation(c)
+    zc = face.floor_z + r
+    g = face.grad()
+    x = face.front_x + (r * np.linalg.norm(g) - (zc - face.edge_z(y))) / face.k     # signed distance to the plane = r
+    b = trimesh.creation.icosphere(subdivisions=3, radius=r); b.apply_translation([x, y, zc])
     return b
 
 
@@ -189,9 +196,11 @@ def main():
     wheel.apply_transform(trimesh.transformations.reflection_matrix([0, 0, 0], [0, 1, 0])); wheel.fix_normals()
     wheel.apply_translation([0, (ARM_Y + WHEEL_GAP) - wheel.bounds[0][1], 0])
 
-    face = Face(floor_z)
+    ramp = next(m for n, m in parts.items() if n.startswith("Flower Ramp"))
+    front_x = ramp.bounds[1][0] - sc[0]                     # the orange ramp's front edge, ahead of the shaft
+    face = Face(floor_z, front_x)
     u = np.array(a); v = np.array([-u[1], u[0]]); v = v if v[1] > 0 else -v
-    fin_xz = [(TIP_X + 2, floor_z + 3), (TIP_X - 2, 18.0), tuple(80 * u + 18 * v), tuple(80 * u - 12 * v), (-10.0, floor_z + 4)]
+    fin_xz = [(front_x, floor_z + 3), (front_x - 4, 18.0), tuple(80 * u + 18 * v), tuple(80 * u - 12 * v), (-10.0, floor_z + 4)]
     fin = hull([(x, y, z) for x, z in fin_xz for y in (WALL_OUT, WALL_Y)])
 
     def world(m):
@@ -200,7 +209,7 @@ def main():
     piece = [world(m) for m in slant_piece(face, a)]
     # the wheel must not touch the piece
     hits = wheel_hits(face, a, wheel.bounds[0][1], wheel.bounds[1][1], (wheel.bounds[1][2] - wheel.bounds[0][2]) / 2)
-    print(f"floor {floor_z:.1f}; downhill on the face {np.round(face.downhill(), 2)} (x fwd, y left, z up); wheel samples inside: {hits}")
+    print(f"floor {floor_z:.1f}; ramp front {front_x:.1f} ahead of the shaft; piece reaches {max(m.bounds[1][0] for m in slant_piece(face, a)):.1f}; downhill on the face {np.round(face.downhill(), 2)} (x fwd, y left, z up); wheel samples inside: {hits}")
 
     floor = trimesh.creation.box(extents=[hi[0] - lo[0], hi[1] - lo[1], 1])
     floor.apply_translation([(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, -0.6])
@@ -208,7 +217,7 @@ def main():
     base = [(crop(m), c) for m, c in [(robot, GREY)] + stick + [(wheel, DARK), (world(fin), BLUE)]]
     base = [(m, c) for m, c in base if m is not None] + [(floor, (0.45, 0.45, 0.47))]
     new = [(m, NEW) for m in piece] + [(world(m), c) for m, c in arrows(face)]
-    ball = (world(ball_on(face, ARM_Y + 20)), WHITE)
+    ball = (world(ball_on(face, ARM_Y + POLLEN_D / 2 + 1)), WHITE)
 
     fig = plt.figure(figsize=(16, 10.5))
     views = [(15, -15, "From the front"), (30, -55, "From the front, outside the arm"), (8, -90, "From the right side"),
