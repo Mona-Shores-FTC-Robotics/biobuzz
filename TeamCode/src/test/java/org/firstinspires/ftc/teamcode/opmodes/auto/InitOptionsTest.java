@@ -149,10 +149,9 @@ public class InitOptionsTest {
         InitOptions menu = pair();
         List<String> lines = new ArrayList<>();
         menu.describe(new Display(lines::add));
-        assertTrue(lines.toString(), lines.get(0).contains("Auto options"));
-        assertTrue(lines.toString(), lines.get(1).contains("▶ Pickup ◀▶: WALL_FLOWER"));
-        assertTrue("every row is listed, the others without a pointer", lines.get(2).contains("Shot trigger: CAMERA") && !lines.get(2).contains("▶"));
-        assertTrue(lines.toString(), lines.get(3).contains("T2 LEFT up by: 18 s"));
+        assertTrue(lines.toString(), lines.get(0).contains("▶ Pickup ◀▶: WALL_FLOWER"));
+        assertTrue("every row is listed, the others without a pointer", lines.get(1).contains("Shot trigger: CAMERA") && !lines.get(1).contains("▶"));
+        assertTrue(lines.toString(), lines.get(2).contains("T2 LEFT up by: 18 s"));
         assertTrue(lines.toString(), lines.get(lines.size() - 1).contains("Partner runs L-Clockwise: Pickup GARDEN · Shot trigger CAMERA"));
 
         right(menu);
@@ -161,8 +160,8 @@ public class InitOptionsTest {
         assertEquals(1, menu.choice(AutoOption.SHOT_TRIGGER));
         lines.clear();
         menu.describe(new Display(lines::add));
-        assertTrue("the pointer moved to the second row", lines.get(2).contains("▶ Shot trigger ◀▶: TIMER"));
-        assertTrue("a changed row is bold", lines.get(1).contains("<b>") && lines.get(1).contains("Pickup: GARDEN"));
+        assertTrue("the pointer moved to the second row", lines.get(1).contains("▶ Shot trigger ◀▶: TIMER"));
+        assertTrue("a changed row is bold", lines.get(0).contains("<b>") && lines.get(0).contains("Pickup: GARDEN"));
         assertTrue(lines.toString(), lines.get(lines.size() - 1).contains("Partner runs L-Clockwise: Pickup WALL_FLOWER · Shot trigger TIMER"));
         assertTrue("amber once changed", lines.get(0).contains("#FFB300"));
         assertTrue(menu.summary(), menu.summary().contains("Pickup=GARDEN (drawn WALL_FLOWER)"));
@@ -175,11 +174,10 @@ public class InitOptionsTest {
         List<String> lines = new ArrayList<>();
         Display display = new Display(lines::add);
         options.describe(display);
-        assertEquals("a title and one line a row", 3, lines.size());
-        assertTrue(lines.toString(), lines.get(0).contains("Auto options") && lines.get(0).contains("#4CAF50"));
-        assertTrue(lines.toString(), lines.get(1).contains("▶ Park ◀▶: LEFT_PARK"));
-        assertTrue(lines.toString(), lines.get(2).contains("waiting for partner's TIP until 8.5 s"));
-        assertTrue("no line wraps", display.linesUsed() <= 3);
+        assertEquals("one line a row", 2, lines.size());
+        assertTrue(lines.toString(), lines.get(0).contains("▶ Park ◀▶: LEFT_PARK") && lines.get(0).contains("#4CAF50"));
+        assertTrue(lines.toString(), lines.get(1).contains("waiting for partner's TIP until 8.5 s"));
+        assertTrue("no line wraps", display.linesUsed() <= 2);
 
         lines.clear();
         display.header();
@@ -189,7 +187,7 @@ public class InitOptionsTest {
         options.describe(display);
         String line = lines.get(lines.size() - 1);
         assertTrue(line, line.contains("▶ waiting for partner's TIP ◀▶ until 9.5 s"));
-        assertTrue(lines.toString(), lines.get(lines.size() - 3).contains("#FFB300"));
+        assertTrue(lines.toString(), lines.get(lines.size() - 2).contains("#FFB300"));
         assertTrue(lines.toString(), lines.get(lines.size() - 2).contains("<b>") && lines.get(lines.size() - 2).contains("Park: RIGHT_PARK"));
         assertTrue(options.summary(), options.summary().contains("Park=RIGHT_PARK (drawn LEFT_PARK)"));
     }
@@ -204,9 +202,9 @@ public class InitOptionsTest {
         Display display = new Display(lines::add);
         down(named);
         named.describe(display);
-        assertTrue(lines.toString(), lines.get(1).contains("Park: LEFT_PARK"));
-        assertTrue(lines.toString(), lines.get(2).contains("▶ waiting for TIP 2 ◀▶ until 23.2 s"));
-        assertTrue("the selected row fits one line of the page", Display.rows(lines.get(2)) <= 1);
+        assertTrue(lines.toString(), lines.get(0).contains("Park: LEFT_PARK"));
+        assertTrue(lines.toString(), lines.get(1).contains("▶ waiting for TIP 2 ◀▶ until 23.2 s"));
+        assertTrue("the selected row fits one line of the page", Display.rows(lines.get(1)) <= 1);
         assertTrue(named.summary(), named.summary().contains("R3 RIGHT up by: waiting for TIP 2 until 23.2 s (drawn 23.2 s)"));
     }
 

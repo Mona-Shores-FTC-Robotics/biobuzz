@@ -169,13 +169,14 @@ public final class InitOptions implements AutoKit.Picks {
     }
 
     /**
-     * The menu on the INIT page: a title, then every row on its own line with a pointer at the
-     * selected one. Green as drawn, amber once any row is changed; a changed row is bold.
+     * The menu on the INIT page: every row on its own line, with a pointer at the selected one,
+     * which also shows the arrows that change it. The dot is green as drawn, amber once any row is
+     * changed; a changed row is bold. No title line: the page is one screen, and a line more would
+     * push the start map off it.
      * <pre>
-     * ● Auto options  D-pad ▲▼ row · ◀▶ change
-     * ▶ waiting for TIP 2 ◀▶ until 23.2 s
-     *    Pickup: WALL_FLOWER
-     *    Priority: THREE_TIP
+     * ● ▶ waiting for TIP 2 ◀▶ until 23.2 s
+     *      Pickup: WALL_FLOWER
+     *      Priority: THREE_TIP
      * </pre>
      * The whole list is written only if the page has room for it. On a nearly full page the menu
      * is its selected row alone, then that row shortened, and on a full page nothing is written.
@@ -189,12 +190,11 @@ public final class InitOptions implements AutoKit.Picks {
         Display.Level level = any ? Display.Level.WARN : Display.Level.OK;
 
         List<String> menu = new ArrayList<>();
-        String keys = rows.length > 1 ? "D-pad ▲▼ row · ◀▶ change" : "D-pad ◀▶ changes it";
-        menu.add(Display.statusLine(level, "<b>Auto options</b> <small>" + keys + "</small>"));
         for (int r = 0; r < rows.length; r++) {
             int i = rows[r];
             String text = r == selected ? "▶ " + row(i, true) : INDENT + plain(i);
-            menu.add(changed(i) ? "<b>" + text + "</b>" : text);
+            if (changed(i)) text = "<b>" + text + "</b>";
+            menu.add(r == 0 ? Display.statusLine(level, text) : INDENT + text);
         }
         String partner = partnerLine();
         if (partner != null) menu.add("<small>" + partner + "</small>");

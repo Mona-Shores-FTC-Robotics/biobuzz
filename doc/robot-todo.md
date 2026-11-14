@@ -213,8 +213,8 @@ Result, with the gap on each own-start run, → [PR #372].
       Priority THREE_TIP), L two (waiting for TIP 1 until 9.5 s, Pickup GARDEN). D-pad down walks the rows and wraps;
       right on Pickup shows the other pickup; right on the time adds 1 s; everything changed is amber
       and bold. Read the two robots' Pickup rows to each other: WALL_FLOWER pairs with GARDEN.
-      The page shows a title (`Auto options  D-pad ▲▼ row · ◀▶ change`), then every row on its own
-      line with `▶` at the selected one; no line wraps. On 14 Nov 2026 the page showed only the
+      The page lists every row on its own line with `▶` at the selected one, which also shows
+      `◀▶`; no line wraps. On 14 Nov 2026 the page showed only the
       selected row, ending `· ▲▼ row 1 of 3`, which wrapped and confused the drive team.
       **Stop:** a line wraps, or the pointer does not follow D-pad up and down → photograph it.
       **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
