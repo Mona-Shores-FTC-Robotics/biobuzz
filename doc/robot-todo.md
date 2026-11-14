@@ -852,6 +852,13 @@ measurement is [#255].
       toggle up, FIRE, toggle down, as before. **Stop:** a toggle press during Square idles the
       launcher, FIRE feeds before arrival, or the launcher keeps spinning after Square is let go
       → run `Belding`'s Basic Drive and tell a mentor.
+- [ ] **Match page: loop time and Pinpoint lines (mentor, 14 Nov 2026):** Basic Drive, Match page.
+      **Good:** under `N PIECES`, two more huge lines: `LOOP 21 ms` (whole milliseconds, the last
+      loop) and `PINPOINT OK` in green. Unplug the Pinpoint's cable for a second and plug it back:
+      `PINPOINT LOST` in red, then `PINPOINT CHECK` in amber until a corner or camera reset, then
+      `PINPOINT 1 FAULT` in amber for the rest of the OpMode. All five lines and an alert fit the
+      screen with none cut off. **Stop:** a line is cut off at the bottom, or the Pinpoint line
+      stays green through the unplug → photograph the screen and save the match log.
 - [ ] **Operator's glance page, trim rumble, D-pad trim reset, no intake toggle (`belding-plus`,
       7 Nov):** Basic Drive, Match page, read from the operator's seat and from the coach's spot.
       **Good:** under the header and the alliance line, three lines in text about twice ordinary
@@ -859,7 +866,7 @@ measurement is [#255].
       `N PIECES`, green while the sensor sees the lane full; a fourth, amber, only when
       something is wrong (`INTAKE OFF`, `ROBOT-CENTRIC`, `SQUARE REFUSED` while Square is held,
       `FLOWER STICK OUT`, `NO PINPOINT`). Everything else is on the Robot page (Share twice).
-      Operator R1: `TRIM +25` in amber and one rumble blip; L1: two blips; D-pad down: back to
+      Operator R1: `TRIM +25` in green and one rumble blip; L1: `TRIM -25` in red, two blips; D-pad down: back to
       `TRIM 0` with a long buzz. The intake runs from PLAY with nobody touching R2, and no R2 press
       on either pad stops it; with `TeleOpConfig.intakeAlwaysOn` off it runs only while R2 is held.
       Note every green count under 4 (`3 PIECES` in green): that is the tracker missing a piece.
