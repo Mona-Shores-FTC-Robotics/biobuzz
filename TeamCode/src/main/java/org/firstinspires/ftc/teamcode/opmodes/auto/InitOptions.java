@@ -35,8 +35,8 @@ import java.util.Locale;
  * settings the two share. That line follows this robot's picks, so the two drive teams can read
  * their pages to each other.
  *
- * <p>Nothing touched, the Auto runs as drawn. The page shows the selected row, then every row's
- * value on one line, amber once anything is changed so the coach sees it before PLAY.
+ * <p>Nothing touched, the Auto runs as drawn. The page lists every row, one a line, with a pointer
+ * at the selected one, amber once anything is changed so the coach sees it before PLAY.
  * {@link #lock()} at PLAY freezes them, as the alliance is. Gamepad 1 only: gamepad 2's D-pad up
  * is the turret's zero.
  */
@@ -169,47 +169,64 @@ public final class InitOptions implements AutoKit.Picks {
     }
 
     /**
-     * The menu on the INIT page, green as drawn and amber once any row is changed:
+     * The menu on the INIT page: a title, then every row on its own line with a pointer at the
+     * selected one. Green as drawn, amber once any row is changed; a changed row is bold.
      * <pre>
-     * ● ▶ Pickup ◀▶: WALL_FLOWER ▲▼1/3
-     *   Pickup WALL_FLOWER · Shot trigger CAMERA · T2 18 s · …
-     *   Partner runs L-Clockwise: Pickup GARDEN · Shot trigger CAMERA
+     * ● Auto options  D-pad ▲▼ row · ◀▶ change
+     * ▶ waiting for TIP 2 ◀▶ until 23.2 s
+     *    Pickup: WALL_FLOWER
+     *    Priority: THREE_TIP
      * </pre>
-     * The selected row comes first and is the last to go: on a nearly full page the list of every
-     * row's value goes, then the partner line, then the selected row is shortened, and on a full
-     * page nothing is written. The warnings above come first; the picks still hold and go to the
-     * match log (the page is one screen, {@link Display}).
+     * The whole list is written only if the page has room for it. On a nearly full page the menu
+     * is its selected row alone, then that row shortened, and on a full page nothing is written.
+     * The warnings above come first; the picks still hold and go to the match log (the page is one
+     * screen, {@link Display}).
      */
     public void describe(Display display) {
-        if (options.length == 0) return;
+        if (options.length == 0 || rows.length == 0) return;
         boolean any = false;
         for (int i = 0; i < options.length; i++) any |= changed(i);
         Display.Level level = any ? Display.Level.WARN : Display.Level.OK;
-        if (rows.length > 0) {
-            int i = rows[selected];
-            // Short, so the longest row ("waiting for TIP 2 ◀▶ until 23.2 s") stays on one line of the page.
-            String where = rows.length > 1 ? " ▲▼" + (selected + 1) + "/" + rows.length : "";
-            String[] tries = {"▶ " + row(i, true) + where, row(i, false)};
-            boolean written = false;
-            for (String text : tries) {
-                String line = Display.statusLine(level, text);
-                if (!display.room(Display.rows(line))) continue;
-                display.line(line);
-                written = true;
-                break;
-            }
-            if (!written) return;
+
+        List<String> menu = new ArrayList<>();
+        String keys = rows.length > 1 ? "D-pad ▲▼ row · ◀▶ change" : "D-pad ◀▶ changes it";
+        menu.add(Display.statusLine(level, "<b>Auto options</b> <small>" + keys + "</small>"));
+        for (int r = 0; r < rows.length; r++) {
+            int i = rows[r];
+            String text = r == selected ? "▶ " + row(i, true) : INDENT + plain(i);
+            menu.add(changed(i) ? "<b>" + text + "</b>" : text);
         }
         String partner = partnerLine();
-        if (partner != null) {
-            String line = Display.statusLine(level, partner);
-            if (display.room(Display.rows(line))) display.line(line);
+        if (partner != null) menu.add("<small>" + partner + "</small>");
+        double needs = 0;
+        for (String line : menu) needs += Display.rows(line);
+        if (display.room(needs)) {
+            for (String line : menu) display.line(line);
+            return;
         }
-        if (rows.length > 1) {
-            List<String> all = new ArrayList<>();
-            for (int i : rows) all.add(brief(i));
-            String line = "<small>" + String.join(" · ", all) + "</small>";
-            if (display.room(Display.rows(line))) display.line(line);
+        // No room for the list: the selected row alone, whole and then short.
+        int i = rows[selected];
+        for (String text : new String[] {"▶ " + row(i, true), row(i, false)}) {
+            String line = Display.statusLine(level, text);
+            if (!display.room(Display.rows(line))) continue;
+            display.line(line);
+            return;
+        }
+    }
+
+    /** Lines an unselected row up under the selected one's pointer: no-break spaces, which HTML keeps. */
+    private static final String INDENT = "\u00A0\u00A0\u00A0";
+
+    /** An unselected row: its name and value, with no arrows. */
+    private String plain(int i) {
+        AutoOption option = options[i];
+        switch (option.kind) {
+            case CHOICE:
+                return option.name + ": " + chosen(i);
+            case MATCH_SECONDS:
+                return "waiting for " + option.tipName() + " until " + fmt(value(i)) + " s";
+            default:
+                return option.name + ": " + fmt(value(i)) + " s";
         }
     }
 
@@ -227,24 +244,6 @@ public final class InitOptions implements AutoKit.Picks {
             default:
                 return option.name + arrows + ": " + fmt(value(i)) + " s";
         }
-    }
-
-    /** One row for the list of them all: its name and value. */
-    private String brief(int i) {
-        AutoOption option = options[i];
-        String text;
-        switch (option.kind) {
-            case CHOICE:
-                text = option.name + " " + chosen(i);
-                break;
-            case MATCH_SECONDS:
-                text = option.tipName() + " until " + fmt(value(i)) + " s";
-                break;
-            default:
-                text = option.name + " " + fmt(value(i)) + " s";
-                break;
-        }
-        return changed(i) ? "<b>" + text + "</b>" : text;
     }
 
     /**
