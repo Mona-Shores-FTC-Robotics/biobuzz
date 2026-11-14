@@ -96,11 +96,11 @@ public final class LaunchSpots {
     /**
      * The six CLOSE spots are driven to this far back from where they are drawn, straight toward
      * their end wall, inches: the starting value of {@code LaunchSpotDrive.closeBackIn}, the Panels
-     * number. 2.5 (mentor, 14 Nov 2026): close volleys were hitting the lip of the HIVE and needed to
-     * come back 2 to 3 in. The TeleOp's button only, as the wall row's stand-off: the spots as
+     * number. 4 (mentor, 14 Nov 2026): close volleys were hitting the lip of the HIVE; 2.5 was the
+     * first try, 4 the one the team chose. The TeleOp's button only, as the wall row's stand-off: the spots as
      * drawn, and so the Clockwise Autos' close volleys, do not move.
      */
-    public static final double DEFAULT_CLOSE_BACK_IN = 2.5;
+    public static final double DEFAULT_CLOSE_BACK_IN = 4.0;
 
     /** The frame is square: from its centre to its back, front and either side (measured, {@link ResetPositions}). */
     static final double FRAME_HALF_IN = ResetPositions.WALL_TO_CENTRE_IN;
