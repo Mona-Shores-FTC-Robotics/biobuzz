@@ -160,6 +160,21 @@
     {
       "name": "partner dead on its left start",
       "partner": "PartnerLBrokenDownAuto"
+    },
+    {
+      "name": "contingency: nothing tips (both preloads miss, L misses every shot)",
+      "partner": "LUnderHiveAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      },
+      "oursFails": "misses preloads",
+      "fails": "misses"
     }
   ],
   "metadata": {
