@@ -1,65 +1,20 @@
-# Stick shoulder for 19429, right arm
+# 19429 right-arm GARDEN guide: notes and photos only
 
-> **Superseded, do not print (14 Nov).** The round hood below drops the slanted face that guides GARDEN balls. The
-> design being agreed is [`slant3d.py`](slant3d.py) ([`slant3d.png`](slant3d.png)): a face a ball rides UP while its
-> sideways tilt rolls it toward the robot's middle, from the arm to the blue wall's front tip. Shape only until the
-> lab measurements are in; then it becomes the printable part and this hood goes.
+**The part itself is designed in the "FLOWER stick: GARDEN polish" chat, which owns the GARDEN guides; its print files
+went to the mentor on 14 Nov. Nothing here is to be printed.** That chat's new guide spans 19429's right-arm gap (about
+87 mm from the arm's inner face to the blue wall's outer face, measured off the photos; the CAD has 38.6 mm), raised over
+the hub, the wheel and the round 32 mm part, then sloping about 15° down to the orange ramp. It screws to the arm with
+three M4 and to the wall by a tab and one M4 x 20 through the tab, the wall and the ramp. The standard right guide goes
+to 20245 unchanged.
 
-On 20245 the FLOWER stick's white walls sit against the arms' wheel hubs. On 19429 the blue wall on the **right
-arm** sits well inboard of it, leaving about 1.75 in of bare 8 mm shaft between the wall and the wheel, and on
-14 Nov the FLOWER's lip caught there: every Auto WALL FLOWER pick on 19429 stopped 4.4–5.5 in short with nothing
-picked, against 20245's 2.6 in with 2–3 pieces (`read_logs.py picks`, `logs/2026-11-14-*`).
+- `photos-2026-11-14/`: the mentor's photos of both robots' sticks (19429 blue guides and walls, 20245 white walls).
+- `slant3d.py` / `slant3d.png`: an earlier sketch from another session of a face a ball rides up and is rolled
+  inboard, kept behind the ramp's front edge. Reference only.
 
-This part is a hood over that arm's wheel and the bare shaft, **screwed to the arm at one end and to the blue wall at
-the other**, with a rounded front so the lip rides over it. It replaces 19429's present blue shoulder on the right
-arm; that one moves to 20245 as it is (20245 has no gap to fill).
+## Why 19429's WALL FLOWER picks stalled (14 Nov)
 
-![The two halves on stand-ins, the arm half alone, the end view, and the telescoping range](parts.png)
-
-| File | What it is | Print |
-|---|---|---|
-| `shoulder_arm_half.stl` | Screws to the arm plate's inner face; its shell covers the wheel | 1, cap face down |
-| `shoulder_wall_half.stl` | Screws to the blue wall's outer face; its shell slides over the arm half's | 1, cap face down |
-| `*.step` | The same parts as solids: import these into Onshape, not the STLs | |
-| `parts.py` | Makes them. Every size is a constant at the top | `pip install cadquery` |
-| `render.py` | Draws the picture above | `+ trimesh manifold3d matplotlib` |
-
-Both print cap-down with no supports. PETG if there is any: the shells take the FLOWER's knocks.
-
-## Nothing here was measured
-
-Every size is a guess from photos (14 Nov) and the Onshape model (its 200 mm Flower Ramp, 8 mm REX shaft, arms about
-285 mm apart). The part is made to fit anyway:
-
-- **Two halves that telescope.** Each half screws to its own end, and the overlap takes up whatever the arm-to-wall
-  distance is, from 72 to 96 mm (the photo estimate is 84). The halves never need screwing to each other.
-- **A slot in the arm tab**, along the arm's centre line from 36 to 62 mm from the shaft, so any goBILDA holes on 8 mm
-  pitch along there fit.
-- **The blue wall is drilled on the robot**, through the wall tab's two holes. The wall is printed, so it needs no
-  holes to match.
-
-What still has to be right, from the biggest risk down:
-
-1. **Nothing may move between the arm and the blue wall.** The photos look like the shaft is clamped at the arm and the
-   wheel turns on it. If the bar or wall turns or slides on the shaft, a part screwed to both ends locks it or cracks.
-   Wiggle it with the robot off first.
-2. **`WHEEL_D` (48 mm, O-ring included).** The hood clears it by 3 mm. A bigger wheel rubs. A smaller one is fine.
-3. **`ARM_ANGLE` (30°).** This is the arm above the floor with the stick down, and it sets where the tabs point. The
-   front edge sits about 10 mm above the floor, and `parts.py` refuses to export below 6 mm.
-4. **The arm's holes are on its centre line**, where the slot is. If they are off it, set `ARM_SLOT_OFFSET`.
-5. **The hood stays behind the orange bar's front edge.** It reaches 34 mm ahead of the shaft. If the bar is shorter
-   than that, the hood becomes the first thing to hit the FLOWER. That is still better than the gap, but check it.
-
-## Fitting it
-
-1. Take 19429's blue shoulder off the right arm (it goes to 20245).
-2. Arm half: cap against the arm plate's inner face, tab along the arm. Use two M4 screws through the arm and the
-   slot, with nylocks.
-3. Wall half: slide it over the arm half's shell until its cap meets the blue wall's outer face. Clamp it, drill the
-   wall with a 4.5 mm bit through the tab's two holes, then fit two M4 screws with nylocks.
-4. Turn the wheel by hand: it must spin free. Push the stick down onto the tile: the hood must not touch it.
-5. Measure the arm-to-wall span (the inner face of the arm plate to the outer face of the blue wall). Write it here.
-   Later prints can set `SPAN` to it and `ONE_PIECE = True`.
-
-**How to tell it worked:** run 19429's R-Solo, then `read_logs.py picks`. Its WALL FLOWER push should stop about
-2.6 in short, like 20245, with pieces in the lane.
+All 3 Auto WALL FLOWER picks on 19429 stopped 4.4–5.5 in short with nothing picked; 20245's stopped about 2.6 in short
+with 2–3 pieces (`read_logs.py picks`, `logs/2026-11-14-*`). The guides are not the cause: checked against the field
+FLOWER model, their undersides (1.12 in up or more) pass over the FLOWER's 0.35 in lip, and the ramp's nose reaches the
+FLOWER 1.8 in before anything else. The nose is 0.44 in off the tile in the CAD, only 0.09 in over the lip, so a stick
+sitting a tenth of an inch low catches it (worn O-rings, the ramp on another hex flat, a different arm angle).
