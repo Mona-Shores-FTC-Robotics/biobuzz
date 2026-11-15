@@ -106,6 +106,12 @@ costs.
 6. **R-Clockwise Priority THREE_TIP gives up the park in about 1 run in 5.** That is the drawn trade (51 vs 48 pts),
    but the drive team should know it when choosing.
 
+**Re-simulated with the R3 check (commit `b9743a3`):** every case unchanged from `2620c4a`. In the 16 of 24 runs
+where R3 times out, LEFT is seen up and R fires as before. **Priority PARK** (simulated for the first time): R parks
+in 24 of 24, but in all 5 runs where RIGHT came up and PARK changed what R did, R left LEFT_CLOSE_HIVE at 26.4 s and
+touched L at 27.6–27.7 s. L was still parking (it finished 29.4–29.7 s), so "L has passed: park at 26.4 s" is too
+early on those runs. The other 2 contacts are the 12.1–12.3 s brush at the left end that THREE_TIP has too.
+
 Mentor, 15 Nov: 1 and 2 are left as they are; 3 is done; 4 is the drive teams' job; 5 is open; 6 stays (Priority
 THREE_TIP). The simulator cases that produced them are now in each Auto's simulation request
 (`TeamCode/sim-requests/`, the "contingency:" entries), so the next save of any of these Autos re-checks them.
