@@ -421,12 +421,38 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /**
      * The Match page's first line: the operator's launch-speed trim, huge ({@link Display#huge},
      * about twice ordinary text) so the operator reads it in a glance down at the Driver Station;
-     * amber while trimmed, so a trim left on is never missed. "TRIM 0" when there is none (mentor,
+     * green while trimmed up and red while trimmed down, so a trim left on is never missed and its
+     * direction reads without the sign (mentor, 14 Nov 2026). "TRIM 0" when there is none (mentor,
      * 7 Nov 2026). The trim is on every shot, Square's included.
      */
     static String launchTrimLine(double trimTps) {
-        boolean trimmed = trimTps != 0.0;
-        return Display.huge(trimmed ? String.format(Locale.US, "TRIM %+.0f", trimTps) : "TRIM 0", trimmed);
+        if (trimTps == 0.0) return Display.huge("TRIM 0", false);
+        return Display.huge(String.format(Locale.US, "TRIM %+.0f", trimTps),
+                trimTps > 0.0 ? Display.Level.OK : Display.Level.FAULT);
+    }
+
+    /** The Match page's loop time: the last loop, whole milliseconds, huge (mentor, 14 Nov 2026). */
+    static String loopLine(double lastLoopMs) {
+        return Display.huge(Double.isNaN(lastLoopMs) ? "LOOP -- ms" : String.format(Locale.US, "LOOP %.0f ms", lastLoopMs), false);
+    }
+
+    /**
+     * The Match page's Pinpoint line, so a driver who feels the robot drive oddly can see whether the
+     * Pinpoint is why (mentor, 14 Nov 2026): green OK; red while it is not there or its pose is
+     * lost; amber while it reads again but is not yet confirmed, and amber with the count once it
+     * has lost the pose at any time since INIT.
+     */
+    static String pinpointLine(boolean present, PinpointTrust.State trust, int faults) {
+        if (!present) return Display.huge("PINPOINT NONE", Display.Level.FAULT);
+        switch (trust) {
+            case FAULTED:
+                return Display.huge("PINPOINT LOST", Display.Level.FAULT);
+            case TRUSTED:
+                return faults == 0 ? Display.huge("PINPOINT OK", Display.Level.OK)
+                        : Display.huge("PINPOINT " + faults + (faults == 1 ? " FAULT" : " FAULTS"), Display.Level.WARN);
+            default:
+                return Display.huge("PINPOINT CHECK", Display.Level.WARN);
+        }
     }
 
     /**
@@ -612,11 +638,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
         lightBar();
 
         // The Match page is a glance (mentor, 7 Nov 2026): the operator and the coach read it from
-        // the Driver Station mid-match, so it is three huge lines and one alert, nothing to parse.
+        // the Driver Station mid-match, so it is five huge lines and one alert, nothing to parse.
         // Everything a person testing wants is on the Robot page (describeRobotPage).
         display.line(launchTrimLine(launcherTrimTps));
         display.line(launcherLine());
         display.line(piecesLine(robot.colorSensor.lane().count(), robot.colorSensor.full()));
+        display.line(loopLine(loopTimer.lastMs()));
+        display.line(pinpointLine(robot.drive.localizerFault() == null, robot.drive.pinpointTrust(), robot.drive.pinpointFaults()));
         String alert = matchAlert();
         if (alert != null) display.line(Display.huge(alert, Display.Level.WARN));
         if (headingReset.pending() || cameraReset.pending() || leftCornerReset.pending() || rightCornerReset.pending() || turretZero.pending()) {
