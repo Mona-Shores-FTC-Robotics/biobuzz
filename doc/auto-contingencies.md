@@ -34,7 +34,7 @@ only if the partner stays out of the way.
 |---|---|---|
 | R2: LEFT up by 15.5 s, at LEFT_CLOSE_HIVE | Parks to RIGHT_PARK (it may wait about 4.5 s first). | Nothing tips (both preloads miss, L misses everything): 24/24 park, no contact, done by 17.9 s (GARDEN pick: 19.5 s). |
 | Time for the SCORING FLOWER before 17.6 s; look at the HIVE before 22.2 s | Parks. | |
-| R3: RIGHT up by 23.2 s (INIT option) | **Fires at the LEFT CELL without checking it is up**, waits to 26.4 s, parks. | Normal WALL FLOWER case: R3 timed out in 2 of 24 seeds. |
+| R3: RIGHT up by 23.2 s (INIT option) | Fires at the LEFT CELL if it sees it up within 0.75 s (added 15 Nov; before, with no check), waits to 26.4 s, parks. | Normal WALL FLOWER case: R3 timed out in 2 of 24 seeds. |
 | Priority = THREE_TIP and RIGHT up | Under the HIVE to RIGHT_CLOSE_HIVE, volley, then the park, which may not fit. | Normal WALL FLOWER case: **no park in 5 of 24** (all five took the third TIP at 23.1 s: 51 pts). |
 
 ### L-Clockwise (paired with R-Clockwise)
@@ -97,15 +97,15 @@ costs.
    drive team says the partner has no Auto. Note the tension: the TeleOp's close spots moved 4 in back toward the wall
    on 14 Nov because close volleys hit the HIVE's lip, and moving the Autos' close spots the same way brings them closer
    to a partner on its start.
-3. **R-Clockwise's R3 "otherwise" leg fires at the LEFT CELL without a check.** CLAUDE.md says every volley after the
-   first sits behind a CELL check. Either add a "LEFT still up?" check there, or confirm it is meant (the LEFT CELL was
-   seen up for R2, and R's TIP 2 visibly failed).
-4. **The lane pair's Pickup choices must match.** Swapped picks collide in 85–90% of runs. Either drop the swapped
+3. **Done (15 Nov): R-Clockwise's R3 "otherwise" leg checks the LEFT CELL before it fires** ("LEFT CELL still up?",
+   0.75 s; not seen: it keeps the load and parks). Before, it fired with no check, against CLAUDE.md's rule.
+4. **The lane pair's Pickup choices must match** (mentor, 15 Nov: the drive teams coordinate; no change). Swapped picks collide in 85–90% of runs. Either drop the swapped
    combination from INIT, or check the two robots' picks at the drive-team level (one card on the cart).
 5. **R-OutsideLane's "LEFT volley done before 15.5 s"** takes the park in 17 of 19 runs with a partner, so the third
    leg is mostly dead weight. Loosen it or remove the leg.
 6. **R-Clockwise Priority THREE_TIP gives up the park in about 1 run in 5.** That is the drawn trade (51 vs 48 pts),
    but the drive team should know it when choosing.
 
-None of these is changed here. The simulator cases that produced them are now in each Auto's simulation request
+Mentor, 15 Nov: 1 and 2 are left as they are; 3 is done; 4 is the drive teams' job; 5 is open; 6 stays (Priority
+THREE_TIP). The simulator cases that produced them are now in each Auto's simulation request
 (`TeamCode/sim-requests/`, the "contingency:" entries), so the next save of any of these Autos re-checks them.

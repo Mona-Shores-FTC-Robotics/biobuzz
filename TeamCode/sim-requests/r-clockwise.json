@@ -209,6 +209,20 @@
       "picks": {
         "Pickup": "WALL_FLOWER"
       }
+    },
+    {
+      "name": "R takes the WALL FLOWER: Priority PARK",
+      "partner": "LClockwiseAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER",
+        "Priority": "PARK"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
     }
   ],
   "metadata": {
