@@ -213,6 +213,10 @@ Result, with the gap on each own-start run, → [PR #372].
       Priority THREE_TIP), L two (waiting for TIP 1 until 9.5 s, Pickup GARDEN). D-pad down walks the rows and wraps;
       right on Pickup shows the other pickup; right on the time adds 1 s; everything changed is amber
       and bold. Read the two robots' Pickup rows to each other: WALL_FLOWER pairs with GARDEN.
+      The page lists every row on its own line with `▶` at the selected one, which also shows
+      `◀▶`; no line wraps. On 14 Nov 2026 the page showed only the
+      selected row, ending `· ▲▼ row 1 of 3`, which wrapped and confused the drive team.
+      **Stop:** a line wraps, or the pointer does not follow D-pad up and down → photograph it.
       **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
       8.0 s, and no log can say what INIT showed (the next item). Show the drive team the line too.
 - [ ] **The chosen INIT options reach the match log** (same run: set the wait to 12 s,
@@ -540,7 +544,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
 
 - [ ] **Clockwise pair: R-Clockwise beside L-Clockwise.**
       [The plan, the stops, the times and the simulator's tables](../TeamCode/autos/clockwise.md). Not yet
-      driven; Infraviolet stays on the menu until this has on both robots. Run with the DS AUTO
+      driven as a pair; Infraviolet is on the Utility menu (Drive: R-Infraviolet, Drive: L-Infraviolet). Run with the DS AUTO
       timer on. Every volley is from a spot the drivers' Square goes to, and the guard
       plans a volley at 2.5 s (4.0 until 12 Nov), for every Auto. In this order, since each step
       decides whether the next is worth running:
@@ -555,8 +559,8 @@ Use the work order above to select checks; the detailed mechanism checks below a
         its 3.5 s) → `AutoRegistration.LAUNCH_ALL_TYPICAL_S` and `LAUNCH_ALL_LAST_PIECE_S` go back
         up, or a late volley eats the park in every Auto.
       - **Each robot alone, HIVE in place, no partner, the new paths:** R's outside lane from the
-        WALL FLOWER and from the GARDEN onto LEFT_WALL_NEAR (a corner touches the far wall, the
-        SCORING FLOWER beside it); LEFT_WALL_NEAR to the SCORING FLOWER; back under the HIVE from
+        WALL FLOWER and from the GARDEN onto LEFT_CLOSE_HIVE (in front of the HIVE, on L's road:
+        L must be gone); LEFT_CLOSE_HIVE to the SCORING FLOWER; back under the HIVE from
         the half turn from the SCORING FLOWER to LEFT_CLOSE_HIVE and the park from there; and
         from LEFT_CLOSE_HIVE under the HIVE nose-first to RIGHT_CLOSE_HIVE (it turns to the HIVE
         after it is out from under it) and the outside lane from there. L's 2.4 in
@@ -572,7 +576,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         faults → note the speed it arrived at.
       - **Turning with a load.** On 12 Nov (20245) pieces left the intake on both backward legs;
         every loaded leg is now nose-first. Four POLLEN in the lane: R from the WALL FLOWER up the
-        outside lane onto LEFT_WALL_NEAR (it turns north at once, then round to aim), R from the
+        outside lane onto LEFT_CLOSE_HIVE (it turns north at once, then round to aim), R from the
         SCORING FLOWER to LEFT_CLOSE_HIVE (a half turn in 13 in), and L from GARDEN_STAGING and
         from the WALL FLOWER to RIGHT_WALL_NEAR, at Auto speed. **Good:** four still in the lane
         at each end, five runs of each. **Stop:** a piece leaves → note where on the path, and
@@ -581,7 +585,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         robots. Park R first, then run L's park; then the other order. **Good:** neither touches
         the other coming in (L turns east of the park zone and drives straight in; R comes in
         along RIGHT_PARK's own line). **Stop:** a touch → note which robot was moving and where.
-      - **R's view of the HIVE at each stop:** `LeftCellUp` on LEFT_WALL_NEAR (295.5°),
+      - **R's view of the HIVE at each stop:** `LeftCellUp` on LEFT_CLOSE_HIVE (270°),
         `RightCellUp` at RIGHT_CLOSE_HIVE having backed in (90°), and `RightCellUp` from
         LEFT_CLOSE_HIVE (270°). L: `LeftCellUp` on LEFT_WALL_HIVE and `RightCellUp` on
         RIGHT_WALL_NEAR (66.9°). **Good:** each within 0.3 s of arriving with that CELL up.
@@ -595,7 +599,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         does → write the seconds and where; the waits change in the Visualizer.
       - **The times, from `read_logs.py steps` on each run's log:** `LeftCellUp` for L (T1
         9.5 s; the Belding films have it as late as 9.98 s, so expect to raise it); R on
-        LEFT_WALL_NEAR and its volley's end (T2 15.5 s, TS 17.6 s; drawn 13.2 and 17.0 s); R's
+        LEFT_CLOSE_HIVE and its volley's end (T2 15.5 s, TS 17.6 s; drawn 13.2 and 17.0 s); R's
         SCORING FLOWER pick's end (T3b 22.2 s; drawn 21.3 s); R at LEFT_CLOSE_HIVE (T3 23.2 s; drawn 23.1 s); L on
         RIGHT_WALL_NEAR (T4 22 s) and each robot parked (TL 22.7 s). **Good:**
         each within 0.5 s of the drawn. Otherwise set the row in INIT for the next run and write
@@ -848,6 +852,13 @@ measurement is [#255].
       toggle up, FIRE, toggle down, as before. **Stop:** a toggle press during Square idles the
       launcher, FIRE feeds before arrival, or the launcher keeps spinning after Square is let go
       → run `Belding`'s Basic Drive and tell a mentor.
+- [ ] **Match page: loop time and Pinpoint lines (mentor, 14 Nov 2026):** Basic Drive, Match page.
+      **Good:** under `N PIECES`, two more huge lines: `LOOP 21 ms` (whole milliseconds, the last
+      loop) and `PINPOINT OK` in green. Unplug the Pinpoint's cable for a second and plug it back:
+      `PINPOINT LOST` in red, then `PINPOINT CHECK` in amber until a corner or camera reset, then
+      `PINPOINT 1 FAULT` in amber for the rest of the OpMode. All five lines and an alert fit the
+      screen with none cut off. **Stop:** a line is cut off at the bottom, or the Pinpoint line
+      stays green through the unplug → photograph the screen and save the match log.
 - [ ] **Operator's glance page, trim rumble, D-pad trim reset, no intake toggle (`belding-plus`,
       7 Nov):** Basic Drive, Match page, read from the operator's seat and from the coach's spot.
       **Good:** under the header and the alliance line, three lines in text about twice ordinary
@@ -855,7 +866,7 @@ measurement is [#255].
       `N PIECES`, green while the sensor sees the lane full; a fourth, amber, only when
       something is wrong (`INTAKE OFF`, `ROBOT-CENTRIC`, `SQUARE REFUSED` while Square is held,
       `FLOWER STICK OUT`, `NO PINPOINT`). Everything else is on the Robot page (Share twice).
-      Operator R1: `TRIM +25` in amber and one rumble blip; L1: two blips; D-pad down: back to
+      Operator R1: `TRIM +25` in green and one rumble blip; L1: `TRIM -25` in red, two blips; D-pad down: back to
       `TRIM 0` with a long buzz. The intake runs from PLAY with nobody touching R2, and no R2 press
       on either pad stops it; with `TeleOpConfig.intakeAlwaysOn` off it runs only while R2 is held.
       Note every green count under 4 (`3 PIECES` in green): that is the tracker missing a piece.

@@ -38,11 +38,12 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 
 The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
 existing reference. **L-Infraviolet / R-Infraviolet** is a coordinated three-TIP pair, run on
-both robots and promoted to competition Autos; run one only with the partner on the other
+both robots; Clockwise has replaced it on the Autonomous menu and it runs from the Utility menu
+(**Drive: R-Infraviolet**, **Drive: L-Infraviolet**); run one only with the partner on the other
 ([its notes](infraviolet.md)).
 **L-Clockwise / R-Clockwise** is its successor: the same pair on a one-way loop, with a fixed
-fallback at each stop, a pickup the drive teams choose in INIT, and shots by the camera or the
-timer. It has not driven on a robot yet; Infraviolet stays selectable until it has on both
+fallback at each stop, and a pickup the drive teams choose in INIT. Each robot has run its half
+alone; the pair has not yet run together
 ([its notes](clockwise.md)). Its volleys are from the
 drivers' Square spots (`LaunchSpots`), not team spots. It drives nose-first with a load; the version
 with backward legs, which has time for a third TIP, is the draft `r-clockwise-backward.pp` with
