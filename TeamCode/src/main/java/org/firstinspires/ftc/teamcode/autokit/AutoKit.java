@@ -211,6 +211,8 @@ public final class AutoKit {
     private boolean guardOn = true;
     /** {@link #parkAfterVolley}: a volley is gone for only when the park still fits after it. */
     private boolean parkAfterVolley;
+    /** Set by {@link #route} when the Auto has a Priority row and the TIP is picked: see {@link #parkComesFirst}. */
+    private boolean tipBeforePark;
     /**
      * Set by {@link #goForVolleyIfItFits} with {@link #parkAfterVolley} on: the cards from here to
      * the next volley, that volley and then the park do not fit before AUTO ends, so the guard parks
@@ -318,7 +320,20 @@ public final class AutoKit {
      */
     public Command route(String option, int index, Supplier<Command> card) {
         int picked = picks.choice(option);
-        return (picked < 0 ? 0 : picked) == index ? card.get() : OFF_ROUTE;
+        boolean on = (picked < 0 ? 0 : picked) == index;
+        // The Priority row (AutoOption.PRIORITY): with its first leg, the third TIP, picked, a volley
+        // comes before the park for this Auto, whatever parkAfterVolley says.
+        if (on && AutoOption.PRIORITY.equals(option)) tipBeforePark = index == 0;
+        return on ? card.get() : OFF_ROUTE;
+    }
+
+    /**
+     * Whether a volley must leave time for the park after it: {@link #parkAfterVolley}, unless the drive
+     * team's {@link AutoOption#PRIORITY} is the TIP (its first leg, the drawing's). Then the guard asks
+     * only that the volley's last piece is out by 30 s, and the robot ends AUTO where it shot.
+     */
+    private boolean parkComesFirst() {
+        return parkAfterVolley && !tipBeforePark;
     }
 
     /** {@code cards} without the ones {@link #route} left off; the same array when there are none. */
@@ -417,7 +432,7 @@ public final class AutoKit {
                     // look-ahead already decides for a volley in its own list or behind a "CELL up?"
                     // check (goingForVolley, or it parked before this card); this is a volley deeper
                     // in a block's row, which the look-ahead cannot see.
-                    if (!refused[0] && volley && parkAfterVolley && !Double.isNaN(guardParkSeconds)) {
+                    if (!refused[0] && volley && parkComesFirst() && !Double.isNaN(guardParkSeconds)) {
                         refused[0] = tooLateToContinue(guardLabel, volleySeconds + guardParkSeconds,
                                 "not starting " + name + ", no time to park after it");
                     }
@@ -842,7 +857,7 @@ public final class AutoKit {
             if (plan.isVolley()) {
                 volleyLastPieceAt = at + plan.lastPieceS;
                 goingForVolley = volleyLastPieceAt <= AUTO_LENGTH_S;
-                if (parkAfterVolley && !Double.isNaN(ownParkSeconds)) {
+                if (parkComesFirst() && !Double.isNaN(ownParkSeconds)) {
                     double volleyS = plan.secondsFrom.applyAsDouble(at);
                     double parkedAt = at + volleyS + ownParkSeconds + GUARD_MARGIN_S;
                     if (volleyS >= 0 && parkedAt > AUTO_LENGTH_S) {

@@ -28,16 +28,6 @@ public final class TeleOpConfig {
     public static Input flowerPickButton = ControlScheme.DEFAULT_FLOWER_PICK;
 
     /**
-     * How the GARDEN gather corrals the pieces into the intake between its dwell at the wall and
-     * the stick coming up ({@link GardenGather.Style}): CLASSIC (as before), HARD_STOP, HARD_STOP_PUSH
-     * or LONG_HOLD. Pick one in Panels, gather, count the pieces, try the next; the gather's
-     * start line in the match log says which ran. The Autos' gather uses it too. Each style's numbers
-     * are on {@link GardenGather}. None has been run yet (13 Nov 2026), so CLASSIC until one is seen
-     * to bring in more.
-     */
-    public static GardenGather.Style gardenGatherStyle = GardenGather.Style.CLASSIC;
-
-    /**
      * Everyday driving: the sticks are multiplied by this, and no wheel gets more than this
      * ({@code WheelPowerCap}). Full power, with the acceleration limit on. Clamped to [0, 1], NaN
      * stops.
@@ -131,15 +121,6 @@ public final class TeleOpConfig {
      */
     public static boolean launchSpot = true;
 
-    /**
-     * The close row's button (Triangle: the launch spot about 36 in from the CELL, in front of the
-     * wall one). On, so the close spots can be driven to and their launcher speed measured
-     * (mentor, 12 Nov 2026): {@code LaunchSpeedTable}'s rows start at 42.4 in and its trend stops at
-     * 37.4, so until a row is measured at 36 in a close volley fires at the held end speed
-     * ({@code doc/robot-todo.md}). Off leaves it out of the layout, the Controls page and the
-     * button's reading; {@link #launchSpot} off takes it out too. Read at INIT.
-     */
-    public static boolean launchSpotClose = ControlScheme.LAUNCH_SPOT_CLOSE_DEFAULT;
 
     /**
      * The go-to-launch-spot button also launches: the launcher spins up as the drive starts, and

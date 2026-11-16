@@ -651,6 +651,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         return pinpointTrust.state();
     }
 
+    /** Pinpoint faults that held long enough to lose the pose, since init. */
+    public int pinpointFaults() {
+        return pinpointTrust.faults();
+    }
+
     /** The status of the last fault that held ({@code FAULT_BAD_READ}), or null if none has. */
     public String pinpointLostStatus() {
         return pinpointTrust.faultStatus();

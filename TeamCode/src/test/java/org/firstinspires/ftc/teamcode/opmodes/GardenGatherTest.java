@@ -97,38 +97,23 @@ public class GardenGatherTest {
         }
     }
 
-    /** The approach goes for the GARDEN the gather will: the nearest, on the robot's half in an Auto. */
+    /** The approach goes for the GARDEN the gather will: the nearest in range, on the robot's half in an Auto. */
     @Test
     public void nearestGardenFollowsTheGathersOwnRule() {
         assertEquals(GardenFieldPoints.RED, GardenGather.nearest(11.5, 22.1, true));
         assertEquals(GardenFieldPoints.BLUE, GardenGather.nearest(130.0, 119.4, true));
-        // (72, 60) is on blue's half of the centre line and nearer red's GARDEN.
-        assertEquals("an Auto never crosses the centre line", GardenFieldPoints.BLUE, GardenGather.nearest(72.0, 60.0, true));
-        assertEquals("the button may", GardenFieldPoints.RED, GardenGather.nearest(72.0, 60.0, false));
+        assertEquals("out of range (maxRangeIn 45)", null, GardenGather.nearest(60.0, 60.0, true));
     }
 
-    /** The style is Panels' TeleOpConfig.gardenGatherStyle; a cleared field is CLASSIC, never a crash. */
+    /**
+     * The drive back is done where it stands once it has stalled: 14 Nov's two slow back outs crept
+     * an inch short for 1.5 and 2.8 s. Not in its first moments, and not while it still gets closer.
+     */
     @Test
-    public void theStyleComesFromTeleOpConfigAndDefaultsToClassic() {
-        GardenGather.Style before = TeleOpConfig.gardenGatherStyle;
-        try {
-            assertEquals("until a style is seen to bring in more", GardenGather.Style.CLASSIC, before);
-            TeleOpConfig.gardenGatherStyle = null;
-            assertEquals(GardenGather.Style.CLASSIC, GardenGather.style());
-            TeleOpConfig.gardenGatherStyle = GardenGather.Style.HARD_STOP_PUSH;
-            assertEquals(GardenGather.Style.HARD_STOP_PUSH, GardenGather.style());
-        } finally {
-            TeleOpConfig.gardenGatherStyle = before;
-        }
-    }
-
-    /** Every corral phase is one the button may be let go in: the robot finishes and backs out on its own. */
-    @Test
-    public void lettingGoDuringTheCorralStillFinishesTheGather() {
-        for (GrabRoutine.Phase phase : new GrabRoutine.Phase[] {GrabRoutine.Phase.CORRAL_BACK,
-                GrabRoutine.Phase.CORRAL_HOLD, GrabRoutine.Phase.PUSH, GrabRoutine.Phase.HOLD}) {
-            assertEquals(phase.toString(), true, GrabRoutine.releaseFinishes(phase, true));
-            assertEquals("an Auto's card cut short stops", false, GrabRoutine.releaseFinishes(phase, false));
-        }
+    public void theBackOutEndsWhenItStallsShort() {
+        assertEquals("stalled for 0.5 s, 1.4 s in", true, GrabRoutine.backStalled(1400, 500, 400));
+        assertEquals("still getting closer", false, GrabRoutine.backStalled(600, 50, 400));
+        assertEquals("the path's first moments, ramping up", false, GrabRoutine.backStalled(500, 450, 400));
+        assertEquals("off", false, GrabRoutine.backStalled(3000, 2500, 0));
     }
 }

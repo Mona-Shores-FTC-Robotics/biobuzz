@@ -1051,6 +1051,17 @@ drive at the contact standoff) was considered and rejected: the pick would no lo
 works in isolation. `GardenGather` has no approach yet: its stick came down on the wall when swung
 early in the corner (30 Oct 2026).
 
+`FlowerPicker.routine` (Panels) picks which pick runs. `MASTER`, the default, is the pick as it ran
+at the Belding Qualifier. `FAST` is the same one push with the waiting taken out: no wait to slow
+after the drive in, a 1.0 s dwell counted from contact (not from the stall call 0.27 s later), and
+the pick ends 6 in into the back-out, still rolling, the stick lifting on its own once clear; about
+2.2 s expected against Belding's 3.66. `MULTI_PUSH` is FAST with two pushes and a 3 in back-off
+between them, stick down and intake on (`GrabRoutine.Phase.BACK_OFF`), because at Belding the last
+piece came in as the robot backed off, not during the dwell; about 3.0 s expected. Neither is
+measured: `doc/robot-todo.md` §4 has the 20 picks per FLOWER per robot that decide the default. The
+measured breakdown of a Belding pick is on `FlowerPicker.routine`; the simulator reads the pick's
+length from `FlowerPicker.atFlowerCapMs()` for whichever routine is set.
+
 **A `LaunchAll` after a path launches on the approach**, as a good TeleOp driver does (mentor,
 4 Nov 2026). `LaunchCards.approach()` opens the gate once three things hold: the robot is within
 `PathEndSettle.launchWithinIn` (6 in) of the path's end, within `aimToleranceDeg` (3°) of the end
@@ -1072,7 +1083,7 @@ finished robot runs on today's robot as a timed script. `auto-registry.json` is 
 the editor; `AutoRegistrationTest` keeps the two in step.
 
 **The partner wait.** The robot fires on the camera's `CellUp`; a partner wait's number is only when
-it stops waiting. The Driver Station reads "waiting for partner's TIP until 9 s", a row of the
+it stops waiting. The Driver Station reads "waiting for TIP 1 until 9 s" (the TIP the drawing names), a row of the
 Auto's INIT menu on gamepad 1's D-pad (`InitOptions`: up/down selects a row, left/right changes it;
 the wait moves 1 s a press, and the park is a row too). The drive team asks a partner "do you shoot
 your preloads right at the start?" and changes it only if the answer is not yes. The wait is the
@@ -1147,11 +1158,8 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   `inSpeed` to `GardenFieldPoints`' gather pose (plus `extraDepthIn`, `towardWallIn`; the walls stop the
   frame), a `dwellMs` dwell, and a drive back at `backSpeed`. It takes what the intake touches. **Measured:**
   the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
-  whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (4 s, which covers the nine
-  Auto gathers logged 3 to 7 Nov with the dwell as it is now); the FLOWER stick, which goes down on the
-  robot's gather, is not modelled in the GARDEN, so the simulator's intake reaches the wall and takes 2 or
-  3 pieces where the robot stops 3.6 in short, the stick on the wall, and brought in 0 to 2. With the Belding calibration a gather
-  keeps only what a logged one brought in (`BeldingCalibration.gardenLoad`).
+  whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (4 s, which covers the
+  ten Auto gathers logged 3 to 14 Nov with the dwell as it is now); the FLOWER stick, which goes down on the robot's gather, is not modelled in the GARDEN.
 - **Hits on the HIVE.** The rocker's static balance is fitted to the Field Setup Guide's placed cases
   (`HiveCalibration`). On top of it, a launched piece striking a CELL hands the rocker the angular momentum
   about the axle the hit took from it (`FieldSim.kick`): the rocker is damped, so a hit moves it a step,

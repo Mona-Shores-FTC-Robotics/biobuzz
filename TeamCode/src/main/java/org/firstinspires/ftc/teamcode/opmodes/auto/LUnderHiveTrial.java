@@ -16,7 +16,7 @@ public final class LUnderHiveTrial extends BuiltAuto {
 
     @Override protected void onInitLoop() {
         super.onInitLoop();
-        display.line("DRAFT: normal LEFT start, four preloads; needs a partner that tips the RIGHT CELL by 9 s. Its right spot (R4) overlaps R5. Automatic STOP after 30 s.");
+        display.line("DRAFT: normal LEFT start, four preloads; needs a partner that tips the RIGHT CELL by 9 s. Its right spot (R4) overlaps R5. Pickup must be the other one from R-OutsideLane's; leave it on GARDEN. Automatic STOP after 30 s.");
     }
 
     @Override protected void onStart() {

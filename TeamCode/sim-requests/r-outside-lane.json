@@ -52,25 +52,109 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "matching L-UnderHive",
+      "name": "as drawn: R WALL FLOWER, L GARDEN",
       "partner": "LUnderHiveAuto",
       "timing": {
         "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
       }
     },
     {
-      "name": "L-UnderHive drives 20 percent slower",
+      "name": "as drawn, L 20 percent slower",
       "partner": "LUnderHiveAuto",
       "timing": {
         "speed": 40
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
       }
     },
     {
-      "name": "L-UnderHive misses every shot",
+      "name": "as drawn, L misses every shot",
       "partner": "LUnderHiveAuto",
       "fails": "misses",
       "timing": {
         "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    },
+    {
+      "name": "swapped: R GARDEN, L WALL FLOWER",
+      "partner": "LUnderHiveAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "swapped, L 20 percent slower",
+      "partner": "LUnderHiveAuto",
+      "timing": {
+        "speed": 40
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "swapped, R 20 percent slower",
+      "partner": "LUnderHiveAuto",
+      "ourSpeed": 40,
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "mismatch: both take the GARDEN",
+      "partner": "LUnderHiveAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    },
+    {
+      "name": "mismatch: both take the WALL FLOWER",
+      "partner": "LUnderHiveAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
       }
     },
     {
@@ -80,7 +164,7 @@
   ],
   "metadata": {
     "AutoSource": "r-outside-lane.pp",
-    "SavedBy": "Lane pair: R on the wall lane, L under the HIVE",
+    "SavedBy": "Lane pair: both Pickup choices, the swap, and the two mismatches",
     "SavedAt": "2026-11-12T00:00:00+00:00"
   }
 }

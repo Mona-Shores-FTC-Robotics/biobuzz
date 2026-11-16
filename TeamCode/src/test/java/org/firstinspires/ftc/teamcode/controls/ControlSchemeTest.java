@@ -72,10 +72,8 @@ public class ControlSchemeTest {
         Map<Action, Input> off = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true, false);
         assertEquals(Input.SQUARE, on.get(Action.LAUNCH_SPOT));
         assertFalse(off.containsKey(Action.LAUNCH_SPOT));
-        // Off takes the close row's button with it, where the default binds that one.
-        assertEquals("nothing else changes",
-                on.size() - (ControlScheme.LAUNCH_SPOT_CLOSE_DEFAULT ? 2 : 1), off.size());
-        // The two-switch layout (the cheat sheet's) keeps it, as the TeleOp's default does.
+        assertEquals("nothing else changes", on.size() - 1, off.size());
+        // The cheat sheet's layout keeps it, as the TeleOp's default does.
         assertEquals(on, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true));
         // Moving the FLOWER pick onto Square swaps the launch spot onto Cross.
         Map<Action, Input> swapped = ControlScheme.layout(Input.SQUARE);
@@ -83,24 +81,12 @@ public class ControlSchemeTest {
     }
 
     @Test
-    public void theCloseRowIsTheDriversTriangleBehindItsOwnSwitch() {
-        Map<Action, Input> both = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true, true, true);
-        Map<Action, Input> wallOnly = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true, true, false);
-        assertEquals(Input.SQUARE, both.get(Action.LAUNCH_SPOT));
-        assertEquals(Input.TRIANGLE, both.get(Action.LAUNCH_SPOT_CLOSE));
-        assertFalse(wallOnly.containsKey(Action.LAUNCH_SPOT_CLOSE));
-        assertEquals("nothing else changes", both.size() - 1, wallOnly.size());
-        // The launch-spot switch takes the close row with it.
-        assertFalse(ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true, false, true)
-                .containsKey(Action.LAUNCH_SPOT_CLOSE));
-        // The cheat sheet's layout and the TeleOp's starting switch are the one default.
-        assertEquals(ControlScheme.LAUNCH_SPOT_CLOSE_DEFAULT,
-                ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true).containsKey(Action.LAUNCH_SPOT_CLOSE));
-    }
-
-    @Test
-    public void gatherGardenIsOnTheDriversRightBumper() {
-        assertEquals(Input.R1, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).get(Action.GARDEN_GATHER));
+    public void gatherGardenIsOnTheDriversTriangle() {
+        assertEquals(Input.TRIANGLE, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).get(Action.GARDEN_GATHER));
+        // R1 is free on the driver's pad.
+        for (Map.Entry<Action, Input> entry : ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true).entrySet()) {
+            if (entry.getKey().pad == Action.Pad.DRIVER) assertFalse(entry.getKey().toString(), entry.getValue() == Input.R1);
+        }
     }
 
     @Test
@@ -132,7 +118,7 @@ public class ControlSchemeTest {
     public void movingTheFlowerPickSwapsItWithWhatWasThere() {
         Map<Action, Input> layout = ControlScheme.layout(Input.TRIANGLE);
         assertEquals(Input.TRIANGLE, layout.get(Action.FLOWER_PICK));
-        assertEquals(Input.CROSS, layout.get(Action.LAUNCH_SPOT_CLOSE));
+        assertEquals(Input.CROSS, layout.get(Action.GARDEN_GATHER));
         // The operator's buttons are the operator's: moving the driver's pick never touches them.
         Map<Action, Input> onCircle = ControlScheme.layout(Input.CIRCLE);
         assertEquals(Input.CIRCLE, onCircle.get(Action.FIRE));

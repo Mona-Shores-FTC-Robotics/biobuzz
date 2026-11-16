@@ -21,7 +21,7 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-12|3:37PM";
+    public static final String SAVED = "11-13|10:25AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -33,7 +33,7 @@ public final class LNoCrossAuto {
     public static final String DRAWN_FOR = "RED";
 
     /** What the drive team may change during INIT, on gamepad 1's D-pad; nothing changed, the Auto runs as drawn. */
-    public static final AutoOption[] OPTIONS = {AutoOption.matchSeconds("Wait for TIP or CELL up", 9)};
+    public static final AutoOption[] OPTIONS = {AutoOption.matchSeconds("Wait for TIP or CELL up", 9, 1)};
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {

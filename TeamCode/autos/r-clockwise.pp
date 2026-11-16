@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-12T22:32:02.588Z",
+  "timestamp": "2026-11-14T20:50:53.101Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -73,77 +73,173 @@
     {
       "id": "r-lane-north-flower",
       "color": "#e15759",
-      "name": "outside lane from the FLOWER to LEFT_WALL_NEAR",
+      "name": "outside lane from the FLOWER to LEFT_CLOSE_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 37.8,
-        "y": 130.7
-      },
-      "controlPoints": [
+      "kind": "compound",
+      "segments": [
         {
-          "x": 29.5,
-          "y": 72
-        },
-        {
-          "x": 29,
-          "y": 108
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
+          "id": "r-lane-up-flower",
+          "color": "#76b7b2",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 36,
+            "y": 100
+          },
+          "controlPoints": [
             {
-              "startProgress": 0,
-              "endProgress": 0.7,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 180,
-                "endDeg": 295.5
-              }
+              "x": 27,
+              "y": 76
             },
             {
-              "startProgress": 0.7,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 295.5
-              }
+              "x": 32,
+              "y": 92
             }
-          ]
+          ],
+          "heading": {
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.2,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 180,
+                    "endDeg": 90
+                  }
+                },
+                {
+                  "startProgress": 0.2,
+                  "endProgress": 1,
+                  "interpolationType": "constant",
+                  "parameters": {
+                    "degrees": 90
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "r-lane-in-flower",
+          "color": "#59a14f",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 59.9,
+            "y": 116.2
+          },
+          "controlPoints": [
+            {
+              "x": 40,
+              "y": 112
+            },
+            {
+              "x": 52,
+              "y": 114
+            }
+          ],
+          "heading": {
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.5,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 90,
+                    "endDeg": 0
+                  }
+                },
+                {
+                  "startProgress": 0.5,
+                  "endProgress": 1,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 360,
+                    "endDeg": 270
+                  }
+                }
+              ]
+            }
+          }
         }
-      }
+      ]
     },
     {
-      "id": "r-left-park",
+      "id": "r-catch-park",
       "color": "#e15759",
-      "name": "left park to RIGHT_PARK",
+      "name": "catch park to RIGHT_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
+      "kind": "compound",
+      "segments": [
         {
-          "x": 31,
-          "y": 104
+          "id": "r-catch-park-south",
+          "color": "#76b7b2",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 50,
+            "y": 98.7
+          },
+          "controlPoints": [
+            {
+              "x": 57,
+              "y": 106
+            }
+          ],
+          "heading": {
+            "type": "linear",
+            "startDeg": 270,
+            "endDeg": 360
+          }
+        },
+        {
+          "id": "r-catch-park-in",
+          "color": "#b07aa1",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 14.5,
+            "y": 98.7
+          },
+          "controlPoints": [],
+          "heading": {
+            "type": "constant",
+            "degrees": 360
+          }
         }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 295.5,
-        "endDeg": 360
-      }
+      ]
     },
     {
       "id": "link-2",
@@ -203,7 +299,7 @@
       "segments": [
         {
           "id": "r-pickup-park-lane-garden",
-          "color": "#e15759",
+          "color": "#76b7b2",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -233,7 +329,7 @@
         },
         {
           "id": "r-pickup-park-turn-garden",
-          "color": "#e15759",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -277,55 +373,127 @@
     {
       "id": "r-lane-north-garden",
       "color": "#e15759",
-      "name": "outside lane from the GARDEN to LEFT_WALL_NEAR",
+      "name": "outside lane from the GARDEN to LEFT_CLOSE_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 37.8,
-        "y": 130.7
-      },
-      "controlPoints": [
+      "kind": "compound",
+      "segments": [
         {
-          "x": 30,
-          "y": 30
-        },
-        {
-          "x": 29.5,
-          "y": 72
-        },
-        {
-          "x": 29,
-          "y": 108
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
+          "id": "r-lane-up-garden",
+          "color": "#b07aa1",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 36,
+            "y": 100
+          },
+          "controlPoints": [
             {
-              "startProgress": 0,
-              "endProgress": 0.6,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 295.5
-              }
+              "x": 30,
+              "y": 30
             },
             {
-              "startProgress": 0.6,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 295.5
-              }
+              "x": 28,
+              "y": 70
+            },
+            {
+              "x": 32,
+              "y": 92
             }
-          ]
+          ],
+          "heading": {
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.1,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 270,
+                    "endDeg": 180
+                  }
+                },
+                {
+                  "startProgress": 0.1,
+                  "endProgress": 0.2,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 180,
+                    "endDeg": 90
+                  }
+                },
+                {
+                  "startProgress": 0.2,
+                  "endProgress": 1,
+                  "interpolationType": "constant",
+                  "parameters": {
+                    "degrees": 90
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "r-lane-in-garden",
+          "color": "#edc948",
+          "name": "",
+          "locked": false,
+          "waitBeforeMs": 0,
+          "waitAfterMs": 0,
+          "waitBeforeName": "",
+          "waitAfterName": "",
+          "kind": "atomic",
+          "endPoint": {
+            "x": 59.9,
+            "y": 116.2
+          },
+          "controlPoints": [
+            {
+              "x": 40,
+              "y": 112
+            },
+            {
+              "x": 52,
+              "y": 114
+            }
+          ],
+          "heading": {
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.5,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 90,
+                    "endDeg": 0
+                  }
+                },
+                {
+                  "startProgress": 0.5,
+                  "endProgress": 1,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 360,
+                    "endDeg": 270
+                  }
+                }
+              ]
+            }
+          }
         }
-      }
+      ]
     },
     {
       "id": "r-scoring-flower",
@@ -341,16 +509,30 @@
         "x": 47.2,
         "y": 119.3
       },
-      "controlPoints": [
-        {
-          "x": 38,
-          "y": 119
-        }
-      ],
+      "controlPoints": [],
       "heading": {
-        "type": "linear",
-        "startDeg": 295.5,
-        "endDeg": 450
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.45,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.45,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -395,7 +577,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 450
+        "degrees": 90
       }
     },
     {
@@ -414,15 +596,35 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 270
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.4,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 450,
+                "endDeg": 360
+              }
+            },
+            {
+              "startProgress": 0.4,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 360,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "r-catch-park",
+      "id": "r-cross",
       "color": "#e15759",
-      "name": "catch park to RIGHT_PARK",
+      "name": "under the HIVE to RIGHT_CLOSE_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -431,33 +633,7 @@
       "kind": "compound",
       "segments": [
         {
-          "id": "r-catch-park-south",
-          "color": "#76b7b2",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 50,
-            "y": 98.7
-          },
-          "controlPoints": [
-            {
-              "x": 57,
-              "y": 106
-            }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 270,
-            "endDeg": 360
-          }
-        },
-        {
-          "id": "r-catch-park-in",
+          "id": "r-cross-south",
           "color": "#59a14f",
           "name": "",
           "locked": false,
@@ -467,46 +643,27 @@
           "waitAfterName": "",
           "kind": "atomic",
           "endPoint": {
-            "x": 14.5,
-            "y": 98.7
+            "x": 58.3,
+            "y": 41
           },
-          "controlPoints": [],
+          "controlPoints": [
+            {
+              "x": 58.8,
+              "y": 101.6
+            },
+            {
+              "x": 62,
+              "y": 71.9
+            }
+          ],
           "heading": {
             "type": "constant",
-            "degrees": 360
+            "degrees": 270
           }
-        }
-      ]
-    },
-    {
-      "id": "link-5",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.2,
-        "y": 119.3
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 450
-      }
-    },
-    {
-      "id": "r-cross",
-      "color": "#e15759",
-      "name": "back under the HIVE to RIGHT_CLOSE_HIVE",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "compound",
-      "segments": [
+        },
         {
-          "id": "r-cross-out",
-          "color": "#e15759",
+          "id": "r-cross-turn",
+          "color": "#9c755f",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -515,27 +672,19 @@
           "waitAfterName": "",
           "kind": "atomic",
           "endPoint": {
-            "x": 59,
-            "y": 97
+            "x": 57.2,
+            "y": 33
           },
-          "controlPoints": [
-            {
-              "x": 47.2,
-              "y": 108
-            },
-            {
-              "x": 58,
-              "y": 108
-            }
-          ],
+          "controlPoints": [],
           "heading": {
-            "type": "constant",
-            "degrees": 90
+            "type": "linear",
+            "startDeg": 270,
+            "endDeg": 90
           }
         },
         {
-          "id": "r-cross-south",
-          "color": "#f28e2b",
+          "id": "r-cross-aim",
+          "color": "#b07aa1",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -547,16 +696,7 @@
             "x": 56.1,
             "y": 25.3
           },
-          "controlPoints": [
-            {
-              "x": 59.5,
-              "y": 70
-            },
-            {
-              "x": 58,
-              "y": 45
-            }
-          ],
+          "controlPoints": [],
           "heading": {
             "type": "constant",
             "degrees": 90
@@ -577,7 +717,7 @@
       "segments": [
         {
           "id": "r-right-park-west",
-          "color": "#f28e2b",
+          "color": "#4e79a7",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -602,7 +742,7 @@
         },
         {
           "id": "r-right-park-lane",
-          "color": "#76b7b2",
+          "color": "#4e79a7",
           "name": "",
           "locked": false,
           "waitBeforeMs": 0,
@@ -668,11 +808,19 @@
     },
     {
       "kind": "path",
-      "lineId": "r-lane-north-flower"
+      "lineId": "r-lane-up-flower"
     },
     {
       "kind": "path",
-      "lineId": "r-left-park"
+      "lineId": "r-lane-in-flower"
+    },
+    {
+      "kind": "path",
+      "lineId": "r-catch-park-south"
+    },
+    {
+      "kind": "path",
+      "lineId": "r-catch-park-in"
     },
     {
       "kind": "path",
@@ -696,7 +844,11 @@
     },
     {
       "kind": "path",
-      "lineId": "r-lane-north-garden"
+      "lineId": "r-lane-up-garden"
+    },
+    {
+      "kind": "path",
+      "lineId": "r-lane-in-garden"
     },
     {
       "kind": "path",
@@ -716,23 +868,15 @@
     },
     {
       "kind": "path",
-      "lineId": "r-catch-park-south"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-catch-park-in"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-5"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-cross-out"
-    },
-    {
-      "kind": "path",
       "lineId": "r-cross-south"
+    },
+    {
+      "kind": "path",
+      "lineId": "r-cross-turn"
+    },
+    {
+      "kind": "path",
+      "lineId": "r-cross-aim"
     },
     {
       "kind": "path",
@@ -816,20 +960,15 @@
         22.1,
         270
       ],
-      "LEFT_WALL_NEAR": [
-        37.8,
-        130.7,
-        295.5
+      "LEFT_CLOSE_HIVE": [
+        59.9,
+        116.2,
+        270
       ],
       "SCORING_FLOWER_STAGING": [
         47.2,
         119.3,
         90
-      ],
-      "LEFT_CLOSE_HIVE": [
-        59.9,
-        116.2,
-        270
       ],
       "RIGHT_CLOSE_HIVE": [
         56.1,
@@ -844,17 +983,16 @@
     },
     "pathEnds": {
       "r-first-pickup-flower": "WALL_FLOWER_STAGING",
-      "r-lane-north-flower": "LEFT_WALL_NEAR",
+      "r-lane-in-flower": "LEFT_CLOSE_HIVE",
       "r-pickup-park-flower": "RIGHT_PARK",
       "r-first-pickup-garden": "GARDEN_STAGING",
       "r-pickup-park-turn-garden": "RIGHT_PARK",
-      "r-lane-north-garden": "LEFT_WALL_NEAR",
-      "r-left-park": "RIGHT_PARK",
+      "r-lane-in-garden": "LEFT_CLOSE_HIVE",
       "r-scoring-flower": "SCORING_FLOWER_STAGING",
       "r-flower-park": "RIGHT_PARK",
       "r-to-catch": "LEFT_CLOSE_HIVE",
       "r-catch-park-in": "RIGHT_PARK",
-      "r-cross-south": "RIGHT_CLOSE_HIVE",
+      "r-cross-aim": "RIGHT_CLOSE_HIVE",
       "r-right-park-lane": "RIGHT_PARK"
     },
     "cards": [
@@ -932,19 +1070,6 @@
         "label": "R2: LEFT up by 15.5 s, otherwise park",
         "rows": [
           {
-            "afterMs": 15500,
-            "matchClock": true,
-            "option": "T2 LEFT up by",
-            "cards": [
-              {
-                "id": "r-c-left-park",
-                "kind": "path",
-                "lineId": "r-left-park",
-                "park": true
-              }
-            ]
-          },
-          {
             "when": [
               "LeftCellUp"
             ],
@@ -958,17 +1083,16 @@
               {
                 "id": "r-gate-flower",
                 "kind": "firstOf",
-                "label": "Time for the scoring FLOWER: before 16.9 s",
+                "label": "Time for the scoring FLOWER: before 17.6 s",
                 "rows": [
                   {
-                    "afterMs": 16900,
+                    "afterMs": 17600,
                     "matchClock": true,
-                    "option": "TS scoring FLOWER by",
                     "cards": [
                       {
                         "id": "r-c-left-park-s",
                         "kind": "path",
-                        "lineId": "r-left-park",
+                        "lineId": "r-catch-park",
                         "park": true
                       }
                     ]
@@ -991,85 +1115,77 @@
                         "timeoutS": 4.5
                       },
                       {
-                        "id": "r-gate-cross",
+                        "id": "r-gate-left",
                         "kind": "firstOf",
-                        "label": "Time to cross for TIP 3: before 20.7 s",
+                        "label": "Time to look at the HIVE from the left: before 22.2 s",
                         "rows": [
                           {
-                            "afterMs": 20700,
+                            "afterMs": 22200,
                             "matchClock": true,
-                            "option": "T3c cross by",
                             "cards": [
                               {
-                                "id": "r-gate-left",
+                                "id": "r-c-flower-park",
+                                "kind": "path",
+                                "lineId": "r-flower-park",
+                                "park": true
+                              }
+                            ]
+                          },
+                          {
+                            "when": [
+                              "Always"
+                            ],
+                            "cards": [
+                              {
+                                "id": "r-c-catch",
+                                "kind": "path",
+                                "lineId": "r-to-catch",
+                                "park": false
+                              },
+                              {
+                                "id": "r-stop-3",
                                 "kind": "firstOf",
-                                "label": "Time to finish TIP 2 at LEFT: before 22.4 s",
+                                "label": "R3 RIGHT up by",
                                 "rows": [
                                   {
-                                    "afterMs": 22400,
-                                    "matchClock": true,
-                                    "option": "T3b LEFT rescue by",
-                                    "cards": [
-                                      {
-                                        "id": "r-c-flower-park",
-                                        "kind": "path",
-                                        "lineId": "r-flower-park",
-                                        "park": true
-                                      }
-                                    ]
-                                  },
-                                  {
                                     "when": [
-                                      "Always"
+                                      "RightCellUp"
                                     ],
                                     "cards": [
                                       {
-                                        "id": "r-c-catch",
-                                        "kind": "path",
-                                        "lineId": "r-to-catch",
-                                        "park": false
-                                      },
-                                      {
-                                        "id": "r-stop-3",
+                                        "id": "r-priority",
                                         "kind": "firstOf",
-                                        "label": "R3: RIGHT up by 23 s, otherwise finish TIP 2 at LEFT",
+                                        "label": "Priority: THREE_TIP or PARK",
                                         "rows": [
                                           {
-                                            "afterMs": 23000,
-                                            "matchClock": true,
-                                            "option": "T3 RIGHT up by",
+                                            "when": [
+                                              "Priority"
+                                            ],
+                                            "label": "THREE_TIP",
                                             "cards": [
                                               {
-                                                "id": "r-launch-left-again",
+                                                "id": "r-c-cross",
+                                                "kind": "path",
+                                                "lineId": "r-cross",
+                                                "park": false
+                                              },
+                                              {
+                                                "id": "r-launch-right",
                                                 "kind": "action",
                                                 "name": "LaunchAll",
                                                 "timeoutS": 1
                                               },
                                               {
-                                                "id": "r-hold-a",
-                                                "kind": "firstOf",
-                                                "label": "L has passed: park at 26.4 s",
-                                                "rows": [
-                                                  {
-                                                    "afterMs": 26400,
-                                                    "matchClock": true,
-                                                    "option": "TR park at",
-                                                    "cards": []
-                                                  }
-                                                ]
-                                              },
-                                              {
-                                                "id": "r-c-catch-park-a",
+                                                "id": "r-c-right-park",
                                                 "kind": "path",
-                                                "lineId": "r-catch-park",
+                                                "lineId": "r-right-park",
                                                 "park": true
                                               }
                                             ]
                                           },
                                           {
-                                            "when": [
-                                              "RightCellUp"
-                                            ],
+                                            "afterMs": 0,
+                                            "label": "PARK",
                                             "cards": [
                                               {
                                                 "id": "r-hold-c",
@@ -1079,7 +1195,6 @@
                                                   {
                                                     "afterMs": 26400,
                                                     "matchClock": true,
-                                                    "option": "TR park at",
                                                     "cards": []
                                                   }
                                                 ]
@@ -1093,90 +1208,43 @@
                                             ]
                                           }
                                         ],
-                                        "shot": true
-                                      }
-                                    ]
-                                  }
-                                ]
-                              }
-                            ]
-                          },
-                          {
-                            "when": [
-                              "Always"
-                            ],
-                            "cards": [
-                              {
-                                "id": "r-c-cross",
-                                "kind": "path",
-                                "lineId": "r-cross",
-                                "park": false
-                              },
-                              {
-                                "id": "r-stop-3r",
-                                "kind": "firstOf",
-                                "label": "R3: RIGHT up by 23.5 s at the right spot, otherwise park",
-                                "rows": [
-                                  {
-                                    "afterMs": 23500,
-                                    "matchClock": true,
-                                    "option": "T3r RIGHT up by, at the right spot",
-                                    "cards": [
-                                      {
-                                        "id": "r-hold-right-no",
-                                        "kind": "firstOf",
-                                        "label": "L has left for its park: park at 25 s",
-                                        "rows": [
-                                          {
-                                            "afterMs": 25000,
-                                            "matchClock": true,
-                                            "option": "TRr park from the right at",
-                                            "cards": []
-                                          }
-                                        ]
-                                      },
-                                      {
-                                        "id": "r-c-right-park-no",
-                                        "kind": "path",
-                                        "lineId": "r-right-park",
-                                        "park": true
+                                        "choice": "Priority"
                                       }
                                     ]
                                   },
                                   {
-                                    "when": [
-                                      "RightCellUp"
-                                    ],
+                                    "afterMs": 23200,
+                                    "matchClock": true,
+                                    "adjustable": true,
+                                    "tip": 2,
                                     "cards": [
                                       {
-                                        "id": "r-launch-right",
+                                        "id": "r-launch-left-again",
                                         "kind": "action",
                                         "name": "LaunchAll",
                                         "timeoutS": 1
                                       },
                                       {
-                                        "id": "r-hold-right-yes",
+                                        "id": "r-hold-a",
                                         "kind": "firstOf",
-                                        "label": "L has left for its park: park at 25 s",
+                                        "label": "L has passed: park at 26.4 s",
                                         "rows": [
                                           {
-                                            "afterMs": 25000,
+                                            "afterMs": 26400,
                                             "matchClock": true,
-                                            "option": "TRr park from the right at",
                                             "cards": []
                                           }
                                         ]
                                       },
                                       {
-                                        "id": "r-c-right-park",
+                                        "id": "r-c-catch-park-a",
                                         "kind": "path",
-                                        "lineId": "r-right-park",
+                                        "lineId": "r-catch-park",
                                         "park": true
                                       }
                                     ]
                                   }
-                                ],
-                                "shot": true
+                                ]
                               }
                             ]
                           }
@@ -1187,9 +1255,20 @@
                 ]
               }
             ]
+          },
+          {
+            "afterMs": 15500,
+            "matchClock": true,
+            "cards": [
+              {
+                "id": "r-c-left-park",
+                "kind": "path",
+                "lineId": "r-catch-park",
+                "park": true
+              }
+            ]
           }
-        ],
-        "shot": true
+        ]
       }
     ],
     "startAt": "RIGHT_START",
@@ -1197,25 +1276,16 @@
       "link-1",
       "link-2",
       "link-3",
-      "link-4",
-      "link-5"
+      "link-4"
     ],
     "parkFrom": {
       "r-c-pickup-flower": "r-pickup-park-flower",
-      "r-c-lane-flower": "r-left-park",
+      "r-c-lane-flower": "r-catch-park",
       "r-c-pickup-garden": "r-pickup-park-garden",
-      "r-c-lane-garden": "r-left-park",
+      "r-c-lane-garden": "r-catch-park",
       "r-c-flower": "r-flower-park",
       "r-c-catch": "r-catch-park",
       "r-c-cross": "r-right-park"
-    },
-    "partner": {
-      "auto": "L-Clockwise",
-      "follows": "Pickup",
-      "settings": [
-        "GARDEN",
-        "WALL_FLOWER"
-      ]
     },
     "exportName": "R-Clockwise"
   }

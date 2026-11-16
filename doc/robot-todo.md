@@ -26,7 +26,7 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
    Visualizer. Then test CELL-up recognition, the two LEFT volleys, the scoring FLOWER
    pickup, and park, including a partner that never makes TIP 1.
    **Partner wait:** drawn to give up at 9 s (was 8.5), and the INIT line reads "waiting for
-   partner's TIP until 9 s"; D-pad left and right move that second. In the run with a partner that
+   TIP 1 until 9 s"; D-pad left and right move that second. In the run with a partner that
    never makes TIP 1, check the no-TIP route still parks in time, starting half a second later.
 2. **R-NoCross** (formerly R-Partner-Tip). Qualify the right-side actions, then run it
    together with L-NoCross as the coordinated two-TIP baseline. Its CELL-up wait runs
@@ -203,24 +203,26 @@ Result, with the gap on each own-start run, → [PR #372].
 
 - [ ] **INIT menu, L-NoCross on Red far wall:** gamepad 1 D-pad right three times (its one row,
       the partner wait, is selected).
-      **Good:** one line `▶ waiting for partner's TIP ◀▶ until 12 s`, amber; left three times
+      **Good:** one line `▶ waiting for TIP 1 ◀▶ until 12 s`, amber; left three times
       turns it back green, as drawn (until 9 s); D-pad up and down change
       nothing (one row); nothing else on the robot reacts to gamepad 1's D-pad
       in INIT. **Stop:** the line does not change, or something else moves → save the match log.
       [PR #391]; the menu is the Clockwise PR's.
 - [ ] **INIT menu, R-Clockwise on Red audience, then L-Clockwise on Red far wall** (INIT only).
-      **Good:** `▶ Pickup ◀▶: WALL_FLOWER · ▲▼ row 1 of 8` (L: `GARDEN`, `row 1 of 6`), then
-      `Partner runs L-Clockwise: Pickup GARDEN · Shot trigger CAMERA`, then every row's value in small
-      print. D-pad down walks the rows and wraps; right on Pickup shows GARDEN and the partner line
-      changes to `Pickup WALL_FLOWER`; right on a time adds 0.5 s; everything changed is amber and bold.
-      Read the two robots' pages to each other: each partner line matches the other's rows. With
-      warnings filling the page the list goes first, then the partner line, and the selected row stays.
+      **Good:** R shows three rows (waiting for TIP 2 until 23.2 s, Pickup WALL_FLOWER,
+      Priority THREE_TIP), L two (waiting for TIP 1 until 9.5 s, Pickup GARDEN). D-pad down walks the rows and wraps;
+      right on Pickup shows the other pickup; right on the time adds 1 s; everything changed is amber
+      and bold. Read the two robots' Pickup rows to each other: WALL_FLOWER pairs with GARDEN.
+      The page lists every row on its own line with `▶` at the selected one, which also shows
+      `◀▶`; no line wraps. On 14 Nov 2026 the page showed only the
+      selected row, ending `· ▲▼ row 1 of 3`, which wrapped and confused the drive team.
+      **Stop:** a line wraps, or the pointer does not follow D-pad up and down → photograph it.
       **Stop:** a row does not change, or the two pages disagree → photograph both screens. **Not yet seen on a robot:** at Belding every L-NoCross wait gave up at the drawn
       8.0 s, and no log can say what INIT showed (the next item). Show the drive team the line too.
 - [ ] **The chosen INIT options reach the match log** (same run: set the wait to 12 s,
       PLAY, let it run a few seconds, STOP). Belding's logs lost every `AutoOptions` line: PLAY
       wrote 160 tunables into a 160-slot loop. **Good:** `read_logs.py series <log>
-      /RealMetadata/AutoOptions` prints `… waiting for partner's TIP until 12 s (drawn 9 s)`, and
+      /RealMetadata/AutoOptions` prints `… waiting for TIP 1 until 12 s (drawn 9 s)`, and
       the log's last events have no `metadata lines` drop. **Stop:** it is missing → save the log.
       [PR #529](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/529)
 - [ ] **INIT with the Limelight unplugged** (the warning line itself was logged 4 Nov 00:43; what is
@@ -415,15 +417,14 @@ Use the work order above to select checks; the detailed mechanism checks below a
       [S5 seam §4], [PR #378]
       Belding (24, master's value since 5 Nov): WALL 0.62–0.73 s in 11 Auto picks (4 reach 0.7), FAR
       0.94–1.29 s; on video the WALL stick lands 0.2–0.4 s before the stop, touching nothing seen.
-- [ ] **Time GARDEN gathers as the code runs them now** (R-NoCross and L-UnderHive or L-Clockwise
-      with Pickup GARDEN, GARDEN loaded with its 4 POLLEN, two runs each; count the pieces left in
-      the GARDEN by eye after each). Nine Auto gathers are logged (3 to 7 Nov, both robots): 4.13
-      to 4.76 s with the old 1.5 s dwell, 0 to 2 pieces each. None is logged with the 0.4 s dwell,
-      so `AutoRegistration.GARDEN_GATHER_TYPICAL_S` 4.0 is the logged phases added up, not a run.
-      **Good:** every `Last GARDEN gather: N s` line is under 4.0 (about 3.1 on R-NoCross, about
-      2.5 where the stick came down on the drive in). **Stop:** one over 4.0 → write the line down
-      and raise the number to cover it. Say how many pieces each gather left behind. [S5],
-      [PR #384], [PR #378], [PR #422]
+- [ ] **Time GARDEN gathers in Autos** (R-NoCross and L-UnderHive or L-Clockwise with Pickup
+      GARDEN, GARDEN loaded with its 4 POLLEN, two runs each; count the next volley). Ten Auto
+      gathers are logged. Nine (3 to 7 Nov) had the old 1.5 s dwell: 4.13 to 4.76 s. One (14 Nov,
+      20245, R-NoCross on blue) had today's values: 3.15 s. So
+      `AutoRegistration.GARDEN_GATHER_TYPICAL_S` 4.0 rests on one run and the button gathers'
+      phases. **Good:** every `Last GARDEN gather: N s` line is under 4.0 (about 3.1 where the card
+      lowers the stick, about 2.5 where the drive in did). **Stop:** one over 4.0 → write the line
+      down and raise the number to cover it. [S5], [PR #384], [PR #378], [PR #422], [PR #553]
 - [ ] **GARDEN gather, stick down on the drive in (13 Nov; never run):** spotter at the GARDEN
       corner watching the stick and both walls, L-UnderHive or L-Clockwise with Pickup GARDEN (they
       arrive facing the GARDEN), then R-NoCross (it turns half a turn evenly on its way in). The
@@ -566,13 +567,13 @@ Use the work order above to select checks; the detailed mechanism checks below a
 
 - [ ] **Clockwise pair: R-Clockwise beside L-Clockwise.**
       [The plan, the stops, the times and the simulator's tables](../TeamCode/autos/clockwise.md). Not yet
-      driven; Infraviolet stays on the menu until this has on both robots. Run with the DS AUTO
-      timer on. Every volley is from a spot the drivers' Square or Triangle goes to, and the guard
+      driven as a pair; Infraviolet is on the Utility menu (Drive: R-Infraviolet, Drive: L-Infraviolet). Run with the DS AUTO
+      timer on. Every volley is from a spot the drivers' Square goes to, and the guard
       plans a volley at 2.5 s (4.0 until 12 Nov), for every Auto. In this order, since each step
       decides whether the next is worth running:
       - **Volleys from the six launch spots, in TeleOp first:** eight pieces each from
         RIGHT_START, LEFT_WALL_HIVE, LEFT_WALL_NEAR and RIGHT_WALL_NEAR (hold Square; about 50 in)
-        and from RIGHT_CLOSE_HIVE and LEFT_CLOSE_HIVE (hold Triangle; about 32 in), counted on
+        and from RIGHT_CLOSE_HIVE and LEFT_CLOSE_HIVE (hold Square from the middle tile row in front of them; about 32 in), counted on
         video. **Good:** 7 or 8 of 8 stay in from each. **Stop:** a spot holds fewer → note which
         and by how much; the pair shoots from all six.
       - **How long a volley really is**, from `read_logs.py steps` on every Auto run tonight:
@@ -581,13 +582,13 @@ Use the work order above to select checks; the detailed mechanism checks below a
         its 3.5 s) → `AutoRegistration.LAUNCH_ALL_TYPICAL_S` and `LAUNCH_ALL_LAST_PIECE_S` go back
         up, or a late volley eats the park in every Auto.
       - **Each robot alone, HIVE in place, no partner, the new paths:** R's outside lane from the
-        WALL FLOWER and from the GARDEN onto LEFT_WALL_NEAR (a corner touches the far wall, the
-        SCORING FLOWER beside it); LEFT_WALL_NEAR to the SCORING FLOWER; back under the HIVE from
-        the SCORING FLOWER to RIGHT_CLOSE_HIVE (no turn); the outside lane from there to
-        RIGHT_PARK; the half turn from the SCORING FLOWER to LEFT_CLOSE_HIVE and the park from
-        there (set T3c to 0 in INIT to make it run). L's 2.4 in
+        WALL FLOWER and from the GARDEN onto LEFT_CLOSE_HIVE (in front of the HIVE, on L's road:
+        L must be gone); LEFT_CLOSE_HIVE to the SCORING FLOWER; back under the HIVE from
+        the half turn from the SCORING FLOWER to LEFT_CLOSE_HIVE and the park from there; and
+        from LEFT_CLOSE_HIVE under the HIVE nose-first to RIGHT_CLOSE_HIVE (it turns to the HIVE
+        after it is out from under it) and the outside lane from there. L's 2.4 in
         slide to LEFT_WALL_HIVE; under the HIVE to RIGHT_START and its park from there; under the
-        HIVE to the GARDEN and on to RIGHT_WALL_NEAR; under the HIVE to the lane's end and on to
+        HIVE to the GARDEN and on to RIGHT_WALL_NEAR; under the HIVE to LANE_END and on to
         WALL_FLOWER_STAGING (it turns west just past the end of the HIVE's foot bar: watch that
         corner), and the FLOWER to RIGHT_WALL_NEAR. **Good:** no touch of the HIVE's feet, a
         FLOWER or a wall but at the spot itself; write each drive's seconds beside the drawn
@@ -596,16 +597,18 @@ Use the work order above to select checks; the detailed mechanism checks below a
         rolling (a path card never settles). **Good:** the launch starts within about 0.5 s of
         arriving and the pose has not jumped. **Stop:** the robot bounces off or the Pinpoint
         faults → note the speed it arrived at.
-      - **Backward and turning with a load.** Four POLLEN in the lane: R up the outside lane onto
-        LEFT_WALL_NEAR, and back from SCORING_FLOWER_STAGING under the HIVE to RIGHT_CLOSE_HIVE; L
-        from GARDEN_STAGING to RIGHT_WALL_NEAR (it turns 157° as it drives, with no loop back to
-        the audience wall), at Auto speed. **Good:** four still in the lane at each end, five runs of each. **Stop:** a
-        piece leaves → note where on the path, and whether braking or the turn did it.
+      - **Turning with a load.** On 12 Nov (20245) pieces left the intake on both backward legs;
+        every loaded leg is now nose-first. Four POLLEN in the lane: R from the WALL FLOWER up the
+        outside lane onto LEFT_CLOSE_HIVE (it turns north at once, then round to aim), R from the
+        SCORING FLOWER to LEFT_CLOSE_HIVE (a half turn in 13 in), and L from GARDEN_STAGING and
+        from the WALL FLOWER to RIGHT_WALL_NEAR, at Auto speed. **Good:** four still in the lane
+        at each end, five runs of each. **Stop:** a piece leaves → note where on the path, and
+        whether braking or the turn did it.
       - **The two parks, both robots.** RIGHT_PARK and LEFT_PARK leave 2.7 in between parked
         robots. Park R first, then run L's park; then the other order. **Good:** neither touches
         the other coming in (L turns east of the park zone and drives straight in; R comes in
         along RIGHT_PARK's own line). **Stop:** a touch → note which robot was moving and where.
-      - **R's view of the HIVE at each stop:** `LeftCellUp` on LEFT_WALL_NEAR (295.5°),
+      - **R's view of the HIVE at each stop:** `LeftCellUp` on LEFT_CLOSE_HIVE (270°),
         `RightCellUp` at RIGHT_CLOSE_HIVE having backed in (90°), and `RightCellUp` from
         LEFT_CLOSE_HIVE (270°). L: `LeftCellUp` on LEFT_WALL_HIVE and `RightCellUp` on
         RIGHT_WALL_NEAR (66.9°). **Good:** each within 0.3 s of arriving with that CELL up.
@@ -619,23 +622,25 @@ Use the work order above to select checks; the detailed mechanism checks below a
         does → write the seconds and where; the waits change in the Visualizer.
       - **The times, from `read_logs.py steps` on each run's log:** `LeftCellUp` for L (T1
         9.5 s; the Belding films have it as late as 9.98 s, so expect to raise it); R on
-        LEFT_WALL_NEAR and its volley's end (T2 15.5 s, TS 16.9 s; drawn 12.0 and 15.8 s); R's
-        SCORING FLOWER pick's end (T3c 20.7 s, T3b 22.4 s; drawn 20.1 s, so R crosses); R at
-        RIGHT_CLOSE_HIVE (T3r 23.5 s; drawn 22.9 s); L on RIGHT_WALL_NEAR (T4 20.6 s) and each robot parked (TL 22.7 s). **Good:**
+        LEFT_CLOSE_HIVE and its volley's end (T2 15.5 s, TS 17.6 s; drawn 13.2 and 17.0 s); R's
+        SCORING FLOWER pick's end (T3b 22.2 s; drawn 21.3 s); R at LEFT_CLOSE_HIVE (T3 23.2 s; drawn 23.1 s); L on
+        RIGHT_WALL_NEAR (T4 22 s) and each robot parked (TL 22.7 s). **Good:**
         each within 0.5 s of the drawn. Otherwise set the row in INIT for the next run and write
         the measured value on the PR; the drawn values change only in the Visualizer.
-      - **The crossing and the rescue, both robots, with a spotter at each end:** as drawn R
-        crosses, asks at RIGHT_CLOSE_HIVE until 23.5 s (T3r) and does not leave before 25.0 s
-        (TRr); with T3c at 0 it goes to LEFT_CLOSE_HIVE, shoots, and parks at 26.4 s (TR). **Stop
-        the run by hand** if L is still on RIGHT_WALL_NEAR or low in the lane when R leaves
-        RIGHT_CLOSE_HIVE, or still in the lane when R leaves LEFT_CLOSE_HIVE. Watch for R backing
-        into pieces falling from TIP 2 (in the simulator, 2 to 5 runs in 24): write when the
-        last piece landed and when R went under.
+      - **The look, and the Priority row.** After the SCORING FLOWER R turns to LEFT_CLOSE_HIVE and
+        asks for RIGHT up until 23.2 s. With L's preloads and R's first load in LEFT (TIP 2 comes):
+        on Priority THREE_TIP R goes under the HIVE nose-first and shoots at RIGHT, and is not
+        parked at 30 s; on PARK it waits to 26.4 s and parks with its load. With TIP 2 held back
+        (hold L's preloads): R shoots at LEFT and parks. **Good:** the trace shows the row taken,
+        the last ball at RIGHT leaves before 30 s on the DS timer, and the robot is off the walls
+        when AUTO ends. **Stop the run by hand** if L is still in the lane when R leaves
+        LEFT_CLOSE_HIVE for its park. Write when R reached LEFT_CLOSE_HIVE, when `RightCellUp`
+        fired, and when its last ball left: T3 (23.2 s) and T3b (22.2 s) are set from the simulator.
       - **The fallbacks, on purpose, both robots:** hold R's preloads back (L1 "no": at 9.5 s L
         crosses, shoots from RIGHT_START and parks at 22.5 s; R parks at 15.5 s with its load),
         then L's. **Good:** the trace shows those rows, and both robots park.
       - **The other pickup:** Pickup GARDEN on R and WALL_FLOWER on L. **Good:** L stands at the
-        lane's end until 15.5 s (TF) and R has passed the WALL FLOWER by then.
+        LANE_END until 15.5 s (TF) and R has passed the WALL FLOWER by then.
       - **Shot trigger TIMER on both,** with T1 8 and T2 13 set in INIT, the camera covered.
         **Good:** each stop shoots at its time; nothing waits on the HIVE.
 - [ ] **Drive times for the planning numbers** ([#504], the Belding timing analysis): a Utility
@@ -669,6 +674,11 @@ Use the work order above to select checks; the detailed mechanism checks below a
         from the left spot (expected today); before 15.5 s it goes on to the SCORING FLOWER and R5.
       - **Both together,** four preloads each. Count the pieces that stay in from L4 (L's preloads)
         and from the same spot by R (its WALL FLOWER load), and the TIPs.
+      - **The Pickup row:** in INIT each trial shows `▶ Pickup ◀▶: WALL_FLOWER` (R) or `GARDEN` (L);
+        D-pad left and right change it and the line turns amber. **Leave both as drawn.** The swap
+        (R `GARDEN`, L `WALL_FLOWER`) waits on a quicker GARDEN gather: the robots meet at the south
+        end. To try it, run R alone on `GARDEN` first and note the second it leaves the corner.
+        **Good:** by about 9.5 s. Later → do not run the swap as a pair.
       - **Does R keep its four going up the lane?** It drives intake first now, turning to the
         HIVE only at the end. Count what its LEFT volley fires. **Good:** 4. **Stop:** 3 → note
         where the ball left (the film), and whether it was in the last turn into the spot.
@@ -746,6 +756,71 @@ measurement is [#255].
       `/Intake/TicksPerSecond` and `/Intake/CurrentAmps` at that moment. The 0.25 s (`wedgeBackMs`)
       is a guess: write back what frees a pair without throwing it. This is the code half of the
       fix list's "stop two pieces wedging"; the guide or sprung wall at the pinch is still open.
+- [ ] **FLOWER pick: a 1 s dwell, ten picks on 20245 first** (Panels `FlowerPicker.dwellMs` 1000,
+      from 2000; a number, no code; `routine` MASTER). Do this before the three-routines line
+      below if PR #550 is not on the robot yet: it is the cheap way to a faster pick, and the
+      biggest single part of what `FAST` does. Why: of a Belding Auto pick's 3.6 s (median 3.68, 23
+      picks, match logs), 2.0 s is the dwell, and on 20245 it is mostly waiting: the FLOWER is empty
+      within about 0.8 s of contact (Q-27, film) and the 4th piece comes in as the robot backs out;
+      of the pieces that do arrive in a dwell, half are in by 0.5 s after contact and nine in ten
+      by 1.4 s (78 Auto picks, intake current). So a 1.0 s cap gives up some late pieces: that is
+      what this counts. Expected pick: about 2.6 s.
+      *Setup:* as the line below (empty lane, 4 POLLEN in the FLOWER, reload every pick). R-Solo
+      from the Red audience marks, five runs, so five picks at the WALL FLOWER and five at the
+      SCORING FLOWER; the last five runs at 2000 on the same night are the baseline if there is no
+      20-pick baseline yet.
+      *Write down, per pick:* pieces the next volley fired (by eye or phone; `read_logs.py steps`
+      for the wheel-dip count, never the lane count or the shot counter), pick time (`Last FLOWER
+      pick: N s`), how the dwell ended (`DWELL N s (dwellMs)` or `(full)`), and pieces left on the
+      floor or in the FLOWER.
+      **Good:** 4 fired from at least 9 of the 10, nothing left behind, pick time about 1 s under
+      the 2000 runs → go on to 20 at each FLOWER (18 of 20), then write 1000 into `FlowerPicker`,
+      re-measure `AutoRegistration.PICK_FLOWER_TYPICAL_S`, and tell whoever owns the Autos that
+      each pick is about 1 s shorter. **Stop:** 3 or fewer from more than one pick → try 1400 (the
+      nine-in-ten mark), ten more; still short → leave 2000 and say so here. On 19429 only after its
+      stick check (§7): its dwell brought nothing in 7 of 13 Belding picks, so a shorter one loses
+      little there but proves nothing either.
+- [ ] **FLOWER pick: three routines, 20 picks at each FLOWER on each robot** (Panels
+      `FlowerPicker.routine`: `MASTER`, the default and the Belding pick; `FAST`; `MULTI_PUSH`;
+      PR #550). The pick's start line in the match log names the routine.
+      Where a Belding pick's 3.66 s went (median, 25 Auto picks, both robots, match logs): waiting
+      to slow after the drive in 0.13 · push moving 0.66 (8.8 in) · push stopped before the stall is
+      called 0.27 · dwell 2.01 · back-out 0.63 (9.7 in; 6 in at 0.44).
+      `FAST` takes the waiting out: no wait to slow, the dwell is 1.0 s from contact, and the pick
+      ends 6 in into the back-out, still rolling, the stick lifting on its own once clear.
+      **Expected about 2.2 s**, 1.5 s under MASTER. `MULTI_PUSH` is FAST with two pushes: dwell
+      0.6 s, back off 3 in with the stick down and the intake on, push again, dwell at most 0.5 s.
+      **Expected about 3.0 s.** Why two pushes: at Belding the last piece came in as the robot
+      backed off, not in the dwell (20245: 0.1 to 0.4 s into the back-out in 6 of 10 match Auto
+      picks, the FLOWER empty within about 0.8 s of contact on Q-27's film; 19429: nothing in the
+      dwell in 7 of 13, a piece 0.6 to 0.7 s into the back-out in 11, the POLLEN still in the
+      FLOWER through the dwell on Q-13's film). Neither expected time has been run on a robot.
+      *Setup:* an empty lane before every pick, 4 POLLEN in the FLOWER, someone to reload. R-Solo
+      from the Red audience marks, 10 runs per robot per routine (10 picks at each FLOWER), then 10
+      more at each FLOWER in Basic Drive with the pick button held to the end, firing every load
+      before the next pick. MASTER first: it is the baseline, and nobody has counted 20 on either
+      robot. Five picks of a new routine before committing to its 20.
+      *Write down, per pick:* **pieces the next volley fired** (count the balls leaving, by eye or
+      phone; `read_logs.py steps` gives the wheel-dip count, never the lane count or the shot
+      counter); **pick time** (`Last FLOWER pick: N s`); **stall depth** of each push (`IN … (stalled
+      N in short)`); pieces left on the floor or in the FLOWER; for MULTI_PUSH the `BACK_OFF N s`
+      line (0.6 is its timeout).
+      *Watch, on FAST and MULTI_PUSH, the hand-over:* the Auto's next drive starts with the robot
+      about 3 to 4 in short of the staging spot and still rolling back. **Good:** it flows into the
+      drive, no swerve, and the stick is out of the FLOWER before the robot turns or strafes.
+      **Stop:** the stick drags on the FLOWER or the drive hooks → `handOverBackIn` 0 (backs all the
+      way, as MASTER) and say so here. Lower than 6 only after the stick's reach is measured
+      (§4, "Touch point and stick reach").
+      **Good:** `FAST`: 4 fired from at least 18 of 20 at each FLOWER, no worse than that robot's
+      MASTER count, pick time at least 1 s under MASTER's. `MULTI_PUSH`: 4 from at least 18 of 20,
+      more often than MASTER and FAST on that robot, pick time no more than MASTER's. Then set the
+      winner as `routine`'s default, re-measure `AutoRegistration.PICK_FLOWER_TYPICAL_S` (4.0 is
+      MASTER's), replace `MULTI_PUSH_MOVE_MS` (0.65 s, an estimate) from the logs, and tell whoever
+      owns the Autos how much shorter a pick is. **Stop:** FAST loses a piece MASTER gets →
+      `fastDwellMs` 1400, ten more; the push goes in crooked → `fastSettledInPerSec` 8; MULTI_PUSH's
+      second push knocks a piece away or wedges one at the mouth → `multiBackOffIn` 2, then 5, five
+      picks each. If a routine is no better than MASTER on a robot, leave MASTER and say so here
+      (on 19429 see its stick check in §7 first).
 - [ ] **Let go mid-push, then mid-dwell.** **Good:** mid-dwell backs out, stick up once ~18 in clear;
       operator Square while waiting raises it at once. [PR #273], [PR #280]
 - [ ] **GARDEN into the corner,** driver Triangle near the red GARDEN, three times. **Good:** pressed
@@ -800,6 +875,13 @@ measurement is [#255].
       toggle up, FIRE, toggle down, as before. **Stop:** a toggle press during Square idles the
       launcher, FIRE feeds before arrival, or the launcher keeps spinning after Square is let go
       → run `Belding`'s Basic Drive and tell a mentor.
+- [ ] **Match page: loop time and Pinpoint lines (mentor, 14 Nov 2026):** Basic Drive, Match page.
+      **Good:** under `N PIECES`, two more huge lines: `LOOP 21 ms` (whole milliseconds, the last
+      loop) and `PINPOINT OK` in green. Unplug the Pinpoint's cable for a second and plug it back:
+      `PINPOINT LOST` in red, then `PINPOINT CHECK` in amber until a corner or camera reset, then
+      `PINPOINT 1 FAULT` in amber for the rest of the OpMode. All five lines and an alert fit the
+      screen with none cut off. **Stop:** a line is cut off at the bottom, or the Pinpoint line
+      stays green through the unplug → photograph the screen and save the match log.
 - [ ] **Operator's glance page, trim rumble, D-pad trim reset, no intake toggle (`belding-plus`,
       7 Nov):** Basic Drive, Match page, read from the operator's seat and from the coach's spot.
       **Good:** under the header and the alliance line, three lines in text about twice ordinary
@@ -807,7 +889,7 @@ measurement is [#255].
       `N PIECES`, green while the sensor sees the lane full; a fourth, amber, only when
       something is wrong (`INTAKE OFF`, `ROBOT-CENTRIC`, `SQUARE REFUSED` while Square is held,
       `FLOWER STICK OUT`, `NO PINPOINT`). Everything else is on the Robot page (Share twice).
-      Operator R1: `TRIM +25` in amber and one rumble blip; L1: two blips; D-pad down: back to
+      Operator R1: `TRIM +25` in green and one rumble blip; L1: `TRIM -25` in red, two blips; D-pad down: back to
       `TRIM 0` with a long buzz. The intake runs from PLAY with nobody touching R2, and no R2 press
       on either pad stops it; with `TeleOpConfig.intakeAlwaysOn` off it runs only while R2 is held.
       Note every green count under 4 (`3 PIECES` in green): that is the tracker missing a piece.
@@ -827,50 +909,31 @@ measurement is [#255].
       third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
       **Stop:** R-Solo parks instead of its third volley every run → note the time it gave and tell a
       mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
-- [ ] **GARDEN gather: film what the pieces do, first (decides the corral sequence):** TeleOp
-      gather button, GARDEN loaded with 4 POLLEN, phone filming from above and from the side, 5
-      gathers, reloading each time; then fire and count the volley. What is known: the stick is
-      the ramp the pieces pop over on the drive in (mentor, 13 Nov: three come over, the corner
-      one is a mechanical fix in progress), and it rests on the audience wall with the robot's
-      centre about 13.1 in out (32 of 36 logged gathers). Yet the nine Auto gathers fired only 0
-      to 2 in their next volley, and the lane count often rose seconds after the gather ended. So
-      pieces come over the ramp and do not get on into the intake before it lifts: there is no drop
-      to carry them, as a FLOWER has. Write down, per gather: how many come over the ramp, where
-      they sit when the robot starts back, how many are in the robot when the stick rises (today:
-      0.25 s after the back out stops, `raiseAfterStopMs`), and how many fall out as it rises.
-      **Good:** the film shows where the pieces are lost, and that names the move to add (a hard
-      stop at the end of the back out, a longer hold before the stick rises, or a short push
-      forward again). **Stop:** fewer than 3 come over the ramp → that is
-      the drive in or the mechanism, not the back out; tell a mentor before tuning a sequence.
-- [ ] **GARDEN gather styles (13 Nov; none has been run):** same setup as the film above, Panels
-      → TeleOpConfig → `gardenGatherStyle`, 3 gathers per style, GARDEN reloaded each time, fire
-      and count the volley after each. The gather's start line in the log says the style.
-      CLASSIC: back out, ease to a stop, stick up 0.25 s later. HARD_STOP: straight back 5 in at
-      0.6 power with no ramp, a dead stop, a 0.3 s stand, then the drive back
-      (`GardenGather.hardStopBackIn`, `hardStopPower`, `hardStopHoldMs`). HARD_STOP_PUSH: the same,
-      then 0.3 s forward again at 0.3 (`rePushMs`, `rePushPower`). LONG_HOLD: CLASSIC, then a
-      0.7 s stand before the stick comes up (`longHoldMs`). (The twist against the wall is gone,
-      13 Nov: it turns the stick into the wall.)
-      **Good:** one style puts 3 (4 with the corner fix) in the volley three times running, in
-      under 4.0 s (`Last GARDEN gather: N s`) → write it into `TeleOpConfig.gardenGatherStyle`,
-      with the numbers that worked, and try it once in an Auto. **Stop:** the dead stop is soft
-      (the robot coasts) → say so: the drive motors may not brake at zero power, and the style
-      needs a reverse pulse instead. A style over 4.0 s → raise
-      `AutoRegistration.GARDEN_GATHER_TYPICAL_S` to cover it before it runs in an Auto.
-- [ ] **GARDEN gather, the smaller knobs (after the film above, same setup):** one at a
-      time, 3 gathers each, counting pieces. (a) `stallMs` 150: the robot has stopped 0.27 to 0.47 s
-      (median 0.36) before the stall rule ends the drive in; 150 should take 0.1 s off. **Stop:**
-      a drive in that ends before the robot reaches the corner → back to 250. (b) `dwellMs` 200
-      and 800 against 400: in the logs a piece that came in was counted 0.25 to 0.5 s after the
-      robot stopped and the 1.5 s dwell brought no more than the 0.4 s one, but no gather had a
-      loaded GARDEN on film. Keep the shortest that loses no piece. (c) `inSpeed` is not worth
-      trying: the 9 in drive in peaks at 11 to 25 in/s, under its cap, and takes 0.8 to 1.1 s
-      either way. (d) With 3 pieces already in the lane, gather a fourth and watch the back out
-      (mentor, 13 Nov: the fourth ball rides on the floor at the front and backing up can let it
-      squirt out). Three logged gathers started with 3; one brought a fourth in and kept it through
-      a 7 in back out, by the lane count. **Stop:** the fourth is left on the floor twice → tell a
-      mentor: the gather then needs to turn out rather than back out, which changes where its card
-      ends and so the Autos' drawings.
+- [ ] **GARDEN gather, the stick's wait (button, GARDEN loaded, Panels → GardenGather):** on 14
+      Nov the robot still stood 0.20 to 0.71 s after its line-up waiting for the stick (34
+      gathers): about 0.47 s when the stick came down 6 in from the line-up, about 0.38 s at 10 in
+      (`lowerWithinIn`). Two numbers to try, one at a time, 4 gathers each, a spotter on the stick:
+      (a) `stickDownMs` 500 (700 now). The FLOWER films show the stick landing 0.2 to 0.4 s before
+      the stop when it was lowered 0.62 to 0.73 s before it, so the swing takes about 0.3 to 0.5 s.
+      **Good:** the stick is down and still before the robot moves in, and `PREP` in the log is
+      0.2 s shorter. **Stop:** the robot drives in with the stick still swinging → back to 700.
+      (b) `lowerWithinIn` 16 (10 now), with `lowerWithinDeg` as it is. **Good:** `PREP 0.1 s` or
+      less and no stick on a wall. **Stop:** the stick touches the side wall → back to 10.
+- [ ] **GARDEN gather, the back out that stalls short (14 Nov; `backStallMs` never run):** twice on
+      19429, with the battery sagging to 8 V, the back out stopped about an inch short of where it
+      started and crept there, 2.4 and 3.7 s against 0.6 to 0.85 s for the other 30. The back out
+      now ends once it has got no closer for 0.4 s (`GardenGather.backStallMs`). **Good:** no
+      `Last GARDEN gather` line has `back` over 1.5 s, and a stalled one logs `back out stalled N
+      in short, done there` with N under 2. **Stop:** it ends the back out early with the robot
+      still well inside the corner → `backStallMs` 0 (off) and write down N.
+- [ ] **GARDEN gather, the smaller knobs (same setup):** one at a time, 3 gathers each, counting
+      the volley. (a) `stallMs` 150: the robot has stopped 0.27 to 0.47 s before the stall rule
+      ends the drive in; 150 should take 0.1 s off. **Stop:** a drive in that ends before the robot
+      reaches the corner → back to 250. (b) `dwellMs` 200 and 800 against 400. Keep the shortest
+      that loses no piece; a physics model (13 Nov, unmeasured) says not to go under about 0.5 s
+      at the wall in all. (c) With 3 pieces already in the lane, gather a fourth and watch the back
+      out (mentor, 13 Nov: the fourth ball rides on the floor at the front and backing up can let
+      it squirt out). **Stop:** the fourth is left on the floor twice → tell a mentor.
 - [ ] **GARDEN gather, curve to the wall and quick out (`garden-gather` branch):** at the
       practice field with the TeleOp gather button (driver Triangle, held), GARDEN loaded, phone
       filming from above; then once in R-NoCross. It lines up where it always has, stick going
@@ -885,14 +948,14 @@ measurement is [#255].
       against 2–4.5 in on 6 Nov), more balls come in than 6 Nov's 0–1, and the stick never drags
       a ball back out. **Stop:** it scrubs into the side wall and stalls early, or the curve
       swings wide → `curveToWall` off (the old diagonal); `raiseAfterStopMs` -1 is the old stick
-      rule. Tune `dwellMs`, `backSpeed`, `laneTowardWallIn` (0.5) and `extraDepthIn` in Panels and
+      rule. Tune `dwellMs`, `backSpeed`, `laneTowardWallIn` (2.0 since 14 Nov, with `inSpeed` 1.0, `dwellPushPower` 1.0, `lowerWithinIn` 10, `lowerWithinDeg` 30, `settledInPerSec` 20, `maxRangeIn` 45: 8 gathers on 19429, 4 in a row) and `extraDepthIn` in Panels and
       write down what works.
 - [ ] **Film the Auto volleys (decides `LaunchCards.launchAllFeedS`, 3.5):** 5–6 LaunchAlls,
       phone slow-motion side-on, the launcher and the Driver Station both in frame. Per volley,
       write down each ball's time after the gate opens and the launcher's counted shots.
       **Good:** no ball after 3.0 s in any → `launchAllFeedS` 3.05 in Panels, and the volleys
       where the count fell short show which way the shot counter misses.
-- [ ] **Superseded 11 Nov by "Square and Triangle launch spots" in §7f (Square no longer drives to
+- [ ] **Superseded 11 Nov by "Square launch spots" in §7f (Square no longer drives to
       the starts or the corners).** **Square's start and corner spots aim the turret (`belding-plus`, 7 Nov):** turret locked,
       hold Square from near each start and each corner (RIGHT_START now 89°, LEFT_START 267°,
       RIGHT_LAUNCH_CORNER 61° instead of 54°, LEFT_LAUNCH_CORNER 303° as before) and fire.
@@ -974,6 +1037,18 @@ measurement is [#255].
 - [ ] **Anything 19429 does differently** from 20245 (a motor turning the other way, a servo
       position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
       was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.
+- [ ] **19429's FLOWER stick against 20245's, before judging any pick routine on 19429.** On the
+      Belding stream 20245's stick empties a FLOWER within about 0.8 s of touching it (Q-27, red
+      WALL); 19429's left the POLLEN standing in the FLOWER for a whole 2 s dwell (Q-13, blue WALL),
+      and they came out only as it backed off. Same code, same numbers, and
+      `FlowerStickSubsystem.EXTENDED` 0.0 was measured on 20245 only (19429's stick was rewired to
+      Control Hub servo port 0 on 6 Nov and has no line in `RobotDifferences`). Both robots side by
+      side at one loaded FLOWER, stick down, pushed in by hand: measure the stick tip's height off
+      the tile, how far it reaches ahead of the frame, and where on the FLOWER's foot it lands;
+      film both from the side. **Good:** the same within a quarter inch, and 19429's FLOWER empties
+      while pressed. **Stop:** it differs → fix the stick or its down position on 19429 (a servo
+      position that differs is one `RobotDifferences` line, with the date), then do §4's 20 picks.
+      A stick that does not trip the FLOWER is not fixed by `MULTI_PUSH`, only hidden by it.
 - [ ] **19429's Limelight pipeline:** Marker Size set to 82.55 mm on 6 Nov (it was 165.1, the
       DECODE size; Full 3D Targeting Yes). Later that night 20245's pipeline file was uploaded to
       19429's slot 0: identical but for its name. Power-cycle and check it held, then run the 5-minute start check and Vision: HIVE & Pose. [handoff] step 6
@@ -1117,8 +1192,8 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       of 4. Set its heading to about 59° in the Visualizer (Save team spots), then hold Square there
       once. **Good:** aim error under 2° on the Match page and 3–4 of 4 in. [mentor, 5 Nov]
 
-- [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`, and for Triangle's close
-      row (34.6 to 35.7 in; Triangle is on, and drives there, so the loop below can be run from it).** The table's rows start
+- [ ] **A row at 36 in, for `LEFT_LAUNCH_CLOSE` and `RIGHT_LAUNCH_CLOSE`, and for the close
+      row (34.6 to 35.7 in; Square drives there from the middle tile row, so the loop below can be run from it).** The table's rows start
       at 42.4 in, so both CLOSE spots fire at an extrapolated speed (1459–1480 ticks/s in the
       Belding logs). The four measured rows fit one arc, which puts 36 in at about 1513 ticks/s
       (1458 to 1573 allowed by the fit). Run the loop above at `RIGHT_LAUNCH_CLOSE` and write the
@@ -1178,17 +1253,22 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       full robot before shooting (20245: 97 in). Try filling nearer a launch spot, or firing from
       where it is. **Good:** a timed practice cycle under 20 s.
 
-### Square and Triangle launch spots (11 Nov; nothing here has been driven)
+### Square launch spots (11 Nov, one button again 14 Nov; nothing here has been driven)
 
-Square now drives to one of six spots on the side walls and Triangle to one of six close spots in
-front of them (`localization/LaunchSpots`: LEFT or RIGHT by the half the robot is in, NEAR / HIVE /
-FAR by where it is along the wall). Gather GARDEN moved from Triangle to the driver's R1. Turret
-locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536]
+Square drives to one of the six spots on the half the robot is in, picked by its tile row
+(`localization/LaunchSpots`): from the tile row against the end wall (audience or scoring table),
+the nearest of the three wall spots, the middle one counted 6 in nearer
+(`LaunchSpotDrive.wallCentreBiasIn`, in Panels); from the next row in, the nearest of the three close spots,
+the middle one counted 6 in nearer (`LaunchSpotDrive.closeCentreBiasIn`, in Panels); from the two rows beside the
+centre line, refused. The close spots are driven 4 in back toward their end wall
+(`LaunchSpotDrive.closeBackIn`, in Panels; 14 Nov: close volleys were hitting the HIVE's lip).
+Gather GARDEN is back on Triangle; R1 is free. Turret locked. Map and
+reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536]
 
 - [ ] **Each wall spot, on red then blue:** pose set, loaded, hold Square from about 2 ft out in
       front of each of the six (`RIGHT_WALL_NEAR`, `RIGHT_START`, `RIGHT_WALL_FAR`, and the LEFT
       three; the RIGHT middle one is the measured start itself, since 12 Nov). **Good:**
-      the log says `launch spot: start … → <the spot in line> … (in line, N in)`, then `arrived`
+      the log says `launch spot: start … → <the spot> … (nearest, N in)`, then `arrived`
       and `gate open … settled` within about 2 s; the HIVE spots sit with the whole back on the
       wall, the NEAR and FAR ones with one corner on it; 3 or 4 of 4 stay in. Write the count per
       spot. **Stop:** a press that never arrives or never settles (the pose is asking it to push
@@ -1218,23 +1298,29 @@ locked. Map and reasons: the "Square Launch Spots" page (mentor's claude.ai arti
       `RIGHT_WALL_NEAR`, then `RIGHT_WALL_FAR`; the same on the left. They are drawn 1 in apart.
       **Good:** no contact, both volleys score. **Stop:** they touch → note the gap the logs show
       (`arrived … X in … off`, `drift`), and the side spot's x moves out by that much.
-- [ ] **The column is the one the driver expects:** from six or so places around our half, the
-      driver says which wall spot they expect before pressing. **Good:** it goes there every time.
-      The boundaries are halfway between the wall spots along the wall (red RIGHT: x 45.8 and 65.7;
-      LEFT: 48.9 and 69.7).
-- [ ] **Triangle (on since 12 Nov; measure the 36 in row with it first, §7d: until then it fires
-      at the table's held end speed, about 1460):** hold Triangle in front of each column on both sides. **Good:** drives to
-      the `…_CLOSE_…` spot of that column, 34.6 to 35.7 in from the CELL, 3 or 4 of 4 in. The NEAR
+- [ ] **The spot is the one the driver expects:** from six or so places on each of the two tile
+      rows of our half, the driver says which spot they expect before pressing. **Good:** it goes
+      there every time, and a press from the two rows beside the centre line says `SQUARE REFUSED`.
+      **Stop:** a press goes somewhere unexpected → note where it was pressed from; the middle close
+      spot's favour (`LaunchSpotDrive.wallCentreBiasIn` or `closeCentreBiasIn` in Panels, 6 in each;
+      try them there first) or the row edge is the number to change.
+- [ ] **The close spots (measure the 36 in row first, §7d: until then they fire at the table's held
+      end speed, about 1460):** hold Square from the middle tile row in front of each of the three on
+      both sides. **Good:** drives to that `…_CLOSE_…` spot, 4 in back from where it is drawn
+      (`closeBackIn`), about 39 to 40 in from the CELL, 3 or 4 of 4 in, clear of the HIVE's lip.
+      **Stop:** still hitting the lip, or now short → change `closeBackIn` in Panels and write the
+      number that works here. The NEAR
       and FAR close spots overlap the HIVE one by about a third of a robot: never send both robots
       to the middle and a side one at once.
 - [ ] **`RIGHT_LAUNCH_CATCH` against `RIGHT_CLOSE_HIVE`, before the Autos give CATCH up** (mentor,
       12 Nov; needs the 36 in row first, §7d). Neither button drives to CATCH now: drive there by
       hand (57.5, 18, facing the CELL; the Match page's "Last shot" line shows 43 in) and fire with
-      FIRE; then Triangle in front of the HIVE for `RIGHT_CLOSE_HIVE` (36 in). Ten volleys of 4
+      FIRE; then Square from the middle tile row in front of the HIVE for `RIGHT_CLOSE_HIVE` (36 in). Ten volleys of 4
       from each, counting how many stay in. **Good:** one is clearly better; write both counts
       here. CATCH stays a team spot only if it scores more.
-- [ ] **Gather GARDEN on the driver's R1:** hold R1 at the GARDEN as Triangle was held before.
-      **Good:** the gather runs as it did; the Controls page and the cheat sheet show R1.
+- [ ] **Gather GARDEN back on the driver's Triangle (14 Nov):** hold Triangle at the GARDEN.
+      **Good:** the gather runs as it did; the Controls page and the cheat sheet show Triangle, and
+      R1 does nothing.
 
 ## 8. If time: anyone, no driving
 
@@ -1302,12 +1388,13 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       Belding logs: a dim POLLEN at 46° was spat out, real red NECTAR read up to 39°. The gap is
       narrow, so in this check feed some POLLEN in slowly and half-covered (a dim reading) and note
       every hue the Robot page shows between 35° and 55° with what the piece really was.
-- [ ] **19429 keeps no NECTAR** (`ColorSensorSubsystem.rejectAllNectar`, on for 19429 only in
-      `RobotDifferences`, 7 Nov). Basic Drive on 19429, red then blue: feed in a red NECTAR, a blue
-      NECTAR and a POLLEN, five times each. **Good:** both NECTAR colours come back out on either
-      alliance, every POLLEN is kept, and the match log's Metadata lists the line under
-      `RobotDifferences`. **Stop:** a POLLEN spat out → narrow the NECTAR hue ranges as above; to
-      let 19429 keep NECTAR again, Panels `rejectAllNectar` off (or delete its line).
+- [ ] **19429 keeps its own alliance's NECTAR** (the 7 Nov `rejectAllNectar` line for 19429 is
+      gone from `RobotDifferences`, so 19429 runs the shared reject: only the other alliance's
+      NECTAR is spat out). Basic Drive on 19429, red then blue: feed in a red NECTAR, a blue NECTAR
+      and a POLLEN, five times each. **Good:** our alliance's NECTAR and every POLLEN are kept, the
+      other alliance's NECTAR comes back out, and the match log's Metadata lists no NECTAR line under
+      `RobotDifferences`. **Stop:** our NECTAR spat out → narrow the NECTAR hue ranges as above; to
+      lock 19429 out of NECTAR again for a match, Panels `rejectAllNectar` on.
 - [ ] **Full-lane position hold:** Panels `IntakeSubsystem.positionHoldWhenFull` defaults on
       for both robots (19429's encoder wire was plugged in 6 Nov, so its off line is gone). The roller captures
       its encoder position once, stars continue inward and prefeed stops. Initial `positionHoldMaxPower` 0.3 and

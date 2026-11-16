@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-12T20:37:41.107Z",
+  "timestamp": "2026-11-13T15:25:41.000Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -903,6 +903,7 @@
             "afterMs": 9000,
             "matchClock": true,
             "adjustable": true,
+            "tip": 1,
             "cards": [
               {
                 "id": "c-mw0eq8bt-2vuzy",

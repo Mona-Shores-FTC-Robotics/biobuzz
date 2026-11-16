@@ -51,6 +51,16 @@
       "source": "estimate",
       "note": "4 POLLEN if every shot lands; lower it for misses."
     },
+    "pickFlowerS": {
+      "value": 3.6,
+      "source": "measured, 19429 and 20245 Auto logs, 29 Oct-14 Nov 2026 (events/2026-11-belding and logs/*)",
+      "note": "PickFlower step, start to end: median 3.58 s over 107 Auto picks. The lane read full a median 2.6 s after the step began (61 picks, 1.5-4.7 s; 2.7 s at Belding); 43 never read full and ran a median 3.7 s. The guard still plans 4.0 s (AutoRegistration.PICK_FLOWER_TYPICAL_S)."
+    },
+    "gardenGatherS": {
+      "value": 4.4,
+      "source": "measured, 19429 and 20245 Auto logs, 3-14 Nov 2026: only 10 gathers, so re-measure",
+      "note": "GardenGather step, start to end: median 4.42 s. The lane read full in 3 of them, 2.85-3.53 s after the step began. The guard still plans 5.0 s (AutoRegistration.GARDEN_GATHER_TYPICAL_S)."
+    },
     "partnerTipLagS": {
       "value": 5.5,
       "source": "measured, Belding Qualifier films, 7 Nov 2026 (re-measured 11 Nov)",

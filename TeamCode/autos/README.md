@@ -38,13 +38,16 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 
 The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
 existing reference. **L-Infraviolet / R-Infraviolet** is a coordinated three-TIP pair, run on
-both robots and promoted to competition Autos; run one only with the partner on the other
+both robots; Clockwise has replaced it on the Autonomous menu and it runs from the Utility menu
+(**Drive: R-Infraviolet**, **Drive: L-Infraviolet**); run one only with the partner on the other
 ([its notes](infraviolet.md)).
 **L-Clockwise / R-Clockwise** is its successor: the same pair on a one-way loop, with a fixed
-fallback at each stop, a pickup the drive teams choose in INIT, and shots by the camera or the
-timer. It has not driven on a robot yet; Infraviolet stays selectable until it has on both
+fallback at each stop, and a pickup the drive teams choose in INIT. Each robot has run its half
+alone; the pair has not yet run together
 ([its notes](clockwise.md)). Its volleys are from the
-drivers' Square and Triangle spots (`LaunchSpots`), not team spots.
+drivers' Square spots (`LaunchSpots`), not team spots. It drives nose-first with a load; the version
+with backward legs, which has time for a third TIP, is the draft `r-clockwise-backward.pp` with
+`l-clockwise-backward.pp`.
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
 those routines: their paths, waits and fallback behavior have not been tuned yet.
 In particular, L-NoCross's existing no-TIP fallback still crosses to RIGHT; replace
@@ -322,9 +325,9 @@ row has it selected already.
 
 | Row | Left / Right changes | Offered by |
 |---|---|---|
-| The partner wait | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for partner's TIP until 9 s". Left to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
+| The partner wait | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for TIP 1 until 9 s": the TIP is the one the builder's *It waits for* names (an Auto that names none reads "partner's TIP"). Left to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
 | Park | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
-| A paired Auto's pickup, shot trigger and times | as the row says | the Clockwise pair (`clockwise.md`) |
+| A route choice (Clockwise's Pickup and Priority) | the leg the robot drives | a *Choose in INIT* step (`clockwise.md`) |
 
 - **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
   as drawn and amber once changed; PLAY locks them, and the match log records them
@@ -402,7 +405,16 @@ they came from.
     check, and keeps its own limit.
   - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
-    lane latched full 0.44 s after its last spike, 1.43 s in.
+    lane latched full 0.44 s after its last spike, 1.43 s in. No Auto waits on `IntakeFull`, so
+    this fact times nothing in a preview today.
+  - `pickFlowerS` 3.6 and `gardenGatherS` 4.4 (measured, 15 Nov 2026): a `PickFlower` and a
+    `GardenGather` step, start to end, the median over every Auto log on `events/2026-11-belding` and
+    `logs/*` (each run counted once). Picks: 107; the lane read full a median 2.6 s after the step
+    began in the 61 that filled (1.5 to 4.7 s), and 43 never read full. Gathers: only 10, three of
+    which filled (2.85 to 3.53 s), so re-measure. The Visualizer's Match view has a slider for each,
+    shown only for an Auto with that step; a step never runs past its own time limit. The robot's
+    guard still plans 4.0 and 5.0 s (`AutoRegistration.PICK_FLOWER_TYPICAL_S`,
+    `GARDEN_GATHER_TYPICAL_S`).
   - `tipStartS` 2.6 and `tipSwingS` 1.6 (measured): together, the 4.2 s from a LaunchAll's end to
     the camera's `CellUp`, for a CELL at its tipping weight and a volley that ends on its fourth
     ball. From the Belding films ([timing-terms.md](timing-terms.md)): the other CELL settled a

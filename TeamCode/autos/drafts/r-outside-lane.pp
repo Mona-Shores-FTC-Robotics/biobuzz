@@ -138,28 +138,9 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.45,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 270
-              }
-            },
-            {
-              "startProgress": 0.45,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 90
-              }
-            }
-          ]
-        }
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 90
       },
       "locked": false,
       "name": "scoring flower to SCORING_FLOWER_STAGING",
@@ -178,12 +159,12 @@
       },
       "controlPoints": [
         {
-          "x": 22,
-          "y": 125
+          "x": 26,
+          "y": 119
         },
         {
           "x": 26,
-          "y": 45
+          "y": 52
         }
       ],
       "heading": {
@@ -192,32 +173,15 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.25,
+              "endProgress": 0.5,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 180
-              }
-            },
-            {
-              "startProgress": 0.25,
-              "endProgress": 0.4,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 180,
                 "endDeg": 270
               }
             },
             {
-              "startProgress": 0.4,
-              "endProgress": 0.75,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 270
-              }
-            },
-            {
-              "startProgress": 0.75,
+              "startProgress": 0.5,
               "endProgress": 1,
               "interpolationType": "linear",
               "parameters": {
@@ -431,6 +395,225 @@
       "locked": false,
       "name": "wall abort park to RIGHT_PARK",
       "color": "#e15759",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "kind": "atomic",
+      "id": "r-link-start",
+      "endPoint": {
+        "x": 55.6,
+        "y": 7.7
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 0,
+        "endDeg": 90
+      },
+      "locked": false,
+      "name": "Link to RIGHT_START"
+    },
+    {
+      "kind": "atomic",
+      "id": "r-garden",
+      "endPoint": {
+        "x": 11.5,
+        "y": 22.1
+      },
+      "controlPoints": [
+        {
+          "x": 46,
+          "y": 22
+        },
+        {
+          "x": 30,
+          "y": 22.1
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 270
+      },
+      "locked": false,
+      "name": "garden to GARDEN_STAGING",
+      "color": "#e15759",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "kind": "compound",
+      "id": "r-garden-north",
+      "segments": [
+        {
+          "kind": "atomic",
+          "id": "r-garden-north-up",
+          "endPoint": {
+            "x": 36,
+            "y": 100
+          },
+          "controlPoints": [
+            {
+              "x": 26,
+              "y": 30
+            },
+            {
+              "x": 28,
+              "y": 76
+            }
+          ],
+          "heading": {
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.25,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 270,
+                    "endDeg": 450
+                  }
+                },
+                {
+                  "startProgress": 0.25,
+                  "endProgress": 1,
+                  "interpolationType": "constant",
+                  "parameters": {
+                    "degrees": 90
+                  }
+                }
+              ]
+            }
+          },
+          "locked": false
+        },
+        {
+          "kind": "atomic",
+          "id": "r-garden-north-in",
+          "endPoint": {
+            "x": 59.9,
+            "y": 116.2
+          },
+          "controlPoints": [
+            {
+              "x": 40,
+              "y": 112
+            },
+            {
+              "x": 52,
+              "y": 114
+            }
+          ],
+          "heading": {
+            "type": "piecewise",
+            "piecewiseHeading": {
+              "segments": [
+                {
+                  "startProgress": 0,
+                  "endProgress": 0.5,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 90,
+                    "endDeg": 0
+                  }
+                },
+                {
+                  "startProgress": 0.5,
+                  "endProgress": 1,
+                  "interpolationType": "linear",
+                  "parameters": {
+                    "startDeg": 360,
+                    "endDeg": 270
+                  }
+                }
+              ]
+            }
+          },
+          "locked": false
+        }
+      ],
+      "name": "wall lane north from the GARDEN to LEFT_CLOSE_HIVE",
+      "color": "#e15759",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "kind": "atomic",
+      "id": "r-link-garden",
+      "endPoint": {
+        "x": 11.5,
+        "y": 22.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 0,
+        "endDeg": 270
+      },
+      "locked": false,
+      "name": "Link to GARDEN_STAGING"
+    },
+    {
+      "kind": "compound",
+      "id": "r-garden-abort-park",
+      "segments": [
+        {
+          "kind": "atomic",
+          "id": "r-garden-abort-up",
+          "endPoint": {
+            "x": 30,
+            "y": 80
+          },
+          "controlPoints": [
+            {
+              "x": 30,
+              "y": 30
+            },
+            {
+              "x": 30,
+              "y": 60
+            }
+          ],
+          "heading": {
+            "type": "linear",
+            "startDeg": 270,
+            "endDeg": 90
+          },
+          "locked": false
+        },
+        {
+          "kind": "atomic",
+          "id": "r-garden-abort-in",
+          "endPoint": {
+            "x": 14.5,
+            "y": 98.7
+          },
+          "controlPoints": [
+            {
+              "x": 30,
+              "y": 92
+            }
+          ],
+          "heading": {
+            "type": "linear",
+            "startDeg": 90,
+            "endDeg": 0
+          },
+          "locked": false
+        }
+      ],
+      "name": "garden abort park to RIGHT_PARK",
+      "color": "#e15759",
+      "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -677,6 +860,11 @@
         98.7,
         0
       ],
+      "GARDEN_STAGING": [
+        11.5,
+        22.1,
+        270
+      ],
       "SCORING_FLOWER_STAGING": [
         47.2,
         119.3,
@@ -693,6 +881,9 @@
       "r-wall-lane-north": "LEFT_CLOSE_HIVE",
       "r-left-park": "RIGHT_PARK",
       "r-wall-abort-park": "RIGHT_PARK",
+      "r-garden": "GARDEN_STAGING",
+      "r-garden-north": "LEFT_CLOSE_HIVE",
+      "r-garden-abort-park": "RIGHT_PARK",
       "r-scoring-flower": "SCORING_FLOWER_STAGING",
       "r-wall-lane-south": "RIGHT_CLOSE_NEAR",
       "r-right-park": "RIGHT_PARK",
@@ -710,22 +901,62 @@
         "name": "LaunchAll"
       },
       {
-        "id": "card-r-wall-flower",
-        "kind": "path",
-        "lineId": "r-wall-flower",
-        "park": false
-      },
-      {
-        "id": "R-pick-wall",
-        "kind": "action",
-        "name": "PickFlower",
-        "timeoutS": 4.5
-      },
-      {
-        "id": "card-r-wall-lane-north",
-        "kind": "path",
-        "lineId": "r-wall-lane-north",
-        "park": false
+        "id": "R-pickup",
+        "kind": "firstOf",
+        "label": "Pickup: WALL_FLOWER or GARDEN",
+        "choice": "Pickup",
+        "rows": [
+          {
+            "when": [
+              "Pickup"
+            ],
+            "label": "WALL_FLOWER",
+            "cards": [
+              {
+                "id": "card-r-wall-flower",
+                "kind": "path",
+                "lineId": "r-wall-flower",
+                "park": false
+              },
+              {
+                "id": "R-pick-wall",
+                "kind": "action",
+                "name": "PickFlower",
+                "timeoutS": 4.5
+              },
+              {
+                "id": "card-r-wall-lane-north",
+                "kind": "path",
+                "lineId": "r-wall-lane-north",
+                "park": false
+              }
+            ]
+          },
+          {
+            "afterMs": 0,
+            "label": "GARDEN",
+            "cards": [
+              {
+                "id": "card-r-garden",
+                "kind": "path",
+                "lineId": "r-garden",
+                "park": false
+              },
+              {
+                "id": "R-gather",
+                "kind": "action",
+                "name": "GardenGather",
+                "timeoutS": 5.5
+              },
+              {
+                "id": "card-r-garden-north",
+                "kind": "path",
+                "lineId": "r-garden-north",
+                "park": false
+              }
+            ]
+          }
+        ]
       },
       {
         "id": "R-wait-left",
@@ -847,6 +1078,8 @@
     "parkFrom": {
       "card-r-wall-flower": "r-wall-abort-park",
       "card-r-wall-lane-north": "r-left-park",
+      "card-r-garden": "r-garden-abort-park",
+      "card-r-garden-north": "r-left-park",
       "card-r-scoring-flower": "r-flower-abort-park",
       "card-r-wall-lane-south": "r-right-park"
     }
