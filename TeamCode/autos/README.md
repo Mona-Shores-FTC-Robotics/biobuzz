@@ -41,8 +41,8 @@ notes are in Git history.
 **L-Clockwise / R-Clockwise** is the coordinated pair: both robots on a one-way loop, with a fixed
 fallback at each stop, and a pickup the drive teams choose in INIT. Each robot has run its half
 alone; the pair has not yet run together
-([its notes](clockwise.md)). Its volleys are still from the
-drivers' Square spots (`LaunchSpots`); it moves to the Autos' launch spots with the other four. It drives nose-first with a load; the version
+([its notes](clockwise.md)). Its volleys are from the
+Autos' launch spots, as every Auto's are. It drives nose-first with a load; the version
 with backward legs, which has time for a third TIP, is the draft `r-clockwise-backward.pp` with
 `l-clockwise-backward.pp`.
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
@@ -215,7 +215,7 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 |---|---|
 | `RIGHT_START`, `LEFT_START` | The measured starts (`localization/StartPositions`). |
 | `RIGHT_AUTO_HIVE`, `LEFT_AUTO_HIVE` | **Where an Auto launches**, with the start and the OFFSET spot: in front of that CELL, 40 in from its raised row, turned to aim the turret, half an inch short of the centre line on the left. It stands in front of that end's start, so it is for a robot that knows the start is empty. (`localization/AutoLaunchSpots`, 16 Nov 2026; nothing has been launched from these yet.) |
-| `RIGHT_AUTO_OFFSET`, `LEFT_AUTO_OFFSET` | **Where an Auto launches** beside a robot on the HIVE spot: 44 in out on our wall's side, 2 in from that robot, 29° off square on the left and 26° on the right. It also clears a robot left on that end's start. |
+| `RIGHT_AUTO_OFFSET`, `LEFT_AUTO_OFFSET` | **Where an Auto launches** beside a robot on the HIVE spot, about 29° off square on our wall's side: on the left 44 in out and 2 in from that robot; on the right 52 in out, 4 in from a robot on `RIGHT_AUTO_FIX_TIP`. It also clears a robot left on that end's start. |
 | `RIGHT_AUTO_FIX_TIP` | **Where a left-start Auto fires at the RIGHT CELL after crossing**, when the partner's TIP did not come: square to the wall, in line with the CELL, its back edge 18 in from the audience wall, so it clears any robot still on `RIGHT_START` (none may start more than 18 in deep) and stays out of the partner's lanes. 35 in from the row, where volleys have hit the lip. |
 | `RIGHT_LAUNCH_CATCH`, `LEFT_LAUNCH_CATCH` | *Being retired, with CLOSE and OFFSET below: an Auto still on them is named in `AutoVolleySpotsTest`.* | In front of that CELL, just outside where its spill lands, clear of a partner on the start. |
 | `RIGHT_LAUNCH_OFFSET`, `LEFT_LAUNCH_OFFSET` | Off to the side of that CELL and angled at it, so a partner in front of the CELL is not disturbed. |

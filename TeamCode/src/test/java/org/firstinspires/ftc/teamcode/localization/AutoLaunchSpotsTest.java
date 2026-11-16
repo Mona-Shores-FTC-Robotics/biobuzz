@@ -59,12 +59,12 @@ public class AutoLaunchSpotsTest {
     }
 
     @Test
-    public void hiveIsFortyInchesOutAndOffsetFortyFour() {
+    public void hiveIsFortyInchesOutAndOffsetFurtherBack() {
         for (Spot spot : Spot.values()) {
             double range = rangeIn(spot);
             if (spot == Spot.RIGHT_AUTO_FIX_TIP) assertEquals(spot + " range", 35.3, range, 0.5);
             else if (spot.hive) assertEquals(spot + " range", 40.0, range, 0.5);
-            else assertEquals(spot + " range", 44.0, range, 0.5);
+            else assertEquals(spot + " range", spot.left ? 44.0 : 52.0, range, 0.5);
         }
     }
 
