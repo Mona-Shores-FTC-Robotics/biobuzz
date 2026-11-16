@@ -91,24 +91,26 @@ public final class LInfravioletAuto {
         Path wallLaneFarParkToLeftPark = Paths.path(Paths.curve(rightLaunchOffset, point10Control1, point10Control2, point10).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(point10Segment1Start, point10Segment1End)).until(1, Interpolator.constant(point10Segment2Heading))), Paths.curve(point11Start, point11Control1, point11Control2, leftPark).linear(point11Start, leftPark));
 
         return kit.sequence(
-                kit.command("SpinUp"),
-                kit.path("open to LEFT_LAUNCH_CATCH", openToLeftLaunchCatch, 1, leftAbortParkToLeftPark, 1.9),
-                kit.firstOf("TIP 1 settled: LEFT up before 8 s",
-                        kit.atMatchSeconds(8).then(
-                                kit.guarded("Timed out", leftAbortParkToLeftPark, 1.9,
-                                        kit.path("left abort park to LEFT_PARK", leftAbortParkToLeftPark, 1.9))),
-                        kit.when("LeftCellUp").then(
-                                kit.command("LaunchAll", 1),
-                                kit.path("early garden to GARDEN_STAGING", earlyGardenToGardenStaging, 3.9, gardenAbortParkToLeftPark, 3.5),
-                                kit.command("GardenGather", 5.5),
-                                kit.path("garden forward exit to RIGHT_LAUNCH_OFFSET", gardenForwardExitToRightLaunchOffset, 1.8, wallLaneFarParkToLeftPark, 3.5),
-                                kit.firstOf("TIP 2 settled: RIGHT up before 20 s",
-                                        kit.atMatchSeconds(20).then(
-                                                kit.guarded("Timed out", wallLaneFarParkToLeftPark, 3.5,
-                                                        kit.path("wall lane far park to LEFT_PARK", wallLaneFarParkToLeftPark, 3.5))),
-                                        kit.when("RightCellUp").then(
-                                                kit.guarded("If RightCellUp", wallLaneFarParkToLeftPark, 3.5,
-                                                        kit.command("LaunchAll", 1),
-                                                        kit.path("wall lane far park to LEFT_PARK", wallLaneFarParkToLeftPark, 3.5)))))));
+                kit.guarded("Auto", leftAbortParkToLeftPark, 1.9,
+                        kit.command("SpinUp"),
+                        kit.path("open to LEFT_LAUNCH_CATCH", openToLeftLaunchCatch, 1, leftAbortParkToLeftPark, 1.9),
+                        kit.firstOf("TIP 1 settled: LEFT up before 8 s",
+                                kit.atMatchSeconds(8).then(
+                                        kit.guarded("Timed out", leftAbortParkToLeftPark, 1.9,
+                                                kit.path("left abort park to LEFT_PARK", leftAbortParkToLeftPark, 1.9))),
+                                kit.when("LeftCellUp").then(
+                                        kit.guarded("If LeftCellUp", wallLaneFarParkToLeftPark, 3.5,
+                                                kit.command("LaunchAll", 1),
+                                                kit.path("early garden to GARDEN_STAGING", earlyGardenToGardenStaging, 3.9, gardenAbortParkToLeftPark, 3.5),
+                                                kit.command("GardenGather", 5.5),
+                                                kit.path("garden forward exit to RIGHT_LAUNCH_OFFSET", gardenForwardExitToRightLaunchOffset, 1.8, wallLaneFarParkToLeftPark, 3.5),
+                                                kit.firstOf("TIP 2 settled: RIGHT up before 20 s",
+                                                        kit.atMatchSeconds(20).then(
+                                                                kit.guarded("Timed out", wallLaneFarParkToLeftPark, 3.5,
+                                                                        kit.path("wall lane far park to LEFT_PARK", wallLaneFarParkToLeftPark, 3.5))),
+                                                        kit.when("RightCellUp").then(
+                                                                kit.guarded("If RightCellUp", wallLaneFarParkToLeftPark, 3.5,
+                                                                        kit.command("LaunchAll", 1),
+                                                                        kit.path("wall lane far park to LEFT_PARK", wallLaneFarParkToLeftPark, 3.5)))))))));
     }
 }

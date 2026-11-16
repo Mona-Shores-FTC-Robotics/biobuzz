@@ -102,27 +102,29 @@ public final class RInfravioletAuto {
         Path nearParkToRightPark = Paths.path(Paths.curve(rightPairClose, point16Control1, point16Control2, point16).heading(Interpolator.piecewise().until(0.45, Interpolator.constant(point16Segment1Heading)).until(1, Interpolator.linear(point16Segment2Start, point16Segment2End))), Paths.line(point16, point17).constant(point17), Paths.curve(point17, point18Control1, point18Control2, rightPark).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(point18Segment1Start, point18Segment1End)).until(0.65, Interpolator.constant(point18Segment2Heading)).until(1, Interpolator.linear(point18Segment3Start, rightPark))));
 
         return kit.sequence(
-                kit.command("SpinUp"),
-                kit.command("LaunchAll"),
-                kit.path("wall flower to WALL_FLOWER_STAGING", wallFlowerToWallFlowerStaging, 2.1, wallAbortParkToRightPark, 2.1),
-                kit.command("PickFlower", 4.5),
-                kit.path("wall lane north to LEFT_LAUNCH_CLOSE", wallLaneNorthToLeftLaunchClose, 2.9, leftAbortParkToRightPark, 2.2),
-                kit.firstOf("LEFT up before 14 s, otherwise park",
-                        kit.atMatchSeconds(14).then(
-                                kit.guarded("Timed out", leftAbortParkToRightPark, 2.2,
-                                        kit.path("left abort park to RIGHT_PARK", leftAbortParkToRightPark, 2.2))),
-                        kit.when("LeftCellUp").then(
-                                kit.command("LaunchAll", 1),
-                                kit.path("scoring flower to SCORING_FLOWER_STAGING", scoringFlowerToScoringFlowerStaging, 1.3, flowerAbortParkToRightPark, 2),
-                                kit.command("PickFlower", 4.5),
-                                kit.path("loaded under hive to RIGHT_PAIR_CLOSE", loadedUnderHiveToRightPairClose, 4.3, nearParkToRightPark, 3.4),
-                                kit.firstOf("RIGHT up before 22.5 s, otherwise park",
-                                        kit.atMatchSeconds(22.5).then(
-                                                kit.guarded("Timed out", nearParkToRightPark, 3.4,
-                                                        kit.path("near park to RIGHT_PARK", nearParkToRightPark, 3.4))),
-                                        kit.when("RightCellUp").then(
-                                                kit.guarded("If RightCellUp", nearParkToRightPark, 3.4,
-                                                        kit.command("LaunchAll", 0.5),
-                                                        kit.path("near park to RIGHT_PARK", nearParkToRightPark, 3.4)))))));
+                kit.guarded("Auto", leftAbortParkToRightPark, 2.2,
+                        kit.command("SpinUp"),
+                        kit.command("LaunchAll"),
+                        kit.path("wall flower to WALL_FLOWER_STAGING", wallFlowerToWallFlowerStaging, 2.1, wallAbortParkToRightPark, 2.1),
+                        kit.command("PickFlower", 4.5),
+                        kit.path("wall lane north to LEFT_LAUNCH_CLOSE", wallLaneNorthToLeftLaunchClose, 2.9, leftAbortParkToRightPark, 2.2),
+                        kit.firstOf("LEFT up before 14 s, otherwise park",
+                                kit.atMatchSeconds(14).then(
+                                        kit.guarded("Timed out", leftAbortParkToRightPark, 2.2,
+                                                kit.path("left abort park to RIGHT_PARK", leftAbortParkToRightPark, 2.2))),
+                                kit.when("LeftCellUp").then(
+                                        kit.guarded("If LeftCellUp", nearParkToRightPark, 3.4,
+                                                kit.command("LaunchAll", 1),
+                                                kit.path("scoring flower to SCORING_FLOWER_STAGING", scoringFlowerToScoringFlowerStaging, 1.3, flowerAbortParkToRightPark, 2),
+                                                kit.command("PickFlower", 4.5),
+                                                kit.path("loaded under hive to RIGHT_PAIR_CLOSE", loadedUnderHiveToRightPairClose, 4.3, nearParkToRightPark, 3.4),
+                                                kit.firstOf("RIGHT up before 22.5 s, otherwise park",
+                                                        kit.atMatchSeconds(22.5).then(
+                                                                kit.guarded("Timed out", nearParkToRightPark, 3.4,
+                                                                        kit.path("near park to RIGHT_PARK", nearParkToRightPark, 3.4))),
+                                                        kit.when("RightCellUp").then(
+                                                                kit.guarded("If RightCellUp", nearParkToRightPark, 3.4,
+                                                                        kit.command("LaunchAll", 0.5),
+                                                                        kit.path("near park to RIGHT_PARK", nearParkToRightPark, 3.4)))))))));
     }
 }

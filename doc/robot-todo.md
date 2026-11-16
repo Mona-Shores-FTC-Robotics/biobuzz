@@ -541,6 +541,12 @@ Use the work order above to select checks; the detailed mechanism checks below a
         two TIPs and both parks. Shot conversion/retention remains unqualified.
         Confirm both LEAVEs at AUTO end and both parks on video; the pair is
         already promoted, so log each run that shows otherwise.
+      - Since the re-export that put the whole card list under the endgame guard: note
+        the second on the robot's clock at which R's wallflower volley (its second) ends.
+        The guard plans the scoring FLOWER trip at 9.6 s and the last volley and park at
+        6.9 s, so past 13.5 s it parks from LEFT_CLOSE instead of fetching the FLOWER
+        (match log: "If LeftCellUp: ... no time to park after it, parking now"). Record
+        how often that happens and whether the robot would in fact have made the trip.
 
 - [ ] **Clockwise pair: R-Clockwise beside L-Clockwise.**
       [The plan, the stops, the times and the simulator's tables](../TeamCode/autos/clockwise.md). Not yet
