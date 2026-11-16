@@ -693,6 +693,32 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
         piece leaves the robot and the camera sights the LEFT CELL before the stop.
       [mentor session, 10 Nov]
+- [ ] **R-Solo-HumanPlayer draft (`autos/drafts/r-solo-human-player.pp`): a NECTAR from the human player.**
+      [Why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-solo-humanplayer-r-two-tip-with-a-nectar-from-the-human-player).
+      Run it from the Utility **Drive: R-Solo-HumanPlayer** (it stops itself at 30 s). Nothing on
+      `LEFT_START` or in the LOADING ZONE.
+      - **The roll, with no robot first.** Tape a mark at (17, 96): 6 in out from the LOADING ZONE's
+        tape, level with its near end. The human player releases a NECTAR in the air over the zone's
+        near corner so it rolls to the mark, never touching it again. Twenty rolls. **Good:** 17 of 20
+        stop within 6 in of the mark, in under 2 s. **Stop:** it will not stop near the mark → note
+        where it does stop; `NECTAR_HANDOFF` moves to that, in the Visualizer.
+      - **Five runs with a short load** (take one POLLEN out of the WALL FLOWER before each), filmed
+        from the human player's side. They roll when they see the pick come up short. **Good:** the
+        NECTAR is in the lane before the left end and goes up in the next volley
+        (`read_logs.py volleys`). Note when the roll was released on the match clock and when the
+        robot passed the mark (`read_logs.py steps`: the end of "outside lane to NECTAR_HANDOFF").
+        **Stop:** the robot is past before the NECTAR arrives → the handoff needs a pause; note by
+        how long it missed.
+      - **Five runs with a full load and no roll.** **Good:** the second TIP by 30 s as often as
+        R-Two-Tip's. Read the second volley's start time from each log: the lane is drawn 1.1 s
+        longer than R-Two-Tip's.
+      - **One run with a full load and a roll anyway.** **Good:** the NECTAR stays on the floor.
+        **Stop:** the robot takes a fifth piece (G407) → say so before this Auto runs in a match.
+      - **A NECTAR in a volley from `LEFT_LAUNCH_OFFSET`:** load 3 POLLEN and 1 NECTAR, hold Square
+        there, five volleys. **Good:** the NECTAR stays in the CELL as the POLLEN do.
+      - **How many tip the LEFT CELL with a NECTAR in it:** by hand on the practice HIVE, 1 NECTAR
+        with 5, then 6, then 7 POLLEN, five times each.
+      [mentor session, 16 Nov]
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 

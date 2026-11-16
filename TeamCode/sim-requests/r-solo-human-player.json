@@ -38,6 +38,6 @@
   "metadata": {
     "AutoSource": "drafts/r-solo-human-player.pp",
     "SavedBy": "mentor session, 16 Nov 2026",
-    "SimNote": "R-Two-Tip with the nose-first outside lane and a stop by the LOADING ZONE for the human player's NECTAR, run with the Belding calibration. A saved request cannot set the human's roll: the simulator drops the NECTAR mid-zone here, out of the robot's reach, so these runs show what the stop costs, not what the NECTAR gains."
+    "SimNote": "R-Two-Tip with the nose-first outside lane past the LOADING ZONE and both LEFT volleys from LEFT_LAUNCH_OFFSET, run with the Belding calibration. A saved request cannot set the human's roll: the simulator drops the NECTAR mid-zone here, out of the robot's reach, so these runs show what the lane costs, not what the NECTAR gains."
   }
 }

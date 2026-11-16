@@ -21,13 +21,13 @@ public final class RSoloHumanPlayerAuto {
     public static final String SOURCE = "r-solo-human-player.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-16|9:52AM";
+    public static final String SAVED = "11-16|10:08AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"CellUp", "IntakeFull"};
+    public static final String[] TRIGGERS = {"CellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -51,7 +51,6 @@ public final class RSoloHumanPlayerAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
-        Pose leftLaunchCatch = p.of(57.5, 123.5, 273.4);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose leftLaunchOffset = p.of(41, 121.5, 296.4);
         Pose rightPark = p.of(14.5, 98.7, 0);
@@ -65,20 +64,22 @@ public final class RSoloHumanPlayerAuto {
         Pose outsideLaneToNectarHandoffSegment2Start = p.of(20, 88, 90);
         Pose outsideLaneToNectarHandoffSegment2End = p.of(20, 88, 90);
         Pose outsideLaneToNectarHandoffSegment3Start = p.of(20, 88, 90);
-        Pose pastTheLoadingZoneToLeftLaunchCatchControl1 = p.of(19, 108, 0);
-        Pose pastTheLoadingZoneToLeftLaunchCatchControl2 = p.of(30, 125, 0);
-        Pose pastTheLoadingZoneToLeftLaunchCatchSegment1Start = p.of(57.5, 123.5, 110);
-        Pose pastTheLoadingZoneToLeftLaunchCatchSegment1End = p.of(57.5, 123.5, 90);
-        Pose pastTheLoadingZoneToLeftLaunchCatchSegment2Start = p.of(57.5, 123.5, 90);
-        Pose pastTheLoadingZoneToLeftLaunchCatchSegment2End = p.of(57.5, 123.5, 0);
-        Pose pastTheLoadingZoneToLeftLaunchCatchSegment3Start = p.of(57.5, 123.5, 360);
+        Pose pastTheLoadingZoneToLeftLaunchOffsetControl1 = p.of(19, 104, 0);
+        Pose pastTheLoadingZoneToLeftLaunchOffsetControl2 = p.of(24, 119, 0);
+        Pose pastTheLoadingZoneToLeftLaunchOffsetSegment1Start = p.of(41, 121.5, 110);
+        Pose pastTheLoadingZoneToLeftLaunchOffsetSegment1End = p.of(41, 121.5, 90);
+        Pose pastTheLoadingZoneToLeftLaunchOffsetSegment2Start = p.of(41, 121.5, 90);
+        Pose pastTheLoadingZoneToLeftLaunchOffsetSegment2End = p.of(41, 121.5, 0);
+        Pose pastTheLoadingZoneToLeftLaunchOffsetSegment3Start = p.of(41, 121.5, 360);
         Pose toRightParkControl1 = p.of(26, 92, 0);
-        Pose toRightLaunchCloseControl1 = p.of(58.77, 101.57, 0);
+        Pose toRightLaunchCloseControl1 = p.of(52, 108, 0);
         Pose toRightLaunchCloseControl2 = p.of(65.2, 71.9, 0);
         Pose toRightLaunchCloseControl3 = p.of(59.6, 40.9, 0);
-        Pose toRightLaunchCloseSegment1Start = p.of(56.1, 26, 270);
+        Pose toRightLaunchCloseSegment1Start = p.of(56.1, 26, 296.4);
         Pose toRightLaunchCloseSegment1End = p.of(56.1, 26, 270);
         Pose toRightLaunchCloseSegment2Start = p.of(56.1, 26, 270);
+        Pose toRightLaunchCloseSegment2End = p.of(56.1, 26, 270);
+        Pose toRightLaunchCloseSegment3Start = p.of(56.1, 26, 270);
         Pose toRightPark_2Control1 = p.of(23.32, 25.55, 0);
 
         // Paths, written as the stock Visualizer export writes them.
@@ -86,31 +87,28 @@ public final class RSoloHumanPlayerAuto {
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
         Path outsideLaneToNectarHandoff = Paths.curve(wallFlowerStaging, outsideLaneToNectarHandoffControl1, nectarHandoff).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(outsideLaneToNectarHandoffSegment1Start, outsideLaneToNectarHandoffSegment1End)).until(0.7, Interpolator.linear(outsideLaneToNectarHandoffSegment2Start, outsideLaneToNectarHandoffSegment2End)).until(1, Interpolator.linear(outsideLaneToNectarHandoffSegment3Start, nectarHandoff)));
         Path nectarHandoffPark = Paths.line(nectarHandoff, rightPark).linear(nectarHandoff, rightPark);
-        Path pastTheLoadingZoneToLeftLaunchCatch = Paths.curve(nectarHandoff, pastTheLoadingZoneToLeftLaunchCatchControl1, pastTheLoadingZoneToLeftLaunchCatchControl2, leftLaunchCatch).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(pastTheLoadingZoneToLeftLaunchCatchSegment1Start, pastTheLoadingZoneToLeftLaunchCatchSegment1End)).until(0.6, Interpolator.linear(pastTheLoadingZoneToLeftLaunchCatchSegment2Start, pastTheLoadingZoneToLeftLaunchCatchSegment2End)).until(1, Interpolator.linear(pastTheLoadingZoneToLeftLaunchCatchSegment3Start, leftLaunchCatch)));
-        Path leftLaunchCatchPark = Paths.line(leftLaunchCatch, rightPark).linear(leftLaunchCatch, rightPark);
-        Path toScoringFlowerStaging = Paths.line(leftLaunchCatch, scoringFlowerStaging).linear(leftLaunchCatch, scoringFlowerStaging);
+        Path pastTheLoadingZoneToLeftLaunchOffset = Paths.curve(nectarHandoff, pastTheLoadingZoneToLeftLaunchOffsetControl1, pastTheLoadingZoneToLeftLaunchOffsetControl2, leftLaunchOffset).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(pastTheLoadingZoneToLeftLaunchOffsetSegment1Start, pastTheLoadingZoneToLeftLaunchOffsetSegment1End)).until(0.6, Interpolator.linear(pastTheLoadingZoneToLeftLaunchOffsetSegment2Start, pastTheLoadingZoneToLeftLaunchOffsetSegment2End)).until(1, Interpolator.linear(pastTheLoadingZoneToLeftLaunchOffsetSegment3Start, leftLaunchOffset)));
+        Path leftLaunchOffsetPark = Paths.line(leftLaunchOffset, rightPark).linear(leftLaunchOffset, rightPark);
+        Path toScoringFlowerStaging = Paths.line(leftLaunchOffset, scoringFlowerStaging).linear(leftLaunchOffset, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, rightPark).linear(scoringFlowerStaging, rightPark);
         Path toLeftLaunchOffset = Paths.line(scoringFlowerStaging, leftLaunchOffset).linear(scoringFlowerStaging, leftLaunchOffset);
         Path toRightPark = Paths.curve(leftLaunchOffset, toRightParkControl1, rightPark).linear(leftLaunchOffset, rightPark);
-        Path toRightLaunchClose = Paths.curve(leftLaunchCatch, toRightLaunchCloseControl1, toRightLaunchCloseControl2, toRightLaunchCloseControl3, rightLaunchClose).heading(Interpolator.piecewise().until(0.87, Interpolator.linear(toRightLaunchCloseSegment1Start, toRightLaunchCloseSegment1End)).until(1, Interpolator.linear(toRightLaunchCloseSegment2Start, rightLaunchClose)));
+        Path toRightLaunchClose = Paths.curve(leftLaunchOffset, toRightLaunchCloseControl1, toRightLaunchCloseControl2, toRightLaunchCloseControl3, rightLaunchClose).heading(Interpolator.piecewise().until(0.15, Interpolator.linear(toRightLaunchCloseSegment1Start, toRightLaunchCloseSegment1End)).until(0.87, Interpolator.linear(toRightLaunchCloseSegment2Start, toRightLaunchCloseSegment2End)).until(1, Interpolator.linear(toRightLaunchCloseSegment3Start, rightLaunchClose)));
         Path toRightParkPath = Paths.curve(rightLaunchClose, toRightPark_2Control1, rightPark).linear(rightLaunchClose, rightPark);
 
         return kit.sequence(
-                kit.guarded("Auto", leftLaunchCatchPark, 2,
+                kit.guarded("Auto", leftLaunchOffsetPark, 1.7,
                         kit.command("SpinUp"),
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
                         kit.command("PickFlower", 4.5),
                         kit.path("outside lane to NECTAR_HANDOFF", outsideLaneToNectarHandoff, 1.9, nectarHandoffPark, 1.1),
-                        kit.firstOf("Wait for the human player's NECTAR",
-                                kit.when("IntakeFull"),
-                                kit.afterMs(1000)),
-                        kit.path("past the LOADING ZONE to LEFT_LAUNCH_CATCH", pastTheLoadingZoneToLeftLaunchCatch, 2.4, leftLaunchCatchPark, 2),
+                        kit.path("past the LOADING ZONE to LEFT_LAUNCH_OFFSET", pastTheLoadingZoneToLeftLaunchOffset, 2.1, leftLaunchOffsetPark, 1.7),
                         kit.firstOf("Wait for TIP or CELL up",
                                 kit.when("CellUp").then(
                                         kit.guarded("If CellUp", toRightPark, 1.8,
                                                 kit.command("LaunchAll"),
-                                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.8),
+                                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.1, scoringFlowerStagingPark, 1.8),
                                                 kit.command("PickFlower", 4.5),
                                                 kit.path("to LEFT_LAUNCH_OFFSET", toLeftLaunchOffset, 1.1),
                                                 kit.command("LaunchAll"),

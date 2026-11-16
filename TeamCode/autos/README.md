@@ -75,7 +75,8 @@ Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `
 lane takes a `.pp` in `drafts/` or `partners/` (Visualizer
 [#67](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/pull/67) lists the drafts).
 R-Two-Tip, R-Solo's steps with the LEFT volleys from the measured launch spots, is a draft too
-([its notes](drafts/README.md)). So are the four plain drafts of the Clockwise lane study, one
+([its notes](drafts/README.md)); R-Solo-HumanPlayer is R-Two-Tip with a pass by the LOADING ZONE for
+the human player's NECTAR. So are the four plain drafts of the Clockwise lane study, one
 per robot per pickup ([clockwise.md](clockwise.md)).
 
 **The polish loop.** Open the Auto from master, change it, **Save to GitHub and simulate…** under

@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-16T14:52:50.599Z",
+  "timestamp": "2026-11-16T15:08:23.509Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -169,7 +169,7 @@
     {
       "id": "lane-in",
       "color": "#76b7b2",
-      "name": "past the LOADING ZONE to LEFT_LAUNCH_CATCH",
+      "name": "past the LOADING ZONE to LEFT_LAUNCH_OFFSET",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -177,23 +177,23 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 41,
+        "y": 121.5
       },
       "controlPoints": [
         {
           "x": 19,
-          "y": 108
+          "y": 104
         },
         {
-          "x": 30,
-          "y": 125
+          "x": 24,
+          "y": 119
         }
       ],
       "heading": {
         "type": "piecewise",
         "startDeg": 110,
-        "endDeg": 273.4,
+        "endDeg": 296.4,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
@@ -228,7 +228,7 @@
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 360,
-                "endDeg": 273.4
+                "endDeg": 296.4
               }
             }
           ]
@@ -238,7 +238,7 @@
     {
       "id": "line-mwbij6hk-eyn74i",
       "color": "#b07aa1",
-      "name": "LEFT_LAUNCH_CATCH park",
+      "name": "LEFT_LAUNCH_OFFSET park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -252,7 +252,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 273.4,
+        "startDeg": 296.4,
         "endDeg": 0
       }
     },
@@ -262,13 +262,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 41,
+        "y": 121.5
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 273.4
+        "degrees": 296.4
       }
     },
     {
@@ -288,7 +288,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 273.4,
+        "startDeg": 296.4,
         "endDeg": 90
       }
     },
@@ -381,13 +381,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 41,
+        "y": 121.5
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 273.4
+        "degrees": 296.4
       }
     },
     {
@@ -406,8 +406,8 @@
       },
       "controlPoints": [
         {
-          "x": 58.77,
-          "y": 101.57
+          "x": 52,
+          "y": 108
         },
         {
           "x": 65.2,
@@ -420,7 +420,7 @@
       ],
       "heading": {
         "type": "piecewise",
-        "startDeg": 270,
+        "startDeg": 296.4,
         "endDeg": 90,
         "degrees": 0,
         "reverse": false,
@@ -428,6 +428,17 @@
           "segments": [
             {
               "startProgress": 0,
+              "endProgress": 0.15,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 296.4,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.15,
               "endProgress": 0.87,
               "interpolationType": "linear",
               "reversed": false,
@@ -779,11 +790,6 @@
         47.2,
         180
       ],
-      "LEFT_LAUNCH_CATCH": [
-        57.5,
-        123.5,
-        273.4
-      ],
       "SCORING_FLOWER_STAGING": [
         47.2,
         119.3,
@@ -822,7 +828,7 @@
       "line-mwbij6hk-5pezgk": "RIGHT_PARK",
       "lane-to-nectar": "NECTAR_HANDOFF",
       "nectar-park": "RIGHT_PARK",
-      "lane-in": "LEFT_LAUNCH_CATCH"
+      "lane-in": "LEFT_LAUNCH_OFFSET"
     },
     "cards": [
       {
@@ -852,23 +858,6 @@
         "kind": "path",
         "lineId": "lane-to-nectar",
         "park": false
-      },
-      {
-        "id": "c-w-nectar",
-        "kind": "firstOf",
-        "label": "Wait for the human player's NECTAR",
-        "rows": [
-          {
-            "when": [
-              "IntakeFull"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
       },
       {
         "id": "c-p-lane-in",

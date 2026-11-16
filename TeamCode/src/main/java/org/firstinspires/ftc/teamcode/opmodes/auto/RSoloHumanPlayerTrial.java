@@ -5,7 +5,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloHumanPlayerAut
 
 /** Runs the {@link RSoloHumanPlayerAuto} draft from the Utility menu, with the same thirty-second stop as an AUTO period. */
 @Utility(name = "Drive: R-Solo-HumanPlayer " + RSoloHumanPlayerAuto.SAVED,
-        description = "Draft: R-Two-Tip with a stop by the LOADING ZONE for the human player's NECTAR; 30 s trial")
+        description = "Draft: R-Two-Tip with a pass by the LOADING ZONE for the human player's NECTAR; 30 s trial")
 public final class RSoloHumanPlayerTrial extends BuiltAuto {
     private long startedNs;
 

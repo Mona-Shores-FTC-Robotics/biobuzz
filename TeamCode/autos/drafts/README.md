@@ -213,6 +213,53 @@ Open the pair:
 The LEFT CELL gets 12 shots for the 8 it needs, which is the whole gain. No two robots touch in
 any run. What to ask a partner is in [`doc/three-tips.md`](../../../doc/three-tips.md), rung 3.
 
+## R-Solo-HumanPlayer: R-Two-Tip with a NECTAR from the human player
+
+R-Two-Tip, redrawn so the human player can top up a short WALL FLOWER load with the one NECTAR the
+first TIP earns (G426.A, G427). Mentor session, 16 Nov 2026; not yet run on a robot. It runs from the
+Utility **Drive: R-Solo-HumanPlayer** (a 30 s trial), not from the Autonomous menu.
+
+Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-human-player.pp>
+
+**What changed from R-Two-Tip:**
+
+- The drive from the WALL FLOWER is the nose-first outside lane. It passes `NECTAR_HANDOFF`
+  (20, 88, facing 110°), the draft's own spot just short of the LOADING ZONE with the intake tilted 20°
+  toward it, then runs up past the zone's edge. There is no pause there: the intake runs for the whole
+  Auto and takes a NECTAR lying at that spot if the lane has room.
+- Both LEFT volleys are from `LEFT_LAUNCH_OFFSET` (mentor, 16 Nov). `LEFT_LAUNCH_CATCH` overlaps a
+  partner left on `LEFT_START`; `LEFT_LAUNCH_OFFSET` is about 25 in from it.
+- No light and no new robot code. The human player decides: if any POLLEN is left in the WALL FLOWER
+  or on the floor beside it when the robot backs away, they roll the NECTAR to the handoff spot.
+
+**In the simulator set to Belding** (`BeldingCalibration`, 60 seeds each, one robot). The human here
+always rolls about 1 s after the first TIP, a 12 in roll from the zone's near corner that is at rest
+at the handoff spot before the robot arrives; the simulator does not model a person judging the pick.
+
+| Loads of | R-Two-Tip: two TIPs, second TIP at | This draft: two TIPs, second TIP at |
+|---|---|---|
+| Infrared as at Belding, volleys ending on the fourth shot | 3 of 60, 27.8 s | 6 of 60, 28.5 s |
+| Infrared, volleys as long as at Belding | 4 of 60, 28.6 s | 6 of 60, 30.2 s |
+| Ultraviolet as at Belding, volleys ending on the fourth shot | 33 of 60, 27.8 s | 33 of 60, 29.2 s |
+| Ultraviolet, volleys as long as at Belding | 33 of 60, 28.6 s | 33 of 60, 30.0 s |
+
+- **The NECTAR is taken** when the load is short, and it adds a few second TIPs on Infrared's loads.
+  It adds none on Ultraviolet's, whose WALL FLOWER loads were all four: there is no room for it.
+- **The lane costs about 0.7 to 1.6 s on the second TIP.** With Belding-length volleys the second TIP
+  lands at about 30 s, too late to plan on. The first drawing, with a 1 s wait at the handoff and the
+  first LEFT volley from `LEFT_LAUNCH_CATCH`, was about a second later still.
+- One NECTAR is worth 1.65 POLLEN in the CELL, so it makes up for one missing POLLEN, and for two only
+  on a HIVE that tips near seven. Infrared's WALL FLOWER loads were short by two or more in four of
+  five, so the picks still come first (`doc/one-robot-two-tips.md`).
+
+**Not settled:**
+
+- `NECTAR_HANDOFF` is not a team spot, and the roll to it has not been tried by a person.
+- `LEFT_LAUNCH_OFFSET` has not been fired from on the left, and it is not one of the drivers' Square
+  spots (`LaunchSpots`), which a new Auto is meant to launch from.
+- A second chance after the SCORING FLOWER pick is not drawn.
+- The robot checks are in [robot-todo §3](../../../doc/robot-todo.md).
+
 ## R-Solo-Nudge, for a partner with no Auto
 
 The angled draft targets both partner AUTO PARK and LEAVE: a **16 x 16 in** chassis
