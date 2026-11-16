@@ -59,11 +59,15 @@
                  (ColorSensorSubsystem). Added 2 Nov 2026. -->
             <RevColorSensorV3 name="colorSensor" port="2" bus="2" />
 
-            <!-- Intake star wheels: a continuous-rotation servo on servo port 5.
+            <!-- Intake star wheels: two continuous-rotation servos since
+                 13 Nov 2026, the RIGHT star wheel on servo port 4 and the LEFT
+                 on servo port 5 (port 5 drove all the stars from 24 Oct).
                  One-way clutches let a ball overrun the stars inward; the
                  code runs them while the intake pulls in, backwards while
-                 it ejects, and stops them otherwise. Wired 24 Oct 2026. -->
-            <ContinuousRotationServo name="intakeStars" port="5" />
+                 it ejects, and stops them otherwise. 20245 still has one
+                 star servo, on its port 5. -->
+            <ContinuousRotationServo name="intakeStarsRight" port="4" />
+            <ContinuousRotationServo name="intakeStars"      port="5" />
             <!-- Mission-critical servos live on this hub, so losing the
                  Expansion Hub does not also take them. PROPOSED PORTS,
                  31 Oct 2026: not yet confirmed with the build team. Rewire to
@@ -79,9 +83,10 @@
             <!-- The indicator lights: goBILDA RGB Indicator Lights, more than
                  one, Y-cabled to this one servo port 1, so software sees one
                  device and every light shows the same colour (the servo
-                 position). On port 1 since 6 Nov 2026 (it was on 4). This is
-                 the one servo wired differently from 20245, whose port 1 is
-                 dead and whose lights are on its Expansion Hub. -->
+                 position). On port 1 since 6 Nov 2026 (it was on 4). Wired
+                 differently from 20245, whose port 1 is dead and whose lights
+                 are on its Expansion Hub (so are 19429's turret and its second
+                 star wheel). -->
             <Servo name="indicator" port="1" />
 
             <!-- Transfer: the prefeed wheel (a goBILDA Torque servo in
@@ -90,20 +95,25 @@
             <ContinuousRotationServo name="prefeed" port="2" />
             <Servo name="feedGate" port="3" />
 
-            <!-- Turret drive: a goBILDA servo in standard (position) mode,
-                 programmed with the goBILDA servo programmer, on servo port 4
-                 since 6 Nov 2026, as on 20245 (it was on port 0,
-                 and before that the Expansion Hub's port 0). It holds a position
-                 from PLAY: straight ahead is 0.514 (RobotDifferences). Locked at home
-                 (TurretSubsystem.lockedForward) until the turret's encoder is
-                 plugged in and checked: see the encoder socket beside motor
-                 port 3 below. -->
-            <Servo name="turret" port="4" />
+            <!-- The turret servo is on the Expansion Hub's servo port 5 since
+                 13 Nov 2026, to free this port 4 for the right star wheel. -->
 
         </LynxModule>
 
         <!-- Expansion Hub: the intake, then the launcher. -->
         <LynxModule name="Expansion Hub" port="2">
+
+            <!-- Turret drive: a goBILDA servo in standard (position) mode,
+                 programmed with the goBILDA servo programmer, on this hub's
+                 servo port 5 since 13 Nov 2026 (it was on the Control Hub's
+                 port 4 from 6 Nov, on its port 0 before that, and before that
+                 this hub's port 0). Unlike 20245, whose turret is on its
+                 Control Hub's port 4. It holds a position from PLAY: straight
+                 ahead is 0.514 (RobotDifferences). Locked at home
+                 (TurretSubsystem.lockedForward) until the turret's encoder is
+                 plugged in and checked: see the encoder socket beside motor
+                 port 3 below. -->
+            <Servo name="turret" port="5" />
 
             <!-- Intake roller: one goBILDA 5203 motor (#160, #181), on motor
                  port 0, where the build team plugged it in (23 Oct 2026). -->

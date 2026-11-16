@@ -2122,6 +2122,31 @@ final class FieldSim {
         return lx > mouth - 2 && lx < mouth + 3 && Math.abs(ly) < design.intakeWidthIn / 2 && p.z < design.intakeHeightIn;
     }
 
+    /**
+     * Best case for a GARDEN gather: the nearest pieces still lying in a GARDEN within {@code withinIn} of the robot
+     * go into its lane until it holds {@code upTo} or has no room. Returns how many it took. The gather's own
+     * physics takes what the intake touches; this is the "every load is four" what-if, asked for by the caller.
+     */
+    int topUpFromGarden(Bot bot, double withinIn, int upTo) {
+        int took = 0;
+        while (bot.stored.size() < upTo && hasRoom(bot, Kind.POLLEN)) {
+            Piece nearest = null;
+            double best = withinIn;
+            for (Piece q : pieces) {
+                if (q.where != Where.FIELD || garden(q.x, q.y) == null) continue;
+                double d = Math.hypot(q.x - bot.x, q.y - bot.y);
+                if (d <= best) {
+                    best = d;
+                    nearest = q;
+                }
+            }
+            if (nearest == null) break;
+            capture(bot, nearest);
+            took++;
+        }
+        return took;
+    }
+
     private void capture(Bot bot, Piece p) {
         List<Piece> stored = bot.stored;
         bot.lastCaptureAt = time;

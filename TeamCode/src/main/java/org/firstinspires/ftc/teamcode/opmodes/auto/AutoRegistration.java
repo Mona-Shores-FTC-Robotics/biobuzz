@@ -135,8 +135,13 @@ public final class AutoRegistration {
      * (4.67, 4.90 s) under 4.5, at PLAY 2.59 to 4.18 s. Most volleys counted fewer than 4 shots, so
      * the feed ran its whole 3.5 s. A card that runs past the planned 4.0 eats into the park's
      * margin after it; recheck against the next event's logs.
+     * 2.5 since 12 Nov 2026 (the mentor's call, with the shot counter ending a full volley at its
+     * 4th shot: 19429's L-NoCross volleys at Belding ran 2.20 and 2.35 s that way). Not yet measured
+     * as the usual case: a volley whose counter misses a ball still feeds its whole 3.5 s and runs
+     * about 4 s, which now eats the park's margin. Read {@code read_logs.py steps} on the next
+     * Auto logs and raise this again if most volleys run long.
      */
-    public static final double LAUNCH_ALL_TYPICAL_S = 4.0;
+    public static final double LAUNCH_ALL_TYPICAL_S = 2.5;
 
     /**
      * Seconds from a {@code LaunchAll} card's start to its last piece leaving the robot: what the
@@ -154,9 +159,12 @@ public final class AutoRegistration {
      * shot): the last counted shot 0.94 to 4.59 s after the card started, all but one by 3.88 s. The
      * one, 4.59 s (19429 L-NoCross, 17:52), opened the gate about 1.2 s in and fed the last two
      * pieces 1.5 s apart: the gate's delay plus the whole 3.5 s feed, about 4.7 s, is the worst case.
-     * 4.0 stays (the mentor's call: more would make the guard give up on more volleys).
+     * 4.0 stayed after Belding (the mentor's call: more would make the guard give up on more volleys).
+     * 2.5 since 12 Nov 2026, with {@link #LAUNCH_ALL_TYPICAL_S} (the mentor's call): at Belding the
+     * last counted shot was later than 2.5 s into the card in many volleys, so a late volley the
+     * guard now lets go may have a piece still in the robot at 30 s. Recheck with the next logs.
      */
-    public static final double LAUNCH_ALL_LAST_PIECE_S = 4.0;
+    public static final double LAUNCH_ALL_LAST_PIECE_S = 2.5;
 
     /**
      * {@code PickFlower}'s typical seconds, from the card's start to its end. Measured on 20245
@@ -183,25 +191,26 @@ public final class AutoRegistration {
     public static final double GARDEN_GATHER_TYPICAL_S = 5.0;
 
     /**
-     * Seconds from the partner's last shot to our CELL seen up, added to the last shot their team
-     * gives us to make the partner wait ({@link #partnerWaitUntilS}): the shot's flight, the dwell
-     * before the rocker moves, the swing, and the camera settling on the raised CELL. Measured at
-     * the Belding Qualifier (7 Nov 2026), stream video against L-NoCross match logs: 4.0, 4.2 and
-     * 4.4 s from the partner's last preload leaving its launcher to our {@code CellUp} (M-3 20245,
-     * M-4 19429, M-10 20245), about 4.3 s in a fourth (M-7 19429) whose launcher was hidden. 4.5 s
-     * covers all of them with the video sync's few tenths to spare (err long). One TIP came about
-     * 7 s after the last shot it could have come from (M-7, red): a partner wait does not cover
-     * that, and the Auto's no-TIP route is the plan for it. Written in
-     * {@code TeamCode/autos/timing.json} too ({@code partnerTipLagS}), which
+     * The TIP lag a partner wait allows: seconds from the partner's last ball leaving its launcher to
+     * our camera reading the CELL up, added to the partner's last shot
+     * ({@link #partnerWaitUntilS}). It is a give-up limit, not a prediction: the wait ends the moment
+     * {@code CellUp} fires, so a longer limit costs time only when the TIP is not coming.
+     * Measured from the Belding Qualifier's films (7 Nov 2026; {@code TeamCode/autos/timing-terms.md}
+     * has every TIP): for a CELL at its tipping weight, as a partner's four preloads leave it, the
+     * other CELL settled 3.4 to 6.5 s after the last ball left (13 TIPs, median 3.9) and a watching
+     * camera read it 0.2 s later. 5.5 s catches 11 of the 13; the 4.5 s used until 12 Nov 2026 caught
+     * 9. The two it misses (5.6 and 6.7 s) are left to the Auto's no-TIP route, which still scores.
+     * Written in {@code TeamCode/autos/timing.json} too ({@code partnerTipLagS}), which
      * {@code PartnerWaitTest} keeps equal to this.
      */
-    public static final double PARTNER_TIP_LAG_S = 4.5;
+    public static final double PARTNER_TIP_LAG_S = 5.5;
 
     /**
-     * The match second the Auto's partner wait (its one match-clock {@code AutoOption}, set on the
-     * D-pad in INIT: {@link InitOptions}) ends at, for the partner's last shot as their team said
-     * it: that plus {@link #PARTNER_TIP_LAG_S}. NaN gives NaN. The simulator sets its partner wait
-     * from this too, as the driver would.
+     * The match second a partner wait should give up at, for a partner whose last ball leaves at
+     * {@code partnerLastShotS}: that plus {@link #PARTNER_TIP_LAG_S}. NaN gives NaN. It is how a
+     * wait's drawn limit is chosen (a partner's preloads are away by about 3.5 s, so 9 s), and what
+     * the simulator, which is told a stand-in's last shot, sets the wait to. On the robot the drive
+     * team moves the limit itself, in INIT ({@link InitOptions}).
      */
     public static double partnerWaitUntilS(double partnerLastShotS) {
         return Double.isNaN(partnerLastShotS) ? Double.NaN : partnerLastShotS + PARTNER_TIP_LAG_S;
@@ -265,7 +274,11 @@ public final class AutoRegistration {
                 // comment. Mid-tip detection (tags vanishing while the robot holds still) is #173's.
                 // No alliance chosen never says Tip.
                 .triggerSince("Tip", () -> tipSince(robot, setup))
-                .trigger("CameraBlind", () -> cameraBlind(robot));
+                .trigger("CameraBlind", () -> cameraBlind(robot))
+                // Always true: a wait on it asks only its time. The time row is checked first, so
+                // "Always, at most until 19 s on the match clock" takes its time row when the clock
+                // is already past 19 s and its trigger row at once otherwise: "is there still time?".
+                .trigger("Always", () -> true);
     }
 
     /**

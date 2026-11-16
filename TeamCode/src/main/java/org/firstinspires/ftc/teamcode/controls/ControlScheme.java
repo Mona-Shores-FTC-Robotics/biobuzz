@@ -60,8 +60,8 @@ public final class ControlScheme {
 
     /**
      * As {@link #layout(Input, boolean)}, also leaving out the go-to-launch-spot button unless
-     * {@code launchSpot} ({@code TeleOpConfig.launchSpot}, on while the drivers try it): the
-     * match TeleOp's layout.
+     * {@code launchSpot} ({@code TeleOpConfig.launchSpot}, on while the drivers try it): the match
+     * TeleOp's layout.
      */
     public static Map<Action, Input> layout(Input flowerPick, boolean turretLocked, boolean launchSpot) {
         Map<Action, Input> map = layout(flowerPick);
@@ -89,8 +89,11 @@ public final class ControlScheme {
         map.put(Action.SLOW, Input.L1);
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
+        // Back on Triangle (mentor, 14 Nov 2026), after three days on R1 while Triangle drove to
+        // the close launch spots; R1 is free.
         map.put(Action.GARDEN_GATHER, Input.TRIANGLE);
         // Experimental, to try against chassis aim (Circle); TeleOpConfig.launchSpot unbinds it.
+        // Square: the nearest launch spot by the tile row the robot is in (LaunchSpots).
         map.put(Action.LAUNCH_SPOT, Input.SQUARE);
         // Pose and heading fixes are occasional, so they sit on the D-pad and leave the face
         // buttons for play.

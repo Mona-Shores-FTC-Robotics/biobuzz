@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
 import org.junit.Test;
 
 /** Basic Drive's huge Match-page lines: the operator's launch trim (amber while trimmed) and the lane's pieces. */
@@ -19,9 +20,30 @@ public class LaunchTrimLineTest {
     }
 
     @Test
-    public void aTrimIsSignedAndAmber() {
-        assertEquals(Display.huge("TRIM +50", true), BasicDriveTeleOp.launchTrimLine(50));
-        assertEquals(Display.huge("TRIM -25", true), BasicDriveTeleOp.launchTrimLine(-25));
+    public void aTrimIsSignedGreenUpAndRedDown() {
+        assertEquals(Display.huge("TRIM +50", Display.Level.OK), BasicDriveTeleOp.launchTrimLine(50));
+        assertEquals(Display.huge("TRIM -25", Display.Level.FAULT), BasicDriveTeleOp.launchTrimLine(-25));
+    }
+
+    @Test
+    public void theLoopTimeIsWholeMilliseconds() {
+        assertEquals(Display.huge("LOOP 21 ms", false), BasicDriveTeleOp.loopLine(20.6));
+        assertEquals(Display.huge("LOOP -- ms", false), BasicDriveTeleOp.loopLine(Double.NaN));
+    }
+
+    @Test
+    public void thePinpointLineSaysWhetherItIsWhyTheRobotDrivesOddly() {
+        assertEquals(Display.huge("PINPOINT OK", Display.Level.OK),
+                BasicDriveTeleOp.pinpointLine(true, PinpointTrust.State.TRUSTED, 0));
+        assertEquals(Display.huge("PINPOINT 2 FAULTS", Display.Level.WARN),
+                BasicDriveTeleOp.pinpointLine(true, PinpointTrust.State.TRUSTED, 2));
+        assertEquals(Display.huge("PINPOINT LOST", Display.Level.FAULT),
+                BasicDriveTeleOp.pinpointLine(true, PinpointTrust.State.FAULTED, 1));
+        assertEquals(Display.huge("PINPOINT NONE", Display.Level.FAULT),
+                BasicDriveTeleOp.pinpointLine(false, PinpointTrust.State.TRUSTED, 0));
+        for (PinpointTrust.State state : PinpointTrust.State.values()) {
+            assertEquals("one huge row", Display.HUGE_SCALE, Display.rows(BasicDriveTeleOp.pinpointLine(true, state, 12)), 1e-9);
+        }
     }
 
     @Test

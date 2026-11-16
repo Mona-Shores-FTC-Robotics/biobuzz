@@ -37,9 +37,10 @@ public final class Controls {
      * button out unless {@code launchSpot} ({@link ControlScheme#layout(Input, boolean, boolean)}):
      * the match TeleOp's layout.
      */
-    public Controls(Input flowerPick, boolean turretLocked, boolean launchSpot, Gamepad driverPad,
-                    Gamepad operatorPad, Bindings driver, Bindings operator) {
-        this(ControlScheme.layout(flowerPick, turretLocked, launchSpot), driverPad, operatorPad, driver, operator);
+    public Controls(Input flowerPick, boolean turretLocked, boolean launchSpot,
+                    Gamepad driverPad, Gamepad operatorPad, Bindings driver, Bindings operator) {
+        this(ControlScheme.layout(flowerPick, turretLocked, launchSpot), driverPad, operatorPad,
+                driver, operator);
     }
 
     private Controls(Map<Action, Input> layout, Gamepad driverPad, Gamepad operatorPad,

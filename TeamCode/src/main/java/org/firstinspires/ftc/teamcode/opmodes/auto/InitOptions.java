@@ -9,35 +9,52 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * The drive team's picks for an Auto's {@link AutoOption}s, made during INIT at the field: the
- * partner says where they park and when their last preload leaves while the robots queue, and
- * gamepad 1's D-pad changes it.
+ * The drive team's picks for an Auto's {@link AutoOption}s, made during INIT at the field, as one
+ * menu on gamepad 1's D-pad: <b>up / down selects a row, left / right changes it</b>. Every Auto's
+ * options are rows of it, in the order the Auto lists them:
  *
  * <ul>
- *   <li><b>D-pad left / right</b>: the PARK spot. A choice named {@code LEFT_…} or {@code RIGHT_…}
- *       goes with that key (sides as the drive team sees them; the robot turns the spots for
- *       BLUE, so the names hold for both alliances); other names step through the list.</li>
- *   <li><b>D-pad up / down</b>: the partner's last shot, their answer to "when does your last
- *       preload leave?", {@link #STEP_S} a press. The wait gives up
- *       {@link AutoRegistration#PARTNER_TIP_LAG_S} after it, on the match clock, and the page shows
- *       both numbers, never only the sum: "partner's last shot 8 s, waiting until 12 s". One such
- *       wait per Auto (mentor, 3 Nov 2026).</li>
+ *   <li><b>A choice</b> (the PARK spot, a paired Auto's pickup, the shot trigger): left / right
+ *       steps through the choices. A choice named {@code LEFT_…} or {@code RIGHT_…} goes with that
+ *       key (sides as the drive team sees them; the robot turns the spots for BLUE, so the names
+ *       hold for both alliances).</li>
+ *   <li><b>The wait for a TIP</b> ({@link AutoOption.Kind#MATCH_SECONDS}): the row is the second
+ *       on the match clock at which the robot stops waiting for a TIP, named as the drawing
+ *       names it, "waiting for TIP 1 until 9 s" (mentor, 13 Nov 2026: the TIP's number says more
+ *       than "partner's TIP", which is what an Auto drawn before then still reads), and left /
+ *       right move that second, {@link #STEP_S} a press.
+ *       One number, because a partner rarely knows when its last preload leaves (mentor,
+ *       12 Nov 2026). A partner that shoots later than at the start: set it about
+ *       {@link AutoRegistration#PARTNER_TIP_LAG_S} after the second they say; 0 does not wait.</li>
+ *   <li><b>A time</b> ({@link AutoOption.Kind#TIME}): a match-clock time the Auto acts on, set as
+ *       it is, {@link #TIME_STEP_S} a press.</li>
  * </ul>
  *
- * <p>Nothing touched, the Auto runs as drawn. Each option takes one line of the INIT page, amber
- * once changed so the coach sees it before PLAY. {@link #lock()} at PLAY freezes them, as the
- * alliance is. Gamepad 1 only: gamepad 2's D-pad up is the turret's zero.
+ * <p>An Auto that runs beside a partner's Auto also says what it assumes of the partner
+ * ({@link AutoOption.Kind#PARTNER}): which Auto, and what the partner's own menu must show for the
+ * settings the two share. That line follows this robot's picks, so the two drive teams can read
+ * their pages to each other.
+ *
+ * <p>Nothing touched, the Auto runs as drawn. The page lists every row, one a line, with a pointer
+ * at the selected one, amber once anything is changed so the coach sees it before PLAY.
+ * {@link #lock()} at PLAY freezes them, as the alliance is. Gamepad 1 only: gamepad 2's D-pad up
+ * is the turret's zero.
  */
 public final class InitOptions implements AutoKit.Picks {
 
-    /** One press of up or down. */
+    /** One press on the partner wait. */
     public static final double STEP_S = 1.0;
-    /** The latest a partner's last shot may be set to: past this the Auto has nothing left to wait for. */
-    public static final double LATEST_LAST_SHOT_S = 25.0;
+    /** The latest the partner wait may be set to: past this the Auto has nothing left to wait for. */
+    public static final double LATEST_WAIT_S = 28.0;
+    /** One press on a time. */
+    public static final double TIME_STEP_S = 0.5;
 
     private final AutoOption[] options;
+    /** The options a row stands for, in order: every one but the partner notes. */
+    private final int[] rows;
     private final int[] choice;
     private final double[] seconds;
+    private int selected;
     private boolean locked;
     private boolean wasLeft;
     private boolean wasRight;
@@ -46,20 +63,21 @@ public final class InitOptions implements AutoKit.Picks {
 
     public InitOptions(AutoOption... options) {
         this.options = options.clone();
-        int timed = 0;
-        int parks = 0;
-        for (AutoOption option : options) {
-            if (option.kind == AutoOption.Kind.MATCH_SECONDS) timed++;
-            if (option.kind == AutoOption.Kind.CHOICE) parks++;
-        }
-        // One per D-pad axis: two of either would need a way to say which a press is for.
-        if (timed > 1) throw new IllegalArgumentException("only one wait may be changed in INIT, not " + timed);
-        if (parks > 1) throw new IllegalArgumentException("only one choice may be changed in INIT, not " + parks);
+        int n = 0;
+        for (AutoOption option : options) if (option.kind != AutoOption.Kind.PARTNER) n++;
+        this.rows = new int[n];
         this.choice = new int[options.length];
         this.seconds = new double[options.length];
+        n = 0;
         for (int i = 0; i < options.length; i++) {
             choice[i] = -1;
             seconds[i] = Double.NaN;
+            if (options[i].kind != AutoOption.Kind.PARTNER) rows[n++] = i;
+            for (int j = 0; j < i; j++) {
+                if (options[j].name.equals(options[i].name)) {
+                    throw new IllegalArgumentException("two options are named \"" + options[i].name + "\"");
+                }
+            }
         }
     }
 
@@ -69,11 +87,11 @@ public final class InitOptions implements AutoKit.Picks {
 
     /** Called every INIT loop with gamepad 1's D-pad; acts on each key's press, not its hold. */
     public void update(boolean left, boolean right, boolean up, boolean down) {
-        if (!locked) {
-            if (left && !wasLeft) side("LEFT_", -1);
-            if (right && !wasRight) side("RIGHT_", +1);
-            if (up && !wasUp) lastShot(+STEP_S);
-            if (down && !wasDown) lastShot(-STEP_S);
+        if (!locked && rows.length > 0) {
+            if (up && !wasUp) selected = (selected + rows.length - 1) % rows.length;
+            if (down && !wasDown) selected = (selected + 1) % rows.length;
+            if (left && !wasLeft) change(rows[selected], -1);
+            if (right && !wasRight) change(rows[selected], +1);
         }
         wasLeft = left;
         wasRight = right;
@@ -86,41 +104,52 @@ public final class InitOptions implements AutoKit.Picks {
         locked = true;
     }
 
-    private void side(String prefix, int step) {
-        for (int i = 0; i < options.length; i++) {
-            AutoOption option = options[i];
-            if (option.kind != AutoOption.Kind.CHOICE) continue;
-            int named = -1;
-            for (int c = 0; c < option.choices.size(); c++) {
-                if (option.choices.get(c).startsWith(prefix)) named = c;
+    /** The name of the row the D-pad's left and right change now; null with no rows. */
+    public String selected() {
+        return rows.length == 0 ? null : options[rows[selected]].name;
+    }
+
+    private void change(int i, int step) {
+        AutoOption option = options[i];
+        switch (option.kind) {
+            case CHOICE: {
+                int named = -1;
+                String prefix = step < 0 ? "LEFT_" : "RIGHT_";
+                for (int c = 0; c < option.choices.size(); c++) {
+                    if (option.choices.get(c).startsWith(prefix)) named = c;
+                }
+                int n = option.choices.size();
+                int now = choice[i] < 0 ? 0 : choice[i];
+                int next = named >= 0 ? named : ((now + step) % n + n) % n;
+                choice[i] = next == 0 ? -1 : next;
+                break;
             }
-            int n = option.choices.size();
-            int now = choice[i] < 0 ? 0 : choice[i];
-            int next = named >= 0 ? named : ((now + step) % n + n) % n;
-            choice[i] = next == 0 ? -1 : next;
+            case MATCH_SECONDS:
+                set(i, Math.max(0, Math.min(LATEST_WAIT_S, value(i) + step * STEP_S)));
+                break;
+            case TIME:
+                set(i, Math.max(0, Math.min(AutoKit.AUTO_LENGTH_S, value(i) + step * TIME_STEP_S)));
+                break;
+            default:
+                break;
         }
     }
 
-    private void lastShot(double step) {
-        for (int i = 0; i < options.length; i++) {
-            AutoOption option = options[i];
-            if (option.kind != AutoOption.Kind.MATCH_SECONDS) continue;
-            double shot = Math.max(0, Math.min(LATEST_LAST_SHOT_S, partnerLastShot(i) + step));
-            double limit = AutoRegistration.partnerWaitUntilS(shot);
-            seconds[i] = Math.abs(limit - option.drawnSeconds) < 1e-9 ? Double.NaN : limit;
-        }
+    /** {@code value} for option {@code i}, or as drawn when it is the drawing's. */
+    private void set(int i, double value) {
+        seconds[i] = Math.abs(value - options[i].drawnSeconds) < 1e-9 ? Double.NaN : value;
     }
 
-    /**
-     * The partner's last shot the option's limit stands for: the limit less
-     * {@link AutoRegistration#PARTNER_TIP_LAG_S}. As drawn, the drawing's limit less the lag.
-     */
-    private double partnerLastShot(int i) {
-        return Math.max(0, limit(i) - AutoRegistration.PARTNER_TIP_LAG_S);
-    }
-
-    private double limit(int i) {
+    private double value(int i) {
         return Double.isNaN(seconds[i]) ? options[i].drawnSeconds : seconds[i];
+    }
+
+    private boolean changed(int i) {
+        return choice[i] >= 0 || !Double.isNaN(seconds[i]);
+    }
+
+    private String chosen(int i) {
+        return options[i].choices.get(choice[i] < 0 ? 0 : choice[i]);
     }
 
     @Override
@@ -140,43 +169,108 @@ public final class InitOptions implements AutoKit.Picks {
     }
 
     /**
-     * The options on one line of the INIT page, green as drawn and amber once any is changed:
-     * "● Park ◀▶: RIGHT_PARK · partner's last shot ▲▼ 8 s, waiting until 12 s". Shorter when the page is
-     * nearly full ("shot ▲▼ 8+4=12 s"), and left off when it is full: the warnings above it come first, and the picks
-     * still hold and go to the match log (the page is one screen, {@link Display}).
+     * The menu on the INIT page: every row on its own line, with a pointer at the selected one,
+     * which also shows the arrows that change it. The dot is green as drawn, amber once any row is
+     * changed; a changed row is bold. No title line: the page is one screen, and a line more would
+     * push the start map off it.
+     * <pre>
+     * ● ▶ waiting for TIP 2 ◀▶ until 23.2 s
+     *      Pickup: WALL_FLOWER
+     *      Priority: THREE_TIP
+     * </pre>
+     * The whole list is written only if the page has room for it. On a nearly full page the menu
+     * is its selected row alone, then that row shortened, and on a full page nothing is written.
+     * The warnings above come first; the picks still hold and go to the match log (the page is one
+     * screen, {@link Display}).
      */
     public void describe(Display display) {
-        if (options.length == 0) return;
-        String park = null;
-        String tipLong = null;
-        String tipShort = null;
-        boolean changed = false;
-        for (int i = 0; i < options.length; i++) {
-            AutoOption option = options[i];
-            if (option.kind == AutoOption.Kind.CHOICE) {
-                changed |= choice[i] >= 0;
-                park = option.name + " ◀▶: " + option.choices.get(choice[i] < 0 ? 0 : choice[i]);
-            } else {
-                changed |= !Double.isNaN(seconds[i]);
-                // Short, for a nearly full page, and still all three numbers: the last shot, the lag, the wait.
-                tipShort = "shot ▲▼ " + fmt(partnerLastShot(i)) + "+" + fmt(AutoRegistration.PARTNER_TIP_LAG_S) + "=" + fmt(limit(i)) + " s";
-                tipLong = "partner's last shot ▲▼ " + fmt(partnerLastShot(i)) + " s, waiting until " + fmt(limit(i)) + " s";
-            }
+        if (options.length == 0 || rows.length == 0) return;
+        boolean any = false;
+        for (int i = 0; i < options.length; i++) any |= changed(i);
+        Display.Level level = any ? Display.Level.WARN : Display.Level.OK;
+
+        List<String> menu = new ArrayList<>();
+        for (int r = 0; r < rows.length; r++) {
+            int i = rows[r];
+            String text = r == selected ? "▶ " + row(i, true) : INDENT + plain(i);
+            if (changed(i)) text = "<b>" + text + "</b>";
+            menu.add(r == 0 ? Display.statusLine(level, text) : INDENT + text);
         }
-        Display.Level level = changed ? Display.Level.WARN : Display.Level.OK;
-        String[] tries = {join(park, tipLong), join(park, tipShort)};
-        for (String text : tries) {
+        String partner = partnerLine();
+        if (partner != null) menu.add("<small>" + partner + "</small>");
+        double needs = 0;
+        for (String line : menu) needs += Display.rows(line);
+        if (display.room(needs)) {
+            for (String line : menu) display.line(line);
+            return;
+        }
+        // No room for the list: the selected row alone, whole and then short.
+        int i = rows[selected];
+        for (String text : new String[] {"▶ " + row(i, true), row(i, false)}) {
             String line = Display.statusLine(level, text);
-            if (display.room(Display.rows(line))) {
-                display.line(line);
-                return;
-            }
+            if (!display.room(Display.rows(line))) continue;
+            display.line(line);
+            return;
         }
     }
 
-    private static String join(String a, String b) {
-        if (a == null) return b;
-        return b == null ? a : a + " · " + b;
+    /** Lines an unselected row up under the selected one's pointer: no-break spaces, which HTML keeps. */
+    private static final String INDENT = "\u00A0\u00A0\u00A0";
+
+    /** An unselected row: its name and value, with no arrows. */
+    private String plain(int i) {
+        AutoOption option = options[i];
+        switch (option.kind) {
+            case CHOICE:
+                return option.name + ": " + chosen(i);
+            case MATCH_SECONDS:
+                return "waiting for " + option.tipName() + " until " + fmt(value(i)) + " s";
+            default:
+                return option.name + ": " + fmt(value(i)) + " s";
+        }
+    }
+
+    /** One row in words: with {@code keys}, the arrows that change it. */
+    private String row(int i, boolean keys) {
+        AutoOption option = options[i];
+        String arrows = keys ? " ◀▶" : "";
+        switch (option.kind) {
+            case CHOICE:
+                return option.name + arrows + ": " + chosen(i);
+            case MATCH_SECONDS:
+                // The one number the drive team moves; short on a nearly full page.
+                return keys ? "waiting for " + option.tipName() + " ◀▶ until " + fmt(value(i)) + " s"
+                        : (option.tip > 0 ? option.tipName() : "TIP") + " ◀▶ until " + fmt(value(i)) + " s";
+            default:
+                return option.name + arrows + ": " + fmt(value(i)) + " s";
+        }
+    }
+
+    /**
+     * What the partner's robot must be running and set to, for this robot's picks: "Partner runs
+     * L-Clockwise: Pickup GARDEN · Shot trigger TIMER". The setting a partner note follows comes
+     * from the note; every other choice the two Autos share by name (the shot trigger) must simply
+     * be the same. Null when the Auto says nothing of a partner.
+     */
+    private String partnerLine() {
+        StringBuilder out = null;
+        for (AutoOption note : options) {
+            if (note.kind != AutoOption.Kind.PARTNER) continue;
+            if (out == null) out = new StringBuilder("Partner runs " + note.name);
+            List<String> settings = new ArrayList<>();
+            for (int i = 0; i < options.length; i++) {
+                AutoOption option = options[i];
+                if (option.kind != AutoOption.Kind.CHOICE) continue;
+                int picked = choice[i] < 0 ? 0 : choice[i];
+                if (option.name.equals(note.follows)) {
+                    if (picked < note.choices.size()) settings.add(option.name + " " + note.choices.get(picked));
+                } else if (option.name.equals(AutoOption.SHOT_TRIGGER)) {
+                    settings.add(option.name + " " + chosen(i));
+                }
+            }
+            if (!settings.isEmpty()) out.append(": ").append(String.join(" · ", settings));
+        }
+        return out == null ? null : out.toString();
     }
 
     /** For the match log: every option, as picked and as drawn. Empty with none. */
@@ -184,14 +278,23 @@ public final class InitOptions implements AutoKit.Picks {
         List<String> parts = new ArrayList<>();
         for (int i = 0; i < options.length; i++) {
             AutoOption option = options[i];
-            if (option.kind == AutoOption.Kind.CHOICE) {
-                parts.add(String.format(Locale.US, "%s=%s (drawn %s)", option.name,
-                        option.choices.get(choice[i] < 0 ? 0 : choice[i]), option.choices.get(0)));
-            } else {
-                parts.add(String.format(Locale.US, "%s: partner's last shot %s s, until %s s (drawn %s s)", option.name,
-                        fmt(partnerLastShot(i)), fmt(limit(i)), fmt(option.drawnSeconds)));
+            switch (option.kind) {
+                case CHOICE:
+                    parts.add(String.format(Locale.US, "%s=%s (drawn %s)", option.name, chosen(i), option.choices.get(0)));
+                    break;
+                case MATCH_SECONDS:
+                    parts.add(String.format(Locale.US, "%s: waiting for %s until %s s (drawn %s s)", option.name,
+                            option.tipName(), fmt(value(i)), fmt(option.drawnSeconds)));
+                    break;
+                case TIME:
+                    parts.add(String.format(Locale.US, "%s=%s s (drawn %s s)", option.name, fmt(value(i)), fmt(option.drawnSeconds)));
+                    break;
+                default:
+                    break;
             }
         }
+        String partner = partnerLine();
+        if (partner != null) parts.add(partner);
         return String.join("; ", parts);
     }
 

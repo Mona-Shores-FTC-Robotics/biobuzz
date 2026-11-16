@@ -73,11 +73,20 @@ public class ControlSchemeTest {
         assertEquals(Input.SQUARE, on.get(Action.LAUNCH_SPOT));
         assertFalse(off.containsKey(Action.LAUNCH_SPOT));
         assertEquals("nothing else changes", on.size() - 1, off.size());
-        // The two-switch layout (the cheat sheet's) keeps it, as the TeleOp's default does.
+        // The cheat sheet's layout keeps it, as the TeleOp's default does.
         assertEquals(on, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true));
         // Moving the FLOWER pick onto Square swaps the launch spot onto Cross.
         Map<Action, Input> swapped = ControlScheme.layout(Input.SQUARE);
         assertEquals(Input.CROSS, swapped.get(Action.LAUNCH_SPOT));
+    }
+
+    @Test
+    public void gatherGardenIsOnTheDriversTriangle() {
+        assertEquals(Input.TRIANGLE, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).get(Action.GARDEN_GATHER));
+        // R1 is free on the driver's pad.
+        for (Map.Entry<Action, Input> entry : ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true).entrySet()) {
+            if (entry.getKey().pad == Action.Pad.DRIVER) assertFalse(entry.getKey().toString(), entry.getValue() == Input.R1);
+        }
     }
 
     @Test

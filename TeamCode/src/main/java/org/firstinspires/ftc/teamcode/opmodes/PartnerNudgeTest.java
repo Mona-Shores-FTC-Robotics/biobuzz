@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 
 /** A repeatable push-only experiment; the generated .pp owns both paths and the placement. */
 @Configurable
+@Disabled // Off the Driver Station for now (mentor, 12 Nov 2026): the nudge is not being run. Remove this line to bring it back.
 @Utility(name = "Drive: Partner Nudge " + PartnerNudgeTestAuto.SAVED,
         description = "Angled 16x16 chassis: short push, retreat, release drive; no shooting")
 public final class PartnerNudgeTest extends RobotOpMode {

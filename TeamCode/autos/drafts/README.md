@@ -6,6 +6,32 @@ partner-nudge experiment has Utility trials for bring-up. The nudge
 Utility's runtime speed limits are not modeled by AutoSim. The Visualizer lists
 these under "Drafts", and Save to GitHub saves back here.
 
+## Clockwise with the backward legs: the three-TIP draft
+
+`r-clockwise-backward.pp` with `l-clockwise-backward.pp`: the Clockwise pair as it first ran
+(20245 alone, 12 Nov 2026). R backs up the outside lane with its WALL FLOWER load and backs under
+the HIVE with its SCORING FLOWER load, which is what leaves time to cross for a third TIP: in the
+simulator it is ready at 20.1 s and crosses by 20.7 s. On that drive pieces left the intake on both
+backward legs, so the pair on the Autonomous menu drives nose-first and stays a two-TIP plan
+(mentor, 13 Nov 2026). This draft is kept for when the robot can hold a load driving backward. No
+OpMode. Request: `sim-requests/r-clockwise-backward.json`.
+
+Open the pair:
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-clockwise-backward.pp,drafts/l-clockwise-backward.pp>
+
+## The Clockwise lane study: four plain drafts
+
+`r-clockwise-flower.pp` with `l-clockwise-garden.pp`, and `r-clockwise-garden.pp` with
+`l-clockwise-flower.pp`: the Clockwise pair's two pickup choices, each drawn with one pickup and
+no INIT menu, so the lanes, the fallback paths and the clock times could be simulated before the
+menu, the route choice and the camera-or-timer stops were built. Their numbers and what they
+showed are in [clockwise.md](../clockwise.md), "The simulator's tables"; the pair in `TeamCode/autos/`
+is the one to run. No OpMode. Requests: `sim-requests/r-clockwise-flower.json` and
+`r-clockwise-garden.json`.
+
+Open a pair:
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-clockwise-flower.pp,drafts/l-clockwise-garden.pp>
+
 ## R-Two-Tip: one robot, two TIPs
 
 R-Solo made its second TIP in 0 of 7 runs at the Belding Qualifier. This draft keeps R-Solo's steps and
@@ -273,3 +299,113 @@ The generic simulator does not include these runtime speed limits; use this run'
 log to establish whether two tips and park fit. This is a Utility, not a competition
 Autonomous entry. The full trial reads `PartnerNudgeTest.pathSpeed` at INIT, the one
 number for the contact speed: find it with the push-only test first.
+
+## The lane pair: R-OutsideLane and L-UnderHive
+
+A second way at three TIPs beside the Clockwise pair: R keeps to the wall side of the HIVE and L
+to the under-HIVE side. Mentor session, 12 Nov 2026. Drafts, never driven; each runs from the
+Utility menu and stops itself at 30 s.
+
+Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-outside-lane.pp,drafts/l-under-hive.pp>
+
+| Utility | Route |
+|---|---|
+| **Drive: R-OutsideLane** | Preloads at RIGHT, WALL FLOWER, wall lane up and across to L4, LEFT up before 14 s, volley. **If that volley is done before 15.5 s:** SCORING FLOWER, wall lane back to R5, RIGHT up before 26 s, volley, park right. **Otherwise** park right from the left spot |
+| **Drive: L-UnderHive** | L4, LEFT up before 9 s, preloads, under the HIVE to the GARDEN, R4, RIGHT up before 22 s, volley, back under the HIVE, park left |
+
+Every volley is from a spot the drivers' buttons go to (`LaunchSpots`), as a new Auto must be: R's
+preloads from `RIGHT_START`, and the rest from the close row: `LEFT_CLOSE_HIVE` (L4, in front of the
+LEFT CELL), `RIGHT_CLOSE_HIVE` (R4) and `RIGHT_CLOSE_NEAR` (R5). They are local points in these
+drafts, not team spots. A wait that runs out parks the robot.
+
+**R's LEFT volley is from the close spot in front of the LEFT CELL,** L4, the spot L fires its
+preloads from (mentor, 13 Nov 2026: in front of the HIVE, not the corner and not back at the wall).
+L is meant to have fired and gone under the HIVE while R picks the WALL FLOWER and drives up, so R
+does not wait for it:
+
+- **R drives there intake first** (mentor, 13 Nov 2026): the fourth ball of a load rides on the
+  floor, and backing up lets it squirt out. Out of the WALL FLOWER R turns north in the first fifth
+  of the drive, comes round to face the way it drives, and turns to the HIVE only over the last of
+  the way in, as R-Infraviolet does. The trip back from the SCORING FLOWER already faced the way it
+  drives.
+- **What that costs is not known.** It is three quarters of a turn where backing in was one quarter.
+  The simulator shares the wheels between driving and turning and says 1.4 s: R on the spot at
+  13.2 s, not 11.8 s. But at Belding a half turn bunched at the start of a 92 in drive cost nothing
+  (2.6 to 2.9 s driven, where that rule says 3.8), while R-Solo's turn spread along this same curve
+  took 4.1 s against 2.9 drawn. So the first turn is bunched at the start, and the robot's own time
+  for this leg decides ([robot-todo §3](../../../doc/robot-todo.md), "Drive times for the planning numbers").
+- **L leaves the spot about 2.7 s after it reads LEFT up,** and R comes within reach of it at 12.0 s.
+  In 19 of 20 simulated runs L had gone before that. In 1 the first TIP was read late (8.8 s), L was
+  still leaving, and the robots touched.
+- **Tried and dropped:** a wait for L until 12 s (no contact, but R's LEFT volley then starts at
+  13.5 s and the third volley never fits); a wider turn in (slower by 0.3 s, and it met L on its
+  way to an early park); L1, the wall-row spot behind this one (a longer drive, and a turn there
+  crosses the centre line); L2, the corner.
+- **R drives the last stretch into `RIGHT_PARK` straight** along the park's own line (parked robots
+  are 2.7 in apart).
+
+**Pickup, in the INIT menu** (mentor, 13 Nov 2026: the row R-Clockwise has). Each trial offers one
+row, `Pickup`, on gamepad 1's D-pad left and right:
+
+| | Drawn | The other choice |
+|---|---|---|
+| R-OutsideLane | `WALL_FLOWER` | `GARDEN`: the GARDEN in its own corner, then up the wall lane as before |
+| L-UnderHive | `GARDEN` | `WALL_FLOWER`: under the HIVE, then across to the WALL FLOWER |
+
+The two robots must show different pickups. Nothing checks that: the drive teams read their rows
+to each other.
+
+- **Leave both as drawn for now.** The swap (R `GARDEN`, L `WALL_FLOWER`) does not work with today's
+  gather. In the simulator the gather keeps R in its corner for the card's whole 5.5 s, because it
+  takes 2 or 3 pieces and waits for a fourth. R is still leaving when L comes across to the WALL
+  FLOWER, and the robots touched in 17 of 20 runs. R then reaches the left spot at about 16.9 s,
+  after its 14 s limit, and parks: one TIP.
+- **What the swap needs:** R out of the corner by about 9.5 s, which is a gather of about 4 s or
+  less. Then R's first pickup is 25 in from its start, where the WALL FLOWER is 50 in.
+- **L's way to the WALL FLOWER leaves its lane.** It comes out from under the HIVE at the south end
+  and crosses to the alliance wall, where R drives. Only the clock keeps them apart.
+- **Both on `GARDEN`** touched in 17 of 20 (the same corner). **Both on `WALL_FLOWER`** ran as the
+  drawn pairing does: L finds the FLOWER already picked.
+
+**R falls back by itself** (mentor, 12 Nov 2026: no separate short Auto). The third volley needs
+the pick, the drive back, the volley and the park, about 14 s on a 2.5 s volley, so R goes for it
+only if its LEFT volley is done before 15.5 s. With today's 4 s volleys that volley ends at about
+15.8 s and R parks, done at 17.5 s. On a 2.5 s volley it ends at about 13 s and R goes on.
+
+**In the simulator as the robot runs today** (Belding calibration, 4 s volleys, 20 seeds, the pair):
+
+| R's LEFT volley from | Two TIPs | Both parked | Robots touch |
+|---|---|---|---|
+| L4, intake first, as drawn now | 2 | 20 | 3 |
+| L4, backing in, tried | 2 | 20 | 4 |
+| L1 with a wait for L, tried | 4 | 20 | 0 |
+| L2, tried | 3 | 20 | 2 |
+| `LEFT_LAUNCH_OFFSET`, before | 4 | 20 | 2 |
+
+- **The three contacts as drawn now:** one at the left spot at 12.0 s (L still leaving, above), and
+  two at about 22 s on R's third trip, where R5 and R4 overlap.
+- **Fewer two-TIP runs from L4 than from the spots further out** is the calibration keeping 0.70 of
+  balls from 36 in, on thin evidence (below).
+- **R's time decides the third TIP; L has 4.6 s to spare.** A path study (13 Nov 2026, the
+  Visualizer's timing, each shape checked in the simulator for the HIVE and the centre line) took
+  0.7 s off R: it turns toward the SCORING FLOWER as it leaves the left spot (1.3 s, was 1.6), and
+  drives back down on a straighter line with its two turns spread along it (3.0 s, was 3.4). Its
+  other drives are at what the robot's top speed allows. In the preview the third volley now fires
+  and its TIP settles at 30.0 s on a 2.5 s volley, 29.7 s on 2.4 s. A line 4 in nearer the HIVE was
+  0.1 s quicker and clipped the HIVE's corner in the simulator while R turned.
+- **The preview's 3 s for the intake-first leg is not measured** (above). If that leg takes the
+  simulator's 4.4 s, R's LEFT volley ends at about 15.7 s and it parks after it.
+- **From `LEFT_LAUNCH_OFFSET`, R parked after its LEFT volley in 18 of 20.** In the other two a short FLOWER load ended that
+  volley early, R went on, and it met L leaving the GARDEN at about 20 s.
+- **On a planned 2.5 s volley both robots fire their last volleys,** and R comes in to R5 while L
+  is on R4: the two spots overlap, and the robots touched in most runs. Not resolved yet.
+- **Two TIPs came in 9 of 20 with L's preloads from `LEFT_LAUNCH_CATCH`.** The drop to 4 was the
+  calibration keeping 0.70 of balls from 36 in, a figure from before a launcher speed was measured
+  there. Count the volleys from L4 before judging it.
+- **No third TIP in any run:** the RIGHT CELL gets R's four and the two or three L's GARDEN gather
+  takes.
+
+The earlier lane study (closed PR #533) is why this is not offered as safe beside any partner: a
+left partner driving to the park zone or taking the SCORING FLOWER meets R at its left spot, and
+the full R meets a robot left on `LEFT_START`. The robot checks are in
+[robot-todo §3](../../../doc/robot-todo.md).

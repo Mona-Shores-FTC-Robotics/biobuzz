@@ -40,7 +40,9 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * them inward. They run at {@link #starsPower} whenever the roller is taking in, backwards at the
  * same power while it ejects (asked for on 26 Oct 2026, so the stars push a piece out with the
  * roller rather than sit in its way), and stop when the roller is idle. Their direction is
- * {@link #starsReversed}, unknown until a robot has shown it.
+ * {@link #starsReversed}, unknown until a robot has shown it. On 19429 ({@link #rightStarWheel}) that
+ * servo drives the left star wheel and {@link DeviceNames#INTAKE_STARS_RIGHT} the right one, always
+ * together, with the same power; the right one's direction is {@link #starsRightReversed}.
  *
  * <h2>Running for a feed</h2>
  *
@@ -125,6 +127,22 @@ public class IntakeSubsystem implements Subsystem {
     public static boolean starsReversed = true;
 
     /**
+     * Whether this robot drives its right star wheel from a servo of its own,
+     * {@link DeviceNames#INTAKE_STARS_RIGHT}, beside {@link DeviceNames#INTAKE_STARS} (then the
+     * left one). Off: one servo drives every star wheel, as on 20245. On for 19429 in
+     * {@code RobotDifferences} (13 Nov 2026). Read once, when the subsystem is built.
+     */
+    public static boolean rightStarWheel = false;
+
+    /**
+     * Flips the right star-wheel servo ({@link #rightStarWheel}) so that positive power turns its
+     * star inward, as {@link #starsReversed} does for the left one. {@code false} on the guess
+     * that it is mounted mirror-image to the left servo, so it turns the other way for the same
+     * inward motion. <b>A guess: not yet checked on a robot.</b>
+     */
+    public static boolean starsRightReversed = false;
+
+    /**
      * Whether the roller runs inward while the feeder feeds, to push the last piece up from the
      * intake. The stars always do. Off if the roller pulls loose pieces in while firing; the
      * mentor's switch for the lab, read every loop so a Panels edit applies at once.
@@ -179,6 +197,8 @@ public class IntakeSubsystem implements Subsystem {
 
     private final DcMotorEx motor;
     private final CRServo stars;
+    /** The right star wheel's own servo, or null where one servo drives them all ({@link #rightStarWheel}). */
+    private final CRServo starsRight;
     private final FeederSubsystem feeder;
     /** What the OpMode asked for. */
     private State request = State.IDLE;
@@ -228,13 +248,14 @@ public class IntakeSubsystem implements Subsystem {
     private boolean currentEveryLoop;
 
     /**
-     * Looks the motor and the star-wheel servo up once. A missing device fails init with the SDK's own message.
+     * Looks the motor and the star-wheel servo (both, with {@link #rightStarWheel}) up once. A missing device fails init with the SDK's own message.
      *
      * @param feeder read for its request, which the intake joins; updated before this subsystem
      */
     public IntakeSubsystem(HardwareMap hardwareMap, FeederSubsystem feeder) {
         motor = hardwareMap.get(DcMotorEx.class, DeviceNames.INTAKE);
         stars = hardwareMap.get(CRServo.class, DeviceNames.INTAKE_STARS);
+        starsRight = rightStarWheel ? hardwareMap.get(CRServo.class, DeviceNames.INTAKE_STARS_RIGHT) : null;
         this.feeder = feeder;
     }
 
@@ -486,10 +507,10 @@ public class IntakeSubsystem implements Subsystem {
                             : ownEject ? orConfigured(ejectRollerPower, outPower) : outPower));
         }
         if (started) {
-            stars.setPower(starsPowerFor(starsState,
-                    holdingForFull ? starsPowerWhenFull
-                            : ownEject && starsState == State.OUT ? orConfigured(ejectStarsPower, starsPower) : starsPower,
-                    starsReversed));
+            double power = holdingForFull ? starsPowerWhenFull
+                    : ownEject && starsState == State.OUT ? orConfigured(ejectStarsPower, starsPower) : starsPower;
+            stars.setPower(starsPowerFor(starsState, power, starsReversed));
+            if (starsRight != null) starsRight.setPower(starsPowerFor(starsState, power, starsRightReversed));
         }
         ticksPerSecond = motor.getVelocity();
         if (roller == State.IDLE) {
@@ -532,11 +553,14 @@ public class IntakeSubsystem implements Subsystem {
         releasePositionHold();
         motor.setPower(0.0);
         stars.setPower(0.0);
+        if (starsRight != null) starsRight.setPower(0.0);
     }
 
     @Override
     public String health() {
-        return "roller motor and star servo configured; presence unknown until they move";
+        return starsRight != null
+                ? "roller motor and left and right star servos configured; presence unknown until they move"
+                : "roller motor and star servo configured; presence unknown until they move";
     }
 
     @Override

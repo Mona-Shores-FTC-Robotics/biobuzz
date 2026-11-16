@@ -394,8 +394,9 @@ public class LauncherSubsystem implements Subsystem {
 
     /** Ask both wheels to hold {@link #targetTicksPerSecond}. Takes effect in the next {@link #update()}. */
     public void spinUp() {
+        double before = target();
         heldTicksPerSecond = Double.NaN;
-        beginSpinning();
+        beginSpinning(before);
     }
 
     /**
@@ -405,17 +406,28 @@ public class LauncherSubsystem implements Subsystem {
      * the last one's trim. {@link #spinUp()} goes back to the configured speed.
      */
     public void spinUp(double ticksPerSecond) {
+        double before = target();
         heldTicksPerSecond = ticksPerSecond;
-        beginSpinning();
+        beginSpinning(before);
     }
 
-    private void beginSpinning() {
+    /**
+     * {@code before}: the target until this call. Already spinning, a target that moves by more
+     * than {@link #toleranceTicksPerSecond} (an idle speed up to the launch speed) is not at speed
+     * from this moment, not from the next {@link #update()}: otherwise a FIRE that spins up from
+     * the idle speed reads the idle speed's "at speed" in the same loop and feeds at the idle speed
+     * (TeleOp's idle of 1000, 13 Nov 2026). A small retarget (a trim, the speed table) keeps it.
+     */
+    private void beginSpinning(double before) {
         if (state != State.SPINNING) {
             spinUpStartedNs = System.nanoTime();
             leftWatch.restart(spinUpStartedNs);
             rightWatch.restart(spinUpStartedNs);
             readiness.reset();
             shots.reset();
+        } else if (!(Math.abs(target() - before) <= toleranceTicksPerSecond)) {
+            readiness.reset();
+            atSpeed = false;
         }
         state = State.SPINNING;
     }

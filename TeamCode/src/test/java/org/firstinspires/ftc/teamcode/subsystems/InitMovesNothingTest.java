@@ -99,6 +99,28 @@ public class InitMovesNothingTest {
     }
 
     @Test
+    public void rightStarWheelWaitsForPlayAndRunsWithTheLeft() {
+        boolean was = IntakeSubsystem.rightStarWheel;
+        IntakeSubsystem.rightStarWheel = true;
+        try {
+            Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
+                    .crServo(DeviceNames.INTAKE_STARS_RIGHT).motor(DeviceNames.FEEDER);
+            IntakeSubsystem intake = new IntakeSubsystem(devices.map, new FeederSubsystem(devices.map));
+            runInit(intake, devices);
+
+            intake.start();
+            intake.intake();
+            intake.update();
+            assertEquals("at PLAY the right star wheel turns inward with the left",
+                    "setPower(" + IntakeSubsystem.starsPowerFor(IntakeSubsystem.State.IN,
+                            IntakeSubsystem.starsPower, IntakeSubsystem.starsRightReversed) + ")",
+                    devices.calls(DeviceNames.INTAKE_STARS_RIGHT).get(0));
+        } finally {
+            IntakeSubsystem.rightStarWheel = was;
+        }
+    }
+
+    @Test
     public void intakeJoinsAFeedOnlyAfterPlay() {
         Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
                 .motor(DeviceNames.FEEDER);

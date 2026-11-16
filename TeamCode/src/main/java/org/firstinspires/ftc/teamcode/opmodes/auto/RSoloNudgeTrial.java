@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.PartnerNudgeTestAut
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloNudgeAuto;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
+@Disabled // Off the Driver Station for now (mentor, 12 Nov 2026): the nudge is not being run. Remove this line to bring it back.
 @Utility(name = "Drive: R-Solo-Nudge " + RSoloNudgeAuto.SAVED,
         description = "Full Solo with gentle angled nudge; shooting, pickups, park; 30-second stop")
 public final class RSoloNudgeTrial extends BuiltAuto {

@@ -84,8 +84,12 @@ public final class DeviceNames {
     public static final String FLOWER_STICK = "flowerStick";
     // The intake's star wheels (the intake-assist wheels: SWYFT wheels cut
     // into stars on a continuous-rotation servo with one-way clutches, #160).
-    // Control Hub servo port 5 on both robots, wired 24 Oct 2026.
+    // On 20245 one servo drives them all; on 19429 this is the LEFT star wheel's
+    // servo and INTAKE_STARS_RIGHT drives the right one. Ports in each robot's XML.
     public static final String INTAKE_STARS = "intakeStars";
+    // 19429's right intake star wheel, its own continuous-rotation servo since
+    // 13 Nov 2026 (IntakeSubsystem.rightStarWheel). 19429 only, so far.
+    public static final String INTAKE_STARS_RIGHT = "intakeStarsRight";
 
     /**
      * The prefeed wheel: the big grey wheel at the start of the transfer, on a goBILDA Torque servo
@@ -186,9 +190,10 @@ public final class DeviceNames {
     }
 
     /**
-     * Every device a competition robot carries. Both {@code robot_19429.xml}
-     * and {@code robot_20245.xml} must declare exactly these, and they are
-     * what {@code ValidateHardware} looks for on those robots.
+     * Every device both competition robots carry. {@code robot_20245.xml} must
+     * declare exactly these; {@code robot_19429.xml} these and
+     * {@link #ROBOT_19429}'s additions. They are what {@code ValidateHardware}
+     * looks for on those robots.
      */
     public static final List<Device> COMPETITION_ROBOT = Collections.unmodifiableList(Arrays.asList(
             new Device(FRONT_LEFT, Kind.MOTOR),
@@ -210,6 +215,13 @@ public final class DeviceNames {
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
     /**
+     * 19429: {@link #COMPETITION_ROBOT} and a second intake star-wheel servo, the right one
+     * ({@link #INTAKE_STARS_RIGHT}, 13 Nov 2026). 20245 still drives its stars from one servo.
+     */
+    public static final List<Device> ROBOT_19429 = with(COMPETITION_ROBOT,
+            new Device(INTAKE_STARS_RIGHT, Kind.CR_SERVO));
+
+    /**
      * Every device name the code knows about, on any robot — the union of the
      * per-robot lists above. Not a requirement on any one configuration; each
      * {@link RobotIdentity} carries its own list for that.
@@ -227,7 +239,13 @@ public final class DeviceNames {
     public static final List<Device> OCTOQUAD_RIG = Collections.unmodifiableList(Arrays.asList(
             new Device(OCTOQUAD, Kind.I2C)));
 
-    public static final List<Device> ALL = union(COMPETITION_ROBOT, LAUNCHER_BENCH, OCTOQUAD_RIG);
+    public static final List<Device> ALL = union(ROBOT_19429, COMPETITION_ROBOT, LAUNCHER_BENCH, OCTOQUAD_RIG);
+
+    private static List<Device> with(List<Device> base, Device... more) {
+        List<Device> list = new ArrayList<>(base);
+        list.addAll(Arrays.asList(more));
+        return Collections.unmodifiableList(list);
+    }
 
     @SafeVarargs
     private static List<Device> union(List<Device>... lists) {

@@ -36,10 +36,11 @@ import java.util.function.Consumer;
 public final class GardenGather extends GrabRoutine {
 
     /**
-     * Only a GARDEN this close to the robot is gathered from, inches: the whole of our half, since in
-     * an Auto the centre line is the limit that matters.
+     * Only a GARDEN this close to the robot is gathered from, inches. 45 since 14 Nov 2026 (mentor, on
+     * 19429 at the field; 160, the whole of our half, before): the button only gathers near the
+     * GARDEN. An Auto's card starts at GARDEN_STAGING, about 13 in away.
      */
-    public static double maxRangeIn = 160.0;
+    public static double maxRangeIn = 45.0;
     /**
      * The line-up spot, moved this much further from the side wall than the GARDEN's line-up pose
      * ({@link GardenFieldPoints}), inches: room to turn in the corner (30 Oct 2026). The drive in
@@ -54,10 +55,12 @@ public final class GardenGather extends GrabRoutine {
      * The stick goes down and the intake starts once the robot is this close to the line-up,
      * inches, and faces the GARDEN to within {@link #lowerWithinDeg}. The GARDEN is in a corner, so
      * a stick swung down early, while the robot still turns, came down on the wall (30 Oct 2026).
+     * 10 in and 30° since 14 Nov 2026 (mentor, on 19429 at the field; 6 in and 10° before): the stick
+     * comes down sooner on the line-up, and 8 gathers, 4 in a row, had no stick on the wall.
      */
-    public static double lowerWithinIn = 6.0;
+    public static double lowerWithinIn = 10.0;
     /** See {@link #lowerWithinIn}, degrees. */
-    public static double lowerWithinDeg = 10.0;
+    public static double lowerWithinDeg = 30.0;
     /** Time the stick is given to swing down before the drive in may start, ms. */
     public static double stickDownMs = 700;
     /**
@@ -86,10 +89,11 @@ public final class GardenGather extends GrabRoutine {
     public static boolean curveToWall = true;
     /**
      * With {@link #curveToWall}: how much closer to the side wall than the gather pose the drive in
-     * ends, inches. A little, to keep the side on the wall at the end; not the diagonal's
-     * {@link #towardWallIn}, which pins it.
+     * ends, inches. Enough to keep the side on the wall at the end: the wall stops it, and the drive
+     * in ends when it stalls. 2.0 since 14 Nov 2026 (mentor, at the field: the gather sat too far off
+     * the wall at 0.5).
      */
-    public static double laneTowardWallIn = 0.5;
+    public static double laneTowardWallIn = 2.0;
     /**
      * The back out curves too, the drive in run backwards: straight back up the side wall first,
      * then over to where the drive in started, so the stick, still down, does not sweep sideways
@@ -128,8 +132,12 @@ public final class GardenGather extends GrabRoutine {
     public static double atLineUpIn = 1.5;
     /** Already lined up: this square, degrees, skips the line-up path. */
     public static double atLineUpDeg = 5.0;
-    /** The drive in's speed cap, a fraction of the robot's top path speed (0 to 1]. */
-    public static double inSpeed = 0.5;
+    /**
+     * The drive in's speed cap, a fraction of the robot's top path speed (0 to 1]. 1.0 since 14 Nov
+     * 2026 (mentor, at the field): at 0.5 the curve over to the side wall, mostly a strafe, was very
+     * slow.
+     */
+    public static double inSpeed = 1.0;
     /** The drive in gives up after this long, ms. */
     public static double inTimeoutMs = 4000;
     /** Less progress than this, inches, in {@link #stallMs} means the robot is against something. */
@@ -156,11 +164,16 @@ public final class GardenGather extends GrabRoutine {
      * still rolling (10 to 24 in/s in the 29 Oct to 2 Nov 2026 match logs; under 8 in/s 0.07 to
      * 0.19 s later, under 2 in/s 0.13 to 0.51 s later). The gather drives itself in from the staging
      * spot and ends on the wall, so it need not be still first: 8 since 3 Nov 2026 (mentor), the same
-     * as the FLOWER pick's, from the 2 a launch waits for ({@code PathEndSettle}).
+     * as the FLOWER pick's, from the 2 a launch waits for ({@code PathEndSettle}). 20 since 14 Nov
+     * 2026 (mentor, on 19429 at the field): the drive in starts without waiting to slow.
      */
-    public static double settledInPerSec = 8.0;
-    /** Forward power during the dwell, to keep the stick seated. 0 for none. */
-    public static double dwellPushPower = 0.1;
+    public static double settledInPerSec = 20.0;
+    /**
+     * Forward power during the dwell, to keep the stick seated and the intake pressed into the
+     * corner. 0 for none. 1.0 since 14 Nov 2026 (mentor, on 19429 at the field: 8 gathers, 4 in a
+     * row; 0.1 before).
+     */
+    public static double dwellPushPower = 1.0;
     /**
      * The drive back's speed cap, a fraction of the robot's top path speed (0 to 1]. 0.8 since 6 Nov
      * 2026 (mentor): back out briskly with the stick still down, then stop.
