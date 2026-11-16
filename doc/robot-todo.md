@@ -1237,6 +1237,22 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       Square to `RIGHT_START` and to `LEFT_WALL_HIVE` and count what stays in of 4 at each, as
       before the change: the aim moved by about 1° (0.8 in at the CELL). **Stop:** fewer stay in
       than before → note which side the misses fall.
+- [ ] **The Autos' four launch spots, by hand first (Basic Drive, HIVE upright, a taped mark at
+      each).** `AutoLaunchSpots`, drawn 16 Nov and never launched from: `LEFT_AUTO_HIVE`
+      (61.9, 120.4, 268.1°), `LEFT_AUTO_OFFSET` (40.7, 121.1, 298.7°), `RIGHT_AUTO_HIVE`
+      (59.2, 20.9, 96.1°), `RIGHT_AUTO_OFFSET` (37.6, 22.3, 63.8°); blue's are these turned half a
+      turn. Tape each from the walls, place the robot on it at its heading, turret locked, and
+      fire five volleys of four. Write the count that stays in of 20 at each, and the range the
+      robot shows. **Good:** 18 or more of 20 from each HIVE spot (40 in, 2° and 6° off square) and
+      from each OFFSET spot (44 in, 29° and 26° off square), and nothing off the HIVE's lip from
+      40 in. **Stop:** lip hits from a HIVE spot → note how many, and try 2 in further back; an
+      OFFSET spot clearly worse than its HIVE spot → note which side the misses fall. That is the
+      angle, and the spot moves back along its line (26° at 48 in on the left).
+- [ ] **Two robots at one end.** One on `LEFT_AUTO_HIVE`, one on `LEFT_AUTO_OFFSET`, both at
+      their headings. **Good:** about 2 in between the frames, HIVE's frame half an inch short of
+      the centre line, OFFSET clear of the SCORING FLOWER, and each can fire without the other
+      in its line. The same on the right. **Stop:** they touch, or one shoots across the other →
+      note which and by how much.
 
 ## 7e. Blue alliance (HIVE and FLOWERs on the blue side)
 

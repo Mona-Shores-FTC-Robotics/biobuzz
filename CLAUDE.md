@@ -119,10 +119,14 @@ measured field facts — NaN or empty until measured, never guessed. Each measur
 `…_START` team spot in `TeamCode/autos/spots.json` (the Visualizer's start buttons), named in
 `StartPositions.TEAM_SPOTS`; `TeamSpotsTest` fails while the two differ. Every Auto on master uses
 only the team's spots (`TeamCode/autos/README.md` lists them, side first: `RIGHT_START`,
-`RIGHT_PARK`); one that needs another spot lives on the `autos-experiment` branch. One exception:
-the Clockwise pair, whose every
-volley is from a spot of `LaunchSpots` (the drivers' Square), written there and compared by
-`ClockwiseAutoTest`: a new Auto launches from those, never from a spot of its own. An Autonomous declares its start by
+`RIGHT_PARK`); one that needs another spot lives on the `autos-experiment` branch. An Auto launches only from
+its start or an Auto launch spot (`AutoLaunchSpots`: `LEFT_AUTO_HIVE`, `LEFT_AUTO_OFFSET` and
+their RIGHT twins, team spots that `AutoLaunchSpotsTest` keeps equal to the Java), never from a
+spot of its own or one of the drivers' Square spots (`LaunchSpots`, the TeleOp's alone).
+`AutoVolleySpotsTest` fails an Auto that does and names the ones not yet moved. HIVE and OFFSET at
+one end hold two of our robots together; which a volley uses is the Auto's to work out. A
+left-start Auto moves up to `LEFT_AUTO_HIVE` for its first volley; a right-start Auto fires its
+preloads from `RIGHT_START`. An Autonomous declares its start by
 overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check. A TeleOp with
 no handoff declares its alliance's start too (`StartPositions.forAlliance`), so a test drive starts
 from a known pose with the right field-centric forward; after an Auto it keeps the Auto's pose. The drive team

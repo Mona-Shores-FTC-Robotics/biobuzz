@@ -41,8 +41,8 @@ notes are in Git history.
 **L-Clockwise / R-Clockwise** is the coordinated pair: both robots on a one-way loop, with a fixed
 fallback at each stop, and a pickup the drive teams choose in INIT. Each robot has run its half
 alone; the pair has not yet run together
-([its notes](clockwise.md)). Its volleys are from the
-drivers' Square spots (`LaunchSpots`), not team spots. It drives nose-first with a load; the version
+([its notes](clockwise.md)). Its volleys are still from the
+drivers' Square spots (`LaunchSpots`); it moves to the Autos' launch spots with the other four. It drives nose-first with a load; the version
 with backward legs, which has time for a third TIP, is the draft `r-clockwise-backward.pp` with
 `l-clockwise-backward.pp`.
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
@@ -214,13 +214,21 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 | Spot | What it is |
 |---|---|
 | `RIGHT_START`, `LEFT_START` | The measured starts (`localization/StartPositions`). |
-| `RIGHT_LAUNCH_CATCH`, `LEFT_LAUNCH_CATCH` | In front of that CELL, just outside where its spill lands, clear of a partner on the start. |
+| `RIGHT_AUTO_HIVE`, `LEFT_AUTO_HIVE` | **Where an Auto launches**, with the start and the OFFSET spot: in front of that CELL, 40 in from its raised row, turned to aim the turret, half an inch short of the centre line on the left. It stands in front of that end's start, so it is for a robot that knows the start is empty. (`localization/AutoLaunchSpots`, 16 Nov 2026; nothing has been launched from these yet.) |
+| `RIGHT_AUTO_OFFSET`, `LEFT_AUTO_OFFSET` | **Where an Auto launches** beside a robot on the HIVE spot: 44 in out on our wall's side, 2 in from that robot, 29° off square on the left and 26° on the right. It also clears a robot left on that end's start. |
+| `RIGHT_LAUNCH_CATCH`, `LEFT_LAUNCH_CATCH` | *Being retired, with CLOSE and OFFSET below: an Auto still on them is named in `AutoVolleySpotsTest`.* | In front of that CELL, just outside where its spill lands, clear of a partner on the start. |
 | `RIGHT_LAUNCH_OFFSET`, `LEFT_LAUNCH_OFFSET` | Off to the side of that CELL and angled at it, so a partner in front of the CELL is not disturbed. |
 | `RIGHT_LAUNCH_CORNER`, `LEFT_LAUNCH_CORNER` | The long shot (about 55 in) from the corner of our wall, drawn for the TeleOp's go-to-launch-spot button, which stopped using them on 11 Nov 2026 (its spots are now `localization/LaunchSpots`' own, not team spots); no Auto uses them. RIGHT is where 20245 scored it on 4 Nov; LEFT is its place mirrored across the axle line, turned to aim the turret (which sits off-centre) at the LEFT CELL; not yet fired from. |
 | `WALL_FLOWER_STAGING`, `SCORING_FLOWER_STAGING` | Where a Pick flower step starts (on the FLOWER's line, 18–24 in out). |
 | `GARDEN_STAGING` | Where a Garden gather step starts; the gather pose itself is the robot code's (`GardenFieldPoints`). |
 | `RIGHT_PARK`, `LEFT_PARK` | 14.5 in off the alliance wall, facing 0 (the intake toward the field), in the LOADING ZONE. |
 | `PARTNER_STAGED_POLLEN` | Where a partner on `LEFT_START` sets its four preloads down for us: a drawing until a partner says where they stage (`partners/partner-l-stage-park` is the simulator's guess; see "Partner stand-ins"). |
+
+**Which launch spot a volley uses** is the Auto's to work out. HIVE is preferred; a pair uses one
+each; a robot coming under the HIVE shoots from HIVE, one coming round the outside lane from
+OFFSET. A left-start Auto moves up from `LEFT_START` to `LEFT_AUTO_HIVE` for its first volley; a
+right-start Auto fires its preloads from `RIGHT_START`. The drivers' Square has its own twelve
+spots (`localization/LaunchSpots`), which no Auto uses.
 
 Names are side (or thing) first, then role, then variant, so a side's spots sort together. An Auto
 that needs a spot not in this list is drawn on the `autos-experiment` branch until the spot earns
