@@ -26,6 +26,14 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
  *       left on that end's start, which HIVE does not.</li>
  * </ul>
  *
+ * <p><b>One more, for one job:</b> {@code RIGHT_AUTO_FIX_TIP}, where a left-start Auto that has
+ * crossed under the HIVE fires its preloads at the RIGHT CELL when the partner's TIP did not come
+ * (mentor, 16 Nov 2026). It is square to the wall and in line with the CELL, its back edge 18 in
+ * from the audience wall: no robot may start more than 18 in deep, so it clears whatever is still
+ * on {@code RIGHT_START}, and it keeps the robot out of the lanes a partner drives to the WALL
+ * FLOWER and the GARDEN. That puts it 35 in from the row, where volleys have hit the HIVE's lip:
+ * the price of standing clear.
+ *
  * <p><b>Which one a volley uses</b> is each Auto's to work out. HIVE is preferred; a pair uses one
  * each; a robot that comes under the HIVE shoots from HIVE, one that comes round the outside lane
  * from OFFSET. A left-start Auto moves up from {@code LEFT_START} to {@code LEFT_AUTO_HIVE} for
@@ -48,11 +56,13 @@ public final class AutoLaunchSpots {
         LEFT_AUTO_HIVE(true, 61.9, 120.4, 268.1),
         LEFT_AUTO_OFFSET(false, 40.7, 121.1, 298.7),
         RIGHT_AUTO_HIVE(true, 59.2, 20.9, 96.1),
-        RIGHT_AUTO_OFFSET(false, 37.6, 22.3, 63.8);
+        RIGHT_AUTO_OFFSET(false, 37.6, 22.3, 63.8),
+        /** Square, in line with the RIGHT CELL, its back 18 in from the wall: see the class comment. */
+        RIGHT_AUTO_FIX_TIP(false, 55.3, 25.7, 90.0);
 
         /** As drawn, for red. */
         public final Pose red;
-        /** The spot in front of the CELL (else the OFFSET one beside it). */
+        /** The HIVE spot of a pair (else its OFFSET one, or the fix-TIP spot, which pairs with nothing). */
         public final boolean hive;
         /** Serves our LEFT CELL (else the RIGHT one): which half of the axle line it is on. */
         public final boolean left;

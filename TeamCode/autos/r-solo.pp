@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-12T20:37:41.054Z",
+  "timestamp": "2026-11-16T19:07:06.863Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -68,7 +68,7 @@
     {
       "id": "line-mw2z05td-jkwfz4",
       "color": "#b07aa1",
-      "name": "to LEFT_LAUNCH_CLOSE",
+      "name": "to LEFT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -76,8 +76,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.9,
-        "y": 117.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [
         {
@@ -88,7 +88,7 @@
       "heading": {
         "type": "piecewise",
         "startDeg": 180,
-        "endDeg": 270,
+        "endDeg": 268.1,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
@@ -112,7 +112,7 @@
               "continueFromPrevious": true,
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 270
+                "endDeg": 268.1
               }
             }
           ]
@@ -122,7 +122,7 @@
     {
       "id": "line-mw2z05th-whpzzi",
       "color": "#edc948",
-      "name": "LEFT_LAUNCH_CLOSE park",
+      "name": "LEFT_AUTO_HIVE park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -146,13 +146,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.9,
-        "y": 117.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -90
+        "degrees": -91.89999999999998
       }
     },
     {
@@ -172,7 +172,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": -90,
+        "startDeg": 268.1,
         "endDeg": 90
       }
     },
@@ -214,13 +214,13 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -270
+        "degrees": 90
       }
     },
     {
       "id": "line-mw2z8m8r-d4cyle",
       "color": "#e15759",
-      "name": "to LEFT_LAUNCH_CLOSE",
+      "name": "to LEFT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -228,14 +228,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.9,
-        "y": 117.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
-        "endDeg": 270
+        "endDeg": 268.1
       }
     },
     {
@@ -260,7 +260,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 270,
+        "startDeg": 268.1,
         "endDeg": 0
       }
     },
@@ -270,13 +270,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.9,
-        "y": 117.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 270
+        "degrees": 268.1
       }
     },
     {
@@ -301,7 +301,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 270,
+        "startDeg": 268.1,
         "endDeg": 0
       }
     },
@@ -311,19 +311,19 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.9,
-        "y": 117.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -90
+        "degrees": -91.89999999999998
       }
     },
     {
       "id": "line-mw2z1rrz-ltmk3y",
       "color": "#9c755f",
-      "name": "to RIGHT_LAUNCH_CLOSE",
+      "name": "to RIGHT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -331,8 +331,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 56.1,
-        "y": 26
+        "x": 59.2,
+        "y": 20.9
       },
       "controlPoints": [
         {
@@ -350,8 +350,8 @@
       ],
       "heading": {
         "type": "piecewise",
-        "startDeg": 270,
-        "endDeg": 90,
+        "startDeg": 268.1,
+        "endDeg": 96.1,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
@@ -363,7 +363,7 @@
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 270,
+                "startDeg": 268.1,
                 "endDeg": 270
               }
             },
@@ -375,7 +375,7 @@
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 270,
-                "endDeg": 90
+                "endDeg": 96.1
               }
             }
           ]
@@ -404,7 +404,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
+        "startDeg": 96.1,
         "endDeg": 0
       }
     },
@@ -414,13 +414,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 56.1,
-        "y": 26
+        "x": 59.2,
+        "y": 20.9
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 90
+        "degrees": 96.10000000000002
       }
     },
     {
@@ -445,7 +445,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
+        "startDeg": 96.1,
         "endDeg": 0
       }
     }
@@ -729,7 +729,8 @@
         "RightCellUp",
         "Tip",
         "CameraBlind",
-        "CellUp"
+        "CellUp",
+        "Always"
       ],
       "events": [
         "Tip"
@@ -753,20 +754,10 @@
         47.2,
         180
       ],
-      "LEFT_LAUNCH_OFFSET": [
-        41,
-        121.5,
-        296.4
-      ],
       "SCORING_FLOWER_STAGING": [
         47.2,
         119.3,
         90
-      ],
-      "LEFT_LAUNCH_CATCH": [
-        57.5,
-        123.5,
-        273.4
       ],
       "RIGHT_PARK": [
         14.5,
@@ -778,20 +769,15 @@
         22.1,
         270
       ],
-      "RIGHT_LAUNCH_OFFSET": [
-        41,
-        20,
-        68.7
+      "LEFT_AUTO_HIVE": [
+        61.9,
+        120.4,
+        268.1
       ],
-      "LEFT_LAUNCH_CLOSE": [
-        59.9,
-        117.5,
-        270
-      ],
-      "RIGHT_LAUNCH_CLOSE": [
-        56.1,
-        26,
-        90
+      "RIGHT_AUTO_HIVE": [
+        59.2,
+        20.9,
+        96.1
       ]
     },
     "pathEnds": {
@@ -801,10 +787,10 @@
       "line-mw2h249a-0a0w4q": "RIGHT_PARK",
       "line-mw2h249b-qfhry3": "RIGHT_PARK",
       "line-mw2h249i-g9eamy": "RIGHT_PARK",
-      "line-mw2z05td-jkwfz4": "LEFT_LAUNCH_CLOSE",
+      "line-mw2z05td-jkwfz4": "LEFT_AUTO_HIVE",
       "line-mw2z05th-whpzzi": "RIGHT_PARK",
-      "line-mw2z1rrz-ltmk3y": "RIGHT_LAUNCH_CLOSE",
-      "line-mw2z8m8r-d4cyle": "LEFT_LAUNCH_CLOSE",
+      "line-mw2z1rrz-ltmk3y": "RIGHT_AUTO_HIVE",
+      "line-mw2z8m8r-d4cyle": "LEFT_AUTO_HIVE",
       "line-mwdn0a01-rsp3c": "RIGHT_PARK",
       "line-mwdn0a01-rspfb": "RIGHT_PARK"
     },
@@ -974,11 +960,8 @@
     },
     "teamSpots": [
       "GARDEN_STAGING",
-      "LEFT_LAUNCH_CATCH",
-      "LEFT_LAUNCH_CLOSE",
-      "LEFT_LAUNCH_OFFSET",
-      "RIGHT_LAUNCH_CLOSE",
-      "RIGHT_LAUNCH_OFFSET",
+      "LEFT_AUTO_HIVE",
+      "RIGHT_AUTO_HIVE",
       "RIGHT_PARK",
       "RIGHT_START",
       "SCORING_FLOWER_STAGING",

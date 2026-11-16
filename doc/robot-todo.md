@@ -1260,15 +1260,29 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       angle, and the spot moves back along its line (26° at 48 in on the left).
 - [ ] **R-NoCross and L-NoCross on the Autos' launch spots (moved 16 Nov, not driven).**
       R-NoCross's two later volleys are from `RIGHT_AUTO_HIVE`; L-NoCross moves up to
-      `LEFT_AUTO_HIVE` to wait for the TIP and fires its LEFT volleys there, and its crossing when
-      no TIP comes ends at `RIGHT_AUTO_OFFSET`, on a path that leaves the under-HIVE lane to the
-      west. Run each alone, then L-NoCross with a robot left on `RIGHT_START` and no TIP.
-      **Good:** every volley 3 or 4 of 4 in; L-NoCross passes under the HIVE and round to the
-      OFFSET spot touching neither the HIVE's leg nor the robot on the start; both park.
-      **Stop:** L-NoCross alone is still driving at 30 s. The simulator has it parked at 29.9 s
-      (29.3 before the move, and Belding M-7 ended that trip 9 in short) → write the time. Its
-      route back to the left end before parking stays: a park straight from the right end runs
-      through `RIGHT_PARK` (`doc/auto-handoffs.md`).
+      `LEFT_AUTO_HIVE` to wait for the TIP and fires its LEFT volleys there. When no TIP comes by
+      its time (9 s), L-NoCross crosses under the HIVE to `RIGHT_AUTO_FIX_TIP` (55.3, 25.7, square,
+      its back 18 in from the audience wall), fires its preloads at RIGHT, comes back under the
+      HIVE to the SCORING FLOWER, picks, fires at LEFT from `LEFT_AUTO_HIVE` and parks. Run each
+      alone, then L-NoCross with a robot left on `RIGHT_START` and no TIP. **Good:** L-NoCross
+      stops about 2 in short of the robot on the start, touching neither it nor the HIVE on the
+      way down or back; its four at RIGHT go in from 35 in; it parks by about 28 s alone. When it
+      has to park early from the right end it goes back under the HIVE, not up the wall lane.
+      **Stop:** pieces off the HIVE's lip from `RIGHT_AUTO_FIX_TIP` → count them (35 in is lip
+      range) and try the launcher 25 to 50 slower; still driving at 30 s → write the time; it
+      clips a HIVE leg on the park back under the HIVE → note where (that park path is new).
+- [ ] **How close can we shoot? (Basic Drive, square on to the RIGHT CELL, tape from the wall.)**
+      Five volleys of four each with the robot's back edge 18, 16 and 14 in from the audience
+      wall (35, 37 and 39 in from the row), then with the launcher trimmed 25 and 50 slower at
+      18 in. Write the count in of 20 and the count off the lip at each. `RIGHT_AUTO_FIX_TIP`
+      stands at 18 in because nothing on the start can reach it there; this says what that costs.
+- [ ] **R-Solo on the Autos' launch spots (moved 16 Nov, not driven).** Preloads from
+      `RIGHT_START` as before; both LEFT volleys from `LEFT_AUTO_HIVE` and the volley back at the
+      right end from `RIGHT_AUTO_HIVE`. The partner is expected in the corner, parked, not on
+      `LEFT_START`: `LEFT_AUTO_HIVE` stands in front of that start. Run it alone. **Good:** each
+      volley 3 or 4 of 4 in, nothing off the lip from 40 in, parked by about 27 s. **Stop:** a
+      partner still on `LEFT_START` when R-Solo arrives → the two touch (the simulator has it at
+      12.5 s); that match needs another Auto.
 - [ ] **Two robots at one end.** One on `LEFT_AUTO_HIVE`, one on `LEFT_AUTO_OFFSET`, both at
       their headings. **Good:** about 2 in between the frames, HIVE's frame half an inch short of
       the centre line, OFFSET clear of the SCORING FLOWER, and each can fire without the other

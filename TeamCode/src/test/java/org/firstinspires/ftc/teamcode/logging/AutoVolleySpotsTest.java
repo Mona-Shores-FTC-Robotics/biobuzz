@@ -36,7 +36,7 @@ public class AutoVolleySpotsTest {
 
     /** Autos still on the older launch spots, by source file. */
     private static final Set<String> NOT_YET_MOVED = new HashSet<>(Arrays.asList(
-            "r-solo.pp", "r-clockwise.pp", "l-clockwise.pp"));
+            "r-clockwise.pp", "l-clockwise.pp"));
 
     /** A volley's place and an allowed spot's are the same within this, inches (a .pp is to 0.1 in). */
     private static final double SAME_IN = 0.06;
