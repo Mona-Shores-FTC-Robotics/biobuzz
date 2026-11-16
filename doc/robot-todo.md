@@ -1266,8 +1266,9 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       **Good:** every volley 3 or 4 of 4 in; L-NoCross passes under the HIVE and round to the
       OFFSET spot touching neither the HIVE's leg nor the robot on the start; both park.
       **Stop:** L-NoCross alone is still driving at 30 s. The simulator has it parked at 29.9 s
-      (29.3 before the move, and Belding M-7 ended that trip 9 in short) → write the time; the
-      fix is the "park straight from the right end" route in `doc/auto-handoffs.md`.
+      (29.3 before the move, and Belding M-7 ended that trip 9 in short) → write the time. Its
+      route back to the left end before parking stays: a park straight from the right end runs
+      through `RIGHT_PARK` (`doc/auto-handoffs.md`).
 - [ ] **Two robots at one end.** One on `LEFT_AUTO_HIVE`, one on `LEFT_AUTO_OFFSET`, both at
       their headings. **Good:** about 2 in between the frames, HIVE's frame half an inch short of
       the centre line, OFFSET clear of the SCORING FLOWER, and each can fire without the other
