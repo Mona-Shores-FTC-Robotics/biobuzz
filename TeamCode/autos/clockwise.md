@@ -37,7 +37,9 @@ from the WALL FLOWER is 4.4 s (3.2 s backward), and the road under the HIVE 6.2 
   either robot's preloads missed, for both pickup choices.
 - **R looks before it crosses.** After the SCORING FLOWER it turns to the HIVE at the left end.
   RIGHT up means TIP 2 has come: it goes under the HIVE and shoots at RIGHT for TIP 3. RIGHT not up
-  by 23.2 s: it shoots its load at LEFT to finish TIP 2, and parks.
+  by 23.2 s: it shoots its load at LEFT to finish TIP 2, and parks, but only if it sees LEFT up
+  within 0.75 s ("LEFT CELL still up?", 15 Nov). Not seen: it keeps the load and parks, so no volley
+  goes at a CELL not seen up.
 - **The third volley may take the park's time** (mentor, 13 Nov 2026). A TIP counts as AUTO when
   the last ball is out by 30 s, so with the INIT row **Priority** on THREE_TIP (drawn) R shoots at
   RIGHT and ends AUTO there, not parked. On PARK it keeps its load and parks. R was not parked in
@@ -90,7 +92,7 @@ goes on under the HIVE to the GARDEN.
 |---|---|---|---|
 | **L1:** L at LEFT_WALL_HIVE, preloads | LEFT up by T1? | Shoot at LEFT | Cross under the HIVE, shoot at RIGHT from RIGHT_START to finish TIP 1, then park |
 | **R2:** R at LEFT_CLOSE_HIVE, first load | LEFT up by T2? | Shoot at LEFT | Park |
-| **R3:** R with the SCORING FLOWER load | RIGHT up by T3? | Shoot at RIGHT, park | Shoot at LEFT to finish TIP 2, then park |
+| **R3:** R with the SCORING FLOWER load | RIGHT up by T3? | Shoot at RIGHT, park | LEFT seen up within 0.75 s: shoot at LEFT to finish TIP 2. Then park |
 | **L2:** L at RIGHT_WALL_NEAR, pickup load | RIGHT up by T4? | Shoot at RIGHT, park | Park |
 
 L finishes TIP 1 and R finishes TIP 2. Neither robot needs to know why a TIP is late.
@@ -129,7 +131,7 @@ Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-tod
 | **T2** LEFT up by | 15.5 s | R is at LEFT_CLOSE_HIVE at 13.2 s. A volley begun later ends late enough that R's park would cross the lane as L comes up it |
 | **TS** scoring FLOWER by | 17.6 s | R's LEFT volley (launch starts to feed ends) is over at 17.0 s. Later than 17.6 s, the pick and the park after it meet L in the lane |
 | **T3b** look by | 22.2 s | The drive to LEFT_CLOSE_HIVE (1.7 s), a volley there (2.5 s), the park (about 2.6 s) and the guard's 1 s margin end at 30 s |
-| **T3** RIGHT up by, at LEFT_CLOSE_HIVE | 23.2 s | The crossing from there (about 4.3 s) and a volley's last ball (2.5 s) end at 30 s. Not up by then: R shoots at LEFT |
+| **T3** RIGHT up by, at LEFT_CLOSE_HIVE | 23.2 s | The crossing from there (about 4.3 s) and a volley's last ball (2.5 s) end at 30 s. Not up by then: R shoots at LEFT if it sees LEFT up |
 | **TR** park from LEFT_CLOSE_HIVE at | 26.4 s | L has turned in to LEFT_PARK |
 | **T4** RIGHT up by | 22 s | TIP 2 was read up at 19.8 to 21.8 s in the simulator (to 22.6 s with R 20% slow), so at 19.2 s L gave up before it and never shot its second load. L stands at RIGHT_WALL_NEAR until TL anyway, so waiting costs nothing. A volley begun at 22 s ends after TL: L then leaves for its park when the volley ends, about 24.5 s |
 | **TL** park at | 22.7 s | L leaves RIGHT_WALL_NEAR for LEFT_PARK once R has left the SCORING FLOWER |

@@ -172,6 +172,43 @@
       "partnerPicks": {
         "Pickup": "GARDEN"
       }
+    },
+    {
+      "name": "contingency: nothing tips (both preloads miss, R misses every shot)",
+      "partner": "RClockwiseAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "oursFails": "misses preloads",
+      "fails": "misses"
+    },
+    {
+      "name": "contingency: R GARDEN, nothing tips (both preloads miss, R misses every shot)",
+      "partner": "RClockwiseAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      },
+      "oursFails": "misses preloads",
+      "fails": "misses"
+    },
+    {
+      "name": "contingency: R dead on its start",
+      "partner": "PartnerRBrokenDownAuto",
+      "picks": {
+        "Pickup": "GARDEN"
+      }
     }
   ],
   "metadata": {

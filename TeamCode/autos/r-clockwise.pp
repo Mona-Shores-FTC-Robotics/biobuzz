@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-14T20:50:53.101Z",
+  "timestamp": "2026-11-15T11:03:26.000Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -1219,28 +1219,65 @@
                                     "tip": 2,
                                     "cards": [
                                       {
-                                        "id": "r-launch-left-again",
-                                        "kind": "action",
-                                        "name": "LaunchAll",
-                                        "timeoutS": 1
-                                      },
-                                      {
-                                        "id": "r-hold-a",
+                                        "id": "r-left-still-up",
                                         "kind": "firstOf",
-                                        "label": "L has passed: park at 26.4 s",
+                                        "label": "LEFT CELL still up?",
                                         "rows": [
                                           {
-                                            "afterMs": 26400,
-                                            "matchClock": true,
-                                            "cards": []
+                                            "when": [
+                                              "LeftCellUp"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "r-launch-left-again",
+                                                "kind": "action",
+                                                "name": "LaunchAll",
+                                                "timeoutS": 1
+                                              },
+                                              {
+                                                "id": "r-hold-a",
+                                                "kind": "firstOf",
+                                                "label": "L has passed: park at 26.4 s",
+                                                "rows": [
+                                                  {
+                                                    "afterMs": 26400,
+                                                    "matchClock": true,
+                                                    "cards": []
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "id": "r-c-catch-park-a",
+                                                "kind": "path",
+                                                "lineId": "r-catch-park",
+                                                "park": true
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "afterMs": 750,
+                                            "cards": [
+                                              {
+                                                "id": "r-hold-a-skip",
+                                                "kind": "firstOf",
+                                                "label": "L has passed: park at 26.4 s",
+                                                "rows": [
+                                                  {
+                                                    "afterMs": 26400,
+                                                    "matchClock": true,
+                                                    "cards": []
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "id": "r-c-catch-park-a-skip",
+                                                "kind": "path",
+                                                "lineId": "r-catch-park",
+                                                "park": true
+                                              }
+                                            ]
                                           }
                                         ]
-                                      },
-                                      {
-                                        "id": "r-c-catch-park-a",
-                                        "kind": "path",
-                                        "lineId": "r-catch-park",
-                                        "park": true
                                       }
                                     ]
                                   }
