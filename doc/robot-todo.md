@@ -914,11 +914,13 @@ measurement is [#255].
       0.71 s after its line-up waiting for the stick (34 gathers). Now the stick starts down 16 in
       from the line-up (`lowerWithinIn`, 10 before) and the drive in no longer waits for it
       (`stickDownMs` 0, 700 before): it finishes its swing while the robot drives in. **Good:**
-      `PREP` in the log is under 0.1 s, the stick is down and still before it reaches the pieces,
-      and no stick on a wall. The tight case is R-NoCross, whose card lowers the stick as the drive
+      `PREP` in the log is under 0.1 s (up to 0.5 s where the robot was still turning: the stick
+      now waits until it turns slower than 30°/s, `lowerMaxTurnDegPerSec`), the stick never comes
+      down while the robot is swinging round, it is down and still before it reaches the pieces,
+      and no stick on a wall. The button's line-up is also 3 in further back (`lineUpBackIn` 6). The tight case is R-NoCross, whose card lowers the stick as the drive
       in starts: by the 14 Nov logs it lands with 0 to 0.2 s to spare. **Stop:** the stick lands on
       the pieces or is still swinging at the wall → `stickDownMs` 300; or keep 0 and start further
-      back: `lineUpBackIn` 6 (3 now) for the button, and GARDEN_STAGING 3 in further from the
+      back still: `lineUpBackIn` 9 for the button, and GARDEN_STAGING 3 in further from the
       GARDEN in the Visualizer for the Autos (about 0.04 s more per inch). The stick touches the
       side wall on the line-up → `lowerWithinIn` back to 10.
 - [ ] **GARDEN gather, onto the side wall sooner (idea, 16 Nov; nothing changed):** the line-up

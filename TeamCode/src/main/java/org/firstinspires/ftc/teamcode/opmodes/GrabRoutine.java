@@ -230,6 +230,16 @@ public abstract class GrabRoutine {
         return true;
     }
 
+    /**
+     * Whether the robot is steady enough for prep right now: a mechanism swung out while the robot
+     * is turning fast can catch a wall, however well it happens to face at that instant. Prep waits
+     * for this on the line-up and, at most {@link #SETTLE_MAX_MS}, once the line-up (or an Auto's
+     * drive) has ended. Always, by default.
+     */
+    protected boolean steadyForPrep() {
+        return true;
+    }
+
     /** The mechanisms get ready (stick down, intake on). Called once. */
     protected abstract void prep();
 
@@ -446,7 +456,7 @@ public abstract class GrabRoutine {
         switch (phase) {
             case LINE_UP:
                 if (Math.abs(Math.toDegrees(wrapRad(in.heading() - pose.heading()))) <= nn(prepWithinDeg())
-                        && mayPrepAt(pose)) {
+                        && mayPrepAt(pose) && steadyForPrep()) {
                     prepIfClose(now, remaining); // in is the line-up pose until the line-up ends
                 }
                 boolean pathDone = robot.drive.pathDone();
@@ -462,7 +472,9 @@ public abstract class GrabRoutine {
                         return;
                     }
                     in = plan.in;
-                    prepIfClose(now, 0.0); // prepped by now whatever prepWithinIn says
+                    // Prepped by now whatever prepWithinIn says, unless the robot is still turning: then
+                    // the PREP phase does it once it is steady.
+                    if (steadyForPrep()) prepIfClose(now, 0.0);
                     home = pose;
                     next(now, Phase.PREP);
                 } else if (ms(now, phaseStartNs) > nn(lineUpLimitMs)) {
@@ -471,6 +483,12 @@ public abstract class GrabRoutine {
                 break;
             case PREP:
                 // The follower holds where the line-up ended until the next drive command.
+                if (!prepped) {
+                    // Held back because the robot was still turning: prep once it is steady, but not
+                    // for long (a robot that never quite stops turning still goes).
+                    if (!steadyForPrep() && ms(now, phaseStartNs) < SETTLE_MAX_MS) break;
+                    prepIfClose(now, 0.0);
+                }
                 if (ms(now, preppedNs) >= nn(prepMs())
                         && (settled(robot.drive.speedInPerSec(), settledInPerSec())
                                 || ms(now, phaseStartNs) >= SETTLE_MAX_MS)) {
@@ -720,7 +738,7 @@ public abstract class GrabRoutine {
                         : !lineUp ? (there ? ", Auto, already square" : ", Auto, squaring up")
                         : there ? ", already lined up" : "",
                 startNote()));
-        if (there) prepIfClose(now, 0.0);
+        if (there && steadyForPrep()) prepIfClose(now, 0.0); // else the PREP phase, once steady
     }
 
     /** Prep, once {@code remainingIn} is within reach. Once. */

@@ -116,4 +116,17 @@ public class GardenGatherTest {
         assertEquals("the path's first moments, ramping up", false, GrabRoutine.backStalled(500, 450, 400));
         assertEquals("off", false, GrabRoutine.backStalled(3000, 2500, 0));
     }
+
+    /**
+     * The stick comes down only while the robot turns slower than lowerMaxTurnDegPerSec (30°/s): on
+     * 14 Nov it was lowered 12 times with the robot turning 57 to 148°/s.
+     */
+    @Test
+    public void theStickWaitsWhileTheRobotIsStillTurning() {
+        assertEquals("held still", true, GardenGather.steady(0.0));
+        assertEquals("20°/s, the tail of a turn", true, GardenGather.steady(Math.toRadians(-20)));
+        assertEquals("57°/s", false, GardenGather.steady(Math.toRadians(57)));
+        assertEquals("148°/s the other way", false, GardenGather.steady(Math.toRadians(-148)));
+        assertEquals("no Pinpoint: not held back", true, GardenGather.steady(Double.NaN));
+    }
 }

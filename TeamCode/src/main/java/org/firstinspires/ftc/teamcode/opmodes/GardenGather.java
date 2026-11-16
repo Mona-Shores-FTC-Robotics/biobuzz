@@ -67,8 +67,13 @@ public final class GardenGather extends GrabRoutine {
      * then runs at a slant to the gather pose.
      */
     public static double lineUpOutIn = 3.0;
-    /** And this much further back from the GARDEN (away from the audience wall), inches. */
-    public static double lineUpBackIn = 3.0;
+    /**
+     * And this much further back from the GARDEN (away from the audience wall), inches. 6 since
+     * 16 Nov 2026 (mentor; 3 before, the value of the 14 Nov field session): 3 in more drive in, about
+     * 0.12 s, for the stick to finish its swing in, now that nothing stands for it
+     * ({@link #stickDownMs}). Not yet run. The Autos start at GARDEN_STAGING, which is unchanged.
+     */
+    public static double lineUpBackIn = 6.0;
     /** The line-up path gives up after this long, ms. */
     public static double lineUpTimeoutMs = 4000;
     /**
@@ -83,6 +88,15 @@ public final class GardenGather extends GrabRoutine {
     public static double lowerWithinIn = 16.0;
     /** See {@link #lowerWithinIn}, degrees. */
     public static double lowerWithinDeg = 30.0;
+    /**
+     * And the stick comes down only while the robot is turning slower than this, degrees a second:
+     * facing the right way is not enough if it is still swinging round (mentor, 16 Nov 2026). On
+     * 14 Nov the stick was lowered 41 times; 12 of them with the robot turning 57 to 148°/s, and four
+     * more than 18° off. The turn was under 20°/s within 0.04 to 0.5 s each time, so the stick waits
+     * that long at most. It applies on the button's line-up, at an Auto's card, and on an Auto's
+     * drive in ({@link #approach}). An unknown turn rate (no Pinpoint) does not hold it.
+     */
+    public static double lowerMaxTurnDegPerSec = 30.0;
     /**
      * The drive in may start once the stick has been on its way down this long, ms, counted from
      * when it was lowered (on the line-up, or on an Auto's drive to the card), not from arrival: a
@@ -315,7 +329,7 @@ public final class GardenGather extends GrabRoutine {
         public void approaching(Pose pose, double remainingIn) {
             if (lowered || garden == null || !endsFacing) return;
             long now = System.nanoTime();
-            if (!facing(garden, pose.heading())) {
+            if (!facing(garden, pose.heading()) || !steady(robot.drive.odometryTurnRadPerSec())) {
                 facingSinceNs = 0;
                 return;
             }
@@ -348,6 +362,14 @@ public final class GardenGather extends GrabRoutine {
         return useStick && lowerOnDriveIn
                 && remainingIn <= nn(approachLowerWithinIn)
                 && facedMs >= nn(facingHoldMs);
+    }
+
+    /**
+     * Whether a robot turning at {@code turnRadPerSec} is steady enough for the stick to come down:
+     * slower than {@link #lowerMaxTurnDegPerSec}. An unknown rate (NaN) counts as steady.
+     */
+    static boolean steady(double turnRadPerSec) {
+        return Double.isNaN(turnRadPerSec) || Math.abs(Math.toDegrees(turnRadPerSec)) <= nn(lowerMaxTurnDegPerSec);
     }
 
     /** Whether a robot at {@code headingRad} faces {@code g} to within {@link #approachFacingDeg}. */
@@ -453,6 +475,11 @@ public final class GardenGather extends GrabRoutine {
     @Override
     protected long readySinceNs() {
         return useStick && robot.flowerStick.extended() ? robot.flowerStick.extendedSinceNs() : 0;
+    }
+
+    @Override
+    protected boolean steadyForPrep() {
+        return !useStick || steady(robot.drive.odometryTurnRadPerSec());
     }
 
     @Override
