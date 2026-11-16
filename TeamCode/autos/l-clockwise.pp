@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-16T22:54:41.414Z",
+  "timestamp": "2026-11-16T23:04:42.734Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -143,85 +143,78 @@
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "kind": "compound",
-      "segments": [
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
         {
-          "id": "l-pickup-park-lane-garden",
-          "color": "#76b7b2",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 34,
-            "y": 106
-          },
-          "controlPoints": [
+          "x": 28,
+          "y": 30
+        },
+        {
+          "x": 34,
+          "y": 60
+        },
+        {
+          "x": 33.5,
+          "y": 94
+        },
+        {
+          "x": 33.5,
+          "y": 108
+        },
+        {
+          "x": 40,
+          "y": 124
+        },
+        {
+          "x": 34,
+          "y": 117.4
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
             {
-              "x": 31,
-              "y": 38
+              "startProgress": 0,
+              "endProgress": 0.35,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
             },
             {
-              "x": 33,
-              "y": 92
-            }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 270,
-            "endDeg": 90
-          }
-        },
-        {
-          "id": "l-pickup-park-turn-garden-face",
-          "color": "#b07aa1",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 36,
-            "y": 118.2
-          },
-          "controlPoints": [
+              "startProgress": 0.35,
+              "endProgress": 0.7,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
             {
-              "x": 35,
-              "y": 112
+              "startProgress": 0.7,
+              "endProgress": 0.8,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 0
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 0
+              }
             }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 90,
-            "endDeg": 0
-          }
-        },
-        {
-          "id": "l-pickup-park-turn-garden",
-          "color": "#edc948",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 14.5,
-            "y": 117.4
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "constant",
-            "degrees": 0
-          }
+          ]
         }
-      ]
+      }
     },
     {
       "id": "link-2",
@@ -273,104 +266,78 @@
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "kind": "compound",
-      "segments": [
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
         {
-          "id": "l-park-lane",
-          "color": "#e15759",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 34,
-            "y": 106
-          },
-          "controlPoints": [
+          "x": 27,
+          "y": 34
+        },
+        {
+          "x": 33.5,
+          "y": 66
+        },
+        {
+          "x": 33.5,
+          "y": 94
+        },
+        {
+          "x": 33.5,
+          "y": 108
+        },
+        {
+          "x": 40,
+          "y": 124
+        },
+        {
+          "x": 34,
+          "y": 117.4
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
             {
-              "x": 25,
-              "y": 20
+              "startProgress": 0,
+              "endProgress": 0.15,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 61,
+                "endDeg": 90
+              }
             },
             {
-              "x": 35,
-              "y": 92
-            }
-          ],
-          "heading": {
-            "type": "piecewise",
-            "piecewiseHeading": {
-              "segments": [
-                {
-                  "startProgress": 0,
-                  "endProgress": 0.2,
-                  "interpolationType": "linear",
-                  "parameters": {
-                    "startDeg": 61,
-                    "endDeg": 90
-                  }
-                },
-                {
-                  "startProgress": 0.2,
-                  "endProgress": 1,
-                  "interpolationType": "constant",
-                  "parameters": {
-                    "degrees": 90
-                  }
-                }
-              ]
-            }
-          }
-        },
-        {
-          "id": "l-park-turn-face",
-          "color": "#edc948",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 36,
-            "y": 118.2
-          },
-          "controlPoints": [
+              "startProgress": 0.15,
+              "endProgress": 0.7,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
             {
-              "x": 35,
-              "y": 112
+              "startProgress": 0.7,
+              "endProgress": 0.8,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 0
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 0
+              }
             }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 90,
-            "endDeg": 0
-          }
-        },
-        {
-          "id": "l-park-turn",
-          "color": "#4e79a7",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 14.5,
-            "y": 117.4
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "constant",
-            "degrees": 0
-          }
+          ]
         }
-      ]
+      }
     },
     {
       "id": "link-3",
@@ -425,104 +392,82 @@
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "kind": "compound",
-      "segments": [
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
         {
-          "id": "l-under-park-lane-flower",
-          "color": "#76b7b2",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 34,
-            "y": 106
-          },
-          "controlPoints": [
+          "x": 38,
+          "y": 24
+        },
+        {
+          "x": 22,
+          "y": 40
+        },
+        {
+          "x": 35,
+          "y": 74
+        },
+        {
+          "x": 33.5,
+          "y": 94
+        },
+        {
+          "x": 33.5,
+          "y": 108
+        },
+        {
+          "x": 40,
+          "y": 124
+        },
+        {
+          "x": 34,
+          "y": 117.4
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
             {
-              "x": 33,
-              "y": 40
+              "startProgress": 0,
+              "endProgress": 0.3,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
             },
             {
-              "x": 33,
-              "y": 92
-            }
-          ],
-          "heading": {
-            "type": "piecewise",
-            "piecewiseHeading": {
-              "segments": [
-                {
-                  "startProgress": 0,
-                  "endProgress": 0.3,
-                  "interpolationType": "linear",
-                  "parameters": {
-                    "startDeg": 270,
-                    "endDeg": 90
-                  }
-                },
-                {
-                  "startProgress": 0.3,
-                  "endProgress": 1,
-                  "interpolationType": "constant",
-                  "parameters": {
-                    "degrees": 90
-                  }
-                }
-              ]
-            }
-          }
-        },
-        {
-          "id": "l-under-park-turn-flower-face",
-          "color": "#4e79a7",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 36,
-            "y": 118.2
-          },
-          "controlPoints": [
+              "startProgress": 0.3,
+              "endProgress": 0.74,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
             {
-              "x": 35,
-              "y": 112
+              "startProgress": 0.74,
+              "endProgress": 0.84,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 0
+              }
+            },
+            {
+              "startProgress": 0.84,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 0
+              }
             }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 90,
-            "endDeg": 0
-          }
-        },
-        {
-          "id": "l-under-park-turn-flower",
-          "color": "#4e79a7",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 14.5,
-            "y": 117.4
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "constant",
-            "degrees": 0
-          }
+          ]
         }
-      ]
+      }
     },
     {
       "id": "link-4",
@@ -601,104 +546,78 @@
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "kind": "compound",
-      "segments": [
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
         {
-          "id": "l-pickup-park-lane-flower",
-          "color": "#e15759",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 34,
-            "y": 106
-          },
-          "controlPoints": [
+          "x": 34,
+          "y": 50
+        },
+        {
+          "x": 33,
+          "y": 72
+        },
+        {
+          "x": 33.5,
+          "y": 94
+        },
+        {
+          "x": 33.5,
+          "y": 108
+        },
+        {
+          "x": 40,
+          "y": 124
+        },
+        {
+          "x": 34,
+          "y": 117.4
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
             {
-              "x": 32,
-              "y": 62
+              "startProgress": 0,
+              "endProgress": 0.25,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 90
+              }
             },
             {
-              "x": 33,
-              "y": 92
-            }
-          ],
-          "heading": {
-            "type": "piecewise",
-            "piecewiseHeading": {
-              "segments": [
-                {
-                  "startProgress": 0,
-                  "endProgress": 0.25,
-                  "interpolationType": "linear",
-                  "parameters": {
-                    "startDeg": 180,
-                    "endDeg": 90
-                  }
-                },
-                {
-                  "startProgress": 0.25,
-                  "endProgress": 1,
-                  "interpolationType": "constant",
-                  "parameters": {
-                    "degrees": 90
-                  }
-                }
-              ]
-            }
-          }
-        },
-        {
-          "id": "l-pickup-park-turn-flower-face",
-          "color": "#e15759",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 36,
-            "y": 118.2
-          },
-          "controlPoints": [
+              "startProgress": 0.25,
+              "endProgress": 0.7,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
             {
-              "x": 35,
-              "y": 112
+              "startProgress": 0.7,
+              "endProgress": 0.8,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 0
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 0
+              }
             }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 90,
-            "endDeg": 0
-          }
-        },
-        {
-          "id": "l-pickup-park-turn-flower",
-          "color": "#f28e2b",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 14.5,
-            "y": 117.4
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "constant",
-            "degrees": 0
-          }
+          ]
         }
-      ]
+      }
     },
     {
       "id": "link-5",
@@ -858,133 +777,73 @@
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "kind": "compound",
-      "segments": [
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
         {
-          "id": "l-rescue-park-clear",
-          "color": "#59a14f",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 50,
-            "y": 38
-          },
-          "controlPoints": [
-            {
-              "x": 55.3,
-              "y": 30
-            },
-            {
-              "x": 56,
-              "y": 38
-            }
-          ],
-          "heading": {
-            "type": "constant",
-            "degrees": 90
-          }
+          "x": 38,
+          "y": 20
         },
         {
-          "id": "l-rescue-park-west",
-          "color": "#76b7b2",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 36,
-            "y": 38
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "constant",
-            "degrees": 90
-          }
+          "x": 22,
+          "y": 40
         },
         {
-          "id": "l-rescue-park-lane",
-          "color": "#9c755f",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 34,
-            "y": 106
-          },
-          "controlPoints": [
-            {
-              "x": 31,
-              "y": 40
-            },
-            {
-              "x": 33,
-              "y": 92
-            }
-          ],
-          "heading": {
-            "type": "constant",
-            "degrees": 90
-          }
+          "x": 35,
+          "y": 74
         },
         {
-          "id": "l-rescue-park-turn-face",
-          "color": "#edc948",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 36,
-            "y": 118.2
-          },
-          "controlPoints": [
-            {
-              "x": 35,
-              "y": 112
-            }
-          ],
-          "heading": {
-            "type": "linear",
-            "startDeg": 90,
-            "endDeg": 0
-          }
+          "x": 33.5,
+          "y": 94
         },
         {
-          "id": "l-rescue-park-turn",
-          "color": "#edc948",
-          "name": "",
-          "locked": false,
-          "waitBeforeMs": 0,
-          "waitAfterMs": 0,
-          "waitBeforeName": "",
-          "waitAfterName": "",
-          "kind": "atomic",
-          "endPoint": {
-            "x": 14.5,
-            "y": 117.4
-          },
-          "controlPoints": [],
-          "heading": {
-            "type": "constant",
-            "degrees": 0
-          }
+          "x": 33.5,
+          "y": 108
+        },
+        {
+          "x": 40,
+          "y": 124
+        },
+        {
+          "x": 34,
+          "y": 117.4
         }
-      ]
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.74,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.74,
+              "endProgress": 0.84,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 0
+              }
+            },
+            {
+              "startProgress": 0.84,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 0
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "shapes": [],
@@ -1007,15 +866,7 @@
     },
     {
       "kind": "path",
-      "lineId": "l-pickup-park-lane-garden"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-pickup-park-turn-garden-face"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-pickup-park-turn-garden"
+      "lineId": "l-pickup-park-garden"
     },
     {
       "kind": "path",
@@ -1027,15 +878,7 @@
     },
     {
       "kind": "path",
-      "lineId": "l-park-lane"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-park-turn-face"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-park-turn"
+      "lineId": "l-park"
     },
     {
       "kind": "path",
@@ -1047,15 +890,7 @@
     },
     {
       "kind": "path",
-      "lineId": "l-under-park-lane-flower"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-under-park-turn-flower-face"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-under-park-turn-flower"
+      "lineId": "l-under-park-flower"
     },
     {
       "kind": "path",
@@ -1067,15 +902,7 @@
     },
     {
       "kind": "path",
-      "lineId": "l-pickup-park-lane-flower"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-pickup-park-turn-flower-face"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-pickup-park-turn-flower"
+      "lineId": "l-pickup-park-flower"
     },
     {
       "kind": "path",
@@ -1095,23 +922,7 @@
     },
     {
       "kind": "path",
-      "lineId": "l-rescue-park-clear"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-rescue-park-west"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-rescue-park-lane"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-rescue-park-turn-face"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-rescue-park-turn"
+      "lineId": "l-rescue-park"
     }
   ],
   "fieldPoints": [],
@@ -1216,17 +1027,17 @@
     "pathEnds": {
       "l-open": "LEFT_AUTO_HIVE",
       "l-catch-park": "LEFT_PARK",
-      "l-rescue-park-turn": "LEFT_PARK",
       "l-to-offset-garden": "RIGHT_AUTO_OFFSET",
-      "l-pickup-park-turn-garden": "LEFT_PARK",
       "l-under-flower": "LANE_END",
-      "l-under-park-turn-flower": "LEFT_PARK",
       "l-pickup-flower": "WALL_FLOWER_STAGING",
       "l-to-offset-flower": "RIGHT_AUTO_OFFSET",
-      "l-pickup-park-turn-flower": "LEFT_PARK",
-      "l-park-turn": "LEFT_PARK",
       "l-pickup-garden": "GARDEN_STAGING",
-      "l-rescue": "RIGHT_AUTO_FIX_TIP"
+      "l-rescue": "RIGHT_AUTO_FIX_TIP",
+      "l-pickup-park-garden": "LEFT_PARK",
+      "l-park": "LEFT_PARK",
+      "l-under-park-flower": "LEFT_PARK",
+      "l-pickup-park-flower": "LEFT_PARK",
+      "l-rescue-park": "LEFT_PARK"
     },
     "cards": [
       {

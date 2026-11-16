@@ -234,8 +234,9 @@ Launch spots, all from `LaunchSpots`, drawn for red:
 They are team spots in `spots.json` and in `AutoLaunchSpots`; `AutoLaunchSpotsTest` keeps the two
 equal. A spot moved with the Visualizer's Save team spots re-exports these two Autos.
 
-Since 16 Nov 2026 the pair's main drives and R's parks are single curves with control points, not
-chains of waypoints (mentor). R's left volleys are from the HIVE spot, not the OFFSET spot: L's
+Since 16 Nov 2026 the pair's main drives and both robots' parks are single curves with control
+points, not chains of waypoints (mentor). L's parks run up the outside lane between the HIVE's foot
+bar and R already parked, about 2.2 in from each, and turn to back in only once past R. R's left volleys are from the HIVE spot, not the OFFSET spot: L's
 road up the outside lane to its park runs through `LEFT_AUTO_OFFSET`, and with R waiting there the
 two touched at 25.2 s in the simulator.
 
