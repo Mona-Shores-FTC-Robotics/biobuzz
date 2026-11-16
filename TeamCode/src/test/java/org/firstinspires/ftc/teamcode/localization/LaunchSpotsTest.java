@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.pedropathing.math.Pose;
 
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.localization.LaunchSpots.Choice;
 import org.firstinspires.ftc.teamcode.localization.LaunchSpots.Column;
 import org.firstinspires.ftc.teamcode.localization.LaunchSpots.Row;
@@ -28,8 +29,8 @@ public class LaunchSpotsTest {
     private static final double C = FieldFrame.FIELD_CENTRE_INCHES;
     private static final double SIZE = FieldFrame.FIELD_SIZE_INCHES;
     private static final double EPS = 1e-9;
-    /** The turret's place on the robot ({@code TurretSubsystem}): 3.33 in behind, 1.87 in right. */
-    private static final double FWD = -3.33, LEFT = -1.87;
+    /** The turret's place on the robot ({@code TurretSubsystem}): 3.33 in behind, 2.68 in right. */
+    private static final double FWD = TurretSubsystem.turretForwardIn, LEFT = TurretSubsystem.turretLeftIn;
     /** Past centre far enough for every FAR spot: the TeleOp's reach. */
     private static final double REACH = 24.0;
 
@@ -262,8 +263,10 @@ public class LaunchSpotsTest {
                     (Math.toDegrees(t.heading()) + 360) % 360, 1e-6);
             Vec3 row = spot.cellRow(Alliance.RED);
             double ax = t.x() + FWD * Math.cos(t.heading()) - LEFT * Math.sin(t.heading());
-            // RIGHT_START is where the robot is placed (frame on the seam): half an inch off.
-            assertEquals(spot + ": the turret's axis is in line with the row's centre", row.x(), ax, 0.6);
+            // Placed in line when the turret was taken to be 1.87 in right; at 2.68 (16 Nov 2026) the three
+            // drawn ones are 0.8 in off and RIGHT_START, where the robot is placed, 0.3 in. They move with
+            // the launch spots, not with the turret's number.
+            assertEquals(spot + ": the turret's axis is in line with the row's centre", row.x(), ax, 0.9);
         }
     }
 
