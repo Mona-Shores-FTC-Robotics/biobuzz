@@ -422,8 +422,8 @@ Use the work order above to select checks; the detailed mechanism checks below a
       gathers are logged. Nine (3 to 7 Nov) had the old 1.5 s dwell: 4.13 to 4.76 s. One (14 Nov,
       20245, R-NoCross on blue) had today's values: 3.15 s. So
       `AutoRegistration.GARDEN_GATHER_TYPICAL_S` 4.0 rests on one run and the button gathers'
-      phases. **Good:** every `Last GARDEN gather: N s` line is under 4.0 (about 3.1 where the card
-      lowers the stick, about 2.5 where the drive in did). **Stop:** one over 4.0 → write the line
+      phases. **Good:** every `Last GARDEN gather: N s` line is under 4.0 (about 2.5, now that nothing
+      stands for the stick). **Stop:** one over 4.0 → write the line
       down and raise the number to cover it. [S5], [PR #384], [PR #378], [PR #422], [PR #553]
 - [ ] **GARDEN gather, stick down on the drive in (13 Nov; never run):** spotter at the GARDEN
       corner watching the stick and both walls, L-UnderHive or L-Clockwise with Pickup GARDEN (they
@@ -909,16 +909,23 @@ measurement is [#255].
       third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
       **Stop:** R-Solo parks instead of its third volley every run → note the time it gave and tell a
       mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
-- [ ] **GARDEN gather, the stick's wait (button, GARDEN loaded, Panels → GardenGather):** on 14
-      Nov the robot still stood 0.20 to 0.71 s after its line-up waiting for the stick (34
-      gathers): about 0.47 s when the stick came down 6 in from the line-up, about 0.38 s at 10 in
-      (`lowerWithinIn`). Two numbers to try, one at a time, 4 gathers each, a spotter on the stick:
-      (a) `stickDownMs` 500 (700 now). The FLOWER films show the stick landing 0.2 to 0.4 s before
-      the stop when it was lowered 0.62 to 0.73 s before it, so the swing takes about 0.3 to 0.5 s.
-      **Good:** the stick is down and still before the robot moves in, and `PREP` in the log is
-      0.2 s shorter. **Stop:** the robot drives in with the stick still swinging → back to 700.
-      (b) `lowerWithinIn` 16 (10 now), with `lowerWithinDeg` as it is. **Good:** `PREP 0.1 s` or
-      less and no stick on a wall. **Stop:** the stick touches the side wall → back to 10.
+- [ ] **GARDEN gather, no standing for the stick (16 Nov; never run):** button, GARDEN loaded, a
+      spotter on the stick, 6 gathers, then R-NoCross once. On 14 Nov the robot stood 0.20 to
+      0.71 s after its line-up waiting for the stick (34 gathers). Now the stick starts down 16 in
+      from the line-up (`lowerWithinIn`, 10 before) and the drive in no longer waits for it
+      (`stickDownMs` 0, 700 before): it finishes its swing while the robot drives in. **Good:**
+      `PREP` in the log is under 0.1 s, the stick is down and still before it reaches the pieces,
+      and no stick on a wall. The tight case is R-NoCross, whose card lowers the stick as the drive
+      in starts: by the 14 Nov logs it lands with 0 to 0.2 s to spare. **Stop:** the stick lands on
+      the pieces or is still swinging at the wall → `stickDownMs` 300; or keep 0 and start further
+      back: `lineUpBackIn` 6 (3 now) for the button, and GARDEN_STAGING 3 in further from the
+      GARDEN in the Visualizer for the Autos (about 0.04 s more per inch). The stick touches the
+      side wall on the line-up → `lowerWithinIn` back to 10.
+- [ ] **GARDEN gather, onto the side wall sooner (idea, 16 Nov; nothing changed):** the line-up
+      spot is 3 in out from the side wall (`lineUpOutIn`, room to turn in the corner) and the drive
+      in curves over to it. Try `lineUpOutIn` 1 with the button, 4 gathers. **Good:** the side is
+      on the wall earlier in the film, and the volley count is no lower. **Stop:** the robot
+      scrubs the wall on its line-up turn, or the stick touches it → back to 3.
 - [ ] **GARDEN gather, the back out that stalls short (14 Nov; `backStallMs` never run):** twice on
       19429, with the battery sagging to 8 V, the back out stopped about an inch short of where it
       started and crept there, 2.4 and 3.7 s against 0.6 to 0.85 s for the other 30. The back out

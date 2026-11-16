@@ -32,9 +32,9 @@ import java.util.function.Consumer;
  * <p><b>In an Auto the stick comes down on the drive to the card.</b> The path card before a
  * {@code GardenGather} card runs this gather's {@link #approach} ({@code AutoKit},
  * {@code AutoRegistry.Approach}): over the last {@link #approachLowerWithinIn} of that drive the stick
- * goes down and the intake starts, so the {@link #stickDownMs} wait has run when the card starts
- * ({@link #readySinceNs}). Measured, 3 to 14 Nov 2026: all ten Auto gathers stood 0.70 to 0.75 s at
- * GARDEN_STAGING for the stick before they moved. <b>The stick never comes down while the robot is
+ * goes down and the intake starts, so the stick is down when the card starts ({@link #readySinceNs}).
+ * Measured, 3 to 14 Nov 2026: all ten Auto gathers stood 0.70 to 0.75 s at GARDEN_STAGING for the
+ * stick before they moved (the wait was 700 ms then; it is {@link #stickDownMs} now). <b>The stick never comes down while the robot is
  * turning or facing another way</b> ({@link #lowerOnApproach}): the drive must end facing the GARDEN,
  * and the robot must have held that facing (to {@link #approachFacingDeg}) for {@link #facingHoldMs}.
  * So only a drive whose turn is finished early gains the time; one that turns all the way in
@@ -76,13 +76,26 @@ public final class GardenGather extends GrabRoutine {
      * inches, and faces the GARDEN to within {@link #lowerWithinDeg}. The GARDEN is in a corner, so
      * a stick swung down early, while the robot still turns, came down on the wall (30 Oct 2026).
      * 10 in and 30° since 14 Nov 2026 (mentor, on 19429 at the field; 6 in and 10° before): the stick
-     * comes down sooner on the line-up, and 8 gathers, 4 in a row, had no stick on the wall.
+     * comes down sooner on the line-up, and 8 gathers, 4 in a row, had no stick on the wall. 16 in
+     * since 16 Nov (mentor, from the 14 Nov logs, not yet run): at 10 in the stick was only 0.3 s
+     * into its swing when the line-up ended.
      */
-    public static double lowerWithinIn = 10.0;
+    public static double lowerWithinIn = 16.0;
     /** See {@link #lowerWithinIn}, degrees. */
     public static double lowerWithinDeg = 30.0;
-    /** Time the stick is given to swing down before the drive in may start, ms. */
-    public static double stickDownMs = 700;
+    /**
+     * The drive in may start once the stick has been on its way down this long, ms, counted from
+     * when it was lowered (on the line-up, or on an Auto's drive to the card), not from arrival: a
+     * stick lowered earlier than this costs no standing at all. 0 since 16 Nov 2026 (mentor; 700
+     * before): the robot never stands for the stick, which finishes its swing while the robot drives
+     * in. Not yet run. The margin, from the 14 Nov logs: at {@link #inSpeed} 1.0 the robot was within
+     * 4 in of where it stops 0.53 to 0.78 s after the drive in began (13 gathers), and the FLOWER
+     * films put the swing at about 0.3 to 0.5 s. So a stick lowered only as the drive in starts (an
+     * Auto whose drive turns all the way in) lands with 0 to 0.2 s to spare. If it is seen landing
+     * on the pieces, raise this to 300, or start the gather further back ({@link #lineUpBackIn}; the
+     * Autos' GARDEN_STAGING spot): each inch further is about 0.04 s more.
+     */
+    public static double stickDownMs = 0;
     /**
      * In an Auto, the drive before the gather's card lowers the stick and starts the intake on its way
      * in ({@link #approach}). Off: the card lowers it itself and stands {@link #stickDownMs} first, as
