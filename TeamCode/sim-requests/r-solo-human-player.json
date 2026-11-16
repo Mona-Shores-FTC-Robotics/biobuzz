@@ -1,0 +1,43 @@
+{
+  "pp": "TeamCode/autos/drafts/r-solo-human-player.pp",
+  "spec": "RSoloHumanPlayerAuto",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "stays out of the way",
+      "partner": "PartnerStillAuto"
+    },
+    {
+      "name": "parks at 15 s",
+      "partner": "PartnerPark1Auto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/r-solo-human-player.pp",
+    "SavedBy": "mentor session, 16 Nov 2026",
+    "SimNote": "R-Two-Tip with the nose-first outside lane and a stop by the LOADING ZONE for the human player's NECTAR, run with the Belding calibration. A saved request cannot set the human's roll: the simulator drops the NECTAR mid-zone here, out of the robot's reach, so these runs show what the stop costs, not what the NECTAR gains."
+  }
+}
