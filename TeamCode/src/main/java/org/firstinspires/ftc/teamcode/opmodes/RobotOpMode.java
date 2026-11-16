@@ -1642,6 +1642,7 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Turret/AngleDeg", robot.turret.angleDegrees());
         log.put("/Turret/TargetDeg", robot.turret.targetDegrees());
         log.put("/Turret/ErrorDeg", robot.turret.errorDegrees());
+        log.put("/Turret/Power", robot.turret.power());
         log.put("/Turret/Zeroed", robot.turret.zeroed() ? 1 : 0);
         log.put("/Turret/Holding", robot.turret.holding() ? 1 : 0);
         long now = System.nanoTime();

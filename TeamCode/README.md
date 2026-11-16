@@ -477,55 +477,19 @@ was cosmetic. These files keep the two equal so the file cannot be misread.
 
 ### The turret: a servo on a servo port, an encoder on a motor's encoder socket
 
-**Experimental branch `spike/19429-turret-burst` (6 Nov, corrected for SWYFT):** Utility
-**Bench: Turret Burst** tests 19429's programmable SWYFT in continuous mode. SWYFT's
-[programmer guide](https://github.com/SWYFT-Robotics/swyft-servo-programmer-v2/blob/main/src/GuideWindow.xaml)
-says continuous mode is full-speed only, 1500 us returns HOME, and stopping requires PWM disable.
-The first version of this branch incorrectly reused goBILDA-style partial speed and neutral-stop
-behavior; the robot returned to home when R2 was released. That version is superseded.
+The turret has no motor port: all eight are taken. It turns on a goBILDA 25-3
+Speed servo in continuous mode, a `<ContinuousRotationServo>` element and a
+`CRServo` in code, on Control Hub servo port 4 on both robots. The SDK builds a
+`CRServo` from that element, a different class from the `Servo` a `<Servo>`
+element gives, so `DeviceNames.Kind` has `CR_SERVO` beside `SERVO` (the prefeed
+and the intake's stars use it too): `ValidateHardware` asks the hardware map for
+the right class, and `RobotConfigXmlTest` still treats the two as sharing the
+six servo ports. The servo's mode is set on the servo itself, with the goBILDA
+programmer, and the XML has to match it: a positional servo sent a continuous
+servo's pulses swings to an end and stays there.
 
-The corrected utility sends only 500/2500 us direction endpoints during a burst and disables PWM
-on this port for every pause, R2 release, Circle/B, and STOP. It never sends 1500 us, including at
-PLAY. Hold bursts default to 25 ms on / 250 ms off at full speed; there is no 12% speed setting.
-Manual testing now defaults to one 250 ms burst per R2+bumper press (500 ms maximum), with release
-required to rearm, to distinguish a drive-command problem from short-burst startup behavior.
-Telemetry shows inputs, SDK PWM enable state, and latched burst count/signal/duration; this is
-software readback, not a measured waveform. `manualSingleBurst=false` restores repeated manual bursts.
-**Encoder hold trial (v5):** Triangle/Y captures the current turret angle. While R2 is held,
-encoder error beyond +/-1 degree requests a 150 ms correction (the recorded median step was
-1.28 degrees over 15 attempts). PWM is then OFF for at least 350 ms, followed by 100 ms of encoder
-rate within +/-1 deg/s before another decision. Corrections are capped at 175 ms; crossing the
-target interrupts the drive and still preserves settling time. D-pad steps target by 5 degrees.
-Release R2 to disable; Circle/B cancels hold. The target is restored after drift or a push, but
-PWM is OFF at target: this is not a stiff positional-servo brake. Actual hold accuracy, response
-in both directions, load and battery sensitivity remain robot checks. This supersedes the old
-25 ms / 100 ms maximum hold setup, which could not reliably start the measured SWYFT.
-
-Recording is automatic from INIT through STOP to `/sdcard/FIRST/logs/`, using the existing async
-`MatchLog` writer and normal `pull-logs.cmd` upload. `/TurretBurst/*` records inputs, gates,
-commands, SDK PWM state, raw/zero counts, angle/rate, battery and every live setting. START/END
-events and per-burst drive deltas supplement the raw series. `read_logs.py turret <log>` computes
-actual movement from absolute readings, shows actual versus configured timing, and reports a
-250 ms OFF sample only when it exists before another burst. No screenshots or hand-written angles
-are needed; recording faults and dropped loops are shown on the utility screen.
-The existing `<Servo>` mapping is just the pulse transport here, not position targeting.
-Both XML files and the position subsystem remain unchanged. Never run the ordinary turret bench,
-Basic Drive or Auto on 19429 while its servo is flashed continuous. Reflash position mode before
-returning to those OpModes. Test controls, starting values and checks are in `doc/robot-todo.md`.
-The +/-30 degree window is an experiment limit, not measured robot travel; it cannot stop coasting.
-
-The turret has no motor port: all eight are taken. It turns on a goBILDA servo
-in standard (position) mode, a `<Servo>` element and a `Servo` in code (until
-6 Nov 2026 it was in continuous-rotation mode, a `CRServo`). The SDK builds a
-`CRServo` from a `<ContinuousRotationServo>` element, a different class from the
-`Servo` a `<Servo>` element gives, so `DeviceNames.Kind` has `CR_SERVO` beside
-`SERVO` (the prefeed and the intake's stars use it): `ValidateHardware` asks the
-hardware map for the right class, and `RobotConfigXmlTest` still treats the two
-as sharing the six servo ports. The servo's mode is set on the servo itself,
-with the goBILDA programmer, and the XML has to match it: a continuous servo
-sent a position spins.
-
-Its angle comes from a Studica Cypher Max encoder on the turret's drive gear.
+Its angle comes from a Studica Cypher Max encoder on the turret's drive gear
+(the 64T gear on the 176T ring: 2.75 encoder turns per turret turn).
 The encoder's quadrature output (2048 counts per encoder turn, both edges of
 both channels) plugs into the **encoder socket beside Expansion Hub motor port
 3**, the feeder's (the build team's choice: the drive motors' sockets hold their
@@ -546,24 +510,48 @@ zero (`TurretZeroPolicy`). The one case it gets wrong is someone re-homing the
 turret by hand between an Auto and the TeleOp without pressing the button.
 Considered and not done: zeroing only by button (a forgotten press is silent:
 nothing can tell the turret was not at home), and a check that the count is
-still where the Auto left it (it cannot tell a bump from a re-home). The
-encoder's absolute PWM output exists, and an OctoQuad could
-read it (the `Bench: OctoQuad` and #169); the build team chose relative plus a
-home mark for the time it saves (Oct 2026). Set the encoder's voltage switch to
-3V3.
+still where the Auto left it (it cannot tell a bump from a re-home). Two
+absolute encoders on the ring, which would know the angle at power-on with no
+home mark, are parked on the branch `claude/great-pasteur-qhypqt`. Set the
+encoder's voltage switch to 3V3.
 
-`subsystems/TurretEncoder` is the pure math (counts to degrees, with the
-measured gear ratio and direction). The servo is a goBILDA in standard
-(position) mode since 6 Nov 2026: it holds the position it is sent with its own
-feedback, so from PLAY the turret holds `TurretSubsystem.homePosition` and
-resists a push, with no encoder needed (in continuous mode it could not: with
-no feedback a push just turns it). An angle is `homePosition` plus degrees over
-`degreesPerUnit`, open loop; the encoder, once fitted, only reports the angle and
-catches a wrong sign. Before PLAY the servo is never written (limp), so the
-drive team sets the turret at home by its mark. `Bench: Turret` measures
-`homePosition`, `degreesPerUnit` and the encoder's direction and ratio; its
-javadoc is the checklist. The continuous-mode hold law (`TurretServoControl`,
-tuned 24 Oct 2026) is in git history.
+**The loop.** A continuous servo is sent a speed and has no feedback, so
+nothing holds the turret but the code: `TurretSubsystem.update()` reads the
+encoder and sends one power a loop, worked out by `subsystems/TurretServoControl`
+(pure, unit tested against a model of the servo). The turret has no stops and no
+cables, so an angle is a direction and the error is always the shortest way
+round. The power is a correction (`kP` times the error, less `kD` times the rate
+at which the turret closes on the target, so it slows onto it; nothing inside
+`holdToleranceDeg`), plus a feedforward, lifted over the servo's floor
+(`minPower`, below which it does not turn).
+
+**Cancelling the robot's turning.** The target is a chassis-frame angle, so a
+CELL that stands still on the field moves across the chassis at minus the
+robot's turn rate. Waiting for that to show up as an error would leave the
+turret trailing every turn, so `TurretAimer` passes the rate with the angle
+(`aim(deg, rateDps)`, the Pinpoint's heading rate) and the servo is told that
+speed at once: the feedforward is the target's rate over `topSpeedDps`. The
+25-3 Speed's top speed through 2.75:1 is 196°/s (data sheet); at Belding the
+drivers turned faster than that for 2.4% of TeleOp, and in those moments the
+turret falls behind and catches up after. Driving past the CELL moves the
+target too, slowly, and the correction takes that up.
+
+**When it goes wrong.** With no stops there is no "too far", so a wrong sign
+would spin the turret for ever and an unplugged encoder would drive it blind.
+`TurretDriveWatch` compares the power with the encoder's rate: driven one way
+and turning the other, or driven hard and not turning, drops the hold (limp)
+and says which on the Robot page; the next request tries again.
+
+Before PLAY the servo is never written (limp), so the drive team sets the
+turret at home by its mark, and it holds from the zero at PLAY. While
+`TurretSubsystem.lockedForward` the same loop holds 0 and nothing else.
+`subsystems/TurretEncoder` is the pure math (counts to degrees, with the gear
+ratio and direction). `Bench: Turret` measures the encoder's direction and
+ratio, the servo's sign, stop power, floor and top speed, and runs the hold;
+its javadoc is the checklist. The loop's values are starting values until that
+bench has run (`doc/robot-todo.md`). The position-servo turret of 6 Nov 2026
+(`homePosition`, `TurretRehome`) and the SWYFT burst experiment
+(`Bench: Turret Burst`) are in git history.
 
 ### The Limelight: an Ethernet device, not a hub device
 
@@ -1844,7 +1832,7 @@ flat. Each is now a line in the file, on AdvantageScope's Metadata tab or in `/E
 | `BatteryAtInit`, event `battery low: …`, event `PLAY: battery …` | the battery at INIT (warned on the INIT page below 12.0 V, nearly empty at rest) and at PLAY | `RobotOpMode` |
 | `Tunable/<Class>.<field>` | every Panels knob's value at PLAY, so the run can be repeated | `logging/Tunables`, by reflection over its list; `TunablesTest` keeps the list equal to the `@Configurable` classes outside the benches |
 | `AutoSource`, `AutoDrawnFor`, `AutoPlaceholders` | which `.pp` drawing ran, for which alliance, and which of its waits were on placeholder triggers | `BuiltAuto` |
-| `/Turret/AngleDeg`, `TargetDeg`, `ErrorDeg`, `Zeroed`, `Holding` | the turret, every loop | `RobotOpMode`, beside the launcher's and feeder's keys |
+| `/Turret/AngleDeg`, `TargetDeg`, `ErrorDeg`, `Power`, `Zeroed`, `Holding` | the turret, every loop | `RobotOpMode`, beside the launcher's and feeder's keys |
 | `/Shadow/Robot` (Pose2d), `/Shadow/X`, `/Shadow/Y`, `/Shadow/OffsetIn`, `/Shadow/Fixes` (count, every loop), event `shadow: still fix N moved it …` (only moves over 0.25 in) | what the pose would be with still fixes on (`localization/ShadowPose`), beside the real one; in AdvantageScope drag `/Shadow/Robot` onto the Field as a ghost, in Panels it is the purple robot (`FieldLayers.shadow`) | `RobotOpMode` |
 | `/Prefeed/Power`, `/FeedGate/Feeding`, `/FeedGate/Position` | the transfer: the prefeed's servo power, whether the gate is asked open, and the position last written (absent while the gate's positions are NaN) | `RobotOpMode`; `PrefeedSubsystem` and `FeedGateSubsystem` follow the intake's and the feeder's requests, so no OpMode sets them |
 | `/Intake/FeedAssist` | 1 while the roller or the stars run only because the feeder is feeding or reversing (`IntakeSubsystem.rollerFor`), 0 otherwise | `RobotOpMode` |

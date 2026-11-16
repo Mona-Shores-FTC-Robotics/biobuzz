@@ -77,16 +77,14 @@
                  carry over. -->
             <Servo name="flowerStick" port="0" />
 
-            <!-- Turret drive: a goBILDA servo on servo port 4 since 6 Nov 2026
-                 (it was named on port 1, the dead port, and unplugged). It was
-                 in continuous mode on the 24 Oct bench; 19429's is in position
-                 mode, and the code sends a position. Until this one's mode is
-                 checked it is sent only 0.5 (TurretSubsystem.homePosition),
-                 which is "stop" in continuous mode and centre in position mode. Locked at home
-                 (TurretSubsystem.lockedForward) until the turret's encoder is
-                 plugged in and checked: see the encoder socket beside motor
-                 port 3 below. -->
-            <Servo name="turret" port="4" />
+            <!-- Turret drive: a goBILDA 25-3 Speed servo in continuous mode
+                 (set with the goBILDA servo programmer), on servo port 4, where
+                 the turret servo has been since 6 Nov 2026. It replaces the
+                 SWYFT positional servo. PROPOSED, not fitted yet
+                 (doc/robot-todo.md). A continuous servo has no feedback, so
+                 TurretSubsystem closes the loop on the turret's encoder: see
+                 the encoder socket beside motor port 3 below. -->
+            <ContinuousRotationServo name="turret" port="4" />
 
             <!-- Transfer: the prefeed wheel (a goBILDA Torque servo in
                  continuous mode) on servo port 2, and the feed gate (a goBILDA
@@ -126,7 +124,9 @@
                  turret's Studica Cypher Max (quadrature A/B/I, its FTC Control
                  Hub cable; set its switch to 3V3), the build team's choice of
                  24 Oct 2026. Until 1 Nov the feeder's own encoder was in it;
-                 check which cable is in it now (doc/robot-todo.md). Code reads
+                 by Belding (7 Nov) the turret's was: with the feeder running
+                 the socket read the turret's count, not the feeder's (match
+                 logs). Code reads
                  the turret angle as the feeder's position
                  (DeviceNames.TURRET_ENCODER_HOST); the feeder never uses its
                  encoder for control. -->

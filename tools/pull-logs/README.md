@@ -111,9 +111,9 @@ The match's times are the robot's clock, which the Control Hub takes from the Dr
 
 ## Turret burst bench recordings
 
-**Bench: Turret Burst** records automatically from INIT through STOP to the same FIRST/logs folder.
-After testing, use `pull-logs.cmd` as usual; no extra files or screenshots are needed. A session
-fetches the published log branch and runs:
+**Bench: Turret Burst** (the SWYFT experiment of 6 Nov 2026, removed when the turret servo became a
+goBILDA 25-3 Speed) recorded from INIT through STOP to the same FIRST/logs folder. Its logs on the
+log branches still read with:
 
 ```bash
 python3 tools/pull-logs/read_logs.py turret /path/to/Bench_Turret_Burst.wpilog.gz

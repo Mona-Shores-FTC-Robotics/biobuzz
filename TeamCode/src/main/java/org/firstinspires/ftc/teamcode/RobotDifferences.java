@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
 
 import java.util.ArrayList;
@@ -60,24 +59,12 @@ public final class RobotDifferences {
         // One line per difference, with what was seen and the date, and the subsystem's import at
         // the top of this file.
         differs(RobotIdentity.TEAM_19429,
-                "Turret servo (SWYFT, position mode, 320° range) points straight ahead at 0.514, on Bench:"
-                        + " Turret (6 Nov 2026, checked again after flashing it out of SWYFT's continuous mode)",
-                () -> TurretSubsystem.homePosition = 0.514);
-        differs(RobotIdentity.TEAM_19429,
-                "Cypher Max rides the goBILDA turret's 64T drive gear, 2.75 turns per turret turn"
-                        + " (6 Nov 2026, from the build team; check one turret turn on Bench: Turret)",
-                () -> TurretSubsystem.turnsPerTurretTurn = 2.75);
-        differs(RobotIdentity.TEAM_19429,
-                "Turret encoder trusted (Cypher Max in its socket, counting, 6 Nov 2026): the servo is"
-                        + " re-homed from it, so a turret twirled in INIT comes back to its mark at PLAY",
-                () -> TurretSubsystem.rehomeFromEncoder = true);
-        differs(RobotIdentity.TEAM_19429,
                 "Prefeed servo does not feed inward at the default direction; reversed makes it feed"
                         + " inward in Basic Drive's intake (6 Nov 2026)",
                 () -> PrefeedSubsystem.reversed = true);
         differs(RobotIdentity.TEAM_19429,
-                "Intake star wheels split onto two servos: right on Control Hub servo port 4, left on"
-                        + " port 5 (13 Nov 2026, from the build team)",
+                "Intake star wheels split onto two servos, right and left (13 Nov 2026, from the build"
+                        + " team; their ports are in robot_19429.xml)",
                 () -> IntakeSubsystem.rightStarWheel = true);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
