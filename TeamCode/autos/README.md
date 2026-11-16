@@ -217,13 +217,16 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 | `RIGHT_AUTO_HIVE`, `LEFT_AUTO_HIVE` | **Where an Auto launches**, with the start and the OFFSET spot: in front of that CELL, 40 in from its raised row, turned to aim the turret, half an inch short of the centre line on the left. It stands in front of that end's start, so it is for a robot that knows the start is empty. (`localization/AutoLaunchSpots`, 16 Nov 2026; nothing has been launched from these yet.) |
 | `RIGHT_AUTO_OFFSET`, `LEFT_AUTO_OFFSET` | **Where an Auto launches** beside a robot on the HIVE spot, about 29° off square on our wall's side: on the left 44 in out and 2 in from that robot; on the right 52 in out, 4 in from a robot on `RIGHT_AUTO_FIX_TIP`. It also clears a robot left on that end's start. |
 | `RIGHT_AUTO_FIX_TIP` | **Where a left-start Auto fires at the RIGHT CELL after crossing**, when the partner's TIP did not come: square to the wall, in line with the CELL, its back edge 18 in from the audience wall, so it clears any robot still on `RIGHT_START` (none may start more than 18 in deep) and stays out of the partner's lanes. 35 in from the row, where volleys have hit the lip. |
-| `RIGHT_LAUNCH_CATCH`, `LEFT_LAUNCH_CATCH` | *Being retired, with CLOSE and OFFSET below: an Auto still on them is named in `AutoVolleySpotsTest`.* | In front of that CELL, just outside where its spill lands, clear of a partner on the start. |
-| `RIGHT_LAUNCH_OFFSET`, `LEFT_LAUNCH_OFFSET` | Off to the side of that CELL and angled at it, so a partner in front of the CELL is not disturbed. |
-| `RIGHT_LAUNCH_CORNER`, `LEFT_LAUNCH_CORNER` | The long shot (about 55 in) from the corner of our wall, drawn for the TeleOp's go-to-launch-spot button, which stopped using them on 11 Nov 2026 (its spots are now `localization/LaunchSpots`' own, not team spots); no Auto uses them. RIGHT is where 20245 scored it on 4 Nov; LEFT is its place mirrored across the axle line, turned to aim the turret (which sits off-centre) at the LEFT CELL; not yet fired from. |
 | `WALL_FLOWER_STAGING`, `SCORING_FLOWER_STAGING` | Where a Pick flower step starts (on the FLOWER's line, 18–24 in out). |
 | `GARDEN_STAGING` | Where a Garden gather step starts; the gather pose itself is the robot code's (`GardenFieldPoints`). |
 | `RIGHT_PARK`, `LEFT_PARK` | 14.5 in off the alliance wall, facing 0 (the intake toward the field), in the LOADING ZONE. |
 | `PARTNER_STAGED_POLLEN` | Where a partner on `LEFT_START` sets its four preloads down for us: a drawing until a partner says where they stage (`partners/partner-l-stage-park` is the simulator's guess; see "Partner stand-ins"). |
+
+The eight old launch spots (`LAUNCH_CATCH`, `LAUNCH_CLOSE`, `LAUNCH_OFFSET` and `LAUNCH_CORNER` at each end) are no
+longer team spots (16 Nov 2026): every Auto launches from a start or an Auto launch spot. A draft drawn on one keeps
+it as a point of its own, where it was; older notes and match reviews that name one mean these places:
+LEFT CATCH (57.5, 123.5, 273.4°), CLOSE (59.9, 117.5, 270°), OFFSET (41, 121.5, 296.4°), CORNER (30.2, 130.8, 302.6°);
+RIGHT CATCH (57.5, 18, 91.9°), CLOSE (56.1, 26, 90°), OFFSET (41, 20, 68.7°), CORNER (30.2, 10.7, 54°).
 
 **Which launch spot a volley uses** is the Auto's to work out. HIVE is preferred; a pair uses one
 each; a robot coming under the HIVE shoots from HIVE, one coming round the outside lane from

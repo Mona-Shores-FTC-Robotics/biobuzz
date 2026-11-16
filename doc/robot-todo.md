@@ -1393,7 +1393,7 @@ reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536
       number that works here. The NEAR
       and FAR close spots overlap the HIVE one by about a third of a robot: never send both robots
       to the middle and a side one at once.
-- [ ] **`RIGHT_LAUNCH_CATCH` against `RIGHT_CLOSE_HIVE`, before the Autos give CATCH up** (mentor,
+- [ ] **Superseded 16 Nov: the Autos gave CATCH up and it is no longer a team spot; they launch from `AutoLaunchSpots` (see "The Autos' four launch spots, by hand first" above).** **`RIGHT_LAUNCH_CATCH` against `RIGHT_CLOSE_HIVE`, before the Autos give CATCH up** (mentor,
       12 Nov; needs the 36 in row first, §7d). Neither button drives to CATCH now: drive there by
       hand (57.5, 18, facing the CELL; the Match page's "Last shot" line shows 43 in) and fire with
       FIRE; then Square from the middle tile row in front of the HIVE for `RIGHT_CLOSE_HIVE` (36 in). Ten volleys of 4

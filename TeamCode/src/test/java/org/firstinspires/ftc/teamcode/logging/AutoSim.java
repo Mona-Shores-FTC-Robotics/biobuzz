@@ -146,7 +146,9 @@ public final class AutoSim {
      * _AIM_SPREAD_DEG and _AIM_AT_S set them; BIOBUZZ_AUTO_HUMAN_BANK=N banks them as for the wall roll.
      */
     static boolean humanAims = false;
-    static String humanAimSpot = "RIGHT_LAUNCH_OFFSET";
+    /** The old RIGHT_LAUNCH_OFFSET team spot, retired 16 Nov 2026: where PR #424's long-roll study had the robot wait. */
+    static final String OLD_RIGHT_LAUNCH_OFFSET = "41,20,68.7";
+    static String humanAimSpot = OLD_RIGHT_LAUNCH_OFFSET;
     static double[] humanAimFrom = {5.5, 95};
     static double humanAimSpeedInPerS = 21;
     static double humanAimSpeedSpreadInPerS = 2;

@@ -6,6 +6,10 @@ partner-nudge experiment has Utility trials for bring-up. The nudge
 Utility's runtime speed limits are not modeled by AutoSim. The Visualizer lists
 these under "Drafts", and Save to GitHub saves back here.
 
+Some drafts launch from the old launch spots (`LEFT_LAUNCH_OFFSET`, `RIGHT_LAUNCH_CLOSE` and the like), which
+stopped being team spots on 16 Nov 2026. Each keeps those as points of its own, where they were. A draft
+that goes to the Autonomous menu moves to the Autos' launch spots first (`AutoVolleySpotsTest`).
+
 ## Clockwise with the backward legs: the three-TIP draft
 
 `r-clockwise-backward.pp` with `l-clockwise-backward.pp`: the Clockwise pair as it first ran
