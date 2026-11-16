@@ -1269,6 +1269,13 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       (29.3 before the move, and Belding M-7 ended that trip 9 in short) → write the time. Its
       route back to the left end before parking stays: a park straight from the right end runs
       through `RIGHT_PARK` (`doc/auto-handoffs.md`).
+- [ ] **R-Solo on the Autos' launch spots (moved 16 Nov, not driven).** Preloads from
+      `RIGHT_START` as before; both LEFT volleys from `LEFT_AUTO_HIVE` and the volley back at the
+      right end from `RIGHT_AUTO_HIVE`. The partner is expected in the corner, parked, not on
+      `LEFT_START`: `LEFT_AUTO_HIVE` stands in front of that start. Run it alone. **Good:** each
+      volley 3 or 4 of 4 in, nothing off the lip from 40 in, parked by about 27 s. **Stop:** a
+      partner still on `LEFT_START` when R-Solo arrives → the two touch (the simulator has it at
+      12.5 s); that match needs another Auto.
 - [ ] **Two robots at one end.** One on `LEFT_AUTO_HIVE`, one on `LEFT_AUTO_OFFSET`, both at
       their headings. **Good:** about 2 in between the frames, HIVE's frame half an inch short of
       the centre line, OFFSET clear of the SCORING FLOWER, and each can fire without the other

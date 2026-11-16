@@ -21,7 +21,7 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-12|3:37PM";
+    public static final String SAVED = "11-16|2:07PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -53,73 +53,73 @@ public final class RSoloAuto {
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose rightPark = p.of(14.5, 98.7, 0);
-        Pose leftLaunchClose = p.of(59.9, 117.5, 270);
-        Pose rightLaunchClose = p.of(56.1, 26, 90);
+        Pose leftAutoHive = p.of(61.9, 120.4, 268.1);
+        Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toLeftLaunchCloseControl1 = p.of(29.2986, 127.3052, 0);
-        Pose toLeftLaunchCloseSegment1Start = p.of(59.9, 117.5, 180);
-        Pose toLeftLaunchCloseSegment1End = p.of(59.9, 117.5, 90);
-        Pose toLeftLaunchCloseSegment2Start = p.of(59.9, 117.5, 90);
-        Pose leftLaunchCloseParkStart = p.of(59.9, 117.5, 273);
+        Pose toLeftAutoHiveControl1 = p.of(29.2986, 127.3052, 0);
+        Pose toLeftAutoHiveSegment1Start = p.of(61.9, 120.4, 180);
+        Pose toLeftAutoHiveSegment1End = p.of(61.9, 120.4, 90);
+        Pose toLeftAutoHiveSegment2Start = p.of(61.9, 120.4, 90);
+        Pose leftAutoHiveParkStart = p.of(61.9, 120.4, 273);
         Pose scoringFlowerStagingParkControl1 = p.of(40, 96, 0);
         Pose toRightParkControl1 = p.of(43.661, 105.8984, 0);
         Pose toRightPark_2Control1 = p.of(43.661, 105.8984, 0);
-        Pose toRightLaunchCloseControl1 = p.of(58.7683, 101.5686, 0);
-        Pose toRightLaunchCloseControl2 = p.of(65.2005, 71.9052, 0);
-        Pose toRightLaunchCloseControl3 = p.of(60.6002, 40.901, 0);
-        Pose toRightLaunchCloseSegment1Start = p.of(56.1, 26, 270);
-        Pose toRightLaunchCloseSegment1End = p.of(56.1, 26, 270);
-        Pose toRightLaunchCloseSegment2Start = p.of(56.1, 26, 270);
+        Pose toRightAutoHiveControl1 = p.of(58.7683, 101.5686, 0);
+        Pose toRightAutoHiveControl2 = p.of(65.2005, 71.9052, 0);
+        Pose toRightAutoHiveControl3 = p.of(60.6002, 40.901, 0);
+        Pose toRightAutoHiveSegment1Start = p.of(59.2, 20.9, 268.1);
+        Pose toRightAutoHiveSegment1End = p.of(59.2, 20.9, 270);
+        Pose toRightAutoHiveSegment2Start = p.of(59.2, 20.9, 270);
         Pose toRightPark_3Control1 = p.of(23.3185, 25.5538, 0);
         Pose toRightPark_4Control1 = p.of(23.3185, 25.5538, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
-        Path toLeftLaunchClose = Paths.curve(wallFlowerStaging, toLeftLaunchCloseControl1, leftLaunchClose).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftLaunchCloseSegment1Start, toLeftLaunchCloseSegment1End)).until(1, Interpolator.longLinear(toLeftLaunchCloseSegment2Start, leftLaunchClose)));
-        Path leftLaunchClosePark = Paths.line(leftLaunchCloseParkStart, rightPark).linear(leftLaunchCloseParkStart, rightPark);
-        Path toScoringFlowerStaging = Paths.line(leftLaunchClose, scoringFlowerStaging).linear(leftLaunchClose, scoringFlowerStaging);
+        Path toLeftAutoHive = Paths.curve(wallFlowerStaging, toLeftAutoHiveControl1, leftAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftAutoHiveSegment1Start, toLeftAutoHiveSegment1End)).until(1, Interpolator.longLinear(toLeftAutoHiveSegment2Start, leftAutoHive)));
+        Path leftAutoHivePark = Paths.line(leftAutoHiveParkStart, rightPark).linear(leftAutoHiveParkStart, rightPark);
+        Path toScoringFlowerStaging = Paths.line(leftAutoHive, scoringFlowerStaging).linear(leftAutoHive, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
-        Path toLeftLaunchClosePath = Paths.line(scoringFlowerStaging, leftLaunchClose).linear(scoringFlowerStaging, leftLaunchClose);
-        Path toRightPark = Paths.curve(leftLaunchClose, toRightParkControl1, rightPark).linear(leftLaunchClose, rightPark);
-        Path toRightParkPath = Paths.curve(leftLaunchClose, toRightPark_2Control1, rightPark).linear(leftLaunchClose, rightPark);
-        Path toRightLaunchClose = Paths.curve(leftLaunchClose, toRightLaunchCloseControl1, toRightLaunchCloseControl2, toRightLaunchCloseControl3, rightLaunchClose).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(toRightLaunchCloseSegment1Start, toRightLaunchCloseSegment1End)).until(1, Interpolator.linear(toRightLaunchCloseSegment2Start, rightLaunchClose)));
-        Path toRightParkPath2 = Paths.curve(rightLaunchClose, toRightPark_3Control1, rightPark).linear(rightLaunchClose, rightPark);
-        Path toRightParkPath3 = Paths.curve(rightLaunchClose, toRightPark_4Control1, rightPark).linear(rightLaunchClose, rightPark);
+        Path toLeftAutoHivePath = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
+        Path toRightPark = Paths.curve(leftAutoHive, toRightParkControl1, rightPark).linear(leftAutoHive, rightPark);
+        Path toRightParkPath = Paths.curve(leftAutoHive, toRightPark_2Control1, rightPark).linear(leftAutoHive, rightPark);
+        Path toRightAutoHive = Paths.curve(leftAutoHive, toRightAutoHiveControl1, toRightAutoHiveControl2, toRightAutoHiveControl3, rightAutoHive).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(toRightAutoHiveSegment1Start, toRightAutoHiveSegment1End)).until(1, Interpolator.linear(toRightAutoHiveSegment2Start, rightAutoHive)));
+        Path toRightParkPath2 = Paths.curve(rightAutoHive, toRightPark_3Control1, rightPark).linear(rightAutoHive, rightPark);
+        Path toRightParkPath3 = Paths.curve(rightAutoHive, toRightPark_4Control1, rightPark).linear(rightAutoHive, rightPark);
 
         return kit.sequence(
-                kit.guarded("Auto", leftLaunchClosePark, 2,
+                kit.guarded("Auto", leftAutoHivePark, 2.1,
                         kit.command("SpinUp"),
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
                         kit.command("PickFlower", 4.5),
-                        kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClose, 2.9, leftLaunchClosePark, 2),
+                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHive, 2.9, leftAutoHivePark, 2.1),
                         kit.firstOf("Wait for TIP or CELL up",
                                 kit.when("CellUp").then(
-                                        kit.guarded("If CellUp", toRightParkPath, 2,
+                                        kit.guarded("If CellUp", toRightParkPath, 2.1,
                                                 kit.command("LaunchAll"),
                                                 kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.9),
                                                 kit.command("PickFlower", 4.5),
-                                                kit.path("to LEFT_LAUNCH_CLOSE", toLeftLaunchClosePath, 1.3),
+                                                kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3),
                                                 kit.firstOf("LEFT CELL still up?",
                                                         kit.when("CellUp").then(
-                                                                kit.guarded("If CellUp", toRightPark, 2,
+                                                                kit.guarded("If CellUp", toRightPark, 2.1,
                                                                         kit.command("LaunchAll"),
-                                                                        kit.path("to RIGHT_PARK", toRightPark, 2))),
+                                                                        kit.path("to RIGHT_PARK", toRightPark, 2.1))),
                                                         kit.afterMs(750).then(
-                                                                kit.guarded("Timed out", toRightParkPath, 2,
-                                                                        kit.path("to RIGHT_PARK", toRightParkPath, 2)))))),
+                                                                kit.guarded("Timed out", toRightParkPath, 2.1,
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.1)))))),
                                 kit.afterMs(750).then(
-                                        kit.guarded("Timed out", toRightParkPath3, 2.9,
-                                                kit.path("to RIGHT_LAUNCH_CLOSE", toRightLaunchClose, 3.2),
+                                        kit.guarded("Timed out", toRightParkPath3, 3,
+                                                kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 3.3),
                                                 kit.firstOf("RIGHT CELL still up?",
                                                         kit.when("CellUp").then(
-                                                                kit.guarded("If CellUp", toRightParkPath2, 2.9,
+                                                                kit.guarded("If CellUp", toRightParkPath2, 3,
                                                                         kit.command("LaunchAll"),
-                                                                        kit.path("to RIGHT_PARK", toRightParkPath2, 2.9))),
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath2, 3))),
                                                         kit.afterMs(750).then(
-                                                                kit.guarded("Timed out", toRightParkPath3, 2.9,
-                                                                        kit.path("to RIGHT_PARK", toRightParkPath3, 2.9)))))))));
+                                                                kit.guarded("Timed out", toRightParkPath3, 3,
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath3, 3)))))))));
     }
 }
