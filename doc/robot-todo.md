@@ -120,16 +120,15 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       that it is mounted mirror-image to the left), see it turn inward, and put the value that
       worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
       out. Turret: still sits at home after PLAY, as before.
-- [ ] **Both robots: the turret servo becomes a goBILDA 25-3 Speed in continuous mode, on Control
-      Hub servo port 4** (the SWYFT positional servo comes off; set continuous mode with the
-      goBILDA programmer). **20245:** same port as now. **19429:** the turret servo goes back to
-      **Control Hub servo port 4**, and the right star wheel (`intakeStarsRight`) moves to
-      **Expansion Hub servo port 5**, the port the turret leaves (`robot_19429.xml`; say so if the
-      build team wires it otherwise, and the XML changes to match). The Cypher Max stays in the
-      encoder socket beside Expansion Hub motor port 3 on both. The configs on this branch already
-      say this, so **install it only on a robot that is wired this way**: a positional servo sent a
-      continuous servo's pulses swings to an end. A **full TeamCode install**, re-Activate, then
-      **Check: Hardware**, then the Bench: Turret items in §2.
+- [ ] **Both robots: the turret servo becomes a goBILDA 25-3 Speed in continuous mode, on
+      Expansion Hub servo port 5** (the SWYFT positional servo comes off; set continuous mode with
+      the goBILDA programmer). **19429:** same port as now. **20245:** the turret servo moves from
+      Control Hub servo port 4 to **Expansion Hub servo port 5**; its Control Hub port 4 stays
+      empty, kept for a right star wheel like 19429's (`robot_20245.xml`). The Cypher Max stays in
+      the encoder socket beside Expansion Hub motor port 3 on both. The configs on this branch
+      already say this, so **install it only on a robot that is wired this way**: a positional
+      servo sent a continuous servo's pulses swings to an end. A **full TeamCode install**,
+      re-Activate, then **Check: Hardware**, then the Bench: Turret items in §2.
 - [ ] **Panels 1.0.20 (FullPanels bump):** a **full TeamCode install** on each robot (a Sloth Load
       keeps the old Panels). **Good:** Panels opens at `192.168.43.1:8001`, the field and graphs
       update, the Driver Station still lists every `robot_*` config after a Sloth Load, and

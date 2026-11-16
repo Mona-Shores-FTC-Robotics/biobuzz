@@ -115,8 +115,8 @@ public final class DeviceNames {
      * The turret's drive: a goBILDA 25-3 Speed servo in continuous mode, so a
      * {@code <ContinuousRotationServo>} element on a servo port, not a motor port (all eight are
      * taken). It is sent a speed and has no feedback of its own: the turret's angle comes from
-     * {@link #TURRET_ENCODER_HOST}, and {@code TurretSubsystem} closes the loop on it. A Control
-     * Hub servo port; which one is in each robot's XML.
+     * {@link #TURRET_ENCODER_HOST}, and {@code TurretSubsystem} closes the loop on it. An
+     * Expansion Hub servo port; which one is in each robot's XML.
      */
     public static final String TURRET = "turret";
 

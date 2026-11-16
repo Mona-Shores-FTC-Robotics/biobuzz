@@ -479,7 +479,7 @@ was cosmetic. These files keep the two equal so the file cannot be misread.
 
 The turret has no motor port: all eight are taken. It turns on a goBILDA 25-3
 Speed servo in continuous mode, a `<ContinuousRotationServo>` element and a
-`CRServo` in code, on Control Hub servo port 4 on both robots. The SDK builds a
+`CRServo` in code, on Expansion Hub servo port 5 on both robots. The SDK builds a
 `CRServo` from that element, a different class from the `Servo` a `<Servo>`
 element gives, so `DeviceNames.Kind` has `CR_SERVO` beside `SERVO` (the prefeed
 and the intake's stars use it too): `ValidateHardware` asks the hardware map for

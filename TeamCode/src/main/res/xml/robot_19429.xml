@@ -60,14 +60,13 @@
             <RevColorSensorV3 name="colorSensor" port="2" bus="2" />
 
             <!-- Intake star wheels: two continuous-rotation servos since
-                 13 Nov 2026. This is the LEFT star wheel, on servo port 5
-                 (port 5 drove all the stars from 24 Oct); the RIGHT one is on
-                 the Expansion Hub's servo port 5 (below), since the turret
-                 took this hub's port 4 back.
+                 13 Nov 2026, the RIGHT star wheel on servo port 4 and the LEFT
+                 on servo port 5 (port 5 drove all the stars from 24 Oct).
                  One-way clutches let a ball overrun the stars inward; the
                  code runs them while the intake pulls in, backwards while
                  it ejects, and stops them otherwise. 20245 still has one
-                 star servo, on its port 5. -->
+                 star servo, on its port 5; its port 4 is kept for the second. -->
+            <ContinuousRotationServo name="intakeStarsRight" port="4" />
             <ContinuousRotationServo name="intakeStars"      port="5" />
             <!-- Mission-critical servos live on this hub, so losing the
                  Expansion Hub does not also take them. PROPOSED PORTS,
@@ -86,7 +85,7 @@
                  device and every light shows the same colour (the servo
                  position). On port 1 since 6 Nov 2026 (it was on 4). Wired
                  differently from 20245, whose port 1 is dead and whose lights
-                 are on its Expansion Hub (so is 19429's right star wheel). -->
+                 are on its Expansion Hub (so is the turret servo, on both). -->
             <Servo name="indicator" port="1" />
 
             <!-- Transfer: the prefeed wheel (a goBILDA Torque servo in
@@ -95,27 +94,23 @@
             <ContinuousRotationServo name="prefeed" port="2" />
             <Servo name="feedGate" port="3" />
 
-            <!-- Turret drive: a goBILDA 25-3 Speed servo in continuous mode
-                 (set with the goBILDA servo programmer), on servo port 4, the
-                 same port as 20245. It replaces the SWYFT positional servo that
-                 was on the Expansion Hub's servo port 5 from 13 Nov 2026.
-                 PROPOSED, not wired yet: fit the servo and move the right star
-                 wheel to the Expansion Hub's servo port 5 at the same time
-                 (doc/robot-todo.md). A continuous servo has no feedback, so
-                 TurretSubsystem closes the loop on the turret's encoder: see
-                 the encoder socket beside motor port 3 below. -->
-            <ContinuousRotationServo name="turret" port="4" />
+            <!-- The turret servo is on the Expansion Hub's servo port 5 since
+                 13 Nov 2026, to free this port 4 for the right star wheel. -->
 
         </LynxModule>
 
         <!-- Expansion Hub: the intake, then the launcher. -->
         <LynxModule name="Expansion Hub" port="2">
 
-            <!-- The RIGHT intake star wheel (the left is on the Control Hub's
-                 servo port 5): on this hub's servo port 5, the port the turret
-                 servo leaves for the Control Hub's port 4. PROPOSED, not wired
-                 yet: until then it is on the Control Hub's servo port 4. -->
-            <ContinuousRotationServo name="intakeStarsRight" port="5" />
+            <!-- Turret drive: a goBILDA 25-3 Speed servo in continuous mode
+                 (set with the goBILDA servo programmer), on this hub's servo
+                 port 5, the same port on both robots and where 19429's turret
+                 servo has been since 13 Nov 2026. It replaces the SWYFT
+                 positional servo. PROPOSED, not fitted yet (doc/robot-todo.md).
+                 A continuous servo has no feedback, so TurretSubsystem closes
+                 the loop on the turret's encoder: see the encoder socket beside
+                 motor port 3 below. -->
+            <ContinuousRotationServo name="turret" port="5" />
 
             <!-- Intake roller: one goBILDA 5203 motor (#160, #181), on motor
                  port 0, where the build team plugged it in (23 Oct 2026). -->

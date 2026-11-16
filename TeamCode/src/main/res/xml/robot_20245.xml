@@ -77,14 +77,10 @@
                  carry over. -->
             <Servo name="flowerStick" port="0" />
 
-            <!-- Turret drive: a goBILDA 25-3 Speed servo in continuous mode
-                 (set with the goBILDA servo programmer), on servo port 4, where
-                 the turret servo has been since 6 Nov 2026. It replaces the
-                 SWYFT positional servo. PROPOSED, not fitted yet
-                 (doc/robot-todo.md). A continuous servo has no feedback, so
-                 TurretSubsystem closes the loop on the turret's encoder: see
-                 the encoder socket beside motor port 3 below. -->
-            <ContinuousRotationServo name="turret" port="4" />
+            <!-- Servo port 4 is empty: the turret servo, here from 6 Nov 2026,
+                 moves to the Expansion Hub's servo port 5 (below), the same
+                 port as 19429's. Port 4 is kept for a right star wheel, as on
+                 19429, when this robot's stars are split. -->
 
             <!-- Transfer: the prefeed wheel (a goBILDA Torque servo in
                  continuous mode) on servo port 2, and the feed gate (a goBILDA
@@ -109,6 +105,16 @@
                  port. Only a light: losing this hub costs the colour, never a
                  mechanism. -->
             <Servo name="indicator" port="0" />
+
+            <!-- Turret drive: a goBILDA 25-3 Speed servo in continuous mode
+                 (set with the goBILDA servo programmer), on this hub's servo
+                 port 5, the same port on both robots. It replaces the SWYFT
+                 positional servo that was on the Control Hub's servo port 4.
+                 PROPOSED, not fitted or moved yet (doc/robot-todo.md). A
+                 continuous servo has no feedback, so TurretSubsystem closes
+                 the loop on the turret's encoder: see the encoder socket beside
+                 motor port 3 below. -->
+            <ContinuousRotationServo name="turret" port="5" />
 
             <!-- Intake roller: one goBILDA 5203 motor (#160, #181), on motor
                  port 0, where the build team plugged it in (23 Oct 2026). -->
