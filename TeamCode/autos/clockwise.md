@@ -1,9 +1,8 @@
 # R-Clockwise / L-Clockwise: a paired Auto with fixed fallbacks
 
 Successors to R-Infraviolet and L-Infraviolet. Mentor session, 11 to 12 Nov 2026. Each robot has run its half alone
-(14 Nov 2026); the pair has not yet run together. Clockwise replaces Infraviolet on the Autonomous
-menu (mentor, 14 Nov 2026): the Infraviolet pair is now the Utility trials **Drive: R-Infraviolet**
-and **Drive: L-Infraviolet**.
+(14 Nov 2026); the pair has not yet run together. Clockwise replaced Infraviolet on the Autonomous
+menu on 14 Nov 2026, and the Infraviolet pair was retired from master on 16 Nov 2026 (mentor).
 
 Select **Autonomous → R-Clockwise** on the RIGHT_START robot and **L-Clockwise** on the LEFT_START
 robot. They are a pair: run one only beside the other, with the two INIT menus set to match (the drive

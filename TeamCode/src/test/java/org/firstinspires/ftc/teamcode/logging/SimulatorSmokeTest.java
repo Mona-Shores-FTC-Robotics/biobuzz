@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RClockwiseAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RInfravioletAuto;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
@@ -37,9 +37,9 @@ public class SimulatorSmokeTest {
         assertTrue("the HIVE never moved", reader.entry(HiveComponents.KEY).records.size() > 1);
     }
     @Test
-    public void activeFeedOutlivesInfravioletReadinessTimeout() throws Exception {
-        File log = new File(TeamCodeDir.simLogs(), "smoke-infraviolet-feed.wpilog");
-        AutoSim.Result result = new AutoSim(RInfravioletAuto.class, Alliance.RED, 1)
+    public void activeFeedOutlivesItsReadinessTimeout() throws Exception {
+        File log = new File(TeamCodeDir.simLogs(), "smoke-feed.wpilog");
+        AutoSim.Result result = new AutoSim(RClockwiseAuto.class, Alliance.RED, 1)
                 .design(AutoStudyTest.designs().get(RobotDesign.REAL_LOCKED)).write(log);
         assertTrue("Both preload and wallflower feeds must finish: " + result,
                 result.robots.get(0).launched >= 8);

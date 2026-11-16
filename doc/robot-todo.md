@@ -37,12 +37,12 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
    the push, legal starting contact, PARK overlap, clearance and time cost (§3).
    Target two TIPs and both AUTO PARKs; the current draft is not qualified and has no
    OpMode. A match partner with no motion still uses an initialized OpMode.
-4. **L-Infraviolet / R-Infraviolet.** Competition Autos: run on both robots and promoted
-   from Utility trials. Keep refining the pair; a dead partner is not covered (§3).
+4. **R-Clockwise / L-Clockwise.** The coordinated pair (§3). The Infraviolet pair was retired
+   on 16 Nov 2026.
 
 - [ ] **After loading the lineup cleanup:** the Driver Station's Autonomous menu has
-      exactly L-NoCross, R-NoCross, R-Solo, L-Infraviolet and R-Infraviolet (with their
-      save timestamps); the old Drive: L/R-Infraviolet Utilities are gone. Preload,
+      exactly L-NoCross, R-NoCross, R-Solo, L-Clockwise and R-Clockwise (with their
+      save timestamps); neither Infraviolet Auto nor a Drive: L/R-Infraviolet Utility is listed. Preload,
       Staging, the old Partner names and R-Solo-Nudge are absent. Check INIT on each,
       including alliance, measured start and the available D-pad options. A stale name
       after Sloth Load needs a clean restart/reload check before any field test.
@@ -401,8 +401,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       robot on LEFT_PARK. **Good:** clearly over the line, and a hand's width between the two
       robots (the model leaves about 2.7 in for 16 in frames). **Stop:** still on the line, or the
       two touch → move RIGHT_PARK again in the Visualizer and Save team spots, by what the tape
-      shows. R-Infraviolet keeps its own RIGHT_PARK at 95.7 (its park passes close to L's): move
-      it only with the pair on the field. [PR #373], [#516]
+      shows. [PR #373], [#516]
 - [ ] **Stick down on the drive in:** spotters at WALL_FLOWER_STAGING and SCORING_FLOWER_STAGING,
       R-Solo, two picks each. **Good:** the stick swings down about 18 in before
       the robot stops and touches nothing before the push. **Stop:** it touches → Panels
@@ -534,40 +533,9 @@ Use the work order above to select checks; the detailed mechanism checks below a
         Two TIPs and double park, followed by 17/18 in partner presets, come after this test.
       [Draft and Utility details](../TeamCode/autos/drafts/README.md#first-floor-test-drive-partner-nudge)
 
-- [ ] **Infraviolet pair: L early garden, R both flowers.**
-      [Assignment, reused paths, cutoffs and timing](../TeamCode/autos/infraviolet.md).
-      Run **Autonomous → L-Infraviolet / R-Infraviolet** with the DS AUTO timer on
-      (it stops them at 30 s). The previous assignment is preserved in Git history.
-      - Confirm L moves to LEFT_CATCH but never shoots before R's TIP 1 settles.
-        Missing TIP 1 must send L to far park without collecting the garden.
-      - Dry-run both south crossings and the separate parks. L must pass a robot
-        already in RIGHT_PARK without touching it. Stop if either robot stalls;
-        a dead L at its start obstructs R's reused LEFT approach.
-      - Keep L at the existing RIGHT offset; drive R's final turn and park around
-        it, checking actual frame/poker and centre-line clearance. The drawing's
-        minimum centre-line margin near the shot is about 1 in along the approach (about 2 in at the shot), not a tracking tolerance.
-      - Qualify R's new local RIGHT_PAIR_CLOSE shot (59.5, 31, about 97.2 degrees;
-        turret range about 30 in). L's shared RIGHT offset is unchanged. Check
-        camera visibility and the shot line with both robots in position.
-      - Test loaded exits after the normal pickup retreat. The long under-HIVE
-        crossing is forward; R's final shot alignment still has a short backward
-        component. Tune/test retention there before trusting the fourth piece.
-      - Measure R final RIGHT readiness before **22.5 s**; L's before **20 s**.
-        R collects the scoring flower while TIP 2 settles, then confirms RIGHT up
-        at the final shot. Test late arrivals and missed TIP 2: skip the
-        unconfirmed volley and take the
-        assigned park. The 1 s launch timeouts (0.5 s for R's final volley)
-        limit readiness, not an active feed; test the shorter final window.
-      - Run the complete pair, including mismatched drive speeds and missed volleys.
-        Full physics simulation at `63cdc72b` gets three TIPs plus both parks in
-        one of three nominal seeds; the other two execute every volley but get
-        two TIPs and both parks. Shot conversion/retention remains unqualified.
-        Confirm both LEAVEs at AUTO end and both parks on video; the pair is
-        already promoted, so log each run that shows otherwise.
-
 - [ ] **Clockwise pair: R-Clockwise beside L-Clockwise.**
       [The plan, the stops, the times and the simulator's tables](../TeamCode/autos/clockwise.md). Not yet
-      driven as a pair; Infraviolet is on the Utility menu (Drive: R-Infraviolet, Drive: L-Infraviolet). Run with the DS AUTO
+      driven as a pair. Run with the DS AUTO
       timer on. Every volley is from a spot the drivers' Square goes to, and the guard
       plans a volley at 2.5 s (4.0 until 12 Nov), for every Auto. In this order, since each step
       decides whether the next is worth running:
@@ -780,6 +748,16 @@ measurement is [#255].
       nine-in-ten mark), ten more; still short → leave 2000 and say so here. On 19429 only after its
       stick check (§7): its dwell brought nothing in 7 of 13 Belding picks, so a shorter one loses
       little there but proves nothing either.
+- [ ] **The lane count after a pick or a gather: does it say what is in the lane?** Reported
+      by two Auto chats on 16 Nov (`doc/auto-handoffs.md`): on three picks of 14 Nov (20245)
+      `/Lane/Count` read 2, 3 and 1 where the volleys then fired 4, 4 and 5, and `/Lane/Full` was
+      right on two of the three. The colour sensor refreshes about every 130 ms and saturates, so
+      it cannot count balls that touch; the beam break of [#213] is the fix. Until then nothing
+      decides on "the lane is not full" from the count. Ten picks at a FLOWER, on each robot:
+      write the Robot page's lane count and whether it shows full right after the pick, then the
+      pieces the next volley fires, by eye. **Good:** full is shown on every pick that fired 4.
+      **Stop:** full missed on a 4 → note how many of ten; that is how often a "lane full" wait
+      would time out.
 - [ ] **FLOWER pick: three routines, 20 picks at each FLOWER on each robot** (Panels
       `FlowerPicker.routine`: `MASTER`, the default and the Belding pick; `FAST`; `MULTI_PUSH`;
       PR #550). The pick's start line in the match log names the routine.
@@ -1269,6 +1247,22 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       Square to `RIGHT_START` and to `LEFT_WALL_HIVE` and count what stays in of 4 at each, as
       before the change: the aim moved by about 1° (0.8 in at the CELL). **Stop:** fewer stay in
       than before → note which side the misses fall.
+- [ ] **The Autos' four launch spots, by hand first (Basic Drive, HIVE upright, a taped mark at
+      each).** `AutoLaunchSpots`, drawn 16 Nov and never launched from: `LEFT_AUTO_HIVE`
+      (61.9, 120.4, 268.1°), `LEFT_AUTO_OFFSET` (40.7, 121.1, 298.7°), `RIGHT_AUTO_HIVE`
+      (59.2, 20.9, 96.1°), `RIGHT_AUTO_OFFSET` (37.6, 22.3, 63.8°); blue's are these turned half a
+      turn. Tape each from the walls, place the robot on it at its heading, turret locked, and
+      fire five volleys of four. Write the count that stays in of 20 at each, and the range the
+      robot shows. **Good:** 18 or more of 20 from each HIVE spot (40 in, 2° and 6° off square) and
+      from each OFFSET spot (44 in, 29° and 26° off square), and nothing off the HIVE's lip from
+      40 in. **Stop:** lip hits from a HIVE spot → note how many, and try 2 in further back; an
+      OFFSET spot clearly worse than its HIVE spot → note which side the misses fall. That is the
+      angle, and the spot moves back along its line (26° at 48 in on the left).
+- [ ] **Two robots at one end.** One on `LEFT_AUTO_HIVE`, one on `LEFT_AUTO_OFFSET`, both at
+      their headings. **Good:** about 2 in between the frames, HIVE's frame half an inch short of
+      the centre line, OFFSET clear of the SCORING FLOWER, and each can fire without the other
+      in its line. The same on the right. **Stop:** they touch, or one shoots across the other →
+      note which and by how much.
 
 ## 7e. Blue alliance (HIVE and FLOWERs on the blue side)
 
