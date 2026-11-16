@@ -307,10 +307,16 @@ number for the contact speed: find it with the push-only test first.
 ## The lane pair: R-OutsideLane and L-UnderHive
 
 A second way at three TIPs beside the Clockwise pair: R keeps to the wall side of the HIVE and L
-to the under-HIVE side. Mentor session, 12 Nov 2026. Drafts, never driven; each runs from the
-Utility menu and stops itself at 30 s.
+to the under-HIVE side. Mentor session, 12 Nov 2026.
 
-Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-outside-lane.pp,drafts/l-under-hive.pp>
+**No longer a draft (16 Nov 2026):** the pair is in `TeamCode/autos/` and on the Autonomous menu as
+R-OutsideLane and L-UnderHive, launching from the Autos' launch spots with its drives as single
+curves ([the Auto README](../README.md)). The notes below are from the draft, which launched from
+Square's close row (L4, R4, R5) and ran from the Utility menu; where they name those spots, the
+Autos now use `LEFT_AUTO_OFFSET` (R) and `LEFT_AUTO_HIVE` (L) at the left end, and
+`RIGHT_AUTO_HIVE` (L) and `RIGHT_AUTO_OFFSET` (R) at the right.
+
+Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-outside-lane.pp,l-under-hive.pp>
 
 | Utility | Route |
 |---|---|

@@ -34,10 +34,21 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 | R-Solo | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo.pp> |
 | R-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-no-cross.pp> |
 | L-Clockwise + R-Clockwise (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-clockwise.pp,l-clockwise.pp> |
+| R-OutsideLane + L-UnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-outside-lane.pp,l-under-hive.pp> |
 
 The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
 existing reference. The Infraviolet pair was retired on 16 Nov 2026 (mentor); its drawings and
 notes are in Git history.
+**R-OutsideLane / L-UnderHive** is a second pair, on the Autonomous menu since 16 Nov 2026 to be
+run against the Clockwise pair (mentor): R keeps to the wall side of the HIVE both ways and L to the
+under-HIVE side, so their roads do not cross. Never driven. Its volleys: R's preloads from
+`RIGHT_START`, its LEFT volley from `LEFT_AUTO_OFFSET` (it comes round the outside lane, beside L on
+`LEFT_AUTO_HIVE`), its last from `RIGHT_AUTO_OFFSET`; L's preloads from `LEFT_AUTO_HIVE` and its
+pickup load from `RIGHT_AUTO_HIVE`. Leave the Pickup rows as drawn (R `WALL_FLOWER`, L `GARDEN`):
+with them swapped the robots touched at about 12 s in 2 of 3 simulated runs. In the simulator R's
+LEFT volley ends after 15.5 s, so R parks from the left spot and the pair makes one TIP; the
+robot's own time for that leg decides ([its notes](drafts/README.md#the-lane-pair-r-outsidelane-and-l-underhive),
+written when it was a draft).
 **L-Clockwise / R-Clockwise** is the coordinated pair: both robots on a one-way loop, with a fixed
 fallback at each stop, and a pickup the drive teams choose in INIT. Each robot has run its half
 alone; the pair has not yet run together
