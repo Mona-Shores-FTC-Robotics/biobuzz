@@ -1,0 +1,53 @@
+{
+  "pp": "TeamCode/autos/drafts/r-two-tip-with.pp",
+  "spec": "RTwoTipWithAuto",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "fires its preloads at the far CELL once it is up, hides under the HIVE, parks late",
+      "partner": "PartnerLFillHideParkAuto"
+    },
+    {
+      "name": "the same, firing at 9 s on a timer",
+      "partner": "PartnerLTimedFillHideParkAuto"
+    },
+    {
+      "name": "stays out of the way",
+      "partner": "PartnerStillAuto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/r-two-tip-with.pp",
+    "SavedBy": "mentor session, 11 Nov 2026",
+    "SavedAt": "2026-11-11T05:00:00.000Z",
+    "SimNote": "doc/three-tips.md rung 3: R-Two-Tip from LEFT_LAUNCH_OFFSET beside a partner at LEFT_START that puts its 4 preloads into the LEFT CELL and hides under the HIVE; run with the Belding calibration"
+  }
+}
