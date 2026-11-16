@@ -748,6 +748,16 @@ measurement is [#255].
       nine-in-ten mark), ten more; still short → leave 2000 and say so here. On 19429 only after its
       stick check (§7): its dwell brought nothing in 7 of 13 Belding picks, so a shorter one loses
       little there but proves nothing either.
+- [ ] **The lane count after a pick or a gather: does it say what is in the lane?** Reported
+      by two Auto chats on 16 Nov (`doc/auto-handoffs.md`): on three picks of 14 Nov (20245)
+      `/Lane/Count` read 2, 3 and 1 where the volleys then fired 4, 4 and 5, and `/Lane/Full` was
+      right on two of the three. The colour sensor refreshes about every 130 ms and saturates, so
+      it cannot count balls that touch; the beam break of [#213] is the fix. Until then nothing
+      decides on "the lane is not full" from the count. Ten picks at a FLOWER, on each robot:
+      write the Robot page's lane count and whether it shows full right after the pick, then the
+      pieces the next volley fires, by eye. **Good:** full is shown on every pick that fired 4.
+      **Stop:** full missed on a 4 → note how many of ten; that is how often a "lane full" wait
+      would time out.
 - [ ] **FLOWER pick: three routines, 20 picks at each FLOWER on each robot** (Panels
       `FlowerPicker.routine`: `MASTER`, the default and the Belding pick; `FAST`; `MULTI_PUSH`;
       PR #550). The pick's start line in the match log names the routine.
