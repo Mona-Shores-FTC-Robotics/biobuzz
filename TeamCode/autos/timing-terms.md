@@ -119,8 +119,6 @@ Recorded here so no session re-derives them; none is changed by the PR that adde
   one (`volleyS`; `LAUNCH_ALL_TYPICAL_S`, `LAUNCH_ALL_LAST_PIECE_S`). On the robot the feed still runs
   its set 3.5 s whenever the launcher counts fewer than four shots, which was most volleys at Belding.
   Until the count is reliable, a plan fits more into 30 s than the robot does.
-- **L-Infraviolet's first wait stays at 8 s**, which gives up on the slower films: it is also what
-  keeps L clear of R's arrival at the left launch spot (`infraviolet.md`).
 - **Wait limits still set by the match clock.** A wait for our own TIP counts from the robot's own
   last ball best of all ("at most 6.7 s after my last ball"); the kit has no such limit yet, only
   "at most" from the wait's start and "until" on the match clock.

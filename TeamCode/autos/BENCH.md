@@ -1,7 +1,7 @@
 # Benched Autos
 
-The active Belding lineup is **L-NoCross, R-NoCross, R-Solo and the L-Infraviolet /
-R-Infraviolet pair**. R-Solo-Nudge is a planning draft under `drafts/`. Drafts have no
+The baseline is **R-Solo, R-NoCross, L-NoCross and the R-Clockwise / L-Clockwise pair**
+(mentor, 16 Nov 2026). R-Solo-Nudge is a planning draft under `drafts/`. Drafts have no
 competition OpMode.
 Partner stand-ins have no selectable OpMode.
 
@@ -31,18 +31,17 @@ partner's staged row near `PARTNER_STAGED_POLLEN` can be swept by our approach t
 
 ## Replaced three-TIP A/B sketches
 
-`l-3tip-a`, `r-3tip-a`, `l-3tip-b` and `r-3tip-b` are superseded by the selected
-L-Infraviolet / R-Infraviolet pair. Their drawings, generated classes, R simulation
+`l-3tip-a`, `r-3tip-a`, `l-3tip-b` and `r-3tip-b` were superseded by the
+L-Infraviolet / R-Infraviolet pair, itself since retired (below). Their drawings, generated classes, R simulation
 requests and original design notes remain intact at
 [master snapshot 6fcc060](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/tree/6fcc060484355ceaa2439efffc3648c5e190c4d6/TeamCode/autos/drafts).
 They are removed from the current draft list to avoid maintaining three competing pairs.
 Restore only an individual experiment if it is needed; do not merge an old snapshot wholesale.
 
-## Previous Infraviolet assignment
+## Infraviolet, retired 16 Nov 2026
 
-The earlier L-scoring-flower / R-garden assignment, wide LEFT/RIGHT offsets and
-exclusive under-HIVE/wall lanes are superseded by L's early garden crossing and
-R taking both flowers. The complete draft remains at
-[07bec0e](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/tree/07bec0eafeabd8f84add5fb5f8a3310c299bbfa3/TeamCode/autos/drafts).
-Keep only `l-infraviolet.pp` and `r-infraviolet.pp` as the active coordinated
-pair; recover individual ideas from history rather than adding another pair.
+R-Infraviolet and L-Infraviolet were removed from master on 16 Nov 2026 (mentor): the Clockwise
+pair replaces them. Their drawings, generated classes, OpModes, simulation requests, notes
+(`infraviolet.md`) and R's own `RIGHT_PAIR_CLOSE` spot are at
+[master before the removal](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/tree/56e1ccc/TeamCode/autos).
+Recover an idea from there; do not restore the pair wholesale.

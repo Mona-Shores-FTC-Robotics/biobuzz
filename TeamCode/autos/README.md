@@ -33,15 +33,12 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 | L-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/l-no-cross.pp> |
 | R-Solo | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo.pp> |
 | R-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-no-cross.pp> |
-| L-Infraviolet + R-Infraviolet (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/l-infraviolet.pp,r-infraviolet.pp> |
 | L-Clockwise + R-Clockwise (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-clockwise.pp,l-clockwise.pp> |
 
 The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
-existing reference. **L-Infraviolet / R-Infraviolet** is a coordinated three-TIP pair, run on
-both robots; Clockwise has replaced it on the Autonomous menu and it runs from the Utility menu
-(**Drive: R-Infraviolet**, **Drive: L-Infraviolet**); run one only with the partner on the other
-([its notes](infraviolet.md)).
-**L-Clockwise / R-Clockwise** is its successor: the same pair on a one-way loop, with a fixed
+existing reference. The Infraviolet pair was retired on 16 Nov 2026 (mentor); its drawings and
+notes are in Git history.
+**L-Clockwise / R-Clockwise** is the coordinated pair: both robots on a one-way loop, with a fixed
 fallback at each stop, and a pickup the drive teams choose in INIT. Each robot has run its half
 alone; the pair has not yet run together
 ([its notes](clockwise.md)). Its volleys are from the
