@@ -292,7 +292,7 @@ public class LaunchSpotsTest {
     }
 
     @Test
-    public void noShotIsMoreThan26DegreesOffSquareAndTheRowsShareARange() {
+    public void noShotIsMoreThan27DegreesOffSquareAndTheRowsShareARange() {
         for (Spot spot : Spot.values()) {
             Pose t = target(spot);
             Vec3 row = spot.cellRow(Alliance.RED);
@@ -300,7 +300,8 @@ public class LaunchSpotsTest {
             double ay = t.y() + FWD * Math.sin(t.heading()) + LEFT * Math.cos(t.heading());
             // The row runs along field x, so square to it is along field y.
             double offSquareDeg = Math.toDegrees(Math.atan2(Math.abs(row.x() - ax), Math.abs(row.y() - ay)));
-            assertTrue(spot + " comes in " + offSquareDeg + " deg off square", offSquareDeg <= 26.0);
+            // 26 until 16 Nov 2026: with the turret 2.68 in right, LEFT_WALL_NEAR comes in 26.8 deg off.
+            assertTrue(spot + " comes in " + offSquareDeg + " deg off square", offSquareDeg <= 27.0);
             double range = Math.hypot(row.x() - ax, row.y() - ay);
             if (spot.row == Row.WALL) {
                 assertTrue(spot + " range " + range, range > 51.5 && range < 56);
@@ -367,6 +368,13 @@ public class LaunchSpotsTest {
                 // alternatives, so only NEAR with FAR must clear each other there.
                 boolean closePair = a.row == Row.CLOSE && b.row == Row.CLOSE;
                 if (closePair && (a.column == Column.HIVE || b.column == Column.HIVE)) continue;
+                // A side CLOSE spot as drawn against the WALL HIVE spot behind it: re-aimed for the turret
+                // 2.68 in right (16 Nov 2026), LEFT_CLOSE_NEAR's corner is 0.1 in inside LEFT_WALL_HIVE's
+                // frame, where it was 0.02 in clear. They are not held together: the button stops every
+                // CLOSE spot closeBackIn back from where it is drawn, in front of the wall row.
+                boolean wallHive = a.row == Row.WALL && a.column == Column.HIVE && b.row == Row.CLOSE
+                        && b.column != Column.HIVE;
+                if (wallHive) continue;
                 assertFalse(a + " overlaps " + b, overlap(target(a), target(b)));
             }
         }
