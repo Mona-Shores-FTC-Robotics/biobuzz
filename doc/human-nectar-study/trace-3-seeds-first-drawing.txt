@@ -1,0 +1,109 @@
+STUDY   seed 1: r-solo-human-player RED: launched 7, scored 7, HIVE tipped at 6.5 s; finished at 20.8 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 52% loaded and 0 held
+STUDY     r-solo-human-player  0.00 command SpinUp (holds 4)
+STUDY     r-solo-human-player  0.00 command LaunchAll (holds 4)
+STUDY     r-solo-human-player  1.02 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  1.90 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  2.78 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  3.66 path to WALL_FLOWER_STAGING (holds 0)
+STUDY     r-solo-human-player  3.66 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  5.64 command PickFlower (holds 0)
+STUDY     r-solo-human-player  6.62 drives into a FLOWER at (13.1, 47.4) heading 180
+STUDY     r-solo-human-player  6.62 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  6.68 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  6.92 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  6.98 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.18 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.28 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.46 human: NECTAR rolled from (5.5, 95.0) at 9 in/s toward 20,88,110's intake (12 in), 1.2 deg off
+STUDY     r-solo-human-player  7.48 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.58 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.78 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  8.08 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  8.84 PickFlower: 2 of the load never reach the launcher (Belding calibration) (holds 2)
+STUDY     r-solo-human-player  8.84 path outside lane to NECTAR_HANDOFF (holds 2)
+STUDY     r-solo-human-player 11.04 wait Wait for the human player's NECTAR (holds 2)
+STUDY     r-solo-human-player 12.04 Wait for the human player's NECTAR: 1000 ms passed after 1.00 s (holds 3)
+STUDY     r-solo-human-player 12.06 path past the LOADING ZONE to LEFT_LAUNCH_CATCH (holds 3)
+STUDY     r-solo-human-player 15.10 wait Wait for TIP or CELL up (holds 3)
+STUDY     r-solo-human-player 15.12 Wait for TIP or CELL up: CellUp after 0.02 s (holds 3)
+STUDY     r-solo-human-player 15.12 command LaunchAll (holds 3)
+STUDY     r-solo-human-player 15.38 miss: height POLLEN robot 1
+STUDY     r-solo-human-player 16.26 miss: height POLLEN robot 1
+STUDY     r-solo-human-player 17.14 miss: height red NECTAR robot 1
+STUDY     r-solo-human-player 18.86 If CellUp: 6.4 s of cards to the next volley, the volley (2.5 s) and the park (1.8 s + 1.0 s margin) end at 30.6 s: no time to park after it, parking now (holds 0)
+STUDY     r-solo-human-player 18.86 parking from the spot the robot is on (holds 0)
+STUDY     r-solo-human-player 18.86 path past the LOADING ZONE to LEFT_LAUNCH_CATCH park (holds 0)
+STUDY   seed 2: r-solo-human-player RED: launched 4, scored 2, HIVE tipped at (never); finished at 22.7 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 92% loaded and 0 held
+STUDY     r-solo-human-player  0.00 command SpinUp (holds 4)
+STUDY     r-solo-human-player  0.00 command LaunchAll (holds 4)
+STUDY     r-solo-human-player  1.02 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  1.90 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  2.76 miss: shot-long POLLEN robot 1
+STUDY     r-solo-human-player  2.78 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  3.64 miss: shot-long POLLEN robot 1
+STUDY     r-solo-human-player  3.66 path to WALL_FLOWER_STAGING (holds 0)
+STUDY     r-solo-human-player  3.66 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  5.64 command PickFlower (holds 0)
+STUDY     r-solo-human-player  6.62 drives into a FLOWER at (13.1, 47.4) heading 180
+STUDY     r-solo-human-player  6.62 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  6.68 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  6.92 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  6.98 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.18 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.28 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.48 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.58 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.78 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  8.08 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  8.84 PickFlower: 4 of the load never reach the launcher (Belding calibration) (holds 0)
+STUDY     r-solo-human-player  8.84 path outside lane to NECTAR_HANDOFF (holds 0)
+STUDY     r-solo-human-player 11.04 wait Wait for the human player's NECTAR (holds 0)
+STUDY     r-solo-human-player 12.04 Wait for the human player's NECTAR: 1000 ms passed after 1.00 s (holds 0)
+STUDY     r-solo-human-player 12.06 path past the LOADING ZONE to LEFT_LAUNCH_CATCH (holds 0)
+STUDY     r-solo-human-player 15.10 wait Wait for TIP or CELL up (holds 0)
+STUDY     r-solo-human-player 15.86 Wait for TIP or CELL up: 750 ms passed after 0.76 s (holds 0)
+STUDY     r-solo-human-player 15.86 path to RIGHT_LAUNCH_CLOSE (holds 0)
+STUDY     r-solo-human-player 17.48 miss: beside red NECTAR robot 1
+STUDY     r-solo-human-player 17.48 miss: height red NECTAR robot 1
+STUDY     r-solo-human-player 17.48 miss: height POLLEN robot 1
+STUDY     r-solo-human-player 17.48 miss: height POLLEN robot 1
+STUDY     r-solo-human-player 19.70 command LaunchAll (holds 0)
+STUDY     r-solo-human-player 19.72 path to RIGHT_PARK (holds 0)
+STUDY   seed 3: r-solo-human-player RED: launched 6, scored 5, HIVE tipped at 6.5 s; finished at 20.8 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 39% loaded and 0 held
+STUDY     r-solo-human-player  0.00 command SpinUp (holds 4)
+STUDY     r-solo-human-player  0.00 command LaunchAll (holds 4)
+STUDY     r-solo-human-player  1.02 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  1.90 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  2.78 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  3.66 path to WALL_FLOWER_STAGING (holds 0)
+STUDY     r-solo-human-player  3.66 miss: height POLLEN robot 1
+STUDY     r-solo-human-player  4.52 miss: shot-long POLLEN robot 1
+STUDY     r-solo-human-player  5.64 command PickFlower (holds 0)
+STUDY     r-solo-human-player  6.62 drives into a FLOWER at (13.1, 47.4) heading 180
+STUDY     r-solo-human-player  6.62 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  6.68 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  6.92 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  6.98 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.18 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.28 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.48 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.50 human: NECTAR rolled from (5.5, 95.0) at 6 in/s toward 20,88,110's intake (12 in), 0.9 deg off
+STUDY     r-solo-human-player  7.58 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  7.78 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  8.08 miss: interval POLLEN robot 1
+STUDY     r-solo-human-player  8.84 PickFlower: 3 of the load never reach the launcher (Belding calibration) (holds 1)
+STUDY     r-solo-human-player  8.84 path outside lane to NECTAR_HANDOFF (holds 1)
+STUDY     r-solo-human-player 11.04 wait Wait for the human player's NECTAR (holds 1)
+STUDY     r-solo-human-player 12.04 Wait for the human player's NECTAR: 1000 ms passed after 1.00 s (holds 2)
+STUDY     r-solo-human-player 12.06 path past the LOADING ZONE to LEFT_LAUNCH_CATCH (holds 2)
+STUDY     r-solo-human-player 15.10 wait Wait for TIP or CELL up (holds 2)
+STUDY     r-solo-human-player 15.12 Wait for TIP or CELL up: CellUp after 0.02 s (holds 2)
+STUDY     r-solo-human-player 15.12 command LaunchAll (holds 2)
+STUDY     r-solo-human-player 15.38 miss: height POLLEN robot 1
+STUDY     r-solo-human-player 16.26 miss: height red NECTAR robot 1
+STUDY     r-solo-human-player 18.86 If CellUp: 6.4 s of cards to the next volley, the volley (2.5 s) and the park (1.8 s + 1.0 s margin) end at 30.6 s: no time to park after it, parking now (holds 0)
+STUDY     r-solo-human-player 18.86 parking from the spot the robot is on (holds 0)
+STUDY     r-solo-human-player 18.86 path past the LOADING ZONE to LEFT_LAUNCH_CATCH park (holds 0)
+STUDY   misses per run (intake, and shots that fell): beside 0.3 height 6.7 interval 10.0 shot-long 1.0
+STUDY   first problem: r-solo-human-player launched 7, finished at 20.8 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 6.6 s
+STUDY RSoloHumanPlayerAuto@50              real robot, turret locked forward TIP1  2/3@ 6.5 | 21.3 pts, parked 3/3, CELL 61%, held 0.0, G409 0.0 (0 runs), PROBLEMS 3, shots 82% of 5.7
