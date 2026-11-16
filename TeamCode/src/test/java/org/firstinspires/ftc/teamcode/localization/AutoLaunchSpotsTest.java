@@ -62,7 +62,8 @@ public class AutoLaunchSpotsTest {
     public void hiveIsFortyInchesOutAndOffsetFortyFour() {
         for (Spot spot : Spot.values()) {
             double range = rangeIn(spot);
-            if (spot.hive) assertEquals(spot + " range", 40.0, range, 0.5);
+            if (spot == Spot.RIGHT_AUTO_FIX_TIP) assertEquals(spot + " range", 35.3, range, 0.5);
+            else if (spot.hive) assertEquals(spot + " range", 40.0, range, 0.5);
             else assertEquals(spot + " range", 44.0, range, 0.5);
         }
     }
@@ -80,6 +81,15 @@ public class AutoLaunchSpotsTest {
             // HIVE is for a robot that knows the start behind it is empty: it stands in front of it.
             assertTrue(hive + " overlaps a robot on its end's start", gap(hive.red, start) < 0);
         }
+    }
+
+    @Test
+    public void theFixTipSpotStandsEighteenInchesOffTheWallSquareToIt() {
+        Pose p = Spot.RIGHT_AUTO_FIX_TIP.red, start = StartPositions.RED_AUDIENCE.pose;
+        assertEquals("square to the wall", 90.0, Math.toDegrees(p.heading()), 1e-9);
+        // RIGHT_START is placed with the frame's back on the wall, so its y is the frame's back.
+        assertEquals("back edge to the audience wall", 18.0, p.y() - start.y(), 0.05);
+        assertTrue("clear of a robot on RIGHT_START: " + gap(p, start), gap(p, start) >= 1.5);
     }
 
     @Test

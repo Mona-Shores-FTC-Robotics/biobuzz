@@ -21,7 +21,7 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-16|1:58PM";
+    public static final String SAVED = "11-16|2:52PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -53,37 +53,35 @@ public final class LNoCrossAuto {
         Pose leftAutoHive = p.of(61.9, 120.4, 268.1);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose leftPark = p.of(14.5, 117.4, 0);
-        Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
-        Pose rightAutoOffset = p.of(37.6, 22.3, 63.8);
+        Pose rightAutoFixTip = p.of(55.3, 25.7, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toRightAutoOffsetControl1 = p.of(56.7614, 93.4601, 0);
-        Pose toRightAutoOffsetControl2 = p.of(68.2657, 72.9873, 0);
-        Pose toRightAutoOffsetControl3 = p.of(62, 38, 0);
-        Pose toRightAutoOffsetSegment1Start = p.of(37.6, 22.3, 268.1);
-        Pose toRightAutoOffsetSegment1End = p.of(37.6, 22.3, 90);
-        Pose toRightAutoOffsetSegment2Start = p.of(37.6, 22.3, 90);
-        Pose rightLaunchCatchParkStart = p.of(37.6, 22.3, 91.9);
+        Pose underTheHiveToRightAutoFixTipControl1 = p.of(56.7614, 93.4601, 0);
+        Pose underTheHiveToRightAutoFixTipControl2 = p.of(68.2657, 72.9873, 0);
+        Pose underTheHiveToRightAutoFixTipControl3 = p.of(58.7, 27, 0);
+        Pose underTheHiveToRightAutoFixTipSegment1Start = p.of(55.3, 25.7, 268.1);
+        Pose rightLaunchCatchParkStart = p.of(55.3, 25.7, 91.9);
         Pose rightLaunchCatchParkControl1 = p.of(28, 25, 0);
-        Pose toLeftAutoHive_2Control1 = p.of(62, 38, 0);
+        Pose toLeftAutoHive_2Control1 = p.of(58.7, 27, 0);
         Pose toLeftAutoHive_2Control2 = p.of(68.2657, 72.9873, 0);
         Pose toLeftAutoHive_2Control3 = p.of(56.7614, 93.4601, 0);
-        Pose toLeftAutoHive_2Segment1Start = p.of(61.9, 120.4, 63.8);
+        Pose toLeftAutoHive_2Segment1Start = p.of(61.9, 120.4, 90);
         Pose toLeftAutoHive_2Segment1End = p.of(61.9, 120.4, 90);
         Pose toLeftAutoHive_2Segment2Start = p.of(61.9, 120.4, 90);
+        Pose underTheHiveToScoringFlowerStagingControl1 = p.of(58.7, 40, 0);
+        Pose underTheHiveToScoringFlowerStagingControl2 = p.of(66, 73, 0);
+        Pose underTheHiveToScoringFlowerStagingControl3 = p.of(60, 102, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toLeftAutoHive = Paths.line(leftStart, leftAutoHive).linear(leftStart, leftAutoHive);
         Path leftAutoHivePark = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
-        Path toRightAutoOffset = Paths.curve(leftAutoHive, toRightAutoOffsetControl1, toRightAutoOffsetControl2, toRightAutoOffsetControl3, rightAutoOffset).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(toRightAutoOffsetSegment1Start, toRightAutoOffsetSegment1End)).until(1, Interpolator.linear(toRightAutoOffsetSegment2Start, rightAutoOffset)));
+        Path underTheHiveToRightAutoFixTip = Paths.curve(leftAutoHive, underTheHiveToRightAutoFixTipControl1, underTheHiveToRightAutoFixTipControl2, underTheHiveToRightAutoFixTipControl3, rightAutoFixTip).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(underTheHiveToRightAutoFixTipSegment1Start, rightAutoFixTip)).until(1, Interpolator.linear(rightAutoFixTip, rightAutoFixTip)));
         Path rightLaunchCatchPark = Paths.curve(rightLaunchCatchParkStart, rightLaunchCatchParkControl1, leftPark).linear(rightLaunchCatchParkStart, leftPark);
-        Path toLeftAutoHivePath = Paths.curve(rightAutoOffset, toLeftAutoHive_2Control1, toLeftAutoHive_2Control2, toLeftAutoHive_2Control3, leftAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftAutoHive_2Segment1Start, toLeftAutoHive_2Segment1End)).until(1, Interpolator.linear(toLeftAutoHive_2Segment2Start, leftAutoHive)));
-        Path toWallFlowerStaging = Paths.line(rightAutoOffset, wallFlowerStaging).linear(rightAutoOffset, wallFlowerStaging);
-        Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, leftPark).linear(wallFlowerStaging, leftPark);
-        Path toRightAutoOffsetPath = Paths.line(wallFlowerStaging, rightAutoOffset).linear(wallFlowerStaging, rightAutoOffset);
+        Path toLeftAutoHivePath = Paths.curve(rightAutoFixTip, toLeftAutoHive_2Control1, toLeftAutoHive_2Control2, toLeftAutoHive_2Control3, leftAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftAutoHive_2Segment1Start, toLeftAutoHive_2Segment1End)).until(1, Interpolator.linear(toLeftAutoHive_2Segment2Start, leftAutoHive)));
+        Path underTheHiveToScoringFlowerStaging = Paths.curve(rightAutoFixTip, underTheHiveToScoringFlowerStagingControl1, underTheHiveToScoringFlowerStagingControl2, underTheHiveToScoringFlowerStagingControl3, scoringFlowerStaging).constant(scoringFlowerStaging);
+        Path toLeftAutoHivePath2 = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
         Path toScoringFlowerStaging = Paths.line(leftAutoHive, scoringFlowerStaging).linear(leftAutoHive, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, leftPark).linear(scoringFlowerStaging, leftPark);
-        Path toLeftAutoHivePath2 = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
         Path toLeftPark = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath2 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
@@ -95,25 +93,19 @@ public final class LNoCrossAuto {
                         kit.firstOf("Wait for TIP or CELL up", kit.command("SpinUp"),
                                 kit.when("CellUp"),
                                 kit.atMatchSeconds(kit.seconds("Wait for TIP or CELL up", 9)).then(
-                                        kit.path("to RIGHT_AUTO_OFFSET", toRightAutoOffset, 3.5, rightLaunchCatchPark, 3),
+                                        kit.path("under the HIVE to RIGHT_AUTO_FIX_TIP", underTheHiveToRightAutoFixTip, 3.3, rightLaunchCatchPark, 3.2),
                                         kit.firstOf("TIP seen?",
                                                 kit.when("LeftCellUp").then(
-                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 3.2, leftAutoHivePark, 2)),
+                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 3, leftAutoHivePark, 2)),
                                                 kit.afterMs(750).then(
                                                         kit.firstOf("RIGHT CELL up?",
                                                                 kit.when("RightCellUp").then(
                                                                         kit.command("LaunchAll"),
-                                                                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.6, wallFlowerStagingPark, 2.5),
+                                                                        kit.path("under the HIVE to SCORING_FLOWER_STAGING", underTheHiveToScoringFlowerStaging, 3),
                                                                         kit.command("PickFlower", 8),
-                                                                        kit.path("to RIGHT_AUTO_OFFSET", toRightAutoOffsetPath, 1.6, rightLaunchCatchPark, 3),
-                                                                        kit.firstOf("RIGHT CELL still up?",
-                                                                                kit.when("RightCellUp").then(
-                                                                                        kit.command("LaunchAll"),
-                                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 3.2, leftAutoHivePark, 2)),
-                                                                                kit.afterMs(750).then(
-                                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 3.2, leftAutoHivePark, 2)))),
+                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath2, 1.3)),
                                                                 kit.afterMs(750).then(
-                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 3.2, leftAutoHivePark, 2))))))),
+                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 3, leftAutoHivePark, 2))))))),
                         kit.firstOf("LEFT CELL up?",
                                 kit.when("CellUp").then(
                                         kit.guarded("If CellUp", toLeftParkPath, 2,

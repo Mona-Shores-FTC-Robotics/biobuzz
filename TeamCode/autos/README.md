@@ -180,8 +180,8 @@ and who parked. For an Auto with a partner wait, a run's name ends with the seco
   for its CELL (our TIP raises it), so its last shot comes no sooner than that: the "Partner's
   last shot" column says when it did.
 - **L-NoCross's dead-partner run no longer touches the partner in the simulator.** Its Otherwise
-  branch crosses to `RIGHT_AUTO_OFFSET`, which clears a robot left on `RIGHT_START` by 3.7 in, on a
-  path that bends west once it is out from under the HIVE (16 Nov 2026). Not driven yet.
+  branch crosses to `RIGHT_AUTO_FIX_TIP`, straight below the under-HIVE lane with its back 18 in
+  from the wall, 2.2 in clear of a robot left on `RIGHT_START` (16 Nov 2026). Not driven yet.
 - **The raw knobs are an override for studies.** An entry's `"timing"` is four knobs, each
   optional: `startDelayS` (seconds after PLAY before its first card), `speed` (its drive profile,
   as a spec writes it after `@`), `launchS` (seconds per launch volley: a four-piece launch is the
@@ -216,6 +216,7 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 | `RIGHT_START`, `LEFT_START` | The measured starts (`localization/StartPositions`). |
 | `RIGHT_AUTO_HIVE`, `LEFT_AUTO_HIVE` | **Where an Auto launches**, with the start and the OFFSET spot: in front of that CELL, 40 in from its raised row, turned to aim the turret, half an inch short of the centre line on the left. It stands in front of that end's start, so it is for a robot that knows the start is empty. (`localization/AutoLaunchSpots`, 16 Nov 2026; nothing has been launched from these yet.) |
 | `RIGHT_AUTO_OFFSET`, `LEFT_AUTO_OFFSET` | **Where an Auto launches** beside a robot on the HIVE spot: 44 in out on our wall's side, 2 in from that robot, 29° off square on the left and 26° on the right. It also clears a robot left on that end's start. |
+| `RIGHT_AUTO_FIX_TIP` | **Where a left-start Auto fires at the RIGHT CELL after crossing**, when the partner's TIP did not come: square to the wall, in line with the CELL, its back edge 18 in from the audience wall, so it clears any robot still on `RIGHT_START` (none may start more than 18 in deep) and stays out of the partner's lanes. 35 in from the row, where volleys have hit the lip. |
 | `RIGHT_LAUNCH_CATCH`, `LEFT_LAUNCH_CATCH` | *Being retired, with CLOSE and OFFSET below: an Auto still on them is named in `AutoVolleySpotsTest`.* | In front of that CELL, just outside where its spill lands, clear of a partner on the start. |
 | `RIGHT_LAUNCH_OFFSET`, `LEFT_LAUNCH_OFFSET` | Off to the side of that CELL and angled at it, so a partner in front of the CELL is not disturbed. |
 | `RIGHT_LAUNCH_CORNER`, `LEFT_LAUNCH_CORNER` | The long shot (about 55 in) from the corner of our wall, drawn for the TeleOp's go-to-launch-spot button, which stopped using them on 11 Nov 2026 (its spots are now `localization/LaunchSpots`' own, not team spots); no Auto uses them. RIGHT is where 20245 scored it on 4 Nov; LEFT is its place mirrored across the axle line, turned to aim the turret (which sits off-centre) at the LEFT CELL; not yet fired from. |
@@ -320,7 +321,7 @@ after them:
 
 Either way, every drive in an Otherwise has a park path from its spot (P on the step), as the
 main list's drives do, so a guard that parks early parks from where the robot is. A long one may
-need a bend: L-NoCross's park from `RIGHT_AUTO_OFFSET` bends west of the Red HIVE.
+need a bend: L-NoCross's park from `RIGHT_AUTO_FIX_TIP` bends west of the Red HIVE.
 
 ## Changing an Auto at the field (INIT options)
 

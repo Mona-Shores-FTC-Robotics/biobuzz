@@ -120,8 +120,9 @@ measured field facts — NaN or empty until measured, never guessed. Each measur
 `StartPositions.TEAM_SPOTS`; `TeamSpotsTest` fails while the two differ. Every Auto on master uses
 only the team's spots (`TeamCode/autos/README.md` lists them, side first: `RIGHT_START`,
 `RIGHT_PARK`); one that needs another spot lives on the `autos-experiment` branch. An Auto launches only from
-its start or an Auto launch spot (`AutoLaunchSpots`: `LEFT_AUTO_HIVE`, `LEFT_AUTO_OFFSET` and
-their RIGHT twins, team spots that `AutoLaunchSpotsTest` keeps equal to the Java), never from a
+its start or an Auto launch spot (`AutoLaunchSpots`: `LEFT_AUTO_HIVE`, `LEFT_AUTO_OFFSET`, their
+RIGHT twins, and `RIGHT_AUTO_FIX_TIP` for a left-start Auto that crossed to tip RIGHT itself; team
+spots that `AutoLaunchSpotsTest` keeps equal to the Java), never from a
 spot of its own or one of the drivers' Square spots (`LaunchSpots`, the TeleOp's alone).
 `AutoVolleySpotsTest` fails an Auto that does and names the ones not yet moved. HIVE and OFFSET at
 one end hold two of our robots together; which a volley uses is the Auto's to work out. A
