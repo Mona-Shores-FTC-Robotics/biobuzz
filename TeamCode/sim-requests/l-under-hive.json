@@ -77,6 +77,19 @@
       "name": "partner dead on its right start, said 3 s",
       "partner": "PartnerRBrokenDownAuto",
       "lastShotS": 3
+    },
+    {
+      "name": "contingency: nothing tips (both preloads miss, R misses every shot)",
+      "partner": "ROutsideLaneAuto",
+      "timing": {
+        "speed": 50
+      },
+      "oursFails": "misses preloads",
+      "fails": "misses"
+    },
+    {
+      "name": "contingency: R dead on its start",
+      "partner": "PartnerRBrokenDownAuto"
     }
   ],
   "metadata": {

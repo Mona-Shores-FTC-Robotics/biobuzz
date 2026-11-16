@@ -172,6 +172,57 @@
       "partnerPicks": {
         "Pickup": "WALL_FLOWER"
       }
+    },
+    {
+      "name": "contingency: nothing tips (both preloads miss, L misses every shot)",
+      "partner": "LClockwiseAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      },
+      "oursFails": "misses preloads",
+      "fails": "misses"
+    },
+    {
+      "name": "contingency: GARDEN, nothing tips (both preloads miss, L misses every shot)",
+      "partner": "LClockwiseAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "oursFails": "misses preloads",
+      "fails": "misses"
+    },
+    {
+      "name": "contingency: L dead on its start",
+      "partner": "PartnerLBrokenDownAuto",
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "R takes the WALL FLOWER: Priority PARK",
+      "partner": "LClockwiseAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER",
+        "Priority": "PARK"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
     }
   ],
   "metadata": {

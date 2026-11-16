@@ -36,6 +36,22 @@
     {
       "name": "parks at 15 s",
       "partner": "PartnerPark1Auto"
+    },
+    {
+      "name": "contingency: our preloads miss, partner stays out of the way",
+      "partner": "PartnerStillAuto",
+      "oursFails": "misses preloads"
+    },
+    {
+      "name": "contingency: our preloads miss, partner dead on its start",
+      "partner": "PartnerLBrokenDownAuto",
+      "oursFails": "misses preloads"
+    },
+    {
+      "name": "contingency: our preloads miss, partner misses every shot",
+      "partner": "PartnerLTipParkAuto",
+      "oursFails": "misses preloads",
+      "fails": "misses"
     }
   ],
   "metadata": {

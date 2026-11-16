@@ -1,0 +1,45 @@
+{
+  "pp": "TeamCode/autos/drafts/r-three-tip-still.pp",
+  "spec": "RThreeTipStillAuto",
+  "design": "real robot",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "leaves its 4 preloads and parks",
+      "partner": "PartnerLStageLeaveParkAuto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/r-three-tip-still.pp",
+    "SavedBy": "mentor session, 11 Nov 2026",
+    "SavedAt": "2026-11-11T05:00:00.000Z",
+    "SimNote": "doc/three-tips.md: R-Three-Tip-Stream firing only while standing still (BIOBUZZ_AUTO_FIRE_STILL=1); as saved it runs with Belding's own accuracy and feed, and the what-if knobs in doc/three-tips.md 'How it was run' give the tables"
+  }
+}

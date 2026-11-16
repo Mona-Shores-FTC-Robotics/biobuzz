@@ -21,7 +21,7 @@ public final class RClockwiseAuto {
     public static final String SOURCE = "r-clockwise.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-14|3:50PM";
+    public static final String SAVED = "11-15|6:03AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -165,11 +165,18 @@ public final class RClockwiseAuto {
                                                                                                                                 kit.atMatchSeconds(26.4))),
                                                                                                                         kit.route("Priority", 1, () -> kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2)))),
                                                                                                         kit.atMatchSeconds(kit.seconds("R3 RIGHT up by", 23.2)).then(
-                                                                                                                kit.guarded("Timed out", catchParkToRightPark, 2.2,
-                                                                                                                        kit.command("LaunchAll", 1),
-                                                                                                                        kit.firstOf("L has passed: park at 26.4 s",
-                                                                                                                                kit.atMatchSeconds(26.4)),
-                                                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2)))))))))))),
+                                                                                                                kit.firstOf("LEFT CELL still up?",
+                                                                                                                        kit.when("LeftCellUp").then(
+                                                                                                                                kit.guarded("If LeftCellUp", catchParkToRightPark, 2.2,
+                                                                                                                                        kit.command("LaunchAll", 1),
+                                                                                                                                        kit.firstOf("L has passed: park at 26.4 s",
+                                                                                                                                                kit.atMatchSeconds(26.4)),
+                                                                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))),
+                                                                                                                        kit.afterMs(750).then(
+                                                                                                                                kit.guarded("Timed out", catchParkToRightPark, 2.2,
+                                                                                                                                        kit.firstOf("L has passed: park at 26.4 s",
+                                                                                                                                                kit.atMatchSeconds(26.4)),
+                                                                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2)))))))))))))),
                                 kit.atMatchSeconds(15.5).then(
                                         kit.guarded("Timed out", catchParkToRightPark, 2.2,
                                                 kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))))));
