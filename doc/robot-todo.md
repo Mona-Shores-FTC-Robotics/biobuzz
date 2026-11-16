@@ -1256,8 +1256,19 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       CELL: graph `/Launch/CameraRangeIn` and `/Launch/PoseRangeIn` from the match log (an Auto
       writes both on its `launcher: speed table` line). **Good:** within about 1–2 in at the launch
       spots, and shots score as before at the same speeds. **Stop:** a steady gap of 3 in or more →
-      the turret offset (`TurretSubsystem.turretForwardIn/LeftIn`, CAD from 24 Oct, never taped)
+      the turret offset (`TurretSubsystem.turretForwardIn/LeftIn`, from the CAD, never taped)
       or the camera mount; tape the turret axis from the wheels' midpoint first.
+- [ ] **Tape the turret's place on the robot (either robot; turret at home, tape measure).**
+      `TurretSubsystem.turretLeftIn` went from −1.87 to −2.68 on 16 Nov from two CAD readings
+      (the bearing 4.94 in from the right edge of the 15.236 in chassis; the CAD model's bearing
+      axis at 2.67). From the outside of each side plate straight across to the centre of the
+      turret ring: half the difference is how far right of the centre line it sits. From the
+      front wheels' axle line back to the ring's centre, less half the wheelbase: how far behind.
+      **Good:** 2.5 to 2.9 in right, 3.1 to 3.5 in behind. **Stop:** outside that → write both
+      readings here; the number in `TurretSubsystem` changes to the tape's. Then, turret locked,
+      Square to `RIGHT_START` and to `LEFT_WALL_HIVE` and count what stays in of 4 at each, as
+      before the change: the aim moved by about 1° (0.8 in at the CELL). **Stop:** fewer stay in
+      than before → note which side the misses fall.
 
 ## 7e. Blue alliance (HIVE and FLOWERs on the blue side)
 

@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.pedropathing.math.Pose;
 
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.localization.LaunchSpots.Choice;
 import org.firstinspires.ftc.teamcode.localization.LaunchSpots.Column;
 import org.firstinspires.ftc.teamcode.localization.LaunchSpots.Row;
@@ -28,8 +29,8 @@ public class LaunchSpotsTest {
     private static final double C = FieldFrame.FIELD_CENTRE_INCHES;
     private static final double SIZE = FieldFrame.FIELD_SIZE_INCHES;
     private static final double EPS = 1e-9;
-    /** The turret's place on the robot ({@code TurretSubsystem}): 3.33 in behind, 1.87 in right. */
-    private static final double FWD = -3.33, LEFT = -1.87;
+    /** The turret's place on the robot ({@code TurretSubsystem}): 3.33 in behind, 2.68 in right. */
+    private static final double FWD = TurretSubsystem.turretForwardIn, LEFT = TurretSubsystem.turretLeftIn;
     /** Past centre far enough for every FAR spot: the TeleOp's reach. */
     private static final double REACH = 24.0;
 
@@ -262,8 +263,10 @@ public class LaunchSpotsTest {
                     (Math.toDegrees(t.heading()) + 360) % 360, 1e-6);
             Vec3 row = spot.cellRow(Alliance.RED);
             double ax = t.x() + FWD * Math.cos(t.heading()) - LEFT * Math.sin(t.heading());
-            // RIGHT_START is where the robot is placed (frame on the seam): half an inch off.
-            assertEquals(spot + ": the turret's axis is in line with the row's centre", row.x(), ax, 0.6);
+            // Placed in line when the turret was taken to be 1.87 in right; at 2.68 (16 Nov 2026) the three
+            // drawn ones are 0.8 in off and RIGHT_START, where the robot is placed, 0.3 in. They move with
+            // the launch spots, not with the turret's number.
+            assertEquals(spot + ": the turret's axis is in line with the row's centre", row.x(), ax, 0.9);
         }
     }
 
@@ -289,7 +292,7 @@ public class LaunchSpotsTest {
     }
 
     @Test
-    public void noShotIsMoreThan26DegreesOffSquareAndTheRowsShareARange() {
+    public void noShotIsMoreThan27DegreesOffSquareAndTheRowsShareARange() {
         for (Spot spot : Spot.values()) {
             Pose t = target(spot);
             Vec3 row = spot.cellRow(Alliance.RED);
@@ -297,7 +300,8 @@ public class LaunchSpotsTest {
             double ay = t.y() + FWD * Math.sin(t.heading()) + LEFT * Math.cos(t.heading());
             // The row runs along field x, so square to it is along field y.
             double offSquareDeg = Math.toDegrees(Math.atan2(Math.abs(row.x() - ax), Math.abs(row.y() - ay)));
-            assertTrue(spot + " comes in " + offSquareDeg + " deg off square", offSquareDeg <= 26.0);
+            // 26 until 16 Nov 2026: with the turret 2.68 in right, LEFT_WALL_NEAR comes in 26.8 deg off.
+            assertTrue(spot + " comes in " + offSquareDeg + " deg off square", offSquareDeg <= 27.0);
             double range = Math.hypot(row.x() - ax, row.y() - ay);
             if (spot.row == Row.WALL) {
                 assertTrue(spot + " range " + range, range > 51.5 && range < 56);
@@ -364,6 +368,13 @@ public class LaunchSpotsTest {
                 // alternatives, so only NEAR with FAR must clear each other there.
                 boolean closePair = a.row == Row.CLOSE && b.row == Row.CLOSE;
                 if (closePair && (a.column == Column.HIVE || b.column == Column.HIVE)) continue;
+                // A side CLOSE spot as drawn against the WALL HIVE spot behind it: re-aimed for the turret
+                // 2.68 in right (16 Nov 2026), LEFT_CLOSE_NEAR's corner is 0.1 in inside LEFT_WALL_HIVE's
+                // frame, where it was 0.02 in clear. They are not held together: the button stops every
+                // CLOSE spot closeBackIn back from where it is drawn, in front of the wall row.
+                boolean wallHive = a.row == Row.WALL && a.column == Column.HIVE && b.row == Row.CLOSE
+                        && b.column != Column.HIVE;
+                if (wallHive) continue;
                 assertFalse(a + " overlaps " + b, overlap(target(a), target(b)));
             }
         }

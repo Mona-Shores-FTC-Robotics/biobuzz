@@ -49,8 +49,9 @@ import com.bylazar.configurables.annotations.Configurable;
  * (55.3–55.5) at 1635.
  *
  * <p><b>Those ranges were the camera's from the robot's tracked point</b> (the middle of the
- * wheels), while the pose's range has always been from the turret axis, 3.33 in behind and 1.87 in
- * right of it: facing the CELL, about 3.4 in apart. So on 5 Nov every launch range became the turret
+ * wheels), while the pose's range has always been from the turret axis, 3.33 in behind and, as it
+ * was then taken to be, 1.87 in right of it (2.68 since 16 Nov 2026, which moves these ranges by
+ * under 0.1 in): facing the CELL, about 3.4 in apart. So on 5 Nov every launch range became the turret
  * axis's, camera and pose alike ({@code CellSighting.groundRangeFromIn}), and each row moved to the
  * same shot's range from the turret, {@code hypot(r + 3.33, 1.87)} with the CELL straight ahead:
  * 39.0 → 42.4, 42.3 → 45.7, 50.5 → 53.9, 55.4 → 58.8. The speeds are unchanged, and the

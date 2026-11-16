@@ -45,8 +45,10 @@ import java.util.Locale;
  * camera believes about the HIVE (mentor, 4 Nov 2026).
  *
  * <p><b>Placed for the turret, locked forward</b> ({@code TurretSubsystem}: 3.33 in behind the
- * centre, 1.87 in right of it). A HIVE-column spot is squared to the wall with the turret's axis in
- * line with the CELL's raised row, so the WALL one has its whole back on the wall. The others turn
+ * centre, 2.68 in right of it). A HIVE-column spot is squared to the wall, so the WALL one has its
+ * whole back on the wall; each was placed with the turret's axis in line with the CELL's raised row
+ * when the turret was taken to be 1.87 in right, so since 16 Nov 2026 the axis passes 0.8 in from
+ * the row's centre at LEFT_WALL_HIVE and the two CLOSE ones, and 0.3 in at RIGHT_START. The others turn
  * to point the turret's axis at the row ({@link #aimTurret}) and, in the WALL row, touch the wall
  * with one corner of the frame. LEFT and RIGHT are not mirror images: the turret is not on the
  * centre line, and LEFT_WALL_NEAR sits against the far side of the SCORING FLOWER.
@@ -114,7 +116,7 @@ public final class LaunchSpots {
      * offsets as the robot has them, so their drawn heading is only what that comes to today.
      */
     public enum Spot {
-        RIGHT_WALL_NEAR(Row.WALL, Column.NEAR, 35.9, 10.6, 66.9),
+        RIGHT_WALL_NEAR(Row.WALL, Column.NEAR, 35.9, 10.6, 67.8),
         /**
          * The RIGHT half's WALL-row, HIVE-column spot is our measured start itself
          * ({@link StartPositions#RED_AUDIENCE}, the team spot {@code RIGHT_START}): the robot starts
@@ -124,18 +126,18 @@ public final class LaunchSpots {
          * placed on the centre-line seam, 2.4 in from where the turret lines up.
          */
         RIGHT_START(Row.WALL, Column.HIVE, StartPositions.RED_AUDIENCE.pose),
-        RIGHT_WALL_FAR(Row.WALL, Column.FAR, 75.8, 10.6, 112.8),
-        RIGHT_CLOSE_NEAR(Row.CLOSE, Column.NEAR, 45.2, 27.9, 70.0),
+        RIGHT_WALL_FAR(Row.WALL, Column.FAR, 75.8, 10.6, 113.8),
+        RIGHT_CLOSE_NEAR(Row.CLOSE, Column.NEAR, 45.2, 27.9, 71.5),
         RIGHT_CLOSE_HIVE(Row.CLOSE, Column.HIVE, 56.1, 25.3, 90.0),
-        RIGHT_CLOSE_FAR(Row.CLOSE, Column.FAR, 66.9, 27.6, 110.0),
+        RIGHT_CLOSE_FAR(Row.CLOSE, Column.FAR, 66.9, 27.6, 111.4),
         /** Its corner is against the SCORING FLOWER's far side, the FLOWER between it and LEFT_WALL_HIVE. */
-        LEFT_WALL_NEAR(Row.WALL, Column.NEAR, 37.8, 130.7, 295.5),
+        LEFT_WALL_NEAR(Row.WALL, Column.NEAR, 37.8, 130.7, 296.3),
         /** Back on the wall, the SCORING FLOWER about 2 in from its side. */
         LEFT_WALL_HIVE(Row.WALL, Column.HIVE, 59.9, 133.4, 270.0),
-        LEFT_WALL_FAR(Row.WALL, Column.FAR, 79.5, 130.9, 247.5),
-        LEFT_CLOSE_NEAR(Row.CLOSE, Column.NEAR, 49.1, 113.9, 290.0),
+        LEFT_WALL_FAR(Row.WALL, Column.FAR, 79.5, 130.9, 248.4),
+        LEFT_CLOSE_NEAR(Row.CLOSE, Column.NEAR, 49.1, 113.9, 291.4),
         LEFT_CLOSE_HIVE(Row.CLOSE, Column.HIVE, 59.9, 116.2, 270.0),
-        LEFT_CLOSE_FAR(Row.CLOSE, Column.FAR, 70.8, 113.6, 250.0);
+        LEFT_CLOSE_FAR(Row.CLOSE, Column.FAR, 70.8, 113.6, 251.5);
 
         public final Row row;
         public final Column column;
