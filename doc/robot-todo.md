@@ -456,7 +456,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       run. **Good:** at speed by the time the robot settles. **Stop:** it overshoots again → it is
       the launcher's speed loop (a tuning issue for its own PR), and each volley costs ~0.5 s until
       then. [PR #422]
-- [ ] **CellUp with the CELL already up:** L-NoCross at `LEFT_LAUNCH_CATCH` with the left CELL
+- [ ] **CellUp with the CELL already up:** L-NoCross at `LEFT_AUTO_HIVE` with the left CELL
       tipped up by hand first (or a partner's tip over before the wait starts). **Good:** the wait ends
       at once and the Auto fires, not at its limit (9 s on the match clock). Then with the
       CELL **down** and nobody tipping: it waits out its limit and fires anyway (the Auto's own choice for now). **Stop:** it waits with
@@ -1258,6 +1258,16 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       40 in. **Stop:** lip hits from a HIVE spot → note how many, and try 2 in further back; an
       OFFSET spot clearly worse than its HIVE spot → note which side the misses fall. That is the
       angle, and the spot moves back along its line (26° at 48 in on the left).
+- [ ] **R-NoCross and L-NoCross on the Autos' launch spots (moved 16 Nov, not driven).**
+      R-NoCross's two later volleys are from `RIGHT_AUTO_HIVE`; L-NoCross moves up to
+      `LEFT_AUTO_HIVE` to wait for the TIP and fires its LEFT volleys there, and its crossing when
+      no TIP comes ends at `RIGHT_AUTO_OFFSET`, on a path that leaves the under-HIVE lane to the
+      west. Run each alone, then L-NoCross with a robot left on `RIGHT_START` and no TIP.
+      **Good:** every volley 3 or 4 of 4 in; L-NoCross passes under the HIVE and round to the
+      OFFSET spot touching neither the HIVE's leg nor the robot on the start; both park.
+      **Stop:** L-NoCross alone is still driving at 30 s. The simulator has it parked at 29.9 s
+      (29.3 before the move, and Belding M-7 ended that trip 9 in short) → write the time; the
+      fix is the "park straight from the right end" route in `doc/auto-handoffs.md`.
 - [ ] **Two robots at one end.** One on `LEFT_AUTO_HIVE`, one on `LEFT_AUTO_OFFSET`, both at
       their headings. **Good:** about 2 in between the frames, HIVE's frame half an inch short of
       the centre line, OFFSET clear of the SCORING FLOWER, and each can fire without the other
