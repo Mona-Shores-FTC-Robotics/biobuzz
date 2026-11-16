@@ -405,7 +405,16 @@ they came from.
     check, and keeps its own limit.
   - `intakeFullS` 1.9 (estimate): the last piece's current spike came a median 1.5 s after the push
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
-    lane latched full 0.44 s after its last spike, 1.43 s in.
+    lane latched full 0.44 s after its last spike, 1.43 s in. No Auto waits on `IntakeFull`, so
+    this fact times nothing in a preview today.
+  - `pickFlowerS` 3.6 and `gardenGatherS` 4.4 (measured, 15 Nov 2026): a `PickFlower` and a
+    `GardenGather` step, start to end, the median over every Auto log on `events/2026-11-belding` and
+    `logs/*` (each run counted once). Picks: 107; the lane read full a median 2.6 s after the step
+    began in the 61 that filled (1.5 to 4.7 s), and 43 never read full. Gathers: only 10, three of
+    which filled (2.85 to 3.53 s), so re-measure. The Visualizer's Match view has a slider for each,
+    shown only for an Auto with that step; a step never runs past its own time limit. The robot's
+    guard still plans 4.0 and 5.0 s (`AutoRegistration.PICK_FLOWER_TYPICAL_S`,
+    `GARDEN_GATHER_TYPICAL_S`).
   - `tipStartS` 2.6 and `tipSwingS` 1.6 (measured): together, the 4.2 s from a LaunchAll's end to
     the camera's `CellUp`, for a CELL at its tipping weight and a volley that ends on its fourth
     ball. From the Belding films ([timing-terms.md](timing-terms.md)): the other CELL settled a
