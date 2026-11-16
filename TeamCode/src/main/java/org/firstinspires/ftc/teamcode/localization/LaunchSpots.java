@@ -54,9 +54,8 @@ import java.util.Locale;
  * centre line, and LEFT_WALL_NEAR sits against the far side of the SCORING FLOWER.
  *
  * <p>But for {@code RIGHT_START}, these are not team spots: they are written only here and
- * {@code TeamCode/autos/spots.json} does not list them. The Clockwise pair launches from the wall
- * row and the two close HIVE-column spots, so its {@code .pp} files carry the same numbers and
- * {@code ClockwiseAutoTest} compares them: move one of those here and export those two Autos again. {@code LaunchSpotsTest} checks that each
+ * {@code TeamCode/autos/spots.json} does not list them. No Auto launches from them: the Autos have
+ * their own ({@link AutoLaunchSpots}; {@code AutoVolleySpotsTest}). {@code LaunchSpotsTest} checks that each
  * WALL spot touches its wall without crossing it and that no two spots that may be used together
  * overlap.
  */
@@ -73,8 +72,7 @@ public final class LaunchSpots {
 
     /**
      * The six WALL spots are driven to this far out from their side wall, toward the HIVE, inches
-     * (mentor, 13 Nov 2026). The TeleOp's button only: the spots as drawn, and so the Autos that
-     * launch from them, do not move. With it LEFT_WALL_HIVE's frame meets LEFT_CLOSE_HIVE's edge
+     * (mentor, 13 Nov 2026). The spots as drawn do not move. With it LEFT_WALL_HIVE's frame meets LEFT_CLOSE_HIVE's edge
      * to edge, and RIGHT_START's is 0.4 in from RIGHT_CLOSE_HIVE's.
      */
     static final double WALL_STAND_OFF_IN = 1.0;
@@ -99,8 +97,8 @@ public final class LaunchSpots {
      * The six CLOSE spots are driven to this far back from where they are drawn, straight toward
      * their end wall, inches: the starting value of {@code LaunchSpotDrive.closeBackIn}, the Panels
      * number. 4 (mentor, 14 Nov 2026): close volleys were hitting the lip of the HIVE; 2.5 was the
-     * first try, 4 the one the team chose. The TeleOp's button only, as the wall row's stand-off: the spots as
-     * drawn, and so the Clockwise Autos' close volleys, do not move.
+     * first try, 4 the one the team chose. The pick among the spots is made as they are
+     * drawn; the button stops this far back.
      */
     public static final double DEFAULT_CLOSE_BACK_IN = 4.0;
 
@@ -149,8 +147,7 @@ public final class LaunchSpots {
         public final boolean aimed;
         /**
          * How far out from its wall, toward the HIVE, the button stops, inches, on top of
-         * {@code wallGapIn}: {@link #WALL_STAND_OFF_IN} for a WALL-row spot, 0 for a CLOSE-row one. {@link #red} stays the spot as drawn, touching the wall, which is what
-         * the Clockwise Autos launch from ({@code ClockwiseAutoTest}); an Auto's {@code RIGHT_START}
+         * {@code wallGapIn}: {@link #WALL_STAND_OFF_IN} for a WALL-row spot, 0 for a CLOSE-row one. {@link #red} stays the spot as drawn, touching the wall; an Auto's {@code RIGHT_START}
          * volley is fired from the start itself, where the robot is placed.
          */
         public final double standOffIn;

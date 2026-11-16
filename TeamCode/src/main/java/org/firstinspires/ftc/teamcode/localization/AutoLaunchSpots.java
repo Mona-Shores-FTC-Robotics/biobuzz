@@ -21,9 +21,10 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
  *   <li>{@link Spot#hive HIVE}: in front of the CELL, 40 in from its raised row (Square's CLOSE
  *       range), slid toward the centre line and turned back to aim: half an inch short of the line
  *       on the left, where the turret's side leaves 2 in to spare; 6 degrees round on the right.</li>
- *   <li>OFFSET: on our wall's side of it, 44 in out, at the squarest angle that keeps 2 in from a
- *       robot on HIVE (29 degrees off square on the left, 26 on the right). It also clears a robot
- *       left on that end's start, which HIVE does not.</li>
+ *   <li>OFFSET: on our wall's side of it, about 29 degrees off square. On the left, 44 in out and
+ *       2 in from a robot on HIVE. On the right, 52 in out: 4 in from a robot on the fix-TIP spot
+ *       below (2 in was not enough for a robot arriving there in the simulator) and further still
+ *       from one on HIVE. It also clears a robot left on that end's start, which HIVE does not.</li>
  * </ul>
  *
  * <p><b>One more, for one job:</b> {@code RIGHT_AUTO_FIX_TIP}, where a left-start Auto that has
@@ -56,7 +57,7 @@ public final class AutoLaunchSpots {
         LEFT_AUTO_HIVE(true, 61.9, 120.4, 268.1),
         LEFT_AUTO_OFFSET(false, 40.7, 121.1, 298.7),
         RIGHT_AUTO_HIVE(true, 59.2, 20.9, 96.1),
-        RIGHT_AUTO_OFFSET(false, 37.6, 22.3, 63.8),
+        RIGHT_AUTO_OFFSET(false, 32.1, 16.4, 61.0),
         /** Square, in line with the RIGHT CELL, its back 18 in from the wall: see the class comment. */
         RIGHT_AUTO_FIX_TIP(false, 55.3, 25.7, 90.0);
 

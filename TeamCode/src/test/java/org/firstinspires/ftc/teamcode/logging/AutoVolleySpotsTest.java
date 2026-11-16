@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.logging;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.localization.AutoLaunchSpots;
@@ -11,12 +10,8 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * An Auto on master launches only from a start or one of the Autos' launch spots
@@ -28,15 +23,9 @@ import java.util.TreeSet;
  * row of a branching block is walked from where the block begins. Drafts and partner stand-ins
  * ({@code drafts/}, {@code partners/}) are not held to it.
  *
- * <p>{@link #NOT_YET_MOVED} names the Autos that still launch from the older spots. An Auto leaves
- * the list in the PR that moves it, and the list goes when it is empty: an Auto in it that already
- * passes fails here too, so the list cannot outlive its reason.
+ * <p>All five baseline Autos launch from them since 16 Nov 2026; there is no list of exceptions.
  */
 public class AutoVolleySpotsTest {
-
-    /** Autos still on the older launch spots, by source file. */
-    private static final Set<String> NOT_YET_MOVED = new HashSet<>(Arrays.asList(
-            "r-clockwise.pp", "l-clockwise.pp"));
 
     /** A volley's place and an allowed spot's are the same within this, inches (a .pp is to 0.1 in). */
     private static final double SAME_IN = 0.06;
@@ -45,20 +34,10 @@ public class AutoVolleySpotsTest {
     public void everyVolleyIsFromAStartOrAnAutoLaunchSpot() throws Exception {
         File[] sources = new File(TeamCodeDir.get(), "autos").listFiles((dir, name) -> name.endsWith(".pp"));
         assertTrue("no Auto sources found in TeamCode/autos", sources != null && sources.length > 0);
-        Set<String> seen = new TreeSet<>();
         for (File source : sources) {
-            seen.add(source.getName());
             List<String> elsewhere = volleysElsewhere(source);
-            if (NOT_YET_MOVED.contains(source.getName())) {
-                assertFalse(source.getName() + " launches only from a start or an Auto launch spot now:"
-                        + " take it out of NOT_YET_MOVED", elsewhere.isEmpty());
-            } else {
-                assertTrue(source.getName() + " launches from " + elsewhere + ": an Auto launches from its start,"
-                        + " an AUTO_HIVE or an AUTO_OFFSET spot (AutoLaunchSpots)", elsewhere.isEmpty());
-            }
-        }
-        for (String name : NOT_YET_MOVED) {
-            assertTrue(name + " is in NOT_YET_MOVED but is not an Auto on master", seen.contains(name));
+            assertTrue(source.getName() + " launches from " + elsewhere + ": an Auto launches from its start"
+                    + " or an Auto launch spot (AutoLaunchSpots)", elsewhere.isEmpty());
         }
     }
 

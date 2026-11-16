@@ -1250,11 +1250,11 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
 - [ ] **The Autos' four launch spots, by hand first (Basic Drive, HIVE upright, a taped mark at
       each).** `AutoLaunchSpots`, drawn 16 Nov and never launched from: `LEFT_AUTO_HIVE`
       (61.9, 120.4, 268.1°), `LEFT_AUTO_OFFSET` (40.7, 121.1, 298.7°), `RIGHT_AUTO_HIVE`
-      (59.2, 20.9, 96.1°), `RIGHT_AUTO_OFFSET` (37.6, 22.3, 63.8°); blue's are these turned half a
+      (59.2, 20.9, 96.1°), `RIGHT_AUTO_OFFSET` (32.1, 16.4, 61°); blue's are these turned half a
       turn. Tape each from the walls, place the robot on it at its heading, turret locked, and
       fire five volleys of four. Write the count that stays in of 20 at each, and the range the
       robot shows. **Good:** 18 or more of 20 from each HIVE spot (40 in, 2° and 6° off square) and
-      from each OFFSET spot (44 in, 29° and 26° off square), and nothing off the HIVE's lip from
+      from each OFFSET spot (44 in on the left, 52 in on the right, both about 29° off square), and nothing off the HIVE's lip from
       40 in. **Stop:** lip hits from a HIVE spot → note how many, and try 2 in further back; an
       OFFSET spot clearly worse than its HIVE spot → note which side the misses fall. That is the
       angle, and the spot moves back along its line (26° at 48 in on the left).
@@ -1393,7 +1393,7 @@ reasons: the "Square Launch Spots" page (mentor's claude.ai artifacts). [PR #536
       number that works here. The NEAR
       and FAR close spots overlap the HIVE one by about a third of a robot: never send both robots
       to the middle and a side one at once.
-- [ ] **`RIGHT_LAUNCH_CATCH` against `RIGHT_CLOSE_HIVE`, before the Autos give CATCH up** (mentor,
+- [ ] **Superseded 16 Nov: the Autos gave CATCH up and it is no longer a team spot; they launch from `AutoLaunchSpots` (see "The Autos' four launch spots, by hand first" above).** **`RIGHT_LAUNCH_CATCH` against `RIGHT_CLOSE_HIVE`, before the Autos give CATCH up** (mentor,
       12 Nov; needs the 36 in row first, §7d). Neither button drives to CATCH now: drive there by
       hand (57.5, 18, facing the CELL; the Match page's "Last shot" line shows 43 in) and fire with
       FIRE; then Square from the middle tile row in front of the HIVE for `RIGHT_CLOSE_HIVE` (36 in). Ten volleys of 4
