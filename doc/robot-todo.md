@@ -1003,6 +1003,14 @@ measurement is [#255].
       while pressed. **Stop:** it differs → fix the stick or its down position on 19429 (a servo
       position that differs is one `RobotDifferences` line, with the date), then do §4's 20 picks.
       A stick that does not trip the FLOWER is not fixed by `MULTI_PUSH`, only hidden by it.
+- [ ] **19429's stick: right-arm gap and the WALL FLOWER stall** (14 Nov; the "FLOWER stick: GARDEN
+      polish" chat owns the guides and has the new right-arm guide's print files). On both robots:
+      the arms' inner faces apart at the axle; each side's parts on the shaft, arm to wall, in order
+      with lengths; with the stick down on a flat tile, the ramp nose's bottom edge off the tile
+      (20245 about 0.44 in) and the little wheels' diameter with O-ring (1.45 in by the CAD). On
+      19429 a side photo at a WALL FLOWER stall: what touches the FLOWER first. **Good:** 19429's
+      nose as high as 20245's. **Stop:** under about 0.38 in → O-rings, the ramp's hex flat or the arm
+      angle, before any pick tuning. Notes and photos: `cad/stick-shoulder-19429/`.
 - [ ] **19429's Limelight pipeline:** Marker Size set to 82.55 mm on 6 Nov (it was 165.1, the
       DECODE size; Full 3D Targeting Yes). Later that night 20245's pipeline file was uploaded to
       19429's slot 0: identical but for its name. Power-cycle and check it held, then run the 5-minute start check and Vision: HIVE & Pose. [handoff] step 6
