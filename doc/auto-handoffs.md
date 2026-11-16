@@ -114,9 +114,17 @@ Visualizer's `scripts/save-auto.mjs`; the script is gone, so the `.pp` files on 
   tipping: RIGHT, when TIP 1 did not come. Keep R-Solo's leg back to the right end (it made the TIP
   in Belding Q-7 and Q-31) and L-NoCross's crossing; both do exactly this.
 - L-NoCross's no-TIP route drives 3 s back to the left only to park; alone, the park ends at
-  29.3 s (Belding M-7 red ended that trip 9 in short). A throwaway variant that parks straight from
-  the right-end spot once the match clock is past 21.5 s ended at 26.9 s, same points, the other
-  eight curated cases unchanged. It needs the builder change below.
+  29.3 s (Belding M-7 red ended that trip 9 in short).
+- **Withdrawn the same day: do not draw the variant that parks straight from the right-end spot.**
+  Its 26.9 s came only from the run with no partner. L-NoCross's park path from the right end
+  runs up the wall lane and passes about 3 in from the centre of `RIGHT_PARK` (worked out by hand
+  from the curve, not simulated), where a right-start partner that shot, missed and parked sits.
+  Master has the same hazard in every guard park of L-NoCross from the right end or from
+  `WALL_FLOWER_STAGING`; the curated run "misses, said 8 s" shows a contact at 24.3 s, believed to
+  be this but not checked. The drive back to the left end before parking is slower but clear of
+  `RIGHT_PARK`. So: any park of a left-start Auto from the right end must be bent clear of
+  `RIGHT_PARK`, or the route returns to the left end first; and that case (a right-start partner
+  misses and parks while we are at the right end) belongs in L-NoCross's sim request.
 - R-NoCross, when the partner's TIP 2 does not come, stands 10.3 s at its right launch spot and
   parks at 24.1 s holding 4. No better fallback exists without crossing. Beside a left partner that
   shoots preloads only it scores 36 and R-Solo 56: a drive-team choice of Auto, not a drawing change.
@@ -128,7 +136,7 @@ Visualizer's `scripts/save-auto.mjs`; the script is gone, so the `.pp` files on 
 
 **Open, with the mentor:**
 - Whether the builder gets a "then: park from here" choice on an Otherwise inside an Otherwise that
-  goes on. The L-NoCross change needs it.
+  goes on. No longer needed for L-NoCross, since that variant is withdrawn.
 - A command beside a wait: no fallback use found. Suggestion: keep it in the engine, no new builder
   control.
 
@@ -136,7 +144,10 @@ Visualizer's `scripts/save-auto.mjs`; the script is gone, so the `.pp` files on 
 
 ## Two TIPs for sure: human-player NECTAR
 
-**Unmerged:** branch `claude/r-solo-human-player` at `32bfe7cf`, no PR. It adds
+**Unmerged:** branch `claude/r-solo-human-player` at `d92c49a4`, no PR. Its last commit adds
+`doc/human-nectar-study/`: the script that builds the timing variants, four timing variants and
+`r-solo-human-player-2.pp` (the second chance after the SCORING FLOWER pick, drawn, never
+simulated), the summary of all 24 simulator runs and a README. It adds
 `drafts/r-solo-human-player.pp` and its generated Auto, the trial OpMode `RSoloHumanPlayerTrial`
 (Utility "Drive: R-Solo-HumanPlayer"), a sim request, a section in `drafts/README.md`, and an entry
 in `doc/robot-todo.md` §3 that is not on master. The draft is R-Two-Tip with the WALL FLOWER leg

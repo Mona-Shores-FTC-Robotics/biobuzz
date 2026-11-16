@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-13T15:25:41.000Z",
+  "timestamp": "2026-11-16T18:58:00.342Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -11,7 +11,7 @@
     {
       "id": "line-mw0c4s2s-i6yeu6",
       "color": "#76b7b2",
-      "name": "to LEFT_LAUNCH_CATCH",
+      "name": "to LEFT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -19,20 +19,20 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 270,
-        "endDeg": 273.4
+        "endDeg": 268.1
       }
     },
     {
       "id": "line-mw0c4s32-8noomj",
       "color": "#9c755f",
-      "name": "LEFT_LAUNCH_CATCH park",
+      "name": "LEFT_AUTO_HIVE park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -46,7 +46,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 273.4,
+        "startDeg": 268.1,
         "endDeg": 0
       }
     },
@@ -56,19 +56,19 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 273.4
+        "degrees": 268.1
       }
     },
     {
       "id": "line-mw0eq8bt-go9gl6",
       "color": "#b07aa1",
-      "name": "to RIGHT_LAUNCH_CLOSE",
+      "name": "to RIGHT_AUTO_OFFSET",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -76,8 +76,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 56.1,
-        "y": 26
+        "x": 37.6,
+        "y": 22.3
       },
       "controlPoints": [
         {
@@ -89,14 +89,14 @@
           "y": 72.987287864473
         },
         {
-          "x": 58.69963001513299,
-          "y": 26.400462127763195
+          "x": 62,
+          "y": 38
         }
       ],
       "heading": {
         "type": "piecewise",
-        "startDeg": 273.4,
-        "endDeg": 90,
+        "startDeg": 268.1,
+        "endDeg": 63.8,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
@@ -108,7 +108,7 @@
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 273.4,
+                "startDeg": 268.1,
                 "endDeg": 90
               }
             },
@@ -120,7 +120,7 @@
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 90
+                "endDeg": 63.8
               }
             }
           ]
@@ -159,19 +159,19 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 56.1,
-        "y": 26
+        "x": 37.6,
+        "y": 22.3
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 90
+        "degrees": 63.80000000000001
       }
     },
     {
       "id": "line-mwbksy73-ypsvit",
       "color": "#4e79a7",
-      "name": "to LEFT_LAUNCH_CATCH",
+      "name": "to LEFT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -179,13 +179,13 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [
         {
-          "x": 58.69963001513299,
-          "y": 26.400462127763195
+          "x": 62,
+          "y": 38
         },
         {
           "x": 68.26574509695736,
@@ -198,8 +198,8 @@
       ],
       "heading": {
         "type": "piecewise",
-        "startDeg": 90,
-        "endDeg": 273.4,
+        "startDeg": 63.8,
+        "endDeg": 268.1,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
@@ -211,7 +211,7 @@
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 90,
+                "startDeg": 63.8,
                 "endDeg": 90
               }
             },
@@ -223,7 +223,7 @@
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 273.4
+                "endDeg": 268.1
               }
             }
           ]
@@ -236,13 +236,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 56.1,
-        "y": 26
+        "x": 37.6,
+        "y": 22.3
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 90
+        "degrees": 63.80000000000001
       }
     },
     {
@@ -262,7 +262,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
+        "startDeg": 63.8,
         "endDeg": 180
       }
     },
@@ -305,7 +305,7 @@
     {
       "id": "line-mwbksy73-eapgv2",
       "color": "#e15759",
-      "name": "to RIGHT_LAUNCH_CLOSE",
+      "name": "to RIGHT_AUTO_OFFSET",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -313,14 +313,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 56.1,
-        "y": 26
+        "x": 37.6,
+        "y": 22.3
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 180,
-        "endDeg": 90
+        "endDeg": 63.8
       }
     },
     {
@@ -329,13 +329,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 273.4
+        "degrees": 268.1
       }
     },
     {
@@ -355,7 +355,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 273.4,
+        "startDeg": 268.1,
         "endDeg": 90
       }
     },
@@ -392,13 +392,13 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 450
+        "degrees": 90
       }
     },
     {
       "id": "line-mw0c4s2t-m8fs6x",
       "color": "#f28e2b",
-      "name": "to LEFT_LAUNCH_CATCH",
+      "name": "to LEFT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -406,14 +406,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
-        "endDeg": 273.4
+        "endDeg": 268.1
       }
     },
     {
@@ -433,7 +433,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 273.4,
+        "startDeg": 268.1,
         "endDeg": 0
       }
     },
@@ -443,13 +443,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -86.60000000000002
+        "degrees": 268.1
       }
     },
     {
@@ -469,7 +469,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 273.4,
+        "startDeg": 268.1,
         "endDeg": 0
       }
     },
@@ -479,13 +479,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 123.5
+        "x": 61.9,
+        "y": 120.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 273.4
+        "degrees": 268.1
       }
     },
     {
@@ -505,7 +505,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 273.4,
+        "startDeg": 268.1,
         "endDeg": 0
       }
     }
@@ -805,7 +805,8 @@
         "RightCellUp",
         "CellUp",
         "Tip",
-        "CameraBlind"
+        "CameraBlind",
+        "Always"
       ],
       "events": [
         "Tip"
@@ -824,10 +825,10 @@
         133.8,
         270
       ],
-      "LEFT_LAUNCH_CATCH": [
-        57.5,
-        123.5,
-        273.4
+      "LEFT_AUTO_HIVE": [
+        61.9,
+        120.4,
+        268.1
       ],
       "SCORING_FLOWER_STAGING": [
         47.2,
@@ -839,40 +840,30 @@
         117.4,
         0
       ],
-      "RIGHT_LAUNCH_CATCH": [
-        57.5,
-        18,
-        91.9
-      ],
       "WALL_FLOWER_STAGING": [
         23.1,
         47.2,
         180
       ],
-      "LEFT_LAUNCH_OFFSET": [
-        41,
-        121.5,
-        296.4
-      ],
-      "RIGHT_LAUNCH_CLOSE": [
-        56.1,
-        26,
-        90
+      "RIGHT_AUTO_OFFSET": [
+        37.6,
+        22.3,
+        63.8
       ]
     },
     "pathEnds": {
-      "line-mw0c4s2s-i6yeu6": "LEFT_LAUNCH_CATCH",
+      "line-mw0c4s2s-i6yeu6": "LEFT_AUTO_HIVE",
       "line-mw0c4s2t-ne8h5h": "SCORING_FLOWER_STAGING",
-      "line-mw0c4s2t-m8fs6x": "LEFT_LAUNCH_CATCH",
+      "line-mw0c4s2t-m8fs6x": "LEFT_AUTO_HIVE",
       "line-mw0c4s2u-8wbzmf": "LEFT_PARK",
       "line-mw0c4s32-8noomj": "LEFT_PARK",
       "line-mw0c4s32-ave4gg": "LEFT_PARK",
-      "line-mw0eq8bt-go9gl6": "RIGHT_LAUNCH_CLOSE",
+      "line-mw0eq8bt-go9gl6": "RIGHT_AUTO_OFFSET",
       "line-mw0eyliu-i7tra3": "WALL_FLOWER_STAGING",
       "line-mw0rkae5-kh7tv8": "LEFT_PARK",
       "line-mw0rkae5-9j07qg": "LEFT_PARK",
-      "line-mwbksy73-ypsvit": "LEFT_LAUNCH_CATCH",
-      "line-mwbksy73-eapgv2": "RIGHT_LAUNCH_CLOSE",
+      "line-mwbksy73-ypsvit": "LEFT_AUTO_HIVE",
+      "line-mwbksy73-eapgv2": "RIGHT_AUTO_OFFSET",
       "line-mwdn0a03-lnp3c": "LEFT_PARK",
       "line-mwdn0a03-lnp2c": "LEFT_PARK"
     },
@@ -1139,12 +1130,10 @@
       "c-mwdn0a03-lnbk1": "line-mw0c4s32-8noomj"
     },
     "teamSpots": [
-      "LEFT_LAUNCH_CATCH",
-      "LEFT_LAUNCH_OFFSET",
+      "LEFT_AUTO_HIVE",
       "LEFT_PARK",
       "LEFT_START",
-      "RIGHT_LAUNCH_CATCH",
-      "RIGHT_LAUNCH_CLOSE",
+      "RIGHT_AUTO_OFFSET",
       "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"
     ],

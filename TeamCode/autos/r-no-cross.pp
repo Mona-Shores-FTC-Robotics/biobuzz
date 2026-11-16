@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-12T20:37:41.081Z",
+  "timestamp": "2026-11-16T18:52:57.108Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -73,7 +73,7 @@
     {
       "id": "line-mw0c4s3r-aq2td0",
       "color": "#9c755f",
-      "name": "to RIGHT_LAUNCH_CATCH",
+      "name": "to RIGHT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -81,20 +81,20 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 18
+        "x": 59.2,
+        "y": 20.9
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 180,
-        "endDeg": 91.9
+        "endDeg": 96.1
       }
     },
     {
       "id": "line-mw0c4s3v-u2xhur",
       "color": "#edc948",
-      "name": "RIGHT_LAUNCH_CATCH park",
+      "name": "RIGHT_AUTO_HIVE park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -113,7 +113,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 91.9,
+        "startDeg": 96.1,
         "endDeg": 0
       }
     },
@@ -123,13 +123,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 18
+        "x": 59.2,
+        "y": 20.9
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 91.89999999999998
+        "degrees": 96.10000000000002
       }
     },
     {
@@ -149,7 +149,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 91.9,
+        "startDeg": 96.1,
         "endDeg": 270
       }
     },
@@ -197,7 +197,7 @@
     {
       "id": "line-mw0c4s3s-i2nkle",
       "color": "#edc948",
-      "name": "to RIGHT_LAUNCH_CATCH",
+      "name": "to RIGHT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -205,14 +205,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 18
+        "x": 59.2,
+        "y": 20.9
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 270,
-        "endDeg": 91.9
+        "endDeg": 96.1
       }
     },
     {
@@ -237,7 +237,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 91.9,
+        "startDeg": 96.1,
         "endDeg": 0
       }
     },
@@ -247,13 +247,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 18
+        "x": 59.2,
+        "y": 20.9
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 91.89999999999998
+        "degrees": 96.10000000000002
       }
     },
     {
@@ -278,7 +278,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 91.9,
+        "startDeg": 96.1,
         "endDeg": 0
       }
     },
@@ -288,13 +288,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 18
+        "x": 59.2,
+        "y": 20.9
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 91.89999999999998
+        "degrees": 96.10000000000002
       }
     },
     {
@@ -319,7 +319,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 91.9,
+        "startDeg": 96.1,
         "endDeg": 0
       }
     }
@@ -591,7 +591,8 @@
         "RightCellUp",
         "CellUp",
         "Tip",
-        "CameraBlind"
+        "CameraBlind",
+        "Always"
       ],
       "events": [
         "Tip"
@@ -615,20 +616,15 @@
         47.2,
         180
       ],
-      "RIGHT_LAUNCH_CATCH": [
-        57.5,
-        18,
-        91.9
+      "RIGHT_AUTO_HIVE": [
+        59.2,
+        20.9,
+        96.1
       ],
       "GARDEN_STAGING": [
         11.5,
         22.1,
         270
-      ],
-      "RIGHT_LAUNCH_OFFSET": [
-        41,
-        20,
-        68.7
       ],
       "RIGHT_PARK": [
         14.5,
@@ -638,9 +634,9 @@
     },
     "pathEnds": {
       "line-mw0c4s3r-j498n0": "WALL_FLOWER_STAGING",
-      "line-mw0c4s3r-aq2td0": "RIGHT_LAUNCH_CATCH",
+      "line-mw0c4s3r-aq2td0": "RIGHT_AUTO_HIVE",
       "line-mw0c4s3s-fovkx1": "GARDEN_STAGING",
-      "line-mw0c4s3s-i2nkle": "RIGHT_LAUNCH_CATCH",
+      "line-mw0c4s3s-i2nkle": "RIGHT_AUTO_HIVE",
       "line-mw0c4s3s-94a0vo": "RIGHT_PARK",
       "line-mw0c4s3v-i79x23": "RIGHT_PARK",
       "line-mw0c4s3v-u2xhur": "RIGHT_PARK",
@@ -779,8 +775,7 @@
     },
     "teamSpots": [
       "GARDEN_STAGING",
-      "RIGHT_LAUNCH_CATCH",
-      "RIGHT_LAUNCH_OFFSET",
+      "RIGHT_AUTO_HIVE",
       "RIGHT_PARK",
       "RIGHT_START",
       "WALL_FLOWER_STAGING"

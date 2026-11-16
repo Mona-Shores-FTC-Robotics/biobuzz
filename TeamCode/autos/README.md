@@ -179,9 +179,9 @@ and who parked. For an Auto with a partner wait, a run's name ends with the seco
   start, so `partner-r-launch-park`'s last shot lands where `lastShotS` says. The left one waits
   for its CELL (our TIP raises it), so its last shot comes no sooner than that: the "Partner's
   last shot" column says when it did.
-- **L-NoCross's dead-partner run collides.** Its Otherwise branch drives to `RIGHT_LAUNCH_CATCH`,
-  10 in in front of `RIGHT_START`, where a dead partner sits; the mentor kept that spot for now
-  (3 Nov 2026), and a "Right CELL up?" check before that launch is shelved until the basics work.
+- **L-NoCross's dead-partner run no longer touches the partner in the simulator.** Its Otherwise
+  branch crosses to `RIGHT_AUTO_OFFSET`, which clears a robot left on `RIGHT_START` by 3.7 in, on a
+  path that bends west once it is out from under the HIVE (16 Nov 2026). Not driven yet.
 - **The raw knobs are an override for studies.** An entry's `"timing"` is four knobs, each
   optional: `startDelayS` (seconds after PLAY before its first card), `speed` (its drive profile,
   as a spec writes it after `@`), `launchS` (seconds per launch volley: a four-piece launch is the
@@ -313,14 +313,14 @@ A Wait step's **Otherwise** steps run only if the wait times out. Its **then** p
 after them:
 
 - **go on with the steps below**: the robot carries on with the steps under the wait, as if the
-  TIP had come (L-NoCross: back to `LEFT_LAUNCH_CATCH`, then the rest of the plan).
+  TIP had come (L-NoCross: back to `LEFT_AUTO_HIVE`, then the rest of the plan).
 - **park**: the Otherwise ends with its own Park step, and the steps under the wait run only when
   the TIP comes. In the `.pp` and the Java the wait is then the Auto's last step, each of its two
   outcomes holding the rest of its own route.
 
 Either way, every drive in an Otherwise has a park path from its spot (P on the step), as the
 main list's drives do, so a guard that parks early parks from where the robot is. A long one may
-need a bend: L-NoCross's park from `RIGHT_LAUNCH_CATCH` bends west of the Red HIVE.
+need a bend: L-NoCross's park from `RIGHT_AUTO_OFFSET` bends west of the Red HIVE.
 
 ## Changing an Auto at the field (INIT options)
 
