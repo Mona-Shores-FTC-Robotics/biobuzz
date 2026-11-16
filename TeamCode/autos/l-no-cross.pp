@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-16T19:52:38.765Z",
+  "timestamp": "2026-11-16T22:08:03.312Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -52,6 +52,192 @@
     },
     {
       "id": "link-1",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.9,
+        "y": 120.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.1
+      }
+    },
+    {
+      "id": "line-mw0c4s2t-ne8h5h",
+      "color": "#f28e2b",
+      "name": "to SCORING_FLOWER_STAGING",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.2,
+        "y": 119.3
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 268.1,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "line-mw0c4s32-ave4gg",
+      "color": "#e15759",
+      "name": "SCORING_FLOWER_STAGING park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-2",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.2,
+        "y": 119.3
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "line-mw0c4s2t-m8fs6x",
+      "color": "#f28e2b",
+      "name": "to LEFT_AUTO_HIVE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.9,
+        "y": 120.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 268.1
+      }
+    },
+    {
+      "id": "line-mw0c4s2u-8wbzmf",
+      "color": "#9c755f",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 268.1,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-3",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.9,
+        "y": 120.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.1
+      }
+    },
+    {
+      "id": "line-mwdn0a03-lnp3c",
+      "color": "#9c755f",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 268.1,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-4",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.9,
+        "y": 120.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.1
+      }
+    },
+    {
+      "id": "line-mwdn0a03-lnp2c",
+      "color": "#9c755f",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 268.1,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-5",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -130,7 +316,7 @@
     {
       "id": "line-mw0rkae5-kh7tv8",
       "color": "#4e79a7",
-      "name": "RIGHT_LAUNCH_CATCH park",
+      "name": "RIGHT_AUTO_FIX_TIP park under the HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -143,18 +329,182 @@
       },
       "controlPoints": [
         {
-          "x": 28,
-          "y": 25
+          "x": 60,
+          "y": 50
+        },
+        {
+          "x": 66,
+          "y": 80
+        },
+        {
+          "x": 65,
+          "y": 105
+        },
+        {
+          "x": 62,
+          "y": 122
+        },
+        {
+          "x": 40,
+          "y": 122
         }
       ],
       "heading": {
+        "type": "piecewise",
+        "startDeg": 90,
+        "endDeg": 0,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.75,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.75,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "link-6",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 55.3,
+        "y": 25.7
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "line-lnc-fixtip-to-scoring-flower",
+      "color": "#4e79a7",
+      "name": "under the HIVE to SCORING_FLOWER_STAGING",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.2,
+        "y": 119.3
+      },
+      "controlPoints": [
+        {
+          "x": 58.7,
+          "y": 40
+        },
+        {
+          "x": 66,
+          "y": 73
+        },
+        {
+          "x": 60,
+          "y": 102
+        }
+      ],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "link-7",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.9,
+        "y": 120.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.1
+      }
+    },
+    {
+      "id": "line-lnc-park-1",
+      "color": "#9c755f",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
         "type": "linear",
-        "startDeg": 91.9,
+        "startDeg": 268.1,
         "endDeg": 0
       }
     },
     {
-      "id": "link-2",
+      "id": "link-8",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.9,
+        "y": 120.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.1
+      }
+    },
+    {
+      "id": "line-lnc-park-2",
+      "color": "#9c755f",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 268.1,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-9",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -231,133 +581,7 @@
       }
     },
     {
-      "id": "link-3",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 55.3,
-        "y": 25.7
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "line-lnc-fixtip-to-scoring-flower",
-      "color": "#4e79a7",
-      "name": "under the HIVE to SCORING_FLOWER_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.2,
-        "y": 119.3
-      },
-      "controlPoints": [
-        {
-          "x": 58.7,
-          "y": 40
-        },
-        {
-          "x": 66,
-          "y": 73
-        },
-        {
-          "x": 60,
-          "y": 102
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "line-mw0c4s2t-m8fs6x",
-      "color": "#f28e2b",
-      "name": "to LEFT_AUTO_HIVE",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61.9,
-        "y": 120.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 268.1
-      }
-    },
-    {
-      "id": "line-mw0c4s2t-ne8h5h",
-      "color": "#f28e2b",
-      "name": "to SCORING_FLOWER_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.2,
-        "y": 119.3
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 268.1,
-        "endDeg": 90
-      }
-    },
-    {
-      "id": "line-mw0c4s32-ave4gg",
-      "color": "#e15759",
-      "name": "SCORING_FLOWER_STAGING park",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-4",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61.9,
-        "y": 120.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 268.1
-      }
-    },
-    {
-      "id": "line-mw0c4s2u-8wbzmf",
+      "id": "line-lnc-park-3",
       "color": "#9c755f",
       "name": "to LEFT_PARK",
       "locked": false,
@@ -378,7 +602,7 @@
       }
     },
     {
-      "id": "link-5",
+      "id": "link-10",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -393,7 +617,7 @@
       }
     },
     {
-      "id": "line-mwdn0a03-lnp3c",
+      "id": "line-lnc-park-4",
       "color": "#9c755f",
       "name": "to LEFT_PARK",
       "locked": false,
@@ -414,7 +638,7 @@
       }
     },
     {
-      "id": "link-6",
+      "id": "link-11",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -429,7 +653,7 @@
       }
     },
     {
-      "id": "line-mwdn0a03-lnp2c",
+      "id": "line-lnc-park-5",
       "color": "#9c755f",
       "name": "to LEFT_PARK",
       "locked": false,
@@ -450,7 +674,7 @@
       }
     },
     {
-      "id": "link-7",
+      "id": "link-12",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -663,34 +887,6 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mw0eq8bt-go9gl6"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-mw0rkae5-kh7tv8"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-2"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-mwbksy73-ypsvit"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-3"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-lnc-fixtip-to-scoring-flower"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-mw0c4s2t-m8fs6x"
-    },
-    {
-      "kind": "path",
       "lineId": "line-mw0c4s2t-ne8h5h"
     },
     {
@@ -699,7 +895,11 @@
     },
     {
       "kind": "path",
-      "lineId": "link-4"
+      "lineId": "link-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw0c4s2t-m8fs6x"
     },
     {
       "kind": "path",
@@ -707,7 +907,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-5"
+      "lineId": "link-3"
     },
     {
       "kind": "path",
@@ -715,7 +915,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-6"
+      "lineId": "link-4"
     },
     {
       "kind": "path",
@@ -723,7 +923,71 @@
     },
     {
       "kind": "path",
+      "lineId": "link-5"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw0eq8bt-go9gl6"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw0rkae5-kh7tv8"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-6"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-lnc-fixtip-to-scoring-flower"
+    },
+    {
+      "kind": "path",
       "lineId": "link-7"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-lnc-park-1"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-8"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-lnc-park-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-9"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mwbksy73-ypsvit"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-lnc-park-3"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-10"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-lnc-park-4"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-11"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-lnc-park-5"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-12"
     },
     {
       "kind": "path",
@@ -827,7 +1091,12 @@
       "line-mwbksy73-ypsvit": "LEFT_AUTO_HIVE",
       "line-mwdn0a03-lnp3c": "LEFT_PARK",
       "line-mwdn0a03-lnp2c": "LEFT_PARK",
-      "line-lnc-fixtip-to-scoring-flower": "SCORING_FLOWER_STAGING"
+      "line-lnc-fixtip-to-scoring-flower": "SCORING_FLOWER_STAGING",
+      "line-lnc-park-1": "LEFT_PARK",
+      "line-lnc-park-2": "LEFT_PARK",
+      "line-lnc-park-3": "LEFT_PARK",
+      "line-lnc-park-4": "LEFT_PARK",
+      "line-lnc-park-5": "LEFT_PARK"
     },
     "cards": [
       {
@@ -850,7 +1119,94 @@
             "when": [
               "CellUp"
             ],
-            "cards": []
+            "cards": [
+              {
+                "id": "c-mwdn0a03-lnv2c",
+                "kind": "firstOf",
+                "label": "LEFT CELL up?",
+                "rows": [
+                  {
+                    "when": [
+                      "CellUp"
+                    ],
+                    "cards": [
+                      {
+                        "id": "c-mw0c4s2t-8epji",
+                        "kind": "action",
+                        "name": "LaunchAll"
+                      },
+                      {
+                        "id": "c-mw0c4s2t-jqsjs",
+                        "kind": "path",
+                        "lineId": "line-mw0c4s2t-ne8h5h",
+                        "park": false
+                      },
+                      {
+                        "id": "c-mw0c4s2t-sfdhk",
+                        "kind": "action",
+                        "name": "PickFlower",
+                        "timeoutS": 8
+                      },
+                      {
+                        "id": "c-mw0c4s2t-lhsjw",
+                        "kind": "path",
+                        "lineId": "line-mw0c4s2t-m8fs6x",
+                        "park": false
+                      },
+                      {
+                        "id": "c-mwdn0a03-lnv3c",
+                        "kind": "firstOf",
+                        "label": "LEFT CELL back up?",
+                        "rows": [
+                          {
+                            "when": [
+                              "CellUp"
+                            ],
+                            "cards": [
+                              {
+                                "id": "c-mw0c4s2u-axth1",
+                                "kind": "action",
+                                "name": "LaunchAll"
+                              },
+                              {
+                                "id": "c-mw0c4s2u-u2yl0",
+                                "kind": "path",
+                                "lineId": "line-mw0c4s2u-8wbzmf",
+                                "park": true
+                              }
+                            ]
+                          },
+                          {
+                            "afterMs": 23000,
+                            "matchClock": true,
+                            "cards": [
+                              {
+                                "id": "c-mwdn0a03-lnp3c",
+                                "kind": "path",
+                                "lineId": "line-mwdn0a03-lnp3c",
+                                "park": true
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 23000,
+                    "matchClock": true,
+                    "cards": [
+                      {
+                        "id": "c-mwdn0a03-lnp2c",
+                        "kind": "path",
+                        "lineId": "line-mwdn0a03-lnp2c",
+                        "park": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
           },
           {
             "afterMs": 9000,
@@ -865,71 +1221,168 @@
                 "park": false
               },
               {
-                "id": "c-mwbksy73-krzqd",
+                "id": "c-lnc-right-up",
                 "kind": "firstOf",
-                "label": "TIP seen?",
+                "label": "RIGHT CELL up?",
                 "rows": [
                   {
                     "when": [
-                      "LeftCellUp"
+                      "RightCellUp"
                     ],
-                    "label": "If LeftCellUp",
+                    "cards": [
+                      {
+                        "id": "c-mw0eygqv-43e96",
+                        "kind": "action",
+                        "name": "LaunchAll"
+                      },
+                      {
+                        "id": "c-lnc-fixtip-sf",
+                        "kind": "path",
+                        "lineId": "line-lnc-fixtip-to-scoring-flower",
+                        "park": false
+                      },
+                      {
+                        "id": "c-lnc-fixtip-pick",
+                        "kind": "action",
+                        "name": "PickFlower",
+                        "timeoutS": 8
+                      },
+                      {
+                        "id": "c-lnc-fixtip-left",
+                        "kind": "path",
+                        "lineId": "line-mw0c4s2t-m8fs6x",
+                        "park": false
+                      },
+                      {
+                        "id": "c-lnc-fix-left-up",
+                        "kind": "firstOf",
+                        "label": "LEFT CELL up?",
+                        "rows": [
+                          {
+                            "when": [
+                              "CellUp"
+                            ],
+                            "cards": [
+                              {
+                                "id": "c-lnc-fix-launch-left",
+                                "kind": "action",
+                                "name": "LaunchAll"
+                              },
+                              {
+                                "id": "c-lnc-fix-park-shot",
+                                "kind": "path",
+                                "lineId": "line-lnc-park-1",
+                                "park": true
+                              }
+                            ]
+                          },
+                          {
+                            "afterMs": 23000,
+                            "matchClock": true,
+                            "cards": [
+                              {
+                                "id": "c-lnc-fix-park-timeout",
+                                "kind": "path",
+                                "lineId": "line-lnc-park-2",
+                                "park": true
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 750,
+                    "label": "TIP came after all",
                     "cards": [
                       {
                         "id": "c-mwbksy73-u5fhh",
                         "kind": "path",
                         "lineId": "line-mwbksy73-ypsvit",
                         "park": false
-                      }
-                    ]
-                  },
-                  {
-                    "afterMs": 750,
-                    "label": "Timed out",
-                    "cards": [
+                      },
                       {
-                        "id": "c-mwdn0a03-lnru1",
+                        "id": "c-mwdn0a03-lnv2c-late",
                         "kind": "firstOf",
-                        "label": "RIGHT CELL up?",
+                        "label": "LEFT CELL up?",
                         "rows": [
                           {
                             "when": [
-                              "RightCellUp"
+                              "CellUp"
                             ],
                             "cards": [
                               {
-                                "id": "c-mw0eygqv-43e96",
+                                "id": "c-mw0c4s2t-8epji-late",
                                 "kind": "action",
                                 "name": "LaunchAll"
                               },
                               {
-                                "id": "c-lnc-fixtip-sf",
+                                "id": "c-mw0c4s2t-jqsjs-late",
                                 "kind": "path",
-                                "lineId": "line-lnc-fixtip-to-scoring-flower",
+                                "lineId": "line-mw0c4s2t-ne8h5h",
                                 "park": false
                               },
                               {
-                                "id": "c-lnc-fixtip-pick",
+                                "id": "c-mw0c4s2t-sfdhk-late",
                                 "kind": "action",
                                 "name": "PickFlower",
                                 "timeoutS": 8
                               },
                               {
-                                "id": "c-lnc-fixtip-left",
+                                "id": "c-mw0c4s2t-lhsjw-late",
                                 "kind": "path",
                                 "lineId": "line-mw0c4s2t-m8fs6x",
                                 "park": false
+                              },
+                              {
+                                "id": "c-mwdn0a03-lnv3c-late",
+                                "kind": "firstOf",
+                                "label": "LEFT CELL back up?",
+                                "rows": [
+                                  {
+                                    "when": [
+                                      "CellUp"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "c-mw0c4s2u-axth1-late",
+                                        "kind": "action",
+                                        "name": "LaunchAll"
+                                      },
+                                      {
+                                        "id": "c-mw0c4s2u-u2yl0-late",
+                                        "kind": "path",
+                                        "lineId": "line-lnc-park-3",
+                                        "park": true
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "afterMs": 23000,
+                                    "matchClock": true,
+                                    "cards": [
+                                      {
+                                        "id": "c-mwdn0a03-lnp3c-late",
+                                        "kind": "path",
+                                        "lineId": "line-lnc-park-4",
+                                        "park": true
+                                      }
+                                    ]
+                                  }
+                                ]
                               }
                             ]
                           },
                           {
-                            "afterMs": 750,
+                            "afterMs": 23000,
+                            "matchClock": true,
                             "cards": [
                               {
-                                "id": "c-mwdn0a03-lnbk1",
+                                "id": "c-mwdn0a03-lnp2c-late",
                                 "kind": "path",
-                                "lineId": "line-mwbksy73-ypsvit",
-                                "park": false
+                                "lineId": "line-lnc-park-5",
+                                "park": true
                               }
                             ]
                           }
@@ -943,92 +1396,6 @@
           }
         ],
         "alongside": "SpinUp"
-      },
-      {
-        "id": "c-mwdn0a03-lnv2c",
-        "kind": "firstOf",
-        "label": "LEFT CELL up?",
-        "rows": [
-          {
-            "when": [
-              "CellUp"
-            ],
-            "cards": [
-              {
-                "id": "c-mw0c4s2t-8epji",
-                "kind": "action",
-                "name": "LaunchAll"
-              },
-              {
-                "id": "c-mw0c4s2t-jqsjs",
-                "kind": "path",
-                "lineId": "line-mw0c4s2t-ne8h5h",
-                "park": false
-              },
-              {
-                "id": "c-mw0c4s2t-sfdhk",
-                "kind": "action",
-                "name": "PickFlower",
-                "timeoutS": 8
-              },
-              {
-                "id": "c-mw0c4s2t-lhsjw",
-                "kind": "path",
-                "lineId": "line-mw0c4s2t-m8fs6x",
-                "park": false
-              },
-              {
-                "id": "c-mwdn0a03-lnv3c",
-                "kind": "firstOf",
-                "label": "LEFT CELL back up?",
-                "rows": [
-                  {
-                    "when": [
-                      "CellUp"
-                    ],
-                    "cards": [
-                      {
-                        "id": "c-mw0c4s2u-axth1",
-                        "kind": "action",
-                        "name": "LaunchAll"
-                      },
-                      {
-                        "id": "c-mw0c4s2u-u2yl0",
-                        "kind": "path",
-                        "lineId": "line-mw0c4s2u-8wbzmf",
-                        "park": true
-                      }
-                    ]
-                  },
-                  {
-                    "afterMs": 23000,
-                    "matchClock": true,
-                    "cards": [
-                      {
-                        "id": "c-mwdn0a03-lnp3c",
-                        "kind": "path",
-                        "lineId": "line-mwdn0a03-lnp3c",
-                        "park": true
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "afterMs": 23000,
-            "matchClock": true,
-            "cards": [
-              {
-                "id": "c-mwdn0a03-lnp2c",
-                "kind": "path",
-                "lineId": "line-mwdn0a03-lnp2c",
-                "park": true
-              }
-            ]
-          }
-        ]
       }
     ],
     "startAt": "LEFT_START",
@@ -1039,7 +1406,12 @@
       "link-4",
       "link-5",
       "link-6",
-      "link-7"
+      "link-7",
+      "link-8",
+      "link-9",
+      "link-10",
+      "link-11",
+      "link-12"
     ],
     "parkFrom": {
       "c-mw0c4s2s-oo8yq": "line-mw0c4s32-8noomj",
@@ -1050,7 +1422,8 @@
       "c-mwbksy73-46ewy": "line-mw0c4s32-8noomj",
       "c-mwbksy73-u5fhh": "line-mw0c4s32-8noomj",
       "c-mwbksy73-9zdyx": "line-mw0rkae5-kh7tv8",
-      "c-mwdn0a03-lnbk1": "line-mw0c4s32-8noomj"
+      "c-mwdn0a03-lnbk1": "line-mw0c4s32-8noomj",
+      "c-mw0c4s2t-jqsjs-late": "line-mw0c4s32-ave4gg"
     },
     "teamSpots": [
       "LEFT_AUTO_HIVE",

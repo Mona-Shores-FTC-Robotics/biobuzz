@@ -21,13 +21,13 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-16|2:52PM";
+    public static final String SAVED = "11-16|5:08PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"CellUp", "LeftCellUp", "RightCellUp"};
+    public static final String[] TRIGGERS = {"CellUp", "RightCellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -60,69 +60,106 @@ public final class LNoCrossAuto {
         Pose underTheHiveToRightAutoFixTipControl2 = p.of(68.2657, 72.9873, 0);
         Pose underTheHiveToRightAutoFixTipControl3 = p.of(58.7, 27, 0);
         Pose underTheHiveToRightAutoFixTipSegment1Start = p.of(55.3, 25.7, 268.1);
-        Pose rightLaunchCatchParkStart = p.of(55.3, 25.7, 91.9);
-        Pose rightLaunchCatchParkControl1 = p.of(28, 25, 0);
-        Pose toLeftAutoHive_2Control1 = p.of(58.7, 27, 0);
-        Pose toLeftAutoHive_2Control2 = p.of(68.2657, 72.9873, 0);
-        Pose toLeftAutoHive_2Control3 = p.of(56.7614, 93.4601, 0);
-        Pose toLeftAutoHive_2Segment1Start = p.of(61.9, 120.4, 90);
-        Pose toLeftAutoHive_2Segment1End = p.of(61.9, 120.4, 90);
-        Pose toLeftAutoHive_2Segment2Start = p.of(61.9, 120.4, 90);
+        Pose rightAutoFixTipParkUnderTheHiveControl1 = p.of(60, 50, 0);
+        Pose rightAutoFixTipParkUnderTheHiveControl2 = p.of(66, 80, 0);
+        Pose rightAutoFixTipParkUnderTheHiveControl3 = p.of(65, 105, 0);
+        Pose rightAutoFixTipParkUnderTheHiveControl4 = p.of(62, 122, 0);
+        Pose rightAutoFixTipParkUnderTheHiveControl5 = p.of(40, 122, 0);
+        Pose rightAutoFixTipParkUnderTheHiveSegment1Start = p.of(14.5, 117.4, 90);
+        Pose rightAutoFixTipParkUnderTheHiveSegment1End = p.of(14.5, 117.4, 90);
+        Pose rightAutoFixTipParkUnderTheHiveSegment2Start = p.of(14.5, 117.4, 90);
         Pose underTheHiveToScoringFlowerStagingControl1 = p.of(58.7, 40, 0);
         Pose underTheHiveToScoringFlowerStagingControl2 = p.of(66, 73, 0);
         Pose underTheHiveToScoringFlowerStagingControl3 = p.of(60, 102, 0);
+        Pose toLeftAutoHive_3Control1 = p.of(58.7, 27, 0);
+        Pose toLeftAutoHive_3Control2 = p.of(68.2657, 72.9873, 0);
+        Pose toLeftAutoHive_3Control3 = p.of(56.7614, 93.4601, 0);
+        Pose toLeftAutoHive_3Segment1Start = p.of(61.9, 120.4, 90);
+        Pose toLeftAutoHive_3Segment1End = p.of(61.9, 120.4, 90);
+        Pose toLeftAutoHive_3Segment2Start = p.of(61.9, 120.4, 90);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toLeftAutoHive = Paths.line(leftStart, leftAutoHive).linear(leftStart, leftAutoHive);
         Path leftAutoHivePark = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
-        Path underTheHiveToRightAutoFixTip = Paths.curve(leftAutoHive, underTheHiveToRightAutoFixTipControl1, underTheHiveToRightAutoFixTipControl2, underTheHiveToRightAutoFixTipControl3, rightAutoFixTip).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(underTheHiveToRightAutoFixTipSegment1Start, rightAutoFixTip)).until(1, Interpolator.linear(rightAutoFixTip, rightAutoFixTip)));
-        Path rightLaunchCatchPark = Paths.curve(rightLaunchCatchParkStart, rightLaunchCatchParkControl1, leftPark).linear(rightLaunchCatchParkStart, leftPark);
-        Path toLeftAutoHivePath = Paths.curve(rightAutoFixTip, toLeftAutoHive_2Control1, toLeftAutoHive_2Control2, toLeftAutoHive_2Control3, leftAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftAutoHive_2Segment1Start, toLeftAutoHive_2Segment1End)).until(1, Interpolator.linear(toLeftAutoHive_2Segment2Start, leftAutoHive)));
-        Path underTheHiveToScoringFlowerStaging = Paths.curve(rightAutoFixTip, underTheHiveToScoringFlowerStagingControl1, underTheHiveToScoringFlowerStagingControl2, underTheHiveToScoringFlowerStagingControl3, scoringFlowerStaging).constant(scoringFlowerStaging);
-        Path toLeftAutoHivePath2 = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
         Path toScoringFlowerStaging = Paths.line(leftAutoHive, scoringFlowerStaging).linear(leftAutoHive, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, leftPark).linear(scoringFlowerStaging, leftPark);
+        Path toLeftAutoHivePath = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
         Path toLeftPark = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath2 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
+        Path underTheHiveToRightAutoFixTip = Paths.curve(leftAutoHive, underTheHiveToRightAutoFixTipControl1, underTheHiveToRightAutoFixTipControl2, underTheHiveToRightAutoFixTipControl3, rightAutoFixTip).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(underTheHiveToRightAutoFixTipSegment1Start, rightAutoFixTip)).until(1, Interpolator.linear(rightAutoFixTip, rightAutoFixTip)));
+        Path rightAutoFixTipParkUnderTheHive = Paths.curve(rightAutoFixTip, rightAutoFixTipParkUnderTheHiveControl1, rightAutoFixTipParkUnderTheHiveControl2, rightAutoFixTipParkUnderTheHiveControl3, rightAutoFixTipParkUnderTheHiveControl4, rightAutoFixTipParkUnderTheHiveControl5, leftPark).heading(Interpolator.piecewise().until(0.75, Interpolator.linear(rightAutoFixTipParkUnderTheHiveSegment1Start, rightAutoFixTipParkUnderTheHiveSegment1End)).until(1, Interpolator.linear(rightAutoFixTipParkUnderTheHiveSegment2Start, leftPark)));
+        Path underTheHiveToScoringFlowerStaging = Paths.curve(rightAutoFixTip, underTheHiveToScoringFlowerStagingControl1, underTheHiveToScoringFlowerStagingControl2, underTheHiveToScoringFlowerStagingControl3, scoringFlowerStaging).constant(scoringFlowerStaging);
+        Path toLeftParkPath3 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
+        Path toLeftParkPath4 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
+        Path toLeftAutoHivePath2 = Paths.curve(rightAutoFixTip, toLeftAutoHive_3Control1, toLeftAutoHive_3Control2, toLeftAutoHive_3Control3, leftAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftAutoHive_3Segment1Start, toLeftAutoHive_3Segment1End)).until(1, Interpolator.linear(toLeftAutoHive_3Segment2Start, leftAutoHive)));
+        Path toLeftParkPath5 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
+        Path toLeftParkPath6 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
+        Path toLeftParkPath7 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
 
         return kit.sequence(
                 kit.guarded("Auto", toLeftParkPath2, 2,
                         kit.command("SpinUp"),
                         kit.path("to LEFT_AUTO_HIVE", toLeftAutoHive, 1.1, leftAutoHivePark, 2),
                         kit.firstOf("Wait for TIP or CELL up", kit.command("SpinUp"),
-                                kit.when("CellUp"),
+                                kit.when("CellUp").then(
+                                        kit.guarded("If CellUp", toLeftParkPath2, 2,
+                                                kit.firstOf("LEFT CELL up?",
+                                                        kit.when("CellUp").then(
+                                                                kit.guarded("If CellUp", toLeftParkPath, 2,
+                                                                        kit.command("LaunchAll"),
+                                                                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
+                                                                        kit.command("PickFlower", 8),
+                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3),
+                                                                        kit.firstOf("LEFT CELL back up?",
+                                                                                kit.when("CellUp").then(
+                                                                                        kit.guarded("If CellUp", toLeftPark, 2,
+                                                                                                kit.command("LaunchAll"),
+                                                                                                kit.path("to LEFT_PARK", toLeftPark, 2))),
+                                                                                kit.atMatchSeconds(23).then(
+                                                                                        kit.guarded("Timed out", toLeftParkPath, 2,
+                                                                                                kit.path("to LEFT_PARK", toLeftParkPath, 2)))))),
+                                                        kit.atMatchSeconds(23).then(
+                                                                kit.guarded("Timed out", toLeftParkPath2, 2,
+                                                                        kit.path("to LEFT_PARK", toLeftParkPath2, 2)))))),
                                 kit.atMatchSeconds(kit.seconds("Wait for TIP or CELL up", 9)).then(
-                                        kit.path("under the HIVE to RIGHT_AUTO_FIX_TIP", underTheHiveToRightAutoFixTip, 3.3, rightLaunchCatchPark, 3.2),
-                                        kit.firstOf("TIP seen?",
-                                                kit.when("LeftCellUp").then(
-                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 3, leftAutoHivePark, 2)),
-                                                kit.afterMs(750).then(
-                                                        kit.firstOf("RIGHT CELL up?",
-                                                                kit.when("RightCellUp").then(
+                                        kit.guarded("Timed out", rightAutoFixTipParkUnderTheHive, 3.7,
+                                                kit.path("under the HIVE to RIGHT_AUTO_FIX_TIP", underTheHiveToRightAutoFixTip, 3.3, rightAutoFixTipParkUnderTheHive, 3.7),
+                                                kit.firstOf("RIGHT CELL up?",
+                                                        kit.when("RightCellUp").then(
+                                                                kit.guarded("If RightCellUp", toLeftParkPath4, 2,
                                                                         kit.command("LaunchAll"),
                                                                         kit.path("under the HIVE to SCORING_FLOWER_STAGING", underTheHiveToScoringFlowerStaging, 3),
                                                                         kit.command("PickFlower", 8),
-                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath2, 1.3)),
-                                                                kit.afterMs(750).then(
-                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 3, leftAutoHivePark, 2))))))),
-                        kit.firstOf("LEFT CELL up?",
-                                kit.when("CellUp").then(
-                                        kit.guarded("If CellUp", toLeftParkPath, 2,
-                                                kit.command("LaunchAll"),
-                                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
-                                                kit.command("PickFlower", 8),
-                                                kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath2, 1.3),
-                                                kit.firstOf("LEFT CELL back up?",
-                                                        kit.when("CellUp").then(
-                                                                kit.guarded("If CellUp", toLeftPark, 2,
-                                                                        kit.command("LaunchAll"),
-                                                                        kit.path("to LEFT_PARK", toLeftPark, 2))),
-                                                        kit.atMatchSeconds(23).then(
-                                                                kit.guarded("Timed out", toLeftParkPath, 2,
-                                                                        kit.path("to LEFT_PARK", toLeftParkPath, 2)))))),
-                                kit.atMatchSeconds(23).then(
-                                        kit.guarded("Timed out", toLeftParkPath2, 2,
-                                                kit.path("to LEFT_PARK", toLeftParkPath2, 2))))));
+                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3),
+                                                                        kit.firstOf("LEFT CELL up?",
+                                                                                kit.when("CellUp").then(
+                                                                                        kit.guarded("If CellUp", toLeftParkPath3, 2,
+                                                                                                kit.command("LaunchAll"),
+                                                                                                kit.path("to LEFT_PARK", toLeftParkPath3, 2))),
+                                                                                kit.atMatchSeconds(23).then(
+                                                                                        kit.guarded("Timed out", toLeftParkPath4, 2,
+                                                                                                kit.path("to LEFT_PARK", toLeftParkPath4, 2)))))),
+                                                        kit.afterMs(750).then(
+                                                                kit.guarded("TIP came after all", toLeftParkPath7, 2,
+                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath2, 3, leftAutoHivePark, 2),
+                                                                        kit.firstOf("LEFT CELL up?",
+                                                                                kit.when("CellUp").then(
+                                                                                        kit.guarded("If CellUp", toLeftParkPath6, 2,
+                                                                                                kit.command("LaunchAll"),
+                                                                                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
+                                                                                                kit.command("PickFlower", 8),
+                                                                                                kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3),
+                                                                                                kit.firstOf("LEFT CELL back up?",
+                                                                                                        kit.when("CellUp").then(
+                                                                                                                kit.guarded("If CellUp", toLeftParkPath5, 2,
+                                                                                                                        kit.command("LaunchAll"),
+                                                                                                                        kit.path("to LEFT_PARK", toLeftParkPath5, 2))),
+                                                                                                        kit.atMatchSeconds(23).then(
+                                                                                                                kit.guarded("Timed out", toLeftParkPath6, 2,
+                                                                                                                        kit.path("to LEFT_PARK", toLeftParkPath6, 2)))))),
+                                                                                kit.atMatchSeconds(23).then(
+                                                                                        kit.guarded("Timed out", toLeftParkPath7, 2,
+                                                                                                kit.path("to LEFT_PARK", toLeftParkPath7, 2))))))))))));
     }
 }

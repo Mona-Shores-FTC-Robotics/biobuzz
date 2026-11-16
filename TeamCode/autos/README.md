@@ -321,7 +321,7 @@ after them:
 
 Either way, every drive in an Otherwise has a park path from its spot (P on the step), as the
 main list's drives do, so a guard that parks early parks from where the robot is. A long one may
-need a bend: L-NoCross's park from `RIGHT_AUTO_FIX_TIP` bends west of the Red HIVE.
+need a bend: L-NoCross's park from `RIGHT_AUTO_FIX_TIP` goes back under the Red HIVE, clear of `RIGHT_PARK`.
 
 ## Changing an Auto at the field (INIT options)
 

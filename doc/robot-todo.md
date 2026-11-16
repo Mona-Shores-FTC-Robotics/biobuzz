@@ -1266,11 +1266,11 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       HIVE to the SCORING FLOWER, picks, fires at LEFT from `LEFT_AUTO_HIVE` and parks. Run each
       alone, then L-NoCross with a robot left on `RIGHT_START` and no TIP. **Good:** L-NoCross
       stops about 2 in short of the robot on the start, touching neither it nor the HIVE on the
-      way down or back; its four at RIGHT go in from 35 in; it parks by about 28.5 s alone.
+      way down or back; its four at RIGHT go in from 35 in; it parks by about 28 s alone. When it
+      has to park early from the right end it goes back under the HIVE, not up the wall lane.
       **Stop:** pieces off the HIVE's lip from `RIGHT_AUTO_FIX_TIP` → count them (35 in is lip
-      range) and try the launcher 25 to 50 slower; still driving at 30 s → write the time. It
-      comes back to the left before it parks on purpose: a park straight from the right end runs
-      through `RIGHT_PARK` (`doc/auto-handoffs.md`).
+      range) and try the launcher 25 to 50 slower; still driving at 30 s → write the time; it
+      clips a HIVE leg on the park back under the HIVE → note where (that park path is new).
 - [ ] **How close can we shoot? (Basic Drive, square on to the RIGHT CELL, tape from the wall.)**
       Five volleys of four each with the robot's back edge 18, 16 and 14 in from the audience
       wall (35, 37 and 39 in from the row), then with the launcher trimmed 25 and 50 slower at
