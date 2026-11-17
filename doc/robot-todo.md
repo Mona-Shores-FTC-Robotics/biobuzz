@@ -121,8 +121,12 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
       out. Turret: still sits at home after PLAY, as before.
 - [ ] **19429 rewired 17 Nov: the new FLOWER stick.** Pivot servo on **Expansion Hub servo
-      port 4** (`flowerStick`), roller (continuous-rotation servo) on **Control Hub servo port 0**
-      (`flowerRoller`) (`robot_19429.xml`). A **full TeamCode install**, re-Activate `robot_19429`,
+      port 5** (`flowerStick`), turret servo moved to **Expansion Hub servo port 4** (the pivot
+      was found in port 5, the turret's, when Bench: Turret moved the stick), roller
+      (continuous-rotation servo) on **Control Hub servo port 0** (`flowerRoller`)
+      (`robot_19429.xml`). The turret servo was found in the +5V POWER header, not a
+      servo port, and unplugged; 19429 has no working turret yet. When one is fitted, its
+      servo goes in **port 4**. A **full TeamCode install**, re-Activate `robot_19429`,
       then **Check: Hardware** (it lists `flowerRoller`). The stick is new, so measure
       `FlowerStickSubsystem.RETRACTED` / `EXTENDED` on it in Panels and put them in a PR (a 19429
       line in `RobotDifferences` if they differ from 20245's). Then Basic Drive, PLAY: stick in,
