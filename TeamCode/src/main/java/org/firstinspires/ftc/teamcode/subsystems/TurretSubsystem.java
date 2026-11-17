@@ -90,25 +90,32 @@ public class TurretSubsystem implements Subsystem {
 
     /**
      * The least power that turns the turret steadily. 0.09 on 20245 (Bench: Turret, 17 Nov 2026):
-     * below it the turret moves, but not consistently.
+     * at 0.06 it buzzes without moving, and from 0.065 to 0.08 it moves in spurts, 10 to 20 deg/s
+     * at 0.08.
      */
     public static double minPower = 0.09;
     public static double maxPower = 1.0;
 
     // ------------------------------------------------------------ the loop
-    // Starting values: they hold a model of the servo (TurretServoControlTest), and no robot has
-    // run them. Tune on Bench: Turret, Square.
+    // kP, kD and the tolerance are 20245's from Bench: Turret, Square (17 Nov 2026): 45 degree
+    // steps land with almost no overshoot. With less damping it swung past every time; the floor
+    // could not be lowered to cure that, since under 0.09 the turret sticks and buzzes. The
+    // feedforward has not run on a robot yet.
 
     /** Power per degree of error. */
-    public static double kP = 0.03;
+    public static double kP = 0.035;
     /** Damping: power per deg/s of the turret's rate relative to the target's, taken off the correction. */
-    public static double kD = 0.001;
+    public static double kD = 0.006;
     /** The share of the target's rate fed forward to the servo: 1 cancels all of the robot's turning, 0 none. */
     public static double feedforward = 1.0;
     /** A target rate slower than this is treated as still, deg/s: the gyro's noise is not fed to the servo. */
     public static double targetStillDps = 5.0;
-    /** Inside this many degrees of the target, {@link #onTarget()}, and no correction is made. */
-    public static double holdToleranceDeg = 1.0;
+    /**
+     * Inside this many degrees of the target, {@link #onTarget()}, and no correction is made. 2:
+     * the slowest the servo turns the turret is 10 to 20 deg/s (at the floor), so a narrower band
+     * is crossed before the stop takes effect and the turret hunts.
+     */
+    public static double holdToleranceDeg = 2.0;
 
     /** Driven one way and turning the other for this long, the hold is dropped, ms ({@link TurretDriveWatch}). */
     public static double watchWrongWayMs = 400.0;
