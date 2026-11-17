@@ -25,8 +25,9 @@ import java.util.Map;
 
 /**
  * R-NoCross's INIT rows: its wait for TIP 2 ("waiting for TIP 2 until 20 s") and {@code if no TIP 2}:
- * TOP UP LEFT (as drawn) drives the wall side to LEFT_AUTO_OFFSET and puts its FLOWER load in the
- * LEFT CELL if it is still up, then parks; PARK parks with the load. Under the real guard
+ * WAIT FOR PARTNER (as drawn, the safe choice) stays at RIGHT_AUTO_HIVE watching for TIP 2 until 23 s,
+ * fires if it comes, and parks; CROSS AND FIX IT drives the wall side to LEFT_AUTO_OFFSET and puts its
+ * FLOWER load in the LEFT CELL if it is still up, then parks. Under the real guard
  * (parkAfterVolley, the registry's volley and grab marks). Every drive takes its exported time and
  * every command the registry's typical time, so the guard's plan is the drawing's.
  */
@@ -104,15 +105,20 @@ public class RNoCrossAutoTest {
         assertTrue("parked by 30 s: " + now + " " + trace, now <= 30);
     }
 
-    @Test public void theMenuWaitsForTip2Until20sThenTopsUpLeft() {
+    @Test public void theMenuWaitsForTip2Until20sThenWaitsForThePartner() {
         assertEquals(2, RNoCrossAuto.OPTIONS.length);
         assertEquals(20, RNoCrossAuto.OPTIONS[0].drawnSeconds, 1e-9);
         assertEquals("if no TIP 2", RNoCrossAuto.OPTIONS[1].name);
-        assertEquals("[TOP UP LEFT, PARK]", RNoCrossAuto.OPTIONS[1].choices.toString());
+        assertEquals("[WAIT FOR PARTNER, CROSS AND FIX IT]", RNoCrossAuto.OPTIONS[1].choices.toString());
     }
 
-    /** TIP 2 never comes and the LEFT CELL is still up: R crosses and puts its load in at LEFT. */
-    @Test public void topUpLeftFiresAtTheLeftCellAndParks() {
+    private void crossAndFixIt() {
+        choices.put("if no TIP 2", 1);
+    }
+
+    /** CROSS AND FIX IT, TIP 2 never comes, the LEFT CELL still up: R crosses and puts its load in at LEFT. */
+    @Test public void crossAndFixItFiresAtTheLeftCellAndParks() {
+        crossAndFixIt();
         run();
         assertTrue(trace.toString(), trace.contains(CROSSING));
         Pose last = launchedFrom.get(launchedFrom.size() - 1);
@@ -120,12 +126,22 @@ public class RNoCrossAutoTest {
         parkedRightPark();
     }
 
-    /** PARK: no crossing, the load stays in the robot. */
-    @Test public void parkKeepsTheLoadAndParksFromTheRight() {
-        choices.put("if no TIP 2", 1);
+    /** WAIT FOR PARTNER (the default), TIP 2 never comes: no crossing, the load stays in, parked after 23 s. */
+    @Test public void waitForPartnerKeepsTheLoadAndParksFromTheRight() {
         run();
         assertFalse(trace.toString(), trace.contains(CROSSING));
         assertEquals("only the preloads: " + launchedFrom, 1, launchedFrom.size());
+        assertTrue("waited to 23 s: " + parkedAt, parkedAt >= 23);
+        parkedRightPark();
+    }
+
+    /** WAIT FOR PARTNER, the partner's TIP 2 comes late (21.5 s): R fires at RIGHT and parks. */
+    @Test public void waitForPartnerFiresAtALateTip2() {
+        tip2 = 21.5;
+        run();
+        assertFalse(trace.toString(), trace.contains(CROSSING));
+        assertEquals("the late volley: " + launchedFrom, 2, launchedFrom.size());
+        assertTrue("fired at RIGHT: " + launchedFrom, launchedFrom.get(1).y() < FieldFrame.FIELD_CENTRE_INCHES);
         parkedRightPark();
     }
 

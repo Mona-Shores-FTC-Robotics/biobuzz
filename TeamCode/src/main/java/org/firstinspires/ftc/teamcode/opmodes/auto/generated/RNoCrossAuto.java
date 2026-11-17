@@ -20,7 +20,7 @@ public final class RNoCrossAuto {
     public static final String SOURCE = "r-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-17|4:52PM";
+    public static final String SAVED = "11-17|5:10PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -32,7 +32,7 @@ public final class RNoCrossAuto {
     public static final String DRAWN_FOR = "RED";
 
     /** What the drive team may change during INIT, on gamepad 1's D-pad; nothing changed, the Auto runs as drawn. */
-    public static final AutoOption[] OPTIONS = {AutoOption.matchSeconds("Wait for TIP or CELL up", 20, 2), AutoOption.choice("if no TIP 2", "TOP UP LEFT", "PARK")};
+    public static final AutoOption[] OPTIONS = {AutoOption.matchSeconds("Wait for TIP or CELL up", 20, 2), AutoOption.choice("if no TIP 2", "WAIT FOR PARTNER", "CROSS AND FIX IT")};
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
@@ -61,12 +61,13 @@ public final class RNoCrossAuto {
         Pose gardenStagingParkControl1 = p.of(28, 55, 0);
         Pose toRightParkControl1 = p.of(15.9972, 48.2988, 0);
         Pose toRightPark_2Control1 = p.of(15.9972, 48.2988, 0);
+        Pose toRightPark_3Control1 = p.of(17.9975, 42.698, 0);
+        Pose toRightPark_4Control1 = p.of(17.9975, 42.698, 0);
         Pose wallSideToLeftAutoOffsetControl1 = p.of(35, 25, 0);
         Pose wallSideToLeftAutoOffsetControl2 = p.of(20, 70, 0);
         Pose leftAutoOffsetParkControl1 = p.of(42, 99, 0);
-        Pose toRightPark_3Control1 = p.of(42, 99, 0);
-        Pose toRightPark_4Control1 = p.of(42, 99, 0);
-        Pose toRightPark_5Control1 = p.of(17.9975, 42.698, 0);
+        Pose toRightPark_5Control1 = p.of(42, 99, 0);
+        Pose toRightPark_6Control1 = p.of(42, 99, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
@@ -78,14 +79,15 @@ public final class RNoCrossAuto {
         Path toRightAutoHivePath = Paths.line(gardenStaging, rightAutoHive).linear(gardenStaging, rightAutoHive);
         Path toRightPark = Paths.curve(rightAutoHive, toRightParkControl1, rightPark).linear(rightAutoHive, rightPark);
         Path toRightParkPath = Paths.curve(rightAutoHive, toRightPark_2Control1, rightPark).linear(rightAutoHive, rightPark);
+        Path toRightParkPath2 = Paths.curve(rightAutoHive, toRightPark_3Control1, rightPark).linear(rightAutoHive, rightPark);
+        Path toRightParkPath3 = Paths.curve(rightAutoHive, toRightPark_4Control1, rightPark).linear(rightAutoHive, rightPark);
         Path wallSideToLeftAutoOffset = Paths.curve(rightAutoHive, wallSideToLeftAutoOffsetControl1, wallSideToLeftAutoOffsetControl2, leftAutoOffset).linear(rightAutoHive, leftAutoOffset);
         Path leftAutoOffsetPark = Paths.curve(leftAutoOffset, leftAutoOffsetParkControl1, rightPark).linear(leftAutoOffset, rightPark);
-        Path toRightParkPath2 = Paths.curve(leftAutoOffset, toRightPark_3Control1, rightPark).linear(leftAutoOffset, rightPark);
-        Path toRightParkPath3 = Paths.curve(leftAutoOffset, toRightPark_4Control1, rightPark).linear(leftAutoOffset, rightPark);
-        Path toRightParkPath4 = Paths.curve(rightAutoHive, toRightPark_5Control1, rightPark).linear(rightAutoHive, rightPark);
+        Path toRightParkPath4 = Paths.curve(leftAutoOffset, toRightPark_5Control1, rightPark).linear(leftAutoOffset, rightPark);
+        Path toRightParkPath5 = Paths.curve(leftAutoOffset, toRightPark_6Control1, rightPark).linear(leftAutoOffset, rightPark);
 
         return kit.sequence(
-                kit.guarded("Auto", rightAutoHivePark, 2.9,
+                kit.guarded("Auto", toRightParkPath3, 2.9,
                         kit.command("SpinUp"),
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
@@ -107,16 +109,23 @@ public final class RNoCrossAuto {
                                                                 kit.guarded("Timed out", toRightParkPath, 2.9,
                                                                         kit.path("to RIGHT_PARK", toRightParkPath, 2.9)))))),
                                 kit.atMatchSeconds(kit.seconds("Wait for TIP or CELL up", 20)).then(
-                                        kit.guarded("Timed out", toRightParkPath3, 1.8,
-                                                kit.route("if no TIP 2", 0, () -> kit.path("wall side to LEFT_AUTO_OFFSET", wallSideToLeftAutoOffset, 3.3, leftAutoOffsetPark, 1.8)),
-                                                kit.route("if no TIP 2", 0, () -> kit.firstOf("LEFT CELL still up?",
+                                        kit.guarded("Timed out", toRightParkPath3, 2.9,
+                                                kit.route("if no TIP 2", 0, () -> kit.firstOf("RIGHT CELL up by 23 s?",
                                                         kit.when("CellUp").then(
-                                                                kit.guarded("If CellUp", toRightParkPath2, 1.8,
+                                                                kit.guarded("If CellUp", toRightParkPath2, 2.9,
                                                                         kit.command("LaunchAll"),
-                                                                        kit.path("to RIGHT_PARK", toRightParkPath2, 1.8))),
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath2, 2.9))),
+                                                        kit.atMatchSeconds(23).then(
+                                                                kit.guarded("Timed out", toRightParkPath3, 2.9,
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath3, 2.9))))),
+                                                kit.route("if no TIP 2", 1, () -> kit.path("wall side to LEFT_AUTO_OFFSET", wallSideToLeftAutoOffset, 3.3, leftAutoOffsetPark, 1.8)),
+                                                kit.route("if no TIP 2", 1, () -> kit.firstOf("LEFT CELL still up?",
+                                                        kit.when("CellUp").then(
+                                                                kit.guarded("If CellUp", toRightParkPath4, 1.8,
+                                                                        kit.command("LaunchAll"),
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath4, 1.8))),
                                                         kit.afterMs(750).then(
-                                                                kit.guarded("Timed out", toRightParkPath3, 1.8,
-                                                                        kit.path("to RIGHT_PARK", toRightParkPath3, 1.8))))),
-                                                kit.route("if no TIP 2", 1, () -> kit.path("to RIGHT_PARK", toRightParkPath4, 2.9)))))));
+                                                                kit.guarded("Timed out", toRightParkPath5, 1.8,
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath5, 1.8))))))))));
     }
 }

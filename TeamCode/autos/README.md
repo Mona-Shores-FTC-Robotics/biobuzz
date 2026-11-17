@@ -65,17 +65,21 @@ again; **WAIT FOR PARTNER FIX** stays on `LEFT_AUTO_HIVE` and waits for the LEFT
 partner that fixes its own miss. Beside R-NoCross pick WAIT FOR PARTNER FIX: R-NoCross fixes a missed
 TIP 1 itself, since its CELL check at `RIGHT_AUTO_HIVE` fires whenever the RIGHT CELL is still up,
 and with both robots fixing it the simulator had them collide at 12.5 s and make one TIP.
-**When TIP 2 has not come by its wait, R-NoCross's INIT row `if no TIP 2` picks what it does**
-(17 Nov 2026, mentor): **TOP UP LEFT** (as drawn) drives the wall side to `LEFT_AUTO_OFFSET`,
-fires its FLOWER load at the LEFT CELL if it is still up, and parks on `RIGHT_PARK`; **PARK**
-parks from `RIGHT_AUTO_HIVE` with the load, as before. A partner that lands 7 of the 8 a TIP
-needs leaves the LEFT CELL one piece short; R's four tip it. The wait gives up at 20 s (INIT:
+**When TIP 2 has not come by its wait, R-NoCross's INIT row `if no TIP 2` picks: play it safe,
+or fix it and risk contact** (17 Nov 2026, mentor). TIP 2 is the partner's. **WAIT FOR PARTNER**
+(as drawn, so R-NoCross does not cross unless the drive team picks it) stays on
+`RIGHT_AUTO_HIVE` watching for TIP 2 until 23 s, the latest that still fires and parks (volley
+2.5 s, park 2.9 s, margin 1.0 s), fires if it comes, and parks with its load if not. **CROSS AND
+FIX IT** drives the wall side to `LEFT_AUTO_OFFSET` at 20 s, fires its FLOWER load at the LEFT
+CELL if it is still up, and parks on `RIGHT_PARK`: a partner that lands 7 of the 8 a TIP needs
+leaves the LEFT CELL one piece short, and R's four tip it. The wait gives up at 20 s (INIT:
 "waiting for TIP 2 until 20 s"), the latest that still lets the guard fire at the left end and
-park: crossing 3.3 s, the volley 2.5 s, the park 1.8 s and its 1.0 s margin. In the simulator
-with the Belding calibration this turned 36 points into 56 in 2 of 3 seeds beside L-NoCross, a
-fast and a typical partner (TIP 2 at 28.6 to 29.8 s); beside L-NoCross on CROSS AND FIX IT the
-two touched at 28.8 s as R parked beside L. A TIP that completes after 30 s is the open question
-in `CLAUDE.md`; the guard asks only that the last piece is out by 30 s with the park after it.
+park (crossing 3.3 s, volley 2.5 s, park 1.8 s, margin 1.0 s). With the Belding calibration
+CROSS AND FIX IT turned 36 points into 56 in 2 of 3 seeds beside L-NoCross, a fast and a typical
+partner (TIP 2 at 28.6 to 29.8 s), and beside L-NoCross (either of its picks) the two touched
+at 28.8 s as R parked beside L. WAIT FOR PARTNER never touched a partner and stayed at 36: no
+late TIP 2 came for it to catch. A TIP that completes after 30 s is the open question in `CLAUDE.md`; the
+guard asks only that the last piece is out by 30 s with the park after it.
 
 **Every volley after an Auto's first sits behind a CELL check** (R-Solo, R-NoCross and L-NoCross,
 12 Nov), drawn as ordinary builder steps: Drive to the launch spot, **Wait for CELL up** with an

@@ -91,14 +91,14 @@
       }
     },
     {
-      "name": "pair: beside L-NoCross, R on PARK",
+      "name": "pair: beside L-NoCross, R on CROSS AND FIX IT",
       "partner": "LNoCrossAuto",
       "picks": {
-        "if no TIP 2": "PARK"
+        "if no TIP 2": "CROSS AND FIX IT"
       }
     },
     {
-      "name": "fast partner, R on PARK",
+      "name": "fast partner, R on CROSS AND FIX IT",
       "partner": "PartnerLTipParkAuto",
       "timing": {
         "speed": 80,
@@ -106,7 +106,7 @@
         "pickS": 1.5
       },
       "picks": {
-        "if no TIP 2": "PARK"
+        "if no TIP 2": "CROSS AND FIX IT"
       }
     }
   ],
