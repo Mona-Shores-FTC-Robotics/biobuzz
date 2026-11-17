@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoOption;
@@ -20,7 +21,7 @@ public final class RNoCrossAuto {
     public static final String SOURCE = "r-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-17|5:19PM";
+    public static final String SAVED = "11-17|5:24PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -67,10 +68,13 @@ public final class RNoCrossAuto {
         Pose wallSideToLeftAutoOffsetControl2 = p.of(20, 70, 0);
         Pose leftAutoOffsetParkControl1 = p.of(40, 95, 0);
         Pose leftAutoOffsetParkControl2 = p.of(30, 98.7, 0);
+        Pose leftAutoOffsetParkSegment1Start = p.of(14.5, 98.7, 298.7);
         Pose toRightPark_5Control1 = p.of(40, 95, 0);
         Pose toRightPark_5Control2 = p.of(30, 98.7, 0);
+        Pose toRightPark_5Segment1Start = p.of(14.5, 98.7, 298.7);
         Pose toRightPark_6Control1 = p.of(40, 95, 0);
         Pose toRightPark_6Control2 = p.of(30, 98.7, 0);
+        Pose toRightPark_6Segment1Start = p.of(14.5, 98.7, 298.7);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
@@ -85,9 +89,9 @@ public final class RNoCrossAuto {
         Path toRightParkPath2 = Paths.curve(rightAutoHive, toRightPark_3Control1, rightPark).linear(rightAutoHive, rightPark);
         Path toRightParkPath3 = Paths.curve(rightAutoHive, toRightPark_4Control1, rightPark).linear(rightAutoHive, rightPark);
         Path wallSideToLeftAutoOffset = Paths.curve(rightAutoHive, wallSideToLeftAutoOffsetControl1, wallSideToLeftAutoOffsetControl2, leftAutoOffset).linear(rightAutoHive, leftAutoOffset);
-        Path leftAutoOffsetPark = Paths.curve(leftAutoOffset, leftAutoOffsetParkControl1, leftAutoOffsetParkControl2, rightPark).linear(leftAutoOffset, rightPark);
-        Path toRightParkPath4 = Paths.curve(leftAutoOffset, toRightPark_5Control1, toRightPark_5Control2, rightPark).linear(leftAutoOffset, rightPark);
-        Path toRightParkPath5 = Paths.curve(leftAutoOffset, toRightPark_6Control1, toRightPark_6Control2, rightPark).linear(leftAutoOffset, rightPark);
+        Path leftAutoOffsetPark = Paths.curve(leftAutoOffset, leftAutoOffsetParkControl1, leftAutoOffsetParkControl2, rightPark).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(leftAutoOffsetParkSegment1Start, rightPark)).until(1, Interpolator.linear(rightPark, rightPark)));
+        Path toRightParkPath4 = Paths.curve(leftAutoOffset, toRightPark_5Control1, toRightPark_5Control2, rightPark).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(toRightPark_5Segment1Start, rightPark)).until(1, Interpolator.linear(rightPark, rightPark)));
+        Path toRightParkPath5 = Paths.curve(leftAutoOffset, toRightPark_6Control1, toRightPark_6Control2, rightPark).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(toRightPark_6Segment1Start, rightPark)).until(1, Interpolator.linear(rightPark, rightPark)));
 
         return kit.sequence(
                 kit.guarded("Auto", toRightParkPath3, 2.9,

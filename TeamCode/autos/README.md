@@ -77,8 +77,9 @@ leaves the LEFT CELL one piece short, and R's four tip it. The wait gives up at 
 park (crossing 3.3 s, volley 2.5 s, park 1.8 s, margin 1.0 s). With the Belding calibration
 CROSS AND FIX IT turned 36 points into 56 in 2 of 3 seeds beside L-NoCross, a fast and a typical
 partner (TIP 2 at 28.6 to 29.8 s). Its park drops below a partner on `LEFT_PARK` before sliding
-left onto `RIGHT_PARK` square (17 Nov 2026: swinging in while turning, it touched L-NoCross at
-28.8 s). WAIT FOR PARTNER never touched a partner and stayed at 36: no late TIP 2 came for it to
+left onto `RIGHT_PARK`, its turn done in the first 40% of the drive so it slides in square, 2.0 in
+clear of a parked partner (17 Nov 2026: swinging in while turning it touched L-NoCross at 28.8 s,
+and still turning on the lower curve it passed 0.8 in from it). WAIT FOR PARTNER never touched a partner and stayed at 36: no late TIP 2 came for it to
 catch. A TIP that completes after 30 s is the open question in `CLAUDE.md`; the
 guard asks only that the last piece is out by 30 s with the park after it.
 
