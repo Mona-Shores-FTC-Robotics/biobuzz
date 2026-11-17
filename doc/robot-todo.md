@@ -22,10 +22,10 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
 
 1. **L-NoCross** (formerly L-Partner). Qualify it alongside a reliable RIGHT preload
    shooter, whether that partner stays clear or parks. When TIP 1 does not come, the INIT
-   row `then` picks CROSS AND FIX IT (as drawn: cross to RIGHT and fix it) or KEEP WAITING
+   row `if no TIP 1` picks CROSS AND FIX IT (as drawn: cross to RIGHT and fix it) or WAIT FOR PARTNER FIX
    (stay on `LEFT_AUTO_HIVE` until 23 s, for a partner that fixes its own miss, such as
    R-NoCross). Test CELL-up recognition, the two LEFT volleys, the scoring FLOWER
-   pickup, and park, including a partner that never makes TIP 1, once on each `then`.
+   pickup, and park, including a partner that never makes TIP 1, once on each `if no TIP 1` choice.
    **Partner wait:** drawn to give up at 9 s (was 8.5), and the INIT line reads "waiting for
    TIP 1 until 9 s"; D-pad left and right move that second. In the run with a partner that
    never makes TIP 1, check the no-TIP route still parks in time, starting half a second later.
@@ -232,11 +232,11 @@ Result, with the gap on each own-start run, → [PR #372].
       row, the partner wait, is selected).
       **Good:** `▶ waiting for TIP 1 ◀▶ until 12 s`, amber; left three times
       turns it back green, as drawn (until 9 s). D-pad down selects the second row,
-      `then: CROSS AND FIX IT`; right shows `then: KEEP WAITING`, amber; right again goes back.
+      `if no TIP 1: CROSS AND FIX IT`; right shows `if no TIP 1: WAIT FOR PARTNER FIX`, amber; right again goes back.
       Nothing else on the robot reacts to gamepad 1's D-pad
       in INIT. **Stop:** a line does not change, or something else moves → save the match log.
       [PR #391]; the menu is the Clockwise PR's.
-- [ ] **L-NoCross on KEEP WAITING, with no partner** (Red far wall, `then: KEEP WAITING`, the
+- [ ] **L-NoCross on WAIT FOR PARTNER FIX, with no partner** (Red far wall, `if no TIP 1: WAIT FOR PARTNER FIX`, the
       HIVE with RIGHT up and nobody shooting at it). **Good:** the robot drives to
       `LEFT_AUTO_HIVE`, the wait gives up at 9 s, it stays put (no crossing), and it parks on
       `LEFT_PARK` after 23 s with its preloads still in. **Stop:** it crosses under the HIVE → save

@@ -58,11 +58,11 @@ with backward legs, which has time for a third TIP, is the draft `r-clockwise-ba
 `l-clockwise-backward.pp`.
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
 those routines: their paths, waits and fallback behavior have not been tuned yet.
-**When TIP 1 does not come, the drive team picks what L-NoCross does** (INIT row `then`,
+**When TIP 1 does not come, the drive team picks what L-NoCross does** (INIT row `if no TIP 1`,
 17 Nov 2026, mentor): **CROSS AND FIX IT** (as drawn) crosses under the HIVE to
 `RIGHT_AUTO_FIX_TIP` and fixes TIP 1 itself, for a partner that will not shoot at its CELL
-again; **KEEP WAITING** stays on `LEFT_AUTO_HIVE` and waits for the LEFT CELL until 23 s, for a
-partner that fixes its own miss. Beside R-NoCross pick KEEP WAITING: R-NoCross fixes a missed
+again; **WAIT FOR PARTNER FIX** stays on `LEFT_AUTO_HIVE` and waits for the LEFT CELL until 23 s, for a
+partner that fixes its own miss. Beside R-NoCross pick WAIT FOR PARTNER FIX: R-NoCross fixes a missed
 TIP 1 itself, since its CELL check at `RIGHT_AUTO_HIVE` fires whenever the RIGHT CELL is still up,
 and with both robots fixing it the simulator had them collide at 12.5 s and make one TIP.
 R-NoCross's CELL-up wait runs until 21 s on the match clock, then parks without launching.
@@ -356,7 +356,7 @@ row has it selected already.
 |---|---|---|
 | The partner wait | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for TIP 1 until 9 s": the TIP is the one the builder's *It waits for* names (an Auto that names none reads "partner's TIP"). Left to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
 | Park | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
-| A route choice (Clockwise's Pickup and Priority, L-NoCross's `then`) | the leg the robot drives | a *Choose in INIT* step (`clockwise.md`); in a wait's Otherwise, each leg may end with a check whose every outcome parks (L-NoCross) |
+| A route choice (Clockwise's Pickup and Priority, L-NoCross's `if no TIP 1`) | the leg the robot drives | a *Choose in INIT* step (`clockwise.md`); in a wait's Otherwise, each leg may end with a check whose every outcome parks (L-NoCross) |
 
 - **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
   as drawn and amber once changed; PLAY locks them, and the match log records them

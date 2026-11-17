@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * L-NoCross's INIT row {@code then}: what it does when TIP 1 has not come by its wait's time.
- * CROSS AND FIX IT (as drawn) crosses under the HIVE and fixes TIP 1 itself; KEEP WAITING stays on
+ * CROSS AND FIX IT (as drawn) crosses under the HIVE and fixes TIP 1 itself; WAIT FOR PARTNER FIX stays on
  * LEFT_AUTO_HIVE for a partner that fixes its own miss (R-NoCross does). Control flow only: every
  * drive takes half a second and every command three, so the times are not the field's.
  */
@@ -92,12 +92,12 @@ public class LNoCrossAutoTest {
     }
 
     private void keepWaiting() {
-        choices.put("then", 1);
+        choices.put("if no TIP 1", 1);
     }
 
     @Test public void theMenuOffersCrossFirstThenKeepWaiting() {
-        assertEquals("then", LNoCrossAuto.OPTIONS[1].name);
-        assertEquals("[CROSS AND FIX IT, KEEP WAITING]", LNoCrossAuto.OPTIONS[1].choices.toString());
+        assertEquals("if no TIP 1", LNoCrossAuto.OPTIONS[1].name);
+        assertEquals("[CROSS AND FIX IT, WAIT FOR PARTNER FIX]", LNoCrossAuto.OPTIONS[1].choices.toString());
     }
 
     /** TIP 1 on time: the pick never matters, L shoots LEFT from its own end. */
@@ -118,7 +118,7 @@ public class LNoCrossAutoTest {
         parkedLeft();
     }
 
-    /** KEEP WAITING with a partner that never fixes it: L stays home, holds its load, parks. */
+    /** WAIT FOR PARTNER FIX with a partner that never fixes it: L stays home, holds its load, parks. */
     @Test public void keepWaitingNeverCrossesAndParksWhenTip1NeverComes() {
         keepWaiting();
         run();
@@ -128,7 +128,7 @@ public class LNoCrossAutoTest {
         parkedLeft();
     }
 
-    /** KEEP WAITING beside a partner that fixes its own miss (R-NoCross's, about 14 s): L makes TIP 2. */
+    /** WAIT FOR PARTNER FIX beside a partner that fixes its own miss (R-NoCross's, about 14 s): L makes TIP 2. */
     @Test public void keepWaitingShootsLeftWhenThePartnerFixesTip1Late() {
         tip1 = 14;
         keepWaiting();

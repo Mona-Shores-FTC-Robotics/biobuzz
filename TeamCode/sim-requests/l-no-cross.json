@@ -55,20 +55,20 @@
       "lastShotS": 8
     },
     {
-      "name": "dead on its start, said 8 s, KEEP WAITING",
+      "name": "dead on its start, said 8 s, WAIT FOR PARTNER FIX",
       "partner": "PartnerRBrokenDownAuto",
       "lastShotS": 8,
       "picks": {
-        "then": "KEEP WAITING"
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
       }
     },
     {
-      "name": "misses, said 8 s, KEEP WAITING",
+      "name": "misses, said 8 s, WAIT FOR PARTNER FIX",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 8,
       "fails": "misses",
       "picks": {
-        "then": "KEEP WAITING"
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
       }
     },
     {
