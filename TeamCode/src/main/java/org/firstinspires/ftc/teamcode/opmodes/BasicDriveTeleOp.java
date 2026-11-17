@@ -176,6 +176,15 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private FlowerPicker picker;
     private GardenGather gatherer;
     private LaunchSpotDrive launchSpot;
+    /**
+     * The super FLOWER pick (driver's R1 on a robot whose turret aims): {@link FlowerVolley}, the
+     * button's way. Fires the load from against the FLOWER, then picks.
+     */
+    private FlowerVolley superPick;
+    /** The press that started the super pick is still down: one press, one run. */
+    private boolean superPickPressed;
+    private String superPickRefusal = "";
+    private final FreshSticks superPickSticks = new FreshSticks();
     private final FreshSticks pickSticks = new FreshSticks();
     private final FreshSticks gatherSticks = new FreshSticks();
     private final FreshSticks spotSticks = new FreshSticks();
@@ -259,6 +268,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             return s == null ? Double.NaN : s.ageMs();
         }, () -> TurretSubsystem.turretForwardIn, () -> TurretSubsystem.turretLeftIn);
         picker = new FlowerPicker(robot, text -> log.event(text));
+        superPick = new FlowerVolley(robot, text -> log.event(text));
         gatherer = new GardenGather(robot, text -> log.event(text));
         launchSpot = new LaunchSpotDrive(robot, text -> log.event(text));
         // A locked turret's controls are left out, so the pages show only buttons that work.
@@ -277,6 +287,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.DRIVER_UNJAM);
         controls.note(Action.SLOW);
         controls.note(Action.FLOWER_PICK);
+        controls.note(Action.SUPER_FLOWER_PICK);
         controls.note(Action.GARDEN_GATHER);
         controls.note(Action.CHASSIS_AIM);
         controls.note(Action.LAUNCH_SPOT);
@@ -577,7 +588,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         // Where a shot would go, every loop: the turret aims there in AIM; LOCKED, the chassis aim
         // and the aim gate use it.
-        if (turretMode == TurretMode.AIM) {
+        // The super FLOWER pick aims the turret itself while it runs, whatever the operator's mode.
+        if (turretMode == TurretMode.AIM || superPick.active()) {
             aimer.update(setup.alliance(), AIM_SWITCH_BAND_IN);
         } else {
             aimer.solve(setup.alliance(), AIM_SWITCH_BAND_IN);
@@ -614,9 +626,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
         boolean sticksMoved = leftStick || rightStick;
         double nowS = now / 1e9;
         double staleS = staleStickCancelsAfterS();
-        boolean pickHeld = controls.held(Action.FLOWER_PICK) && !gatherer.active() && !launchSpot.active();
+        superFlowerPick(sticksMoved, nowS, staleS);
+        boolean pickHeld = controls.held(Action.FLOWER_PICK) && !gatherer.active() && !launchSpot.active()
+                && !superPick.active();
         picker.update(pickHeld, pickSticks.moved(pickHeld, sticksMoved, nowS, staleS));
-        boolean gatherHeld = controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active();
+        boolean gatherHeld = controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active()
+                && !superPick.active();
         gatherer.update(gatherHeld, gatherSticks.moved(gatherHeld, sticksMoved, nowS, staleS));
         // A volley already under way does not yield to the operator's FIRE (fire() holds it back).
         // Square: the spot is picked from the tile row the robot is in when the press starts.
@@ -796,6 +811,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (!spot.isEmpty()) display.line(spot);
         String pick = picker.line();
         if (!pick.isEmpty()) display.line(pick);
+        String superLine = superPickRefusal.isEmpty() ? superPick.line() : superPickRefusal;
+        if (!superLine.isEmpty()) display.line(superLine);
         String gather = gatherer.line();
         if (!gather.isEmpty()) display.line(gather);
         if (controls.held(Action.CHASSIS_AIM)) {
@@ -809,7 +826,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.status("Speed", Display.Level.OK, slowHeld ? "slow" : "normal");
         display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.waitingToClear() ? "out until clear of the FLOWER" : robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding")
                 + (robot.flowerStick.hasRoller() ? (robot.flowerStick.rollerPowerNow() != 0.0 ? ", roller on" : ", roller off") : ""));
-        display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
+        display.line("Intake: " + (superPick.active() ? "super FLOWER pick" : picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
         if (!LaunchSpeedTable.enabled) {
             display.line(String.format(Locale.US, "Speed table: OFF, launch speed %.0f + trim",
                     LauncherSubsystem.targetTicksPerSecond));
@@ -876,15 +893,46 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /** The Match page's intake line: who runs it, or OFF. */
     private String intakeState() {
+        if (superPick.active()) return "super FLOWER pick";
         if (picker.active()) return "FLOWER pick";
         if (gatherer.active()) return "GARDEN gather";
         if (!intakeRunning()) return "OFF";
         return robot.colorSensor.full() ? "on, holding (lane full)" : "on";
     }
 
-    /** A FLOWER pick or a GARDEN gather is driving the robot and running the intake. */
+    /** A FLOWER pick (the super one too) or a GARDEN gather is driving the robot and running the intake. */
     private boolean grabActive() {
-        return picker.active() || gatherer.active();
+        return picker.active() || gatherer.active() || superPick.active();
+    }
+
+    /**
+     * The super FLOWER pick, one loop: a press starts it (one press, one run), and it then follows
+     * the button as a pick does. It spins the launcher up for the operator if it is idle, so the
+     * launcher is theirs afterwards and stays on until their toggle. Nothing on a robot whose
+     * turret is locked: the layout does not offer the button.
+     */
+    private void superFlowerPick(boolean sticksMoved, double nowS, double staleS) {
+        boolean held = controls.held(Action.SUPER_FLOWER_PICK);
+        // Every loop, so the next press is seen as a new one (FreshSticks).
+        boolean sticks = superPickSticks.moved(held, sticksMoved, nowS, staleS);
+        if (!held) superPickPressed = false;
+        if (superPick.active()) {
+            superPick.update(held, sticks);
+            return;
+        }
+        if (!held || superPickPressed) return;
+        superPickPressed = true;
+        if (picker.active() || gatherer.active() || launchSpot.active()) return;
+        if (TurretSubsystem.lockedForward) {
+            superPickRefusal = "Super FLOWER pick: this robot's turret is locked forward";
+            log.event(superPickRefusal);
+            return;
+        }
+        if (!launcherOwner.spinning()) applyLauncher(launcherOwner.operatorToggle(false));
+        String refusal = superPick.start(setup.alliance(), launcherTrimTps, true,
+                !TeleOpConfig.superPickFiresFlowerLoad);
+        superPickRefusal = refusal == null ? "" : "Super FLOWER pick refused: " + refusal;
+        if (refusal != null) log.event(superPickRefusal);
     }
 
     /** A grab or the drive to a launch spot is driving the robot: the sticks wait. */
@@ -948,6 +996,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         boolean spotFeed = !fireHeld && launchSpot.feedRequested();
         FeederSubsystem.State feed = FeederSubsystem.requestFor(fireHeld || spotFeed, unjamHeld(),
                 fireHeld ? open : spotFeed, true, robot.feeder.state() == FeederSubsystem.State.FEED);
+        // The super FLOWER pick's own feed, from its gate opening to its shutting: unjam still wins.
+        if (superPick.feeding() && feed != FeederSubsystem.State.REVERSE) feed = FeederSubsystem.State.FEED;
         switch (feed) {
             case FEED:
                 robot.feeder.feed();
@@ -1110,6 +1160,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
      */
     private void updateTableSpeed() {
         if (robot.feeder.state() == FeederSubsystem.State.FEED) return;
+        // The super FLOWER pick set the speed for its shot from against the FLOWER: the range on
+        // the way in is not the shot's.
+        if (superPick.active()) return;
         double next;
         double range = Double.NaN;
         boolean fromSpot = false;

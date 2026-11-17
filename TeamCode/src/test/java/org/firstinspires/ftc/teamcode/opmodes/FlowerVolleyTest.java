@@ -92,4 +92,17 @@ public class FlowerVolleyTest {
         assertEquals("no more shots", FlowerVolley.over(true, 6, 4.2, 1500, 3000, 8, 6.0, 1500));
         assertNull("off", FlowerVolley.over(true, 6, 4.2, 5000, 5000, 8, 6.0, 0));
     }
+
+    /** Fire the load, keep the FLOWER's: four counted shots shut the gate, and the robot then stays for the pieces. */
+    @Test
+    public void theLoadOnlyEndsAtFourAndThenPicksOn() {
+        assertNull(FlowerVolley.over(true, 3, 1.5, 100, 800, FlowerVolley.loadShots, FlowerVolley.loadFeedCapS, 1500));
+        assertEquals("4 shots counted",
+                FlowerVolley.over(true, 4, 1.9, 0, 900, FlowerVolley.loadShots, FlowerVolley.loadFeedCapS, 1500));
+        assertEquals("a count that missed a ball: the load's own cap, not the eight's",
+                "the feed's cap", FlowerVolley.over(true, 3, 3.5, 300, 2500, FlowerVolley.loadShots, FlowerVolley.loadFeedCapS, 0));
+        assertNull("the gate has just shut: stay for the FLOWER's pieces", FlowerVolley.pickOver(false, 200, 1500));
+        assertEquals("the lane full", FlowerVolley.pickOver(true, 200, 1500));
+        assertEquals("the pick's time", FlowerVolley.pickOver(false, 1500, 1500));
+    }
 }

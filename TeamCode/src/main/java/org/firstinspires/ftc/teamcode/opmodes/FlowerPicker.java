@@ -316,6 +316,14 @@ public final class FlowerPicker extends GrabRoutine {
         return new FlowerPicker(robot, event, false, stay);
     }
 
+    /**
+     * {@link #staying}, the button's way: it lines up first, from anywhere within reach of a
+     * FLOWER, and follows the button (let go in the dwell and it backs out; a stick stops it).
+     */
+    static FlowerPicker stayingButton(Robot robot, Consumer<String> event, Supplier<String> stay) {
+        return new FlowerPicker(robot, event, true, stay);
+    }
+
     /** An Auto's {@code PickFlower} card: a whole pick, squared up from where the robot is. */
     public static Command command(Robot robot, Consumer<String> event) {
         return GrabRoutine.command(() -> new FlowerPicker(robot, event, false));

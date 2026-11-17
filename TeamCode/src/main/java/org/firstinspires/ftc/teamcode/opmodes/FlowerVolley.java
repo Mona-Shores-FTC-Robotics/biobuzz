@@ -84,6 +84,21 @@ public final class FlowerVolley {
      * so (a slightly off shot beats sitting on a full robot at the FLOWER).
      */
     public static double gateWaitMs = 1500;
+    /**
+     * Fire the load, keep the FLOWER's ({@link #start}'s {@code keepFlowerLoad}): the feed ends once
+     * the launcher has counted this many shots, the load the robot arrived with. 0 or NaN: off.
+     */
+    public static double loadShots = 4;
+    /**
+     * Fire the load, keep the FLOWER's: the feed ends this long after the gate opened whatever was
+     * counted, seconds. {@code LaunchCards.launchAllFeedS}' 3.5, for the same four balls.
+     */
+    public static double loadFeedCapS = 3.5;
+    /**
+     * Fire the load, keep the FLOWER's: once the gate has shut the robot stays against the FLOWER
+     * until the lane is full or this long has passed, ms, so the FLOWER's pieces finish coming in.
+     */
+    public static double pickOnMs = 1500;
     /** The turret is aimed when its error is within this, degrees. */
     public static double aimToleranceDeg = 3.0;
     /** The near CELL may be this far off square to the HIVE, degrees, for the volley to be tried at all. */
@@ -104,6 +119,11 @@ public final class FlowerVolley {
     private long fedNs;
     private long contactNs;
     private long lastShotNs;
+    private long gateClosedNs;
+    /** The button's way: lined up first, and following the button ({@link #update(boolean, boolean)}). */
+    private boolean button;
+    /** Fire the load only and keep the FLOWER's pieces, rather than fire all eight. */
+    private boolean keepFlowerLoad;
     private boolean gateClosed;
     private int shotsAtFeed;
     private int shotsSeen;
@@ -134,11 +154,24 @@ public final class FlowerVolley {
      * @param trimTps  added to the launch speed, ticks/s (the bench's trim; 0 in an Auto)
      */
     public String start(Alliance alliance, double trimTps) {
+        return start(alliance, trimTps, false, false);
+    }
+
+    /**
+     * {@link #start(Alliance, double)} with the two choices a button has.
+     *
+     * @param button         line up first, from anywhere within reach of a FLOWER, and follow the
+     *                       button: run it with {@link #update(boolean, boolean)}
+     * @param keepFlowerLoad fire only the load the robot arrived with, shut the gate, and stay until
+     *                       the FLOWER's pieces are in: the robot leaves holding them (a pick that
+     *                       scores four on the way in). False fires all eight.
+     */
+    public String start(Alliance alliance, double trimTps, boolean button, boolean keepFlowerLoad) {
         if (active()) return "already running";
         Pose pose = robot.drive.pose();
         if (pose == null || !robot.drive.poseReferenced()) return "no pose on the field";
-        Flower flower = FlowerPicker.nearest(pose.x(), pose.y(), true);
-        if (flower == null) return "no FLOWER on our side of the centre line in range";
+        Flower flower = FlowerPicker.nearest(pose.x(), pose.y(), !button);
+        if (flower == null) return button ? "no FLOWER in range" : "no FLOWER on our side of the centre line in range";
         Pose contact = FlowerFieldPoints.standoff(flower, FlowerPicker.contactStandoffIn);
         double off = offSquareDeg(contact, alliance);
         rangeIn = rangeIn(contact, alliance);
@@ -148,6 +181,9 @@ public final class FlowerVolley {
                     flower, off, maxOffSquareDeg);
         }
         running = feedStart == null ? FeedStart.PUSH : feedStart;
+        this.button = button;
+        this.keepFlowerLoad = keepFlowerLoad;
+        gateClosedNs = 0;
         startNs = System.nanoTime();
         armedNs = 0;
         fedNs = 0;
@@ -162,19 +198,36 @@ public final class FlowerVolley {
                 + (Double.isNaN(trimTps) ? 0.0 : trimTps);
         robot.launcher.spinUp(speedTps);
         event.accept(String.format(Locale.US,
-                "FLOWER volley: start, %s, gate opens at %s, %.0f ticks/s for %.1f in, CELL %.0f° off square",
-                flower, running, speedTps, rangeIn, off));
-        picker = FlowerPicker.staying(robot, event, this::over);
+                "FLOWER volley: start, %s, %s, gate opens at %s, %.0f ticks/s for %.1f in, CELL %.0f° off square",
+                flower, keepFlowerLoad ? "fire the load and keep the FLOWER's" : "fire all eight",
+                running, speedTps, rangeIn, off));
+        picker = button ? FlowerPicker.stayingButton(robot, event, this::over)
+                : FlowerPicker.staying(robot, event, this::over);
         ended = false;
         picker.update(true, false);
         return null;
     }
 
-    /** One step, every loop while {@link #active()}. */
+    /** One step, every loop while {@link #active()}: the bench's and an Auto card's, held to the end. */
     public void update() {
+        update(true, false);
+    }
+
+    /**
+     * One step, every loop while {@link #active()}, following a button as a pick does: let go
+     * before the robot is against the FLOWER and it stops; let go once it is and it backs out; a
+     * drive stick moved stops it.
+     */
+    public void update(boolean held, boolean sticksMoved) {
         if (ended) return;
         long now = System.nanoTime();
-        picker.update(true, false);
+        picker.update(held, sticksMoved);
+        // Let go before the dwell: the pick has stopped and gone back to idle.
+        if (picker.phase() == GrabRoutine.Phase.IDLE) {
+            if (overWhy.isEmpty()) overWhy = "let go";
+            end(now);
+            return;
+        }
         GrabRoutine.Phase phase = picker.phase();
         if (contactNs == 0 && phase == GrabRoutine.Phase.DWELL) {
             contactNs = now;
@@ -347,14 +400,24 @@ public final class FlowerVolley {
     /** The pick's stay: asked every loop of its last dwell; a reason closes the gate and backs the robot out. */
     private String over() {
         long now = System.nanoTime();
-        String why = over(fedNs != 0, shotsSeen, fedNs == 0 ? 0.0 : ms(now, fedNs) / 1000.0,
-                ms(now, lastShotNs), contactNs == 0 ? 0.0 : ms(now, contactNs),
-                endAfterShots, nn(feedCapS), nn(quietEndMs));
-        if (why != null) {
+        if (!gateClosed) {
+            String why = over(fedNs != 0, shotsSeen, fedNs == 0 ? 0.0 : ms(now, fedNs) / 1000.0,
+                    ms(now, lastShotNs), contactNs == 0 ? 0.0 : ms(now, contactNs),
+                    keepFlowerLoad ? loadShots : endAfterShots,
+                    nn(keepFlowerLoad ? loadFeedCapS : feedCapS), nn(quietEndMs));
+            if (why == null) return null;
             overWhy = why;
             closeGate();
+            gateClosedNs = now;
+            if (!keepFlowerLoad) return why;
+            event.accept("FLOWER volley: gate shut on " + why + ", picking on");
         }
-        return why;
+        if (!keepFlowerLoad) return overWhy;
+        // The load is out and the gate is shut: stay for the FLOWER's pieces, as a pick's dwell does.
+        String then = pickOver(robot.colorSensor.full(), ms(now, gateClosedNs), nn(pickOnMs));
+        if (then == null) return null;
+        overWhy = overWhy + ", then " + then;
+        return overWhy;
     }
 
     private void closeGate() {
@@ -408,6 +471,16 @@ public final class FlowerVolley {
         if (endAfterShots >= 1 && shots >= endAfterShots) return shots + " shots counted";
         if (fedForS >= feedCapS) return "the feed's cap";
         if (quietEndMs > 0 && atFlowerMs >= quietEndMs && sinceShotMs >= quietEndMs) return "no more shots";
+        return null;
+    }
+
+    /**
+     * Fire the load, keep the FLOWER's: why the robot leaves once the gate has shut, or null while
+     * it stays: the lane is full, or it has picked on for {@code pickOnMs}.
+     */
+    static String pickOver(boolean laneFull, double sinceGateShutMs, double pickOnMs) {
+        if (laneFull) return "the lane full";
+        if (sinceGateShutMs >= pickOnMs) return "the pick's time";
         return null;
     }
 

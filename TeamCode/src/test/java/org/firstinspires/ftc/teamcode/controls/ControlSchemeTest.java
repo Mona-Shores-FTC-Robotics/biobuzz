@@ -83,10 +83,12 @@ public class ControlSchemeTest {
     @Test
     public void gatherGardenIsOnTheDriversTriangle() {
         assertEquals(Input.TRIANGLE, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).get(Action.GARDEN_GATHER));
-        // R1 is free on the driver's pad.
+        // R1 is free on the driver's pad while the turret is locked forward...
         for (Map.Entry<Action, Input> entry : ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true).entrySet()) {
             if (entry.getKey().pad == Action.Pad.DRIVER) assertFalse(entry.getKey().toString(), entry.getValue() == Input.R1);
         }
+        // ...and the super FLOWER pick's on a robot whose turret aims.
+        assertEquals(Input.R1, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, false).get(Action.SUPER_FLOWER_PICK));
     }
 
     @Test

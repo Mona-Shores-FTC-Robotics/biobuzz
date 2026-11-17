@@ -1124,6 +1124,16 @@ four, eight in one feed (mentor's idea, 17 Nov)? If it can, an Auto's second pic
 step. The turret must aim: 19429 is refused until it is unlocked. Film every trial; the log has one
 "Last FLOWER volley" line each (shot times, gate against contact, lane count past four).
 
+- [ ] **The driver's button, in Basic Drive: the super FLOWER pick** (R1, held; only offered on a
+      robot whose turret aims). Four in the robot, four in the SCORING FLOWER, the robot anywhere
+      within about 5 ft of it. Hold R1. **Good:** it drives to the line-up, the launcher spins up,
+      the turret swings back to the LEFT CELL whatever the operator's turret mode, it pushes in,
+      fires the four it came with, shuts the gate, stays until the lane is full (at most 1.5 s more)
+      and backs out holding the FLOWER's four. Letting go before it touches the FLOWER stops it;
+      letting go after backs it out; a stick stops it. **Stop:** the Robot page says "Super FLOWER
+      pick refused" → it says why (no pose, not the SCORING FLOWER). The same G407 question as the
+      bench: film whether a FLOWER piece is aboard before the first ball leaves. Panels →
+      `TeleOpConfig.superPickFiresFlowerLoad` on fires all eight instead.
 - [ ] **Setup and one dry trial.** Red (or blue: its AUDIENCE FLOWER). Robot square to the SCORING
       FLOWER and centred on it, front face about 18.6 in off the wall (centre 24 in from the FLOWER's
       centre), turret on its mark, **no pieces**. PLAY: the turret swings round to face the LEFT CELL

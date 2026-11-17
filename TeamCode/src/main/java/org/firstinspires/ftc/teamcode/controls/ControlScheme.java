@@ -46,9 +46,13 @@ public final class ControlScheme {
     public static final Set<Action> LOCKED_TURRET_ONLY = Collections.unmodifiableSet(EnumSet.of(
             Action.LAUNCHER_TRIM_RESET));
 
-    /** The operator's turret controls: left out while the turret is locked forward. */
+    /**
+     * What needs a turret that aims, left out while it is locked forward: the operator's turret
+     * controls, and the driver's super FLOWER pick, which fires back over the robot.
+     */
     public static final Set<Action> TURRET_ACTIONS = Collections.unmodifiableSet(EnumSet.of(
-            Action.TURRET_LOCK, Action.TRIM_LEFT, Action.TRIM_RIGHT, Action.TRIM_RESET, Action.TURRET_ZERO));
+            Action.TURRET_LOCK, Action.TRIM_LEFT, Action.TRIM_RIGHT, Action.TRIM_RESET, Action.TURRET_ZERO,
+            Action.SUPER_FLOWER_PICK));
 
     /**
      * {@link #layout(Input)} without the turret's controls when {@code turretLocked}: what the
@@ -88,6 +92,8 @@ public final class ControlScheme {
         map.put(Action.DRIVER_UNJAM, Input.L2);
         map.put(Action.SLOW, Input.L1);
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
+        // R1, free until 17 Nov 2026: the pick that fires the load from the FLOWER first (FlowerVolley).
+        map.put(Action.SUPER_FLOWER_PICK, Input.R1);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
         // Back on Triangle (mentor, 14 Nov 2026), after three days on R1 while Triangle drove to
         // the close launch spots; R1 is free.
