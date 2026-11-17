@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,7 +70,16 @@ public final class RobotDifferences {
                 () -> IntakeSubsystem.rightStarWheel = true);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
-        // Nothing yet: the shared values were mostly measured on 20245.
+        // The shared values were mostly measured on 20245.
+        differs(RobotIdentity.TEAM_20245,
+                "Turret unlocked: the 25-3 Speed servo and the REV Through Bore encoder are fitted,"
+                        + " checked on Bench: Turret, and it held and aimed in Basic Drive (17 Nov 2026)."
+                        + " 19429 stays locked until it is rewired the same way",
+                () -> TurretSubsystem.lockedForward = false);
+        differs(RobotIdentity.TEAM_20245,
+                "Shoots long at every range: 50 ticks/s off every launch speed, TeleOp and Autos (drive"
+                        + " team, 17 Nov 2026, after the turret was refitted)",
+                () -> LaunchSpeedTable.robotOffsetTicksPerSecond = -50.0);
     }
 
     /**

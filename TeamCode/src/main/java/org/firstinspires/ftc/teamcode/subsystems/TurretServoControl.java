@@ -14,9 +14,12 @@ package org.firstinspires.ftc.teamcode.subsystems;
  *       chassis-frame angle, so when the robot turns one way the target moves the other way at the
  *       same rate; feeding that rate forward turns the turret against the robot before any error
  *       has built up. A target rate under {@code stillDps} counts as none (gyro noise).</li>
- *   <li><b>Correction</b>: {@code kP} times the error, less {@code kD} times the turret's rate
- *       relative to the target's, so the power eases off as the turret closes on the target and it
- *       slows onto it. The damping only eases the correction; it never turns it round, because a
+ *   <li><b>Correction</b>: {@code kP} times the error and, while the target stands still, less
+ *       {@code kD} times the turret's rate, so the power eases off as the turret closes on the
+ *       target and it slows onto it. A moving target is not damped: the turret's rate against the
+ *       target's is the difference of two readings that arrive with different delays (the hub's
+ *       encoder speed and the gyro's turn rate), and damping on it made the turret twitch through
+ *       every turn (20245, 17 Nov 2026). The feedforward carries a moving target instead. The damping only eases the correction; it never turns it round, because a
  *       continuous servo does not brake, it reverses (a reversing brake swung the turret 100° either
  *       side of its target on the bench, 24 Oct 2026). Inside the tolerance the correction is 0.</li>
  *   <li><b>The floor</b>: below {@code minPower} the servo does not turn at all, so any power that
@@ -36,7 +39,7 @@ public final class TurretServoControl {
     public static final class Gains {
         /** Power per degree of error. */
         public double kP;
-        /** Power per degree per second of the turret's rate relative to the target's. 0: no damping. */
+        /** Power per degree per second of the turret's rate, onto a target that stands still. 0: no damping. */
         public double kD;
         /** The least power that turns the turret. */
         public double minPower;
@@ -92,7 +95,8 @@ public final class TurretServoControl {
 
         double correction = 0.0;
         if (Math.abs(errorDeg) > gains.toleranceDeg) {
-            correction = gains.kP * errorDeg - gains.kD * (rate - targetRate);
+            // Damping only onto a target that stands still: see the class comment.
+            correction = gains.kP * errorDeg - (targetRate == 0.0 ? gains.kD * rate : 0.0);
             if (correction != 0.0 && Math.signum(correction) != Math.signum(errorDeg)) {
                 correction = 0.0;
             }

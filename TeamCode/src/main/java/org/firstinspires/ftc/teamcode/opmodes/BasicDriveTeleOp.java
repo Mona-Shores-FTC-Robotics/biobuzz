@@ -387,7 +387,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * configured one, plus the operator's trim, never below zero.
      */
     private double launchSpeed() {
-        double base = Double.isNaN(tableTps) ? LauncherSubsystem.targetTicksPerSecond : tableTps;
+        // The table's answer already carries this robot's offset; the configured speed takes it here.
+        double base = Double.isNaN(tableTps)
+                ? LauncherSubsystem.targetTicksPerSecond + LaunchSpeedTable.robotOffset() : tableTps;
         return Math.max(0.0, base + launcherTrimTps);
     }
 
@@ -426,9 +428,20 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * 7 Nov 2026). The trim is on every shot, Square's included.
      */
     static String launchTrimLine(double trimTps) {
-        if (trimTps == 0.0) return Display.huge("TRIM 0", false);
-        return Display.huge(String.format(Locale.US, "TRIM %+.0f", trimTps),
+        if (trimTps == 0.0) return Display.huge("LAUNCH TRIM 0", false);
+        return Display.huge(String.format(Locale.US, "LAUNCH TRIM %+.0f", trimTps),
                 trimTps > 0.0 ? Display.Level.OK : Display.Level.FAULT);
+    }
+
+    /**
+     * The Match page's aim trim, huge like the launch trim's and named apart from it (mentor,
+     * 17 Nov 2026: the operator read the launch trim's number as the aim's). L or R and the
+     * degrees, amber while there is one; plain at 0. Left is the trim's positive direction.
+     */
+    static String aimTrimLine(double trimDeg) {
+        if (trimDeg == 0.0 || Double.isNaN(trimDeg)) return Display.huge("AIM TRIM 0", false);
+        return Display.huge(String.format(Locale.US, "AIM TRIM %s %.1f\u00b0", trimDeg > 0.0 ? "L" : "R",
+                Math.abs(trimDeg)), Display.Level.WARN);
     }
 
     /** The Match page's loop time: the last loop, whole milliseconds, huge (mentor, 14 Nov 2026). */
@@ -638,13 +651,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
         lightBar();
 
         // The Match page is a glance (mentor, 7 Nov 2026): the operator and the coach read it from
-        // the Driver Station mid-match, so it is five huge lines and one alert, nothing to parse.
+        // the Driver Station mid-match, so it is a few huge lines and one alert, nothing to parse:
+        // the launch trim at the top, the aim trim at the bottom, so the two are not mistaken.
         // Everything a person testing wants is on the Robot page (describeRobotPage).
         display.line(launchTrimLine(launcherTrimTps));
         display.line(launcherLine());
         display.line(piecesLine(robot.colorSensor.lane().count(), robot.colorSensor.full()));
         display.line(loopLine(loopTimer.lastMs()));
         display.line(pinpointLine(robot.drive.localizerFault() == null, robot.drive.pinpointTrust(), robot.drive.pinpointFaults()));
+        // Only with the turret's controls on the gamepad: locked forward there is no aim trim to set.
+        if (!TurretSubsystem.lockedForward) display.line(aimTrimLine(aimer.trimDeg()));
         String alert = matchAlert();
         if (alert != null) display.line(Display.huge(alert, Display.Level.WARN));
         if (headingReset.pending() || cameraReset.pending() || leftCornerReset.pending() || rightCornerReset.pending() || turretZero.pending()) {

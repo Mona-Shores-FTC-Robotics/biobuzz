@@ -68,6 +68,17 @@ public class TurretServoControlTest {
     }
 
     @Test
+    public void aMovingTargetIsNotDamped() {
+        // The turret's rate against a moving target's is two readings with different delays.
+        TurretServoControl.Gains damped = new TurretServoControl.Gains(0.01, 0.01, 0.07, 1.0, 196.0, 1.0, 1.0, 5.0);
+        TurretServoControl.Gains plain = new TurretServoControl.Gains(0.01, 0.0, 0.07, 1.0, 196.0, 1.0, 1.0, 5.0);
+        assertEquals(TurretServoControl.power(20.0, 30.0, 60.0, plain),
+                TurretServoControl.power(20.0, 30.0, 60.0, damped), EPS);
+        assertEquals(TurretServoControl.power(20.0, 80.0, -60.0, plain),
+                TurretServoControl.power(20.0, 80.0, -60.0, damped), EPS);
+    }
+
+    @Test
     public void badGainsBecomeTheHarmlessEnd() {
         TurretServoControl.Gains g = new TurretServoControl.Gains(Double.NaN, -1.0, 5.0, Double.NaN,
                 Double.POSITIVE_INFINITY, Double.NaN, -3.0, Double.NaN);
@@ -187,8 +198,11 @@ public class TurretServoControlTest {
     public void withTheTopSpeedAQuarterOffItStillFollows() {
         TurretServoControl.Gains g = gains();
         Plant plant = new Plant(g.topSpeedDps * 0.75, g.minPower, 0.06, 2);
+        // The feedforward asks for 100 deg/s and gets 75: the correction has to make up 25 deg/s,
+        // and at the robot's kP that costs about 9 degrees of trailing. So topSpeedDps must be
+        // measured: the lower the kP, the more the turret leans on the feedforward being right.
         double worst = run(plant, g, 3.0, 2.0, t -> 100.0 * t, t -> 100.0);
-        assertTrue("following error " + worst, worst < 8.0);
+        assertTrue("following error " + worst, worst < 12.0);
     }
 
     @Test

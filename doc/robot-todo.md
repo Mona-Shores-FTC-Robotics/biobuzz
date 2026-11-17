@@ -276,7 +276,18 @@ Result, with the gap on each own-start run, → [PR #372].
       the count wandered by about 200 over a turn. Use the encoder's own 6-pin to 4-pin hub cable.
       Step 6, the loop, same day: `kP` 0.035, `kD` 0.006, `holdToleranceDeg` 2, floor back at
       0.09 (0.06 buzzes without moving). A 45° step turns to the angle and glides in, no
-      overshoot. In the code. Not yet run: the hold in Basic Drive, and tracking.
+      overshoot. Then in Basic Drive, holding straight ahead: those rocked back and forth (its
+      loop is slower than the bench's), and `kP` 0.02, `kD` 0.003 hold cleanly. In the code.
+      Also found there: the intake reverses its motor, which flipped the turret's count read
+      through its socket; fixed (`TurretSubsystem.hostSign`). Not yet run: tracking.
+- [ ] **Square's wall spots on 19429, and 20245's launch trim, after 17 Nov's changes.**
+      `wallGapIn` is 0.04 for both robots (found on 20245: 0 pushed into the audience wall and
+      never settled, 1 was too much): on 19429 press Square from the tile row against the audience
+      wall and against the scoring table's wall. **Good:** it arrives, settles and fires. 20245
+      now launches 50 ticks/s slower at every range, in TeleOp and the Autos
+      (`LaunchSpeedTable.robotOffsetTicksPerSecond`, its `RobotDifferences` line): its LAUNCH TRIM
+      starts at 0. Check its shots land from a wall spot and a close spot, and in an Auto. 20245's turret is
+      unlocked in the code (`RobotDifferences`); 19429's stays locked until it is rewired.
 - [ ] **Both robots: the turret holds straight ahead in a match OpMode** (still `lockedForward`).
       Basic Drive, turret on its mark in INIT (limp, nothing powered), PLAY. **Good:** the Robot
       page says "locked straight ahead: holding 0°", a push by hand is resisted and comes back,

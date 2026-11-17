@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 
@@ -40,7 +41,8 @@ import java.util.Locale;
  * <h2>Hardware it shares</h2>
  *
  * <p>The encoder host is another mechanism's motor. This class reads its position and velocity and
- * <b>never</b> sets its power or mode, and never resets its count: zero is a software offset, so
+ * <b>never</b> sets its power, mode or direction, and never resets its count; it undoes the sign
+ * the host's own direction puts on the count ({@link #hostSign}). Zero is a software offset, so
  * the intake (today's host) is untouched.
  *
  * <p>The values below are both robots'. One that a robot measures differently is a line in
@@ -97,15 +99,23 @@ public class TurretSubsystem implements Subsystem {
     public static double maxPower = 1.0;
 
     // ------------------------------------------------------------ the loop
-    // kP, kD and the tolerance are 20245's from Bench: Turret, Square (17 Nov 2026): 45 degree
-    // steps land with almost no overshoot. With less damping it swung past every time; the floor
-    // could not be lowered to cure that, since under 0.09 the turret sticks and buzzes. The
-    // feedforward has not run on a robot yet.
+    // kP, kD and the tolerance are 20245's, tuned in Basic Drive (17 Nov 2026), holding straight
+    // ahead and then aiming: kP 0.02 with no damping. Bench: Turret liked 0.035 and 0.006, and
+    // those rocked back and forth in Basic Drive, whose loop is slower: tune the loop in the OpMode
+    // that runs it. Aiming, any damping made the turret twitch through a turn; with none it swings
+    // a little past after a big move and comes back, which the team accepted. The law has since
+    // been changed to damp only onto a still target, so a kD may now help a big move without the
+    // twitch: not yet tried on a robot. The floor could not be lowered to slow the approach, since
+    // under 0.09 the turret sticks and buzzes.
 
     /** Power per degree of error. */
-    public static double kP = 0.035;
-    /** Damping: power per deg/s of the turret's rate relative to the target's, taken off the correction. */
-    public static double kD = 0.006;
+    public static double kP = 0.02;
+    /**
+     * Damping: power per deg/s of the turret's rate, taken off the correction while the target
+     * stands still (a hold, or an aim with the robot not turning). Not applied while the target
+     * moves. 0 as run on 20245; 0.003 held well on a still target before the law changed.
+     */
+    public static double kD = 0.0;
     /** The share of the target's rate fed forward to the servo: 1 cancels all of the robot's turning, 0 none. */
     public static double feedforward = 1.0;
     /** A target rate slower than this is treated as still, deg/s: the gyro's noise is not fed to the servo. */
@@ -138,9 +148,9 @@ public class TurretSubsystem implements Subsystem {
     /**
      * The turret is held straight ahead and never aimed: {@link #angleDegrees()} is 0 and every
      * request is answered by holding 0, from PLAY, on the encoder. The mentor's call on 1 Nov 2026:
-     * both robots play locked. Set false on a robot whose 25-3 Speed servo is fitted and whose
-     * signs, stop power, floor and top speed are checked on {@code Bench: Turret}
-     * ({@code doc/robot-todo.md}).
+     * both robots play locked. False for a robot whose 25-3 Speed servo is fitted and whose signs,
+     * stop power, floor and top speed are checked on {@code Bench: Turret}: its line in
+     * {@link org.firstinspires.ftc.teamcode.RobotDifferences} (20245 since 17 Nov 2026).
      */
     public static boolean lockedForward = true;
 
@@ -358,7 +368,7 @@ public class TurretSubsystem implements Subsystem {
         mode = Mode.IDLE;
         started = false;
         refreshSettings();
-        counts = encoderHost.getCurrentPosition();
+        counts = hostSign(encoderHost.getDirection()) * (long) encoderHost.getCurrentPosition();
         zeroCounts = counts;
         zeroed = false;
         zeroSource = ZeroSource.NONE;
@@ -376,8 +386,10 @@ public class TurretSubsystem implements Subsystem {
     @Override
     public void update() {
         refreshSettings();
-        counts = encoderHost.getCurrentPosition();
-        double countsPerSecond = encoderHost.getVelocity();
+        // The host motor's own code may reverse it, and the SDK then flips the count with the power.
+        int hostSign = hostSign(encoderHost.getDirection());
+        counts = hostSign * (long) encoderHost.getCurrentPosition();
+        double countsPerSecond = hostSign * encoderHost.getVelocity();
         if (encoder != null) {
             encoderAngleDeg = encoder.degrees(counts, zeroCounts);
             encoderRateDps = encoder.degreesPerSecond(countsPerSecond);
@@ -434,6 +446,18 @@ public class TurretSubsystem implements Subsystem {
             }
             limp = false;
         }
+    }
+
+    /**
+     * +1 or -1 to turn the host motor's reading back into the hub's own count. The encoder is read
+     * through another mechanism's motor ({@link DeviceNames#TURRET_ENCODER_HOST}), and that
+     * mechanism may set the motor's direction: the SDK then flips the position and the velocity it
+     * reports along with the power. The turret's count must not change sign because the intake was
+     * reversed, so the flip is undone here (20245, 17 Nov 2026: the hold worked on the bench, which
+     * leaves the motor forward, and ran away in Basic Drive, where the intake reverses it).
+     */
+    public static int hostSign(DcMotorSimple.Direction hostDirection) {
+        return hostDirection == DcMotorSimple.Direction.REVERSE ? -1 : 1;
     }
 
     private void goLimp() {

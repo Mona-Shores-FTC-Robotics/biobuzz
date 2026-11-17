@@ -145,7 +145,7 @@ public class TurretBench extends OpMode {
             panelsProblem = "not available at init: " + e;
         }
         if (encoderHost != null) {
-            zeroCounts = encoderHost.getCurrentPosition();
+            zeroCounts = TurretSubsystem.hostSign(encoderHost.getDirection()) * (long) encoderHost.getCurrentPosition();
         }
         telemetry.addLine("Bench: Turret. Nothing moves until PLAY; then the servo is sent power 0.");
         report();
@@ -227,8 +227,9 @@ public class TurretBench extends OpMode {
         }
         double countsPerSecond;
         try {
-            counts = encoderHost.getCurrentPosition();
-            countsPerSecond = encoderHost.getVelocity();
+            int hostSign = TurretSubsystem.hostSign(encoderHost.getDirection());
+            counts = hostSign * (long) encoderHost.getCurrentPosition();
+            countsPerSecond = hostSign * encoderHost.getVelocity();
         } catch (RuntimeException e) {
             encoderFault = "encoder read failed: " + (e.getMessage() == null ? e.toString() : e.getMessage());
             return;
