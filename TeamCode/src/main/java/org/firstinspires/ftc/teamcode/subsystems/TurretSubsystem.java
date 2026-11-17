@@ -148,9 +148,9 @@ public class TurretSubsystem implements Subsystem {
     /**
      * The turret is held straight ahead and never aimed: {@link #angleDegrees()} is 0 and every
      * request is answered by holding 0, from PLAY, on the encoder. The mentor's call on 1 Nov 2026:
-     * both robots play locked. Set false on a robot whose 25-3 Speed servo is fitted and whose
-     * signs, stop power, floor and top speed are checked on {@code Bench: Turret}
-     * ({@code doc/robot-todo.md}).
+     * both robots play locked. False for a robot whose 25-3 Speed servo is fitted and whose signs,
+     * stop power, floor and top speed are checked on {@code Bench: Turret}: its line in
+     * {@link org.firstinspires.ftc.teamcode.RobotDifferences} (20245 since 17 Nov 2026).
      */
     public static boolean lockedForward = true;
 
