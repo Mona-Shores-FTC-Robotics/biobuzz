@@ -4,6 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.localization.AutoLaunchSpots;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
+import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.junit.Test;
 
 import java.io.File;
@@ -14,16 +16,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An Auto on master launches only from a start or one of the Autos' launch spots
- * ({@link AutoLaunchSpots}: every team spot named …_AUTO_…), never from a spot of its own or one
- * of the drivers' Square spots (mentor, 16 Nov 2026).
+ * An Auto on master launches from its start, or from a named spot that is fit to launch from
+ * ({@link AutoLaunchSpots#launchSpotProblem}: aimed at the CELL at its end with the turret locked,
+ * inside the field, short of the centre line). The spot may be a team spot or one of the Auto's
+ * own (mentor, 17 Nov 2026: a spot moved for one Auto need not go on the team's list).
  *
  * <p>Read from each Auto's source, {@code TeamCode/autos/*.pp}: its cards are walked in order and
  * every {@code LaunchAll} is placed where the path card before it ends (the start, with none). Every
  * row of a branching block is walked from where the block begins. Drafts and partner stand-ins
  * ({@code drafts/}, {@code partners/}) are not held to it.
  *
- * <p>All five baseline Autos launch from them since 16 Nov 2026; there is no list of exceptions.
+ * <p>There is no list of exceptions.
  */
 public class AutoVolleySpotsTest {
 
@@ -31,17 +34,17 @@ public class AutoVolleySpotsTest {
     private static final double SAME_IN = 0.06;
 
     @Test
-    public void everyVolleyIsFromAStartOrAnAutoLaunchSpot() throws Exception {
+    public void everyVolleyIsFromAStartOrASpotFitToLaunchFrom() throws Exception {
         File[] sources = new File(TeamCodeDir.get(), "autos").listFiles((dir, name) -> name.endsWith(".pp"));
         assertTrue("no Auto sources found in TeamCode/autos", sources != null && sources.length > 0);
         for (File source : sources) {
             List<String> elsewhere = volleysElsewhere(source);
             assertTrue(source.getName() + " launches from " + elsewhere + ": an Auto launches from its start"
-                    + " or an Auto launch spot (AutoLaunchSpots)", elsewhere.isEmpty());
+                    + " or a named spot aimed at its CELL (AutoLaunchSpots.launchSpotProblem)", elsewhere.isEmpty());
         }
     }
 
-    /** The places {@code source}'s volleys are fired from that are neither a start nor an Auto launch spot. */
+    /** The places {@code source}'s volleys are fired from that are neither its start nor a spot fit to launch from, and why. */
     @SuppressWarnings("unchecked")
     private static List<String> volleysElsewhere(File source) throws Exception {
         Map<String, Object> doc = (Map<String, Object>) MiniJson.parse(
@@ -56,9 +59,12 @@ public class AutoVolleySpotsTest {
     private static final class Walk {
         private final Map<String, Object> lines = new java.util.HashMap<>();
         private final Map<String, Object> pathEnds;
-        /** Where the robot is: x, y and what to call it. */
+        private final Map<String, Object> points;
+        /** The Auto is drawn for blue: its poses are turned half a turn to red's before they are checked. */
+        private final boolean blue;
+        /** Where the robot is: x, y, what to call it, and the named spot it is on (null: none). */
         private double x, y;
-        private String name;
+        private String name, spot;
         final List<String> elsewhere = new ArrayList<>();
 
         @SuppressWarnings("unchecked")
@@ -67,10 +73,13 @@ public class AutoVolleySpotsTest {
                 lines.put((String) ((Map<String, Object>) line).get("id"), line);
             }
             pathEnds = auto.get("pathEnds") == null ? new java.util.HashMap<>() : (Map<String, Object>) auto.get("pathEnds");
+            points = auto.get("points") == null ? new java.util.HashMap<>() : (Map<String, Object>) auto.get("points");
+            blue = "BLUE".equals(auto.get("drawnFor"));
             Map<String, Object> start = (Map<String, Object>) doc.get("startPoint");
             x = ((Number) start.get("x")).doubleValue();
             y = ((Number) start.get("y")).doubleValue();
             name = auto.get("startAt") == null ? "the start" : (String) auto.get("startAt");
+            spot = null;
         }
 
         @SuppressWarnings("unchecked")
@@ -93,31 +102,47 @@ public class AutoVolleySpotsTest {
                     y = ((Number) end.get("y")).doubleValue();
                     Object named = pathEnds.get(card.get("lineId"));
                     name = named != null ? (String) named : String.valueOf(line.get("name"));
+                    spot = (String) named;
                 } else if ("action".equals(kind) && "LaunchAll".equals(card.get("name"))) {
-                    if (!allowed(x, y)) elsewhere.add(name + " (" + x + ", " + y + ")");
+                    String problem = problem();
+                    if (problem != null) elsewhere.add(name + " (" + x + ", " + y + ") " + problem);
                 } else if ("firstOf".equals(kind) && card.get("rows") != null) {
                     double x0 = x, y0 = y;
-                    String name0 = name;
+                    String name0 = name, spot0 = spot;
                     for (Object row : (List<Object>) card.get("rows")) {
                         x = x0;
                         y = y0;
                         name = name0;
+                        spot = spot0;
                         Object inner = ((Map<String, Object>) row).get("cards");
                         if (inner != null) cards((List<Object>) inner);
                     }
                 }
             }
         }
+
+        /**
+         * Why a volley from where the robot is breaks the rule, or null when it is from a start or a
+         * named spot fit to launch from. The spot's own heading is the robot's: the path ends on it.
+         */
+        @SuppressWarnings("unchecked")
+        private String problem() {
+            double rx = blue ? FieldFrame.FIELD_SIZE_INCHES - x : x;
+            double ry = blue ? FieldFrame.FIELD_SIZE_INCHES - y : y;
+            if (atStart(rx, ry)) return null;
+            List<Object> pose = spot == null ? null : (List<Object>) points.get(spot);
+            if (pose == null || pose.size() < 3) return "is not a named spot with a heading";
+            double h = Math.toRadians(((Number) pose.get(2)).doubleValue() + (blue ? 180 : 0));
+            return AutoLaunchSpots.launchSpotProblem(rx, ry, h,
+                    TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
+        }
     }
 
-    /** ({@code x}, {@code y}) is a start (a team …_START spot) or an Auto launch spot (…_AUTO_…), drawn for red. */
-    private static boolean allowed(double x, double y) {
+    /** ({@code x}, {@code y}), drawn for red, is a start (a team …_START spot). */
+    private static boolean atStart(double x, double y) {
         for (org.firstinspires.ftc.teamcode.localization.StartPosition start : StartPositions.known()) {
             if (start.alliance != org.firstinspires.ftc.teamcode.util.Alliance.RED) continue;
             if (Math.hypot(start.pose.x() - x, start.pose.y() - y) <= SAME_IN) return true;
-        }
-        for (org.firstinspires.ftc.teamcode.localization.TeamSpot spot : AutoLaunchSpots.all()) {
-            if (Math.hypot(spot.x - x, spot.y - y) <= SAME_IN) return true;
         }
         return false;
     }
