@@ -22,6 +22,10 @@ Controls page and the printed cheat sheet are the only place for those.
       Yes: touch nothing; the Driver Station reads "waiting for TIP 1 until 9 s". Later: gamepad 1
       D-pad right, a second a press, to 6 s after the second they say they shoot. They don't shoot: D-pad left
       to 0, so the robot does not wait. Left on the default at Belding, the wait timed out 3 times.
+- [ ] **L-NoCross: ask the partner "if your preloads miss, do you shoot at that CELL again?"**
+      No, or not sure: touch nothing; the row reads `if no TIP 1: CROSS AND FIX IT` (L crosses under the
+      HIVE and fixes TIP 1). Yes, or the partner is our R-NoCross: D-pad down to the `if no TIP 1` row,
+      right once, `if no TIP 1: WAIT FOR PARTNER FIX` (L stays home and waits for the LEFT CELL until 23 s).
 - [ ] No amber or red line on the Match page; the light shows our alliance.
 
 ## At the start
