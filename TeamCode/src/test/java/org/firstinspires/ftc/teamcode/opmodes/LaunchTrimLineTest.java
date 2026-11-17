@@ -75,4 +75,13 @@ public class LaunchTrimLineTest {
         assertEquals(Display.huge("AIM TRIM L 3.0\u00b0", Display.Level.WARN), BasicDriveTeleOp.aimTrimLine(3.0));
         assertEquals(Display.huge("AIM TRIM R 1.5\u00b0", Display.Level.WARN), BasicDriveTeleOp.aimTrimLine(-1.5));
     }
+
+    @Test
+    public void theInitPageSaysTheTurretWillTurnAtPlay() {
+        assertEquals(null, RobotOpMode.turretOffsetNote(0.0));
+        assertEquals("set it on its mark; at PLAY it turns 4.5\u00b0 left and holds (aim offset)",
+                RobotOpMode.turretOffsetNote(4.5));
+        assertEquals("set it on its mark; at PLAY it turns 2.0\u00b0 right and holds (aim offset)",
+                RobotOpMode.turretOffsetNote(-2.0));
+    }
 }
