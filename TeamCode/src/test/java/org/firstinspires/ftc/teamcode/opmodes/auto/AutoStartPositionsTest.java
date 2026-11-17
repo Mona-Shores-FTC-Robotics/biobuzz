@@ -1,41 +1,38 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import com.pedropathing.math.Pose;
 
+import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LNoCrossAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RNoCrossAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSoloAuto;
+import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
 /**
- * Every Auto drawn from the red audience start begins exactly where {@link StartPositions}
- * says the drive team places the robot. The Visualizer's START is typed by hand, the measured
- * pose comes from the field, and a path that starts somewhere else begins with a lurch onto the
- * drawing — so when one moves, the other moves in the same PR (change the {@code .pp}, export
- * again, and update {@code StartPositions} from a new measurement).
+ * Every Auto begins exactly on a start: a team spot named …_START, which {@link StartPositions}
+ * reads, so the drive team has a named place to put the robot and the start check knows it. A
+ * path that starts somewhere else begins with a lurch onto the drawing. The Visualizer's start
+ * buttons are those spots, so an Auto drawn there passes; one with a start typed by hand does not.
  */
 public class AutoStartPositionsTest {
 
-    private static final double TOLERANCE_IN = 0.01;
-    private static final double TOLERANCE_RAD = Math.toRadians(0.1);
-
     @Test
-    public void theRightAutosStartAtTheRedAudienceStart() {
-        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RSoloAuto.startPose(false));
-        assertStartsAt(StartPositions.RED_AUDIENCE.pose, RNoCrossAuto.startPose(false));
+    public void theAutosStartOnAStart() {
+        assertOnAStart("R-Solo", RSoloAuto.startPose(false));
+        assertOnAStart("R-NoCross", RNoCrossAuto.startPose(false));
+        assertOnAStart("L-NoCross", LNoCrossAuto.startPose(false));
     }
 
-    @Test
-    public void theLeftAutoStartsAtTheRedFarStart() {
-        assertStartsAt(StartPositions.RED_FAR.pose, LNoCrossAuto.startPose(false));
-    }
-
-    private static void assertStartsAt(Pose measured, Pose drawn) {
-        assertEquals("x", measured.x(), drawn.x(), TOLERANCE_IN);
-        assertEquals("y", measured.y(), drawn.y(), TOLERANCE_IN);
-        assertEquals("heading", measured.heading(), drawn.heading(), TOLERANCE_RAD);
+    private static void assertOnAStart(String auto, Pose drawn) {
+        StartPosition start = StartPositions.at(drawn);
+        assertNotNull(auto + " starts at (" + drawn.x() + ", " + drawn.y() + ", "
+                + Math.toDegrees(drawn.heading()) + " deg), on no team …_START spot: pick its start"
+                + " in the Visualizer's start buttons", start);
+        assertEquals(auto, Alliance.RED, start.alliance);
     }
 }

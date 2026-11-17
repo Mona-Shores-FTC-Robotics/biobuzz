@@ -119,15 +119,18 @@ Pinpoint or the Limelight directly. Anything that drives or aims from field coor
 `HiveFieldPoints` is the field CAD's rocker model (axle on the centre line, one row radius),
 checked against the field once; `FlowerFieldPoints` is the official field model's four FLOWER
 centres; `StartPositions`, `FieldFrame` and `LocalizationTuning` hold
-measured field facts — NaN or empty until measured, never guessed. Each measured start is a
-`…_START` team spot in `TeamCode/autos/spots.json` (the Visualizer's start buttons), named in
-`StartPositions.TEAM_SPOTS`, whose pose `StartPositions` reads from the generated
-`localization/generated/TeamSpots.java`: a start is moved in the Visualizer, never in Java. Every Auto on master uses
+measured field facts — NaN or empty until measured, never guessed. Every `…_START` team spot in
+`TeamCode/autos/spots.json` (the Visualizer's start buttons) is a start: `StartPositions` builds its
+list from the generated `localization/generated/TeamSpots.java`, `RIGHT_START` and `LEFT_START`
+being the measured ones, so a start is made or moved in the Visualizer, never in Java. Every Auto on master uses
 only the team's spots (`TeamCode/autos/README.md` lists them, side first: `RIGHT_START`,
 `RIGHT_PARK`); one that needs another spot lives on the `autos-experiment` branch. An Auto launches only from
-its start or an Auto launch spot (`AutoLaunchSpots`: `LEFT_AUTO_HIVE`, `LEFT_AUTO_OFFSET`, their
-RIGHT twins, and `RIGHT_AUTO_FIX_TIP` for a left-start Auto that crossed to tip RIGHT itself; team
-spots read from `TeamSpots`, whose placement `AutoLaunchSpotsTest` checks), never from a
+its start or an Auto launch spot (`AutoLaunchSpots.all()`: every team spot named `…_AUTO_…`, so one
+made in the Visualizer counts once saved; `AutoLaunchSpots.Spot` names the five placed by hand,
+`LEFT_AUTO_HIVE`, `LEFT_AUTO_OFFSET`, their RIGHT twins, and `RIGHT_AUTO_FIX_TIP` for a left-start
+Auto that crossed to tip RIGHT itself. `AutoLaunchSpotsTest` checks every one is aimed at its CELL,
+which the Visualizer keeps as a `_AUTO_` spot moves, inside the field and short of the centre line,
+and the five's own placement), never from a
 spot of its own or one of the drivers' Square spots (`LaunchSpots`, the TeleOp's alone).
 `AutoVolleySpotsTest` fails an Auto that does. HIVE and OFFSET at
 one end hold two of our robots together; which a volley uses is the Auto's to work out. A
