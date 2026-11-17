@@ -8,7 +8,8 @@ these under "Drafts", and Save to GitHub saves back here.
 
 Some drafts launch from the old launch spots (`LEFT_LAUNCH_OFFSET`, `RIGHT_LAUNCH_CLOSE` and the like), which
 stopped being team spots on 16 Nov 2026. Each keeps those as points of its own, where they were. A draft
-that goes to the Autonomous menu moves to the Autos' launch spots first (`AutoVolleySpotsTest`).
+that goes to the Autonomous menu launches only from spots aimed at their CELL (`AutoVolleySpotsTest`): open it in
+the Visualizer, which aims each spot a Launch all fires from, and save it.
 
 ## Clockwise with the backward legs: the three-TIP draft
 

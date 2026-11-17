@@ -128,20 +128,21 @@ centres; `StartPositions`, `FieldFrame` and `LocalizationTuning` hold
 measured field facts — NaN or empty until measured, never guessed. Every `…_START` team spot in
 `TeamCode/autos/spots.json` (the Visualizer's start buttons) is a start: `StartPositions` builds its
 list from the generated `localization/generated/TeamSpots.java`, `RIGHT_START` and `LEFT_START`
-being the measured ones, so a start is made or moved in the Visualizer, never in Java. Every Auto on master uses
-only the team's spots (`TeamCode/autos/README.md` lists them, side first: `RIGHT_START`,
-`RIGHT_PARK`); one that needs another spot lives on the `autos-experiment` branch. An Auto launches only from
-its start or an Auto launch spot (`AutoLaunchSpots.all()`: every team spot named `…_AUTO_…`, so one
-made in the Visualizer counts once saved; `AutoLaunchSpots.Spot` names the five placed by hand,
-`LEFT_AUTO_HIVE`, `LEFT_AUTO_OFFSET`, their RIGHT twins, and `RIGHT_AUTO_FIX_TIP` for a left-start
-Auto that crossed to tip RIGHT itself. `AutoLaunchSpotsTest` checks every one is aimed at its CELL,
-which the Visualizer keeps as a `_AUTO_` spot moves, inside the field and short of the centre line,
-and the five's own placement), never from a
-spot of its own or one of the drivers' Square spots (`LaunchSpots`, the TeleOp's alone).
-`AutoVolleySpotsTest` fails an Auto that does. The one launch from anywhere else is `PickFlowerLaunch`
-(`opmodes/FlowerVolley`, a draft's card until its bench passes): the pick that fires its load from
-against the SCORING FLOWER, the only place it can, with the turret turned back at the near CELL; it
-aims the turret itself while it runs, and a robot whose turret is locked refuses it. HIVE and OFFSET at
+being the measured ones, so a start is made or moved in the Visualizer, never in Java. A spot several Autos share is a team
+spot (`TeamCode/autos/README.md` lists them, side first: `RIGHT_START`, `RIGHT_PARK`); an Auto may also
+have spots of its own, made in the Visualizer (mentor, 17 Nov 2026). An Auto launches from its start or
+from a named spot fit to launch from, a team spot or its own (`AutoLaunchSpots.launchSpotProblem`: the
+turret, locked, aimed at the CELL at its end within 0.3 degrees, the frame inside the field and short
+of the centre line; the Visualizer aims a spot a Launch all fires from as it is made or moved), never
+from one of the drivers' Square spots (`LaunchSpots`, the TeleOp's alone). `AutoVolleySpotsTest` fails
+an Auto that launches anywhere else. The team's launch spots are `AutoLaunchSpots.all()` (every team
+spot named `…_AUTO_…`); `AutoLaunchSpots.Spot` names the five placed by hand, `LEFT_AUTO_HIVE`,
+`LEFT_AUTO_OFFSET`, their RIGHT twins, and `RIGHT_AUTO_FIX_TIP` for a left-start Auto that crossed to
+tip RIGHT itself, and `AutoLaunchSpotsTest` checks every one and the five's own placement. The one
+launch from anywhere else is `PickFlowerLaunch` (`opmodes/FlowerVolley`, a draft's card until its bench
+passes): the pick that fires its load from against the SCORING FLOWER, the only place it can, with the
+turret turned back at the near CELL; it aims the turret itself while it runs, and a robot whose turret
+is locked refuses it. HIVE and OFFSET at
 one end hold two of our robots together; which a volley uses is the Auto's to work out. A
 left-start Auto moves up to `LEFT_AUTO_HIVE` for its first volley; a right-start Auto fires its
 preloads from `RIGHT_START`. An Autonomous declares its start by

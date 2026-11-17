@@ -239,7 +239,7 @@ these spots**, so a reviewer reads steps and triggers, never coordinates:
 | `PARTNER_STAGED_POLLEN` | Where a partner on `LEFT_START` sets its four preloads down for us: a drawing until a partner says where they stage (`partners/partner-l-stage-park` is the simulator's guess; see "Partner stand-ins"). |
 
 The eight old launch spots (`LAUNCH_CATCH`, `LAUNCH_CLOSE`, `LAUNCH_OFFSET` and `LAUNCH_CORNER` at each end) are no
-longer team spots (16 Nov 2026): every Auto launches from a start or an Auto launch spot. A draft drawn on one keeps
+longer team spots (16 Nov 2026). A draft drawn on one keeps
 it as a point of its own, where it was; older notes and match reviews that name one mean these places:
 LEFT CATCH (57.5, 123.5, 273.4°), CLOSE (59.9, 117.5, 270°), OFFSET (41, 121.5, 296.4°), CORNER (30.2, 130.8, 302.6°);
 RIGHT CATCH (57.5, 18, 91.9°), CLOSE (56.1, 26, 90°), OFFSET (41, 20, 68.7°), CORNER (30.2, 10.7, 54°).
@@ -250,9 +250,13 @@ OFFSET. A left-start Auto moves up from `LEFT_START` to `LEFT_AUTO_HIVE` for its
 right-start Auto fires its preloads from `RIGHT_START`. The drivers' Square has its own twelve
 spots (`localization/LaunchSpots`), which no Auto uses.
 
-Names are side (or thing) first, then role, then variant, so a side's spots sort together. An Auto
-that needs a spot not in this list is drawn on the `autos-experiment` branch until the spot earns
-its place here.
+Names are side (or thing) first, then role, then variant, so a side's spots sort together. This list
+is the spots several Autos share. An Auto may also have spots of its own (mentor, 17 Nov 2026): pick
+*+ New spot (click the field)…* in a step's spot dropdown. It may launch from one too, as long as the
+turret, locked, aims at the CELL at that end from there, the frame stays inside the field and short of the
+centre line (`AutoLaunchSpots.launchSpotProblem`, which `AutoVolleySpotsTest` holds every Auto to). The
+Visualizer turns a spot a Launch all fires from to face its CELL as you make or move it, so there is
+nothing to do by hand. A spot earns its place here when a second Auto wants it.
 
 - **Using one.** In the Visualizer, pick it from a step's spot dropdown (under "Team spots"), or
   select a path and press 🔗 on its end in the Path panel, then pick the spot: the end jumps to it

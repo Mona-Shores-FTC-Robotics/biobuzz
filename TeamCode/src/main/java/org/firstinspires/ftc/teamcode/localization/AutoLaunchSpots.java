@@ -5,9 +5,11 @@ import com.pedropathing.math.Pose;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.firstinspires.ftc.teamcode.localization.generated.TeamSpots;
 import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
@@ -45,8 +47,9 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
  * each; a robot that comes under the HIVE shoots from HIVE, one that comes round the outside lane
  * from OFFSET. A left-start Auto moves up from {@code LEFT_START} to {@code LEFT_AUTO_HIVE} for
  * its first volley; a right-start Auto fires its preloads from {@code RIGHT_START}, where it is
- * placed, so that volley waits on no drive. {@code AutoVolleySpotsTest} fails an Auto on master
- * that launches from anywhere but a start or one of these.
+ * placed, so that volley waits on no drive. An Auto may also launch from a spot of its own
+ * (mentor, 17 Nov 2026); {@code AutoVolleySpotsTest} holds every spot an Auto on master launches
+ * from, other than its start, to {@link #launchSpotProblem}.
  *
  * <p>Each heading points the turret's axis ({@code TurretSubsystem}: 3.33 in behind the centre,
  * 2.68 in right of it) at the CELL's raised row from where the spot is; move the turret's numbers
@@ -87,6 +90,49 @@ public final class AutoLaunchSpots {
         boolean left = LaunchSpots.leftHalf(Alliance.RED, y);
         HiveCell cell = left ? HiveCell.leftCell(alliance) : HiveCell.rightCell(alliance);
         return cell == null ? null : HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+    }
+
+    /**
+     * How far a launch spot's heading may be from the one that aims the turret at its CELL,
+     * degrees: the Visualizer sets it to a tenth as the spot is made or moved.
+     */
+    public static final double AIM_TOLERANCE_DEG = 0.3;
+
+    /**
+     * Why a robot centred at ({@code x}, {@code y}) and facing {@code headingRad}, drawn for red, is
+     * not a place for an Auto to launch from, or null when it is one: with the turret ({@code
+     * turretForwardIn} ahead of the centre and {@code turretLeftIn} left of it, locked straight
+     * ahead) it aims at the raised row of the CELL at its end, within {@link #AIM_TOLERANCE_DEG},
+     * and the frame is inside the field and a quarter inch short of the centre line. Every spot an
+     * Auto launches from is held to it, a team spot or one of the Auto's own.
+     */
+    public static String launchSpotProblem(double x, double y, double headingRad,
+                                           double turretForwardIn, double turretLeftIn) {
+        Vec3 row = cellRowFor(y, Alliance.RED);
+        if (row == null) return "has no CELL at its end";
+        double aimed = LaunchSpots.aimTurret(x, y, row.x(), row.y(), turretForwardIn, turretLeftIn);
+        double offDeg = Math.toDegrees(Math.IEEEremainder(aimed - headingRad, 2 * Math.PI));
+        if (Math.abs(offDeg) > AIM_TOLERANCE_DEG) {
+            return String.format(Locale.ROOT, "faces %.1f deg; the turret aims from there at %.1f deg:"
+                    + " move it in the Visualizer, which aims it", degrees(headingRad), degrees(aimed));
+        }
+        double half = LaunchSpots.FRAME_HALF_IN, c = Math.cos(headingRad), s = Math.sin(headingRad);
+        double[][] local = {{half, half}, {half, -half}, {-half, -half}, {-half, half}};
+        for (double[] l : local) {
+            double cx = x + l[0] * c - l[1] * s, cy = y + l[0] * s + l[1] * c;
+            if (cx > FieldFrame.FIELD_CENTRE_INCHES - 0.25) {
+                return String.format(Locale.ROOT, "reaches x %.1f, past the centre line less a quarter inch", cx);
+            }
+            if (cx < 0 || cy < 0 || cy > FieldFrame.FIELD_SIZE_INCHES) {
+                return String.format(Locale.ROOT, "leaves the field at (%.1f, %.1f)", cx, cy);
+            }
+        }
+        return null;
+    }
+
+    /** A heading in degrees, [0, 360). */
+    private static double degrees(double rad) {
+        return (Math.toDegrees(rad) % 360 + 360) % 360;
     }
 
     /** A spot, drawn for red: its team spot of the same name, whose heading aims the turret from there. */

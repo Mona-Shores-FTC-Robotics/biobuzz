@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-outside-lane.pp",
-  "spec": "ROutsideLaneAuto@50",
+  "spec": "ROutsideLaneAuto",
   "design": "real robot, turret locked forward",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -179,7 +179,7 @@
   ],
   "metadata": {
     "AutoSource": "r-outside-lane.pp",
-    "SavedBy": "Lane pair: both Pickup choices, the swap, and the two mismatches",
-    "SavedAt": "2026-11-12T00:00:00+00:00"
+    "SavedBy": "dustinhans",
+    "SavedAt": "2026-11-17T21:39:57.275Z"
   }
 }
