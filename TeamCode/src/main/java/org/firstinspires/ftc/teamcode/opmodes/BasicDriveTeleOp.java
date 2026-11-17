@@ -338,6 +338,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         turretMode = TurretMode.LOCKED;
         aimer.off();
         robot.turret.home();
+        launcherTrimTps = startTrimTps(TeleOpConfig.launcherTrimStartTps);
+        if (launcherTrimTps != 0.0) {
+            log.event(String.format(Locale.US, "launcher trim starts at %+.0f ticks/s", launcherTrimTps));
+        }
         log.event("PLAY: " + (robotCentric() ? "robot-centric" : "field-centric"));
     }
 
@@ -425,6 +429,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * direction reads without the sign (mentor, 14 Nov 2026). "TRIM 0" when there is none (mentor,
      * 7 Nov 2026). The trim is on every shot, Square's included.
      */
+    /** {@code TeleOpConfig.launcherTrimStartTps}, guarded: NaN is 0, and it stays inside ±300 ticks/s. */
+    static double startTrimTps(double configured) {
+        if (Double.isNaN(configured)) return 0.0;
+        return Math.max(-300.0, Math.min(300.0, configured));
+    }
+
     static String launchTrimLine(double trimTps) {
         if (trimTps == 0.0) return Display.huge("LAUNCH TRIM 0", false);
         return Display.huge(String.format(Locale.US, "LAUNCH TRIM %+.0f", trimTps),

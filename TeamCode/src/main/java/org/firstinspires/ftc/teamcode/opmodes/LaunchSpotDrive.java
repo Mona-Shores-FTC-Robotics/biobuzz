@@ -62,12 +62,13 @@ public final class LaunchSpotDrive {
     /** The drive gives up after this long, ms, and hands the sticks back. NaN or negative gives up at once. */
     public static double timeoutMs = 6000;
     /**
-     * A WALL-row spot is drawn touching the side wall: the drive stops this far out from it, inches.
-     * 0 (the default; NaN or negative is 0): touching, which is the point of the row (mentor, 11 Nov
-     * 2026). Not yet driven on a robot: if a press at the wall never arrives or never settles, the
-     * pose is asking the robot to push into the wall, and an inch here is the fix to try.
+     * A WALL-row spot is drawn touching its wall (the audience wall's or the scoring table's): the
+     * drive stops this far out from it, inches, on top of {@code LaunchSpots.WALL_STAND_OFF_IN}.
+     * NaN or negative is 0. 0.04 (drive team, 17 Nov 2026): at 0 a press against the audience wall
+     * pushed into the wall, never settled and so never fired; 1 was too much, and 0.04 was right.
+     * Tried on one robot; put in for both for now.
      */
-    public static double wallGapIn = 0.0;
+    public static double wallGapIn = 0.04;
     /**
      * The button works with the robot's centre up to this far past the centre line, inches, on the
      * other alliance's side, and drives it home; further than that it refuses. 0, NaN or negative

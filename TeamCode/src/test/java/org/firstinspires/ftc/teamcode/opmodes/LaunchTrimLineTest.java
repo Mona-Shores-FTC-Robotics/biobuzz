@@ -75,4 +75,12 @@ public class LaunchTrimLineTest {
         assertEquals(Display.huge("AIM TRIM L 3.0\u00b0", Display.Level.WARN), BasicDriveTeleOp.aimTrimLine(3.0));
         assertEquals(Display.huge("AIM TRIM R 1.5\u00b0", Display.Level.WARN), BasicDriveTeleOp.aimTrimLine(-1.5));
     }
+
+    @Test
+    public void theStartingTrimIsGuarded() {
+        assertEquals(-50.0, BasicDriveTeleOp.startTrimTps(-50.0), 0.0);
+        assertEquals(0.0, BasicDriveTeleOp.startTrimTps(Double.NaN), 0.0);
+        assertEquals(300.0, BasicDriveTeleOp.startTrimTps(5000.0), 0.0);
+        assertEquals(-300.0, BasicDriveTeleOp.startTrimTps(-5000.0), 0.0);
+    }
 }

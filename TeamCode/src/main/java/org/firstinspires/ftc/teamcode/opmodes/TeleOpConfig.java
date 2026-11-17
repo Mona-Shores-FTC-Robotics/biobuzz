@@ -49,6 +49,14 @@ public final class TeleOpConfig {
      */
     public static double slowSpeed = 0.76;
 
+    /**
+     * The launcher's speed trim at PLAY, ticks/s, the number the Match page's LAUNCH TRIM shows: the
+     * operator trims from here, and the trim reset still goes to 0. 0 for both robots; a robot that
+     * shoots long or short at the table's speeds starts off it ({@code RobotDifferences}). NaN is
+     * 0; kept inside ±300.
+     */
+    public static double launcherTrimStartTps = 0.0;
+
     /** Degrees one trim press moves the aim. Clamped to [0, 5]. */
     public static double trimStepDeg = 1.5;
 
