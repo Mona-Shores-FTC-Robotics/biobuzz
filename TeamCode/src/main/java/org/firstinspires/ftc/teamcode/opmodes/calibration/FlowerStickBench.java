@@ -22,7 +22,8 @@ import java.util.Locale;
  * <ol>
  *   <li>INIT shows which hub and port each servo is on. Nothing moves.</li>
  *   <li>PLAY: still nothing moves. The first D-pad or bumper press powers the servo at the
- *       position shown, starting from {@code RETRACTED}, so a new stick is not flung anywhere.</li>
+ *       position shown, starting from {@code EXTENDED} (down), so the first press never asks a
+ *       stick lying on the tile to lift.</li>
  *   <li>D-pad up/down: position +/- 0.01. Bumpers: +/- 0.05. Step until the stick sits on its
  *       stowed stop: Cross records that as RETRACTED. Step until it just touches the tile:
  *       Triangle records it as EXTENDED. Both are shown; write them down (they last only until
@@ -78,7 +79,9 @@ public class FlowerStickBench extends OpMode {
             roller = null;
             rollerWhere = "none in this config";
         }
-        position = FlowerStickSubsystem.unitRange(FlowerStickSubsystem.RETRACTED);
+        // From down: a stick resting on the tile is already there, so the first press never asks
+        // for a lift. Step up from here to see how far it rises.
+        position = FlowerStickSubsystem.unitRange(FlowerStickSubsystem.EXTENDED);
         report();
     }
 
