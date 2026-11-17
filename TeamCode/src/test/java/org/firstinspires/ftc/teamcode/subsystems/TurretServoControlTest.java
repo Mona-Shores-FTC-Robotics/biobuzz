@@ -68,6 +68,17 @@ public class TurretServoControlTest {
     }
 
     @Test
+    public void aMovingTargetIsNotDamped() {
+        // The turret's rate against a moving target's is two readings with different delays.
+        TurretServoControl.Gains damped = new TurretServoControl.Gains(0.01, 0.01, 0.07, 1.0, 196.0, 1.0, 1.0, 5.0);
+        TurretServoControl.Gains plain = new TurretServoControl.Gains(0.01, 0.0, 0.07, 1.0, 196.0, 1.0, 1.0, 5.0);
+        assertEquals(TurretServoControl.power(20.0, 30.0, 60.0, plain),
+                TurretServoControl.power(20.0, 30.0, 60.0, damped), EPS);
+        assertEquals(TurretServoControl.power(20.0, 80.0, -60.0, plain),
+                TurretServoControl.power(20.0, 80.0, -60.0, damped), EPS);
+    }
+
+    @Test
     public void badGainsBecomeTheHarmlessEnd() {
         TurretServoControl.Gains g = new TurretServoControl.Gains(Double.NaN, -1.0, 5.0, Double.NaN,
                 Double.POSITIVE_INFINITY, Double.NaN, -3.0, Double.NaN);

@@ -103,12 +103,17 @@ public class TurretSubsystem implements Subsystem {
     // ahead (17 Nov 2026): pushed off by hand it comes back cleanly; a hard shove zigzags briefly.
     // Bench: Turret liked 0.035 and 0.006, and those rocked back and forth in Basic Drive, whose
     // loop is slower: tune the loop in the OpMode that runs it. The floor could not be lowered to
-    // slow the approach, since under 0.09 the turret sticks and buzzes. The feedforward has not
-    // run on a robot yet.
+    // slow the approach, since under 0.09 the turret sticks and buzzes. Aiming with the robot
+    // turning, any damping made the turret twitch, and with none it swung past after a big move:
+    // so the law damps only onto a still target, which has not yet run on a robot.
 
     /** Power per degree of error. */
     public static double kP = 0.02;
-    /** Damping: power per deg/s of the turret's rate relative to the target's, taken off the correction. */
+    /**
+     * Damping: power per deg/s of the turret's rate, taken off the correction while the target
+     * stands still (a hold, or an aim with the robot not turning). Not applied while the target
+     * moves.
+     */
     public static double kD = 0.003;
     /** The share of the target's rate fed forward to the servo: 1 cancels all of the robot's turning, 0 none. */
     public static double feedforward = 1.0;
