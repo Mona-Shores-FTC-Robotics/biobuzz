@@ -575,7 +575,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             chassisSawCell = chassisTarget.cameraThisPress();
         }
         if (chassisTarget.lockedThisLoop()) log.event(chassisLockLine());
-        aimErrorDeg = Double.isNaN(aimDeg) ? Double.NaN : aimDeg - robot.turret.angleDegrees();
+        aimErrorDeg = Double.isNaN(aimDeg) ? Double.NaN : TurretEncoder.wrap180(aimDeg - robot.turret.angleDegrees());
         if (circleHeld) lastChassisAimErrorDeg = aimErrorDeg;
 
         // A FLOWER pick, a GARDEN gather or the drive to a launch spot drives the robot while held,
@@ -1121,7 +1121,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("last_shot_dip_tps", robot.launcher.lastShotDipTicksPerSecond());
             panels.addData("last_shot_range_in", lastShotRangeIn);
             panels.addData("feeder_power", robot.feeder.power());
-            // The feeder's own encoder: the turret is locked and has none (TurretSubsystem.lockedForward).
+            // The feeder's encoder socket is empty: this reads nothing (the turret's encoder is in the intake's).
             panels.addData("feeder_tps", robot.feeder.ticksPerSecond());
             panels.addData("feeder_amps", robot.feeder.currentAmps());
             LanePanels.publish(panels, robot.colorSensor.lane());
@@ -1129,6 +1129,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("turret_angle_deg", robot.turret.angleDegrees());
             panels.addData("turret_target_deg", robot.turret.targetDegrees());
             panels.addData("turret_error_deg", robot.turret.errorDegrees());
+            panels.addData("turret_power", robot.turret.power());
             panels.addData("aim_error_deg", aimErrorDeg);
             panels.addData("trim_deg", aimer.trimDeg());
             panels.addData("gate_speed", gates.verdict(FireGates.Gate.LAUNCHER_AT_SPEED).ordinal());

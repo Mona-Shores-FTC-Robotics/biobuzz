@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
@@ -13,103 +13,104 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
 import java.util.Locale;
 
 /**
- * The turret: a goBILDA servo in standard (position) mode ({@link DeviceNames#TURRET}) turning
- * it, and a Studica Cypher Max encoder on its drive, read as a relative quadrature count through
- * the encoder socket of {@link DeviceNames#TURRET_ENCODER_HOST}. The servo holds the position it
- * is sent with its own feedback, so the turret resists a push from PLAY on, with or without the
- * encoder. The servo went from continuous to position mode on 6 Nov 2026 (the mentor's call), so
- * the turret holds its home instead of turning freely; the encoder numbers below are from the
- * {@code TurretBench} session of 24 Oct 2026 on 20245.
+ * The turret: a goBILDA 25-3 Speed servo in continuous mode ({@link DeviceNames#TURRET}) turning
+ * it, and a REV Through Bore Encoder on its drive gear, read as a relative quadrature count
+ * through the encoder socket of {@link DeviceNames#TURRET_ENCODER_HOST}. The turret has no stops
+ * and no cables: it turns for ever either way, an angle is a direction, and it always goes the
+ * shortest way round. A continuous servo has no feedback of its own, so the loop is closed here,
+ * on the encoder ({@link TurretServoControl}).
  *
  * <h2>What the OpMode asks for</h2>
  *
  * <ul>
  *   <li>{@link #zeroHere()}: the turret is physically at home (its mark lined up, pointing along
- *       the robot's nose). The count is relative, so a person does this before INIT ends, and
- *       nothing here can tell if they forgot: {@link #zeroed()} only says whether it was asked.</li>
- *   <li>{@link #aim(double)}: hold a chassis-frame angle, degrees counter-clockwise from the
- *       nose. The aim math that produces it is {@link TurretAim}; which target is the OpMode's.</li>
+ *       the robot's nose). The count is relative, so the turret sits on its mark before PLAY, and
+ *       nothing here can tell if it did not: {@link #zeroed()} only says whether a zero was taken.</li>
+ *   <li>{@link #aim(double, double)}: hold a chassis-frame angle, degrees counter-clockwise from
+ *       the nose, that is moving at the given rate. The rate is how the turret cancels the robot's
+ *       turning: a target fixed on the field moves across the chassis at minus the robot's turn
+ *       rate, and the servo is told that speed before an error builds. The aim math is
+ *       {@link TurretAim}; which target is the OpMode's.</li>
  *   <li>{@link #home()}: hold 0. {@link #idle()}: pulse off, limp, hold nothing.</li>
  * </ul>
  *
- * <p>{@link #update()} reads the encoder once and, from PLAY, sends the servo the position for the
- * held angle: {@link #homePosition} plus the angle over {@link #degreesPerUnit}. Nothing blocks.
- * While {@link #lockedForward} it always holds {@link #homePosition}.
+ * <p>{@link #update()} reads the encoder once and, from PLAY, writes the servo one power. Nothing
+ * blocks. While {@link #lockedForward} it holds 0 and nothing else.
  *
  * <h2>Hardware it shares</h2>
  *
  * <p>The encoder host is another mechanism's motor. This class reads its position and velocity and
  * <b>never</b> sets its power or mode, and never resets its count: zero is a software offset, so
- * the feeder (today's host) is untouched.
+ * the intake (today's host) is untouched.
  *
- * <p>The values below are both robots', measured on 20245. One that 19429 measures differently is
- * a line in {@link org.firstinspires.ftc.teamcode.RobotDifferences}, not a second field here.
+ * <p>The values below are both robots'. One that a robot measures differently is a line in
+ * {@link org.firstinspires.ftc.teamcode.RobotDifferences}, not a second field here.
  */
 @Configurable
 public class TurretSubsystem implements Subsystem {
 
-    // ------------------------------------------------------------ measured on the bench (20245)
+    // ------------------------------------------------------------ the encoder
 
-    /** Encoder turns per turret turn: 2038 counts per flag turn on the bench, so 1 (24 Oct 2026). */
-    public static double turnsPerTurretTurn = 1.0;
+    /**
+     * Hub counts per turn of the turret's encoder: 8192, a REV Through Bore Encoder (17 Nov 2026).
+     * A Studica Cypher Max counts 2048. Wrong, every angle is off by the ratio of the two: on
+     * {@code Bench: Turret} one turret turn by hand must read 360.
+     */
+    public static double countsPerEncoderTurn = TurretEncoder.REV_THROUGH_BORE_COUNTS;
+
+    /**
+     * Encoder turns per turret turn: the encoder rides the goBILDA turret's 64T drive gear
+     * against its 176T ring, 2.75 (from the build team, 6 Nov 2026). Check it on
+     * {@code Bench: Turret}: one turret turn by hand reads 2.75 encoder turns.
+     */
+    public static double turnsPerTurretTurn = 2.75;
 
     /** +1 if the count rises as the turret turns counter-clockwise seen from above. -1 on 20245: it falls (robot, 24 Oct 2026). */
     public static int direction = -1;
 
-    /**
-     * The servo position, 0 to 1, with the turret straight ahead (home), held from PLAY. 19429's
-     * is measured (0.514, its line in {@link org.firstinspires.ftc.teamcode.RobotDifferences}).
-     * 0.5 here is 20245's, not measured: the servo's centre, the 1500 us pulse the old code sent at
-     * PLAY, which is also "stop" if 20245's servo is still in continuous mode (as it was on the
-     * 24 Oct bench). So 20245 does what it did until its servo's mode is checked
-     * ({@code doc/robot-todo.md}): any other value sent to a continuous servo is a speed.
-     */
-    public static double homePosition = 0.5;
+    // ------------------------------------------------------------ the servo
 
     /**
-     * The lowest and highest servo position any code may send, the bench included. Past the ends
-     * of what the servo senses it never arrives and keeps turning (19429, Bench: Turret, 6 Nov
-     * 2026: below about 0.22 it ran away, sometimes for good), and if the servo does not turn the
-     * turret 1:1 a runaway also moves {@link #homePosition} (it moved from 0.350 to 0.514 there).
-     * So nothing goes past these: a home or an aim outside them is refused (limp), and an aim is
-     * clamped into them. 0 and 1 here are 20245's, not measured; 19429's are in
-     * {@link org.firstinspires.ftc.teamcode.RobotDifferences}.
+     * +1 if positive servo power turns the turret counter-clockwise. -1 was 20245's with its
+     * earlier goBILDA servo in continuous mode (24 Oct 2026); <b>not yet checked with the 25-3
+     * Speed</b>. Wrong, the turret drives away from its target and the hold is dropped
+     * ({@link TurretDriveWatch}).
      */
-    public static double minPosition = 0.0;
-    public static double maxPosition = 1.0;
+    public static int servoDirection = -1;
+
+    /** The power at which the servo stands still, [-0.2, 0.2]; see {@code Bench: Turret}. 0 until measured. */
+    public static double servoStopPower = 0.0;
 
     /**
-     * Correct the servo's position from the encoder ({@link TurretRehome}): once the turret is
-     * still, the encoder's angle against the one asked for moves an offset on every position sent,
-     * so a turret twirled by hand while limp (its servo then out of step through the 2.75:1
-     * gearing) comes back to its mark at PLAY, and a knock is undone. Needs a trusted encoder,
-     * zeroed with the turret on its mark (at PLAY), and {@link #degreesPerUnit}; it uses the
-     * encoder's real angle even while {@link #lockedForward}. Off unless a robot's encoder is
-     * trusted: on for 19429 in {@link org.firstinspires.ftc.teamcode.RobotDifferences}.
+     * Turret degrees per second at full power: 196, the 25-3 Speed's no-load speed at the hub's
+     * 5 V through 2.75:1, <b>from the data sheet, not measured</b>. It scales the feedforward, so
+     * measure it on {@code Bench: Turret} (the rate shown at power 1).
      */
-    public static boolean rehomeFromEncoder = false;
-    /** Slower than this the turret counts as still, deg/s. */
-    public static double rehomeStillDps = 5.0;
-    /** Still this long, the servo has finished moving and a correction is made, ms. */
-    public static double rehomeStillMs = 250.0;
-    /** Errors this small are left alone, degrees. */
-    public static double rehomeToleranceDeg = 1.5;
-    /**
-     * Errors bigger than this are not believed, degrees. A twirl leaves the turret at most half a
-     * servo turn off (about 65° through 2.75:1); much more means the encoder's count is wrong (the
-     * Expansion Hub reset, say), and acting on it would swing the turret off its mark.
-     */
-    public static double rehomeBelieveDeg = 80.0;
+    public static double topSpeedDps = 196.0;
 
-    /**
-     * Turret degrees, counter-clockwise seen from above, per +1.0 of servo position; negative if a
-     * higher position turns it clockwise. Includes the gearing. NaN until measured with
-     * {@code Bench: Turret}: until then the turret holds home and refuses any other angle.
-     */
-    public static double degreesPerUnit = Double.NaN;
+    /** The least power that turns the turret. 0.07 on the 24 Oct 2026 bench, another servo: measure it again. */
+    public static double minPower = 0.07;
+    public static double maxPower = 1.0;
 
-    /** Inside this many degrees of the target, {@link #onTarget()}. */
+    // ------------------------------------------------------------ the loop
+    // Starting values: they hold a model of the servo (TurretServoControlTest), and no robot has
+    // run them. Tune on Bench: Turret, Square.
+
+    /** Power per degree of error. */
+    public static double kP = 0.03;
+    /** Damping: power per deg/s of the turret's rate relative to the target's, taken off the correction. */
+    public static double kD = 0.001;
+    /** The share of the target's rate fed forward to the servo: 1 cancels all of the robot's turning, 0 none. */
+    public static double feedforward = 1.0;
+    /** A target rate slower than this is treated as still, deg/s: the gyro's noise is not fed to the servo. */
+    public static double targetStillDps = 5.0;
+    /** Inside this many degrees of the target, {@link #onTarget()}, and no correction is made. */
     public static double holdToleranceDeg = 1.0;
+
+    /** Driven one way and turning the other for this long, the hold is dropped, ms ({@link TurretDriveWatch}). */
+    public static double watchWrongWayMs = 400.0;
+    /** Driven hard and not turning for this long, the hold is dropped, ms. */
+    public static double watchStallMs = 700.0;
 
     /**
      * Where the turret's axis sits from the robot's tracked point, inches, robot frame (+forward,
@@ -124,28 +125,12 @@ public class TurretSubsystem implements Subsystem {
     public static double turretForwardIn = -3.33;
     public static double turretLeftIn = -2.68;
 
-    /** How far the turret may be asked to turn each way from home, degrees. NaN = no clamp: the turret has no cables, so only the servo's own travel (positions 0 to 1) limits it. */
-    public static double travelEachWayDeg = Double.NaN;
-
     /**
-     * An encoder angle this far from the held one means the servo turned it the wrong way, or the
-     * encoder reads the wrong way: the hold is dropped and the turret goes limp. The Robot page
-     * says so. Flip the sign of {@link #degreesPerUnit} (the turret went the wrong way) or
-     * {@link #direction} (it went the right way but the angle read the other), then aim again.
-     */
-    public static double runawayDeg = 180.0;
-
-    /**
-     * The turret is held straight ahead and its encoder is not trusted: its angle is 0, whatever
-     * the encoder socket reads, and from PLAY the servo holds {@link #homePosition}, never another
-     * angle. The mentor's call on 1 Nov 2026: both robots play locked, POLLEN only; since 6 Nov the
-     * servo is plugged in, in position mode on 19429, so the turret resists a push. On 20245 the
-     * socket ({@code DeviceNames.TURRET_ENCODER_HOST}) carried the <b>feeder's</b> encoder, so
-     * reading it as the turret's angle gave thousands of degrees once the feeder ran, and the
-     * driver's chassis aim (CELL bearing minus turret angle) spun the robot without end; on 19429
-     * the Cypher Max replaced the feeder's cable in it on 6 Nov. Set false only on a robot with the
-     * Cypher Max in that socket, its ratio checked on {@code Bench: Turret}, and
-     * {@link #degreesPerUnit} measured.
+     * The turret is held straight ahead and never aimed: {@link #angleDegrees()} is 0 and every
+     * request is answered by holding 0, from PLAY, on the encoder. The mentor's call on 1 Nov 2026:
+     * both robots play locked. Set false on a robot whose 25-3 Speed servo is fitted and whose
+     * signs, stop power, floor and top speed are checked on {@code Bench: Turret}
+     * ({@code doc/robot-todo.md}).
      */
     public static boolean lockedForward = true;
 
@@ -168,17 +153,22 @@ public class TurretSubsystem implements Subsystem {
     }
 
     private final DcMotorEx encoderHost;
-    private final Servo servo;
+    private final CRServo servo;
     private final PwmControl pwm;   // null if this servo cannot switch its pulse off
+    private final TurretServoControl.Gains gains = new TurretServoControl.Gains(
+            kP, kD, minPower, maxPower, topSpeedDps, feedforward, holdToleranceDeg, targetStillDps);
+    private final TurretDriveWatch watch = new TurretDriveWatch();
 
     private TurretEncoder encoder;
     private double encoderTurnsSetting = Double.NaN;
+    private double encoderCountsSetting = Double.NaN;
     private int directionSetting;
     private String settingsProblem;
 
     private Mode mode = Mode.IDLE;
     private boolean started;
     private double targetDeg;
+    private double targetRateDps;
 
     private long counts;
     private long zeroCounts;
@@ -187,26 +177,32 @@ public class TurretSubsystem implements Subsystem {
     private double angleDeg = Double.NaN;
     private double rateDps = Double.NaN;
     private double errorDeg = Double.NaN;
+    /** The power asked of the servo this loop, counter-clockwise positive; NaN while limp. */
+    private double power = Double.NaN;
     /**
-     * What the servo was last told, to the PWM's own step; NaN before the first and while limp. A
-     * write is a 2–3 ms round trip to the Expansion Hub, so an unchanged one waits for
-     * {@link #resend}, which keeps the repeat that recovers a servo a hub has reset.
+     * What the servo was last told, to the PWM's own step; NaN before the first and while limp. An
+     * unchanged write waits for {@link #resend}, which keeps the repeat that recovers a servo a hub
+     * has reset.
      */
     private double servoOut = Double.NaN;
     private boolean limp = true;
     private final Throttle resend = new Throttle(250, 0);
-    private String runawayNote;
-    /** Why the held angle could not be sent, or null. */
-    private String aimNote;
-    private final TurretRehome rehome = new TurretRehome();
+    /** Why the hold was dropped, or null. */
+    private String faultNote;
     /** The encoder's own angle and rate, whether or not the turret is locked; NaN without one. */
     private double encoderAngleDeg = Double.NaN;
     private double encoderRateDps = Double.NaN;
 
+    /** A power this big is "driven" for the wrong-way watch, and this big "driven hard" for the stall watch. */
+    private static final double WATCH_DRIVE_POWER = 0.15;
+    private static final double WATCH_HARD_POWER = 0.4;
+    /** The encoder turning at least this fast is "turning", deg/s. */
+    private static final double WATCH_MOVING_DPS = 10.0;
+
     /** Looks both devices up once. A missing one fails init with the SDK's own message. */
     public TurretSubsystem(HardwareMap hardwareMap) {
         encoderHost = hardwareMap.get(DcMotorEx.class, DeviceNames.TURRET_ENCODER_HOST);
-        servo = hardwareMap.get(Servo.class, DeviceNames.TURRET);
+        servo = hardwareMap.get(CRServo.class, DeviceNames.TURRET);
         pwm = servo instanceof PwmControl ? (PwmControl) servo : null;
     }
 
@@ -260,27 +256,39 @@ public class TurretSubsystem implements Subsystem {
         return zeroSource;
     }
 
-    /** Hold {@code deg} from home, counter-clockwise positive, chassis frame. Clamped into the travel if known. */
-    public void aim(double deg) {
+    /**
+     * Hold {@code deg} from home, counter-clockwise positive, chassis frame: a direction, reached
+     * the shortest way round. {@code rateDps} is how fast that angle is itself moving, degrees per
+     * second counter-clockwise (for a target fixed on the field, minus the robot's turn rate); 0
+     * or NaN for a target that stands still on the chassis. A request after a dropped hold tries
+     * again.
+     */
+    public void aim(double deg, double rateDps) {
         if (Double.isNaN(deg)) {
             return;
         }
         if (mode != Mode.HOLD) {
-            runawayNote = null;
+            faultNote = null;
+            watch.reset();
         }
-        double limit = travelEachWayDeg;
-        targetDeg = Double.isNaN(limit) || limit <= 0 ? deg : Math.max(-limit, Math.min(limit, deg));
+        targetDeg = deg;
+        targetRateDps = Double.isNaN(rateDps) ? 0.0 : rateDps;
         mode = Mode.HOLD;
+    }
+
+    /** Hold {@code deg} from home, a target that stands still on the chassis. */
+    public void aim(double deg) {
+        aim(deg, 0.0);
     }
 
     /** Hold straight ahead. */
     public void home() {
-        aim(0.0);
+        aim(0.0, 0.0);
     }
 
     /**
      * Pulse off: the servo goes limp and the turret stays wherever it is pushed. While
-     * {@link #lockedForward} the turret holds home all the same.
+     * {@link #lockedForward} the turret holds 0 all the same.
      */
     public void idle() {
         mode = Mode.IDLE;
@@ -288,7 +296,11 @@ public class TurretSubsystem implements Subsystem {
 
     // ------------------------------------------------------------ reads
 
-    /** Degrees from home, counter-clockwise positive, not wrapped; NaN until the settings are valid. */
+    /**
+     * Degrees from home, counter-clockwise positive, not wrapped: it grows past 180 as the turret
+     * winds round, so wrap a difference from it ({@link TurretEncoder#wrap180}). NaN until the
+     * settings are valid.
+     */
     public double angleDegrees() {
         return angleDeg;
     }
@@ -303,17 +315,17 @@ public class TurretSubsystem implements Subsystem {
         return mode == Mode.HOLD ? targetDeg : Double.NaN;
     }
 
-    /** Target minus angle, or NaN when not holding. */
+    /** Target minus angle the shortest way round, (-180, 180], or NaN when not holding. */
     public double errorDegrees() {
         return errorDeg;
     }
 
     /** Holding, and within the tolerance of the target. */
     public boolean onTarget() {
-        return mode == Mode.HOLD && !Double.isNaN(errorDeg) && Math.abs(errorDeg) <= Math.abs(finite(holdToleranceDeg));
+        return mode == Mode.HOLD && !Double.isNaN(errorDeg) && Math.abs(errorDeg) <= gains.toleranceDeg;
     }
 
-    /** Whether {@link #zeroHere()} has been called since this OpMode started. */
+    /** Whether a zero has been taken (by hand, at PLAY or from the Auto) since this OpMode started. */
     public boolean zeroed() {
         return zeroed;
     }
@@ -326,10 +338,10 @@ public class TurretSubsystem implements Subsystem {
     // ------------------------------------------------------------ lifecycle
 
     /**
-     * Idle, angle relative to wherever it sits until {@link #zeroHere()}. The servo is not written
+     * Idle, angle relative to wherever it sits until a zero is taken. The servo is not written
      * until PLAY: unwritten it is limp, since nothing may move or be held by a servo before PLAY
      * (G304.H, G403; see {@link Subsystem}). So the drive team sets the turret at home by its mark
-     * in INIT, and at PLAY the servo takes it to {@link #homePosition} and holds it there.
+     * in INIT, it is zeroed there at PLAY, and from then the loop holds it.
      */
     @Override
     public void initialize() {
@@ -340,14 +352,15 @@ public class TurretSubsystem implements Subsystem {
         zeroCounts = counts;
         zeroed = false;
         zeroSource = ZeroSource.NONE;
-        rehome.reset();
+        faultNote = null;
+        watch.reset();
     }
+
     /** PLAY: the servo may be written from now on. */
     @Override
     public void start() {
         started = true;
     }
-
 
     /** One encoder read, and from PLAY one servo write. */
     @Override
@@ -365,52 +378,46 @@ public class TurretSubsystem implements Subsystem {
         if (lockedForward) {
             angleDeg = 0.0;
             rateDps = 0.0;
-        } else if (encoder != null) {
-            angleDeg = encoder.degrees(counts, zeroCounts);
-            rateDps = encoder.degreesPerSecond(countsPerSecond);
         } else {
-            angleDeg = Double.NaN;
-            rateDps = Double.NaN;
+            angleDeg = encoderAngleDeg;
+            rateDps = encoderRateDps;
         }
+        errorDeg = !lockedForward && mode == Mode.HOLD
+                ? TurretServoControl.shortestErrorDeg(targetDeg, angleDeg) : Double.NaN;
 
-        double position = Double.NaN;   // NaN: limp
-        aimNote = null;
-        if (lockedForward) {
-            errorDeg = Double.NaN;
-            position = positionFor(0.0, homePosition, degreesPerUnit, minPosition, maxPosition);
-        } else if (mode == Mode.HOLD) {
-            errorDeg = Double.isNaN(angleDeg) ? Double.NaN : targetDeg - angleDeg;
-            if (Math.abs(errorDeg) > Math.max(finite(runawayDeg), 1.0)) {
-                runawayNote = String.format(Locale.US,
-                        "RUNAWAY: %.0f° from target; hold dropped. Flip degreesPerUnit's sign (or direction) and aim again.",
-                        errorDeg);
-                mode = Mode.IDLE;
-            } else {
-                position = positionFor(targetDeg, homePosition, degreesPerUnit, minPosition, maxPosition);
-                if (Double.isNaN(position)) {
-                    aimNote = "degreesPerUnit not measured: holding home, not " + Math.round(targetDeg) + "°";
-                    position = homePosition;
-                }
-            }
-        } else {
-            errorDeg = Double.NaN;
+        // Locked, the turret holds 0 whatever was asked; the loop is the same one.
+        boolean holding = (lockedForward || mode == Mode.HOLD) && faultNote == null && zeroed && encoder != null;
+        power = Double.NaN;   // NaN: limp
+        if (holding) {
+            double want = lockedForward ? 0.0 : targetDeg;
+            double wantRate = lockedForward ? 0.0 : targetRateDps;
+            power = TurretServoControl.power(TurretServoControl.shortestErrorDeg(want, encoderAngleDeg),
+                    encoderRateDps, wantRate, gains);
         }
         if (!started) {
             return;
         }
-        if (Double.isNaN(position)) {
+        if (Double.isNaN(power)) {
             goLimp();
             return;
         }
-        if (rehomeFromEncoder && zeroed) {
-            double wantDeg = lockedForward ? 0.0 : targetDeg;
-            position = rehome.step(position, wantDeg, encoderAngleDeg, encoderRateDps, degreesPerUnit,
-                    Math.max(0.0, minPosition), Math.min(1.0, maxPosition), rehomeStillDps, rehomeStillMs,
-                    rehomeToleranceDeg, rehomeBelieveDeg, System.nanoTime());
+        long now = System.nanoTime();
+        TurretDriveWatch.Fault fault = watch.step(power, encoderRateDps, WATCH_DRIVE_POWER, WATCH_HARD_POWER,
+                WATCH_MOVING_DPS, watchWrongWayMs, watchStallMs, now);
+        if (fault != TurretDriveWatch.Fault.NONE) {
+            faultNote = fault == TurretDriveWatch.Fault.WRONG_WAY
+                    ? "DROPPED: the turret turned against its servo. Flip servoDirection (it ran from the"
+                            + " target) or direction (the angle read the other way) on Bench: Turret."
+                    : "DROPPED: driven and the encoder did not move. Encoder cable in the intake's socket?"
+                            + " Servo turning? Turret jammed?";
+            mode = Mode.IDLE;
+            power = Double.NaN;
+            goLimp();
+            return;
         }
-        double out = pwmStep(position);
-        if (limp || out != servoOut || resend.due(System.nanoTime())) {
-            servo.setPosition(out);
+        double out = pwmStep(clamp(power * (servoDirection == -1 ? -1 : 1) + clamp(servoStopPower, 0.2), 1.0));
+        if (limp || out != servoOut || resend.due(now)) {
+            servo.setPower(out);
             servoOut = out;
             if (limp && pwm != null) {
                 pwm.setPwmEnable();
@@ -419,45 +426,25 @@ public class TurretSubsystem implements Subsystem {
         }
     }
 
-    /**
-     * The servo position for {@code deg} from home: {@code home + deg / degreesPerUnit}, clamped
-     * into the limits {@code [min, max]} (themselves kept inside [0, 1]). 0 degrees is
-     * {@code home} whatever {@code degreesPerUnit} is; any other angle needs a measured, non-zero
-     * {@code degreesPerUnit}, or the answer is NaN. A {@code home} outside the limits, or limits
-     * that are not a range, give NaN too: a bad value goes limp, never past an end.
-     */
-    static double positionFor(double deg, double home, double degreesPerUnit, double min, double max) {
-        double lo = Math.max(0.0, min);
-        double hi = Math.min(1.0, max);
-        if (Double.isNaN(lo) || Double.isNaN(hi) || lo > hi) {
-            return Double.NaN;
-        }
-        if (Double.isNaN(home) || home < lo || home > hi || Double.isNaN(deg)) {
-            return Double.NaN;
-        }
-        if (deg == 0.0) {
-            return home;
-        }
-        if (Double.isNaN(degreesPerUnit) || Double.isInfinite(degreesPerUnit) || degreesPerUnit == 0.0) {
-            return Double.NaN;
-        }
-        return Math.max(lo, Math.min(hi, home + deg / degreesPerUnit));
-    }
-
     private void goLimp() {
-        if (!limp && pwm != null) {
-            pwm.setPwmDisable();
+        if (!limp) {
+            if (pwm != null) {
+                pwm.setPwmDisable();
+            } else {
+                servo.setPower(clamp(servoStopPower, 0.2));
+            }
         }
-        limp = pwm != null;
+        limp = true;
         servoOut = Double.NaN;
+        watch.reset();
     }
 
     /**
-     * A servo position to a step the PWM can tell apart: positions 0 to 1 span the hub's pulse
-     * range (about 2000 µs), so 0.001 is about two microseconds. Finer changes only cost writes.
+     * A servo power to the PWM's own step: power ±1 spans about 1000 µs of pulse either side of
+     * the centre, so 0.001 is about one microsecond. Finer changes only cost writes.
      */
-    static double pwmStep(double position) {
-        return Math.round(position * 1000.0) / 1000.0;
+    static double pwmStep(double power) {
+        return Math.round(power * 1000.0) / 1000.0;
     }
 
     /** Final teardown: pulse off, limp. */
@@ -465,97 +452,77 @@ public class TurretSubsystem implements Subsystem {
     public void stop() {
         if (pwm != null) {
             pwm.setPwmDisable();
+        } else {
+            servo.setPower(clamp(servoStopPower, 0.2));
         }
         limp = true;
     }
 
     @Override
     public String health() {
-        if (lockedForward) {
-            return "locked straight ahead (lockedForward): from PLAY holds servo position "
-                    + homePosition + "; presence unknown (a servo reports nothing back)";
-        }
-        return "servo configured (position mode); encoder read through " + DeviceNames.TURRET_ENCODER_HOST
-                + "; zero: " + zeroSource.text
+        return (lockedForward ? "locked straight ahead (lockedForward): from PLAY holds 0° on the encoder; " : "")
+                + "continuous servo, presence unknown (a servo reports nothing back); encoder read through "
+                + DeviceNames.TURRET_ENCODER_HOST + "; zero: " + zeroSource.text
                 + (settingsProblem != null ? "; settings: " + settingsProblem : "");
     }
 
     @Override
     public void describe(Display display) {
-        if (lockedForward) {
-            boolean good = !Double.isNaN(positionFor(0.0, homePosition, degreesPerUnit, minPosition, maxPosition));
-            display.status("Turret", good ? Display.Level.OK : Display.Level.FAULT, good
-                    ? String.format(Locale.US, "locked straight ahead (0°): %s position %.3f",
-                            started ? "holding" : "holds from PLAY at", homePosition)
-                    : "homePosition must be inside minPosition..maxPosition: limp");
-            describeRehome(display);
+        if (settingsProblem != null) {
+            display.status("Turret", Display.Level.FAULT, settingsProblem + ": limp");
             return;
         }
-        if (settingsProblem != null) {
-            display.status("Turret", Display.Level.FAULT, settingsProblem);
+        if (faultNote != null) {
+            display.status("Turret", Display.Level.FAULT, faultNote);
+            return;
+        }
+        String zero = zeroed ? zeroSource.text : "not zeroed yet: it zeroes where it stands at PLAY, or zero it now";
+        if (lockedForward) {
+            display.status("Turret", Display.Level.OK, String.format(Locale.US,
+                    "locked straight ahead: %s 0° (encoder %.1f°) · %s",
+                    started ? "holding" : "holds from PLAY at", TurretEncoder.wrap180(encoderAngleDeg), zero));
             return;
         }
         String what;
         Display.Level level;
         switch (mode) {
             case HOLD:
-                what = String.format(Locale.US, "%.1f° → %.1f° (%+.1f)", angleDeg, targetDeg, errorDeg);
+                what = String.format(Locale.US, "%.1f° → %.1f° (%+.1f)", TurretEncoder.wrap180(angleDeg),
+                        TurretEncoder.wrap180(targetDeg), errorDeg);
                 level = onTarget() ? Display.Level.OK : Display.Level.WARN;
                 break;
             default:
-                what = String.format(Locale.US, "%.1f° · idle", angleDeg);
+                what = String.format(Locale.US, "%.1f° · idle", TurretEncoder.wrap180(angleDeg));
                 level = Display.Level.OK;
                 break;
         }
-        display.status("Turret", level, what + " · "
-                + (zeroed ? zeroSource.text : "not zeroed yet: it zeroes where it stands at PLAY, or zero it now"));
-        if (runawayNote != null) {
-            display.status("Turret", Display.Level.FAULT, runawayNote);
-        }
-        if (aimNote != null) {
-            display.status("Turret", Display.Level.WARN, aimNote);
-        }
-        describeRehome(display);
-    }
-
-    /** The encoder correction's line, when it is on. */
-    private void describeRehome(Display display) {
-        if (!rehomeFromEncoder) {
-            return;
-        }
-        if (Double.isNaN(degreesPerUnit) || degreesPerUnit == 0.0) {
-            display.status("Turret re-home", Display.Level.WARN, "off: degreesPerUnit not measured");
-        } else if (rehome.disbelieved()) {
-            display.status("Turret re-home", Display.Level.FAULT, String.format(Locale.US,
-                    "encoder reads %.0f° off: not believed, holding the last correction. Hub reset? Restart the OpMode with the turret on its mark",
-                    encoderAngleDeg));
-        } else if (rehome.outOfReach()) {
-            display.status("Turret re-home", Display.Level.FAULT, String.format(Locale.US,
-                    "out of reach: encoder %.0f°, turret at a limit. Stop, turn the turret one full turn by hand, put it on its mark, run again",
-                    encoderAngleDeg));
-        } else {
-            display.status("Turret re-home", Display.Level.OK, String.format(Locale.US,
-                    "encoder %.1f° · offset %+.3f · %d corrections%s", encoderAngleDeg, rehome.offset(),
-                    rehome.corrections(), zeroed ? "" : " · waits for the zero at PLAY"));
-        }
+        display.status("Turret", level, what + " · " + zero);
     }
 
     /** Why the last hold was dropped, or null. Shown by the OpMode too. */
-    public String runawayNote() {
-        return runawayNote;
+    public String faultNote() {
+        return faultNote;
+    }
+
+    /** The power asked of the servo this loop, counter-clockwise positive; NaN while limp. For the log. */
+    public double power() {
+        return power;
     }
 
     // ------------------------------------------------------------ helpers
 
-    /** Rebuilds the encoder's converter only when its two Panels inputs change. */
+    /** Pulls the Panels values in; rebuilds the encoder's converter only when its two inputs change. */
     private void refreshSettings() {
-        if (encoderTurnsSetting == turnsPerTurretTurn && directionSetting == direction && encoder != null) {
+        gains.set(kP, kD, minPower, maxPower, topSpeedDps, feedforward, holdToleranceDeg, targetStillDps);
+        if (encoderTurnsSetting == turnsPerTurretTurn && directionSetting == direction
+                && encoderCountsSetting == countsPerEncoderTurn && encoder != null) {
             return;
         }
         encoderTurnsSetting = turnsPerTurretTurn;
+        encoderCountsSetting = countsPerEncoderTurn;
         directionSetting = direction;
         try {
-            encoder = new TurretEncoder(turnsPerTurretTurn, direction);
+            encoder = new TurretEncoder(countsPerEncoderTurn, turnsPerTurretTurn, direction);
             settingsProblem = null;
         } catch (IllegalArgumentException e) {
             encoder = null;
@@ -563,7 +530,10 @@ public class TurretSubsystem implements Subsystem {
         }
     }
 
-    private static double finite(double value) {
-        return Double.isNaN(value) || Double.isInfinite(value) ? 0.0 : value;
+    private static double clamp(double value, double limit) {
+        if (Double.isNaN(value)) {
+            return 0.0;
+        }
+        return Math.max(-limit, Math.min(limit, value));
     }
 }

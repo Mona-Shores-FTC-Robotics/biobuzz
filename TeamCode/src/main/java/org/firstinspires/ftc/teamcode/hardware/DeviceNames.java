@@ -62,17 +62,18 @@ public final class DeviceNames {
 
     /**
      * The turret's angle encoder is read through this motor's encoder socket, not a device of its
-     * own. A Studica Cypher Max rides the turret's drive gear; its quadrature (A/B/I) output plugs
-     * into the encoder socket beside Expansion Hub motor port 3, whose motor is {@link #FEEDER}
-     * (the build team's choice, 24 Oct 2026: the drive motors' sockets hold their own encoders).
-     * The SDK reads whatever is plugged into a socket as that motor's position, so the feeder's
-     * {@code getVelocity()} on a competition robot is the turret encoder moving, not the feeder;
-     * the feeder runs without its encoder and shows that number only on the Robot page. Code
-     * that wants the turret angle asks for this motor and reads only its encoder; nothing may set
-     * its power except the feeder code, and nothing may reset its count except the turret code.
-     * The socket is in each robot's XML.
+     * own. A REV Through Bore Encoder rides the turret's drive gear; its quadrature output plugs
+     * into the encoder socket beside Expansion Hub motor port 0, whose motor is {@link #INTAKE}
+     * (the mentor's call at the robot, 17 Nov 2026; until then a Studica Cypher Max in the
+     * feeder's socket). The SDK reads whatever is plugged into a socket as that motor's position,
+     * so the intake's {@code getCurrentPosition()} and {@code getVelocity()} on a competition
+     * robot are the turret turning, not the roller: the intake runs without its encoder, and
+     * everything of its that needed one is off ({@code IntakeSubsystem.ownEncoder}). Code that
+     * wants the turret angle asks for this motor and reads only its encoder; nothing may set its
+     * power or mode except the intake code, and nothing may reset its count except the turret
+     * code. The socket is in each robot's XML.
      */
-    public static final String TURRET_ENCODER_HOST = FEEDER;
+    public static final String TURRET_ENCODER_HOST = DeviceNames.INTAKE;
     // The launcher bench's Y-cabled flywheel pair: both motors on one port, so
     // software sees one motor. Bench only; the robots have LAUNCHER_LEFT/RIGHT.
     public static final String LAUNCHER = "launcher";
@@ -112,10 +113,11 @@ public final class DeviceNames {
     public static final String INDICATOR = "indicator";
 
     /**
-     * The turret's drive: a goBILDA servo in standard (position) mode since 6 Nov 2026, so a
-     * {@code <Servo>} element on a servo port, not a motor port (all eight are taken). It holds
-     * the position it is sent. A Control Hub servo port; which one is in each robot's XML. Its
-     * angle comes from {@link #TURRET_ENCODER_HOST}, once the turret's encoder is plugged into it.
+     * The turret's drive: a goBILDA 25-3 Speed servo in continuous mode, so a
+     * {@code <ContinuousRotationServo>} element on a servo port, not a motor port (all eight are
+     * taken). It is sent a speed and has no feedback of its own: the turret's angle comes from
+     * {@link #TURRET_ENCODER_HOST}, and {@code TurretSubsystem} closes the loop on it. An
+     * Expansion Hub servo port; which one is in each robot's XML.
      */
     public static final String TURRET = "turret";
 
@@ -209,7 +211,7 @@ public final class DeviceNames {
             new Device(PREFEED, Kind.CR_SERVO),
             new Device(FEED_GATE, Kind.SERVO),
             new Device(INDICATOR, Kind.SERVO),
-            new Device(TURRET, Kind.SERVO),
+            new Device(TURRET, Kind.CR_SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(COLOR_SENSOR, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));

@@ -65,7 +65,7 @@
                  One-way clutches let a ball overrun the stars inward; the
                  code runs them while the intake pulls in, backwards while
                  it ejects, and stops them otherwise. 20245 still has one
-                 star servo, on its port 5. -->
+                 star servo, on its port 5; its port 4 is kept for the second. -->
             <ContinuousRotationServo name="intakeStarsRight" port="4" />
             <ContinuousRotationServo name="intakeStars"      port="5" />
             <!-- Mission-critical servos live on this hub, so losing the
@@ -85,8 +85,7 @@
                  device and every light shows the same colour (the servo
                  position). On port 1 since 6 Nov 2026 (it was on 4). Wired
                  differently from 20245, whose port 1 is dead and whose lights
-                 are on its Expansion Hub (so are 19429's turret and its second
-                 star wheel). -->
+                 are on its Expansion Hub (so is the turret servo, on both). -->
             <Servo name="indicator" port="1" />
 
             <!-- Transfer: the prefeed wheel (a goBILDA Torque servo in
@@ -103,21 +102,29 @@
         <!-- Expansion Hub: the intake, then the launcher. -->
         <LynxModule name="Expansion Hub" port="2">
 
-            <!-- Turret drive: a goBILDA servo in standard (position) mode,
-                 programmed with the goBILDA servo programmer, on this hub's
-                 servo port 5 since 13 Nov 2026 (it was on the Control Hub's
-                 port 4 from 6 Nov, on its port 0 before that, and before that
-                 this hub's port 0). Unlike 20245, whose turret is on its
-                 Control Hub's port 4. It holds a position from PLAY: straight
-                 ahead is 0.514 (RobotDifferences). Locked at home
-                 (TurretSubsystem.lockedForward) until the turret's encoder is
-                 plugged in and checked: see the encoder socket beside motor
-                 port 3 below. -->
-            <Servo name="turret" port="5" />
+            <!-- Turret drive: a goBILDA 25-3 Speed servo in continuous mode
+                 (set with the goBILDA servo programmer), on this hub's servo
+                 port 5, the same port on both robots and where 19429's turret
+                 servo has been since 13 Nov 2026. It replaces the SWYFT
+                 positional servo. PROPOSED, not fitted yet (doc/robot-todo.md).
+                 A continuous servo has no feedback, so TurretSubsystem closes
+                 the loop on the turret's encoder: see the encoder socket beside
+                 motor port 3 below. -->
+            <ContinuousRotationServo name="turret" port="5" />
 
             <!-- Intake roller: one goBILDA 5203 motor (#160, #181), on motor
                  port 0, where the build team plugged it in (23 Oct 2026). -->
             <goBILDA5202SeriesMotor name="intake"         port="0" />
+            <!-- The ENCODER socket beside motor port 0 holds the turret's
+                 encoder, a REV Through Bore Encoder on the turret's drive gear,
+                 not the intake's own (which stays unplugged). Code reads the
+                 turret angle as the intake's position
+                 (DeviceNames.TURRET_ENCODER_HOST), so the intake's position
+                 hold and wedge clear, which needed its own encoder, are off.
+                 PROPOSED for this robot, not wired yet: today its Cypher Max is
+                 still in the feeder's socket (beside motor port 3), so this
+                 branch reads no turret on 19429 until it is rewired like 20245
+                 (doc/robot-todo.md). -->
 
             <!-- Launcher: two flywheels and a feeder, the plan agreed with the
                  build team (23 Oct 2026). Not built yet, so nothing is plugged
@@ -125,15 +132,9 @@
             <goBILDA5202SeriesMotor name="launcher_left"  port="1" />
             <goBILDA5202SeriesMotor name="launcher_right" port="2" />
             <goBILDA5202SeriesMotor name="feeder"         port="3" />
-            <!-- The ENCODER socket beside motor port 3 is meant for the
-                 turret's Studica Cypher Max (quadrature A/B/I, its FTC Control
-                 Hub cable; set its switch to 3V3), the build team's choice of
-                 24 Oct 2026. The feeder motor's own encoder cable was in it
-                 until 6 Nov 2026, when the Cypher Max's replaced it; it counts
-                 (counter-clockwise counts down). Code reads
-                 the turret angle as the feeder's position
-                 (DeviceNames.TURRET_ENCODER_HOST); the feeder never uses its
-                 encoder for control. -->
+            <!-- The ENCODER socket beside motor port 3 is empty: the feeder
+                 runs without an encoder. It held the turret's Cypher Max until
+                 the turret's encoder moved to the intake's socket (above). -->
 
         </LynxModule>
     </LynxUsbDevice>

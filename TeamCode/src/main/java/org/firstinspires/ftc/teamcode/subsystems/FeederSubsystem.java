@@ -43,9 +43,8 @@ import java.util.function.BooleanSupplier;
  */
 @Configurable
 public class FeederSubsystem implements Subsystem {
-    // This motor's encoder socket is DeviceNames.TURRET_ENCODER_HOST. With the turret locked
-    // (TurretSubsystem.lockedForward) the feeder's own encoder is in it, so ticksPerSecond() and
-    // rpm() are the feeder; a robot with a turret encoder fitted would read the turret here.
+    // This motor's encoder socket is empty (it held the turret's encoder until 17 Nov 2026, which
+    // is now in the intake's), so ticksPerSecond() and rpm() read nothing.
 
     /** What the feeder is being asked to do. */
     public enum State { IDLE, FEED, REVERSE }

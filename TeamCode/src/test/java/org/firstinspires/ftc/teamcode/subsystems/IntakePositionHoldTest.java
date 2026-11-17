@@ -22,7 +22,10 @@ public class IntakePositionHoldTest {
     private final double oldMax = IntakeSubsystem.positionHoldMaxPower;
     private final double oldStars = IntakeSubsystem.starsPowerWhenFull;
 
+    private final boolean oldOwnEncoder = IntakeSubsystem.ownEncoder;
+
     @Before public void setup() {
+        IntakeSubsystem.ownEncoder = true;   // the hold needs the roller's own encoder in its socket
         IntakeSubsystem.holdWhenFull = true;
         IntakeSubsystem.positionHoldWhenFull = true;
         IntakeSubsystem.positionHoldMaxPower = 0.3;
@@ -56,6 +59,7 @@ public class IntakePositionHoldTest {
         intake.initialize(); writes.clear();
     }
     @After public void restore() {
+        IntakeSubsystem.ownEncoder = oldOwnEncoder;
         IntakeSubsystem.reversed = oldReversed;
         IntakeSubsystem.holdWhenFull = oldEnabled;
         IntakeSubsystem.positionHoldWhenFull = oldPosition;

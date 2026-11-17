@@ -120,6 +120,20 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       that it is mounted mirror-image to the left), see it turn inward, and put the value that
       worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
       out. Turret: still sits at home after PLAY, as before.
+- [ ] **Both robots: the turret servo becomes a goBILDA 25-3 Speed in continuous mode, on
+      Expansion Hub servo port 5** (the SWYFT positional servo comes off; set continuous mode with
+      the goBILDA programmer). **19429:** same port as now. **20245:** the turret servo moves from
+      Control Hub servo port 4 to **Expansion Hub servo port 5**; its Control Hub port 4 stays
+      empty, kept for a right star wheel like 19429's (`robot_20245.xml`). The turret's encoder is a
+      **REV Through Bore Encoder in the intake's encoder socket** (beside Expansion Hub motor
+      port 0; the intake's own encoder cable stays out, and the Cypher Max comes out of the
+      feeder's socket). 20245 was wired this way on 17 Nov; **19429 is not yet**, and reads no
+      turret on this branch until it is. With the turret's encoder there the intake's position
+      hold on a full lane, its wedge clear and its stall event are off: watch a full lane hold
+      its pieces on the power hold alone (`IntakeSubsystem.holdPowerWhenFull`). The configs on this branch
+      already say this, so **install it only on a robot that is wired this way**: a positional
+      servo sent a continuous servo's pulses swings to an end. A **full TeamCode install**,
+      re-Activate, then **Check: Hardware**, then the Bench: Turret items in §2.
 - [ ] **Panels 1.0.20 (FullPanels bump):** a **full TeamCode install** on each robot (a Sloth Load
       keeps the old Panels). **Good:** Panels opens at `192.168.43.1:8001`, the field and graphs
       update, the Driver Station still lists every `robot_*` config after a Sloth Load, and
@@ -235,71 +249,40 @@ Result, with the gap on each own-start run, → [PR #372].
 - [ ] **Light looks:** Basic Drive INIT steady red, X → steady blue; off after PLAY; intake until a
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
-- [ ] **19429 SWYFT continuous-mode burst experiment** ([test PR #487](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/487)).
-      **Position hold trial:** SWYFT stays in continuous mode. Zero forward, PLAY, Triangle/Y
-      captures the CURRENT angle (not +5); hold R2 to enable feedback correction. D-pad up/down
-      steps target +/-5 degrees. Start with one +5 then -5 test. It uses recorded 150 ms full-speed
-      corrections, PWM OFF at least 350 ms afterward, then rate <=1 deg/s for 100 ms before another
-      correction. Target band +/-1 degree is experimental, not demonstrated accuracy. R2 release
-      immediately disables PWM; Circle/B cancels hold. Re-enable may correct drift. At target the
-      servo is unpowered, so this restores angle after a push rather than providing a stiff brake.
-      Record settle/overshoot and an external hand displacement with normal logs; do not judge it
-      from just the angle while the drive command is ON. Startup/stop delay remains unexplained.
-      **Load the corrected version:** telemetry must say `SWYFT v5: ENCODER HOLD / recorded`. The original version wrongly treated 1500 us as stop and drove home on release.
-      SWYFT's [own guide](https://github.com/SWYFT-Robotics/swyft-servo-programmer-v2/blob/main/src/GuideWindow.xaml)
-      says 1500 us homes even in continuous mode; stop requires PWM disable, and partial-speed
-      control is unavailable. Only **Bench: Turret Burst**, not Basic Drive, Auto or ordinary
-      Bench: Turret, while flashed continuous. Position-mode checks below are deferred; reflash
-      position mode before returning to them. Servo remains on Control Hub servo port 4; Cypher Max
-      on Expansion Hub motor port 3 encoder socket, 3V3. Programmer: continuous, range 255/255,
-      signals 500/1500/2500 us. Install this branch, activate robot_19429. Confirm mechanical
-      clearance within +/-30 degrees or reduce TurretBurstBench.travelEachWayDeg before PLAY.
-      INIT: align forward, Cross/A with R2 released; hand-turn a measured small arc to check 2.75
-      ratio and CCW-positive angle, then return home and zero again. PLAY leaves PWM disabled.
-      Logging is automatic from INIT to STOP in FIRST/logs, using the normal async match logger.
-      Screen Recording line must name a .wpilog, with no fault. Run a few manual single bursts,
-      pausing at least a second after each; no angle transcription needed. STOP, run the existing
-      tools/pull-logs/pull-logs.cmd on the deployment laptop, and tell the session to pull logs.
-      It sends the bench log to the normal logs/<date>-19429-RC branch when internet is available.
-      The session runs read_logs.py turret to see configured/actual duration, signal, input gating,
-      before/after/delta, 250 ms OFF sample, battery, live setting changes and release interruptions.
-      The latest photo confirmed manualBurstMs was still 125, last ON 126.4 ms, signal 2500 us;
-      successive absolute angles tapered toward zero, so do not treat them as per-burst deltas.
-      Manual now defaults to ONE 250 ms full-speed burst per press, capped at 500 ms: the 100 ms
-      repeating test gave no visible motion (mentor; encoder rate briefly -1.2 then zero).
-      Hold R2 + L1/R1, release to rearm. Watch Inputs R2/L1/R1, PWM enabled (SDK), and the latched
-      burst count/last signal/last ON time. SDK enabled state confirms the API state, not a measured
-      waveform. A short burst may not overcome startup/ramp behavior; that is unconfirmed.
-      Compare one burst with manualBurstMs 250 then 500 only if clearance permits. Report whether
-      the burst count rises, last signal is 500/2500 us, last ON time matches, and angle changes.
-      Set manualSingleBurst false in Panels to return to repeating manual bursts.
-      Verify CCW/CW (else flip servoDirection); release R2 must leave it where it is, not drive home.
-      Triangle/Y now captures the current angle; use the position-hold trial above. D-pad changes by 5.
-      Compare repeated +5/-5 approaches, error, overshoot and drift in Panels' turret_burst_* graphs.
-      Starting timing 25 ms on / 250 ms PWM-off; tune burstOnMs/burstOffMs for SWYFT. On time is
-      capped at 100 ms; off time is clamped to 100..10000 ms. Direction reversals first pause.
-      Circle/B cancels hold and disables PWM; trigger release, pauses, and STOP also disable PWM.
-      Verify no powered movement at INIT/PLAY or during pauses. The software window depends on
-      correct encoder/sign and does not prevent coasting. No full revolution is required.
-- [ ] **19429: the turret re-homes from its encoder** (`TurretSubsystem.rehomeFromEncoder`, on for
-      19429). Needs `degreesPerUnit` first (below). Basic Drive: in INIT twirl the turret three
-      turns, put it on its mark, PLAY. **Good:** it swings off, then within about a second comes
-      back to the mark; the Robot page's "Turret re-home" line shows the corrections. **Stop:** it
-      swings further off → `degreesPerUnit`'s sign is wrong. "out of reach" → one more full turn
-      by hand, on the mark, run again.
-- [ ] **19429: before the turret is unlocked** (`lockedForward` false, the mentor's call). On
-      **Bench: Turret** after PLAY: Square at home, step at least 0.1 away: the bench shows
-      `degreesPerUnit` from the encoder (19429's 2.75 encoder ratio is applied); step both ways.
-      First the ratio: Circle (limp), Cross at the home mark, turn the turret by hand to a 45° mark
-      (no further: winding a position servo past its range is what moves home): `angle` ≈ 45°,
-      else 19429's `turnsPerTurretTurn` (2.75) is wrong. Then set `degreesPerUnit`, the real
-      limits (where the turret stops turning, less a margin) and unlock.
-- [ ] **20245: the turret servo's mode and its encoder socket.** On the 24 Oct bench its servo was
-      in continuous mode; the code now sends a position, and keeps it at 0.5 (stop, or centre) until
-      this is known. **Bench: Turret**, PLAY, one D-pad press: the turret steps and stops → position
-      mode, find its straight-ahead position like 19429's; it keeps turning → continuous mode:
-      **stop the OpMode**, and either reprogram it to position mode or tell a mentor. Also: which
-      cable is in the motor port 3 encoder socket (the feeder's, or the Cypher Max's).
+- [ ] **Both robots: the turret's continuous servo, on Bench: Turret, before anything else drives
+      it.** Needs the 25-3 Speed fitted and the config installed (§0). The bench's javadoc is the
+      checklist; in order, and put each value in a PR (`TurretSubsystem`, or a `RobotDifferences`
+      line if the two robots differ):
+      1. **Encoder**, in INIT, nothing powered: Cross with the turret on its mark, then one full
+         turn counter-clockwise by hand. **Good:** `encoder turns` 2.75, `angle` +360. `angle`
+         falls → flip `direction`. `angle` near 1440 or 90 → `countsPerEncoderTurn` is the other
+         encoder's (8192 REV Through Bore, 2048 Cypher Max). Nothing moves → the cable is not in
+         the intake's socket. (19429's `direction` has never been checked; -1 is 20245's.)
+      2. **`servoStopPower`**: PLAY. The turret stands still at power 0, or creeps: step the power
+         until it is still and note it.
+      3. **`servoDirection`**: one R1 press. `angle` rises → +1; falls → -1 (the default, 20245's
+         with its earlier servo).
+      4. **`minPower`**: the smallest step from stopped that turns it steadily, each way (0.07 on
+         another servo, 24 Oct).
+      5. **`topSpeedDps`**: power +1.0 then -1.0, read `fastest`. 196 is the data sheet's. Much
+         slower than 150 → tell a mentor before going on (it must out-turn the drivers).
+      6. **The loop**: Triangle, Square. Push the turret off its target: it comes back and stops
+         without hunting. D-pad up four times from 0: at 180 the next step goes on to -135 the
+         short way. **Stop:** it runs away → a sign from steps 1 or 3 is wrong. Tune `kP` (0.03)
+         and `kD` (0.001) in Panels; none of the loop's values has run on a robot.
+- [ ] **Both robots: the turret holds straight ahead in a match OpMode** (still `lockedForward`).
+      Basic Drive, turret on its mark in INIT (limp, nothing powered), PLAY. **Good:** the Robot
+      page says "locked straight ahead: holding 0°", a push by hand is resisted and comes back,
+      spinning the robot leaves the turret on the nose, and a feed does not move it. **Stop:**
+      "DROPPED" on the Robot page → the note says which sign or cable; back to the bench.
+- [ ] **Both robots: unlock and track** (`TurretSubsystem.lockedForward` false in Panels, the
+      mentor's call, only after the two items above). Basic Drive, pose known, turret mode AIM.
+      **Good:** the turret stays on our CELL while the robot spins on the spot both ways and
+      drives past the HIVE; it goes all the way round with no stop; `/Turret/ErrorDeg` in the log
+      stays within a few degrees in a normal turn. A turn it cannot keep up with (faster than
+      `topSpeedDps`) leaves it behind and it catches up after. Lagging in every turn →
+      `topSpeedDps` is set too high or `feedforward` too low; leading → the other way.
+      Then pull logs: the session reads the error against the turn rate.
 
 ## 3. The selected Autos, on the field (HIVE upright, preloads in, Panels open)
 

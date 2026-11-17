@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretEncoder;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldLayers;
@@ -576,7 +577,7 @@ public class HiveAndPose extends RobotOpMode {
 
     private void showTurret() {
         display.section("Turret");
-        double angle = robot.turret.angleDegrees();
+        double angle = TurretEncoder.wrap180(robot.turret.angleDegrees());
         if (!robot.turret.zeroed()) {
             display.status("Turret", Display.Level.WARN, String.format(Locale.US,
                     "%.1f° · not zeroed yet — it zeroes where it stands at PLAY, or press D-pad up", angle));
@@ -587,8 +588,8 @@ public class HiveAndPose extends RobotOpMode {
         } else {
             display.status("Turret", Display.Level.OK, String.format(Locale.US, "%.1f° · idle", angle));
         }
-        if (robot.turret.runawayNote() != null) {
-            display.status("Turret", Display.Level.FAULT, robot.turret.runawayNote());
+        if (robot.turret.faultNote() != null) {
+            display.status("Turret", Display.Level.FAULT, robot.turret.faultNote());
         }
         if (aiming) {
             display.line(aimer.line());

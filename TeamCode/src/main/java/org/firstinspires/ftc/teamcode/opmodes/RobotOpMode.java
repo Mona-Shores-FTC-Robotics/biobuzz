@@ -275,9 +275,17 @@ public abstract class RobotOpMode extends OpMode {
     private final MotionWatch intakeWatch = new MotionWatch("intake");
     private int loggedWedgeClears;
     private final MotionWatch feederWatch = new MotionWatch("feeder");
-    /** The feeder motor's encoder socket reads the turret, not the feeder: no stall watch on it. */
-    private static final boolean FEEDER_SOCKET_IS_THE_TURRETS =
-            DeviceNames.FEEDER.equals(DeviceNames.TURRET_ENCODER_HOST);
+    /**
+     * The intake motor's encoder socket reads the turret (DeviceNames.TURRET_ENCODER_HOST), not
+     * the roller: no stall watch on it.
+     */
+    private static final boolean INTAKE_SOCKET_IS_THE_TURRETS =
+            DeviceNames.INTAKE.equals(DeviceNames.TURRET_ENCODER_HOST);
+    /**
+     * The feeder runs without an encoder: its socket held the turret's until 17 Nov 2026 and is
+     * empty now. Set true on the day the feeder's own encoder cable is back in it.
+     */
+    private static final boolean FEEDER_HAS_ITS_ENCODER = false;
     private String loggedLauncherFault;
     private int loggedPidfWrites;
     private int loggedSpinUps;
@@ -1642,6 +1650,7 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Turret/AngleDeg", robot.turret.angleDegrees());
         log.put("/Turret/TargetDeg", robot.turret.targetDegrees());
         log.put("/Turret/ErrorDeg", robot.turret.errorDegrees());
+        log.put("/Turret/Power", robot.turret.power());
         log.put("/Turret/Zeroed", robot.turret.zeroed() ? 1 : 0);
         log.put("/Turret/Holding", robot.turret.holding() ? 1 : 0);
         long now = System.nanoTime();
@@ -1656,15 +1665,17 @@ public abstract class RobotOpMode extends OpMode {
         }
         loggedLauncherFault = launcherFault;
         // Not while holding a full lane: the slow roller pressing on the last piece may barely turn.
-        String stalled = intakeWatch.check(robot.intake.state() != IntakeSubsystem.State.IDLE
-                        && !robot.intake.holdingForFull(),
-                robot.intake.ticksPerSecond(), now);
-        if (stalled != null) log.event(stalled);
-        // The feeder's encoder socket holds the turret's encoder (DeviceNames.TURRET_ENCODER_HOST),
-        // so its speed says nothing about the feeder: with the turret locked the watch tripped on
-        // every feed of every Belding match and would have hidden a real jam (#500).
-        if (!FEEDER_SOCKET_IS_THE_TURRETS) {
-            stalled = feederWatch.check(robot.feeder.power() != 0.0, robot.feeder.ticksPerSecond(), now);
+        // And only with the roller's own encoder in its socket: the turret's says nothing about it.
+        if (!INTAKE_SOCKET_IS_THE_TURRETS) {
+            String stalled = intakeWatch.check(robot.intake.state() != IntakeSubsystem.State.IDLE
+                            && !robot.intake.holdingForFull(),
+                    robot.intake.ticksPerSecond(), now);
+            if (stalled != null) log.event(stalled);
+        }
+        // With no encoder of its own the feeder's speed reads nothing: the watch tripped on every
+        // feed of every Belding match and would have hidden a real jam (#500).
+        if (FEEDER_HAS_ITS_ENCODER) {
+            String stalled = feederWatch.check(robot.feeder.power() != 0.0, robot.feeder.ticksPerSecond(), now);
             if (stalled != null) log.event(stalled);
         }
         if (!Double.isNaN(loopMs)) {

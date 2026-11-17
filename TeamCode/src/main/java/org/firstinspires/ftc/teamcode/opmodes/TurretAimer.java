@@ -34,9 +34,12 @@ import java.util.Locale;
  * until {@link #resetTrim}. {@link #solve} works out the aim without moving the turret, which is
  * what the chassis aim and the aim gate use while the turret is LOCKED.
  *
- * <p>If the turret drops its hold (it ran away from the target, so a direction is wrong),
- * {@link #update} stops asking until {@link #start()} is called again: asking every loop would have
- * the turret drive off, drop, and drive off again.
+ * <p>The turret has no stops and follows the target all the way round; {@link #update} also tells
+ * it how fast the robot is turning, so it turns against the robot without waiting for an error.
+ *
+ * <p>If the turret drops its hold (it turned against its servo, so a sign is wrong, or its encoder
+ * did not move), {@link #update} stops asking until {@link #start()} is called again: asking every
+ * loop would have the turret drive off, drop, and drive off again.
  */
 public final class TurretAimer {
 
@@ -75,13 +78,17 @@ public final class TurretAimer {
      * switch ends, inches.
      */
     public void update(Alliance alliance, double switchBandIn) {
-        if (robot.turret.runawayNote() != null) {
+        if (robot.turret.faultNote() != null) {
             source = "turret dropped the hold: see its note; press the mode button again to retry";
             aimDeg = Double.NaN;
             return;
         }
         if (solve(alliance, switchBandIn)) {
-            robot.turret.aim(aimDeg);
+            // The CELL stands still on the field, so across the chassis it moves at minus the
+            // robot's turn rate: the turret is told that rate and turns against the robot at once.
+            // Driving past the CELL moves it too, slowly; the turret's loop takes that up.
+            double turnDps = Math.toDegrees(robot.drive.odometryTurnRadPerSec());
+            robot.turret.aim(aimDeg, Double.isNaN(turnDps) ? 0.0 : -turnDps);
         }
     }
 
