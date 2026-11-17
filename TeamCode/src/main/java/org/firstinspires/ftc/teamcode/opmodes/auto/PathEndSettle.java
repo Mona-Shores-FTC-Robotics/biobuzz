@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
 import java.util.Locale;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
@@ -38,6 +39,11 @@ import java.util.function.DoubleSupplier;
  * {@code atParametricEnd()}, {@code distanceToEndpoint()}, the follower's mode, how far the robot
  * is from the path's end pose, its heading error and its speed; and a second event when the robot
  * first counts as settled after that end, with how long it took. It measures nothing itself.
+ *
+ * <h2>With a turret that aims</h2>
+ *
+ * <p>For an Auto whose turret tracks the CELL ({@link #aimBy}), the turret is the aim: settled is
+ * slowing with the turret on the CELL, whatever way the chassis faces or turns.
  *
  * <p>Fed by {@link AutoKit}'s path watcher and by {@link #update} once per loop. Reads only what
  * the drive already keeps; allocates only when it writes an event.
@@ -110,11 +116,24 @@ public final class PathEndSettle implements AutoKit.PathWatcher {
     /** When that path ended, seconds; NaN while a path is driving or before the first. */
     private double endedAt = Double.NaN;
     private boolean settleLogged = true;
+    /** With a turret that aims: whether it is on the CELL now; null while the chassis is the aim. */
+    private BooleanSupplier turretAimed;
 
     public PathEndSettle(Motion motion, DoubleSupplier secondsNow, Consumer<String> event) {
         this.motion = motion;
         this.secondsNow = secondsNow;
         this.event = event == null ? line -> { } : event;
+    }
+
+    /**
+     * The turret is the aim from now on ({@code BuiltAuto}, for an Auto whose turret tracks):
+     * "aimed" is {@code turretOnCell}, the turret holding within its tolerance of our CELL, and the
+     * chassis's heading and turn rate no longer count, for {@link #settled} and
+     * {@link #readyOnApproach} alike. The robot may then arrive at a launch spot facing anywhere.
+     * Null goes back to the chassis.
+     */
+    public void aimBy(BooleanSupplier turretOnCell) {
+        turretAimed = turretOnCell;
     }
 
     /** One for the robot, on the system clock, writing to {@code event}. */
@@ -173,6 +192,9 @@ public final class PathEndSettle implements AutoKit.PathWatcher {
      * launch card that cannot fire.
      */
     public boolean settled() {
+        if (turretAimed != null) {
+            return within(motion.speedInPerSec(), slowSpeedInPerSec) && turretAimed.getAsBoolean();
+        }
         boolean slowing = within(motion.speedInPerSec(), slowSpeedInPerSec)
                 && within(Math.toDegrees(Math.abs(motion.turnRadPerSec())), stillTurnDegPerSec);
         if (!slowing) return false;
@@ -189,6 +211,7 @@ public final class PathEndSettle implements AutoKit.PathWatcher {
     public boolean readyOnApproach(Pose pathEnd, Pose pose, double remainingIn) {
         if (pathEnd == null || pose == null) return false;
         if (!(launchWithinIn > 0) || !(remainingIn <= launchWithinIn)) return false;
+        if (turretAimed != null) return turretAimed.getAsBoolean();
         double error = Math.toDegrees(Math.IEEEremainder(pose.heading() - pathEnd.heading(), 2 * Math.PI));
         return within(Math.abs(error), aimToleranceDeg)
                 && within(Math.toDegrees(Math.abs(motion.turnRadPerSec())), launchTurnDegPerSec);

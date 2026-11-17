@@ -69,7 +69,10 @@ Three layers, each written in exactly one place:
   robot's turning. One aim, `opmodes/TurretAimer`, for every OpMode: Basic Drive's AIM mode, and a
   generated Auto on a robot whose turret is unlocked with `BuiltAuto.turretTracks` turned on in
   Panels (off by default: an Auto holds the turret straight ahead), which then tracks the near-end
-  CELL from PLAY; a launch card still waits for the chassis, never the turret.
+  CELL from PLAY. An Auto drawn for the turret (the Visualizer's "The turret aims", exported as
+  `TURRET_AIMS`; its OpMode overrides `BuiltAuto.needsTurret`) tracks without the switch and does not
+  run on a locked turret. While an Auto tracks, a launch card waits for the turret to be on the
+  CELL, not for the chassis to face it (`PathEndSettle.aimBy`); otherwise it waits for the chassis.
   → README § "The turret: a servo on a servo port, an encoder on a motor's encoder socket"
 - XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what
   the SDK reads; keep `port` equal to it.

@@ -1149,6 +1149,27 @@ step. The turret must aim: 19429 is refused until it is unlocked. Film every tri
 - [ ] **Ask in Q&A if the film shows five aboard for a moment:** whether a piece entering as one
       leaves is "controlling more than four" under G407. Not asked yet.
 
+## 7b3. Drive: R-Solo-Turret (20245, HIVE upright, both FLOWERs loaded, phone filming the HIVE)
+
+The draft `TeamCode/autos/drafts/README.md` describes: R-Solo with the turret aiming, nose-first, no
+CELL checks. Do these in order; each is a reason to stop.
+
+- [ ] **Can the turret shoot back over the robot?** Basic Drive, turret AIM, robot at about
+      (38, 126) facing the far wall (front about 8 in off it, 9 in toward our wall from the SCORING
+      FLOWER's line), four POLLEN. Fire. **Good:** all four clear the robot and land in the LEFT
+      CELL. **Stop:** a ball hits the robot, or the turret will not hold that angle → the draft's
+      `LEFT_TURRET_FIRE` has to be turned in the Visualizer first; tell the session the widest
+      angle the turret can shoot at.
+- [ ] **Speed and aim from there.** Trim until they score; write the launch speed down (about 43 in
+      by the pose: the speed table's first row) and whether the aim trim is steady.
+- [ ] **Drive: R-Solo-Turret** (Utility menu). Normal RIGHT start, four preloads, turret on its
+      mark. **Good:** the log says "launches wait for the turret, not the chassis" at PLAY; the
+      robot never turns to the HIVE at the left end; both LEFT volleys go from facing the wall; two
+      TIPs; parked inside 30 s. **Write down** when the last ball left and when it was parked (the
+      draft plans 22.2 and 23.9 s). **Stop:** a volley is fired with the turret visibly off the
+      CELL → pull logs; the session reads the turret's error at each gate.
+- [ ] **Then pull logs:** how long each launch waited after its drive ended, against R-Solo's.
+
 ## 7c. Launcher tuning (Bench: Launch Test, Panels open)
 
 Before §7d: the distance rows are only worth having once the wheels hold their speed. The match logs
