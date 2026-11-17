@@ -128,8 +128,8 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       line in `RobotDifferences` if they differ from 20245's). Then Basic Drive, PLAY: stick in,
       roller still; stick down, the roller spins at once (from the request, not once it lands) and
       the DS FLOWER stick line says "roller on"; stick up, it stops. If it turns the wrong way for
-      the pick, flip `FlowerStickSubsystem.rollerReversed` in Panels (the default `false` is a
-      guess) and put the value that worked in a PR. Then a few FLOWER picks: does the spinning
+      the pick, flip `FlowerStickSubsystem.rollerReversed` in Panels (`true` since 17 Nov,
+      seen on 19429) and put the value that worked in a PR. Then a few FLOWER picks: does the spinning
       roller help, and does it pull pieces back out while the robot backs away with the stick
       still down? Match log: `/FlowerStick/RollerPower`.
 - [ ] **Both robots: the turret servo becomes a goBILDA 25-3 Speed in continuous mode, on

@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import java.util.Locale;
 
 /**
- * Bench test for the FLOWER stick: drive the pivot servo straight to a position from gamepad 1,
+ * Bench test for the FLOWER stick: drive the pivot servo straight to a position from either gamepad,
  * read the number off the Driver Station, and spin the roller if this stick has one. No Panels,
  * no {@code Robot}, no limp timer: the servo holds whatever it was last sent until Circle lets it
  * go. It is how {@code FlowerStickSubsystem.RETRACTED} and {@code EXTENDED} are measured.
@@ -95,23 +95,23 @@ public class FlowerStickBench extends OpMode {
     @Override
     public void loop() {
         boolean step = false;
-        if (pressed(gamepad1.dpad_up, upWas)) { position += FINE_STEP; step = true; }
-        if (pressed(gamepad1.dpad_down, downWas)) { position -= FINE_STEP; step = true; }
-        if (pressed(gamepad1.right_bumper, rbWas)) { position += COARSE_STEP; step = true; }
-        if (pressed(gamepad1.left_bumper, lbWas)) { position -= COARSE_STEP; step = true; }
+        if (pressed(dpad_up(), upWas)) { position += FINE_STEP; step = true; }
+        if (pressed(dpad_down(), downWas)) { position -= FINE_STEP; step = true; }
+        if (pressed(right_bumper(), rbWas)) { position += COARSE_STEP; step = true; }
+        if (pressed(left_bumper(), lbWas)) { position -= COARSE_STEP; step = true; }
         position = FlowerStickSubsystem.unitRange(Math.round(position * 1000.0) / 1000.0);
         if (step) powered = true;
-        if (pressed(gamepad1.circle, circleWas)) powered = false;
-        if (pressed(gamepad1.cross, crossWas)) {
+        if (pressed(circle(), circleWas)) powered = false;
+        if (pressed(cross(), crossWas)) {
             recordedRetracted = position;
             FlowerStickSubsystem.RETRACTED = position;
         }
-        if (pressed(gamepad1.triangle, triangleWas)) {
+        if (pressed(triangle(), triangleWas)) {
             recordedExtended = position;
             FlowerStickSubsystem.EXTENDED = position;
         }
-        if (pressed(gamepad1.square, squareWas)) rollerOn = !rollerOn;
-        if (pressed(gamepad1.dpad_left, leftWas)) {
+        if (pressed(square(), squareWas)) rollerOn = !rollerOn;
+        if (pressed(dpad_left(), leftWas)) {
             FlowerStickSubsystem.rollerReversed = !FlowerStickSubsystem.rollerReversed;
         }
         rememberButtons();
@@ -155,6 +155,7 @@ public class FlowerStickBench extends OpMode {
                     + ", power " + fmt(FlowerStickSubsystem.rollerPower));
         }
         telemetry.addLine();
+        telemetry.addLine("Either gamepad. Lower numbers = stick down (EXTENDED 0.0), higher = up.");
         telemetry.addLine("D-pad up/down ±0.01 · bumpers ±0.05 · Circle limp");
         telemetry.addLine("Cross = save as RETRACTED · Triangle = save as EXTENDED");
         if (roller != null) telemetry.addLine("Square roller on/off · D-pad left flip roller direction");
@@ -181,19 +182,30 @@ public class FlowerStickBench extends OpMode {
         return Double.isNaN(v) ? "" : "  (recorded now - write it down)";
     }
 
+    // Either gamepad works, so whoever holds one can run the bench.
+    private boolean dpad_up() { return gamepad1.dpad_up || gamepad2.dpad_up; }
+    private boolean dpad_down() { return gamepad1.dpad_down || gamepad2.dpad_down; }
+    private boolean dpad_left() { return gamepad1.dpad_left || gamepad2.dpad_left; }
+    private boolean left_bumper() { return gamepad1.left_bumper || gamepad2.left_bumper; }
+    private boolean right_bumper() { return gamepad1.right_bumper || gamepad2.right_bumper; }
+    private boolean cross() { return gamepad1.cross || gamepad2.cross; }
+    private boolean triangle() { return gamepad1.triangle || gamepad2.triangle; }
+    private boolean circle() { return gamepad1.circle || gamepad2.circle; }
+    private boolean square() { return gamepad1.square || gamepad2.square; }
+
     private static boolean pressed(boolean now, boolean was) {
         return now && !was;
     }
 
     private void rememberButtons() {
-        upWas = gamepad1.dpad_up;
-        downWas = gamepad1.dpad_down;
-        leftWas = gamepad1.dpad_left;
-        lbWas = gamepad1.left_bumper;
-        rbWas = gamepad1.right_bumper;
-        crossWas = gamepad1.cross;
-        triangleWas = gamepad1.triangle;
-        circleWas = gamepad1.circle;
-        squareWas = gamepad1.square;
+        upWas = dpad_up();
+        downWas = dpad_down();
+        leftWas = dpad_left();
+        lbWas = left_bumper();
+        rbWas = right_bumper();
+        crossWas = cross();
+        triangleWas = triangle();
+        circleWas = circle();
+        squareWas = square();
     }
 }

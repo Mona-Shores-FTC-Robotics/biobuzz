@@ -84,10 +84,11 @@ public class FlowerStickSubsystem implements Subsystem {
     public static double rollerPower = 1.0;
 
     /**
-     * Flips the roller so that positive power turns it the way the pick wants. {@code false} is a
-     * guess: <b>not yet checked on a robot</b> (doc/robot-todo.md).
+     * Flips the roller so that positive power turns it the way the pick wants. {@code true}: seen
+     * on 19429 on 17 Nov 2026, the only robot with a roller, that the SDK's default direction turns
+     * it the wrong way.
      */
-    public static boolean rollerReversed = false;
+    public static boolean rollerReversed = true;
 
     private final Servo servo;
     private final CRServo rollerServo;   // null for a stick without a roller ({@link #roller})
