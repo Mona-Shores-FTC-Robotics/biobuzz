@@ -49,6 +49,24 @@
       "partner": "PartnerStillAuto"
     },
     {
+      "name": "fast partner: TIP 2 quickly (speed 80, 0.25 s a shot, 1.5 s pick)",
+      "partner": "PartnerLTipParkAuto",
+      "timing": {
+        "speed": 80,
+        "launchS": 0.25,
+        "pickS": 1.5
+      }
+    },
+    {
+      "name": "very fast partner (speed 100, 0.15 s a shot, 1.0 s pick)",
+      "partner": "PartnerLTipParkAuto",
+      "timing": {
+        "speed": 100,
+        "launchS": 0.15,
+        "pickS": 1.0
+      }
+    },
+    {
       "name": "pair: beside L-NoCross",
       "partner": "LNoCrossAuto"
     },
