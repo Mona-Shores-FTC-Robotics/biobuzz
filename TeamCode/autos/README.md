@@ -256,17 +256,21 @@ its place here.
   new spot from a field click.
 - **Locked by default.** Dragging a team spot's end snaps it back. Press its lock (on the step, or
   in the Path panel) to unlock it and move it. The move is a change in that browser until saved.
-- **Saving.** *Save team spots…* writes `spots.json` and re-exports every Auto here that uses a
-  changed spot, `.pp` and Java, in one commit on a new `spots/…` branch, then opens a pull
-  request. Once it is merged, every Auto and the robot code use the new spot. Saving needs the
-  same GitHub token as Save to GitHub.
-- **Never edit `spots.json` by hand.** Change spots in the Visualizer, so the Autos that use them
-  are re-exported in the same commit. A hand edit changes no Auto until each is opened and
-  exported again.
+- **Saving.** Saving the Auto you moved a spot in takes the spot with it: *Save to GitHub and
+  simulate…* or a Workspace save writes the Auto, `spots.json`, its Java twin
+  `localization/generated/TeamSpots.java` and every other Auto here that uses the spot,
+  re-exported (`.pp` and Java), in one commit. *Save team spots…* does the same for spots alone, on
+  a new `spots/…` branch with its own pull request. Once it is merged, every Auto and the robot
+  code (`StartPositions`, `AutoLaunchSpots`, which read `TeamSpots`) use the new spot. Saving to
+  GitHub needs the same token as Save to GitHub.
+- **Never edit `spots.json` or `TeamSpots.java` by hand.** Change spots in the Visualizer, so the
+  Autos that use them and the robot code change in the same commit. `TeamSpotsTest` fails while the
+  two files differ. A moved Auto launch spot is still checked by `AutoLaunchSpotsTest` (aimed, its
+  range, two robots to an end), and a few simulator tests name a spot's numbers.
 - **Starts are team spots named `…_START`.** The builder's start buttons are the team's
   `_START` spots (`RIGHT_START` → *Right start*); make one to add a start. A start measured on the
-  field is also in `localization/StartPositions` (`TEAM_SPOTS` names its spot), and
-  `TeamSpotsTest` fails while the two differ: measure, then change both. Both `RIGHT_START` and
+  field is the one `localization/StartPositions` uses (`TEAM_SPOTS` names its spot; the pose is
+  read from `TeamSpots`): measure, then move the spot in the Visualizer. Both `RIGHT_START` and
   `LEFT_START` are measured (31 Oct 2026): back flat on the wall, the frame's left side on a seam's
   teeth. To move a start, press *Unlock … start to move it* under the start buttons, then set it in
   the START panel.

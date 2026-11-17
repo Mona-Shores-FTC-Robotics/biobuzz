@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.localization;
 
 import com.pedropathing.math.Pose;
 
+import org.firstinspires.ftc.teamcode.localization.generated.TeamSpots;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 
@@ -17,6 +18,12 @@ import org.firstinspires.ftc.teamcode.util.FieldFrame;
  * field, never from a drawing.
  *
  * <p>Each also needs its driver forward heading in {@code FieldFrame}, measured the same day.
+ *
+ * <p><b>Where the numbers live.</b> Each red start is a team spot ({@code RIGHT_START},
+ * {@code LEFT_START} in {@code TeamCode/autos/spots.json}), read here from the generated
+ * {@link TeamSpots}, which the Visualizer writes with {@code spots.json}. So a start is moved in one
+ * place, the Visualizer (move the spot, save), and this file, every Auto drawn from it and the start
+ * buttons move together. The x worked out below is the measurement it was set from.
  */
 public final class StartPositions {
 
@@ -33,7 +40,7 @@ public final class StartPositions {
      * the wheelbase, the point the Pinpoint's pod offsets are measured from: 7.7 in from the back
      * (the rear wheels are flush with the back; 15.43 in over the wheels, CAD 29 Oct 2026).
      * Set on 31 Oct 2026 with the robot on the field and in the Visualizer (the team spots
-     * {@code RIGHT_START} and {@code LEFT_START}, rounded to 0.1 in): x is the seam (B-C 47.17,
+     * {@code RIGHT_START} and {@code LEFT_START}, rounded to 0.1 in): x was the seam (B-C 47.17,
      * C-D 70.75) plus or minus about 0.4 in of tooth and 8 in of half frame.
      */
 
@@ -44,7 +51,7 @@ public final class StartPositions {
      * the camera confirmed four times (54.0 to 54.5); the frame then overhung the seam.
      */
     public static final StartPosition RED_AUDIENCE =
-            new StartPosition("Red audience", Alliance.RED, new Pose(55.6, 7.7, Math.toRadians(90)));
+            new StartPosition("Red audience", Alliance.RED, TeamSpots.RIGHT_START.pose());
 
     /**
      * Red, against the far wall, the left-side Autos' start (L-Simple, L-Quals, L-Launch-Park,
@@ -54,7 +61,7 @@ public final class StartPositions {
      * camera sees three or four of the red HIVE's tags.
      */
     public static final StartPosition RED_FAR =
-            new StartPosition("Red far wall", Alliance.RED, new Pose(62.3, 133.8, Math.toRadians(270)));
+            new StartPosition("Red far wall", Alliance.RED, TeamSpots.LEFT_START.pose());
 
     /**
      * {@link #RED_AUDIENCE} turned half a turn about the field centre, the way the field is (manual
@@ -98,11 +105,10 @@ public final class StartPositions {
     /**
      * The team spot each start in {@link #ALL} is, in the same order: the Visualizer's start
      * buttons are the team's {@code _START} spots ({@code TeamCode/autos/spots.json}; the team
-     * names its spots side first: RIGHT_START, RIGHT_PARK, RIGHT_AUTO_HIVE), and
-     * {@code TeamSpotsTest} fails while one differs from the start measured here. Measure a start,
-     * then change both: this file, and the spot (in the Visualizer, Save team spots).
+     * names its spots side first: RIGHT_START, RIGHT_PARK, RIGHT_AUTO_HIVE). Measure a start, then
+     * move its spot in the Visualizer and save: the pose here follows.
      */
-    static final String[] TEAM_SPOTS = {"RIGHT_START", "LEFT_START"};
+    static final String[] TEAM_SPOTS = {TeamSpots.RIGHT_START.name, TeamSpots.LEFT_START.name};
 
     /** The measured start a team spot is, or null for a spot that is not a measured start. */
     static StartPosition forTeamSpot(String name) {
