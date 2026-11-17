@@ -119,14 +119,15 @@ Pinpoint or the Limelight directly. Anything that drives or aims from field coor
 `HiveFieldPoints` is the field CAD's rocker model (axle on the centre line, one row radius),
 checked against the field once; `FlowerFieldPoints` is the official field model's four FLOWER
 centres; `StartPositions`, `FieldFrame` and `LocalizationTuning` hold
-measured field facts — NaN or empty until measured, never guessed. Each measured start is also a
+measured field facts — NaN or empty until measured, never guessed. Each measured start is a
 `…_START` team spot in `TeamCode/autos/spots.json` (the Visualizer's start buttons), named in
-`StartPositions.TEAM_SPOTS`; `TeamSpotsTest` fails while the two differ. Every Auto on master uses
+`StartPositions.TEAM_SPOTS`, whose pose `StartPositions` reads from the generated
+`localization/generated/TeamSpots.java`: a start is moved in the Visualizer, never in Java. Every Auto on master uses
 only the team's spots (`TeamCode/autos/README.md` lists them, side first: `RIGHT_START`,
 `RIGHT_PARK`); one that needs another spot lives on the `autos-experiment` branch. An Auto launches only from
 its start or an Auto launch spot (`AutoLaunchSpots`: `LEFT_AUTO_HIVE`, `LEFT_AUTO_OFFSET`, their
 RIGHT twins, and `RIGHT_AUTO_FIX_TIP` for a left-start Auto that crossed to tip RIGHT itself; team
-spots that `AutoLaunchSpotsTest` keeps equal to the Java), never from a
+spots read from `TeamSpots`, whose placement `AutoLaunchSpotsTest` checks), never from a
 spot of its own or one of the drivers' Square spots (`LaunchSpots`, the TeleOp's alone).
 `AutoVolleySpotsTest` fails an Auto that does. HIVE and OFFSET at
 one end hold two of our robots together; which a volley uses is the Auto's to work out. A
@@ -143,9 +144,11 @@ mistake), and logs the camera's gap at PLAY as a calibration sample.
 source is committed in `TeamCode/autos/` in the same PR, under the name its `SOURCE` constant
 gives. The `.pp` is the source: change the Auto in the Visualizer and export again, never edit the
 generated Java by hand. `AutoSourcesTest` fails a generated class whose `.pp` is missing.
-`TeamCode/autos/spots.json` is the team's shared spots, written only by the Visualizer's *Save
-team spots*, which re-exports every Auto that uses a changed spot in the same commit; never edit it
-by hand.
+`TeamCode/autos/spots.json` is the team's shared spots, written only by the Visualizer, with its
+Java twin `localization/generated/TeamSpots.java` and every Auto that uses a changed spot,
+re-exported, in the same commit (*Save team spots*, or a save of an Auto that moved one); never
+edit either by hand. `TeamSpotsTest` fails while the two differ. Java that needs a team spot's
+pose reads it from `TeamSpots`, never a copy of its own.
 → `TeamCode/autos/README.md`
 
 **The simulator** is test code only (`src/test/.../logging/`: `AutoSim`, `FieldSim`, `SimRunTest`), and
@@ -315,7 +318,8 @@ Remote containers have no `gh`; use the GitHub MCP tools.
   (`first-pr-coach`) rather than writes it for them.
 - **Auto fast lane:** a PR from an `auto/<name>` branch that changes only `TeamCode/autos/*.pp` (or one in its
   `drafts/` or `partners/`), generated
-  Autos and `TeamCode/sim-requests/*.json` needs no issue, branch rule or review, from anyone with write
+  Autos, `TeamCode/sim-requests/*.json`, and a team spot moved in the same save (`TeamCode/autos/spots.json`
+  with its generated `localization/generated/TeamSpots.java`) needs no issue, branch rule or review, from anyone with write
   access. It is a draft: tried on the robot first, merged by a mentor if it is better than master's,
   never auto-merged. The **Auto fast lane** check fails a PR on such a branch that touches anything else.
 - Rename a branch that is already on GitHub with GitHub's button, never by delete-and-repush: that

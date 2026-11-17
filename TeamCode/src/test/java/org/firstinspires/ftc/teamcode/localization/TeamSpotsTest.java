@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.localization;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.firstinspires.ftc.teamcode.localization.generated.TeamSpots;
 import org.junit.Test;
 
 import java.io.File;
@@ -15,16 +15,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The team's spots ({@code TeamCode/autos/spots.json}, written by the Visualizer) and the starts
- * measured in {@link StartPositions} say the same thing: each measured start has its
- * {@code START_} spot, at the same pose. The Visualizer's start buttons are those spots, so a start
- * moved in one place and not the other would put every Auto drawn from it somewhere the robot was
- * not measured to start. A {@code START_} spot with no measured start (one still as drawn) is
- * allowed.
+ * The team's spots ({@code TeamCode/autos/spots.json}) and their Java twin, the generated
+ * {@link TeamSpots}, say the same thing. The Visualizer writes both whenever the team's spots are
+ * saved, so they differ only when one was edited by hand: move the spot in the Visualizer and save,
+ * which writes both again. {@link StartPositions} and {@link AutoLaunchSpots} read their poses from
+ * {@link TeamSpots}, so a start or an Auto launch spot is moved there and nowhere else.
  *
  * <p>A textual scan of the file, like {@code AutoSourcesTest}: one spot per line, as the
  * Visualizer writes it ({@code "NAME": [x, y, heading]}, or {@code [x, y]} for a park).
@@ -34,28 +34,51 @@ public class TeamSpotsTest {
     private static final Pattern SPOT =
             Pattern.compile("\"([A-Z][A-Z0-9_]*)\"\\s*:\\s*\\[\\s*([-0-9.eE]+)\\s*,\\s*([-0-9.eE]+)\\s*(?:,\\s*([-0-9.eE]+))?\\s*]");
 
+    private static final String RESAVE = ": TeamSpots.java and spots.json are written together by the Visualizer;"
+            + " one was edited by hand. Move the spot in the Visualizer and save, which writes both.";
+
     @Test
-    public void everyMeasuredStartIsItsTeamSpot() {
-        Map<String, double[]> spots = spots();
+    public void theGeneratedJavaIsSpotsJson() {
+        Map<String, double[]> json = spots();
+        Map<String, TeamSpot> java = new LinkedHashMap<>();
+        for (TeamSpot spot : TeamSpots.all()) java.put(spot.name, spot);
+        assertEquals("The spots' names" + RESAVE, new TreeSet<>(json.keySet()), new TreeSet<>(java.keySet()));
+        for (Map.Entry<String, double[]> e : json.entrySet()) {
+            double[] j = e.getValue();
+            TeamSpot spot = java.get(e.getKey());
+            String where = spot.name + " is (" + j[0] + ", " + j[1] + ", " + j[2] + ") in spots.json but ("
+                    + spot.x + ", " + spot.y + ", " + spot.headingDeg + ") in TeamSpots.java" + RESAVE;
+            assertEquals(where, j[0], spot.x, 0);
+            assertEquals(where, j[1], spot.y, 0);
+            if (Double.isNaN(j[2])) assertTrue(where, Double.isNaN(spot.headingDeg));
+            else assertEquals(where, j[2], spot.headingDeg, 0);
+        }
+    }
+
+    @Test
+    public void eachStartIsItsStartSpot() {
         assertEquals("StartPositions.TEAM_SPOTS names each start in ALL, in order",
                 StartPositions.ALL.length, StartPositions.TEAM_SPOTS.length);
         for (String name : StartPositions.TEAM_SPOTS) {
             assertTrue(name + " is a team spot name, …_START", name.endsWith("_START"));
             StartPosition start = StartPositions.forTeamSpot(name);
             assertNotNull(start);
-            double[] spot = spots.get(name);
-            if (spot == null) {
-                fail(start.name + " is measured but spots.json has no " + name
-                        + ": add it in the Visualizer (a team spot named " + name + ") and Save team spots");
-            }
-            assertFalse(name + " in spots.json has no heading; a start needs one", Double.isNaN(spot[2]));
-            String where = name + " in spots.json is (" + spot[0] + ", " + spot[1] + ", " + spot[2]
-                    + " deg) but " + start.name + " was measured at (" + start.pose.x() + ", "
-                    + start.pose.y() + ", " + Math.toDegrees(start.pose.heading()) + " deg): change the one that is wrong";
-            assertEquals(where, start.pose.x(), spot[0], 0.01);
-            assertEquals(where, start.pose.y(), spot[1], 0.01);
-            double turn = Math.IEEEremainder(Math.toDegrees(start.pose.heading()) - spot[2], 360);
-            assertEquals(where, 0, turn, 0.01);
+            TeamSpot spot = spot(name);
+            assertTrue(name + " has no heading; a start needs one", spot.hasHeading());
+            assertEquals(spot.pose().x(), start.pose.x(), 0);
+            assertEquals(spot.pose().y(), start.pose.y(), 0);
+            assertEquals(spot.pose().heading(), start.pose.heading(), 1e-12);
+        }
+    }
+
+    @Test
+    public void eachAutoLaunchSpotIsItsTeamSpot() {
+        for (AutoLaunchSpots.Spot launch : AutoLaunchSpots.Spot.values()) {
+            TeamSpot spot = spot(launch.name());
+            assertEquals(launch + " reads the team spot of its own name", spot.pose().x(), launch.red.x(), 0);
+            assertEquals(launch + " reads the team spot of its own name", spot.pose().y(), launch.red.y(), 0);
+            assertEquals(launch + " reads the team spot of its own name",
+                    spot.pose().heading(), launch.red.heading(), 1e-12);
         }
     }
 
@@ -64,6 +87,14 @@ public class TeamSpotsTest {
         assertNull(StartPositions.forTeamSpot("WALL_FLOWER_STAGING"));
         assertEquals("LEFT_START is measured since 31 Oct", StartPositions.RED_FAR,
                 StartPositions.forTeamSpot("LEFT_START"));
+    }
+
+    private static TeamSpot spot(String name) {
+        for (TeamSpot spot : TeamSpots.all()) {
+            if (spot.name.equals(name)) return spot;
+        }
+        fail(name + " is not a team spot: add it in the Visualizer (a team spot named " + name + ") and save");
+        return null;
     }
 
     private static Map<String, double[]> spots() {
