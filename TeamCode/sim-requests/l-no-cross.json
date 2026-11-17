@@ -55,6 +55,23 @@
       "lastShotS": 8
     },
     {
+      "name": "dead on its start, said 8 s, KEEP WAITING",
+      "partner": "PartnerRBrokenDownAuto",
+      "lastShotS": 8,
+      "picks": {
+        "then": "KEEP WAITING"
+      }
+    },
+    {
+      "name": "misses, said 8 s, KEEP WAITING",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 8,
+      "fails": "misses",
+      "picks": {
+        "then": "KEEP WAITING"
+      }
+    },
+    {
       "name": "late: starts 4 s late, wait left as drawn",
       "partner": "PartnerRLaunchParkAuto",
       "timing": {

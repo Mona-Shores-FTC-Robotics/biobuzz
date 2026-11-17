@@ -21,7 +21,7 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-16|5:08PM";
+    public static final String SAVED = "11-17|11:35AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -33,7 +33,7 @@ public final class LNoCrossAuto {
     public static final String DRAWN_FOR = "RED";
 
     /** What the drive team may change during INIT, on gamepad 1's D-pad; nothing changed, the Auto runs as drawn. */
-    public static final AutoOption[] OPTIONS = {AutoOption.matchSeconds("Wait for TIP or CELL up", 9, 1)};
+    public static final AutoOption[] OPTIONS = {AutoOption.matchSeconds("Wait for TIP or CELL up", 9, 1), AutoOption.choice("then", "CROSS AND FIX IT", "KEEP WAITING")};
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
@@ -96,6 +96,9 @@ public final class LNoCrossAuto {
         Path toLeftParkPath5 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath6 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath7 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
+        Path toLeftParkPath8 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
+        Path toLeftParkPath9 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
+        Path toLeftParkPath10 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
 
         return kit.sequence(
                 kit.guarded("Auto", toLeftParkPath2, 2,
@@ -124,8 +127,8 @@ public final class LNoCrossAuto {
                                                                         kit.path("to LEFT_PARK", toLeftParkPath2, 2)))))),
                                 kit.atMatchSeconds(kit.seconds("Wait for TIP or CELL up", 9)).then(
                                         kit.guarded("Timed out", rightAutoFixTipParkUnderTheHive, 3.7,
-                                                kit.path("under the HIVE to RIGHT_AUTO_FIX_TIP", underTheHiveToRightAutoFixTip, 3.3, rightAutoFixTipParkUnderTheHive, 3.7),
-                                                kit.firstOf("RIGHT CELL up?",
+                                                kit.route("then", 0, () -> kit.path("under the HIVE to RIGHT_AUTO_FIX_TIP", underTheHiveToRightAutoFixTip, 3.3, rightAutoFixTipParkUnderTheHive, 3.7)),
+                                                kit.route("then", 0, () -> kit.firstOf("RIGHT CELL up?",
                                                         kit.when("RightCellUp").then(
                                                                 kit.guarded("If RightCellUp", toLeftParkPath4, 2,
                                                                         kit.command("LaunchAll"),
@@ -160,6 +163,24 @@ public final class LNoCrossAuto {
                                                                                                                         kit.path("to LEFT_PARK", toLeftParkPath6, 2)))))),
                                                                                 kit.atMatchSeconds(23).then(
                                                                                         kit.guarded("Timed out", toLeftParkPath7, 2,
-                                                                                                kit.path("to LEFT_PARK", toLeftParkPath7, 2))))))))))));
+                                                                                                kit.path("to LEFT_PARK", toLeftParkPath7, 2)))))))),
+                                                kit.route("then", 1, () -> kit.firstOf("LEFT CELL up?",
+                                                        kit.when("CellUp").then(
+                                                                kit.guarded("If CellUp", toLeftParkPath9, 2,
+                                                                        kit.command("LaunchAll"),
+                                                                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
+                                                                        kit.command("PickFlower", 8),
+                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3),
+                                                                        kit.firstOf("LEFT CELL back up?",
+                                                                                kit.when("CellUp").then(
+                                                                                        kit.guarded("If CellUp", toLeftParkPath8, 2,
+                                                                                                kit.command("LaunchAll"),
+                                                                                                kit.path("to LEFT_PARK", toLeftParkPath8, 2))),
+                                                                                kit.atMatchSeconds(23).then(
+                                                                                        kit.guarded("Timed out", toLeftParkPath9, 2,
+                                                                                                kit.path("to LEFT_PARK", toLeftParkPath9, 2)))))),
+                                                        kit.atMatchSeconds(23).then(
+                                                                kit.guarded("Timed out", toLeftParkPath10, 2,
+                                                                        kit.path("to LEFT_PARK", toLeftParkPath10, 2))))))))));
     }
 }

@@ -56,6 +56,21 @@
       "name": "pair: beside L-NoCross, our preloads miss",
       "partner": "LNoCrossAuto",
       "oursFails": "misses preloads"
+    },
+    {
+      "name": "pair: beside L-NoCross on KEEP WAITING",
+      "partner": "LNoCrossAuto",
+      "partnerPicks": {
+        "then": "KEEP WAITING"
+      }
+    },
+    {
+      "name": "pair: beside L-NoCross on KEEP WAITING, our preloads miss",
+      "partner": "LNoCrossAuto",
+      "oursFails": "misses preloads",
+      "partnerPicks": {
+        "then": "KEEP WAITING"
+      }
     }
   ],
   "metadata": {
