@@ -13,35 +13,41 @@ import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 import org.junit.Test;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
- * The Autos' launch spots ({@link AutoLaunchSpots}) are the team spots of the same names
- * ({@code TeamCode/autos/spots.json}, written by the Visualizer), and are where they are for the
- * reasons given: aimed, two robots to an end, short of the centre line.
+ * The Autos' launch spots ({@link AutoLaunchSpots}, the team spots of the same names, which
+ * {@code TeamSpotsTest} checks) are where they are for the reasons given: aimed, two robots to an
+ * end, short of the centre line. A spot moved in the Visualizer is checked against these too.
  */
 public class AutoLaunchSpotsTest {
 
     private static final double HALF = LaunchSpots.FRAME_HALF_IN;
     private static final double SIZE = FieldFrame.FIELD_SIZE_INCHES;
 
+    /**
+     * Every Auto launch spot, the five placed by hand and any made in the Visualizer since (a team
+     * spot named …_AUTO_…): aimed at its CELL, which the Visualizer keeps as the spot is moved,
+     * inside the field, and short of the centre line.
+     */
     @Test
-    public void eachIsItsTeamSpot() throws Exception {
-        String text = new String(Files.readAllBytes(spotsFile().toPath()), StandardCharsets.UTF_8);
-        for (Spot spot : Spot.values()) {
-            Matcher m = Pattern.compile("\"" + spot.name() + "\"\\s*:\\s*\\[\\s*([-0-9.eE]+)\\s*,\\s*([-0-9.eE]+)\\s*,\\s*([-0-9.eE]+)\\s*]")
-                    .matcher(text);
-            assertTrue(spot + " is not in spots.json with a heading: add it in the Visualizer and Save team spots", m.find());
-            String where = spot + " in spots.json is (" + m.group(1) + ", " + m.group(2) + ", " + m.group(3)
-                    + " deg) but AutoLaunchSpots has (" + spot.red.x() + ", " + spot.red.y() + ", "
-                    + Math.toDegrees(spot.red.heading()) + " deg): change the one that is wrong";
-            assertEquals(where, spot.red.x(), Double.parseDouble(m.group(1)), 0.01);
-            assertEquals(where, spot.red.y(), Double.parseDouble(m.group(2)), 0.01);
-            assertEquals(where, 0, Math.IEEEremainder(Math.toDegrees(spot.red.heading()) - Double.parseDouble(m.group(3)), 360), 0.01);
+    public void everyLaunchSpotIsAimedOnTheFieldAndOurSide() {
+        assertTrue("the five placed by hand are launch spots", AutoLaunchSpots.all().size() >= Spot.values().length);
+        for (TeamSpot spot : AutoLaunchSpots.all()) {
+            assertTrue(spot + " has a heading", spot.hasHeading());
+            Pose p = spot.pose();
+            Vec3 row = AutoLaunchSpots.cellRowFor(spot.y, Alliance.RED);
+            assertNotNull(row);
+            double aimed = LaunchSpots.aimTurret(p.x(), p.y(), row.x(), row.y(),
+                    TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
+            assertEquals(spot + " faces " + spot.headingDeg + " deg; the turret aims from there at "
+                            + String.format(java.util.Locale.ROOT, "%.1f", (Math.toDegrees(aimed) % 360 + 360) % 360)
+                            + " deg: move it in the Visualizer, which aims it", 0,
+                    Math.toDegrees(Math.IEEEremainder(aimed - p.heading(), 2 * Math.PI)), 0.3);
+            for (double[] c : corners(p)) {
+                assertTrue(spot + " reaches x " + c[0] + ", past the centre line less a quarter inch",
+                        c[0] <= FieldFrame.FIELD_CENTRE_INCHES - 0.25);
+                assertTrue(spot + " leaves the field at (" + c[0] + ", " + c[1] + ")",
+                        c[0] >= 0 && c[1] >= 0 && c[1] <= SIZE);
+            }
         }
     }
 
@@ -158,18 +164,5 @@ public class AutoLaunchSpotsTest {
             }
         }
         return best;
-    }
-
-    /** TeamCode/autos/spots.json, from the module dir under Gradle or the repo root in an IDE. */
-    private static File spotsFile() {
-        File candidate = new File(System.getProperty("user.dir"));
-        for (int depth = 0; depth < 4 && candidate != null; depth++) {
-            for (String path : new String[] {"autos/spots.json", "TeamCode/autos/spots.json"}) {
-                File file = new File(candidate, path);
-                if (file.isFile()) return file.getAbsoluteFile();
-            }
-            candidate = candidate.getParentFile();
-        }
-        throw new AssertionError("TeamCode/autos/spots.json not found from " + System.getProperty("user.dir"));
     }
 }

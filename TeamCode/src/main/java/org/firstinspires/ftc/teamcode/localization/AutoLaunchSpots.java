@@ -2,6 +2,11 @@ package org.firstinspires.ftc.teamcode.localization;
 
 import com.pedropathing.math.Pose;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.firstinspires.ftc.teamcode.localization.generated.TeamSpots;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
@@ -11,8 +16,9 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
  * The spots an Auto launches from, besides its own start: a HIVE spot and an OFFSET spot at each
  * end of our HIVE, drawn for red (mentor, 16 Nov 2026). They are team spots under the same names
  * in {@code TeamCode/autos/spots.json}, which is what the Visualizer and so every generated Auto
- * reads; {@code AutoLaunchSpotsTest} fails while the two differ. The drivers' Square has its own
- * twelve ({@link LaunchSpots}), which an Auto does not use.
+ * reads; each pose here is read from the generated {@link TeamSpots}, which the Visualizer writes
+ * with it, so a spot is moved in the Visualizer only. The drivers' Square has its own twelve
+ * ({@link LaunchSpots}), which an Auto does not use.
  *
  * <p><b>Why not Square's.</b> Square's CLOSE row stops 4 in back from where it is drawn, for the
  * HIVE's lip, and there every CLOSE spot overlaps a robot still on that end's start. These are
@@ -44,7 +50,7 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
  *
  * <p>Each heading points the turret's axis ({@code TurretSubsystem}: 3.33 in behind the centre,
  * 2.68 in right of it) at the CELL's raised row from where the spot is; move the turret's numbers
- * and the headings here and in {@code spots.json} move with them. Geometry only: none has been
+ * and the headings in {@code spots.json} move with them. Geometry only: none has been
  * launched from (16 Nov 2026; {@code doc/robot-todo.md}).
  */
 public final class AutoLaunchSpots {
@@ -52,14 +58,45 @@ public final class AutoLaunchSpots {
     private AutoLaunchSpots() {
     }
 
-    /** A spot, drawn for red: x, y, inches, and the heading that aims the turret from there, degrees. */
+    /** Whether team spot {@code name} is an Auto launch spot: every team spot named …_AUTO_… is. */
+    public static boolean isLaunchSpot(String name) {
+        return name.contains("_AUTO_");
+    }
+
+    private static final List<TeamSpot> ALL = launchSpots();
+
+    private static List<TeamSpot> launchSpots() {
+        List<TeamSpot> out = new ArrayList<>();
+        for (TeamSpot spot : TeamSpots.all()) {
+            if (isLaunchSpot(spot.name)) out.add(spot);
+        }
+        return Collections.unmodifiableList(out);
+    }
+
+    /**
+     * Every Auto launch spot, drawn for red: the team spots named …_AUTO_…, so one made in the
+     * Visualizer (a new spot for one Auto, LEFT_AUTO_HIVE_2) is one as soon as it is saved, with
+     * nothing to add here. {@link Spot} names the five the team placed by hand on 16 Nov 2026.
+     */
+    public static List<TeamSpot> all() {
+        return ALL;
+    }
+
+    /** The raised row of the CELL a spot at red {@code y} serves (the CELL at its end), for {@code alliance}. */
+    public static Vec3 cellRowFor(double y, Alliance alliance) {
+        boolean left = LaunchSpots.leftHalf(Alliance.RED, y);
+        HiveCell cell = left ? HiveCell.leftCell(alliance) : HiveCell.rightCell(alliance);
+        return cell == null ? null : HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+    }
+
+    /** A spot, drawn for red: its team spot of the same name, whose heading aims the turret from there. */
     public enum Spot {
-        LEFT_AUTO_HIVE(true, 61.9, 120.4, 268.1),
-        LEFT_AUTO_OFFSET(false, 40.7, 121.1, 298.7),
-        RIGHT_AUTO_HIVE(true, 59.2, 20.9, 96.1),
-        RIGHT_AUTO_OFFSET(false, 32.1, 16.4, 61.0),
+        LEFT_AUTO_HIVE(true, TeamSpots.LEFT_AUTO_HIVE),
+        LEFT_AUTO_OFFSET(false, TeamSpots.LEFT_AUTO_OFFSET),
+        RIGHT_AUTO_HIVE(true, TeamSpots.RIGHT_AUTO_HIVE),
+        RIGHT_AUTO_OFFSET(false, TeamSpots.RIGHT_AUTO_OFFSET),
         /** Square, in line with the RIGHT CELL, its back 18 in from the wall: see the class comment. */
-        RIGHT_AUTO_FIX_TIP(false, 55.3, 25.7, 90.0);
+        RIGHT_AUTO_FIX_TIP(false, TeamSpots.RIGHT_AUTO_FIX_TIP);
 
         /** As drawn, for red. */
         public final Pose red;
@@ -68,10 +105,10 @@ public final class AutoLaunchSpots {
         /** Serves our LEFT CELL (else the RIGHT one): which half of the axle line it is on. */
         public final boolean left;
 
-        Spot(boolean hive, double x, double y, double headingDeg) {
-            this.red = new Pose(x, y, Math.toRadians(headingDeg));
+        Spot(boolean hive, TeamSpot spot) {
+            this.red = spot.pose();
             this.hive = hive;
-            this.left = LaunchSpots.leftHalf(Alliance.RED, y);
+            this.left = LaunchSpots.leftHalf(Alliance.RED, spot.y);
         }
 
         /** The spot for {@code alliance}: blue's is red's turned half a turn about the field centre. */
@@ -81,8 +118,7 @@ public final class AutoLaunchSpots {
 
         /** The raised row of the CELL this spot serves, for {@code alliance}; null with no alliance. */
         public Vec3 cellRow(Alliance alliance) {
-            HiveCell cell = left ? HiveCell.leftCell(alliance) : HiveCell.rightCell(alliance);
-            return cell == null ? null : HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+            return cellRowFor(red.y(), alliance);
         }
     }
 }

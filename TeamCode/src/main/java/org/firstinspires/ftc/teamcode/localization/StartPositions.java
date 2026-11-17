@@ -2,6 +2,11 @@ package org.firstinspires.ftc.teamcode.localization;
 
 import com.pedropathing.math.Pose;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import org.firstinspires.ftc.teamcode.localization.generated.TeamSpots;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 
@@ -17,6 +22,14 @@ import org.firstinspires.ftc.teamcode.util.FieldFrame;
  * field, never from a drawing.
  *
  * <p>Each also needs its driver forward heading in {@code FieldFrame}, measured the same day.
+ *
+ * <p><b>Where the numbers live.</b> Each red start is a team spot named …_START
+ * ({@code RIGHT_START}, {@code LEFT_START} in {@code TeamCode/autos/spots.json}), read here from the
+ * generated {@link TeamSpots}, which the Visualizer writes with {@code spots.json}. So a start is
+ * moved in one place, the Visualizer (move the spot, save), and this file, every Auto drawn from it
+ * and the start buttons move together; and a start made there (a new spot for one Auto,
+ * RIGHT_2_START) is one here as soon as it is saved. The x worked out below is the measurement
+ * RIGHT_START and LEFT_START were set from.
  */
 public final class StartPositions {
 
@@ -33,7 +46,7 @@ public final class StartPositions {
      * the wheelbase, the point the Pinpoint's pod offsets are measured from: 7.7 in from the back
      * (the rear wheels are flush with the back; 15.43 in over the wheels, CAD 29 Oct 2026).
      * Set on 31 Oct 2026 with the robot on the field and in the Visualizer (the team spots
-     * {@code RIGHT_START} and {@code LEFT_START}, rounded to 0.1 in): x is the seam (B-C 47.17,
+     * {@code RIGHT_START} and {@code LEFT_START}, rounded to 0.1 in): x was the seam (B-C 47.17,
      * C-D 70.75) plus or minus about 0.4 in of tooth and 8 in of half frame.
      */
 
@@ -44,7 +57,7 @@ public final class StartPositions {
      * the camera confirmed four times (54.0 to 54.5); the frame then overhung the seam.
      */
     public static final StartPosition RED_AUDIENCE =
-            new StartPosition("Red audience", Alliance.RED, new Pose(55.6, 7.7, Math.toRadians(90)));
+            new StartPosition("Red audience", Alliance.RED, TeamSpots.RIGHT_START.pose());
 
     /**
      * Red, against the far wall, the left-side Autos' start (L-Simple, L-Quals, L-Launch-Park,
@@ -54,7 +67,7 @@ public final class StartPositions {
      * camera sees three or four of the red HIVE's tags.
      */
     public static final StartPosition RED_FAR =
-            new StartPosition("Red far wall", Alliance.RED, new Pose(62.3, 133.8, Math.toRadians(270)));
+            new StartPosition("Red far wall", Alliance.RED, TeamSpots.LEFT_START.pose());
 
     /**
      * {@link #RED_AUDIENCE} turned half a turn about the field centre, the way the field is (manual
@@ -81,7 +94,60 @@ public final class StartPositions {
         return alliance == Alliance.BLUE ? BLUE_FROM_RED_AUDIENCE : RED_AUDIENCE;
     }
 
-    private static final StartPosition[] KNOWN = {RED_AUDIENCE, RED_FAR, BLUE_FROM_RED_AUDIENCE, BLUE_FROM_RED_FAR};
+    /**
+     * Every red start: each team spot named …_START, RIGHT_START and LEFT_START as the measured
+     * {@link #RED_AUDIENCE} and {@link #RED_FAR}, any other under its own name ("Red right 2 start").
+     */
+    static final StartPosition[] ALL = redStarts();
+
+    /** The team spot each start in {@link #ALL} is, in the same order. */
+    static final String[] TEAM_SPOTS = teamSpotNames();
+
+    private static final StartPosition[] KNOWN = knownStarts();
+
+    private static StartPosition[] redStarts() {
+        List<StartPosition> out = new ArrayList<>();
+        out.add(RED_AUDIENCE);
+        out.add(RED_FAR);
+        for (TeamSpot spot : TeamSpots.all()) {
+            if (spot == TeamSpots.RIGHT_START || spot == TeamSpots.LEFT_START) continue;
+            if (!spot.name.endsWith("_START") || !spot.hasHeading()) continue;
+            out.add(new StartPosition("Red " + words(spot.name), Alliance.RED, spot.pose()));
+        }
+        return out.toArray(new StartPosition[0]);
+    }
+
+    private static String[] teamSpotNames() {
+        String[] names = new String[ALL.length];
+        names[0] = TeamSpots.RIGHT_START.name;
+        names[1] = TeamSpots.LEFT_START.name;
+        int i = 2;
+        for (TeamSpot spot : TeamSpots.all()) {
+            if (spot == TeamSpots.RIGHT_START || spot == TeamSpots.LEFT_START) continue;
+            if (spot.name.endsWith("_START") && spot.hasHeading()) names[i++] = spot.name;
+        }
+        return names;
+    }
+
+    /** Every red start, then each turned half a turn for blue. */
+    private static StartPosition[] knownStarts() {
+        List<StartPosition> out = new ArrayList<>();
+        for (StartPosition red : ALL) out.add(red);
+        out.add(BLUE_FROM_RED_AUDIENCE);
+        out.add(BLUE_FROM_RED_FAR);
+        for (int i = 2; i < ALL.length; i++) {
+            Pose p = ALL[i].pose;
+            out.add(new StartPosition("Blue " + ALL[i].name.substring("Red ".length()), Alliance.BLUE,
+                    new Pose(2 * FieldFrame.FIELD_CENTRE_INCHES - p.x(),
+                            2 * FieldFrame.FIELD_CENTRE_INCHES - p.y(), p.heading() + Math.PI)));
+        }
+        return out.toArray(new StartPosition[0]);
+    }
+
+    /** A spot's name as words: RIGHT_2_START → "right 2 start". */
+    private static String words(String name) {
+        return name.toLowerCase(Locale.ROOT).replace('_', ' ');
+    }
 
     /**
      * Every start a robot might be placed on, both alliances: the measured red ones and their half
@@ -92,17 +158,6 @@ public final class StartPositions {
         return KNOWN.clone();
     }
 
-    /** Every declared start, for finding one by its pose. */
-    static final StartPosition[] ALL = {RED_AUDIENCE, RED_FAR};
-
-    /**
-     * The team spot each start in {@link #ALL} is, in the same order: the Visualizer's start
-     * buttons are the team's {@code _START} spots ({@code TeamCode/autos/spots.json}; the team
-     * names its spots side first: RIGHT_START, RIGHT_PARK, RIGHT_AUTO_HIVE), and
-     * {@code TeamSpotsTest} fails while one differs from the start measured here. Measure a start,
-     * then change both: this file, and the spot (in the Visualizer, Save team spots).
-     */
-    static final String[] TEAM_SPOTS = {"RIGHT_START", "LEFT_START"};
 
     /** The measured start a team spot is, or null for a spot that is not a measured start. */
     static StartPosition forTeamSpot(String name) {
