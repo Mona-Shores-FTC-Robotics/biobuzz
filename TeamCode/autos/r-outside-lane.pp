@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-17T19:39:48.608Z",
+  "timestamp": "2026-11-17T20:08:27.187Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -408,8 +408,8 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 298.7,
-        "endDeg": 450
+        "startDeg": 298.70000000000005,
+        "endDeg": 90
       }
     },
     {
@@ -454,13 +454,13 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 449.99999999999994
+        "degrees": 450
       }
     },
     {
       "id": "r-wall-lane-south",
       "color": "#e15759",
-      "name": "wall lane south to RIGHT_AUTO_OFFSET",
+      "name": "to RIGHT_AUTO_CLOSE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -468,8 +468,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 32.1,
-        "y": 16.4
+        "x": 42.9,
+        "y": 27.7
       },
       "controlPoints": [
         {
@@ -481,8 +481,8 @@
           "y": 102
         },
         {
-          "x": 34,
-          "y": 43
+          "x": 29.167892456054684,
+          "y": 41.87250996015936
         }
       ],
       "heading": {
@@ -894,6 +894,11 @@
         32.1,
         16.4,
         61
+      ],
+      "RIGHT_AUTO_CLOSE": [
+        42.9,
+        27.7,
+        68
       ]
     },
     "pathEnds": {
@@ -905,7 +910,7 @@
       "r-garden-north": "LEFT_AUTO_OFFSET",
       "r-garden-abort-park": "RIGHT_PARK",
       "r-scoring-flower": "SCORING_FLOWER_STAGING",
-      "r-wall-lane-south": "RIGHT_AUTO_OFFSET",
+      "r-wall-lane-south": "RIGHT_AUTO_CLOSE",
       "r-right-park": "RIGHT_PARK",
       "r-flower-abort-park": "RIGHT_PARK"
     },
