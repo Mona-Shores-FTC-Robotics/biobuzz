@@ -28,7 +28,8 @@ public class ControlSchemeTest {
     public void everyActionIsBoundButTheOnesLeftOut() {
         Map<Action, Input> layout = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK);
         for (Action action : Action.values()) {
-            boolean bound = !ControlScheme.NOT_BOUND.contains(action) && !ControlScheme.LOCKED_TURRET_ONLY.contains(action);
+            boolean bound = !ControlScheme.NOT_BOUND.contains(action) && !ControlScheme.LOCKED_TURRET_ONLY.contains(action)
+                    && !ControlScheme.TRIAL_ONLY.contains(action);
             assertEquals(action.toString(), bound, layout.containsKey(action));
         }
     }
@@ -83,12 +84,16 @@ public class ControlSchemeTest {
     @Test
     public void gatherGardenIsOnTheDriversTriangle() {
         assertEquals(Input.TRIANGLE, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).get(Action.GARDEN_GATHER));
-        // R1 is free on the driver's pad while the turret is locked forward...
-        for (Map.Entry<Action, Input> entry : ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true).entrySet()) {
-            if (entry.getKey().pad == Action.Pad.DRIVER) assertFalse(entry.getKey().toString(), entry.getValue() == Input.R1);
+        // R1 is free on the driver's pad, in the match TeleOp's layout with the turret locked or aiming.
+        for (boolean locked : new boolean[] {true, false}) {
+            for (Map.Entry<Action, Input> entry : ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, locked).entrySet()) {
+                if (entry.getKey().pad == Action.Pad.DRIVER) assertFalse(entry.getKey().toString(), entry.getValue() == Input.R1);
+            }
         }
-        // ...and the super FLOWER pick's on a robot whose turret aims.
-        assertEquals(Input.R1, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, false).get(Action.SUPER_FLOWER_PICK));
+        // The super FLOWER pick is on trial: on R1, and only in the layout of the Utility that adds it.
+        Map<Action, Input> trial = ControlScheme.addSuperFlowerPick(ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, false));
+        assertEquals(Input.R1, trial.get(Action.SUPER_FLOWER_PICK));
+        assertEquals(ControlScheme.SUPER_FLOWER_PICK_INPUT, Input.R1);
     }
 
     @Test

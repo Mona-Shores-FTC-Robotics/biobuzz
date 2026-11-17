@@ -46,13 +46,28 @@ public final class ControlScheme {
     public static final Set<Action> LOCKED_TURRET_ONLY = Collections.unmodifiableSet(EnumSet.of(
             Action.LAUNCHER_TRIM_RESET));
 
-    /**
-     * What needs a turret that aims, left out while it is locked forward: the operator's turret
-     * controls, and the driver's super FLOWER pick, which fires back over the robot.
-     */
+    /** The operator's turret controls: left out while the turret is locked forward. */
     public static final Set<Action> TURRET_ACTIONS = Collections.unmodifiableSet(EnumSet.of(
-            Action.TURRET_LOCK, Action.TRIM_LEFT, Action.TRIM_RIGHT, Action.TRIM_RESET, Action.TURRET_ZERO,
-            Action.SUPER_FLOWER_PICK));
+            Action.TURRET_LOCK, Action.TRIM_LEFT, Action.TRIM_RIGHT, Action.TRIM_RESET, Action.TURRET_ZERO));
+
+    /**
+     * Actions on trial: no layout binds them, so the match TeleOp, its Controls page and the cheat
+     * sheet do not have them. The Utility that tries one adds it itself ({@link #addSuperFlowerPick}).
+     */
+    public static final Set<Action> TRIAL_ONLY = Collections.unmodifiableSet(EnumSet.of(Action.SUPER_FLOWER_PICK));
+
+    /** Where the super FLOWER pick goes in the Utility that tries it: the driver's R1, free in every layout. */
+    public static final Input SUPER_FLOWER_PICK_INPUT = Input.R1;
+
+    /**
+     * Adds the super FLOWER pick to {@code layout}, on {@link #SUPER_FLOWER_PICK_INPUT}, for
+     * Drive: Super FLOWER Pick. It needs a turret that aims (it fires back over the robot), so the
+     * caller leaves it out on a robot whose turret is locked.
+     */
+    public static Map<Action, Input> addSuperFlowerPick(Map<Action, Input> layout) {
+        layout.put(Action.SUPER_FLOWER_PICK, SUPER_FLOWER_PICK_INPUT);
+        return layout;
+    }
 
     /**
      * {@link #layout(Input)} without the turret's controls when {@code turretLocked}: what the
@@ -81,8 +96,8 @@ public final class ControlScheme {
      * The inputs, with the FLOWER pick on {@code flowerPick}. The pick may be any face button or
      * D-pad direction; whatever driver action had that input moves to the pick's default
      * ({@link #DEFAULT_FLOWER_PICK}), so the two swap and nothing is lost. Anything else (a stick,
-     * a trigger, null) leaves the pick on its default. Every action but {@link #NOT_BOUND} and
-     * {@link #LOCKED_TURRET_ONLY}, turret controls included.
+     * a trigger, null) leaves the pick on its default. Every action but {@link #NOT_BOUND},
+     * {@link #TRIAL_ONLY} and {@link #LOCKED_TURRET_ONLY}, turret controls included.
      */
     public static Map<Action, Input> layout(Input flowerPick) {
         EnumMap<Action, Input> map = new EnumMap<>(Action.class);
@@ -92,8 +107,6 @@ public final class ControlScheme {
         map.put(Action.DRIVER_UNJAM, Input.L2);
         map.put(Action.SLOW, Input.L1);
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
-        // R1, free until 17 Nov 2026: the pick that fires the load from the FLOWER first (FlowerVolley).
-        map.put(Action.SUPER_FLOWER_PICK, Input.R1);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
         // Back on Triangle (mentor, 14 Nov 2026), after three days on R1 while Triangle drove to
         // the close launch spots; R1 is free.

@@ -40,7 +40,7 @@ public class FlowerVolleyTest {
     /** Back at the pick's line-up the robot is nearer the HIVE than any measured row: the load is not fired on the way in. */
     @Test
     public void theLineUpIsTooCloseToFireFrom() {
-        Pose lineUp = FlowerFieldPoints.standoff(FlowerFieldPoints.RED_SCORING, FlowerVolleyBench.START_STANDOFF_IN);
+        Pose lineUp = FlowerFieldPoints.standoff(FlowerFieldPoints.RED_SCORING, FlowerPicker.approachStandoffIn);
         assertTrue(FlowerVolley.rangeIn(lineUp, Alliance.RED) < LaunchSpeedTable.row1RangeIn - 8.0);
     }
 

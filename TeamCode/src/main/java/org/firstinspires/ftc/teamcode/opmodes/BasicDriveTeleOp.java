@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.controls.Action;
 import org.firstinspires.ftc.teamcode.controls.ControlScheme;
 import org.firstinspires.ftc.teamcode.controls.Controls;
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.controls.Input;
 import org.firstinspires.ftc.teamcode.controls.IntakeArbiter;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
@@ -32,6 +33,7 @@ import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * The match TeleOp: read the gamepads by {@link Action}, tell the subsystems what you want,
@@ -251,6 +253,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
         return false;
     }
 
+    /**
+     * True for {@link SuperFlowerPickDrive}: the driver's R1 runs the super FLOWER pick. The match
+     * TeleOp does not have it.
+     */
+    protected boolean superFlowerPick() {
+        return false;
+    }
+
     @Override
     protected void onInit() {
         panels = panelsTelemetry();
@@ -272,8 +282,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
         gatherer = new GardenGather(robot, text -> log.event(text));
         launchSpot = new LaunchSpotDrive(robot, text -> log.event(text));
         // A locked turret's controls are left out, so the pages show only buttons that work.
-        controls = new Controls(TeleOpConfig.flowerPickButton, TurretSubsystem.lockedForward,
-                TeleOpConfig.launchSpot, gamepad1, gamepad2, driver, operator);
+        Map<Action, Input> layout = ControlScheme.layout(TeleOpConfig.flowerPickButton,
+                TurretSubsystem.lockedForward, TeleOpConfig.launchSpot);
+        // On trial, in Drive: Super FLOWER Pick only, and only where the turret aims.
+        if (superFlowerPick() && !TurretSubsystem.lockedForward) ControlScheme.addSuperFlowerPick(layout);
+        controls = new Controls(layout, gamepad1, gamepad2, driver, operator);
+        log.metadata("Controls/SuperFlowerPick", !superFlowerPick() ? "off"
+                : TurretSubsystem.lockedForward ? "off: turret locked" : "bound");
         log.metadata("Controls/LaunchSpot", TeleOpConfig.launchSpot ? "bound" : "off");
         log.metadata("Controls/Drive", robotCentric() ? "robot-centric" : "field-centric");
         // Which controller each pad is, as the SDK sees it at INIT: a pad that cannot rumble says so.
@@ -908,8 +923,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /**
      * The super FLOWER pick, one loop: a press starts it (one press, one run), and it then follows
      * the button as a pick does. It spins the launcher up for the operator if it is idle, so the
-     * launcher is theirs afterwards and stays on until their toggle. Nothing on a robot whose
-     * turret is locked: the layout does not offer the button.
+     * launcher is theirs afterwards and stays on until their toggle. Only in
+     * {@link SuperFlowerPickDrive}, and there only on a robot whose turret aims: no other layout
+     * has the button, and an action a layout leaves out is never held.
      */
     private void superFlowerPick(boolean sticksMoved, double nowS, double staleS) {
         boolean held = controls.held(Action.SUPER_FLOWER_PICK);
