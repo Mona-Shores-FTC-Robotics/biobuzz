@@ -36,6 +36,42 @@ is the one to run. No OpMode. Requests: `sim-requests/r-clockwise-flower.json` a
 Open a pair:
 <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-clockwise-flower.pp,drafts/l-clockwise-garden.pp>
 
+## R-Flower-Volley: two TIPs with eight in a row from the SCORING FLOWER
+
+For a robot whose turret aims (20245). Mentor session, 17 Nov 2026; **nothing here has run on a
+robot**, and its one new step has not passed its bench (`doc/robot-todo.md` §7b2). It runs from the
+Utility **Drive: R-Flower-Volley** (a 30 s trial), not from the Autonomous menu.
+
+Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-flower-volley.pp>
+(the Visualizer draws the turret swinging round on the hop to the FLOWER; the crosshair button on
+the field's toolbar shows it tracking for the whole Auto instead).
+
+1. Preloads from `RIGHT_START` at PLAY (TIP 1).
+2. WALL FLOWER pick, then R-OutsideLane's lane north, nose-first, to `LEFT_AUTO_OFFSET`.
+3. "LEFT CELL up?", 0.75 s, facing the HIVE: the camera cannot see the CELL from the FLOWER, where
+   the robot faces the wall, so the check is here. Not up: park with the load.
+4. The hop to `SCORING_FLOWER_STAGING`, then **Pick flower and launch** (`PickFlowerLaunch`, the
+   robot's `FlowerVolley`): the WALL FLOWER's four go from against the SCORING FLOWER, the turret
+   turned back over the robot at the LEFT CELL, and the SCORING FLOWER's four follow through the
+   same feed (TIP 2).
+5. Park at `RIGHT_PARK`.
+
+Every path is R-OutsideLane's, as drawn; only team spots. It saves R-Two-Tip's first LEFT volley
+and its last hop and volley: in the Visualizer's Instant preview (planned times, the 8-shot at its
+estimated 6 s) the eighth ball is out at about 17.5 s on the robot's clock and the robot is parked
+at 20.2 s, where R-Two-Tip's last volley ends at about 27 s. No simulator run: `AutoSim` does not
+know `PickFlowerLaunch` yet.
+
+**Not settled:**
+
+- **G407.** A FLOWER piece that comes in while all four of the load are aboard is a fifth. The bench
+  films it; if a fifth is ever aboard, this Auto is not legal as drawn.
+- The 8-shot's time (6 s) and its last piece (5 s) are estimates; the guard plans on them.
+- It is the one launch that is not from a start or an Auto launch spot: it can only be fired from
+  against the SCORING FLOWER (about 43 in from the row, the speed table's lowest row).
+- With about 10 s left after the park, there is nothing for one robot to add: a third TIP takes a
+  partner's pieces.
+
 ## R-Two-Tip: one robot, two TIPs
 
 R-Solo made its second TIP in 0 of 7 runs at the Belding Qualifier. This draft keeps R-Solo's steps and

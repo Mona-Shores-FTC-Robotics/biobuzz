@@ -1138,6 +1138,14 @@ step. The turret must aim: 19429 is refused until it is unlocked. Film every tri
 - [ ] **Then pull logs.** The session reads shot spacing (does the launcher hold speed for eight in
       a row?), the gap between the fourth and fifth shots (the wait for the FLOWER's first piece),
       and whether the count reached 8 or the feed ran to "no more shots" or its cap.
+- [ ] **Only once the trials above are good: Drive: R-Flower-Volley** (Utility menu; the draft Auto,
+      `TeamCode/autos/drafts/README.md`). Normal RIGHT start, four preloads, both FLOWERs loaded,
+      turret on its mark. **Good:** preloads, WALL FLOWER pick, the lane north, a short look at the
+      HIVE, the hop to the SCORING FLOWER with the turret swinging round on the way, eight in a
+      row, park, all inside 30 s. **Write down** when the last ball left and when the robot was
+      parked; the draft plans 17.5 and 20.2 s. **Stop:** the log says "FLOWER volley: refused" →
+      it says why; pieces fall out on the lane north → that leg is R-OutsideLane's, and the same
+      check is open there.
 - [ ] **Ask in Q&A if the film shows five aboard for a moment:** whether a piece entering as one
       leaves is "controlling more than four" under G407. Not asked yet.
 
