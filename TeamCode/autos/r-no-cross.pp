@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-17T21:52:51.000Z",
+  "timestamp": "2026-11-17T22:10:25.000Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -490,6 +490,52 @@
         "startDeg": 298.7,
         "endDeg": 0
       }
+    },
+    {
+      "id": "link-9",
+      "color": "#888888",
+      "name": "Link (never driven)",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 20.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 96.1
+      }
+    },
+    {
+      "id": "line-rnc-wait-park-2",
+      "color": "#4e79a7",
+      "name": "to RIGHT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 17.99745547073791,
+          "y": 42.69799875351612
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 96.1,
+        "endDeg": 0
+      }
     }
   ],
   "shapes": [
@@ -742,6 +788,14 @@
     {
       "kind": "path",
       "lineId": "line-rnc-topup-park-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-9"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-rnc-wait-park-2"
     }
   ],
   "fieldPoints": [],
@@ -847,7 +901,8 @@
       "line-rnc-topup-cross": "LEFT_AUTO_OFFSET",
       "line-rnc-offset-park": "RIGHT_PARK",
       "line-rnc-topup-park": "RIGHT_PARK",
-      "line-rnc-topup-park-2": "RIGHT_PARK"
+      "line-rnc-topup-park-2": "RIGHT_PARK",
+      "line-rnc-wait-park-2": "RIGHT_PARK"
     },
     "cards": [
       {
@@ -958,13 +1013,56 @@
                 "id": "c-rnc-if-no-tip2",
                 "kind": "firstOf",
                 "choice": "if no TIP 2",
-                "label": "if no TIP 2: TOP UP LEFT or PARK",
+                "label": "if no TIP 2: WAIT FOR PARTNER or CROSS AND FIX IT",
                 "rows": [
                   {
                     "when": [
                       "if no TIP 2"
                     ],
-                    "label": "TOP UP LEFT",
+                    "label": "WAIT FOR PARTNER",
+                    "cards": [
+                      {
+                        "id": "c-rnc-right-up-23",
+                        "kind": "firstOf",
+                        "label": "RIGHT CELL up by 23 s?",
+                        "rows": [
+                          {
+                            "when": [
+                              "CellUp"
+                            ],
+                            "cards": [
+                              {
+                                "id": "c-rnc-wait-launch",
+                                "kind": "action",
+                                "name": "LaunchAll"
+                              },
+                              {
+                                "id": "c-mw49lw1p-64sdq",
+                                "kind": "path",
+                                "lineId": "line-mw49lw1p-d68tx4",
+                                "park": true
+                              }
+                            ]
+                          },
+                          {
+                            "afterMs": 23000,
+                            "matchClock": true,
+                            "cards": [
+                              {
+                                "id": "c-rnc-wait-park-2",
+                                "kind": "path",
+                                "lineId": "line-rnc-wait-park-2",
+                                "park": true
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 0,
+                    "label": "CROSS AND FIX IT",
                     "cards": [
                       {
                         "id": "c-rnc-topup-cross",
@@ -1009,18 +1107,6 @@
                         ]
                       }
                     ]
-                  },
-                  {
-                    "afterMs": 0,
-                    "label": "PARK",
-                    "cards": [
-                      {
-                        "id": "c-mw49lw1p-64sdq",
-                        "kind": "path",
-                        "lineId": "line-mw49lw1p-d68tx4",
-                        "park": true
-                      }
-                    ]
                   }
                 ]
               }
@@ -1040,7 +1126,8 @@
       "link-5",
       "link-6",
       "link-7",
-      "link-8"
+      "link-8",
+      "link-9"
     ],
     "parkFrom": {
       "c-mw0c4s3r-d5zdz": "line-mw0c4s3v-i79x23",
