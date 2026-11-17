@@ -43,6 +43,12 @@ import java.util.Locale;
  */
 public final class TurretAimer {
 
+    /**
+     * Half the width of the band about the HIVE's axle line inside which the aimed CELL does not
+     * switch ends, inches: what every OpMode that tracks passes to {@link #update}.
+     */
+    public static final double SWITCH_BAND_IN = 19.75;
+
     /** A camera sighting older than this is not used to aim; odometry takes over. */
     public static final double SIGHTING_FRESH_MS = 300;
 

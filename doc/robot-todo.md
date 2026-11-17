@@ -1109,6 +1109,24 @@ has each trial's settings and measured back-up.
 - [ ] **Then drive through them** with the intake on (Basic Drive) from the side and head-on.
       **Good:** 4 of 4 collected in one pass. **Stop:** record how many of 4, over 5 tries.
 
+## 7b2. Drive: Super FLOWER Pick (20245, the SCORING FLOWER, HIVE upright, phone filming the intake and the CELL)
+
+One driver button, on trial: fire the load from against the SCORING FLOWER, then pick it
+(`opmodes/FlowerVolley`; mentor's idea, 17 Nov 2026). Never run on a robot.
+
+- [ ] **Drive: Super FLOWER Pick** (Utility menu: Basic Drive plus the driver's R1, held; 20245,
+      whose turret aims. On a locked turret R1 does nothing). Four in the robot, four in the SCORING
+      FLOWER, the robot anywhere within about 5 ft of it. Hold R1. **Good:** it drives to the
+      line-up, the launcher spins up, the turret swings back to the LEFT CELL whatever the operator's
+      turret mode, it pushes in, fires the four it came with, shuts the gate, stays until the lane is
+      full (at most 1.5 s more) and backs out holding the FLOWER's four. Letting go before it touches
+      the FLOWER stops it; letting go after backs it out; a stick stops it. **Stop:** the balls hit
+      the robot or go wide of the CELL → the turret cannot shoot back over the robot (the dead
+      zone): nothing else here can work until that is fixed. The Robot page says "Super FLOWER pick
+      refused" → it says why (no pose, not the SCORING FLOWER). **Film it:** is a FLOWER piece
+      inside the robot before the first ball has left (G407, four at most)? Panels →
+      `TeleOpConfig.superPickFiresFlowerLoad` on fires all eight instead.
+
 ## 7c. Launcher tuning (Bench: Launch Test, Panels open)
 
 Before §7d: the distance rows are only worth having once the wheels hold their speed. The match logs
