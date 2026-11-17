@@ -120,6 +120,12 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       that it is mounted mirror-image to the left), see it turn inward, and put the value that
       worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
       out. Turret: still sits at home after PLAY, as before.
+- [ ] **19429 rewired 17 Nov: the new FLOWER stick.** Pivot servo on **Expansion Hub servo
+      port 4** (`flowerStick`), roller (continuous-rotation servo) on **Control Hub servo port 0**
+      (`flowerRoller`) (`robot_19429.xml`). A **full TeamCode install**, re-Activate `robot_19429`,
+      then **Check: Hardware** (it lists `flowerRoller`). The stick is new, so measure
+      `FlowerStickSubsystem.RETRACTED` / `EXTENDED` on it in Panels and put them in a PR (a 19429
+      line in `RobotDifferences` if they differ from 20245's). The roller is not driven by code yet.
 - [ ] **Both robots: the turret servo becomes a goBILDA 25-3 Speed in continuous mode, on
       Expansion Hub servo port 5** (the SWYFT positional servo comes off; set continuous mode with
       the goBILDA programmer). **19429:** same port as now. **20245:** the turret servo moves from
