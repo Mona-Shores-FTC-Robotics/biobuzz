@@ -283,9 +283,10 @@ Result, with the gap on each own-start run, → [PR #372].
 - [ ] **Square's wall spots on 19429, and 20245's launch trim, after 17 Nov's changes.**
       `wallGapIn` is 0.04 for both robots (found on 20245: 0 pushed into the audience wall and
       never settled, 1 was too much): on 19429 press Square from the tile row against the audience
-      wall and against the scoring table's wall. **Good:** it arrives, settles and fires. 20245's
-      Basic Drive now starts with LAUNCH TRIM -50 on the Match page (the reset still goes to 0);
-      its Autos do not use the trim, so say if they shoot long as well. 20245's turret is
+      wall and against the scoring table's wall. **Good:** it arrives, settles and fires. 20245
+      now launches 50 ticks/s slower at every range, in TeleOp and the Autos
+      (`LaunchSpeedTable.robotOffsetTicksPerSecond`, its `RobotDifferences` line): its LAUNCH TRIM
+      starts at 0. Check its shots land from a wall spot and a close spot, and in an Auto. 20245's turret is
       unlocked in the code (`RobotDifferences`); 19429's stays locked until it is rewired.
 - [ ] **Both robots: the turret holds straight ahead in a match OpMode** (still `lockedForward`).
       Basic Drive, turret on its mark in INIT (limp, nothing powered), PLAY. **Good:** the Robot

@@ -76,6 +76,14 @@ public final class LaunchSpeedTable {
     public static boolean enabled = true;
 
     /**
+     * Added to every launch speed on this robot, ticks per second, in TeleOp and in the Autos: the
+     * rows are one table for both robots, and a robot that shoots long or short at all of them is
+     * moved here, on its line in {@code RobotDifferences}, not by changing the rows. 0 for a robot
+     * the rows fit. The operator's trim is still on top of it, and starts at 0.
+     */
+    public static double robotOffsetTicksPerSecond = 0.0;
+
+    /**
      * How far past the first and last rows, inches, the table keeps their slope before it holds:
      * a shot a little closer or farther than any measured spot still gets a speed on the trend
      * (at 4 Nov's rows, about 12 ticks/s per inch at the close end and 13 at the far end) rather
@@ -128,7 +136,18 @@ public final class LaunchSpeedTable {
     public static double ticksPerSecondFor(double rangeIn) {
         loadRows();
         if (!trusted(RANGES, SPEEDS, rangeIn, extendIn, trustBeyondIn)) return Double.NaN;
-        return interpolate(RANGES, SPEEDS, rangeIn);
+        return Math.max(0.0, interpolate(RANGES, SPEEDS, rangeIn) + robotOffset());
+    }
+
+    /**
+     * {@link #robotOffsetTicksPerSecond}, guarded: NaN is 0, and it stays inside ±300 ticks/s. Added
+     * to every launch speed: the table's answers here, and the configured speed where a caller falls
+     * back to it.
+     */
+    public static double robotOffset() {
+        double offset = robotOffsetTicksPerSecond;
+        if (Double.isNaN(offset)) return 0.0;
+        return Math.max(-300.0, Math.min(300.0, offset));
     }
 
     /**
@@ -137,9 +156,10 @@ public final class LaunchSpeedTable {
      * {@link LauncherSubsystem#targetTicksPerSecond}). Trim is the caller's, added on top.
      */
     public static double launchSpeed(double rangeIn, double configured) {
-        if (!enabled) return configured;
+        double fallback = Math.max(0.0, configured + robotOffset());
+        if (!enabled) return fallback;
         double tps = ticksPerSecondFor(rangeIn);
-        return Double.isNaN(tps) ? configured : tps;
+        return Double.isNaN(tps) ? fallback : tps;
     }
 
     /**

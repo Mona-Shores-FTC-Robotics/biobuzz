@@ -223,4 +223,27 @@ public class LaunchSpeedTableTest {
             e.getKey().setDouble(null, e.getValue());
         }
     }
+
+    @Test
+    public void aRobotsOffsetMovesEveryLaunchSpeed() {
+        double old = LaunchSpeedTable.robotOffsetTicksPerSecond;
+        try {
+            LaunchSpeedTable.robotOffsetTicksPerSecond = 0.0;
+            double range = LaunchSpeedTable.row2RangeIn;
+            double table = LaunchSpeedTable.ticksPerSecondFor(range);
+            double fallback = LaunchSpeedTable.launchSpeed(Double.NaN, 1500.0);
+
+            LaunchSpeedTable.robotOffsetTicksPerSecond = -50.0;
+            org.junit.Assert.assertEquals(table - 50.0, LaunchSpeedTable.ticksPerSecondFor(range), 1e-9);
+            org.junit.Assert.assertEquals("the configured speed a caller falls back to moves too",
+                    fallback - 50.0, LaunchSpeedTable.launchSpeed(Double.NaN, 1500.0), 1e-9);
+
+            LaunchSpeedTable.robotOffsetTicksPerSecond = Double.NaN;
+            org.junit.Assert.assertEquals(0.0, LaunchSpeedTable.robotOffset(), 0.0);
+            LaunchSpeedTable.robotOffsetTicksPerSecond = -5000.0;
+            org.junit.Assert.assertEquals(-300.0, LaunchSpeedTable.robotOffset(), 0.0);
+        } finally {
+            LaunchSpeedTable.robotOffsetTicksPerSecond = old;
+        }
+    }
 }
