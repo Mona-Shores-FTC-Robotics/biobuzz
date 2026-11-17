@@ -119,16 +119,16 @@ public abstract class BuiltAuto extends RobotOpMode {
     public static boolean parkAfterVolley = true;
 
     /**
-     * A robot whose turret aims ({@code TurretSubsystem.lockedForward} off) keeps it on our CELL at
-     * its end of the field for the whole Auto, as Basic Drive's AIM mode does ({@link TurretAimer}:
+     * On, a robot whose turret aims ({@code TurretSubsystem.lockedForward} off) keeps it on our CELL
+     * at its end of the field for the whole Auto, as Basic Drive's AIM mode does ({@link TurretAimer}:
      * the camera's bearing when it sees that CELL, else the pose's), rather than holding it straight
-     * ahead (mentor, 17 Nov 2026). At a launch spot the two differ only by what the pose or the
+     * ahead. <b>Off</b> unless turned on in Panels (mentor, 17 Nov 2026): read at PLAY. At a launch spot the two differ only by what the pose or the
      * arrival heading is off by, since each spot's heading already points the turret's axis at the
      * CELL. A launch card does not wait for the turret: it waits for the chassis, as before
-     * ({@link PathEndSettle}). Off: straight ahead from PLAY, as every Auto ran until then. A locked
+     * ({@link PathEndSettle}). Off: straight ahead from PLAY, as every Auto has run. A locked
      * turret holds straight ahead either way. <b>Not yet run in an Auto</b>: doc/robot-todo.md.
      */
-    public static boolean turretTracks = true;
+    public static boolean turretTracks = false;
 
 
     /** How many of the Auto's latest trace lines the Match page shows. */

@@ -326,12 +326,13 @@ Result, with the gap on each own-start run, → [PR #372].
       `topSpeedDps`) leaves it behind and it catches up after. Lagging in every turn →
       `topSpeedDps` is set too high or `feedforward` too low; leading → the other way.
       Then pull logs: the session reads the error against the turn rate.
-- [ ] **20245: the turret tracks in an Auto** (`BuiltAuto.turretTracks`, on since 17 Nov; never run).
-      Any Auto with a second volley (R-Solo), turret on its mark in INIT. **Good:** the log says
+- [ ] **20245: the turret tracks in an Auto** (`BuiltAuto.turretTracks`, off by default; never run).
+      Panels → `BuiltAuto.turretTracks` on before PLAY (it goes back off at a restart). Any Auto
+      with a second volley (R-Solo), turret on its mark in INIT. **Good:** the log says
       "turret: tracking our near-end CELL for this Auto" at PLAY; the turret stays on the CELL through
       the drives and swings round as the robot passes the HIVE; the volleys land as they did straight
       ahead, the first one at PLAY included. **Stop:** volleys go wide where they did not before →
-      Panels → `BuiltAuto.turretTracks` off (straight ahead, as before), and pull logs: the session
+      leave it off (straight ahead, as before), and pull logs: the session
       compares `/Turret/ErrorDeg` and the aim's source (camera or odometry) at each gate.
 
 ## 3. The selected Autos, on the field (HIVE upright, preloads in, Panels open)
