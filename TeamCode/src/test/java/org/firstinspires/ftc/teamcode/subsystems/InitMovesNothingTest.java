@@ -34,6 +34,10 @@ import java.util.regex.Pattern;
  * once {@code start()} runs. Competition Manual G304.H (motionless once INIT is done) and G403 (no
  * powered movement between AUTO and TELEOP, when the TeleOp is INIT'd).
  *
+ * <p>The one exception is an Autonomous's INIT ({@code Robot.holdForAutoInit()}, R103.B): the FLOWER
+ * stick held in and the gate held closed. Those tests run it, and
+ * {@link #onlyAnAutonomousInitHoldsAnything()} checks that nothing else can ask for it.
+ *
  * <p>Each subsystem runs on recording fakes of its devices. A subsystem that looks up hardware is
  * either run here or named in {@link #NOT_RUN_HERE} with the reason, so a new mechanism cannot slip
  * past by not being listed.
@@ -69,6 +73,44 @@ public class InitMovesNothingTest {
                 Arrays.asList("setPosition(" + FlowerStickSubsystem.unitRange(FlowerStickSubsystem.RETRACTED) + ")",
                         "setPwmEnable()"),
                 devices.calls(DeviceNames.FLOWER_STICK));
+    }
+
+    @Test
+    public void flowerStickHeldInDuringAnAutosInit() {
+        boolean was = FlowerStickSubsystem.roller;
+        FlowerStickSubsystem.roller = true;
+        try {
+            Devices devices = new Devices().servo(DeviceNames.FLOWER_STICK).crServo(DeviceNames.FLOWER_ROLLER);
+            FlowerStickSubsystem stick = new FlowerStickSubsystem(devices.map, null);
+            stick.initialize();
+            stick.holdAtInit();
+            for (int i = 0; i < INIT_LOOPS; i++) {
+                stick.update();
+            }
+            String in = "setPosition(" + FlowerStickSubsystem.unitRange(FlowerStickSubsystem.RETRACTED) + ")";
+            List<String> calls = devices.calls(DeviceNames.FLOWER_STICK);
+            assertEquals("the pulse is switched on once", in, calls.get(0));
+            assertEquals("setPwmEnable()", calls.get(1));
+            for (String call : calls.subList(2, calls.size())) {
+                assertEquals("held in through INIT, never anywhere else", in, call);
+            }
+            assertTrue("the roller is not written before PLAY", devices.calls(DeviceNames.FLOWER_ROLLER).isEmpty());
+
+            devices.clear();
+            stick.start();
+            stick.update();
+            assertEquals("at PLAY it stays in", Arrays.asList(in), devices.calls(DeviceNames.FLOWER_STICK));
+
+            devices.clear();
+            stick.initialize();
+            for (int i = 0; i < 10; i++) {
+                stick.update();
+            }
+            assertTrue("initialize() clears the hold, so the next OpMode's INIT moves nothing",
+                    devices.movingWrites().isEmpty());
+        } finally {
+            FlowerStickSubsystem.roller = was;
+        }
     }
 
     @Test
@@ -249,6 +291,38 @@ public class InitMovesNothingTest {
     }
 
     @Test
+    public void feedGateHeldClosedDuringAnAutosInitEvenWhileTheFeederIsAskingForIt() {
+        double blocking = FeedGateSubsystem.blockingPosition;
+        double feeding = FeedGateSubsystem.feedingPosition;
+        FeedGateSubsystem.blockingPosition = 0.2;
+        FeedGateSubsystem.feedingPosition = 0.7;
+        try {
+            Devices devices = new Devices().motor(DeviceNames.FEEDER).servo(DeviceNames.FEED_GATE);
+            FeederSubsystem feeder = new FeederSubsystem(devices.map);
+            feeder.initialize();
+            devices.clear();
+            feeder.feed();
+            FeedGateSubsystem gate = new FeedGateSubsystem(devices.map, feeder);
+            gate.initialize();
+            gate.holdAtInit();
+            for (int i = 0; i < INIT_LOOPS; i++) {
+                gate.update();
+            }
+            assertEquals("closed once and held there through INIT",
+                    Arrays.asList("setPosition(0.2)"), devices.calls(DeviceNames.FEED_GATE));
+            assertEquals(FeedGateSubsystem.State.BLOCKING, gate.state());
+
+            gate.start();
+            gate.update();
+            assertEquals("at PLAY it follows the feeder again",
+                    Arrays.asList("setPosition(0.2)", "setPosition(0.7)"), devices.calls(DeviceNames.FEED_GATE));
+        } finally {
+            FeedGateSubsystem.blockingPosition = blocking;
+            FeedGateSubsystem.feedingPosition = feeding;
+        }
+    }
+
+    @Test
     public void feedGateWritesNothingWhileItsPositionsAreNaN() {
         double blocking = FeedGateSubsystem.blockingPosition;
         double feeding = FeedGateSubsystem.feedingPosition;
@@ -347,6 +421,47 @@ public class InitMovesNothingTest {
         assertTrue("found no subsystems with hardware: is the scan broken?", seen >= 5);
         assertTrue("Run these through runInit here, or say in NOT_RUN_HERE why they cannot move before PLAY: "
                 + unlisted, unlisted.isEmpty());
+    }
+
+    /**
+     * The INIT hold is asked for in one place: {@code RobotOpMode}, for an {@code @Autonomous}, through
+     * {@code Robot.holdForAutoInit()}. A TeleOp's INIT runs between AUTO and TELEOP (G403).
+     */
+    @Test
+    public void onlyAnAutonomousInitHoldsAnything() throws IOException {
+        File base = TeamCodeSources.subsystemsAndVision();
+        List<String> wrong = new ArrayList<>();
+        boolean robotOpModeCalls = false;
+        for (File file : allJava(base)) {
+            String code = COMMENTS.matcher(read(file)).replaceAll("");
+            String name = file.getName();
+            if (code.contains(".holdForAutoInit(")) {
+                if (name.equals("RobotOpMode.java")) {
+                    robotOpModeCalls = true;
+                    assertTrue("RobotOpMode holds at INIT only for an Autonomous",
+                            Pattern.compile("if \\(isAutonomous\\(\\)\\) \\{[^}]*robot\\.holdForAutoInit\\(\\);")
+                                    .matcher(code).find());
+                } else {
+                    wrong.add(name + " calls holdForAutoInit()");
+                }
+            }
+            if (code.contains(".holdAtInit(") && !name.equals("Robot.java")) {
+                wrong.add(name + " calls holdAtInit()");
+            }
+        }
+        assertTrue("RobotOpMode no longer holds the stick and gate in an Auto's INIT", robotOpModeCalls);
+        assertTrue("Only RobotOpMode, for an Autonomous, may hold anything at INIT: " + wrong, wrong.isEmpty());
+    }
+
+    private static List<File> allJava(File dir) {
+        List<File> files = new ArrayList<>();
+        File[] entries = dir.listFiles();
+        if (entries == null) return files;
+        for (File entry : entries) {
+            if (entry.isDirectory()) files.addAll(allJava(entry));
+            else if (entry.getName().endsWith(".java")) files.add(entry);
+        }
+        return files;
     }
 
     private static final List<String> RUN_HERE = Arrays.asList(

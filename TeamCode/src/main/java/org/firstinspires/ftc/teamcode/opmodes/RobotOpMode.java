@@ -442,9 +442,12 @@ public abstract class RobotOpMode extends OpMode {
         if (declaredStart != null) {
             robot.drive.setPose(declaredStart.pose);
         }
-        // An Auto always starts with the lane full of POLLEN; anything else starts it empty.
+        // An Auto always starts with the lane full of POLLEN; anything else starts it empty. An
+        // Auto's INIT also holds the FLOWER stick in and the gate closed (R103.B); a TeleOp's moves
+        // nothing, since it runs between AUTO and TELEOP (G403).
         if (isAutonomous()) {
             robot.colorSensor.lane().fill(LaneTracker.Piece.POLLEN, LaneTracker.AUTO_PRELOAD);
+            robot.holdForAutoInit();
         }
 
         // The scheduler is static, so commands survive from one OpMode to the next unless this
@@ -668,7 +671,7 @@ public abstract class RobotOpMode extends OpMode {
 
     private void startBody() {
         loopTimer.reset();
-        // Before this, nothing moved (G304.H, G403); from here on the mechanisms may.
+        // Before this, nothing moved but an Auto's INIT hold (G304.H, G403, R103.B); from here on the mechanisms may.
         robot.start();
         initializing = false;
         logStartCheck();

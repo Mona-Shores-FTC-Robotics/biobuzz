@@ -24,11 +24,11 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  * limp and the stick rests on the tile by its own weight. Stowed, the servo keeps holding, because
  * the stowed hard stop may not exist yet; {@link #LIMP_STOWED} releases it there too once it does.
  *
- * <p>Nothing is written before PLAY, so the stick does not move at INIT (G304.H, G403; see
- * {@link Subsystem}). The drive team stows it by hand before the match; at PLAY the servo takes
- * it and holds it in. If it ever has to be held in to fit the 18 in starting cube, that is a
- * mechanical stop or latch (R103.A), not the servo at INIT: the TeleOp's INIT runs between AUTO and
- * TELEOP too, where a stick swinging in after an Auto is a G403 foul.
+ * <p>In a TeleOp's INIT nothing is written, so the stick does not move (G403; see
+ * {@link Subsystem}): that INIT runs between AUTO and TELEOP, where a stick swinging in after an
+ * Auto is a foul. An Autonomous's INIT takes it in and holds it there ({@link #holdAtInit()},
+ * R103.B), so it is in its starting size and still before PLAY (G304.H). Without that call, it is
+ * stowed by hand and the servo takes it at PLAY.
  *
  * <p>A stick with a roller ({@link #roller}, 19429's new stick since 17 Nov 2026) spins it, a
  * continuous-rotation servo on the stick's end, whenever the stick is asked down: from the request,
@@ -100,6 +100,8 @@ public class FlowerStickSubsystem implements Subsystem {
     private boolean lastOut = false;
     private boolean limp = false;
     private boolean started;
+    /** An Autonomous's INIT: hold the stick in before PLAY ({@link #holdAtInit()}). */
+    private boolean holdAtInit;
     private long movedAtMs = 0;
     private final DriveSubsystem drive;
     // A pending retractWhenClear: the stick comes in once the robot is clearIn from (clearX, clearY).
@@ -242,7 +244,18 @@ public class FlowerStickSubsystem implements Subsystem {
         lastOut = false;
         limp = pwm != null;
         started = false;
+        holdAtInit = false;
         rollerPowerNow = 0.0;
+    }
+
+    /**
+     * An Autonomous's INIT only: from the next {@link #update()} the servo takes the stick in and
+     * holds it there until PLAY, the one servo write allowed before PLAY (R103.B). Never from a
+     * TeleOp: its INIT runs between AUTO and TELEOP, where any movement is a G403 foul. The roller
+     * stays unwritten. Called after {@link #initialize()}, which clears it.
+     */
+    public void holdAtInit() {
+        holdAtInit = true;
     }
 
     /** PLAY: the servo takes the stick and holds it in, unless something already asked it out. */
@@ -253,7 +266,8 @@ public class FlowerStickSubsystem implements Subsystem {
     }
 
     /**
-     * Nothing before PLAY. Then one write per loop while the servo is working: the position the
+     * Nothing before PLAY, unless an Autonomous asked for the stick held in ({@link #holdAtInit()}):
+     * then the in position, pulse on. Then one write per loop while the servo is working: the position the
      * request asks for, clamped so Panels cannot overdrive it. A change of request powers the servo
      * and starts the swing; once the swing has had {@link #SETTLE_MS} the pulse is cut if that end
      * asks for it. The position goes out before the pulse is switched back on, so a limp servo
@@ -262,6 +276,10 @@ public class FlowerStickSubsystem implements Subsystem {
     @Override
     public void update() {
         if (!started) {
+            if (holdAtInit) {
+                servo.setPosition(unitRange(RETRACTED));
+                power(true);
+            }
             return;
         }
         long now = System.currentTimeMillis();

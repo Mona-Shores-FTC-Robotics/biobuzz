@@ -219,6 +219,11 @@ the Auto, place the robot on the marks, INIT, press **no** alliance button. 5 fr
 about a second. Written out on branch `claude/eager-pasteur-f4trol` (`doc/robot-session-5.md`, last
 section, not on master); this is that section.
 
+- [ ] **Auto INIT holds the FLOWER stick in and the gate closed** (this PR). Stick out by hand and
+      gate open, preloads behind it, INIT any Auto. **Good:** within a second the stick swings in
+      and the gate closes, then both stay still until PLAY (G304.H), and the preloads stay behind
+      the plate. Then INIT Basic Drive with the stick out by hand: **nothing moves** (G403). On
+      19429 too: its stick is in at 0.06, not 20245's 0.6.
 - [ ] **L-NoCross on Red far wall.** Same pass and fail.
 - [ ] **R-Solo on Red far wall.** **Good:** "On Red far wall, not this Auto's start · … or move to
       Red audience", "No alliance" above it. Press Circle (red): "move to" still says Red audience.
@@ -1064,6 +1069,9 @@ measurement is [#255].
 - [ ] **R-Solo on 19429:** its first path from the Red audience marks. 19429's drivetrain is tuned
       on its own values (6 Nov, PR #480: Check: Drive Motors, Pod Offsets, Foresight, Tests all
       passed), so a path that drifts on 19429 but not on 20245 is now worth reporting. [#175]
+- [ ] **19429's lane sensor at `presentAbove` 0.068** (this PR, set by the mentor; 20245 stays at
+      0.10). Intake four POLLEN in Basic Drive: the lane count goes 1, 2, 3, 4, one hold per piece,
+      and an empty lane counts nothing.
 - [ ] **Anything 19429 does differently** from 20245 (a motor turning the other way, a servo
       position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
       was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.

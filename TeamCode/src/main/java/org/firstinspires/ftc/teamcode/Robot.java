@@ -173,6 +173,17 @@ public class Robot {
     }
 
     /**
+     * An Autonomous's INIT: take the FLOWER stick in and close the feed gate, and hold both there
+     * until PLAY (R103.B). Called once, after {@link #initialize()}, by {@code RobotOpMode} for an
+     * {@code @Autonomous} only: a TeleOp's INIT runs between AUTO and TELEOP, where any movement is
+     * a G403 foul.
+     */
+    public void holdForAutoInit() {
+        flowerStick.holdAtInit();
+        feedGate.holdAtInit();
+    }
+
+    /**
      * The match has started: tell every subsystem, in the order they were built. Called once, at
      * PLAY. Until then no mechanism moves (see {@link Subsystem}, "Nothing moves before PLAY").
      */

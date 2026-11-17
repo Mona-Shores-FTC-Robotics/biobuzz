@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
+import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
@@ -80,6 +81,9 @@ public final class RobotDifferences {
                     FlowerStickSubsystem.RETRACTED = 0.06;
                     FlowerStickSubsystem.EXTENDED = 0.55;
                 });
+        differs(RobotIdentity.TEAM_19429,
+                "Lane colour sensor's presence threshold set to 0.068 on this robot (mentor, 17 Nov 2026)",
+                () -> ColorSensorSubsystem.presentAbove = 0.068);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // The shared values were mostly measured on 20245.
