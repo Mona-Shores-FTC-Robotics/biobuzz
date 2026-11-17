@@ -123,7 +123,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private static final long SIGHTING_FRESH_MS = 500;
 
     /** The range to log with a shot when the camera does not see a CELL: the pose's, to the near-end CELL. */
-    private static final double AIM_SWITCH_BAND_IN = 19.75;
+    private static final double AIM_SWITCH_BAND_IN = TurretAimer.SWITCH_BAND_IN;
 
     /** What the turret is doing for the operator: held straight ahead, or aiming at our CELL. */
     private enum TurretMode { LOCKED, AIM }

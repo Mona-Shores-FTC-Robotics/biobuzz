@@ -695,9 +695,9 @@ public abstract class RobotOpMode extends OpMode {
         if (TurretZeroPolicy.atPlay(robot.turret.zeroed()) == TurretZeroPolicy.Action.ZERO_HERE) {
             robot.turret.zeroAtPlay();
         }
-        // An unlocked turret is limp until something asks it to hold, and an Auto never asks: so it
-        // holds straight ahead from PLAY, where every Auto's launch spots expect it. A TeleOp that
-        // aims asks for something else afterwards.
+        // An unlocked turret is limp until something asks it to hold: so it holds straight ahead
+        // from PLAY, where every Auto's launch spots expect it. An OpMode that aims (a TeleOp in
+        // AIM, an Auto with BuiltAuto.turretTracks) asks for something else afterwards.
         robot.turret.home();
         log.event("PLAY: turret " + robot.turret.zeroSource().text);
         if (battery != null) {

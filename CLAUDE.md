@@ -66,7 +66,9 @@ Three layers, each written in exactly one place:
   continuous and the turret has no stops: `TurretSubsystem` closes the loop on that count, a turret
   angle is a direction (wrap a difference from `angleDegrees()`), and an aim at a point on the
   field passes the target's rate with it (`aim(deg, rateDps)`), which is how the turret cancels the
-  robot's turning.
+  robot's turning. One aim, `opmodes/TurretAimer`, for every OpMode: Basic Drive's AIM mode, and a
+  generated Auto on a robot whose turret is unlocked (`BuiltAuto.turretTracks`), which tracks the
+  near-end CELL from PLAY; a launch card still waits for the chassis, never the turret.
   → README § "The turret: a servo on a servo port, an encoder on a motor's encoder socket"
 - XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what
   the SDK reads; keep `port` equal to it.
