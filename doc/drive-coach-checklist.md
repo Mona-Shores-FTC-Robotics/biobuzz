@@ -26,6 +26,11 @@ Controls page and the printed cheat sheet are the only place for those.
       No, or not sure: touch nothing; the row reads `if no TIP 1: CROSS AND FIX IT` (L crosses under the
       HIVE and fixes TIP 1). Yes, or the partner is our R-NoCross: D-pad down to the `if no TIP 1` row,
       right once, `if no TIP 1: WAIT FOR PARTNER FIX` (L stays home and waits for the LEFT CELL until 23 s).
+- [ ] **R-NoCross: ask the partner where it parks and when.** It reads `if no TIP 2: TOP UP LEFT`:
+      if TIP 2 has not come by 20 s, R drives the wall side to the left end, puts its four in the
+      LEFT CELL if it is still up, and parks on `RIGHT_PARK`, beside a partner on `LEFT_PARK`. A
+      partner that parks in that lane, or is still there after 20 s: D-pad down, right once,
+      `if no TIP 2: PARK`.
 - [ ] No amber or red line on the Match page; the light shows our alliance.
 
 ## At the start

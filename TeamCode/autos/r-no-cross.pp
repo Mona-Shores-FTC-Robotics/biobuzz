@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-16T18:52:57.108Z",
+  "timestamp": "2026-11-17T21:52:51.000Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -322,6 +322,174 @@
         "startDeg": 96.1,
         "endDeg": 0
       }
+    },
+    {
+      "id": "link-6",
+      "color": "#888888",
+      "name": "Link (never driven)",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 20.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 96.1
+      }
+    },
+    {
+      "id": "line-rnc-topup-cross",
+      "color": "#9c755f",
+      "name": "wall side to LEFT_AUTO_OFFSET",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.7,
+        "y": 121.1
+      },
+      "controlPoints": [
+        {
+          "x": 35,
+          "y": 25
+        },
+        {
+          "x": 20,
+          "y": 70
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 96.1,
+        "endDeg": 298.7
+      }
+    },
+    {
+      "id": "line-rnc-offset-park",
+      "color": "#9c755f",
+      "name": "LEFT_AUTO_OFFSET park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 42,
+          "y": 99
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-7",
+      "color": "#888888",
+      "name": "Link (never driven)",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.7,
+        "y": 121.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 298.7
+      }
+    },
+    {
+      "id": "line-rnc-topup-park",
+      "color": "#9c755f",
+      "name": "to RIGHT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 42,
+          "y": 99
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-8",
+      "color": "#888888",
+      "name": "Link (never driven)",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.7,
+        "y": 121.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 298.7
+      }
+    },
+    {
+      "id": "line-rnc-topup-park-2",
+      "color": "#9c755f",
+      "name": "to RIGHT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 42,
+          "y": 99
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 0
+      }
     }
   ],
   "shapes": [
@@ -546,6 +714,34 @@
     {
       "kind": "path",
       "lineId": "line-mw49lw1p-d68tx4"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-6"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-rnc-topup-cross"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-rnc-offset-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-7"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-rnc-topup-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-8"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-rnc-topup-park-2"
     }
   ],
   "fieldPoints": [],
@@ -630,6 +826,11 @@
         14.5,
         98.7,
         0
+      ],
+      "LEFT_AUTO_OFFSET": [
+        40.7,
+        121.1,
+        298.7
       ]
     },
     "pathEnds": {
@@ -642,7 +843,11 @@
       "line-mw0c4s3v-u2xhur": "RIGHT_PARK",
       "line-mw0c4s3v-5u6mr8": "RIGHT_PARK",
       "line-mw49lw1p-d68tx4": "RIGHT_PARK",
-      "line-mwdn0a02-rnpv3": "RIGHT_PARK"
+      "line-mwdn0a02-rnpv3": "RIGHT_PARK",
+      "line-rnc-topup-cross": "LEFT_AUTO_OFFSET",
+      "line-rnc-offset-park": "RIGHT_PARK",
+      "line-rnc-topup-park": "RIGHT_PARK",
+      "line-rnc-topup-park-2": "RIGHT_PARK"
     },
     "cards": [
       {
@@ -746,16 +951,82 @@
             ]
           },
           {
-            "afterMs": 21000,
+            "afterMs": 20000,
             "matchClock": true,
             "cards": [
               {
-                "id": "c-mw49lw1p-64sdq",
-                "kind": "path",
-                "lineId": "line-mw49lw1p-d68tx4",
-                "park": true
+                "id": "c-rnc-if-no-tip2",
+                "kind": "firstOf",
+                "choice": "if no TIP 2",
+                "label": "if no TIP 2: TOP UP LEFT or PARK",
+                "rows": [
+                  {
+                    "when": [
+                      "if no TIP 2"
+                    ],
+                    "label": "TOP UP LEFT",
+                    "cards": [
+                      {
+                        "id": "c-rnc-topup-cross",
+                        "kind": "path",
+                        "lineId": "line-rnc-topup-cross",
+                        "park": false
+                      },
+                      {
+                        "id": "c-rnc-left-up",
+                        "kind": "firstOf",
+                        "label": "LEFT CELL still up?",
+                        "rows": [
+                          {
+                            "when": [
+                              "CellUp"
+                            ],
+                            "cards": [
+                              {
+                                "id": "c-rnc-topup-launch",
+                                "kind": "action",
+                                "name": "LaunchAll"
+                              },
+                              {
+                                "id": "c-rnc-topup-park",
+                                "kind": "path",
+                                "lineId": "line-rnc-topup-park",
+                                "park": true
+                              }
+                            ]
+                          },
+                          {
+                            "afterMs": 750,
+                            "cards": [
+                              {
+                                "id": "c-rnc-topup-park-2",
+                                "kind": "path",
+                                "lineId": "line-rnc-topup-park-2",
+                                "park": true
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 0,
+                    "label": "PARK",
+                    "cards": [
+                      {
+                        "id": "c-mw49lw1p-64sdq",
+                        "kind": "path",
+                        "lineId": "line-mw49lw1p-d68tx4",
+                        "park": true
+                      }
+                    ]
+                  }
+                ]
               }
-            ]
+            ],
+            "adjustable": true,
+            "tip": 2
           }
         ]
       }
@@ -766,15 +1037,20 @@
       "link-2",
       "link-3",
       "link-4",
-      "link-5"
+      "link-5",
+      "link-6",
+      "link-7",
+      "link-8"
     ],
     "parkFrom": {
       "c-mw0c4s3r-d5zdz": "line-mw0c4s3v-i79x23",
       "c-mw0c4s3r-dm3v0": "line-mw0c4s3v-u2xhur",
-      "c-mw0c4s3s-ojvp0": "line-mw0c4s3v-5u6mr8"
+      "c-mw0c4s3s-ojvp0": "line-mw0c4s3v-5u6mr8",
+      "c-rnc-topup-cross": "line-rnc-offset-park"
     },
     "teamSpots": [
       "GARDEN_STAGING",
+      "LEFT_AUTO_OFFSET",
       "RIGHT_AUTO_HIVE",
       "RIGHT_PARK",
       "RIGHT_START",

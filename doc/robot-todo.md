@@ -31,8 +31,11 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
    never makes TIP 1, check the no-TIP route still parks in time, starting half a second later.
 2. **R-NoCross** (formerly R-Partner-Tip). Qualify the right-side actions, then run it
    together with L-NoCross as the coordinated two-TIP baseline. Its CELL-up wait runs
-   until 21 s on the match clock and then parks without launching. Waiting for the
-   teammate is acceptable; optimize only after the pair is reliable.
+   until 20 s on the match clock ("waiting for TIP 2 until 20 s" in INIT); then its
+   `if no TIP 2` row picks TOP UP LEFT (as drawn: wall side to `LEFT_AUTO_OFFSET`, fire at
+   the LEFT CELL if it is still up, park on `RIGHT_PARK`) or PARK (park with the load).
+   Check TOP UP LEFT's crossing clears the HIVE's feet and a partner parked on `LEFT_PARK`,
+   and that it is parked by 30 s.
 3. **R-Solo-Nudge** (`autos/drafts/r-solo-nudge.pp`). Open it together with
    `autos/partners/partner-push-start.pp` to see the pushed robot. Physically measure
    the push, legal starting contact, PARK overlap, clearance and time cost (§3).

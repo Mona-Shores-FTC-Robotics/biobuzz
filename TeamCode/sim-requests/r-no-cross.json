@@ -89,6 +89,25 @@
       "partnerPicks": {
         "if no TIP 1": "WAIT FOR PARTNER FIX"
       }
+    },
+    {
+      "name": "pair: beside L-NoCross, R on PARK",
+      "partner": "LNoCrossAuto",
+      "picks": {
+        "if no TIP 2": "PARK"
+      }
+    },
+    {
+      "name": "fast partner, R on PARK",
+      "partner": "PartnerLTipParkAuto",
+      "timing": {
+        "speed": 80,
+        "launchS": 0.25,
+        "pickS": 1.5
+      },
+      "picks": {
+        "if no TIP 2": "PARK"
+      }
     }
   ],
   "metadata": {
