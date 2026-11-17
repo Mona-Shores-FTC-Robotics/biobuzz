@@ -14,15 +14,15 @@ public class LaunchTrimLineTest {
     @Test
     public void noTrimIsShownAsZeroHugeAndNotAmber() {
         String line = BasicDriveTeleOp.launchTrimLine(0.0);
-        assertEquals(Display.huge("TRIM 0", false), line);
+        assertEquals(Display.huge("LAUNCH TRIM 0", false), line);
         assertTrue(line, line.startsWith("<big><big><big><b>"));
         assertFalse(line, line.contains("<font"));
     }
 
     @Test
     public void aTrimIsSignedGreenUpAndRedDown() {
-        assertEquals(Display.huge("TRIM +50", Display.Level.OK), BasicDriveTeleOp.launchTrimLine(50));
-        assertEquals(Display.huge("TRIM -25", Display.Level.FAULT), BasicDriveTeleOp.launchTrimLine(-25));
+        assertEquals(Display.huge("LAUNCH TRIM +50", Display.Level.OK), BasicDriveTeleOp.launchTrimLine(50));
+        assertEquals(Display.huge("LAUNCH TRIM -25", Display.Level.FAULT), BasicDriveTeleOp.launchTrimLine(-25));
     }
 
     @Test
@@ -67,5 +67,12 @@ public class LaunchTrimLineTest {
         // A count the sensor disagrees with shows as it is, green: that is how the count gets better.
         assertEquals(Display.huge("3 PIECES", Display.Level.OK), BasicDriveTeleOp.piecesLine(3, true));
         assertEquals(Display.HUGE_SCALE, Display.rows(BasicDriveTeleOp.piecesLine(4, true)), 1e-9);
+    }
+
+    @Test
+    public void theAimTrimIsNamedApartAndSaysWhichWay() {
+        assertEquals(Display.huge("AIM TRIM 0", false), BasicDriveTeleOp.aimTrimLine(0.0));
+        assertEquals(Display.huge("AIM TRIM L 3.0\u00b0", Display.Level.WARN), BasicDriveTeleOp.aimTrimLine(3.0));
+        assertEquals(Display.huge("AIM TRIM R 1.5\u00b0", Display.Level.WARN), BasicDriveTeleOp.aimTrimLine(-1.5));
     }
 }
