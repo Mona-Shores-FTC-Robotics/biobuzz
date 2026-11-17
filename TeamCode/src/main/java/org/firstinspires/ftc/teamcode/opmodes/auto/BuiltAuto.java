@@ -16,8 +16,10 @@ import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.opmodes.LanePanels;
 import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
+import org.firstinspires.ftc.teamcode.opmodes.TurretAimer;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 import java.util.ArrayList;
@@ -116,6 +118,19 @@ public abstract class BuiltAuto extends RobotOpMode {
      */
     public static boolean parkAfterVolley = true;
 
+    /**
+     * On, a robot whose turret aims ({@code TurretSubsystem.lockedForward} off) keeps it on our CELL
+     * at its end of the field for the whole Auto, as Basic Drive's AIM mode does ({@link TurretAimer}:
+     * the camera's bearing when it sees that CELL, else the pose's), rather than holding it straight
+     * ahead, and its launch cards wait for the turret to be on the CELL, not for the chassis to face
+     * it ({@link PathEndSettle#aimBy}). <b>Off</b> unless turned on in Panels (mentor, 17 Nov 2026), or
+     * the Auto is drawn for it ({@link #needsTurret}): read at PLAY. At a launch spot the two differ only by what the pose or the
+     * arrival heading is off by, since each spot's heading already points the turret's axis at the
+     * CELL. Off: straight ahead from PLAY, as every Auto has run. A locked
+     * turret holds straight ahead either way. <b>Not yet run in an Auto</b>: doc/robot-todo.md.
+     */
+    public static boolean turretTracks = false;
+
 
     /** How many of the Auto's latest trace lines the Match page shows. */
     private static final int TRACE_LINES = 4;
@@ -149,6 +164,8 @@ public abstract class BuiltAuto extends RobotOpMode {
     private PathEndSettle settle;
     /** The start last written as the log's target, so INIT writes it only when it changes. */
     private StartPosition targetWritten;
+    /** The turret's aim while the Auto runs ({@link #turretTracks}); started at PLAY, else null. */
+    private TurretAimer aimer;
     private final StartMatch startMatch = new StartMatch();
     private long startMatchNs;
     /** This Auto's two starts first (drawn, rotated), then every other known start; see the class comment. */
@@ -299,6 +316,17 @@ public abstract class BuiltAuto extends RobotOpMode {
         // settle (AutoRegistration). Position fixes still use only what the camera settled.
         robot.vision.seedMatchStart();
         robot.hive.assumeMatchStart();
+        if (needsTurret() && TurretSubsystem.lockedForward) {
+            problem = "This Auto aims with the turret, and this robot's turret is locked forward. Not moving.";
+            return;
+        }
+        if ((needsTurret() || turretTracks) && !TurretSubsystem.lockedForward) {
+            aimer = new TurretAimer(robot);
+            aimer.start();
+            // The launch cards wait for the turret, not the chassis: the robot may face anywhere.
+            settle.aimBy(this::turretOnCell);
+            log.event("turret: tracking our near-end CELL for this Auto; launches wait for the turret, not the chassis");
+        }
         boolean rotated = !alliance.name().equals(drawnFor);
         robot.drive.setPose(startPose.apply(rotated));
         startNs = System.nanoTime();
@@ -316,6 +344,21 @@ public abstract class BuiltAuto extends RobotOpMode {
         auto.schedule();
         // Asked for the whole Auto: the intake stops its roller itself when the lane is full.
         if (intakeRequest(0) == IntakeSubsystem.State.IN) robot.intake.intake();
+    }
+
+    /**
+     * Whether this Auto is drawn for a turret that aims: its launches are from spots the chassis
+     * does not face the CELL from, so it tracks whatever {@link #turretTracks} says and does not
+     * run on a robot whose turret is locked. False for every Auto drawn with the turret straight.
+     */
+    protected boolean needsTurret() {
+        return false;
+    }
+
+    /** The turret is holding within the launch's aim tolerance of the CELL its aimer last solved for. */
+    private boolean turretOnCell() {
+        return aimer != null && !Double.isNaN(aimer.aimDeg()) && robot.turret.holding()
+                && Math.abs(robot.turret.errorDegrees()) <= PathEndSettle.aimToleranceDeg;
     }
 
     /** Trial-specific path constraints; ordinary Autos use the drivetrain directly. */
@@ -336,6 +379,7 @@ public abstract class BuiltAuto extends RobotOpMode {
             return;
         }
         settle.update();
+        if (aimer != null) aimer.update(setup.alliance(), TurretAimer.SWITCH_BAND_IN);
         if (!endgameGuard) {
             display.status("Endgame guard OFF", Display.Level.FAULT,
                     "practice only: no park for time. Panels → BuiltAuto.endgameGuard to turn it back on");

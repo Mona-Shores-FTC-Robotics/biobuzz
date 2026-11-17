@@ -325,7 +325,7 @@ Result, with the gap on each own-start run, → [PR #372].
       page says "locked straight ahead: holding 0°", a push by hand is resisted and comes back,
       spinning the robot leaves the turret on the nose, and a feed does not move it. **Stop:**
       "DROPPED" on the Robot page → the note says which sign or cable; back to the bench.
-- [ ] **Both robots: unlock and track** (`TurretSubsystem.lockedForward` false in Panels, the
+- [ ] **19429 (20245 done 17 Nov: "working rather well", mentor): unlock and track** (`TurretSubsystem.lockedForward` false in Panels, the
       mentor's call, only after the two items above). Basic Drive, pose known, turret mode AIM.
       **Good:** the turret stays on our CELL while the robot spins on the spot both ways and
       drives past the HIVE; it goes all the way round with no stop; `/Turret/ErrorDeg` in the log
@@ -333,6 +333,14 @@ Result, with the gap on each own-start run, → [PR #372].
       `topSpeedDps`) leaves it behind and it catches up after. Lagging in every turn →
       `topSpeedDps` is set too high or `feedforward` too low; leading → the other way.
       Then pull logs: the session reads the error against the turn rate.
+- [ ] **20245: the turret tracks in an Auto** (`BuiltAuto.turretTracks`, off by default; never run).
+      Panels → `BuiltAuto.turretTracks` on before PLAY (it goes back off at a restart). Any Auto
+      with a second volley (R-Solo), turret on its mark in INIT. **Good:** the log says
+      "turret: tracking our near-end CELL for this Auto" at PLAY; the turret stays on the CELL through
+      the drives and swings round as the robot passes the HIVE; the volleys land as they did straight
+      ahead, the first one at PLAY included. **Stop:** volleys go wide where they did not before →
+      leave it off (straight ahead, as before), and pull logs: the session
+      compares `/Turret/ErrorDeg` and the aim's source (camera or odometry) at each gate.
 
 ## 3. The selected Autos, on the field (HIVE upright, preloads in, Panels open)
 
@@ -1108,6 +1116,78 @@ has each trial's settings and measured back-up.
       [this branch, claude/quirky-allen-etn5xp]
 - [ ] **Then drive through them** with the intake on (Basic Drive) from the side and head-on.
       **Good:** 4 of 4 collected in one pass. **Stop:** record how many of 4, over 5 tries.
+
+## 7b2. Drive: FLOWER 8-Shot (20245, the SCORING FLOWER, HIVE upright, phone filming the intake and the CELL)
+
+Can the robot fire the four it arrives with from the SCORING FLOWER while it picks the FLOWER's
+four, eight in one feed (mentor's idea, 17 Nov)? If it can, an Auto's second pick and volley are one
+step. The turret must aim: 19429 is refused until it is unlocked. Film every trial; the log has one
+"Last FLOWER volley" line each (shot times, gate against contact, lane count past four).
+
+- [ ] **Drive: Super FLOWER Pick** (Utility menu: Basic Drive plus the driver's R1, held; 20245,
+      whose turret aims. On a locked turret R1 does nothing). Four in the robot, four in the SCORING
+      FLOWER, the robot anywhere within about 5 ft of it. Hold R1. **Good:** it drives to the
+      line-up, the launcher spins up, the turret swings back to the LEFT CELL whatever the operator's
+      turret mode, it pushes in, fires the four it came with, shuts the gate, stays until the lane is
+      full (at most 1.5 s more) and backs out holding the FLOWER's four. Letting go before it touches
+      the FLOWER stops it; letting go after backs it out; a stick stops it. **Stop:** the balls hit
+      the robot or go wide of the CELL → the turret cannot shoot back over the robot (the dead
+      zone): nothing else here can work until that is fixed. The Robot page says "Super FLOWER pick
+      refused" → it says why (no pose, not the SCORING FLOWER). **Film it:** is a FLOWER piece
+      inside the robot before the first ball has left (G407, four at most)? Panels →
+      `TeleOpConfig.superPickFiresFlowerLoad` on fires all eight instead.
+- [ ] **Setup and one dry trial.** Red (or blue: its AUDIENCE FLOWER). Robot square to the SCORING
+      FLOWER and centred on it, front face about 18.6 in off the wall (centre 24 in from the FLOWER's
+      centre), turret on its mark, **no pieces**. PLAY: the turret swings round to face the LEFT CELL
+      behind the robot. Cross. **Good:** stick down, push in, gate opens as the push starts, the
+      robot stays about 1.5 s after contact ("no more shots"), backs out to where it started.
+      **Stop:** "refused" on the page → it says why.
+- [ ] **Four in the robot, FLOWER empty.** Do the four score from against the FLOWER, shooting back
+      over the robot? About 43 in from the row by the pose, 40 to 42 if the push stalls short: the
+      speed table's lowest row. Trim the aim (D-pad ◀ ▶) and the speed (▲ ▼) until they do, and
+      **write both trims down**: an aim trim that is always the same is a pose or turret-axis
+      question; a speed trim is a new row for the table.
+- [ ] **Four and four, gate as the push starts** (the default). Five trials. Per trial: pieces in the
+      CELL, left in the robot, left in the FLOWER, on the floor. **Good:** 7 or 8 in the CELL, the
+      whole thing under about 6 s. **From the film, the question that decides it (G407, four at
+      most): was a FLOWER piece inside the robot before the first ball had left?** The log's "lane
+      past four" count is a hint, not the answer.
+- [ ] **The same with the gate at contact** (Triangle), three trials, for the comparison: it should
+      be worse on G407 and no faster.
+- [ ] **Then pull logs.** The session reads shot spacing (does the launcher hold speed for eight in
+      a row?), the gap between the fourth and fifth shots (the wait for the FLOWER's first piece),
+      and whether the count reached 8 or the feed ran to "no more shots" or its cap.
+- [ ] **Only once the trials above are good: Drive: R-Flower-Volley** (Utility menu; the draft Auto,
+      `TeamCode/autos/drafts/README.md`). Normal RIGHT start, four preloads, both FLOWERs loaded,
+      turret on its mark. **Good:** preloads, WALL FLOWER pick, the lane north, a short look at the
+      HIVE, the hop to the SCORING FLOWER with the turret swinging round on the way, eight in a
+      row, park, all inside 30 s. **Write down** when the last ball left and when the robot was
+      parked; the draft plans 17.5 and 20.2 s. **Stop:** the log says "FLOWER volley: refused" →
+      it says why; pieces fall out on the lane north → that leg is R-OutsideLane's, and the same
+      check is open there.
+- [ ] **Ask in Q&A if the film shows five aboard for a moment:** whether a piece entering as one
+      leaves is "controlling more than four" under G407. Not asked yet.
+
+## 7b3. Drive: R-Solo-Turret (20245, HIVE upright, both FLOWERs loaded, phone filming the HIVE)
+
+The draft `TeamCode/autos/drafts/README.md` describes: R-Solo with the turret aiming, nose-first, no
+CELL checks. Do these in order; each is a reason to stop.
+
+- [ ] **Can the turret shoot back over the robot?** Basic Drive, turret AIM, robot at about
+      (38, 126) facing the far wall (front about 8 in off it, 9 in toward our wall from the SCORING
+      FLOWER's line), four POLLEN. Fire. **Good:** all four clear the robot and land in the LEFT
+      CELL. **Stop:** a ball hits the robot, or the turret will not hold that angle → the draft's
+      `LEFT_TURRET_FIRE` has to be turned in the Visualizer first; tell the session the widest
+      angle the turret can shoot at.
+- [ ] **Speed and aim from there.** Trim until they score; write the launch speed down (about 43 in
+      by the pose: the speed table's first row) and whether the aim trim is steady.
+- [ ] **Drive: R-Solo-Turret** (Utility menu). Normal RIGHT start, four preloads, turret on its
+      mark. **Good:** the log says "launches wait for the turret, not the chassis" at PLAY; the
+      robot never turns to the HIVE at the left end; both LEFT volleys go from facing the wall; two
+      TIPs; parked inside 30 s. **Write down** when the last ball left and when it was parked (the
+      draft plans 22.2 and 23.9 s). **Stop:** a volley is fired with the turret visibly off the
+      CELL → pull logs; the session reads the turret's error at each gate.
+- [ ] **Then pull logs:** how long each launch waited after its drive ended, against R-Solo's.
 
 ## 7c. Launcher tuning (Bench: Launch Test, Panels open)
 

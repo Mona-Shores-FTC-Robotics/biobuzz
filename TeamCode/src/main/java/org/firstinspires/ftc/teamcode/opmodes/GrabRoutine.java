@@ -312,6 +312,19 @@ public abstract class GrabRoutine {
         return false;
     }
     /**
+     * Whether the last dwell is held for something other than the grab: then only {@link #stayOver}
+     * ends it. False for a plain grab.
+     */
+    protected boolean dwellStays() {
+        return false;
+    }
+
+    /** With {@link #dwellStays}: why the last dwell ends this loop, for the log, or null while it goes on. */
+    protected String stayOver() {
+        return null;
+    }
+
+    /**
      * The dwell's time counts from the In's contact (the robot's last progress) rather than from the
      * stall being declared {@link #stallMs} later. Off by default.
      */
@@ -537,7 +550,10 @@ public abstract class GrabRoutine {
                     }
                     break;
                 }
-                String why = dwellEnd(ms(now, dwellFromNs) >= nn(pushes >= 2 ? lastDwellMs() : dwellMs()), dwellFull(),
+                // A grab that stays for something else (a volley fired from the FLOWER) ends its last
+                // dwell on that alone; its own cap, the full lane and the current do not.
+                String why = dwellStays() ? stayOver()
+                        : dwellEnd(ms(now, dwellFromNs) >= nn(pushes >= 2 ? lastDwellMs() : dwellMs()), dwellFull(),
                         dwell.done(ms(now, startNs), ms(phaseStartNs, startNs), dwellQuietMs(), dwellEmptyMs()),
                         dwell.sawSpike());
                 if (why != null) {

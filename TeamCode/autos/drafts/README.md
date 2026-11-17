@@ -37,6 +37,86 @@ is the one to run. No OpMode. Requests: `sim-requests/r-clockwise-flower.json` a
 Open a pair:
 <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-clockwise-flower.pp,drafts/l-clockwise-garden.pp>
 
+## R-Flower-Volley: two TIPs with eight in a row from the SCORING FLOWER
+
+For a robot whose turret aims (20245). Mentor session, 17 Nov 2026; **nothing here has run on a
+robot**, and its one new step has not passed its bench (`doc/robot-todo.md` §7b2). It runs from the
+Utility **Drive: R-Flower-Volley** (a 30 s trial), not from the Autonomous menu.
+
+Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-flower-volley.pp>
+(the Visualizer draws the turret swinging round on the hop to the FLOWER; the crosshair button on
+the field's toolbar shows it tracking for the whole Auto instead).
+
+1. Preloads from `RIGHT_START` at PLAY (TIP 1).
+2. WALL FLOWER pick, then R-OutsideLane's lane north, nose-first, to `LEFT_AUTO_OFFSET`.
+3. "LEFT CELL up?", 0.75 s, facing the HIVE: the camera cannot see the CELL from the FLOWER, where
+   the robot faces the wall, so the check is here. Not up: park with the load.
+4. The hop to `SCORING_FLOWER_STAGING`, then **Pick flower and launch** (`PickFlowerLaunch`, the
+   robot's `FlowerVolley`): the WALL FLOWER's four go from against the SCORING FLOWER, the turret
+   turned back over the robot at the LEFT CELL, and the SCORING FLOWER's four follow through the
+   same feed (TIP 2).
+5. Park at `RIGHT_PARK`.
+
+Every path is R-OutsideLane's, as drawn; only team spots. It saves R-Two-Tip's first LEFT volley
+and its last hop and volley: in the Visualizer's Instant preview (planned times, the 8-shot at its
+estimated 6 s) the eighth ball is out at about 17.5 s on the robot's clock and the robot is parked
+at 20.2 s, where R-Two-Tip's last volley ends at about 27 s. No simulator run: `AutoSim` does not
+know `PickFlowerLaunch` yet.
+
+**Not settled:**
+
+- **G407.** A FLOWER piece that comes in while all four of the load are aboard is a fifth. The bench
+  films it; if a fifth is ever aboard, this Auto is not legal as drawn.
+- The 8-shot's time (6 s) and its last piece (5 s) are estimates; the guard plans on them.
+- It is the one launch that is not from a start or an Auto launch spot: it can only be fired from
+  against the SCORING FLOWER (about 43 in from the row, the speed table's lowest row).
+- With about 10 s left after the park, there is nothing for one robot to add: a third TIP takes a
+  partner's pieces.
+
+## R-Solo-Turret: R-Solo with the turret aiming, and no CELL checks
+
+For a robot whose turret aims (20245). Mentor session, 17 Nov 2026; **not run on a robot**. It runs
+from the Utility **Drive: R-Solo-Turret** (a 30 s trial), not from the Autonomous menu.
+
+Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-turret.pp>
+(the builder's "The turret aims" box is ticked: the turret is drawn on the CELL throughout, and each
+Launch all is checked by the turret's shot, not the robot's heading).
+
+R-Solo's steps, with the chassis never turning to the HIVE:
+
+1. Preloads from `RIGHT_START` at PLAY (TIP 1).
+2. WALL FLOWER pick, then R-OutsideLane's lane north, nose-first, to `LEFT_TURRET_FIRE` (38, 126),
+   **facing the wall** (90°).
+3. Launch all there: the turret is turned about 156° round, back over the robot, at the LEFT CELL
+   (43 in away, 24° off square by the Visualizer).
+4. An 11 in hop to `SCORING_FLOWER_STAGING` with no turn, Pick flower, the hop back, Launch all (TIP 2).
+5. Park at `RIGHT_PARK`.
+
+**What is different on the robot** (`BuiltAuto.needsTurret`, from the export's `TURRET_AIMS`): the
+turret tracks our near-end CELL for the whole Auto, and a launch waits for the turret to be on the
+CELL, not for the chassis to face it (`PathEndSettle.aimBy`). A robot whose turret is locked does
+not move.
+
+**No CELL checks** (the mentor's call for this draft, 17 Nov 2026: "assume we make our shots"). The
+camera faces the wall at `LEFT_TURRET_FIRE`, so it could not check anyway. If TIP 1 does not come,
+both LEFT volleys go at a CELL that is down: the reason every Auto on the menu has the checks.
+
+**What it saves.** In the Visualizer's Instant preview (planned times, a 2.5 s Launch all), the last
+ball is out at about 22.2 s and the robot is parked at 23.9 s on the robot's clock; R-Solo's same
+steps with its two checks passing at once come to about 23.1 and 25.1 s. So about a second from the
+shorter hops and lane. The preview does not count what the turret is really for: R-Solo's wait to be
+aimed and slowing after each arrival, and its two CELL checks.
+
+**Not settled:**
+
+- **Whether the turret can shoot back over the robot at all.** Both LEFT volleys depend on it. If it
+  cannot, turn `LEFT_TURRET_FIRE` in the Visualizer until the builder's line shows a turret angle it
+  can reach; the hops then turn too.
+- `LEFT_TURRET_FIRE` is this draft's own point, not a team spot: its range and angle are both near
+  the limits (the speed table's first row is 42.4 in, and a CELL takes a shot within 26° of square).
+  The robot's front corner is about 5 in from the SCORING FLOWER there.
+- The lane north is R-OutsideLane's control points bent to the new end; not driven.
+
 ## R-Two-Tip: one robot, two TIPs
 
 R-Solo made its second TIP in 0 of 7 runs at the Belding Qualifier. This draft keeps R-Solo's steps and

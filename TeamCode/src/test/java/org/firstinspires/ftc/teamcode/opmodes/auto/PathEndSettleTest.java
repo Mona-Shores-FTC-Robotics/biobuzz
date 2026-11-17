@@ -150,6 +150,37 @@ public class PathEndSettleTest {
         assertEquals("one settle event per path end", 2, events.size());
     }
 
+    // --------------------------------------------------------- with a turret that aims
+
+    /** An Auto whose turret tracks: the turret is the aim, and the chassis may face and turn anywhere. */
+    @Test
+    public void withATurretThatAimsTheChassisHeadingDoesNotCount() {
+        boolean[] onCell = {false};
+        settle.aimBy(() -> onCell[0]);
+        Path path = pathEndingAt(180);
+        settle.pathStarted(path);
+        pose = new Pose(100, 0, Math.toRadians(90));
+        settle.pathEnded(path);
+        assertFalse("the turret is not on the CELL yet", settle.settled());
+        onCell[0] = true;
+        assertTrue("90° off the path's end heading, and settled", settle.settled());
+        turn = Math.toRadians(40);
+        assertTrue("the turret cancels the chassis's turning", settle.settled());
+        speed = 10;
+        assertFalse("still rolling", settle.settled());
+
+        Pose end = new Pose(100, 0, Math.toRadians(180));
+        assertTrue(settle.readyOnApproach(end, new Pose(96, 0, Math.toRadians(90)), 4.0));
+        assertFalse("too far out", settle.readyOnApproach(end, new Pose(90, 0, Math.toRadians(90)), 10.0));
+        onCell[0] = false;
+        assertFalse(settle.readyOnApproach(end, new Pose(96, 0, Math.toRadians(180)), 4.0));
+
+        settle.aimBy(null);
+        speed = 0;
+        turn = 0;
+        assertFalse("back to the chassis: 90° off is not aimed", settle.settled());
+    }
+
     // --------------------------------------------------------- on the approach
 
     /** 4 Nov 2026: within 1.2° and 0.35 in at the path end, at about 10 in/s: ready on the approach. */

@@ -166,6 +166,18 @@ public final class AutoRegistry {
     }
 
     /** Whether {@code name} was registered with {@link #volley}. */
+    /**
+     * A grab that is also a volley: a command that fires from where it picks up (the FLOWER
+     * 8-shot). The guard plans it as a volley (its last piece out by AUTO's end, the park after it)
+     * and never cuts it once it has started, as a grab.
+     */
+    public AutoRegistry grabVolley(String name, double typicalS, double lastPieceS, Supplier<Command> factory,
+                                   Approach approach) {
+        volley(name, typicalS, lastPieceS, factory, approach);
+        grabs.add(name);
+        return this;
+    }
+
     public boolean isVolley(String name) {
         return lastPieceSeconds.containsKey(name);
     }
