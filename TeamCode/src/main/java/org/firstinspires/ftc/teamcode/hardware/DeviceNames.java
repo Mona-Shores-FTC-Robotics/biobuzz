@@ -80,9 +80,16 @@ public final class DeviceNames {
 
     /**
      * The FLOWER extractor's first edition: one servo swinging a stick (#177).
-     * A Control Hub servo port; which one is in each robot's XML (the two robots differ).
+     * A servo port; which one is in each robot's XML (the two robots differ: 19429's new stick's
+     * pivot is on its Expansion Hub, 17 Nov 2026).
      */
     public static final String FLOWER_STICK = "flowerStick";
+
+    /**
+     * The roller on the end of 19429's new FLOWER stick (17 Nov 2026): a continuous-rotation servo
+     * that spins while the stick is down. 19429 only, so far. Its port is in the robot's XML.
+     */
+    public static final String FLOWER_ROLLER = "flowerRoller";
     // The intake's star wheels (the intake-assist wheels: SWYFT wheels cut
     // into stars on a continuous-rotation servo with one-way clutches, #160).
     // On 20245 one servo drives them all; on 19429 this is the LEFT star wheel's
@@ -217,11 +224,14 @@ public final class DeviceNames {
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
     /**
-     * 19429: {@link #COMPETITION_ROBOT} and a second intake star-wheel servo, the right one
-     * ({@link #INTAKE_STARS_RIGHT}, 13 Nov 2026). 20245 still drives its stars from one servo.
+     * 19429: {@link #COMPETITION_ROBOT}, a second intake star-wheel servo, the right one
+     * ({@link #INTAKE_STARS_RIGHT}, 13 Nov 2026), and the new FLOWER stick's roller
+     * ({@link #FLOWER_ROLLER}, 17 Nov 2026). 20245 still drives its stars from one servo and has
+     * the old stick.
      */
     public static final List<Device> ROBOT_19429 = with(COMPETITION_ROBOT,
-            new Device(INTAKE_STARS_RIGHT, Kind.CR_SERVO));
+            new Device(INTAKE_STARS_RIGHT, Kind.CR_SERVO),
+            new Device(FLOWER_ROLLER, Kind.CR_SERVO));
 
     /**
      * Every device name the code knows about, on any robot — the union of the

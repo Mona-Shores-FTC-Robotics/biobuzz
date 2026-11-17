@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.math.Pose;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -28,6 +29,13 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  * it and holds it in. If it ever has to be held in to fit the 18 in starting cube, that is a
  * mechanical stop or latch (R103.A), not the servo at INIT: the TeleOp's INIT runs between AUTO and
  * TELEOP too, where a stick swinging in after an Auto is a G403 foul.
+ *
+ * <p>A stick with a roller ({@link #roller}, 19429's new stick since 17 Nov 2026) spins it, a
+ * continuous-rotation servo on the stick's end, whenever the stick is asked down: from the request,
+ * so it is already turning when it meets the FLOWER, through the wait to clear the FLOWER
+ * ({@link #retractWhenClear}), until the stick is asked up. The pivot going limp does not stop it.
+ * Like the pivot, it is not written at all before PLAY: a continuous servo sent "stop" still gets
+ * a pulse, and one a hair off its centre creeps.
  *
  * <p>The two positions are {@code @Configurable}: drag them in Panels with the servo moving until
  * the stick sits on each stop, then write the numbers back here with a comment saying which servo
@@ -65,7 +73,25 @@ public class FlowerStickSubsystem implements Subsystem {
     /** Cut the pulse once the stick is in and settled. Only once a stowed hard stop exists. */
     public static boolean LIMP_STOWED = false;
 
+    /**
+     * Whether this stick has a roller on its end, {@link DeviceNames#FLOWER_ROLLER}, spun while the
+     * stick is down. Off: the old stick, as on 20245. On for 19429 in {@code RobotDifferences}
+     * (17 Nov 2026). Read once, when the subsystem is built.
+     */
+    public static boolean roller = false;
+
+    /** Roller power while the stick is down, 0 to 1. Not yet tried on the robot. */
+    public static double rollerPower = 1.0;
+
+    /**
+     * Flips the roller so that positive power turns it the way the pick wants. {@code false} is a
+     * guess: <b>not yet checked on a robot</b> (doc/robot-todo.md).
+     */
+    public static boolean rollerReversed = false;
+
     private final Servo servo;
+    private final CRServo rollerServo;   // null for a stick without a roller ({@link #roller})
+    private double rollerPowerNow = 0.0;
     private final PwmControl pwm;   // null if this servo cannot switch its pulse off
     private boolean out = false;
     /** When {@link #out} last went true, System.nanoTime; how long the stick has had to swing down. */
@@ -84,13 +110,15 @@ public class FlowerStickSubsystem implements Subsystem {
     private long retractAtMs = -1;
 
     /**
-     * Looks the servo up once. A missing servo fails init with the SDK's own message.
+     * Looks the servo (and the roller, with {@link #roller}) up once. A missing device fails init
+     * with the SDK's own message.
      *
      * @param drive read for the pose by {@link #retractWhenClear}; updated before this subsystem
      */
     public FlowerStickSubsystem(HardwareMap hardwareMap, DriveSubsystem drive) {
         servo = hardwareMap.get(Servo.class, DeviceNames.FLOWER_STICK);
         pwm = servo instanceof PwmControl ? (PwmControl) servo : null;
+        rollerServo = roller ? hardwareMap.get(CRServo.class, DeviceNames.FLOWER_ROLLER) : null;
         this.drive = drive;
     }
 
@@ -176,6 +204,16 @@ public class FlowerStickSubsystem implements Subsystem {
         return limp;
     }
 
+    /** Whether this stick has a roller ({@link #roller}). */
+    public boolean hasRoller() {
+        return rollerServo != null;
+    }
+
+    /** The power last written to the roller, 0 while it is stopped or there is none. */
+    public double rollerPowerNow() {
+        return rollerPowerNow;
+    }
+
     /** The swing from in to out, degrees: the two positions' distance over the servo's range. */
     public static double swingDegrees() {
         return Math.abs(unitRange(RETRACTED) - unitRange(EXTENDED)) * SERVO_RANGE_DEG;
@@ -203,6 +241,7 @@ public class FlowerStickSubsystem implements Subsystem {
         lastOut = false;
         limp = pwm != null;
         started = false;
+        rollerPowerNow = 0.0;
     }
 
     /** PLAY: the servo takes the stick and holds it in, unless something already asked it out. */
@@ -244,19 +283,26 @@ public class FlowerStickSubsystem implements Subsystem {
             servo.setPosition(unitRange(out ? EXTENDED : RETRACTED));
             power(true);
         }
+        if (rollerServo != null) {
+            rollerPowerNow = rollerPowerFor(out, rollerPower, rollerReversed);
+            rollerServo.setPower(rollerPowerNow);
+        }
     }
 
-    /** A servo holds where it is; there is nothing to cut. */
+    /** The pivot holds where it is; the roller stops. */
     @Override
     public void stop() {
+        if (rollerServo != null) rollerServo.setPower(0.0);
+        rollerPowerNow = 0.0;
     }
 
     @Override
     public String health() {
+        String rollerNote = rollerServo != null ? ", roller servo configured" : "";
         if (pwm == null) {
-            return "servo configured; it cannot switch its pulse off, so it holds the stick down";
+            return "servo configured" + rollerNote + "; it cannot switch its pulse off, so it holds the stick down";
         }
-        return "servo configured; presence unknown (a servo reports nothing back)";
+        return "servo configured" + rollerNote + "; presence unknown (a servo reports nothing back)";
     }
 
     /** Switches the servo's pulse on or off, if it can, and remembers which. */
@@ -279,6 +325,16 @@ public class FlowerStickSubsystem implements Subsystem {
      */
     static boolean shouldGoLimp(long sinceMoveMs, int settleMs, boolean limpWanted) {
         return limpWanted && sinceMoveMs >= settleMs;
+    }
+
+    /**
+     * The roller's power: {@code power} clamped to [0, 1] while the stick is asked down, flipped
+     * with {@code reversed}, and 0 while it is up. Pure, so the test can pin it down.
+     */
+    static double rollerPowerFor(boolean stickOut, double power, boolean reversed) {
+        double p = stickOut ? unitRange(power) : 0.0;
+        if (p == 0.0) return 0.0;
+        return reversed ? -p : p;
     }
 
     /**

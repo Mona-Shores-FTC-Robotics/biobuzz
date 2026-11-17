@@ -792,7 +792,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.status("Mode", robotCentric() ? Display.Level.WARN : Display.Level.OK,
                 robotCentric() || !robot.drive.isFieldCentric() ? "robot-centric" : "field-centric");
         display.status("Speed", Display.Level.OK, slowHeld ? "slow" : "normal");
-        display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.waitingToClear() ? "out until clear of the FLOWER" : robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));
+        display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.waitingToClear() ? "out until clear of the FLOWER" : robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding")
+                + (robot.flowerStick.hasRoller() ? (robot.flowerStick.rollerPowerNow() != 0.0 ? ", roller on" : ", roller off") : ""));
         display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
         if (!LaunchSpeedTable.enabled) {
             display.line(String.format(Locale.US, "Speed table: OFF, launch speed %.0f + trim",
