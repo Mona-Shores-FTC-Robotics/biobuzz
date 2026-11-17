@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints.Flower;
 
 import java.util.Locale;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -286,13 +287,33 @@ public final class FlowerPicker extends GrabRoutine {
     private Flower flower;
     /** Why a staying pick leaves the FLOWER, or null while it stays; null itself for a plain pick ({@link #staying}). */
     private final Supplier<String> stay;
+    /**
+     * The button's pick stays against the FLOWER while this is true, whatever its dwell's own
+     * rules say ({@link #FlowerPicker(Robot, Consumer, BooleanSupplier)}); null for none.
+     */
+    private final BooleanSupplier staysWhile;
     /** The routine this pick runs, and its pushes: {@link #routine} as it was when the pick started. */
     private Routine running = Routine.MASTER;
     private int runningPushes = 1;
 
     /** The button's pick: lines up first. */
     public FlowerPicker(Robot robot, Consumer<String> event) {
-        this(robot, event, true);
+        this(robot, event, (BooleanSupplier) null);
+    }
+
+    /**
+     * The button's pick, which also stays against the FLOWER, stick down and intake on, for as long
+     * as {@code staysWhile} is true: Basic Drive passes "the feeder is feeding", so a driver
+     * holding the pick while the operator holds FIRE fires the load from the FLOWER and the
+     * FLOWER's pieces follow through the same feed (the 8-shot by hand; {@link FlowerVolley} is the
+     * automatic one). While it is true the dwell's cap, the full lane and the intake current do not
+     * end the dwell; once it is false they do, as for any pick. Letting go of the pick or moving a
+     * stick ends it as always.
+     */
+    public FlowerPicker(Robot robot, Consumer<String> event, BooleanSupplier staysWhile) {
+        super(robot, event, true);
+        this.stay = null;
+        this.staysWhile = staysWhile;
     }
 
     private FlowerPicker(Robot robot, Consumer<String> event, boolean lineUp) {
@@ -302,6 +323,7 @@ public final class FlowerPicker extends GrabRoutine {
     private FlowerPicker(Robot robot, Consumer<String> event, boolean lineUp, Supplier<String> stay) {
         super(robot, event, lineUp);
         this.stay = stay;
+        this.staysWhile = null;
     }
 
     /**
@@ -540,8 +562,10 @@ public final class FlowerPicker extends GrabRoutine {
     @Override protected double backOffTimeoutMs() { return multiBackOffTimeoutMs; }
     @Override protected double lastDwellMs() { return multiLastDwellMs; }
     @Override protected double dwellQuietMs() { return dwellQuietMs; }
-    @Override protected boolean dwellStays() { return stay != null; }
-    @Override protected String stayOver() { return stay.get(); }
+    @Override protected boolean dwellStays() {
+        return stay != null || (staysWhile != null && staysWhile.getAsBoolean());
+    }
+    @Override protected String stayOver() { return stay == null ? null : stay.get(); }
     @Override protected boolean dwellFull() { return dwellEndsOnFull && robot.colorSensor.full(); }
     @Override protected double dwellEmptyMs() { return dwellEmptyMs; }
     @Override protected double spikeAboveAmps() { return spikeAboveAmps; }
