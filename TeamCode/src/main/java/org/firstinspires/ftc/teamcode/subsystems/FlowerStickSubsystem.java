@@ -331,7 +331,7 @@ public class FlowerStickSubsystem implements Subsystem {
      * The roller's power: {@code power} clamped to [0, 1] while the stick is asked down, flipped
      * with {@code reversed}, and 0 while it is up. Pure, so the test can pin it down.
      */
-    static double rollerPowerFor(boolean stickOut, double power, boolean reversed) {
+    public static double rollerPowerFor(boolean stickOut, double power, boolean reversed) {
         double p = stickOut ? unitRange(power) : 0.0;
         if (p == 0.0) return 0.0;
         return reversed ? -p : p;
@@ -349,7 +349,7 @@ public class FlowerStickSubsystem implements Subsystem {
      * Clamps a Panels-editable position to [0, 1], and treats NaN as 0. A typo in Panels should
      * leave the stick in, never command the servo past its travel or send NaN.
      */
-    static double unitRange(double value) {
+    public static double unitRange(double value) {
         return value > 0.0 ? Math.min(value, 1.0) : 0.0;
     }
 }
