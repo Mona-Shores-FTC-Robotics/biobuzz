@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints.Flower;
 
 import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Picks the nearest FLOWER: the stick down and the intake on, a push straight in to
@@ -283,6 +284,8 @@ public final class FlowerPicker extends GrabRoutine {
     public static double maxCorrection = 0.25;
 
     private Flower flower;
+    /** Why a staying pick leaves the FLOWER, or null while it stays; null itself for a plain pick ({@link #staying}). */
+    private final Supplier<String> stay;
     /** The routine this pick runs, and its pushes: {@link #routine} as it was when the pick started. */
     private Routine running = Routine.MASTER;
     private int runningPushes = 1;
@@ -293,7 +296,32 @@ public final class FlowerPicker extends GrabRoutine {
     }
 
     private FlowerPicker(Robot robot, Consumer<String> event, boolean lineUp) {
+        this(robot, event, lineUp, null);
+    }
+
+    private FlowerPicker(Robot robot, Consumer<String> event, boolean lineUp, Supplier<String> stay) {
         super(robot, event, lineUp);
+        this.stay = stay;
+    }
+
+    /**
+     * An Auto-style pick (squared up from where the robot is) that stays against the FLOWER, stick
+     * down and intake on, until {@code stay} gives a reason to leave: {@link FlowerVolley}'s pick,
+     * which fires from the FLOWER while the pieces come in. {@code stay} is asked every loop of the
+     * last dwell and returns null while the robot stays; the pick's own dwell cap, the full lane and
+     * the intake current do not end that dwell (a lane being emptied by the feeder is never full).
+     * The caller runs it with {@link #update}, held, to the end.
+     */
+    static FlowerPicker staying(Robot robot, Consumer<String> event, Supplier<String> stay) {
+        return new FlowerPicker(robot, event, false, stay);
+    }
+
+    /**
+     * {@link #staying}, the button's way: it lines up first, from anywhere within reach of a
+     * FLOWER, and follows the button (let go in the dwell and it backs out; a stick stops it).
+     */
+    static FlowerPicker stayingButton(Robot robot, Consumer<String> event, Supplier<String> stay) {
+        return new FlowerPicker(robot, event, true, stay);
     }
 
     /** An Auto's {@code PickFlower} card: a whole pick, squared up from where the robot is. */
@@ -520,6 +548,8 @@ public final class FlowerPicker extends GrabRoutine {
     @Override protected double backOffTimeoutMs() { return multiBackOffTimeoutMs; }
     @Override protected double lastDwellMs() { return multiLastDwellMs; }
     @Override protected double dwellQuietMs() { return dwellQuietMs; }
+    @Override protected boolean dwellStays() { return stay != null; }
+    @Override protected String stayOver() { return stay.get(); }
     @Override protected boolean dwellFull() { return dwellEndsOnFull && robot.colorSensor.full(); }
     @Override protected double dwellEmptyMs() { return dwellEmptyMs; }
     @Override protected double spikeAboveAmps() { return spikeAboveAmps; }
