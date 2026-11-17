@@ -158,7 +158,8 @@ public class FlowerStickBench extends OpMode {
                     + ", power " + fmt(FlowerStickSubsystem.rollerPower));
         }
         telemetry.addLine();
-        telemetry.addLine("Either gamepad. Lower numbers = stick down (EXTENDED 0.0), higher = up.");
+        telemetry.addLine("Either gamepad. Stick down = EXTENDED " + fmt(FlowerStickSubsystem.EXTENDED)
+                + ", up = RETRACTED " + fmt(FlowerStickSubsystem.RETRACTED) + " (which way is bigger differs by robot).");
         telemetry.addLine("D-pad up/down ±0.01 · bumpers ±0.05 · Circle limp");
         telemetry.addLine("Cross = save as RETRACTED · Triangle = save as EXTENDED");
         if (roller != null) telemetry.addLine("Square roller on/off · D-pad left flip roller direction");

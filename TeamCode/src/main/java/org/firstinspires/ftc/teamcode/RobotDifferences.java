@@ -73,6 +73,13 @@ public final class RobotDifferences {
                 "New FLOWER stick with a roller on its end, a continuous-rotation servo (17 Nov 2026,"
                         + " from the build team; its port is in robot_19429.xml)",
                 () -> FlowerStickSubsystem.roller = true);
+        differs(RobotIdentity.TEAM_19429,
+                "New FLOWER stick's pivot measured in Bench: FLOWER Stick: in at 0.06, out at 0.55,"
+                        + " the other way round from 20245's stick (17 Nov 2026)",
+                () -> {
+                    FlowerStickSubsystem.RETRACTED = 0.06;
+                    FlowerStickSubsystem.EXTENDED = 0.55;
+                });
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // The shared values were mostly measured on 20245.

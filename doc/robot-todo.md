@@ -131,9 +131,9 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       (`robot_19429.xml`). The turret servo was found in the +5V POWER header, not a
       servo port, and unplugged; 19429 has no working turret yet. When one is fitted, its
       servo goes in **port 4**. A **full TeamCode install**, re-Activate `robot_19429`,
-      then **Check: Hardware** (it lists `flowerRoller`). The stick is new, so measure
-      `FlowerStickSubsystem.RETRACTED` / `EXTENDED` on it in Panels and put them in a PR (a 19429
-      line in `RobotDifferences` if they differ from 20245's). Then Basic Drive, PLAY: stick in,
+      then **Check: Hardware** (it lists `flowerRoller`). The stick's positions were
+      measured on 17 Nov in Bench: FLOWER Stick (RETRACTED 0.06, EXTENDED 0.55, a 19429 line in
+      `RobotDifferences`); check Basic Drive's operator Square swings it between them. Then Basic Drive, PLAY: stick in,
       roller still; stick down, the roller spins at once (from the request, not once it lands) and
       the DS FLOWER stick line says "roller on"; stick up, it stops. If it turns the wrong way for
       the pick, flip `FlowerStickSubsystem.rollerReversed` in Panels (`true` since 17 Nov,
