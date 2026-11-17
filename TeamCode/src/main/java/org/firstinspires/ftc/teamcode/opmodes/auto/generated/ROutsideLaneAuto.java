@@ -21,7 +21,7 @@ public final class ROutsideLaneAuto {
     public static final String SOURCE = "r-outside-lane.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-17|4:11PM";
+    public static final String SAVED = "11-17|4:39PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -55,7 +55,7 @@ public final class ROutsideLaneAuto {
         Pose rightPark = p.of(14.5, 98.7, 0);
         Pose gardenStaging = p.of(11.5, 22.1, 270);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
-        Pose rightAutoClose = p.of(39.8, 25.6, 64.6);
+        Pose rightAutoClose = p.of(36.3, 19.6, 63.8);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose wallAbortParkToRightParkControl1 = p.of(26, 75, 0);
@@ -96,11 +96,11 @@ public final class ROutsideLaneAuto {
         Pose toRightAutoCloseControl1 = p.of(40.1611, 115.3688, 0);
         Pose toRightAutoCloseControl2 = p.of(25, 102, 0);
         Pose toRightAutoCloseControl3 = p.of(29.1679, 41.8725, 0);
-        Pose toRightAutoCloseSegment1Start = p.of(39.8, 25.6, 90);
-        Pose toRightAutoCloseSegment1End = p.of(39.8, 25.6, 270);
-        Pose toRightAutoCloseSegment2Heading = p.of(39.8, 25.6, 270);
-        Pose toRightAutoCloseSegment3Start = p.of(39.8, 25.6, 270);
-        Pose toRightAutoCloseSegment3End = p.of(39.8, 25.6, 421);
+        Pose toRightAutoCloseSegment1Start = p.of(36.3, 19.6, 90);
+        Pose toRightAutoCloseSegment1End = p.of(36.3, 19.6, 270);
+        Pose toRightAutoCloseSegment2Heading = p.of(36.3, 19.6, 270);
+        Pose toRightAutoCloseSegment3Start = p.of(36.3, 19.6, 270);
+        Pose toRightAutoCloseSegment3End = p.of(36.3, 19.6, 421);
         Pose wallLaneParkToRightParkControl1 = p.of(27, 44, 0);
         Pose wallLaneParkToRightParkControl2 = p.of(28, 78, 0);
         Pose wallLaneParkToRightParkSegment1Start = p.of(14.5, 98.7, 61);
@@ -143,17 +143,17 @@ public final class ROutsideLaneAuto {
                                                                 kit.guarded("Timed out", leftParkToRightPark, 1.9,
                                                                         kit.path("left park to RIGHT_PARK", leftParkToRightPark, 1.9))),
                                                         kit.when("CellUp").then(
-                                                                kit.guarded("If CellUp", wallLaneParkToRightPark, 2.6,
+                                                                kit.guarded("If CellUp", wallLaneParkToRightPark, 2.7,
                                                                         kit.path("scoring flower to SCORING_FLOWER_STAGING", scoringFlowerToScoringFlowerStaging, 1, flowerAbortParkToRightPark, 1.9),
                                                                         kit.command("PickFlower", 4.5),
-                                                                        kit.path("to RIGHT_AUTO_CLOSE", toRightAutoClose, 3.3, wallLaneParkToRightPark, 2.6),
+                                                                        kit.path("to RIGHT_AUTO_CLOSE", toRightAutoClose, 3.3, gardenAbortParkToRightPark, 3),
                                                                         kit.firstOf("RIGHT up before 26 s, otherwise park",
                                                                                 kit.atMatchSeconds(26).then(
-                                                                                        kit.guarded("Timed out", wallLaneParkToRightPark, 2.6,
-                                                                                                kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.6))),
+                                                                                        kit.guarded("Timed out", wallLaneParkToRightPark, 2.7,
+                                                                                                kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.7))),
                                                                                 kit.when("RightCellUp").then(
-                                                                                        kit.guarded("If RightCellUp", wallLaneParkToRightPark, 2.6,
+                                                                                        kit.guarded("If RightCellUp", wallLaneParkToRightPark, 2.7,
                                                                                                 kit.command("LaunchAll", 0.5),
-                                                                                                kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.6))))))))))));
+                                                                                                kit.path("wall lane park to RIGHT_PARK", wallLaneParkToRightPark, 2.7))))))))))));
     }
 }

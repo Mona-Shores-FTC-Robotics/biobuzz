@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-17T21:11:19.351Z",
+  "timestamp": "2026-11-17T21:39:54.807Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -468,8 +468,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 39.8,
-        "y": 25.6
+        "x": 36.3,
+        "y": 19.6
       },
       "controlPoints": [
         {
@@ -896,9 +896,9 @@
         61
       ],
       "RIGHT_AUTO_CLOSE": [
-        39.8,
-        25.6,
-        64.6
+        36.3,
+        19.6,
+        63.8
       ]
     },
     "pathEnds": {
@@ -1111,7 +1111,7 @@
       "card-r-garden": "r-garden-abort-park",
       "card-r-garden-north": "r-left-park",
       "card-r-scoring-flower": "r-flower-abort-park",
-      "card-r-wall-lane-south": "r-right-park"
+      "card-r-wall-lane-south": "r-garden-abort-park"
     },
     "teamSpots": [
       "GARDEN_STAGING",
