@@ -54,42 +54,45 @@ public class TurretSubsystem implements Subsystem {
     /**
      * Hub counts per turn of the turret's encoder: 8192, a REV Through Bore Encoder (17 Nov 2026).
      * A Studica Cypher Max counts 2048. Wrong, every angle is off by the ratio of the two: on
-     * {@code Bench: Turret} one turret turn by hand must read 360.
+     * {@code Bench: Turret} one turret turn by hand must read 360 (20245, 17 Nov 2026: 359.9 and
+     * 358.3).
      */
     public static double countsPerEncoderTurn = TurretEncoder.REV_THROUGH_BORE_COUNTS;
 
     /**
      * Encoder turns per turret turn: the encoder rides the goBILDA turret's 64T drive gear
-     * against its 176T ring, 2.75 (from the build team, 6 Nov 2026). Check it on
-     * {@code Bench: Turret}: one turret turn by hand reads 2.75 encoder turns.
+     * against its 176T ring, 2.75. One turret turn by hand read 2.749 and 2.737 encoder turns on
+     * {@code Bench: Turret} (20245, 17 Nov 2026).
      */
     public static double turnsPerTurretTurn = 2.75;
 
-    /** +1 if the count rises as the turret turns counter-clockwise seen from above. -1 on 20245: it falls (robot, 24 Oct 2026). */
+    /** +1 if the count rises as the turret turns counter-clockwise seen from above. -1 on 20245: it falls (robot, 24 Oct 2026; again with the REV Through Bore, 17 Nov 2026). */
     public static int direction = -1;
 
     // ------------------------------------------------------------ the servo
 
     /**
-     * +1 if positive servo power turns the turret counter-clockwise. -1 was 20245's with its
-     * earlier goBILDA servo in continuous mode (24 Oct 2026); <b>not yet checked with the 25-3
-     * Speed</b>. Wrong, the turret drives away from its target and the hold is dropped
-     * ({@link TurretDriveWatch}).
+     * +1 if positive servo power turns the turret counter-clockwise. +1 on 20245 with the 25-3
+     * Speed (Bench: Turret, 17 Nov 2026; its earlier servo was -1). Wrong, the turret drives away
+     * from its target and the hold is dropped ({@link TurretDriveWatch}).
      */
-    public static int servoDirection = -1;
+    public static int servoDirection = 1;
 
-    /** The power at which the servo stands still, [-0.2, 0.2]; see {@code Bench: Turret}. 0 until measured. */
+    /** The power at which the servo stands still, [-0.2, 0.2]; see {@code Bench: Turret}. 0 on 20245: it stands still (17 Nov 2026). */
     public static double servoStopPower = 0.0;
 
     /**
-     * Turret degrees per second at full power: 196, the 25-3 Speed's no-load speed at the hub's
-     * 5 V through 2.75:1, <b>from the data sheet, not measured</b>. It scales the feedforward, so
-     * measure it on {@code Bench: Turret} (the rate shown at power 1).
+     * Turret degrees per second at full power, which scales the feedforward. 180 on 20245, both
+     * ways (Bench: Turret, 17 Nov 2026): the steady rate at power 1, under a peak reading of 194.
+     * The data sheet's no-load speed through 2.75:1 is 196.
      */
-    public static double topSpeedDps = 196.0;
+    public static double topSpeedDps = 180.0;
 
-    /** The least power that turns the turret. 0.07 on the 24 Oct 2026 bench, another servo: measure it again. */
-    public static double minPower = 0.07;
+    /**
+     * The least power that turns the turret steadily. 0.09 on 20245 (Bench: Turret, 17 Nov 2026):
+     * below it the turret moves, but not consistently.
+     */
+    public static double minPower = 0.09;
     public static double maxPower = 1.0;
 
     // ------------------------------------------------------------ the loop
