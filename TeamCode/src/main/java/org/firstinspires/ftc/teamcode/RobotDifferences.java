@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
+import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
 
@@ -66,6 +67,10 @@ public final class RobotDifferences {
                 "Intake star wheels split onto two servos, right and left (13 Nov 2026, from the build"
                         + " team; their ports are in robot_19429.xml)",
                 () -> IntakeSubsystem.rightStarWheel = true);
+        differs(RobotIdentity.TEAM_19429,
+                "New FLOWER stick with a roller on its end, a continuous-rotation servo (17 Nov 2026,"
+                        + " from the build team; its port is in robot_19429.xml)",
+                () -> FlowerStickSubsystem.roller = true);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // Nothing yet: the shared values were mostly measured on 20245.

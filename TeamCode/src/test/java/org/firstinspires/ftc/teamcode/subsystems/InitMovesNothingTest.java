@@ -72,6 +72,45 @@ public class InitMovesNothingTest {
     }
 
     @Test
+    public void flowerRollerWaitsForPlayAndSpinsOnlyWhileTheStickIsDown() {
+        boolean was = FlowerStickSubsystem.roller;
+        FlowerStickSubsystem.roller = true;
+        try {
+            Devices devices = new Devices().servo(DeviceNames.FLOWER_STICK).crServo(DeviceNames.FLOWER_ROLLER);
+            FlowerStickSubsystem stick = new FlowerStickSubsystem(devices.map, null);
+            runInit(stick, devices);
+
+            stick.start();
+            stick.update();
+            assertEquals("at PLAY, stick in, the roller is stopped",
+                    Arrays.asList("setPower(0.0)"), devices.calls(DeviceNames.FLOWER_ROLLER));
+
+            double spin = FlowerStickSubsystem.rollerPowerFor(true, FlowerStickSubsystem.rollerPower,
+                    FlowerStickSubsystem.rollerReversed);
+            assertTrue("the default roller power turns it", spin != 0.0);
+            devices.clear();
+            stick.extend();
+            stick.update();
+            assertEquals("asked down, the roller spins from the request on",
+                    Arrays.asList("setPower(" + spin + ")"), devices.calls(DeviceNames.FLOWER_ROLLER));
+
+            devices.clear();
+            stick.retractAfter(60_000);
+            stick.update();
+            assertEquals("still down while it waits to come in, so still spinning",
+                    Arrays.asList("setPower(" + spin + ")"), devices.calls(DeviceNames.FLOWER_ROLLER));
+
+            devices.clear();
+            stick.retract();
+            stick.update();
+            assertEquals("asked up, the roller stops",
+                    Arrays.asList("setPower(0.0)"), devices.calls(DeviceNames.FLOWER_ROLLER));
+        } finally {
+            FlowerStickSubsystem.roller = was;
+        }
+    }
+
+    @Test
     public void turretWaitsForPlay() {
         Devices devices = new Devices().motor(DeviceNames.TURRET_ENCODER_HOST).crServo(DeviceNames.TURRET);
         TurretSubsystem turret = new TurretSubsystem(devices.map);

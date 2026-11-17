@@ -1311,6 +1311,7 @@ public abstract class RobotOpMode extends OpMode {
         for (int i = 0; i < WHEEL_KEYS.length; i++) log.put(WHEEL_KEYS[i], robot.drive.wheelTicksPerSec(i));
         log.put("/FlowerStick/Out", robot.flowerStick.extended() ? 1 : 0);
         log.put("/FlowerStick/Powered", robot.flowerStick.limp() ? 0 : 1);
+        log.put("/FlowerStick/RollerPower", robot.flowerStick.rollerPowerNow());
         HiveTracker hive = robot.hive.of(setup.alliance());
         if (hive != null) log.put("/Hive/State", hive.state().ordinal());
         // Both HIVEs as the robot believes them, drawn in the 3D view (HiveComponents).

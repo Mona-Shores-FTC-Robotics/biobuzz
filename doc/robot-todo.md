@@ -125,7 +125,13 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       (`flowerRoller`) (`robot_19429.xml`). A **full TeamCode install**, re-Activate `robot_19429`,
       then **Check: Hardware** (it lists `flowerRoller`). The stick is new, so measure
       `FlowerStickSubsystem.RETRACTED` / `EXTENDED` on it in Panels and put them in a PR (a 19429
-      line in `RobotDifferences` if they differ from 20245's). The roller is not driven by code yet.
+      line in `RobotDifferences` if they differ from 20245's). Then Basic Drive, PLAY: stick in,
+      roller still; stick down, the roller spins at once (from the request, not once it lands) and
+      the DS FLOWER stick line says "roller on"; stick up, it stops. If it turns the wrong way for
+      the pick, flip `FlowerStickSubsystem.rollerReversed` in Panels (the default `false` is a
+      guess) and put the value that worked in a PR. Then a few FLOWER picks: does the spinning
+      roller help, and does it pull pieces back out while the robot backs away with the stick
+      still down? Match log: `/FlowerStick/RollerPower`.
 - [ ] **Both robots: the turret servo becomes a goBILDA 25-3 Speed in continuous mode, on
       Expansion Hub servo port 5** (the SWYFT positional servo comes off; set continuous mode with
       the goBILDA programmer). **19429:** same port as now. **20245:** the turret servo moves from

@@ -55,6 +55,21 @@ public class FlowerStickSubsystemTest {
     }
 
     @Test
+    public void rollerSpinsOnlyWhileTheStickIsDown() {
+        assertEquals(1.0, FlowerStickSubsystem.rollerPowerFor(true, 1.0, false), EPS);
+        assertEquals(-0.5, FlowerStickSubsystem.rollerPowerFor(true, 0.5, true), EPS);
+        assertEquals(0.0, FlowerStickSubsystem.rollerPowerFor(false, 1.0, false), EPS);
+        assertEquals(0.0, FlowerStickSubsystem.rollerPowerFor(false, 1.0, true), EPS);
+    }
+
+    @Test
+    public void aPanelsTypoNeverOverdrivesTheRoller() {
+        assertEquals(1.0, FlowerStickSubsystem.rollerPowerFor(true, 3.0, false), EPS);
+        assertEquals(0.0, FlowerStickSubsystem.rollerPowerFor(true, -1.0, false), EPS);
+        assertEquals(0.0, FlowerStickSubsystem.rollerPowerFor(true, Double.NaN, true), EPS);
+    }
+
+    @Test
     public void theTunedPositionsMakeTheMeasured162DegreeSwing() {
         assertEquals(162.0, FlowerStickSubsystem.swingDegrees(), 1e-9);
     }
