@@ -131,7 +131,10 @@ public class LaunchSpotsTest {
         assertEquals(Spot.LEFT_WALL_NEAR, red(30, 125).spot);
         assertEquals(Spot.LEFT_WALL_HIVE, red(60, 125).spot);
         assertEquals(Spot.LEFT_WALL_FAR, red(80, 128).spot);
-        assertEquals(Spot.LEFT_CLOSE_NEAR, red(40, 100).spot);
+        // Out past the NEAR spot, where it is 11 in nearer than the HIVE one: more than the 10 in bias.
+        assertEquals(Spot.LEFT_CLOSE_NEAR, red(28, 109).spot);
+        // From (40, 100) NEAR is only 9.1 in nearer: inside the bias, the middle spot wins.
+        assertEquals(Spot.LEFT_CLOSE_HIVE, red(40, 100).spot);
         assertEquals(Spot.LEFT_CLOSE_HIVE, red(60, 105).spot);
     }
 
