@@ -125,15 +125,19 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
       out. Turret: still sits at home after PLAY, as before.
 - [ ] **19429 rewired 17 Nov: the new FLOWER stick.** Pivot servo on **Expansion Hub servo
-      port 4** (`flowerStick`), roller (continuous-rotation servo) on **Control Hub servo port 0**
-      (`flowerRoller`) (`robot_19429.xml`). A **full TeamCode install**, re-Activate `robot_19429`,
+      port 5** (`flowerStick`), turret servo moved to **Expansion Hub servo port 4** (the pivot
+      was found in port 5, the turret's, when Bench: Turret moved the stick), roller
+      (continuous-rotation servo) on **Control Hub servo port 0** (`flowerRoller`)
+      (`robot_19429.xml`). The turret servo was found in the +5V POWER header, not a
+      servo port, and unplugged; 19429 has no working turret yet. When one is fitted, its
+      servo goes in **port 4**. A **full TeamCode install**, re-Activate `robot_19429`,
       then **Check: Hardware** (it lists `flowerRoller`). The stick is new, so measure
       `FlowerStickSubsystem.RETRACTED` / `EXTENDED` on it in Panels and put them in a PR (a 19429
       line in `RobotDifferences` if they differ from 20245's). Then Basic Drive, PLAY: stick in,
       roller still; stick down, the roller spins at once (from the request, not once it lands) and
       the DS FLOWER stick line says "roller on"; stick up, it stops. If it turns the wrong way for
-      the pick, flip `FlowerStickSubsystem.rollerReversed` in Panels (the default `false` is a
-      guess) and put the value that worked in a PR. Then a few FLOWER picks: does the spinning
+      the pick, flip `FlowerStickSubsystem.rollerReversed` in Panels (`true` since 17 Nov,
+      seen on 19429) and put the value that worked in a PR. Then a few FLOWER picks: does the spinning
       roller help, and does it pull pieces back out while the robot backs away with the stick
       still down? Match log: `/FlowerStick/RollerPower`.
 - [ ] **Both robots: the turret servo becomes a goBILDA 25-3 Speed in continuous mode, on
