@@ -119,6 +119,13 @@
             <!-- Intake roller: one goBILDA 5203 motor (#160, #181), on motor
                  port 0, where the build team plugged it in (23 Oct 2026). -->
             <goBILDA5202SeriesMotor name="intake"         port="0" />
+            <!-- The ENCODER socket beside motor port 0 holds the turret's
+                 encoder, a REV Through Bore Encoder on the turret's drive gear,
+                 not the intake's own (which stays unplugged). Code reads the
+                 turret angle as the intake's position
+                 (DeviceNames.TURRET_ENCODER_HOST), so the intake's position
+                 hold and wedge clear, which needed its own encoder, are off.
+                 Wired 17 Nov 2026 (the mentor, at the robot). -->
 
             <!-- Launcher: two flywheels and a feeder, the plan agreed with the
                  build team (23 Oct 2026). Not built yet, so nothing is plugged
@@ -126,16 +133,9 @@
             <goBILDA5202SeriesMotor name="launcher_left"  port="1" />
             <goBILDA5202SeriesMotor name="launcher_right" port="2" />
             <goBILDA5202SeriesMotor name="feeder"         port="3" />
-            <!-- The ENCODER socket beside motor port 3 is meant for the
-                 turret's Studica Cypher Max (quadrature A/B/I, its FTC Control
-                 Hub cable; set its switch to 3V3), the build team's choice of
-                 24 Oct 2026. Until 1 Nov the feeder's own encoder was in it;
-                 by Belding (7 Nov) the turret's was: with the feeder running
-                 the socket read the turret's count, not the feeder's (match
-                 logs). Code reads
-                 the turret angle as the feeder's position
-                 (DeviceNames.TURRET_ENCODER_HOST); the feeder never uses its
-                 encoder for control. -->
+            <!-- The ENCODER socket beside motor port 3 is empty: the feeder
+                 runs without an encoder. It held the turret's Cypher Max until
+                 the turret's encoder moved to the intake's socket (above). -->
 
         </LynxModule>
     </LynxUsbDevice>

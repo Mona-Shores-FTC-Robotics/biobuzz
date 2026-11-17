@@ -6,15 +6,16 @@ package org.firstinspires.ftc.teamcode.subsystems;
  *
  * <h2>The encoder</h2>
  *
- * <p>A Studica Cypher Max (#75051) on the turret's drive gear, its A/B/I quadrature output plugged
- * into a hub motor encoder socket ({@code DeviceNames.TURRET_ENCODER_HOST}). The hub counts
- * {@value #COUNTS_PER_ENCODER_TURN} per encoder turn in that mode, both edges of both channels. It
- * is a <b>relative</b> count: zero wherever the encoder was when the hub powered up, and it keeps
- * counting across OpModes while the hub stays on. So the turret's angle is the count since the
- * turret was last known to be at home, which a person puts it at before INIT.
+ * <p>A REV Through Bore Encoder (REV-11-1271) on the turret's drive gear, its quadrature output
+ * plugged into a hub motor encoder socket ({@code DeviceNames.TURRET_ENCODER_HOST}). The hub counts
+ * both edges of both channels: {@value #REV_THROUGH_BORE_COUNTS} per turn of that encoder (the
+ * Studica Cypher Max it replaced counts {@value #CYPHER_MAX_COUNTS}). It is a <b>relative</b>
+ * count: zero wherever the encoder was when the hub powered up, and it keeps counting across
+ * OpModes while the hub stays on. So the turret's angle is the count since the turret was last
+ * known to be at home, which a person puts it at before INIT.
  *
- * <p>The encoder also has an absolute PWM output, which an OctoQuad could read. Not used today
- * (the build team chose relative plus a home mark, Oct 2026); nothing here stops adding it later.
+ * <p>The encoder also has an absolute pulse output. Not used (the build team chose relative plus
+ * a home mark, Oct 2026); nothing here stops adding it later.
  *
  * <h2>The two measured values</h2>
  *
@@ -34,8 +35,14 @@ package org.firstinspires.ftc.teamcode.subsystems;
  */
 public final class TurretEncoder {
 
-    /** What a REV hub counts per encoder turn from the Cypher Max's quadrature output (2048 CPR). */
-    public static final int COUNTS_PER_ENCODER_TURN = 2048;
+    /** What a REV hub counts per turn of a REV Through Bore Encoder (2048 cycles, four edges each). */
+    public static final int REV_THROUGH_BORE_COUNTS = 8192;
+
+    /** What a REV hub counts per turn of a Studica Cypher Max, as read on the 24 Oct 2026 bench. */
+    public static final int CYPHER_MAX_COUNTS = 2048;
+
+    /** Hub counts per encoder turn: the encoder's own number. */
+    public final double countsPerEncoderTurn;
 
     /** Encoder turns per turret turn, from the gearing. Measured, never guessed. */
     public final double turnsPerTurretTurn;
@@ -44,12 +51,17 @@ public final class TurretEncoder {
     public final int direction;
 
     /**
-     * @param turnsPerTurretTurn encoder turns per turret turn; must be positive and finite
-     * @param direction          +1 or -1
+     * @param countsPerEncoderTurn hub counts per encoder turn; must be positive and finite
+     * @param turnsPerTurretTurn   encoder turns per turret turn; must be positive and finite
+     * @param direction            +1 or -1
      * @throws IllegalArgumentException for anything else, because a wrong ratio or a 0 direction
      *                                  would turn every angle into nonsense while looking valid
      */
-    public TurretEncoder(double turnsPerTurretTurn, int direction) {
+    public TurretEncoder(double countsPerEncoderTurn, double turnsPerTurretTurn, int direction) {
+        if (!(countsPerEncoderTurn > 0.0) || Double.isInfinite(countsPerEncoderTurn)) {
+            throw new IllegalArgumentException(
+                    "countsPerEncoderTurn must be positive and finite, not " + countsPerEncoderTurn);
+        }
         if (!(turnsPerTurretTurn > 0.0) || Double.isInfinite(turnsPerTurretTurn)) {
             throw new IllegalArgumentException(
                     "turnsPerTurretTurn must be positive and finite, not " + turnsPerTurretTurn);
@@ -57,13 +69,14 @@ public final class TurretEncoder {
         if (direction != 1 && direction != -1) {
             throw new IllegalArgumentException("direction must be +1 or -1, not " + direction);
         }
+        this.countsPerEncoderTurn = countsPerEncoderTurn;
         this.turnsPerTurretTurn = turnsPerTurretTurn;
         this.direction = direction;
     }
 
     /** Hub counts for one turret turn. */
     public double countsPerTurretTurn() {
-        return COUNTS_PER_ENCODER_TURN * turnsPerTurretTurn;
+        return countsPerEncoderTurn * turnsPerTurretTurn;
     }
 
     /** Turret degrees per hub count: the finest angle this setup can tell apart. */
@@ -83,16 +96,17 @@ public final class TurretEncoder {
 
     /**
      * Hub counts per second into turret degrees per second, counter-clockwise positive. The hub's
-     * velocity is a 16-bit value that wraps above 32767 counts/s; at 2048 counts per encoder turn
-     * that is 16 encoder turns per second, far above any turret.
+     * velocity is a 16-bit value that wraps above 32767 counts/s; at 8192 counts per encoder turn
+     * that is 4 encoder turns per second, about 520 degrees per second of turret through 2.75:1,
+     * well above the servo's top speed.
      */
     public double degreesPerSecond(double countsPerSecond) {
         return direction * countsPerSecond * degreesPerCount();
     }
 
     /** Encoder turns since {@code zeroCounts}, signed the way the hub counts, for reading a ratio off. */
-    public static double encoderTurns(long counts, long zeroCounts) {
-        return (counts - zeroCounts) / (double) COUNTS_PER_ENCODER_TURN;
+    public double encoderTurns(long counts, long zeroCounts) {
+        return (counts - zeroCounts) / countsPerEncoderTurn;
     }
 
     /** {@code deg} wrapped into (-180, 180]. NaN stays NaN. */

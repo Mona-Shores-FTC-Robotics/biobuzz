@@ -124,8 +124,13 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       Expansion Hub servo port 5** (the SWYFT positional servo comes off; set continuous mode with
       the goBILDA programmer). **19429:** same port as now. **20245:** the turret servo moves from
       Control Hub servo port 4 to **Expansion Hub servo port 5**; its Control Hub port 4 stays
-      empty, kept for a right star wheel like 19429's (`robot_20245.xml`). The Cypher Max stays in
-      the encoder socket beside Expansion Hub motor port 3 on both. The configs on this branch
+      empty, kept for a right star wheel like 19429's (`robot_20245.xml`). The turret's encoder is a
+      **REV Through Bore Encoder in the intake's encoder socket** (beside Expansion Hub motor
+      port 0; the intake's own encoder cable stays out, and the Cypher Max comes out of the
+      feeder's socket). 20245 was wired this way on 17 Nov; **19429 is not yet**, and reads no
+      turret on this branch until it is. With the turret's encoder there the intake's position
+      hold on a full lane, its wedge clear and its stall event are off: watch a full lane hold
+      its pieces on the power hold alone (`IntakeSubsystem.holdPowerWhenFull`). The configs on this branch
       already say this, so **install it only on a robot that is wired this way**: a positional
       servo sent a continuous servo's pulses swings to an end. A **full TeamCode install**,
       re-Activate, then **Check: Hardware**, then the Bench: Turret items in §2.
@@ -250,7 +255,9 @@ Result, with the gap on each own-start run, → [PR #372].
       line if the two robots differ):
       1. **Encoder**, in INIT, nothing powered: Cross with the turret on its mark, then one full
          turn counter-clockwise by hand. **Good:** `encoder turns` 2.75, `angle` +360. `angle`
-         falls → flip `direction`. (19429's `direction` has never been checked; -1 is 20245's.)
+         falls → flip `direction`. `angle` near 1440 or 90 → `countsPerEncoderTurn` is the other
+         encoder's (8192 REV Through Bore, 2048 Cypher Max). Nothing moves → the cable is not in
+         the intake's socket. (19429's `direction` has never been checked; -1 is 20245's.)
       2. **`servoStopPower`**: PLAY. The turret stands still at power 0, or creeps: step the power
          until it is still and note it.
       3. **`servoDirection`**: one R1 press. `angle` rises → +1; falls → -1 (the default, 20245's

@@ -488,15 +488,21 @@ six servo ports. The servo's mode is set on the servo itself, with the goBILDA
 programmer, and the XML has to match it: a positional servo sent a continuous
 servo's pulses swings to an end and stays there.
 
-Its angle comes from a Studica Cypher Max encoder on the turret's drive gear
+Its angle comes from a REV Through Bore Encoder on the turret's drive gear
 (the 64T gear on the 176T ring: 2.75 encoder turns per turret turn).
-The encoder's quadrature output (2048 counts per encoder turn, both edges of
+The encoder's quadrature output (8192 counts per encoder turn, both edges of
 both channels) plugs into the **encoder socket beside Expansion Hub motor port
-3**, the feeder's (the build team's choice: the drive motors' sockets hold their
-own encoders). The feeder runs without its encoder, so the socket is free, and
-the SDK reads whatever is in it as that motor's position, which means the
-feeder's velocity line on the Robot page shows the turret moving on a
-competition robot. `DeviceNames.TURRET_ENCODER_HOST` names which motor that
+0**, the intake's (the mentor's call at the robot, 17 Nov 2026; until then a
+Studica Cypher Max, 2048 counts, in the feeder's socket beside port 3). The SDK
+reads whatever is in a socket as that motor's position, so the intake's
+position and speed are the turret's on a competition robot, and the intake runs
+without an encoder of its own. That costs the intake three things, all switched
+off by `IntakeSubsystem.ownEncoder` and `RobotOpMode` while the turret's encoder
+is there: the position hold on a full lane (it falls back to the power hold;
+left on, the hub would run the roller after the turret's count), the wedge
+clear (a still turret would read as a stalled roller), and the stall event in
+the match log. The feeder's socket is empty, so the feeder has no stall event
+either. `DeviceNames.TURRET_ENCODER_HOST` names which motor that
 is; turret code asks for that motor and reads only its encoder, and nothing
 but the turret code may reset its count. The count is relative: zero
 wherever the encoder sat at hub power-up, kept across OpModes while the hub

@@ -22,15 +22,17 @@ import java.util.Locale;
 
 /**
  * Bench test for the turret on a competition robot: a goBILDA 25-3 Speed servo in continuous mode
- * ({@code DeviceNames.TURRET}) turning it, and the Studica Cypher Max encoder read through the
- * encoder socket of Expansion Hub motor port 3 ({@code DeviceNames.TURRET_ENCODER_HOST}). It
+ * ({@code DeviceNames.TURRET}) turning it, and the REV Through Bore Encoder read through the
+ * encoder socket of Expansion Hub motor port 0 ({@code DeviceNames.TURRET_ENCODER_HOST}). It
  * measures the numbers {@code TurretSubsystem} needs, none of which may be guessed, in this order:
  *
  * <ol>
  *   <li><b>Encoder</b>, in INIT, nothing powered: Cross zeros it with the turret on its home
  *       mark. Turn the turret counter-clockwise (seen from above) by hand: {@code angle} should
  *       rise, else {@code TurretSubsystem.direction} is the other sign. One full turn reads
- *       {@code encoder turns} = {@code turnsPerTurretTurn} (2.75).</li>
+ *       {@code encoder turns} = {@code turnsPerTurretTurn} (2.75) and {@code angle} 360. Four times
+ *       that, or a quarter: {@code countsPerEncoderTurn} is the other encoder's (8192 for a REV
+ *       Through Bore, 2048 for a Cypher Max).</li>
  *   <li><b>{@code servoStopPower}.</b> PLAY: the servo is sent power 0. If the turret creeps, step
  *       the power (D-pad, 0.005) until it stands still: that power is the value.</li>
  *   <li><b>{@code servoDirection}.</b> One bumper press to the right (+0.05 steps): {@code angle}
@@ -46,7 +48,7 @@ import java.util.Locale;
  * </ol>
  *
  * <p>Standalone diagnostics, like {@code ValidateHardware}: no {@code Robot}, no
- * {@code Subsystem}, the exception CLAUDE.md allows for rigs. It reads the feeder motor's encoder
+ * {@code Subsystem}, the exception CLAUDE.md allows for rigs. It reads the intake motor's encoder
  * socket and never touches that motor's power or mode.
  *
  * <p>Nothing moves in INIT: the servo gets its first pulse only after PLAY. Circle switches its
@@ -213,7 +215,8 @@ public class TurretBench extends OpMode {
 
     private void readEncoder() {
         try {
-            encoder = new TurretEncoder(TurretSubsystem.turnsPerTurretTurn, TurretSubsystem.direction);
+            encoder = new TurretEncoder(TurretSubsystem.countsPerEncoderTurn, TurretSubsystem.turnsPerTurretTurn,
+                    TurretSubsystem.direction);
             encoderProblem = null;
         } catch (IllegalArgumentException e) {
             encoder = null;
@@ -310,7 +313,7 @@ public class TurretBench extends OpMode {
         telemetry.addLine("");
         telemetry.addLine(String.format(Locale.US, "encoder counts %d (zero %d%s)  turns %.3f  angle %s  rate %s",
                 counts, zeroCounts, zeroed ? "" : ", not zeroed",
-                TurretEncoder.encoderTurns(counts, zeroCounts), deg(angleDeg), dps(rateDps)));
+                encoder == null ? Double.NaN : encoder.encoderTurns(counts, zeroCounts), deg(angleDeg), dps(rateDps)));
         telemetry.addLine(String.format(Locale.US, "fastest: %.0f°/s counter-clockwise, %.0f°/s clockwise (Triangle clears)",
                 fastestCcwDps, fastestCwDps));
         if (!started) {

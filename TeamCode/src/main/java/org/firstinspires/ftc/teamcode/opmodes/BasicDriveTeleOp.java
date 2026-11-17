@@ -1121,7 +1121,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("last_shot_dip_tps", robot.launcher.lastShotDipTicksPerSecond());
             panels.addData("last_shot_range_in", lastShotRangeIn);
             panels.addData("feeder_power", robot.feeder.power());
-            // The feeder's encoder socket holds the turret's encoder (DeviceNames.TURRET_ENCODER_HOST): this is the turret turning.
+            // The feeder's encoder socket is empty: this reads nothing (the turret's encoder is in the intake's).
             panels.addData("feeder_tps", robot.feeder.ticksPerSecond());
             panels.addData("feeder_amps", robot.feeder.currentAmps());
             LanePanels.publish(panels, robot.colorSensor.lane());

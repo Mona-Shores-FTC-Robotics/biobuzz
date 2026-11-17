@@ -149,6 +149,15 @@ public class IntakeSubsystem implements Subsystem {
      */
     public static boolean rollerWhileFeeding = true;
 
+    /**
+     * Whether this motor's encoder socket holds the roller's own encoder. False while the turret's
+     * encoder is in it ({@code DeviceNames.TURRET_ENCODER_HOST}): the count and the speed read here
+     * are then the turret's, so the position hold (which would run the roller after the turret) and
+     * the wedge clear (which would see a still turret as a stalled roller) are off, whatever their
+     * switches say, and {@link #ticksPerSecond()} is not the roller.
+     */
+    static boolean ownEncoder = !DeviceNames.INTAKE.equals(DeviceNames.TURRET_ENCODER_HOST);
+
     /** Enable the full-lane hold, whether intake is requested or idle. */
     public static boolean holdWhenFull = true;
 
@@ -477,7 +486,7 @@ public class IntakeSubsystem implements Subsystem {
         }
         // A wedge: the OpMode's own intake, stalled, with the lane not backed up. The speed and
         // current are the last loop's.
-        boolean takingIn = started && clearWedge && request == State.IN && roller == State.IN
+        boolean takingIn = started && clearWedge && ownEncoder && request == State.IN && roller == State.IN
                 && !holdingForFull && !rejecting && !holdingOff && !laneBackedUp.getAsBoolean();
         unwedging = wedge.update(takingIn, ticksPerSecond, currentAmps, System.nanoTime(),
                 wedgeStallTicksPerSecond, wedgeStallAmps, wedgeStallMs,
@@ -489,7 +498,7 @@ public class IntakeSubsystem implements Subsystem {
         feedAssist = !holdingForFull && !rejecting && !holdingOff && request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
         boolean ownEject = request == State.OUT;
         positionTicks = motor.getCurrentPosition();
-        if (holdingForFull && positionHoldWhenFull) {
+        if (holdingForFull && positionHoldWhenFull && ownEncoder) {
             if (!positionHolding) {
                 motor.setPower(0.0);
                 holdTargetTicks = positionTicks;

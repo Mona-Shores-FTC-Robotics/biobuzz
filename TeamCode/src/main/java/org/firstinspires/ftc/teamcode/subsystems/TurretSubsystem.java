@@ -14,7 +14,7 @@ import java.util.Locale;
 
 /**
  * The turret: a goBILDA 25-3 Speed servo in continuous mode ({@link DeviceNames#TURRET}) turning
- * it, and a Studica Cypher Max encoder on its drive gear, read as a relative quadrature count
+ * it, and a REV Through Bore Encoder on its drive gear, read as a relative quadrature count
  * through the encoder socket of {@link DeviceNames#TURRET_ENCODER_HOST}. The turret has no stops
  * and no cables: it turns for ever either way, an angle is a direction, and it always goes the
  * shortest way round. A continuous servo has no feedback of its own, so the loop is closed here,
@@ -41,7 +41,7 @@ import java.util.Locale;
  *
  * <p>The encoder host is another mechanism's motor. This class reads its position and velocity and
  * <b>never</b> sets its power or mode, and never resets its count: zero is a software offset, so
- * the feeder (today's host) is untouched.
+ * the intake (today's host) is untouched.
  *
  * <p>The values below are both robots'. One that a robot measures differently is a line in
  * {@link org.firstinspires.ftc.teamcode.RobotDifferences}, not a second field here.
@@ -52,7 +52,14 @@ public class TurretSubsystem implements Subsystem {
     // ------------------------------------------------------------ the encoder
 
     /**
-     * Encoder turns per turret turn: the Cypher Max rides the goBILDA turret's 64T drive gear
+     * Hub counts per turn of the turret's encoder: 8192, a REV Through Bore Encoder (17 Nov 2026).
+     * A Studica Cypher Max counts 2048. Wrong, every angle is off by the ratio of the two: on
+     * {@code Bench: Turret} one turret turn by hand must read 360.
+     */
+    public static double countsPerEncoderTurn = TurretEncoder.REV_THROUGH_BORE_COUNTS;
+
+    /**
+     * Encoder turns per turret turn: the encoder rides the goBILDA turret's 64T drive gear
      * against its 176T ring, 2.75 (from the build team, 6 Nov 2026). Check it on
      * {@code Bench: Turret}: one turret turn by hand reads 2.75 encoder turns.
      */
@@ -151,6 +158,7 @@ public class TurretSubsystem implements Subsystem {
 
     private TurretEncoder encoder;
     private double encoderTurnsSetting = Double.NaN;
+    private double encoderCountsSetting = Double.NaN;
     private int directionSetting;
     private String settingsProblem;
 
@@ -397,7 +405,7 @@ public class TurretSubsystem implements Subsystem {
             faultNote = fault == TurretDriveWatch.Fault.WRONG_WAY
                     ? "DROPPED: the turret turned against its servo. Flip servoDirection (it ran from the"
                             + " target) or direction (the angle read the other way) on Bench: Turret."
-                    : "DROPPED: driven and the encoder did not move. Encoder cable in the feeder's socket?"
+                    : "DROPPED: driven and the encoder did not move. Encoder cable in the intake's socket?"
                             + " Servo turning? Turret jammed?";
             mode = Mode.IDLE;
             power = Double.NaN;
@@ -503,13 +511,15 @@ public class TurretSubsystem implements Subsystem {
     /** Pulls the Panels values in; rebuilds the encoder's converter only when its two inputs change. */
     private void refreshSettings() {
         gains.set(kP, kD, minPower, maxPower, topSpeedDps, feedforward, holdToleranceDeg, targetStillDps);
-        if (encoderTurnsSetting == turnsPerTurretTurn && directionSetting == direction && encoder != null) {
+        if (encoderTurnsSetting == turnsPerTurretTurn && directionSetting == direction
+                && encoderCountsSetting == countsPerEncoderTurn && encoder != null) {
             return;
         }
         encoderTurnsSetting = turnsPerTurretTurn;
+        encoderCountsSetting = countsPerEncoderTurn;
         directionSetting = direction;
         try {
-            encoder = new TurretEncoder(turnsPerTurretTurn, direction);
+            encoder = new TurretEncoder(countsPerEncoderTurn, turnsPerTurretTurn, direction);
             settingsProblem = null;
         } catch (IllegalArgumentException e) {
             encoder = null;
