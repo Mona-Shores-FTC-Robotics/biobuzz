@@ -153,7 +153,9 @@ public class TurretSubsystem implements Subsystem {
      * on the target, with the operator's AIM TRIM at 0. 0 for a turret whose shots go where its
      * mark points; a robot whose shots sit to one side gets its line in
      * {@link org.firstinspires.ftc.teamcode.RobotDifferences}. Read every loop: a change in Panels
-     * moves the turret at once. NaN is 0; kept inside ±30.
+     * moves the turret at once. NaN is 0; kept inside ±30. 20245 ran with 4.5 on 17 Nov 2026 and
+     * the operator then trimmed 4.5 back to shoot straight, so it is 0 there too: the first
+     * reading was not a fixed offset.
      */
     public static double aimOffsetDeg = 0.0;
 
