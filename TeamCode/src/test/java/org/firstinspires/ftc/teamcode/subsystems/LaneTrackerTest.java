@@ -72,6 +72,22 @@ public class LaneTrackerTest {
     }
 
     @Test
+    public void anEjectResetsTheCountAndTheLeavingPiecesAreNotAnError() {
+        read(FAR, Piece.UNKNOWN);
+        pass(Piece.POLLEN);
+        pass(Piece.BLUE_NECTAR);
+        lane.step(false, Double.NaN, Piece.UNKNOWN, true, false, IN, OUT);
+        lane.ejected();
+        assertEquals(0, lane.count());
+        assertEquals("____", lane.lettersFrontToBack());
+        assertEquals("lane: ejected, count reset to 0", lane.event());
+        readOutward(NEAR);
+        readOutward(FAR);
+        assertEquals(0, lane.count());
+        assertEquals(0, lane.underflows());
+    }
+
+    @Test
     public void hysteresisCountsAWobbleOnce() {
         read(FAR, Piece.UNKNOWN);
         read(NEAR, Piece.POLLEN);

@@ -58,6 +58,16 @@ public class LaneFullTest {
     }
 
     @Test
+    public void anEjectClearsFullEvenWithThePieceStillUnderTheSensor() {
+        hold(BALL, true, 700);
+        assertTrue(lane.full());
+        lane.clear();
+        assertFalse(lane.full());
+        hold(BALL, false, 700);
+        assertFalse("needs a new hold of taking in", lane.full());
+    }
+
+    @Test
     public void heldWithTheIntakeIdleIsNotFull() {
         hold(BALL, false, 2000);
         assertFalse(lane.full());

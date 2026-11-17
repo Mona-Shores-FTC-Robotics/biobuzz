@@ -266,6 +266,12 @@ public class ColorSensorSubsystem implements Subsystem {
                 redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax);
         if (fresh) lastPiece = piece;
         lane.step(fresh, alpha, piece, outward, shot, presentAbove, leaveBelow);
+        // The OpMode's own eject (driver or operator unjam) clears the whole lane; a NECTAR reject does not.
+        boolean ejecting = intake.requested() == IntakeSubsystem.State.OUT;
+        if (ejecting) {
+            lane.ejected();
+            laneFull.clear();
+        }
         // Seen above leaveBelow, not presentAbove: a NECTAR at the edge of the spot still counts.
         reject.step(now / 1_000_000L, fresh, alpha, piece, alliance, rejectAllNectar, rejectEnemyNectar,
                 Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove), rejectAfterReadings, rejectBurstS * 1000.0, rejectHoldOffS * 1000.0,
