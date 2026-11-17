@@ -300,6 +300,11 @@ Result, with the gap on each own-start run, → [PR #372].
       (`LaunchSpeedTable.robotOffsetTicksPerSecond`, its `RobotDifferences` line): its LAUNCH TRIM
       starts at 0. Check its shots land from a wall spot and a close spot, and in an Auto. 20245's turret is
       unlocked in the code (`RobotDifferences`); 19429's stays locked until it is rewired.
+- [ ] **20245: straight ahead holds at the aim trim** (17 Nov). Basic Drive, turret straight
+      (not aiming): D-pad left on gamepad 2. **Good:** the turret steps 1.5° left and holds, AIM
+      TRIM on the Match page says L 1.5°; D-pad down brings it back to centre. Triangle to aim and
+      back: it returns to the trim, not centre. A Square volley lands shifted by the trim. Circle
+      (chassis aim) still puts the shot on the CELL plus the trim, once, not twice.
 - [ ] **20245: does the turret need an aim offset?** `TurretSubsystem.aimOffsetDeg` is 0 again:
       4.5° counter-clockwise was tried on 17 Nov and the operator trimmed 4.5 back to shoot
       straight, so the first reading was not a fixed offset. To find one: shots from a wall spot,
