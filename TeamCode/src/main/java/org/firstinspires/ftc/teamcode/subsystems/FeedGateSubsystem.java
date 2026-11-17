@@ -28,16 +28,11 @@ import java.util.Locale;
  * <p>The servo is written only when its position changes, not every loop: each write is its own
  * round trip to the hub, and a held servo needs no repeat.
  *
- * <p>Nothing is written before PLAY, so the gate does not move at INIT (G304.H, G403; see
- * {@link Subsystem}), and it goes to BLOCKING at PLAY. If the gate has to block before PLAY, to
- * keep pieces in at the start, that is a mechanical stop or latch (R103.A), not this servo: the
- * TeleOp's INIT runs between AUTO and TELEOP too, where a plate swinging in is a G403 foul.
- *
- * <p>The four pre-load POLLEN are placed behind the plate by hand during field setup (the mentor's
- * decision, 1 Nov 2026: pre-loads are the field's and are handed over there), with the servo
- * unwritten and the plate limp; nothing runs at INIT to take them in or to hold them. So the plate
- * has to stay closed on its own with four balls resting against it until PLAY drives it. If it does
- * not, that is a detent on the plate, never a write before PLAY.
+ * <p>In a TeleOp's INIT nothing is written, so the gate does not move (G403; see {@link Subsystem}):
+ * that INIT runs between AUTO and TELEOP, where a plate swinging in is a foul. An Autonomous's INIT
+ * closes it and holds it BLOCKING until PLAY ({@link #holdAtInit()}, R103.B), so the four pre-load
+ * POLLEN, placed behind the plate by hand during field setup (the mentor's decision, 1 Nov 2026),
+ * stay put; nothing runs at INIT to take them in. It is BLOCKING at PLAY either way.
  */
 @Configurable
 public class FeedGateSubsystem implements Subsystem {
@@ -67,6 +62,8 @@ public class FeedGateSubsystem implements Subsystem {
     private State hold;
     private double lastWritten = Double.NaN;
     private boolean started;
+    /** An Autonomous's INIT: hold the gate closed before PLAY ({@link #holdAtInit()}). */
+    private boolean holdAtInit;
 
     /**
      * Looks the servo up once. A missing servo fails init with the SDK's own message.
@@ -108,13 +105,24 @@ public class FeedGateSubsystem implements Subsystem {
         return lastWritten;
     }
 
-    /** Start BLOCKING and unwritten: the servo is not touched until PLAY. */
+    /** Start BLOCKING and unwritten: the servo is not touched until PLAY, or {@link #holdAtInit()}. */
     @Override
     public void initialize() {
         state = State.BLOCKING;
         hold = null;
         lastWritten = Double.NaN;
         started = false;
+        holdAtInit = false;
+    }
+
+    /**
+     * An Autonomous's INIT only: from the next {@link #update()} the gate is closed (BLOCKING) and
+     * held there until PLAY, whatever the feeder asks (R103.B). Never from a TeleOp: its INIT runs
+     * between AUTO and TELEOP, where any movement is a G403 foul. Nothing is written while the
+     * positions are NaN. Called after {@link #initialize()}, which clears it.
+     */
+    public void holdAtInit() {
+        holdAtInit = true;
     }
 
     /** PLAY: the servo may be written from now on, and the gate goes to its request. */
@@ -125,13 +133,17 @@ public class FeedGateSubsystem implements Subsystem {
 
     /**
      * Decide the state from the feeder (or the bench's hold), then, from PLAY and with both positions
-     * set, write the servo if the position changed. Nothing is written before PLAY.
+     * set, write the servo if the position changed. Before PLAY nothing is written, unless an
+     * Autonomous asked for the gate held closed ({@link #holdAtInit()}).
      */
     @Override
     public void update() {
         state = hold != null ? hold : requestFor(feeder.state());
         if (!started) {
-            return;
+            if (!holdAtInit) {
+                return;
+            }
+            state = State.BLOCKING;
         }
         double target = positionFor(state, blockingPosition, feedingPosition);
         if (!Double.isNaN(target) && target != lastWritten) {

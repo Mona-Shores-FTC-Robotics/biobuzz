@@ -737,17 +737,20 @@ it moves nothing: no servo is written at all, and no motor gets power but zero. 
   the rule's note is explicit: if INIT makes actuators *"move or twitch in any way"*, wait for TELEOP
   before pressing INIT. A VERBAL WARNING, or a MAJOR FOUL and a YELLOW CARD if STRATEGIC.
 
-**R103.B** does let an OpMode pre-position and hold servos at INIT to keep the 18 in starting size.
-We don't use it, because the same TeleOp INIT runs during the Auto → TeleOp break, where any movement
-is a G403 foul. So a mechanism that doesn't stay inside the starting size unpowered gets a mechanical
-stop or latch (R103.A) instead. An unwritten servo is limp: a servo port sends no pulse until it is
-written, and the SDK cuts every pulse when an OpMode ends. So the FLOWER stick is stowed by hand
-before the match and taken by its servo at PLAY, and the turret and the intake's star wheels get
-their first write at PLAY. The indicator light is on a servo port but moves nothing, so it lights
+**R103.B** lets an OpMode pre-position and hold servos at INIT to keep the 18 in starting size. We
+use it in an Autonomous's INIT only: `RobotOpMode` calls `robot.holdForAutoInit()`, which takes the
+FLOWER stick in and closes the feed gate (so the preloads stay behind it) and holds both until PLAY;
+they settle within a second, well before the match starts (G304.H). Never in a TeleOp's INIT: it runs
+during the Auto → TeleOp break, where any movement is a G403 foul. So in a TeleOp, and for every other
+mechanism, one that doesn't stay inside the starting size unpowered gets a mechanical stop or latch
+(R103.A). An unwritten servo is limp: a servo port sends no pulse until it is written, and the SDK
+cuts every pulse when an OpMode ends. So the turret and the intake's star wheels get their first
+write at PLAY, as do the stick and the gate in a TeleOp. The indicator light is on a servo port but moves nothing, so it lights
 during INIT.
 
 `InitMovesNothingTest` runs each mechanism through `initialize()` and INIT loops on recording fakes,
-and fails on any servo write or any non-zero motor power; a subsystem that looks up hardware must be
+and fails on any servo write or any non-zero motor power (it runs the Auto hold on its own, and
+checks that only `RobotOpMode`, for an `@Autonomous`, asks for it); a subsystem that looks up hardware must be
 run there or say in the test why it cannot move before PLAY.
 
 **`stop()` means teardown and only teardown.** The disagreement that kept it off the interface was
