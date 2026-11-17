@@ -18,7 +18,9 @@ import java.util.Locale;
  *       spot reads dimmer than one under it);</li>
  *   <li>a <b>shot</b> takes the front piece;</li>
  *   <li>a piece <b>leaving</b> under the sensor while the lane runs outward (eject, unjam) takes
- *       the back piece.</li>
+ *       the back piece;</li>
+ *   <li>an OpMode <b>eject</b> ({@link #ejected}) empties the count at once, since it clears the
+ *       whole lane.</li>
  * </ul>
  *
  * <p>Presence has hysteresis: it starts above {@code presentAbove} and ends below
@@ -47,6 +49,8 @@ public final class LaneTracker {
     private boolean present;
     /** The back slot is the piece under the sensor now, so its colour may still improve. */
     private boolean namingBack;
+    /** An eject emptied the count, so the pieces still leaving past the sensor are not a counting error. */
+    private boolean ejecting;
     private double brightest = Double.NEGATIVE_INFINITY;
     private int overflows;
     private int underflows;
@@ -57,6 +61,15 @@ public final class LaneTracker {
         count = Math.max(0, Math.min(SLOTS, n));
         for (int i = 0; i < SLOTS; i++) slots[i] = i < count ? piece : null;
         namingBack = false;
+    }
+
+    /** The OpMode ejects: every held piece is leaving, so the count goes to zero. Call it after {@link #step}, so its event is kept. */
+    public void ejected() {
+        if (count > 0) event = "lane: ejected, count reset to 0";
+        for (int i = 0; i < SLOTS; i++) slots[i] = null;
+        count = 0;
+        namingBack = false;
+        ejecting = true;
     }
 
     /**
@@ -72,6 +85,7 @@ public final class LaneTracker {
      */
     public void step(boolean fresh, double brightness, Piece piece, boolean outward, boolean shot,
                      double presentAbove, double leaveBelow) {
+        if (!outward) ejecting = false;
         event = null;
         if (shot) {
             if (count > 0) {
@@ -115,7 +129,7 @@ public final class LaneTracker {
                 if (count > 0) {
                     slots[--count] = null;
                     event = String.format(Locale.US, "lane: a piece out past the sensor, %d left", count);
-                } else {
+                } else if (!ejecting) {
                     underflows++;
                     event = "lane: a piece out past the sensor with the lane counted empty";
                 }
