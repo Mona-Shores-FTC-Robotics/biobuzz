@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.CommandBuilder;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints.Flower;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
@@ -18,6 +21,7 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
 
 import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * The FLOWER 8-shot: a robot that arrives at a FLOWER with a load fires it from the FLOWER while
@@ -43,8 +47,10 @@ import java.util.function.Consumer;
  * FLOWER, and how many times the lane's count went past four ({@code LaneTracker.overflows()}).
  * Film every trial: the film, not the count, decides whether a fifth piece was ever in the robot.
  *
- * <p>Requires nothing of Ivy: the caller runs {@link #update} every loop while {@link #active()},
- * as the TeleOp runs a pick. Every number here is a starting point, not a measurement.
+ * <p>The bench runs {@link #update} every loop while {@link #active()}, as the TeleOp runs a pick,
+ * and aims the turret itself. An Auto runs it as the {@code PickFlowerLaunch} card
+ * ({@link #command}, with {@link #approach} on the drive in), which aims the turret for as long as
+ * the card runs. Every number here is a starting point, not a measurement.
  */
 @Configurable
 public final class FlowerVolley {
@@ -107,6 +113,9 @@ public final class FlowerVolley {
     private double aimErrorAtGateDeg = Double.NaN;
     private String overWhy = "";
     private final double[] shotAtS = new double[MAX_SHOTS_LOGGED];
+    /** An Auto card's own aim ({@link #command}, {@link #approach}); built on first use, null on the bench. */
+    private TurretAimer aimer;
+    private boolean aiming;
 
     /**
      * @param event where the trial's lines go: the OpMode's {@code log.event}, looked up each time
@@ -200,6 +209,109 @@ public final class FlowerVolley {
             }
         }
         if (picker.finished()) end(now);
+    }
+
+    // ------------------------------------------------------------------ an Auto's card
+
+    /** Whether the gate is open now: an Auto holds its steps' time limits while it is, as for any feed. */
+    public boolean feeding() {
+        return !ended && fedNs != 0 && !gateClosed;
+    }
+
+    /**
+     * An Auto's {@code PickFlowerLaunch} card: the whole 8-shot from the pick spot the Auto drove
+     * to, with the turret on our CELL for as long as it runs (the card's own {@link TurretAimer},
+     * whatever {@code BuiltAuto.turretTracks} says) and straight ahead again after. It ends when
+     * the pick does; a robot whose turret is locked, or a spot the volley cannot be fired from,
+     * ends it at once with the reason in the match log, and the Auto goes on with its load. The
+     * launcher is left spinning, as after any launch card. It holds no requirements (CLAUDE.md).
+     */
+    public Command command(Supplier<Alliance> alliance) {
+        final boolean[] ran = new boolean[1];
+        return new CommandBuilder()
+                .setStart(() -> {
+                    ran[0] = false;
+                    Alliance ours = alliance == null ? null : alliance.get();
+                    String refusal = TurretSubsystem.lockedForward
+                            ? "this robot's turret is locked forward: it cannot face the CELL from the FLOWER"
+                            : start(ours, 0.0);
+                    if (refusal != null) {
+                        event.accept("FLOWER volley: refused, " + refusal);
+                        stopAiming();
+                        return;
+                    }
+                    ran[0] = true;
+                    aim(ours);
+                })
+                .setExecute(() -> {
+                    if (!ran[0]) return;
+                    aim(alliance == null ? null : alliance.get());
+                    update();
+                })
+                .setDone(() -> !ran[0] || !active())
+                .setEnd(end -> {
+                    if (active()) cancel();
+                    stopAiming();
+                });
+    }
+
+    /**
+     * What the drive before a {@code PickFlowerLaunch} card does for it: the pick's own approach
+     * (the stick down and the intake on over the last stretch), and from the drive's start the
+     * launcher at the speed for the shot from the FLOWER and the turret swinging round to our CELL,
+     * so neither is waited for at the FLOWER. Cancelled, the stick comes up and the turret goes
+     * straight ahead again. One object, reused: nothing here allocates while driving.
+     */
+    public AutoRegistry.Approach approach(Supplier<Alliance> alliance) {
+        final AutoRegistry.Approach stick = FlowerPicker.approach(robot, event);
+        return new AutoRegistry.Approach() {
+            private boolean ready;
+
+            @Override public void started(Pose end) {
+                stick.started(end);
+                ready = false;
+                if (TurretSubsystem.lockedForward) return;
+                Alliance ours = alliance == null ? null : alliance.get();
+                Flower flower = FlowerPicker.nearest(end.x(), end.y(), true);
+                if (flower == null) return;
+                Pose contact = FlowerFieldPoints.standoff(flower, FlowerPicker.contactStandoffIn);
+                double range = rangeIn(contact, ours);
+                double off = offSquareDeg(contact, ours);
+                if (Double.isNaN(range) || !(off <= maxOffSquareDeg)) return; // the card will say why
+                ready = true;
+                robot.launcher.spinUp(LaunchSpeedTable.launchSpeed(range, LauncherSubsystem.targetTicksPerSecond));
+                aim(ours);
+            }
+
+            @Override public void approaching(Pose pose, double remainingIn) {
+                stick.approaching(pose, remainingIn);
+                if (ready) aim(alliance == null ? null : alliance.get());
+            }
+
+            @Override public void cancel() {
+                stick.cancel();
+                if (ready) stopAiming();
+                ready = false;
+            }
+        };
+    }
+
+    /** One loop of the card's own aim; the first call starts it. */
+    private void aim(Alliance alliance) {
+        if (aimer == null) aimer = new TurretAimer(robot);
+        if (!aiming) {
+            aiming = true;
+            aimer.start();
+        }
+        aimer.update(alliance, TurretAimer.SWITCH_BAND_IN);
+    }
+
+    /** The card's aim is over: the turret goes straight ahead, where every other card expects it. */
+    private void stopAiming() {
+        if (!aiming) return;
+        aiming = false;
+        aimer.off();
+        robot.turret.home();
     }
 
     /** Stop now: the pick stops where it is, and the gate closes. The launcher is left to the caller. */

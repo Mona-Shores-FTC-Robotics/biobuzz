@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
+import org.firstinspires.ftc.teamcode.opmodes.FlowerVolley;
 import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * The commands and triggers this robot offers the Auto Builder: every name an Auto drawn in the
@@ -199,6 +201,22 @@ public final class AutoRegistration {
     public static final double GARDEN_GATHER_TYPICAL_S = 4.0;
 
     /**
+     * {@code PickFlowerLaunch}'s typical seconds, from the card's start to its end (the FLOWER
+     * 8-shot, {@code FlowerVolley}): the push in with the stick already down (about 1 s), eight
+     * shots from the gate opening as the push starts (0.8 s to the first and 0.47 s between, 4.1 s),
+     * and the back-out (0.6 s). <b>An estimate, not measured</b>: nothing has run it. Replace it
+     * from Drive: FLOWER 8-Shot's logs (doc/robot-todo.md).
+     */
+    public static final double PICK_FLOWER_LAUNCH_TYPICAL_S = 6.0;
+
+    /**
+     * Seconds from a {@code PickFlowerLaunch} card's start to its eighth piece leaving the robot, for
+     * the endgame guard ({@link #LAUNCH_ALL_LAST_PIECE_S}'s meaning). <b>An estimate</b>, as
+     * {@link #PICK_FLOWER_LAUNCH_TYPICAL_S}: that less the back-out, with the count missing no ball.
+     */
+    public static final double PICK_FLOWER_LAUNCH_LAST_PIECE_S = 5.0;
+
+    /**
      * The TIP lag a partner wait allows: seconds from the partner's last ball leaving its launcher to
      * our camera reading the CELL up, added to the partner's last shot
      * ({@link #partnerWaitUntilS}). It is a give-up limit, not a prediction: the wait ends the moment
@@ -245,10 +263,14 @@ public final class AutoRegistration {
         // null robot only describes the list; its factories are never called.
         final LaunchCards launch = robot == null ? null
                 : LaunchCards.forRobot(robot, settle, note, setup == null ? null : setup::alliance);
+        // The FLOWER 8-shot: one object, so its feed holds the time limits as a launch card's does.
+        final FlowerVolley flowerVolley = robot == null ? null : new FlowerVolley(robot, note);
+        final Supplier<Alliance> alliance = setup == null ? null : setup::alliance;
         return new AutoRegistry()
                 // A step's time limit never cuts a feed: it guards the wait for spin-up only, and the
                 // feed runs LaunchCards' set time (one number to tune, not one per step).
-                .holdTimeLimitsWhile(() -> launch != null && launch.feeding())
+                .holdTimeLimitsWhile(() -> (launch != null && launch.feeding())
+                        || (flowerVolley != null && flowerVolley.feeding()))
                 // ---- real: the launcher and the feeder. Typical seconds are what the editor's
                 // preview shows; the feed times themselves are LaunchCards' Panels numbers.
                 // A volley: the endgame guard goes for the next one when its last piece can be out
@@ -264,6 +286,15 @@ public final class AutoRegistration {
                 // wait is over when the card starts, and its dwell ends when the lane is full.
                 .grab("PickFlower", PICK_FLOWER_TYPICAL_S, () -> FlowerPicker.command(robot, note),
                         robot == null ? null : FlowerPicker.approach(robot, note))
+                // ---- real, never run: the FLOWER 8-shot (FlowerVolley). The robot arrives at the SCORING
+                // FLOWER's pick spot with a load, fires it from against the FLOWER with the turret on
+                // the CELL behind it, and the FLOWER's four follow through the same feed. A grab (never
+                // cut once started) and a volley (the guard plans its last piece and the park after
+                // it). Its approach lowers the stick, spins the launcher up and swings the turret round.
+                // A robot whose turret is locked refuses it and goes on with its load.
+                .grabVolley("PickFlowerLaunch", PICK_FLOWER_LAUNCH_TYPICAL_S, PICK_FLOWER_LAUNCH_LAST_PIECE_S,
+                        () -> flowerVolley.command(alliance),
+                        flowerVolley == null ? null : flowerVolley.approach(alliance))
                 // ---- real: the GARDEN gather, the same routine as the driver's GARDEN gather button. It drives in
                 // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract). The
                 // drive before it lowers the stick on the way in once it faces the GARDEN (its approach).
