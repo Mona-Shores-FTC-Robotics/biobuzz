@@ -258,9 +258,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             CellSighting s = freshSighting(cell);
             return s == null ? Double.NaN : s.ageMs();
         }, () -> TurretSubsystem.turretForwardIn, () -> TurretSubsystem.turretLeftIn);
-        // The 8-shot by hand: the pick stays at the FLOWER while the operator's FIRE is feeding.
-        picker = new FlowerPicker(robot, text -> log.event(text),
-                () -> TeleOpConfig.pickStaysWhileFiring && robot.feeder.state() == FeederSubsystem.State.FEED);
+        picker = new FlowerPicker(robot, text -> log.event(text));
         gatherer = new GardenGather(robot, text -> log.event(text));
         launchSpot = new LaunchSpotDrive(robot, text -> log.event(text));
         // A locked turret's controls are left out, so the pages show only buttons that work.

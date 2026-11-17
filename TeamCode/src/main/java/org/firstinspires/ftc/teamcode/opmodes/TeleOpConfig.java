@@ -123,15 +123,6 @@ public final class TeleOpConfig {
 
 
     /**
-     * A FLOWER pick stays against the FLOWER while the feeder is feeding (the operator's FIRE), so
-     * the driver holding the pick and the operator holding FIRE fire the load from the FLOWER while
-     * its pieces come in: the 8-shot by hand. It needs the turret aiming (the CELL is behind a
-     * robot that faces the far wall) and only makes sense at the SCORING FLOWER. Off: a pick's dwell
-     * ends by its own rules whatever the feeder does, as before 17 Nov 2026. Read every loop.
-     */
-    public static boolean pickStaysWhileFiring = true;
-
-    /**
      * The go-to-launch-spot button also launches: the launcher spins up as the drive starts, and
      * once the robot is at the spot, aimed and settled, it feeds while the button is held, as the
      * operator's FIRE does ({@link SpotVolley}). On for testing in Basic Drive (mentor, 4 Nov 2026): a testing
