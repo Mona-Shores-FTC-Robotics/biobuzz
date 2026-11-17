@@ -300,13 +300,19 @@ Result, with the gap on each own-start run, → [PR #372].
       (`LaunchSpeedTable.robotOffsetTicksPerSecond`, its `RobotDifferences` line): its LAUNCH TRIM
       starts at 0. Check its shots land from a wall spot and a close spot, and in an Auto. 20245's turret is
       unlocked in the code (`RobotDifferences`); 19429's stays locked until it is rewired.
-- [ ] **20245: the turret's aim offset, 4.5° counter-clockwise from the mark** (17 Nov, from the
-      operator's trim while aiming; `TurretSubsystem.aimOffsetDeg`, its `RobotDifferences` line).
-      Turret on the mark, PLAY: it turns 4.5° counter-clockwise and holds. **Good:** shots from a
-      wall spot, a close spot and each side land centred with AIM TRIM 0. A trim that is the same
-      everywhere → add it to the offset. One that changes with where the robot is → not the
-      offset: the pose, or the turret's axis (`turretForwardIn`, `turretLeftIn`). Also set the
-      turret on the mark three times and see how much the aim moves between settings.
+- [ ] **20245: straight ahead holds at the aim trim** (17 Nov). Basic Drive, turret straight
+      (not aiming): D-pad left on gamepad 2. **Good:** the turret steps 1.5° left and holds, AIM
+      TRIM on the Match page says L 1.5°; D-pad down brings it back to centre. Triangle to aim and
+      back: it returns to the trim, not centre. A Square volley lands shifted by the trim. Circle
+      (chassis aim) still puts the shot on the CELL plus the trim, once, not twice.
+- [ ] **20245: does the turret need an aim offset?** `TurretSubsystem.aimOffsetDeg` is 0 again:
+      4.5° counter-clockwise was tried on 17 Nov and the operator trimmed 4.5 back to shoot
+      straight, so the first reading was not a fixed offset. To find one: shots from a wall spot,
+      a close spot and each side, trimming to centre and resetting between spots. The same trim
+      everywhere → that is the offset (Panels first, then its `RobotDifferences` line). A trim
+      that changes with where the robot is → the pose, or the turret's axis (`turretForwardIn`,
+      `turretLeftIn`). Also set the turret on the mark three times and see how much the aim
+      moves between settings.
 - [ ] **Both robots: the turret holds straight ahead in a match OpMode** (still `lockedForward`).
       Basic Drive, turret on its mark in INIT (limp, nothing powered), PLAY. **Good:** the Robot
       page says "locked straight ahead: holding 0°", a push by hand is resisted and comes back,

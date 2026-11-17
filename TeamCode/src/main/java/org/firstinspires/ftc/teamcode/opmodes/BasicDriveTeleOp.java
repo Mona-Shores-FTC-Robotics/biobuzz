@@ -347,6 +347,20 @@ public class BasicDriveTeleOp extends RobotOpMode {
         log.event("pose: " + poseNote);
     }
 
+    /**
+     * Straight ahead is held at the operator's trim, not dead centre (mentor, 17 Nov 2026): the
+     * trim then means one thing in every mode, "the shots go this much left or right", and it
+     * corrects a Square spot's volley too, which it could not while a straight turret ignored it.
+     * D-pad down clears the trim and the turret comes back to centre. The chassis aim does not
+     * count the trim twice: it turns the robot by the aim less the turret's own angle. Not after a
+     * dropped hold (asking every loop would drive off, drop and drive off again; the mode button
+     * retries), and not for a turret locked forward, which has no trim.
+     */
+    private void holdStraightAtTrim() {
+        if (TurretSubsystem.lockedForward || robot.turret.faultNote() != null) return;
+        robot.turret.aim(aimer.trimDeg());
+    }
+
     /** LOCKED to AIM and back. Either way a fresh request, which also lets a dropped hold try again. */
     private void toggleTurretMode() {
         if (turretMode == TurretMode.LOCKED) {
@@ -567,6 +581,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             aimer.update(setup.alliance(), AIM_SWITCH_BAND_IN);
         } else {
             aimer.solve(setup.alliance(), AIM_SWITCH_BAND_IN);
+            holdStraightAtTrim();
         }
         double aimDeg = aimer.aimDeg();
         // The chassis aim (Circle) is camera first: the CELL the camera sees, then where the camera
