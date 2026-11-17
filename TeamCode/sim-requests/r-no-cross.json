@@ -56,6 +56,21 @@
       "name": "pair: beside L-NoCross, our preloads miss",
       "partner": "LNoCrossAuto",
       "oursFails": "misses preloads"
+    },
+    {
+      "name": "pair: beside L-NoCross on WAIT FOR PARTNER FIX",
+      "partner": "LNoCrossAuto",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      }
+    },
+    {
+      "name": "pair: beside L-NoCross on WAIT FOR PARTNER FIX, our preloads miss",
+      "partner": "LNoCrossAuto",
+      "oursFails": "misses preloads",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      }
     }
   ],
   "metadata": {
