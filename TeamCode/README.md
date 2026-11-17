@@ -549,7 +549,14 @@ and turning the other, or driven hard and not turning, drops the hold (limp)
 and says which on the Robot page; the next request tries again.
 
 Before PLAY the servo is never written (limp), so the drive team sets the
-turret at home by its mark, and it holds from the zero at PLAY. While
+turret at home by its mark, and it holds from the zero at PLAY. Where the
+shots go straight ahead need not be where the mark points:
+`TurretSubsystem.aimOffsetDeg` is that angle, counter-clockwise from the mark,
+per robot (`RobotDifferences`; 4.5 on 20245), and every angle the turret holds
+or reports is counted from there. The drive team still sets the turret on the
+mark; at PLAY it turns to the offset and holds. The Robot page's turret line
+shows the offset, and it is a Panels number that moves the turret as it is
+typed. While
 `TurretSubsystem.lockedForward` the same loop holds 0 and nothing else.
 `subsystems/TurretEncoder` is the pure math (counts to degrees, with the gear
 ratio and direction). `Bench: Turret` measures the encoder's direction and
