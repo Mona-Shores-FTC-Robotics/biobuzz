@@ -137,8 +137,8 @@ public class LauncherSetpointTest {
     @Test
     public void fromEachTeamSpot() {
         if (System.getenv("BIOBUZZ_SIM_SPOTS") == null) return;
-        for (String name : new String[] {"RIGHT_START", "RIGHT_LAUNCH_OFFSET", "RIGHT_LAUNCH_CATCH", "LEFT_START",
-                "LEFT_LAUNCH_OFFSET", "LEFT_LAUNCH_CATCH"}) {
+        for (String name : new String[] {"RIGHT_START", "RIGHT_AUTO_OFFSET", "RIGHT_AUTO_HIVE", "RIGHT_AUTO_FIX_TIP",
+                "LEFT_START", "LEFT_AUTO_OFFSET", "LEFT_AUTO_HIVE"}) {
             double[] spot = AutoSim.aimSpot(name);
             HiveState state = spot[1] < FieldSim.CENTRE_IN ? HiveState.RIGHT_CELL_UP : HiveState.LEFT_CELL_UP;
             FieldSim.Rocker r = new FieldSim.Rocker(org.firstinspires.ftc.teamcode.util.Alliance.RED, FieldSim.RED_HIVE_X_IN);

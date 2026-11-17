@@ -103,6 +103,13 @@ public final class LaneFull {
         }
     }
 
+    /** An eject: the lane is no longer full, and it needs a new hold of taking in before it reads full again. */
+    public void clear() {
+        full = false;
+        heldWhileIntakingMs = 0;
+        heldSinceTakingInMs = 0;
+    }
+
     /** The lane is full: a piece has been held under the sensor long enough while taking in. */
     public boolean full() {
         return full;

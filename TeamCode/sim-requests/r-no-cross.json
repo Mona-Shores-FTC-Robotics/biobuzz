@@ -47,6 +47,15 @@
     {
       "name": "stays out of the way",
       "partner": "PartnerStillAuto"
+    },
+    {
+      "name": "pair: beside L-NoCross",
+      "partner": "LNoCrossAuto"
+    },
+    {
+      "name": "pair: beside L-NoCross, our preloads miss",
+      "partner": "LNoCrossAuto",
+      "oursFails": "misses preloads"
     }
   ],
   "metadata": {

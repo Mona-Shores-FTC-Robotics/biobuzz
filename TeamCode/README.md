@@ -1152,8 +1152,8 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   `inSpeed` to `GardenFieldPoints`' gather pose (plus `extraDepthIn`, `towardWallIn`; the walls stop the
   frame), a `dwellMs` dwell, and a drive back at `backSpeed`. It takes what the intake touches. **Measured:**
   the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
-  whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (6 s, not yet timed from an
-  Auto); the FLOWER stick, which goes down on the robot's gather, is not modelled in the GARDEN.
+  whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (4 s, which covers the
+  ten Auto gathers logged 3 to 14 Nov with the dwell as it is now); the FLOWER stick, which goes down on the robot's gather, is not modelled in the GARDEN.
 - **Hits on the HIVE.** The rocker's static balance is fitted to the Field Setup Guide's placed cases
   (`HiveCalibration`). On top of it, a launched piece striking a CELL hands the rocker the angular momentum
   about the axle the hit took from it (`FieldSim.kick`): the rocker is damped, so a hit moves it a step,
@@ -1266,7 +1266,7 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
 - **The human's long roll** (`BIOBUZZ_AUTO_HUMAN_ENTRY=aim`, for PR #424's study): each owed NECTAR is rolled
   from the LOADING ZONE (released on the tile at `AutoSim.humanAimFrom`, (5.5, 95) for red) at the intake mouth
   of a robot on a team spot (`BIOBUZZ_AUTO_HUMAN_AIM_SPOT`, a `spots.json` name or `x,y,heading`;
-  RIGHT_LAUNCH_OFFSET by default), at 21 ± 2 in/s (`_AIM_SPEED`) with a 2° aim spread (`_AIM_SPREAD_DEG`), once
+  (41, 20, 68.7°) by default, the old RIGHT_LAUNCH_OFFSET spot), at 21 ± 2 in/s (`_AIM_SPEED`) with a 2° aim spread (`_AIM_SPREAD_DEG`), once
   no robot is within 12 in of the release and not before `_AIM_AT_S` on the match clock if set;
   `BIOBUZZ_AUTO_HUMAN_BANK=N` banks them. Every number is a placeholder until the long-roll drill measures it.
   Off by default; `HumanRollTest` (`BIOBUZZ_SIM_CHECKS=1`) checks a dead-on roll reaches the spot's robot.

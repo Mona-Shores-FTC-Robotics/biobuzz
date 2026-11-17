@@ -45,16 +45,17 @@ import java.util.Locale;
  * camera believes about the HIVE (mentor, 4 Nov 2026).
  *
  * <p><b>Placed for the turret, locked forward</b> ({@code TurretSubsystem}: 3.33 in behind the
- * centre, 1.87 in right of it). A HIVE-column spot is squared to the wall with the turret's axis in
- * line with the CELL's raised row, so the WALL one has its whole back on the wall. The others turn
+ * centre, 2.68 in right of it). A HIVE-column spot is squared to the wall, so the WALL one has its
+ * whole back on the wall; each was placed with the turret's axis in line with the CELL's raised row
+ * when the turret was taken to be 1.87 in right, so since 16 Nov 2026 the axis passes 0.8 in from
+ * the row's centre at LEFT_WALL_HIVE and the two CLOSE ones, and 0.3 in at RIGHT_START. The others turn
  * to point the turret's axis at the row ({@link #aimTurret}) and, in the WALL row, touch the wall
  * with one corner of the frame. LEFT and RIGHT are not mirror images: the turret is not on the
  * centre line, and LEFT_WALL_NEAR sits against the far side of the SCORING FLOWER.
  *
  * <p>But for {@code RIGHT_START}, these are not team spots: they are written only here and
- * {@code TeamCode/autos/spots.json} does not list them. The Clockwise pair launches from the wall
- * row and the two close HIVE-column spots, so its {@code .pp} files carry the same numbers and
- * {@code ClockwiseAutoTest} compares them: move one of those here and export those two Autos again. {@code LaunchSpotsTest} checks that each
+ * {@code TeamCode/autos/spots.json} does not list them. No Auto launches from them: the Autos have
+ * their own ({@link AutoLaunchSpots}; {@code AutoVolleySpotsTest}). {@code LaunchSpotsTest} checks that each
  * WALL spot touches its wall without crossing it and that no two spots that may be used together
  * overlap.
  */
@@ -71,36 +72,35 @@ public final class LaunchSpots {
 
     /**
      * The six WALL spots are driven to this far out from their side wall, toward the HIVE, inches
-     * (mentor, 13 Nov 2026). The TeleOp's button only: the spots as drawn, and so the Autos that
-     * launch from them, do not move. With it LEFT_WALL_HIVE's frame meets LEFT_CLOSE_HIVE's edge
+     * (mentor, 13 Nov 2026). The spots as drawn do not move. With it LEFT_WALL_HIVE's frame meets LEFT_CLOSE_HIVE's edge
      * to edge, and RIGHT_START's is 0.4 in from RIGHT_CLOSE_HIVE's.
      */
     static final double WALL_STAND_OFF_IN = 1.0;
 
     /**
      * From the middle tile row, the HIVE-column CLOSE spot counts as this much nearer than it is,
-     * inches (mentor, 14 Nov 2026): the starting value of {@code LaunchSpotDrive.closeCentreBiasIn},
-     * the Panels number. Without it the HIVE-column spot, 2.5 in nearer the wall than its two
+     * inches: the starting value of {@code LaunchSpotDrive.closeCentreBiasIn}, the Panels number.
+     * 10 (mentor, 17 Nov 2026, chosen on the "Square Launch Spots" map; 6 before). Without it the HIVE-column spot, 2.5 in nearer the wall than its two
      * neighbours, would win only a sliver that closes toward the HIVE.
      */
-    public static final double DEFAULT_CLOSE_CENTRE_BIAS_IN = 6.0;
+    public static final double DEFAULT_CLOSE_CENTRE_BIAS_IN = 10.0;
 
     /**
      * From the tile row against the end wall, the HIVE-column WALL spot counts as this much nearer
      * than it is, inches: the starting value of {@code LaunchSpotDrive.wallCentreBiasIn}, the Panels
-     * number. 6, as the close row's (mentor, 14 Nov 2026): it moves each edge of the middle wall
-     * spot's zone about 3 in outward along the wall. Not driven yet.
+     * number. 12 (mentor, 17 Nov 2026, chosen on the "Square Launch Spots" map; 6 before): it widens
+     * the middle wall spot's zone along the wall. Not driven yet.
      */
-    public static final double DEFAULT_WALL_CENTRE_BIAS_IN = 6.0;
+    public static final double DEFAULT_WALL_CENTRE_BIAS_IN = 12.0;
 
     /**
      * The six CLOSE spots are driven to this far back from where they are drawn, straight toward
      * their end wall, inches: the starting value of {@code LaunchSpotDrive.closeBackIn}, the Panels
-     * number. 4 (mentor, 14 Nov 2026): close volleys were hitting the lip of the HIVE; 2.5 was the
-     * first try, 4 the one the team chose. The TeleOp's button only, as the wall row's stand-off: the spots as
-     * drawn, and so the Clockwise Autos' close volleys, do not move.
+     * number. 3 (mentor, 17 Nov 2026, chosen on the "Square Launch Spots" map): close volleys were
+     * hitting the lip of the HIVE; 2.5 was the first try, then 4, now 3. The pick among the spots is made as they are
+     * drawn; the button stops this far back.
      */
-    public static final double DEFAULT_CLOSE_BACK_IN = 4.0;
+    public static final double DEFAULT_CLOSE_BACK_IN = 3.0;
 
     /** The frame is square: from its centre to its back, front and either side (measured, {@link ResetPositions}). */
     static final double FRAME_HALF_IN = ResetPositions.WALL_TO_CENTRE_IN;
@@ -114,7 +114,7 @@ public final class LaunchSpots {
      * offsets as the robot has them, so their drawn heading is only what that comes to today.
      */
     public enum Spot {
-        RIGHT_WALL_NEAR(Row.WALL, Column.NEAR, 35.9, 10.6, 66.9),
+        RIGHT_WALL_NEAR(Row.WALL, Column.NEAR, 35.9, 10.6, 67.8),
         /**
          * The RIGHT half's WALL-row, HIVE-column spot is our measured start itself
          * ({@link StartPositions#RED_AUDIENCE}, the team spot {@code RIGHT_START}): the robot starts
@@ -124,18 +124,18 @@ public final class LaunchSpots {
          * placed on the centre-line seam, 2.4 in from where the turret lines up.
          */
         RIGHT_START(Row.WALL, Column.HIVE, StartPositions.RED_AUDIENCE.pose),
-        RIGHT_WALL_FAR(Row.WALL, Column.FAR, 75.8, 10.6, 112.8),
-        RIGHT_CLOSE_NEAR(Row.CLOSE, Column.NEAR, 45.2, 27.9, 70.0),
+        RIGHT_WALL_FAR(Row.WALL, Column.FAR, 75.8, 10.6, 113.8),
+        RIGHT_CLOSE_NEAR(Row.CLOSE, Column.NEAR, 45.2, 27.9, 71.5),
         RIGHT_CLOSE_HIVE(Row.CLOSE, Column.HIVE, 56.1, 25.3, 90.0),
-        RIGHT_CLOSE_FAR(Row.CLOSE, Column.FAR, 66.9, 27.6, 110.0),
+        RIGHT_CLOSE_FAR(Row.CLOSE, Column.FAR, 66.9, 27.6, 111.4),
         /** Its corner is against the SCORING FLOWER's far side, the FLOWER between it and LEFT_WALL_HIVE. */
-        LEFT_WALL_NEAR(Row.WALL, Column.NEAR, 37.8, 130.7, 295.5),
+        LEFT_WALL_NEAR(Row.WALL, Column.NEAR, 37.8, 130.7, 296.3),
         /** Back on the wall, the SCORING FLOWER about 2 in from its side. */
         LEFT_WALL_HIVE(Row.WALL, Column.HIVE, 59.9, 133.4, 270.0),
-        LEFT_WALL_FAR(Row.WALL, Column.FAR, 79.5, 130.9, 247.5),
-        LEFT_CLOSE_NEAR(Row.CLOSE, Column.NEAR, 49.1, 113.9, 290.0),
+        LEFT_WALL_FAR(Row.WALL, Column.FAR, 79.5, 130.9, 248.4),
+        LEFT_CLOSE_NEAR(Row.CLOSE, Column.NEAR, 49.1, 113.9, 291.4),
         LEFT_CLOSE_HIVE(Row.CLOSE, Column.HIVE, 59.9, 116.2, 270.0),
-        LEFT_CLOSE_FAR(Row.CLOSE, Column.FAR, 70.8, 113.6, 250.0);
+        LEFT_CLOSE_FAR(Row.CLOSE, Column.FAR, 70.8, 113.6, 251.5);
 
         public final Row row;
         public final Column column;
@@ -147,8 +147,7 @@ public final class LaunchSpots {
         public final boolean aimed;
         /**
          * How far out from its wall, toward the HIVE, the button stops, inches, on top of
-         * {@code wallGapIn}: {@link #WALL_STAND_OFF_IN} for a WALL-row spot, 0 for a CLOSE-row one. {@link #red} stays the spot as drawn, touching the wall, which is what
-         * the Clockwise Autos launch from ({@code ClockwiseAutoTest}); an Auto's {@code RIGHT_START}
+         * {@code wallGapIn}: {@link #WALL_STAND_OFF_IN} for a WALL-row spot, 0 for a CLOSE-row one. {@link #red} stays the spot as drawn, touching the wall; an Auto's {@code RIGHT_START}
          * volley is fired from the start itself, where the robot is placed.
          */
         public final double standOffIn;

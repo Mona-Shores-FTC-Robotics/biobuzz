@@ -1,5 +1,5 @@
 {
-  "pp": "TeamCode/autos/drafts/r-outside-lane.pp",
+  "pp": "TeamCode/autos/r-outside-lane.pp",
   "spec": "ROutsideLaneAuto@50",
   "design": "real robot, turret locked forward",
   "partnerDesign": null,

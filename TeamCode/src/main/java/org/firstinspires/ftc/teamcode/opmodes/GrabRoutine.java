@@ -102,7 +102,7 @@ import java.util.function.Consumer;
 public abstract class GrabRoutine {
 
     /** Where a grab is. */
-    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, BACK_OFF, TWIST, BACK, DONE, ABORTED, REFUSED }
+    public enum Phase { IDLE, LINE_UP, PREP, IN, DWELL, BACK_OFF, BACK, DONE, ABORTED, REFUSED }
 
     /** Where the In goes, or why there is none. */
     protected static final class InPlan {
@@ -137,6 +137,9 @@ public abstract class GrabRoutine {
     private long preppedNs;
     private long progressNs;
     private double bestRemainingIn;
+    /** The Back's own progress watch: the nearest the robot has been to where the In started, and when it last got nearer. */
+    private double backBestIn;
+    private long backProgressNs;
     private Pose inEnd;
     private String inEndWhy = "";
     private boolean unprepped;
@@ -227,6 +230,16 @@ public abstract class GrabRoutine {
         return true;
     }
 
+    /**
+     * Whether the robot is steady enough for prep right now: a mechanism swung out while the robot
+     * is turning fast can catch a wall, however well it happens to face at that instant. Prep waits
+     * for this on the line-up and, at most {@link #SETTLE_MAX_MS}, once the line-up (or an Auto's
+     * drive) has ended. Always, by default.
+     */
+    protected boolean steadyForPrep() {
+        return true;
+    }
+
     /** The mechanisms get ready (stick down, intake on). Called once. */
     protected abstract void prep();
 
@@ -314,6 +327,14 @@ public abstract class GrabRoutine {
         return 0.0;
     }
 
+    /**
+     * The Back ends where it is once the robot has got no closer to where the In started for this
+     * long, ms; 0 (the default) waits for the Back's path, up to {@link #backTimeoutMs}.
+     */
+    protected double backStallMs() {
+        return 0.0;
+    }
+
     /** How many times the grab goes in; 1 by default (see the class comment). */
     protected int pushCount() {
         return 1;
@@ -374,7 +395,7 @@ public abstract class GrabRoutine {
     /** Whether a grab is driving the robot, so the OpMode must leave the drive alone. */
     public boolean active() {
         return phase == Phase.LINE_UP || phase == Phase.PREP || phase == Phase.IN
-                || phase == Phase.DWELL || phase == Phase.BACK_OFF || phase == Phase.TWIST || phase == Phase.BACK;
+                || phase == Phase.DWELL || phase == Phase.BACK_OFF || phase == Phase.BACK;
     }
 
     /** The grab has ended: done, stopped, or refused. */
@@ -435,7 +456,7 @@ public abstract class GrabRoutine {
         switch (phase) {
             case LINE_UP:
                 if (Math.abs(Math.toDegrees(wrapRad(in.heading() - pose.heading()))) <= nn(prepWithinDeg())
-                        && mayPrepAt(pose)) {
+                        && mayPrepAt(pose) && steadyForPrep()) {
                     prepIfClose(now, remaining); // in is the line-up pose until the line-up ends
                 }
                 boolean pathDone = robot.drive.pathDone();
@@ -451,7 +472,9 @@ public abstract class GrabRoutine {
                         return;
                     }
                     in = plan.in;
-                    prepIfClose(now, 0.0); // prepped by now whatever prepWithinIn says
+                    // Prepped by now whatever prepWithinIn says, unless the robot is still turning: then
+                    // the PREP phase does it once it is steady.
+                    if (steadyForPrep()) prepIfClose(now, 0.0);
                     home = pose;
                     next(now, Phase.PREP);
                 } else if (ms(now, phaseStartNs) > nn(lineUpLimitMs)) {
@@ -460,6 +483,12 @@ public abstract class GrabRoutine {
                 break;
             case PREP:
                 // The follower holds where the line-up ended until the next drive command.
+                if (!prepped) {
+                    // Held back because the robot was still turning: prep once it is steady, but not
+                    // for long (a robot that never quite stops turning still goes).
+                    if (!steadyForPrep() && ms(now, phaseStartNs) < SETTLE_MAX_MS) break;
+                    prepIfClose(now, 0.0);
+                }
                 if (ms(now, preppedNs) >= nn(prepMs())
                         && (settled(robot.drive.speedInPerSec(), settledInPerSec())
                                 || ms(now, phaseStartNs) >= SETTLE_MAX_MS)) {
@@ -530,27 +559,23 @@ public abstract class GrabRoutine {
                     driveIn(pose, in);
                 }
                 break;
-            case TWIST:
-                double twistError = wrapRad(twistTarget - pose.heading());
-                if (Math.abs(Math.toDegrees(twistError)) <= TWIST_DONE_DEG || ms(now, phaseStartNs) > nn(twistTimeoutMs())) {
-                    event.accept(String.format(Locale.US, "%s: twist %s in %.2f s, %+.0f° to go", what(),
-                            Math.abs(Math.toDegrees(twistError)) <= TWIST_DONE_DEG ? "done" : "timed out",
-                            ms(now, phaseStartNs) / 1000.0, Math.toDegrees(twistError)));
-                    startBack(now, pose);
-                } else {
-                    // Turn in place, still pressed toward the wall, at most twistPower.
-                    robot.drive.driveRobotCentric(clamp(dwellPushPower(), 1.0), 0.0,
-                            clamp(headingKp() * twistError * 4.0, unitFraction(twistPower())));
-                }
-                break;
             case BACK:
                 double backed = Math.hypot(pose.x() - inEnd.x(), pose.y() - inEnd.y());
                 if (!unprepped && backed >= nn(unprepAfterBackIn())) {
                     unprepped = true;
                     unprep();
                 }
+                double toHome = Math.hypot(pose.x() - home.x(), pose.y() - home.y());
+                if (toHome < backBestIn - nn(stallProgressIn())) {
+                    backBestIn = toHome;
+                    backProgressNs = now;
+                }
+                boolean backStalled = backStalled(ms(now, phaseStartNs), ms(now, backProgressNs), nn(backStallMs()));
+                if (backStalled) {
+                    event.accept(String.format(Locale.US, "%s: back out stalled %.1f in short, done there", what(), toHome));
+                }
                 if (robot.drive.pathDone() || ms(now, phaseStartNs) > nn(backTimeoutMs())
-                        || handOverNow(nn(handOverBackIn()), backed)) {
+                        || handOverNow(nn(handOverBackIn()), backed) || backStalled) {
                     finish(now);
                 }
                 break;
@@ -577,8 +602,7 @@ public abstract class GrabRoutine {
      * when it is cut short, which always stops the grab.
      */
     static boolean releaseFinishes(Phase phase, boolean button) {
-        return button && (phase == Phase.DWELL || phase == Phase.BACK_OFF || phase == Phase.TWIST
-                || phase == Phase.BACK);
+        return button && (phase == Phase.DWELL || phase == Phase.BACK_OFF || phase == Phase.BACK);
     }
 
     /**
@@ -588,6 +612,15 @@ public abstract class GrabRoutine {
      */
     static boolean anotherInAhead(int pushCount, int pushes, double backOffIn, double roomIn) {
         return pushes >= 1 && pushes < pushCount && backOffIn >= 1.0 && roomIn >= 1.0;
+    }
+
+    /**
+     * Whether the Back has stalled short of where the In started: {@code backStallMs} is on (over 0),
+     * the Back is past its first moments (a path ramps up from rest), and the robot has not got
+     * {@code stallProgressIn} closer for {@code backStallMs}. The grab is then done where it is.
+     */
+    static boolean backStalled(double sinceStartMs, double sinceProgressMs, double backStallMs) {
+        return backStallMs > 0.0 && sinceStartMs > 2 * backStallMs && sinceProgressMs > backStallMs;
     }
 
     /**
@@ -705,7 +738,7 @@ public abstract class GrabRoutine {
                         : !lineUp ? (there ? ", Auto, already square" : ", Auto, squaring up")
                         : there ? ", already lined up" : "",
                 startNote()));
-        if (there) prepIfClose(now, 0.0);
+        if (there && steadyForPrep()) prepIfClose(now, 0.0); // else the PREP phase, once steady
     }
 
     /** Prep, once {@code remainingIn} is within reach. Once. */
@@ -730,44 +763,16 @@ public abstract class GrabRoutine {
         phaseStartNs = now;
     }
 
-    /** A twist is done once the heading is this close to its target, degrees. */
-    static final double TWIST_DONE_DEG = 4.0;
-    private double twistTarget;
-
-    /** The dwell is over: twist first if the subclass asks ({@link #backTwistDeg}), else back out. */
+    /** The dwell is over: back out. */
     private void endDwell(long now, Pose pose) {
-        double twist = backTwistDeg();
-        if (twist != 0.0 && !Double.isNaN(twist)) {
-            twistTarget = pose.heading() + Math.toRadians(twist);
-            next(now, Phase.TWIST);
-            robot.drive.driveRobotCentric(0.0, 0.0, 0.0);
-            return;
-        }
         startBack(now, pose);
-    }
-
-    /**
-     * After the dwell, before the back out: turn in place by this many degrees, counterclockwise
-     * positive, pressed toward what the In went into; 0 (the default) for none. The back out then
-     * turns back to where the In started, on its way.
-     */
-    protected double backTwistDeg() {
-        return 0.0;
-    }
-
-    /** The twist's most turn power, (0, 1]. */
-    protected double twistPower() {
-        return 0.4;
-    }
-
-    /** The twist gives up after this long, ms, and backs out from wherever it got to. */
-    protected double twistTimeoutMs() {
-        return 800;
     }
 
     /** The dwell is over (its time, or the button let go): back out to where the In started. */
     private void startBack(long now, Pose pose) {
         next(now, Phase.BACK);
+        backBestIn = Math.hypot(pose.x() - home.x(), pose.y() - home.y());
+        backProgressNs = now;
         driveCurve(pose, home, backSpeed(), backControl(pose, home));
     }
 

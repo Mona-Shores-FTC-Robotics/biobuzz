@@ -114,13 +114,16 @@ public class TurretSubsystem implements Subsystem {
 
     /**
      * Where the turret's axis sits from the robot's tracked point, inches, robot frame (+forward,
-     * +left). <b>From the CAD, not yet taped:</b> the turret ring's centre measured against three
-     * wheel axles in Onshape (24 Oct 2026): 84.5 mm behind the midpoint of the four wheels and
-     * 47.6 mm to the right of it. Assumes the Pinpoint tracks that midpoint. Tape it once the
-     * turret is bolted on, and re-measure if the ring moves in the CAD.
+     * +left). <b>From the CAD, not yet taped:</b> 84.5 mm behind the midpoint of the four wheels
+     * (Onshape, 24 Oct 2026; 3.31 in again on 16 Nov) and 2.68 in to the right of it. The sideways
+     * number was 1.87 in (47.6 mm, against three wheel axles, 24 Oct) until 16 Nov 2026, when the
+     * mentor measured the turret bearing 4.94 in from the right edge of the 15.236 in chassis
+     * (7.62 - 4.94 = 2.68), which is what the model built from the CAD has for the bearing's axis
+     * ({@code cad/advantagescope}, 2.67). Assumes the Pinpoint tracks that midpoint. Tape it on a
+     * robot ({@code doc/robot-todo.md}), and re-measure if the ring moves in the CAD.
      */
     public static double turretForwardIn = -3.33;
-    public static double turretLeftIn = -1.87;
+    public static double turretLeftIn = -2.68;
 
     /**
      * The turret is held straight ahead and never aimed: {@link #angleDegrees()} is 0 and every

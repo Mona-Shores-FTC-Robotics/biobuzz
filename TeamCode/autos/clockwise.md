@@ -1,9 +1,8 @@
 # R-Clockwise / L-Clockwise: a paired Auto with fixed fallbacks
 
 Successors to R-Infraviolet and L-Infraviolet. Mentor session, 11 to 12 Nov 2026. Each robot has run its half alone
-(14 Nov 2026); the pair has not yet run together. Clockwise replaces Infraviolet on the Autonomous
-menu (mentor, 14 Nov 2026): the Infraviolet pair is now the Utility trials **Drive: R-Infraviolet**
-and **Drive: L-Infraviolet**.
+(14 Nov 2026); the pair has not yet run together. Clockwise replaced Infraviolet on the Autonomous
+menu on 14 Nov 2026, and the Infraviolet pair was retired from master on 16 Nov 2026 (mentor).
 
 Select **Autonomous → R-Clockwise** on the RIGHT_START robot and **L-Clockwise** on the LEFT_START
 robot. They are a pair: run one only beside the other, with the two INIT menus set to match (the drive
@@ -12,11 +11,9 @@ teams read the Pickup rows to each other).
 Open the pair together:
 <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-clockwise.pp,l-clockwise.pp>
 
-**Every volley is from a spot the drivers' buttons go to** (`localization/LaunchSpots`; mentor,
-12 Nov 2026): the wall row, but for R's third volley and its rescue of TIP 2, which are from the
-close row because the drives to them are shorter. Square goes to both rows in TeleOp, by the tile
-row the robot is in (14 Nov 2026). One set of spots for TeleOp
-and Auto, so a TeleOp volley is data for the Auto and the speed table is tuned in one place.
+**Every volley is from a start or one of the Autos' launch spots** (`localization/AutoLaunchSpots`;
+mentor, 16 Nov 2026), as every Auto's is. Until then the pair launched from the drivers' Square
+spots; the tables of simulator results further down were made on those and have not been redone.
 `ClockwiseAutoTest` fails if a volley of the pair is from anywhere else.
 
 **The robot's guard plans a volley at 2.5 s** (`AutoRegistration.LAUNCH_ALL_TYPICAL_S` and
@@ -230,14 +227,18 @@ Launch spots, all from `LaunchSpots`, drawn for red:
 | Spot | Who shoots there | Pose |
 |---|---|---|
 | RIGHT_START | R's preloads; L's rescue of TIP 1 | (55.6, 7.7, 90°), back on the audience wall |
-| LEFT_WALL_HIVE | L's preloads | (59.9, 133.4, 270°), back on the far wall |
-| RIGHT_WALL_NEAR | L's pickup load | (35.9, 10.6, 66.9°), a corner on the audience wall |
-| RIGHT_CLOSE_HIVE | R's TIP 3 volley | (56.1, 25.3, 90°), the close row, open floor |
-| LEFT_CLOSE_HIVE | R's first load (its second volley), its look at the HIVE, and its rescue of TIP 2 | (59.9, 116.2, 270°), the close row, open floor |
+| LEFT_AUTO_HIVE | L's preloads (it moves up from LEFT_START), then R's first load (its second volley), its look at the HIVE, and its rescue of TIP 2 | (61.9, 120.4, 268.1°), 40 in from the CELL |
+| RIGHT_AUTO_OFFSET | L's pickup load | (32.1, 16.4, 61°), 52 in out, 4 in clear of R arriving on the fix-TIP spot |
+| RIGHT_AUTO_FIX_TIP | R's TIP 3 volley, and L's rescue of TIP 1 | (55.3, 25.7, 90°), straight below the under-HIVE lane, 35 in from the CELL |
 
-They are not in `spots.json` (but for RIGHT_START): `LaunchSpots` is where they are written, and
-the `.pp` files carry the same numbers, which `ClockwiseAutoTest` compares. A spot moved in
-`LaunchSpots` means these two Autos exported again.
+They are team spots in `spots.json` and in `AutoLaunchSpots`; `AutoLaunchSpotsTest` keeps the two
+equal. A spot moved with the Visualizer's Save team spots re-exports these two Autos.
+
+Since 16 Nov 2026 the pair's main drives and both robots' parks are single curves with control
+points, not chains of waypoints (mentor). L's parks run up the outside lane between the HIVE's foot
+bar and R already parked, about 2.2 in from each, and turn to back in only once past R. R's left volleys are from the HIVE spot, not the OFFSET spot: L's
+road up the outside lane to its park runs through `LEFT_AUTO_OFFSET`, and with R waiting there the
+two touched at 25.2 s in the simulator.
 
 One more point is L-Clockwise's own, **LANE_END** (60.5, 34, 270°): where L comes out from under the
 HIVE and holds for R to pass before the WALL FLOWER. It is a waypoint, not a place a drive team

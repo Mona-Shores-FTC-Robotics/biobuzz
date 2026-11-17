@@ -54,8 +54,11 @@ import java.util.function.Function;
  * all fit before AUTO ends. {@code PickFlower} also
  * has an approach ({@code AutoRegistry.Approach}, {@link FlowerPicker#approach}): the path card
  * right before it lowers the stick over its last 18 in, so the pick's stick wait is over when the
- * card starts. {@code GardenGather} has none yet: its stick came down on the wall when swung early
- * in the corner (30 Oct 2026), so it still lowers it from its own card.
+ * card starts. {@code GardenGather} has one too ({@link GardenGather#approach}): the path card right
+ * before it lowers the stick over its last 24 in, but only on a drive that ends facing the GARDEN
+ * and once the robot has held that facing 0.2 s (a stick swung down while the robot still turned, or
+ * faced another way, came down on the wall: 30 Oct and 13 Nov 2026). A drive that turns all the way
+ * in leaves the stick to the card.
  *
  * <p>{@code SpinUp}, {@code LaunchAll}, {@code LaunchOne} and {@code Empty} are real since the
  * launcher and feeder landed (#194): see {@link LaunchCards}, including what {@code Empty} means
@@ -183,12 +186,17 @@ public final class AutoRegistration {
 
     /**
      * {@code GardenGather}'s typical seconds: a drive in, a dwell and a drive back from wherever the
-     * card is called. One Auto gather so far, from {@code GARDEN_STAGING}: 4.21 s (3 Nov 2026 18:06,
-     * R-Partner-Tip: prep 0.74, in 1.17, dwell 1.51, back 0.77); five button gathers on 29 Oct and
-     * 1 Nov took 3.0 to 5.0 s from beside the GARDEN. 5.0 covers both; was 6.0 before an Auto
-     * gather was logged.
+     * card is called. Ten Auto gathers are logged, from {@code GARDEN_STAGING} on both robots. The nine
+     * of 3 to 7 Nov 2026 had the old 1.5 s dwell: 4.13 to 4.76 s, median 4.43. The one of 14 Nov, with
+     * the dwell at 0.4 s and the field values of that day, took 3.15 s (stick wait 0.71, drive in 1.24,
+     * dwell 0.46, back 0.73). The slowest of each phase as they were then add up to 3.83 s (stick
+     * wait 0.75, drive in 1.77, dwell 0.46, back 0.85; the drive in and back from the 14 Nov button
+     * gathers at {@code inSpeed} 1.0), so 4.0 covers a gather with room: the stick wait is gone
+     * since 16 Nov ({@code GardenGather.stickDownMs} 0), which no run has timed yet. One Auto gather
+     * is thin: doc/robot-todo.md asks for more. Was 5.0 (one Auto gather, 4.21 s with the long dwell),
+     * and 6.0 before any was logged.
      */
-    public static final double GARDEN_GATHER_TYPICAL_S = 5.0;
+    public static final double GARDEN_GATHER_TYPICAL_S = 4.0;
 
     /**
      * The TIP lag a partner wait allows: seconds from the partner's last ball leaving its launcher to
@@ -257,8 +265,10 @@ public final class AutoRegistration {
                 .grab("PickFlower", PICK_FLOWER_TYPICAL_S, () -> FlowerPicker.command(robot, note),
                         robot == null ? null : FlowerPicker.approach(robot, note))
                 // ---- real: the GARDEN gather, the same routine as the driver's GARDEN gather button. It drives in
-                // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract).
-                .grab("GardenGather", GARDEN_GATHER_TYPICAL_S, () -> GardenGather.command(robot, note))
+                // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract). The
+                // drive before it lowers the stick on the way in once it faces the GARDEN (its approach).
+                .grab("GardenGather", GARDEN_GATHER_TYPICAL_S, () -> GardenGather.command(robot, note),
+                        robot == null ? null : GardenGather.approach(robot, note))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
                 // ---- real: a piece held under the colour sensor (LaneFull), as the full hold and the light.
                 .trigger("IntakeFull", robot == null ? () -> false : robot.colorSensor::full)

@@ -98,7 +98,7 @@ public final class StartPositions {
     /**
      * The team spot each start in {@link #ALL} is, in the same order: the Visualizer's start
      * buttons are the team's {@code _START} spots ({@code TeamCode/autos/spots.json}; the team
-     * names its spots side first: RIGHT_START, RIGHT_PARK, RIGHT_LAUNCH_CATCH), and
+     * names its spots side first: RIGHT_START, RIGHT_PARK, RIGHT_AUTO_HIVE), and
      * {@code TeamSpotsTest} fails while one differs from the start measured here. Measure a start,
      * then change both: this file, and the spot (in the Visualizer, Save team spots).
      */

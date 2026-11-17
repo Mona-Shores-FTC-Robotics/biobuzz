@@ -14,7 +14,8 @@ import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoOption;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
-import org.firstinspires.ftc.teamcode.localization.LaunchSpots;
+import org.firstinspires.ftc.teamcode.localization.AutoLaunchSpots;
+import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LClockwiseAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RClockwiseAuto;
 import org.junit.Before;
@@ -108,7 +109,7 @@ public class ClockwiseAutoTest {
         assertEquals(3, count("LaunchAll"));
         assertEquals(2, count("PickFlower"));
         assertEquals(0, count("GardenGather"));
-        assertTrue("it crossed under the HIVE: " + trace, trace.contains("path under the HIVE to RIGHT_CLOSE_HIVE"));
+        assertTrue("it crossed under the HIVE: " + trace, trace.contains("path under the HIVE to RIGHT_AUTO_FIX_TIP"));
         parked(98.7);
     }
 
@@ -117,7 +118,7 @@ public class ClockwiseAutoTest {
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(1, count("GardenGather"));
         assertEquals("only the SCORING FLOWER", 1, count("PickFlower"));
-        assertTrue(trace.toString(), trace.contains("path outside lane from the GARDEN to LEFT_CLOSE_HIVE"));
+        assertTrue(trace.toString(), trace.contains("path outside lane from the GARDEN to LEFT_AUTO_HIVE"));
         assertFalse(trace.toString(), trace.contains("path to WALL_FLOWER_STAGING"));
         parked(98.7);
     }
@@ -136,8 +137,8 @@ public class ClockwiseAutoTest {
     @Test public void rightStaysLeftAndFinishesTip2WhenRightIsNotUp() {
         secondTip = Double.POSITIVE_INFINITY;
         run(RClockwiseAuto.build(kit(), false));
-        assertFalse(trace.toString(), trace.contains("path under the HIVE to RIGHT_CLOSE_HIVE"));
-        assertTrue(trace.toString(), trace.contains("path turn to LEFT_CLOSE_HIVE"));
+        assertFalse(trace.toString(), trace.contains("path under the HIVE to RIGHT_AUTO_FIX_TIP"));
+        assertTrue(trace.toString(), trace.contains("path turn to LEFT_AUTO_HIVE"));
         assertEquals("the preloads, the first load, and the SCORING FLOWER load at LEFT", 3, count("LaunchAll"));
         parked(98.7);
     }
@@ -151,8 +152,8 @@ public class ClockwiseAutoTest {
         drive.arriveAt(47.2, 119.3, 18.0);  // the pick ends at 21.0 s: before T3b
         run(RClockwiseAuto.build(kit(), false));
         assertEquals("preloads, the first load, the SCORING FLOWER load", 3, count("LaunchAll"));
-        assertFalse("it never crossed: " + trace, trace.contains("path under the HIVE to RIGHT_CLOSE_HIVE"));
-        assertTrue(trace.toString(), trace.contains("path turn to LEFT_CLOSE_HIVE"));
+        assertFalse("it never crossed: " + trace, trace.contains("path under the HIVE to RIGHT_AUTO_FIX_TIP"));
+        assertTrue(trace.toString(), trace.contains("path turn to LEFT_AUTO_HIVE"));
         assertTrue("not before TR: " + drive.parkAt, drive.parkAt >= 26.4);
         parked(98.7);
     }
@@ -163,7 +164,7 @@ public class ClockwiseAutoTest {
         drive.arriveAt(47.2, 119.3, 20.0);
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
-        assertFalse(trace.toString(), trace.contains("path turn to LEFT_CLOSE_HIVE"));
+        assertFalse(trace.toString(), trace.contains("path turn to LEFT_AUTO_HIVE"));
         assertTrue("straight from the FLOWER: " + drive.parkAt, drive.parkAt >= 23 && drive.parkAt < 23.5);
         parked(98.7);
     }
@@ -173,7 +174,7 @@ public class ClockwiseAutoTest {
         choices.put("Priority", 1);
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
-        assertFalse(trace.toString(), trace.contains("path under the HIVE to RIGHT_CLOSE_HIVE"));
+        assertFalse(trace.toString(), trace.contains("path under the HIVE to RIGHT_AUTO_FIX_TIP"));
         assertTrue(drive.parkAt >= 26.4);
         parked(98.7);
     }
@@ -193,7 +194,7 @@ public class ClockwiseAutoTest {
     @Test public void leftShootsAtLeftThenGathersAndShootsAtRightAndLeavesAtTl() {
         run(LClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
-        assertFalse(trace.toString(), trace.contains("path under the HIVE to RIGHT_START"));
+        assertFalse(trace.toString(), trace.contains("path under the HIVE to RIGHT_AUTO_FIX_TIP"));
         assertEquals(1, count("GardenGather"));
         assertTrue("it waited for TIP 1", startedAt.get("LaunchAll") >= firstTip);
         assertTrue("not before TL: " + drive.parkAt, drive.parkAt >= 22.7);
@@ -208,7 +209,7 @@ public class ClockwiseAutoTest {
     @Test public void leftCrossesAndShootsAtRightFromTheRightEndWhenLeftIsNotUp() {
         firstTip = secondTip = Double.POSITIVE_INFINITY;
         run(LClockwiseAuto.build(kit(), false));
-        assertTrue(trace.toString(), trace.contains("path under the HIVE to RIGHT_START"));
+        assertTrue(trace.toString(), trace.contains("path under the HIVE to RIGHT_AUTO_FIX_TIP"));
         assertEquals("the preloads only", 1, count("LaunchAll"));
         assertTrue("not before T1, and only after the crossing", startedAt.get("LaunchAll") >= 9.5 + 0.5);
         assertTrue("it shot from the RIGHT end of the field: " + launchedFromY, launchedFromY < 70.75);
@@ -236,12 +237,16 @@ public class ClockwiseAutoTest {
         parked(117.4);
     }
 
-    // ---- the launch spots are the TeleOp's ---------------------------------------------------
+    // ---- the launch spots are the Autos' own -----------------------------------------------
 
-    private void shotFrom(int volley, LaunchSpots.Spot spot) {
+    private void shotFrom(int volley, String name, Pose spot) {
         Pose from = launchedFrom.get(volley);
-        assertEquals(spot + " x", spot.red.x(), from.x(), 0.05);
-        assertEquals(spot + " y", spot.red.y(), from.y(), 0.05);
+        assertEquals(name + " x", spot.x(), from.x(), 0.05);
+        assertEquals(name + " y", spot.y(), from.y(), 0.05);
+    }
+
+    private void shotFrom(int volley, AutoLaunchSpots.Spot spot) {
+        shotFrom(volley, spot.name(), spot.red);
     }
 
     private void again() {
@@ -253,29 +258,31 @@ public class ClockwiseAutoTest {
     }
 
     /**
-     * Every volley of the pair is from a spot the drivers' Square goes to ({@link LaunchSpots}): the wall row,
-     * but for R's third volley and its rescue of TIP 2, which are from the close row.
+     * Every volley of the pair is from a start or an Auto launch spot ({@link AutoLaunchSpots}). R fires its
+     * preloads from its start, its second load from the left HIVE spot, and after crossing under the HIVE
+     * from the fix-TIP spot straight below the lane; L moves up to the left HIVE spot and fires its second
+     * load from the right OFFSET spot, clear of R arriving beside it.
      */
-    @Test public void everyVolleyIsFromASquareSpot() {
+    @Test public void everyVolleyIsFromAStartOrAnAutoLaunchSpot() {
         run(RClockwiseAuto.build(kit(), false));
-        shotFrom(0, LaunchSpots.Spot.RIGHT_START);
-        shotFrom(1, LaunchSpots.Spot.LEFT_CLOSE_HIVE);
-        shotFrom(2, LaunchSpots.Spot.RIGHT_CLOSE_HIVE);
+        shotFrom(0, "RIGHT_START", StartPositions.RED_AUDIENCE.pose);
+        shotFrom(1, AutoLaunchSpots.Spot.LEFT_AUTO_HIVE);
+        shotFrom(2, AutoLaunchSpots.Spot.RIGHT_AUTO_FIX_TIP);
         again();
         run(LClockwiseAuto.build(kit(), false));
-        shotFrom(0, LaunchSpots.Spot.LEFT_WALL_HIVE);
-        shotFrom(1, LaunchSpots.Spot.RIGHT_WALL_NEAR);
+        shotFrom(0, AutoLaunchSpots.Spot.LEFT_AUTO_HIVE);
+        shotFrom(1, AutoLaunchSpots.Spot.RIGHT_AUTO_OFFSET);
     }
 
-    @Test public void theRescueVolleysAreFromSquareSpotsToo() {
+    @Test public void theRescueVolleysAreFromAutoLaunchSpotsToo() {
         secondTip = Double.POSITIVE_INFINITY;
         drive.arriveAt(47.2, 119.3, 18.0);
         run(RClockwiseAuto.build(kit(), false));
-        shotFrom(2, LaunchSpots.Spot.LEFT_CLOSE_HIVE);
+        shotFrom(2, AutoLaunchSpots.Spot.LEFT_AUTO_HIVE);
         again();
         firstTip = Double.POSITIVE_INFINITY;
         run(LClockwiseAuto.build(kit(), false));
-        shotFrom(0, LaunchSpots.Spot.RIGHT_START);
+        shotFrom(0, AutoLaunchSpots.Spot.RIGHT_AUTO_FIX_TIP);
     }
 
     // ---- both alliances ----------------------------------------------------------------------

@@ -12,7 +12,7 @@ import java.util.Locale;
 
 /**
  * The aimed human roll ({@link AutoSim#humanAims}, {@code BIOBUZZ_AUTO_HUMAN_ENTRY=aim}): a NECTAR released in the
- * LOADING ZONE at the placeholder speed and dead on its aim reaches the intake mouth of a robot on RIGHT_LAUNCH_OFFSET,
+ * LOADING ZONE at the placeholder speed and dead on its aim reaches the intake mouth of a robot on the old RIGHT_LAUNCH_OFFSET spot (41, 20),
  * about 80 in away, still rolling, on an empty field; and for blue it is red's turned half a turn.
  *
  * <p>Opt-in, like every simulator test but the smoke test: {@code BIOBUZZ_SIM_CHECKS=1}.
@@ -30,7 +30,7 @@ public class HumanRollTest {
         // An empty field but for the NECTAR the human holds.
         sim.pieces.removeIf(p -> p.where != FieldSim.Where.OUTSIDE);
         boolean red = alliance == Alliance.RED;
-        double[] spot = AutoSim.aimSpot("RIGHT_LAUNCH_OFFSET");
+        double[] spot = AutoSim.aimSpot(AutoSim.OLD_RIGHT_LAUNCH_OFFSET);
         double reach = RobotDesign.real().frameIn / 2;
         double[] mouth = {spot[0] + reach * Math.cos(spot[2]), spot[1] + reach * Math.sin(spot[2])};
         double[] from = AutoSim.humanAimFrom.clone();

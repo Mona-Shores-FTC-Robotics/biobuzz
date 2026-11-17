@@ -20,7 +20,7 @@ public final class RNoCrossAuto {
     public static final String SOURCE = "r-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-12|3:37PM";
+    public static final String SAVED = "11-16|1:52PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -50,13 +50,13 @@ public final class RNoCrossAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
-        Pose rightLaunchCatch = p.of(57.5, 18, 91.9);
+        Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
         Pose gardenStaging = p.of(11.5, 22.1, 270);
         Pose rightPark = p.of(14.5, 98.7, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose wallFlowerStagingParkControl1 = p.of(26, 75, 0);
-        Pose rightLaunchCatchParkControl1 = p.of(25, 45, 0);
+        Pose rightAutoHiveParkControl1 = p.of(25, 45, 0);
         Pose gardenStagingParkControl1 = p.of(28, 55, 0);
         Pose toRightParkControl1 = p.of(15.9972, 48.2988, 0);
         Pose toRightPark_2Control1 = p.of(15.9972, 48.2988, 0);
@@ -65,29 +65,29 @@ public final class RNoCrossAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.curve(wallFlowerStaging, wallFlowerStagingParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
-        Path toRightLaunchCatch = Paths.line(wallFlowerStaging, rightLaunchCatch).linear(wallFlowerStaging, rightLaunchCatch);
-        Path rightLaunchCatchPark = Paths.curve(rightLaunchCatch, rightLaunchCatchParkControl1, rightPark).linear(rightLaunchCatch, rightPark);
-        Path toGardenStaging = Paths.line(rightLaunchCatch, gardenStaging).linear(rightLaunchCatch, gardenStaging);
+        Path toRightAutoHive = Paths.line(wallFlowerStaging, rightAutoHive).linear(wallFlowerStaging, rightAutoHive);
+        Path rightAutoHivePark = Paths.curve(rightAutoHive, rightAutoHiveParkControl1, rightPark).linear(rightAutoHive, rightPark);
+        Path toGardenStaging = Paths.line(rightAutoHive, gardenStaging).linear(rightAutoHive, gardenStaging);
         Path gardenStagingPark = Paths.curve(gardenStaging, gardenStagingParkControl1, rightPark).linear(gardenStaging, rightPark);
-        Path toRightLaunchCatchPath = Paths.line(gardenStaging, rightLaunchCatch).linear(gardenStaging, rightLaunchCatch);
-        Path toRightPark = Paths.curve(rightLaunchCatch, toRightParkControl1, rightPark).linear(rightLaunchCatch, rightPark);
-        Path toRightParkPath = Paths.curve(rightLaunchCatch, toRightPark_2Control1, rightPark).linear(rightLaunchCatch, rightPark);
-        Path toRightParkPath2 = Paths.curve(rightLaunchCatch, toRightPark_3Control1, rightPark).linear(rightLaunchCatch, rightPark);
+        Path toRightAutoHivePath = Paths.line(gardenStaging, rightAutoHive).linear(gardenStaging, rightAutoHive);
+        Path toRightPark = Paths.curve(rightAutoHive, toRightParkControl1, rightPark).linear(rightAutoHive, rightPark);
+        Path toRightParkPath = Paths.curve(rightAutoHive, toRightPark_2Control1, rightPark).linear(rightAutoHive, rightPark);
+        Path toRightParkPath2 = Paths.curve(rightAutoHive, toRightPark_3Control1, rightPark).linear(rightAutoHive, rightPark);
 
         return kit.sequence(
-                kit.guarded("Auto", toRightParkPath2, 3,
+                kit.guarded("Auto", toRightParkPath2, 2.9,
                         kit.command("SpinUp"),
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
                         kit.command("PickFlower", 8),
-                        kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatch, 1.9, rightLaunchCatchPark, 2.9),
+                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.9, rightAutoHivePark, 2.9),
                         kit.firstOf("Wait for TIP or CELL up",
                                 kit.when("CellUp").then(
                                         kit.guarded("If CellUp", toRightParkPath, 2.9,
                                                 kit.command("LaunchAll"),
                                                 kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenStagingPark, 2.6),
                                                 kit.command("GardenGather", 8),
-                                                kit.path("to RIGHT_LAUNCH_CATCH", toRightLaunchCatchPath, 2),
+                                                kit.path("to RIGHT_AUTO_HIVE", toRightAutoHivePath, 2),
                                                 kit.firstOf("RIGHT CELL back up?",
                                                         kit.when("CellUp").then(
                                                                 kit.guarded("If CellUp", toRightPark, 2.9,
@@ -97,7 +97,7 @@ public final class RNoCrossAuto {
                                                                 kit.guarded("Timed out", toRightParkPath, 2.9,
                                                                         kit.path("to RIGHT_PARK", toRightParkPath, 2.9)))))),
                                 kit.atMatchSeconds(21).then(
-                                        kit.guarded("Timed out", toRightParkPath2, 3,
-                                                kit.path("to RIGHT_PARK", toRightParkPath2, 3))))));
+                                        kit.guarded("Timed out", toRightParkPath2, 2.9,
+                                                kit.path("to RIGHT_PARK", toRightParkPath2, 2.9))))));
     }
 }
