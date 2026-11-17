@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  * An Auto on master launches only from a start or one of the Autos' launch spots
- * ({@link AutoLaunchSpots}: a HIVE and an OFFSET at each end), never from a spot of its own or one
+ * ({@link AutoLaunchSpots}: every team spot named …_AUTO_…), never from a spot of its own or one
  * of the drivers' Square spots (mentor, 16 Nov 2026).
  *
  * <p>Read from each Auto's source, {@code TeamCode/autos/*.pp}: its cards are walked in order and
@@ -110,15 +110,14 @@ public class AutoVolleySpotsTest {
         }
     }
 
-    /** ({@code x}, {@code y}) is a measured start or an Auto launch spot, drawn for red. */
+    /** ({@code x}, {@code y}) is a start (a team …_START spot) or an Auto launch spot (…_AUTO_…), drawn for red. */
     private static boolean allowed(double x, double y) {
-        for (org.firstinspires.ftc.teamcode.localization.StartPosition start
-                : new org.firstinspires.ftc.teamcode.localization.StartPosition[] {
-                        StartPositions.RED_AUDIENCE, StartPositions.RED_FAR}) {
+        for (org.firstinspires.ftc.teamcode.localization.StartPosition start : StartPositions.known()) {
+            if (start.alliance != org.firstinspires.ftc.teamcode.util.Alliance.RED) continue;
             if (Math.hypot(start.pose.x() - x, start.pose.y() - y) <= SAME_IN) return true;
         }
-        for (AutoLaunchSpots.Spot spot : AutoLaunchSpots.Spot.values()) {
-            if (Math.hypot(spot.red.x() - x, spot.red.y() - y) <= SAME_IN) return true;
+        for (org.firstinspires.ftc.teamcode.localization.TeamSpot spot : AutoLaunchSpots.all()) {
+            if (Math.hypot(spot.x - x, spot.y - y) <= SAME_IN) return true;
         }
         return false;
     }

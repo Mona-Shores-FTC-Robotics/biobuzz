@@ -2,6 +2,10 @@ package org.firstinspires.ftc.teamcode.localization;
 
 import com.pedropathing.math.Pose;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.firstinspires.ftc.teamcode.localization.generated.TeamSpots;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
@@ -54,6 +58,37 @@ public final class AutoLaunchSpots {
     private AutoLaunchSpots() {
     }
 
+    /** Whether team spot {@code name} is an Auto launch spot: every team spot named …_AUTO_… is. */
+    public static boolean isLaunchSpot(String name) {
+        return name.contains("_AUTO_");
+    }
+
+    private static final List<TeamSpot> ALL = launchSpots();
+
+    private static List<TeamSpot> launchSpots() {
+        List<TeamSpot> out = new ArrayList<>();
+        for (TeamSpot spot : TeamSpots.all()) {
+            if (isLaunchSpot(spot.name)) out.add(spot);
+        }
+        return Collections.unmodifiableList(out);
+    }
+
+    /**
+     * Every Auto launch spot, drawn for red: the team spots named …_AUTO_…, so one made in the
+     * Visualizer (a new spot for one Auto, LEFT_AUTO_HIVE_2) is one as soon as it is saved, with
+     * nothing to add here. {@link Spot} names the five the team placed by hand on 16 Nov 2026.
+     */
+    public static List<TeamSpot> all() {
+        return ALL;
+    }
+
+    /** The raised row of the CELL a spot at red {@code y} serves (the CELL at its end), for {@code alliance}. */
+    public static Vec3 cellRowFor(double y, Alliance alliance) {
+        boolean left = LaunchSpots.leftHalf(Alliance.RED, y);
+        HiveCell cell = left ? HiveCell.leftCell(alliance) : HiveCell.rightCell(alliance);
+        return cell == null ? null : HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+    }
+
     /** A spot, drawn for red: its team spot of the same name, whose heading aims the turret from there. */
     public enum Spot {
         LEFT_AUTO_HIVE(true, TeamSpots.LEFT_AUTO_HIVE),
@@ -83,8 +118,7 @@ public final class AutoLaunchSpots {
 
         /** The raised row of the CELL this spot serves, for {@code alliance}; null with no alliance. */
         public Vec3 cellRow(Alliance alliance) {
-            HiveCell cell = left ? HiveCell.leftCell(alliance) : HiveCell.rightCell(alliance);
-            return cell == null ? null : HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+            return cellRowFor(red.y(), alliance);
         }
     }
 }

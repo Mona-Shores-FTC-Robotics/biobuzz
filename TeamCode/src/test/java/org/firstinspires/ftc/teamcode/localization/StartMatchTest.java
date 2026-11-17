@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.localization.generated.TeamSpots;
 import org.junit.Test;
 
 /**
@@ -135,9 +136,13 @@ public class StartMatchTest {
     }
 
     @Test
-    public void theKnownStartsAreTheTwoMeasuredAndTheirHalfTurns() {
+    public void theKnownStartsAreTheStartSpotsAndTheirHalfTurns() {
         StartPosition[] known = StartPositions.known();
-        assertEquals(4, known.length);
+        int starts = 0;
+        for (TeamSpot spot : TeamSpots.all()) {
+            if (spot.name.endsWith("_START") && spot.hasHeading()) starts++;
+        }
+        assertEquals(2 * starts, known.length);
         assertEquals(79.2, StartPositions.BLUE_FROM_RED_FAR.pose.x(), 0.05);
         assertEquals(7.7, StartPositions.BLUE_FROM_RED_FAR.pose.y(), 0.05);
         assertEquals(90, Math.toDegrees(StartPositions.BLUE_FROM_RED_FAR.pose.heading()), 1e-9);
