@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-16T23:21:40.191Z",
+  "timestamp": "2026-11-17T19:39:48.608Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -473,8 +473,8 @@
       },
       "controlPoints": [
         {
-          "x": 40,
-          "y": 102
+          "x": 40.161082294357726,
+          "y": 115.36881538786261
         },
         {
           "x": 25,
@@ -575,171 +575,6 @@
             }
           ]
         }
-      }
-    },
-    {
-      "id": "r-link-left",
-      "color": "#f28e2b",
-      "name": "Link to LEFT_AUTO_OFFSET",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59.9,
-        "y": 116.2
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 0,
-        "endDeg": 270
-      }
-    },
-    {
-      "id": "link-5",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "r-link-flower",
-      "color": "#9c755f",
-      "name": "Link to SCORING_FLOWER_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.2,
-        "y": 119.3
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 0,
-        "endDeg": 90
-      }
-    },
-    {
-      "id": "link-6",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 180
-      }
-    },
-    {
-      "id": "r-link-wall",
-      "color": "#59a14f",
-      "name": "Link to WALL_FLOWER_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 23.1,
-        "y": 47.2
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 0,
-        "endDeg": 180
-      }
-    },
-    {
-      "id": "link-7",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "r-link-start",
-      "color": "#b07aa1",
-      "name": "Link to RIGHT_START",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 55.6,
-        "y": 7.7
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 0,
-        "endDeg": 90
-      }
-    },
-    {
-      "id": "link-8",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 40.7,
-        "y": 121.1
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": -90
-      }
-    },
-    {
-      "id": "r-link-garden",
-      "color": "#e15759",
-      "name": "Link to GARDEN_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 11.5,
-        "y": 22.1
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 0,
-        "endDeg": 270
       }
     }
   ],
@@ -965,42 +800,6 @@
     {
       "kind": "path",
       "lineId": "r-right-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-link-left"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-5"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-link-flower"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-6"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-link-wall"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-7"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-link-start"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-8"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-link-garden"
     }
   ],
   "fieldPoints": [],
@@ -1299,11 +1098,7 @@
       "link-1",
       "link-2",
       "link-3",
-      "link-4",
-      "link-5",
-      "link-6",
-      "link-7",
-      "link-8"
+      "link-4"
     ],
     "parkFrom": {
       "card-r-wall-flower": "r-wall-abort-park",

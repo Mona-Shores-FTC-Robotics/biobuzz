@@ -21,7 +21,7 @@ public final class ROutsideLaneAuto {
     public static final String SOURCE = "r-outside-lane.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-16|6:21PM";
+    public static final String SAVED = "11-17|2:39PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -93,7 +93,7 @@ public final class ROutsideLaneAuto {
         Pose wallLaneNorthFromTheGardenToLeftAutoOffsetSegment4Start = p.of(40.7, 121.1, 360);
         Pose flowerAbortParkToRightParkControl1 = p.of(38, 112.6, 0);
         Pose flowerAbortParkToRightParkControl2 = p.of(31.8, 94.1, 0);
-        Pose wallLaneSouthToRightAutoOffsetControl1 = p.of(40, 102, 0);
+        Pose wallLaneSouthToRightAutoOffsetControl1 = p.of(40.1611, 115.3688, 0);
         Pose wallLaneSouthToRightAutoOffsetControl2 = p.of(25, 102, 0);
         Pose wallLaneSouthToRightAutoOffsetControl3 = p.of(34, 43, 0);
         Pose wallLaneSouthToRightAutoOffsetSegment1Start = p.of(32.1, 16.4, 90);
