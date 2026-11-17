@@ -276,7 +276,10 @@ Result, with the gap on each own-start run, → [PR #372].
       the count wandered by about 200 over a turn. Use the encoder's own 6-pin to 4-pin hub cable.
       Step 6, the loop, same day: `kP` 0.035, `kD` 0.006, `holdToleranceDeg` 2, floor back at
       0.09 (0.06 buzzes without moving). A 45° step turns to the angle and glides in, no
-      overshoot. In the code. Not yet run: the hold in Basic Drive, and tracking.
+      overshoot. Then in Basic Drive, holding straight ahead: those rocked back and forth (its
+      loop is slower than the bench's), and `kP` 0.02, `kD` 0.003 hold cleanly. In the code.
+      Also found there: the intake reverses its motor, which flipped the turret's count read
+      through its socket; fixed (`TurretSubsystem.hostSign`). Not yet run: tracking.
 - [ ] **Both robots: the turret holds straight ahead in a match OpMode** (still `lockedForward`).
       Basic Drive, turret on its mark in INIT (limp, nothing powered), PLAY. **Good:** the Robot
       page says "locked straight ahead: holding 0°", a push by hand is resisted and comes back,

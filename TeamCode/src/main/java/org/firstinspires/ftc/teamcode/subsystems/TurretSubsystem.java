@@ -99,15 +99,17 @@ public class TurretSubsystem implements Subsystem {
     public static double maxPower = 1.0;
 
     // ------------------------------------------------------------ the loop
-    // kP, kD and the tolerance are 20245's from Bench: Turret, Square (17 Nov 2026): 45 degree
-    // steps land with almost no overshoot. With less damping it swung past every time; the floor
-    // could not be lowered to cure that, since under 0.09 the turret sticks and buzzes. The
-    // feedforward has not run on a robot yet.
+    // kP, kD and the tolerance are 20245's, tuned in Basic Drive with the turret holding straight
+    // ahead (17 Nov 2026): pushed off by hand it comes back cleanly; a hard shove zigzags briefly.
+    // Bench: Turret liked 0.035 and 0.006, and those rocked back and forth in Basic Drive, whose
+    // loop is slower: tune the loop in the OpMode that runs it. The floor could not be lowered to
+    // slow the approach, since under 0.09 the turret sticks and buzzes. The feedforward has not
+    // run on a robot yet.
 
     /** Power per degree of error. */
-    public static double kP = 0.035;
+    public static double kP = 0.02;
     /** Damping: power per deg/s of the turret's rate relative to the target's, taken off the correction. */
-    public static double kD = 0.006;
+    public static double kD = 0.003;
     /** The share of the target's rate fed forward to the servo: 1 cancels all of the robot's turning, 0 none. */
     public static double feedforward = 1.0;
     /** A target rate slower than this is treated as still, deg/s: the gyro's noise is not fed to the servo. */

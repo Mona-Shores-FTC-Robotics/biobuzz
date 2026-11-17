@@ -187,8 +187,11 @@ public class TurretServoControlTest {
     public void withTheTopSpeedAQuarterOffItStillFollows() {
         TurretServoControl.Gains g = gains();
         Plant plant = new Plant(g.topSpeedDps * 0.75, g.minPower, 0.06, 2);
+        // The feedforward asks for 100 deg/s and gets 75: the correction has to make up 25 deg/s,
+        // and at the robot's kP that costs about 9 degrees of trailing. So topSpeedDps must be
+        // measured: the lower the kP, the more the turret leans on the feedforward being right.
         double worst = run(plant, g, 3.0, 2.0, t -> 100.0 * t, t -> 100.0);
-        assertTrue("following error " + worst, worst < 8.0);
+        assertTrue("following error " + worst, worst < 12.0);
     }
 
     @Test
