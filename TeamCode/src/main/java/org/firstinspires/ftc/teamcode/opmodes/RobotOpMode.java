@@ -58,6 +58,7 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.util.PanelsSwitch;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
@@ -269,6 +270,18 @@ public abstract class RobotOpMode extends OpMode {
     private boolean loggedLaneFull;
     private long loggedDepartures;
     /** Between INIT and PLAY. */
+    /**
+     * The INIT page's turret line for a robot with an aim offset, in an Auto and a TeleOp alike:
+     * the turret is set on its mark and then swings off it at PLAY, which looks like a fault to a
+     * drive team that has not been told (mentor, 17 Nov 2026). Null with no offset.
+     */
+    static String turretOffsetNote(double offsetDeg) {
+        if (offsetDeg == 0.0 || Double.isNaN(offsetDeg)) return null;
+        return String.format(java.util.Locale.US,
+                "set it on its mark; at PLAY it turns %.1f\u00b0 %s and holds (aim offset)",
+                Math.abs(offsetDeg), offsetDeg > 0.0 ? "left" : "right");
+    }
+
     private boolean initializing = true;
 
     // A mechanism asked to move whose encoder never does: one event each, from the log alone.
@@ -517,6 +530,8 @@ public abstract class RobotOpMode extends OpMode {
         if (handoffNote != null && (handoffPose || declaredStart == null || startedFresh)) {
             display.status("Start", handoffLevel, handoffNote);
         }
+        String turretNote = turretOffsetNote(TurretSubsystem.aimOffset());
+        if (turretNote != null) display.status("Turret", Display.Level.OK, turretNote);
         if (batteryNote != null) {
             // An Auto lists it with the warnings at the top instead.
             if (!isAutonomous()) display.status("Battery", Display.Level.FAULT, batteryNote);

@@ -77,6 +77,10 @@ public final class RobotDifferences {
                         + " 19429 stays locked until it is rewired the same way",
                 () -> TurretSubsystem.lockedForward = false);
         differs(RobotIdentity.TEAM_20245,
+                "Shots go 4.5 degrees clockwise of where the turret's home mark points: aiming, the"
+                        + " operator's trim that centred them was 4.5 counter-clockwise (17 Nov 2026)",
+                () -> TurretSubsystem.aimOffsetDeg = 4.5);
+        differs(RobotIdentity.TEAM_20245,
                 "Shoots long at every range: 50 ticks/s off every launch speed, TeleOp and Autos (drive"
                         + " team, 17 Nov 2026, after the turret was refitted)",
                 () -> LaunchSpeedTable.robotOffsetTicksPerSecond = -50.0);

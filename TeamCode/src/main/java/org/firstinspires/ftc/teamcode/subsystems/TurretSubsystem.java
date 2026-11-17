@@ -146,6 +146,18 @@ public class TurretSubsystem implements Subsystem {
     public static double turretLeftIn = -2.68;
 
     /**
+     * Where the shots go straight ahead, measured from the home mark, degrees counter-clockwise
+     * seen from above. The drive team still sets the turret on its mark before PLAY, and that is
+     * still the zero; every angle the turret holds or reports is then counted from this many
+     * degrees round from the mark. So at PLAY it turns here and holds, and an aim lands the shots
+     * on the target, with the operator's AIM TRIM at 0. 0 for a turret whose shots go where its
+     * mark points; a robot whose shots sit to one side gets its line in
+     * {@link org.firstinspires.ftc.teamcode.RobotDifferences}. Read every loop: a change in Panels
+     * moves the turret at once. NaN is 0; kept inside ±30.
+     */
+    public static double aimOffsetDeg = 0.0;
+
+    /**
      * The turret is held straight ahead and never aimed: {@link #angleDegrees()} is 0 and every
      * request is answered by holding 0, from PLAY, on the encoder. The mentor's call on 1 Nov 2026:
      * both robots play locked. False for a robot whose 25-3 Speed servo is fitted and whose signs,
@@ -391,7 +403,8 @@ public class TurretSubsystem implements Subsystem {
         counts = hostSign * (long) encoderHost.getCurrentPosition();
         double countsPerSecond = hostSign * encoderHost.getVelocity();
         if (encoder != null) {
-            encoderAngleDeg = encoder.degrees(counts, zeroCounts);
+            // Less the aim offset: "0" is where the shots go straight ahead, not the home mark.
+            encoderAngleDeg = encoder.degrees(counts, zeroCounts) - aimOffset();
             encoderRateDps = encoder.degreesPerSecond(countsPerSecond);
         } else {
             encoderAngleDeg = Double.NaN;
@@ -460,6 +473,13 @@ public class TurretSubsystem implements Subsystem {
         return hostDirection == DcMotorSimple.Direction.REVERSE ? -1 : 1;
     }
 
+    /** {@link #aimOffsetDeg}, guarded: NaN is 0, and it stays inside ±30 degrees. */
+    public static double aimOffset() {
+        double offset = aimOffsetDeg;
+        if (Double.isNaN(offset)) return 0.0;
+        return Math.max(-30.0, Math.min(30.0, offset));
+    }
+
     private void goLimp() {
         if (!limp) {
             if (pwm != null) {
@@ -511,6 +531,9 @@ public class TurretSubsystem implements Subsystem {
             return;
         }
         String zero = zeroed ? zeroSource.text : "not zeroed yet: it zeroes where it stands at PLAY, or zero it now";
+        if (aimOffset() != 0.0) {
+            zero += String.format(Locale.US, " · aim offset %+.1f° from the mark", aimOffset());
+        }
         if (lockedForward) {
             display.status("Turret", Display.Level.OK, String.format(Locale.US,
                     "locked straight ahead: %s 0° (encoder %.1f°) · %s",

@@ -100,4 +100,19 @@ public class TurretEncoderTest {
         assertEquals(-1, TurretSubsystem.hostSign(com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE));
         assertEquals("a fake with no direction reads as forward", 1, TurretSubsystem.hostSign(null));
     }
+
+    @Test
+    public void theAimOffsetIsGuarded() {
+        double old = TurretSubsystem.aimOffsetDeg;
+        try {
+            TurretSubsystem.aimOffsetDeg = 4.5;
+            assertEquals(4.5, TurretSubsystem.aimOffset(), EPS);
+            TurretSubsystem.aimOffsetDeg = Double.NaN;
+            assertEquals(0.0, TurretSubsystem.aimOffset(), EPS);
+            TurretSubsystem.aimOffsetDeg = 400.0;
+            assertEquals(30.0, TurretSubsystem.aimOffset(), EPS);
+        } finally {
+            TurretSubsystem.aimOffsetDeg = old;
+        }
+    }
 }
