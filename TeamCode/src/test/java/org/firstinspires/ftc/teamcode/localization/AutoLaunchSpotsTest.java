@@ -23,6 +23,34 @@ public class AutoLaunchSpotsTest {
     private static final double HALF = LaunchSpots.FRAME_HALF_IN;
     private static final double SIZE = FieldFrame.FIELD_SIZE_INCHES;
 
+    /**
+     * Every Auto launch spot, the five placed by hand and any made in the Visualizer since (a team
+     * spot named …_AUTO_…): aimed at its CELL, which the Visualizer keeps as the spot is moved,
+     * inside the field, and short of the centre line.
+     */
+    @Test
+    public void everyLaunchSpotIsAimedOnTheFieldAndOurSide() {
+        assertTrue("the five placed by hand are launch spots", AutoLaunchSpots.all().size() >= Spot.values().length);
+        for (TeamSpot spot : AutoLaunchSpots.all()) {
+            assertTrue(spot + " has a heading", spot.hasHeading());
+            Pose p = spot.pose();
+            Vec3 row = AutoLaunchSpots.cellRowFor(spot.y, Alliance.RED);
+            assertNotNull(row);
+            double aimed = LaunchSpots.aimTurret(p.x(), p.y(), row.x(), row.y(),
+                    TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
+            assertEquals(spot + " faces " + spot.headingDeg + " deg; the turret aims from there at "
+                            + String.format(java.util.Locale.ROOT, "%.1f", (Math.toDegrees(aimed) % 360 + 360) % 360)
+                            + " deg: move it in the Visualizer, which aims it", 0,
+                    Math.toDegrees(Math.IEEEremainder(aimed - p.heading(), 2 * Math.PI)), 0.3);
+            for (double[] c : corners(p)) {
+                assertTrue(spot + " reaches x " + c[0] + ", past the centre line less a quarter inch",
+                        c[0] <= FieldFrame.FIELD_CENTRE_INCHES - 0.25);
+                assertTrue(spot + " leaves the field at (" + c[0] + ", " + c[1] + ")",
+                        c[0] >= 0 && c[1] >= 0 && c[1] <= SIZE);
+            }
+        }
+    }
+
     @Test
     public void eachPointsTheTurretAtItsCellsRaisedRow() {
         for (Spot spot : Spot.values()) {

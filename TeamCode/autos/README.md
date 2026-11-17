@@ -256,6 +256,10 @@ its place here.
   new spot from a field click.
 - **Locked by default.** Dragging a team spot's end snaps it back. Press its lock (on the step, or
   in the Path panel) to unlock it and move it. The move is a change in that browser until saved.
+  When other Autos use the spot, unlocking asks first: move it for every Auto, or give this Auto a
+  new spot of its own (`RIGHT_2_START`, `LEFT_AUTO_HIVE_2`) where the old one is, and move that.
+  A new `_START` spot is a start and a new `_AUTO_` spot an Auto launch spot as soon as it is
+  saved; the Visualizer turns an `_AUTO_` spot to aim at its CELL as it moves.
 - **Saving.** Saving the Auto you moved a spot in takes the spot with it: *Save to GitHub and
   simulate…* or a Workspace save writes the Auto, `spots.json`, its Java twin
   `localization/generated/TeamSpots.java` and every other Auto here that uses the spot,
@@ -269,8 +273,8 @@ its place here.
   range, two robots to an end), and a few simulator tests name a spot's numbers.
 - **Starts are team spots named `…_START`.** The builder's start buttons are the team's
   `_START` spots (`RIGHT_START` → *Right start*); make one to add a start. A start measured on the
-  field is the one `localization/StartPositions` uses (`TEAM_SPOTS` names its spot; the pose is
-  read from `TeamSpots`): measure, then move the spot in the Visualizer. Both `RIGHT_START` and
+  field is the one `localization/StartPositions` uses (every `_START` team spot is a start, read
+  from `TeamSpots`): measure, then move the spot in the Visualizer. Both `RIGHT_START` and
   `LEFT_START` are measured (31 Oct 2026): back flat on the wall, the frame's left side on a seam's
   teeth. To move a start, press *Unlock … start to move it* under the start buttons, then set it in
   the START panel.
