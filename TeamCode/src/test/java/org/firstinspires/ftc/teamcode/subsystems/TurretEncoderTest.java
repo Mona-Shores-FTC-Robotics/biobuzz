@@ -92,4 +92,12 @@ public class TurretEncoderTest {
             }
         }
     }
+
+    @Test
+    public void theHostMotorsDirectionDoesNotFlipTheTurretsCount() {
+        // The intake reverses its motor, and the SDK then reports the count negated: undone.
+        assertEquals(1, TurretSubsystem.hostSign(com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD));
+        assertEquals(-1, TurretSubsystem.hostSign(com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE));
+        assertEquals("a fake with no direction reads as forward", 1, TurretSubsystem.hostSign(null));
+    }
 }

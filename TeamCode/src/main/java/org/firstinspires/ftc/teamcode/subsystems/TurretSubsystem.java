@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 
@@ -40,7 +41,8 @@ import java.util.Locale;
  * <h2>Hardware it shares</h2>
  *
  * <p>The encoder host is another mechanism's motor. This class reads its position and velocity and
- * <b>never</b> sets its power or mode, and never resets its count: zero is a software offset, so
+ * <b>never</b> sets its power, mode or direction, and never resets its count; it undoes the sign
+ * the host's own direction puts on the count ({@link #hostSign}). Zero is a software offset, so
  * the intake (today's host) is untouched.
  *
  * <p>The values below are both robots'. One that a robot measures differently is a line in
@@ -358,7 +360,7 @@ public class TurretSubsystem implements Subsystem {
         mode = Mode.IDLE;
         started = false;
         refreshSettings();
-        counts = encoderHost.getCurrentPosition();
+        counts = hostSign(encoderHost.getDirection()) * (long) encoderHost.getCurrentPosition();
         zeroCounts = counts;
         zeroed = false;
         zeroSource = ZeroSource.NONE;
@@ -376,8 +378,10 @@ public class TurretSubsystem implements Subsystem {
     @Override
     public void update() {
         refreshSettings();
-        counts = encoderHost.getCurrentPosition();
-        double countsPerSecond = encoderHost.getVelocity();
+        // The host motor's own code may reverse it, and the SDK then flips the count with the power.
+        int hostSign = hostSign(encoderHost.getDirection());
+        counts = hostSign * (long) encoderHost.getCurrentPosition();
+        double countsPerSecond = hostSign * encoderHost.getVelocity();
         if (encoder != null) {
             encoderAngleDeg = encoder.degrees(counts, zeroCounts);
             encoderRateDps = encoder.degreesPerSecond(countsPerSecond);
@@ -434,6 +438,18 @@ public class TurretSubsystem implements Subsystem {
             }
             limp = false;
         }
+    }
+
+    /**
+     * +1 or -1 to turn the host motor's reading back into the hub's own count. The encoder is read
+     * through another mechanism's motor ({@link DeviceNames#TURRET_ENCODER_HOST}), and that
+     * mechanism may set the motor's direction: the SDK then flips the position and the velocity it
+     * reports along with the power. The turret's count must not change sign because the intake was
+     * reversed, so the flip is undone here (20245, 17 Nov 2026: the hold worked on the bench, which
+     * leaves the motor forward, and ran away in Basic Drive, where the intake reverses it).
+     */
+    public static int hostSign(DcMotorSimple.Direction hostDirection) {
+        return hostDirection == DcMotorSimple.Direction.REVERSE ? -1 : 1;
     }
 
     private void goLimp() {
