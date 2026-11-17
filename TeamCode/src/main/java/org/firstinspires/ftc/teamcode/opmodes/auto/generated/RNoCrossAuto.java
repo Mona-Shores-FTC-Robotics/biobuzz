@@ -20,7 +20,7 @@ public final class RNoCrossAuto {
     public static final String SOURCE = "r-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-17|5:10PM";
+    public static final String SAVED = "11-17|5:19PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -65,9 +65,12 @@ public final class RNoCrossAuto {
         Pose toRightPark_4Control1 = p.of(17.9975, 42.698, 0);
         Pose wallSideToLeftAutoOffsetControl1 = p.of(35, 25, 0);
         Pose wallSideToLeftAutoOffsetControl2 = p.of(20, 70, 0);
-        Pose leftAutoOffsetParkControl1 = p.of(42, 99, 0);
-        Pose toRightPark_5Control1 = p.of(42, 99, 0);
-        Pose toRightPark_6Control1 = p.of(42, 99, 0);
+        Pose leftAutoOffsetParkControl1 = p.of(40, 95, 0);
+        Pose leftAutoOffsetParkControl2 = p.of(30, 98.7, 0);
+        Pose toRightPark_5Control1 = p.of(40, 95, 0);
+        Pose toRightPark_5Control2 = p.of(30, 98.7, 0);
+        Pose toRightPark_6Control1 = p.of(40, 95, 0);
+        Pose toRightPark_6Control2 = p.of(30, 98.7, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
@@ -82,9 +85,9 @@ public final class RNoCrossAuto {
         Path toRightParkPath2 = Paths.curve(rightAutoHive, toRightPark_3Control1, rightPark).linear(rightAutoHive, rightPark);
         Path toRightParkPath3 = Paths.curve(rightAutoHive, toRightPark_4Control1, rightPark).linear(rightAutoHive, rightPark);
         Path wallSideToLeftAutoOffset = Paths.curve(rightAutoHive, wallSideToLeftAutoOffsetControl1, wallSideToLeftAutoOffsetControl2, leftAutoOffset).linear(rightAutoHive, leftAutoOffset);
-        Path leftAutoOffsetPark = Paths.curve(leftAutoOffset, leftAutoOffsetParkControl1, rightPark).linear(leftAutoOffset, rightPark);
-        Path toRightParkPath4 = Paths.curve(leftAutoOffset, toRightPark_5Control1, rightPark).linear(leftAutoOffset, rightPark);
-        Path toRightParkPath5 = Paths.curve(leftAutoOffset, toRightPark_6Control1, rightPark).linear(leftAutoOffset, rightPark);
+        Path leftAutoOffsetPark = Paths.curve(leftAutoOffset, leftAutoOffsetParkControl1, leftAutoOffsetParkControl2, rightPark).linear(leftAutoOffset, rightPark);
+        Path toRightParkPath4 = Paths.curve(leftAutoOffset, toRightPark_5Control1, toRightPark_5Control2, rightPark).linear(leftAutoOffset, rightPark);
+        Path toRightParkPath5 = Paths.curve(leftAutoOffset, toRightPark_6Control1, toRightPark_6Control2, rightPark).linear(leftAutoOffset, rightPark);
 
         return kit.sequence(
                 kit.guarded("Auto", toRightParkPath3, 2.9,
@@ -118,14 +121,14 @@ public final class RNoCrossAuto {
                                                         kit.atMatchSeconds(23).then(
                                                                 kit.guarded("Timed out", toRightParkPath3, 2.9,
                                                                         kit.path("to RIGHT_PARK", toRightParkPath3, 2.9))))),
-                                                kit.route("if no TIP 2", 1, () -> kit.path("wall side to LEFT_AUTO_OFFSET", wallSideToLeftAutoOffset, 3.3, leftAutoOffsetPark, 1.8)),
+                                                kit.route("if no TIP 2", 1, () -> kit.path("wall side to LEFT_AUTO_OFFSET", wallSideToLeftAutoOffset, 3.3, leftAutoOffsetPark, 1.9)),
                                                 kit.route("if no TIP 2", 1, () -> kit.firstOf("LEFT CELL still up?",
                                                         kit.when("CellUp").then(
-                                                                kit.guarded("If CellUp", toRightParkPath4, 1.8,
+                                                                kit.guarded("If CellUp", toRightParkPath4, 1.9,
                                                                         kit.command("LaunchAll"),
-                                                                        kit.path("to RIGHT_PARK", toRightParkPath4, 1.8))),
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath4, 1.9))),
                                                         kit.afterMs(750).then(
-                                                                kit.guarded("Timed out", toRightParkPath5, 1.8,
-                                                                        kit.path("to RIGHT_PARK", toRightParkPath5, 1.8))))))))));
+                                                                kit.guarded("Timed out", toRightParkPath5, 1.9,
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath5, 1.9))))))))));
     }
 }

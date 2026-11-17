@@ -76,9 +76,10 @@ leaves the LEFT CELL one piece short, and R's four tip it. The wait gives up at 
 "waiting for TIP 2 until 20 s"), the latest that still lets the guard fire at the left end and
 park (crossing 3.3 s, volley 2.5 s, park 1.8 s, margin 1.0 s). With the Belding calibration
 CROSS AND FIX IT turned 36 points into 56 in 2 of 3 seeds beside L-NoCross, a fast and a typical
-partner (TIP 2 at 28.6 to 29.8 s), and beside L-NoCross (either of its picks) the two touched
-at 28.8 s as R parked beside L. WAIT FOR PARTNER never touched a partner and stayed at 36: no
-late TIP 2 came for it to catch. A TIP that completes after 30 s is the open question in `CLAUDE.md`; the
+partner (TIP 2 at 28.6 to 29.8 s). Its park drops below a partner on `LEFT_PARK` before sliding
+left onto `RIGHT_PARK` square (17 Nov 2026: swinging in while turning, it touched L-NoCross at
+28.8 s). WAIT FOR PARTNER never touched a partner and stayed at 36: no late TIP 2 came for it to
+catch. A TIP that completes after 30 s is the open question in `CLAUDE.md`; the
 guard asks only that the last piece is out by 30 s with the park after it.
 
 **Every volley after an Auto's first sits behind a CELL check** (R-Solo, R-NoCross and L-NoCross,
