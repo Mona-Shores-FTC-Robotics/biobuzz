@@ -79,21 +79,22 @@ public final class LaunchSpotDrive {
     /**
      * From the tile row against the end wall, the middle wall spot ({@code RIGHT_START},
      * {@code LEFT_WALL_HIVE}) counts as this much nearer than it is, inches, so it wins more of the
-     * row ({@link LaunchSpots#choose}). 6 to start, as the close row's (mentor, 14 Nov 2026); 0, NaN
+     * row ({@link LaunchSpots#choose}). 12 (mentor, 17 Nov 2026, chosen on the "Square Launch Spots"
+     * map); 0, NaN
      * or negative is plain nearest. Read at each press.
      */
     public static double wallCentreBiasIn = LaunchSpots.DEFAULT_WALL_CENTRE_BIAS_IN;
     /**
      * From the middle tile row, the middle close spot ({@code …_CLOSE_HIVE}) counts as this much
-     * nearer than it is, inches, so it wins more of the row ({@link LaunchSpots#choose}). 6 (mentor,
-     * 14 Nov 2026), chosen on the "Square Launch Spots" map; 0, NaN or negative is plain nearest.
+     * nearer than it is, inches, so it wins more of the row ({@link LaunchSpots#choose}). 10 (mentor,
+     * 17 Nov 2026), chosen on the "Square Launch Spots" map; 0, NaN or negative is plain nearest.
      * Read at each press.
      */
     public static double closeCentreBiasIn = LaunchSpots.DEFAULT_CLOSE_CENTRE_BIAS_IN;
     /**
      * All six close spots are driven this far back from where they are drawn, straight toward
-     * their end wall, inches; the four side ones re-aim from there. 4 (mentor, 14 Nov 2026; 2.5 at
-     * first): close volleys were hitting the lip of the HIVE. 0, NaN or
+     * their end wall, inches; the four side ones re-aim from there. 3 (mentor, 17 Nov 2026; 2.5 at
+     * first, then 4): close volleys were hitting the lip of the HIVE. 0, NaN or
      * negative: the spots as drawn. Which spot a press goes to does not change. Read at each press.
      */
     public static double closeBackIn = LaunchSpots.DEFAULT_CLOSE_BACK_IN;
