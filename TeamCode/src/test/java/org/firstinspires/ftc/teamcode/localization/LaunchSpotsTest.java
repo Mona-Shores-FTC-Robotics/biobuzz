@@ -162,7 +162,7 @@ public class LaunchSpotsTest {
 
     @Test
     public void theMiddleCloseSpotIsFavouredByTheCentreBias() {
-        // From (50, 40) RIGHT_CLOSE_NEAR is nearer by 2.9 in, inside the 6 in bias: the middle one wins.
+        // From (50, 40) RIGHT_CLOSE_NEAR is nearer by 2.9 in, inside the 10 in bias: the middle one wins.
         Spot near = Spot.RIGHT_CLOSE_NEAR, hive = Spot.RIGHT_CLOSE_HIVE;
         double toNear = Math.hypot(near.red.x() - 50, near.red.y() - 40);
         double toHive = Math.hypot(hive.red.x() - 50, hive.red.y() - 40);

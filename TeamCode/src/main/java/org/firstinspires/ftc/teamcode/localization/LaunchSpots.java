@@ -79,28 +79,28 @@ public final class LaunchSpots {
 
     /**
      * From the middle tile row, the HIVE-column CLOSE spot counts as this much nearer than it is,
-     * inches (mentor, 14 Nov 2026): the starting value of {@code LaunchSpotDrive.closeCentreBiasIn},
-     * the Panels number. Without it the HIVE-column spot, 2.5 in nearer the wall than its two
+     * inches: the starting value of {@code LaunchSpotDrive.closeCentreBiasIn}, the Panels number.
+     * 10 (mentor, 17 Nov 2026, chosen on the "Square Launch Spots" map; 6 before). Without it the HIVE-column spot, 2.5 in nearer the wall than its two
      * neighbours, would win only a sliver that closes toward the HIVE.
      */
-    public static final double DEFAULT_CLOSE_CENTRE_BIAS_IN = 6.0;
+    public static final double DEFAULT_CLOSE_CENTRE_BIAS_IN = 10.0;
 
     /**
      * From the tile row against the end wall, the HIVE-column WALL spot counts as this much nearer
      * than it is, inches: the starting value of {@code LaunchSpotDrive.wallCentreBiasIn}, the Panels
-     * number. 6, as the close row's (mentor, 14 Nov 2026): it moves each edge of the middle wall
-     * spot's zone about 3 in outward along the wall. Not driven yet.
+     * number. 12 (mentor, 17 Nov 2026, chosen on the "Square Launch Spots" map; 6 before): it widens
+     * the middle wall spot's zone along the wall. Not driven yet.
      */
-    public static final double DEFAULT_WALL_CENTRE_BIAS_IN = 6.0;
+    public static final double DEFAULT_WALL_CENTRE_BIAS_IN = 12.0;
 
     /**
      * The six CLOSE spots are driven to this far back from where they are drawn, straight toward
      * their end wall, inches: the starting value of {@code LaunchSpotDrive.closeBackIn}, the Panels
-     * number. 4 (mentor, 14 Nov 2026): close volleys were hitting the lip of the HIVE; 2.5 was the
-     * first try, 4 the one the team chose. The pick among the spots is made as they are
+     * number. 3 (mentor, 17 Nov 2026, chosen on the "Square Launch Spots" map): close volleys were
+     * hitting the lip of the HIVE; 2.5 was the first try, then 4, now 3. The pick among the spots is made as they are
      * drawn; the button stops this far back.
      */
-    public static final double DEFAULT_CLOSE_BACK_IN = 4.0;
+    public static final double DEFAULT_CLOSE_BACK_IN = 3.0;
 
     /** The frame is square: from its centre to its back, front and either side (measured, {@link ResetPositions}). */
     static final double FRAME_HALF_IN = ResetPositions.WALL_TO_CENTRE_IN;
