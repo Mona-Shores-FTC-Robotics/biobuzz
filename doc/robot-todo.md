@@ -249,8 +249,8 @@ Result, with the gap on each own-start run, → [PR #372].
 - [ ] **Light looks:** Basic Drive INIT steady red, X → steady blue; off after PLAY; intake until a
       piece sits under the colour sensor → green after about 1 s and the roller stops. **Stop:** a
       wrong colour → set it in Panels → IndicatorSubsystem, note the value. [S4 §9], [PR #353]
-- [ ] **Both robots: the turret's continuous servo, on Bench: Turret, before anything else drives
-      it.** Needs the 25-3 Speed fitted and the config installed (§0). The bench's javadoc is the
+- [ ] **19429 (20245 done 17 Nov, except step 6): the turret's continuous servo, on Bench:
+      Turret, before anything else drives it.** Needs the 25-3 Speed fitted and the config installed (§0). The bench's javadoc is the
       checklist; in order, and put each value in a PR (`TurretSubsystem`, or a `RobotDifferences`
       line if the two robots differ):
       1. **Encoder**, in INIT, nothing powered: Cross with the turret on its mark, then one full
@@ -270,6 +270,11 @@ Result, with the gap on each own-start run, → [PR #372].
          without hunting. D-pad up four times from 0: at 180 the next step goes on to -135 the
          short way. **Stop:** it runs away → a sign from steps 1 or 3 is wrong. Tune `kP` (0.03)
          and `kD` (0.001) in Panels; none of the loop's values has run on a robot.
+      **20245, 17 Nov:** one turn 359.9° and 358.3°, `direction` -1; stop power 0;
+      `servoDirection` +1; `minPower` 0.09; top speed 180°/s both ways (peak 194). All in the
+      code. Its first encoder cable was an OctoQuad cable, which gave the hub one signal only:
+      the count wandered by about 200 over a turn. Use the encoder's own 6-pin to 4-pin hub cable.
+      Still to do on 20245: step 6, the loop.
 - [ ] **Both robots: the turret holds straight ahead in a match OpMode** (still `lockedForward`).
       Basic Drive, turret on its mark in INIT (limp, nothing powered), PLAY. **Good:** the Robot
       page says "locked straight ahead: holding 0°", a push by hand is resisted and comes back,
