@@ -1,5 +1,5 @@
 {
-  "pp": "TeamCode/autos/drafts/l-under-hive.pp",
+  "pp": "TeamCode/autos/l-under-hive.pp",
   "spec": "LUnderHiveAuto@50",
   "design": "real robot, turret locked forward",
   "partnerDesign": null,

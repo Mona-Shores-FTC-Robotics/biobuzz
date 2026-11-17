@@ -633,9 +633,12 @@ Use the work order above to select checks; the detailed mechanism checks below a
       **Also:** the two Belding runs that crawled for 4 s about 10 in short of `LEFT_LAUNCH_CLOSE`
       / `LEFT_LAUNCH_CATCH` (20245, 14:39 and 16:53 hub time) look blocked: check the match video.
 
-- [ ] **The lane pair drafts: Drive: R-OutsideLane and Drive: L-UnderHive.**
+- [ ] **The lane pair: R-OutsideLane and L-UnderHive, on the Autonomous menu since 16 Nov** (they
+      were the Utilities Drive: R-OutsideLane and Drive: L-UnderHive). Redrawn that day onto the
+      Autos' launch spots and never driven: where the steps below say L4, read `LEFT_AUTO_HIVE` for
+      L and `LEFT_AUTO_OFFSET` for R; R5 is `RIGHT_AUTO_OFFSET` and R4 `RIGHT_AUTO_HIVE`.
       [Routes and the simulator's numbers](../TeamCode/autos/drafts/README.md#the-lane-pair-r-outsidelane-and-l-underhive).
-      Each stops itself at 30 s. In this order:
+      In this order:
       - **Each alone, no pieces:** it drives its route and parks. **Stop:** it touches the HIVE, a
         FLOWER it is not picking, or crosses the centre line → save the log.
       - **R alone, four preloads:** note the match second its LEFT volley ends. Past 15.5 s it parks
