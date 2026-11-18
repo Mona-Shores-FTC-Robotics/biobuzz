@@ -15,6 +15,54 @@ R-Solo running build `733501e`, with the fourth-shot cutoff active and the park 
 at about 28.5 s. Earlier claims that nothing after PR #422 had run are superseded;
 this is not a claim that every unchecked item below has passed.
 
+## Tonight (18 Nov): 19429, in this order
+
+Each step stands alone: what to run, what good looks like, when to stop. Push the logs
+(`tools/pull-logs`) after each step, so a session can read them. Nothing below has run on a robot.
+
+1. **Feed jam.** On 17 Nov from about 18:59 to 19:25, 19429 fed for 3.5 s with the gate open, the
+   feeder at full power and the launcher at speed, and fired **0** balls, three times (R-OutsideLane
+   twice, Basic Drive once). Load 4 POLLEN, run **Bench: Launch Test**, fire 3 volleys, and watch
+   the gate, the feeder wheel and the prefeed. **Good:** every volley sends all 4 out (the shot
+   counter may say fewer: it misses shots, being fixed). **Stop:** a volley fires 0 or 1 → find
+   what binds before any Auto runs; nothing after this step means anything until the feed works.
+- [ ] Feed jam checked
+2. **Pinpoint cable.** 19429 logged dozens of `Pinpoint: FAULT_BAD_READ` events on the 17 Nov
+   evening. Reseat the Pinpoint's cable at both ends, run **Check: Hardware**, then Basic Drive for
+   2 minutes of normal driving. **Good:** no `Pinpoint: FAULT_BAD_READ` in the log. **Stop:**
+   faults again → swap the cable.
+- [ ] Pinpoint cable checked
+3. **Lane sensor with the black bottom plate.** Levels are `leaveBelow` 0.09 / `presentAbove`
+   0.11 (`RobotDifferences`). With the plate the empty lane read 0.052 (17 Nov, one run). In Basic
+   Drive: lane empty, intake on, 1 minute; then 4 POLLEN in one at a time; leave one parked at the
+   sensor. Then INIT R-Solo with the 4 preloads loaded. **Good:** no "Lane sensor reads … empty"
+   INIT warning; the lane count goes 1, 2, 3, 4; FULL only with 4 in. **Stop:** the warning shows,
+   or FULL with fewer than 4 → push the logs; a session sets both levels from them.
+- [ ] Lane sensor checked with the plate
+4. **Camera mount.** 19429's 17 Nov logs put the camera's robot about 1.5–2 in to the robot's
+   left of odometry at every heading, and the tags about 0.6 in high: the mount, most likely.
+   **Vision: HIVE & Pose**, robot on the Red audience start marks, still: R1 when the
+   Camera calibration line is ready; R2, place it on the Red far wall marks, R1 again.
+   Then measure the lens height and pitch with a tape and a level (§6). **Good:** "Spots so far:
+   AGREE" → the forward/left go into `CameraMount` (the logged `CameraCalibration/<spot>` numbers;
+   `CameraMount` is shared by both robots, so say which robot measured them). **Stop:** DIFFER →
+   don't change anything; push the log.
+- [ ] Camera mount measured (and committed, Sloth Load) before step 5
+5. **Shooting at the Auto spots,** after the mount is in. The launch speed comes from the camera's
+   range to the CELL, so a mount change moves every speed. HIVE upright with the CELL being shot
+   **up**, 4 POLLEN each time, phone filming the CELL. Fire 5 volleys from each spot by running
+   the Auto that fires there, stopping it after that volley:
+   - `RIGHT_START`: R-Solo's preloads
+   - `RIGHT_AUTO_HIVE`: R-Solo's second volley
+   - `LEFT_AUTO_HIVE`: L-NoCross's preloads
+   - `LEFT_AUTO_OFFSET`: R-OutsideLane's LEFT volley (set the LEFT CELL up by hand)
+
+   Count balls in per volley from the video. **Good:** 4 of 4 in most volleys at every spot.
+   **Stop:** one spot long or short every time → note it, with the robot; a session turns it into
+   an offset for that robot (`RobotDifferences`) or a fix to one row of `LaunchSpeedTable`. Do
+   not change speeds at the robot.
+- [ ] Spot shooting: hits per volley written down for each spot
+
 ## Belding work order (agreed 5 Nov)
 
 The old night-by-night plan is superseded by this order. R-Solo remains the working
@@ -1099,14 +1147,6 @@ measurement is [#255].
 - [ ] **R-Solo on 19429:** its first path from the Red audience marks. 19429's drivetrain is tuned
       on its own values (6 Nov, PR #480: Check: Drive Motors, Pod Offsets, Foresight, Tests all
       passed), so a path that drifts on 19429 but not on 20245 is now worth reporting. [#175]
-- [ ] **19429's lane sensor at `leaveBelow` 0.09 / `presentAbove` 0.11** (set from the 16-17 Nov
-      logs: the empty lane read 0.064, top 0.1% 0.088, after more ambient light reached it; 20245
-      stays at 0.05 / 0.10). **Re-measure once the black bottom plate is on:** Basic Drive with the
-      lane empty and the intake on for a minute, then four POLLEN in, one at a time, and one parked
-      under the sensor; push the logs. **Good:** no "Lane sensor reads … empty" INIT warning, the
-      lane count goes 1, 2, 3, 4, one hold per piece, FULL only with four in, and an empty lane
-      counts nothing. **Stop:** the warning shows, or FULL with fewer than four → set both levels
-      from the new logs' empty and dim-POLLEN readings.
 - [ ] **Anything 19429 does differently** from 20245 (a motor turning the other way, a servo
       position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
       was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.
