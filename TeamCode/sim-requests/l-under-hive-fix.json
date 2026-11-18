@@ -1,0 +1,149 @@
+{
+  "pp": "TeamCode/autos/drafts/l-under-hive-fix.pp",
+  "spec": "LUnderHiveFixAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "as drawn: TIP 1 comes",
+      "partner": "ROutsideLaneFixAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "R's preloads miss (17 Nov): L fixes TIP 1",
+      "partner": "ROutsideLaneFixAuto",
+      "timing": {
+        "speed": 50
+      },
+      "fails": "misses preloads",
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "R's preloads miss, R 20 percent slower",
+      "partner": "ROutsideLaneFixAuto",
+      "timing": {
+        "speed": 40
+      },
+      "fails": "misses preloads",
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "R's preloads miss, L 20 percent slower",
+      "partner": "ROutsideLaneFixAuto",
+      "timing": {
+        "speed": 50
+      },
+      "fails": "misses preloads",
+      "ourSpeed": 40,
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "R's preloads miss and L's fix misses: second try with the pickup",
+      "partner": "ROutsideLaneFixAuto",
+      "timing": {
+        "speed": 50
+      },
+      "fails": "misses preloads",
+      "oursFails": "misses preloads",
+      "picks": {
+        "Pickup": "GARDEN"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER"
+      }
+    },
+    {
+      "name": "R's preloads miss, L takes the WALL FLOWER, R the GARDEN",
+      "partner": "ROutsideLaneFixAuto",
+      "timing": {
+        "speed": 50
+      },
+      "fails": "misses preloads",
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    },
+    {
+      "name": "R dead on its start: L fixes alone",
+      "partner": "PartnerRBrokenDownAuto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "l-under-hive-fix.pp",
+    "SavedBy": "Lane pair: L fixes a missed TIP 1",
+    "SavedAt": "2026-11-18T03:30:00+00:00"
+  }
+}
