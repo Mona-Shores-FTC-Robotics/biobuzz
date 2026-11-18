@@ -21,7 +21,7 @@ public final class RSolo19429Auto {
     public static final String SOURCE = "r-solo-19429.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|2:37PM";
+    public static final String SAVED = "11-18|3:40PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -66,8 +66,8 @@ public final class RSolo19429Auto {
         Pose toRightPark_2Control1 = p.of(43.661, 105.8984, 0);
         Pose toRightAutoHiveControl1 = p.of(58.7683, 101.5686, 0);
         Pose toRightAutoHiveControl2 = p.of(65.2005, 71.9052, 0);
-        Pose toRightAutoHiveControl3 = p.of(60.6002, 40.901, 0);
-        Pose toRightAutoHiveSegment1Start = p.of(59.2, 20.9, 268.1);
+        Pose toRightAutoHiveControl3 = p.of(56, 40, 0);
+        Pose toRightAutoHiveSegment1Start = p.of(59.2, 20.9, 268.9);
         Pose toRightAutoHiveSegment1End = p.of(59.2, 20.9, 270);
         Pose toRightAutoHiveSegment2Start = p.of(59.2, 20.9, 270);
         Pose toRightPark_3Control1 = p.of(23.3185, 25.5538, 0);
