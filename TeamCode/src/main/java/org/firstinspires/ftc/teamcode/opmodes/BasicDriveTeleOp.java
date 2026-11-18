@@ -273,6 +273,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private double poseRangeIn = Double.NaN;
     /** The launch speed {@code LaunchSpeedTable} gave, before trim, ticks/s; NaN: the configured speed. */
     private double tableTps = Double.NaN;
+    /** The launch speed last sent to the wheels, ticks per second; NaN while idle or stopped. */
+    private double sentLaunchTps = Double.NaN;
     /** The range {@link #tableTps} was read at, inches, and whether it was a launch-spot press's spot. */
     private double tableRangeIn = Double.NaN;
     private boolean tableFromSpot;
@@ -438,11 +440,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private void applyLauncher(LauncherOwner.Effect effect) {
         if (effect == LauncherOwner.Effect.KEEP) return;
         if (effect == LauncherOwner.Effect.SPIN_UP) {
-            robot.launcher.spinUp(launchSpeed());
+            sendLaunchSpeed();
             log.event(String.format(Locale.US, "launcher: launch speed %.0f ticks/s (%s)",
                     launchSpeed(), launcherOwner.owner() == LauncherOwner.Owner.SPOT ? "Square" : "operator"));
             return;
         }
+        sentLaunchTps = Double.NaN;
         double idle = TeleOpConfig.launcherIdleTicksPerSecond;
         if (idle > 0.0) {
             // Never past the launch speed: an idle typed as 16000 is a typo, not a request.
@@ -451,6 +454,39 @@ public class BasicDriveTeleOp extends RobotOpMode {
             robot.launcher.spinDown();
         }
         log.event(String.format(Locale.US, "launcher: idle (%.0f ticks/s)", Math.max(0.0, idle)));
+    }
+
+    /** The launch speed to the wheels, and remembered as the one sent ({@link #reapplyLaunchSpeed}). */
+    private void sendLaunchSpeed() {
+        sentLaunchTps = launchSpeed();
+        robot.launcher.spinUp(sentLaunchTps);
+    }
+
+    /**
+     * A launch speed that moved while the launcher spins goes to the wheels at once (mentor, 18 Nov
+     * 2026): a Panels change to {@code LauncherSubsystem.targetTicksPerSecond}, the speed table's
+     * switch, offset or rows used to wait for the next spin-up, trim press or table change. Not
+     * while the feeder feeds, as the speed table: the next loop after the feed sends it. One log
+     * line per change.
+     */
+    private void reapplyLaunchSpeed() {
+        double now = launchSpeed();
+        if (!resendLaunchSpeed(launcherOwner.spinning(), robot.feeder.state() == FeederSubsystem.State.FEED,
+                sentLaunchTps, now)) {
+            return;
+        }
+        double was = sentLaunchTps;
+        sendLaunchSpeed();
+        log.event(String.format(Locale.US, "launcher: launch speed %.0f ticks/s, was %.0f (a setting changed while spinning)",
+                now, was));
+    }
+
+    /**
+     * Whether the launch speed goes to the wheels again: spinning at launch speed, not feeding, and
+     * {@code now} not the speed last sent. Pure, so a test can check it.
+     */
+    static boolean resendLaunchSpeed(boolean spinning, boolean feeding, double sent, double now) {
+        return spinning && !feeding && !Double.isNaN(now) && !Double.isNaN(sent) && Double.compare(now, sent) != 0;
     }
 
     /**
@@ -477,7 +513,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         launcherTrimCapLogged = logCap(wanted, cap, launcherTrimCapLogged,
                 String.format(Locale.US, "launcher trim: at its cap, %.0f ticks/s either way (TeleOpConfig.maxLauncherTrimTps)", cap));
         if (launcherOwner.spinning()) {
-            robot.launcher.spinUp(launchSpeed());
+            sendLaunchSpeed();
         }
         // Felt, not looked at: one blip up, two down (7 Nov 2026).
         gamepad2.rumbleBlips(direction > 0 ? 1 : 2);
@@ -489,7 +525,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private void resetLauncherTrim() {
         launcherTrimTps = 0.0;
         if (launcherOwner.spinning()) {
-            robot.launcher.spinUp(launchSpeed());
+            sendLaunchSpeed();
         }
         gamepad2.rumble(LAUNCHER_TRIM_RESET_RUMBLE_MS);
         log.event(String.format(Locale.US, "launcher trim reset to 0: launch speed %.0f", launchSpeed()));
@@ -758,6 +794,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         boolean spotHeld = controls.held(Action.LAUNCH_SPOT) && !grabActive();
         launchSpot.update(spotHeld, setup.alliance(), spotSticks.moved(spotHeld, sticksMoved, nowS, staleS));
         updateTableSpeed();
+        reapplyLaunchSpeed();
         spotLauncher();
         boolean chassisAim = chassisAim(circleSticks.moved(circleAimHeld(), rightStick, nowS, staleS));
         chassisAimDriving = chassisAim;
@@ -1331,7 +1368,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         tableTps = next;
         tableRangeIn = range;
         tableFromSpot = fromSpot;
-        if (launcherOwner.spinning()) robot.launcher.spinUp(launchSpeed());
+        if (launcherOwner.spinning()) sendLaunchSpeed();
         log.event(Double.isNaN(next)
                 ? String.format(Locale.US, "launcher: speed table %s, configured speed %.0f ticks/s",
                         LaunchSpeedTable.enabled ? "has no rows" : "off", launchSpeed())
