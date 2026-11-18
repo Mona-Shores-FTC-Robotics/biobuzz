@@ -1216,6 +1216,16 @@ public class LauncherSubsystem implements Subsystem {
                 }
                 return false;
             }
+            // A level seeded while the wheels sagged under their target rises with them as they come
+            // up to it, never past it: 19429 on 18 Nov 2026 seeded about 1560 on a 1588 target in the
+            // sag after a spin-up from rest, the wheels then recovered to 1600, outside the level's
+            // band, so the level stayed behind and the next balls' dips (1600 to 1530) read 35 deep
+            // and went uncounted; the feed then ran its whole set time. Capped at the target, an
+            // overshoot never lifts the level, so settling back from one is not a dip.
+            if (!inDip) {
+                leftLevel = Math.max(leftLevel, Math.min(left, leftTarget));
+                rightLevel = Math.max(rightLevel, Math.min(right, rightTarget));
+            }
             double dLeft = leftLevel - left;
             double dRight = rightLevel - right;
             double d = 0.5 * (dLeft + dRight);

@@ -118,4 +118,13 @@ public class ShotDetectorTraceTest {
             throw new AssertionError(e);
         }
     }
+
+    @Test
+    public void anEarlyGateFromRestCountsAllFourOnceTheLevelRisesOutOfTheSag() throws IOException {
+        // 19429, 18 Nov 2026, the gate open 0.34 s after PLAY (gateLeadS 0.1); all four left. The
+        // level seeded in the sag under target (1560 on 1585) and stayed there as the wheels came
+        // up, so the robot counted 3 and the feed ran its full 3.5 s. Rising with the wheels up to
+        // the target, it counts all four.
+        assertEquals(4, replay("19429-2026-11-17-22-27-57-auto-preload-early-gate.csv", false));
+    }
 }
