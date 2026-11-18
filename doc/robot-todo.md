@@ -94,6 +94,11 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    pad still discards a handoff (start fresh). **Stop:** it fires before it is on the CELL, or keeps turning
    after Circle is let go → push the log.
 - [ ] Circle LOCKED: turned on and fired 4 from all three spots; AIM unchanged
+9. **Operator fine trim.** Basic Drive: the operator taps R1 (launch trim +25) and D-pad left (aim trim
+   L 1.5°), then holds Circle and taps them again: +10 and 0.5° per press (Match page: LAUNCH TRIM +35,
+   AIM TRIM L 2.0°), one/two rumble blips as before, and Circle fires nothing. **Stop:** Circle fires,
+   or the step does not change → push the log.
+- [ ] Fine trim: smaller steps with Circle held, no fire
 
 ## Belding work order (agreed 5 Nov)
 

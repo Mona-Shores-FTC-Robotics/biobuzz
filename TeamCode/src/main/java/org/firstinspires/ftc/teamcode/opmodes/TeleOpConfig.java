@@ -53,6 +53,12 @@ public final class TeleOpConfig {
     public static double trimStepDeg = 1.5;
 
     /**
+     * Degrees one aim trim press moves the aim while the operator holds the fine-trim button
+     * (Circle). Clamped to [0, 5], as {@link #trimStepDeg}.
+     */
+    public static double trimFineStepDeg = 0.5;
+
+    /**
      * The launcher's speed when it idles (toggled off, or a Square press's keep-spinning time is
      * up), ticks per second. 0 stops it. Never above the launch speed
      * ({@code LauncherSubsystem.targetTicksPerSecond}, or the speed table's). It applies from the
@@ -79,6 +85,12 @@ public final class TeleOpConfig {
      * trim lasts the OpMode; the launch speed it trims is {@code LauncherSubsystem.targetTicksPerSecond}.
      */
     public static double launcherTrimStepTps = 25.0;
+
+    /**
+     * Ticks per second one launcher trim press moves the launch speed while the operator holds the
+     * fine-trim button (Circle). Clamped to [0, 200], as {@link #launcherTrimStepTps}.
+     */
+    public static double launcherTrimFineStepTps = 10.0;
 
     /**
      * The intake runs all match unless something else asks: from PLAY, as in an Auto. The roller
