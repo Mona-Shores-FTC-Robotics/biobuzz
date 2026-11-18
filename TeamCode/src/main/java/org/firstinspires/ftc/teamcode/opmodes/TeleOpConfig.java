@@ -136,13 +136,6 @@ public final class TeleOpConfig {
 
 
     /**
-     * The super FLOWER pick (driver's R1, held, on a robot whose turret aims) fires the FLOWER's
-     * pieces too, all eight in one feed, rather than fire the load the robot arrived with and
-     * leave holding the FLOWER's four. Off: fire four, keep four. Read at each press.
-     */
-    public static boolean superPickFiresFlowerLoad = false;
-
-    /**
      * The go-to-launch-spot button also launches: the launcher spins up as the drive starts, and
      * once the robot is at the spot, aimed and settled, it feeds while the button is held, as the
      * operator's FIRE does ({@link SpotVolley}). On for testing in Basic Drive (mentor, 4 Nov 2026): a testing

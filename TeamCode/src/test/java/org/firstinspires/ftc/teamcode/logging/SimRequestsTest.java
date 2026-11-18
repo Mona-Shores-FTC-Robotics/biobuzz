@@ -129,9 +129,6 @@ public class SimRequestsTest {
         if (name.startsWith("l-")) other = "r-" + name.substring(2);
         else if (name.startsWith("r-")) other = "l-" + name.substring(2);
         else return false;
-        // The one pair whose halves do not share a name: R-OutsideLane with L-UnderHive.
-        if (name.equals("r-outside-lane")) other = "l-under-hive";
-        if (name.equals("l-under-hive")) other = "r-outside-lane";
         return (other + ".pp").equals(source) && new File(autos, source).isFile()
                 && new File(autos, name + ".pp").isFile();
     }
