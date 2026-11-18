@@ -112,12 +112,6 @@ public final class TeleOpConfig {
     public static boolean enforceAtSpeedGate = true;
 
     /**
-     * The operator's pad rumbles once per spin-up, the first time the launcher reaches launch
-     * speed ({@link SpinUpRumble}). False: never; the light bar still turns green.
-     */
-    public static boolean atSpeedRumble = true;
-
-    /**
      * Enforce the aim gate: a feed starts only with the aim within {@link #aimToleranceDeg}, for
      * every Circle press (and always for one that turns the robot, {@code CirclePress}). The aim is the camera's when it saw our
      * CELL in the last {@code TurretAimer.SIGHTING_FRESH_MS}, else odometry's; with neither it is

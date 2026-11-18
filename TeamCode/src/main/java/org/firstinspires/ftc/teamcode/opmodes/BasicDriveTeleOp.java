@@ -102,9 +102,8 @@ import java.util.Map;
  * the Robot page. The trim is on every shot, Square's included, and is felt as well as seen: one
  * rumble blip up, two down, a long buzz when D-pad down resets it to 0.
  *
- * <p>The operator's light bar is green at launch speed, amber spinning up, blue at idle, with a
- * short rumble the first time each spin-up reaches speed ({@link SpinUpRumble}; off with
- * {@link TeleOpConfig#atSpeedRumble}). The match log has every fire press with
+ * <p>The operator's light bar is green at launch speed, amber spinning up, blue at idle, and
+ * there is no rumble at launch speed (mentor, 18 Nov 2026). The match log has every fire press with
  * its launcher speed, aim error, trim, pose and gates, every trim, who ran the intake each loop,
  * and every routine a stick cancelled. Each shot the launcher counts from its speed dip is one line
  * with the range to the CELL, which is #80's speed-vs-distance table filled in from ordinary
@@ -239,8 +238,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** The current launch-spot press has had its spin-up decided. */
     private boolean spotPressSeen;
     private Bar bar = Bar.NONE;
-    /** The at-speed rumble, once per spin-up. */
-    private final SpinUpRumble spinUpRumble = new SpinUpRumble();
     /** This fire hold has had its arc-refusal rumble: once per hold, however often the arc flaps. */
     private boolean arcRumbled;
     private String poseNote;
@@ -1123,16 +1120,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
     }
 
     /**
-     * The operator's light bar, sent only when it changes, following at speed; a short rumble the
-     * first time each spin-up reaches launch speed ({@link SpinUpRumble}), never on every re-entry.
+     * The operator's light bar, sent only when it changes. No rumble at launch speed (mentor, 18 Nov
+     * 2026): at speed flaps with every shot's dip and the moving range target, and it buzzed all match.
      */
     private void lightBar() {
-        boolean spinning = launcherOwner.spinning();
-        boolean atSpeed = robot.launcher.atSpeed();
-        if (spinUpRumble.update(spinning, atSpeed) && TeleOpConfig.atSpeedRumble) {
-            gamepad2.rumble(250);
-        }
-        Bar now = !spinning ? Bar.IDLE : atSpeed ? Bar.AT_SPEED : Bar.SPINNING;
+        Bar now = !launcherOwner.spinning() ? Bar.IDLE : robot.launcher.atSpeed() ? Bar.AT_SPEED : Bar.SPINNING;
         if (now == bar) return;
         switch (now) {
             case AT_SPEED:
