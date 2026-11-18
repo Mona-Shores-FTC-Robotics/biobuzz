@@ -58,6 +58,36 @@ public final class VoltageCompensation {
         return Math.abs(next - applied) > Math.abs(step * applied);
     }
 
+    /**
+     * The battery reading a compensation should use: the higher of the latest two, so a single read
+     * caught in a momentary sag is ignored and a drop that lasts is taken one reading later.
+     *
+     * <p>Why: a voltage read is instantaneous, and at once a second it is held for a whole second.
+     * In the Belding Qualifier's and 18 Nov 2026's logs, 266 of 4326 readings were a lone dip more
+     * than 0.5 V under the readings either side of it (down to 8.07 V between two of about 11.4), as
+     * the drivetrain or launcher pulled hard, 9 of them at an Auto's PLAY. 20245's 14:39 R-Solo read
+     * 9.57 V at PLAY on a battery at 12.94 V: F went up 23% for a second, the left wheel overshot to
+     * 1720 of 1594, and the preloads' gate waited 1.35 s instead of about 0.5. Not thread-safe; one
+     * per OpMode.
+     */
+    public static final class Steady {
+        private double previous = Double.NaN;
+        private double steady = Double.NaN;
+
+        /** Feed the latest reading, volts; returns the steady value. A NaN reading is ignored. */
+        public double update(double volts) {
+            if (Double.isNaN(volts)) return steady;
+            steady = Double.isNaN(previous) ? volts : Math.max(previous, volts);
+            previous = volts;
+            return steady;
+        }
+
+        /** The steady value, NaN before the first reading. */
+        public double volts() {
+            return steady;
+        }
+    }
+
     private static boolean valid(double volts) {
         return volts > 0.0 && !Double.isInfinite(volts);
     }
