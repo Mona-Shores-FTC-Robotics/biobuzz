@@ -62,6 +62,16 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    an offset for that robot (`RobotDifferences`) or a fix to one row of `LaunchSpeedTable`. Do
    not change speeds at the robot.
 - [ ] Spot shooting: hits per volley written down for each spot
+6. **Backward with a load (bottom plate),** before either backward trial (**Drive: R-Clockwise-19429**,
+   **Drive: R-Solo-19429**) runs. 19429 only: 20245 has no plate and its trials refuse to move.
+   Basic Drive, 4 POLLEN in the lane, phone filming the intake low from the side. Drive **backward**
+   at full stick, with a hard start and a hard stop, 3 times each:
+   - from `GARDEN_STAGING` north up the outside lane to `LEFT_AUTO_HIVE` (R-Clockwise-19429)
+   - from `WALL_FLOWER_STAGING` north to `LEFT_AUTO_HIVE` (R-Solo-19429)
+
+   **Good:** the lane still holds 4 after every run, and the video shows none leave. **Stop:** any
+   piece leaves → no backward trial on 19429 tonight; push the logs and the video.
+- [ ] Backward with a load: lane full after every run, video kept
 
 ## Belding work order (agreed 5 Nov)
 

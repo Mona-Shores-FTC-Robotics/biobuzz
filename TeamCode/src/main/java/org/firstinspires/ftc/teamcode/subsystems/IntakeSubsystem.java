@@ -159,6 +159,15 @@ public class IntakeSubsystem implements Subsystem {
      */
     static boolean ownEncoder = !DeviceNames.INTAKE.equals(DeviceNames.TURRET_ENCODER_HOST);
 
+    /**
+     * Whether this robot keeps its load in the lane while it drives backward. Off: on 20245's first
+     * Clockwise drive (12 Nov 2026) pieces left the intake on both legs it drove backward, so every
+     * Auto on the Autonomous menu drives nose-first with a load. On for 19429 in
+     * {@code RobotDifferences}, which has a bottom plate (18 Nov 2026). An Auto drawn with a loaded
+     * leg driven backward ({@code BackwardLoadTrial}) refuses to move on a robot where this is off.
+     */
+    public static boolean holdsLoadDrivingBackward = false;
+
     /** Enable the full-lane hold, whether intake is requested or idle. */
     public static boolean holdWhenFull = true;
 
