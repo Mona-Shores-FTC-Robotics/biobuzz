@@ -108,7 +108,7 @@
       }
     },
     {
-      "name": "R's preloads miss and L's fix misses: second try with the pickup",
+      "name": "R's preloads miss and L's fix misses too",
       "partner": "ROutsideLaneFixAuto",
       "timing": {
         "speed": 50

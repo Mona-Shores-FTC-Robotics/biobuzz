@@ -21,7 +21,7 @@ public final class LUnderHiveFixAuto {
     public static final String SOURCE = "l-under-hive-fix.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|8:47AM";
+    public static final String SAVED = "11-18|9:08AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -70,10 +70,20 @@ public final class LUnderHiveFixAuto {
         Pose rightAutoFixTipParkUnderTheHiveSegment1Start = p.of(14.5, 117.4, 90);
         Pose rightAutoFixTipParkUnderTheHiveSegment1End = p.of(14.5, 117.4, 90);
         Pose rightAutoFixTipParkUnderTheHiveSegment2Start = p.of(14.5, 117.4, 90);
-        Pose fixTipToGardenStagingControl1 = p.of(34, 22, 0);
-        Pose fixTipToGardenStagingSegment1Start = p.of(11.5, 22.1, 90);
-        Pose fixTipToGardenStagingSegment1End = p.of(11.5, 22.1, 180);
-        Pose fixTipToGardenStagingSegment2Start = p.of(11.5, 22.1, 180);
+        Pose underHiveParkToLeftParkControl1 = p.of(60, 50, 0);
+        Pose underHiveParkToLeftParkControl2 = p.of(66, 80, 0);
+        Pose underHiveParkToLeftParkControl3 = p.of(65, 105, 0);
+        Pose underHiveParkToLeftParkControl4 = p.of(62, 122, 0);
+        Pose underHiveParkToLeftParkControl5 = p.of(40, 122, 0);
+        Pose underHiveParkToLeftParkSegment1Start = p.of(14.5, 117.4, 96.1);
+        Pose underHiveParkToLeftParkSegment1End = p.of(14.5, 117.4, 90);
+        Pose underHiveParkToLeftParkSegment2Heading = p.of(14.5, 117.4, 90);
+        Pose underHiveParkToLeftParkSegment3Start = p.of(14.5, 117.4, 90);
+        Pose earlyGardenToGardenStagingControl1 = p.of(59.5, 101.6, 0);
+        Pose earlyGardenToGardenStagingControl2 = p.of(67, 72, 0);
+        Pose earlyGardenToGardenStagingControl3 = p.of(63, 44, 0);
+        Pose earlyGardenToGardenStagingControl4 = p.of(60, 18, 0);
+        Pose earlyGardenToGardenStagingControl5 = p.of(30, 22, 0);
         Pose gardenAbortParkToLeftParkControl1 = p.of(40, 20, 0);
         Pose gardenAbortParkToLeftParkControl2 = p.of(68, 18, 0);
         Pose gardenAbortParkToLeftParkControl3 = p.of(62, 50, 0);
@@ -88,17 +98,13 @@ public final class LUnderHiveFixAuto {
         Pose gardenExitToRightAutoHiveSegment1Start = p.of(59.2, 20.9, 270);
         Pose gardenExitToRightAutoHiveSegment1End = p.of(59.2, 20.9, 360);
         Pose gardenExitToRightAutoHiveSegment2Start = p.of(59.2, 20.9, 0);
-        Pose underHiveParkToLeftParkControl1 = p.of(60, 50, 0);
-        Pose underHiveParkToLeftParkControl2 = p.of(66, 80, 0);
-        Pose underHiveParkToLeftParkControl3 = p.of(65, 105, 0);
-        Pose underHiveParkToLeftParkControl4 = p.of(62, 122, 0);
-        Pose underHiveParkToLeftParkControl5 = p.of(40, 122, 0);
-        Pose underHiveParkToLeftParkSegment1Start = p.of(14.5, 117.4, 96.1);
-        Pose underHiveParkToLeftParkSegment1End = p.of(14.5, 117.4, 90);
-        Pose underHiveParkToLeftParkSegment2Heading = p.of(14.5, 117.4, 90);
-        Pose underHiveParkToLeftParkSegment3Start = p.of(14.5, 117.4, 90);
-        Pose fixTipToWallFlowerStagingControl1 = p.of(38, 24, 0);
-        Pose fixTipToWallFlowerStagingControl2 = p.of(34, 47.2, 0);
+        Pose underHiveToWallFlowerStagingControl1 = p.of(60, 100, 0);
+        Pose underHiveToWallFlowerStagingControl2 = p.of(70, 66, 0);
+        Pose underHiveToWallFlowerStagingControl3 = p.of(66, 10, 0);
+        Pose underHiveToWallFlowerStagingControl4 = p.of(38, 24, 0);
+        Pose underHiveToWallFlowerStagingControl5 = p.of(34, 47.2, 0);
+        Pose underHiveToWallFlowerStagingSegment1Heading = p.of(23.1, 47.2, 270);
+        Pose underHiveToWallFlowerStagingSegment2Start = p.of(23.1, 47.2, 270);
         Pose wallFlowerAbortParkToLeftParkControl1 = p.of(34, 50, 0);
         Pose wallFlowerAbortParkToLeftParkControl2 = p.of(33, 72, 0);
         Pose wallFlowerAbortParkToLeftParkControl3 = p.of(33.5, 94, 0);
@@ -114,34 +120,20 @@ public final class LUnderHiveFixAuto {
         Pose wallFlowerExitToRightAutoHiveSegment1Start = p.of(59.2, 20.9, 180);
         Pose wallFlowerExitToRightAutoHiveSegment1End = p.of(59.2, 20.9, 360);
         Pose wallFlowerExitToRightAutoHiveSegment2Start = p.of(59.2, 20.9, 0);
-        Pose earlyGardenToGardenStagingControl1 = p.of(59.5, 101.6, 0);
-        Pose earlyGardenToGardenStagingControl2 = p.of(67, 72, 0);
-        Pose earlyGardenToGardenStagingControl3 = p.of(63, 44, 0);
-        Pose earlyGardenToGardenStagingControl4 = p.of(60, 18, 0);
-        Pose earlyGardenToGardenStagingControl5 = p.of(30, 22, 0);
-        Pose underHiveToWallFlowerStagingControl1 = p.of(60, 100, 0);
-        Pose underHiveToWallFlowerStagingControl2 = p.of(70, 66, 0);
-        Pose underHiveToWallFlowerStagingControl3 = p.of(66, 10, 0);
-        Pose underHiveToWallFlowerStagingControl4 = p.of(38, 24, 0);
-        Pose underHiveToWallFlowerStagingControl5 = p.of(34, 47.2, 0);
-        Pose underHiveToWallFlowerStagingSegment1Heading = p.of(23.1, 47.2, 270);
-        Pose underHiveToWallFlowerStagingSegment2Start = p.of(23.1, 47.2, 270);
 
         // Paths, written as the stock Visualizer export writes them.
         Path openToLeftAutoHive = Paths.line(leftStart, leftAutoHive).linear(leftStart, leftAutoHive);
         Path leftAbortParkToLeftPark = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path underTheHiveToRightAutoFixTip = Paths.curve(leftAutoHive, underTheHiveToRightAutoFixTipControl1, underTheHiveToRightAutoFixTipControl2, underTheHiveToRightAutoFixTipControl3, rightAutoFixTip).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(underTheHiveToRightAutoFixTipSegment1Start, rightAutoFixTip)).until(1, Interpolator.linear(rightAutoFixTip, rightAutoFixTip)));
         Path rightAutoFixTipParkUnderTheHive = Paths.curve(rightAutoFixTip, rightAutoFixTipParkUnderTheHiveControl1, rightAutoFixTipParkUnderTheHiveControl2, rightAutoFixTipParkUnderTheHiveControl3, rightAutoFixTipParkUnderTheHiveControl4, rightAutoFixTipParkUnderTheHiveControl5, leftPark).heading(Interpolator.piecewise().until(0.75, Interpolator.linear(rightAutoFixTipParkUnderTheHiveSegment1Start, rightAutoFixTipParkUnderTheHiveSegment1End)).until(1, Interpolator.linear(rightAutoFixTipParkUnderTheHiveSegment2Start, leftPark)));
-        Path fixTipToGardenStaging = Paths.curve(rightAutoFixTip, fixTipToGardenStagingControl1, gardenStaging).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(fixTipToGardenStagingSegment1Start, fixTipToGardenStagingSegment1End)).until(1, Interpolator.linear(fixTipToGardenStagingSegment2Start, gardenStaging)));
+        Path fixTipToRightAutoHive = Paths.line(rightAutoFixTip, rightAutoHive).linear(rightAutoFixTip, rightAutoHive);
+        Path underHiveParkToLeftPark = Paths.curve(rightAutoHive, underHiveParkToLeftParkControl1, underHiveParkToLeftParkControl2, underHiveParkToLeftParkControl3, underHiveParkToLeftParkControl4, underHiveParkToLeftParkControl5, leftPark).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(underHiveParkToLeftParkSegment1Start, underHiveParkToLeftParkSegment1End)).until(0.62, Interpolator.constant(underHiveParkToLeftParkSegment2Heading)).until(0.86, Interpolator.linear(underHiveParkToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
+        Path earlyGardenToGardenStaging = Paths.curve(leftAutoHive, earlyGardenToGardenStagingControl1, earlyGardenToGardenStagingControl2, earlyGardenToGardenStagingControl3, earlyGardenToGardenStagingControl4, earlyGardenToGardenStagingControl5, gardenStaging).constant(gardenStaging);
         Path gardenAbortParkToLeftPark = Paths.curve(gardenStaging, gardenAbortParkToLeftParkControl1, gardenAbortParkToLeftParkControl2, gardenAbortParkToLeftParkControl3, gardenAbortParkToLeftParkControl4, gardenAbortParkToLeftParkControl5, gardenAbortParkToLeftParkControl6, gardenAbortParkToLeftParkControl7, leftPark).heading(Interpolator.piecewise().until(0.12, Interpolator.linear(gardenAbortParkToLeftParkSegment1Start, leftPark)).until(0.26, Interpolator.linear(leftPark, gardenAbortParkToLeftParkSegment2End)).until(0.7, Interpolator.constant(gardenAbortParkToLeftParkSegment3Heading)).until(0.9, Interpolator.linear(gardenAbortParkToLeftParkSegment4Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path gardenExitToRightAutoHive = Paths.line(gardenStaging, rightAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(gardenExitToRightAutoHiveSegment1Start, gardenExitToRightAutoHiveSegment1End)).until(1, Interpolator.linear(gardenExitToRightAutoHiveSegment2Start, rightAutoHive)));
-        Path underHiveParkToLeftPark = Paths.curve(rightAutoHive, underHiveParkToLeftParkControl1, underHiveParkToLeftParkControl2, underHiveParkToLeftParkControl3, underHiveParkToLeftParkControl4, underHiveParkToLeftParkControl5, leftPark).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(underHiveParkToLeftParkSegment1Start, underHiveParkToLeftParkSegment1End)).until(0.62, Interpolator.constant(underHiveParkToLeftParkSegment2Heading)).until(0.86, Interpolator.linear(underHiveParkToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
-        Path fixTipToWallFlowerStaging = Paths.curve(rightAutoFixTip, fixTipToWallFlowerStagingControl1, fixTipToWallFlowerStagingControl2, wallFlowerStaging).linear(rightAutoFixTip, wallFlowerStaging);
+        Path underHiveToWallFlowerStaging = Paths.curve(leftAutoHive, underHiveToWallFlowerStagingControl1, underHiveToWallFlowerStagingControl2, underHiveToWallFlowerStagingControl3, underHiveToWallFlowerStagingControl4, underHiveToWallFlowerStagingControl5, wallFlowerStaging).heading(Interpolator.piecewise().until(0.8, Interpolator.constant(underHiveToWallFlowerStagingSegment1Heading)).until(1, Interpolator.linear(underHiveToWallFlowerStagingSegment2Start, wallFlowerStaging)));
         Path wallFlowerAbortParkToLeftPark = Paths.curve(wallFlowerStaging, wallFlowerAbortParkToLeftParkControl1, wallFlowerAbortParkToLeftParkControl2, wallFlowerAbortParkToLeftParkControl3, wallFlowerAbortParkToLeftParkControl4, wallFlowerAbortParkToLeftParkControl5, wallFlowerAbortParkToLeftParkControl6, leftPark).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(wallFlowerAbortParkToLeftParkSegment1Start, wallFlowerAbortParkToLeftParkSegment1End)).until(0.7, Interpolator.constant(wallFlowerAbortParkToLeftParkSegment2Heading)).until(0.8, Interpolator.linear(wallFlowerAbortParkToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path wallFlowerExitToRightAutoHive = Paths.curve(wallFlowerStaging, wallFlowerExitToRightAutoHiveControl1, wallFlowerExitToRightAutoHiveControl2, rightAutoHive).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(wallFlowerExitToRightAutoHiveSegment1Start, wallFlowerExitToRightAutoHiveSegment1End)).until(1, Interpolator.linear(wallFlowerExitToRightAutoHiveSegment2Start, rightAutoHive)));
-        Path fixTipToRightAutoHive = Paths.line(rightAutoFixTip, rightAutoHive).linear(rightAutoFixTip, rightAutoHive);
-        Path earlyGardenToGardenStaging = Paths.curve(leftAutoHive, earlyGardenToGardenStagingControl1, earlyGardenToGardenStagingControl2, earlyGardenToGardenStagingControl3, earlyGardenToGardenStagingControl4, earlyGardenToGardenStagingControl5, gardenStaging).constant(gardenStaging);
-        Path underHiveToWallFlowerStaging = Paths.curve(leftAutoHive, underHiveToWallFlowerStagingControl1, underHiveToWallFlowerStagingControl2, underHiveToWallFlowerStagingControl3, underHiveToWallFlowerStagingControl4, underHiveToWallFlowerStagingControl5, wallFlowerStaging).heading(Interpolator.piecewise().until(0.8, Interpolator.constant(underHiveToWallFlowerStagingSegment1Heading)).until(1, Interpolator.linear(underHiveToWallFlowerStagingSegment2Start, wallFlowerStaging)));
 
         return kit.sequence(
                 kit.guarded("Auto", leftAbortParkToLeftPark, 2,
@@ -153,22 +145,11 @@ public final class LUnderHiveFixAuto {
                                                 kit.path("under the HIVE to RIGHT_AUTO_FIX_TIP", underTheHiveToRightAutoFixTip, 3.3, rightAutoFixTipParkUnderTheHive, 3.7),
                                                 kit.firstOf("RIGHT CELL up?",
                                                         kit.when("RightCellUp").then(
-                                                                kit.guarded("If RightCellUp", underHiveParkToLeftPark, 3.7,
+                                                                kit.guarded("If RightCellUp", rightAutoFixTipParkUnderTheHive, 3.7,
                                                                         kit.command("LaunchAll"),
-                                                                        kit.route("Pickup", 0, () -> kit.path("fix tip to GARDEN_STAGING", fixTipToGardenStaging, 1.9, gardenAbortParkToLeftPark, 4.5)),
-                                                                        kit.route("Pickup", 0, () -> kit.command("GardenGather", 5.5)),
-                                                                        kit.route("Pickup", 0, () -> kit.path("garden exit to RIGHT_AUTO_HIVE", gardenExitToRightAutoHive, 2, underHiveParkToLeftPark, 3.7)),
-                                                                        kit.route("Pickup", 1, () -> kit.path("fix tip to WALL_FLOWER_STAGING", fixTipToWallFlowerStaging, 1.9, wallFlowerAbortParkToLeftPark, 3.2)),
-                                                                        kit.route("Pickup", 1, () -> kit.command("PickFlower", 4.5)),
-                                                                        kit.route("Pickup", 1, () -> kit.path("wall flower exit to RIGHT_AUTO_HIVE", wallFlowerExitToRightAutoHive, 2.2, underHiveParkToLeftPark, 3.7)),
-                                                                        kit.firstOf("RIGHT up before 23 s, otherwise park",
-                                                                                kit.atMatchSeconds(23).then(
-                                                                                        kit.guarded("Timed out", underHiveParkToLeftPark, 3.7,
-                                                                                                kit.path("under hive park to LEFT_PARK", underHiveParkToLeftPark, 3.7))),
-                                                                                kit.when("RightCellUp").then(
-                                                                                        kit.guarded("If RightCellUp", underHiveParkToLeftPark, 3.7,
-                                                                                                kit.command("LaunchAll", 1),
-                                                                                                kit.path("under hive park to LEFT_PARK", underHiveParkToLeftPark, 3.7)))))),
+                                                                        kit.firstOf("Hold at RIGHT_AUTO_FIX_TIP until 23 s, while R fires at LEFT and leaves",
+                                                                                kit.atMatchSeconds(23)),
+                                                                        kit.path("RIGHT_AUTO_FIX_TIP park under the HIVE", rightAutoFixTipParkUnderTheHive, 3.7))),
                                                         kit.afterMs(750).then(
                                                                 kit.guarded("TIP came after all", underHiveParkToLeftPark, 3.7,
                                                                         kit.path("fix tip to RIGHT_AUTO_HIVE", fixTipToRightAutoHive, 0.8, underHiveParkToLeftPark, 3.7),

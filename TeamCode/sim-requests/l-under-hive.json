@@ -74,6 +74,14 @@
       }
     },
     {
+      "name": "R's preloads miss (17 Nov)",
+      "partner": "ROutsideLaneAuto",
+      "timing": {
+        "speed": 50
+      },
+      "fails": "misses preloads"
+    },
+    {
       "name": "partner dead on its right start, said 3 s",
       "partner": "PartnerRBrokenDownAuto",
       "lastShotS": 3
