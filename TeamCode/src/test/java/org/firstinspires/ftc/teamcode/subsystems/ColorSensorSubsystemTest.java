@@ -162,23 +162,29 @@ public class ColorSensorSubsystemTest {
 
     @Test
     public void anEmptyLaneBrighterThanTheLeaveLevelIsSeen() {
-        LaneTracker.Piece none = LaneTracker.Piece.UNKNOWN;
-        LaneTracker.Piece pollen = LaneTracker.Piece.POLLEN;
-        // 19429 before 16 Nov 2026: the empty lane at 0.034, under the 0.05 leave level.
-        assertFalse(ColorSensorSubsystem.emptyReadsAboveLeave(0.034, none, 0.068, 0.05));
-        // After: 0.064 sits between leave (0.05) and present (0.068), so a presence never ends.
-        assertTrue(ColorSensorSubsystem.emptyReadsAboveLeave(0.064, none, 0.068, 0.05));
-        // 0.080 is above present too, but grey-green, no piece's colour: still the empty lane.
-        assertTrue(ColorSensorSubsystem.emptyReadsAboveLeave(0.080, none, 0.068, 0.05));
-        // A preload under the sensor in an Auto's INIT is a piece, not a bright empty lane.
-        assertFalse(ColorSensorSubsystem.emptyReadsAboveLeave(0.55, pollen, 0.068, 0.05));
-        // A dim POLLEN in the band between the two levels counts: the band itself is the trouble.
-        assertTrue(ColorSensorSubsystem.emptyReadsAboveLeave(0.06, pollen, 0.068, 0.05));
-        // Arrivals off, or no reading: never.
-        assertFalse(ColorSensorSubsystem.emptyReadsAboveLeave(0.064, none, Double.NaN, 0.05));
-        assertFalse(ColorSensorSubsystem.emptyReadsAboveLeave(Double.NaN, none, 0.068, 0.05));
+        // 19429 before 16 Nov 2026: the empty lane at 0.034, hue 146, under the 0.05 leave level.
+        assertFalse(empty(0.034, 146, 0.068, 0.05));
+        // After: 0.064, between leave (0.05) and present (0.068), so a presence never ends.
+        assertTrue(empty(0.064, 146, 0.068, 0.05));
+        // 0.080 is above present too, but still the empty lane's grey-green.
+        assertTrue(empty(0.080, 146, 0.068, 0.05));
+        // A preload half in view in an Auto's INIT, with the plate: in the band, but a piece's hue.
+        assertFalse(empty(0.096, 119, 0.11, 0.09));
+        // A preload right under the sensor.
+        assertFalse(empty(0.55, 97, 0.11, 0.09));
+        // With the plate, the empty lane is under the leave level: nothing to warn about.
+        assertFalse(empty(0.053, 146, 0.11, 0.09));
+        // Arrivals off, no reading, or grey with no hue: never.
+        assertFalse(empty(0.064, 146, Double.NaN, 0.05));
+        assertFalse(empty(Double.NaN, 146, 0.068, 0.05));
+        assertFalse(empty(0.064, Double.NaN, 0.068, 0.05));
         // leaveBelow NaN means the same as presentAbove.
-        assertFalse(ColorSensorSubsystem.emptyReadsAboveLeave(0.064, none, 0.068, Double.NaN));
-        assertTrue(ColorSensorSubsystem.emptyReadsAboveLeave(0.080, none, 0.068, Double.NaN));
+        assertFalse(empty(0.064, 146, 0.068, Double.NaN));
+        assertTrue(empty(0.080, 146, 0.068, Double.NaN));
+    }
+
+    private static boolean empty(double alpha, double hue, double presentAbove, double leaveBelow) {
+        return ColorSensorSubsystem.emptyReadsAboveLeave(alpha, hue, presentAbove, leaveBelow,
+                ColorSensorSubsystem.emptyHueMin, ColorSensorSubsystem.emptyHueMax);
     }
 }
