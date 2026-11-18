@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem.AtSpeedTimer;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem.ShotDetector;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem.SpinUpForecast;
 import org.junit.Test;
 
 /**
@@ -75,6 +76,75 @@ public class LauncherSubsystemTest {
         assertTrue(timer.update(true, 200 * MS, 150));
         timer.reset();
         assertFalse(timer.update(true, 210 * MS, 150));
+    }
+
+    @Test
+    public void theHoldsRemainderCountsDownFromTheFirstLoopWithin() {
+        AtSpeedTimer timer = new AtSpeedTimer();
+        assertEquals("not within: the whole hold", 0.150, timer.remainingS(0, 150), EPS);
+        timer.update(true, 0, 150);
+        assertEquals(0.100, timer.remainingS(50 * MS, 150), EPS);
+        assertEquals(0.0, timer.remainingS(400 * MS, 150), EPS);
+    }
+
+    // ----------------------------------------------------- the early gate's forecast
+
+    @Test
+    public void aForecastNeedsAWholeWindowBeforeItHasARate() {
+        SpinUpForecast f = new SpinUpForecast();
+        f.update(0, 0);
+        f.update(200, 20 * MS);
+        assertTrue(Double.isNaN(f.rate()));
+        assertEquals(Double.POSITIVE_INFINITY, f.secondsToBand(1600, 200, 60), EPS);
+        f.update(400, 60 * MS);
+        assertEquals(400 / 0.060, f.rate(), 1e-6);
+    }
+
+    /**
+     * Belding, 19429 at 13:20, the preloads' spin-up from rest: 280 at 0.06 s, 1000 at 0.15 s, in
+     * the band by about 0.26 s. The forecast at 0.15 s says the band is about 0.08 s off.
+     */
+    @Test
+    public void aWheelClimbingFromRestIsForecastIntoTheBand() {
+        SpinUpForecast f = new SpinUpForecast();
+        f.update(280, 60 * MS);
+        f.update(1000, 150 * MS);
+        double rate = (1000 - 280) / 0.090;
+        assertEquals(rate, f.rate(), 1e-6);
+        assertEquals((1540 - 1000) / rate, f.secondsToBand(1600, 1000, 60), 1e-9);
+        assertEquals("inside the band", 0.0, f.secondsToBand(1600, 1570, 60), EPS);
+    }
+
+    /** A wheel coming down onto a lower target (the next spot's speed) is closing too. */
+    @Test
+    public void aWheelSlowingOntoALowerTargetIsForecastToo() {
+        SpinUpForecast f = new SpinUpForecast();
+        f.update(1600, 0);
+        f.update(1570, 100 * MS);
+        assertEquals((1570 - 1535) / 300.0, f.secondsToBand(1475, 1570, 60), 1e-9);
+    }
+
+    /**
+     * Belding, 20245 at 14:39: the left wheel overshot to 1720 on a 1594 target and crept down, so
+     * the gate waited a second. A wheel past its band and not coming back fast is never due.
+     */
+    @Test
+    public void anOvershootThatIsNotClosingIsNeverDue() {
+        SpinUpForecast f = new SpinUpForecast();
+        f.update(1720, 0);
+        f.update(1720, 100 * MS);
+        assertEquals(Double.POSITIVE_INFINITY, f.secondsToBand(1594, 1720, 60), EPS);
+        f.update(1500, 200 * MS);   // and a wheel moving away from its band is not due either
+        assertEquals(Double.POSITIVE_INFINITY, f.secondsToBand(1594, 1500, 60), EPS);
+    }
+
+    @Test
+    public void resetForgetsTheRate() {
+        SpinUpForecast f = new SpinUpForecast();
+        f.update(0, 0);
+        f.update(1000, 100 * MS);
+        f.reset();
+        assertTrue(Double.isNaN(f.rate()));
     }
 
     @Test

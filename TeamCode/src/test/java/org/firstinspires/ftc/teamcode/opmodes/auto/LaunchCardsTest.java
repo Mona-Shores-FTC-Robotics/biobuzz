@@ -31,6 +31,8 @@ public class LaunchCardsTest {
     private double now;
     private boolean spinning;
     private boolean atSpeed;
+    /** The launcher's forecast to at speed, seconds; NaN: the interface's default (0 or infinite). */
+    private double toSpeedS;
     private boolean settled;
     /** The launcher's shot count; -1: a launcher with no detector. */
     private int shots;
@@ -48,6 +50,8 @@ public class LaunchCardsTest {
         settled = true;
         readyOnApproach = false;
         shots = -1;
+        toSpeedS = Double.NaN;
+        LaunchCards.gateLeadS = 0.0;
         LaunchCards.launchAllEndAfterShots = 4;
         LaunchCards.launchOnApproach = true;
         PathEndSettle.maxSettleWaitS = 1.0;
@@ -59,6 +63,10 @@ public class LaunchCardsTest {
                     @Override public void spinUp() { spinning = true; log.add("spinUp"); }
                     @Override public boolean atSpeed() { return atSpeed; }
                     @Override public int shots() { return shots; }
+                    @Override public double secondsToSpeed() {
+                        if (atSpeed) return 0.0;
+                        return Double.isNaN(toSpeedS) ? Double.POSITIVE_INFINITY : toSpeedS;
+                    }
                 },
                 new LaunchCards.Feeder() {
                     @Override public void feed() { log.add(String.format(java.util.Locale.US, "feed@%.2f", now)); }
@@ -419,6 +427,83 @@ public class LaunchCardsTest {
         LaunchCards.launchOnApproach = false;
         approach(cards.approach(), 15);
         assertEquals(null, first("feed"));
+    }
+
+    // ------------------------------------------------------------ the early gate
+
+    /** Off by default: a launcher due at speed in 0.1 s still waits for at speed, as before. */
+    @Test
+    public void withTheLeadOffTheGateWaitsForAtSpeedAsBefore() {
+        toSpeedS = 0.1;
+        Command launch = cards.launchAll();
+        launch.schedule();
+        step(0.5);
+        assertEquals(null, first("feed"));
+        atSpeed = true;
+        finish(launch, 5.0);
+        assertEquals(0.5, timeOf(first("feed")), LOOP_S + EPS);
+        assertFalse(notes.toString(), notes.stream().anyMatch(n -> n.contains("ahead of launch speed")));
+    }
+
+    /** The preloads at PLAY: due at speed within the lead, the gate opens now and the log says so. */
+    @Test
+    public void withALeadTheGateOpensOnceTheLauncherIsDueWithinIt() {
+        LaunchCards.gateLeadS = 0.4;
+        toSpeedS = 0.9;
+        Command launch = cards.launchAll();
+        launch.schedule();
+        step(0.2);
+        assertEquals("0.9 s off is past a 0.4 s lead: " + log, null, first("feed"));
+        toSpeedS = 0.3;
+        step(0.1);
+        assertEquals(0.2, timeOf(first("feed")), LOOP_S + EPS);
+        assertTrue(notes.toString(), notes.stream().anyMatch(n -> n.contains("0.30 s ahead of launch speed")));
+        finish(launch, 5.0);
+        assertEquals("feeds its whole time from the gate", 2.0, timeOf(first("idle")) - timeOf(first("feed")), LOOP_S + EPS);
+    }
+
+    /** The lead is only the launcher's half: an unsettled robot still waits for the settle. */
+    @Test
+    public void theLeadDoesNotSkipTheSettle() {
+        LaunchCards.gateLeadS = 0.4;
+        toSpeedS = 0.2;
+        settled = false;
+        Command launch = cards.launchAll();
+        launch.schedule();
+        step(0.3);
+        assertEquals(null, first("feed"));
+        settled = true;
+        finish(launch, 5.0);
+        assertEquals(0.3, timeOf(first("feed")), LOOP_S + EPS);
+    }
+
+    /** A launcher that is not coming (infinite forecast) waits out maxSpinUpWaitS as before. */
+    @Test
+    public void aLauncherThatIsNotComingStillWaitsTheMaxSpinUpWait() {
+        LaunchCards.gateLeadS = 0.4;
+        run(cards.launchAll(), 6.0);
+        assertEquals(2.5, timeOf(first("feed")), LOOP_S + EPS);
+    }
+
+    @Test
+    public void theApproachOpensAheadOfSpeedWithALead() {
+        LaunchCards.gateLeadS = 0.4;
+        toSpeedS = 0.3;
+        readyOnApproach = true;
+        approach(cards.approach(), 5);
+        assertEquals(0.0, timeOf(first("feed")), EPS);
+        assertTrue(notes.toString(), notes.get(0).contains("ahead of launch speed"));
+    }
+
+    @Test
+    public void aBadLeadIsOff() {
+        toSpeedS = 0.1;
+        readyOnApproach = true;
+        for (double bad : new double[] {Double.NaN, -1.0}) {
+            LaunchCards.gateLeadS = bad;
+            approach(cards.approach(), 5);
+            assertEquals("lead " + bad + ": " + log, null, first("feed"));
+        }
     }
 
     @Test

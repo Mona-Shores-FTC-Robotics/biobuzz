@@ -540,6 +540,17 @@ Use the work order above to select checks; the detailed mechanism checks below a
       on, the measured LaunchAll time goes into `volleyS` in `TeamCode/autos/timing.json` and the
       Visualizer's LaunchAll time: both still plan the 4 s measured before #430.
       [PR #430]
+- [ ] **Early gate: open ahead of launch speed (`LaunchCards.gateLeadS`, 0 = off, the default).**
+      R-Solo (its preloads fire from rest at PLAY), filmed from the side so the first ball's flight
+      shows. Three runs at 0, three at 0.3, three at 0.5, Panels → LaunchCards. Count the balls that
+      score from each LaunchAll, the first ball of each volley above all. From the logs: PLAY → gate
+      (was 0.42–0.70 s on 19429, 0.52–1.35 s on 20245 at Belding) and the `opened the gate, N s ahead
+      of launch speed` lines; `/Launcher/SecondsToSpeed` against when `/Launcher/AtSpeed` really came.
+      **Good:** the same hit rate, the volley's last ball about the lead sooner → write back the
+      largest lead that held, never past 0.58 s (the fastest gate-to-first-ball at Belding). **Stop:**
+      the first ball short or long → back to the lead below it; if it is short at 0.3 too, leave it
+      0. A first ball that left within about 0.1 s of the gate was already against the wheels: it
+      says nothing about the lead, but count it as a miss if it missed.
 - [ ] **The looser settle (aimed and slowing, under 6 in/s):** read the `settled X s after path end`
       lines from the same runs with `launchOnApproach` off. **Good:** X under 0.3 s (was 0.38–0.57),
       and hits as good as before. **Stop:** misses → `PathEndSettle.slowSpeedInPerSec` 3.

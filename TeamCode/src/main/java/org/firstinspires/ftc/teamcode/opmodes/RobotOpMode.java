@@ -1547,6 +1547,9 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Launcher/LeftTicksPerSecond", robot.launcher.leftTicksPerSecond());
         log.put("/Launcher/RightTicksPerSecond", robot.launcher.rightTicksPerSecond());
         log.put("/Launcher/AtSpeed", robot.launcher.atSpeed() ? 1 : 0);
+        // The early gate's forecast (LaunchCards.gateLeadS), to check it against when the wheels got there.
+        double toSpeed = robot.launcher.secondsToSpeed();
+        log.put("/Launcher/SecondsToSpeed", Double.isInfinite(toSpeed) ? -1.0 : toSpeed);
         log.put("/Launcher/Shots", robot.launcher.shots());
         log.put("/Launcher/InDip", robot.launcher.inDip() ? 1 : 0);
         double lastDip = robot.launcher.lastShotDipTicksPerSecond();
