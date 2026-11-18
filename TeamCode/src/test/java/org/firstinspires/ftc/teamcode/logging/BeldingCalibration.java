@@ -120,18 +120,34 @@ final class BeldingCalibration {
     /**
      * {@code BIOBUZZ_BELDING_ROBOT}: whose loads a run draws from: "19429" (Infrared), "20245" (Ultraviolet), "both"
      * (the default: every logged volley) or "full" (every load is four: the pick, the gather, the lane and the feed all work).
+     * {@code BIOBUZZ_BELDING_ROBOT_OURS} and {@code BIOBUZZ_BELDING_ROBOT_PARTNER} set it for one robot of a pair:
+     * ours is the run's first Auto (a request's {@code spec}), the partner every other robot; unset, each falls back to
+     * {@code BIOBUZZ_BELDING_ROBOT}. So "which of our robots should be R" is two runs of the pair with the two swapped.
      */
     static final String ROBOT = System.getenv("BIOBUZZ_BELDING_ROBOT") == null ? "both" : System.getenv("BIOBUZZ_BELDING_ROBOT");
+    static final String OURS = System.getenv("BIOBUZZ_BELDING_ROBOT_OURS");
+    static final String PARTNER = System.getenv("BIOBUZZ_BELDING_ROBOT_PARTNER");
 
-    /** Whether every load is four ({@link #ROBOT} "full"): a FLOWER pick's, and a GARDEN gather's too. */
-    static boolean fullLoads() {
-        return "full".equals(ROBOT);
+    /** Whose loads the robot at {@code index} in the run draws from: index 0 is ours ({@link #robotFor(int, String, String, String)}). */
+    static String robotFor(int index) {
+        return robotFor(index, OURS, PARTNER, ROBOT);
     }
 
-    /** The pieces of a pick that reach the launcher, drawn from {@link #ROBOT}'s logged volleys at that FLOWER. */
-    static int load(boolean scoringFlower, java.util.Random luck) {
+    /** {@code ours} for index 0, {@code partner} for any other, each falling back to {@code all} when null or blank. */
+    static String robotFor(int index, String ours, String partner, String all) {
+        String own = index == 0 ? ours : partner;
+        return own == null || own.trim().isEmpty() ? all : own.trim();
+    }
+
+    /** Whether every load of the robot at {@code index} is four ({@link #robotFor(int)} "full"): a FLOWER pick's, and a GARDEN gather's too. */
+    static boolean fullLoads(int index) {
+        return "full".equals(robotFor(index));
+    }
+
+    /** The pieces of a pick that reach the launcher, drawn from {@code robot}'s logged volleys at that FLOWER. */
+    static int load(String robot, boolean scoringFlower, java.util.Random luck) {
         int[] ir = scoringFlower ? IR_SCORING : IR_WALL, uv = scoringFlower ? UV_SCORING : UV_WALL;
-        switch (ROBOT) {
+        switch (robot) {
             case "full": return 4;
             case "19429": return ir[luck.nextInt(ir.length)];
             case "20245": return uv[luck.nextInt(uv.length)];
