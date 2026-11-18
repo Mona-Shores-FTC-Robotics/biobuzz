@@ -1084,9 +1084,14 @@ measurement is [#255].
 - [ ] **R-Solo on 19429:** its first path from the Red audience marks. 19429's drivetrain is tuned
       on its own values (6 Nov, PR #480: Check: Drive Motors, Pod Offsets, Foresight, Tests all
       passed), so a path that drifts on 19429 but not on 20245 is now worth reporting. [#175]
-- [ ] **19429's lane sensor at `presentAbove` 0.068** (this PR, set by the mentor; 20245 stays at
-      0.10). Intake four POLLEN in Basic Drive: the lane count goes 1, 2, 3, 4, one hold per piece,
-      and an empty lane counts nothing.
+- [ ] **19429's lane sensor at `leaveBelow` 0.09 / `presentAbove` 0.11** (set from the 16-17 Nov
+      logs: the empty lane read 0.064, top 0.1% 0.088, after more ambient light reached it; 20245
+      stays at 0.05 / 0.10). **Re-measure once the black bottom plate is on:** Basic Drive with the
+      lane empty and the intake on for a minute, then four POLLEN in, one at a time, and one parked
+      under the sensor; push the logs. **Good:** no "Lane sensor reads … empty" INIT warning, the
+      lane count goes 1, 2, 3, 4, one hold per piece, FULL only with four in, and an empty lane
+      counts nothing. **Stop:** the warning shows, or FULL with fewer than four → set both levels
+      from the new logs' empty and dim-POLLEN readings.
 - [ ] **Anything 19429 does differently** from 20245 (a motor turning the other way, a servo
       position, the intake sign): one line in `RobotDifferences.java` under `TEAM_19429`, with what
       was seen and the date, then Sloth Load. Never edit the shared value: that changes 20245 too.

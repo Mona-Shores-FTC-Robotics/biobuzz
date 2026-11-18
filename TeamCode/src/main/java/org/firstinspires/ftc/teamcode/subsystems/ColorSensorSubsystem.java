@@ -212,6 +212,15 @@ public class ColorSensorSubsystem implements Subsystem {
     private double hueDeg = Double.NaN;
     private double saturation = Double.NaN;
     private String atInit;
+    /** Since when, ms, every fresh reading has looked like a lit empty lane ({@link #emptyReadsAboveLeave}); -1 while not. */
+    private long brightEmptySinceMs = -1;
+
+    /**
+     * How long the empty lane must read at or above {@link #leaveBelow} before
+     * {@link #emptyTooBright()} says so, ms: four slow (idle) readings, so a piece passing the edge
+     * of the sensor never trips it.
+     */
+    static final long BRIGHT_EMPTY_HOLD_MS = 1000;
 
     /**
      * @param hardwareMap the sensor is {@link DeviceNames#COLOR_SENSOR}
@@ -277,6 +286,14 @@ public class ColorSensorSubsystem implements Subsystem {
                 Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove), rejectAfterReadings, rejectBurstS * 1000.0, rejectHoldOffS * 1000.0,
                 rejectMaxBursts, rejectWindowS * 1000.0);
         if (fresh) {
+            long nowMs = now / 1_000_000L;
+            if (!emptyReadsAboveLeave(alpha, piece, presentAbove, leaveBelow)) {
+                brightEmptySinceMs = -1;
+            } else if (brightEmptySinceMs < 0) {
+                brightEmptySinceMs = nowMs;
+            }
+        }
+        if (fresh) {
             // Full is the sensor alone: a piece held under it for fullHoldS. With fullHoldS off
             // (NaN or negative), full is off.
             laneFull.step(now / 1_000_000L, alpha, intake.requested() == IntakeSubsystem.State.IN,
@@ -287,6 +304,32 @@ public class ColorSensorSubsystem implements Subsystem {
     /** The lane is full: a piece held under the sensor ({@link LaneFull}). As of the last reading. */
     public boolean full() {
         return laneFull.full();
+    }
+
+    /**
+     * Whether the lane, with no piece under the sensor, reads at or above {@link #leaveBelow}, and
+     * has for {@link #BRIGHT_EMPTY_HOLD_MS}: a piece that comes in is then never seen to leave, so
+     * the lane reads full after one second of intake with nothing in it. It happened on 19429 from
+     * 16 Nov 2026, when more ambient light reached the lane: the empty lane read 0.034 before and
+     * 0.055 to 0.085 after, against a leaveBelow of 0.05, and the presence latched for whole runs.
+     * An INIT warning ({@code InitWarnings.Kind.LANE_SENSOR_EMPTY}) reads it.
+     */
+    public boolean emptyTooBright() {
+        return brightEmptySinceMs >= 0 && lastReadNs / 1_000_000L - brightEmptySinceMs >= BRIGHT_EMPTY_HOLD_MS;
+    }
+
+    /**
+     * Whether one reading looks like an empty lane too bright for {@link #leaveBelow}: at or above
+     * the leave level, and either below {@link #presentAbove} (the band where a presence neither
+     * starts nor ends) or not a piece's colour at all. The empty lane's colour is grey-green, hue
+     * 130 to 170° at saturation about 0.46, outside every piece's range; every steady piece in
+     * 19429's 16 and 17 Nov logs read a POLLEN hue. Pure, so a test can check it.
+     */
+    static boolean emptyReadsAboveLeave(double alpha, LaneTracker.Piece piece, double presentAbove, double leaveBelow) {
+        if (Double.isNaN(alpha) || Double.isNaN(presentAbove)) return false;
+        double leave = Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove);
+        if (alpha < leave) return false;
+        return alpha <= presentAbove || piece == LaneTracker.Piece.UNKNOWN;
     }
 
     /** The full detector itself, for the match log's dwell of each piece. */
