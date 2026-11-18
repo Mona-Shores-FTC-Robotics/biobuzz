@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-17T16:47:43.000Z",
+  "timestamp": "2026-11-18T19:36:41.510Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -19,14 +19,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 270,
-        "endDeg": 268.1
+        "endDeg": 268.9
       }
     },
     {
@@ -56,13 +56,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -82,7 +82,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 90
       }
     },
@@ -133,14 +133,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
-        "endDeg": 268.1
+        "endDeg": 268.9
       }
     },
     {
@@ -160,7 +160,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
       }
     },
@@ -170,13 +170,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -196,7 +196,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
       }
     },
@@ -206,13 +206,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -232,7 +232,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
       }
     },
@@ -242,13 +242,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -437,13 +437,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -463,7 +463,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
       }
     },
@@ -473,13 +473,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -499,7 +499,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
       }
     },
@@ -529,8 +529,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [
         {
@@ -549,7 +549,7 @@
       "heading": {
         "type": "piecewise",
         "startDeg": 90,
-        "endDeg": 268.1,
+        "endDeg": 268.9,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
@@ -573,7 +573,7 @@
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 268.1
+                "endDeg": 268.9
               }
             }
           ]
@@ -597,7 +597,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
       }
     },
@@ -607,13 +607,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -633,7 +633,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
       }
     },
@@ -643,13 +643,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -679,34 +679,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 55.3,
-        "y": 25.7
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 0
-      }
-    },
-    {
-      "id": "line-mw0rkae5-9j07qg",
-      "color": "#76b7b2",
-      "name": "WALL_FLOWER_STAGING park",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 180,
-        "endDeg": 0
+        "degrees": 268.9
       }
     },
     {
@@ -726,8 +705,23 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
+      }
+    },
+    {
+      "id": "link-13",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.4,
+        "y": 120.45
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.9
       }
     },
     {
@@ -747,8 +741,23 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
+      }
+    },
+    {
+      "id": "link-14",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.4,
+        "y": 120.45
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.9
       }
     },
     {
@@ -768,7 +777,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
       }
     }
@@ -1054,15 +1063,19 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mw0rkae5-9j07qg"
-    },
-    {
-      "kind": "path",
       "lineId": "line-lnc-park-6"
     },
     {
       "kind": "path",
+      "lineId": "link-13"
+    },
+    {
+      "kind": "path",
       "lineId": "line-lnc-park-7"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-14"
     },
     {
       "kind": "path",
@@ -1133,9 +1146,9 @@
         270
       ],
       "LEFT_AUTO_HIVE": [
-        61.9,
-        120.4,
-        268.1
+        61.4,
+        120.45,
+        268.9
       ],
       "SCORING_FLOWER_STAGING": [
         47.2,
@@ -1162,7 +1175,6 @@
       "line-mw0c4s32-ave4gg": "LEFT_PARK",
       "line-mw0eq8bt-go9gl6": "RIGHT_AUTO_FIX_TIP",
       "line-mw0rkae5-kh7tv8": "LEFT_PARK",
-      "line-mw0rkae5-9j07qg": "LEFT_PARK",
       "line-mwbksy73-ypsvit": "LEFT_AUTO_HIVE",
       "line-mwdn0a03-lnp3c": "LEFT_PARK",
       "line-mwdn0a03-lnp2c": "LEFT_PARK",
@@ -1296,7 +1308,6 @@
                 "id": "c-lnc-then",
                 "kind": "firstOf",
                 "label": "if no TIP 1: CROSS AND FIX IT or WAIT FOR PARTNER FIX",
-                "choice": "if no TIP 1",
                 "rows": [
                   {
                     "when": [
@@ -1576,7 +1587,8 @@
                       }
                     ]
                   }
-                ]
+                ],
+                "choice": "if no TIP 1"
               }
             ]
           }
@@ -1597,20 +1609,21 @@
       "link-9",
       "link-10",
       "link-11",
-      "link-12"
+      "link-12",
+      "link-13",
+      "link-14"
     ],
     "parkFrom": {
       "c-mw0c4s2s-oo8yq": "line-mw0c4s32-8noomj",
       "c-mw0c4s2t-jqsjs": "line-mw0c4s32-ave4gg",
       "c-mw0eq8bt-2vuzy": "line-mw0rkae5-kh7tv8",
-      "c-mw0eyliu-eojd4": "line-mw0rkae5-9j07qg",
-      "c-mwbksy73-ll6j1": "line-mw0c4s32-8noomj",
-      "c-mwbksy73-46ewy": "line-mw0c4s32-8noomj",
       "c-mwbksy73-u5fhh": "line-mw0c4s32-8noomj",
-      "c-mwbksy73-9zdyx": "line-mw0rkae5-kh7tv8",
-      "c-mwdn0a03-lnbk1": "line-mw0c4s32-8noomj",
       "c-mw0c4s2t-jqsjs-late": "line-mw0c4s32-ave4gg",
-      "c-mw0c4s2t-jqsjs-keep": "line-mw0c4s32-ave4gg"
+      "c-mw0c4s2t-jqsjs-keep": "line-mw0c4s32-ave4gg",
+      "c-mw0c4s2t-lhsjw-late": "line-mw0c4s32-8noomj",
+      "c-lnc-fixtip-sf": "line-mw0c4s32-ave4gg",
+      "c-lnc-fixtip-left": "line-mw0c4s32-8noomj",
+      "c-mw0c4s2t-lhsjw-keep": "line-mw0c4s32-8noomj"
     },
     "teamSpots": [
       "LEFT_AUTO_HIVE",

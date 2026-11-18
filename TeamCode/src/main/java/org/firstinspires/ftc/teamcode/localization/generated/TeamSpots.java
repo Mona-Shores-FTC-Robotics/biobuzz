@@ -12,7 +12,7 @@ public final class TeamSpots {
     }
 
     public static final TeamSpot GARDEN_STAGING = new TeamSpot("GARDEN_STAGING", 11.5, 22.1, 270.0);
-    public static final TeamSpot LEFT_AUTO_HIVE = new TeamSpot("LEFT_AUTO_HIVE", 61.9, 120.4, 268.1);
+    public static final TeamSpot LEFT_AUTO_HIVE = new TeamSpot("LEFT_AUTO_HIVE", 61.4, 120.45, 268.9);
     public static final TeamSpot LEFT_AUTO_OFFSET = new TeamSpot("LEFT_AUTO_OFFSET", 40.7, 121.1, 298.7);
     public static final TeamSpot LEFT_PARK = new TeamSpot("LEFT_PARK", 14.5, 117.4, 0.0);
     public static final TeamSpot LEFT_START = new TeamSpot("LEFT_START", 62.3, 133.8, 270.0);

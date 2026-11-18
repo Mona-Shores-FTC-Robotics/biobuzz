@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-16T23:21:41.183Z",
+  "timestamp": "2026-11-18T19:36:00.428Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -19,14 +19,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 270,
-        "endDeg": 268.1
+        "endDeg": 268.9
       }
     },
     {
@@ -46,8 +46,8 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
-        "endDeg": 360
+        "startDeg": 268.9,
+        "endDeg": 0
       }
     },
     {
@@ -56,13 +56,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -102,8 +102,9 @@
         }
       ],
       "heading": {
-        "type": "constant",
-        "degrees": 270
+        "type": "linear",
+        "startDeg": 268.9,
+        "endDeg": 270
       }
     },
     {
@@ -341,13 +342,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -1015,9 +1016,9 @@
         270
       ],
       "LEFT_AUTO_HIVE": [
-        61.9,
-        120.4,
-        268.1
+        61.4,
+        120.45,
+        268.9
       ],
       "GARDEN_STAGING": [
         11.5,
@@ -1204,7 +1205,6 @@
       "link-8"
     ],
     "parkFrom": {
-      "card-l-open": "l-left-abort-park",
       "card-l-early-garden": "l-garden-abort-park",
       "card-l-garden-exit": "l-under-hive-park",
       "card-l-to-wall-flower": "l-flower-abort-park",

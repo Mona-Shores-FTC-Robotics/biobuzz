@@ -21,7 +21,7 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-16|2:07PM";
+    public static final String SAVED = "11-18|2:36PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -53,15 +53,16 @@ public final class RSoloAuto {
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose rightPark = p.of(14.5, 98.7, 0);
-        Pose leftAutoHive = p.of(61.9, 120.4, 268.1);
+        Pose leftAutoHive = p.of(61.4, 120.45, 268.9);
         Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose toLeftAutoHiveControl1 = p.of(29.2986, 127.3052, 0);
-        Pose toLeftAutoHiveSegment1Start = p.of(61.9, 120.4, 180);
-        Pose toLeftAutoHiveSegment1End = p.of(61.9, 120.4, 90);
-        Pose toLeftAutoHiveSegment2Start = p.of(61.9, 120.4, 90);
-        Pose leftAutoHiveParkStart = p.of(61.9, 120.4, 273);
+        Pose toLeftAutoHiveSegment1Start = p.of(61.4, 120.45, 180);
+        Pose toLeftAutoHiveSegment1End = p.of(61.4, 120.45, 90);
+        Pose toLeftAutoHiveSegment2Start = p.of(61.4, 120.45, 90);
+        Pose leftAutoHiveParkStart = p.of(61.4, 120.45, 273);
+        Pose toScoringFlowerStagingStart = p.of(61.4, 120.45, -91.9);
         Pose scoringFlowerStagingParkControl1 = p.of(40, 96, 0);
         Pose toRightParkControl1 = p.of(43.661, 105.8984, 0);
         Pose toRightPark_2Control1 = p.of(43.661, 105.8984, 0);
@@ -79,7 +80,7 @@ public final class RSoloAuto {
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
         Path toLeftAutoHive = Paths.curve(wallFlowerStaging, toLeftAutoHiveControl1, leftAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftAutoHiveSegment1Start, toLeftAutoHiveSegment1End)).until(1, Interpolator.longLinear(toLeftAutoHiveSegment2Start, leftAutoHive)));
         Path leftAutoHivePark = Paths.line(leftAutoHiveParkStart, rightPark).linear(leftAutoHiveParkStart, rightPark);
-        Path toScoringFlowerStaging = Paths.line(leftAutoHive, scoringFlowerStaging).linear(leftAutoHive, scoringFlowerStaging);
+        Path toScoringFlowerStaging = Paths.line(toScoringFlowerStagingStart, scoringFlowerStaging).linear(toScoringFlowerStagingStart, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
         Path toLeftAutoHivePath = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
         Path toRightPark = Paths.curve(leftAutoHive, toRightParkControl1, rightPark).linear(leftAutoHive, rightPark);

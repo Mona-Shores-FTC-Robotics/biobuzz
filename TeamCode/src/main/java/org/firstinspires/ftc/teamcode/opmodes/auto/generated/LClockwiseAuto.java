@@ -21,7 +21,7 @@ public final class LClockwiseAuto {
     public static final String SOURCE = "l-clockwise.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-16|6:04PM";
+    public static final String SAVED = "11-18|2:36PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -50,7 +50,7 @@ public final class LClockwiseAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose leftStart = p.of(62.3, 133.8, 270);
-        Pose leftAutoHive = p.of(61.9, 120.4, 268.1);
+        Pose leftAutoHive = p.of(61.4, 120.45, 268.9);
         Pose rightAutoFixTip = p.of(55.3, 25.7, 90);
         Pose gardenStaging = p.of(11.5, 22.1, 270);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
@@ -139,11 +139,11 @@ public final class LClockwiseAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path openToLeftAutoHive = Paths.line(leftStart, leftAutoHive).linear(leftStart, leftAutoHive);
         Path catchParkToLeftPark = Paths.curve(leftAutoHive, catchParkToLeftParkControl1, catchParkToLeftParkControl2, leftPark).heading(Interpolator.piecewise().until(0.7, Interpolator.linear(catchParkToLeftParkSegment1Start, leftPark)).until(1, Interpolator.constant(leftPark)));
-        Path underTheHiveToGardenStaging = Paths.curve(leftAutoHive, underTheHiveToGardenStagingControl1, underTheHiveToGardenStagingControl2, underTheHiveToGardenStagingControl3, underTheHiveToGardenStagingControl4, underTheHiveToGardenStagingControl5, gardenStaging).constant(gardenStaging);
+        Path underTheHiveToGardenStaging = Paths.curve(leftAutoHive, underTheHiveToGardenStagingControl1, underTheHiveToGardenStagingControl2, underTheHiveToGardenStagingControl3, underTheHiveToGardenStagingControl4, underTheHiveToGardenStagingControl5, gardenStaging).linear(leftAutoHive, gardenStaging);
         Path gardenParkToLeftPark = Paths.curve(gardenStaging, gardenParkToLeftParkControl1, gardenParkToLeftParkControl2, gardenParkToLeftParkControl3, gardenParkToLeftParkControl4, gardenParkToLeftParkControl5, gardenParkToLeftParkControl6, leftPark).heading(Interpolator.piecewise().until(0.35, Interpolator.linear(gardenParkToLeftParkSegment1Start, gardenParkToLeftParkSegment1End)).until(0.7, Interpolator.constant(gardenParkToLeftParkSegment2Heading)).until(0.8, Interpolator.linear(gardenParkToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path gardenToRightAutoOffset = Paths.curve(gardenStaging, gardenToRightAutoOffsetControl1, rightAutoOffset).linear(gardenStaging, rightAutoOffset);
         Path outsideLaneToLeftPark = Paths.curve(rightAutoOffset, outsideLaneToLeftParkControl1, outsideLaneToLeftParkControl2, outsideLaneToLeftParkControl3, outsideLaneToLeftParkControl4, outsideLaneToLeftParkControl5, outsideLaneToLeftParkControl6, leftPark).heading(Interpolator.piecewise().until(0.15, Interpolator.linear(outsideLaneToLeftParkSegment1Start, outsideLaneToLeftParkSegment1End)).until(0.7, Interpolator.constant(outsideLaneToLeftParkSegment2Heading)).until(0.8, Interpolator.linear(outsideLaneToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
-        Path underTheHiveToLaneEnd = Paths.curve(leftAutoHive, underTheHiveToLaneEndControl1, underTheHiveToLaneEndControl2, laneEnd).constant(laneEnd);
+        Path underTheHiveToLaneEnd = Paths.curve(leftAutoHive, underTheHiveToLaneEndControl1, underTheHiveToLaneEndControl2, laneEnd).linear(leftAutoHive, laneEnd);
         Path laneSEndParkToLeftPark = Paths.curve(laneEnd, laneSEndParkToLeftParkControl1, laneSEndParkToLeftParkControl2, laneSEndParkToLeftParkControl3, laneSEndParkToLeftParkControl4, laneSEndParkToLeftParkControl5, laneSEndParkToLeftParkControl6, laneSEndParkToLeftParkControl7, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(laneSEndParkToLeftParkSegment1Start, laneSEndParkToLeftParkSegment1End)).until(0.74, Interpolator.constant(laneSEndParkToLeftParkSegment2Heading)).until(0.84, Interpolator.linear(laneSEndParkToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path toWallFlowerStaging = Paths.curve(laneEnd, toWallFlowerStagingControl1, toWallFlowerStagingControl2, toWallFlowerStagingControl3, wallFlowerStaging).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toWallFlowerStagingSegment1Start, wallFlowerStaging)).until(1, Interpolator.constant(wallFlowerStaging)));
         Path flowerParkToLeftPark = Paths.curve(wallFlowerStaging, flowerParkToLeftParkControl1, flowerParkToLeftParkControl2, flowerParkToLeftParkControl3, flowerParkToLeftParkControl4, flowerParkToLeftParkControl5, flowerParkToLeftParkControl6, leftPark).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(flowerParkToLeftParkSegment1Start, flowerParkToLeftParkSegment1End)).until(0.7, Interpolator.constant(flowerParkToLeftParkSegment2Heading)).until(0.8, Interpolator.linear(flowerParkToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));

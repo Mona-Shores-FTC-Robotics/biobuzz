@@ -143,7 +143,7 @@
   ],
   "metadata": {
     "AutoSource": "l-under-hive-fix.pp",
-    "SavedBy": "Lane pair: L fixes a missed TIP 1; R waits to 20.5 s, L holds to 24.5 s",
-    "SavedAt": "2026-11-18T19:05:00+00:00"
+    "SavedBy": "Lane pair: L fixes a missed TIP 1; LEFT_AUTO_HIVE 0.5 in off the centre line",
+    "SavedAt": "2026-11-18T19:45:00+00:00"
   }
 }

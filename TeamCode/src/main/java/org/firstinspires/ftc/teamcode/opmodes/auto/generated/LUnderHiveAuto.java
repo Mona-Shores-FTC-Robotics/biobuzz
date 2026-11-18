@@ -21,7 +21,7 @@ public final class LUnderHiveAuto {
     public static final String SOURCE = "l-under-hive.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-16|6:21PM";
+    public static final String SAVED = "11-18|2:36PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -50,7 +50,7 @@ public final class LUnderHiveAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose leftStart = p.of(62.3, 133.8, 270);
-        Pose leftAutoHive = p.of(61.9, 120.4, 268.1);
+        Pose leftAutoHive = p.of(61.4, 120.45, 268.9);
         Pose gardenStaging = p.of(11.5, 22.1, 270);
         Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
         Pose leftPark = p.of(14.5, 117.4, 0);
@@ -111,7 +111,7 @@ public final class LUnderHiveAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path openToLeftAutoHive = Paths.line(leftStart, leftAutoHive).linear(leftStart, leftAutoHive);
         Path leftAbortParkToLeftPark = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
-        Path earlyGardenToGardenStaging = Paths.curve(leftAutoHive, earlyGardenToGardenStagingControl1, earlyGardenToGardenStagingControl2, earlyGardenToGardenStagingControl3, earlyGardenToGardenStagingControl4, earlyGardenToGardenStagingControl5, gardenStaging).constant(gardenStaging);
+        Path earlyGardenToGardenStaging = Paths.curve(leftAutoHive, earlyGardenToGardenStagingControl1, earlyGardenToGardenStagingControl2, earlyGardenToGardenStagingControl3, earlyGardenToGardenStagingControl4, earlyGardenToGardenStagingControl5, gardenStaging).linear(leftAutoHive, gardenStaging);
         Path gardenAbortParkToLeftPark = Paths.curve(gardenStaging, gardenAbortParkToLeftParkControl1, gardenAbortParkToLeftParkControl2, gardenAbortParkToLeftParkControl3, gardenAbortParkToLeftParkControl4, gardenAbortParkToLeftParkControl5, gardenAbortParkToLeftParkControl6, gardenAbortParkToLeftParkControl7, leftPark).heading(Interpolator.piecewise().until(0.12, Interpolator.linear(gardenAbortParkToLeftParkSegment1Start, leftPark)).until(0.26, Interpolator.linear(leftPark, gardenAbortParkToLeftParkSegment2End)).until(0.7, Interpolator.constant(gardenAbortParkToLeftParkSegment3Heading)).until(0.9, Interpolator.linear(gardenAbortParkToLeftParkSegment4Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path gardenExitToRightAutoHive = Paths.line(gardenStaging, rightAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(gardenExitToRightAutoHiveSegment1Start, gardenExitToRightAutoHiveSegment1End)).until(1, Interpolator.linear(gardenExitToRightAutoHiveSegment2Start, rightAutoHive)));
         Path underHiveParkToLeftPark = Paths.curve(rightAutoHive, underHiveParkToLeftParkControl1, underHiveParkToLeftParkControl2, underHiveParkToLeftParkControl3, underHiveParkToLeftParkControl4, underHiveParkToLeftParkControl5, leftPark).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(underHiveParkToLeftParkSegment1Start, underHiveParkToLeftParkSegment1End)).until(0.62, Interpolator.constant(underHiveParkToLeftParkSegment2Heading)).until(0.86, Interpolator.linear(underHiveParkToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
@@ -122,7 +122,7 @@ public final class LUnderHiveAuto {
         return kit.sequence(
                 kit.guarded("Auto", leftAbortParkToLeftPark, 2,
                         kit.command("SpinUp"),
-                        kit.path("open to LEFT_AUTO_HIVE", openToLeftAutoHive, 1.1, leftAbortParkToLeftPark, 2),
+                        kit.path("open to LEFT_AUTO_HIVE", openToLeftAutoHive, 1.1),
                         kit.firstOf("LEFT up before 9 s, otherwise park",
                                 kit.atMatchSeconds(9).then(
                                         kit.guarded("Timed out", leftAbortParkToLeftPark, 2,

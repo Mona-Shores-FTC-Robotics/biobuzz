@@ -21,7 +21,7 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-17|11:47AM";
+    public static final String SAVED = "11-18|2:36PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -50,12 +50,13 @@ public final class LNoCrossAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose leftStart = p.of(62.3, 133.8, 270);
-        Pose leftAutoHive = p.of(61.9, 120.4, 268.1);
+        Pose leftAutoHive = p.of(61.4, 120.45, 268.9);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose leftPark = p.of(14.5, 117.4, 0);
         Pose rightAutoFixTip = p.of(55.3, 25.7, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
+        Pose leftAutoHiveParkStart = p.of(61.4, 120.45, 268.1);
         Pose underTheHiveToRightAutoFixTipControl1 = p.of(56.7614, 93.4601, 0);
         Pose underTheHiveToRightAutoFixTipControl2 = p.of(68.2657, 72.9873, 0);
         Pose underTheHiveToRightAutoFixTipControl3 = p.of(58.7, 27, 0);
@@ -74,13 +75,14 @@ public final class LNoCrossAuto {
         Pose toLeftAutoHive_3Control1 = p.of(58.7, 27, 0);
         Pose toLeftAutoHive_3Control2 = p.of(68.2657, 72.9873, 0);
         Pose toLeftAutoHive_3Control3 = p.of(56.7614, 93.4601, 0);
-        Pose toLeftAutoHive_3Segment1Start = p.of(61.9, 120.4, 90);
-        Pose toLeftAutoHive_3Segment1End = p.of(61.9, 120.4, 90);
-        Pose toLeftAutoHive_3Segment2Start = p.of(61.9, 120.4, 90);
+        Pose toLeftAutoHive_3Segment1Start = p.of(61.4, 120.45, 90);
+        Pose toLeftAutoHive_3Segment1End = p.of(61.4, 120.45, 90);
+        Pose toLeftAutoHive_3Segment2Start = p.of(61.4, 120.45, 90);
+        Pose toLeftPark_8Start = p.of(61.4, 120.45, 268.1);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toLeftAutoHive = Paths.line(leftStart, leftAutoHive).linear(leftStart, leftAutoHive);
-        Path leftAutoHivePark = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
+        Path leftAutoHivePark = Paths.line(leftAutoHiveParkStart, leftPark).linear(leftAutoHiveParkStart, leftPark);
         Path toScoringFlowerStaging = Paths.line(leftAutoHive, scoringFlowerStaging).linear(leftAutoHive, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, leftPark).linear(scoringFlowerStaging, leftPark);
         Path toLeftAutoHivePath = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
@@ -95,7 +97,7 @@ public final class LNoCrossAuto {
         Path toLeftAutoHivePath2 = Paths.curve(rightAutoFixTip, toLeftAutoHive_3Control1, toLeftAutoHive_3Control2, toLeftAutoHive_3Control3, leftAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftAutoHive_3Segment1Start, toLeftAutoHive_3Segment1End)).until(1, Interpolator.linear(toLeftAutoHive_3Segment2Start, leftAutoHive)));
         Path toLeftParkPath5 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath6 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
-        Path toLeftParkPath7 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
+        Path toLeftParkPath7 = Paths.line(toLeftPark_8Start, leftPark).linear(toLeftPark_8Start, leftPark);
         Path toLeftParkPath8 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath9 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath10 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
@@ -132,9 +134,9 @@ public final class LNoCrossAuto {
                                                         kit.when("RightCellUp").then(
                                                                 kit.guarded("If RightCellUp", toLeftParkPath4, 2,
                                                                         kit.command("LaunchAll"),
-                                                                        kit.path("under the HIVE to SCORING_FLOWER_STAGING", underTheHiveToScoringFlowerStaging, 3),
+                                                                        kit.path("under the HIVE to SCORING_FLOWER_STAGING", underTheHiveToScoringFlowerStaging, 3, scoringFlowerStagingPark, 1.7),
                                                                         kit.command("PickFlower", 8),
-                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3),
+                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3, leftAutoHivePark, 2),
                                                                         kit.firstOf("LEFT CELL up?",
                                                                                 kit.when("CellUp").then(
                                                                                         kit.guarded("If CellUp", toLeftParkPath3, 2,
@@ -152,7 +154,7 @@ public final class LNoCrossAuto {
                                                                                                 kit.command("LaunchAll"),
                                                                                                 kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
                                                                                                 kit.command("PickFlower", 8),
-                                                                                                kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3),
+                                                                                                kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3, leftAutoHivePark, 2),
                                                                                                 kit.firstOf("LEFT CELL back up?",
                                                                                                         kit.when("CellUp").then(
                                                                                                                 kit.guarded("If CellUp", toLeftParkPath5, 2,
@@ -170,7 +172,7 @@ public final class LNoCrossAuto {
                                                                         kit.command("LaunchAll"),
                                                                         kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
                                                                         kit.command("PickFlower", 8),
-                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3),
+                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3, leftAutoHivePark, 2),
                                                                         kit.firstOf("LEFT CELL back up?",
                                                                                 kit.when("CellUp").then(
                                                                                         kit.guarded("If CellUp", toLeftParkPath8, 2,

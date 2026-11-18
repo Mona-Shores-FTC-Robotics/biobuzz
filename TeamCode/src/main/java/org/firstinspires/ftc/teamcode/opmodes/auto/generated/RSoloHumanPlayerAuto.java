@@ -21,7 +21,7 @@ public final class RSoloHumanPlayerAuto {
     public static final String SOURCE = "r-solo-human-player.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|12:46PM";
+    public static final String SAVED = "11-18|2:36PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -53,16 +53,17 @@ public final class RSoloHumanPlayerAuto {
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose rightPark = p.of(14.5, 98.7, 0);
-        Pose leftAutoHive = p.of(61.9, 120.4, 268.1);
+        Pose leftAutoHive = p.of(61.4, 120.45, 268.9);
         Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose outsideLanePastTheLoadingZoneToLeftAutoHiveControl1 = p.of(17, 92, 0);
         Pose outsideLanePastTheLoadingZoneToLeftAutoHiveControl2 = p.of(24, 126, 0);
-        Pose outsideLanePastTheLoadingZoneToLeftAutoHiveSegment1Start = p.of(61.9, 120.4, 180);
-        Pose outsideLanePastTheLoadingZoneToLeftAutoHiveSegment1End = p.of(61.9, 120.4, 90);
-        Pose outsideLanePastTheLoadingZoneToLeftAutoHiveSegment2Start = p.of(61.9, 120.4, 90);
-        Pose leftAutoHiveParkStart = p.of(61.9, 120.4, 273);
+        Pose outsideLanePastTheLoadingZoneToLeftAutoHiveSegment1Start = p.of(61.4, 120.45, 180);
+        Pose outsideLanePastTheLoadingZoneToLeftAutoHiveSegment1End = p.of(61.4, 120.45, 90);
+        Pose outsideLanePastTheLoadingZoneToLeftAutoHiveSegment2Start = p.of(61.4, 120.45, 90);
+        Pose leftAutoHiveParkStart = p.of(61.4, 120.45, 273);
+        Pose toScoringFlowerStagingStart = p.of(61.4, 120.45, -91.9);
         Pose scoringFlowerStagingParkControl1 = p.of(40, 96, 0);
         Pose toRightParkControl1 = p.of(43.661, 105.8984, 0);
         Pose toRightPark_2Control1 = p.of(43.661, 105.8984, 0);
@@ -80,7 +81,7 @@ public final class RSoloHumanPlayerAuto {
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
         Path outsideLanePastTheLoadingZoneToLeftAutoHive = Paths.curve(wallFlowerStaging, outsideLanePastTheLoadingZoneToLeftAutoHiveControl1, outsideLanePastTheLoadingZoneToLeftAutoHiveControl2, leftAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(outsideLanePastTheLoadingZoneToLeftAutoHiveSegment1Start, outsideLanePastTheLoadingZoneToLeftAutoHiveSegment1End)).until(1, Interpolator.longLinear(outsideLanePastTheLoadingZoneToLeftAutoHiveSegment2Start, leftAutoHive)));
         Path leftAutoHivePark = Paths.line(leftAutoHiveParkStart, rightPark).linear(leftAutoHiveParkStart, rightPark);
-        Path toScoringFlowerStaging = Paths.line(leftAutoHive, scoringFlowerStaging).linear(leftAutoHive, scoringFlowerStaging);
+        Path toScoringFlowerStaging = Paths.line(toScoringFlowerStagingStart, scoringFlowerStaging).linear(toScoringFlowerStagingStart, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
         Path toLeftAutoHive = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
         Path toRightPark = Paths.curve(leftAutoHive, toRightParkControl1, rightPark).linear(leftAutoHive, rightPark);
@@ -95,7 +96,7 @@ public final class RSoloHumanPlayerAuto {
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
                         kit.command("PickFlower", 4.5),
-                        kit.path("outside lane past the LOADING ZONE to LEFT_AUTO_HIVE", outsideLanePastTheLoadingZoneToLeftAutoHive, 3.1, leftAutoHivePark, 2.1),
+                        kit.path("outside lane past the LOADING ZONE to LEFT_AUTO_HIVE", outsideLanePastTheLoadingZoneToLeftAutoHive, 3, leftAutoHivePark, 2.1),
                         kit.firstOf("Wait for TIP or CELL up",
                                 kit.when("CellUp").then(
                                         kit.guarded("If CellUp", toRightParkPath, 2.1,
