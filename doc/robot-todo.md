@@ -1381,8 +1381,8 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       onto our CELL by itself (log: `turret at PLAY: AIM`). Driver holds Circle: it fires as the
       operator's FIRE does. Trim the aim 5° off and fire: it waits (log line `aim BLOCK`) until the
       trim is reset. Cover the camera and fire from a known pose: odometry's aim still lets it go.
-      Operator Triangle: LOCKED, and Circle aims the chassis again. Toggle mid-press: the press
-      keeps doing what it started as.
+      Operator Triangle: LOCKED, and the driver's Circle still fires (it fires whenever the turret
+      can aim; it aims the chassis only on a locked-forward turret, 19429 today).
 - [ ] **Square, Cross and Triangle pressed while still steering** (`FreshSticks`, #495). In 50 of
       51 Square presses cancelled within 0.1 s at Belding, the stick was already moving when Square
       went down. A stick already off centre at the press is now ignored until it centres once, or

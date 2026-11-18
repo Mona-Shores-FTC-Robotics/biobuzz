@@ -81,9 +81,10 @@ import java.util.Map;
  * not on it, and uses the odometry only with neither ({@link ChassisAimTarget}); the operator's
  * FIRE then chooses the moment, waiting until the robot is on the CELL
  * ({@code TeleOpConfig.chassisAimGate}). Pose good, the spot; pose off, a gyro reset and the
- * chassis aim. While the turret AIMs, the driver's Circle fires instead, as the operator's FIRE
- * does (same spin-up, gates and feed): the turret points, so either person can choose the moment.
- * Which Circle does is decided as it goes down, so a mode toggle mid-press changes nothing. The
+ * chassis aim. On a robot whose turret can aim ({@code TurretSubsystem.lockedForward} off), the
+ * driver's Circle always fires instead, as the operator's FIRE does (same spin-up, gates and
+ * feed), whether the operator has the turret in AIM or LOCKED (mentor, 18 Nov 2026): the chassis
+ * aim is only for a locked-forward turret. The
  * operator's trim nudges either one and stays until reset. It zeroes itself, assuming it starts a
  * match at its home mark, or taking the Auto's zero when an Auto just ran
  * ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy}); the zero button always
@@ -212,9 +213,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private long chassisAimSinceNs;
     private boolean lastFire;
     /**
-     * This Circle press fires rather than aims the chassis: decided when it goes down, by the
-     * turret's mode then (AIM fires, LOCKED aims), so the operator toggling the mode mid-press
-     * neither fires a chassis aim nor turns a shot into a turn.
+     * This Circle press fires rather than aims the chassis: on a robot whose turret can aim, always,
+     * whatever the operator's mode. Decided when it goes down.
      */
     private boolean circleFires;
     /** Circle was held last loop, to see a press start. */
@@ -631,12 +631,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
             holdStraightAtTrim();
         }
         double aimDeg = aimer.aimDeg();
-        // Circle is the driver's: with the turret aiming it fires (the turret does the pointing),
-        // LOCKED it aims the chassis. Which, is decided as the press starts (circleFires).
+        // Circle is the driver's: on a robot whose turret can aim it fires, in AIM or LOCKED; on a
+        // locked-forward turret it aims the chassis. Decided as the press starts (circleFires).
         boolean circle = controls.held(Action.CHASSIS_AIM);
         if (circle && !lastCircle) {
-            circleFires = turretMode == TurretMode.AIM;
-            if (circleFires) log.event("driver fire (Circle): pressed, turret aiming");
+            circleFires = !TurretSubsystem.lockedForward;
+            if (circleFires) log.event("driver fire (Circle): pressed, turret " + turretMode);
         }
         if (!circle) circleFires = false;
         lastCircle = circle;
@@ -866,7 +866,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         String gather = gatherer.line();
         if (!gather.isEmpty()) display.line(gather);
         if (circleFires) {
-            display.line("Circle: firing (turret aiming)");
+            display.line("Circle: firing (turret " + turretMode + ")");
         } else if (circleAimHeld()) {
             display.line(chassisAimCancelled ? "Chassis aim: cancelled by the right stick (let go to re-arm)"
                     : turretMode == TurretMode.AIM ? "Chassis aim: off while the turret aims (lock it first)"
@@ -1065,8 +1065,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     }
 
     /**
-     * A fire button is held: the operator's FIRE, or the driver's Circle on a press that began with
-     * the turret aiming ({@link #circleFires}). Both are the one fire: same spin-up, gates and
+     * A fire button is held: the operator's FIRE, or the driver's Circle on a robot whose turret
+     * can aim ({@link #circleFires}). Both are the one fire: same spin-up, gates and
      * feed, and Square's volley holds back either.
      */
     private boolean fireButtonHeld() {
