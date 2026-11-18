@@ -79,13 +79,15 @@ import java.util.Map;
  * and the robot arrives aimed at that half's CELL ({@link LaunchSpotDrive}), and with {@code TeleOpConfig.goToSpotAlsoFires} spins up and
  * fires there while it is held. The chassis aim trusts the camera: it turns the robot onto the UP
  * CELL of ours the camera sees, aims and ranges to where the camera last saw it when the camera is
- * not on it, and uses the odometry only with neither ({@link ChassisAimTarget}); the operator's
- * FIRE then chooses the moment, waiting until the robot is on the CELL
- * ({@code TeleOpConfig.chassisAimGate}). Pose good, the spot; pose off, a gyro reset and the
- * chassis aim. On a robot whose turret can aim ({@code TurretSubsystem.lockedForward} off), the
- * driver's Circle always fires instead, as the operator's FIRE does (same spin-up, gates and
- * feed), whether the operator has the turret in AIM or LOCKED (mentor, 18 Nov 2026): the chassis
- * aim is only for a locked-forward turret. The
+ * not on it, and uses the odometry only with neither ({@link ChassisAimTarget}). The driver's
+ * Circle follows the operator's turret mode as it goes down ({@link CirclePress}; mentor, 18 Nov
+ * 2026): with the turret LOCKED (or locked forward) it turns the robot onto the CELL by the chassis
+ * aim and fires from wherever the robot is, spinning up while it turns and feeding once on the CELL
+ * and at speed; with the turret AIMing it fires as the operator's FIRE does (same spin-up, gates and
+ * feed). Letting go stops the turn and the feed; a right stick moved after the press hands the turn
+ * back and ends that press's fire. The operator's FIRE during a chassis aim waits until the robot
+ * is on the CELL ({@code TeleOpConfig.chassisAimGate}). Pose good, the spot; pose off, a gyro reset
+ * and Circle. The
  * operator's trim nudges either one and stays until reset. It zeroes itself, assuming it starts a
  * match at its home mark, or taking the Auto's zero when an Auto just ran
  * ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy}); the zero button always
@@ -207,10 +209,17 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private long chassisAimSinceNs;
     private boolean lastFire;
     /**
-     * This Circle press fires rather than aims the chassis: on a robot whose turret can aim, always,
-     * whatever the operator's mode. Decided when it goes down.
+     * This Circle press fires as the operator's FIRE does: the turret was AIMing when it went down
+     * ({@link CirclePress.Kind#FIRE}).
      */
     private boolean circleFires;
+    /**
+     * This Circle press turns the robot onto the CELL and fires once on it: the turret was LOCKED
+     * when it went down ({@link CirclePress.Kind#AIM_AND_FIRE}).
+     */
+    private boolean circleAimFires;
+    /** A stick moved after Circle went down hands the turn back (and ends the press's fire) only if fresh. */
+    private final FreshSticks circleSticks = new FreshSticks();
     /** Circle was held last loop, to see a press start. */
     private boolean lastCircle;
     /** The driver's slow button this loop, for the Robot page. */
@@ -617,14 +626,21 @@ public class BasicDriveTeleOp extends RobotOpMode {
             holdStraightAtTrim();
         }
         double aimDeg = aimer.aimDeg();
-        // Circle is the driver's: on a robot whose turret can aim it fires, in AIM or LOCKED; on a
-        // locked-forward turret it aims the chassis. Decided as the press starts (circleFires).
+        // Circle is the driver's, and follows the operator's turret mode as it goes down
+        // (CirclePress): AIM, it fires as FIRE does; LOCKED (or a locked-forward turret), it turns
+        // the robot onto the CELL and fires once on it.
         boolean circle = controls.held(Action.CHASSIS_AIM);
         if (circle && !lastCircle) {
-            circleFires = !TurretSubsystem.lockedForward;
-            if (circleFires) log.event("driver fire (Circle): pressed, turret " + turretMode);
+            CirclePress.Kind kind = CirclePress.kindFor(TurretSubsystem.lockedForward, turretMode == TurretMode.AIM);
+            circleFires = kind == CirclePress.Kind.FIRE;
+            circleAimFires = kind == CirclePress.Kind.AIM_AND_FIRE;
+            log.event("driver fire (Circle): pressed, turret " + turretMode
+                    + (circleFires ? ": fires" : ": turns onto the CELL, then fires"));
         }
-        if (!circle) circleFires = false;
+        if (!circle) {
+            circleFires = false;
+            circleAimFires = false;
+        }
         lastCircle = circle;
         // The chassis aim (Circle) is camera first: the CELL the camera sees, then where the camera
         // last saw it (the anchor), and only then the odometry's aim above (ChassisAimTarget). It
@@ -667,7 +683,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 fireButtonHeld() && !launchSpot.wantsLauncher());
         updateTableSpeed();
         spotLauncher();
-        boolean chassisAim = chassisAim(rightStick);
+        boolean chassisAim = chassisAim(circleSticks.moved(circleAimHeld(), rightStick, nowS, staleS));
         chassisAimDriving = chassisAim;
         if (!routineActive()) {
             double turnCommand = chassisAim ? chassisAimTurn() : turn;
@@ -713,7 +729,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         fire();
         lightBar();
         if (arcBlocked) {
-            display.status("Fire", Display.Level.FAULT, "turn the robot: CELL behind (outside the turret's firing arc)");
+            display.status("Fire", Display.Level.FAULT, turretMode == TurretMode.AIM
+                    ? "turn the robot: CELL behind the turret's firing arc (or LOCK and hold Circle)"
+                    : "turret outside its firing arc: wait for it to come round to the front");
         }
 
         // The Match page is a glance (mentor, 7 Nov 2026): the operator and the coach read it from
@@ -852,9 +870,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (circleFires) {
             display.line("Circle: firing (turret " + turretMode + ")");
         } else if (circleAimHeld()) {
-            display.line(chassisAimCancelled ? "Chassis aim: cancelled by the right stick (let go to re-arm)"
+            display.line(chassisAimCancelled ? "Circle: handed back by the right stick, no fire (let go to re-arm)"
                     : turretMode == TurretMode.AIM ? "Chassis aim: off while the turret aims (lock it first)"
-                    : "Chassis aim: " + chassisTarget.describe());
+                    : "Circle: turning onto the CELL, fires when on it · " + chassisTarget.describe());
         }
         showPinpoint();
         display.status("Mode", robotCentric() ? Display.Level.WARN : Display.Level.OK,
@@ -988,12 +1006,18 @@ public class BasicDriveTeleOp extends RobotOpMode {
         gates.evaluate(launcherOwner.spinning(), robot.launcher.atSpeed(), aimErrorDeg, TeleOpConfig.aimToleranceDeg);
         // The aim gate also holds while the driver's chassis aim is turning the robot: the driver
         // points, the operator chooses the moment, and FIRE waits until the robot is on the CELL.
-        boolean enforceAim = TeleOpConfig.enforceAimGate || (TeleOpConfig.chassisAimGate && chassisAimDriving);
+        boolean enforceAim = TeleOpConfig.enforceAimGate || (TeleOpConfig.chassisAimGate && chassisAimDriving)
+                || circleAimFires;
         // The firing arc is always enforced, for every feed: behind it a ball goes back over the robot.
         arcBlocked = !TurretArc.allowsFeed(TurretSubsystem.lockedForward ? 0.0 : robot.turret.angleDegrees(),
                 turretMode == TurretMode.AIM ? aimer.aimDeg() : Double.NaN);
         boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, enforceAim)
                 && (!spunUpByFire || robot.launcher.atSpeed()) && !arcBlocked;
+        // Circle alone in LOCKED: the feed waits until the robot is on the CELL and at speed.
+        if (circleAimShot()) {
+            open = CirclePress.mayFeed(CirclePress.Kind.AIM_AND_FIRE, open,
+                    gates.verdict(FireGates.Gate.AIM_ON_TARGET), robot.launcher.atSpeed());
+        }
         if (pressed) {
             log.event(fireLine(open));
         }
@@ -1034,7 +1058,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * feed, and Square's volley holds back either.
      */
     private boolean fireButtonHeld() {
-        return controls.held(Action.FIRE) || circleFires;
+        return controls.held(Action.FIRE) || circleFires
+                || CirclePress.wantsFire(circleAimFires, CirclePress.Kind.AIM_AND_FIRE, chassisAimCancelled);
+    }
+
+    /** The shot this loop is Circle's aim-and-fire alone (the operator's FIRE not held), so it waits for the turn. */
+    private boolean circleAimShot() {
+        return !controls.held(Action.FIRE)
+                && CirclePress.wantsFire(circleAimFires, CirclePress.Kind.AIM_AND_FIRE, chassisAimCancelled);
     }
 
     /** Circle is held as the chassis aim: a press that began with the turret LOCKED. */
@@ -1059,7 +1090,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 : !open ? "WAITING: an enforced gate is closed"
                 : gates.anyWouldBlock() ? "fired; a gate would have blocked it (shadow)" : "fired; gates clear";
         return String.format(Locale.US, "fire (%s): launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
-                circleFires ? controls.held(Action.FIRE) ? "operator and driver" : "driver's Circle" : "operator",
+                circleFires || circleAimShot() || (circleAimFires && controls.held(Action.FIRE))
+                        ? controls.held(Action.FIRE) ? "operator and driver"
+                        : circleAimFires ? "driver's Circle, aim then fire" : "driver's Circle" : "operator",
                 (robot.launcher.leftTicksPerSecond() + robot.launcher.rightTicksPerSecond()) / 2.0,
                 robot.launcher.target(), launcherOwner.spinning() ? "" : " (idle)",
                 Double.isNaN(aimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f°", aimErrorDeg),

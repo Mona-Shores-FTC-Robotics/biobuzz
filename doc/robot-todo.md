@@ -81,6 +81,17 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    `arcRightDeg` (100° each until then); a robot that differs gets its line in `RobotDifferences`.
    **Stop:** either side under 60° → tell the mentor before the turret aims in a match.
 - [ ] Firing arc measured: 19429 left __° right __°, 20245 left __° right __°
+8. **Circle follows the turret mode, both robots** (code in the Circle PR, not on the robot
+   tonight). Basic Drive, HIVE upright with our CELL **up**, 4 POLLEN each time, phone filming the
+   CELL. Operator's Triangle on **LOCKED**: from three spots (the right launch spot, mid-field facing
+   about 60° off the CELL, and near the far wall with the CELL behind-left), the driver holds Circle
+   and does nothing else. **Good:** each time the robot turns onto the CELL by itself, the launcher
+   spins up while it turns, and all 4 go once it is on (the match log's `fire (driver's Circle, aim
+   then fire)` line, then the shot lines). Letting go mid-turn stops the turn and fires nothing; the
+   right stick moved mid-turn hands the turn back and fires nothing. Then Triangle on **AIM**: Circle
+   fires as before (the turret points). **Stop:** it fires before it is on the CELL, or keeps turning
+   after Circle is let go → push the log.
+- [ ] Circle LOCKED: turned on and fired 4 from all three spots; AIM unchanged
 
 ## Belding work order (agreed 5 Nov)
 
