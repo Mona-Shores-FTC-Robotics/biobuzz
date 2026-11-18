@@ -798,6 +798,48 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
         piece leaves the robot and the camera sights the LEFT CELL before the stop.
       [mentor session, 10 Nov]
+- [ ] **R-Solo-HumanPlayer draft (`autos/drafts/r-solo-human-player.pp`): R-Solo with a NECTAR from
+      the human player** ([why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-solo-humanplayer-r-solo-with-a-nectar-from-the-human-player)).
+      Run it from the Utility **Drive: R-Solo-HumanPlayer** (it stops itself at 30 s), on 20245 (the
+      mentor, 18 Nov: on 19429's loads no simulated case reaches a second TIP). Set-up: red, four
+      POLLEN preloads, both FLOWERs full unless a run says otherwise, HIVE upright, `LEFT_START` empty,
+      Panels open. The human player stands at the red wall behind the LOADING ZONE (A5) with one red
+      NECTAR. **The mark:** a piece of tape at (21.5, 104.5), in A5, 2 in short of the A/B seam and 10 in
+      above the A4/A5 seam: where the intake mouth passes, about 2 s after the robot leaves the WALL
+      FLOWER. **When to roll:** only after TIP 1 is seen, and only when the WALL FLOWER pick leaves
+      POLLEN in or beside the FLOWER; release it in the air over the LOADING ZONE tile so it touches that
+      tile first (G427.C), aim to have it stop on the mark before the robot gets there, and never touch it
+      again (G425.B). One NECTAR per TIP of our HIVE (G426.A): one, before the second TIP. The lane count
+      reads low: nobody judges "not full" from it. **Film:** a phone behind the human player on the mark
+      and the robot's pass; a phone from the side on the LEFT CELL to count the pieces that stay in.
+      - **The roll drill, robot off:** ten rolls to the mark. Measure where each stops. **Good:** most
+        within a ball's width (about 5 in) of the mark. **Stop:** they scatter → note the spread; the
+        mark or the release spot moves before any run with the robot.
+      - **The lane alone, three runs, no roll.** **Good:** as R-Solo: the third volley fires and the park
+        is done by about 29 s, never `parking now` after the second volley; the leg (planned 3.1 s;
+        R-Solo's 2.9 s) from `read_logs.py summary`; the robot stays clear of the LOADING ZONE tape (about
+        1 in to spare, drawn). **Stop:** `parking now` after the second volley → note when that volley
+        ended and tell a mentor: the redrawn leg is too long.
+      - **A short load and a roll, three runs:** two POLLEN on the WALL FLOWER. **Good:** the NECTAR is in
+        the lane before `LEFT_AUTO_HIVE` and goes up in the first LEFT volley (`read_logs.py volleys`: the
+        wheel dips), and stays in the CELL. **Stop:** the robot is past before the NECTAR arrives, or
+        pushes it → note when it was released and where the robot was; the roll goes earlier or the mark
+        moves.
+      - **A full load and a roll anyway, two runs (G407: four at most).** **Good:** the NECTAR stays on
+        the floor or rolls aside, the robot never holds five and does not herd it. **Stop:** five aboard
+        or the NECTAR carried along → film it and tell a mentor before any more rolls.
+      - **Three full runs, the human player judging the pick.** Count the pieces in the LEFT CELL after
+        each volley, and the TIPs, with the CELL settled time from the film on the field's clock.
+        **Good:** both LEFT volleys fire every run; a second TIP is a bonus (the simulator: 5 of 60 by
+        30 s on 20245's loads, R-Solo 3 of 60).
+      - **R-Solo with the roll to its own line, if there is time:** master's R-Solo, the mark at (28.2,
+        103.8), in B5 4.5 in past the A/B seam. The simulator did as well with this roll (8 of 60 by 30 s)
+        as with the draft's; it is about 7 in longer. **Good:** the drill above lands it as often as the
+        draft's mark → R-Solo needs no draft at all, only the roll.
+      - **6 POLLEN and 1 NECTAR on the practice HIVE, by hand:** does the LEFT CELL tip? The simulator
+        tips 7 and 1 always and 6 and 1 only near seven.
+      - Blue: the same, turned half a turn (mark at (120.0, 37.0) in F2).
+      [mentor session, 18 Nov]
 
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 

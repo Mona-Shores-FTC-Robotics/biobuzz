@@ -420,3 +420,53 @@ The earlier lane study (closed PR #533) is why this is not offered as safe besid
 left partner driving to the park zone or taking the SCORING FLOWER meets R at its left spot, and
 the full R meets a robot left on `LEFT_START`. The robot checks are in
 [robot-todo §3](../../../doc/robot-todo.md).
+
+## R-Solo-HumanPlayer: R-Solo with a NECTAR from the human player
+
+Master's R-Solo with one leg redrawn: the drive from the WALL FLOWER to `LEFT_AUTO_HIVE` keeps
+R-Solo's headings (nose first, then the long turn to face the LEFT CELL) and runs up the outside
+lane past the LOADING ZONE, at x 22 to 25 between y 88 and 100, where R-Solo's curve runs at x 29 to
+33. That shortens the roll from the LOADING ZONE to the intake's line to about 18 in, so after TIP 1
+the human player can roll one NECTAR to a mark on the robot's line (G426.A: one per TIP of our HIVE; G427.C:
+released in the air, first touch on the LOADING ZONE tile). The intake runs all Auto and stops when
+the lane reads full, so a short WALL FLOWER load takes it and a full one does not. Everything else is
+R-Solo's: the preloads from `RIGHT_START`, both LEFT volleys from `LEFT_AUTO_HIVE` behind their CELL
+checks, the cross to `RIGHT_AUTO_HIVE` when the LEFT CELL is already down, the park at `RIGHT_PARK`.
+The turret stays at home, as in every Auto on master: no volley has the CELL behind the robot.
+Mentor session, 18 Nov 2026; not run on a robot. It runs from the Utility **Drive: R-Solo-HumanPlayer**
+(a 30 s trial).
+
+Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-human-player.pp>
+
+**One path, not a stop at a handoff point.** The first drawing (from the 16 Nov study) drove to
+`NECTAR_HANDOFF` (20, 88, 110°) as a path of its own, then on: it reached the LEFT spot 1.1 s later
+than R-Solo, and master's guard then saw the third volley's park ending at 30.1 s and parked at
+17.9 s, losing the whole SCORING FLOWER cycle. R-Solo has almost no time to spare there, so the
+redrawn leg is one path, planned 3.1 s against R-Solo's 2.9 s.
+
+In the Java simulator set to Belding, 60 seeds, turret at home. "Rolls" is the aimed roll from
+(5.5, 95) to the intake mouth of a robot on the line at the given pose, released when due after
+TIP 1 (`BIOBUZZ_AUTO_HUMAN_ENTRY=aim`, `_AIM_SPOT`, `_AIM_SPEED=7`); the simulator does not model the
+human judging the pick, so it rolls every run.
+
+| Auto | Roll | Loads | Second TIP by 30 s | Second TIP at all | Shots launched |
+|---|---|---|---|---|---|
+| R-Solo | none | 19429 | 0 of 60 | 0 of 60 | 8.1 |
+| R-Solo-HumanPlayer | none | 19429 | 0 of 60 | 0 of 60 | 8.1 |
+| R-Solo-HumanPlayer | to (23.7, 95.8, 104°) | 19429 | 0 of 60 | 2 of 60 | 8.7 |
+| R-Solo | to (31.6, 95.5, 112°), its own line | 19429 | 0 of 60 | 0 of 60 | 8.3 |
+| R-Solo | none | 20245 | 3 of 60 | 13 of 60 | 10.9 |
+| R-Solo-HumanPlayer | none | 20245 | 2 of 60 | 13 of 60 | 10.9 |
+| R-Solo-HumanPlayer | to (23.7, 95.8, 104°) | 20245 | 5 of 60 | 14 of 60 | 10.9 |
+| R-Solo | to (31.6, 95.5, 112°), its own line | 20245 | 8 of 60 | 14 of 60 | 10.9 |
+
+- The redrawn lane costs nothing the simulator can see; the NECTAR gains little. The second TIP still
+  lands about 30.6 s when it comes: the LEFT CELL needs 8 POLLEN (7 and a NECTAR), and the third
+  volley ends near 29 s.
+- **R-Solo itself, with the roll to its own line, did as well.** That roll is about 25 in from the
+  release against this draft's 18 in. Which roll a person can land is the robot question; the draft is
+  for the shorter one.
+- A saved request cannot set the human's roll (`sim-requests/r-solo-human-player.json` runs the lane
+  alone).
+
+The robot checks are in [robot-todo §3](../../../doc/robot-todo.md).
