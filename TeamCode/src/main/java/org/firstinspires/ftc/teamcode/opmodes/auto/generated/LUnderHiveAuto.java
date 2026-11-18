@@ -21,7 +21,7 @@ public final class LUnderHiveAuto {
     public static final String SOURCE = "l-under-hive.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|2:36PM";
+    public static final String SAVED = "11-18|4:55PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -76,9 +76,9 @@ public final class LUnderHiveAuto {
         Pose gardenExitToRightAutoHiveSegment1Start = p.of(59.2, 20.9, 270);
         Pose gardenExitToRightAutoHiveSegment1End = p.of(59.2, 20.9, 360);
         Pose gardenExitToRightAutoHiveSegment2Start = p.of(59.2, 20.9, 0);
-        Pose underHiveParkToLeftParkControl1 = p.of(60, 50, 0);
-        Pose underHiveParkToLeftParkControl2 = p.of(66, 80, 0);
-        Pose underHiveParkToLeftParkControl3 = p.of(65, 105, 0);
+        Pose underHiveParkToLeftParkControl1 = p.of(58.5, 50, 0);
+        Pose underHiveParkToLeftParkControl2 = p.of(64.5, 80, 0);
+        Pose underHiveParkToLeftParkControl3 = p.of(63.5, 105, 0);
         Pose underHiveParkToLeftParkControl4 = p.of(62, 122, 0);
         Pose underHiveParkToLeftParkControl5 = p.of(40, 122, 0);
         Pose underHiveParkToLeftParkSegment1Start = p.of(14.5, 117.4, 96.1);
