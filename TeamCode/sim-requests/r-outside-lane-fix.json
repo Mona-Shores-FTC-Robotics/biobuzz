@@ -1,0 +1,116 @@
+{
+  "pp": "TeamCode/autos/drafts/r-outside-lane-fix.pp",
+  "spec": "ROutsideLaneFixAuto",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "as drawn: TIP 1 comes",
+      "partner": "LUnderHiveFixAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    },
+    {
+      "name": "our preloads miss (17 Nov): L fixes TIP 1",
+      "partner": "LUnderHiveFixAuto",
+      "timing": {
+        "speed": 50
+      },
+      "oursFails": "misses preloads",
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    },
+    {
+      "name": "our preloads miss, L 20 percent slower",
+      "partner": "LUnderHiveFixAuto",
+      "timing": {
+        "speed": 40
+      },
+      "oursFails": "misses preloads",
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    },
+    {
+      "name": "our preloads miss, L misses every shot",
+      "partner": "LUnderHiveFixAuto",
+      "timing": {
+        "speed": 50
+      },
+      "oursFails": "misses preloads",
+      "fails": "misses",
+      "picks": {
+        "Pickup": "WALL_FLOWER"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN"
+      }
+    }
+  ],
+  "metadata": {
+    "AutoSource": "r-outside-lane-fix.pp",
+    "SavedBy": "Lane pair: R waits to 19 s for L's fix; R waits to 20.5 s, L holds to 24.5 s",
+    "SavedAt": "2026-11-18T19:05:00+00:00"
+  }
+}
