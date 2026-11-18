@@ -17,10 +17,9 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
  *       button is the signal; a fixed time (it was {@link LaunchCards#launchAllFeedS}, an Auto's,
  *       until 6 Nov 2026) could only strand a slow piece and leave the robot sitting at the spot
  *       with the gate shut while the button was still held.</li>
- *   <li>The operator wins: their FIRE held at any point before the volley ends gives the shot to
- *       them for the rest of the press ({@link Phase#YIELDED}). Basic Drive no longer asks for
- *       this since 7 Nov 2026: it holds the operator's FIRE back while the volley runs
- *       (see {@link LauncherOwner}), so an early press cannot feed before the spot, aim and speed.</li>
+ *   <li>Nothing cuts into it: the driver owns every shot (18 Nov 2026), and Basic Drive holds a
+ *       Circle press back while the volley runs, so an early press cannot feed before the spot, aim
+ *       and speed.</li>
  * </ul>
  *
  * <p>There is no "lane empty" check: the robot cannot know it is empty (no piece sensor; the lane
@@ -37,7 +36,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
  */
 final class SpotVolley {
 
-    enum Phase { OFF, DRIVING, WAITING, FEEDING, YIELDED }
+    enum Phase { OFF, DRIVING, WAITING, FEEDING }
 
     private Phase phase = Phase.OFF;
     private double arrivedS = Double.NaN;
@@ -66,26 +65,19 @@ final class SpotVolley {
      * @param arrived        the drive has reached the spot (Pedro's path end)
      * @param atSpeed        the launcher is at launch speed
      * @param settled        the robot is still and at the path's end heading
-     * @param operatorFiring the operator's FIRE is held
      */
-    boolean update(double nowS, boolean arrived, boolean atSpeed, boolean settled, boolean operatorFiring) {
-        return update(nowS, arrived, atSpeed, settled, false, operatorFiring);
+    boolean update(double nowS, boolean arrived, boolean atSpeed, boolean settled) {
+        return update(nowS, arrived, atSpeed, settled, false);
     }
 
     /**
-     * {@link #update(double, boolean, boolean, boolean, boolean)}, and also: while still driving,
+     * {@link #update(double, boolean, boolean, boolean)}, and also: while still driving,
      * {@code readyOnApproach} (near the spot and aimed, {@link PathEndSettle#readyOnApproach}) with
      * the launcher at speed starts the feed before arrival. Never without the launcher at speed:
      * the spin-up wait is counted from arrival, and a shot on the move is only worth it at speed.
      */
-    boolean update(double nowS, boolean arrived, boolean atSpeed, boolean settled, boolean readyOnApproach,
-                   boolean operatorFiring) {
-        if (phase == Phase.OFF || phase == Phase.YIELDED) return false;
-        if (operatorFiring) {
-            if (phase == Phase.FEEDING) feedEndS = nowS;
-            phase = Phase.YIELDED;
-            return false;
-        }
+    boolean update(double nowS, boolean arrived, boolean atSpeed, boolean settled, boolean readyOnApproach) {
+        if (phase == Phase.OFF) return false;
         if (phase == Phase.DRIVING) {
             if (!arrived && readyOnApproach && atSpeed) {
                 why = "on the approach, at speed";
@@ -106,7 +98,7 @@ final class SpotVolley {
             feedStartS = nowS;
             phase = Phase.FEEDING;
         }
-        return true; // FEEDING: until the button is let go (stop) or the operator fires
+        return true; // FEEDING: until the button is let go (stop)
     }
 
     Phase phase() {

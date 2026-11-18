@@ -83,11 +83,11 @@ import java.util.Map;
  * Circle follows the operator's turret mode as it goes down ({@link CirclePress}; mentor, 18 Nov
  * 2026): with the turret LOCKED (or locked forward) it turns the robot onto the CELL by the chassis
  * aim and fires from wherever the robot is, spinning up while it turns and feeding once on the CELL
- * and at speed; with the turret AIMing it fires as the operator's FIRE does (same spin-up, gates and
- * feed). Letting go stops the turn and the feed; a right stick moved after the press hands the turn
- * back and ends that press's fire. The operator's FIRE during a chassis aim waits until the robot
- * is on the CELL ({@code TeleOpConfig.chassisAimGate}). Pose good, the spot; pose off, a gyro reset
- * and Circle. The
+ * and at speed; with the turret AIMing it fires at once (the turret points; the usual spin-up,
+ * gates and feed). Letting go stops the turn and the feed; a right stick moved after the press hands
+ * the turn back and ends that press's fire. The driver owns every shot: the operator has no fire
+ * button (18 Nov 2026), and their Triangle (turret mode) sets what Circle does. Pose good, the spot;
+ * pose off, a gyro reset and Circle. The
  * operator's trim nudges either one and stays until reset. It zeroes itself, assuming it starts a
  * match at its home mark, or taking the Auto's zero when an Auto just ran
  * ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy}); the zero button always
@@ -209,7 +209,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private long chassisAimSinceNs;
     private boolean lastFire;
     /**
-     * This Circle press fires as the operator's FIRE does: the turret was AIMing when it went down
+     * This Circle press fires at once: the turret was AIMing when it went down
      * ({@link CirclePress.Kind#FIRE}).
      */
     private boolean circleFires;
@@ -224,7 +224,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private boolean lastCircle;
     /** The driver's slow button this loop, for the Robot page. */
     private boolean slowHeld;
-    /** FIRE as pressed, before a Square volley holds it back: for that press's one log line. */
+    /** Circle's fire as pressed, before a Square volley holds it back: for that press's one log line. */
     private boolean lastRawFire;
     /**
      * The firing arc holds the feed back this loop ({@link TurretArc#allowsFeed}): the turret, or in
@@ -335,7 +335,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.on(Action.LAUNCHER_TRIM_DOWN).onPress(() -> trimLauncher(-1));
         controls.on(Action.LAUNCHER_TRIM_UP).onPress(() -> trimLauncher(+1));
         controls.on(Action.LAUNCHER_TRIM_RESET).onPress(this::resetLauncherTrim);
-        controls.note(Action.FIRE);
         controls.on(Action.TURRET_LOCK).onPress(this::toggleTurretMode);
         controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
         controls.on(Action.TRIM_LEFT).onPress(() -> trim(+1));
@@ -676,11 +675,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         picker.update(pickHeld, pickSticks.moved(pickHeld, sticksMoved, nowS, staleS));
         boolean gatherHeld = controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active();
         gatherer.update(gatherHeld, gatherSticks.moved(gatherHeld, sticksMoved, nowS, staleS));
-        // A volley already under way does not yield to the operator's FIRE (fire() holds it back).
-        // Square: the spot is picked from the tile row the robot is in when the press starts.
+        // Square: the spot is picked from the tile row the robot is in when the press starts. Its
+        // volley is never cut into: a Circle press waits for it (fire() holds it back).
         boolean spotHeld = controls.held(Action.LAUNCH_SPOT) && !grabActive();
-        launchSpot.update(spotHeld, setup.alliance(), spotSticks.moved(spotHeld, sticksMoved, nowS, staleS),
-                fireButtonHeld() && !launchSpot.wantsLauncher());
+        launchSpot.update(spotHeld, setup.alliance(), spotSticks.moved(spotHeld, sticksMoved, nowS, staleS));
         updateTableSpeed();
         spotLauncher();
         boolean chassisAim = chassisAim(circleSticks.moved(circleAimHeld(), rightStick, nowS, staleS));
@@ -987,9 +985,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
      */
     private void fire() {
         boolean rawFire = fireButtonHeld();
-        // A Square press that fires owns the shot: the operator's FIRE feeds nothing until the press
-        // ends, so the volley still waits for the spot, aim and speed. Without goToSpotAlsoFires,
-        // Square only drives and FIRE is theirs.
+        // A Square press that fires owns the shot: a Circle press feeds nothing until it ends, so the
+        // volley still waits for the spot, aim and speed. Without goToSpotAlsoFires, Square only drives.
         boolean spotFiring = launchSpot.wantsLauncher();
         if (rawFire && !lastRawFire && spotFiring) {
             log.event("fire: held back, Square's volley is firing");
@@ -1004,8 +1001,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         if (!fireHeld) spunUpByFire = false;
         gates.evaluate(launcherOwner.spinning(), robot.launcher.atSpeed(), aimErrorDeg, TeleOpConfig.aimToleranceDeg);
-        // The aim gate also holds while the driver's chassis aim is turning the robot: the driver
-        // points, the operator chooses the moment, and FIRE waits until the robot is on the CELL.
+        // The aim gate also holds while the chassis aim is turning the robot, and always for Circle's
+        // aim-and-fire: the feed waits until the robot is on the CELL.
         boolean enforceAim = TeleOpConfig.enforceAimGate || (TeleOpConfig.chassisAimGate && chassisAimDriving)
                 || circleAimFires;
         // The firing arc is always enforced, for every feed: behind it a ball goes back over the robot.
@@ -1034,7 +1031,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // requestFor's "at speed" is the enforced gates' verdict here, and it is always required:
         // with nothing enforced the gates are always open. The launch-spot button's volley feeds
         // through the same request: it has already waited for speed and settle as an Auto's
-        // LaunchAll does (SpotVolley), and the operator's FIRE, which it yields to, comes first.
+        // LaunchAll does (SpotVolley).
         boolean spotFeed = !fireHeld && launchSpot.feedRequested();
         FeederSubsystem.State feed = FeederSubsystem.requestFor(fireHeld || spotFeed, unjamHeld(),
                 fireHeld ? open : spotFeed && !arcBlocked, true, robot.feeder.state() == FeederSubsystem.State.FEED);
@@ -1053,19 +1050,17 @@ public class BasicDriveTeleOp extends RobotOpMode {
     }
 
     /**
-     * A fire button is held: the operator's FIRE, or the driver's Circle on a robot whose turret
-     * can aim ({@link #circleFires}). Both are the one fire: same spin-up, gates and
-     * feed, and Square's volley holds back either.
+     * The driver's Circle asks for a shot: a fire press ({@link #circleFires}), or an aim-and-fire
+     * press not handed back ({@link #circleAimShot}). Same spin-up, gates and feed; Square's volley
+     * holds it back.
      */
     private boolean fireButtonHeld() {
-        return controls.held(Action.FIRE) || circleFires
-                || CirclePress.wantsFire(circleAimFires, CirclePress.Kind.AIM_AND_FIRE, chassisAimCancelled);
+        return circleFires || circleAimShot();
     }
 
-    /** The shot this loop is Circle's aim-and-fire alone (the operator's FIRE not held), so it waits for the turn. */
+    /** The shot this loop is Circle's aim-and-fire, so it waits for the turn. */
     private boolean circleAimShot() {
-        return !controls.held(Action.FIRE)
-                && CirclePress.wantsFire(circleAimFires, CirclePress.Kind.AIM_AND_FIRE, chassisAimCancelled);
+        return CirclePress.wantsFire(circleAimFires, CirclePress.Kind.AIM_AND_FIRE, chassisAimCancelled);
     }
 
     /** Circle is held as the chassis aim: a press that began with the turret LOCKED. */
@@ -1090,9 +1085,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 : !open ? "WAITING: an enforced gate is closed"
                 : gates.anyWouldBlock() ? "fired; a gate would have blocked it (shadow)" : "fired; gates clear";
         return String.format(Locale.US, "fire (%s): launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
-                circleFires || circleAimShot() || (circleAimFires && controls.held(Action.FIRE))
-                        ? controls.held(Action.FIRE) ? "operator and driver"
-                        : circleAimFires ? "driver's Circle, aim then fire" : "driver's Circle" : "operator",
+                circleAimFires ? "driver's Circle, aim then fire" : "driver's Circle",
                 (robot.launcher.leftTicksPerSecond() + robot.launcher.rightTicksPerSecond()) / 2.0,
                 robot.launcher.target(), launcherOwner.spinning() ? "" : " (idle)",
                 Double.isNaN(aimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f°", aimErrorDeg),
@@ -1214,10 +1207,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /**
      * The launch speed from {@code LaunchSpeedTable}, once per loop, before the launch-spot press
-     * and the operator's buttons spin anything up. The range is the camera's, as for FIRE, whenever
+     * and the operator's buttons spin anything up. The range is the camera's, as for Circle, whenever
      * it sees one of our CELLs: the table's rows were measured with it (4 Nov 2026), and a press's
      * planned spot range ran up to 4 in long at RIGHT_LAUNCH_CATCH, so Square fired faster than the
-     * operator's FIRE from the same place. Without a camera range, a launch-spot press uses its
+     * operator's FIRE did from the same place. Without a camera range, a launch-spot press uses its
      * spot's range (the wheels spin up for it on the way), else {@link #shotRangeIn()}'s odometry.
      * Held within half the launcher's tolerance
      * ({@link LaunchSpeedTable#held}) and never changed while the feeder feeds, so a range that
