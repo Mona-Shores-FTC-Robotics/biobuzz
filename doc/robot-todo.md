@@ -72,6 +72,15 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    **Good:** the lane still holds 4 after every run, and the video shows none leave. **Stop:** any
    piece leaves → no backward trial on 19429 tonight; push the logs and the video.
 - [ ] Backward with a load: lane full after every run, video kept
+7. **Turret firing arc, both robots** (code in the firing-arc PR, not on the robot tonight). Robot
+   on its home mark, **Bench: Turret** in INIT (it reads the angle from the mark; nothing moves until
+   PLAY), turret limp and turned by hand, a phone filming from above. Turn it left until a ball
+   leaving the launcher would touch the robot (frame, intake, light, cables, the launcher's own
+   side), back off 5°, and read the angle. The same to the right. Write down left and right for
+   each robot. **Good:** both read past 90°. They become `TurretSubsystem.arcLeftDeg` /
+   `arcRightDeg` (100° each until then); a robot that differs gets its line in `RobotDifferences`.
+   **Stop:** either side under 60° → tell the mentor before the turret aims in a match.
+- [ ] Firing arc measured: 19429 left __° right __°, 20245 left __° right __°
 
 ## Belding work order (agreed 5 Nov)
 
