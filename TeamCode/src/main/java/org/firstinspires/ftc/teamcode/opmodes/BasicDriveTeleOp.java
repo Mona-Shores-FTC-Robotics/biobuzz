@@ -69,8 +69,9 @@ import java.util.Map;
  *
  * <h2>Aiming</h2>
  *
- * <p>The turret starts every OpMode LOCKED straight ahead; the operator's lock button switches it
- * to AIM at our CELL ({@link TurretAimer}: left half of the field, left CELL; right half, right
+ * <p>The turret starts at PLAY aiming when it can ({@code TeleOpConfig.startTurretAiming}, on a
+ * robot whose turret is not {@code lockedForward}), else LOCKED straight ahead; the operator's
+ * lock button switches it between LOCKED and AIM at our CELL ({@link TurretAimer}: left half of the field, left CELL; right half, right
  * CELL). While LOCKED, the driver has two ways to shoot. The launch-spot buttons trust the
  * odometry: experimentally, Square drives to the nearest launch spot, on the side wall from the
  * tile row against the end wall and the close one from the next row in ({@link LaunchSpots}),
@@ -368,12 +369,21 @@ public class BasicDriveTeleOp extends RobotOpMode {
         return hasHandoffPose() ? null : StartPositions.forAlliance(setup.alliance());
     }
 
-    /** PLAY: the turret has been zeroed by now (RobotOpMode does it); hold it straight ahead. */
+    /**
+     * PLAY: the turret has been zeroed by now (RobotOpMode does it). It starts aiming if it can
+     * ({@link TeleOpConfig#startTurretAiming}), else holds straight ahead.
+     */
     @Override
     protected void onStart() {
-        turretMode = TurretMode.LOCKED;
-        aimer.off();
-        robot.turret.home();
+        if (TeleOpConfig.startTurretAiming && !TurretSubsystem.lockedForward) {
+            turretMode = TurretMode.AIM;
+            aimer.start();
+        } else {
+            turretMode = TurretMode.LOCKED;
+            aimer.off();
+            robot.turret.home();
+        }
+        log.event("turret at PLAY: " + turretMode);
         log.event("PLAY: " + (robotCentric() ? "robot-centric" : "field-centric"));
     }
 
