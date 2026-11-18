@@ -39,8 +39,8 @@ import java.util.function.Consumer;
  * launcher spins up as the drive starts (the OpMode does it, at the operator's launch speed and trim),
  * and once the robot is at the spot, aimed and settled (or, with {@code TeleOpConfig.squareGateOnApproach},
  * already on the approach: near the spot, aimed and at speed), it feeds for as long as the button is held, through the same feeder,
- * gate and prefeed path as the operator's FIRE ({@link SpotVolley}: the Autos' {@code LaunchAll}
- * waits, then no set feed time). Letting go stops the drive and the feed at once. The operator's FIRE wins.
+ * gate and prefeed path as the driver's Circle ({@link SpotVolley}: the Autos' {@code LaunchAll}
+ * waits, then no set feed time). Letting go stops the drive and the feed at once. Nothing cuts into the volley.
  *
  * <p>Every press is match-log lines, for comparing practice logs with chassis-aim use: the start
  * (start pose, chosen spot, its distance, and the spot's range to its CELL, so presses are also
@@ -118,7 +118,6 @@ public final class LaunchSpotDrive {
     private boolean fires;
     private boolean feed;
     private boolean feedLogged;
-    private boolean operatorFired;
     private int shotsAtStart;
     private Alliance alliance;
     /** This press's drift sample: camera minus odometry at the spot, inches; NaN until taken. */
@@ -159,9 +158,8 @@ public final class LaunchSpotDrive {
      * @param held        the launch-spot button is held
      * @param alliance    ours ({@code setup.alliance()})
      * @param sticksMoved a drive stick is off centre: the driver wants the robot back
-     * @param operatorFiring the operator's FIRE is held: it wins over the button's volley
      */
-    public void update(boolean held, Alliance alliance, boolean sticksMoved, boolean operatorFiring) {
+    public void update(boolean held, Alliance alliance, boolean sticksMoved) {
         long now = System.nanoTime();
         feed = false;
         if (!held) {
@@ -197,12 +195,11 @@ public final class LaunchSpotDrive {
         }
         settle.update();
         if (phase == Phase.HOLDING && Double.isNaN(driftGapIn) && settle.settled()) sampleDrift();
-        if (operatorFiring) operatorFired = true;
         if (!fires) return;
         boolean onApproach = TeleOpConfig.squareGateOnApproach && phase == Phase.DRIVING
                 && settle.readyOnApproach(choice.target, robot.drive.pose(), remainingIn());
         feed = volley.update(s(now), phase == Phase.HOLDING, robot.launcher.atSpeed(), settle.settled(),
-                onApproach, operatorFiring);
+                onApproach);
         if (volley.fired() && !feedLogged) {
             feedLogged = true;
             String when = Double.isNaN(arriveS)
@@ -234,7 +231,6 @@ public final class LaunchSpotDrive {
         switch (volley.phase()) {
             case WAITING: return " · volley: waiting for speed and settle";
             case FEEDING: return " · volley: FEEDING, let go to stop";
-            case YIELDED: return " · volley: the operator's";
             default: return "";
         }
     }
@@ -243,7 +239,6 @@ public final class LaunchSpotDrive {
         startNs = now;
         arriveS = Double.NaN;
         feedLogged = false;
-        operatorFired = false;
         fires = false;
         driftGapIn = Double.NaN;
         driftNote = "";
@@ -299,8 +294,7 @@ public final class LaunchSpotDrive {
                 : String.format(Locale.US, "%s after arriving at %s in %.2f s (held %.2f s)", why, choice.spot, arriveS, s(now) - arriveS);
         // Who fired, the gate's open time, and the launcher's counted shots this press. The lane's
         // count is the tracker's guess, data only (it decides nothing).
-        String firedBy = volley.fired() && operatorFired ? "button, then the operator"
-                : volley.fired() ? "button" : operatorFired ? "operator" : "nobody";
+        String firedBy = volley.fired() ? "button" : "nobody";
         String gate = !volley.fired() ? "gate never opened by the button"
                 : String.format(Locale.US, "gate open at %.2f s for %.2f s%s", volley.feedStartS(),
                         volley.feedEndS() - volley.feedStartS(), feeding ? " (until the press ended)" : "");

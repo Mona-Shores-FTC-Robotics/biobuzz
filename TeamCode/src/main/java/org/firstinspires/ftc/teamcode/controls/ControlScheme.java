@@ -16,6 +16,11 @@ import java.util.Set;
  * wins when both press at once ({@link IntakeArbiter}). The driver's R2 also takes in past a full
  * lane, so a false full reading never leaves the driver without an intake.
  *
+ * <p><b>The driver owns every shot</b> (mentor, 18 Nov 2026): the driver's Circle fires, and the
+ * driver's R1 (turret AIM or LOCKED) sets what Circle does. The operator has no fire button and no
+ * turret-mode button in a match ({@link #BENCH_ONLY}); they keep the launcher spin-up and its trim,
+ * the aim trim and zero, the FLOWER stick, and the intake and unjam.
+ *
  * <p>A layout leaves out what does nothing on this robot, so the Controls page and the cheat
  * sheet show only buttons that work: {@link #NOT_BOUND} always, and {@link #TURRET_ACTIONS} while
  * the turret is locked forward ({@link #layout(Input, boolean)}). Chosen from 93 minutes of Basic
@@ -40,6 +45,14 @@ public final class ControlScheme {
     public static final Set<Action> NOT_BOUND = Collections.unmodifiableSet(EnumSet.of(Action.AUTO_PARK));
 
     /**
+     * Bound only on the bench ({@code Bench: Launch Test}, which runs the operator's layout on one
+     * pad, and the base {@link #layout(Input)}): the operator's FIRE (Circle) and the bench's setup
+     * modifier (Triangle). The match TeleOp's layout leaves them out, so the operator's Circle and
+     * Triangle do nothing there and the cheat sheet does not list them.
+     */
+    public static final Set<Action> BENCH_ONLY = Collections.unmodifiableSet(EnumSet.of(Action.FIRE, Action.BENCH_SETUP));
+
+    /**
      * Bound only while the turret is locked forward: the launch trim reset, on D-pad down, the
      * turret's trim reset's button, so the habit carries over (mentor, 7 Nov 2026). With the turret
      * aiming, its trim reset on D-pad down clears the launch trim too.
@@ -62,10 +75,11 @@ public final class ControlScheme {
     /**
      * As {@link #layout(Input, boolean)}, also leaving out the go-to-launch-spot button unless
      * {@code launchSpot} ({@code TeleOpConfig.launchSpot}, on while the drivers try it): the match
-     * TeleOp's layout.
+     * TeleOp's layout. Never the bench's buttons ({@link #BENCH_ONLY}).
      */
     public static Map<Action, Input> layout(Input flowerPick, boolean turretLocked, boolean launchSpot) {
         Map<Action, Input> map = layout(flowerPick);
+        for (Action action : BENCH_ONLY) map.remove(action);
         if (turretLocked) {
             for (Action action : TURRET_ACTIONS) map.remove(action);
             map.put(Action.LAUNCHER_TRIM_RESET, Input.DPAD_DOWN);
@@ -102,14 +116,19 @@ public final class ControlScheme {
         map.put(Action.RESET_LEFT_CORNER, Input.DPAD_LEFT);
         map.put(Action.RESET_RIGHT_CORNER, Input.DPAD_RIGHT);
         map.put(Action.CAMERA_RELOCALIZE, Input.DPAD_DOWN);
+        // The turret mode is the driver's (mentor, 18 Nov 2026): the driver drives and shoots, so
+        // the driver picks what Circle does. R1 was free.
+        map.put(Action.TURRET_LOCK, Input.R1);
 
         map.put(Action.OPERATOR_INTAKE, Input.R2);
         map.put(Action.UNJAM, Input.L2);
         map.put(Action.LAUNCHER_TOGGLE, Input.CROSS);
         map.put(Action.LAUNCHER_TRIM_DOWN, Input.L1);
         map.put(Action.LAUNCHER_TRIM_UP, Input.R1);
+        // The bench's fire only (BENCH_ONLY): the match layout leaves it out.
         map.put(Action.FIRE, Input.CIRCLE);
-        map.put(Action.TURRET_LOCK, Input.TRIANGLE);
+        // The bench's setup modifier only (BENCH_ONLY): the turret mode is the driver's R1.
+        map.put(Action.BENCH_SETUP, Input.TRIANGLE);
         map.put(Action.FLOWER_STICK, Input.SQUARE);
         map.put(Action.TRIM_LEFT, Input.DPAD_LEFT);
         map.put(Action.TRIM_RIGHT, Input.DPAD_RIGHT);

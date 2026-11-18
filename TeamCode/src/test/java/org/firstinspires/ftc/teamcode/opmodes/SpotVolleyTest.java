@@ -24,8 +24,8 @@ public class SpotVolleyTest {
     @Test
     public void nothingFeedsWhileDriving() {
         SpotVolley v = started();
-        assertFalse(v.update(0.5, false, true, true, false));
-        assertFalse(v.update(3.0, false, true, true, false));
+        assertFalse(v.update(0.5, false, true, true));
+        assertFalse(v.update(3.0, false, true, true));
         assertEquals(SpotVolley.Phase.DRIVING, v.phase());
         assertFalse(v.fired());
     }
@@ -33,12 +33,12 @@ public class SpotVolleyTest {
     @Test
     public void atSpeedAndSettledOnArrivalFeedsForAsLongAsItIsHeld() {
         SpotVolley v = started();
-        assertTrue(v.update(2.0, true, true, true, false));
+        assertTrue(v.update(2.0, true, true, true));
         assertEquals(2.0, v.feedStartS(), 1e-9);
         assertEquals("at speed, settled", v.why());
         // No set time: an Auto's LaunchAll would have stopped at FEED; held, this keeps feeding.
-        assertTrue(v.update(2.0 + FEED, true, true, true, false));
-        assertTrue(v.update(2.0 + FEED + 5, true, true, true, false));
+        assertTrue(v.update(2.0 + FEED, true, true, true));
+        assertTrue(v.update(2.0 + FEED + 5, true, true, true));
         assertEquals(SpotVolley.Phase.FEEDING, v.phase());
         assertTrue(Double.isNaN(v.feedEndS()));
         v.stop(2.0 + FEED + 6);
@@ -48,63 +48,49 @@ public class SpotVolleyTest {
     @Test
     public void itWaitsForSettleThenFeedsAnywayAfterTheAutosSettleWait() {
         SpotVolley v = started();
-        assertFalse(v.update(1.0, true, true, false, false));
-        assertFalse(v.update(1.0 + SETTLE - 0.01, true, true, false, false));
-        assertTrue(v.update(1.0 + SETTLE, true, true, false, false));
+        assertFalse(v.update(1.0, true, true, false));
+        assertFalse(v.update(1.0 + SETTLE - 0.01, true, true, false));
+        assertTrue(v.update(1.0 + SETTLE, true, true, false));
         assertTrue(v.why(), v.why().contains("before settled"));
     }
 
     @Test
     public void itWaitsForSpeedThenFeedsAnywayAfterTheAutosSpinUpWait() {
         SpotVolley v = started();
-        assertFalse(v.update(1.0, true, false, true, false));
-        assertFalse(v.update(1.0 + SPIN - 0.01, true, false, true, false));
-        assertTrue(v.update(1.0 + SPIN, true, false, true, false));
+        assertFalse(v.update(1.0, true, false, true));
+        assertFalse(v.update(1.0 + SPIN - 0.01, true, false, true));
+        assertTrue(v.update(1.0 + SPIN, true, false, true));
         assertTrue(v.why(), v.why().contains("below launch speed"));
-    }
-
-    @Test
-    public void theOperatorsFireWinsForTheRestOfThePress() {
-        SpotVolley v = started();
-        assertTrue(v.update(1.0, true, true, true, false));
-        assertFalse(v.update(1.2, true, true, true, true));
-        assertEquals(SpotVolley.Phase.YIELDED, v.phase());
-        assertEquals(1.2, v.feedEndS(), 1e-9);
-        assertFalse("not taken back when the operator lets go", v.update(1.4, true, true, true, false));
-        SpotVolley before = started();
-        assertFalse(before.update(0.5, false, true, true, true));
-        assertFalse(before.update(1.0, true, true, true, false));
-        assertFalse(before.fired());
     }
 
     @Test
     public void lettingGoStopsTheFeedAtOnce() {
         SpotVolley v = started();
-        assertTrue(v.update(1.0, true, true, true, false));
+        assertTrue(v.update(1.0, true, true, true));
         v.stop(1.5);
         assertEquals(1.5, v.feedEndS(), 1e-9);
-        assertFalse(v.update(1.6, true, true, true, false));
+        assertFalse(v.update(1.6, true, true, true));
         assertEquals(SpotVolley.Phase.OFF, v.phase());
     }
 
     @Test
     public void aNewPressIsAFreshVolley() {
         SpotVolley v = started();
-        assertTrue(v.update(1.0, true, true, true, false));
+        assertTrue(v.update(1.0, true, true, true));
         v.stop(1.5);
         v.start();
         assertFalse(v.fired());
-        assertTrue(v.update(0.8, true, true, true, false));
+        assertTrue(v.update(0.8, true, true, true));
     }
 
     @Test
     public void onTheApproachAtSpeedItFeedsBeforeArrivingAndKeepsFeedingAfter() {
         SpotVolley v = started();
-        assertFalse("not near the spot yet", v.update(0.3, false, true, false, false, false));
-        assertTrue(v.update(0.5, false, true, false, true, false));
+        assertFalse("not near the spot yet", v.update(0.3, false, true, false, false));
+        assertTrue(v.update(0.5, false, true, false, true));
         assertEquals(0.5, v.feedStartS(), 1e-9);
         assertEquals("on the approach, at speed", v.why());
-        assertTrue("arriving does not restart it", v.update(0.8, true, true, false, false, false));
+        assertTrue("arriving does not restart it", v.update(0.8, true, true, false, false));
         assertEquals(0.5, v.feedStartS(), 1e-9);
         assertEquals(SpotVolley.Phase.FEEDING, v.phase());
     }
@@ -112,20 +98,12 @@ public class SpotVolleyTest {
     @Test
     public void onTheApproachBelowSpeedItWaitsAsBefore() {
         SpotVolley v = started();
-        assertFalse(v.update(0.5, false, false, false, true, false));
+        assertFalse(v.update(0.5, false, false, false, true));
         assertEquals(SpotVolley.Phase.DRIVING, v.phase());
         // Arrived, the usual waits apply, counted from arrival.
-        assertFalse(v.update(1.0, true, false, true, true, false));
-        assertTrue(v.update(1.2, true, true, true, false, false));
+        assertFalse(v.update(1.0, true, false, true, true));
+        assertTrue(v.update(1.2, true, true, true, false));
         assertEquals("at speed, settled", v.why());
-    }
-
-    @Test
-    public void theOperatorStillWinsOnTheApproach() {
-        SpotVolley v = started();
-        assertFalse(v.update(0.5, false, true, false, true, true));
-        assertEquals(SpotVolley.Phase.YIELDED, v.phase());
-        assertFalse(v.fired());
     }
 
     @Test

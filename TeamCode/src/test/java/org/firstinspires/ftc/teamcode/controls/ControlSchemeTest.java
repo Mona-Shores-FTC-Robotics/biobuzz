@@ -111,6 +111,36 @@ public class ControlSchemeTest {
     }
 
     @Test
+    public void theDriverOwnsEveryShot() {
+        for (boolean locked : new boolean[] {true, false}) {
+            Map<Action, Input> match = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, locked, true);
+            assertFalse("the operator has no fire button in a match", match.containsKey(Action.FIRE));
+            assertEquals(Input.CIRCLE, match.get(Action.CHASSIS_AIM));
+            for (Map.Entry<Action, Input> entry : match.entrySet()) {
+                if (entry.getKey().pad == Action.Pad.OPERATOR) {
+                    assertFalse("the operator's Circle does nothing: " + entry.getKey(), entry.getValue() == Input.CIRCLE);
+                }
+            }
+        }
+        // The bench keeps it: Bench: Launch Test runs the operator's layout on one pad.
+        assertEquals(Input.CIRCLE, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).get(Action.FIRE));
+    }
+
+    @Test
+    public void theTurretModeIsTheDriversR1() {
+        assertEquals(Action.Pad.DRIVER, Action.TURRET_LOCK.pad);
+        Map<Action, Input> aiming = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, false, true);
+        assertEquals(Input.R1, aiming.get(Action.TURRET_LOCK));
+        for (Map.Entry<Action, Input> entry : aiming.entrySet()) {
+            if (entry.getKey().pad == Action.Pad.OPERATOR) {
+                assertFalse("the operator's Triangle does nothing: " + entry.getKey(), entry.getValue() == Input.TRIANGLE);
+            }
+        }
+        // A turret locked forward by config has no mode: R1 is not bound and not listed.
+        assertFalse(ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true, true).containsKey(Action.TURRET_LOCK));
+    }
+
+    @Test
     public void movingTheFlowerPickSwapsItWithWhatWasThere() {
         Map<Action, Input> layout = ControlScheme.layout(Input.TRIANGLE);
         assertEquals(Input.TRIANGLE, layout.get(Action.FLOWER_PICK));

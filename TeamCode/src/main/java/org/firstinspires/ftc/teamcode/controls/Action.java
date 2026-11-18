@@ -16,28 +16,31 @@ public enum Action {
     SLOW(Pad.DRIVER, "Slow (hold)"),
     FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold)"),
     GARDEN_GATHER(Pad.DRIVER, "*Gather GARDEN (hold)"),
-    CHASSIS_AIM(Pad.DRIVER, "Fire (hold) if the turret can aim; else Aim Chassis (hold)"),
+    CHASSIS_AIM(Pad.DRIVER, "Fire (hold): turret AIM, fires; LOCKED, turns onto the CELL, then fires"),
     LAUNCH_SPOT(Pad.DRIVER, "*Go to Launch Spot (hold)"),
     RESET_HEADING(Pad.DRIVER, "Gyro Reset (hold 0.5\u00a0s)"),
     RESET_LEFT_CORNER(Pad.DRIVER, "Left Corner + Gyro Reset (hold 0.5\u00a0s; intake toward opponents)"),
     RESET_RIGHT_CORNER(Pad.DRIVER, "Right Corner + Gyro Reset (hold 0.5\u00a0s; intake toward opponents)"),
+    TURRET_LOCK(Pad.DRIVER, "Turret AIM / LOCKED (Toggle; sets what Circle does: 1 buzz AIM, 2 LOCKED)"),
     CAMERA_RELOCALIZE(Pad.DRIVER, "Camera Reset (hold 0.5\u00a0s, robot still)"),
     AUTO_PARK(Pad.DRIVER, "*Auto-Park (hold)"),
 
     // Operator
     OPERATOR_INTAKE(Pad.OPERATOR, "Intake (hold)"),
     UNJAM(Pad.OPERATOR, "Unjam (hold)"),
-    LAUNCHER_TOGGLE(Pad.OPERATOR, "Launcher Spin Up / Idle (Toggle)"),
+    LAUNCHER_TOGGLE(Pad.OPERATOR, "Launcher Spin Up / Idle (Toggle; pre-spin for the driver's Circle)"),
     LAUNCHER_TRIM_DOWN(Pad.OPERATOR, "Launcher Trim Down"),
     LAUNCHER_TRIM_UP(Pad.OPERATOR, "Launcher Trim Up"),
     LAUNCHER_TRIM_RESET(Pad.OPERATOR, "Launcher Trim Reset to 0"),
+    /** The bench's fire (Bench: Launch Test); never in the match layout, where the driver's Circle fires. */
     FIRE(Pad.OPERATOR, "Fire (hold; spins up first if idle)"),
     FLOWER_STICK(Pad.OPERATOR, "FLOWER Stick Deploy / Retract (Toggle)"),
-    TURRET_LOCK(Pad.OPERATOR, "Turret Autoaim (Toggle)"),
     TRIM_LEFT(Pad.OPERATOR, "Trim aim left"),
     TRIM_RIGHT(Pad.OPERATOR, "Trim aim right"),
     TRIM_RESET(Pad.OPERATOR, "Trim reset (aim and launcher)"),
-    TURRET_ZERO(Pad.OPERATOR, "Zero Turret (hold 0.5\u00a0s)");
+    TURRET_ZERO(Pad.OPERATOR, "Zero Turret (hold 0.5\u00a0s)"),
+    /** The bench's setup layer (Bench: Launch Test), held: never in the match layout. */
+    BENCH_SETUP(Pad.OPERATOR, "Setup layer (hold)");
 
     /** Which person, and so which gamepad. */
     public enum Pad { DRIVER, OPERATOR }

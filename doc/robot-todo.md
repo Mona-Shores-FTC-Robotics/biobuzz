@@ -81,6 +81,19 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    `arcRightDeg` (100° each until then); a robot that differs gets its line in `RobotDifferences`.
    **Stop:** either side under 60° → tell the mentor before the turret aims in a match.
 - [ ] Firing arc measured: 19429 left __° right __°, 20245 left __° right __°
+8. **Circle follows the turret mode, both robots** (code in the Circle PR, not on the robot
+   tonight). Basic Drive, HIVE upright with our CELL **up**, 4 POLLEN each time, phone filming the
+   CELL. Driver's R1 to **LOCKED** (two rumble blips, Match page reads LOCKED): from three spots (the right launch spot, mid-field facing
+   about 60° off the CELL, and near the far wall with the CELL behind-left), the driver holds Circle
+   and does nothing else. **Good:** each time the robot turns onto the CELL by itself, the launcher
+   spins up while it turns, and all 4 go once it is on (the match log's `fire (driver's Circle, aim
+   then fire)` line, then the shot lines). Letting go mid-turn stops the turn and fires nothing; the
+   right stick moved mid-turn hands the turn back and fires nothing. Then R1 to **AIM** (one blip): Circle
+   fires as before (the turret points). The operator's Circle and Triangle do nothing in either mode,
+   and the Controls page lists no operator fire or turret mode. In INIT, Triangle held 1 s on either
+   pad still discards a handoff (start fresh). **Stop:** it fires before it is on the CELL, or keeps turning
+   after Circle is let go → push the log.
+- [ ] Circle LOCKED: turned on and fired 4 from all three spots; AIM unchanged
 
 ## Belding work order (agreed 5 Nov)
 
@@ -1517,8 +1530,8 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       onto our CELL by itself (log: `turret at PLAY: AIM`). Driver holds Circle: it fires as the
       operator's FIRE does. Trim the aim 5° off and fire: it waits (log line `aim BLOCK`) until the
       trim is reset. Cover the camera and fire from a known pose: odometry's aim still lets it go.
-      Operator Triangle: LOCKED, and the driver's Circle still fires (it fires whenever the turret
-      can aim; it aims the chassis only on a locked-forward turret, 19429 today).
+      (Superseded by step 8 of tonight's list: the turret mode is now the driver's R1, and in LOCKED
+      Circle turns onto the CELL and then fires.)
 - [ ] **Square, Cross and Triangle pressed while still steering** (`FreshSticks`, #495). In 50 of
       51 Square presses cancelled within 0.1 s at Belding, the stick was already moving when Square
       went down. A stick already off centre at the press is now ignored until it centres once, or
