@@ -103,7 +103,8 @@ import java.util.Map;
  * rumble blip up, two down, a long buzz when D-pad down resets it to 0.
  *
  * <p>The operator's light bar is green at launch speed, amber spinning up, blue at idle, with a
- * short rumble the moment it reaches speed. The match log has every fire press with
+ * short rumble the first time each spin-up reaches speed ({@link SpinUpRumble}; off with
+ * {@link TeleOpConfig#atSpeedRumble}). The match log has every fire press with
  * its launcher speed, aim error, trim, pose and gates, every trim, who ran the intake each loop,
  * and every routine a stick cancelled. Each shot the launcher counts from its speed dip is one line
  * with the range to the CELL, which is #80's speed-vs-distance table filled in from ordinary
@@ -238,6 +239,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** The current launch-spot press has had its spin-up decided. */
     private boolean spotPressSeen;
     private Bar bar = Bar.NONE;
+    /** The at-speed rumble, once per spin-up. */
+    private final SpinUpRumble spinUpRumble = new SpinUpRumble();
+    /** This fire hold has had its arc-refusal rumble: once per hold, however often the arc flaps. */
+    private boolean arcRumbled;
     private String poseNote;
     private String autoParkNote;
     private double aimErrorDeg = Double.NaN;
@@ -1038,13 +1043,18 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (pressed) {
             log.event(fireLine(open));
         }
-        boolean refusing = (fireHeld || launchSpot.feedRequested()) && arcBlocked;
+        boolean wantsFeed = fireHeld || launchSpot.feedRequested();
+        boolean refusing = wantsFeed && arcBlocked;
+        if (!wantsFeed) arcRumbled = false;
         if (refusing && !arcRefusing) {
             log.event(String.format(Locale.US, "fire: refused, outside the firing arc (turret %.0f°, aim %s, arc +%.0f/-%.0f°)",
                     TurretEncoder.wrap180(robot.turret.angleDegrees()),
                     Double.isNaN(aimer.aimDeg()) ? "none" : String.format(Locale.US, "%.0f°", TurretEncoder.wrap180(aimer.aimDeg())),
                     TurretArc.left(), TurretArc.right()));
-            gamepad1.rumble(1.0, 1.0, ARC_RUMBLE_MS);
+            // Once per hold: a turret at the arc's edge flaps in and out of it, and each re-entry
+            // would buzz again.
+            if (!arcRumbled) gamepad1.rumble(1.0, 1.0, ARC_RUMBLE_MS);
+            arcRumbled = true;
         }
         arcRefusing = refusing;
         lastFire = fireHeld;
@@ -1112,14 +1122,21 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 aimer.source(), aimer.trimDeg(), turretMode, where, gates.summary(), outcome);
     }
 
-    /** The operator's light bar, sent only when it changes; a short rumble on reaching launch speed. */
+    /**
+     * The operator's light bar, sent only when it changes, following at speed; a short rumble the
+     * first time each spin-up reaches launch speed ({@link SpinUpRumble}), never on every re-entry.
+     */
     private void lightBar() {
-        Bar now = !launcherOwner.spinning() ? Bar.IDLE : robot.launcher.atSpeed() ? Bar.AT_SPEED : Bar.SPINNING;
+        boolean spinning = launcherOwner.spinning();
+        boolean atSpeed = robot.launcher.atSpeed();
+        if (spinUpRumble.update(spinning, atSpeed) && TeleOpConfig.atSpeedRumble) {
+            gamepad2.rumble(250);
+        }
+        Bar now = !spinning ? Bar.IDLE : atSpeed ? Bar.AT_SPEED : Bar.SPINNING;
         if (now == bar) return;
         switch (now) {
             case AT_SPEED:
                 gamepad2.setLedColor(0.0, 1.0, 0.0, Gamepad.LED_DURATION_CONTINUOUS);
-                gamepad2.rumble(250);
                 break;
             case SPINNING:
                 gamepad2.setLedColor(1.0, 0.6, 0.0, Gamepad.LED_DURATION_CONTINUOUS);
