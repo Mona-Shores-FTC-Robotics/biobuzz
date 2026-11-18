@@ -137,6 +137,14 @@ public abstract class GrabRoutine {
     private long preppedNs;
     private long progressNs;
     private double bestRemainingIn;
+    /** A two-step In's first leg's end ({@link #inOver}), or null: the In is one path. */
+    private Pose overPose;
+    /** The nearest the robot has been to {@link #overPose} on the first leg. */
+    private double overBestIn;
+    /** A two-step In is on its second leg, the straight push ({@link #inPushPower}). */
+    private boolean pushing;
+    /** When the push started, System.nanoTime. */
+    private long pushStartNs;
     /** The Back's own progress watch: the nearest the robot has been to where the In started, and when it last got nearer. */
     private double backBestIn;
     private long backProgressNs;
@@ -509,26 +517,58 @@ public abstract class GrabRoutine {
                     bestRemainingIn = remaining;
                     pushes = 1;
                     next(now, Phase.IN);
-                    driveIn(pose, in);
+                    driveIn(now, pose, in, remaining);
                 }
                 break;
             case IN:
-                if (remaining < bestRemainingIn - nn(stallProgressIn())) {
-                    bestRemainingIn = remaining;
-                    progressNs = now;
-                }
-                if (robot.drive.pathDone()) {
-                    pose = robot.drive.pose();
-                    remaining = Math.hypot(in.x() - pose.x(), in.y() - pose.y());
-                    inEndWhy = remaining <= 0.5 ? "reached"
-                            : String.format(Locale.US, "path done %.1f in short", remaining);
-                } else if (ms(now, phaseStartNs) > 2 * nn(stallMs()) && ms(now, progressNs) > nn(stallMs())) {
-                    // (Not in the first moments: a path ramps up from rest.)
-                    inEndWhy = String.format(Locale.US, "stalled %.1f in short", remaining);
-                } else if (ms(now, phaseStartNs) > nn(inTimeoutMs())) {
-                    inEndWhy = String.format(Locale.US, "timed out %.1f in short", remaining);
+                if (overPose != null && !pushing) {
+                    // A two-step In's first leg: over to the wall's line. Its end, a stall (against
+                    // the side wall) or the path's end, starts the push.
+                    double toOver = Math.hypot(overPose.x() - pose.x(), overPose.y() - pose.y());
+                    if (toOver < overBestIn - nn(stallProgressIn())) {
+                        overBestIn = toOver;
+                        progressNs = now;
+                    }
+                    String overWhy = robot.drive.pathDone() ? "path done"
+                            : stalled(now, phaseStartNs) ? String.format(Locale.US, "stalled %.1f in short", toOver)
+                            : null;
+                    if (overWhy != null) {
+                        startPush(now, pose, remaining, overWhy);
+                        break;
+                    }
+                    if (ms(now, phaseStartNs) > nn(inTimeoutMs())) {
+                        inEndWhy = String.format(Locale.US, "timed out on the way over, %.1f in short", remaining);
+                    }
+                } else {
+                    if (remaining < bestRemainingIn - nn(stallProgressIn())) {
+                        bestRemainingIn = remaining;
+                        progressNs = now;
+                    }
+                    if (pushing) {
+                        // The second leg: no path, so no braking at its end; the wall stops it.
+                        if (remaining <= 0.5) {
+                            inEndWhy = "reached";
+                        } else if (stalled(now, pushStartNs)) {
+                            inEndWhy = String.format(Locale.US, "stalled %.1f in short, pushing", remaining);
+                        } else if (ms(now, phaseStartNs) > nn(inTimeoutMs())) {
+                            inEndWhy = String.format(Locale.US, "timed out %.1f in short, pushing", remaining);
+                        } else {
+                            steer(pose, inPushPower());
+                        }
+                    } else if (robot.drive.pathDone()) {
+                        pose = robot.drive.pose();
+                        remaining = Math.hypot(in.x() - pose.x(), in.y() - pose.y());
+                        inEndWhy = remaining <= 0.5 ? "reached"
+                                : String.format(Locale.US, "path done %.1f in short", remaining);
+                    } else if (stalled(now, phaseStartNs)) {
+                        inEndWhy = String.format(Locale.US, "stalled %.1f in short", remaining);
+                    } else if (ms(now, phaseStartNs) > nn(inTimeoutMs())) {
+                        inEndWhy = String.format(Locale.US, "timed out %.1f in short", remaining);
+                    }
                 }
                 if (!inEndWhy.isEmpty()) {
+                    pushing = false;
+                    robot.drive.setAccelLimited(true);
                     inEnd = pose;
                     // Stalled: the robot has been against it since its last progress.
                     dwellFromNs = dwellFromContact() && inEndWhy.startsWith("stalled") ? progressNs : now;
@@ -572,7 +612,7 @@ public abstract class GrabRoutine {
                     progressNs = now;
                     bestRemainingIn = remaining;
                     next(now, Phase.IN);
-                    driveIn(pose, in);
+                    driveIn(now, pose, in, remaining);
                 }
                 break;
             case BACK:
@@ -823,6 +863,8 @@ public abstract class GrabRoutine {
 
     /** Drive stops (the sticks take the next loop), and the mechanisms stop. */
     private void stopAll() {
+        pushing = false;
+        robot.drive.setAccelLimited(true);
         robot.drive.drive(0.0, 0.0, 0.0);
         robot.intake.readCurrentEveryLoop(false);
         stopMechanisms();
@@ -846,8 +888,41 @@ public abstract class GrabRoutine {
      * gives one ({@link #inControl}), a curve through that control point, holding the heading turn
      * to {@code to}'s as a straight In does.
      */
-    private void driveIn(Pose from, Pose to) {
+    private void driveIn(long now, Pose from, Pose to, double remaining) {
+        pushing = false;
+        overPose = inOver(from, to);
+        if (overPose != null) {
+            overBestIn = Math.hypot(overPose.x() - from.x(), overPose.y() - from.y());
+            if (overBestIn < 1.0) {
+                // Already on the wall's line: straight to the push.
+                startPush(now, from, remaining, "already there");
+                return;
+            }
+            drivePath(from, overPose, inSpeed());
+            return;
+        }
         driveCurve(from, to, inSpeed(), inControl(from, to));
+    }
+
+    /**
+     * A two-step In's second leg: straight at {@link #in} at {@link #inPushPower}, steered onto its
+     * line and heading as the dwell is, with no acceleration limit, until the robot stalls against
+     * the wall. No Pedro path, so nothing brakes before the wall.
+     */
+    private void startPush(long now, Pose pose, double remaining, String overWhy) {
+        event.accept(String.format(Locale.US, "%s: over to the wall %.2f s (%s), then pushing in", what(),
+                ms(now, phaseStartNs) / 1000.0, overWhy));
+        pushing = true;
+        pushStartNs = now;
+        progressNs = now;
+        bestRemainingIn = remaining;
+        robot.drive.setAccelLimited(false);
+        steer(pose, inPushPower());
+    }
+
+    /** Less than {@link #stallProgressIn} of progress for {@link #stallMs}, not in a leg's first moments (a path ramps up from rest). */
+    private boolean stalled(long now, long legStartNs) {
+        return ms(now, legStartNs) > 2 * nn(stallMs()) && ms(now, progressNs) > nn(stallMs());
     }
 
     /** {@link #drivePath} when {@code control} is null, else a curve through it, the heading as a straight path's. */
@@ -878,6 +953,20 @@ public abstract class GrabRoutine {
      */
     protected Pose inControl(Pose from, Pose to) {
         return null;
+    }
+
+    /**
+     * A two-step In: where its first leg, a Pedro path, ends; then the robot pushes straight at the
+     * In's end ({@link #inPushPower}) until it stalls. Null (the default): the In is one path
+     * ({@link #inControl}). A GARDEN gather's, with its switch: over to the side wall's line first.
+     */
+    protected Pose inOver(Pose from, Pose to) {
+        return null;
+    }
+
+    /** A two-step In's push: forward power, 0 to 1. */
+    protected double inPushPower() {
+        return 1.0;
     }
 
     /** Pedro's per-path cap on speed, as a fraction of the active robot's top path speed. */

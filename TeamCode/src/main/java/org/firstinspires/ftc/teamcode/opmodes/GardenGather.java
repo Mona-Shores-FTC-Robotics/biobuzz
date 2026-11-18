@@ -183,6 +183,18 @@ public final class GardenGather extends GrabRoutine {
      */
     public static boolean curveBackOut = true;
     /**
+     * The drive in in two steps, instead of the one curve ({@link #curveToWall}): a path over to the
+     * side wall's line (the gather pose's, level with where the drive in starts), then a straight
+     * push down the wall at {@link #pushPower} until the robot stalls against the audience wall. The
+     * push is not a path, so nothing brakes before the wall, and it has no acceleration limit; it
+     * steers onto its line as the dwell does ({@link #lateralKp}, {@link #headingKp},
+     * {@link #maxCorrection}), the line {@link #laneTowardWallIn} into the side wall. The back out is
+     * unchanged. Off until tried (mentor, 18 Nov 2026: the curve's drive in was slow).
+     */
+    public static boolean twoStepIn = false;
+    /** With {@link #twoStepIn}: the push's forward power, 0 to 1. */
+    public static double pushPower = 1.0;
+    /**
      * The FLOWER stick goes down for the gather. Off: the stick stays in, there is no stick wait,
      * and the drive in aims {@link #noStickExtraDepthIn} deeper, so the intake itself goes all the
      * way to the audience wall. A test (mentor, 6 Nov 2026) of whether the stick helps at all: it
@@ -452,6 +464,25 @@ public final class GardenGather extends GrabRoutine {
         double h = to.heading();
         double along = (from.x() - to.x()) * Math.cos(h) + (from.y() - to.y()) * Math.sin(h);
         return new Pose(to.x() + along * Math.cos(h), to.y() + along * Math.sin(h), h);
+    }
+
+    /**
+     * With {@link #twoStepIn}: the first leg's end, on the gather pose's line along the side wall
+     * (not the In's, which is {@link #laneTowardWallIn} into the wall), level with {@code from}.
+     */
+    @Override
+    protected Pose inOver(Pose from, Pose to) {
+        return twoStepIn ? overTo(garden, from) : null;
+    }
+
+    /** A two-step drive in's first leg's end at {@code g}, from {@code from}: see {@link #inOver}. */
+    static Pose overTo(Garden g, Pose from) {
+        return wallControl(from, g.gather);
+    }
+
+    @Override
+    protected double inPushPower() {
+        return pushPower;
     }
 
     @Override

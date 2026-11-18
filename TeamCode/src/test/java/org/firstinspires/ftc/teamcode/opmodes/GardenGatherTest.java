@@ -56,6 +56,23 @@ public class GardenGatherTest {
     }
 
     /**
+     * The two-step drive in's first leg ends on the gather pose's own line along the side wall (red's
+     * x 8.5, the side 0.4 in off the wall), level with GARDEN_STAGING, not laneTowardWallIn into the
+     * wall: the push that follows presses it there. Blue's is red's turned half a turn.
+     */
+    @Test
+    public void theTwoStepFirstLegEndsOnTheGatherLineLevelWithTheStart() {
+        Pose red = GardenGather.overTo(GardenFieldPoints.RED, new Pose(11.5, 22.1, Math.toRadians(270)));
+        assertEquals(8.5, red.x(), EPS);
+        assertEquals(22.1, red.y(), EPS);
+        assertEquals(Math.toRadians(270), red.heading(), EPS);
+        double s = 141.5;
+        Pose blue = GardenGather.overTo(GardenFieldPoints.BLUE, new Pose(s - 11.5, s - 22.1, Math.toRadians(90)));
+        assertEquals(s - 8.5, blue.x(), 1e-6);
+        assertEquals(s - 22.1, blue.y(), 1e-6);
+    }
+
+    /**
      * The drive to GARDEN_STAGING lowers the stick over its last approachLowerWithinIn (24 in), and
      * only once the robot has faced the GARDEN for facingHoldMs (200 ms) without a break: the stick
      * came down on the field wall when lowered while the robot turned or faced another way.
