@@ -11,6 +11,39 @@ stopped being team spots on 16 Nov 2026. Each keeps those as points of its own, 
 that goes to the Autonomous menu launches only from spots aimed at their CELL (`AutoVolleySpotsTest`): open it in
 the Visualizer, which aims each spot a Launch all fires from, and save it.
 
+## R-Clockwise-19429 and R-Solo-19429: one loaded leg backward, 19429 only
+
+19429 has a bottom plate (mentor, 18 Nov 2026), so it may keep a load in while it drives backward;
+20245 has none. Each draft is master's `.pp` with one leg's heading changed, so the robot no longer
+turns round just to keep the load in:
+
+- `r-clockwise-19429.pp`: the outside lane from the GARDEN holds 270 (backward) and turns to 268.1
+  over the last 18%. Pick **Pickup GARDEN** in INIT; WALL_FLOWER is today's R-Clockwise. 20245 runs
+  L-Clockwise beside it, unchanged.
+- `r-solo-19429.pp`: the WALL FLOWER leg to `LEFT_AUTO_HIVE` turns 180 to 268.1 in its first 35%,
+  then drives backward.
+
+They run from the Utility menu as 30 s trials, **Drive: R-Clockwise-19429** and **Drive: R-Solo-19429**
+(`BackwardLoadTrial`). On a robot without `IntakeSubsystem.holdsLoadDrivingBackward` (on for 19429
+in `RobotDifferences`) they show a red line in INIT and do not move. The backward drive in
+[robot-todo](../../../doc/robot-todo.md) tonight's step 6 has to pass first. Requests:
+`sim-requests/r-clockwise-19429.json`, `r-solo-19429.json`.
+
+**In the simulator** (Belding calibration, `BIOBUZZ_BELDING_ROBOT=19429`, master's partners as
+drawn, TIPs counted by 30 s; run before the export, on the same headings patched into a scratch copy
+of the generated Java). The simulator never drops a load driving backward, so these are the time
+saved and nothing about the plate:
+
+| Draft | Leg, nose-first → backward | Second TIP, 19429's loads | Every load 4 |
+|---|---|---|---|
+| R-Clockwise-19429, Pickup GARDEN, beside L-Clockwise | 5.9 s → 3.1 s | 3 → 11 of 30 | 8 → 23 of 30 |
+| R-Solo-19429, alone | 4.2 s → 3.2 s | 0 → 0 of 60 | 6 → 12 of 60 |
+
+R-Solo's second TIP on 19429 is short loads, not time: it fires its third volley by about 23 s.
+Driving R-Clockwise's WALL FLOWER lane backward too saved 1.3 s, gained no TIPs and had the robots
+touch at 11.5 s in 2 of 30, so that lane stays nose-first. R-OutsideLane with backward lanes gained
+nothing. Neither draft has run on a robot.
+
 ## Clockwise with the backward legs: the three-TIP draft
 
 `r-clockwise-backward.pp` with `l-clockwise-backward.pp`: the Clockwise pair as it first ran
