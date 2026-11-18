@@ -59,6 +59,13 @@ public final class TeleOpConfig {
     public static double trimFineStepDeg = 0.5;
 
     /**
+     * The most aim trim the D-pad can set, degrees either way (mentor, 18 Nov 2026: on 20245 a
+     * run's presses took it to +92.5° and Circle was refused about 40 times). A press past it
+     * stops at it. Clamped to [0, 45]; NaN or negative is the default, 15.
+     */
+    public static double maxAimTrimDeg = 15.0;
+
+    /**
      * The launcher's speed when it idles (toggled off, or a Square press's keep-spinning time is
      * up), ticks per second. 0 stops it. Never above the launch speed
      * ({@code LauncherSubsystem.targetTicksPerSecond}, or the speed table's). It applies from the
@@ -91,6 +98,12 @@ public final class TeleOpConfig {
      * fine-trim button (Circle). Clamped to [0, 200], as {@link #launcherTrimStepTps}.
      */
     public static double launcherTrimFineStepTps = 10.0;
+
+    /**
+     * The most launch speed trim the D-pad can set, ticks per second either way (mentor, 18 Nov
+     * 2026). A press past it stops at it. Clamped to [0, 500]; NaN or negative is the default, 150.
+     */
+    public static double maxLauncherTrimTps = 150.0;
 
     /**
      * The intake runs all match unless something else asks: from PLAY, as in an Auto. The roller
