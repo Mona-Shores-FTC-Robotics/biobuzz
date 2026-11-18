@@ -21,7 +21,7 @@ public final class LUnderHiveFixAuto {
     public static final String SOURCE = "l-under-hive-fix.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|2:36PM";
+    public static final String SAVED = "11-18|4:55PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -64,17 +64,17 @@ public final class LUnderHiveFixAuto {
         Pose underTheHiveToRightAutoFixTipSegment1Start = p.of(55.3, 25.7, 268.1);
         Pose underTheHiveToRightAutoFixTipSegment1End = p.of(55.3, 25.7, 268.1);
         Pose underTheHiveToRightAutoFixTipSegment2Start = p.of(55.3, 25.7, 268.1);
-        Pose rightAutoFixTipParkUnderTheHiveControl1 = p.of(60, 50, 0);
-        Pose rightAutoFixTipParkUnderTheHiveControl2 = p.of(66, 80, 0);
-        Pose rightAutoFixTipParkUnderTheHiveControl3 = p.of(65, 105, 0);
+        Pose rightAutoFixTipParkUnderTheHiveControl1 = p.of(58.5, 50, 0);
+        Pose rightAutoFixTipParkUnderTheHiveControl2 = p.of(64.5, 80, 0);
+        Pose rightAutoFixTipParkUnderTheHiveControl3 = p.of(63.5, 105, 0);
         Pose rightAutoFixTipParkUnderTheHiveControl4 = p.of(62, 122, 0);
         Pose rightAutoFixTipParkUnderTheHiveControl5 = p.of(40, 122, 0);
         Pose rightAutoFixTipParkUnderTheHiveSegment1Start = p.of(14.5, 117.4, 90);
         Pose rightAutoFixTipParkUnderTheHiveSegment1End = p.of(14.5, 117.4, 90);
         Pose rightAutoFixTipParkUnderTheHiveSegment2Start = p.of(14.5, 117.4, 90);
-        Pose underHiveParkToLeftParkControl1 = p.of(60, 50, 0);
-        Pose underHiveParkToLeftParkControl2 = p.of(66, 80, 0);
-        Pose underHiveParkToLeftParkControl3 = p.of(65, 105, 0);
+        Pose underHiveParkToLeftParkControl1 = p.of(58.5, 50, 0);
+        Pose underHiveParkToLeftParkControl2 = p.of(64.5, 80, 0);
+        Pose underHiveParkToLeftParkControl3 = p.of(63.5, 105, 0);
         Pose underHiveParkToLeftParkControl4 = p.of(62, 122, 0);
         Pose underHiveParkToLeftParkControl5 = p.of(40, 122, 0);
         Pose underHiveParkToLeftParkSegment1Start = p.of(14.5, 117.4, 96.1);
@@ -141,15 +141,15 @@ public final class LUnderHiveFixAuto {
                 kit.path("open to LEFT_AUTO_HIVE", openToLeftAutoHive, 1.1),
                 kit.firstOf("LEFT up before 9 s, otherwise fix TIP 1",
                         kit.atMatchSeconds(9).then(
-                                kit.guarded("Timed out", rightAutoFixTipParkUnderTheHive, 3.7,
-                                        kit.path("under the HIVE to RIGHT_AUTO_FIX_TIP", underTheHiveToRightAutoFixTip, 3.3, rightAutoFixTipParkUnderTheHive, 3.7),
+                                kit.guarded("Timed out", rightAutoFixTipParkUnderTheHive, 3.6,
+                                        kit.path("under the HIVE to RIGHT_AUTO_FIX_TIP", underTheHiveToRightAutoFixTip, 3.3, rightAutoFixTipParkUnderTheHive, 3.6),
                                         kit.firstOf("RIGHT CELL up?",
                                                 kit.when("RightCellUp").then(
-                                                        kit.guarded("If RightCellUp", rightAutoFixTipParkUnderTheHive, 3.7,
+                                                        kit.guarded("If RightCellUp", rightAutoFixTipParkUnderTheHive, 3.6,
                                                                 kit.command("LaunchAll"),
                                                                 kit.firstOf("Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
                                                                         kit.atMatchSeconds(24.5)),
-                                                                kit.path("RIGHT_AUTO_FIX_TIP park under the HIVE", rightAutoFixTipParkUnderTheHive, 3.7))),
+                                                                kit.path("RIGHT_AUTO_FIX_TIP park under the HIVE", rightAutoFixTipParkUnderTheHive, 3.6))),
                                                 kit.afterMs(750).then(
                                                         kit.guarded("TIP came after all", underHiveParkToLeftPark, 3.7,
                                                                 kit.path("fix tip to RIGHT_AUTO_HIVE", fixTipToRightAutoHive, 0.8, underHiveParkToLeftPark, 3.7),
