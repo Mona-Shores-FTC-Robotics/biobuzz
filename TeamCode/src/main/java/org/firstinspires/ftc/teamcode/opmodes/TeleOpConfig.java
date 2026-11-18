@@ -99,8 +99,21 @@ public final class TeleOpConfig {
      */
     public static boolean enforceAtSpeedGate = true;
 
-    /** Enforce the aim gate: a feed starts only with the aim within {@link #aimToleranceDeg}. */
-    public static boolean enforceAimGate = false;
+    /**
+     * Enforce the aim gate: a feed starts only with the aim within {@link #aimToleranceDeg}, for
+     * the operator's FIRE and the driver's Circle alike. The aim is the camera's when it saw our
+     * CELL in the last {@code TurretAimer.SIGHTING_FRESH_MS}, else odometry's; with neither it is
+     * unknown and never blocks. On since 18 Nov 2026 (mentor), with Circle firing while the turret
+     * aims.
+     */
+    public static boolean enforceAimGate = true;
+
+    /**
+     * Basic Drive starts at PLAY with the turret aiming (AIM) rather than LOCKED straight ahead, on
+     * a robot whose turret aims ({@code TurretSubsystem.lockedForward} off: 20245 today). The
+     * operator's Triangle still toggles it. On since 18 Nov 2026 (mentor).
+     */
+    public static boolean startTurretAiming = true;
 
     /**
      * Enforce the aim gate while the driver's chassis aim (Circle) is turning the robot, whatever

@@ -17,7 +17,7 @@ public enum Action {
     FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold)"),
     SUPER_FLOWER_PICK(Pad.DRIVER, "*Super FLOWER Pick: fire the load, then pick (hold; Drive: Super FLOWER Pick only)"),
     GARDEN_GATHER(Pad.DRIVER, "*Gather GARDEN (hold)"),
-    CHASSIS_AIM(Pad.DRIVER, "Aim Chassis (hold)"),
+    CHASSIS_AIM(Pad.DRIVER, "Aim Chassis (hold); Fire (hold) while the turret aims"),
     LAUNCH_SPOT(Pad.DRIVER, "*Go to Launch Spot (hold)"),
     RESET_HEADING(Pad.DRIVER, "Gyro Reset (hold 0.5\u00a0s)"),
     RESET_LEFT_CORNER(Pad.DRIVER, "Left Corner + Gyro Reset (hold 0.5\u00a0s; intake toward opponents)"),
