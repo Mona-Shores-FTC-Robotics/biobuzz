@@ -82,8 +82,15 @@ public final class RobotDifferences {
                     FlowerStickSubsystem.EXTENDED = 0.55;
                 });
         differs(RobotIdentity.TEAM_19429,
-                "Lane colour sensor's presence threshold set to 0.068 on this robot (mentor, 17 Nov 2026)",
-                () -> ColorSensorSubsystem.presentAbove = 0.068);
+                "Lane colour sensor's empty lane reads 0.064 (top 0.1% 0.088) since more ambient light"
+                        + " reached the lane on 16 Nov, above the shared leave level 0.05, so a piece never"
+                        + " left and the lane read FULL empty; leave at 0.09, presence at 0.11 (dim POLLEN"
+                        + " parked 0.09 to 0.25), from 52 runs of 16 and 17 Nov 2026. Re-measure after"
+                        + " the black bottom plate (mentor, 18 Nov 2026; was presentAbove 0.068, 17 Nov)",
+                () -> {
+                    ColorSensorSubsystem.leaveBelow = 0.09;
+                    ColorSensorSubsystem.presentAbove = 0.11;
+                });
         differs(RobotIdentity.TEAM_19429,
                 "Turret unlocked: rewired like 20245, the 25-3 Speed servo (continuous) on Expansion Hub"
                         + " servo port 4 and the REV Through Bore encoder in the intake's encoder socket"
