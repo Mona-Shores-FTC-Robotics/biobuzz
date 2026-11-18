@@ -752,8 +752,8 @@ Use the work order above to select checks; the detailed mechanism checks below a
       [mentor session, 10 Nov]
 - [ ] **R-Solo-HumanPlayer draft (`autos/drafts/r-solo-human-player.pp`): R-Solo with a NECTAR from
       the human player** ([why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-solo-humanplayer-r-solo-with-a-nectar-from-the-human-player)).
-      Run it from the Utility **Drive: R-Solo-HumanPlayer** (it stops itself at 30 s). 20245 first (on
-      19429's loads the simulator never gets the second TIP), 19429 if there is time. Set-up: red, four
+      Run it from the Utility **Drive: R-Solo-HumanPlayer** (it stops itself at 30 s), on 20245 (the
+      mentor, 18 Nov: on 19429's loads no simulated case reaches a second TIP). Set-up: red, four
       POLLEN preloads, both FLOWERs full unless a run says otherwise, HIVE upright, `LEFT_START` empty,
       Panels open. The human player stands at the red wall behind the LOADING ZONE (A5) with one red
       NECTAR. **The mark:** a piece of tape at (21.5, 104.5), in A5, 2 in short of the A/B seam and 10 in
