@@ -80,7 +80,9 @@ import java.util.Map;
  * not on it, and uses the odometry only with neither ({@link ChassisAimTarget}); the operator's
  * FIRE then chooses the moment, waiting until the robot is on the CELL
  * ({@code TeleOpConfig.chassisAimGate}). Pose good, the spot; pose off, a gyro reset and the
- * chassis aim. The
+ * chassis aim. While the turret AIMs, the driver's Circle fires instead, as the operator's FIRE
+ * does (same spin-up, gates and feed): the turret points, so either person can choose the moment.
+ * Which Circle does is decided as it goes down, so a mode toggle mid-press changes nothing. The
  * operator's trim nudges either one and stays until reset. It zeroes itself, assuming it starts a
  * match at its home mark, or taking the Auto's zero when an Auto just ran
  * ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy}); the zero button always
@@ -208,6 +210,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** When the chassis aim button went down, ns; 0 while it is up. For its log line. */
     private long chassisAimSinceNs;
     private boolean lastFire;
+    /**
+     * This Circle press fires rather than aims the chassis: decided when it goes down, by the
+     * turret's mode then (AIM fires, LOCKED aims), so the operator toggling the mode mid-press
+     * neither fires a chassis aim nor turns a shot into a turn.
+     */
+    private boolean circleFires;
+    /** Circle was held last loop, to see a press start. */
+    private boolean lastCircle;
     /** The driver's slow button this loop, for the Robot page. */
     private boolean slowHeld;
     /** FIRE as pressed, before a Square volley holds it back: for that press's one log line. */
@@ -611,10 +621,19 @@ public class BasicDriveTeleOp extends RobotOpMode {
             holdStraightAtTrim();
         }
         double aimDeg = aimer.aimDeg();
+        // Circle is the driver's: with the turret aiming it fires (the turret does the pointing),
+        // LOCKED it aims the chassis. Which, is decided as the press starts (circleFires).
+        boolean circle = controls.held(Action.CHASSIS_AIM);
+        if (circle && !lastCircle) {
+            circleFires = turretMode == TurretMode.AIM;
+            if (circleFires) log.event("driver fire (Circle): pressed, turret aiming");
+        }
+        if (!circle) circleFires = false;
+        lastCircle = circle;
         // The chassis aim (Circle) is camera first: the CELL the camera sees, then where the camera
         // last saw it (the anchor), and only then the odometry's aim above (ChassisAimTarget). It
         // runs every loop, held or not, so the anchor is ready when the press starts.
-        boolean circleHeld = turretMode == TurretMode.LOCKED && controls.held(Action.CHASSIS_AIM);
+        boolean circleHeld = turretMode == TurretMode.LOCKED && circleAimHeld();
         chassisAiming = circleHeld;
         Pose here = robot.drive.pose();
         HiveTracker ourHive = robot.hive.of(setup.alliance());
@@ -652,7 +671,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // Square: the spot is picked from the tile row the robot is in when the press starts.
         boolean spotHeld = controls.held(Action.LAUNCH_SPOT) && !grabActive();
         launchSpot.update(spotHeld, setup.alliance(), spotSticks.moved(spotHeld, sticksMoved, nowS, staleS),
-                controls.held(Action.FIRE) && !launchSpot.wantsLauncher());
+                fireButtonHeld() && !launchSpot.wantsLauncher());
         updateTableSpeed();
         spotLauncher();
         boolean chassisAim = chassisAim(rightStick);
@@ -721,7 +740,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * cancel lasts until the button is let go.
      */
     private boolean chassisAim(boolean rightStick) {
-        if (!controls.held(Action.CHASSIS_AIM)) {
+        if (!circleAimHeld()) {
             if (chassisAimSinceNs != 0) {
                 // One line per press, to compare with the launch-spot button's (LaunchSpotDrive).
                 // aimErrorDeg is this loop's, the turret's own aim now the button is up; the press's
@@ -830,7 +849,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (!superLine.isEmpty()) display.line(superLine);
         String gather = gatherer.line();
         if (!gather.isEmpty()) display.line(gather);
-        if (controls.held(Action.CHASSIS_AIM)) {
+        if (circleFires) {
+            display.line("Circle: firing (turret aiming)");
+        } else if (circleAimHeld()) {
             display.line(chassisAimCancelled ? "Chassis aim: cancelled by the right stick (let go to re-arm)"
                     : turretMode == TurretMode.AIM ? "Chassis aim: off while the turret aims (lock it first)"
                     : "Chassis aim: " + chassisTarget.describe());
@@ -978,7 +999,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * Every press is one log line with what a gate would have said.
      */
     private void fire() {
-        boolean rawFire = controls.held(Action.FIRE);
+        boolean rawFire = fireButtonHeld();
         // A Square press that fires owns the shot: the operator's FIRE feeds nothing until the press
         // ends, so the volley still waits for the spot, aim and speed. Without goToSpotAlsoFires,
         // Square only drives and FIRE is theirs.
@@ -1026,6 +1047,20 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
     }
 
+    /**
+     * A fire button is held: the operator's FIRE, or the driver's Circle on a press that began with
+     * the turret aiming ({@link #circleFires}). Both are the one fire: same spin-up, gates and
+     * feed, and Square's volley holds back either.
+     */
+    private boolean fireButtonHeld() {
+        return controls.held(Action.FIRE) || circleFires;
+    }
+
+    /** Circle is held as the chassis aim: a press that began with the turret LOCKED. */
+    private boolean circleAimHeld() {
+        return controls.held(Action.CHASSIS_AIM) && !circleFires;
+    }
+
     /** Unjam on either pad: it reverses the feeder as well as the intake. */
     private boolean unjamHeld() {
         return controls.held(Action.UNJAM) || controls.held(Action.DRIVER_UNJAM);
@@ -1041,8 +1076,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 : !open && spunUpByFire ? "SPINNING UP: feeds at launch speed"
                 : !open ? "WAITING: an enforced gate is closed"
                 : gates.anyWouldBlock() ? "fired; a gate would have blocked it (shadow)" : "fired; gates clear";
-        return String.format(Locale.US, "fire: launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
+        return String.format(Locale.US, "fire (%s): launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
                 (robot.launcher.leftTicksPerSecond() + robot.launcher.rightTicksPerSecond()) / 2.0,
+                circleFires ? controls.held(Action.FIRE) ? "operator and driver" : "driver's Circle" : "operator",
                 robot.launcher.target(), launcherOwner.spinning() ? "" : " (idle)",
                 Double.isNaN(aimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f°", aimErrorDeg),
                 aimer.source(), aimer.trimDeg(), turretMode, where, gates.summary(), outcome);
