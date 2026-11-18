@@ -1445,7 +1445,7 @@ the wheels' centre as 39, 42.3, 50.5, 55.4). What is left here is the right corn
       than before → note which side the misses fall.
 - [ ] **The Autos' four launch spots, by hand first (Basic Drive, HIVE upright, a taped mark at
       each).** `AutoLaunchSpots`, drawn 16 Nov and never launched from: `LEFT_AUTO_HIVE`
-      (61.9, 120.4, 268.1°), `LEFT_AUTO_OFFSET` (40.7, 121.1, 298.7°), `RIGHT_AUTO_HIVE`
+      (61.4, 120.45, 268.9°), `LEFT_AUTO_OFFSET` (40.7, 121.1, 298.7°), `RIGHT_AUTO_HIVE`
       (59.2, 20.9, 96.1°), `RIGHT_AUTO_OFFSET` (32.1, 16.4, 61°); blue's are these turned half a
       turn. Tape each from the walls, place the robot on it at its heading, turret locked, and
       fire five volleys of four. Write the count that stays in of 20 at each, and the range the

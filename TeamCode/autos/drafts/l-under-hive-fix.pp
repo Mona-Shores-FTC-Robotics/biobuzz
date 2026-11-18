@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T18:59:11.868Z",
+  "timestamp": "2026-11-18T19:36:00.224Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -19,50 +19,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 270,
-        "endDeg": 268.1
-      }
-    },
-    {
-      "id": "l-left-abort-park",
-      "color": "#4e79a7",
-      "name": "left abort park to LEFT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 268.1,
-        "endDeg": 360
-      }
-    },
-    {
-      "id": "link-1",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61.9,
-        "y": 120.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 268.1
+        "endDeg": 268.9
       }
     },
     {
@@ -209,7 +173,7 @@
       }
     },
     {
-      "id": "link-2",
+      "id": "link-1",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -323,18 +287,18 @@
       }
     },
     {
-      "id": "link-3",
+      "id": "link-2",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -374,8 +338,9 @@
         }
       ],
       "heading": {
-        "type": "constant",
-        "degrees": 270
+        "type": "linear",
+        "startDeg": 268.9,
+        "endDeg": 270
       }
     },
     {
@@ -474,7 +439,7 @@
       }
     },
     {
-      "id": "link-4",
+      "id": "link-3",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -530,18 +495,18 @@
       }
     },
     {
-      "id": "link-5",
+      "id": "link-4",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -688,7 +653,7 @@
       }
     },
     {
-      "id": "link-6",
+      "id": "link-5",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -1006,14 +971,6 @@
     },
     {
       "kind": "path",
-      "lineId": "l-left-abort-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-1"
-    },
-    {
-      "kind": "path",
       "lineId": "l-fix-under-hive"
     },
     {
@@ -1022,7 +979,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-2"
+      "lineId": "link-1"
     },
     {
       "kind": "path",
@@ -1034,7 +991,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-3"
+      "lineId": "link-2"
     },
     {
       "kind": "path",
@@ -1046,7 +1003,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-4"
+      "lineId": "link-3"
     },
     {
       "kind": "path",
@@ -1054,7 +1011,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-5"
+      "lineId": "link-4"
     },
     {
       "kind": "path",
@@ -1066,7 +1023,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-6"
+      "lineId": "link-5"
     },
     {
       "kind": "path",
@@ -1153,9 +1110,9 @@
         270
       ],
       "LEFT_AUTO_HIVE": [
-        61.9,
-        120.4,
-        268.1
+        61.4,
+        120.45,
+        268.9
       ],
       "GARDEN_STAGING": [
         11.5,
@@ -1188,7 +1145,6 @@
       "l-early-garden": "GARDEN_STAGING",
       "l-garden-exit": "RIGHT_AUTO_HIVE",
       "l-under-hive-park": "LEFT_PARK",
-      "l-left-abort-park": "LEFT_PARK",
       "l-garden-abort-park": "LEFT_PARK",
       "l-to-wall-flower": "WALL_FLOWER_STAGING",
       "l-flower-exit": "RIGHT_AUTO_HIVE",
@@ -1431,11 +1387,9 @@
       "link-2",
       "link-3",
       "link-4",
-      "link-5",
-      "link-6"
+      "link-5"
     ],
     "parkFrom": {
-      "card-l-open": "l-left-abort-park",
       "card-l-early-garden": "l-garden-abort-park",
       "card-l-garden-exit": "l-under-hive-park",
       "card-l-to-wall-flower": "l-flower-abort-park",

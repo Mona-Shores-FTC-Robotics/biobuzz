@@ -227,8 +227,8 @@
   ],
   "metadata": {
     "AutoSource": "drafts/r-clockwise-19429.pp",
-    "SavedBy": "backward-legs session, 18 Nov 2026",
-    "SavedAt": "2026-11-18T19:40:00Z",
+    "SavedBy": "backward-legs session, 18 Nov 2026; LEFT_AUTO_HIVE 0.5 in off the centre line",
+    "SavedAt": "2026-11-18T19:45:00+00:00",
     "SimNote": "R-Clockwise with the outside lane from the GARDEN driven backward (19429, bottom plate). The simulator never spills a load driving backward. For 19429's own loads run it with BIOBUZZ_BELDING_ROBOT=19429"
   }
 }

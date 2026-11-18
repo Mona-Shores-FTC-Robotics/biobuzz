@@ -21,7 +21,7 @@ public final class RClockwiseAuto {
     public static final String SOURCE = "r-clockwise.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-16|5:54PM";
+    public static final String SAVED = "11-18|2:36PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -52,7 +52,7 @@ public final class RClockwiseAuto {
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
         Pose gardenStaging = p.of(11.5, 22.1, 270);
-        Pose leftAutoHive = p.of(61.9, 120.4, 268.1);
+        Pose leftAutoHive = p.of(61.4, 120.45, 268.9);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose rightAutoFixTip = p.of(55.3, 25.7, 90);
         Pose rightPark = p.of(14.5, 98.7, 0);
@@ -63,12 +63,12 @@ public final class RClockwiseAuto {
         Pose outsideLaneFromTheFlowerToLeftAutoHiveControl2 = p.of(30, 98, 0);
         Pose outsideLaneFromTheFlowerToLeftAutoHiveControl3 = p.of(38, 116, 0);
         Pose outsideLaneFromTheFlowerToLeftAutoHiveControl4 = p.of(52, 118, 0);
-        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment1Start = p.of(61.9, 120.4, 180);
-        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment1End = p.of(61.9, 120.4, 90);
-        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment2Heading = p.of(61.9, 120.4, 90);
-        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment3Start = p.of(61.9, 120.4, 90);
-        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment3End = p.of(61.9, 120.4, 0);
-        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment4Start = p.of(61.9, 120.4, 360);
+        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment1Start = p.of(61.4, 120.45, 180);
+        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment1End = p.of(61.4, 120.45, 90);
+        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment2Heading = p.of(61.4, 120.45, 90);
+        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment3Start = p.of(61.4, 120.45, 90);
+        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment3End = p.of(61.4, 120.45, 0);
+        Pose outsideLaneFromTheFlowerToLeftAutoHiveSegment4Start = p.of(61.4, 120.45, 360);
         Pose catchParkToRightParkControl1 = p.of(60, 101, 0);
         Pose catchParkToRightParkControl2 = p.of(34, 100.6, 0);
         Pose catchParkToRightParkSegment1Start = p.of(14.5, 98.7, 268.1);
@@ -84,21 +84,21 @@ public final class RClockwiseAuto {
         Pose outsideLaneFromTheGardenToLeftAutoHiveControl3 = p.of(30, 98, 0);
         Pose outsideLaneFromTheGardenToLeftAutoHiveControl4 = p.of(38, 116, 0);
         Pose outsideLaneFromTheGardenToLeftAutoHiveControl5 = p.of(52, 118, 0);
-        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment1Start = p.of(61.9, 120.4, 270);
-        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment1End = p.of(61.9, 120.4, 180);
-        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment2Start = p.of(61.9, 120.4, 180);
-        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment2End = p.of(61.9, 120.4, 90);
-        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment3Heading = p.of(61.9, 120.4, 90);
-        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment4Start = p.of(61.9, 120.4, 90);
-        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment4End = p.of(61.9, 120.4, 0);
-        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment5Start = p.of(61.9, 120.4, 360);
+        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment1Start = p.of(61.4, 120.45, 270);
+        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment1End = p.of(61.4, 120.45, 180);
+        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment2Start = p.of(61.4, 120.45, 180);
+        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment2End = p.of(61.4, 120.45, 90);
+        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment3Heading = p.of(61.4, 120.45, 90);
+        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment4Start = p.of(61.4, 120.45, 90);
+        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment4End = p.of(61.4, 120.45, 0);
+        Pose outsideLaneFromTheGardenToLeftAutoHiveSegment5Start = p.of(61.4, 120.45, 360);
         Pose toScoringFlowerStagingSegment1Heading = p.of(47.2, 119.3, 268.1);
         Pose toScoringFlowerStagingSegment2Start = p.of(47.2, 119.3, 268.1);
         Pose scoringFlowerParkToRightParkControl1 = p.of(40, 100, 0);
         Pose scoringFlowerParkToRightParkControl2 = p.of(28, 96, 0);
-        Pose turnToLeftAutoHiveSegment1Start = p.of(61.9, 120.4, 450);
-        Pose turnToLeftAutoHiveSegment1End = p.of(61.9, 120.4, 360);
-        Pose turnToLeftAutoHiveSegment2Start = p.of(61.9, 120.4, 360);
+        Pose turnToLeftAutoHiveSegment1Start = p.of(61.4, 120.45, 450);
+        Pose turnToLeftAutoHiveSegment1End = p.of(61.4, 120.45, 360);
+        Pose turnToLeftAutoHiveSegment2Start = p.of(61.4, 120.45, 360);
         Pose underTheHiveToRightAutoFixTipControl1 = p.of(59.5, 101.6, 0);
         Pose underTheHiveToRightAutoFixTipControl2 = p.of(62, 72, 0);
         Pose underTheHiveToRightAutoFixTipControl3 = p.of(59.5, 40, 0);

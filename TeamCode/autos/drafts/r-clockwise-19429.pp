@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-16T22:54:40.865Z",
+  "timestamp": "2026-11-18T19:36:38.947Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -81,8 +81,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [
         {
@@ -138,7 +138,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 360,
-                "endDeg": 268.1
+                "endDeg": 268.9
               }
             }
           ]
@@ -334,8 +334,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [
         {
@@ -377,7 +377,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 270,
-                "endDeg": 268.1
+                "endDeg": 268.9
               }
             }
           ]
@@ -480,8 +480,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
@@ -503,7 +503,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 360,
-                "endDeg": 268.1
+                "endDeg": 268.9
               }
             }
           ]
@@ -779,9 +779,9 @@
         270
       ],
       "LEFT_AUTO_HIVE": [
-        61.9,
-        120.4,
-        268.1
+        61.4,
+        120.45,
+        268.9
       ],
       "SCORING_FLOWER_STAGING": [
         47.2,

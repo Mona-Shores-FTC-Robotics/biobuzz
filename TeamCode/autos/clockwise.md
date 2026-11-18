@@ -227,7 +227,7 @@ Launch spots, all from `LaunchSpots`, drawn for red:
 | Spot | Who shoots there | Pose |
 |---|---|---|
 | RIGHT_START | R's preloads; L's rescue of TIP 1 | (55.6, 7.7, 90°), back on the audience wall |
-| LEFT_AUTO_HIVE | L's preloads (it moves up from LEFT_START), then R's first load (its second volley), its look at the HIVE, and its rescue of TIP 2 | (61.9, 120.4, 268.1°), 40 in from the CELL |
+| LEFT_AUTO_HIVE | L's preloads (it moves up from LEFT_START), then R's first load (its second volley), its look at the HIVE, and its rescue of TIP 2 | (61.4, 120.45, 268.9°), 40 in from the CELL |
 | RIGHT_AUTO_OFFSET | L's pickup load | (32.1, 16.4, 61°), 52 in out, 4 in clear of R arriving on the fix-TIP spot |
 | RIGHT_AUTO_FIX_TIP | R's TIP 3 volley, and L's rescue of TIP 1 | (55.3, 25.7, 90°), straight below the under-HIVE lane, 35 in from the CELL |
 

@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T17:46:26.302Z",
+  "timestamp": "2026-11-18T19:36:40.580Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -76,8 +76,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [
         {
@@ -92,7 +92,7 @@
       "heading": {
         "type": "piecewise",
         "startDeg": 180,
-        "endDeg": 268.1,
+        "endDeg": 268.9,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
@@ -116,7 +116,7 @@
               "continueFromPrevious": true,
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 268.1
+                "endDeg": 268.9
               }
             }
           ]
@@ -150,13 +150,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -91.89999999999998
+        "degrees": -91.10000000000002
       }
     },
     {
@@ -176,7 +176,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": -91.89999999999998,
         "endDeg": 90
       }
     },
@@ -218,7 +218,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 90
+        "degrees": -270
       }
     },
     {
@@ -232,14 +232,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
-        "endDeg": 268.1
+        "endDeg": 268.9
       }
     },
     {
@@ -264,7 +264,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
       }
     },
@@ -274,13 +274,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.1
+        "degrees": 268.9
       }
     },
     {
@@ -305,7 +305,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 0
       }
     },
@@ -315,13 +315,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.9,
-        "y": 120.4
+        "x": 61.4,
+        "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -91.89999999999998
+        "degrees": -91.10000000000002
       }
     },
     {
@@ -408,7 +408,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 96.1,
+        "startDeg": 96.10000000000002,
         "endDeg": 0
       }
     },
@@ -449,7 +449,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 96.1,
+        "startDeg": 96.10000000000002,
         "endDeg": 0
       }
     }
@@ -774,9 +774,9 @@
         270
       ],
       "LEFT_AUTO_HIVE": [
-        61.9,
-        120.4,
-        268.1
+        61.4,
+        120.45,
+        268.9
       ],
       "RIGHT_AUTO_HIVE": [
         59.2,
