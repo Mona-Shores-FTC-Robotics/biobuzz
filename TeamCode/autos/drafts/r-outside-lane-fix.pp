@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T18:43:28.465Z",
+  "timestamp": "2026-11-18T18:59:12.702Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -986,10 +986,10 @@
       {
         "id": "R-wait-left",
         "kind": "firstOf",
-        "label": "LEFT up before 21.5 s, otherwise park",
+        "label": "LEFT up before 20.5 s, otherwise park",
         "rows": [
           {
-            "afterMs": 21500,
+            "afterMs": 20500,
             "matchClock": true,
             "cards": [
               {

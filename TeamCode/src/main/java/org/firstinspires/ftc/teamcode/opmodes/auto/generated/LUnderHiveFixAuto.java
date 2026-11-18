@@ -21,7 +21,7 @@ public final class LUnderHiveFixAuto {
     public static final String SOURCE = "l-under-hive-fix.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|1:43PM";
+    public static final String SAVED = "11-18|1:59PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -149,8 +149,8 @@ public final class LUnderHiveFixAuto {
                                                         kit.when("RightCellUp").then(
                                                                 kit.guarded("If RightCellUp", rightAutoFixTipParkUnderTheHive, 3.7,
                                                                         kit.command("LaunchAll"),
-                                                                        kit.firstOf("Hold at RIGHT_AUTO_FIX_TIP until 23 s, while R fires at LEFT and leaves",
-                                                                                kit.atMatchSeconds(23)),
+                                                                        kit.firstOf("Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+                                                                                kit.atMatchSeconds(24.5)),
                                                                         kit.path("RIGHT_AUTO_FIX_TIP park under the HIVE", rightAutoFixTipParkUnderTheHive, 3.7))),
                                                         kit.afterMs(750).then(
                                                                 kit.guarded("TIP came after all", underHiveParkToLeftPark, 3.7,

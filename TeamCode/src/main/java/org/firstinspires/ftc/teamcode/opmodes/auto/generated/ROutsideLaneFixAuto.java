@@ -21,7 +21,7 @@ public final class ROutsideLaneFixAuto {
     public static final String SOURCE = "r-outside-lane-fix.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|1:43PM";
+    public static final String SAVED = "11-18|1:59PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -131,8 +131,8 @@ public final class ROutsideLaneFixAuto {
                         kit.route("Pickup", 1, () -> kit.path("garden to GARDEN_STAGING", gardenToGardenStaging, 2, gardenAbortParkToRightPark, 3)),
                         kit.route("Pickup", 1, () -> kit.command("GardenGather", 5.5)),
                         kit.route("Pickup", 1, () -> kit.path("wall lane north from the GARDEN to LEFT_AUTO_OFFSET", wallLaneNorthFromTheGardenToLeftAutoOffset, 3.5, leftParkToRightPark, 1.9)),
-                        kit.firstOf("LEFT up before 21.5 s, otherwise park",
-                                kit.atMatchSeconds(21.5).then(
+                        kit.firstOf("LEFT up before 20.5 s, otherwise park",
+                                kit.atMatchSeconds(20.5).then(
                                         kit.guarded("Timed out", leftParkToRightPark, 1.9,
                                                 kit.path("left park to RIGHT_PARK", leftParkToRightPark, 1.9))),
                                 kit.when("LeftCellUp").then(

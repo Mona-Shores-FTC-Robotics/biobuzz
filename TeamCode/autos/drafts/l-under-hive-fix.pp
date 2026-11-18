@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T18:43:27.644Z",
+  "timestamp": "2026-11-18T18:59:11.868Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -1242,10 +1242,10 @@
                       {
                         "id": "L-fix-hold",
                         "kind": "firstOf",
-                        "label": "Hold at RIGHT_AUTO_FIX_TIP until 23 s, while R fires at LEFT and leaves",
+                        "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
                         "rows": [
                           {
-                            "afterMs": 23000,
+                            "afterMs": 24500,
                             "matchClock": true,
                             "cards": []
                           }
