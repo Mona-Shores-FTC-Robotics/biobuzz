@@ -111,7 +111,7 @@ public final class TeleOpConfig {
     /**
      * Basic Drive starts at PLAY with the turret aiming (AIM) rather than LOCKED straight ahead, on
      * a robot whose turret aims ({@code TurretSubsystem.lockedForward} off: both robots). The
-     * operator's Triangle still toggles it. On since 18 Nov 2026 (mentor).
+     * driver's R1 still toggles it. On since 18 Nov 2026 (mentor).
      */
     public static boolean startTurretAiming = true;
 

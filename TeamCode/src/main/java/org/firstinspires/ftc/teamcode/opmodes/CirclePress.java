@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 /**
- * What one press of the driver's Circle does, decided as it goes down from the operator's turret
- * mode (Triangle), not from the robot's config (mentor, 18 Nov 2026). Pure, so a test drives it.
+ * What one press of the driver's Circle does, decided as it goes down from the turret mode (the
+ * driver's R1), not from the robot's config (mentor, 18 Nov 2026). Pure, so a test drives it.
  *
  * <ul>
- *   <li><b>{@link Kind#FIRE}</b>, the turret AIMing: Circle fires as the operator's FIRE does (same
+ *   <li><b>{@link Kind#FIRE}</b>, the turret AIMing: Circle fires at once (the usual
  *       spin-up, gates and feed). The turret points.</li>
  *   <li><b>{@link Kind#AIM_AND_FIRE}</b>, the turret LOCKED (or a robot whose turret is locked
  *       forward): Circle turns the robot onto the CELL with the chassis aim ({@link ChassisAimTarget},
@@ -34,8 +34,8 @@ final class CirclePress {
 
     /**
      * Whether an aim-and-fire press may start a feed: the aim gate passes (on the CELL within the
-     * tolerance; an unknown aim is not on it) and the launcher is at speed, whatever the gates the
-     * operator's FIRE enforces. A plain fire press is the operator's FIRE: {@code gatesOpen}.
+     * tolerance; an unknown aim is not on it) and the launcher is at speed, whatever the other gates
+     * enforce. A plain fire press goes by the enforced gates alone: {@code gatesOpen}.
      */
     static boolean mayFeed(Kind kind, boolean gatesOpen, FireGates.Verdict aim, boolean atSpeed) {
         if (kind == Kind.FIRE) return gatesOpen;

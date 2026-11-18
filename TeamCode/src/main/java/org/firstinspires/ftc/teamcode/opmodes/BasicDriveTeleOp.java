@@ -71,8 +71,8 @@ import java.util.Map;
  * <h2>Aiming</h2>
  *
  * <p>The turret starts at PLAY aiming when it can ({@code TeleOpConfig.startTurretAiming}, on a
- * robot whose turret is not {@code lockedForward}), else LOCKED straight ahead; the operator's
- * lock button switches it between LOCKED and AIM at our CELL ({@link TurretAimer}: left half of the field, left CELL; right half, right
+ * robot whose turret is not {@code lockedForward}), else LOCKED straight ahead; the driver's R1
+ * (one rumble blip for AIM, two for LOCKED; the mode is large on the Match page) switches it between LOCKED and AIM at our CELL ({@link TurretAimer}: left half of the field, left CELL; right half, right
  * CELL). While LOCKED, the driver has two ways to shoot. The launch-spot buttons trust the
  * odometry: experimentally, Square drives to the nearest launch spot, on the side wall from the
  * tile row against the end wall and the close one from the next row in ({@link LaunchSpots}),
@@ -86,7 +86,7 @@ import java.util.Map;
  * and at speed; with the turret AIMing it fires at once (the turret points; the usual spin-up,
  * gates and feed). Letting go stops the turn and the feed; a right stick moved after the press hands
  * the turn back and ends that press's fire. The driver owns every shot: the operator has no fire
- * button (18 Nov 2026), and their Triangle (turret mode) sets what Circle does. Pose good, the spot;
+ * button (18 Nov 2026), and the driver's own R1 (turret mode) sets what Circle does. Pose good, the spot;
  * pose off, a gyro reset and Circle. The
  * operator's trim nudges either one and stays until reset. It zeroes itself, assuming it starts a
  * match at its home mark, or taking the Auto's zero when an Auto just ran
@@ -412,7 +412,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
             aimer.off();
             robot.turret.home();
         }
-        log.event("turret " + turretMode);
+        log.event("turret " + turretMode + " (driver's R1)");
+        // Felt as well as seen: one blip for AIM, two for LOCKED, on the driver's pad.
+        gamepad1.rumbleBlips(turretMode == TurretMode.AIM ? 1 : 2);
     }
 
     /**
@@ -736,6 +738,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // the Driver Station mid-match, so it is a few huge lines and one alert, nothing to parse:
         // the launch trim at the top, the aim trim at the bottom, so the two are not mistaken.
         // Everything a person testing wants is on the Robot page (describeRobotPage).
+        // The turret mode decides what Circle does, so it is on the Match page in large type.
+        if (!TurretSubsystem.lockedForward) {
+            display.line(Display.huge(turretMode == TurretMode.AIM ? "AIM: Circle fires" : "LOCKED: Circle turns, then fires",
+                    turretMode == TurretMode.AIM ? Display.Level.OK : Display.Level.WARN));
+        }
         display.line(launchTrimLine(launcherTrimTps));
         display.line(launcherLine());
         display.line(piecesLine(robot.colorSensor.lane().count(), robot.colorSensor.full()));
