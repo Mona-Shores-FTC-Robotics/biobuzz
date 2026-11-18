@@ -51,6 +51,7 @@ import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
+import org.firstinspires.ftc.teamcode.util.VoltageCompensation;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.FieldLayers;
@@ -212,6 +213,8 @@ public abstract class RobotOpMode extends OpMode {
     private long lastBatteryNs;
     /** The battery's last reading, volts: at INIT and then once a second. NaN with no sensor. */
     private double lastBatteryVolts = Double.NaN;
+    /** What the launcher and feeder compensate by: a lone sagging read is not taken ({@link VoltageCompensation.Steady}). */
+    private final VoltageCompensation.Steady steadyBattery = new VoltageCompensation.Steady();
     private Alliance loggedAlliance;
     private MatchSetup.Source loggedSource;
 
@@ -475,7 +478,7 @@ public abstract class RobotOpMode extends OpMode {
             double volts = battery.getVoltage();
             lastBatteryVolts = volts;
             batteryAtInitVolts = volts;
-            robot.batteryVolts(volts);
+            robot.batteryVolts(steadyBattery.update(volts));
             log.metadata("BatteryAtInit", String.format(Locale.US, "%.2f V", volts));
             if (volts < lowBatteryVolts()) {
                 batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, lowBatteryVolts());
@@ -1734,7 +1737,8 @@ public abstract class RobotOpMode extends OpMode {
             log.put("/Robot/BatteryVolts", lastBatteryVolts);
             lastBatteryNs = now;
             // For the launcher's F and the feeder's power when they compensate: this read, no other.
-            robot.batteryVolts(lastBatteryVolts);
+            robot.batteryVolts(steadyBattery.update(lastBatteryVolts));
+            log.put("/Robot/BatteryVoltsSteady", steadyBattery.volts());
         }
         log.commit();
     }

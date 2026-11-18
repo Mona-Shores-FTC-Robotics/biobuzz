@@ -60,4 +60,32 @@ public class VoltageCompensationTest {
         assertTrue("two percent", VoltageCompensation.worthApplying(1.05, 1.071, 0.01));
         assertTrue("back to 1: switched off", VoltageCompensation.worthApplying(1.005, 1.0, 0.01));
     }
+
+    /** 20245, Belding 14:39 R-Solo: 12.94 V before PLAY, 9.57 V caught at PLAY, 11.66 V a second later. */
+    @Test
+    public void aLoneSagIsNotTakenAndTheNextReadingIs() {
+        VoltageCompensation.Steady steady = new VoltageCompensation.Steady();
+        assertTrue(Double.isNaN(steady.volts()));
+        assertEquals(12.94, steady.update(12.94), EPS);
+        assertEquals("the sag at PLAY", 12.94, steady.update(9.57), EPS);
+        assertEquals("a real drop is taken one reading later", 11.66, steady.update(11.66), EPS);
+    }
+
+    @Test
+    public void aDropThatLastsIsTakenOneReadingLate() {
+        VoltageCompensation.Steady steady = new VoltageCompensation.Steady();
+        steady.update(12.5);
+        assertEquals(12.5, steady.update(11.0), EPS);
+        assertEquals(11.0, steady.update(11.0), EPS);
+        assertEquals("a rise is taken at once", 12.0, steady.update(12.0), EPS);
+    }
+
+    @Test
+    public void aMissingReadingChangesNothing() {
+        VoltageCompensation.Steady steady = new VoltageCompensation.Steady();
+        assertTrue(Double.isNaN(steady.update(Double.NaN)));
+        steady.update(12.0);
+        assertEquals(12.0, steady.update(Double.NaN), EPS);
+        assertEquals("the reading before the gap still counts", 12.0, steady.update(10.0), EPS);
+    }
 }
