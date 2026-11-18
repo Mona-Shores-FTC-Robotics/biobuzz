@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
+import org.firstinspires.ftc.teamcode.subsystems.TurretArc;
 import org.firstinspires.ftc.teamcode.subsystems.TurretEncoder;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -155,6 +156,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * while driving.
      */
     private static final int RESET_RUMBLE_MS = 300;
+    /** The driver's buzz when the firing arc refuses a held fire button. */
+    private static final int ARC_RUMBLE_MS = 150;
     /** The launch trim reset's buzz: longer than a trim press's blips, so the two never feel alike. */
     private static final int LAUNCHER_TRIM_RESET_RUMBLE_MS = 400;
 
@@ -214,6 +217,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private boolean slowHeld;
     /** FIRE as pressed, before a Square volley holds it back: for that press's one log line. */
     private boolean lastRawFire;
+    /**
+     * The firing arc holds the feed back this loop ({@link TurretArc#allowsFeed}): the turret, or in
+     * AIM the aim, points behind the arc, where a ball would go back over the robot.
+     */
+    private boolean arcBlocked;
+    /** The arc held back a held fire button last loop: its log line and rumble go once per hold. */
+    private boolean arcRefusing;
     /** This fire press spun the launcher up from idle, so it feeds only once at launch speed. */
     private boolean spunUpByFire;
     /** The current launch-spot press has had its spin-up decided. */
@@ -702,6 +712,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         fire();
         lightBar();
+        if (arcBlocked) {
+            display.status("Fire", Display.Level.FAULT, "turn the robot: CELL behind (outside the turret's firing arc)");
+        }
 
         // The Match page is a glance (mentor, 7 Nov 2026): the operator and the coach read it from
         // the Driver Station mid-match, so it is a few huge lines and one alert, nothing to parse:
@@ -976,11 +989,23 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // The aim gate also holds while the driver's chassis aim is turning the robot: the driver
         // points, the operator chooses the moment, and FIRE waits until the robot is on the CELL.
         boolean enforceAim = TeleOpConfig.enforceAimGate || (TeleOpConfig.chassisAimGate && chassisAimDriving);
+        // The firing arc is always enforced, for every feed: behind it a ball goes back over the robot.
+        arcBlocked = !TurretArc.allowsFeed(TurretSubsystem.lockedForward ? 0.0 : robot.turret.angleDegrees(),
+                turretMode == TurretMode.AIM ? aimer.aimDeg() : Double.NaN);
         boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, enforceAim)
-                && (!spunUpByFire || robot.launcher.atSpeed());
+                && (!spunUpByFire || robot.launcher.atSpeed()) && !arcBlocked;
         if (pressed) {
             log.event(fireLine(open));
         }
+        boolean refusing = (fireHeld || launchSpot.feedRequested()) && arcBlocked;
+        if (refusing && !arcRefusing) {
+            log.event(String.format(Locale.US, "fire: refused, outside the firing arc (turret %.0f°, aim %s, arc +%.0f/-%.0f°)",
+                    TurretEncoder.wrap180(robot.turret.angleDegrees()),
+                    Double.isNaN(aimer.aimDeg()) ? "none" : String.format(Locale.US, "%.0f°", TurretEncoder.wrap180(aimer.aimDeg())),
+                    TurretArc.left(), TurretArc.right()));
+            gamepad1.rumble(1.0, 1.0, ARC_RUMBLE_MS);
+        }
+        arcRefusing = refusing;
         lastFire = fireHeld;
         // requestFor's "at speed" is the enforced gates' verdict here, and it is always required:
         // with nothing enforced the gates are always open. The launch-spot button's volley feeds
@@ -988,7 +1013,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // LaunchAll does (SpotVolley), and the operator's FIRE, which it yields to, comes first.
         boolean spotFeed = !fireHeld && launchSpot.feedRequested();
         FeederSubsystem.State feed = FeederSubsystem.requestFor(fireHeld || spotFeed, unjamHeld(),
-                fireHeld ? open : spotFeed, true, robot.feeder.state() == FeederSubsystem.State.FEED);
+                fireHeld ? open : spotFeed && !arcBlocked, true, robot.feeder.state() == FeederSubsystem.State.FEED);
+        // Unlike the other gates, the arc also stops a feed already going: the robot turned the CELL behind.
+        if (arcBlocked && feed == FeederSubsystem.State.FEED) feed = FeederSubsystem.State.IDLE;
         switch (feed) {
             case FEED:
                 robot.feeder.feed();
@@ -1027,6 +1054,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 : String.format(Locale.US, "pose (%.1f, %.1f, %.0f°)%s", pose.x(), pose.y(),
                 Math.toDegrees(pose.heading()), robot.drive.poseReferenced() ? "" : " not on the field");
         String outcome = unjamHeld() ? "not fed: unjam is held"
+                : arcBlocked ? "NOT FED: outside the turret's firing arc (CELL behind)"
                 : !open && spunUpByFire ? "SPINNING UP: feeds at launch speed"
                 : !open ? "WAITING: an enforced gate is closed"
                 : gates.anyWouldBlock() ? "fired; a gate would have blocked it (shadow)" : "fired; gates clear";

@@ -169,6 +169,19 @@ public class TurretSubsystem implements Subsystem {
      */
     public static boolean lockedForward = true;
 
+    /**
+     * The firing arc ({@link TurretArc}): how far left of its 0 the turret may point and still fire
+     * clear of the robot, degrees. Behind the arc it holds at the edge and a fire button does not
+     * feed. 100 is a guess on the safe side until each robot is measured (doc/robot-todo.md, the
+     * turret arc); a robot whose arc differs gets its line in
+     * {@link org.firstinspires.ftc.teamcode.RobotDifferences}. NaN: no arc, the turret goes all
+     * the way round. Read every loop.
+     */
+    public static double arcLeftDeg = 100.0;
+
+    /** The same to the right of 0, degrees, a positive number. */
+    public static double arcRightDeg = 100.0;
+
     // ------------------------------------------------------------ state
 
     private enum Mode { IDLE, HOLD }
@@ -204,6 +217,9 @@ public class TurretSubsystem implements Subsystem {
     private boolean started;
     private double targetDeg;
     private double targetRateDps;
+    /** The aim asked for before the arc, and the arc edge held instead of it (NaN: inside the arc). */
+    private double askedDeg = Double.NaN;
+    private double arcEdgeDeg = Double.NaN;
 
     private long counts;
     private long zeroCounts;
@@ -306,8 +322,12 @@ public class TurretSubsystem implements Subsystem {
             faultNote = null;
             watch.reset();
         }
-        targetDeg = deg;
-        targetRateDps = Double.isNaN(rateDps) ? 0.0 : rateDps;
+        // Behind the firing arc the turret holds at the edge, still, and does not chase round the back.
+        askedDeg = deg;
+        double hold = TurretArc.hold(deg, arcEdgeDeg);
+        arcEdgeDeg = hold == deg ? Double.NaN : hold;
+        targetDeg = hold;
+        targetRateDps = hold != deg || Double.isNaN(rateDps) ? 0.0 : rateDps;
         mode = Mode.HOLD;
     }
 
@@ -350,7 +370,7 @@ public class TurretSubsystem implements Subsystem {
         return mode == Mode.HOLD ? targetDeg : Double.NaN;
     }
 
-    /** Target minus angle the shortest way round, (-180, 180], or NaN when not holding. */
+    /** Target minus angle the way the turret turns (inside the firing arc, else the shortest), or NaN when not holding. */
     public double errorDegrees() {
         return errorDeg;
     }
@@ -358,6 +378,16 @@ public class TurretSubsystem implements Subsystem {
     /** Holding, and within the tolerance of the target. */
     public boolean onTarget() {
         return mode == Mode.HOLD && !Double.isNaN(errorDeg) && Math.abs(errorDeg) <= gains.toleranceDeg;
+    }
+
+    /** Holding at an edge of the firing arc, because the aim asked for is behind it. */
+    public boolean atArcEdge() {
+        return mode == Mode.HOLD && !Double.isNaN(arcEdgeDeg);
+    }
+
+    /** The aim last asked of {@link #aim}, before the firing arc; NaN before the first. */
+    public double askedDegrees() {
+        return askedDeg;
     }
 
     /** Whether a zero has been taken (by hand, at PLAY or from the Auto) since this OpMode started. */
@@ -421,7 +451,7 @@ public class TurretSubsystem implements Subsystem {
             rateDps = encoderRateDps;
         }
         errorDeg = !lockedForward && mode == Mode.HOLD
-                ? TurretServoControl.shortestErrorDeg(targetDeg, angleDeg) : Double.NaN;
+                ? TurretArc.errorDeg(targetDeg, angleDeg) : Double.NaN;
 
         // Locked, the turret holds 0 whatever was asked; the loop is the same one.
         boolean holding = (lockedForward || mode == Mode.HOLD) && faultNote == null && zeroed && encoder != null;
@@ -429,7 +459,10 @@ public class TurretSubsystem implements Subsystem {
         if (holding) {
             double want = lockedForward ? 0.0 : targetDeg;
             double wantRate = lockedForward ? 0.0 : targetRateDps;
-            power = TurretServoControl.power(TurretServoControl.shortestErrorDeg(want, encoderAngleDeg),
+            // Inside the firing arc the way there never crosses the back (TurretArc.errorDeg).
+            power = TurretServoControl.power(lockedForward
+                            ? TurretServoControl.shortestErrorDeg(want, encoderAngleDeg)
+                            : TurretArc.errorDeg(want, encoderAngleDeg),
                     encoderRateDps, wantRate, gains);
         }
         if (!started) {
@@ -548,7 +581,9 @@ public class TurretSubsystem implements Subsystem {
         switch (mode) {
             case HOLD:
                 what = String.format(Locale.US, "%.1f° → %.1f° (%+.1f)", TurretEncoder.wrap180(angleDeg),
-                        TurretEncoder.wrap180(targetDeg), errorDeg);
+                        TurretEncoder.wrap180(targetDeg), errorDeg)
+                        + (atArcEdge() ? String.format(Locale.US, " · at the arc's edge: aim %.0f° is behind it",
+                        TurretEncoder.wrap180(askedDeg)) : "");
                 level = onTarget() ? Display.Level.OK : Display.Level.WARN;
                 break;
             default:
