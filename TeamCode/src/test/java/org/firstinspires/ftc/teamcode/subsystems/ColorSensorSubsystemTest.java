@@ -159,4 +159,26 @@ public class ColorSensorSubsystemTest {
         assertTrue("held slowly: " + readsWhileHolding, readsWhileHolding >= 7 && readsWhileHolding <= 9);
         assertEquals("the feed is read in its first loop", feedAtMs, clearedAtMs);
     }
+
+    @Test
+    public void anEmptyLaneBrighterThanTheLeaveLevelIsSeen() {
+        LaneTracker.Piece none = LaneTracker.Piece.UNKNOWN;
+        LaneTracker.Piece pollen = LaneTracker.Piece.POLLEN;
+        // 19429 before 16 Nov 2026: the empty lane at 0.034, under the 0.05 leave level.
+        assertFalse(ColorSensorSubsystem.emptyReadsAboveLeave(0.034, none, 0.068, 0.05));
+        // After: 0.064 sits between leave (0.05) and present (0.068), so a presence never ends.
+        assertTrue(ColorSensorSubsystem.emptyReadsAboveLeave(0.064, none, 0.068, 0.05));
+        // 0.080 is above present too, but grey-green, no piece's colour: still the empty lane.
+        assertTrue(ColorSensorSubsystem.emptyReadsAboveLeave(0.080, none, 0.068, 0.05));
+        // A preload under the sensor in an Auto's INIT is a piece, not a bright empty lane.
+        assertFalse(ColorSensorSubsystem.emptyReadsAboveLeave(0.55, pollen, 0.068, 0.05));
+        // A dim POLLEN in the band between the two levels counts: the band itself is the trouble.
+        assertTrue(ColorSensorSubsystem.emptyReadsAboveLeave(0.06, pollen, 0.068, 0.05));
+        // Arrivals off, or no reading: never.
+        assertFalse(ColorSensorSubsystem.emptyReadsAboveLeave(0.064, none, Double.NaN, 0.05));
+        assertFalse(ColorSensorSubsystem.emptyReadsAboveLeave(Double.NaN, none, 0.068, 0.05));
+        // leaveBelow NaN means the same as presentAbove.
+        assertFalse(ColorSensorSubsystem.emptyReadsAboveLeave(0.064, none, 0.068, Double.NaN));
+        assertTrue(ColorSensorSubsystem.emptyReadsAboveLeave(0.080, none, 0.068, Double.NaN));
+    }
 }

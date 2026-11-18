@@ -15,7 +15,8 @@ import java.util.Locale;
  *
  * <p>The mentor's list and wording (2 Nov 2026). Only what a person can fix before PLAY is here:
  * "the pose is not on the field yet", say, is not, since nobody can act on it. A TeleOp's INIT shows
- * none of this; its light is the alliance colour.
+ * only an unassigned gamepad and a lane sensor too bright when empty; otherwise its light is the
+ * alliance colour.
  *
  * <p>Pure: {@link #evaluate} takes plain values, so a test can check every row.
  */
@@ -39,6 +40,13 @@ public final class InitWarnings {
          * field, but the drive team plays differently knowing it (mentor, 2 Nov 2026).
          */
         COLOR_SENSOR,
+        /**
+         * The lane sensor reads the empty lane at or above {@code ColorSensorSubsystem.leaveBelow}:
+         * a piece is then never seen to leave, and the lane reads full with nothing in it (19429,
+         * 16 and 17 Nov 2026, after more ambient light reached the lane). Shown in a TeleOp's INIT
+         * too, where practice runs (mentor, 18 Nov 2026).
+         */
+        LANE_SENSOR_EMPTY,
         /**
          * A gamepad is not assigned to its user on the Driver Station (Options + Cross, Options +
          * Circle). The one warning a TeleOp's INIT shows too (mentor, 7 Nov 2026: on 6 Nov 20245's
@@ -182,6 +190,29 @@ public final class InitWarnings {
         set(Kind.GAMEPADS, whatText, actionText);
     }
 
+    /**
+     * This loop's lane sensor: whether the empty lane reads too bright for its leave level
+     * ({@code ColorSensorSubsystem.emptyTooBright()}), with the reading and the level. Call it
+     * every INIT loop, Auto or TeleOp, after {@link #evaluate} in an Auto (which clears it with the
+     * rest).
+     */
+    public void laneSensor(boolean emptyTooBright, double alpha, double leaveBelow) {
+        if (what[Kind.LANE_SENSOR_EMPTY.ordinal()] != null) {
+            what[Kind.LANE_SENSOR_EMPTY.ordinal()] = null;
+            action[Kind.LANE_SENSOR_EMPTY.ordinal()] = null;
+            count--;
+        }
+        if (!emptyTooBright) return;
+        set(Kind.LANE_SENSOR_EMPTY,
+                String.format(Locale.US, "Lane sensor reads %.3f empty, leave level %.3f", alpha, leaveBelow),
+                "false FULL likely: raise leaveBelow above it, or fullHoldS off");
+    }
+
+    /** What a TeleOp's INIT warns about, with the light flashing: a gamepad, or the lane sensor. */
+    public boolean teleOpWarning() {
+        return has(Kind.GAMEPADS) || has(Kind.LANE_SENSOR_EMPTY);
+    }
+
     /** A gamepad is not assigned: what a TeleOp's INIT warns about, with the light flashing. */
     public boolean gamepadMissing() {
         return has(Kind.GAMEPADS);
@@ -229,6 +260,9 @@ public final class InitWarnings {
         if (!autonomous) {
             display.line("<big><b>" + who + "</b></big>");
             if (gamepadMissing()) display.alert(what(Kind.GAMEPADS), action(Kind.GAMEPADS));
+            if (has(Kind.LANE_SENSOR_EMPTY)) {
+                display.alert(what(Kind.LANE_SENSOR_EMPTY), action(Kind.LANE_SENSOR_EMPTY));
+            }
             return;
         }
         String verdict = count > 0

@@ -189,4 +189,22 @@ public class InitWarningsTest {
         assertEquals(0, w.count());
         assertFalse(w.gamepadMissing());
     }
+
+    @Test
+    public void aLaneSensorTooBrightWhenEmptyIsOneWarningAlsoInTeleOp() {
+        InitWarnings w = new InitWarnings();
+        w.laneSensor(false, 0.03, 0.05);
+        assertFalse(w.teleOpWarning());
+        assertEquals(0, w.count());
+        w.laneSensor(true, 0.064, 0.05);
+        assertTrue(w.teleOpWarning());
+        assertEquals(1, w.count());
+        assertEquals("Lane sensor reads 0.064 empty, leave level 0.050", w.what(Kind.LANE_SENSOR_EMPTY));
+        // Called again each loop: never counted twice, and gone once it reads below the level.
+        w.laneSensor(true, 0.066, 0.05);
+        assertEquals(1, w.count());
+        w.laneSensor(false, 0.03, 0.05);
+        assertEquals(0, w.count());
+        assertFalse(w.teleOpWarning());
+    }
 }

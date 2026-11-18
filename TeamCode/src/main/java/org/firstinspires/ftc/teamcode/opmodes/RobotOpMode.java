@@ -260,6 +260,8 @@ public abstract class RobotOpMode extends OpMode {
      * gamepad only. The light flashes white while there is any ({@link #initWarningFlash}).
      */
     private final InitWarnings initWarnings = new InitWarnings();
+    /** Whether the match log last said the lane sensor's INIT warning was on. */
+    private boolean loggedLaneSensorWarning;
     /** When INIT was pressed, System.nanoTime: the camera's first frame has a grace period from it. */
     private long initStartNs;
     /** What went wrong with the Pinpoint this INIT: a hard fault is kept once seen, a bad read only while it holds. */
@@ -526,6 +528,7 @@ public abstract class RobotOpMode extends OpMode {
             updateInitWarnings(startCheck);
         }
         initWarnings.gamepads(assigned(gamepad1), assigned(gamepad2));
+        laneSensorWarning();
         watchGamepads();
         beginPage(true);
         // With no handoff and a declared start, the start line says where the robot is; the
@@ -628,8 +631,23 @@ public abstract class RobotOpMode extends OpMode {
     }
 
     /**
+     * The lane sensor's INIT warning, Auto or TeleOp ({@link InitWarnings#laneSensor}), and an event
+     * in the match log each time it comes or goes.
+     */
+    private void laneSensorWarning() {
+        boolean tooBright = robot.colorSensor.emptyTooBright();
+        initWarnings.laneSensor(tooBright, robot.colorSensor.alpha(), ColorSensorSubsystem.leaveBelow);
+        if (tooBright != loggedLaneSensorWarning) {
+            log.event(tooBright ? "INIT warning: " + initWarnings.what(InitWarnings.Kind.LANE_SENSOR_EMPTY)
+                    : "INIT warning cleared: lane sensor reads below its leave level again");
+            loggedLaneSensorWarning = tooBright;
+        }
+    }
+
+    /**
      * What the indicator light shows this loop: see {@code IndicatorSubsystem}. Only what the drive
-     * team acts on: in INIT an Auto's warnings or a TeleOp's unassigned gamepad, else the alliance;
+     * team acts on: in INIT an Auto's warnings or a TeleOp's (an unassigned gamepad, a lane sensor too
+     * bright when empty), else the alliance;
      * after PLAY green when full, else off.
      */
     private void showIndicator(boolean init) {
@@ -1168,11 +1186,11 @@ public abstract class RobotOpMode extends OpMode {
     }
 
     /**
-     * The light flashes white in INIT: an Auto for any warning, a TeleOp for an unassigned gamepad
-     * only (its one INIT warning).
+     * The light flashes white in INIT: an Auto for any warning, a TeleOp for an unassigned gamepad or a
+     * lane sensor too bright when empty ({@link InitWarnings#teleOpWarning}).
      */
     private boolean initWarningFlash() {
-        return isAutonomous() ? initWarnings.any() : initWarnings.gamepadMissing();
+        return isAutonomous() ? initWarnings.any() : initWarnings.teleOpWarning();
     }
 
     /** A gamepad assigned to its user on the Driver Station (Options + Cross or Circle). */
