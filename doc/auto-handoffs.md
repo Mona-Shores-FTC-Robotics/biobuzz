@@ -144,16 +144,13 @@ Visualizer's `scripts/save-auto.mjs`; the script is gone, so the `.pp` files on 
 
 ## Two TIPs for sure: human-player NECTAR
 
-**Unmerged:** branch `claude/r-solo-human-player` at `d92c49a4`, no PR. Its last commit adds
-`doc/human-nectar-study/`: the script that builds the timing variants, four timing variants and
-`r-solo-human-player-2.pp` (the second chance after the SCORING FLOWER pick, drawn, never
-simulated), the summary of all 24 simulator runs and a README. It adds
-`drafts/r-solo-human-player.pp` and its generated Auto, the trial OpMode `RSoloHumanPlayerTrial`
-(Utility "Drive: R-Solo-HumanPlayer"), a sim request, a section in `drafts/README.md`, and an entry
-in `doc/robot-todo.md` §3 that is not on master. The draft is R-Two-Tip with the WALL FLOWER leg
-redrawn as the nose-first outside lane through `NECTAR_HANDOFF` (20, 88, facing 110°), no pause,
-then both LEFT volleys from `LEFT_LAUNCH_OFFSET`. `LEFT_AUTO_OFFSET` is 0.5 in from that spot. Not
-run on a robot. It restarts from the new R-Solo.
+**Rebuilt 18 Nov from master's R-Solo:** `drafts/r-solo-human-player.pp`, the Utility **Drive:
+R-Solo-HumanPlayer**, its simulator table in `TeamCode/autos/drafts/README.md` and tonight's runs in
+`doc/robot-todo.md` §3. One leg redrawn (the outside lane past the LOADING ZONE, one path, no stop at a
+handoff point: a stop there cost R-Solo its third volley), both LEFT volleys from `LEFT_AUTO_HIVE`, the
+turret at home (it cannot shoot back over the robot). The 16 Nov study (R-Two-Tip-based, `NECTAR_HANDOFF`
+at (20, 88, 110°), `LEFT_LAUNCH_OFFSET`) stays on branch `claude/r-solo-human-player` at `d92c49a4`,
+`doc/human-nectar-study/`, for its scripts and runs.
 
 **Keep:**
 - Rules, from the manual at TU09: one NECTAR per TIP of our HIVE (G426.A), so exactly one before

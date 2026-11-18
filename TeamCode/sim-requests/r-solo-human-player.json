@@ -1,0 +1,47 @@
+{
+  "pp": "TeamCode/autos/drafts/r-solo-human-player.pp",
+  "spec": "RSoloHumanPlayerAuto",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "alliance": "RED",
+  "partners": [
+    {
+      "name": "dead on its start",
+      "partner": "PartnerLBrokenDownAuto"
+    },
+    {
+      "name": "stays out of the way",
+      "partner": "PartnerStillAuto"
+    },
+    {
+      "name": "parks at 15 s",
+      "partner": "PartnerPark1Auto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/r-solo-human-player.pp",
+    "SavedBy": "mentor session, 18 Nov 2026",
+    "SimNote": "R-Solo with its WALL FLOWER to LEFT_AUTO_HIVE leg redrawn up the outside lane past the LOADING ZONE, Belding calibration. A saved request cannot set the human's roll, so these runs show what the redrawn lane costs, not what the NECTAR gains (doc: TeamCode/autos/drafts/README.md)."
+  },
+  "calibration": "belding"
+}
