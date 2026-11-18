@@ -1,5 +1,5 @@
 {
-  "pp": "TeamCode/autos/l-under-hive.pp",
+  "pp": "TeamCode/autos/drafts/l-under-hive.pp",
   "spec": "LUnderHiveAuto@50",
   "design": "real robot, turret locked forward",
   "partnerDesign": null,
@@ -101,7 +101,7 @@
     }
   ],
   "metadata": {
-    "AutoSource": "l-under-hive.pp",
+    "AutoSource": "drafts/l-under-hive.pp",
     "SavedBy": "Lane pair: R on the wall lane, L under the HIVE",
     "SavedAt": "2026-11-12T00:00:00+00:00"
   }
