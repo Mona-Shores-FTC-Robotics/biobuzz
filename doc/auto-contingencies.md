@@ -68,9 +68,7 @@ in other cases, below.
 | L dead on its start: R-Clockwise | 24/24 | 13.0 s | LEFT_CLOSE_HIVE is 17.6 in from LEFT_START. |
 | R dead on its start: L-Clockwise | 24/24 | 13.7 s | It drives through R's start area. |
 | Partner dead on its left start: R-OutsideLane | 20/20 | 13.0 s | LEFT_CLOSE_HIVE again. |
-| R-OutsideLane / L-UnderHive with the Pickups swapped (R GARDEN, L WALL FLOWER) | 17–18/20 | 12.4–13.8 s | Both legal INIT picks; the paths cross. |
-| …both on the GARDEN (a pick mismatch) | 17/20 | 11.9–13.0 s | |
-| …as drawn | 3/20 | 12.0, 22.3 s | |
+| R-OutsideLane / L-UnderHive as drawn | 3/20 | 12.0, 22.3 s | The pair has no Pickup choice: R always takes the WALL FLOWER, L the GARDEN (swapped or mismatched picks crossed paths and never added a TIP). |
 | R- / L-Clockwise, R takes the WALL FLOWER | 2/24 | 12.1–12.3 s | A brush as both cross the left end. |
 | L-UnderHive alone or with R dead | 0 | | Stays at home. |
 
