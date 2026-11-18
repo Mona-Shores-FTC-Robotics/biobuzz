@@ -72,15 +72,16 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    **Good:** the lane still holds 4 after every run, and the video shows none leave. **Stop:** any
    piece leaves → no backward trial on 19429 tonight; push the logs and the video.
 - [ ] Backward with a load: lane full after every run, video kept
-7. **Turret firing arc, both robots** (code in the firing-arc PR, not on the robot tonight). Robot
+7. **Turret firing arc, both robots — optional.** The arc is ±90° on both robots
+   (`TurretSubsystem.arcLeftDeg` / `arcRightDeg`), the mentor's judgement on 18 Nov 2026, not a
+   hand measurement. Measure it only to check or widen that. Robot
    on its home mark, **Bench: Turret** in INIT (it reads the angle from the mark; nothing moves until
    PLAY), turret limp and turned by hand, a phone filming from above. Turn it left until a ball
    leaving the launcher would touch the robot (frame, intake, light, cables, the launcher's own
    side), back off 5°, and read the angle. The same to the right. Write down left and right for
-   each robot. **Good:** both read past 90°. They become `TurretSubsystem.arcLeftDeg` /
-   `arcRightDeg` (100° each until then); a robot that differs gets its line in `RobotDifferences`.
-   **Stop:** either side under 60° → tell the mentor before the turret aims in a match.
-- [ ] Firing arc measured: 19429 left __° right __°, 20245 left __° right __°
+   each robot. **Good:** both read 90° or more (90° stays). **Stop:** either side under 90° → tell
+   the mentor; that robot gets its line in `RobotDifferences`.
+- [ ] (Optional) Firing arc measured: 19429 left __° right __°, 20245 left __° right __°
 8. **Circle follows the turret mode, both robots** (code in the Circle PR, not on the robot
    tonight). Basic Drive, HIVE upright with our CELL **up**, 4 POLLEN each time, phone filming the
    CELL. Driver's R1 to **LOCKED** (two rumble blips, Match page reads LOCKED): from three spots (the right launch spot, mid-field facing
