@@ -142,10 +142,13 @@ public final class GardenGather extends GrabRoutine {
     /**
      * How much further than the GARDEN's gather pose the drive in aims, inches, along the robot's
      * heading. A drive in that hits the wall first just stops there (it stalls), so too much is
-     * safe; tune it in Panels until the gather reaches deep enough. 1 since 6 Nov 2026 (mentor), a
-     * starting point for the practice field.
+     * safe; tune it in Panels until the gather reaches deep enough. 10 since 18 Nov 2026 (mentor,
+     * from 1): Pedro brakes to stop at the path's end, and on the short drive in from GARDEN_STAGING
+     * an end at the wall meant the robot crept the last inches; an end well past the wall keeps it
+     * driving when it meets the wall, and the stall ends the drive in there. 19429 ran 4 in Panels
+     * that day, still slow.
      */
-    public static double extraDepthIn = 1.0;
+    public static double extraDepthIn = 10.0;
     /**
      * How much closer to the alliance (side) wall than the gather pose the drive in aims, inches: the
      * intake has to reach all the way into the corner to scoop the whole GARDEN (30 Oct 2026). More
@@ -167,9 +170,11 @@ public final class GardenGather extends GrabRoutine {
      * With {@link #curveToWall}: how much closer to the side wall than the gather pose the drive in
      * ends, inches. Enough to keep the side on the wall at the end: the wall stops it, and the drive
      * in ends when it stalls. 2.0 since 14 Nov 2026 (mentor, at the field: the gather sat too far off
-     * the wall at 0.5).
+     * the wall at 0.5); 3.0 since 18 Nov 2026 (mentor). Not much more: an end the robot can never
+     * reach sideways keeps Pedro's strafe correction saturated, which leaves less power for the drive
+     * along the wall (19429 tried 6 in Panels on 18 Nov and the drive in was slow).
      */
-    public static double laneTowardWallIn = 2.0;
+    public static double laneTowardWallIn = 3.0;
     /**
      * The back out curves too, the drive in run backwards: straight back up the side wall first,
      * then over to where the drive in started, so the stick, still down, does not sweep sideways
