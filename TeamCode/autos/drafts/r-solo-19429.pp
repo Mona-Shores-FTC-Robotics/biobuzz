@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T19:37:02.942Z",
+  "timestamp": "2026-11-18T20:40:29.781Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -343,13 +343,13 @@
           "y": 71.90515781237575
         },
         {
-          "x": 60.600162310030015,
-          "y": 40.90098343477904
+          "x": 56,
+          "y": 40
         }
       ],
       "heading": {
         "type": "piecewise",
-        "startDeg": 268.1,
+        "startDeg": 268.9,
         "endDeg": 96.1,
         "degrees": 0,
         "reverse": false,
@@ -362,7 +362,7 @@
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 268.1,
+                "startDeg": 268.9,
                 "endDeg": 270
               }
             },

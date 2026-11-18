@@ -56,8 +56,8 @@
   ],
   "metadata": {
     "AutoSource": "drafts/r-solo-19429.pp",
-    "SavedBy": "backward-legs session, 18 Nov 2026; LEFT_AUTO_HIVE 0.5 in off the centre line",
-    "SavedAt": "2026-11-18T19:45:00+00:00",
+    "SavedBy": "backward-legs session, 18 Nov 2026; the drive to RIGHT_AUTO_HIVE turns clear of the centre line",
+    "SavedAt": "2026-11-18T20:52:00+00:00",
     "SimNote": "R-Solo with the WALL FLOWER leg driven backward (19429, bottom plate). The simulator never spills a load driving backward. For 19429's own loads run it with BIOBUZZ_BELDING_ROBOT=19429"
   },
   "calibration": "belding"
