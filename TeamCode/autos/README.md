@@ -34,13 +34,14 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 | R-Solo | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo.pp> |
 | R-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-no-cross.pp> |
 | L-Clockwise + R-Clockwise (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-clockwise.pp,l-clockwise.pp> |
-| R-OutsideLane + L-UnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-outside-lane.pp,l-under-hive.pp> |
 
 The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
 existing reference. The Infraviolet pair was retired on 16 Nov 2026 (mentor); its drawings and
 notes are in Git history.
-**R-OutsideLane / L-UnderHive** is a second pair, on the Autonomous menu since 16 Nov 2026 to be
-run against the Clockwise pair (mentor): R keeps to the wall side of the HIVE both ways and L to the
+**R-OutsideLane / L-UnderHive** is a second pair, on the Autonomous menu from 16 to 18 Nov 2026 to be
+run against the Clockwise pair (mentor), and now a draft pair in `drafts/` with no OpMode (18 Nov 2026,
+the event lineup: R-Solo, R-NoCross, L-NoCross and the Clockwise pair). Open it:
+<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-outside-lane.pp,drafts/l-under-hive.pp>. R keeps to the wall side of the HIVE both ways and L to the
 under-HIVE side, so their roads do not cross. Never driven. Its volleys: R's preloads from
 `RIGHT_START`, its LEFT volley from `LEFT_AUTO_OFFSET` (it comes round the outside lane, beside L on
 `LEFT_AUTO_HIVE`), its last from `RIGHT_AUTO_OFFSET`; L's preloads from `LEFT_AUTO_HIVE` and its
@@ -98,7 +99,8 @@ Inside the Visualizer, the same list is **View → Team Autos: the latest from b
 in the link: `#team=auto/r-solo/r-solo.pp`.
 
 **Drafts** (`drafts/`, no competition OpMode; a draft may have an isolated test Utility) are listed in Team Autos under their own heading, and
-open beside a partner stand-in the same way: R-Solo-Nudge with its pushed partner is
+open beside a partner stand-in the same way (R-Solo-Nudge, R-Two-Tip and the nudge test lost their
+Utility trials on 18 Nov 2026, so none of them is on the Driver Station): R-Solo-Nudge with its pushed partner is
 <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-nudge.pp,partners/partner-push-start.pp>.
 Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `drafts/`, and the fast
 lane takes a `.pp` in `drafts/` or `partners/` (Visualizer
