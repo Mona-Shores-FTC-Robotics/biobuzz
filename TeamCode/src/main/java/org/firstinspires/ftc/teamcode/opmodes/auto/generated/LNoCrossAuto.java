@@ -21,7 +21,7 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|2:39PM";
+    public static final String SAVED = "11-18|3:40PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -76,7 +76,7 @@ public final class LNoCrossAuto {
         Pose underTheHiveToScoringFlowerStagingControl3 = p.of(60, 102, 0);
         Pose toLeftAutoHive_3Control1 = p.of(58.7, 27, 0);
         Pose toLeftAutoHive_3Control2 = p.of(68.2657, 72.9873, 0);
-        Pose toLeftAutoHive_3Control3 = p.of(56.7614, 93.4601, 0);
+        Pose toLeftAutoHive_3Control3 = p.of(52, 94, 0);
         Pose toLeftAutoHive_3Segment1Start = p.of(61.4, 120.45, 90);
         Pose toLeftAutoHive_3Segment1End = p.of(61.4, 120.45, 90);
         Pose toLeftAutoHive_3Segment2Start = p.of(61.4, 120.45, 90);
@@ -96,7 +96,7 @@ public final class LNoCrossAuto {
         Path underTheHiveToScoringFlowerStaging = Paths.curve(rightAutoFixTip, underTheHiveToScoringFlowerStagingControl1, underTheHiveToScoringFlowerStagingControl2, underTheHiveToScoringFlowerStagingControl3, scoringFlowerStaging).constant(scoringFlowerStaging);
         Path toLeftParkPath3 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath4 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
-        Path toLeftAutoHivePath2 = Paths.curve(rightAutoFixTip, toLeftAutoHive_3Control1, toLeftAutoHive_3Control2, toLeftAutoHive_3Control3, leftAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftAutoHive_3Segment1Start, toLeftAutoHive_3Segment1End)).until(1, Interpolator.linear(toLeftAutoHive_3Segment2Start, leftAutoHive)));
+        Path toLeftAutoHivePath2 = Paths.curve(rightAutoFixTip, toLeftAutoHive_3Control1, toLeftAutoHive_3Control2, toLeftAutoHive_3Control3, leftAutoHive).heading(Interpolator.piecewise().until(0.7, Interpolator.linear(toLeftAutoHive_3Segment1Start, toLeftAutoHive_3Segment1End)).until(0.92, Interpolator.linear(toLeftAutoHive_3Segment2Start, leftAutoHive)).until(1, Interpolator.linear(leftAutoHive, leftAutoHive)));
         Path toLeftParkPath5 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath6 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath7 = Paths.line(toLeftPark_8Start, leftPark).linear(toLeftPark_8Start, leftPark);
@@ -149,7 +149,7 @@ public final class LNoCrossAuto {
                                                                                                 kit.path("to LEFT_PARK", toLeftParkPath4, 2)))))),
                                                         kit.afterMs(750).then(
                                                                 kit.guarded("TIP came after all", toLeftParkPath7, 2,
-                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath2, 3, leftAutoHivePark, 2),
+                                                                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath2, 3.4, leftAutoHivePark, 2),
                                                                         kit.firstOf("LEFT CELL up?",
                                                                                 kit.when("CellUp").then(
                                                                                         kit.guarded("If CellUp", toLeftParkPath6, 2,

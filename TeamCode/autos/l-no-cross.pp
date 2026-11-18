@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T19:39:04.410Z",
+  "timestamp": "2026-11-18T20:40:16.456Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -553,8 +553,8 @@
           "y": 72.987287864473
         },
         {
-          "x": 56.76137344482316,
-          "y": 93.46014040136694
+          "x": 52,
+          "y": 94
         }
       ],
       "heading": {
@@ -567,7 +567,7 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.5,
+              "endProgress": 0.7,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
@@ -577,13 +577,24 @@
               }
             },
             {
-              "startProgress": 0.5,
-              "endProgress": 1,
+              "startProgress": 0.7,
+              "endProgress": 0.92,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 90,
+                "endDeg": 268.9
+              }
+            },
+            {
+              "startProgress": 0.92,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 268.9,
                 "endDeg": 268.9
               }
             }
