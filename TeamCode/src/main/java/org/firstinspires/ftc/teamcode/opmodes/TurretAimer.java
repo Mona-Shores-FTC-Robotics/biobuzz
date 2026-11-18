@@ -206,6 +206,7 @@ public final class TurretAimer {
     public String line() {
         return "Turret aim: " + source
                 + (cell == null ? "" : " · " + name(cell) + " CELL")
+                + (robot.turret.atArcEdge() ? " · CELL behind: held at the firing arc's edge" : "")
                 + (trimDeg == 0.0 ? "" : String.format(Locale.US, " · trim %+.1f°", trimDeg))
                 + (Double.isNaN(rangeIn) ? "" : String.format(Locale.US, " · %.0f in", rangeIn))
                 + (TurretSubsystem.turretForwardIn == 0.0 && TurretSubsystem.turretLeftIn == 0.0

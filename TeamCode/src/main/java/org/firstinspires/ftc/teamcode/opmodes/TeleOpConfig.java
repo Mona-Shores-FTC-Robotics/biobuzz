@@ -53,6 +53,12 @@ public final class TeleOpConfig {
     public static double trimStepDeg = 1.5;
 
     /**
+     * Degrees one aim trim press moves the aim while the operator holds the fine-trim button
+     * (Circle). Clamped to [0, 5], as {@link #trimStepDeg}.
+     */
+    public static double trimFineStepDeg = 0.5;
+
+    /**
      * The launcher's speed when it idles (toggled off, or a Square press's keep-spinning time is
      * up), ticks per second. 0 stops it. Never above the launch speed
      * ({@code LauncherSubsystem.targetTicksPerSecond}, or the speed table's). It applies from the
@@ -81,6 +87,12 @@ public final class TeleOpConfig {
     public static double launcherTrimStepTps = 25.0;
 
     /**
+     * Ticks per second one launcher trim press moves the launch speed while the operator holds the
+     * fine-trim button (Circle). Clamped to [0, 200], as {@link #launcherTrimStepTps}.
+     */
+    public static double launcherTrimFineStepTps = 10.0;
+
+    /**
      * The intake runs all match unless something else asks: from PLAY, as in an Auto. The roller
      * slows to hold the last piece and the prefeed stops by themselves when the lane is full, and
      * both start again when a shot makes room; either L2 reverses it while held; a FLOWER pick or
@@ -101,7 +113,7 @@ public final class TeleOpConfig {
 
     /**
      * Enforce the aim gate: a feed starts only with the aim within {@link #aimToleranceDeg}, for
-     * the operator's FIRE and the driver's Circle alike. The aim is the camera's when it saw our
+     * every Circle press (and always for one that turns the robot, {@code CirclePress}). The aim is the camera's when it saw our
      * CELL in the last {@code TurretAimer.SIGHTING_FRESH_MS}, else odometry's; with neither it is
      * unknown and never blocks. On since 18 Nov 2026 (mentor), with Circle firing while the turret
      * aims.
@@ -111,15 +123,14 @@ public final class TeleOpConfig {
     /**
      * Basic Drive starts at PLAY with the turret aiming (AIM) rather than LOCKED straight ahead, on
      * a robot whose turret aims ({@code TurretSubsystem.lockedForward} off: both robots). The
-     * operator's Triangle still toggles it. On since 18 Nov 2026 (mentor).
+     * driver's R1 still toggles it. On since 18 Nov 2026 (mentor).
      */
     public static boolean startTurretAiming = true;
 
     /**
      * Enforce the aim gate while the driver's chassis aim (Circle) is turning the robot, whatever
-     * {@link #enforceAimGate} says: the driver points, the operator's FIRE chooses the moment, and
-     * the feed starts only once the robot is within {@link #aimToleranceDeg} of the CELL, so an
-     * early press waits rather than goes wide. On since 7 Nov 2026 (mentor), with the chassis aim
+     * {@link #enforceAimGate} says: the feed starts only once the robot is within
+     * {@link #aimToleranceDeg} of the CELL, so an early shot waits rather than goes wide. On since 7 Nov 2026 (mentor), with the chassis aim
      * camera first ({@code ChassisAimTarget}). An unknown aim never blocks.
      */
     public static boolean chassisAimGate = true;
@@ -137,10 +148,10 @@ public final class TeleOpConfig {
 
     /**
      * The go-to-launch-spot button also launches: the launcher spins up as the drive starts, and
-     * once the robot is at the spot, aimed and settled, it feeds while the button is held, as the
-     * operator's FIRE does ({@link SpotVolley}). On for testing in Basic Drive (mentor, 4 Nov 2026): a testing
-     * choice the team may turn off to give the shot back to the operator. The operator's FIRE and
-     * launcher toggle keep working either way and win. Read at each press.
+     * once the robot is at the spot, aimed and settled, it feeds while the button is held
+     * ({@link SpotVolley}). On for testing in Basic Drive (mentor, 4 Nov 2026); off, Square only
+     * drives and the driver's Circle fires. The operator's launcher toggle keeps working either way.
+     * Read at each press.
      */
     public static boolean goToSpotAlsoFires = true;
 

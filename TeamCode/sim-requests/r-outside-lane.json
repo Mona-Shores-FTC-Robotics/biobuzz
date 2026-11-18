@@ -1,5 +1,5 @@
 {
-  "pp": "TeamCode/autos/drafts/r-outside-lane.pp",
+  "pp": "TeamCode/autos/r-outside-lane.pp",
   "spec": "ROutsideLaneAuto",
   "design": "real robot, turret locked forward",
   "partnerDesign": null,
@@ -178,7 +178,7 @@
     }
   ],
   "metadata": {
-    "AutoSource": "drafts/r-outside-lane.pp",
+    "AutoSource": "r-outside-lane.pp",
     "SavedBy": "dustinhans",
     "SavedAt": "2026-11-17T21:39:57.275Z"
   }
