@@ -172,15 +172,16 @@ public class TurretSubsystem implements Subsystem {
     /**
      * The firing arc ({@link TurretArc}): how far left of its 0 the turret may point and still fire
      * clear of the robot, degrees. Behind the arc it holds at the edge and a fire button does not
-     * feed. 100 is a guess on the safe side until each robot is measured (doc/robot-todo.md, the
-     * turret arc); a robot whose arc differs gets its line in
+     * feed. 90 on both robots is the mentor's judgement (18 Nov 2026: the turret is good across
+     * ±90°), not a hand measurement; measuring it is optional (doc/robot-todo.md, the turret arc),
+     * and a robot whose arc is seen to differ gets its line in
      * {@link org.firstinspires.ftc.teamcode.RobotDifferences}. NaN: no arc, the turret goes all
      * the way round. Read every loop.
      */
-    public static double arcLeftDeg = 100.0;
+    public static double arcLeftDeg = 90.0;
 
     /** The same to the right of 0, degrees, a positive number. */
-    public static double arcRightDeg = 100.0;
+    public static double arcRightDeg = 90.0;
 
     // ------------------------------------------------------------ state
 
