@@ -110,7 +110,7 @@ public class SimRequestsTest {
                 // A partner is a stand-in from TeamCode/autos/partners/, never one of the Autos we run.
                 String source = (String) Class.forName(AutoStudyTest.PKG + partnerClass).getField("SOURCE").get(null);
                 if (!new File(partners, source).isFile() && !(draft && new File(drafts, source).isFile())
-                        && !pairHalf(name, source, autos)) {
+                        && !pairHalf(name, source, autos) && !(draft && robotVariantPairHalf(name, source, autos))) {
                     problems.add(file.getName() + ": partner " + partnerClass + " comes from " + source
                             + ", which is not in TeamCode/autos/partners/ (a partner is a stand-in, not an Auto we run)");
                 }
@@ -134,6 +134,20 @@ public class SimRequestsTest {
         if (name.equals("l-under-hive")) other = "r-outside-lane";
         return (other + ".pp").equals(source) && new File(autos, source).isFile()
                 && new File(autos, name + ".pp").isFile();
+    }
+
+    /**
+     * Whether {@code source} is the other half of the pair a one-robot draft of a pair half runs beside: the draft
+     * {@code r-clockwise-19429} (R-Clockwise drawn for 19429 alone) beside our {@code l-clockwise}, as R-Clockwise is.
+     */
+    static boolean robotVariantPairHalf(String name, String source, File autos) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("(.+)-(19429|20245)").matcher(name);
+        if (!m.matches()) return false;
+        String base = m.group(1);
+        String other = base.startsWith("l-") ? "r-" + base.substring(2)
+                : base.startsWith("r-") ? "l-" + base.substring(2) : null;
+        return other != null && (other + ".pp").equals(source) && new File(autos, source).isFile()
+                && new File(autos, base + ".pp").isFile();
     }
 
     /** The request names its own existing source in one of the Visualizer's three Auto folders. */

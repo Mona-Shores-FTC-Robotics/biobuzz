@@ -111,6 +111,12 @@ public final class RobotDifferences {
                         + " gateLeadS), set in Panels with the speed and aim lines here (mentor, 18 Nov 2026)",
                 () -> LaunchCards.gateLeadS = 0.1);
 
+        differs(RobotIdentity.TEAM_19429,
+                "Black bottom plate under the intake: it may drive backward with a load, so the"
+                        + " backward-leg Auto trials may run (mentor, 18 Nov 2026; doc/robot-todo.md has"
+                        + " the backward drive that must pass first)",
+                () -> IntakeSubsystem.holdsLoadDrivingBackward = true);
+
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // The shared values were mostly measured on 20245.
         differs(RobotIdentity.TEAM_20245,
