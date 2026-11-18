@@ -1520,6 +1520,7 @@ public abstract class RobotOpMode extends OpMode {
                     robot.intake.ticksPerSecond(), intakeAmps, loggedWedgeClears));
         }
         log.put("/Intake/HoldingForFull", robot.intake.holdingForFull() ? 1 : 0);
+        log.put("/Intake/PastFull", robot.intake.pastFull() ? 1 : 0);
         log.put("/Intake/PositionHolding", robot.intake.positionHolding() ? 1 : 0);
         log.put("/Intake/HoldTargetTicks", robot.intake.holdTargetTicks());
         log.put("/Intake/HoldErrorTicks", robot.intake.positionHolding() ? robot.intake.holdErrorTicks() : 0);

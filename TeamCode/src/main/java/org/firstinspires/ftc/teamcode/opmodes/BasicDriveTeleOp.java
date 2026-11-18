@@ -48,8 +48,8 @@ import java.util.Map;
  * ({@link IntakeArbiter}); unjam on either pad also reverses the feeder. The intake runs all match
  * from PLAY ({@code TeleOpConfig.intakeAlwaysOn}), so R2 changes nothing unless that is switched
  * off to save battery; there is no toggle to turn it off by accident. It stops taking in while the
- * lane is full and starts again when a shot makes room; nobody's R2 gets past full, only unjam
- * does. The Driver Station's Controls page (Share) and the
+ * lane is full and starts again when a shot makes room; the driver's R2, held, takes in past a
+ * full reading (for a false full), and the operator's does not. The Driver Station's Controls page (Share) and the
  * printed cheat sheet are both generated from the layout. Nothing here names a button.
  *
  * <p>Buttons do what is asked at once. Fire feeds the moment it is held: the checks a shot could
@@ -705,12 +705,18 @@ public class BasicDriveTeleOp extends RobotOpMode {
             boolean driverIn = controls.held(Action.INTAKE);
             // TeleOpConfig.intakeAlwaysOn: the intake runs unless something else asks, counted as the
             // operator's request (IntakeArbiter); R2 on either pad runs it while held. The driver
-            // wins while held, as does either unjam. A full lane stops the roller and the prefeed
-            // whoever asks: only unjam and a feed get past it.
+            // wins while held, as does either unjam. A full lane stops the roller and the prefeed,
+            // except for the driver's R2, which takes in past it: the colour sensor reads false
+            // fulls (mentor, 18 Nov 2026).
             boolean operatorIn = TeleOpConfig.intakeAlwaysOn || controls.held(Action.OPERATOR_INTAKE);
             intakeArbiter.decide(driverIn, controls.held(Action.DRIVER_UNJAM),
                     controls.held(Action.UNJAM), operatorIn);
-            setIntake(intakeArbiter.state());
+            if (intakeArbiter.state() == IntakeSubsystem.State.IN
+                    && intakeArbiter.owner() == IntakeArbiter.Owner.DRIVER) {
+                robot.intake.intakePastFull();
+            } else {
+                setIntake(intakeArbiter.state());
+            }
         }
         // The pick or the gather runs the intake itself while it is active.
         log.put("/Controls/IntakeOwner", grabActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
@@ -943,6 +949,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (picker.active()) return "FLOWER pick";
         if (gatherer.active()) return "GARDEN gather";
         if (!intakeRunning()) return "OFF";
+        if (robot.intake.pastFull()) return robot.colorSensor.full() ? "driver, past full" : "driver";
         return robot.colorSensor.full() ? "on, holding (lane full)" : "on";
     }
 

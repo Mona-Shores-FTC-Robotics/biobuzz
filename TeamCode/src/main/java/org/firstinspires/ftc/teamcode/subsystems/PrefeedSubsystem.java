@@ -185,7 +185,8 @@ public class PrefeedSubsystem implements Subsystem {
             state = override;
             stoppedForFull = false;
         } else {
-            boolean full = stopWhenFull && laneFull.getAsBoolean();
+            // The driver's R2 gets past a full reading (IntakeSubsystem.intakePastFull).
+            boolean full = stopWhenFull && laneFull.getAsBoolean() && !intake.pastFull();
             // A reject burst backs the stars out, so the prefeed backs out with them: the whole lane.
             state = requestFor(intake.starsState(), feeder.state(), full);
             stoppedForFull = full && requestFor(intake.starsState(), feeder.state()) != state;

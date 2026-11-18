@@ -62,7 +62,8 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  * <p>When the sensor says full, capture the roller encoder position once and actively hold it
  * with RUN_TO_POSITION. The stars continue inward to retain the last piece. Feeding,
  * ejecting and rejection release the hold before driving normally. The prefeed also stops
- * ({@code PrefeedSubsystem.stopWhenFull}). Holding starts only after PLAY.
+ * ({@code PrefeedSubsystem.stopWhenFull}). Holding starts only after PLAY. {@link #intakePastFull()}
+ * (the driver's R2) skips both, for a full reading that is wrong.
  *
  * <h2>Spitting out the other alliance's NECTAR</h2>
  *
@@ -222,6 +223,8 @@ public class IntakeSubsystem implements Subsystem {
     private double ejectStarsPower = Double.NaN;
     private boolean feedAssist;
     private boolean holdingForFull;
+    /** The request is {@link #intakePastFull()}: take in even while the lane reads full. */
+    private boolean pastFull;
     private boolean rejecting;
     /** Whether to spit out the piece at the entrance; never until {@link #rejectWhile} is called. */
     private BooleanSupplier reject = () -> false;
@@ -302,12 +305,31 @@ public class IntakeSubsystem implements Subsystem {
     /** Ask for pieces in. Takes effect in the next {@link #update()}. */
     public void intake() {
         request = State.IN;
+        pastFull = false;
         clearEjectPowers();
+    }
+
+    /**
+     * Ask for pieces in even while the lane reads full: no full hold, and the prefeed keeps running
+     * ({@code PrefeedSubsystem.stopWhenFull} does not apply). For the driver's R2, which overrides a
+     * false full (mentor, 18 Nov 2026). A reject and its hold-off still win. Takes effect in the
+     * next {@link #update()}; any other request ends it.
+     */
+    public void intakePastFull() {
+        request = State.IN;
+        pastFull = true;
+        clearEjectPowers();
+    }
+
+    /** Whether the request is {@link #intakePastFull()}. */
+    public boolean pastFull() {
+        return pastFull;
     }
 
     /** Ask for pieces out. Takes effect in the next {@link #update()}. */
     public void eject() {
         request = State.OUT;
+        pastFull = false;
         clearEjectPowers();
     }
 
@@ -319,6 +341,7 @@ public class IntakeSubsystem implements Subsystem {
      */
     public void eject(double rollerPower, double starsPower) {
         request = State.OUT;
+        pastFull = false;
         ejectRollerPower = rollerPower;
         ejectStarsPower = starsPower;
     }
@@ -326,6 +349,7 @@ public class IntakeSubsystem implements Subsystem {
     /** Ask for the roller to stop. Not {@link #stop()}: the subsystem keeps running. */
     public void idle() {
         request = State.IDLE;
+        pastFull = false;
         clearEjectPowers();
     }
 
@@ -422,6 +446,7 @@ public class IntakeSubsystem implements Subsystem {
     @Override
     public void initialize() {
         request = State.IDLE;
+        pastFull = false;
         roller = State.IDLE;
         starsState = State.IDLE;
         feedAssist = false;
@@ -467,7 +492,7 @@ public class IntakeSubsystem implements Subsystem {
         FeederSubsystem.State feed = feeder.state();
         roller = started ? rollerFor(request, feed, rollerWhileFeeding) : State.IDLE;
         starsState = started ? starsFor(request, feed) : State.IDLE;
-        holdingForFull = started && holdsForFull(request, feed, laneFull.getAsBoolean(), holdWhenFull);
+        holdingForFull = started && !pastFull && holdsForFull(request, feed, laneFull.getAsBoolean(), holdWhenFull);
         if (holdingForFull) {
             roller = State.IN;
             starsState = unitRange(starsPowerWhenFull) > 0 ? State.IN : State.IDLE;
@@ -551,6 +576,7 @@ public class IntakeSubsystem implements Subsystem {
     @Override
     public void stop() {
         request = State.IDLE;
+        pastFull = false;
         clearEjectPowers();
         roller = State.IDLE;
         starsState = State.IDLE;
