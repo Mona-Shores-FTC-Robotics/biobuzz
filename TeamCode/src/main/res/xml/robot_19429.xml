@@ -106,8 +106,8 @@
                  (set with the goBILDA servo programmer), on this hub's servo
                  port 4 since 17 Nov 2026 (it was on port 5, which the FLOWER
                  stick's pivot now has: Bench: Turret moved the stick, and
-                 port 5 was kept for it). 20245's is on its port 5. 19429 has
-                 no working turret yet; nothing is plugged in here. It replaces the
+                 port 5 was kept for it). 20245's is on its port 5. Fitted and
+                 plugged in here, wired like 20245 (mentor, 18 Nov 2026). It replaces the
                  SWYFT positional servo. A continuous servo has no feedback,
                  so TurretSubsystem closes the loop on the turret's encoder:
                  see the encoder socket beside motor port 0 below. -->
@@ -130,10 +130,7 @@
                  turret angle as the intake's position
                  (DeviceNames.TURRET_ENCODER_HOST), so the intake's position
                  hold and wedge clear, which needed its own encoder, are off.
-                 PROPOSED for this robot, not wired yet: today its Cypher Max is
-                 still in the feeder's socket (beside motor port 3), so this
-                 branch reads no turret on 19429 until it is rewired like 20245
-                 (doc/robot-todo.md). -->
+                 Wired like 20245 (mentor, 18 Nov 2026). -->
 
             <!-- Launcher: two flywheels and a feeder, the plan agreed with the
                  build team (23 Oct 2026). Not built yet, so nothing is plugged

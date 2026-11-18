@@ -129,8 +129,7 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       was found in port 5, the turret's, when Bench: Turret moved the stick), roller
       (continuous-rotation servo) on **Control Hub servo port 0** (`flowerRoller`)
       (`robot_19429.xml`). The turret servo was found in the +5V POWER header, not a
-      servo port, and unplugged; 19429 has no working turret yet. When one is fitted, its
-      servo goes in **port 4**. A **full TeamCode install**, re-Activate `robot_19429`,
+      servo port, and unplugged; it was refitted in **port 4** on 18 Nov (the item below). A **full TeamCode install**, re-Activate `robot_19429`,
       then **Check: Hardware** (it lists `flowerRoller`). The stick's positions were
       measured on 17 Nov in Bench: FLOWER Stick (RETRACTED 0.06, EXTENDED 0.55, a 19429 line in
       `RobotDifferences`); check Basic Drive's operator Square swings it between them. Then Basic Drive, PLAY: stick in,
@@ -147,8 +146,12 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       empty, kept for a right star wheel like 19429's (`robot_20245.xml`). The turret's encoder is a
       **REV Through Bore Encoder in the intake's encoder socket** (beside Expansion Hub motor
       port 0; the intake's own encoder cable stays out, and the Cypher Max comes out of the
-      feeder's socket). 20245 was wired this way on 17 Nov; **19429 is not yet**, and reads no
-      turret on this branch until it is. With the turret's encoder there the intake's position
+      feeder's socket). 20245 was wired this way on 17 Nov, 19429 on 18 Nov (servo on
+      **Expansion Hub servo port 4**, since port 5 is its FLOWER stick's), and both robots'
+      turrets are unlocked (`lockedForward` off, a line each in `RobotDifferences`).
+      **19429, first time:** Bench: Turret before Basic Drive (signs, stop power, floor, top
+      speed run on 20245's shared values); **Stop:** it runs away or holds the wrong way → set
+      `TurretSubsystem.lockedForward` true in Panels and note what it did. With the turret's encoder there the intake's position
       hold on a full lane, its wedge clear and its stall event are off: watch a full lane hold
       its pieces on the power hold alone (`IntakeSubsystem.holdPowerWhenFull`). The configs on this branch
       already say this, so **install it only on a robot that is wired this way**: a positional

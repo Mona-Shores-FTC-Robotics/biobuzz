@@ -84,13 +84,17 @@ public final class RobotDifferences {
         differs(RobotIdentity.TEAM_19429,
                 "Lane colour sensor's presence threshold set to 0.068 on this robot (mentor, 17 Nov 2026)",
                 () -> ColorSensorSubsystem.presentAbove = 0.068);
+        differs(RobotIdentity.TEAM_19429,
+                "Turret unlocked: rewired like 20245, the 25-3 Speed servo (continuous) on Expansion Hub"
+                        + " servo port 4 and the REV Through Bore encoder in the intake's encoder socket"
+                        + " (mentor, 18 Nov 2026)",
+                () -> TurretSubsystem.lockedForward = false);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // The shared values were mostly measured on 20245.
         differs(RobotIdentity.TEAM_20245,
                 "Turret unlocked: the 25-3 Speed servo and the REV Through Bore encoder are fitted,"
-                        + " checked on Bench: Turret, and it held and aimed in Basic Drive (17 Nov 2026)."
-                        + " 19429 stays locked until it is rewired the same way",
+                        + " checked on Bench: Turret, and it held and aimed in Basic Drive (17 Nov 2026)",
                 () -> TurretSubsystem.lockedForward = false);
         differs(RobotIdentity.TEAM_20245,
                 "Shoots long at every range: 50 ticks/s off every launch speed, TeleOp and Autos (drive"
