@@ -1094,8 +1094,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 : !open ? "WAITING: an enforced gate is closed"
                 : gates.anyWouldBlock() ? "fired; a gate would have blocked it (shadow)" : "fired; gates clear";
         return String.format(Locale.US, "fire (%s): launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
-                (robot.launcher.leftTicksPerSecond() + robot.launcher.rightTicksPerSecond()) / 2.0,
                 circleFires ? controls.held(Action.FIRE) ? "operator and driver" : "driver's Circle" : "operator",
+                (robot.launcher.leftTicksPerSecond() + robot.launcher.rightTicksPerSecond()) / 2.0,
                 robot.launcher.target(), launcherOwner.spinning() ? "" : " (idle)",
                 Double.isNaN(aimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f°", aimErrorDeg),
                 aimer.source(), aimer.trimDeg(), turretMode, where, gates.summary(), outcome);
