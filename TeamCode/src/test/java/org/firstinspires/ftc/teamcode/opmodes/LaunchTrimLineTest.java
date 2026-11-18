@@ -26,6 +26,24 @@ public class LaunchTrimLineTest {
     }
 
     @Test
+    public void aFractionalTrimShowsToATenth() {
+        assertEquals(Display.huge("LAUNCH TRIM +12.5", Display.Level.OK), BasicDriveTeleOp.launchTrimLine(12.5));
+        assertEquals(Display.huge("LAUNCH TRIM -15", Display.Level.FAULT), BasicDriveTeleOp.launchTrimLine(-15));
+    }
+
+    @Test
+    public void holdingCircleMakesBothTrimsStepFiner() {
+        assertEquals(25.0, BasicDriveTeleOp.trimStep(false, 25.0, 10.0, 200.0), 0.0);
+        assertEquals(10.0, BasicDriveTeleOp.trimStep(true, 25.0, 10.0, 200.0), 0.0);
+        assertEquals(1.5, BasicDriveTeleOp.trimStep(false, 1.5, 0.5, 5.0), 0.0);
+        assertEquals(0.5, BasicDriveTeleOp.trimStep(true, 1.5, 0.5, 5.0), 0.0);
+        // Guarded as the normal step: NaN or negative is no step, and never past the cap.
+        assertEquals(0.0, BasicDriveTeleOp.trimStep(true, 25.0, Double.NaN, 200.0), 0.0);
+        assertEquals(0.0, BasicDriveTeleOp.trimStep(true, 1.5, -1.0, 5.0), 0.0);
+        assertEquals(5.0, BasicDriveTeleOp.trimStep(true, 1.5, 9.0, 5.0), 0.0);
+    }
+
+    @Test
     public void theLoopTimeIsWholeMilliseconds() {
         assertEquals(Display.huge("LOOP 21 ms", false), BasicDriveTeleOp.loopLine(20.6));
         assertEquals(Display.huge("LOOP -- ms", false), BasicDriveTeleOp.loopLine(Double.NaN));

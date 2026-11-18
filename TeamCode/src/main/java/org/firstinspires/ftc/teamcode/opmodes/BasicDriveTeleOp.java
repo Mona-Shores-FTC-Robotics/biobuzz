@@ -335,6 +335,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.on(Action.LAUNCHER_TRIM_DOWN).onPress(() -> trimLauncher(-1));
         controls.on(Action.LAUNCHER_TRIM_UP).onPress(() -> trimLauncher(+1));
         controls.on(Action.LAUNCHER_TRIM_RESET).onPress(this::resetLauncherTrim);
+        controls.note(Action.FINE_TRIM);
         controls.on(Action.TURRET_LOCK).onPress(this::toggleTurretMode);
         controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
         controls.on(Action.TRIM_LEFT).onPress(() -> trim(+1));
@@ -347,8 +348,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.TURRET_ZERO);
 
         operator.note("Launcher and Square", "spin up early when a shot is coming; while the driver "
-                + "holds Square, your buttons cannot stop it (no idle, Fire waits for the volley); "
-                + "it idles a few seconds after Square is let go, unless you Fire first");
+                + "holds Square, your toggle cannot idle it; it idles a few seconds after Square is let go. "
+                + "Hold Circle while trimming for smaller steps");
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
     }
@@ -455,16 +456,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * speed, and otherwise at the next spin-up. The step is guarded: NaN or negative is no step.
      */
     private void trimLauncher(int direction) {
-        double step = TeleOpConfig.launcherTrimStepTps > 0.0
-                ? Math.min(TeleOpConfig.launcherTrimStepTps, MAX_LAUNCHER_TRIM_STEP_TPS) : 0.0;
+        double step = trimStep(controls.held(Action.FINE_TRIM), TeleOpConfig.launcherTrimStepTps,
+                TeleOpConfig.launcherTrimFineStepTps, MAX_LAUNCHER_TRIM_STEP_TPS);
         launcherTrimTps = Math.max(-LauncherSubsystem.targetTicksPerSecond, launcherTrimTps + direction * step);
         if (launcherOwner.spinning()) {
             robot.launcher.spinUp(launchSpeed());
         }
         // Felt, not looked at: one blip up, two down (7 Nov 2026).
         gamepad2.rumbleBlips(direction > 0 ? 1 : 2);
-        log.event(String.format(Locale.US, "launcher trim %+.0f ticks/s: launch speed %.0f",
-                launcherTrimTps, launchSpeed()));
+        log.event(String.format(Locale.US, "launcher trim %+.1f ticks/s (step %.1f%s): launch speed %.0f",
+                launcherTrimTps, step, controls.held(Action.FINE_TRIM) ? ", fine" : "", launchSpeed()));
     }
 
     /** The launch trim back to 0, at once if the launcher is at launch speed; one long buzz. */
@@ -486,7 +487,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
      */
     static String launchTrimLine(double trimTps) {
         if (trimTps == 0.0) return Display.huge("LAUNCH TRIM 0", false);
-        return Display.huge(String.format(Locale.US, "LAUNCH TRIM %+.0f", trimTps),
+        // Whole ticks unless a step left a fraction (a fine step typed as 2.5): then to 0.1.
+        String format = trimTps == Math.rint(trimTps) ? "LAUNCH TRIM %+.0f" : "LAUNCH TRIM %+.1f";
+        return Display.huge(String.format(Locale.US, format, trimTps),
                 trimTps > 0.0 ? Display.Level.OK : Display.Level.FAULT);
     }
 
@@ -533,9 +536,19 @@ public class BasicDriveTeleOp extends RobotOpMode {
         return String.format(Locale.US, "launch speed %.0f t/s", launchSpeedTps);
     }
 
+    /**
+     * One trim press's step: the fine step while the operator holds the fine-trim button (Circle),
+     * else the normal one. Guarded as each step always was: NaN or negative is no step, and it is
+     * never more than {@code max}. Pure, so a test can check it.
+     */
+    static double trimStep(boolean fine, double normal, double fineStep, double max) {
+        return LaunchTest.trimStep(fine ? fineStep : normal, max);
+    }
+
     /** +1 a step left, -1 a step right, 0 back to zero. The step is guarded: NaN or negative is no step. */
     private void trim(int direction) {
-        double step = TeleOpConfig.trimStepDeg > 0.0 ? Math.min(TeleOpConfig.trimStepDeg, MAX_TRIM_STEP_DEG) : 0.0;
+        double step = trimStep(controls.held(Action.FINE_TRIM), TeleOpConfig.trimStepDeg,
+                TeleOpConfig.trimFineStepDeg, MAX_TRIM_STEP_DEG);
         if (direction > 0) aimer.trimLeft(step);
         else if (direction < 0) aimer.trimRight(step);
         else aimer.resetTrim();

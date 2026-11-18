@@ -32,6 +32,7 @@ public enum Action {
     LAUNCHER_TRIM_DOWN(Pad.OPERATOR, "Launcher Trim Down"),
     LAUNCHER_TRIM_UP(Pad.OPERATOR, "Launcher Trim Up"),
     LAUNCHER_TRIM_RESET(Pad.OPERATOR, "Launcher Trim Reset to 0"),
+    FINE_TRIM(Pad.OPERATOR, "Fine trim (hold with L1/R1 or D-pad)"),
     /** The bench's fire (Bench: Launch Test); never in the match layout, where the driver's Circle fires. */
     FIRE(Pad.OPERATOR, "Fire (hold; spins up first if idle)"),
     FLOWER_STICK(Pad.OPERATOR, "FLOWER Stick Deploy / Retract (Toggle)"),

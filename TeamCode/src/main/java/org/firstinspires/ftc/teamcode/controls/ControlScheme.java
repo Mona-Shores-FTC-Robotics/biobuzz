@@ -19,7 +19,8 @@ import java.util.Set;
  * <p><b>The driver owns every shot</b> (mentor, 18 Nov 2026): the driver's Circle fires, and the
  * driver's R1 (turret AIM or LOCKED) sets what Circle does. The operator has no fire button and no
  * turret-mode button in a match ({@link #BENCH_ONLY}); they keep the launcher spin-up and its trim,
- * the aim trim and zero, the FLOWER stick, and the intake and unjam.
+ * the aim trim and zero (Circle held makes both trims step finer, {@link #MATCH_ONLY}), the FLOWER
+ * stick, and the intake and unjam.
  *
  * <p>A layout leaves out what does nothing on this robot, so the Controls page and the cheat
  * sheet show only buttons that work: {@link #NOT_BOUND} always, and {@link #TURRET_ACTIONS} while
@@ -53,6 +54,13 @@ public final class ControlScheme {
     public static final Set<Action> BENCH_ONLY = Collections.unmodifiableSet(EnumSet.of(Action.FIRE, Action.BENCH_SETUP));
 
     /**
+     * Bound only in the match layout ({@link #layout(Input, boolean, boolean)}), on an input the
+     * bench gives to {@link #BENCH_ONLY}: the operator's fine-trim modifier, Circle, held with L1/R1
+     * or the D-pad for smaller trim steps. The operator's Circle is never a fire in a match.
+     */
+    public static final Set<Action> MATCH_ONLY = Collections.unmodifiableSet(EnumSet.of(Action.FINE_TRIM));
+
+    /**
      * Bound only while the turret is locked forward: the launch trim reset, on D-pad down, the
      * turret's trim reset's button, so the habit carries over (mentor, 7 Nov 2026). With the turret
      * aiming, its trim reset on D-pad down clears the launch trim too.
@@ -80,6 +88,8 @@ public final class ControlScheme {
     public static Map<Action, Input> layout(Input flowerPick, boolean turretLocked, boolean launchSpot) {
         Map<Action, Input> map = layout(flowerPick);
         for (Action action : BENCH_ONLY) map.remove(action);
+        // The operator's Circle, the bench's fire, is the fine-trim modifier in a match.
+        map.put(Action.FINE_TRIM, Input.CIRCLE);
         if (turretLocked) {
             for (Action action : TURRET_ACTIONS) map.remove(action);
             map.put(Action.LAUNCHER_TRIM_RESET, Input.DPAD_DOWN);
