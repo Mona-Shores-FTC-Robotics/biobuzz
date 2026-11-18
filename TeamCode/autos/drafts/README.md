@@ -352,7 +352,7 @@ Square's close row (L4, R4, R5) and ran from the Utility menu; where they name t
 Autos now use `LEFT_AUTO_OFFSET` (R) and `LEFT_AUTO_HIVE` (L) at the left end, and
 `RIGHT_AUTO_HIVE` (L) and `RIGHT_AUTO_OFFSET` (R) at the right.
 
-Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-outside-lane.pp,drafts/l-under-hive.pp>
+Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-outside-lane.pp,l-under-hive.pp>
 
 | Utility | Route |
 |---|---|
