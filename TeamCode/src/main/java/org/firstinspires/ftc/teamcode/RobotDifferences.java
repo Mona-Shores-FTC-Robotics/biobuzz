@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
+import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -96,6 +97,19 @@ public final class RobotDifferences {
                         + " servo port 4 and the REV Through Bore encoder in the intake's encoder socket"
                         + " (mentor, 18 Nov 2026)",
                 () -> TurretSubsystem.lockedForward = false);
+        differs(RobotIdentity.TEAM_19429,
+                "Shoots long: every ball of the Auto's volleys long, not only the first, so it is the"
+                        + " speed, not the early gate; 25 ticks/s off every launch speed, TeleOp and"
+                        + " Autos, what worked in Panels (mentor, 18 Nov 2026)",
+                () -> LaunchSpeedTable.robotOffsetTicksPerSecond = -25.0);
+        differs(RobotIdentity.TEAM_19429,
+                "Shots sit to one side: turret aimed 5 degrees round from its mark, what worked in"
+                        + " Panels with the speed and gate lines here (mentor, 18 Nov 2026)",
+                () -> TurretSubsystem.aimOffsetDeg = 5.0);
+        differs(RobotIdentity.TEAM_19429,
+                "Early gate: the Auto opens the feed gate 0.1 s ahead of launch speed (LaunchCards"
+                        + " gateLeadS), set in Panels with the speed and aim lines here (mentor, 18 Nov 2026)",
+                () -> LaunchCards.gateLeadS = 0.1);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // The shared values were mostly measured on 20245.

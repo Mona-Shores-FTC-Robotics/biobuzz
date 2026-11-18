@@ -314,6 +314,10 @@ Result, with the gap on each own-start run, → [PR #372].
       loop is slower than the bench's), and `kP` 0.02, `kD` 0.003 hold cleanly. In the code.
       Also found there: the intake reverses its motor, which flipped the turret's count read
       through its socket; fixed (`TurretSubsystem.hostSign`). Not yet run: tracking.
+      **19429, 18 Nov (mentor: still 20245's numbers, tuning to do):** with `aimOffsetDeg` 5 the
+      turn at PLAY (R-Solo 22:27 log) passed the target by 3.4°, came back, and stopped 1.9° short
+      by 0.5 s, inside `holdToleranceDeg` 2, so the loop called it held. Steps 1–6 on 19429; for
+      step 6 also read `/Turret/ErrorDeg` settling after a 5° step: **Good:** under 1°.
 - [ ] **Square's wall spots on 19429, and 20245's launch trim, after 17 Nov's changes.**
       `wallGapIn` is 0.04 for both robots (found on 20245: 0 pushed into the audience wall and
       never settled, 1 was too much): on 19429 press Square from the tile row against the audience
