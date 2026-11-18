@@ -15,7 +15,6 @@ public enum Action {
     DRIVER_UNJAM(Pad.DRIVER, "Unjam (hold)"),
     SLOW(Pad.DRIVER, "Slow (hold)"),
     FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold)"),
-    SUPER_FLOWER_PICK(Pad.DRIVER, "*Super FLOWER Pick: fire the load, then pick (hold; Drive: Super FLOWER Pick only)"),
     GARDEN_GATHER(Pad.DRIVER, "*Gather GARDEN (hold)"),
     CHASSIS_AIM(Pad.DRIVER, "Fire (hold) if the turret can aim; else Aim Chassis (hold)"),
     LAUNCH_SPOT(Pad.DRIVER, "*Go to Launch Spot (hold)"),

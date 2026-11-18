@@ -20,7 +20,10 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
- * The FLOWER 8-shot: a robot that arrives at a FLOWER with a load fires it from the FLOWER while
+ * <b>Shelved (mentor, 18 Nov 2026): no OpMode runs it,</b> since the turret cannot shoot back over the robot.
+ * Kept, with its test, in case that changes.
+ *
+ * <p>The FLOWER 8-shot: a robot that arrives at a FLOWER with a load fires it from the FLOWER while
  * the stick and the intake bring the FLOWER's pieces in behind it, so eight go up in one feed with
  * no drive between the pick and the volley (mentor's idea, 17 Nov 2026). It is {@link FlowerPicker}'s
  * pick, staying against the FLOWER until the feed is over ({@code FlowerPicker.staying}); this

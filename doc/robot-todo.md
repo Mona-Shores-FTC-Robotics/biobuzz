@@ -617,7 +617,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       lines from the same runs with `launchOnApproach` off. **Good:** X under 0.3 s (was 0.38–0.57),
       and hits as good as before. **Stop:** misses → `PathEndSettle.slowSpeedInPerSec` 3.
       [PR #430]
-- [ ] **Angled nudge with the dummy chassis — Utility `Drive: Partner Nudge`.**
+- [ ] **Angled nudge with the dummy chassis — Utility `Drive: Partner Nudge`.** **Shelved 18 Nov 2026:** its Utility trial is off the Driver Station (the event lineup); bring it back from Git history before this check.
       Sloth Load the nudge-test branch/PR; the three competition Autos stay as they are.
       [Setup drawing](nudge-test-setup.svg). Red frame: a **16 x 16 in** partner centre
       at **(10.254, 82.000), heading 70°**, one corner on the alliance wall and its
@@ -788,7 +788,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - Film each paired run from the side.
 - [ ] **R-Two-Tip draft (`autos/drafts/r-two-tip.pp`): R-Solo's steps from the measured LEFT spot.**
       [Why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-two-tip-r-solos-steps-fired-from-the-measured-left-spot).
-      Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s).
+      Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s). **Shelved 18 Nov 2026:** its Utility trial is off the Driver Station (the event lineup); bring it back from Git history before this check.
       - Five runs alone, filmed from the side, partner off `LEFT_START`. Count the pieces that
         stay in the LEFT CELL from each LEFT volley, and the TIPs. **Good:** 8 of 8 stay in on
         most runs. This is
@@ -1252,6 +1252,9 @@ has each trial's settings and measured back-up.
       **Good:** 4 of 4 collected in one pass. **Stop:** record how many of 4, over 5 tries.
 
 ## 7b2. Drive: Super FLOWER Pick (20245, the SCORING FLOWER, HIVE upright, phone filming the intake and the CELL)
+
+**Shelved 18 Nov 2026 (mentor): the turret cannot shoot back over the robot.** The Utility and its R1
+binding are gone; `opmodes/FlowerVolley` is kept. Nothing below can run until both come back.
 
 One driver button, on trial: fire the load from against the SCORING FLOWER, then pick it
 (`opmodes/FlowerVolley`; mentor's idea, 17 Nov 2026). Never run on a robot.
@@ -1801,6 +1804,8 @@ one test at one meeting.
 [#261]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/261
 
 ### Full Solo-Nudge lab run
+
+**Shelved 18 Nov 2026:** its Utility trial is off the Driver Station (the event lineup); bring it back from Git history before this check.
 
 - [ ] Load master with the full nudge trial; select **Drive: R-Solo-Nudge**.
   Normal RIGHT_START, four preloads, the same angled 16x16 dummy placement, chosen

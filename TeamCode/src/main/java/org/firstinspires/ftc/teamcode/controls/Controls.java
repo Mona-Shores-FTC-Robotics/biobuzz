@@ -43,10 +43,7 @@ public final class Controls {
                 driver, operator);
     }
 
-    /**
-     * With a layout the caller made: one of {@link ControlScheme}'s, with an action on trial added
-     * ({@link ControlScheme#addSuperFlowerPick}).
-     */
+    /** With a layout the caller made: one of {@link ControlScheme}'s. */
     public Controls(Map<Action, Input> layout, Gamepad driverPad, Gamepad operatorPad,
                     Bindings driver, Bindings operator) {
         this.layout = layout;

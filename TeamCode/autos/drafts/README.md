@@ -1,9 +1,11 @@
 # Drafts
 
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode.
-Simulator drafts also have a request in `TeamCode/sim-requests/`. The isolated
-partner-nudge experiment has Utility trials for bring-up. The nudge
-Utility's runtime speed limits are not modeled by AutoSim. The Visualizer lists
+Simulator drafts also have a request in `TeamCode/sim-requests/`. The Utility trials of R-Two-Tip,
+R-Solo-Nudge and the partner-nudge test came off the Driver Station on 18 Nov 2026 (the event lineup);
+where the notes below name them, bring one back from Git history first. The trials on it now are
+R-Solo-HumanPlayer, R-Clockwise-19429 and R-Solo-19429. The nudge Utility's runtime speed limits were
+not modeled by AutoSim. The Visualizer lists
 these under "Drafts", and Save to GitHub saves back here.
 
 Some drafts launch from the old launch spots (`LEFT_LAUNCH_OFFSET`, `RIGHT_LAUNCH_CLOSE` and the like), which
@@ -350,7 +352,7 @@ Square's close row (L4, R4, R5) and ran from the Utility menu; where they name t
 Autos now use `LEFT_AUTO_OFFSET` (R) and `LEFT_AUTO_HIVE` (L) at the left end, and
 `RIGHT_AUTO_HIVE` (L) and `RIGHT_AUTO_OFFSET` (R) at the right.
 
-Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-outside-lane.pp,l-under-hive.pp>
+Open the pair: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-outside-lane.pp,drafts/l-under-hive.pp>
 
 | Utility | Route |
 |---|---|
