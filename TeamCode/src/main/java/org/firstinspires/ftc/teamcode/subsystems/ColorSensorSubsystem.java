@@ -130,6 +130,15 @@ public class ColorSensorSubsystem implements Subsystem {
      */
     public static double redNectarHueMin = 330;
     public static double redNectarHueMax = 42;
+    /**
+     * The empty lane's hue range, degrees, for {@link #emptyTooBright()} only: the lane's own
+     * grey-green with nothing in front of the sensor. 19429, 14 to 17 Nov 2026, with and without
+     * the black bottom plate: 137° to 148° at saturation about 0.46 to 0.50, whatever the
+     * brightness. Kept clear of {@link #pollenHueMax}: a preload half in view read 119°.
+     */
+    public static double emptyHueMin = 132;
+    public static double emptyHueMax = 170;
+
     /** Blue NECTAR's hue range, degrees. Bench, 2 Nov 2026: 212° to 232°, saturation 0.62 to 0.88. */
     public static double blueNectarHueMin = 180;
     public static double blueNectarHueMax = 270;
@@ -287,7 +296,7 @@ public class ColorSensorSubsystem implements Subsystem {
                 rejectMaxBursts, rejectWindowS * 1000.0);
         if (fresh) {
             long nowMs = now / 1_000_000L;
-            if (!emptyReadsAboveLeave(alpha, piece, presentAbove, leaveBelow)) {
+            if (!emptyReadsAboveLeave(alpha, hueDeg, presentAbove, leaveBelow, emptyHueMin, emptyHueMax)) {
                 brightEmptySinceMs = -1;
             } else if (brightEmptySinceMs < 0) {
                 brightEmptySinceMs = nowMs;
@@ -320,16 +329,16 @@ public class ColorSensorSubsystem implements Subsystem {
 
     /**
      * Whether one reading looks like an empty lane too bright for {@link #leaveBelow}: at or above
-     * the leave level, and either below {@link #presentAbove} (the band where a presence neither
-     * starts nor ends) or not a piece's colour at all. The empty lane's colour is grey-green, hue
-     * 130 to 170° at saturation about 0.46, outside every piece's range; every steady piece in
-     * 19429's 16 and 17 Nov logs read a POLLEN hue. Pure, so a test can check it.
+     * the leave level, in the empty lane's grey-green ({@link #emptyHueMin} to {@link #emptyHueMax}).
+     * Colour, not a brightness band: a preload sitting half in view of the sensor in an Auto's INIT
+     * read 0.096, between the leave and presence levels, at a hue of 119° (19429, 17 Nov 2026, with
+     * the plate), and is a piece, not a lit empty lane. Pure, so a test can check it.
      */
-    static boolean emptyReadsAboveLeave(double alpha, LaneTracker.Piece piece, double presentAbove, double leaveBelow) {
+    static boolean emptyReadsAboveLeave(double alpha, double hueDeg, double presentAbove, double leaveBelow,
+                                        double emptyHueMin, double emptyHueMax) {
         if (Double.isNaN(alpha) || Double.isNaN(presentAbove)) return false;
         double leave = Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove);
-        if (alpha < leave) return false;
-        return alpha <= presentAbove || piece == LaneTracker.Piece.UNKNOWN;
+        return alpha >= leave && LaneTracker.inRange(hueDeg, emptyHueMin, emptyHueMax);
     }
 
     /** The full detector itself, for the match log's dwell of each piece. */
