@@ -300,6 +300,10 @@ public class LauncherSubsystem implements Subsystem {
     private final EncoderWatch rightWatch = new EncoderWatch();
     private final AtSpeedTimer readiness = new AtSpeedTimer();
     private boolean atSpeed;
+    private final SpinUpForecast leftForecast = new SpinUpForecast();
+    private final SpinUpForecast rightForecast = new SpinUpForecast();
+    /** {@link #secondsToSpeed()}, as the last {@link #update()} worked it out. */
+    private double secondsToSpeed = Double.POSITIVE_INFINITY;
     private final ShotDetector shots = new ShotDetector();
     /** Whether the feed gate is open, so a dip may be a shot ({@link #countShotsWhile}). */
     private BooleanSupplier gateOpen;
@@ -428,6 +432,7 @@ public class LauncherSubsystem implements Subsystem {
         } else if (!(Math.abs(target() - before) <= toleranceTicksPerSecond)) {
             readiness.reset();
             atSpeed = false;
+            secondsToSpeed = Double.POSITIVE_INFINITY;
         }
         state = State.SPINNING;
     }
@@ -441,6 +446,7 @@ public class LauncherSubsystem implements Subsystem {
         readiness.reset();
         shots.reset();
         atSpeed = false;
+        secondsToSpeed = Double.POSITIVE_INFINITY;
         response.cancel();
         measuring = false;
     }
@@ -466,6 +472,18 @@ public class LauncherSubsystem implements Subsystem {
      */
     public boolean atSpeed() {
         return atSpeed;
+    }
+
+    /**
+     * How long until {@link #atSpeed()} is due to say so, seconds, from how fast each wheel is
+     * closing on its target now: 0 when it already does; the slower wheel's time into the
+     * {@link #toleranceTicksPerSecond} band plus what is left of {@link #atSpeedHoldMs}; infinite
+     * when not spinning, faulted, unjamming, or a wheel is not closing on its band (an overshoot
+     * settling slowly back down is infinite until it closes). A forecast, for an Auto's early gate
+     * ({@code LaunchCards.gateLeadS}): nothing else feeds on it.
+     */
+    public double secondsToSpeed() {
+        return secondsToSpeed;
     }
 
     /** Shots counted from speed dips since this OpMode started (class comment). Not cleared by {@link #spinDown()}. */
@@ -675,6 +693,8 @@ public class LauncherSubsystem implements Subsystem {
             reversing = reverse;
             readiness.reset();
             shots.reset();
+            leftForecast.reset();
+            rightForecast.reset();
             atSpeed = false;
             if (!reverse && state == State.SPINNING) {
                 spinUpStartedNs = now;
@@ -696,6 +716,7 @@ public class LauncherSubsystem implements Subsystem {
                         rightSent, force);
             }
             readCurrents(now);
+            secondsToSpeed = Double.POSITIVE_INFINITY;
         } else if (state == State.SPINNING) {
             leftWatch.update(leftTarget, leftTicksPerSecond, now,
                     encoderFaultAfterMs, encoderSilentTicksPerSecond, encoderRetryAfterMs);
@@ -717,6 +738,21 @@ public class LauncherSubsystem implements Subsystem {
                     && Math.abs(leftTicksPerSecond - leftTarget) <= toleranceTicksPerSecond
                     && Math.abs(rightTicksPerSecond - rightTarget) <= toleranceTicksPerSecond;
             atSpeed = readiness.update(within, now, atSpeedHoldMs);
+            leftForecast.update(leftTicksPerSecond, now);
+            rightForecast.update(rightTicksPerSecond, now);
+            if (atSpeed) {
+                secondsToSpeed = 0.0;
+            } else if (leftFault || rightFault) {
+                secondsToSpeed = Double.POSITIVE_INFINITY;
+            } else {
+                double band = Math.max(
+                        leftForecast.secondsToBand(leftTarget, leftTicksPerSecond, toleranceTicksPerSecond),
+                        right == null ? 0.0
+                                : rightForecast.secondsToBand(rightTarget, rightTicksPerSecond, toleranceTicksPerSecond));
+                // In the band the hold is already counting; out of it, the whole hold is still to come.
+                secondsToSpeed = band + (within ? readiness.remainingS(now, atSpeedHoldMs)
+                        : Math.max(0.0, atSpeedHoldMs) / 1000.0);
+            }
             // A target change (Panels nudge, a table lookup) is not a shot: the detector seeds its
             // level afresh after a big one and keeps it through the speed table's small ones.
             boolean newTarget = leftTarget != lastLeftTarget || rightTarget != lastRightTarget;
@@ -746,6 +782,9 @@ public class LauncherSubsystem implements Subsystem {
             rightCurrentAmps = Double.NaN;
             atSpeed = false;
             shots.reset();
+            leftForecast.reset();
+            rightForecast.reset();
+            secondsToSpeed = Double.POSITIVE_INFINITY;
         }
         lastLeftTarget = leftTarget;
         lastRightTarget = rightTarget;
@@ -1286,8 +1325,75 @@ public class LauncherSubsystem implements Subsystem {
             return (nowNs - withinSinceNs) >= holdMs * 1e6;
         }
 
+        /** What is left of the hold, seconds: the whole of it when not within tolerance now. */
+        double remainingS(long nowNs, double holdMs) {
+            double holdS = Math.max(0.0, holdMs) / 1000.0;
+            if (withinSinceNs < 0) return holdS;
+            return Math.max(0.0, holdS - (nowNs - withinSinceNs) / 1e9);
+        }
+
         void reset() {
             withinSinceNs = -1;
+        }
+    }
+
+    /**
+     * One wheel's rate of change, and from it how long until the wheel is inside its at-speed band.
+     * The rate is taken over at least {@link #WINDOW_MS}, so the velocity's 20 ticks/s steps do not
+     * read as a rate. Pure, no hardware: a test drives it with made-up speeds and clocks.
+     *
+     * <p>At the Belding Qualifier (7 Nov 2026) the wheels climbed from rest at about 5000 to 7000
+     * ticks/s² and were within the band about 0.3 s after PLAY; what the gate waited on after that
+     * was the hold and, on 20245, a left wheel that overshot by 120 and came back down slowly (that
+     * reads as infinite here until it closes).
+     */
+    static final class SpinUpForecast {
+        /** The rate is measured over at least this long, ms. */
+        static final double WINDOW_MS = 60.0;
+        /** A wheel closing on its band slower than this, ticks/s², is not coming: infinite. */
+        static final double MIN_CLOSING_TPS2 = 300.0;
+
+        private long anchorNs = -1;
+        private double anchorSpeed;
+        private double rate = Double.NaN;
+
+        /** Feed this loop's speed, ticks/s, and the clock, ns. */
+        void update(double speed, long nowNs) {
+            if (anchorNs < 0) {
+                anchorNs = nowNs;
+                anchorSpeed = speed;
+                return;
+            }
+            double dtS = (nowNs - anchorNs) / 1e9;
+            if (dtS * 1000.0 < WINDOW_MS) return;
+            rate = (speed - anchorSpeed) / dtS;
+            anchorNs = nowNs;
+            anchorSpeed = speed;
+        }
+
+        /** The rate last measured, ticks/s²; NaN until a whole window has passed. */
+        double rate() {
+            return rate;
+        }
+
+        /**
+         * Seconds until {@code speed} is within {@code tolerance} of {@code target} at the measured
+         * rate: 0 inside the band, infinite with no rate yet or one not closing on the band.
+         */
+        double secondsToBand(double target, double speed, double tolerance) {
+            double tol = Math.max(0.0, tolerance);
+            if (Math.abs(speed - target) <= tol) return 0.0;
+            if (Double.isNaN(rate)) return Double.POSITIVE_INFINITY;
+            boolean below = speed < target;
+            double gap = below ? (target - tol) - speed : speed - (target + tol);
+            double closing = below ? rate : -rate;
+            if (!(closing >= MIN_CLOSING_TPS2)) return Double.POSITIVE_INFINITY;
+            return gap / closing;
+        }
+
+        void reset() {
+            anchorNs = -1;
+            rate = Double.NaN;
         }
     }
 }

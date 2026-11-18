@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  * The launcher's cards for the Auto Builder: {@code SpinUp}, {@code LaunchAll}, {@code LaunchOne}
  * and the {@code Empty} trigger, built on {@code robot.launcher} and {@code robot.feeder}.
  *
- * <p>A launch card spins the launcher up, waits until it is at speed (at most
+ * <p>A launch card spins the launcher up, waits until it is at speed (or, with {@link #gateLeadS} on, due at speed within it; at most
  * {@link #maxSpinUpWaitS}, then it feeds anyway and logs it) <em>and the robot has
  * settled</em> ({@link PathEndSettle}: aimed at the last path's end heading, and slowing), runs the
  * feeder for a set time ({@code LaunchAll}: or until the launcher counts its last shot, if sooner),
@@ -133,6 +133,29 @@ public final class LaunchCards {
      */
     public static boolean launchOnApproach = true;
 
+    /**
+     * How far ahead of launch speed a launch card may open the gate, seconds: it opens once the
+     * launcher forecasts it will be at speed within this long ({@code LauncherSubsystem.secondsToSpeed}),
+     * because the first ball still has to travel to the wheels. <b>0: off</b>, the gate waits for
+     * {@code atSpeed()} exactly as before; NaN or below 0 is off too. Everything else about the gate
+     * (aim, settle, the approach's checks, {@link #maxSpinUpWaitS}) is unchanged.
+     *
+     * <p>Why (Belding Qualifier logs, 7 Nov 2026, 17 Autos): in all nine that fired their preloads at
+     * PLAY the gate was waiting on speed, at-speed coming 0.01 to 0.05 s before the gate opened, 0.42
+     * to 0.70 s after PLAY on 19429 and 0.52 to 1.35 s on 20245. The first ball then took 0.58 to
+     * 0.93 s from the gate to the wheels. Several later volleys waited on speed too, the wheels coming
+     * down from the preloads' speed to the next spot's. So up to about 0.5 s is there to win, on
+     * the preloads most.
+     *
+     * <p>The risks, and why it is off until a robot check: a ball already sitting against the wheels
+     * leaves at once (three later volleys at Belding showed a first ball 0.07 to 0.14 s after the
+     * gate), so it goes out short of speed; a wheel that overshoots after the gate opened (20245's
+     * left, 120 over for a second) sends the first ball fast, where today the gate waits it out. Keep
+     * it under the fastest ball's trip, 0.58 s: 0.3 to 0.4 is the place to start. The check is in
+     * {@code doc/robot-todo.md}.
+     */
+    public static double gateLeadS = 0.0;
+
     /** What a launch card needs from the launcher. {@code LauncherSubsystem} has both methods. */
     public interface Launcher {
         void spinUp();
@@ -147,6 +170,11 @@ public final class LaunchCards {
          * its feed at {@link #launchAllEndAfterShots} of them; -1 leaves every feed its set time.
          */
         default int shots() { return -1; }
+        /**
+         * How long until {@link #atSpeed()} is due, seconds ({@code LauncherSubsystem.secondsToSpeed}):
+         * 0 at speed, infinite when it is not coming. The default knows only {@link #atSpeed()}.
+         */
+        default double secondsToSpeed() { return atSpeed() ? 0.0 : Double.POSITIVE_INFINITY; }
     }
 
     /** What a launch card needs from the feeder. {@code FeederSubsystem} has both methods. */
@@ -183,13 +211,13 @@ public final class LaunchCards {
 
         @Override public void approaching(Pose pose, double remainingIn) {
             if (!launchOnApproach || approachEnd == null || !Double.isNaN(approachFedAt)) return;
-            if (!launcher.atSpeed() || !onApproach.ready(approachEnd, pose, remainingIn)) return;
+            if (!speedReady() || !onApproach.ready(approachEnd, pose, remainingIn)) return;
             approachShots = launcher.shots();
             approachFedAt = secondsNow.getAsDouble();
             feeder.feed();
             feeding++;
-            note.accept(String.format(Locale.US, "LaunchAll opened the gate on the approach, %.1f in from the path end",
-                    remainingIn));
+            note.accept(String.format(Locale.US, "LaunchAll opened the gate on the approach, %.1f in from the path end%s",
+                    remainingIn, aheadOfSpeed()));
         }
 
         @Override public void cancel() {
@@ -292,6 +320,7 @@ public final class LaunchCards {
             }
             @Override public boolean atSpeed() { return robot.launcher.atSpeed(); }
             @Override public int shots() { return robot.launcher.shots(); }
+            @Override public double secondsToSpeed() { return robot.launcher.secondsToSpeed(); }
         };
         Feeder feeder = new Feeder() {
             @Override public void feed() { robot.feeder.feed(); }
@@ -336,6 +365,23 @@ public final class LaunchCards {
         if (row == null) return Double.NaN;
         return TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(),
                 TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y());
+    }
+
+    /**
+     * The launcher's half of opening the gate: at speed, or with {@link #gateLeadS} on, due at speed
+     * within it.
+     */
+    private boolean speedReady() {
+        if (launcher.atSpeed()) return true;
+        double lead = gateLeadS;
+        return lead > 0.0 && launcher.secondsToSpeed() <= lead;
+    }
+
+    /** For the match log: ", 0.25 s ahead of launch speed" when the gate opens before it, else empty. */
+    private String aheadOfSpeed() {
+        if (launcher.atSpeed()) return "";
+        return String.format(Locale.US, ", %.2f s ahead of launch speed (gateLeadS %.2f)",
+                launcher.secondsToSpeed(), gateLeadS);
     }
 
     /** {@code SpinUp}: ask the launcher for speed and finish at once. The wheels come up while the robot drives. */
@@ -414,7 +460,7 @@ public final class LaunchCards {
                 .setExecute(() -> {
                     if (!Double.isNaN(fedAt[0])) return;
                     double now = secondsNow.getAsDouble();
-                    if (!launcher.atSpeed()) {
+                    if (!speedReady()) {
                         if (now - startedAt[0] < nonNegative(maxSpinUpWaitS)) return;
                         // Not at speed in time: a slightly slow shot beats driving off with every ball.
                         note.accept(String.format(Locale.US, "%s fed below launch speed: not at speed %.2f s after it started",
@@ -424,6 +470,8 @@ public final class LaunchCards {
                         return;
                     }
                     if (settled.getAsBoolean()) {
+                        String ahead = aheadOfSpeed();
+                        if (!ahead.isEmpty()) note.accept(name + " opened the gate" + ahead);
                         shotsAtFeed[0] = launcher.shots();
                         feed(fedAt, now);
                     } else if (now - startedAt[0] >= PathEndSettle.maxWaitS()) {
