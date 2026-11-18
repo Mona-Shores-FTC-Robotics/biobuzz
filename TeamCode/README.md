@@ -1190,6 +1190,8 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
     volleys also counted on video). Infrared's WALL FLOWER volleys fired 0, 2, 4, 2, 1 and its SCORING FLOWER ones
     0, 4, 3, 4, 2, 0, 4, 4; Ultraviolet's fired 4 six times at the WALL FLOWER and 1, 4, 4 at the SCORING FLOWER.
     `BIOBUZZ_BELDING_ROBOT=19429`, `20245`, `both` (the default) or `full` (every load is four).
+    `BIOBUZZ_BELDING_ROBOT_OURS` and `_PARTNER` set it for one robot of a pair (ours is the request's `spec`),
+    so a pair runs with each of our robots as R in turn.
   - **The share of launched pieces that stay in the CELL, by launch range:** 0.95 from the CATCH spots (42.4
     in), 0.90 from RIGHT_START (53.9 in), 0.70 from the CLOSE spots (36 in, on thin evidence). A piece that
     reaches a raised CELL stays in; the ones lost go wide, fall short or go at a down CELL.

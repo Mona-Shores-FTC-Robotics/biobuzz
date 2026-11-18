@@ -2515,7 +2515,7 @@ public final class AutoSim {
                         // The Belding calibration: of the pieces picked, only as many as that robot's next volley
                         // fired there get as far as the launcher (a short pick, a wedge, a jam on the feed side).
                         if (BeldingCalibration.on && end == EndCondition.NATURALLY) {
-                            int reach = BeldingCalibration.load(pickAtScoringFlower[0], pickLuck);
+                            int reach = BeldingCalibration.load(BeldingCalibration.robotFor(index), pickAtScoringFlower[0], pickLuck);
                             int lost = 0;
                             while (body.stored.size() > reach) {
                                 FieldSim.Piece gone = body.stored.remove(body.stored.size() - 1);
@@ -2635,8 +2635,8 @@ public final class AutoSim {
                             drive.hold(drive.pose);
                             intakeEnabled = intakeBefore[0];
                             drive.maxSpeed = speedBefore[0];
-                            // Best case (BIOBUZZ_BELDING_ROBOT=full): every load is four, a gather's too.
-                            if (BeldingCalibration.on && BeldingCalibration.fullLoads()) {
+                            // Best case (BIOBUZZ_BELDING_ROBOT=full, or _OURS / _PARTNER for one robot): every load is four, a gather's too.
+                            if (BeldingCalibration.on && BeldingCalibration.fullLoads(index)) {
                                 int more = sim.topUpFromGarden(body, 2 * FieldSim.GARDEN_LENGTH_IN, 4);
                                 if (more > 0) pending.add("GardenGather: " + more + " more taken, a full load (best case)");
                             }
