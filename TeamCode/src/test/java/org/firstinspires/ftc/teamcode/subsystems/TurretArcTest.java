@@ -75,4 +75,56 @@ public class TurretArcTest {
         // With no arc it is the shortest way, as before.
         assertEquals(160.0, TurretArc.errorDeg(-100.0, 100.0, Double.NaN, Double.NaN), 1e-9);
     }
+
+    // ---------------------------------------------------------------- centred on the aim trim
+    // 18 Nov 2026: a turret zeroed 60° off, the operator trimmed +60°. The robot's real forward
+    // reads +60 on the encoder, so the arc (±90 here) is +60 ± 90: encoder -30 to +150.
+    private static final double TRIM = 60.0, L90 = 90.0, R90 = 90.0;
+
+    @Test
+    public void withTrimAnAimAtRealPlus80FeedsAtEncoderPlus140() {
+        assertTrue(TurretArc.contains(140.0, TRIM, L90, R90));
+        assertTrue(TurretArc.allowsFeed(140.0, 140.0, TRIM, L90, R90));
+        // Without the centre, +140 is behind a ±90 arc: what refused Circle 40 times tonight.
+        assertFalse(TurretArc.allowsFeed(140.0, 140.0, 0.0, L90, R90));
+        // The real right edge moved as well: encoder -40 is real -100, behind.
+        assertFalse(TurretArc.contains(-40.0, TRIM, L90, R90));
+        assertTrue(TurretArc.contains(-30.0, TRIM, L90, R90));
+    }
+
+    @Test
+    public void withTrimAnAimAtRealPlus100IsHeldAtEncoderPlus150() {
+        // Real +100 is encoder +160: held at the left edge, encoder +150, real +90.
+        assertEquals(150.0, TurretArc.hold(160.0, Double.NaN, TRIM, L90, R90), 1e-9);
+        // Inside, the aim itself, exactly.
+        assertEquals(140.0, TurretArc.hold(140.0, Double.NaN, TRIM, L90, R90), 0.0);
+        // Straight behind the real robot (encoder -120) and wandering: it keeps the edge it had.
+        double edge = TurretArc.hold(-125.0, Double.NaN, TRIM, L90, R90);
+        assertEquals(150.0, edge, 1e-9);
+        edge = TurretArc.hold(-115.0, edge, TRIM, L90, R90);
+        assertEquals(150.0, edge, 1e-9);
+        // Entering on the right of the real back it takes the right edge, encoder -30.
+        assertEquals(-30.0, TurretArc.hold(-100.0, Double.NaN, TRIM, L90, R90), 1e-9);
+    }
+
+    @Test
+    public void withTrimEdgeToEdgeGoesRoundTheRealFront() {
+        // From the left edge (encoder +150) to the right (encoder -30): 180° clockwise through the
+        // real front (+60), not 180° the other way through the real back (-120).
+        assertEquals(-180.0, TurretArc.errorDeg(-30.0, 150.0, TRIM, L90, R90), 1e-9);
+        // Back to the real front (encoder +60) from the left edge: 90° clockwise.
+        assertEquals(-90.0, TurretArc.errorDeg(60.0, 150.0, TRIM, L90, R90), 1e-9);
+        // Pushed round past the left edge to encoder +170 (real +110), it comes back through the
+        // real front, never on through encoder 180 (real +120) into the real back.
+        assertEquals(-200.0, TurretArc.errorDeg(-30.0, 170.0, TRIM, L90, R90), 1e-9);
+        // With no centre the same move would take the short way through encoder 180.
+        assertEquals(160.0, TurretArc.errorDeg(-30.0, 170.0, Double.NaN, Double.NaN), 1e-9);
+    }
+
+    @Test
+    public void aZeroCentreIsTheOldArc() {
+        assertEquals(TurretArc.hold(130.0, Double.NaN, L, R), TurretArc.hold(130.0, Double.NaN, 0.0, L, R), 0.0);
+        assertEquals(TurretArc.errorDeg(-100.0, 100.0, L, R), TurretArc.errorDeg(-100.0, 100.0, 0.0, L, R), 0.0);
+        assertTrue(TurretArc.contains(95.0, Double.NaN, L, R));
+    }
 }

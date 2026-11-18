@@ -67,8 +67,10 @@ Three layers, each written in exactly one place:
   angle is a direction (wrap a difference from `angleDegrees()`), and an aim at a point on the
   field passes the target's rate with it (`aim(deg, rateDps)`), which is how the turret cancels the
   robot's turning. It fires only inside its firing arc (`TurretArc`; `arcLeftDeg`/`arcRightDeg`, a
-  robot that differs in `RobotDifferences`): an aim behind it is held at the arc's edge, the turret
-  never turns through the back, and no fire button feeds while the turret or its aim is outside it.
+  robot that differs in `RobotDifferences`), centred on the operator's aim trim, which is where the
+  robot's real forward reads on a turret zeroed off its mark: an aim behind it is held at the arc's
+  edge, the turret never turns through the robot's back, and no fire button feeds while the turret
+  or its aim is outside it.
   → README § "The turret: a servo on a servo port, an encoder on a motor's encoder socket"
 - XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what
   the SDK reads; keep `port` equal to it.

@@ -411,6 +411,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
         robot.turret.aim(aimer.trimDeg());
     }
 
+    /** The firing arc's centre: the aim trim, or 0 for a turret locked forward, which has none. */
+    private double arcCentre() {
+        return TurretSubsystem.lockedForward ? 0.0 : aimer.trimDeg();
+    }
+
     /** LOCKED to AIM and back. Either way a fresh request, which also lets a dropped hold try again. */
     private void toggleTurretMode() {
         if (turretMode == TurretMode.LOCKED) {
@@ -517,6 +522,15 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 Math.abs(trimDeg)), Math.abs(trimDeg) > AIM_TRIM_LOUD_DEG ? Display.Level.FAULT : Display.Level.WARN);
     }
 
+    /**
+     * Under a red aim trim, what a trim that big most likely means and the fix (mentor, 18 Nov
+     * 2026); null at {@link #AIM_TRIM_LOUD_DEG} or less.
+     */
+    static String aimTrimHint(double trimDeg) {
+        if (Double.isNaN(trimDeg) || Math.abs(trimDeg) <= AIM_TRIM_LOUD_DEG) return null;
+        return Display.statusLine(Display.Level.FAULT, "turret zero off? hold D-pad up at home to re-zero");
+    }
+
     /** The Match page's loop time: the last loop, whole milliseconds, huge (mentor, 14 Nov 2026). */
     static String loopLine(double lastLoopMs) {
         return Display.huge(Double.isNaN(lastLoopMs) ? "LOOP -- ms" : String.format(Locale.US, "LOOP %.0f ms", lastLoopMs), false);
@@ -589,7 +603,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (direction == 0) {
             aimer.resetTrim();
         } else {
-            double cap = trimCap(TeleOpConfig.maxAimTrimDeg, 15.0, 45.0);
+            double cap = trimCap(TeleOpConfig.maxAimTrimDeg, 180.0, 180.0);
             double wanted = aimer.trimDeg() + direction * step;
             aimer.setTrim(clampTrim(wanted, cap));
             aimTrimCapLogged = logCap(wanted, cap, aimTrimCapLogged,
@@ -623,7 +637,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         if (turretZero.update(controls.held(Action.TURRET_ZERO), now)) {
             robot.turret.zeroHere();
-            log.event("turret zeroed here by the operator");
+            // A trim that corrected the old zero would now aim that far off: the new zero starts clean.
+            boolean hadTrim = aimer.trimDeg() != 0.0;
+            aimer.resetTrim();
+            log.event("turret zeroed here by the operator" + (hadTrim ? ", aim trim back to 0" : ""));
             buzz(gamepad2, "gamepad2", "turret zero");
         }
     }
@@ -674,6 +691,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         holdResets(now, false);
 
+        // The firing arc is centred on the aim trim: the trim is where the robot's real forward
+        // reads on a turret zeroed off its mark (TurretArc).
+        robot.turret.arcCentre(arcCentre());
         // Where a shot would go, every loop: the turret aims there in AIM; LOCKED, the chassis aim
         // and the aim gate use it.
         if (turretMode == TurretMode.AIM) {
@@ -805,7 +825,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.line(loopLine(loopTimer.lastMs()));
         display.line(pinpointLine(robot.drive.localizerFault() == null, robot.drive.pinpointTrust(), robot.drive.pinpointFaults()));
         // Only with the turret's controls on the gamepad: locked forward there is no aim trim to set.
-        if (!TurretSubsystem.lockedForward) display.line(aimTrimLine(aimer.trimDeg()));
+        if (!TurretSubsystem.lockedForward) {
+            display.line(aimTrimLine(aimer.trimDeg()));
+            String hint = aimTrimHint(aimer.trimDeg());
+            if (hint != null) display.line(hint);
+        }
         String alert = matchAlert();
         if (alert != null) display.line(Display.huge(alert, Display.Level.WARN));
         if (headingReset.pending() || cameraReset.pending() || leftCornerReset.pending() || rightCornerReset.pending() || turretZero.pending()) {
@@ -1070,7 +1094,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 || circleAimFires;
         // The firing arc is always enforced, for every feed: behind it a ball goes back over the robot.
         arcBlocked = !TurretArc.allowsFeed(TurretSubsystem.lockedForward ? 0.0 : robot.turret.angleDegrees(),
-                turretMode == TurretMode.AIM ? aimer.aimDeg() : Double.NaN);
+                turretMode == TurretMode.AIM ? aimer.aimDeg() : Double.NaN, arcCentre());
         boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, enforceAim)
                 && (!spunUpByFire || robot.launcher.atSpeed()) && !arcBlocked;
         // Circle alone in LOCKED: the feed waits until the robot is on the CELL and at speed.
@@ -1085,10 +1109,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         boolean refusing = wantsFeed && arcBlocked;
         if (!wantsFeed) arcRumbled = false;
         if (refusing && !arcRefusing) {
-            log.event(String.format(Locale.US, "fire: refused, outside the firing arc (turret %.0f°, aim %s, arc +%.0f/-%.0f°)",
+            log.event(String.format(Locale.US, "fire: refused, outside the firing arc (turret %.0f°, aim %s, arc +%.0f/-%.0f° about %.1f°, the aim trim)",
                     TurretEncoder.wrap180(robot.turret.angleDegrees()),
                     Double.isNaN(aimer.aimDeg()) ? "none" : String.format(Locale.US, "%.0f°", TurretEncoder.wrap180(aimer.aimDeg())),
-                    TurretArc.left(), TurretArc.right()));
+                    TurretArc.left(), TurretArc.right(), arcCentre()));
             // Once per hold: a turret at the arc's edge flaps in and out of it, and each re-entry
             // would buzz again.
             if (!arcRumbled) gamepad1.rumble(1.0, 1.0, ARC_RUMBLE_MS);

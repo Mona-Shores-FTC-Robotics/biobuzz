@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -120,7 +121,17 @@ public class LaunchTrimLineTest {
         assertEquals(45.0, BasicDriveTeleOp.trimCap(400.0, 15.0, 45.0), 1e-9);
         assertEquals(0.0, BasicDriveTeleOp.trimCap(0.0, 15.0, 45.0), 1e-9);
         assertEquals(150.0, BasicDriveTeleOp.trimCap(TeleOpConfig.maxLauncherTrimTps, 150.0, 500.0), 1e-9);
-        assertEquals(15.0, BasicDriveTeleOp.trimCap(TeleOpConfig.maxAimTrimDeg, 15.0, 45.0), 1e-9);
+        assertEquals(180.0, BasicDriveTeleOp.trimCap(TeleOpConfig.maxAimTrimDeg, 180.0, 180.0), 1e-9);
+    }
+
+    @Test
+    public void aRedAimTrimSaysTheZeroMayBeOff() {
+        assertNull(BasicDriveTeleOp.aimTrimHint(0.0));
+        assertNull(BasicDriveTeleOp.aimTrimHint(-5.0));
+        assertNull(BasicDriveTeleOp.aimTrimHint(Double.NaN));
+        assertEquals(Display.statusLine(Display.Level.FAULT, "turret zero off? hold D-pad up at home to re-zero"),
+                BasicDriveTeleOp.aimTrimHint(60.0));
+        assertEquals(BasicDriveTeleOp.aimTrimHint(60.0), BasicDriveTeleOp.aimTrimHint(-5.5));
     }
 
     @Test
