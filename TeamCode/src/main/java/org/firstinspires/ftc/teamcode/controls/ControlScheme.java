@@ -13,7 +13,8 @@ import java.util.Set;
  *
  * <p>Both people can run the intake (R2) and unjam (L2), the same input on each pad. The operator's
  * R2 toggles the intake; the driver's R2 and either L2 are holds over that toggle, and the driver
- * wins when both press at once ({@link IntakeArbiter}).
+ * wins when both press at once ({@link IntakeArbiter}). The driver's R2 also takes in past a full
+ * lane, so a false full reading never leaves the driver without an intake.
  *
  * <p>A layout leaves out what does nothing on this robot, so the Controls page and the cheat
  * sheet show only buttons that work: {@link #NOT_BOUND} always, and {@link #TURRET_ACTIONS} while

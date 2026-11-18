@@ -96,6 +96,16 @@ public class IntakePositionHoldTest {
         reject = false; intake.update();
         holdOff = true; intake.update(); released(); assertEquals(0, power, 0);
     }
+    @Test public void driverIntakeTakesInPastAFullLane() {
+        hold();
+        intake.intakePastFull(); intake.update(); released();
+        assertFalse(intake.holdingForFull()); assertTrue(intake.pastFull());
+        assertEquals(IntakeSubsystem.State.IN, intake.state());
+        assertEquals(IntakeSubsystem.inPower, power, 0);
+        reject = true; intake.update(); assertTrue("a reject still wins", power < 0);
+        reject = false;
+        intake.intake(); intake.update(); assertFalse(intake.pastFull()); assertTrue(intake.positionHolding());
+    }
     @Test public void starsContinueInwardWhileRollerHoldsPosition() {
         IntakeSubsystem.starsPowerWhenFull = 1.0;
         hold();
