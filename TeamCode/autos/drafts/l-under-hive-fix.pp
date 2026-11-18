@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T14:08:13.178Z",
+  "timestamp": "2026-11-18T18:43:27.644Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -81,8 +81,8 @@
       },
       "controlPoints": [
         {
-          "x": 56.76137344482316,
-          "y": 93.46014040136694
+          "x": 52,
+          "y": 100
         },
         {
           "x": 68.26574509695736,
@@ -103,7 +103,18 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.2,
+              "endProgress": 0.05,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 268.1,
+                "endDeg": 268.1
+              }
+            },
+            {
+              "startProgress": 0.05,
+              "endProgress": 0.3,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
@@ -113,7 +124,7 @@
               }
             },
             {
-              "startProgress": 0.2,
+              "startProgress": 0.3,
               "endProgress": 1,
               "interpolationType": "linear",
               "reversed": false,

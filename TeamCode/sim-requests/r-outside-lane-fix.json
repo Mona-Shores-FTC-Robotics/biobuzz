@@ -110,7 +110,7 @@
   ],
   "metadata": {
     "AutoSource": "r-outside-lane-fix.pp",
-    "SavedBy": "Lane pair: R waits to 19 s for L's fix",
-    "SavedAt": "2026-11-18T03:30:00+00:00"
+    "SavedBy": "Lane pair: R waits to 19 s for L's fix; R waits to 21.5 s, L turns clear of the centre line",
+    "SavedAt": "2026-11-18T18:40:00+00:00"
   }
 }

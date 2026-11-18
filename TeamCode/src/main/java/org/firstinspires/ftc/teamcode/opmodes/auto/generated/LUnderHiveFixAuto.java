@@ -21,7 +21,7 @@ public final class LUnderHiveFixAuto {
     public static final String SOURCE = "l-under-hive-fix.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|9:08AM";
+    public static final String SAVED = "11-18|1:43PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -58,10 +58,12 @@ public final class LUnderHiveFixAuto {
         Pose rightAutoFixTip = p.of(55.3, 25.7, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose underTheHiveToRightAutoFixTipControl1 = p.of(56.7614, 93.4601, 0);
+        Pose underTheHiveToRightAutoFixTipControl1 = p.of(52, 100, 0);
         Pose underTheHiveToRightAutoFixTipControl2 = p.of(68.2657, 72.9873, 0);
         Pose underTheHiveToRightAutoFixTipControl3 = p.of(58.7, 27, 0);
         Pose underTheHiveToRightAutoFixTipSegment1Start = p.of(55.3, 25.7, 268.1);
+        Pose underTheHiveToRightAutoFixTipSegment1End = p.of(55.3, 25.7, 268.1);
+        Pose underTheHiveToRightAutoFixTipSegment2Start = p.of(55.3, 25.7, 268.1);
         Pose rightAutoFixTipParkUnderTheHiveControl1 = p.of(60, 50, 0);
         Pose rightAutoFixTipParkUnderTheHiveControl2 = p.of(66, 80, 0);
         Pose rightAutoFixTipParkUnderTheHiveControl3 = p.of(65, 105, 0);
@@ -124,7 +126,7 @@ public final class LUnderHiveFixAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path openToLeftAutoHive = Paths.line(leftStart, leftAutoHive).linear(leftStart, leftAutoHive);
         Path leftAbortParkToLeftPark = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
-        Path underTheHiveToRightAutoFixTip = Paths.curve(leftAutoHive, underTheHiveToRightAutoFixTipControl1, underTheHiveToRightAutoFixTipControl2, underTheHiveToRightAutoFixTipControl3, rightAutoFixTip).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(underTheHiveToRightAutoFixTipSegment1Start, rightAutoFixTip)).until(1, Interpolator.linear(rightAutoFixTip, rightAutoFixTip)));
+        Path underTheHiveToRightAutoFixTip = Paths.curve(leftAutoHive, underTheHiveToRightAutoFixTipControl1, underTheHiveToRightAutoFixTipControl2, underTheHiveToRightAutoFixTipControl3, rightAutoFixTip).heading(Interpolator.piecewise().until(0.05, Interpolator.linear(underTheHiveToRightAutoFixTipSegment1Start, underTheHiveToRightAutoFixTipSegment1End)).until(0.3, Interpolator.linear(underTheHiveToRightAutoFixTipSegment2Start, rightAutoFixTip)).until(1, Interpolator.linear(rightAutoFixTip, rightAutoFixTip)));
         Path rightAutoFixTipParkUnderTheHive = Paths.curve(rightAutoFixTip, rightAutoFixTipParkUnderTheHiveControl1, rightAutoFixTipParkUnderTheHiveControl2, rightAutoFixTipParkUnderTheHiveControl3, rightAutoFixTipParkUnderTheHiveControl4, rightAutoFixTipParkUnderTheHiveControl5, leftPark).heading(Interpolator.piecewise().until(0.75, Interpolator.linear(rightAutoFixTipParkUnderTheHiveSegment1Start, rightAutoFixTipParkUnderTheHiveSegment1End)).until(1, Interpolator.linear(rightAutoFixTipParkUnderTheHiveSegment2Start, leftPark)));
         Path fixTipToRightAutoHive = Paths.line(rightAutoFixTip, rightAutoHive).linear(rightAutoFixTip, rightAutoHive);
         Path underHiveParkToLeftPark = Paths.curve(rightAutoHive, underHiveParkToLeftParkControl1, underHiveParkToLeftParkControl2, underHiveParkToLeftParkControl3, underHiveParkToLeftParkControl4, underHiveParkToLeftParkControl5, leftPark).heading(Interpolator.piecewise().until(0.1, Interpolator.linear(underHiveParkToLeftParkSegment1Start, underHiveParkToLeftParkSegment1End)).until(0.62, Interpolator.constant(underHiveParkToLeftParkSegment2Heading)).until(0.86, Interpolator.linear(underHiveParkToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
