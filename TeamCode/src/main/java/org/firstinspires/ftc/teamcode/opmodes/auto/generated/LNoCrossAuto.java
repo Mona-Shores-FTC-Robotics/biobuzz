@@ -21,7 +21,7 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|2:36PM";
+    public static final String SAVED = "11-18|2:39PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -57,10 +57,12 @@ public final class LNoCrossAuto {
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose leftAutoHiveParkStart = p.of(61.4, 120.45, 268.1);
-        Pose underTheHiveToRightAutoFixTipControl1 = p.of(56.7614, 93.4601, 0);
+        Pose underTheHiveToRightAutoFixTipControl1 = p.of(52, 100, 0);
         Pose underTheHiveToRightAutoFixTipControl2 = p.of(68.2657, 72.9873, 0);
         Pose underTheHiveToRightAutoFixTipControl3 = p.of(58.7, 27, 0);
-        Pose underTheHiveToRightAutoFixTipSegment1Start = p.of(55.3, 25.7, 268.1);
+        Pose underTheHiveToRightAutoFixTipSegment1Start = p.of(55.3, 25.7, 268.9);
+        Pose underTheHiveToRightAutoFixTipSegment1End = p.of(55.3, 25.7, 268.9);
+        Pose underTheHiveToRightAutoFixTipSegment2Start = p.of(55.3, 25.7, 268.9);
         Pose rightAutoFixTipParkUnderTheHiveControl1 = p.of(60, 50, 0);
         Pose rightAutoFixTipParkUnderTheHiveControl2 = p.of(66, 80, 0);
         Pose rightAutoFixTipParkUnderTheHiveControl3 = p.of(65, 105, 0);
@@ -89,7 +91,7 @@ public final class LNoCrossAuto {
         Path toLeftPark = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath2 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
-        Path underTheHiveToRightAutoFixTip = Paths.curve(leftAutoHive, underTheHiveToRightAutoFixTipControl1, underTheHiveToRightAutoFixTipControl2, underTheHiveToRightAutoFixTipControl3, rightAutoFixTip).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(underTheHiveToRightAutoFixTipSegment1Start, rightAutoFixTip)).until(1, Interpolator.linear(rightAutoFixTip, rightAutoFixTip)));
+        Path underTheHiveToRightAutoFixTip = Paths.curve(leftAutoHive, underTheHiveToRightAutoFixTipControl1, underTheHiveToRightAutoFixTipControl2, underTheHiveToRightAutoFixTipControl3, rightAutoFixTip).heading(Interpolator.piecewise().until(0.05, Interpolator.linear(underTheHiveToRightAutoFixTipSegment1Start, underTheHiveToRightAutoFixTipSegment1End)).until(0.3, Interpolator.linear(underTheHiveToRightAutoFixTipSegment2Start, rightAutoFixTip)).until(1, Interpolator.linear(rightAutoFixTip, rightAutoFixTip)));
         Path rightAutoFixTipParkUnderTheHive = Paths.curve(rightAutoFixTip, rightAutoFixTipParkUnderTheHiveControl1, rightAutoFixTipParkUnderTheHiveControl2, rightAutoFixTipParkUnderTheHiveControl3, rightAutoFixTipParkUnderTheHiveControl4, rightAutoFixTipParkUnderTheHiveControl5, leftPark).heading(Interpolator.piecewise().until(0.75, Interpolator.linear(rightAutoFixTipParkUnderTheHiveSegment1Start, rightAutoFixTipParkUnderTheHiveSegment1End)).until(1, Interpolator.linear(rightAutoFixTipParkUnderTheHiveSegment2Start, leftPark)));
         Path underTheHiveToScoringFlowerStaging = Paths.curve(rightAutoFixTip, underTheHiveToScoringFlowerStagingControl1, underTheHiveToScoringFlowerStagingControl2, underTheHiveToScoringFlowerStagingControl3, scoringFlowerStaging).constant(scoringFlowerStaging);
         Path toLeftParkPath3 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
