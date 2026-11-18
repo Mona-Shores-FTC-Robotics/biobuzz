@@ -162,6 +162,11 @@ public final class TurretAimer {
         trimDeg -= stepDeg;
     }
 
+    /** The trim set outright, degrees, + left: the caller has clamped it. */
+    public void setTrim(double deg) {
+        trimDeg = deg;
+    }
+
     public void resetTrim() {
         trimDeg = 0.0;
     }

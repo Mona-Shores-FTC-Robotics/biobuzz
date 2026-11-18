@@ -95,6 +95,35 @@ public class LaunchTrimLineTest {
     }
 
     @Test
+    public void anAimTrimPastFiveDegreesIsRed() {
+        assertEquals(Display.huge("AIM TRIM L 5.0\u00b0", Display.Level.WARN), BasicDriveTeleOp.aimTrimLine(5.0));
+        assertEquals(Display.huge("AIM TRIM L 6.0\u00b0", Display.Level.FAULT), BasicDriveTeleOp.aimTrimLine(6.0));
+        assertEquals(Display.huge("AIM TRIM R 15.0\u00b0", Display.Level.FAULT), BasicDriveTeleOp.aimTrimLine(-15.0));
+    }
+
+    @Test
+    public void trimsStopAtTheirCap() {
+        // 18 Nov 2026: 20245's aim trim ran to +92.5°. Now a press past the cap stops at it.
+        assertEquals(15.0, BasicDriveTeleOp.clampTrim(16.5, 15.0), 1e-9);
+        assertEquals(-15.0, BasicDriveTeleOp.clampTrim(-92.5, 15.0), 1e-9);
+        assertEquals(13.5, BasicDriveTeleOp.clampTrim(13.5, 15.0), 1e-9);
+        assertEquals(150.0, BasicDriveTeleOp.clampTrim(175.0, 150.0), 1e-9);
+        assertEquals(-150.0, BasicDriveTeleOp.clampTrim(-160.0, 150.0), 1e-9);
+        assertEquals(0.0, BasicDriveTeleOp.clampTrim(1.5, 0.0), 1e-9);
+    }
+
+    @Test
+    public void aTrimCapIsGuarded() {
+        assertEquals(15.0, BasicDriveTeleOp.trimCap(15.0, 15.0, 45.0), 1e-9);
+        assertEquals(15.0, BasicDriveTeleOp.trimCap(Double.NaN, 15.0, 45.0), 1e-9);
+        assertEquals(15.0, BasicDriveTeleOp.trimCap(-3.0, 15.0, 45.0), 1e-9);
+        assertEquals(45.0, BasicDriveTeleOp.trimCap(400.0, 15.0, 45.0), 1e-9);
+        assertEquals(0.0, BasicDriveTeleOp.trimCap(0.0, 15.0, 45.0), 1e-9);
+        assertEquals(150.0, BasicDriveTeleOp.trimCap(TeleOpConfig.maxLauncherTrimTps, 150.0, 500.0), 1e-9);
+        assertEquals(15.0, BasicDriveTeleOp.trimCap(TeleOpConfig.maxAimTrimDeg, 15.0, 45.0), 1e-9);
+    }
+
+    @Test
     public void theInitPageSaysTheTurretWillTurnAtPlay() {
         assertEquals(null, RobotOpMode.turretOffsetNote(0.0));
         assertEquals("set it on its mark; at PLAY it turns 4.5\u00b0 left and holds (aim offset)",

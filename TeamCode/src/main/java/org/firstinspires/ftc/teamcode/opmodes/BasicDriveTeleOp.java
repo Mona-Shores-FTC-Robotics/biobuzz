@@ -169,6 +169,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /** The trim step can never be more than this, degrees, whatever Panels says. */
     private static final double MAX_TRIM_STEP_DEG = 5.0;
+    /** The aim trim's Match page line turns red past this, degrees: a trim that big is a mistake. */
+    static final double AIM_TRIM_LOUD_DEG = 5.0;
 
     /** {@code /Controls/IntakeOwner} while the FLOWER pick or the GARDEN gather runs the intake. */
     private static final int INTAKE_OWNER_PICK = IntakeArbiter.Owner.values().length;
@@ -238,6 +240,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** The current launch-spot press has had its spin-up decided. */
     private boolean spotPressSeen;
     private Bar bar = Bar.NONE;
+    /** A press has hit the aim trim's cap and been logged; cleared by a press inside it. */
+    private boolean aimTrimCapLogged;
+    /** The same for the launch speed trim's cap. */
+    private boolean launcherTrimCapLogged;
     /** This fire hold has had its arc-refusal rumble: once per hold, however often the arc flaps. */
     private boolean arcRumbled;
     private String poseNote;
@@ -460,7 +466,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private void trimLauncher(int direction) {
         double step = trimStep(controls.held(Action.FINE_TRIM), TeleOpConfig.launcherTrimStepTps,
                 TeleOpConfig.launcherTrimFineStepTps, MAX_LAUNCHER_TRIM_STEP_TPS);
-        launcherTrimTps = Math.max(-LauncherSubsystem.targetTicksPerSecond, launcherTrimTps + direction * step);
+        double cap = trimCap(TeleOpConfig.maxLauncherTrimTps, 150.0, 500.0);
+        double wanted = launcherTrimTps + direction * step;
+        launcherTrimTps = Math.max(-LauncherSubsystem.targetTicksPerSecond, clampTrim(wanted, cap));
+        launcherTrimCapLogged = logCap(wanted, cap, launcherTrimCapLogged,
+                String.format(Locale.US, "launcher trim: at its cap, %.0f ticks/s either way (TeleOpConfig.maxLauncherTrimTps)", cap));
         if (launcherOwner.spinning()) {
             robot.launcher.spinUp(launchSpeed());
         }
@@ -498,12 +508,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /**
      * The Match page's aim trim, huge like the launch trim's and named apart from it (mentor,
      * 17 Nov 2026: the operator read the launch trim's number as the aim's). L or R and the
-     * degrees, amber while there is one; plain at 0. Left is the trim's positive direction.
+     * degrees, amber while there is one, red past {@link #AIM_TRIM_LOUD_DEG} (mentor, 18 Nov 2026:
+     * a trim run up to +92.5° went unnoticed); plain at 0. Left is the trim's positive direction.
      */
     static String aimTrimLine(double trimDeg) {
         if (trimDeg == 0.0 || Double.isNaN(trimDeg)) return Display.huge("AIM TRIM 0", false);
         return Display.huge(String.format(Locale.US, "AIM TRIM %s %.1f\u00b0", trimDeg > 0.0 ? "L" : "R",
-                Math.abs(trimDeg)), Display.Level.WARN);
+                Math.abs(trimDeg)), Math.abs(trimDeg) > AIM_TRIM_LOUD_DEG ? Display.Level.FAULT : Display.Level.WARN);
     }
 
     /** The Match page's loop time: the last loop, whole milliseconds, huge (mentor, 14 Nov 2026). */
@@ -547,13 +558,43 @@ public class BasicDriveTeleOp extends RobotOpMode {
         return LaunchTest.trimStep(fine ? fineStep : normal, max);
     }
 
+    /**
+     * A trim cap from its {@code TeleOpConfig} field, guarded: NaN or negative is {@code fallback},
+     * and it is never more than {@code ceiling}. Pure, so a test can check it.
+     */
+    static double trimCap(double configured, double fallback, double ceiling) {
+        if (Double.isNaN(configured) || configured < 0.0) return fallback;
+        return Math.min(configured, ceiling);
+    }
+
+    /** {@code trim} kept within {@code ±cap}. Pure. */
+    static double clampTrim(double trim, double cap) {
+        return Math.max(-cap, Math.min(cap, trim));
+    }
+
+    /**
+     * A press that the cap stopped is logged once, until a press stays inside it again; returns
+     * whether it has been logged.
+     */
+    private boolean logCap(double wanted, double cap, boolean logged, String line) {
+        if (Math.abs(wanted) <= cap) return false;
+        if (!logged) log.event(line);
+        return true;
+    }
+
     /** +1 a step left, -1 a step right, 0 back to zero. The step is guarded: NaN or negative is no step. */
     private void trim(int direction) {
         double step = trimStep(controls.held(Action.FINE_TRIM), TeleOpConfig.trimStepDeg,
                 TeleOpConfig.trimFineStepDeg, MAX_TRIM_STEP_DEG);
-        if (direction > 0) aimer.trimLeft(step);
-        else if (direction < 0) aimer.trimRight(step);
-        else aimer.resetTrim();
+        if (direction == 0) {
+            aimer.resetTrim();
+        } else {
+            double cap = trimCap(TeleOpConfig.maxAimTrimDeg, 15.0, 45.0);
+            double wanted = aimer.trimDeg() + direction * step;
+            aimer.setTrim(clampTrim(wanted, cap));
+            aimTrimCapLogged = logCap(wanted, cap, aimTrimCapLogged,
+                    String.format(Locale.US, "aim trim: at its cap, %.1f° either way (TeleOpConfig.maxAimTrimDeg)", cap));
+        }
         log.event(String.format(Locale.US, "trim %+.1f°", aimer.trimDeg()));
     }
 
