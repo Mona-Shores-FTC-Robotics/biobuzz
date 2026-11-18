@@ -96,6 +96,11 @@ public final class RobotDifferences {
                         + " servo port 4 and the REV Through Bore encoder in the intake's encoder socket"
                         + " (mentor, 18 Nov 2026)",
                 () -> TurretSubsystem.lockedForward = false);
+        differs(RobotIdentity.TEAM_19429,
+                "Shoots long: every ball of the Auto's volleys long, not only the first, so it is the"
+                        + " speed, not the early gate (gateLeadS 0.3 in that run); 50 ticks/s off every"
+                        + " launch speed, TeleOp and Autos, as 20245 (mentor, 18 Nov 2026)",
+                () -> LaunchSpeedTable.robotOffsetTicksPerSecond = -50.0);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // The shared values were mostly measured on 20245.
