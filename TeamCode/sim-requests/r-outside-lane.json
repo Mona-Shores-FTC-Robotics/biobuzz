@@ -52,16 +52,10 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "as drawn: R WALL FLOWER, L GARDEN",
+      "name": "as drawn",
       "partner": "LUnderHiveAuto",
       "timing": {
         "speed": 50
-      },
-      "picks": {
-        "Pickup": "WALL_FLOWER"
-      },
-      "partnerPicks": {
-        "Pickup": "GARDEN"
       }
     },
     {
@@ -69,12 +63,6 @@
       "partner": "LUnderHiveAuto",
       "timing": {
         "speed": 40
-      },
-      "picks": {
-        "Pickup": "WALL_FLOWER"
-      },
-      "partnerPicks": {
-        "Pickup": "GARDEN"
       }
     },
     {
@@ -83,78 +71,6 @@
       "fails": "misses",
       "timing": {
         "speed": 50
-      },
-      "picks": {
-        "Pickup": "WALL_FLOWER"
-      },
-      "partnerPicks": {
-        "Pickup": "GARDEN"
-      }
-    },
-    {
-      "name": "swapped: R GARDEN, L WALL FLOWER",
-      "partner": "LUnderHiveAuto",
-      "timing": {
-        "speed": 50
-      },
-      "picks": {
-        "Pickup": "GARDEN"
-      },
-      "partnerPicks": {
-        "Pickup": "WALL_FLOWER"
-      }
-    },
-    {
-      "name": "swapped, L 20 percent slower",
-      "partner": "LUnderHiveAuto",
-      "timing": {
-        "speed": 40
-      },
-      "picks": {
-        "Pickup": "GARDEN"
-      },
-      "partnerPicks": {
-        "Pickup": "WALL_FLOWER"
-      }
-    },
-    {
-      "name": "swapped, R 20 percent slower",
-      "partner": "LUnderHiveAuto",
-      "ourSpeed": 40,
-      "timing": {
-        "speed": 50
-      },
-      "picks": {
-        "Pickup": "GARDEN"
-      },
-      "partnerPicks": {
-        "Pickup": "WALL_FLOWER"
-      }
-    },
-    {
-      "name": "mismatch: both take the GARDEN",
-      "partner": "LUnderHiveAuto",
-      "timing": {
-        "speed": 50
-      },
-      "picks": {
-        "Pickup": "GARDEN"
-      },
-      "partnerPicks": {
-        "Pickup": "GARDEN"
-      }
-    },
-    {
-      "name": "mismatch: both take the WALL FLOWER",
-      "partner": "LUnderHiveAuto",
-      "timing": {
-        "speed": 50
-      },
-      "picks": {
-        "Pickup": "WALL_FLOWER"
-      },
-      "partnerPicks": {
-        "Pickup": "WALL_FLOWER"
       }
     },
     {
@@ -167,12 +83,6 @@
       "timing": {
         "speed": 50
       },
-      "picks": {
-        "Pickup": "WALL_FLOWER"
-      },
-      "partnerPicks": {
-        "Pickup": "GARDEN"
-      },
       "oursFails": "misses preloads",
       "fails": "misses"
     }
@@ -180,6 +90,6 @@
   "metadata": {
     "AutoSource": "r-outside-lane.pp",
     "SavedBy": "dustinhans",
-    "SavedAt": "2026-11-18T21:58:00+00:00"
+    "SavedAt": "2026-11-18T22:15:00+00:00"
   }
 }

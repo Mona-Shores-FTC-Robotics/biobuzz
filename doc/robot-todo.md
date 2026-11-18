@@ -554,7 +554,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       [S5 seam §4], [PR #378]
       Belding (24, master's value since 5 Nov): WALL 0.62–0.73 s in 11 Auto picks (4 reach 0.7), FAR
       0.94–1.29 s; on video the WALL stick lands 0.2–0.4 s before the stop, touching nothing seen.
-- [ ] **Time GARDEN gathers in Autos** (R-NoCross and L-UnderHive or L-Clockwise with Pickup
+- [ ] **Time GARDEN gathers in Autos** (R-NoCross and L-UnderHive, or L-Clockwise with Pickup
       GARDEN, GARDEN loaded with its 4 POLLEN, two runs each; count the next volley). Ten Auto
       gathers are logged. Nine (3 to 7 Nov) had the old 1.5 s dwell: 4.13 to 4.76 s. One (14 Nov,
       20245, R-NoCross on blue) had today's values: 3.15 s. So
@@ -563,7 +563,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       stands for the stick). **Stop:** one over 4.0 → write the line
       down and raise the number to cover it. [S5], [PR #384], [PR #378], [PR #422], [PR #553]
 - [ ] **GARDEN gather, stick down on the drive in (13 Nov; never run):** spotter at the GARDEN
-      corner watching the stick and both walls, L-UnderHive or L-Clockwise with Pickup GARDEN (they
+      corner watching the stick and both walls, L-UnderHive, or L-Clockwise with Pickup GARDEN (they
       arrive facing the GARDEN), then R-NoCross (it turns half a turn evenly on its way in). The
       stick may come down early only on a drive that ends facing the GARDEN, once the robot has held
       that facing 0.2 s (`GardenGather.autoStick.facingHoldMs`), never while it turns. **Good:** on the L Autos
