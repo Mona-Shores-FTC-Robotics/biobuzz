@@ -184,7 +184,9 @@ def picks(paths):
             continue
         amps, lane = d.get('/Intake/CurrentAmps', []), d.get('/Lane/Count', [])
         gx, gy = d.get('/Drift/GapXIn', []), d.get('/Drift/GapYIn', [])
-        contact = float((d.get('/RealMetadata/Tunable/FlowerPicker.contactStandoffIn') or [(0, 12.0)])[0][1])
+        # FlowerPicker.push.contactStandoffIn since 18 Nov 2026; FlowerPicker.contactStandoffIn before.
+        contact = float((d.get('/RealMetadata/Tunable/FlowerPicker.push.contactStandoffIn')
+                         or d.get('/RealMetadata/Tunable/FlowerPicker.contactStandoffIn') or [(0, 12.0)])[0][1])
         i = 0
         while i < len(ev):
             t, e = ev[i]

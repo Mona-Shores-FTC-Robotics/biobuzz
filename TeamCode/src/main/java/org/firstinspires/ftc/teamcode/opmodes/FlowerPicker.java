@@ -15,17 +15,17 @@ import java.util.function.Supplier;
 
 /**
  * Picks the nearest FLOWER: the stick down and the intake on, a push straight in to
- * {@link #contactStandoffIn} from the FLOWER's centre, a dwell, and a back-out to where the push
+ * {@link Push#contactStandoffIn} from the FLOWER's centre, a dwell, and a back-out to where the push
  * started, the stick coming up on the way. The sequence is {@link GrabRoutine}'s, shared with the
  * GARDEN gather; this class says where a FLOWER is and what the stick does.
  *
  * <p>The one pick routine: the driver's FLOWER pick button runs it while held (BasicDriveTeleOp;
- * the button is in {@code controls/ControlScheme}), lining up first, square to the nearest FLOWER within {@link #maxRangeIn}, {@link #approachStandoffIn} back
+ * the button is in {@code controls/ControlScheme}), lining up first, square to the nearest FLOWER within {@link LineUp#maxRangeIn}, {@link LineUp#approachStandoffIn} back
  * ({@link FlowerFieldPoints}); an Auto's {@code PickFlower} card runs it to the end ({@link #command}),
  * squaring up first ({@link #squareUp}): onto the FLOWER's line, facing it, at the distance the
- * Auto's drive left the robot (held between {@link #minAutoStartIn} and {@link #approachStandoffIn}),
+ * Auto's drive left the robot (held between {@link AutoSquareUp#minAutoStartIn} and {@link LineUp#approachStandoffIn}),
  * so the push always goes in along the FLOWER's line however the Auto's drawing approached it. It
- * refuses a spot more than {@link #autoMaxOffIn} off that line or {@link #autoMaxOffDeg} from facing
+ * refuses a spot more than {@link AutoSquareUp#autoMaxOffIn} off that line or {@link AutoSquareUp#autoMaxOffDeg} from facing
  * the FLOWER: that is a drawing error, not something to drive round. The card ends at the squared-up
  * spot. The square-up turns to the FLOWER's facing as odometry knows it, so a heading error in the
  * pose is a crooked push. Each phase is timed and written to the match log, so the pick is made
@@ -33,8 +33,8 @@ import java.util.function.Supplier;
  *
  * <p><b>In an Auto the stick comes down on the drive in.</b> The path card before a {@code PickFlower}
  * card runs this pick's {@link #approach} ({@code AutoKit}, {@code AutoRegistry.Approach}): over the
- * last {@link #lowerWithinIn} of that drive the stick goes down and the intake starts, as they would
- * at the pick's own line-up, so when the card starts the {@link #stickDownMs} wait has usually run
+ * last {@link Stick#lowerWithinIn} of that drive the stick goes down and the intake starts, as they would
+ * at the pick's own line-up, so when the card starts the {@link Stick#stickDownMs} wait has usually run
  * out already ({@link #readySinceNs}). Measured 29 Oct to 2 Nov 2026: the push started 0.70 to
  * 0.73 s after the drive ended, all of it the stick wait. The pick itself is unchanged: square up,
  * push to contact, dwell, back out (mentor, 3 Nov 2026: the two stay separate cards).
@@ -49,85 +49,221 @@ import java.util.function.Supplier;
 @Configurable
 public final class FlowerPicker extends GrabRoutine {
 
-    /** Only a FLOWER whose centre is this close to the robot is picked, inches. */
-    public static double maxRangeIn = 60.0;
-    /** The button's line-up: this far back from the FLOWER's centre, inches. */
-    public static double approachStandoffIn = 24.0;
-    /**
-     * Where the push aims: this far back from the FLOWER's centre, inches. The push also ends when the
-     * robot stalls against the FLOWER. The 29 Oct 2026 logs on 20245 put that first touch at 12.2 to
-     * 12.5 in (as odometry had it), so a target of 12.0 ends "reached" with the stick short of the
-     * FLOWER whenever the pose is a fraction of an inch long, and on 3 Nov an Auto's SCORING FLOWER pick did
-     * exactly that (camera 1.8 in further out than odometry, intake current flat, nothing taken). Pushes
-     * aimed at 5.0 and at 7.0 on the red WALL FLOWER both stalled at 10.0 to 10.4 in from the centre
-     * (3 Nov), so any target under about 9 ends the same way, by stall, and 7.0 leaves about 3 in of grace
-     * for a long pose. At the target the face is about 1.6 in from the wall (7.0 less the frame's 8.1
-     * half, plus the FLOWER's 2.71 off the wall), so a pose more than that short drives the face into
-     * the wall (by odometry, 5 to 6 did on blue). The intake roller stalls (0 ticks/s at 8 to 10 A, 1 to 4 s) in
-     * launch feeds at any value, so it is not this number's doing. Three picks per value is the check
-     * (doc/robot-todo.md); the pick's start line in the match log says the value in use. The
-     * Visualizer's {@code CONTACT_STANDOFF_IN} changes with it. 9.0 since 5 Nov 2026: at 7.0 every
-     * R-Solo push on 4 Nov stalled 1.8-4 in short, pressing into the FLOWER; 9 aims 2 in less deep.
-     */
-    public static double contactStandoffIn = 9.0;
-    /**
-     * The stick goes down and the intake starts once the robot is this close to the line-up, inches:
-     * the button's line-up, or, in an Auto, the end of the drive before the pick ({@link #approach}).
-     * 24 since 5 Nov 2026: at 18 the stick finished lowering only 0.52-0.55 s before arrival at the
-     * WALL FLOWER (3-4 Nov Auto picks), short of the 0.7 s it wants.
-     */
-    public static double lowerWithinIn = 24.0;
-    /** Time the stick is given to swing down before the push may start, ms. */
-    public static double stickDownMs = 700;
-    /** The line-up path gives up after this long, ms. */
-    public static double approachTimeoutMs = 4000;
-    /** Already lined up: this close to the line-up pose, inches, skips the line-up path. */
-    public static double atApproachIn = 1.5;
-    /** Already lined up: this square to the FLOWER, degrees, skips the line-up path. */
-    public static double atApproachDeg = 5.0;
-    /**
-     * An Auto's square-up never starts the push closer than this to the FLOWER's centre, inches, and
-     * the stick goes down only once the robot is this far out, less 0.5 in for pose noise (a robot
-     * closer than that is never "already square": it moves out first). The Autos draw their pick
-     * spots about 19.5 in out, where the stick has swung down clear.
-     */
-    public static double minAutoStartIn = 18.0;
-    /** An Auto's pick refuses a spot more than this far off the FLOWER's line, inches. */
-    public static double autoMaxOffIn = 12.0;
-    /** An Auto's pick refuses a spot facing more than this far from the FLOWER's facing, degrees. */
-    public static double autoMaxOffDeg = 30.0;
-    /** An Auto's square-up gives up after this long, ms: a short move, so a stuck one ends the card early. */
-    public static double autoSquareTimeoutMs = 1500;
-    /**
-     * The push path's speed cap, a fraction of the robot's top path speed (0 to 1]. 0.5 since
-     * 30 Oct 2026: at 0.35 the drive team found the approach too slow on 20245; 0.5 was best.
-     */
-    public static double pushSpeed = 0.5;
-    /** The push gives up after this long, ms. */
-    public static double pushTimeoutMs = 2000;
-    /** Less progress than this, inches, in {@link #stallMs} means the robot is against the FLOWER. */
-    public static double stallProgressIn = 0.25;
-    /** See {@link #stallProgressIn}, ms. */
-    public static double stallMs = 250;
-    /**
-     * The dwell's cap, ms. It normally ends sooner: when the lane is full ({@link #dwellEndsOnFull}),
-     * or when the driver lets go. On 29 Oct the last piece came as late as 1.55 s into a 1.5 s
-     * dwell, so the cap sits above that; a FLOWER that does not fill the lane (empty, or the robot
-     * already held some) dwells the whole cap.
-     */
-    public static double dwellMs = 2000;
-    /**
-     * The dwell ends the moment the lane is full ({@code ColorSensorSubsystem.full()}, the colour
-     * sensor's full: the signal the full hold, the light and an Auto's {@code IntakeFull} use), since
-     * 3 Nov 2026 (mentor: "we have an intake full sensor now"). A full lane takes nothing more, so
-     * dwelling on is time lost. In the 29 Oct to 2 Nov 2026 logs on 20245 the last piece's current
-     * spike came a median 1.5 s after the push started (0.64 s into the dwell, latest 1.35 s; 33
-     * picks that took pieces), and full latches 0.3 to 1.0 s after a piece stops under the sensor
-     * ({@code ColorSensorSubsystem.fullHoldS}); the one pick that filled the lane (2 Nov) was full
-     * 1.43 s after its push started, 0.44 s into the dwell. False: the dwell runs to {@link #dwellMs}
-     * as before.
-     */
-    public static boolean dwellEndsOnFull = true;
+    /** Which FLOWER, and the TeleOp button's line-up before the push. */
+    public static final class LineUp {
+        /** Only a FLOWER whose centre is this close to the robot is picked, inches. */
+        public double maxRangeIn = 60.0;
+        /** The button's line-up: this far back from the FLOWER's centre, inches. */
+        public double approachStandoffIn = 24.0;
+        /** The line-up path gives up after this long, ms. */
+        public double approachTimeoutMs = 4000;
+        /** Already lined up: this close to the line-up pose, inches, skips the line-up path. */
+        public double atApproachIn = 1.5;
+        /** Already lined up: this square to the FLOWER, degrees, skips the line-up path. */
+        public double atApproachDeg = 5.0;
+    }
+
+    /** See {@link LineUp}. */
+    public static LineUp lineUp = new LineUp();
+
+    /** The FLOWER stick: when it goes down (the button's line-up, or an Auto's drive in) and when it comes back up. */
+    public static final class Stick {
+        /**
+         * The stick goes down and the intake starts once the robot is this close to the line-up, inches:
+         * the button's line-up, or, in an Auto, the end of the drive before the pick ({@link #approach}).
+         * 24 since 5 Nov 2026: at 18 the stick finished lowering only 0.52-0.55 s before arrival at the
+         * WALL FLOWER (3-4 Nov Auto picks), short of the 0.7 s it wants.
+         */
+        public double lowerWithinIn = 24.0;
+        /** Time the stick is given to swing down before the push may start, ms. */
+        public double stickDownMs = 700;
+        /**
+         * The stick comes up once the robot has backed out this far, inches: on the back-out, and also
+         * whenever a pick ends early (button let go, sticks moved, a timeout, an Auto's card cut short).
+         * Either way it waits until the robot's centre is this much further from the FLOWER's centre
+         * than the nearest the push got (never nearer than {@link Push#contactStandoffIn}), so it never
+         * swings up while still in the FLOWER, however deep the push aimed or how short it stopped.
+         */
+        public double retractAfterBackIn = 6.0;
+    }
+
+    /** See {@link Stick}. */
+    public static Stick stick = new Stick();
+
+    /** In an Auto: the square-up onto the FLOWER's line before the push, and the spots it refuses. */
+    public static final class AutoSquareUp {
+        /**
+         * An Auto's square-up never starts the push closer than this to the FLOWER's centre, inches, and
+         * the stick goes down only once the robot is this far out, less 0.5 in for pose noise (a robot
+         * closer than that is never "already square": it moves out first). The Autos draw their pick
+         * spots about 19.5 in out, where the stick has swung down clear.
+         */
+        public double minAutoStartIn = 18.0;
+        /** An Auto's pick refuses a spot more than this far off the FLOWER's line, inches. */
+        public double autoMaxOffIn = 12.0;
+        /** An Auto's pick refuses a spot facing more than this far from the FLOWER's facing, degrees. */
+        public double autoMaxOffDeg = 30.0;
+        /** An Auto's square-up gives up after this long, ms: a short move, so a stuck one ends the card early. */
+        public double autoSquareTimeoutMs = 1500;
+    }
+
+    /** See {@link AutoSquareUp}. */
+    public static AutoSquareUp autoSquareUp = new AutoSquareUp();
+
+    /** The push into the FLOWER: where it aims, how fast, and how it knows it has hit the FLOWER. */
+    public static final class Push {
+        /**
+         * Where the push aims: this far back from the FLOWER's centre, inches. The push also ends when the
+         * robot stalls against the FLOWER. The 29 Oct 2026 logs on 20245 put that first touch at 12.2 to
+         * 12.5 in (as odometry had it), so a target of 12.0 ends "reached" with the stick short of the
+         * FLOWER whenever the pose is a fraction of an inch long, and on 3 Nov an Auto's SCORING FLOWER pick did
+         * exactly that (camera 1.8 in further out than odometry, intake current flat, nothing taken). Pushes
+         * aimed at 5.0 and at 7.0 on the red WALL FLOWER both stalled at 10.0 to 10.4 in from the centre
+         * (3 Nov), so any target under about 9 ends the same way, by stall, and 7.0 leaves about 3 in of grace
+         * for a long pose. At the target the face is about 1.6 in from the wall (7.0 less the frame's 8.1
+         * half, plus the FLOWER's 2.71 off the wall), so a pose more than that short drives the face into
+         * the wall (by odometry, 5 to 6 did on blue). The intake roller stalls (0 ticks/s at 8 to 10 A, 1 to 4 s) in
+         * launch feeds at any value, so it is not this number's doing. Three picks per value is the check
+         * (doc/robot-todo.md); the pick's start line in the match log says the value in use. The
+         * Visualizer's {@code CONTACT_STANDOFF_IN} changes with it. 9.0 since 5 Nov 2026: at 7.0 every
+         * R-Solo push on 4 Nov stalled 1.8-4 in short, pressing into the FLOWER; 9 aims 2 in less deep.
+         */
+        public double contactStandoffIn = 9.0;
+        /**
+         * The push starts once the robot has slowed below this after the drive before it, inches/s: the
+         * pick's hand-over speed. Pedro calls a path done at its parametric end and brakes in HOLD, with
+         * the robot still rolling: 10 to 24 in/s in the 29 Oct to 2 Nov 2026 match logs, under 8 in/s
+         * 0.07 to 0.19 s later, under 2 in/s 0.13 to 0.51 s later. A pick need not be still, it squares
+         * up on its own and the push ends on contact, so 8 since 3 Nov 2026 (mentor), from the 2 a launch
+         * waits for ({@code PathEndSettle}). Capped by {@code GrabRoutine.SETTLE_MAX_MS} either way.
+         */
+        public double settledInPerSec = 8.0;
+        /**
+         * The push path's speed cap, a fraction of the robot's top path speed (0 to 1]. 0.5 since
+         * 30 Oct 2026: at 0.35 the drive team found the approach too slow on 20245; 0.5 was best.
+         */
+        public double pushSpeed = 0.5;
+        /** The push gives up after this long, ms. */
+        public double pushTimeoutMs = 2000;
+        /** Less progress than this, inches, in {@link Push#stallMs} means the robot is against the FLOWER. */
+        public double stallProgressIn = 0.25;
+        /** See {@link Push#stallProgressIn}, ms. */
+        public double stallMs = 250;
+    }
+
+    /** See {@link Push}. */
+    public static Push push = new Push();
+
+    /** The dwell at the FLOWER (MASTER's; FAST and MULTI_PUSH have their own lengths in fast and multiPush). */
+    public static final class Dwell {
+        /**
+         * The dwell's cap, ms. It normally ends sooner: when the lane is full ({@link Dwell#dwellEndsOnFull}),
+         * or when the driver lets go. On 29 Oct the last piece came as late as 1.55 s into a 1.5 s
+         * dwell, so the cap sits above that; a FLOWER that does not fill the lane (empty, or the robot
+         * already held some) dwells the whole cap.
+         */
+        public double dwellMs = 2000;
+        /**
+         * The dwell ends the moment the lane is full ({@code ColorSensorSubsystem.full()}, the colour
+         * sensor's full: the signal the full hold, the light and an Auto's {@code IntakeFull} use), since
+         * 3 Nov 2026 (mentor: "we have an intake full sensor now"). A full lane takes nothing more, so
+         * dwelling on is time lost. In the 29 Oct to 2 Nov 2026 logs on 20245 the last piece's current
+         * spike came a median 1.5 s after the push started (0.64 s into the dwell, latest 1.35 s; 33
+         * picks that took pieces), and full latches 0.3 to 1.0 s after a piece stops under the sensor
+         * ({@code ColorSensorSubsystem.fullHoldS}); the one pick that filled the lane (2 Nov) was full
+         * 1.43 s after its push started, 0.44 s into the dwell. False: the dwell runs to {@link Dwell#dwellMs}
+         * as before.
+         */
+        public boolean dwellEndsOnFull = true;
+        /**
+         * The dwell ends this long after the intake current's last spike, ms (0: off). <b>Off</b> since
+         * 1 Nov 2026, the mentor's call: on 20245 the pick barely dwelt at all. A spike during the push
+         * counts too, so a push that ran longer than this after loading the roller ended the dwell the
+         * moment it began. The full sensor ({@link Dwell#dwellEndsOnFull}) is the end now. (The longest gap
+         * between two pieces' spikes on 29 Oct was 0.55 s, the 600 it was.)
+         */
+        public double dwellQuietMs = 0;
+        /**
+         * The dwell ends if no piece has spiked the current this far in, ms (0: off). The latest first
+         * piece on 29 Oct came 1.22 s in.
+         */
+        public double dwellEmptyMs = 1300;
+        /** A current this many amps over the roller's free-running 0.35 A is a piece (they spike 5–6 A). */
+        public double spikeAboveAmps = 1.0;
+        /** Forward power during the dwell, to keep the stick seated. 0 for none. */
+        public double dwellPushPower = 0.1;
+    }
+
+    /** See {@link Dwell}. */
+    public static Dwell dwell = new Dwell();
+
+    /** Steering onto the line into the FLOWER during the dwell. */
+    public static final class Steering {
+        /** Turn power per radian of heading error, while dwelling. */
+        public double headingKp = 1.0;
+        /** Strafe power per inch off the line into the FLOWER, while dwelling. */
+        public double lateralKp = 0.05;
+        /** The most turn or strafe power either correction may ask for. */
+        public double maxCorrection = 0.25;
+    }
+
+    /** See {@link Steering}. */
+    public static Steering steering = new Steering();
+
+    /** The back out. */
+    public static final class Back {
+        /** The back-out path's speed cap, a fraction of the robot's top path speed (0 to 1]. */
+        public double backSpeed = 0.5;
+        /** The back-out gives up after this long, ms. */
+        public double backTimeoutMs = 2000;
+    }
+
+    /** See {@link Back}. */
+    public static Back back = new Back();
+
+    /** Only with routine FAST (and the hand-over, MULTI_PUSH too). */
+    public static final class Fast {
+        /**
+         * FAST and MULTI_PUSH: the push starts once the robot is slower than this after the drive in,
+         * inches/s. Above any speed a drive hands over at (9 to 27 in/s at Belding), so no wait; lower it
+         * toward {@link Push#settledInPerSec} if the push goes in crooked.
+         */
+        public double fastSettledInPerSec = 30.0;
+        /** FAST: the dwell's cap, ms, counted from contact (MASTER's {@link Dwell#dwellMs} counts from the stall call, 0.27 s later). */
+        public double fastDwellMs = 1000;
+        /**
+         * FAST and MULTI_PUSH: the pick ends once the robot has backed this far from where the push
+         * ended, inches, still rolling; the Auto's next drive or the driver has it from there. 6.0 is
+         * {@link Stick#retractAfterBackIn}, where the stick is clear to lift, so the robot is never handed
+         * over with the stick still in the FLOWER; go lower only once the stick's reach is measured.
+         * 0 backs all the way, as MASTER does.
+         */
+        public double handOverBackIn = 6.0;
+    }
+
+    /** See {@link Fast}. */
+    public static Fast fast = new Fast();
+
+    /** Only with routine MULTI_PUSH. */
+    public static final class MultiPush {
+        /** MULTI_PUSH: how many pushes, 2 or 3. */
+        public int multiPushCount = 2;
+        /** MULTI_PUSH: every dwell but the last, ms from contact. A full lane does not end it. */
+        public double multiFirstDwellMs = 600;
+        /**
+         * MULTI_PUSH: how far the robot backs off between pushes, inches, the stick still down: under
+         * {@link Stick#retractAfterBackIn}. 3 in took 0.29 s of a Belding back-out. A starting point.
+         */
+        public double multiBackOffIn = 3.0;
+        /** MULTI_PUSH: a back-off gives up after this long, ms, and the next push starts from there. */
+        public double multiBackOffTimeoutMs = 600;
+        /** MULTI_PUSH: the last dwell's cap, ms from contact; a full lane ends it sooner ({@link Dwell#dwellEndsOnFull}). */
+        public double multiLastDwellMs = 500;
+    }
+
+    /** See {@link MultiPush}. */
+    public static MultiPush multiPush = new MultiPush();
+
     /** Which pick runs: see {@link #routine}. */
     public enum Routine { MASTER, FAST, MULTI_PUSH }
 
@@ -137,15 +273,15 @@ public final class FlowerPicker extends GrabRoutine {
      *
      * <ul>
      *   <li>{@link Routine#MASTER} (the default): the pick as it was at the Belding Qualifier. One push,
-     *       a dwell of up to {@link #dwellMs} counted from the stall being declared, and a back-out all
+     *       a dwell of up to {@link Dwell#dwellMs} counted from the stall being declared, and a back-out all
      *       the way to where the push started.</li>
      *   <li>{@link Routine#FAST}: the same one push with the waiting taken out. The push starts without
-     *       waiting for the robot to slow ({@link #fastSettledInPerSec}); the dwell is
-     *       {@link #fastDwellMs} counted from contact; the pick ends {@link #handOverBackIn} into the
+     *       waiting for the robot to slow ({@link Fast#fastSettledInPerSec}); the dwell is
+     *       {@link Fast#fastDwellMs} counted from contact; the pick ends {@link Fast#handOverBackIn} into the
      *       back-out, still rolling, the stick lifting on its own once clear.</li>
-     *   <li>{@link Routine#MULTI_PUSH}: FAST's push and hand-over, with {@link #multiPushCount} pushes:
-     *       dwell {@link #multiFirstDwellMs}, back off {@link #multiBackOffIn} with the stick down and
-     *       the intake on, push again, dwell at most {@link #multiLastDwellMs}. Only the last dwell
+     *   <li>{@link Routine#MULTI_PUSH}: FAST's push and hand-over, with {@link MultiPush#multiPushCount} pushes:
+     *       dwell {@link MultiPush#multiFirstDwellMs}, back off {@link MultiPush#multiBackOffIn} with the stick down and
+     *       the intake on, push again, dwell at most {@link MultiPush#multiLastDwellMs}. Only the last dwell
      *       ends on a full lane.</li>
      * </ul>
      *
@@ -172,35 +308,6 @@ public final class FlowerPicker extends GrabRoutine {
      */
     public static Routine routine = Routine.MASTER;
     /**
-     * FAST and MULTI_PUSH: the push starts once the robot is slower than this after the drive in,
-     * inches/s. Above any speed a drive hands over at (9 to 27 in/s at Belding), so no wait; lower it
-     * toward {@link #settledInPerSec} if the push goes in crooked.
-     */
-    public static double fastSettledInPerSec = 30.0;
-    /** FAST: the dwell's cap, ms, counted from contact (MASTER's {@link #dwellMs} counts from the stall call, 0.27 s later). */
-    public static double fastDwellMs = 1000;
-    /**
-     * FAST and MULTI_PUSH: the pick ends once the robot has backed this far from where the push
-     * ended, inches, still rolling; the Auto's next drive or the driver has it from there. 6.0 is
-     * {@link #retractAfterBackIn}, where the stick is clear to lift, so the robot is never handed
-     * over with the stick still in the FLOWER; go lower only once the stick's reach is measured.
-     * 0 backs all the way, as MASTER does.
-     */
-    public static double handOverBackIn = 6.0;
-    /** MULTI_PUSH: how many pushes, 2 or 3. */
-    public static int multiPushCount = 2;
-    /** MULTI_PUSH: every dwell but the last, ms from contact. A full lane does not end it. */
-    public static double multiFirstDwellMs = 600;
-    /**
-     * MULTI_PUSH: how far the robot backs off between pushes, inches, the stick still down: under
-     * {@link #retractAfterBackIn}. 3 in took 0.29 s of a Belding back-out. A starting point.
-     */
-    public static double multiBackOffIn = 3.0;
-    /** MULTI_PUSH: a back-off gives up after this long, ms, and the next push starts from there. */
-    public static double multiBackOffTimeoutMs = 600;
-    /** MULTI_PUSH: the last dwell's cap, ms from contact; a full lane ends it sooner ({@link #dwellEndsOnFull}). */
-    public static double multiLastDwellMs = 500;
-    /**
      * MULTI_PUSH: one back-off and the push after it, ms, for anything that plans a pick's length
      * without running it (the simulator). An estimate, not measured: 3 in out (0.29 s at Belding) and
      * 3 in back in. Replace it from the first logs.
@@ -214,19 +321,19 @@ public final class FlowerPicker extends GrabRoutine {
 
     /** MULTI_PUSH's pushes, held to 2 or 3; 1 for the other routines. */
     static int pushesInUse() {
-        return routineInUse() == Routine.MULTI_PUSH ? Math.max(2, Math.min(3, multiPushCount)) : 1;
+        return routineInUse() == Routine.MULTI_PUSH ? Math.max(2, Math.min(3, multiPush.multiPushCount)) : 1;
     }
 
     /**
      * The longest the robot stays at the FLOWER, from first contact to the start of the back-out, ms:
-     * MASTER's {@link #dwellMs}, FAST's {@link #fastDwellMs}, or MULTI_PUSH's dwells and the moves
+     * MASTER's {@link Dwell#dwellMs}, FAST's {@link Fast#fastDwellMs}, or MULTI_PUSH's dwells and the moves
      * between them.
      */
     public static double atFlowerCapMs() {
         switch (routineInUse()) {
-            case FAST: return nn(fastDwellMs);
-            case MULTI_PUSH: return fullEndsAfterMs() + nn(multiLastDwellMs);
-            default: return nn(dwellMs);
+            case FAST: return nn(fast.fastDwellMs);
+            case MULTI_PUSH: return fullEndsAfterMs() + nn(multiPush.multiLastDwellMs);
+            default: return nn(dwell.dwellMs);
         }
     }
 
@@ -236,52 +343,8 @@ public final class FlowerPicker extends GrabRoutine {
      */
     public static double fullEndsAfterMs() {
         return routineInUse() == Routine.MULTI_PUSH
-                ? (pushesInUse() - 1) * (nn(multiFirstDwellMs) + MULTI_PUSH_MOVE_MS) : 0.0;
+                ? (pushesInUse() - 1) * (nn(multiPush.multiFirstDwellMs) + MULTI_PUSH_MOVE_MS) : 0.0;
     }
-    /**
-     * The dwell ends this long after the intake current's last spike, ms (0: off). <b>Off</b> since
-     * 1 Nov 2026, the mentor's call: on 20245 the pick barely dwelt at all. A spike during the push
-     * counts too, so a push that ran longer than this after loading the roller ended the dwell the
-     * moment it began. The full sensor ({@link #dwellEndsOnFull}) is the end now. (The longest gap
-     * between two pieces' spikes on 29 Oct was 0.55 s, the 600 it was.)
-     */
-    public static double dwellQuietMs = 0;
-    /**
-     * The dwell ends if no piece has spiked the current this far in, ms (0: off). The latest first
-     * piece on 29 Oct came 1.22 s in.
-     */
-    public static double dwellEmptyMs = 1300;
-    /** A current this many amps over the roller's free-running 0.35 A is a piece (they spike 5–6 A). */
-    public static double spikeAboveAmps = 1.0;
-    /**
-     * The push starts once the robot has slowed below this after the drive before it, inches/s: the
-     * pick's hand-over speed. Pedro calls a path done at its parametric end and brakes in HOLD, with
-     * the robot still rolling: 10 to 24 in/s in the 29 Oct to 2 Nov 2026 match logs, under 8 in/s
-     * 0.07 to 0.19 s later, under 2 in/s 0.13 to 0.51 s later. A pick need not be still, it squares
-     * up on its own and the push ends on contact, so 8 since 3 Nov 2026 (mentor), from the 2 a launch
-     * waits for ({@code PathEndSettle}). Capped by {@code GrabRoutine.SETTLE_MAX_MS} either way.
-     */
-    public static double settledInPerSec = 8.0;
-    /** Forward power during the dwell, to keep the stick seated. 0 for none. */
-    public static double dwellPushPower = 0.1;
-    /** The back-out path's speed cap, a fraction of the robot's top path speed (0 to 1]. */
-    public static double backSpeed = 0.5;
-    /**
-     * The stick comes up once the robot has backed out this far, inches: on the back-out, and also
-     * whenever a pick ends early (button let go, sticks moved, a timeout, an Auto's card cut short).
-     * Either way it waits until the robot's centre is this much further from the FLOWER's centre
-     * than the nearest the push got (never nearer than {@link #contactStandoffIn}), so it never
-     * swings up while still in the FLOWER, however deep the push aimed or how short it stopped.
-     */
-    public static double retractAfterBackIn = 6.0;
-    /** The back-out gives up after this long, ms. */
-    public static double backTimeoutMs = 2000;
-    /** Turn power per radian of heading error, while dwelling. */
-    public static double headingKp = 1.0;
-    /** Strafe power per inch off the line into the FLOWER, while dwelling. */
-    public static double lateralKp = 0.05;
-    /** The most turn or strafe power either correction may ask for. */
-    public static double maxCorrection = 0.25;
 
     private Flower flower;
     /** Why a staying pick leaves the FLOWER, or null while it stays; null itself for a plain pick ({@link #staying}). */
@@ -331,7 +394,7 @@ public final class FlowerPicker extends GrabRoutine {
 
     /**
      * What the drive before an Auto's {@code PickFlower} card does for it: the stick down and the
-     * intake on over the last {@link #lowerWithinIn} of the drive, for the FLOWER the pick will go
+     * intake on over the last {@link Stick#lowerWithinIn} of the drive, for the FLOWER the pick will go
      * for from the drive's end ({@link #lowerOnApproach}). Registered with the grab
      * ({@code AutoRegistration}); {@code AutoKit} runs it while that path card drives. Cancelled, the
      * stick comes back up.
@@ -378,22 +441,22 @@ public final class FlowerPicker extends GrabRoutine {
 
     /**
      * Whether the drive in to a pick of {@code f} may lower the stick with the robot at {@code pose},
-     * {@code remainingIn} from the drive's end: within {@link #lowerWithinIn} of it, and no closer to
+     * {@code remainingIn} from the drive's end: within {@link Stick#lowerWithinIn} of it, and no closer to
      * the FLOWER than the stick swings down clear ({@link #mayPrepAt}'s rule). Any heading: a FLOWER
      * is in open field.
      */
     static boolean lowerOnApproach(Flower f, Pose pose, double remainingIn) {
-        return remainingIn <= nn(lowerWithinIn)
-                && Math.hypot(f.x - pose.x(), f.y - pose.y()) >= nn(minAutoStartIn) - 0.5;
+        return remainingIn <= nn(stick.lowerWithinIn)
+                && Math.hypot(f.x - pose.x(), f.y - pose.y()) >= nn(autoSquareUp.minAutoStartIn) - 0.5;
     }
 
     /**
-     * The FLOWER nearest ({@code x}, {@code y}) within {@link #maxRangeIn}, or null; with
+     * The FLOWER nearest ({@code x}, {@code y}) within {@link LineUp#maxRangeIn}, or null; with
      * {@code ownHalfOnly}, only one on the same side of the centre line (an Auto's rule).
      */
     static Flower nearest(double x, double y, boolean ownHalfOnly) {
         Flower nearest = null;
-        double best = nn(maxRangeIn);
+        double best = nn(lineUp.maxRangeIn);
         for (Flower f : FlowerFieldPoints.ALL) {
             if (ownHalfOnly && !ownHalf(x, f.x)) continue;
             double range = Math.hypot(f.x - x, f.y - y);
@@ -414,7 +477,7 @@ public final class FlowerPicker extends GrabRoutine {
     @Override
     protected String startNote() {
         Routine r = running;
-        return String.format(Locale.US, ", contact %.1f in%s", nn(contactStandoffIn),
+        return String.format(Locale.US, ", contact %.1f in%s", nn(push.contactStandoffIn),
                 r == Routine.MASTER ? "" : ", " + r);
     }
 
@@ -430,26 +493,26 @@ public final class FlowerPicker extends GrabRoutine {
     @Override
     protected String noTargetWhy() {
         return inAuto()
-                ? String.format(Locale.US, "no FLOWER on our side of the centre line within %.0f in (an Auto may not cross it)", maxRangeIn)
-                : String.format(Locale.US, "no FLOWER within %.0f in", maxRangeIn);
+                ? String.format(Locale.US, "no FLOWER on our side of the centre line within %.0f in (an Auto may not cross it)", lineUp.maxRangeIn)
+                : String.format(Locale.US, "no FLOWER within %.0f in", lineUp.maxRangeIn);
     }
 
     @Override
     protected Pose lineUpPose() {
-        return FlowerFieldPoints.standoff(flower, nn(approachStandoffIn));
+        return FlowerFieldPoints.standoff(flower, nn(lineUp.approachStandoffIn));
     }
 
     @Override
     protected InPlan inPose(Pose from, boolean linedUp) {
         // Both the button and an Auto's card are square to the FLOWER by now: push in along its line.
-        return InPlan.to(FlowerFieldPoints.standoff(flower, nn(contactStandoffIn)));
+        return InPlan.to(FlowerFieldPoints.standoff(flower, nn(push.contactStandoffIn)));
     }
 
     @Override
     protected InPlan autoLineUp(Pose from) {
-        String refusal = squareUpRefusal(flower, from, nn(autoMaxOffIn), nn(autoMaxOffDeg));
+        String refusal = squareUpRefusal(flower, from, nn(autoSquareUp.autoMaxOffIn), nn(autoSquareUp.autoMaxOffDeg));
         return refusal != null ? InPlan.refuse(refusal)
-                : InPlan.to(squareUpPose(flower, from, nn(minAutoStartIn), nn(approachStandoffIn)));
+                : InPlan.to(squareUpPose(flower, from, nn(autoSquareUp.minAutoStartIn), nn(lineUp.approachStandoffIn)));
     }
 
     /**
@@ -488,7 +551,7 @@ public final class FlowerPicker extends GrabRoutine {
     protected boolean mayPrepAt(Pose pose) {
         // The button's line-up is never closer than approachStandoffIn; an Auto's may start closer, and
         // the stick swings down only once the robot is out where it swings clear (0.5 in for noise).
-        return !inAuto() || Math.hypot(flower.x - pose.x(), flower.y - pose.y()) >= nn(minAutoStartIn) - 0.5;
+        return !inAuto() || Math.hypot(flower.x - pose.x(), flower.y - pose.y()) >= nn(autoSquareUp.minAutoStartIn) - 0.5;
     }
 
     @Override
@@ -515,50 +578,50 @@ public final class FlowerPicker extends GrabRoutine {
 
     /**
      * The stick comes in once the robot is clear of the FLOWER, however the pick ends: finished,
-     * let go, or cut short. Clear is {@link #retractAfterBackIn} out from the nearest the push got
+     * let go, or cut short. Clear is {@link Stick#retractAfterBackIn} out from the nearest the push got
      * to the FLOWER (where it stalled, or where the robot is if cut during the push), and never
-     * nearer than {@link #contactStandoffIn} plus that: a push aimed deeper than the FLOWER lets the
+     * nearer than {@link Push#contactStandoffIn} plus that: a push aimed deeper than the FLOWER lets the
      * robot in, and a pose that stops it short does not bring the lift-off point in with it. The
      * stick subsystem holds it down until then, after this pick is over.
      */
     private void retractWhenClear() {
-        double contact = nn(contactStandoffIn);
+        double contact = nn(push.contactStandoffIn);
         double nearest = Math.max(contact, closestOnInIn(flower.x, flower.y, contact));
-        robot.flowerStick.retractWhenClear(flower.x, flower.y, nearest + nn(retractAfterBackIn));
+        robot.flowerStick.retractWhenClear(flower.x, flower.y, nearest + nn(stick.retractAfterBackIn));
     }
 
-    @Override protected double prepMs() { return stickDownMs; }
-    @Override protected double prepWithinIn() { return lowerWithinIn; }
+    @Override protected double prepMs() { return stick.stickDownMs; }
+    @Override protected double prepWithinIn() { return stick.lowerWithinIn; }
     @Override protected double prepWithinDeg() { return 180.0; } // any heading: the FLOWER is in open field
-    @Override protected double atLineUpIn() { return atApproachIn; }
-    @Override protected double atLineUpDeg() { return atApproachDeg; }
-    @Override protected double lineUpTimeoutMs() { return approachTimeoutMs; }
-    @Override protected double autoLineUpTimeoutMs() { return autoSquareTimeoutMs; }
-    @Override protected double inSpeed() { return pushSpeed; }
-    @Override protected double inTimeoutMs() { return pushTimeoutMs; }
-    @Override protected double stallProgressIn() { return stallProgressIn; }
-    @Override protected double stallMs() { return stallMs; }
-    @Override protected double dwellMs() { return running == Routine.FAST ? fastDwellMs : dwellMs; }
+    @Override protected double atLineUpIn() { return lineUp.atApproachIn; }
+    @Override protected double atLineUpDeg() { return lineUp.atApproachDeg; }
+    @Override protected double lineUpTimeoutMs() { return lineUp.approachTimeoutMs; }
+    @Override protected double autoLineUpTimeoutMs() { return autoSquareUp.autoSquareTimeoutMs; }
+    @Override protected double inSpeed() { return push.pushSpeed; }
+    @Override protected double inTimeoutMs() { return push.pushTimeoutMs; }
+    @Override protected double stallProgressIn() { return push.stallProgressIn; }
+    @Override protected double stallMs() { return push.stallMs; }
+    @Override protected double dwellMs() { return running == Routine.FAST ? fast.fastDwellMs : dwell.dwellMs; }
     // The routine is read once, as the pick starts (findTarget): a Panels change mid-pick waits for the next.
     @Override protected boolean dwellFromContact() { return running != Routine.MASTER; }
-    @Override protected double handOverBackIn() { return running == Routine.MASTER ? 0.0 : handOverBackIn; }
+    @Override protected double handOverBackIn() { return running == Routine.MASTER ? 0.0 : fast.handOverBackIn; }
     @Override protected int pushCount() { return runningPushes; }
-    @Override protected double firstDwellMs() { return multiFirstDwellMs; }
-    @Override protected double backOffIn() { return multiBackOffIn; }
-    @Override protected double backOffTimeoutMs() { return multiBackOffTimeoutMs; }
-    @Override protected double lastDwellMs() { return multiLastDwellMs; }
-    @Override protected double dwellQuietMs() { return dwellQuietMs; }
+    @Override protected double firstDwellMs() { return multiPush.multiFirstDwellMs; }
+    @Override protected double backOffIn() { return multiPush.multiBackOffIn; }
+    @Override protected double backOffTimeoutMs() { return multiPush.multiBackOffTimeoutMs; }
+    @Override protected double lastDwellMs() { return multiPush.multiLastDwellMs; }
+    @Override protected double dwellQuietMs() { return dwell.dwellQuietMs; }
     @Override protected boolean dwellStays() { return stay != null; }
     @Override protected String stayOver() { return stay.get(); }
-    @Override protected boolean dwellFull() { return dwellEndsOnFull && robot.colorSensor.full(); }
-    @Override protected double dwellEmptyMs() { return dwellEmptyMs; }
-    @Override protected double spikeAboveAmps() { return spikeAboveAmps; }
-    @Override protected double settledInPerSec() { return running == Routine.MASTER ? settledInPerSec : fastSettledInPerSec; }
-    @Override protected double dwellPushPower() { return dwellPushPower; }
-    @Override protected double backSpeed() { return backSpeed; }
-    @Override protected double unprepAfterBackIn() { return retractAfterBackIn; }
-    @Override protected double backTimeoutMs() { return backTimeoutMs; }
-    @Override protected double headingKp() { return headingKp; }
-    @Override protected double lateralKp() { return lateralKp; }
-    @Override protected double maxCorrection() { return maxCorrection; }
+    @Override protected boolean dwellFull() { return dwell.dwellEndsOnFull && robot.colorSensor.full(); }
+    @Override protected double dwellEmptyMs() { return dwell.dwellEmptyMs; }
+    @Override protected double spikeAboveAmps() { return dwell.spikeAboveAmps; }
+    @Override protected double settledInPerSec() { return running == Routine.MASTER ? push.settledInPerSec : fast.fastSettledInPerSec; }
+    @Override protected double dwellPushPower() { return dwell.dwellPushPower; }
+    @Override protected double backSpeed() { return back.backSpeed; }
+    @Override protected double unprepAfterBackIn() { return stick.retractAfterBackIn; }
+    @Override protected double backTimeoutMs() { return back.backTimeoutMs; }
+    @Override protected double headingKp() { return steering.headingKp; }
+    @Override protected double lateralKp() { return steering.lateralKp; }
+    @Override protected double maxCorrection() { return steering.maxCorrection; }
 }

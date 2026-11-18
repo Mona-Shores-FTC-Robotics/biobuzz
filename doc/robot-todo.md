@@ -80,7 +80,7 @@ the pre-cleanup lineup.
    show, so the park may be skipped for TIP 2. Run half with `LaunchCards.launchOnApproach` on and
    half off, and judge it only on the volley after the scoring FLOWER: the checked volley stops and
    settles either way. Not clearly as good on → set it false for the event. Same runs:
-   `FlowerPicker.lowerWithinIn` 24 (§3's WALL FLOWER stick line, a number, not code). Every pick card
+   `FlowerPicker.stick.lowerWithinIn` 24 (§3's WALL FLOWER stick line, a number, not code). Every pick card
    is now limited to 4.5 s (was 8; logged picks took 1.8–3.7 s): note any pick that hits the limit.
    **CellUp now needs the camera** (5 Nov): an assumed HIVE position no longer passes it, and a
    mid-tip sighting counts only with the robot under 10 in/s and 30°/s (`HiveSubsystem.Tuning`).
@@ -453,13 +453,13 @@ Use the work order above to select checks; the detailed mechanism checks below a
 - [ ] **Stick down on the drive in:** spotters at WALL_FLOWER_STAGING and SCORING_FLOWER_STAGING,
       R-Solo, two picks each. **Good:** the stick swings down about 18 in before
       the robot stops and touches nothing before the push. **Stop:** it touches → Panels
-      `FlowerPicker.lowerWithinIn` 12, write it back. [S5 seam §2], [PR #378]
+      `FlowerPicker.stick.lowerWithinIn` 12, write it back. [S5 seam §2], [PR #378]
       Belding stream (7 Nov): at the WALL FLOWER it swings from 12–17 in out, is down 4–5 in before
       the stop and reaches the FLOWER's foot with no visible knock; the SCORING approach is hidden behind
       the FLOWER and wall, so only the SCORING FLOWER still needs spotters.
 - [ ] **The stick lowers earlier at the WALL FLOWER:** the 3–4 Nov Auto picks read `prep done on
       the way in` 0.52–0.55 s at the WALL FLOWER (SCORING FLOWER 0.80–0.84), under the 0.7 s this check
-      wanted, so its Stop applies: Panels `FlowerPicker.lowerWithinIn` 24, then the stick line above.
+      wanted, so its Stop applies: Panels `FlowerPicker.stick.lowerWithinIn` 24, then the stick line above.
       **Good:** X ≥ 0.7 at both FLOWERs and the stick still touches nothing. Write 24 back if so.
       [S5 seam §4], [PR #378]
       Belding (24, master's value since 5 Nov): WALL 0.62–0.73 s in 11 Auto picks (4 reach 0.7), FAR
@@ -476,7 +476,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       corner watching the stick and both walls, L-UnderHive or L-Clockwise with Pickup GARDEN (they
       arrive facing the GARDEN), then R-NoCross (it turns half a turn evenly on its way in). The
       stick may come down early only on a drive that ends facing the GARDEN, once the robot has held
-      that facing 0.2 s (`GardenGather.facingHoldMs`), never while it turns. **Good:** on the L Autos
+      that facing 0.2 s (`GardenGather.autoStick.facingHoldMs`), never while it turns. **Good:** on the L Autos
       the log says `GARDEN gather: stick down on the drive in, N in to go` with N near 24, then
       `prep done on the way in, 0.7 s ago` or more and `PREP 0.2 s` or less, and the stick touches
       no wall and no ball before the drive in. On R-NoCross there is no `stick down on the drive in`
@@ -775,7 +775,7 @@ measurement is [#255].
       `/Intake/TicksPerSecond` and `/Intake/CurrentAmps` at that moment. The 0.25 s (`wedgeBackMs`)
       is a guess: write back what frees a pair without throwing it. This is the code half of the
       fix list's "stop two pieces wedging"; the guide or sprung wall at the pinch is still open.
-- [ ] **FLOWER pick: a 1 s dwell, ten picks on 20245 first** (Panels `FlowerPicker.dwellMs` 1000,
+- [ ] **FLOWER pick: a 1 s dwell, ten picks on 20245 first** (Panels `FlowerPicker.dwell.dwellMs` 1000,
       from 2000; a number, no code; `routine` MASTER). Do this before the three-routines line
       below if PR #550 is not on the robot yet: it is the cheap way to a faster pick, and the
       biggest single part of what `FAST` does. Why: of a Belding Auto pick's 3.6 s (median 3.68, 23
@@ -960,7 +960,7 @@ measurement is [#255].
 - [ ] **GARDEN gather, the back out that stalls short (14 Nov; `backStallMs` never run):** twice on
       19429, with the battery sagging to 8 V, the back out stopped about an inch short of where it
       started and crept there, 2.4 and 3.7 s against 0.6 to 0.85 s for the other 30. The back out
-      now ends once it has got no closer for 0.4 s (`GardenGather.backStallMs`). **Good:** no
+      now ends once it has got no closer for 0.4 s (`GardenGather.back.backStallMs`). **Good:** no
       `Last GARDEN gather` line has `back` over 1.5 s, and a stalled one logs `back out stalled N
       in short, done there` with N under 2. **Stop:** it ends the back out early with the robot
       still well inside the corner → `backStallMs` 0 (off) and write down N.
@@ -972,10 +972,22 @@ measurement is [#255].
       at the wall in all. (c) With 3 pieces already in the lane, gather a fourth and watch the back
       out (mentor, 13 Nov: the fourth ball rides on the floor at the front and backing up can let
       it squirt out). **Stop:** the fourth is left on the floor twice → tell a mentor.
+- [ ] **GARDEN gather, a harder drive in, and the two-step (18 Nov; never run):** button, GARDEN
+      loaded, 19429, Panels open. First check Panels: GardenGather and FlowerPicker now show their
+      knobs in folders (`driveIn`, `twoStep`, `dwell`, `steering`, `back`, …), and an edit in a
+      folder changes the robot (`Tunable/GardenGather.driveIn.…`
+      is in the log). Then 3 gathers each: (a) the new defaults, `driveIn.extraDepthIn` 10 and
+      `driveIn.laneTowardWallIn` 3 (19429 ran 4 and 6 from Panels that day, and the drive in was
+      slow); (b) `twoStep.twoStepIn` on: a path over to the side wall, then a full-power push down
+      it (`twoStep.pushPower` 1.0) with nothing braking before the wall. **Good:** `in` in the
+      `Last GARDEN gather` line is shorter than (a)'s, the event line says `over to the wall … then
+      pushing in`, and the side stays on the wall. **Stop:** it hits the wall hard enough to bounce,
+      the stick catches, or pieces are knocked out → `twoStep.pushPower` 0.7, then off. Write the
+      winner back as the default. [PR: branch `claude/focused-albattani-ag687y`]
 - [ ] **GARDEN gather, curve to the wall and quick out (`garden-gather` branch):** at the
       practice field with the TeleOp gather button (driver Triangle, held), GARDEN loaded, phone
       filming from above; then once in R-NoCross. It lines up where it always has, stick going
-      down; then the drive in curves (`GardenGather.curveToWall`): over to the side wall first,
+      down; then the drive in curves (`GardenGather.driveIn.curveToWall`): over to the side wall first,
       then down it into the corner. It aims 1 in past the gather pose (`extraDepthIn` 1), dwells 0.4 s (`dwellMs` 400), backs out at 0.8 speed
       (`backSpeed`) with the stick still down, straight up the side wall first then over
       (`curveBackOut`; off is a straight diagonal back), stops, and raises the stick 0.25 s later

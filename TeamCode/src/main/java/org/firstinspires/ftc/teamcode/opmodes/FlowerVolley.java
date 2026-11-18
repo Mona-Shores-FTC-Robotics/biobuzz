@@ -165,7 +165,7 @@ public final class FlowerVolley {
         if (pose == null || !robot.drive.poseReferenced()) return "no pose on the field";
         Flower flower = FlowerPicker.nearest(pose.x(), pose.y(), !button);
         if (flower == null) return button ? "no FLOWER in range" : "no FLOWER on our side of the centre line in range";
-        Pose contact = FlowerFieldPoints.standoff(flower, FlowerPicker.contactStandoffIn);
+        Pose contact = FlowerFieldPoints.standoff(flower, FlowerPicker.push.contactStandoffIn);
         double off = offSquareDeg(contact, alliance);
         rangeIn = rangeIn(contact, alliance);
         if (Double.isNaN(off) || Double.isNaN(rangeIn)) return "no alliance, or no field point for our CELL";

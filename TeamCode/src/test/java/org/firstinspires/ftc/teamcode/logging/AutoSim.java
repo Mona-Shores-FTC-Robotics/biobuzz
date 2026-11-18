@@ -2446,7 +2446,7 @@ public final class AutoSim {
                         double[] at = pedro(drive.pose);
                         Pose here = new Pose(at[0], at[1], at[2] + flip); // the intake's heading
                         FlowerFieldPoints.Flower flower = null;
-                        double best = FlowerPicker.maxRangeIn;
+                        double best = FlowerPicker.lineUp.maxRangeIn;
                         double centre = FieldFrame.FIELD_CENTRE_INCHES;
                         for (FlowerFieldPoints.Flower f : FlowerFieldPoints.ALL) {
                             double d = Math.hypot(f.x - at[0], f.y - at[1]);
@@ -2456,15 +2456,15 @@ public final class AutoSim {
                             }
                         }
                         String refusal = flower == null
-                                ? "no FLOWER on our side within " + (int) FlowerPicker.maxRangeIn + " in"
-                                : FlowerPicker.squareUpRefusal(flower, here, FlowerPicker.autoMaxOffIn, FlowerPicker.autoMaxOffDeg);
+                                ? "no FLOWER on our side within " + (int) FlowerPicker.lineUp.maxRangeIn + " in"
+                                : FlowerPicker.squareUpRefusal(flower, here, FlowerPicker.autoSquareUp.autoMaxOffIn, FlowerPicker.autoSquareUp.autoMaxOffDeg);
                         if (refusal != null) {
                             phase[0] = 0;
                             pending.add("PickFlower: " + refusal + ": refused");
                             return;
                         }
-                        Pose sq = FlowerPicker.squareUpPose(flower, here, FlowerPicker.minAutoStartIn, FlowerPicker.approachStandoffIn);
-                        Pose in = FlowerFieldPoints.standoff(flower, FlowerPicker.contactStandoffIn);
+                        Pose sq = FlowerPicker.squareUpPose(flower, here, FlowerPicker.autoSquareUp.minAutoStartIn, FlowerPicker.lineUp.approachStandoffIn);
+                        Pose in = FlowerFieldPoints.standoff(flower, FlowerPicker.push.contactStandoffIn);
                         square[0] = new Pose(sq.x(), sq.y(), sq.heading() - flip);
                         contact[0] = new Pose(in.x(), in.y(), in.heading() - flip);
                         intakeBefore[0] = intakeEnabled;
@@ -2472,9 +2472,9 @@ public final class AutoSim {
                         intakeEnabled = true;
                         Pose from = new Pose(at[0], at[1], at[2]);
                         double turn = Math.abs(Math.IEEEremainder(at[2] - square[0].heading(), 2 * Math.PI));
-                        if (Math.hypot(at[0] - square[0].x(), at[1] - square[0].y()) <= FlowerPicker.atApproachIn
-                                && Math.toDegrees(turn) <= FlowerPicker.atApproachDeg
-                                && Math.hypot(flower.x - at[0], flower.y - at[1]) >= FlowerPicker.minAutoStartIn - 0.5) {
+                        if (Math.hypot(at[0] - square[0].x(), at[1] - square[0].y()) <= FlowerPicker.lineUp.atApproachIn
+                                && Math.toDegrees(turn) <= FlowerPicker.lineUp.atApproachDeg
+                                && Math.hypot(flower.x - at[0], flower.y - at[1]) >= FlowerPicker.autoSquareUp.minAutoStartIn - 0.5) {
                             square[0] = from; // already square: the robot pushes from here and comes back here
                             phase[0] = 1;
                             drive.follow(Paths.line(from, contact[0]).linear(from, contact[0]));
@@ -2485,7 +2485,7 @@ public final class AutoSim {
                         }
                     })
                     .setExecute(() -> {
-                        if (phase[0] == 4 && !drive.pathDone() && now - squareFrom[0] > FlowerPicker.autoSquareTimeoutMs / 1000.0) {
+                        if (phase[0] == 4 && !drive.pathDone() && now - squareFrom[0] > FlowerPicker.autoSquareUp.autoSquareTimeoutMs / 1000.0) {
                             phase[0] = 5; // the robot's "square-up timed out": no push, nothing picked
                             intakeEnabled = intakeBefore[0];
                             drive.hold(drive.pose);
@@ -2593,7 +2593,7 @@ public final class AutoSim {
                         startedAt[0] = now;
                         double[] at = pedro(drive.pose);
                         GardenFieldPoints.Garden garden = null;
-                        double best = GardenGather.maxRangeIn;
+                        double best = GardenGather.driveIn.maxRangeIn;
                         double centre = FieldFrame.FIELD_CENTRE_INCHES;
                         for (GardenFieldPoints.Garden g : GardenFieldPoints.ALL) {
                             double d = Math.hypot(g.gather.x() - at[0], g.gather.y() - at[1]);
@@ -2608,29 +2608,29 @@ public final class AutoSim {
                         if (garden == null) {
                             phase[0] = 0;
                             drive.hold(drive.pose);
-                            pending.add("GardenGather: no GARDEN on our side within " + (int) GardenGather.maxRangeIn + " in: refused");
+                            pending.add("GardenGather: no GARDEN on our side within " + (int) GardenGather.driveIn.maxRangeIn + " in: refused");
                             return;
                         }
                         Pose in = gardenInPose(garden);
                         back[0] = new Pose(at[0], at[1], at[2]);
                         intakeEnabled = true;
-                        drive.maxSpeed = speedBefore[0] * GardenGather.inSpeed;
+                        drive.maxSpeed = speedBefore[0] * GardenGather.driveIn.inSpeed;
                         phase[0] = 1;
                         phaseFrom[0] = now;
                         drive.follow(Paths.line(back[0], in).linear(back[0], in));
                     })
                     .setExecute(() -> {
-                        if (phase[0] == 1 && (drive.pathDone() || now - phaseFrom[0] >= GardenGather.inTimeoutMs / 1000.0)) {
+                        if (phase[0] == 1 && (drive.pathDone() || now - phaseFrom[0] >= GardenGather.driveIn.inTimeoutMs / 1000.0)) {
                             phase[0] = 2;
                             phaseFrom[0] = now;
-                        } else if (phase[0] == 2 && (FieldSim.full(body) || now - phaseFrom[0] >= GardenGather.dwellMs / 1000.0)) {
+                        } else if (phase[0] == 2 && (FieldSim.full(body) || now - phaseFrom[0] >= GardenGather.dwell.dwellMs / 1000.0)) {
                             phase[0] = 3;
                             phaseFrom[0] = now;
-                            drive.maxSpeed = speedBefore[0] * GardenGather.backSpeed;
+                            drive.maxSpeed = speedBefore[0] * GardenGather.back.backSpeed;
                             double[] at = pedro(drive.pose);
                             Pose from = new Pose(at[0], at[1], at[2]);
                             drive.follow(Paths.line(from, back[0]).linear(from, back[0]));
-                        } else if (phase[0] == 3 && (drive.pathDone() || now - phaseFrom[0] >= GardenGather.backTimeoutMs / 1000.0)) {
+                        } else if (phase[0] == 3 && (drive.pathDone() || now - phaseFrom[0] >= GardenGather.back.backTimeoutMs / 1000.0)) {
                             phase[0] = 4;
                             drive.hold(drive.pose);
                             intakeEnabled = intakeBefore[0];
@@ -2663,7 +2663,7 @@ public final class AutoSim {
         private Pose gardenInPose(GardenFieldPoints.Garden garden) {
             Pose g = garden.gather;
             double h = g.heading();
-            double deeper = GardenGather.extraDepthIn, wall = GardenGather.towardWallIn;
+            double deeper = GardenGather.driveIn.extraDepthIn, wall = GardenGather.driveIn.towardWallIn;
             double x = g.x() + deeper * Math.cos(h) + wall * Math.sin(h);
             double y = g.y() + deeper * Math.sin(h) - wall * Math.cos(h);
             // The frame square to the walls in the corner: its half-width off the side wall, the gather pose's own

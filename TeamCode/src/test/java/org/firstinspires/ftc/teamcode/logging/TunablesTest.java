@@ -57,9 +57,7 @@ public class TunablesTest {
     public void tunablesLeaveRoomInPlaysLoopForTheOpModesMetadata() {
         int count = 0;
         for (Class<?> cls : Tunables.CLASSES) {
-            for (java.lang.reflect.Field field : cls.getDeclaredFields()) {
-                if (Tunables.isTunable(field)) count++;
-            }
+            count += Tunables.values(cls).size();
         }
         assertTrue(count + " tunables leave fewer than " + MatchLog.METADATA_HEADROOM
                         + " metadata slots in PLAY's loop: raise MatchLog.MAX_METADATA_PER_LOOP",
@@ -88,6 +86,31 @@ public class TunablesTest {
         assertFalse(Tunables.isTunable(Sample.class.getDeclaredField("object")));
         assertFalse(Tunables.isTunable(Sample.class.getDeclaredField("packagePrivate")));
         assertFalse(Tunables.isTunable(Sample.class.getDeclaredField("instance")));
+    }
+
+    @SuppressWarnings("unused")
+    static class Grouped {
+        public static final class Group {
+            public double knob = 2.5;
+            public boolean flag = true;
+            public static double shared = 1.0;
+            public final double fixed = 3.0;
+        }
+
+        public static Group group = new Group();
+        public static double plain = 1.5;
+    }
+
+    /** A group's knobs are logged under the group's name; its constants and statics are not knobs. */
+    @Test
+    public void aGroupsKnobsAreLoggedUnderItsName() {
+        TreeSet<String> got = new TreeSet<>();
+        for (String[] keyValue : Tunables.values(Grouped.class)) got.add(keyValue[0] + "=" + keyValue[1]);
+        TreeSet<String> want = new TreeSet<>();
+        want.add("Grouped.plain=1.5");
+        want.add("Grouped.group.knob=2.5");
+        want.add("Grouped.group.flag=true");
+        assertEquals(want, got);
     }
 
     /** The module's team sources, wherever Gradle runs the test from. */

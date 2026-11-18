@@ -1907,8 +1907,12 @@ non-`final`**. Primitives, enums, strings, arrays, lists, maps and custom object
 
 The pattern this repo uses, and the one to copy, is `LauncherSubsystem`: the annotation on the
 class and its tunables as `public static` fields on it. Panels reflects through those fields, so one
-annotation exposes the whole class. A tree of nested config objects also works — hang them off a
-single static root and Panels walks into them — but nothing here needs that today.
+annotation exposes the whole class. A class with many knobs groups them into folders instead:
+a `public static final class` nested in it per group, its knobs plain `public` instance fields, and
+one `public static` field holding it (`GardenGather.driveIn.extraDepthIn`, `FlowerPicker.push.pushSpeed`;
+18 Nov 2026, as the two grabs' 40-odd knobs were hard to tell apart). Panels shows each group as a
+folder, and `logging/Tunables` logs a group's knobs under its name (`Tunable/GardenGather.driveIn.extraDepthIn`).
+Group by the phase or feature a knob belongs to, and say in the group's comment when it applies.
 
 Three things that will cost you a meeting if you forget them:
 

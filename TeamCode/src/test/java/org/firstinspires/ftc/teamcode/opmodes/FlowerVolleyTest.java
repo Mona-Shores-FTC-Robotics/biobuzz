@@ -17,7 +17,7 @@ import org.junit.Test;
 public class FlowerVolleyTest {
 
     private static Pose contact(FlowerFieldPoints.Flower flower) {
-        return FlowerFieldPoints.standoff(flower, FlowerPicker.contactStandoffIn);
+        return FlowerFieldPoints.standoff(flower, FlowerPicker.push.contactStandoffIn);
     }
 
     /**
@@ -40,7 +40,7 @@ public class FlowerVolleyTest {
     /** Back at the pick's line-up the robot is nearer the HIVE than any measured row: the load is not fired on the way in. */
     @Test
     public void theLineUpIsTooCloseToFireFrom() {
-        Pose lineUp = FlowerFieldPoints.standoff(FlowerFieldPoints.RED_SCORING, FlowerPicker.approachStandoffIn);
+        Pose lineUp = FlowerFieldPoints.standoff(FlowerFieldPoints.RED_SCORING, FlowerPicker.lineUp.approachStandoffIn);
         assertTrue(FlowerVolley.rangeIn(lineUp, Alliance.RED) < LaunchSpeedTable.row1RangeIn - 8.0);
     }
 
