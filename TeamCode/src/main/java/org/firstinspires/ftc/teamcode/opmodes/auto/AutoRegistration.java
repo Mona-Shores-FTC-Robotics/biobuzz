@@ -192,7 +192,7 @@ public final class AutoRegistration {
      * dwell 0.46, back 0.73). The slowest of each phase as they were then add up to 3.83 s (stick
      * wait 0.75, drive in 1.77, dwell 0.46, back 0.85; the drive in and back from the 14 Nov button
      * gathers at {@code inSpeed} 1.0), so 4.0 covers a gather with room: the stick wait is gone
-     * since 16 Nov ({@code GardenGather.stickDownMs} 0), which no run has timed yet. One Auto gather
+     * since 16 Nov ({@code GardenGather.stick.stickDownMs} 0), which no run has timed yet. One Auto gather
      * is thin: doc/robot-todo.md asks for more. Was 5.0 (one Auto gather, 4.21 s with the long dwell),
      * and 6.0 before any was logged.
      */

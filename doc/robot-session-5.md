@@ -182,7 +182,7 @@ each; Sloth Load is enough.
        run; `/Robot/LoopMs` median and p95 go in the PR (2 Nov R-Quals: 26.7 / 47.7 ms).
 2. [ ] **Watch the stick on the drive in**, a spotter at WALL_FLOWER_STAGING and at
        SCORING_FLOWER_STAGING: it should swing down about 18 in before the robot stops, and touch
-       nothing before the push. *Stop line: it touches anything → `FlowerPicker.lowerWithinIn` 12 in
+       nothing before the push. *Stop line: it touches anything → `FlowerPicker.stick.lowerWithinIn` 12 in
        Panels (about 0.3 s less hidden), write the number back.* The Visualizer branch
        `claude/pick-stick-on-drive-in` shows the same moment as a "Stick down on the drive in" line.
 3. [ ] **Watch the push start** while the robot is still slowing (up to 8 in/s). The push should still

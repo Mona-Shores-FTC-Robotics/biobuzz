@@ -101,16 +101,16 @@ public class GardenGatherTest {
     /** Both switches turn the early stick off: without the stick, and with lowerOnDriveIn off. */
     @Test
     public void theEarlyStickHasTwoOffSwitches() {
-        boolean stick = GardenGather.useStick, early = GardenGather.lowerOnDriveIn;
+        boolean stick = GardenGather.stick.useStick, early = GardenGather.autoStick.lowerOnDriveIn;
         try {
-            GardenGather.useStick = false;
+            GardenGather.stick.useStick = false;
             assertEquals("no stick in this gather", false, GardenGather.lowerOnApproach(8.0, 1000));
-            GardenGather.useStick = true;
-            GardenGather.lowerOnDriveIn = false;
+            GardenGather.stick.useStick = true;
+            GardenGather.autoStick.lowerOnDriveIn = false;
             assertEquals("the card lowers it itself", false, GardenGather.lowerOnApproach(8.0, 1000));
         } finally {
-            GardenGather.useStick = stick;
-            GardenGather.lowerOnDriveIn = early;
+            GardenGather.stick.useStick = stick;
+            GardenGather.autoStick.lowerOnDriveIn = early;
         }
     }
 

@@ -429,7 +429,7 @@ final class RobotDesign {
         RobotDesign d = new RobotDesign(REAL);
         d.intakeWidthIn = 0.9 * d.frameWidthIn;
         d.intakeOnContact = true;
-        d.extractorSeatIn = FlowerPicker.contactStandoffIn - d.frameIn / 2;
+        d.extractorSeatIn = FlowerPicker.push.contactStandoffIn - d.frameIn / 2;
         d.shotIntervalS = LaunchCards.launchAllFeedS / 4;
         d.fixedSetpoint = true;
         return d;

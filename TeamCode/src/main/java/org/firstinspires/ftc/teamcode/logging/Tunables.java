@@ -27,6 +27,8 @@ import org.firstinspires.ftc.teamcode.vision.PieceVisionSubsystem;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Every Panels tunable a match OpMode runs with, written to the match log at PLAY, so a log can
@@ -73,7 +75,7 @@ public final class Tunables {
             HiveAndPose.class,
     };
 
-    /** Metadata key prefix: {@code Tunable/IntakeSubsystem.inPower}. */
+    /** Metadata key prefix: {@code Tunable/IntakeSubsystem.inPower}, {@code Tunable/GardenGather.driveIn.extraDepthIn} for a group's. */
     public static final String PREFIX = "Tunable/";
 
     private Tunables() {
@@ -82,16 +84,44 @@ public final class Tunables {
     /** Every tunable's current value into {@code log} as metadata. Never throws. */
     public static void snapshot(MatchLog log) {
         for (Class<?> cls : CLASSES) {
-            for (Field field : cls.getDeclaredFields()) {
-                if (!isTunable(field)) continue;
-                String value;
-                try {
-                    value = String.valueOf(field.get(null));
-                } catch (RuntimeException | IllegalAccessException e) {
-                    value = "(unreadable: " + e + ")";
-                }
-                log.metadata(PREFIX + cls.getSimpleName() + "." + field.getName(), value);
+            for (String[] keyValue : values(cls)) {
+                log.metadata(PREFIX + keyValue[0], keyValue[1]);
             }
+        }
+    }
+
+    /**
+     * Every tunable on {@code cls} as {key, value}: its own knobs ({@code GardenGather.useStick}),
+     * and the knobs of each of its groups ({@link #isGroup}) under the group's name
+     * ({@code GardenGather.driveIn.extraDepthIn}). Never throws: an unreadable value is written as such.
+     */
+    static List<String[]> values(Class<?> cls) {
+        List<String[]> out = new ArrayList<>();
+        for (Field field : cls.getDeclaredFields()) {
+            if (isTunable(field)) {
+                out.add(new String[] {cls.getSimpleName() + "." + field.getName(), read(field, null)});
+            } else if (isGroup(cls, field)) {
+                Object group;
+                try {
+                    group = field.get(null);
+                } catch (RuntimeException | IllegalAccessException e) {
+                    group = null;
+                }
+                for (Field knob : field.getType().getDeclaredFields()) {
+                    if (!isGroupKnob(knob)) continue;
+                    out.add(new String[] {cls.getSimpleName() + "." + field.getName() + "." + knob.getName(),
+                            group == null ? "(no group)" : read(knob, group)});
+                }
+            }
+        }
+        return out;
+    }
+
+    private static String read(Field field, Object owner) {
+        try {
+            return String.valueOf(field.get(owner));
+        } catch (RuntimeException | IllegalAccessException e) {
+            return "(unreadable: " + e + ")";
         }
     }
 
@@ -102,7 +132,28 @@ public final class Tunables {
     static boolean isTunable(Field field) {
         int mods = field.getModifiers();
         if (!Modifier.isPublic(mods) || !Modifier.isStatic(mods) || Modifier.isFinal(mods)) return false;
-        Class<?> type = field.getType();
+        return isScalar(field.getType());
+    }
+
+    /**
+     * A group of knobs, which Panels shows as a folder: a public static, non-final field whose type
+     * is a class nested in {@code cls} ({@code GardenGather.driveIn}, a {@code GardenGather.DriveIn}).
+     * Its knobs are {@link #isGroupKnob}.
+     */
+    static boolean isGroup(Class<?> cls, Field field) {
+        int mods = field.getModifiers();
+        if (!Modifier.isPublic(mods) || !Modifier.isStatic(mods) || Modifier.isFinal(mods)) return false;
+        return field.getType().getDeclaringClass() == cls;
+    }
+
+    /** A knob in a group: a public, non-static, non-final field of a primitive, String or enum type. */
+    static boolean isGroupKnob(Field field) {
+        int mods = field.getModifiers();
+        if (!Modifier.isPublic(mods) || Modifier.isStatic(mods) || Modifier.isFinal(mods)) return false;
+        return isScalar(field.getType());
+    }
+
+    private static boolean isScalar(Class<?> type) {
         return type.isPrimitive() || type == String.class || type.isEnum();
     }
 }
