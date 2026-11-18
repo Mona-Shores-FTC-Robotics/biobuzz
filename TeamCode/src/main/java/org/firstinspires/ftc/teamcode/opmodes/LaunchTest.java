@@ -30,7 +30,7 @@ import java.util.Locale;
  * (and the launcher backs up too, #323), Square toggles the FLOWER stick.
  *
  * <p><b>The setup layer</b> (gate and prefeed holds, gate nudges) sits behind a held modifier: the
- * operator's turret-autoaim button ({@link #SETUP_MODIFIER}, Triangle in the default layout), free
+ * bench's own setup button ({@link #SETUP_MODIFIER}, the operator's Triangle in the base layout), free
  * here because the turret is unplugged. While it is held, the FLOWER stick's button cycles the gate
  * hold, the launcher button cycles the prefeed hold, the fire button starts a spin-up step test, and
  * the D-pad nudges the gate's two positions; those three face buttons do nothing else while the
@@ -73,7 +73,7 @@ public class LaunchTest extends RobotOpMode {
     private static final double DRIVE_SPEED = 0.4;
 
     /** The operator action whose button is the setup layer's modifier: turret autoaim, idle here. */
-    static final Action SETUP_MODIFIER = Action.TURRET_LOCK;
+    static final Action SETUP_MODIFIER = Action.BENCH_SETUP;
     /** With the modifier held, this action's button cycles the gate hold instead of its own job. */
     static final Action GATE_HOLD_BUTTON = Action.FLOWER_STICK;
     /** With the modifier held, this action's button cycles the prefeed hold instead of its own job. */

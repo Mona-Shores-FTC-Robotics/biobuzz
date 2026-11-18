@@ -28,7 +28,8 @@ public class ControlSchemeTest {
     public void everyActionIsBoundButTheOnesLeftOut() {
         Map<Action, Input> layout = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK);
         for (Action action : Action.values()) {
-            boolean bound = !ControlScheme.NOT_BOUND.contains(action) && !ControlScheme.LOCKED_TURRET_ONLY.contains(action);
+            boolean bound = !ControlScheme.NOT_BOUND.contains(action) && !ControlScheme.LOCKED_TURRET_ONLY.contains(action)
+                    && !ControlScheme.MATCH_ONLY.contains(action);
             assertEquals(action.toString(), bound, layout.containsKey(action));
         }
     }
@@ -108,6 +109,56 @@ public class ControlSchemeTest {
                 assertFalse(input + " looks like " + forbidden, name.toUpperCase().matches(".*\\b" + forbidden + "\\b.*"));
             }
         }
+    }
+
+    @Test
+    public void theDriverOwnsEveryShot() {
+        for (boolean locked : new boolean[] {true, false}) {
+            Map<Action, Input> match = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, locked, true);
+            assertFalse("the operator has no fire button in a match", match.containsKey(Action.FIRE));
+            assertEquals(Input.CIRCLE, match.get(Action.CHASSIS_AIM));
+            for (Map.Entry<Action, Input> entry : match.entrySet()) {
+                if (entry.getKey().pad == Action.Pad.OPERATOR && entry.getValue() == Input.CIRCLE) {
+                    assertEquals("the operator's Circle is only the fine-trim modifier", Action.FINE_TRIM, entry.getKey());
+                }
+            }
+        }
+        // The bench keeps it: Bench: Launch Test runs the operator's layout on one pad.
+        assertEquals(Input.CIRCLE, ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).get(Action.FIRE));
+    }
+
+    @Test
+    public void theOperatorsCircleIsTheFineTrimModifierAndNeverAFire() {
+        for (boolean locked : new boolean[] {true, false}) {
+            for (boolean spot : new boolean[] {true, false}) {
+                Map<Action, Input> match = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, locked, spot);
+                assertEquals(Input.CIRCLE, match.get(Action.FINE_TRIM));
+                assertFalse(match.containsKey(Action.FIRE));
+                // No input twice on one pad in the match layout either.
+                Map<String, Action> seen = new java.util.HashMap<>();
+                for (Map.Entry<Action, Input> entry : match.entrySet()) {
+                    String key = entry.getKey().pad + "/" + entry.getValue();
+                    Action other = seen.put(key, entry.getKey());
+                    assertNull(key + " is both " + other + " and " + entry.getKey(), other);
+                }
+            }
+        }
+        // The bench has no fine trim: its Circle is its fire.
+        assertFalse(ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).containsKey(Action.FINE_TRIM));
+    }
+
+    @Test
+    public void theTurretModeIsTheDriversR1() {
+        assertEquals(Action.Pad.DRIVER, Action.TURRET_LOCK.pad);
+        Map<Action, Input> aiming = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, false, true);
+        assertEquals(Input.R1, aiming.get(Action.TURRET_LOCK));
+        for (Map.Entry<Action, Input> entry : aiming.entrySet()) {
+            if (entry.getKey().pad == Action.Pad.OPERATOR) {
+                assertFalse("the operator's Triangle does nothing: " + entry.getKey(), entry.getValue() == Input.TRIANGLE);
+            }
+        }
+        // A turret locked forward by config has no mode: R1 is not bound and not listed.
+        assertFalse(ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true, true).containsKey(Action.TURRET_LOCK));
     }
 
     @Test
