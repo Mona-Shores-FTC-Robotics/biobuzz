@@ -170,7 +170,7 @@ public class TurretSubsystem implements Subsystem {
     public static boolean lockedForward = true;
 
     /**
-     * The firing arc ({@link TurretArc}): how far left of its 0 the turret may point and still fire
+     * The firing arc ({@link TurretArc}): how far left of the arc's centre (0, or in the TeleOp the aim trim) the turret may point and still fire
      * clear of the robot, degrees. Behind the arc it holds at the edge and a fire button does not
      * feed. 90 on both robots is the mentor's judgement (18 Nov 2026: the turret is good across
      * ±90°), not a hand measurement; measuring it is optional (doc/robot-todo.md, the turret arc),
@@ -221,6 +221,8 @@ public class TurretSubsystem implements Subsystem {
     /** The aim asked for before the arc, and the arc edge held instead of it (NaN: inside the arc). */
     private double askedDeg = Double.NaN;
     private double arcEdgeDeg = Double.NaN;
+    /** The firing arc's centre, degrees in this turret's frame: the operator's aim trim ({@link TurretArc}). */
+    private double arcCentreDeg = 0.0;
 
     private long counts;
     private long zeroCounts;
@@ -325,7 +327,7 @@ public class TurretSubsystem implements Subsystem {
         }
         // Behind the firing arc the turret holds at the edge, still, and does not chase round the back.
         askedDeg = deg;
-        double hold = TurretArc.hold(deg, arcEdgeDeg);
+        double hold = TurretArc.hold(deg, arcEdgeDeg, arcCentreDeg);
         arcEdgeDeg = hold == deg ? Double.NaN : hold;
         targetDeg = hold;
         targetRateDps = hold != deg || Double.isNaN(rateDps) ? 0.0 : rateDps;
@@ -335,6 +337,20 @@ public class TurretSubsystem implements Subsystem {
     /** Hold {@code deg} from home, a target that stands still on the chassis. */
     public void aim(double deg) {
         aim(deg, 0.0);
+    }
+
+    /**
+     * Centre the firing arc on {@code deg}, this turret's frame: the TeleOp's aim trim, which is where
+     * the robot's real forward reads when the zero is off ({@link TurretArc}). NaN is 0. It applies
+     * from the next {@link #aim}; an Auto never sets it.
+     */
+    public void arcCentre(double deg) {
+        arcCentreDeg = Double.isNaN(deg) ? 0.0 : deg;
+    }
+
+    /** The firing arc's centre, degrees in this turret's frame. */
+    public double arcCentreDegrees() {
+        return arcCentreDeg;
     }
 
     /** Hold straight ahead. */
@@ -452,7 +468,7 @@ public class TurretSubsystem implements Subsystem {
             rateDps = encoderRateDps;
         }
         errorDeg = !lockedForward && mode == Mode.HOLD
-                ? TurretArc.errorDeg(targetDeg, angleDeg) : Double.NaN;
+                ? TurretArc.errorDeg(targetDeg, angleDeg, arcCentreDeg) : Double.NaN;
 
         // Locked, the turret holds 0 whatever was asked; the loop is the same one.
         boolean holding = (lockedForward || mode == Mode.HOLD) && faultNote == null && zeroed && encoder != null;
@@ -463,7 +479,7 @@ public class TurretSubsystem implements Subsystem {
             // Inside the firing arc the way there never crosses the back (TurretArc.errorDeg).
             power = TurretServoControl.power(lockedForward
                             ? TurretServoControl.shortestErrorDeg(want, encoderAngleDeg)
-                            : TurretArc.errorDeg(want, encoderAngleDeg),
+                            : TurretArc.errorDeg(want, encoderAngleDeg, arcCentreDeg),
                     encoderRateDps, wantRate, gains);
         }
         if (!started) {

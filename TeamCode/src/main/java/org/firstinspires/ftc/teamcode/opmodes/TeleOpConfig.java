@@ -59,11 +59,12 @@ public final class TeleOpConfig {
     public static double trimFineStepDeg = 0.5;
 
     /**
-     * The most aim trim the D-pad can set, degrees either way (mentor, 18 Nov 2026: on 20245 a
-     * run's presses took it to +92.5° and Circle was refused about 40 times). A press past it
-     * stops at it. Clamped to [0, 45]; NaN or negative is the default, 15.
+     * The most aim trim the D-pad can set, degrees either way. 180 (mentor, 18 Nov 2026): the trim
+     * also corrects a turret zeroed off its mark, of any size, and the firing arc is centred on it
+     * ({@code TurretArc}). A press past it stops at it. Clamped to [0, 180]; NaN or negative is
+     * the default, 180.
      */
-    public static double maxAimTrimDeg = 15.0;
+    public static double maxAimTrimDeg = 180.0;
 
     /**
      * The launcher's speed when it idles (toggled off, or a Square press's keep-spinning time is
