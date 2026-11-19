@@ -448,8 +448,9 @@ public abstract class RobotOpMode extends OpMode {
             robot.drive.setPose(declaredStart.pose);
         }
         // An Auto always starts with the lane full of POLLEN; anything else starts it empty. An
-        // Auto's INIT also holds the FLOWER stick in and the gate closed (R103.B); a TeleOp's moves
-        // nothing, since it runs between AUTO and TELEOP (G403).
+        // Auto's INIT also holds the FLOWER stick in, the gate closed and the turret zeroed and at
+        // its home angle (R103.B); a TeleOp's moves nothing, since it runs between AUTO and TELEOP
+        // (G403).
         if (isAutonomous()) {
             robot.colorSensor.lane().fill(LaneTracker.Piece.POLLEN, LaneTracker.AUTO_PRELOAD);
             robot.holdForAutoInit();
@@ -715,7 +716,8 @@ public abstract class RobotOpMode extends OpMode {
             }
         }
         log.event("PLAY: " + setup.alliance() + " alliance");
-        // The turret is assumed at home at the start of a match; a person's zero or an Auto's wins.
+        // The turret is assumed at home at the start of a match; a person's zero, an Auto's INIT
+        // zero or one carried from the Auto wins, and is not taken again here.
         if (TurretZeroPolicy.atPlay(robot.turret.zeroed()) == TurretZeroPolicy.Action.ZERO_HERE) {
             robot.turret.zeroAtPlay();
         }

@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  * powered movement between AUTO and TELEOP, when the TeleOp is INIT'd).
  *
  * <p>The one exception is an Autonomous's INIT ({@code Robot.holdForAutoInit()}, R103.B): the FLOWER
- * stick held in and the gate held closed. Those tests run it, and
+ * stick held in, the gate held closed and the turret zeroed and held at its home angle. Those tests run it, and
  * {@link #onlyAnAutonomousInitHoldsAnything()} checks that nothing else can ask for it.
  *
  * <p>Each subsystem runs on recording fakes of its devices. A subsystem that looks up hardware is
@@ -169,6 +169,56 @@ public class InitMovesNothingTest {
                 Arrays.asList("setPower(" + TurretSubsystem.pwmStep(TurretSubsystem.servoStopPower) + ")",
                         "setPwmEnable()"),
                 devices.calls(DeviceNames.TURRET));
+    }
+
+    @Test
+    public void turretZeroedAndHeldAtItsHomeAngleDuringAnAutosInit() {
+        double offset = TurretSubsystem.aimOffsetDeg;
+        boolean locked = TurretSubsystem.lockedForward;
+        try {
+            for (boolean lockedForward : new boolean[] {false, true}) {
+                TurretSubsystem.lockedForward = lockedForward;
+                TurretSubsystem.aimOffsetDeg = 6.0;
+                Devices devices = new Devices().motor(DeviceNames.TURRET_ENCODER_HOST).crServo(DeviceNames.TURRET);
+                TurretSubsystem turret = new TurretSubsystem(devices.map);
+                turret.initialize();
+                turret.holdAtInit();
+                assertTrue(turret.zeroed());
+                assertEquals(TurretSubsystem.ZeroSource.INIT, turret.zeroSource());
+                for (int i = 0; i < INIT_LOOPS; i++) {
+                    turret.update();
+                }
+                List<String> calls = devices.calls(DeviceNames.TURRET);
+                assertFalse("locked " + lockedForward + ": held at INIT, so the servo is written", calls.isEmpty());
+                assertTrue("locked " + lockedForward + ": the pulse is switched on", calls.contains("setPwmEnable()"));
+                // On its mark the turret reads -6 from its home angle (6 round from the mark): it is
+                // driven counter-clockwise toward it, not left at the stop.
+                double first = Double.parseDouble(calls.get(0).substring("setPower(".length(), calls.get(0).length() - 1));
+                double stop = TurretSubsystem.pwmStep(TurretSubsystem.servoStopPower);
+                int sign = TurretSubsystem.servoDirection == -1 ? -1 : 1;
+                assertTrue("locked " + lockedForward + ": driven toward the offset, not at the stop: " + calls.get(0),
+                        (first - stop) * sign > 0.0);
+
+                // PLAY keeps the INIT zero: the handoff to the TeleOp carries it.
+                long zero = turret.zeroCounts();
+                turret.start();
+                turret.zeroAtPlay();
+                assertEquals(TurretSubsystem.ZeroSource.INIT, turret.zeroSource());
+                assertEquals(zero, turret.zeroCounts());
+
+                // A person's zero still wins.
+                turret.zeroHere();
+                assertEquals(TurretSubsystem.ZeroSource.HAND, turret.zeroSource());
+
+                // The next OpMode's INIT (a TeleOp's) holds nothing: initialize() clears the hold.
+                devices.clear();
+                runInit(turret, devices);
+                assertFalse(turret.zeroed());
+            }
+        } finally {
+            TurretSubsystem.aimOffsetDeg = offset;
+            TurretSubsystem.lockedForward = locked;
+        }
     }
 
     @Test

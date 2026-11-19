@@ -19,10 +19,11 @@ public class TurretZeroPolicyTest {
     }
 
     @Test
-    public void anAutonomousNeverTakesAnotherAutosZero() {
-        // A match starts at an Auto: the turret is assumed at home, whatever the last run left.
-        assertEquals(Action.NOTHING, TurretZeroPolicy.atInit(true, true));
-        assertEquals(Action.NOTHING, TurretZeroPolicy.atInit(true, false));
+    public void anAutonomousZeroesAtInitAndNeverTakesAnotherAutosZero() {
+        // A match starts at an Auto: the turret is assumed on its mark at INIT (19 Nov 2026), whatever
+        // the last run left, and holds its home angle from there.
+        assertEquals(Action.ZERO_HERE, TurretZeroPolicy.atInit(true, true));
+        assertEquals(Action.ZERO_HERE, TurretZeroPolicy.atInit(true, false));
     }
 
     @Test

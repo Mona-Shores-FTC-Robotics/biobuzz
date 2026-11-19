@@ -325,6 +325,14 @@ section, not on master); this is that section.
       and the gate closes, then both stay still until PLAY (G304.H), and the preloads stay behind
       the plate. Then INIT Basic Drive with the stick out by hand: **nothing moves** (G403). On
       19429 too: its stick is in at 0.06, not 20245's 0.6.
+- [ ] **Auto INIT zeroes the turret and holds it at its home angle** (the Auto-INIT turret PR).
+      Turret on its home mark, INIT any Auto. **Good:** the turret turns to `aimOffsetDeg` from the
+      mark (20245 6° once #633 merges, 19429 5°; a locked-forward turret holds the mark) and
+      holds there, still, until PLAY; the Robot page says "zeroed at the Auto's INIT"; PLAY does not
+      move it again. Turned 20° off the mark by hand and INIT again: it holds 20° off the right place
+      (the zero is wherever it sat), so re-seat it on the mark and INIT once more, and it is right.
+      Then INIT Basic Drive after the Auto: the turret does **not** move in INIT (G403), and keeps
+      the Auto's zero.
 - [ ] **L-NoCross on Red far wall.** Same pass and fail.
 - [ ] **R-Solo on Red far wall.** **Good:** "On Red far wall, not this Auto's start · … or move to
       Red audience", "No alliance" above it. Press Circle (red): "move to" still says Red audience.

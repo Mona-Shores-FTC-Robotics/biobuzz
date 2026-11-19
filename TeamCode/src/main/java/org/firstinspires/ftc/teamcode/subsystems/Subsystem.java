@@ -51,7 +51,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
  *
  * <p>R103.B allows an OpMode to hold the 18 in starting size with servos at INIT. We use it in an
  * Autonomous's INIT only ({@code Robot.holdForAutoInit()}: the FLOWER stick in, the feed gate
- * closed). Never in a TeleOp's: that INIT runs after an Auto, where it would be a G403 foul. Any
+ * closed, the turret zeroed on its mark and held at its home angle). Never in a TeleOp's: that INIT runs after an Auto, where it would be a G403 foul. Any
  * other mechanism that leaves the starting size unpowered gets a mechanical stop or latch (R103.A). The indicator light is
  * on a servo port but moves nothing, so it lights during INIT. {@code InitMovesNothingTest}
  * checks the mechanisms.

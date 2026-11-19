@@ -507,7 +507,9 @@ is; turret code asks for that motor and reads only its encoder, and nothing
 but the turret code may reset its count. The count is relative: zero
 wherever the encoder sat at hub power-up, kept across OpModes while the hub
 stays on. Nobody has to remember to zero it: the match-start rule is that the
-turret sits at its home mark, so it zeroes where it stands at PLAY, and a TeleOp
+turret sits at its home mark, so an Autonomous zeroes it where it stands at INIT
+and holds it at its home angle until PLAY (so a turret off its mark shows at
+INIT: re-seat it and INIT again), a TeleOp with no Auto before it zeroes at PLAY, and a TeleOp
 that follows an Autonomous (or a TeleOp restarted after a crash) takes the earlier zero instead, through `Handoff`
 (the count is still good, and the Auto may have turned the turret away from
 home; zeroing at PLAY there would call that spot home). A person pressing the
@@ -548,8 +550,9 @@ would spin the turret for ever and an unplugged encoder would drive it blind.
 and turning the other, or driven hard and not turning, drops the hold (limp)
 and says which on the Robot page; the next request tries again.
 
-Before PLAY the servo is never written (limp), so the drive team sets the
-turret at home by its mark, and it holds from the zero at PLAY. Where the
+Before PLAY the servo is not written (limp) except in an Autonomous's INIT
+(R103.B, `Robot.holdForAutoInit()`), so the drive team sets the turret at home
+by its mark: an Auto zeroes and holds it from INIT, a TeleOp from the zero at PLAY. Where the
 shots go straight ahead need not be where the mark points:
 `TurretSubsystem.aimOffsetDeg` is that angle, counter-clockwise from the mark,
 per robot (a `RobotDifferences` line; 0 on both today), and every angle the turret holds
