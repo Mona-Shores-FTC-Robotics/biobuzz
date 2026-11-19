@@ -48,7 +48,7 @@ import java.util.Locale;
  * bench is to run each motor on its own. {@link #feedOnlyAtSpeed} is off by default and in Panels
  * for anyone who wants the robot's behaviour back.
  *
- * <p>Standalone diagnostics, like {@code OctoQuadBench}: the exception CLAUDE.md allows for rigs.
+ * <p>Standalone diagnostics: the exception CLAUDE.md allows for rigs.
  */
 @Disabled // The bench rig is being dismantled (mentor, 2 Nov 2026); Launch Test covers the robot. Delete with the Y_CABLED paths when it is gone.
 @Utility(name = "Bench: Launcher", description = "The launcher and feeder on a bench hub: speeds, powers, directions, graphs")
