@@ -94,15 +94,15 @@
         },
         {
           "x": 57,
-          "y": 108
+          "y": 112
         },
         {
-          "x": 40,
-          "y": 110
+          "x": 42,
+          "y": 119
         },
         {
           "x": 26,
-          "y": 112
+          "y": 119
         }
       ],
       "heading": {
@@ -120,15 +120,15 @@
             },
             {
               "startProgress": 0.05,
-              "endProgress": 0.72,
+              "endProgress": 0.68,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 90
               }
             },
             {
-              "startProgress": 0.72,
-              "endProgress": 0.95,
+              "startProgress": 0.68,
+              "endProgress": 0.85,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
@@ -136,7 +136,7 @@
               }
             },
             {
-              "startProgress": 0.95,
+              "startProgress": 0.85,
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
@@ -1064,6 +1064,18 @@
                 "timeoutS": 1
               },
               {
+                "id": "c-r-hold",
+                "kind": "firstOf",
+                "label": "Hold at RIGHT_AUTO_HIVE, out of L's way, until the park needs the time",
+                "rows": [
+                  {
+                    "afterMs": 29000,
+                    "matchClock": true,
+                    "cards": []
+                  }
+                ]
+              },
+              {
                 "id": "c-r-up",
                 "kind": "path",
                 "lineId": "r-ru-up",
@@ -1148,10 +1160,10 @@
     ],
     "parkFrom": {
       "c-r-open": "r-ru-wait-park",
-      "c-r-garden": "r-ru-wait-park",
-      "c-r-back": "r-ru-garden-park",
-      "c-r-up": "r-ru-wait-park",
-      "c-r-up-fix": "r-ru-wait-park",
+      "c-r-garden": "r-ru-garden-park",
+      "c-r-back": "r-ru-wait-park",
+      "c-r-up": "r-ru-exit-park",
+      "c-r-up-fix": "r-ru-exit-park",
       "c-r-fix": "r-ru-exit-park-2"
     },
     "teamSpots": [
