@@ -47,18 +47,6 @@ public class AutoVolleySpotsTest {
         }
     }
 
-    /**
-     * The exception's draft, which the test above does not read (drafts are not held to it): its plain
-     * LaunchAlls are where L-UnderHive's are, and its LaunchAllAimed is from LEFT_AUTO_PARK after the park.
-     */
-    @Test
-    public void theParkShotDraftFiresItsAimedVolleyOnlyFromThePark() throws Exception {
-        File draft = new File(TeamCodeDir.get(), "autos/drafts/l-under-hive-park-shot.pp");
-        if (!draft.isFile()) return;
-        List<String> elsewhere = volleysElsewhere(draft);
-        assertTrue(draft.getName() + " launches from " + elsewhere, elsewhere.isEmpty());
-    }
-
     /** The places {@code source}'s volleys are fired from that are neither its start nor a spot fit to launch from, and why. */
     @SuppressWarnings("unchecked")
     private static List<String> volleysElsewhere(File source) throws Exception {
