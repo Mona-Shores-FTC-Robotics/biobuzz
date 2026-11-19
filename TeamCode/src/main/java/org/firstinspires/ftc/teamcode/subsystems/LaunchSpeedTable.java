@@ -48,6 +48,9 @@ import com.bylazar.configurables.annotations.Configurable;
  * history; both robots' offsets went to 0 with them, since 19429's −25 against the old rows is the
  * new rows within about 5 ticks/s from 42 to 55 in.
  *
+ * <p><b>Lowered on 19 Nov 2026</b> (mentor, after R-Solo on 20245 shot high): 48 → 1505 (was
+ * 1515), 51 → 1520 (was 1540), 55 → 1550 (was 1570). The other rows are unchanged.
+ *
  * <p><b>Measured</b> on 20245 on 4 Nov 2026, with the launcher PIDF tuned that night, each range the
  * robot showed ({@code last_shot_range_in}) and the speed the drive team picked as scoring well:
  * RIGHT_LAUNCH_CATCH 39 in (38.6–39.2) at 1520, RIGHT_LAUNCH_OFFSET 42.3 in at 1560, RIGHT_START
@@ -130,15 +133,15 @@ public final class LaunchSpeedTable {
     /** As row 1. */
     public static double row6RangeIn = 48.0;
     /** As row 1. */
-    public static double row6TicksPerSecond = 1515.0;
+    public static double row6TicksPerSecond = 1505.0;
     /** As row 1. */
     public static double row7RangeIn = 51.0;
     /** As row 1. */
-    public static double row7TicksPerSecond = 1540.0;
+    public static double row7TicksPerSecond = 1520.0;
     /** As row 1. */
     public static double row8RangeIn = 55.0;
     /** As row 1. */
-    public static double row8TicksPerSecond = 1570.0;
+    public static double row8TicksPerSecond = 1550.0;
     /** As row 1. */
     public static double row9RangeIn = 58.0;
     /** As row 1. */
