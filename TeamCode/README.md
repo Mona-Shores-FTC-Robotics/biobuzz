@@ -1265,7 +1265,7 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   - `CollectSeen` now reaches a piece with the real robot's intake, which takes on contact: its chase used to
     stop a path's last 4 in short of the piece.
   - A stand-in whose class name has `Stage` sets its 4 preloads along its left side at its own start
-    (`partner-l-stage-leave-park` is the one that then only parks); `StageFront` sets them across its front.
+    (`partner-l-stage-park` waits 2 s, then drives off and parks, leaving them); `StageFront` sets them across its front.
   - `StreamOn` with `BIOBUZZ_AUTO_DESIGN_SET="compensatesMotion=true"` is launching while moving: the shot is
     led for the robot's own speed. **Placeholder:** the lead is perfect, and a moving shot stays in as often
     as a standing one from that range. Without the lead the robot's speed is added to the ball and most miss.

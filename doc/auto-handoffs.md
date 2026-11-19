@@ -1,5 +1,8 @@
 # Auto handoff notes, 16 Nov 2026
 
+> The drafts and stand-ins this names were removed from `TeamCode/autos/` on 19 Nov 2026 (mentor: a small
+> set of drafts); they are in Git history at `f2c9bb7`.
+
 On 16 Nov 2026 the mentor set the Auto baseline (R-Solo, R-NoCross, L-NoCross, R-Clockwise,
 L-Clockwise), retired the Infraviolet pair, and asked every chat then working on an Auto to stop
 and write down what a fresh chat would need. These are those notes, as each chat sent them, lightly

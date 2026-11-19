@@ -136,12 +136,7 @@ reference. Keep both turrets locked; do not spend this session tuning benched Au
    fire if it comes, park) or CROSS AND FIX IT (wall side to `LEFT_AUTO_OFFSET`, fire at
    the LEFT CELL if it is still up, park on `RIGHT_PARK`). Check CROSS AND FIX IT's crossing
    clears the HIVE's feet and a partner parked on `LEFT_PARK`, and that both park by 30 s.
-3. **R-Solo-Nudge** (`autos/drafts/r-solo-nudge.pp`). Open it together with
-   `autos/partners/partner-push-start.pp` to see the pushed robot. Physically measure
-   the push, legal starting contact, PARK overlap, clearance and time cost (§3).
-   Target two TIPs and both AUTO PARKs; the current draft is not qualified and has no
-   OpMode. A match partner with no motion still uses an initialized OpMode.
-4. **R-Clockwise / L-Clockwise.** The coordinated pair (§3). The Infraviolet pair was retired
+3. **R-Clockwise / L-Clockwise.** The coordinated pair (§3). The Infraviolet pair was retired
    on 16 Nov 2026.
 
 - [ ] **After loading the lineup cleanup:** the Driver Station's Autonomous menu has
@@ -200,7 +195,7 @@ Each line: what to do · **Good:** what passing looks like · **Stop:** when to 
 record · source. `S4 §2` means `doc/robot-session-4.md`, "At the robot", step 2.
 
 20245 throughout unless a line says 19429. The selectable Autos are R-Solo, R-NoCross and L-NoCross.
-R-Solo-Nudge remains a draft; benched Autos are not deployment choices.
+Benched Autos are not deployment choices.
 Starts: **Red audience** (`RIGHT_START`, tile C1) for the R- Autos, **Red far wall** (`LEFT_START`,
 tile C6) for L-NoCross. Place by the marks, never by the camera.
 
@@ -666,43 +661,6 @@ Use the work order above to select checks; the detailed mechanism checks below a
       lines from the same runs with `launchOnApproach` off. **Good:** X under 0.3 s (was 0.38–0.57),
       and hits as good as before. **Stop:** misses → `PathEndSettle.slowSpeedInPerSec` 3.
       [PR #430]
-- [ ] **Angled nudge with the dummy chassis — Utility `Drive: Partner Nudge`.** **Shelved 18 Nov 2026:** its Utility trial is off the Driver Station (the event lineup); bring it back from Git history before this check.
-      Sloth Load the nudge-test branch/PR; the three competition Autos stay as they are.
-      [Setup drawing](nudge-test-setup.svg). Red frame: a **16 x 16 in** partner centre
-      at **(10.254, 82.000), heading 70°**, one corner on the alliance wall and its
-      whole body outside the loading zone. Place our centre at **(11.754, 64.193),
-      heading 250°**, rear bumpers parallel, nominal **0.5 in gap and 8.5 in overlap**.
-      Our rear bumper pushes; our front points away from the partner. Measure the
-      dummy and our actual bumper envelope first. If they differ from the drawing,
-      adjust the `.pp` geometry and export before trying contact; these are not size presets.
-      Blue uses the same setup rotated 180° about field centre.
-      - **6 Nov runs never moved** (4 in/s and 8 in/s² cap, too little power to start the robot).
-        The cap also stayed on after STOP and stalled later paths until the app restarted. Both
-        are fixed: a `maxPathSpeed` fraction, and the cap cleared whenever a path ends. Still,
-        **after any nudge run, drive R-Solo once before trusting the next Auto.** [PR #492]
-      - First run without the dummy to check direction, the six-inch stroke and retreat.
-        Choose alliance in INIT, then PLAY. Default Panels `PartnerNudgeTest` settings:
-        **pathSpeed=0.2** (fraction of top speed, 0.1–0.5), **timeoutSeconds=8**, captured at
-        PLAY. STOP and re-INIT to repeat after resetting both robots. **Measure `pathSpeed`
-        here:** the lowest value that starts the robot and runs the stroke. If 0.2 doesn't
-        move it, try 0.3, then 0.35 (the FLOWER push's slowest known-good). Write the value
-        that works in the log/notes and set it as the default in a PR.
-      - Put the dummy back, with solid bumper contact and wheels free to roll. Run the
-        same short test. **Good:** partner enters the loading zone and ends visibly
-        off the wall, push is gentle, and retreat separates cleanly. The calculated
-        1.88 in wall gap / 5.17 in upfield movement assumes no rotation: measure both.
-        Record actual dimensions, wheel/brake behavior, final wall gap, park overlap,
-        rotation and measured speed in the log/video; repeat from the same marks.
-      - **Stop:** hard initial contact, wheel slip, snagging, unexpected rotation,
-        or timeout. The test cancels and releases the drive at 8 s; it does not keep
-        holding the push endpoint. A speed cap is not a force cap.
-        Change one setup or speed variable at a time; do not lengthen a blocked push.
-      - Once repeatable, try with our normal four-piece load and then integrate the
-        measured maneuver in **Drive: R-Solo-Nudge**, the full Utility with scoped
-        contact limits. Its preview is not a qualified robot run.
-        Two TIPs and double park, followed by 17/18 in partner presets, come after this test.
-      [Draft and Utility details](../TeamCode/autos/drafts/README.md#first-floor-test-drive-partner-nudge)
-
 - [ ] **Clockwise pair: R-Clockwise beside L-Clockwise.**
       [The plan, the stops, the times and the simulator's tables](../TeamCode/autos/clockwise.md). Not yet
       driven as a pair. Run with the DS AUTO
@@ -835,28 +793,6 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - **If R goes on while L is on the right side:** R5 and R4 overlap, and R passes the GARDEN
         as L leaves it. **Stop the run** if they are closing, and note the match second.
       - Film each paired run from the side.
-- [ ] **R-Two-Tip draft (`autos/drafts/r-two-tip.pp`): R-Solo's steps from the measured LEFT spot.**
-      [Why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-two-tip-r-solos-steps-fired-from-the-measured-left-spot).
-      Run it from the Utility **Drive: R-Two-Tip** (it stops itself at 30 s). **Shelved 18 Nov 2026:** its Utility trial is off the Driver Station (the event lineup); bring it back from Git history before this check.
-      - Five runs alone, filmed from the side, partner off `LEFT_START`. Count the pieces that
-        stay in the LEFT CELL from each LEFT volley, and the TIPs. **Good:** 8 of 8 stay in on
-        most runs. This is
-        also the count the Belding review asked for on R-Solo.
-      - **The third volley must run.** Master's guard parks without it when the second volley
-        ends after about 16.8 s (the calibrated simulator: 15.8 s). Read the card times from
-        each run's log (`read_logs.py summary`). **Stop:** `parking now` after the second
-        volley → note when that volley ended; the guard's numbers (`LAUNCH_ALL_TYPICAL_S`,
-        `PICK_FLOWER_TYPICAL_S`) need measuring again.
-      - **`LEFT_LAUNCH_OFFSET`, the last volley's spot,** has not been fired from on the left.
-        Hold Square there first and count: **Good:** 3 or 4 of 4 stay in.
-      - **Count what each volley fires** (`read_logs.py volleys` on each run's log, and the film):
-        at Belding R-Solo's two LEFT volleys never fired 8 between them, and Infrared's loads
-        came up short on both FLOWERs. **Good:** 4 fired after every pick. **Stop:** fewer →
-        film where the pieces stop (FLOWER, intake, lane, feed) before anything else
-        (`doc/one-robot-two-tips.md` lists the other measurements).
-      - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
-        piece leaves the robot and the camera sights the LEFT CELL before the stop.
-      [mentor session, 10 Nov]
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
 The pick-depth session. Procedure and tables: [S5 At the robot]. The student version of the same
@@ -1811,16 +1747,4 @@ one test at one meeting.
 [#255]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/255
 [#261]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/261
 
-### Full Solo-Nudge lab run
-
-**Shelved 18 Nov 2026:** its Utility trial is off the Driver Station (the event lineup); bring it back from Git history before this check.
-
-- [ ] Load master with the full nudge trial; select **Drive: R-Solo-Nudge**.
-  Normal RIGHT_START, four preloads, the same angled 16x16 dummy placement, chosen
-  alliance. Keep **Drive: Partner Nudge** available for push-only setup checks.
-  Film one complete run and collect its log: fourth-shot completion, gentle contact,
-  partner park/wall clearance, second tip and our park before the 30 s stop.
-  Contact approach and push use `PartnerNudgeTest.pathSpeed`, read at INIT; set it
-  first with **Drive: Partner Nudge**. A blocked contact stops after six seconds.
-  After the run, drive R-Solo once to confirm normal paths are at full speed. [PR #492]
 [#504]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/504

@@ -1,5 +1,8 @@
 # Three AUTO TIPs: can one robot do it, and what must a partner do (11 Nov 2026, study)
 
+> The drafts and stand-ins this names were removed from `TeamCode/autos/` on 19 Nov 2026 (mentor: a small
+> set of drafts); they are in Git history at `f2c9bb7`.
+
 A study for the mentor, run in the simulator set to the Belding Qualifier (`BeldingCalibration`;
 TeamCode/README.md, "Simulating an Auto"), 120 seeds a row, both Belding HIVE fields, master's
 endgame guard. It builds on [`one-robot-two-tips.md`](one-robot-two-tips.md) and
