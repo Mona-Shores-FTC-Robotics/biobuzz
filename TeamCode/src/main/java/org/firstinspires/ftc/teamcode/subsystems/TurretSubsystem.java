@@ -192,6 +192,7 @@ public class TurretSubsystem implements Subsystem {
         NONE("not zeroed yet"),
         HAND("zeroed by hand"),
         PLAY("zeroed at PLAY, assumed at home"),
+        INIT("zeroed at the Auto's INIT, assumed at home"),
         AUTO("zero carried from the Auto");
 
         public final String text;
@@ -216,6 +217,8 @@ public class TurretSubsystem implements Subsystem {
 
     private Mode mode = Mode.IDLE;
     private boolean started;
+    /** An Autonomous's INIT: zeroed there and held at home before PLAY ({@link #holdAtInit()}). */
+    private boolean initHold;
     private double targetDeg;
     private double targetRateDps;
     /** The aim asked for before the arc, and the arc edge held instead of it (NaN: inside the arc). */
@@ -267,6 +270,24 @@ public class TurretSubsystem implements Subsystem {
         zeroCounts = counts;
         zeroed = true;
         zeroSource = ZeroSource.HAND;
+    }
+
+    /**
+     * An Autonomous's INIT (R103.B, through {@code Robot.holdForAutoInit()} only): the turret is
+     * assumed on its home mark, so it zeroes here ({@link TurretZeroPolicy#atInit}) and holds 0,
+     * {@link #aimOffsetDeg} round from the mark, from now until PLAY and on. The drive team then sees
+     * at INIT that it sits right; a wrong angle means it was not on its mark: re-seat it and INIT
+     * again, which zeroes again. A turret {@link #lockedForward} holds 0 the same way. A person's
+     * zero button still wins, and PLAY does not zero on top of this one.
+     */
+    public void holdAtInit() {
+        if (TurretZeroPolicy.atInit(true, false) == TurretZeroPolicy.Action.ZERO_HERE) {
+            zeroCounts = counts;
+            zeroed = true;
+            zeroSource = ZeroSource.INIT;
+        }
+        home();
+        initHold = true;
     }
 
     /** At PLAY: the turret is assumed at home, so zero here unless a person or the handoff already did. */
@@ -407,7 +428,7 @@ public class TurretSubsystem implements Subsystem {
         return askedDeg;
     }
 
-    /** Whether a zero has been taken (by hand, at PLAY or from the Auto) since this OpMode started. */
+    /** Whether a zero has been taken (by hand, at an Auto's INIT, at PLAY or from the Auto) since this OpMode started. */
     public boolean zeroed() {
         return zeroed;
     }
@@ -423,12 +444,14 @@ public class TurretSubsystem implements Subsystem {
      * Idle, angle relative to wherever it sits until a zero is taken. The servo is not written
      * until PLAY: unwritten it is limp, since nothing may move or be held by a servo before PLAY
      * (G304.H, G403; see {@link Subsystem}). So the drive team sets the turret at home by its mark
-     * in INIT, it is zeroed there at PLAY, and from then the loop holds it.
+     * in INIT, it is zeroed there at PLAY, and from then the loop holds it. An Autonomous's INIT is
+     * the exception: {@link #holdAtInit()} zeroes it and holds it from INIT.
      */
     @Override
     public void initialize() {
         mode = Mode.IDLE;
         started = false;
+        initHold = false;
         refreshSettings();
         counts = hostSign(encoderHost.getDirection()) * (long) encoderHost.getCurrentPosition();
         zeroCounts = counts;
@@ -482,7 +505,8 @@ public class TurretSubsystem implements Subsystem {
                             : TurretArc.errorDeg(want, encoderAngleDeg, arcCentreDeg),
                     encoderRateDps, wantRate, gains);
         }
-        if (!started) {
+        // Before PLAY the servo is not written, unless an Autonomous's INIT holds it (holdAtInit).
+        if (!started && !initHold) {
             return;
         }
         if (Double.isNaN(power)) {

@@ -10,7 +10,9 @@ package org.firstinspires.ftc.teamcode.subsystems;
  * <ul>
  *   <li><b>A person pressing the zero button always wins</b>, at any time.</li>
  *   <li><b>An Autonomous starts a match</b>, so the turret is assumed at home and zeroes where it
- *       stands at PLAY.</li>
+ *       stands at INIT (mentor, 19 Nov 2026), then holds its home angle until PLAY, so the drive
+ *       team sees at INIT whether it sat on its mark. INIT again zeroes again; PLAY keeps it, and the
+ *       TeleOp after it takes it.</li>
  *   <li><b>A TeleOp that follows an Autonomous</b> (a fresh handoff, see {@code Handoff}) takes the
  *       Auto's zero, because the count is still good and the turret may be turned from wherever the
  *       Auto left it. Zeroing at PLAY there would call that spot home.</li>
@@ -28,9 +30,13 @@ public final class TurretZeroPolicy {
     private TurretZeroPolicy() {
     }
 
-    /** At INIT, once the handoff is known. Only a TeleOp takes an Auto's zero. */
+    /**
+     * At INIT, once the handoff is known. An Autonomous zeroes where the turret stands (assumed on
+     * its mark), whatever the last run left; only a TeleOp takes an Auto's zero.
+     */
     public static Action atInit(boolean autonomous, boolean handoffCarriesZero) {
-        return !autonomous && handoffCarriesZero ? Action.RESTORE_FROM_AUTO : Action.NOTHING;
+        if (autonomous) return Action.ZERO_HERE;
+        return handoffCarriesZero ? Action.RESTORE_FROM_AUTO : Action.NOTHING;
     }
 
     /** At PLAY: zero here unless something (a person, or the handoff) already did. */
