@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T20:40:16.456Z",
+  "timestamp": "2026-11-19T18:03:18.558Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -51,6 +51,21 @@
       }
     },
     {
+      "id": "link-1",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.4,
+        "y": 120.45
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.9
+      }
+    },
+    {
       "id": "line-mwdn0a03-lnp3c",
       "color": "#9c755f",
       "name": "after the volley to LEFT_PARK",
@@ -69,6 +84,21 @@
         "type": "linear",
         "startDeg": 268.9,
         "endDeg": 0
+      }
+    },
+    {
+      "id": "link-2",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.4,
+        "y": 120.45
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.9
       }
     },
     {
@@ -266,7 +296,15 @@
     },
     {
       "kind": "path",
+      "lineId": "link-1"
+    },
+    {
+      "kind": "path",
       "lineId": "line-mwdn0a03-lnp3c"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-2"
     },
     {
       "kind": "path",
@@ -323,9 +361,9 @@
         "Tip"
       ],
       "typicalS": {
-        "LaunchAll": 4.5,
+        "LaunchAll": 2.5,
         "PickFlower": 4,
-        "GardenGather": 5,
+        "GardenGather": 3,
         "LaunchOne": 0.5,
         "SpinUp": 0.1
       }
@@ -369,7 +407,6 @@
         "id": "c-la-wait",
         "kind": "firstOf",
         "label": "Wait for TIP or CELL up",
-        "alongside": "SpinUp",
         "rows": [
           {
             "when": [
@@ -403,11 +440,15 @@
               }
             ]
           }
-        ]
+        ],
+        "alongside": "SpinUp"
       }
     ],
     "startAt": "LEFT_START",
-    "linkPaths": [],
+    "linkPaths": [
+      "link-1",
+      "link-2"
+    ],
     "parkFrom": {
       "c-mw0c4s2s-oo8yq": "line-mw0c4s32-8noomj"
     },
