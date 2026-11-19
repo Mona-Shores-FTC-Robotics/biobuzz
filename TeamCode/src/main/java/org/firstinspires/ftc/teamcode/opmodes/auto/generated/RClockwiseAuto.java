@@ -21,7 +21,7 @@ public final class RClockwiseAuto {
     public static final String SOURCE = "r-clockwise.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|9:06PM";
+    public static final String SAVED = "11-19|4:20PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -129,59 +129,60 @@ public final class RClockwiseAuto {
         Path outsideLaneToRightPark = Paths.curve(rightAutoFixTip, outsideLaneToRightParkControl1, outsideLaneToRightParkControl2, outsideLaneToRightParkControl3, rightPark).heading(Interpolator.piecewise().until(0.7, Interpolator.constant(outsideLaneToRightParkSegment1Heading)).until(1, Interpolator.linear(outsideLaneToRightParkSegment2Start, rightPark)));
 
         return kit.sequence(
-                kit.guarded("Auto", catchParkToRightPark, 2.2,
-                        kit.command("SpinUp"),
-                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1),
-                        kit.command("LaunchAll"),
-                        kit.route("Pickup", 0, () -> kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9, flowerParkToRightPark, 2.1)),
-                        kit.route("Pickup", 0, () -> kit.command("PickFlower", 4.5)),
-                        kit.route("Pickup", 0, () -> kit.path("outside lane from the FLOWER to LEFT_AUTO_HIVE", outsideLaneFromTheFlowerToLeftAutoHive, 3, catchParkToRightPark, 2.2)),
-                        kit.route("Pickup", 1, () -> kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenParkToRightPark, 2.8)),
-                        kit.route("Pickup", 1, () -> kit.command("GardenGather", 5.5)),
-                        kit.route("Pickup", 1, () -> kit.path("outside lane from the GARDEN to LEFT_AUTO_HIVE", outsideLaneFromTheGardenToLeftAutoHive, 3.8, catchParkToRightPark, 2.2)),
-                        kit.firstOf("R2: LEFT up by 15.5 s, otherwise park",
-                                kit.when("LeftCellUp").then(
-                                        kit.guarded("If LeftCellUp", catchParkToRightPark, 2.2,
-                                                kit.command("LaunchAll", 1),
-                                                kit.firstOf("Time for the scoring FLOWER: before 17.6 s",
-                                                        kit.atMatchSeconds(17.6).then(
-                                                                kit.guarded("Timed out", catchParkToRightPark, 2.2,
-                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))),
+                kit.command("SpinUp"),
+                kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1),
+                kit.command("LaunchAll"),
+                kit.route("Pickup", 0, () -> kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9, flowerParkToRightPark, 2.1)),
+                kit.route("Pickup", 0, () -> kit.command("PickFlower", 4.5)),
+                kit.route("Pickup", 0, () -> kit.path("outside lane from the FLOWER to LEFT_AUTO_HIVE", outsideLaneFromTheFlowerToLeftAutoHive, 3, catchParkToRightPark, 2.2)),
+                kit.route("Pickup", 1, () -> kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenParkToRightPark, 2.8)),
+                kit.route("Pickup", 1, () -> kit.command("GardenGather", 5.5)),
+                kit.route("Pickup", 1, () -> kit.path("outside lane from the GARDEN to LEFT_AUTO_HIVE", outsideLaneFromTheGardenToLeftAutoHive, 3.8, catchParkToRightPark, 2.2)),
+                kit.firstOf("R2: LEFT up by 15.5 s, otherwise park",
+                        kit.when("LeftCellUp").then(
+                                kit.command("LaunchAll", 1),
+                                kit.firstOf("Time for the scoring FLOWER: before 17.6 s",
+                                        kit.atMatchSeconds(17.6).then(
+                                                kit.guarded("Timed out", catchParkToRightPark, 2.2,
+                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))),
+                                        kit.when("Always").then(
+                                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.6, scoringFlowerParkToRightPark, 1.9),
+                                                kit.command("PickFlower", 4.5),
+                                                kit.firstOf("Time to look at the HIVE from the left: before 22.2 s",
+                                                        kit.atMatchSeconds(22.2).then(
+                                                                kit.guarded("Timed out", scoringFlowerParkToRightPark, 1.9,
+                                                                        kit.path("scoring FLOWER park to RIGHT_PARK", scoringFlowerParkToRightPark, 1.9))),
                                                         kit.when("Always").then(
-                                                                kit.guarded("If Always", scoringFlowerParkToRightPark, 1.9,
-                                                                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.6, scoringFlowerParkToRightPark, 1.9),
-                                                                        kit.command("PickFlower", 4.5),
-                                                                        kit.firstOf("Time to look at the HIVE from the left: before 22.2 s",
-                                                                                kit.atMatchSeconds(22.2).then(
-                                                                                        kit.guarded("Timed out", scoringFlowerParkToRightPark, 1.9,
-                                                                                                kit.path("scoring FLOWER park to RIGHT_PARK", scoringFlowerParkToRightPark, 1.9))),
-                                                                                kit.when("Always").then(
-                                                                                        kit.guarded("If Always", outsideLaneToRightPark, 2.8,
-                                                                                                kit.path("turn to LEFT_AUTO_HIVE", turnToLeftAutoHive, 1.3, catchParkToRightPark, 2.2),
-                                                                                                kit.firstOf("R3 RIGHT up by",
-                                                                                                        kit.when("RightCellUp").then(
-                                                                                                                kit.guarded("If RightCellUp", outsideLaneToRightPark, 2.8,
-                                                                                                                        kit.route("Priority", 0, () -> kit.path("under the HIVE to RIGHT_AUTO_FIX_TIP", underTheHiveToRightAutoFixTip, 3.7, outsideLaneToRightPark, 2.8)),
-                                                                                                                        kit.route("Priority", 0, () -> kit.command("LaunchAll", 1)),
-                                                                                                                        kit.route("Priority", 0, () -> kit.path("outside lane to RIGHT_PARK", outsideLaneToRightPark, 2.8)),
-                                                                                                                        kit.route("Priority", 1, () -> kit.firstOf("L has passed: park at 26.4 s",
-                                                                                                                                kit.atMatchSeconds(26.4))),
-                                                                                                                        kit.route("Priority", 1, () -> kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2)))),
-                                                                                                        kit.atMatchSeconds(kit.seconds("R3 RIGHT up by", 23.2)).then(
-                                                                                                                kit.firstOf("LEFT CELL still up?",
-                                                                                                                        kit.when("LeftCellUp").then(
-                                                                                                                                kit.guarded("If LeftCellUp", catchParkToRightPark, 2.2,
-                                                                                                                                        kit.command("LaunchAll", 1),
-                                                                                                                                        kit.firstOf("L has passed: park at 26.4 s",
-                                                                                                                                                kit.atMatchSeconds(26.4)),
-                                                                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))),
-                                                                                                                        kit.afterMs(750).then(
-                                                                                                                                kit.guarded("Timed out", catchParkToRightPark, 2.2,
-                                                                                                                                        kit.firstOf("L has passed: park at 26.4 s",
-                                                                                                                                                kit.atMatchSeconds(26.4)),
-                                                                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2)))))))))))))),
-                                kit.atMatchSeconds(15.5).then(
-                                        kit.guarded("Timed out", catchParkToRightPark, 2.2,
-                                                kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))))));
+                                                                kit.path("turn to LEFT_AUTO_HIVE", turnToLeftAutoHive, 1.3, catchParkToRightPark, 2.2),
+                                                                kit.firstOf("R3 RIGHT up by",
+                                                                        kit.when("RightCellUp").then(
+                                                                                kit.route("Priority", 0, () -> kit.path("under the HIVE to RIGHT_AUTO_FIX_TIP", underTheHiveToRightAutoFixTip, 3.7, outsideLaneToRightPark, 2.8)),
+                                                                                kit.route("Priority", 0, () -> kit.command("LaunchAll", 1)),
+                                                                                kit.route("Priority", 0, () -> kit.path("outside lane to RIGHT_PARK", outsideLaneToRightPark, 2.8)),
+                                                                                kit.route("Priority", 1, () -> kit.firstOf("L has passed: park at 26.4 s",
+                                                                                        kit.atMatchSeconds(26.4))),
+                                                                                kit.route("Priority", 1, () -> kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))),
+                                                                        kit.atMatchSeconds(kit.seconds("R3 RIGHT up by", 23.2)).then(
+                                                                                kit.firstOf("LEFT CELL still up?",
+                                                                                        kit.when("LeftCellUp").then(
+                                                                                                kit.guarded("If LeftCellUp", catchParkToRightPark, 2.2,
+                                                                                                        kit.command("LaunchAll", 1),
+                                                                                                        kit.firstOf("L has passed: park at 26.4 s",
+                                                                                                                kit.atMatchSeconds(26.4)),
+                                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))),
+                                                                                        kit.afterMs(750).then(
+                                                                                                kit.guarded("Timed out", catchParkToRightPark, 2.2,
+                                                                                                        kit.firstOf("L has passed: park at 26.4 s",
+                                                                                                                kit.atMatchSeconds(26.4)),
+                                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))))))))))),
+                        kit.atMatchSeconds(15.5).then(
+                                kit.guarded("Timed out", catchParkToRightPark, 2.2,
+                                        kit.firstOf("LEFT up after L's rescue? Fire at LEFT, else hold",
+                                                kit.when("LeftCellUp").then(
+                                                        kit.command("LaunchAll", 1)),
+                                                kit.atMatchSeconds(26.4)),
+                                        kit.firstOf("L has passed: park at 26.4 s",
+                                                kit.atMatchSeconds(26.4)),
+                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2)))));
     }
 }
