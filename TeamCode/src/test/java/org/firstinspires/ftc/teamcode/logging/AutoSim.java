@@ -2219,6 +2219,11 @@ public final class AutoSim {
                     // the next one when its last piece can be out before AUTO ends (AutoKit.guarded).
                     .volley("LaunchAll", VOLLEY_PLANNED_S, Math.min(VOLLEY_PLANNED_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S),
                             () -> launch(Integer.MAX_VALUE))
+                    // The robot's LaunchAllAimed (AimedVolley), fired where the robot parked: no park after it, its
+                    // last piece by 30 s. A turret design aims every launch at the CELL at the robot's end already,
+                    // and a locked one fires from home, as the robot's falls back to.
+                    .parkedVolley("LaunchAllAimed", VOLLEY_PLANNED_S, Math.min(VOLLEY_PLANNED_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S),
+                            () -> launch(Integer.MAX_VALUE))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
                     .command("CollectSeen", 2.0, this::collectSeen)

@@ -137,17 +137,16 @@ public class SimRequestsTest {
     }
 
     /**
-     * Whether {@code source} is the other half of the pair a one-robot draft of a pair half runs beside: the draft
-     * {@code r-clockwise-19429} (R-Clockwise drawn for 19429 alone) beside our {@code l-clockwise}, as R-Clockwise is.
+     * Whether {@code source} is the other half of the pair a draft of a pair half runs beside: the draft
+     * {@code r-clockwise-19429} (R-Clockwise drawn for 19429 alone) beside our {@code l-clockwise}, as R-Clockwise is,
+     * or {@code l-under-hive-park-shot} (an L-UnderHive trial) beside our {@code r-outside-lane}.
      */
     static boolean robotVariantPairHalf(String name, String source, File autos) {
-        java.util.regex.Matcher m = java.util.regex.Pattern.compile("(.+)-(19429|20245)").matcher(name);
-        if (!m.matches()) return false;
-        String base = m.group(1);
-        String other = base.startsWith("l-") ? "r-" + base.substring(2)
-                : base.startsWith("r-") ? "l-" + base.substring(2) : null;
-        return other != null && (other + ".pp").equals(source) && new File(autos, source).isFile()
-                && new File(autos, base + ".pp").isFile();
+        // Any draft named after a pair half, its base and a suffix: r-clockwise-19429, l-under-hive-park-shot.
+        for (int dash = name.indexOf('-', 2); dash > 0; dash = name.indexOf('-', dash + 1)) {
+            if (pairHalf(name.substring(0, dash), source, autos)) return true;
+        }
+        return false;
     }
 
     /** The request names its own existing source in one of the Visualizer's three Auto folders. */

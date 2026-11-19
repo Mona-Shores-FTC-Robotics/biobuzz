@@ -171,18 +171,25 @@ public final class AutoKit {
     private static final class Plan {
         final DoubleUnaryOperator secondsFrom;
         final double lastPieceS;
+        /** A volley fired where the robot has parked ({@link AutoRegistry#parkedVolley}): no park after it. */
+        final boolean parked;
 
         private Plan(DoubleUnaryOperator secondsFrom, double lastPieceS) {
+            this(secondsFrom, lastPieceS, false);
+        }
+
+        private Plan(DoubleUnaryOperator secondsFrom, double lastPieceS, boolean parked) {
             this.secondsFrom = secondsFrom;
             this.lastPieceS = lastPieceS;
+            this.parked = parked;
         }
 
         static Plan lasting(double seconds) {
             return new Plan(startsAt -> seconds, Double.NaN);
         }
 
-        static Plan volley(double seconds, double lastPieceS) {
-            return new Plan(startsAt -> seconds, lastPieceS);
+        static Plan volley(double seconds, double lastPieceS, boolean parked) {
+            return new Plan(startsAt -> seconds, lastPieceS, parked);
         }
 
         boolean isVolley() {
@@ -412,7 +419,9 @@ public final class AutoKit {
         final boolean grab = registry.isGrab(name);
         final double grabSeconds = grab ? registry.typicalSeconds(name) : 0.0;
         final boolean volley = registry.isVolley(name);
+        final boolean parkedVolley = registry.isParkedVolley(name);
         final double volleySeconds = volley ? registry.typicalSeconds(name) : 0.0;
+        final double lastPieceSeconds = volley ? registry.lastPieceSeconds(name) : Double.NaN;
         final AutoRegistry.Approach approach = registry.approach(name);
         final CommandCard card = approach == null ? null : new CommandCard();
         if (card != null) card.before = approach;
@@ -432,11 +441,23 @@ public final class AutoKit {
                     // look-ahead already decides for a volley in its own list or behind a "CELL up?"
                     // check (goingForVolley, or it parked before this card); this is a volley deeper
                     // in a block's row, which the look-ahead cannot see.
-                    if (!refused[0] && volley && parkComesFirst() && !Double.isNaN(guardParkSeconds)) {
+                    // A volley fired where the robot has parked needs no park after it, but always its last
+                    // piece out before AUTO ends, whether or not a guard is still watching.
+                    if (!refused[0] && parkedVolley) {
+                        double lastPieceAt = startedAt[0] + lastPieceSeconds;
+                        refused[0] = lastPieceAt > AUTO_LENGTH_S;
+                        if (refused[0]) {
+                            trace.accept(String.format(Locale.US,
+                                    "not starting %s: its last piece would be out at %.1f s, after AUTO ends; staying parked",
+                                    name, lastPieceAt));
+                        }
+                    }
+                    if (!refused[0] && volley && !parkedVolley && parkComesFirst() && !Double.isNaN(guardParkSeconds)) {
                         refused[0] = tooLateToContinue(guardLabel, volleySeconds + guardParkSeconds,
                                 "not starting " + name + ", no time to park after it");
                     }
-                    if (refused[0]) parkWanted = true;
+                    // Parked already, a refused volley leaves the robot where it is: nothing to park.
+                    if (refused[0] && !parkedVolley) parkWanted = true;
                     // The drive before it may have got the grab's mechanisms ready: put them away.
                     if (refused[0]) {
                         if (card != null && armed == card.before) cancelArmed();
@@ -468,7 +489,7 @@ public final class AutoKit {
                 });
         if (card != null) commandCards.put(command, card);
         plans.put(command, registry.isVolley(name)
-                ? Plan.volley(registry.typicalSeconds(name), registry.lastPieceSeconds(name))
+                ? Plan.volley(registry.typicalSeconds(name), registry.lastPieceSeconds(name), parkedVolley)
                 : Plan.lasting(registry.typicalSeconds(name)));
         return command;
     }
@@ -857,7 +878,8 @@ public final class AutoKit {
             if (plan.isVolley()) {
                 volleyLastPieceAt = at + plan.lastPieceS;
                 goingForVolley = volleyLastPieceAt <= AUTO_LENGTH_S;
-                if (parkComesFirst() && !Double.isNaN(ownParkSeconds)) {
+                // A volley fired where the robot has parked has its park behind it, not after it.
+                if (parkComesFirst() && !plan.parked && !Double.isNaN(ownParkSeconds)) {
                     double volleyS = plan.secondsFrom.applyAsDouble(at);
                     double parkedAt = at + volleyS + ownParkSeconds + GUARD_MARGIN_S;
                     if (volleyS >= 0 && parkedAt > AUTO_LENGTH_S) {

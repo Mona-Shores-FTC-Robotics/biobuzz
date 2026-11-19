@@ -206,7 +206,8 @@ public abstract class BuiltAuto extends RobotOpMode {
     protected void onInit() {
         panels = panelsTelemetry();
         settle = PathEndSettle.forRobot(robot, line -> log.event(line));
-        registry = AutoRegistration.forRobot(robot, setup, settle, line -> log.event(line));
+        registry = AutoRegistration.forRobot(robot, setup, settle, line -> log.event(line),
+                () -> startNs == 0L ? Double.NaN : (System.nanoTime() - startNs) / 1e9);
         registry.requireAll(commands, triggers);
         for (String name : AutoRegistration.PLACEHOLDERS) {
             if (Arrays.asList(commands).contains(name) || Arrays.asList(triggers).contains(name)) {

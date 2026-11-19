@@ -183,6 +183,32 @@ public final class LaunchCards {
         void idle();
     }
 
+    /**
+     * What {@code LaunchAllAimed} needs from the turret: aim it at the CELL at the robot's end from
+     * where the robot stands, fall back to its home angle when it cannot, and say when a feed may
+     * start. {@code AimedVolley} is the robot's.
+     */
+    public interface AimedShot {
+        /** Begin aiming (the card has started). */
+        void start();
+        /**
+         * One loop of aiming the turret. True while it aims, so the gate waits for {@link #onTarget()};
+         * false when it cannot (locked forward, a dropped hold): it holds its home angle, where a
+         * {@code LaunchAll} fires, and the gate does not wait for it.
+         */
+        boolean aim();
+        /**
+         * Why no feed may start now, or null: no referenced pose, no alliance, or too late for the last
+         * piece to be out before AUTO ends. Asked at the start and every loop until the gate opens; a
+         * reason ends the card without a feed.
+         */
+        String refusal();
+        /** The turret is on its aim and the aim is inside the firing arc: a feed may start. */
+        boolean onTarget();
+        /** The card has ended: the turret back to its home angle. */
+        void done();
+    }
+
     /** Whether the robot may open the gate on the approach to a path's end: {@link PathEndSettle#readyOnApproach}. */
     public interface ApproachCheck {
         boolean ready(Pose end, Pose pose, double remainingIn);
@@ -407,6 +433,83 @@ public final class LaunchCards {
      */
     public AutoRegistry.Approach approach() {
         return launchAllApproach;
+    }
+
+    /**
+     * {@code LaunchAllAimed}: a volley from where the robot stands, parked, with the turret aimed at
+     * the CELL at the robot's end ({@code AimedVolley}, the TeleOp's {@code TurretAimer}). It spins
+     * up, aims every loop, and opens the gate only once the launcher is at speed and, while the turret
+     * aims, {@code shot} is on target inside the firing arc (a turret that cannot aim, locked forward
+     * or with a dropped hold, holds home and fires from there, the park spot facing the CELL); then it
+     * feeds as {@link #launchAll()} does, until the last
+     * counted shot or {@link #launchAllFeedS}. Until the gate opens, a {@link AimedShot#refusal()}
+     * ends it with nothing fed, and it says why: the robot stays where it parked. No settle, no
+     * approach: the robot is not driving. Counts toward {@code Empty} like a {@code LaunchAll}.
+     */
+    public Command launchAllAimed(AimedShot shot) {
+        if (shot == null) throw new IllegalArgumentException("LaunchAllAimed needs a turret to aim");
+        final double[] fedAt = {Double.NaN};
+        final boolean[] refused = new boolean[1];
+        final boolean[] allShotsOut = new boolean[1];
+        final int[] shotsAtFeed = new int[1];
+        final double[] startedAt = new double[1];
+        return new CommandBuilder()
+                .setStart(() -> {
+                    fedAt[0] = Double.NaN;
+                    allShotsOut[0] = false;
+                    startedAt[0] = secondsNow.getAsDouble();
+                    String why = shot.refusal();
+                    refused[0] = why != null;
+                    if (refused[0]) {
+                        note.accept("LaunchAllAimed: not firing, " + why + "; staying parked");
+                        return;
+                    }
+                    launcher.spinUp();
+                    shot.start();
+                })
+                .setExecute(() -> {
+                    if (refused[0]) return;
+                    boolean aiming = shot.aim();
+                    if (!Double.isNaN(fedAt[0])) return;
+                    String why = shot.refusal();
+                    if (why != null) {
+                        refused[0] = true;
+                        note.accept(String.format(Locale.US, "LaunchAllAimed: not firing, %s (%.2f s in, the gate never opened); staying parked",
+                                why, secondsNow.getAsDouble() - startedAt[0]));
+                        return;
+                    }
+                    if (!speedReady() || (aiming && !shot.onTarget())) return;
+                    note.accept(String.format(Locale.US, "LaunchAllAimed opened the gate, %s, %.2f s after it started%s",
+                            aiming ? "the turret on target" : "the turret at home",
+                            secondsNow.getAsDouble() - startedAt[0], aheadOfSpeed()));
+                    shotsAtFeed[0] = launcher.shots();
+                    feed(fedAt, secondsNow.getAsDouble());
+                })
+                .setDone(() -> {
+                    if (refused[0]) return true;
+                    if (Double.isNaN(fedAt[0])) return false;
+                    if (secondsNow.getAsDouble() - fedAt[0] >= nonNegative(launchAllFeedS)) return true;
+                    double enough = launchAllEndAfterShots;
+                    int shots = launcher.shots();
+                    allShotsOut[0] = enough >= 1 && shots >= 0 && shots - shotsAtFeed[0] >= enough;
+                    return allShotsOut[0];
+                })
+                .setEnd(end -> {
+                    shot.done();
+                    if (Double.isNaN(fedAt[0])) {
+                        if (!refused[0]) note.accept("LaunchAllAimed ended before the gate opened (" + end + "): nothing fed");
+                        return;
+                    }
+                    feeder.idle();
+                    feeding--;
+                    int shots = launcher.shots();
+                    if (shots >= 0) {
+                        note.accept(String.format(Locale.US, "LaunchAllAimed fed %.2f s (%s%s): %d shots detected",
+                                secondsNow.getAsDouble() - fedAt[0], end,
+                                allShotsOut[0] ? ", ended at the last counted shot" : "", shots - shotsAtFeed[0]));
+                    }
+                    if (end == EndCondition.NATURALLY) launchAllsCompleted++;
+                });
     }
 
     /** {@code LaunchOne}: as {@link #launchAll()} with {@link #launchOneFeedS}; does not count toward Empty. */

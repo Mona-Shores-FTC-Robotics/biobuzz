@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 
 /**
@@ -241,6 +242,16 @@ public final class AutoRegistration {
      * line when one fires without.
      */
     public static AutoRegistry forRobot(Robot robot, MatchSetup setup, PathEndSettle settle, Consumer<String> note) {
+        return forRobot(robot, setup, settle, note, () -> Double.NaN);
+    }
+
+    /**
+     * {@link #forRobot(Robot, MatchSetup, PathEndSettle, Consumer)}, with the Auto's clock, seconds since
+     * its PLAY (NaN before it): {@code LaunchAllAimed} opens its gate only while the pieces can be out
+     * before AUTO ends ({@link AimedVolley}).
+     */
+    public static AutoRegistry forRobot(Robot robot, MatchSetup setup, PathEndSettle settle, Consumer<String> note,
+                                        DoubleSupplier matchSeconds) {
         // The launcher's cards share one object, so Empty can see which LaunchAll has finished. A
         // null robot only describes the list; its factories are never called.
         final LaunchCards launch = robot == null ? null
@@ -256,6 +267,13 @@ public final class AutoRegistration {
                 // on the drive in, once aimed and at speed (LaunchCards.approach).
                 .volley("LaunchAll", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S, () -> launch.launchAll(),
                         launch == null ? null : launch.approach())
+                // A volley from the park spot, after the park, behind a CELL check, with the turret aimed
+                // at the CELL at the robot's end (AimedVolley, the TeleOp's TurretAimer); home with a
+                // turret that cannot aim; never without a referenced pose. The park is done, so the guard
+                // adds none after it; its last piece must be out by 30 s, or it does not fire and the
+                // robot stays parked.
+                .parkedVolley("LaunchAllAimed", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S,
+                        () -> launch.launchAllAimed(new AimedVolley(robot, setup, matchSeconds)))
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
