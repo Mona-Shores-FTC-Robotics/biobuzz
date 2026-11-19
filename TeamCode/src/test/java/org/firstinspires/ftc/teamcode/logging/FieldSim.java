@@ -1305,7 +1305,7 @@ final class FieldSim {
         if (belding) {
             double range = TurretAim.rangeFromFieldIn(bot.x, bot.y, bot.h,
                     TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, target[0], target[1]);
-            beldingMiss = random.nextDouble() >= BeldingCalibration.stayInFraction(range);
+            beldingMiss = random.nextDouble() >= BeldingCalibration.stayInFraction(range, bots.indexOf(bot));
         }
         boolean setpoint = bot.design.fixedSetpoint && !idealSpeed && !belding;
         double[] v = setpoint ? setpointLaunch(bot.design, from, target, launchTicks(bot, target))

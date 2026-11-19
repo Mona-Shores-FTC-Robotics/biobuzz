@@ -46,6 +46,9 @@ import java.util.regex.Pattern;
  * stand-in, {@code PartnerRBrokenDownAuto} or {@code PartnerLBrokenDownAuto}, with {@code lastShotS} still setting our wait).
  * {@code "pushable": true} lets our robot push a partner that is not driving ({@link AutoSim#pushable}: a partner with no
  * Auto that we move off the wall and into the LOADING ZONE); without it, touching one is a collision.
+ * With {@code "calibration": "belding"}, {@code "ourInRate"} and {@code "partnerInRate"} (0 to 1) set the share of
+ * each robot's launched pieces that stay in, from any range, in place of Belding's rows
+ * ({@link BeldingCalibration#ourInRate}): 0.92 is our robots' from the AUTO launch spots (mentor, 19 Nov 2026).
  * {@code timing} is the raw override for studies ({@link AutoStudyTest.PartnerTiming}: a start delay, a drive
  * speed, seconds per launch volley, seconds at a FLOWER; each optional, and each wins over what {@code lastShotS}
  * derives). An entry may name its own {@code seeds}; otherwise it runs
@@ -81,6 +84,9 @@ public class SimRunTest {
             if (BeldingCalibration.on) {
                 BeldingCalibration.apply();
                 out.put("calibration", "belding");
+                // "ourInRate" / "partnerInRate": a robot's share of launched pieces that stay in, in place of Belding's.
+                BeldingCalibration.ourInRate = inRate(request.get("ourInRate"));
+                BeldingCalibration.partnerInRate = inRate(request.get("partnerInRate"));
             }
             runAll(request, dir, out);
         } catch (Throwable t) {
@@ -88,10 +94,20 @@ public class SimRunTest {
             throw t;
         } finally {
             BeldingCalibration.restore();
+            BeldingCalibration.ourInRate = Double.NaN;
+            BeldingCalibration.partnerInRate = Double.NaN;
             BeldingCalibration.on = beldingBefore;
             HiveCalibration.tipPointInBand = tipPointBefore;
             write(dir, out);
         }
+    }
+
+    /** A request's in-rate: a number from 0 to 1, or NaN when absent. */
+    static double inRate(Object value) {
+        if (value == null) return Double.NaN;
+        double rate = ((Number) value).doubleValue();
+        if (!(rate >= 0 && rate <= 1)) throw new IllegalArgumentException("an in-rate is from 0 to 1, not " + value);
+        return rate;
     }
 
     private static void write(File dir, Map<String, Object> result) throws Exception {
