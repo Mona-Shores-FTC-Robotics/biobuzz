@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T18:46:46.381Z",
+  "timestamp": "2026-11-19T21:20:52.192Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -852,6 +852,18 @@
                 "kind": "action",
                 "name": "LaunchAll",
                 "timeoutS": 1
+              },
+              {
+                "id": "L-hold-rescue",
+                "kind": "firstOf",
+                "label": "R has left the SCORING FLOWER: park at 20 s",
+                "rows": [
+                  {
+                    "afterMs": 20000,
+                    "matchClock": true,
+                    "cards": []
+                  }
+                ]
               },
               {
                 "id": "card-l-rescue-park",

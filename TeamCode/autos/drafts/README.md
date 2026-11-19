@@ -2,7 +2,8 @@
 
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
-(mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**.
+(mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, and the RightUnderHive
+pair, parked until a super FLOWER pick exists (no OpMode).
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
 (`NudgeContactDrive`, `NudgeTestRun`) and the stand-ins only they used. All are in Git history at
@@ -27,8 +28,10 @@ SCORING FLOWER 4 at LEFT for TIP 2. Simulated beside a RoboDux stand-in, with bo
 
 ## The RightUnderHive pair: R-RightUnderHive and L-RightUnderHive
 
-**No longer a draft (19 Nov 2026, mentor):** the pair is in `TeamCode/autos/` and on the Autonomous menu as
-R-RightUnderHive and L-RightUnderHive ([the Auto README](../README.md)). R's fix spot `R_LEFT_FIX` moved to
+**Parked until a super FLOWER pick exists** (mentor, 19 Nov 2026): back in `drafts/` and off both Driver Station
+menus, with no OpMode. To beat the other pairs it needs a FLOWER pick that loads more at once; it is also one less
+Auto to test before Fruitport. It was on the Autonomous menu on 19 Nov (PRs #650 and #652). The notes below hold
+for the drawing as it stands, with R's hold after a TIP-1 fix and L's guarded OFFSET volley. R's fix spot `R_LEFT_FIX` moved to
 (61.5, 114.0), facing 268.4 degrees, where the turret aims from it: at (60.0, 114.0) and 271.3 degrees R grazed L
 at `LEFT_AUTO_OFFSET` in 3 of 20 simulated runs. The notes below are from the draft, which ran from the Utility menu.
 
