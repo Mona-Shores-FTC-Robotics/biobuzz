@@ -2538,17 +2538,22 @@ public final class AutoSim {
         /**
          * GardenGather, as master's {@code GardenGather.command} runs it from an Auto (no line-up): the nearest GARDEN on
          * the robot's own half within {@code maxRangeIn}; the intake on; a drive in, at {@code inSpeed} of the top
-         * speed, to the GARDEN's gather pose ({@link GardenFieldPoints}) moved {@code extraDepthIn} deeper and
-         * {@code towardWallIn} toward the side wall, which the walls stop (the simulator does not, so the drive in
-         * ends where the frame touches them, as the robot's ends on its stall); a dwell of {@code dwellMs}; and a
-         * drive back, at {@code backSpeed}, to where the card started. Every number is read from GardenGather, never
-         * copied. What it takes is what the intake touches: the GARDEN's 4 POLLEN start in a line against the
-         * audience wall from the side wall ({@link FieldSim#GARDEN_LENGTH_IN}, the field model's staged pieces).
+         * speed, toward master's in pose ({@link #gardenInPose}: the gather pose moved deeper, toward the side wall
+         * and turned {@code intoCornerDeg} into the corner), which the walls stop, so it ends, as the robot's does,
+         * on its stall ({@code stallMs}) with the nose on the wall; a dwell of {@code dwellMs}; and a drive back, at
+         * {@code backSpeed}, to where the card started. Every number is read from GardenGather, never copied. The
+         * GARDEN's 4 POLLEN start in a line against the audience wall from the side wall ({@link FieldSim#GARDEN_LENGTH_IN},
+         * the field model's staged pieces); through the drive in and the dwell the mouth takes every one of them it
+         * touches at once ({@link FieldSim.Bot#gardenGather}), not one per {@code intakeIntervalS}.
+         *
+         * <p>Checked (19 Nov 2026) against 19429's button gathers of 18 Nov with these values: the routine takes 2.0
+         * to 2.2 s here (in 1.3, dwell 0.16, back 0.68) against the robot's 2.26 to 2.50 s without its line-up (in 1.35
+         * to 1.60, dwell 0.15 to 0.18, back 0.67 to 0.73). It takes 3 POLLEN where the robot took 4 every time: the
+         * square frame, turned 15° and stopped by both walls, leaves the mouth about 0.9 in short of the corner piece.
          *
          * <p>The FLOWER stick goes down on the robot's gather; the simulator does not model the stick in the GARDEN,
-         * only the intake. The gather takes no less than {@link AutoRegistration#GARDEN_GATHER_TYPICAL_S}: the
-         * routine's own phases are unmeasured from an Auto, the simulated drive is quicker than the robot's, and 6 s is
-         * what an Auto is planned with. Placeholder until an Auto's match log times a gather.
+         * only the intake. The gather takes no less than {@link AutoRegistration#GARDEN_GATHER_TYPICAL_S}, which the
+         * guard plans with. No Auto gather on these values is logged yet.
          */
         /**
          * SweepRow (sim only; doc/three-tips.md): the robot creeps straight ahead with the intake on, over a row of
@@ -2590,9 +2595,14 @@ public final class AutoSim {
             final double[] phaseFrom = new double[1];
             final int[] phase = new int[1];  // 0 refused, 1 drive in, 2 dwell, 3 back, 4 standing out the typical time
             final Pose[] back = new Pose[1];
+            final Pose[] inAt = new Pose[1];
             final boolean[] intakeBefore = new boolean[1];
             final double[] speedBefore = new double[1];
             final int[] heldBefore = new int[1];
+            // The drive in's stall: the least distance to the in pose so far, and when it last got that much closer.
+            final double[] closest = new double[1];
+            final double[] progressAt = new double[1];
+            final double[] phaseS = new double[3];
             return new CommandBuilder()
                     .setStart(() -> {
                         startedAt[0] = now;
@@ -2617,18 +2627,26 @@ public final class AutoSim {
                             return;
                         }
                         Pose in = gardenInPose(garden);
+                        inAt[0] = in;
                         back[0] = new Pose(at[0], at[1], at[2]);
                         intakeEnabled = true;
+                        body.gardenGather = true;
                         drive.maxSpeed = speedBefore[0] * GardenGather.driveIn.inSpeed;
                         phase[0] = 1;
                         phaseFrom[0] = now;
+                        closest[0] = Double.POSITIVE_INFINITY;
+                        progressAt[0] = now;
                         drive.follow(Paths.line(back[0], in).linear(back[0], in));
                     })
                     .setExecute(() -> {
-                        if (phase[0] == 1 && (drive.pathDone() || now - phaseFrom[0] >= GardenGather.driveIn.inTimeoutMs / 1000.0)) {
+                        if (phase[0] == 1 && (gardenDriveInOver(inAt[0], closest, progressAt)
+                                || now - phaseFrom[0] >= GardenGather.driveIn.inTimeoutMs / 1000.0)) {
+                            phaseS[0] = now - phaseFrom[0];
                             phase[0] = 2;
                             phaseFrom[0] = now;
                         } else if (phase[0] == 2 && (FieldSim.full(body) || now - phaseFrom[0] >= GardenGather.dwell.dwellMs / 1000.0)) {
+                            phaseS[1] = now - phaseFrom[0];
+                            body.gardenGather = false;
                             phase[0] = 3;
                             phaseFrom[0] = now;
                             drive.maxSpeed = speedBefore[0] * GardenGather.back.backSpeed;
@@ -2636,6 +2654,7 @@ public final class AutoSim {
                             Pose from = new Pose(at[0], at[1], at[2]);
                             drive.follow(Paths.line(from, back[0]).linear(from, back[0]));
                         } else if (phase[0] == 3 && (drive.pathDone() || now - phaseFrom[0] >= GardenGather.back.backTimeoutMs / 1000.0)) {
+                            phaseS[2] = now - phaseFrom[0];
                             phase[0] = 4;
                             drive.hold(drive.pose);
                             intakeEnabled = intakeBefore[0];
@@ -2649,12 +2668,14 @@ public final class AutoSim {
                             for (FieldSim.Piece q : sim.pieces) {
                                 if (q.where == FieldSim.Where.FIELD && FieldSim.garden(q.x, q.y) != null) left++;
                             }
-                            pending.add(String.format(Locale.ROOT, "GardenGather: took %d in %.1f s (routine), holds %d; %d left in the GARDENs",
-                                    body.stored.size() - heldBefore[0], now - startedAt[0], body.stored.size(), left));
+                            pending.add(String.format(Locale.ROOT, "GardenGather: took %d in %.1f s (routine: in %.2f, dwell %.2f, back %.2f), holds %d; %d left in the GARDENs",
+                                    body.stored.size() - heldBefore[0], now - startedAt[0], phaseS[0], phaseS[1], phaseS[2],
+                                    body.stored.size(), left));
                         }
                     })
                     .setDone(() -> phase[0] == 0 || (phase[0] == 4 && now - startedAt[0] >= gardenGatherMinS))
                     .setEnd(end -> {
+                        body.gardenGather = false;
                         intakeEnabled = intakeBefore[0];
                         drive.maxSpeed = speedBefore[0];
                         if (end != EndCondition.NATURALLY) drive.hold(drive.pose);
@@ -2662,22 +2683,48 @@ public final class AutoSim {
         }
 
         /**
-         * Where master's gather drives in to ({@code GardenGather.inPose}): the gather pose, {@code extraDepthIn} along
-         * its heading and {@code towardWallIn} to its right (the side wall), stopped where the frame meets the walls.
+         * Whether a GARDEN gather's drive in is over, as the robot's ends: stalled, having got no more than
+         * {@code stallProgressIn} closer to the in pose in {@code stallMs}. Master's in pose lies past the walls (19429,
+         * 18 Nov 2026: every drive in "stalled 15 to 17 in short"), so the robot's always ends on its stall, and its
+         * logged drive in includes the {@code stallMs} it waits to see it. Here the in pose is where the frame meets
+         * the walls ({@link #gardenInPose}), and the drive in still ends only on the stall, not on reaching it, nor on
+         * the path's early finish ({@link SimDrive#JOIN_IN}), which would stop the nose short of the wall.
+         */
+        private boolean gardenDriveInOver(Pose in, double[] closest, double[] progressAt) {
+            double d = Math.hypot(drive.pose.x() - in.x(), drive.pose.y() - in.y());
+            if (d < closest[0] - GardenGather.driveIn.stallProgressIn) {
+                closest[0] = d;
+                progressAt[0] = now;
+            }
+            return now - progressAt[0] >= GardenGather.driveIn.stallMs / 1000.0;
+        }
+
+        /**
+         * Where master's gather drives in to ({@code GardenGather.inPose}, as master computes it): the gather pose,
+         * {@code extraDepthIn} along its heading (and {@code noStickExtraDepthIn} more without the stick), toward the
+         * side wall by {@code laneTowardWallIn} for a curved drive in ({@code curveToWall}) or {@code towardWallIn},
+         * and turned {@code intoCornerDeg} toward the side wall, clockwise. The robot's drive in then stalls on the
+         * walls; here it ends where the turned frame meets them, so its nose is on the audience (or back) wall.
          */
         private Pose gardenInPose(GardenFieldPoints.Garden garden) {
             Pose g = garden.gather;
             double h = g.heading();
-            double deeper = GardenGather.driveIn.extraDepthIn, wall = GardenGather.driveIn.towardWallIn;
+            double deeper = GardenGather.driveIn.extraDepthIn
+                    + (GardenGather.stick.useStick ? 0.0 : GardenGather.driveIn.noStickExtraDepthIn);
+            double wall = GardenGather.driveIn.curveToWall ? GardenGather.driveIn.laneTowardWallIn : GardenGather.driveIn.towardWallIn;
+            double corner = Math.toRadians(Math.max(-15.0, Math.min(15.0, GardenGather.driveIn.intoCornerDeg)));
             double x = g.x() + deeper * Math.cos(h) + wall * Math.sin(h);
             double y = g.y() + deeper * Math.sin(h) - wall * Math.cos(h);
-            // The frame square to the walls in the corner: its half-width off the side wall, the gather pose's own
-            // depth off the audience (or back) wall, where GardenFieldPoints puts the nose on it.
-            double half = design.frameWidthIn / 2, size = FieldSim.FIELD_SIZE_IN;
+            double heading = h - corner;
+            // How far the turned frame reaches from its centre along x and along y: no closer to a wall than that.
+            double halfLength = design.frameIn / 2, halfWidth = design.frameWidthIn / 2;
+            double c = Math.abs(Math.cos(heading)), s = Math.abs(Math.sin(heading));
+            double reachX = halfLength * c + halfWidth * s, reachY = halfLength * s + halfWidth * c;
+            double size = FieldSim.FIELD_SIZE_IN;
             boolean red = g.x() < FieldFrame.FIELD_CENTRE_INCHES;
-            x = red ? Math.max(x, half) : Math.min(x, size - half);
-            y = red ? Math.max(y, g.y()) : Math.min(y, g.y());
-            return new Pose(x, y, h);
+            x = red ? Math.max(x, reachX) : Math.min(x, size - reachX);
+            y = red ? Math.max(y, reachY) : Math.min(y, size - reachY);
+            return new Pose(x, y, heading);
         }
 
         /**

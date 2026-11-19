@@ -572,6 +572,12 @@ final class FieldSim {
         double slideOut;
         /** Its flaps are still folded ({@link RobotDesign#flapsAfterStart}). Its caller sets it. */
         boolean flapsFolded;
+        /**
+         * A GARDEN gather is pressing the intake onto a GARDEN's row ({@link FieldSim#gardenRow}): a POLLEN of
+         * that row the mouth touches is taken at once, with no {@link RobotDesign#intakeIntervalS} and no grab
+         * miss. Its caller sets it for the drive in and the dwell.
+         */
+        boolean gardenGather;
 
         /**
          * Where the robot is this loop. The previous pose and this one are blended across the
@@ -945,6 +951,17 @@ final class FieldSim {
      */
     static final double GARDEN_LENGTH_IN = 23.0;
     static final double GARDEN_DEPTH_IN = 2.0;
+
+    /**
+     * Whether a piece at (x, y) is still in a GARDEN's row, for {@link Bot#gardenGather}: the GARDEN, and one POLLEN's
+     * width beyond it, since a gather's drive in pushes the row about before the mouth reaches it.
+     */
+    static boolean gardenRow(double x, double y) {
+        double pad = 2 * POLLEN_RADIUS_IN;
+        if (x >= -pad && x <= GARDEN_LENGTH_IN + pad && y >= -pad && y <= GARDEN_DEPTH_IN + pad) return true;
+        double fx = FIELD_SIZE_IN - x, fy = FIELD_SIZE_IN - y;
+        return fx >= -pad && fx <= GARDEN_LENGTH_IN + pad && fy >= -pad && fy <= GARDEN_DEPTH_IN + pad;
+    }
 
     /** Whether (x, y) is in a GARDEN, and whose: RED, BLUE or null. */
     static Alliance garden(double x, double y) {
@@ -2017,12 +2034,14 @@ final class FieldSim {
     /**
      * Whether the intake may take this piece now: one piece per {@link RobotDesign#intakeIntervalS},
      * NECTAR only if the robot launches it, and out of a FLOWER only the bottom POLLEN, through the
-     * retrieval opening, one per {@link RobotDesign#flowerPullS} (Competition Manual §9.7, G418).
+     * retrieval opening, one per {@link RobotDesign#flowerPullS} (Competition Manual §9.7, G418). A GARDEN
+     * gather takes its row's POLLEN as the mouth touches them ({@link Bot#gardenGather}).
      */
     private boolean canTake(Bot bot, Piece p) {
         RobotDesign design = bot.design;
         double lastCaptureAt = bot.lastCaptureAt;
         if (p.kind != Kind.POLLEN && !design.launchesNectar) return false;
+        if (gardenGathered(bot, p)) return true;
         if (p.flower >= 0) {
             return p.kind == Kind.POLLEN && p.z < RobotDesign.FLOWER_OPENING_HEIGHT_IN
                     && time - lastCaptureAt >= design.flowerPullS;
@@ -2038,7 +2057,7 @@ final class FieldSim {
      */
     /** Why {@link #grabs} says no ("rejected", "speed" or "chance"), or null when the intake holds the piece. */
     private String grabMiss(Bot bot, Piece p) {
-        if (p.flower >= 0) return null;
+        if (p.flower >= 0 || gardenGathered(bot, p)) return null;
         if (time < p.rejectedUntil) return "rejected";
         double rel = Math.hypot(p.vx - bot.vx, p.vy - bot.vy);
         if (rel > bot.design.intakeMaxSpeedInPerS) {
@@ -2088,6 +2107,15 @@ final class FieldSim {
         if (time < p.missLoggedUntil) return;
         p.missLoggedUntil = time + 0.3;
         events.add("miss: " + why + " " + name(p.kind) + " robot " + (bots.indexOf(bot) + 1));
+    }
+
+    /**
+     * A POLLEN of a GARDEN's row at the mouth of a robot gathering it (Bot#gardenGather). Why (19 Nov 2026, 19429,
+     * the mentor watching): pressed on the row, the gather took all 4 POLLEN every time, in a 0.15 s dwell; one
+     * piece per {@link RobotDesign#intakeIntervalS} (loose pieces, a robot standing still) took about 1.
+     */
+    private static boolean gardenGathered(Bot bot, Piece p) {
+        return bot.gardenGather && p.flower < 0 && p.kind == Kind.POLLEN && gardenRow(p.x, p.y);
     }
 
     /** How far off the intake's face a piece still counts as touching it (RobotDesign#intakeOnContact). */

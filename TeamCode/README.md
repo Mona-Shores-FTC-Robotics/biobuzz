@@ -1162,8 +1162,12 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   in, along the audience wall from the red-side wall for red, blue's turned half a turn), with its 4 POLLEN in
   a line from that corner, where the field model stages them. A `GardenGather` card runs master's
   `GardenGather` routine from where it is called, with GardenGather's own numbers: intake on, a drive in at
-  `inSpeed` to `GardenFieldPoints`' gather pose (plus `extraDepthIn`, `towardWallIn`; the walls stop the
-  frame), a `dwellMs` dwell, and a drive back at `backSpeed`. It takes what the intake touches. **Measured:**
+  `inSpeed` toward master's in pose (the gather pose plus `extraDepthIn`, `laneTowardWallIn` or `towardWallIn`,
+  turned `intoCornerDeg` into the corner), ended by its stall (`stallMs`) once the walls stop the frame, a
+  `dwellMs` dwell, and a drive back at `backSpeed`. Pressed on the row, the mouth takes every GARDEN POLLEN it
+  touches at once, not one per `intakeIntervalS` (that is for loose pieces). Checked against 19429's button
+  gathers of 18 Nov: 2.0 to 2.2 s against the robot's 2.26 to 2.50 s, but 3 POLLEN against its 4 (the square
+  frame turned 15° in the corner stops the mouth about 0.9 in short of the corner piece). **Measured:**
   the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
   whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (4 s, which covers the
   ten Auto gathers logged 3 to 14 Nov with the dwell as it is now); the FLOWER stick, which goes down on the robot's gather, is not modelled in the GARDEN.
