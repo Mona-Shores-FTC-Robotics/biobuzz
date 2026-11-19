@@ -1207,6 +1207,8 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   - **The share of launched pieces that stay in the CELL, by launch range:** 0.95 from the CATCH spots (42.4
     in), 0.90 from RIGHT_START (53.9 in), 0.70 from the CLOSE spots (36 in, on thin evidence). A piece that
     reaches a raised CELL stays in; the ones lost go wide, fall short or go at a down CELL.
+    A request's `"ourInRate"` and `"partnerInRate"` (0 to 1) replace these rows for our Auto and for every other
+    robot: 0.92 is our robots' share from the AUTO launch spots (mentor, 19 Nov 2026).
   - **The dwell before a TIP,** 3.6 to 4.2 s, and no knock from a hit: every AUTO TIP there sat out its dwell,
     where the placeholder knock tipped the CELL 0.7 s after the last ball left.
   - **Where the HIVE tips:** Field 1's point on odd seeds, Field 2's on even ones, both set for launched pieces:

@@ -46,6 +46,12 @@ import java.util.regex.Pattern;
  * stand-in, {@code PartnerRBrokenDownAuto} or {@code PartnerLBrokenDownAuto}, with {@code lastShotS} still setting our wait).
  * {@code "pushable": true} lets our robot push a partner that is not driving ({@link AutoSim#pushable}: a partner with no
  * Auto that we move off the wall and into the LOADING ZONE); without it, touching one is a collision.
+ * With {@code "calibration": "belding"}, {@code "ourInRate"} and {@code "partnerInRate"} (0 to 1) set the share of
+ * each robot's launched pieces that stay in, from any range, in place of Belding's rows
+ * ({@link BeldingCalibration#ourInRate}): 0.92 is our robots' from the AUTO launch spots (mentor, 19 Nov 2026), and
+ * {@code "tipDwellS"} (seconds or [least, most]) the dwell before every TIP, for a slow-swing case. A fail, ours
+ * ({@code "oursFails"}) or a partner's ({@code "fails"}), may also be {@code "misses volley N"}: only its Nth volley
+ * goes wide, counted from 1 ({@code "misses preloads"} is volley 1).
  * {@code timing} is the raw override for studies ({@link AutoStudyTest.PartnerTiming}: a start delay, a drive
  * speed, seconds per launch volley, seconds at a FLOWER; each optional, and each wins over what {@code lastShotS}
  * derives). An entry may name its own {@code seeds}; otherwise it runs
@@ -78,9 +84,13 @@ public class SimRunTest {
         try {
             Map<String, Object> request = request(dir);
             if ("belding".equals(request.get("calibration"))) BeldingCalibration.on = true;
+            BeldingCalibration.dwellOverride = dwell(request.get("tipDwellS"));
             if (BeldingCalibration.on) {
                 BeldingCalibration.apply();
                 out.put("calibration", "belding");
+                // "ourInRate" / "partnerInRate": a robot's share of launched pieces that stay in, in place of Belding's.
+                BeldingCalibration.ourInRate = inRate(request.get("ourInRate"));
+                BeldingCalibration.partnerInRate = inRate(request.get("partnerInRate"));
             }
             runAll(request, dir, out);
         } catch (Throwable t) {
@@ -88,10 +98,34 @@ public class SimRunTest {
             throw t;
         } finally {
             BeldingCalibration.restore();
+            BeldingCalibration.ourInRate = Double.NaN;
+            BeldingCalibration.dwellOverride = null;
+            BeldingCalibration.partnerInRate = Double.NaN;
             BeldingCalibration.on = beldingBefore;
             HiveCalibration.tipPointInBand = tipPointBefore;
             write(dir, out);
         }
+    }
+
+    /** A request's TIP dwell: seconds or [least, most], null when absent. */
+    static double[] dwell(Object value) {
+        if (value == null) return null;
+        if (value instanceof Number) {
+            double s = ((Number) value).doubleValue();
+            return new double[] {s, s};
+        }
+        java.util.List<?> pair = (java.util.List<?>) value;
+        double[] r = {((Number) pair.get(0)).doubleValue(), ((Number) pair.get(1)).doubleValue()};
+        if (!(r[0] > 0 && r[1] >= r[0])) throw new IllegalArgumentException("tipDwellS is seconds or [least, most]: " + value);
+        return r;
+    }
+
+    /** A request's in-rate: a number from 0 to 1, or NaN when absent. */
+    static double inRate(Object value) {
+        if (value == null) return Double.NaN;
+        double rate = ((Number) value).doubleValue();
+        if (!(rate >= 0 && rate <= 1)) throw new IllegalArgumentException("an in-rate is from 0 to 1, not " + value);
+        return rate;
     }
 
     private static void write(File dir, Map<String, Object> result) throws Exception {
@@ -193,8 +227,8 @@ public class SimRunTest {
             Entry made = new Entry(name, base + "," + cls + ourProfile, cls, designName == null ? null : design(designName), designName,
                     partnerSpeed, timing, timingJson, own, folder);
             Object oursFails = e.get("oursFails");
-            if (oursFails != null && !"misses preloads".equals(oursFails)) {
-                throw new IllegalArgumentException("\"oursFails\" is \"misses preloads\" or absent: " + oursFails);
+            if (oursFails != null && AutoStudyTest.missedVolley(oursFails) < 1) {
+                throw new IllegalArgumentException("\"oursFails\" is \"misses preloads\", \"misses volley N\" or absent: " + oursFails);
             }
             made.oursFails = (String) oursFails;
             if (e.get("picks") instanceof Map) made.picks = (Map<String, Object>) e.get("picks");

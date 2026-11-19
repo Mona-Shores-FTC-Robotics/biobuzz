@@ -203,6 +203,22 @@ public class AutoStudyTest {
     static String loop;
     static Map<String, Object> picks;
     static Map<String, Object> partnerPicks;
+    /**
+     * The volley a fail names, counted from 1: "misses preloads" is 1, "misses volley N" is N; 0 for anything else
+     * (null, "misses", or not a volley).
+     */
+    static int missedVolley(Object fails) {
+        if ("misses preloads".equals(fails)) return 1;
+        if (fails instanceof String && ((String) fails).startsWith("misses volley ")) {
+            try {
+                return Math.max(0, Integer.parseInt(((String) fails).substring("misses volley ".length()).trim()));
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+        return 0;
+    }
+
     static String oursFails;
     /**
      * A what-if for our own robot ({@code "ourLaunchS"} on a request or an entry): seconds between its shots, in
@@ -254,9 +270,10 @@ public class AutoStudyTest {
                     if (t.lastShotS > org.firstinspires.ftc.teamcode.autokit.AutoKit.AUTO_LENGTH_S) throw new IllegalArgumentException("lastShotS is past the end of AUTO: " + last);
                 }
                 if (fails != null) {
-                    if (!"misses".equals(fails) && !"misses preloads".equals(fails)) {
+                    if (!"misses".equals(fails) && missedVolley((String) fails) < 1) {
                         throw new IllegalArgumentException("\"fails\" is \"misses\" or absent (a dead partner is a still stand-in,"
-                                + " partner-r-broken-down or partner-l-broken-down), or \"misses preloads\" (only its first volley): " + fails);
+                                + " partner-r-broken-down or partner-l-broken-down), \"misses preloads\" (only its first volley)"
+                                + " or \"misses volley N\" (only its Nth): " + fails);
                     }
                     t.fails = (String) fails;
                 }
@@ -341,7 +358,7 @@ public class AutoStudyTest {
             if (!Double.isNaN(launch)) sim.launchSeconds(launch);
             if (!Double.isNaN(pickS)) sim.pickSeconds(pickS);
             if ("misses".equals(fails)) sim.misses();
-            if ("misses preloads".equals(fails)) sim.missesPreloads();
+            if (missedVolley(fails) > 0) sim.missesVolley(missedVolley(fails));
             if (pushable) sim.pushable();
         }
 
@@ -493,7 +510,7 @@ public class AutoStudyTest {
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, profile[1], profile[2]).design(design);
         sim.loop(loop);
         if (picks != null) sim.picks(picks);
-        if ("misses preloads".equals(oursFails)) sim.missesPreloads();
+        if (missedVolley(oursFails) > 0) sim.missesVolley(missedVolley(oursFails));
         if (!Double.isNaN(oursLaunchS)) sim.launchSeconds(oursLaunchS);
         // The partner's last shot as their team said it: our driver enters it in INIT, and our partner wait ends that
         // plus the TIP lag later (master's AutoRegistration; BuiltAuto).
