@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.logging;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
+import org.firstinspires.ftc.teamcode.RobotDifferences;
+import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.junit.Test;
 
 /** Per-robot loads in a pair: ours and the partner's are chosen apart, and each falls back to the run's. */
@@ -32,5 +35,20 @@ public class BeldingCalibrationTest {
         boolean shortSeen = false;
         for (int i = 0; i < 200; i++) shortSeen |= BeldingCalibration.load("19429", false, luck) < 4;
         assertTrue("19429's WALL FLOWER loads come up short", shortSeen);
+    }
+
+    /** The simulator's roller stick follows master's robot differences: 19429 has it, 20245 does not. */
+    @Test
+    public void rollerStickIsTheRobotDifferencesOne() {
+        for (RobotIdentity robot : new RobotIdentity[] {RobotIdentity.TEAM_19429, RobotIdentity.TEAM_20245}) {
+            boolean listed = false;
+            for (String why : RobotDifferences.of(robot)) listed |= why.contains("FLOWER stick with a roller");
+            String team = robot == RobotIdentity.TEAM_19429 ? "19429" : "20245";
+            assertEquals(team + ": the roller stick, in RobotDifferences and in the simulator", listed,
+                    BeldingCalibration.rollerStick(team));
+        }
+        assertTrue(BeldingCalibration.rollerStick("19429"));
+        assertFalse(BeldingCalibration.rollerStick("20245"));
+        assertFalse(BeldingCalibration.rollerStick("both"));
     }
 }

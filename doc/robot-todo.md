@@ -1259,6 +1259,14 @@ measurement is [#255].
 - [ ] **Camera run at 22, 35, 50 in** from the HIVE, 10 s still each; pull the log. [S4 §4]
 - [ ] **Robot width across the side plates** (16.0 in assumed) and both **reset corners** taped
       (`ResetPositions` uses 8.1 in wall-to-centre). [PR #262]
+- [ ] **20245: intake reach past the frame, at the mouth**: from the frame's front face to where
+      the intake first touches a POLLEN, in, and whether a GARDEN gather takes the corner POLLEN (count
+      the next volley by `read_logs.py volleys`). 20245 has the passive FLOWER stick, so the simulator
+      models its gather by what the mouth touches, with `RobotDesign.intakeReachIn` 0 (a placeholder):
+      it takes 3, the square frame turned 15° into the corner leaving the mouth about 0.9 in short of
+      the corner piece. 19429's roller stick fills the lane in the simulator (mentor, 19 Nov). **Good:**
+      a number to set there; about 1 in would reach the corner piece. It moves every intake contact in
+      the simulator, so change it in its own PR. [PR #644]
 
 ## 7. 19429, if it is at the lab
 
@@ -1843,6 +1851,7 @@ one test at one meeting.
 [PR #427]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/427
 [PR #430]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/430
 [PR #492]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/492
+[PR #644]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/644
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#429]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/429
