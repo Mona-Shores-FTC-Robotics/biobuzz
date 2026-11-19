@@ -13,6 +13,27 @@ stopped being team spots on 16 Nov 2026. Each keeps those as points of its own, 
 that goes to the Autonomous menu launches only from spots aimed at their CELL (`AutoVolleySpotsTest`): open it in
 the Visualizer, which aims each spot a Launch all fires from, and save it.
 
+## R-RightUnder and L-RightUnder: the lane pair turned round
+
+`r-right-under.pp` and `l-right-under.pp` are a pair (mentor, 19 Nov 2026), the mirror of R-OutsideLane with
+L-UnderHive: R goes under the HIVE and L takes the outer lane. They are drafts to try on the robot, for elims
+or a strong partner, not for qualifiers.
+
+- **R owns every fix.** From `RIGHT_START` it fires its preloads at RIGHT from `RIGHT_AUTO_HIVE` (TIP 1), then
+  gathers the GARDEN and comes back to `RIGHT_AUTO_HIVE`. It waits there for RIGHT to be up. RIGHT up means
+  either TIP 2 came or TIP 1 never did, and either way it fires the GARDEN load at RIGHT and parks at `LEFT_PARK`,
+  under the HIVE. If RIGHT is not up by 16 s (adjustable in INIT), it goes under the HIVE and up its east
+  side to its own spot `R_LEFT_FIX` (61.4, 117.0), fires at LEFT if LEFT is up (fixing TIP 2), and parks at
+  `LEFT_PARK`. 16 s is the simulator's choice: 18 s still parks, but TIP 2 comes later; at 20 s the guard
+  refuses the fix.
+- **L fixes nothing.** From `LEFT_START` it waits at `LEFT_AUTO_HIVE` for TIP 1 (until 20 s) and fires its
+  preloads at LEFT. Then it picks the SCORING FLOWER, fires that load from `LEFT_AUTO_OFFSET` if LEFT is
+  still up, takes the outer lane to the WALL FLOWER, picks it and parks at `RIGHT_PARK`.
+- **Kept apart:** L fires its second volley from `LEFT_AUTO_OFFSET` and leaves west along the top. R reaches
+  the left end up the east side, to a spot clear of `LEFT_START` (a dead L there is not touched). R's park
+  routes leave the HIVE low and come in to `LEFT_PARK` from the east.
+- A lane holds 4, so L picks the SCORING FLOWER after its preloads, not while waiting for TIP 1.
+
 ## L-UnderHive-ParkShot: park facing LEFT, fire there if it is up
 
 `l-under-hive-park-shot.pp` is master's `l-under-hive.pp` with these changes (mentor, 19 Nov 2026). It runs
