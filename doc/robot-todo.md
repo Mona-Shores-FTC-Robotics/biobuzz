@@ -1147,6 +1147,13 @@ measurement is [#255].
       at the wall in all. (c) With 3 pieces already in the lane, gather a fourth and watch the back
       out (mentor, 13 Nov: the fourth ball rides on the floor at the front and backing up can let
       it squirt out). **Stop:** the fourth is left on the floor twice → tell a mentor.
+- [ ] **GARDEN gather, `driveIn.laneTowardWallIn` 5 (19 Nov; never run):** button, GARDEN loaded,
+      19429 then 20245, 3 gathers on **each** alliance's GARDEN, phone filming from above. 19 Nov on
+      19429 at 3: blue's side reached the side wall and gathered, red's sat 1 to 2 in off it and
+      missed. **Good:** the side is on the side wall on both alliances before the nose reaches the
+      audience wall, and `in` in the `Last GARDEN gather` line is no longer than at 3. **Stop:** the
+      drive in is slow (as at 6 on 18 Nov) → 4. If red still sits off the wall at 5, the gap is not
+      this knob: note the pose at the wall (red against blue) for a localization check.
 - [ ] **GARDEN gather, a harder drive in, and the two-step (18 Nov; never run):** button, GARDEN
       loaded, 19429, Panels open. First check Panels: GardenGather and FlowerPicker now show their
       knobs in folders (`driveIn`, `twoStep`, `dwell`, `steering`, `back`, …), and an edit in a

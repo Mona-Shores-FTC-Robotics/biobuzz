@@ -230,11 +230,13 @@ public final class GardenGather extends GrabRoutine {
          * With {@link DriveIn#curveToWall}: how much closer to the side wall than the gather pose the drive in
          * ends, inches. Enough to keep the side on the wall at the end: the wall stops it, and the drive
          * in ends when it stalls. 2.0 since 14 Nov 2026 (mentor, at the field: the gather sat too far off
-         * the wall at 0.5); 3.0 since 18 Nov 2026 (mentor). Not much more: an end the robot can never
-         * reach sideways keeps Pedro's strafe correction saturated, which leaves less power for the drive
-         * along the wall (19429 tried 6 in Panels on 18 Nov and the drive in was slow).
+         * the wall at 0.5); 3.0 since 18 Nov 2026 (mentor); 5.0 since 19 Nov 2026 (mentor, on 19429:
+         * blue's gathers reached the side wall and worked, red's sat 1 to 2 in off it and missed). Not
+         * much more: an end the robot can never reach sideways keeps Pedro's strafe correction
+         * saturated, which leaves less power for the drive along the wall (19429 tried 6 in Panels on
+         * 18 Nov and the drive in was slow).
          */
-        public double laneTowardWallIn = 3.0;
+        public double laneTowardWallIn = 5.0;
         /**
          * The drive in's speed cap, a fraction of the robot's top path speed (0 to 1]. 1.0 since 14 Nov
          * 2026 (mentor, at the field): at 0.5 the curve over to the side wall, mostly a strafe, was very
