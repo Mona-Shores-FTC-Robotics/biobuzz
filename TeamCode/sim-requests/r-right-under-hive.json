@@ -1,5 +1,5 @@
 {
-  "pp": "TeamCode/autos/drafts/r-right-under-hive.pp",
+  "pp": "TeamCode/autos/r-right-under-hive.pp",
   "spec": "RRightUnderHiveAuto",
   "design": "real robot",
   "partnerDesign": "real robot",

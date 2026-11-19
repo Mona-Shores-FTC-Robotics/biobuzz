@@ -513,7 +513,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 268.9
+                "endDeg": 271.3
               }
             },
             {
@@ -521,7 +521,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 268.9
+                "degrees": 271.3
               }
             }
           ]
@@ -630,7 +630,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 268.9,
+        "startDeg": 271.3,
         "endDeg": 360
       }
     },
@@ -671,7 +671,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 268.9,
+        "startDeg": 271.3,
         "endDeg": 360
       }
     }
@@ -994,7 +994,7 @@
       "R_LEFT_FIX": [
         60,
         114,
-        268.9
+        271.3
       ]
     },
     "pathEnds": {
