@@ -1259,13 +1259,14 @@ measurement is [#255].
 - [ ] **Camera run at 22, 35, 50 in** from the HIVE, 10 s still each; pull the log. [S4 §4]
 - [ ] **Robot width across the side plates** (16.0 in assumed) and both **reset corners** taped
       (`ResetPositions` uses 8.1 in wall-to-centre). [PR #262]
-- [ ] **Intake reach past the frame, at the mouth** (19429, then 20245): from the frame's front
-      face to where the roller first touches a POLLEN, in. The simulator has 0
-      (`RobotDesign.intakeReachIn`, a placeholder), and with it a GARDEN gather takes 3 POLLEN
-      where the robot took 4 every time (19429, 18 Nov, the mentor watching): the square frame, turned
-      15° into the corner (`intoCornerDeg`) and stopped by both walls, leaves the mouth about 0.9 in
-      short of the corner piece. **Good:** a number to set there; about 1 in would reach the corner
-      piece. It moves every intake contact in the simulator, so change it in its own PR. [PR #644]
+- [ ] **20245: intake reach past the frame, at the mouth**: from the frame's front face to where
+      the intake first touches a POLLEN, in, and whether a GARDEN gather takes the corner POLLEN (count
+      the next volley by `read_logs.py volleys`). 20245 has the passive FLOWER stick, so the simulator
+      models its gather by what the mouth touches, with `RobotDesign.intakeReachIn` 0 (a placeholder):
+      it takes 3, the square frame turned 15° into the corner leaving the mouth about 0.9 in short of
+      the corner piece. 19429's roller stick fills the lane in the simulator (mentor, 19 Nov). **Good:**
+      a number to set there; about 1 in would reach the corner piece. It moves every intake contact in
+      the simulator, so change it in its own PR. [PR #644]
 
 ## 7. 19429, if it is at the lab
 

@@ -1166,8 +1166,12 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   turned `intoCornerDeg` into the corner), ended by its stall (`stallMs`) once the walls stop the frame, a
   `dwellMs` dwell, and a drive back at `backSpeed`. Pressed on the row, the mouth takes every GARDEN POLLEN it
   touches at once, not one per `intakeIntervalS` (that is for loose pieces). Checked against 19429's button
-  gathers of 18 Nov: 2.0 to 2.2 s against the robot's 2.26 to 2.50 s, but 3 POLLEN against its 4 (the square
-  frame turned 15° in the corner stops the mouth about 0.9 in short of the corner piece). **Measured:**
+  gathers of 18 Nov: 2.0 to 2.2 s against the robot's 2.26 to 2.50 s, but 3 POLLEN by touch against its 4 (the
+  square frame turned 15° in the corner stops the mouth about 0.9 in short of the corner piece). With the Belding
+  calibration, a robot with the roller FLOWER stick (19429, `BeldingCalibration.rollerStick`) fills its lane on
+  every FLOWER pick and GARDEN gather that runs to its end, in place of the Belding draw and the touch model: the
+  mentor's observation of 19 Nov, "4 POLLEN every time", still to confirm with volleys of 4 counted from the
+  launcher wheels' dips. 20245, with the passive stick, keeps both. **Measured:**
   the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
   whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (3 s, which covers the
   button gathers 19429 ran on 18 Nov with today's values, 2.26 to 2.50 s without their line-up; no Auto

@@ -2175,6 +2175,28 @@ final class FieldSim {
         return took;
     }
 
+    /**
+     * A roller FLOWER stick's pick ({@link BeldingCalibration#rollerStick}): the POLLEN still in the FLOWER at
+     * ({@code fx}, {@code fy}), lowest first, go into the lane until it holds {@code upTo} or has no room. Returns how
+     * many it took.
+     */
+    int topUpFromFlower(Bot bot, double fx, double fy, int upTo) {
+        int took = 0;
+        while (bot.stored.size() < upTo && hasRoom(bot, Kind.POLLEN)) {
+            Piece lowest = null;
+            for (Piece q : pieces) {
+                if (q.where != Where.FIELD || q.flower < 0 || q.kind != Kind.POLLEN) continue;
+                double[] f = flowers.get(q.flower);
+                if (Math.hypot(f[0] - fx, f[1] - fy) > 3.0) continue;
+                if (lowest == null || q.z < lowest.z) lowest = q;
+            }
+            if (lowest == null) break;
+            capture(bot, lowest);
+            took++;
+        }
+        return took;
+    }
+
     private void capture(Bot bot, Piece p) {
         List<Piece> stored = bot.stored;
         bot.lastCaptureAt = time;

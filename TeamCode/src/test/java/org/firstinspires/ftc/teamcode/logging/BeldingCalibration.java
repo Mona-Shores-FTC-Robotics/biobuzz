@@ -139,6 +139,27 @@ final class BeldingCalibration {
         return own == null || own.trim().isEmpty() ? all : own.trim();
     }
 
+    /**
+     * Whether {@code robot} ("19429", "20245", ...) has the roller FLOWER stick: 19429 since 17 Nov 2026
+     * ({@code RobotDifferences}: {@code FlowerStickSubsystem.roller = true}; 20245 keeps the passive stick).
+     * {@code BeldingCalibrationTest} fails if master's table stops saying so.
+     *
+     * <p>With it, the robot fills its lane, four or what it has room for, on every FLOWER pick and GARDEN gather that
+     * reaches the pieces (the pick or the gather ran to its end, the stick down): the mentor's observation on
+     * 19429, 19 Nov 2026, "4 POLLEN every time", from picks and gathers. An observation, not yet a measurement:
+     * to confirm with match logs as volleys of 4 counted from the launcher wheels' dips ({@code read_logs.py
+     * volleys}), since the lane counter is unreliable during gathers. It replaces the Belding draw ({@link #load},
+     * which predates the roller) and the gather's touch model for that robot.
+     */
+    static boolean rollerStick(String robot) {
+        return "19429".equals(robot);
+    }
+
+    /** Whether the robot at {@code index} fills its lane on a pick or a gather that reaches the pieces ({@link #rollerStick}). */
+    static boolean rollerFills(int index) {
+        return on && rollerStick(robotFor(index));
+    }
+
     /** Whether every load of the robot at {@code index} is four ({@link #robotFor(int)} "full"): a FLOWER pick's, and a GARDEN gather's too. */
     static boolean fullLoads(int index) {
         return "full".equals(robotFor(index));

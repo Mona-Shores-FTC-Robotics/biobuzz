@@ -2445,6 +2445,8 @@ public final class AutoSim {
             final double[] squareFrom = new double[1];
             final boolean[] intakeBefore = new boolean[1];
             final boolean[] pickAtScoringFlower = new boolean[1];
+            final double[] pickFlowerAt = new double[2];
+            final boolean[] reachedDwell = new boolean[1];
             final double flip = design.intakeAtBack ? Math.PI : 0.0;
             return new CommandBuilder()
                     .setStart(() -> {
@@ -2474,6 +2476,9 @@ public final class AutoSim {
                         contact[0] = new Pose(in.x(), in.y(), in.heading() - flip);
                         intakeBefore[0] = intakeEnabled;
                         pickAtScoringFlower[0] = Math.abs(flower.y - centre) > 60;
+                        pickFlowerAt[0] = flower.x;
+                        pickFlowerAt[1] = flower.y;
+                        reachedDwell[0] = false;
                         intakeEnabled = true;
                         Pose from = new Pose(at[0], at[1], at[2]);
                         double turn = Math.abs(Math.IEEEremainder(at[2] - square[0].heading(), 2 * Math.PI));
@@ -2500,6 +2505,7 @@ public final class AutoSim {
                             drive.follow(Paths.line(square[0], contact[0]).constant(square[0].heading()));
                         } else if (phase[0] == 1 && drive.pathDone()) {
                             phase[0] = 2;
+                            reachedDwell[0] = true;
                             dwellFrom[0] = now;
                         } else if (phase[0] == 2 && (Double.isNaN(pickS)
                                 // The robot's own numbers, by FlowerPicker.routine: one dwell, or MULTI_PUSH's dwells
@@ -2519,7 +2525,13 @@ public final class AutoSim {
                         if (phase[0] == 0) return;
                         // The Belding calibration: of the pieces picked, only as many as that robot's next volley
                         // fired there get as far as the launcher (a short pick, a wedge, a jam on the feed side).
-                        if (BeldingCalibration.on && end == EndCondition.NATURALLY) {
+                        if (BeldingCalibration.rollerFills(index) && end == EndCondition.NATURALLY) {
+                            // The roller stick (19429): a pick that reached the FLOWER fills the lane.
+                            if (reachedDwell[0]) {
+                                int more = sim.topUpFromFlower(body, pickFlowerAt[0], pickFlowerAt[1], 4);
+                                if (more > 0) pending.add("PickFlower: " + more + " more taken, the roller stick fills the lane");
+                            }
+                        } else if (BeldingCalibration.on && end == EndCondition.NATURALLY) {
                             int reach = BeldingCalibration.load(BeldingCalibration.robotFor(index), pickAtScoringFlower[0], pickLuck);
                             int lost = 0;
                             while (body.stored.size() > reach) {
@@ -2548,8 +2560,12 @@ public final class AutoSim {
          *
          * <p>Checked (19 Nov 2026) against 19429's button gathers of 18 Nov with these values: the routine takes 2.0
          * to 2.2 s here (in 1.3, dwell 0.16, back 0.68) against the robot's 2.26 to 2.50 s without its line-up (in 1.35
-         * to 1.60, dwell 0.15 to 0.18, back 0.67 to 0.73). It takes 3 POLLEN where the robot took 4 every time: the
-         * square frame, turned 15° and stopped by both walls, leaves the mouth about 0.9 in short of the corner piece.
+         * to 1.60, dwell 0.15 to 0.18, back 0.67 to 0.73). By touch it takes 3 POLLEN where 19429 took 4 every time:
+         * the square frame, turned 15° and stopped by both walls, leaves the mouth about 0.9 in short of the corner
+         * piece. 19429's roller FLOWER stick, which the simulator does not model in the GARDEN, takes the rest: with
+         * the Belding calibration, a gather of 19429's that ran to its end fills the lane
+         * ({@link BeldingCalibration#rollerStick}, the mentor's 19 Nov observation); 20245, with the passive stick,
+         * keeps the touch model.
          *
          * <p>The FLOWER stick goes down on the robot's gather; the simulator does not model the stick in the GARDEN,
          * only the intake. The gather takes no less than {@link AutoRegistration#GARDEN_GATHER_TYPICAL_S}, which the
@@ -2659,10 +2675,12 @@ public final class AutoSim {
                             drive.hold(drive.pose);
                             intakeEnabled = intakeBefore[0];
                             drive.maxSpeed = speedBefore[0];
-                            // Best case (BIOBUZZ_BELDING_ROBOT=full, or _OURS / _PARTNER for one robot): every load is four, a gather's too.
-                            if (BeldingCalibration.on && BeldingCalibration.fullLoads(index)) {
+                            // Best case (BIOBUZZ_BELDING_ROBOT=full, or _OURS / _PARTNER for one robot): every load is four,
+                            // a gather's too. The roller stick (19429) fills the lane on a gather that ran to its end.
+                            if (BeldingCalibration.on && (BeldingCalibration.fullLoads(index) || BeldingCalibration.rollerFills(index))) {
                                 int more = sim.topUpFromGarden(body, 2 * FieldSim.GARDEN_LENGTH_IN, 4);
-                                if (more > 0) pending.add("GardenGather: " + more + " more taken, a full load (best case)");
+                                if (more > 0) pending.add("GardenGather: " + more + " more taken, "
+                                        + (BeldingCalibration.fullLoads(index) ? "a full load (best case)" : "the roller stick fills the lane"));
                             }
                             int left = 0;
                             for (FieldSim.Piece q : sim.pieces) {
