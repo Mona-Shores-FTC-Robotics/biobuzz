@@ -75,10 +75,11 @@ public final class RobotDifferences {
                         + " from the build team; its port is in robot_19429.xml)",
                 () -> FlowerStickSubsystem.roller = true);
         differs(RobotIdentity.TEAM_19429,
-                "FLOWER stick rebuilt; its pivot measured in Bench: FLOWER Stick: in at 0.36, out at"
-                        + " 0.91 (mentor, 18 Nov 2026; was 0.06 and 0.55 on 17 Nov)",
+                "FLOWER stick rebuilt; its pivot measured in Bench: FLOWER Stick: in at 0.30, out at"
+                        + " 0.91 (mentor, 18 Nov 2026: in moved from 0.36 to 0.30, the pivot may have"
+                        + " slipped; was 0.06 and 0.55 on 17 Nov)",
                 () -> {
-                    FlowerStickSubsystem.RETRACTED = 0.36;
+                    FlowerStickSubsystem.RETRACTED = 0.30;
                     FlowerStickSubsystem.EXTENDED = 0.91;
                 });
         differs(RobotIdentity.TEAM_19429,
