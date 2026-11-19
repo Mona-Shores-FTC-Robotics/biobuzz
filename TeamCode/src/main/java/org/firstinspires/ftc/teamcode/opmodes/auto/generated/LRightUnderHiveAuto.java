@@ -21,7 +21,7 @@ public final class LRightUnderHiveAuto {
     public static final String SOURCE = "l-right-under-hive.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-19|3:18PM";
+    public static final String SAVED = "11-19|4:02PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -63,14 +63,13 @@ public final class LRightUnderHiveAuto {
         Pose leftAutoHiveOuterLaneToRightParkSegment1Start = p.of(14.5, 98.7, 268.9);
         Pose scoringFlowerToRightParkControl1 = p.of(38, 112.6, 0);
         Pose scoringFlowerToRightParkControl2 = p.of(31.8, 94.1, 0);
-        Pose lateLeftAutoOffsetToRightParkControl1 = p.of(32, 108, 0);
-        Pose lateLeftAutoOffsetToRightParkControl2 = p.of(28, 95, 0);
+        Pose leftAutoOffsetToRightParkControl1 = p.of(38, 104, 0);
+        Pose leftAutoOffsetToRightParkControl2 = p.of(34, 95, 0);
+        Pose lateLeftAutoOffsetToRightParkControl1 = p.of(38, 104, 0);
+        Pose lateLeftAutoOffsetToRightParkControl2 = p.of(34, 95, 0);
         Pose outerLaneToWallFlowerStagingControl1 = p.of(32, 110, 0);
         Pose outerLaneToWallFlowerStagingControl2 = p.of(30, 96, 0);
         Pose outerLaneToWallFlowerStagingControl3 = p.of(26, 60, 0);
-        Pose leftAutoOffsetToRightParkStart = p.of(23.1, 47.2, 298.7);
-        Pose leftAutoOffsetToRightParkControl1 = p.of(32, 108, 0);
-        Pose leftAutoOffsetToRightParkControl2 = p.of(28, 95, 0);
         Pose wallFlowerStagingToRightParkControl1 = p.of(26, 75, 0);
         Pose noTip1OuterLaneToWallFlowerStagingControl1 = p.of(50, 112, 0);
         Pose noTip1OuterLaneToWallFlowerStagingControl2 = p.of(34, 104, 0);
@@ -84,9 +83,9 @@ public final class LRightUnderHiveAuto {
         Path toScoringFlowerStaging = Paths.line(leftAutoHive, scoringFlowerStaging).linear(leftAutoHive, scoringFlowerStaging);
         Path scoringFlowerToRightPark = Paths.curve(scoringFlowerStaging, scoringFlowerToRightParkControl1, scoringFlowerToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);
         Path scoringFlowerToLeftAutoOffset = Paths.line(scoringFlowerStaging, leftAutoOffset).linear(scoringFlowerStaging, leftAutoOffset);
+        Path leftAutoOffsetToRightPark = Paths.curve(leftAutoOffset, leftAutoOffsetToRightParkControl1, leftAutoOffsetToRightParkControl2, rightPark).linear(leftAutoOffset, rightPark);
         Path lateLeftAutoOffsetToRightPark = Paths.curve(leftAutoOffset, lateLeftAutoOffsetToRightParkControl1, lateLeftAutoOffsetToRightParkControl2, rightPark).linear(leftAutoOffset, rightPark);
         Path outerLaneToWallFlowerStaging = Paths.curve(leftAutoOffset, outerLaneToWallFlowerStagingControl1, outerLaneToWallFlowerStagingControl2, outerLaneToWallFlowerStagingControl3, wallFlowerStaging).linear(leftAutoOffset, wallFlowerStaging);
-        Path leftAutoOffsetToRightPark = Paths.curve(leftAutoOffsetToRightParkStart, leftAutoOffsetToRightParkControl1, leftAutoOffsetToRightParkControl2, rightPark).linear(leftAutoOffsetToRightParkStart, rightPark);
         Path wallFlowerStagingToRightPark = Paths.curve(wallFlowerStaging, wallFlowerStagingToRightParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
         Path noTip1OuterLaneToWallFlowerStaging = Paths.curve(leftAutoHive, noTip1OuterLaneToWallFlowerStagingControl1, noTip1OuterLaneToWallFlowerStagingControl2, noTip1OuterLaneToWallFlowerStagingControl3, noTip1OuterLaneToWallFlowerStagingControl4, wallFlowerStaging).linear(leftAutoHive, wallFlowerStaging);
         Path noTip1WallFlowerStagingToRightPark = Paths.curve(wallFlowerStaging, noTip1WallFlowerStagingToRightParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
@@ -97,25 +96,34 @@ public final class LRightUnderHiveAuto {
                 kit.firstOf("Wait for TIP 1 until 20 s", kit.command("SpinUp"),
                         kit.when("CellUp").then(
                                 kit.command("LaunchAll"),
-                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerToRightPark, 1.9),
-                                kit.command("PickFlower", 8),
-                                kit.path("SCORING FLOWER to LEFT_AUTO_OFFSET", scoringFlowerToLeftAutoOffset, 1, scoringFlowerToRightPark, 1.9),
-                                kit.firstOf("LEFT still up?",
-                                        kit.when("CellUp").then(
-                                                kit.command("LaunchAll")),
-                                        kit.afterMs(750)),
-                                kit.firstOf("WALL FLOWER only before 22 s, otherwise park",
-                                        kit.atMatchSeconds(22).then(
-                                                kit.guarded("Timed out", lateLeftAutoOffsetToRightPark, 1.8,
-                                                        kit.path("late: LEFT_AUTO_OFFSET to RIGHT_PARK", lateLeftAutoOffsetToRightPark, 1.8))),
+                                kit.firstOf("TIP 1 after 14 s (R fixed it): park now, out of R's way",
+                                        kit.atMatchSeconds(14).then(
+                                                kit.guarded("Timed out", leftAutoHiveOuterLaneToRightPark, 2.1,
+                                                        kit.path("LEFT_AUTO_HIVE, outer lane to RIGHT_PARK", leftAutoHiveOuterLaneToRightPark, 2.1))),
                                         kit.when("Always").then(
-                                                kit.guarded("If Always", wallFlowerStagingToRightPark, 2.1,
-                                                        kit.path("outer lane to WALL_FLOWER_STAGING", outerLaneToWallFlowerStaging, 2.6, leftAutoOffsetToRightPark, 2.3),
-                                                        kit.command("PickFlower", 8),
-                                                        kit.path("WALL_FLOWER_STAGING to RIGHT_PARK", wallFlowerStagingToRightPark, 2.1))))),
+                                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerToRightPark, 1.9),
+                                                kit.command("PickFlower", 8),
+                                                kit.path("SCORING FLOWER to LEFT_AUTO_OFFSET", scoringFlowerToLeftAutoOffset, 1, leftAutoOffsetToRightPark, 1.9),
+                                                kit.firstOf("WALL FLOWER only before 22 s, otherwise park",
+                                                        kit.atMatchSeconds(22).then(
+                                                                kit.guarded("Timed out", lateLeftAutoOffsetToRightPark, 1.9,
+                                                                        kit.firstOf("LEFT still up?",
+                                                                                kit.when("CellUp").then(
+                                                                                        kit.command("LaunchAll")),
+                                                                                kit.afterMs(750)),
+                                                                        kit.path("late: LEFT_AUTO_OFFSET to RIGHT_PARK", lateLeftAutoOffsetToRightPark, 1.9))),
+                                                        kit.when("Always").then(
+                                                                kit.guarded("If Always", wallFlowerStagingToRightPark, 2.1,
+                                                                        kit.firstOf("LEFT still up?",
+                                                                                kit.when("CellUp").then(
+                                                                                        kit.command("LaunchAll")),
+                                                                                kit.afterMs(750)),
+                                                                        kit.path("outer lane to WALL_FLOWER_STAGING", outerLaneToWallFlowerStaging, 2.6, wallFlowerStagingToRightPark, 2.1),
+                                                                        kit.command("PickFlower", 8),
+                                                                        kit.path("WALL_FLOWER_STAGING to RIGHT_PARK", wallFlowerStagingToRightPark, 2.1))))))),
                         kit.atMatchSeconds(kit.seconds("Wait for TIP 1 until 20 s", 20)).then(
                                 kit.guarded("Timed out", noTip1WallFlowerStagingToRightPark, 2.1,
-                                        kit.path("no TIP 1, outer lane to WALL_FLOWER_STAGING", noTip1OuterLaneToWallFlowerStaging, 2.8, leftAutoHiveOuterLaneToRightPark, 2.1),
+                                        kit.path("no TIP 1, outer lane to WALL_FLOWER_STAGING", noTip1OuterLaneToWallFlowerStaging, 2.8, noTip1WallFlowerStagingToRightPark, 2.1),
                                         kit.command("PickFlower", 8),
                                         kit.path("no TIP 1, WALL_FLOWER_STAGING to RIGHT_PARK", noTip1WallFlowerStagingToRightPark, 2.1)))));
     }

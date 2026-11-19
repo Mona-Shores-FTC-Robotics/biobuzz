@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T20:18:49.588Z",
+  "timestamp": "2026-11-19T21:02:33.461Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -184,27 +184,6 @@
       }
     },
     {
-      "id": "r-ru-back",
-      "color": "#4e79a7",
-      "name": "GARDEN back to RIGHT_AUTO_HIVE",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59.2,
-        "y": 20.9
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 96.1
-      }
-    },
-    {
       "id": "r-ru-garden-park",
       "color": "#4e79a7",
       "name": "GARDEN, corridor, to LEFT_PARK (guard)",
@@ -336,13 +315,34 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
+        "x": 11.5,
+        "y": 22.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "r-ru-back",
+      "color": "#4e79a7",
+      "name": "GARDEN back to RIGHT_AUTO_HIVE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
         "x": 59.2,
         "y": 20.9
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 96.10000000000002
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 96.1
       }
     },
     {
@@ -857,15 +857,15 @@
     },
     {
       "kind": "path",
-      "lineId": "r-ru-back"
-    },
-    {
-      "kind": "path",
       "lineId": "r-ru-garden-park"
     },
     {
       "kind": "path",
       "lineId": "link-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "r-ru-back"
     },
     {
       "kind": "path",

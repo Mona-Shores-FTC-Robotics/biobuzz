@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T20:18:50.247Z",
+  "timestamp": "2026-11-19T21:02:34.147Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -185,6 +185,51 @@
       }
     },
     {
+      "id": "l-ru-offset-park",
+      "color": "#4e79a7",
+      "name": "LEFT_AUTO_OFFSET to RIGHT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 38,
+          "y": 104
+        },
+        {
+          "x": 34,
+          "y": 95
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 360
+      }
+    },
+    {
+      "id": "link-3",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.7,
+        "y": 121.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": -61.299999999999955
+      }
+    },
+    {
       "id": "l-ru-offset-park-2",
       "color": "#4e79a7",
       "name": "late: LEFT_AUTO_OFFSET to RIGHT_PARK",
@@ -215,7 +260,7 @@
       }
     },
     {
-      "id": "link-3",
+      "id": "link-4",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -261,51 +306,6 @@
         "type": "linear",
         "startDeg": 298.7,
         "endDeg": 180
-      }
-    },
-    {
-      "id": "l-ru-offset-park",
-      "color": "#4e79a7",
-      "name": "LEFT_AUTO_OFFSET to RIGHT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 38,
-          "y": 104
-        },
-        {
-          "x": 34,
-          "y": 95
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 298.7,
-        "endDeg": 360
-      }
-    },
-    {
-      "id": "link-4",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 23.1,
-        "y": 47.2
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 179.99999999999994
       }
     },
     {
@@ -607,7 +607,7 @@
     },
     {
       "kind": "path",
-      "lineId": "l-ru-offset-park-2"
+      "lineId": "l-ru-offset-park"
     },
     {
       "kind": "path",
@@ -615,15 +615,15 @@
     },
     {
       "kind": "path",
-      "lineId": "l-ru-lane"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-ru-offset-park"
+      "lineId": "l-ru-offset-park-2"
     },
     {
       "kind": "path",
       "lineId": "link-4"
+    },
+    {
+      "kind": "path",
+      "lineId": "l-ru-lane"
     },
     {
       "kind": "path",
