@@ -1,5 +1,8 @@
 # Auto handoff notes, 16 Nov 2026
 
+> The drafts and stand-ins this names were removed from `TeamCode/autos/` on 19 Nov 2026 (mentor: a small
+> set of drafts); they are in Git history at `f2c9bb7`.
+
 On 16 Nov 2026 the mentor set the Auto baseline (R-Solo, R-NoCross, L-NoCross, R-Clockwise,
 L-Clockwise), retired the Infraviolet pair, and asked every chat then working on an Auto to stop
 and write down what a fresh chat would need. These are those notes, as each chat sent them, lightly
@@ -145,7 +148,7 @@ Visualizer's `scripts/save-auto.mjs`; the script is gone, so the `.pp` files on 
 ## Two TIPs for sure: human-player NECTAR
 
 **Rebuilt 18 Nov from master's R-Solo:** `drafts/r-solo-human-player.pp`, the Utility **Drive:
-R-Solo-HumanPlayer**, its simulator table in `TeamCode/autos/drafts/README.md` and tonight's runs in
+R-Solo-HumanPlayer** (off the Utility menu, with its sim request, since 19 Nov 2026), its simulator table in `TeamCode/autos/drafts/README.md` and tonight's runs in
 `doc/robot-todo.md` §3. One leg redrawn (the outside lane past the LOADING ZONE, one path, no stop at a
 handoff point: a stop there cost R-Solo its third volley), both LEFT volleys from `LEFT_AUTO_HIVE`, the
 turret at home (it cannot shoot back over the robot). The 16 Nov study (R-Two-Tip-based, `NECTAR_HANDOFF`

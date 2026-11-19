@@ -163,8 +163,8 @@ public class IntakeSubsystem implements Subsystem {
      * Whether this robot keeps its load in the lane while it drives backward. Off: on 20245's first
      * Clockwise drive (12 Nov 2026) pieces left the intake on both legs it drove backward, so every
      * Auto on the Autonomous menu drives nose-first with a load. On for 19429 in
-     * {@code RobotDifferences}, which has a bottom plate (18 Nov 2026). An Auto drawn with a loaded
-     * leg driven backward ({@code BackwardLoadTrial}) refuses to move on a robot where this is off.
+     * {@code RobotDifferences}, which has a bottom plate (18 Nov 2026). No Auto drives a loaded leg
+     * backward yet; one that does should refuse to move on a robot where this is off.
      */
     public static boolean holdsLoadDrivingBackward = false;
 
@@ -345,7 +345,7 @@ public class IntakeSubsystem implements Subsystem {
     /**
      * Ask for pieces out at these powers (0 to 1) instead of {@link #outPower} and
      * {@link #starsPower}, for this request only: a gentle eject that sets pieces down rather than
-     * throwing them ({@code Bench: Wall Eject}). The feeder reversing still backs out at the
+     * throwing them. The feeder reversing still backs out at the
      * configured powers when the OpMode asks for nothing.
      */
     public void eject(double rollerPower, double starsPower) {

@@ -70,6 +70,20 @@ final class BeldingCalibration {
     /** Seconds a CELL over its tipping weight sits before the rocker moves: {shortest, longest}. */
     static final double[] DWELL_S = {3.6, 4.2};
 
+    /**
+     * A request's in-rates ({@code "ourInRate"}, {@code "partnerInRate"}): the fraction of a robot's launched pieces
+     * that stay in, from any range, in place of {@link #STAY_IN}'s Belding rows. NaN keeps the rows. Ours is the run's
+     * first Auto (index 0), the partner every other robot. Why (mentor, 19 Nov 2026): our robots now put 90 to 95% in
+     * from the AUTO launch spots; 0.92 is the realistic case.
+     */
+    static double ourInRate = Double.NaN, partnerInRate = Double.NaN;
+
+    /** The fraction of the robot at {@code index} that stays in from {@code rangeIn}: its in-rate if set, else the rows. */
+    static double stayInFraction(double rangeIn, int index) {
+        double rate = index == 0 ? ourInRate : partnerInRate;
+        return Double.isNaN(rate) ? stayInFraction(rangeIn) : rate;
+    }
+
     /** The fraction that stays in from {@code rangeIn}: straight lines between the rows, held beyond them. */
     static double stayInFraction(double rangeIn) {
         if (Double.isNaN(rangeIn) || rangeIn <= STAY_IN[0][0]) return STAY_IN[0][1];
@@ -187,11 +201,18 @@ final class BeldingCalibration {
      * and no knock from a hit. At Belding every AUTO TIP sat out its dwell, however hard the volley landed; the
      * placeholder knock tipped the CELL the moment the last ball hit, 0.7 s after it left.
      */
+    /**
+     * A request's {@code "tipDwellS"} (seconds, or {@code [least, most]}): the dwell before every TIP, in place of
+     * {@link #DWELL_S}, for a designed slow-swing case; null keeps {@link #DWELL_S}. Set before {@link #apply}.
+     */
+    static double[] dwellOverride;
+
     static void apply() {
         dwellBefore = FieldSim.tipDwellRange;
         impulseBefore = FieldSim.impulseScale;
-        FieldSim.tipDwellRange = DWELL_S;
-        FieldSim.tipDwellOverloadedS = DWELL_S[0];
+        double[] dwell = dwellOverride != null ? dwellOverride : DWELL_S;
+        FieldSim.tipDwellRange = dwell;
+        FieldSim.tipDwellOverloadedS = dwell[0];
         FieldSim.impulseScale = 0;
     }
 

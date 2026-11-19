@@ -125,12 +125,12 @@
           "y": 112
         },
         {
-          "x": 36,
-          "y": 102
+          "x": 34,
+          "y": 104
         },
         {
-          "x": 30,
-          "y": 94
+          "x": 28,
+          "y": 96
         },
         {
           "x": 26,
@@ -252,6 +252,36 @@
       "id": "l-ru-offset-park",
       "color": "#4e79a7",
       "name": "LEFT_AUTO_OFFSET to RIGHT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 32,
+          "y": 108
+        },
+        {
+          "x": 28,
+          "y": 95
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 360
+      }
+    },
+    {
+      "id": "l-ru-offset-park-2",
+      "color": "#4e79a7",
+      "name": "late: LEFT_AUTO_OFFSET to RIGHT_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -510,6 +540,10 @@
     },
     {
       "kind": "path",
+      "lineId": "l-ru-offset-park-2"
+    },
+    {
+      "kind": "path",
       "lineId": "l-ru-sf-park"
     }
   ],
@@ -612,6 +646,7 @@
       "l-ru-wall-park-late": "RIGHT_PARK",
       "l-ru-hive-park": "RIGHT_PARK",
       "l-ru-offset-park": "RIGHT_PARK",
+      "l-ru-offset-park-2": "RIGHT_PARK",
       "l-ru-sf-park": "RIGHT_PARK"
     },
     "cards": [
@@ -684,22 +719,48 @@
                 ]
               },
               {
-                "id": "c-l-lane",
-                "kind": "path",
-                "lineId": "l-ru-lane",
-                "park": false
-              },
-              {
-                "id": "c-l-wall",
-                "kind": "action",
-                "name": "PickFlower",
-                "timeoutS": 8
-              },
-              {
-                "id": "c-l-park",
-                "kind": "path",
-                "lineId": "l-ru-wall-park",
-                "park": true
+                "id": "c-l-wall-gate",
+                "kind": "firstOf",
+                "label": "WALL FLOWER only before 22 s, otherwise park",
+                "rows": [
+                  {
+                    "afterMs": 22000,
+                    "matchClock": true,
+                    "cards": [
+                      {
+                        "id": "c-l-gate-park",
+                        "kind": "path",
+                        "lineId": "l-ru-offset-park-2",
+                        "park": true
+                      }
+                    ]
+                  },
+                  {
+                    "when": [
+                      "Always"
+                    ],
+                    "cards": [
+                      {
+                        "id": "c-l-lane",
+                        "kind": "path",
+                        "lineId": "l-ru-lane",
+                        "park": false
+                      },
+                      {
+                        "id": "c-l-wall",
+                        "kind": "action",
+                        "name": "PickFlower",
+                        "timeoutS": 8
+                      },
+                      {
+                        "id": "c-l-park",
+                        "kind": "path",
+                        "lineId": "l-ru-wall-park",
+                        "park": true
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
@@ -749,6 +810,6 @@
       "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"
     ],
-    "exportName": "L-RightUnder"
+    "exportName": "L-RightUnderHive"
   }
 }

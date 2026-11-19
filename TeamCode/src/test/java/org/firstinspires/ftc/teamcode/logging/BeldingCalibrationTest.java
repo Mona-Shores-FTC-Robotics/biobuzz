@@ -51,4 +51,20 @@ public class BeldingCalibrationTest {
         assertFalse(BeldingCalibration.rollerStick("20245"));
         assertFalse(BeldingCalibration.rollerStick("both"));
     }
+
+    /** A request's in-rate replaces the Belding rows for that robot only, and NaN keeps them. */
+    @Test
+    public void inRateReplacesTheRowsForThatRobot() {
+        try {
+            BeldingCalibration.ourInRate = 0.92;
+            assertEquals(0.92, BeldingCalibration.stayInFraction(36.0, 0), 1e-9);
+            assertEquals(BeldingCalibration.stayInFraction(36.0), BeldingCalibration.stayInFraction(36.0, 1), 1e-9);
+            BeldingCalibration.partnerInRate = 0.5;
+            assertEquals(0.5, BeldingCalibration.stayInFraction(53.9, 2), 1e-9);
+        } finally {
+            BeldingCalibration.ourInRate = Double.NaN;
+            BeldingCalibration.partnerInRate = Double.NaN;
+        }
+        assertEquals(0.70, BeldingCalibration.stayInFraction(36.0, 0), 1e-9);
+    }
 }

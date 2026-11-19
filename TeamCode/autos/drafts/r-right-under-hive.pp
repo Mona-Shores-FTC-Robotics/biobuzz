@@ -72,9 +72,51 @@
       }
     },
     {
-      "id": "r-ru-park",
+      "id": "r-ru-up",
       "color": "#4e79a7",
-      "name": "under the HIVE to LEFT_PARK",
+      "name": "up the corridor under the HIVE to R_HIVE_EXIT",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 60.5,
+        "y": 100
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 96.1,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "r-ru-up-fix",
+      "color": "#4e79a7",
+      "name": "fix: up the corridor under the HIVE to R_HIVE_EXIT",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 60.5,
+        "y": 100
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 96.1,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "r-ru-exit-park",
+      "color": "#4e79a7",
+      "name": "R_HIVE_EXIT west above the HIVE to LEFT_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -87,24 +129,20 @@
       },
       "controlPoints": [
         {
-          "x": 58.5,
-          "y": 50
+          "x": 52,
+          "y": 101
         },
         {
-          "x": 64.5,
-          "y": 80
+          "x": 38,
+          "y": 101
         },
         {
-          "x": 63.5,
-          "y": 98
+          "x": 28,
+          "y": 101
         },
         {
-          "x": 48,
-          "y": 102
-        },
-        {
-          "x": 35,
-          "y": 112
+          "x": 22,
+          "y": 106
         }
       ],
       "heading": {
@@ -113,24 +151,15 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.1,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 96.1,
-                "endDeg": 90
-              }
-            },
-            {
-              "startProgress": 0.1,
-              "endProgress": 0.62,
+              "endProgress": 0.3,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 90
               }
             },
             {
-              "startProgress": 0.62,
-              "endProgress": 0.86,
+              "startProgress": 0.3,
+              "endProgress": 0.95,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
@@ -138,7 +167,72 @@
               }
             },
             {
-              "startProgress": 0.86,
+              "startProgress": 0.95,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "r-ru-exit-park-2",
+      "color": "#4e79a7",
+      "name": "R_HIVE_EXIT west above the HIVE to LEFT_PARK (instead of the fix)",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 52,
+          "y": 101
+        },
+        {
+          "x": 38,
+          "y": 101
+        },
+        {
+          "x": 28,
+          "y": 101
+        },
+        {
+          "x": 22,
+          "y": 106
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.3,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.3,
+              "endProgress": 0.95,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 0
+              }
+            },
+            {
+              "startProgress": 0.95,
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
@@ -152,7 +246,7 @@
     {
       "id": "r-ru-wait-park",
       "color": "#4e79a7",
-      "name": "wait timed out, under the HIVE to LEFT_PARK",
+      "name": "RIGHT_AUTO_HIVE, corridor, to LEFT_PARK (guard)",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -165,23 +259,63 @@
       },
       "controlPoints": [
         {
-          "x": 58.5,
-          "y": 50
+          "x": 61,
+          "y": 30
         },
         {
-          "x": 64.5,
+          "x": 61,
+          "y": 30
+        },
+        {
+          "x": 61,
+          "y": 30
+        },
+        {
+          "x": 61,
+          "y": 55
+        },
+        {
+          "x": 61,
+          "y": 55
+        },
+        {
+          "x": 61,
+          "y": 55
+        },
+        {
+          "x": 61,
           "y": 80
         },
         {
-          "x": 63.5,
-          "y": 98
+          "x": 61,
+          "y": 80
         },
         {
-          "x": 48,
-          "y": 102
+          "x": 61,
+          "y": 80
         },
         {
-          "x": 35,
+          "x": 61,
+          "y": 100
+        },
+        {
+          "x": 61,
+          "y": 100
+        },
+        {
+          "x": 61,
+          "y": 100
+        },
+        {
+          "x": 57,
+          "y": 108
+        },
+        {
+          "x": 40,
+          "y": 110
+        },
+        {
+          "x": 26,
           "y": 112
         }
       ],
@@ -191,7 +325,7 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.1,
+              "endProgress": 0.05,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 96.1,
@@ -199,16 +333,16 @@
               }
             },
             {
-              "startProgress": 0.1,
-              "endProgress": 0.62,
+              "startProgress": 0.05,
+              "endProgress": 0.72,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 90
               }
             },
             {
-              "startProgress": 0.62,
-              "endProgress": 0.86,
+              "startProgress": 0.72,
+              "endProgress": 0.95,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
@@ -216,7 +350,7 @@
               }
             },
             {
-              "startProgress": 0.86,
+              "startProgress": 0.95,
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
@@ -230,7 +364,7 @@
     {
       "id": "r-ru-garden-park",
       "color": "#4e79a7",
-      "name": "GARDEN, under the HIVE to LEFT_PARK",
+      "name": "GARDEN, corridor, to LEFT_PARK (guard)",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -243,31 +377,71 @@
       },
       "controlPoints": [
         {
-          "x": 40,
-          "y": 20
+          "x": 30,
+          "y": 12
         },
         {
-          "x": 68,
-          "y": 18
+          "x": 61,
+          "y": 12
         },
         {
-          "x": 62,
-          "y": 50
+          "x": 61,
+          "y": 30
         },
         {
-          "x": 68,
+          "x": 61,
+          "y": 30
+        },
+        {
+          "x": 61,
+          "y": 30
+        },
+        {
+          "x": 61,
+          "y": 55
+        },
+        {
+          "x": 61,
+          "y": 55
+        },
+        {
+          "x": 61,
+          "y": 55
+        },
+        {
+          "x": 61,
           "y": 80
         },
         {
-          "x": 63.5,
-          "y": 98
+          "x": 61,
+          "y": 80
         },
         {
-          "x": 48,
-          "y": 102
+          "x": 61,
+          "y": 80
         },
         {
-          "x": 35,
+          "x": 61,
+          "y": 100
+        },
+        {
+          "x": 61,
+          "y": 100
+        },
+        {
+          "x": 61,
+          "y": 100
+        },
+        {
+          "x": 57,
+          "y": 108
+        },
+        {
+          "x": 40,
+          "y": 110
+        },
+        {
+          "x": 26,
           "y": 112
         }
       ],
@@ -277,24 +451,24 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.15,
+              "endProgress": 0.08,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 270,
-                "endDeg": 90
+                "endDeg": 450
               }
             },
             {
-              "startProgress": 0.15,
-              "endProgress": 0.7,
+              "startProgress": 0.08,
+              "endProgress": 0.74,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 90
               }
             },
             {
-              "startProgress": 0.7,
-              "endProgress": 0.88,
+              "startProgress": 0.74,
+              "endProgress": 0.95,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
@@ -302,7 +476,7 @@
               }
             },
             {
-              "startProgress": 0.88,
+              "startProgress": 0.95,
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
@@ -316,7 +490,7 @@
     {
       "id": "r-ru-fix",
       "color": "#4e79a7",
-      "name": "under the HIVE, up the east side to R_LEFT_FIX",
+      "name": "R_HIVE_EXIT round to R_LEFT_FIX",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -324,21 +498,21 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.4,
-        "y": 117.0
+        "x": 60.0,
+        "y": 114.0
       },
       "controlPoints": [
         {
-          "x": 58.5,
-          "y": 50
+          "x": 54,
+          "y": 104
         },
         {
-          "x": 64.5,
-          "y": 80
+          "x": 61,
+          "y": 108
         },
         {
-          "x": 64,
-          "y": 100
+          "x": 60.5,
+          "y": 111
         }
       ],
       "heading": {
@@ -347,28 +521,27 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.1,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 96.1,
-                "endDeg": 90
-              }
-            },
-            {
-              "startProgress": 0.1,
-              "endProgress": 0.75,
+              "endProgress": 0.2,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 90
               }
             },
             {
-              "startProgress": 0.75,
-              "endProgress": 1,
+              "startProgress": 0.2,
+              "endProgress": 0.55,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
                 "endDeg": 268.9
+              }
+            },
+            {
+              "startProgress": 0.55,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 268.9
               }
             }
           ]
@@ -392,7 +565,7 @@
       "controlPoints": [
         {
           "x": 44,
-          "y": 112
+          "y": 113
         }
       ],
       "heading": {
@@ -418,7 +591,7 @@
       "controlPoints": [
         {
           "x": 44,
-          "y": 112
+          "y": 113
         }
       ],
       "heading": {
@@ -605,7 +778,19 @@
     },
     {
       "kind": "path",
-      "lineId": "r-ru-park"
+      "lineId": "r-ru-up"
+    },
+    {
+      "kind": "path",
+      "lineId": "r-ru-up-fix"
+    },
+    {
+      "kind": "path",
+      "lineId": "r-ru-exit-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "r-ru-exit-park-2"
     },
     {
       "kind": "path",
@@ -706,9 +891,14 @@
         7.7,
         90
       ],
+      "R_HIVE_EXIT": [
+        60.5,
+        100,
+        90
+      ],
       "R_LEFT_FIX": [
-        61.4,
-        117.0,
+        60.0,
+        114.0,
         268.9
       ]
     },
@@ -716,7 +906,10 @@
       "r-ru-open": "RIGHT_AUTO_HIVE",
       "r-ru-garden": "GARDEN_STAGING",
       "r-ru-back": "RIGHT_AUTO_HIVE",
-      "r-ru-park": "LEFT_PARK",
+      "r-ru-up": "R_HIVE_EXIT",
+      "r-ru-up-fix": "R_HIVE_EXIT",
+      "r-ru-exit-park": "LEFT_PARK",
+      "r-ru-exit-park-2": "LEFT_PARK",
       "r-ru-wait-park": "LEFT_PARK",
       "r-ru-garden-park": "LEFT_PARK",
       "r-ru-fix": "R_LEFT_FIX",
@@ -762,7 +955,7 @@
       {
         "id": "c-r-wait",
         "kind": "firstOf",
-        "label": "RIGHT up (TIP 2, or no TIP 1) before 16 s, otherwise fix LEFT",
+        "label": "RIGHT up (TIP 2, or no TIP 1) before 18 s, otherwise fix LEFT",
         "alongside": "SpinUp",
         "rows": [
           {
@@ -777,19 +970,31 @@
                 "timeoutS": 1
               },
               {
+                "id": "c-r-up",
+                "kind": "path",
+                "lineId": "r-ru-up",
+                "park": false
+              },
+              {
                 "id": "c-r-park",
                 "kind": "path",
-                "lineId": "r-ru-park",
+                "lineId": "r-ru-exit-park",
                 "park": true
               }
             ]
           },
           {
-            "afterMs": 16000,
+            "afterMs": 18000,
             "matchClock": true,
             "adjustable": true,
             "tip": 2,
             "cards": [
+              {
+                "id": "c-r-up-fix",
+                "kind": "path",
+                "lineId": "r-ru-up-fix",
+                "park": false
+              },
               {
                 "id": "c-r-fix",
                 "kind": "path",
@@ -844,7 +1049,9 @@
       "c-r-open": "r-ru-wait-park",
       "c-r-garden": "r-ru-wait-park",
       "c-r-back": "r-ru-garden-park",
-      "c-r-fix": "r-ru-wait-park"
+      "c-r-up": "r-ru-wait-park",
+      "c-r-up-fix": "r-ru-wait-park",
+      "c-r-fix": "r-ru-exit-park-2"
     },
     "teamSpots": [
       "GARDEN_STAGING",
@@ -852,6 +1059,6 @@
       "RIGHT_AUTO_HIVE",
       "RIGHT_START"
     ],
-    "exportName": "R-RightUnder"
+    "exportName": "R-RightUnderHive"
   }
 }

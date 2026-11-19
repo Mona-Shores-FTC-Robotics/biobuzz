@@ -45,7 +45,13 @@ mentor rates it the team's best Auto). R keeps to the wall side of the HIVE both
 under-HIVE side, so their roads do not cross. Never driven. Its volleys: R's preloads from
 `RIGHT_AUTO_HIVE`, its LEFT volley from `LEFT_AUTO_OFFSET` (it comes round the outside lane, beside L on
 `LEFT_AUTO_HIVE`), its last from `RIGHT_AUTO_OFFSET`; L's preloads from `LEFT_AUTO_HIVE` and its
-pickup load from `RIGHT_AUTO_HIVE`. Leave the Pickup rows as drawn (R `WALL_FLOWER`, L `GARDEN`):
+pickup load from `RIGHT_AUTO_HIVE`. Since 19 Nov 2026 L is the former trial L-UnderHive-ParkShot (mentor):
+it parks at its own `LEFT_AUTO_PARK` (14.5, 120.5, 322.6), partly in the LOADING ZONE and turned to face the
+LEFT CELL, clear of R at `RIGHT_PARK`. When its RIGHT-up wait gives up at 22 s it parks there, then fires
+`LaunchAllAimed` behind a check, **LEFT up before 27.5 s**: the turret aimed by `TurretAimer`, its last piece
+out by 30 s, else it stays parked (19429 on 18 Nov had parked with 2 POLLEN in the lane and LEFT up). If TIP 1
+has not come by 9 s, it crosses under the HIVE to `RIGHT_AUTO_FIX_TIP`, fires at RIGHT and parks at
+`LEFT_AUTO_PARK` (L-Clockwise's rescue). Leave the Pickup rows as drawn (R `WALL_FLOWER`, L `GARDEN`):
 with them swapped the robots touched at about 12 s in 2 of 3 simulated runs. In the simulator R's
 LEFT volley ends after 15.5 s, so R parks from the left spot and the pair makes one TIP; the
 robot's own time for that leg decides ([its notes](drafts/README.md#the-lane-pair-r-outsidelane-and-l-underhive),
@@ -55,8 +61,8 @@ fallback at each stop, and a pickup the drive teams choose in INIT. Each robot h
 alone; the pair has not yet run together
 ([its notes](clockwise.md)). Its volleys are from the
 Autos' launch spots, as every Auto's are. It drives nose-first with a load; the version
-with backward legs, which has time for a third TIP, is the draft `r-clockwise-backward.pp` with
-`l-clockwise-backward.pp`.
+with backward legs, which has time for a third TIP, was the draft pair `r-clockwise-backward.pp` and
+`l-clockwise-backward.pp`, removed with the other drafts on 19 Nov 2026 (in Git history at `f2c9bb7`).
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
 those routines: their paths, waits and fallback behavior have not been tuned yet.
 **When TIP 1 does not come, the drive team picks what L-NoCross does** (INIT row `if no TIP 1`,
@@ -99,15 +105,12 @@ Inside the Visualizer, the same list is **View → Team Autos: the latest from b
 in the link: `#team=auto/r-solo/r-solo.pp`.
 
 **Drafts** (`drafts/`, no competition OpMode; a draft may have an isolated test Utility) are listed in Team Autos under their own heading, and
-open beside a partner stand-in the same way (R-Solo-Nudge, R-Two-Tip and the nudge test lost their
-Utility trials on 18 Nov 2026, so none of them is on the Driver Station): R-Solo-Nudge with its pushed partner is
-<https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-nudge.pp,partners/partner-push-start.pp>.
+open beside a partner stand-in the same way. Since 19 Nov 2026 `drafts/` holds only L-Assist (mentor: a
+small, manageable set); every other draft, and the stand-ins only they used, are in Git history at `f2c9bb7`
+(`git checkout f2c9bb7 -- TeamCode/autos/drafts/<name>.pp` and its generated class brings one back).
 Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `drafts/`, and the fast
 lane takes a `.pp` in `drafts/` or `partners/` (Visualizer
 [#67](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/pull/67) lists the drafts).
-R-Two-Tip, R-Solo's steps with the LEFT volleys from the measured launch spots, is a draft too
-([its notes](drafts/README.md)). So are the four plain drafts of the Clockwise lane study, one
-per robot per pickup ([clockwise.md](clockwise.md)).
 
 **The polish loop.** Open the Auto from master, change it, **Save to GitHub and simulate…** under
 the same name: that makes or updates its `auto/<name>` branch and pull request, the simulator runs
@@ -171,9 +174,8 @@ accepts a `SOURCE` here as it does in the folder itself.
 | `partner-r-broken-down`, `partner-l-broken-down` | A partner that meant to run an Auto and broke down: sits on the right or left start for the whole of AUTO. The "dead" runs use it. |
 | `partner-park-1`, `partner-park-2` | Sits on the left start until 15 s, then parks (two different starts and park spots). |
 | `partner-r-launch-park`, `partner-l-launch-park` | Spins up, waits for its own CELL to be up (at most 12 s), fires all four preloads at it, parks. The right CELL is up at the start, so the right one fires at once; the left one fires once our first TIP raises the left CELL. |
-| `partner-r-launch-stay` | The right launch-park stand-in's spin-up, CELL wait, and preload volley, then stays at its start instead of driving to park. Select it locally to compare shoot-and-stay behavior. |
 | `partner-l-tip-park` | The left launch-park, then the scoring FLOWER, four more at the left CELL (eight pieces: a TIP), then parks. |
-| `partner-push-start` | A motionless 16 x 16 in partner at (10.254, 82), heading 70°, one corner on the wall. Matches the angled `drafts/r-solo-nudge` and the isolated `drafts/partner-nudge-test`. The Utility applies real speed limits; the full draft's push simulation is still a placeholder. |
+| `partner-push-start` | A motionless 16 x 16 in partner at (10.254, 82), heading 70°, one corner on the wall. Drawn for the nudge drafts (removed 19 Nov 2026); `SimRequestsTest` previews it alone. |
 | `partner-l-stage-park` | Starts against the wall facing the HIVE with its four POLLEN on the tiles along its left side (the simulator places them, `AutoStudyTest.alongLeftSide`, touching the frame as G304 asks), waits 2 s, drives off along the wall and parks, leaving them. |
 
 A stand-in is drawn and exported like any Auto (Visualizer, or `node scripts/export-auto.mjs`

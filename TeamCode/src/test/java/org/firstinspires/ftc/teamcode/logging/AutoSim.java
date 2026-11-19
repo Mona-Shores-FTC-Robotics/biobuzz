@@ -599,7 +599,16 @@ public final class AutoSim {
      * afterwards is aimed as usual. For forcing a paired Auto onto its fallback rows.
      */
     AutoSim missesPreloads() {
-        configuring.missesPreloads = true;
+        return missesVolley(1);
+    }
+
+    /**
+     * This robot's {@code n}th launch volley (1: its preloads) goes wide, everything else aimed as usual
+     * ({@code "misses volley 2"} in a simulate request, for us or for a partner entry): a designed failure case.
+     */
+    AutoSim missesVolley(int n) {
+        if (n < 1) throw new IllegalArgumentException("volleys are counted from 1: " + n);
+        configuring.missesVolley = n;
         return this;
     }
 
@@ -1294,11 +1303,11 @@ public final class AutoSim {
         double pickS = Double.NaN;
         /** Every launch goes wide ({@link AutoSim#misses}). */
         boolean missesWide;
-        /** The first launch volley goes wide ({@link AutoSim#missesPreloads}). */
-        boolean missesPreloads;
+        /** The launch volley that goes wide, counted from 1 ({@link AutoSim#missesVolley}); 0: none. */
+        int missesVolley;
         /** Volleys (LaunchAll) this robot has started. */
         int volleysStarted;
-        /** The running volley goes wide: {@link #missesWide}, or the first one of {@link #missesPreloads}. */
+        /** The running volley goes wide: {@link #missesWide}, or the one of {@link #missesVolley}. */
         boolean wideNow;
         /** INIT picks by option name ({@link AutoSim#picks}); null: as drawn. */
         java.util.Map<String, Object> picks;
@@ -1637,7 +1646,7 @@ public final class AutoSim {
                 if (missesWide && shotsFired == 0) pending.add("misses: every shot goes wide (partner timing)");
                 if (wideNow && !missesWide && !wideReported) {
                     wideReported = true;
-                    pending.add("misses preloads: this volley goes wide (forced fallback)");
+                    pending.add("misses volley " + missesVolley + ": this volley goes wide (forced fallback)");
                 }
                 shotsFired++;
                 lastArc = FieldSim.arc(from, v, aim[2] - 4, 30);
@@ -2320,7 +2329,7 @@ public final class AutoSim {
         private Command launch(int count) {
             return new CommandBuilder()
                     .setStart(() -> {
-                        wideNow = missesPreloads && count == Integer.MAX_VALUE && volleysStarted == 0;
+                        wideNow = missesVolley > 0 && count == Integer.MAX_VALUE && volleysStarted == missesVolley - 1;
                         if (count == Integer.MAX_VALUE) volleysStarted++;
                         boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.WHOLE_FEED && count == Integer.MAX_VALUE && launchAllsStarted++ > 0;
                         spinUp();
