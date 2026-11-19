@@ -2156,12 +2156,18 @@ final class FieldSim {
      * physics takes what the intake touches; this is the "every load is four" what-if, asked for by the caller.
      */
     int topUpFromGarden(Bot bot, double withinIn, int upTo) {
+        return topUpFromGarden(bot, withinIn, upTo, false);
+    }
+
+    /** {@link #topUpFromGarden(Bot, double, int)}, taking only POLLEN when {@code pollenOnly} (the best case's loads). */
+    int topUpFromGarden(Bot bot, double withinIn, int upTo, boolean pollenOnly) {
         int took = 0;
         while (bot.stored.size() < upTo && hasRoom(bot, Kind.POLLEN)) {
             Piece nearest = null;
             double best = withinIn;
             for (Piece q : pieces) {
                 if (q.where != Where.FIELD || garden(q.x, q.y) == null) continue;
+                if (pollenOnly && q.kind != Kind.POLLEN) continue;
                 double d = Math.hypot(q.x - bot.x, q.y - bot.y);
                 if (d <= best) {
                     best = d;

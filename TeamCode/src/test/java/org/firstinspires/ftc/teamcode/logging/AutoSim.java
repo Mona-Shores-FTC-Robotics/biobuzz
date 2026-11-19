@@ -2331,7 +2331,7 @@ public final class AutoSim {
                     .setStart(() -> {
                         wideNow = missesVolley > 0 && count == Integer.MAX_VALUE && volleysStarted == missesVolley - 1;
                         if (count == Integer.MAX_VALUE) volleysStarted++;
-                        boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.WHOLE_FEED && count == Integer.MAX_VALUE && launchAllsStarted++ > 0;
+                        boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.wholeFeed() && count == Integer.MAX_VALUE && launchAllsStarted++ > 0;
                         spinUp();
                         fireStepBegins();
                         firing = true;
@@ -2534,11 +2534,13 @@ public final class AutoSim {
                         if (phase[0] == 0) return;
                         // The Belding calibration: of the pieces picked, only as many as that robot's next volley
                         // fired there get as far as the launcher (a short pick, a wedge, a jam on the feed side).
-                        if (BeldingCalibration.rollerFills(index) && end == EndCondition.NATURALLY) {
-                            // The roller stick (19429): a pick that reached the FLOWER fills the lane.
+                        boolean full = BeldingCalibration.on && BeldingCalibration.fullLoads(index);
+                        if ((BeldingCalibration.rollerFills(index) || full) && end == EndCondition.NATURALLY) {
+                            // The roller stick (19429), or every load four (the best case): a pick that reached the FLOWER fills the lane.
                             if (reachedDwell[0]) {
                                 int more = sim.topUpFromFlower(body, pickFlowerAt[0], pickFlowerAt[1], 4);
-                                if (more > 0) pending.add("PickFlower: " + more + " more taken, the roller stick fills the lane");
+                                if (more > 0) pending.add("PickFlower: " + more + " more taken, "
+                                        + (full ? "a full load (best case)" : "the roller stick fills the lane"));
                             }
                         } else if (BeldingCalibration.on && end == EndCondition.NATURALLY) {
                             int reach = BeldingCalibration.load(BeldingCalibration.robotFor(index), pickAtScoringFlower[0], pickLuck);
@@ -2687,7 +2689,7 @@ public final class AutoSim {
                             // Best case (BIOBUZZ_BELDING_ROBOT=full, or _OURS / _PARTNER for one robot): every load is four,
                             // a gather's too. The roller stick (19429) fills the lane on a gather that ran to its end.
                             if (BeldingCalibration.on && (BeldingCalibration.fullLoads(index) || BeldingCalibration.rollerFills(index))) {
-                                int more = sim.topUpFromGarden(body, 2 * FieldSim.GARDEN_LENGTH_IN, 4);
+                                int more = sim.topUpFromGarden(body, 2 * FieldSim.GARDEN_LENGTH_IN, 4, BeldingCalibration.bestCase);
                                 if (more > 0) pending.add("GardenGather: " + more + " more taken, "
                                         + (BeldingCalibration.fullLoads(index) ? "a full load (best case)" : "the roller stick fills the lane"));
                             }

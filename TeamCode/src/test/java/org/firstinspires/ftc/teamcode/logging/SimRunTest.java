@@ -51,7 +51,10 @@ import java.util.regex.Pattern;
  * ({@link BeldingCalibration#ourInRate}): 0.92 is our robots' from the AUTO launch spots (mentor, 19 Nov 2026), and
  * {@code "tipDwellS"} (seconds or [least, most]) the dwell before every TIP, for a slow-swing case. A fail, ours
  * ({@code "oursFails"}) or a partner's ({@code "fails"}), may also be {@code "misses volley N"}: only its Nth volley
- * goes wide, counted from 1 ({@code "misses preloads"} is volley 1).
+ * goes wide, counted from 1 ({@code "misses preloads"} is volley 1). {@code "scenario": "best"} is the best case in one
+ * switch ({@link BeldingCalibration#bestCase}, mentor, 19 Nov 2026): the calibration's HIVEs and TIP dwell, every FLOWER
+ * pick and GARDEN gather four POLLEN on every robot, every shot in, every volley ending at its fourth shot; then each
+ * failure is an entry of its own.
  * {@code timing} is the raw override for studies ({@link AutoStudyTest.PartnerTiming}: a start delay, a drive
  * speed, seconds per launch volley, seconds at a FLOWER; each optional, and each wins over what {@code lastShotS}
  * derives). An entry may name its own {@code seeds}; otherwise it runs
@@ -84,6 +87,15 @@ public class SimRunTest {
         try {
             Map<String, Object> request = request(dir);
             if ("belding".equals(request.get("calibration"))) BeldingCalibration.on = true;
+            // "scenario": "best": the calibration's HIVEs, with every load four POLLEN, every shot in and every volley
+            // ending at its fourth shot (BeldingCalibration.bestCase).
+            Object scenario = request.get("scenario");
+            if (scenario != null && !"best".equals(scenario)) throw new IllegalArgumentException("scenario is \"best\" or absent: " + scenario);
+            BeldingCalibration.bestCase = "best".equals(scenario);
+            if (BeldingCalibration.bestCase) {
+                BeldingCalibration.on = true;
+                out.put("scenario", "best");
+            }
             BeldingCalibration.dwellOverride = dwell(request.get("tipDwellS"));
             if (BeldingCalibration.on) {
                 BeldingCalibration.apply();
@@ -91,6 +103,10 @@ public class SimRunTest {
                 // "ourInRate" / "partnerInRate": a robot's share of launched pieces that stay in, in place of Belding's.
                 BeldingCalibration.ourInRate = inRate(request.get("ourInRate"));
                 BeldingCalibration.partnerInRate = inRate(request.get("partnerInRate"));
+                if (BeldingCalibration.bestCase) {
+                    if (Double.isNaN(BeldingCalibration.ourInRate)) BeldingCalibration.ourInRate = 1;
+                    if (Double.isNaN(BeldingCalibration.partnerInRate)) BeldingCalibration.partnerInRate = 1;
+                }
             }
             runAll(request, dir, out);
         } catch (Throwable t) {
@@ -102,6 +118,7 @@ public class SimRunTest {
             BeldingCalibration.dwellOverride = null;
             BeldingCalibration.partnerInRate = Double.NaN;
             BeldingCalibration.on = beldingBefore;
+            BeldingCalibration.bestCase = false;
             HiveCalibration.tipPointInBand = tipPointBefore;
             write(dir, out);
         }
