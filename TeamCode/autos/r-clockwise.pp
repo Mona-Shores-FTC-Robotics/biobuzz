@@ -1180,6 +1180,43 @@
             "matchClock": true,
             "cards": [
               {
+                "id": "r-left-late",
+                "kind": "firstOf",
+                "label": "LEFT up after L's rescue? Fire at LEFT, else hold",
+                "rows": [
+                  {
+                    "when": [
+                      "LeftCellUp"
+                    ],
+                    "cards": [
+                      {
+                        "id": "r-launch-left-late",
+                        "kind": "action",
+                        "name": "LaunchAll",
+                        "timeoutS": 1
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 26400,
+                    "matchClock": true,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "r-hold-late",
+                "kind": "firstOf",
+                "label": "L has passed: park at 26.4 s",
+                "rows": [
+                  {
+                    "afterMs": 26400,
+                    "matchClock": true,
+                    "cards": []
+                  }
+                ]
+              },
+              {
                 "id": "r-c-left-park",
                 "kind": "path",
                 "lineId": "r-catch-park",
