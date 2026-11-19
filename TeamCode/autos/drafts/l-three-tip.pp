@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T18:00:00.000Z",
+  "timestamp": "2026-11-19T21:54:49.282Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -30,6 +30,62 @@
       }
     },
     {
+      "id": "l3-hive-park",
+      "color": "#4e79a7",
+      "name": "LEFT_AUTO_HIVE to LEFT_PARK (guard)",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 50,
+          "y": 122
+        },
+        {
+          "x": 30,
+          "y": 121
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 268.9,
+                "endDeg": 360
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "link-1",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.4,
+        "y": 120.45
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.9
+      }
+    },
+    {
       "id": "l3-sf",
       "color": "#4e79a7",
       "name": "to SCORING_FLOWER_STAGING",
@@ -48,6 +104,62 @@
         "type": "linear",
         "startDeg": 268.9,
         "endDeg": 90
+      }
+    },
+    {
+      "id": "l3-sf-park",
+      "color": "#4e79a7",
+      "name": "SCORING FLOWER to LEFT_PARK (guard)",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 36,
+          "y": 121
+        },
+        {
+          "x": 24,
+          "y": 119
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "link-2",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.2,
+        "y": 119.3
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
       }
     },
     {
@@ -243,6 +355,21 @@
       }
     },
     {
+      "id": "link-3",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.4,
+        "y": 120.45
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.9
+      }
+    },
+    {
       "id": "l3-rescue",
       "color": "#4e79a7",
       "name": "no TIP 1: under the HIVE to RIGHT_AUTO_FIX_TIP",
@@ -386,88 +513,6 @@
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 0
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "l3-hive-park",
-      "color": "#4e79a7",
-      "name": "LEFT_AUTO_HIVE to LEFT_PARK (guard)",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [
-        {
-          "x": 50,
-          "y": 122
-        },
-        {
-          "x": 30,
-          "y": 121
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 268.9,
-                "endDeg": 360
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "l3-sf-park",
-      "color": "#4e79a7",
-      "name": "SCORING FLOWER to LEFT_PARK (guard)",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [
-        {
-          "x": 36,
-          "y": 121
-        },
-        {
-          "x": 24,
-          "y": 119
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 0
               }
             }
           ]
@@ -644,7 +689,23 @@
     },
     {
       "kind": "path",
+      "lineId": "l3-hive-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-1"
+    },
+    {
+      "kind": "path",
       "lineId": "l3-sf"
+    },
+    {
+      "kind": "path",
+      "lineId": "l3-sf-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-2"
     },
     {
       "kind": "path",
@@ -656,19 +717,15 @@
     },
     {
       "kind": "path",
+      "lineId": "link-3"
+    },
+    {
+      "kind": "path",
       "lineId": "l3-rescue"
     },
     {
       "kind": "path",
       "lineId": "l3-rescue-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "l3-hive-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "l3-sf-park"
     }
   ],
   "fieldPoints": [],
@@ -721,9 +778,9 @@
         "Tip"
       ],
       "typicalS": {
-        "LaunchAll": 4.5,
+        "LaunchAll": 2.5,
         "PickFlower": 4,
-        "GardenGather": 5,
+        "GardenGather": 3,
         "LaunchOne": 0.5,
         "SpinUp": 0.1
       }
@@ -786,7 +843,6 @@
         "id": "c-l3-wait",
         "kind": "firstOf",
         "label": "L1: wait for TIP 1 until 11 s, otherwise rescue it",
-        "alongside": "SpinUp",
         "rows": [
           {
             "when": [
@@ -821,7 +877,6 @@
                 "id": "c-l3-right-check",
                 "kind": "firstOf",
                 "label": "L2: RIGHT up (TIP 2) by 22.5 s?",
-                "alongside": "SpinUp",
                 "rows": [
                   {
                     "when": [
@@ -841,7 +896,8 @@
                     "matchClock": true,
                     "cards": []
                   }
-                ]
+                ],
+                "alongside": "SpinUp"
               },
               {
                 "id": "c-l3-park",
@@ -889,11 +945,16 @@
               }
             ]
           }
-        ]
+        ],
+        "alongside": "SpinUp"
       }
     ],
     "startAt": "LEFT_START",
-    "linkPaths": [],
+    "linkPaths": [
+      "link-1",
+      "link-2",
+      "link-3"
+    ],
     "parkFrom": {
       "c-l3-open": "l3-hive-park",
       "c-l3-sf": "l3-sf-park",

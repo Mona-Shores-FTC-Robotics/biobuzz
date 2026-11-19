@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T18:00:00.000Z",
+  "timestamp": "2026-11-19T21:54:48.647Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -47,6 +47,79 @@
             }
           ]
         }
+      }
+    },
+    {
+      "id": "r3-garden-park",
+      "color": "#4e79a7",
+      "name": "GARDEN up the outer lane to RIGHT_PARK (guard)",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 18,
+          "y": 45
+        },
+        {
+          "x": 24,
+          "y": 75
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.15,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 450
+              }
+            },
+            {
+              "startProgress": 0.15,
+              "endProgress": 0.8,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 450
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 450,
+                "endDeg": 360
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "link-1",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 11.5,
+        "y": 22.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
       }
     },
     {
@@ -112,6 +185,58 @@
       }
     },
     {
+      "id": "r3-left-park",
+      "color": "#4e79a7",
+      "name": "R_LEFT_WEST to RIGHT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 24,
+          "y": 98
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 335.8,
+                "endDeg": 360
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "link-2",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 33,
+        "y": 98
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 335.79999999999995
+      }
+    },
+    {
       "id": "r3-left-wf",
       "color": "#4e79a7",
       "name": "R_LEFT_WEST down the outer lane to WALL_FLOWER_STAGING",
@@ -167,6 +292,58 @@
             }
           ]
         }
+      }
+    },
+    {
+      "id": "r3-wf-park",
+      "color": "#4e79a7",
+      "name": "WALL FLOWER to RIGHT_PARK (guard)",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 26,
+          "y": 75
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "link-3",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 23.1,
+        "y": 47.2
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 180
       }
     },
     {
@@ -241,138 +418,6 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "r3-garden-park",
-      "color": "#4e79a7",
-      "name": "GARDEN up the outer lane to RIGHT_PARK (guard)",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 18,
-          "y": 45
-        },
-        {
-          "x": 24,
-          "y": 75
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.15,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 450
-              }
-            },
-            {
-              "startProgress": 0.15,
-              "endProgress": 0.8,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 450
-              }
-            },
-            {
-              "startProgress": 0.8,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 450,
-                "endDeg": 360
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "r3-left-park",
-      "color": "#4e79a7",
-      "name": "R_LEFT_WEST to RIGHT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 24,
-          "y": 98
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 335.8,
-                "endDeg": 360
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "r3-wf-park",
-      "color": "#4e79a7",
-      "name": "WALL FLOWER to RIGHT_PARK (guard)",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 26,
-          "y": 75
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 180,
                 "endDeg": 0
               }
             }
@@ -550,11 +595,35 @@
     },
     {
       "kind": "path",
+      "lineId": "r3-garden-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-1"
+    },
+    {
+      "kind": "path",
       "lineId": "r3-to-left"
     },
     {
       "kind": "path",
+      "lineId": "r3-left-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-2"
+    },
+    {
+      "kind": "path",
       "lineId": "r3-left-wf"
+    },
+    {
+      "kind": "path",
+      "lineId": "r3-wf-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-3"
     },
     {
       "kind": "path",
@@ -563,18 +632,6 @@
     {
       "kind": "path",
       "lineId": "r3-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "r3-garden-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "r3-left-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "r3-wf-park"
     }
   ],
   "fieldPoints": [],
@@ -627,9 +684,9 @@
         "Tip"
       ],
       "typicalS": {
-        "LaunchAll": 4.5,
+        "LaunchAll": 2.5,
         "PickFlower": 4,
-        "GardenGather": 5,
+        "GardenGather": 3,
         "LaunchOne": 0.5,
         "SpinUp": 0.1
       }
@@ -710,7 +767,6 @@
         "id": "c-r3-left-wait",
         "kind": "firstOf",
         "label": "R2: LEFT up (TIP 1) by 14 s, otherwise hold for L's rescue",
-        "alongside": "SpinUp",
         "rows": [
           {
             "when": [
@@ -745,7 +801,6 @@
                 "id": "c-r3-right-check",
                 "kind": "firstOf",
                 "label": "R3: RIGHT up (TIP 2) by 24 s?",
-                "alongside": "SpinUp",
                 "rows": [
                   {
                     "when": [
@@ -765,7 +820,8 @@
                     "matchClock": true,
                     "cards": []
                   }
-                ]
+                ],
+                "alongside": "SpinUp"
               },
               {
                 "id": "c-r3-park",
@@ -814,11 +870,16 @@
               }
             ]
           }
-        ]
+        ],
+        "alongside": "SpinUp"
       }
     ],
     "startAt": "RIGHT_START",
-    "linkPaths": [],
+    "linkPaths": [
+      "link-1",
+      "link-2",
+      "link-3"
+    ],
     "parkFrom": {
       "c-r3-garden": "r3-garden-park",
       "c-r3-to-left": "r3-left-park",
