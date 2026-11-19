@@ -2219,12 +2219,13 @@ public final class AutoSim {
                     // the next one when its last piece can be out before AUTO ends (AutoKit.guarded).
                     .volley("LaunchAll", VOLLEY_PLANNED_S, Math.min(VOLLEY_PLANNED_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S),
                             () -> launch(Integer.MAX_VALUE))
-                    // A volley from the park spot, the turret aimed at the CELL at the robot's end: the robot's
-                    // LaunchAllAimed (AimedVolley). A turret design aims every launch already; a locked one cannot
-                    // aim, so it does not fire and stays parked, as the robot's refuses.
-                    .parkedVolley("LaunchAllAimed", VOLLEY_PLANNED_S, Math.min(VOLLEY_PLANNED_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S),
-                            () -> design.launcher == RobotDesign.Launcher.TURRET ? launch(Integer.MAX_VALUE)
-                                    : Commands.instant(() -> pending.add("LaunchAllAimed: not firing, no turret to aim; staying parked")))
+                    // The robot's aimed volleys (AimedVolley): a turret design aims every launch at the CELL at the
+                    // robot's end already, and a locked one fires from home, as the robot's falls back to. The
+                    // park one is fired where the robot parked: no park after it, its last piece by 30 s.
+                    .volley("LaunchAllAimed", VOLLEY_PLANNED_S, Math.min(VOLLEY_PLANNED_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S),
+                            () -> launch(Integer.MAX_VALUE))
+                    .parkedVolley("LaunchAllFromPark", VOLLEY_PLANNED_S, Math.min(VOLLEY_PLANNED_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S),
+                            () -> launch(Integer.MAX_VALUE))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
                     .command("CollectSeen", 2.0, this::collectSeen)

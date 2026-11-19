@@ -13,15 +13,22 @@ stopped being team spots on 16 Nov 2026. Each keeps those as points of its own, 
 that goes to the Autonomous menu launches only from spots aimed at their CELL (`AutoVolleySpotsTest`): open it in
 the Visualizer, which aims each spot a Launch all fires from, and save it.
 
-## L-UnderHive-ParkShot: fire at LEFT from LEFT_PARK, turret aimed
+## L-UnderHive-ParkShot: park facing LEFT, fire there; the turret aims every volley
 
-`l-under-hive-park-shot.pp` is master's `l-under-hive.pp` with one change (mentor, 19 Nov 2026). When the
-RIGHT-up wait gives up at 22 s, the robot still parks at `LEFT_PARK` first, and then a check, **LEFT up
-before 26.5 s, otherwise stay parked**, fires `LaunchAllAimed` from there. That volley aims the turret at the
-LEFT CELL (the near one) with the TeleOp's `TurretAimer`, opens the gate only on target, inside the arc and at
-speed, and does not fire if the pose is not referenced, the turret is locked forward or dropped its hold, or
-the last piece would be out after 30 s (`AimedVolley`). The robot never leaves `LEFT_PARK`. Why: 19429,
-18 Nov 2026, L-UnderHive 5:10 PM parked by 26.2 s with 2 POLLEN in the lane and the LEFT CELL up.
+`l-under-hive-park-shot.pp` is master's `l-under-hive.pp` with these changes (mentor, 19 Nov 2026):
+
+- The park after the RIGHT side (`l-under-hive-park`) ends at a new team spot, `LEFT_AUTO_PARK` (14.5, 117.4,
+  325.2): `LEFT_PARK`'s place, partly in the red LOADING ZONE, with the chassis turned to face the LEFT CELL, a
+  spot fit to launch from. Facing the HIVE, the camera can see LEFT come up.
+- When the RIGHT-up wait gives up at 22 s, that park drives, then a check, **LEFT up before 27.5 s, otherwise
+  stay parked**, fires `LaunchAllFromPark` there: no referenced pose, or the last piece out after 30 s, and it
+  does not fire.
+- Every volley is aimed: `LaunchAllAimed` for the two from launch spots, `LaunchAllFromPark` for the park one. The
+  turret aims at the near CELL with the TeleOp's `TurretAimer` to take up what the chassis leaves, and the gate
+  waits for it on target; with no pose (spot volleys), the turret locked forward or a dropped hold, it holds home
+  and fires as a `LaunchAll` (`AimedVolley`).
+
+Why: 19429, 18 Nov 2026, L-UnderHive 5:10 PM parked by 26.2 s with 2 POLLEN in the lane and the LEFT CELL up.
 
 ## R-Clockwise-19429 and R-Solo-19429: one loaded leg backward, 19429 only
 

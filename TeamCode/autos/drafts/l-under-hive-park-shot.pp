@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T02:40:00.000Z",
+  "timestamp": "2026-11-19T02:50:00.000Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -261,7 +261,7 @@
     {
       "id": "l-under-hive-park",
       "color": "#4e79a7",
-      "name": "under hive park to LEFT_PARK",
+      "name": "under hive park to LEFT_AUTO_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -321,7 +321,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": -34.8
               }
             },
             {
@@ -329,7 +329,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 0
+                "degrees": -34.8
               }
             }
           ]
@@ -634,6 +634,7 @@
       "actions": [
         "LaunchAll",
         "LaunchAllAimed",
+        "LaunchAllFromPark",
         "LaunchOne",
         "SpinUp",
         "PickFlower",
@@ -655,6 +656,7 @@
       "typicalS": {
         "LaunchAll": 4.5,
         "LaunchAllAimed": 4.5,
+        "LaunchAllFromPark": 4.5,
         "LaunchOne": 0.5,
         "SpinUp": 0.1,
         "PickFlower": 4,
@@ -686,13 +688,18 @@
         14.5,
         117.4,
         0
+      ],
+      "LEFT_AUTO_PARK": [
+        14.5,
+        117.4,
+        325.2
       ]
     },
     "pathEnds": {
       "l-open": "LEFT_AUTO_HIVE",
       "l-early-garden": "GARDEN_STAGING",
       "l-garden-exit": "RIGHT_AUTO_HIVE",
-      "l-under-hive-park": "LEFT_PARK",
+      "l-under-hive-park": "LEFT_AUTO_PARK",
       "l-left-abort-park": "LEFT_PARK",
       "l-garden-abort-park": "LEFT_PARK"
     },
@@ -733,7 +740,7 @@
               {
                 "id": "L-launch-preloads",
                 "kind": "action",
-                "name": "LaunchAll",
+                "name": "LaunchAllAimed",
                 "timeoutS": 1
               },
               {
@@ -757,7 +764,7 @@
               {
                 "id": "L-wait-right",
                 "kind": "firstOf",
-                "label": "RIGHT up before 22 s, otherwise park, then fire at LEFT from the park if it is up",
+                "label": "RIGHT up before 22 s, otherwise park facing LEFT and fire there if it is up",
                 "rows": [
                   {
                     "afterMs": 22000,
@@ -772,10 +779,10 @@
                       {
                         "id": "L-park-shot-check",
                         "kind": "firstOf",
-                        "label": "LEFT up before 26.5 s, otherwise stay parked",
+                        "label": "LEFT up before 27.5 s, otherwise stay parked",
                         "rows": [
                           {
-                            "afterMs": 26500,
+                            "afterMs": 27500,
                             "matchClock": true,
                             "cards": []
                           },
@@ -787,7 +794,7 @@
                               {
                                 "id": "L-park-shot",
                                 "kind": "action",
-                                "name": "LaunchAllAimed",
+                                "name": "LaunchAllFromPark",
                                 "timeoutS": 4
                               }
                             ]
@@ -804,7 +811,7 @@
                       {
                         "id": "L-launch-right",
                         "kind": "action",
-                        "name": "LaunchAll",
+                        "name": "LaunchAllAimed",
                         "timeoutS": 1
                       },
                       {
@@ -835,6 +842,7 @@
     "teamSpots": [
       "GARDEN_STAGING",
       "LEFT_AUTO_HIVE",
+      "LEFT_AUTO_PARK",
       "LEFT_PARK",
       "LEFT_START",
       "RIGHT_AUTO_HIVE"

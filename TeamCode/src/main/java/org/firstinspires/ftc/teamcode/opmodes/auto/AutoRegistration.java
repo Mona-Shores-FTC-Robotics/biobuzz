@@ -256,6 +256,9 @@ public final class AutoRegistration {
         // null robot only describes the list; its factories are never called.
         final LaunchCards launch = robot == null ? null
                 : LaunchCards.forRobot(robot, settle, note, setup == null ? null : setup::alliance);
+        // One turret aim for the spot volleys, shared by a card and the approach before it.
+        final AimedVolley spotAim = robot == null ? null
+                : new AimedVolley(robot, setup, matchSeconds, AimedVolley.Kind.SPOT);
         return new AutoRegistry()
                 // A step's time limit never cuts a feed: it guards the wait for spin-up only, and the
                 // feed runs LaunchCards' set time (one number to tune, not one per step).
@@ -267,11 +270,16 @@ public final class AutoRegistration {
                 // on the drive in, once aimed and at speed (LaunchCards.approach).
                 .volley("LaunchAll", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S, () -> launch.launchAll(),
                         launch == null ? null : launch.approach())
-                // A volley from the park spot with the turret aimed at the CELL at the robot's end
-                // (AimedVolley, the TeleOp's TurretAimer): drawn after a park, behind a CELL check. The
-                // park is done, so the guard adds none after it; its last piece must be out by 30 s.
-                .parkedVolley("LaunchAllAimed", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S,
-                        () -> launch.launchAllAimed(new AimedVolley(robot, setup, matchSeconds)))
+                // LaunchAll with the turret aimed at the CELL at the robot's end too (AimedVolley, the
+                // TeleOp's TurretAimer), to take up what the spot's chassis aim leaves; home without a
+                // pose or a working turret, as LaunchAll. The same approach, with the turret on target.
+                .volley("LaunchAllAimed", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S, () -> launch.launchAllAimed(spotAim),
+                        launch == null ? null : launch.aimedApproach(spotAim))
+                // A volley from the park spot, after the park, behind a CELL check: aimed as above, but
+                // never without a referenced pose. The park is done, so the guard adds none after it;
+                // its last piece must be out by 30 s, or it does not fire and the robot stays parked.
+                .parkedVolley("LaunchAllFromPark", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S,
+                        () -> launch.launchFromPark(new AimedVolley(robot, setup, matchSeconds, AimedVolley.Kind.PARK)))
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at

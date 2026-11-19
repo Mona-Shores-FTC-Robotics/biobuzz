@@ -167,7 +167,7 @@ public final class AutoRegistry {
     }
 
     /**
-     * Registers a volley fired where the robot has already parked (LaunchAllAimed, the turret aimed
+     * Registers a volley fired where the robot has already parked (LaunchAllFromPark, the turret aimed
      * from the park spot): the park is done, so the endgame guard adds no park after it, but its
      * last piece must still be out before AUTO ends, or it does not start ({@link AutoKit#command}).
      * Otherwise as {@link #volley(String, double, double, Supplier)}.
