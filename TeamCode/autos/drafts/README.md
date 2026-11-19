@@ -3,7 +3,7 @@
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
 (mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, and the RightUnderHive
-pair, parked until a super FLOWER pick exists (no OpMode), and the ThreeTip pair, a trial with no OpMode until the mentor decides on one.
+pair, parked until a super FLOWER pick exists (no OpMode), and the ThreeTip pair, which runs from the Utility menu as a trial pair, **Drive: R-ThreeTip** beside **Drive: L-ThreeTip**.
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
 (`NudgeContactDrive`, `NudgeTestRun`) and the stand-ins only they used. All are in Git history at
@@ -83,7 +83,8 @@ No run crossed the centre line or touched the HIVE.
 
 `r-three-tip.pp` and `l-three-tip.pp` are a draft pair for three TIPs from our two robots alone (19 Nov 2026), drawn
 from the timing plan in which each TIP takes 8 POLLEN in the CELL that is up and a TIP counts when it settles by 38 s.
-No OpMode yet: they wait for the first export and a try on the robot.
+They run from the Utility menu as trials, **Drive: R-ThreeTip** (`RThreeTipTrial`) beside **Drive: L-ThreeTip**
+(`LThreeTipTrial`), and never one without the other; not on the landing page (mentor, 19 Nov 2026).
 
 - **TIP 1, R's preloads.** R fires them at RIGHT from `RIGHT_START` (a start is a legal launch spot).
 - **TIP 2, LEFT gets 4 + 4.** L fires its preloads from `LEFT_AUTO_HIVE` when LEFT reads up. R gathers the GARDEN,
