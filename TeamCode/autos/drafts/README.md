@@ -13,6 +13,17 @@ stopped being team spots on 16 Nov 2026. Each keeps those as points of its own, 
 that goes to the Autonomous menu launches only from spots aimed at their CELL (`AutoVolleySpotsTest`): open it in
 the Visualizer, which aims each spot a Launch all fires from, and save it.
 
+## L-Assist: the far-end partner beside a near-end robot that tips both CELLs
+
+`l-assist.pp` is master's `l-no-cross.pp` cut down (mentor, 19 Nov 2026, for 10255 RoboDux at Fruitport).
+It does what RoboDux's partner did at Kentwood. From `LEFT_START` it drives to `LEFT_AUTO_HIVE` and waits
+for TIP 1, which is RoboDux's preloads at RIGHT. Then it fires its preloads at LEFT and parks at `LEFT_PARK`
+at once. If no TIP 1 comes by the wait's 9 s, it parks without firing. Its INIT menu is that one time.
+
+It leaves the left end to RoboDux: under the HIVE to the left end by about 13 s, then its GARDEN 4 and its
+SCORING FLOWER 4 at LEFT for TIP 2. Simulated beside a RoboDux stand-in, with both of our robots: 1.90 TIPs
+(1.85 by 30 s), 0 contacts, and both robots parked in 20 of 20 runs.
+
 ## L-UnderHive-ParkShot: park facing LEFT, fire there if it is up
 
 `l-under-hive-park-shot.pp` is master's `l-under-hive.pp` with these changes (mentor, 19 Nov 2026). It runs
