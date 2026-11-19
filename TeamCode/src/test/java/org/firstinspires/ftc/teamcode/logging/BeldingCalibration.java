@@ -201,11 +201,18 @@ final class BeldingCalibration {
      * and no knock from a hit. At Belding every AUTO TIP sat out its dwell, however hard the volley landed; the
      * placeholder knock tipped the CELL the moment the last ball hit, 0.7 s after it left.
      */
+    /**
+     * A request's {@code "tipDwellS"} (seconds, or {@code [least, most]}): the dwell before every TIP, in place of
+     * {@link #DWELL_S}, for a designed slow-swing case; null keeps {@link #DWELL_S}. Set before {@link #apply}.
+     */
+    static double[] dwellOverride;
+
     static void apply() {
         dwellBefore = FieldSim.tipDwellRange;
         impulseBefore = FieldSim.impulseScale;
-        FieldSim.tipDwellRange = DWELL_S;
-        FieldSim.tipDwellOverloadedS = DWELL_S[0];
+        double[] dwell = dwellOverride != null ? dwellOverride : DWELL_S;
+        FieldSim.tipDwellRange = dwell;
+        FieldSim.tipDwellOverloadedS = dwell[0];
         FieldSim.impulseScale = 0;
     }
 
