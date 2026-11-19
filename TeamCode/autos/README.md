@@ -63,6 +63,9 @@ written when it was a draft).
 - Once RIGHT is up, it fires the GARDEN load there and goes up the corridor under the HIVE to `LEFT_PARK`.
 - If RIGHT is not up by 18 s (its INIT row), it fixes LEFT from its own spot `R_LEFT_FIX` (61.5, 114.0, 268.4)
   instead.
+- When its GARDEN load was the TIP-1 fix (its preloads missed, so RIGHT was still up when it got back), it holds
+  at `RIGHT_AUTO_HIVE` out of L's way until the guard needs the time for the park (mentor, 19 Nov 2026), and L,
+  whose TIP 1 then comes after 14 s, fires its preloads and parks at once.
 
 L fixes nothing:
 - It fires its preloads from `LEFT_AUTO_HIVE` after TIP 1.
