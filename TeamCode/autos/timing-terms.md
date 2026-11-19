@@ -9,6 +9,15 @@ of different lengths. The numbers below were then re-derived from the Belding Qu
 (7 Nov 2026): 18 Auto TIPs in 15 match logs, each video lined up to its robot's log by our light
 and a second event, to ±0.05 to 0.1 s ("How it was measured", at the end).
 
+
+## When a TIP counts as AUTO
+
+**Mentor, 19 Nov 2026: a TIP settling up to 8 s after AUTO counts.** A TIP whose last ball leaves (4) by
+30 s on the robot's PLAY clock counts as an AUTO TIP if the CELL is settled (7) by 38 s. The park is
+unchanged: done by 30 s. So an Auto's last volley must have its last ball out by 30 s and leave time for
+the park, and nothing waits for the TIP itself. Simulator reports count TIPs "by 38 s" (settled), with the
+total beside it. Before this decision §10.5 B's AUTO count of a TIP completing in the transition was an
+open question, and Autos planned only on TIPs settled by 30 s.
 ## The eight moments
 
 | # | Moment | What happens | Where it is read |

@@ -61,7 +61,7 @@ written when it was a draft).
 2026 (mentor). The side before "UnderHive" names the robot that goes under the HIVE. R owns every fix:
 - It fires its preloads at RIGHT from `RIGHT_AUTO_HIVE` and gathers the GARDEN.
 - Once RIGHT is up, it fires the GARDEN load there and goes up the corridor under the HIVE to `LEFT_PARK`.
-- If RIGHT is not up by 18 s (its INIT row), it fixes LEFT from its own spot `R_LEFT_FIX` (60.0, 114.0, 271.3)
+- If RIGHT is not up by 18 s (its INIT row), it fixes LEFT from its own spot `R_LEFT_FIX` (61.5, 114.0, 268.4)
   instead.
 
 L fixes nothing:
