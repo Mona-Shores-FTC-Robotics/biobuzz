@@ -200,6 +200,16 @@ public abstract class RobotOpMode extends OpMode {
      */
     protected MatchLog log = MatchLog.disabled("not started");
 
+    /**
+     * Every volley this run fired, by the launcher's shot counter: the OpMode feeds it each counted
+     * shot with its range ({@link VolleyHistory#shot}) and shows it on a page; every volley goes to
+     * the match log at STOP.
+     */
+    protected final VolleyHistory volleys = new VolleyHistory();
+
+    /** When PLAY was pressed, System.nanoTime; 0 before it. */
+    private long playNs;
+
     /** A loop longer than this is an event in the log, with its time. */
     private static final double SLOW_LOOP_EVENT_MS = 80.0;
     /** Battery voltage is a hub command, not bulk-read data, so it is read this often, not every loop. */
@@ -386,6 +396,11 @@ public abstract class RobotOpMode extends OpMode {
 
     /** Called once when PLAY is pressed. */
     protected void onStart() {
+    }
+
+    /** Seconds since PLAY; 0 before it. */
+    protected double secondsSincePlay() {
+        return playNs == 0 ? 0.0 : (System.nanoTime() - playNs) / 1e9;
     }
 
     /** Called every loop after PLAY, before subsystems update. */
@@ -731,6 +746,7 @@ public abstract class RobotOpMode extends OpMode {
         }
         // Every Panels tunable as it stands now, so the log can be reproduced. Once, at PLAY.
         Tunables.snapshot(log);
+        playNs = System.nanoTime();
         onStart();
     }
 
@@ -862,6 +878,10 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public final void stop() {
         onStop();
+        if (volleys.volleys() > 0) {
+            log.event(volleys.summary());
+            volleys.forEach(line -> log.event("volley " + line));
+        }
 
         boolean handedOff = isAutonomous() && robot != null;
         if (handedOff) {

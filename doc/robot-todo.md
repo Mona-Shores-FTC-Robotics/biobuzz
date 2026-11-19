@@ -29,6 +29,12 @@ this is not a claim that every unchecked item below has passed.
       Run R-Solo on 20245 and push the log. **Good:** the `launcher: speed table` line says about
       40 in and 1495 ticks/s, the gate opens as the drive ends, 4 of 4 go in. **Stop:** short or
       long → note which, and the range and speed the line gave.
+- [ ] **Volley history on the Driver Station** (19 Nov): in an Auto the Match page lists each
+      volley above the step trace (`1) 2.0 s · 4 shots · 40 in camera · 1495 ticks/s · dip 180`)
+      under a `Volleys: …` summary; in Basic Drive the same list is on the Robot page, under
+      "Last shot". At STOP every volley goes to the match log as a `volley …` event. **Good:** one
+      line per volley, the shot count matches what left the robot. **Stop:** one volley split in
+      two (shots more than 1.5 s apart: `VolleyHistory.VOLLEY_GAP_S`) or two run together → note it.
 - [ ] **19429, when it is back:** the same three volleys. Its old −25 offset matches the new rows
       within about 5 ticks/s from 42 to 55 in, so it starts at 0. **Stop:** long or short at every
       range by the same amount → that amount is its new `RobotDifferences` offset line.
