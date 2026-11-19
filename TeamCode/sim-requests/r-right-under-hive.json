@@ -1,0 +1,84 @@
+{
+  "pp": "TeamCode/autos/drafts/r-right-under-hive.pp",
+  "spec": "RRightUnderHiveAuto",
+  "design": "real robot",
+  "partnerDesign": "real robot",
+  "calibration": "belding",
+  "ourInRate": 0.92,
+  "partnerInRate": 0.92,
+  "seeds": [
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20,
+    22,
+    24,
+    26,
+    28,
+    30,
+    32,
+    34,
+    36,
+    38,
+    40
+  ],
+  "partnerSeeds": [
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20,
+    22,
+    24,
+    26,
+    28,
+    30,
+    32,
+    34,
+    36,
+    38,
+    40
+  ],
+  "alliance": "RED",
+  "partners": [
+    {
+      "name": "pair: every shot lands",
+      "partner": "LRightUnderHiveAuto"
+    },
+    {
+      "name": "R's preload volley misses",
+      "partner": "LRightUnderHiveAuto",
+      "oursFails": "misses preloads"
+    },
+    {
+      "name": "L's preload volley misses",
+      "partner": "LRightUnderHiveAuto",
+      "fails": "misses preloads"
+    },
+    {
+      "name": "L's FLOWER volley misses",
+      "partner": "LRightUnderHiveAuto",
+      "fails": "misses volley 2"
+    },
+    {
+      "name": "R's GARDEN volley misses",
+      "partner": "LRightUnderHiveAuto",
+      "oursFails": "misses volley 2"
+    },
+    {
+      "name": "L dead on its start",
+      "partner": "PartnerLBrokenDownAuto"
+    }
+  ]
+}

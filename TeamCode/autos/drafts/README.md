@@ -2,7 +2,8 @@
 
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
-(mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**.
+(mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, and the RightUnderHive
+pair, which runs from it as **Drive: R-RightUnderHive** and **Drive: L-RightUnderHive**.
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
 (`NudgeContactDrive`, `NudgeTestRun`) and the stand-ins only they used. All are in Git history at
@@ -24,6 +25,52 @@ committed stand-in runs RoboDux's route.
 It leaves the left end to RoboDux: under the HIVE to the left end by about 13 s, then its GARDEN 4 and its
 SCORING FLOWER 4 at LEFT for TIP 2. Simulated beside a RoboDux stand-in, with both of our robots: 1.90 TIPs
 (1.85 by 30 s), 0 contacts, and both robots parked in 20 of 20 runs.
+
+## The RightUnderHive pair: R-RightUnderHive and L-RightUnderHive
+
+`r-right-under-hive.pp` and `l-right-under-hive.pp` are a pair (mentor, 19 Nov 2026). The side before
+"UnderHive" names the robot that goes under the HIVE, so here R goes under it and L takes the outer lane. It is
+the lane pair turned round. They are drafts to try on the robot, for elims or a strong partner, not for
+qualifiers. They run from the Utility menu as **Drive: R-RightUnderHive** and **Drive: L-RightUnderHive**,
+one on each robot, and `sim-requests/r-right-under-hive.json` runs R beside L at 92% of shots in.
+
+- **R owns every fix.** From `RIGHT_START` R fires its preloads at RIGHT from `RIGHT_AUTO_HIVE` (TIP 1), gathers
+  the GARDEN and comes back to `RIGHT_AUTO_HIVE`. It waits there for RIGHT to be up (TIP 2 came, or TIP 1 never
+  did), fires the GARDEN load at RIGHT, and goes up the corridor under the HIVE to park at `LEFT_PARK`.
+- **If RIGHT is not up by 18 s** (adjustable in INIT), R goes up the corridor to its own spot `R_LEFT_FIX`
+  (60.0, 114.0), fires at LEFT if LEFT is up (fixing TIP 2), and parks at `LEFT_PARK`.
+- **Why 18 s and not 16:** both park, but at 18 s TIP 2 in the runs where L misses comes at about 30.7 s, just
+  after AUTO. At 16 s it came at about 27.9 s.
+- **L fixes nothing.** From `LEFT_START` L waits at `LEFT_AUTO_HIVE` for TIP 1 (until 20 s) and fires its
+  preloads at LEFT. Then it picks the SCORING FLOWER and fires that load from `LEFT_AUTO_OFFSET` if LEFT is still
+  up. It goes on to the WALL FLOWER by the outer lane only before 22 s, then parks at `RIGHT_PARK`. After 22 s it
+  parks straight from `LEFT_AUTO_OFFSET`.
+- **Kept apart:**
+  - R stays in the corridor under the HIVE (x 57 to 62), facing 90 degrees, until y is past 100.
+  - R turns toward LEFT only west of x 58, so its frame never crosses the centre line.
+  - R's fix spot keeps it clear of L at `LEFT_AUTO_OFFSET` and of a dead L on `LEFT_START`.
+  - R's park routes clear the HIVE bar.
+  - Each drive was checked against these limits by sampling its curve, then in the simulator.
+- **No third TIP.** In the simulator's rocker model, TIP 3 needs about 15 pieces in RIGHT. The pair puts R's 4
+  preloads and R's GARDEN load there, so 3 TIPs do not fit in AUTO.
+
+**In the simulator** (19 Nov 2026, Belding calibration, 20 runs on field 2's seeds, the pair). TIP times are the
+match clock at CELL read up.
+
+| Case | TIPs (by 30 s) | Both parked | Contacts | TIP 1 / TIP 2 |
+|---|---|---|---|---|
+| Every shot lands | 2.00 (2.00) | 20 | 0 | 7.6 / 23.9 |
+| R's preloads miss | 1.00 (1.00) | 20 | 0 | 18.5 / none |
+| L's preloads miss | 2.00 (1.00) | 20 | 0 | 7.6 / 30.8 |
+| L's FLOWER volley misses | 2.00 (1.00) | 20 | 0 | 7.6 / 30.7 |
+| R's GARDEN volley misses | 2.00 (2.00) | 20 | 0 | 7.6 / 23.9 |
+| Slow swing (TIP lag about 6.7 s) | 2.00 (2.00) | 20 | 0 | 10.5 / 28.9 |
+| L dead on its start | 1.00 (1.00) | R | 0 | 7.6 / none |
+| R dead on its start | 0 | L | 0 | none |
+| 92% of shots in, Belding loads (19429 as R) | 1.85 (1.75) | 20 | 0 | 7.7 / 27.6 |
+| 92% of shots in, Belding loads (20245 as R) | 1.90 (1.90) | 20 | 0 | 7.7 / 27.6 |
+
+No run crossed the centre line or touched the HIVE.
 
 ## The lane pair: R-OutsideLane and L-UnderHive
 

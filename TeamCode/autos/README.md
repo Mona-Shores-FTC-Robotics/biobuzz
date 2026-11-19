@@ -105,7 +105,7 @@ Inside the Visualizer, the same list is **View → Team Autos: the latest from b
 in the link: `#team=auto/r-solo/r-solo.pp`.
 
 **Drafts** (`drafts/`, no competition OpMode; a draft may have an isolated test Utility) are listed in Team Autos under their own heading, and
-open beside a partner stand-in the same way. Since 19 Nov 2026 `drafts/` holds only L-Assist (mentor: a
+open beside a partner stand-in the same way. Since 19 Nov 2026 `drafts/` holds only L-Assist and the RightUnderHive pair (mentor: a
 small, manageable set); every other draft, and the stand-ins only they used, are in Git history at `f2c9bb7`
 (`git checkout f2c9bb7 -- TeamCode/autos/drafts/<name>.pp` and its generated class brings one back).
 Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `drafts/`, and the fast
