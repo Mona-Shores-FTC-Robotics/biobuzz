@@ -119,6 +119,8 @@ public abstract class BuiltAuto extends RobotOpMode {
 
     /** How many of the Auto's latest trace lines the Match page shows. */
     private static final int TRACE_LINES = 4;
+    /** Volleys the Match page lists above the trace, newest last (an Auto fires four or fewer). */
+    private static final int VOLLEY_LINES = 4;
 
     /** The most pieces a robot may hold (BIOBUZZ G407): the intake has room below this. */
     public static final int MAX_HELD = 4;
@@ -340,8 +342,30 @@ public abstract class BuiltAuto extends RobotOpMode {
             display.status("Endgame guard OFF", Display.Level.FAULT,
                     "practice only: no park for time. Panels → BuiltAuto.endgameGuard to turn it back on");
         }
+        recordShot();
+        if (volleys.volleys() > 0) {
+            display.line(volleys.summary());
+            volleys.forEachRecent(VOLLEY_LINES, display::line);
+        }
         if (trace != null) trace.forEachRecent(display::line);
         publish();
+    }
+
+    /**
+     * A counted shot into the volley history, with the range the speed table would take for it now:
+     * the camera's to our CELL when it sees one, else the pose's ({@link LaunchCards#forRobot}'s rule).
+     */
+    private void recordShot() {
+        if (!robot.launcher.shotJustDetected()) return;
+        Alliance ours = setup.alliance();
+        double range = LaunchCards.cameraRangeIn(robot.vision.sightings(), ours, LaunchCards.SIGHTING_FRESH_MS);
+        String source = "camera";
+        if (Double.isNaN(range)) {
+            range = LaunchCards.rangeToHalfCellIn(robot.drive.poseReferenced() ? robot.drive.pose() : null, ours);
+            source = "pose";
+        }
+        volleys.shot(secondsSincePlay(), robot.launcher.lastShotTargetTicksPerSecond(),
+                robot.launcher.lastShotDipTicksPerSecond(), range, source);
     }
 
     /**

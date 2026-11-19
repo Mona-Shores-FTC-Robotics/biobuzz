@@ -254,6 +254,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private HiveCell nearEndCell;
     private double lastShotRangeIn = Double.NaN;
     private String lastShotRangeSource = "";
+    /** Volleys the Robot page lists, newest last (the rest are in the match log). */
+    private static final int VOLLEY_LINES = 6;
 
     /** Where {@link #shotRangeIn()} took its last range from. */
     private enum RangeFrom { NONE, CAMERA, ANCHOR, ODOMETRY }
@@ -1017,6 +1019,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
             display.line(String.format(Locale.US, "Last shot: %.0f in (%s) at %.0f ticks/s", lastShotRangeIn,
                     lastShotRangeSource, robot.launcher.lastShotTargetTicksPerSecond()));
         }
+        if (volleys.volleys() > 0) {
+            display.line(volleys.summary());
+            volleys.forEachRecent(VOLLEY_LINES, display::line);
+        }
         if (turretMode == TurretMode.AIM) {
             display.line(aimer.line());
         } else {
@@ -1265,6 +1271,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                     robot.launcher.lastShotDipTicksPerSecond(),
                     Double.isNaN(lastShotRangeIn) ? "unknown"
                             : String.format(Locale.US, "%.0f in (%s)", lastShotRangeIn, lastShotRangeSource)));
+            volleys.shot(secondsSincePlay(), robot.launcher.lastShotTargetTicksPerSecond(),
+                    robot.launcher.lastShotDipTicksPerSecond(), lastShotRangeIn, shortRangeSource());
         }
     }
 
@@ -1323,6 +1331,20 @@ public class BasicDriveTeleOp extends RobotOpMode {
     }
 
     /** Where {@link #shotRangeIn()}'s last answer came from, for a log line: "" when it had none. */
+    /** {@link #rangeSource()} in a word, for the volley history's one-line volleys. */
+    private String shortRangeSource() {
+        switch (rangeFrom) {
+            case CAMERA:
+                return "camera";
+            case ANCHOR:
+                return "last seen";
+            case ODOMETRY:
+                return "pose";
+            default:
+                return "";
+        }
+    }
+
     private String rangeSource() {
         switch (rangeFrom) {
             case CAMERA:

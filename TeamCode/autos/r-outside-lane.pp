@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T22:10:02.435Z",
+  "timestamp": "2026-11-19T02:06:35.330Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -8,6 +8,27 @@
     "headingDeg": 90
   },
   "lines": [
+    {
+      "id": "line-r-outside-lane-to-right-auto-hive",
+      "color": "#76b7b2",
+      "name": "to RIGHT_AUTO_HIVE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 20.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 96.1
+      }
+    },
     {
       "id": "r-wall-flower",
       "color": "#e15759",
@@ -25,7 +46,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
+        "startDeg": 96.1,
         "endDeg": 180
       }
     },
@@ -67,7 +88,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 180
+        "degrees": 179.99999999999997
       }
     },
     {
@@ -638,6 +659,10 @@
   "sequence": [
     {
       "kind": "path",
+      "lineId": "line-r-outside-lane-to-right-auto-hive"
+    },
+    {
+      "kind": "path",
       "lineId": "r-wall-flower"
     },
     {
@@ -776,6 +801,11 @@
         36.3,
         19.6,
         63.8
+      ],
+      "RIGHT_AUTO_HIVE": [
+        59.2,
+        20.9,
+        96.1
       ]
     },
     "pathEnds": {
@@ -787,13 +817,20 @@
       "r-scoring-flower": "SCORING_FLOWER_STAGING",
       "r-wall-lane-south": "RIGHT_AUTO_CLOSE",
       "r-right-park": "RIGHT_PARK",
-      "r-flower-abort-park": "RIGHT_PARK"
+      "r-flower-abort-park": "RIGHT_PARK",
+      "line-r-outside-lane-to-right-auto-hive": "RIGHT_AUTO_HIVE"
     },
     "cards": [
       {
         "id": "R-spin",
         "kind": "action",
         "name": "SpinUp"
+      },
+      {
+        "id": "c-r-outside-lane-to-right-auto-hive",
+        "kind": "path",
+        "lineId": "line-r-outside-lane-to-right-auto-hive",
+        "park": false
       },
       {
         "id": "R-launch-preloads",
@@ -948,6 +985,7 @@
     },
     "teamSpots": [
       "LEFT_AUTO_OFFSET",
+      "RIGHT_AUTO_HIVE",
       "RIGHT_PARK",
       "RIGHT_START",
       "SCORING_FLOWER_STAGING",

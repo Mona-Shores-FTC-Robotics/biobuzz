@@ -53,7 +53,7 @@ from the WALL FLOWER is 4.4 s (3.2 s backward), and the road under the HIVE 6.2 
 
 | | R-Clockwise | L-Clockwise |
 |---|---|---|
-| TIP 1 | Shoot the preloads at RIGHT at once, from RIGHT_START | Slide 2.4 in to LEFT_WALL_HIVE and wait |
+| TIP 1 | Move up to RIGHT_AUTO_HIVE as the launcher spins up; shoot the preloads at RIGHT | Slide 2.4 in to LEFT_WALL_HIVE and wait |
 | First pickup | The WALL FLOWER, or the GARDEN | |
 | TIP 2 | Outside lane to LEFT_CLOSE_HIVE; shoot at LEFT | Shoot the preloads at LEFT once it is up |
 | Second pickup | The SCORING FLOWER | Under the HIVE; the GARDEN, or the WALL FLOWER |
