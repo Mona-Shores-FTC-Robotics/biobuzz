@@ -25,6 +25,21 @@ public class BeldingCalibrationTest {
         assertEquals("both", BeldingCalibration.robotFor(1, "20245", " ", "both"));
     }
 
+    /** The best case ("scenario": "best") gives every robot full loads and ends every volley at its fourth shot. */
+    @Test
+    public void theBestCaseIsFullLoadsAndACountedFeed() {
+        try {
+            BeldingCalibration.bestCase = true;
+            assertEquals("full", BeldingCalibration.robotFor(0));
+            assertEquals("full", BeldingCalibration.robotFor(1));
+            assertTrue(BeldingCalibration.fullLoads(1));
+            assertFalse(BeldingCalibration.wholeFeed());
+        } finally {
+            BeldingCalibration.bestCase = false;
+        }
+        assertEquals(BeldingCalibration.WHOLE_FEED, BeldingCalibration.wholeFeed());
+    }
+
     @Test
     public void eachRobotDrawsFromItsOwnLoads() {
         Random luck = new Random(1);
