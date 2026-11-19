@@ -45,7 +45,13 @@ mentor rates it the team's best Auto). R keeps to the wall side of the HIVE both
 under-HIVE side, so their roads do not cross. Never driven. Its volleys: R's preloads from
 `RIGHT_AUTO_HIVE`, its LEFT volley from `LEFT_AUTO_OFFSET` (it comes round the outside lane, beside L on
 `LEFT_AUTO_HIVE`), its last from `RIGHT_AUTO_OFFSET`; L's preloads from `LEFT_AUTO_HIVE` and its
-pickup load from `RIGHT_AUTO_HIVE`. Leave the Pickup rows as drawn (R `WALL_FLOWER`, L `GARDEN`):
+pickup load from `RIGHT_AUTO_HIVE`. Since 19 Nov 2026 L is the former trial L-UnderHive-ParkShot (mentor):
+it parks at its own `LEFT_AUTO_PARK` (14.5, 120.5, 322.6), partly in the LOADING ZONE and turned to face the
+LEFT CELL, clear of R at `RIGHT_PARK`. When its RIGHT-up wait gives up at 22 s it parks there, then fires
+`LaunchAllAimed` behind a check, **LEFT up before 27.5 s**: the turret aimed by `TurretAimer`, its last piece
+out by 30 s, else it stays parked (19429 on 18 Nov had parked with 2 POLLEN in the lane and LEFT up). If TIP 1
+has not come by 9 s, it crosses under the HIVE to `RIGHT_AUTO_FIX_TIP`, fires at RIGHT and parks at
+`LEFT_AUTO_PARK` (L-Clockwise's rescue). Leave the Pickup rows as drawn (R `WALL_FLOWER`, L `GARDEN`):
 with them swapped the robots touched at about 12 s in 2 of 3 simulated runs. In the simulator R's
 LEFT volley ends after 15.5 s, so R parks from the left spot and the pair makes one TIP; the
 robot's own time for that leg decides ([its notes](drafts/README.md#the-lane-pair-r-outsidelane-and-l-underhive),
