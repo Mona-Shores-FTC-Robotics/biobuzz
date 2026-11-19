@@ -3,14 +3,14 @@
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
 (mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, and the RightUnderHive
-pair, parked until a super FLOWER pick exists (no OpMode), and the ThreeTip pair, waiting for its first export.
+pair, parked until a super FLOWER pick exists (no OpMode), and the ThreeTip pair, a trial with no OpMode until the mentor decides on one.
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
 (`NudgeContactDrive`, `NudgeTestRun`) and the stand-ins only they used. All are in Git history at
 `f2c9bb7`; `git checkout f2c9bb7 -- TeamCode/autos/drafts/<name>.pp` and its class in
 `opmodes/auto/generated/` bring one back:
 
-- Drafts: `l-clockwise-backward`, `l-clockwise-close`, `l-clockwise-flower`, `l-clockwise-garden`, `l-clockwise-next`, `l-pair-flowers`, `l-three-tip`, `l-under-hive-fix`, `l-under-hive-park-shot` (became l-under-hive.pp), `partner-nudge-test`, `r-clockwise-19429`, `r-clockwise-backward`, `r-clockwise-close`, `r-clockwise-flower`, `r-clockwise-garden`, `r-clockwise-next`, `r-outside-lane-fix`, `r-pair-garden`, `r-pair-garden-sweep`, `r-solo-19429`, `r-solo-human-player`, `r-solo-nudge`, `r-three-tip`, `r-three-tip-still`, `r-three-tip-stream`, `r-two-tip`, `r-two-tip-with`.
+- Drafts: `l-clockwise-backward`, `l-clockwise-close`, `l-clockwise-flower`, `l-clockwise-garden`, `l-clockwise-next`, `l-pair-flowers`, `l-three-tip` (likewise reused), `l-under-hive-fix`, `l-under-hive-park-shot` (became l-under-hive.pp), `partner-nudge-test`, `r-clockwise-19429`, `r-clockwise-backward`, `r-clockwise-close`, `r-clockwise-flower`, `r-clockwise-garden`, `r-clockwise-next`, `r-outside-lane-fix`, `r-pair-garden`, `r-pair-garden-sweep`, `r-solo-19429`, `r-solo-human-player`, `r-solo-nudge`, `r-three-tip` (the name now holds the new ThreeTip draft below), `r-three-tip-still`, `r-three-tip-stream`, `r-two-tip`, `r-two-tip-with`.
 - Stand-ins in `partners/`: `partner-l-fill-hide-park`, `partner-l-stage-leave-park`, `partner-l-timed-fill-hide-park`, `partner-r-launch-stay`, `partner-r-tip-far-park`.
 
 ## L-Assist: the far-end partner beside a near-end robot that tips both CELLs
