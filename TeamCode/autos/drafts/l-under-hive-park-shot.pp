@@ -30,9 +30,70 @@
       }
     },
     {
-      "id": "l-left-abort-park",
+      "id": "l-rescue",
       "color": "#4e79a7",
-      "name": "left abort park to LEFT_PARK",
+      "name": "under the HIVE to RIGHT_AUTO_FIX_TIP",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 55.3,
+        "y": 25.7
+      },
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 101.6
+        },
+        {
+          "x": 65,
+          "y": 72
+        },
+        {
+          "x": 58.5,
+          "y": 38
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.79,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.79,
+              "endProgress": 0.885,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.885,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "l-rescue-park",
+      "color": "#4e79a7",
+      "name": "rescue park to LEFT_AUTO_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -41,13 +102,61 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 120.5
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 58.5,
+          "y": 50
+        },
+        {
+          "x": 64.5,
+          "y": 80
+        },
+        {
+          "x": 63.5,
+          "y": 105
+        },
+        {
+          "x": 62,
+          "y": 122
+        },
+        {
+          "x": 40,
+          "y": 122
+        }
+      ],
       "heading": {
-        "type": "linear",
-        "startDeg": 268.9,
-        "endDeg": 0
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.62,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.62,
+              "endProgress": 0.86,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": -37.4
+              }
+            },
+            {
+              "startProgress": 0.86,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": -37.4
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -270,7 +379,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 120.5
       },
       "controlPoints": [
         {
@@ -321,7 +430,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": -34.8
+                "endDeg": -37.4
               }
             },
             {
@@ -329,7 +438,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": -34.8
+                "degrees": -37.4
               }
             }
           ]
@@ -563,7 +672,11 @@
     },
     {
       "kind": "path",
-      "lineId": "l-left-abort-park"
+      "lineId": "l-rescue"
+    },
+    {
+      "kind": "path",
+      "lineId": "l-rescue-park"
     },
     {
       "kind": "path",
@@ -689,8 +802,13 @@
       ],
       "LEFT_AUTO_PARK": [
         14.5,
-        117.4,
-        325.2
+        120.5,
+        322.6
+      ],
+      "RIGHT_AUTO_FIX_TIP": [
+        55.3,
+        25.7,
+        90
       ]
     },
     "pathEnds": {
@@ -698,8 +816,9 @@
       "l-early-garden": "GARDEN_STAGING",
       "l-garden-exit": "RIGHT_AUTO_HIVE",
       "l-under-hive-park": "LEFT_AUTO_PARK",
-      "l-left-abort-park": "LEFT_PARK",
-      "l-garden-abort-park": "LEFT_PARK"
+      "l-garden-abort-park": "LEFT_PARK",
+      "l-rescue": "RIGHT_AUTO_FIX_TIP",
+      "l-rescue-park": "LEFT_AUTO_PARK"
     },
     "cards": [
       {
@@ -716,16 +835,28 @@
       {
         "id": "L-wait-left",
         "kind": "firstOf",
-        "label": "LEFT up before 9 s, otherwise park",
+        "label": "LEFT up before 9 s, otherwise cross under the HIVE, fire at RIGHT, and park",
         "rows": [
           {
             "afterMs": 9000,
             "matchClock": true,
             "cards": [
               {
-                "id": "card-l-left-abort-park",
+                "id": "card-l-rescue",
                 "kind": "path",
-                "lineId": "l-left-abort-park",
+                "lineId": "l-rescue",
+                "park": false
+              },
+              {
+                "id": "L-launch-rescue",
+                "kind": "action",
+                "name": "LaunchAll",
+                "timeoutS": 1
+              },
+              {
+                "id": "card-l-rescue-park",
+                "kind": "path",
+                "lineId": "l-rescue-park",
                 "park": true
               }
             ]
@@ -835,13 +966,15 @@
     ],
     "parkFrom": {
       "card-l-early-garden": "l-garden-abort-park",
-      "card-l-garden-exit": "l-under-hive-park"
+      "card-l-garden-exit": "l-under-hive-park",
+      "card-l-rescue": "l-rescue-park"
     },
     "teamSpots": [
       "GARDEN_STAGING",
       "LEFT_AUTO_HIVE",
       "LEFT_PARK",
       "LEFT_START",
+      "RIGHT_AUTO_FIX_TIP",
       "RIGHT_AUTO_HIVE"
     ],
     "exportName": "L-UnderHive-ParkShot"
