@@ -117,6 +117,10 @@ public final class RobotDifferences {
                 "Turret unlocked: the 25-3 Speed servo and the REV Through Bore encoder are fitted,"
                         + " checked on Bench: Turret, and it held and aimed in Basic Drive (17 Nov 2026)",
                 () -> TurretSubsystem.lockedForward = false);
+        differs(RobotIdentity.TEAM_20245,
+                "Shots sit to one side: turret aimed 6 degrees round from its mark, set by the mentor"
+                        + " with the speed table measured that night (18 Nov 2026)",
+                () -> TurretSubsystem.aimOffsetDeg = 6.0);
     }
 
     /**
