@@ -463,13 +463,16 @@ they came from.
     started (middle half 1.2 to 1.9; 33 picks that took pieces), and the one pick that filled the
     lane latched full 0.44 s after its last spike, 1.43 s in. No Auto waits on `IntakeFull`, so
     this fact times nothing in a preview today.
-  - `pickFlowerS` 3.6 and `gardenGatherS` 4.4 (measured, 15 Nov 2026): a `PickFlower` and a
-    `GardenGather` step, start to end, the median over every Auto log on `events/2026-11-belding` and
-    `logs/*` (each run counted once). Picks: 107; the lane read full a median 2.6 s after the step
-    began in the 61 that filled (1.5 to 4.7 s), and 43 never read full. Gathers: only 10, three of
-    which filled (2.85 to 3.53 s), so re-measure. The Visualizer's Match view has a slider for each,
-    shown only for an Auto with that step; a step never runs past its own time limit. The robot's
-    guard still plans 4.0 and 5.0 s (`AutoRegistration.PICK_FLOWER_TYPICAL_S`,
+  - `pickFlowerS` 3.6 (measured, 15 Nov 2026): a `PickFlower` step, start to end, the median over
+    every Auto log on `events/2026-11-belding` and `logs/*` (each run counted once). Picks: 107; the
+    lane read full a median 2.6 s after the step began in the 61 that filled (1.5 to 4.7 s), and 43
+    never read full. `gardenGatherS` 2.5 (19 Nov 2026): the five TeleOp button gathers of 18 Nov on
+    19429 that ran to the end with today's `GardenGather` defaults took 2.26 to 2.50 s without their
+    line-up, which an Auto's gather does not do (`logs/2026-11-18-19429-RC`, `_Basic_Drive_4` to `_6`).
+    It was 4.4, the median of the ten Auto gathers of 3 to 14 Nov, nine with the old 1.5 s dwell. No
+    Auto gather has run on today's values, so re-measure. The Visualizer's Match view has a slider for
+    each, shown only for an Auto with that step; a step never runs past its own time limit. The
+    robot's guard plans 4.0 and 3.0 s (`AutoRegistration.PICK_FLOWER_TYPICAL_S`,
     `GARDEN_GATHER_TYPICAL_S`).
   - `tipStartS` 2.6 and `tipSwingS` 1.6 (measured): together, the 4.2 s from a LaunchAll's end to
     the camera's `CellUp`, for a CELL at its tipping weight and a volley that ends on its fourth

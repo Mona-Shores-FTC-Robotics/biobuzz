@@ -187,17 +187,18 @@ public final class AutoRegistration {
 
     /**
      * {@code GardenGather}'s typical seconds: a drive in, a dwell and a drive back from wherever the
-     * card is called. Ten Auto gathers are logged, from {@code GARDEN_STAGING} on both robots. The nine
-     * of 3 to 7 Nov 2026 had the old 1.5 s dwell: 4.13 to 4.76 s, median 4.43. The one of 14 Nov, with
-     * the dwell at 0.4 s and the field values of that day, took 3.15 s (stick wait 0.71, drive in 1.24,
-     * dwell 0.46, back 0.73). The slowest of each phase as they were then add up to 3.83 s (stick
-     * wait 0.75, drive in 1.77, dwell 0.46, back 0.85; the drive in and back from the 14 Nov button
-     * gathers at {@code inSpeed} 1.0), so 4.0 covers a gather with room: the stick wait is gone
-     * since 16 Nov ({@code GardenGather.stick.stickDownMs} 0), which no run has timed yet. One Auto gather
-     * is thin: doc/robot-todo.md asks for more. Was 5.0 (one Auto gather, 4.21 s with the long dwell),
-     * and 6.0 before any was logged.
+     * card is called (an Auto's gather has no line-up). 3.0 since 19 Nov 2026, from the TeleOp button
+     * gathers 19429 ran that night on the red GARDEN with today's {@code GardenGather} defaults
+     * (logs/2026-11-18-19429-RC, {@code 2026-11-18_23-27-03_Basic_Drive_4}, {@code _5}, {@code _6}): the
+     * five that ran to the end with the 0.15 s dwell took 2.26 to 2.50 s without their line-up (prep up to
+     * 0.04, in 1.35 to 1.60, dwell 0.15 to 0.18, back 0.67 to 0.73), and a sixth quit early (in 0.81 s,
+     * stalled 26.3 in short; 1.57 s). The slowest of each phase add up to 2.55 s. 3.0 leaves room for
+     * an Auto's start at {@code GARDEN_STAGING}, 3 in off the wall rather than the line-up's 0.5, and
+     * for no Auto gather having run on these values yet: doc/robot-todo.md asks for them. Was 4.0
+     * (the ten Auto gathers of 3 to 14 Nov, nine with the old 1.5 s dwell, 4.13 to 4.76 s, and one with
+     * a 0.4 s dwell and a stick wait, 3.15 s), 5.0 and 6.0 before that.
      */
-    public static final double GARDEN_GATHER_TYPICAL_S = 4.0;
+    public static final double GARDEN_GATHER_TYPICAL_S = 3.0;
 
     /**
      * The TIP lag a partner wait allows: seconds from the partner's last ball leaving its launcher to

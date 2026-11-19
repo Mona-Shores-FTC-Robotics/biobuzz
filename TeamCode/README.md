@@ -1169,8 +1169,9 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   gathers of 18 Nov: 2.0 to 2.2 s against the robot's 2.26 to 2.50 s, but 3 POLLEN against its 4 (the square
   frame turned 15° in the corner stops the mouth about 0.9 in short of the corner piece). **Measured:**
   the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
-  whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (4 s, which covers the
-  ten Auto gathers logged 3 to 14 Nov with the dwell as it is now); the FLOWER stick, which goes down on the robot's gather, is not modelled in the GARDEN.
+  whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (3 s, which covers the
+  button gathers 19429 ran on 18 Nov with today's values, 2.26 to 2.50 s without their line-up; no Auto
+  gather has run on them yet); the FLOWER stick, which goes down on the robot's gather, is not modelled in the GARDEN.
 - **Hits on the HIVE.** The rocker's static balance is fitted to the Field Setup Guide's placed cases
   (`HiveCalibration`). On top of it, a launched piece striking a CELL hands the rocker the angular momentum
   about the axle the hit took from it (`FieldSim.kick`): the rocker is damped, so a hit moves it a step,
