@@ -21,7 +21,7 @@ public final class RRightUnderHiveAuto {
     public static final String SOURCE = "r-right-under-hive.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-19|3:18PM";
+    public static final String SAVED = "11-19|4:02PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "SpinUp"};
@@ -69,9 +69,9 @@ public final class RRightUnderHiveAuto {
         Pose rightAutoHiveCorridorToLeftParkGuardControl10 = p.of(61, 100, 0);
         Pose rightAutoHiveCorridorToLeftParkGuardControl11 = p.of(61, 100, 0);
         Pose rightAutoHiveCorridorToLeftParkGuardControl12 = p.of(61, 100, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl13 = p.of(57, 108, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl14 = p.of(40, 110, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl15 = p.of(26, 112, 0);
+        Pose rightAutoHiveCorridorToLeftParkGuardControl13 = p.of(57, 112, 0);
+        Pose rightAutoHiveCorridorToLeftParkGuardControl14 = p.of(42, 119, 0);
+        Pose rightAutoHiveCorridorToLeftParkGuardControl15 = p.of(26, 119, 0);
         Pose rightAutoHiveCorridorToLeftParkGuardSegment1Start = p.of(14.5, 117.4, 96.1);
         Pose rightAutoHiveCorridorToLeftParkGuardSegment1End = p.of(14.5, 117.4, 90);
         Pose rightAutoHiveCorridorToLeftParkGuardSegment2Heading = p.of(14.5, 117.4, 90);
@@ -119,10 +119,10 @@ public final class RRightUnderHiveAuto {
 
         // Paths, written as the stock Visualizer export writes them.
         Path toRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
-        Path rightAutoHiveCorridorToLeftParkGuard = Paths.curve(rightAutoHive, rightAutoHiveCorridorToLeftParkGuardControl1, rightAutoHiveCorridorToLeftParkGuardControl2, rightAutoHiveCorridorToLeftParkGuardControl3, rightAutoHiveCorridorToLeftParkGuardControl4, rightAutoHiveCorridorToLeftParkGuardControl5, rightAutoHiveCorridorToLeftParkGuardControl6, rightAutoHiveCorridorToLeftParkGuardControl7, rightAutoHiveCorridorToLeftParkGuardControl8, rightAutoHiveCorridorToLeftParkGuardControl9, rightAutoHiveCorridorToLeftParkGuardControl10, rightAutoHiveCorridorToLeftParkGuardControl11, rightAutoHiveCorridorToLeftParkGuardControl12, rightAutoHiveCorridorToLeftParkGuardControl13, rightAutoHiveCorridorToLeftParkGuardControl14, rightAutoHiveCorridorToLeftParkGuardControl15, leftPark).heading(Interpolator.piecewise().until(0.05, Interpolator.linear(rightAutoHiveCorridorToLeftParkGuardSegment1Start, rightAutoHiveCorridorToLeftParkGuardSegment1End)).until(0.72, Interpolator.constant(rightAutoHiveCorridorToLeftParkGuardSegment2Heading)).until(0.95, Interpolator.linear(rightAutoHiveCorridorToLeftParkGuardSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
+        Path rightAutoHiveCorridorToLeftParkGuard = Paths.curve(rightAutoHive, rightAutoHiveCorridorToLeftParkGuardControl1, rightAutoHiveCorridorToLeftParkGuardControl2, rightAutoHiveCorridorToLeftParkGuardControl3, rightAutoHiveCorridorToLeftParkGuardControl4, rightAutoHiveCorridorToLeftParkGuardControl5, rightAutoHiveCorridorToLeftParkGuardControl6, rightAutoHiveCorridorToLeftParkGuardControl7, rightAutoHiveCorridorToLeftParkGuardControl8, rightAutoHiveCorridorToLeftParkGuardControl9, rightAutoHiveCorridorToLeftParkGuardControl10, rightAutoHiveCorridorToLeftParkGuardControl11, rightAutoHiveCorridorToLeftParkGuardControl12, rightAutoHiveCorridorToLeftParkGuardControl13, rightAutoHiveCorridorToLeftParkGuardControl14, rightAutoHiveCorridorToLeftParkGuardControl15, leftPark).heading(Interpolator.piecewise().until(0.05, Interpolator.linear(rightAutoHiveCorridorToLeftParkGuardSegment1Start, rightAutoHiveCorridorToLeftParkGuardSegment1End)).until(0.68, Interpolator.constant(rightAutoHiveCorridorToLeftParkGuardSegment2Heading)).until(0.85, Interpolator.linear(rightAutoHiveCorridorToLeftParkGuardSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path toGardenStaging = Paths.line(rightAutoHive, gardenStaging).linear(rightAutoHive, gardenStaging);
+        Path gardenCorridorToLeftParkGuard = Paths.curve(gardenStaging, gardenCorridorToLeftParkGuardControl1, gardenCorridorToLeftParkGuardControl2, gardenCorridorToLeftParkGuardControl3, gardenCorridorToLeftParkGuardControl4, gardenCorridorToLeftParkGuardControl5, gardenCorridorToLeftParkGuardControl6, gardenCorridorToLeftParkGuardControl7, gardenCorridorToLeftParkGuardControl8, gardenCorridorToLeftParkGuardControl9, gardenCorridorToLeftParkGuardControl10, gardenCorridorToLeftParkGuardControl11, gardenCorridorToLeftParkGuardControl12, gardenCorridorToLeftParkGuardControl13, gardenCorridorToLeftParkGuardControl14, gardenCorridorToLeftParkGuardControl15, gardenCorridorToLeftParkGuardControl16, gardenCorridorToLeftParkGuardControl17, leftPark).heading(Interpolator.piecewise().until(0.08, Interpolator.linear(gardenCorridorToLeftParkGuardSegment1Start, gardenCorridorToLeftParkGuardSegment1End)).until(0.74, Interpolator.constant(gardenCorridorToLeftParkGuardSegment2Heading)).until(0.95, Interpolator.linear(gardenCorridorToLeftParkGuardSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path gardenBackToRightAutoHive = Paths.line(gardenStaging, rightAutoHive).linear(gardenStaging, rightAutoHive);
-        Path gardenCorridorToLeftParkGuard = Paths.curve(rightAutoHive, gardenCorridorToLeftParkGuardControl1, gardenCorridorToLeftParkGuardControl2, gardenCorridorToLeftParkGuardControl3, gardenCorridorToLeftParkGuardControl4, gardenCorridorToLeftParkGuardControl5, gardenCorridorToLeftParkGuardControl6, gardenCorridorToLeftParkGuardControl7, gardenCorridorToLeftParkGuardControl8, gardenCorridorToLeftParkGuardControl9, gardenCorridorToLeftParkGuardControl10, gardenCorridorToLeftParkGuardControl11, gardenCorridorToLeftParkGuardControl12, gardenCorridorToLeftParkGuardControl13, gardenCorridorToLeftParkGuardControl14, gardenCorridorToLeftParkGuardControl15, gardenCorridorToLeftParkGuardControl16, gardenCorridorToLeftParkGuardControl17, leftPark).heading(Interpolator.piecewise().until(0.08, Interpolator.linear(gardenCorridorToLeftParkGuardSegment1Start, gardenCorridorToLeftParkGuardSegment1End)).until(0.74, Interpolator.constant(gardenCorridorToLeftParkGuardSegment2Heading)).until(0.95, Interpolator.linear(gardenCorridorToLeftParkGuardSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path upTheCorridorUnderTheHiveToRHiveExit = Paths.line(rightAutoHive, rHiveExit).linear(rightAutoHive, rHiveExit);
         Path rHiveExitWestAboveTheHiveToLeftPark = Paths.curve(rHiveExit, rHiveExitWestAboveTheHiveToLeftParkControl1, rHiveExitWestAboveTheHiveToLeftParkControl2, rHiveExitWestAboveTheHiveToLeftParkControl3, rHiveExitWestAboveTheHiveToLeftParkControl4, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(rHiveExitWestAboveTheHiveToLeftParkSegment1Heading)).until(0.95, Interpolator.linear(rHiveExitWestAboveTheHiveToLeftParkSegment2Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path fixUpTheCorridorUnderTheHiveToRHiveExit = Paths.line(rightAutoHive, rHiveExit).linear(rightAutoHive, rHiveExit);
@@ -132,22 +132,24 @@ public final class RRightUnderHiveAuto {
         Path leftDownRLeftFixToLeftPark = Paths.curve(rLeftFix, leftDownRLeftFixToLeftParkControl1, leftPark).linear(rLeftFix, leftPark);
 
         return kit.sequence(
-                kit.guarded("Auto", gardenCorridorToLeftParkGuard, 4.3,
+                kit.guarded("Auto", rightAutoHiveCorridorToLeftParkGuard, 3.7,
                         kit.command("SpinUp"),
-                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1, rightAutoHiveCorridorToLeftParkGuard, 3.6),
+                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1, rightAutoHiveCorridorToLeftParkGuard, 3.7),
                         kit.command("LaunchAll", 1),
-                        kit.path("to GARDEN_STAGING", toGardenStaging, 2, rightAutoHiveCorridorToLeftParkGuard, 3.6),
+                        kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenCorridorToLeftParkGuard, 4.8),
                         kit.command("GardenGather", 5.5),
-                        kit.path("GARDEN back to RIGHT_AUTO_HIVE", gardenBackToRightAutoHive, 2, gardenCorridorToLeftParkGuard, 4.3),
+                        kit.path("GARDEN back to RIGHT_AUTO_HIVE", gardenBackToRightAutoHive, 2, rightAutoHiveCorridorToLeftParkGuard, 3.7),
                         kit.firstOf("RIGHT up (TIP 2, or no TIP 1) before 18 s, otherwise fix LEFT", kit.command("SpinUp"),
                                 kit.when("RightCellUp").then(
                                         kit.guarded("If RightCellUp", rHiveExitWestAboveTheHiveToLeftPark, 2.1,
                                                 kit.command("LaunchAll", 1),
-                                                kit.path("up the corridor under the HIVE to R_HIVE_EXIT", upTheCorridorUnderTheHiveToRHiveExit, 2.6, rightAutoHiveCorridorToLeftParkGuard, 3.6),
+                                                kit.firstOf("Hold at RIGHT_AUTO_HIVE, out of L's way, until the park needs the time",
+                                                        kit.atMatchSeconds(29)),
+                                                kit.path("up the corridor under the HIVE to R_HIVE_EXIT", upTheCorridorUnderTheHiveToRHiveExit, 2.6, rHiveExitWestAboveTheHiveToLeftPark, 2.1),
                                                 kit.path("R_HIVE_EXIT west above the HIVE to LEFT_PARK", rHiveExitWestAboveTheHiveToLeftPark, 2.1))),
                                 kit.atMatchSeconds(kit.seconds("RIGHT up (TIP 2, or no TIP 1) before 18 s, otherwise fix LEFT", 18)).then(
                                         kit.guarded("Timed out", leftDownRLeftFixToLeftPark, 2,
-                                                kit.path("fix: up the corridor under the HIVE to R_HIVE_EXIT", fixUpTheCorridorUnderTheHiveToRHiveExit, 2.6, rightAutoHiveCorridorToLeftParkGuard, 3.6),
+                                                kit.path("fix: up the corridor under the HIVE to R_HIVE_EXIT", fixUpTheCorridorUnderTheHiveToRHiveExit, 2.6, rHiveExitWestAboveTheHiveToLeftPark, 2.1),
                                                 kit.path("R_HIVE_EXIT round to R_LEFT_FIX", rHiveExitRoundToRLeftFix, 1.8, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFix, 2.2),
                                                 kit.firstOf("LEFT up?",
                                                         kit.when("LeftCellUp").then(
