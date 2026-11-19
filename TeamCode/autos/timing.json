@@ -57,9 +57,9 @@
       "note": "PickFlower step, start to end: median 3.58 s over 107 Auto picks. The lane read full a median 2.6 s after the step began (61 picks, 1.5-4.7 s; 2.7 s at Belding); 43 never read full and ran a median 3.7 s. The guard still plans 4.0 s (AutoRegistration.PICK_FLOWER_TYPICAL_S)."
     },
     "gardenGatherS": {
-      "value": 4.4,
-      "source": "measured, 19429 and 20245 Auto logs, 3-14 Nov 2026: only 10 gathers, so re-measure",
-      "note": "GardenGather step, start to end: median 4.42 s. The lane read full in 3 of them, 2.85-3.53 s after the step began. The guard still plans 5.0 s (AutoRegistration.GARDEN_GATHER_TYPICAL_S)."
+      "value": 2.5,
+      "source": "measured, 19429 TeleOp button gathers, 18 Nov 2026 (logs/2026-11-18-19429-RC), with the 19 Nov GardenGather defaults: no Auto gather yet, so re-measure",
+      "note": "Five gathers that ran to the end: 2.26-2.50 s without their line-up, which an Auto's gather does not do. Was 4.4, the median of ten Auto gathers of 3-14 Nov (nine with the old 1.5 s dwell). The guard plans 3.0 s (AutoRegistration.GARDEN_GATHER_TYPICAL_S)."
     },
     "partnerTipLagS": {
       "value": 5.5,
