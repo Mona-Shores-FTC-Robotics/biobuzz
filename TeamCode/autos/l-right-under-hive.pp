@@ -200,11 +200,11 @@
       },
       "controlPoints": [
         {
-          "x": 32,
-          "y": 108
+          "x": 38,
+          "y": 104
         },
         {
-          "x": 28,
+          "x": 34,
           "y": 95
         }
       ],
@@ -279,11 +279,11 @@
       },
       "controlPoints": [
         {
-          "x": 32,
-          "y": 108
+          "x": 38,
+          "y": 104
         },
         {
-          "x": 28,
+          "x": 34,
           "y": 95
         }
       ],
@@ -790,29 +790,6 @@
                 "park": false
               },
               {
-                "id": "c-l-check",
-                "kind": "firstOf",
-                "label": "LEFT still up?",
-                "rows": [
-                  {
-                    "when": [
-                      "CellUp"
-                    ],
-                    "cards": [
-                      {
-                        "id": "c-l-second",
-                        "kind": "action",
-                        "name": "LaunchAll"
-                      }
-                    ]
-                  },
-                  {
-                    "afterMs": 750,
-                    "cards": []
-                  }
-                ]
-              },
-              {
                 "id": "c-l-wall-gate",
                 "kind": "firstOf",
                 "label": "WALL FLOWER only before 22 s, otherwise park",
@@ -821,6 +798,29 @@
                     "afterMs": 22000,
                     "matchClock": true,
                     "cards": [
+                      {
+                        "id": "c-l-check-late",
+                        "kind": "firstOf",
+                        "label": "LEFT still up?",
+                        "rows": [
+                          {
+                            "when": [
+                              "CellUp"
+                            ],
+                            "cards": [
+                              {
+                                "id": "c-l-second-late",
+                                "kind": "action",
+                                "name": "LaunchAll"
+                              }
+                            ]
+                          },
+                          {
+                            "afterMs": 750,
+                            "cards": []
+                          }
+                        ]
+                      },
                       {
                         "id": "c-l-gate-park",
                         "kind": "path",
@@ -834,6 +834,29 @@
                       "Always"
                     ],
                     "cards": [
+                      {
+                        "id": "c-l-check",
+                        "kind": "firstOf",
+                        "label": "LEFT still up?",
+                        "rows": [
+                          {
+                            "when": [
+                              "CellUp"
+                            ],
+                            "cards": [
+                              {
+                                "id": "c-l-second",
+                                "kind": "action",
+                                "name": "LaunchAll"
+                              }
+                            ]
+                          },
+                          {
+                            "afterMs": 750,
+                            "cards": []
+                          }
+                        ]
+                      },
                       {
                         "id": "c-l-lane",
                         "kind": "path",
