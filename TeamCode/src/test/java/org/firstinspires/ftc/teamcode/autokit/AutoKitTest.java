@@ -746,7 +746,7 @@ public class AutoKitTest {
     // --------------------------------- a volley fired where the robot parked (19 Nov 2026)
 
     /**
-     * L-UnderHive-ParkShot: the RIGHT-up wait gave up at 22 s, the robot parks at LEFT_PARK (the
+     * L-UnderHive: the RIGHT-up wait gave up at 22 s, the robot parks at LEFT_PARK (the
      * timed-out row's park), then a check fires LaunchAllAimed if LEFT is up. With parkAfterVolley on
      * a plain volley here would leave "no time to park after it" and the guard would park instead,
      * never asking; a parked volley has its park behind it, so the park drives once and the volley

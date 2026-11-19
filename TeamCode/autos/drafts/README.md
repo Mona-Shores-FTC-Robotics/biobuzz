@@ -5,8 +5,8 @@ Simulator drafts also have a request in `TeamCode/sim-requests/`. The Utility tr
 R-Solo-Nudge and the partner-nudge test came off the Driver Station on 18 Nov 2026 (the event lineup);
 where the notes below name them, bring one back from Git history first. The Utility trials of
 R-Solo-HumanPlayer, R-Clockwise-19429 and R-Solo-19429 came off on 19 Nov 2026 (mentor: a smaller Utility
-menu); their `.pp` drafts and generated classes stay here. The trials on it now are L-UnderHive-ParkShot
-and L-Assist. The nudge Utility's runtime speed limits were
+menu); their `.pp` drafts and generated classes stay here. The trial on it now is L-Assist
+(L-UnderHive-ParkShot replaced L-UnderHive on 19 Nov 2026). The nudge Utility's runtime speed limits were
 not modeled by AutoSim. The Visualizer lists
 these under "Drafts", and Save to GitHub saves back here.
 
@@ -27,24 +27,6 @@ committed stand-in runs RoboDux's route.
 It leaves the left end to RoboDux: under the HIVE to the left end by about 13 s, then its GARDEN 4 and its
 SCORING FLOWER 4 at LEFT for TIP 2. Simulated beside a RoboDux stand-in, with both of our robots: 1.90 TIPs
 (1.85 by 30 s), 0 contacts, and both robots parked in 20 of 20 runs.
-
-## L-UnderHive-ParkShot: park facing LEFT, fire there if it is up
-
-`l-under-hive-park-shot.pp` is master's `l-under-hive.pp` with these changes (mentor, 19 Nov 2026). It runs
-from the Utility menu as **Drive: L-UnderHive-ParkShot**; the Autonomous menu's L-UnderHive is unchanged.
-
-- The park after the RIGHT side (`l-under-hive-park`, from the 22 s Otherwise and the RIGHT-up row) ends at the
-  Auto's own `LEFT_AUTO_PARK` (14.5, 117.4, 325.2): `LEFT_PARK`'s place, partly in the red LOADING ZONE, with the
-  chassis turned to face the LEFT CELL (the turret aims from there at 325.2). Facing the HIVE, the camera can see
-  LEFT come up.
-- When the RIGHT-up wait gives up at 22 s, that park drives, then a check, **LEFT up before 27.5 s, otherwise
-  stay parked**, fires `LaunchAllAimed` there: the turret aimed at the LEFT CELL with the TeleOp's `TurretAimer`,
-  the gate on target and at speed; from home with a turret locked forward or a dropped hold; not at all with no
-  referenced pose or the last piece out after 30 s (`AimedVolley`). The robot never leaves the spot.
-- The spot volleys stay plain `LaunchAll`.
-
-Why: 19429, 18 Nov 2026, L-UnderHive 5:10 PM parked by 26.2 s with 2 POLLEN in the lane and the LEFT CELL up.
-The gain is those 2 balls in AUTO; the TIP they may make lands after 30 s (the mentor knows).
 
 ## R-Clockwise-19429 and R-Solo-19429: one loaded leg backward, 19429 only
 
