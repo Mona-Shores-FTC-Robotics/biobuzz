@@ -822,6 +822,72 @@ public class AutoKitTest {
     }
 
     /**
+     * L-ThreeTip's L2: a CELL check that spins up alongside, inside a guarded row, with a drive
+     * before it and the park after it. The CELL comes up at 24.5 s, when the volley (4 s) and the
+     * park from the spot (3.7 s + margin) no longer fit: the volley must not start.
+     */
+    @Test
+    public void aCheckedVolleyThatComesUpLateInAGuardedRowIsRefused() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .command("SpinUp", 1.0, () -> lasting("SpinUp", 20.0))
+                .trigger("CellUp", () -> now >= 24.5));
+        Path toSpot = line(0, 10), park = line(10, 40);
+        now = 18.0;
+        run(kit.guarded("If LeftCellUp", park, 3.7,
+                kit.path("to RIGHT_AUTO_HIVE", toSpot, 2.0, park, 3.7),
+                kit.firstOf("L2: RIGHT up?", kit.command("SpinUp"),
+                        kit.when("CellUp").then(kit.command("LaunchAll", 1)),
+                        kit.afterMs(8000)),
+                kit.path("to LEFT_PARK", park, 3.7)), 20);
+        assertFalse(trace.toString(), log.contains("LaunchAll start"));
+        assertTrue(trace.toString(), traced("not starting LaunchAll, no time to park after it"));
+    }
+
+    /**
+     * R-Clockwise's hold: a bare check whose limit is late (26.4 s), first in a guarded row. At
+     * 15.5 s the look-ahead counts it as a volley that fits, as if the CELL were up at once; LEFT
+     * comes up at 26 s, when the volley and the park (2.2 s) no longer fit. That earlier "going
+     * for it" must not carry the volley past its own check: it does not start, and the robot parks.
+     */
+    @Test
+    public void aCheckThatWaitedIsPlannedAgainWhenItsVolleyStarts() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry().trigger("LeftCellUp", () -> now >= 26.0));
+        Path park = line(0, 20);
+        now = 15.5;
+        run(kit.guarded("Timed out", park, 2.2,
+                kit.firstOf("LEFT up after L's rescue?",
+                        kit.when("LeftCellUp").then(kit.command("LaunchAll", 1)),
+                        kit.atMatchSeconds(26.4)),
+                kit.firstOf("L has passed: park at 26.4 s", kit.atMatchSeconds(26.4)),
+                kit.path("catch park to RIGHT_PARK", park, 2.2)), 20);
+        assertFalse(trace.toString(), log.contains("LaunchAll start"));
+        assertEquals(java.util.Collections.singletonList(park), drive.followed);
+        assertTrue("parks as the volley is refused, not at 26.4 s", drive.followedAt.get(0) < 26.1);
+    }
+
+    /**
+     * A check that spins up alongside counts as its volley in the look-ahead, as a plain check does:
+     * at 20 s, the drive (2 s) fits with its park, but the volley at its end (4 s) and the park
+     * (3.7 s + margin) would end at 30.7 s, so the guard parks now rather than drive there first.
+     */
+    @Test
+    public void aCheckThatSpinsUpAlongsideIsPlannedAsItsVolley() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .command("SpinUp", 1.0, () -> lasting("SpinUp", 20.0))
+                .trigger("CellUp", () -> true));
+        Path toSpot = line(0, 10), park = line(0, 40);
+        now = 20.0;
+        run(kit.guarded("If LeftCellUp", park, 3.7,
+                kit.path("to RIGHT_AUTO_HIVE", toSpot, 2.0, park, 3.7),
+                kit.firstOf("L2: RIGHT up?", kit.command("SpinUp"),
+                        kit.when("CellUp").then(kit.command("LaunchAll", 1)),
+                        kit.afterMs(3000)),
+                kit.path("to LEFT_PARK", park, 3.7)), 20);
+        assertTrue(trace.toString(), traced("no time to park after it, parking now"));
+        assertEquals("parks from here, without the drive", java.util.Collections.singletonList(park), drive.followed);
+    }
+
+    /**
      * The same late trip with the drive team's Priority on the third TIP ({@link AutoOption#PRIORITY},
      * its first leg, the drawing's): the volley's last piece is out by 30 s, so it goes and fires, and
      * the park takes what time is left.
@@ -922,7 +988,9 @@ public class AutoKitTest {
      */
     @Test
     public void aVolleyBehindACellCheckThatWouldTakeTheParksTimeIsNotFired() {
-        AutoKit kit = parkKeepingKit(new AutoRegistry().trigger("CellUp", () -> true));
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .command("SpinUp", 1.0, () -> lasting("SpinUp", 20.0))
+                .trigger("CellUp", () -> true));
         Path park = line(0, 10);
         now = 24.5;
         run(kit.guarded("Auto", park, 2.9,
@@ -1059,7 +1127,9 @@ public class AutoKitTest {
     /** The same check 2.5 s sooner: the volley and the park fit (29.9 s), so it fires, then parks. */
     @Test
     public void aVolleyBehindACellCheckThatFitsIsFired() {
-        AutoKit kit = parkKeepingKit(new AutoRegistry().trigger("CellUp", () -> true));
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .command("SpinUp", 1.0, () -> lasting("SpinUp", 20.0))
+                .trigger("CellUp", () -> true));
         Path park = line(0, 10);
         now = 22.0;
         run(kit.guarded("Auto", park, 2.9,
