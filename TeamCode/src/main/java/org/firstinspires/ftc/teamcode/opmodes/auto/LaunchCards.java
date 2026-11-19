@@ -184,29 +184,27 @@ public final class LaunchCards {
     }
 
     /**
-     * What an aimed volley ({@code LaunchAllAimed}, {@code LaunchAllFromPark}) needs from the turret:
-     * aim it at the CELL at the robot's end from where the robot stands, and fall back to its home angle
-     * (where a {@code LaunchAll} fires) when it cannot. {@code AimedVolley} is the robot's.
+     * What {@code LaunchAllAimed} needs from the turret: aim it at the CELL at the robot's end from
+     * where the robot stands, fall back to its home angle when it cannot, and say when a feed may
+     * start. {@code AimedVolley} is the robot's.
      */
     public interface AimedShot {
-        /** Begin (the card, or its approach, has started). */
+        /** Begin aiming (the card has started). */
         void start();
         /**
-         * One loop of aiming. True while the turret is aiming, so the gate waits for {@link #onTarget()};
-         * false when it cannot aim (no referenced pose, locked forward, a dropped hold, or
-         * {@link #stopAiming()}): it then holds its home angle and the gate does not wait for it.
+         * One loop of aiming the turret. True while it aims, so the gate waits for {@link #onTarget()};
+         * false when it cannot (locked forward, a dropped hold): it holds its home angle, where a
+         * {@code LaunchAll} fires, and the gate does not wait for it.
          */
         boolean aim();
-        /** The turret is on its aim and the aim is inside the firing arc. */
-        boolean onTarget();
-        /** Give up aiming for this card: the turret goes home and fires from there, as a LaunchAll. */
-        void stopAiming();
         /**
-         * Why no feed may start now, or null. The park shot's ({@code LaunchAllFromPark}): no referenced
-         * pose, no alliance, or too late for the last piece to be out before AUTO ends. A spot volley's
-         * is always null: it fires from its spot whatever the turret does.
+         * Why no feed may start now, or null: no referenced pose, no alliance, or too late for the last
+         * piece to be out before AUTO ends. Asked at the start and every loop until the gate opens; a
+         * reason ends the card without a feed.
          */
         String refusal();
+        /** The turret is on its aim and the aim is inside the firing arc: a feed may start. */
+        boolean onTarget();
         /** The card has ended: the turret back to its home angle. */
         void done();
     }
@@ -257,30 +255,6 @@ public final class LaunchCards {
             note.accept("LaunchAll did not follow its approach: gate closed");
         }
     };
-
-    /**
-     * {@code LaunchAllAimed}'s approach: {@link #approach()}'s, with the turret aiming as the path drives
-     * in, and the gate on the approach waiting for it to be on target too while it aims.
-     */
-    public AutoRegistry.Approach aimedApproach(AimedShot shot) {
-        return new AutoRegistry.Approach() {
-            @Override public void started(Pose end) {
-                launchAllApproach.started(end);
-                shot.start();
-            }
-
-            @Override public void approaching(Pose pose, double remainingIn) {
-                boolean aiming = shot.aim();
-                if (aiming && !shot.onTarget()) return;
-                launchAllApproach.approaching(pose, remainingIn);
-            }
-
-            @Override public void cancel() {
-                launchAllApproach.cancel();
-                shot.done();
-            }
-        };
-    }
 
     /** {@link #LaunchCards(Launcher, Feeder, BooleanSupplier, ApproachCheck, Consumer, DoubleSupplier)} that never launches on the approach. */
     public LaunchCards(Launcher launcher, Feeder feeder, BooleanSupplier settled, Consumer<String> note,
@@ -448,21 +422,7 @@ public final class LaunchCards {
      * nothing and ends {@link #launchAllFeedS} after the gate opened.
      */
     public Command launchAll() {
-        return launch("LaunchAll", () -> launchAllFeedS, () -> launchAllEndAfterShots, true, null);
-    }
-
-    /**
-     * {@code LaunchAllAimed}: {@link #launchAll()} from a launch spot, with the turret aimed at the CELL
-     * at the robot's end ({@code shot}, the TeleOp's {@code TurretAimer}) to take up what the chassis
-     * leaves. The gate waits for the turret on target as well as for speed and the settle, and its
-     * {@link #aimedApproach} opens it on the drive in the same way. With no referenced pose, a turret
-     * locked forward or one that dropped its hold, the turret holds home and it is a {@code LaunchAll};
-     * and if the turret is still not on target once the settle has waited its longest
-     * ({@link PathEndSettle#maxWaitS()}), it goes home and fires from there, as a {@code LaunchAll} would.
-     */
-    public Command launchAllAimed(AimedShot shot) {
-        if (shot == null) throw new IllegalArgumentException("LaunchAllAimed needs a turret to aim");
-        return launch("LaunchAllAimed", () -> launchAllFeedS, () -> launchAllEndAfterShots, true, shot);
+        return launch("LaunchAll", () -> launchAllFeedS, () -> launchAllEndAfterShots, true);
     }
 
     /**
@@ -476,17 +436,18 @@ public final class LaunchCards {
     }
 
     /**
-     * {@code LaunchAllFromPark}: a volley from where the robot stands, parked (at a park spot that faces
-     * the CELL), with the turret aimed at the CELL at the robot's end ({@code AimedVolley}, the TeleOp's
-     * {@code TurretAimer}). It spins up, aims every loop, and opens the gate only once the launcher is
-     * at speed and, while the turret aims, it is on target inside the firing arc; a turret that cannot
-     * aim (locked forward, a dropped hold) holds home and fires from there. Then it feeds as
-     * {@link #launchAll()} does. Until the gate opens, a {@link AimedShot#refusal()} (no referenced
-     * pose, too late for 30 s) ends it with nothing fed, and it says why: the robot stays where it
-     * parked. No settle, no approach: the robot is not driving. Counts toward {@code Empty}.
+     * {@code LaunchAllAimed}: a volley from where the robot stands, parked, with the turret aimed at
+     * the CELL at the robot's end ({@code AimedVolley}, the TeleOp's {@code TurretAimer}). It spins
+     * up, aims every loop, and opens the gate only once the launcher is at speed and, while the turret
+     * aims, {@code shot} is on target inside the firing arc (a turret that cannot aim, locked forward
+     * or with a dropped hold, holds home and fires from there, the park spot facing the CELL); then it
+     * feeds as {@link #launchAll()} does, until the last
+     * counted shot or {@link #launchAllFeedS}. Until the gate opens, a {@link AimedShot#refusal()}
+     * ends it with nothing fed, and it says why: the robot stays where it parked. No settle, no
+     * approach: the robot is not driving. Counts toward {@code Empty} like a {@code LaunchAll}.
      */
-    public Command launchFromPark(AimedShot shot) {
-        if (shot == null) throw new IllegalArgumentException("LaunchAllFromPark needs a turret to aim");
+    public Command launchAllAimed(AimedShot shot) {
+        if (shot == null) throw new IllegalArgumentException("LaunchAllAimed needs a turret to aim");
         final double[] fedAt = {Double.NaN};
         final boolean[] refused = new boolean[1];
         final boolean[] allShotsOut = new boolean[1];
@@ -500,7 +461,7 @@ public final class LaunchCards {
                     String why = shot.refusal();
                     refused[0] = why != null;
                     if (refused[0]) {
-                        note.accept("LaunchAllFromPark: not firing, " + why + "; staying parked");
+                        note.accept("LaunchAllAimed: not firing, " + why + "; staying parked");
                         return;
                     }
                     launcher.spinUp();
@@ -513,12 +474,12 @@ public final class LaunchCards {
                     String why = shot.refusal();
                     if (why != null) {
                         refused[0] = true;
-                        note.accept(String.format(Locale.US, "LaunchAllFromPark: not firing, %s (%.2f s in, the gate never opened); staying parked",
+                        note.accept(String.format(Locale.US, "LaunchAllAimed: not firing, %s (%.2f s in, the gate never opened); staying parked",
                                 why, secondsNow.getAsDouble() - startedAt[0]));
                         return;
                     }
                     if (!speedReady() || (aiming && !shot.onTarget())) return;
-                    note.accept(String.format(Locale.US, "LaunchAllFromPark opened the gate, %s, %.2f s after it started%s",
+                    note.accept(String.format(Locale.US, "LaunchAllAimed opened the gate, %s, %.2f s after it started%s",
                             aiming ? "the turret on target" : "the turret at home",
                             secondsNow.getAsDouble() - startedAt[0], aheadOfSpeed()));
                     shotsAtFeed[0] = launcher.shots();
@@ -536,14 +497,14 @@ public final class LaunchCards {
                 .setEnd(end -> {
                     shot.done();
                     if (Double.isNaN(fedAt[0])) {
-                        if (!refused[0]) note.accept("LaunchAllFromPark ended before the gate opened (" + end + "): nothing fed");
+                        if (!refused[0]) note.accept("LaunchAllAimed ended before the gate opened (" + end + "): nothing fed");
                         return;
                     }
                     feeder.idle();
                     feeding--;
                     int shots = launcher.shots();
                     if (shots >= 0) {
-                        note.accept(String.format(Locale.US, "LaunchAllFromPark fed %.2f s (%s%s): %d shots detected",
+                        note.accept(String.format(Locale.US, "LaunchAllAimed fed %.2f s (%s%s): %d shots detected",
                                 secondsNow.getAsDouble() - fedAt[0], end,
                                 allShotsOut[0] ? ", ended at the last counted shot" : "", shots - shotsAtFeed[0]));
                     }
@@ -553,7 +514,7 @@ public final class LaunchCards {
 
     /** {@code LaunchOne}: as {@link #launchAll()} with {@link #launchOneFeedS}; does not count toward Empty. */
     public Command launchOne() {
-        return launch("LaunchOne", () -> launchOneFeedS, () -> 0.0, false, null);
+        return launch("LaunchOne", () -> launchOneFeedS, () -> 0.0, false);
     }
 
     /**
@@ -580,7 +541,7 @@ public final class LaunchCards {
     }
 
     private Command launch(String name, DoubleSupplier feedSeconds, DoubleSupplier endAfterShots,
-                           boolean countsAsEmptying, AimedShot shot) {
+                           boolean countsAsEmptying) {
         final double[] fedAt = {Double.NaN};
         final boolean[] allShotsOut = new boolean[1];
         final double[] startedAt = new double[1];
@@ -591,7 +552,6 @@ public final class LaunchCards {
                     allShotsOut[0] = false;
                     startedAt[0] = secondsNow.getAsDouble();
                     launcher.spinUp();
-                    if (shot != null) shot.start();
                     // The drive in already opened the gate: this card only finishes that feed.
                     if (countsAsEmptying && !Double.isNaN(approachFedAt)) {
                         fedAt[0] = approachFedAt;
@@ -601,8 +561,6 @@ public final class LaunchCards {
                     approachEnd = null;
                 })
                 .setExecute(() -> {
-                    // An aimed volley aims every loop, through the feed too: the turret holds the CELL.
-                    boolean aiming = shot != null && shot.aim();
                     if (!Double.isNaN(fedAt[0])) return;
                     double now = secondsNow.getAsDouble();
                     if (!speedReady()) {
@@ -610,18 +568,8 @@ public final class LaunchCards {
                         // Not at speed in time: a slightly slow shot beats driving off with every ball.
                         note.accept(String.format(Locale.US, "%s fed below launch speed: not at speed %.2f s after it started",
                                 name, now - startedAt[0]));
-                        // Not on target either: home, where a LaunchAll fires from this spot.
-                        if (aiming && !shot.onTarget()) shot.stopAiming();
                         shotsAtFeed[0] = launcher.shots();
                         feed(fedAt, now);
-                        return;
-                    }
-                    if (aiming && !shot.onTarget()) {
-                        if (now - startedAt[0] < PathEndSettle.maxWaitS()) return;
-                        // Not on target in time: home, where a LaunchAll fires from this spot.
-                        note.accept(String.format(Locale.US, "%s: the turret not on target %.2f s after it started: firing from home",
-                                name, now - startedAt[0]));
-                        shot.stopAiming();
                         return;
                     }
                     if (settled.getAsBoolean()) {
@@ -646,7 +594,6 @@ public final class LaunchCards {
                 })
                 .setEnd(end -> {
                     feeder.idle();
-                    if (shot != null) shot.done();
                     if (!Double.isNaN(fedAt[0])) {
                         feeding--;
                         int shots = launcher.shots();

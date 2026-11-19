@@ -26,10 +26,9 @@ import java.util.Map;
  * row of a branching block is walked from where the block begins. Drafts and partner stand-ins
  * ({@code drafts/}, {@code partners/}) are not held to it.
  *
- * <p>{@code LaunchAllAimed} (a LaunchAll with the turret aimed too) is held to the same rule. One exception,
- * narrow (mentor, 19 Nov 2026): {@code LaunchAllFromPark}, the turret aimed from where the robot stands at the
- * CELL at its end ({@code AimedVolley}), is fired from a park spot (a spot named {@code …_PARK}) right after the
- * park card that drove there, and nowhere else. The park comes first; the aim is the TeleOp's, at the near
+ * <p>One exception, narrow (mentor, 19 Nov 2026): {@code LaunchAllAimed}, the turret aimed from where the robot stands at the
+ * CELL at its end ({@code AimedVolley}), is fired from a park spot (a team spot or the Auto's own, named {@code …_PARK}) right
+ * after the park card that drove there, and nowhere else. The park comes first; the aim is the TeleOp's, at the near
  * CELL only.
  */
 public class AutoVolleySpotsTest {
@@ -50,7 +49,7 @@ public class AutoVolleySpotsTest {
 
     /**
      * The exception's draft, which the test above does not read (drafts are not held to it): its plain
-     * aimed LaunchAlls are where L-UnderHive's are, and its LaunchAllFromPark is from LEFT_AUTO_PARK after the park.
+     * LaunchAlls are where L-UnderHive's are, and its LaunchAllAimed is from LEFT_AUTO_PARK after the park.
      */
     @Test
     public void theParkShotDraftFiresItsAimedVolleyOnlyFromThePark() throws Exception {
@@ -122,13 +121,12 @@ public class AutoVolleySpotsTest {
                     name = named != null ? (String) named : String.valueOf(line.get("name"));
                     spot = (String) named;
                     parked = Boolean.TRUE.equals(card.get("park"));
-                } else if ("action".equals(kind) && "LaunchAllFromPark".equals(card.get("name"))) {
+                } else if ("action".equals(kind) && "LaunchAllAimed".equals(card.get("name"))) {
                     if (!parked || spot == null || !spot.endsWith("_PARK")) {
-                        elsewhere.add(name + " (" + x + ", " + y + ") LaunchAllFromPark is fired only from a …_PARK spot,"
+                        elsewhere.add(name + " (" + x + ", " + y + ") LaunchAllAimed is fired only from a …_PARK spot,"
                                 + " right after the park card that drove there");
                     }
-                } else if ("action".equals(kind) && ("LaunchAll".equals(card.get("name"))
-                        || "LaunchAllAimed".equals(card.get("name")))) {
+                } else if ("action".equals(kind) && "LaunchAll".equals(card.get("name"))) {
                     String problem = problem();
                     if (problem != null) elsewhere.add(name + " (" + x + ", " + y + ") " + problem);
                 } else if ("firstOf".equals(kind) && card.get("rows") != null) {

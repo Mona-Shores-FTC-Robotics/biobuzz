@@ -13,22 +13,23 @@ stopped being team spots on 16 Nov 2026. Each keeps those as points of its own, 
 that goes to the Autonomous menu launches only from spots aimed at their CELL (`AutoVolleySpotsTest`): open it in
 the Visualizer, which aims each spot a Launch all fires from, and save it.
 
-## L-UnderHive-ParkShot: park facing LEFT, fire there; the turret aims every volley
+## L-UnderHive-ParkShot: park facing LEFT, fire there if it is up
 
-`l-under-hive-park-shot.pp` is master's `l-under-hive.pp` with these changes (mentor, 19 Nov 2026):
+`l-under-hive-park-shot.pp` is master's `l-under-hive.pp` with these changes (mentor, 19 Nov 2026). It runs
+from the Utility menu as **Drive: L-UnderHive-ParkShot**; the Autonomous menu's L-UnderHive is unchanged.
 
-- The park after the RIGHT side (`l-under-hive-park`) ends at a new team spot, `LEFT_AUTO_PARK` (14.5, 117.4,
-  325.2): `LEFT_PARK`'s place, partly in the red LOADING ZONE, with the chassis turned to face the LEFT CELL, a
-  spot fit to launch from. Facing the HIVE, the camera can see LEFT come up.
+- The park after the RIGHT side (`l-under-hive-park`, from the 22 s Otherwise and the RIGHT-up row) ends at the
+  Auto's own `LEFT_AUTO_PARK` (14.5, 117.4, 325.2): `LEFT_PARK`'s place, partly in the red LOADING ZONE, with the
+  chassis turned to face the LEFT CELL (the turret aims from there at 325.2). Facing the HIVE, the camera can see
+  LEFT come up.
 - When the RIGHT-up wait gives up at 22 s, that park drives, then a check, **LEFT up before 27.5 s, otherwise
-  stay parked**, fires `LaunchAllFromPark` there: no referenced pose, or the last piece out after 30 s, and it
-  does not fire.
-- Every volley is aimed: `LaunchAllAimed` for the two from launch spots, `LaunchAllFromPark` for the park one. The
-  turret aims at the near CELL with the TeleOp's `TurretAimer` to take up what the chassis leaves, and the gate
-  waits for it on target; with no pose (spot volleys), the turret locked forward or a dropped hold, it holds home
-  and fires as a `LaunchAll` (`AimedVolley`).
+  stay parked**, fires `LaunchAllAimed` there: the turret aimed at the LEFT CELL with the TeleOp's `TurretAimer`,
+  the gate on target and at speed; from home with a turret locked forward or a dropped hold; not at all with no
+  referenced pose or the last piece out after 30 s (`AimedVolley`). The robot never leaves the spot.
+- The spot volleys stay plain `LaunchAll`.
 
 Why: 19429, 18 Nov 2026, L-UnderHive 5:10 PM parked by 26.2 s with 2 POLLEN in the lane and the LEFT CELL up.
+The gain is those 2 balls in AUTO; the TIP they may make lands after 30 s (the mentor knows).
 
 ## R-Clockwise-19429 and R-Solo-19429: one loaded leg backward, 19429 only
 

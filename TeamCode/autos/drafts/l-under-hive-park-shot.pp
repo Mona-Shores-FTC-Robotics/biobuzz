@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T02:50:00.000Z",
+  "timestamp": "2026-11-19T02:36:50.966Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -634,7 +634,6 @@
       "actions": [
         "LaunchAll",
         "LaunchAllAimed",
-        "LaunchAllFromPark",
         "LaunchOne",
         "SpinUp",
         "PickFlower",
@@ -656,7 +655,6 @@
       "typicalS": {
         "LaunchAll": 4.5,
         "LaunchAllAimed": 4.5,
-        "LaunchAllFromPark": 4.5,
         "LaunchOne": 0.5,
         "SpinUp": 0.1,
         "PickFlower": 4,
@@ -740,7 +738,7 @@
               {
                 "id": "L-launch-preloads",
                 "kind": "action",
-                "name": "LaunchAllAimed",
+                "name": "LaunchAll",
                 "timeoutS": 1
               },
               {
@@ -764,7 +762,7 @@
               {
                 "id": "L-wait-right",
                 "kind": "firstOf",
-                "label": "RIGHT up before 22 s, otherwise park facing LEFT and fire there if it is up",
+                "label": "RIGHT up before 22 s, otherwise park, then fire at LEFT from the park if it is up",
                 "rows": [
                   {
                     "afterMs": 22000,
@@ -794,7 +792,7 @@
                               {
                                 "id": "L-park-shot",
                                 "kind": "action",
-                                "name": "LaunchAllFromPark",
+                                "name": "LaunchAllAimed",
                                 "timeoutS": 4
                               }
                             ]
@@ -811,7 +809,7 @@
                       {
                         "id": "L-launch-right",
                         "kind": "action",
-                        "name": "LaunchAllAimed",
+                        "name": "LaunchAll",
                         "timeoutS": 1
                       },
                       {
@@ -842,7 +840,6 @@
     "teamSpots": [
       "GARDEN_STAGING",
       "LEFT_AUTO_HIVE",
-      "LEFT_AUTO_PARK",
       "LEFT_PARK",
       "LEFT_START",
       "RIGHT_AUTO_HIVE"

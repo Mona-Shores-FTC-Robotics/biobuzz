@@ -12,35 +12,28 @@ import java.util.Locale;
 import java.util.function.DoubleSupplier;
 
 /**
- * The robot's turret for an aimed volley ({@link LaunchCards.AimedShot}): aimed at the CELL at the
- * robot's end with the TeleOp's own aim ({@link TurretAimer}: odometry and the CELL's field point, or the
- * camera when it sees that CELL), to take up what the chassis leaves. An Auto otherwise holds the turret
- * at home; this aims it for one card, then sends it home.
+ * The robot's turret for {@code LaunchAllAimed} ({@link LaunchCards#launchAllAimed}): a volley from the
+ * park spot after the park, with the turret aimed at the CELL at the robot's end by the TeleOp's own aim
+ * ({@link TurretAimer}: odometry and the CELL's field point, or the camera when it sees that CELL) to take
+ * up what the park spot's chassis aim leaves. An Auto otherwise holds the turret at home; this aims it
+ * for the one card, then sends it home.
  *
- * <p>It aims only with a referenced pose, an alliance, and a turret that is neither locked forward nor
- * has dropped its hold ({@code TurretDriveWatch}); otherwise the turret holds home and the volley fires
- * from there, as a {@code LaunchAll} does, since the chassis already faces the CELL. The gate waits for
- * the turret only while it aims ({@link #onTarget()}: on its aim, and the aim inside the firing arc).
- *
- * <p>Two kinds ({@link Kind}). A {@link Kind#SPOT} volley ({@code LaunchAllAimed}, from a launch spot)
- * always fires. A {@link Kind#PARK} volley ({@code LaunchAllFromPark}, from the park spot after the park)
- * does not fire, and the robot stays parked, without a referenced pose or an alliance, or once the gate
- * would open too late for the pieces held to be out before AUTO ends ({@link #gateDeadlineS}).
+ * <p>It does not fire, and the robot stays parked ({@link #refusal()}), without a referenced pose or an
+ * alliance, or once the gate would open too late for the pieces held to be out before AUTO ends
+ * ({@link #gateDeadlineS}). A turret locked forward, or one that dropped its hold ({@code TurretDriveWatch}),
+ * holds home and the volley fires from there, as a {@code LaunchAll}: the park spot faces the CELL. While the
+ * turret aims, the gate waits for it on target with the aim inside the firing arc ({@link #onTarget()}).
  *
  * <p>Why (19429, 18 Nov 2026, L-UnderHive 5:10 PM): the RIGHT-up wait gave up at 22.0 s, the robot was
  * parked at LEFT_PARK by 26.2 s with 2 POLLEN still in the lane, and the LEFT CELL was up (camera, 23 s).
- * The mentor's trial parks facing the LEFT CELL (LEFT_AUTO_PARK) and fires there, with the turret aiming
- * through all of the Auto's volleys (19 Nov 2026).
+ * The mentor's trial parks facing the LEFT CELL (LEFT_AUTO_PARK) and fires those 2 in AUTO (19 Nov 2026).
  */
 final class AimedVolley implements LaunchCards.AimedShot {
-
-    /** Which volley this aims: from a launch spot, or from the park spot after the park. */
-    enum Kind { SPOT, PARK }
 
     /**
      * Gate open to the first ball out, and each ball after it, seconds (19429, 18 Nov 2026: about
      * 0.75 s, then one about every 0.45 s). With {@link AutoKit#AUTO_LENGTH_S} they set the last
-     * moment a park volley's gate may open ({@link #gateDeadlineS}).
+     * moment the gate may open ({@link #gateDeadlineS}).
      */
     static final double FIRST_BALL_S = 0.75;
     static final double NEXT_BALL_S = 0.45;
@@ -48,34 +41,28 @@ final class AimedVolley implements LaunchCards.AimedShot {
     private final Robot robot;
     private final MatchSetup setup;
     private final DoubleSupplier matchSeconds;
-    private final Kind kind;
     private final TurretAimer aimer;
-    /** A card (or its approach) is under way; aiming was given up for it; it asked the turret to aim. */
+    /** The card is under way; it asked the turret to aim. */
     private boolean active;
-    private boolean stopped;
     private boolean aiming;
 
     /**
      * @param matchSeconds seconds since the Auto's PLAY: NaN before it
      */
-    AimedVolley(Robot robot, MatchSetup setup, DoubleSupplier matchSeconds, Kind kind) {
+    AimedVolley(Robot robot, MatchSetup setup, DoubleSupplier matchSeconds) {
         this.robot = robot;
         this.setup = setup;
         this.matchSeconds = matchSeconds;
-        this.kind = kind;
         this.aimer = new TurretAimer(robot);
     }
 
     @Override public void start() {
-        // The approach starts it; the card after it carries on with the same aim.
-        if (active) return;
         active = true;
-        stopped = false;
         aiming = false;
     }
 
     @Override public boolean aim() {
-        boolean can = !stopped && canAim(robot.drive.poseReferenced(), TurretSubsystem.lockedForward,
+        boolean can = canAim(robot.drive.poseReferenced(), TurretSubsystem.lockedForward,
                 robot.turret.faultNote(), alliance());
         if (can) {
             if (!aiming) aimer.start();
@@ -96,17 +83,7 @@ final class AimedVolley implements LaunchCards.AimedShot {
         return robot.turret.onTarget() && TurretArc.allowsFeed(robot.turret.angleDegrees(), aimer.aimDeg(), 0.0);
     }
 
-    @Override public void stopAiming() {
-        stopped = true;
-        if (aiming) {
-            aiming = false;
-            aimer.off();
-            robot.turret.home();
-        }
-    }
-
     @Override public String refusal() {
-        if (kind != Kind.PARK) return null;
         return parkRefusal(robot.drive.poseReferenced(), alliance(), matchSeconds.getAsDouble(),
                 robot.colorSensor.lane().count());
     }
@@ -131,7 +108,7 @@ final class AimedVolley implements LaunchCards.AimedShot {
     }
 
     /**
-     * Why a park volley may not open the gate now, or null. Pure, so a test can check it. A turret that
+     * Why the volley may not open the gate now, or null. Pure, so a test can check it. A turret that
      * cannot aim is not a reason: it fires from home. NaN match seconds (no clock) is never too late.
      */
     static String parkRefusal(boolean poseReferenced, Alliance alliance, double matchSeconds, int piecesHeld) {
@@ -146,7 +123,7 @@ final class AimedVolley implements LaunchCards.AimedShot {
     }
 
     /**
-     * The latest match second a park volley's gate may open for {@code piecesHeld} (counted by the colour
+     * The latest match second the gate may open for {@code piecesHeld} (counted by the colour
      * sensor; 0 counts as 1) to be out by the end of AUTO: 30 s less the first ball's
      * {@link #FIRST_BALL_S} and {@link #NEXT_BALL_S} for each one after it. 4 held: 27.9 s.
      */

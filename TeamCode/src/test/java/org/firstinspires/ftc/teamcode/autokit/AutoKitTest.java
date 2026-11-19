@@ -747,7 +747,7 @@ public class AutoKitTest {
 
     /**
      * L-UnderHive-ParkShot: the RIGHT-up wait gave up at 22 s, the robot parks at LEFT_PARK (the
-     * timed-out row's park), then a check fires LaunchAllFromPark if LEFT is up. With parkAfterVolley on
+     * timed-out row's park), then a check fires LaunchAllAimed if LEFT is up. With parkAfterVolley on
      * a plain volley here would leave "no time to park after it" and the guard would park instead,
      * never asking; a parked volley has its park behind it, so the park drives once and the volley
      * fires.
@@ -755,7 +755,7 @@ public class AutoKitTest {
     @Test
     public void aParkedVolleyAfterTheParkIsNotTradedForAnotherPark() {
         AutoKit kit = parkKeepingKit(new AutoRegistry()
-                .parkedVolley("LaunchAllFromPark", 2.5, 2.5, () -> lasting("LaunchAllFromPark", 2.5))
+                .parkedVolley("LaunchAllAimed", 2.5, 2.5, () -> lasting("LaunchAllAimed", 2.5))
                 .trigger("HiveTipped", () -> tipped));
         Path park = line(0, 40);
         tipped = true;
@@ -764,18 +764,18 @@ public class AutoKitTest {
                 kit.path("under hive park to LEFT_PARK", park, 3.7),
                 kit.firstOf("LEFT up before 26.5 s, otherwise stay",
                         kit.atMatchSeconds(26.5),
-                        kit.when("HiveTipped").then(kit.command("LaunchAllFromPark")))), 10);
+                        kit.when("HiveTipped").then(kit.command("LaunchAllAimed")))), 10);
         assertFalse(trace.toString(), traced("no time to park after it, parking now"));
         assertEquals("the park, once", java.util.Collections.singletonList(park), drive.followed);
-        assertTrue(log.toString(), log.contains("LaunchAllFromPark start"));
-        assertTrue(log.toString(), log.contains("LaunchAllFromPark NATURALLY"));
+        assertTrue(log.toString(), log.contains("LaunchAllAimed start"));
+        assertTrue(log.toString(), log.contains("LaunchAllAimed NATURALLY"));
     }
 
     /** A parked volley whose last piece would be out after 30 s does not start, and nothing parks again. */
     @Test
     public void aParkedVolleyTooLateDoesNotStartAndTheRobotStaysPut() {
         AutoKit kit = parkKeepingKit(new AutoRegistry()
-                .parkedVolley("LaunchAllFromPark", 2.5, 2.5, () -> lasting("LaunchAllFromPark", 2.5))
+                .parkedVolley("LaunchAllAimed", 2.5, 2.5, () -> lasting("LaunchAllAimed", 2.5))
                 .trigger("HiveTipped", () -> tipped));
         Path park = line(0, 40);
         tipped = true;
@@ -783,9 +783,9 @@ public class AutoKitTest {
         run(kit.guarded("Timed out", park, 3.7,
                 kit.firstOf("LEFT up before 29 s, otherwise stay",
                         kit.atMatchSeconds(29),
-                        kit.when("HiveTipped").then(kit.command("LaunchAllFromPark")))), 5);
+                        kit.when("HiveTipped").then(kit.command("LaunchAllAimed")))), 5);
         assertTrue(trace.toString(), traced("after AUTO ends; staying parked"));
-        assertFalse(log.toString(), log.contains("LaunchAllFromPark start"));
+        assertFalse(log.toString(), log.contains("LaunchAllAimed start"));
         assertTrue("nothing drives", drive.followed.isEmpty());
     }
 
