@@ -26,7 +26,10 @@ import java.util.Map;
  * row of a branching block is walked from where the block begins. Drafts and partner stand-ins
  * ({@code drafts/}, {@code partners/}) are not held to it.
  *
- * <p>There is no list of exceptions.
+ * <p>One exception, narrow (mentor, 19 Nov 2026): {@code LaunchAllAimed}, the turret aimed from where the
+ * robot stands at the CELL at its end ({@code AimedVolley}), is fired from a park spot (a team spot named
+ * {@code …_PARK}) right after the park card that drove there, and nowhere else. The park comes first; the
+ * aim is the TeleOp's, at the near CELL only.
  */
 public class AutoVolleySpotsTest {
 
@@ -42,6 +45,18 @@ public class AutoVolleySpotsTest {
             assertTrue(source.getName() + " launches from " + elsewhere + ": an Auto launches from its start"
                     + " or a named spot aimed at its CELL (AutoLaunchSpots.launchSpotProblem)", elsewhere.isEmpty());
         }
+    }
+
+    /**
+     * The exception's draft, which the test above does not read (drafts are not held to it): its plain
+     * LaunchAlls are where L-UnderHive's are, and its LaunchAllAimed is from LEFT_PARK after the park.
+     */
+    @Test
+    public void theParkShotDraftFiresItsAimedVolleyOnlyFromThePark() throws Exception {
+        File draft = new File(TeamCodeDir.get(), "autos/drafts/l-under-hive-park-shot.pp");
+        if (!draft.isFile()) return;
+        List<String> elsewhere = volleysElsewhere(draft);
+        assertTrue(draft.getName() + " launches from " + elsewhere, elsewhere.isEmpty());
     }
 
     /** The places {@code source}'s volleys are fired from that are neither its start nor a spot fit to launch from, and why. */
@@ -65,6 +80,8 @@ public class AutoVolleySpotsTest {
         /** Where the robot is: x, y, what to call it, and the named spot it is on (null: none). */
         private double x, y;
         private String name, spot;
+        /** The last path card was a park ({@code "park": true}). */
+        private boolean parked;
         final List<String> elsewhere = new ArrayList<>();
 
         @SuppressWarnings("unchecked")
@@ -103,17 +120,25 @@ public class AutoVolleySpotsTest {
                     Object named = pathEnds.get(card.get("lineId"));
                     name = named != null ? (String) named : String.valueOf(line.get("name"));
                     spot = (String) named;
+                    parked = Boolean.TRUE.equals(card.get("park"));
+                } else if ("action".equals(kind) && "LaunchAllAimed".equals(card.get("name"))) {
+                    if (!parked || spot == null || !spot.endsWith("_PARK")) {
+                        elsewhere.add(name + " (" + x + ", " + y + ") LaunchAllAimed is fired only from a …_PARK spot,"
+                                + " right after the park card that drove there");
+                    }
                 } else if ("action".equals(kind) && "LaunchAll".equals(card.get("name"))) {
                     String problem = problem();
                     if (problem != null) elsewhere.add(name + " (" + x + ", " + y + ") " + problem);
                 } else if ("firstOf".equals(kind) && card.get("rows") != null) {
                     double x0 = x, y0 = y;
                     String name0 = name, spot0 = spot;
+                    boolean parked0 = parked;
                     for (Object row : (List<Object>) card.get("rows")) {
                         x = x0;
                         y = y0;
                         name = name0;
                         spot = spot0;
+                        parked = parked0;
                         Object inner = ((Map<String, Object>) row).get("cards");
                         if (inner != null) cards((List<Object>) inner);
                     }

@@ -113,6 +113,79 @@ public class LaunchCardsTest {
         return null;
     }
 
+    // ------------------------------------------------ LaunchAllAimed (19 Nov 2026)
+
+    /** A turret for {@code LaunchAllAimed}: says why not, and whether it is on target, as told. */
+    private final class FakeShot implements LaunchCards.AimedShot {
+        String refusal;
+        boolean onTarget;
+        int aims;
+        boolean started, done;
+
+        @Override public void start() { started = true; }
+        @Override public void aim() { aims++; }
+        @Override public String refusal() { return refusal; }
+        @Override public boolean onTarget() { return onTarget; }
+        @Override public void done() { done = true; }
+    }
+
+    @Test
+    public void anAimedVolleyFeedsOnlyOnTargetAndAtSpeed() {
+        FakeShot shot = new FakeShot();
+        Command card = cards.launchAllAimed(shot);
+        card.schedule();
+        atSpeed = true;
+        step(0.5);
+        assertTrue("aiming every loop", shot.aims > 10);
+        assertEquals("not on target: no feed", null, first("feed"));
+        shot.onTarget = true;
+        finish(card, 5);
+        assertEquals(0.5, timeOf(first("feed")), 0.05);
+        assertTrue("the turret goes home at the end", shot.done);
+        assertEquals("counts toward Empty", 1, cards.launchAllsCompleted());
+    }
+
+    @Test
+    public void anAimedVolleyRefusedAtTheStartFeedsNothing() {
+        FakeShot shot = new FakeShot();
+        shot.refusal = "the pose is not referenced on the field";
+        atSpeed = true;
+        shot.onTarget = true;
+        run(cards.launchAllAimed(shot), 0.2);
+        assertEquals(null, first("feed"));
+        assertFalse("never started aiming", shot.started);
+        assertTrue(notes.toString(), notes.get(0).contains("not firing, the pose is not referenced"));
+        assertEquals(0, cards.launchAllsCompleted());
+    }
+
+    @Test
+    public void anAimedVolleyStopsWaitingWhenTheTurretDropsItsHold() {
+        FakeShot shot = new FakeShot();
+        Command card = cards.launchAllAimed(shot);
+        card.schedule();
+        step(0.3);
+        shot.refusal = "the turret dropped its hold: DROPPED";
+        finish(card, 0.2);
+        assertEquals(null, first("feed"));
+        assertTrue(shot.done);
+        assertTrue(notes.toString(), notes.stream().anyMatch(n -> n.contains("the gate never opened")));
+    }
+
+    @Test
+    public void anAimedVolleyFeedRunsOnOnceTheGateHasOpened() {
+        // Once the pieces are on their way, a late refusal (the clock passing the deadline) does not cut them.
+        FakeShot shot = new FakeShot();
+        shot.onTarget = true;
+        atSpeed = true;
+        Command card = cards.launchAllAimed(shot);
+        card.schedule();
+        step(0.1);
+        shot.refusal = "past the deadline";
+        finish(card, 5);
+        assertEquals(1, log.stream().filter(e -> e.startsWith("feed")).count());
+        assertEquals(LaunchCards.launchAllFeedS, timeOf(first("idle")) - timeOf(first("feed")), 0.05);
+    }
+
     @Test
     public void spinUpAsksTheLauncherAndFinishesAtOnce() {
         run(cards.spinUp(), 0.1);

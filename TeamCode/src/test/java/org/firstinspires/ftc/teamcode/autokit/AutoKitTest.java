@@ -743,6 +743,52 @@ public class AutoKitTest {
 
     // ------------------------------------- the park after the volley (6 Nov 2026)
 
+    // --------------------------------- a volley fired where the robot parked (19 Nov 2026)
+
+    /**
+     * L-UnderHive-ParkShot: the RIGHT-up wait gave up at 22 s, the robot parks at LEFT_PARK (the
+     * timed-out row's park), then a check fires LaunchAllAimed if LEFT is up. With parkAfterVolley on
+     * a plain volley here would leave "no time to park after it" and the guard would park instead,
+     * never asking; a parked volley has its park behind it, so the park drives once and the volley
+     * fires.
+     */
+    @Test
+    public void aParkedVolleyAfterTheParkIsNotTradedForAnotherPark() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .parkedVolley("LaunchAllAimed", 2.5, 2.5, () -> lasting("LaunchAllAimed", 2.5))
+                .trigger("HiveTipped", () -> tipped));
+        Path park = line(0, 40);
+        tipped = true;
+        now = 22.0;
+        run(kit.guarded("Timed out", park, 3.7,
+                kit.path("under hive park to LEFT_PARK", park, 3.7),
+                kit.firstOf("LEFT up before 26.5 s, otherwise stay",
+                        kit.atMatchSeconds(26.5),
+                        kit.when("HiveTipped").then(kit.command("LaunchAllAimed")))), 10);
+        assertFalse(trace.toString(), traced("no time to park after it, parking now"));
+        assertEquals("the park, once", java.util.Collections.singletonList(park), drive.followed);
+        assertTrue(log.toString(), log.contains("LaunchAllAimed start"));
+        assertTrue(log.toString(), log.contains("LaunchAllAimed NATURALLY"));
+    }
+
+    /** A parked volley whose last piece would be out after 30 s does not start, and nothing parks again. */
+    @Test
+    public void aParkedVolleyTooLateDoesNotStartAndTheRobotStaysPut() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()
+                .parkedVolley("LaunchAllAimed", 2.5, 2.5, () -> lasting("LaunchAllAimed", 2.5))
+                .trigger("HiveTipped", () -> tipped));
+        Path park = line(0, 40);
+        tipped = true;
+        now = 27.8;
+        run(kit.guarded("Timed out", park, 3.7,
+                kit.firstOf("LEFT up before 29 s, otherwise stay",
+                        kit.atMatchSeconds(29),
+                        kit.when("HiveTipped").then(kit.command("LaunchAllAimed")))), 5);
+        assertTrue(trace.toString(), traced("after AUTO ends; staying parked"));
+        assertFalse(log.toString(), log.contains("LaunchAllAimed start"));
+        assertTrue("nothing drives", drive.followed.isEmpty());
+    }
+
     /** {@link #volleyKit} with {@link AutoKit#parkAfterVolley} on, its LaunchAll 4.0 s long, as on the robot. */
     private AutoKit parkKeepingKit(AutoRegistry registry) {
         return new AutoKit(drive, registry

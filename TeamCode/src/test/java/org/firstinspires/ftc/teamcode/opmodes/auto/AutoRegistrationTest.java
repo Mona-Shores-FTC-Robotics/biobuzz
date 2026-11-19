@@ -107,8 +107,9 @@ public class AutoRegistrationTest {
             String name = names.group(1);
             if (name.startsWith("Launch") || name.startsWith("Shoot") || name.startsWith("Fire")) launches.add(name);
         }
-        assertEquals("a launch command that is not LaunchAll or LaunchOne: both aim at the CELL at the robot's end, and"
-                        + " no other CELL can be scored from there (CLAUDE.md, Hard constraints)",
-                java.util.Arrays.asList("LaunchAll", "LaunchOne"), launches);
+        assertEquals("a launch command that is not LaunchAll, LaunchAllAimed or LaunchOne: all three aim at the CELL at"
+                        + " the robot's end (LaunchAllAimed with the TurretAimer), and no other CELL can be scored from"
+                        + " there (CLAUDE.md, Hard constraints)",
+                java.util.Arrays.asList("LaunchAll", "LaunchAllAimed", "LaunchOne"), launches);
     }
 }

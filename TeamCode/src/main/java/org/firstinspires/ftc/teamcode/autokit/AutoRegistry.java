@@ -37,6 +37,7 @@ public final class AutoRegistry {
     private final Map<String, Double> typicalSeconds = new LinkedHashMap<>();
     private final Map<String, Supplier<BooleanSupplier>> triggers = new LinkedHashMap<>();
     private final Set<String> grabs = new HashSet<>();
+    private final Set<String> parkedVolleys = new HashSet<>();
     private final Map<String, Double> lastPieceSeconds = new LinkedHashMap<>();
     private final Map<String, Approach> approaches = new LinkedHashMap<>();
     private BooleanSupplier holdTimeLimits = () -> false;
@@ -165,7 +166,24 @@ public final class AutoRegistry {
         return this;
     }
 
-    /** Whether {@code name} was registered with {@link #volley}. */
+    /**
+     * Registers a volley fired where the robot has already parked (LaunchAllAimed, the turret aimed
+     * from the park spot): the park is done, so the endgame guard adds no park after it, but its
+     * last piece must still be out before AUTO ends, or it does not start ({@link AutoKit#command}).
+     * Otherwise as {@link #volley(String, double, double, Supplier)}.
+     */
+    public AutoRegistry parkedVolley(String name, double typicalS, double lastPieceS, Supplier<Command> factory) {
+        volley(name, typicalS, lastPieceS, factory);
+        parkedVolleys.add(name);
+        return this;
+    }
+
+    /** Whether {@code name} was registered with {@link #parkedVolley}. */
+    public boolean isParkedVolley(String name) {
+        return parkedVolleys.contains(name);
+    }
+
+    /** Whether {@code name} was registered with {@link #volley} (or {@link #parkedVolley}). */
     public boolean isVolley(String name) {
         return lastPieceSeconds.containsKey(name);
     }
