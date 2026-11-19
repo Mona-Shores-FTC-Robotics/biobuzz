@@ -74,6 +74,11 @@ L fixes nothing:
 
 Never driven. Its simulator table and route limits are in [its notes](drafts/README.md#the-rightunderhive-pair-r-rightunderhive-and-l-rightunderhive),
 written when it was a draft.
+**Known limit: our L dead on `LEFT_START`** (accepted for Fruitport, 19 Nov 2026). Two team spots overlap a robot
+left on `LEFT_START` (62.3, 133.8): `LEFT_AUTO_HIVE` by 3 in and `SCORING_FLOWER_STAGING` by about 1.7 in, with
+16.2 in frames. So R-Clockwise (its LEFT volley from `LEFT_AUTO_HIVE`) and R-OutsideLane (its SCORING FLOWER pick)
+touch a dead L in every simulated run; no approach route avoids it. Moving `LEFT_AUTO_HIVE` about 3 in toward the
+HIVE would, but it is a team spot every left-end Auto uses, so it waits until after Fruitport.
 **L-Clockwise / R-Clockwise** is the coordinated pair: both robots on a one-way loop, with a fixed
 fallback at each stop, and a pickup the drive teams choose in INIT. Each robot has run its half
 alone; the pair has not yet run together
