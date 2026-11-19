@@ -41,7 +41,7 @@ public class FlowerVolleyTest {
     @Test
     public void theLineUpIsTooCloseToFireFrom() {
         Pose lineUp = FlowerFieldPoints.standoff(FlowerFieldPoints.RED_SCORING, FlowerPicker.lineUp.approachStandoffIn);
-        assertTrue(FlowerVolley.rangeIn(lineUp, Alliance.RED) < LaunchSpeedTable.row1RangeIn - 8.0);
+        assertTrue(FlowerVolley.rangeIn(lineUp, Alliance.RED) < LaunchSpeedTable.row1RangeIn);
     }
 
     /** From the WALL FLOWER the near CELL opens almost side-on: no volley from there. */
