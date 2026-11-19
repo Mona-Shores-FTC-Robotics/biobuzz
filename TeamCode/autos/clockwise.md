@@ -88,7 +88,7 @@ goes on under the HIVE to the GARDEN.
 | Stop | Question | Yes | No |
 |---|---|---|---|
 | **L1:** L at LEFT_WALL_HIVE, preloads | LEFT up by T1? | Shoot at LEFT | Cross under the HIVE, shoot at RIGHT from RIGHT_START to finish TIP 1, then park |
-| **R2:** R at LEFT_CLOSE_HIVE, first load | LEFT up by T2? | Shoot at LEFT | Park |
+| **R2:** R at LEFT_CLOSE_HIVE, first load | LEFT up by T2? | Shoot at LEFT | Hold for L's rescue: shoot at LEFT once it is up, then park after L has passed (26.4 s) |
 | **R3:** R with the SCORING FLOWER load | RIGHT up by T3? | Shoot at RIGHT, park | LEFT seen up within 0.75 s: shoot at LEFT to finish TIP 2. Then park |
 | **L2:** L at RIGHT_WALL_NEAR, pickup load | RIGHT up by T4? | Shoot at RIGHT, park | Park |
 
@@ -125,7 +125,7 @@ Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-tod
 | Row | Value | Where it comes from |
 |---|---|---|
 | **T1** LEFT up by | 9.5 s | TIP 1 from R's preloads was read up at 6.5 to 8.8 s in the simulator. The Belding films have it settled as late as 9.98 s after our PLAY, so this is likely short |
-| **T2** LEFT up by | 15.5 s | R is at LEFT_CLOSE_HIVE at 13.2 s. A volley begun later ends late enough that R's park would cross the lane as L comes up it |
+| **T2** LEFT up by | 15.5 s | R is at LEFT_CLOSE_HIVE at 13.2 s. A volley begun later ends late enough that R's park would cross the lane as L comes up it (on the normal route). Past T2 TIP 1 has not come, L is rescuing it under the HIVE, and R holds instead of parking: it shoots its load at LEFT once L's rescue tips RIGHT (about 20.9 s) and parks at 26.4 s, after L has gone up the lane (mentor, 19 Nov 2026: no parking early while there is still something to do) |
 | **TS** scoring FLOWER by | 17.6 s | R's LEFT volley (launch starts to feed ends) is over at 17.0 s. Later than 17.6 s, the pick and the park after it meet L in the lane |
 | **T3b** look by | 22.2 s | The drive to LEFT_CLOSE_HIVE (1.7 s), a volley there (2.5 s), the park (about 2.6 s) and the guard's 1 s margin end at 30 s |
 | **T3** RIGHT up by, at LEFT_CLOSE_HIVE | 23.2 s | The crossing from there (about 4.3 s) and a volley's last ball (2.5 s) end at 30 s. Not up by then: R shoots at LEFT if it sees LEFT up |
