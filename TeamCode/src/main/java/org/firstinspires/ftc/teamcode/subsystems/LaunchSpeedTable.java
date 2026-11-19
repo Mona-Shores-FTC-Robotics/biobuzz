@@ -40,6 +40,14 @@ import com.bylazar.configurables.annotations.Configurable;
  * Then switch {@link #enabled} on. Both robots share the table (identical hardware); one seen to
  * differ gets a line in {@code RobotDifferences}, never a second table.
  *
+ * <p><b>The rows now</b> were measured on 20245 on 18 Nov 2026 (mentor), turret LOCKED and the
+ * driver's Circle turning the robot onto the CELL, with {@link #robotOffsetTicksPerSecond} at 0 and
+ * the table off, trimming each range until it scored: 35, 37, 39 and 42 in all at 1495 (closer than
+ * about 42 in the speed stops mattering), 45 → 1500, 48 → 1515, 51 → 1540, 55 → 1570, 58 → 1590,
+ * 63 → 1635, 67 → 1755, 74 → 1795. They replace the four rows below, which this paragraph keeps as
+ * history; both robots' offsets went to 0 with them, since 19429's −25 against the old rows is the
+ * new rows within about 5 ticks/s from 42 to 55 in.
+ *
  * <p><b>Measured</b> on 20245 on 4 Nov 2026, with the launcher PIDF tuned that night, each range the
  * robot showed ({@code last_shot_range_in}) and the speed the drive team picked as scoring well:
  * RIGHT_LAUNCH_CATCH 39 in (38.6–39.2) at 1520, RIGHT_LAUNCH_OFFSET 42.3 in at 1560, RIGHT_START
@@ -100,33 +108,57 @@ public final class LaunchSpeedTable {
     public static double trustBeyondIn = 10.0;
 
     /** Row 1: horizontal range from the turret axis to the UP CELL's raised row, inches. NaN: no row. */
-    public static double row1RangeIn = 42.4;
+    public static double row1RangeIn = 35.0;
     /** Row 1: the launch speed that scores from {@link #row1RangeIn}, ticks per second. NaN: no row. */
-    public static double row1TicksPerSecond = 1520.0;
+    public static double row1TicksPerSecond = 1495.0;
     /** As row 1. */
-    public static double row2RangeIn = 45.7;
+    public static double row2RangeIn = 37.0;
     /** As row 1. */
-    public static double row2TicksPerSecond = 1560.0;
+    public static double row2TicksPerSecond = 1495.0;
     /** As row 1. */
-    public static double row3RangeIn = 53.9;
+    public static double row3RangeIn = 39.0;
     /** As row 1. */
-    public static double row3TicksPerSecond = 1600.0;
+    public static double row3TicksPerSecond = 1495.0;
     /** As row 1. */
-    public static double row4RangeIn = 58.8;
+    public static double row4RangeIn = 42.0;
     /** As row 1. */
-    public static double row4TicksPerSecond = 1635.0;
+    public static double row4TicksPerSecond = 1495.0;
     /** As row 1. */
-    public static double row5RangeIn = Double.NaN;
+    public static double row5RangeIn = 45.0;
     /** As row 1. */
-    public static double row5TicksPerSecond = Double.NaN;
+    public static double row5TicksPerSecond = 1500.0;
     /** As row 1. */
-    public static double row6RangeIn = Double.NaN;
+    public static double row6RangeIn = 48.0;
     /** As row 1. */
-    public static double row6TicksPerSecond = Double.NaN;
+    public static double row6TicksPerSecond = 1515.0;
+    /** As row 1. */
+    public static double row7RangeIn = 51.0;
+    /** As row 1. */
+    public static double row7TicksPerSecond = 1540.0;
+    /** As row 1. */
+    public static double row8RangeIn = 55.0;
+    /** As row 1. */
+    public static double row8TicksPerSecond = 1570.0;
+    /** As row 1. */
+    public static double row9RangeIn = 58.0;
+    /** As row 1. */
+    public static double row9TicksPerSecond = 1590.0;
+    /** As row 1. */
+    public static double row10RangeIn = 63.0;
+    /** As row 1. */
+    public static double row10TicksPerSecond = 1635.0;
+    /** As row 1. */
+    public static double row11RangeIn = 67.0;
+    /** As row 1. */
+    public static double row11TicksPerSecond = 1755.0;
+    /** As row 1. */
+    public static double row12RangeIn = 74.0;
+    /** As row 1. */
+    public static double row12TicksPerSecond = 1795.0;
 
     /** The rows copied out of the fields, so a lookup allocates nothing. Loop thread only. */
-    private static final double[] RANGES = new double[6];
-    private static final double[] SPEEDS = new double[6];
+    private static final double[] RANGES = new double[12];
+    private static final double[] SPEEDS = new double[12];
 
     /**
      * The launch speed for {@code rangeIn} from the configured rows, ticks per second; NaN when the
@@ -208,6 +240,18 @@ public final class LaunchSpeedTable {
         SPEEDS[4] = row5TicksPerSecond;
         RANGES[5] = row6RangeIn;
         SPEEDS[5] = row6TicksPerSecond;
+        RANGES[6] = row7RangeIn;
+        SPEEDS[6] = row7TicksPerSecond;
+        RANGES[7] = row8RangeIn;
+        SPEEDS[7] = row8TicksPerSecond;
+        RANGES[8] = row9RangeIn;
+        SPEEDS[8] = row9TicksPerSecond;
+        RANGES[9] = row10RangeIn;
+        SPEEDS[9] = row10TicksPerSecond;
+        RANGES[10] = row11RangeIn;
+        SPEEDS[10] = row11TicksPerSecond;
+        RANGES[11] = row12RangeIn;
+        SPEEDS[11] = row12TicksPerSecond;
     }
 
     /**

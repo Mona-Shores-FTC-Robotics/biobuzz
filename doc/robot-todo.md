@@ -15,6 +15,18 @@ R-Solo running build `733501e`, with the fourth-shot cutoff active and the park 
 at about 28.5 s. Earlier claims that nothing after PR #422 had run are superseded;
 this is not a claim that every unchecked item below has passed.
 
+## The new launch speed table (18 Nov, measured on 20245)
+
+`LaunchSpeedTable` now holds 12 rows measured on 20245 on 18 Nov (35 to 74 in), and both robots'
+`robotOffsetTicksPerSecond` lines are gone from `RobotDifferences`.
+
+- [ ] **20245: one volley at three ranges** (about 40, 51 and 63 in), turret LOCKED, Circle, speed
+      table ON, no trim. **Good:** 4 of 4 at each. **Stop:** a range misses the same way twice →
+      note the range and which way, and its speed then.
+- [ ] **19429, when it is back:** the same three volleys. Its old −25 offset matches the new rows
+      within about 5 ticks/s from 42 to 55 in, so it starts at 0. **Stop:** long or short at every
+      range by the same amount → that amount is its new `RobotDifferences` offset line.
+
 ## Tonight (18 Nov): 19429, in this order
 
 Each step stands alone: what to run, what good looks like, when to stop. Push the logs

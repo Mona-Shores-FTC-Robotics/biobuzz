@@ -6,7 +6,6 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
@@ -98,11 +97,6 @@ public final class RobotDifferences {
                         + " (mentor, 18 Nov 2026)",
                 () -> TurretSubsystem.lockedForward = false);
         differs(RobotIdentity.TEAM_19429,
-                "Shoots long: every ball of the Auto's volleys long, not only the first, so it is the"
-                        + " speed, not the early gate; 25 ticks/s off every launch speed, TeleOp and"
-                        + " Autos, what worked in Panels (mentor, 18 Nov 2026)",
-                () -> LaunchSpeedTable.robotOffsetTicksPerSecond = -25.0);
-        differs(RobotIdentity.TEAM_19429,
                 "Shots sit to one side: turret aimed 5 degrees round from its mark, what worked in"
                         + " Panels with the speed and gate lines here (mentor, 18 Nov 2026)",
                 () -> TurretSubsystem.aimOffsetDeg = 5.0);
@@ -123,10 +117,6 @@ public final class RobotDifferences {
                 "Turret unlocked: the 25-3 Speed servo and the REV Through Bore encoder are fitted,"
                         + " checked on Bench: Turret, and it held and aimed in Basic Drive (17 Nov 2026)",
                 () -> TurretSubsystem.lockedForward = false);
-        differs(RobotIdentity.TEAM_20245,
-                "Shoots long at every range: 50 ticks/s off every launch speed, TeleOp and Autos (drive"
-                        + " team, 17 Nov 2026, after the turret was refitted)",
-                () -> LaunchSpeedTable.robotOffsetTicksPerSecond = -50.0);
     }
 
     /**
