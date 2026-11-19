@@ -86,17 +86,7 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    an offset for that robot (`RobotDifferences`) or a fix to one row of `LaunchSpeedTable`. Do
    not change speeds at the robot.
 - [ ] Spot shooting: hits per volley written down for each spot
-6. **Backward with a load (bottom plate),** before either backward trial (**Drive: R-Clockwise-19429**,
-   **Drive: R-Solo-19429**) runs. 19429 only: 20245 has no plate and its trials refuse to move.
-   Basic Drive, 4 POLLEN in the lane, phone filming the intake low from the side. Drive **backward**
-   at full stick, with a hard start and a hard stop, 3 times each:
-   - from `GARDEN_STAGING` north up the outside lane to `LEFT_AUTO_HIVE` (R-Clockwise-19429)
-   - from `WALL_FLOWER_STAGING` north to `LEFT_AUTO_HIVE` (R-Solo-19429)
-
-   **Good:** the lane still holds 4 after every run, and the video shows none leave. **Stop:** any
-   piece leaves → no backward trial on 19429 tonight; push the logs and the video.
-- [ ] Backward with a load: lane full after every run, video kept
-7. **Turret firing arc, both robots — optional.** The arc is ±90° on both robots
+6. **Turret firing arc, both robots — optional.** The arc is ±90° on both robots
    (`TurretSubsystem.arcLeftDeg` / `arcRightDeg`), the mentor's judgement on 18 Nov 2026, not a
    hand measurement. Measure it only to check or widen that. Robot
    on its home mark, **Bench: Turret** in INIT (it reads the angle from the mark; nothing moves until
@@ -106,7 +96,7 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    each robot. **Good:** both read 90° or more (90° stays). **Stop:** either side under 90° → tell
    the mentor; that robot gets its line in `RobotDifferences`.
 - [ ] (Optional) Firing arc measured: 19429 left __° right __°, 20245 left __° right __°
-8. **Circle follows the turret mode, both robots** (code in the Circle PR, not on the robot
+7. **Circle follows the turret mode, both robots** (code in the Circle PR, not on the robot
    tonight). Basic Drive, HIVE upright with our CELL **up**, 4 POLLEN each time, phone filming the
    CELL. Driver's R1 to **LOCKED** (two rumble blips, Match page reads LOCKED): from three spots (the right launch spot, mid-field facing
    about 60° off the CELL, and near the far wall with the CELL behind-left), the driver holds Circle
@@ -119,7 +109,7 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    pad still discards a handoff (start fresh). **Stop:** it fires before it is on the CELL, or keeps turning
    after Circle is let go → push the log.
 - [ ] Circle LOCKED: turned on and fired 4 from all three spots; AIM unchanged
-9. **Operator fine trim.** Basic Drive: the operator taps R1 (launch trim +25) and D-pad left (aim trim
+8. **Operator fine trim.** Basic Drive: the operator taps R1 (launch trim +25) and D-pad left (aim trim
    L 1.5°), then holds Circle and taps them again: +10 and 0.5° per press (Match page: LAUNCH TRIM +35,
    AIM TRIM L 2.0°), one/two rumble blips as before, and Circle fires nothing. **Stop:** Circle fires,
    or the step does not change → push the log.
@@ -867,49 +857,6 @@ Use the work order above to select checks; the detailed mechanism checks below a
       - The short turn on the drive from the WALL FLOWER: time it (drawn 2.9 s) and check that no
         piece leaves the robot and the camera sights the LEFT CELL before the stop.
       [mentor session, 10 Nov]
-- [ ] **R-Solo-HumanPlayer draft (`autos/drafts/r-solo-human-player.pp`): R-Solo with a NECTAR from
-      the human player** ([why, and the simulator runs](../TeamCode/autos/drafts/README.md#r-solo-humanplayer-r-solo-with-a-nectar-from-the-human-player)).
-      Run it from the Utility **Drive: R-Solo-HumanPlayer** (it stops itself at 30 s), on 20245 (the
-      mentor, 18 Nov: on 19429's loads no simulated case reaches a second TIP). Set-up: red, four
-      POLLEN preloads, both FLOWERs full unless a run says otherwise, HIVE upright, `LEFT_START` empty,
-      Panels open. The human player stands at the red wall behind the LOADING ZONE (A5) with one red
-      NECTAR. **The mark:** a piece of tape at (21.5, 104.5), in A5, 2 in short of the A/B seam and 10 in
-      above the A4/A5 seam: where the intake mouth passes, about 2 s after the robot leaves the WALL
-      FLOWER. **When to roll:** only after TIP 1 is seen, and only when the WALL FLOWER pick leaves
-      POLLEN in or beside the FLOWER; release it in the air over the LOADING ZONE tile so it touches that
-      tile first (G427.C), aim to have it stop on the mark before the robot gets there, and never touch it
-      again (G425.B). One NECTAR per TIP of our HIVE (G426.A): one, before the second TIP. The lane count
-      reads low: nobody judges "not full" from it. **Film:** a phone behind the human player on the mark
-      and the robot's pass; a phone from the side on the LEFT CELL to count the pieces that stay in.
-      - **The roll drill, robot off:** ten rolls to the mark. Measure where each stops. **Good:** most
-        within a ball's width (about 5 in) of the mark. **Stop:** they scatter → note the spread; the
-        mark or the release spot moves before any run with the robot.
-      - **The lane alone, three runs, no roll.** **Good:** as R-Solo: the third volley fires and the park
-        is done by about 29 s, never `parking now` after the second volley; the leg (planned 3.1 s;
-        R-Solo's 2.9 s) from `read_logs.py summary`; the robot stays clear of the LOADING ZONE tape (about
-        1 in to spare, drawn). **Stop:** `parking now` after the second volley → note when that volley
-        ended and tell a mentor: the redrawn leg is too long.
-      - **A short load and a roll, three runs:** two POLLEN on the WALL FLOWER. **Good:** the NECTAR is in
-        the lane before `LEFT_AUTO_HIVE` and goes up in the first LEFT volley (`read_logs.py volleys`: the
-        wheel dips), and stays in the CELL. **Stop:** the robot is past before the NECTAR arrives, or
-        pushes it → note when it was released and where the robot was; the roll goes earlier or the mark
-        moves.
-      - **A full load and a roll anyway, two runs (G407: four at most).** **Good:** the NECTAR stays on
-        the floor or rolls aside, the robot never holds five and does not herd it. **Stop:** five aboard
-        or the NECTAR carried along → film it and tell a mentor before any more rolls.
-      - **Three full runs, the human player judging the pick.** Count the pieces in the LEFT CELL after
-        each volley, and the TIPs, with the CELL settled time from the film on the field's clock.
-        **Good:** both LEFT volleys fire every run; a second TIP is a bonus (the simulator: 5 of 60 by
-        30 s on 20245's loads, R-Solo 3 of 60).
-      - **R-Solo with the roll to its own line, if there is time:** master's R-Solo, the mark at (28.2,
-        103.8), in B5 4.5 in past the A/B seam. The simulator did as well with this roll (8 of 60 by 30 s)
-        as with the draft's; it is about 7 in longer. **Good:** the drill above lands it as often as the
-        draft's mark → R-Solo needs no draft at all, only the roll.
-      - **6 POLLEN and 1 NECTAR on the practice HIVE, by hand:** does the LEFT CELL tip? The simulator
-        tips 7 and 1 always and 6 and 1 only near seven.
-      - Blue: the same, turned half a turn (mark at (120.0, 37.0) in F2).
-      [mentor session, 18 Nov]
-
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
 
 The pick-depth session. Procedure and tables: [S5 At the robot]. The student version of the same
@@ -1311,20 +1258,6 @@ measurement is [#255].
       **Good:** the left and right wheels recover alike after a shot. **Stop:** they do not →
       fit the spacer, then re-check the launcher in §7c.
 
-## 7b. Bench: Wall Eject (any field wall, 4 POLLEN, phone filming from above)
-
-Can an L robot set its preloads down against a wall, to collect later? Film every trial; the log
-has each trial's settings and measured back-up.
-
-- [ ] **Run Bench: Wall Eject** (Utility menu): intake against the wall, Cross runs one trial
-      (backs off 1.5 in, ejects at roller 0.3 / stars 0.3 for 2.5 s, feeder backing out too). Try
-      roller 0.2–0.5 (D-pad ▲▼), back-up 1–2 in (◀▶), feeder off (Square). **Good:** all four
-      rest at the wall within one robot width, none rolled more than a few inches. **Stop:** after
-      about 10 trials; note the best settings and whether they sat four wide or in a line.
-      [this branch, claude/quirky-allen-etn5xp]
-- [ ] **Then drive through them** with the intake on (Basic Drive) from the side and head-on.
-      **Good:** 4 of 4 collected in one pass. **Stop:** record how many of 4, over 5 tries.
-
 ## 7b2. Drive: Super FLOWER Pick (20245, the SCORING FLOWER, HIVE upright, phone filming the intake and the CELL)
 
 **Shelved 18 Nov 2026 (mentor): the turret cannot shoot back over the robot.** The Utility and its R1
@@ -1582,7 +1515,7 @@ The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` b
       onto our CELL by itself (log: `turret at PLAY: AIM`). Driver holds Circle: it fires as the
       operator's FIRE does. Trim the aim 5° off and fire: it waits (log line `aim BLOCK`) until the
       trim is reset. Cover the camera and fire from a known pose: odometry's aim still lets it go.
-      (Superseded by step 8 of tonight's list: the turret mode is now the driver's R1, and in LOCKED
+      (Superseded by step 7 of tonight's list: the turret mode is now the driver's R1, and in LOCKED
       Circle turns onto the CELL and then fires.)
 - [ ] **Square, Cross and Triangle pressed while still steering** (`FreshSticks`, #495). In 50 of
       51 Square presses cancelled within 0.1 s at Belding, the stick was already moving when Square

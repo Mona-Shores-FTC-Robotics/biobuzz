@@ -42,10 +42,7 @@ public enum RobotIdentity {
     TEAM_20245("robot_20245", DeviceNames.COMPETITION_ROBOT),
 
     /** The BIOBUZZ launcher on a spare Control Hub: two flywheels and the feeder, the robots' motor numbers (#80). */
-    LAUNCHER_BENCH("robot_launcher_bench", DeviceNames.LAUNCHER_BENCH),
-
-    /** The OctoQuad turret-encoder bench: a spare Control Hub, the OctoQuad and two Thru-Bores (#169). */
-    OCTOQUAD_RIG("robot_octoquad_rig", DeviceNames.OCTOQUAD_RIG);
+    LAUNCHER_BENCH("robot_launcher_bench", DeviceNames.LAUNCHER_BENCH);
 
     /**
      * The bundled configuration's name, which is also its resource entry name,
