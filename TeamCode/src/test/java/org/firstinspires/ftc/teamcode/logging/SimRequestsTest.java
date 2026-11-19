@@ -138,7 +138,7 @@ public class SimRequestsTest {
 
     /**
      * Whether {@code source} is the other half of the pair a draft of a pair half runs beside: the draft
-     * {@code r-clockwise-19429} (R-Clockwise drawn for 19429 alone) beside our {@code l-clockwise}, as R-Clockwise is,
+     * named after R-Clockwise with a suffix (as {@code r-clockwise-19429} was) beside our {@code l-clockwise}, as R-Clockwise is,
      * or an L-UnderHive trial such as {@code l-under-hive-park-shot} beside our {@code r-outside-lane}.
      */
     static boolean robotVariantPairHalf(String name, String source, File autos) {
