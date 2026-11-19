@@ -3,7 +3,7 @@
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
 (mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, and the RightUnderHive
-pair, which waits for its first export.
+pair, which runs from it as **Drive: R-RightUnderHive** and **Drive: L-RightUnderHive**.
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
 (`NudgeContactDrive`, `NudgeTestRun`) and the stand-ins only they used. All are in Git history at
@@ -31,7 +31,8 @@ SCORING FLOWER 4 at LEFT for TIP 2. Simulated beside a RoboDux stand-in, with bo
 `r-right-under-hive.pp` and `l-right-under-hive.pp` are a pair (mentor, 19 Nov 2026). The side before
 "UnderHive" names the robot that goes under the HIVE, so here R goes under it and L takes the outer lane. It is
 the lane pair turned round. They are drafts to try on the robot, for elims or a strong partner, not for
-qualifiers. They have no generated class yet: the first export makes them.
+qualifiers. They run from the Utility menu as **Drive: R-RightUnderHive** and **Drive: L-RightUnderHive**,
+one on each robot, and `sim-requests/r-right-under-hive.json` runs R beside L at 92% of shots in.
 
 - **R owns every fix.** From `RIGHT_START` R fires its preloads at RIGHT from `RIGHT_AUTO_HIVE` (TIP 1), gathers
   the GARDEN and comes back to `RIGHT_AUTO_HIVE`. It waits there for RIGHT to be up (TIP 2 came, or TIP 1 never
