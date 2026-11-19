@@ -243,6 +243,14 @@ public final class GardenGather extends GrabRoutine {
          * slow.
          */
         public double inSpeed = 1.0;
+        /**
+         * How far the drive in, the push and the dwell turn the robot toward the side wall, degrees, so
+         * the intake angles into the corner and takes the corner piece: red's 270° becomes 270 minus this
+         * (blue's 90° the same, turned half a turn). Only the heading changes; where the drive in ends
+         * does not. 0 until the mentor's trial on 19429 (18 Nov 2026: square to the audience wall the
+         * gather missed the corner ball; 2 to 5 to try).
+         */
+        public double intoCornerDeg = 0.0;
         /** The drive in gives up after this long, ms. */
         public double inTimeoutMs = 4000;
         /** Less progress than this, inches, in {@link DriveIn#stallMs} means the robot is against something. */
@@ -552,8 +560,10 @@ public final class GardenGather extends GrabRoutine {
         double deeper = nn(driveIn.extraDepthIn) + (stick.useStick ? 0.0 : nn(driveIn.noStickExtraDepthIn));
         // A curved drive in reaches the wall's line early: it ends barely toward it, not pinned into it.
         double wall = driveIn.curveToWall ? nn(driveIn.laneTowardWallIn) : nn(driveIn.towardWallIn);
+        // Angled into the corner: toward the robot's right, the side wall, so the heading turns clockwise.
+        double corner = Math.toRadians(Math.max(-15.0, Math.min(15.0, nn(driveIn.intoCornerDeg))));
         return InPlan.to(new Pose(g.x() + deeper * Math.cos(h) + wall * Math.sin(h),
-                g.y() + deeper * Math.sin(h) - wall * Math.cos(h), h));
+                g.y() + deeper * Math.sin(h) - wall * Math.cos(h), h - corner));
     }
 
     @Override
