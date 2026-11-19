@@ -60,9 +60,10 @@ public final class GardenGather extends GrabRoutine {
         /**
          * The line-up spot, moved this much further from the side wall than the GARDEN's line-up pose
          * ({@link GardenFieldPoints}), inches: room to turn in the corner (30 Oct 2026). The drive in
-         * then runs at a slant to the gather pose.
+         * then runs at a slant to the gather pose. 0.5 since 19 Nov 2026 (mentor, on 19429: the line-up
+         * almost on the side wall leaves little to strafe, and the gather was much faster).
          */
-        public double lineUpOutIn = 3.0;
+        public double lineUpOutIn = 0.5;
         /**
          * And this much further back from the GARDEN (away from the audience wall), inches. 6 since
          * 16 Nov 2026 (mentor; 3 before, the value of the 14 Nov field session): 3 in more drive in, about
@@ -248,15 +249,20 @@ public final class GardenGather extends GrabRoutine {
          * the intake angles into the corner and takes the corner piece: red's 270° becomes 270 minus this
          * (blue's 90° the same, turned half a turn). Only the heading changes; where the drive in ends
          * does not. 0 until the mentor's trial on 19429 (18 Nov 2026: square to the audience wall the
-         * gather missed the corner ball; 2 to 5 to try).
+         * gather missed the corner ball). 15 since 19 Nov 2026 (mentor, on 19429: at 0 the robot sat on the
+         * audience wall short of the corner; at 15, the cap, it went all the way in every time). The dwell
+         * and the push steer onto the line along this heading too, which draws the robot into the corner.
          */
-        public double intoCornerDeg = 0.0;
+        public double intoCornerDeg = 15.0;
         /** The drive in gives up after this long, ms. */
         public double inTimeoutMs = 4000;
         /** Less progress than this, inches, in {@link DriveIn#stallMs} means the robot is against something. */
         public double stallProgressIn = 0.25;
-        /** See {@link DriveIn#stallProgressIn}, ms. */
-        public double stallMs = 250;
+        /**
+         * See {@link DriveIn#stallProgressIn}, ms. 400 since 19 Nov 2026 (mentor, on 19429): at 250 the slow
+         * start of the drive in read as a stall; at 1000 the robot shoved and bounced off the wall.
+         */
+        public double stallMs = 400;
     }
 
     /** See {@link DriveIn}. */
@@ -288,9 +294,9 @@ public final class GardenGather extends GrabRoutine {
          * {@link Dwell#dwellEndsOnFull}).
          * 400 since 6 Nov 2026 (mentor): in, a short dwell, and straight back out, rather than the 1.5 s
          * every gather that night sat for while bringing in 0 to 1 pieces. Tune it at the practice field
-         * with the button.
+         * with the button. 150 since 19 Nov 2026 (mentor, on 19429, with the corner angle: consistent).
          */
-        public double dwellMs = 400;
+        public double dwellMs = 150;
         /**
          * The dwell ends as soon as the lane is full (the colour sensor's full), as the FLOWER pick's does.
          * Until this switch a gather with a full lane sat out the whole dwell (14 Nov 13:13, 4 held, twice).
@@ -306,9 +312,10 @@ public final class GardenGather extends GrabRoutine {
         /**
          * Forward power during the dwell, to keep the stick seated and the intake pressed into the
          * corner. 0 for none. 1.0 since 14 Nov 2026 (mentor, on 19429 at the field: 8 gathers, 4 in a
-         * row; 0.1 before).
+         * row; 0.1 before). 0.5 since 19 Nov 2026 (mentor, on 19429: at 1.0 it pushed in and out at the
+         * wall).
          */
-        public double dwellPushPower = 1.0;
+        public double dwellPushPower = 0.5;
     }
 
     /** See {@link Dwell}. */
