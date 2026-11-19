@@ -21,7 +21,7 @@ public final class RRightUnderHiveAuto {
     public static final String SOURCE = "r-right-under-hive.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-19|2:52PM";
+    public static final String SAVED = "11-19|3:18PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "SpinUp"};
@@ -54,7 +54,7 @@ public final class RRightUnderHiveAuto {
         Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose rHiveExit = p.of(60.5, 100, 90);
-        Pose rLeftFix = p.of(60, 114, 271.3);
+        Pose rLeftFix = p.of(61.5, 114, 268.4);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose rightAutoHiveCorridorToLeftParkGuardControl1 = p.of(61, 30, 0);
@@ -103,11 +103,11 @@ public final class RRightUnderHiveAuto {
         Pose rHiveExitWestAboveTheHiveToLeftParkControl4 = p.of(22, 106, 0);
         Pose rHiveExitWestAboveTheHiveToLeftParkSegment1Heading = p.of(14.5, 117.4, 90);
         Pose rHiveExitWestAboveTheHiveToLeftParkSegment2Start = p.of(14.5, 117.4, 90);
-        Pose rHiveExitRoundToRLeftFixControl1 = p.of(54, 104, 0);
-        Pose rHiveExitRoundToRLeftFixControl2 = p.of(61, 108, 0);
-        Pose rHiveExitRoundToRLeftFixControl3 = p.of(60.5, 111, 0);
-        Pose rHiveExitRoundToRLeftFixSegment1Heading = p.of(60, 114, 90);
-        Pose rHiveExitRoundToRLeftFixSegment2Start = p.of(60, 114, 90);
+        Pose rHiveExitRoundToRLeftFixControl1 = p.of(55, 103, 0);
+        Pose rHiveExitRoundToRLeftFixControl2 = p.of(60, 106, 0);
+        Pose rHiveExitRoundToRLeftFixControl3 = p.of(62, 110, 0);
+        Pose rHiveExitRoundToRLeftFixSegment1Heading = p.of(61.5, 114, 90);
+        Pose rHiveExitRoundToRLeftFixSegment2Start = p.of(61.5, 114, 90);
         Pose rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl1 = p.of(52, 101, 0);
         Pose rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl2 = p.of(38, 101, 0);
         Pose rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl3 = p.of(28, 101, 0);
@@ -126,7 +126,7 @@ public final class RRightUnderHiveAuto {
         Path upTheCorridorUnderTheHiveToRHiveExit = Paths.line(rightAutoHive, rHiveExit).linear(rightAutoHive, rHiveExit);
         Path rHiveExitWestAboveTheHiveToLeftPark = Paths.curve(rHiveExit, rHiveExitWestAboveTheHiveToLeftParkControl1, rHiveExitWestAboveTheHiveToLeftParkControl2, rHiveExitWestAboveTheHiveToLeftParkControl3, rHiveExitWestAboveTheHiveToLeftParkControl4, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(rHiveExitWestAboveTheHiveToLeftParkSegment1Heading)).until(0.95, Interpolator.linear(rHiveExitWestAboveTheHiveToLeftParkSegment2Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path fixUpTheCorridorUnderTheHiveToRHiveExit = Paths.line(rightAutoHive, rHiveExit).linear(rightAutoHive, rHiveExit);
-        Path rHiveExitRoundToRLeftFix = Paths.curve(rHiveExit, rHiveExitRoundToRLeftFixControl1, rHiveExitRoundToRLeftFixControl2, rHiveExitRoundToRLeftFixControl3, rLeftFix).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rHiveExitRoundToRLeftFixSegment1Heading)).until(0.55, Interpolator.linear(rHiveExitRoundToRLeftFixSegment2Start, rLeftFix)).until(1, Interpolator.constant(rLeftFix)));
+        Path rHiveExitRoundToRLeftFix = Paths.curve(rHiveExit, rHiveExitRoundToRLeftFixControl1, rHiveExitRoundToRLeftFixControl2, rHiveExitRoundToRLeftFixControl3, rLeftFix).heading(Interpolator.piecewise().until(0.1, Interpolator.constant(rHiveExitRoundToRLeftFixSegment1Heading)).until(0.45, Interpolator.linear(rHiveExitRoundToRLeftFixSegment2Start, rLeftFix)).until(1, Interpolator.constant(rLeftFix)));
         Path rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFix = Paths.curve(rLeftFix, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl1, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl2, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl3, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl4, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixSegment1Heading)).until(0.95, Interpolator.linear(rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixSegment2Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path rLeftFixToLeftPark = Paths.curve(rLeftFix, rLeftFixToLeftParkControl1, leftPark).linear(rLeftFix, leftPark);
         Path leftDownRLeftFixToLeftPark = Paths.curve(rLeftFix, leftDownRLeftFixToLeftParkControl1, leftPark).linear(rLeftFix, leftPark);
@@ -148,7 +148,7 @@ public final class RRightUnderHiveAuto {
                                 kit.atMatchSeconds(kit.seconds("RIGHT up (TIP 2, or no TIP 1) before 18 s, otherwise fix LEFT", 18)).then(
                                         kit.guarded("Timed out", leftDownRLeftFixToLeftPark, 2,
                                                 kit.path("fix: up the corridor under the HIVE to R_HIVE_EXIT", fixUpTheCorridorUnderTheHiveToRHiveExit, 2.6, rightAutoHiveCorridorToLeftParkGuard, 3.6),
-                                                kit.path("R_HIVE_EXIT round to R_LEFT_FIX", rHiveExitRoundToRLeftFix, 1.9, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFix, 2.2),
+                                                kit.path("R_HIVE_EXIT round to R_LEFT_FIX", rHiveExitRoundToRLeftFix, 1.8, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFix, 2.2),
                                                 kit.firstOf("LEFT up?",
                                                         kit.when("LeftCellUp").then(
                                                                 kit.guarded("If LeftCellUp", rLeftFixToLeftPark, 2,
