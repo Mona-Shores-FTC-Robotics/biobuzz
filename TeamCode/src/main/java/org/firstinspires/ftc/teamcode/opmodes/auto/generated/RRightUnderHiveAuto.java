@@ -21,7 +21,7 @@ public final class RRightUnderHiveAuto {
     public static final String SOURCE = "r-right-under-hive.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-19|2:44PM";
+    public static final String SAVED = "11-19|2:52PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "SpinUp"};
@@ -54,7 +54,7 @@ public final class RRightUnderHiveAuto {
         Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose rHiveExit = p.of(60.5, 100, 90);
-        Pose rLeftFix = p.of(60, 114, 268.9);
+        Pose rLeftFix = p.of(60, 114, 271.3);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose rightAutoHiveCorridorToLeftParkGuardControl1 = p.of(61, 30, 0);
