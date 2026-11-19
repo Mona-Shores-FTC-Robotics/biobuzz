@@ -300,7 +300,7 @@ and nothing is pushed over adb.
 
 | | |
 |---|---|
-| The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot — plus `robot_launcher_bench.xml` and `robot_octoquad_rig.xml` for the bench rigs |
+| The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot — plus `robot_launcher_bench.xml` for the launcher bench rig |
 | The names in Java | `hardware/DeviceNames.java` — the only place a device name may be written |
 | The build-time check | `RobotConfigXmlTest` — fails CI if the XML and `DeviceNames` disagree |
 | The run-time check | the **Check: Hardware** OpMode (Utility menu) |

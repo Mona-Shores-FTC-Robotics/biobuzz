@@ -3,8 +3,10 @@
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode.
 Simulator drafts also have a request in `TeamCode/sim-requests/`. The Utility trials of R-Two-Tip,
 R-Solo-Nudge and the partner-nudge test came off the Driver Station on 18 Nov 2026 (the event lineup);
-where the notes below name them, bring one back from Git history first. The trials on it now are
-R-Solo-HumanPlayer, R-Clockwise-19429 and R-Solo-19429. The nudge Utility's runtime speed limits were
+where the notes below name them, bring one back from Git history first. The Utility trials of
+R-Solo-HumanPlayer, R-Clockwise-19429 and R-Solo-19429 came off on 19 Nov 2026 (mentor: a smaller Utility
+menu); their `.pp` drafts and generated classes stay here. The trials on it now are L-UnderHive-ParkShot
+and L-Assist. The nudge Utility's runtime speed limits were
 not modeled by AutoSim. The Visualizer lists
 these under "Drafts", and Save to GitHub saves back here.
 
@@ -12,6 +14,19 @@ Some drafts launch from the old launch spots (`LEFT_LAUNCH_OFFSET`, `RIGHT_LAUNC
 stopped being team spots on 16 Nov 2026. Each keeps those as points of its own, where they were. A draft
 that goes to the Autonomous menu launches only from spots aimed at their CELL (`AutoVolleySpotsTest`): open it in
 the Visualizer, which aims each spot a Launch all fires from, and save it.
+
+## L-Assist: the far-end partner beside a near-end robot that tips both CELLs
+
+`l-assist.pp` is master's `l-no-cross.pp` cut down (mentor, 19 Nov 2026, for 10255 RoboDux at Fruitport).
+It does what RoboDux's partner did at Kentwood. From `LEFT_START` it drives to `LEFT_AUTO_HIVE` and waits
+for TIP 1, which is RoboDux's preloads at RIGHT. Then it fires its preloads at LEFT and parks at `LEFT_PARK`
+at once. If no TIP 1 comes by the wait's 9 s, it parks without firing. Its INIT menu is that one time. It runs from the Utility
+menu as **Drive: L-Assist**; `sim-requests/l-assist.json` runs it beside L-NoCross's partners, since no
+committed stand-in runs RoboDux's route.
+
+It leaves the left end to RoboDux: under the HIVE to the left end by about 13 s, then its GARDEN 4 and its
+SCORING FLOWER 4 at LEFT for TIP 2. Simulated beside a RoboDux stand-in, with both of our robots: 1.90 TIPs
+(1.85 by 30 s), 0 contacts, and both robots parked in 20 of 20 runs.
 
 ## L-UnderHive-ParkShot: park facing LEFT, fire there if it is up
 
@@ -43,11 +58,10 @@ turns round just to keep the load in:
 - `r-solo-19429.pp`: the WALL FLOWER leg to `LEFT_AUTO_HIVE` turns 180 to 268.1 in its first 35%,
   then drives backward.
 
-They run from the Utility menu as 30 s trials, **Drive: R-Clockwise-19429** and **Drive: R-Solo-19429**
-(`BackwardLoadTrial`). On a robot without `IntakeSubsystem.holdsLoadDrivingBackward` (on for 19429
-in `RobotDifferences`) they show a red line in INIT and do not move. The backward drive in
-[robot-todo](../../../doc/robot-todo.md) tonight's step 6 has to pass first. Requests:
-`sim-requests/r-clockwise-19429.json`, `r-solo-19429.json`.
+They ran from the Utility menu as 30 s trials, **Drive: R-Clockwise-19429** and **Drive: R-Solo-19429**,
+until 19 Nov 2026, when they came off with their sim requests (mentor: 20245 stays R in the Clockwise
+pair, 19429 runs plain R-Solo, and the backward drive with a load was never checked). Bring the trials
+back from Git history, with `BackwardLoadTrial`, to try them.
 
 **In the simulator** (Belding calibration, `BIOBUZZ_BELDING_ROBOT=19429`, master's partners as
 drawn, TIPs counted by 30 s; run before the export, on the same headings patched into a scratch copy
@@ -486,8 +500,8 @@ the lane reads full, so a short WALL FLOWER load takes it and a full one does no
 R-Solo's: the preloads from `RIGHT_START`, both LEFT volleys from `LEFT_AUTO_HIVE` behind their CELL
 checks, the cross to `RIGHT_AUTO_HIVE` when the LEFT CELL is already down, the park at `RIGHT_PARK`.
 The turret stays at home, as in every Auto on master: no volley has the CELL behind the robot.
-Mentor session, 18 Nov 2026; not run on a robot. It runs from the Utility **Drive: R-Solo-HumanPlayer**
-(a 30 s trial).
+Mentor session, 18 Nov 2026; never run on a robot. Its Utility trial, **Drive: R-Solo-HumanPlayer**, and its
+sim request came off on 19 Nov 2026 (mentor: the roller stick now gets 4 a pick).
 
 Open it: <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/drafts/r-solo-human-player.pp>
 
@@ -519,7 +533,7 @@ human judging the pick, so it rolls every run.
 - **R-Solo itself, with the roll to its own line, did as well.** That roll is about 25 in from the
   release against this draft's 18 in. Which roll a person can land is the robot question; the draft is
   for the shorter one.
-- A saved request cannot set the human's roll (`sim-requests/r-solo-human-player.json` runs the lane
-  alone).
+- A saved request cannot set the human's roll (the removed `sim-requests/r-solo-human-player.json` ran
+  the lane alone).
 
 The robot checks are in [robot-todo §3](../../../doc/robot-todo.md).

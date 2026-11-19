@@ -145,7 +145,7 @@ Visualizer's `scripts/save-auto.mjs`; the script is gone, so the `.pp` files on 
 ## Two TIPs for sure: human-player NECTAR
 
 **Rebuilt 18 Nov from master's R-Solo:** `drafts/r-solo-human-player.pp`, the Utility **Drive:
-R-Solo-HumanPlayer**, its simulator table in `TeamCode/autos/drafts/README.md` and tonight's runs in
+R-Solo-HumanPlayer** (off the Utility menu, with its sim request, since 19 Nov 2026), its simulator table in `TeamCode/autos/drafts/README.md` and tonight's runs in
 `doc/robot-todo.md` §3. One leg redrawn (the outside lane past the LOADING ZONE, one path, no stop at a
 handoff point: a stop there cost R-Solo its third volley), both LEFT volleys from `LEFT_AUTO_HIVE`, the
 turret at home (it cannot shoot back over the robot). The 16 Nov study (R-Two-Tip-based, `NECTAR_HANDOFF`
