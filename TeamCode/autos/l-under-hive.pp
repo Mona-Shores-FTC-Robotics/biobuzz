@@ -854,6 +854,18 @@
                 "timeoutS": 1
               },
               {
+                "id": "L-hold-rescue",
+                "kind": "firstOf",
+                "label": "R has left the SCORING FLOWER: park at 20 s",
+                "rows": [
+                  {
+                    "afterMs": 20000,
+                    "matchClock": true,
+                    "cards": []
+                  }
+                ]
+              },
+              {
                 "id": "card-l-rescue-park",
                 "kind": "path",
                 "lineId": "l-rescue-park",
