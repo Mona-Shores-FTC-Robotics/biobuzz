@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoOption;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.localization.AutoLaunchSpots;
-import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LClockwiseAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RClockwiseAuto;
 import org.junit.Before;
@@ -259,13 +258,13 @@ public class ClockwiseAutoTest {
 
     /**
      * Every volley of the pair is from a start or an Auto launch spot ({@link AutoLaunchSpots}). R fires its
-     * preloads from its start, its second load from the left HIVE spot, and after crossing under the HIVE
+     * preloads from the right HIVE spot, moving up to it as it spins up, its second load from the left HIVE spot, and after crossing under the HIVE
      * from the fix-TIP spot straight below the lane; L moves up to the left HIVE spot and fires its second
      * load from the right OFFSET spot, clear of R arriving beside it.
      */
     @Test public void everyVolleyIsFromAStartOrAnAutoLaunchSpot() {
         run(RClockwiseAuto.build(kit(), false));
-        shotFrom(0, "RIGHT_START", StartPositions.RED_AUDIENCE.pose);
+        shotFrom(0, AutoLaunchSpots.Spot.RIGHT_AUTO_HIVE);
         shotFrom(1, AutoLaunchSpots.Spot.LEFT_AUTO_HIVE);
         shotFrom(2, AutoLaunchSpots.Spot.RIGHT_AUTO_FIX_TIP);
         again();

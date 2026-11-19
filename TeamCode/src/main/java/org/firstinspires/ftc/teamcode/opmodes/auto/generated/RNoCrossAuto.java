@@ -21,7 +21,7 @@ public final class RNoCrossAuto {
     public static final String SOURCE = "r-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-17|5:24PM";
+    public static final String SAVED = "11-18|9:06PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -77,13 +77,14 @@ public final class RNoCrossAuto {
         Pose toRightPark_6Segment1Start = p.of(14.5, 98.7, 298.7);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
+        Path toRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
+        Path toWallFlowerStaging = Paths.line(rightAutoHive, wallFlowerStaging).linear(rightAutoHive, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.curve(wallFlowerStaging, wallFlowerStagingParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
-        Path toRightAutoHive = Paths.line(wallFlowerStaging, rightAutoHive).linear(wallFlowerStaging, rightAutoHive);
+        Path toRightAutoHivePath = Paths.line(wallFlowerStaging, rightAutoHive).linear(wallFlowerStaging, rightAutoHive);
         Path rightAutoHivePark = Paths.curve(rightAutoHive, rightAutoHiveParkControl1, rightPark).linear(rightAutoHive, rightPark);
         Path toGardenStaging = Paths.line(rightAutoHive, gardenStaging).linear(rightAutoHive, gardenStaging);
         Path gardenStagingPark = Paths.curve(gardenStaging, gardenStagingParkControl1, rightPark).linear(gardenStaging, rightPark);
-        Path toRightAutoHivePath = Paths.line(gardenStaging, rightAutoHive).linear(gardenStaging, rightAutoHive);
+        Path toRightAutoHivePath2 = Paths.line(gardenStaging, rightAutoHive).linear(gardenStaging, rightAutoHive);
         Path toRightPark = Paths.curve(rightAutoHive, toRightParkControl1, rightPark).linear(rightAutoHive, rightPark);
         Path toRightParkPath = Paths.curve(rightAutoHive, toRightPark_2Control1, rightPark).linear(rightAutoHive, rightPark);
         Path toRightParkPath2 = Paths.curve(rightAutoHive, toRightPark_3Control1, rightPark).linear(rightAutoHive, rightPark);
@@ -96,17 +97,18 @@ public final class RNoCrossAuto {
         return kit.sequence(
                 kit.guarded("Auto", toRightParkPath3, 2.9,
                         kit.command("SpinUp"),
+                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1),
                         kit.command("LaunchAll"),
-                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, wallFlowerStagingPark, 2.1),
+                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9, wallFlowerStagingPark, 2.1),
                         kit.command("PickFlower", 8),
-                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.9, rightAutoHivePark, 2.9),
+                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHivePath, 1.9, rightAutoHivePark, 2.9),
                         kit.firstOf("Wait for TIP or CELL up",
                                 kit.when("CellUp").then(
                                         kit.guarded("If CellUp", toRightParkPath, 2.9,
                                                 kit.command("LaunchAll"),
                                                 kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenStagingPark, 2.6),
                                                 kit.command("GardenGather", 8),
-                                                kit.path("to RIGHT_AUTO_HIVE", toRightAutoHivePath, 2),
+                                                kit.path("to RIGHT_AUTO_HIVE", toRightAutoHivePath2, 2),
                                                 kit.firstOf("RIGHT CELL back up?",
                                                         kit.when("CellUp").then(
                                                                 kit.guarded("If CellUp", toRightPark, 2.9,

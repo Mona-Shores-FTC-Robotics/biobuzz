@@ -139,8 +139,8 @@ spot named `…_AUTO_…`); `AutoLaunchSpots.Spot` names the five placed by hand
 `LEFT_AUTO_OFFSET`, their RIGHT twins, and `RIGHT_AUTO_FIX_TIP` for a left-start Auto that crossed to
 tip RIGHT itself, and `AutoLaunchSpotsTest` checks every one and the five's own placement. HIVE and OFFSET at
 one end hold two of our robots together; which a volley uses is the Auto's to work out. A
-left-start Auto moves up to `LEFT_AUTO_HIVE` for its first volley; a right-start Auto fires its
-preloads from `RIGHT_START`. An Autonomous declares its start by
+left-start Auto moves up to `LEFT_AUTO_HIVE` for its first volley; a right-start Auto moves up to `RIGHT_AUTO_HIVE` while it
+spins up and fires its preloads there (mentor, 19 Nov 2026: from `RIGHT_START` they went long). An Autonomous declares its start by
 overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check. A TeleOp with
 no handoff declares its alliance's start too (`StartPositions.forAlliance`), so a test drive starts
 from a known pose with the right field-centric forward; after an Auto it keeps the Auto's pose. The drive team

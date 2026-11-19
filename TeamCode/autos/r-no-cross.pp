@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-17T22:24:01.000Z",
+  "timestamp": "2026-11-19T02:06:36.010Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -8,6 +8,27 @@
     "headingDeg": 90
   },
   "lines": [
+    {
+      "id": "line-r-no-cross-to-right-auto-hive",
+      "color": "#76b7b2",
+      "name": "to RIGHT_AUTO_HIVE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 20.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 96.1
+      }
+    },
     {
       "id": "line-mw0c4s3r-j498n0",
       "color": "#edc948",
@@ -25,7 +46,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
+        "startDeg": 96.1,
         "endDeg": 180
       }
     },
@@ -67,7 +88,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 180
+        "degrees": 179.99999999999997
       }
     },
     {
@@ -325,13 +346,8 @@
     },
     {
       "id": "link-6",
-      "color": "#888888",
       "name": "Link (never driven)",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
+      "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
         "x": 59.2,
@@ -340,7 +356,48 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 96.1
+        "degrees": 96.10000000000002
+      }
+    },
+    {
+      "id": "line-rnc-wait-park-2",
+      "color": "#4e79a7",
+      "name": "to RIGHT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 98.7
+      },
+      "controlPoints": [
+        {
+          "x": 17.99745547073791,
+          "y": 42.69799875351612
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 96.1,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-7",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 20.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 96.10000000000002
       }
     },
     {
@@ -432,14 +489,9 @@
       }
     },
     {
-      "id": "link-7",
-      "color": "#888888",
+      "id": "link-8",
       "name": "Link (never driven)",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
+      "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
         "x": 40.7,
@@ -448,7 +500,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 298.7
+        "degrees": -61.29999999999998
       }
     },
     {
@@ -510,14 +562,9 @@
       }
     },
     {
-      "id": "link-8",
-      "color": "#888888",
+      "id": "link-9",
       "name": "Link (never driven)",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
+      "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
         "x": 40.7,
@@ -526,7 +573,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 298.7
+        "degrees": -61.29999999999998
       }
     },
     {
@@ -585,52 +632,6 @@
             }
           ]
         }
-      }
-    },
-    {
-      "id": "link-9",
-      "color": "#888888",
-      "name": "Link (never driven)",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59.2,
-        "y": 20.9
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 96.1
-      }
-    },
-    {
-      "id": "line-rnc-wait-park-2",
-      "color": "#4e79a7",
-      "name": "to RIGHT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 17.99745547073791,
-          "y": 42.69799875351612
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 96.1,
-        "endDeg": 0
       }
     }
   ],
@@ -799,6 +800,10 @@
   "sequence": [
     {
       "kind": "path",
+      "lineId": "line-r-no-cross-to-right-auto-hive"
+    },
+    {
+      "kind": "path",
       "lineId": "line-mw0c4s3r-j498n0"
     },
     {
@@ -863,6 +868,14 @@
     },
     {
       "kind": "path",
+      "lineId": "line-rnc-wait-park-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-7"
+    },
+    {
+      "kind": "path",
       "lineId": "line-rnc-topup-cross"
     },
     {
@@ -871,7 +884,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-7"
+      "lineId": "link-8"
     },
     {
       "kind": "path",
@@ -879,19 +892,11 @@
     },
     {
       "kind": "path",
-      "lineId": "link-8"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-rnc-topup-park-2"
-    },
-    {
-      "kind": "path",
       "lineId": "link-9"
     },
     {
       "kind": "path",
-      "lineId": "line-rnc-wait-park-2"
+      "lineId": "line-rnc-topup-park-2"
     }
   ],
   "fieldPoints": [],
@@ -998,13 +1003,20 @@
       "line-rnc-offset-park": "RIGHT_PARK",
       "line-rnc-topup-park": "RIGHT_PARK",
       "line-rnc-topup-park-2": "RIGHT_PARK",
-      "line-rnc-wait-park-2": "RIGHT_PARK"
+      "line-rnc-wait-park-2": "RIGHT_PARK",
+      "line-r-no-cross-to-right-auto-hive": "RIGHT_AUTO_HIVE"
     },
     "cards": [
       {
         "id": "c-mw0c4s3r-bal3u",
         "kind": "action",
         "name": "SpinUp"
+      },
+      {
+        "id": "c-r-no-cross-to-right-auto-hive",
+        "kind": "path",
+        "lineId": "line-r-no-cross-to-right-auto-hive",
+        "park": false
       },
       {
         "id": "c-mw0c4s3r-6hhtw",
@@ -1104,11 +1116,12 @@
           {
             "afterMs": 20000,
             "matchClock": true,
+            "adjustable": true,
+            "tip": 2,
             "cards": [
               {
                 "id": "c-rnc-if-no-tip2",
                 "kind": "firstOf",
-                "choice": "if no TIP 2",
                 "label": "if no TIP 2: WAIT FOR PARTNER or CROSS AND FIX IT",
                 "rows": [
                   {
@@ -1204,11 +1217,10 @@
                       }
                     ]
                   }
-                ]
+                ],
+                "choice": "if no TIP 2"
               }
-            ],
-            "adjustable": true,
-            "tip": 2
+            ]
           }
         ]
       }

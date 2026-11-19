@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T19:36:42.278Z",
+  "timestamp": "2026-11-19T02:06:34.611Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -8,6 +8,27 @@
     "headingDeg": 90
   },
   "lines": [
+    {
+      "id": "line-r-clockwise-to-right-auto-hive",
+      "color": "#76b7b2",
+      "name": "to RIGHT_AUTO_HIVE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 20.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 96.1
+      }
+    },
     {
       "id": "r-first-pickup-flower",
       "color": "#e15759",
@@ -25,7 +46,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
+        "startDeg": 96.1,
         "endDeg": 180
       }
     },
@@ -67,7 +88,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 180
+        "degrees": 179.99999999999997
       }
     },
     {
@@ -200,13 +221,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 55.6,
-        "y": 7.7
+        "x": 59.2,
+        "y": 20.9
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 90
+        "degrees": 96.10000000000002
       }
     },
     {
@@ -235,7 +256,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
+        "startDeg": 96.1,
         "endDeg": 270
       }
     },
@@ -665,6 +686,10 @@
   "sequence": [
     {
       "kind": "path",
+      "lineId": "line-r-clockwise-to-right-auto-hive"
+    },
+    {
+      "kind": "path",
       "lineId": "r-first-pickup-flower"
     },
     {
@@ -824,6 +849,11 @@
         14.5,
         98.7,
         0
+      ],
+      "RIGHT_AUTO_HIVE": [
+        59.2,
+        20.9,
+        96.1
       ]
     },
     "pathEnds": {
@@ -838,13 +868,20 @@
       "r-lane-north-garden": "LEFT_AUTO_HIVE",
       "r-catch-park": "RIGHT_PARK",
       "r-cross": "RIGHT_AUTO_FIX_TIP",
-      "r-right-park": "RIGHT_PARK"
+      "r-right-park": "RIGHT_PARK",
+      "line-r-clockwise-to-right-auto-hive": "RIGHT_AUTO_HIVE"
     },
     "cards": [
       {
         "id": "r-spin",
         "kind": "action",
         "name": "SpinUp"
+      },
+      {
+        "id": "c-r-clockwise-to-right-auto-hive",
+        "kind": "path",
+        "lineId": "line-r-clockwise-to-right-auto-hive",
+        "park": false
       },
       {
         "id": "r-launch-preloads",
@@ -1173,6 +1210,7 @@
       "GARDEN_STAGING",
       "LEFT_AUTO_HIVE",
       "RIGHT_AUTO_FIX_TIP",
+      "RIGHT_AUTO_HIVE",
       "RIGHT_PARK",
       "RIGHT_START",
       "SCORING_FLOWER_STAGING",

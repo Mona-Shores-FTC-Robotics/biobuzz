@@ -21,7 +21,7 @@ public final class ROutsideLaneAuto {
     public static final String SOURCE = "r-outside-lane.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|5:10PM";
+    public static final String SAVED = "11-18|9:06PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -55,6 +55,7 @@ public final class ROutsideLaneAuto {
         Pose rightPark = p.of(14.5, 98.7, 0);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose rightAutoClose = p.of(36.3, 19.6, 63.8);
+        Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose wallAbortParkToRightParkControl1 = p.of(26, 75, 0);
@@ -96,7 +97,8 @@ public final class ROutsideLaneAuto {
         Pose wallLaneParkToRightParkSegment3Start = p.of(14.5, 98.7, 90);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path wallFlowerToWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
+        Path toRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
+        Path wallFlowerToWallFlowerStaging = Paths.line(rightAutoHive, wallFlowerStaging).linear(rightAutoHive, wallFlowerStaging);
         Path wallAbortParkToRightPark = Paths.curve(wallFlowerStaging, wallAbortParkToRightParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
         Path wallLaneNorthToLeftAutoOffset = Paths.curve(wallFlowerStaging, wallLaneNorthToLeftAutoOffsetControl1, wallLaneNorthToLeftAutoOffsetControl2, wallLaneNorthToLeftAutoOffsetControl3, leftAutoOffset).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(wallLaneNorthToLeftAutoOffsetSegment1Start, wallLaneNorthToLeftAutoOffsetSegment1End)).until(0.62, Interpolator.constant(wallLaneNorthToLeftAutoOffsetSegment2Heading)).until(0.8, Interpolator.linear(wallLaneNorthToLeftAutoOffsetSegment3Start, wallLaneNorthToLeftAutoOffsetSegment3End)).until(1, Interpolator.linear(wallLaneNorthToLeftAutoOffsetSegment4Start, leftAutoOffset)));
         Path leftParkToRightPark = Paths.curve(leftAutoOffset, leftParkToRightParkControl1, leftParkToRightParkControl2, leftParkToRightParkControl3, rightPark).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(leftParkToRightParkSegment1Start, rightPark)).until(1, Interpolator.constant(rightPark)));
@@ -109,8 +111,9 @@ public final class ROutsideLaneAuto {
         return kit.sequence(
                 kit.guarded("Auto", leftParkToRightPark, 1.9,
                         kit.command("SpinUp"),
+                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1),
                         kit.command("LaunchAll"),
-                        kit.path("wall flower to WALL_FLOWER_STAGING", wallFlowerToWallFlowerStaging, 2.1, wallAbortParkToRightPark, 2.1),
+                        kit.path("wall flower to WALL_FLOWER_STAGING", wallFlowerToWallFlowerStaging, 1.9, wallAbortParkToRightPark, 2.1),
                         kit.command("PickFlower", 4.5),
                         kit.path("wall lane north to LEFT_AUTO_OFFSET", wallLaneNorthToLeftAutoOffset, 2.8, leftParkToRightPark, 1.9),
                         kit.firstOf("LEFT up before 14 s, otherwise park",

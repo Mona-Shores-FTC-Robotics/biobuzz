@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T20:40:28.216Z",
+  "timestamp": "2026-11-19T02:06:33.862Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -8,6 +8,27 @@
     "headingDeg": 90
   },
   "lines": [
+    {
+      "id": "line-r-solo-to-right-auto-hive",
+      "color": "#76b7b2",
+      "name": "to RIGHT_AUTO_HIVE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 20.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 96.1
+      }
+    },
     {
       "id": "line-mw0be8id-zhk73u",
       "color": "#59a14f",
@@ -25,7 +46,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
+        "startDeg": 96.1,
         "endDeg": 180
       }
     },
@@ -62,7 +83,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 180
+        "degrees": 179.99999999999997
       }
     },
     {
@@ -615,6 +636,10 @@
   "sequence": [
     {
       "kind": "path",
+      "lineId": "line-r-solo-to-right-auto-hive"
+    },
+    {
+      "kind": "path",
       "lineId": "line-mw0be8id-zhk73u"
     },
     {
@@ -792,13 +817,20 @@
       "line-mw2z1rrz-ltmk3y": "RIGHT_AUTO_HIVE",
       "line-mw2z8m8r-d4cyle": "LEFT_AUTO_HIVE",
       "line-mwdn0a01-rsp3c": "RIGHT_PARK",
-      "line-mwdn0a01-rspfb": "RIGHT_PARK"
+      "line-mwdn0a01-rspfb": "RIGHT_PARK",
+      "line-r-solo-to-right-auto-hive": "RIGHT_AUTO_HIVE"
     },
     "cards": [
       {
         "id": "c-mw0be8ic-8rwew",
         "kind": "action",
         "name": "SpinUp"
+      },
+      {
+        "id": "c-r-solo-to-right-auto-hive",
+        "kind": "path",
+        "lineId": "line-r-solo-to-right-auto-hive",
+        "park": false
       },
       {
         "id": "c-mw0be8ic-jdurq",

@@ -21,7 +21,7 @@ public final class RClockwiseAuto {
     public static final String SOURCE = "r-clockwise.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|2:36PM";
+    public static final String SAVED = "11-18|9:06PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -56,6 +56,7 @@ public final class RClockwiseAuto {
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose rightAutoFixTip = p.of(55.3, 25.7, 90);
         Pose rightPark = p.of(14.5, 98.7, 0);
+        Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose flowerParkToRightParkControl1 = p.of(26, 75, 0);
@@ -74,11 +75,11 @@ public final class RClockwiseAuto {
         Pose catchParkToRightParkSegment1Start = p.of(14.5, 98.7, 268.1);
         Pose toGardenStagingControl1 = p.of(46, 22, 0);
         Pose toGardenStagingControl2 = p.of(30, 22.1, 0);
-        Pose point8 = p.of(30, 80, 90);
-        Pose point8Control1 = p.of(30, 30, 0);
-        Pose point8Control2 = p.of(30, 60, 0);
-        Pose point9Start = p.of(30, 80, 90);
-        Pose point9Control1 = p.of(30, 92, 0);
+        Pose point9 = p.of(30, 80, 90);
+        Pose point9Control1 = p.of(30, 30, 0);
+        Pose point9Control2 = p.of(30, 60, 0);
+        Pose point10Start = p.of(30, 80, 90);
+        Pose point10Control1 = p.of(30, 92, 0);
         Pose outsideLaneFromTheGardenToLeftAutoHiveControl1 = p.of(30, 28, 0);
         Pose outsideLaneFromTheGardenToLeftAutoHiveControl2 = p.of(27, 70, 0);
         Pose outsideLaneFromTheGardenToLeftAutoHiveControl3 = p.of(30, 98, 0);
@@ -113,12 +114,13 @@ public final class RClockwiseAuto {
         Pose outsideLaneToRightParkSegment2Start = p.of(14.5, 98.7, 90);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path toWallFlowerStaging = Paths.line(rightStart, wallFlowerStaging).linear(rightStart, wallFlowerStaging);
+        Path toRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
+        Path toWallFlowerStaging = Paths.line(rightAutoHive, wallFlowerStaging).linear(rightAutoHive, wallFlowerStaging);
         Path flowerParkToRightPark = Paths.curve(wallFlowerStaging, flowerParkToRightParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
         Path outsideLaneFromTheFlowerToLeftAutoHive = Paths.curve(wallFlowerStaging, outsideLaneFromTheFlowerToLeftAutoHiveControl1, outsideLaneFromTheFlowerToLeftAutoHiveControl2, outsideLaneFromTheFlowerToLeftAutoHiveControl3, outsideLaneFromTheFlowerToLeftAutoHiveControl4, leftAutoHive).heading(Interpolator.piecewise().until(0.15, Interpolator.linear(outsideLaneFromTheFlowerToLeftAutoHiveSegment1Start, outsideLaneFromTheFlowerToLeftAutoHiveSegment1End)).until(0.6, Interpolator.constant(outsideLaneFromTheFlowerToLeftAutoHiveSegment2Heading)).until(0.8, Interpolator.linear(outsideLaneFromTheFlowerToLeftAutoHiveSegment3Start, outsideLaneFromTheFlowerToLeftAutoHiveSegment3End)).until(1, Interpolator.linear(outsideLaneFromTheFlowerToLeftAutoHiveSegment4Start, leftAutoHive)));
         Path catchParkToRightPark = Paths.curve(leftAutoHive, catchParkToRightParkControl1, catchParkToRightParkControl2, rightPark).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(catchParkToRightParkSegment1Start, rightPark)).until(1, Interpolator.constant(rightPark)));
-        Path toGardenStaging = Paths.curve(rightStart, toGardenStagingControl1, toGardenStagingControl2, gardenStaging).linear(rightStart, gardenStaging);
-        Path gardenParkToRightPark = Paths.path(Paths.curve(gardenStaging, point8Control1, point8Control2, point8).linear(gardenStaging, point8), Paths.curve(point9Start, point9Control1, rightPark).linear(point9Start, rightPark));
+        Path toGardenStaging = Paths.curve(rightAutoHive, toGardenStagingControl1, toGardenStagingControl2, gardenStaging).linear(rightAutoHive, gardenStaging);
+        Path gardenParkToRightPark = Paths.path(Paths.curve(gardenStaging, point9Control1, point9Control2, point9).linear(gardenStaging, point9), Paths.curve(point10Start, point10Control1, rightPark).linear(point10Start, rightPark));
         Path outsideLaneFromTheGardenToLeftAutoHive = Paths.curve(gardenStaging, outsideLaneFromTheGardenToLeftAutoHiveControl1, outsideLaneFromTheGardenToLeftAutoHiveControl2, outsideLaneFromTheGardenToLeftAutoHiveControl3, outsideLaneFromTheGardenToLeftAutoHiveControl4, outsideLaneFromTheGardenToLeftAutoHiveControl5, leftAutoHive).heading(Interpolator.piecewise().until(0.08, Interpolator.linear(outsideLaneFromTheGardenToLeftAutoHiveSegment1Start, outsideLaneFromTheGardenToLeftAutoHiveSegment1End)).until(0.16, Interpolator.linear(outsideLaneFromTheGardenToLeftAutoHiveSegment2Start, outsideLaneFromTheGardenToLeftAutoHiveSegment2End)).until(0.65, Interpolator.constant(outsideLaneFromTheGardenToLeftAutoHiveSegment3Heading)).until(0.82, Interpolator.linear(outsideLaneFromTheGardenToLeftAutoHiveSegment4Start, outsideLaneFromTheGardenToLeftAutoHiveSegment4End)).until(1, Interpolator.linear(outsideLaneFromTheGardenToLeftAutoHiveSegment5Start, leftAutoHive)));
         Path toScoringFlowerStaging = Paths.line(leftAutoHive, scoringFlowerStaging).heading(Interpolator.piecewise().until(0.45, Interpolator.constant(toScoringFlowerStagingSegment1Heading)).until(1, Interpolator.linear(toScoringFlowerStagingSegment2Start, scoringFlowerStaging)));
         Path scoringFlowerParkToRightPark = Paths.curve(scoringFlowerStaging, scoringFlowerParkToRightParkControl1, scoringFlowerParkToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);
@@ -129,8 +131,9 @@ public final class RClockwiseAuto {
         return kit.sequence(
                 kit.guarded("Auto", catchParkToRightPark, 2.2,
                         kit.command("SpinUp"),
+                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1),
                         kit.command("LaunchAll"),
-                        kit.route("Pickup", 0, () -> kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 2.1, flowerParkToRightPark, 2.1)),
+                        kit.route("Pickup", 0, () -> kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9, flowerParkToRightPark, 2.1)),
                         kit.route("Pickup", 0, () -> kit.command("PickFlower", 4.5)),
                         kit.route("Pickup", 0, () -> kit.path("outside lane from the FLOWER to LEFT_AUTO_HIVE", outsideLaneFromTheFlowerToLeftAutoHive, 3, catchParkToRightPark, 2.2)),
                         kit.route("Pickup", 1, () -> kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenParkToRightPark, 2.8)),

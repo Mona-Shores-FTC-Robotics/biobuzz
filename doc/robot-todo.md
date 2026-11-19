@@ -23,6 +23,12 @@ this is not a claim that every unchecked item below has passed.
 - [ ] **20245: one volley at three ranges** (about 40, 51 and 63 in), turret LOCKED, Circle, speed
       table ON, no trim. **Good:** 4 of 4 at each. **Stop:** a range misses the same way twice →
       note the range and which way, and its speed then.
+- [ ] **Right-start Autos fire their preloads from `RIGHT_AUTO_HIVE`** (19 Nov): R-Solo,
+      R-Clockwise, R-OutsideLane and R-NoCross now drive `RIGHT_START` → `RIGHT_AUTO_HIVE` (about
+      13 in, 1.1 s) as they spin up, and fire there, since the preloads from `RIGHT_START` went long.
+      Run R-Solo on 20245 and push the log. **Good:** the `launcher: speed table` line says about
+      40 in and 1495 ticks/s, the gate opens as the drive ends, 4 of 4 go in. **Stop:** short or
+      long → note which, and the range and speed the line gave.
 - [ ] **19429, when it is back:** the same three volleys. Its old −25 offset matches the new rows
       within about 5 ticks/s from 42 to 55 in, so it starts at 0. **Stop:** long or short at every
       range by the same amount → that amount is its new `RobotDifferences` offset line.

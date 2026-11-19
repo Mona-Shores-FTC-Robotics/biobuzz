@@ -43,7 +43,7 @@ notes are in Git history.
 run against the Clockwise pair (mentor; briefly taken off on 18 Nov and put back the same day: the
 mentor rates it the team's best Auto). R keeps to the wall side of the HIVE both ways and L to the
 under-HIVE side, so their roads do not cross. Never driven. Its volleys: R's preloads from
-`RIGHT_START`, its LEFT volley from `LEFT_AUTO_OFFSET` (it comes round the outside lane, beside L on
+`RIGHT_AUTO_HIVE`, its LEFT volley from `LEFT_AUTO_OFFSET` (it comes round the outside lane, beside L on
 `LEFT_AUTO_HIVE`), its last from `RIGHT_AUTO_OFFSET`; L's preloads from `LEFT_AUTO_HIVE` and its
 pickup load from `RIGHT_AUTO_HIVE`. Leave the Pickup rows as drawn (R `WALL_FLOWER`, L `GARDEN`):
 with them swapped the robots touched at about 12 s in 2 of 3 simulated runs. In the simulator R's
@@ -265,7 +265,8 @@ RIGHT CATCH (57.5, 18, 91.9°), CLOSE (56.1, 26, 90°), OFFSET (41, 20, 68.7°),
 **Which launch spot a volley uses** is the Auto's to work out. HIVE is preferred; a pair uses one
 each; a robot coming under the HIVE shoots from HIVE, one coming round the outside lane from
 OFFSET. A left-start Auto moves up from `LEFT_START` to `LEFT_AUTO_HIVE` for its first volley; a
-right-start Auto fires its preloads from `RIGHT_START`. The drivers' Square has its own twelve
+right-start Auto moves up from `RIGHT_START` to `RIGHT_AUTO_HIVE` while it spins up and fires its
+preloads there (mentor, 19 Nov 2026: from `RIGHT_START` they went long). The drivers' Square has its own twelve
 spots (`localization/LaunchSpots`), which no Auto uses.
 
 Names are side (or thing) first, then role, then variant, so a side's spots sort together. This list
