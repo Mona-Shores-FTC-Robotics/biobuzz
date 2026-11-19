@@ -35,7 +35,9 @@ package org.firstinspires.ftc.teamcode.logging;
  *       (it tipped on 6.95). Field 2 uses {@link #FIELD_2_TIP_POINT}: eight tip it, seven do not.</li>
  *   <li><b>How long a volley and a pick take</b>: the shot counter undercounted after every FLOWER pick, so
  *       those feeds ran their whole set time (volleys of 3.6 to 4.0 s) where the simulator's ended at the fourth
- *       shot; only the preload volley ends on the count. A pick stays {@link #PICK_DWELL_S} longer.</li>
+ *       shot; only the preload volley ends on the count. Off by default since 19 Nov 2026, when 20245's logs showed the
+ *       counter working ({@link #WHOLE_FEED}, {@code BIOBUZZ_BELDING_WHOLE_FEED=1} for Belding's feeds). A pick stays
+ *       {@link #PICK_DWELL_S} longer.</li>
  *   <li><b>No knock from a hit</b> ({@link #apply}): every AUTO TIP sat out its dwell.</li>
  * </ul>
  *
@@ -61,11 +63,28 @@ final class BeldingCalibration {
 
     /**
      * What-ifs for "what would the robot need": {@code BIOBUZZ_BELDING_STAY_CLOSE/_CATCH/_START} set a row of
-     * {@link #STAY_IN} (better aim or a tuned speed), {@code BIOBUZZ_BELDING_WHOLE_FEED=0} ends every volley at
-     * its fourth shot (a shot counter that works), {@code BIOBUZZ_BELDING_PICK_DWELL} sets {@link #PICK_DWELL_S},
+     * {@link #STAY_IN} (better aim or a tuned speed), {@code BIOBUZZ_BELDING_WHOLE_FEED=1} runs every
+     * volley after a robot's first for its whole set feed (Belding's shot counter, which undercounted; off by default
+     * since 19 Nov 2026: 20245's logs of 18 Nov ended 17 of 19 LaunchAlls at their fourth counted shot, fed 1.7 to 2.7 s), {@code BIOBUZZ_BELDING_PICK_DWELL} sets {@link #PICK_DWELL_S},
      * and {@code BIOBUZZ_BELDING_ROBOT} picks whose loads are drawn ({@link #load}).
      */
-    static final boolean WHOLE_FEED = !"0".equals(System.getenv("BIOBUZZ_BELDING_WHOLE_FEED"));
+    static final boolean WHOLE_FEED = "1".equals(System.getenv("BIOBUZZ_BELDING_WHOLE_FEED"));
+
+    /**
+     * The best case, a request's {@code "scenario": "best"} (mentor, 19 Nov 2026: "We should be assuming 4 pickups
+     * from FLOWERs and GARDENs ... the best-case scenario should not be worrying about it"): every robot's every FLOWER
+     * pick and GARDEN gather is four POLLEN ({@link #robotFor} "full", topped up with POLLEN only), every shot stays in
+     * (in-rates 1, unless the request sets them), and every volley ends at its fourth counted shot (never
+     * {@link #WHOLE_FEED}: 20245's logs of 18 Nov 2026 ended 17 of 19 LaunchAlls there). The HIVEs, the TIP dwell and
+     * the fields stay the calibration's. A failure is then one named case at a time: a fail, a short pick, a dead
+     * partner, a slow swing.
+     */
+    static boolean bestCase;
+
+    /** Whether a LaunchAll after a robot's first runs its whole set feed: Belding's undercounting shot counter, not in the best case. */
+    static boolean wholeFeed() {
+        return WHOLE_FEED && !bestCase;
+    }
 
     /** Seconds a CELL over its tipping weight sits before the rocker moves: {shortest, longest}. */
     static final double[] DWELL_S = {3.6, 4.2};
@@ -144,6 +163,7 @@ final class BeldingCalibration {
 
     /** Whose loads the robot at {@code index} in the run draws from: index 0 is ours ({@link #robotFor(int, String, String, String)}). */
     static String robotFor(int index) {
+        if (bestCase) return "full";
         return robotFor(index, OURS, PARTNER, ROBOT);
     }
 
