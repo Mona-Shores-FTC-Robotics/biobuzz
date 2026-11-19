@@ -3,7 +3,7 @@
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
 (mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, and the RightUnderHive
-pair, parked until a super FLOWER pick exists (no OpMode).
+pair, parked until a super FLOWER pick exists (no OpMode), and the ThreeTip pair, waiting for its first export.
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
 (`NudgeContactDrive`, `NudgeTestRun`) and the stand-ins only they used. All are in Git history at
@@ -78,6 +78,43 @@ match clock at CELL settled; a TIP counts as AUTO when it settles by 38 s.
 | 92% of shots in, Belding loads (20245 as R) | 1.90 | 20 | 0 | 7.7 / 27.6 |
 
 No run crossed the centre line or touched the HIVE.
+
+## The ThreeTip pair: R-ThreeTip and L-ThreeTip
+
+`r-three-tip.pp` and `l-three-tip.pp` are a draft pair for three TIPs from our two robots alone (19 Nov 2026), drawn
+from the timing plan in which each TIP takes 8 POLLEN in the CELL that is up and a TIP counts when it settles by 38 s.
+No OpMode yet: they wait for the first export and a try on the robot.
+
+- **TIP 1, R's preloads.** R fires them at RIGHT from `RIGHT_START` (a start is a legal launch spot).
+- **TIP 2, LEFT gets 4 + 4.** L fires its preloads from `LEFT_AUTO_HIVE` when LEFT reads up. R gathers the GARDEN,
+  takes the outer lane to its own spot `R_LEFT_WEST` (33, 98, 335.8), clear of L at the SCORING FLOWER, and fires the
+  GARDEN 4 at LEFT.
+- **TIP 3, RIGHT gets 4 + 4.** L picks the SCORING FLOWER and crosses under the HIVE to `RIGHT_AUTO_HIVE`. R picks the
+  WALL FLOWER and fires from its own spot `R_RIGHT_WF` (27, 50, 18.7) beside it. Each fires at RIGHT once TIP 2 has
+  read up (L by 22.5 s, R by 24 s), so the park after the volley still fits.
+- **Parks:** R goes up the outer lane to `RIGHT_PARK`. L goes up the corridor and along y 119 to `LEFT_PARK`.
+- **If TIP 1 has not come by 11 s** (L1, adjustable in INIT), L rescues it from `RIGHT_AUTO_FIX_TIP`. R fires its
+  GARDEN load at LEFT if LEFT is up by 21 s, then parks; L holds until 22 s and parks.
+
+**In the simulator** (19 Nov 2026, best case `"scenario": "best"`, 20 runs on field 2's seeds, TIPs settled by 38 s;
+0 contacts, no centre-line crossings or HIVE hits, every robot that runs parked):
+
+| Case | TIPs | TIP 1 / 2 / 3 |
+|---|---|---|
+| Best case | 3.00 | 7.5 / 21.6 / 31.3 |
+| R's preloads miss | 1.00 | 22.0 |
+| L's preloads miss | 1.00 | 7.5 |
+| L's second volley misses | 2.00 | 7.5 / 21.6 |
+| R's second volley misses | 1.00 | 7.5 |
+| R's third volley misses | 2.00 | 7.5 / 21.6 |
+| Slow swing | 2.00 | 10.4 / 24.3 |
+| L dead / R dead | 1.00 / 1.00 | |
+| 92% of shots in | 1.40 (3 TIPs in 1 run, 2 in 7) | |
+
+- **Fragile by design:** each CELL gets exactly 8, so one missed piece in a TIP-2 volley loses TIP 2 and with it TIP 3.
+  At 92% in, that happens in 13 of 20 runs. The pair is worth it only where shots and picks are near 100%.
+- **Single failures at 1 TIP:** R's preloads, L's preloads, R's GARDEN volley. Nothing on the field can tell either robot
+  early that LEFT will stay one load short, so neither can switch to fixing it in time.
 
 ## The lane pair: R-OutsideLane and L-UnderHive
 
