@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T19:44:27.088Z",
+  "timestamp": "2026-11-19T20:18:49.588Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -478,21 +478,21 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 60,
+        "x": 61.5,
         "y": 114
       },
       "controlPoints": [
         {
-          "x": 54,
-          "y": 104
+          "x": 55,
+          "y": 103
         },
         {
-          "x": 61,
-          "y": 108
+          "x": 60,
+          "y": 106
         },
         {
-          "x": 60.5,
-          "y": 111
+          "x": 62,
+          "y": 110
         }
       ],
       "heading": {
@@ -501,27 +501,27 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.2,
+              "endProgress": 0.1,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 90
               }
             },
             {
-              "startProgress": 0.2,
-              "endProgress": 0.55,
+              "startProgress": 0.1,
+              "endProgress": 0.45,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 268.9
+                "endDeg": 268.4
               }
             },
             {
-              "startProgress": 0.55,
+              "startProgress": 0.45,
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 268.9
+                "degrees": 268.4
               }
             }
           ]
@@ -599,13 +599,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 60,
+        "x": 61.5,
         "y": 114
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -91.10000000000002
+        "degrees": -91.60000000000002
       }
     },
     {
@@ -630,7 +630,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 268.9,
+        "startDeg": 268.4,
         "endDeg": 360
       }
     },
@@ -640,13 +640,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 60,
+        "x": 61.5,
         "y": 114
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -91.10000000000002
+        "degrees": -91.60000000000002
       }
     },
     {
@@ -671,7 +671,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 268.9,
+        "startDeg": 268.4,
         "endDeg": 360
       }
     }
@@ -992,9 +992,9 @@
         90
       ],
       "R_LEFT_FIX": [
-        60,
+        61.5,
         114,
-        268.9
+        268.4
       ]
     },
     "pathEnds": {

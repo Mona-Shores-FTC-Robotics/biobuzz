@@ -35,6 +35,7 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 | R-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-no-cross.pp> |
 | L-Clockwise + R-Clockwise (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-clockwise.pp,l-clockwise.pp> |
 | R-OutsideLane + L-UnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-outside-lane.pp,l-under-hive.pp> |
+| R-RightUnderHive + L-RightUnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-right-under-hive.pp,l-right-under-hive.pp> |
 
 The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
 existing reference. The Infraviolet pair was retired on 16 Nov 2026 (mentor); its drawings and
@@ -56,6 +57,20 @@ with them swapped the robots touched at about 12 s in 2 of 3 simulated runs. In 
 LEFT volley ends after 15.5 s, so R parks from the left spot and the pair makes one TIP; the
 robot's own time for that leg decides ([its notes](drafts/README.md#the-lane-pair-r-outsidelane-and-l-underhive),
 written when it was a draft).
+**R-RightUnderHive / L-RightUnderHive** is the lane pair turned round, on the Autonomous menu since 19 Nov
+2026 (mentor). The side before "UnderHive" names the robot that goes under the HIVE. R owns every fix:
+- It fires its preloads at RIGHT from `RIGHT_AUTO_HIVE` and gathers the GARDEN.
+- Once RIGHT is up, it fires the GARDEN load there and goes up the corridor under the HIVE to `LEFT_PARK`.
+- If RIGHT is not up by 18 s (its INIT row), it fixes LEFT from its own spot `R_LEFT_FIX` (61.5, 114.0, 268.4)
+  instead.
+
+L fixes nothing:
+- It fires its preloads from `LEFT_AUTO_HIVE` after TIP 1.
+- It fires its SCORING FLOWER load from `LEFT_AUTO_OFFSET` if LEFT is still up.
+- Before 22 s it takes the outer lane to the WALL FLOWER, then parks at `RIGHT_PARK`.
+
+Never driven. Its simulator table and route limits are in [its notes](drafts/README.md#the-rightunderhive-pair-r-rightunderhive-and-l-rightunderhive),
+written when it was a draft.
 **L-Clockwise / R-Clockwise** is the coordinated pair: both robots on a one-way loop, with a fixed
 fallback at each stop, and a pickup the drive teams choose in INIT. Each robot has run its half
 alone; the pair has not yet run together
@@ -105,7 +120,7 @@ Inside the Visualizer, the same list is **View → Team Autos: the latest from b
 in the link: `#team=auto/r-solo/r-solo.pp`.
 
 **Drafts** (`drafts/`, no competition OpMode; a draft may have an isolated test Utility) are listed in Team Autos under their own heading, and
-open beside a partner stand-in the same way. Since 19 Nov 2026 `drafts/` holds only L-Assist and the RightUnderHive pair (mentor: a
+open beside a partner stand-in the same way. Since 19 Nov 2026 `drafts/` holds only L-Assist (mentor: a
 small, manageable set); every other draft, and the stand-ins only they used, are in Git history at `f2c9bb7`
 (`git checkout f2c9bb7 -- TeamCode/autos/drafts/<name>.pp` and its generated class brings one back).
 Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `drafts/`, and the fast
