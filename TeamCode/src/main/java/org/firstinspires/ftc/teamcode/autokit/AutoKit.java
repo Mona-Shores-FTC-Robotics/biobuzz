@@ -607,6 +607,10 @@ public final class AutoKit {
                             alongside.end(EndCondition.INTERRUPTED);
                             alongsideRunning[0] = false;
                         }
+                        // The look-ahead counted a CELL check as its volley as if the CELL were up at
+                        // once. It has waited since, so that "going for it" is stale: the volley asks
+                        // for itself as it starts, and does not start if the park no longer fits.
+                        if (parkComesFirst() && checks.contains(card)) goingForVolley = false;
                         chosen[0] = branches[i];
                         chosen[0].start();
                         break;
@@ -626,7 +630,7 @@ public final class AutoKit {
         });
         Plan plan = waitPlan(alongside, rows);
         if (plan != null) return planned(plan, card);
-        plan = checkPlan(alongside, rows);
+        plan = checkPlan(rows);
         if (plan == null) return card;
         checks.add(card);
         return planned(plan, card);
@@ -639,12 +643,14 @@ public final class AutoKit {
      * first card is the volley, and it is its list's last card), or the bare volley alone with no
      * cards on its time limits ("fire if the CELL is up, else go on"). The guard's look-ahead
      * counts the check as that volley, as if the check passed at once, so a trip toward a checked
-     * volley that would leave no time to park is not begun, exactly as toward a bare one. Null for
-     * any other block. The drawing keeps the check's own time limit early enough that a volley
-     * starting at the limit still leaves the park its time.
+     * volley that would leave no time to park is not begun, exactly as toward a bare one. A check
+     * that spins up while it waits ("while SpinUp") is a check all the same: what runs alongside is
+     * stopped when a row fires. Null for any other block. When the check has waited, the volley
+     * asks again as it starts, and does not start if the park no longer fits after it (see
+     * {@link #firstOf(String, Command, Row...)}); the drawing still keeps the check's own time limit
+     * early enough that a volley starting at the limit leaves the park its time.
      */
-    private Plan checkPlan(Command alongside, Row[] rows) {
-        if (alongside != null) return null;
+    private Plan checkPlan(Row[] rows) {
         Plan volley = null;
         boolean guardedRow = false;
         boolean limited = false;
