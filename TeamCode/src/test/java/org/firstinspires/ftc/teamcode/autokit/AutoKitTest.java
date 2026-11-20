@@ -822,7 +822,7 @@ public class AutoKitTest {
     }
 
     /**
-     * L-ThreeTip's L2: a CELL check that spins up alongside, inside a guarded row, with a drive
+     * The removed L-ThreeTip draft's L2 (Git history at 7b09c29): a CELL check that spins up alongside, inside a guarded row, with a drive
      * before it and the park after it. The CELL comes up at 24.5 s, when the volley (4 s) and the
      * park from the spot (3.7 s + margin) no longer fit: the volley must not start.
      */
