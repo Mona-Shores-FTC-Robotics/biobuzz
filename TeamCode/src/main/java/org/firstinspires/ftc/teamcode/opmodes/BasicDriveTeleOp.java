@@ -1218,6 +1218,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /** Sends the driver's firing-arc light; the flash repeats until replaced, so each state is one command. */
     private void showArcLight(ArcLight.State light) {
+        // In the log, so a light the driver never saw can be told from one never sent.
+        log.event("driver light: " + light + " (" + gamepad1.type + ")");
         switch (light) {
             case FLASH:
                 gamepad1.runLedEffect(ARC_FLASH);
