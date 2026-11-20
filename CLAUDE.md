@@ -72,7 +72,8 @@ Three layers, each written in exactly one place:
   edge, the turret never turns through the robot's back, and no fire button feeds while the turret
   or its aim is outside it, unless the robot's `TeleOpConfig.enforceFiringArc` is off (a
   `RobotDifferences` line): then the TeleOp feeds and the driver makes the call. Either way the
-  driver's gamepad flashes purple while a fire is held outside it. An Auto always enforces it.
+  driver's gamepad is purple while the turret or its aim is outside it, and flashes purple while a fire is
+  held there (`ArcLight`). An Auto always enforces it.
   → README § "The turret: a servo on a servo port, an encoder on a motor's encoder socket"
 - XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what
   the SDK reads; keep `port` equal to it.

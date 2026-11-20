@@ -144,8 +144,8 @@ public final class TeleOpConfig {
      * button feeds, and a feed already going stops, while the turret, or in AIM its aim, is behind
      * the arc. Off, the TeleOp feeds wherever the turret points and leaves the call to the driver;
      * the turret still holds at the arc's edge rather than turn through the robot's back, and an
-     * Auto always enforces the arc. Either way, while a fire is held outside the arc the driver's
-     * gamepad flashes purple. On by default; a robot whose drivers fire past it gets a line in
+     * Auto always enforces the arc. Either way, the driver's gamepad is purple while the turret or
+     * its aim is outside the arc, and flashes purple while a fire is held there ({@code ArcLight}). On by default; a robot whose drivers fire past it gets a line in
      * {@code RobotDifferences}.
      */
     public static boolean enforceFiringArc = true;

@@ -5,6 +5,9 @@ with Python. Standard library only.
   python3 tools/pull-logs/read_logs.py summary LOG.wpilog [...]   per run: build, battery, knobs,
                                                                    events, every feed (gate open)
   python3 tools/pull-logs/read_logs.py turret LOG.wpilog [...]   per burst: timing, signal, before/after, delta
+  python3 tools/pull-logs/read_logs.py hold LOG.wpilog [...]     the turret's hold with the robot still: error,
+                                                                   how often it reverses (hunts), how far it
+                                                                   coasts past after its power cuts; for tuning
   python3 tools/pull-logs/read_logs.py keys LOG.wpilog            every key and its sample count
   python3 tools/pull-logs/read_logs.py series LOG.wpilog KEY [...] a key's samples, time in s
   python3 tools/pull-logs/read_logs.py picks LOG.wpilog [...]     every FLOWER pick: how the push
@@ -774,6 +777,88 @@ def turret(paths):
         print()
 
 
+def hold_stats(data, still_rad_s=0.05, near_deg=15.0):
+    """The turret holding with the robot still (|turn| under still_rad_s, |error| under near_deg).
+
+    Returns None with under a second of it, else: seconds, rms error (deg), the share of loops
+    outside the hold tolerance, power reversals per second (the hunt), and the stops: each time the
+    power cuts to 0 inside the tolerance, (how far past the target it coasted, deg; whether it
+    coasted right through the band, so the next drive was the other way).
+    """
+    ang, err, pw, hold = (data.get('/Turret/' + k, []) for k in ('AngleDeg', 'ErrorDeg', 'Power', 'Holding'))
+    turn = data.get('/Drive/OdometryTurnRadPerSec', [])
+    tol = data.get('/RealMetadata/Tunable/TurretSubsystem.holdToleranceDeg', [])
+    tol = float(tol[0][1]) if tol else 2.0
+    n = min(len(ang), len(err), len(pw), len(hold))
+    still, seconds, reversals, last_sign, last_t, ti = [], 0.0, 0, 0, None, 0
+    coasts, coast = [], None
+    for i in range(n):
+        t, e, p = err[i][0], err[i][1], pw[i][1]
+        while ti + 1 < len(turn) and turn[ti + 1][0] <= t:
+            ti += 1
+        turning = abs(turn[ti][1]) >= still_rad_s if turn else False
+        if not hold[i][1] or e != e or turning or abs(e) >= near_deg:
+            last_t, coast = None, None
+            continue
+        still.append(e)
+        if last_t is not None:
+            seconds += t - last_t
+        last_t = t
+        sign = (p > 0) - (p < 0)
+        if sign and last_sign and sign != last_sign:
+            reversals += 1
+        if sign:
+            if coast is not None:
+                coasts.append((coast[1], sign != coast[0]))
+                coast = None
+            last_sign = sign
+        elif last_sign:
+            # Power cut: the error had the sign of the last drive; past the target it flips.
+            if coast is None:
+                coast = [last_sign, 0.0]
+            if e * coast[0] < 0:
+                coast[1] = max(coast[1], abs(e))
+    if seconds < 1.0:
+        return None
+    return {
+        'seconds': seconds,
+        'rms_deg': math.sqrt(sum(e * e for e in still) / len(still)),
+        'outside_share': sum(1 for e in still if abs(e) > tol) / len(still),
+        'reversals_per_s': reversals / seconds,
+        'coasts_deg': coasts,
+        'tolerance_deg': tol,
+    }
+
+
+def hold(paths):
+    print('turret hold, robot still: rms error, loops outside the tolerance, reversals/s (the hunt),')
+    print('and its stops: how far it coasts past the target once its power cuts (median), and the share of')
+    print('stops that coast right through the tolerance band, so the next drive is back the other way')
+    total = {'seconds': 0.0, 'rev': 0.0, 'coasts': []}
+    for path in paths:
+        data = read(path)
+        h = hold_stats(data)
+        if h is None:
+            continue
+        k = lambda name: (data.get('/RealMetadata/Tunable/TurretSubsystem.' + name) or [(0, '?')])[0][1]
+        c = h['coasts_deg']
+        past = sorted(x for x, _ in c)
+        med = past[len(past) // 2] if c else 0.0
+        through = sum(1 for _, r in c if r) / len(c) if c else 0.0
+        print('%-46s %5.0f s  rms %4.1f°  out %3.0f%%  rev/s %4.2f  coast %4.1f°  through %3.0f%% of %3d  kP %s kD %s min %s tol %s' %
+              (path.split('/')[-1][:46], h['seconds'], h['rms_deg'], 100 * h['outside_share'],
+               h['reversals_per_s'], med, 100 * through, len(c), k('kP'), k('kD'), k('minPower'), k('holdToleranceDeg')))
+        total['seconds'] += h['seconds']
+        total['rev'] += h['reversals_per_s'] * h['seconds']
+        total['coasts'] += c
+    if total['seconds']:
+        c = total['coasts']
+        past = sorted(x for x, _ in c)
+        print('all: %.0f s still, %.2f reversals/s, median coast %.1f°, %d stops, %.0f%% through the band' %
+              (total['seconds'], total['rev'] / total['seconds'], past[len(past) // 2] if c else 0.0,
+               len(c), 100 * sum(1 for _, r in c if r) / len(c) if c else 0.0))
+
+
 def main(argv):
     if len(argv) < 3:
         print(__doc__)
@@ -797,6 +882,8 @@ def main(argv):
         dsbattery(argv[2:])
     elif cmd == 'turret':
         turret(argv[2:])
+    elif cmd == 'hold':
+        hold(argv[2:])
     elif cmd == 'series':
         d = read(path)
         for k in argv[3:]:

@@ -130,6 +130,32 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [ ] Backward with a load, 19429: lane full after every run, video kept
 - [x] Backward with a load, 20245: R-Solo-Backwards ran clean with the plate (mentor, 20 Nov 2026)
 - [ ] Promoted R-Solo (preloads from `RIGHT_AUTO_HIVE`, backward WALL FLOWER leg), alone from `RIGHT_START`, on 20245 and on 19429: push the logs
+10. **19429's turret hunts: tune its hold** (20 Nov 2026). 19429 runs 20245's turret values and never had
+   Bench: Turret. Its 18 Nov Basic Drive logs (`read_logs.py hold`) show it reversing 1.18 times a second
+   holding with the robot still, against 20245's 0.48, and it sticks: at power 0.15 to 0.20 its median
+   speed was 0 to 5 deg/s (20245: 10 to 23), then it breaks loose and lurches through the ±2° band.
+   At power 1.0 the two match (154 and 146 deg/s), and neither drifts at power 0, so the stop power is
+   fine. In this order, Panels open, pushing the logs after each:
+   1. **By hand.** Bench: Turret, PLAY, Circle (limp). Turn the turret slowly through ±90°: any tight
+      spot, most of all within 30° of home, the encoder's 64T gear pressed hard into the ring, a cable
+      dragging? Fix that first, and say what it was.
+   2. **Bench: Turret, the floor.** From stopped, step the power up each way until it turns steadily
+      (not in spurts). 20245's floor is 0.09; set `TurretSubsystem.minPower` in Panels to the larger
+      of the two.
+   3. **Basic Drive, AIM, robot still at a launch spot**, then driving past the CELL: in Panels try
+      `kD` 0.003 (it takes drive off as the turret breaks loose, onto a still target only), then if it
+      still hunts `holdToleranceDeg` 3. Leave `kP` at 0.02 unless it still swings.
+   **Good:** `read_logs.py hold` on the new log reads under 0.6 reversals a second, and the shots
+   still go in → the values that did it get one `RobotDifferences` line for 19429 with the date.
+   **Stop:** nothing helps and the turret felt free by hand → push the logs and say so.
+- [ ] 19429 turret: by hand ___, floor ___, kD ___, tolerance ___, reversals/s before 1.18 after ___
+11. **The driver's purple light** (20 Nov 2026, not yet on a robot). Basic Drive, turret **AIM**, with
+   a PS4 pad on gamepad 1: drive so the CELL is behind the robot. **Good:** the driver's light bar goes
+   steady purple without Circle pressed, flashes purple with Circle held (19429 does not shoot; 20245
+   shoots), and turns back to the alliance colour within about a third of a second of the CELL
+   coming round in front. The DualShock 4's light bar faces away from the driver, so check it from
+   the front and ask the driver whether they can see it at all. **Stop:** it never changes → push the log.
+- [ ] Purple light: steady outside the arc, flashing with Circle, both robots; driver can see it ___
 
 ## Belding work order (agreed 5 Nov)
 
