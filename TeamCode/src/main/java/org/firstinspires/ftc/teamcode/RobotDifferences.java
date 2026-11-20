@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
+import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
@@ -122,6 +123,12 @@ public final class RobotDifferences {
                 "Shots sit to one side: turret aimed 6 degrees round from its mark, set by the mentor"
                         + " with the speed table measured that night (18 Nov 2026)",
                 () -> TurretSubsystem.aimOffsetDeg = 6.0);
+        differs(RobotIdentity.TEAM_20245,
+                "Firing arc not enforced in the TeleOp: the driver did not see why a shot was held back"
+                        + " and the arc refused shots the driver wanted, so the driver makes the call"
+                        + " (mentor, 20 Nov 2026; the turret still holds at the arc's edge, the Auto still"
+                        + " enforces it)",
+                () -> TeleOpConfig.enforceFiringArc = false);
     }
 
     /**

@@ -70,7 +70,9 @@ Three layers, each written in exactly one place:
   robot that differs in `RobotDifferences`), centred on the operator's aim trim, which is where the
   robot's real forward reads on a turret zeroed off its mark: an aim behind it is held at the arc's
   edge, the turret never turns through the robot's back, and no fire button feeds while the turret
-  or its aim is outside it.
+  or its aim is outside it, unless the robot's `TeleOpConfig.enforceFiringArc` is off (a
+  `RobotDifferences` line): then the TeleOp feeds and the driver makes the call. Either way the
+  driver's gamepad flashes purple while a fire is held outside it. An Auto always enforces it.
   → README § "The turret: a servo on a servo port, an encoder on a motor's encoder socket"
 - XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what
   the SDK reads; keep `port` equal to it.
