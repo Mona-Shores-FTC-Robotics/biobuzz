@@ -250,7 +250,14 @@ public final class GardenGather extends GrabRoutine {
          * an end at the wall meant the robot crept the last inches; an end well past the wall keeps it
          * driving when it meets the wall, and the stall ends the drive in there. 19429 ran 4 in Panels
          * that day, still slow. 2 since 20 Nov 2026 (mentor, on 20245 with the corner gather, with
-         * {@link DriveIn#inSpeed} 0.7: a softer arrival at the wall).
+         * {@link DriveIn#inSpeed} 0.7: a softer arrival at the wall). May be negative, down to
+         * {@link #MIN_EXTRA_DEPTH_IN}: the drive in then ends short of the nose on the wall, so Pedro brakes
+         * to arrive gently, and the dwell's push ({@link Dwell#dwellPushPower}) presses it the rest of the
+         * way. Why (mentor, 20 Nov 2026, on 20245: at 0.5 and {@link DriveIn#inSpeed} 0.5 it still rammed the
+         * wall and threw POLLEN up): the stick down meets the wall about 4 in before the nose would (every
+         * corner gather of 20 Nov stopped 3.9 in short of the gather pose), so even 0 aims about 4 in past
+         * where the robot can go, and it shoves until the stall. About -3.5 aims at the stick meeting the wall.
+         * Not yet run below 0.
          */
         public double extraDepthIn = 2.0;
         /**
@@ -701,6 +708,15 @@ public final class GardenGather extends GrabRoutine {
         return alongTheWall ? alongWall.pushPower : twoStep.pushPower;
     }
 
+    /** The most {@link DriveIn#extraDepthIn} may end the drive in short of the gather pose, inches. */
+    public static final double MIN_EXTRA_DEPTH_IN = -8.0;
+
+    /** {@link DriveIn#extraDepthIn}, held to {@link #MIN_EXTRA_DEPTH_IN} and above; NaN is 0. */
+    static double extraDepthIn() {
+        double d = driveIn.extraDepthIn;
+        return Double.isNaN(d) ? 0.0 : Math.max(MIN_EXTRA_DEPTH_IN, d);
+    }
+
     /** The button's line-up pressed into the wall and the drive in follows where it stopped ({@link LineUp#followWallLine}). */
     private static boolean followsWallLine() {
         return lineUp.followWallLine && lineUp.lineUpOutIn < 0.0;
@@ -726,7 +742,7 @@ public final class GardenGather extends GrabRoutine {
         // for a corner way in with the wall there (wallSide -1).
         Pose g = garden.gather;
         double h = g.heading();
-        double deeper = nn(driveIn.extraDepthIn) + (stick.useStick ? 0.0 : nn(driveIn.noStickExtraDepthIn));
+        double deeper = extraDepthIn() + (stick.useStick ? 0.0 : nn(driveIn.noStickExtraDepthIn));
         // A curved drive in reaches the wall's line early: it ends barely toward it, not pinned into it.
         double side = garden.wallSide();
         double wall = side * (driveIn.curveToWall || alongTheWall ? nn(driveIn.laneTowardWallIn) : nn(driveIn.towardWallIn));

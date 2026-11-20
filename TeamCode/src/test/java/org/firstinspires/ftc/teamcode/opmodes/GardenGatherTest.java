@@ -242,4 +242,20 @@ public class GardenGatherTest {
         GardenFieldPoints.Garden a = GardenFieldPoints.alongAudienceWall(GardenFieldPoints.RED);
         assertEquals(-1.0, GardenGather.wallLineShiftIn(a.gather, new Pose(30.0, 7.5, a.gather.heading()), a.wallSide(), 4.0), EPS);
     }
+
+    /** extraDepthIn may end the drive in short of the gather pose, down to its floor; NaN is 0. */
+    @Test
+    public void extraDepthMayBeNegativeToItsFloor() {
+        double was = GardenGather.driveIn.extraDepthIn;
+        try {
+            GardenGather.driveIn.extraDepthIn = -3.5;
+            assertEquals(-3.5, GardenGather.extraDepthIn(), EPS);
+            GardenGather.driveIn.extraDepthIn = -50.0;
+            assertEquals(GardenGather.MIN_EXTRA_DEPTH_IN, GardenGather.extraDepthIn(), EPS);
+            GardenGather.driveIn.extraDepthIn = Double.NaN;
+            assertEquals(0.0, GardenGather.extraDepthIn(), EPS);
+        } finally {
+            GardenGather.driveIn.extraDepthIn = was;
+        }
+    }
 }
