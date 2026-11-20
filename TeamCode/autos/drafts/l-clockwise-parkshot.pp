@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T17:45:35.900Z",
+  "timestamp": "2026-11-20T17:49:28.829Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -705,8 +705,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 12.5,
-        "y": 120
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -731,7 +731,7 @@
         },
         {
           "x": 32,
-          "y": 120
+          "y": 119
         }
       ],
       "heading": {
@@ -1114,8 +1114,8 @@
         0
       ],
       "LEFT_PARK_SHOT": [
-        12.5,
-        120,
+        13,
+        119,
         345
       ]
     },
@@ -1207,10 +1207,10 @@
                       {
                         "id": "l-hold-flower",
                         "kind": "firstOf",
-                        "label": "R has passed the FLOWER: go at 15.5 s",
+                        "label": "R has passed the FLOWER: go at 13 s",
                         "rows": [
                           {
-                            "afterMs": 15500,
+                            "afterMs": 13000,
                             "matchClock": true,
                             "cards": []
                           }
