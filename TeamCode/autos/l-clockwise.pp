@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T17:52:45.184Z",
+  "timestamp": "2026-11-20T18:31:08.154Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -32,7 +32,7 @@
     {
       "id": "l-catch-park",
       "color": "#4e79a7",
-      "name": "catch park to LEFT_PARK",
+      "name": "catch park to LEFT_AIMED_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -40,8 +40,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -50,7 +50,7 @@
         },
         {
           "x": 40,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -63,7 +63,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 268.1,
-                "endDeg": 360
+                "endDeg": 345
               }
             },
             {
@@ -71,7 +71,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 360
+                "degrees": 345
               }
             }
           ]
@@ -138,7 +138,7 @@
     {
       "id": "l-pickup-park-garden",
       "color": "#4e79a7",
-      "name": "GARDEN park to LEFT_PARK",
+      "name": "GARDEN park to LEFT_AIMED_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -146,8 +146,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -172,7 +172,7 @@
         },
         {
           "x": 34,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -202,7 +202,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": -15
               }
             },
             {
@@ -210,7 +210,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 0
+                "degrees": -15
               }
             }
           ]
@@ -261,7 +261,7 @@
     {
       "id": "l-park",
       "color": "#4e79a7",
-      "name": "outside lane to LEFT_PARK",
+      "name": "outside lane to LEFT_AIMED_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -269,8 +269,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -295,7 +295,7 @@
         },
         {
           "x": 34,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -325,7 +325,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": -15
               }
             },
             {
@@ -333,7 +333,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 0
+                "degrees": -15
               }
             }
           ]
@@ -388,7 +388,7 @@
     {
       "id": "l-under-park-flower",
       "color": "#4e79a7",
-      "name": "lane's end park to LEFT_PARK",
+      "name": "lane's end park to LEFT_AIMED_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -396,8 +396,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -426,7 +426,7 @@
         },
         {
           "x": 34,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -456,7 +456,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": -15
               }
             },
             {
@@ -464,7 +464,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 0
+                "degrees": -15
               }
             }
           ]
@@ -542,7 +542,7 @@
     {
       "id": "l-pickup-park-flower",
       "color": "#4e79a7",
-      "name": "FLOWER park to LEFT_PARK",
+      "name": "FLOWER park to LEFT_AIMED_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -550,8 +550,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -576,7 +576,7 @@
         },
         {
           "x": 34,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -606,7 +606,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": -15
               }
             },
             {
@@ -614,7 +614,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 0
+                "degrees": -15
               }
             }
           ]
@@ -773,7 +773,7 @@
     {
       "id": "l-rescue-park",
       "color": "#4e79a7",
-      "name": "right catch park to LEFT_PARK",
+      "name": "right catch park to LEFT_AIMED_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -781,8 +781,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -811,7 +811,7 @@
         },
         {
           "x": 34,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -832,7 +832,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": -15
               }
             },
             {
@@ -840,7 +840,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 0
+                "degrees": -15
               }
             }
           ]
@@ -958,6 +958,7 @@
     "registry": {
       "actions": [
         "LaunchAll",
+        "LaunchAllAimed",
         "LaunchOne",
         "SpinUp",
         "PickFlower",
@@ -981,7 +982,8 @@
         "LaunchOne": 0.5,
         "SpinUp": 0.1,
         "PickFlower": 4,
-        "GardenGather": 3
+        "GardenGather": 3,
+        "LaunchAllAimed": 2.5
       }
     },
     "points": {
@@ -1020,26 +1022,26 @@
         16.4,
         61
       ],
-      "LEFT_PARK": [
-        14.5,
-        117.4,
-        0
+      "LEFT_AIMED_PARK": [
+        13,
+        119,
+        345
       ]
     },
     "pathEnds": {
       "l-open": "LEFT_AUTO_HIVE",
-      "l-catch-park": "LEFT_PARK",
+      "l-catch-park": "LEFT_AIMED_PARK",
       "l-to-offset-garden": "RIGHT_AUTO_OFFSET",
       "l-under-flower": "LANE_END",
       "l-pickup-flower": "WALL_FLOWER_STAGING",
       "l-to-offset-flower": "RIGHT_AUTO_OFFSET",
       "l-pickup-garden": "GARDEN_STAGING",
       "l-rescue": "RIGHT_AUTO_FIX_TIP",
-      "l-pickup-park-garden": "LEFT_PARK",
-      "l-park": "LEFT_PARK",
-      "l-under-park-flower": "LEFT_PARK",
-      "l-pickup-park-flower": "LEFT_PARK",
-      "l-rescue-park": "LEFT_PARK"
+      "l-pickup-park-garden": "LEFT_AIMED_PARK",
+      "l-park": "LEFT_AIMED_PARK",
+      "l-under-park-flower": "LEFT_AIMED_PARK",
+      "l-pickup-park-flower": "LEFT_AIMED_PARK",
+      "l-rescue-park": "LEFT_AIMED_PARK"
     },
     "cards": [
       {
@@ -1148,7 +1150,7 @@
               {
                 "id": "l-stop-2",
                 "kind": "firstOf",
-                "label": "L2: RIGHT up by 22 s, otherwise keep the load",
+                "label": "L2: RIGHT up by 22 s, otherwise park, then fire at LEFT from the park if it is up",
                 "rows": [
                   {
                     "when": [
@@ -1188,20 +1190,45 @@
                       {
                         "id": "l-hold-no",
                         "kind": "firstOf",
-                        "label": "R has left the scoring FLOWER: park at 22.7 s",
+                        "label": "Park for the shot: go at 22.0 s",
                         "rows": [
                           {
-                            "afterMs": 22700,
+                            "afterMs": 22000,
                             "matchClock": true,
                             "cards": []
                           }
                         ]
                       },
                       {
-                        "id": "l-c-park-no",
+                        "id": "l-c-park-shot",
                         "kind": "path",
                         "lineId": "l-park",
                         "park": true
+                      },
+                      {
+                        "id": "l-park-shot-check",
+                        "kind": "firstOf",
+                        "label": "LEFT up before 27.5 s, otherwise stay parked",
+                        "rows": [
+                          {
+                            "afterMs": 27500,
+                            "matchClock": true,
+                            "cards": []
+                          },
+                          {
+                            "when": [
+                              "LeftCellUp"
+                            ],
+                            "cards": [
+                              {
+                                "id": "l-park-shot",
+                                "kind": "action",
+                                "name": "LaunchAllAimed",
+                                "timeoutS": 4
+                              }
+                            ]
+                          }
+                        ]
                       }
                     ]
                   }
@@ -1270,7 +1297,6 @@
     "teamSpots": [
       "GARDEN_STAGING",
       "LEFT_AUTO_HIVE",
-      "LEFT_PARK",
       "LEFT_START",
       "RIGHT_AUTO_FIX_TIP",
       "RIGHT_AUTO_OFFSET",

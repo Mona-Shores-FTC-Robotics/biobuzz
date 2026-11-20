@@ -72,6 +72,7 @@ public class ClockwiseAutoTest {
                 .command("LaunchAll", 3, () -> lasting("LaunchAll", 3))
                 .command("PickFlower", 3, () -> lasting("PickFlower", 3))
                 .command("GardenGather", 3, () -> lasting("GardenGather", 3))
+                .parkedVolley("LaunchAllAimed", 3, 3, () -> lasting("LaunchAllAimed", 3))
                 .trigger("LeftCellUp", () -> now >= firstTip && now < secondTip)
                 .trigger("RightCellUp", () -> now >= secondTip + 0.7)
                 .trigger("Always", () -> true);
@@ -94,21 +95,50 @@ public class ClockwiseAutoTest {
         return actions.stream().filter(name::equals).count();
     }
 
+    /** R's park, RIGHT_PARK. */
     private void parked(double y) {
-        assertEquals(14.5, drive.pose.x(), .01);
+        parked(14.5, y);
+    }
+
+    /** L's park, LEFT_AIMED_PARK: turned at the LEFT CELL so its camera sees it, deeper in the LOADING ZONE. */
+    private void parkedLeft() {
+        parked(13.0, 119.0);
+    }
+
+    private void parked(double x, double y) {
+        assertEquals(x, drive.pose.x(), .01);
         assertEquals(y, drive.pose.y(), .01);
         assertTrue("parked after AUTO: " + now, now < 30);
     }
 
+    private static final String CROSS = "path BACKWARD under the HIVE from the scoring FLOWER to RIGHT_AUTO_FIX_TIP";
+
     // ---- R-Clockwise -------------------------------------------------------------------------
 
-    /** The normal plan with time to spare: three volleys, the WALL FLOWER then the SCORING FLOWER, RIGHT_PARK. */
+    /**
+     * The normal plan with time to spare (Priority THREE_TIP): three volleys, the WALL FLOWER then the SCORING
+     * FLOWER, from which R backs straight under the HIVE without looking, fires at RIGHT and parks on RIGHT_PARK.
+     */
     @Test public void rightShootsThreeVolleysAndParksRightWhenThereIsTime() {
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(3, count("LaunchAll"));
         assertEquals(2, count("PickFlower"));
         assertEquals(0, count("GardenGather"));
-        assertTrue("it crossed under the HIVE: " + trace, trace.contains("path under the HIVE to RIGHT_AUTO_FIX_TIP"));
+        assertTrue("it crossed under the HIVE: " + trace, trace.contains(CROSS));
+        assertFalse("THREE_TIP does not look: " + trace, trace.contains("path turn to LEFT_AUTO_HIVE"));
+        parked(98.7);
+    }
+
+    /**
+     * THREE_TIP and TIP 2 never comes: R has crossed blind, so it waits at RIGHT_AUTO_FIX_TIP for RIGHT until 25.5 s
+     * and then parks with its load. (L's park shot is what finishes TIP 2 then.)
+     */
+    @Test public void rightParksWithItsLoadAtTheRightEndWhenRightNeverComesUp() {
+        secondTip = Double.POSITIVE_INFINITY;
+        run(RClockwiseAuto.build(kit(), false));
+        assertTrue(trace.toString(), trace.contains(CROSS));
+        assertEquals("the preloads and the first load", 2, count("LaunchAll"));
+        assertTrue("not before 25.5 s: " + drive.parkAt, drive.parkAt >= 25.5);
         parked(98.7);
     }
 
@@ -132,11 +162,12 @@ public class ClockwiseAutoTest {
         parked(98.7);
     }
 
-    /** RIGHT never comes up (TIP 2 has not come): R looks from the left end, stays, and finishes TIP 2 there. */
+    /** Priority PARK, RIGHT never comes up (TIP 2 has not come): R looks from the left end, stays, and finishes TIP 2 there. */
     @Test public void rightStaysLeftAndFinishesTip2WhenRightIsNotUp() {
+        choices.put("Priority", 1);
         secondTip = Double.POSITIVE_INFINITY;
         run(RClockwiseAuto.build(kit(), false));
-        assertFalse(trace.toString(), trace.contains("path under the HIVE to RIGHT_AUTO_FIX_TIP"));
+        assertFalse(trace.toString(), trace.contains(CROSS));
         assertTrue(trace.toString(), trace.contains("path turn to LEFT_AUTO_HIVE"));
         assertEquals("the preloads, the first load, and the SCORING FLOWER load at LEFT", 3, count("LaunchAll"));
         parked(98.7);
@@ -147,18 +178,20 @@ public class ClockwiseAutoTest {
      * in front of the LEFT CELL (the close row), finishes TIP 2 there, then waits for L to pass before it parks.
      */
     @Test public void rightShootsAtLeftAgainWhenRightIsNotUpAndParksAfterLHasPassed() {
+        choices.put("Priority", 1);
         secondTip = Double.POSITIVE_INFINITY;
         drive.arriveAt(47.2, 119.3, 18.0);  // the pick ends at 21.0 s: before T3b
         run(RClockwiseAuto.build(kit(), false));
         assertEquals("preloads, the first load, the SCORING FLOWER load", 3, count("LaunchAll"));
-        assertFalse("it never crossed: " + trace, trace.contains("path under the HIVE to RIGHT_AUTO_FIX_TIP"));
+        assertFalse("it never crossed: " + trace, trace.contains(CROSS));
         assertTrue(trace.toString(), trace.contains("path turn to LEFT_AUTO_HIVE"));
-        assertTrue("not before TR: " + drive.parkAt, drive.parkAt >= 26.4);
+        assertTrue("not before TR: " + drive.parkAt, drive.parkAt >= 26.8);
         parked(98.7);
     }
 
     /** Past T3b the rescue volley and the park after it would not fit: R parks straight from the SCORING FLOWER. */
     @Test public void rightParksFromTheScoringFlowerWhenTheRescueWouldNotFit() {
+        choices.put("Priority", 1);
         secondTip = Double.POSITIVE_INFINITY;
         drive.arriveAt(47.2, 119.3, 20.0);
         run(RClockwiseAuto.build(kit(), false));
@@ -173,8 +206,8 @@ public class ClockwiseAutoTest {
         choices.put("Priority", 1);
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
-        assertFalse(trace.toString(), trace.contains("path under the HIVE to RIGHT_AUTO_FIX_TIP"));
-        assertTrue(drive.parkAt >= 26.4);
+        assertFalse(trace.toString(), trace.contains(CROSS));
+        assertTrue(drive.parkAt >= 26.8);
         parked(98.7);
     }
 
@@ -197,7 +230,7 @@ public class ClockwiseAutoTest {
         assertEquals(1, count("GardenGather"));
         assertTrue("it waited for TIP 1", startedAt.get("LaunchAll") >= firstTip);
         assertTrue("not before TL: " + drive.parkAt, drive.parkAt >= 22.7);
-        parked(117.4);
+        parkedLeft();
     }
 
     /**
@@ -215,7 +248,7 @@ public class ClockwiseAutoTest {
         assertEquals(0, count("GardenGather"));
         assertEquals(0, count("PickFlower"));
         assertTrue("not before TLr: " + drive.parkAt, drive.parkAt >= 22.5);
-        parked(117.4);
+        parkedLeft();
     }
 
     @Test public void leftTakesTheWallFlowerWhenPickedAndWaitsForRToPass() {
@@ -224,16 +257,21 @@ public class ClockwiseAutoTest {
         assertEquals(1, count("PickFlower"));
         assertEquals(0, count("GardenGather"));
         assertTrue("not before TF: " + startedAt.get("PickFlower"), startedAt.get("PickFlower") >= 14.0);
-        parked(117.4);
+        parkedLeft();
     }
 
-    /** L2 "no": RIGHT is not up by T4, so L keeps its load and still leaves at TL. */
-    @Test public void leftKeepsItsLoadWhenRightIsNotUpByT4() {
+    /**
+     * L2 "no": RIGHT is not up by T4 (22 s), so L parks on LEFT_AIMED_PARK at once and, LEFT being still up,
+     * fires its load at LEFT from there with the turret (LaunchAllAimed) to finish TIP 2.
+     */
+    @Test public void leftParksAndFiresAtLeftFromItsParkWhenRightIsNotUpByT4() {
         secondTip = 25;
         run(LClockwiseAuto.build(kit(), false));
         assertEquals("the preloads only", 1, count("LaunchAll"));
-        assertTrue(drive.parkAt >= 22.7 && drive.parkAt < 23.5);
-        parked(117.4);
+        assertEquals("the park shot", 1, count("LaunchAllAimed"));
+        assertTrue(drive.parkAt >= 22.0 && drive.parkAt < 22.5);
+        assertTrue("after the park: " + startedAt.get("LaunchAllAimed"), startedAt.get("LaunchAllAimed") > drive.parkAt);
+        parkedLeft();
     }
 
     // ---- the launch spots are the Autos' own -----------------------------------------------
@@ -274,6 +312,7 @@ public class ClockwiseAutoTest {
     }
 
     @Test public void theRescueVolleysAreFromAutoLaunchSpotsToo() {
+        choices.put("Priority", 1);
         secondTip = Double.POSITIVE_INFINITY;
         drive.arriveAt(47.2, 119.3, 18.0);
         run(RClockwiseAuto.build(kit(), false));
@@ -323,7 +362,9 @@ public class ClockwiseAutoTest {
 
         @Override public void follow(Path path) {
             pose = path.endPose();
-            if (Math.abs(pose.x() - 14.5) < .01 || Math.abs(pose.x() - 127) < .01) parkAt = now;
+            // RIGHT_PARK (x 14.5) or L's LEFT_AIMED_PARK (x 13.0), on either alliance's side.
+            if (Math.abs(pose.x() - 14.5) < .01 || Math.abs(pose.x() - 127) < .01
+                    || Math.abs(pose.x() - 13.0) < .01 || Math.abs(pose.x() - 128.5) < .01) parkAt = now;
             doneAt = now + 0.5;
             if (Math.abs(pose.x() - lateX) < .01 && Math.abs(pose.y() - lateY) < .01) doneAt = Math.max(doneAt, lateAt);
         }

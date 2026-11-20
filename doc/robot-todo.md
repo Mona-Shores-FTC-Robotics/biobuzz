@@ -140,6 +140,14 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [x] Backward with a load, 19429 and 20245: all 4 POLLEN stay in, no issue (mentor, 20 Nov 2026)
 - [x] Backward with a load, 20245: R-Solo-Backwards ran clean with the plate (mentor, 20 Nov 2026)
 - [ ] Promoted R-Clockwise (backward outside lanes, waits at 9.8 / 9.9 s), each Pickup, beside L-Clockwise: no contact at `LEFT_AUTO_HIVE`, push the logs
+- [ ] R-Clockwise on Priority THREE_TIP (20 Nov 2026): its new backward leg under the HIVE, `BACKWARD under the HIVE from
+  the scoring FLOWER to RIGHT_AUTO_FIX_TIP`, with its SCORING FLOWER load. **Good:** it clears the HIVE's frame, the
+  lane holds its load, it fires at RIGHT and parks by 30 s. **Stop:** it touches the frame or a piece leaves → run
+  Priority PARK until the leg is redrawn; push the logs and a video
+- [ ] L-Clockwise's park, `LEFT_AIMED_PARK` (13.0, 119.0, 345°), set from AdvantageScope only (20 Nov 2026): put L on it
+  by hand. **Good:** a referee would call it parked in the LOADING ZONE without a second look, and with LEFT up
+  **Vision: HIVE & Pose** reads LEFT up from there. **Stop:** either is in doubt → move the spot in the Visualizer and
+  re-export; push a photo
 - [ ] Promoted R-Solo (preloads from `RIGHT_AUTO_HIVE`, backward WALL FLOWER leg), alone from `RIGHT_START`, on 20245: push the logs
 - [x] Promoted R-Solo on 19429: ran clean (log `2026-11-19_23-13-43_R-Solo`, build `08b0290`): the backward leg 3.2 s, 1.4 in off
   its end, and the volley after it fired 5 balls by the launcher's dips

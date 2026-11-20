@@ -32,7 +32,42 @@ L's `FLOWER to RIGHT_AUTO_OFFSET` (Pickup WALL_FLOWER) stays nose-first (mentor,
 turned 119° instead of 241°, but in the simulator it gained no TIP in any row, and with R on the GARDEN and L 20% slow
 L, earlier at the spot, fired its second load and then missed its park in 2 of 24 runs (9 of 24 in the best case).
 
-**What the Java simulator says** (24 seeds a row, Belding's volleys; tables below):
+## THREE_TIP backs straight across; L fires from its park (mentor, 20 Nov 2026)
+
+Two changes, one per robot:
+
+- **R, Priority THREE_TIP: no look.** After the SCORING FLOWER pick R already faces 90°, RIGHT_AUTO_FIX_TIP's
+  heading, so it backs straight under the HIVE to it (`BACKWARD under the HIVE from the scoring FLOWER to
+  RIGHT_AUTO_FIX_TIP`, no turns), fires at RIGHT once it reads RIGHT up and parks on RIGHT_PARK. Gate: it
+  crosses only before 21.5 s, else it parks from the FLOWER. RIGHT not up by 25.5 s: it parks with its load.
+  This gives up R's TIP 2 rescue at LEFT on THREE_TIP: the camera faces away from the HIVE while R backs
+  across, and under the HIVE its structure hides the CELLs (checked in AdvantageScope), so R cannot turn back.
+  **PARK is the old leg unchanged**: R looks from LEFT_AUTO_HIVE, fires at LEFT if TIP 2 has not come, else
+  keeps its load; its late parks from the left end now set off at 26.8 s (was 26.4).
+- **L: the park shot, and one park.** With RIGHT not up by T4 (22 s), L parks at once and fires its load at
+  LEFT with the turret (`LaunchAllAimed`) if it reads LEFT up before 27.5 s, which finishes TIP 2 in R's place.
+  Every L park, drawn or the guard's, ends on L's own spot **LEFT_AIMED_PARK** (13.0, 119.0, 345°): 42 sq in of
+  the robot in the LOADING ZONE (LEFT_PARK facing 0°: 40), 3.1 in off the wall, 2.3 in clear of R on
+  RIGHT_PARK, and the LEFT CELL's raised row 23° right of the chassis camera's centre (from LEFT_PARK facing 0°
+  it was 38°, out of view). The angle and the shift off the wall were set looking through L's camera in
+  AdvantageScope.
+
+Java simulator, both robots on these Autos, turret unlocked (`"design": "real robot"`), 20 Nov 2026:
+
+| | THREE_TIP | PARK |
+|---|---|---|
+| Best case, R on the WALL FLOWER (8 seeds) | 3 TIPs and both parked 8/8, no contact (old: 3 TIPs, R never parked) | 2 TIPs 8/8; touch at 27.7 s in 3/8 (the old PARK has it too) |
+| Best case, R on the GARDEN (8 seeds) | 3 TIPs and both parked 8/8, no contact (old: 3 TIPs 2/8) | 2 TIPs 8/8; touch at 27.7 s in 5/8 |
+| Best case, TIP 2 missing (L's preloads or R's LEFT volley wide) | 2 TIPs 8/8 by L's park shot, both parked | 2 TIPs 8/8 by R's look |
+| Belding's volleys, normal (24 seeds) | 2+ TIPs 19/24 (WALL FLOWER), 17/24 (GARDEN); both parked 24/24 (old: 14/24, R parked 21) | 2+ TIPs 20/24, 19/24 (old: 14/24) |
+
+With either robot 20% slow, Belding's volleys give 2+ TIPs in 15 to 21 of 24 runs and contact in 0 to 2. R 20%
+slow on THREE_TIP in the best case crosses late and is not parked (the third volley takes the park's time, as
+Priority says). Not yet on a robot: R's backward crossing under the HIVE with a load, and L on LEFT_AIMED_PARK
+(clearly in the LOADING ZONE, LEFT read up from there); `doc/robot-todo.md`. The text below predates these
+changes where it says otherwise.
+
+**What the Java simulator said before 20 Nov 2026** (24 seeds a row, Belding's volleys; tables below):
 
 - Both robots park and the robots do not touch in every run, with either robot 20% slow and with
   either robot's preloads missed, for both pickup choices.
@@ -61,8 +96,8 @@ L, earlier at the spot, fired its second load and then missed its park in 2 of 2
 | First pickup | The WALL FLOWER, or the GARDEN | |
 | TIP 2 | Outside lane to LEFT_CLOSE_HIVE; shoot at LEFT | Shoot the preloads at LEFT once it is up |
 | Second pickup | The SCORING FLOWER | Under the HIVE; the GARDEN, or the WALL FLOWER |
-| TIP 3 | Turn to the HIVE at LEFT_CLOSE_HIVE and look. RIGHT up: nose-first under the HIVE to RIGHT_CLOSE_HIVE, shoot at RIGHT. Not up: finish TIP 2 from where it stands | RIGHT_WALL_NEAR; shoot at RIGHT |
-| Park | Outside lane to RIGHT_PARK | Outside lane to LEFT_PARK |
+| TIP 3 | THREE_TIP: back straight under the HIVE to RIGHT_AUTO_FIX_TIP, shoot at RIGHT. PARK: turn to the HIVE at LEFT_AUTO_HIVE and look; RIGHT up: keep the load; not up: finish TIP 2 from where it stands | RIGHT_AUTO_OFFSET; shoot at RIGHT. Not up by T4: park, then shoot at LEFT from the park |
+| Park | Outside lane to RIGHT_PARK | Outside lane to LEFT_AIMED_PARK |
 
 **The loop.** Under the HIVE is one-way, left to right. The outside lane is one-way, right to
 left. No path of either Auto, fallbacks and parks included, drives a lane the other way; the
@@ -93,22 +128,21 @@ goes on under the HIVE to the GARDEN.
 |---|---|---|---|
 | **L1:** L at LEFT_WALL_HIVE, preloads | LEFT up by T1? | Shoot at LEFT | Cross under the HIVE, shoot at RIGHT from RIGHT_START to finish TIP 1, then park |
 | **R2:** R at LEFT_CLOSE_HIVE, first load | LEFT up by T2? | Shoot at LEFT | Hold for L's rescue: shoot at LEFT once it is up, then park after L has passed (26.4 s) |
-| **R3:** R with the SCORING FLOWER load | RIGHT up by T3? | Shoot at RIGHT, park | LEFT seen up within 0.75 s: shoot at LEFT to finish TIP 2. Then park |
-| **L2:** L at RIGHT_WALL_NEAR, pickup load | RIGHT up by T4? | Shoot at RIGHT, park | Park |
+| **R3:** R with the SCORING FLOWER load | THREE_TIP, at RIGHT_AUTO_FIX_TIP: RIGHT up by 25.5 s? PARK, at LEFT_AUTO_HIVE: RIGHT up by T3? | THREE_TIP: shoot at RIGHT, park. PARK: keep the load, park after L has passed | THREE_TIP: park with the load. PARK: LEFT seen up within 0.75 s: shoot at LEFT to finish TIP 2. Then park |
+| **L2:** L at RIGHT_AUTO_OFFSET, pickup load | RIGHT up by T4? | Shoot at RIGHT, park | Park on LEFT_AIMED_PARK; LEFT up before 27.5 s: shoot at LEFT from there (LaunchAllAimed) |
 
-L finishes TIP 1 and R finishes TIP 2. Neither robot needs to know why a TIP is late.
+L finishes TIP 1, and TIP 2 is finished by R (PARK) or by L from its park (THREE_TIP). Neither robot needs to know why a TIP is late.
 
 **A CELL is scored only from its own end of the field** (CLAUDE.md, hard constraints), so L1's
 "no" is a crossing, not a shot from the left spot.
 
-**R3 is asked at one end or the other, and the clock picks which.** When the SCORING FLOWER pick
-ends, R asks only the clock:
+**On THREE_TIP R3 is asked at the right end**: before 21.5 s R backs straight across and asks there; later it
+parks from the SCORING FLOWER. **On PARK it is asked at the left end**, as below. When the SCORING FLOWER pick
+ends, R on PARK asks only the clock:
 
 - **Before T3b: go and look.** R turns to the HIVE at LEFT_CLOSE_HIVE (it must turn round to go
   under the HIVE nose-first anyway) and asks: RIGHT up by T3?
-  - **Yes: TIP 2 has come.** With Priority on THREE_TIP, R goes under the HIVE, shoots at RIGHT
-    and parks if there is time left. With Priority on PARK it waits for L to pass and parks with
-    its load.
+  - **Yes: TIP 2 has come.** R waits for L to pass and parks with its load.
   - **No: TIP 2 has not come.** R shoots its load at LEFT, then parks.
 - **After T3b: park straight from the SCORING FLOWER.** The look, a volley and the park after it
   would not fit.
@@ -133,9 +167,9 @@ Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-tod
 | **TS** scoring FLOWER by | 17.6 s | R's LEFT volley (launch starts to feed ends) is over at 17.0 s. Later than 17.6 s, the pick and the park after it meet L in the lane |
 | **T3b** look by | 22.2 s | The drive to LEFT_CLOSE_HIVE (1.7 s), a volley there (2.5 s), the park (about 2.6 s) and the guard's 1 s margin end at 30 s |
 | **T3** RIGHT up by, at LEFT_CLOSE_HIVE | 23.2 s | The crossing from there (about 4.3 s) and a volley's last ball (2.5 s) end at 30 s. Not up by then: R shoots at LEFT if it sees LEFT up |
-| **TR** park from LEFT_CLOSE_HIVE at | 26.4 s | L has turned in to LEFT_PARK |
+| **TR** park from LEFT_AUTO_HIVE at | 26.8 s | L has turned in to its park. 26.4 s until 20 Nov 2026: in the best case R then swung round into L still coming up the lane in 4 of 8 runs; at 26.8 s, the latest the guard's margin allows, 3 of 8 |
 | **T4** RIGHT up by | 22 s | TIP 2 was read up at 19.8 to 21.8 s in the simulator (to 22.6 s with R 20% slow), so at 19.2 s L gave up before it and never shot its second load. L stands at RIGHT_WALL_NEAR until TL anyway, so waiting costs nothing. A volley begun at 22 s ends after TL: L then leaves for its park when the volley ends, about 24.5 s |
-| **TL** park at | 22.7 s | L leaves RIGHT_WALL_NEAR for LEFT_PARK once R has left the SCORING FLOWER |
+| **TL** park at | 22.7 s | L leaves RIGHT_AUTO_OFFSET for its park once R has left the SCORING FLOWER, after a volley at RIGHT. With RIGHT not up by T4 it leaves at once (22.0 s): the park and the shot from it need the time |
 | **TLr** park after the crossing at | 22.5 s | L1's "no" only: the TIP its volley makes was read up at 19.6 to 20.2 s, and its park goes through where that spill lands |
 | **TF** FLOWER at | 14.0 s | L's WALL FLOWER leg only: R, coming north from the GARDEN, has passed the FLOWER. 15.5 s until 20 Nov 2026 (mentor): L then reached RIGHT_AUTO_OFFSET at about 23 s and the guard parked it with its load; at 14.0 s it arrives about 21.5 s and fires (simulator, turret unlocked, best case: 3 TIPs 8 of 8 against 2 of 8, no contact with either robot 20% slow) |
 
@@ -189,7 +223,7 @@ Gamepad 1's D-pad: **up / down selects a row, left / right changes it.** Three r
 
 | Row | R-Clockwise | L-Clockwise |
 |---|---|---|
-| Waiting for TIP … until | **TIP 2** until 23.2 s (T3: RIGHT up, seen from LEFT_CLOSE_HIVE) | **TIP 1** until 9.5 s (T1: LEFT up) |
+| Waiting for TIP … until | **TIP 2** until 23.2 s (T3: RIGHT up, seen from LEFT_AUTO_HIVE; Priority PARK only) | **TIP 1** until 9.5 s (T1: LEFT up) |
 | Pickup | WALL_FLOWER (drawn), GARDEN | GARDEN (drawn), WALL_FLOWER |
 | Priority | THREE_TIP (drawn), PARK | |
 
