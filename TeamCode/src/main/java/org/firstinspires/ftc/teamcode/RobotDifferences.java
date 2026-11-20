@@ -104,6 +104,11 @@ public final class RobotDifferences {
                         + " Panels with the speed and gate lines here (mentor, 18 Nov 2026)",
                 () -> TurretSubsystem.aimOffsetDeg = 5.0);
         differs(RobotIdentity.TEAM_19429,
+                "Turret floor 0.07: on Bench: Turret it turns steadily both ways at 0.07, smoother than"
+                        + " 20245 (0.09, sticky below that); with 20245's floor it came in fast, coasted past"
+                        + " its band and hunted (mentor, 20 Nov 2026)",
+                () -> TurretSubsystem.minPower = 0.07);
+        differs(RobotIdentity.TEAM_19429,
                 "Early gate: the Auto opens the feed gate 0.1 s ahead of launch speed (LaunchCards"
                         + " gateLeadS), set in Panels with the speed and aim lines here (mentor, 18 Nov 2026)",
                 () -> LaunchCards.gateLeadS = 0.1);

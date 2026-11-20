@@ -131,24 +131,25 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [x] Backward with a load, 20245: R-Solo-Backwards ran clean with the plate (mentor, 20 Nov 2026)
 - [ ] Promoted R-Solo (preloads from `RIGHT_AUTO_HIVE`, backward WALL FLOWER leg), alone from `RIGHT_START`, on 20245 and on 19429: push the logs
 10. **19429's turret hunts: tune its hold** (20 Nov 2026). 19429 runs 20245's turret values and never had
-   Bench: Turret. Its 18 Nov Basic Drive logs (`read_logs.py hold`) show it reversing 1.18 times a second
-   holding with the robot still, against 20245's 0.48, and it sticks: at power 0.15 to 0.20 its median
-   speed was 0 to 5 deg/s (20245: 10 to 23), then it breaks loose and lurches through the ±2° band.
-   At power 1.0 the two match (154 and 146 deg/s), and neither drifts at power 0, so the stop power is
-   fine. In this order, Panels open, pushing the logs after each:
-   1. **By hand.** Bench: Turret, PLAY, Circle (limp). Turn the turret slowly through ±90°: any tight
-      spot, most of all within 30° of home, the encoder's 64T gear pressed hard into the ring, a cable
-      dragging? Fix that first, and say what it was.
-   2. **Bench: Turret, the floor.** From stopped, step the power up each way until it turns steadily
-      (not in spurts). 20245's floor is 0.09; set `TurretSubsystem.minPower` in Panels to the larger
-      of the two.
-   3. **Basic Drive, AIM, robot still at a launch spot**, then driving past the CELL: in Panels try
-      `kD` 0.003 (it takes drive off as the turret breaks loose, onto a still target only), then if it
-      still hunts `holdToleranceDeg` 3. Leave `kP` at 0.02 unless it still swings.
+   Bench: Turret. Its Basic Drive logs (`read_logs.py hold`) show it reversing 1.18 (18 Nov) and 1.38
+   (19 Nov) times a second holding with the robot still, against 20245's 0.48. At power 1.0 the two
+   match (154 and 146 deg/s), and neither drifts at power 0, so the stop power is fine. Panels open,
+   pushing the logs after each:
+   1. ~~By hand~~: done, it turns freely (mentor, 20 Nov 2026). The floor is not it either: from rest
+      both robots start at power 0.145 within about 33 ms (18 and 19 Nov logs). It is the coast:
+      once its power cuts, 19429's turret runs on 3.3° (20245: 3.4°), more than the ±2° band, so it
+      crosses the band and is kicked back.
+   2. **Floor: done.** Bench: Turret, 19429 turns steadily both ways at 0.07, smoother than 20245
+      (mentor, 20 Nov 2026): `minPower` 0.07 for 19429 in `RobotDifferences`. Run Basic Drive with it
+      first and push the log; only if it still hunts go on to 3.
+   3. **Basic Drive, AIM, robot still near the CELL, then driving past it:** in Panels set
+      `TurretSubsystem.kD` 0.0015 (it cuts the power about 3° early at the 40 to 60 deg/s the turret
+      comes in at, onto a still target only). Still swings past → 0.002; stops short and creeps in by
+      small hops → 0.001. Leave `kP` and `holdToleranceDeg`.
    **Good:** `read_logs.py hold` on the new log reads under 0.6 reversals a second, and the shots
    still go in → the values that did it get one `RobotDifferences` line for 19429 with the date.
    **Stop:** nothing helps and the turret felt free by hand → push the logs and say so.
-- [ ] 19429 turret: by hand ___, floor ___, kD ___, tolerance ___, reversals/s before 1.18 after ___
+- [ ] 19429 turret: floor 0.07 (done), kD ___, reversals/s before 1.18 (18 Nov) / 1.38 (19 Nov), after ___
 11. **The driver's purple light** (20 Nov 2026, not yet on a robot). Basic Drive, turret **AIM**, with
    a PS4 pad on gamepad 1: drive so the CELL is behind the robot. **Good:** the driver's light bar goes
    steady purple without Circle pressed, flashes purple with Circle held (19429 does not shoot; 20245
