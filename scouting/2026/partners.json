@@ -361,20 +361,20 @@
         "route": {
           "name": "Right corner: two volleys, wall FLOWER, park",
           "start": {
-            "x": 14,
-            "y": 14,
+            "x": 10,
+            "y": 12,
             "h": 90
           },
           "steps": [
             {
               "kind": "drive",
               "to": {
-                "x": 32,
-                "y": 13,
+                "x": 26,
+                "y": 13.5,
                 "h": 90
               },
               "bend": null,
-              "by": 1.0,
+              "by": 1.4,
               "park": false
             },
             {
@@ -384,54 +384,79 @@
             },
             {
               "kind": "wait",
-              "until": 9.0
+              "until": 8.0
             },
             {
               "kind": "drive",
               "to": {
-                "x": 19,
-                "y": 52,
-                "h": 180
+                "x": 16,
+                "y": 51,
+                "h": 90
               },
-              "bend": null,
-              "by": 10.5,
+              "bend": {
+                "x": 35.8,
+                "y": 56.1
+              },
+              "by": 11.0,
               "park": false
             },
             {
               "kind": "pick"
             },
             {
+              "kind": "wait",
+              "until": 12.3
+            },
+            {
               "kind": "drive",
               "to": {
-                "x": 32,
-                "y": 13,
+                "x": 31,
+                "y": 51,
                 "h": 90
               },
               "bend": null,
-              "by": 14.5,
+              "by": 13.1,
+              "park": false
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 26,
+                "y": 13.5,
+                "h": 90
+              },
+              "bend": null,
+              "by": 15.0,
               "park": false
             },
             {
               "kind": "shoot",
-              "at": 16.0,
-              "volleyS": 2.5
+              "at": 15.3,
+              "volleyS": 2.3
+            },
+            {
+              "kind": "wait",
+              "until": 17.9
             },
             {
               "kind": "drive",
               "to": {
                 "x": 15,
-                "y": 100,
-                "h": 0
+                "y": 93,
+                "h": 90
               },
-              "bend": null,
-              "by": 21.5,
+              "bend": {
+                "x": 30.6,
+                "y": 54.5
+              },
+              "by": 21.0,
               "park": true
             }
           ]
         },
-        "note": "Wayland, from video (Kentwood Q, 20 Nov 2026 review), red frame, times after PLAY. The same Auto in all nine: Q-4, Q-15, Q-20, Q-25, Q-33, M-2, M-4, M-7, M-9 (Q-33 blocked by its partner at the FLOWER and parked late, ~24.5 s). Starts in the corner of the red and audience walls (moderate, +-6-8 in), at its launch spot near the audience wall by ~1 s (high on timing). First volley at the AUDIENCE CELL ~3-6.5 s (M-4, its TIP swung 8-10 s) / ~5-8 s (Q-4) (moderate). Red-wall FLOWER by ~10.5 s, sits 1.5-2 s (read as a pick; count not visible), back at the launch spot ~14.5 s, second volley ending ~17.5-19 s (Q-4 17.5-20.0; low-moderate), parks on effectively our RIGHT_PARK by ~21.5 s (19.5-24.5). FTCScout: AUTO PARK 9/9; alliance AUTO TIP 4/9. Heading is CAN'T TELL from the stream camera; the h values are placeholders.",
+        "note": "Wayland, from video (Kentwood Q, 20 Nov 2026 review), red frame, times after PLAY. Path traced at 15 fps in Q-20, Q-4, M-4, Q-25, M-2, M-9, Q-15, M-7 (floor mapped from the four FLOWER posts per clip, every trace drawn back on the video; +-4-6 in); the same Auto in all of them. Q-33 not traced (its partner blocked the FLOWER; it parked late, ~24.5 s). Starts in the corner of the red and audience walls, (10, 12) median; pulls up to its launch spot (26, 13.5) by ~1.4 s and stands there to ~8.0 s; first volley at the AUDIENCE CELL ~3-6.5 s (M-4, its TIP swung 8-10 s) / ~5-8 s (Q-4) (moderate). Drives straight up x~30 to y~50 and slides left to (16, 51), ~16 in off the red-wall FLOWER, 11.0-12.3 s (read as a pick; count not visible); back right to ~(31, 51) and straight down to the launch spot by ~15 s; second volley there, leaving at ~17.9 s (Q-4 measured 17.5-20.0; low-moderate). Then straight up x~26-30 and diagonally to the LOADING ZONE, parked at (15, 93) by ~21.0 s (19.8-24.1), ~6 in from our RIGHT_PARK. Bends fit the eight traces to a median 0.7-1.4 in. FTCScout: AUTO PARK 9/9; alliance AUTO TIP 4/9. Heading: it never visibly turns (red number panel toward the audience camera throughout), but which end is its front is CAN'T TELL; h 90 is a placeholder.",
         "savedBy": "dustinhans",
-        "savedAt": "2026-11-20T20:45:46Z"
+        "savedAt": "2026-11-20T23:33:59Z"
       }
     },
     "11228": {
