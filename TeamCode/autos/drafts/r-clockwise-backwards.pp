@@ -1226,6 +1226,6 @@
       "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"
     ],
-    "exportName": "R-Clockwise-19429"
+    "exportName": "R-Clockwise-Backwards"
   }
 }
