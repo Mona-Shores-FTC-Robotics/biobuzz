@@ -81,8 +81,12 @@ public final class TeleOpConfig {
      * ({@code LaunchSpeedTable.row1TicksPerSecond}), so from the close end the launcher is already
      * at launch speed and from further out it only climbs to 1590–1795. Never past the launch speed
      * ({@code applyLauncher} caps it). Was 1000; try it on the robot and watch the battery.
+     *
+     * <p>1400 since 20 Nov 2026, the mentor's call after that night: the standard idle, just under the
+     * speed table's lowest row, so every shot climbs a little (95 to 395 ticks/s, rows 1495 to 1795) to its launch speed.
+     * Was 1495.
      */
-    public static double launcherIdleTicksPerSecond = 1495.0;
+    public static double launcherIdleTicksPerSecond = 1400.0;
 
     /**
      * After a Square press that fires ends, the launcher stays at launch speed this many seconds
