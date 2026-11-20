@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T04:23:17.000Z",
+  "timestamp": "2026-11-20T04:29:11.000Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -898,6 +898,18 @@
                         "kind": "action",
                         "name": "PickFlower",
                         "timeoutS": 4.5
+                      },
+                      {
+                        "id": "R-hold-garden-exit",
+                        "kind": "firstOf",
+                        "label": "L has left the GARDEN: go at 18.6 s",
+                        "rows": [
+                          {
+                            "afterMs": 18600,
+                            "matchClock": true,
+                            "cards": []
+                          }
+                        ]
                       },
                       {
                         "id": "card-r-wall-lane-south",

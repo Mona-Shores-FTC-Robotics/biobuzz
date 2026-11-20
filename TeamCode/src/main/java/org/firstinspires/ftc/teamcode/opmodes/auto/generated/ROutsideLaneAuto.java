@@ -21,7 +21,7 @@ public final class ROutsideLaneAuto {
     public static final String SOURCE = "r-outside-lane.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-19|11:23PM";
+    public static final String SAVED = "11-19|11:29PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -126,6 +126,8 @@ public final class ROutsideLaneAuto {
                                                                 kit.guarded("If CellUp", wallLaneParkToRightPark, 2.7,
                                                                         kit.path("scoring flower to SCORING_FLOWER_STAGING", scoringFlowerToScoringFlowerStaging, 1, flowerAbortParkToRightPark, 1.9),
                                                                         kit.command("PickFlower", 4.5),
+                                                                        kit.firstOf("L has left the GARDEN: go at 18.6 s",
+                                                                                kit.atMatchSeconds(18.6)),
                                                                         kit.path("BACKWARD to RIGHT_AUTO_CLOSE", backwardToRightAutoClose, 3.1, gardenAbortParkToRightPark, 3),
                                                                         kit.firstOf("RIGHT up before 26 s, otherwise park",
                                                                                 kit.atMatchSeconds(26).then(
