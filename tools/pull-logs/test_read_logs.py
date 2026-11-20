@@ -213,5 +213,32 @@ class WheelDips(unittest.TestCase):
         t = self.trace([0.0, 1.5])
         self.assertEqual(1, len(read_logs.wheel_dips(t, 1500.0)))
 
+class CellSettles(unittest.TestCase):
+    """read_logs.cell_settles: how long before a CELL settles its tag row was seen, and moving."""
+
+    def test_a_rising_row_is_timed_from_where_it_left_its_rest(self):
+        # DOWN at 35 in until 2.0 s, rising to 50 by 3.0 s, settled UP at 3.3 s.
+        heights = [(t / 10, 35.0 if t <= 20 else min(50.0, 35.0 + (t - 20) * 1.5)) for t in range(0, 34)]
+        states = [(0.0, 1), (2.2, 2), (3.3, 0)]
+        settles = read_logs.cell_settles(heights, states)
+        self.assertEqual(1, len(settles))
+        t, a, b, seen, moved = settles[0]
+        self.assertEqual((3.3, 'DOWN', 'UP'), (t, a, b))
+        self.assertAlmostEqual(0.3, seen, places=6)
+        self.assertAlmostEqual(2.1, moved, places=6)
+
+    def test_a_row_first_seen_as_it_swings_has_no_moved_time(self):
+        # A lowered CELL's tags face away: the row comes into view at 2.5 s, already rising.
+        heights = [(t / 10, 40.0 + (t - 25)) for t in range(25, 34)]
+        states = [(0.0, 1), (2.5, 2), (3.3, 0)]
+        t, a, b, seen, moved = read_logs.cell_settles(heights, states)[0]
+        self.assertAlmostEqual(2.5, seen, places=6)
+        self.assertIsNone(moved)
+
+    def test_the_same_state_again_is_not_a_settle(self):
+        states = [(0.0, 0), (1.0, 2), (2.0, 0)]
+        self.assertEqual([], read_logs.cell_settles([(0.5, 50.0)], states))
+
+
 if __name__ == '__main__':
     unittest.main()

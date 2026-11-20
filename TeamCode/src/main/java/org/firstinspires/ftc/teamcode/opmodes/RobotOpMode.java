@@ -62,6 +62,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
+import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 import org.firstinspires.ftc.teamcode.util.WelfordVariance;
@@ -1518,6 +1519,40 @@ public abstract class RobotOpMode extends OpMode {
         }
     }
 
+    /**
+     * Each CELL's tag row as the camera measured it, once per camera frame that saw it: the row's
+     * height above the floor (what {@code CellStateTracker} classifies UP or DOWN), how many of its
+     * tags were in view, and the tracker's settled state ({@code HiveCellState} ordinal: UP 0,
+     * DOWN 1, UNKNOWN 2). Between frames, and for a CELL not in view, nothing is written, so a gap
+     * in the height is a gap in sight. For finding a TIP's swing before it settles (the R-NoCross
+     * late volley, 20 Nov 2026): the logged HIVE state flips only at the settle, so this is what
+     * shows whether the row moves first while the robot stands still and watches it.
+     */
+    private void recordCells() {
+        for (HiveCell cell : LOGGED_CELLS) {
+            int i = cell.ordinal();
+            CellSighting sighting = robot.vision.sighting(cell);
+            if (sighting == null || sighting.captureTimeNs() == loggedCellFrameNs[i]) continue;
+            loggedCellFrameNs[i] = sighting.captureTimeNs();
+            log.put(CELL_HEIGHT_KEYS[i], sighting.rowCentreRobot().z());
+            log.put(CELL_TAGS_KEYS[i], sighting.tagCount());
+            log.put(CELL_STATE_KEYS[i], robot.vision.state(cell).ordinal());
+        }
+    }
+
+    private static final HiveCell[] LOGGED_CELLS = HiveCell.values();
+    private static final String[] CELL_HEIGHT_KEYS = cellKeys("RowHeightIn");
+    private static final String[] CELL_TAGS_KEYS = cellKeys("Tags");
+    private static final String[] CELL_STATE_KEYS = cellKeys("State");
+    /** The capture time of the frame last logged for each CELL, by ordinal. */
+    private final long[] loggedCellFrameNs = new long[LOGGED_CELLS.length];
+
+    private static String[] cellKeys(String what) {
+        String[] keys = new String[LOGGED_CELLS.length];
+        for (HiveCell cell : LOGGED_CELLS) keys[cell.ordinal()] = "/Hive/Cell/" + cell.name() + "/" + what;
+        return keys;
+    }
+
     /** How far the robot's square 16 in footprint is from the nearest wall, inches (about; any heading). */
     private static double wallClearanceIn(Pose pose) {
         double f = FieldFrame.FIELD_SIZE_INCHES;
@@ -1552,6 +1587,7 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Vision/TagsRejected", robot.drive.lastFrame().count() - robot.drive.lastFrame().acceptedCount());
         log.put("/Vision/StillFix", robot.drive.stillFix().ordinal());
         log.put("/Vision/StillFixesApplied", robot.drive.stillFixesApplied());
+        recordCells();
         recordDrift(mode, pose, referenced);
         if (mode != MatchLog.Mode.DISABLED) {
             // Where the robot is, every loop, so an OpMode that crashes still leaves it behind.

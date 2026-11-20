@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T19:36:00.371Z",
+  "timestamp": "2026-11-20T17:52:45.184Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -977,11 +977,11 @@
         "Tip"
       ],
       "typicalS": {
-        "LaunchAll": 4,
+        "LaunchAll": 2.5,
         "LaunchOne": 0.5,
         "SpinUp": 0.1,
         "PickFlower": 4,
-        "GardenGather": 5
+        "GardenGather": 3
       }
     },
     "points": {
@@ -1113,10 +1113,10 @@
                       {
                         "id": "l-hold-flower",
                         "kind": "firstOf",
-                        "label": "R has passed the FLOWER: go at 15.5 s",
+                        "label": "R has passed the FLOWER: go at 14.0 s",
                         "rows": [
                           {
-                            "afterMs": 15500,
+                            "afterMs": 14000,
                             "matchClock": true,
                             "cards": []
                           }

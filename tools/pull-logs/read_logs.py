@@ -21,6 +21,9 @@ with Python. Standard library only.
   python3 tools/pull-logs/read_logs.py steps LOG.wpilog [...]     every Auto card, the same table for every Auto:
                                                                    start, length, pieces held, and for a volley
                                                                    the gate wait, gate to last ball and balls
+  python3 tools/pull-logs/read_logs.py cells LOG.wpilog [...]     every CELL that settled the other way: when its
+                                                                   tag row was first seen and first moved before
+                                                                   the settle, and the robot's speed meanwhile
   python3 tools/pull-logs/read_logs.py dsbattery FILE [...]       each Driver Hub's own battery over the day,
                                                                    then every match log given beside it: the DS
                                                                    battery at its start, lowest, at its end
@@ -399,6 +402,60 @@ def volleys(paths):
             counted = (at(shots, te) or 0) - (at(shots, ts) or 0)
             dips = 'from a standstill' if i == 0 else str(len([t for t in wheel_dips(speeds, tgt) if ts - 0.05 <= t <= te + 0.1]))
             print('%-34s %5.1f-%-5.1f  %6.0f  %-14s %.0f' % (path.split('/')[-1][:34], ts - t0, te - t0, tgt, dips, counted))
+
+
+CELL_NAMES = ['RED_SCORING', 'RED_AUDIENCE', 'BLUE_AUDIENCE', 'BLUE_SCORING']
+CELL_STATES = ['UP', 'DOWN', 'UNKNOWN']
+
+
+def cell_settles(heights, states, before_s=3.0, moved_in=1.0):
+    """Each time one CELL settles opposite to its last settled state: (settle time, from, to,
+    first seen, first moved). heights and states are one CELL's /Hive/Cell/<CELL>/RowHeightIn and
+    /State samples. "First seen" is the first height sample in the before_s before the settle (a
+    lowered CELL's tags face away, so a rising one may come into view only as it swings). "First
+    moved" starts the last unbroken run of samples, up to the settle, at least moved_in past the
+    row's resting height toward the new state; the resting height is the median of the samples
+    in the window taken while the old state was still settled. None when there is no such run or
+    no resting height."""
+    out, last = [], None
+    for t, v in states:
+        v = int(v)
+        if v == 2:
+            continue
+        if last is not None and v != last[1]:
+            window = [(ht, h) for ht, h in heights if t - before_s <= ht <= t]
+            seen = window[0][0] if window else None
+            rest = sorted(h for ht, h in window if at(states, ht) == last[1])
+            moved = None
+            if rest:
+                base, sign = rest[len(rest) // 2], (1 if v == 0 else -1)
+                for ht, h in reversed(window):
+                    if sign * (h - base) < moved_in:
+                        break
+                    moved = ht
+            out.append((t, CELL_STATES[last[1]], CELL_STATES[v], seen, moved))
+        last = (t, v)
+    return out
+
+
+def cells(paths):
+    """For each log: every CELL that settled the other way, when its row was first seen and first
+    moved before the settle, and the robot's top speed over those 3 s (still means watching).
+    For telling whether the camera sees a TIP's swing before it settles (20 Nov 2026)."""
+    print('%-34s %-14s %7s %-11s %10s %10s %9s' % ('log', 'CELL', 'settled', 'to', 'seen lead', 'moved lead', 'top in/s'))
+    for path in paths:
+        d = read(path)
+        play = [t for t, v in d.get('/Events', []) if re.match(r'PLAY: (RED|BLUE) alliance', str(v))]
+        t0 = play[0] if play else 0.0
+        speed = d.get('/Drive/OdometrySpeedInPerSec', [])
+        for name in CELL_NAMES:
+            heights = d.get('/Hive/Cell/%s/RowHeightIn' % name, [])
+            states = d.get('/Hive/Cell/%s/State' % name, [])
+            for t, a, b, seen, moved in cell_settles(heights, states):
+                top = max([x for st, x in speed if t - 3.0 <= st <= t] or [float('nan')])
+                lead = lambda x: '%9.2fs' % (t - x) if x is not None else '%10s' % '-'
+                print('%-34s %-14s %7.2f %-11s %s %s %9.1f' % (path.split('/')[-1][:34], name, t - t0,
+                                                              a + '->' + b, lead(seen), lead(moved), top))
 
 
 def _auto_steps(d):
@@ -878,6 +935,8 @@ def main(argv):
         volleys(argv[2:])
     elif cmd == 'steps':
         steps(argv[2:])
+    elif cmd == 'cells':
+        cells(argv[2:])
     elif cmd == 'dsbattery':
         dsbattery(argv[2:])
     elif cmd == 'turret':

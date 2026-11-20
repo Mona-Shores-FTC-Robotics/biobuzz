@@ -1694,6 +1694,7 @@ public final class AutoSim {
             double[] pose = pedro(drive.pose);
             double vx = (pose[0] - prev[0]) / LOOP_S, vy = (pose[1] - prev[1]) / LOOP_S;
             double w = AdvantageScopeFrame.wrap(pose[2] - prev[2]) / LOOP_S;
+            turnRadPerS = w;
             prev = pose;
             boolean intaking = running && intakeEnabled && !FieldSim.full(body);
             if (design.sideWallsSlideIn > 0 || design.sideWallsOutIn > 0 || design.flapsDeploy) {
@@ -1981,6 +1982,17 @@ public final class AutoSim {
         /** How far off the robot's centre line that FLOWER may be. */
         static final double EXTRACTOR_DEPLOY_ASIDE_IN = 6;
         boolean extractorWanted, extractorBlocked;
+        /**
+         * The FLOWER stick lowered for a GARDEN gather, as master's {@code GardenGather} lowers it: on the drive before
+         * the card ({@link GardenApproach}) or by the card itself. When it went down (sim seconds), NaN while it is not.
+         */
+        double gardenStickSince = Double.NaN;
+        /** When that stick comes back up (the drive back stopped plus {@code raiseAfterStopMs}); NaN until then. */
+        double gardenStickUpAt = Double.NaN;
+        /** Whether the extractor is down for a GARDEN gather rather than a FLOWER: the log's reason when it rises. */
+        private boolean extractorForGarden;
+        /** The robot's turn rate in the last loop, rad/s ({@link #move}): master's stick waits for a steady turn. */
+        double turnRadPerS;
         /** Draws each seat's lateral error (RobotDesign#seatErrorIn), apart from the field's random so nothing else moves. */
         private java.util.Random seatErrors;
         /** RobotDesign#fullSenseDelayS / fullSenseMissChance: when this filling began, whether it goes unnoticed. */
@@ -2064,23 +2076,35 @@ public final class AutoSim {
             // then drive into it): the FLOWER's pieces stay in it until a shot makes room (FieldSim.hasRoom).
             // Only a path to a FLOWER brings it down: merely passing one (the far FLOWER at the end of the row sweep)
             // used to drop it and then count it blocked, 7 Oct 2026.
-            boolean want = (body.extractorDown > 0 && seated) || (running && pathToFlower);
+            boolean forFlower = (body.extractorDown > 0 && seated) || (running && pathToFlower);
+            // A GARDEN gather's stick (gardenGather, GardenApproach), as master's GardenGather lowers it: down from the
+            // drive in (once the turn is over and the robot has held facing the GARDEN) or the card, through the
+            // gather, up raiseAfterStopMs after the drive back stops. Display and timing only: a GARDEN's POLLEN go by
+            // the mouth's touch (FieldSim.Bot#gardenGather), and the real design has no bar for them to bounce off.
+            if (!Double.isNaN(gardenStickUpAt) && now >= gardenStickUpAt) {
+                gardenStickSince = Double.NaN;
+                gardenStickUpAt = Double.NaN;
+            }
+            boolean forGarden = running && !Double.isNaN(gardenStickSince);
+            boolean want = forFlower || forGarden;
             // It cannot swing down onto a FLOWER already at the face: the block lands on it. Down only if it was down
             // before the robot got there; otherwise it stays where it is and takes nothing (FieldSim.inIntake).
-            boolean blocked = want && inTheWay && body.extractorDown < 1;
+            boolean blocked = forFlower && inTheWay && body.extractorDown < 1;
             if (blocked != extractorBlocked) {
                 extractorBlocked = blocked;
                 if (blocked) log.putEvent(tag() + "extractor blocked: at the FLOWER before it was down", us);
             }
             if (want != extractorWanted) {
                 extractorWanted = want;
-                if (want && design.seatErrorIn > 0) {  // this seat's lateral error (RobotDesign#seatErrorIn)
+                // this seat's lateral error (RobotDesign#seatErrorIn); a GARDEN gather has no seat, and draws none
+                if (want && !forGarden && design.seatErrorIn > 0) {
                     if (seatErrors == null) seatErrors = new java.util.Random(seed * 1_000_003L + index);
                     body.seatErrorIn = (2 * seatErrors.nextDouble() - 1) * design.seatErrorIn;
                     log.putEvent(tag() + String.format(Locale.ROOT, "seat error %.1f in", body.seatErrorIn), us);
                 }
-                log.putEvent(tag() + "extractor " + (want ? "down: driving to a FLOWER"
-                        : running ? "up: leaving the FLOWER" : "up: AUTO ended"), us);
+                log.putEvent(tag() + "extractor " + (want ? (forGarden ? "down: GARDEN gather" : "down: driving to a FLOWER")
+                        : !running ? "up: AUTO ended" : extractorForGarden ? "up: GARDEN gather over" : "up: leaving the FLOWER"), us);
+                extractorForGarden = want && forGarden;
             }
             double step = LOOP_S / design.extractorDeployS;
             double before = body.extractorDown;
@@ -2265,9 +2289,11 @@ public final class AutoSim {
                     // The robot's grabs (master's AutoRegistration, typical times and all): the endgame guard never
                     // cuts one, and does not start one unless it and the park fit.
                     .grab("PickFlower", typical("PICK_FLOWER", AutoRegistration.PICK_FLOWER_TYPICAL_S), this::pickFlower)
-                    .grab("GardenGather", typical("GARDEN_GATHER", AutoRegistration.GARDEN_GATHER_TYPICAL_S), () -> gardenGather(false))
+                    .grab("GardenGather", typical("GARDEN_GATHER", AutoRegistration.GARDEN_GATHER_TYPICAL_S), () -> gardenGather(false),
+                            new GardenApproach(false))
                     .grab("GardenGatherAlongWall", typical("GARDEN_GATHER_ALONG_WALL",
-                            AutoRegistration.GARDEN_GATHER_ALONG_WALL_TYPICAL_S), () -> gardenGather(true))
+                            AutoRegistration.GARDEN_GATHER_ALONG_WALL_TYPICAL_S), () -> gardenGather(true),
+                            new GardenApproach(true))
                     // A row of loose pieces on the tiles ahead (a partner's preloads left for us, doc/three-tips.md):
                     // sim only, the robot has no such card.
                     .grab("SweepRow", SWEEP_ROW_REACH_IN / sweepRowSpeedInPerS, this::sweepRow)
@@ -2583,8 +2609,11 @@ public final class AutoSim {
          * ({@link BeldingCalibration#rollerStick}, the mentor's 19 Nov observation); 20245, with the passive stick,
          * keeps the touch model.
          *
-         * <p>The FLOWER stick goes down on the robot's gather; the simulator does not model the stick in the GARDEN,
-         * only the intake. The gather takes no less than {@link AutoRegistration#GARDEN_GATHER_TYPICAL_S}, which the
+         * <p>The FLOWER stick goes down as master's does ({@link GardenApproach}, then the card's own prep): on the drive
+         * in once its turn is over, or by the card, which stands until it has been on its way down {@code stickDownMs};
+         * it stays down the whole gather and rises {@code raiseAfterStopMs} after the drive back stops. It is shown
+         * ({@code Extractor/Down}, the CAD model's stick) and timed, but takes nothing: a GARDEN's POLLEN go by the
+         * mouth's touch alone (so the roller stick's extra pieces are still {@link BeldingCalibration#rollerStick}'s). The gather takes no less than {@link AutoRegistration#GARDEN_GATHER_TYPICAL_S}, which the
          * guard plans with. No Auto gather on these values is logged yet.
          *
          * <p>With {@code alongWall}, master's {@code GardenGatherAlongWall} ({@code GardenGather.AlongWall}): the
@@ -2631,7 +2660,8 @@ public final class AutoSim {
         private Command gardenGather(boolean alongWall) {
             final double[] startedAt = new double[1];
             final double[] phaseFrom = new double[1];
-            final int[] phase = new int[1];  // 0 refused, 1 drive in, 2 dwell, 3 back, 4 standing out the typical time
+            // 0 refused, 5 standing for the stick, 1 drive in, 2 dwell, 3 back, 4 standing out the typical time
+            final int[] phase = new int[1];
             final Pose[] back = new Pose[1];
             final Pose[] inAt = new Pose[1];
             /** Where the drive in ended: an along-the-wall gather hands over {@code handOverBackIn} out from here. */
@@ -2644,47 +2674,69 @@ public final class AutoSim {
             final double[] closest = new double[1];
             final double[] progressAt = new double[1];
             final double[] phaseS = new double[3];
+            final Runnable driveIn = () -> {
+                drive.maxSpeed = speedBefore[0] * (alongWall ? GardenGather.alongWall.pushPower : GardenGather.driveIn.inSpeed);
+                // The along-the-wall push: no braking before the wall, which stops it.
+                if (alongWall) drive.decel = 1e6;
+                phase[0] = 1;
+                phaseFrom[0] = now;
+                closest[0] = Double.POSITIVE_INFINITY;
+                progressAt[0] = now;
+                drive.follow(Paths.line(back[0], inAt[0]).linear(back[0], inAt[0]));
+            };
             return new CommandBuilder()
                     .setStart(() -> {
                         startedAt[0] = now;
                         double[] at = pedro(drive.pose);
-                        GardenFieldPoints.Garden garden = null;
-                        double best = GardenGather.driveIn.maxRangeIn;
-                        double centre = FieldFrame.FIELD_CENTRE_INCHES;
-                        for (GardenFieldPoints.Garden g : GardenFieldPoints.ALL) {
-                            double d = Math.hypot(g.gather.x() - at[0], g.gather.y() - at[1]);
-                            if ((at[0] < centre) == (g.gather.x() < centre) && d <= best) {
-                                best = d;
-                                garden = g;
-                            }
-                        }
+                        GardenFieldPoints.Garden garden = nearestGarden(at[0], at[1]);
                         intakeBefore[0] = intakeEnabled;
                         speedBefore[0] = drive.maxSpeed;
                         heldBefore[0] = body.stored.size();
                         if (garden != null && alongWall) garden = GardenFieldPoints.alongAudienceWall(garden);
+                        gardenStickUpAt = Double.NaN;
+                        decelBefore[0] = drive.decel;
                         if (garden == null) {
                             phase[0] = 0;
                             drive.hold(drive.pose);
+                            gardenStickUp();
                             pending.add("GardenGather: no GARDEN on our side within " + (int) GardenGather.driveIn.maxRangeIn + " in: refused");
                             return;
                         }
-                        Pose in = gardenInPose(garden, alongWall);
-                        inAt[0] = in;
+                        inAt[0] = gardenInPose(garden, alongWall);
                         back[0] = new Pose(at[0], at[1], at[2]);
                         intakeEnabled = true;
                         body.gardenGather = true;
-                        drive.maxSpeed = speedBefore[0] * (alongWall ? GardenGather.alongWall.pushPower : GardenGather.driveIn.inSpeed);
-                        decelBefore[0] = drive.decel;
-                        // The push: no braking before the wall, which stops it.
-                        if (alongWall) drive.decel = 1e6;
-                        phase[0] = 1;
+                        // Master's prep (GrabRoutine): the stick down, if the drive in did not already lower it, and the
+                        // drive in starts once it has been on its way down stickDownMs, counted from when it was lowered
+                        // (GardenGather#readySinceNs), so a stick lowered on the drive in costs no standing at all.
+                        if (!GardenGather.stick.useStick) {
+                            driveIn.run();
+                            return;
+                        }
+                        // Along the wall, with the stick down long enough on the drive in: master's prep waits for no
+                        // slowing (AlongWall.settledInPerSec), so the push carries the drive's speed on at once.
+                        if (alongWall && !Double.isNaN(gardenStickSince)
+                                && now - gardenStickSince >= GardenGather.stick.stickDownMs / 1000.0) {
+                            driveIn.run();
+                            return;
+                        }
+                        phase[0] = 5;
                         phaseFrom[0] = now;
-                        closest[0] = Double.POSITIVE_INFINITY;
-                        progressAt[0] = now;
-                        drive.follow(Paths.line(back[0], in).linear(back[0], in));
+                        drive.hold(drive.pose);
                     })
                     .setExecute(() -> {
-                        if (phase[0] == 1 && (gardenDriveInOver(inAt[0], closest, progressAt)
+                        if (phase[0] == 5) {
+                            // The card lowers the stick only with the turn steady (GardenGather#steadyForPrep).
+                            if (Double.isNaN(gardenStickSince) && Math.abs(Math.toDegrees(turnRadPerS)) <= GardenGather.stick.lowerMaxTurnDegPerSec) {
+                                gardenStickDown("GardenGather: stick down at the card");
+                            }
+                            if (!Double.isNaN(gardenStickSince) && now - gardenStickSince >= GardenGather.stick.stickDownMs / 1000.0) {
+                                if (now - phaseFrom[0] > LOOP_S / 2) {
+                                    pending.add(String.format(Locale.ROOT, "GardenGather: stood %.2f s for the stick", now - phaseFrom[0]));
+                                }
+                                driveIn.run();
+                            }
+                        } else if (phase[0] == 1 && (gardenDriveInOver(inAt[0], closest, progressAt)
                                 || now - phaseFrom[0] >= GardenGather.driveIn.inTimeoutMs / 1000.0)) {
                             phaseS[0] = now - phaseFrom[0];
                             phase[0] = 2;
@@ -2708,6 +2760,9 @@ public final class AutoSim {
                             drive.hold(drive.pose);
                             intakeEnabled = intakeBefore[0];
                             drive.maxSpeed = speedBefore[0];
+                            // The stick stays down the whole way out and rises raiseAfterStopMs after the drive back
+                            // stops (master's stopMechanisms); without a timed raise, master's backs out first: up now.
+                            gardenStickUpAt = now + Math.max(0, GardenGather.stick.raiseAfterStopMs) / 1000.0;
                             // Best case (BIOBUZZ_BELDING_ROBOT=full, or _OURS / _PARTNER for one robot): every load is four,
                             // a gather's too. The roller stick (19429) fills the lane on a gather that ran to its end.
                             if (BeldingCalibration.on && (BeldingCalibration.fullLoads(index) || BeldingCalibration.rollerFills(index))) {
@@ -2728,6 +2783,8 @@ public final class AutoSim {
                             && now - startedAt[0] >= (alongWall ? gardenGatherAlongWallMinS : gardenGatherMinS)))
                     .setEnd(end -> {
                         body.gardenGather = false;
+                        // Cut or stopped before its drive back was done: the stick comes up now.
+                        if (Double.isNaN(gardenStickUpAt)) gardenStickUp();
                         intakeEnabled = intakeBefore[0];
                         drive.maxSpeed = speedBefore[0];
                         drive.decel = decelBefore[0];
@@ -2782,6 +2839,92 @@ public final class AutoSim {
             x = red ? Math.max(x, reachX) : Math.min(x, size - reachX);
             y = red ? Math.max(y, reachY) : Math.min(y, size - reachY);
             return new Pose(x, y, heading);
+        }
+
+        /** The GARDEN an Auto's gather from (x, y) goes for, as master's: the nearest on our half within maxRangeIn, or null. */
+        private GardenFieldPoints.Garden nearestGarden(double x, double y) {
+            GardenFieldPoints.Garden garden = null;
+            double best = GardenGather.driveIn.maxRangeIn;
+            double centre = FieldFrame.FIELD_CENTRE_INCHES;
+            for (GardenFieldPoints.Garden g : GardenFieldPoints.ALL) {
+                double d = Math.hypot(g.gather.x() - x, g.gather.y() - y);
+                if ((x < centre) == (g.gather.x() < centre) && d <= best) {
+                    best = d;
+                    garden = g;
+                }
+            }
+            return garden;
+        }
+
+        /** The GARDEN gather's stick down (gardenStickSince), with why in the log; nothing if it is down already. */
+        private void gardenStickDown(String why) {
+            gardenStickUpAt = Double.NaN;
+            if (!Double.isNaN(gardenStickSince)) return;
+            gardenStickSince = now;
+            pending.add(why);
+        }
+
+        /** The GARDEN gather's stick up now, if it is down. */
+        private void gardenStickUp() {
+            if (!Double.isNaN(gardenStickSince)) gardenStickUpAt = now;
+        }
+
+        /**
+         * Master's {@code GardenGather.approach}, which AutoKit runs while the path card right before a GardenGather card
+         * drives: the stick down within {@code autoStick.approachLowerWithinIn} of the drive's end, on a drive that ends
+         * facing the GARDEN the gather will go for, once the robot has faced it (to {@code autoStick.approachFacingDeg})
+         * and turned slower than {@code stick.lowerMaxTurnDegPerSec} for {@code autoStick.facingHoldMs} without a break.
+         * A drive that turns all the way in leaves the stick to the card. Cancelled (the gather does not run), the stick
+         * comes up. Every number is read from GardenGather. Master's also starts the intake here; the simulator leaves the
+         * intake to the card, so what the gather takes is as before.
+         */
+        private final class GardenApproach implements AutoRegistry.Approach {
+            /** For a GardenGatherAlongWall card: the way in along the audience wall, facing the side wall. */
+            private final boolean alongWall;
+            private GardenFieldPoints.Garden garden;
+
+            GardenApproach(boolean alongWall) {
+                this.alongWall = alongWall;
+            }
+            private boolean endsFacing, lowered;
+            private double facingSince = Double.NaN;
+
+            private boolean facing(double headingRad) {
+                return Math.abs(Math.toDegrees(AdvantageScopeFrame.wrap(garden.gather.heading() - headingRad)))
+                        <= GardenGather.autoStick.approachFacingDeg;
+            }
+
+            @Override
+            public void started(Pose end) {
+                garden = nearestGarden(end.x(), end.y());
+                if (garden != null && alongWall) garden = GardenFieldPoints.alongAudienceWall(garden);
+                endsFacing = garden != null && facing(end.heading());
+                facingSince = Double.NaN;
+                lowered = false;
+            }
+
+            @Override
+            public void approaching(Pose pose, double remainingIn) {
+                if (lowered || garden == null || !endsFacing
+                        || !GardenGather.stick.useStick || !GardenGather.autoStick.lowerOnDriveIn) return;
+                if (!facing(pose.heading()) || Math.abs(Math.toDegrees(turnRadPerS)) > GardenGather.stick.lowerMaxTurnDegPerSec) {
+                    facingSince = Double.NaN;
+                    return;
+                }
+                if (Double.isNaN(facingSince)) facingSince = now;
+                if (remainingIn > GardenGather.autoStick.approachLowerWithinIn
+                        || (now - facingSince) * 1000 < GardenGather.autoStick.facingHoldMs) return;
+                lowered = true;
+                gardenStickDown(String.format(Locale.ROOT, "GARDEN gather: stick down on the drive in, %.1f in to go", remainingIn));
+            }
+
+            @Override
+            public void cancel() {
+                if (!lowered) return;
+                lowered = false;
+                gardenStickUp();
+                pending.add("GARDEN gather: not running after this drive, stick up");
+            }
         }
 
         /**
