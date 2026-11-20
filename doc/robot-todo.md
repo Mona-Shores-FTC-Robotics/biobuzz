@@ -35,6 +35,14 @@ this is not a claim that every unchecked item below has passed.
       "Last shot". At STOP every volley goes to the match log as a `volley …` event. **Good:** one
       line per volley, the shot count matches what left the robot. **Stop:** one volley split in
       two (shots more than 1.5 s apart: `VolleyHistory.VOLLEY_GAP_S`) or two run together → note it.
+- [ ] **Speed table during a moving feed** (`TeleOpConfig.speedTableDuringFeed`, 20 Nov, off,
+      not driven). Off, the launch speed is held from gate open to feed end: on 19 Nov 19429 held
+      1507 ticks/s from 48 in while the driver drove to 52–55 in (table: 1530–1550). Basic Drive,
+      loaded, film the shots: hold Circle and drive slowly away from the CELL from about 45 to 60 in,
+      five volleys with it off, then five with it on in Panels. **Good:** with it on the log has
+      `speed table … during the feed` lines, the far balls land no shorter than the near ones, and
+      the shot count matches the video. **Stop:** shots left uncounted with it on (the detector
+      reseeds on each change) → leave it off and note the count against the video.
 - [ ] **19429, when it is back:** the same three volleys. Its old −25 offset matches the new rows
       within about 5 ticks/s from 42 to 55 in, so it starts at 0. **Stop:** long or short at every
       range by the same amount → that amount is its new `RobotDifferences` offset line.
@@ -164,13 +172,22 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [ ] 19429 turret: floor 0.065 (done), kP 0.008 (done), kD ___, reversals/s before 1.18 (18 Nov) / 1.38 (19 Nov),
       after 0.75 to 1.29 at kP 0.008 (00:18 logs, only 59 s still: too little to judge; kP 0.005 read 0.38 to 0.41
       but sat 3° off). Next: a longer still hold, then `kD` 0.0015 if it still hunts.
-11. **The robot's orange light, and Circle in LOCKED** (20 Nov 2026, not yet on a robot). Basic Drive.
-   - Turret **AIM**: drive so the CELL is behind the robot. **Good:** the robot's indicator light goes
-     steady orange without Circle pressed, flashes orange with Circle held (19429 does not shoot; 20245
-     shoots), and goes off within about a third of a second of the CELL coming round in front. A full
-     lane still shows green, except while Circle is held behind the arc. The orange is goBILDA's chart
-     value (`IndicatorSubsystem.ORANGE` 0.333), not yet seen on the light: if it reads red or yellow,
-     set it in Panels and put the number in a PR.
+11. **Circle turns the CELL into the firing arc, and Circle in LOCKED** (20 Nov 2026, not yet on a
+    robot). Basic Drive.
+   - Turret **AIM**, `TeleOpConfig.circleTurnsIntoArc` on (the default): drive so the CELL is behind
+     the robot, loaded, and press Circle. **Good:** the robot turns the short way until the CELL is about
+     10° inside the arc's edge (`arcTurnMarginDeg`), the turret swings onto it, and the volley goes, on
+     both robots; the log has `arc turn: … turning` then `arc turn: aim inside the firing arc`. As
+     the turn starts the light gives one solid orange pulse of about 0.4 s
+     (`IndicatorSubsystem.ARC_TURN_PULSE_MS`), over the green if the lane is full, then goes back to
+     green or dark; no rumble. The light stays dark while driving with the CELL behind. Pushing the
+     right stick during the turn hands it back (`arc turn cancelled: right stick`); then the light
+     flashes orange while Circle is held behind the arc (19429 does not shoot; 20245 shoots). Ten
+     presses from all round the CELL. **Stop:** it turns the long way, swings past and back, or the
+     drivers find it fights them → switch `circleTurnsIntoArc` off in Panels (the old steady light
+     and refusal) and note which press. The orange is goBILDA's chart value
+     (`IndicatorSubsystem.ORANGE` 0.333): if it reads red or yellow, set it in Panels and put the
+     number in a PR.
    - Turret **LOCKED**, the CELL 10 to 40° off: hold Circle. **Good:** the robot turns onto the CELL and
      stops on it, and the volley goes. The chassis aim now never asks for less than
      `TeleOpConfig.chassisAimMinTurn` (0.2, a starting point: 0.14 did not turn 19429, 0.28 did): if it

@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
@@ -223,6 +224,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private boolean circleAimFires;
     /** A stick moved after Circle went down hands the turn back (and ends the press's fire) only if fresh. */
     private final FreshSticks circleSticks = new FreshSticks();
+    /** The same for a Circle press in AIM that turns the robot into the firing arc ({@link ArcTurn}). */
+    private final FreshSticks arcTurnSticks = new FreshSticks();
+    /** This loop's {@link ArcTurn#errorDeg} for a Circle press in AIM; NaN when no such press. */
+    private double arcTurnErrorDeg = Double.NaN;
+    /** A Circle press in AIM is turning the robot into the firing arc this loop ({@link TeleOpConfig#circleTurnsIntoArc}). */
+    private boolean arcTurning;
+    /** The right stick took this press's arc turn back; lasts until Circle is let go. */
+    private boolean arcTurnCancelled;
     /** Circle was held last loop, to see a press start. */
     private boolean lastCircle;
     /** The driver's slow button this loop, for the Robot page. */
@@ -239,7 +248,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * is enforced ({@link TeleOpConfig#enforceFiringArc}): what the robot's orange light shows.
      */
     private boolean outsideArc;
-    /** The robot's orange light: steady outside the firing arc, flashing with a fire held there. */
+    /**
+     * The robot's orange light: flashing with a fire held outside the firing arc that nothing turns in;
+     * with {@link TeleOpConfig#circleTurnsIntoArc} off, also steady outside it.
+     */
     private final ArcLight arcLight = new ArcLight();
     /** This loop's arc light, handed to the indicator ({@link #arcLight()}). */
     private ArcLight.State arcLightShown = ArcLight.State.NONE;
@@ -809,9 +821,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
         reapplyLaunchSpeed();
         spotLauncher();
         boolean chassisAim = chassisAim(circleSticks.moved(circleAimHeld(), rightStick, nowS, staleS));
-        chassisAimDriving = chassisAim;
+        boolean arcTurn = arcTurn(arcTurnSticks.moved(circleFires, rightStick, nowS, staleS));
+        // Either turn holds the aim gate, so the feed waits until the shot is on the CELL.
+        chassisAimDriving = chassisAim || arcTurn;
         if (!routineActive()) {
-            double turnCommand = chassisAim ? chassisAimTurn() : turn;
+            double turnCommand = chassisAim ? chassisAimTurn() : arcTurn ? arcTurnPower() : turn;
             robot.drive.setAccelLimited(true);
             // The scale is also the wheel cap, so slow is that fraction of full power in every
             // direction: without it, a diagonal or a turn saturated to full power
@@ -924,6 +938,47 @@ public class BasicDriveTeleOp extends RobotOpMode {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Whether a Circle press in AIM turns the robot into the firing arc this loop ({@link ArcTurn},
+     * {@link TeleOpConfig#circleTurnsIntoArc}): held as a plain fire, the aim outside the arc (or the
+     * turn not yet finished), no routine driving, and not handed back by the right stick since the
+     * press. One log line as it starts and one as it ends.
+     */
+    private boolean arcTurn(boolean rightStick) {
+        boolean was = arcTurning;
+        if (!circleFires || !TeleOpConfig.circleTurnsIntoArc || TurretSubsystem.lockedForward
+                || turretMode != TurretMode.AIM) {
+            arcTurnCancelled = false;
+            arcTurnErrorDeg = Double.NaN;
+            arcTurning = false;
+        } else {
+            double aim = aimer.aimDeg();
+            arcTurnErrorDeg = ArcTurn.errorDeg(aim, arcCentre(), TeleOpConfig.arcTurnMarginDeg);
+            boolean outside = !Double.isNaN(aim) && !TurretArc.contains(aim, arcCentre());
+            boolean wants = ArcTurn.turning(was, arcTurnErrorDeg, outside, 0.5 * TeleOpConfig.aimToleranceDeg);
+            if (wants && rightStick && !arcTurnCancelled) {
+                arcTurnCancelled = true;
+                log.event("arc turn cancelled: right stick");
+            }
+            arcTurning = wants && !arcTurnCancelled && !routineActive();
+        }
+        if (arcTurning && !was) {
+            // One solid orange as the turn starts, so the driver lets the robot turn (ArcLight.PULSE).
+            arcLight.pulse(System.nanoTime() / 1_000_000L, (long) IndicatorSubsystem.ARC_TURN_PULSE_MS);
+            log.event(String.format(Locale.US, "arc turn: aim %.0f° is behind the firing arc, turning %+.0f° to bring it in",
+                    TurretEncoder.wrap180(aimer.aimDeg()), arcTurnErrorDeg));
+        } else if (!arcTurning && was) {
+            log.event(circleFires && !arcTurnCancelled ? "arc turn: aim inside the firing arc" : "arc turn: stopped");
+        }
+        return arcTurning;
+    }
+
+    /** The arc turn's power: the chassis aim's gains on {@link #arcTurnErrorDeg} ({@link ChassisAimTurn}). */
+    private double arcTurnPower() {
+        return ChassisAimTurn.power(arcTurnErrorDeg, TeleOpConfig.chassisAimKp, TeleOpConfig.chassisAimMinTurn,
+                TeleOpConfig.chassisAimMaxTurn, 0.5 * TeleOpConfig.aimToleranceDeg);
     }
 
     /**
@@ -1151,8 +1206,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
         outsideArc = !TurretArc.allowsFeed(TurretSubsystem.lockedForward ? 0.0 : robot.turret.angleDegrees(),
                 turretMode == TurretMode.AIM ? aimer.aimDeg() : Double.NaN, arcCentre());
         arcBlocked = TeleOpConfig.enforceFiringArc && outsideArc;
+        // TeleOpConfig.circleTurnsIntoArc: a Circle press in AIM waits for the aim to come inside
+        // the arc, on every robot, while the arc turn brings it there (ArcTurn). It is not a refusal:
+        // no rumble, no refusal line, no light.
+        boolean arcWaiting = arcTurning && outsideArc;
         boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, enforceAim)
-                && (!spunUpByFire || robot.launcher.atSpeed()) && !arcBlocked;
+                && (!spunUpByFire || robot.launcher.atSpeed()) && !arcBlocked && !arcWaiting;
         // Circle alone in LOCKED: the feed waits until the robot is on the CELL and at speed.
         if (circleAimShot()) {
             open = CirclePress.mayFeed(CirclePress.Kind.AIM_AND_FIRE, open,
@@ -1162,7 +1221,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             log.event(fireLine(open));
         }
         boolean wantsFeed = fireHeld || launchSpot.feedRequested();
-        boolean refusing = wantsFeed && arcBlocked;
+        boolean refusing = wantsFeed && arcBlocked && !arcTurning;
         if (!wantsFeed) arcRumbled = false;
         if (refusing && !arcRefusing) {
             log.event(String.format(Locale.US, "fire: refused, outside the firing arc (turret %.0f°, aim %s, arc +%.0f/-%.0f° about %.1f°, the aim trim)",
@@ -1177,7 +1236,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
         arcRefusing = refusing;
         // The robot's orange light: steady while the shot is behind the arc, so the driver sees it
         // before pressing; flashing while a fire is held there, refused or (arc not enforced) fed.
-        ArcLight.State light = arcLight.update(outsideArc, wantsFeed, System.nanoTime() / 1_000_000L);
+        // With TeleOpConfig.circleTurnsIntoArc the light stays out of normal driving: it flashes only
+        // for a fire held outside the arc that nothing is turning into it (refused, or with the arc
+        // not enforced, fed anyway).
+        ArcLight.State light = arcLight.update(TeleOpConfig.circleTurnsIntoArc
+                        ? wantsFeed && outsideArc && !arcTurning : outsideArc,
+                wantsFeed, System.nanoTime() / 1_000_000L);
         // In the log, so a light the drive team never saw can be told from one never shown.
         if (light != arcLightShown) log.event("indicator: firing arc " + light);
         if (light == ArcLight.State.FLASH && arcLightShown != ArcLight.State.FLASH) {
@@ -1247,6 +1311,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 : String.format(Locale.US, "pose (%.1f, %.1f, %.0f°)%s", pose.x(), pose.y(),
                 Math.toDegrees(pose.heading()), robot.drive.poseReferenced() ? "" : " not on the field");
         String outcome = unjamHeld() ? "not fed: unjam is held"
+                : arcTurning && outsideArc ? "TURNING: the robot turns the CELL into the firing arc, then feeds"
                 : arcBlocked ? "NOT FED: outside the turret's firing arc (CELL behind)"
                 : !open && spunUpByFire ? "SPINNING UP: feeds at launch speed"
                 : !open ? "WAITING: an enforced gate is closed"
@@ -1399,12 +1464,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * spot's range (the wheels spin up for it on the way), else {@link #shotRangeIn()}'s odometry.
      * Held within half the launcher's tolerance
      * ({@link LaunchSpeedTable#held}) and never changed while the feeder feeds, so a range that
-     * wobbles never re-arms at-speed or the shot detector mid-volley. With the table switched off
+     * wobbles never re-arms at-speed or the shot detector mid-volley, unless
+     * {@link TeleOpConfig#speedTableDuringFeed} is on ({@link #tableFollowsRange}). With the table switched off
      * ({@link LaunchSpeedTable#enabled}) or no usable row, the configured speed stands, exactly as
      * before the table.
      */
     private void updateTableSpeed() {
-        if (robot.feeder.state() == FeederSubsystem.State.FEED) return;
+        boolean feeding = robot.feeder.state() == FeederSubsystem.State.FEED;
+        if (!tableFollowsRange(feeding, TeleOpConfig.speedTableDuringFeed)) return;
         double next;
         double range = Double.NaN;
         boolean fromSpot = false;
@@ -1426,8 +1493,17 @@ public class BasicDriveTeleOp extends RobotOpMode {
         log.event(Double.isNaN(next)
                 ? String.format(Locale.US, "launcher: speed table %s, configured speed %.0f ticks/s",
                         LaunchSpeedTable.enabled ? "has no rows" : "off", launchSpeed())
-                : String.format(Locale.US, "launcher: speed table %.0f ticks/s at %.0f in (%s), launch speed %.0f",
-                        next, range, fromSpot ? "launch spot" : rangeSource(), launchSpeed()));
+                : String.format(Locale.US, "launcher: speed table %.0f ticks/s at %.0f in (%s), launch speed %.0f%s",
+                        next, range, fromSpot ? "launch spot" : rangeSource(), launchSpeed(),
+                        feeding ? " during the feed" : ""));
+    }
+
+    /**
+     * Whether the speed table may move the launch speed this loop: always between feeds, and during
+     * one only with {@link TeleOpConfig#speedTableDuringFeed} on. Pure, so a test can check it.
+     */
+    static boolean tableFollowsRange(boolean feeding, boolean duringFeed) {
+        return !feeding || duringFeed;
     }
 
     /** The launcher, feeder, aim and controls to Panels, flat keys, one update per loop. Never takes the robot down. */

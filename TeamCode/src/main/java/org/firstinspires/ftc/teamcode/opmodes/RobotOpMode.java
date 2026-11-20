@@ -674,7 +674,8 @@ public abstract class RobotOpMode extends OpMode {
         ArcLight.State arc = init ? ArcLight.State.NONE : arcLight();
         robot.indicator.show(IndicatorSubsystem.choose(init, init && initWarningFlash(),
                 robot.colorSensor.full(), setup.alliance(),
-                arc != ArcLight.State.NONE, arc == ArcLight.State.FLASH));
+                arc == ArcLight.State.ORANGE || arc == ArcLight.State.FLASH, arc == ArcLight.State.FLASH,
+                arc == ArcLight.State.PULSE));
     }
 
     /**

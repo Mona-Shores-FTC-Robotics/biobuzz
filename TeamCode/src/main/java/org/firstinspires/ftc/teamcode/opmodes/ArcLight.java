@@ -17,13 +17,38 @@ package org.firstinspires.ftc.teamcode.opmodes;
  *
  * <p>Orange: the mentor's choice over purple (20 Nov 2026).
  *
+ * <p>With {@code TeleOpConfig.circleTurnsIntoArc} on, the TeleOp only says "outside" here while a
+ * fire is held outside the arc with nothing turning it in ({@code ArcTurn}), so the light is dark in
+ * normal driving and never steady orange (mentor, 20 Nov 2026: the steady light was gaudy and broke
+ * up normal driving).
+ *
  * <p>Outside lights it at once; back inside, it waits {@link #CLEAR_MS} before it clears. On
  * 20245, 19 Nov 2026, an aim sitting on the arc's 90° edge turned the flash on and off 13 times in
  * 2.7 s, each a new light command, and none of it was readable.
  */
 final class ArcLight {
 
-    enum State { NONE, ORANGE, FLASH }
+    /**
+     * {@link #PULSE}: one solid orange of {@code IndicatorSubsystem.ARC_TURN_PULSE_MS} as Circle's
+     * arc turn starts ({@code ArcTurn}), telling the driver the robot is turning itself, so they let
+     * it (mentor, 20 Nov 2026). It outranks a full lane's green, which comes back after it, but not
+     * {@link #FLASH}.
+     */
+    enum State { NONE, ORANGE, FLASH, PULSE }
+
+    /** The pulse ends here, ms on {@link #update}'s clock; {@code Long.MIN_VALUE} for none. */
+    private long pulseUntilMs = Long.MIN_VALUE;
+
+    /**
+     * Starts the arc turn's pulse at {@code nowMs}, {@code lengthMs} long (a later start restarts it).
+     * It also clears the flash's {@link #CLEAR_MS} hold from before: a turn starting means the robot is
+     * handling the CELL behind the arc again, so a flash left from a cancelled press does not cover the
+     * pulse. A fire held outside the arc after this, with nothing turning, flashes again at once.
+     */
+    void pulse(long nowMs, long lengthMs) {
+        pulseUntilMs = nowMs + Math.max(0L, lengthMs);
+        lastOutsideMs = Long.MIN_VALUE;
+    }
 
     /** Back inside the arc this long, ms, before the light clears. */
     static final long CLEAR_MS = 300;
@@ -41,7 +66,8 @@ final class ArcLight {
     State update(boolean outsideArc, boolean fireHeld, long nowMs) {
         if (outsideArc) lastOutsideMs = nowMs;
         boolean lit = lastOutsideMs != Long.MIN_VALUE && nowMs - lastOutsideMs < CLEAR_MS;
-        if (!lit) return State.NONE;
-        return fireHeld ? State.FLASH : State.ORANGE;
+        if (lit && fireHeld) return State.FLASH;
+        if (pulseUntilMs != Long.MIN_VALUE && nowMs < pulseUntilMs) return State.PULSE;
+        return lit ? State.ORANGE : State.NONE;
     }
 }

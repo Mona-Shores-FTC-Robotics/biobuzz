@@ -112,6 +112,22 @@ public final class TeleOpConfig {
     public static double maxLauncherTrimTps = 150.0;
 
     /**
+     * The speed table follows the range during a feed too, so a volley fired while the robot moves
+     * goes at the speed for where each ball leaves, not for where the feed started. Off (the rule
+     * since the table came in): the launch speed is held from the moment the gate opens until the
+     * feed ends. In the 19 Nov 2026 logs on 19429 a Circle pressed at 48 in held 1507 ticks/s while
+     * the driver drove to 52–55 in, where the table gives 1530–1550.
+     *
+     * <p><b>A test switch, not measured.</b> With it on, each change the table makes mid-feed (a
+     * step of at least half the launcher's tolerance) reseeds the shot detector's level, so a shot
+     * taken while it reseeds can go uncounted, and the lane's count with it. Each mid-feed change
+     * is logged ("speed table … during the feed"); compare the shot count with the video and the
+     * hits with the off runs. Read every loop. TeleOp only: an Auto's {@code LaunchAll} picks its
+     * speed once, from where it stops.
+     */
+    public static boolean speedTableDuringFeed = false;
+
+    /**
      * The intake runs all match unless something else asks: from PLAY, as in an Auto. The roller
      * slows to hold the last piece and the prefeed stops by themselves when the lane is full, and
      * both start again when a shot makes room; either L2 reverses it while held; a FLOWER pick or
@@ -149,6 +165,29 @@ public final class TeleOpConfig {
      * {@code RobotDifferences}.
      */
     public static boolean enforceFiringArc = true;
+
+    /**
+     * Circle with the turret AIMing and the CELL behind its firing arc: the robot turns just far
+     * enough for the aim to come {@link #arcTurnMarginDeg} inside the arc, the turret swings onto the
+     * CELL, and the shot goes ({@link ArcTurn}). The feed waits for the aim to be inside, whatever
+     * {@link #enforceFiringArc} says, and the robot's light stays out of it: no steady orange, and no
+     * flash or rumble for a press the turn is sorting out. The light only flashes when a fire is
+     * refused and nothing turns (the right stick took the turn back, or no aim). Moving the right
+     * stick after the press hands the turn back, as the LOCKED chassis aim does.
+     *
+     * <p>Off: the rule until 20 Nov 2026, the steady orange light outside the arc and a refusal (or,
+     * with the arc not enforced, a shot into the robot). The turn uses the chassis aim's
+     * {@link #chassisAimKp}, {@link #chassisAimMinTurn} and {@link #chassisAimMaxTurn}. On (mentor,
+     * 20 Nov 2026: the orange light was gaudy and broke up normal driving), <b>not yet driven</b>.
+     */
+    public static boolean circleTurnsIntoArc = true;
+
+    /**
+     * {@link #circleTurnsIntoArc}: how far inside the arc's edge the turn stops, degrees, so a robot
+     * that drifts does not put the aim straight back outside. 10 is a starting point, <b>not
+     * measured</b>. Kept below half the narrower side of the arc; NaN or negative is 0, the edge.
+     */
+    public static double arcTurnMarginDeg = 10.0;
 
     /**
      * Basic Drive starts at PLAY with the turret aiming (AIM) rather than LOCKED straight ahead, on
