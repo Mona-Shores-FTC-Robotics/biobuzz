@@ -384,8 +384,50 @@ public final class GardenGather extends GrabRoutine {
     /** See {@link Back}. */
     public static Back back = new Back();
 
+    /**
+     * An Auto's other way in, the {@code GardenGatherAlongWall} card ({@link #alongWallCommand}): along the
+     * audience wall into the corner, facing the side wall, the wall on the robot's left, so the intake's left
+     * edge runs down the GARDEN's row of POLLEN ({@link GardenFieldPoints#alongAudienceWall}). Found by hand
+     * on 20 Nov 2026 (mentor: 4 POLLEN the same way every time). The drive before the card comes down the
+     * field already facing the side wall and strafes onto the wall, so the card does not stop or turn: it
+     * pushes straight on into the corner (the two-step push, never a braking path), dwells, and hands the
+     * robot to the next path after {@link AlongWall#handOverBackIn} of back out, toward where it came from.
+     * The drive in, dwell and back speeds and the stick are {@link DriveIn}'s, {@link Dwell}'s, {@link Back}'s
+     * and {@link Stick}'s. Not yet run in an Auto: every number here is a plan.
+     */
+    public static final class AlongWall {
+        /**
+         * The push's forward power, 0 to 1. The robot is already driving at the wall when the card starts,
+         * so the push carries it on without a stop.
+         */
+        public double pushPower = 1.0;
+        /**
+         * The push starts once the robot has slowed below this, inches/s: so high it never waits, since the
+         * drive before the card already goes the push's way (the corner gather's {@link DriveIn#settledInPerSec}
+         * waits because its drive in turns off the drive before it).
+         */
+        public double settledInPerSec = 1000.0;
+        /**
+         * How far the intake turns toward the audience wall, degrees (counter-clockwise for red, as
+         * {@link DriveIn#intoCornerDeg} turns the corner gather toward the side wall). 0: square to the side
+         * wall, the robot's left side flat along the audience wall, as it was driven by hand.
+         */
+        public double intoCornerDeg = 0.0;
+        /**
+         * The gather hands the robot to the next path once it has backed this far out of the corner, inches,
+         * rather than backing all the way to where the card started and stopping there. The next path leaves
+         * the same way, back along the wall.
+         */
+        public double handOverBackIn = 1.0;
+    }
+
+    /** See {@link AlongWall}. */
+    public static AlongWall alongWall = new AlongWall();
+
 
     private Garden garden;
+    /** This is an Auto's {@code GardenGatherAlongWall}: the along-the-audience-wall way in ({@link AlongWall}). */
+    private final boolean alongTheWall;
 
     /** The button's gather: lines up first. */
     public GardenGather(Robot robot, Consumer<String> event) {
@@ -393,12 +435,26 @@ public final class GardenGather extends GrabRoutine {
     }
 
     private GardenGather(Robot robot, Consumer<String> event, boolean lineUp) {
+        this(robot, event, lineUp, false);
+    }
+
+    private GardenGather(Robot robot, Consumer<String> event, boolean lineUp, boolean alongTheWall) {
         super(robot, event, lineUp);
+        this.alongTheWall = alongTheWall;
     }
 
     /** An Auto's {@code GardenGather} card: a whole gather from where the robot is, and back there. */
     public static Command command(Robot robot, Consumer<String> event) {
         return GrabRoutine.command(() -> new GardenGather(robot, event, false));
+    }
+
+    /**
+     * An Auto's {@code GardenGatherAlongWall} card ({@link AlongWall}): from where the drive before it ended,
+     * on the audience wall facing the side wall, a push on into the corner, a dwell, and a hand-over to the
+     * next path once the robot has backed {@link AlongWall#handOverBackIn} out.
+     */
+    public static Command alongWallCommand(Robot robot, Consumer<String> event) {
+        return GrabRoutine.command(() -> new GardenGather(robot, event, false, true));
     }
 
     /**
@@ -409,12 +465,21 @@ public final class GardenGather extends GrabRoutine {
      * runs it while that path card drives. Cancelled, the stick comes back up.
      */
     public static AutoRegistry.Approach approach(Robot robot, Consumer<String> event) {
-        return new Approach(robot, event);
+        return new Approach(robot, event, false);
+    }
+
+    /**
+     * {@link #approach} for a {@code GardenGatherAlongWall} card: the same rules, facing the side wall
+     * along the audience wall ({@link GardenFieldPoints#alongAudienceWall}).
+     */
+    public static AutoRegistry.Approach alongWallApproach(Robot robot, Consumer<String> event) {
+        return new Approach(robot, event, true);
     }
 
     private static final class Approach implements AutoRegistry.Approach {
         private final Robot robot;
         private final Consumer<String> event;
+        private final boolean alongTheWall;
         /** The GARDEN the gather after this drive will go for, from where the drive ends; null for none. */
         private Garden garden;
         /** Whether the drive ends facing that GARDEN: one that does not never lowers the stick. */
@@ -423,14 +488,15 @@ public final class GardenGather extends GrabRoutine {
         private long facingSinceNs;
         private boolean lowered;
 
-        Approach(Robot robot, Consumer<String> event) {
+        Approach(Robot robot, Consumer<String> event, boolean alongTheWall) {
             this.robot = robot;
             this.event = event;
+            this.alongTheWall = alongTheWall;
         }
 
         @Override
         public void started(Pose end) {
-            garden = nearest(end.x(), end.y(), true);
+            garden = autoGarden(end.x(), end.y(), alongTheWall);
             endsFacing = garden != null && facing(garden, end.heading());
             facingSinceNs = 0;
             lowered = false;
@@ -449,7 +515,8 @@ public final class GardenGather extends GrabRoutine {
             lowered = true;
             robot.flowerStick.extend();
             robot.intake.intake();
-            event.accept(String.format(Locale.US, "GARDEN gather: stick down on the drive in, %.1f in to go", remainingIn));
+            event.accept(String.format(Locale.US, "%s: stick down on the drive in, %.1f in to go",
+                    alongTheWall ? "GARDEN gather along the wall" : "GARDEN gather", remainingIn));
         }
 
         @Override
@@ -457,7 +524,7 @@ public final class GardenGather extends GrabRoutine {
             if (!lowered) return;
             lowered = false;
             robot.flowerStick.retract();
-            event.accept("GARDEN gather: not running after this drive, stick up");
+            event.accept((alongTheWall ? "GARDEN gather along the wall" : "GARDEN gather") + ": not running after this drive, stick up");
         }
     }
 
@@ -506,19 +573,35 @@ public final class GardenGather extends GrabRoutine {
         return nearest;
     }
 
+    /**
+     * An Auto card's way in from ({@code x}, {@code y}): the nearest GARDEN on the robot's own half within
+     * {@link DriveIn#maxRangeIn}, facing the audience wall, or with {@code alongTheWall} its way in along that
+     * wall ({@link AlongWall}); null for none. Range is to the GARDEN's own gather pose either way.
+     */
+    static Garden autoGarden(double x, double y, boolean alongTheWall) {
+        Garden g = nearest(x, y, true);
+        return g == null || !alongTheWall ? g : GardenFieldPoints.alongAudienceWall(g);
+    }
+
     @Override
     protected String what() {
-        return "GARDEN gather";
+        return alongTheWall ? "GARDEN gather along the wall" : "GARDEN gather";
     }
 
     @Override
     protected String findTarget(Pose pose) {
         // The nearest in range; in an Auto, only one on the robot's own half (GrabRoutine). The
         // button, with anyCorner, the nearest corner, facing the wall nearer its heading.
-        garden = !inAuto() && button.anyCorner
+        garden = alongTheWall ? autoGarden(pose.x(), pose.y(), true)
+                : !inAuto() && button.anyCorner
                 ? GardenFieldPoints.nearestCorner(pose.x(), pose.y(), pose.heading(), nn(driveIn.maxRangeIn))
                 : nearest(pose.x(), pose.y(), inAuto());
         return garden == null ? null : garden.toString();
+    }
+
+    @Override
+    protected double handOverBackIn() {
+        return alongTheWall ? nn(alongWall.handOverBackIn) : 0.0;
     }
 
     @Override
@@ -571,7 +654,8 @@ public final class GardenGather extends GrabRoutine {
      */
     @Override
     protected Pose inOver(Pose from, Pose to) {
-        return twoStep.twoStepIn ? overTo(garden, from) : null;
+        // Along the wall: always the push, the drive before the card having put the robot on its line.
+        return twoStep.twoStepIn || alongTheWall ? overTo(garden, from) : null;
     }
 
     /** A two-step drive in's first leg's end at {@code g}, from {@code from}: see {@link #inOver}. */
@@ -581,7 +665,7 @@ public final class GardenGather extends GrabRoutine {
 
     @Override
     protected double inPushPower() {
-        return twoStep.pushPower;
+        return alongTheWall ? alongWall.pushPower : twoStep.pushPower;
     }
 
     @Override
@@ -594,10 +678,11 @@ public final class GardenGather extends GrabRoutine {
         double deeper = nn(driveIn.extraDepthIn) + (stick.useStick ? 0.0 : nn(driveIn.noStickExtraDepthIn));
         // A curved drive in reaches the wall's line early: it ends barely toward it, not pinned into it.
         double side = garden.wallSide();
-        double wall = side * (driveIn.curveToWall ? nn(driveIn.laneTowardWallIn) : nn(driveIn.towardWallIn));
+        double wall = side * (driveIn.curveToWall || alongTheWall ? nn(driveIn.laneTowardWallIn) : nn(driveIn.towardWallIn));
         // Angled into the corner: toward the wall it runs along, so with the wall on the right the
         // heading turns clockwise, and with it on the left counter-clockwise.
-        double corner = side * Math.toRadians(Math.max(-15.0, Math.min(15.0, nn(driveIn.intoCornerDeg))));
+        double corner = side * Math.toRadians(Math.max(-15.0, Math.min(15.0,
+                nn(alongTheWall ? alongWall.intoCornerDeg : driveIn.intoCornerDeg))));
         return InPlan.to(new Pose(g.x() + deeper * Math.cos(h) + wall * Math.sin(h),
                 g.y() + deeper * Math.sin(h) - wall * Math.cos(h), h - corner));
     }
@@ -651,7 +736,7 @@ public final class GardenGather extends GrabRoutine {
     }
 
     @Override protected double prepMs() { return stick.useStick ? stick.stickDownMs : 0.0; }
-    @Override protected double settledInPerSec() { return driveIn.settledInPerSec; }
+    @Override protected double settledInPerSec() { return alongTheWall ? alongWall.settledInPerSec : driveIn.settledInPerSec; }
     @Override protected double dwellQuietMs() { return dwell.dwellQuietMs; }
     @Override protected boolean dwellFull() { return dwell.dwellEndsOnFull && robot.colorSensor.full(); }
     @Override protected double dwellEmptyMs() { return dwell.dwellEmptyMs; }

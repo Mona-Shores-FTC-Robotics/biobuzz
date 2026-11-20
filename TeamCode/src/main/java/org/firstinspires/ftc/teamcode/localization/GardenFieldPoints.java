@@ -117,6 +117,18 @@ public final class GardenFieldPoints {
         return turnTo(a, headingRad) <= turnTo(b, headingRad) ? a : b;
     }
 
+    /**
+     * {@code g}'s other way in: along the audience wall (blue's: the back wall) facing the side wall,
+     * the wall on the robot's left, so the intake's left edge runs down the GARDEN's row of POLLEN.
+     * {@link #RED} gives {@code (9.5, 8.5, 180°)}; {@link #BLUE} that turned half a turn. An Auto's
+     * {@code GardenGatherAlongWall} card gathers this way. Null for anything but RED or BLUE.
+     */
+    public static Garden alongAudienceWall(Garden g) {
+        if (g == RED) return CORNERS.get(1);
+        if (g == BLUE) return CORNERS.get(3);
+        return null;
+    }
+
     /** How far, radians, a robot at {@code headingRad} turns to face {@code g}'s gather heading. */
     private static double turnTo(Garden g, double headingRad) {
         return Math.abs(Math.IEEEremainder(g.gather.heading() - headingRad, 2 * Math.PI));

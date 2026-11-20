@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.pedropathing.math.Pose;
 
@@ -187,5 +190,37 @@ public class GardenGatherTest {
             assertEquals(g.name, 9.6, Math.hypot(g.lineUp.x() - p.x(), g.lineUp.y() - p.y()), 1e-6);
             assertEquals(g.name, -9.6, GrabRoutine.alongTrackIn(g.lineUp.x(), g.lineUp.y(), p.x(), p.y(), h), 1e-6);
         }
+    }
+
+    /**
+     * An Auto's GardenGatherAlongWall card, from L-LeftUnderHive-WallGather's WALL_GARDEN_STAGING (28, 9, 180°):
+     * red's GARDEN the other way in, along the audience wall facing the side wall, the wall on the robot's left
+     * (9.5, 8.5, 180°). The push's line is the gather pose's, 0.5 in from where the drive ended, so the card
+     * pushes at once with no first leg (GrabRoutine: under 1 in is "already there"). The stick comes down on the
+     * drive only facing the side wall. Blue's is red's turned half a turn.
+     */
+    @Test
+    public void theAlongTheWallCardGathersRedsGardenFacingTheSideWall() {
+        GardenFieldPoints.Garden g = GardenGather.autoGarden(28.0, 9.0, true);
+        assertEquals(GardenFieldPoints.alongAudienceWall(GardenFieldPoints.RED), g);
+        assertEquals(9.5, g.gather.x(), EPS);
+        assertEquals(8.5, g.gather.y(), EPS);
+        assertEquals(-1.0, Math.cos(g.gather.heading()), EPS);
+        assertEquals(-1.0, g.wallSide(), EPS);
+        Pose over = GardenGather.overTo(g, new Pose(28.0, 9.0, Math.PI));
+        assertEquals(28.0, over.x(), 1e-6);
+        assertEquals(8.5, over.y(), 1e-6);
+        assertTrue(GardenGather.facing(g, Math.toRadians(180)));
+        assertTrue(GardenGather.facing(g, Math.toRadians(172)));
+        assertFalse(GardenGather.facing(g, Math.toRadians(270)));
+        // Without the switch, the same spot is the old way in, facing the audience wall.
+        assertEquals(GardenFieldPoints.RED, GardenGather.autoGarden(28.0, 9.0, false));
+        double s = 141.5;
+        GardenFieldPoints.Garden blue = GardenGather.autoGarden(s - 28.0, s - 9.0, true);
+        assertEquals(GardenFieldPoints.alongAudienceWall(GardenFieldPoints.BLUE), blue);
+        assertEquals(s - 9.5, blue.gather.x(), 1e-6);
+        assertEquals(s - 8.5, blue.gather.y(), 1e-6);
+        // Never the other half's GARDEN, as for the card facing the audience wall.
+        assertNull(GardenGather.autoGarden(80.0, 9.0, true));
     }
 }

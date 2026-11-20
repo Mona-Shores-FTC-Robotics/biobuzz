@@ -2,7 +2,8 @@
 
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
-(mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, and the RightUnderHive
+(mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, L-LeftUnderHive-WallGather
+(**Drive: L-LeftUnderHive-WallGather**, below), and the RightUnderHive
 pair, parked until a super FLOWER pick exists (no OpMode), the ThreeTip pair, which runs from the Utility menu as a trial pair, **Drive: R-ThreeTip** beside **Drive: L-ThreeTip**.
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
@@ -12,6 +13,48 @@ pair, parked until a super FLOWER pick exists (no OpMode), the ThreeTip pair, wh
 
 - Drafts: `l-clockwise-backward`, `l-clockwise-close`, `l-clockwise-flower`, `l-clockwise-garden`, `l-clockwise-next`, `l-pair-flowers`, `l-three-tip` (likewise reused), `l-under-hive-fix`, `l-under-hive-park-shot` (became l-under-hive.pp), `partner-nudge-test`, `r-clockwise-19429` (rebuilt on 20 Nov 2026 as `r-clockwise-backwards`, below), `r-clockwise-backward`, `r-clockwise-close`, `r-clockwise-flower`, `r-clockwise-garden`, `r-clockwise-next`, `r-outside-lane-fix`, `r-pair-garden`, `r-pair-garden-sweep`, `r-solo-19429` (brought back on 20 Nov 2026 as `r-solo-backwards`, whose backward leg is now R-Solo's, below), `r-solo-human-player`, `r-solo-nudge`, `r-three-tip` (the name now holds the new ThreeTip draft below), `r-three-tip-still`, `r-three-tip-stream`, `r-two-tip`, `r-two-tip-with`.
 - Stand-ins in `partners/`: `partner-l-fill-hide-park`, `partner-l-stage-leave-park`, `partner-l-timed-fill-hide-park`, `partner-r-launch-stay`, `partner-r-tip-far-park`.
+
+## L-LeftUnderHive-WallGather: the GARDEN the other way in (20 Nov 2026, never run)
+
+`l-left-under-hive-wall-gather.pp` is master's `l-left-under-hive.pp` with its GARDEN leg redrawn (mentor, 20 Nov 2026:
+by hand, a gather along the audience wall took 4 POLLEN the same way every time). It runs from the Utility menu as
+**Drive: L-LeftUnderHive-WallGather**, beside R-LeftUnderHive as that half's pair. Not for Fruitport unless it has run
+on the robot first. Everything else (the TIP 1 wait and its rescue, the preloads at LEFT, the RIGHT-up wait at
+`RIGHT_AUTO_HIVE`, the park and the park shot) is master's.
+
+- `under the HIVE, onto the audience wall to WALL_GARDEN_STAGING`: master's road under the HIVE, nose first (270), then,
+  once below y 40, a turn to face the red-side wall (180, done by 66% of the path), and a strafe left onto the audience
+  wall. It ends on the Auto's own spot `WALL_GARDEN_STAGING` (28, 9, 180), still rolling, the left side 1 in off the wall.
+  The turn waits for y 40: turning higher up, a corner reached the HIVE frame's foot bar (x 46, y 51 to 90) in 2 of 3
+  simulated runs, or over the centre line (G402), and turning at `LEFT_AUTO_HIVE` reached over it in 9 of 10.
+- `GardenGatherAlongWall` (new card, `GardenGather.AlongWall`): the drive lowers the stick and starts the intake over its
+  last 24 in once the robot has faced the side wall 0.2 s, as the GARDEN gather's approach does. The card then pushes on at
+  full power along the wall into the corner (the two-step push, no braking path, no stop or turn first), the intake's left
+  edge running down the row, dwells 0.15 s or until full, and hands the robot to the next path after 1 in of back out.
+- `BACKWARD along the wall, then to RIGHT_AUTO_HIVE`: backs straight out along the wall, holding 180 for 30% of the way,
+  then turns 84° to `RIGHT_AUTO_HIVE`'s 96.1 (master's exit turned 186°). Its drawn start is `WALL_GARDEN_STAGING`; the
+  robot starts it from the corner, 19 in behind, and drives back along the wall onto it.
+
+**In the simulator** (20 Nov 2026, `sim-requests/l-left-under-hive-wall-gather.json`, master's partner matrix, Belding
+calibration, 10 seeds a case, our turret robot beside R-LeftUnderHive):
+
+| | L-LeftUnderHive | L-LeftUnderHive-WallGather |
+|---|---|---|
+| leaving `LEFT_AUTO_HIVE` to reaching `RIGHT_AUTO_HIVE` | 9.04 s (8.15 with no gather floor) | 8.60 s (7.99) |
+| the gather itself (the routine, without the guard-time floor) | 2.1 s | 1.4 s |
+| POLLEN taken by touch, before the roller stick's top-up | 3 in 9 of 9 | 4 in 5, 3 in 3, 2 in 1 |
+| beside R-LeftUnderHive, normal | 56 points, 2.0 TIPs | 54, 1.9 (one seed's volley at RIGHT missed) |
+| beside R-LeftUnderHive, best case | 76, 3.0 TIPs, 3.0 by 30 s | 76, 3.0, 3.0 |
+| every other partner case | same | same |
+| contacts, G402, HIVE frame | none | none |
+
+The leg is only 0.4 s quicker because the simulator charges a turn while driving at a fixed rate per degree (130°/s of
+wheel share): the two turns (90° and 84°) cost about what master's single 186° exit turn does, and the gather's 0.7 s
+saving goes there. The robot's own turn cost is not measured. And quicker does not score in this pair: L then waits at
+`RIGHT_AUTO_HIVE` for RIGHT up either way (until 22 s; in 6 of 10 normal runs it never came). What would use the time is R:
+R-LeftUnderHive holds at the SCORING FLOWER until 18.6 s (`L has left the GARDEN`), and L now leaves the corner at about
+15 s. Moving that hold is R's change, not made here. The gain this draft can show on the robot is the load: 4 POLLEN every
+gather, as by hand, and a gather that never stops.
 
 ## R-Solo-Backwards: promoted into R-Solo (20 Nov 2026)
 

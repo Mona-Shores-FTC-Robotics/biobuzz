@@ -462,6 +462,9 @@ public final class AutoSim {
      */
     static double gardenGatherMinS = Double.parseDouble(System.getenv().getOrDefault("BIOBUZZ_SIM_GARDEN_S",
             Double.toString(AutoRegistration.GARDEN_GATHER_TYPICAL_S)));
+    /** {@link #gardenGatherMinS} for a GardenGatherAlongWall: its own typical time, or {@code BIOBUZZ_SIM_GARDEN_S}. */
+    static double gardenGatherAlongWallMinS = Double.parseDouble(System.getenv().getOrDefault("BIOBUZZ_SIM_GARDEN_S",
+            Double.toString(AutoRegistration.GARDEN_GATHER_ALONG_WALL_TYPICAL_S)));
 
     /** How far a SweepRow creeps at most, inches: a row of 4 POLLEN is 11.2 in long, and it starts a few inches short. */
     static final double SWEEP_ROW_REACH_IN = 18;
@@ -2262,7 +2265,9 @@ public final class AutoSim {
                     // The robot's grabs (master's AutoRegistration, typical times and all): the endgame guard never
                     // cuts one, and does not start one unless it and the park fit.
                     .grab("PickFlower", typical("PICK_FLOWER", AutoRegistration.PICK_FLOWER_TYPICAL_S), this::pickFlower)
-                    .grab("GardenGather", typical("GARDEN_GATHER", AutoRegistration.GARDEN_GATHER_TYPICAL_S), this::gardenGather)
+                    .grab("GardenGather", typical("GARDEN_GATHER", AutoRegistration.GARDEN_GATHER_TYPICAL_S), () -> gardenGather(false))
+                    .grab("GardenGatherAlongWall", typical("GARDEN_GATHER_ALONG_WALL",
+                            AutoRegistration.GARDEN_GATHER_ALONG_WALL_TYPICAL_S), () -> gardenGather(true))
                     // A row of loose pieces on the tiles ahead (a partner's preloads left for us, doc/three-tips.md):
                     // sim only, the robot has no such card.
                     .grab("SweepRow", SWEEP_ROW_REACH_IN / sweepRowSpeedInPerS, this::sweepRow)
@@ -2581,6 +2586,12 @@ public final class AutoSim {
          * <p>The FLOWER stick goes down on the robot's gather; the simulator does not model the stick in the GARDEN,
          * only the intake. The gather takes no less than {@link AutoRegistration#GARDEN_GATHER_TYPICAL_S}, which the
          * guard plans with. No Auto gather on these values is logged yet.
+         *
+         * <p>With {@code alongWall}, master's {@code GardenGatherAlongWall} ({@code GardenGather.AlongWall}): the
+         * GARDEN's way in along the audience wall, facing the side wall ({@code GardenFieldPoints.alongAudienceWall}).
+         * Its drive in is master's push, not a path: it carries on at the speed the drive before it had, with no
+         * braking before the wall ({@code pushPower} of the top speed), and the walls stop it. Its back out hands over
+         * after {@code handOverBackIn}, and the gather takes no less than {@link AutoRegistration#GARDEN_GATHER_ALONG_WALL_TYPICAL_S}.
          */
         /**
          * SweepRow (sim only; doc/three-tips.md): the robot creeps straight ahead with the intake on, over a row of
@@ -2617,14 +2628,17 @@ public final class AutoSim {
                     });
         }
 
-        private Command gardenGather() {
+        private Command gardenGather(boolean alongWall) {
             final double[] startedAt = new double[1];
             final double[] phaseFrom = new double[1];
             final int[] phase = new int[1];  // 0 refused, 1 drive in, 2 dwell, 3 back, 4 standing out the typical time
             final Pose[] back = new Pose[1];
             final Pose[] inAt = new Pose[1];
+            /** Where the drive in ended: an along-the-wall gather hands over {@code handOverBackIn} out from here. */
+            final Pose[] inEndAt = new Pose[1];
             final boolean[] intakeBefore = new boolean[1];
             final double[] speedBefore = new double[1];
+            final double[] decelBefore = new double[1];
             final int[] heldBefore = new int[1];
             // The drive in's stall: the least distance to the in pose so far, and when it last got that much closer.
             final double[] closest = new double[1];
@@ -2647,18 +2661,22 @@ public final class AutoSim {
                         intakeBefore[0] = intakeEnabled;
                         speedBefore[0] = drive.maxSpeed;
                         heldBefore[0] = body.stored.size();
+                        if (garden != null && alongWall) garden = GardenFieldPoints.alongAudienceWall(garden);
                         if (garden == null) {
                             phase[0] = 0;
                             drive.hold(drive.pose);
                             pending.add("GardenGather: no GARDEN on our side within " + (int) GardenGather.driveIn.maxRangeIn + " in: refused");
                             return;
                         }
-                        Pose in = gardenInPose(garden);
+                        Pose in = gardenInPose(garden, alongWall);
                         inAt[0] = in;
                         back[0] = new Pose(at[0], at[1], at[2]);
                         intakeEnabled = true;
                         body.gardenGather = true;
-                        drive.maxSpeed = speedBefore[0] * GardenGather.driveIn.inSpeed;
+                        drive.maxSpeed = speedBefore[0] * (alongWall ? GardenGather.alongWall.pushPower : GardenGather.driveIn.inSpeed);
+                        decelBefore[0] = drive.decel;
+                        // The push: no braking before the wall, which stops it.
+                        if (alongWall) drive.decel = 1e6;
                         phase[0] = 1;
                         phaseFrom[0] = now;
                         closest[0] = Double.POSITIVE_INFINITY;
@@ -2671,6 +2689,8 @@ public final class AutoSim {
                             phaseS[0] = now - phaseFrom[0];
                             phase[0] = 2;
                             phaseFrom[0] = now;
+                            drive.decel = decelBefore[0];
+                            inEndAt[0] = drive.pose;
                         } else if (phase[0] == 2 && (FieldSim.full(body) || now - phaseFrom[0] >= GardenGather.dwell.dwellMs / 1000.0)) {
                             phaseS[1] = now - phaseFrom[0];
                             body.gardenGather = false;
@@ -2680,7 +2700,9 @@ public final class AutoSim {
                             double[] at = pedro(drive.pose);
                             Pose from = new Pose(at[0], at[1], at[2]);
                             drive.follow(Paths.line(from, back[0]).linear(from, back[0]));
-                        } else if (phase[0] == 3 && (drive.pathDone() || now - phaseFrom[0] >= GardenGather.back.backTimeoutMs / 1000.0)) {
+                        } else if (phase[0] == 3 && (drive.pathDone() || now - phaseFrom[0] >= GardenGather.back.backTimeoutMs / 1000.0
+                                || (alongWall && Math.hypot(drive.pose.x() - inEndAt[0].x(), drive.pose.y() - inEndAt[0].y())
+                                        >= GardenGather.alongWall.handOverBackIn))) {
                             phaseS[2] = now - phaseFrom[0];
                             phase[0] = 4;
                             drive.hold(drive.pose);
@@ -2697,16 +2719,18 @@ public final class AutoSim {
                             for (FieldSim.Piece q : sim.pieces) {
                                 if (q.where == FieldSim.Where.FIELD && FieldSim.garden(q.x, q.y) != null) left++;
                             }
-                            pending.add(String.format(Locale.ROOT, "GardenGather: took %d in %.1f s (routine: in %.2f, dwell %.2f, back %.2f), holds %d; %d left in the GARDENs",
+                            pending.add(String.format(Locale.ROOT, (alongWall ? "GardenGatherAlongWall" : "GardenGather") + ": took %d in %.1f s (routine: in %.2f, dwell %.2f, back %.2f), holds %d; %d left in the GARDENs",
                                     body.stored.size() - heldBefore[0], now - startedAt[0], phaseS[0], phaseS[1], phaseS[2],
                                     body.stored.size(), left));
                         }
                     })
-                    .setDone(() -> phase[0] == 0 || (phase[0] == 4 && now - startedAt[0] >= gardenGatherMinS))
+                    .setDone(() -> phase[0] == 0 || (phase[0] == 4
+                            && now - startedAt[0] >= (alongWall ? gardenGatherAlongWallMinS : gardenGatherMinS)))
                     .setEnd(end -> {
                         body.gardenGather = false;
                         intakeEnabled = intakeBefore[0];
                         drive.maxSpeed = speedBefore[0];
+                        drive.decel = decelBefore[0];
                         if (end != EndCondition.NATURALLY) drive.hold(drive.pose);
                     });
         }
@@ -2735,13 +2759,17 @@ public final class AutoSim {
          * and turned {@code intoCornerDeg} toward the side wall, clockwise. The robot's drive in then stalls on the
          * walls; here it ends where the turned frame meets them, so its nose is on the audience (or back) wall.
          */
-        private Pose gardenInPose(GardenFieldPoints.Garden garden) {
+        private Pose gardenInPose(GardenFieldPoints.Garden garden, boolean alongWall) {
             Pose g = garden.gather;
             double h = g.heading();
+            // Toward the wall the robot runs along: its right for both GARDENs, its left along the audience wall.
+            double side = garden.wallSide();
             double deeper = GardenGather.driveIn.extraDepthIn
                     + (GardenGather.stick.useStick ? 0.0 : GardenGather.driveIn.noStickExtraDepthIn);
-            double wall = GardenGather.driveIn.curveToWall ? GardenGather.driveIn.laneTowardWallIn : GardenGather.driveIn.towardWallIn;
-            double corner = Math.toRadians(Math.max(-15.0, Math.min(15.0, GardenGather.driveIn.intoCornerDeg)));
+            double wall = side * (GardenGather.driveIn.curveToWall || alongWall
+                    ? GardenGather.driveIn.laneTowardWallIn : GardenGather.driveIn.towardWallIn);
+            double corner = side * Math.toRadians(Math.max(-15.0, Math.min(15.0,
+                    alongWall ? GardenGather.alongWall.intoCornerDeg : GardenGather.driveIn.intoCornerDeg)));
             double x = g.x() + deeper * Math.cos(h) + wall * Math.sin(h);
             double y = g.y() + deeper * Math.sin(h) - wall * Math.cos(h);
             double heading = h - corner;

@@ -1,0 +1,108 @@
+{
+  "pp": "TeamCode/autos/drafts/l-left-under-hive-wall-gather.pp",
+  "spec": "LLeftUnderHiveWallGatherAuto@50",
+  "design": "real robot",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "matching R-LeftUnderHive",
+      "partner": "RLeftUnderHiveAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "R-LeftUnderHive drives 20 percent slower",
+      "partner": "RLeftUnderHiveAuto",
+      "timing": {
+        "speed": 40
+      }
+    },
+    {
+      "name": "R-LeftUnderHive misses every shot",
+      "partner": "RLeftUnderHiveAuto",
+      "fails": "misses",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "R's preloads miss (17 Nov)",
+      "partner": "RLeftUnderHiveAuto",
+      "timing": {
+        "speed": 50
+      },
+      "fails": "misses preloads"
+    },
+    {
+      "name": "partner dead on its right start, said 3 s",
+      "partner": "PartnerRBrokenDownAuto",
+      "lastShotS": 3
+    },
+    {
+      "name": "contingency: nothing tips (both preloads miss, R misses every shot)",
+      "partner": "RLeftUnderHiveAuto",
+      "timing": {
+        "speed": 50
+      },
+      "oursFails": "misses preloads",
+      "fails": "misses"
+    },
+    {
+      "name": "contingency: R dead on its start",
+      "partner": "PartnerRBrokenDownAuto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/l-left-under-hive-wall-gather.pp",
+    "SavedBy": "L-LeftUnderHive with its GARDEN gathered along the audience wall (GardenGatherAlongWall): the same partner matrix as l-left-under-hive.json",
+    "SavedAt": "2026-11-20T18:00:00+00:00"
+  }
+}

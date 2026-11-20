@@ -59,7 +59,9 @@ import java.util.function.Function;
  * before it lowers the stick over its last 24 in, but only on a drive that ends facing the GARDEN
  * and once the robot has held that facing 0.2 s (a stick swung down while the robot still turned, or
  * faced another way, came down on the wall: 30 Oct and 13 Nov 2026). A drive that turns all the way
- * in leaves the stick to the card.
+ * in leaves the stick to the card. {@code GardenGatherAlongWall} is the same gather the other way in
+ * ({@link GardenGather.AlongWall}): along the audience wall into the corner, facing the side wall, handing
+ * the robot to the next path without a drive back; its approach waits for that facing instead.
  *
  * <p>{@code SpinUp}, {@code LaunchAll}, {@code LaunchOne} and {@code Empty} are real since the
  * launcher and feeder landed (#194): see {@link LaunchCards}, including what {@code Empty} means
@@ -201,6 +203,16 @@ public final class AutoRegistration {
     public static final double GARDEN_GATHER_TYPICAL_S = 3.0;
 
     /**
+     * {@code GardenGatherAlongWall}'s typical seconds ({@code GardenGather.AlongWall}): a push on along the
+     * audience wall into the corner from where the drive before it ended, a dwell, and the hand-over 1 in out,
+     * with no drive back. A plan (20 Nov 2026), not a measurement: no Auto has run it. From
+     * {@code GARDEN_GATHER_TYPICAL_S}'s own phases: about 20 in of push at full power with the stall it ends
+     * on (the logged drive ins, 1.35 to 1.60 s, include a curve over to the wall and a start from rest), the
+     * 0.15 s dwell, and no 0.7 s back, about 1.3 s; 2.0 leaves the same room as that one's.
+     */
+    public static final double GARDEN_GATHER_ALONG_WALL_TYPICAL_S = 2.0;
+
+    /**
      * The TIP lag a partner wait allows: seconds from the partner's last ball leaving its launcher to
      * our camera reading the CELL up, added to the partner's last shot
      * ({@link #partnerWaitUntilS}). It is a give-up limit, not a prediction: the wait ends the moment
@@ -288,6 +300,12 @@ public final class AutoRegistration {
                 // drive before it lowers the stick on the way in once it faces the GARDEN (its approach).
                 .grab("GardenGather", GARDEN_GATHER_TYPICAL_S, () -> GardenGather.command(robot, note),
                         robot == null ? null : GardenGather.approach(robot, note))
+                // ---- real: the same gather the other way in (GardenGather.AlongWall): along the audience wall into
+                // the corner, facing the side wall, with no drive back; it hands over to the next path 1 in out.
+                // The drive before it lowers the stick once it faces the side wall along that wall.
+                .grab("GardenGatherAlongWall", GARDEN_GATHER_ALONG_WALL_TYPICAL_S,
+                        () -> GardenGather.alongWallCommand(robot, note),
+                        robot == null ? null : GardenGather.alongWallApproach(robot, note))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
                 // ---- real: a piece held under the colour sensor (LaneFull), as the full hold and the light.
                 .trigger("IntakeFull", robot == null ? () -> false : robot.colorSensor::full)
