@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T21:20:49.127Z",
+  "timestamp": "2026-11-20T04:34:02.000Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -94,7 +94,7 @@
     {
       "id": "r-lane-north-flower",
       "color": "#e15759",
-      "name": "outside lane from the FLOWER to LEFT_AUTO_HIVE",
+      "name": "outside lane BACKWARD from the FLOWER to LEFT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -133,32 +133,23 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 180,
-                "endDeg": 90
+                "endDeg": 270
               }
             },
             {
               "startProgress": 0.15,
-              "endProgress": 0.6,
+              "endProgress": 0.82,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 90
+                "degrees": 270
               }
             },
             {
-              "startProgress": 0.6,
-              "endProgress": 0.8,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 0
-              }
-            },
-            {
-              "startProgress": 0.8,
+              "startProgress": 0.82,
               "endProgress": 1,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 360,
+                "startDeg": 270,
                 "endDeg": 268.9
               }
             }
@@ -347,7 +338,7 @@
     {
       "id": "r-lane-north-garden",
       "color": "#e15759",
-      "name": "outside lane from the GARDEN to LEFT_AUTO_HIVE",
+      "name": "outside lane BACKWARD from the GARDEN to LEFT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -386,37 +377,10 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.08,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 180
-              }
-            },
-            {
-              "startProgress": 0.08,
-              "endProgress": 0.16,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 180,
-                "endDeg": 90
-              }
-            },
-            {
-              "startProgress": 0.16,
-              "endProgress": 0.65,
+              "endProgress": 0.82,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.65,
-              "endProgress": 0.82,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 0
+                "degrees": 270
               }
             },
             {
@@ -424,7 +388,7 @@
               "endProgress": 1,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 360,
+                "startDeg": 270,
                 "endDeg": 268.9
               }
             }
@@ -912,6 +876,18 @@
                 "timeoutS": 4.5
               },
               {
+                "id": "r-hold-lane-flower",
+                "kind": "firstOf",
+                "label": "L clear of LEFT_AUTO_HIVE: go at 9.8 s",
+                "rows": [
+                  {
+                    "afterMs": 9800,
+                    "matchClock": true,
+                    "cards": []
+                  }
+                ]
+              },
+              {
                 "id": "r-c-lane-flower",
                 "kind": "path",
                 "lineId": "r-lane-north-flower",
@@ -934,6 +910,18 @@
                 "kind": "action",
                 "name": "GardenGather",
                 "timeoutS": 5.5
+              },
+              {
+                "id": "r-hold-lane-garden",
+                "kind": "firstOf",
+                "label": "L clear of LEFT_AUTO_HIVE: go at 9.9 s",
+                "rows": [
+                  {
+                    "afterMs": 9900,
+                    "matchClock": true,
+                    "cards": []
+                  }
+                ]
               },
               {
                 "id": "r-c-lane-garden",

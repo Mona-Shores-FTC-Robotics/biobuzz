@@ -117,18 +117,21 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 9. **Backward with a load (bottom plate).** R-Solo's WALL FLOWER leg (`BACKWARD to LEFT_AUTO_HIVE`) drives backward
    since 20 Nov 2026, promoted from R-Solo-Backwards after it ran clean on 20245 with its plate (mentor). The promoted R-Solo
    is master's, with its move up to `RIGHT_AUTO_HIVE` for the preloads, plus that one leg: the combination has not run yet.
-   **Drive: R-Clockwise-Backwards** still waits on the backward drive below on the robot that runs it. Basic Drive,
+   R-Clockwise's two outside lanes drive backward too since 20 Nov 2026 (promoted from R-Clockwise-Backwards), each after a
+   short wait on the match clock so L has left `LEFT_AUTO_HIVE`. Basic Drive,
    4 POLLEN in the lane, phone filming the intake low from the side. Drive **backward** at full stick, with a hard start and
    a hard stop, 3 times each:
    - from `WALL_FLOWER_STAGING` north to `LEFT_AUTO_HIVE` (R-Solo's backward leg)
-   - from `GARDEN_STAGING` north up the outside lane to `LEFT_AUTO_HIVE` (R-Clockwise-Backwards's)
+   - from `GARDEN_STAGING` north up the outside lane to `LEFT_AUTO_HIVE` (R-Clockwise, Pickup GARDEN)
+   - from `WALL_FLOWER_STAGING` north up the outside lane to `LEFT_AUTO_HIVE` (R-Clockwise, Pickup WALL_FLOWER)
 
    **Good:** the lane still holds 4 after every run, and the video shows none leave; then run **R-Solo** alone from
-   `RIGHT_START`, `LEFT_START` empty, and **Drive: R-Clockwise-Backwards** (Pickup GARDEN) with L-Clockwise on the other
-   robot, and push the logs. **Stop:** any piece leaves → that robot does not run R-Solo (or the backward trial) until its
+   `RIGHT_START`, `LEFT_START` empty, and **R-Clockwise** (each Pickup) with L-Clockwise on the other
+   robot, and push the logs. **Stop:** any piece leaves → that robot does not run R-Solo or R-Clockwise until its
    plate is fixed; push the logs and the video.
 - [ ] Backward with a load, 19429: lane full after every run, video kept
 - [x] Backward with a load, 20245: R-Solo-Backwards ran clean with the plate (mentor, 20 Nov 2026)
+- [ ] Promoted R-Clockwise (backward outside lanes, waits at 9.8 / 9.9 s), each Pickup, beside L-Clockwise: no contact at `LEFT_AUTO_HIVE`, push the logs
 - [ ] Promoted R-Solo (preloads from `RIGHT_AUTO_HIVE`, backward WALL FLOWER leg), alone from `RIGHT_START`, on 20245 and on 19429: push the logs
 
 ## Belding work order (agreed 5 Nov)

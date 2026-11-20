@@ -160,12 +160,12 @@ public class IntakeSubsystem implements Subsystem {
     static boolean ownEncoder = !DeviceNames.INTAKE.equals(DeviceNames.TURRET_ENCODER_HOST);
 
     /**
-     * Whether this robot keeps its load in the lane while it drives backward. Off: on 20245's first
-     * Clockwise drive (12 Nov 2026) pieces left the intake on both legs it drove backward, so every
-     * Auto on the Autonomous menu drives nose-first with a load. On for 19429 in
-     * {@code RobotDifferences}, which has a bottom plate (18 Nov 2026), and for 20245 (20 Nov 2026,
-     * its plate half fitted). An Auto drawn with a loaded leg driven backward ({@code BackwardLoadTrial})
-     * refuses to move on a robot where this is off.
+     * Whether this robot keeps its load in the lane while it drives backward, which needs a bottom
+     * plate under the intake: on 20245's first Clockwise drive (12 Nov 2026), with no plate, pieces
+     * left the intake on both legs it drove backward. On for 19429 in {@code RobotDifferences} (plate
+     * 18 Nov 2026) and for 20245 (20 Nov 2026). Since 20 Nov 2026 R-Solo and R-Clockwise drive loaded
+     * legs backward on the Autonomous menu, so a robot without a plate must not run them; nothing
+     * reads this switch now (the backward-leg Utility trials it gated are gone).
      */
     public static boolean holdsLoadDrivingBackward = false;
 
