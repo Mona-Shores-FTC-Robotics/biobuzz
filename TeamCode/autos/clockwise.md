@@ -31,7 +31,9 @@ from the WALL FLOWER is 4.4 s (3.2 s backward), and the road under the HIVE 6.2 
 Since 20 Nov 2026, with a bottom plate on both robots, loaded legs that turned round only to drive nose-first
 drive backward again, one at a time as each is simulated (mentor): L's `FLOWER BACKWARD to RIGHT_AUTO_OFFSET`
 (Pickup WALL_FLOWER) turns 180 to 90, holds 90 down the lane and turns to the spot's 61 at the end, 119° of turning
-instead of 241°.
+instead of 241°. In the simulator (20 Nov 2026, `sim-requests/l-clockwise.json`) every row matched master except R on
+the GARDEN with L 20% slow: there L, earlier at `RIGHT_AUTO_OFFSET`, fired its second load in 2 of 24 runs and then did not
+park by 30 s (45.4 points a run instead of 45.8), and the 6 contacts master has in that row at 27.3 s went to 0.
 
 **What the Java simulator says** (24 seeds a row, Belding's volleys; tables below):
 

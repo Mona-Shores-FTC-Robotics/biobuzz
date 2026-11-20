@@ -58,7 +58,10 @@ robot's own time for that leg decides ([its notes](drafts/README.md#the-lane-pai
 written when it was a draft). Since 20 Nov 2026 R drives its two loaded legs backward instead of turning round to
 drive them nose-first (mentor: both robots have a bottom plate): `wall lane north BACKWARD to LEFT_AUTO_OFFSET` holds
 270 up the wall lane, and `BACKWARD to RIGHT_AUTO_CLOSE` holds 90 down it from the SCORING FLOWER and ends on the
-spot's 63.8° (the nose-first leg ended at 61°).
+spot's 63.8° (the nose-first leg ended at 61°). Backward, that leg is about 3.0 s in the simulator instead of 5.3 s, so R
+first holds at the SCORING FLOWER until 18.6 s (`L has left the GARDEN`): without the hold it came down the lane as L left
+the GARDEN and touched it in 3 of 20 runs (6 with L 20% slow). With it, 0 contacts, every robot parked, the same TIPs and
+points as nose-first and about 0.7 more balls scored a run (20 Nov 2026, `sim-requests/r-outside-lane.json`).
 
 **Known limit: our L dead on `LEFT_START`** (accepted for Fruitport, 19 Nov 2026). Two team spots overlap a robot
 left on `LEFT_START` (62.3, 133.8): `LEFT_AUTO_HIVE` by 3 in and `SCORING_FLOWER_STAGING` by about 1.7 in, with
