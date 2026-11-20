@@ -15,7 +15,7 @@ public enum Action {
     DRIVER_UNJAM(Pad.DRIVER, "Unjam (hold)"),
     SLOW(Pad.DRIVER, "Slow (hold)"),
     FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold)"),
-    GARDEN_GATHER(Pad.DRIVER, "*Gather GARDEN (hold)"),
+    GARDEN_GATHER(Pad.DRIVER, "*Corner Gather (hold)"),
     CHASSIS_AIM(Pad.DRIVER, "Fire (hold): turret AIM, fires; LOCKED, turns onto the CELL, then fires"),
     LAUNCH_SPOT(Pad.DRIVER, "*Go to Launch Spot (hold)"),
     RESET_HEADING(Pad.DRIVER, "Gyro Reset (hold 0.5\u00a0s)"),

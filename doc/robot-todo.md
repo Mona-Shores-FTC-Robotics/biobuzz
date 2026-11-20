@@ -1082,6 +1082,19 @@ measurement is [#255].
       back still: `lineUpBackIn` 9 for the button, and GARDEN_STAGING 3 in further from the
       GARDEN in the Visualizer for the Autos (about 0.04 s more per inch). The stick touches the
       side wall on the line-up → `lowerWithinIn` back to 10.
+- [ ] **Corner gather on the button, all four corners (20 Nov; never run with the button):** the
+      driver's Triangle now gathers in the nearest field corner, facing whichever of its two walls
+      the robot already faces more nearly (`GardenGather.button.anyCorner`; driven by hand on 20 Nov
+      it worked). The way in facing the side wall, along the audience wall, and the two corners
+      without a GARDEN are red's measured gather mirrored, not measured. Pose referenced, Panels
+      open, phone filming from above: at the red GARDEN, 3 gathers coming in facing the audience
+      wall and 3 facing the side wall; then 2 each way in one of the other corners with 4 POLLEN
+      placed along a wall. **Good:** the log names the way in (`red GARDEN corner, facing the side
+      wall …`), the line-up turns at most 45°, the side rides the wall it runs along, the stick
+      never lands on a wall, and the facing-the-side-wall gathers bring in as many as the other way.
+      **Stop:** a mirrored way in sits off its wall or the stick hits the corner → write down the
+      pose at the wall; Panels `GardenGather.button.anyCorner` off is the old button (the GARDEN only,
+      facing the audience wall).
 - [ ] **GARDEN gather, onto the side wall sooner (idea, 16 Nov; nothing changed):** the line-up
       spot is 3 in out from the side wall (`lineUpOutIn`, room to turn in the corner) and the drive
       in curves over to it. Try `lineUpOutIn` 1 with the button, 4 gathers. **Good:** the side is
