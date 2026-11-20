@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode.localization;
 import com.pedropathing.math.Pose;
 
 /**
- * A second pose that rides on the real one and takes the stationary camera fixes the real one is
- * only shown ({@link LocalizationTuning#stillFixes} off): what the pose <i>would</i> be with still
- * fixes on, logged beside the real pose so a practice session judges the fixes before anyone drives
- * on them. Pure arithmetic: the shadow is the real pose plus an offset in field x, y; odometry moves
+ * A second pose that rides on the real one and takes the stationary camera fixes: with
+ * {@link LocalizationTuning#stillFixes} off, what the pose <i>would</i> be with still fixes on,
+ * logged beside the real pose so a practice session judges the fixes before anyone drives on them;
+ * with it on (the default since 20 Nov 2026), it follows the real pose's fixes as a snap. Pure arithmetic: the shadow is the real pose plus an offset in field x, y; odometry moves
  * both the same, a still fix sets the offset so the shadow sits on the fix (x, y; heading is the
  * real one), and any hard set of the real pose (a start, a handoff, a reset, a relocalize) clears
  * the offset, since the real pose was just put somewhere on purpose.

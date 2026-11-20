@@ -115,8 +115,9 @@ never give one (measured: ±12° from two tags). Once the pose is referenced the
 only, with the Pinpoint's heading: `relocalizeFromCamera()` moves x and y and keeps the heading,
 up to `maxRelocalizeJumpIn`. A bigger correction means the pose is lost: with the robot still and
 a fit from both HIVEs it resets the whole pose, heading too, as the seed does; otherwise it is refused.
-Stationary fixes (`stillFixes`) and continuous fixes (`continuousFixes`) into the filter are both
-off until a measurement shows they help. The reset spots (`ResetPositions`, NaN until measured) are
+Stationary fixes (`stillFixes`) go into the filter (on: an Auto's pose
+was 2 in off by the GARDEN without them); continuous fixes (`continuousFixes`) stay off until a
+measurement shows they help. The reset spots (`ResetPositions`, NaN until measured) are
 fixed, measured poses, the left and right corners of each alliance's wall, chosen by the button the
 driver holds, never "the nearest corner". Relocalizing never moves the driver's field-centric
 forward; a corner reset is the gyro reset too, setting it to the alliance's driver forward as PLAY

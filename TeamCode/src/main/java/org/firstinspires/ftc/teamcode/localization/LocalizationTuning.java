@@ -147,11 +147,17 @@ public final class LocalizationTuning {
     // ------------------------------------------------------- stationary fixes
 
     /**
-     * Whether averaged, gated fixes go into the filter while the robot holds still. <b>Off</b> until
-     * the per-tag residuals are under an inch at the measured spots and Vision: HIVE &amp; Pose shows
-     * the averaged camera position sitting steady. Independent of {@link #continuousFixes}.
+     * Whether averaged, gated fixes go into the filter while the robot holds still. Independent of
+     * {@link #continuousFixes}. <b>On</b> since 20 Nov 2026 (mentor, on 20245): in L-UnderHive with it
+     * off ({@code logs/2026-11-19-20245-RC}, {@code 2026-11-19_22-17-02_L-UnderHive}) the camera put
+     * the robot 2.46 in off LEFT_START at INIT and 1.9 in off the pose while it stood 4 s at
+     * LEFT_AUTO_HIVE with 5 tags; nothing corrected it, and the GARDEN gather stalled on the audience
+     * wall with its side about 1.2 in off the side wall (its pose said 0.7 in through it). Switched on
+     * in Panels for the next run, the gather drove into the wall and took all 4. Left-start
+     * placement on the marks runs about ±2 in from the start pose in x (start checks, 14 to 19 Nov,
+     * both robots), so the pose needs the camera's still fix before a gather.
      */
-    public static boolean stillFixes = false;
+    public static boolean stillFixes = true;
 
     /** Gated camera frames averaged, still, before one stationary fix. */
     public static int stillFixFrames = 5;
