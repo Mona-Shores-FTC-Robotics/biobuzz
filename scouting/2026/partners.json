@@ -278,8 +278,8 @@
         "route": {
           "name": "Right: preloads + park",
           "start": {
-            "x": 29,
-            "y": 9,
+            "x": 31.4,
+            "y": 8.7,
             "h": 90
           },
           "steps": [
@@ -290,24 +290,35 @@
             },
             {
               "kind": "wait",
-              "until": 6.8
+              "until": 6.0
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 32,
+                "y": 62,
+                "h": 90
+              },
+              "bend": null,
+              "by": 7.1,
+              "park": false
             },
             {
               "kind": "drive",
               "to": {
                 "x": 15,
-                "y": 99,
-                "h": 0
+                "y": 98,
+                "h": 90
               },
               "bend": null,
-              "by": 8.8,
+              "by": 8.3,
               "park": true
             }
           ]
         },
-        "note": "OverClucked, from video (Coloma Q, 20 Nov 2026 review), red frame, times after PLAY. The same Auto in all eight: Q-3, Q-9, Q-19, Q-26, Q-39, M-4, M-7, M-10 (high). Starts at the audience wall ~26 in toward the red wall from our RIGHT_START (+-6 in). Three preloads at the AUDIENCE CELL: first ball median 3.2 s (1.5-4.0), last ball 3.8 s (2.2-4.8); its CELL tipped in 4/8 (Q-19, Q-26, Q-39, M-10), TIP lag (last ball to CELL settled) ~4.3 s. Waits ~2.5 s, leaves ~6.8 s (5.0-7.2), one straight drive, parked on effectively our RIGHT_PARK by ~8.8 s (6.5-9.0), then still to 30 s. No FLOWER picks. FTCScout: LEAVE and AUTO PARK 8/8. Heading is CAN'T TELL from the stream camera; the h values are placeholders.",
+        "note": "OverClucked, from video (Coloma Q, 20 Nov 2026 review), red frame, times after PLAY. The same Auto in all eight: Q-3, Q-9, Q-19, Q-26, Q-39, M-4, M-7, M-10 (high). Path traced frame by frame at 15 fps in all eight (camera mapped by the field corners, +-3 in): starts against the audience wall at (31.4, 8.7) (spread under 2 in), ~24 in toward the red wall from our RIGHT_START. Three preloads at the AUDIENCE CELL: first ball median 3.2 s (1.5-4.0), last ball 3.8 s (2.2-4.8); its CELL tipped in 4/8 (Q-19, Q-26, Q-39, M-10), TIP lag (last ball to CELL settled) ~4.3 s. Leaves at 6.0 s (4.7-7.2), drives dead straight up x=32 to y~62 in ~1.1 s, then cuts diagonally to the red wall, touching it at ~(9, 99) and settling at (15, 98) (end spread +-4 in), parked 2.3 s after leaving (8.2 s median, 6.9-9.4), then still to 30 s. No FLOWER picks. FTCScout: LEAVE and AUTO PARK 8/8. Heading CAN'T TELL (square open-box robot; it does not visibly turn): h 90 is a placeholder.",
         "savedBy": "dustinhans",
-        "savedAt": "2026-11-20T20:45:46Z"
+        "savedAt": "2026-11-20T23:25:29Z"
       }
     },
     "24371": {
