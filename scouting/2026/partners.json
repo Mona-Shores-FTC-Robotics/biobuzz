@@ -3,11 +3,11 @@
   "season": 2026,
   "teams": {
     "10255": {
-      "Right: preloads, corner pick, HIVE volley, wall FLOWER, park": {
+      "Right: preloads, corner pick, LEFT volley from the scoring end, wall FLOWER, park": {
         "route": {
-          "name": "Right: preloads, corner pick, HIVE volley, wall FLOWER, park",
+          "name": "Right: preloads, corner pick, LEFT volley from the scoring end, wall FLOWER, park",
           "start": {
-            "x": 52,
+            "x": 51,
             "y": 8,
             "h": 90
           },
@@ -19,27 +19,45 @@
             },
             {
               "kind": "wait",
-              "until": 3.0
+              "until": 2.6
             },
             {
               "kind": "drive",
               "to": {
-                "x": 12,
-                "y": 14,
-                "h": 180
+                "x": 10,
+                "y": 13,
+                "h": 90
               },
               "bend": null,
-              "by": 6.0,
+              "by": 4.0,
               "park": false
             },
             {
               "kind": "pick"
             },
             {
+              "kind": "wait",
+              "until": 9.3
+            },
+            {
               "kind": "drive",
               "to": {
-                "x": 50,
-                "y": 70,
+                "x": 46,
+                "y": 60,
+                "h": 90
+              },
+              "bend": {
+                "x": 46,
+                "y": 14
+              },
+              "by": 10.6,
+              "park": false
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 46,
+                "y": 122,
                 "h": 90
               },
               "bend": null,
@@ -48,17 +66,24 @@
             },
             {
               "kind": "shoot",
-              "at": 12.5,
-              "volleyS": 1.2
+              "at": 13.0,
+              "volleyS": 4.0
+            },
+            {
+              "kind": "wait",
+              "until": 17.6
             },
             {
               "kind": "drive",
               "to": {
                 "x": 12,
-                "y": 47,
-                "h": 180
+                "y": 58,
+                "h": 90
               },
-              "bend": null,
+              "bend": {
+                "x": 22,
+                "y": 64
+              },
               "by": 21.0,
               "park": false
             },
@@ -66,11 +91,15 @@
               "kind": "pick"
             },
             {
+              "kind": "wait",
+              "until": 23.8
+            },
+            {
               "kind": "drive",
               "to": {
-                "x": 12,
-                "y": 93,
-                "h": 0
+                "x": 13,
+                "y": 101,
+                "h": 90
               },
               "bend": null,
               "by": 25.0,
@@ -78,15 +107,116 @@
             }
           ]
         },
-        "note": "RoboDux, from video (Kentwood Q, 20 Nov 2026 review), red frame, times after PLAY. Seen in Q-29, Q-34, M-3, M-10; Q-23 and M-7 ran the same order late and did not park (FTCScout P0 in both, P5 in the four). Start at the audience end beside our RIGHT_START, in 8/8 matches (high). Preloads at the AUDIENCE CELL: first ball ~0.9 s (0.4-1.5), last ball ~2.1 s (1.4-2.2), its own preloads tip it, CELL read up ~4.5 s (medium-high); leaves ~3.0 s. Then the pieces on the audience wall by the red-wall corner (stop read as a pick, intake not visible), under its own red HIVE ~11-17 s with a second volley seen only in Q-34 at ~12-13 s (red's 2 AUTO TIPs in M-3/M-10 support it; low-medium), the red-wall FLOWER ~19-22 s, park in the LOADING ZONE ~24-27 s. Positions +-6-10 in (camera zooms mid-match); under-HIVE spot low confidence. Not a final hiding spot: it uses the space under the HIVE as a launch spot. Heading is CAN'T TELL from the stream camera; the h values are placeholders.",
+        "note": "RoboDux, from video (Kentwood Q, 20 Nov 2026 review), red frame, times after PLAY. Path traced against a 12 in floor grid projected from the four FLOWER posts, every 1-2 s, +-4-6 in (worse at the far end). Start (51, 8) facing 90 at the audience end, beside our RIGHT_START, in every match. Preloads at the AUDIENCE CELL: first ball ~0.9 s (0.4-1.5), last ~2.1 s (1.4-2.2); its own preloads tip it, read up ~4.5 s (alliance AUTO TIP 8/8). Seen in Q-29, Q-34, M-3, M-10 (parked in all four, FTCScout P5). Picks at the pieces by the audience-wall corner (10, 13) until ~9.3 s, drives up the red-wall edge of the HIVE (x~46) to the scoring end and stops at ~(46, 122), between our LEFT_AUTO_OFFSET and LEFT_AUTO_HIVE, ~11.5-17.6 s, shooting the LEFT CELL (balls seen in Q-29; LEFT tipped as it left in M-3; low-medium on the volley's times). Then the red-wall FLOWER (12, 58) ~20-22.5 s and the LOADING ZONE (13, 101) by ~25 s (24-27.5); in Q-29 it also fired from the park at 25-28 s. An earlier read put the scoring-end stop under the HIVE: the 50 in CELLs hide a robot behind them from the audience camera. Heading CAN'T TELL after the start (faces 90 at the start, red '10255' panel toward the camera); later h values are placeholders.",
         "savedBy": "dustinhans",
-        "savedAt": "2026-11-20T20:45:46Z"
+        "savedAt": "2026-11-20T23:32:44Z"
       },
-      "Right: preloads, wall FLOWER, scoring FLOWER, park (Q-15)": {
+      "Right: preloads, corner, wall FLOWER, LEFT volley, no park (Q-23, M-7)": {
         "route": {
-          "name": "Right: preloads, wall FLOWER, scoring FLOWER, park (Q-15)",
+          "name": "Right: preloads, corner, wall FLOWER, LEFT volley, no park (Q-23, M-7)",
           "start": {
-            "x": 56,
+            "x": 51,
+            "y": 8,
+            "h": 90
+          },
+          "steps": [
+            {
+              "kind": "shoot",
+              "at": 0.9,
+              "volleyS": 1.2
+            },
+            {
+              "kind": "wait",
+              "until": 2.6
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 10,
+                "y": 13,
+                "h": 90
+              },
+              "bend": null,
+              "by": 4.0,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "wait",
+              "until": 8.8
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 30,
+                "y": 58,
+                "h": 90
+              },
+              "bend": {
+                "x": 40,
+                "y": 18
+              },
+              "by": 10.8,
+              "park": false
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 12,
+                "y": 58,
+                "h": 90
+              },
+              "bend": null,
+              "by": 13.0,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "wait",
+              "until": 14.0
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 45,
+                "y": 56,
+                "h": 90
+              },
+              "bend": null,
+              "by": 15.0,
+              "park": false
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 46,
+                "y": 122,
+                "h": 90
+              },
+              "bend": null,
+              "by": 17.0,
+              "park": false
+            },
+            {
+              "kind": "shoot",
+              "at": 18.0,
+              "volleyS": 3.0
+            }
+          ]
+        },
+        "note": "RoboDux, from video (Kentwood Q, 20 Nov 2026 review), red frame, times after PLAY. Path traced against a 12 in floor grid projected from the four FLOWER posts, every 1-2 s, +-4-6 in (worse at the far end). Start (51, 8) facing 90 at the audience end, beside our RIGHT_START, in every match. Preloads at the AUDIENCE CELL: first ball ~0.9 s (0.4-1.5), last ~2.1 s (1.4-2.2); its own preloads tip it, read up ~4.5 s (alliance AUTO TIP 8/8). Seen in Q-23 and M-7: the same pieces in the other order: corner, red-wall FLOWER ~11-16 s, then the scoring end (46, 122) from ~15-19 s. Never parked (FTCScout P0 both): in Q-23 it tried and stopped at (26, 104) from 23 s with partner 17772 in the LOADING ZONE; in M-7 it stayed at the scoring end to 30 s. The far-end volley is CAN'T TELL (not zoomed). Heading CAN'T TELL after the start (faces 90 at the start, red '10255' panel toward the camera); later h values are placeholders.",
+        "savedBy": "dustinhans",
+        "savedAt": "2026-11-20T23:32:44Z"
+      },
+      "Right: preloads, corner, wall FLOWER, under the HIVE, park (Q-15)": {
+        "route": {
+          "name": "Right: preloads, corner, wall FLOWER, under the HIVE, park (Q-15)",
+          "start": {
+            "x": 51,
             "y": 8,
             "h": 90
           },
@@ -104,50 +234,81 @@
               "kind": "drive",
               "to": {
                 "x": 13,
-                "y": 8,
-                "h": 180
+                "y": 11,
+                "h": 90
               },
               "bend": null,
-              "by": 5.0,
-              "park": false
-            },
-            {
-              "kind": "drive",
-              "to": {
-                "x": 12,
-                "y": 47,
-                "h": 180
-              },
-              "bend": null,
-              "by": 12.0,
+              "by": 4.5,
               "park": false
             },
             {
               "kind": "pick"
             },
             {
+              "kind": "wait",
+              "until": 10.0
+            },
+            {
               "kind": "drive",
               "to": {
-                "x": 47,
-                "y": 136,
+                "x": 13.5,
+                "y": 43.5,
                 "h": 90
               },
               "bend": {
+                "x": 30,
+                "y": 18
+              },
+              "by": 13.0,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "wait",
+              "until": 14.5
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 60,
+                "y": 35,
+                "h": 90
+              },
+              "bend": null,
+              "by": 15.3,
+              "park": false
+            },
+            {
+              "kind": "drive",
+              "to": {
                 "x": 50,
-                "y": 70
+                "y": 98,
+                "h": 90
+              },
+              "bend": {
+                "x": 68,
+                "y": 60
               },
               "by": 17.0,
               "park": false
             },
             {
-              "kind": "pick"
+              "kind": "shoot",
+              "at": 18.0,
+              "volleyS": 3.0
+            },
+            {
+              "kind": "wait",
+              "until": 22.5
             },
             {
               "kind": "drive",
               "to": {
-                "x": 14,
-                "y": 110,
-                "h": 0
+                "x": 13.5,
+                "y": 94.5,
+                "h": 90
               },
               "bend": null,
               "by": 24.0,
@@ -155,9 +316,9 @@
             }
           ]
         },
-        "note": "RoboDux, from video, Kentwood Q-15 only (blue, converted to red; medium-low). Preloads first ball ~1.5 s, last ~2.1 s; corner by ~5 s, red-wall FLOWER ~11-14.5 s, under the HIVE ~15-16 s to the scoring-side FLOWER ~17-22 s (pick CAN'T TELL), parked in the LOADING ZONE by ~24 s (FTCScout P5). Blue's CELL swung at 16.5-17.5 s right after it passed under the HIVE: CAN'T TELL whether it was bumped. No second volley seen. Heading is CAN'T TELL from the stream camera; the h values are placeholders.",
+        "note": "RoboDux, from video, Kentwood Q-15 only (blue, converted to red), traced as the main entry. Preloads ~1.5-2.1 s; corner ~4.5-10 s, red-wall FLOWER ~13-14.5 s, then the one pass 10255 makes under the HIVE, (60-65, 35-60) at 15-16 s, to ~(52, 100) from 17.5 to 22.5 s; its LEFT-side CELL swung at 16.5-17.5 s as it passed (bumped or shot: CAN'T TELL). Parked (13.5, 94.5) by 24 s (FTCScout P5). The volley at 18 s is a placeholder: CAN'T TELL. Heading CAN'T TELL after the start (faces 90 at the start, red '10255' panel toward the camera); later h values are placeholders.",
         "savedBy": "dustinhans",
-        "savedAt": "2026-11-20T20:45:46Z"
+        "savedAt": "2026-11-20T23:32:44Z"
       },
       "Right: preloads, then corner, no park (Q-8)": {
         "route": {
@@ -181,8 +342,8 @@
               "kind": "drive",
               "to": {
                 "x": 13,
-                "y": 8,
-                "h": 180
+                "y": 10,
+                "h": 90
               },
               "bend": null,
               "by": 5.0,
@@ -190,9 +351,9 @@
             }
           ]
         },
-        "note": "RoboDux, from video, Kentwood Q-8 only (blue, converted to red). Preloads ~1.3-2.1 s, CELL swung ~2.5 s; to the audience-wall corner by ~5 s and stayed there to the end (FTCScout P0). CAN'T TELL whether this is the main Auto stopping early. Heading is CAN'T TELL from the stream camera; the h values are placeholders.",
+        "note": "RoboDux, from video, Kentwood Q-8 only (blue, converted to red); its start is hidden behind blue's CELLs. Preloads ~1.3-2.1 s, CELL swung ~2.5 s; to the audience-wall corner by ~5 s and stayed there to 30 s (FTCScout P0). CAN'T TELL whether this is the main Auto stopping early. Heading CAN'T TELL after the start (faces 90 at the start, red '10255' panel toward the camera); later h values are placeholders.",
         "savedBy": "dustinhans",
-        "savedAt": "2026-11-20T20:45:46Z"
+        "savedAt": "2026-11-20T23:32:44Z"
       }
     },
     "11846": {
