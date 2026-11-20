@@ -3,195 +3,311 @@
   "season": 2026,
   "teams": {
     "10255": {
-      "Left: preloads + park (from FTCScout)": {
+      "Right: preloads, corner pick, HIVE volley, wall FLOWER, park": {
         "route": {
-          "name": "Left: preloads + park (from FTCScout)",
+          "name": "Right: preloads, corner pick, HIVE volley, wall FLOWER, park",
           "start": {
-            "x": 62.3,
-            "y": 133.8,
-            "h": 270
-          },
-          "steps": [
-            {
-              "kind": "shoot",
-              "at": 1.0,
-              "volleyS": 3.5
-            },
-            {
-              "kind": "drive",
-              "to": {
-                "x": 14.5,
-                "y": 117.4,
-                "h": 0
-              },
-              "bend": null,
-              "by": null,
-              "park": true
-            }
-          ]
-        },
-        "note": "RoboDux (Kentwood Q, 8 matches): left the start 6/8, AUTO PARK 6/8; their alliance got an AUTO TIP in 8/8 and 2 TIPs in playoffs M-3 and M-10 with 5385. Season auto OPR 23.5, Fruitport's best: very likely tips a CELL with its own preloads. Not seen on video: an outline from FTCScout scores only. Start side, shot time (1 s, assumed), volley (3.5 s, the default) and the park spot (our team spot) are placeholders; FTCScout gives no times, so 'by' is unknown. Confirm in the pits: which side, do you shoot your preloads right at the start, when does your last ball leave, where and by when do you park.",
-        "savedBy": "dustinhans",
-        "savedAt": "2026-11-20T19:35:23Z"
-      },
-      "Right: preloads + park (from FTCScout)": {
-        "route": {
-          "name": "Right: preloads + park (from FTCScout)",
-          "start": {
-            "x": 55.6,
-            "y": 7.7,
+            "x": 52,
+            "y": 8,
             "h": 90
           },
           "steps": [
             {
               "kind": "shoot",
-              "at": 1.0,
-              "volleyS": 3.5
+              "at": 0.9,
+              "volleyS": 1.2
+            },
+            {
+              "kind": "wait",
+              "until": 3.0
             },
             {
               "kind": "drive",
               "to": {
-                "x": 14.5,
-                "y": 98.7,
+                "x": 12,
+                "y": 14,
+                "h": 180
+              },
+              "bend": null,
+              "by": 6.0,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 50,
+                "y": 70,
+                "h": 90
+              },
+              "bend": null,
+              "by": 12.0,
+              "park": false
+            },
+            {
+              "kind": "shoot",
+              "at": 12.5,
+              "volleyS": 1.2
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 12,
+                "y": 47,
+                "h": 180
+              },
+              "bend": null,
+              "by": 21.0,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 12,
+                "y": 93,
                 "h": 0
               },
               "bend": null,
-              "by": null,
+              "by": 25.0,
               "park": true
             }
           ]
         },
-        "note": "RoboDux (Kentwood Q, 8 matches): left the start 6/8, AUTO PARK 6/8; their alliance got an AUTO TIP in 8/8 and 2 TIPs in playoffs M-3 and M-10 with 5385. Season auto OPR 23.5, Fruitport's best: very likely tips a CELL with its own preloads. Not seen on video: an outline from FTCScout scores only. Start side, shot time (1 s, assumed), volley (3.5 s, the default) and the park spot (our team spot) are placeholders; FTCScout gives no times, so 'by' is unknown. Confirm in the pits: which side, do you shoot your preloads right at the start, when does your last ball leave, where and by when do you park.",
+        "note": "RoboDux, from video (Kentwood Q, 20 Nov 2026 review), red frame, times after PLAY. Seen in Q-29, Q-34, M-3, M-10; Q-23 and M-7 ran the same order late and did not park (FTCScout P0 in both, P5 in the four). Start at the audience end beside our RIGHT_START, in 8/8 matches (high). Preloads at the AUDIENCE CELL: first ball ~0.9 s (0.4-1.5), last ball ~2.1 s (1.4-2.2), its own preloads tip it, CELL read up ~4.5 s (medium-high); leaves ~3.0 s. Then the pieces on the audience wall by the red-wall corner (stop read as a pick, intake not visible), under its own red HIVE ~11-17 s with a second volley seen only in Q-34 at ~12-13 s (red's 2 AUTO TIPs in M-3/M-10 support it; low-medium), the red-wall FLOWER ~19-22 s, park in the LOADING ZONE ~24-27 s. Positions +-6-10 in (camera zooms mid-match); under-HIVE spot low confidence. Not a final hiding spot: it uses the space under the HIVE as a launch spot. Heading is CAN'T TELL from the stream camera; the h values are placeholders.",
         "savedBy": "dustinhans",
-        "savedAt": "2026-11-20T19:35:23Z"
+        "savedAt": "2026-11-20T20:45:46Z"
+      },
+      "Right: preloads, wall FLOWER, scoring FLOWER, park (Q-15)": {
+        "route": {
+          "name": "Right: preloads, wall FLOWER, scoring FLOWER, park (Q-15)",
+          "start": {
+            "x": 56,
+            "y": 8,
+            "h": 90
+          },
+          "steps": [
+            {
+              "kind": "shoot",
+              "at": 1.5,
+              "volleyS": 0.6
+            },
+            {
+              "kind": "wait",
+              "until": 3.0
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 13,
+                "y": 8,
+                "h": 180
+              },
+              "bend": null,
+              "by": 5.0,
+              "park": false
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 12,
+                "y": 47,
+                "h": 180
+              },
+              "bend": null,
+              "by": 12.0,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 47,
+                "y": 136,
+                "h": 90
+              },
+              "bend": {
+                "x": 50,
+                "y": 70
+              },
+              "by": 17.0,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 14,
+                "y": 110,
+                "h": 0
+              },
+              "bend": null,
+              "by": 24.0,
+              "park": true
+            }
+          ]
+        },
+        "note": "RoboDux, from video, Kentwood Q-15 only (blue, converted to red; medium-low). Preloads first ball ~1.5 s, last ~2.1 s; corner by ~5 s, red-wall FLOWER ~11-14.5 s, under the HIVE ~15-16 s to the scoring-side FLOWER ~17-22 s (pick CAN'T TELL), parked in the LOADING ZONE by ~24 s (FTCScout P5). Blue's CELL swung at 16.5-17.5 s right after it passed under the HIVE: CAN'T TELL whether it was bumped. No second volley seen. Heading is CAN'T TELL from the stream camera; the h values are placeholders.",
+        "savedBy": "dustinhans",
+        "savedAt": "2026-11-20T20:45:46Z"
+      },
+      "Right: preloads, then corner, no park (Q-8)": {
+        "route": {
+          "name": "Right: preloads, then corner, no park (Q-8)",
+          "start": {
+            "x": 56,
+            "y": 8,
+            "h": 90
+          },
+          "steps": [
+            {
+              "kind": "shoot",
+              "at": 1.3,
+              "volleyS": 0.8
+            },
+            {
+              "kind": "wait",
+              "until": 2.8
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 13,
+                "y": 8,
+                "h": 180
+              },
+              "bend": null,
+              "by": 5.0,
+              "park": false
+            }
+          ]
+        },
+        "note": "RoboDux, from video, Kentwood Q-8 only (blue, converted to red). Preloads ~1.3-2.1 s, CELL swung ~2.5 s; to the audience-wall corner by ~5 s and stayed there to the end (FTCScout P0). CAN'T TELL whether this is the main Auto stopping early. Heading is CAN'T TELL from the stream camera; the h values are placeholders.",
+        "savedBy": "dustinhans",
+        "savedAt": "2026-11-20T20:45:46Z"
       }
     },
     "11846": {
-      "Left: preloads + park (from FTCScout)": {
+      "Right corner: two volleys, wall FLOWER, park": {
         "route": {
-          "name": "Left: preloads + park (from FTCScout)",
+          "name": "Right corner: two volleys, wall FLOWER, park",
           "start": {
-            "x": 62.3,
-            "y": 133.8,
-            "h": 270
-          },
-          "steps": [
-            {
-              "kind": "shoot",
-              "at": 1.0,
-              "volleyS": 3.5
-            },
-            {
-              "kind": "drive",
-              "to": {
-                "x": 14.5,
-                "y": 117.4,
-                "h": 0
-              },
-              "bend": null,
-              "by": null,
-              "park": true
-            }
-          ]
-        },
-        "note": "Wayland Wildcats (Kentwood Q, 9 matches): left 8/9, AUTO PARK 9/9; alliance AUTO TIP 5/9. Season auto OPR 15.5: reliable leave and park, TIP from its own preloads unsure. Not seen on video: an outline from FTCScout scores only. Start side, shot time (1 s, assumed), volley (3.5 s, the default) and the park spot (our team spot) are placeholders; FTCScout gives no times, so 'by' is unknown. Confirm in the pits: which side, do you shoot your preloads right at the start, when does your last ball leave, where and by when do you park.",
-        "savedBy": "dustinhans",
-        "savedAt": "2026-11-20T19:35:23Z"
-      },
-      "Right: preloads + park (from FTCScout)": {
-        "route": {
-          "name": "Right: preloads + park (from FTCScout)",
-          "start": {
-            "x": 55.6,
-            "y": 7.7,
+            "x": 14,
+            "y": 14,
             "h": 90
           },
           "steps": [
             {
+              "kind": "drive",
+              "to": {
+                "x": 32,
+                "y": 13,
+                "h": 90
+              },
+              "bend": null,
+              "by": 1.0,
+              "park": false
+            },
+            {
               "kind": "shoot",
-              "at": 1.0,
-              "volleyS": 3.5
+              "at": 4.0,
+              "volleyS": 3.3
+            },
+            {
+              "kind": "wait",
+              "until": 9.0
             },
             {
               "kind": "drive",
               "to": {
-                "x": 14.5,
-                "y": 98.7,
+                "x": 19,
+                "y": 52,
+                "h": 180
+              },
+              "bend": null,
+              "by": 10.5,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 32,
+                "y": 13,
+                "h": 90
+              },
+              "bend": null,
+              "by": 14.5,
+              "park": false
+            },
+            {
+              "kind": "shoot",
+              "at": 16.0,
+              "volleyS": 2.5
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 15,
+                "y": 100,
                 "h": 0
               },
               "bend": null,
-              "by": null,
+              "by": 21.5,
               "park": true
             }
           ]
         },
-        "note": "Wayland Wildcats (Kentwood Q, 9 matches): left 8/9, AUTO PARK 9/9; alliance AUTO TIP 5/9. Season auto OPR 15.5: reliable leave and park, TIP from its own preloads unsure. Not seen on video: an outline from FTCScout scores only. Start side, shot time (1 s, assumed), volley (3.5 s, the default) and the park spot (our team spot) are placeholders; FTCScout gives no times, so 'by' is unknown. Confirm in the pits: which side, do you shoot your preloads right at the start, when does your last ball leave, where and by when do you park.",
+        "note": "Wayland, from video (Kentwood Q, 20 Nov 2026 review), red frame, times after PLAY. The same Auto in all nine: Q-4, Q-15, Q-20, Q-25, Q-33, M-2, M-4, M-7, M-9 (Q-33 blocked by its partner at the FLOWER and parked late, ~24.5 s). Starts in the corner of the red and audience walls (moderate, +-6-8 in), at its launch spot near the audience wall by ~1 s (high on timing). First volley at the AUDIENCE CELL ~3-6.5 s (M-4, its TIP swung 8-10 s) / ~5-8 s (Q-4) (moderate). Red-wall FLOWER by ~10.5 s, sits 1.5-2 s (read as a pick; count not visible), back at the launch spot ~14.5 s, second volley ending ~17.5-19 s (Q-4 17.5-20.0; low-moderate), parks on effectively our RIGHT_PARK by ~21.5 s (19.5-24.5). FTCScout: AUTO PARK 9/9; alliance AUTO TIP 4/9. Heading is CAN'T TELL from the stream camera; the h values are placeholders.",
         "savedBy": "dustinhans",
-        "savedAt": "2026-11-20T19:35:23Z"
+        "savedAt": "2026-11-20T20:45:46Z"
       }
     },
     "11228": {
-      "Left: preloads + park (from FTCScout)": {
+      "Right: preloads + park": {
         "route": {
-          "name": "Left: preloads + park (from FTCScout)",
+          "name": "Right: preloads + park",
           "start": {
-            "x": 62.3,
-            "y": 133.8,
-            "h": 270
-          },
-          "steps": [
-            {
-              "kind": "shoot",
-              "at": 1.0,
-              "volleyS": 3.5
-            },
-            {
-              "kind": "drive",
-              "to": {
-                "x": 14.5,
-                "y": 117.4,
-                "h": 0
-              },
-              "bend": null,
-              "by": null,
-              "park": true
-            }
-          ]
-        },
-        "note": "OverClucked Bots (Coloma Q, 8 matches): left 8/8, AUTO PARK 8/8; alliance AUTO TIP 4/8. Season auto OPR 21.0: reliable leave and park, probably tips some of the time. Not seen on video: an outline from FTCScout scores only. Start side, shot time (1 s, assumed), volley (3.5 s, the default) and the park spot (our team spot) are placeholders; FTCScout gives no times, so 'by' is unknown. Confirm in the pits: which side, do you shoot your preloads right at the start, when does your last ball leave, where and by when do you park.",
-        "savedBy": "dustinhans",
-        "savedAt": "2026-11-20T19:35:23Z"
-      },
-      "Right: preloads + park (from FTCScout)": {
-        "route": {
-          "name": "Right: preloads + park (from FTCScout)",
-          "start": {
-            "x": 55.6,
-            "y": 7.7,
+            "x": 29,
+            "y": 9,
             "h": 90
           },
           "steps": [
             {
               "kind": "shoot",
-              "at": 1.0,
-              "volleyS": 3.5
+              "at": 3.0,
+              "volleyS": 0.8
+            },
+            {
+              "kind": "wait",
+              "until": 6.8
             },
             {
               "kind": "drive",
               "to": {
-                "x": 14.5,
-                "y": 98.7,
+                "x": 15,
+                "y": 99,
                 "h": 0
               },
               "bend": null,
-              "by": null,
+              "by": 8.8,
               "park": true
             }
           ]
         },
-        "note": "OverClucked Bots (Coloma Q, 8 matches): left 8/8, AUTO PARK 8/8; alliance AUTO TIP 4/8. Season auto OPR 21.0: reliable leave and park, probably tips some of the time. Not seen on video: an outline from FTCScout scores only. Start side, shot time (1 s, assumed), volley (3.5 s, the default) and the park spot (our team spot) are placeholders; FTCScout gives no times, so 'by' is unknown. Confirm in the pits: which side, do you shoot your preloads right at the start, when does your last ball leave, where and by when do you park.",
+        "note": "OverClucked, from video (Coloma Q, 20 Nov 2026 review), red frame, times after PLAY. The same Auto in all eight: Q-3, Q-9, Q-19, Q-26, Q-39, M-4, M-7, M-10 (high). Starts at the audience wall ~26 in toward the red wall from our RIGHT_START (+-6 in). Three preloads at the AUDIENCE CELL: first ball median 3.2 s (1.5-4.0), last ball 3.8 s (2.2-4.8); its CELL tipped in 4/8 (Q-19, Q-26, Q-39, M-10), TIP lag (last ball to CELL settled) ~4.3 s. Waits ~2.5 s, leaves ~6.8 s (5.0-7.2), one straight drive, parked on effectively our RIGHT_PARK by ~8.8 s (6.5-9.0), then still to 30 s. No FLOWER picks. FTCScout: LEAVE and AUTO PARK 8/8. Heading is CAN'T TELL from the stream camera; the h values are placeholders.",
         "savedBy": "dustinhans",
-        "savedAt": "2026-11-20T19:35:23Z"
+        "savedAt": "2026-11-20T20:45:46Z"
       }
     },
     "24371": {
