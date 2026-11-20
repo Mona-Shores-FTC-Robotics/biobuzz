@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T17:07:18.173Z",
+  "timestamp": "2026-11-20T17:20:09.094Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -695,88 +695,6 @@
       }
     },
     {
-      "id": "l-park-aimed",
-      "color": "#4e79a7",
-      "name": "outside lane to LEFT_AUTO_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 120.5
-      },
-      "controlPoints": [
-        {
-          "x": 27,
-          "y": 34
-        },
-        {
-          "x": 33.5,
-          "y": 66
-        },
-        {
-          "x": 33.5,
-          "y": 94
-        },
-        {
-          "x": 33.5,
-          "y": 108
-        },
-        {
-          "x": 40,
-          "y": 124
-        },
-        {
-          "x": 34,
-          "y": 120.5
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.15,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 61,
-                "endDeg": 90
-              }
-            },
-            {
-              "startProgress": 0.15,
-              "endProgress": 0.7,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.7,
-              "endProgress": 0.8,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": -37.4
-              }
-            },
-            {
-              "startProgress": 0.8,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": -37.4
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
       "id": "link-6",
       "name": "Link (never driven)",
       "color": "#6b7280",
@@ -998,10 +916,6 @@
     },
     {
       "kind": "path",
-      "lineId": "l-park-aimed"
-    },
-    {
-      "kind": "path",
       "lineId": "link-6"
     },
     {
@@ -1112,11 +1026,6 @@
         14.5,
         117.4,
         0
-      ],
-      "LEFT_AUTO_PARK": [
-        14.5,
-        120.5,
-        322.6
       ]
     },
     "pathEnds": {
@@ -1132,8 +1041,7 @@
       "l-park": "LEFT_PARK",
       "l-under-park-flower": "LEFT_PARK",
       "l-pickup-park-flower": "LEFT_PARK",
-      "l-rescue-park": "LEFT_PARK",
-      "l-park-aimed": "LEFT_AUTO_PARK"
+      "l-rescue-park": "LEFT_PARK"
     },
     "cards": [
       {
@@ -1292,9 +1200,9 @@
                         ]
                       },
                       {
-                        "id": "l-c-park-aimed",
+                        "id": "l-c-park-shot",
                         "kind": "path",
-                        "lineId": "l-park-aimed",
+                        "lineId": "l-park",
                         "park": true
                       },
                       {
