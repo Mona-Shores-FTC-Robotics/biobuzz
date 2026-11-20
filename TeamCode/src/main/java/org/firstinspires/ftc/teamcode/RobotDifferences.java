@@ -76,12 +76,13 @@ public final class RobotDifferences {
                         + " from the build team; its port is in robot_19429.xml)",
                 () -> FlowerStickSubsystem.roller = true);
         differs(RobotIdentity.TEAM_19429,
-                "FLOWER stick's pivot measured in Bench: FLOWER Stick: in at 1.00, out at 0.49"
-                        + " (mentor, 20 Nov 2026, from the Driver Station's recorded values; the swing"
-                        + " now runs the other way: was in 0.30, out 0.91 on 18 Nov)",
+                "FLOWER stick's pivot measured in Bench: FLOWER Stick: in at 1.00, out at 0.44"
+                        + " (mentor, 20 Nov 2026; out was 0.49 from the Driver Station's recorded values"
+                        + " earlier that day, then set to 0.44 by the mentor; the swing now runs the"
+                        + " other way: was in 0.30, out 0.91 on 18 Nov)",
                 () -> {
                     FlowerStickSubsystem.RETRACTED = 1.0;
-                    FlowerStickSubsystem.EXTENDED = 0.49;
+                    FlowerStickSubsystem.EXTENDED = 0.44;
                 });
         differs(RobotIdentity.TEAM_19429,
                 "Lane colour sensor's empty lane reads 0.064 (top 0.1% 0.088) since more ambient light"
