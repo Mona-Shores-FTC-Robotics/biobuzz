@@ -114,15 +114,18 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    AIM TRIM L 2.0°), one/two rumble blips as before, and Circle fires nothing. **Stop:** Circle fires,
    or the step does not change → push the log.
 - [ ] Fine trim: smaller steps with Circle held, no fire
-9. **Backward with a load (bottom plate),** before **Drive: R-Solo-19429** runs on that robot. 19429 now;
+9. **Backward with a load (bottom plate),** before **Drive: R-Solo-19429** or **Drive: R-Clockwise-19429** runs on that robot. 19429 now;
    20245 once its plate is on. On 20245, first re-measure the lane sensor's empty and POLLEN levels with
    the plate (step 3), then add its `RobotDifferences` line setting
    `IntakeSubsystem.holdsLoadDrivingBackward` (a session does this; without it the trial shows a red line in
    INIT and does not move). Basic Drive, 4 POLLEN in the lane, phone filming the intake low from the side.
-   Drive **backward** at full stick, with a hard start and a hard stop, 3 times, from `WALL_FLOWER_STAGING`
-   north to `LEFT_AUTO_HIVE` (R-Solo-19429's backward leg). **Good:** the lane still holds 4 after every run,
-   and the video shows none leave; then run **Drive: R-Solo-19429** alone from `RIGHT_START`, `LEFT_START`
-   empty, and push the logs. **Stop:** any piece leaves → no backward trial on that robot; push the logs
+   Drive **backward** at full stick, with a hard start and a hard stop, 3 times each:
+   - from `WALL_FLOWER_STAGING` north to `LEFT_AUTO_HIVE` (R-Solo-19429's backward leg)
+   - from `GARDEN_STAGING` north up the outside lane to `LEFT_AUTO_HIVE` (R-Clockwise-19429's)
+
+   **Good:** the lane still holds 4 after every run, and the video shows none leave; then run **Drive:
+   R-Solo-19429** alone from `RIGHT_START`, `LEFT_START` empty, and **Drive: R-Clockwise-19429** (Pickup
+   GARDEN) with L-Clockwise on the other robot, and push the logs. **Stop:** any piece leaves → no backward trial on that robot; push the logs
    and the video.
 - [ ] Backward with a load, 19429: lane full after every run, video kept
 - [ ] Backward with a load, 20245 (once its plate is on): lane levels re-measured, lane full after every run, video kept
