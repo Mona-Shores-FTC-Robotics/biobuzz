@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/drafts/l-left-under-hive-wall-gather.pp",
-  "spec": "LLeftUnderHiveWallGatherAuto@50",
+  "pp": "TeamCode/autos/drafts/l-left-under-hive-strange-garden.pp",
+  "spec": "LLeftUnderHiveStrangeGardenAuto@50",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -52,30 +52,30 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "matching R-LeftUnderHive-WallGather",
-      "partner": "RLeftUnderHiveWallGatherAuto",
+      "name": "matching R-LeftUnderHive",
+      "partner": "RLeftUnderHiveAuto",
       "timing": {
         "speed": 50
       }
     },
     {
-      "name": "R-LeftUnderHive-WallGather drives 20 percent slower",
-      "partner": "RLeftUnderHiveWallGatherAuto",
+      "name": "R-LeftUnderHive drives 20 percent slower",
+      "partner": "RLeftUnderHiveAuto",
       "timing": {
         "speed": 40
       }
     },
     {
-      "name": "L-LeftUnderHive-WallGather drives 20 percent slower",
-      "partner": "RLeftUnderHiveWallGatherAuto",
+      "name": "L-LeftUnderHive-StrangeGarden drives 20 percent slower",
+      "partner": "RLeftUnderHiveAuto",
       "ourSpeed": 40,
       "timing": {
         "speed": 50
       }
     },
     {
-      "name": "R-LeftUnderHive-WallGather misses every shot",
-      "partner": "RLeftUnderHiveWallGatherAuto",
+      "name": "R-LeftUnderHive misses every shot",
+      "partner": "RLeftUnderHiveAuto",
       "fails": "misses",
       "timing": {
         "speed": 50
@@ -83,7 +83,7 @@
     },
     {
       "name": "R's preloads miss (17 Nov)",
-      "partner": "RLeftUnderHiveWallGatherAuto",
+      "partner": "RLeftUnderHiveAuto",
       "timing": {
         "speed": 50
       },
@@ -96,7 +96,7 @@
     },
     {
       "name": "contingency: nothing tips (both preloads miss, R misses every shot)",
-      "partner": "RLeftUnderHiveWallGatherAuto",
+      "partner": "RLeftUnderHiveAuto",
       "timing": {
         "speed": 50
       },
@@ -109,8 +109,8 @@
     }
   ],
   "metadata": {
-    "AutoSource": "drafts/l-left-under-hive-wall-gather.pp",
-    "SavedBy": "L-LeftUnderHive-WallGather beside R-LeftUnderHive-WallGather (R's GARDEN hold moved to match): master's partner matrix, plus L 20 percent slow",
-    "SavedAt": "2026-11-20T18:00:00+00:00"
+    "AutoSource": "drafts/l-left-under-hive-strange-garden.pp",
+    "SavedBy": "L-LeftUnderHive with its GARDEN gathered along the audience wall (GardenGatherAlongWall), beside master's R-LeftUnderHive: master's partner matrix, plus L 20 percent slow",
+    "SavedAt": "2026-11-20T20:00:00+00:00"
   }
 }

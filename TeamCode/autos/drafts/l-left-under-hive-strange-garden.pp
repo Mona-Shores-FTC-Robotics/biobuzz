@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T17:50:35.048Z",
+  "timestamp": "2026-11-20T18:21:44.690Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -938,6 +938,6 @@
       "RIGHT_AUTO_FIX_TIP",
       "RIGHT_AUTO_HIVE"
     ],
-    "exportName": "L-LeftUnderHive-WallGather"
+    "exportName": "L-LeftUnderHive-StrangeGarden"
   }
 }

@@ -691,12 +691,11 @@ Use the work order above to select checks; the detailed mechanism checks below a
       GARDEN from about 24 in out, the log says `stick down on the drive in`, and the gather starts
       with `PREP 0.2 s` or less. **Stop:** the faster turn swings the robot off its line or toward
       the wall → the old drawing, and the 0.7 s stays.
-- [ ] **Drive: L-LeftUnderHive-WallGather, the GARDEN along the audience wall (20 Nov 2026; never run):**
-      the Utility draft ([its notes](../TeamCode/autos/drafts/README.md#l-leftunderhive-wallgather-the-garden-the-other-way-in-20-nov-2026-never-run)),
+- [ ] **Drive: L-LeftUnderHive-StrangeGarden, the GARDEN along the audience wall (20 Nov 2026; never run):**
+      the Utility draft ([its notes](../TeamCode/autos/drafts/README.md#l-leftunderhive-strangegarden-the-garden-the-other-way-in-20-nov-2026-never-run)),
       first alone (HIVE upright, LEFT up so it takes the preloads route: tip it by hand before 10 s),
       GARDEN loaded with its 4 POLLEN, phone filming the corner from above, spotter at the HIVE's
-      bottom end; then beside **Drive: R-LeftUnderHive-WallGather** (R-LeftUnderHive leaving the SCORING
-      FLOWER at 17.6 s, not 18.6: watch the two near `RIGHT_AUTO_CLOSE`). Three runs. **Good:** the turn to face the red-side wall
+      bottom end; then beside the normal R-LeftUnderHive. Three runs. **Good:** the turn to face the red-side wall
       happens below the HIVE, clear of its foot bar and the centre line; the log says `GARDEN gather
       along the wall: stick down on the drive in, N in to go` (N near 24), then `over to the wall …
       (already there), then pushing in`, the drive in ends `stalled … pushing` in the corner, and

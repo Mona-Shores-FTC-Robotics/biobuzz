@@ -2,8 +2,8 @@
 
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
-(mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, the LeftUnderHive-WallGather
-pair (**Drive: L-LeftUnderHive-WallGather** beside **Drive: R-LeftUnderHive-WallGather**, below), and the RightUnderHive
+(mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, L-LeftUnderHive-StrangeGarden
+(**Drive: L-LeftUnderHive-StrangeGarden**, beside the normal R-LeftUnderHive, below), and the RightUnderHive
 pair, parked until a super FLOWER pick exists (no OpMode), the ThreeTip pair, which runs from the Utility menu as a trial pair, **Drive: R-ThreeTip** beside **Drive: L-ThreeTip**.
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
@@ -14,11 +14,11 @@ pair, parked until a super FLOWER pick exists (no OpMode), the ThreeTip pair, wh
 - Drafts: `l-clockwise-backward`, `l-clockwise-close`, `l-clockwise-flower`, `l-clockwise-garden`, `l-clockwise-next`, `l-pair-flowers`, `l-three-tip` (likewise reused), `l-under-hive-fix`, `l-under-hive-park-shot` (became l-under-hive.pp), `partner-nudge-test`, `r-clockwise-19429` (rebuilt on 20 Nov 2026 as `r-clockwise-backwards`, below), `r-clockwise-backward`, `r-clockwise-close`, `r-clockwise-flower`, `r-clockwise-garden`, `r-clockwise-next`, `r-outside-lane-fix`, `r-pair-garden`, `r-pair-garden-sweep`, `r-solo-19429` (brought back on 20 Nov 2026 as `r-solo-backwards`, whose backward leg is now R-Solo's, below), `r-solo-human-player`, `r-solo-nudge`, `r-three-tip` (the name now holds the new ThreeTip draft below), `r-three-tip-still`, `r-three-tip-stream`, `r-two-tip`, `r-two-tip-with`.
 - Stand-ins in `partners/`: `partner-l-fill-hide-park`, `partner-l-stage-leave-park`, `partner-l-timed-fill-hide-park`, `partner-r-launch-stay`, `partner-r-tip-far-park`.
 
-## L-LeftUnderHive-WallGather: the GARDEN the other way in (20 Nov 2026, never run)
+## L-LeftUnderHive-StrangeGarden: the GARDEN the other way in (20 Nov 2026, never run)
 
-`l-left-under-hive-wall-gather.pp` is master's `l-left-under-hive.pp` with its GARDEN leg redrawn (mentor, 20 Nov 2026:
+`l-left-under-hive-strange-garden.pp` is master's `l-left-under-hive.pp` with its GARDEN leg redrawn (mentor, 20 Nov 2026:
 by hand, a gather along the audience wall took 4 POLLEN the same way every time). It runs from the Utility menu as
-**Drive: L-LeftUnderHive-WallGather**, beside R-LeftUnderHive as that half's pair. Not for Fruitport unless it has run
+**Drive: L-LeftUnderHive-StrangeGarden**, beside R-LeftUnderHive as that half's pair. Not for Fruitport unless it has run
 on the robot first. Everything else (the TIP 1 wait and its rescue, the preloads at LEFT, the RIGHT-up wait at
 `RIGHT_AUTO_HIVE`, the park and the park shot) is master's.
 
@@ -35,10 +35,10 @@ on the robot first. Everything else (the TIP 1 wait and its rescue, the preloads
   then turns 84° to `RIGHT_AUTO_HIVE`'s 96.1 (master's exit turned 186°). Its drawn start is `WALL_GARDEN_STAGING`; the
   robot starts it from the corner, 19 in behind, and drives back along the wall onto it.
 
-**In the simulator** (20 Nov 2026, `sim-requests/l-left-under-hive-wall-gather.json`, master's partner matrix, Belding
+**In the simulator** (20 Nov 2026, `sim-requests/l-left-under-hive-strange-garden.json`, master's partner matrix, Belding
 calibration, 10 seeds a case, our turret robot beside R-LeftUnderHive):
 
-| | L-LeftUnderHive | L-LeftUnderHive-WallGather |
+| | L-LeftUnderHive | L-LeftUnderHive-StrangeGarden |
 |---|---|---|
 | leaving `LEFT_AUTO_HIVE` to reaching `RIGHT_AUTO_HIVE` | 9.04 s (8.15 with no gather floor) | 8.60 s (7.99) |
 | the gather itself (the routine, without the guard-time floor) | 2.1 s | 1.4 s |
@@ -56,16 +56,16 @@ R-LeftUnderHive holds at the SCORING FLOWER until 18.6 s (`L has left the GARDEN
 15 s. The gain this draft can show on the robot is the load: 4 POLLEN every gather, as by hand, and a gather that never
 stops.
 
-**R-LeftUnderHive-WallGather** (`r-left-under-hive-wall-gather.pp`, **Drive: R-LeftUnderHive-WallGather**) is its half:
-master's R-LeftUnderHive with that hold at 17.6 s instead of 18.6 (`L has left the GARDEN: go at 17.6 s`), nothing else
-changed. Swept in the simulator beside the L draft (10 seeds a case, normal and best, with R 20% slow and L 20% slow): 18.6,
-17.6, 16.8 and 16.0 s all had no contact, G402 or HIVE hit. 17.6 brings TIP 3 in the best case from 29.16 to 28.68 s
-(28.54 with L slow); 16.8 and 16.0 gain nothing more, since R's own SCORING FLOWER pick then ends after the hold. With R
-20% slow TIP 3 stays at 30.3 s: R's own driving is the limit there.
+**R's hold, for later.** R-LeftUnderHive holds at the SCORING FLOWER until 18.6 s (`L has left the GARDEN`) so it does
+not come down to `RIGHT_AUTO_CLOSE` while L leaves the GARDEN; this L leaves about a second sooner. Swept in the simulator
+beside this L (a copy of R with only that time changed, 10 seeds a case, normal and best, R or L 20% slow): 18.6, 17.6,
+16.8 and 16.0 s all had no contact, G402 or HIVE hit, and 17.6 brought the best case's TIP 3 from 29.16 to 28.68 s
+(earlier gained nothing more: R's own SCORING FLOWER pick then ends after the hold). Not made (mentor, 20 Nov 2026): this
+L runs beside the normal R first, and the hold is revisited if the gather works.
 
 **Why a faster L buys so little.** The best case's critical path is R and the HIVE, not L (match clock, the simulator):
 
-| | today's pair | WallGather pair |
+| | today's pair | this L, R holding to 17.6 s |
 |---|---|---|
 | R's 4th ball into LEFT (8 pieces: L's preloads and R's WALL FLOWER load) | 14.9 s | 14.9 s |
 | TIP 2 settles, RIGHT up (TIP lag 4.1 s at tipping weight) | 19.1 | 19.1 |
