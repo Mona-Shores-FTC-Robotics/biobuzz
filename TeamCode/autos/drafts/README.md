@@ -3,9 +3,7 @@
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
 (mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, and the RightUnderHive
-pair, parked until a super FLOWER pick exists (no OpMode), the ThreeTip pair, which runs from the Utility menu as a trial pair, **Drive: R-ThreeTip** beside **Drive: L-ThreeTip**,
-and R-Clockwise-Backwards, with one loaded leg driven backward, which runs from the Utility menu as
-**Drive: R-Clockwise-Backwards** on a robot with a bottom plate (brought back 20 Nov 2026).
+pair, parked until a super FLOWER pick exists (no OpMode), the ThreeTip pair, which runs from the Utility menu as a trial pair, **Drive: R-ThreeTip** beside **Drive: L-ThreeTip**.
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
 (`NudgeContactDrive`, `NudgeTestRun`) and the stand-ins only they used. All are in Git history at
@@ -28,35 +26,39 @@ The draft's simulator comparison (20 Nov 2026, Belding calibration, which also d
 TIP 2 0.4 s earlier in the best case and the fix TIP 0.8 s earlier, and every robot parked; on 18 Nov, on 19429's own loads,
 the leg took 3.2 s instead of 4.2 s.
 
-## R-Clockwise-Backwards: R-Clockwise with the outside lane from the GARDEN driven backward
+## R-Clockwise-Backwards: promoted into R-Clockwise (20 Nov 2026)
 
-`r-clockwise-backwards.pp` is master's `r-clockwise.pp` with one leg's heading changed: the outside lane from the GARDEN to
-`LEFT_AUTO_HIVE` holds 270 (backward) until 82% of the way and then turns to the spot's 268.9, instead of turning round
-to drive it nose-first. The drawn drive is 3.4 s instead of 3.8 s. It changes only **Pickup GARDEN**; with Pickup
-WALL_FLOWER it is today's R-Clockwise. The other robot runs L-Clockwise beside it, unchanged. The first draft (18 Nov)
-was made on that day's R-Clockwise; on 20 Nov 2026 it was rebuilt on master's, which has the R2 hold (#654), with the same
-one change. It runs from the Utility menu as a 30 s trial, **Drive: R-Clockwise-Backwards** (`RClockwiseBackwardsTrial`, on
-`BackwardLoadTrial`), under the same rule R-Solo-Backwards had: a bottom plate, and the backward drive in robot-todo's
-step 9 passed first on that robot. Request: `sim-requests/r-clockwise-backwards.json`.
+`r-clockwise-backwards.pp` was master's `r-clockwise.pp` with its outside lane from the GARDEN driven backward. On 20 Nov
+2026 (mentor: "the backwards stuff works and it should be the norm") both of R-Clockwise's loaded outside lanes became
+backward in `../r-clockwise.pp`, and the draft, its class, its Utility trial **Drive: R-Clockwise-Backwards** and its sim
+request are gone (Git history):
 
-**In the simulator** (20 Nov 2026, master's `sim-requests/r-clockwise.json` run on both, its 24 runs a case beside
-L-Clockwise, TIPs settled by 38 s; the simulator never drops a load driving backward, so this is the time saved and
-nothing about the plate). Every WALL FLOWER case, and every contingency, is identical in both. The GARDEN cases:
+- `outside lane BACKWARD from the GARDEN to LEFT_AUTO_HIVE` holds 270 until 82% of the way, then turns to 268.9.
+- `outside lane BACKWARD from the FLOWER to LEFT_AUTO_HIVE` turns 180 to 270 in its first 15%, holds 270 until 82%, then
+  turns to 268.9.
+- Each lane waits first for a time on the match clock, **L clear of LEFT_AUTO_HIVE: go at 9.8 s** (WALL FLOWER) and
+  **at 9.9 s** (GARDEN). Backward, R reaches `LEFT_AUTO_HIVE` up to 2.8 s sooner (the simulator's turn in place is
+  slow), and with a late TIP 1 L is still on that spot firing its preloads until about 11.5 s: without the wait the
+  simulator had them touch at 11.7 s in 3 of 24 runs, as 20245 and 19429 did on the robot on 18 Nov at 22:15 (PLAY late,
+  TIP 1 late, R drove up against L).
 
-| Pickup GARDEN | R-Clockwise | R-Clockwise-Backwards |
+**In the simulator** (20 Nov 2026, master's `sim-requests/r-clockwise.json` on both, 24 runs a case beside L-Clockwise,
+TIPs settled by 38 s; the simulator never drops a load driving backward, so this is the time saved and nothing about the
+plate):
+
+| Case | R-Clockwise, nose-first | R-Clockwise, backward lanes |
 |---|---|---|
-| Best case (`"scenario": "best"`) | 2.00 TIPs (T2 22.7 s), R parks 24/24 | 2.58 (third TIP in 14 of 24, T3 32.5 s), R parks 0/24 |
-| Best, R 20% slow | 2.00, R parks 24/24 | 2.42 (third TIP in 10), R parks 0/24 |
-| Best, L 20% slow | 2.00, both park | 2.17 (third TIP in 4), R parks 0/24, L 20/24 |
-| Best, L's preloads miss | 1.00 | 2.00 (T2 30.4 s) |
-| Normal | 1.62, R parks 23/24, 0 contacts | 1.58, R parks 21/24, 3 contacts |
-| Normal, R 20% slow | 1.17, R parks 24/24 | 1.62, R parks 21/24, 1 contact |
-| Normal, L 20% slow | 1.58, 5 contacts | 1.58, 8 contacts |
-| Normal, L's preloads miss | 0.88, 0 contacts | 0.88, 3 contacts |
+| WALL FLOWER, best case | 2.92 TIPs | 2.96 |
+| WALL FLOWER, best, R 20% slow | 2.08 | 2.04 |
+| WALL FLOWER, normal | 1.54, 1 contact | 1.58, 0 contacts |
+| WALL FLOWER, normal, L's preloads miss | 0.96, 1 contact | 1.00, 0 contacts |
+| GARDEN, best case | 2.00, R parks 24/24 | 2.46 (third TIP in 11 of 24), R parks 0/24 |
+| GARDEN, normal | 1.62, R parks 23/24 | 1.58, R parks 21/24, 0 contacts |
+| GARDEN, normal, R 20% slow | 1.17 | 1.58 |
+| GARDEN, normal, L 20% slow | 1.58, 5 contacts at 27.3 s | 1.58, 5 contacts |
 
-The time saved buys a third TIP in the best case, and R then goes for it rather than park (in the best case, the WALL
-FLOWER pickup does the same on master: 2.92 TIPs, R parks 0/24). On normal loads it buys nothing, and R parks a little
-less and touches L more often. No centre-line crossing or HIVE hit in any case.
+R not parking in the GARDEN best case is the Priority row going for its third TIP (master's WALL FLOWER does the same in
+the best case). Every other case and contingency matches master. No centre-line crossing or HIVE hit in any case.
 
 ## L-Assist: the far-end partner beside a near-end robot that tips both CELLs
 
