@@ -156,7 +156,9 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    **Good:** `read_logs.py hold` on the new log reads under 0.6 reversals a second, and the shots
    still go in → the values that did it get one `RobotDifferences` line for 19429 with the date.
    **Stop:** nothing helps and the turret felt free by hand → push the logs and say so.
-- [ ] 19429 turret: floor 0.065 (done), kP 0.008 (done), kD ___, reversals/s before 1.18 (18 Nov) / 1.38 (19 Nov), after ___
+- [ ] 19429 turret: floor 0.065 (done), kP 0.008 (done), kD ___, reversals/s before 1.18 (18 Nov) / 1.38 (19 Nov),
+      after 0.75 to 1.29 at kP 0.008 (00:18 logs, only 59 s still: too little to judge; kP 0.005 read 0.38 to 0.41
+      but sat 3° off). Next: a longer still hold, then `kD` 0.0015 if it still hunts.
 11. **The robot's orange light, and Circle in LOCKED** (20 Nov 2026, not yet on a robot). Basic Drive.
    - Turret **AIM**: drive so the CELL is behind the robot. **Good:** the robot's indicator light goes
      steady orange without Circle pressed, flashes orange with Circle held (19429 does not shoot; 20245
@@ -169,7 +171,11 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
      `TeleOpConfig.chassisAimMinTurn` (0.2, a starting point: 0.14 did not turn 19429, 0.28 did): if it
      stops short, raise it in Panels; if it swings past the CELL and back, lower it. Put the value that
      worked in a PR.
-- [ ] Orange light seen on the robot; chassisAimMinTurn ___ (LOCKED Circle turns onto the CELL and fires)
+- [x] Orange light on 19429 (19 Nov 2026, 00:18 logs): orange whenever the CELL went behind, flashing on both
+      refused presses, off when it came back. Still to confirm by eye that 0.333 reads orange, not red or yellow.
+- [x] LOCKED Circle on 19429 with `chassisAimMinTurn` 0.2: all 6 presses turned onto the CELL and stopped
+      0.4 to 1.3° off it (19 Nov 2026, 00:18 logs). Leave 0.2 unless it swings past.
+- [ ] Orange light on 20245; LOCKED Circle on 20245
 
 ## Belding work order (agreed 5 Nov)
 
