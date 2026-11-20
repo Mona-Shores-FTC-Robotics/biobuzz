@@ -42,12 +42,20 @@ public final class GardenFieldPoints {
          * corner" turn to that side.
          */
         public final boolean wallOnRight;
+        /**
+         * A way in facing the side wall (red's reflected across the corner's diagonal, and its mirrors), so
+         * the GARDEN's row runs along the robot's side rather than across its intake: it turns into the
+         * corner by {@code GardenGather.AlongWall#intoCornerDeg}, as the Auto's along-the-wall card does,
+         * not {@code GardenGather.DriveIn#intoCornerDeg}.
+         */
+        public final boolean facingSideWall;
 
-        Garden(String name, Pose gather, Pose lineUp, boolean wallOnRight) {
+        Garden(String name, Pose gather, Pose lineUp, boolean wallOnRight, boolean facingSideWall) {
             this.name = name;
             this.gather = gather;
             this.lineUp = lineUp;
             this.wallOnRight = wallOnRight;
+            this.facingSideWall = facingSideWall;
         }
 
         /** +1 with the wall on the robot's right, -1 on its left. */
@@ -65,16 +73,16 @@ public final class GardenFieldPoints {
 
     /** Red's GARDEN, by the audience wall on the red side. */
     public static final Garden RED = new Garden("red GARDEN",
-            new Pose(8.5, 9.5, Math.toRadians(270)), new Pose(8.5, 19.1, Math.toRadians(270)), true);
+            new Pose(8.5, 9.5, Math.toRadians(270)), new Pose(8.5, 19.1, Math.toRadians(270)), true, false);
     /** {@link #RED} turned 180° about the centre. */
-    public static final Garden BLUE = new Garden("blue GARDEN", turned(RED.gather), turned(RED.lineUp), true);
+    public static final Garden BLUE = new Garden("blue GARDEN", turned(RED.gather), turned(RED.lineUp), true, false);
 
     /** Both. */
     public static final List<Garden> ALL = Collections.unmodifiableList(Arrays.asList(RED, BLUE));
 
     /** Red's corner, facing the red-side wall (180°), along the audience wall: {@link #RED} reflected across the corner's diagonal. */
     private static final Garden RED_ALONG_AUDIENCE = new Garden("red GARDEN corner, facing the side wall",
-            diagonal(RED.gather), diagonal(RED.lineUp), false);
+            diagonal(RED.gather), diagonal(RED.lineUp), false, true);
 
     /**
      * Every corner way in, two per corner (facing one wall, then the other), in corner order: red's
@@ -86,15 +94,15 @@ public final class GardenFieldPoints {
             RED_ALONG_AUDIENCE,
             BLUE,
             new Garden("blue GARDEN corner, facing the side wall",
-                    turned(RED_ALONG_AUDIENCE.gather), turned(RED_ALONG_AUDIENCE.lineUp), false),
+                    turned(RED_ALONG_AUDIENCE.gather), turned(RED_ALONG_AUDIENCE.lineUp), false, true),
             new Garden("audience blue-side corner, facing the audience wall",
-                    mirrored(RED.gather), mirrored(RED.lineUp), false),
+                    mirrored(RED.gather), mirrored(RED.lineUp), false, false),
             new Garden("audience blue-side corner, facing the side wall",
-                    mirrored(RED_ALONG_AUDIENCE.gather), mirrored(RED_ALONG_AUDIENCE.lineUp), true),
+                    mirrored(RED_ALONG_AUDIENCE.gather), mirrored(RED_ALONG_AUDIENCE.lineUp), true, true),
             new Garden("far red-side corner, facing the far wall",
-                    turned(mirrored(RED.gather)), turned(mirrored(RED.lineUp)), false),
+                    turned(mirrored(RED.gather)), turned(mirrored(RED.lineUp)), false, false),
             new Garden("far red-side corner, facing the side wall",
-                    turned(mirrored(RED_ALONG_AUDIENCE.gather)), turned(mirrored(RED_ALONG_AUDIENCE.lineUp)), true)));
+                    turned(mirrored(RED_ALONG_AUDIENCE.gather)), turned(mirrored(RED_ALONG_AUDIENCE.lineUp)), true, true)));
 
     /**
      * The button's corner way in: of the corner whose ways in are nearest ({@code x}, {@code y}),
