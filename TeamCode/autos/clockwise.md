@@ -218,7 +218,7 @@ spot at 13.2 s as before.
 The spot is on L's road: L shoots its preloads from the wall behind it and then drives south under the
 HIVE through it. L has left by about 9 to 11 s and R arrives at 13.2 s. In the simulator with Belding's
 shot rates the robots touch there in 2 of 24 runs, at about 12.2 s, the runs where TIP 1 came at 8.3 s
-or later so L left late; with every shot in, in none. The lane pair (R-OutsideLane, L-UnderHive) opens
+or later so L left late; with every shot in, in none. The lane pair (R-LeftUnderHive, L-LeftUnderHive) opens
 the same way and touches in 1 of 24. A robot check (`doc/robot-todo.md`).
 
 ## Spots

@@ -129,9 +129,6 @@ public class SimRequestsTest {
         if (name.startsWith("l-")) other = "r-" + name.substring(2);
         else if (name.startsWith("r-")) other = "l-" + name.substring(2);
         else return false;
-        // The one pair whose halves do not share a name: R-OutsideLane with L-UnderHive.
-        if (name.equals("r-outside-lane")) other = "l-under-hive";
-        if (name.equals("l-under-hive")) other = "r-outside-lane";
         return (other + ".pp").equals(source) && new File(autos, source).isFile()
                 && new File(autos, name + ".pp").isFile();
     }
@@ -139,10 +136,10 @@ public class SimRequestsTest {
     /**
      * Whether {@code source} is the other half of the pair a draft of a pair half runs beside: the draft
      * named after R-Clockwise with a suffix (as {@code r-clockwise-backwards} was) beside our {@code l-clockwise}, as R-Clockwise is,
-     * or an L-UnderHive trial such as {@code l-under-hive-park-shot} beside our {@code r-outside-lane}.
+     * or an L-LeftUnderHive trial such as {@code l-left-under-hive-park-shot} beside our {@code r-left-under-hive}.
      */
     static boolean robotVariantPairHalf(String name, String source, File autos) {
-        // Any draft named after a pair half, its base and a suffix: r-clockwise-backwards, l-under-hive-park-shot.
+        // Any draft named after a pair half, its base and a suffix: r-clockwise-backwards, l-left-under-hive-park-shot.
         for (int dash = name.indexOf('-', 2); dash > 0; dash = name.indexOf('-', dash + 1)) {
             if (pairHalf(name.substring(0, dash), source, autos)) return true;
         }

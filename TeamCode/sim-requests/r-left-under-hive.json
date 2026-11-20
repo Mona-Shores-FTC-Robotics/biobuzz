@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/r-outside-lane.pp",
-  "spec": "ROutsideLaneAuto",
+  "pp": "TeamCode/autos/r-left-under-hive.pp",
+  "spec": "RLeftUnderHiveAuto",
   "design": "real robot, turret locked forward",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -53,21 +53,21 @@
   "partners": [
     {
       "name": "as drawn",
-      "partner": "LUnderHiveAuto",
+      "partner": "LLeftUnderHiveAuto",
       "timing": {
         "speed": 50
       }
     },
     {
       "name": "as drawn, L 20 percent slower",
-      "partner": "LUnderHiveAuto",
+      "partner": "LLeftUnderHiveAuto",
       "timing": {
         "speed": 40
       }
     },
     {
       "name": "as drawn, L misses every shot",
-      "partner": "LUnderHiveAuto",
+      "partner": "LLeftUnderHiveAuto",
       "fails": "misses",
       "timing": {
         "speed": 50
@@ -79,7 +79,7 @@
     },
     {
       "name": "contingency: nothing tips (both preloads miss, L misses every shot)",
-      "partner": "LUnderHiveAuto",
+      "partner": "LLeftUnderHiveAuto",
       "timing": {
         "speed": 50
       },
@@ -88,7 +88,7 @@
     }
   ],
   "metadata": {
-    "AutoSource": "r-outside-lane.pp",
+    "AutoSource": "r-left-under-hive.pp",
     "SavedBy": "dustinhans",
     "SavedAt": "2026-11-18T22:15:00+00:00"
   }
