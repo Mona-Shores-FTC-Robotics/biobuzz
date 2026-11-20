@@ -86,6 +86,22 @@ at `LEFT_AUTO_OFFSET` in 3 of 20 simulated runs. The notes below are from the dr
 "UnderHive" names the robot that goes under the HIVE, so here R goes under it and L takes the outer lane. It is
 the lane pair (R-LeftUnderHive / L-LeftUnderHive, where L goes under) turned round, for elims or a strong partner, not for qualifiers.
 
+**Against the LeftUnderHive pair** (20 Nov 2026, master `3030a44`, both pairs in one request: `real robot` both sides,
+Belding calibration, 20 seeds a row, TIPs settled by 38 s; normal / best case):
+
+| Case | LeftUnderHive TIPs, points | RightUnderHive TIPs, points |
+|---|---|---|
+| As drawn | 1.90, 54 / **2.90, 74** | 1.70, 50 / 2.00, 56 |
+| L 20% slow | 1.80, 52 / **2.95, 75** | 1.70, 50 / 2.00, 56 |
+| R 20% slow | 1.85, 53 / **3.00, 76** | 1.70, 50 (R unparked in 1) / 2.00, 56 |
+| R's preloads miss | 0.75, 31 / 1.00, 36 | 0.65, 29 / 1.00, 36 |
+| L's preloads miss | 1.25, 41 / 1.95, 55 | 1.15, 39 / 2.00, 56 |
+| L dead on `LEFT_START` | 0.95, 27 / 1.00, 28; **touches the dead L in 19 and 20 of 20** | 0.95, 27 / 1.00, 28; no contact |
+
+LeftUnderHive is ahead in every case but two: RightUnderHive never touches a dead L (the lane pair's known `LEFT_START`
+limit), and in the best case with L's preloads missing it has 2.00 TIPs to 1.95. It never reaches a third TIP; the
+LeftUnderHive pair does in nearly every best-case run. So it stays a draft, for a partner who needs the outside lane.
+
 - **R owns every fix.** From `RIGHT_START` R fires its preloads at RIGHT from `RIGHT_AUTO_HIVE` (TIP 1), gathers
   the GARDEN and comes back to `RIGHT_AUTO_HIVE`. It waits there for RIGHT to be up (TIP 2 came, or TIP 1 never
   did), fires the GARDEN load at RIGHT, and goes up the corridor under the HIVE to park at `LEFT_PARK`.
