@@ -1175,7 +1175,9 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
   whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (3 s, which covers the
   button gathers 19429 ran on 18 Nov with today's values, 2.26 to 2.50 s without their line-up; no Auto
-  gather has run on them yet); the FLOWER stick, which goes down on the robot's gather, is not modelled in the GARDEN.
+  gather has run on them yet). The FLOWER stick goes down as master's does (`AutoSim.GardenApproach` on the drive in,
+  else the card, standing `stickDownMs`), stays down through the gather and rises `raiseAfterStopMs` after the drive
+  back; it is shown (`/Extractor/Down`) and timed but takes no GARDEN piece: those go by the mouth's touch.
 - **Hits on the HIVE.** The rocker's static balance is fitted to the Field Setup Guide's placed cases
   (`HiveCalibration`). On top of it, a launched piece striking a CELL hands the rocker the angular momentum
   about the axle the hit took from it (`FieldSim.kick`): the rocker is damped, so a hit moves it a step,
