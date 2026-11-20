@@ -17,6 +17,11 @@ package org.firstinspires.ftc.teamcode.opmodes;
  *
  * <p>Orange: the mentor's choice over purple (20 Nov 2026).
  *
+ * <p>With {@code TeleOpConfig.circleTurnsIntoArc} on, the TeleOp only says "outside" here while a
+ * fire is held outside the arc with nothing turning it in ({@code ArcTurn}), so the light is dark in
+ * normal driving and never steady orange (mentor, 20 Nov 2026: the steady light was gaudy and broke
+ * up normal driving).
+ *
  * <p>Outside lights it at once; back inside, it waits {@link #CLEAR_MS} before it clears. On
  * 20245, 19 Nov 2026, an aim sitting on the arc's 90° edge turned the flash on and off 13 times in
  * 2.7 s, each a new light command, and none of it was readable.

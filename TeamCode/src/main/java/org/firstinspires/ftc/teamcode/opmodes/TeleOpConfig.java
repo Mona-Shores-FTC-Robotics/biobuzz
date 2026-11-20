@@ -167,6 +167,29 @@ public final class TeleOpConfig {
     public static boolean enforceFiringArc = true;
 
     /**
+     * Circle with the turret AIMing and the CELL behind its firing arc: the robot turns just far
+     * enough for the aim to come {@link #arcTurnMarginDeg} inside the arc, the turret swings onto the
+     * CELL, and the shot goes ({@link ArcTurn}). The feed waits for the aim to be inside, whatever
+     * {@link #enforceFiringArc} says, and the robot's light stays out of it: no steady orange, and no
+     * flash or rumble for a press the turn is sorting out. The light only flashes when a fire is
+     * refused and nothing turns (the right stick took the turn back, or no aim). Moving the right
+     * stick after the press hands the turn back, as the LOCKED chassis aim does.
+     *
+     * <p>Off: the rule until 20 Nov 2026, the steady orange light outside the arc and a refusal (or,
+     * with the arc not enforced, a shot into the robot). The turn uses the chassis aim's
+     * {@link #chassisAimKp}, {@link #chassisAimMinTurn} and {@link #chassisAimMaxTurn}. On (mentor,
+     * 20 Nov 2026: the orange light was gaudy and broke up normal driving), <b>not yet driven</b>.
+     */
+    public static boolean circleTurnsIntoArc = true;
+
+    /**
+     * {@link #circleTurnsIntoArc}: how far inside the arc's edge the turn stops, degrees, so a robot
+     * that drifts does not put the aim straight back outside. 10 is a starting point, <b>not
+     * measured</b>. Kept below half the narrower side of the arc; NaN or negative is 0, the edge.
+     */
+    public static double arcTurnMarginDeg = 10.0;
+
+    /**
      * Basic Drive starts at PLAY with the turret aiming (AIM) rather than LOCKED straight ahead, on
      * a robot whose turret aims ({@code TurretSubsystem.lockedForward} off: both robots). The
      * driver's R1 still toggles it. On since 18 Nov 2026 (mentor).
