@@ -76,8 +76,13 @@ public final class TeleOpConfig {
      * have to climb from 1000 to the launch speed, so the gate opens sooner after a press (at
      * Belding, with 0, the launcher was not yet at speed on arrival in 42 of 72 Square volleys).
      * The cost is the battery the wheels draw while idling, not measured. Was 0.
+     *
+     * <p>1495 since 20 Nov 2026, the mentor's call: the speed table's lowest row
+     * ({@code LaunchSpeedTable.row1TicksPerSecond}), so from the close end the launcher is already
+     * at launch speed and from further out it only climbs to 1590–1795. Never past the launch speed
+     * ({@code applyLauncher} caps it). Was 1000; try it on the robot and watch the battery.
      */
-    public static double launcherIdleTicksPerSecond = 1000.0;
+    public static double launcherIdleTicksPerSecond = 1495.0;
 
     /**
      * After a Square press that fires ends, the launcher stays at launch speed this many seconds
