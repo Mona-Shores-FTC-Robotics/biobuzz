@@ -4,9 +4,8 @@ Planning Autos have a `.pp` here and its generated class, with no competition Op
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
 (mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, and the RightUnderHive
 pair, parked until a super FLOWER pick exists (no OpMode), the ThreeTip pair, which runs from the Utility menu as a trial pair, **Drive: R-ThreeTip** beside **Drive: L-ThreeTip**,
-and R-Solo-19429, R-Solo with one loaded leg driven backward, which runs from the Utility menu as **Drive: R-Solo-19429**
-on a robot with a bottom plate (brought back 20 Nov 2026), and R-Clockwise-19429, R-Clockwise with the GARDEN lane
-driven backward (no OpMode).
+and R-Solo-19429 and R-Clockwise-19429, each with one loaded leg driven backward, which run from the Utility menu as
+**Drive: R-Solo-19429** and **Drive: R-Clockwise-19429** on a robot with a bottom plate (brought back 20 Nov 2026).
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
 (`NudgeContactDrive`, `NudgeTestRun`) and the stand-ins only they used. All are in Git history at
@@ -53,8 +52,9 @@ It has not run on a robot.
 to drive it nose-first. The drawn drive is 3.4 s instead of 3.8 s. It changes only **Pickup GARDEN**; with Pickup
 WALL_FLOWER it is today's R-Clockwise. The other robot runs L-Clockwise beside it, unchanged. The first draft (18 Nov)
 was made on that day's R-Clockwise; on 20 Nov 2026 it was rebuilt on master's, which has the R2 hold (#654), with the same
-one change. No OpMode (mentor, 20 Nov 2026). It needs a bottom plate like R-Solo-19429 above; the backward drive from
-`GARDEN_STAGING` up the outside lane to `LEFT_AUTO_HIVE` with 4 POLLEN has not been checked on a robot.
+one change. It runs from the Utility menu as a 30 s trial, **Drive: R-Clockwise-19429** (`RClockwise19429Trial`, on
+`BackwardLoadTrial`), under the same rule as R-Solo-19429 above: a bottom plate, and the backward drive in robot-todo's
+step 9 passed first on that robot. Request: `sim-requests/r-clockwise-19429.json`.
 
 **In the simulator** (20 Nov 2026, master's `sim-requests/r-clockwise.json` run on both, its 24 runs a case beside
 L-Clockwise, TIPs settled by 38 s; the simulator never drops a load driving backward, so this is the time saved and
