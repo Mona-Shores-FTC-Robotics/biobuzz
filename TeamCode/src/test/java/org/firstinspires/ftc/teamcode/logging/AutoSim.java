@@ -2821,7 +2821,8 @@ public final class AutoSim {
             double h = g.heading();
             // Toward the wall the robot runs along: its right for both GARDENs, its left along the audience wall.
             double side = garden.wallSide();
-            double deeper = GardenGather.driveIn.extraDepthIn
+            // A drive in that ends short (extraDepthIn negative) is seated on the wall by the dwell's push.
+            double deeper = Math.max(0.0, GardenGather.driveIn.extraDepthIn)
                     + (GardenGather.stick.useStick ? 0.0 : GardenGather.driveIn.noStickExtraDepthIn);
             double wall = side * (GardenGather.driveIn.curveToWall || alongWall
                     ? GardenGather.driveIn.laneTowardWallIn : GardenGather.driveIn.towardWallIn);

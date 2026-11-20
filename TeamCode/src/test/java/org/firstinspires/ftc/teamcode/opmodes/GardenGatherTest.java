@@ -223,4 +223,39 @@ public class GardenGatherTest {
         // Never the other half's GARDEN, as for the card facing the audience wall.
         assertNull(GardenGather.autoGarden(80.0, 9.0, true));
     }
+
+    /**
+     * After a line-up pressed into the wall, the drive in runs along where the line-up stopped: red facing
+     * the audience wall (270°, the side wall on the right at x 0), a robot that stopped at x 7.0 against a
+     * gather line at x 8.5 shifts the line 1.5 in toward the wall; one that stopped at x 10.0 (the pose off
+     * the other way) shifts it 1.5 in away; and the shift is held to the cap.
+     */
+    @Test
+    public void theDriveInFollowsWhereTheLineUpMetTheWall() {
+        Pose g = GardenFieldPoints.RED.gather;
+        double side = GardenFieldPoints.RED.wallSide();
+        assertEquals(1.5, GardenGather.wallLineShiftIn(g, new Pose(7.0, 30.0, g.heading()), side, 4.0), EPS);
+        assertEquals(-1.5, GardenGather.wallLineShiftIn(g, new Pose(10.0, 30.0, g.heading()), side, 4.0), EPS);
+        assertEquals(4.0, GardenGather.wallLineShiftIn(g, new Pose(1.0, 30.0, g.heading()), side, 4.0), EPS);
+        // Facing the side wall (180°), the audience wall on the left at y 0: y 7.5 against the line's 8.5 is
+        // 1.0 in toward that wall, a shift the gather's toward-the-wall arithmetic (side -1) reads as -1.0.
+        GardenFieldPoints.Garden a = GardenFieldPoints.alongAudienceWall(GardenFieldPoints.RED);
+        assertEquals(-1.0, GardenGather.wallLineShiftIn(a.gather, new Pose(30.0, 7.5, a.gather.heading()), a.wallSide(), 4.0), EPS);
+    }
+
+    /** extraDepthIn may end the drive in short of the gather pose, down to its floor; NaN is 0. */
+    @Test
+    public void extraDepthMayBeNegativeToItsFloor() {
+        double was = GardenGather.driveIn.extraDepthIn;
+        try {
+            GardenGather.driveIn.extraDepthIn = -3.5;
+            assertEquals(-3.5, GardenGather.extraDepthIn(), EPS);
+            GardenGather.driveIn.extraDepthIn = -50.0;
+            assertEquals(GardenGather.MIN_EXTRA_DEPTH_IN, GardenGather.extraDepthIn(), EPS);
+            GardenGather.driveIn.extraDepthIn = Double.NaN;
+            assertEquals(0.0, GardenGather.extraDepthIn(), EPS);
+        } finally {
+            GardenGather.driveIn.extraDepthIn = was;
+        }
+    }
 }
