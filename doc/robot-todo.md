@@ -233,6 +233,15 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       that it is mounted mirror-image to the left), see it turn inward, and put the value that
       worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
       out. Turret: still sits at home after PLAY, as before.
+- [ ] **20245's FLOWER stick pivot becomes a SWYFT servo** (the goBILDA Torque servo had a
+      mechanical problem, mentor, 20 Nov 2026), same port, Control Hub servo port 0
+      (`robot_20245.xml`). The shared `FlowerStickSubsystem.RETRACTED` 0.6 / `EXTENDED` 0.0 were
+      measured on the goBILDA, so **before Basic Drive:** Bench: FLOWER Stick, step to the in and
+      out stops on the SWYFT servo and put the two numbers in a PR (they are the shared values;
+      19429 keeps its own line in `RobotDifferences`). Also check the swing finishes inside
+      `SETTLE_MS` (1.5 s), the stick drops onto the tile when the pulse is cut (`LIMP_EXTENDED`),
+      and whether the SWYFT's range is the 270 degrees `SERVO_RANGE_DEG` assumes (only the bench's
+      and the logs' degrees read it). Then Basic Drive's operator Square swings it between them.
 - [ ] **19429 rewired 17 Nov: the new FLOWER stick.** Pivot servo on **Expansion Hub servo
       port 5** (`flowerStick`), turret servo moved to **Expansion Hub servo port 4** (the pivot
       was found in port 5, the turret's, when Bench: Turret moved the stick), roller
@@ -240,7 +249,7 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       (`robot_19429.xml`). The turret servo was found in the +5V POWER header, not a
       servo port, and unplugged; it was refitted in **port 4** on 18 Nov (the item below). A **full TeamCode install**, re-Activate `robot_19429`,
       then **Check: Hardware** (it lists `flowerRoller`). The stick's positions were
-      measured again on 20 Nov in Bench: FLOWER Stick (RETRACTED 1.00, EXTENDED 0.49, a 19429 line in
+      measured again on 20 Nov in Bench: FLOWER Stick (RETRACTED 1.00, EXTENDED 0.44, a 19429 line in
       `RobotDifferences`); check Basic Drive's operator Square swings it between them. Then Basic Drive, PLAY: stick in,
       roller still; stick down, the roller spins at once (from the request, not once it lands) and
       the DS FLOWER stick line says "roller on"; stick up, it stops. If it turns the wrong way for
