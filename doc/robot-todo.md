@@ -1016,6 +1016,19 @@ measurement is [#255].
 
 ## 5. Pose and camera (Basic Drive / Vision: HIVE & Pose)
 
+- [ ] **Does the camera see a TIP's swing before it settles?** (20 Nov 2026, for R-NoCross's late
+      volley: firing as TIP 2 swings, with half the guard margin, took R from 6 to 11 of 12 in the
+      simulator.) Every match log now has `/Hive/Cell/<CELL>/RowHeightIn`, `/Tags` and `/State`, one
+      sample per camera frame that saw the CELL; nothing to set up. **At the lab:** the robot still on
+      `RIGHT_AUTO_HIVE` facing the RIGHT CELL, LEFT up and loaded; tip the HIVE by hand, slowly, five
+      times, filming it. **After Fruitport:** the same from every match where a robot stood watching a
+      TIP (R-NoCross's late wait, L-NoCross's wait for TIP 1). Run
+      `python3 tools/pull-logs/read_logs.py cells LOG.wpilog`: per settle, how long before it the row
+      was first seen and first moved, and the robot's top speed (still is under about 1 in/s).
+      **Good:** "moved lead" (or "seen lead" for a CELL rising into view) of 1 s or more in most
+      TIPs, never in a log without a TIP. Then a swing trigger can be built. **Stop:** the lead is
+      under 0.5 s or the height wanders as much with nothing tipping → the camera cannot tell; leave
+      R-NoCross as it is.
 - [ ] **Camera calibration, R1 at two spots** (Vision: HIVE & Pose, Red audience then Red far wall).
       **Good:** "Spots so far: AGREE" → commit the two numbers to `CameraMount` (code 3.55 / 0.95; 2 Nov
       read 3.13 / 0.89). **Stop:** DIFFER → a HIVE point or the marks, don't commit.
