@@ -129,7 +129,7 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    `RIGHT_START`, `LEFT_START` empty, and **R-Clockwise** (each Pickup) with L-Clockwise on the other
    robot, and push the logs. **Stop:** any piece leaves → that robot does not run R-Solo or R-Clockwise until its
    plate is fixed; push the logs and the video.
-- [ ] Backward with a load, 19429: lane full after every run, video kept
+- [x] Backward with a load, 19429 and 20245: all 4 POLLEN stay in, no issue (mentor, 20 Nov 2026)
 - [x] Backward with a load, 20245: R-Solo-Backwards ran clean with the plate (mentor, 20 Nov 2026)
 - [ ] Promoted R-Clockwise (backward outside lanes, waits at 9.8 / 9.9 s), each Pickup, beside L-Clockwise: no contact at `LEFT_AUTO_HIVE`, push the logs
 - [ ] Promoted R-Solo (preloads from `RIGHT_AUTO_HIVE`, backward WALL FLOWER leg), alone from `RIGHT_START`, on 20245: push the logs
