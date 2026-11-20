@@ -117,7 +117,7 @@ public class ClockwiseAutoTest {
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(1, count("GardenGather"));
         assertEquals("only the SCORING FLOWER", 1, count("PickFlower"));
-        assertTrue(trace.toString(), trace.contains("path outside lane from the GARDEN to LEFT_AUTO_HIVE"));
+        assertTrue(trace.toString(), trace.contains("path outside lane BACKWARD from the GARDEN to LEFT_AUTO_HIVE"));
         assertFalse(trace.toString(), trace.contains("path to WALL_FLOWER_STAGING"));
         parked(98.7);
     }
