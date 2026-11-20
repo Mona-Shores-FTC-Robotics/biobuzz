@@ -146,4 +146,46 @@ public class GardenGatherTest {
         assertEquals("148°/s the other way", false, GardenGather.steady(Math.toRadians(-148)));
         assertEquals("no Pinpoint: not held back", true, GardenGather.steady(Double.NaN));
     }
+
+    /**
+     * The button's corner way in: the nearest corner, facing whichever of its two walls the robot
+     * faces more nearly. At red's GARDEN, facing about 270° it is red's own way in; facing about 180°
+     * it is red's reflected across the corner's diagonal, with the wall (the audience wall) on the left.
+     */
+    @Test
+    public void theButtonPicksTheCornerWallNearerItsHeading() {
+        GardenFieldPoints.Garden a = GardenFieldPoints.nearestCorner(20.0, 20.0, Math.toRadians(250), 45.0);
+        assertEquals(GardenFieldPoints.RED, a);
+        GardenFieldPoints.Garden b = GardenFieldPoints.nearestCorner(20.0, 20.0, Math.toRadians(200), 45.0);
+        assertEquals(9.5, b.gather.x(), 1e-9);
+        assertEquals(8.5, b.gather.y(), 1e-9);
+        assertEquals(180.0, Math.abs(Math.toDegrees(GrabRoutine.wrapRad(b.gather.heading()))), 1e-9);
+        assertEquals(false, b.wallOnRight);
+        assertEquals("the middle of the field: none", null, GardenFieldPoints.nearestCorner(70.0, 70.0, 0.0, 45.0));
+    }
+
+    /**
+     * Every corner way in: its nose 1.5 in beyond a frame 8 in from centre to front, so 9.5 in from
+     * the wall it faces, and 8.5 in from the wall it runs along, which is on the side wallOnRight
+     * says; its line-up 9.6 in straight back.
+     */
+    @Test
+    public void everyCornerWayInSitsOnItsTwoWalls() {
+        double f = 141.5;
+        assertEquals(8, GardenFieldPoints.CORNERS.size());
+        for (GardenFieldPoints.Garden g : GardenFieldPoints.CORNERS) {
+            Pose p = g.gather;
+            double h = p.heading();
+            double fx = Math.round(Math.cos(h)), fy = Math.round(Math.sin(h));
+            // The wall faced: along the heading; its distance from the centre is 9.5.
+            double ahead = fx != 0 ? (fx > 0 ? f - p.x() : p.x()) : (fy > 0 ? f - p.y() : p.y());
+            assertEquals(g.name, 9.5, ahead, 1e-6);
+            // The wall run along: to the robot's right (sin h, -cos h) when wallOnRight.
+            double rx = Math.round(Math.sin(h)) * g.wallSide(), ry = -Math.round(Math.cos(h)) * g.wallSide();
+            double beside = rx != 0 ? (rx > 0 ? f - p.x() : p.x()) : (ry > 0 ? f - p.y() : p.y());
+            assertEquals(g.name, 8.5, beside, 1e-6);
+            assertEquals(g.name, 9.6, Math.hypot(g.lineUp.x() - p.x(), g.lineUp.y() - p.y()), 1e-6);
+            assertEquals(g.name, -9.6, GrabRoutine.alongTrackIn(g.lineUp.x(), g.lineUp.y(), p.x(), p.y(), h), 1e-6);
+        }
+    }
 }

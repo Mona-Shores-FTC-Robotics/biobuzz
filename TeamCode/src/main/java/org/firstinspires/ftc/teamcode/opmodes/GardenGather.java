@@ -29,6 +29,12 @@ import java.util.function.Consumer;
  * ({@link #command}) with no line-up: it drives in to the GARDEN from wherever the card is called and
  * comes back there. Each phase is timed and written to the match log.
  *
+ * <p><b>The button gathers in any field corner</b> ({@link Button#anyCorner}): the nearest of the four,
+ * facing whichever of its two walls the robot already faces more nearly
+ * ({@link GardenFieldPoints#nearestCorner}), so the line-up turns at most 45°. The same drive in, dwell
+ * and back out, mirrored to the wall the robot runs along. An Auto's card is unchanged: its own
+ * GARDEN, facing the audience wall.
+ *
  * <p><b>In an Auto the stick comes down on the drive to the card.</b> The path card before a
  * {@code GardenGather} card runs this gather's {@link #approach} ({@code AutoKit},
  * {@code AutoRegistry.Approach}): over the last {@link AutoStick#approachLowerWithinIn} of that drive the stick
@@ -54,6 +60,20 @@ import java.util.function.Consumer;
  */
 @Configurable
 public final class GardenGather extends GrabRoutine {
+
+    /** The TeleOp button: which corners it gathers in. */
+    public static final class Button {
+        /**
+         * The button gathers in the nearest of all four field corners, facing whichever of the
+         * corner's two walls is nearer the robot's heading (mentor, 20 Nov 2026: tried by hand, it
+         * worked). Off: the old button, the nearest GARDEN only, always facing the audience (or far)
+         * wall. Not yet run with the button. An Auto never uses it.
+         */
+        public boolean anyCorner = true;
+    }
+
+    /** See {@link Button}. */
+    public static Button button = new Button();
 
     /** The TeleOp button's line-up, before the drive in. */
     public static final class LineUp {
@@ -493,8 +513,11 @@ public final class GardenGather extends GrabRoutine {
 
     @Override
     protected String findTarget(Pose pose) {
-        // The nearest in range; in an Auto, only one on the robot's own half (GrabRoutine).
-        garden = nearest(pose.x(), pose.y(), inAuto());
+        // The nearest in range; in an Auto, only one on the robot's own half (GrabRoutine). The
+        // button, with anyCorner, the nearest corner, facing the wall nearer its heading.
+        garden = !inAuto() && button.anyCorner
+                ? GardenFieldPoints.nearestCorner(pose.x(), pose.y(), pose.heading(), nn(driveIn.maxRangeIn))
+                : nearest(pose.x(), pose.y(), inAuto());
         return garden == null ? null : garden.toString();
     }
 
@@ -502,17 +525,19 @@ public final class GardenGather extends GrabRoutine {
     protected String noTargetWhy() {
         return inAuto()
                 ? String.format(Locale.US, "no GARDEN on our side of the centre line within %.0f in (an Auto may not cross it)", driveIn.maxRangeIn)
+                : button.anyCorner
+                ? String.format(Locale.US, "no field corner within %.0f in", driveIn.maxRangeIn)
                 : String.format(Locale.US, "no GARDEN within %.0f in", driveIn.maxRangeIn);
     }
 
     @Override
     protected Pose lineUpPose() {
-        // Back is against the heading; out is the robot's left, which faces away from the side wall
-        // for both alliances (red faces 270°, left is +x; blue faces 90°, left is -x).
+        // Back is against the heading; out is away from the wall the robot runs along: its left with
+        // the wall on its right (red faces 270°, left is +x; blue faces 90°, left is -x), else its right.
         Pose p = garden.lineUp;
         double h = p.heading();
         double backIn = lineUp.lineUpBackIn;
-        double outIn = lineUp.lineUpOutIn;
+        double outIn = lineUp.lineUpOutIn * garden.wallSide();
         return new Pose(p.x() - backIn * Math.cos(h) - outIn * Math.sin(h),
                 p.y() - backIn * Math.sin(h) + outIn * Math.cos(h), h);
     }
@@ -561,15 +586,18 @@ public final class GardenGather extends GrabRoutine {
 
     @Override
     protected InPlan inPose(Pose from, boolean linedUp) {
-        // Deeper is along the heading; toward the wall is the robot's right at the GARDEN heading,
-        // the side wall for both alliances (red faces 270°, right is -x; blue faces 90°, right is +x).
+        // Deeper is along the heading; toward the wall is toward the wall the robot runs along: its
+        // right for both GARDENs (red faces 270°, right is -x; blue faces 90°, right is +x), its left
+        // for a corner way in with the wall there (wallSide -1).
         Pose g = garden.gather;
         double h = g.heading();
         double deeper = nn(driveIn.extraDepthIn) + (stick.useStick ? 0.0 : nn(driveIn.noStickExtraDepthIn));
         // A curved drive in reaches the wall's line early: it ends barely toward it, not pinned into it.
-        double wall = driveIn.curveToWall ? nn(driveIn.laneTowardWallIn) : nn(driveIn.towardWallIn);
-        // Angled into the corner: toward the robot's right, the side wall, so the heading turns clockwise.
-        double corner = Math.toRadians(Math.max(-15.0, Math.min(15.0, nn(driveIn.intoCornerDeg))));
+        double side = garden.wallSide();
+        double wall = side * (driveIn.curveToWall ? nn(driveIn.laneTowardWallIn) : nn(driveIn.towardWallIn));
+        // Angled into the corner: toward the wall it runs along, so with the wall on the right the
+        // heading turns clockwise, and with it on the left counter-clockwise.
+        double corner = side * Math.toRadians(Math.max(-15.0, Math.min(15.0, nn(driveIn.intoCornerDeg))));
         return InPlan.to(new Pose(g.x() + deeper * Math.cos(h) + wall * Math.sin(h),
                 g.y() + deeper * Math.sin(h) - wall * Math.cos(h), h - corner));
     }
