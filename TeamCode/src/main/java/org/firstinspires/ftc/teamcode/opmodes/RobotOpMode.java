@@ -667,11 +667,22 @@ public abstract class RobotOpMode extends OpMode {
      * What the indicator light shows this loop: see {@code IndicatorSubsystem}. Only what the drive
      * team acts on: in INIT an Auto's warnings or a TeleOp's (an unassigned gamepad, a lane sensor too
      * bright when empty), else the alliance;
-     * after PLAY green when full, else off.
+     * after PLAY orange flashing for a fire held behind the turret's firing arc, green when full,
+     * orange while the shot is behind the arc ({@link #arcLight()}), else off.
      */
     private void showIndicator(boolean init) {
+        ArcLight.State arc = init ? ArcLight.State.NONE : arcLight();
         robot.indicator.show(IndicatorSubsystem.choose(init, init && initWarningFlash(),
-                robot.colorSensor.full(), setup.alliance()));
+                robot.colorSensor.full(), setup.alliance(),
+                arc != ArcLight.State.NONE, arc == ArcLight.State.FLASH));
+    }
+
+    /**
+     * The firing arc's part of the indicator light this loop, from {@link #onLoop()}: {@code NONE}
+     * unless the OpMode fires the turret ({@code BasicDriveTeleOp}).
+     */
+    protected ArcLight.State arcLight() {
+        return ArcLight.State.NONE;
     }
 
     /**
