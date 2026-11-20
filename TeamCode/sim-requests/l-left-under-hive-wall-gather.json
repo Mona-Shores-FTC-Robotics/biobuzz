@@ -52,22 +52,30 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "matching R-LeftUnderHive",
-      "partner": "RLeftUnderHiveAuto",
+      "name": "matching R-LeftUnderHive-WallGather",
+      "partner": "RLeftUnderHiveWallGatherAuto",
       "timing": {
         "speed": 50
       }
     },
     {
-      "name": "R-LeftUnderHive drives 20 percent slower",
-      "partner": "RLeftUnderHiveAuto",
+      "name": "R-LeftUnderHive-WallGather drives 20 percent slower",
+      "partner": "RLeftUnderHiveWallGatherAuto",
       "timing": {
         "speed": 40
       }
     },
     {
-      "name": "R-LeftUnderHive misses every shot",
-      "partner": "RLeftUnderHiveAuto",
+      "name": "L-LeftUnderHive-WallGather drives 20 percent slower",
+      "partner": "RLeftUnderHiveWallGatherAuto",
+      "ourSpeed": 40,
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "R-LeftUnderHive-WallGather misses every shot",
+      "partner": "RLeftUnderHiveWallGatherAuto",
       "fails": "misses",
       "timing": {
         "speed": 50
@@ -75,7 +83,7 @@
     },
     {
       "name": "R's preloads miss (17 Nov)",
-      "partner": "RLeftUnderHiveAuto",
+      "partner": "RLeftUnderHiveWallGatherAuto",
       "timing": {
         "speed": 50
       },
@@ -88,7 +96,7 @@
     },
     {
       "name": "contingency: nothing tips (both preloads miss, R misses every shot)",
-      "partner": "RLeftUnderHiveAuto",
+      "partner": "RLeftUnderHiveWallGatherAuto",
       "timing": {
         "speed": 50
       },
@@ -102,7 +110,7 @@
   ],
   "metadata": {
     "AutoSource": "drafts/l-left-under-hive-wall-gather.pp",
-    "SavedBy": "L-LeftUnderHive with its GARDEN gathered along the audience wall (GardenGatherAlongWall): the same partner matrix as l-left-under-hive.json",
+    "SavedBy": "L-LeftUnderHive-WallGather beside R-LeftUnderHive-WallGather (R's GARDEN hold moved to match): master's partner matrix, plus L 20 percent slow",
     "SavedAt": "2026-11-20T18:00:00+00:00"
   }
 }

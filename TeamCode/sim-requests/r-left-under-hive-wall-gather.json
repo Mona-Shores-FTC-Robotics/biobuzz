@@ -1,0 +1,95 @@
+{
+  "pp": "TeamCode/autos/drafts/r-left-under-hive-wall-gather.pp",
+  "spec": "RLeftUnderHiveWallGatherAuto",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "as drawn",
+      "partner": "LLeftUnderHiveWallGatherAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "as drawn, L 20 percent slower",
+      "partner": "LLeftUnderHiveWallGatherAuto",
+      "timing": {
+        "speed": 40
+      }
+    },
+    {
+      "name": "as drawn, L misses every shot",
+      "partner": "LLeftUnderHiveWallGatherAuto",
+      "fails": "misses",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "partner dead on its left start",
+      "partner": "PartnerLBrokenDownAuto"
+    },
+    {
+      "name": "contingency: nothing tips (both preloads miss, L misses every shot)",
+      "partner": "LLeftUnderHiveWallGatherAuto",
+      "timing": {
+        "speed": 50
+      },
+      "oursFails": "misses preloads",
+      "fails": "misses"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/r-left-under-hive-wall-gather.pp",
+    "SavedBy": "R-LeftUnderHive with its SCORING FLOWER hold at 17.6 s, beside L-LeftUnderHive-WallGather: master's partner matrix",
+    "SavedAt": "2026-11-20T19:30:00+00:00"
+  }
+}

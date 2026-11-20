@@ -2,8 +2,8 @@
 
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
-(mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, L-LeftUnderHive-WallGather
-(**Drive: L-LeftUnderHive-WallGather**, below), and the RightUnderHive
+(mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, the LeftUnderHive-WallGather
+pair (**Drive: L-LeftUnderHive-WallGather** beside **Drive: R-LeftUnderHive-WallGather**, below), and the RightUnderHive
 pair, parked until a super FLOWER pick exists (no OpMode), the ThreeTip pair, which runs from the Utility menu as a trial pair, **Drive: R-ThreeTip** beside **Drive: L-ThreeTip**.
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
@@ -53,8 +53,30 @@ wheel share): the two turns (90° and 84°) cost about what master's single 186�
 saving goes there. The robot's own turn cost is not measured. And quicker does not score in this pair: L then waits at
 `RIGHT_AUTO_HIVE` for RIGHT up either way (until 22 s; in 6 of 10 normal runs it never came). What would use the time is R:
 R-LeftUnderHive holds at the SCORING FLOWER until 18.6 s (`L has left the GARDEN`), and L now leaves the corner at about
-15 s. Moving that hold is R's change, not made here. The gain this draft can show on the robot is the load: 4 POLLEN every
-gather, as by hand, and a gather that never stops.
+15 s. The gain this draft can show on the robot is the load: 4 POLLEN every gather, as by hand, and a gather that never
+stops.
+
+**R-LeftUnderHive-WallGather** (`r-left-under-hive-wall-gather.pp`, **Drive: R-LeftUnderHive-WallGather**) is its half:
+master's R-LeftUnderHive with that hold at 17.6 s instead of 18.6 (`L has left the GARDEN: go at 17.6 s`), nothing else
+changed. Swept in the simulator beside the L draft (10 seeds a case, normal and best, with R 20% slow and L 20% slow): 18.6,
+17.6, 16.8 and 16.0 s all had no contact, G402 or HIVE hit. 17.6 brings TIP 3 in the best case from 29.16 to 28.68 s
+(28.54 with L slow); 16.8 and 16.0 gain nothing more, since R's own SCORING FLOWER pick then ends after the hold. With R
+20% slow TIP 3 stays at 30.3 s: R's own driving is the limit there.
+
+**Why a faster L buys so little.** The best case's critical path is R and the HIVE, not L (match clock, the simulator):
+
+| | today's pair | WallGather pair |
+|---|---|---|
+| R's 4th ball into LEFT (8 pieces: L's preloads and R's WALL FLOWER load) | 14.9 s | 14.9 s |
+| TIP 2 settles, RIGHT up (TIP lag 4.1 s at tipping weight) | 19.1 | 19.1 |
+| L at `RIGHT_AUTO_HIVE`, then idle until RIGHT is up | 18.3 (0.8 s idle) | 17.9 (1.2 s idle) |
+| R leaves the SCORING FLOWER (its pick ends at 18.1) | 18.6 | 18.1 |
+| R's last ball into RIGHT, the 8th for TIP 3 | 25.0 | 24.6 |
+| TIP 3 settles | 29.0 | 28.5 |
+
+L's GARDEN load is in by 21.5 s either way; TIP 3 waits for R's. So the room L gains goes to L standing, and only the
+0.5 s R stops waiting reaches TIP 3. More room would come from R's leg (the SCORING FLOWER pick 2.8 s, the backward drive
+3.0 s, the volley 3.5 s) or the TIP lag, not from L.
 
 ## R-Solo-Backwards: promoted into R-Solo (20 Nov 2026)
 
