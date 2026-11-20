@@ -4,36 +4,38 @@ Planning Autos have a `.pp` here and its generated class, with no competition Op
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
 (mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, and the RightUnderHive
 pair, parked until a super FLOWER pick exists (no OpMode), the ThreeTip pair, which runs from the Utility menu as a trial pair, **Drive: R-ThreeTip** beside **Drive: L-ThreeTip**,
-and R-Solo-19429 and R-Clockwise-19429, each with one loaded leg driven backward, which run from the Utility menu as
-**Drive: R-Solo-19429** and **Drive: R-Clockwise-19429** on a robot with a bottom plate (brought back 20 Nov 2026).
+and R-Solo-Backwards and R-Clockwise-Backwards, each with one loaded leg driven backward, which run from the Utility menu as
+**Drive: R-Solo-Backwards** and **Drive: R-Clockwise-Backwards** on a robot with a bottom plate (brought back 20 Nov 2026).
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
 (`NudgeContactDrive`, `NudgeTestRun`) and the stand-ins only they used. All are in Git history at
 `f2c9bb7`; `git checkout f2c9bb7 -- TeamCode/autos/drafts/<name>.pp` and its class in
 `opmodes/auto/generated/` bring one back:
 
-- Drafts: `l-clockwise-backward`, `l-clockwise-close`, `l-clockwise-flower`, `l-clockwise-garden`, `l-clockwise-next`, `l-pair-flowers`, `l-three-tip` (likewise reused), `l-under-hive-fix`, `l-under-hive-park-shot` (became l-under-hive.pp), `partner-nudge-test`, `r-clockwise-19429` (rebuilt on 20 Nov 2026, below), `r-clockwise-backward`, `r-clockwise-close`, `r-clockwise-flower`, `r-clockwise-garden`, `r-clockwise-next`, `r-outside-lane-fix`, `r-pair-garden`, `r-pair-garden-sweep`, `r-solo-19429` (brought back on 20 Nov 2026, below), `r-solo-human-player`, `r-solo-nudge`, `r-three-tip` (the name now holds the new ThreeTip draft below), `r-three-tip-still`, `r-three-tip-stream`, `r-two-tip`, `r-two-tip-with`.
+- Drafts: `l-clockwise-backward`, `l-clockwise-close`, `l-clockwise-flower`, `l-clockwise-garden`, `l-clockwise-next`, `l-pair-flowers`, `l-three-tip` (likewise reused), `l-under-hive-fix`, `l-under-hive-park-shot` (became l-under-hive.pp), `partner-nudge-test`, `r-clockwise-19429` (rebuilt on 20 Nov 2026 as `r-clockwise-backwards`, below), `r-clockwise-backward`, `r-clockwise-close`, `r-clockwise-flower`, `r-clockwise-garden`, `r-clockwise-next`, `r-outside-lane-fix`, `r-pair-garden`, `r-pair-garden-sweep`, `r-solo-19429` (brought back on 20 Nov 2026 as `r-solo-backwards`, below), `r-solo-human-player`, `r-solo-nudge`, `r-three-tip` (the name now holds the new ThreeTip draft below), `r-three-tip-still`, `r-three-tip-stream`, `r-two-tip`, `r-two-tip-with`.
 - Stand-ins in `partners/`: `partner-l-fill-hide-park`, `partner-l-stage-leave-park`, `partner-l-timed-fill-hide-park`, `partner-r-launch-stay`, `partner-r-tip-far-park`.
 
-## R-Solo-19429: R-Solo with its WALL FLOWER leg driven backward
+## R-Solo-Backwards: R-Solo with its WALL FLOWER leg driven backward
 
-`r-solo-19429.pp` is master's `r-solo.pp` with one leg's heading changed (18 Nov 2026), so the robot no longer turns
+`r-solo-backwards.pp` is master's `r-solo.pp` with one leg's heading changed (18 Nov 2026), so the robot no longer turns
 round just to keep the load in: the WALL FLOWER leg to `LEFT_AUTO_HIVE` turns 180 to 268.1 in its first 35%, then drives
 backward. Driving backward with a load needs a bottom plate under the intake: on 20245's first Clockwise drive (12 Nov),
-with no plate, pieces left the intake on both backward legs. 19429 has a plate (18 Nov); 20245 is getting one.
+with no plate, pieces left the intake on both backward legs. 19429 has a plate (18 Nov); 20245's is half fitted (20 Nov).
 
-It runs from the Utility menu as a 30 s trial, **Drive: R-Solo-19429** (`RSolo19429Trial`, on `BackwardLoadTrial`).
-On a robot without `IntakeSubsystem.holdsLoadDrivingBackward` (on for 19429 in `RobotDifferences`; 20245 gets its line
-once its plate is on) it shows a red line in INIT and does not move. The backward drive in
+It runs from the Utility menu as a 30 s trial, **Drive: R-Solo-Backwards** (`RSoloBackwardsTrial`, on `BackwardLoadTrial`).
+On a robot without `IntakeSubsystem.holdsLoadDrivingBackward` (on for 19429 and, since 20 Nov 2026 with its plate half
+fitted, 20245 in `RobotDifferences`) it shows a red line in INIT and does not move. The backward drive in
 [robot-todo](../../../doc/robot-todo.md) (tonight's step 9) has to pass first on that robot. Request:
-`sim-requests/r-solo-19429.json`. It came off the Utility menu on 19 Nov 2026 with R-Clockwise-19429 (mentor: 19429 runs
-plain R-Solo) and came back on 20 Nov 2026 (mentor: 20245 is getting a plate too).
+`sim-requests/r-solo-backwards.json`. It came off the Utility menu on 19 Nov 2026 with R-Clockwise-19429 (mentor: 19429 runs
+plain R-Solo) and came back on 20 Nov 2026 (mentor: 20245 is getting a plate too). Until 20 Nov 2026 the two were
+R-Solo-19429 and R-Clockwise-19429; they are R-Solo-Backwards and R-Clockwise-Backwards until they are promoted
+(mentor), since both robots now have a plate.
 
-**In the simulator** (20 Nov 2026, `sim-requests/r-solo-19429.json` against `r-solo.json`, both on the Belding
+**In the simulator** (20 Nov 2026, `sim-requests/r-solo-backwards.json` against `r-solo.json`, both on the Belding
 calibration, 5 runs a partner case, TIPs settled by 38 s). The simulator never drops a load driving backward, so this is
 the time saved and nothing about the plate:
 
-| Case | R-Solo | R-Solo-19429 |
+| Case | R-Solo | R-Solo-Backwards |
 |---|---|---|
 | Best case (`"scenario": "best"`), partner out of the way | 2.00 TIPs, TIP 2 at 28.4 s | 2.00 TIPs, TIP 2 at 28.0 s |
 | Belding loads, partner out of the way | 1.20 (TIP 2 in 1 of 5) | 1.00 |
@@ -45,22 +47,22 @@ both: the known `LEFT_AUTO_HIVE` overlap with a robot on `LEFT_START`. On 18 Nov
 nose-first), and neither version made a second TIP: R-Solo's second TIP on 19429 is short loads, not time.
 It has not run on a robot.
 
-## R-Clockwise-19429: R-Clockwise with the outside lane from the GARDEN driven backward
+## R-Clockwise-Backwards: R-Clockwise with the outside lane from the GARDEN driven backward
 
-`r-clockwise-19429.pp` is master's `r-clockwise.pp` with one leg's heading changed: the outside lane from the GARDEN to
+`r-clockwise-backwards.pp` is master's `r-clockwise.pp` with one leg's heading changed: the outside lane from the GARDEN to
 `LEFT_AUTO_HIVE` holds 270 (backward) until 82% of the way and then turns to the spot's 268.9, instead of turning round
 to drive it nose-first. The drawn drive is 3.4 s instead of 3.8 s. It changes only **Pickup GARDEN**; with Pickup
 WALL_FLOWER it is today's R-Clockwise. The other robot runs L-Clockwise beside it, unchanged. The first draft (18 Nov)
 was made on that day's R-Clockwise; on 20 Nov 2026 it was rebuilt on master's, which has the R2 hold (#654), with the same
-one change. It runs from the Utility menu as a 30 s trial, **Drive: R-Clockwise-19429** (`RClockwise19429Trial`, on
-`BackwardLoadTrial`), under the same rule as R-Solo-19429 above: a bottom plate, and the backward drive in robot-todo's
-step 9 passed first on that robot. Request: `sim-requests/r-clockwise-19429.json`.
+one change. It runs from the Utility menu as a 30 s trial, **Drive: R-Clockwise-Backwards** (`RClockwiseBackwardsTrial`, on
+`BackwardLoadTrial`), under the same rule as R-Solo-Backwards above: a bottom plate, and the backward drive in robot-todo's
+step 9 passed first on that robot. Request: `sim-requests/r-clockwise-backwards.json`.
 
 **In the simulator** (20 Nov 2026, master's `sim-requests/r-clockwise.json` run on both, its 24 runs a case beside
 L-Clockwise, TIPs settled by 38 s; the simulator never drops a load driving backward, so this is the time saved and
 nothing about the plate). Every WALL FLOWER case, and every contingency, is identical in both. The GARDEN cases:
 
-| Pickup GARDEN | R-Clockwise | R-Clockwise-19429 |
+| Pickup GARDEN | R-Clockwise | R-Clockwise-Backwards |
 |---|---|---|
 | Best case (`"scenario": "best"`) | 2.00 TIPs (T2 22.7 s), R parks 24/24 | 2.58 (third TIP in 14 of 24, T3 32.5 s), R parks 0/24 |
 | Best, R 20% slow | 2.00, R parks 24/24 | 2.42 (third TIP in 10), R parks 0/24 |

@@ -138,11 +138,11 @@ public class SimRequestsTest {
 
     /**
      * Whether {@code source} is the other half of the pair a draft of a pair half runs beside: the draft
-     * named after R-Clockwise with a suffix (as {@code r-clockwise-19429} was) beside our {@code l-clockwise}, as R-Clockwise is,
+     * named after R-Clockwise with a suffix (as {@code r-clockwise-backwards} was) beside our {@code l-clockwise}, as R-Clockwise is,
      * or an L-UnderHive trial such as {@code l-under-hive-park-shot} beside our {@code r-outside-lane}.
      */
     static boolean robotVariantPairHalf(String name, String source, File autos) {
-        // Any draft named after a pair half, its base and a suffix: r-clockwise-19429, l-under-hive-park-shot.
+        // Any draft named after a pair half, its base and a suffix: r-clockwise-backwards, l-under-hive-park-shot.
         for (int dash = name.indexOf('-', 2); dash > 0; dash = name.indexOf('-', dash + 1)) {
             if (pairHalf(name.substring(0, dash), source, autos)) return true;
         }
