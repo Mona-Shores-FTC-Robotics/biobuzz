@@ -163,8 +163,8 @@ public class IntakeSubsystem implements Subsystem {
      * Whether this robot keeps its load in the lane while it drives backward. Off: on 20245's first
      * Clockwise drive (12 Nov 2026) pieces left the intake on both legs it drove backward, so every
      * Auto on the Autonomous menu drives nose-first with a load. On for 19429 in
-     * {@code RobotDifferences}, which has a bottom plate (18 Nov 2026); 20245 gets its line there once
-     * its plate is on. An Auto drawn with a loaded leg driven backward ({@code BackwardLoadTrial})
+     * {@code RobotDifferences}, which has a bottom plate (18 Nov 2026), and for 20245 (20 Nov 2026,
+     * its plate half fitted). An Auto drawn with a loaded leg driven backward ({@code BackwardLoadTrial})
      * refuses to move on a robot where this is off.
      */
     public static boolean holdsLoadDrivingBackward = false;

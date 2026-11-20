@@ -20,11 +20,11 @@ and R-Solo-19429 and R-Clockwise-19429, each with one loaded leg driven backward
 `r-solo-19429.pp` is master's `r-solo.pp` with one leg's heading changed (18 Nov 2026), so the robot no longer turns
 round just to keep the load in: the WALL FLOWER leg to `LEFT_AUTO_HIVE` turns 180 to 268.1 in its first 35%, then drives
 backward. Driving backward with a load needs a bottom plate under the intake: on 20245's first Clockwise drive (12 Nov),
-with no plate, pieces left the intake on both backward legs. 19429 has a plate (18 Nov); 20245 is getting one.
+with no plate, pieces left the intake on both backward legs. 19429 has a plate (18 Nov); 20245's is half fitted (20 Nov).
 
 It runs from the Utility menu as a 30 s trial, **Drive: R-Solo-19429** (`RSolo19429Trial`, on `BackwardLoadTrial`).
-On a robot without `IntakeSubsystem.holdsLoadDrivingBackward` (on for 19429 in `RobotDifferences`; 20245 gets its line
-once its plate is on) it shows a red line in INIT and does not move. The backward drive in
+On a robot without `IntakeSubsystem.holdsLoadDrivingBackward` (on for 19429 and, since 20 Nov 2026 with its plate half
+fitted, 20245 in `RobotDifferences`) it shows a red line in INIT and does not move. The backward drive in
 [robot-todo](../../../doc/robot-todo.md) (tonight's step 9) has to pass first on that robot. Request:
 `sim-requests/r-solo-19429.json`. It came off the Utility menu on 19 Nov 2026 with R-Clockwise-19429 (mentor: 19429 runs
 plain R-Solo) and came back on 20 Nov 2026 (mentor: 20245 is getting a plate too).

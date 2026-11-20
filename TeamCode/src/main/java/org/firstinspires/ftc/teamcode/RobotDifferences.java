@@ -130,6 +130,12 @@ public final class RobotDifferences {
                         + " (mentor, 20 Nov 2026; the turret still holds at the arc's edge, the Auto still"
                         + " enforces it)",
                 () -> TeleOpConfig.enforceFiringArc = false);
+        differs(RobotIdentity.TEAM_20245,
+                "Bottom plate under the intake, half fitted: it may drive backward with a load, so the"
+                        + " backward-leg Auto trials may run (mentor, 20 Nov 2026, on before the plate is finished;"
+                        + " doc/robot-todo.md step 9 has the backward drive that must pass first, and the lane"
+                        + " sensor to re-measure with the plate)",
+                () -> IntakeSubsystem.holdsLoadDrivingBackward = true);
     }
 
     /**
