@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T21:20:52.192Z",
+  "timestamp": "2026-11-20T06:57:10.230Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -835,10 +835,10 @@
       {
         "id": "L-wait-left",
         "kind": "firstOf",
-        "label": "LEFT up before 9 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+        "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
         "rows": [
           {
-            "afterMs": 9000,
+            "afterMs": 10000,
             "matchClock": true,
             "cards": [
               {
