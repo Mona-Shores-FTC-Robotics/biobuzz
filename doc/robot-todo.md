@@ -139,8 +139,9 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
       both robots start at power 0.145 within about 33 ms (18 and 19 Nov logs). It is the coast:
       once its power cuts, 19429's turret runs on 3.3° (20245: 3.4°), more than the ±2° band, so it
       crosses the band and is kicked back.
-   2. **Floor: done.** Bench: Turret, 19429 turns steadily both ways at 0.07, smoother than 20245
-      (mentor, 20 Nov 2026): `minPower` 0.07 for 19429 in `RobotDifferences`. Run Basic Drive with it
+   2. **Floor: done.** Bench: Turret, 19429 turns steadily at +0.06 (10 to 12 deg/s) and -0.065
+      (10 to 13 deg/s), smoother than 20245 (mentor, 20 Nov 2026): `minPower` 0.065 for 19429 in
+      `RobotDifferences`; the 0.005 between the two ways is too small to move the stop power. Run Basic Drive with it
       first and push the log; only if it still hunts go on to 3.
    3. **Basic Drive, AIM, robot still near the CELL, then driving past it:** in Panels set
       `TurretSubsystem.kD` 0.0015 (it cuts the power about 3° early at the 40 to 60 deg/s the turret
@@ -149,7 +150,7 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    **Good:** `read_logs.py hold` on the new log reads under 0.6 reversals a second, and the shots
    still go in → the values that did it get one `RobotDifferences` line for 19429 with the date.
    **Stop:** nothing helps and the turret felt free by hand → push the logs and say so.
-- [ ] 19429 turret: floor 0.07 (done), kD ___, reversals/s before 1.18 (18 Nov) / 1.38 (19 Nov), after ___
+- [ ] 19429 turret: floor 0.065 (done), kD ___, reversals/s before 1.18 (18 Nov) / 1.38 (19 Nov), after ___
 11. **The driver's purple light** (20 Nov 2026, not yet on a robot). Basic Drive, turret **AIM**, with
    a PS4 pad on gamepad 1: drive so the CELL is behind the robot. **Good:** the driver's light bar goes
    steady purple without Circle pressed, flashes purple with Circle held (19429 does not shoot; 20245
