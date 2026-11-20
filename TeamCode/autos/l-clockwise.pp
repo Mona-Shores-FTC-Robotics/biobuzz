@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T19:36:00.371Z",
+  "timestamp": "2026-11-20T04:23:17.000Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -639,7 +639,7 @@
     {
       "id": "l-to-offset-flower",
       "color": "#4e79a7",
-      "name": "FLOWER to RIGHT_AUTO_OFFSET",
+      "name": "FLOWER BACKWARD to RIGHT_AUTO_OFFSET",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -670,7 +670,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 180,
-                "endDeg": 270
+                "endDeg": 90
               }
             },
             {
@@ -678,7 +678,7 @@
               "endProgress": 0.6,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 270
+                "degrees": 90
               }
             },
             {
@@ -686,8 +686,8 @@
               "endProgress": 1,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 270,
-                "endDeg": 421
+                "startDeg": 90,
+                "endDeg": 61
               }
             }
           ]

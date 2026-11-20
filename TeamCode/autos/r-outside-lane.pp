@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T02:06:35.330Z",
+  "timestamp": "2026-11-20T04:23:17.000Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -94,7 +94,7 @@
     {
       "id": "r-wall-lane-north",
       "color": "#e15759",
-      "name": "wall lane north to LEFT_AUTO_OFFSET",
+      "name": "wall lane north BACKWARD to LEFT_AUTO_OFFSET",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -129,32 +129,23 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 180,
-                "endDeg": 90
+                "endDeg": 270
               }
             },
             {
               "startProgress": 0.2,
-              "endProgress": 0.62,
+              "endProgress": 0.85,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 90
+                "degrees": 270
               }
             },
             {
-              "startProgress": 0.62,
-              "endProgress": 0.8,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 0
-              }
-            },
-            {
-              "startProgress": 0.8,
+              "startProgress": 0.85,
               "endProgress": 1,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 360,
+                "startDeg": 270,
                 "endDeg": 298.7
               }
             }
@@ -299,7 +290,7 @@
     {
       "id": "r-wall-lane-south",
       "color": "#e15759",
-      "name": "to RIGHT_AUTO_CLOSE",
+      "name": "BACKWARD to RIGHT_AUTO_CLOSE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -330,19 +321,10 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.45,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 270
-              }
-            },
-            {
-              "startProgress": 0.45,
               "endProgress": 0.8,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 270
+                "degrees": 90
               }
             },
             {
@@ -350,8 +332,8 @@
               "endProgress": 1,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 270,
-                "endDeg": 421
+                "startDeg": 90,
+                "endDeg": 63.8
               }
             }
           ]

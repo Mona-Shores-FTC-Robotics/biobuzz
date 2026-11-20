@@ -28,6 +28,11 @@ alone) pieces left the intake on both legs it drove backward. After a pick it ba
 inches the pick itself does, then turns to face the way it is going. That costs time: the lane
 from the WALL FLOWER is 4.4 s (3.2 s backward), and the road under the HIVE 6.2 s (2.7 s).
 
+Since 20 Nov 2026, with a bottom plate on both robots, loaded legs that turned round only to drive nose-first
+drive backward again, one at a time as each is simulated (mentor): L's `FLOWER BACKWARD to RIGHT_AUTO_OFFSET`
+(Pickup WALL_FLOWER) turns 180 to 90, holds 90 down the lane and turns to the spot's 61 at the end, 119° of turning
+instead of 241°.
+
 **What the Java simulator says** (24 seeds a row, Belding's volleys; tables below):
 
 - Both robots park and the robots do not touch in every run, with either robot 20% slow and with

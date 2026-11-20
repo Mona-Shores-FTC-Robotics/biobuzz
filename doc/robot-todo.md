@@ -129,7 +129,14 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    plate is fixed; push the logs and the video.
 - [ ] Backward with a load, 19429: lane full after every run, video kept
 - [x] Backward with a load, 20245: R-Solo-Backwards ran clean with the plate (mentor, 20 Nov 2026)
-- [ ] Promoted R-Solo (preloads from `RIGHT_AUTO_HIVE`, backward WALL FLOWER leg), alone from `RIGHT_START`, on 20245 and on 19429: push the logs
+- [ ] Promoted R-Solo (preloads from `RIGHT_AUTO_HIVE`, backward WALL FLOWER leg), alone from `RIGHT_START`, on 20245: push the logs
+- [x] Promoted R-Solo on 19429: ran clean (log `2026-11-19_23-13-43_R-Solo`, build `08b0290`): the backward leg 3.2 s, 1.4 in off
+  its end, and the volley after it fired 5 balls by the launcher's dips
+- [ ] R-OutsideLane with L-UnderHive (20 Nov 2026: `wall lane north BACKWARD to LEFT_AUTO_OFFSET` and `BACKWARD to
+  RIGHT_AUTO_CLOSE`): balls fired after each backward leg (launcher dips), no contact near `LEFT_AUTO_OFFSET` or
+  `RIGHT_AUTO_CLOSE`; push the logs
+- [ ] L-Clockwise, Pickup WALL_FLOWER, with R-Clockwise (20 Nov 2026: `FLOWER BACKWARD to RIGHT_AUTO_OFFSET`): balls
+  fired after the backward leg, no contact near `RIGHT_AUTO_OFFSET`; push the logs
 
 ## Belding work order (agreed 5 Nov)
 
