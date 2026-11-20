@@ -73,6 +73,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The base class for every OpMode that runs the robot. It owns the loop, so your OpMode is only
@@ -276,6 +277,7 @@ public abstract class RobotOpMode extends OpMode {
     private final InitWarnings initWarnings = new InitWarnings();
     /** Whether the match log last said the lane sensor's INIT warning was on. */
     private boolean loggedLaneSensorWarning;
+    private String loggedTurretMarkWarning;
     /** When INIT was pressed, System.nanoTime: the camera's first frame has a grace period from it. */
     private long initStartNs;
     /** What went wrong with the Pinpoint this INIT: a hard fault is kept once seen, a bad read only while it holds. */
@@ -549,6 +551,7 @@ public abstract class RobotOpMode extends OpMode {
         }
         initWarnings.gamepads(assigned(gamepad1), assigned(gamepad2));
         laneSensorWarning();
+        turretMarkWarning();
         watchGamepads();
         beginPage(true);
         // With no handoff and a declared start, the start line says where the robot is; the
@@ -647,6 +650,21 @@ public abstract class RobotOpMode extends OpMode {
         if (!summary.equals(loggedWarnings)) {
             log.event("INIT warnings: " + summary);
             loggedWarnings = summary;
+        }
+    }
+
+    /**
+     * The turret home switch's INIT warning, Auto or TeleOp ({@link InitWarnings#turretMark}), and an
+     * event in the match log each time it comes or goes.
+     */
+    private void turretMarkWarning() {
+        TurretSubsystem turret = robot.turret;
+        initWarnings.turretMark(turret.homeSwitchFitted(), turret.zeroSource() == TurretSubsystem.ZeroSource.INIT,
+                turret.magnetAtInitZero(), turret.zeroed(), turret.onMark());
+        String warning = initWarnings.what(InitWarnings.Kind.TURRET_MARK);
+        if (!Objects.equals(warning, loggedTurretMarkWarning)) {
+            log.event(warning != null ? "INIT warning: " + warning : "INIT warning cleared: turret on its mark");
+            loggedTurretMarkWarning = warning;
         }
     }
 
@@ -1771,6 +1789,14 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Turret/Power", robot.turret.power());
         log.put("/Turret/Zeroed", robot.turret.zeroed() ? 1 : 0);
         log.put("/Turret/Holding", robot.turret.holding() ? 1 : 0);
+        if (robot.turret.homeSwitchFitted()) {
+            log.put("/Turret/HomeMagnet", robot.turret.onMark() ? 1 : 0);
+            log.put("/Turret/SwitchCorrectionDeg", robot.turret.lastSwitchCorrectionDeg());
+        }
+        String turretSwitch = robot.turret.takeSwitchEvent();
+        if (turretSwitch != null) {
+            log.event(turretSwitch);
+        }
         long now = System.nanoTime();
         // A mechanism asked to move that never does, as one event: the only way a match log can
         // learn a motor is absent, since the hub cannot tell an empty port from a stalled motor.

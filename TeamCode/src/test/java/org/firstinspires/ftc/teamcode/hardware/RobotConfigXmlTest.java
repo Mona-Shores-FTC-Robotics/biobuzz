@@ -63,6 +63,9 @@ public class RobotConfigXmlTest {
     /** The SDK's element for a continuous-rotation servo ({@code BuiltInConfigurationType.CONTINUOUS_ROTATION_SERVO}). */
     private static final String CR_SERVO_TAG = "ContinuousRotationServo";
 
+    /** The SDK's element for a digital input ({@code BuiltInConfigurationType.DIGITAL_DEVICE}). */
+    private static final String DIGITAL_TAG = "DigitalDevice";
+
     /**
      * What {@code SerialNumber.fromString} needs to see to build an
      * {@code EthernetOverUsbSerialNumber}. {@code Limelight3A} stores its serial
@@ -263,7 +266,7 @@ public class RobotConfigXmlTest {
                 }
 
                 int port = intAttribute(file, name, device, "port");
-                int maxPort = kind == DeviceNames.Kind.MOTOR ? 3 : 5;
+                int maxPort = kind == DeviceNames.Kind.MOTOR ? 3 : kind == DeviceNames.Kind.DIGITAL ? 7 : 5;
                 assertTrue(file.getName() + ": \"" + name + "\" is a " + kind + " on port " + port
                                 + "; a REV hub has " + kind + " ports 0-" + maxPort + ".",
                         port >= 0 && port <= maxPort);
@@ -379,6 +382,9 @@ public class RobotConfigXmlTest {
         }
         if (CR_SERVO_TAG.equals(device.getTagName())) {
             return DeviceNames.Kind.CR_SERVO;
+        }
+        if (DIGITAL_TAG.equals(device.getTagName())) {
+            return DeviceNames.Kind.DIGITAL;
         }
         if (device.getTagName().contains("Servo")) {
             return DeviceNames.Kind.SERVO;

@@ -109,7 +109,10 @@ the latest loop's state every loop, so a crashed Auto or a restarted TeleOp resu
 is. Triangle (Y) held 1 s in INIT discards a handoff ("start fresh"): pose, alliance and turret zero
 go, as if nothing ran before. The turret zeroes itself: an Autonomous zeroes it at INIT (assumed on its mark; INIT again zeroes
 again, PLAY keeps it, and the TeleOp after it takes it), a TeleOp takes a carried zero, and otherwise the
-turret is assumed at home and zeroes at PLAY; the zero button on a gamepad always wins (`TurretZeroPolicy`).
+turret is assumed at home and zeroes at PLAY; the zero button on a gamepad always wins (`TurretZeroPolicy`). A turret
+with a home switch (`TurretSubsystem.homeSwitch`, 19429's magnetic switch) re-zeroes on every full pass of its magnet
+across the switch, INIT included (reading it moves nothing), unless the zero was set by hand, and INIT warns when the
+switch sees the turret off the mark it is counted from; nothing turns the turret in INIT to look for the magnet.
 `RobotOpMode` logs an uncaught exception to the match log and rethrows it; it never swallows one.
 
 **Localization.** The Pinpoint carries the pose, through Pedro's `FusionLocalizer`. The camera

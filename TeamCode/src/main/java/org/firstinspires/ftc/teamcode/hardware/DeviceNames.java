@@ -129,6 +129,14 @@ public final class DeviceNames {
     public static final String TURRET = "turret";
 
     /**
+     * The turret's home switch (19429, 20 Nov 2026): a REV Magnetic Limit Switch on the chassis, with
+     * a magnet on the back of the turret over it when the turret is on its mark. A digital port
+     * (Control Hub digital connector 0-1; the channel is in the robot's XML); it reads low with the
+     * magnet there. {@code TurretSubsystem} zeroes the turret from it.
+     */
+    public static final String TURRET_HOME = "turretHome";
+
+    /**
      * The intake roller: one goBILDA 5203 motor (#160's floating roller, #181 counts pieces from
      * its current). Expansion Hub motor port 0; the port itself is in each robot's XML.
      */
@@ -158,6 +166,12 @@ public final class DeviceNames {
          */
         CR_SERVO,
         I2C,
+
+        /**
+         * A digital input: {@code <DigitalDevice>} on one of a hub's eight digital channels (0-7;
+         * each connector carries two, 0-1, 2-3, 4-5 and 6-7), asked for as {@code DigitalChannel}.
+         */
+        DIGITAL,
 
         /**
          * A device on the Control Hub's USB-Ethernet link — in SDK 12, a
@@ -219,13 +233,14 @@ public final class DeviceNames {
 
     /**
      * 19429: {@link #COMPETITION_ROBOT}, a second intake star-wheel servo, the right one
-     * ({@link #INTAKE_STARS_RIGHT}, 13 Nov 2026), and the new FLOWER stick's roller
-     * ({@link #FLOWER_ROLLER}, 17 Nov 2026). 20245 still drives its stars from one servo and has
-     * the old stick.
+     * ({@link #INTAKE_STARS_RIGHT}, 13 Nov 2026), the new FLOWER stick's roller
+     * ({@link #FLOWER_ROLLER}, 17 Nov 2026) and the turret's home switch ({@link #TURRET_HOME},
+     * 20 Nov 2026). 20245 still drives its stars from one servo, has the old stick and no switch.
      */
     public static final List<Device> ROBOT_19429 = with(COMPETITION_ROBOT,
             new Device(INTAKE_STARS_RIGHT, Kind.CR_SERVO),
-            new Device(FLOWER_ROLLER, Kind.CR_SERVO));
+            new Device(FLOWER_ROLLER, Kind.CR_SERVO),
+            new Device(TURRET_HOME, Kind.DIGITAL));
 
     /**
      * Every device name the code knows about, on any robot — the union of the

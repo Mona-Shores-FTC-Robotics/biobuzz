@@ -523,6 +523,31 @@ absolute encoders on the ring, which would know the angle at power-on with no
 home mark, are parked on the branch `claude/great-pasteur-qhypqt`. Set the
 encoder's voltage switch to 3V3.
 
+**The home switch (19429).** A REV Magnetic Limit Switch on the chassis
+(`DeviceNames.TURRET_HOME`, a `<DigitalDevice>` in the Control Hub's digital
+connector 0-1, so `DeviceNames.Kind.DIGITAL`) sits under a magnet on the back of
+the turret, over it when the turret is on its mark; `TurretSubsystem.homeSwitch`
+is on for 19429 only. It does not replace the rules above, which assume the
+mark; it checks and corrects them. A Hall switch is on across a band a few
+degrees wide, so one reading only says "near the mark": a *pass*, the turret
+entering the band on one side and leaving it on the other, still turning the
+same way and slower than `homeSwitchMaxPassDps`, puts the mark at the band's
+middle plus `homeSwitchOffsetDeg` (measured on **Bench: Turret**), and the zero
+moves there (`TurretHomeSwitch`, `TurretZeroPolicy.atSwitchPass`). The switch
+and the encoder are in the same bulk read, so each edge is placed to half a
+loop's travel. A pass is taken any time, INIT included, since reading a switch
+moves nothing: a turret turned by hand across its mark in a TeleOp's INIT zeroes
+itself, and one whose zero drifted is put right the next time it swings through
+straight ahead. The correction is wrapped, so a turret wound a turn round keeps
+its winding. A zero set by hand still wins, and a pass more than
+`homeSwitchMaxCorrectionDeg` from the zero is logged and not taken. In INIT the
+switch is also a check: an Auto's INIT that zeroed the turret with no magnet
+over the switch, or a TeleOp about to zero at PLAY with none, warns that the
+turret is off its mark (`InitWarnings.Kind.TURRET_MARK`). Not done: a homing
+sweep in an Auto's INIT, turning the turret until it finds the magnet. That is
+motion in INIT beyond today's hold, a mentor's call on R103.B; the passes and
+the warning need none.
+
 **The loop.** A continuous servo is sent a speed and has no feedback, so
 nothing holds the turret but the code: `TurretSubsystem.update()` reads the
 encoder and sends one power a loop, worked out by `subsystems/TurretServoControl`

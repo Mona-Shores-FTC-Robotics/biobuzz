@@ -206,6 +206,23 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [x] LOCKED Circle on 19429 with `chassisAimMinTurn` 0.2: all 6 presses turned onto the CELL and stopped
       0.4 to 1.3° off it (19 Nov 2026, 00:18 logs). Leave 0.2 unless it swings past.
 - [ ] Orange light on 20245; LOCKED Circle on 20245
+12. **19429's turret home switch** (20 Nov 2026, not yet on a robot): a REV Magnetic Limit Switch in
+    the Control Hub's digital connector 0-1 (`DeviceNames.TURRET_HOME`, channel 1 in
+    `robot_19429.xml`). Full TeamCode install (the XML changed), Activate `robot_19429`, then:
+   1. **Check: Hardware**: `turretHome` reads ok, a `DigitalChannel`.
+   2. **Bench: Turret, INIT only**: the `home switch` line reads MAGNET with the turret on its mark and
+      no magnet turned well off it. **Stop:** it never reads MAGNET → change `port="1"` to `port="0"`
+      in `robot_19429.xml`, full install, again; still nothing → the magnet is too far from the switch.
+   3. Cross with the turret on its mark, then turn it slowly by hand right across the mark, both ways,
+      three times each: write down each way's band width and middle. **Good:** the middles agree each
+      way within about 1°. Put `homeSwitchOffsetDeg` (both ways' middle, negated, as the bench
+      shows it) and `homeSwitchMaxBandDeg` (the widest band plus 5°) in a PR.
+   4. **Basic Drive**, turret AIM, swing the turret across straight ahead a few times. **Good:** the
+      log has `turret: home switch pass … zero moved` events of under 1° each, and the Robot page says
+      `zeroed by the home switch`. TeleOp INIT with the turret 20° off its mark warns `Turret off its
+      mark`, and turning it by hand across the mark clears it.
+   5. **An Auto's INIT** with the turret 20° off its mark warns `Turret zeroed off its mark`; on the
+      mark, no warning.
 
 ## Belding work order (agreed 5 Nov)
 
