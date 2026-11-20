@@ -1155,6 +1155,15 @@ measurement is [#255].
       **Stop:** a mirrored way in sits off its wall or the stick hits the corner → write down the
       pose at the wall; Panels `GardenGather.button.anyCorner` off is the old button (the GARDEN only,
       facing the audience wall).
+- [ ] **The Auto's GARDEN gather presses onto the wall first (20 Nov; branch
+      `claude/eloquent-albattani-krkecl`, not yet run):** the `GardenGather` card now strafes from where its
+      drive left it onto the side wall (`lineUp.autoPressOntoWall`, `lineUpOutIn` -2), then drives in along
+      where that stopped, as the button does. Sloth Load the branch, run an Auto with a GARDEN gather (red,
+      from GARDEN_STAGING) 3 times. **Good:** the log shows the square-up ("Auto, squaring up"), then "line-up
+      stalled … against the wall" or the line-up's end, the drive in "path done", and the POLLEN come in.
+      Time the card: `AutoRegistration.GARDEN_GATHER_TYPICAL_S` is 3.0 s, and the 850 ms dwell, `inSpeed`
+      0.5 and the strafe may make it longer, which the endgame guard needs to know. **Stop:** the stick
+      catches the wall on the strafe, or the card times out → `lineUp.autoPressOntoWall` off in Panels.
 - [ ] **Corner gather on 19429 (20 Nov; tuned on 20245 only):** 20245's settings of 20 Nov are the
       defaults: the line-up 14 in further back and 2 in into the wall (`lineUpOutIn` -2), going on when it
       stalls there (`lineUp.stallWithinIn`); the drive in along where the line-up stopped
