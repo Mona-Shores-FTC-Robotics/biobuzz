@@ -265,9 +265,14 @@ public final class GardenGather extends GrabRoutine {
          * wall and threw POLLEN up): the stick down meets the wall about 4 in before the nose would (every
          * corner gather of 20 Nov stopped 3.9 in short of the gather pose), so even 0 aims about 4 in past
          * where the robot can go, and it shoves until the stall. About -3.5 aims at the stick meeting the wall.
-         * Not yet run below 0.
+         * Corrected from the logs (20245, 18:08 on 20 Nov): most of that 3.9 in was the bounce. The robot meets
+         * the wall within about 1 in of the gather pose (0.2 in short facing the audience wall, 1 in facing the
+         * side wall), and with the path's end at or past the wall Pedro never brakes: six of seven drive ins hit
+         * at 35 to 44 in/s and bounced back 2.2 in. The one whose path ended short ("path done 1.7 in short")
+         * hit at 9 in/s and bounced 0.4 in. -3 since 20 Nov 2026 (mentor): the path ends 2 to 3 in before the
+         * wall, and the dwell's push ({@link Dwell#dwellPushPower}) closes the rest. Not yet run.
          */
-        public double extraDepthIn = 2.0;
+        public double extraDepthIn = -3.0;
         /**
          * Without the stick ({@link Stick#useStick} off), how much deeper the drive in aims, inches, on top of
          * {@link DriveIn#extraDepthIn}: the gather pose puts the nose 1.5 in beyond the robot's front at the
@@ -305,9 +310,10 @@ public final class GardenGather extends GrabRoutine {
         /**
          * The drive in's speed cap, a fraction of the robot's top path speed (0 to 1]. 1.0 since 14 Nov
          * 2026 (mentor, at the field): at 0.5 the curve over to the side wall, mostly a strafe, was very
-         * slow. 0.7 since 20 Nov 2026 (mentor, on 20245 with the corner gather: at 1.0 it came in too fast).
+         * slow. 0.7 since 20 Nov 2026 (mentor, on 20245 with the corner gather: at 1.0 it came in too fast);
+         * 0.5 later that day (mentor, on 20245: about 40 in/s at its peak).
          */
-        public double inSpeed = 0.7;
+        public double inSpeed = 0.5;
         /**
          * How far the drive in, the push and the dwell turn the robot toward the side wall, degrees, so
          * the intake angles into the corner and takes the corner piece: red's 270° becomes 270 minus this
@@ -363,9 +369,10 @@ public final class GardenGather extends GrabRoutine {
          * 400 since 6 Nov 2026 (mentor): in, a short dwell, and straight back out, rather than the 1.5 s
          * every gather that night sat for while bringing in 0 to 1 pieces. Tune it at the practice field
          * with the button. 150 since 19 Nov 2026 (mentor, on 19429, with the corner angle: consistent). 700
-         * since 20 Nov 2026 (mentor, on 20245 with the corner gather, with the softer push below).
+         * since 20 Nov 2026 (mentor, on 20245 with the corner gather, with the softer push below); 200 later
+         * that day (mentor, on 20245).
          */
-        public double dwellMs = 700;
+        public double dwellMs = 200;
         /**
          * The dwell ends as soon as the lane is full (the colour sensor's full), as the FLOWER pick's does.
          * Until this switch a gather with a full lane sat out the whole dwell (14 Nov 13:13, 4 held, twice).
@@ -382,9 +389,11 @@ public final class GardenGather extends GrabRoutine {
          * Forward power during the dwell, to keep the stick seated and the intake pressed into the
          * corner. 0 for none. 1.0 since 14 Nov 2026 (mentor, on 19429 at the field: 8 gathers, 4 in a
          * row; 0.1 before). 0.5 since 19 Nov 2026 (mentor, on 19429: at 1.0 it pushed in and out at the
-         * wall). 0.3 since 20 Nov 2026 (mentor, on 20245 with the corner gather).
+         * wall). 0.3 since 20 Nov 2026 (mentor, on 20245 with the corner gather); 0.15 later that day; 0.25
+         * with {@link DriveIn#extraDepthIn} -3 (20 Nov 2026, not yet run): the drive in ends short of the wall,
+         * and this push seats the robot the last 2 or 3 in.
          */
-        public double dwellPushPower = 0.3;
+        public double dwellPushPower = 0.25;
     }
 
     /** See {@link Dwell}. */
