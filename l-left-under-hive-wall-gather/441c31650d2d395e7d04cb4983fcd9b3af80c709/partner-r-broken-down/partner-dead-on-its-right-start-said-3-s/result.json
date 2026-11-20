@@ -1,0 +1,3486 @@
+{
+ "designs": [
+  "real robot",
+  "real robot, turret locked forward",
+  "real robot, POLLEN only",
+  "real robot, turret locked forward, POLLEN only"
+ ],
+ "spec": "LLeftUnderHiveWallGatherAuto,PartnerRBrokenDownAuto@50",
+ "design": "real robot",
+ "partnerDesign": null,
+ "alliance": "RED",
+ "entry": {
+  "name": "partner dead on its right start, said 3 s",
+  "folder": "partner-r-broken-down/partner-dead-on-its-right-start-said-3-s",
+  "spec": "LLeftUnderHiveWallGatherAuto,PartnerRBrokenDownAuto@50",
+  "partner": "PartnerRBrokenDownAuto",
+  "partnerSource": "partner-r-broken-down.pp",
+  "timing": null,
+  "timingSlug": "last3s",
+  "lastShotS": 3,
+  "partnerWaitUntilS": null,
+  "fails": null,
+  "pushable": false,
+  "oursFails": null,
+  "picks": null,
+  "partnerPicks": null,
+  "rows": [
+   {
+    "seed": 1,
+    "log": "seed-1.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     20.96
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 2,
+    "log": "seed-2.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 3,
+    "log": "seed-3.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     21.26
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 4,
+    "log": "seed-4.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 5,
+    "log": "seed-5.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     21.48
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 6,
+    "log": "seed-6.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 7,
+    "log": "seed-7.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     21.080000000000002
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 8,
+    "log": "seed-8.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 9,
+    "log": "seed-9.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     21.26
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 10,
+    "log": "seed-10.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 11,
+    "log": "seed-11.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     21.28
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 12,
+    "log": "seed-12.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 13,
+    "log": "seed-13.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     22.64
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 14,
+    "log": "seed-14.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 15,
+    "log": "seed-15.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     21.44
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 16,
+    "log": "seed-16.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 17,
+    "log": "seed-17.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     22.54
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 18,
+    "log": "seed-18.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 19,
+    "log": "seed-19.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 20,
+    "log": "seed-20.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     22.94
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+     "startedAt": 0.7,
+     "outcome": "10.0 s on the match clock",
+     "fired": false,
+     "after": 9.3,
+     "at": 10
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+      "startedAt": 0.7,
+      "outcome": "10.0 s on the match clock",
+      "fired": false,
+      "after": 9.3,
+      "at": 10
+     },
+     {
+      "label": "R has left the SCORING FLOWER: park at 20 s",
+      "startedAt": 17.36,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 24.560000000000002,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   }
+  ],
+  "partnerDelayS": null,
+  "partnerLaunchS": null,
+  "runs": 20,
+  "meanPoints": 18
+ },
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    20.96
+   ],
+   "launched": 4,
+   "scored": 3,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.00 miss: beside red NECTAR robot 1",
+      "21.00 miss: height red NECTAR robot 1",
+      "21.00 miss: height red NECTAR robot 1",
+      "21.02 miss: height POLLEN robot 1",
+      "21.02 miss: beside POLLEN robot 1",
+      "21.02 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.04 turret: on target 0.10 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 3, HIVE tipped at 21.0 s; l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 2,
+   "log": "seed-2.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.48 miss: shot-long POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.36 miss: shot-long POLLEN robot 1",
+      "17.38 miss: height POLLEN robot 1",
+      "18.24 miss: shot-long POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 0, HIVE tipped at (never); l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 3,
+   "log": "seed-3.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    21.26
+   ],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "18.24 miss: shot-long POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.08 miss: beside red NECTAR robot 1",
+      "21.08 miss: height red NECTAR robot 1",
+      "21.08 miss: height red NECTAR robot 1",
+      "21.08 miss: beside POLLEN robot 1",
+      "21.08 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 1)",
+      "22.04 turret: on target 0.10 s after the side switch (holds 1)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 1)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at 21.3 s; l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 5 held"
+  },
+  {
+   "seed": 4,
+   "log": "seed-4.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 1,
+   "cellLoad": 0.789679991976038,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.48 miss: shot-long POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "18.24 miss: shot-long POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 1, HIVE tipped at (never); l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 79% loaded and 4 held"
+  },
+  {
+   "seed": 5,
+   "log": "seed-5.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    21.48
+   ],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "18.24 miss: shot-long POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.08 miss: beside red NECTAR robot 1",
+      "21.08 miss: height red NECTAR robot 1",
+      "21.08 miss: height red NECTAR robot 1",
+      "21.10 miss: beside POLLEN robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.04 turret: on target 0.10 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at 21.5 s; l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 5 held"
+  },
+  {
+   "seed": 6,
+   "log": "seed-6.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0.9203904769617645,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "18.24 miss: shot-long POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: beside POLLEN robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 1)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 1)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 1)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at (never); l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 92% loaded and 5 held"
+  },
+  {
+   "seed": 7,
+   "log": "seed-7.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    21.080000000000002
+   ],
+   "launched": 4,
+   "scored": 3,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.04 miss: beside red NECTAR robot 1",
+      "21.04 miss: height red NECTAR robot 1",
+      "21.04 miss: height red NECTAR robot 1",
+      "21.06 miss: height POLLEN robot 1",
+      "21.06 miss: beside POLLEN robot 1",
+      "21.06 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.04 turret: on target 0.10 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 3, HIVE tipped at 21.1 s; l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 8,
+   "log": "seed-8.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 1,
+   "cellLoad": 0.789679991976038,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.48 miss: shot-long POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "18.24 miss: shot-long POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 1, HIVE tipped at (never); l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 79% loaded and 4 held"
+  },
+  {
+   "seed": 9,
+   "log": "seed-9.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    21.26
+   ],
+   "launched": 4,
+   "scored": 3,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.06 miss: beside red NECTAR robot 1",
+      "21.06 miss: height red NECTAR robot 1",
+      "21.06 miss: height red NECTAR robot 1",
+      "21.08 miss: height POLLEN robot 1",
+      "21.08 miss: beside POLLEN robot 1",
+      "21.08 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.04 turret: on target 0.10 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 3, HIVE tipped at 21.3 s; l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 10,
+   "log": "seed-10.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 1,
+   "cellLoad": 0.789679991976038,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.48 miss: shot-long POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "18.24 miss: shot-long POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 1, HIVE tipped at (never); l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 79% loaded and 4 held"
+  },
+  {
+   "seed": 11,
+   "log": "seed-11.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    21.28
+   ],
+   "launched": 4,
+   "scored": 3,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.06 miss: beside red NECTAR robot 1",
+      "21.06 miss: height red NECTAR robot 1",
+      "21.06 miss: height red NECTAR robot 1",
+      "21.08 miss: height POLLEN robot 1",
+      "21.08 miss: beside POLLEN robot 1",
+      "21.08 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.04 turret: on target 0.10 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      "24.78 miss: beside POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 3, HIVE tipped at 21.3 s; l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 12,
+   "log": "seed-12.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0.9203904769617645,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.36 miss: shot-long POLLEN robot 1",
+      "17.38 miss: height POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.10 miss: beside POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at (never); l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 92% loaded and 4 held"
+  },
+  {
+   "seed": 13,
+   "log": "seed-13.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    22.64
+   ],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.36 miss: shot-long POLLEN robot 1",
+      "17.38 miss: height POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.10 miss: beside POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      "22.68 turret: the long way round, 336 deg in 1.4 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at 22.6 s; l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 14,
+   "log": "seed-14.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0.9203904769617645,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "18.24 miss: shot-long POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: beside POLLEN robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at (never); l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 92% loaded and 4 held"
+  },
+  {
+   "seed": 15,
+   "log": "seed-15.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    21.44
+   ],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "18.24 miss: shot-long POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.08 miss: beside red NECTAR robot 1",
+      "21.08 miss: height red NECTAR robot 1",
+      "21.08 miss: height red NECTAR robot 1",
+      "21.10 miss: beside POLLEN robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.92 miss: beside POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.04 turret: on target 0.10 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at 21.4 s; l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 16,
+   "log": "seed-16.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0.9203904769617645,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.36 miss: shot-long POLLEN robot 1",
+      "17.38 miss: height POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.10 miss: beside POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at (never); l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 92% loaded and 4 held"
+  },
+  {
+   "seed": 17,
+   "log": "seed-17.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    22.54
+   ],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.36 miss: shot-long POLLEN robot 1",
+      "17.38 miss: height POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.10 miss: beside POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at 22.5 s; l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 18,
+   "log": "seed-18.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0.9203904769617645,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "18.24 miss: shot-long POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: beside POLLEN robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at (never); l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 92% loaded and 4 held"
+  },
+  {
+   "seed": 19,
+   "log": "seed-19.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 1,
+   "cellLoad": 0.8599944628934296,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.48 miss: shot-long POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.36 miss: shot-long POLLEN robot 1",
+      "17.38 miss: height POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.58 miss: chance POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 0)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 0)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 1, HIVE tipped at (never); l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 86% loaded and 4 held"
+  },
+  {
+   "seed": 20,
+   "log": "seed-20.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    22.94
+   ],
+   "launched": 4,
+   "scored": 3,
+   "cellLoad": 0,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-left-under-hive-wall-gather",
+     "launched": 4,
+     "finishedAt": 24.560000000000002,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+       "startedAt": 0.7,
+       "outcome": "10.0 s on the match clock",
+       "fired": false,
+       "after": 9.3,
+       "at": 10
+      },
+      {
+       "label": "R has left the SCORING FLOWER: park at 20 s",
+       "startedAt": 17.36,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park (holds 4)",
+      "10.00 LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park: 10.0 s on the match clock after 9.30 s (holds 4)",
+      "10.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.12 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "12.20 turret: on target 0.08 s after the side switch (holds 4)",
+      "14.42 command LaunchAll (holds 4)",
+      "14.42 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "14.72 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "14.76 miss: height POLLEN robot 1",
+      "15.60 miss: shot-wide POLLEN robot 1",
+      "15.62 miss: height POLLEN robot 1",
+      "16.50 miss: height POLLEN robot 1",
+      "17.36 wait R has left the SCORING FLOWER: park at 20 s (holds 0)",
+      "17.38 miss: height POLLEN robot 1",
+      "20.00 R has left the SCORING FLOWER: park at 20 s: 20.0 s on the match clock after 2.64 s (holds 0)",
+      "20.02 path rescue park to LEFT_AUTO_PARK (holds 0)",
+      "21.10 miss: beside red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height red NECTAR robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.10 miss: beside POLLEN robot 1",
+      "21.10 miss: height POLLEN robot 1",
+      "21.94 turret: switched to the high-end CELL at y 91.0 (holds 1)",
+      "22.10 turret: on target 0.16 s after the side switch (holds 1)",
+      "22.64 turret: the long way round, 350 deg in 1.5 s, to stay inside its 720 deg window (holds 1)",
+      "22.98 turret: the long way round, 229 deg in 1.0 s, to stay inside its 720 deg window (holds 1)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-left-under-hive-wall-gather + partner-r-broken-down RED: launched 4, scored 3, HIVE tipped at 22.9 s; l-left-under-hive-wall-gather launched 4, finished at 24.6 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 5 held"
+  }
+ ],
+ "auto": "l-left-under-hive-wall-gather",
+ "commit": "441c31650d2d395e7d04cb4983fcd9b3af80c709",
+ "branch": "claude/wonderful-dijkstra-k25pg8",
+ "pp": "TeamCode/autos/drafts/l-left-under-hive-wall-gather.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/44787533766",
+ "finishedAt": "2026-11-20T17:55:05.723015+00:00",
+ "request": {
+  "pp": "TeamCode/autos/drafts/l-left-under-hive-wall-gather.pp",
+  "spec": "LLeftUnderHiveWallGatherAuto@50",
+  "design": "real robot",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20
+  ],
+  "partnerSeeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+   {
+    "name": "matching R-LeftUnderHive",
+    "partner": "RLeftUnderHiveAuto",
+    "timing": {
+     "speed": 50
+    }
+   },
+   {
+    "name": "R-LeftUnderHive drives 20 percent slower",
+    "partner": "RLeftUnderHiveAuto",
+    "timing": {
+     "speed": 40
+    }
+   },
+   {
+    "name": "R-LeftUnderHive misses every shot",
+    "partner": "RLeftUnderHiveAuto",
+    "fails": "misses",
+    "timing": {
+     "speed": 50
+    }
+   },
+   {
+    "name": "R's preloads miss (17 Nov)",
+    "partner": "RLeftUnderHiveAuto",
+    "timing": {
+     "speed": 50
+    },
+    "fails": "misses preloads"
+   },
+   {
+    "name": "partner dead on its right start, said 3 s",
+    "partner": "PartnerRBrokenDownAuto",
+    "lastShotS": 3
+   },
+   {
+    "name": "contingency: nothing tips (both preloads miss, R misses every shot)",
+    "partner": "RLeftUnderHiveAuto",
+    "timing": {
+     "speed": 50
+    },
+    "oursFails": "misses preloads",
+    "fails": "misses"
+   },
+   {
+    "name": "contingency: R dead on its start",
+    "partner": "PartnerRBrokenDownAuto"
+   }
+  ],
+  "metadata": {
+   "AutoSource": "drafts/l-left-under-hive-wall-gather.pp",
+   "SavedBy": "L-LeftUnderHive with its GARDEN gathered along the audience wall (GardenGatherAlongWall): the same partner matrix as l-left-under-hive.json",
+   "SavedAt": "2026-11-20T18:00:00+00:00",
+   "SourceCommit": "441c31650d2d395e7d04cb4983fcd9b3af80c709",
+   "SourceBranch": "claude/wonderful-dijkstra-k25pg8",
+   "SourcePath": "TeamCode/autos/drafts/l-left-under-hive-wall-gather.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/44787533766"
+  }
+ },
+ "typicalSeed": 19,
+ "bestSeed": 1,
+ "logs": {
+  "1": "l-left-under-hive-wall-gather-441c316-partner-r-broken-down-partner-dead-on-its-right-start-said-3-s-seed-1.wpilog",
+  "19": "l-left-under-hive-wall-gather-441c316-partner-r-broken-down-partner-dead-on-its-right-start-said-3-s-seed-19.wpilog"
+ },
+ "folder": "partner-r-broken-down/partner-dead-on-its-right-start-said-3-s"
+}

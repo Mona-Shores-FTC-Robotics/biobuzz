@@ -1,0 +1,3733 @@
+{
+ "designs": [
+  "real robot",
+  "real robot, turret locked forward",
+  "real robot, POLLEN only",
+  "real robot, turret locked forward, POLLEN only"
+ ],
+ "spec": "LUnderHiveFixAuto,PartnerRBrokenDownAuto@50",
+ "design": "real robot, turret locked forward",
+ "partnerDesign": null,
+ "alliance": "RED",
+ "entry": {
+  "name": "R dead on its start: L fixes alone",
+  "folder": "partner-r-broken-down/r-dead-on-its-start-l-fixes-alone",
+  "spec": "LUnderHiveFixAuto,PartnerRBrokenDownAuto@50",
+  "partner": "PartnerRBrokenDownAuto",
+  "partnerSource": "partner-r-broken-down.pp",
+  "timing": null,
+  "timingSlug": "default",
+  "lastShotS": null,
+  "partnerWaitUntilS": null,
+  "fails": null,
+  "pushable": false,
+  "oursFails": null,
+  "picks": null,
+  "partnerPicks": null,
+  "rows": [
+   {
+    "seed": 1,
+    "log": "seed-1.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     19.64
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 2,
+    "log": "seed-2.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 3,
+    "log": "seed-3.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     19.94
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 4,
+    "log": "seed-4.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 5,
+    "log": "seed-5.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     20.16
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 6,
+    "log": "seed-6.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 7,
+    "log": "seed-7.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     19.76
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 8,
+    "log": "seed-8.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 9,
+    "log": "seed-9.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     19.94
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 10,
+    "log": "seed-10.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 11,
+    "log": "seed-11.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     19.96
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 12,
+    "log": "seed-12.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 13,
+    "log": "seed-13.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     21.32
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 14,
+    "log": "seed-14.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 15,
+    "log": "seed-15.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     20.12
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 16,
+    "log": "seed-16.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 17,
+    "log": "seed-17.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     21.22
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 18,
+    "log": "seed-18.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 19,
+    "log": "seed-19.wpilog",
+    "points": 8,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [],
+    "autoTips": 0,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 0,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 20,
+    "log": "seed-20.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     21.62
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "LEFT up before 9 s, otherwise fix TIP 1",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "LEFT up before 9 s, otherwise fix TIP 1",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+      "startedAt": 16.04,
+      "outcome": "24.5 s on the match clock",
+      "fired": false,
+      "after": 8.46,
+      "at": 24.5
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 28.44,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   }
+  ],
+  "partnerDelayS": null,
+  "partnerLaunchS": null,
+  "runs": 20,
+  "meanPoints": 18
+ },
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    19.64
+   ],
+   "launched": 4,
+   "scored": 3,
+   "cellLoad": 0,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "20.16 miss: speed POLLEN robot 1",
+      "20.18 miss: height red NECTAR robot 1",
+      "20.18 miss: height red NECTAR robot 1",
+      "20.20 miss: height red NECTAR robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 3, HIVE tipped at 19.6 s; l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 5 held"
+  },
+  {
+   "seed": 2,
+   "log": "seed-2.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 0,
+   "cellLoad": 0.6589695069903116,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.16 miss: shot-long POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.04 miss: shot-long POLLEN robot 1",
+      "16.06 miss: height POLLEN robot 1",
+      "16.92 miss: shot-long POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "25.60 miss: beside red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 0, HIVE tipped at (never); l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 3,
+   "log": "seed-3.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    19.94
+   ],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "16.92 miss: shot-long POLLEN robot 1",
+      "20.50 miss: height red NECTAR robot 1",
+      "20.56 miss: height red NECTAR robot 1",
+      "20.56 miss: height red NECTAR robot 1",
+      "20.60 miss: height POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at 19.9 s; l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 4,
+   "log": "seed-4.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 1,
+   "cellLoad": 0.789679991976038,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.16 miss: shot-long POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "16.92 miss: shot-long POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "25.60 miss: beside red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 1, HIVE tipped at (never); l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 79% loaded and 4 held"
+  },
+  {
+   "seed": 5,
+   "log": "seed-5.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    20.16
+   ],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "16.92 miss: shot-long POLLEN robot 1",
+      "20.72 miss: height red NECTAR robot 1",
+      "20.72 miss: speed red NECTAR robot 1",
+      "20.84 miss: height red NECTAR robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at 20.2 s; l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 5 held"
+  },
+  {
+   "seed": 6,
+   "log": "seed-6.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0.9203904769617645,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "16.92 miss: shot-long POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "25.60 miss: beside red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: beside POLLEN robot 1",
+      "25.60 miss: height POLLEN robot 1",
+      "26.76 miss: chance POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at (never); l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 92% loaded and 5 held"
+  },
+  {
+   "seed": 7,
+   "log": "seed-7.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    19.76
+   ],
+   "launched": 4,
+   "scored": 3,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "20.32 miss: height red NECTAR robot 1",
+      "20.32 miss: height red NECTAR robot 1",
+      "20.38 miss: height POLLEN robot 1",
+      "20.42 miss: height red NECTAR robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "25.16 miss: beside POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 3, HIVE tipped at 19.8 s; l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 8,
+   "log": "seed-8.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 1,
+   "cellLoad": 0.789679991976038,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.16 miss: shot-long POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "16.92 miss: shot-long POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "25.60 miss: beside red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 1, HIVE tipped at (never); l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 79% loaded and 4 held"
+  },
+  {
+   "seed": 9,
+   "log": "seed-9.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    19.94
+   ],
+   "launched": 4,
+   "scored": 3,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "20.52 miss: beside POLLEN robot 1",
+      "20.52 miss: chance red NECTAR robot 1",
+      "20.62 miss: height red NECTAR robot 1",
+      "20.62 miss: height red NECTAR robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "26.02 miss: chance POLLEN robot 1",
+      "27.60 miss: beside red NECTAR robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 3, HIVE tipped at 19.9 s; l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 10,
+   "log": "seed-10.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 1,
+   "cellLoad": 0.789679991976038,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.16 miss: shot-long POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "16.92 miss: shot-long POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "25.60 miss: beside red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 1, HIVE tipped at (never); l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 79% loaded and 4 held"
+  },
+  {
+   "seed": 11,
+   "log": "seed-11.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    19.96
+   ],
+   "launched": 4,
+   "scored": 3,
+   "cellLoad": 0,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "20.52 miss: height red NECTAR robot 1",
+      "20.54 miss: height red NECTAR robot 1",
+      "20.58 miss: height red NECTAR robot 1",
+      "20.64 miss: chance POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "26.04 miss: chance POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 3, HIVE tipped at 20.0 s; l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 5 held"
+  },
+  {
+   "seed": 12,
+   "log": "seed-12.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0.9203904769617645,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.04 miss: shot-long POLLEN robot 1",
+      "16.06 miss: height POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "25.60 miss: beside red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height POLLEN robot 1",
+      "25.60 miss: beside POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at (never); l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 92% loaded and 4 held"
+  },
+  {
+   "seed": 13,
+   "log": "seed-13.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    21.32
+   ],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.04 miss: shot-long POLLEN robot 1",
+      "16.06 miss: height POLLEN robot 1",
+      "21.94 miss: beside POLLEN robot 1",
+      "21.94 miss: height red NECTAR robot 1",
+      "21.96 miss: height red NECTAR robot 1",
+      "21.96 miss: height red NECTAR robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at 21.3 s; l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 4 held"
+  },
+  {
+   "seed": 14,
+   "log": "seed-14.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0.9203904769617645,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "16.92 miss: shot-long POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "25.60 miss: beside red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: beside POLLEN robot 1",
+      "25.60 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at (never); l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 92% loaded and 5 held"
+  },
+  {
+   "seed": 15,
+   "log": "seed-15.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    20.12
+   ],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0,
+   "held": 6,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "16.92 miss: shot-long POLLEN robot 1",
+      "20.70 miss: beside POLLEN robot 1",
+      "20.72 miss: height red NECTAR robot 1",
+      "20.72 miss: height red NECTAR robot 1",
+      "20.82 miss: height red NECTAR robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at 20.1 s; l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 6 held"
+  },
+  {
+   "seed": 16,
+   "log": "seed-16.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0.9203904769617645,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.04 miss: shot-long POLLEN robot 1",
+      "16.06 miss: height POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "25.60 miss: beside red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height POLLEN robot 1",
+      "25.60 miss: beside POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at (never); l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 92% loaded and 5 held"
+  },
+  {
+   "seed": 17,
+   "log": "seed-17.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    21.22
+   ],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.04 miss: shot-long POLLEN robot 1",
+      "16.06 miss: height POLLEN robot 1",
+      "21.82 miss: height red NECTAR robot 1",
+      "21.82 miss: height red NECTAR robot 1",
+      "21.86 miss: height red NECTAR robot 1",
+      "21.92 miss: beside POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "26.92 miss: chance red NECTAR robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at 21.2 s; l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 5 held"
+  },
+  {
+   "seed": 18,
+   "log": "seed-18.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 2,
+   "cellLoad": 0.9203904769617645,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "16.92 miss: shot-long POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "25.60 miss: beside red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: beside POLLEN robot 1",
+      "25.60 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 2, HIVE tipped at (never); l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 92% loaded and 4 held"
+  },
+  {
+   "seed": 19,
+   "log": "seed-19.wpilog",
+   "points": 8,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 4,
+   "scored": 1,
+   "cellLoad": 0.8599944628934296,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.16 miss: shot-long POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.04 miss: shot-long POLLEN robot 1",
+      "16.06 miss: height POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)",
+      "25.60 miss: beside red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height red NECTAR robot 1",
+      "25.60 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 1, HIVE tipped at (never); l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 8 AUTO points; TELEOP starts with the raised CELL 86% loaded and 4 held"
+  },
+  {
+   "seed": 20,
+   "log": "seed-20.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    21.62
+   ],
+   "launched": 4,
+   "scored": 3,
+   "cellLoad": 0,
+   "held": 5,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-under-hive-fix",
+     "launched": 4,
+     "finishedAt": 28.44,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "LEFT up before 9 s, otherwise fix TIP 1",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves",
+       "startedAt": 16.04,
+       "outcome": "24.5 s on the match clock",
+       "fired": false,
+       "after": 8.46,
+       "at": 24.5
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait LEFT up before 9 s, otherwise fix TIP 1 (holds 4)",
+      " 9.00 LEFT up before 9 s, otherwise fix TIP 1: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.44 miss: height POLLEN robot 1",
+      "14.28 miss: shot-wide POLLEN robot 1",
+      "14.30 miss: height POLLEN robot 1",
+      "15.18 miss: height POLLEN robot 1",
+      "16.04 wait Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves (holds 0)",
+      "16.06 miss: height POLLEN robot 1",
+      "22.26 miss: height red NECTAR robot 1",
+      "22.28 miss: height POLLEN robot 1",
+      "22.28 miss: height red NECTAR robot 1",
+      "22.32 miss: height red NECTAR robot 1",
+      "22.34 miss: beside POLLEN robot 1",
+      "24.50 Hold at RIGHT_AUTO_FIX_TIP until 24.5 s, while R fires at LEFT and leaves: 24.5 s on the match clock after 8.46 s (holds 0)",
+      "24.52 path RIGHT_AUTO_FIX_TIP park under the HIVE (holds 0)"
+     ]
+    },
+    {
+     "auto": "partner-r-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "l-under-hive-fix + partner-r-broken-down RED: launched 4, scored 3, HIVE tipped at 21.6 s; l-under-hive-fix launched 4, finished at 28.4 s, LEAVE yes, PARK yes; partner-r-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 0% loaded and 5 held"
+  }
+ ],
+ "auto": "l-under-hive-fix",
+ "commit": "800b69ab138a240a8ef0b402e783030be7df107f",
+ "branch": "claude/l-under-hive-park",
+ "pp": "TeamCode/autos/drafts/l-under-hive-fix.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/44406411977",
+ "finishedAt": "2026-11-18T21:57:53.124329+00:00",
+ "request": {
+  "pp": "TeamCode/autos/drafts/l-under-hive-fix.pp",
+  "spec": "LUnderHiveFixAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20
+  ],
+  "partnerSeeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+   {
+    "name": "as drawn: TIP 1 comes",
+    "partner": "ROutsideLaneFixAuto",
+    "timing": {
+     "speed": 50
+    },
+    "picks": {
+     "Pickup": "GARDEN"
+    },
+    "partnerPicks": {
+     "Pickup": "WALL_FLOWER"
+    }
+   },
+   {
+    "name": "R's preloads miss (17 Nov): L fixes TIP 1",
+    "partner": "ROutsideLaneFixAuto",
+    "timing": {
+     "speed": 50
+    },
+    "fails": "misses preloads",
+    "picks": {
+     "Pickup": "GARDEN"
+    },
+    "partnerPicks": {
+     "Pickup": "WALL_FLOWER"
+    }
+   },
+   {
+    "name": "R's preloads miss, R 20 percent slower",
+    "partner": "ROutsideLaneFixAuto",
+    "timing": {
+     "speed": 40
+    },
+    "fails": "misses preloads",
+    "picks": {
+     "Pickup": "GARDEN"
+    },
+    "partnerPicks": {
+     "Pickup": "WALL_FLOWER"
+    }
+   },
+   {
+    "name": "R's preloads miss, L 20 percent slower",
+    "partner": "ROutsideLaneFixAuto",
+    "timing": {
+     "speed": 50
+    },
+    "fails": "misses preloads",
+    "ourSpeed": 40,
+    "picks": {
+     "Pickup": "GARDEN"
+    },
+    "partnerPicks": {
+     "Pickup": "WALL_FLOWER"
+    }
+   },
+   {
+    "name": "R's preloads miss and L's fix misses too",
+    "partner": "ROutsideLaneFixAuto",
+    "timing": {
+     "speed": 50
+    },
+    "fails": "misses preloads",
+    "oursFails": "misses preloads",
+    "picks": {
+     "Pickup": "GARDEN"
+    },
+    "partnerPicks": {
+     "Pickup": "WALL_FLOWER"
+    }
+   },
+   {
+    "name": "R's preloads miss, L takes the WALL FLOWER, R the GARDEN",
+    "partner": "ROutsideLaneFixAuto",
+    "timing": {
+     "speed": 50
+    },
+    "fails": "misses preloads",
+    "picks": {
+     "Pickup": "WALL_FLOWER"
+    },
+    "partnerPicks": {
+     "Pickup": "GARDEN"
+    }
+   },
+   {
+    "name": "R dead on its start: L fixes alone",
+    "partner": "PartnerRBrokenDownAuto"
+   }
+  ],
+  "metadata": {
+   "AutoSource": "l-under-hive-fix.pp",
+   "SavedBy": "Lane pair: L fixes a missed TIP 1; LEFT_AUTO_HIVE 0.5 in off the centre line",
+   "SavedAt": "2026-11-18T21:58:00+00:00",
+   "SourceCommit": "800b69ab138a240a8ef0b402e783030be7df107f",
+   "SourceBranch": "claude/l-under-hive-park",
+   "SourcePath": "TeamCode/autos/drafts/l-under-hive-fix.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/44406411977"
+  }
+ },
+ "typicalSeed": 19,
+ "bestSeed": 1,
+ "logs": {
+  "1": "l-under-hive-fix-800b69a-partner-r-broken-down-r-dead-on-its-start-l-fixes-alone-seed-1.wpilog",
+  "19": "l-under-hive-fix-800b69a-partner-r-broken-down-r-dead-on-its-start-l-fixes-alone-seed-19.wpilog"
+ },
+ "folder": "partner-r-broken-down/r-dead-on-its-start-l-fixes-alone"
+}

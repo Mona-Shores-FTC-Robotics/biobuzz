@@ -1,0 +1,374 @@
+{
+ "designs": [
+  "turret",
+  "spring hood",
+  "spring hood, 3 s spin-up",
+  "spring hood, NECTAR 5% slow",
+  "two spring hoods",
+  "spring hood, full-width intake",
+  "spring hood, 24 in catcher",
+  "two spring hoods, 24 in catcher",
+  "two spring hoods, full-width intake",
+  "POLLEN + NECTAR launchers, 24 in catcher",
+  "patterned catapult, 24 in catcher",
+  "plain catapult, 24 in catcher",
+  "clump catapult, 24 in catcher",
+  "clump catapult 72 deg, 24 in catcher",
+  "clump catapult 72 deg, triangle cup",
+  "clump catapult 72 deg, loose clump",
+  "clump catapult 72 deg, 1.5 s re-cock",
+  "clump catapult 68 deg, 24 in catcher",
+  "clump catapult 76 deg, 24 in catcher",
+  "two spring hoods, 20 in intake",
+  "clump catapult 72 deg, full-width intake",
+  "clump catapult 72 deg, triangle cup, full-width intake",
+  "two spring hoods, 24 in catcher, turret",
+  "two spring hoods, 24 in catcher, intake at back",
+  "two spring hoods, 24 in catcher, no piece counter",
+  "two spring hoods, full-width intake, turret",
+  "two spring hoods, full-width intake, intake at back",
+  "two spring hoods, full-width intake, no piece counter",
+  "clump catapult 72 deg, triangle cup, full-width intake, shoots both ways",
+  "two spring hoods, 24 in catcher, POLLEN only",
+  "clump catapult 72 deg, triangle cup, POLLEN only",
+  "two spring hoods, full-width intake, POLLEN only",
+  "clump catapult 72 deg, triangle cup, full-width intake, POLLEN only",
+  "spring hood, 24 in catcher, fires on the move",
+  "two spring hoods, 24 in catcher, fires on the move"
+ ],
+ "spec": "UntitledAuto@50",
+ "design": "two spring hoods, full-width intake",
+ "partnerDesign": null,
+ "alliance": "RED",
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 3,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589694517621844,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "robots": [
+    {
+     "auto": "untitled",
+     "launched": 0,
+     "finishedAt": 1.34,
+     "leave": true,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 path Path 1"
+     ]
+    }
+   ],
+   "summary": "untitled RED: launched 0, scored 0, HIVE tipped at (never); finished at 1.3 s; LEAVE yes, PARK no; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 2,
+   "log": "seed-2.wpilog",
+   "points": 3,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589694517621844,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "robots": [
+    {
+     "auto": "untitled",
+     "launched": 0,
+     "finishedAt": 1.34,
+     "leave": true,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 path Path 1"
+     ]
+    }
+   ],
+   "summary": "untitled RED: launched 0, scored 0, HIVE tipped at (never); finished at 1.3 s; LEAVE yes, PARK no; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 3,
+   "log": "seed-3.wpilog",
+   "points": 3,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589694517621844,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "robots": [
+    {
+     "auto": "untitled",
+     "launched": 0,
+     "finishedAt": 1.34,
+     "leave": true,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 path Path 1"
+     ]
+    }
+   ],
+   "summary": "untitled RED: launched 0, scored 0, HIVE tipped at (never); finished at 1.3 s; LEAVE yes, PARK no; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 4,
+   "log": "seed-4.wpilog",
+   "points": 3,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589694517621844,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "robots": [
+    {
+     "auto": "untitled",
+     "launched": 0,
+     "finishedAt": 1.34,
+     "leave": true,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 path Path 1"
+     ]
+    }
+   ],
+   "summary": "untitled RED: launched 0, scored 0, HIVE tipped at (never); finished at 1.3 s; LEAVE yes, PARK no; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 5,
+   "log": "seed-5.wpilog",
+   "points": 3,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589694517621844,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "robots": [
+    {
+     "auto": "untitled",
+     "launched": 0,
+     "finishedAt": 1.34,
+     "leave": true,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 path Path 1"
+     ]
+    }
+   ],
+   "summary": "untitled RED: launched 0, scored 0, HIVE tipped at (never); finished at 1.3 s; LEAVE yes, PARK no; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 6,
+   "log": "seed-6.wpilog",
+   "points": 3,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589694517621844,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "robots": [
+    {
+     "auto": "untitled",
+     "launched": 0,
+     "finishedAt": 1.34,
+     "leave": true,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 path Path 1"
+     ]
+    }
+   ],
+   "summary": "untitled RED: launched 0, scored 0, HIVE tipped at (never); finished at 1.3 s; LEAVE yes, PARK no; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 7,
+   "log": "seed-7.wpilog",
+   "points": 3,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589694517621844,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "robots": [
+    {
+     "auto": "untitled",
+     "launched": 0,
+     "finishedAt": 1.34,
+     "leave": true,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 path Path 1"
+     ]
+    }
+   ],
+   "summary": "untitled RED: launched 0, scored 0, HIVE tipped at (never); finished at 1.3 s; LEAVE yes, PARK no; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 8,
+   "log": "seed-8.wpilog",
+   "points": 3,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589694517621844,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "robots": [
+    {
+     "auto": "untitled",
+     "launched": 0,
+     "finishedAt": 1.34,
+     "leave": true,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 path Path 1"
+     ]
+    }
+   ],
+   "summary": "untitled RED: launched 0, scored 0, HIVE tipped at (never); finished at 1.3 s; LEAVE yes, PARK no; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 9,
+   "log": "seed-9.wpilog",
+   "points": 3,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589694517621844,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "robots": [
+    {
+     "auto": "untitled",
+     "launched": 0,
+     "finishedAt": 1.34,
+     "leave": true,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 path Path 1"
+     ]
+    }
+   ],
+   "summary": "untitled RED: launched 0, scored 0, HIVE tipped at (never); finished at 1.3 s; LEAVE yes, PARK no; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  },
+  {
+   "seed": 10,
+   "log": "seed-10.wpilog",
+   "points": 3,
+   "autoTips": 0,
+   "tipsAt": [],
+   "launched": 0,
+   "scored": 0,
+   "cellLoad": 0.6589694517621844,
+   "held": 4,
+   "robotsCollidedAt": null,
+   "robots": [
+    {
+     "auto": "untitled",
+     "launched": 0,
+     "finishedAt": 1.34,
+     "leave": true,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 path Path 1"
+     ]
+    }
+   ],
+   "summary": "untitled RED: launched 0, scored 0, HIVE tipped at (never); finished at 1.3 s; LEAVE yes, PARK no; TELEOP starts with the raised CELL 66% loaded and 4 held"
+  }
+ ],
+ "auto": "untitled",
+ "commit": "e028a563713447b18aca694a15b25da0916ccd2e",
+ "branch": "claude/simulator",
+ "pp": "TeamCode/src/test/resources/auto-builder/untitled.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/37120762014",
+ "finishedAt": "2026-10-03T11:48:14.430834+00:00",
+ "request": {
+  "pp": "TeamCode/src/test/resources/auto-builder/untitled.pp",
+  "spec": "UntitledAuto@50",
+  "design": "two spring hoods, full-width intake",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10
+  ],
+  "alliance": "RED",
+  "metadata": {
+   "AutoSource": "untitled.pp",
+   "SavedBy": "dustinhans",
+   "SavedAt": "2026-10-03T11:44:57.137Z",
+   "SourceCommit": "e028a563713447b18aca694a15b25da0916ccd2e",
+   "SourceBranch": "claude/simulator",
+   "SourcePath": "TeamCode/src/test/resources/auto-builder/untitled.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/37120762014"
+  }
+ },
+ "typicalSeed": 5,
+ "logs": {
+  "5": "untitled-e028a56-seed-5.wpilog"
+ }
+}

@@ -1,0 +1,461 @@
+{
+ "designs": [
+  "real robot",
+  "real robot, turret locked forward",
+  "real robot, POLLEN only",
+  "real robot, turret locked forward, POLLEN only"
+ ],
+ "spec": "RSimpleAuto@50",
+ "design": "real robot, turret locked forward",
+ "partnerDesign": null,
+ "alliance": "RED",
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    3.48
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 5.22,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 wait Fire the preloads at the right CELL (TIP 1) (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.52 miss: height POLLEN robot 1",
+      " 2.02 miss: height POLLEN robot 1",
+      " 2.52 Fire the preloads at the right CELL (TIP 1): Empty after 2.52 s (holds 0)",
+      " 2.52 miss: height POLLEN robot 1",
+      " 2.54 path START to PARK (holds 0)",
+      " 5.84 miss: beside red NECTAR robot 1"
+     ]
+    }
+   ],
+   "summary": "r-simple RED: launched 4, scored 4, HIVE tipped at 3.5 s; finished at 5.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 0% loaded and 0 held"
+  },
+  {
+   "seed": 2,
+   "log": "seed-2.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    3.7
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 5.22,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 wait Fire the preloads at the right CELL (TIP 1) (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.52 miss: height POLLEN robot 1",
+      " 2.02 miss: height POLLEN robot 1",
+      " 2.52 Fire the preloads at the right CELL (TIP 1): Empty after 2.52 s (holds 0)",
+      " 2.52 miss: height POLLEN robot 1",
+      " 2.54 path START to PARK (holds 0)"
+     ]
+    }
+   ],
+   "summary": "r-simple RED: launched 4, scored 4, HIVE tipped at 3.7 s; finished at 5.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 0% loaded and 0 held"
+  },
+  {
+   "seed": 3,
+   "log": "seed-3.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    3.42
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 1,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 5.22,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 wait Fire the preloads at the right CELL (TIP 1) (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.52 miss: height POLLEN robot 1",
+      " 2.02 miss: height POLLEN robot 1",
+      " 2.52 Fire the preloads at the right CELL (TIP 1): Empty after 2.52 s (holds 0)",
+      " 2.52 miss: height POLLEN robot 1",
+      " 2.54 path START to PARK (holds 0)",
+      " 5.88 miss: beside red NECTAR robot 1"
+     ]
+    }
+   ],
+   "summary": "r-simple RED: launched 4, scored 4, HIVE tipped at 3.4 s; finished at 5.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 0% loaded and 1 held"
+  },
+  {
+   "seed": 4,
+   "log": "seed-4.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    3.66
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 5.22,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 wait Fire the preloads at the right CELL (TIP 1) (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.52 miss: height POLLEN robot 1",
+      " 2.02 miss: height POLLEN robot 1",
+      " 2.52 Fire the preloads at the right CELL (TIP 1): Empty after 2.52 s (holds 0)",
+      " 2.52 miss: height POLLEN robot 1",
+      " 2.54 path START to PARK (holds 0)"
+     ]
+    }
+   ],
+   "summary": "r-simple RED: launched 4, scored 4, HIVE tipped at 3.7 s; finished at 5.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 0% loaded and 0 held"
+  },
+  {
+   "seed": 5,
+   "log": "seed-5.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    3.48
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 1,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 5.22,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 wait Fire the preloads at the right CELL (TIP 1) (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.52 miss: height POLLEN robot 1",
+      " 2.02 miss: height POLLEN robot 1",
+      " 2.52 Fire the preloads at the right CELL (TIP 1): Empty after 2.52 s (holds 0)",
+      " 2.52 miss: height POLLEN robot 1",
+      " 2.54 path START to PARK (holds 0)"
+     ]
+    }
+   ],
+   "summary": "r-simple RED: launched 4, scored 4, HIVE tipped at 3.5 s; finished at 5.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 0% loaded and 1 held"
+  },
+  {
+   "seed": 6,
+   "log": "seed-6.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    3.7800000000000002
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 5.22,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 wait Fire the preloads at the right CELL (TIP 1) (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.52 miss: height POLLEN robot 1",
+      " 2.02 miss: height POLLEN robot 1",
+      " 2.52 Fire the preloads at the right CELL (TIP 1): Empty after 2.52 s (holds 0)",
+      " 2.52 miss: height POLLEN robot 1",
+      " 2.54 path START to PARK (holds 0)"
+     ]
+    }
+   ],
+   "summary": "r-simple RED: launched 4, scored 4, HIVE tipped at 3.8 s; finished at 5.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 0% loaded and 0 held"
+  },
+  {
+   "seed": 7,
+   "log": "seed-7.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    3.8000000000000003
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 5.22,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 wait Fire the preloads at the right CELL (TIP 1) (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.52 miss: height POLLEN robot 1",
+      " 2.02 miss: height POLLEN robot 1",
+      " 2.52 Fire the preloads at the right CELL (TIP 1): Empty after 2.52 s (holds 0)",
+      " 2.52 miss: height POLLEN robot 1",
+      " 2.54 path START to PARK (holds 0)"
+     ]
+    }
+   ],
+   "summary": "r-simple RED: launched 4, scored 4, HIVE tipped at 3.8 s; finished at 5.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 0% loaded and 0 held"
+  },
+  {
+   "seed": 8,
+   "log": "seed-8.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    3.46
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 5.22,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 wait Fire the preloads at the right CELL (TIP 1) (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.52 miss: height POLLEN robot 1",
+      " 2.02 miss: height POLLEN robot 1",
+      " 2.52 Fire the preloads at the right CELL (TIP 1): Empty after 2.52 s (holds 0)",
+      " 2.52 miss: height POLLEN robot 1",
+      " 2.54 path START to PARK (holds 0)"
+     ]
+    }
+   ],
+   "summary": "r-simple RED: launched 4, scored 4, HIVE tipped at 3.5 s; finished at 5.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 0% loaded and 0 held"
+  },
+  {
+   "seed": 9,
+   "log": "seed-9.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    3.7
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 5.22,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 wait Fire the preloads at the right CELL (TIP 1) (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.52 miss: height POLLEN robot 1",
+      " 2.02 miss: height POLLEN robot 1",
+      " 2.52 Fire the preloads at the right CELL (TIP 1): Empty after 2.52 s (holds 0)",
+      " 2.52 miss: height POLLEN robot 1",
+      " 2.54 path START to PARK (holds 0)"
+     ]
+    }
+   ],
+   "summary": "r-simple RED: launched 4, scored 4, HIVE tipped at 3.7 s; finished at 5.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 0% loaded and 0 held"
+  },
+  {
+   "seed": 10,
+   "log": "seed-10.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    3.54
+   ],
+   "launched": 4,
+   "scored": 4,
+   "cellLoad": 0,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-simple",
+     "launched": 4,
+     "finishedAt": 5.22,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 wait Fire the preloads at the right CELL (TIP 1) (holds 4)",
+      " 0.00 command LaunchAll (holds 4)",
+      " 1.02 miss: height POLLEN robot 1",
+      " 1.52 miss: height POLLEN robot 1",
+      " 2.02 miss: height POLLEN robot 1",
+      " 2.52 Fire the preloads at the right CELL (TIP 1): Empty after 2.52 s (holds 0)",
+      " 2.52 miss: height POLLEN robot 1",
+      " 2.54 path START to PARK (holds 0)"
+     ]
+    }
+   ],
+   "summary": "r-simple RED: launched 4, scored 4, HIVE tipped at 3.5 s; finished at 5.2 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 0% loaded and 0 held"
+  }
+ ],
+ "auto": "r-simple",
+ "commit": "ca0cadf49e8c3a0c133d0578425d47cc245ab77e",
+ "branch": "claude/sim-matrix",
+ "pp": "TeamCode/autos/r-simple.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/41304535754",
+ "finishedAt": "2026-11-01T12:03:03.668724+00:00",
+ "request": {
+  "pp": "TeamCode/autos/r-simple.pp",
+  "spec": "RSimpleAuto@50",
+  "design": "real robot, turret locked forward",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10
+  ],
+  "alliance": "RED",
+  "metadata": {
+   "AutoSource": "r-simple.pp",
+   "SavedBy": "sim matrix (Claude)",
+   "SourceCommit": "ca0cadf49e8c3a0c133d0578425d47cc245ab77e",
+   "SourceBranch": "claude/sim-matrix",
+   "SourcePath": "TeamCode/autos/r-simple.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/41304535754"
+  }
+ },
+ "typicalSeed": 5,
+ "bestSeed": 3,
+ "logs": {
+  "3": "r-simple-ca0cadf-seed-3.wpilog",
+  "5": "r-simple-ca0cadf-seed-5.wpilog"
+ },
+ "designFolder": "designs/real-robot-turret-locked-forward",
+ "namedLogs": {
+  "best": "r-simple_RealRobotTurretLockedForward_2026-11-01_best.wpilog",
+  "typical": "r-simple_RealRobotTurretLockedForward_2026-11-01_typical.wpilog"
+ }
+}
