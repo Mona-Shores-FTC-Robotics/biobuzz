@@ -21,7 +21,7 @@ public final class LClockwiseParkShotAuto {
     public static final String SOURCE = "l-clockwise-parkshot.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-20|12:40PM";
+    public static final String SAVED = "11-20|12:45PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "LaunchAllAimed", "PickFlower", "SpinUp"};
@@ -57,7 +57,7 @@ public final class LClockwiseParkShotAuto {
         Pose laneEnd = p.of(60.5, 34, 270);
         Pose rightAutoOffset = p.of(32.1, 16.4, 61);
         Pose leftPark = p.of(14.5, 117.4, 0);
-        Pose leftParkShot = p.of(17, 121.5, 320);
+        Pose leftParkShot = p.of(12.5, 120, 345);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose catchParkToLeftParkControl1 = p.of(55, 119, 0);
@@ -127,11 +127,11 @@ public final class LClockwiseParkShotAuto {
         Pose outsideLaneToLeftParkShotControl3 = p.of(33.5, 94, 0);
         Pose outsideLaneToLeftParkShotControl4 = p.of(33.5, 108, 0);
         Pose outsideLaneToLeftParkShotControl5 = p.of(40, 124, 0);
-        Pose outsideLaneToLeftParkShotControl6 = p.of(34, 121.5, 0);
-        Pose outsideLaneToLeftParkShotSegment1Start = p.of(17, 121.5, 61);
-        Pose outsideLaneToLeftParkShotSegment1End = p.of(17, 121.5, 90);
-        Pose outsideLaneToLeftParkShotSegment2Heading = p.of(17, 121.5, 90);
-        Pose outsideLaneToLeftParkShotSegment3Start = p.of(17, 121.5, 90);
+        Pose outsideLaneToLeftParkShotControl6 = p.of(32, 120, 0);
+        Pose outsideLaneToLeftParkShotSegment1Start = p.of(12.5, 120, 61);
+        Pose outsideLaneToLeftParkShotSegment1End = p.of(12.5, 120, 90);
+        Pose outsideLaneToLeftParkShotSegment2Heading = p.of(12.5, 120, 90);
+        Pose outsideLaneToLeftParkShotSegment3Start = p.of(12.5, 120, 90);
         Pose underTheHiveToRightAutoFixTipControl1 = p.of(59, 101.6, 0);
         Pose underTheHiveToRightAutoFixTipControl2 = p.of(65, 72, 0);
         Pose underTheHiveToRightAutoFixTipControl3 = p.of(58.5, 38, 0);
@@ -187,10 +187,10 @@ public final class LClockwiseParkShotAuto {
                                                                         kit.atMatchSeconds(22.7)),
                                                                 kit.path("outside lane to LEFT_PARK", outsideLaneToLeftPark, 3.7))),
                                                 kit.atMatchSeconds(22).then(
-                                                        kit.guarded("Timed out", outsideLaneToLeftParkShot, 3.9,
+                                                        kit.guarded("Timed out", outsideLaneToLeftParkShot, 3.8,
                                                                 kit.firstOf("Park for the shot: go at 22.0 s",
                                                                         kit.atMatchSeconds(22)),
-                                                                kit.path("outside lane to LEFT_PARK_SHOT", outsideLaneToLeftParkShot, 3.9),
+                                                                kit.path("outside lane to LEFT_PARK_SHOT", outsideLaneToLeftParkShot, 3.8),
                                                                 kit.firstOf("LEFT up before 27.5 s, otherwise stay parked",
                                                                         kit.atMatchSeconds(27.5),
                                                                         kit.when("LeftCellUp").then(

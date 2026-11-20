@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T17:40:15.432Z",
+  "timestamp": "2026-11-20T17:45:35.900Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -705,8 +705,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 17,
-        "y": 121.5
+        "x": 12.5,
+        "y": 120
       },
       "controlPoints": [
         {
@@ -730,8 +730,8 @@
           "y": 124
         },
         {
-          "x": 34,
-          "y": 121.5
+          "x": 32,
+          "y": 120
         }
       ],
       "heading": {
@@ -761,7 +761,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": -40
+                "endDeg": -15
               }
             },
             {
@@ -769,7 +769,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": -40
+                "degrees": -15
               }
             }
           ]
@@ -1114,9 +1114,9 @@
         0
       ],
       "LEFT_PARK_SHOT": [
-        17,
-        121.5,
-        320
+        12.5,
+        120,
+        345
       ]
     },
     "pathEnds": {
