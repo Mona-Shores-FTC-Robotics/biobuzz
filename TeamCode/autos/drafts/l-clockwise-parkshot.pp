@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T17:58:32.996Z",
+  "timestamp": "2026-11-20T18:04:10.539Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -1115,10 +1115,10 @@
                       {
                         "id": "l-hold-flower",
                         "kind": "firstOf",
-                        "label": "R has passed the FLOWER: go at 13 s",
+                        "label": "R has passed the FLOWER: go at 14 s",
                         "rows": [
                           {
-                            "afterMs": 13000,
+                            "afterMs": 14000,
                             "matchClock": true,
                             "cards": []
                           }
