@@ -102,6 +102,14 @@ public final class GardenGather extends GrabRoutine {
          */
         public double maxWallLineShiftIn = 4.0;
         /**
+         * The line-up is done once it stalls (no {@link DriveIn#stallProgressIn} in {@link DriveIn#stallMs})
+         * this close to its pose, inches: pressed against the wall ({@link LineUp#lineUpOutIn} negative), its
+         * path may never reach its end. Why (mentor, 20 Nov 2026, on 20245, after a lap: the pose off, the robot
+         * pinned to the alliance wall short of the line-up pose and never drove in). 0: never, the line-up waits
+         * for its path's end or {@link LineUp#lineUpTimeoutMs}.
+         */
+        public double stallWithinIn = 8.0;
+        /**
          * And this much further back from the GARDEN (away from the audience wall), inches. 6 since
          * 16 Nov 2026 (mentor; 3 before, the value of the 14 Nov field session): 3 in more drive in, about
          * 0.12 s, for the stick to finish its swing in, when nothing stood for it (16 Nov; it stands
@@ -815,6 +823,7 @@ public final class GardenGather extends GrabRoutine {
     @Override protected double prepWithinIn() { return stick.lowerWithinIn; }
     @Override protected double prepWithinDeg() { return stick.lowerWithinDeg; }
     @Override protected double atLineUpIn() { return lineUp.atLineUpIn; }
+    @Override protected double lineUpStallWithinIn() { return lineUp.stallWithinIn; }
     @Override protected double atLineUpDeg() { return lineUp.atLineUpDeg; }
     @Override protected double lineUpTimeoutMs() { return lineUp.lineUpTimeoutMs; }
     @Override protected double inSpeed() { return driveIn.inSpeed; }
