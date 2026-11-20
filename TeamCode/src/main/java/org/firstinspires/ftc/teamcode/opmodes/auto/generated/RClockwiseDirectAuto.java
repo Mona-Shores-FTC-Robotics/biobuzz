@@ -21,7 +21,7 @@ public final class RClockwiseDirectAuto {
     public static final String SOURCE = "r-clockwise-direct.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-20|11:16AM";
+    public static final String SAVED = "11-20|11:35AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -89,9 +89,10 @@ public final class RClockwiseDirectAuto {
         Pose toScoringFlowerStagingSegment2Start = p.of(47.2, 119.3, 268.1);
         Pose scoringFlowerParkToRightParkControl1 = p.of(40, 100, 0);
         Pose scoringFlowerParkToRightParkControl2 = p.of(28, 96, 0);
-        Pose backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl1 = p.of(56, 106, 0);
-        Pose backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl2 = p.of(61, 72, 0);
-        Pose backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl3 = p.of(59.5, 40, 0);
+        Pose backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl1 = p.of(63, 121, 0);
+        Pose backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl2 = p.of(60, 101.6, 0);
+        Pose backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl3 = p.of(62, 72, 0);
+        Pose backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl4 = p.of(59.5, 40, 0);
         Pose outsideLaneToRightParkControl1 = p.of(44, 30, 0);
         Pose outsideLaneToRightParkControl2 = p.of(30, 36, 0);
         Pose outsideLaneToRightParkControl3 = p.of(30, 80, 0);
@@ -109,7 +110,7 @@ public final class RClockwiseDirectAuto {
         Path outsideLaneBackwardFromTheGardenToLeftAutoHive = Paths.curve(gardenStaging, outsideLaneBackwardFromTheGardenToLeftAutoHiveControl1, outsideLaneBackwardFromTheGardenToLeftAutoHiveControl2, outsideLaneBackwardFromTheGardenToLeftAutoHiveControl3, outsideLaneBackwardFromTheGardenToLeftAutoHiveControl4, outsideLaneBackwardFromTheGardenToLeftAutoHiveControl5, leftAutoHive).heading(Interpolator.piecewise().until(0.82, Interpolator.constant(outsideLaneBackwardFromTheGardenToLeftAutoHiveSegment1Heading)).until(1, Interpolator.linear(outsideLaneBackwardFromTheGardenToLeftAutoHiveSegment2Start, leftAutoHive)));
         Path toScoringFlowerStaging = Paths.line(leftAutoHive, scoringFlowerStaging).heading(Interpolator.piecewise().until(0.45, Interpolator.constant(toScoringFlowerStagingSegment1Heading)).until(1, Interpolator.linear(toScoringFlowerStagingSegment2Start, scoringFlowerStaging)));
         Path scoringFlowerParkToRightPark = Paths.curve(scoringFlowerStaging, scoringFlowerParkToRightParkControl1, scoringFlowerParkToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);
-        Path backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTip = Paths.curve(scoringFlowerStaging, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl1, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl2, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl3, rightAutoFixTip).constant(rightAutoFixTip);
+        Path backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTip = Paths.curve(scoringFlowerStaging, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl1, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl2, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl3, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl4, rightAutoFixTip).constant(rightAutoFixTip);
         Path outsideLaneToRightPark = Paths.curve(rightAutoFixTip, outsideLaneToRightParkControl1, outsideLaneToRightParkControl2, outsideLaneToRightParkControl3, rightPark).heading(Interpolator.piecewise().until(0.7, Interpolator.constant(outsideLaneToRightParkSegment1Heading)).until(1, Interpolator.linear(outsideLaneToRightParkSegment2Start, rightPark)));
 
         return kit.sequence(
@@ -141,7 +142,7 @@ public final class RClockwiseDirectAuto {
                                                                 kit.guarded("Timed out", scoringFlowerParkToRightPark, 1.9,
                                                                         kit.path("scoring FLOWER park to RIGHT_PARK", scoringFlowerParkToRightPark, 1.9))),
                                                         kit.when("Always").then(
-                                                                kit.path("BACKWARD under the HIVE from the scoring FLOWER to RIGHT_AUTO_FIX_TIP", backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTip, 3, scoringFlowerParkToRightPark, 1.9),
+                                                                kit.path("BACKWARD under the HIVE from the scoring FLOWER to RIGHT_AUTO_FIX_TIP", backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTip, 3.1, outsideLaneToRightPark, 2.8),
                                                                 kit.firstOf("R3 RIGHT up by",
                                                                         kit.when("RightCellUp").then(
                                                                                 kit.guarded("If RightCellUp", outsideLaneToRightPark, 2.8,

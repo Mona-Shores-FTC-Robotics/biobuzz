@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T16:16:55.576Z",
+  "timestamp": "2026-11-20T16:35:18.113Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -497,11 +497,15 @@
       },
       "controlPoints": [
         {
-          "x": 56,
-          "y": 106
+          "x": 63,
+          "y": 121
         },
         {
-          "x": 61,
+          "x": 60,
+          "y": 101.6
+        },
+        {
+          "x": 62,
           "y": 72
         },
         {
@@ -1044,7 +1048,7 @@
       "r-c-pickup-garden": "r-pickup-park-garden",
       "r-c-lane-garden": "r-catch-park",
       "r-c-flower": "r-flower-park",
-      "r-c-cross-back": "r-flower-park"
+      "r-c-cross-back": "r-right-park"
     },
     "teamSpots": [
       "GARDEN_STAGING",
