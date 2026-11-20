@@ -10,7 +10,7 @@ public class ArcLightTest {
     @Test
     public void orangeWithoutAFireHeldFlashingWithOne() {
         ArcLight light = new ArcLight();
-        assertEquals(ArcLight.State.ALLIANCE, light.update(false, false, 0));
+        assertEquals(ArcLight.State.NONE, light.update(false, false, 0));
         assertEquals("the driver sees it before pressing", ArcLight.State.ORANGE, light.update(true, false, 20));
         assertEquals(ArcLight.State.FLASH, light.update(true, true, 40));
         assertEquals(ArcLight.State.ORANGE, light.update(true, false, 60));
@@ -31,7 +31,7 @@ public class ArcLightTest {
         ArcLight light = new ArcLight();
         light.update(true, false, 1000);
         assertEquals(ArcLight.State.ORANGE, light.update(false, false, 1000 + ArcLight.CLEAR_MS - 1));
-        assertEquals(ArcLight.State.ALLIANCE, light.update(false, false, 1000 + ArcLight.CLEAR_MS));
-        assertEquals("a fire inside the arc is not orange", ArcLight.State.ALLIANCE, light.update(false, true, 2000));
+        assertEquals(ArcLight.State.NONE, light.update(false, false, 1000 + ArcLight.CLEAR_MS));
+        assertEquals("a fire inside the arc is not orange", ArcLight.State.NONE, light.update(false, true, 2000));
     }
 }

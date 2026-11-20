@@ -61,4 +61,19 @@ public class IndicatorSubsystemTest {
         assertEquals(Signal.OFF, IndicatorSubsystem.choose(true, false, false, Alliance.UNKNOWN));
         assertEquals(IndicatorSubsystem.OFF, IndicatorSubsystem.position(Signal.OFF, 0), EPS);
     }
+
+    @Test
+    public void theFiringArcIsOrangeAfterPlay() {
+        assertEquals(Signal.OUTSIDE_ARC, IndicatorSubsystem.choose(false, false, false, Alliance.RED, true, false));
+        assertEquals(IndicatorSubsystem.ORANGE, IndicatorSubsystem.position(Signal.OUTSIDE_ARC, 0), EPS);
+        assertEquals("a full lane outranks the steady orange", Signal.FULL,
+                IndicatorSubsystem.choose(false, false, true, Alliance.RED, true, false));
+        assertEquals("a fire held there outranks a full lane", Signal.FIRING_OUTSIDE_ARC,
+                IndicatorSubsystem.choose(false, false, true, Alliance.RED, true, true));
+        long half = (long) IndicatorSubsystem.FLASH_MS;
+        assertEquals(IndicatorSubsystem.ORANGE, IndicatorSubsystem.position(Signal.FIRING_OUTSIDE_ARC, 0), EPS);
+        assertEquals(IndicatorSubsystem.OFF, IndicatorSubsystem.position(Signal.FIRING_OUTSIDE_ARC, half), EPS);
+        assertEquals("not in INIT", Signal.ALLIANCE_RED, IndicatorSubsystem.choose(true, false, false, Alliance.RED, true, true));
+        assertEquals("inside the arc, off", Signal.OFF, IndicatorSubsystem.choose(false, false, false, Alliance.RED, false, true));
+    }
 }

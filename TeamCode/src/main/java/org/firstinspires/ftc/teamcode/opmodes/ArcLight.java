@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 /**
- * The driver's light for the turret's firing arc ({@code TurretArc}): what the driver's gamepad
- * shows. Pure, so a test drives it.
+ * The firing arc's part of the robot's indicator light ({@code IndicatorSubsystem}): orange while
+ * the turret's shot is behind its firing arc ({@code TurretArc}). The robot's light, not the
+ * gamepad's: nobody looks at the controller (mentor, 20 Nov 2026). Pure, so a test drives it.
  *
  * <ul>
- *   <li><b>{@link State#ALLIANCE}</b>: the shot is one the robot can take; the alliance's colour.</li>
+ *   <li><b>{@link State#NONE}</b>: the shot is one the robot can take; the light shows what it would
+ *       anyway.</li>
  *   <li><b>{@link State#ORANGE}</b>: the turret, or in AIM the aim, points behind the arc, so a
  *       Circle press now would be refused (or, with the arc not enforced, hit the robot). Steady,
  *       whether or not a fire is held, so the driver sees it before pressing (mentor, 20 Nov 2026:
@@ -13,8 +15,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
  *   <li><b>{@link State#FLASH}</b>: the same, with a fire held: orange flashing.</li>
  * </ul>
  *
- * <p>Orange, not purple: purple (red and blue mixed) does not show well on the pads' light bars
- * (mentor, 20 Nov 2026).
+ * <p>Orange: the mentor's choice over purple (20 Nov 2026).
  *
  * <p>Outside lights it at once; back inside, it waits {@link #CLEAR_MS} before it clears. On
  * 20245, 19 Nov 2026, an aim sitting on the arc's 90° edge turned the flash on and off 13 times in
@@ -22,7 +23,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
  */
 final class ArcLight {
 
-    enum State { ALLIANCE, ORANGE, FLASH }
+    enum State { NONE, ORANGE, FLASH }
 
     /** Back inside the arc this long, ms, before the light clears. */
     static final long CLEAR_MS = 300;
@@ -40,7 +41,7 @@ final class ArcLight {
     State update(boolean outsideArc, boolean fireHeld, long nowMs) {
         if (outsideArc) lastOutsideMs = nowMs;
         boolean lit = lastOutsideMs != Long.MIN_VALUE && nowMs - lastOutsideMs < CLEAR_MS;
-        if (!lit) return State.ALLIANCE;
+        if (!lit) return State.NONE;
         return fireHeld ? State.FLASH : State.ORANGE;
     }
 }

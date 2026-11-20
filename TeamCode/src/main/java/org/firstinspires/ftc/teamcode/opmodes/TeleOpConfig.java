@@ -144,8 +144,8 @@ public final class TeleOpConfig {
      * button feeds, and a feed already going stops, while the turret, or in AIM its aim, is behind
      * the arc. Off, the TeleOp feeds wherever the turret points and leaves the call to the driver;
      * the turret still holds at the arc's edge rather than turn through the robot's back, and an
-     * Auto always enforces the arc. Either way, the driver's gamepad is orange while the turret or
-     * its aim is outside the arc, and flashes orange while a fire is held there ({@code ArcLight}). On by default; a robot whose drivers fire past it gets a line in
+     * Auto always enforces the arc. Either way, the robot's indicator light is orange while the turret
+     * or its aim is outside the arc, and flashes orange while a fire is held there ({@code ArcLight}). On by default; a robot whose drivers fire past it gets a line in
      * {@code RobotDifferences}.
      */
     public static boolean enforceFiringArc = true;
@@ -220,6 +220,15 @@ public final class TeleOpConfig {
 
     /** Chassis aim: turn power per radian of heading error. A starting point, not a measurement. */
     public static double chassisAimKp = 1.0;
+
+    /**
+     * Chassis aim: the least turn power it asks for outside half the aim tolerance, so it keeps
+     * turning onto the CELL instead of stalling a few degrees short ({@code ChassisAimTurn}). On
+     * 19429 (19 Nov 2026 logs) 0.14 or less did not rotate the robot and 0.28 always did; 0.2 is a
+     * starting point between them, to be tuned in Panels: raise it until the robot creeps onto the
+     * CELL, lower it if it swings past. Clamped to [0, chassisAimMaxTurn].
+     */
+    public static double chassisAimMinTurn = 0.2;
 
     /** Chassis aim: the most turn power it may ask for. Clamped to [0, 1]. */
     public static double chassisAimMaxTurn = 0.5;

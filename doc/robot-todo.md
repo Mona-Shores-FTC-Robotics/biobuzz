@@ -154,13 +154,19 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    still go in → the values that did it get one `RobotDifferences` line for 19429 with the date.
    **Stop:** nothing helps and the turret felt free by hand → push the logs and say so.
 - [ ] 19429 turret: floor 0.065 (done), kP 0.008 (done), kD ___, reversals/s before 1.18 (18 Nov) / 1.38 (19 Nov), after ___
-11. **The driver's orange light** (20 Nov 2026, not yet on a robot). Basic Drive, turret **AIM**, with
-   a PS4 pad on gamepad 1: drive so the CELL is behind the robot. **Good:** the driver's light bar goes
-   steady orange without Circle pressed, flashes orange with Circle held (19429 does not shoot; 20245
-   shoots), and turns back to the alliance colour within about a third of a second of the CELL
-   coming round in front. The DualShock 4's light bar faces away from the driver, so check it from
-   the front and ask the driver whether they can see it at all. **Stop:** it never changes → push the log.
-- [ ] Orange light: steady outside the arc, flashing with Circle, both robots; driver can see it ___
+11. **The robot's orange light, and Circle in LOCKED** (20 Nov 2026, not yet on a robot). Basic Drive.
+   - Turret **AIM**: drive so the CELL is behind the robot. **Good:** the robot's indicator light goes
+     steady orange without Circle pressed, flashes orange with Circle held (19429 does not shoot; 20245
+     shoots), and goes off within about a third of a second of the CELL coming round in front. A full
+     lane still shows green, except while Circle is held behind the arc. The orange is goBILDA's chart
+     value (`IndicatorSubsystem.ORANGE` 0.333), not yet seen on the light: if it reads red or yellow,
+     set it in Panels and put the number in a PR.
+   - Turret **LOCKED**, the CELL 10 to 40° off: hold Circle. **Good:** the robot turns onto the CELL and
+     stops on it, and the volley goes. The chassis aim now never asks for less than
+     `TeleOpConfig.chassisAimMinTurn` (0.2, a starting point: 0.14 did not turn 19429, 0.28 did): if it
+     stops short, raise it in Panels; if it swings past the CELL and back, lower it. Put the value that
+     worked in a PR.
+- [ ] Orange light seen on the robot; chassisAimMinTurn ___ (LOCKED Circle turns onto the CELL and fires)
 
 ## Belding work order (agreed 5 Nov)
 

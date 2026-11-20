@@ -23,8 +23,13 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  *       <td>reads the Driver Station, which says what is wrong and what to do</td></tr>
  *   <tr><td>INIT otherwise</td><td>the alliance's colour, steady; off with none</td>
  *       <td>checks it against the field</td></tr>
+ *   <tr><td>After PLAY, a fire held with the shot behind the turret's firing arc</td><td>orange,
+ *       flashing</td><td>turns the robot (19429 does not shoot there; a robot with the arc not enforced
+ *       shoots into itself)</td></tr>
  *   <tr><td>After PLAY, the lane is full (the colour sensor's {@code LaneFull})</td><td>green</td>
  *       <td>stops intaking</td></tr>
+ *   <tr><td>After PLAY, the shot is behind the firing arc ({@code ArcLight})</td><td>orange</td>
+ *       <td>turns the robot before pressing Circle (mentor, 20 Nov 2026)</td></tr>
  *   <tr><td>After PLAY otherwise</td><td>off</td><td>nothing, until the team decides otherwise</td></tr>
  * </table>
  *
@@ -41,6 +46,8 @@ public class IndicatorSubsystem implements Subsystem {
     public static double RED = 0.279;
     /** From the same goBILDA chart as the rest; not yet checked against the light. */
     public static double GREEN = 0.5;
+    /** From the same goBILDA chart (orange, 0.333); not yet checked against the light. */
+    public static double ORANGE = 0.333;
     public static double BLUE = 0.611;
     public static double WHITE = 1.0;
     /** A flashing signal is on this long, then off as long, ms. 250 is 2 Hz, well under the 5 Hz the manual frowns on. */
@@ -48,7 +55,11 @@ public class IndicatorSubsystem implements Subsystem {
 
     /** What the light says. */
     public enum Signal {
-        OFF, CHECK_DRIVER_STATION, FULL, ALLIANCE_RED, ALLIANCE_BLUE
+        OFF, CHECK_DRIVER_STATION, FULL, ALLIANCE_RED, ALLIANCE_BLUE,
+        /** The shot is behind the turret's firing arc: orange. */
+        OUTSIDE_ARC,
+        /** A fire held with the shot behind the firing arc: orange, flashing. */
+        FIRING_OUTSIDE_ARC
     }
 
     private final Servo light;
@@ -72,8 +83,24 @@ public class IndicatorSubsystem implements Subsystem {
      * @param alliance shown in INIT only
      */
     public static Signal choose(boolean init, boolean warnings, boolean full, Alliance alliance) {
+        return choose(init, warnings, full, alliance, false, false);
+    }
+
+    /**
+     * The same, with the firing arc ({@code ArcLight}) after PLAY: a fire held outside it outranks a
+     * full lane, which outranks the shot merely being outside it.
+     *
+     * @param outsideArc  the shot is behind the turret's firing arc
+     * @param firingThere a fire is held while it is
+     */
+    public static Signal choose(boolean init, boolean warnings, boolean full, Alliance alliance,
+                                boolean outsideArc, boolean firingThere) {
         if (init && warnings) return Signal.CHECK_DRIVER_STATION;
-        if (!init) return full ? Signal.FULL : Signal.OFF;
+        if (!init) {
+            if (outsideArc && firingThere) return Signal.FIRING_OUTSIDE_ARC;
+            if (full) return Signal.FULL;
+            return outsideArc ? Signal.OUTSIDE_ARC : Signal.OFF;
+        }
         if (alliance == Alliance.RED) return Signal.ALLIANCE_RED;
         if (alliance == Alliance.BLUE) return Signal.ALLIANCE_BLUE;
         return Signal.OFF;
@@ -93,6 +120,8 @@ public class IndicatorSubsystem implements Subsystem {
         switch (signal) {
             case CHECK_DRIVER_STATION: return flashOn(nowMs) ? WHITE : OFF;
             case FULL: return GREEN;
+            case OUTSIDE_ARC: return ORANGE;
+            case FIRING_OUTSIDE_ARC: return flashOn(nowMs) ? ORANGE : OFF;
             case ALLIANCE_RED: return RED;
             case ALLIANCE_BLUE: return BLUE;
             default: return OFF;
