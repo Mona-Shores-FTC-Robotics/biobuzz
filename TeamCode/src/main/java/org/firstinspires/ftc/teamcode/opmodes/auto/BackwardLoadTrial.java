@@ -14,7 +14,7 @@ import java.util.function.Function;
 /**
  * A draft Auto with a loaded leg driven backward, run from the Utility menu as a 30 s trial. Only a robot that keeps
  * its load in driving backward ({@link IntakeSubsystem#holdsLoadDrivingBackward}, on in {@code RobotDifferences} for a
- * robot with a bottom plate under its intake: 19429 now, 20245 once its plate is on) runs it; on any other robot it
+ * robot with a bottom plate under its intake: 19429 and 20245) runs it; on any other robot it
  * says so in INIT and does not move at PLAY. The backward drive in
  * {@code doc/robot-todo.md} has to pass before one of these runs.
  */
