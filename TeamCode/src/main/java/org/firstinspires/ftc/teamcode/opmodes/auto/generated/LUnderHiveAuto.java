@@ -21,7 +21,7 @@ public final class LUnderHiveAuto {
     public static final String SOURCE = "l-under-hive.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-19|4:20PM";
+    public static final String SAVED = "11-20|1:57AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "LaunchAllAimed", "SpinUp"};
@@ -111,8 +111,8 @@ public final class LUnderHiveAuto {
         return kit.sequence(
                 kit.command("SpinUp"),
                 kit.path("open to LEFT_AUTO_HIVE", openToLeftAutoHive, 1.1),
-                kit.firstOf("LEFT up before 9 s, otherwise cross under the HIVE, fire at RIGHT, and park",
-                        kit.atMatchSeconds(9).then(
+                kit.firstOf("LEFT up before 10 s, otherwise cross under the HIVE, fire at RIGHT, and park",
+                        kit.atMatchSeconds(10).then(
                                 kit.guarded("Timed out", rescueParkToLeftAutoPark, 3.7,
                                         kit.path("under the HIVE to RIGHT_AUTO_FIX_TIP", underTheHiveToRightAutoFixTip, 3.6, rescueParkToLeftAutoPark, 3.7),
                                         kit.command("LaunchAll", 1),
