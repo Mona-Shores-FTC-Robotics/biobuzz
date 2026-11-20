@@ -1,5 +1,7 @@
 # Auto contingencies: where each robot goes when a TIP isn't seen (15 Nov 2026)
 
+R-OutsideLane and L-UnderHive below are R-LeftUnderHive and L-LeftUnderHive since 20 Nov 2026 (renamed only).
+
 The mentor's ask after the 14 Nov field session: for R-Solo, R-Clockwise, L-Clockwise, R-OutsideLane and L-UnderHive,
 what happens when a TIP is not seen, so that a robot always moves predictably and does not run into anything.
 

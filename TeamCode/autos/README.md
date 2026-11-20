@@ -34,12 +34,13 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 | R-Solo | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-solo.pp> |
 | R-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-no-cross.pp> |
 | L-Clockwise + R-Clockwise (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-clockwise.pp,l-clockwise.pp> |
-| R-OutsideLane + L-UnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-outside-lane.pp,l-under-hive.pp> |
+| R-LeftUnderHive + L-LeftUnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-left-under-hive.pp,l-left-under-hive.pp> |
 
 The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
 existing reference. The Infraviolet pair was retired on 16 Nov 2026 (mentor); its drawings and
 notes are in Git history.
-**R-OutsideLane / L-UnderHive** is a second pair, on the Autonomous menu since 16 Nov 2026 to be
+**R-LeftUnderHive / L-LeftUnderHive** (`r-left-under-hive.pp`, `l-left-under-hive.pp`; R-OutsideLane and L-UnderHive until
+20 Nov 2026, renamed so both halves carry the pair's name, mentor) is a second pair, on the Autonomous menu since 16 Nov 2026 to be
 run against the Clockwise pair (mentor; briefly taken off on 18 Nov and put back the same day: the
 mentor rates it the team's best Auto). R keeps to the wall side of the HIVE both ways and L to the
 under-HIVE side, so their roads do not cross. Never driven. Its volleys: R's preloads from
@@ -61,13 +62,13 @@ drive them nose-first (mentor: both robots have a bottom plate): `wall lane nort
 spot's 63.8° (the nose-first leg ended at 61°). Backward, that leg is about 3.0 s in the simulator instead of 5.3 s, so R
 first holds at the SCORING FLOWER until 18.6 s (`L has left the GARDEN`): without the hold it came down the lane as L left
 the GARDEN and touched it in 3 of 20 runs (6 with L 20% slow). With it, 0 contacts, every robot parked, the same TIPs and
-points as nose-first and about 0.7 more balls scored a run (20 Nov 2026, `sim-requests/r-outside-lane.json`). In
+points as nose-first and about 0.7 more balls scored a run (20 Nov 2026, `sim-requests/r-left-under-hive.json`). In
 the best case (`"scenario": "best"`) R then has time for a third TIP: 2.0 TIPs a run become 2.9 (2.95 with L 20% slow),
 56 points 74-75, every robot parked and no contact.
 
 **Known limit: our L dead on `LEFT_START`** (accepted for Fruitport, 19 Nov 2026). Two team spots overlap a robot
 left on `LEFT_START` (62.3, 133.8): `LEFT_AUTO_HIVE` by 3 in and `SCORING_FLOWER_STAGING` by about 1.7 in, with
-16.2 in frames. So R-Clockwise (its LEFT volley from `LEFT_AUTO_HIVE`) and R-OutsideLane (its SCORING FLOWER pick)
+16.2 in frames. So R-Clockwise (its LEFT volley from `LEFT_AUTO_HIVE`) and R-LeftUnderHive (its SCORING FLOWER pick)
 touch a dead L in every simulated run; no approach route avoids it. Moving `LEFT_AUTO_HIVE` about 3 in toward the
 HIVE would, but it is a team spot every left-end Auto uses, so it waits until after Fruitport.
 

@@ -24,7 +24,7 @@ this is not a claim that every unchecked item below has passed.
       table ON, no trim. **Good:** 4 of 4 at each. **Stop:** a range misses the same way twice →
       note the range and which way, and its speed then.
 - [ ] **Right-start Autos fire their preloads from `RIGHT_AUTO_HIVE`** (19 Nov): R-Solo,
-      R-Clockwise, R-OutsideLane and R-NoCross now drive `RIGHT_START` → `RIGHT_AUTO_HIVE` (about
+      R-Clockwise, R-LeftUnderHive and R-NoCross now drive `RIGHT_START` → `RIGHT_AUTO_HIVE` (about
       13 in, 1.1 s) as they spin up, and fire there, since the preloads from `RIGHT_START` went long.
       Run R-Solo on 20245 and push the log. **Good:** the `launcher: speed table` line says about
       40 in and 1495 ticks/s, the gate opens as the drive ends, 4 of 4 go in. **Stop:** short or
@@ -87,7 +87,7 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    - `RIGHT_START`: R-Solo's preloads
    - `RIGHT_AUTO_HIVE`: R-Solo's second volley
    - `LEFT_AUTO_HIVE`: L-NoCross's preloads
-   - `LEFT_AUTO_OFFSET`: R-OutsideLane's LEFT volley (set the LEFT CELL up by hand)
+   - `LEFT_AUTO_OFFSET`: R-LeftUnderHive's LEFT volley (set the LEFT CELL up by hand)
 
    Count balls in per volley from the video. **Good:** 4 of 4 in most volleys at every spot.
    **Stop:** one spot long or short every time → note it, with the robot; a session turns it into
@@ -143,7 +143,7 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [ ] Promoted R-Solo (preloads from `RIGHT_AUTO_HIVE`, backward WALL FLOWER leg), alone from `RIGHT_START`, on 20245: push the logs
 - [x] Promoted R-Solo on 19429: ran clean (log `2026-11-19_23-13-43_R-Solo`, build `08b0290`): the backward leg 3.2 s, 1.4 in off
   its end, and the volley after it fired 5 balls by the launcher's dips
-- [ ] R-OutsideLane with L-UnderHive (20 Nov 2026: `wall lane north BACKWARD to LEFT_AUTO_OFFSET` and `BACKWARD to
+- [ ] R-LeftUnderHive with L-LeftUnderHive (20 Nov 2026: `wall lane north BACKWARD to LEFT_AUTO_OFFSET` and `BACKWARD to
   RIGHT_AUTO_CLOSE`, after a wait at the SCORING FLOWER until 18.6 s): balls fired after each backward leg (launcher
   dips), no contact near `LEFT_AUTO_OFFSET` or on the way down to `RIGHT_AUTO_CLOSE`; push the logs
 10. **19429's turret hunts: tune its hold** (20 Nov 2026). 19429 runs 20245's turret values and never had
@@ -664,7 +664,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       [S5 seam §4], [PR #378]
       Belding (24, master's value since 5 Nov): WALL 0.62–0.73 s in 11 Auto picks (4 reach 0.7), FAR
       0.94–1.29 s; on video the WALL stick lands 0.2–0.4 s before the stop, touching nothing seen.
-- [ ] **Time GARDEN gathers in Autos** (R-NoCross and L-UnderHive, or L-Clockwise with Pickup
+- [ ] **Time GARDEN gathers in Autos** (R-NoCross and L-LeftUnderHive, or L-Clockwise with Pickup
       GARDEN, GARDEN loaded with its 4 POLLEN, two runs each; count the next volley). No Auto gather
       has run on the 19 Nov defaults (dwell 150 ms, `intoCornerDeg` 15, `stallMs` 400):
       `AutoRegistration.GARDEN_GATHER_TYPICAL_S` 3.0 rests on 19429's TeleOp button gathers of 18 Nov,
@@ -672,7 +672,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
       `Last GARDEN gather: N s` line is under 3.0 (about 2.5). **Stop:** one over 3.0 → write the line
       down and raise the number to cover it, and `gardenGatherS` in `TeamCode/autos/timing.json`. [S5], [PR #384], [PR #378], [PR #422], [PR #553]
 - [ ] **GARDEN gather, stick down on the drive in (13 Nov; never run):** spotter at the GARDEN
-      corner watching the stick and both walls, L-UnderHive, or L-Clockwise with Pickup GARDEN (they
+      corner watching the stick and both walls, L-LeftUnderHive, or L-Clockwise with Pickup GARDEN (they
       arrive facing the GARDEN), then R-NoCross (it turns half a turn evenly on its way in). The
       stick may come down early only on a drive that ends facing the GARDEN, once the robot has held
       that facing 0.2 s (`GardenGather.autoStick.facingHoldMs`), never while it turns. **Good:** on the L Autos
@@ -854,8 +854,8 @@ Use the work order above to select checks; the detailed mechanism checks below a
       **Also:** the two Belding runs that crawled for 4 s about 10 in short of `LEFT_LAUNCH_CLOSE`
       / `LEFT_LAUNCH_CATCH` (20245, 14:39 and 16:53 hub time) look blocked: check the match video.
 
-- [ ] **The lane pair: R-OutsideLane and L-UnderHive, on the Autonomous menu since 16 Nov** (they
-      were the Utilities Drive: R-OutsideLane and Drive: L-UnderHive). Redrawn that day onto the
+- [ ] **The lane pair: R-LeftUnderHive and L-LeftUnderHive (R-OutsideLane and L-UnderHive until 20 Nov), on the
+      Autonomous menu since 16 Nov** (they were the Utilities Drive: R-OutsideLane and Drive: L-UnderHive). Redrawn that day onto the
       Autos' launch spots and never driven: where the steps below say L4, read `LEFT_AUTO_HIVE` for
       L and `LEFT_AUTO_OFFSET` for R; R5 is `RIGHT_AUTO_OFFSET` and R4 `RIGHT_AUTO_HIVE`.
       [Routes and the simulator's numbers](../TeamCode/autos/drafts/README.md#the-lane-pair-r-outsidelane-and-l-underhive).

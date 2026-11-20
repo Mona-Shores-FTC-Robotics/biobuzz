@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/l-under-hive.pp",
-  "spec": "LUnderHiveAuto@50",
+  "pp": "TeamCode/autos/l-left-under-hive.pp",
+  "spec": "LLeftUnderHiveAuto@50",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -52,22 +52,22 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "matching R-OutsideLane",
-      "partner": "ROutsideLaneAuto",
+      "name": "matching R-LeftUnderHive",
+      "partner": "RLeftUnderHiveAuto",
       "timing": {
         "speed": 50
       }
     },
     {
-      "name": "R-OutsideLane drives 20 percent slower",
-      "partner": "ROutsideLaneAuto",
+      "name": "R-LeftUnderHive drives 20 percent slower",
+      "partner": "RLeftUnderHiveAuto",
       "timing": {
         "speed": 40
       }
     },
     {
-      "name": "R-OutsideLane misses every shot",
-      "partner": "ROutsideLaneAuto",
+      "name": "R-LeftUnderHive misses every shot",
+      "partner": "RLeftUnderHiveAuto",
       "fails": "misses",
       "timing": {
         "speed": 50
@@ -75,7 +75,7 @@
     },
     {
       "name": "R's preloads miss (17 Nov)",
-      "partner": "ROutsideLaneAuto",
+      "partner": "RLeftUnderHiveAuto",
       "timing": {
         "speed": 50
       },
@@ -88,7 +88,7 @@
     },
     {
       "name": "contingency: nothing tips (both preloads miss, R misses every shot)",
-      "partner": "ROutsideLaneAuto",
+      "partner": "RLeftUnderHiveAuto",
       "timing": {
         "speed": 50
       },
@@ -101,7 +101,7 @@
     }
   ],
   "metadata": {
-    "AutoSource": "l-under-hive.pp",
+    "AutoSource": "l-left-under-hive.pp",
     "SavedBy": "Lane pair: R on the wall lane, L under the HIVE; L parks facing LEFT at LEFT_AUTO_PARK and fires LaunchAllAimed there if RIGHT never came up; no TIP 1 by 9 s: the rescue to RIGHT_AUTO_FIX_TIP",
     "SavedAt": "2026-11-19T19:00:00+00:00"
   }
