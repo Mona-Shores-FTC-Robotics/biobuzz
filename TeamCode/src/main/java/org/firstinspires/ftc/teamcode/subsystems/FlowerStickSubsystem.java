@@ -46,7 +46,9 @@ public class FlowerStickSubsystem implements Subsystem {
 
     /**
      * Servo position with the stick in, 0 to 1. Measured on 20245 on 26 Oct 2026 with the goBILDA
-     * Torque servo on Expansion Hub servo port 1; 19429 not yet checked.
+     * Torque servo on Expansion Hub servo port 1; 19429 has its own line in {@code RobotDifferences}.
+     * 20245's goBILDA servo is being replaced by a SWYFT servo (mechanical problem, mentor, 20 Nov
+     * 2026), so this and {@link #EXTENDED} are measured again on it (doc/robot-todo.md).
      */
     public static double RETRACTED = 0.6;
 

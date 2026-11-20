@@ -69,12 +69,15 @@
                  31 Oct 2026: not yet confirmed with the build team. Rewire to
                  match this file or edit this file to match the robot. -->
 
-            <!-- FLOWER stick: a goBILDA Torque servo swinging the stick, the
-                 extractor's first edition (#177). On servo port 0 since
+            <!-- FLOWER stick: a SWYFT servo swinging the stick, the
+                 extractor's first edition (#177). It replaces the goBILDA
+                 Torque servo, which had a mechanical problem (mentor,
+                 20 Nov 2026); FlowerStickSubsystem's shared RETRACTED and
+                 EXTENDED were measured on the goBILDA, so they are measured
+                 again on the SWYFT (doc/robot-todo.md). On servo port 0 since
                  1 Nov 2026: this Control Hub's servo port 1 puts out no
                  signal (a known-good servo did nothing there and moved on
-                 port 2). Its measured positions are the servo's, so they
-                 carry over. -->
+                 port 2). -->
             <Servo name="flowerStick" port="0" />
 
             <!-- Servo port 4 is empty: the turret servo, here from 6 Nov 2026,
