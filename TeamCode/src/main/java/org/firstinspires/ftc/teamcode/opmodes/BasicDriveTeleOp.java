@@ -160,6 +160,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private static final int RESET_RUMBLE_MS = 300;
     /** The driver's buzz when the firing arc refuses a held fire button. */
     private static final int ARC_RUMBLE_MS = 150;
+
+    /** The driver's gamepad flashes purple while the firing arc refuses a held fire, repeating. */
+    private static final Gamepad.LedEffect ARC_FLASH = new Gamepad.LedEffect.Builder()
+            .addStep(0.6, 0.0, 1.0, 150)
+            .addStep(0.0, 0.0, 0.0, 150)
+            .setRepeating(true)
+            .build();
     /** The launch trim reset's buzz: longer than a trim press's blips, so the two never feel alike. */
     private static final int LAUNCHER_TRIM_RESET_RUMBLE_MS = 400;
 
@@ -1135,8 +1142,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // aim-and-fire: the feed waits until the robot is on the CELL.
         boolean enforceAim = TeleOpConfig.enforceAimGate || (TeleOpConfig.chassisAimGate && chassisAimDriving)
                 || circleAimFires;
-        // The firing arc is always enforced, for every feed: behind it a ball goes back over the robot.
-        arcBlocked = !TurretArc.allowsFeed(TurretSubsystem.lockedForward ? 0.0 : robot.turret.angleDegrees(),
+        // The firing arc is enforced for every feed unless this robot's drivers make the call
+        // (TeleOpConfig.enforceFiringArc): behind it a ball goes back over the robot.
+        arcBlocked = TeleOpConfig.enforceFiringArc && !TurretArc.allowsFeed(TurretSubsystem.lockedForward ? 0.0 : robot.turret.angleDegrees(),
                 turretMode == TurretMode.AIM ? aimer.aimDeg() : Double.NaN, arcCentre());
         boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, enforceAim)
                 && (!spunUpByFire || robot.launcher.atSpeed()) && !arcBlocked;
@@ -1160,6 +1168,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
             // would buzz again.
             if (!arcRumbled) gamepad1.rumble(1.0, 1.0, ARC_RUMBLE_MS);
             arcRumbled = true;
+            gamepad1.runLedEffect(ARC_FLASH);
+        } else if (!refusing && arcRefusing) {
+            // The flash repeats until replaced: back to the alliance's colour.
+            if (setup.alliance() == Alliance.BLUE) {
+                gamepad1.setLedColor(0.0, 0.0, 1.0, Gamepad.LED_DURATION_CONTINUOUS);
+            } else {
+                gamepad1.setLedColor(1.0, 0.0, 0.0, Gamepad.LED_DURATION_CONTINUOUS);
+            }
         }
         arcRefusing = refusing;
         lastFire = fireHeld;
