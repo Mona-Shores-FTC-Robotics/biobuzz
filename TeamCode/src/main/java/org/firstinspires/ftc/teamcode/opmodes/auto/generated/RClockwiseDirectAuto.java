@@ -21,7 +21,7 @@ public final class RClockwiseDirectAuto {
     public static final String SOURCE = "r-clockwise-direct.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-20|11:35AM";
+    public static final String SAVED = "11-20|12:07PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -33,7 +33,7 @@ public final class RClockwiseDirectAuto {
     public static final String DRAWN_FOR = "RED";
 
     /** What the drive team may change during INIT, on gamepad 1's D-pad; nothing changed, the Auto runs as drawn. */
-    public static final AutoOption[] OPTIONS = {AutoOption.matchSeconds("R3 RIGHT up by", 25.5, 2), AutoOption.choice("Pickup", "WALL_FLOWER", "GARDEN")};
+    public static final AutoOption[] OPTIONS = {AutoOption.matchSeconds("R3 RIGHT up by", 23.2, 2), AutoOption.choice("Pickup", "WALL_FLOWER", "GARDEN"), AutoOption.choice("Priority", "THREE_TIP", "PARK")};
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
@@ -98,6 +98,9 @@ public final class RClockwiseDirectAuto {
         Pose outsideLaneToRightParkControl3 = p.of(30, 80, 0);
         Pose outsideLaneToRightParkSegment1Heading = p.of(14.5, 98.7, 90);
         Pose outsideLaneToRightParkSegment2Start = p.of(14.5, 98.7, 90);
+        Pose turnToLeftAutoHiveSegment1Start = p.of(61.4, 120.45, 450);
+        Pose turnToLeftAutoHiveSegment1End = p.of(61.4, 120.45, 360);
+        Pose turnToLeftAutoHiveSegment2Start = p.of(61.4, 120.45, 360);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
@@ -112,6 +115,7 @@ public final class RClockwiseDirectAuto {
         Path scoringFlowerParkToRightPark = Paths.curve(scoringFlowerStaging, scoringFlowerParkToRightParkControl1, scoringFlowerParkToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);
         Path backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTip = Paths.curve(scoringFlowerStaging, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl1, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl2, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl3, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl4, rightAutoFixTip).constant(rightAutoFixTip);
         Path outsideLaneToRightPark = Paths.curve(rightAutoFixTip, outsideLaneToRightParkControl1, outsideLaneToRightParkControl2, outsideLaneToRightParkControl3, rightPark).heading(Interpolator.piecewise().until(0.7, Interpolator.constant(outsideLaneToRightParkSegment1Heading)).until(1, Interpolator.linear(outsideLaneToRightParkSegment2Start, rightPark)));
+        Path turnToLeftAutoHive = Paths.line(scoringFlowerStaging, leftAutoHive).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(turnToLeftAutoHiveSegment1Start, turnToLeftAutoHiveSegment1End)).until(1, Interpolator.linear(turnToLeftAutoHiveSegment2Start, leftAutoHive)));
 
         return kit.sequence(
                 kit.command("SpinUp"),
@@ -137,20 +141,45 @@ public final class RClockwiseDirectAuto {
                                         kit.when("Always").then(
                                                 kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.6, scoringFlowerParkToRightPark, 1.9),
                                                 kit.command("PickFlower", 4.5),
-                                                kit.firstOf("Time to cross: before 21.5 s",
+                                                kit.route("Priority", 0, () -> kit.firstOf("Time to cross: before 21.5 s",
                                                         kit.atMatchSeconds(21.5).then(
                                                                 kit.guarded("Timed out", scoringFlowerParkToRightPark, 1.9,
                                                                         kit.path("scoring FLOWER park to RIGHT_PARK", scoringFlowerParkToRightPark, 1.9))),
                                                         kit.when("Always").then(
                                                                 kit.path("BACKWARD under the HIVE from the scoring FLOWER to RIGHT_AUTO_FIX_TIP", backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTip, 3.1, outsideLaneToRightPark, 2.8),
-                                                                kit.firstOf("R3 RIGHT up by",
+                                                                kit.firstOf("RIGHT up at RIGHT_AUTO_FIX_TIP by 25.5 s, otherwise park",
                                                                         kit.when("RightCellUp").then(
                                                                                 kit.guarded("If RightCellUp", outsideLaneToRightPark, 2.8,
                                                                                         kit.command("LaunchAll", 1),
                                                                                         kit.path("outside lane to RIGHT_PARK", outsideLaneToRightPark, 2.8))),
-                                                                        kit.atMatchSeconds(kit.seconds("R3 RIGHT up by", 25.5)).then(
+                                                                        kit.atMatchSeconds(25.5).then(
                                                                                 kit.guarded("Timed out", outsideLaneToRightPark, 2.8,
-                                                                                        kit.path("outside lane to RIGHT_PARK", outsideLaneToRightPark, 2.8))))))))),
+                                                                                        kit.path("outside lane to RIGHT_PARK", outsideLaneToRightPark, 2.8))))))),
+                                                kit.route("Priority", 1, () -> kit.firstOf("Time to look at the HIVE from the left: before 22.2 s",
+                                                        kit.atMatchSeconds(22.2).then(
+                                                                kit.guarded("Timed out", scoringFlowerParkToRightPark, 1.9,
+                                                                        kit.path("scoring FLOWER park to RIGHT_PARK", scoringFlowerParkToRightPark, 1.9))),
+                                                        kit.when("Always").then(
+                                                                kit.path("turn to LEFT_AUTO_HIVE", turnToLeftAutoHive, 1.3, catchParkToRightPark, 2.2),
+                                                                kit.firstOf("R3 RIGHT up by",
+                                                                        kit.when("RightCellUp").then(
+                                                                                kit.guarded("If RightCellUp", catchParkToRightPark, 2.2,
+                                                                                        kit.firstOf("L has passed: park at 26.4 s",
+                                                                                                kit.atMatchSeconds(26.4)),
+                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))),
+                                                                        kit.atMatchSeconds(kit.seconds("R3 RIGHT up by", 23.2)).then(
+                                                                                kit.firstOf("LEFT CELL still up?",
+                                                                                        kit.when("LeftCellUp").then(
+                                                                                                kit.guarded("If LeftCellUp", catchParkToRightPark, 2.2,
+                                                                                                        kit.command("LaunchAll", 1),
+                                                                                                        kit.firstOf("L has passed: park at 26.4 s",
+                                                                                                                kit.atMatchSeconds(26.4)),
+                                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))),
+                                                                                        kit.afterMs(750).then(
+                                                                                                kit.guarded("Timed out", catchParkToRightPark, 2.2,
+                                                                                                        kit.firstOf("L has passed: park at 26.4 s",
+                                                                                                                kit.atMatchSeconds(26.4)),
+                                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2)))))))))))),
                         kit.atMatchSeconds(15.5).then(
                                 kit.guarded("Timed out", catchParkToRightPark, 2.2,
                                         kit.firstOf("LEFT up after L's rescue? Fire at LEFT, else hold",
