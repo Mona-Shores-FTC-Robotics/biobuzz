@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T17:20:08.370Z",
+  "timestamp": "2026-11-20T17:26:00.746Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -626,55 +626,6 @@
           ]
         }
       }
-    },
-    {
-      "id": "r-late-park",
-      "color": "#e15759",
-      "name": "late park to RIGHT_PARK, turning last",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 60,
-          "y": 101
-        },
-        {
-          "x": 34,
-          "y": 100.6
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.8,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 268.1
-              }
-            },
-            {
-              "startProgress": 0.8,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 268.1,
-                "endDeg": 360
-              }
-            }
-          ]
-        }
-      }
     }
   ],
   "shapes": [],
@@ -754,10 +705,6 @@
     {
       "kind": "path",
       "lineId": "r-to-catch"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-late-park"
     }
   ],
   "fieldPoints": [],
@@ -872,8 +819,7 @@
       "r-catch-park": "RIGHT_PARK",
       "r-right-park": "RIGHT_PARK",
       "line-r-clockwise-to-right-auto-hive": "RIGHT_AUTO_HIVE",
-      "r-cross-back": "RIGHT_AUTO_FIX_TIP",
-      "r-late-park": "RIGHT_PARK"
+      "r-cross-back": "RIGHT_AUTO_FIX_TIP"
     },
     "cards": [
       {
@@ -1152,10 +1098,10 @@
                                               {
                                                 "id": "r-hold-c-p",
                                                 "kind": "firstOf",
-                                                "label": "L has passed: park at 26.4 s",
+                                                "label": "L has passed: park at 26.8 s",
                                                 "rows": [
                                                   {
-                                                    "afterMs": 26400,
+                                                    "afterMs": 26800,
                                                     "matchClock": true,
                                                     "cards": []
                                                   }
@@ -1164,7 +1110,7 @@
                                               {
                                                 "id": "r-c-catch-park-c-p",
                                                 "kind": "path",
-                                                "lineId": "r-late-park",
+                                                "lineId": "r-catch-park",
                                                 "park": true
                                               }
                                             ]
@@ -1194,10 +1140,10 @@
                                                       {
                                                         "id": "r-hold-a-p",
                                                         "kind": "firstOf",
-                                                        "label": "L has passed: park at 26.4 s",
+                                                        "label": "L has passed: park at 26.8 s",
                                                         "rows": [
                                                           {
-                                                            "afterMs": 26400,
+                                                            "afterMs": 26800,
                                                             "matchClock": true,
                                                             "cards": []
                                                           }
@@ -1206,7 +1152,7 @@
                                                       {
                                                         "id": "r-c-catch-park-a-p",
                                                         "kind": "path",
-                                                        "lineId": "r-late-park",
+                                                        "lineId": "r-catch-park",
                                                         "park": true
                                                       }
                                                     ]
@@ -1217,10 +1163,10 @@
                                                       {
                                                         "id": "r-hold-a-skip-p",
                                                         "kind": "firstOf",
-                                                        "label": "L has passed: park at 26.4 s",
+                                                        "label": "L has passed: park at 26.8 s",
                                                         "rows": [
                                                           {
-                                                            "afterMs": 26400,
+                                                            "afterMs": 26800,
                                                             "matchClock": true,
                                                             "cards": []
                                                           }
@@ -1229,7 +1175,7 @@
                                                       {
                                                         "id": "r-c-catch-park-a-skip-p",
                                                         "kind": "path",
-                                                        "lineId": "r-late-park",
+                                                        "lineId": "r-catch-park",
                                                         "park": true
                                                       }
                                                     ]
@@ -1287,10 +1233,10 @@
               {
                 "id": "r-hold-late",
                 "kind": "firstOf",
-                "label": "L has passed: park at 26.4 s",
+                "label": "L has passed: park at 26.8 s",
                 "rows": [
                   {
-                    "afterMs": 26400,
+                    "afterMs": 26800,
                     "matchClock": true,
                     "cards": []
                   }
@@ -1299,7 +1245,7 @@
               {
                 "id": "r-c-left-park",
                 "kind": "path",
-                "lineId": "r-late-park",
+                "lineId": "r-catch-park",
                 "park": true
               }
             ]

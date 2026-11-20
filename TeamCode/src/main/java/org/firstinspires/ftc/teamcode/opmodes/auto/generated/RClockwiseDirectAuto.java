@@ -21,7 +21,7 @@ public final class RClockwiseDirectAuto {
     public static final String SOURCE = "r-clockwise-direct.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-20|12:20PM";
+    public static final String SAVED = "11-20|12:26PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -101,10 +101,6 @@ public final class RClockwiseDirectAuto {
         Pose turnToLeftAutoHiveSegment1Start = p.of(61.4, 120.45, 450);
         Pose turnToLeftAutoHiveSegment1End = p.of(61.4, 120.45, 360);
         Pose turnToLeftAutoHiveSegment2Start = p.of(61.4, 120.45, 360);
-        Pose lateParkToRightParkTurningLastControl1 = p.of(60, 101, 0);
-        Pose lateParkToRightParkTurningLastControl2 = p.of(34, 100.6, 0);
-        Pose lateParkToRightParkTurningLastSegment1Heading = p.of(14.5, 98.7, 268.1);
-        Pose lateParkToRightParkTurningLastSegment2Start = p.of(14.5, 98.7, 268.1);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
@@ -120,7 +116,6 @@ public final class RClockwiseDirectAuto {
         Path backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTip = Paths.curve(scoringFlowerStaging, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl1, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl2, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl3, backwardUnderTheHiveFromTheScoringFlowerToRightAutoFixTipControl4, rightAutoFixTip).constant(rightAutoFixTip);
         Path outsideLaneToRightPark = Paths.curve(rightAutoFixTip, outsideLaneToRightParkControl1, outsideLaneToRightParkControl2, outsideLaneToRightParkControl3, rightPark).heading(Interpolator.piecewise().until(0.7, Interpolator.constant(outsideLaneToRightParkSegment1Heading)).until(1, Interpolator.linear(outsideLaneToRightParkSegment2Start, rightPark)));
         Path turnToLeftAutoHive = Paths.line(scoringFlowerStaging, leftAutoHive).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(turnToLeftAutoHiveSegment1Start, turnToLeftAutoHiveSegment1End)).until(1, Interpolator.linear(turnToLeftAutoHiveSegment2Start, leftAutoHive)));
-        Path lateParkToRightParkTurningLast = Paths.curve(leftAutoHive, lateParkToRightParkTurningLastControl1, lateParkToRightParkTurningLastControl2, rightPark).heading(Interpolator.piecewise().until(0.8, Interpolator.constant(lateParkToRightParkTurningLastSegment1Heading)).until(1, Interpolator.linear(lateParkToRightParkTurningLastSegment2Start, rightPark)));
 
         return kit.sequence(
                 kit.command("SpinUp"),
@@ -168,31 +163,31 @@ public final class RClockwiseDirectAuto {
                                                                 kit.path("turn to LEFT_AUTO_HIVE", turnToLeftAutoHive, 1.3, catchParkToRightPark, 2.2),
                                                                 kit.firstOf("R3 RIGHT up by",
                                                                         kit.when("RightCellUp").then(
-                                                                                kit.guarded("If RightCellUp", lateParkToRightParkTurningLast, 2.2,
-                                                                                        kit.firstOf("L has passed: park at 26.4 s",
-                                                                                                kit.atMatchSeconds(26.4)),
-                                                                                        kit.path("late park to RIGHT_PARK, turning last", lateParkToRightParkTurningLast, 2.2))),
+                                                                                kit.guarded("If RightCellUp", catchParkToRightPark, 2.2,
+                                                                                        kit.firstOf("L has passed: park at 26.8 s",
+                                                                                                kit.atMatchSeconds(26.8)),
+                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))),
                                                                         kit.atMatchSeconds(kit.seconds("R3 RIGHT up by", 23.2)).then(
                                                                                 kit.firstOf("LEFT CELL still up?",
                                                                                         kit.when("LeftCellUp").then(
-                                                                                                kit.guarded("If LeftCellUp", lateParkToRightParkTurningLast, 2.2,
+                                                                                                kit.guarded("If LeftCellUp", catchParkToRightPark, 2.2,
                                                                                                         kit.command("LaunchAll", 1),
-                                                                                                        kit.firstOf("L has passed: park at 26.4 s",
-                                                                                                                kit.atMatchSeconds(26.4)),
-                                                                                                        kit.path("late park to RIGHT_PARK, turning last", lateParkToRightParkTurningLast, 2.2))),
+                                                                                                        kit.firstOf("L has passed: park at 26.8 s",
+                                                                                                                kit.atMatchSeconds(26.8)),
+                                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2))),
                                                                                         kit.afterMs(750).then(
-                                                                                                kit.guarded("Timed out", lateParkToRightParkTurningLast, 2.2,
-                                                                                                        kit.firstOf("L has passed: park at 26.4 s",
-                                                                                                                kit.atMatchSeconds(26.4)),
-                                                                                                        kit.path("late park to RIGHT_PARK, turning last", lateParkToRightParkTurningLast, 2.2)))))))))))),
+                                                                                                kit.guarded("Timed out", catchParkToRightPark, 2.2,
+                                                                                                        kit.firstOf("L has passed: park at 26.8 s",
+                                                                                                                kit.atMatchSeconds(26.8)),
+                                                                                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2)))))))))))),
                         kit.atMatchSeconds(15.5).then(
-                                kit.guarded("Timed out", lateParkToRightParkTurningLast, 2.2,
+                                kit.guarded("Timed out", catchParkToRightPark, 2.2,
                                         kit.firstOf("LEFT up after L's rescue? Fire at LEFT, else hold",
                                                 kit.when("LeftCellUp").then(
                                                         kit.command("LaunchAll", 1)),
                                                 kit.atMatchSeconds(26.4)),
-                                        kit.firstOf("L has passed: park at 26.4 s",
-                                                kit.atMatchSeconds(26.4)),
-                                        kit.path("late park to RIGHT_PARK, turning last", lateParkToRightParkTurningLast, 2.2)))));
+                                        kit.firstOf("L has passed: park at 26.8 s",
+                                                kit.atMatchSeconds(26.8)),
+                                        kit.path("catch park to RIGHT_PARK", catchParkToRightPark, 2.2)))));
     }
 }
