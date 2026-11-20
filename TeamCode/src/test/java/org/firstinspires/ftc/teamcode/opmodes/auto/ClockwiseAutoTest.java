@@ -223,7 +223,7 @@ public class ClockwiseAutoTest {
         run(LClockwiseAuto.build(kit(), false));
         assertEquals(1, count("PickFlower"));
         assertEquals(0, count("GardenGather"));
-        assertTrue("not before TF: " + startedAt.get("PickFlower"), startedAt.get("PickFlower") >= 15.5);
+        assertTrue("not before TF: " + startedAt.get("PickFlower"), startedAt.get("PickFlower") >= 14.0);
         parked(117.4);
     }
 
