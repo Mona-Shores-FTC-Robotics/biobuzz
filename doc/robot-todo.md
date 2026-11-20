@@ -132,7 +132,12 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [ ] Backward with a load, 19429: lane full after every run, video kept
 - [x] Backward with a load, 20245: R-Solo-Backwards ran clean with the plate (mentor, 20 Nov 2026)
 - [ ] Promoted R-Clockwise (backward outside lanes, waits at 9.8 / 9.9 s), each Pickup, beside L-Clockwise: no contact at `LEFT_AUTO_HIVE`, push the logs
-- [ ] Promoted R-Solo (preloads from `RIGHT_AUTO_HIVE`, backward WALL FLOWER leg), alone from `RIGHT_START`, on 20245 and on 19429: push the logs
+- [ ] Promoted R-Solo (preloads from `RIGHT_AUTO_HIVE`, backward WALL FLOWER leg), alone from `RIGHT_START`, on 20245: push the logs
+- [x] Promoted R-Solo on 19429: ran clean (log `2026-11-19_23-13-43_R-Solo`, build `08b0290`): the backward leg 3.2 s, 1.4 in off
+  its end, and the volley after it fired 5 balls by the launcher's dips
+- [ ] R-OutsideLane with L-UnderHive (20 Nov 2026: `wall lane north BACKWARD to LEFT_AUTO_OFFSET` and `BACKWARD to
+  RIGHT_AUTO_CLOSE`, after a wait at the SCORING FLOWER until 18.6 s): balls fired after each backward leg (launcher
+  dips), no contact near `LEFT_AUTO_OFFSET` or on the way down to `RIGHT_AUTO_CLOSE`; push the logs
 10. **19429's turret hunts: tune its hold** (20 Nov 2026). 19429 runs 20245's turret values and never had
    Bench: Turret. Its Basic Drive logs (`read_logs.py hold`) show it reversing 1.18 (18 Nov) and 1.38
    (19 Nov) times a second holding with the robot still, against 20245's 0.48. At power 1.0 the two

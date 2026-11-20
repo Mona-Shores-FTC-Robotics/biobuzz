@@ -55,7 +55,15 @@ has not come by 9 s, it crosses under the HIVE to `RIGHT_AUTO_FIX_TIP`, fires at
 with them swapped the robots touched at about 12 s in 2 of 3 simulated runs. In the simulator R's
 LEFT volley ends after 15.5 s, so R parks from the left spot and the pair makes one TIP; the
 robot's own time for that leg decides ([its notes](drafts/README.md#the-lane-pair-r-outsidelane-and-l-underhive),
-written when it was a draft).
+written when it was a draft). Since 20 Nov 2026 R drives its two loaded legs backward instead of turning round to
+drive them nose-first (mentor: both robots have a bottom plate): `wall lane north BACKWARD to LEFT_AUTO_OFFSET` holds
+270 up the wall lane, and `BACKWARD to RIGHT_AUTO_CLOSE` holds 90 down it from the SCORING FLOWER and ends on the
+spot's 63.8° (the nose-first leg ended at 61°). Backward, that leg is about 3.0 s in the simulator instead of 5.3 s, so R
+first holds at the SCORING FLOWER until 18.6 s (`L has left the GARDEN`): without the hold it came down the lane as L left
+the GARDEN and touched it in 3 of 20 runs (6 with L 20% slow). With it, 0 contacts, every robot parked, the same TIPs and
+points as nose-first and about 0.7 more balls scored a run (20 Nov 2026, `sim-requests/r-outside-lane.json`). In
+the best case (`"scenario": "best"`) R then has time for a third TIP: 2.0 TIPs a run become 2.9 (2.95 with L 20% slow),
+56 points 74-75, every robot parked and no contact.
 
 **Known limit: our L dead on `LEFT_START`** (accepted for Fruitport, 19 Nov 2026). Two team spots overlap a robot
 left on `LEFT_START` (62.3, 133.8): `LEFT_AUTO_HIVE` by 3 in and `SCORING_FLOWER_STAGING` by about 1.7 in, with
@@ -67,7 +75,9 @@ HIVE would, but it is a team spot every left-end Auto uses, so it waits until af
 fallback at each stop, and a pickup the drive teams choose in INIT. Each robot has run its half
 alone; the pair has not yet run together
 ([its notes](clockwise.md)). Its volleys are from the
-Autos' launch spots, as every Auto's are. It drives nose-first with a load; the version
+Autos' launch spots, as every Auto's are. Since 20 Nov 2026 R drives both its loaded outside lanes backward, each
+after a match-clock wait (9.8 / 9.9 s); L drives nose-first with a load (driven backward its FLOWER leg gained nothing
+in the simulator, [clockwise.md](clockwise.md)). The older version
 with backward legs, which has time for a third TIP, was the draft pair `r-clockwise-backward.pp` and
 `l-clockwise-backward.pp`, removed with the other drafts on 19 Nov 2026 (in Git history at `f2c9bb7`).
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
