@@ -1055,8 +1055,13 @@ was asked out (`FlowerStickSubsystem.extendedSinceNs`, `GrabRoutine.readySinceNs
 usually over. The cards stay what they are: the drive ends where it was drawn and the pick is still
 the whole pick, which works on its own from the button. Merging the drive into the push (ending the
 drive at the contact standoff) was considered and rejected: the pick would no longer be a unit that
-works in isolation. `GardenGather` has no approach yet: its stick came down on the wall when swung
-early in the corner (30 Oct 2026).
+works in isolation. `GardenGather.approach` does the same for a gather (`GardenGather.AutoStick`,
+`lowerOnDriveIn` on): the stick goes down and the intake starts within `approachLowerWithinIn`
+(24 in) of the drive's end, but only once the robot's turn is over and it has held facing the
+GARDEN, to `approachFacingDeg`, for `facingHoldMs` (200 ms), never while it is turning. That
+facing rule is what keeps the stick off the wall: lowered early in the corner with the robot still
+swinging, it came down on the wall (30 Oct 2026). A drive that turns all the way in leaves the
+stick to the card, standing, as before; draw the turn finished early to gain the time.
 
 `FlowerPicker.routine` (Panels) picks which pick runs. `MASTER`, the default, is the pick as it ran
 at the Belding Qualifier. `FAST` is the same one push with the waiting taken out: no wait to slow
