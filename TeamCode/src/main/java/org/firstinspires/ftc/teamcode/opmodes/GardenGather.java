@@ -324,9 +324,10 @@ public final class GardenGather extends GrabRoutine {
          * and the push steer onto the line along this heading too, which draws the robot into the corner.
          * 1 since 20 Nov 2026 (mentor, on 20245 with the corner gather, both ways in: 15 was too severe;
          * facing the side wall the robot turned only 4° of it before it stalled, and facing the audience wall
-         * it swung away from the side wall and came in at the angle).
+         * it swung away from the side wall and came in at the angle). 4 later that day (mentor, on 20245, with
+         * the drive in ending short of the wall: "perfect").
          */
-        public double intoCornerDeg = 1.0;
+        public double intoCornerDeg = 4.0;
         /** The drive in gives up after this long, ms. */
         public double inTimeoutMs = 4000;
         /** Less progress than this, inches, in {@link DriveIn#stallMs} means the robot is against something. */
@@ -370,9 +371,10 @@ public final class GardenGather extends GrabRoutine {
          * every gather that night sat for while bringing in 0 to 1 pieces. Tune it at the practice field
          * with the button. 150 since 19 Nov 2026 (mentor, on 19429, with the corner angle: consistent). 700
          * since 20 Nov 2026 (mentor, on 20245 with the corner gather, with the softer push below); 200 later
-         * that day (mentor, on 20245).
+         * that day (mentor, on 20245); 850 with {@link DriveIn#extraDepthIn} -3 (mentor, on 20245: at 200 the
+         * push spent the dwell closing the last inches and the robot backed out at once; 850 "perfect").
          */
-        public double dwellMs = 200;
+        public double dwellMs = 850;
         /**
          * The dwell ends as soon as the lane is full (the colour sensor's full), as the FLOWER pick's does.
          * Until this switch a gather with a full lane sat out the whole dwell (14 Nov 13:13, 4 held, twice).

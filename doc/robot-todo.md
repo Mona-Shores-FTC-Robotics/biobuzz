@@ -1155,16 +1155,16 @@ measurement is [#255].
       **Stop:** a mirrored way in sits off its wall or the stick hits the corner → write down the
       pose at the wall; Panels `GardenGather.button.anyCorner` off is the old button (the GARDEN only,
       facing the audience wall).
-- [ ] **Corner gather, the line-up presses onto the wall and the drive in follows it (20 Nov; not yet
-      run):** 20245's Panels settings of 20 Nov are the defaults now (line-up 14 in further back and -2 in
-      into the wall, `inSpeed` 0.7, `extraDepthIn` 2, dwell 700 ms at 0.3, the stick's 20° and 10 in), and
-      the drive in runs along where the line-up stopped against the wall (`GardenGather.lineUp.followWallLine`),
-      not the pose's line. The corner angle is 1° both ways in (`driveIn.intoCornerDeg`, the Auto's
-      GARDEN card's too), and an Auto's GARDEN card keeps `laneTowardWallIn` 5. Sloth Load, then 3 gathers each way in at the red GARDEN, once with the pose
-      knocked an inch or two off sideways. **Good:** the side stays on the wall through the drive in, the
-      stick lands clear of the POLLEN, and `Lane/Count` rises. **Stop:** the line-up sits pinned against
-      the wall or ends "line-up timed out" → note it (the line-up should end when it stalls on the wall);
-      the robot runs off the wall → `followWallLine` off in Panels is the old line.
+- [ ] **Corner gather on 19429 (20 Nov; tuned on 20245 only):** 20245's settings of 20 Nov are the
+      defaults: the line-up 14 in further back and 2 in into the wall (`lineUpOutIn` -2), going on when it
+      stalls there (`lineUp.stallWithinIn`); the drive in along where the line-up stopped
+      (`lineUp.followWallLine`), ending 3 in short of the wall (`extraDepthIn` -3) at `inSpeed` 0.5 so
+      Pedro brakes; 4° into the corner; a dwell of 850 ms at 0.25 push. On 20245 the mentor called it
+      perfect. The Auto's GARDEN card shares them (no line-up). On 19429: 3 gathers each way in at the red
+      GARDEN, one after a lap, and one Auto with a GARDEN gather. **Good:** the drive in's log line says
+      "path done", no bounce off the wall, `Lane/Count` rises. **Stop:** it rams ("stalled") → `extraDepthIn`
+      -4; it stops short of the corner → `dwellPushPower` 0.35; record the values in `RobotDifferences`
+      only if 19429 needs different ones.
 - [ ] **GARDEN gather, onto the side wall sooner (idea, 16 Nov; nothing changed):** the line-up
       spot is 3 in out from the side wall (`lineUpOutIn`, room to turn in the corner) and the drive
       in curves over to it. Try `lineUpOutIn` 1 with the button, 4 gathers. **Good:** the side is
