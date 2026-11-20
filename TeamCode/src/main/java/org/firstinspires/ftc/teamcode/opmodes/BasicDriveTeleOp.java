@@ -240,6 +240,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * AIM the aim, points behind the arc, where a ball would go back over the robot.
      */
     private boolean arcBlocked;
+    /**
+     * The turret, or in AIM the aim, points behind the firing arc this loop, whether or not the arc
+     * is enforced ({@link TeleOpConfig#enforceFiringArc}): what the driver's purple flash shows.
+     */
+    private boolean outsideArc;
+    /** A fire held outside the firing arc last loop: the purple flash is running. */
+    private boolean arcFlashing;
     /** The arc held back a held fire button last loop: its log line and rumble go once per hold. */
     private boolean arcRefusing;
     /** This fire press spun the launcher up from idle, so it feeds only once at launch speed. */
@@ -854,6 +861,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
             display.status("Fire", Display.Level.FAULT, turretMode == TurretMode.AIM
                     ? "turn the robot: CELL behind the turret's firing arc (or LOCK and hold Circle)"
                     : "turret outside its firing arc: wait for it to come round to the front");
+        } else if (outsideArc) {
+            display.status("Fire", Display.Level.WARN, "outside the turret's firing arc: shots may hit the robot");
         }
 
         // The Match page is a glance (mentor, 7 Nov 2026): the operator and the coach read it from
@@ -1144,8 +1153,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 || circleAimFires;
         // The firing arc is enforced for every feed unless this robot's drivers make the call
         // (TeleOpConfig.enforceFiringArc): behind it a ball goes back over the robot.
-        arcBlocked = TeleOpConfig.enforceFiringArc && !TurretArc.allowsFeed(TurretSubsystem.lockedForward ? 0.0 : robot.turret.angleDegrees(),
+        outsideArc = !TurretArc.allowsFeed(TurretSubsystem.lockedForward ? 0.0 : robot.turret.angleDegrees(),
                 turretMode == TurretMode.AIM ? aimer.aimDeg() : Double.NaN, arcCentre());
+        arcBlocked = TeleOpConfig.enforceFiringArc && outsideArc;
         boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, enforceAim)
                 && (!spunUpByFire || robot.launcher.atSpeed()) && !arcBlocked;
         // Circle alone in LOCKED: the feed waits until the robot is on the CELL and at speed.
@@ -1168,8 +1178,18 @@ public class BasicDriveTeleOp extends RobotOpMode {
             // would buzz again.
             if (!arcRumbled) gamepad1.rumble(1.0, 1.0, ARC_RUMBLE_MS);
             arcRumbled = true;
+        }
+        arcRefusing = refusing;
+        // The driver's purple flash: a fire held outside the arc, refused or (arc not enforced) fed.
+        boolean flashing = wantsFeed && outsideArc;
+        if (flashing && !arcFlashing) {
             gamepad1.runLedEffect(ARC_FLASH);
-        } else if (!refusing && arcRefusing) {
+            if (!arcBlocked) {
+                log.event(String.format(Locale.US, "fire: outside the firing arc, fed anyway: the arc is not enforced on this robot (turret %.0f°, aim %s)",
+                        TurretEncoder.wrap180(robot.turret.angleDegrees()),
+                        Double.isNaN(aimer.aimDeg()) ? "none" : String.format(Locale.US, "%.0f°", TurretEncoder.wrap180(aimer.aimDeg()))));
+            }
+        } else if (!flashing && arcFlashing) {
             // The flash repeats until replaced: back to the alliance's colour.
             if (setup.alliance() == Alliance.BLUE) {
                 gamepad1.setLedColor(0.0, 0.0, 1.0, Gamepad.LED_DURATION_CONTINUOUS);
@@ -1177,7 +1197,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 gamepad1.setLedColor(1.0, 0.0, 0.0, Gamepad.LED_DURATION_CONTINUOUS);
             }
         }
-        arcRefusing = refusing;
+        arcFlashing = flashing;
         lastFire = fireHeld;
         // requestFor's "at speed" is the enforced gates' verdict here, and it is always required:
         // with nothing enforced the gates are always open. The launch-spot button's volley feeds
