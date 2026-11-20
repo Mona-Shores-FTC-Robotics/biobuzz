@@ -53,6 +53,18 @@ public class ArcLightTest {
     }
 
     @Test
+    public void aNewTurnsPulseIsNotHiddenByTheLastPressesFlash() {
+        ArcLight light = new ArcLight();
+        // A press cancelled by the right stick: flashing behind the arc.
+        assertEquals(ArcLight.State.FLASH, light.update(true, true, 1000));
+        // Circle let go and pressed again within CLEAR_MS: a new turn starts its pulse.
+        light.pulse(1100, 400);
+        assertEquals(ArcLight.State.PULSE, light.update(false, true, 1100));
+        // Cancelled again mid-pulse: the flash takes over at once.
+        assertEquals(ArcLight.State.FLASH, light.update(true, true, 1200));
+    }
+
+    @Test
     public void noPulseUntilOneStarts() {
         ArcLight light = new ArcLight();
         assertEquals(ArcLight.State.NONE, light.update(false, true, 0));

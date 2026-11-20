@@ -39,9 +39,15 @@ final class ArcLight {
     /** The pulse ends here, ms on {@link #update}'s clock; {@code Long.MIN_VALUE} for none. */
     private long pulseUntilMs = Long.MIN_VALUE;
 
-    /** Starts the arc turn's pulse at {@code nowMs}, {@code lengthMs} long (a later start restarts it). */
+    /**
+     * Starts the arc turn's pulse at {@code nowMs}, {@code lengthMs} long (a later start restarts it).
+     * It also clears the flash's {@link #CLEAR_MS} hold from before: a turn starting means the robot is
+     * handling the CELL behind the arc again, so a flash left from a cancelled press does not cover the
+     * pulse. A fire held outside the arc after this, with nothing turning, flashes again at once.
+     */
     void pulse(long nowMs, long lengthMs) {
         pulseUntilMs = nowMs + Math.max(0L, lengthMs);
+        lastOutsideMs = Long.MIN_VALUE;
     }
 
     /** Back inside the arc this long, ms, before the light clears. */
