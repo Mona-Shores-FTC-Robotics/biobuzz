@@ -137,7 +137,7 @@ Java simulator's, set to Belding; **every one is a robot check** (`doc/robot-tod
 | **T4** RIGHT up by | 22 s | TIP 2 was read up at 19.8 to 21.8 s in the simulator (to 22.6 s with R 20% slow), so at 19.2 s L gave up before it and never shot its second load. L stands at RIGHT_WALL_NEAR until TL anyway, so waiting costs nothing. A volley begun at 22 s ends after TL: L then leaves for its park when the volley ends, about 24.5 s |
 | **TL** park at | 22.7 s | L leaves RIGHT_WALL_NEAR for LEFT_PARK once R has left the SCORING FLOWER |
 | **TLr** park after the crossing at | 22.5 s | L1's "no" only: the TIP its volley makes was read up at 19.6 to 20.2 s, and its park goes through where that spill lands |
-| **TF** FLOWER at | 15.5 s | L's WALL FLOWER leg only: R, coming north from the GARDEN, has passed the FLOWER |
+| **TF** FLOWER at | 14.0 s | L's WALL FLOWER leg only: R, coming north from the GARDEN, has passed the FLOWER. 15.5 s until 20 Nov 2026 (mentor): L then reached RIGHT_AUTO_OFFSET at about 23 s and the guard parked it with its load; at 14.0 s it arrives about 21.5 s and fires (simulator, turret unlocked, best case: 3 TIPs 8 of 8 against 2 of 8, no contact with either robot 20% slow) |
 
 **These times assume a 2.5 s volley.** A volley whose counter misses a ball feeds its whole 3.5 s
 and runs about 4 s. In the simulator with Belding's volleys both robots still parked in every run,
@@ -218,7 +218,7 @@ spot at 13.2 s as before.
 The spot is on L's road: L shoots its preloads from the wall behind it and then drives south under the
 HIVE through it. L has left by about 9 to 11 s and R arrives at 13.2 s. In the simulator with Belding's
 shot rates the robots touch there in 2 of 24 runs, at about 12.2 s, the runs where TIP 1 came at 8.3 s
-or later so L left late; with every shot in, in none. The lane pair (R-OutsideLane, L-UnderHive) opens
+or later so L left late; with every shot in, in none. The lane pair (R-LeftUnderHive, L-LeftUnderHive) opens
 the same way and touches in 1 of 24. A robot check (`doc/robot-todo.md`).
 
 ## Spots
