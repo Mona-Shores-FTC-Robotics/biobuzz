@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T17:20:09.094Z",
+  "timestamp": "2026-11-20T17:40:15.432Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -695,6 +695,88 @@
       }
     },
     {
+      "id": "l-park-shot",
+      "color": "#4e79a7",
+      "name": "outside lane to LEFT_PARK_SHOT",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 17,
+        "y": 121.5
+      },
+      "controlPoints": [
+        {
+          "x": 27,
+          "y": 34
+        },
+        {
+          "x": 33.5,
+          "y": 66
+        },
+        {
+          "x": 33.5,
+          "y": 94
+        },
+        {
+          "x": 33.5,
+          "y": 108
+        },
+        {
+          "x": 40,
+          "y": 124
+        },
+        {
+          "x": 34,
+          "y": 121.5
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.15,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 61,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.15,
+              "endProgress": 0.7,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.7,
+              "endProgress": 0.8,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": -40
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": -40
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
       "id": "link-6",
       "name": "Link (never driven)",
       "color": "#6b7280",
@@ -916,6 +998,10 @@
     },
     {
       "kind": "path",
+      "lineId": "l-park-shot"
+    },
+    {
+      "kind": "path",
       "lineId": "link-6"
     },
     {
@@ -1026,6 +1112,11 @@
         14.5,
         117.4,
         0
+      ],
+      "LEFT_PARK_SHOT": [
+        17,
+        121.5,
+        320
       ]
     },
     "pathEnds": {
@@ -1041,7 +1132,8 @@
       "l-park": "LEFT_PARK",
       "l-under-park-flower": "LEFT_PARK",
       "l-pickup-park-flower": "LEFT_PARK",
-      "l-rescue-park": "LEFT_PARK"
+      "l-rescue-park": "LEFT_PARK",
+      "l-park-shot": "LEFT_PARK_SHOT"
     },
     "cards": [
       {
@@ -1190,10 +1282,10 @@
                       {
                         "id": "l-hold-no",
                         "kind": "firstOf",
-                        "label": "R has left the scoring FLOWER: park at 22.7 s",
+                        "label": "Park for the shot: go at 22.0 s",
                         "rows": [
                           {
-                            "afterMs": 22700,
+                            "afterMs": 22000,
                             "matchClock": true,
                             "cards": []
                           }
@@ -1202,7 +1294,7 @@
                       {
                         "id": "l-c-park-shot",
                         "kind": "path",
-                        "lineId": "l-park",
+                        "lineId": "l-park-shot",
                         "park": true
                       },
                       {

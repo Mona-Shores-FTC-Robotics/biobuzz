@@ -21,7 +21,7 @@ public final class LClockwiseParkShotAuto {
     public static final String SOURCE = "l-clockwise-parkshot.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-20|12:20PM";
+    public static final String SAVED = "11-20|12:40PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "LaunchAllAimed", "PickFlower", "SpinUp"};
@@ -57,6 +57,7 @@ public final class LClockwiseParkShotAuto {
         Pose laneEnd = p.of(60.5, 34, 270);
         Pose rightAutoOffset = p.of(32.1, 16.4, 61);
         Pose leftPark = p.of(14.5, 117.4, 0);
+        Pose leftParkShot = p.of(17, 121.5, 320);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose catchParkToLeftParkControl1 = p.of(55, 119, 0);
@@ -121,6 +122,16 @@ public final class LClockwiseParkShotAuto {
         Pose flowerToRightAutoOffsetSegment1End = p.of(32.1, 16.4, 270);
         Pose flowerToRightAutoOffsetSegment2Heading = p.of(32.1, 16.4, 270);
         Pose flowerToRightAutoOffsetSegment3Start = p.of(32.1, 16.4, 270);
+        Pose outsideLaneToLeftParkShotControl1 = p.of(27, 34, 0);
+        Pose outsideLaneToLeftParkShotControl2 = p.of(33.5, 66, 0);
+        Pose outsideLaneToLeftParkShotControl3 = p.of(33.5, 94, 0);
+        Pose outsideLaneToLeftParkShotControl4 = p.of(33.5, 108, 0);
+        Pose outsideLaneToLeftParkShotControl5 = p.of(40, 124, 0);
+        Pose outsideLaneToLeftParkShotControl6 = p.of(34, 121.5, 0);
+        Pose outsideLaneToLeftParkShotSegment1Start = p.of(17, 121.5, 61);
+        Pose outsideLaneToLeftParkShotSegment1End = p.of(17, 121.5, 90);
+        Pose outsideLaneToLeftParkShotSegment2Heading = p.of(17, 121.5, 90);
+        Pose outsideLaneToLeftParkShotSegment3Start = p.of(17, 121.5, 90);
         Pose underTheHiveToRightAutoFixTipControl1 = p.of(59, 101.6, 0);
         Pose underTheHiveToRightAutoFixTipControl2 = p.of(65, 72, 0);
         Pose underTheHiveToRightAutoFixTipControl3 = p.of(58.5, 38, 0);
@@ -148,6 +159,7 @@ public final class LClockwiseParkShotAuto {
         Path toWallFlowerStaging = Paths.curve(laneEnd, toWallFlowerStagingControl1, toWallFlowerStagingControl2, toWallFlowerStagingControl3, wallFlowerStaging).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toWallFlowerStagingSegment1Start, wallFlowerStaging)).until(1, Interpolator.constant(wallFlowerStaging)));
         Path flowerParkToLeftPark = Paths.curve(wallFlowerStaging, flowerParkToLeftParkControl1, flowerParkToLeftParkControl2, flowerParkToLeftParkControl3, flowerParkToLeftParkControl4, flowerParkToLeftParkControl5, flowerParkToLeftParkControl6, leftPark).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(flowerParkToLeftParkSegment1Start, flowerParkToLeftParkSegment1End)).until(0.7, Interpolator.constant(flowerParkToLeftParkSegment2Heading)).until(0.8, Interpolator.linear(flowerParkToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path flowerToRightAutoOffset = Paths.curve(wallFlowerStaging, flowerToRightAutoOffsetControl1, flowerToRightAutoOffsetControl2, rightAutoOffset).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(flowerToRightAutoOffsetSegment1Start, flowerToRightAutoOffsetSegment1End)).until(0.6, Interpolator.constant(flowerToRightAutoOffsetSegment2Heading)).until(1, Interpolator.linear(flowerToRightAutoOffsetSegment3Start, rightAutoOffset)));
+        Path outsideLaneToLeftParkShot = Paths.curve(rightAutoOffset, outsideLaneToLeftParkShotControl1, outsideLaneToLeftParkShotControl2, outsideLaneToLeftParkShotControl3, outsideLaneToLeftParkShotControl4, outsideLaneToLeftParkShotControl5, outsideLaneToLeftParkShotControl6, leftParkShot).heading(Interpolator.piecewise().until(0.15, Interpolator.linear(outsideLaneToLeftParkShotSegment1Start, outsideLaneToLeftParkShotSegment1End)).until(0.7, Interpolator.constant(outsideLaneToLeftParkShotSegment2Heading)).until(0.8, Interpolator.linear(outsideLaneToLeftParkShotSegment3Start, leftParkShot)).until(1, Interpolator.constant(leftParkShot)));
         Path underTheHiveToRightAutoFixTip = Paths.curve(leftAutoHive, underTheHiveToRightAutoFixTipControl1, underTheHiveToRightAutoFixTipControl2, underTheHiveToRightAutoFixTipControl3, rightAutoFixTip).heading(Interpolator.piecewise().until(0.79, Interpolator.constant(underTheHiveToRightAutoFixTipSegment1Heading)).until(0.885, Interpolator.linear(underTheHiveToRightAutoFixTipSegment2Start, rightAutoFixTip)).until(1, Interpolator.constant(rightAutoFixTip)));
         Path rightCatchParkToLeftPark = Paths.curve(rightAutoFixTip, rightCatchParkToLeftParkControl1, rightCatchParkToLeftParkControl2, rightCatchParkToLeftParkControl3, rightCatchParkToLeftParkControl4, rightCatchParkToLeftParkControl5, rightCatchParkToLeftParkControl6, rightCatchParkToLeftParkControl7, leftPark).heading(Interpolator.piecewise().until(0.74, Interpolator.constant(rightCatchParkToLeftParkSegment1Heading)).until(0.84, Interpolator.linear(rightCatchParkToLeftParkSegment2Start, leftPark)).until(1, Interpolator.constant(leftPark)));
 
@@ -175,10 +187,10 @@ public final class LClockwiseParkShotAuto {
                                                                         kit.atMatchSeconds(22.7)),
                                                                 kit.path("outside lane to LEFT_PARK", outsideLaneToLeftPark, 3.7))),
                                                 kit.atMatchSeconds(22).then(
-                                                        kit.guarded("Timed out", outsideLaneToLeftPark, 3.7,
-                                                                kit.firstOf("R has left the scoring FLOWER: park at 22.7 s",
-                                                                        kit.atMatchSeconds(22.7)),
-                                                                kit.path("outside lane to LEFT_PARK", outsideLaneToLeftPark, 3.7),
+                                                        kit.guarded("Timed out", outsideLaneToLeftParkShot, 3.9,
+                                                                kit.firstOf("Park for the shot: go at 22.0 s",
+                                                                        kit.atMatchSeconds(22)),
+                                                                kit.path("outside lane to LEFT_PARK_SHOT", outsideLaneToLeftParkShot, 3.9),
                                                                 kit.firstOf("LEFT up before 27.5 s, otherwise stay parked",
                                                                         kit.atMatchSeconds(27.5),
                                                                         kit.when("LeftCellUp").then(
