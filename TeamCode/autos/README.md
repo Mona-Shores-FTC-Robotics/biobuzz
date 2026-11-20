@@ -75,7 +75,9 @@ HIVE would, but it is a team spot every left-end Auto uses, so it waits until af
 fallback at each stop, and a pickup the drive teams choose in INIT. Each robot has run its half
 alone; the pair has not yet run together
 ([its notes](clockwise.md)). Its volleys are from the
-Autos' launch spots, as every Auto's are. It drives nose-first with a load; the version
+Autos' launch spots, as every Auto's are. Since 20 Nov 2026 R drives both its loaded outside lanes backward, each
+after a match-clock wait (9.8 / 9.9 s); L drives nose-first with a load (driven backward its FLOWER leg gained nothing
+in the simulator, [clockwise.md](clockwise.md)). The older version
 with backward legs, which has time for a third TIP, was the draft pair `r-clockwise-backward.pp` and
 `l-clockwise-backward.pp`, removed with the other drafts on 19 Nov 2026 (in Git history at `f2c9bb7`).
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
