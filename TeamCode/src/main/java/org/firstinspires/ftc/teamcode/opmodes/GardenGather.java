@@ -67,8 +67,8 @@ public final class GardenGather extends GrabRoutine {
         /**
          * And this much further back from the GARDEN (away from the audience wall), inches. 6 since
          * 16 Nov 2026 (mentor; 3 before, the value of the 14 Nov field session): 3 in more drive in, about
-         * 0.12 s, for the stick to finish its swing in, now that nothing stands for it
-         * ({@link Stick#stickDownMs}). Not yet run. The Autos start at GARDEN_STAGING, which is unchanged.
+         * 0.12 s, for the stick to finish its swing in, when nothing stood for it (16 Nov; it stands
+         * {@link Stick#stickDownMs} again since 20 Nov). The Autos start at GARDEN_STAGING, which is unchanged.
          */
         public double lineUpBackIn = 6.0;
         /** The line-up path gives up after this long, ms. */
@@ -121,11 +121,12 @@ public final class GardenGather extends GrabRoutine {
          * in. Not yet run. The margin, from the 14 Nov logs: at {@link DriveIn#inSpeed} 1.0 the robot was within
          * 4 in of where it stops 0.53 to 0.78 s after the drive in began (13 gathers), and the FLOWER
          * films put the swing at about 0.3 to 0.5 s. So a stick lowered only as the drive in starts (an
-         * Auto whose drive turns all the way in) lands with 0 to 0.2 s to spare. If it is seen landing
-         * on the pieces, raise this to 300, or start the gather further back ({@link LineUp#lineUpBackIn}; the
-         * Autos' GARDEN_STAGING spot): each inch further is about 0.04 s more.
+         * Auto whose drive turns all the way in) lands with 0 to 0.2 s to spare. 250 since 20 Nov 2026
+         * (mentor, on 20245 with the button): at 0 the stick sometimes came down on top of the audience
+         * wall, still swinging when the robot got there; at 250 it did not. About 0.25 s more per
+         * gather; less where the stick went down on the line-up earlier than that.
          */
-        public double stickDownMs = 0;
+        public double stickDownMs = 250;
         /**
          * The stick comes up this long after the drive back has stopped, ms: it stays down the whole way
          * out and rises only once the robot is still (mentor, 6 Nov 2026), so it does not drag pieces out
