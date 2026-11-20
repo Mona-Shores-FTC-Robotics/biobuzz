@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/drafts/r-clockwise-19429.pp",
-  "spec": "RClockwise19429Auto@50",
+  "pp": "TeamCode/autos/drafts/r-clockwise-backwards.pp",
+  "spec": "RClockwiseBackwardsAuto@50",
   "design": "real robot, turret locked forward",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -226,7 +226,7 @@
     }
   ],
   "metadata": {
-    "AutoSource": "drafts/r-clockwise-19429.pp",
+    "AutoSource": "drafts/r-clockwise-backwards.pp",
     "SavedBy": "backward-legs session, rebuilt 20 Nov 2026 on master's r-clockwise.pp and its partners",
     "SavedAt": "2026-11-20T00:35:00Z",
     "SimNote": "R-Clockwise with the outside lane from the GARDEN driven backward (bottom plate). The simulator never spills a load driving backward. For 19429's own loads run it with BIOBUZZ_BELDING_ROBOT=19429"

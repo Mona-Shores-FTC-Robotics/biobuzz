@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T00:32:06.897Z",
+  "timestamp": "2026-11-20T02:44:00.574Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -1226,6 +1226,6 @@
       "SCORING_FLOWER_STAGING",
       "WALL_FLOWER_STAGING"
     ],
-    "exportName": "R-Clockwise-19429"
+    "exportName": "R-Clockwise-Backwards"
   }
 }
