@@ -1654,8 +1654,11 @@ and DOWN positions are only 1.5 in apart along the floor, but 14 in apart in hei
 through `addMeasurement`, heading NaN, with one frame's variance. Averaging removes jitter, not a
 mount or field-point error, so dividing the variance by the frame count would claim more than it
 knows. This is a blend, not a snap, so the filter can still weigh a bad fix against the Pinpoint.
-`stillFixes` is **off** until the session below shows it helps; the Robot page says how each batch
-went (`READY` means it would have applied).
+`stillFixes` is **on** since 20 Nov 2026: in L-UnderHive on 20245 the pose ran 1.9 to 2.5 in off
+the camera from INIT on (the robot placed about 2.5 in off LEFT_START), uncorrected, and the GARDEN
+gather stopped about 1.2 in short of the side wall; with still fixes switched on in Panels the next
+run's gather drove into the wall and took all 4. The Robot page says how each batch went
+(`APPLIED`; `READY` means it would have applied, with the switch off for that run).
 
 **The reset spots.** `ResetPositions` holds two measured poses per alliance: the corners on its
 wall to the driver's left (D-pad left) and right (D-pad right), where the robot squares into both
