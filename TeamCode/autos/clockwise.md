@@ -28,12 +28,9 @@ alone) pieces left the intake on both legs it drove backward. After a pick it ba
 inches the pick itself does, then turns to face the way it is going. That costs time: the lane
 from the WALL FLOWER is 4.4 s (3.2 s backward), and the road under the HIVE 6.2 s (2.7 s).
 
-Since 20 Nov 2026, with a bottom plate on both robots, loaded legs that turned round only to drive nose-first
-drive backward again, one at a time as each is simulated (mentor): L's `FLOWER BACKWARD to RIGHT_AUTO_OFFSET`
-(Pickup WALL_FLOWER) turns 180 to 90, holds 90 down the lane and turns to the spot's 61 at the end, 119° of turning
-instead of 241°. In the simulator (20 Nov 2026, `sim-requests/l-clockwise.json`) every row matched master except R on
-the GARDEN with L 20% slow: there L, earlier at `RIGHT_AUTO_OFFSET`, fired its second load in 2 of 24 runs and then did not
-park by 30 s (45.4 points a run instead of 45.8), and the 6 contacts master has in that row at 27.3 s went to 0.
+L's `FLOWER to RIGHT_AUTO_OFFSET` (Pickup WALL_FLOWER) stays nose-first (mentor, 20 Nov 2026). Driven backward it
+turned 119° instead of 241°, but in the simulator it gained no TIP in any row, and with R on the GARDEN and L 20% slow
+L, earlier at the spot, fired its second load and then missed its park in 2 of 24 runs (9 of 24 in the best case).
 
 **What the Java simulator says** (24 seeds a row, Belding's volleys; tables below):
 

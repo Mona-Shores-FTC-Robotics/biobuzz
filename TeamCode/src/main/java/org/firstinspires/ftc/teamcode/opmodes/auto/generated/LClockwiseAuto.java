@@ -21,7 +21,7 @@ public final class LClockwiseAuto {
     public static final String SOURCE = "l-clockwise.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-19|11:23PM";
+    public static final String SAVED = "11-18|2:36PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -115,12 +115,12 @@ public final class LClockwiseAuto {
         Pose flowerParkToLeftParkSegment1End = p.of(14.5, 117.4, 90);
         Pose flowerParkToLeftParkSegment2Heading = p.of(14.5, 117.4, 90);
         Pose flowerParkToLeftParkSegment3Start = p.of(14.5, 117.4, 90);
-        Pose flowerBackwardToRightAutoOffsetControl1 = p.of(28, 38, 0);
-        Pose flowerBackwardToRightAutoOffsetControl2 = p.of(30, 24, 0);
-        Pose flowerBackwardToRightAutoOffsetSegment1Start = p.of(32.1, 16.4, 180);
-        Pose flowerBackwardToRightAutoOffsetSegment1End = p.of(32.1, 16.4, 90);
-        Pose flowerBackwardToRightAutoOffsetSegment2Heading = p.of(32.1, 16.4, 90);
-        Pose flowerBackwardToRightAutoOffsetSegment3Start = p.of(32.1, 16.4, 90);
+        Pose flowerToRightAutoOffsetControl1 = p.of(28, 38, 0);
+        Pose flowerToRightAutoOffsetControl2 = p.of(30, 24, 0);
+        Pose flowerToRightAutoOffsetSegment1Start = p.of(32.1, 16.4, 180);
+        Pose flowerToRightAutoOffsetSegment1End = p.of(32.1, 16.4, 270);
+        Pose flowerToRightAutoOffsetSegment2Heading = p.of(32.1, 16.4, 270);
+        Pose flowerToRightAutoOffsetSegment3Start = p.of(32.1, 16.4, 270);
         Pose underTheHiveToRightAutoFixTipControl1 = p.of(59, 101.6, 0);
         Pose underTheHiveToRightAutoFixTipControl2 = p.of(65, 72, 0);
         Pose underTheHiveToRightAutoFixTipControl3 = p.of(58.5, 38, 0);
@@ -147,7 +147,7 @@ public final class LClockwiseAuto {
         Path laneSEndParkToLeftPark = Paths.curve(laneEnd, laneSEndParkToLeftParkControl1, laneSEndParkToLeftParkControl2, laneSEndParkToLeftParkControl3, laneSEndParkToLeftParkControl4, laneSEndParkToLeftParkControl5, laneSEndParkToLeftParkControl6, laneSEndParkToLeftParkControl7, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(laneSEndParkToLeftParkSegment1Start, laneSEndParkToLeftParkSegment1End)).until(0.74, Interpolator.constant(laneSEndParkToLeftParkSegment2Heading)).until(0.84, Interpolator.linear(laneSEndParkToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path toWallFlowerStaging = Paths.curve(laneEnd, toWallFlowerStagingControl1, toWallFlowerStagingControl2, toWallFlowerStagingControl3, wallFlowerStaging).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toWallFlowerStagingSegment1Start, wallFlowerStaging)).until(1, Interpolator.constant(wallFlowerStaging)));
         Path flowerParkToLeftPark = Paths.curve(wallFlowerStaging, flowerParkToLeftParkControl1, flowerParkToLeftParkControl2, flowerParkToLeftParkControl3, flowerParkToLeftParkControl4, flowerParkToLeftParkControl5, flowerParkToLeftParkControl6, leftPark).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(flowerParkToLeftParkSegment1Start, flowerParkToLeftParkSegment1End)).until(0.7, Interpolator.constant(flowerParkToLeftParkSegment2Heading)).until(0.8, Interpolator.linear(flowerParkToLeftParkSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
-        Path flowerBackwardToRightAutoOffset = Paths.curve(wallFlowerStaging, flowerBackwardToRightAutoOffsetControl1, flowerBackwardToRightAutoOffsetControl2, rightAutoOffset).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(flowerBackwardToRightAutoOffsetSegment1Start, flowerBackwardToRightAutoOffsetSegment1End)).until(0.6, Interpolator.constant(flowerBackwardToRightAutoOffsetSegment2Heading)).until(1, Interpolator.linear(flowerBackwardToRightAutoOffsetSegment3Start, rightAutoOffset)));
+        Path flowerToRightAutoOffset = Paths.curve(wallFlowerStaging, flowerToRightAutoOffsetControl1, flowerToRightAutoOffsetControl2, rightAutoOffset).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(flowerToRightAutoOffsetSegment1Start, flowerToRightAutoOffsetSegment1End)).until(0.6, Interpolator.constant(flowerToRightAutoOffsetSegment2Heading)).until(1, Interpolator.linear(flowerToRightAutoOffsetSegment3Start, rightAutoOffset)));
         Path underTheHiveToRightAutoFixTip = Paths.curve(leftAutoHive, underTheHiveToRightAutoFixTipControl1, underTheHiveToRightAutoFixTipControl2, underTheHiveToRightAutoFixTipControl3, rightAutoFixTip).heading(Interpolator.piecewise().until(0.79, Interpolator.constant(underTheHiveToRightAutoFixTipSegment1Heading)).until(0.885, Interpolator.linear(underTheHiveToRightAutoFixTipSegment2Start, rightAutoFixTip)).until(1, Interpolator.constant(rightAutoFixTip)));
         Path rightCatchParkToLeftPark = Paths.curve(rightAutoFixTip, rightCatchParkToLeftParkControl1, rightCatchParkToLeftParkControl2, rightCatchParkToLeftParkControl3, rightCatchParkToLeftParkControl4, rightCatchParkToLeftParkControl5, rightCatchParkToLeftParkControl6, rightCatchParkToLeftParkControl7, leftPark).heading(Interpolator.piecewise().until(0.74, Interpolator.constant(rightCatchParkToLeftParkSegment1Heading)).until(0.84, Interpolator.linear(rightCatchParkToLeftParkSegment2Start, leftPark)).until(1, Interpolator.constant(leftPark)));
 
@@ -166,7 +166,7 @@ public final class LClockwiseAuto {
                                                 kit.atMatchSeconds(15.5))),
                                         kit.route("Pickup", 1, () -> kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.8, flowerParkToLeftPark, 3.2)),
                                         kit.route("Pickup", 1, () -> kit.command("PickFlower", 4.5)),
-                                        kit.route("Pickup", 1, () -> kit.path("FLOWER BACKWARD to RIGHT_AUTO_OFFSET", flowerBackwardToRightAutoOffset, 1.7, outsideLaneToLeftPark, 3.7)),
+                                        kit.route("Pickup", 1, () -> kit.path("FLOWER to RIGHT_AUTO_OFFSET", flowerToRightAutoOffset, 2, outsideLaneToLeftPark, 3.7)),
                                         kit.firstOf("L2: RIGHT up by 22 s, otherwise keep the load",
                                                 kit.when("RightCellUp").then(
                                                         kit.guarded("If RightCellUp", outsideLaneToLeftPark, 3.7,

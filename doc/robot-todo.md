@@ -135,8 +135,6 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [ ] R-OutsideLane with L-UnderHive (20 Nov 2026: `wall lane north BACKWARD to LEFT_AUTO_OFFSET` and `BACKWARD to
   RIGHT_AUTO_CLOSE`): balls fired after each backward leg (launcher dips), no contact near `LEFT_AUTO_OFFSET` or
   `RIGHT_AUTO_CLOSE`; push the logs
-- [ ] L-Clockwise, Pickup WALL_FLOWER, with R-Clockwise (20 Nov 2026: `FLOWER BACKWARD to RIGHT_AUTO_OFFSET`): balls
-  fired after the backward leg, no contact near `RIGHT_AUTO_OFFSET`; push the logs
 
 ## Belding work order (agreed 5 Nov)
 

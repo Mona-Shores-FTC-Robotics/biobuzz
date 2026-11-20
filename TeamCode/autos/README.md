@@ -61,7 +61,9 @@ drive them nose-first (mentor: both robots have a bottom plate): `wall lane nort
 spot's 63.8° (the nose-first leg ended at 61°). Backward, that leg is about 3.0 s in the simulator instead of 5.3 s, so R
 first holds at the SCORING FLOWER until 18.6 s (`L has left the GARDEN`): without the hold it came down the lane as L left
 the GARDEN and touched it in 3 of 20 runs (6 with L 20% slow). With it, 0 contacts, every robot parked, the same TIPs and
-points as nose-first and about 0.7 more balls scored a run (20 Nov 2026, `sim-requests/r-outside-lane.json`).
+points as nose-first and about 0.7 more balls scored a run (20 Nov 2026, `sim-requests/r-outside-lane.json`). In
+the best case (`"scenario": "best"`) R then has time for a third TIP: 2.0 TIPs a run become 2.9 (2.95 with L 20% slow),
+56 points 74-75, every robot parked and no contact.
 
 **Known limit: our L dead on `LEFT_START`** (accepted for Fruitport, 19 Nov 2026). Two team spots overlap a robot
 left on `LEFT_START` (62.3, 133.8): `LEFT_AUTO_HIVE` by 3 in and `SCORING_FLOWER_STAGING` by about 1.7 in, with
@@ -73,8 +75,7 @@ HIVE would, but it is a team spot every left-end Auto uses, so it waits until af
 fallback at each stop, and a pickup the drive teams choose in INIT. Each robot has run its half
 alone; the pair has not yet run together
 ([its notes](clockwise.md)). Its volleys are from the
-Autos' launch spots, as every Auto's are. It drove nose-first with a load until 20 Nov 2026; since then L's
-`FLOWER BACKWARD to RIGHT_AUTO_OFFSET` (Pickup WALL_FLOWER) holds 90 down the lane instead of turning round. The version
+Autos' launch spots, as every Auto's are. It drives nose-first with a load; the version
 with backward legs, which has time for a third TIP, was the draft pair `r-clockwise-backward.pp` and
 `l-clockwise-backward.pp`, removed with the other drafts on 19 Nov 2026 (in Git history at `f2c9bb7`).
 L-NoCross was L-Partner; R-NoCross was R-Partner-Tip. This lineup change only renames
