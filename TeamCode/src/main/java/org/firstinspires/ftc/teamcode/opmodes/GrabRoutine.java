@@ -224,7 +224,6 @@ public abstract class GrabRoutine {
         return null;
     }
 
-    /** An Auto's square-up gives up after this long, ms. The button's line-up time by default. */
     /**
      * A line-up that has stalled (no {@link #stallProgressIn} in {@link #stallMs}) this close to its pose,
      * inches, is done: it is pressed against something, as a line-up aimed into a wall is. 0, the default:
@@ -234,6 +233,7 @@ public abstract class GrabRoutine {
         return 0.0;
     }
 
+    /** An Auto's square-up gives up after this long, ms. The button's line-up time by default. */
     protected double autoLineUpTimeoutMs() {
         return lineUpTimeoutMs();
     }

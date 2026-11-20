@@ -258,4 +258,21 @@ public class GardenGatherTest {
             GardenGather.driveIn.extraDepthIn = was;
         }
     }
+
+    /**
+     * An Auto's GardenGather card presses onto the side wall first: from red's GARDEN_STAGING (11.5, 22.1),
+     * the gather line x 8.5, 2 in into the wall is x 6.5, level with the start, facing 270°. Blue's is red's
+     * turned half a turn.
+     */
+    @Test
+    public void theAutoCardPressesOntoTheSideWallLevelWithWhereItStarts() {
+        Pose red = GardenGather.autoWallPress(GardenFieldPoints.RED, new Pose(11.5, 22.1, Math.toRadians(270)), -2.0);
+        assertEquals(6.5, red.x(), 1e-6);
+        assertEquals(22.1, red.y(), 1e-6);
+        assertEquals(Math.toRadians(270), red.heading(), 1e-6);
+        double s = 141.5;
+        Pose blue = GardenGather.autoWallPress(GardenFieldPoints.BLUE, new Pose(s - 11.5, s - 22.1, Math.toRadians(90)), -2.0);
+        assertEquals(s - 6.5, blue.x(), 1e-6);
+        assertEquals(s - 22.1, blue.y(), 1e-6);
+    }
 }
