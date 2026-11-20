@@ -21,7 +21,7 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|9:06PM";
+    public static final String SAVED = "11-19|10:35PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -57,10 +57,8 @@ public final class RSoloAuto {
         Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toLeftAutoHiveControl1 = p.of(29.2986, 127.3052, 0);
-        Pose toLeftAutoHiveSegment1Start = p.of(61.4, 120.45, 180);
-        Pose toLeftAutoHiveSegment1End = p.of(61.4, 120.45, 90);
-        Pose toLeftAutoHiveSegment2Start = p.of(61.4, 120.45, 90);
+        Pose backwardToLeftAutoHiveControl1 = p.of(29.2986, 127.3052, 0);
+        Pose backwardToLeftAutoHiveSegment1Start = p.of(61.4, 120.45, 180);
         Pose leftAutoHiveParkStart = p.of(61.4, 120.45, 273);
         Pose toScoringFlowerStagingStart = p.of(61.4, 120.45, -91.9);
         Pose scoringFlowerStagingParkControl1 = p.of(40, 96, 0);
@@ -79,11 +77,11 @@ public final class RSoloAuto {
         Path toRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
         Path toWallFlowerStaging = Paths.line(rightAutoHive, wallFlowerStaging).linear(rightAutoHive, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
-        Path toLeftAutoHive = Paths.curve(wallFlowerStaging, toLeftAutoHiveControl1, leftAutoHive).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toLeftAutoHiveSegment1Start, toLeftAutoHiveSegment1End)).until(1, Interpolator.longLinear(toLeftAutoHiveSegment2Start, leftAutoHive)));
+        Path backwardToLeftAutoHive = Paths.curve(wallFlowerStaging, backwardToLeftAutoHiveControl1, leftAutoHive).heading(Interpolator.piecewise().until(0.35, Interpolator.linear(backwardToLeftAutoHiveSegment1Start, leftAutoHive)).until(1, Interpolator.constant(leftAutoHive)));
         Path leftAutoHivePark = Paths.line(leftAutoHiveParkStart, rightPark).linear(leftAutoHiveParkStart, rightPark);
         Path toScoringFlowerStaging = Paths.line(toScoringFlowerStagingStart, scoringFlowerStaging).linear(toScoringFlowerStagingStart, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
-        Path toLeftAutoHivePath = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
+        Path toLeftAutoHive = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
         Path toRightPark = Paths.curve(leftAutoHive, toRightParkControl1, rightPark).linear(leftAutoHive, rightPark);
         Path toRightParkPath = Paths.curve(leftAutoHive, toRightPark_2Control1, rightPark).linear(leftAutoHive, rightPark);
         Path toRightAutoHivePath = Paths.curve(leftAutoHive, toRightAutoHive_2Control1, toRightAutoHive_2Control2, toRightAutoHive_2Control3, rightAutoHive).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(toRightAutoHive_2Segment1Start, toRightAutoHive_2Segment1End)).until(1, Interpolator.linear(toRightAutoHive_2Segment2Start, rightAutoHive)));
@@ -97,14 +95,14 @@ public final class RSoloAuto {
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9, wallFlowerStagingPark, 2.1),
                         kit.command("PickFlower", 4.5),
-                        kit.path("to LEFT_AUTO_HIVE", toLeftAutoHive, 2.9, leftAutoHivePark, 2.1),
+                        kit.path("BACKWARD to LEFT_AUTO_HIVE", backwardToLeftAutoHive, 2.9, leftAutoHivePark, 2.1),
                         kit.firstOf("Wait for TIP or CELL up",
                                 kit.when("CellUp").then(
                                         kit.guarded("If CellUp", toRightParkPath, 2.1,
                                                 kit.command("LaunchAll"),
                                                 kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.9),
                                                 kit.command("PickFlower", 4.5),
-                                                kit.path("to LEFT_AUTO_HIVE", toLeftAutoHivePath, 1.3),
+                                                kit.path("to LEFT_AUTO_HIVE", toLeftAutoHive, 1.3),
                                                 kit.firstOf("LEFT CELL still up?",
                                                         kit.when("CellUp").then(
                                                                 kit.guarded("If CellUp", toRightPark, 2.1,

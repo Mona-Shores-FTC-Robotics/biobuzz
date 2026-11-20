@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T02:06:33.862Z",
+  "timestamp": "2026-11-20T03:35:11.871Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -89,7 +89,7 @@
     {
       "id": "line-mw2z05td-jkwfz4",
       "color": "#b07aa1",
-      "name": "to LEFT_AUTO_HIVE",
+      "name": "BACKWARD to LEFT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -116,24 +116,23 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.5,
+              "endProgress": 0.35,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 180,
-                "endDeg": 90
+                "endDeg": 268.9
               }
             },
             {
-              "startProgress": 0.5,
+              "startProgress": 0.35,
               "endProgress": 1,
-              "interpolationType": "linear",
-              "reversed": true,
-              "continueFromPrevious": true,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 90,
-                "endDeg": 268.9
+                "degrees": 268.9
               }
             }
           ]
@@ -761,9 +760,9 @@
         "Tip"
       ],
       "typicalS": {
-        "LaunchAll": 4.5,
+        "LaunchAll": 2.5,
         "PickFlower": 4,
-        "GardenGather": 5,
+        "GardenGather": 3,
         "LaunchOne": 0.5,
         "SpinUp": 0.1
       }
