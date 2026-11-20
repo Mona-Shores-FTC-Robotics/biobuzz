@@ -120,9 +120,10 @@ public final class RobotDifferences {
                         + " checked on Bench: Turret, and it held and aimed in Basic Drive (17 Nov 2026)",
                 () -> TurretSubsystem.lockedForward = false);
         differs(RobotIdentity.TEAM_20245,
-                "Shots sit to one side: turret aimed 6 degrees round from its mark, set by the mentor"
-                        + " with the speed table measured that night (18 Nov 2026)",
-                () -> TurretSubsystem.aimOffsetDeg = 6.0);
+                "Shots sit to one side: turret aimed 5 degrees round from its mark, set by the mentor"
+                        + " with the speed table measured that night (18 Nov 2026; 6 until 20 Nov 2026,"
+                        + " when the mentor set it to 5)",
+                () -> TurretSubsystem.aimOffsetDeg = 5.0);
         differs(RobotIdentity.TEAM_20245,
                 "Firing arc not enforced in the TeleOp: the driver did not see why a shot was held back"
                         + " and the arc refused shots the driver wanted, so the driver makes the call"

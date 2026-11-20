@@ -336,7 +336,7 @@ section, not on master); this is that section.
       19429 too: its stick is in at 0.06, not 20245's 0.6.
 - [ ] **Auto INIT zeroes the turret and holds it at its home angle** (the Auto-INIT turret PR).
       Turret on its home mark, INIT any Auto. **Good:** the turret turns to `aimOffsetDeg` from the
-      mark (20245 6° once #633 merges, 19429 5°; a locked-forward turret holds the mark) and
+      mark (20245 5°, 19429 5°; a locked-forward turret holds the mark) and
       holds there, still, until PLAY; the Robot page says "zeroed at the Auto's INIT"; PLAY does not
       move it again. Turned 20° off the mark by hand and INIT again: it holds 20° off the right place
       (the zero is wherever it sat), so re-seat it on the mark and INIT once more, and it is right.
