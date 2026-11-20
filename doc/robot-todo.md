@@ -240,9 +240,16 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       (continuous-rotation servo) on **Control Hub servo port 0** (`flowerRoller`)
       (`robot_19429.xml`). The turret servo was found in the +5V POWER header, not a
       servo port, and unplugged; it was refitted in **port 4** on 18 Nov (the item below). A **full TeamCode install**, re-Activate `robot_19429`,
-      then **Check: Hardware** (it lists `flowerRoller`). The stick's positions were
-      measured again on 20 Nov in Bench: FLOWER Stick (RETRACTED 1.00, EXTENDED 0.44, a 19429 line in
-      `RobotDifferences`); check Basic Drive's operator Square swings it between them. Then Basic Drive, PLAY: stick in,
+      then **Check: Hardware** (it lists `flowerRoller`). The pivot servo became a **SWYFT servo**
+      on 20 Nov (the goBILDA Torque servo had a mechanical problem), and its 19429 positions were
+      cleared from `RobotDifferences`, so 19429 now runs the shared `RETRACTED` 0.6 / `EXTENDED` 0.0
+      (measured on 20245's goBILDA). **Before Basic Drive:** Bench: FLOWER Stick, step to the in and
+      out stops on the SWYFT servo, and put the two numbers in a PR (a 19429 line in
+      `RobotDifferences` if they differ from 20245's); also check the swing still finishes inside
+      `SETTLE_MS` (1.5 s) and that the stick drops onto the tile when the pulse is cut
+      (`LIMP_EXTENDED`), and whether the SWYFT's range is the 270 degrees `SERVO_RANGE_DEG` assumes
+      (only the bench's and the logs' degrees read it). Then check Basic Drive's operator Square
+      swings it between them. Then Basic Drive, PLAY: stick in,
       roller still; stick down, the roller spins at once (from the request, not once it lands) and
       the DS FLOWER stick line says "roller on"; stick up, it stops. If it turns the wrong way for
       the pick, flip `FlowerStickSubsystem.rollerReversed` in Panels (`true` since 17 Nov,

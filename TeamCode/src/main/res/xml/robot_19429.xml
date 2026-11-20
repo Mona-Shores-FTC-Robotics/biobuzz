@@ -113,12 +113,14 @@
                  see the encoder socket beside motor port 0 below. -->
             <ContinuousRotationServo name="turret" port="4" />
 
-            <!-- FLOWER stick pivot: a goBILDA Torque servo swinging the new
-                 FLOWER stick (17 Nov 2026), on this hub's servo port 5, where
-                 it is plugged in (found 17 Nov when Bench: Turret, driving
-                 port 5, moved the stick; kept there by the mentor's call). It was on the Control Hub's servo port 0,
-                 which now drives the stick's roller. A new stick, so RETRACTED
-                 and EXTENDED are not yet measured on it (doc/robot-todo.md). -->
+            <!-- FLOWER stick pivot: a SWYFT servo swinging the new FLOWER
+                 stick, on this hub's servo port 5, where it is plugged in
+                 (found 17 Nov when Bench: Turret, driving port 5, moved the
+                 stick; kept there by the mentor's call). It replaces the
+                 goBILDA Torque servo, which had a mechanical problem (mentor,
+                 20 Nov 2026). It was on the Control Hub's servo port 0, which
+                 now drives the stick's roller. RETRACTED and EXTENDED are not
+                 yet measured on the SWYFT servo (doc/robot-todo.md). -->
             <Servo name="flowerStick" port="5" />
 
             <!-- Intake roller: one goBILDA 5203 motor (#160, #181), on motor
