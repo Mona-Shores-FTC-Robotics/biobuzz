@@ -1399,12 +1399,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * spot's range (the wheels spin up for it on the way), else {@link #shotRangeIn()}'s odometry.
      * Held within half the launcher's tolerance
      * ({@link LaunchSpeedTable#held}) and never changed while the feeder feeds, so a range that
-     * wobbles never re-arms at-speed or the shot detector mid-volley. With the table switched off
+     * wobbles never re-arms at-speed or the shot detector mid-volley, unless
+     * {@link TeleOpConfig#speedTableDuringFeed} is on ({@link #tableFollowsRange}). With the table switched off
      * ({@link LaunchSpeedTable#enabled}) or no usable row, the configured speed stands, exactly as
      * before the table.
      */
     private void updateTableSpeed() {
-        if (robot.feeder.state() == FeederSubsystem.State.FEED) return;
+        boolean feeding = robot.feeder.state() == FeederSubsystem.State.FEED;
+        if (!tableFollowsRange(feeding, TeleOpConfig.speedTableDuringFeed)) return;
         double next;
         double range = Double.NaN;
         boolean fromSpot = false;
@@ -1426,8 +1428,17 @@ public class BasicDriveTeleOp extends RobotOpMode {
         log.event(Double.isNaN(next)
                 ? String.format(Locale.US, "launcher: speed table %s, configured speed %.0f ticks/s",
                         LaunchSpeedTable.enabled ? "has no rows" : "off", launchSpeed())
-                : String.format(Locale.US, "launcher: speed table %.0f ticks/s at %.0f in (%s), launch speed %.0f",
-                        next, range, fromSpot ? "launch spot" : rangeSource(), launchSpeed()));
+                : String.format(Locale.US, "launcher: speed table %.0f ticks/s at %.0f in (%s), launch speed %.0f%s",
+                        next, range, fromSpot ? "launch spot" : rangeSource(), launchSpeed(),
+                        feeding ? " during the feed" : ""));
+    }
+
+    /**
+     * Whether the speed table may move the launch speed this loop: always between feeds, and during
+     * one only with {@link TeleOpConfig#speedTableDuringFeed} on. Pure, so a test can check it.
+     */
+    static boolean tableFollowsRange(boolean feeding, boolean duringFeed) {
+        return !feeding || duringFeed;
     }
 
     /** The launcher, feeder, aim and controls to Panels, flat keys, one update per loop. Never takes the robot down. */

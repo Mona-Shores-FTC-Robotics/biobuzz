@@ -112,6 +112,22 @@ public final class TeleOpConfig {
     public static double maxLauncherTrimTps = 150.0;
 
     /**
+     * The speed table follows the range during a feed too, so a volley fired while the robot moves
+     * goes at the speed for where each ball leaves, not for where the feed started. Off (the rule
+     * since the table came in): the launch speed is held from the moment the gate opens until the
+     * feed ends. In the 19 Nov 2026 logs on 19429 a Circle pressed at 48 in held 1507 ticks/s while
+     * the driver drove to 52–55 in, where the table gives 1530–1550.
+     *
+     * <p><b>A test switch, not measured.</b> With it on, each change the table makes mid-feed (a
+     * step of at least half the launcher's tolerance) reseeds the shot detector's level, so a shot
+     * taken while it reseeds can go uncounted, and the lane's count with it. Each mid-feed change
+     * is logged ("speed table … during the feed"); compare the shot count with the video and the
+     * hits with the off runs. Read every loop. TeleOp only: an Auto's {@code LaunchAll} picks its
+     * speed once, from where it stops.
+     */
+    public static boolean speedTableDuringFeed = false;
+
+    /**
      * The intake runs all match unless something else asks: from PLAY, as in an Auto. The roller
      * slows to hold the last piece and the prefeed stops by themselves when the lane is full, and
      * both start again when a shot makes room; either L2 reverses it while held; a FLOWER pick or

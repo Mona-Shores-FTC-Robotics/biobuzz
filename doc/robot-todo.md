@@ -35,6 +35,14 @@ this is not a claim that every unchecked item below has passed.
       "Last shot". At STOP every volley goes to the match log as a `volley …` event. **Good:** one
       line per volley, the shot count matches what left the robot. **Stop:** one volley split in
       two (shots more than 1.5 s apart: `VolleyHistory.VOLLEY_GAP_S`) or two run together → note it.
+- [ ] **Speed table during a moving feed** (`TeleOpConfig.speedTableDuringFeed`, 20 Nov, off,
+      not driven). Off, the launch speed is held from gate open to feed end: on 19 Nov 19429 held
+      1507 ticks/s from 48 in while the driver drove to 52–55 in (table: 1530–1550). Basic Drive,
+      loaded, film the shots: hold Circle and drive slowly away from the CELL from about 45 to 60 in,
+      five volleys with it off, then five with it on in Panels. **Good:** with it on the log has
+      `speed table … during the feed` lines, the far balls land no shorter than the near ones, and
+      the shot count matches the video. **Stop:** shots left uncounted with it on (the detector
+      reseeds on each change) → leave it off and note the count against the video.
 - [ ] **19429, when it is back:** the same three volleys. Its old −25 offset matches the new rows
       within about 5 ticks/s from 42 to 55 in, so it starts at 0. **Stop:** long or short at every
       range by the same amount → that amount is its new `RobotDifferences` offset line.
