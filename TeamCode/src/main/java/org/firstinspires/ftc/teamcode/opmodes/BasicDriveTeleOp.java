@@ -161,12 +161,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** The driver's buzz when the firing arc refuses a held fire button. */
     private static final int ARC_RUMBLE_MS = 150;
 
-    /** The driver's gamepad flashes purple while the firing arc refuses a held fire, repeating. */
-    private static final Gamepad.LedEffect ARC_FLASH = new Gamepad.LedEffect.Builder()
-            .addStep(0.6, 0.0, 1.0, 150)
-            .addStep(0.0, 0.0, 0.0, 150)
-            .setRepeating(true)
-            .build();
     /** The launch trim reset's buzz: longer than a trim press's blips, so the two never feel alike. */
     private static final int LAUNCHER_TRIM_RESET_RUMBLE_MS = 400;
 
@@ -242,11 +236,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private boolean arcBlocked;
     /**
      * The turret, or in AIM the aim, points behind the firing arc this loop, whether or not the arc
-     * is enforced ({@link TeleOpConfig#enforceFiringArc}): what the driver's purple flash shows.
+     * is enforced ({@link TeleOpConfig#enforceFiringArc}): what the robot's orange light shows.
      */
     private boolean outsideArc;
-    /** A fire held outside the firing arc last loop: the purple flash is running. */
-    private boolean arcFlashing;
+    /** The robot's orange light: steady outside the firing arc, flashing with a fire held there. */
+    private final ArcLight arcLight = new ArcLight();
+    /** This loop's arc light, handed to the indicator ({@link #arcLight()}). */
+    private ArcLight.State arcLightShown = ArcLight.State.NONE;
     /** The arc held back a held fire button last loop: its log line and rumble go once per hold. */
     private boolean arcRefusing;
     /** This fire press spun the launcher up from idle, so it feeds only once at launch speed. */
@@ -932,15 +928,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     /**
      * The turn that brings the shot onto our CELL: the aim's error, which with the turret locked
-     * is how far the robot must turn, times {@link TeleOpConfig#chassisAimKp}, clamped. No aim, no
+     * is how far the robot must turn, times {@link TeleOpConfig#chassisAimKp}, lifted to
+     * {@link TeleOpConfig#chassisAimMinTurn} so it does not stall short, and nothing inside half the
+     * aim gate's tolerance, so it stops where the gate opens ({@link ChassisAimTurn}). No aim, no
      * turn: the robot holds its heading rather than guess.
      */
     private double chassisAimTurn() {
-        if (Double.isNaN(aimErrorDeg)) return 0.0;
-        double kp = TeleOpConfig.chassisAimKp > 0.0 ? TeleOpConfig.chassisAimKp : 0.0;
-        double max = unitRange(TeleOpConfig.chassisAimMaxTurn);
-        double turn = kp * Math.toRadians(aimErrorDeg);
-        return Math.max(-max, Math.min(max, turn));
+        return ChassisAimTurn.power(aimErrorDeg, TeleOpConfig.chassisAimKp, TeleOpConfig.chassisAimMinTurn,
+                TeleOpConfig.chassisAimMaxTurn, 0.5 * TeleOpConfig.aimToleranceDeg);
     }
 
     /** {@code cell}'s camera sighting if it is fresh enough to aim by ({@link TurretAimer#SIGHTING_FRESH_MS}), else null. */
@@ -1180,24 +1175,19 @@ public class BasicDriveTeleOp extends RobotOpMode {
             arcRumbled = true;
         }
         arcRefusing = refusing;
-        // The driver's purple flash: a fire held outside the arc, refused or (arc not enforced) fed.
-        boolean flashing = wantsFeed && outsideArc;
-        if (flashing && !arcFlashing) {
-            gamepad1.runLedEffect(ARC_FLASH);
+        // The robot's orange light: steady while the shot is behind the arc, so the driver sees it
+        // before pressing; flashing while a fire is held there, refused or (arc not enforced) fed.
+        ArcLight.State light = arcLight.update(outsideArc, wantsFeed, System.nanoTime() / 1_000_000L);
+        // In the log, so a light the drive team never saw can be told from one never shown.
+        if (light != arcLightShown) log.event("indicator: firing arc " + light);
+        if (light == ArcLight.State.FLASH && arcLightShown != ArcLight.State.FLASH) {
             if (!arcBlocked) {
                 log.event(String.format(Locale.US, "fire: outside the firing arc, fed anyway: the arc is not enforced on this robot (turret %.0f°, aim %s)",
                         TurretEncoder.wrap180(robot.turret.angleDegrees()),
                         Double.isNaN(aimer.aimDeg()) ? "none" : String.format(Locale.US, "%.0f°", TurretEncoder.wrap180(aimer.aimDeg()))));
             }
-        } else if (!flashing && arcFlashing) {
-            // The flash repeats until replaced: back to the alliance's colour.
-            if (setup.alliance() == Alliance.BLUE) {
-                gamepad1.setLedColor(0.0, 0.0, 1.0, Gamepad.LED_DURATION_CONTINUOUS);
-            } else {
-                gamepad1.setLedColor(1.0, 0.0, 0.0, Gamepad.LED_DURATION_CONTINUOUS);
-            }
         }
-        arcFlashing = flashing;
+        arcLightShown = light;
         lastFire = fireHeld;
         // requestFor's "at speed" is the enforced gates' verdict here, and it is always required:
         // with nothing enforced the gates are always open. The launch-spot button's volley feeds
@@ -1218,6 +1208,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
             default:
                 robot.feeder.idle();
         }
+    }
+
+    /** The firing arc's part of the robot's indicator light: {@link ArcLight}, decided in {@link #fire()}. */
+    @Override
+    protected ArcLight.State arcLight() {
+        return arcLightShown;
     }
 
     /**

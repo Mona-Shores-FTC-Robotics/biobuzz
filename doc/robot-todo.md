@@ -138,6 +138,49 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [ ] R-OutsideLane with L-UnderHive (20 Nov 2026: `wall lane north BACKWARD to LEFT_AUTO_OFFSET` and `BACKWARD to
   RIGHT_AUTO_CLOSE`, after a wait at the SCORING FLOWER until 18.6 s): balls fired after each backward leg (launcher
   dips), no contact near `LEFT_AUTO_OFFSET` or on the way down to `RIGHT_AUTO_CLOSE`; push the logs
+10. **19429's turret hunts: tune its hold** (20 Nov 2026). 19429 runs 20245's turret values and never had
+   Bench: Turret. Its Basic Drive logs (`read_logs.py hold`) show it reversing 1.18 (18 Nov) and 1.38
+   (19 Nov) times a second holding with the robot still, against 20245's 0.48. At power 1.0 the two
+   match (154 and 146 deg/s), and neither drifts at power 0, so the stop power is fine. Panels open,
+   pushing the logs after each:
+   1. ~~By hand~~: done, it turns freely (mentor, 20 Nov 2026). The floor is not it either: from rest
+      both robots start at power 0.145 within about 33 ms (18 and 19 Nov logs). It is the coast:
+      once its power cuts, 19429's turret runs on 3.3° (20245: 3.4°), more than the ±2° band, so it
+      crosses the band and is kicked back.
+   2. **Floor: done.** Bench: Turret, 19429 turns steadily at +0.06 (10 to 12 deg/s) and -0.065
+      (10 to 13 deg/s), smoother than 20245 (mentor, 20 Nov 2026): `minPower` 0.065 for 19429 in
+      `RobotDifferences`; the 0.005 between the two ways is too small to move the stop power. Run Basic Drive with it
+      first and push the log; only if it still hunts go on to 3.
+   3. **kP: 0.008** for 19429 (mentor, 20 Nov 2026, in Panels), in `RobotDifferences`. Push a Basic
+      Drive log with it: still holding, driving past the CELL, and a big swing (CELL from one side to the
+      other) to check it still gets there quickly. Only if it hunts, go on to 4.
+   4. **Basic Drive, AIM, robot still near the CELL, then driving past it:** in Panels set
+      `TurretSubsystem.kD` 0.0015 (it cuts the power about 3° early at the 40 to 60 deg/s the turret
+      comes in at, onto a still target only). Still swings past → 0.002; stops short and creeps in by
+      small hops → 0.001. Leave `kP` and `holdToleranceDeg`.
+   **Good:** `read_logs.py hold` on the new log reads under 0.6 reversals a second, and the shots
+   still go in → the values that did it get one `RobotDifferences` line for 19429 with the date.
+   **Stop:** nothing helps and the turret felt free by hand → push the logs and say so.
+- [ ] 19429 turret: floor 0.065 (done), kP 0.008 (done), kD ___, reversals/s before 1.18 (18 Nov) / 1.38 (19 Nov),
+      after 0.75 to 1.29 at kP 0.008 (00:18 logs, only 59 s still: too little to judge; kP 0.005 read 0.38 to 0.41
+      but sat 3° off). Next: a longer still hold, then `kD` 0.0015 if it still hunts.
+11. **The robot's orange light, and Circle in LOCKED** (20 Nov 2026, not yet on a robot). Basic Drive.
+   - Turret **AIM**: drive so the CELL is behind the robot. **Good:** the robot's indicator light goes
+     steady orange without Circle pressed, flashes orange with Circle held (19429 does not shoot; 20245
+     shoots), and goes off within about a third of a second of the CELL coming round in front. A full
+     lane still shows green, except while Circle is held behind the arc. The orange is goBILDA's chart
+     value (`IndicatorSubsystem.ORANGE` 0.333), not yet seen on the light: if it reads red or yellow,
+     set it in Panels and put the number in a PR.
+   - Turret **LOCKED**, the CELL 10 to 40° off: hold Circle. **Good:** the robot turns onto the CELL and
+     stops on it, and the volley goes. The chassis aim now never asks for less than
+     `TeleOpConfig.chassisAimMinTurn` (0.2, a starting point: 0.14 did not turn 19429, 0.28 did): if it
+     stops short, raise it in Panels; if it swings past the CELL and back, lower it. Put the value that
+     worked in a PR.
+- [x] Orange light on 19429 (19 Nov 2026, 00:18 logs): orange whenever the CELL went behind, flashing on both
+      refused presses, off when it came back. Still to confirm by eye that 0.333 reads orange, not red or yellow.
+- [x] LOCKED Circle on 19429 with `chassisAimMinTurn` 0.2: all 6 presses turned onto the CELL and stopped
+      0.4 to 1.3° off it (19 Nov 2026, 00:18 logs). Leave 0.2 unless it swings past.
+- [ ] Orange light on 20245; LOCKED Circle on 20245
 
 ## Belding work order (agreed 5 Nov)
 
