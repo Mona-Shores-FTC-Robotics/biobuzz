@@ -28,7 +28,21 @@ package org.firstinspires.ftc.teamcode.opmodes;
  */
 final class ArcLight {
 
-    enum State { NONE, ORANGE, FLASH }
+    /**
+     * {@link #PULSE}: one solid orange of {@code IndicatorSubsystem.ARC_TURN_PULSE_MS} as Circle's
+     * arc turn starts ({@code ArcTurn}), telling the driver the robot is turning itself, so they let
+     * it (mentor, 20 Nov 2026). It outranks a full lane's green, which comes back after it, but not
+     * {@link #FLASH}.
+     */
+    enum State { NONE, ORANGE, FLASH, PULSE }
+
+    /** The pulse ends here, ms on {@link #update}'s clock; {@code Long.MIN_VALUE} for none. */
+    private long pulseUntilMs = Long.MIN_VALUE;
+
+    /** Starts the arc turn's pulse at {@code nowMs}, {@code lengthMs} long (a later start restarts it). */
+    void pulse(long nowMs, long lengthMs) {
+        pulseUntilMs = nowMs + Math.max(0L, lengthMs);
+    }
 
     /** Back inside the arc this long, ms, before the light clears. */
     static final long CLEAR_MS = 300;
@@ -46,7 +60,8 @@ final class ArcLight {
     State update(boolean outsideArc, boolean fireHeld, long nowMs) {
         if (outsideArc) lastOutsideMs = nowMs;
         boolean lit = lastOutsideMs != Long.MIN_VALUE && nowMs - lastOutsideMs < CLEAR_MS;
-        if (!lit) return State.NONE;
-        return fireHeld ? State.FLASH : State.ORANGE;
+        if (lit && fireHeld) return State.FLASH;
+        if (pulseUntilMs != Long.MIN_VALUE && nowMs < pulseUntilMs) return State.PULSE;
+        return lit ? State.ORANGE : State.NONE;
     }
 }

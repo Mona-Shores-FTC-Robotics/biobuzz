@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
@@ -964,6 +965,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
             arcTurning = wants && !arcTurnCancelled && !routineActive();
         }
         if (arcTurning && !was) {
+            // One solid orange as the turn starts, so the driver lets the robot turn (ArcLight.PULSE).
+            arcLight.pulse(System.nanoTime() / 1_000_000L, (long) IndicatorSubsystem.ARC_TURN_PULSE_MS);
             log.event(String.format(Locale.US, "arc turn: aim %.0f° is behind the firing arc, turning %+.0f° to bring it in",
                     TurretEncoder.wrap180(aimer.aimDeg()), arcTurnErrorDeg));
         } else if (!arcTurning && was) {

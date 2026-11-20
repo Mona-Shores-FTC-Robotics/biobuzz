@@ -177,8 +177,10 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    - Turret **AIM**, `TeleOpConfig.circleTurnsIntoArc` on (the default): drive so the CELL is behind
      the robot, loaded, and press Circle. **Good:** the robot turns the short way until the CELL is about
      10° inside the arc's edge (`arcTurnMarginDeg`), the turret swings onto it, and the volley goes, on
-     both robots; the log has `arc turn: … turning` then `arc turn: aim inside the firing arc`. No
-     orange light, no rumble. The light stays dark while driving with the CELL behind. Pushing the
+     both robots; the log has `arc turn: … turning` then `arc turn: aim inside the firing arc`. As
+     the turn starts the light gives one solid orange pulse of about 0.4 s
+     (`IndicatorSubsystem.ARC_TURN_PULSE_MS`), over the green if the lane is full, then goes back to
+     green or dark; no rumble. The light stays dark while driving with the CELL behind. Pushing the
      right stick during the turn hands it back (`arc turn cancelled: right stick`); then the light
      flashes orange while Circle is held behind the arc (19429 does not shoot; 20245 shoots). Ten
      presses from all round the CELL. **Stop:** it turns the long way, swings past and back, or the

@@ -74,9 +74,10 @@ Three layers, each written in exactly one place:
   `RobotDifferences` line): then the TeleOp feeds and the driver makes the call. With
   `TeleOpConfig.circleTurnsIntoArc` on, the driver's Circle in AIM never needs either: with the aim
   behind the arc the robot turns just far enough to bring it inside (`ArcTurn`), and the feed waits for
-  that on every robot. The robot's indicator light then stays dark in normal driving and flashes orange
-  only while a fire is held outside the arc with nothing turning it in (`ArcLight`, `IndicatorSubsystem`);
-  with it off the light is steady orange outside the arc as well. Nothing signals on the gamepad's
+  that on every robot. The robot's indicator light then stays out of normal driving: one solid orange
+  pulse (`IndicatorSubsystem.ARC_TURN_PULSE_MS`) as the turn starts, over a full lane's green, and an
+  orange flash, over everything, only while a fire is held outside the arc with nothing turning it in
+  (`ArcLight`, `IndicatorSubsystem.choose`); with it off the light is steady orange outside the arc as well. Nothing signals on the gamepad's
   light, which nobody watches. An Auto always enforces the arc.
   → README § "The turret: a servo on a servo port, an encoder on a motor's encoder socket"
 - XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what

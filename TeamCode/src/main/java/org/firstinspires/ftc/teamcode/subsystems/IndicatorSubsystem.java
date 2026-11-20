@@ -26,6 +26,8 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  *   <tr><td>After PLAY, a fire held with the shot behind the turret's firing arc</td><td>orange,
  *       flashing</td><td>turns the robot (19429 does not shoot there; a robot with the arc not enforced
  *       shoots into itself)</td></tr>
+ *   <tr><td>After PLAY, Circle's arc turn has just started ({@code ArcTurn})</td><td>orange, one solid
+ *       pulse of {@link #ARC_TURN_PULSE_MS}</td><td>lets the robot turn itself</td></tr>
  *   <tr><td>After PLAY, the lane is full (the colour sensor's {@code LaneFull})</td><td>green</td>
  *       <td>stops intaking</td></tr>
  *   <tr><td>After PLAY, the shot is behind the firing arc ({@code ArcLight})</td><td>orange</td>
@@ -59,8 +61,18 @@ public class IndicatorSubsystem implements Subsystem {
         /** The shot is behind the turret's firing arc: orange. */
         OUTSIDE_ARC,
         /** A fire held with the shot behind the firing arc: orange, flashing. */
-        FIRING_OUTSIDE_ARC
+        FIRING_OUTSIDE_ARC,
+        /** Circle's arc turn has just started ({@code ArcTurn}): solid orange for {@link #ARC_TURN_PULSE_MS}. */
+        ARC_TURN
     }
+
+    /**
+     * How long the arc turn's orange pulse lasts, ms: one solid orange as Circle starts turning the
+     * robot to bring the CELL into the firing arc, so the driver knows the robot is turning itself
+     * (mentor, 20 Nov 2026). Then the light goes back to what it would show (green if full, else off).
+     * 400 is a starting point, <b>not seen on the robot</b>. 0 or less: no pulse.
+     */
+    public static double ARC_TURN_PULSE_MS = 400;
 
     private final Servo light;
     private Signal signal = Signal.OFF;
@@ -95,9 +107,21 @@ public class IndicatorSubsystem implements Subsystem {
      */
     public static Signal choose(boolean init, boolean warnings, boolean full, Alliance alliance,
                                 boolean outsideArc, boolean firingThere) {
+        return choose(init, warnings, full, alliance, outsideArc, firingThere, false);
+    }
+
+    /**
+     * The same, with the arc turn's pulse after PLAY: below a fire held outside the arc, above a full
+     * lane (the pulse is short, and the green comes back after it).
+     *
+     * @param arcTurnPulse Circle's arc turn has just started ({@link Signal#ARC_TURN})
+     */
+    public static Signal choose(boolean init, boolean warnings, boolean full, Alliance alliance,
+                                boolean outsideArc, boolean firingThere, boolean arcTurnPulse) {
         if (init && warnings) return Signal.CHECK_DRIVER_STATION;
         if (!init) {
             if (outsideArc && firingThere) return Signal.FIRING_OUTSIDE_ARC;
+            if (arcTurnPulse) return Signal.ARC_TURN;
             if (full) return Signal.FULL;
             return outsideArc ? Signal.OUTSIDE_ARC : Signal.OFF;
         }
@@ -121,6 +145,7 @@ public class IndicatorSubsystem implements Subsystem {
             case CHECK_DRIVER_STATION: return flashOn(nowMs) ? WHITE : OFF;
             case FULL: return GREEN;
             case OUTSIDE_ARC: return ORANGE;
+            case ARC_TURN: return ORANGE;
             case FIRING_OUTSIDE_ARC: return flashOn(nowMs) ? ORANGE : OFF;
             case ALLIANCE_RED: return RED;
             case ALLIANCE_BLUE: return BLUE;

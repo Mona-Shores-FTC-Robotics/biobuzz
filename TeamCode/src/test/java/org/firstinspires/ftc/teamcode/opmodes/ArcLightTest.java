@@ -34,4 +34,29 @@ public class ArcLightTest {
         assertEquals(ArcLight.State.NONE, light.update(false, false, 1000 + ArcLight.CLEAR_MS));
         assertEquals("a fire inside the arc is not orange", ArcLight.State.NONE, light.update(false, true, 2000));
     }
+
+    @Test
+    public void theArcTurnPulseLastsItsLengthThenClears() {
+        ArcLight light = new ArcLight();
+        light.pulse(1000, 400);
+        // Circle held, the turn sorting it out: the TeleOp says "not outside" while it turns.
+        assertEquals(ArcLight.State.PULSE, light.update(false, true, 1000));
+        assertEquals(ArcLight.State.PULSE, light.update(false, true, 1399));
+        assertEquals(ArcLight.State.NONE, light.update(false, true, 1400));
+    }
+
+    @Test
+    public void aRefusedFireFlashesOverThePulse() {
+        ArcLight light = new ArcLight();
+        light.pulse(0, 400);
+        assertEquals(ArcLight.State.FLASH, light.update(true, true, 100));
+    }
+
+    @Test
+    public void noPulseUntilOneStarts() {
+        ArcLight light = new ArcLight();
+        assertEquals(ArcLight.State.NONE, light.update(false, true, 0));
+        light.pulse(500, 0);
+        assertEquals("a zero-length pulse shows nothing", ArcLight.State.NONE, light.update(false, true, 500));
+    }
 }
