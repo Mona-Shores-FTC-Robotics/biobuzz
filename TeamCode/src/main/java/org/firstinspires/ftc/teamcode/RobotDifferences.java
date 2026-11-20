@@ -110,6 +110,10 @@ public final class RobotDifferences {
                         + " 20 Nov 2026)",
                 () -> TurretSubsystem.minPower = 0.065);
         differs(RobotIdentity.TEAM_19429,
+                "Turret kP 0.008, from 20245's 0.02: with its lower floor (0.065) and smoother turret,"
+                        + " 0.02 came in fast and hunted; 0.008 set in Panels by the mentor (20 Nov 2026)",
+                () -> TurretSubsystem.kP = 0.008);
+        differs(RobotIdentity.TEAM_19429,
                 "Early gate: the Auto opens the feed gate 0.1 s ahead of launch speed (LaunchCards"
                         + " gateLeadS), set in Panels with the speed and aim lines here (mentor, 18 Nov 2026)",
                 () -> LaunchCards.gateLeadS = 0.1);
