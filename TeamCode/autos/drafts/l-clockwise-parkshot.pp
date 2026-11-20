@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T17:49:28.829Z",
+  "timestamp": "2026-11-20T17:58:32.996Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -40,8 +40,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -50,7 +50,7 @@
         },
         {
           "x": 40,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -63,7 +63,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 268.1,
-                "endDeg": 360
+                "endDeg": 345
               }
             },
             {
@@ -71,7 +71,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 360
+                "degrees": 345
               }
             }
           ]
@@ -146,8 +146,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -172,7 +172,7 @@
         },
         {
           "x": 34,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -202,7 +202,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": -15
               }
             },
             {
@@ -210,7 +210,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 0
+                "degrees": -15
               }
             }
           ]
@@ -269,8 +269,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -295,7 +295,7 @@
         },
         {
           "x": 34,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -325,7 +325,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": -15
               }
             },
             {
@@ -333,7 +333,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 0
+                "degrees": -15
               }
             }
           ]
@@ -396,8 +396,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -426,7 +426,7 @@
         },
         {
           "x": 34,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -456,7 +456,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": -15
               }
             },
             {
@@ -464,7 +464,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 0
+                "degrees": -15
               }
             }
           ]
@@ -550,8 +550,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -576,7 +576,7 @@
         },
         {
           "x": 34,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -606,7 +606,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": -15
               }
             },
             {
@@ -614,7 +614,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 0
+                "degrees": -15
               }
             }
           ]
@@ -688,88 +688,6 @@
               "parameters": {
                 "startDeg": 270,
                 "endDeg": 421
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "l-park-shot",
-      "color": "#4e79a7",
-      "name": "outside lane to LEFT_PARK_SHOT",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 13,
-        "y": 119
-      },
-      "controlPoints": [
-        {
-          "x": 27,
-          "y": 34
-        },
-        {
-          "x": 33.5,
-          "y": 66
-        },
-        {
-          "x": 33.5,
-          "y": 94
-        },
-        {
-          "x": 33.5,
-          "y": 108
-        },
-        {
-          "x": 40,
-          "y": 124
-        },
-        {
-          "x": 32,
-          "y": 119
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.15,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 61,
-                "endDeg": 90
-              }
-            },
-            {
-              "startProgress": 0.15,
-              "endProgress": 0.7,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.7,
-              "endProgress": 0.8,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": -15
-              }
-            },
-            {
-              "startProgress": 0.8,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": -15
               }
             }
           ]
@@ -863,8 +781,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14.5,
-        "y": 117.4
+        "x": 13,
+        "y": 119
       },
       "controlPoints": [
         {
@@ -893,7 +811,7 @@
         },
         {
           "x": 34,
-          "y": 117.4
+          "y": 119
         }
       ],
       "heading": {
@@ -914,7 +832,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": -15
               }
             },
             {
@@ -922,7 +840,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 0
+                "degrees": -15
               }
             }
           ]
@@ -995,10 +913,6 @@
     {
       "kind": "path",
       "lineId": "l-to-offset-flower"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-park-shot"
     },
     {
       "kind": "path",
@@ -1108,11 +1022,6 @@
         16.4,
         61
       ],
-      "LEFT_PARK": [
-        14.5,
-        117.4,
-        0
-      ],
       "LEFT_PARK_SHOT": [
         13,
         119,
@@ -1121,19 +1030,18 @@
     },
     "pathEnds": {
       "l-open": "LEFT_AUTO_HIVE",
-      "l-catch-park": "LEFT_PARK",
+      "l-catch-park": "LEFT_PARK_SHOT",
       "l-to-offset-garden": "RIGHT_AUTO_OFFSET",
       "l-under-flower": "LANE_END",
       "l-pickup-flower": "WALL_FLOWER_STAGING",
       "l-to-offset-flower": "RIGHT_AUTO_OFFSET",
       "l-pickup-garden": "GARDEN_STAGING",
       "l-rescue": "RIGHT_AUTO_FIX_TIP",
-      "l-pickup-park-garden": "LEFT_PARK",
-      "l-park": "LEFT_PARK",
-      "l-under-park-flower": "LEFT_PARK",
-      "l-pickup-park-flower": "LEFT_PARK",
-      "l-rescue-park": "LEFT_PARK",
-      "l-park-shot": "LEFT_PARK_SHOT"
+      "l-pickup-park-garden": "LEFT_PARK_SHOT",
+      "l-park": "LEFT_PARK_SHOT",
+      "l-under-park-flower": "LEFT_PARK_SHOT",
+      "l-pickup-park-flower": "LEFT_PARK_SHOT",
+      "l-rescue-park": "LEFT_PARK_SHOT"
     },
     "cards": [
       {
@@ -1294,7 +1202,7 @@
                       {
                         "id": "l-c-park-shot",
                         "kind": "path",
-                        "lineId": "l-park-shot",
+                        "lineId": "l-park",
                         "park": true
                       },
                       {
@@ -1389,7 +1297,6 @@
     "teamSpots": [
       "GARDEN_STAGING",
       "LEFT_AUTO_HIVE",
-      "LEFT_PARK",
       "LEFT_START",
       "RIGHT_AUTO_FIX_TIP",
       "RIGHT_AUTO_OFFSET",
