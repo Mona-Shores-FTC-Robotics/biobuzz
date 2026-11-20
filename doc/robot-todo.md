@@ -1027,7 +1027,9 @@ measurement is [#255].
       now waits until it turns slower than 30°/s, `lowerMaxTurnDegPerSec`), the stick never comes
       down while the robot is swinging round, it is down and still before it reaches the pieces,
       and no stick on a wall. The button's line-up is also 3 in further back (`lineUpBackIn` 6). The tight case is R-NoCross, whose card lowers the stick as the drive
-      in starts: by the 14 Nov logs it lands with 0 to 0.2 s to spare. **Stop:** the stick lands on
+      in starts: by the 14 Nov logs it lands with 0 to 0.2 s to spare. **20 Nov, 20245, button:**
+      at `stickDownMs` 0 the stick sometimes came down on top of the audience wall; 250 fixed it
+      and is the default now. Still to run: 19429's button gathers and R-NoCross at 250. **Stop:** the stick lands on
       the pieces or is still swinging at the wall → `stickDownMs` 300; or keep 0 and start further
       back still: `lineUpBackIn` 9 for the button, and GARDEN_STAGING 3 in further from the
       GARDEN in the Visualizer for the Autos (about 0.04 s more per inch). The stick touches the
