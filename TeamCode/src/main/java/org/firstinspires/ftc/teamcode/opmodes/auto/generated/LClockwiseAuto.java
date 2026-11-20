@@ -21,7 +21,7 @@ public final class LClockwiseAuto {
     public static final String SOURCE = "l-clockwise.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|2:36PM";
+    public static final String SAVED = "11-20|12:52PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -162,8 +162,8 @@ public final class LClockwiseAuto {
                                         kit.route("Pickup", 0, () -> kit.command("GardenGather", 5.5)),
                                         kit.route("Pickup", 0, () -> kit.path("GARDEN to RIGHT_AUTO_OFFSET", gardenToRightAutoOffset, 1.4, outsideLaneToLeftPark, 3.7)),
                                         kit.route("Pickup", 1, () -> kit.path("under the HIVE to LANE_END", underTheHiveToLaneEnd, 2.8, laneSEndParkToLeftPark, 3.8)),
-                                        kit.route("Pickup", 1, () -> kit.firstOf("R has passed the FLOWER: go at 15.5 s",
-                                                kit.atMatchSeconds(15.5))),
+                                        kit.route("Pickup", 1, () -> kit.firstOf("R has passed the FLOWER: go at 14.0 s",
+                                                kit.atMatchSeconds(14))),
                                         kit.route("Pickup", 1, () -> kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.8, flowerParkToLeftPark, 3.2)),
                                         kit.route("Pickup", 1, () -> kit.command("PickFlower", 4.5)),
                                         kit.route("Pickup", 1, () -> kit.path("FLOWER to RIGHT_AUTO_OFFSET", flowerToRightAutoOffset, 2, outsideLaneToLeftPark, 3.7)),

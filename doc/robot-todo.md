@@ -829,7 +829,7 @@ Use the work order above to select checks; the detailed mechanism checks below a
         crosses, shoots from RIGHT_START and parks at 22.5 s; R parks at 15.5 s with its load),
         then L's. **Good:** the trace shows those rows, and both robots park.
       - **The other pickup:** Pickup GARDEN on R and WALL_FLOWER on L. **Good:** L stands at the
-        LANE_END until 15.5 s (TF) and R has passed the WALL FLOWER by then.
+        LANE_END until 14.0 s (TF) and R has passed the WALL FLOWER by then.
       - **Shot trigger TIMER on both,** with T1 8 and T2 13 set in INIT, the camera covered.
         **Good:** each stop shoots at its time; nothing waits on the HIVE.
 - [ ] **Drive times for the planning numbers** ([#504], the Belding timing analysis): a Utility
