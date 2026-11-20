@@ -242,17 +242,4 @@ public class GardenGatherTest {
         GardenFieldPoints.Garden a = GardenFieldPoints.alongAudienceWall(GardenFieldPoints.RED);
         assertEquals(-1.0, GardenGather.wallLineShiftIn(a.gather, new Pose(30.0, 7.5, a.gather.heading()), a.wallSide(), 4.0), EPS);
     }
-
-    /** The four corner ways in facing a side wall are flagged so; the four facing the audience or far wall are not. */
-    @Test
-    public void halfTheCornerWaysInFaceASideWall() {
-        int facing = 0;
-        for (GardenFieldPoints.Garden g : GardenFieldPoints.CORNERS) {
-            if (g.facingSideWall) facing++;
-            assertEquals(g.name, g.name.contains("facing the side wall"), g.facingSideWall);
-        }
-        assertEquals(4, facing);
-        assertFalse(GardenFieldPoints.RED.facingSideWall);
-        assertTrue(GardenFieldPoints.alongAudienceWall(GardenFieldPoints.RED).facingSideWall);
-    }
 }

@@ -1159,9 +1159,8 @@ measurement is [#255].
       run):** 20245's Panels settings of 20 Nov are the defaults now (line-up 14 in further back and -2 in
       into the wall, `inSpeed` 0.7, `extraDepthIn` 2, dwell 700 ms at 0.3, the stick's 20° and 10 in), and
       the drive in runs along where the line-up stopped against the wall (`GardenGather.lineUp.followWallLine`),
-      not the pose's line. Facing a side wall the corner angle is `alongWall.intoCornerDeg` (1); facing the
-      audience wall it is still `driveIn.intoCornerDeg` (15), and an Auto's GARDEN card keeps
-      `laneTowardWallIn` 5. Sloth Load, then 3 gathers each way in at the red GARDEN, once with the pose
+      not the pose's line. The corner angle is 1° both ways in (`driveIn.intoCornerDeg`, the Auto's
+      GARDEN card's too), and an Auto's GARDEN card keeps `laneTowardWallIn` 5. Sloth Load, then 3 gathers each way in at the red GARDEN, once with the pose
       knocked an inch or two off sideways. **Good:** the side stays on the wall through the drive in, the
       stick lands clear of the POLLEN, and `Lane/Count` rises. **Stop:** the line-up sits pinned against
       the wall or ends "line-up timed out" → note it (the line-up should end when it stalls on the wall);

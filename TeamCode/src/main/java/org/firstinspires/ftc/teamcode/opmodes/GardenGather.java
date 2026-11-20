@@ -301,8 +301,11 @@ public final class GardenGather extends GrabRoutine {
          * gather missed the corner ball). 15 since 19 Nov 2026 (mentor, on 19429: at 0 the robot sat on the
          * audience wall short of the corner; at 15, the cap, it went all the way in every time). The dwell
          * and the push steer onto the line along this heading too, which draws the robot into the corner.
+         * 1 since 20 Nov 2026 (mentor, on 20245 with the corner gather, both ways in: 15 was too severe;
+         * facing the side wall the robot turned only 4° of it before it stalled, and facing the audience wall
+         * it swung away from the side wall and came in at the angle).
          */
-        public double intoCornerDeg = 15.0;
+        public double intoCornerDeg = 1.0;
         /** The drive in gives up after this long, ms. */
         public double inTimeoutMs = 4000;
         /** Less progress than this, inches, in {@link DriveIn#stallMs} means the robot is against something. */
@@ -440,12 +443,9 @@ public final class GardenGather extends GrabRoutine {
         /**
          * How far the intake turns toward the audience wall, degrees (counter-clockwise for red, as
          * {@link DriveIn#intoCornerDeg} turns the corner gather toward the side wall). 0: square to the side
-         * wall, the robot's left side flat along the audience wall, as it was driven by hand. The button's corner
-         * ways in facing a side wall ({@link GardenFieldPoints.Garden#facingSideWall}) use it too: 1 since 20 Nov
-         * 2026 (mentor, on 20245: 15, {@link DriveIn#intoCornerDeg}'s, was too severe that way in, the row along
-         * the robot's side, and the robot only turned 4° of it before it stalled).
+         * wall, the robot's left side flat along the audience wall, as it was driven by hand.
          */
-        public double intoCornerDeg = 1.0;
+        public double intoCornerDeg = 0.0;
         /**
          * The gather hands the robot to the next path once it has backed this far out of the corner, inches,
          * rather than backing all the way to where the card started and stopping there. The next path leaves
@@ -737,7 +737,7 @@ public final class GardenGather extends GrabRoutine {
         // Angled into the corner: toward the wall it runs along, so with the wall on the right the
         // heading turns clockwise, and with it on the left counter-clockwise.
         double corner = side * Math.toRadians(Math.max(-15.0, Math.min(15.0,
-                nn(alongTheWall || garden.facingSideWall ? alongWall.intoCornerDeg : driveIn.intoCornerDeg))));
+                nn(alongTheWall ? alongWall.intoCornerDeg : driveIn.intoCornerDeg))));
         return InPlan.to(new Pose(g.x() + deeper * Math.cos(h) + wall * Math.sin(h),
                 g.y() + deeper * Math.sin(h) - wall * Math.cos(h), h - corner));
     }
