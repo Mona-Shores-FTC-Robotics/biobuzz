@@ -4,16 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-/** The driver's firing-arc light: purple whenever the shot is behind the arc, flashing with a fire held, steady at the edge. */
+/** The driver's firing-arc light: orange whenever the shot is behind the arc, flashing with a fire held, steady at the edge. */
 public class ArcLightTest {
 
     @Test
-    public void purpleWithoutAFireHeldFlashingWithOne() {
+    public void orangeWithoutAFireHeldFlashingWithOne() {
         ArcLight light = new ArcLight();
         assertEquals(ArcLight.State.ALLIANCE, light.update(false, false, 0));
-        assertEquals("the driver sees it before pressing", ArcLight.State.PURPLE, light.update(true, false, 20));
+        assertEquals("the driver sees it before pressing", ArcLight.State.ORANGE, light.update(true, false, 20));
         assertEquals(ArcLight.State.FLASH, light.update(true, true, 40));
-        assertEquals(ArcLight.State.PURPLE, light.update(true, false, 60));
+        assertEquals(ArcLight.State.ORANGE, light.update(true, false, 60));
     }
 
     @Test
@@ -30,8 +30,8 @@ public class ArcLightTest {
     public void clearsOnlyOnceBackInsideForAWhile() {
         ArcLight light = new ArcLight();
         light.update(true, false, 1000);
-        assertEquals(ArcLight.State.PURPLE, light.update(false, false, 1000 + ArcLight.CLEAR_MS - 1));
+        assertEquals(ArcLight.State.ORANGE, light.update(false, false, 1000 + ArcLight.CLEAR_MS - 1));
         assertEquals(ArcLight.State.ALLIANCE, light.update(false, false, 1000 + ArcLight.CLEAR_MS));
-        assertEquals("a fire inside the arc is not purple", ArcLight.State.ALLIANCE, light.update(false, true, 2000));
+        assertEquals("a fire inside the arc is not orange", ArcLight.State.ALLIANCE, light.update(false, true, 2000));
     }
 }

@@ -6,12 +6,15 @@ package org.firstinspires.ftc.teamcode.opmodes;
  *
  * <ul>
  *   <li><b>{@link State#ALLIANCE}</b>: the shot is one the robot can take; the alliance's colour.</li>
- *   <li><b>{@link State#PURPLE}</b>: the turret, or in AIM the aim, points behind the arc, so a
+ *   <li><b>{@link State#ORANGE}</b>: the turret, or in AIM the aim, points behind the arc, so a
  *       Circle press now would be refused (or, with the arc not enforced, hit the robot). Steady,
  *       whether or not a fire is held, so the driver sees it before pressing (mentor, 20 Nov 2026:
  *       lit only while a fire was held, the light seemed to do nothing).</li>
- *   <li><b>{@link State#FLASH}</b>: the same, with a fire held: purple flashing.</li>
+ *   <li><b>{@link State#FLASH}</b>: the same, with a fire held: orange flashing.</li>
  * </ul>
+ *
+ * <p>Orange, not purple: purple (red and blue mixed) does not show well on the pads' light bars
+ * (mentor, 20 Nov 2026).
  *
  * <p>Outside lights it at once; back inside, it waits {@link #CLEAR_MS} before it clears. On
  * 20245, 19 Nov 2026, an aim sitting on the arc's 90° edge turned the flash on and off 13 times in
@@ -19,7 +22,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
  */
 final class ArcLight {
 
-    enum State { ALLIANCE, PURPLE, FLASH }
+    enum State { ALLIANCE, ORANGE, FLASH }
 
     /** Back inside the arc this long, ms, before the light clears. */
     static final long CLEAR_MS = 300;
@@ -38,6 +41,6 @@ final class ArcLight {
         if (outsideArc) lastOutsideMs = nowMs;
         boolean lit = lastOutsideMs != Long.MIN_VALUE && nowMs - lastOutsideMs < CLEAR_MS;
         if (!lit) return State.ALLIANCE;
-        return fireHeld ? State.FLASH : State.PURPLE;
+        return fireHeld ? State.FLASH : State.ORANGE;
     }
 }

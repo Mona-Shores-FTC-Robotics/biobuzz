@@ -161,9 +161,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** The driver's buzz when the firing arc refuses a held fire button. */
     private static final int ARC_RUMBLE_MS = 150;
 
-    /** The driver's gamepad flashes purple while a fire is held outside the firing arc ({@link ArcLight}), repeating. */
+    /** The driver's gamepad flashes orange while a fire is held outside the firing arc ({@link ArcLight}), repeating. */
     private static final Gamepad.LedEffect ARC_FLASH = new Gamepad.LedEffect.Builder()
-            .addStep(0.6, 0.0, 1.0, 150)
+            .addStep(1.0, 0.35, 0.0, 150)
             .addStep(0.0, 0.0, 0.0, 150)
             .setRepeating(true)
             .build();
@@ -242,10 +242,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private boolean arcBlocked;
     /**
      * The turret, or in AIM the aim, points behind the firing arc this loop, whether or not the arc
-     * is enforced ({@link TeleOpConfig#enforceFiringArc}): what the driver's purple light shows.
+     * is enforced ({@link TeleOpConfig#enforceFiringArc}): what the driver's orange light shows.
      */
     private boolean outsideArc;
-    /** The driver's purple light: steady outside the firing arc, flashing with a fire held there. */
+    /** The driver's orange light: steady outside the firing arc, flashing with a fire held there. */
     private final ArcLight arcLight = new ArcLight();
     /** What the driver's light was last sent: sent again only when it changes. */
     private ArcLight.State arcLightShown = ArcLight.State.ALLIANCE;
@@ -1182,7 +1182,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             arcRumbled = true;
         }
         arcRefusing = refusing;
-        // The driver's purple light: steady while the shot is behind the arc, so the driver sees it
+        // The driver's orange light: steady while the shot is behind the arc, so the driver sees it
         // before pressing; flashing while a fire is held there, refused or (arc not enforced) fed.
         ArcLight.State light = arcLight.update(outsideArc, wantsFeed, System.nanoTime() / 1_000_000L);
         if (light != arcLightShown) showArcLight(light);
@@ -1224,8 +1224,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
             case FLASH:
                 gamepad1.runLedEffect(ARC_FLASH);
                 break;
-            case PURPLE:
-                gamepad1.setLedColor(0.6, 0.0, 1.0, Gamepad.LED_DURATION_CONTINUOUS);
+            case ORANGE:
+                gamepad1.setLedColor(1.0, 0.35, 0.0, Gamepad.LED_DURATION_CONTINUOUS);
                 break;
             default:
                 if (setup.alliance() == Alliance.BLUE) {

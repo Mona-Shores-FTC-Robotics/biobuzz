@@ -154,13 +154,13 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    still go in → the values that did it get one `RobotDifferences` line for 19429 with the date.
    **Stop:** nothing helps and the turret felt free by hand → push the logs and say so.
 - [ ] 19429 turret: floor 0.065 (done), kP 0.008 (done), kD ___, reversals/s before 1.18 (18 Nov) / 1.38 (19 Nov), after ___
-11. **The driver's purple light** (20 Nov 2026, not yet on a robot). Basic Drive, turret **AIM**, with
+11. **The driver's orange light** (20 Nov 2026, not yet on a robot). Basic Drive, turret **AIM**, with
    a PS4 pad on gamepad 1: drive so the CELL is behind the robot. **Good:** the driver's light bar goes
-   steady purple without Circle pressed, flashes purple with Circle held (19429 does not shoot; 20245
+   steady orange without Circle pressed, flashes orange with Circle held (19429 does not shoot; 20245
    shoots), and turns back to the alliance colour within about a third of a second of the CELL
    coming round in front. The DualShock 4's light bar faces away from the driver, so check it from
    the front and ask the driver whether they can see it at all. **Stop:** it never changes → push the log.
-- [ ] Purple light: steady outside the arc, flashing with Circle, both robots; driver can see it ___
+- [ ] Orange light: steady outside the arc, flashing with Circle, both robots; driver can see it ___
 
 ## Belding work order (agreed 5 Nov)
 
