@@ -154,13 +154,16 @@ G:\Shared drives\Robotics Team 3572 - Wavelength\2026-2027 FTC Biobuzz\Logs\<rob
 
 That needs **Google Drive for Desktop** on the laptop, signed in as a member of the
 `Robotics Team 3572 - Wavelength` shared drive. The script looks for the folder on every drive
-letter, so it does not matter which one Drive mounts. While the laptop is on the robot's Wi-Fi it
+letter, so it does not matter which one Drive mounts; it tries them all at once and gives up on
+any that has not answered in 5 s (a mapped network drive that is not connected, such as a school
+share away from school, used to make the pull sit there with nothing on screen). While the laptop is on the robot's Wi-Fi it
 has no internet; Drive holds the files and uploads them when the laptop is back on a network, so
 check the folder on drive.google.com after a meeting before trusting `-RemoveFromRobot`.
 
 A laptop without the folder (no Drive, or not a member) falls back to
-`%USERPROFILE%\biobuzz-logs\<robot network>\` and says so in its first lines. Those logs are on
-that laptop only; copy them into the Drive folder by hand, or pass `-Dest` next time.
+`%USERPROFILE%\biobuzz-logs\<robot network>\` and says so in its first lines. Everything else
+works the same: they still go up to GitHub (above) and come off the robot once they have. They
+are just not on Drive; copy them into the Drive folder by hand if the team wants them there.
 
 ## What it does about adb
 

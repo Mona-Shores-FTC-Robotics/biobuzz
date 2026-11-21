@@ -163,12 +163,37 @@ function Find-Adb {
 # Where logs go when -Dest is not given: the team's Google Drive folder if this laptop has it,
 # else a local folder. The Drive folder is only used if it already exists, so a laptop that has
 # Drive but is not a member of the shared drive, or has it on another letter, still gets its logs.
+# Every drive letter is tried at once, each in its own runspace, for at most $DriveProbeSeconds in
+# all: a mapped network drive that is not connected (a school share at an event) can hold a plain
+# Test-Path for half a minute or more, and the pull then sat there with nothing on screen.
+$DriveProbeSeconds = 5
 function Find-Dest {
     if ($Dest) { return $Dest }
-    foreach ($drive in (Get-PSDrive -PSProvider FileSystem)) {
-        $candidate = Join-Path $drive.Root $SharedDriveLogs
-        if (Test-Path -LiteralPath $candidate -PathType Container) { return $candidate }
+    Say 'looking for the team''s Google Drive folder...'
+    $probes = @()
+    foreach ($drive in [System.IO.DriveInfo]::GetDrives()) {
+        $candidate = Join-Path $drive.Name $SharedDriveLogs
+        try {
+            $shell = [powershell]::Create()
+            [void]$shell.AddCommand('Test-Path').AddParameter('LiteralPath', $candidate).AddParameter('PathType', 'Container')
+            $probes += [pscustomobject]@{ Drive = $drive.Name; Path = $candidate; Shell = $shell; Async = $shell.BeginInvoke() }
+        } catch { }
     }
+    $deadline = (Get-Date).AddSeconds($DriveProbeSeconds)
+    $found = $null
+    foreach ($p in $probes) {
+        $left = [int][Math]::Max(0, ($deadline - (Get-Date)).TotalMilliseconds)
+        if (-not $p.Async.AsyncWaitHandle.WaitOne($left)) {
+            # Left running: stopping a runspace stuck on a dead drive would block just the same.
+            Say "drive $($p.Drive) did not answer in $DriveProbeSeconds s (a disconnected network drive?): skipped."
+            continue
+        }
+        $answer = $null
+        try { $answer = $p.Shell.EndInvoke($p.Async) } catch { }
+        $p.Shell.Dispose()
+        if (-not $found -and $answer -and $answer.Count -gt 0 -and $answer[0] -eq $true) { $found = $p.Path }
+    }
+    if ($found) { return $found }
     return $LocalLogs
 }
 
