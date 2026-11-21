@@ -128,7 +128,16 @@ function Start-Recording([string]$url) {
     $pidFile = Join-Path $SourcesDir "$tag.pid"
     if (Test-Path $pidFile) {
         $old = Get-Process -Id ([int](Get-Content -Raw $pidFile)) -ErrorAction SilentlyContinue
-        if ($old -and -not $old.HasExited) { return }
+        if ($old -and -not $old.HasExited) {
+            # Alive is not recording: a yt-dlp whose stream URL went stale stays open and writes nothing. Restart one
+            # whose newest file has not grown for 2 minutes (a new recording, with its own clock, beside the old).
+            $cur = @(Get-ChildItem -Path $SourcesDir -Filter "$tag-*.ts" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending)
+            if ($cur.Count -gt 0 -and ((Get-Date) - $cur[0].LastWriteTime).TotalSeconds -lt 120) { return }
+            if ($cur.Count -eq 0 -and ((Get-Date) - $old.StartTime).TotalSeconds -lt 120) { return }
+            $since = "its start"; if ($cur.Count -gt 0) { $since = $cur[0].LastWriteTime.ToString("HH:mm:ss") }
+            Warn "the recording of $url has written nothing since ${since}: restarting it"
+            & taskkill.exe /PID $old.Id /T /F 2>&1 | Out-Null
+        }
     }
     # Only a live stream: a finished one would come down from its very start, under the wrong clock.
     if (-not (Test-Live $url)) { Warn "$url is not live now: nothing to record (a finished stream is read directly)"; return }
@@ -199,6 +208,10 @@ function Find-MatchVideo($row) {
     foreach ($r in (Get-Recordings | Sort-Object { $_.Started } -Descending)) {
         if ($row.Start -lt $r.Started + 5) { continue }
         if ($now -lt $row.Start + 100) { return $null }   # its Auto may not be on disk yet
+        # A recording that stopped (stalled, or the window was closed) before this match's Auto does not have it:
+        # skip it, and once the stream is a finished video the match comes from there.
+        $end = ([DateTimeOffset](Get-Item $r.File).LastWriteTimeUtc).ToUnixTimeMilliseconds() / 1000.0
+        if ($end -lt $row.Start + 80) { continue }
         return @{ File = $r.File; At = $row.Start - $r.Started; How = "the recording" }
     }
     # 3. a finished stream
