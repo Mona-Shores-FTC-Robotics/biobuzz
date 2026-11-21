@@ -110,6 +110,16 @@ public final class GardenGather extends GrabRoutine {
          */
         public double stallWithinIn = 8.0;
         /**
+         * An Auto's {@code GardenGather} card presses onto the wall first, as the button's line-up does: from
+         * where the drive before it left the robot, a strafe onto the side wall level with it
+         * ({@link #autoWallPress}, {@link LineUp#lineUpOutIn} into the wall), then the drive in along where that
+         * stopped ({@link LineUp#followWallLine}). Needs {@link LineUp#lineUpOutIn} negative. Not the
+         * along-the-wall card, whose drive before already runs on its wall. Why (mentor, 20 Nov 2026): the
+         * button's gather was "perfect" this way on 20245; the card had no line-up and leaned
+         * {@link DriveIn#laneTowardWallIn} into the wall instead. Not yet run. Off: the card as before.
+         */
+        public boolean autoPressOntoWall = true;
+        /**
          * And this much further back from the GARDEN (away from the audience wall), inches. 6 since
          * 16 Nov 2026 (mentor; 3 before, the value of the 14 Nov field session): 3 in more drive in, about
          * 0.12 s, for the stick to finish its swing in, when nothing stood for it (16 Nov; it stands
@@ -722,6 +732,25 @@ public final class GardenGather extends GrabRoutine {
         return wallControl(from, g.gather);
     }
 
+    /**
+     * An Auto's {@code GardenGather} card's press onto the wall ({@link LineUp#autoPressOntoWall}): from
+     * {@code from}, on the gather pose's line along the side wall, level with {@code from}, and
+     * {@link LineUp#lineUpOutIn} into the wall, facing the gather heading. Null for none.
+     */
+    @Override
+    protected InPlan autoLineUp(Pose from) {
+        if (alongTheWall || !lineUp.autoPressOntoWall || !followsWallLine()) return null;
+        return InPlan.to(autoWallPress(garden, from, lineUp.lineUpOutIn));
+    }
+
+    /** See {@link #autoLineUp}: {@code outIn} away from the wall {@code g} runs along (negative: into it). */
+    static Pose autoWallPress(Garden g, Pose from, double outIn) {
+        Pose on = overTo(g, from);
+        double h = on.heading();
+        double out = outIn * g.wallSide();
+        return new Pose(on.x() - out * Math.sin(h), on.y() + out * Math.cos(h), h);
+    }
+
     @Override
     protected double inPushPower() {
         return alongTheWall ? alongWall.pushPower : twoStep.pushPower;
@@ -765,7 +794,7 @@ public final class GardenGather extends GrabRoutine {
         // A curved drive in reaches the wall's line early: it ends barely toward it, not pinned into it.
         double side = garden.wallSide();
         double wall = side * (driveIn.curveToWall || alongTheWall ? nn(driveIn.laneTowardWallIn) : nn(driveIn.towardWallIn));
-        if (linedUp && !inAuto() && followsWallLine()) {
+        if (linedUp && followsWallLine()) {
             // The line-up pressed into the wall: run along where it stopped, however far off the pose is.
             wall = wallLineShiftIn(g, from, side, nn(lineUp.maxWallLineShiftIn));
         }
