@@ -123,6 +123,10 @@ public final class RobotDifferences {
                         + " backward-leg Auto trials may run (mentor, 18 Nov 2026; doc/robot-todo.md has"
                         + " the backward drive that must pass first)",
                 () -> IntakeSubsystem.holdsLoadDrivingBackward = true);
+        differs(RobotIdentity.TEAM_19429,
+                "Locked out of NECTAR: it kept catching NECTAR, so the reject spits out both colours"
+                        + " and it keeps only POLLEN (mentor, 21 Nov 2026)",
+                () -> ColorSensorSubsystem.rejectAllNectar = true);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // The shared values were mostly measured on 20245.

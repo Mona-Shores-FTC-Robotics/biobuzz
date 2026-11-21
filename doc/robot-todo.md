@@ -1774,13 +1774,13 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       Belding logs: a dim POLLEN at 46° was spat out, real red NECTAR read up to 39°. The gap is
       narrow, so in this check feed some POLLEN in slowly and half-covered (a dim reading) and note
       every hue the Robot page shows between 35° and 55° with what the piece really was.
-- [ ] **19429 keeps its own alliance's NECTAR** (the 7 Nov `rejectAllNectar` line for 19429 is
-      gone from `RobotDifferences`, so 19429 runs the shared reject: only the other alliance's
-      NECTAR is spat out). Basic Drive on 19429, red then blue: feed in a red NECTAR, a blue NECTAR
-      and a POLLEN, five times each. **Good:** our alliance's NECTAR and every POLLEN are kept, the
-      other alliance's NECTAR comes back out, and the match log's Metadata lists no NECTAR line under
-      `RobotDifferences`. **Stop:** our NECTAR spat out → narrow the NECTAR hue ranges as above; to
-      lock 19429 out of NECTAR again for a match, Panels `rejectAllNectar` on.
+- [ ] **19429 spits out both NECTAR colours** (`RobotDifferences` sets `rejectAllNectar` on 19429,
+      21 Nov 2026: it kept catching NECTAR). Basic Drive on 19429, red then blue: feed in a red
+      NECTAR, a blue NECTAR and a POLLEN, five times each. **Good:** both NECTARs come back out, every
+      POLLEN is kept, and the match log's Metadata lists the NECTAR line under `RobotDifferences`.
+      **Stop:** a POLLEN spat out → narrow the NECTAR hue ranges as above; a NECTAR kept → widen
+      them, or lengthen `rejectBurstS`. To let 19429 keep NECTAR for one session, Panels
+      `rejectAllNectar` off.
 - [ ] **Full-lane position hold:** Panels `IntakeSubsystem.positionHoldWhenFull` defaults on
       for both robots (19429's encoder wire was plugged in 6 Nov, so its off line is gone). The roller captures
       its encoder position once, stars continue inward and prefeed stops. Initial `positionHoldMaxPower` 0.3 and
