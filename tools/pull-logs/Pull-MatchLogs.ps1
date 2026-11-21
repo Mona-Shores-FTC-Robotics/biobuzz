@@ -16,8 +16,10 @@ logging/MatchLog). This script:
   5. sends today's logs to GitHub, one branch per day and robot (logs/<date>-<robot network>), so
      a Claude session can read them when asked to "pull logs". Only when GitHub answers: on the
      robot's Wi-Fi there is no internet, so they go up on the next run that has it (double-click
-     again at home or school, robot or no robot). Your checkout is never touched: the branch is
-     written with git's plumbing, not by switching branches.
+     again at home or school, robot or no robot). Newest first, one log (or a few small ones) per
+     push, each retried a few times, so a slow hotspot gets through what it can and the rest go on
+     a later run; the last line says how many went and how many failed. Your checkout is never
+     touched: the branch is written with git's plumbing, not by switching branches.
 
 A Driver Hub plugged into this laptop by USB is pulled too (never written to, never deleted
 from): its Driver Station log and Android's battery history, into the same robot folder, so they
@@ -510,9 +512,128 @@ function Invoke-Git {
     return @($out)
 }
 
+# Pushes go up in small pieces, so a slow or flaky link (a phone hotspot at an event: every push
+# of a whole day failed with "RPC failed; HTTP 408" on 21 Nov) still gets most of them through.
+# A batch is one log, or several small ones up to this many bytes gzipped; a bigger log goes alone.
+$PublishBatchBytes = 2MB
+# Each batch is pushed up to this many times, waiting this long (s) before the 2nd, 3rd, ... try.
+$PushAttempts = 3
+$PushBackoffSeconds = @(10, 30, 60)
+# After this many batches in a row have failed every try, the link is too slow today: stop.
+$MaxSlowBatchesInARow = 3
+# On every push: buffer the whole pack (GitHub's "RPC failed" advice; up to the 95 MB file limit
+# and then some), so it goes with a Content-Length rather than chunked, which a hotspot's proxy may
+# drop; and give up on a push that has moved under 1 KB/s for 60 s, so a dead link fails in a
+# minute and is retried, rather than hanging until GitHub answers 408.
+$PushConfig = @('-c', 'http.postBuffer=209715200', '-c', 'http.lowSpeedLimit=1000', '-c', 'http.lowSpeedTime=60')
+
+# One line of git's reply, short enough for the summary.
+function Format-GitReply([string]$Reply) {
+    $text = ($Reply -replace '\s+', ' ').Trim()
+    if ($text.Length -gt 300) { $text = $text.Substring(0, 300) + '...' }
+    return $text
+}
+
+# Why a push failed: 'moved' (the branch has commits this laptop lacks: another laptop pushed),
+# 'refused' (GitHub said no: sign-in or permission; every push would fail the same way),
+# 'offline' (no route to GitHub at all), else 'slow' (408, timeout, hang-up: this batch only).
+function Get-PushFailureKind([string]$Reply) {
+    if ($Reply -match 'non-fast-forward|fetch first|stale info') { return 'moved' }
+    if ($Reply -match 'Authentication failed|could not read Username|Permission to \S+ denied|returned error: 40[134]|Repository not found') { return 'refused' }
+    if ($Reply -match 'Could not resolve host|Failed to connect|Couldn''t connect|Network is unreachable|No route to host') { return 'offline' }
+    return 'slow'
+}
+
+# The branch's commit on GitHub, fetched so its tree can be read, or $null if it has none yet.
+function Get-RemoteTip([string]$Branch) {
+    Invoke-Git @('fetch', '--quiet', 'origin', "+refs/heads/${Branch}:refs/remotes/origin/${Branch}") | Out-Null
+    if ($LASTEXITCODE -ne 0) { return $null }
+    $tip = ((Invoke-Git @('rev-parse', '--verify', '--quiet', "refs/remotes/origin/${Branch}")) -join '').Trim()
+    if ($LASTEXITCODE -ne 0 -or -not $tip) { return $null }
+    return $tip
+}
+
+# A commit holding $Parent's files plus the batch's, built in a private index so the checkout's
+# own index and files are never touched. $null if git could not build it.
+function New-LogCommit {
+    param([string]$Parent, [object[]]$Batch, [string]$Message)
+    $index = Join-Path $env:TEMP ('biobuzz-logs-index-' + [guid]::NewGuid().ToString('N'))
+    $tree = $null
+    $env:GIT_INDEX_FILE = $index
+    try {
+        if ($Parent) { Invoke-Git @('read-tree', $Parent) | Out-Null } else { Invoke-Git @('read-tree', '--empty') | Out-Null }
+        if ($LASTEXITCODE -ne 0) { return $null }
+        foreach ($item in $Batch) {
+            Invoke-Git @('update-index', '--add', '--cacheinfo', "100644,$($item.Blob),$($item.Path)") | Out-Null
+            if ($LASTEXITCODE -ne 0) { return $null }
+        }
+        $tree = ((Invoke-Git @('write-tree')) -join '').Trim()
+        if ($LASTEXITCODE -ne 0 -or -not $tree) { return $null }
+    } finally {
+        Remove-Item Env:\GIT_INDEX_FILE -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $index -Force -ErrorAction SilentlyContinue
+    }
+    $commitArgs = @('commit-tree', $tree, '-m', $Message)
+    if ($Parent) { $commitArgs += @('-p', $Parent) }
+    $commit = ((Invoke-Git $commitArgs) -join '').Trim()
+    if ($LASTEXITCODE -ne 0 -or -not $commit) { return $null }
+    return $commit
+}
+
+# Commits one batch on top of what the branch holds and pushes it, retrying with backoff. A
+# success is written to the published list at once, so it survives a later failure. $Branch and
+# $Run are hashtables, updated in place: the branch's tip, and the run's counts and first error.
+function Send-LogBatch {
+    param([object[]]$Batch, [hashtable]$Branch, [hashtable]$Run)
+    $names = @($Batch | ForEach-Object { $_.File.Name })
+    $what = $names[0]
+    if ($names.Count -gt 1) { $what = "$($names[0]) and $($names.Count - 1) more" }
+    $message = "Logs: $($Branch.Label): $what (gzipped, from tools/pull-logs; throwaway, never merge)"
+    $reply = ''
+    $kind = 'slow'
+    for ($attempt = 1; $attempt -le $PushAttempts; $attempt++) {
+        $commit = New-LogCommit -Parent $Branch.Parent -Batch $Batch -Message $message
+        if (-not $commit) { $reply = "could not build a commit for $($Branch.Name) (is git's user.name/user.email set?)"; $kind = 'local'; break }
+        $Run.Pushes++
+        $reply = (Invoke-Git ($PushConfig + @('push', '--quiet', 'origin', "${commit}:refs/heads/$($Branch.Name)"))) -join ' '
+        if ($LASTEXITCODE -eq 0) {
+            $Branch.Parent = $commit
+            Add-Content -LiteralPath $PublishedList -Value @($Batch | ForEach-Object { $_.Key })
+            $Run.Sent += $Batch.Count
+            $Run.SlowInARow = 0
+            Say ("sent {0} to {1} ({2:N0} KB)" -f $what, $Branch.Name, (($Batch | Measure-Object -Property Bytes -Sum).Sum / 1KB))
+            return
+        }
+        $kind = Get-PushFailureKind $reply
+        if ($kind -eq 'moved') {
+            # Another laptop pushed to this branch: build on its commit and try again at once.
+            Say "$($Branch.Name) moved on GitHub; adding to its new commit."
+            $Branch.Parent = Get-RemoteTip $Branch.Name
+            continue
+        }
+        if ($kind -eq 'refused') { break }
+        if ($attempt -lt $PushAttempts) {
+            $wait = $PushBackoffSeconds[[Math]::Min($attempt - 1, $PushBackoffSeconds.Count - 1)]
+            Say "push of $what failed (try $attempt of $PushAttempts): $(Format-GitReply $reply); trying again in $wait s."
+            Start-Sleep -Seconds $wait
+        }
+    }
+    $Run.Failed += $Batch.Count
+    if (-not $Run.FirstError) { $Run.FirstError = "$($Branch.Name): $(Format-GitReply $reply)" }
+    Say "could not push $what to $($Branch.Name): $(Format-GitReply $reply)"
+    # A 408 or a timeout is this batch's: the next one may get through. Anything else would fail
+    # every push the same way, and so would a link that has timed out this many batches running:
+    # the rest wait for the next run.
+    if ($kind -eq 'slow') { $Run.SlowInARow++ }
+    if ($kind -ne 'slow' -or $Run.SlowInARow -ge $MaxSlowBatchesInARow) { $Run.Stop = $true }
+}
+
 # Sends every recent log not sent yet to its day's branch, logs/<date>-<robot folder>, adding to
 # what the branch already holds. Each robot folder under $Dest is its own robot, whatever network
-# this laptop is on now. Never fails the pull: anything wrong is said and left for the next run.
+# this laptop is on now. Newest day first and, within a day, newest file first, one small batch
+# per commit and push, so on a slow link the logs most likely wanted go first and each that gets
+# through stays through. Never fails the pull: anything wrong is said and left for the next run,
+# and the last line says what happened (sent, failed, or nothing to send).
 function Publish-Logs {
     param([string]$Root)
     if ($NoPublish) { return }
@@ -527,6 +648,7 @@ function Publish-Logs {
     }
     $since = (Get-Date).Date.AddDays(-$PublishDays).ToString('yyyy-MM-dd')
     $todo = @()
+    $already = 0
     foreach ($dir in @(Get-ChildItem -LiteralPath $Root -Directory -ErrorAction SilentlyContinue)) {
         # Match logs, and a Driver Hub's log and battery history (Sync-DriverHub).
         $files = @(Get-ChildItem -LiteralPath $dir.FullName -File -ErrorAction SilentlyContinue |
@@ -534,75 +656,85 @@ function Publish-Logs {
         foreach ($f in $files) {
             if ($f.Name.Length -lt 10 -or $f.Name.Substring(0, 10) -lt $since) { continue }
             $key = "$($dir.Name)/$($f.Name)/$($f.Length)"
-            if ($done.ContainsKey($key)) { continue }
-            $todo += [pscustomobject]@{ Robot = $dir.Name; File = $f; Key = $key; Day = $f.Name.Substring(0, 10) }
+            if ($done.ContainsKey($key)) { $already++; continue }
+            $todo += [pscustomobject]@{ Robot = $dir.Name; File = $f; Key = $key; Day = $f.Name.Substring(0, 10)
+                Path = "$($f.Name).gz"; Blob = $null; Bytes = 0 }
         }
     }
-    if ($todo.Count -eq 0) { return }
+    if ($todo.Count -eq 0) {
+        if ($already -eq 0) { Say "GitHub: nothing to send (no logs dated $since or later)." }
+        else { Say "GitHub: nothing new to send (all $already log(s) dated $since or later are up)." }
+        return
+    }
 
     # On the robot's Wi-Fi this fails fast: nothing is lost, the next run with internet sends them.
     Invoke-Git @('ls-remote', '--exit-code', 'origin', 'HEAD') | Out-Null
     if ($LASTEXITCODE -ne 0) {
-        Say "$($todo.Count) log(s) not on GitHub yet (no internet now); the next run that has it sends them."
+        Say "GitHub: sent 0, $($todo.Count) log(s) waiting (no internet now); the next run that has it sends them."
         return
     }
 
-    $index = Join-Path $env:TEMP ('biobuzz-logs-index-' + [guid]::NewGuid().ToString('N'))
-    try {
-        foreach ($group in ($todo | Group-Object { "$($_.Day)-$($_.Robot)" })) {
-            $branch = "logs/$($group.Name)"
-            # What the branch holds already, if it exists: the new logs are added beside it.
-            Invoke-Git @('fetch', '--quiet', 'origin', "+refs/heads/${branch}:refs/remotes/origin/${branch}") | Out-Null
-            $parent = $null
-            if ($LASTEXITCODE -eq 0) { $parent = ((Invoke-Git @('rev-parse', "refs/remotes/origin/${branch}")) -join '').Trim() }
+    $todo = @($todo | Sort-Object -Property @{ Expression = 'Day'; Descending = $true },
+        @{ Expression = 'Robot'; Descending = $false },
+        @{ Expression = { $_.File.LastWriteTimeUtc }; Descending = $true },
+        @{ Expression = { $_.File.Name }; Descending = $true })
+    $groups = [ordered]@{}
+    foreach ($item in $todo) {
+        $label = "$($item.Day)-$($item.Robot)"
+        if (-not $groups.Contains($label)) { $groups[$label] = New-Object System.Collections.ArrayList }
+        [void]$groups[$label].Add($item)
+    }
 
-            # A private index, so the checkout's own index and files are never touched.
-            $env:GIT_INDEX_FILE = $index
-            if ($parent) { Invoke-Git @('read-tree', $parent) | Out-Null } else { Invoke-Git @('read-tree', '--empty') | Out-Null }
-            $ok = ($LASTEXITCODE -eq 0)
-            $sent = @()
-            foreach ($item in $group.Group) {
-                if (-not $ok) { break }
-                # Gzipped: a third of the size to push, and under GitHub's 100 MB for a long session.
-                $gzPath = Join-Path $env:TEMP ($item.File.Name + '.gz')
-                try { New-GzipCopy -Source $item.File.FullName -Target $gzPath } catch { Say "could not compress $($item.File.Name): $_"; continue }
-                if ((Get-Item -LiteralPath $gzPath).Length -gt $MaxPublishBytes) {
-                    Say "$($item.File.Name) is over 95 MB even compressed, too big for GitHub: not sent."
-                    Remove-Item -LiteralPath $gzPath -Force -ErrorAction SilentlyContinue
-                    continue
-                }
-                $blob = ((Invoke-Git @('hash-object', '-w', '--', $gzPath)) -join '').Trim()
-                $hashed = ($LASTEXITCODE -eq 0)
-                Remove-Item -LiteralPath $gzPath -Force -ErrorAction SilentlyContinue
-                if (-not $hashed) { $ok = $false; break }
-                Invoke-Git @('update-index', '--add', '--cacheinfo', "100644,$blob,$($item.File.Name).gz") | Out-Null
-                if ($LASTEXITCODE -ne 0) { $ok = $false } else { $sent += $item }
+    $run = @{ Sent = 0; Failed = 0; Skipped = 0; Pushes = 0; FirstError = $null; Stop = $false; SlowInARow = 0 }
+    foreach ($label in @($groups.Keys)) {
+        if ($run.Stop) { break }
+        # What the branch holds already, if it exists: the new logs are added beside it.
+        $branch = @{ Name = "logs/$label"; Label = $label; Parent = $null }
+        $branch.Parent = Get-RemoteTip $branch.Name
+        $batch = @()
+        $batchBytes = 0
+        foreach ($item in $groups[$label]) {
+            if ($run.Stop) { break }
+            # Gzipped: a third of the size to push, and under GitHub's 100 MB for a long session.
+            $gzPath = Join-Path $env:TEMP ($item.File.Name + '.gz')
+            try { New-GzipCopy -Source $item.File.FullName -Target $gzPath } catch {
+                Say "could not compress $($item.File.Name): $_"; $run.Failed++; continue
             }
-            if ($ok -and $sent.Count -eq 0) {
-                Remove-Item Env:\GIT_INDEX_FILE -ErrorAction SilentlyContinue
-                Remove-Item -LiteralPath $index -Force -ErrorAction SilentlyContinue
+            $item.Bytes = (Get-Item -LiteralPath $gzPath).Length
+            if ($item.Bytes -gt $MaxPublishBytes) {
+                Say "$($item.File.Name) is over 95 MB even compressed, too big for GitHub: not sent."
+                Remove-Item -LiteralPath $gzPath -Force -ErrorAction SilentlyContinue
+                $run.Skipped++
                 continue
             }
-            $tree = $null
-            if ($ok) { $tree = ((Invoke-Git @('write-tree')) -join '').Trim(); $ok = ($LASTEXITCODE -eq 0) }
-            Remove-Item Env:\GIT_INDEX_FILE -ErrorAction SilentlyContinue
-            Remove-Item -LiteralPath $index -Force -ErrorAction SilentlyContinue
-            if (-not $ok) { Say "could not build $branch; the next run tries again."; continue }
-
-            $message = "Logs: $($group.Name) ($($sent.Count) file(s), gzipped, from tools/pull-logs; throwaway, never merge)"
-            $commitArgs = @('commit-tree', $tree, '-m', $message)
-            if ($parent) { $commitArgs += @('-p', $parent) }
-            $commit = ((Invoke-Git $commitArgs) -join '').Trim()
-            if ($LASTEXITCODE -ne 0) { Say "could not commit $branch (is git's user.name/user.email set?)."; continue }
-            $reply = (Invoke-Git @('push', '--quiet', 'origin', "${commit}:refs/heads/${branch}")) -join ' '
-            if ($LASTEXITCODE -ne 0) { Say "could not push ${branch}: $reply"; continue }
-            Add-Content -LiteralPath $PublishedList -Value @($sent | ForEach-Object { $_.Key })
-            Say "sent $($sent.Count) log(s) to GitHub branch $branch"
+            $item.Blob = ((Invoke-Git @('hash-object', '-w', '--', $gzPath)) -join '').Trim()
+            $hashed = ($LASTEXITCODE -eq 0)
+            Remove-Item -LiteralPath $gzPath -Force -ErrorAction SilentlyContinue
+            if (-not $hashed) {
+                Say "could not store $($item.File.Name) in git: $(Format-GitReply $item.Blob)"
+                $run.Failed++
+                if (-not $run.FirstError) { $run.FirstError = "$($item.File.Name): $(Format-GitReply $item.Blob)" }
+                continue
+            }
+            # A batch closes before a log that would take it past the limit; a big log goes alone.
+            if ($batch.Count -gt 0 -and ($batchBytes + $item.Bytes) -gt $PublishBatchBytes) {
+                Send-LogBatch -Batch $batch -Branch $branch -Run $run
+                $batch = @()
+                $batchBytes = 0
+                if ($run.Stop) { break }
+            }
+            $batch += $item
+            $batchBytes += $item.Bytes
         }
-    } finally {
-        Remove-Item Env:\GIT_INDEX_FILE -ErrorAction SilentlyContinue
-        Remove-Item -LiteralPath $index -Force -ErrorAction SilentlyContinue
+        if ($batch.Count -gt 0 -and -not $run.Stop) { Send-LogBatch -Batch $batch -Branch $branch -Run $run }
     }
+
+    $left = $todo.Count - $run.Sent - $run.Failed - $run.Skipped
+    $summary = "GitHub: sent $($run.Sent) of $($todo.Count) log(s) in $($run.Pushes) push(es), failed $($run.Failed)"
+    if ($run.Skipped -gt 0) { $summary += ", skipped $($run.Skipped) (too big)" }
+    if ($left -gt 0) { $summary += ", $left left for the next run" }
+    if ($run.FirstError) { $summary += " (first error: $($run.FirstError))" }
+    Say $summary
 }
 
 # ------------------------------------------------------------------ main

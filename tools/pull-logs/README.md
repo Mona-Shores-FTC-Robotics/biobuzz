@@ -48,6 +48,23 @@ branches and reads them with `read_logs.py` (below). Nothing to type.
   on the next run that has internet: double-click again at home or school, robot or no robot. A
   laptop with a second Wi-Fi adapter on the internet sends them straight away, and the watcher sends
   each log as it finishes.
+- **A slow or flaky link gets what it can through.** Logs go up newest day first and, within a
+  day, newest file first, one per commit and push (small ones, a Driver Hub's log and battery
+  history, share a push up to 2 MB gzipped). Each is written to the published list (below) the
+  moment its push succeeds, so a failure later on loses nothing that already went. A failed push
+  is tried three times, 10 s and then 30 s apart; a timeout (`HTTP 408`, `RPC failed`, "the remote
+  end hung up") then moves on to the next log, and three logs in a row like that end the run.
+  Anything else (no route to GitHub, sign-in refused) ends the run straight away, since every
+  push would fail the same way. Every push also buffers the whole pack (`http.postBuffer`, so it
+  is not sent chunked) and gives up on a transfer under 1 KB/s for 60 s (`http.lowSpeedLimit` /
+  `http.lowSpeedTime`), so a dead link fails in a minute and is retried instead of hanging until
+  GitHub answers 408. (On 21 Nov, from a phone hotspot, each day's single push of every log
+  failed with 408 and nothing went up.) One log too big for the link can still fail; it stays on
+  Drive and goes up on a later run at home or school.
+- **The last line says what happened**: `GitHub: sent 5 of 9 log(s) in 4 push(es), failed 1, 3
+  left for the next run (first error: logs/2026-11-21-19429-RC: ... HTTP 408 ...)`, or `GitHub:
+  nothing new to send (...)`, or that there is no internet now. A run that sent nothing always
+  says why.
 - **Your checkout is never touched.** The branch is written with git's plumbing (a private index,
   `commit-tree`, `push <commit>:refs/heads/...`), not by switching branches, so whatever you have
   checked out and half-edited stays exactly as it was.
