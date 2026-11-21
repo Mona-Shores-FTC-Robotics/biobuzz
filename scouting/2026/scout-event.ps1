@@ -134,6 +134,9 @@ function Start-Recording([string]$url) {
             $cur = @(Get-ChildItem -Path $SourcesDir -Filter "$tag-*.ts" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending)
             if ($cur.Count -gt 0 -and ((Get-Date) - $cur[0].LastWriteTime).TotalSeconds -lt 120) { return }
             if ($cur.Count -eq 0 -and ((Get-Date) - $old.StartTime).TotalSeconds -lt 120) { return }
+            # A stream that stops sending (the event's encoder paused) stalls every new recording at once too:
+            # give each one 10 minutes before the next restart, rather than a new file every round.
+            if (((Get-Date) - $old.StartTime).TotalMinutes -lt 10) { return }
             $since = "its start"; if ($cur.Count -gt 0) { $since = $cur[0].LastWriteTime.ToString("HH:mm:ss") }
             Warn "the recording of $url has written nothing since ${since}: restarting it"
             & taskkill.exe /PID $old.Id /T /F 2>&1 | Out-Null
