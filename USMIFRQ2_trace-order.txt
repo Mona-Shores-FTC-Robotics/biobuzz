@@ -1,0 +1,13 @@
+Trace first: none of our next partners has a clip yet
+
+Our partners, soonest first (FTCScout schedule; times are this PC's):
+ 1. 20863  with 19429 in Q-2 (Sat 11:06); no clips yet
+ 2. 11531  with 20245 in Q-4 (Sat 11:19); no clips yet
+ 3. 6482   with 20245 in Q-11 (Sat 12:05); no clips yet
+ 4. 20862  with 19429 in Q-17 (Sat 13:18); no clips yet
+ 5. 5383   with 20245 in Q-20 (Sat 13:36); no clips yet
+ 6. 15510  with 19429 in Q-23 (Sat 13:54); no clips yet
+ 7. 11266  with 20245 in Q-28 (Sat 14:24); no clips yet
+ 8. 22313  with 19429 in Q-28 (Sat 14:24); no clips yet
+ 9. 14933  with 19429 in Q-39 (Sat 15:30); no clips yet
+10. 16220  with 20245 in Q-42 (Sat 15:48); no clips yet
