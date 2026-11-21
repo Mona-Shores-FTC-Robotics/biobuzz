@@ -5,6 +5,7 @@
 #   .\scout-event.ps1 -Video <YouTube URL>                     # Fruitport (USMIFRQ2): every match played so far, once
 #   .\scout-event.ps1 -Video <YouTube URL> -Record -Watch      # at the event: record the live stream, add matches as they are played
 #   .\scout-event.ps1 -Event USMIKEQ -Video <URL> -Teams 10255 # any event, any teams (a finished stream needs no -Record)
+#   .\scout-event.ps1 -Event USMIBCQ -Video <URL> -Teams 15104,10538 -Only M-11   # one match (FTCScout calls Playoff 11 "M-11")
 #
 # Where each match comes from, first that works:
 #   1. a video open-match already has (sources\ here, or the team Drive's Replay\sources): no download;
@@ -17,15 +18,19 @@
 param(
     [string]$Event = "USMIFRQ2",                  # FTCScout's code: Fruitport is USMIFRQ2 (USMIFRQ is Freeland)
     [string[]]$Video = @(),                       # the event's YouTube stream(s); default: matches.json's video for this event
-    [int[]]$Teams = @(10255, 11846, 11228, 24371),
+    [string[]]$Teams = @("10255", "11846", "11228", "24371"),
     [int]$Season = 2026,
     [switch]$Record,
     [switch]$Watch,
     [int]$EverySeconds = 180,
     [switch]$NoPush,
     [string]$Out = (Join-Path ([Environment]::GetFolderPath("Desktop")) "scout-clips"),
-    [string]$CookiesFromBrowser = ""
+    [string]$CookiesFromBrowser = "",
+    [string[]]$Only = @()                         # just these matches, FTCScout's names (-Only M-11: Playoff 11)
 )
+# powershell -File hands "-Teams 15104,10538" over as one string: split lists on commas and spaces here.
+$TeamNums = [int[]]@($Teams | ForEach-Object { $_ -split '[,\s]+' } | Where-Object { $_ } | ForEach-Object { [int]$_ })
+$Only = @($Only | ForEach-Object { $_ -split '[,\s]+' } | Where-Object { $_ })
 $replayLib = Join-Path $env:LOCALAPPDATA "BIOBUZZ-Replay\scripts\Replay.ps1"
 if (-not (Test-Path $replayLib)) { throw "The match-replay tools are not installed: run their setup first (tools/advantagescope/replay/README.md, step 1)" }
 . $replayLib
@@ -48,7 +53,7 @@ $ytArgs = @("--no-playlist", "--no-warnings", "--js-runtimes", "deno:$deno")
 if ($CookiesFromBrowser) { $ytArgs += @("--cookies-from-browser", $CookiesFromBrowser) }
 $vodFormat = "bv*[height<=720][vcodec^=avc1]/bv*[height<=720][vcodec!^=av01]/b[height<=720]/b"
 
-# ---- FTCScout: every played match with one of $Teams in it
+# ---- FTCScout: every played match with one of $TeamNums in it
 function Get-PlayedMatches {
     $q = '{ eventByCode(season: ' + $Season + ', code: "' + $Event + '") { name matches { description actualStartTime teams { teamNumber alliance station } } } }'
     $body = @{ query = $q } | ConvertTo-Json -Compress
@@ -58,8 +63,9 @@ function Get-PlayedMatches {
     foreach ($m in $r.data.eventByCode.matches) {
         if (-not $m.actualStartTime) { continue }
         $nums = @($m.teams | ForEach-Object { [int]$_.teamNumber })
-        $mine = @($Teams | Where-Object { $nums -contains $_ })
+        $mine = @($TeamNums | Where-Object { $nums -contains $_ })
         if ($mine.Count -eq 0) { continue }
+        if ($Only.Count -gt 0 -and $Only -notcontains [string]$m.description) { continue }
         $ours = @($OurTeams | Where-Object { $nums -contains $_ })
         $start = ConvertTo-UnixSeconds $m.actualStartTime   # a string in Windows PowerShell, a DateTime in pwsh 7
         $utc = [DateTimeOffset]::FromUnixTimeMilliseconds([long](1000 * $start)).ToString("yyyy-MM-ddTHH:mm:ss.fffZ", $inv)
@@ -265,7 +271,7 @@ function Publish-Clips([string[]]$names) {
 }
 
 # ---- Main
-Say "Scouting $Event for $($Teams -join ', ') from $($Video -join ', ')"
+Say "Scouting $Event for $($TeamNums -join ', ') from $($Video -join ', ')"
 $unsent = @()
 while ($true) {
     if ($Record) { foreach ($url in $Video) { try { Start-Recording $url } catch { Warn "could not start recording ${url}: $($_.Exception.Message)" } } }
