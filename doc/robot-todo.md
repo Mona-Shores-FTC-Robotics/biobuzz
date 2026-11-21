@@ -311,6 +311,15 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       that it is mounted mirror-image to the left), see it turn inward, and put the value that
       worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
       out. Turret: still sits at home after PLAY, as before.
+- [ ] **20245's FLOWER stick now holds out, powered, instead of going limp** (`LIMP_EXTENDED`
+      off, a 20245 line in `RobotDifferences`): in R-Solo practice on 21 Nov the limp stick was
+      lifted by the FLOWER mid push on the second pick, which lowers it 1.3 s before the push, so
+      the 1.5 s `SETTLE_MS` cut the pulse just as IN began. **Check:** R-Solo, the second (SCORING)
+      FLOWER pick: the stick stays down through IN and DWELL, and the pick takes 3 to 4 POLLEN like
+      the first; `/FlowerStick/Powered` stays 1 while `/FlowerStick/Out` is 1. With the stick
+      resting out and the robot still, the servo is not buzzing or hot: if it is, the out position
+      presses into the tile, so raise `EXTENDED` (0.85) a hair in Bench: FLOWER Stick until it is
+      quiet and the wheels still touch, and put the number in a PR.
 - [ ] **20245's FLOWER stick pivot becomes a SWYFT servo** (the goBILDA Torque servo had a
       mechanical problem, mentor, 20 Nov 2026), same port, Control Hub servo port 0
       (`robot_20245.xml`). The shared `FlowerStickSubsystem.RETRACTED` 0.6 / `EXTENDED` 0.0 were
@@ -1038,6 +1047,14 @@ measurement is [#255].
       write the values they keep in `TeleOpConfig`, pull the log. **Stop:** normal feels sluggish
       off the line compared with the old turbo → the ramp is the difference (turbo skipped it);
       tell a mentor. [PR #425]
+- [ ] **Faster acceleration ramp (21 Nov 2026, both robots, TeleOp only):** `DriveSubsystem.accelPerSec`
+      2 → 8 and `turnAccelPerSec` 4 → 8, after a mentor's test showed it a huge improvement. An Auto
+      keeps 2 and 4 (`autoAccelPerSec`, `autoTurnAccelPerSec`): at 8 an Auto turned and moved on oddly
+      before its last volley; pull that run's log if it is ever repeated. Hold Circle
+      on a CELL a few times, run one FLOWER grab, and slam the stick forward once with four pieces
+      in the lane. **Good:** the chassis aim settles without hunting, the grab is clean, nothing
+      shifts or rocks. **Stop:** the aim overshoots or wobbles → lower `turnAccelPerSec` in Panels
+      first (4 was the old value); the robot lurches or pieces shift → lower `accelPerSec`.
 
 ## 5. Pose and camera (Basic Drive / Vision: HIVE & Pose)
 

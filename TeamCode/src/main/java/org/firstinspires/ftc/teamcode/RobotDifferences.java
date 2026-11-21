@@ -158,6 +158,14 @@ public final class RobotDifferences {
                         + " sensor to re-measure with the plate)",
                 () -> IntakeSubsystem.holdsLoadDrivingBackward = true);
         differs(RobotIdentity.TEAM_20245,
+                "FLOWER stick's SWYFT servo holds the stick out instead of going limp: limp, the FLOWER"
+                        + " lifted the stick mid push. In R-Solo practice (21 Nov 2026) the second pick lowers"
+                        + " the stick on the drive in, 1.3 s before the push, so SETTLE_MS (1.5 s) cut the"
+                        + " pulse 0.2 s into IN; that pick stalled 2.2 to 4.7 in short with 0 to 2 POLLEN,"
+                        + " while the first pick, its pulse cut only as IN stalled, took 3 to 4. TeleOp picks"
+                        + " went limp mid IN too",
+                () -> FlowerStickSubsystem.LIMP_EXTENDED = false);
+        differs(RobotIdentity.TEAM_20245,
                 "Endgame guard goes for a volley before the park (BuiltAuto.parkAfterVolley off, the"
                         + " 4 Nov rule): beside a partner whose TIP 2 comes early, R-NoCross's GARDEN volley"
                         + " fits by 30 s but not with the park after it (mentor, 21 Nov 2026)",
