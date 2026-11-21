@@ -123,6 +123,22 @@ function Test-Live([string]$url) {
     $l = @(& $ytdlp @ytArgs -O "%(is_live)s" $url)
     return ($LASTEXITCODE -eq 0 -and $l.Count -gt 0 -and $l[-1] -eq "True")
 }
+# When a recording last got data, as Unix seconds. Windows does not refresh a directory listing's size and time for a
+# file still open for writing (Get-ChildItem and Get-Item read the listing), so a growing recording looks frozen there.
+# A closed file's time is right; for one being written, its size is read through a handle each round, and the time is
+# when that size last changed (the first sight counts as "now").
+$script:Growth = @{}
+function Get-DataEnd([string]$path) {
+    $writing = $false
+    try { $fs = [IO.File]::Open($path, 'Open', 'Read', 'Read'); $fs.Dispose() } catch { $writing = $true }
+    if (-not $writing) { return ([DateTimeOffset](Get-Item $path).LastWriteTimeUtc).ToUnixTimeMilliseconds() / 1000.0 }
+    $len = -1
+    try { $fs = [IO.File]::Open($path, 'Open', 'Read', 'ReadWrite'); try { $len = $fs.Length } finally { $fs.Dispose() } } catch { }
+    $now = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() / 1000.0
+    $g = $script:Growth[$path]
+    if (-not $g -or $g.Size -ne $len) { $script:Growth[$path] = @{ Size = $len; At = $now }; return $now }
+    return $g.At
+}
 function Start-Recording([string]$url) {
     $tag = "{0}-live-{1}" -f $Event, (Get-Sha256Text $url).Substring(0, 8)
     $pidFile = Join-Path $SourcesDir "$tag.pid"
@@ -131,13 +147,16 @@ function Start-Recording([string]$url) {
         if ($old -and -not $old.HasExited) {
             # Alive is not recording: a yt-dlp whose stream URL went stale stays open and writes nothing. Restart one
             # whose newest file has not grown for 2 minutes (a new recording, with its own clock, beside the old).
-            $cur = @(Get-ChildItem -Path $SourcesDir -Filter "$tag-*.ts" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending)
-            if ($cur.Count -gt 0 -and ((Get-Date) - $cur[0].LastWriteTime).TotalSeconds -lt 120) { return }
+            # The newest file by name (the name carries its start time); how long since it last grew, from Get-DataEnd.
+            $cur = @(Get-ChildItem -Path $SourcesDir -Filter "$tag-*.ts" -ErrorAction SilentlyContinue | Sort-Object Name -Descending)
+            $nowS = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() / 1000.0
+            if ($cur.Count -gt 0 -and ($nowS - (Get-DataEnd $cur[0].FullName)) -lt 120) { return }
             if ($cur.Count -eq 0 -and ((Get-Date) - $old.StartTime).TotalSeconds -lt 120) { return }
             # A stream that stops sending (the event's encoder paused) stalls every new recording at once too:
             # give each one 10 minutes before the next restart, rather than a new file every round.
             if (((Get-Date) - $old.StartTime).TotalMinutes -lt 10) { return }
-            $since = "its start"; if ($cur.Count -gt 0) { $since = $cur[0].LastWriteTime.ToString("HH:mm:ss") }
+            $since = "its start"
+            if ($cur.Count -gt 0) { $since = [DateTimeOffset]::FromUnixTimeMilliseconds([long](1000 * (Get-DataEnd $cur[0].FullName))).ToLocalTime().ToString("HH:mm:ss", $inv) }
             Warn "the recording of $url has written nothing since ${since}: restarting it"
             & taskkill.exe /PID $old.Id /T /F 2>&1 | Out-Null
         }
@@ -213,8 +232,7 @@ function Find-MatchVideo($row) {
         if ($now -lt $row.Start + 100) { return $null }   # its Auto may not be on disk yet
         # A recording that stopped (stalled, or the window was closed) before this match's Auto does not have it:
         # skip it, and once the stream is a finished video the match comes from there.
-        $end = ([DateTimeOffset](Get-Item $r.File).LastWriteTimeUtc).ToUnixTimeMilliseconds() / 1000.0
-        if ($end -lt $row.Start + 80) { continue }
+        if ((Get-DataEnd $r.File) -lt $row.Start + 80) { continue }
         return @{ File = $r.File; At = $row.Start - $r.Started; How = "the recording" }
     }
     # 3. a finished stream
