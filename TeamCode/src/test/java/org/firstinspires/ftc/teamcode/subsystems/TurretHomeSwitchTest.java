@@ -252,6 +252,36 @@ public class TurretHomeSwitchTest {
     }
 
     @Test
+    public void the19429SweepWithItsOwnValues() {
+        int direction = TurretSubsystem.direction;
+        double offset = TurretSubsystem.aimOffsetDeg, floor = TurretSubsystem.minPower, kP = TurretSubsystem.kP;
+        try {
+            TurretSubsystem.direction = -1;
+            TurretSubsystem.aimOffsetDeg = 5.0;
+            TurretSubsystem.minPower = 0.065;
+            TurretSubsystem.kP = 0.008;
+            for (double startDeg : new double[] {0.0, 20.0, -20.0, 170.0}) {
+                Rig rig = new Rig();
+                rig.atDeg = startDeg;
+                TurretSubsystem turret = rig.turret();
+                turret.useClock(() -> rig.nowNs);
+                turret.initialize();
+                turret.holdAtInit();
+                rig.run(turret, 25.0);
+                assertEquals("from " + startDeg + ": " + turret.takeSwitchEvent(),
+                        TurretHomeSweep.State.FOUND, turret.sweepState());
+                assertEquals("from " + startDeg + ": held 5° round from the mark", 5.0,
+                        TurretEncoder.wrap180(rig.atDeg), 3.0);
+            }
+        } finally {
+            TurretSubsystem.direction = direction;
+            TurretSubsystem.aimOffsetDeg = offset;
+            TurretSubsystem.minPower = floor;
+            TurretSubsystem.kP = kP;
+        }
+    }
+
+    @Test
     public void aSweepThatFindsNoMagnetHoldsWhereTheTurretStoodAndWarns() {
         Rig rig = new Rig();
         rig.atDeg = 100.0;
@@ -367,8 +397,8 @@ public class TurretHomeSwitchTest {
             Map<String, Object> fakes = new HashMap<>();
             fakes.put(DeviceNames.TURRET_ENCODER_HOST, proxy(DcMotorEx.class, (m, args) -> {
                 switch (m) {
-                    case "getCurrentPosition": return (int) Math.round(atDeg * COUNTS_PER_DEG);
-                    case "getVelocity": return rateDps * COUNTS_PER_DEG;
+                    case "getCurrentPosition": return (int) Math.round(TurretSubsystem.direction * atDeg * COUNTS_PER_DEG);
+                    case "getVelocity": return TurretSubsystem.direction * rateDps * COUNTS_PER_DEG;
                     case "getDirection": return DcMotorSimple.Direction.FORWARD;
                     default: return null;
                 }
