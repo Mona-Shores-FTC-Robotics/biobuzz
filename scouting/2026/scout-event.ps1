@@ -141,7 +141,7 @@ function Find-MatchVideo($row) {
                 }
                 if (-not (Test-Path $startFile)) { continue }
                 $at = $row.Start - [double](Get-Content -Raw $startFile) - [double]$j.from
-                return @{ File = $f.FullName; At = $at; How = "open-match's video" }
+                return @{ File = $f.FullName; At = $at; How = "open-match's video"; StreamFrom = [double]$j.from; Url = $url }
             }
         }
     }
@@ -166,7 +166,7 @@ function Find-MatchVideo($row) {
         Say "  ...     $($row.Match): downloading its stretch of the stream (a minute or two)"
         New-Source $ffmpeg $s.Media $s.Headers $from ($at - $from + $post) $src
         Set-Content -NoNewline -Path "$src.json" -Value (@{ url = $url; from = $from; marked = $false } | ConvertTo-Json -Compress)
-        return @{ File = $src; At = $at - $from; How = "the stream" }
+        return @{ File = $src; At = $at - $from; How = "the stream"; StreamFrom = $from; Url = $url }
     }
     if ($Record) { return $null }
     throw "no video covers $($row.Match): the stream is still live (use -Record), or -Video is not this event's stream"
@@ -200,6 +200,8 @@ function New-ScoutClip($row) {
     $teams = @($row.Teams | ForEach-Object { @{ team = [int]$_.teamNumber; alliance = [string]$_.alliance; station = [string]$_.station } })
     $meta = [ordered]@{ event = $Event; match = $row.Match; field_start_utc = $row.StartUtc; play_s = [Math]::Round($play - $from, 2)
         play_from = $how; video_from = $v.How; teams = $teams; scouted = $row.Scouted }
+    # PLAY as a second of the YouTube video (play_s is 3 by construction, so this is the number to check against it)
+    if ($null -ne $v.StreamFrom) { $meta.play_stream_s = [Math]::Round($v.StreamFrom + $play, 2); $meta.video = [string]$v.Url }
     Set-Content -Path "$clip.json" -Value ($meta | ConvertTo-Json -Depth 4 -Compress)
     Ok ("{0}: PLAY at {1:N1} s into the clip, from the {2}; video from {3}" -f $row.Match, ($play - $from), $how, $v.How)
     return $name
