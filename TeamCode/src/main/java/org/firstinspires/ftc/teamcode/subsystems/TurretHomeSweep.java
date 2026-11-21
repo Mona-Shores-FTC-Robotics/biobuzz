@@ -22,6 +22,12 @@ package org.firstinspires.ftc.teamcode.subsystems;
  *       passes in opposite directions cancel them.</li>
  * </ol>
  *
+ * <p>It waits {@link Limits#startDelayS} before it turns: the servo does not answer for about the
+ * first second after INIT (19429, 21 Nov 2026: 0.93 s from the first write to the first count), and a
+ * target running away meanwhile drives the power past the drive watch's limit, which then drops the
+ * hold as jammed. The target also never gets more than {@link Limits#leadDeg} ahead of the turret, so
+ * a slow start or a stiff spot never builds a big error.
+ *
  * <p>No pass from the search is taken as the mark: the zero moves once, at the end. A search that
  * finds nothing in its range, or the time limit, is {@link State#NOT_FOUND}; slow passes that do not
  * come after a fast one did are {@link State#ROUGH}, the mark then the fast pass's.
@@ -63,6 +69,10 @@ public final class TurretHomeSweep {
         public double maxBandDeg = 30.0;
         /** Give up after this long, seconds. */
         public double timeoutS = 20.0;
+        /** Hold still this long before turning, seconds: the servo wakes about a second after INIT. */
+        public double startDelayS = 1.5;
+        /** The target is never further ahead of the turret than this, degrees. */
+        public double leadDeg = 15.0;
     }
 
     private State state = State.IDLE;
@@ -102,6 +112,7 @@ public final class TurretHomeSweep {
         searchMarkCounts = Double.NaN;
         backMarkCounts = Double.NaN;
         markCounts = Double.NaN;
+        startDelay = limits.startDelayS;
     }
 
     /**
@@ -122,7 +133,15 @@ public final class TurretHomeSweep {
         }
         double dt = Math.max(0.0, Math.min(0.1, (nowNs - lastNs) / 1e9));   // a long loop is not a jump
         lastNs = nowNs;
+        if ((nowNs - startNs) / 1e9 < limits.startDelayS) {
+            // Hold where it stands until the servo is awake.
+            return false;
+        }
         targetDeg += direction * speedDps * dt;
+        if (!Double.isNaN(angleDeg)) {
+            targetDeg = direction > 0 ? Math.min(targetDeg, angleDeg + limits.leadDeg)
+                    : Math.max(targetDeg, angleDeg - limits.leadDeg);
+        }
         boolean took = pass == TurretHomeSwitch.Result.PASS;
         boolean left = sawMagnet && !magnet;
         if (magnet) sawMagnet = true;
@@ -215,8 +234,10 @@ public final class TurretHomeSweep {
         return targetDeg;
     }
 
-    /** How fast that moves, degrees per second counter-clockwise; 0 when not sweeping. */
+    /** How fast that moves, degrees per second counter-clockwise; 0 when not sweeping or still waiting to start. */
     public double rateDps() {
-        return sweeping() ? direction * speedDps : 0.0;
+        return sweeping() && (lastNs - startNs) / 1e9 >= startDelay ? direction * speedDps : 0.0;
     }
+
+    private double startDelay;
 }

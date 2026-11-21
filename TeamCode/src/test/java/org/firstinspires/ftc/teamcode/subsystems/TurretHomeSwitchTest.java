@@ -373,6 +373,9 @@ public class TurretHomeSwitchTest {
         double hysteresisDeg;
         boolean noMagnet;
         private boolean on;
+        /** The servo does not answer for this long after its first write, seconds (19429: 0.93 s). */
+        double wakeS = 1.0;
+        private long firstWriteNs = -1;
         /** What the servo was last sent; NaN limp. */
         double servoPower = Double.NaN;
         long nowNs;
@@ -385,7 +388,9 @@ public class TurretHomeSwitchTest {
             turret.useClock(() -> nowNs);
             for (int i = 0; i < seconds / 0.02; i++) {
                 nowNs += 20_000_000L;
-                double ccw = Double.isNaN(servoPower) ? 0.0
+                if (!Double.isNaN(servoPower) && firstWriteNs < 0) firstWriteNs = nowNs;
+                boolean awake = firstWriteNs >= 0 && nowNs - firstWriteNs >= (long) (wakeS * 1e9);
+                double ccw = Double.isNaN(servoPower) || !awake ? 0.0
                         : (servoPower - TurretSubsystem.servoStopPower) * TurretSubsystem.servoDirection;
                 rateDps = ccw * TurretSubsystem.topSpeedDps;
                 atDeg += rateDps * 0.02;

@@ -221,7 +221,9 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
       log has `turret: home switch pass … zero moved` events of under 1° each, and the Robot page says
       `zeroed by the home switch`. TeleOp INIT with the turret 20° off its mark warns `Turret off its
       mark`, and turning it by hand across the mark clears it.
-   5. **An Auto's INIT sweep**, Panels open: first check that the turret stays inside the 18 in cube
+   5. **An Auto's INIT sweep** (21 Nov 2026, first try: the servo did not answer for 0.93 s after INIT,
+      and the sweep, which started at once, was dropped as jammed at 0.67 s; it now waits 1.5 s,
+      `homeSweepStartDelayS`, and keeps its target within 15° of the turret), Panels open: first check that the turret stays inside the 18 in cube
       all the way round (the search may turn it a full turn). INIT any Auto with the turret on its
       mark, then 20° left of it, 20° right, and about 180° round. **Good:** each time it turns
       counter-clockwise until it crosses the switch, goes about 10° past, crosses back slowly, goes

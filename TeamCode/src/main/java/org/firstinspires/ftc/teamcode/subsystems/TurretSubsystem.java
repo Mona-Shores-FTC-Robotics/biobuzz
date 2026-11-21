@@ -253,6 +253,13 @@ public class TurretSubsystem implements Subsystem {
     /** The sweep gives up after this long, seconds; the turret then holds where it stood. */
     public static double homeSweepTimeoutS = 20.0;
 
+    /**
+     * The sweep holds still this long after INIT before it turns, seconds: 19429's turret servo did not
+     * answer for 0.93 s after INIT's first write (21 Nov 2026), and a sweep that started at once was
+     * dropped as jammed.
+     */
+    public static double homeSweepStartDelayS = 1.5;
+
     // ------------------------------------------------------------ state
 
     private enum Mode { IDLE, HOLD }
@@ -816,6 +823,7 @@ public class TurretSubsystem implements Subsystem {
         sweepLimits.overshootDeg = homeSweepOvershootDeg;
         sweepLimits.maxBandDeg = homeSwitchMaxBandDeg;
         sweepLimits.timeoutS = homeSweepTimeoutS;
+        sweepLimits.startDelayS = homeSweepStartDelayS;
         return sweepLimits;
     }
 
