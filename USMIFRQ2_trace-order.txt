@@ -1,4 +1,4 @@
-Trace first: 10255 (with 20245 in M-7, the soonest partner with a clip)
+Trace first: 10255 (with 20245 in M-10, the soonest partner with a clip)
 
 Our partners, soonest first (FTCScout schedule; times are this PC's):
- 1. 10255  with 20245 in M-7 (Sat 16:56); clips: M-3, Q-1, Q-10, Q-19, Q-33, Q-44
+ 1. 10255  with 20245 in M-10 (Sat 17:38); clips: M-3, M-7, Q-1, Q-10, Q-19, Q-33, Q-44
