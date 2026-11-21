@@ -1,4 +1,4 @@
-Trace first: 8513 (with 19429 in M-1, the soonest partner with a clip)
+Trace first: 10255 (with 20245 in M-3, the soonest partner with a clip)
 
 Our partners, soonest first (FTCScout schedule; times are this PC's):
- 1. 8513   with 19429 in M-1 (Sat 16:20); clips: Q-12, Q-21, Q-29, Q-41, Q-6
+ 1. 10255  with 20245 in M-3 (Sat 16:32); clips: Q-1, Q-10, Q-19, Q-33, Q-44
