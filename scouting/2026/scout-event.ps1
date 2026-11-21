@@ -101,9 +101,23 @@ function Start-Recording([string]$url) {
     # Only a live stream: a finished one would come down from its very start, under the wrong clock.
     if (-not (Test-Live $url)) { Warn "$url is not live now: nothing to record (a finished stream is read directly)"; return }
     $base = Join-Path $SourcesDir ("{0}-{1}" -f $tag, (Get-Date).ToString("yyyyMMdd-HHmmss"))
-    $a = @($ytArgs + @("-f", "b[height<=720]/b", "--no-part", "--hls-use-mpegts", "-o", "$base.ts", $url)) | ForEach-Object { '"' + $_ + '"' }
+    # Video only: a live YouTube stream has no combined video+audio format (so "b" alone finds nothing), and the
+    # clips have no sound anyway.
+    $liveFormat = "bv*[height<=720][vcodec^=avc1]/bv*[height<=720]/b[height<=720]/b"
+    $a = @($ytArgs + @("-f", $liveFormat, "--no-part", "--hls-use-mpegts", "-o", "$base.ts", $url)) | ForEach-Object { '"' + $_ + '"' }
     $now = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() / 1000.0
     $p = Start-Process -FilePath $ytdlp -ArgumentList $a -WindowStyle Minimized -PassThru
+    $null = $p.Handle   # Windows PowerShell 5.1 reports no ExitCode later unless the handle was taken now
+    # A yt-dlp that fails closes its window at once, error and all: wait until the file is growing, or say so.
+    for ($i = 0; $i -lt 30; $i++) {
+        Start-Sleep -Seconds 1
+        if ($p.HasExited) { break }
+        if ((Test-Path "$base.ts") -and (Get-Item "$base.ts").Length -gt 0) { break }
+    }
+    if ($p.HasExited) {
+        Bad ("yt-dlp stopped at once (exit {0}): nothing is recording. To see why, run in a window: `"{1}`" {2}" -f $p.ExitCode, $ytdlp, ($a -join " "))
+        return
+    }
     Set-Content -NoNewline -Path $pidFile -Value $p.Id
     Set-Content -NoNewline -Path "$base.json" -Value (@{ url = $url; started = $now } | ConvertTo-Json -Compress)
     Ok "recording $url into $base.ts (a minimized yt-dlp window: leave it open)"
