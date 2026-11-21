@@ -1,8 +1,7 @@
-Trace first: 15510 (with 19429 in Q-23, the soonest partner with a clip)
+Trace first: 11266 (with 20245 in Q-28, the soonest partner with a clip)
 
 Our partners, soonest first (FTCScout schedule; times are this PC's):
- 1. 15510  with 19429 in Q-23 (Sat 13:54); clips: Q-18, Q-8
- 2. 11266  with 20245 in Q-28 (Sat 14:24); clips: Q-14, Q-22, Q-7
- 3. 22313  with 19429 in Q-28 (Sat 14:24); clips: Q-1, Q-16, Q-21
- 4. 14933  with 19429 in Q-39 (Sat 15:30); clips: Q-15, Q-21, Q-8
- 5. 16220  with 20245 in Q-42 (Sat 15:48); clips: Q-12, Q-19, Q-7
+ 1. 11266  with 20245 in Q-28 (Sat 14:24); clips: Q-14, Q-22, Q-7
+ 2. 22313  with 19429 in Q-28 (Sat 14:24); clips: Q-1, Q-16, Q-21
+ 3. 14933  with 19429 in Q-39 (Sat 15:30); clips: Q-15, Q-21, Q-8
+ 4. 16220  with 20245 in Q-42 (Sat 15:48); clips: Q-12, Q-19, Q-7
