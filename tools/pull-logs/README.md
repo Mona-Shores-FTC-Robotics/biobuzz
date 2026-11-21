@@ -61,6 +61,11 @@ branches and reads them with `read_logs.py` (below). Nothing to type.
   GitHub answers 408. (On 21 Nov, from a phone hotspot, each day's single push of every log
   failed with 408 and nothing went up.) One log too big for the link can still fail; it stays on
   Drive and goes up on a later run at home or school.
+- **You can walk away from the robot, or press Ctrl+C, at any time.** The upload needs the
+  internet, not the robot: once `pulled ...` lines are done the robot is free. Each upload starts
+  with a `sending ... (N KB)...` line and git then prints nothing until it is done, which on a
+  hotspot can be minutes. Stopping loses nothing: what went is recorded, a cut-off upload goes
+  again next run, and nothing leaves the robot that has not gone up.
 - **The last line says what happened**: `GitHub: sent 5 of 9 log(s) in 4 push(es), failed 1, 3
   left for the next run (first error: logs/2026-11-21-19429-RC: ... HTTP 408 ...)`, or `GitHub:
   nothing new to send (...)`, or that there is no internet now. A run that sent nothing always

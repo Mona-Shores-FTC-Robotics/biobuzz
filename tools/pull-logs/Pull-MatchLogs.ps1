@@ -616,6 +616,10 @@ function Send-LogBatch {
     $message = "Logs: $($Branch.Label): $what (gzipped, from tools/pull-logs; throwaway, never merge)"
     $reply = ''
     $kind = 'slow'
+    # Said before the push, which prints nothing while it runs: on a hotspot that can be minutes,
+    # and without this line the window looked hung. Ctrl+C here is safe (see README).
+    $kb = ($Batch | Measure-Object -Property Bytes -Sum).Sum / 1KB
+    Say ("sending {0} to {1} ({2:N0} KB; Ctrl+C is safe, the rest go next run)..." -f $what, $Branch.Name, $kb)
     for ($attempt = 1; $attempt -le $PushAttempts; $attempt++) {
         $commit = New-LogCommit -Parent $Branch.Parent -Batch $Batch -Message $message
         if (-not $commit) { $reply = "could not build a commit for $($Branch.Name) (is git's user.name/user.email set?)"; $kind = 'local'; break }
