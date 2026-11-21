@@ -32,9 +32,9 @@ public final class InitWarnings {
         WRONG_START,
         OFF_MARK,
         /**
-         * The turret's home switch ({@code TurretSubsystem.homeSwitch}, 19429) sees no magnet where the
-         * turret is taken to be on its mark: an Auto's INIT zeroed it off its mark, or a TeleOp will zero
-         * it at PLAY off its mark. Shown in a TeleOp's INIT too.
+         * The turret's home switch ({@code TurretSubsystem.homeSwitch}, 19429) did not find the mark:
+         * an Auto's INIT sweep did not see the magnet (the turret is zeroed where it stood), or a TeleOp
+         * will zero it at PLAY with no magnet there. Shown in a TeleOp's INIT too.
          */
         TURRET_MARK,
         CAMERA_NOT_ANSWERING,
@@ -218,13 +218,14 @@ public final class InitWarnings {
      * This loop's turret home switch, Auto or TeleOp: whether it says the turret is off the mark it is
      * about to be counted from. Call it every INIT loop, after {@link #evaluate} in an Auto.
      *
-     * @param fitted           the robot has a home switch
-     * @param zeroedAtAutoInit an Autonomous's INIT zeroed the turret where it stood
-     * @param magnetAtZero     the switch saw the magnet then
-     * @param zeroed           any zero is in place (carried from the Auto, by hand, by the switch)
-     * @param magnetNow        the switch sees the magnet now
+     * @param fitted          the robot has a home switch
+     * @param autonomous      an Autonomous's INIT
+     * @param autoMarkProblem in an Autonomous, what is wrong with the mark its INIT zeroed the turret on
+     *                        ({@code TurretSubsystem.autoInitMarkProblem()}), or null
+     * @param zeroed          any zero is in place (carried from the Auto, by hand, by the switch)
+     * @param magnetNow       the switch sees the magnet now
      */
-    public void turretMark(boolean fitted, boolean zeroedAtAutoInit, boolean magnetAtZero, boolean zeroed,
+    public void turretMark(boolean fitted, boolean autonomous, String autoMarkProblem, boolean zeroed,
                            boolean magnetNow) {
         if (what[Kind.TURRET_MARK.ordinal()] != null) {
             what[Kind.TURRET_MARK.ordinal()] = null;
@@ -232,9 +233,9 @@ public final class InitWarnings {
             count--;
         }
         if (!fitted) return;
-        if (zeroedAtAutoInit) {
-            if (!magnetAtZero) {
-                set(Kind.TURRET_MARK, "Turret zeroed off its mark: the home switch saw no magnet",
+        if (autonomous) {
+            if (autoMarkProblem != null) {
+                set(Kind.TURRET_MARK, "Turret: " + autoMarkProblem,
                         "set the turret on its mark, INIT again");
             }
         } else if (!zeroed && !magnetNow) {

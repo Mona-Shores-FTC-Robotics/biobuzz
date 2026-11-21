@@ -224,6 +224,81 @@ public class TurretHomeSwitchTest {
         assertFalse(turret.magnetAtInitZero());
     }
 
+    // ------------------------------------------------------------ an Auto's INIT sweep
+
+    @Test
+    public void anAutosInitSweepFindsTheMarkEitherSideAndHoldsHome() {
+        for (double startDeg : new double[] {20.0, -20.0, 1.0, -45.0}) {
+            Rig rig = new Rig();
+            rig.atDeg = startDeg;
+            TurretSubsystem turret = rig.turret();
+            turret.useClock(() -> rig.nowNs);
+            turret.initialize();
+            turret.holdAtInit();
+            assertEquals(TurretHomeSweep.State.OUT, turret.sweepState());
+            rig.run(turret, 12.0);
+            assertEquals("from " + startDeg, TurretHomeSweep.State.FOUND, turret.sweepState());
+            assertEquals("from " + startDeg, TurretSubsystem.ZeroSource.SWITCH, turret.zeroSource());
+            assertEquals("from " + startDeg + ": held on its mark", 0.0, rig.atDeg, 3.0);
+            assertNull(turret.autoInitMarkProblem());
+            assertTrue(turret.takeSwitchEvent().contains("found the mark"));
+        }
+    }
+
+    @Test
+    public void aSweepThatFindsNothingHoldsWhereTheTurretStoodAndWarns() {
+        Rig rig = new Rig();
+        rig.atDeg = 100.0;
+        TurretSubsystem turret = rig.turret();
+        turret.useClock(() -> rig.nowNs);
+        turret.initialize();
+        turret.holdAtInit();
+        rig.run(turret, 15.0);
+        assertEquals(TurretHomeSweep.State.NOT_FOUND, turret.sweepState());
+        assertEquals(TurretSubsystem.ZeroSource.INIT, turret.zeroSource());
+        assertEquals("back where it stood", 100.0, rig.atDeg, 3.0);
+        assertEquals("the sweep did not find the magnet", turret.autoInitMarkProblem());
+    }
+
+    @Test
+    public void playStopsASweepStillLookingAndATeleOpNeverSweeps() {
+        Rig rig = new Rig();
+        rig.atDeg = 100.0;
+        TurretSubsystem turret = rig.turret();
+        turret.useClock(() -> rig.nowNs);
+        turret.initialize();
+        turret.holdAtInit();
+        rig.run(turret, 1.0);
+        turret.start();
+        assertEquals(TurretHomeSweep.State.STOPPED, turret.sweepState());
+
+        Rig teleOp = new Rig();
+        teleOp.atDeg = 20.0;
+        TurretSubsystem other = teleOp.turret();
+        other.initialize();
+        teleOp.run(other, 5.0);
+        assertEquals(TurretHomeSweep.State.IDLE, other.sweepState());
+        assertEquals("a TeleOp's INIT writes nothing", new ArrayList<String>(), teleOp.servoCalls);
+        assertEquals(20.0, teleOp.atDeg, 1e-9);
+    }
+
+    @Test
+    public void withTheSweepOffAnAutosInitOnlyChecksTheSwitch() {
+        boolean was = TurretSubsystem.homeSweep;
+        try {
+            TurretSubsystem.homeSweep = false;
+            Rig rig = new Rig();
+            rig.atDeg = 12.0;
+            TurretSubsystem turret = rig.turret();
+            turret.initialize();
+            turret.holdAtInit();
+            assertEquals(TurretHomeSweep.State.IDLE, turret.sweepState());
+            assertEquals("zeroed with no magnet over the switch", turret.autoInitMarkProblem());
+        } finally {
+            TurretSubsystem.homeSweep = was;
+        }
+    }
+
     // ------------------------------------------------------------ plumbing
 
     /** Feeds a detector a turret turning steadily, the switch on within the band of {@code 0}. */
@@ -257,6 +332,25 @@ public class TurretHomeSwitchTest {
         double offsetDeg;
         double rateDps;
         final List<String> servoCalls = new ArrayList<>();
+        /** What the servo was last sent; NaN limp. */
+        double servoPower = Double.NaN;
+        long nowNs;
+
+        /**
+         * Runs the turret for {@code seconds} as a plant: the servo's power, less its stop, at
+         * {@code topSpeedDps} per unit, turns it. 20 ms loops on the turret's own clock.
+         */
+        void run(TurretSubsystem turret, double seconds) {
+            turret.useClock(() -> nowNs);
+            for (int i = 0; i < seconds / 0.02; i++) {
+                nowNs += 20_000_000L;
+                double ccw = Double.isNaN(servoPower) ? 0.0
+                        : (servoPower - TurretSubsystem.servoStopPower) * TurretSubsystem.servoDirection;
+                rateDps = ccw * TurretSubsystem.topSpeedDps;
+                atDeg += rateDps * 0.02;
+                turret.update();
+            }
+        }
 
         TurretSubsystem turret() {
             Map<String, Object> fakes = new HashMap<>();
@@ -270,6 +364,8 @@ public class TurretHomeSwitchTest {
             }));
             fakes.put(DeviceNames.TURRET, proxy(CRServo.class, (m, args) -> {
                 if (m.startsWith("set")) servoCalls.add(m);
+                if (m.equals("setPower")) servoPower = (Double) args[0];
+                if (m.equals("setPwmDisable")) servoPower = Double.NaN;
                 return null;
             }, PwmControl.class));
             fakes.put(DeviceNames.TURRET_HOME, proxy(DigitalChannel.class, (m, args) -> {

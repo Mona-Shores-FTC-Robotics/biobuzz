@@ -221,8 +221,14 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
       log has `turret: home switch pass … zero moved` events of under 1° each, and the Robot page says
       `zeroed by the home switch`. TeleOp INIT with the turret 20° off its mark warns `Turret off its
       mark`, and turning it by hand across the mark clears it.
-   5. **An Auto's INIT** with the turret 20° off its mark warns `Turret zeroed off its mark`; on the
-      mark, no warning.
+   5. **An Auto's INIT sweep**, Panels open: INIT any Auto with the turret on its mark, then 20° left
+      of it, then 20° right, then 90° off. **Good:** each time but the last it turns slowly
+      (30°/s) until it crosses the mark, then turns to its home angle and holds, in under 6 s; the
+      log has `turret: the sweep found the mark`. At 90° off it goes 60° each way, comes back where it
+      stood and warns `Turret: the sweep did not find the magnet`. **Stop:** it turns the wrong way
+      and the hold drops, it hunts along the sweep (raise `homeSweepDps` to 40), or it passes the
+      mark without stopping (a pass not taken: the log says why) → push the log. If any part of the
+      turret could leave the 18 in cube within 60° of home, lower `homeSweepRangeDeg` first.
 
 ## Belding work order (agreed 5 Nov)
 

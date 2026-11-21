@@ -659,8 +659,8 @@ public abstract class RobotOpMode extends OpMode {
      */
     private void turretMarkWarning() {
         TurretSubsystem turret = robot.turret;
-        initWarnings.turretMark(turret.homeSwitchFitted(), turret.zeroSource() == TurretSubsystem.ZeroSource.INIT,
-                turret.magnetAtInitZero(), turret.zeroed(), turret.onMark());
+        initWarnings.turretMark(turret.homeSwitchFitted(), isAutonomous(), turret.autoInitMarkProblem(),
+                turret.zeroed(), turret.onMark());
         String warning = initWarnings.what(InitWarnings.Kind.TURRET_MARK);
         if (!Objects.equals(warning, loggedTurretMarkWarning)) {
             log.event(warning != null ? "INIT warning: " + warning : "INIT warning cleared: turret on its mark");

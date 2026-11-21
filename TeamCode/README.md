@@ -541,12 +541,22 @@ itself, and one whose zero drifted is put right the next time it swings through
 straight ahead. The correction is wrapped, so a turret wound a turn round keeps
 its winding. A zero set by hand still wins, and a pass more than
 `homeSwitchMaxCorrectionDeg` from the zero is logged and not taken. In INIT the
-switch is also a check: an Auto's INIT that zeroed the turret with no magnet
-over the switch, or a TeleOp about to zero at PLAY with none, warns that the
-turret is off its mark (`InitWarnings.Kind.TURRET_MARK`). Not done: a homing
-sweep in an Auto's INIT, turning the turret until it finds the magnet. That is
-motion in INIT beyond today's hold, a mentor's call on R103.B; the passes and
-the warning need none.
+switch is also a check: a TeleOp about to zero at PLAY with no magnet over the
+switch warns that the turret is off its mark (`InitWarnings.Kind.TURRET_MARK`).
+
+**The sweep (an Auto's INIT only).** An Autonomous's INIT may move the turret
+(R103.B; the mentor's call, 21 Nov 2026), so with `homeSweep` on it zeroes where
+the turret stands and then turns it slowly (`homeSweepDps`, 30°/s, the rate fed
+forward) counter-clockwise up to `homeSweepRangeDeg` (60°), then clockwise to
+60° the other side, turning back early once it has seen the magnet and lost it
+(`TurretHomeSweep`). The first pass ends it: the zero goes on the mark, with no
+limit on how far it moves, and the turret turns to its home angle and holds.
+Nothing found within the range or `homeSweepTimeoutS` leaves the zero where the
+turret stood and warns (`Turret: the sweep did not find the magnet`); PLAY, a
+hand zero or a dropped hold stops it. At most about 6 s. A TeleOp's INIT, which
+runs between AUTO and TELEOP, never moves the turret: there the drive team
+turns it by hand across the mark. With `homeSweep` off, an Auto's INIT only
+warns when the switch saw no magnet where it zeroed.
 
 **The loop.** A continuous servo is sent a speed and has no feedback, so
 nothing holds the turret but the code: `TurretSubsystem.update()` reads the
