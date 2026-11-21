@@ -470,6 +470,7 @@ public abstract class RobotOpMode extends OpMode {
         if (isAutonomous()) {
             robot.colorSensor.lane().fill(LaneTracker.Piece.POLLEN, LaneTracker.AUTO_PRELOAD);
             robot.holdForAutoInit();
+            robot.drive.useAutonomousRamp(true); // a TeleOp builds a new Robot, so it gets its own ramp
         }
 
         // The scheduler is static, so commands survive from one OpMode to the next unless this

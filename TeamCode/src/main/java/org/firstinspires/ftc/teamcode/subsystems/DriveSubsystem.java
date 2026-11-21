@@ -95,14 +95,24 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
 public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /**
-     * How fast drive power may rise, in power per second. Slowing and stopping are instant.
-     * 8 (full power in about 0.13 s) on both robots, from the drivers' test before Fruitport
-     * (21 Nov 2026): 2 felt sluggish off the line and 8 was appreciably faster. Paths skip this.
+     * How fast drive power may rise outside an Autonomous, in power per second. Slowing and stopping
+     * are instant. 8 (full power in about 0.13 s) on both robots, from the drivers' test before
+     * Fruitport (21 Nov 2026): 2 felt sluggish off the line and 8 was a huge improvement. Paths skip this.
      */
     public static double accelPerSec = 8.0;
 
     /** The same, for turning. Separate because a laggy turn makes aiming feel mushy. 8 with {@link #accelPerSec}. */
     public static double turnAccelPerSec = 8.0;
+
+    /**
+     * {@link #accelPerSec} in an Autonomous ({@link #useAutonomousRamp}), where it reaches only what
+     * drives off a path: a grab's dwell. 2, the value every Auto was tested with: at 8 an Auto turned
+     * and moved on oddly before its last volley (21 Nov 2026, Fruitport).
+     */
+    public static double autoAccelPerSec = 2.0;
+
+    /** {@link #turnAccelPerSec} in an Autonomous; 4, as {@link #autoAccelPerSec}. */
+    public static double autoTurnAccelPerSec = 4.0;
 
     /** A loop slower than this (a hiccup, a GC pause) is treated as this long, so power cannot jump. */
     private static final double MAX_LOOP_DT_SEC = 0.1;
@@ -199,6 +209,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     /** No wheel gets more than this ({@link WheelPowerCap}); 1 unless a speed mode asked for less. */
     private double maxWheelPower = 1.0;
     private boolean accelLimited = true;
+    /** Set by {@link #useAutonomousRamp}: which pair of ramp values {@link #update()} uses. */
+    private boolean autonomousRamp;
 
     /** Built by {@link #preparePathFollowing()}; null until then. */
     private Follower follower;
@@ -294,6 +306,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     public void driveRobotCentric(double forward, double strafe, double turn, double maxWheelPower) {
         drive(forward, strafe, turn, maxWheelPower);
         robotCentricCommand = true;
+    }
+
+    /** True for an Autonomous: the ramp uses {@link #autoAccelPerSec} and {@link #autoTurnAccelPerSec}. */
+    public void useAutonomousRamp(boolean autonomous) {
+        autonomousRamp = autonomous;
     }
 
     /** False skips the acceleration limit, for a driver who wants speed now. */
@@ -924,9 +941,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         double s = strafe;
         double t = turn;
         if (accelLimited) {
-            f = forwardLimiter.step(f, accelPerSec, dt);
-            s = strafeLimiter.step(s, accelPerSec, dt);
-            t = turnLimiter.step(t, turnAccelPerSec, dt);
+            double rise = autonomousRamp ? autoAccelPerSec : accelPerSec;
+            double turnRise = autonomousRamp ? autoTurnAccelPerSec : turnAccelPerSec;
+            f = forwardLimiter.step(f, rise, dt);
+            s = strafeLimiter.step(s, rise, dt);
+            t = turnLimiter.step(t, turnRise, dt);
         } else {
             // Keep the limiters in step with what the wheels really get, so turning the limit back on drops
             // straight to the new command rather than ramping from wherever they were before.

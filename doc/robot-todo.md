@@ -1038,8 +1038,10 @@ measurement is [#255].
       write the values they keep in `TeleOpConfig`, pull the log. **Stop:** normal feels sluggish
       off the line compared with the old turbo → the ramp is the difference (turbo skipped it);
       tell a mentor. [PR #425]
-- [ ] **Faster acceleration ramp (21 Nov 2026, both robots):** `DriveSubsystem.accelPerSec` 2 → 8
-      and `turnAccelPerSec` 4 → 8, after a mentor's test showed it appreciably faster. Hold Circle
+- [ ] **Faster acceleration ramp (21 Nov 2026, both robots, TeleOp only):** `DriveSubsystem.accelPerSec`
+      2 → 8 and `turnAccelPerSec` 4 → 8, after a mentor's test showed it a huge improvement. An Auto
+      keeps 2 and 4 (`autoAccelPerSec`, `autoTurnAccelPerSec`): at 8 an Auto turned and moved on oddly
+      before its last volley; pull that run's log if it is ever repeated. Hold Circle
       on a CELL a few times, run one FLOWER grab, and slam the stick forward once with four pieces
       in the lane. **Good:** the chassis aim settles without hunting, the grab is clean, nothing
       shifts or rocks. **Stop:** the aim overshoots or wobbles → lower `turnAccelPerSec` in Panels
