@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
+import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
 import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
@@ -128,6 +129,14 @@ public final class RobotDifferences {
                         + " backward-leg Auto trials may run (mentor, 18 Nov 2026; doc/robot-todo.md has"
                         + " the backward drive that must pass first)",
                 () -> IntakeSubsystem.holdsLoadDrivingBackward = true);
+        differs(RobotIdentity.TEAM_19429,
+                "GARDEN gather's drive in ends 1 in short of the wall, not 3: at 20245's -3 it did not"
+                        + " go deep enough into the corner, likely its roller FLOWER stick meeting the wall"
+                        + " sooner; -1 was good in Panels (mentor, 21 Nov 2026)",
+                () -> GardenGather.driveIn.extraDepthIn = -1.0);
+        differs(RobotIdentity.TEAM_19429,
+                "Keeps only POLLEN: the reject spits out both NECTAR colours, ours too (mentor, 21 Nov 2026)",
+                () -> ColorSensorSubsystem.rejectAllNectar = true);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // The shared values were mostly measured on 20245.

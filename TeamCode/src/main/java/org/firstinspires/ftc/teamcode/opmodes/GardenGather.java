@@ -81,20 +81,60 @@ public final class GardenGather extends GrabRoutine {
          * The line-up spot, moved this much further from the side wall than the GARDEN's line-up pose
          * ({@link GardenFieldPoints}), inches: room to turn in the corner (30 Oct 2026). The drive in
          * then runs at a slant to the gather pose. 0.5 since 19 Nov 2026 (mentor, on 19429: the line-up
-         * almost on the side wall leaves little to strafe, and the gather was much faster).
+         * almost on the side wall leaves little to strafe, and the gather was much faster). Negative puts
+         * the spot inside the wall: the line-up strafes over until the wall stops it, so the robot starts the
+         * drive in on the real wall however far off the pose is. -2 since 20 Nov 2026 (mentor, on 20245 with
+         * the corner gather: the robot came in on the wall, then the drive in, steering back to the pose's
+         * line, left it again; see {@link LineUp#followWallLine}).
          */
-        public double lineUpOutIn = 0.5;
+        public double lineUpOutIn = -2.0;
+        /**
+         * With {@link LineUp#lineUpOutIn} into the wall (negative): the drive in runs along the line the
+         * line-up ended on, where the wall stopped the robot, not the pose's line {@link DriveIn#laneTowardWallIn}
+         * into the wall; it leans no further. So a pose that is off sideways no longer pulls the robot off the
+         * wall, and a good one costs no extra lean (mentor, 20 Nov 2026, on 20245). Moved at most
+         * {@link LineUp#maxWallLineShiftIn}. Off: the pose's line, as before. Not yet run.
+         */
+        public boolean followWallLine = true;
+        /**
+         * With {@link LineUp#followWallLine}: the most the drive in's line moves from the pose's to the
+         * line-up's, inches, so a line-up stopped by something other than the wall does not send the drive in astray.
+         */
+        public double maxWallLineShiftIn = 4.0;
+        /**
+         * The line-up is done once it stalls (no {@link DriveIn#stallProgressIn} in {@link DriveIn#stallMs})
+         * this close to its pose, inches: pressed against the wall ({@link LineUp#lineUpOutIn} negative), its
+         * path may never reach its end. Why (mentor, 20 Nov 2026, on 20245, after a lap: the pose off, the robot
+         * pinned to the alliance wall short of the line-up pose and never drove in). 0: never, the line-up waits
+         * for its path's end or {@link LineUp#lineUpTimeoutMs}.
+         */
+        public double stallWithinIn = 8.0;
+        /**
+         * An Auto's {@code GardenGather} card presses onto the wall first, as the button's line-up does: from
+         * where the drive before it left the robot, a strafe onto the side wall level with it
+         * ({@link #autoWallPress}, {@link LineUp#lineUpOutIn} into the wall), then the drive in along where that
+         * stopped ({@link LineUp#followWallLine}). Needs {@link LineUp#lineUpOutIn} negative. Not the
+         * along-the-wall card, whose drive before already runs on its wall. Why (mentor, 20 Nov 2026): the
+         * button's gather was "perfect" this way on 20245; the card had no line-up and leaned
+         * {@link DriveIn#laneTowardWallIn} into the wall instead. Not yet run. Off: the card as before.
+         */
+        public boolean autoPressOntoWall = true;
         /**
          * And this much further back from the GARDEN (away from the audience wall), inches. 6 since
          * 16 Nov 2026 (mentor; 3 before, the value of the 14 Nov field session): 3 in more drive in, about
          * 0.12 s, for the stick to finish its swing in, when nothing stood for it (16 Nov; it stands
          * {@link Stick#stickDownMs} again since 20 Nov). The Autos start at GARDEN_STAGING, which is unchanged.
+         * 14 since 20 Nov 2026 (mentor, on 20245 with the corner gather: facing the side wall, at 6 the stick
+         * came down on top of the POLLEN, the stick tip at about x 11 with the row running out to x 10).
          */
-        public double lineUpBackIn = 6.0;
+        public double lineUpBackIn = 14.0;
         /** The line-up path gives up after this long, ms. */
         public double lineUpTimeoutMs = 4000;
-        /** Already lined up: this close to the line-up pose, inches, skips the line-up path. */
-        public double atLineUpIn = 1.5;
+        /**
+         * Already lined up: this close to the line-up pose, inches, skips the line-up path. 0 since 20 Nov 2026
+         * (mentor, on 20245): the line-up always runs, so it always presses onto the wall ({@link LineUp#lineUpOutIn}).
+         */
+        public double atLineUpIn = 0.0;
         /** Already lined up: this square, degrees, skips the line-up path. */
         public double atLineUpDeg = 5.0;
     }
@@ -122,8 +162,8 @@ public final class GardenGather extends GrabRoutine {
          * into its swing when the line-up ended.
          */
         public double lowerWithinIn = 16.0;
-        /** See {@link Stick#lowerWithinIn}, degrees. */
-        public double lowerWithinDeg = 30.0;
+        /** See {@link Stick#lowerWithinIn}, degrees. 20 since 20 Nov 2026 (mentor, on 20245 with the corner gather). */
+        public double lowerWithinDeg = 20.0;
         /**
          * And the stick comes down only while the robot is turning slower than this, degrees a second:
          * facing the right way is not enough if it is still swinging round (mentor, 16 Nov 2026). On
@@ -154,8 +194,13 @@ public final class GardenGather extends GrabRoutine {
          * A gather stopped before its drive back (let go, cut) still uses the old rule.
          */
         public double raiseAfterStopMs = 250;
-        /** Without {@link Stick#raiseAfterStopMs}: the stick comes up once the robot has backed out this far from the drive in's end, inches. */
-        public double retractAfterBackIn = 6.0;
+        /**
+         * Without {@link Stick#raiseAfterStopMs}, or for a gather stopped before its drive back (let go during the
+         * drive in): the stick comes up once the robot is this far from the gather pose, inches. 10 since 20 Nov
+         * 2026 (mentor, on 20245): at 6 a gather let go during the drive in lifted the stick at once, the stick
+         * holding the robot about 4 in off the wall.
+         */
+        public double retractAfterBackIn = 10.0;
     }
 
     /** See {@link Stick}. */
@@ -222,9 +267,22 @@ public final class GardenGather extends GrabRoutine {
          * from 1): Pedro brakes to stop at the path's end, and on the short drive in from GARDEN_STAGING
          * an end at the wall meant the robot crept the last inches; an end well past the wall keeps it
          * driving when it meets the wall, and the stall ends the drive in there. 19429 ran 4 in Panels
-         * that day, still slow.
+         * that day, still slow. 2 since 20 Nov 2026 (mentor, on 20245 with the corner gather, with
+         * {@link DriveIn#inSpeed} 0.7: a softer arrival at the wall). May be negative, down to
+         * {@link #MIN_EXTRA_DEPTH_IN}: the drive in then ends short of the nose on the wall, so Pedro brakes
+         * to arrive gently, and the dwell's push ({@link Dwell#dwellPushPower}) presses it the rest of the
+         * way. Why (mentor, 20 Nov 2026, on 20245: at 0.5 and {@link DriveIn#inSpeed} 0.5 it still rammed the
+         * wall and threw POLLEN up): the stick down meets the wall about 4 in before the nose would (every
+         * corner gather of 20 Nov stopped 3.9 in short of the gather pose), so even 0 aims about 4 in past
+         * where the robot can go, and it shoves until the stall. About -3.5 aims at the stick meeting the wall.
+         * Corrected from the logs (20245, 18:08 on 20 Nov): most of that 3.9 in was the bounce. The robot meets
+         * the wall within about 1 in of the gather pose (0.2 in short facing the audience wall, 1 in facing the
+         * side wall), and with the path's end at or past the wall Pedro never brakes: six of seven drive ins hit
+         * at 35 to 44 in/s and bounced back 2.2 in. The one whose path ended short ("path done 1.7 in short")
+         * hit at 9 in/s and bounced 0.4 in. -3 since 20 Nov 2026 (mentor): the path ends 2 to 3 in before the
+         * wall, and the dwell's push ({@link Dwell#dwellPushPower}) closes the rest. Not yet run.
          */
-        public double extraDepthIn = 10.0;
+        public double extraDepthIn = -3.0;
         /**
          * Without the stick ({@link Stick#useStick} off), how much deeper the drive in aims, inches, on top of
          * {@link DriveIn#extraDepthIn}: the gather pose puts the nose 1.5 in beyond the robot's front at the
@@ -247,7 +305,7 @@ public final class GardenGather extends GrabRoutine {
          * than the robot can go is meant: the wall stops it, the drive in ends when it stalls, and the
          * dwell keeps steering it against the wall.
          */
-        public double towardWallIn = 2.0;
+        public double towardWallIn = 1.0;
         /**
          * With {@link DriveIn#curveToWall}: how much closer to the side wall than the gather pose the drive in
          * ends, inches. Enough to keep the side on the wall at the end: the wall stops it, and the drive
@@ -262,9 +320,10 @@ public final class GardenGather extends GrabRoutine {
         /**
          * The drive in's speed cap, a fraction of the robot's top path speed (0 to 1]. 1.0 since 14 Nov
          * 2026 (mentor, at the field): at 0.5 the curve over to the side wall, mostly a strafe, was very
-         * slow.
+         * slow. 0.7 since 20 Nov 2026 (mentor, on 20245 with the corner gather: at 1.0 it came in too fast);
+         * 0.5 later that day (mentor, on 20245: about 40 in/s at its peak).
          */
-        public double inSpeed = 1.0;
+        public double inSpeed = 0.5;
         /**
          * How far the drive in, the push and the dwell turn the robot toward the side wall, degrees, so
          * the intake angles into the corner and takes the corner piece: red's 270° becomes 270 minus this
@@ -273,17 +332,22 @@ public final class GardenGather extends GrabRoutine {
          * gather missed the corner ball). 15 since 19 Nov 2026 (mentor, on 19429: at 0 the robot sat on the
          * audience wall short of the corner; at 15, the cap, it went all the way in every time). The dwell
          * and the push steer onto the line along this heading too, which draws the robot into the corner.
+         * 1 since 20 Nov 2026 (mentor, on 20245 with the corner gather, both ways in: 15 was too severe;
+         * facing the side wall the robot turned only 4° of it before it stalled, and facing the audience wall
+         * it swung away from the side wall and came in at the angle). 4 later that day (mentor, on 20245, with
+         * the drive in ending short of the wall: "perfect").
          */
-        public double intoCornerDeg = 15.0;
+        public double intoCornerDeg = 4.0;
         /** The drive in gives up after this long, ms. */
         public double inTimeoutMs = 4000;
         /** Less progress than this, inches, in {@link DriveIn#stallMs} means the robot is against something. */
         public double stallProgressIn = 0.25;
         /**
          * See {@link DriveIn#stallProgressIn}, ms. 400 since 19 Nov 2026 (mentor, on 19429): at 250 the slow
-         * start of the drive in read as a stall; at 1000 the robot shoved and bounced off the wall.
+         * start of the drive in read as a stall; at 1000 the robot shoved and bounced off the wall. 300 since
+         * 20 Nov 2026 (mentor, on 20245 with the corner gather): less shoving at the wall.
          */
-        public double stallMs = 400;
+        public double stallMs = 300;
     }
 
     /** See {@link DriveIn}. */
@@ -315,9 +379,12 @@ public final class GardenGather extends GrabRoutine {
          * {@link Dwell#dwellEndsOnFull}).
          * 400 since 6 Nov 2026 (mentor): in, a short dwell, and straight back out, rather than the 1.5 s
          * every gather that night sat for while bringing in 0 to 1 pieces. Tune it at the practice field
-         * with the button. 150 since 19 Nov 2026 (mentor, on 19429, with the corner angle: consistent).
+         * with the button. 150 since 19 Nov 2026 (mentor, on 19429, with the corner angle: consistent). 700
+         * since 20 Nov 2026 (mentor, on 20245 with the corner gather, with the softer push below); 200 later
+         * that day (mentor, on 20245); 850 with {@link DriveIn#extraDepthIn} -3 (mentor, on 20245: at 200 the
+         * push spent the dwell closing the last inches and the robot backed out at once; 850 "perfect").
          */
-        public double dwellMs = 150;
+        public double dwellMs = 850;
         /**
          * The dwell ends as soon as the lane is full (the colour sensor's full), as the FLOWER pick's does.
          * Until this switch a gather with a full lane sat out the whole dwell (14 Nov 13:13, 4 held, twice).
@@ -334,9 +401,11 @@ public final class GardenGather extends GrabRoutine {
          * Forward power during the dwell, to keep the stick seated and the intake pressed into the
          * corner. 0 for none. 1.0 since 14 Nov 2026 (mentor, on 19429 at the field: 8 gathers, 4 in a
          * row; 0.1 before). 0.5 since 19 Nov 2026 (mentor, on 19429: at 1.0 it pushed in and out at the
-         * wall).
+         * wall). 0.3 since 20 Nov 2026 (mentor, on 20245 with the corner gather); 0.15 later that day; 0.25
+         * with {@link DriveIn#extraDepthIn} -3 (20 Nov 2026, not yet run): the drive in ends short of the wall,
+         * and this push seats the robot the last 2 or 3 in.
          */
-        public double dwellPushPower = 0.5;
+        public double dwellPushPower = 0.25;
     }
 
     /** See {@link Dwell}. */
@@ -663,9 +732,55 @@ public final class GardenGather extends GrabRoutine {
         return wallControl(from, g.gather);
     }
 
+    /**
+     * An Auto's {@code GardenGather} card's press onto the wall ({@link LineUp#autoPressOntoWall}): from
+     * {@code from}, on the gather pose's line along the side wall, level with {@code from}, and
+     * {@link LineUp#lineUpOutIn} into the wall, facing the gather heading. Null for none.
+     */
+    @Override
+    protected InPlan autoLineUp(Pose from) {
+        if (alongTheWall || !lineUp.autoPressOntoWall || !followsWallLine()) return null;
+        return InPlan.to(autoWallPress(garden, from, lineUp.lineUpOutIn));
+    }
+
+    /** See {@link #autoLineUp}: {@code outIn} away from the wall {@code g} runs along (negative: into it). */
+    static Pose autoWallPress(Garden g, Pose from, double outIn) {
+        Pose on = overTo(g, from);
+        double h = on.heading();
+        double out = outIn * g.wallSide();
+        return new Pose(on.x() - out * Math.sin(h), on.y() + out * Math.cos(h), h);
+    }
+
     @Override
     protected double inPushPower() {
         return alongTheWall ? alongWall.pushPower : twoStep.pushPower;
+    }
+
+    /** The most {@link DriveIn#extraDepthIn} may end the drive in short of the gather pose, inches. */
+    public static final double MIN_EXTRA_DEPTH_IN = -8.0;
+
+    /** {@link DriveIn#extraDepthIn}, held to {@link #MIN_EXTRA_DEPTH_IN} and above; NaN is 0. */
+    static double extraDepthIn() {
+        double d = driveIn.extraDepthIn;
+        return Double.isNaN(d) ? 0.0 : Math.max(MIN_EXTRA_DEPTH_IN, d);
+    }
+
+    /** The button's line-up pressed into the wall and the drive in follows where it stopped ({@link LineUp#followWallLine}). */
+    private static boolean followsWallLine() {
+        return lineUp.followWallLine && lineUp.lineUpOutIn < 0.0;
+    }
+
+    /**
+     * How far {@code from} is from the gather pose's line toward the wall the robot runs along, inches, as a
+     * signed shift for {@link #inPose} ({@code side} times it, negative where {@code from} is off the line away
+     * from the wall), held to {@code maxIn} either way.
+     */
+    static double wallLineShiftIn(Pose g, Pose from, double side, double maxIn) {
+        double h = g.heading();
+        // Toward the wall is side * (sin h, -cos h): the robot's right for side +1.
+        double towardIn = side * ((from.x() - g.x()) * Math.sin(h) - (from.y() - g.y()) * Math.cos(h));
+        double m = Math.max(0.0, maxIn);
+        return side * Math.max(-m, Math.min(m, towardIn));
     }
 
     @Override
@@ -675,10 +790,14 @@ public final class GardenGather extends GrabRoutine {
         // for a corner way in with the wall there (wallSide -1).
         Pose g = garden.gather;
         double h = g.heading();
-        double deeper = nn(driveIn.extraDepthIn) + (stick.useStick ? 0.0 : nn(driveIn.noStickExtraDepthIn));
+        double deeper = extraDepthIn() + (stick.useStick ? 0.0 : nn(driveIn.noStickExtraDepthIn));
         // A curved drive in reaches the wall's line early: it ends barely toward it, not pinned into it.
         double side = garden.wallSide();
         double wall = side * (driveIn.curveToWall || alongTheWall ? nn(driveIn.laneTowardWallIn) : nn(driveIn.towardWallIn));
+        if (linedUp && followsWallLine()) {
+            // The line-up pressed into the wall: run along where it stopped, however far off the pose is.
+            wall = wallLineShiftIn(g, from, side, nn(lineUp.maxWallLineShiftIn));
+        }
         // Angled into the corner: toward the wall it runs along, so with the wall on the right the
         // heading turns clockwise, and with it on the left counter-clockwise.
         double corner = side * Math.toRadians(Math.max(-15.0, Math.min(15.0,
@@ -744,6 +863,7 @@ public final class GardenGather extends GrabRoutine {
     @Override protected double prepWithinIn() { return stick.lowerWithinIn; }
     @Override protected double prepWithinDeg() { return stick.lowerWithinDeg; }
     @Override protected double atLineUpIn() { return lineUp.atLineUpIn; }
+    @Override protected double lineUpStallWithinIn() { return lineUp.stallWithinIn; }
     @Override protected double atLineUpDeg() { return lineUp.atLineUpDeg; }
     @Override protected double lineUpTimeoutMs() { return lineUp.lineUpTimeoutMs; }
     @Override protected double inSpeed() { return driveIn.inSpeed; }

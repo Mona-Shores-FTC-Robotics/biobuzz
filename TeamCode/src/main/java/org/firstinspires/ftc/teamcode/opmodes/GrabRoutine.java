@@ -224,6 +224,15 @@ public abstract class GrabRoutine {
         return null;
     }
 
+    /**
+     * A line-up that has stalled (no {@link #stallProgressIn} in {@link #stallMs}) this close to its pose,
+     * inches, is done: it is pressed against something, as a line-up aimed into a wall is. 0, the default:
+     * never, the line-up waits for its path's end.
+     */
+    protected double lineUpStallWithinIn() {
+        return 0.0;
+    }
+
     /** An Auto's square-up gives up after this long, ms. The button's line-up time by default. */
     protected double autoLineUpTimeoutMs() {
         return lineUpTimeoutMs();
@@ -479,6 +488,17 @@ public abstract class GrabRoutine {
                 if (Math.abs(Math.toDegrees(wrapRad(in.heading() - pose.heading()))) <= nn(prepWithinDeg())
                         && mayPrepAt(pose) && steadyForPrep()) {
                     prepIfClose(now, remaining); // in is the line-up pose until the line-up ends
+                }
+                // Pressed against a wall short of the line-up pose: the path can never end, so a stall
+                // within lineUpStallWithinIn ends it, holding where it stopped, turned to face the way in.
+                if (remaining < bestRemainingIn - nn(stallProgressIn())) {
+                    bestRemainingIn = remaining;
+                    progressNs = now;
+                }
+                if (!robot.drive.pathDone() && remaining <= nn(lineUpStallWithinIn()) && stalled(now, phaseStartNs)) {
+                    event.accept(String.format(Locale.US, "%s: line-up stalled %.1f in short, %.2f s in: against the wall, going on",
+                            what(), remaining, ms(now, phaseStartNs) / 1000.0));
+                    robot.drive.hold(new Pose(pose.x(), pose.y(), in.heading()));
                 }
                 boolean pathDone = robot.drive.pathDone();
                 if (pathDone && lineUpDoneNs < 0) lineUpDoneNs = now;
@@ -787,6 +807,8 @@ public abstract class GrabRoutine {
             in = plan.in;
             home = pose;
         }
+        progressNs = now; // the line-up's stall clock (lineUpStallWithinIn)
+        bestRemainingIn = Double.MAX_VALUE;
         phase = there ? Phase.PREP : Phase.LINE_UP;
         event.accept(String.format(Locale.US, "%s: start, %s, from (%.1f, %.1f, %.0f°)%s%s", what(), target,
                 pose.x(), pose.y(), Math.toDegrees(pose.heading()),
