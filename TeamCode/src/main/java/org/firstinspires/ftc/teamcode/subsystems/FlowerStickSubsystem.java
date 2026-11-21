@@ -68,7 +68,10 @@ public class FlowerStickSubsystem implements Subsystem {
      */
     public static final double SERVO_RANGE_DEG = 270.0;
 
-    /** Cut the pulse once the stick is out and settled, so the stick rests on the tile. */
+    /**
+     * Cut the pulse once the stick is out and settled, so the stick rests on the tile. Off for 20245
+     * in {@code RobotDifferences} (21 Nov 2026): limp, its stick was lifted by the FLOWER mid push.
+     */
     public static boolean LIMP_EXTENDED = true;
 
     /** Cut the pulse once the stick is in and settled. Only once a stowed hard stop exists. */
