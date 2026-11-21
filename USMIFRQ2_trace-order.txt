@@ -3,7 +3,7 @@ Trace first: 6482 (with 20245 in Q-11, the soonest partner with a clip)
 Our partners, soonest first (FTCScout schedule; times are this PC's):
  1. 6482   with 20245 in Q-11 (Sat 12:05); clips: Q-5
  2. 20862  with 19429 in Q-17 (Sat 13:18); clips: Q-4
- 3. 5383   with 20245 in Q-20 (Sat 13:36); no clips yet
+ 3. 5383   with 20245 in Q-20 (Sat 13:36); clips: Q-6
  4. 15510  with 19429 in Q-23 (Sat 13:54); no clips yet
  5. 11266  with 20245 in Q-28 (Sat 14:24); no clips yet
  6. 22313  with 19429 in Q-28 (Sat 14:24); clips: Q-1
