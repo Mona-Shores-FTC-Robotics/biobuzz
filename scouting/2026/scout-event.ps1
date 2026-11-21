@@ -276,8 +276,9 @@ function New-ScoutClip($row) {
     if ($null -ne $hand.At) { $play = $hand.At - $FieldAutoS; $how = "scoreboard hand (match {0:N2})" -f $hand.Score }
     else { $play = $v.At; $how = "FTCScout start time (no scoreboard hand found, best {0:N2}): PLAY may be off by several seconds" -f $hand.Score }
     $from = [Math]::Max([double]0, $play - 3)
-    # 42 s: 3 s before PLAY to 39 s after, so the clip itself holds the hand (at 33 s) long enough to find it again.
-    & $ffmpeg -hide_banner -loglevel error -y -ss $from.ToString("0.000", $inv) -t "42" -i $v.File `
+    # 48 s: 3 s before PLAY to 45 s after. The check below needs 7.5 s of hand after it appears (at 33 s, or a few
+    # seconds later when the search above landed early), so the clip runs well past it.
+    & $ffmpeg -hide_banner -loglevel error -y -ss $from.ToString("0.000", $inv) -t "48" -i $v.File `
         -vf "setpts=PTS-STARTPTS,scale=-2:480" -an -c:v libx264 -preset veryfast -crf 26 -pix_fmt yuv420p `
         -avoid_negative_ts make_zero "$clip.part.mp4"
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path "$clip.part.mp4") -or (Get-Item "$clip.part.mp4").Length -lt 20KB) {
@@ -289,11 +290,15 @@ function New-ScoutClip($row) {
     # off, and the search above cannot tell; the finished .mp4 seeks exactly (it starts at 0), so find the hand in
     # it again and take that. play_s is then where a player shows PLAY, whatever the seeks did.
     $playS = $play - $from
-    $check = $null; try { $check = Find-ScoreboardHand $ffmpeg $clip 18 24 } catch { }
+    $check = $null; try { $check = Find-ScoreboardHand $ffmpeg $clip 18 30 } catch { }
     if ($check -and $null -ne $check.At) {
         $fixS = $check.At - $FieldAutoS
         if ([Math]::Abs($fixS - $playS) -gt 0.25) { Warn ("{0}: PLAY is at {1:N2} s in the clip, not {2:N2}: the seek landed off; using the clip's" -f $row.Match, $fixS, $playS) }
         $play = $play + ($fixS - $playS); $playS = $fixS
+        $how = "$how, checked in the clip"
+    } elseif ($null -ne $hand.At) {
+        Warn ("{0}: could not find the hand again in the clip, so PLAY at {1:N1} s is unchecked (it can be off by a couple of seconds)" -f $row.Match, $playS)
+        $how = "$how, not checked in the clip"
     }
     $teams = @($row.Teams | ForEach-Object { @{ team = [int]$_.teamNumber; alliance = [string]$_.alliance; station = [string]$_.station } })
     $meta = [ordered]@{ event = $Event; match = $row.Match; field_start_utc = $row.StartUtc; play_s = [Math]::Round($playS, 2)
