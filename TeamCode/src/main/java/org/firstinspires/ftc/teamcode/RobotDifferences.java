@@ -129,6 +129,9 @@ public final class RobotDifferences {
                         + " go deep enough into the corner, likely its roller FLOWER stick meeting the wall"
                         + " sooner; -1 was good in Panels (mentor, 21 Nov 2026)",
                 () -> GardenGather.driveIn.extraDepthIn = -1.0);
+        differs(RobotIdentity.TEAM_19429,
+                "Keeps only POLLEN: the reject spits out both NECTAR colours, ours too (mentor, 21 Nov 2026)",
+                () -> ColorSensorSubsystem.rejectAllNectar = true);
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // The shared values were mostly measured on 20245.
