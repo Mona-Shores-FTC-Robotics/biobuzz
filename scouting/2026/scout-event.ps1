@@ -4,6 +4,7 @@
 #
 #   .\scout-event.ps1 -Video <YouTube URL>                     # Fruitport (USMIFRQ2): every match played so far, once
 #   .\scout-event.ps1 -Video <YouTube URL> -Record -Watch      # at the event: record the live stream, add matches as they are played
+#   .\scout-event.ps1 -Video <URL> -Record -Watch -AllTeams   # every match of the event, all teams (alliance selection)
 #   .\scout-event.ps1 -Event USMIKEQ -Video <URL> -Teams 10255 # any event, any teams (a finished stream needs no -Record)
 #   .\scout-event.ps1 -Event USMIBCQ -Video <URL> -Teams 15104,10538 -Only M-11   # one match (FTCScout calls Playoff 11 "M-11")
 #
@@ -29,7 +30,8 @@ param(
     [string]$Out = (Join-Path ([Environment]::GetFolderPath("Desktop")) "scout-clips"),
     [string]$CookiesFromBrowser = "",
     [string[]]$Only = @(),                        # just these matches, FTCScout's names (-Only M-11: Playoff 11)
-    [switch]$NoPartners                           # scout only -Teams, not also our partners from the schedule
+    [switch]$NoPartners,                          # scout only -Teams, not also our partners from the schedule
+    [switch]$AllTeams                             # every played match, all four teams: scouting for alliance selection
 )
 # powershell -File hands "-Teams 15104,10538" over as one string: split lists on commas and spaces here.
 $TeamNums = [int[]]@($Teams | ForEach-Object { $_ -split '[,\s]+' } | Where-Object { $_ } | ForEach-Object { [int]$_ })
@@ -90,6 +92,7 @@ function Get-PlayedMatches {
         if (-not $m.actualStartTime) { continue }
         $nums = @($m.teams | ForEach-Object { [int]$_.teamNumber })
         $mine = @($scout | Where-Object { $nums -contains $_ })
+        if ($AllTeams) { $mine = @($nums) }
         if ($mine.Count -eq 0) { continue }
         if ($Only.Count -gt 0 -and $Only -notcontains [string]$m.description) { continue }
         $ours = @($OurTeams | Where-Object { $nums -contains $_ })
@@ -371,7 +374,8 @@ function Publish-Clips([string[]]$names, [string[]]$extra = @()) {
 }
 
 # ---- Main
-Say "Scouting $Event for $($TeamNums -join ', ') from $($Video -join ', ')"
+$who = $TeamNums -join ', '; if ($AllTeams) { $who = "every team" }
+Say "Scouting $Event for $who from $($Video -join ', ')"
 # -Watch runs all day: ask Windows not to idle-sleep while this window is open (what a video player does; no
 # setting changes, and it ends with the process). A closed lid or Sleep from the menu still sleeps.
 if ($Watch) {
