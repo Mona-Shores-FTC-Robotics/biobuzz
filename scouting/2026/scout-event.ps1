@@ -130,7 +130,10 @@ function Get-Recordings {
         $media = @(Get-ChildItem -Path "$base*" -ErrorAction SilentlyContinue | Where-Object { $_.Extension -notin @(".json", ".pid") } |
             Sort-Object Length -Descending)
         if ($media.Count -eq 0) { continue }
-        $out += @{ File = $media[0].FullName; Started = [double](Read-Json $j.FullName).started }
+        $rec = $null; try { $rec = Read-Json $j.FullName } catch { }
+        # Only a recording of one of this run's streams: a test recording of some other stream is not this event.
+        if (-not $rec -or $Video -notcontains [string]$rec.url) { continue }
+        $out += @{ File = $media[0].FullName; Started = [double]$rec.started }
     }
     return $out
 }
