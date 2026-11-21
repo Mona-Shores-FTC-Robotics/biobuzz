@@ -94,11 +94,15 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
 @Configurable
 public class DriveSubsystem implements Subsystem, AutoDrive {
 
-    /** How fast drive power may rise, in power per second. Slowing and stopping are instant. */
-    public static double accelPerSec = 2.0;
+    /**
+     * How fast drive power may rise, in power per second. Slowing and stopping are instant.
+     * 8 (full power in about 0.13 s) on both robots, from the drivers' test before Fruitport
+     * (21 Nov 2026): 2 felt sluggish off the line and 8 was appreciably faster. Paths skip this.
+     */
+    public static double accelPerSec = 8.0;
 
-    /** The same, for turning. Separate because a laggy turn makes aiming feel mushy. */
-    public static double turnAccelPerSec = 4.0;
+    /** The same, for turning. Separate because a laggy turn makes aiming feel mushy. 8 with {@link #accelPerSec}. */
+    public static double turnAccelPerSec = 8.0;
 
     /** A loop slower than this (a hiccup, a GC pause) is treated as this long, so power cannot jump. */
     private static final double MAX_LOOP_DT_SEC = 0.1;
