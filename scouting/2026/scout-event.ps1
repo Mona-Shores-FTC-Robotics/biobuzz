@@ -15,6 +15,8 @@
 # PLAY: the scoreboard's transition hand (the field's end of Auto) less 30 s, as open-match finds it. FTCScout lists a
 # match a few minutes after it is played; -Watch looks again every -EverySeconds.
 # Clips go to -Out and, unless -NoPush, to the throwaway branch scout-clips/<EVENT> (never merged; delete after the event).
+# Once FTCScout has the schedule it also scouts every partner of 19429 and 20245 (-NoPartners: -Teams only) and pushes
+# <EVENT>_trace-order.txt beside the clips: our next partners, soonest first, and which to trace first.
 param(
     [string]$Event = "USMIFRQ2",                  # FTCScout's code: Fruitport is USMIFRQ2 (USMIFRQ is Freeland)
     [string[]]$Video = @(),                       # the event's YouTube stream(s); default: matches.json's video for this event
@@ -26,7 +28,8 @@ param(
     [switch]$NoPush,
     [string]$Out = (Join-Path ([Environment]::GetFolderPath("Desktop")) "scout-clips"),
     [string]$CookiesFromBrowser = "",
-    [string[]]$Only = @()                         # just these matches, FTCScout's names (-Only M-11: Playoff 11)
+    [string[]]$Only = @(),                        # just these matches, FTCScout's names (-Only M-11: Playoff 11)
+    [switch]$NoPartners                           # scout only -Teams, not also our partners from the schedule
 )
 # powershell -File hands "-Teams 15104,10538" over as one string: split lists on commas and spaces here.
 $TeamNums = [int[]]@($Teams | ForEach-Object { $_ -split '[,\s]+' } | Where-Object { $_ } | ForEach-Object { [int]$_ })
@@ -53,17 +56,40 @@ $ytArgs = @("--no-playlist", "--no-warnings", "--js-runtimes", "deno:$deno")
 if ($CookiesFromBrowser) { $ytArgs += @("--cookies-from-browser", $CookiesFromBrowser) }
 $vodFormat = "bv*[height<=720][vcodec^=avc1]/bv*[height<=720][vcodec!^=av01]/b[height<=720]/b"
 
-# ---- FTCScout: every played match with one of $TeamNums in it
+# ---- FTCScout: every played match with one of the scouted teams in it. The scouted teams are -Teams plus, unless
+# -NoPartners, every team the schedule puts on an alliance with 19429 or 20245. $script:Plan is our unplayed matches,
+# soonest first, each with its partner: the order to trace them in.
+$script:Plan = @()
 function Get-PlayedMatches {
-    $q = '{ eventByCode(season: ' + $Season + ', code: "' + $Event + '") { name matches { description actualStartTime teams { teamNumber alliance station } } } }'
+    $q = '{ eventByCode(season: ' + $Season + ', code: "' + $Event + '") { name matches { description scheduledStartTime actualStartTime teams { teamNumber alliance station } } } }'
     $body = @{ query = $q } | ConvertTo-Json -Compress
     $r = Invoke-RestMethod -Method Post -Uri "https://api.ftcscout.org/graphql" -ContentType "application/json" -Body $body -TimeoutSec 30
     if (-not $r.data.eventByCode) { throw "FTCScout has no event $Event in season $Season" }
+    $all = @($r.data.eventByCode.matches)
+    $scout = @($TeamNums)
+    $plan = @()
+    for ($i = 0; $i -lt $all.Count; $i++) {
+        $m = $all[$i]
+        foreach ($o in $OurTeams) {
+            $me = @($m.teams | Where-Object { [int]$_.teamNumber -eq $o })
+            if ($me.Count -eq 0) { continue }
+            foreach ($t in @($m.teams | Where-Object { $_.alliance -eq $me[0].alliance -and [int]$_.teamNumber -ne $o })) {
+                $partner = [int]$t.teamNumber
+                if ($OurTeams -contains $partner) { continue }   # our two robots together: nobody to scout
+                if (-not $NoPartners -and $scout -notcontains $partner) { $scout += $partner }
+                if ($m.actualStartTime) { continue }
+                $when = $null; if ($m.scheduledStartTime) { $when = ConvertTo-UnixSeconds $m.scheduledStartTime }
+                $plan += [pscustomobject]@{ Partner = $partner; Ours = $o; Match = [string]$m.description; When = $when; Order = $i }
+            }
+        }
+    }
+    # Soonest first: by scheduled time where FTCScout has one, else by the schedule's own order
+    $script:Plan = @($plan | Sort-Object @{ Expression = { if ($null -ne $_.When) { $_.When } else { [double]::MaxValue } } }, Order)
     $rows = @()
-    foreach ($m in $r.data.eventByCode.matches) {
+    foreach ($m in $all) {
         if (-not $m.actualStartTime) { continue }
         $nums = @($m.teams | ForEach-Object { [int]$_.teamNumber })
-        $mine = @($TeamNums | Where-Object { $nums -contains $_ })
+        $mine = @($scout | Where-Object { $nums -contains $_ })
         if ($mine.Count -eq 0) { continue }
         if ($Only.Count -gt 0 -and $Only -notcontains [string]$m.description) { continue }
         $ours = @($OurTeams | Where-Object { $nums -contains $_ })
@@ -230,9 +256,43 @@ function New-ScoutClip($row) {
     return $name
 }
 
+# ---- Which partner to trace first: <EVENT>_trace-order.txt beside the clips, pushed with them. One line per partner,
+# in the order we meet them; a partner we meet again later is listed once, at its soonest match.
+function Write-TraceOrder {
+    if ($script:Plan.Count -eq 0) { return $null }
+    $clipsOf = @{}
+    foreach ($j in @(Get-ChildItem -Path $Out -Filter "${Event}_*.mp4.json" -ErrorAction SilentlyContinue)) {
+        $c = $null; try { $c = Read-Json $j.FullName } catch { }
+        if (-not $c -or $null -eq $c.play_s) { continue }
+        foreach ($t in @($c.teams)) {
+            $k = [int]$t.team
+            if (-not $clipsOf.ContainsKey($k)) { $clipsOf[$k] = @() }
+            $clipsOf[$k] += [string]$c.match
+        }
+    }
+    $seen = @{}; $lines = @()
+    foreach ($p in $script:Plan) {
+        if ($seen.ContainsKey($p.Partner)) { continue }
+        $seen[$p.Partner] = $true
+        $when = "time not posted"
+        if ($null -ne $p.When) { $when = [DateTimeOffset]::FromUnixTimeMilliseconds([long](1000 * $p.When)).ToLocalTime().ToString("ddd HH:mm", $inv) }
+        $have = @(); if ($clipsOf.ContainsKey($p.Partner)) { $have = @($clipsOf[$p.Partner] | Sort-Object -Unique) }
+        $clipTxt = "no clips yet"; if ($have.Count -gt 0) { $clipTxt = "clips: " + ($have -join ", ") }
+        $lines += ("{0,2}. {1,-6} with {2} in {3} ({4}); {5}" -f ($lines.Count + 1), $p.Partner, $p.Ours, $p.Match, $when, $clipTxt)
+    }
+    $first = @($script:Plan | Where-Object { $clipsOf.ContainsKey($_.Partner) } | Select-Object -First 1)
+    $head = "Trace first: none of our next partners has a clip yet"
+    if ($first.Count -gt 0) { $head = "Trace first: {0} (with {1} in {2}, the soonest partner with a clip)" -f $first[0].Partner, $first[0].Ours, $first[0].Match }
+    $file = Join-Path $Out "${Event}_trace-order.txt"
+    $text = (@($head, "", "Our partners, soonest first (FTCScout schedule; times are this PC's):") + $lines) -join "`r`n"
+    $old = $null; if (Test-Path $file) { $old = Get-Content -Raw $file }
+    if ($old -ne "$text`r`n") { Set-Content -Path $file -Value $text; Say "  $head" }
+    return $file
+}
+
 # ---- Push new clips onto scout-clips/<EVENT>, adding to what is there (a private repo folder; no checkout touched)
-function Publish-Clips([string[]]$names) {
-    if ($NoPush -or $names.Count -eq 0) { return }
+function Publish-Clips([string[]]$names, [string[]]$extra = @()) {
+    if ($NoPush -or ($names.Count + $extra.Count) -eq 0) { return }
     $ErrorActionPreference = "Continue"   # git talks on stderr; Windows PowerShell would make that fatal under Stop
     $repo = Join-Path $ReplayHome "scout-git"
     if (-not (Test-Path (Join-Path $repo "HEAD"))) { & git init --quiet --bare $repo | Out-Null }
@@ -254,6 +314,12 @@ function Publish-Clips([string[]]$names) {
                 & git --git-dir $repo update-index --add --cacheinfo "100644,$blob,$f" | Out-Null
             }
         }
+        foreach ($x in $extra) {
+            $blob = (& git --git-dir $repo hash-object -w -- $x).Trim()
+            & git --git-dir $repo update-index --add --cacheinfo ("100644,$blob," + (Split-Path -Leaf $x)) | Out-Null
+        }
+        # Nothing new (the trace order unchanged, no clips): no commit
+        if ($parent -and (& git --git-dir $repo write-tree).Trim() -eq (& git --git-dir $repo rev-parse "${parent}^{tree}").Trim()) { return $true }
         $tree = (& git --git-dir $repo write-tree).Trim()
         Remove-Item Env:\GIT_INDEX_FILE
         $msg = "Scout clips: $Event, $($names.Count) match(es) (scouting/2026/scout-event.ps1; throwaway, never merge)"
@@ -262,7 +328,7 @@ function Publish-Clips([string[]]$names) {
         $commit = (& git @ca).Trim()
         & git --git-dir $repo push --quiet $Remote "${commit}:refs/heads/$Branch" | Out-Null
         if ($LASTEXITCODE -ne 0) { Bad "could not push $Branch; the clips are in $Out and go up on the next round"; return $false }
-        Ok "sent $($names.Count) clip(s) to GitHub branch $Branch. Tell the Claude session."
+        Ok "sent $($names.Count) clip(s) and the trace order to GitHub branch $Branch. Tell the Claude session."
         return $true
     } finally {
         Remove-Item Env:\GIT_INDEX_FILE -ErrorAction SilentlyContinue
@@ -277,13 +343,16 @@ while ($true) {
     if ($Record) { foreach ($url in $Video) { try { Start-Recording $url } catch { Warn "could not start recording ${url}: $($_.Exception.Message)" } } }
     try { $rows = @(Get-PlayedMatches) } catch { Warn "FTCScout: $($_.Exception.Message)"; $rows = @() }
     Say ("  {0} played match(es) with these teams so far" -f $rows.Count)
+    if (-not $NoPartners -and $script:Plan.Count -eq 0) { Say "  no unplayed match of ours on FTCScout yet: scouting -Teams only, no trace order" }
     foreach ($row in $rows) {
         try { $n = New-ScoutClip $row; if ($n) { $unsent += $n } }
         catch { Bad "$($row.Match): $($_.Exception.Message)" }
     }
-    if ($unsent.Count -gt 0) {
+    $order = $null; try { $order = Write-TraceOrder } catch { Warn "trace order: $($_.Exception.Message)" }
+    $extra = @(); if ($order) { $extra = @($order) }
+    if ($unsent.Count -gt 0 -or $extra.Count -gt 0) {
         if ($NoPush) { $unsent = @() }
-        else { try { if (Publish-Clips $unsent) { $unsent = @() } } catch { Bad "push: $($_.Exception.Message)" } }
+        else { try { if (Publish-Clips $unsent $extra) { $unsent = @() } } catch { Bad "push: $($_.Exception.Message)" } }
     }
     if (-not $Watch) { break }
     Say ("  next look in {0} s (Ctrl+C stops; a recording keeps going in its own window)" -f $EverySeconds)
