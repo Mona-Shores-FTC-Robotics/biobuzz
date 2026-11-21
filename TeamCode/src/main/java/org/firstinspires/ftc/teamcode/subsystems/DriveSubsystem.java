@@ -94,11 +94,21 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
 @Configurable
 public class DriveSubsystem implements Subsystem, AutoDrive {
 
-    /** How fast drive power may rise, in power per second. Slowing and stopping are instant. */
-    public static double accelPerSec = 2.0;
+    /**
+     * How fast drive power may rise, in power per second: 8 is 0 to full in 0.125 s. Slowing and
+     * stopping are instant.
+     *
+     * <p>8 since 21 Nov 2026: tried live in Panels and it drove a lot faster (mentor). Was 2.0.
+     */
+    public static double accelPerSec = 8.0;
 
-    /** The same, for turning. Separate because a laggy turn makes aiming feel mushy. */
-    public static double turnAccelPerSec = 4.0;
+    /**
+     * The same, for turning. Separate because a laggy turn makes aiming feel mushy. A reversal
+     * drops to 0 and ramps from there, so this also sets how quickly a left-right aim flick bites.
+     *
+     * <p>8 since 21 Nov 2026, with {@link #accelPerSec}: turns felt slow at 4.0 (0.25 s to full).
+     */
+    public static double turnAccelPerSec = 8.0;
 
     /** A loop slower than this (a hiccup, a GC pause) is treated as this long, so power cannot jump. */
     private static final double MAX_LOOP_DT_SEC = 0.1;
