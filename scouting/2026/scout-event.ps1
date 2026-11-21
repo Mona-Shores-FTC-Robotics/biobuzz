@@ -276,20 +276,32 @@ function New-ScoutClip($row) {
     if ($null -ne $hand.At) { $play = $hand.At - $FieldAutoS; $how = "scoreboard hand (match {0:N2})" -f $hand.Score }
     else { $play = $v.At; $how = "FTCScout start time (no scoreboard hand found, best {0:N2}): PLAY may be off by several seconds" -f $hand.Score }
     $from = [Math]::Max([double]0, $play - 3)
-    & $ffmpeg -hide_banner -loglevel error -y -ss $from.ToString("0.000", $inv) -t "36" -i $v.File `
-        -vf "scale=-2:480" -an -c:v libx264 -preset veryfast -crf 26 -pix_fmt yuv420p "$clip.part.mp4"
+    # 42 s: 3 s before PLAY to 39 s after, so the clip itself holds the hand (at 33 s) long enough to find it again.
+    & $ffmpeg -hide_banner -loglevel error -y -ss $from.ToString("0.000", $inv) -t "42" -i $v.File `
+        -vf "setpts=PTS-STARTPTS,scale=-2:480" -an -c:v libx264 -preset veryfast -crf 26 -pix_fmt yuv420p `
+        -avoid_negative_ts make_zero "$clip.part.mp4"
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path "$clip.part.mp4") -or (Get-Item "$clip.part.mp4").Length -lt 20KB) {
         Remove-Item -Force -ErrorAction SilentlyContinue "$clip.part.mp4"
         Bad "$($row.Match): ffmpeg could not cut it from $($v.How)"; return $null
     }
     Move-Item -Force "$clip.part.mp4" $clip
+    # PLAY as the clip itself shows it. A seek into a .ts that is still being written can land a couple of seconds
+    # off, and the search above cannot tell; the finished .mp4 seeks exactly (it starts at 0), so find the hand in
+    # it again and take that. play_s is then where a player shows PLAY, whatever the seeks did.
+    $playS = $play - $from
+    $check = $null; try { $check = Find-ScoreboardHand $ffmpeg $clip 18 24 } catch { }
+    if ($check -and $null -ne $check.At) {
+        $fixS = $check.At - $FieldAutoS
+        if ([Math]::Abs($fixS - $playS) -gt 0.25) { Warn ("{0}: PLAY is at {1:N2} s in the clip, not {2:N2}: the seek landed off; using the clip's" -f $row.Match, $fixS, $playS) }
+        $play = $play + ($fixS - $playS); $playS = $fixS
+    }
     $teams = @($row.Teams | ForEach-Object { @{ team = [int]$_.teamNumber; alliance = [string]$_.alliance; station = [string]$_.station } })
-    $meta = [ordered]@{ event = $Event; match = $row.Match; field_start_utc = $row.StartUtc; play_s = [Math]::Round($play - $from, 2)
+    $meta = [ordered]@{ event = $Event; match = $row.Match; field_start_utc = $row.StartUtc; play_s = [Math]::Round($playS, 2)
         play_from = $how; video_from = $v.How; teams = $teams; scouted = $row.Scouted }
-    # PLAY as a second of the YouTube video (play_s is 3 by construction, so this is the number to check against it)
+    # PLAY as a second of the YouTube video (play_s is about 3 by construction, so this is the number to check against it)
     if ($null -ne $v.StreamFrom) { $meta.play_stream_s = [Math]::Round($v.StreamFrom + $play, 2); $meta.video = [string]$v.Url }
     Set-Content -Path "$clip.json" -Value ($meta | ConvertTo-Json -Depth 4 -Compress)
-    Ok ("{0}: PLAY at {1:N1} s into the clip, from the {2}; video from {3}" -f $row.Match, ($play - $from), $how, $v.How)
+    Ok ("{0}: PLAY at {1:N1} s into the clip, from the {2}; video from {3}" -f $row.Match, $playS, $how, $v.How)
     return $name
 }
 
