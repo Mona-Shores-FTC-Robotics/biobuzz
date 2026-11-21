@@ -1172,8 +1172,8 @@ measurement is [#255].
       perfect. The Auto's GARDEN card shares them (no line-up). On 19429: 3 gathers each way in at the red
       GARDEN, one after a lap, and one Auto with a GARDEN gather. **Good:** the drive in's log line says
       "path done", no bounce off the wall, `Lane/Count` rises. **Stop:** it rams ("stalled") → `extraDepthIn`
-      -4; it stops short of the corner → `dwellPushPower` 0.35; record the values in `RobotDifferences`
-      only if 19429 needs different ones.
+      -4; it stops short of the corner → `dwellPushPower` 0.35. 19429 went short at -3; it has its own
+      `extraDepthIn` -1 in `RobotDifferences` (21 Nov), found in Panels, not yet from a log.
 - [ ] **GARDEN gather, onto the side wall sooner (idea, 16 Nov; nothing changed):** the line-up
       spot is 3 in out from the side wall (`lineUpOutIn`, room to turn in the corner) and the drive
       in curves over to it. Try `lineUpOutIn` 1 with the button, 4 gathers. **Good:** the side is
