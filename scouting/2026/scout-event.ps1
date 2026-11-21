@@ -338,6 +338,15 @@ function Publish-Clips([string[]]$names, [string[]]$extra = @()) {
 
 # ---- Main
 Say "Scouting $Event for $($TeamNums -join ', ') from $($Video -join ', ')"
+# -Watch runs all day: ask Windows not to idle-sleep while this window is open (what a video player does; no
+# setting changes, and it ends with the process). A closed lid or Sleep from the menu still sleeps.
+if ($Watch) {
+    try {
+        Add-Type -Namespace Scout -Name Power -MemberDefinition '[DllImport("kernel32.dll")] public static extern uint SetThreadExecutionState(uint f);'
+        # ES_CONTINUOUS | ES_SYSTEM_REQUIRED
+        if ([Scout.Power]::SetThreadExecutionState([uint32]"0x80000001") -ne 0) { Say "  keeping this PC awake while it watches (keep the lid open)" }
+    } catch { Warn "could not keep the PC awake: $($_.Exception.Message); turn sleep off by hand" }
+}
 $unsent = @()
 while ($true) {
     if ($Record) { foreach ($url in $Video) { try { Start-Recording $url } catch { Warn "could not start recording ${url}: $($_.Exception.Message)" } } }
