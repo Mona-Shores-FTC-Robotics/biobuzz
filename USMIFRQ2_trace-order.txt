@@ -1,5 +1,4 @@
-Trace first: 14933 (with 19429 in Q-39, the soonest partner with a clip)
+Trace first: 16220 (with 20245 in Q-42, the soonest partner with a clip)
 
 Our partners, soonest first (FTCScout schedule; times are this PC's):
- 1. 14933  with 19429 in Q-39 (Sat 15:30); clips: Q-15, Q-21, Q-30, Q-8
- 2. 16220  with 20245 in Q-42 (Sat 15:48); clips: Q-12, Q-19, Q-35, Q-7
+ 1. 16220  with 20245 in Q-42 (Sat 15:48); clips: Q-12, Q-19, Q-35, Q-7
