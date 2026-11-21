@@ -559,8 +559,13 @@ public abstract class RobotOpMode extends OpMode {
         if (handoffNote != null && (handoffPose || declaredStart == null || startedFresh)) {
             display.status("Start", handoffLevel, handoffNote);
         }
-        String turretNote = turretOffsetNote(TurretSubsystem.aimOffset());
-        if (turretNote != null) display.status("Turret", Display.Level.OK, turretNote);
+        // An Auto's INIT with a home switch says what the sweep is doing, in place of the offset note.
+        String turretHome = isAutonomous() ? robot.turret.initStatus() : null;
+        String turretNote = turretHome != null ? turretHome : turretOffsetNote(TurretSubsystem.aimOffset());
+        if (turretNote != null) {
+            display.status("Turret", robot.turret.initStatusFault() ? Display.Level.FAULT : Display.Level.OK,
+                    turretNote);
+        }
         if (batteryNote != null) {
             // An Auto lists it with the warnings at the top instead.
             if (!isAutonomous()) display.status("Battery", Display.Level.FAULT, batteryNote);

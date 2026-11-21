@@ -569,6 +569,25 @@ public class TurretSubsystem implements Subsystem {
         return null;
     }
 
+    /**
+     * One line for an Autonomous's INIT page on a turret with a home switch: the sweep's state, the
+     * switch, the angle and the power sent, or why the hold dropped. Null without a switch.
+     */
+    public String initStatus() {
+        if (homeInput == null) return null;
+        if (faultNote != null) return faultNote;
+        return String.format(Locale.US, "%s · switch: %s · %s · power %s",
+                sweep.state().text, magnet ? "MAGNET" : "no magnet",
+                Double.isNaN(encoderAngleDeg) ? "angle unknown"
+                        : String.format(Locale.US, "%.1f\u00b0", TurretEncoder.wrap180(encoderAngleDeg)),
+                Double.isNaN(power) ? "limp" : String.format(Locale.US, "%+.2f", power));
+    }
+
+    /** Whether the INIT status is a fault: the hold dropped, or the sweep found no magnet. */
+    public boolean initStatusFault() {
+        return faultNote != null || sweep.state() == TurretHomeSweep.State.NOT_FOUND;
+    }
+
     /** A test's clock, nanoseconds. */
     void useClock(LongSupplier clock) {
         this.clock = clock;
