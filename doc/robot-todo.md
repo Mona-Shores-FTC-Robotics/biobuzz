@@ -221,14 +221,16 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
       log has `turret: home switch pass … zero moved` events of under 1° each, and the Robot page says
       `zeroed by the home switch`. TeleOp INIT with the turret 20° off its mark warns `Turret off its
       mark`, and turning it by hand across the mark clears it.
-   5. **An Auto's INIT sweep**, Panels open: INIT any Auto with the turret on its mark, then 20° left
-      of it, then 20° right, then 90° off. **Good:** each time but the last it turns slowly
-      (30°/s) until it crosses the mark, then turns to its home angle and holds, in under 6 s; the
-      log has `turret: the sweep found the mark`. At 90° off it goes 60° each way, comes back where it
-      stood and warns `Turret: the sweep did not find the magnet`. **Stop:** it turns the wrong way
-      and the hold drops, it hunts along the sweep (raise `homeSweepDps` to 40), or it passes the
-      mark without stopping (a pass not taken: the log says why) → push the log. If any part of the
-      turret could leave the 18 in cube within 60° of home, lower `homeSweepRangeDeg` first.
+   5. **An Auto's INIT sweep**, Panels open: first check that the turret stays inside the 18 in cube
+      all the way round (the search may turn it a full turn). INIT any Auto with the turret on its
+      mark, then 20° left of it, 20° right, and about 180° round. **Good:** each time it turns
+      counter-clockwise until it crosses the switch, goes about 10° past, crosses back slowly, goes
+      10° past the other side, crosses slowly once more, then turns to its home angle and holds, in
+      under 10 s; the log has `turret: the sweep found the mark, +x.xx° from where it stood`, and on
+      the mark that number is under 1°. The two slow passes' lines show how far apart the two
+      directions read (the switch's hysteresis). **Stop:** it turns the wrong way and the hold drops,
+      it stalls on a slow pass (raise `homeSweepFineDps` to 20), or it never stops searching (no pass
+      taken: the log says why) → push the log.
 
 ## Belding work order (agreed 5 Nov)
 

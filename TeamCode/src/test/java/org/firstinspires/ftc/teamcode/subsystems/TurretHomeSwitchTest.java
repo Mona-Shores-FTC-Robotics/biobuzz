@@ -227,36 +227,43 @@ public class TurretHomeSwitchTest {
     // ------------------------------------------------------------ an Auto's INIT sweep
 
     @Test
-    public void anAutosInitSweepFindsTheMarkEitherSideAndHoldsHome() {
-        for (double startDeg : new double[] {20.0, -20.0, 1.0, -45.0}) {
+    public void anAutosInitSweepFindsTheMarkFromAnywherePreciselyAndHoldsHome() {
+        for (double startDeg : new double[] {20.0, -20.0, 1.0, -1.0, -45.0, 170.0, -170.0, 300.0}) {
             Rig rig = new Rig();
             rig.atDeg = startDeg;
+            // Turns on 2.5° from the mark, off 3.5° from it: a one-way pass is 0.5° off.
+            rig.hysteresisDeg = 1.0;
             TurretSubsystem turret = rig.turret();
             turret.useClock(() -> rig.nowNs);
             turret.initialize();
             turret.holdAtInit();
-            assertEquals(TurretHomeSweep.State.OUT, turret.sweepState());
-            rig.run(turret, 12.0);
+            assertEquals(TurretHomeSweep.State.SEARCH, turret.sweepState());
+            rig.run(turret, 25.0);
             assertEquals("from " + startDeg, TurretHomeSweep.State.FOUND, turret.sweepState());
             assertEquals("from " + startDeg, TurretSubsystem.ZeroSource.SWITCH, turret.zeroSource());
-            assertEquals("from " + startDeg + ": held on its mark", 0.0, rig.atDeg, 3.0);
+            assertEquals("from " + startDeg + ": the zero is on the mark",
+                    0.0, TurretEncoder.wrap180(rig.atDeg - turret.angleDegrees()), 0.2);
+            assertEquals("from " + startDeg + ": held on its mark", 0.0, TurretEncoder.wrap180(rig.atDeg), 3.0);
+            assertEquals("from " + startDeg + ": unwound", 0.0, turret.angleDegrees(), 3.0);
             assertNull(turret.autoInitMarkProblem());
-            assertTrue(turret.takeSwitchEvent().contains("found the mark"));
+            String events = turret.takeSwitchEvent();
+            assertTrue(events, events.contains("the sweep found the mark"));
         }
     }
 
     @Test
-    public void aSweepThatFindsNothingHoldsWhereTheTurretStoodAndWarns() {
+    public void aSweepThatFindsNoMagnetHoldsWhereTheTurretStoodAndWarns() {
         Rig rig = new Rig();
         rig.atDeg = 100.0;
+        rig.noMagnet = true;
         TurretSubsystem turret = rig.turret();
         turret.useClock(() -> rig.nowNs);
         turret.initialize();
         turret.holdAtInit();
-        rig.run(turret, 15.0);
+        rig.run(turret, 25.0);
         assertEquals(TurretHomeSweep.State.NOT_FOUND, turret.sweepState());
         assertEquals(TurretSubsystem.ZeroSource.INIT, turret.zeroSource());
-        assertEquals("back where it stood", 100.0, rig.atDeg, 3.0);
+        assertEquals("back where it stood", 0.0, TurretEncoder.wrap180(rig.atDeg - 100.0), 3.0);
         assertEquals("the sweep did not find the magnet", turret.autoInitMarkProblem());
     }
 
@@ -332,6 +339,10 @@ public class TurretHomeSwitchTest {
         double offsetDeg;
         double rateDps;
         final List<String> servoCalls = new ArrayList<>();
+        /** The switch turns on this much closer to the mark than it turns off, degrees. */
+        double hysteresisDeg;
+        boolean noMagnet;
+        private boolean on;
         /** What the servo was last sent; NaN limp. */
         double servoPower = Double.NaN;
         long nowNs;
@@ -370,7 +381,11 @@ public class TurretHomeSwitchTest {
             }, PwmControl.class));
             fakes.put(DeviceNames.TURRET_HOME, proxy(DigitalChannel.class, (m, args) -> {
                 // Active low: false with the magnet over it.
-                if (m.equals("getState")) return Math.abs(TurretEncoder.wrap180(atDeg - offsetDeg)) > HALF_BAND_DEG;
+                if (m.equals("getState")) {
+                    double from = Math.abs(TurretEncoder.wrap180(atDeg - offsetDeg));
+                    on = !noMagnet && from <= HALF_BAND_DEG + (on ? 1 : -1) * hysteresisDeg / 2.0;
+                    return !on;
+                }
                 return null;
             }));
             HardwareMap map = new HardwareMap(null, null) {

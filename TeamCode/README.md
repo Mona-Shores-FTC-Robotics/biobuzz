@@ -546,14 +546,28 @@ switch warns that the turret is off its mark (`InitWarnings.Kind.TURRET_MARK`).
 
 **The sweep (an Auto's INIT only).** An Autonomous's INIT may move the turret
 (R103.B; the mentor's call, 21 Nov 2026), so with `homeSweep` on it zeroes where
-the turret stands and then turns it slowly (`homeSweepDps`, 30°/s, the rate fed
-forward) counter-clockwise up to `homeSweepRangeDeg` (60°), then clockwise to
-60° the other side, turning back early once it has seen the magnet and lost it
-(`TurretHomeSweep`). The first pass ends it: the zero goes on the mark, with no
-limit on how far it moves, and the turret turns to its home angle and holds.
-Nothing found within the range or `homeSweepTimeoutS` leaves the zero where the
-turret stood and warns (`Turret: the sweep did not find the magnet`); PLAY, a
-hand zero or a dropped hold stops it. At most about 6 s. A TeleOp's INIT, which
+the turret stands and then looks for the mark (`TurretHomeSweep`), each leg a
+moving target with its rate fed forward:
+
+1. **Search**: counter-clockwise at `homeSweepSearchDps` (60°/s) for up to
+   `homeSweepRangeDeg` (370°). With no stops and no cables, a full turn always
+   crosses the magnet, wherever the turret was left.
+2. **Past and back, twice**: once the turret leaves the switch's band it goes on
+   `homeSweepOvershootDeg` (10°) past, turns back and crosses the band slowly
+   (`homeSweepFineDps`, 15°/s), goes 10° past the other side, and crosses it
+   slowly once more the first way.
+3. **The mark** is the average of the two slow passes. A Hall switch turns on a
+   little late one way and off a little late the other, and the loop places each
+   edge a little behind the turret: both errors go with the direction of travel,
+   so two passes in opposite directions cancel them. The zero moves once, onto
+   that mark (unwound, whatever the search's turn), and the turret turns to its
+   home angle and holds.
+
+A full search is about 6 s and the slow passes about 4 s more. No magnet in the
+range, or `homeSweepTimeoutS` (20 s), leaves the zero where the turret stood and
+warns (`Turret: the sweep did not find the magnet`); a fast pass with no slow one
+after it gives that pass's mark and a log line. PLAY, a hand zero or a dropped
+hold stops it. A TeleOp's INIT, which
 runs between AUTO and TELEOP, never moves the turret: there the drive team
 turns it by hand across the mark. With `homeSweep` off, an Auto's INIT only
 warns when the switch saw no magnet where it zeroed.
