@@ -177,7 +177,12 @@ function New-ScoutClip($row) {
     $teamsTxt = ($row.Scouted | ForEach-Object { "$_" }) -join "-"
     $name = "{0}_{1}_{2}" -f $Event, ($row.Match -replace '[^A-Za-z0-9-]', ''), $teamsTxt
     $clip = Join-Path $Out "$name.mp4"
-    if (Test-Path "$clip.json") { return $null }
+    # Done only if this script made it (its .json has play_s): get-scout-clips.ps1 wrote the same names without one.
+    if (Test-Path "$clip.json") {
+        $old = $null; try { $old = Read-Json "$clip.json" } catch { }
+        if ($old -and $null -ne $old.play_s) { return $null }
+        Say "  ...     $($row.Match): $name.mp4 is an older clip with no play_s; replacing it"
+    }
     $v = Find-MatchVideo $row
     if (-not $v) { Say "  wait    $($row.Match): not on disk yet (the stream is live and the recording has not reached it)"; return $null }
     $look = [Math]::Max([double]0, $v.At + 30 - 45)
