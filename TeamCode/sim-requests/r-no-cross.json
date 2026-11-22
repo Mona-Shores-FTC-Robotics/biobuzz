@@ -9,12 +9,7 @@
     2,
     3,
     4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10
+    5
   ],
   "partnerSeeds": [
     1,
@@ -26,30 +21,26 @@
   "alliance": "RED",
   "partners": [
     {
-      "name": "on time, typical 50 in/s",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 50
-      }
+      "name": "pair: beside L-NoCross, today's shot gap",
+      "partner": "LNoCrossAuto"
     },
     {
-      "name": "misses",
-      "partner": "PartnerLTipParkAuto",
-      "fails": "misses",
-      "timing": {
-        "speed": 50
-      }
+      "name": "pair: beside L-NoCross, shot gap 0.35 s",
+      "partner": "LNoCrossAuto",
+      "ourLaunchS": 0.35
     },
     {
-      "name": "dead on its start",
-      "partner": "PartnerLBrokenDownAuto"
+      "name": "pair: beside L-NoCross, shot gap 0.25 s",
+      "partner": "LNoCrossAuto",
+      "ourLaunchS": 0.25
     },
     {
-      "name": "stays out of the way",
-      "partner": "PartnerStillAuto"
+      "name": "pair: beside L-NoCross, shot gap 0.15 s",
+      "partner": "LNoCrossAuto",
+      "ourLaunchS": 0.15
     },
     {
-      "name": "fast partner: TIP 2 quickly (speed 80, 0.25 s a shot, 1.5 s pick)",
+      "name": "fast partner (speed 80, 0.25 s a shot, 1.5 s pick), today's shot gap",
       "partner": "PartnerLTipParkAuto",
       "timing": {
         "speed": 80,
@@ -58,56 +49,14 @@
       }
     },
     {
-      "name": "very fast partner (speed 100, 0.15 s a shot, 1.0 s pick)",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 100,
-        "launchS": 0.15,
-        "pickS": 1.0
-      }
-    },
-    {
-      "name": "pair: beside L-NoCross",
-      "partner": "LNoCrossAuto"
-    },
-    {
-      "name": "pair: beside L-NoCross, our preloads miss",
-      "partner": "LNoCrossAuto",
-      "oursFails": "misses preloads"
-    },
-    {
-      "name": "pair: beside L-NoCross on WAIT FOR PARTNER FIX",
-      "partner": "LNoCrossAuto",
-      "partnerPicks": {
-        "if no TIP 1": "WAIT FOR PARTNER FIX"
-      }
-    },
-    {
-      "name": "pair: beside L-NoCross on WAIT FOR PARTNER FIX, our preloads miss",
-      "partner": "LNoCrossAuto",
-      "oursFails": "misses preloads",
-      "partnerPicks": {
-        "if no TIP 1": "WAIT FOR PARTNER FIX"
-      }
-    },
-    {
-      "name": "pair: beside L-NoCross, R on CROSS AND FIX IT",
-      "partner": "LNoCrossAuto",
-      "picks": {
-        "if no TIP 2": "CROSS AND FIX IT"
-      }
-    },
-    {
-      "name": "fast partner, R on CROSS AND FIX IT",
+      "name": "fast partner (speed 80, 0.25 s a shot, 1.5 s pick), shot gap 0.25 s",
       "partner": "PartnerLTipParkAuto",
       "timing": {
         "speed": 80,
         "launchS": 0.25,
         "pickS": 1.5
       },
-      "picks": {
-        "if no TIP 2": "CROSS AND FIX IT"
-      }
+      "ourLaunchS": 0.25
     }
   ],
   "metadata": {
@@ -115,5 +64,6 @@
     "SavedBy": "dustinhans; LEFT_AUTO_HIVE 0.5 in off the centre line",
     "SavedAt": "2026-11-18T19:45:00+00:00",
     "SimNote": "belding-plus: guard keeps the park (parkAfterVolley), LaunchAll 4.0 s planned, feed 3.0 s"
-  }
+  },
+  "folder": "r-no-cross-3tip-study"
 }
