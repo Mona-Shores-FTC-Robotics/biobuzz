@@ -61,7 +61,7 @@ is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFi
 
 ## Turret encoder to a drive socket (both robots, before the State Championship from 10 Dec)
 
-Code is ready and off on both robots ([PR: turret encoder to a drive socket]). Today the turret's
+Code is ready and off on both robots (PR #712). Today the turret's
 REV Through Bore cable is in the intake's encoder socket, so the intake has no encoder (no wedge
 clear, no position hold, no stall event, no roller stall for the feed jam clear) and the feeder's
 socket is empty. The move frees both. Do one robot at a time; the two robots' drive ports are the
