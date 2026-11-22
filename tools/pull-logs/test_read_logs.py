@@ -329,5 +329,41 @@ class Legs(unittest.TestCase):
         self.assertEqual([], read_logs.leg_rows({'/Events': [(1.0, 'OpMode init: Basic Drive')]}))
 
 
+class Cycles(unittest.TestCase):
+    """cycle_rows: a TeleOp volley's split, from the gate, the shot count, pieces in and fire presses."""
+
+    GATE = [(0.0, False), (20.0, True), (21.5, False), (40.0, True), (40.3, False), (50.0, True), (52.0, False)]
+    SHOTS = [(0.0, 0), (20.8, 1), (21.2, 2), (50.6, 3), (51.0, 4), (51.4, 5), (51.8, 6)]
+    STILL = [(t / 10.0, 0.0) for t in range(0, 600)]
+
+    def rows(self, presses, pieces):
+        return read_logs.cycle_rows(self.GATE, self.SHOTS, pieces, presses, self.STILL, 0.0, 60.0)
+
+    def test_each_phase_runs_to_the_next_event(self):
+        rows, last = self.rows([19.6, 49.5], [5.0, 8.0, 30.0, 33.0, 44.0])
+        self.assertEqual(2, len(rows))
+        r = rows[0]
+        self.assertEqual(2, r['shots'])
+        self.assertAlmostEqual(5.0, r['drive to pieces'])
+        self.assertAlmostEqual(3.0, r['pick up'])
+        self.assertAlmostEqual(11.6, r['drive loaded'])
+        self.assertAlmostEqual(0.4, r['spin-up and aim'], places=6)
+        self.assertAlmostEqual(1.5, r['feed'])
+        self.assertAlmostEqual(52.0, last)
+
+    def test_a_gate_that_fired_nothing_is_an_empty_feed_on_the_next_volley(self):
+        rows, _ = self.rows([19.6, 39.9, 49.5], [5.0, 30.0, 44.0])
+        self.assertEqual(1, rows[1]['empty_feeds'])
+        self.assertEqual(4, rows[1]['shots'])
+
+    def test_a_press_before_the_last_piece_came_in_does_not_start_the_spin_up(self):
+        # Circle at an empty lane (39.9: the gate opened, nothing came out), then a pickup, then the real press.
+        rows, _ = self.rows([19.6, 39.9, 49.5], [5.0, 44.0, 46.0])
+        r = rows[1]
+        self.assertEqual(1, r['early_presses'])
+        self.assertAlmostEqual(0.5, r['spin-up and aim'], places=6)
+        self.assertAlmostEqual(2.0, r['pick up'])
+
+
 if __name__ == '__main__':
     unittest.main()

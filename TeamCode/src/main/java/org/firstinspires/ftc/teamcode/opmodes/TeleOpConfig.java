@@ -208,6 +208,47 @@ public final class TeleOpConfig {
     public static double aimToleranceDeg = 3.0;
 
     /**
+     * The full-load rule ({@link FeedHold}): a driver's fire waits to start its feed until the lane
+     * reads full ({@code colorSensor.full()}, the light's green), so a volley carries 4. Held past
+     * {@link #fullLoadGiveUpS} it fires what is there, and in the last {@link #fullLoadOffLastS} of
+     * TeleOp it never waits. The intake keeps taking in meanwhile, so the driver can press Circle
+     * while the last piece comes in and the volley goes the moment the lane fills. Fruitport (21 Nov
+     * 2026): 3.1 pieces a volley on 20245 and 2.6 on 19429. <b>Off</b>: a switch to try in practice;
+     * the light's green says the same with the rule off (doc/drive-team-cycle-playbook.md).
+     */
+    public static boolean fullLoadGate = false;
+
+    /**
+     * {@link #fullLoadGate}: how long a fire is held back for a lane not yet full, seconds; then it
+     * fires what is there. NaN or negative: it waits as long as the button is held.
+     */
+    public static double fullLoadGiveUpS = 1.0;
+
+    /** {@link #fullLoadGate}: the last this-many seconds of TeleOp, a fire never waits for a full lane. */
+    public static double fullLoadOffLastS = 10.0;
+
+    /**
+     * Hold a driver's fire while the camera sees our end's CELL down ({@link OurCell}), where a volley
+     * is wasted (a CELL is scored only from its own end; the down one takes nothing). An unseen CELL
+     * never holds, and held past {@link #downCellGiveUpS} it fires anyway (the camera can be wrong).
+     * <b>Off</b>: a switch to try with the one-end-per-robot strategy; the Match page's OUR CELL line
+     * shows the same with it off.
+     */
+    public static boolean holdFireAtDownCell = false;
+
+    /** {@link #holdFireAtDownCell}: how long a fire is held back at a down CELL, seconds; NaN or negative: as long as held. */
+    public static double downCellGiveUpS = 1.0;
+
+    /**
+     * At TeleOp's PLAY the launcher spins to its idle ({@link #launcherIdleTicksPerSecond}) at once,
+     * rather than waiting for the first fire press to spin it up from 0. Fruitport (21 Nov 2026):
+     * the first Circle of TeleOp found the wheels at 0 in 7 of 7 of 19429's matches and 5 of 8 of
+     * 20245's, about 1.3 s of spin-up each. The idle is what the wheels go to after the first
+     * press anyway. <b>On</b>, not yet seen on the robot; off restores the old start.
+     */
+    public static boolean idleAtPlay = true;
+
+    /**
      * The driver's go-to-launch-spot button ({@link LaunchSpotDrive}, held): on while the drivers
      * try it against chassis aim; off leaves it out of the layout, the Controls page and the
      * button's reading. Read at INIT.
