@@ -32,7 +32,7 @@ the connector. It can download a **link-shared** Drive file. After an event:
    Share the folder: *General access → Anyone with the link → Viewer*.
 3. Add the event to `videos.json` here, with the folder id (the part of its URL after
    `/folders/`), in a PR:
-   `"USMIFRQ": {"name": "Fruitport Qualifier", "folder": "<folder id>"}`
+   `"USMIFRQ2": {"name": "Fruitport Qualifier", "folder": "<folder id>"}`
 4. Check: `python3 tools/match-review/match_review.py fetch <EVENT> <match> <team>` downloads it.
 5. Optional: an evidence gallery for the event. Ask a session to make one (or copy Belding's,
    https://claude.ai/artifact/4NCKpRLVnWVvFTKtNzgEWS), and add its link as `"gallery"` on the
