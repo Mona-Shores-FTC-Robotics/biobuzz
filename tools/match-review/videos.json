@@ -3,6 +3,7 @@
   "events": {
     "USMIBEQ": {"name": "Belding Qualifier", "folder": "19nrvYnZTh9cSt2n1x-84oFOyRnJBWYt2",
                 "gallery": "https://claude.ai/artifact/4NCKpRLVnWVvFTKtNzgEWS",
-                "fixlist": "https://claude.ai/artifact/BitckTyT6BjGbAXSgx9i6X"}
+                "fixlist": "https://claude.ai/artifact/BitckTyT6BjGbAXSgx9i6X"},
+    "USMIFRQ2": {"name": "Fruitport Qualifier", "folder": "1LflPEGIHEYYj3DOubKCBfrKwk9GAPlE6"}
   }
 }
