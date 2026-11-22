@@ -22,10 +22,10 @@ public class IntakePositionHoldTest {
     private final double oldMax = IntakeSubsystem.positionHoldMaxPower;
     private final double oldStars = IntakeSubsystem.starsPowerWhenFull;
 
-    private final boolean oldOwnEncoder = IntakeSubsystem.ownEncoder;
+    private final boolean oldOnDrive = TurretSubsystem.encoderOnDriveMotor;
 
     @Before public void setup() {
-        IntakeSubsystem.ownEncoder = true;   // the hold needs the roller's own encoder in its socket
+        TurretSubsystem.encoderOnDriveMotor = true;   // the hold needs the roller's own encoder in its socket
         IntakeSubsystem.holdWhenFull = true;
         IntakeSubsystem.positionHoldWhenFull = true;
         IntakeSubsystem.positionHoldMaxPower = 0.3;
@@ -59,7 +59,7 @@ public class IntakePositionHoldTest {
         intake.initialize(); writes.clear();
     }
     @After public void restore() {
-        IntakeSubsystem.ownEncoder = oldOwnEncoder;
+        TurretSubsystem.encoderOnDriveMotor = oldOnDrive;
         IntakeSubsystem.reversed = oldReversed;
         IntakeSubsystem.holdWhenFull = oldEnabled;
         IntakeSubsystem.positionHoldWhenFull = oldPosition;

@@ -7,7 +7,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
  * <h2>The encoder</h2>
  *
  * <p>A REV Through Bore Encoder (REV-11-1271) on the turret's drive gear, its quadrature output
- * plugged into a hub motor encoder socket ({@code DeviceNames.TURRET_ENCODER_HOST}). The hub counts
+ * plugged into a hub motor encoder socket ({@code TurretSubsystem.encoderHostName()}). The hub counts
  * both edges of both channels: {@value #REV_THROUGH_BORE_COUNTS} per turn of that encoder (the
  * Studica Cypher Max it replaced counts {@value #CYPHER_MAX_COUNTS}). It is a <b>relative</b>
  * count: zero wherever the encoder was when the hub powered up, and it keeps counting across

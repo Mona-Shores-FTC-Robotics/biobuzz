@@ -16,7 +16,7 @@ import java.util.Locale;
 /**
  * The turret: a goBILDA 25-3 Speed servo in continuous mode ({@link DeviceNames#TURRET}) turning
  * it, and a REV Through Bore Encoder on its drive gear, read as a relative quadrature count
- * through the encoder socket of {@link DeviceNames#TURRET_ENCODER_HOST}. The turret has no stops
+ * through the encoder socket of {@link #encoderHostName()}. The turret has no stops
  * and no cables: it turns for ever either way, an angle is a direction, and it always goes the
  * shortest way round. A continuous servo has no feedback of its own, so the loop is closed here,
  * on the encoder ({@link TurretServoControl}).
@@ -43,7 +43,7 @@ import java.util.Locale;
  * <p>The encoder host is another mechanism's motor. This class reads its position and velocity and
  * <b>never</b> sets its power, mode or direction, and never resets its count; it undoes the sign
  * the host's own direction puts on the count ({@link #hostSign}). Zero is a software offset, so
- * the intake (today's host) is untouched.
+ * the host (the intake, or a drive wheel with {@link #encoderOnDriveMotor}) is untouched.
  *
  * <p>The values below are both robots'. One that a robot measures differently is a line in
  * {@link org.firstinspires.ftc.teamcode.RobotDifferences}, not a second field here.
@@ -170,6 +170,23 @@ public class TurretSubsystem implements Subsystem {
     public static boolean lockedForward = true;
 
     /**
+     * Whether this robot's turret encoder is in a drive wheel's encoder socket
+     * ({@link DeviceNames#TURRET_ENCODER_DRIVE_HOST}) rather than the intake's
+     * ({@link DeviceNames#TURRET_ENCODER_HOST}). Off, the shared default: both robots are wired to
+     * the intake's socket until the build team moves the cable (doc/robot-todo.md, "Turret encoder
+     * to a drive socket"). A robot moved gets a {@code RobotDifferences} line turning it on, the
+     * same day its intake's own encoder cable goes back in the intake's socket, which is what this
+     * switch gives back: the intake's stall timing ({@code IntakeSubsystem.ownEncoder()}). Read when
+     * the robot is built, so a Panels edit applies at the next INIT.
+     */
+    public static boolean encoderOnDriveMotor = false;
+
+    /** The motor whose encoder socket the turret's encoder is in on this robot: see {@link #encoderOnDriveMotor}. */
+    public static String encoderHostName() {
+        return encoderOnDriveMotor ? DeviceNames.TURRET_ENCODER_DRIVE_HOST : DeviceNames.TURRET_ENCODER_HOST;
+    }
+
+    /**
      * The firing arc ({@link TurretArc}): how far left of the arc's centre (0, or in the TeleOp the aim trim) the turret may point and still fire
      * clear of the robot, degrees. Behind the arc it holds at the edge and a fire button does not
      * feed. 90 on both robots is the mentor's judgement (18 Nov 2026: the turret is good across
@@ -258,7 +275,7 @@ public class TurretSubsystem implements Subsystem {
 
     /** Looks both devices up once. A missing one fails init with the SDK's own message. */
     public TurretSubsystem(HardwareMap hardwareMap) {
-        encoderHost = hardwareMap.get(DcMotorEx.class, DeviceNames.TURRET_ENCODER_HOST);
+        encoderHost = hardwareMap.get(DcMotorEx.class, encoderHostName());
         servo = hardwareMap.get(CRServo.class, DeviceNames.TURRET);
         pwm = servo instanceof PwmControl ? (PwmControl) servo : null;
     }
@@ -540,7 +557,7 @@ public class TurretSubsystem implements Subsystem {
 
     /**
      * +1 or -1 to turn the host motor's reading back into the hub's own count. The encoder is read
-     * through another mechanism's motor ({@link DeviceNames#TURRET_ENCODER_HOST}), and that
+     * through another mechanism's motor ({@link #encoderHostName()}), and that
      * mechanism may set the motor's direction: the SDK then flips the position and the velocity it
      * reports along with the power. The turret's count must not change sign because the intake was
      * reversed, so the flip is undone here (20245, 17 Nov 2026: the hold worked on the bench, which
@@ -593,7 +610,7 @@ public class TurretSubsystem implements Subsystem {
     public String health() {
         return (lockedForward ? "locked straight ahead (lockedForward): from PLAY holds 0° on the encoder; " : "")
                 + "continuous servo, presence unknown (a servo reports nothing back); encoder read through "
-                + DeviceNames.TURRET_ENCODER_HOST + "; zero: " + zeroSource.text
+                + encoderHostName() + "; zero: " + zeroSource.text
                 + (settingsProblem != null ? "; settings: " + settingsProblem : "");
     }
 

@@ -61,19 +61,33 @@ public final class DeviceNames {
     public static final String FEEDER = "feeder";
 
     /**
-     * The turret's angle encoder is read through this motor's encoder socket, not a device of its
-     * own. A REV Through Bore Encoder rides the turret's drive gear; its quadrature output plugs
-     * into the encoder socket beside Expansion Hub motor port 0, whose motor is {@link #INTAKE}
-     * (the mentor's call at the robot, 17 Nov 2026; until then a Studica Cypher Max in the
-     * feeder's socket). The SDK reads whatever is plugged into a socket as that motor's position,
-     * so the intake's {@code getCurrentPosition()} and {@code getVelocity()} on a competition
-     * robot are the turret turning, not the roller: the intake runs without its encoder, and
-     * everything of its that needed one is off ({@code IntakeSubsystem.ownEncoder}). Code that
-     * wants the turret angle asks for this motor and reads only its encoder; nothing may set its
-     * power or mode except the intake code, and nothing may reset its count except the turret
-     * code. The socket is in each robot's XML.
+     * The motor whose encoder socket holds the turret's angle encoder on a robot not yet moved to a
+     * drive socket ({@code TurretSubsystem.encoderOnDriveMotor} off). A REV Through Bore Encoder
+     * rides the turret's drive gear; its quadrature output plugs into the encoder socket beside
+     * Expansion Hub motor port 0, whose motor is {@link #INTAKE} (the mentor's call at the robot,
+     * 17 Nov 2026; until then a Studica Cypher Max in the feeder's socket). The SDK reads whatever
+     * is plugged into a socket as that motor's position, so there the intake's
+     * {@code getCurrentPosition()} and {@code getVelocity()} are the turret turning, not the
+     * roller, and everything of the intake's that needs its own encoder is off
+     * ({@code IntakeSubsystem.ownEncoder()}). Code that wants the turret's host asks
+     * {@code TurretSubsystem.encoderHostName()}, never this constant, which is right only while the
+     * switch is off.
      */
     public static final String TURRET_ENCODER_HOST = DeviceNames.INTAKE;
+
+    /**
+     * The motor whose encoder socket holds the turret's encoder on a robot moved off the intake's
+     * ({@code TurretSubsystem.encoderOnDriveMotor}, a {@code RobotDifferences} line per robot as it
+     * is rewired): the back-right drive wheel, Control Hub motor port 2 in both robots' XML. Its own
+     * encoder is only logged ({@code DriveSubsystem.wheelTicksPerSec}, NaN for this wheel then):
+     * odometry is the Pinpoint, and neither Pedro's drivetrain nor ours sets a drive motor's mode
+     * or resets its count, so the drive leaves the turret's count alone. Back-right, not another:
+     * 20245's back-left socket reads 0 (Belding, Fruitport), and taking a right wheel leaves both of
+     * 20245's working diagonals and both sides with a logged wheel. Nothing may set this motor's
+     * mode or reset its count except the turret code; it must never run {@code RUN_USING_ENCODER},
+     * or the hub's velocity loop would drive the wheel from the turret's count.
+     */
+    public static final String TURRET_ENCODER_DRIVE_HOST = DeviceNames.BACK_RIGHT;
     // The launcher bench's Y-cabled flywheel pair: both motors on one port, so
     // software sees one motor. Bench only; the robots have LAUNCHER_LEFT/RIGHT.
     public static final String LAUNCHER = "launcher";
@@ -123,7 +137,7 @@ public final class DeviceNames {
      * The turret's drive: a goBILDA 25-3 Speed servo in continuous mode, so a
      * {@code <ContinuousRotationServo>} element on a servo port, not a motor port (all eight are
      * taken). It is sent a speed and has no feedback of its own: the turret's angle comes from
-     * {@link #TURRET_ENCODER_HOST}, and {@code TurretSubsystem} closes the loop on it. An
+     * {@code TurretSubsystem.encoderHostName()}'s socket, and {@code TurretSubsystem} closes the loop on it. An
      * Expansion Hub servo port; which one is in each robot's XML.
      */
     public static final String TURRET = "turret";

@@ -23,7 +23,8 @@ import java.util.Locale;
 /**
  * Bench test for the turret on a competition robot: a goBILDA 25-3 Speed servo in continuous mode
  * ({@code DeviceNames.TURRET}) turning it, and the REV Through Bore Encoder read through the
- * encoder socket of Expansion Hub motor port 0 ({@code DeviceNames.TURRET_ENCODER_HOST}). It
+ * encoder socket of the intake's motor, or of the back-right drive wheel's on a robot moved to it
+ * ({@code TurretSubsystem.encoderHostName()}). It
  * measures the numbers {@code TurretSubsystem} needs, none of which may be guessed, in this order:
  *
  * <ol>
@@ -123,10 +124,10 @@ public class TurretBench extends OpMode {
             if (configWarning == null) configWarning = "robot differences not applied: " + e.getMessage();
         }
         try {
-            encoderHost = hardwareMap.get(DcMotorEx.class, DeviceNames.TURRET_ENCODER_HOST);
+            encoderHost = hardwareMap.get(DcMotorEx.class, TurretSubsystem.encoderHostName());
         } catch (RuntimeException e) {
             encoderHost = null;
-            encoderFault = "motor \"" + DeviceNames.TURRET_ENCODER_HOST
+            encoderFault = "motor \"" + TurretSubsystem.encoderHostName()
                     + "\" (whose encoder socket is the turret encoder's) is not in the active configuration";
         }
         try {

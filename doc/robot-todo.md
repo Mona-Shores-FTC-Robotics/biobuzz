@@ -59,6 +59,77 @@ is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFi
       today. **Stop:** a full load not FULL → the beam is too far back; a not-full load FULL → too far
       forward. Move the beam, not the numbers.
 
+## Turret encoder to a drive socket (both robots, before the State Championship from 10 Dec)
+
+Code is ready and off on both robots ([PR: turret encoder to a drive socket]). Today the turret's
+REV Through Bore cable is in the intake's encoder socket, so the intake has no encoder (no wedge
+clear, no position hold, no stall event, no roller stall for the feed jam clear) and the feeder's
+socket is empty. The move frees both. Do one robot at a time; the two robots' drive ports are the
+same, so the steps are the same. A wheel's own encoder is only logged (odometry is the Pinpoint),
+so back-right's log is the whole cost; back-left is never used (20245's reads 0).
+
+**Rewiring, robot powered off** (Control Hub drive ports: 0 frontRight, 1 frontLeft, 2 backRight,
+3 backLeft):
+
+1. **Expansion Hub, encoder socket beside motor port 0:** unplug the turret's Through Bore cable.
+2. **Control Hub, encoder socket beside motor port 2 (backRight):** unplug backRight's own encoder
+   lead; tape and label it ("BR enc, unplugged for turret"), so nobody plugs it back.
+3. **Turret's Through Bore cable → Control Hub, encoder socket beside motor port 2.** It now runs
+   to the other hub: use an extension if it will not reach without tension, keep it clear of the
+   turret's turning and of motor leads, strain-relieved within 2 in of the socket.
+4. **Intake motor's own encoder lead → Expansion Hub, encoder socket beside motor port 0.**
+5. **Feeder motor's own encoder lead → Expansion Hub, encoder socket beside motor port 3.**
+6. **Code, the same day:** under that robot in `RobotDifferences.java`, two lines with the date:
+   ```java
+   differs(RobotIdentity.TEAM_<team>, "Turret encoder moved to backRight's socket, the intake's own"
+           + " encoder back in its socket (<date>)", () -> TurretSubsystem.encoderOnDriveMotor = true);
+   differs(RobotIdentity.TEAM_<team>, "Feeder's own encoder plugged in (<date>)",
+           () -> FeederSubsystem.encoderFitted = true);
+   ```
+   No XML changes (no device is added; the sockets are not in the XML). Sloth Load is enough for
+   these lines; the first install after this PR merges is a full TeamCode install (it changed `res/`
+   comments). Once both robots have moved, the two switches' shared defaults go to true and the
+   lines come out.
+
+**Bench checks, in order:**
+
+- [ ] **Loop time (CLAUDE.md):** `LoopTimeBaseline` before the move and after; both numbers to the
+      PR. The turret is now read from the Control Hub every loop, so expect up to about 1 ms more
+      (that hub's bulk read). **Stop:** more than 1.5 ms → bring both numbers back to a session.
+- [ ] **Check: Hardware:** nothing reported.
+- [ ] **Turret zero and sweep (Bench: Turret):** turret on its mark, Cross zeros it. Turn it
+      counter-clockwise by hand: `angle` rises (the same sign as before the move; if it falls,
+      something other than the socket changed: stop). One full turn reads 360 ±1. Then the bench's
+      servo hold at 0 and a sweep to ±90 and back: it settles on each as it did before. **Stop:** no
+      count at all → the cable is in the wrong socket (it must be beside port **2**, not 3).
+- [ ] **The drive leaves the turret alone (Basic Drive, turret held at home):** 30 s of hard driving,
+      strafing and spinning. **Good:** the Robot page's turret angle stays at its hold (no creep, no
+      jump), the turret points along the nose at the end. In the log, `/Drive/WheelTicksPerSec/BackRight`
+      is NaN and the other three move (20245: back-left still reads 0, as before).
+- [ ] **Turret zero across Auto → TeleOp:** any Auto, INIT (turret zeroes and turns home), PLAY,
+      stop, then Basic Drive: the turret still points along the nose (the handoff's zero).
+- [ ] **Intake count:** Basic Drive, intake in, Robot page: the intake reads about +2400 ticks/s
+      (sign: in is positive, `IntakeSubsystem.reversed`). With the intake off, turning the turret
+      by hand changes nothing on the intake's line. **Stop:** 0 while running → its lead is not in
+      the socket beside Expansion Hub port 0.
+- [ ] **Feeder count:** Basic Drive, launcher on, Square: the Robot page's `Feeder N ticks/s` reads
+      about 2100–2260 while feeding (record its sign). **Stop:** 0 → its lead is not in the socket
+      beside port 3.
+- [ ] **Full-lane position hold comes back:** load 4 POLLEN with the intake on. **Good:** the Robot page
+      reads "holding the last piece (lane full)", the roller holds still under load without creeping
+      or buzzing. **Stop:** it runs away or buzzes → Panels `IntakeSubsystem.positionHoldWhenFull` off.
+- [ ] **Wedge clear (WedgeClear, never run on a robot):** intake in, a piece jammed at the roller so
+      it stalls with nothing under the lane sensor. **Good:** after about 1 s it backs out for a
+      quarter second, at most 3 times, and the log has `intake: wedged (… ticks/s at … A …)`.
+- [ ] **A stuck feed (FeedJamClear with both encoders, never run on a robot):** launcher on, Square,
+      a gloved hand holding a ball against the feeder. **Good:** within about 0.3 s the lane backs out
+      and the log has `feed: stuck (gate open, feeder stopped while feeding; …)`; the feeder's
+      `feeder: commanded for 1.0 s, encoder never moved` event follows if held a second. A piece
+      wedged at the lane entry with the roller grinding is called at about 0.6 s (`roller stalled on
+      the entry piece`). Four clean volleys: no `feed: stuck` at all. **Stop:** a clean volley calls
+      one → note its cause from the event; raise `IntakeSubsystem.feedJamFeederStallMs` (300) or
+      `feedJamStallMs` (600), or lower `FeederSubsystem.stallTicksPerSecond` (150).
+
 ## Why Auto drives slowly (Fruitport, 21 Nov: both robots)
 
 At Fruitport every Auto path sped up 2–3× slower than the same robot under a driver: 3 → 30 in/s
@@ -516,9 +587,10 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       on the hub photo (§8). [PR #503]
       On 19429 the Pinpoint was declared lost in Q13 and the lower final; that refused 13
       launch-spot presses and 9 FLOWER picks. Check the mount and connector on both robots, not only the cable.
-- [ ] **20245: backLeft's encoder read 0 in all 8 Belding matches.** The turret's encoder belongs
-      in the encoder socket beside **Expansion Hub** motor port 3 (`feeder`,
-      `DeviceNames.TURRET_ENCODER_HOST`); backLeft is **Control Hub** motor port 3. Check that the
+- [ ] **20245: backLeft's encoder read 0 in all 8 Belding matches (and at Fruitport).** The turret's
+      encoder belongs in the encoder socket beside **Expansion Hub** motor port 0 (`intake`), or,
+      after the move above, beside **Control Hub** motor port 2 (`backRight`,
+      `TurretSubsystem.encoderHostName()`); backLeft is Control Hub motor port 3. Check that the
       turret encoder did not go into backLeft's socket, and that backLeft's own encoder is plugged in.
       **Good:** Check: Hardware, then a Basic Drive log with all four wheel speeds moving. [#500]
 - [ ] **Both robots: launcher wheel encoder cables.** A wheel read no speed while spinning in one

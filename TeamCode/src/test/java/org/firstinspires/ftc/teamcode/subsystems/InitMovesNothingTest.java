@@ -154,7 +154,7 @@ public class InitMovesNothingTest {
 
     @Test
     public void turretWaitsForPlay() {
-        Devices devices = new Devices().motor(DeviceNames.TURRET_ENCODER_HOST).crServo(DeviceNames.TURRET);
+        Devices devices = new Devices().motor(TurretSubsystem.encoderHostName()).crServo(DeviceNames.TURRET);
         TurretSubsystem turret = new TurretSubsystem(devices.map);
         runInit(turret, devices);
 
@@ -179,7 +179,7 @@ public class InitMovesNothingTest {
             for (boolean lockedForward : new boolean[] {false, true}) {
                 TurretSubsystem.lockedForward = lockedForward;
                 TurretSubsystem.aimOffsetDeg = 6.0;
-                Devices devices = new Devices().motor(DeviceNames.TURRET_ENCODER_HOST).crServo(DeviceNames.TURRET);
+                Devices devices = new Devices().motor(TurretSubsystem.encoderHostName()).crServo(DeviceNames.TURRET);
                 TurretSubsystem turret = new TurretSubsystem(devices.map);
                 turret.initialize();
                 turret.holdAtInit();

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem.State;
@@ -115,5 +116,17 @@ public class FeederSubsystemTest {
     public void switchingCompensationOffAppliesAtOnce() {
         assertEquals(1.0, FeederSubsystem.steppedScale(1.005, 1.0, FeederSubsystem.SCALE_STEP), EPS);
         assertEquals("off stays off", 1.0, FeederSubsystem.steppedScale(1.0, 1.0, FeederSubsystem.SCALE_STEP), EPS);
+    }
+
+    /** A stopped feeder is a stall only with its encoder in, after PLAY, while feeding and driven. */
+    @Test
+    public void aStallNeedsTheEncoderAFeedAndPower() {
+        assertTrue(FeederSubsystem.stalls(true, true, State.FEED, -1.0, 20.0, 150.0));
+        assertFalse("turning", FeederSubsystem.stalls(true, true, State.FEED, 1.0, -2100.0, 150.0));
+        assertFalse("no encoder: reads 0 always", FeederSubsystem.stalls(false, true, State.FEED, 1.0, 0.0, 150.0));
+        assertFalse("before PLAY", FeederSubsystem.stalls(true, false, State.FEED, 1.0, 0.0, 150.0));
+        assertFalse("standby is not a feed", FeederSubsystem.stalls(true, true, State.IDLE, 1.0, 0.0, 150.0));
+        assertFalse("reversing", FeederSubsystem.stalls(true, true, State.REVERSE, -1.0, 0.0, 150.0));
+        assertFalse("barely driven", FeederSubsystem.stalls(true, true, State.FEED, 0.1, 0.0, 150.0));
     }
 }

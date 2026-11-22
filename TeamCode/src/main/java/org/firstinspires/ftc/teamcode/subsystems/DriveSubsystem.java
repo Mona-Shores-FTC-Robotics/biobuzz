@@ -281,6 +281,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      */
     private final DcMotorEx[] wheels;
     private final double[] wheelTicksPerSec = {Double.NaN, Double.NaN, Double.NaN, Double.NaN};
+    /**
+     * The wheel whose encoder socket holds the turret's encoder ({@code TurretSubsystem.encoderHostName()}),
+     * or -1: its speed is the turret's, so it is not read and logs NaN.
+     */
+    private final int turretSocketWheel;
     private final Throttle wheelRead = new Throttle(100, 50);
     private boolean fieldCentric;
     private double headingOffset;
@@ -306,6 +311,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
                 hardwareMap.get(DcMotorEx.class, DeviceNames.FRONT_RIGHT),
                 hardwareMap.get(DcMotorEx.class, DeviceNames.BACK_LEFT),
                 hardwareMap.get(DcMotorEx.class, DeviceNames.BACK_RIGHT)};
+        turretSocketWheel = wheelIndex(TurretSubsystem.encoderHostName());
         // The same device the localizer reads; its status comes with the localizer's own read.
         pinpoint = found != null ? hardwareMap.get(GoBildaPinpointDriver.class, DeviceNames.PINPOINT) : null;
     }
@@ -883,8 +889,15 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     public double appliedStrafe() { return appliedStrafe; }
     public double appliedTurn() { return appliedTurn; }
 
-    /** Drive wheel {@code i}'s encoder speed, ticks/s (0 FL, 1 FR, 2 BL, 3 BR), as of the last read. */
+    /** Drive wheel {@code i}'s encoder speed, ticks/s (0 FL, 1 FR, 2 BL, 3 BR), as of the last read; NaN for the wheel whose socket holds the turret's encoder. */
     public double wheelTicksPerSec(int i) { return wheelTicksPerSec[i]; }
+
+    /** The index {@link #wheelTicksPerSec(int)} uses for the drive motor named {@code name}, or -1 for any other motor. */
+    static int wheelIndex(String name) {
+        String[] names = {DeviceNames.FRONT_LEFT, DeviceNames.FRONT_RIGHT, DeviceNames.BACK_LEFT, DeviceNames.BACK_RIGHT};
+        for (int i = 0; i < names.length; i++) if (names[i].equals(name)) return i;
+        return -1;
+    }
 
     /**
      * Drive wheel {@code i}'s power as Pedro's drivetrain last set it (0 FL, 1 FR, 2 BL, 3 BR),
@@ -1037,7 +1050,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         double dt = Math.min((now - lastUpdateNs) / 1e9, MAX_LOOP_DT_SEC);
         lastUpdateNs = now;
         if (wheelRead.due(now)) {
-            for (int i = 0; i < wheels.length; i++) wheelTicksPerSec[i] = wheels[i].getVelocity();
+            for (int i = 0; i < wheels.length; i++) {
+                if (i != turretSocketWheel) wheelTicksPerSec[i] = wheels[i].getVelocity();
+            }
         }
 
         if (pinpoint != null) {

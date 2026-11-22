@@ -502,9 +502,33 @@ is there: the position hold on a full lane (it falls back to the power hold;
 left on, the hub would run the roller after the turret's count), the wedge
 clear (a still turret would read as a stalled roller), and the stall event in
 the match log. The feeder's socket is empty, so the feeder has no stall event
-either. `DeviceNames.TURRET_ENCODER_HOST` names which motor that
+either. `TurretSubsystem.encoderHostName()` names which motor that
 is; turret code asks for that motor and reads only its encoder, and nothing
-but the turret code may reset its count. The count is relative: zero
+but the turret code may reset its count.
+
+**Moving it to a drive wheel's socket (for the State Championship).** To give
+the intake its encoder back (the wedge clear, the position hold, the stall
+event, and a roller stall that calls a stuck feed sooner, `FeedJamClear`), the
+turret's cable moves to the **encoder socket beside Control Hub motor port 2**,
+`backRight`'s (`DeviceNames.TURRET_ENCODER_DRIVE_HOST`), one robot at a time,
+each with a `RobotDifferences` line turning `TurretSubsystem.encoderOnDriveMotor`
+on. A drive wheel's encoder is free for it: odometry is the Pinpoint, so the
+four wheel encoders are only logged (`/Drive/WheelTicksPerSec/*`, which then
+logs NaN for back-right), and nothing sets a drive motor's run mode or resets
+its count (Pedro 3.0.2's `Mecanum` sets only direction, zero-power behaviour and
+power; `DriveSubsystem` only reads speed). The one thing that must never happen
+is a drive motor in `RUN_USING_ENCODER`: the hub's velocity loop would then
+drive that wheel from the turret's count. Back-right, not back-left: 20245's
+back-left socket read 0 at Belding and Fruitport, and losing a right wheel
+leaves 20245 one logged wheel on each side and each diagonal. The direction
+sign is unchanged: `hostSign` undoes the host motor's direction, so the count is
+the hub's own wherever it is plugged in. The cost is loop time: the turret is
+read every loop, so the Control Hub's bulk read (about 1 ms, which the wheels
+read only ten times a second to avoid) is paid every loop, as it will be anyway
+once a beam break is wired to that hub. The feeder's own encoder goes back in
+its empty socket the same day, with `FeederSubsystem.encoderFitted`: its speed is
+logged, the match log gets its stall event, and a feeder stopped while feeding
+is a stuck feed. The count is relative: zero
 wherever the encoder sat at hub power-up, kept across OpModes while the hub
 stays on. Nobody has to remember to zero it: the match-start rule is that the
 turret sits at its home mark, so an Autonomous zeroes it where it stands at INIT
