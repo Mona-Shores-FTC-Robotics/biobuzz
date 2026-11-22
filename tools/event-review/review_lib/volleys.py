@@ -5,7 +5,8 @@ This is the table the cycle, launch and first-volley numbers share. Rules, as at
   1.5 s apart, in TeleOp (Driver Station teleop to the last battery sample).
 - Auto-drive (Square): a `launch spot: gate open` event 0-3 s before the first shot. Its press is
   the last Square press at or before the `arrived` event 0-3 s before the gate opened.
-  Manual (operator FIRE, Circle on gamepad 2): a Circle press 0-6 s before the first shot.
+  Manual: a Circle press 0-6 s before the first shot; the driver's Circle (gamepad 1) where the log
+  says "driver fire (Circle)", else the operator's (gamepad 2, Belding's layout). See fire_pad().
   Neither: 'other' (no press to time from).
 - Times in a record are seconds from TeleOp start (`first`, `press`) or durations.
 - Collecting is measured from the previous volley's last shot (the TeleOp start for the first):
@@ -17,9 +18,21 @@ import statistics as st
 
 from .shots import old_shots
 
-SQUARE, CIRCLE = 2, 1           # button bits: gamepad 1 Square (auto-drive), gamepad 2 Circle (FIRE)
+SQUARE, CIRCLE = 2, 1           # button bits: Square (auto-drive, gamepad 1), Circle (manual fire, see fire_pad)
 VOLLEY_GAP_S = 1.5
 MOVING_IN_S, MOVING_FOR_S = 8.0, 0.3
+
+
+def driver_fires(m):
+    """True for the layout where the driver's Circle (gamepad 1) fires (from 18 Nov 2026; the
+    operator's Circle then sets the trim step). Its logs say "driver fire (Circle)" at each press.
+    Belding's logs, where the operator's Circle (gamepad 2) fired, do not."""
+    return any(e.startswith('driver fire (Circle)') for _, e in m.events)
+
+
+def fire_pad(m):
+    """The button series whose Circle fires a manual volley in this log."""
+    return '/DriverStation/Joystick0/ButtonValues' if driver_fires(m) else '/DriverStation/Joystick1/ButtonValues'
 
 
 def downs(series, bit):
@@ -65,7 +78,7 @@ def build(m):
         else:
             vol.append([t])
     sq = downs(m['/DriverStation/Joystick0/ButtonValues'], SQUARE)
-    fire = downs(m['/DriverStation/Joystick1/ButtonValues'], CIRCLE)
+    fire = downs(m[fire_pad(m)], CIRCLE)
     gates = [t for t, e in m.events if e.startswith('launch spot: gate open')]
     arrives = [t for t, e in m.events if e.startswith('launch spot: arrived')]
     out, prev_end = [], te

@@ -289,14 +289,14 @@
     <section class="sec" id="speed">
       <div class="sec-head"><div class="rule"></div><h2>Cycle time <small>volley to volley: collect, drive back, launch</small><span class="tkey"><span class="ir"><i class="sw ir"></i>Infrared</span><span class="uv"><i class="sw uv"></i>Ultraviolet</span></span></h2></div>
       <div class="duos">
-        <div class="duo"><p class="lbl">Launch, press to moving again</p><p class="vals"><span class="uv" data-draw="v" data-source="feed_summary" data-where="robot=20245" data-field="launch_span_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="feed_summary" data-where="robot=19429" data-field="launch_span_s" data-fmt="s1">—</span></p><p class="sub">Median volley, auto-drive or manual</p></div>
+        <div class="duo"><p class="lbl">Launch, press to moving again</p><p class="vals"><span class="uv" data-draw="v" data-source="feed_summary" data-where="robot=20245" data-field="launch_span_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="feed_summary" data-where="robot=19429" data-field="launch_span_s" data-fmt="s1">—</span></p><p class="sub">Median volley, auto-drive or Circle</p></div>
         <div class="duo"><p class="lbl">First TeleOp volley</p><p class="vals"><span class="uv" data-draw="v" data-source="feed_summary" data-where="robot=20245" data-field="first_volley_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="feed_summary" data-where="robot=19429" data-field="first_volley_s" data-fmt="s1">—</span></p><p class="sub">Median from TeleOp start; excl. IR Lower final</p></div>
         <div class="duo"><p class="lbl">First piece out, full volleys</p><p class="vals"><span class="uv" data-draw="v" data-source="volley_pieces" data-where="robot=20245" data-field="p1" data-fmt="s2">—</span><span class="ir" data-draw="v" data-source="volley_pieces" data-where="robot=19429" data-field="p1" data-fmt="s2">—</span></p><p class="sub">Median, gate open to the launcher</p></div>
         <div class="duo"><p class="lbl">Each later piece, full volleys</p><p class="vals"><span class="uv" data-draw="v" data-source="volley_pieces" data-where="robot=20245" data-field="later" data-fmt="s2">—</span><span class="ir" data-draw="v" data-source="volley_pieces" data-where="robot=19429" data-field="later" data-fmt="s2">—</span></p><p class="sub">Median, piece to piece</p></div>
       </div>
       <div class="grid">
         <div class="card wide">
-          <h3>A cycle, volley to volley (each match's first volley excluded): filled up vs launched before full</h3>
+          <h3>A cycle, volley to volley (each match's first volley excluded): filled up vs launched before full <small class="muted" style="font-weight:400">balls/s = balls launched ÷ cycle time, the rate a cycle scores at</small></h3>
           <ul class="key">
             <li><b>Collect</b></li><li><span class="sw sq c1"></span>To first piece</li><li><span class="sw sq c2"></span>Collecting</li><li><span class="sw sq c3"></span>Drive back with pieces</li><li><span class="sw sq" style="background:linear-gradient(90deg,var(--z1),var(--z2),var(--z3),var(--z4))"></span>Launch, press to moving again</li>
           </ul>
@@ -370,7 +370,7 @@
         </div>
         <div class="card plan2 pb">
           <p class="pk"><span class="btnk">○</span>Manual</p>
-          <h3>Operator launches; driver auto-aims (○)</h3>
+          <h3>A Circle press launches where the robot is</h3>
           <div class="lstats"><div class="ls"><p class="lbl">Volleys</p><p class="vals"><span class="uv" data-draw="v" data-source="launch_methods" data-where="robot=20245&amp;method=Operator%20FIRE" data-field="volleys" data-fmt="f0">—</span><span class="ir" data-draw="v" data-source="launch_methods" data-where="robot=19429&amp;method=Operator%20FIRE" data-field="volleys" data-fmt="f0">—</span></p></div><div class="ls"><p class="lbl">Launch time</p><p class="vals"><span class="uv" data-draw="v" data-source="launch_methods" data-where="robot=20245&amp;method=Operator%20FIRE" data-field="press_to_moving_s" data-fmt="s1">—</span><span class="ir" data-draw="v" data-source="launch_methods" data-where="robot=19429&amp;method=Operator%20FIRE" data-field="press_to_moving_s" data-fmt="s1">—</span></p><p class="sub">Press to driving away</p></div><div class="ls"><p class="lbl">Chassis auto-aimed</p><p class="vals"><span class="uv" data-draw="v" data-source="launch_methods" data-where="robot=20245&amp;method=Operator%20FIRE" data-field="driver_aim_of">—</span><span class="ir" data-draw="v" data-source="launch_methods" data-where="robot=19429&amp;method=Operator%20FIRE" data-field="driver_aim_of">—</span></p></div></div>
           <div class="prespin" data-draw="prespinManual" data-source="launch_methods"></div>
         </div>
@@ -801,7 +801,7 @@
     if (!bz.ready(el, ['cycle_groups', 'cycle_group_summary'])) return;
     const data = dash.data('cycle_groups').data, summ = dash.data('cycle_group_summary').data;
     const W = el.clientWidth || 600;
-    const left = W < 520 ? 118 : 168, right = W < 520 ? 52 : 64, funnel = 18, zoomH = 18, gapG = 22, gapR = 26;
+    const left = W < 520 ? 118 : 168, right = W < 520 ? 66 : 76, funnel = 18, zoomH = 18, gapG = 22, gapR = 26;
     const robots = ['20245', '19429'], groups = ['Filled up', 'Shot before full'];
     const steps = (rb, g) => data.filter((d) => d.robot === rb && d.group === g && d.seconds != null).sort((a, b) => a.order - b.order);
     const tot = (rb, g, ph) => d3.sum(steps(rb, g).filter((d) => !ph || d.phase === ph), (d) => d.seconds);
@@ -833,7 +833,7 @@
         svg.append('text').attr('x', 0).attr('y', y + h / 2 + 8).attr('dy', '0.32em')
           .attr('data-source', 'cycle_group_summary').attr('data-where', `robot=${robot}&group=${encodeURIComponent(g)}`).attr('data-field', 'cycles')
           .text(s ? `${s.cycles} cycles` : '');
-        svg.append('text').attr('x', 0).attr('y', y + h / 2 + 22).attr('dy', '0.32em').style('fill', 'var(--muted)').style('font-size', '11px').text(s ? [s.auto_drive ? `${s.auto_drive} auto-drive` : '', s.fire ? `${s.fire} manual` : ''].filter(Boolean).join(' · ') : '');
+        svg.append('text').attr('x', 0).attr('y', y + h / 2 + 22).attr('dy', '0.32em').style('fill', 'var(--muted)').style('font-size', '11px').text(s ? [s.auto_drive ? `${s.auto_drive} auto-drive` : '', s.fire ? `${s.fire} Circle` : ''].filter(Boolean).join(' · ') : '');
         let acc = 0;
         for (const d of st.filter((q) => q.phase === 'collect')) {
           const x0 = x(acc), w = x(acc + d.seconds) - x0;
@@ -846,7 +846,11 @@
         const lt = tot(robot, g, 'launch'), lx0 = x(acc), lw = x(acc + lt) - lx0;
         svg.append('rect').attr('x', lx0 + 0.5).attr('y', y).attr('width', Math.max(2, lw - 1)).attr('height', h).attr('rx', 2).attr('fill', 'url(#bzLaunchAll)')
           .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name} · ${g} · Launch`, `${d3.format('.1f')(lt)} s median`])).on('pointerleave', () => tip.hide());
-        svg.append('text').attr('class', 'val').attr('x', x(acc + lt) + 6).attr('y', y + h / 2).attr('dy', '0.32em').text(`${d3.format('.1f')(acc + lt)} s`);
+        const bps = s && s.balls_per_s != null;
+        svg.append('text').attr('class', 'val').attr('x', x(acc + lt) + 6).attr('y', y + h / 2 - (bps ? 7 : 0)).attr('dy', '0.32em').text(`${d3.format('.1f')(acc + lt)} s`);
+        if (bps) svg.append('text').attr('x', x(acc + lt) + 6).attr('y', y + h / 2 + 8).attr('dy', '0.32em').style('font-size', '11px')
+          .attr('data-source', 'cycle_group_summary').attr('data-where', `robot=${robot}&group=${encodeURIComponent(g)}`).attr('data-field', 'balls_per_s')
+          .text(`${d3.format('.2f')(s.balls_per_s)} balls/s`);
         label(lx0, lw, y, h, d3.format('.1f')(lt), true);
         y = y + Math.max(h, 42) + gapG;
       }
@@ -928,6 +932,7 @@
     const rows = dash.data('launch_methods').data;
     const W = el.clientWidth || 600, left = 110, right = 16, rowH = 34, gap = 14, top = 4;
     const robots = ['20245', '19429'], methods = [['Auto-drive', '#38BDF8'], ['Operator FIRE', '#F59E0B']];
+    const shown = (m) => (m === 'Operator FIRE' ? 'Manual' : m);  // the data's name for a Circle press
     const H = top + robots.length * rowH + (robots.length - 1) * gap + 6;
     const total = (r) => d3.sum(rows.filter((x) => x.robot === r), (x) => x.pieces);
     const x = d3.scaleLinear([0, d3.max(robots, total)], [left, W - right - 40]);
@@ -944,8 +949,8 @@
         const xa = x(x0), xb = x(x0 + r.pieces);
         svg.append('rect').attr('x', xa).attr('y', y).attr('width', Math.max(1, xb - xa - 2)).attr('height', rowH).attr('rx', 3).attr('fill', color)
           .attr('data-source', 'launch_methods').attr('data-where', `robot=${robot}&method=${encodeURIComponent(method)}`).attr('data-field', 'pieces')
-          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name} · ${method}`, `${r.pieces} pieces in ${r.volleys} volleys`])).on('pointerleave', () => tip.hide());
-        if (xb - xa > 7.2 * (method.length + String(r.pieces).length + 3) + 16) svg.append('text').attr('x', xa + 8).attr('y', y + rowH / 2).attr('dy', '0.32em').style('fill', '#0A0C12').style('font-weight', '700').style('font-size', '12px').attr('pointer-events', 'none').text(`${method} · ${r.pieces}`);
+          .on('pointermove', (ev) => tip.show(ev, [`${bz.TEAM[robot].name} · ${shown(method)}`, `${r.pieces} pieces in ${r.volleys} volleys`])).on('pointerleave', () => tip.hide());
+        if (xb - xa > 7.2 * (shown(method).length + String(r.pieces).length + 3) + 16) svg.append('text').attr('x', xa + 8).attr('y', y + rowH / 2).attr('dy', '0.32em').style('fill', '#0A0C12').style('font-weight', '700').style('font-size', '12px').attr('pointer-events', 'none').text(`${shown(method)} · ${r.pieces}`);
         else svg.append('text').attr('x', xa + (xb - xa) / 2).attr('y', y + rowH / 2).attr('dy', '0.32em').attr('text-anchor', 'middle').style('fill', '#0A0C12').style('font-weight', '700').style('font-size', '12px').attr('pointer-events', 'none').text(r.pieces);
         x0 += r.pieces;
       }
