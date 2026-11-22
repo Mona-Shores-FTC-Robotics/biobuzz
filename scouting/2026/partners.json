@@ -354,6 +354,182 @@
         "note": "RoboDux, from video, Kentwood Q-8 only (blue, converted to red); its start is hidden behind blue's CELLs. Preloads ~1.3-2.1 s, CELL swung ~2.5 s; to the audience-wall corner by ~5 s and stayed there to 30 s (FTCScout P0). CAN'T TELL whether this is the main Auto stopping early. Heading CAN'T TELL after the start (faces 90 at the start, red '10255' panel toward the camera); later h values are placeholders.",
         "savedBy": "dustinhans",
         "savedAt": "2026-11-20T23:32:44Z"
+      },
+      "Right (Fruitport quals): preloads, corner, under the HIVE, LEFT volley, wall FLOWER, park": {
+        "route": {
+          "name": "Right (Fruitport quals): preloads, corner, under the HIVE, LEFT volley, wall FLOWER, park",
+          "start": {
+            "x": 51,
+            "y": 9,
+            "h": 90
+          },
+          "steps": [
+            {
+              "kind": "shoot",
+              "at": 1.8,
+              "volleyS": 1.4
+            },
+            {
+              "kind": "wait",
+              "until": 4.5
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 13,
+                "y": 9,
+                "h": 90
+              },
+              "bend": null,
+              "by": 6.0,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "wait",
+              "until": 10.0
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 60,
+                "y": 62,
+                "h": 90
+              },
+              "bend": {
+                "x": 55,
+                "y": 27
+              },
+              "by": 12.0,
+              "park": false
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 55,
+                "y": 116,
+                "h": 90
+              },
+              "bend": null,
+              "by": 13.5,
+              "park": false
+            },
+            {
+              "kind": "shoot",
+              "at": 14.5,
+              "volleyS": 3.0
+            },
+            {
+              "kind": "wait",
+              "until": 19.5
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 16,
+                "y": 50,
+                "h": 90
+              },
+              "bend": {
+                "x": 40,
+                "y": 85
+              },
+              "by": 22.0,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "wait",
+              "until": 24.0
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 14,
+                "y": 92,
+                "h": 90
+              },
+              "bend": null,
+              "by": 26.5,
+              "park": true
+            }
+          ]
+        },
+        "note": "RoboDux, from video (Fruitport Q, 22 Nov 2026 review), red frame, times after PLAY (clips' PLAY at 3.0 s). Path read every 0.5-1.5 s against a field grid projected from the four FLOWER posts and the corners (homography, 3-14 px fit error; +-6 in near, +-8-10 in at the far end). Traced in Q-1 (blue, converted by the half-turn), Q-10 (blue) and Q-33 (red); Q-19 (blue) seen from the wall FLOWER on and agrees. Start (51-57, 4-12) at the audience end, beside our RIGHT_START. Preloads at the AUDIENCE CELL from the start; this entry's 1.8 s / 1.4 s are M-3's (first ball ~1.8 s, last ~3.2 s); in the quals the volley times are CAN'T TELL (Q-10: the AUDIENCE CELL swung ~5.5 s and settled ~6.5 s). Then the audience-wall corner (12-23, 4-10) from ~5.5 to ~10 s (Q-1, Q-10, Q-33 at (13, 7)); then UNDER the HIVE, not up the wall-side lane as at Kentwood: (55, 27) at 11 s, (62-68, 55-67) at 12 s, at the scoring end (48-58, 112-122), beside our LEFT_AUTO_HIVE, from ~13 to ~19.5 s; the volley there at the LEFT CELL is a placeholder (balls seen in the air near the far CELLs ~15 s in Q-10; first/last ball CAN'T TELL). Back down the wall side ((34, 99) at 20 s in Q-1, (45, 71) at 21 s in Q-10) to the red-wall FLOWER (14-31, 43-52) ~21-24 s, then parked in the LOADING ZONE at (9-21, 89-96) by ~26-28 s (Q-1 26-28 s, Q-10 27 s, Q-33 27 s, Q-19 (11-12, 84-91)). FTCScout: LEAVE and AUTO PARK in all five quals; alliance AUTO TIP 1 in Q-1, Q-10, Q-19, Q-33 (the preloads; so the LEFT volley did not finish a TIP), 2 in Q-44. Q-44 (red) is a different route: preloads ~2.8-3.6 s, corner ~5-10 s, red-wall side ~13-16 s, the scoring end ~19-24 s (where: CAN'T TELL), parked ~(8, 84) by ~26 s; its LEFT CELL tipped ~26-28 s (who: CAN'T TELL). The same Auto as Kentwood's main entry in its pieces and order (preloads, corner, LEFT volley, wall FLOWER, park), with the under-HIVE road of Kentwood Q-15. Heading CAN'T TELL after the start (faces 90 at the start, red '10255' panel toward the camera); later h values are placeholders.",
+        "savedBy": "claude",
+        "savedAt": "2026-11-22T18:02:44Z"
+      },
+      "Right (Fruitport playoffs, beside 20245): preloads, wall FLOWER, back to the RIGHT end, park (M-3, M-7, M-10)": {
+        "route": {
+          "name": "Right (Fruitport playoffs, beside 20245): preloads, wall FLOWER, back to the RIGHT end, park (M-3, M-7, M-10)",
+          "start": {
+            "x": 50,
+            "y": 9,
+            "h": 90
+          },
+          "steps": [
+            {
+              "kind": "shoot",
+              "at": 1.8,
+              "volleyS": 1.4
+            },
+            {
+              "kind": "wait",
+              "until": 4.0
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 15,
+                "y": 53,
+                "h": 90
+              },
+              "bend": null,
+              "by": 6.0,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "wait",
+              "until": 9.0
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 52,
+                "y": 28,
+                "h": 90
+              },
+              "bend": null,
+              "by": 11.0,
+              "park": false
+            },
+            {
+              "kind": "wait",
+              "until": 22.0
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 13,
+                "y": 100,
+                "h": 90
+              },
+              "bend": null,
+              "by": 25.0,
+              "park": true
+            }
+          ]
+        },
+        "note": "RoboDux, from video (Fruitport playoffs M-3, M-7, M-10, 22 Nov 2026 review), red frame, times after PLAY (clips' PLAY at 3.0 s); its partner was our 20245 (R-NoCross), not traced. Read every 0.5-2 s against a FLOWER-post grid, +-6 in near, +-8-10 in far. Start (50, 8-9), left of 20245 against the audience wall. Preloads at the AUDIENCE CELL: M-3 first ball ~1.8 s, last ~3.2 s (four balls seen at 1.8, 2.2, 2.6, 3.2 s), leaves ~3.8 s; M-7 a ball at 2.0 s, leaves ~4.0 s; M-10 a ball at ~3.5 s, leaves ~4.5 s. Not the quals' corner: it goes to the red-wall FLOWER side, (12-25, 50-55), ~4.5-9 s (M-3; M-10 (12, 52) at 8 s; M-7 there at 8 s), then back to ~(43-57, 22-37), near our RIGHT_AUTO_HIVE, ~10 to ~20-24 s (M-3 to ~24, M-10 to ~20, M-7 ~10-18). Whether it fires there is CAN'T TELL (no balls seen; the RIGHT CELL its preloads tipped is down then). Then the park: M-3 at (13, 104) by ~26-27 s, M-7 at (13, 96) by ~24 s, M-10 past the scoring end ((39, 122) at 24 s) and ending ~(29, 90) +-8 (late, not clear). FTCScout: LEAVE and AUTO PARK both robots in all three; alliance AUTO TIP 1 (M-3), 2 (M-7, M-10); who made the second TIP is CAN'T TELL. The playoff route differs from the quals' one (no corner, no LEFT volley seen), so a partner wait beside it should not count on its LEFT volley. Heading CAN'T TELL after the start (faces 90 at the start, red '10255' panel toward the camera); later h values are placeholders.",
+        "savedBy": "claude",
+        "savedAt": "2026-11-22T18:02:44Z"
       }
     },
     "11846": {
@@ -569,6 +745,96 @@
         "note": "Proto Pioneers (West Michigan meets 2, 4, 5; 15 matches): left 10/15 (no leave in 3 of 5 at WMM2 and 2 of 5 at WMM4, every match at WMM5), AUTO PARK 12/15; alliance AUTO TIP 10/15. Season auto OPR 18.6: improving, leave and park reliable lately. Not seen on video: an outline from FTCScout scores only. Start side, shot time (1 s, assumed), volley (3.5 s, the default) and the park spot (our team spot) are placeholders; FTCScout gives no times, so 'by' is unknown. Confirm in the pits: which side, do you shoot your preloads right at the start, when does your last ball leave, where and by when do you park.",
         "savedBy": "dustinhans",
         "savedAt": "2026-11-20T19:35:23Z"
+      }
+    },
+    "15104": {
+      "Right: preloads, wait at the RIGHT spot, wall FLOWER, second volley, late park (Battle Creek M-11, one match only)": {
+        "route": {
+          "name": "Right: preloads, wait at the RIGHT spot, wall FLOWER, second volley, late park (Battle Creek M-11, one match only)",
+          "start": {
+            "x": 57,
+            "y": 10,
+            "h": 90
+          },
+          "steps": [
+            {
+              "kind": "shoot",
+              "at": 1.5,
+              "volleyS": 2.0
+            },
+            {
+              "kind": "wait",
+              "until": 6.0
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 59,
+                "y": 21,
+                "h": 90
+              },
+              "bend": null,
+              "by": 7.0,
+              "park": false
+            },
+            {
+              "kind": "wait",
+              "until": 19.5
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 12,
+                "y": 52,
+                "h": 90
+              },
+              "bend": null,
+              "by": 20.5,
+              "park": false
+            },
+            {
+              "kind": "pick"
+            },
+            {
+              "kind": "wait",
+              "until": 23.5
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 59,
+                "y": 24,
+                "h": 90
+              },
+              "bend": null,
+              "by": 25.0,
+              "park": false
+            },
+            {
+              "kind": "shoot",
+              "at": 25.5,
+              "volleyS": 2.5
+            },
+            {
+              "kind": "wait",
+              "until": 28.0
+            },
+            {
+              "kind": "drive",
+              "to": {
+                "x": 14.5,
+                "y": 98.7,
+                "h": 90
+              },
+              "bend": null,
+              "by": 30.0,
+              "park": true
+            }
+          ]
+        },
+        "note": "Static Eagles, from video (Battle Creek playoff M-11 only, red with 10538, 22 Nov 2026 review), one match only, red frame, times after PLAY (clip's PLAY at 3.0 s). Audience-end camera, grid from the four FLOWER posts and the field corners: +-5 in near, +-10 in or worse past the HIVE. Start (55-58, 8-16) against the audience wall, beside our RIGHT_START; 10538 started at the far (left) end. Preloads at the AUDIENCE CELL ~1.5-3.5 s (balls landing in a red CELL at 2.0, 2.5, 3.0 s; which of the two red robots each came from is CAN'T TELL, so first/last ball are CAN'T TELL); a red CELL swung ~4.5 s and settled ~5.5 s. A short move toward the red wall and back ~6 s, then it stands at ~(59, 21), our RIGHT_AUTO_HIVE, from ~7 to ~19 s; to the red-wall FLOWER (12, 52) ~20.5-23.5 s (read as a pick), back to ~(59, 24-26) ~25-28 s, its lights on as if firing (the volley at 25.5 s / 2.5 s is a placeholder: balls not seen); at 29.5 s at ~(9, 72) heading for the LOADING ZONE. The park spot is our RIGHT_PARK as a placeholder (CAN'T TELL where; FTCScout gives it AUTO PARK 5, so it got there by 30 s). FTCScout M-11: both LEAVE and AUTO PARK, alliance AUTO TIP 3 (60 pts). Its other matches at the event (Q-3, Q-11, Q-24, Q-31, Q-36, M-3, M-7, M-10): LEAVE and AUTO PARK in all five quals, no LEAVE and no AUTO PARK in M-3, no LEAVE in M-7; not seen on video. Heading CAN'T TELL; h 90 is a placeholder.",
+        "savedBy": "claude",
+        "savedAt": "2026-11-22T18:02:44Z"
       }
     }
   }
