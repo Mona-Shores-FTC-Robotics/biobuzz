@@ -312,13 +312,25 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       that it is mounted mirror-image to the left), see it turn inward, and put the value that
       worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
       out. Turret: still sits at home after PLAY, as before.
+- [ ] **Both robots' FLOWER sticks now hold out, powered, instead of going limp**
+      (`FlowerStickSubsystem.LIMP_EXTENDED` off, the shared value, 22 Nov). A limp stick is lifted
+      by the FLOWER: on 20245 at Fruitport the held stick's Auto picks fired 4 every time (9 of 9),
+      the limp one's second pick 0 to 4. **20245** held all of Fruitport's afternoon: nothing to
+      check but the servo (below). **19429 has never held**, so before Basic Drive: Bench: FLOWER
+      Stick, stick out on the tile, robot still, 10 s: the pivot servo is not buzzing or hot, and the
+      roller still turns. If the servo strains, raise `EXTENDED` (0.44) a hair toward `RETRACTED`
+      (1.00) until it is quiet with the wheels still on the tile, and put the number in a PR; if no
+      position works, add a 19429 line in `RobotDifferences` setting `LIMP_EXTENDED = true`. Then
+      R-Solo on 19429: the first (WALL) pick fires 4 (all season limp, 3 of 15 picks did), and
+      `/FlowerStick/Powered` stays 1 while `/FlowerStick/Out` is 1. Same servo check on 20245 (out
+      at 0.85).
 - [ ] **20245's FLOWER stick pivot becomes a SWYFT servo** (the goBILDA Torque servo had a
       mechanical problem, mentor, 20 Nov 2026), same port, Control Hub servo port 0
       (`robot_20245.xml`). The shared `FlowerStickSubsystem.RETRACTED` 0.6 / `EXTENDED` 0.0 were
       measured on the goBILDA, so **before Basic Drive:** Bench: FLOWER Stick, step to the in and
       out stops on the SWYFT servo and put the two numbers in a PR (they are the shared values;
       19429 keeps its own line in `RobotDifferences`). Also check the swing finishes inside
-      `SETTLE_MS` (1.5 s), the stick drops onto the tile when the pulse is cut (`LIMP_EXTENDED`),
+      `SETTLE_MS` (1.5 s),
       and whether the SWYFT's range is the 270 degrees `SERVO_RANGE_DEG` assumes (only the bench's
       and the logs' degrees read it). Then Basic Drive's operator Square swings it between them.
 - [ ] **19429 rewired 17 Nov: the new FLOWER stick.** Pivot servo on **Expansion Hub servo
@@ -1039,6 +1051,14 @@ measurement is [#255].
       write the values they keep in `TeleOpConfig`, pull the log. **Stop:** normal feels sluggish
       off the line compared with the old turbo → the ramp is the difference (turbo skipped it);
       tell a mentor. [PR #425]
+- [ ] **Faster acceleration ramp (21 Nov 2026, both robots, TeleOp only):** `DriveSubsystem.accelPerSec`
+      2 → 8 and `turnAccelPerSec` 4 → 8, after a mentor's test showed it a huge improvement. An Auto
+      keeps 2 and 4 (`autoAccelPerSec`, `autoTurnAccelPerSec`): at 8 an Auto turned and moved on oddly
+      before its last volley; pull that run's log if it is ever repeated. Hold Circle
+      on a CELL a few times, run one FLOWER grab, and slam the stick forward once with four pieces
+      in the lane. **Good:** the chassis aim settles without hunting, the grab is clean, nothing
+      shifts or rocks. **Stop:** the aim overshoots or wobbles → lower `turnAccelPerSec` in Panels
+      first (4 was the old value); the robot lurches or pieces shift → lower `accelPerSec`.
 
 ## 5. Pose and camera (Basic Drive / Vision: HIVE & Pose)
 

@@ -748,6 +748,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
         double turn = deadband(gamepad1.right_stick_x) * TURN_SIGN * scale;
         boolean leftStick = Math.abs(forward) > CANCEL_STICK || Math.abs(strafe) > CANCEL_STICK;
         boolean rightStick = Math.abs(turn) > CANCEL_STICK;
+        // The drive command as the sticks gave it, and whether it is past CANCEL_STICK: a pick, a
+        // gather or a launch-spot drive ended "sticks moved" shows here how far, and which stick
+        // (Fruitport, 21 Nov 2026: 41 of 89 picks ended so in the dwell, with nothing to say why).
+        log.put("/Controls/StickForward", forward);
+        log.put("/Controls/StickStrafe", strafe);
+        log.put("/Controls/StickTurn", turn);
+        log.put("/Controls/SticksMoved", leftStick || rightStick ? 1 : 0);
 
         holdResets(now, false);
 
