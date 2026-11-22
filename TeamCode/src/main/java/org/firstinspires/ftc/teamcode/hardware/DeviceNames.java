@@ -142,6 +142,23 @@ public final class DeviceNames {
     public static final String COLOR_SENSOR = "colorSensor";
 
     /**
+     * An IR break-beam across the launcher's throat, between the feed gate and the flywheels' nip
+     * (#505): it sees each ball leave ({@code subsystems/BeamBreakSubsystem}). A Control Hub digital
+     * channel. <b>Optional</b> ({@link #BEAM_BREAKS}): not fitted on either robot yet (22 Nov 2026);
+     * a robot that has it declares it in its XML and turns it on with one {@code RobotDifferences}
+     * line ({@code BeamBreakSubsystem.throatFitted = true}).
+     */
+    public static final String THROAT_BEAM = "throatBeam";
+
+    /**
+     * An IR break-beam across the transfer lane where the third piece sits when the lane is packed
+     * behind the gate (#213): with the entrance colour sensor it decides "full"
+     * ({@code ColorSensorSubsystem.full()}). A Control Hub digital channel. <b>Optional</b>, as
+     * {@link #THROAT_BEAM}: {@code BeamBreakSubsystem.laneFitted = true} turns it on.
+     */
+    public static final String LANE_BEAM = "laneBeam";
+
+    /**
      * What kind of port a device occupies. Determines which XML element tags
      * are legal for it, and which Java class {@code ValidateHardware} asks the
      * {@code HardwareMap} for.
@@ -158,6 +175,13 @@ public final class DeviceNames {
          */
         CR_SERVO,
         I2C,
+
+        /**
+         * A digital input channel: {@code <DigitalDevice>}, asked for as {@code DigitalChannel}.
+         * A REV hub has channels 0-7 (four JST PH ports of two channels each); it is part of the
+         * bulk read, so reading one every loop costs nothing.
+         */
+        DIGITAL,
 
         /**
          * A device on the Control Hub's USB-Ethernet link — in SDK 12, a
@@ -241,7 +265,20 @@ public final class DeviceNames {
             new Device(FEEDER, Kind.MOTOR),
             new Device(LAUNCHER, Kind.MOTOR)));
 
-    public static final List<Device> ALL = union(ROBOT_19429, COMPETITION_ROBOT, LAUNCHER_BENCH);
+    /**
+     * Devices a competition robot <em>may</em> carry: the two beam breaks, bought for the Michigan
+     * State Championship and not fitted yet (22 Nov 2026). A robot's XML may declare each or not
+     * ({@code RobotConfigXmlTest}); the code looks one up only once its switch is on
+     * ({@code BeamBreakSubsystem.throatFitted}, {@code laneFitted}, flipped by a
+     * {@code RobotDifferences} line), and then fails loudly if the XML lacks it. That switch is
+     * the explicit, named decision CLAUDE.md asks of an optional device. Once both robots have
+     * one for good, move it into {@link #COMPETITION_ROBOT}.
+     */
+    public static final List<Device> BEAM_BREAKS = Collections.unmodifiableList(Arrays.asList(
+            new Device(THROAT_BEAM, Kind.DIGITAL),
+            new Device(LANE_BEAM, Kind.DIGITAL)));
+
+    public static final List<Device> ALL = union(ROBOT_19429, COMPETITION_ROBOT, LAUNCHER_BENCH, BEAM_BREAKS);
 
     private static List<Device> with(List<Device> base, Device... more) {
         List<Device> list = new ArrayList<>(base);

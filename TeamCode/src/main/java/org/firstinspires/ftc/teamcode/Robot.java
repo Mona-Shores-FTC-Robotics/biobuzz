@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.subsystems.BeamBreak;
+import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FeedWatch;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
@@ -95,6 +98,12 @@ public class Robot {
     public final ColorSensorSubsystem colorSensor;
 
     /**
+     * The throat and lane beam breaks: optional, each off until a {@code RobotDifferences} line says
+     * the robot has it ({@link BeamBreakSubsystem}).
+     */
+    public final BeamBreakSubsystem beams;
+
+    /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
      */
@@ -109,6 +118,9 @@ public class Robot {
         hive = new HiveSubsystem(vision, drive);
         pieces = new PieceVisionSubsystem(hardwareMap);
         flowerStick = new FlowerStickSubsystem(hardwareMap, drive);
+        // Before everything that reads a beam (the launcher's count, the colour sensor's full), so
+        // they all see this loop's reading. Each beam is looked up only if its switch is on.
+        beams = new BeamBreakSubsystem(hardwareMap);
         feeder = new FeederSubsystem(hardwareMap);
         // After the feeder, which they follow: the launcher backs up for an unjam, the intake joins
         // a feed, the prefeed and the gate carry it. List order is update order, so each sees this
@@ -144,9 +156,13 @@ public class Robot {
         intake.rejectWhile(colorSensor::rejecting);
         // Then the roller and stars stop a moment, so the piece rolls clear rather than back in.
         intake.holdOffWhile(colorSensor::holdingOffAfterReject);
+        // A fitted throat beam counts the launches; a fitted lane beam must agree before the lane is full.
+        launcher.countLaunchesBy(beams.throat());
+        colorSensor.laneBeam(beams.lane());
+        beams.watchFeeds(() -> feedGate.state() == FeedGateSubsystem.State.FEEDING, launcher::atSpeed, this::laneHolds);
 
         subsystems = Collections.unmodifiableList(
-                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, feeder, launcher, intake, prefeed,
+                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, beams, feeder, launcher, intake, prefeed,
                         feedGate, turret, indicator, colorSensor));
     }
 
@@ -155,6 +171,18 @@ public class Robot {
      * (the launcher's feedforward, the feeder's power). {@code RobotOpMode} passes in the reading
      * it already takes once a second, so no subsystem reads the hub for it. NaN: no reading.
      */
+    /**
+     * What the lane holds apart from the throat, for judging a feed ({@link FeedWatch}): a piece
+     * if the lane beam is broken, one is under the entrance sensor, or the lane tracker counts one
+     * (it loses one per ball the throat beam sees); none otherwise.
+     */
+    public FeedWatch.Lane laneHolds() {
+        BeamBreak lane = beams.lane();
+        if (lane != null && lane.blocked()) return FeedWatch.Lane.HOLDS;
+        if (colorSensor.lane().present() || colorSensor.lane().count() > 0) return FeedWatch.Lane.HOLDS;
+        return FeedWatch.Lane.EMPTY;
+    }
+
     public void batteryVolts(double volts) {
         launcher.batteryVolts(volts);
         feeder.batteryVolts(volts);

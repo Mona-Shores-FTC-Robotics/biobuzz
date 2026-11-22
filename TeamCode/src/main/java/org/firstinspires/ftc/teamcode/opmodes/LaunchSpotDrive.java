@@ -276,7 +276,7 @@ public final class LaunchSpotDrive {
         phase = Phase.DRIVING;
         fires = TeleOpConfig.goToSpotAlsoFires;
         if (fires) volley.start();
-        shotsAtStart = robot.launcher.shots();
+        shotsAtStart = robot.launcher.launched();
         spotRangeIn = rangeIn(to);
         event.accept(String.format(Locale.US, "launch spot: start %s → %s %s, %s, CELL %s from the spot%s",
                 where(pose), choice.spot, where(to), choice, cellRange(to), fires ? ", fires on arrival" : ""));
@@ -303,7 +303,7 @@ public final class LaunchSpotDrive {
         line += String.format(Locale.US, "; CELL %s, launch %.0f ticks/s", cellRange(choice.target),
                 robot.launcher.target());
         line += String.format(Locale.US, "; fired by %s, %s, %d shots counted, lane %d (tracker); drift %s",
-                firedBy, fires ? gate : "button does not fire", robot.launcher.shots() - shotsAtStart,
+                firedBy, fires ? gate : "button does not fire", robot.launcher.launched() - shotsAtStart,
                 robot.colorSensor.lane().count(), early ? "not sampled (never arrived)"
                         : Double.isNaN(driftGapIn) ? "not sampled (no settled camera frame)"
                         : String.format(Locale.US, "%.1f in", driftGapIn));
