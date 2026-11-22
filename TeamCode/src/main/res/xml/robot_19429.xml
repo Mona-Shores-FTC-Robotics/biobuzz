@@ -97,6 +97,15 @@
             <!-- The turret servo moved to the Expansion Hub on 13 Nov 2026
                  (below), freeing this hub's port 4 for the right star wheel. -->
 
+            <!-- Beam breaks (BeamBreakSubsystem): bought, not fitted yet (22 Nov 2026).
+                 When one is wired to a digital channel (0-7), uncomment its line with
+                 that channel, and add its RobotDifferences line
+                 (BeamBreakSubsystem.throatFitted or laneFitted = true). Full TeamCode
+                 install, then Activate. doc/robot-todo.md has the bench checks.
+            <DigitalDevice name="throatBeam" port="N" />
+            <DigitalDevice name="laneBeam" port="N" />
+            -->
+
         </LynxModule>
 
         <!-- Expansion Hub: the intake, then the launcher. -->

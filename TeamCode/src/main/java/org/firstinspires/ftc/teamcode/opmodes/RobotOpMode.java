@@ -33,6 +33,7 @@ import org.firstinspires.ftc.teamcode.logging.BuildStamp;
 import org.firstinspires.ftc.teamcode.logging.MotionWatch;
 import org.firstinspires.ftc.teamcode.logging.Tunables;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.BeamBreak;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -285,6 +286,10 @@ public abstract class RobotOpMode extends OpMode {
     private PinpointTrust.State loggedPinpointTrust = PinpointTrust.State.TRUSTED;
     private String loggedWarnings;
     private boolean loggedLaneFull;
+    /** Last logged: the colour sensor read FULL and the lane beam refused it. */
+    private boolean loggedBeamRefused;
+    /** {@code robot.beams.stuckFeeds()} as last logged. */
+    private int loggedStuckFeeds;
     private long loggedDepartures;
     /** Between INIT and PLAY. */
     /**
@@ -1653,6 +1658,24 @@ public abstract class RobotOpMode extends OpMode {
         double toSpeed = robot.launcher.secondsToSpeed();
         log.put("/Launcher/SecondsToSpeed", Double.isInfinite(toSpeed) ? -1.0 : toSpeed);
         log.put("/Launcher/Shots", robot.launcher.shots());
+        // The beams (BeamBreakSubsystem), only when fitted: the throat's balls beside the dip count above.
+        BeamBreak throatBeam = robot.beams.throat();
+        if (throatBeam != null) {
+            log.put("/Beam/ThroatBlocked", throatBeam.blocked() ? 1 : 0);
+            log.put("/Beam/ThroatBalls", throatBeam.passes());
+            if (throatBeam.passedThisStep()) log.put("/Beam/ThroatBlockedMs", throatBeam.lastPassBlockedMs());
+            log.put("/Beam/FeedStuck", robot.beams.feedStuck() ? 1 : 0);
+            if (robot.beams.stuckFeeds() != loggedStuckFeeds) {
+                loggedStuckFeeds = robot.beams.stuckFeeds();
+                log.event("Throat: feed stuck (" + robot.beams.feedStuckWhy() + "), " + throatBeam.passes()
+                        + " balls so far");
+            }
+        }
+        BeamBreak laneBeam = robot.beams.lane();
+        if (laneBeam != null) {
+            log.put("/Beam/LaneBlocked", laneBeam.blocked() ? 1 : 0);
+            log.put("/Beam/LaneFull", robot.colorSensor.full() ? 1 : 0);
+        }
         log.put("/Launcher/InDip", robot.launcher.inDip() ? 1 : 0);
         double lastDip = robot.launcher.lastShotDipTicksPerSecond();
         if (!Double.isNaN(lastDip)) {
@@ -1769,6 +1792,14 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Lane/Full", full.full() ? 1 : 0);
         log.put("/Lane/HeldWhileIntakingMs", full.heldWhileIntakingMs());
         // Full on and off as events, with the tracker's count: full then three or four shots means it was.
+        // With the lane beam the robot's full needs the beam too: say when the two disagree.
+        boolean refusedByBeam = robot.colorSensor.usesLaneBeam() && full.full() && !robot.colorSensor.full();
+        if (refusedByBeam != loggedBeamRefused) {
+            loggedBeamRefused = refusedByBeam;
+            if (refusedByBeam) {
+                log.event("Lane: colour sensor FULL, lane beam clear: not full, the intake keeps taking in");
+            }
+        }
         if (full.full() != loggedLaneFull) {
             loggedLaneFull = full.full();
             // Full with a rejected NECTAR under the sensor: a reject did not clear it, and an Auto's

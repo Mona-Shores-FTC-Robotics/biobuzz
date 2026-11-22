@@ -6,13 +6,16 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.RobotDifferences;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
+import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,13 +54,27 @@ public class ValidateHardware extends LinearOpMode {
         List<String> problems = new ArrayList<>();
 
         RobotIdentity identity = reportActiveConfig(problems);
+        // The beam breaks' switches are RobotDifferences lines: apply them, so the optional
+        // devices below are judged against this robot's switches.
+        if (identity != null) {
+            try {
+                RobotDifferences.applyForActiveRobot();
+            } catch (RuntimeException e) {
+                problems.add("robot differences not applied: " + e.getMessage());
+            }
+        }
         // An unrecognised config is already a problem; checking it against every
         // name the code knows still says which devices are there.
-        List<DeviceNames.Device> expected = identity == null ? DeviceNames.ALL : identity.devices;
+        List<DeviceNames.Device> expected = identity == null ? requiredSomewhere() : identity.devices;
+        List<DeviceNames.Device> optional = identity == null ? DeviceNames.BEAM_BREAKS : identity.optional;
         line("");
         reportExpectedDevices(expected, problems);
         line("");
-        reportUnexpectedDevices(expected);
+        reportOptionalDevices(optional, problems);
+        line("");
+        List<DeviceNames.Device> known = new ArrayList<>(expected);
+        known.addAll(optional);
+        reportUnexpectedDevices(known);
         line("");
 
         if (problems.isEmpty()) {
@@ -189,6 +206,50 @@ public class ValidateHardware extends LinearOpMode {
         }
     }
 
+    /** Every name the code knows, less the ones no robot is required to have. */
+    private static List<DeviceNames.Device> requiredSomewhere() {
+        List<DeviceNames.Device> list = new ArrayList<>(DeviceNames.ALL);
+        list.removeAll(DeviceNames.BEAM_BREAKS);
+        return list;
+    }
+
+    /**
+     * Devices the robot may have (the beam breaks, {@link RobotIdentity#optional}): each one's
+     * configured state beside its switch. A switch on with no device is a problem (the OpModes
+     * will refuse to start); a device configured with its switch off is only a reminder.
+     */
+    private void reportOptionalDevices(List<DeviceNames.Device> devices, List<String> problems) {
+        line("=== Optional devices ===");
+        if (devices.isEmpty()) {
+            line("  (none)");
+            return;
+        }
+        for (DeviceNames.Device optional : devices) {
+            HardwareDevice found = hardwareMap.tryGet(HardwareDevice.class, optional.name);
+            boolean on = BeamBreakSubsystem.fitted(optional.name);
+            String switchLine = BeamBreakSubsystem.switchName(optional.name) + (on ? " on" : " off");
+            if (found == null) {
+                data(optional.name, "not configured (" + switchLine + ")");
+                if (on) problems.add(optional.name + ": " + switchLine + " but the active configuration has no "
+                        + optional.name + ". Add it to the robot's XML, or turn the switch off.");
+                continue;
+            }
+            Class<?> required = requiredClassFor(optional.kind);
+            if (required != null && !required.isInstance(found)) {
+                data(optional.name, "WRONG TYPE - is " + found.getClass().getSimpleName() + ", needs "
+                        + required.getSimpleName());
+                problems.add(optional.name + " is configured as " + found.getClass().getSimpleName()
+                        + " but the code uses it as a " + required.getSimpleName() + ".");
+            } else {
+                String state = found instanceof DigitalChannel
+                        ? (((DigitalChannel) found).getState() ? " (reads HIGH: beam clear)" : " (reads LOW: beam broken)")
+                        : "";
+                data(optional.name, "ok - " + found.getClass().getSimpleName() + state + ", " + switchLine
+                        + (on ? "" : ": add its RobotDifferences line to use it"));
+            }
+        }
+    }
+
     /**
      * Devices the robot has that the code knows nothing about. Usually
      * harmless, but it is how you spot a device that was renamed on one side
@@ -222,6 +283,8 @@ public class ValidateHardware extends LinearOpMode {
                 return Servo.class;
             case CR_SERVO:
                 return CRServo.class;
+            case DIGITAL:
+                return DigitalChannel.class;
             case ETHERNET:
                 // The only Ethernet device SDK 12 builds (HardwareFactory.mapEthernetOverUsb).
                 return Limelight3A.class;

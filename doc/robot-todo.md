@@ -15,6 +15,47 @@ R-Solo running build `733501e`, with the fourth-shot cutoff active and the park 
 at about 28.5 s. Earlier claims that nothing after PR #422 had run are superseded;
 this is not a claim that every unchecked item below has passed.
 
+## Beam breaks, the day they are fitted (Michigan State Championship, from 10 Dec)
+
+Code is ready and off on both robots: `BeamBreakSubsystem` ([PR: beam breaks]), issues #213 and
+#505. Each beam is turned on per robot, once it is wired: `<DigitalDevice name="throatBeam" port="N" />`
+(or `laneBeam`) inside the Control Hub's `<LynxModule>` in `robot_<team>.xml` (the commented template
+is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFitted = true` (or
+`laneFitted`), with the date. Full TeamCode install (an XML changed), Activate the config.
+
+- [ ] **Loop time (CLAUDE.md):** `LoopTimeBaseline` on 19429 before the beam's switch goes on and
+      after; both numbers to the PR. **Good:** within 0.5 ms (a digital read is in the bulk read).
+- [ ] **Check: Hardware** lists the beam under "Optional devices" as `ok - … DigitalChannel`, reads
+      HIGH (clear) with nothing in it and LOW with a hand in it. **Stop:** inverted (LOW when clear)
+      → `BeamBreakSubsystem.brokenReadsLow` false in Panels, then a `RobotDifferences` line.
+- [ ] **Throat beam, by hand (Basic Drive, Robot page, launcher off):** push 10 balls one at a time
+      through the throat by hand at about the feed's speed. **Good:** "Throat beam … N balls" goes up
+      by exactly one each time, and "last blocked" reads 100 ms or more. **Stop:** a ball missed or
+      counted twice → note its "last blocked" ms; raise `minBlockedReads` (double counts) or move the
+      beam where the ball blocks it longer (misses; #505: never at the flywheel exit, under 10 ms).
+- [ ] **Throat beam, real volleys (Bench or Basic Drive at a launch spot, phone slow-motion side-on):**
+      5 Square volleys of 4, 2 of 3. Pull the log. **Good:** `/Beam/ThroatBalls` goes up by the balls
+      seen on video in every volley, and the `Throat:` events show no "feed stuck" for a clean volley.
+      **Stop:** any miss or extra → bring the log and video back to a session.
+- [ ] **Throat beam in an Auto (R-Solo, 3 runs):** **Good:** each `LaunchAll fed` line says
+      `ended: ball 4 through the throat` (or `throat quiet` after a short pick) well before 2.4 s, with
+      its balls matching the video; the Auto finishes about 1 s sooner than before (the simulator,
+      R-Solo with `"throatBeam": true`: 22.8 s against 24.1 s). **Stop:** `throat quiet` with a ball
+      still in the lane → note the volley; raise `BeamBreakSubsystem.quietS` (0.9).
+- [ ] **Throat beam, a stuck feed (Basic Drive, launcher on):** hold a ball against the wheels with a
+      gloved hand for a second while Square feeds, then let go. **Good:** the Match page's alert reads
+      `FEED STUCK: UNJAM` while held, and a `Throat: feed stuck (a ball held in the throat …)` event
+      is in the log. In an Auto the same backs out once (`LaunchCards.unjamReverseS` 0.3) and feeds
+      again (`fed again after its unjam`).
+- [ ] **Lane beam, bench loads (Basic Drive, intake on, lane empty):** the beam goes where the third
+      piece sits when the lane is packed behind the gate. Load 4 POLLEN → FULL; 3 NECTAR, P-N-P,
+      P-P-N, N-P-P → FULL; 3 POLLEN, N-N, N-P → not full (#213's table). Then hold one piece at the
+      entrance with only one ahead of it. **Good:** the Robot page's Lane line reads `room: a piece held
+      at the entrance, lane beam clear` and the intake keeps running; FULL comes about 0.3 s after the
+      last piece settles (`ColorSensorSubsystem.fullHoldWithBeamS`, `laneBeamHoldS`), against 1.0 s
+      today. **Stop:** a full load not FULL → the beam is too far back; a not-full load FULL → too far
+      forward. Move the beam, not the numbers.
+
 ## The new launch speed table (18 Nov, measured on 20245)
 
 `LaunchSpeedTable` now holds 12 rows measured on 20245 on 18 Nov (35 to 74 in), and both robots'

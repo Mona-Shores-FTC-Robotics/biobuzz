@@ -1133,6 +1133,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * and amber. A lost Pinpoint has its own alert above the page (RobotOpMode).
      */
     private String matchAlert() {
+        // The throat beam sees a ball held at the wheels, or none coming with the lane holding:
+        // unjam (hold) backs it out. Only with the beam fitted (BeamBreakSubsystem).
+        if (robot.beams.feedStuck()) return "FEED STUCK: UNJAM";
         if (!robot.drive.hasHeading() && !robot.drive.pinpointLost()) return "NO PINPOINT";
         if (TeleOpConfig.intakeAlwaysOn && !intakeRunning()) return "INTAKE OFF";
         if (robotCentric() || !robot.drive.isFieldCentric()) return "ROBOT-CENTRIC";
