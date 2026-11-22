@@ -561,6 +561,79 @@ public class AutoKitTest {
         assertEquals("the park starts when the grab ends", deadline + 1.5, drive.followedAt.get(0), 0.05);
     }
 
+    /**
+     * A grab that asks for {@code askS} more seconds {@code askAtS} into it, and runs
+     * {@code seconds}, plus {@code askS} if it got them: a FLOWER pick pushing again
+     * (FlowerPicker.Retry). {@code answer[0]} is what it was told.
+     */
+    private Command askingGrab(AutoRegistry[] registry, double seconds, double askAtS, double askS, Boolean[] answer) {
+        final double[] startedAt = new double[1];
+        return new com.pedropathing.ivy.CommandBuilder()
+                .setStart(() -> {
+                    startedAt[0] = now;
+                    answer[0] = null;
+                    log.add("PickFlower start");
+                })
+                .setExecute(() -> {
+                    if (answer[0] == null && now - startedAt[0] >= askAtS) answer[0] = registry[0].grantGrabSeconds(askS);
+                })
+                .setDone(() -> now - startedAt[0] >= seconds + (Boolean.TRUE.equals(answer[0]) ? askS : 0.0))
+                .setEnd(end -> log.add("PickFlower " + end));
+    }
+
+    /** Time to spare: the grab gets its extra seconds, and its card's timeout moves with them. */
+    @Test
+    public void aGrabGetsMoreTimeWhenThePlanStillFitsAndItsTimeoutWaits() {
+        AutoRegistry[] registry = new AutoRegistry[1];
+        Boolean[] answer = new Boolean[1];
+        registry[0] = new AutoRegistry().grab("PickFlower", 4.0, () -> askingGrab(registry, 4.0, 1.0, 1.2, answer));
+        AutoKit kit = new AutoKit(drive, registry[0], () -> now).trace(trace::add);
+        Path park = line(0, 10);
+        now = 10.0;
+        run(kit.guarded("Auto", park, 2.0,
+                kit.command("PickFlower", 4.5),
+                kit.path("Park", park)), 15);
+        assertEquals(Boolean.TRUE, answer[0]);
+        assertTrue("it ran 5.2 s, past its 4.5 s timeout, to its own end: " + log, log.contains("PickFlower NATURALLY"));
+        assertTrue(trace.toString(), traced("1.2 s more for the grab, to end by 15.2 s"));
+    }
+
+    /** No time to spare: the park after the grab would no longer fit, so no extra seconds. */
+    @Test
+    public void aGrabGetsNoMoreTimeWhenTheParkWouldNotFitAfterIt() {
+        AutoRegistry[] registry = new AutoRegistry[1];
+        Boolean[] answer = new Boolean[1];
+        registry[0] = new AutoRegistry().grab("PickFlower", 4.0, () -> askingGrab(registry, 4.0, 1.0, 1.2, answer));
+        AutoKit kit = new AutoKit(drive, registry[0], () -> now).trace(trace::add);
+        Path park = line(0, 10);
+        assertFalse("no grab running: nothing to give", registry[0].grantGrabSeconds(1.2));
+        now = 22.5; // the grab (4 s), the park (2 s) and the margin (1 s) end at 29.5: it starts
+        run(kit.guarded("Auto", park, 2.0,
+                kit.command("PickFlower", 4.5),
+                kit.path("Park", park)), 15);
+        assertEquals(Boolean.FALSE, answer[0]);
+        assertTrue(trace.toString(), traced("no 1.2 s more for the grab: the park (2.0 s + 1.0 s margin) would end at 30.7 s"));
+        assertEquals("the park starts when the grab's planned 4 s are up", 26.5, drive.followedAt.get(0), 0.05);
+    }
+
+    /** Going for a volley: the extra seconds are given only while its last piece is still out by 30 s. */
+    @Test
+    public void aGrabBeforeAVolleyGetsMoreTimeOnlyWhileTheVolleyStillFits() {
+        AutoRegistry[] registry = new AutoRegistry[1];
+        Boolean[] answer = new Boolean[1];
+        registry[0] = new AutoRegistry().grab("PickFlower", 4.0, () -> askingGrab(registry, 4.0, 1.0, 1.2, answer));
+        AutoKit kit = volleyKit(registry[0]);
+        Path park = line(0, 10);
+        now = 21.5; // the volley's last piece planned at 21.5 + 4 + 4 = 29.5: 1.2 s more would be 30.7
+        run(kit.guarded("Auto", park, 2.0,
+                kit.command("PickFlower", 4.5),
+                kit.command("LaunchAll", 5.0),
+                kit.path("Park", park)), 15);
+        assertEquals(Boolean.FALSE, answer[0]);
+        assertTrue(trace.toString(), traced("no 1.2 s more for the grab: the next volley's last piece would be out at 30.7 s"));
+        assertTrue("the volley still fired: " + log, log.contains("LaunchAll start"));
+    }
+
     /** Not started unless the grab's typical time and the park both fit. */
     @Test
     public void aGrabThatWouldNotLeaveTimeToParkDoesNotStart() {

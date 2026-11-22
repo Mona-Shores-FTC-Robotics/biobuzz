@@ -632,6 +632,17 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       `SETTLE_MS` (1.5 s),
       and whether the SWYFT's range is the 270 degrees `SERVO_RANGE_DEG` assumes (only the bench's
       and the logs' degrees read it). Then Basic Drive's operator Square swings it between them.
+- [ ] **An Auto's FLOWER push that stalls 4 in or more short pushes once more** (`FlowerPicker.Retry`,
+      on, both robots, 22 Nov 2026, from the FLOWER pick study: all three such pushes took nothing).
+      Nothing new to set up: in R-Solo practice, put the robot's start 3 to 4 in off its mark toward
+      the FLOWER's side wall, or a game piece on the tile in front of the FLOWER, so a push stops
+      short. Match log: `the push stalled N in short (4.0 or more): backing off 3.0 in to push once more`,
+      then a second `IN` line, and the guard's `1.2 s more for the grab` line. **Good:** the second push
+      reaches the FLOWER (stalls under 4 in short) and the next volley fires more than 0; the Auto still
+      parks. **Stop:** the second push stalls short again in the same place → it is not the push that is
+      short but the pose (run `localization-triage` on the log); a retried pick runs past its card's
+      timeout or the park is cut → set `retryExtraS` from the log's back-off and second-IN times. Turn it
+      off in Panels (`retryShortPush`) if it ever pushes into a partner.
 - [ ] **19429 rewired 17 Nov: the new FLOWER stick.** Pivot servo on **Expansion Hub servo
       port 5** (`flowerStick`), turret servo moved to **Expansion Hub servo port 4** (the pivot
       was found in port 5, the turret's, when Bench: Turret moved the stick), roller

@@ -118,6 +118,10 @@ public final class AutoKit {
     private boolean drivingPath;
     /** True while a grab ({@link AutoRegistry#grab}) runs: the guard never cuts one either. */
     private boolean grabbing;
+    /** The running grab: when it started on the match clock, its planned seconds, and the seconds granted on top ({@link #grantGrabSeconds}). */
+    private double grabStartedAt = Double.NaN;
+    private double grabPlannedS;
+    private double grabExtraS;
     /**
      * The park from the spot the robot last arrived at, set by a path card that carries one
      * ({@link #path(String, Path, double, Path, double)}); null before any, so the guard's own park path.
@@ -210,6 +214,11 @@ public final class AutoKit {
     private boolean goingForVolley;
     /** When the volley the guard is going for has its last piece out, on the match clock. */
     private double volleyLastPieceAt = Double.NaN;
+    /**
+     * With {@link #parkAfterVolley}: when the park after that volley is done, margin included, on the
+     * match clock; NaN when no park is planned after it. For {@link #grantGrabSeconds}.
+     */
+    private double volleyParkedAt = Double.NaN;
     /** The volley card the guard is going for, and whether "going for it" has been traced for it. */
     private Command volleyTarget;
     private boolean goingForVolleyTraced;
@@ -233,6 +242,52 @@ public final class AutoKit {
         this.drive = drive;
         this.registry = registry;
         this.secondsSinceStart = secondsSinceStart;
+        registry.answerGrabTime(this::grantGrabSeconds);
+    }
+
+    /**
+     * A running grab asks for {@code extraS} more seconds than it was planned for (a FLOWER pick's
+     * push again after a stall far short, {@code FlowerPicker.Retry}). Yes, and traced, when the
+     * grab's planned end moved that much later still leaves what the guard planned around it: the
+     * next volley's last piece out by 30 s and, with {@link #parkAfterVolley}, the park after it
+     * done by 30 s, when the guard is going for that volley; else the park, with its margin, done by
+     * 30 s, while a guard watches; and always the grab itself over by 30 s. A yes also lets the
+     * grab's card run {@code extraS} past its timeout. No for anything but a running grab. With the
+     * guard off (practice) the answer is yes, and what the guard would have said is traced once.
+     */
+    public boolean grantGrabSeconds(double extraS) {
+        if (!grabbing || !(extraS > 0.0)) return false;
+        double now = secondsSinceStart.getAsDouble();
+        double plannedEnd = grabStartedAt + grabPlannedS + grabExtraS;
+        // A grab already running past its plan has moved everything after it by that much too.
+        double shift = extraS + Math.max(0.0, now - plannedEnd);
+        double end = Math.max(now, plannedEnd) + extraS;
+        String no = null;
+        if (end > AUTO_LENGTH_S) {
+            no = String.format(Locale.US, "it would end at %.1f s, after AUTO", end);
+        } else if (!Double.isNaN(guardParkSeconds)) {
+            if (goingForVolley) {
+                if (volleyLastPieceAt + shift > AUTO_LENGTH_S) {
+                    no = String.format(Locale.US, "the next volley's last piece would be out at %.1f s", volleyLastPieceAt + shift);
+                } else if (!Double.isNaN(volleyParkedAt) && volleyParkedAt + shift > AUTO_LENGTH_S) {
+                    no = String.format(Locale.US, "the park after the next volley would end at %.1f s", volleyParkedAt + shift);
+                }
+            } else if (end + guardParkSeconds + GUARD_MARGIN_S > AUTO_LENGTH_S) {
+                no = String.format(Locale.US, "the park (%.1f s + %.1f s margin) would end at %.1f s",
+                        guardParkSeconds, GUARD_MARGIN_S, end + guardParkSeconds + GUARD_MARGIN_S);
+            }
+        }
+        if (no != null && guardOn) {
+            trace.accept(String.format(Locale.US, "%s: no %.1f s more for the grab: %s", guardLabel, extraS, no));
+            return false;
+        }
+        if (no != null && !guardWouldHaveActed) {
+            guardWouldHaveActed = true;
+            trace.accept(String.format(Locale.US, "%s: guard OFF: would have refused the grab %.1f s more: %s", guardLabel, extraS, no));
+        }
+        grabExtraS += extraS;
+        trace.accept(String.format(Locale.US, "%s: %.1f s more for the grab, to end by %.1f s", guardLabel, extraS, end));
+        return true;
     }
 
     /** Where one line per card start, row fired and guard decision goes (telemetry, a log file). */
@@ -466,6 +521,11 @@ public final class AutoKit {
                     // Starting: what the drive before it got ready is this command's to finish.
                     if (card != null && armed == card.before) armed = null;
                     grabbing = grab;
+                    if (grab) {
+                        grabStartedAt = startedAt[0];
+                        grabPlannedS = grabSeconds;
+                        grabExtraS = 0.0;
+                    }
                     inner.start();
                 })
                 .setExecute(() -> {
@@ -474,14 +534,16 @@ public final class AutoKit {
                 .setDone(() -> {
                     if (refused[0] || inner.done()) return true;
                     if (registry.timeLimitsHeld()) return false;
-                    timedOut[0] = secondsSinceStart.getAsDouble() - startedAt[0] >= timeoutS;
+                    // A grab given more time (grantGrabSeconds) has that much longer before its timeout.
+                    timedOut[0] = secondsSinceStart.getAsDouble() - startedAt[0] >= timeoutS + (grab ? grabExtraS : 0.0);
                     return timedOut[0];
                 })
                 .setEnd(end -> {
                     if (refused[0]) return;
                     if (grab) grabbing = false;
                     if (timedOut[0]) {
-                        trace.accept(String.format(Locale.US, "command %s timed out after %.1f s", name, timeoutS));
+                        trace.accept(String.format(Locale.US, "command %s timed out after %.1f s", name,
+                                timeoutS + (grab ? grabExtraS : 0.0)));
                         inner.end(EndCondition.INTERRUPTED);
                     } else {
                         inner.end(end);
@@ -875,6 +937,7 @@ public final class AutoKit {
         Command target = null;
         goingForVolley = false;
         volleyLeavesNoPark = null;
+        volleyParkedAt = Double.NaN;
         double now = secondsSinceStart.getAsDouble();
         double at = now;
         int end = cards.length > 0 && checks.contains(cards[cards.length - 1]) ? cards.length : cards.length - 1;
@@ -888,6 +951,7 @@ public final class AutoKit {
                 if (parkComesFirst() && !plan.parked && !Double.isNaN(ownParkSeconds)) {
                     double volleyS = plan.secondsFrom.applyAsDouble(at);
                     double parkedAt = at + volleyS + ownParkSeconds + GUARD_MARGIN_S;
+                    if (volleyS >= 0) volleyParkedAt = parkedAt;
                     if (volleyS >= 0 && parkedAt > AUTO_LENGTH_S) {
                         goingForVolley = false;
                         volleyLeavesNoPark = String.format(Locale.US,
