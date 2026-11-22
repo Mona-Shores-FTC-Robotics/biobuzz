@@ -546,11 +546,93 @@ $PushAttempts = 3
 $PushBackoffSeconds = @(10, 30, 60)
 # After this many batches in a row have failed every try, the link is too slow today: stop.
 $MaxSlowBatchesInARow = 3
-# On every push: buffer the whole pack (GitHub's "RPC failed" advice; up to the 95 MB file limit
-# and then some), so it goes with a Content-Length rather than chunked, which a hotspot's proxy may
-# drop; and give up on a push that has moved under 1 KB/s for 60 s, so a dead link fails in a
-# minute and is retried, rather than hanging until GitHub answers 408.
-$PushConfig = @('-c', 'http.postBuffer=209715200', '-c', 'http.lowSpeedLimit=1000', '-c', 'http.lowSpeedTime=60')
+# On every push: give up on one that has moved under 1 KB/s for 60 s, so a dead link fails in a
+# minute and is retried, rather than hanging until GitHub answers 408. No big http.postBuffer: with
+# one, git packs the whole file into memory at once and then uploads it with no progress at all,
+# so the progress bar would sit at 100%; with git's default it streams in 1 MB pieces and git's
+# "Writing objects" count follows the upload.
+$PushConfig = @('-c', 'http.lowSpeedLimit=1000', '-c', 'http.lowSpeedTime=60')
+# While a push runs: a progress bar, updated every second, and a line every this many seconds so
+# the window's scrollback shows it moving (and a terminal that draws no bar still does).
+$PushProgressLineSeconds = 20
+
+# How far a push has got, from git's --progress text so far: the last "Writing objects: ..., 2.10
+# MiB | 45.00 KiB/s" update (git rewrites the line with a carriage return). KB written and the
+# speed as git prints it, or $null before writing starts.
+function Get-PushProgress([string]$Text) {
+    $last = $null
+    foreach ($part in ($Text -split "[`r`n]")) {
+        if ($part -match 'Writing objects:.*?,\s*([\d.]+)\s*(bytes|KiB|MiB|GiB)(?:\s*\|\s*([\d.]+\s*\S+/s))?') { $last = $Matches.Clone() }
+    }
+    if (-not $last) { return $null }
+    $n = [double]::Parse($last[1], [System.Globalization.CultureInfo]::InvariantCulture)
+    switch ($last[2]) { 'bytes' { $n = $n / 1KB } 'MiB' { $n = $n * 1KB } 'GiB' { $n = $n * 1MB } }
+    $speed = ''
+    if ($last.ContainsKey(3) -and $last[3]) { $speed = $last[3] }
+    return [pscustomobject]@{ KB = $n; Speed = $speed }
+}
+
+# Text a file holds so far, read while another process is still writing it.
+function Read-GrowingFile([string]$Path) {
+    try {
+        $stream = [System.IO.File]::Open($Path, 'Open', 'Read', 'ReadWrite')
+        try { return (New-Object System.IO.StreamReader($stream)).ReadToEnd() } finally { $stream.Dispose() }
+    } catch { return '' }
+}
+
+# Runs git push in the background with --progress, showing a progress bar (and a line every
+# $PushProgressLineSeconds) until it ends. Returns git's reply without the progress lines;
+# $script:PushExit is its exit code. $TotalKB is what the batch weighs, for the percentage.
+function Invoke-GitPush {
+    param([string[]]$Arguments, [string]$What, [double]$TotalKB)
+    $base = Join-Path $env:TEMP ('biobuzz-push-' + [guid]::NewGuid().ToString('N'))
+    $errFile = "$base.err.txt"
+    $outFile = "$base.out.txt"
+    $quoted = @(@('-C', $script:Repo) + $Arguments | ForEach-Object {
+        if ($_ -match '[\s"]') { '"' + ($_ -replace '"', '\"') + '"' } else { $_ } })
+    $script:PushExit = 1
+    try {
+        $proc = Start-Process -FilePath 'git' -ArgumentList $quoted -NoNewWindow -PassThru `
+            -RedirectStandardError $errFile -RedirectStandardOutput $outFile
+    } catch {
+        return "could not start git: $_"
+    }
+    $null = $proc.Handle   # so ExitCode is still there once it has exited (a PowerShell 5.1 quirk)
+    $activity = "sending $What to GitHub"
+    $start = Get-Date
+    $nextLine = $PushProgressLineSeconds
+    try {
+        while (-not $proc.WaitForExit(1000)) {
+            $secs = [int]((Get-Date) - $start).TotalSeconds
+            $p = Get-PushProgress (Read-GrowingFile $errFile)
+            if ($p) {
+                $pct = 0
+                if ($TotalKB -gt 0) { $pct = [int][Math]::Min(100, 100 * $p.KB / $TotalKB) }
+                $status = '{0:N0} of {1:N0} KB, {2}%' -f $p.KB, $TotalKB, $pct
+                if ($p.Speed) { $status += ", $($p.Speed)" }
+                if ($pct -ge 100) { $status += ', waiting for GitHub to take it' }
+            } else {
+                $pct = 0
+                $status = 'starting'
+            }
+            $status += ", ${secs} s"
+            Write-Progress -Activity $activity -Status $status -PercentComplete $pct
+            if ($secs -ge $nextLine) {
+                Say "  ... $status"
+                $nextLine += $PushProgressLineSeconds
+            }
+        }
+        $proc.WaitForExit()
+        $script:PushExit = $proc.ExitCode
+    } finally {
+        Write-Progress -Activity $activity -Completed
+    }
+    $text = (Read-GrowingFile $errFile) + "`n" + (Read-GrowingFile $outFile)
+    Remove-Item -LiteralPath $errFile, $outFile -Force -ErrorAction SilentlyContinue
+    $kept = @($text -split "[`r`n]" | Where-Object {
+        $_.Trim() -and $_ -notmatch '^(remote: )?(Enumerating|Counting|Delta compression|Compressing|Writing|Total|Resolving) ' })
+    return ($kept -join ' ')
+}
 
 # One line of git's reply, short enough for the summary.
 function Format-GitReply([string]$Reply) {
@@ -616,21 +698,21 @@ function Send-LogBatch {
     $message = "Logs: $($Branch.Label): $what (gzipped, from tools/pull-logs; throwaway, never merge)"
     $reply = ''
     $kind = 'slow'
-    # Said before the push, which prints nothing while it runs: on a hotspot that can be minutes,
-    # and without this line the window looked hung. Ctrl+C here is safe (see README).
+    # Said before the push, which can take minutes on a hotspot; a progress bar follows it.
+    # Ctrl+C here is safe (see README).
     $kb = ($Batch | Measure-Object -Property Bytes -Sum).Sum / 1KB
     Say ("sending {0} to {1} ({2:N0} KB; Ctrl+C is safe, the rest go next run)..." -f $what, $Branch.Name, $kb)
     for ($attempt = 1; $attempt -le $PushAttempts; $attempt++) {
         $commit = New-LogCommit -Parent $Branch.Parent -Batch $Batch -Message $message
         if (-not $commit) { $reply = "could not build a commit for $($Branch.Name) (is git's user.name/user.email set?)"; $kind = 'local'; break }
         $Run.Pushes++
-        $reply = (Invoke-Git ($PushConfig + @('push', '--quiet', 'origin', "${commit}:refs/heads/$($Branch.Name)"))) -join ' '
-        if ($LASTEXITCODE -eq 0) {
+        $reply = Invoke-GitPush -Arguments ($PushConfig + @('push', '--progress', 'origin', "${commit}:refs/heads/$($Branch.Name)")) -What $what -TotalKB $kb
+        if ($script:PushExit -eq 0) {
             $Branch.Parent = $commit
             Add-Content -LiteralPath $PublishedList -Value @($Batch | ForEach-Object { $_.Key })
             $Run.Sent += $Batch.Count
             $Run.SlowInARow = 0
-            Say ("sent {0} to {1} ({2:N0} KB)" -f $what, $Branch.Name, (($Batch | Measure-Object -Property Bytes -Sum).Sum / 1KB))
+            Say ("sent {0} to {1} ({2:N0} KB)" -f $what, $Branch.Name, $kb)
             return
         }
         $kind = Get-PushFailureKind $reply

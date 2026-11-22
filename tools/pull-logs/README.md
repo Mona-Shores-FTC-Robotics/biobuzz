@@ -55,17 +55,21 @@ branches and reads them with `read_logs.py` (below). Nothing to type.
   is tried three times, 10 s and then 30 s apart; a timeout (`HTTP 408`, `RPC failed`, "the remote
   end hung up") then moves on to the next log, and three logs in a row like that end the run.
   Anything else (no route to GitHub, sign-in refused) ends the run straight away, since every
-  push would fail the same way. Every push also buffers the whole pack (`http.postBuffer`, so it
-  is not sent chunked) and gives up on a transfer under 1 KB/s for 60 s (`http.lowSpeedLimit` /
-  `http.lowSpeedTime`), so a dead link fails in a minute and is retried instead of hanging until
+  push would fail the same way. Every push gives up on a transfer under 1 KB/s for 60 s
+  (`http.lowSpeedLimit` / `http.lowSpeedTime`), so a dead link fails in a minute and is retried instead of hanging until
   GitHub answers 408. (On 21 Nov, from a phone hotspot, each day's single push of every log
   failed with 408 and nothing went up.) One log too big for the link can still fail; it stays on
   Drive and goes up on a later run at home or school.
 - **You can walk away from the robot, or press Ctrl+C, at any time.** The upload needs the
   internet, not the robot: once `pulled ...` lines are done the robot is free. Each upload starts
-  with a `sending ... (N KB)...` line and git then prints nothing until it is done, which on a
-  hotspot can be minutes. Stopping loses nothing: what went is recorded, a cut-off upload goes
-  again next run, and nothing leaves the robot that has not gone up.
+  with a `sending ... (N KB)...` line, then a progress bar (KB sent of the total, percent, speed,
+  seconds so far) and, every 20 s, a `... 2,100 of 4,940 KB, 42%, 45.00 KiB/s, 60 s` line, read
+  from git's own upload progress. On a hotspot one log can take minutes. "Waiting for GitHub to take
+  it" at 100% means the bytes are sent and GitHub is still answering. The push deliberately keeps
+  git's default `http.postBuffer`: with a big one git packs the whole file into memory first and
+  uploads it with no progress, so the bar would sit at 100% for the whole upload. Stopping loses
+  nothing: what went is recorded, a cut-off upload goes again next run, and nothing leaves the
+  robot that has not gone up.
 - **The last line says what happened**: `GitHub: sent 5 of 9 log(s) in 4 push(es), failed 1, 3
   left for the next run (first error: logs/2026-11-21-19429-RC: ... HTTP 408 ...)`, or `GitHub:
   nothing new to send (...)`, or that there is no internet now. A run that sent nothing always
