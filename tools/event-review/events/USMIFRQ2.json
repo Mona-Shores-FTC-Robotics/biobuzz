@@ -1,0 +1,29 @@
+{
+  "event": "USMIFRQ2",
+  "season": 2026,
+  "name": "Fruitport Qualifier",
+  "date": "Nov 21, 2026",
+  "match_day": "Saturday",
+  "teams": {"19429": "Infrared", "20245": "Ultraviolet"},
+  "playoff_names": {"10": "Final"},
+  "match_names": {
+    "19429/2026-11-21_11-01-37": "Q2",
+    "19429/2026-11-21_13-23-03": "Q17",
+    "19429/2026-11-21_13-53-40": "Q23",
+    "19429/2026-11-21_14-20-15": "Q28",
+    "19429/2026-11-21_15-10-02": "Q39",
+    "19429/2026-11-21_16-28-50": "Playoff M1",
+    "19429/2026-11-21_16-59-40": "Playoff M6",
+    "20245/2026-11-21_11-12-37": "Q4",
+    "20245/2026-11-21_11-58-05": "Q11",
+    "20245/2026-11-21_13-34-34": "Q20",
+    "20245/2026-11-21_14-13-02": "Q28",
+    "20245/2026-11-21_15-20-25": "Q42",
+    "20245/2026-11-21_16-34-53": "Playoff M3",
+    "20245/2026-11-21_16-58-32": "Playoff M7",
+    "20245/2026-11-21_17-35-45": "Final"
+  },
+  "notes": {
+    "match_names": "Named by hand: 19429's hub clock ran about 8 minutes fast all day, and the schedule match named most logs wrongly. Each log's PLAY time, less its hub's offset, is within 25 s of the FTCScout start, on the right alliance (events/2026-11-fruitport README)."
+  }
+}
