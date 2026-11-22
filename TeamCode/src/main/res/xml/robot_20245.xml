@@ -50,6 +50,15 @@
             <goBILDA5202SeriesMotor name="frontLeft"  port="1" />
             <goBILDA5202SeriesMotor name="backRight"  port="2" />
             <goBILDA5202SeriesMotor name="backLeft"   port="3" />
+            <!-- The ENCODER socket beside motor port 2 (backRight) holds
+                 backRight's own encoder, which is only logged (odometry is the
+                 Pinpoint). It is where the turret's encoder moves to, to free
+                 the intake's socket (doc/robot-todo.md, "Turret encoder to a
+                 drive socket"): on the day it does, the turret's cable goes in
+                 here, backRight's own stays unplugged, and this robot's
+                 RobotDifferences line turns TurretSubsystem.encoderOnDriveMotor
+                 on (DeviceNames.TURRET_ENCODER_DRIVE_HOST). Not backLeft's
+                 socket beside port 3: 20245's read 0 at Belding and Fruitport. -->
 
             <!-- Odometry: goBILDA Pinpoint on I2C bus 1. -->
             <goBILDAPinpoint name="pinpoint" port="1" bus="1" />
@@ -135,7 +144,7 @@
                  PROPOSED, not fitted or moved yet (doc/robot-todo.md). A
                  continuous servo has no feedback, so TurretSubsystem closes
                  the loop on the turret's encoder: see the encoder socket beside
-                 motor port 3 below. -->
+                 motor port 0 below. -->
             <ContinuousRotationServo name="turret" port="5" />
 
             <!-- Intake roller: one goBILDA 5203 motor (#160, #181), on motor
@@ -145,9 +154,12 @@
                  encoder, a REV Through Bore Encoder on the turret's drive gear,
                  not the intake's own (which stays unplugged). Code reads the
                  turret angle as the intake's position
-                 (DeviceNames.TURRET_ENCODER_HOST), so the intake's position
-                 hold and wedge clear, which needed its own encoder, are off.
-                 Wired 17 Nov 2026 (the mentor, at the robot). -->
+                 (TurretSubsystem.encoderHostName()), so the intake's position
+                 hold, wedge clear and roller stall, which need its own
+                 encoder, are off. Wired 17 Nov 2026 (the mentor, at the robot).
+                 Once the turret's encoder moves to backRight's socket (Control
+                 Hub, above), the intake's own encoder cable goes back in here
+                 and those come back with it. -->
 
             <!-- Launcher: two flywheels and a feeder, the plan agreed with the
                  build team (23 Oct 2026). Not built yet, so nothing is plugged
@@ -157,7 +169,11 @@
             <goBILDA5202SeriesMotor name="feeder"         port="3" />
             <!-- The ENCODER socket beside motor port 3 is empty: the feeder
                  runs without an encoder. It held the turret's Cypher Max until
-                 the turret's encoder moved to the intake's socket (above). -->
+                 the turret's encoder moved to the intake's socket (above). The
+                 feeder's own encoder cable (a goBILDA 5203's, built in) goes in
+                 here with this robot's RobotDifferences line turning
+                 FeederSubsystem.encoderFitted on: its speed is then logged and
+                 a feeder stopped while feeding is a stuck feed. -->
 
         </LynxModule>
     </LynxUsbDevice>

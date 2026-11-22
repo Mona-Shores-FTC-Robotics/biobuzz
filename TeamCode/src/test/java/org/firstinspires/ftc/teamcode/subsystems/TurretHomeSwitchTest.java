@@ -436,7 +436,7 @@ public class TurretHomeSwitchTest {
 
         TurretSubsystem turret() {
             Map<String, Object> fakes = new HashMap<>();
-            fakes.put(DeviceNames.TURRET_ENCODER_HOST, proxy(DcMotorEx.class, (m, args) -> {
+            fakes.put(TurretSubsystem.encoderHostName(), proxy(DcMotorEx.class, (m, args) -> {
                 switch (m) {
                     case "getCurrentPosition": return (int) Math.round(TurretSubsystem.direction * atDeg * COUNTS_PER_DEG);
                     case "getVelocity": return TurretSubsystem.direction * rateDps * COUNTS_PER_DEG;

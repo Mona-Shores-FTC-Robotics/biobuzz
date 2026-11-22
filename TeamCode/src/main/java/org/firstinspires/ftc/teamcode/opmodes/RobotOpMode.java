@@ -22,7 +22,6 @@ import org.firstinspires.ftc.teamcode.controls.Handoff;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
-import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.logging.AdvantageScopeKeys;
 import org.firstinspires.ftc.teamcode.logging.GamepadLog;
 import org.firstinspires.ftc.teamcode.logging.MatchLog;
@@ -36,6 +35,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.BeamBreak;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaneFull;
 import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
@@ -319,17 +319,6 @@ public abstract class RobotOpMode extends OpMode {
     private int loggedWedgeClears;
     private int loggedFeedJamClears;
     private final MotionWatch feederWatch = new MotionWatch("feeder");
-    /**
-     * The intake motor's encoder socket reads the turret (DeviceNames.TURRET_ENCODER_HOST), not
-     * the roller: no stall watch on it.
-     */
-    private static final boolean INTAKE_SOCKET_IS_THE_TURRETS =
-            DeviceNames.INTAKE.equals(DeviceNames.TURRET_ENCODER_HOST);
-    /**
-     * The feeder runs without an encoder: its socket held the turret's until 17 Nov 2026 and is
-     * empty now. Set true on the day the feeder's own encoder cable is back in it.
-     */
-    private static final boolean FEEDER_HAS_ITS_ENCODER = false;
     private String loggedLauncherFault;
     private int loggedPidfWrites;
     private int loggedSpinUps;
@@ -1691,8 +1680,9 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Intake/FeedJamming", robot.intake.feedJamming() ? 1 : 0);
         if (robot.intake.feedJamClears() != loggedFeedJamClears) {
             loggedFeedJamClears = robot.intake.feedJamClears();
-            log.event(String.format(Locale.US, "feed: stuck (gate open, the piece at the entry still and no shot for %.0f ms; roller %.1f A): backing the lane out, clear %d",
-                    IntakeSubsystem.feedJamMs, intakeAmps, loggedFeedJamClears));
+            log.event(String.format(Locale.US, "feed: stuck (gate open, %s; roller %.0f ticks/s at %.1f A, feeder %.0f ticks/s): backing the lane out, clear %d",
+                    robot.intake.feedJamCause(), robot.intake.ticksPerSecond(), intakeAmps,
+                    robot.feeder.ticksPerSecond(), loggedFeedJamClears));
         }
         log.put("/Intake/HoldingForFull", robot.intake.holdingForFull() ? 1 : 0);
         log.put("/Intake/PastFull", robot.intake.pastFull() ? 1 : 0);
@@ -1927,15 +1917,16 @@ public abstract class RobotOpMode extends OpMode {
         loggedLauncherFault = launcherFault;
         // Not while holding a full lane: the slow roller pressing on the last piece may barely turn.
         // And only with the roller's own encoder in its socket: the turret's says nothing about it.
-        if (!INTAKE_SOCKET_IS_THE_TURRETS) {
+        if (robot.intake.ownEncoder()) {
             String stalled = intakeWatch.check(robot.intake.state() != IntakeSubsystem.State.IDLE
                             && !robot.intake.holdingForFull(),
                     robot.intake.ticksPerSecond(), now);
             if (stalled != null) log.event(stalled);
         }
         // With no encoder of its own the feeder's speed reads nothing: the watch tripped on every
-        // feed of every Belding match and would have hidden a real jam (#500).
-        if (FEEDER_HAS_ITS_ENCODER) {
+        // feed of every Belding match and would have hidden a real jam (#500). On once a robot's
+        // feeder encoder cable is plugged in (FeederSubsystem.encoderFitted, a RobotDifferences line).
+        if (FeederSubsystem.encoderFitted) {
             String stalled = feederWatch.check(robot.feeder.power() != 0.0, robot.feeder.ticksPerSecond(), now);
             if (stalled != null) log.event(stalled);
         }

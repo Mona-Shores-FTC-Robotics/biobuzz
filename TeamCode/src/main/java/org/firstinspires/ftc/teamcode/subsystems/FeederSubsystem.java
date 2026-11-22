@@ -43,8 +43,26 @@ import java.util.function.BooleanSupplier;
  */
 @Configurable
 public class FeederSubsystem implements Subsystem {
-    // This motor's encoder socket is empty (it held the turret's encoder until 17 Nov 2026, which
-    // is now in the intake's), so ticksPerSecond() and rpm() read nothing.
+    /**
+     * Whether the feeder motor's own encoder (a goBILDA 5203's, built in) is plugged into its
+     * socket. The socket held the turret's encoder until 17 Nov 2026 and has been empty since, so
+     * off: {@link #ticksPerSecond()} and {@link #rpm()} then read nothing and nothing decides from
+     * them. A robot whose cable is plugged in gets a {@code RobotDifferences} line turning it on
+     * (doc/robot-todo.md, "Turret encoder to a drive socket"); then a feeder that stops while
+     * feeding is a stuck feed ({@link #stalled()}, {@code FeedJamClear}) and the match log has the
+     * feeder's stall event. Read every loop.
+     */
+    public static boolean encoderFitted = false;
+
+    /**
+     * With {@link #encoderFitted}: below this speed, ticks/s, a feeder driven at {@link #STALL_MIN_POWER}
+     * or more is not turning. It runs at about 2100 to 2260 ticks/s feeding (20245, 4 Nov 2026); a
+     * ball going through dips it, never to a standstill. <b>A guess, not measured</b> on a stuck feed.
+     */
+    public static double stallTicksPerSecond = 150.0;
+
+    /** A power at least this big is "driven" for {@link #stalled()}. */
+    static final double STALL_MIN_POWER = 0.2;
 
     /** What the feeder is being asked to do. */
     public enum State { IDLE, FEED, REVERSE }
@@ -182,6 +200,20 @@ public class FeederSubsystem implements Subsystem {
     /** Feeder motor speed from the last {@link #update()}, encoder ticks per second, signed. 0 without an encoder. */
     public double ticksPerSecond() {
         return ticksPerSecond;
+    }
+
+    /**
+     * The feeder is feeding, driven, and not turning: a ball pinned at it. Always false without its
+     * own encoder ({@link #encoderFitted}). As of the last {@link #update()}; the caller times it.
+     */
+    public boolean stalled() {
+        return stalls(encoderFitted, started, state, power, ticksPerSecond, stallTicksPerSecond);
+    }
+
+    static boolean stalls(boolean encoderFitted, boolean started, State state, double power,
+                          double ticksPerSecond, double stallTicksPerSecond) {
+        return encoderFitted && started && state == State.FEED && Math.abs(power) >= STALL_MIN_POWER
+                && Math.abs(ticksPerSecond) < stallTicksPerSecond;
     }
 
     /**

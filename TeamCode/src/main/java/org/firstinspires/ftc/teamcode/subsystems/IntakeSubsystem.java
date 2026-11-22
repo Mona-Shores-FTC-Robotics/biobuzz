@@ -152,15 +152,6 @@ public class IntakeSubsystem implements Subsystem {
     public static boolean rollerWhileFeeding = true;
 
     /**
-     * Whether this motor's encoder socket holds the roller's own encoder. False while the turret's
-     * encoder is in it ({@code DeviceNames.TURRET_ENCODER_HOST}): the count and the speed read here
-     * are then the turret's, so the position hold (which would run the roller after the turret) and
-     * the wedge clear (which would see a still turret as a stalled roller) are off, whatever their
-     * switches say, and {@link #ticksPerSecond()} is not the roller.
-     */
-    static boolean ownEncoder = !DeviceNames.INTAKE.equals(DeviceNames.TURRET_ENCODER_HOST);
-
-    /**
      * Whether this robot keeps its load in the lane while it drives backward, which needs a bottom
      * plate under the intake: on 20245's first Clockwise drive (12 Nov 2026), with no plate, pieces
      * left the intake on both legs it drove backward. On for 19429 in {@code RobotDifferences} (plate
@@ -234,11 +225,36 @@ public class IntakeSubsystem implements Subsystem {
     /** Feed jam clears in one feed. A jam two bursts do not free is the driver's (eject). */
     public static int feedJamMaxBursts = 2;
 
+    /**
+     * With the roller's own encoder ({@link #ownEncoder()}): the roller stalled while driven in, and
+     * nothing moving, this long is a stuck feed, ms, sooner than {@link #feedJamMs}. The grinding
+     * kind of Fruitport jam drew 3.6 to 10 A on a still roller. <b>A guess, not measured</b>: no
+     * robot has had the roller's encoder and a feed together. NaN or 0: the quiet timer alone.
+     */
+    public static double feedJamStallMs = 600.0;
+
+    /**
+     * With the feeder's own encoder ({@code FeederSubsystem.encoderFitted}): the feeder stopped
+     * while feeding this long is a stuck feed, ms. <b>A guess, not measured.</b> NaN or 0: off.
+     */
+    public static double feedJamFeederStallMs = 300.0;
+
     private boolean positionHolding;
     private int holdTargetTicks;
     private int positionTicks;
 
     private final DcMotorEx motor;
+    /**
+     * Whether this motor's encoder socket holds the roller's own encoder: not while the turret's is
+     * in it ({@code TurretSubsystem.encoderHostName()} is the intake). Without it the count and the
+     * speed read here are the turret's, so the position hold (which would run the roller after the
+     * turret), the wedge clear and the feed jam clear's roller stall (which would see a still turret
+     * as a stalled roller) are off, whatever their switches say, and {@link #ticksPerSecond()} is
+     * not the roller.
+     */
+    private final boolean ownEncoder;
+    /** The roller was driven in last loop: the speed read then is a stall if it is low. */
+    private boolean rollerWasIn;
     private final CRServo stars;
     /** The right star wheel's own servo, or null where one servo drives them all ({@link #rightStarWheel}). */
     private final CRServo starsRight;
@@ -311,6 +327,7 @@ public class IntakeSubsystem implements Subsystem {
      */
     public IntakeSubsystem(HardwareMap hardwareMap, FeederSubsystem feeder) {
         motor = hardwareMap.get(DcMotorEx.class, DeviceNames.INTAKE);
+        ownEncoder = !DeviceNames.INTAKE.equals(TurretSubsystem.encoderHostName());
         stars = hardwareMap.get(CRServo.class, DeviceNames.INTAKE_STARS);
         starsRight = rightStarWheel ? hardwareMap.get(CRServo.class, DeviceNames.INTAKE_STARS_RIGHT) : null;
         this.feeder = feeder;
@@ -490,6 +507,24 @@ public class IntakeSubsystem implements Subsystem {
         return feedJam.bursts();
     }
 
+    /** What called the last feed jam clear, for the match log. */
+    public String feedJamCause() {
+        return feedJam.lastCause().text;
+    }
+
+    /** Whether the roller's own encoder is in this motor's socket (not the turret's): see the field. */
+    public boolean ownEncoder() {
+        return ownEncoder;
+    }
+
+    /**
+     * The roller was driven in last loop and read under {@link #wedgeStallTicksPerSecond}: not
+     * turning. Always false without its own encoder.
+     */
+    boolean rollerStalled() {
+        return ownEncoder && rollerWasIn && Math.abs(ticksPerSecond) < wedgeStallTicksPerSecond;
+    }
+
     /** Wedge clears since this OpMode started. */
     public int wedgeClears() {
         return wedge.bursts();
@@ -603,8 +638,13 @@ public class IntakeSubsystem implements Subsystem {
                         && request != State.OUT && !rejecting && !holdingOff && !unwedging,
                 // A ball held in the throat beam is the throat's jam: as if no entry piece, so no
                 // burst, and the quiet timer starts afresh once the ball moves.
-                entryPresent.getAsBoolean() && !throatHeld.getAsBoolean(), shotCount.getAsInt(), System.nanoTime(),
-                feedJamMs, Math.min(Math.max(feedJamBackMs, 0.0), 1000.0), feedJamMaxBursts);
+                entryPresent.getAsBoolean() && !throatHeld.getAsBoolean(),
+                rollerStalled(),
+                // A ball held in the throat stops the feeder too: still the throat's.
+                feeder.stalled() && !throatHeld.getAsBoolean(),
+                shotCount.getAsInt(), System.nanoTime(),
+                feedJamMs, feedJamStallMs, feedJamFeederStallMs,
+                Math.min(Math.max(feedJamBackMs, 0.0), 1000.0), feedJamMaxBursts);
         if (feedJamming) {
             holdingForFull = false;
             roller = State.OUT;
@@ -637,6 +677,7 @@ public class IntakeSubsystem implements Subsystem {
             if (starsRight != null) starsRight.setPower(starsPowerFor(starsState, power, starsRightReversed));
         }
         ticksPerSecond = motor.getVelocity();
+        rollerWasIn = roller == State.IN && !holdingForFull && !positionHolding;
         if (roller == State.IDLE) {
             currentAmps = Double.NaN;
             currentRead.reset();

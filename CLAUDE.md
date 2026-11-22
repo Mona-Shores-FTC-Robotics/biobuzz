@@ -72,8 +72,12 @@ Three layers, each written in exactly one place:
   until the piece is seen leaving outward or an eject runs; never add a feed path around the gate.
 - A continuous-rotation servo is `Kind.CR_SERVO` and `<ContinuousRotationServo>`, asked for as
   `CRServo`; it shares the servo ports. The turret's encoder has no device of its own: it is read
-  through the encoder socket of `DeviceNames.TURRET_ENCODER_HOST` (a motor whose own encoder the
-  code never uses for control), and only turret code may reset that count. The turret's servo is
+  through the encoder socket of `TurretSubsystem.encoderHostName()`, the intake's, or with
+  `TurretSubsystem.encoderOnDriveMotor` (a robot's `RobotDifferences` line, the day it is rewired)
+  the back-right drive wheel's, whose own encoder is only logged. Nothing sets that motor's run
+  mode to one that uses its encoder, and only turret code may reset that count. A mechanism's speed
+  decides anything only with its own encoder in its socket: the intake's (`IntakeSubsystem.ownEncoder()`,
+  off while the turret's is there) and the feeder's (`FeederSubsystem.encoderFitted`). The turret's servo is
   continuous and the turret has no stops: `TurretSubsystem` closes the loop on that count, a turret
   angle is a direction (wrap a difference from `angleDegrees()`), and an aim at a point on the
   field passes the target's rate with it (`aim(deg, rateDps)`), which is how the turret cancels the
