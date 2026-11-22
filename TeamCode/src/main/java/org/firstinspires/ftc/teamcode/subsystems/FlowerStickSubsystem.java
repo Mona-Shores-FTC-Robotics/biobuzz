@@ -20,9 +20,11 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  * push from the FLOWER goes into the tile through the arm, not into the servo, as long as nothing
  * is holding the arm somewhere else. A positional servo cannot "rest" on the tile: a position a
  * hair above the tile carries the stick and takes the push, a hair below stalls against the tile.
- * So after the swing the pulse is switched off ({@link PwmControl#setPwmDisable()}): the servo goes
- * limp and the stick rests on the tile by its own weight. Stowed, the servo keeps holding, because
- * the stowed hard stop may not exist yet; {@link #LIMP_STOWED} releases it there too once it does.
+ * {@link #LIMP_EXTENDED} switches the pulse off after the swing ({@link PwmControl#setPwmDisable()}),
+ * so the servo goes limp and the stick rests on the tile by its own weight. It is off: on the SWYFT
+ * servos both robots have, a limp stick lifted in a push (Fruitport, 21 Nov 2026), so the servo
+ * holds the stick out for the whole pick. Stowed, the servo keeps holding, because the stowed hard
+ * stop may not exist yet; {@link #LIMP_STOWED} releases it there too once it does.
  *
  * <p>In a TeleOp's INIT nothing is written, so the stick does not move (G403; see
  * {@link Subsystem}): that INIT runs between AUTO and TELEOP, where a stick swinging in after an
@@ -68,8 +70,13 @@ public class FlowerStickSubsystem implements Subsystem {
      */
     public static final double SERVO_RANGE_DEG = 270.0;
 
-    /** Cut the pulse once the stick is out and settled, so the stick rests on the tile. */
-    public static boolean LIMP_EXTENDED = true;
+    /**
+     * Cut the pulse once the stick is out and settled, so the stick rests on the tile. Off since 22 Nov
+     * 2026 (mentor): both robots' sticks are on SWYFT servos, and at Fruitport (21 Nov) 20245's went
+     * limp 0.2 s into the Auto's SCORING FLOWER push in Q-4, the stick lifted and the pick took
+     * nothing; held from Q-20 (set in Panels), no Auto pick came up empty through the Final.
+     */
+    public static boolean LIMP_EXTENDED = false;
 
     /** Cut the pulse once the stick is in and settled. Only once a stowed hard stop exists. */
     public static boolean LIMP_STOWED = false;

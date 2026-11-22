@@ -318,7 +318,8 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       measured on the goBILDA, so **before Basic Drive:** Bench: FLOWER Stick, step to the in and
       out stops on the SWYFT servo and put the two numbers in a PR (they are the shared values;
       19429 keeps its own line in `RobotDifferences`). Also check the swing finishes inside
-      `SETTLE_MS` (1.5 s), the stick drops onto the tile when the pulse is cut (`LIMP_EXTENDED`),
+      `SETTLE_MS` (1.5 s) (`LIMP_EXTENDED` is off since 22 Nov: the servo holds the stick out, so
+      it no longer goes limp onto the tile),
       and whether the SWYFT's range is the 270 degrees `SERVO_RANGE_DEG` assumes (only the bench's
       and the logs' degrees read it). Then Basic Drive's operator Square swings it between them.
 - [ ] **19429 rewired 17 Nov: the new FLOWER stick.** Pivot servo on **Expansion Hub servo
@@ -913,6 +914,13 @@ Use the work order above to select checks; the detailed mechanism checks below a
         as L leaves it. **Stop the run** if they are closing, and note the match second.
       - Film each paired run from the side.
 ## 4. Basic Drive at one FLOWER (Panels → FlowerPicker; tape measure)
+
+- [ ] **19429: the FLOWER stick held out through a pick** (`FlowerStickSubsystem.LIMP_EXTENDED` off for
+      both robots since 22 Nov; 19429 ran limp all day at Fruitport, 20245 ran held from Q-20 through the
+      Final). Basic Drive, three driver FLOWER picks at the SCORING FLOWER: the stick stays down through
+      the push and the dwell, the SWYFT servo does not buzz or get hot against the tile, each pick takes
+      pieces (`read_logs.py picks`: `spk` above 0). **Stop:** the servo buzzes or heats, or a pick stalls
+      well short with `spk` 0 → `LIMP_EXTENDED` back on for 19429 alone, a line in `RobotDifferences`.
 
 The pick-depth session. Procedure and tables: [S5 At the robot]. The student version of the same
 measurement is [#255].
