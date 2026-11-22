@@ -96,7 +96,10 @@ gives, for every LaunchAll of an Autonomous, the balls it fired, counted from th
 dips (one sharp dip a ball), beside the shot counter's number. `picks`
 gives one line per FLOWER pick: how the push ended (reached, stalled, path done or timed out, and
 how far short), the depth, the intake-current spikes (about one per piece), the lane count and the
-camera's last gap to odometry along and across the push. It is for reading logs without
+camera's last gap to odometry along and across the push. `cycles` splits every TeleOp volley's
+cycle (drive to pieces, pick up, drive loaded, spin-up and aim, feed, time standing still) and counts
+its pieces, against the 9.3 s budget, for the drive team's practice (`doc/drive-team-cycle-playbook.md`):
+`python tools/pull-logs/read_logs.py cycles <log>` on the laptop after a practice run. It is for reading logs without
 AdvantageScope; nobody at the robot needs Python.
 
 ## The Driver Hub's own battery

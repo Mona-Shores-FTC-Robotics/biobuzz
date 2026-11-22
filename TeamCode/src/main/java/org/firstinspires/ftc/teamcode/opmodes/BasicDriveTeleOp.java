@@ -180,6 +180,18 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private Controls controls;
     private final IntakeArbiter intakeArbiter = new IntakeArbiter();
     private final FireGates gates = new FireGates();
+    /** The full-load rule: a fire waits for a full lane ({@link TeleOpConfig#fullLoadGate}). */
+    private final FeedHold fullHold = new FeedHold();
+    /** A fire waits while our end's CELL is seen down ({@link TeleOpConfig#holdFireAtDownCell}). */
+    private final FeedHold cellHold = new FeedHold();
+    private FeedHold.Verdict lastFullVerdict = FeedHold.Verdict.OFF;
+    private FeedHold.Verdict lastCellVerdict = FeedHold.Verdict.OFF;
+    /** Our end's CELL as the camera last saw it settled, this loop ({@link OurCell}). */
+    private OurCell.Reading ourCell = OurCell.Reading.UNKNOWN;
+    private OurCell.Reading loggedOurCell = OurCell.Reading.UNKNOWN;
+    /** The last UP or DOWN reading of our CELL, and when (s, System.nanoTime), for the Match page's memory. */
+    private OurCell.Reading ourCellLastSeen = OurCell.Reading.UNKNOWN;
+    private double ourCellLastSeenS = Double.NaN;
     private final LongPress headingReset = new LongPress(RESET_HOLD_MS);
     private final LongPress cameraReset = new LongPress(RESET_HOLD_MS);
     private final LongPress leftCornerReset = new LongPress(RESET_HOLD_MS);
@@ -417,6 +429,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         log.event("turret at PLAY: " + turretMode);
         log.event("PLAY: " + (robotCentric() ? "robot-centric" : "field-centric"));
+        // TeleOpConfig.idleAtPlay: the wheels go to their idle now, not at the first fire press,
+        // which found them at 0 and spun up about 1.3 s (Fruitport, 21 Nov 2026).
+        if (TeleOpConfig.idleAtPlay && !launcherOwner.spinning()) {
+            applyLauncher(LauncherOwner.Effect.SPIN_DOWN);
+        }
     }
 
     /** The pose set to our alliance's measured spot in {@code corner}, if it has been measured. */
@@ -882,6 +899,15 @@ public class BasicDriveTeleOp extends RobotOpMode {
         log.put("/Launch/PoseRangeIn", poseRangeIn);
         log.put("/Controls/AimErrorDeg", aimErrorDeg);
 
+        ourCell = ourCellNow();
+        if (ourCell != OurCell.Reading.UNKNOWN) {
+            ourCellLastSeen = ourCell;
+            ourCellLastSeenS = now / 1e9;
+        }
+        if (ourCell != loggedOurCell) {
+            log.event("our CELL: " + ourCell + (aimer.cell() != null ? " (" + aimer.cell() + ")" : ""));
+            loggedOurCell = ourCell;
+        }
         fire();
         lightBar();
         if (arcBlocked) {
@@ -904,6 +930,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.line(launchTrimLine(launcherTrimTps));
         display.line(launcherLine());
         display.line(piecesLine(robot.colorSensor.lane().count(), robot.colorSensor.full()));
+        if (fullHold.holds()) display.line(Display.huge("FIRE: WAITING FOR 4", Display.Level.WARN));
+        if (cellHold.holds()) display.line(Display.huge("FIRE: OUR CELL IS DOWN", Display.Level.WARN));
+        display.line(OurCell.line(ourCell, ourCellLastSeen, now / 1e9 - ourCellLastSeenS));
         display.line(loopLine(loopTimer.lastMs()));
         display.line(pinpointLine(robot.drive.localizerFault() == null, robot.drive.pinpointTrust(), robot.drive.pinpointFaults()));
         // Only with the turret's controls on the gamepad: locked forward there is no aim trim to set.
@@ -1146,6 +1175,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // The throat beam sees a ball held at the wheels, or none coming with the lane holding:
         // unjam (hold) backs it out. Only with the beam fitted (BeamBreakSubsystem).
         if (robot.beams.feedStuck()) return "FEED STUCK: UNJAM";
+        // A dropped hold stays dropped until a new request (Fruitport, 21 Nov 2026: 19429's turret
+        // dropped 0.7 s into one TeleOp and fired blind for the rest of it, the Robot page's note
+        // unread). The AIM / LOCKED toggle asks again.
+        if (!TurretSubsystem.lockedForward && robot.turret.faultNote() != null) return "TURRET DROPPED: TOGGLE AIM";
         if (!robot.drive.hasHeading() && !robot.drive.pinpointLost()) return "NO PINPOINT";
         if (TeleOpConfig.intakeAlwaysOn && !intakeRunning()) return "INTAKE OFF";
         if (robotCentric() || !robot.drive.isFieldCentric()) return "ROBOT-CENTRIC";
@@ -1232,6 +1265,20 @@ public class BasicDriveTeleOp extends RobotOpMode {
         boolean arcWaiting = arcTurning && outsideArc;
         boolean open = gates.enforcedOpen(TeleOpConfig.enforceAtSpeedGate, enforceAim)
                 && (!spunUpByFire || robot.launcher.atSpeed()) && !arcBlocked && !arcWaiting;
+        // The drive team's two optional rules (FeedHold), each holding a feed's start for at most
+        // its give-up time: a full lane, and our end's CELL not seen down.
+        double holdNowS = System.nanoTime() / 1e9;
+        boolean lastSeconds = secondsSincePlay() >= MatchEnd.TELEOP_S - TeleOpConfig.fullLoadOffLastS;
+        FeedHold.Verdict fullVerdict = fullHold.update(TeleOpConfig.fullLoadGate, fireHeld,
+                robot.colorSensor.full() || lastSeconds, holdNowS, TeleOpConfig.fullLoadGiveUpS);
+        FeedHold.Verdict cellVerdict = cellHold.update(TeleOpConfig.holdFireAtDownCell, fireHeld,
+                ourCell != OurCell.Reading.DOWN, holdNowS, TeleOpConfig.downCellGiveUpS);
+        logHold("full load", fullHold, lastFullVerdict, fullVerdict, holdNowS, String.format(Locale.US,
+                "lane count %d, %s", robot.colorSensor.lane().count(), robot.colorSensor.full() ? "full" : "not full"));
+        logHold("our CELL down", cellHold, lastCellVerdict, cellVerdict, holdNowS, "our CELL " + ourCell);
+        lastFullVerdict = fullVerdict;
+        lastCellVerdict = cellVerdict;
+        open = open && !fullHold.holds() && !cellHold.holds();
         // Circle alone in LOCKED: the feed waits until the robot is on the CELL and at speed.
         if (circleAimShot()) {
             open = CirclePress.mayFeed(CirclePress.Kind.AIM_AND_FIRE, open,
@@ -1317,6 +1364,29 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (launchingEnded()) {
             display.status("Match end", Display.Level.WARN, "launcher off: press stop (G404)");
         }
+    }
+
+    /** One log line as a {@link FeedHold} starts holding a press, and one as it lets it through. */
+    private void logHold(String rule, FeedHold hold, FeedHold.Verdict was, FeedHold.Verdict now, double nowS, String detail) {
+        if (now == was) return;
+        if (now == FeedHold.Verdict.WAITING) {
+            log.event("fire: held back (" + rule + "): " + detail);
+        } else if (was == FeedHold.Verdict.WAITING && (now == FeedHold.Verdict.PASS || now == FeedHold.Verdict.GAVE_UP)) {
+            log.event(String.format(Locale.US, "fire: %s after %.2f s (%s): %s",
+                    now == FeedHold.Verdict.PASS ? "let through" : "gave up waiting, fired anyway",
+                    hold.heldS(nowS), rule, detail));
+        }
+    }
+
+    /**
+     * Our end's CELL ({@link OurCell}): the turret's aimed CELL, else the near-end one by the pose,
+     * read against our HIVE's state.
+     */
+    private OurCell.Reading ourCellNow() {
+        HiveTracker hive = robot.hive.of(setup.alliance());
+        if (hive == null) return OurCell.Reading.UNKNOWN;
+        HiveCell cell = aimer.cell() != null ? aimer.cell() : nearEndCell;
+        return OurCell.of(cell, setup.alliance(), hive.state(), hive.position());
     }
 
     /** The match is over and launching has stopped: {@link #endOfMatch}. */

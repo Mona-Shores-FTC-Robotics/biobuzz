@@ -27,6 +27,10 @@ with Python. Standard library only.
   python3 tools/pull-logs/read_logs.py cells LOG.wpilog [...]     every CELL that settled the other way: when its
                                                                    tag row was first seen and first moved before
                                                                    the settle, and the robot's speed meanwhile
+  python3 tools/pull-logs/read_logs.py cycles LOG.wpilog [...]    every TeleOp volley's cycle, split (drive to pieces,
+                                                                   pick up, drive loaded, spin-up and aim, feed) with
+                                                                   pieces per volley, against the 9.3 s budget
+                                                                   (doc/drive-team-cycle-playbook.md); for practice
   python3 tools/pull-logs/read_logs.py dsbattery FILE [...]       each Driver Hub's own battery over the day,
                                                                    then every match log given beside it: the DS
                                                                    battery at its start, lowest, at its end
@@ -981,6 +985,165 @@ def legs(paths):
             med([r['peak_deg_s'] for r in rs]), med([r['turned_deg'] for r in rs]), med([r['volts'] for r in rs])))
 
 
+# The TeleOp cycle budget for 5.4 TIPs a match (Fruitport, 21 Nov 2026; doc/drive-team-cycle-playbook.md):
+# seconds per volley for each phase, and the pieces a volley should carry.
+CYCLE_BUDGET = [('drive to pieces', 2.0), ('pick up', 2.6), ('drive loaded', 2.0), ('spin-up and aim', 0.4),
+                ('feed', 1.3)]
+CYCLE_BUDGET_S = 9.3
+CYCLE_BUDGET_PIECES = 4
+_PIECE_IN = re.compile(r'lane: (.* in, \d+ in the lane|a piece arrived)')
+
+
+def _windows(series, a, b):
+    """[(start, end)] of the stretches a boolean series is true between a and b."""
+    out, start = [], None
+    for ts, v in series:
+        if ts < a:
+            if v and start is None:
+                start = a
+            elif not v:
+                start = None
+            continue
+        if ts > b:
+            break
+        if v and start is None:
+            start = ts
+        if not v and start is not None:
+            out.append((start, ts))
+            start = None
+    if start is not None:
+        out.append((start, b))
+    return out
+
+
+def _still_s(speeds, a, b, below=3.0):
+    """Seconds between a and b with the robot under `below` in/s, from a sampled speed."""
+    total, prev = 0.0, None
+    for ts, v in speeds:
+        if ts > b:
+            break
+        if prev is not None and ts > a:
+            t0 = max(prev[0], a)
+            if isinstance(prev[1], (int, float)) and abs(prev[1]) < below and ts - t0 < 0.5:
+                total += ts - t0
+        prev = (ts, v)
+    return total
+
+
+def cycle_rows(gate, shots, pieces_in, presses, speeds, a, b, merge_s=1.0):
+    """The TeleOp volleys between a and b, one dict each, from the feed gate's open windows (merged when
+    one opens within merge_s of the last closing: a press let go and pressed again), the launcher's
+    shot count, the times a piece entered the lane, the driver's fire presses and the robot's speed.
+    A cycle runs from the end of one feed to the end of the next (the first from a, TeleOp's PLAY).
+    A gate window that fired nothing is not a volley; it is counted on the next one as an empty feed.
+
+    Phases, as the cycle budget defines them: drive to pieces, until the first piece enters the lane;
+    pick up, first piece to last; drive loaded, last piece to the fire press; spin-up and aim, the press
+    to the gate opening; feed, while the gate is open. Standing still (under 3 in/s) is counted inside
+    the first three phases and also on its own."""
+    wins = []
+    for w in _windows(gate, a, b):
+        if wins and w[0] - wins[-1][1] < merge_s:
+            wins[-1] = (wins[-1][0], w[1])
+        else:
+            wins.append(w)
+    rows, prev_end, empty = [], a, 0
+    for ga, gb in wins:
+        n = int((at(shots, gb + 0.4) or 0) - (at(shots, ga) or 0))
+        if n <= 0:
+            empty += 1
+            continue
+        ins = [t for t in pieces_in if prev_end <= t <= ga]
+        ps = [t for t in presses if prev_end <= t <= ga]
+        # The press that started this volley: the first one after the last piece came in. One made
+        # before that (Circle at an empty lane, then a pickup) is an early press, counted, not a start:
+        # timing spin-up from it would put the pickup in "spin-up and aim" (19429 at Fruitport: 2.2 s
+        # a volley that way, 0.45 s of it real).
+        after = [t for t in ps if not ins or t >= ins[-1]]
+        press = after[0] if after else ga
+        first_in = ins[0] if ins else press
+        last_in = ins[-1] if ins else press
+        rows.append({'start': prev_end, 'end': gb, 'shots': n, 'empty_feeds': empty,
+                     'drive to pieces': first_in - prev_end, 'pick up': last_in - first_in,
+                     'drive loaded': press - last_in, 'spin-up and aim': ga - press, 'feed': gb - ga,
+                     'still': _still_s(speeds, prev_end, press), 'pressed': bool(ps),
+                     'early_presses': len(ps) - len(after)})
+        prev_end, empty = gb, 0
+    return rows, prev_end
+
+
+def _teleop_window(d):
+    """(TeleOp's PLAY, its end): the PLAY that a TeleOp logs ("turret at PLAY"), else the last PLAY;
+    the end is the match-end stop, else 120 s on for a match log, else the log's last sample."""
+    ev = d.get('/Events', [])
+    plays = [t for t, e in ev if 'turret at PLAY' in str(e)] or [t for t, e in ev if str(e).startswith('PLAY:')]
+    if not plays:
+        return None
+    a = plays[-1]
+    ends = [t for t, e in ev if t > a and str(e).startswith('match end: launching stopped')]
+    last = max((s[-1][0] for s in d.values() if s), default=a)
+    if ends:
+        return a, ends[0] + 1.0
+    # A match log runs its Auto first: an earlier PLAY. Its TeleOp is 2:00; a practice drive runs to the end.
+    is_match = any(t < a and str(e).startswith('PLAY:') for t, e in ev)
+    return a, min(last, a + 121.0) if is_match else last
+
+
+def cycles(paths):
+    total = {k: 0.0 for k, _ in CYCLE_BUDGET}
+    total_still = total_cycle = 0.0
+    total_shots = total_vol = 0
+    for path in paths:
+        d = read(path)
+        w = _teleop_window(d)
+        print('=' * 78)
+        print(path.split('/')[-1])
+        if w is None:
+            print('  no TeleOp PLAY in this log')
+            continue
+        a, b = w
+        ev = d.get('/Events', [])
+        pieces_in = [t for t, e in ev if _PIECE_IN.search(str(e))]
+        presses = [t for t, e in ev if str(e).startswith('fire (driver')]
+        rows, last_end = cycle_rows(d.get('/FeedGate/Feeding', []), d.get('/Launcher/Shots', []), pieces_in,
+                                    presses, d.get('/Drive/OdometrySpeedInPerSec', []), a, b)
+        print('  TeleOp %.0f s from PLAY; %d volleys, %d pieces' % (b - a, len(rows), sum(r['shots'] for r in rows)))
+        print('   #    at  cycle | to pieces  pick up  loaded  spin/aim   feed | still | pieces%s'
+              % ('' if all(r['pressed'] for r in rows) else '  (* no fire press: not a driver volley)'))
+        for i, r in enumerate(rows, 1):
+            cyc = r['end'] - r['start']
+            print('  %2d %5.1f %6.1f | %9.1f %8.1f %7.1f %9.1f %6.1f | %5.1f | %d%s%s%s'
+                  % (i, r['start'] - a, cyc, r['drive to pieces'], r['pick up'], r['drive loaded'],
+                     r['spin-up and aim'], r['feed'], r['still'], r['shots'],
+                     '' if r['pressed'] else ' *',
+                     ' (+%d empty feed%s)' % (r['empty_feeds'], '' if r['empty_feeds'] == 1 else 's') if r['empty_feeds'] else '',
+                     ' (%d early press%s)' % (r['early_presses'], '' if r['early_presses'] == 1 else 'es') if r['early_presses'] else ''))
+        if rows:
+            n = len(rows)
+            print('  mean    %6.1f | %9.1f %8.1f %7.1f %9.1f %6.1f | %5.1f | %.1f'
+                  % (sum(r['end'] - r['start'] for r in rows) / n,
+                     *[sum(r[k] for r in rows) / n for k, _ in CYCLE_BUDGET],
+                     sum(r['still'] for r in rows) / n, sum(r['shots'] for r in rows) / n))
+            print('  budget  %6.1f | %9.1f %8.1f %7.1f %9.1f %6.1f | ≤0.5 | %d'
+                  % (CYCLE_BUDGET_S, *[v for _, v in CYCLE_BUDGET], CYCLE_BUDGET_PIECES))
+            print('  after the last volley: %.1f s' % (b - last_end))
+            for k, _ in CYCLE_BUDGET:
+                total[k] += sum(r[k] for r in rows)
+            total_still += sum(r['still'] for r in rows)
+            total_cycle += sum(r['end'] - r['start'] for r in rows)
+            total_shots += sum(r['shots'] for r in rows)
+            total_vol += n
+    if len(paths) > 1 and total_vol:
+        print('=' * 78)
+        print('all %d logs: %d volleys, %.1f pieces a volley, %.1f s a cycle (budget %.1f s, %d pieces)'
+              % (len(paths), total_vol, total_shots / total_vol, total_cycle / total_vol, CYCLE_BUDGET_S,
+                 CYCLE_BUDGET_PIECES))
+        for k, v in CYCLE_BUDGET:
+            print('  %-16s %4.1f s  (budget %.1f)' % (k, total[k] / total_vol, v))
+        print('  %-16s %4.1f s  (budget ≤0.5)' % ('standing still', total_still / total_vol))
+        print('  seconds per piece %.1f (5.4 TIPs needs 2.3)' % (total_cycle / max(total_shots, 1)))
+
+
 def main(argv):
     if len(argv) < 3:
         print(__doc__)
@@ -1004,6 +1167,8 @@ def main(argv):
         legs(argv[2:])
     elif cmd == 'cells':
         cells(argv[2:])
+    elif cmd == 'cycles':
+        cycles(argv[2:])
     elif cmd == 'dsbattery':
         dsbattery(argv[2:])
     elif cmd == 'turret':

@@ -159,6 +159,30 @@ step below was never ticked: this is the same fault.
       **Stop:** it throws a piece out of the intake, or does not free the jam → try 400 ms, then
       note what the eject does that this does not (it also reverses the feeder and the launcher).
 
+## TeleOp cycle switches (Basic Drive practice, either robot): before the State Championship
+
+From the cycle work on the Fruitport logs (`doc/drive-team-cycle-playbook.md`). Run the playbook's
+drill, and after each run `python3 tools/pull-logs/read_logs.py cycles <log>`.
+
+- [ ] **Launcher idles at PLAY** (`TeleOpConfig.idleAtPlay`, on). At PLAY the log says `launcher:
+      idle (1495 ticks/s)` and the wheels spin. The first fire press says `launcher …/… ticks/s`
+      near 1495, not `0/`. **Stop:** anything moves before PLAY → switch it off and report it.
+- [ ] **Full-load rule** (`TeleOpConfig.fullLoadGate`, off). Turn it on in Panels. Press fire with 3
+      in the lane: the Match page says `FIRE: WAITING FOR 4`, the intake keeps running, and the volley
+      goes the moment the light goes green. Held 1 s with no 4th piece, it fires the 3. **Good:** the
+      log has `fire: held back (full load)` and `fire: let through after …` lines, and the `cycles`
+      pieces column reads 4 more often than with it off. **Stop:** a volley stops after its first ball
+      (the rule must never cut a feed) → off, and report it.
+- [ ] **OUR CELL line.** Drive to each end with the CELL there up, then down. **Good:** the Match page
+      reads `OUR CELL UP` (green) and `OUR CELL DOWN: LOAD 4` to match, and, out of the camera's view,
+      `OUR CELL UP? (N s ago)` for 8 s, then `OUR CELL ?`. **Then** try `TeleOpConfig.holdFireAtDownCell`: fire at a down CELL waits 1 s and
+      then fires, and the page says `FIRE: OUR CELL IS DOWN` meanwhile.
+- [ ] **Turret drop alert.** Hold the turret still by hand while it aims (it drops its hold after 0.7 s).
+      **Good:** the Match page's alert reads `TURRET DROPPED: TOGGLE AIM`, and one AIM / LOCKED toggle
+      brings the turret back. (19429 dropped its hold 0.7 s into one Fruitport TeleOp and fired blind
+      for the rest of it, with the turret driven at full power and its encoder not moving: find why,
+      in the jam check above or on Bench: Turret.)
+
 ## Tonight (18 Nov): 19429, in this order
 
 Each step stands alone: what to run, what good looks like, when to stop. Push the logs
