@@ -184,8 +184,9 @@ public class BeamBreakSubsystem implements Subsystem {
             stuck = false;
         } else if (launcherAtSpeed.getAsBoolean()) {
             // A feed the robot holds at the gate on purpose waits for speed; only an at-speed feed sticks.
-            boolean now = teleOpWatch.step(nowS, throat.passes(), throat.blockedForMs() / 1000.0, laneHolds.get(),
-                    Double.NaN, quietS, firstBallWithinS, jamBlockedS, stuckGapS) == FeedWatch.Verdict.STUCK;
+            FeedWatch.Verdict verdictNow = teleOpWatch.step(nowS, throat.passes(), throat.blockedForMs() / 1000.0, laneHolds.get(),
+                    Double.NaN, quietS, firstBallWithinS, jamBlockedS, stuckGapS);
+            boolean now = verdictNow == FeedWatch.Verdict.STUCK || verdictNow == FeedWatch.Verdict.HELD;
             if (now && !stuck) {
                 stuckFeeds++;
                 stuckWhy = teleOpWatch.why();
