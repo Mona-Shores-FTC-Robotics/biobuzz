@@ -12,7 +12,8 @@ row's verdict is better, worse or same (a change under the number's `same` band)
 pair config marks `not_comparable` is shown, never judged: the controls or the counting changed.
 
 The pair config is events/compare-<A code>-<B code>.json by default (the codes from each folder's
-event.json). Keys: `not_comparable` {metric key: why}, `notes` {metric key: a line under the
+event.json). Keys: `not_comparable` {metric key: why}, `robot_not_comparable` {robot: {metric
+key: why}} (one robot's setting changed what the number means), `notes` {metric key: a line under the
 number}, `changes` [what changed on the robots between the events, one line each], `title`.
 Everything else on the page, the insights included, is computed from the two folders, so the
 same command compares the next pair of events.
@@ -209,6 +210,7 @@ def verdict(a, b, better, band):
 
 def build(A, B, cfg):
     nc = cfg.get('not_comparable', {})
+    rnc = cfg.get('robot_not_comparable', {})
     notes = cfg.get('notes', {})
     out = []
     for key, sec, label, unit, fn, better, band, sub in METRICS:
@@ -216,9 +218,10 @@ def build(A, B, cfg):
             va, na = unpack(fn(A, robot))
             vb, nb = unpack(fn(B, robot))
             ch = round(vb - va, 2) if isinstance(va, (int, float)) and isinstance(vb, (int, float)) else None
-            v = 'not comparable' if key in nc else verdict(va, vb, better, band)
+            why = rnc.get(robot, {}).get(key) or nc.get(key)
+            v = 'not comparable' if why else verdict(va, vb, better, band)
             out.append(dict(key=key, section=sec, label=label, unit=unit, robot=robot, a=va, b=vb, change=ch,
-                            n_a=na, n_b=nb, better=better, verdict=v, sub=sub, why=nc.get(key), note=notes.get(key)))
+                            n_a=na, n_b=nb, better=better, verdict=v, sub=sub, why=why, note=notes.get(key)))
     return out
 
 
@@ -295,6 +298,13 @@ def insights(rows, A, B):
     for t in TEAMS:
         x = B.rows('nectar', t)
         if x and x[0].get('own_nectar_in', 0) >= 3 and x[0].get('own_nectar_launched') == 0:
+            r = _r(rows, 'nectar_own', t)
+            if r and r['verdict'] == 'not comparable':
+                out.append(dict(title='%s kept only POLLEN, as set' % TEAMS[t], robot=t, tone='same',
+                                text='%s It spat out all %d of its own NECTAR it took in and all %d enemy NECTAR '
+                                     'it saw: the reject did what it was set to do.'
+                                     % (r['why'], x[0]['own_nectar_in'], x[0]['opposing_rejected'])))
+                continue
             other = [B.rows('nectar', o)[0] for o in TEAMS if o != t and B.rows('nectar', o)]
             out.append(dict(title='%s launched none of its own NECTAR' % TEAMS[t], robot=t, tone='worse',
                             text='0 of %d it took in%s. It rejected all %d enemy NECTAR it saw, so the colour sorting '

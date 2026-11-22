@@ -16,7 +16,12 @@
     "later": "The feed itself: the one number that should not move, and did not.",
     "cycle_full": "Fruitport's manual volleys are timed from the driver's Circle (PR #693); Belding's from the operator's FIRE.",
     "cycle_early": "As above: the press that starts a manual volley changed.",
-    "stuck": "#506 detector gate openings that launched nothing while /Lane/Present read a piece.",
-    "slip": "Within one robot only: the two robots' wheel encoders read differently."
+    "stuck": "#506 detector gate openings that launched nothing while /Lane/Present read a piece. Includes the gate opening during an unjam (feeder reversed), and a rejected NECTAR wedged under the sensor (M-1): checked on video and log, 22 Nov.",
+    "slip": "Within one robot only: 20245's back-left wheel encoder reads 0 at both events, so its four-wheel mean runs about a quarter low and its ratio about a third high."
+  },
+  "robot_not_comparable": {
+    "19429": {
+      "nectar_own": "19429 was set to keep only POLLEN on 21 Nov (RobotDifferences: rejectAllNectar), so its reject spits out both NECTAR colours, ours too."
+    }
   }
 }
