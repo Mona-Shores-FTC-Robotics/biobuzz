@@ -47,6 +47,36 @@ this is not a claim that every unchecked item below has passed.
       within about 5 ticks/s from 42 to 55 in, so it starts at 0. **Stop:** long or short at every
       range by the same amount → that amount is its new `RobotDifferences` offset line.
 
+## 19429's feed jams (Fruitport, 21 Nov): before the State Championship
+
+From the 7 Fruitport match logs and the per-match video reviews (PR with `FeedJamClear`). 19429
+stuck in 22 feeds of its match and practice logs, 20245 in 1 of 37 logs. Two signatures, both with
+the gate open, the launcher at speed (no wheel stall and no brownout in any of them: every wheel
+drop below 1000 ticks/s was the driver's eject reversing the launcher) and a piece sitting under
+the lane's entry sensor: **(a) entry wedge**, the roller grinding at 3.6–10 A on the piece at the
+entry (M-6's preloads 2 of 4, M-6 A 17.5 and T 15.2, Q-39 A 23.6, Q-2 A 23.3); **(b) stack still,
+roller free** at 0.3 A, the feeder never loaded (M-1's 4 preloads, gate open 3.5 s, 0 out; Q-23
+T 88–104). Each time the driver's eject freed it and the next feed fired. The 18 Nov "Feed jam"
+step below was never ticked: this is the same fault.
+
+- [ ] **Find where it binds** (cover off, phone filming the lane from the side, slow motion).
+      Load 4 POLLEN, sit 3 minutes as a long INIT does, then **Bench: Launch Test** and fire; ten
+      times, half with the 4th piece pushed in hard by hand. **Good:** all 4 leave every time.
+      **Stop:** note where the last piece stops: between the roller/stars and the prefeed wheel
+      (signature a), or the stack at the prefeed or the gate (b), and fix the guide or spacing there.
+- [ ] **Right star wheel turns inward.** `IntakeSubsystem.starsRightReversed` is still the
+      13 Nov guess. Intake on, watch both star wheels. **Good:** both turn a piece inward.
+      **Stop:** the right one turns outward → flip it in Panels and add a `RobotDifferences` line.
+- [ ] **Gate opens fully with a load.** With 4 POLLEN in, fire and watch the gate: the servo is
+      sent 1.0 but nothing reads where it went. **Stop:** it stays part-closed on the first piece.
+- [ ] **A stuck feed backs itself out** (`FeedJamClear`; `IntakeSubsystem.clearFeedJam`, on). A
+      feed with the piece at the entry still and no shot for 1.2 s (`feedJamMs`) backs the roller,
+      the stars and the prefeed out for 0.25 s (`feedJamBackMs`), at most twice a feed. Make a jam
+      as above, or hold the last piece by hand, and fire. **Good:** the log says `feed: stuck …
+      backing the lane out, clear N`, the piece then feeds, and a normal volley never logs it.
+      **Stop:** it throws a piece out of the intake, or does not free the jam → try 400 ms, then
+      note what the eject does that this does not (it also reverses the feeder and the launcher).
+
 ## Tonight (18 Nov): 19429, in this order
 
 Each step stands alone: what to run, what good looks like, when to stop. Push the logs

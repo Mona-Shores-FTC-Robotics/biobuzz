@@ -110,7 +110,7 @@ KNOBS = ['LauncherSubsystem.targetTicksPerSecond', 'FeederSubsystem.feedPower', 
          'FeederSubsystem.reversePower', 'LaunchCards.launchAllFeedS', 'PrefeedSubsystem.inPower',
          'PrefeedSubsystem.gateClearSeconds', 'PrefeedSubsystem.gateClearPower', 'LauncherSubsystem.leftReversed',
          'LauncherSubsystem.rightReversed', 'LauncherSubsystem.toleranceTicksPerSecond']
-EVENT_WORDS = ['battery', 'launch', 'fed', 'fault', 'play', 'stall', 'never moved', 'auto:', 'timed out']
+EVENT_WORDS = ['battery', 'launch', 'fed', 'fault', 'play', 'stall', 'stuck', 'never moved', 'auto:', 'timed out']
 
 
 def summary(path):
