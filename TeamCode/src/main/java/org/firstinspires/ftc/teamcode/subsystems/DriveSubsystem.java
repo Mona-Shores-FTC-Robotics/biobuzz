@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.algorithm.Foresight;
+import com.pedropathing.algorithm.ForesightPowerAllocator;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
@@ -224,6 +226,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /** Built by {@link #preparePathFollowing()}; null until then. */
     private Follower follower;
+    /** The follower's Foresight, for what it asked of the wheels ({@link #pathDriveRequest}); null until then. */
+    private Foresight foresight;
     /** The path last given to {@link #follow}, for progress. */
     private Path followedPath;
     /** True while a path or hold, not the sticks, drives the robot. */
@@ -778,7 +782,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         if (localizer == null) {
             throw new IllegalStateException("Following a path needs the Pinpoint: " + localizerFault);
         }
-        follower = new Follower(localizer, drivetrain, Constants.createAlgorithm());
+        foresight = Constants.createAlgorithm();
+        follower = new Follower(localizer, drivetrain, foresight);
     }
 
     /**
@@ -831,6 +836,50 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /** Drive wheel {@code i}'s encoder speed, ticks/s (0 FL, 1 FR, 2 BL, 3 BR), as of the last read. */
     public double wheelTicksPerSec(int i) { return wheelTicksPerSec[i]; }
+
+    /**
+     * Drive wheel {@code i}'s power as Pedro's drivetrain last set it (0 FL, 1 FR, 2 BL, 3 BR),
+     * under a path or the sticks: the number the motor was given, after Pedro scaled the four to
+     * fit in 1. Read from the drivetrain's own array, so no hardware read.
+     */
+    public double wheelPower(int i) { return drivetrain.wheelPowers[i]; }
+
+    // What Foresight asked for on this loop's path step, before it fit the requests into the
+    // wheels' power, highest priority first (heading feedforward, path correction, drive, heading
+    // feedback). Beside the wheel powers they say why a path drives slowly: drive asked 1 and the
+    // wheels got less (a turn or a correction took the power), or the wheels got 1 and the robot
+    // still sped up slowly (the motors and the battery). NaN unless a path is being followed.
+
+    /** The drive along the path: 1 is full power; negative while Foresight brakes for the end. */
+    public double pathDriveRequest() {
+        ForesightPowerAllocator a = followingAllocator();
+        if (a == null || a.getDriveVector() == null) return Double.NaN;
+        double m = a.getDriveVector().magnitude();
+        return foresight.isBraking() ? -m : m;
+    }
+
+    /** The turn asked for, feedforward and feedback together. */
+    public double pathHeadingRequest() {
+        ForesightPowerAllocator a = followingAllocator();
+        return a == null ? Double.NaN : a.getHeadingFeedforward() + a.getHeadingPower();
+    }
+
+    /** The push back onto the path, the size of the correction asked for. */
+    public double pathCorrectionRequest() {
+        ForesightPowerAllocator a = followingAllocator();
+        if (a == null || a.getTranslationalVector() == null) return Double.NaN;
+        return a.getTranslationalVector().magnitude();
+    }
+
+    /** The speed Foresight aimed for along the path, inches/s. */
+    public double pathTargetInPerSec() {
+        return followingAllocator() == null ? Double.NaN : foresight.targetVelocity();
+    }
+
+    private ForesightPowerAllocator followingAllocator() {
+        return follower != null && pathControl && followedPath != null && follower.following()
+                ? foresight.allocator : null;
+    }
 
     /** Whether the sticks' command was field-centric (then {@link #appliedForward} is field "away"). */
     public boolean commandFieldCentric() {

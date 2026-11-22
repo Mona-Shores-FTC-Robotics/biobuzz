@@ -342,6 +342,8 @@ public abstract class RobotOpMode extends OpMode {
     private static final String[] WHEEL_KEYS = {"/Drive/WheelTicksPerSec/FrontLeft",
             "/Drive/WheelTicksPerSec/FrontRight", "/Drive/WheelTicksPerSec/BackLeft",
             "/Drive/WheelTicksPerSec/BackRight"};
+    private static final String[] WHEEL_POWER_KEYS = {"/Drive/WheelPower/FrontLeft",
+            "/Drive/WheelPower/FrontRight", "/Drive/WheelPower/BackLeft", "/Drive/WheelPower/BackRight"};
     private final Throttle frameRate = new Throttle(1000, 0);
     private long frameRateCount;
     private long frameRateNs;
@@ -1400,6 +1402,12 @@ public abstract class RobotOpMode extends OpMode {
         // Beside CommandTurn: a turn rate nobody commanded is the clearest sign of a hit (#498).
         log.put("/Drive/OdometryTurnRadPerSec", robot.drive.odometryTurnRadPerSec());
         for (int i = 0; i < WHEEL_KEYS.length; i++) log.put(WHEEL_KEYS[i], robot.drive.wheelTicksPerSec(i));
+        // Why a path drives slowly: what Foresight asked for, and what each wheel was given.
+        for (int i = 0; i < WHEEL_POWER_KEYS.length; i++) log.put(WHEEL_POWER_KEYS[i], robot.drive.wheelPower(i));
+        log.put("/Drive/Path/Drive", robot.drive.pathDriveRequest());
+        log.put("/Drive/Path/Heading", robot.drive.pathHeadingRequest());
+        log.put("/Drive/Path/Correction", robot.drive.pathCorrectionRequest());
+        log.put("/Drive/Path/TargetInPerSec", robot.drive.pathTargetInPerSec());
         log.put("/FlowerStick/Out", robot.flowerStick.extended() ? 1 : 0);
         log.put("/FlowerStick/Powered", robot.flowerStick.limp() ? 0 : 1);
         log.put("/FlowerStick/RollerPower", robot.flowerStick.rollerPowerNow());
