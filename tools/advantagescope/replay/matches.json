@@ -2,6 +2,31 @@
   "_comment": "Which log is which match, and where its Auto starts in the video. video_start: the time in the video when Auto starts (h:mm:ss.s, the moment the robots start moving). Leave it empty and open-match lines it up from the stream's scoreboard (the transition's hand marks the end of Auto); start_utc, the stream's own start time and the event's video_shift_s only say where to look, and are the fallback when the hand is not found. Once a match looks right, type the video_start open-match printed. logs: the events/* branch that keeps the event's logs (<team>/matches/<file>), tried before the throwaway logs/* branch the log names. Rows come from maintain/find_matches.py.",
   "events": [
     {
+      "event": "USMIFRQ2",
+      "name": "Fruitport Qualifier",
+      "date": "2026-11-21",
+      "video": "https://www.youtube.com/watch?v=wW1FrvaVe4E",
+      "video_shift_s": 0,
+      "logs": "events/2026-11-fruitport",
+      "matches": [
+        {"match": "Q-2", "team": 19429, "alliance": "Red", "start_utc": "2026-11-21T16:03:27.536Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_11-01-37_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "Q-4", "team": 20245, "alliance": "Red", "start_utc": "2026-11-21T16:15:25.052Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_11-12-37_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "Q-11", "team": 20245, "alliance": "Blue", "start_utc": "2026-11-21T16:58:21.404Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_11-58-05_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "Q-17", "team": 19429, "alliance": "Red", "start_utc": "2026-11-21T18:19:10.831Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_13-23-03_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "Q-20", "team": 20245, "alliance": "Blue", "start_utc": "2026-11-21T18:34:34.646Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_13-34-34_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "Q-23", "team": 19429, "alliance": "Blue", "start_utc": "2026-11-21T18:48:45.363Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_13-53-40_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "Q-28", "team": 19429, "alliance": "Blue", "start_utc": "2026-11-21T19:13:33.563Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_14-20-15_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "Q-28", "team": 20245, "alliance": "Red", "start_utc": "2026-11-21T19:13:33.563Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_14-13-02_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "Q-39", "team": 19429, "alliance": "Red", "start_utc": "2026-11-21T20:05:20.689Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_15-10-02_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "Q-42", "team": 20245, "alliance": "Red", "start_utc": "2026-11-21T20:20:25.672Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_15-20-25_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "M-1", "team": 19429, "alliance": "Red", "start_utc": "2026-11-21T21:21:57.890Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_16-28-50_L-NoCross_11-18_3_40PM.wpilog.gz"},
+        {"match": "M-3", "team": 20245, "alliance": "Red", "start_utc": "2026-11-21T21:35:03.156Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_16-34-53_R-NoCross_11-18_9_06PM.wpilog.gz"},
+        {"match": "M-6", "team": 19429, "alliance": "Blue", "start_utc": "2026-11-21T21:54:46.262Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_16-59-40_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "M-7", "team": 20245, "alliance": "Red", "start_utc": "2026-11-21T22:00:18.802Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_16-58-32_R-NoCross_11-18_9_06PM.wpilog.gz"},
+        {"match": "M-10", "team": 20245, "alliance": "Red", "start_utc": "2026-11-21T22:37:38.342Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_17-35-45_R-NoCross_11-18_9_06PM.wpilog.gz"}
+      ]
+    },
+    {
       "event": "USMIBEQ",
       "name": "Belding Qualifier",
       "date": "2026-11-07",
