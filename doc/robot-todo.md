@@ -1187,6 +1187,14 @@ measurement is [#255].
       TIPs, never in a log without a TIP. Then a swing trigger can be built. **Stop:** the lead is
       under 0.5 s or the height wanders as much with nothing tipping → the camera cannot tell; leave
       R-NoCross as it is.
+      **Fruitport, from the logs (22 Nov 2026):** `cells` misleads here: most "settles" are the camera
+      turning onto a CELL that had already tipped, not a swing it watched. Use `rising` and `creep`
+      instead (`tools/pull-logs/README.md`, "CELL swings"). A rising CELL's tags came into view at
+      about 39-42 in, a median 0.65 s before it read UP (23 rises; 0.55-1.3 s in the 8 with the robot
+      still and the turret steady). An UP CELL's row crept 0.5 in below rest 0.4, 1.8 and 2.1 s
+      before it passed mid-swing, in the only 3 falls watched still; at 1 in the lead was no better
+      than the tracker's own. So the lab test is still needed, for the creep; the rise is enough to
+      try a "seen rising" trigger in the simulator.
 - [ ] **Camera calibration:** done from the Belding and Fruitport logs (22 Nov 2026, `mountfit.py`); see
       the camera-mount check in the 19429 list above. No R1 run needed.
 - [ ] **Continuous fixes, on the home field, before States** (22 Nov 2026). Every run already scores them:
